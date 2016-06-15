@@ -71,7 +71,7 @@
         {
             public SubscriberA()
             {
-                EndpointSetup<DefaultServer>(c => { c.UnicastRouting().AddPublisher(PublisherEndpoint, typeof(MyEvent)); });
+                EndpointSetup<DefaultServer>(c => { c.RegisterPublisherForType(PublisherEndpoint, typeof(MyEvent)); });
             }
 
             public class MyEventHandler : IHandleMessages<MyEvent>
@@ -90,7 +90,7 @@
         {
             public SubscriberB()
             {
-                EndpointSetup<DefaultServer>(c => { c.UnicastRouting().AddPublisher(PublisherEndpoint, typeof(MyEvent)); });
+                EndpointSetup<DefaultServer>(c => { c.RegisterPublisherForType(PublisherEndpoint, typeof(MyEvent)); });
             }
 
             public class MyEventHandler : IHandleMessages<MyEvent>

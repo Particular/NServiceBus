@@ -34,8 +34,8 @@
             {
                 EndpointSetup<DefaultServer>(c =>
                 {
-                    c.UnicastRouting().RouteToEndpoint(typeof(MyRequest), ReceiverEndpoint);
-                    c.UnicastRouting().Mapping.Physical.Add(new EndpointInstance(ReceiverEndpoint, "XYZ"));
+                    c.Routing().RouteToEndpoint(typeof(MyRequest), ReceiverEndpoint);
+                    c.Routing().Mapping.Physical.Add(new EndpointInstance(ReceiverEndpoint, "XYZ"));
                     c.AddHeaderToAllOutgoingMessages("NServiceBus.Distributor.WorkerSessionId", "SomeID");
                 });
             }

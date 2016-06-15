@@ -37,10 +37,10 @@
             {
                 EndpointSetup<DefaultServer>(c =>
                 {
-                    c.UnicastRouting().RouteToEndpoint(typeof(Request), ReceiverEndpoint);
+                    c.Routing().RouteToEndpoint(typeof(Request), ReceiverEndpoint);
 
-                    c.UnicastRouting().Mapping.SetMessageDistributionStrategy(ReceiverEndpoint, new AllInstancesDistributionStrategy());
-                    c.UnicastRouting().Mapping.Physical.Add(
+                    c.Routing().Mapping.SetMessageDistributionStrategy(ReceiverEndpoint, new AllInstancesDistributionStrategy());
+                    c.Routing().Mapping.Physical.Add(
                         new EndpointInstance(ReceiverEndpoint, "1"),
                         new EndpointInstance(ReceiverEndpoint, "2"));
                 });

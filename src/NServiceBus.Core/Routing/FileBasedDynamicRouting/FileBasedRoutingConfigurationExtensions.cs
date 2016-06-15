@@ -1,6 +1,7 @@
 namespace NServiceBus
 {
     using Features;
+    using Settings;
 
     /// <summary>
     /// Extension methods to configure dynamic routing.
@@ -12,11 +13,16 @@ namespace NServiceBus
         /// </summary>
         public static FileRoutingTableSettings DistributeMessagesUsingFileBasedEndpointInstanceMapping(this RoutingMappingSettings config, string filePath)
         {
+            return EnableFileBasedRouting(config.Settings, filePath);
+        }
+
+        internal static FileRoutingTableSettings EnableFileBasedRouting(SettingsHolder settings, string filePath)
+        {
             Guard.AgainstNull(nameof(filePath), filePath);
 
-            config.Settings.EnableFeature(typeof(FileRoutingTableFeature));
-            config.Settings.Set(FileRoutingTableFeature.FilePathSettingsKey, filePath);
-            return new FileRoutingTableSettings(config.Settings);
+            settings.EnableFeature(typeof(FileRoutingTableFeature));
+            settings.Set(FileRoutingTableFeature.FilePathSettingsKey, filePath);
+            return new FileRoutingTableSettings(settings);
         }
     }
 }

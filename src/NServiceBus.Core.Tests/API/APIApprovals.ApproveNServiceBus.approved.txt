@@ -729,6 +729,13 @@ namespace NServiceBus
         public MessageDeserializationException(string transportMessageId, System.Exception innerException) { }
         protected MessageDeserializationException(System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context) { }
     }
+    public class static MessageDrivenPubSubExtensions
+    {
+        public static void RegisterPublisherForAssembly<T>(this NServiceBus.TransportExtensions<T> extensions, string publisherEndpoint, System.Reflection.Assembly eventAssembly, string eventNamespace = null)
+            where T : NServiceBus.Transports.TransportDefinition, NServiceBus.Routing.IMessageDrivenSubscriptionTransport { }
+        public static void RegisterPublisherForType<T>(this NServiceBus.TransportExtensions<T> extensions, string publisherEndpoint, System.Type eventType)
+            where T : NServiceBus.Transports.TransportDefinition, NServiceBus.Routing.IMessageDrivenSubscriptionTransport { }
+    }
     public class static MessageDrivenSubscriptionsConfigExtensions
     {
         public static void SubscriptionAuthorizer(this NServiceBus.TransportExtensions transportExtensions, System.Func<NServiceBus.Pipeline.IIncomingPhysicalMessageContext, bool> authorizer) { }
@@ -756,7 +763,7 @@ namespace NServiceBus
         public static NServiceBus.FileRoutingTableSettings DistributeMessagesUsingFileBasedEndpointInstanceMapping(this NServiceBus.TransportExtensions<NServiceBus.MsmqTransport> config, string filePath) { }
         public static NServiceBus.TransportExtensions<NServiceBus.MsmqTransport> TransactionScopeOptions(this NServiceBus.TransportExtensions<NServiceBus.MsmqTransport> transportExtensions, System.Nullable<System.TimeSpan> timeout = null, System.Nullable<System.Transactions.IsolationLevel> isolationLevel = null) { }
     }
-    public class MsmqTransport : NServiceBus.Transports.TransportDefinition
+    public class MsmqTransport : NServiceBus.Transports.TransportDefinition, NServiceBus.Routing.IMessageDrivenSubscriptionTransport
     {
         public MsmqTransport() { }
         public override string ExampleConnectionStringForErrorMessage { get; }
@@ -856,7 +863,6 @@ namespace NServiceBus
     {
         public NServiceBus.Routing.UnicastRoutingTable Logical { get; }
         public NServiceBus.Routing.EndpointInstances Physical { get; }
-        public NServiceBus.Routing.MessageDrivenSubscriptions.Publishers Publishers { get; }
         public void SetMessageDistributionStrategy(string endpointName, NServiceBus.Routing.DistributionStrategy distributionStrategy) { }
     }
     public class static RoutingOptionExtensions
@@ -884,9 +890,14 @@ namespace NServiceBus
         public static void SetDestination(this NServiceBus.SendOptions options, string destination) { }
         public static void SetDestination(this NServiceBus.ReplyOptions options, string destination) { }
     }
+    public class RoutingSettings : NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings
+    {
+        public NServiceBus.RoutingMappingSettings Mapping { get; }
+        public void RouteToEndpoint(System.Type messageType, string destination) { }
+    }
     public class static RoutingSettingsExtensions
     {
-        public static NServiceBus.UnicastRoutingSettings UnicastRouting(this NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings config) { }
+        public static NServiceBus.RoutingSettings Routing(this NServiceBus.EndpointConfiguration config) { }
     }
     public abstract class Saga
     {
@@ -1099,13 +1110,6 @@ namespace NServiceBus
         ReceiveOnly = 1,
         SendsAtomicWithReceive = 2,
         TransactionScope = 3,
-    }
-    public class UnicastRoutingSettings : NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings
-    {
-        public NServiceBus.RoutingMappingSettings Mapping { get; }
-        public void AddPublisher(string publisherEndpoint, System.Type eventType) { }
-        public void AddPublisher(string publisherEndpoint, System.Reflection.Assembly eventAssembly, string eventNamespace = null) { }
-        public void RouteToEndpoint(System.Type messageType, string destination) { }
     }
     public sealed class UnicastRoutingTarget
     {
@@ -2464,6 +2468,7 @@ namespace NServiceBus.Routing
         public void Add(NServiceBus.Routing.EndpointInstance instance) { }
         public void AddDynamic(System.Func<string, System.Threading.Tasks.Task<System.Collections.Generic.IEnumerable<NServiceBus.Routing.EndpointInstance>>> dynamicRule) { }
     }
+    public interface IMessageDrivenSubscriptionTransport { }
     public interface IUnicastRoute
     {
         System.Threading.Tasks.Task<System.Collections.Generic.IEnumerable<NServiceBus.UnicastRoutingTarget>> Resolve(System.Func<string, System.Threading.Tasks.Task<System.Collections.Generic.IEnumerable<NServiceBus.Routing.EndpointInstance>>> instanceResolver);

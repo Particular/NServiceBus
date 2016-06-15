@@ -2,7 +2,6 @@ namespace NServiceBus
 {
     using Configuration.AdvanceExtensibility;
     using Routing;
-    using Routing.MessageDrivenSubscriptions;
     using Settings;
 
     /// <summary>
@@ -24,12 +23,7 @@ namespace NServiceBus
         /// Gets the known endpoints collection.
         /// </summary>
         public EndpointInstances Physical => GetOrCreate<EndpointInstances>();
-
-        /// <summary>
-        /// Gets the publisher settings.
-        /// </summary>
-        public Publishers Publishers => GetOrCreate<Publishers>();
-
+        
         /// <summary>
         /// Sets a distribution strategy for a given endpoint.
         /// </summary>

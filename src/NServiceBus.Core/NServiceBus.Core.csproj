@@ -131,6 +131,8 @@
     <Compile Include="ReleaseDateAttribute.cs" />
     <Compile Include="Recoverability\ProcessingFailureInfo.cs" />
     <Compile Include="Routing\IDistributionPolicy.cs" />
+    <Compile Include="Routing\MessageDrivenSubscriptions\IMessageDrivenSubscriptionTransport.cs" />
+    <Compile Include="Routing\MessageDrivenSubscriptions\MessageDrivenPubSubExtensions.cs" />
     <Compile Include="Routing\RoutingMappingSettings.cs" />
     <Compile Include="Routing\SpecificInstanceDistributionPolicy.cs" />
     <Compile Include="Routing\UnicastPublishRouter.cs" />
@@ -279,7 +281,7 @@
     <Compile Include="Transports\Sending.cs" />
     <Compile Include="Transports\TransportAddresses.cs" />
     <Compile Include="Routing\UnicastRoutingTable.cs" />
-    <Compile Include="Routing\UnicastRoutingSettings.cs" />
+    <Compile Include="Routing\RoutingSettings.cs" />
     <Compile Include="Routing\RoutingSettingsExtensions.cs" />
     <Compile Include="TaskEx.cs" />
     <Compile Include="Pipeline\Outgoing\IDispatchContext.cs" />

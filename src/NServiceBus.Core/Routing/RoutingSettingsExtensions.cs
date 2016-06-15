@@ -1,7 +1,5 @@
 ﻿namespace NServiceBus
 {
-    using Configuration.AdvanceExtensibility;
-
     /// <summary>
     /// Configuration extensions for routing.
     /// </summary>
@@ -10,10 +8,10 @@
         /// <summary>
         /// Controls the unicast routing.
         /// </summary>
-        public static UnicastRoutingSettings UnicastRouting(this ExposeSettings config)
+        public static RoutingSettings Routing(this EndpointConfiguration config)
         {
             Guard.AgainstNull(nameof(config), config);
-            return new UnicastRoutingSettings(config.Settings);
+            return new RoutingSettings(config.Settings);
         }        
     }
 }

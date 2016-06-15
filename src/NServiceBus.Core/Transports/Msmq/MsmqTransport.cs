@@ -1,12 +1,13 @@
 namespace NServiceBus
 {
+    using Routing;
     using Settings;
     using Transports;
 
     /// <summary>
     /// Transport definition for MSMQ.
     /// </summary>
-    public class MsmqTransport : TransportDefinition
+    public class MsmqTransport : TransportDefinition, IMessageDrivenSubscriptionTransport
     {
         /// <summary>
         /// <see cref="TransportDefinition.ExampleConnectionStringForErrorMessage" />.
