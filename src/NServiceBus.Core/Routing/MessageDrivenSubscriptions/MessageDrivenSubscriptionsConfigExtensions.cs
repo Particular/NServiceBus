@@ -1,8 +1,10 @@
 namespace NServiceBus
 {
     using System;
+    using System.Reflection;
     using Pipeline;
     using Routing;
+    using Routing.MessageDrivenSubscriptions;
     using Settings;
     using Transports;
 
@@ -34,6 +36,29 @@ namespace NServiceBus
             Func<IIncomingPhysicalMessageContext, bool> authorizer;
             settings.TryGet("SubscriptionAuthorizer", out authorizer);
             return authorizer;
+        }
+
+        /// <summary>
+        /// Registers a publisherEndpoint endpoint for a given endpoint type.
+        /// </summary>
+        /// <param name="extensions">Extensions object.</param>
+        /// <param name="publisherEndpoint">Publisher endpoint.</param>
+        /// <param name="eventType">Event type.</param>
+        public static void RegisterPublisherForType<T>(this TransportExtensions<T> extensions, string publisherEndpoint, Type eventType) where T : TransportDefinition, IMessageDrivenSubscriptionTransport
+        {
+            extensions.Settings.GetOrCreate<Publishers>().Add(publisherEndpoint, eventType);
+        }
+
+        /// <summary>
+        /// Registers a publisherEndpoint for all events in a given assembly (and optionally namespace).
+        /// </summary>
+        /// <param name="extensions">Extensions.</param>
+        /// <param name="publisherEndpoint">Publisher endpoint.</param>
+        /// <param name="eventAssembly">Assembly containing events.</param>
+        /// <param name="eventNamespace">Optional namespace containing events.</param>
+        public static void RegisterPublisherForAssembly<T>(this TransportExtensions<T> extensions, string publisherEndpoint, Assembly eventAssembly, string eventNamespace = null) where T : TransportDefinition, IMessageDrivenSubscriptionTransport
+        {
+            extensions.Settings.GetOrCreate<Publishers>().Add(publisherEndpoint, eventAssembly, eventNamespace);
         }
     }
 }
