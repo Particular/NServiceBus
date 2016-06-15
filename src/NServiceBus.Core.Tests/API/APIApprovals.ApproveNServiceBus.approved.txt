@@ -2789,6 +2789,8 @@ namespace NServiceBus.Settings
         public T Get<T>(string key) { }
         public T Get<T>() { }
         public object Get(string key) { }
+        public T GetOrCreate<T>()
+            where T :  class, new () { }
         public T GetOrDefault<T>() { }
         public T GetOrDefault<T>(string key) { }
         public bool HasExplicitValue(string key) { }

@@ -261,7 +261,6 @@
 
             var lookupValues = context.Extensions.GetOrCreate<SagaLookupValues>();
 
-
             SagaLookupValues.LookupValue value;
             if (lookupValues.TryGet(sagaEntityType, out value))
             {
