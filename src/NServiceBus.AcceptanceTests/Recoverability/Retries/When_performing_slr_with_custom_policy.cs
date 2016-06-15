@@ -8,8 +8,6 @@
     using EndpointTemplates;
     using Features;
     using NUnit.Framework;
-    using Transports;
-    using ErrorContext= System.Tuple<Transports.IncomingMessage, System.Exception, int>;
 
     public class When_performing_slr_with_custom_policy : NServiceBusAcceptanceTest
     {
@@ -24,18 +22,18 @@
                 .Run();
 
             Assert.That(context.HeaderValues.Count, Is.EqualTo(2), "because the custom policy should have been invoked twice");
-            Assert.That(context.HeaderValues[0].Item1, Is.Not.Null);
-            Assert.That(context.HeaderValues[0].Item2, Is.TypeOf<SimulatedException>());
-            Assert.That(context.HeaderValues[0].Item3, Is.EqualTo(1));
-            Assert.That(context.HeaderValues[1].Item1, Is.Not.Null);
-            Assert.That(context.HeaderValues[1].Item2, Is.TypeOf<SimulatedException>());
-            Assert.That(context.HeaderValues[1].Item3, Is.EqualTo(2));
+            Assert.That(context.HeaderValues[0].Message, Is.Not.Null);
+            Assert.That(context.HeaderValues[0].Exception, Is.TypeOf<SimulatedException>());
+            Assert.That(context.HeaderValues[0].SecondLevelRetryAttempt, Is.EqualTo(1));
+            Assert.That(context.HeaderValues[1].Message, Is.Not.Null);
+            Assert.That(context.HeaderValues[1].Exception, Is.TypeOf<SimulatedException>());
+            Assert.That(context.HeaderValues[1].SecondLevelRetryAttempt, Is.EqualTo(2));
         }
 
         class Context : ScenarioContext
         {
             public bool MessageMovedToErrorQueue { get; set; }
-            public List<ErrorContext> HeaderValues { get; set; } = new List<ErrorContext>();
+            public List<SecondLevelRetryContext> HeaderValues { get; } = new List<SecondLevelRetryContext>();
         }
 
         class Endpoint : EndpointConfigurationBuilder
@@ -60,9 +58,9 @@
                     this.context = context;
                 }
 
-                public TimeSpan GetDelay(IncomingMessage msg, Exception exception, int retryAttempt)
+                public TimeSpan GetDelay(SecondLevelRetryContext slrRetryContext)
                 {
-                    context.HeaderValues.Add(new ErrorContext(msg, exception, retryAttempt));
+                    context.HeaderValues.Add(slrRetryContext);
 
                     if (slrRetries++ == 1)
                     {

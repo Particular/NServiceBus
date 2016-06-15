@@ -7,7 +7,6 @@ namespace NServiceBus.AcceptanceTests.Recoverability.Retries
     using Features;
     using NServiceBus.Config;
     using NUnit.Framework;
-    using Transports;
 
     public class When_performing_slr_with_min_policy : NServiceBusAcceptanceTest
     {
@@ -46,7 +45,7 @@ namespace NServiceBus.AcceptanceTests.Recoverability.Retries
                     .WithConfig<SecondLevelRetriesConfig>(c => c.TimeIncrease = TimeSpan.FromMilliseconds(1));
             }
 
-            static TimeSpan RetryPolicy(IncomingMessage transportMessage)
+            static TimeSpan RetryPolicy(SecondLevelRetryContext slrRetryContext)
             {
                 return TimeSpan.MinValue;
             }

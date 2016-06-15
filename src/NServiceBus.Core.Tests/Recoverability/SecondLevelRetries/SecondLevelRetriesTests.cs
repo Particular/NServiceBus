@@ -17,9 +17,6 @@
     [TestFixture]
     public class SecondLevelRetriesTests
     {
-        FakeDispatchPipeline dispatchPipeline;
-        FailureInfoStorage failureInfoStorage;
-
         [SetUp]
         public void SetUp()
         {
@@ -56,7 +53,7 @@
             var behavior = new SecondLevelRetriesBehavior(new FakePolicy(delay), string.Empty, failureInfoStorage);
 
             await behavior.Invoke(context, () => { throw new Exception(); });
-            await behavior.Invoke(context, () => Task.FromResult(0) );
+            await behavior.Invoke(context, () => Task.FromResult(0));
 
             var retryTimestampHeader = dispatchPipeline.MessageHeaders.ContainsKey(Headers.RetriesTimestamp)
                 ? dispatchPipeline.MessageHeaders[Headers.RetriesTimestamp]
@@ -100,7 +97,7 @@
 
             var retryPolicy = new FakePolicy(TimeSpan.FromSeconds(5));
             var behavior = new SecondLevelRetriesBehavior(retryPolicy, string.Empty, failureInfoStorage);
-            
+
             await behavior.Invoke(context, () => { throw new Exception("testex"); });
             await behavior.Invoke(context, () => Task.FromResult(0));
 
@@ -121,9 +118,9 @@
                 c.Message.Body = Encoding.UTF8.GetBytes("modified");
                 throw new Exception();
             });
-      
+
             await behavior.Invoke(context, () => Task.FromResult(0));
-            
+
             CollectionAssert.AreEqual(originalContent, context.Message.Body);
         }
 
@@ -132,10 +129,9 @@
         {
             var message = CreateMessage(slrRetryHeader: "1");
             var context = CreateContext(message);
-            
+
             var behavior = new SecondLevelRetriesBehavior(new FakePolicy(TimeSpan.FromSeconds(5)), string.Empty, failureInfoStorage);
             var calledTwice = false;
-
 
             await behavior.Invoke(context, () => { throw new Exception(); });
             await behavior.Invoke(context, () =>
@@ -190,7 +186,10 @@
         {
             var headers = string.IsNullOrEmpty(slrRetryHeader)
                 ? new Dictionary<string, string>()
-                : new Dictionary<string, string> { { Headers.Retries, slrRetryHeader }};
+                : new Dictionary<string, string>
+                {
+                    {Headers.Retries, slrRetryHeader}
+                };
 
             return new IncomingMessage(id, headers, new MemoryStream(body ?? new byte[0]));
         }
@@ -199,7 +198,6 @@
         {
             return CreateContext(CreateMessage());
         }
-
 
         TestableTransportReceiveContext CreateContext(IncomingMessage incomingMessage, FakeEventAggregator eventAggregator = null)
         {
@@ -213,6 +211,9 @@
 
             return context;
         }
+
+        FakeDispatchPipeline dispatchPipeline;
+        FailureInfoStorage failureInfoStorage;
     }
 
     class FakePipelineCache : IPipelineCache
@@ -240,7 +241,7 @@
 
         public TimeSpan MessageDeliveryDelay => ((DelayDeliveryWith) RoutingContext.Extensions.GetDeliveryConstraints().Single(c => c is DelayDeliveryWith)).Delay;
 
-        public string MessageDestination => ((UnicastAddressTag)RoutingContext.RoutingStrategies.First().Apply(new Dictionary<string, string>())).Destination;
+        public string MessageDestination => ((UnicastAddressTag) RoutingContext.RoutingStrategies.First().Apply(new Dictionary<string, string>())).Destination;
 
         public Dictionary<string, string> MessageHeaders => RoutingContext.Message.Headers;
 
@@ -266,9 +267,9 @@
 
         public int InvokedWithCurrentRetry { get; private set; }
 
-        public override bool TryGetDelay(IncomingMessage message, Exception ex, int currentRetry, out TimeSpan delay)
+        public override bool TryGetDelay(SecondLevelRetryContext slrRetryContext, out TimeSpan delay)
         {
-            InvokedWithCurrentRetry = currentRetry;
+            InvokedWithCurrentRetry = slrRetryContext.SecondLevelRetryAttempt;
 
             if (!delayToReturn.HasValue)
             {
