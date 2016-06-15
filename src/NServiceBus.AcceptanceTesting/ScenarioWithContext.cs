@@ -54,19 +54,12 @@ namespace NServiceBus.AcceptanceTesting
             var sw = new Stopwatch();
 
             sw.Start();
-            await ScenarioRunner.Run(runDescriptors, behaviors, shoulds, done, limitTestParallelismTo, reports, allowedExceptions).ConfigureAwait(false);
+            await ScenarioRunner.Run(runDescriptors, behaviors, shoulds, done, reports, allowedExceptions).ConfigureAwait(false);
             sw.Stop();
 
             Console.WriteLine("Total time for testrun: {0}", sw.Elapsed);
 
             return runDescriptors.Select(r => (TContext) r.ScenarioContext);
-        }
-
-        public IAdvancedScenarioWithEndpointBehavior<TContext> MaxTestParallelism(int maxParallelism)
-        {
-            limitTestParallelismTo = maxParallelism;
-
-            return this;
         }
 
         public IAdvancedScenarioWithEndpointBehavior<TContext> Should(Action<TContext> should)
@@ -155,7 +148,6 @@ namespace NServiceBus.AcceptanceTesting
         Action<TContext> contextInitializer;
         Func<ScenarioContext, bool> done = context => true;
 
-        int limitTestParallelismTo;
         Action<RunSummary> reports;
         Action<RunDescriptorsBuilder> runDescriptorsBuilderAction = builder => builder.For(Conventions.DefaultRunDescriptor());
         List<IScenarioVerification> shoulds = new List<IScenarioVerification>();

@@ -14,7 +14,7 @@
 
     public class ScenarioRunner
     {
-        public static async Task Run(List<RunDescriptor> runDescriptors, List<EndpointBehavior> behaviorDescriptors, List<IScenarioVerification> shoulds, Func<ScenarioContext, bool> done, int limitTestParallelismTo, Action<RunSummary> reports, Func<Exception, bool> allowedExceptions)
+        public static async Task Run(List<RunDescriptor> runDescriptors, List<EndpointBehavior> behaviorDescriptors, List<IScenarioVerification> shoulds, Func<ScenarioContext, bool> done, Action<RunSummary> reports, Func<Exception, bool> allowedExceptions)
         {
             var totalRuns = runDescriptors.Count;
             var cts = new CancellationTokenSource();
@@ -30,11 +30,6 @@
                 Console.WriteLine("Parallelism limited to: {0}", maxParallelism);
 
                 po.MaxDegreeOfParallelism = maxParallelism;
-            }
-
-            if (limitTestParallelismTo > 0)
-            {
-                po.MaxDegreeOfParallelism = limitTestParallelismTo;
             }
 
             var results = new ConcurrentBag<RunSummary>();
