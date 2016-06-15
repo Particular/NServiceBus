@@ -17,32 +17,13 @@
         public static async Task Run(List<RunDescriptor> runDescriptors, List<EndpointBehavior> behaviorDescriptors, List<IScenarioVerification> shoulds, Func<ScenarioContext, bool> done, Action<RunSummary> reports, Func<Exception, bool> allowedExceptions)
         {
             var totalRuns = runDescriptors.Count;
-            var cts = new CancellationTokenSource();
-            var po = new ParallelOptions
-            {
-                CancellationToken = cts.Token
-            };
-            var maxParallelismSetting = Environment.GetEnvironmentVariable("max_test_parallelism");
-            int maxParallelism;
-
-            if (int.TryParse(maxParallelismSetting, out maxParallelism))
-            {
-                Console.WriteLine("Parallelism limited to: {0}", maxParallelism);
-
-                po.MaxDegreeOfParallelism = maxParallelism;
-            }
 
             var results = new ConcurrentBag<RunSummary>();
 
             try
             {
-                var runs = runDescriptors.Select(runDescriptor => Task.Run(async () =>
+                foreach (var runDescriptor in runDescriptors)
                 {
-                    if (po.CancellationToken.IsCancellationRequested)
-                    {
-                        return;
-                    }
-
                     Console.WriteLine("{0} - Started @ {1}", runDescriptor.Key, DateTime.Now.ToString(CultureInfo.InvariantCulture));
 
                     ContextAppenderFactory.SetContext(runDescriptor.ScenarioContext);
@@ -60,11 +41,9 @@
 
                     if (runResult.Failed)
                     {
-                        cts.Cancel();
+                        break;
                     }
-                }, cts.Token));
-
-                await Task.WhenAll(runs).ConfigureAwait(false);
+                }
             }
             catch (OperationCanceledException)
             {
