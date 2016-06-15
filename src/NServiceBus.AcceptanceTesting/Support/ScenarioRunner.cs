@@ -134,11 +134,11 @@
 
             try
             {
-                var runners = await InitializeRunners(runDescriptor, behaviorDescriptors).ConfigureAwait(false);
+                var endpoints = await InitializeRunners(runDescriptor, behaviorDescriptors).ConfigureAwait(false);
 
-                runResult.ActiveEndpoints = runners.Select(r => r.EndpointName).ToList();
+                runResult.ActiveEndpoints = endpoints.Select(r => r.EndpointName).ToList();
 
-                await PerformScenarios(runDescriptor, runners, () => done(runDescriptor.ScenarioContext), allowedExceptions).ConfigureAwait(false);
+                await PerformScenarios(runDescriptor, endpoints, () => done(runDescriptor.ScenarioContext), allowedExceptions).ConfigureAwait(false);
 
                 runTimer.Stop();
 
