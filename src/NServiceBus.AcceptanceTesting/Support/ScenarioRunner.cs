@@ -130,7 +130,6 @@
             };
 
             var runTimer = new Stopwatch();
-
             runTimer.Start();
 
             try
@@ -313,14 +312,13 @@
             }
         }
 
-        static async Task<List<ActiveRunner>> InitializeRunners(RunDescriptor runDescriptor, List<EndpointBehavior> behaviorDescriptors)
+        static async Task<ActiveRunner[]> InitializeRunners(RunDescriptor runDescriptor, List<EndpointBehavior> endpointBehaviors)
         {
-            var runners = new List<ActiveRunner>();
-            var routingTable = CreateRoutingTable(behaviorDescriptors);
+            var routingTable = CreateRoutingTable(endpointBehaviors);
 
-            foreach (var behaviorDescriptor in behaviorDescriptors)
+            var runnerInitializations = endpointBehaviors.Select(async endpointBehavior =>
             {
-                var endpointName = GetEndpointNameForRun(behaviorDescriptor);
+                var endpointName = GetEndpointNameForRun(endpointBehavior);
 
                 if (endpointName.Length > 77)
                 {
@@ -333,22 +331,19 @@
                     EndpointName = endpointName
                 };
 
-                runner.InitializeTask = Task.Run(() => runner.Instance.Initialize(runDescriptor, behaviorDescriptor, routingTable, endpointName));
-                runners.Add(runner);
-            }
-
-            var tasks = runners.Select(r => r.InitializeTask).ToArray();
-            await Task.WhenAll(tasks).ConfigureAwait(false);
-
-            foreach (var runner in runners)
-            {
-                var result = await runner.InitializeTask;
-                if (result.Failed)
+                try
                 {
-                    throw new ScenarioException($"Endpoint {runner.Instance.Name()} failed to initialize", result.Exception);
+                    await runner.Instance.Initialize(runDescriptor, endpointBehavior, routingTable, endpointName).ConfigureAwait(false);
                 }
-            }
-            return runners;
+                catch (Exception e)
+                {
+                    throw new ScenarioException($"Endpoint {runner.Instance.Name()} failed to initialize", e);
+                }
+
+                return runner;
+            });
+
+            return await Task.WhenAll(runnerInitializations).ConfigureAwait(false);
         }
 
         static string GetEndpointNameForRun(EndpointBehavior endpointBehavior)
