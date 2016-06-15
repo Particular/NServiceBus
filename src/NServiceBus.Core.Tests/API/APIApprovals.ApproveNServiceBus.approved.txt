@@ -729,16 +729,14 @@ namespace NServiceBus
         public MessageDeserializationException(string transportMessageId, System.Exception innerException) { }
         protected MessageDeserializationException(System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context) { }
     }
-    public class static MessageDrivenPubSubExtensions
-    {
-        public static void RegisterPublisherForAssembly<T>(this NServiceBus.TransportExtensions<T> extensions, string publisherEndpoint, System.Reflection.Assembly eventAssembly, string eventNamespace = null)
-            where T : NServiceBus.Transports.TransportDefinition, NServiceBus.Routing.IMessageDrivenSubscriptionTransport { }
-        public static void RegisterPublisherForType<T>(this NServiceBus.TransportExtensions<T> extensions, string publisherEndpoint, System.Type eventType)
-            where T : NServiceBus.Transports.TransportDefinition, NServiceBus.Routing.IMessageDrivenSubscriptionTransport { }
-    }
     public class static MessageDrivenSubscriptionsConfigExtensions
     {
-        public static void SubscriptionAuthorizer(this NServiceBus.TransportExtensions transportExtensions, System.Func<NServiceBus.Pipeline.IIncomingPhysicalMessageContext, bool> authorizer) { }
+        public static void RegisterPublisherForAssembly<T>(this NServiceBus.TransportExtensions<T> transportExtensions, string publisherEndpoint, System.Reflection.Assembly eventAssembly, string eventNamespace = null)
+            where T : NServiceBus.Transports.TransportDefinition, NServiceBus.Routing.IMessageDrivenSubscriptionTransport { }
+        public static void RegisterPublisherForType<T>(this NServiceBus.TransportExtensions<T> transportExtensions, string publisherEndpoint, System.Type eventType)
+            where T : NServiceBus.Transports.TransportDefinition, NServiceBus.Routing.IMessageDrivenSubscriptionTransport { }
+        public static void SubscriptionAuthorizer<T>(this NServiceBus.TransportExtensions<T> transportExtensions, System.Func<NServiceBus.Pipeline.IIncomingPhysicalMessageContext, bool> authorizer)
+            where T : NServiceBus.Transports.TransportDefinition, NServiceBus.Routing.IMessageDrivenSubscriptionTransport { }
     }
     public class static MessageIdExtensions
     {
