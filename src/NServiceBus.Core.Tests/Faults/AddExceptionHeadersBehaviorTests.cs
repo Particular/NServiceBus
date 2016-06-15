@@ -30,9 +30,9 @@ namespace NServiceBus.Core.Tests
         static IFaultContext CreateContext(string messageId, string sourceQueue, Exception exception)
         {
             var context = new FaultContext(
-                new OutgoingMessage(messageId, new Dictionary<string, string>(), new byte[0]), 
-                sourceQueue, 
-                exception, 
+                new OutgoingMessage(messageId, new Dictionary<string, string>(), new byte[0]),
+                sourceQueue,
+                exception,
                 null);
 
             return context;

@@ -23,7 +23,8 @@ namespace NServiceBus
 
         public override IEnumerable<Type> DeliveryConstraints { get; } = new[]
         {
-            typeof(DiscardIfNotReceivedBefore)
+            typeof(DiscardIfNotReceivedBefore),
+            typeof(NonDurableDelivery)
         };
 
         public override TransportTransactionMode TransactionMode { get; } = TransportTransactionMode.TransactionScope;

@@ -8,15 +8,14 @@ namespace NServiceBus
 
     class DetermineMessageDurabilityBehavior : Behavior<IOutgoingLogicalMessageContext>
     {
-        public DetermineMessageDurabilityBehavior(Dictionary<Type, bool> durabilitySettings)
+        public DetermineMessageDurabilityBehavior(HashSet<Type> nonDurableMessages)
         {
-            this.durabilitySettings = durabilitySettings;
+            this.nonDurableMessages = nonDurableMessages;
         }
 
         public override Task Invoke(IOutgoingLogicalMessageContext context, Func<Task> next)
         {
-            bool isDurable;
-            if (durabilitySettings.TryGetValue(context.Message.MessageType, out isDurable) && !isDurable)
+            if (nonDurableMessages.Contains(context.Message.MessageType))
             {
                 context.Extensions.AddDeliveryConstraint(new NonDurableDelivery());
 
@@ -26,6 +25,6 @@ namespace NServiceBus
             return next();
         }
 
-        Dictionary<Type, bool> durabilitySettings;
+        readonly HashSet<Type> nonDurableMessages;
     }
 }

@@ -229,7 +229,7 @@
         public const string TimeToBeReceived = "NServiceBus.TimeToBeReceived";
 
         /// <summary>
-        /// Indicates that the message was sent as a non durable message.
+        /// Indicates that the message was sent as a non-durable message.
         /// </summary>
         public const string NonDurableMessage = "NServiceBus.NonDurableMessage";
     }
