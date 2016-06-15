@@ -47,7 +47,7 @@
             {
                 if (!context.DoesTransportSupportConstraint<NonDurableDelivery>())
                 {
-                    throw new Exception("The configured transport does not support non-durable messages but you have configured some messages to be non-durable (e.g. by using the [Express] attribute). Make the messages durable or use a transport supporting non-durable messages.");
+                    throw new Exception("The configured transport does not support non-durable messages but some messages have been configured to be non-durable (e.g. by using the [Express] attribute). Make the messages durable, or use a transport supporting non-durable messages.");
                 }
 
                 context.Pipeline.Register(b => new DetermineMessageDurabilityBehavior(nonDurableMessages), "Adds the NonDurableDelivery constraint for messages that have requested to be delivered in non-durable mode");
