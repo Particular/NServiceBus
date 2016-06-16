@@ -10,7 +10,7 @@
         [Test]
         public void When_no_strategy_configured_for_endpoint_should_use_round_robbin_strategy()
         {
-            var policy = new DistributionPolicy();
+            IDistributionPolicy policy = new DistributionPolicy();
 
             var result = policy.GetDistributionStrategy("SomeEndpoint");
 
@@ -20,10 +20,11 @@
         [Test]
         public void When_strategy_configured_for_endpoint_should_use_configured_strategy()
         {
-            var policy = new DistributionPolicy();
+            var p = new DistributionPolicy();
             var configuredStrategy = new FakeDistributionStrategy();
-            policy.SetDistributionStrategy("SomeEndpoint", configuredStrategy);
+            p.SetDistributionStrategy("SomeEndpoint", configuredStrategy);
 
+            IDistributionPolicy policy = p;
             var result = policy.GetDistributionStrategy("SomeEndpoint");
 
             Assert.That(result, Is.EqualTo(configuredStrategy));
@@ -32,12 +33,13 @@
         [Test]
         public void When_multiple_strategies_configured_endpoint_should_use_last_configured_strategy()
         {
-            var policy = new DistributionPolicy();
+            var p = new DistributionPolicy();
             var strategy = new FakeDistributionStrategy();
-            policy.SetDistributionStrategy("SomeEndpoint", new FakeDistributionStrategy());
-            policy.SetDistributionStrategy("SomeEndpoint", new FakeDistributionStrategy());
-            policy.SetDistributionStrategy("SomeEndpoint", strategy);
+            p.SetDistributionStrategy("SomeEndpoint", new FakeDistributionStrategy());
+            p.SetDistributionStrategy("SomeEndpoint", new FakeDistributionStrategy());
+            p.SetDistributionStrategy("SomeEndpoint", strategy);
 
+            IDistributionPolicy policy = p;
             var result = policy.GetDistributionStrategy("SomeEndpoint");
 
             Assert.That(result, Is.EqualTo(strategy));

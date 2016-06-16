@@ -7,7 +7,7 @@ namespace NServiceBus
     /// <summary>
     /// Transport definition for MSMQ.
     /// </summary>
-    public class MsmqTransport : TransportDefinition, IMessageDrivenSubscriptionTransport
+    public class MsmqTransport : TransportDefinition, IMessageDrivenSubscriptionTransport, INonCompetingConsumersTransport
     {
         /// <summary>
         /// <see cref="TransportDefinition.ExampleConnectionStringForErrorMessage" />.

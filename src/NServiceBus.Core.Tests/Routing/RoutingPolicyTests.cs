@@ -38,7 +38,7 @@ namespace NServiceBus.Core.Tests.Routing
             Assert.That(result, Has.Exactly(1).EqualTo(endpointBInstances[1]));
         }
 
-        static IEnumerable<UnicastRoutingTarget> InvokeDistributionStrategy(DistributionPolicy policy, UnicastRoutingTarget[] instances)
+        static IEnumerable<UnicastRoutingTarget> InvokeDistributionStrategy(IDistributionPolicy policy, UnicastRoutingTarget[] instances)
         {
             return policy.GetDistributionStrategy(instances[0].Endpoint).SelectDestination(instances);
         }

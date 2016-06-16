@@ -5,6 +5,7 @@
     using AcceptanceTesting;
     using AcceptanceTesting.Customization;
     using EndpointTemplates;
+    using Features;
     using NServiceBus.Routing;
     using NUnit.Framework;
 
@@ -37,7 +38,10 @@
         {
             public UnawareSender()
             {
-                EndpointSetup<DefaultServer>(c => { c.Routing().RouteToEndpoint(typeof(MyMessage), GetReceiverEndpoint()); });
+                EndpointSetup<DefaultServer>((c,r) =>
+                {
+                    c.UseTransport(r.GetTransportType()).Routing().RouteTo(typeof(MyMessage), GetReceiverEndpoint());
+                });
             }
         }
 
@@ -45,11 +49,19 @@
         {
             public AwareSender()
             {
-                EndpointSetup<DefaultServer>(c =>
+                EndpointSetup<DefaultServer>((c, r) =>
                 {
-                    c.Routing().RouteToEndpoint(typeof(MyMessage), GetReceiverEndpoint());
-                    c.Routing().Mapping.Physical.Add(new EndpointInstance(GetReceiverEndpoint(), "XYZ"));
+                    c.UseTransport(r.GetTransportType()).Routing().RouteTo(typeof(MyMessage), GetReceiverEndpoint());
+                    c.EnableFeature<SpecificRoutingFeature>();
                 });
+            }
+
+            class SpecificRoutingFeature : Feature
+            {
+                protected override void Setup(FeatureConfigurationContext context)
+                {
+                    context.EndpointInstances().Add(new EndpointInstance(GetReceiverEndpoint(), "XYZ"));
+                }
             }
         }
 

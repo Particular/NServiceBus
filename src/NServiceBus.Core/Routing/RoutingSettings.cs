@@ -4,6 +4,7 @@
     using Configuration.AdvanceExtensibility;
     using Routing;
     using Settings;
+    using Transports;
 
     /// <summary>
     /// Exposes settings related to routing.
@@ -13,22 +14,28 @@
         internal RoutingSettings(SettingsHolder settings)
             : base(settings)
         {
-            Mapping = new RoutingMappingSettings(settings);
         }
-
-        /// <summary>
-        /// Allows customizing advanced routing settings.
-        /// </summary>
-        public RoutingMappingSettings Mapping { get; }
 
         /// <summary>
         /// Adds a static unicast route.
         /// </summary>
         /// <param name="messageType">Message type.</param>
-        /// <param name="destination">Destination endpoint.</param>
-        public void RouteToEndpoint(Type messageType, string destination)
+        /// <param name="destinationEndpoint">Destination endpoint.</param>
+        public void RouteTo(Type messageType, string destinationEndpoint)
         {
-            Settings.GetOrCreate<UnicastRoutingTable>().RouteToEndpoint(messageType, destination);
+            Settings.GetOrCreate<UnicastRoutingTable>().RouteToEndpoint(messageType, destinationEndpoint);
+        }
+    }
+
+    /// <summary>
+    /// Exposes settings related to routing.
+    /// </summary>
+    public class RoutingSettings<T> : RoutingSettings
+        where T : TransportDefinition
+    {
+        internal RoutingSettings(SettingsHolder settings)
+            : base(settings)
+        {
         }
     }
 }

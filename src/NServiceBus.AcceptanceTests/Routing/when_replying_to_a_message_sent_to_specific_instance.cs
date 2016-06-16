@@ -4,6 +4,7 @@
     using AcceptanceTesting;
     using AcceptanceTesting.Customization;
     using EndpointTemplates;
+    using Features;
     using NServiceBus.Routing;
     using NUnit.Framework;
 
@@ -32,11 +33,19 @@
         {
             public Sender()
             {
-                EndpointSetup<DefaultServer>(c =>
+                EndpointSetup<DefaultServer>((c, r) =>
                 {
-                    c.Routing().RouteToEndpoint(typeof(MyRequest), ReceiverEndpoint);
-                    c.Routing().Mapping.Physical.Add(new EndpointInstance(ReceiverEndpoint, "XYZ"));
+                    c.UseTransport(r.GetTransportType()).Routing().RouteTo(typeof(MyRequest), ReceiverEndpoint);
+                    c.EnableFeature<SpecificRoutingFeature>();
                 });
+            }
+
+            class SpecificRoutingFeature : Feature
+            {
+                protected override void Setup(FeatureConfigurationContext context)
+                {
+                    context.EndpointInstances().Add(new EndpointInstance(ReceiverEndpoint, "XYZ"));
+                }
             }
 
             public class MyResponseHandler : IHandleMessages<MyResponse>
