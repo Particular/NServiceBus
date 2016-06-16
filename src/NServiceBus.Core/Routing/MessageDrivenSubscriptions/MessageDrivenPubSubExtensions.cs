@@ -4,7 +4,6 @@ namespace NServiceBus
     using System.Reflection;
     using Routing;
     using Routing.MessageDrivenSubscriptions;
-    using Settings;
     using Transports;
 
     /// <summary>
@@ -33,18 +32,6 @@ namespace NServiceBus
         public static void RegisterPublisherForAssembly<T>(this TransportExtensions<T> extensions, string publisherEndpoint, Assembly eventAssembly, string eventNamespace = null) where T : TransportDefinition, IMessageDrivenSubscriptionTransport
         {
             extensions.Settings.GetOrCreate<Publishers>().Add(publisherEndpoint, eventAssembly, eventNamespace);
-        }
-
-        static T GetOrCreate<T>(this SettingsHolder settings)
-            where T : new()
-        {
-            T value;
-            if (!settings.TryGet(out value))
-            {
-                value = new T();
-                settings.Set<T>(value);
-            }
-            return value;
         }
     }
 }

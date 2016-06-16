@@ -19,7 +19,7 @@ namespace NServiceBus.Settings
         public T Get<T>(string key)
         {
             Guard.AgainstNullAndEmpty(nameof(key), key);
-            return (T)Get(key);
+            return (T) Get(key);
         }
 
         /// <summary>
@@ -59,7 +59,7 @@ namespace NServiceBus.Settings
                 return false;
             }
 
-            val = (T)tmp;
+            val = (T) tmp;
             return true;
         }
 
@@ -70,7 +70,7 @@ namespace NServiceBus.Settings
         /// <returns>The value if found, throws if not.</returns>
         public T Get<T>()
         {
-            return (T)Get(typeof(T).FullName);
+            return (T) Get(typeof(T).FullName);
         }
 
         /// <summary>
@@ -117,12 +117,12 @@ namespace NServiceBus.Settings
             object result;
             if (Overrides.TryGetValue(key, out result))
             {
-                return (T)result;
+                return (T) result;
             }
 
             if (Defaults.TryGetValue(key, out result))
             {
-                return (T)result;
+                return (T) result;
             }
 
             return default(T);
@@ -172,6 +172,21 @@ namespace NServiceBus.Settings
             var key = typeof(T).FullName;
 
             return HasExplicitValue(key);
+        }
+
+        /// <summary>
+        /// Gets the requested value, a new one will be created and added if needed.
+        /// </summary>
+        public T GetOrCreate<T>()
+            where T : class, new()
+        {
+            T value;
+            if (!TryGet(out value))
+            {
+                value = new T();
+                Set<T>(value);
+            }
+            return value;
         }
 
         /// <summary>
