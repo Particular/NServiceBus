@@ -984,6 +984,13 @@ namespace NServiceBus
     {
         public static NServiceBus.SecondLevelRetries.Config.SecondLevelRetriesSettings SecondLevelRetries(this NServiceBus.EndpointConfiguration config) { }
     }
+    public class SecondLevelRetryContext
+    {
+        public SecondLevelRetryContext() { }
+        public System.Exception Exception { get; set; }
+        public NServiceBus.Transports.IncomingMessage Message { get; set; }
+        public int SecondLevelRetryAttempt { get; set; }
+    }
     public class SendOptions : NServiceBus.Extensibility.ExtendableOptions
     {
         public SendOptions() { }
@@ -2673,11 +2680,11 @@ namespace NServiceBus.SecondLevelRetries.Config
 {
     public class SecondLevelRetriesSettings
     {
-        [System.ObsoleteAttribute("Use `CustomRetryPolicy(Func<IncomingMessage, TimeSpan> customPolicy)` instead. Th" +
-            "e member currently throws a NotImplementedException. Will be removed in version " +
-            "7.0.0.", true)]
+        [System.ObsoleteAttribute("Use `CustomRetryPolicy(Func<SecondLevelRetryContext, TimeSpan> customPolicy)` ins" +
+            "tead. The member currently throws a NotImplementedException. Will be removed in " +
+            "version 7.0.0.", true)]
         public void CustomRetryPolicy(System.Func<NServiceBus.TransportMessage, System.TimeSpan> customPolicy) { }
-        public void CustomRetryPolicy(System.Func<NServiceBus.Transports.IncomingMessage, System.TimeSpan> customPolicy) { }
+        public void CustomRetryPolicy(System.Func<NServiceBus.SecondLevelRetryContext, System.TimeSpan> customPolicy) { }
     }
 }
 namespace NServiceBus.Serialization

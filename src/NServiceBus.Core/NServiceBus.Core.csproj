@@ -128,6 +128,7 @@
     <Compile Include="Recoverability\Faults\MessageProcessingFailed.cs" />
     <Compile Include="Recoverability\Faults\MessageToBeRetried.cs" />
     <Compile Include="Recoverability\Faults\MessageFaulted.cs" />
+    <Compile Include="Recoverability\SecondLevelRetries\SecondLevelRetryContext.cs" />
     <Compile Include="ReleaseDateAttribute.cs" />
     <Compile Include="Recoverability\ProcessingFailureInfo.cs" />
     <Compile Include="Routing\IDistributionPolicy.cs" />

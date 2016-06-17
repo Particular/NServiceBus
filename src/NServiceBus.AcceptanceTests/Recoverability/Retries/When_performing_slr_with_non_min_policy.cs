@@ -5,9 +5,7 @@ namespace NServiceBus.AcceptanceTests.Recoverability.Retries
     using AcceptanceTesting;
     using EndpointTemplates;
     using Features;
-    using NServiceBus.Config;
     using NUnit.Framework;
-    using Transports;
 
     public class When_performing_slr_with_non_min_policy : NServiceBusAcceptanceTest
     {
@@ -42,11 +40,10 @@ namespace NServiceBus.AcceptanceTests.Recoverability.Retries
                     configure.EnableFeature<TimeoutManager>();
                     configure.SecondLevelRetries().CustomRetryPolicy(RetryPolicy);
                     configure.Notifications.Errors.MessageSentToErrorQueue += (sender, message) => { scenarioContext.MessageSentToErrorQueue = true; };
-                })
-                    .WithConfig<SecondLevelRetriesConfig>(c => c.TimeIncrease = TimeSpan.FromMilliseconds(1));
+                });
             }
 
-            TimeSpan RetryPolicy(IncomingMessage transportMessage)
+            TimeSpan RetryPolicy(SecondLevelRetryContext slrRetryContext)
             {
                 if (count == 0)
                 {

@@ -112,7 +112,7 @@
 
         class FakePolicy : SecondLevelRetryPolicy
         {
-            public override bool TryGetDelay(IncomingMessage message, Exception ex, int currentRetry, out TimeSpan delay)
+            public override bool TryGetDelay(SecondLevelRetryContext slrRetryContext, out TimeSpan delay)
             {
                 delay = TimeSpan.FromSeconds(10);
                 return true;
@@ -143,7 +143,7 @@
             public string MessageId => RoutingContext.Message.MessageId;
 
             public Dictionary<string, string> Headers => RoutingContext.Message.Headers;
-            
+
             public Task Invoke(IRoutingContext context)
             {
                 RoutingContext = context;

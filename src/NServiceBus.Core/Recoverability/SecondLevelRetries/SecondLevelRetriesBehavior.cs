@@ -55,7 +55,7 @@
 
             TimeSpan delay;
 
-            if (retryPolicy.TryGetDelay(message, failureInfo.Exception, currentRetry, out delay))
+            if (retryPolicy.TryGetDelay(new SecondLevelRetryContext { Message = message, Exception = failureInfo.Exception, SecondLevelRetryAttempt = currentRetry }, out delay))
             {
                 message.RevertToOriginalBodyIfNeeded();
                 var messageToRetry = new OutgoingMessage(message.MessageId, message.Headers, message.Body);
