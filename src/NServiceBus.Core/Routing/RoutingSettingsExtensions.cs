@@ -20,7 +20,7 @@
         /// <summary>
         /// Configures the routing.
         /// </summary>
-        public static RoutingSettings<T> Routing<T>(this TransportExtensions<T> config) 
+        public static RoutingSettings<T> Routing<T>(this TransportExtensions<T> config)
             where T : TransportDefinition
         {
             Guard.AgainstNull(nameof(config), config);
@@ -33,7 +33,7 @@
         /// <param name="config">Config object.</param>
         /// <param name="endpointName">The name of the logical endpoint the given strategy should apply to.</param>
         /// <param name="distributionStrategy">The instance of a distribution strategy.</param>
-        public static void SetMessageDistributionStrategy<T>(this RoutingSettings<T> config, string endpointName, DistributionStrategy distributionStrategy) 
+        public static void SetMessageDistributionStrategy<T>(this RoutingSettings<T> config, string endpointName, DistributionStrategy distributionStrategy)
             where T : TransportDefinition, INonCompetingConsumersTransport
         {
             config.Settings.GetOrCreate<DistributionPolicy>().SetDistributionStrategy(endpointName, distributionStrategy);
@@ -43,7 +43,7 @@
         /// Configures physical routing.
         /// </summary>
         /// <param name="config">Config object.</param>
-        public static EndpointInstances Physical<T>(this RoutingSettings<T> config) 
+        public static EndpointInstances Physical<T>(this RoutingSettings<T> config)
             where T : TransportDefinition, INonCompetingConsumersTransport
         {
             return config.Settings.GetOrCreate<EndpointInstances>();

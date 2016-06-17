@@ -9,14 +9,13 @@
 [assembly: System.Runtime.Versioning.TargetFrameworkAttribute(".NETFramework,Version=v4.5.2", FrameworkDisplayName=".NET Framework 4.5.2")]
 public class static ConfigureHandlerSettings
 {
-    [System.ObsoleteAttribute("Setting property values explicitly is no longer supported via this API. Use `.Con" +
-        "figureComponent(b=> new MyMessageHandler(){ MyProperty = X})` to get full contro" +
-        "l over handler creation. Will be removed in version 7.0.0.", true)]
+    [System.ObsoleteAttribute(@"Setting property values explicitly is no longer supported via this API. Use `.ConfigureComponent(b=> new MyMessageHandler(){ MyProperty = X})` to get full control over handler creation. Will be treated as an error from version 6.0.0. Will be removed in version 7.0.0.", false)]
     public static void InitializeHandlerProperty<THandler>(this NServiceBus.EndpointConfiguration config, string property, object value) { }
 }
 namespace NServiceBus
 {
-    [System.ObsoleteAttribute("Use the string based overloads. Will be removed in version 7.0.0.", true)]
+    [System.ObsoleteAttribute("Use the string based overloads. Will be treated as an error from version 6.0.0. W" +
+        "ill be removed in version 7.0.0.", false)]
     public class Address
     {
         public Address() { }
@@ -26,8 +25,8 @@ namespace NServiceBus
         Local = 0,
         Remote = 1,
     }
-    [System.ObsoleteAttribute("Use `EndpointConfiguration.ExcludeAssemblies` instead. Will be removed in version" +
-        " 7.0.0.", true)]
+    [System.ObsoleteAttribute("Use `EndpointConfiguration.ExcludeAssemblies` instead. Will be treated as an erro" +
+        "r from version 6.0.0. Will be removed in version 7.0.0.", false)]
     public class AllAssemblies
     {
         public AllAssemblies() { }
@@ -52,30 +51,36 @@ namespace NServiceBus
     }
     public class static Bus
     {
-        [System.ObsoleteAttribute("Use `Endpoint.Create` instead. The member currently throws a NotImplementedExcept" +
-            "ion. Will be removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute("Use `Endpoint.Create` instead. Will be treated as an error from version 6.0.0. Th" +
+            "e member currently throws a NotImplementedException. Will be removed in version " +
+            "7.0.0.", false)]
         public static NServiceBus.IStartableBus Create(NServiceBus.EndpointConfiguration configuration) { }
-        [System.ObsoleteAttribute("Use `EndpointConfiguration.SendOnly` instead. The member currently throws a NotIm" +
-            "plementedException. Will be removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute("Use `EndpointConfiguration.SendOnly` instead. Will be treated as an error from ve" +
+            "rsion 6.0.0. The member currently throws a NotImplementedException. Will be remo" +
+            "ved in version 7.0.0.", false)]
         public static NServiceBus.IBus CreateSendOnly(NServiceBus.EndpointConfiguration configuration) { }
     }
     [System.ObsoleteAttribute("No longer used, use the new callbacks api described in the version 6 upgrade guid" +
-        "e. Will be removed in version 7.0.0.", true)]
+        "e. Will be treated as an error from version 6.0.0. Will be removed in version 7." +
+        "0.0.", false)]
     public class BusAsyncResultEventArgs
     {
         public BusAsyncResultEventArgs() { }
     }
-    [System.ObsoleteAttribute("Use `EndpointConfiguration` instead. Will be removed in version 7.0.0.", true)]
+    [System.ObsoleteAttribute("Use `EndpointConfiguration` instead. Will be treated as an error from version 6.0" +
+        ".0. Will be removed in version 7.0.0.", false)]
     public class BusConfiguration
     {
         public BusConfiguration() { }
     }
-    [System.ObsoleteAttribute("Use `Notifications` instead. Will be removed in version 7.0.0.", true)]
+    [System.ObsoleteAttribute("Use `Notifications` instead. Will be treated as an error from version 6.0.0. Will" +
+        " be removed in version 7.0.0.", false)]
     public class BusNotifications
     {
         public BusNotifications() { }
     }
-    [System.ObsoleteAttribute("Replaced by NServiceBus.Callbacks package. Will be removed in version 7.0.0.", true)]
+    [System.ObsoleteAttribute("Replaced by NServiceBus.Callbacks package. Will be treated as an error from versi" +
+        "on 6.0.0. Will be removed in version 7.0.0.", false)]
     public class CompletionResult
     {
         public CompletionResult() { }
@@ -84,7 +89,8 @@ namespace NServiceBus
     {
         public static void TimeToWaitBeforeTriggeringCriticalErrorOnTimeoutOutages(this NServiceBus.EndpointConfiguration config, System.TimeSpan timeToWait) { }
     }
-    [System.ObsoleteAttribute("This is no longer a public API. Will be removed in version 7.0.0.", true)]
+    [System.ObsoleteAttribute("This is no longer a public API. Will be treated as an error from version 6.0.0. W" +
+        "ill be removed in version 7.0.0.", false)]
     public class Configure
     {
         public Configure() { }
@@ -97,8 +103,8 @@ namespace NServiceBus
     {
         public static void DefineCriticalErrorAction(this NServiceBus.EndpointConfiguration endpointConfiguration, System.Func<NServiceBus.ICriticalErrorContext, System.Threading.Tasks.Task> onCriticalError) { }
         [System.ObsoleteAttribute("Use `ConfigureCriticalErrorAction.DefineCriticalErrorAction(EndpointConfiguration" +
-            ", Func<ICriticalErrorContext, Task>)` instead. Will be removed in version 7.0.0." +
-            "", true)]
+            ", Func<ICriticalErrorContext, Task>)` instead. Will be treated as an error from " +
+            "version 6.0.0. Will be removed in version 7.0.0.", false)]
         public static void DefineCriticalErrorAction(this NServiceBus.EndpointConfiguration endpointConfiguration, System.Action<string, System.Exception> onCriticalError) { }
     }
     public class static ConfigureError
@@ -109,21 +115,19 @@ namespace NServiceBus
     {
         public static NServiceBus.DataBus.DataBusExtensions<NServiceBus.FileShareDataBus> BasePath(this NServiceBus.DataBus.DataBusExtensions<NServiceBus.FileShareDataBus> config, string basePath) { }
         [System.ObsoleteAttribute("Use `BasePath(this DataBusExtensions<FileShareDataBus> config, string basePath)` " +
-            "instead. The member currently throws a NotImplementedException. Will be removed " +
-            "in version 7.0.0.", true)]
+            "instead. Will be treated as an error from version 6.0.0. The member currently th" +
+            "rows a NotImplementedException. Will be removed in version 7.0.0.", false)]
         public static NServiceBus.DataBus.DataBusExtentions<NServiceBus.FileShareDataBus> BasePath(this NServiceBus.DataBus.DataBusExtentions<NServiceBus.FileShareDataBus> config, string basePath) { }
     }
     public class static ConfigureForwarding
     {
         public static void ForwardReceivedMessagesTo(this NServiceBus.EndpointConfiguration config, string address) { }
     }
-    [System.ObsoleteAttribute("Will be removed in version 7.0.0.", true)]
+    [System.ObsoleteAttribute("Will be treated as an error from version 6.0.0. Will be removed in version 7.0.0." +
+        "", false)]
     public class static ConfigureInMemoryFaultManagement
     {
-        [System.ObsoleteAttribute("This is no longer supported. If you want full control over what happens when a me" +
-            "ssage fails (including retries) override the MoveFaultsToErrorQueue behavior. Th" +
-            "e member currently throws a NotImplementedException. Will be removed in version " +
-            "7.0.0.", true)]
+        [System.ObsoleteAttribute(@"This is no longer supported. If you want full control over what happens when a message fails (including retries) override the MoveFaultsToErrorQueue behavior. Will be treated as an error from version 6.0.0. The member currently throws a NotImplementedException. Will be removed in version 7.0.0.", false)]
         public static void DiscardFailedMessagesInsteadOfSendingToErrorQueue(this NServiceBus.EndpointConfiguration config) { }
     }
     public class static ConfigureLicenseExtensions
@@ -134,14 +138,15 @@ namespace NServiceBus
     public class static ConfigurePurging
     {
         public static void PurgeOnStartup(this NServiceBus.EndpointConfiguration config, bool value) { }
-        [System.ObsoleteAttribute("The member currently throws a NotImplementedException. Will be removed in version" +
-            " 7.0.0.", true)]
+        [System.ObsoleteAttribute("Will be treated as an error from version 6.0.0. The member currently throws a Not" +
+            "ImplementedException. Will be removed in version 7.0.0.", false)]
         public static bool PurgeOnStartup(this NServiceBus.Configure config) { }
     }
     public class static ConfigureQueueCreation
     {
-        [System.ObsoleteAttribute("Use `CreateQueues` instead. The member currently throws a NotImplementedException" +
-            ". Will be removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute("Use `CreateQueues` instead. Will be treated as an error from version 6.0.0. The m" +
+            "ember currently throws a NotImplementedException. Will be removed in version 7.0" +
+            ".0.", false)]
         public static bool CreateQueues(this NServiceBus.Configure config) { }
         public static bool CreateQueues(this NServiceBus.Settings.ReadOnlySettings settings) { }
         public static void DoNotCreateQueues(this NServiceBus.EndpointConfiguration config) { }
@@ -149,7 +154,7 @@ namespace NServiceBus
     public class static ConfigureRijndaelEncryptionService
     {
         public static void RegisterEncryptionService(this NServiceBus.EndpointConfiguration config, System.Func<NServiceBus.IEncryptionService> func) { }
-        [System.ObsoleteAttribute(@"It is no longer possible to access the builder to create an encryption service. If container access is required use the container directly in the factory. Use `RegisterEncryptionService(this EndpointConfiguration config, Func<IEncryptionService> func)` instead. The member currently throws a NotImplementedException. Will be removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute(@"It is no longer possible to access the builder to create an encryption service. If container access is required use the container directly in the factory. Use `RegisterEncryptionService(this EndpointConfiguration config, Func<IEncryptionService> func)` instead. Will be treated as an error from version 6.0.0. The member currently throws a NotImplementedException. Will be removed in version 7.0.0.", false)]
         public static void RegisterEncryptionService(this NServiceBus.EndpointConfiguration config, System.Func<NServiceBus.ObjectBuilder.IBuilder, NServiceBus.IEncryptionService> func) { }
         public static void RijndaelEncryptionService(this NServiceBus.EndpointConfiguration config) { }
         public static void RijndaelEncryptionService(this NServiceBus.EndpointConfiguration config, string encryptionKeyIdentifier, byte[] encryptionKey, System.Collections.Generic.IList<byte[]> decryptionKeys = null) { }
@@ -157,8 +162,8 @@ namespace NServiceBus
     }
     public class static ConfigureTransportConnectionString
     {
-        [System.ObsoleteAttribute("Not available any more. The member currently throws a NotImplementedException. Wi" +
-            "ll be removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute("Not available any more. Will be treated as an error from version 6.0.0. The membe" +
+            "r currently throws a NotImplementedException. Will be removed in version 7.0.0.", false)]
         public static string TransportConnectionString(this NServiceBus.Configure config) { }
     }
     public class static ConnectorContextExtensions
@@ -197,15 +202,17 @@ namespace NServiceBus
     {
         public Conventions() { }
         public void AddSystemMessagesConventions(System.Func<System.Type, bool> definesMessageType) { }
-        [System.ObsoleteAttribute("No longer an extension point. The member currently throws a NotImplementedExcepti" +
-            "on. Will be removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute("No longer an extension point. Will be treated as an error from version 6.0.0. The" +
+            " member currently throws a NotImplementedException. Will be removed in version 7" +
+            ".0.0.", false)]
         public System.TimeSpan GetTimeToBeReceived(System.Type messageType) { }
         public bool IsCommandType(System.Type t) { }
         public bool IsDataBusProperty(System.Reflection.PropertyInfo property) { }
         public bool IsEncryptedProperty(System.Reflection.PropertyInfo property) { }
         public bool IsEventType(System.Type t) { }
-        [System.ObsoleteAttribute("No longer an extension point. The member currently throws a NotImplementedExcepti" +
-            "on. Will be removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute("No longer an extension point. Will be treated as an error from version 6.0.0. The" +
+            " member currently throws a NotImplementedException. Will be removed in version 7" +
+            ".0.0.", false)]
         public static bool IsExpressMessageType(System.Type t) { }
         public bool IsInSystemConventionList(System.Type t) { }
         public bool IsMessageType(System.Type t) { }
@@ -282,8 +289,9 @@ namespace NServiceBus
     {
         public static void DisableDurableMessages(this NServiceBus.EndpointConfiguration config) { }
         public static bool DurableMessagesEnabled(this NServiceBus.Settings.ReadOnlySettings settings) { }
-        [System.ObsoleteAttribute("Use `DurableMessagesEnabled` instead. The member currently throws a NotImplemente" +
-            "dException. Will be removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute("Use `DurableMessagesEnabled` instead. Will be treated as an error from version 6." +
+            "0.0. The member currently throws a NotImplementedException. Will be removed in v" +
+            "ersion 7.0.0.", false)]
         public static bool DurableMessagesEnabled(this NServiceBus.Configure config) { }
         public static void EnableDurableMessages(this NServiceBus.EndpointConfiguration config) { }
     }
@@ -307,41 +315,46 @@ namespace NServiceBus
         public EndpointConfiguration(string endpointName) { }
         public NServiceBus.Notifications Notifications { get; }
         [System.ObsoleteAttribute("Use `EndpointConfiguration.AddHeaderToAllOutgoingMessages(string key,string value" +
-            ")` instead. The member currently throws a NotImplementedException. Will be remov" +
-            "ed in version 7.0.0.", true)]
+            ")` instead. Will be treated as an error from version 6.0.0. The member currently" +
+            " throws a NotImplementedException. Will be removed in version 7.0.0.", false)]
         public System.Collections.Generic.IDictionary<string, string> OutgoingHeaders { get; }
         public NServiceBus.Pipeline.PipelineSettings Pipeline { get; }
-        [System.ObsoleteAttribute("Use `EndpointConfiguration.ExcludeAssemblies` instead. The member currently throw" +
-            "s a NotImplementedException. Will be removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute("Use `EndpointConfiguration.ExcludeAssemblies` instead. Will be treated as an erro" +
+            "r from version 6.0.0. The member currently throws a NotImplementedException. Wil" +
+            "l be removed in version 7.0.0.", false)]
         public void AssembliesToScan(System.Collections.Generic.IEnumerable<System.Reflection.Assembly> assemblies) { }
-        [System.ObsoleteAttribute("Use `EndpointConfiguration.ExcludeAssemblies` instead. The member currently throw" +
-            "s a NotImplementedException. Will be removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute("Use `EndpointConfiguration.ExcludeAssemblies` instead. Will be treated as an erro" +
+            "r from version 6.0.0. The member currently throws a NotImplementedException. Wil" +
+            "l be removed in version 7.0.0.", false)]
         public void AssembliesToScan(params System.Reflection.Assembly[] assemblies) { }
         public NServiceBus.ConventionsBuilder Conventions() { }
         public void CustomConfigurationSource(NServiceBus.Config.ConfigurationSource.IConfigurationSource configurationSource) { }
-        [System.ObsoleteAttribute("Endpoint name is now a mandatory constructor argument on EndpointConfiguration. T" +
-            "he member currently throws a NotImplementedException. Will be removed in version" +
-            " 7.0.0.", true)]
+        [System.ObsoleteAttribute("Endpoint name is now a mandatory constructor argument on EndpointConfiguration. W" +
+            "ill be treated as an error from version 6.0.0. The member currently throws a Not" +
+            "ImplementedException. Will be removed in version 7.0.0.", false)]
         public void EndpointName(string name) { }
         public void ExcludeAssemblies(params string[] assemblies) { }
         public void ExcludeTypes(params System.Type[] types) { }
         [System.ObsoleteAttribute("Use `EndpointConfiguration.UseTransport<T>().AddAddressTranslationRule(Func<Logic" +
-            "alAddress, string> rule)` instead. The member currently throws a NotImplementedE" +
-            "xception. Will be removed in version 7.0.0.", true)]
+            "alAddress, string> rule)` instead. Will be treated as an error from version 6.0." +
+            "0. The member currently throws a NotImplementedException. Will be removed in ver" +
+            "sion 7.0.0.", false)]
         public void OverrideLocalAddress(string queue) { }
         public void OverridePublicReturnAddress(string address) { }
         [System.ObsoleteAttribute("Use `EndpointConfiguration.OverridePublicReturnAddress(string address)` instead. " +
-            "The member currently throws a NotImplementedException. Will be removed in versio" +
-            "n 7.0.0.", true)]
+            "Will be treated as an error from version 6.0.0. The member currently throws a No" +
+            "tImplementedException. Will be removed in version 7.0.0.", false)]
         public void OverridePublicReturnAddress(NServiceBus.Address address) { }
         public void RegisterComponents(System.Action<NServiceBus.ObjectBuilder.IConfigureComponents> registration) { }
-        [System.ObsoleteAttribute("Use `EndpointConfiguration.ExcludeAssemblies` instead. The member currently throw" +
-            "s a NotImplementedException. Will be removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute("Use `EndpointConfiguration.ExcludeAssemblies` instead. Will be treated as an erro" +
+            "r from version 6.0.0. The member currently throws a NotImplementedException. Wil" +
+            "l be removed in version 7.0.0.", false)]
         public void ScanAssembliesInDirectory(string probeDirectory) { }
         public void ScanAssembliesInNestedDirectories() { }
         public void SendOnly() { }
-        [System.ObsoleteAttribute("Use `EndpointConfiguration.ExcludeTypes` instead. The member currently throws a N" +
-            "otImplementedException. Will be removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute("Use `EndpointConfiguration.ExcludeTypes` instead. Will be treated as an error fro" +
+            "m version 6.0.0. The member currently throws a NotImplementedException. Will be " +
+            "removed in version 7.0.0.", false)]
         public void TypesToScan(System.Collections.Generic.IEnumerable<System.Type> typesToScan) { }
         public void UseContainer<T>(System.Action<NServiceBus.Container.ContainerCustomizations> customizations = null)
             where T : NServiceBus.Container.ContainerDefinition, new () { }
@@ -370,19 +383,19 @@ namespace NServiceBus
     {
         public ExpressAttribute() { }
     }
-    [System.ObsoleteAttribute("Headers are not managed via the send, reply and publishoptions. Will be removed i" +
-        "n version 7.0.0.", true)]
+    [System.ObsoleteAttribute("Headers are not managed via the send, reply and publishoptions. Will be treated a" +
+        "s an error from version 6.0.0. Will be removed in version 7.0.0.", false)]
     public class static ExtensionMethods
     {
-        [System.ObsoleteAttribute("Use a incoming behavior to get access to the current message. The member currentl" +
-            "y throws a NotImplementedException. Will be removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute("Use a incoming behavior to get access to the current message. Will be treated as " +
+            "an error from version 6.0.0. The member currently throws a NotImplementedExcepti" +
+            "on. Will be removed in version 7.0.0.", false)]
         public static object CurrentMessageBeingHandled { get; set; }
-        [System.ObsoleteAttribute("Headers are not \'set\' only on the outgoing pipeline. The member currently throws " +
-            "a NotImplementedException. Will be removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute("Headers are not \'set\' only on the outgoing pipeline. Will be treated as an error " +
+            "from version 6.0.0. The member currently throws a NotImplementedException. Will " +
+            "be removed in version 7.0.0.", false)]
         public static string GetMessageHeader(this NServiceBus.IBus bus, object msg, string key) { }
-        [System.ObsoleteAttribute("Use the overload of the Send, Publish or Reply method that accepts an options par" +
-            "ameter. Call options.SetHeader(\"MyHeader\",\"MyValue\") instead. The member current" +
-            "ly throws a NotImplementedException. Will be removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute(@"Use the overload of the Send, Publish or Reply method that accepts an options parameter. Call options.SetHeader(""MyHeader"",""MyValue"") instead. Will be treated as an error from version 6.0.0. The member currently throws a NotImplementedException. Will be removed in version 7.0.0.", false)]
         public static void SetMessageHeader(this NServiceBus.IBus bus, object msg, string key, string value) { }
     }
     public class static FileBasedRoutingConfigurationExtensions
@@ -401,8 +414,8 @@ namespace NServiceBus
         public FileShareDataBus() { }
         protected internal override System.Type ProvidedByFeature() { }
     }
-    [System.ObsoleteAttribute("Use `EndpointConfiguration.ExecuteTheseHandlersFirst` instead. Will be removed in" +
-        " version 7.0.0.", true)]
+    [System.ObsoleteAttribute("Use `EndpointConfiguration.ExecuteTheseHandlersFirst` instead. Will be treated as" +
+        " an error from version 6.0.0. Will be removed in version 7.0.0.", false)]
     public class First<T>
     {
         public First() { }
@@ -467,10 +480,7 @@ namespace NServiceBus
         public const string SubscriptionMessageType = "SubscriptionMessageType";
         public const string TimeSent = "NServiceBus.TimeSent";
         public const string TimeToBeReceived = "NServiceBus.TimeToBeReceived";
-        [System.ObsoleteAttribute("The WinIdName header is no longer attached to outgoing message to avoid passing s" +
-            "ecurity related information on the wire. Should you rely on the header being pre" +
-            "sent you can add a message mutator that sets it. Will be removed in version 7.0." +
-            "0.", true)]
+        [System.ObsoleteAttribute(@"The WinIdName header is no longer attached to outgoing message to avoid passing security related information on the wire. Should you rely on the header being present you can add a message mutator that sets it. Will be treated as an error from version 6.0.0. Will be removed in version 7.0.0.", false)]
         public const string WindowsIdentityName = "WinIdName";
     }
     public class static HostInfoConfigurationExtensions
@@ -486,54 +496,64 @@ namespace NServiceBus
     }
     public interface IAmStartedByMessages<T> : NServiceBus.IHandleMessages<T> { }
     [System.ObsoleteAttribute("Use `config.UseTransport<MsmqTransport>().SubscriptionAuthorizer(Authorizer);` in" +
-        "stead. Will be removed in version 7.0.0.", true)]
+        "stead. Will be treated as an error from version 6.0.0. Will be removed in versio" +
+        "n 7.0.0.", false)]
     public interface IAuthorizeSubscriptions { }
-    [System.ObsoleteAttribute(@"IHandleMessages<T> now exposes the IMessageHandlerContext parameter. Use this to access what used to be available in the IBus interface. Use the provided context in extension points like message handlers or IEndpointInstance when outside the message processing pipeline. Will be removed in version 7.0.0.", true)]
+    [System.ObsoleteAttribute(@"IHandleMessages<T> now exposes the IMessageHandlerContext parameter. Use this to access what used to be available in the IBus interface. Use the provided context in extension points like message handlers or IEndpointInstance when outside the message processing pipeline. Will be treated as an error from version 6.0.0. Will be removed in version 7.0.0.", false)]
     public interface IBus { }
     public class static IBusExtensions
     {
         [System.ObsoleteAttribute("Use `IMessageHandlerContext.DoNotContinueDispatchingCurrentMessageToHandlers()` p" +
-            "rovided to message handlers instead. The member currently throws a NotImplemente" +
-            "dException. Will be removed in version 7.0.0.", true)]
+            "rovided to message handlers instead. Will be treated as an error from version 6." +
+            "0.0. The member currently throws a NotImplementedException. Will be removed in v" +
+            "ersion 7.0.0.", false)]
         public static void DoNotContinueDispatchingCurrentMessageToHandlers(this NServiceBus.IBus bus) { }
         [System.ObsoleteAttribute("Use `IMessageHandlerContext.ForwardCurrentMessageTo(string destination)` provided" +
-            " to message handlers instead. The member currently throws a NotImplementedExcept" +
-            "ion. Will be removed in version 7.0.0.", true)]
+            " to message handlers instead. Will be treated as an error from version 6.0.0. Th" +
+            "e member currently throws a NotImplementedException. Will be removed in version " +
+            "7.0.0.", false)]
         public static void ForwardCurrentMessageTo(this NServiceBus.IBus bus, string destination) { }
         [System.ObsoleteAttribute("Use `IMessageHandlerContext.HandleCurrentMessageLater()` provided to message hand" +
-            "lers instead. The member currently throws a NotImplementedException. Will be rem" +
-            "oved in version 7.0.0.", true)]
+            "lers instead. Will be treated as an error from version 6.0.0. The member current" +
+            "ly throws a NotImplementedException. Will be removed in version 7.0.0.", false)]
         public static void HandleCurrentMessageLater(this NServiceBus.IBus bus) { }
         [System.ObsoleteAttribute("Use `IMessageHandlerContext.Reply(object message)` provided to message handlers i" +
-            "nstead. The member currently throws a NotImplementedException. Will be removed i" +
-            "n version 7.0.0.", true)]
+            "nstead. Will be treated as an error from version 6.0.0. The member currently thr" +
+            "ows a NotImplementedException. Will be removed in version 7.0.0.", false)]
         public static void Reply(this NServiceBus.IBus bus, object message) { }
         [System.ObsoleteAttribute("Use `IMessageHandlerContext.Reply<T>(Action<T> messageConstructor)` provided to m" +
-            "essage handlers instead. The member currently throws a NotImplementedException. " +
-            "Will be removed in version 7.0.0.", true)]
+            "essage handlers instead. Will be treated as an error from version 6.0.0. The mem" +
+            "ber currently throws a NotImplementedException. Will be removed in version 7.0.0" +
+            ".", false)]
         public static void Reply<T>(this NServiceBus.IBus bus, System.Action<T> messageConstructor) { }
         [System.ObsoleteAttribute("Use `IMessageHandlerContext.SendLocal(object message)` provided to message handle" +
-            "rs instead. The member currently throws a NotImplementedException. Will be remov" +
-            "ed in version 7.0.0.", true)]
+            "rs instead. Will be treated as an error from version 6.0.0. The member currently" +
+            " throws a NotImplementedException. Will be removed in version 7.0.0.", false)]
         public static void SendLocal(this NServiceBus.IBus bus, object message) { }
         [System.ObsoleteAttribute("Use `IMessageHandlerContext.SendLocal<T>(Action<T> messageConstructor)` provided " +
-            "to message handlers instead. The member currently throws a NotImplementedExcepti" +
-            "on. Will be removed in version 7.0.0.", true)]
+            "to message handlers instead. Will be treated as an error from version 6.0.0. The" +
+            " member currently throws a NotImplementedException. Will be removed in version 7" +
+            ".0.0.", false)]
         public static void SendLocal<T>(this NServiceBus.IBus bus, System.Action<T> messageConstructor) { }
-        [System.ObsoleteAttribute("Use `Subscribe(Type messageType)` instead. The member currently throws a NotImple" +
-            "mentedException. Will be removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute("Use `Subscribe(Type messageType)` instead. Will be treated as an error from versi" +
+            "on 6.0.0. The member currently throws a NotImplementedException. Will be removed" +
+            " in version 7.0.0.", false)]
         public static void Subscribe(this NServiceBus.IBus bus, System.Type messageType) { }
-        [System.ObsoleteAttribute("Use `Subscribe<T>()` instead. The member currently throws a NotImplementedExcepti" +
-            "on. Will be removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute("Use `Subscribe<T>()` instead. Will be treated as an error from version 6.0.0. The" +
+            " member currently throws a NotImplementedException. Will be removed in version 7" +
+            ".0.0.", false)]
         public static void Subscribe<T>(this NServiceBus.IBus bus) { }
-        [System.ObsoleteAttribute("Use `Unsubscribe(Type messageType)` instead. The member currently throws a NotImp" +
-            "lementedException. Will be removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute("Use `Unsubscribe(Type messageType)` instead. Will be treated as an error from ver" +
+            "sion 6.0.0. The member currently throws a NotImplementedException. Will be remov" +
+            "ed in version 7.0.0.", false)]
         public static void Unsubscribe(this NServiceBus.IBus bus, System.Type messageType) { }
-        [System.ObsoleteAttribute("Use `Unsubscribe<T>()` instead. The member currently throws a NotImplementedExcep" +
-            "tion. Will be removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute("Use `Unsubscribe<T>()` instead. Will be treated as an error from version 6.0.0. T" +
+            "he member currently throws a NotImplementedException. Will be removed in version" +
+            " 7.0.0.", false)]
         public static void Unsubscribe<T>(this NServiceBus.IBus bus) { }
     }
-    [System.ObsoleteAttribute("Replaced by NServiceBus.Callbacks package. Will be removed in version 7.0.0.", true)]
+    [System.ObsoleteAttribute("Replaced by NServiceBus.Callbacks package. Will be treated as an error from versi" +
+        "on 6.0.0. Will be removed in version 7.0.0.", false)]
     public interface ICallback { }
     public interface ICommand : NServiceBus.IMessage { }
     public interface IConfigureHowToFindSagaWithMessage
@@ -571,7 +591,8 @@ namespace NServiceBus
         System.Threading.Tasks.Task Stop();
     }
     public interface IEvent : NServiceBus.IMessage { }
-    [System.ObsoleteAttribute("Will be removed in version 7.0.0.", true)]
+    [System.ObsoleteAttribute("Will be treated as an error from version 6.0.0. Will be removed in version 7.0.0." +
+        "", false)]
     public interface IExcludesBuilder { }
     [JetBrains.Annotations.UsedImplicitlyAttribute(JetBrains.Annotations.ImplicitUseTargetFlags.Default | JetBrains.Annotations.ImplicitUseTargetFlags.Itself | JetBrains.Annotations.ImplicitUseTargetFlags.Members | JetBrains.Annotations.ImplicitUseTargetFlags.WithMembers)]
     public interface IHandleMessages<T>
@@ -583,14 +604,16 @@ namespace NServiceBus
     {
         System.Threading.Tasks.Task Timeout(T state, NServiceBus.IMessageHandlerContext context);
     }
-    [System.ObsoleteAttribute("Will be removed in version 7.0.0.", true)]
+    [System.ObsoleteAttribute("Will be treated as an error from version 6.0.0. Will be removed in version 7.0.0." +
+        "", false)]
     public interface IIncludesBuilder { }
-    [System.ObsoleteAttribute("No longer used, can safely be removed. Will be removed in version 7.0.0.", true)]
+    [System.ObsoleteAttribute("No longer used, can safely be removed. Will be treated as an error from version 6" +
+        ".0.0. Will be removed in version 7.0.0.", false)]
     public interface IManageMessageHeaders { }
     [JetBrains.Annotations.UsedImplicitlyAttribute(JetBrains.Annotations.ImplicitUseTargetFlags.Default | JetBrains.Annotations.ImplicitUseTargetFlags.Itself | JetBrains.Annotations.ImplicitUseTargetFlags.Members | JetBrains.Annotations.ImplicitUseTargetFlags.WithMembers)]
     public interface IMessage { }
-    [System.ObsoleteAttribute("Use `IMessageHandlerContext` provided to message handlers instead. Will be remove" +
-        "d in version 7.0.0.", true)]
+    [System.ObsoleteAttribute("Use `IMessageHandlerContext` provided to message handlers instead. Will be treate" +
+        "d as an error from version 6.0.0. Will be removed in version 7.0.0.", false)]
     public interface IMessageContext { }
     public interface IMessageCreator
     {
@@ -677,16 +700,18 @@ namespace NServiceBus
         public static System.Threading.Tasks.Task SendLocal(this NServiceBus.IPipelineContext context, object message) { }
         public static System.Threading.Tasks.Task SendLocal<T>(this NServiceBus.IPipelineContext context, System.Action<T> messageConstructor) { }
     }
-    [System.ObsoleteAttribute("Use IEndpointInstance to create sending session. Will be removed in version 7.0.0" +
-        ".", true)]
+    [System.ObsoleteAttribute("Use IEndpointInstance to create sending session. Will be treated as an error from" +
+        " version 6.0.0. Will be removed in version 7.0.0.", false)]
     public interface ISendOnlyBus : System.IDisposable { }
-    [System.ObsoleteAttribute("Use `EndpointConfiguration.ExecuteTheseHandlersFirst` instead. Will be removed in" +
-        " version 7.0.0.", true)]
+    [System.ObsoleteAttribute("Use `EndpointConfiguration.ExecuteTheseHandlersFirst` instead. Will be treated as" +
+        " an error from version 6.0.0. Will be removed in version 7.0.0.", false)]
     public interface ISpecifyMessageHandlerOrdering { }
-    [System.ObsoleteAttribute("Use `IStartableEndpoint` instead. Will be removed in version 7.0.0.", true)]
+    [System.ObsoleteAttribute("Use `IStartableEndpoint` instead. Will be treated as an error from version 6.0.0." +
+        " Will be removed in version 7.0.0.", false)]
     public interface IStartableBus : NServiceBus.IBus
     {
-        [System.ObsoleteAttribute("Use `IStartableEndpoint` instead. Will be removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute("Use `IStartableEndpoint` instead. Will be treated as an error from version 6.0.0." +
+            " Will be removed in version 7.0.0.", false)]
         NServiceBus.IBus Start();
     }
     public interface IStartableEndpoint
@@ -698,7 +723,7 @@ namespace NServiceBus
     {
         void Run(NServiceBus.Settings.SettingsHolder settings);
     }
-    [System.ObsoleteAttribute(@"`IWantToRunWhenBusStartsAndStops` has been moved to the host implementations and renamed. If you're self-hosting, instead of using this interface, you can call any startup code right before `Endpoint.Create` or any cleanup code right after `Endpoint.Stop`. When using either NServiceBus.Host or NServiceBus.Host.AzureCloudService, use the host's interface `IWantToRunWhenEndpointStartsAndStops` instead. Will be removed in version 7.0.0.", true)]
+    [System.ObsoleteAttribute(@"`IWantToRunWhenBusStartsAndStops` has been moved to the host implementations and renamed. If you're self-hosting, instead of using this interface, you can call any startup code right before `Endpoint.Create` or any cleanup code right after `Endpoint.Stop`. When using either NServiceBus.Host or NServiceBus.Host.AzureCloudService, use the host's interface `IWantToRunWhenEndpointStartsAndStops` instead. Will be treated as an error from version 6.0.0. Will be removed in version 7.0.0.", false)]
     public interface IWantToRunWhenBusStartsAndStops { }
     public class JsonSerializer : NServiceBus.Serialization.SerializationDefinition
     {
@@ -709,22 +734,25 @@ namespace NServiceBus
     {
         public static void Encoding(this NServiceBus.Serialization.SerializationExtensions<NServiceBus.JsonSerializer> config, System.Text.Encoding encoding) { }
         [System.ObsoleteAttribute("Use `Encoding(this SerializationExtensions<JsonSerializer> config, Encoding encod" +
-            "ing)` instead. The member currently throws a NotImplementedException. Will be re" +
-            "moved in version 7.0.0.", true)]
+            "ing)` instead. Will be treated as an error from version 6.0.0. The member curren" +
+            "tly throws a NotImplementedException. Will be removed in version 7.0.0.", false)]
         public static void Encoding(this NServiceBus.SerializationExtentions<NServiceBus.JsonSerializer> config, System.Text.Encoding encoding) { }
     }
     public class static LoadMessageHandlersExtensions
     {
         public static void ExecuteTheseHandlersFirst(this NServiceBus.EndpointConfiguration config, System.Collections.Generic.IEnumerable<System.Type> handlerTypes) { }
         public static void ExecuteTheseHandlersFirst(this NServiceBus.EndpointConfiguration config, params System.Type[] handlerTypes) { }
-        [System.ObsoleteAttribute("Use `ExecuteTheseHandlersFirst` instead. The member currently throws a NotImpleme" +
-            "ntedException. Will be removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute("Use `ExecuteTheseHandlersFirst` instead. Will be treated as an error from version" +
+            " 6.0.0. The member currently throws a NotImplementedException. Will be removed i" +
+            "n version 7.0.0.", false)]
         public static void LoadMessageHandlers<TFirst>(this NServiceBus.EndpointConfiguration config) { }
-        [System.ObsoleteAttribute("Use `ExecuteTheseHandlersFirst` instead. The member currently throws a NotImpleme" +
-            "ntedException. Will be removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute("Use `ExecuteTheseHandlersFirst` instead. Will be treated as an error from version" +
+            " 6.0.0. The member currently throws a NotImplementedException. Will be removed i" +
+            "n version 7.0.0.", false)]
         public static void LoadMessageHandlers<T>(this NServiceBus.EndpointConfiguration config, NServiceBus.First<T> order) { }
     }
-    [System.ObsoleteAttribute("Use `LoadMessageHandlersExtensions` instead. Will be removed in version 7.0.0.", true)]
+    [System.ObsoleteAttribute("Use `LoadMessageHandlersExtensions` instead. Will be treated as an error from ver" +
+        "sion 6.0.0. Will be removed in version 7.0.0.", false)]
     public class static LoadMessageHandlersExtentions { }
     public sealed class LogicalAddress
     {
@@ -789,12 +817,12 @@ namespace NServiceBus
         public Notifications() { }
         public NServiceBus.Faults.ErrorsNotifications Errors { get; }
         [System.ObsoleteAttribute("For performance reasons it is no longer possible to instrument the pipeline execu" +
-            "tion. The member currently throws a NotImplementedException. Will be removed in " +
-            "version 7.0.0.", true)]
+            "tion. Will be treated as an error from version 6.0.0. The member currently throw" +
+            "s a NotImplementedException. Will be removed in version 7.0.0.", false)]
         public NServiceBus.PipelineNotifications Pipeline { get; }
     }
-    [System.ObsoleteAttribute("Use `EndpointConfiguration.ExecuteTheseHandlersFirst` instead. Will be removed in" +
-        " version 7.0.0.", true)]
+    [System.ObsoleteAttribute("Use `EndpointConfiguration.ExecuteTheseHandlersFirst` instead. Will be treated as" +
+        " an error from version 6.0.0. Will be removed in version 7.0.0.", false)]
     public class Order
     {
         public Order() { }
@@ -842,23 +870,27 @@ namespace NServiceBus
     {
         public PersistenceExtensions(NServiceBus.Settings.SettingsHolder settings) { }
     }
-    [System.ObsoleteAttribute("Use `PersistenceExtensions` instead. Will be removed in version 7.0.0.", true)]
+    [System.ObsoleteAttribute("Use `PersistenceExtensions` instead. Will be treated as an error from version 6.0" +
+        ".0. Will be removed in version 7.0.0.", false)]
     public class PersistenceExtentions
     {
         public PersistenceExtentions() { }
     }
-    [System.ObsoleteAttribute("Use `PersistenceExtensions<T>` instead. Will be removed in version 7.0.0.", true)]
+    [System.ObsoleteAttribute("Use `PersistenceExtensions<T>` instead. Will be treated as an error from version " +
+        "6.0.0. Will be removed in version 7.0.0.", false)]
     public class PersistenceExtentions<T>
     {
         public PersistenceExtentions() { }
     }
-    [System.ObsoleteAttribute("Use `PersistenceExtensions<T, S>` instead. Will be removed in version 7.0.0.", true)]
+    [System.ObsoleteAttribute("Use `PersistenceExtensions<T, S>` instead. Will be treated as an error from versi" +
+        "on 6.0.0. Will be removed in version 7.0.0.", false)]
     public class PersistenceExtentions<T, S>
     {
         public PersistenceExtentions() { }
     }
     [System.ObsoleteAttribute("For performance reasons it is no longer possible to instrument the pipeline execu" +
-        "tion. Will be removed in version 7.0.0.", true)]
+        "tion. Will be treated as an error from version 6.0.0. Will be removed in version" +
+        " 7.0.0.", false)]
     public class PipelineNotifications
     {
         public PipelineNotifications() { }
@@ -930,12 +962,11 @@ namespace NServiceBus
         protected internal abstract void ConfigureHowToFindSaga(NServiceBus.IConfigureHowToFindSagaWithMessage sagaMessageFindingConfiguration);
         protected void MarkAsComplete() { }
         protected System.Threading.Tasks.Task ReplyToOriginator(NServiceBus.IMessageHandlerContext context, object message) { }
-        [System.ObsoleteAttribute("Use `ReplyToOriginator(IMessageHandlerContext, object)` instead. The member curre" +
-            "ntly throws a NotImplementedException. Will be removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute("Use `ReplyToOriginator(IMessageHandlerContext, object)` instead. Will be treated " +
+            "as an error from version 6.0.0. The member currently throws a NotImplementedExce" +
+            "ption. Will be removed in version 7.0.0.", false)]
         protected void ReplyToOriginator(object message) { }
-        [System.ObsoleteAttribute("Construct the message and pass it to the non Action overload. Use `ReplyToOrigina" +
-            "tor(IMessageHandlerContext, object)` instead. The member currently throws a NotI" +
-            "mplementedException. Will be removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute(@"Construct the message and pass it to the non Action overload. Use `ReplyToOriginator(IMessageHandlerContext, object)` instead. Will be treated as an error from version 6.0.0. The member currently throws a NotImplementedException. Will be removed in version 7.0.0.", false)]
         protected virtual void ReplyToOriginator<TMessage>(System.Action<TMessage> messageConstructor) { }
         protected System.Threading.Tasks.Task RequestTimeout<TTimeoutMessageType>(NServiceBus.IMessageHandlerContext context, System.DateTime at)
             where TTimeoutMessageType : new() { }
@@ -944,27 +975,26 @@ namespace NServiceBus
             where TTimeoutMessageType : new() { }
         protected System.Threading.Tasks.Task RequestTimeout<TTimeoutMessageType>(NServiceBus.IMessageHandlerContext context, System.TimeSpan within, TTimeoutMessageType timeoutMessage) { }
         [System.ObsoleteAttribute("Use `RequestTimeout<TTimeoutMessageType>(IMessageHandlerContext, DateTime)` inste" +
-            "ad. The member currently throws a NotImplementedException. Will be removed in ve" +
-            "rsion 7.0.0.", true)]
+            "ad. Will be treated as an error from version 6.0.0. The member currently throws " +
+            "a NotImplementedException. Will be removed in version 7.0.0.", false)]
         protected void RequestTimeout<TTimeoutMessageType>(System.DateTime at) { }
-        [System.ObsoleteAttribute("Construct the message and pass it to the non Action overload. Use `RequestTimeout" +
-            "<TTimeoutMessageType>(IMessageHandlerContext DateTime, TTimeoutMessageType)` ins" +
-            "tead. The member currently throws a NotImplementedException. Will be removed in " +
-            "version 7.0.0.", true)]
+        [System.ObsoleteAttribute(@"Construct the message and pass it to the non Action overload. Use `RequestTimeout<TTimeoutMessageType>(IMessageHandlerContext DateTime, TTimeoutMessageType)` instead. Will be treated as an error from version 6.0.0. The member currently throws a NotImplementedException. Will be removed in version 7.0.0.", false)]
         protected void RequestTimeout<TTimeoutMessageType>(System.DateTime at, System.Action<TTimeoutMessageType> action) { }
         [System.ObsoleteAttribute("Use `RequestTimeout<TTimeoutMessageType>(IMessageHandlerContext, DateTime, TTimeo" +
-            "utMessageType)` instead. The member currently throws a NotImplementedException. " +
-            "Will be removed in version 7.0.0.", true)]
+            "utMessageType)` instead. Will be treated as an error from version 6.0.0. The mem" +
+            "ber currently throws a NotImplementedException. Will be removed in version 7.0.0" +
+            ".", false)]
         protected void RequestTimeout<TTimeoutMessageType>(System.DateTime at, TTimeoutMessageType timeoutMessage) { }
         [System.ObsoleteAttribute("Use `RequestTimeout<TTimeoutMessageType>(IMessageHandlerContext, TimeSpan)` inste" +
-            "ad. The member currently throws a NotImplementedException. Will be removed in ve" +
-            "rsion 7.0.0.", true)]
+            "ad. Will be treated as an error from version 6.0.0. The member currently throws " +
+            "a NotImplementedException. Will be removed in version 7.0.0.", false)]
         protected void RequestTimeout<TTimeoutMessageType>(System.TimeSpan within) { }
-        [System.ObsoleteAttribute(@"Construct the message and pass it to the non Action overload. Use `Saga.RequestTimeout<TTimeoutMessageType>(IMessageHandlerContext, TimeSpan, TTimeoutMessageType)` instead. The member currently throws a NotImplementedException. Will be removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute(@"Construct the message and pass it to the non Action overload. Use `Saga.RequestTimeout<TTimeoutMessageType>(IMessageHandlerContext, TimeSpan, TTimeoutMessageType)` instead. Will be treated as an error from version 6.0.0. The member currently throws a NotImplementedException. Will be removed in version 7.0.0.", false)]
         protected void RequestTimeout<TTimeoutMessageType>(System.TimeSpan within, System.Action<TTimeoutMessageType> messageConstructor) { }
         [System.ObsoleteAttribute("Use `RequestTimeout<TTimeoutMessageType>(IMessageHandlerContext, TimeSpan, TTimeo" +
-            "utMessageType)` instead. The member currently throws a NotImplementedException. " +
-            "Will be removed in version 7.0.0.", true)]
+            "utMessageType)` instead. Will be treated as an error from version 6.0.0. The mem" +
+            "ber currently throws a NotImplementedException. Will be removed in version 7.0.0" +
+            ".", false)]
         protected void RequestTimeout<TTimeoutMessageType>(System.TimeSpan within, TTimeoutMessageType timeoutMessage) { }
     }
     public abstract class Saga<TSagaData> : NServiceBus.Saga
@@ -984,10 +1014,11 @@ namespace NServiceBus
     {
         public static NServiceBus.Settings.ScaleOutSettings ScaleOut(this NServiceBus.EndpointConfiguration config) { }
     }
-    [System.ObsoleteAttribute("Use `ScaleOutExtensions` instead. Will be removed in version 7.0.0.", true)]
+    [System.ObsoleteAttribute("Use `ScaleOutExtensions` instead. Will be treated as an error from version 6.0.0." +
+        " Will be removed in version 7.0.0.", false)]
     public class static ScaleOutExtentions { }
-    [System.ObsoleteAttribute("Use extension methods provided on ISendOnlyBus. Will be removed in version 7.0.0." +
-        "", true)]
+    [System.ObsoleteAttribute("Use extension methods provided on ISendOnlyBus. Will be treated as an error from " +
+        "version 6.0.0. Will be removed in version 7.0.0.", false)]
     public class Schedule
     {
         public Schedule() { }
@@ -995,12 +1026,11 @@ namespace NServiceBus
     public class static ScheduleExtensions
     {
         [System.ObsoleteAttribute("Use `ScheduleEvery(this IMessageSession session, TimeSpan timeSpan, Func<IPipelin" +
-            "eContext, Task> task)` instead. The member currently throws a NotImplementedExce" +
-            "ption. Will be removed in version 7.0.0.", true)]
+            "eContext, Task> task)` instead. Will be treated as an error from version 6.0.0. " +
+            "The member currently throws a NotImplementedException. Will be removed in versio" +
+            "n 7.0.0.", false)]
         public static void ScheduleEvery(this NServiceBus.IMessageSession session, System.TimeSpan timeSpan, System.Action task) { }
-        [System.ObsoleteAttribute("Use `ScheduleEvery(this IMessageSession session, TimeSpan timeSpan, string name, " +
-            "Func<IPipelineContext, Task> task)` instead. The member currently throws a NotIm" +
-            "plementedException. Will be removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute(@"Use `ScheduleEvery(this IMessageSession session, TimeSpan timeSpan, string name, Func<IPipelineContext, Task> task)` instead. Will be treated as an error from version 6.0.0. The member currently throws a NotImplementedException. Will be removed in version 7.0.0.", false)]
         public static void ScheduleEvery(this NServiceBus.IMessageSession session, System.TimeSpan timeSpan, string name, System.Action task) { }
         public static System.Threading.Tasks.Task ScheduleEvery(this NServiceBus.IMessageSession session, System.TimeSpan timeSpan, System.Func<NServiceBus.IPipelineContext, System.Threading.Tasks.Task> task) { }
         public static System.Threading.Tasks.Task ScheduleEvery(this NServiceBus.IMessageSession session, System.TimeSpan timeSpan, string name, System.Func<NServiceBus.IPipelineContext, System.Threading.Tasks.Task> task) { }
@@ -1012,8 +1042,8 @@ namespace NServiceBus
     public class SecondLevelRetriesSettings
     {
         [System.ObsoleteAttribute("Use `CustomRetryPolicy(Func<SecondLevelRetryContext, TimeSpan> customPolicy)` ins" +
-            "tead. The member currently throws a NotImplementedException. Will be removed in " +
-            "version 7.0.0.", true)]
+            "tead. Will be treated as an error from version 6.0.0. The member currently throw" +
+            "s a NotImplementedException. Will be removed in version 7.0.0.", false)]
         public void CustomRetryPolicy(System.Func<NServiceBus.TransportMessage, System.TimeSpan> customPolicy) { }
         public NServiceBus.SecondLevelRetriesSettings CustomRetryPolicy(System.Func<NServiceBus.SecondLevelRetryContext, System.TimeSpan> customPolicy) { }
         public NServiceBus.SecondLevelRetriesSettings Disable() { }
@@ -1039,9 +1069,7 @@ namespace NServiceBus
             where T : NServiceBus.Serialization.SerializationDefinition, new () { }
         public static NServiceBus.Serialization.SerializationExtensions<T> UseSerialization<T>(this NServiceBus.EndpointConfiguration config, T serializationDefinition)
             where T : NServiceBus.Serialization.SerializationDefinition { }
-        [System.ObsoleteAttribute("To use a custom serializer derive from SerializationDefinition and provide a fact" +
-            "ory method for creating the serializer instance. The member currently throws a N" +
-            "otImplementedException. Will be removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute(@"To use a custom serializer derive from SerializationDefinition and provide a factory method for creating the serializer instance. Will be treated as an error from version 6.0.0. The member currently throws a NotImplementedException. Will be removed in version 7.0.0.", false)]
         public static void UseSerialization(this NServiceBus.EndpointConfiguration config, System.Type serializerType) { }
     }
     public class static SerializationContextExtensions
@@ -1049,7 +1077,8 @@ namespace NServiceBus
         public static bool ShouldSkipSerialization(this NServiceBus.Pipeline.IOutgoingLogicalMessageContext context) { }
         public static void SkipSerialization(this NServiceBus.Pipeline.IOutgoingLogicalMessageContext context) { }
     }
-    [System.ObsoleteAttribute("Use `SerializationExtensions<T>` instead. Will be removed in version 7.0.0.", true)]
+    [System.ObsoleteAttribute("Use `SerializationExtensions<T>` instead. Will be treated as an error from versio" +
+        "n 6.0.0. Will be removed in version 7.0.0.", false)]
     public class SerializationExtentions<T>
     {
         public SerializationExtentions() { }
@@ -1064,7 +1093,8 @@ namespace NServiceBus
         public static string InstanceSpecificQueue(this NServiceBus.Settings.ReadOnlySettings settings) { }
         public static string LocalAddress(this NServiceBus.Settings.ReadOnlySettings settings) { }
     }
-    [System.ObsoleteAttribute("Use `SettingsExtensions` instead. Will be removed in version 7.0.0.", true)]
+    [System.ObsoleteAttribute("Use `SettingsExtensions` instead. Will be treated as an error from version 6.0.0." +
+        " Will be removed in version 7.0.0.", false)]
     public class static SettingsExtentions { }
     public class static SLAMonitoringConfig
     {
@@ -1115,34 +1145,38 @@ namespace NServiceBus
         public NServiceBus.TransportExtensions<T> ConnectionStringName(string name) { }
         public NServiceBus.TransportExtensions<T> Transactions(NServiceBus.TransportTransactionMode transportTransactionMode) { }
     }
-    [System.ObsoleteAttribute("Not used anymore, use `OutgoingMessage` or `IncomingMessage` instead. Will be rem" +
-        "oved in version 7.0.0.", true)]
+    [System.ObsoleteAttribute("Not used anymore, use `OutgoingMessage` or `IncomingMessage` instead. Will be tre" +
+        "ated as an error from version 6.0.0. Will be removed in version 7.0.0.", false)]
     public class TransportMessage
     {
         public TransportMessage() { }
-        [System.ObsoleteAttribute("Use the value of the \'IncomingMessage.Body\' or \'OutgoingMessage.Body\' instead. Th" +
-            "e member currently throws a NotImplementedException. Will be removed in version " +
-            "7.0.0.", true)]
+        [System.ObsoleteAttribute("Use the value of the \'IncomingMessage.Body\' or \'OutgoingMessage.Body\' instead. Wi" +
+            "ll be treated as an error from version 6.0.0. The member currently throws a NotI" +
+            "mplementedException. Will be removed in version 7.0.0.", false)]
         public byte[] Body { get; set; }
-        [System.ObsoleteAttribute("Use the value of the \'NServiceBus.CorrelationId\' header instead. The member curre" +
-            "ntly throws a NotImplementedException. Will be removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute("Use the value of the \'NServiceBus.CorrelationId\' header instead. Will be treated " +
+            "as an error from version 6.0.0. The member currently throws a NotImplementedExce" +
+            "ption. Will be removed in version 7.0.0.", false)]
         public string CorrelationId { get; set; }
         [System.ObsoleteAttribute("Use the value of the \'IncomingMessage.Headers\' or \'OutgoingMesssage.Headers\' inst" +
-            "ead. Will be removed in version 7.0.0.", true)]
+            "ead. Will be treated as an error from version 6.0.0. Will be removed in version " +
+            "7.0.0.", false)]
         public System.Collections.Generic.Dictionary<string, string> Headers { get; }
         [System.ObsoleteAttribute("Use the value of the \'IncomingMessage.MessageId\' or \'OutgoingMesssage.MessageId\' " +
-            "instead. The member currently throws a NotImplementedException. Will be removed " +
-            "in version 7.0.0.", true)]
+            "instead. Will be treated as an error from version 6.0.0. The member currently th" +
+            "rows a NotImplementedException. Will be removed in version 7.0.0.", false)]
         public string Id { get; }
-        [System.ObsoleteAttribute("Use `GetMessageIntent(this IncomingMessage message)` instead. The member currentl" +
-            "y throws a NotImplementedException. Will be removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute("Use `GetMessageIntent(this IncomingMessage message)` instead. Will be treated as " +
+            "an error from version 6.0.0. The member currently throws a NotImplementedExcepti" +
+            "on. Will be removed in version 7.0.0.", false)]
         public NServiceBus.MessageIntentEnum MessageIntent { get; }
-        [System.ObsoleteAttribute(@"For sending purposes use `DeliveryConstraintContextExtensions.AddDeliveryConstraint(new NonDurableDelivery())` to set NonDurable delivery or `NonDurableDelivery constraint;DeliveryConstraintContextExtensions.TryGetDeliveryConstraint(out constraint)` to read wether NonDurable delivery is set. When receiving look at the new 'NServiceBus.NonDurableMessage' header. The member currently throws a NotImplementedException. Will be removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute(@"For sending purposes use `DeliveryConstraintContextExtensions.AddDeliveryConstraint(new NonDurableDelivery())` to set NonDurable delivery or `NonDurableDelivery constraint;DeliveryConstraintContextExtensions.TryGetDeliveryConstraint(out constraint)` to read wether NonDurable delivery is set. When receiving look at the new 'NServiceBus.NonDurableMessage' header. Will be treated as an error from version 6.0.0. The member currently throws a NotImplementedException. Will be removed in version 7.0.0.", false)]
         public bool Recoverable { get; set; }
-        [System.ObsoleteAttribute("Use `GetReplyToAddress(this IncomingMessage message)` instead. The member current" +
-            "ly throws a NotImplementedException. Will be removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute("Use `GetReplyToAddress(this IncomingMessage message)` instead. Will be treated as" +
+            " an error from version 6.0.0. The member currently throws a NotImplementedExcept" +
+            "ion. Will be removed in version 7.0.0.", false)]
         public string ReplyToAddress { get; }
-        [System.ObsoleteAttribute(@"For sending purposes use `DeliveryConstraintContextExtensions.AddDeliveryConstraint(new DiscardIfNotReceivedBefore(timeToBeReceived))` to set the `TimeToBeReceived` or `DiscardIfNotReceivedBefore constraint;DeliveryConstraintContextExtensions.TryGetDeliveryConstraint(out constraint)` to read the `TimeToBeReceived`. When receiving look at the new 'NServiceBus.TimeToBeReceived' header. The member currently throws a NotImplementedException. Will be removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute(@"For sending purposes use `DeliveryConstraintContextExtensions.AddDeliveryConstraint(new DiscardIfNotReceivedBefore(timeToBeReceived))` to set the `TimeToBeReceived` or `DiscardIfNotReceivedBefore constraint;DeliveryConstraintContextExtensions.TryGetDeliveryConstraint(out constraint)` to read the `TimeToBeReceived`. When receiving look at the new 'NServiceBus.TimeToBeReceived' header. Will be treated as an error from version 6.0.0. The member currently throws a NotImplementedException. Will be removed in version 7.0.0.", false)]
         public System.TimeSpan TimeToBeReceived { get; set; }
     }
     public enum TransportTransactionMode
@@ -1191,9 +1225,11 @@ namespace NServiceBus
     {
         public WireEncryptedString() { }
         public WireEncryptedString(System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context) { }
-        [System.ObsoleteAttribute("No longer required. Will be removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute("No longer required. Will be treated as an error from version 6.0.0. Will be remov" +
+            "ed in version 7.0.0.", false)]
         public string Base64Iv { get; set; }
-        [System.ObsoleteAttribute("No longer required. Will be removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute("No longer required. Will be treated as an error from version 6.0.0. Will be remov" +
+            "ed in version 7.0.0.", false)]
         public string EncryptedBase64Value { get; set; }
         public NServiceBus.EncryptedValue EncryptedValue { get; set; }
         public string Value { get; set; }
@@ -1203,18 +1239,18 @@ namespace NServiceBus
     {
         public static NServiceBus.Serialization.SerializationExtensions<NServiceBus.XmlSerializer> DontWrapRawXml(this NServiceBus.Serialization.SerializationExtensions<NServiceBus.XmlSerializer> config) { }
         [System.ObsoleteAttribute("Use `DontWrapRawXml(this SerializationExtensions<XmlSerializer> config)` instead." +
-            " The member currently throws a NotImplementedException. Will be removed in versi" +
-            "on 7.0.0.", true)]
+            " Will be treated as an error from version 6.0.0. The member currently throws a N" +
+            "otImplementedException. Will be removed in version 7.0.0.", false)]
         public static NServiceBus.SerializationExtentions<NServiceBus.XmlSerializer> DontWrapRawXml(this NServiceBus.SerializationExtentions<NServiceBus.XmlSerializer> config) { }
         public static NServiceBus.Serialization.SerializationExtensions<NServiceBus.XmlSerializer> Namespace(this NServiceBus.Serialization.SerializationExtensions<NServiceBus.XmlSerializer> config, string namespaceToUse) { }
         [System.ObsoleteAttribute("Use `Namespace(this SerializationExtensions<XmlSerializer> config, string namespa" +
-            "ceToUse)` instead. The member currently throws a NotImplementedException. Will b" +
-            "e removed in version 7.0.0.", true)]
+            "ceToUse)` instead. Will be treated as an error from version 6.0.0. The member cu" +
+            "rrently throws a NotImplementedException. Will be removed in version 7.0.0.", false)]
         public static NServiceBus.SerializationExtentions<NServiceBus.XmlSerializer> Namespace(this NServiceBus.SerializationExtentions<NServiceBus.XmlSerializer> config, string namespaceToUse) { }
         public static NServiceBus.Serialization.SerializationExtensions<NServiceBus.XmlSerializer> SanitizeInput(this NServiceBus.Serialization.SerializationExtensions<NServiceBus.XmlSerializer> config) { }
         [System.ObsoleteAttribute("Use `SanitizeInput(this SerializationExtensions<XmlSerializer> config)` instead. " +
-            "The member currently throws a NotImplementedException. Will be removed in versio" +
-            "n 7.0.0.", true)]
+            "Will be treated as an error from version 6.0.0. The member currently throws a No" +
+            "tImplementedException. Will be removed in version 7.0.0.", false)]
         public static NServiceBus.SerializationExtentions<NServiceBus.XmlSerializer> SanitizeInput(this NServiceBus.SerializationExtentions<NServiceBus.XmlSerializer> config) { }
     }
     public class XmlSerializer : NServiceBus.Serialization.SerializationDefinition
@@ -1227,14 +1263,14 @@ namespace NServiceBus.AutomaticSubscriptions.Config
 {
     public class AutoSubscribeSettings
     {
-        [System.ObsoleteAttribute("Encourages bad practices. IMessageSession.Subscribe should be explicitly used. Th" +
-            "e member currently throws a NotImplementedException. Will be removed in version " +
-            "7.0.0.", true)]
+        [System.ObsoleteAttribute("Encourages bad practices. IMessageSession.Subscribe should be explicitly used. Wi" +
+            "ll be treated as an error from version 6.0.0. The member currently throws a NotI" +
+            "mplementedException. Will be removed in version 7.0.0.", false)]
         public void AutoSubscribePlainMessages() { }
         public void DoNotAutoSubscribeSagas() { }
         [System.ObsoleteAttribute("Transports with support for centralized pubsub will default this to true. Can saf" +
-            "ely be removed. The member currently throws a NotImplementedException. Will be r" +
-            "emoved in version 7.0.0.", true)]
+            "ely be removed. Will be treated as an error from version 6.0.0. The member curre" +
+            "ntly throws a NotImplementedException. Will be removed in version 7.0.0.", false)]
         public void DoNotRequireExplicitRouting() { }
     }
 }
@@ -1249,8 +1285,8 @@ namespace NServiceBus.Config
         public string QueueName { get; set; }
     }
     [System.ObsoleteAttribute("Use the feature concept instead via A class which inherits from `NServiceBus.Feat" +
-        "ures.Feature` and use `configuration.EnableFeature<YourClass>()`. Will be remove" +
-        "d in version 7.0.0.", true)]
+        "ures.Feature` and use `configuration.EnableFeature<YourClass>()`. Will be treate" +
+        "d as an error from version 6.0.0. Will be removed in version 7.0.0.", false)]
     public interface IWantToRunWhenConfigurationIsComplete { }
     public enum KeyFormat
     {
@@ -1263,8 +1299,8 @@ namespace NServiceBus.Config
         [System.Configuration.ConfigurationPropertyAttribute("Threshold", DefaultValue="Info", IsRequired=true)]
         public string Threshold { get; set; }
     }
-    [System.ObsoleteAttribute("Use `EndpointConfiguration.EnlistWithLegacyMSMQDistributor` instead. Will be remo" +
-        "ved in version 7.0.0.", true)]
+    [System.ObsoleteAttribute("Use `EndpointConfiguration.EnlistWithLegacyMSMQDistributor` instead. Will be trea" +
+        "ted as an error from version 6.0.0. Will be removed in version 7.0.0.", false)]
     public class MasterNodeConfig : System.Configuration.ConfigurationSection
     {
         public MasterNodeConfig() { }
@@ -1371,11 +1407,12 @@ namespace NServiceBus.Config
         public TransportConfig() { }
         [System.Configuration.ConfigurationPropertyAttribute("MaximumConcurrencyLevel", DefaultValue=0, IsRequired=false)]
         [System.ObsoleteAttribute("Use `EndpointConfiguration.LimitMessageProcessingConcurrencyTo` instead. Will be " +
-            "removed in version 7.0.0.", true)]
+            "treated as an error from version 6.0.0. Will be removed in version 7.0.0.", false)]
         public int MaximumConcurrencyLevel { get; set; }
         [System.Configuration.ConfigurationPropertyAttribute("MaximumMessageThroughputPerSecond", DefaultValue=-1, IsRequired=false)]
         [System.ObsoleteAttribute("Message throughput throttling has been removed. Consult the documentation for fur" +
-            "ther information. Will be removed in version 7.0.0.", true)]
+            "ther information. Will be treated as an error from version 6.0.0. Will be remove" +
+            "d in version 7.0.0.", false)]
         public int MaximumMessageThroughputPerSecond { get; set; }
         [System.Configuration.ConfigurationPropertyAttribute("MaxRetries", DefaultValue=5, IsRequired=false)]
         public int MaxRetries { get; set; }
@@ -1385,15 +1422,18 @@ namespace NServiceBus.Config
         public UnicastBusConfig() { }
         [System.Configuration.ConfigurationPropertyAttribute("DistributorControlAddress", IsRequired=false)]
         [System.ObsoleteAttribute("Switch to the code API by using \'EndpointConfiguration.EnlistWithLegacyMSMQDistri" +
-            "butor\' instead. Will be removed in version 7.0.0.", true)]
+            "butor\' instead. Will be treated as an error from version 6.0.0. Will be removed " +
+            "in version 7.0.0.", false)]
         public string DistributorControlAddress { get; set; }
         [System.Configuration.ConfigurationPropertyAttribute("DistributorDataAddress", IsRequired=false)]
         [System.ObsoleteAttribute("Switch to the code API by using \'EndpointConfiguration.EnlistWithLegacyMSMQDistri" +
-            "butor\' instead. Will be removed in version 7.0.0.", true)]
+            "butor\' instead. Will be treated as an error from version 6.0.0. Will be removed " +
+            "in version 7.0.0.", false)]
         public string DistributorDataAddress { get; set; }
         [System.Configuration.ConfigurationPropertyAttribute("ForwardReceivedMessagesTo", IsRequired=false)]
         [System.ObsoleteAttribute("Use \'EndpointConfiguration.ForwardReceivedMessagesTo\' to configure the forwarding" +
-            " address. Will be removed in version 7.0.0.", true)]
+            " address. Will be treated as an error from version 6.0.0. Will be removed in ver" +
+            "sion 7.0.0.", false)]
         public string ForwardReceivedMessagesTo { get; set; }
         [System.Configuration.ConfigurationPropertyAttribute("MessageEndpointMappings", IsRequired=false)]
         public NServiceBus.Config.MessageEndpointMappingCollection MessageEndpointMappings { get; set; }
@@ -1465,12 +1505,14 @@ namespace NServiceBus.DataBus
     {
         public DataBusExtensions(NServiceBus.Settings.SettingsHolder settings) { }
     }
-    [System.ObsoleteAttribute("Use `DataBusExtensions` instead. Will be removed in version 7.0.0.", true)]
+    [System.ObsoleteAttribute("Use `DataBusExtensions` instead. Will be treated as an error from version 6.0.0. " +
+        "Will be removed in version 7.0.0.", false)]
     public class DataBusExtentions
     {
         public DataBusExtentions() { }
     }
-    [System.ObsoleteAttribute("Use `DataBusExtensions<T>` instead. Will be removed in version 7.0.0.", true)]
+    [System.ObsoleteAttribute("Use `DataBusExtensions<T>` instead. Will be treated as an error from version 6.0." +
+        "0. Will be removed in version 7.0.0.", false)]
     public class DataBusExtentions<T>
     {
         public DataBusExtentions() { }
@@ -1585,9 +1627,7 @@ namespace NServiceBus.Faults
         public string MessageId { get; }
         public int RetryAttempt { get; }
     }
-    [System.ObsoleteAttribute("IManageMessageFailures is no longer an extension point. To take control of the er" +
-        "ror handling part of the message processing pipeline, review the Version 5 to 6 " +
-        "upgrade guide for details. Will be removed in version 7.0.0.", true)]
+    [System.ObsoleteAttribute(@"IManageMessageFailures is no longer an extension point. To take control of the error handling part of the message processing pipeline, review the Version 5 to 6 upgrade guide for details. Will be treated as an error from version 6.0.0. Will be removed in version 7.0.0.", false)]
     public interface IManageMessageFailures { }
     public struct SecondLevelRetry
     {
@@ -1612,8 +1652,8 @@ namespace NServiceBus.Features
     {
         protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
     }
-    [System.ObsoleteAttribute("Use extensions provided by the TransportDefinition class instead. Will be removed" +
-        " in version 7.0.0.", true)]
+    [System.ObsoleteAttribute("Use extensions provided by the TransportDefinition class instead. Will be treated" +
+        " as an error from version 6.0.0. Will be removed in version 7.0.0.", false)]
     public class ConfigureTransport
     {
         public ConfigureTransport() { }
@@ -1649,8 +1689,9 @@ namespace NServiceBus.Features
             where T : NServiceBus.Features.Feature { }
         protected void EnableByDefault() { }
         protected void Prerequisite(System.Func<NServiceBus.Features.FeatureConfigurationContext, bool> condition, string description) { }
-        [System.ObsoleteAttribute("Use `FeatureConfigurationContext.RegisterStartupTask` instead. The member current" +
-            "ly throws a NotImplementedException. Will be removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute("Use `FeatureConfigurationContext.RegisterStartupTask` instead. Will be treated as" +
+            " an error from version 6.0.0. The member currently throws a NotImplementedExcept" +
+            "ion. Will be removed in version 7.0.0.", false)]
         protected void RegisterStartupTask<T>()
             where T : NServiceBus.Features.FeatureStartupTask { }
         protected internal abstract void Setup(NServiceBus.Features.FeatureConfigurationContext context);
@@ -1683,8 +1724,8 @@ namespace NServiceBus.Features
         Deactivated = 3,
     }
     [System.ObsoleteAttribute("FirstLevelRetries is no longer a separate feature. Please use configureation.Disa" +
-        "bleFirstLevelRetries() to disable immediate retries. Will be removed in version " +
-        "7.0.0.", true)]
+        "bleFirstLevelRetries() to disable immediate retries. Will be treated as an error" +
+        " from version 6.0.0. Will be removed in version 7.0.0.", false)]
     public class FirstLevelRetries : NServiceBus.Features.Feature
     {
         protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
@@ -1734,14 +1775,15 @@ namespace NServiceBus.Features
         protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
     }
     [System.ObsoleteAttribute("SecondLevelRetries is no longer a separate feature. Please use configureation.Sec" +
-        "ondLevelRetries().Disable() to delayed retries. Will be removed in version 7.0.0" +
-        ".", true)]
+        "ondLevelRetries().Disable() to delayed retries. Will be treated as an error from" +
+        " version 6.0.0. Will be removed in version 7.0.0.", false)]
     public class SecondLevelRetries : NServiceBus.Features.Feature
     {
         protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
     }
     [System.ObsoleteAttribute("Use the ConfigureSerialization Feature class instead. Use `ConfigureSerialization" +
-        "` instead. Will be removed in version 7.0.0.", true)]
+        "` instead. Will be treated as an error from version 6.0.0. Will be removed in ve" +
+        "rsion 7.0.0.", false)]
     public class static SerializationFeatureHelper { }
     public class static SettingsExtensions
     {
@@ -1755,7 +1797,8 @@ namespace NServiceBus.Features
     {
         protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
     }
-    [System.ObsoleteAttribute("No longer used, safe to remove. Will be removed in version 7.0.0.", true)]
+    [System.ObsoleteAttribute("No longer used, safe to remove. Will be treated as an error from version 6.0.0. W" +
+        "ill be removed in version 7.0.0.", false)]
     public class StorageDrivenPublishing
     {
         public StorageDrivenPublishing() { }
@@ -1764,7 +1807,8 @@ namespace NServiceBus.Features
     {
         protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
     }
-    [System.ObsoleteAttribute("No longer used, safe to remove. Will be removed in version 7.0.0.", true)]
+    [System.ObsoleteAttribute("No longer used, safe to remove. Will be treated as an error from version 6.0.0. W" +
+        "ill be removed in version 7.0.0.", false)]
     public class TimeoutManagerBasedDeferral
     {
         public TimeoutManagerBasedDeferral() { }
@@ -1784,8 +1828,9 @@ namespace NServiceBus.Hosting.Helpers
         public AssemblyScanner() { }
         public AssemblyScanner(string baseDirectoryToScan) { }
         [System.ObsoleteAttribute("This method is no longer required since deep scanning of assemblies is done to de" +
-            "tect an NServiceBus reference. The member currently throws a NotImplementedExcep" +
-            "tion. Will be removed in version 7.0.0.", true)]
+            "tect an NServiceBus reference. Will be treated as an error from version 6.0.0. T" +
+            "he member currently throws a NotImplementedException. Will be removed in version" +
+            " 7.0.0.", false)]
         public System.Collections.Generic.List<System.Reflection.Assembly> MustReferenceAtLeastOneAssembly { get; }
         public bool ThrowExceptions { get; set; }
         public NServiceBus.Hosting.Helpers.AssemblyScannerResults GetScannableAssemblies() { }
@@ -1919,7 +1964,8 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
 namespace NServiceBus.MessageMutator
 {
     [System.ObsoleteAttribute("Have the mutator implement both IMutateOutgoingMessages and IMutateIncomingMessag" +
-        "es. Will be removed in version 7.0.0.", true)]
+        "es. Will be treated as an error from version 6.0.0. Will be removed in version 7" +
+        ".0.0.", false)]
     public interface IMessageMutator { }
     [JetBrains.Annotations.UsedImplicitlyAttribute(JetBrains.Annotations.ImplicitUseTargetFlags.Default | JetBrains.Annotations.ImplicitUseTargetFlags.Itself | JetBrains.Annotations.ImplicitUseTargetFlags.Members | JetBrains.Annotations.ImplicitUseTargetFlags.WithMembers)]
     public interface IMutateIncomingMessages
@@ -1942,7 +1988,8 @@ namespace NServiceBus.MessageMutator
         System.Threading.Tasks.Task MutateOutgoing(NServiceBus.MessageMutator.MutateOutgoingTransportMessageContext context);
     }
     [System.ObsoleteAttribute("Have the mutator implement both IMutateIncomingTransportMessages and IMutateOutgo" +
-        "ingTransportMessages. Will be removed in version 7.0.0.", true)]
+        "ingTransportMessages. Will be treated as an error from version 6.0.0. Will be re" +
+        "moved in version 7.0.0.", false)]
     public interface IMutateTransportMessages : NServiceBus.MessageMutator.IMutateIncomingTransportMessages, NServiceBus.MessageMutator.IMutateOutgoingTransportMessages { }
     public class MutateIncomingMessageContext
     {
@@ -2000,22 +2047,16 @@ namespace NServiceBus.ObjectBuilder
         NServiceBus.ObjectBuilder.IBuilder CreateChildBuilder();
         void Release(object instance);
     }
-    [System.ObsoleteAttribute("Setting property values explicitly is no longer supported via this API. Use `.Con" +
-        "figureComponent(b=> new MyMessageHandler(){ MyProperty = X})` to get full contro" +
-        "l over handler creation. Will be removed in version 7.0.0.", true)]
+    [System.ObsoleteAttribute(@"Setting property values explicitly is no longer supported via this API. Use `.ConfigureComponent(b=> new MyMessageHandler(){ MyProperty = X})` to get full control over handler creation. Will be treated as an error from version 6.0.0. Will be removed in version 7.0.0.", false)]
     public interface IComponentConfig { }
-    [System.ObsoleteAttribute("Setting property values explicitly is no longer supported via this API. Use `.Con" +
-        "figureComponent(b=> new MyMessageHandler(){ MyProperty = X})` to get full contro" +
-        "l over handler creation. Will be removed in version 7.0.0.", true)]
+    [System.ObsoleteAttribute(@"Setting property values explicitly is no longer supported via this API. Use `.ConfigureComponent(b=> new MyMessageHandler(){ MyProperty = X})` to get full control over handler creation. Will be treated as an error from version 6.0.0. Will be removed in version 7.0.0.", false)]
     public interface IComponentConfig<T> { }
-    [System.ObsoleteAttribute("Setting property values explicitly is no longer supported via this API. Use `.Con" +
-        "figureComponent(b=> new MyMessageHandler(){ MyProperty = X})` to get full contro" +
-        "l over handler creation. Will be removed in version 7.0.0.", true)]
+    [System.ObsoleteAttribute(@"Setting property values explicitly is no longer supported via this API. Use `.ConfigureComponent(b=> new MyMessageHandler(){ MyProperty = X})` to get full control over handler creation. Will be treated as an error from version 6.0.0. Will be removed in version 7.0.0.", false)]
     public class static IConfigureComponentObsoleteExtensions
     {
-        [System.ObsoleteAttribute(@"Setting property values explicitly is no longer supported via this API. Use `.ConfigureComponent(b=> new MyMessageHandler(){ MyProperty = X})` to get full control over handler creation. The member currently throws a NotImplementedException. Will be removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute(@"Setting property values explicitly is no longer supported via this API. Use `.ConfigureComponent(b=> new MyMessageHandler(){ MyProperty = X})` to get full control over handler creation. Will be treated as an error from version 6.0.0. The member currently throws a NotImplementedException. Will be removed in version 7.0.0.", false)]
         public static NServiceBus.ObjectBuilder.IConfigureComponents ConfigureProperty<T>(this NServiceBus.ObjectBuilder.IConfigureComponents config, System.Linq.Expressions.Expression<System.Func<T, object>> property, object value) { }
-        [System.ObsoleteAttribute(@"Setting property values explicitly is no longer supported via this API. Use `.ConfigureComponent(b=> new MyMessageHandler(){ MyProperty = X})` to get full control over handler creation. The member currently throws a NotImplementedException. Will be removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute(@"Setting property values explicitly is no longer supported via this API. Use `.ConfigureComponent(b=> new MyMessageHandler(){ MyProperty = X})` to get full control over handler creation. Will be treated as an error from version 6.0.0. The member currently throws a NotImplementedException. Will be removed in version 7.0.0.", false)]
         public static NServiceBus.ObjectBuilder.IConfigureComponents ConfigureProperty<T>(this NServiceBus.ObjectBuilder.IConfigureComponents config, string propertyName, object value) { }
     }
     public interface IConfigureComponents
@@ -2048,8 +2089,8 @@ namespace NServiceBus.Outbox
     public class OutboxSettings : NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings
     {
         [System.ObsoleteAttribute("Use `InMemoryOutboxSettingsExtensions.TimeToKeepDeduplicationData(TimeSpan time)`" +
-            " instead. The member currently throws a NotImplementedException. Will be removed" +
-            " in version 7.0.0.", true)]
+            " instead. Will be treated as an error from version 6.0.0. The member currently t" +
+            "hrows a NotImplementedException. Will be removed in version 7.0.0.", false)]
         public void TimeToKeepDeduplicationData(System.TimeSpan time) { }
     }
     public interface OutboxTransaction : System.IDisposable
@@ -2092,20 +2133,22 @@ namespace NServiceBus.Persistence
     {
         protected PersistenceDefinition() { }
         protected void Defaults(System.Action<NServiceBus.Settings.SettingsHolder> action) { }
-        [System.ObsoleteAttribute("Use `HasSupportFor<T>()` instead. The member currently throws a NotImplementedExc" +
-            "eption. Will be removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute("Use `HasSupportFor<T>()` instead. Will be treated as an error from version 6.0.0." +
+            " The member currently throws a NotImplementedException. Will be removed in versi" +
+            "on 7.0.0.", false)]
         public bool HasSupportFor(NServiceBus.Persistence.Storage storage) { }
         public bool HasSupportFor<T>()
             where T : NServiceBus.Persistence.StorageType { }
         public bool HasSupportFor(System.Type storageType) { }
         protected void Supports<T>(System.Action<NServiceBus.Settings.SettingsHolder> action)
             where T : NServiceBus.Persistence.StorageType { }
-        [System.ObsoleteAttribute("Use `Supports<T>()` instead. The member currently throws a NotImplementedExceptio" +
-            "n. Will be removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute("Use `Supports<T>()` instead. Will be treated as an error from version 6.0.0. The " +
+            "member currently throws a NotImplementedException. Will be removed in version 7." +
+            "0.0.", false)]
         protected void Supports(NServiceBus.Persistence.Storage storage, System.Action<NServiceBus.Settings.SettingsHolder> action) { }
     }
-    [System.ObsoleteAttribute("Use `NServiceBus.Persistence.StorageType` instead. Will be removed in version 7.0" +
-        ".0.", true)]
+    [System.ObsoleteAttribute("Use `NServiceBus.Persistence.StorageType` instead. Will be treated as an error fr" +
+        "om version 6.0.0. Will be removed in version 7.0.0.", false)]
     public enum Storage
     {
         Timeouts = 1,
@@ -2157,7 +2200,8 @@ namespace NServiceBus.Pipeline
         System.Collections.Generic.IReadOnlyCollection<NServiceBus.Transports.TransportOperation> Operations { get; }
     }
     public interface IBehavior { }
-    [System.ObsoleteAttribute("Use `Behavior<T>` instead. Will be removed in version 7.0.0.", true)]
+    [System.ObsoleteAttribute("Use `Behavior<T>` instead. Will be treated as an error from version 6.0.0. Will b" +
+        "e removed in version 7.0.0.", false)]
     public interface IBehavior<in TContext> { }
     public interface IBehavior<in TInContext, out TOutContext> : NServiceBus.Pipeline.IBehavior
         where in TInContext : NServiceBus.Pipeline.IBehaviorContext
@@ -2258,8 +2302,8 @@ namespace NServiceBus.Pipeline
         public System.Type MessageType { get; }
         public NServiceBus.Unicast.Messages.MessageMetadata Metadata { get; }
         [System.ObsoleteAttribute("Use `IIncomingLogicalMessageContext.UpdateMessageInstance(object newInstance)` in" +
-            "stead. The member currently throws a NotImplementedException. Will be removed in" +
-            " version 7.0.0.", true)]
+            "stead. Will be treated as an error from version 6.0.0. The member currently thro" +
+            "ws a NotImplementedException. Will be removed in version 7.0.0.", false)]
         public void UpdateMessageInstance(object newInstance) { }
     }
     public class LogicalMessageFactory
@@ -2282,8 +2326,8 @@ namespace NServiceBus.Pipeline
         public System.Type MessageType { get; }
     }
     [System.ObsoleteAttribute("The pipeline context is no longer avaliable via dependency injection. Use a custo" +
-        "m behavior as described in the version 6 upgrade guide. Will be removed in versi" +
-        "on 7.0.0.", true)]
+        "m behavior as described in the version 6 upgrade guide. Will be treated as an er" +
+        "ror from version 6.0.0. Will be removed in version 7.0.0.", false)]
     public class PipelineExecutor
     {
         public PipelineExecutor() { }
@@ -2304,17 +2348,18 @@ namespace NServiceBus.Pipeline
             where TRegisterStep : NServiceBus.Pipeline.RegisterStep, new () { }
         public void Register(NServiceBus.Pipeline.RegisterStep registration) { }
         public void Remove(string stepId) { }
-        [System.ObsoleteAttribute("Use `Remove(string stepId)` instead. The member currently throws a NotImplemented" +
-            "Exception. Will be removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute("Use `Remove(string stepId)` instead. Will be treated as an error from version 6.0" +
+            ".0. The member currently throws a NotImplementedException. Will be removed in ve" +
+            "rsion 7.0.0.", false)]
         public void Remove(NServiceBus.Pipeline.WellKnownStep wellKnownStep) { }
         public void Replace(string stepId, System.Type newBehavior, string description = null) { }
         public void Replace<T>(string stepId, T newBehavior, string description = null)
             where T : NServiceBus.Pipeline.IBehavior { }
         public void Replace<T>(string stepId, System.Func<NServiceBus.ObjectBuilder.IBuilder, T> factoryMethod, string description = null)
             where T : NServiceBus.Pipeline.IBehavior { }
-        [System.ObsoleteAttribute("Use `Replace(string stepId, Type newBehavior, string description)` instead. The m" +
-            "ember currently throws a NotImplementedException. Will be removed in version 7.0" +
-            ".0.", true)]
+        [System.ObsoleteAttribute("Use `Replace(string stepId, Type newBehavior, string description)` instead. Will " +
+            "be treated as an error from version 6.0.0. The member currently throws a NotImpl" +
+            "ementedException. Will be removed in version 7.0.0.", false)]
         public void Replace(NServiceBus.Pipeline.WellKnownStep wellKnownStep, System.Type newBehavior, string description = null) { }
     }
     public abstract class PipelineTerminator<T> : NServiceBus.Pipeline.StageConnector<T, NServiceBus.Pipeline.PipelineTerminator<T>.ITerminatingContext>, NServiceBus.IPipelineTerminator
@@ -2334,24 +2379,16 @@ namespace NServiceBus.Pipeline
         public string Description { get; }
         public string StepId { get; }
         public void InsertAfter(string id) { }
-        [System.ObsoleteAttribute("Use an appropriate pipeline stage for your behavior instead. Consult the pipeline" +
-            " extension documentation for more information. The member currently throws a Not" +
-            "ImplementedException. Will be removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute(@"Use an appropriate pipeline stage for your behavior instead. Consult the pipeline extension documentation for more information. Will be treated as an error from version 6.0.0. The member currently throws a NotImplementedException. Will be removed in version 7.0.0.", false)]
         public void InsertAfter(NServiceBus.Pipeline.WellKnownStep step) { }
         public void InsertAfterIfExists(string id) { }
-        [System.ObsoleteAttribute("Use an appropriate pipeline stage for your behavior instead. Consult the pipeline" +
-            " extension documentation for more information. The member currently throws a Not" +
-            "ImplementedException. Will be removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute(@"Use an appropriate pipeline stage for your behavior instead. Consult the pipeline extension documentation for more information. Will be treated as an error from version 6.0.0. The member currently throws a NotImplementedException. Will be removed in version 7.0.0.", false)]
         public void InsertAfterIfExists(NServiceBus.Pipeline.WellKnownStep step) { }
         public void InsertBefore(string id) { }
-        [System.ObsoleteAttribute("Use an appropriate pipeline stage for your behavior instead. Consult the pipeline" +
-            " extension documentation for more information. The member currently throws a Not" +
-            "ImplementedException. Will be removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute(@"Use an appropriate pipeline stage for your behavior instead. Consult the pipeline extension documentation for more information. Will be treated as an error from version 6.0.0. The member currently throws a NotImplementedException. Will be removed in version 7.0.0.", false)]
         public void InsertBefore(NServiceBus.Pipeline.WellKnownStep step) { }
         public void InsertBeforeIfExists(string id) { }
-        [System.ObsoleteAttribute("Use an appropriate pipeline stage for your behavior instead. Consult the pipeline" +
-            " extension documentation for more information. The member currently throws a Not" +
-            "ImplementedException. Will be removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute(@"Use an appropriate pipeline stage for your behavior instead. Consult the pipeline extension documentation for more information. Will be treated as an error from version 6.0.0. The member currently throws a NotImplementedException. Will be removed in version 7.0.0.", false)]
         public void InsertBeforeIfExists(NServiceBus.Pipeline.WellKnownStep step) { }
         public virtual bool IsEnabled(NServiceBus.Settings.ReadOnlySettings settings) { }
     }
@@ -2379,82 +2416,84 @@ namespace NServiceBus.Pipeline
     }
     [System.ObsoleteAttribute("WellKnownSteps are obsolete. Use an appropriate pipeline stage for your behavior " +
         "instead. Consult the pipeline extension documentation for more information. Will" +
-        " be removed in version 7.0.0.", true)]
+        " be treated as an error from version 6.0.0. Will be removed in version 7.0.0.", false)]
     public class WellKnownStep
     {
         [System.ObsoleteAttribute("Use an appropriate pipeline stage for your behavior instead. Consult the pipeline" +
-            " extension documentation for more information. Will be removed in version 7.0.0." +
-            "", true)]
+            " extension documentation for more information. Will be treated as an error from " +
+            "version 6.0.0. Will be removed in version 7.0.0.", false)]
         public static readonly NServiceBus.Pipeline.WellKnownStep AuditProcessedMessage;
         [System.ObsoleteAttribute("The child container creation is now an integral part of the pipeline invocation a" +
-            "nd no longer a separate behavior. Will be removed in version 7.0.0.", true)]
+            "nd no longer a separate behavior. Will be treated as an error from version 6.0.0" +
+            ". Will be removed in version 7.0.0.", false)]
         public static readonly NServiceBus.Pipeline.WellKnownStep CreateChildContainer;
         [System.ObsoleteAttribute("Use an appropriate pipeline stage for your behavior instead. Consult the pipeline" +
-            " extension documentation for more information. Will be removed in version 7.0.0." +
-            "", true)]
+            " extension documentation for more information. Will be treated as an error from " +
+            "version 6.0.0. Will be removed in version 7.0.0.", false)]
         public static readonly NServiceBus.Pipeline.WellKnownStep DispatchMessageToTransport;
         [System.ObsoleteAttribute("Use an appropriate pipeline stage for your behavior instead. Consult the pipeline" +
-            " extension documentation for more information. Will be removed in version 7.0.0." +
-            "", true)]
+            " extension documentation for more information. Will be treated as an error from " +
+            "version 6.0.0. Will be removed in version 7.0.0.", false)]
         public static readonly NServiceBus.Pipeline.WellKnownStep EnforcePublishBestPractices;
         [System.ObsoleteAttribute("Use an appropriate pipeline stage for your behavior instead. Consult the pipeline" +
-            " extension documentation for more information. Will be removed in version 7.0.0." +
-            "", true)]
+            " extension documentation for more information. Will be treated as an error from " +
+            "version 6.0.0. Will be removed in version 7.0.0.", false)]
         public static readonly NServiceBus.Pipeline.WellKnownStep EnforceReplyBestPractices;
         [System.ObsoleteAttribute("Use an appropriate pipeline stage for your behavior instead. Consult the pipeline" +
-            " extension documentation for more information. Will be removed in version 7.0.0." +
-            "", true)]
+            " extension documentation for more information. Will be treated as an error from " +
+            "version 6.0.0. Will be removed in version 7.0.0.", false)]
         public static readonly NServiceBus.Pipeline.WellKnownStep EnforceSendBestPractices;
         [System.ObsoleteAttribute("Use an appropriate pipeline stage for your behavior instead. Consult the pipeline" +
-            " extension documentation for more information. Will be removed in version 7.0.0." +
-            "", true)]
+            " extension documentation for more information. Will be treated as an error from " +
+            "version 6.0.0. Will be removed in version 7.0.0.", false)]
         public static readonly NServiceBus.Pipeline.WellKnownStep EnforceSubscribeBestPractices;
         [System.ObsoleteAttribute("Use an appropriate pipeline stage for your behavior instead. Consult the pipeline" +
-            " extension documentation for more information. Will be removed in version 7.0.0." +
-            "", true)]
+            " extension documentation for more information. Will be treated as an error from " +
+            "version 6.0.0. Will be removed in version 7.0.0.", false)]
         public static readonly NServiceBus.Pipeline.WellKnownStep EnforceUnsubscribeBestPractices;
         [System.ObsoleteAttribute("Use an appropriate pipeline stage for your behavior instead. Consult the pipeline" +
-            " extension documentation for more information. Will be removed in version 7.0.0." +
-            "", true)]
+            " extension documentation for more information. Will be treated as an error from " +
+            "version 6.0.0. Will be removed in version 7.0.0.", false)]
         public static readonly NServiceBus.Pipeline.WellKnownStep ExecuteUnitOfWork;
         [System.ObsoleteAttribute("Use an appropriate pipeline stage for your behavior instead. Consult the pipeline" +
-            " extension documentation for more information. Will be removed in version 7.0.0." +
-            "", true)]
+            " extension documentation for more information. Will be treated as an error from " +
+            "version 6.0.0. Will be removed in version 7.0.0.", false)]
         public static NServiceBus.Pipeline.WellKnownStep HostInformation;
         [System.ObsoleteAttribute("Use an appropriate pipeline stage for your behavior instead. Consult the pipeline" +
-            " extension documentation for more information. Will be removed in version 7.0.0." +
-            "", true)]
+            " extension documentation for more information. Will be treated as an error from " +
+            "version 6.0.0. Will be removed in version 7.0.0.", false)]
         public static readonly NServiceBus.Pipeline.WellKnownStep InvokeHandlers;
         [System.ObsoleteAttribute("Use an appropriate pipeline stage for your behavior instead. Consult the pipeline" +
-            " extension documentation for more information. Will be removed in version 7.0.0." +
-            "", true)]
+            " extension documentation for more information. Will be treated as an error from " +
+            "version 6.0.0. Will be removed in version 7.0.0.", false)]
         public static readonly NServiceBus.Pipeline.WellKnownStep InvokeSaga;
         [System.ObsoleteAttribute("Use an appropriate pipeline stage for your behavior instead. Consult the pipeline" +
-            " extension documentation for more information. Will be removed in version 7.0.0." +
-            "", true)]
+            " extension documentation for more information. Will be treated as an error from " +
+            "version 6.0.0. Will be removed in version 7.0.0.", false)]
         public static readonly NServiceBus.Pipeline.WellKnownStep MutateIncomingMessages;
         [System.ObsoleteAttribute("Use an appropriate pipeline stage for your behavior instead. Consult the pipeline" +
-            " extension documentation for more information. Will be removed in version 7.0.0." +
-            "", true)]
+            " extension documentation for more information. Will be treated as an error from " +
+            "version 6.0.0. Will be removed in version 7.0.0.", false)]
         public static readonly NServiceBus.Pipeline.WellKnownStep MutateIncomingTransportMessage;
         [System.ObsoleteAttribute("Use an appropriate pipeline stage for your behavior instead. Consult the pipeline" +
-            " extension documentation for more information. Will be removed in version 7.0.0." +
-            "", true)]
+            " extension documentation for more information. Will be treated as an error from " +
+            "version 6.0.0. Will be removed in version 7.0.0.", false)]
         public static readonly NServiceBus.Pipeline.WellKnownStep MutateOutgoingMessages;
         [System.ObsoleteAttribute("Use an appropriate pipeline stage for your behavior instead. Consult the pipeline" +
-            " extension documentation for more information. Will be removed in version 7.0.0." +
-            "", true)]
+            " extension documentation for more information. Will be treated as an error from " +
+            "version 6.0.0. Will be removed in version 7.0.0.", false)]
         public static readonly NServiceBus.Pipeline.WellKnownStep MutateOutgoingTransportMessage;
         [System.ObsoleteAttribute("Use an appropriate pipeline stage for your behavior instead. Consult the pipeline" +
-            " extension documentation for more information. Will be removed in version 7.0.0." +
-            "", true)]
+            " extension documentation for more information. Will be treated as an error from " +
+            "version 6.0.0. Will be removed in version 7.0.0.", false)]
         public static NServiceBus.Pipeline.WellKnownStep ProcessingStatistics;
         public WellKnownStep() { }
     }
 }
 namespace NServiceBus.Pipeline.Contexts
 {
-    [System.ObsoleteAttribute("Use `OutgoingLogicalMessage` instead. Will be removed in version 7.0.0.", true)]
+    [System.ObsoleteAttribute("Use `OutgoingLogicalMessage` instead. Will be treated as an error from version 6." +
+        "0.0. Will be removed in version 7.0.0.", false)]
     public class OutgoingContext
     {
         public OutgoingContext() { }
@@ -2573,9 +2612,7 @@ namespace NServiceBus.Routing.MessageDrivenSubscriptions
 }
 namespace NServiceBus.Routing.StorageDrivenPublishing
 {
-    [System.ObsoleteAttribute("No longer an extension point, if you want to list events without subscribers you " +
-        "can take a dependency on ISubscriptionStorage and query it for the event types y" +
-        "ou want to check. Will be removed in version 7.0.0.", true)]
+    [System.ObsoleteAttribute(@"No longer an extension point, if you want to list events without subscribers you can take a dependency on ISubscriptionStorage and query it for the event types you want to check. Will be treated as an error from version 6.0.0. Will be removed in version 7.0.0.", false)]
     public class SubscribersForEvent
     {
         public SubscribersForEvent(System.Collections.Generic.List<string> subscribers, System.Type eventType) { }
@@ -2593,8 +2630,9 @@ namespace NServiceBus.Sagas
         public System.DateTime Modified { get; }
         public bool NotFound { get; }
         public string SagaId { get; }
-        [System.ObsoleteAttribute("Use `.Metadata.SagaType` instead. The member currently throws a NotImplementedExc" +
-            "eption. Will be removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute("Use `.Metadata.SagaType` instead. Will be treated as an error from version 6.0.0." +
+            " The member currently throws a NotImplementedException. Will be removed in versi" +
+            "on 7.0.0.", false)]
         public System.Type SagaType { get; }
         public void AttachNewEntity(NServiceBus.IContainSagaData sagaEntity) { }
     }
@@ -2674,49 +2712,55 @@ namespace NServiceBus.Sagas
         public void Initialize(System.Collections.Generic.IEnumerable<System.Type> availableTypes, NServiceBus.Conventions conventions) { }
     }
     [System.ObsoleteAttribute("There is no need for this attribute anymore, all mapped properties are automatica" +
-        "lly correlated. Will be removed in version 7.0.0.", true)]
+        "lly correlated. Will be treated as an error from version 6.0.0. Will be removed " +
+        "in version 7.0.0.", false)]
     public sealed class UniqueAttribute : System.Attribute
     {
         public UniqueAttribute() { }
-        [System.ObsoleteAttribute("Use the new SagaMetadata. The member currently throws a NotImplementedException. " +
-            "Will be removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute("Use the new SagaMetadata. Will be treated as an error from version 6.0.0. The mem" +
+            "ber currently throws a NotImplementedException. Will be removed in version 7.0.0" +
+            ".", false)]
         public static System.Collections.Generic.IDictionary<string, object> GetUniqueProperties(NServiceBus.IContainSagaData entity) { }
-        [System.ObsoleteAttribute("Use the new SagaMetadata. The member currently throws a NotImplementedException. " +
-            "Will be removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute("Use the new SagaMetadata. Will be treated as an error from version 6.0.0. The mem" +
+            "ber currently throws a NotImplementedException. Will be removed in version 7.0.0" +
+            ".", false)]
         public static System.Collections.Generic.IEnumerable<System.Reflection.PropertyInfo> GetUniqueProperties(System.Type type) { }
-        [System.ObsoleteAttribute("Use the new SagaMetadata. The member currently throws a NotImplementedException. " +
-            "Will be removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute("Use the new SagaMetadata. Will be treated as an error from version 6.0.0. The mem" +
+            "ber currently throws a NotImplementedException. Will be removed in version 7.0.0" +
+            ".", false)]
         public static System.Reflection.PropertyInfo GetUniqueProperty(System.Type type) { }
-        [System.ObsoleteAttribute("Use the new SagaMetadata. The member currently throws a NotImplementedException. " +
-            "Will be removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute("Use the new SagaMetadata. Will be treated as an error from version 6.0.0. The mem" +
+            "ber currently throws a NotImplementedException. Will be removed in version 7.0.0" +
+            ".", false)]
         public static System.Nullable<System.Collections.Generic.KeyValuePair<string, object>> GetUniqueProperty(NServiceBus.IContainSagaData entity) { }
     }
 }
 namespace NServiceBus.Satellites
 {
-    [System.ObsoleteAttribute(@"ISatellite is no longer an extension point. In order to create a satellite one must create a feature that uses AddSatellitePipeline() method and a class that inherits from SatelliteBehavior that is used for processing the messages. Will be removed in version 7.0.0.", true)]
+    [System.ObsoleteAttribute(@"ISatellite is no longer an extension point. In order to create a satellite one must create a feature that uses AddSatellitePipeline() method and a class that inherits from SatelliteBehavior that is used for processing the messages. Will be treated as an error from version 6.0.0. Will be removed in version 7.0.0.", false)]
     public interface IAdvancedSatellite { }
-    [System.ObsoleteAttribute(@"ISatellite is no longer an extension point. In order to create a satellite one must create a feature that uses AddSatellitePipeline() method and a class that inherits from SatelliteBehavior that is used for processing the messages. Will be removed in version 7.0.0.", true)]
+    [System.ObsoleteAttribute(@"ISatellite is no longer an extension point. In order to create a satellite one must create a feature that uses AddSatellitePipeline() method and a class that inherits from SatelliteBehavior that is used for processing the messages. Will be treated as an error from version 6.0.0. Will be removed in version 7.0.0.", false)]
     public interface ISatellite { }
 }
 namespace NServiceBus.SecondLevelRetries.Config
 {
-    [System.ObsoleteAttribute("Use `NServiceBus.SecondLevelRetriesSettings` instead. Will be removed in version " +
-        "7.0.0.", true)]
+    [System.ObsoleteAttribute("Use `NServiceBus.SecondLevelRetriesSettings` instead. Will be treated as an error" +
+        " from version 6.0.0. Will be removed in version 7.0.0.", false)]
     public class SecondLevelRetriesSettings
     {
         public SecondLevelRetriesSettings() { }
         [System.ObsoleteAttribute("Use `NServiceBus.SecondLevelRetriesSettings.CustomRetryPolicy(Func<IncomingMessag" +
-            "e, TimeSpan> customPolicy)` instead. The member currently throws a NotImplemente" +
-            "dException. Will be removed in version 7.0.0.", true)]
+            "e, TimeSpan> customPolicy)` instead. Will be treated as an error from version 6." +
+            "0.0. The member currently throws a NotImplementedException. Will be removed in v" +
+            "ersion 7.0.0.", false)]
         public void CustomRetryPolicy(System.Func<NServiceBus.TransportMessage, System.TimeSpan> customPolicy) { }
     }
 }
 namespace NServiceBus.Serialization
 {
     [System.ObsoleteAttribute("To use a custom serializer derive from SerializationDefinition and provide a fact" +
-        "ory method for creating the serializer instance. Will be removed in version 7.0." +
-        "0.", true)]
+        "ory method for creating the serializer instance. Will be treated as an error fro" +
+        "m version 6.0.0. Will be removed in version 7.0.0.", false)]
     public abstract class ConfigureSerialization
     {
         protected ConfigureSerialization() { }
@@ -2741,7 +2785,8 @@ namespace NServiceBus.Serialization
 namespace NServiceBus.Serializers.Json
 {
     [System.ObsoleteAttribute("Built-in serializers are internal. Switch to an alternative (e.g. Json.net) or co" +
-        "py the serializer code. Will be removed in version 7.0.0.", true)]
+        "py the serializer code. Will be treated as an error from version 6.0.0. Will be " +
+        "removed in version 7.0.0.", false)]
     public class JsonMessageSerializer
     {
         public JsonMessageSerializer() { }
@@ -2750,7 +2795,8 @@ namespace NServiceBus.Serializers.Json
 namespace NServiceBus.Serializers.XML
 {
     [System.ObsoleteAttribute("Built-in serializers are internal. Switch to an  alternative (e.g. XmlSerializer)" +
-        " or copy the serializer code. Will be removed in version 7.0.0.", true)]
+        " or copy the serializer code. Will be treated as an error from version 6.0.0. Wi" +
+        "ll be removed in version 7.0.0.", false)]
     public class XmlMessageSerializer
     {
         public XmlMessageSerializer() { }
@@ -2758,11 +2804,13 @@ namespace NServiceBus.Serializers.XML
 }
 namespace NServiceBus.Settings.NServiceBus
 {
-    [System.ObsoleteAttribute("No longer used, can safely be removed. Will be removed in version 7.0.0.", true)]
+    [System.ObsoleteAttribute("No longer used, can safely be removed. Will be treated as an error from version 6" +
+        ".0.0. Will be removed in version 7.0.0.", false)]
     public class static TransactionSettingsExtentions
     {
-        [System.ObsoleteAttribute("No longer used, can safely be removed. The member currently throws a NotImplement" +
-            "edException. Will be removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute("No longer used, can safely be removed. Will be treated as an error from version 6" +
+            ".0.0. The member currently throws a NotImplementedException. Will be removed in " +
+            "version 7.0.0.", false)]
         public static NServiceBus.Settings.TransactionSettings Transactions(this NServiceBus.EndpointConfiguration config) { }
     }
 }
@@ -2784,36 +2832,33 @@ namespace NServiceBus.Settings
     }
     public class static ReadOnlySettingsExtensions
     {
-        [System.ObsoleteAttribute(@"Setting property values explicitly is no longer supported via this API. Use `.ConfigureComponent(b=> new MyMessageHandler(){ MyProperty = X})` to get full control over handler creation. The member currently throws a NotImplementedException. Will be removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute(@"Setting property values explicitly is no longer supported via this API. Use `.ConfigureComponent(b=> new MyMessageHandler(){ MyProperty = X})` to get full control over handler creation. Will be treated as an error from version 6.0.0. The member currently throws a NotImplementedException. Will be removed in version 7.0.0.", false)]
         public static void ApplyTo<T>(NServiceBus.ObjectBuilder.IComponentConfig config) { }
-        [System.ObsoleteAttribute(@"Setting property values explicitly is no longer supported via this API. Use `.ConfigureComponent(b=> new MyMessageHandler(){ MyProperty = X})` to get full control over handler creation. The member currently throws a NotImplementedException. Will be removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute(@"Setting property values explicitly is no longer supported via this API. Use `.ConfigureComponent(b=> new MyMessageHandler(){ MyProperty = X})` to get full control over handler creation. Will be treated as an error from version 6.0.0. The member currently throws a NotImplementedException. Will be removed in version 7.0.0.", false)]
         public static void ApplyTo(System.Type componentType, NServiceBus.ObjectBuilder.IComponentConfig config) { }
     }
     public class ScaleOutSettings
     {
         public void InstanceDiscriminator(string discriminator) { }
-        [System.ObsoleteAttribute("Not required any more as for MSMQ this is the default behavior and for other tran" +
-            "sports the unique instance ID has to be provided. The member currently throws a " +
-            "NotImplementedException. Will be removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute(@"Not required any more as for MSMQ this is the default behavior and for other transports the unique instance ID has to be provided. Will be treated as an error from version 6.0.0. The member currently throws a NotImplementedException. Will be removed in version 7.0.0.", false)]
         public void UniqueQueuePerEndpointInstance() { }
         [System.ObsoleteAttribute("Use `EndpointConfiguration.ScaleOut().InstanceDiscriminator(string discriminator)" +
-            "` instead. The member currently throws a NotImplementedException. Will be remove" +
-            "d in version 7.0.0.", true)]
+            "` instead. Will be treated as an error from version 6.0.0. The member currently " +
+            "throws a NotImplementedException. Will be removed in version 7.0.0.", false)]
         public void UniqueQueuePerEndpointInstance(string discriminator) { }
-        [System.ObsoleteAttribute("This is the default starting with V6. The member currently throws a NotImplemente" +
-            "dException. Will be removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute("This is the default starting with V6. Will be treated as an error from version 6." +
+            "0.0. The member currently throws a NotImplementedException. Will be removed in v" +
+            "ersion 7.0.0.", false)]
         public void UseSingleBrokerQueue() { }
-        [System.ObsoleteAttribute("Not required any more as for MSMQ this is the default behavior and for other tran" +
-            "sports the unique instance ID has to be provided. The member currently throws a " +
-            "NotImplementedException. Will be removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute(@"Not required any more as for MSMQ this is the default behavior and for other transports the unique instance ID has to be provided. Will be treated as an error from version 6.0.0. The member currently throws a NotImplementedException. Will be removed in version 7.0.0.", false)]
         public void UseUniqueBrokerQueuePerMachine() { }
     }
     public class SettingsHolder : NServiceBus.Settings.ReadOnlySettings
     {
         public SettingsHolder() { }
-        [System.ObsoleteAttribute(@"Setting property values explicitly is no longer supported via this API. Use `.ConfigureComponent(b=> new MyMessageHandler(){ MyProperty = X})` to get full control over handler creation. The member currently throws a NotImplementedException. Will be removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute(@"Setting property values explicitly is no longer supported via this API. Use `.ConfigureComponent(b=> new MyMessageHandler(){ MyProperty = X})` to get full control over handler creation. Will be treated as an error from version 6.0.0. The member currently throws a NotImplementedException. Will be removed in version 7.0.0.", false)]
         public void ApplyTo<T>(NServiceBus.ObjectBuilder.IComponentConfig config) { }
-        [System.ObsoleteAttribute(@"Setting property values explicitly is no longer supported via this API. Use `.ConfigureComponent(b=> new MyMessageHandler(){ MyProperty = X})` to get full control over handler creation. The member currently throws a NotImplementedException. Will be removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute(@"Setting property values explicitly is no longer supported via this API. Use `.ConfigureComponent(b=> new MyMessageHandler(){ MyProperty = X})` to get full control over handler creation. Will be treated as an error from version 6.0.0. The member currently throws a NotImplementedException. Will be removed in version 7.0.0.", false)]
         public void ApplyTo(System.Type componentType, NServiceBus.ObjectBuilder.IComponentConfig config) { }
         public void Clear() { }
         public T Get<T>(string key) { }
@@ -2842,33 +2887,31 @@ namespace NServiceBus.Settings
     {
         public TransactionSettings() { }
         [System.ObsoleteAttribute("Use `config.UnitOfWork().WrapHandlersInATransactionScope(timeout: TimeSpan.FromSe" +
-            "conds(X));` instead. The member currently throws a NotImplementedException. Will" +
-            " be removed in version 7.0.0.", true)]
+            "conds(X));` instead. Will be treated as an error from version 6.0.0. The member " +
+            "currently throws a NotImplementedException. Will be removed in version 7.0.0.", false)]
         public NServiceBus.Settings.TransactionSettings DefaultTimeout(System.TimeSpan defaultTimeout) { }
         [System.ObsoleteAttribute("Use `config.UseTransport<MyTransport>().Transactions(TransportTransactionMode.Non" +
-            "e);` instead. The member currently throws a NotImplementedException. Will be rem" +
-            "oved in version 7.0.0.", true)]
+            "e);` instead. Will be treated as an error from version 6.0.0. The member current" +
+            "ly throws a NotImplementedException. Will be removed in version 7.0.0.", false)]
         public NServiceBus.Settings.TransactionSettings Disable() { }
-        [System.ObsoleteAttribute("Use `config.UseTransport<MyTransport>().Transactions(TransportTransactionMode.Rec" +
-            "eiveOnly|TransportTransactionMode.SendsAtomicWithReceive);` instead. The member " +
-            "currently throws a NotImplementedException. Will be removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute(@"Use `config.UseTransport<MyTransport>().Transactions(TransportTransactionMode.ReceiveOnly|TransportTransactionMode.SendsAtomicWithReceive);` instead. Will be treated as an error from version 6.0.0. The member currently throws a NotImplementedException. Will be removed in version 7.0.0.", false)]
         public NServiceBus.Settings.TransactionSettings DisableDistributedTransactions() { }
-        [System.ObsoleteAttribute(@"DoNotWrapHandlersExecutionInATransactionScope() has been removed since transaction scopes are no longer used by non DTC transports delay the dispatch of all outgoing operations until handlers have been executed.\r\nIn Version 6 handlers will only be wrapped in a transactionscope if running the MSMQ or SQLServer transports in default mode. This means that performing storage operations against data sources also supporting transaction scopes\r\nwill escalate to a distributed transaction. Previous versions allowed opting out of this behavior using config.Transactions().DoNotWrapHandlersExecutionInATransactionScope(). In Version 6 it's recommended to use `EndpointConfiguration.UseTransport<MyTransport>().Transactions(TransportTransactionMode.ReceiveOnly)` to lean on native transport transaction and the new batched dispatch support to achieve the same level of consistency with better performance.\r\nSuppressing the ambient transaction created by the MSMQ and SQL Server transports can still be achieved by creating a custom pipeline behavior with a suppressed transaction scope. The member currently throws a NotImplementedException. Will be removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute(@"DoNotWrapHandlersExecutionInATransactionScope() has been removed since transaction scopes are no longer used by non DTC transports delay the dispatch of all outgoing operations until handlers have been executed.\r\nIn Version 6 handlers will only be wrapped in a transactionscope if running the MSMQ or SQLServer transports in default mode. This means that performing storage operations against data sources also supporting transaction scopes\r\nwill escalate to a distributed transaction. Previous versions allowed opting out of this behavior using config.Transactions().DoNotWrapHandlersExecutionInATransactionScope(). In Version 6 it's recommended to use `EndpointConfiguration.UseTransport<MyTransport>().Transactions(TransportTransactionMode.ReceiveOnly)` to lean on native transport transaction and the new batched dispatch support to achieve the same level of consistency with better performance.\r\nSuppressing the ambient transaction created by the MSMQ and SQL Server transports can still be achieved by creating a custom pipeline behavior with a suppressed transaction scope. Will be treated as an error from version 6.0.0. The member currently throws a NotImplementedException. Will be removed in version 7.0.0.", false)]
         public NServiceBus.Settings.TransactionSettings DoNotWrapHandlersExecutionInATransactionScope() { }
-        [System.ObsoleteAttribute("Use `config.UseTransport<MyTransport>().Transactions(TransportTransactionMode.Rec" +
-            "eiveOnly|TransportTransactionMode.SendsAtomicWithReceive);` instead. The member " +
-            "currently throws a NotImplementedException. Will be removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute(@"Use `config.UseTransport<MyTransport>().Transactions(TransportTransactionMode.ReceiveOnly|TransportTransactionMode.SendsAtomicWithReceive);` instead. Will be treated as an error from version 6.0.0. The member currently throws a NotImplementedException. Will be removed in version 7.0.0.", false)]
         public NServiceBus.Settings.TransactionSettings Enable() { }
         [System.ObsoleteAttribute("Use `config.UseTransport<MyTransport>().Transactions(TransportTransactionMode.Tra" +
-            "nsactionScope);` instead. The member currently throws a NotImplementedException." +
-            " Will be removed in version 7.0.0.", true)]
+            "nsactionScope);` instead. Will be treated as an error from version 6.0.0. The me" +
+            "mber currently throws a NotImplementedException. Will be removed in version 7.0." +
+            "0.", false)]
         public NServiceBus.Settings.TransactionSettings EnableDistributedTransactions() { }
         [System.ObsoleteAttribute("Use `config.UnitOfWork().WrapHandlersInATransactionScope(isolationLevel: Isolatio" +
-            "nLevel.X);` instead. The member currently throws a NotImplementedException. Will" +
-            " be removed in version 7.0.0.", true)]
+            "nLevel.X);` instead. Will be treated as an error from version 6.0.0. The member " +
+            "currently throws a NotImplementedException. Will be removed in version 7.0.0.", false)]
         public NServiceBus.Settings.TransactionSettings IsolationLevel(System.Transactions.IsolationLevel isolationLevel) { }
-        [System.ObsoleteAttribute("Use `config.UnitOfWork().WrapHandlersInATransactionScope();` instead. The member " +
-            "currently throws a NotImplementedException. Will be removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute("Use `config.UnitOfWork().WrapHandlersInATransactionScope();` instead. Will be tre" +
+            "ated as an error from version 6.0.0. The member currently throws a NotImplemente" +
+            "dException. Will be removed in version 7.0.0.", false)]
         public NServiceBus.Settings.TransactionSettings WrapHandlersExecutionInATransactionScope() { }
     }
 }
@@ -2895,7 +2938,8 @@ namespace NServiceBus.Timeout.Core
     }
     public class TimeoutData
     {
-        [System.ObsoleteAttribute("Not used anymore. Will be removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute("Not used anymore. Will be treated as an error from version 6.0.0. Will be removed" +
+            " in version 7.0.0.", false)]
         public const string OriginalReplyToAddress = "NServiceBus.Timeout.ReplyToAddress";
         public TimeoutData() { }
         public string Destination { get; set; }
@@ -2905,15 +2949,18 @@ namespace NServiceBus.Timeout.Core
         public System.Guid SagaId { get; set; }
         public byte[] State { get; set; }
         public System.DateTime Time { get; set; }
-        [System.ObsoleteAttribute("Use new SendOptions() instead. The member currently throws a NotImplementedExcept" +
-            "ion. Will be removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute("Use new SendOptions() instead. Will be treated as an error from version 6.0.0. Th" +
+            "e member currently throws a NotImplementedException. Will be removed in version " +
+            "7.0.0.", false)]
         public NServiceBus.Unicast.SendOptions ToSendOptions(NServiceBus.Address replyToAddress) { }
-        [System.ObsoleteAttribute("Use new SendOptions() instead. The member currently throws a NotImplementedExcept" +
-            "ion. Will be removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute("Use new SendOptions() instead. Will be treated as an error from version 6.0.0. Th" +
+            "e member currently throws a NotImplementedException. Will be removed in version " +
+            "7.0.0.", false)]
         public NServiceBus.Unicast.SendOptions ToSendOptions(string replyToAddress) { }
         public override string ToString() { }
-        [System.ObsoleteAttribute("Use new OutgoingMessage(timeoutData.State) instead. The member currently throws a" +
-            " NotImplementedException. Will be removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute("Use new OutgoingMessage(timeoutData.State) instead. Will be treated as an error f" +
+            "rom version 6.0.0. The member currently throws a NotImplementedException. Will b" +
+            "e removed in version 7.0.0.", false)]
         public NServiceBus.TransportMessage ToTransportMessage() { }
     }
     public class TimeoutsChunk
@@ -2936,7 +2983,8 @@ namespace NServiceBus.Transports
         Default = 1,
         Isolated = 2,
     }
-    [System.ObsoleteAttribute("No longer used, safe to remove. Will be removed in version 7.0.0.", true)]
+    [System.ObsoleteAttribute("No longer used, safe to remove. Will be treated as an error from version 6.0.0. W" +
+        "ill be removed in version 7.0.0.", false)]
     public interface IAuditMessages { }
     public interface ICancelDeferredMessages
     {
@@ -2946,14 +2994,16 @@ namespace NServiceBus.Transports
     {
         System.Threading.Tasks.Task CreateQueueIfNecessary(NServiceBus.Transports.QueueBindings queueBindings, string identity);
     }
-    [System.ObsoleteAttribute("Use `IDispatchMessages` instead. Will be removed in version 7.0.0.", true)]
+    [System.ObsoleteAttribute("Use `IDispatchMessages` instead. Will be treated as an error from version 6.0.0. " +
+        "Will be removed in version 7.0.0.", false)]
     public interface IDeferMessages
     {
-        [System.ObsoleteAttribute("Use `ICancelDeferredMessages` instead. Will be removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute("Use `ICancelDeferredMessages` instead. Will be treated as an error from version 6" +
+            ".0.0. Will be removed in version 7.0.0.", false)]
         void ClearDeferredMessages(string headerKey, string headerValue);
     }
-    [System.ObsoleteAttribute("Use `NServiceBus.Transport.IPushMessages` instead. Will be removed in version 7.0" +
-        ".0.", true)]
+    [System.ObsoleteAttribute("Use `NServiceBus.Transport.IPushMessages` instead. Will be treated as an error fr" +
+        "om version 6.0.0. Will be removed in version 7.0.0.", false)]
     public interface IDequeueMessages
     {
         void Init(NServiceBus.Address address, NServiceBus.Unicast.Transport.TransactionSettings transactionSettings, System.Func<NServiceBus.TransportMessage, bool> tryProcessMessage, System.Action<NServiceBus.TransportMessage, System.Exception> endProcessMessage);
@@ -2988,7 +3038,8 @@ namespace NServiceBus.Transports
         NServiceBus.Transports.OutgoingMessage Message { get; }
         NServiceBus.Transports.DispatchConsistency RequiredDispatchConsistency { get; }
     }
-    [System.ObsoleteAttribute("Use `IDispatchMessages` instead. Will be removed in version 7.0.0.", true)]
+    [System.ObsoleteAttribute("Use `IDispatchMessages` instead. Will be treated as an error from version 6.0.0. " +
+        "Will be removed in version 7.0.0.", false)]
     public interface IPublishMessages { }
     public interface IPushMessages
     {
@@ -2996,7 +3047,8 @@ namespace NServiceBus.Transports
         void Start(NServiceBus.Transports.PushRuntimeSettings limitations);
         System.Threading.Tasks.Task Stop();
     }
-    [System.ObsoleteAttribute("Use `IDispatchMessages` instead. Will be removed in version 7.0.0.", true)]
+    [System.ObsoleteAttribute("Use `IDispatchMessages` instead. Will be treated as an error from version 6.0.0. " +
+        "Will be removed in version 7.0.0.", false)]
     public interface ISendMessages
     {
         void Send(NServiceBus.TransportMessage message, NServiceBus.Unicast.SendOptions sendOptions);
@@ -3082,20 +3134,20 @@ namespace NServiceBus.Transports
         protected TransportDefinition() { }
         public abstract string ExampleConnectionStringForErrorMessage { get; }
         [System.ObsoleteAttribute("Use TransportInfrastructure.OutboundRoutingPolicy.Publishes == OutboundRoutingTyp" +
-            "e.Multicast instead. The member currently throws a NotImplementedException. Will" +
-            " be removed in version 7.0.0.", true)]
+            "e.Multicast instead. Will be treated as an error from version 6.0.0. The member " +
+            "currently throws a NotImplementedException. Will be removed in version 7.0.0.", false)]
         public bool HasNativePubSubSupport { get; set; }
-        [System.ObsoleteAttribute("The concept of centralized publish and subscribe is no longer available. The memb" +
-            "er currently throws a NotImplementedException. Will be removed in version 7.0.0." +
-            "", true)]
+        [System.ObsoleteAttribute("The concept of centralized publish and subscribe is no longer available. Will be " +
+            "treated as an error from version 6.0.0. The member currently throws a NotImpleme" +
+            "ntedException. Will be removed in version 7.0.0.", false)]
         public bool HasSupportForCentralizedPubSub { get; set; }
         [System.ObsoleteAttribute("Use TransportInfrastructure.TransactionMode == TransportTransactionMode.Transacti" +
-            "onScope instead. The member currently throws a NotImplementedException. Will be " +
-            "removed in version 7.0.0.", true)]
+            "onScope instead. Will be treated as an error from version 6.0.0. The member curr" +
+            "ently throws a NotImplementedException. Will be removed in version 7.0.0.", false)]
         public System.Nullable<bool> HasSupportForDistributedTransactions { get; set; }
         [System.ObsoleteAttribute("Use TransportInfrastructure.TransactionMode == TransportTransactionMode.SendsAtom" +
-            "icWithReceive instead. The member currently throws a NotImplementedException. Wi" +
-            "ll be removed in version 7.0.0.", true)]
+            "icWithReceive instead. Will be treated as an error from version 6.0.0. The membe" +
+            "r currently throws a NotImplementedException. Will be removed in version 7.0.0.", false)]
         public bool HasSupportForMultiQueueNativeTransactions { get; set; }
         public virtual bool RequiresConnectionString { get; }
         protected internal abstract NServiceBus.Transports.TransportInfrastructure Initialize(NServiceBus.Settings.SettingsHolder settings, string connectionString);
@@ -3158,7 +3210,8 @@ namespace NServiceBus.Transports
 namespace NServiceBus.Transports.Msmq.Config
 {
     [System.ObsoleteAttribute("No longer available, see the documentation for native sends for alternative solut" +
-        "ions. Will be removed in version 7.0.0.", true)]
+        "ions. Will be treated as an error from version 6.0.0. Will be removed in version" +
+        " 7.0.0.", false)]
     public class MsmqSettings
     {
         public MsmqSettings() { }
@@ -3173,19 +3226,21 @@ namespace NServiceBus.Transports.Msmq
         public string Value { get; set; }
     }
     [System.ObsoleteAttribute("No longer available, resolve an instance of IPushMessages from the container inst" +
-        "ead. Will be removed in version 7.0.0.", true)]
+        "ead. Will be treated as an error from version 6.0.0. Will be removed in version " +
+        "7.0.0.", false)]
     public class MsmqDequeueStrategy
     {
         public MsmqDequeueStrategy() { }
     }
     [System.ObsoleteAttribute("No longer available, see the documentation for native sends for alternative solut" +
-        "ions. Will be removed in version 7.0.0.", true)]
+        "ions. Will be treated as an error from version 6.0.0. Will be removed in version" +
+        " 7.0.0.", false)]
     public class MsmqMessageSender
     {
         public MsmqMessageSender() { }
     }
-    [System.ObsoleteAttribute("The msmq transaction is now available via the pipeline context. Will be removed i" +
-        "n version 7.0.0.", true)]
+    [System.ObsoleteAttribute("The msmq transaction is now available via the pipeline context. Will be treated a" +
+        "s an error from version 6.0.0. Will be removed in version 7.0.0.", false)]
     public class MsmqUnitOfWork
     {
         public MsmqUnitOfWork() { }
@@ -3196,10 +3251,12 @@ namespace NServiceBus.Unicast.Behaviors
     public class MessageHandler
     {
         [System.ObsoleteAttribute("Use `NServiceBus.Pipeline.MessageHandler(Action<object, object, object> invocatio" +
-            "n, Type handlerType)` instead. Will be removed in version 7.0.0.", true)]
+            "n, Type handlerType)` instead. Will be treated as an error from version 6.0.0. W" +
+            "ill be removed in version 7.0.0.", false)]
         public MessageHandler() { }
-        [System.ObsoleteAttribute("Use `NServiceBus.Pipeline.MessageHandler.Invoke` instead. The member currently th" +
-            "rows a NotImplementedException. Will be removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute("Use `NServiceBus.Pipeline.MessageHandler.Invoke` instead. Will be treated as an e" +
+            "rror from version 6.0.0. The member currently throws a NotImplementedException. " +
+            "Will be removed in version 7.0.0.", false)]
         public System.Action<object, object> Invocation { get; set; }
     }
 }
@@ -3210,7 +3267,8 @@ namespace NServiceBus.Unicast
         public static void ForEach<T>(this NServiceBus.ObjectBuilder.IBuilder builder, System.Action<T> action) { }
     }
     [System.ObsoleteAttribute("No longer used, use the new callbacks api described in the version 6 upgrade guid" +
-        "e. Will be removed in version 7.0.0.", true)]
+        "e. Will be treated as an error from version 6.0.0. Will be removed in version 7." +
+        "0.0.", false)]
     public class BusAsyncResult
     {
         public BusAsyncResult() { }
@@ -3218,35 +3276,38 @@ namespace NServiceBus.Unicast
     public class DeliveryMessageOptions
     {
         public DeliveryMessageOptions() { }
-        [System.ObsoleteAttribute("Use the ConsistencyGuarantee class instead. The member currently throws a NotImpl" +
-            "ementedException. Will be removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute("Use the ConsistencyGuarantee class instead. Will be treated as an error from vers" +
+            "ion 6.0.0. The member currently throws a NotImplementedException. Will be remove" +
+            "d in version 7.0.0.", false)]
         public bool EnlistInReceiveTransaction { get; set; }
-        [System.ObsoleteAttribute("Use context.TryGetDeliveryConstraint<NonDurableDelivery> instead. The member curr" +
-            "ently throws a NotImplementedException. Will be removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute("Use context.TryGetDeliveryConstraint<NonDurableDelivery> instead. Will be treated" +
+            " as an error from version 6.0.0. The member currently throws a NotImplementedExc" +
+            "eption. Will be removed in version 7.0.0.", false)]
         public System.Nullable<bool> NonDurable { get; set; }
-        [System.ObsoleteAttribute("Use context.TryGetDeliveryConstraint<DiscardIfNotReceivedBefore> instead. The mem" +
-            "ber currently throws a NotImplementedException. Will be removed in version 7.0.0" +
-            ".", true)]
+        [System.ObsoleteAttribute("Use context.TryGetDeliveryConstraint<DiscardIfNotReceivedBefore> instead. Will be" +
+            " treated as an error from version 6.0.0. The member currently throws a NotImplem" +
+            "entedException. Will be removed in version 7.0.0.", false)]
         public System.Nullable<System.TimeSpan> TimeToBeReceived { get; set; }
     }
-    [System.ObsoleteAttribute("Use `NServiceBus.UnicastBus.DeliveryMessageOptions` instead. Will be removed in v" +
-        "ersion 7.0.0.", true)]
+    [System.ObsoleteAttribute("Use `NServiceBus.UnicastBus.DeliveryMessageOptions` instead. Will be treated as a" +
+        "n error from version 6.0.0. Will be removed in version 7.0.0.", false)]
     public abstract class DeliveryOptions
     {
         protected DeliveryOptions() { }
         [System.ObsoleteAttribute("Turn best practices check off using configuration.DisableFeature<BestPracticeEnfo" +
-            "rcement>(). The member currently throws a NotImplementedException. Will be remov" +
-            "ed in version 7.0.0.", true)]
+            "rcement>(). Will be treated as an error from version 6.0.0. The member currently" +
+            " throws a NotImplementedException. Will be removed in version 7.0.0.", false)]
         public bool EnforceMessagingBestPractices { get; set; }
-        [System.ObsoleteAttribute("Reply to address can be get/set using the `NServiceBus.ReplyToAddress` header. Th" +
-            "e member currently throws a NotImplementedException. Will be removed in version " +
-            "7.0.0.", true)]
+        [System.ObsoleteAttribute("Reply to address can be get/set using the `NServiceBus.ReplyToAddress` header. Wi" +
+            "ll be treated as an error from version 6.0.0. The member currently throws a NotI" +
+            "mplementedException. Will be removed in version 7.0.0.", false)]
         public string ReplyToAddress { get; set; }
     }
-    [System.ObsoleteAttribute("Not a public API. Use `MessageHandlerRegistry` instead. Will be removed in versio" +
-        "n 7.0.0.", true)]
+    [System.ObsoleteAttribute("Not a public API. Use `MessageHandlerRegistry` instead. Will be treated as an err" +
+        "or from version 6.0.0. Will be removed in version 7.0.0.", false)]
     public interface IMessageHandlerRegistry { }
-    [System.ObsoleteAttribute("Will be removed in version 7.0.0.", true)]
+    [System.ObsoleteAttribute("Will be treated as an error from version 6.0.0. Will be removed in version 7.0.0." +
+        "", false)]
     public class MessageContext
     {
         public MessageContext() { }
@@ -3258,20 +3319,24 @@ namespace NServiceBus.Unicast
     }
     public class MessageHandlerRegistry
     {
-        [System.ObsoleteAttribute("Use `MessageHandlerRegistry.RegisterHandler(Type handlerType)` instead. The membe" +
-            "r currently throws a NotImplementedException. Will be removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute("Use `MessageHandlerRegistry.RegisterHandler(Type handlerType)` instead. Will be t" +
+            "reated as an error from version 6.0.0. The member currently throws a NotImplemen" +
+            "tedException. Will be removed in version 7.0.0.", false)]
         public void CacheMethodForHandler(System.Type handler, System.Type messageType) { }
         public void Clear() { }
         public System.Collections.Generic.IEnumerable<NServiceBus.Pipeline.MessageHandler> GetHandlersFor(System.Type messageType) { }
-        [System.ObsoleteAttribute("Use `MessageHandlerRegistry.GetHandlersFor(Type messageType)` instead. The member" +
-            " currently throws a NotImplementedException. Will be removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute("Use `MessageHandlerRegistry.GetHandlersFor(Type messageType)` instead. Will be tr" +
+            "eated as an error from version 6.0.0. The member currently throws a NotImplement" +
+            "edException. Will be removed in version 7.0.0.", false)]
         public System.Collections.Generic.IEnumerable<System.Type> GetHandlerTypes(System.Type messageType) { }
         public System.Collections.Generic.IEnumerable<System.Type> GetMessageTypes() { }
-        [System.ObsoleteAttribute("Use `MessageHandler.Invoke(object message, object context)` instead. The member c" +
-            "urrently throws a NotImplementedException. Will be removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute("Use `MessageHandler.Invoke(object message, object context)` instead. Will be trea" +
+            "ted as an error from version 6.0.0. The member currently throws a NotImplemented" +
+            "Exception. Will be removed in version 7.0.0.", false)]
         public void InvokeHandle(object handler, object message) { }
-        [System.ObsoleteAttribute("Use `MessageHandler.Invoke(object message, object context)` instead. The member c" +
-            "urrently throws a NotImplementedException. Will be removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute("Use `MessageHandler.Invoke(object message, object context)` instead. Will be trea" +
+            "ted as an error from version 6.0.0. The member currently throws a NotImplemented" +
+            "Exception. Will be removed in version 7.0.0.", false)]
         public void InvokeTimeout(object handler, object state) { }
         public void RegisterHandler(System.Type handlerType) { }
     }
@@ -3281,35 +3346,38 @@ namespace NServiceBus.Unicast
         public object[] Messages { get; }
     }
     [System.ObsoleteAttribute("Use context.Intent to detect of the message is a event being published and use co" +
-        "ntext.MessageType to get the actual event type. Will be removed in version 7.0.0" +
-        ".", true)]
+        "ntext.MessageType to get the actual event type. Will be treated as an error from" +
+        " version 6.0.0. Will be removed in version 7.0.0.", false)]
     public class PublishOptions : NServiceBus.Unicast.DeliveryOptions
     {
         public PublishOptions() { }
     }
     [System.ObsoleteAttribute("Not used anymore, use the \'NServiceBus.MessageIntent\' header to detect if the mes" +
-        "sage is a reply. Will be removed in version 7.0.0.", true)]
+        "sage is a reply. Will be treated as an error from version 6.0.0. Will be removed" +
+        " in version 7.0.0.", false)]
     public class ReplyOptions
     {
         public ReplyOptions() { }
     }
-    [System.ObsoleteAttribute("Use `NServiceBus.UnicastBus.SendMessageOptions` instead. Will be removed in versi" +
-        "on 7.0.0.", true)]
+    [System.ObsoleteAttribute("Use `NServiceBus.UnicastBus.SendMessageOptions` instead. Will be treated as an er" +
+        "ror from version 6.0.0. Will be removed in version 7.0.0.", false)]
     public class SendOptions : NServiceBus.Unicast.DeliveryOptions
     {
-        [System.ObsoleteAttribute("Use `SendMessageOptions(string)` instead. The member currently throws a NotImplem" +
-            "entedException. Will be removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute("Use `SendMessageOptions(string)` instead. Will be treated as an error from versio" +
+            "n 6.0.0. The member currently throws a NotImplementedException. Will be removed " +
+            "in version 7.0.0.", false)]
         public SendOptions(NServiceBus.Address destination) { }
-        [System.ObsoleteAttribute("Reply to address can be get/set using the `NServiceBus.CorrelationId` header. The" +
-            " member currently throws a NotImplementedException. Will be removed in version 7" +
-            ".0.0.", true)]
+        [System.ObsoleteAttribute("Reply to address can be get/set using the `NServiceBus.CorrelationId` header. Wil" +
+            "l be treated as an error from version 6.0.0. The member currently throws a NotIm" +
+            "plementedException. Will be removed in version 7.0.0.", false)]
         public string CorrelationId { get; set; }
-        [System.ObsoleteAttribute("Use `DelayDeliveryFor` instead. The member currently throws a NotImplementedExcep" +
-            "tion. Will be removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute("Use `DelayDeliveryFor` instead. Will be treated as an error from version 6.0.0. T" +
+            "he member currently throws a NotImplementedException. Will be removed in version" +
+            " 7.0.0.", false)]
         public System.Nullable<System.TimeSpan> DelayDeliveryWith { get; set; }
     }
-    [System.ObsoleteAttribute("UnicastBus has been made internal. Use IEndpointInstance instead. Will be removed" +
-        " in version 7.0.0.", true)]
+    [System.ObsoleteAttribute("UnicastBus has been made internal. Use IEndpointInstance instead. Will be treated" +
+        " as an error from version 6.0.0. Will be removed in version 7.0.0.", false)]
     public class UnicastBus
     {
         public UnicastBus() { }
@@ -3322,13 +3390,11 @@ namespace NServiceBus.Unicast.Messages
         public MessageMetadata(System.Type messageType, System.Collections.Generic.IEnumerable<System.Type> messageHierarchy = null) { }
         public System.Collections.Generic.IEnumerable<System.Type> MessageHierarchy { get; }
         public System.Type MessageType { get; }
-        [System.ObsoleteAttribute("You can access Recoverable via the DeliveryConstraints collection on the outgoing" +
-            " context, the new constraint is called NonDurableDelivery. The member currently " +
-            "throws a NotImplementedException. Will be removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute(@"You can access Recoverable via the DeliveryConstraints collection on the outgoing context, the new constraint is called NonDurableDelivery. Will be treated as an error from version 6.0.0. The member currently throws a NotImplementedException. Will be removed in version 7.0.0.", false)]
         public bool Recoverable { get; }
         [System.ObsoleteAttribute("You can access TTBR via the DeliveryConstraints collection on the outgoing contex" +
-            "t. The member currently throws a NotImplementedException. Will be removed in ver" +
-            "sion 7.0.0.", true)]
+            "t. Will be treated as an error from version 6.0.0. The member currently throws a" +
+            " NotImplementedException. Will be removed in version 7.0.0.", false)]
         public System.TimeSpan TimeToBeReceived { get; }
     }
     public class MessageMetadataRegistry
@@ -3339,14 +3405,15 @@ namespace NServiceBus.Unicast.Messages
 }
 namespace NServiceBus.Unicast.Queuing
 {
-    [System.ObsoleteAttribute("Use `QueueBindings` instead. Will be removed in version 7.0.0.", true)]
+    [System.ObsoleteAttribute("Use `QueueBindings` instead. Will be treated as an error from version 6.0.0. Will" +
+        " be removed in version 7.0.0.", false)]
     public interface IWantQueueCreated { }
     public class QueueNotFoundException : System.Exception
     {
         public QueueNotFoundException() { }
         [System.ObsoleteAttribute("Use `QueueNotFoundException(string queue, string message, Exception inner)` inste" +
-            "ad. The member currently throws a NotImplementedException. Will be removed in ve" +
-            "rsion 7.0.0.", true)]
+            "ad. Will be treated as an error from version 6.0.0. The member currently throws " +
+            "a NotImplementedException. Will be removed in version 7.0.0.", false)]
         public QueueNotFoundException(NServiceBus.Address queue, string message, System.Exception inner) { }
         public QueueNotFoundException(string queue, string message, System.Exception inner) { }
         protected QueueNotFoundException(System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context) { }
@@ -3356,12 +3423,13 @@ namespace NServiceBus.Unicast.Queuing
 }
 namespace NServiceBus.Unicast.Routing
 {
-    [System.ObsoleteAttribute("No longer used, safe to remove. Will be removed in version 7.0.0.", true)]
+    [System.ObsoleteAttribute("No longer used, safe to remove. Will be treated as an error from version 6.0.0. W" +
+        "ill be removed in version 7.0.0.", false)]
     public class StaticMessageRouter
     {
         public StaticMessageRouter() { }
-        [System.ObsoleteAttribute("Use `config.AutoSubscribe().AutoSubscribePlainMessages()` instead. Will be remove" +
-            "d in version 7.0.0.", true)]
+        [System.ObsoleteAttribute("Use `config.AutoSubscribe().AutoSubscribePlainMessages()` instead. Will be treate" +
+            "d as an error from version 6.0.0. Will be removed in version 7.0.0.", false)]
         public bool SubscribeToPlainMessages { get; set; }
     }
 }
@@ -3399,7 +3467,8 @@ namespace NServiceBus.Unicast.Subscriptions
         public override int GetHashCode() { }
         public override string ToString() { }
     }
-    [System.ObsoleteAttribute("No longer used, safe to remove. Will be removed in version 7.0.0.", true)]
+    [System.ObsoleteAttribute("No longer used, safe to remove. Will be treated as an error from version 6.0.0. W" +
+        "ill be removed in version 7.0.0.", false)]
     public class SubscriptionEventArgs
     {
         public SubscriptionEventArgs() { }
@@ -3407,67 +3476,80 @@ namespace NServiceBus.Unicast.Subscriptions
 }
 namespace NServiceBus.Unicast.Transport
 {
-    [System.ObsoleteAttribute("No longer used, can safely be removed. Will be removed in version 7.0.0.", true)]
+    [System.ObsoleteAttribute("No longer used, can safely be removed. Will be treated as an error from version 6" +
+        ".0.0. Will be removed in version 7.0.0.", false)]
     public class static ControlMessage { }
     public class static ControlMessageFactory
     {
         public static NServiceBus.Transports.OutgoingMessage Create(NServiceBus.MessageIntentEnum intent) { }
     }
-    [System.ObsoleteAttribute("Use the pipeline to catch failures. Will be removed in version 7.0.0.", true)]
+    [System.ObsoleteAttribute("Use the pipeline to catch failures. Will be treated as an error from version 6.0." +
+        "0. Will be removed in version 7.0.0.", false)]
     public class FailedMessageProcessingEventArgs : System.EventArgs
     {
         public FailedMessageProcessingEventArgs() { }
     }
-    [System.ObsoleteAttribute("No longer used, can safely be removed. Will be removed in version 7.0.0.", true)]
+    [System.ObsoleteAttribute("No longer used, can safely be removed. Will be treated as an error from version 6" +
+        ".0.0. Will be removed in version 7.0.0.", false)]
     public class FinishedMessageProcessingEventArgs : System.EventArgs
     {
         public FinishedMessageProcessingEventArgs() { }
     }
-    [System.ObsoleteAttribute("Use `IPushMessages` instead. Will be removed in version 7.0.0.", true)]
+    [System.ObsoleteAttribute("Use `IPushMessages` instead. Will be treated as an error from version 6.0.0. Will" +
+        " be removed in version 7.0.0.", false)]
     public interface ITransport { }
-    [System.ObsoleteAttribute("No longer used, can safely be removed. Will be removed in version 7.0.0.", true)]
+    [System.ObsoleteAttribute("No longer used, can safely be removed. Will be treated as an error from version 6" +
+        ".0.0. Will be removed in version 7.0.0.", false)]
     public class StartedMessageProcessingEventArgs
     {
         public StartedMessageProcessingEventArgs() { }
     }
     [System.ObsoleteAttribute("Transaction settings is no longer available via this class. See obsoletes on indi" +
-        "vidual members for further details. Will be removed in version 7.0.0.", true)]
+        "vidual members for further details. Will be treated as an error from version 6.0" +
+        ".0. Will be removed in version 7.0.0.", false)]
     public class TransactionSettings
     {
-        [System.ObsoleteAttribute("No longer used. Will be removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute("No longer used. Will be treated as an error from version 6.0.0. Will be removed i" +
+            "n version 7.0.0.", false)]
         public TransactionSettings(bool isTransactional, System.TimeSpan transactionTimeout, System.Transactions.IsolationLevel isolationLevel, bool suppressDistributedTransactions, bool doNotWrapHandlersExecutionInATransactionScope) { }
         [System.ObsoleteAttribute("DoNotWrapHandlersExecutionInATransactionScope is no longer used here. Use setting" +
             "s.GetOrDefault<bool>(\'Transactions.DoNotWrapHandlersExecutionInATransactionScope" +
-            "\') instead. Will be removed in version 7.0.0.", true)]
+            "\') instead. Will be treated as an error from version 6.0.0. Will be removed in v" +
+            "ersion 7.0.0.", false)]
         public bool DoNotWrapHandlersExecutionInATransactionScope { get; set; }
         [System.ObsoleteAttribute("Isolation level are now controlled explicitly for the transaction scope unit of w" +
             "ork using config.UnitOfWork().WrapHandlersInATransactionScope(isolationlevel: X)" +
-            ". Will be removed in version 7.0.0.", true)]
+            ". Will be treated as an error from version 6.0.0. Will be removed in version 7.0" +
+            ".0.", false)]
         public System.Transactions.IsolationLevel IsolationLevel { get; set; }
         [System.ObsoleteAttribute("IsTransactional is no longer used here. Use `context.Settings.GetRequiredTransact" +
-            "ionModeForReceives() != Transactions.None` instead. Will be removed in version 7" +
-            ".0.0.", true)]
+            "ionModeForReceives() != Transactions.None` instead. Will be treated as an error " +
+            "from version 6.0.0. Will be removed in version 7.0.0.", false)]
         public bool IsTransactional { get; set; }
         [System.ObsoleteAttribute("SuppressDistributedTransactions is no longer used here. Use `context.Settings.Get" +
             "RequiredTransactionModeForReceives() != Transactions.TransactionScope` instead. " +
-            "Will be removed in version 7.0.0.", true)]
+            "Will be treated as an error from version 6.0.0. Will be removed in version 7.0.0" +
+            ".", false)]
         public bool SuppressDistributedTransactions { get; set; }
         [System.ObsoleteAttribute("Timeouts are now controlled explicitly for the transaction scope unit of work usi" +
-            "ng config.UnitOfWork().WrapHandlersInATransactionScope(timeout: X). Will be remo" +
-            "ved in version 7.0.0.", true)]
+            "ng config.UnitOfWork().WrapHandlersInATransactionScope(timeout: X). Will be trea" +
+            "ted as an error from version 6.0.0. Will be removed in version 7.0.0.", false)]
         public System.TimeSpan TransactionTimeout { get; set; }
     }
-    [System.ObsoleteAttribute("No longer used, can safely be removed. Will be removed in version 7.0.0.", true)]
+    [System.ObsoleteAttribute("No longer used, can safely be removed. Will be treated as an error from version 6" +
+        ".0.0. Will be removed in version 7.0.0.", false)]
     public class TransportMessageAvailableEventArgs
     {
         public TransportMessageAvailableEventArgs() { }
     }
-    [System.ObsoleteAttribute("No longer used, can safely be removed. Will be removed in version 7.0.0.", true)]
+    [System.ObsoleteAttribute("No longer used, can safely be removed. Will be treated as an error from version 6" +
+        ".0.0. Will be removed in version 7.0.0.", false)]
     public class TransportMessageReceivedEventArgs
     {
         public TransportMessageReceivedEventArgs() { }
     }
-    [System.ObsoleteAttribute("No longer used, can safely be removed. Will be removed in version 7.0.0.", true)]
+    [System.ObsoleteAttribute("No longer used, can safely be removed. Will be treated as an error from version 6" +
+        ".0.0. Will be removed in version 7.0.0.", false)]
     public class TransportReceiver
     {
         public TransportReceiver() { }
