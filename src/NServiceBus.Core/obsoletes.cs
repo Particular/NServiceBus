@@ -1446,31 +1446,6 @@ namespace NServiceBus.Pipeline
         public static readonly WellKnownStep EnforceUnsubscribeBestPractices;
     }
 
-    [ObsoleteEx(
-            RemoveInVersion = "7.0",
-            TreatAsErrorFromVersion = "6.0",
-            Message = "Use the 'PipelineSettings' class to register behaviors instead.")]
-    public class StepRegistrationSequence
-    {
-        [ObsoleteEx(
-            RemoveInVersion = "7.0",
-            TreatAsErrorFromVersion = "6.0",
-            ReplacementTypeOrMember = "PipelineSettings.Register(string stepId, Type behavior, string description)")]
-        public StepRegistrationSequence Register(WellKnownStep wellKnownStep, Type behavior, string description)
-        {
-            throw new NotImplementedException();
-        }
-
-        [ObsoleteEx(
-            RemoveInVersion = "7.0",
-            TreatAsErrorFromVersion = "6.0",
-            ReplacementTypeOrMember = "PipelineSettings.Register(string stepId, Type behavior, string description)")]
-        public StepRegistrationSequence Register(string stepId, Type behavior, string description)
-        {
-            throw new NotImplementedException();
-        }
-    }
-
     public abstract partial class RegisterStep
     {
         [ObsoleteEx(
@@ -1526,15 +1501,6 @@ namespace NServiceBus.Pipeline
             TreatAsErrorFromVersion = "6.0",
             ReplacementTypeOrMember = "Replace(string stepId, Type newBehavior, string description)")]
         public void Replace(WellKnownStep wellKnownStep, Type newBehavior, string description = null)
-        {
-            throw new NotImplementedException();
-        }
-
-        [ObsoleteEx(
-            RemoveInVersion = "7.0",
-            TreatAsErrorFromVersion = "6.0",
-            ReplacementTypeOrMember = "Register(string stepId, Type behavior, string description)")]
-        public StepRegistrationSequence Register(WellKnownStep wellKnownStep, Type behavior, string description)
         {
             throw new NotImplementedException();
         }

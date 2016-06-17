@@ -97,7 +97,7 @@ namespace NServiceBus.Pipeline
             Guard.AgainstNullAndEmpty(nameof(stepId), stepId);
             Guard.AgainstNullAndEmpty(nameof(description), description);
 
-            AddStep(RegisterStep.Create(stepId, behavior, description));
+            modifications.Additions.Add(RegisterStep.Create(stepId, behavior, description));
         }
 
         /// <summary>
@@ -127,7 +127,7 @@ namespace NServiceBus.Pipeline
             Guard.AgainstNullAndEmpty(nameof(stepId), stepId);
             Guard.AgainstNullAndEmpty(nameof(description), description);
 
-            AddStep(RegisterStep.Create(stepId, typeof(T), description, b => factoryMethod(b)));
+            modifications.Additions.Add(RegisterStep.Create(stepId, typeof(T), description, b => factoryMethod(b)));
         }
 
         /// <summary>
@@ -157,7 +157,7 @@ namespace NServiceBus.Pipeline
             Guard.AgainstNullAndEmpty(nameof(stepId), stepId);
             Guard.AgainstNullAndEmpty(nameof(description), description);
 
-            AddStep(RegisterStep.Create(stepId, typeof(T), description, _ => behavior));
+            modifications.Additions.Add(RegisterStep.Create(stepId, typeof(T), description, _ => behavior));
         }
 
         /// <summary>
@@ -165,7 +165,7 @@ namespace NServiceBus.Pipeline
         /// </summary>
         public void Register<TRegisterStep>() where TRegisterStep : RegisterStep, new()
         {
-            AddStep(new TRegisterStep());
+            modifications.Additions.Add(new TRegisterStep());
         }
 
         /// <summary>
@@ -175,12 +175,7 @@ namespace NServiceBus.Pipeline
         public void Register(RegisterStep registration)
         {
             Guard.AgainstNull(nameof(registration), registration);
-            AddStep(registration);
-        }
-
-        void AddStep(RegisterStep step)
-        {
-            modifications.Additions.Add(step);
+            modifications.Additions.Add(registration);
         }
 
         PipelineModifications modifications;

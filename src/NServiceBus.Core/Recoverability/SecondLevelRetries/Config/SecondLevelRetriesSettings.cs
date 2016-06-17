@@ -37,9 +37,8 @@ namespace NServiceBus.SecondLevelRetries.Config
         }
 
         /// <summary>
-        /// Configures the amount of times a message should be retried with a delay after failing all first level retries.
+        /// Configures the number of times a message should be retried with a delay after failing first level retries.
         /// </summary>
-        /// <param name="numberOfRetries">The number of times to delay a failed a message.</param>
         public SecondLevelRetriesSettings NumberOfRetries(int numberOfRetries)
         {
             Guard.AgainstNegative(nameof(numberOfRetries), numberOfRetries);
@@ -49,9 +48,8 @@ namespace NServiceBus.SecondLevelRetries.Config
         }
 
         /// <summary>
-        /// Configures the delay after which a message should be retried again after failing all first level retries. The delay is multiplied by the number of the second level retry attempt.
+        /// Configures the delay interval increase for each failed second level retry attempt.
         /// </summary>
-        /// <param name="timeIncrease">The timespan to increase the delay for each second level retry attempt.</param>
         public SecondLevelRetriesSettings TimeIncrease(TimeSpan timeIncrease)
         {
             Guard.AgainstNegative(nameof(timeIncrease), timeIncrease);

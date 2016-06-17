@@ -1,4 +1,4 @@
-namespace NServiceBus.SecondLevelRetries.Config
+namespace NServiceBus
 {
     /// <summary>
     /// Configuration settings for first level retries.

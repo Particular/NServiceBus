@@ -405,7 +405,11 @@ namespace NServiceBus
     }
     public class static FirstLevelRetriesConfigExtensions
     {
-        public static NServiceBus.SecondLevelRetries.Config.FirstLevelRetriesSettings FirstLevelRetries(this NServiceBus.EndpointConfiguration config) { }
+        public static NServiceBus.FirstLevelRetriesSettings FirstLevelRetries(this NServiceBus.EndpointConfiguration config) { }
+    }
+    public class FirstLevelRetriesSettings
+    {
+        public NServiceBus.FirstLevelRetriesSettings NumberOfRetries(int numberOfRetries) { }
     }
     public class static HeaderOptionExtensions
     {
@@ -2270,10 +2274,6 @@ namespace NServiceBus.Pipeline
         public void Register<TRegisterStep>()
             where TRegisterStep : NServiceBus.Pipeline.RegisterStep, new () { }
         public void Register(NServiceBus.Pipeline.RegisterStep registration) { }
-        [System.ObsoleteAttribute("Use `Register(string stepId, Type behavior, string description)` instead. The mem" +
-            "ber currently throws a NotImplementedException. Will be removed in version 7.0.0" +
-            ".", true)]
-        public NServiceBus.Pipeline.StepRegistrationSequence Register(NServiceBus.Pipeline.WellKnownStep wellKnownStep, System.Type behavior, string description) { }
         public void Remove(string stepId) { }
         [System.ObsoleteAttribute("Use `Remove(string stepId)` instead. The member currently throws a NotImplemented" +
             "Exception. Will be removed in version 7.0.0.", true)]
@@ -2341,20 +2341,6 @@ namespace NServiceBus.Pipeline
         protected StageForkConnector() { }
         public System.Threading.Tasks.Task Invoke(TFromContext context, System.Func<TToContext, System.Threading.Tasks.Task> next) { }
         public abstract System.Threading.Tasks.Task Invoke(TFromContext context, System.Func<TToContext, System.Threading.Tasks.Task> stage, System.Func<TForkContext, System.Threading.Tasks.Task> fork);
-    }
-    [System.ObsoleteAttribute("Use the \'PipelineSettings\' class to register behaviors instead. Will be removed i" +
-        "n version 7.0.0.", true)]
-    public class StepRegistrationSequence
-    {
-        public StepRegistrationSequence() { }
-        [System.ObsoleteAttribute("Use `PipelineSettings.Register(string stepId, Type behavior, string description)`" +
-            " instead. The member currently throws a NotImplementedException. Will be removed" +
-            " in version 7.0.0.", true)]
-        public NServiceBus.Pipeline.StepRegistrationSequence Register(NServiceBus.Pipeline.WellKnownStep wellKnownStep, System.Type behavior, string description) { }
-        [System.ObsoleteAttribute("Use `PipelineSettings.Register(string stepId, Type behavior, string description)`" +
-            " instead. The member currently throws a NotImplementedException. Will be removed" +
-            " in version 7.0.0.", true)]
-        public NServiceBus.Pipeline.StepRegistrationSequence Register(string stepId, System.Type behavior, string description) { }
     }
     public class static TransportMessageContextExtensions
     {
@@ -2683,10 +2669,6 @@ namespace NServiceBus.Satellites
 }
 namespace NServiceBus.SecondLevelRetries.Config
 {
-    public class FirstLevelRetriesSettings
-    {
-        public NServiceBus.SecondLevelRetries.Config.FirstLevelRetriesSettings NumberOfRetries(int numberOfRetries) { }
-    }
     public class SecondLevelRetriesSettings
     {
         [System.ObsoleteAttribute("Use `CustomRetryPolicy(Func<IncomingMessage, TimeSpan> customPolicy)` instead. Th" +
