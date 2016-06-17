@@ -58,6 +58,16 @@ namespace NServiceBus.SecondLevelRetries.Config
             return this;
         }
 
+        /// <summary>
+        /// Configures NServiceBus to not retry failed messages using the second level retry mechanism.
+        /// </summary>
+        public SecondLevelRetriesSettings Disable()
+        {
+            config.Settings.Set(Recoverability.SlrNumberOfRetries, 0);
+
+            return this;
+        }
+
         EndpointConfiguration config;
     }
 }

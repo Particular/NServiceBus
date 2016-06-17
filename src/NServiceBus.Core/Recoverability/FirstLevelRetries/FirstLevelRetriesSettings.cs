@@ -23,5 +23,15 @@ namespace NServiceBus
 
             return this;
         }
+
+        /// <summary>
+        /// Configures NServiceBus to not retry failed messages using the first level retry mechanism.
+        /// </summary>
+        public FirstLevelRetriesSettings Disable()
+        {
+            config.Settings.Set(Recoverability.FlrNumberOfRetries, 0);
+
+            return this;
+        }
     }
 }
