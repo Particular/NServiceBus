@@ -982,7 +982,18 @@ namespace NServiceBus
     }
     public class static SecondLevelRetriesConfigExtensions
     {
-        public static NServiceBus.SecondLevelRetries.Config.SecondLevelRetriesSettings SecondLevelRetries(this NServiceBus.EndpointConfiguration config) { }
+        public static NServiceBus.SecondLevelRetriesSettings SecondLevelRetries(this NServiceBus.EndpointConfiguration config) { }
+    }
+    public class SecondLevelRetriesSettings
+    {
+        [System.ObsoleteAttribute("Use `CustomRetryPolicy(Func<IncomingMessage, TimeSpan> customPolicy)` instead. Th" +
+            "e member currently throws a NotImplementedException. Will be removed in version " +
+            "7.0.0.", true)]
+        public void CustomRetryPolicy(System.Func<NServiceBus.TransportMessage, System.TimeSpan> customPolicy) { }
+        public NServiceBus.SecondLevelRetriesSettings CustomRetryPolicy(System.Func<NServiceBus.Transports.IncomingMessage, System.TimeSpan> customPolicy) { }
+        public NServiceBus.SecondLevelRetriesSettings Disable() { }
+        public NServiceBus.SecondLevelRetriesSettings NumberOfRetries(int numberOfRetries) { }
+        public NServiceBus.SecondLevelRetriesSettings TimeIncrease(System.TimeSpan timeIncrease) { }
     }
     public class SendOptions : NServiceBus.Extensibility.ExtendableOptions
     {
@@ -2670,16 +2681,15 @@ namespace NServiceBus.Satellites
 }
 namespace NServiceBus.SecondLevelRetries.Config
 {
+    [System.ObsoleteAttribute("Use `NServiceBus.SecondLevelRetriesSettings` instead. Will be removed in version " +
+        "7.0.0.", true)]
     public class SecondLevelRetriesSettings
     {
-        [System.ObsoleteAttribute("Use `CustomRetryPolicy(Func<IncomingMessage, TimeSpan> customPolicy)` instead. Th" +
-            "e member currently throws a NotImplementedException. Will be removed in version " +
-            "7.0.0.", true)]
+        public SecondLevelRetriesSettings() { }
+        [System.ObsoleteAttribute("Use `NServiceBus.SecondLevelRetriesSettings.CustomRetryPolicy(Func<IncomingMessag" +
+            "e, TimeSpan> customPolicy)` instead. The member currently throws a NotImplemente" +
+            "dException. Will be removed in version 7.0.0.", true)]
         public void CustomRetryPolicy(System.Func<NServiceBus.TransportMessage, System.TimeSpan> customPolicy) { }
-        public NServiceBus.SecondLevelRetries.Config.SecondLevelRetriesSettings CustomRetryPolicy(System.Func<NServiceBus.Transports.IncomingMessage, System.TimeSpan> customPolicy) { }
-        public NServiceBus.SecondLevelRetries.Config.SecondLevelRetriesSettings Disable() { }
-        public NServiceBus.SecondLevelRetries.Config.SecondLevelRetriesSettings NumberOfRetries(int numberOfRetries) { }
-        public NServiceBus.SecondLevelRetries.Config.SecondLevelRetriesSettings TimeIncrease(System.TimeSpan timeIncrease) { }
     }
 }
 namespace NServiceBus.Serialization

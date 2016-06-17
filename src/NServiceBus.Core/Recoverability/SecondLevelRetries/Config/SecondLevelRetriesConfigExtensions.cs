@@ -1,7 +1,5 @@
 namespace NServiceBus
 {
-    using SecondLevelRetries.Config;
-
     /// <summary>
     /// Provides config options for the SLR feature.
     /// </summary>

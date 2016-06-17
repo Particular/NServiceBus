@@ -1,4 +1,4 @@
-namespace NServiceBus.SecondLevelRetries.Config
+namespace NServiceBus
 {
     using System;
     using Transports;
