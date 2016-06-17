@@ -21,19 +21,19 @@
                 .Done(c => c.FailedMessages.Any())
                 .Run();
 
-            Assert.That(context.HeaderValues.Count, Is.EqualTo(2), "because the custom policy should have been invoked twice");
-            Assert.That(context.HeaderValues[0].Message, Is.Not.Null);
-            Assert.That(context.HeaderValues[0].Exception, Is.TypeOf<SimulatedException>());
-            Assert.That(context.HeaderValues[0].SecondLevelRetryAttempt, Is.EqualTo(1));
-            Assert.That(context.HeaderValues[1].Message, Is.Not.Null);
-            Assert.That(context.HeaderValues[1].Exception, Is.TypeOf<SimulatedException>());
-            Assert.That(context.HeaderValues[1].SecondLevelRetryAttempt, Is.EqualTo(2));
+            Assert.That(context.SlrRetryContexts.Count, Is.EqualTo(2), "because the custom policy should have been invoked twice");
+            Assert.That(context.SlrRetryContexts[0].Message, Is.Not.Null);
+            Assert.That(context.SlrRetryContexts[0].Exception, Is.TypeOf<SimulatedException>());
+            Assert.That(context.SlrRetryContexts[0].SecondLevelRetryAttempt, Is.EqualTo(1));
+            Assert.That(context.SlrRetryContexts[1].Message, Is.Not.Null);
+            Assert.That(context.SlrRetryContexts[1].Exception, Is.TypeOf<SimulatedException>());
+            Assert.That(context.SlrRetryContexts[1].SecondLevelRetryAttempt, Is.EqualTo(2));
         }
 
         class Context : ScenarioContext
         {
             public bool MessageMovedToErrorQueue { get; set; }
-            public List<SecondLevelRetryContext> HeaderValues { get; } = new List<SecondLevelRetryContext>();
+            public List<SecondLevelRetryContext> SlrRetryContexts { get; } = new List<SecondLevelRetryContext>();
         }
 
         class Endpoint : EndpointConfigurationBuilder
@@ -60,7 +60,7 @@
 
                 public TimeSpan GetDelay(SecondLevelRetryContext slrRetryContext)
                 {
-                    context.HeaderValues.Add(slrRetryContext);
+                    context.SlrRetryContexts.Add(slrRetryContext);
 
                     if (slrRetries++ == 1)
                     {

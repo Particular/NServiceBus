@@ -9,12 +9,12 @@ namespace NServiceBus
     public class SecondLevelRetryContext
     {
         /// <summary>
-        /// The message which failed to process.
+        /// The message that failed to process.
         /// </summary>
         public IncomingMessage Message { get; set; }
 
         /// <summary>
-        /// The occured exception.
+        /// The exception that occurred.
         /// </summary>
         public Exception Exception { get; set; }
 

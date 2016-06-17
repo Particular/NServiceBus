@@ -9,12 +9,13 @@ namespace NServiceBus
             this.customRetryPolicy = customRetryPolicy;
         }
 
-        Func<SecondLevelRetryContext, TimeSpan> customRetryPolicy;
         public override bool TryGetDelay(SecondLevelRetryContext slrRetryContext, out TimeSpan delay)
         {
             delay = customRetryPolicy(slrRetryContext);
 
             return delay != TimeSpan.MinValue;
         }
+
+        Func<SecondLevelRetryContext, TimeSpan> customRetryPolicy;
     }
 }
