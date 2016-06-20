@@ -105,14 +105,5 @@
         SecondLevelRetryPolicy retryPolicy;
 
         static ILog Logger = LogManager.GetLogger<SecondLevelRetriesBehavior>();
-
-        public class Registration : RegisterStep
-        {
-            public Registration()
-                : base("SecondLevelRetries", typeof(SecondLevelRetriesBehavior), "Performs second level retries")
-            {
-                InsertBeforeIfExists("FirstLevelRetries");
-            }
-        }
     }
 }

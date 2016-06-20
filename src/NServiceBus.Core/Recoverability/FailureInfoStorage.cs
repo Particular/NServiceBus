@@ -21,7 +21,7 @@ namespace NServiceBus
 
         public void MarkForMovingToErrorQueue(string messageId, ExceptionDispatchInfo exceptionDispatchInfo)
         {
-            UpdateFailureInfo(messageId, fi => new ProcessingFailureInfo(exceptionDispatchInfo, fi.FLRetries, true)); 
+            UpdateFailureInfo(messageId, fi => new ProcessingFailureInfo(exceptionDispatchInfo, fi.FLRetries, true));
         }
 
         public void MarkForDeferralForSecondLevelRetry(string messageId, ExceptionDispatchInfo exceptionDispatchInfo)

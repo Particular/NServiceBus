@@ -600,7 +600,8 @@ namespace NServiceBus.Timeout.Core
         [ObsoleteEx(
             Message = "Not used anymore",
             RemoveInVersion = "7.0",
-            TreatAsErrorFromVersion = "6.0")] public const string OriginalReplyToAddress = "NServiceBus.Timeout.ReplyToAddress";
+            TreatAsErrorFromVersion = "6.0")]
+        public const string OriginalReplyToAddress = "NServiceBus.Timeout.ReplyToAddress";
     }
 }
 
@@ -1031,6 +1032,30 @@ namespace NServiceBus.Config
     }
 }
 
+namespace NServiceBus.SecondLevelRetries.Config
+{
+    using System;
+
+    [ObsoleteEx(
+        RemoveInVersion = "7.0",
+        TreatAsErrorFromVersion = "6.0",
+        ReplacementTypeOrMember = "NServiceBus.SecondLevelRetriesSettings")]
+    public class SecondLevelRetriesSettings
+    {
+        /// <summary>
+        /// Register a custom retry policy.
+        /// </summary>
+        [ObsoleteEx(
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0",
+            ReplacementTypeOrMember = "NServiceBus.SecondLevelRetriesSettings.CustomRetryPolicy(Func<IncomingMessage, TimeSpan> customPolicy)")]
+        public void CustomRetryPolicy(Func<TransportMessage, TimeSpan> customPolicy)
+        {
+            throw new NotImplementedException();
+        }
+    }
+}
+
 namespace NServiceBus.Faults
 {
     [ObsoleteEx(
@@ -1445,18 +1470,6 @@ namespace NServiceBus.Pipeline
         public static readonly WellKnownStep EnforceUnsubscribeBestPractices;
     }
 
-    public partial class StepRegistrationSequence
-    {
-        [ObsoleteEx(
-            RemoveInVersion = "7.0",
-            TreatAsErrorFromVersion = "6.0",
-            ReplacementTypeOrMember = "Register(string stepId, Type behavior, string description)")]
-        public StepRegistrationSequence Register(WellKnownStep wellKnownStep, Type behavior, string description)
-        {
-            throw new NotImplementedException();
-        }
-    }
-
     public abstract partial class RegisterStep
     {
         [ObsoleteEx(
@@ -1512,15 +1525,6 @@ namespace NServiceBus.Pipeline
             TreatAsErrorFromVersion = "6.0",
             ReplacementTypeOrMember = "Replace(string stepId, Type newBehavior, string description)")]
         public void Replace(WellKnownStep wellKnownStep, Type newBehavior, string description = null)
-        {
-            throw new NotImplementedException();
-        }
-
-        [ObsoleteEx(
-            RemoveInVersion = "7.0",
-            TreatAsErrorFromVersion = "6.0",
-            ReplacementTypeOrMember = "Register(string stepId, Type behavior, string description)")]
-        public StepRegistrationSequence Register(WellKnownStep wellKnownStep, Type behavior, string description)
         {
             throw new NotImplementedException();
         }
@@ -1681,7 +1685,8 @@ namespace NServiceBus
         [ObsoleteEx(
             TreatAsErrorFromVersion = "6",
             RemoveInVersion = "7",
-            Message = "The WinIdName header is no longer attached to outgoing message to avoid passing security related information on the wire. Should you rely on the header being present you can add a message mutator that sets it.")] public const string WindowsIdentityName = "WinIdName";
+            Message = "The WinIdName header is no longer attached to outgoing message to avoid passing security related information on the wire. Should you rely on the header being present you can add a message mutator that sets it.")]
+        public const string WindowsIdentityName = "WinIdName";
     }
 }
 
@@ -2295,6 +2300,42 @@ namespace NServiceBus.DataBus
         ReplacementTypeOrMember = "DataBusExtensions")]
     public class DataBusExtentions
     {
+    }
+}
+
+namespace NServiceBus.Features
+{
+    [ObsoleteEx(
+        RemoveInVersion = "7.0",
+        TreatAsErrorFromVersion = "6.0",
+        Message = "FirstLevelRetries is no longer a separate feature. Please use configureation.DisableFirstLevelRetries() to disable immediate retries.")]
+    public class FirstLevelRetries : Feature
+    {
+        internal FirstLevelRetries()
+        {
+        }
+        protected internal override void Setup(FeatureConfigurationContext context)
+        {
+            throw new System.NotImplementedException();
+        }
+    }
+}
+
+namespace NServiceBus.Features
+{
+    [ObsoleteEx(
+        RemoveInVersion = "7.0",
+        TreatAsErrorFromVersion = "6.0",
+        Message = "SecondLevelRetries is no longer a separate feature. Please use configureation.SecondLevelRetries().Disable() to delayed retries.")]
+    public class SecondLevelRetries : Feature
+    {
+        internal SecondLevelRetries()
+        {
+        }
+
+        protected internal override void Setup(FeatureConfigurationContext context)
+        {
+        }
     }
 }
 

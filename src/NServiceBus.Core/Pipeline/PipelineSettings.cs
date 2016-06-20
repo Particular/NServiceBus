@@ -77,11 +77,11 @@ namespace NServiceBus.Pipeline
         /// </summary>
         /// <param name="behavior">The <see cref="Behavior{TContext}" /> to execute.</param>
         /// <param name="description">The description of the behavior.</param>
-        public StepRegistrationSequence Register(Type behavior, string description)
+        public void Register(Type behavior, string description)
         {
             BehaviorTypeChecker.ThrowIfInvalid(behavior, nameof(behavior));
 
-            return Register(behavior.Name, behavior, description);
+            Register(behavior.Name, behavior, description);
         }
 
         /// <summary>
@@ -90,15 +90,14 @@ namespace NServiceBus.Pipeline
         /// <param name="stepId">The identifier of the new step to add.</param>
         /// <param name="behavior">The <see cref="Behavior{TContext}" /> to execute.</param>
         /// <param name="description">The description of the behavior.</param>
-        public StepRegistrationSequence Register(string stepId, Type behavior, string description)
+        public void Register(string stepId, Type behavior, string description)
         {
             BehaviorTypeChecker.ThrowIfInvalid(behavior, nameof(behavior));
 
             Guard.AgainstNullAndEmpty(nameof(stepId), stepId);
             Guard.AgainstNullAndEmpty(nameof(description), description);
 
-            AddStep(RegisterStep.Create(stepId, behavior, description));
-            return new StepRegistrationSequence(AddStep);
+            modifications.Additions.Add(RegisterStep.Create(stepId, behavior, description));
         }
 
         /// <summary>
@@ -106,12 +105,12 @@ namespace NServiceBus.Pipeline
         /// </summary>
         /// <param name="factoryMethod">A callback that creates the behavior instance.</param>
         /// <param name="description">The description of the behavior.</param>
-        public StepRegistrationSequence Register<T>(Func<IBuilder, T> factoryMethod, string description)
+        public void Register<T>(Func<IBuilder, T> factoryMethod, string description)
             where T : IBehavior
         {
             BehaviorTypeChecker.ThrowIfInvalid(typeof(T), "behavior");
 
-            return Register(typeof(T).Name, factoryMethod, description);
+            Register(typeof(T).Name, factoryMethod, description);
         }
 
         /// <summary>
@@ -120,7 +119,7 @@ namespace NServiceBus.Pipeline
         /// <param name="stepId">The identifier of the new step to add.</param>
         /// <param name="factoryMethod">A callback that creates the behavior instance.</param>
         /// <param name="description">The description of the behavior.</param>
-        public StepRegistrationSequence Register<T>(string stepId, Func<IBuilder, T> factoryMethod, string description)
+        public void Register<T>(string stepId, Func<IBuilder, T> factoryMethod, string description)
             where T : IBehavior
         {
             BehaviorTypeChecker.ThrowIfInvalid(typeof(T), "behavior");
@@ -128,8 +127,7 @@ namespace NServiceBus.Pipeline
             Guard.AgainstNullAndEmpty(nameof(stepId), stepId);
             Guard.AgainstNullAndEmpty(nameof(description), description);
 
-            AddStep(RegisterStep.Create(stepId, typeof(T), description, b => factoryMethod(b)));
-            return new StepRegistrationSequence(AddStep);
+            modifications.Additions.Add(RegisterStep.Create(stepId, typeof(T), description, b => factoryMethod(b)));
         }
 
         /// <summary>
@@ -137,12 +135,12 @@ namespace NServiceBus.Pipeline
         /// </summary>
         /// <param name="behavior">The behavior instance.</param>
         /// <param name="description">The description of the behavior.</param>
-        public StepRegistrationSequence Register<T>(T behavior, string description)
+        public void Register<T>(T behavior, string description)
             where T : IBehavior
         {
             BehaviorTypeChecker.ThrowIfInvalid(typeof(T), nameof(behavior));
 
-            return Register(typeof(T).Name, behavior, description);
+            Register(typeof(T).Name, behavior, description);
         }
 
         /// <summary>
@@ -151,7 +149,7 @@ namespace NServiceBus.Pipeline
         /// <param name="stepId">The identifier of the new step to add.</param>
         /// <param name="behavior">The behavior instance.</param>
         /// <param name="description">The description of the behavior.</param>
-        public StepRegistrationSequence Register<T>(string stepId, T behavior, string description)
+        public void Register<T>(string stepId, T behavior, string description)
             where T : IBehavior
         {
             BehaviorTypeChecker.ThrowIfInvalid(typeof(T), nameof(behavior));
@@ -159,8 +157,7 @@ namespace NServiceBus.Pipeline
             Guard.AgainstNullAndEmpty(nameof(stepId), stepId);
             Guard.AgainstNullAndEmpty(nameof(description), description);
 
-            AddStep(RegisterStep.Create(stepId, typeof(T), description, _ => behavior));
-            return new StepRegistrationSequence(AddStep);
+            modifications.Additions.Add(RegisterStep.Create(stepId, typeof(T), description, _ => behavior));
         }
 
         /// <summary>
@@ -168,7 +165,7 @@ namespace NServiceBus.Pipeline
         /// </summary>
         public void Register<TRegisterStep>() where TRegisterStep : RegisterStep, new()
         {
-            AddStep(new TRegisterStep());
+            modifications.Additions.Add(new TRegisterStep());
         }
 
         /// <summary>
@@ -178,12 +175,7 @@ namespace NServiceBus.Pipeline
         public void Register(RegisterStep registration)
         {
             Guard.AgainstNull(nameof(registration), registration);
-            AddStep(registration);
-        }
-
-        void AddStep(RegisterStep step)
-        {
-            modifications.Additions.Add(step);
+            modifications.Additions.Add(registration);
         }
 
         PipelineModifications modifications;

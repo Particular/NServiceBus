@@ -47,8 +47,6 @@
             {
                 EndpointSetup<DefaultServer>(config =>
                 {
-                    config.DisableFeature<FirstLevelRetries>();
-                    config.EnableFeature<SecondLevelRetries>();
                     config.EnableFeature<TimeoutManager>();
                     config.SendFailedMessagesTo(ErrorQueueName);
                 })

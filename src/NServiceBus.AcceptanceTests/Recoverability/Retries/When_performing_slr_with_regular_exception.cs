@@ -38,8 +38,6 @@ namespace NServiceBus.AcceptanceTests.Recoverability.Retries
                 EndpointSetup<DefaultServer>((configure, context) =>
                 {
                     var scenarioContext = (Context) context.ScenarioContext;
-                    configure.DisableFeature<FirstLevelRetries>();
-                    configure.EnableFeature<SecondLevelRetries>();
                     configure.EnableFeature<TimeoutManager>();
                     configure.Notifications.Errors.MessageSentToErrorQueue += (sender, message) => { scenarioContext.SlrChecksum = Checksum(message.Body); };
                     configure.RegisterComponents(c => c.ConfigureComponent<BodyMutator>(DependencyLifecycle.InstancePerCall));

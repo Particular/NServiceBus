@@ -6,7 +6,6 @@
     using System.Transactions;
     using AcceptanceTesting;
     using EndpointTemplates;
-    using Features;
     using NUnit.Framework;
     using ScenarioDescriptors;
 
@@ -44,8 +43,6 @@
             {
                 EndpointSetup<DefaultServer>(config =>
                 {
-                    config.DisableFeature<FirstLevelRetries>();
-                    config.DisableFeature<SecondLevelRetries>();
                     config.SendFailedMessagesTo(ErrorQueueName);
                 });
             }

@@ -52,10 +52,7 @@
                 EndpointSetup<DefaultServer>(config =>
                 {
                     config.EnableFeature<TimeoutManager>();
-                    config.EnableFeature<SecondLevelRetries>();
                 })
-                    .WithConfig<TransportConfig>(c => { c.MaxRetries = 0; //to skip the FLR
-                    })
                     .WithConfig<SecondLevelRetriesConfig>(c =>
                     {
                         c.NumberOfRetries = 1;
