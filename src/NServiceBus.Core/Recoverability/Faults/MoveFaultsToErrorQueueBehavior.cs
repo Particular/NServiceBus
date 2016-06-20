@@ -84,19 +84,5 @@
         string localAddress;
         TransportTransactionMode transportTransactionMode;
         static ILog Logger = LogManager.GetLogger<MoveFaultsToErrorQueueBehavior>();
-
-        public class Registration : RegisterStep
-        {
-            public Registration(string localAddress, TransportTransactionMode transportTransactionMode)
-                : base("MoveFaultsToErrorQueue", typeof(MoveFaultsToErrorQueueBehavior), "Moved failing messages to the configured error queue", b => new MoveFaultsToErrorQueueBehavior(
-                    b.Build<CriticalError>(),
-                    localAddress,
-                    transportTransactionMode,
-                    b.Build<FailureInfoStorage>()))
-            {
-                InsertBeforeIfExists("FirstLevelRetries");
-                InsertBeforeIfExists("SecondLevelRetries");
-            }
-        }
     }
 }

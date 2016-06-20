@@ -4,7 +4,6 @@
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
-    using Features;
     using NServiceBus.Pipeline;
     using NUnit.Framework;
     using ScenarioDescriptors;
@@ -89,8 +88,6 @@
 
                     config.UseTransport(context.GetTransportType())
                         .Transactions(testContext.TransactionMode);
-                    config.DisableFeature<FirstLevelRetries>();
-                    config.DisableFeature<SecondLevelRetries>();
                     config.Pipeline.Register(new RegisterThrowingBehavior());
                     config.SendFailedMessagesTo(ErrorSpyQueueName);
                 });
@@ -119,8 +116,6 @@
             {
                 EndpointSetup<DefaultServer>((config, context) =>
                 {
-                    config.DisableFeature<FirstLevelRetries>();
-                    config.DisableFeature<SecondLevelRetries>();
                     config.SendFailedMessagesTo(ErrorSpyQueueName);
                 });
             }

@@ -1,4 +1,4 @@
-namespace NServiceBus.SecondLevelRetries.Config
+namespace NServiceBus
 {
     using System;
 
@@ -25,13 +25,47 @@ namespace NServiceBus.SecondLevelRetries.Config
         }
 
         /// <summary>
-        /// Registers a custom retry policy. The callback receives the failed message, the exception, and the current second level retry attempt.
+        /// Registers a custom retry policy. The callback receives the failed message, the exception, and the current second level retry attempt. Overrides <see cref="NumberOfRetries"/> and <see cref="TimeIncrease"/> configuration.
         /// </summary>
         /// <param name="customPolicy">The function that is invoked on a failed message to determine the delay until the message is retried.</param>
-        public void CustomRetryPolicy(Func<SecondLevelRetryContext, TimeSpan> customPolicy)
+        public SecondLevelRetriesSettings CustomRetryPolicy(Func<SecondLevelRetryContext, TimeSpan> customPolicy)
         {
             Guard.AgainstNull(nameof(customPolicy), customPolicy);
-            config.Settings.Set("SecondLevelRetries.RetryPolicy", customPolicy);
+            config.Settings.Set(Recoverability.SlrCustomPolicy, customPolicy);
+
+            return this;
+        }
+
+        /// <summary>
+        /// Configures the number of times a message should be retried with a delay after failing first level retries.
+        /// </summary>
+        public SecondLevelRetriesSettings NumberOfRetries(int numberOfRetries)
+        {
+            Guard.AgainstNegative(nameof(numberOfRetries), numberOfRetries);
+            config.Settings.Set(Recoverability.SlrNumberOfRetries, numberOfRetries);
+
+            return this;
+        }
+
+        /// <summary>
+        /// Configures the delay interval increase for each failed second level retry attempt.
+        /// </summary>
+        public SecondLevelRetriesSettings TimeIncrease(TimeSpan timeIncrease)
+        {
+            Guard.AgainstNegative(nameof(timeIncrease), timeIncrease);
+            config.Settings.Set(Recoverability.SlrTimeIncrease, timeIncrease);
+
+            return this;
+        }
+
+        /// <summary>
+        /// Configures NServiceBus to not retry failed messages using the second level retry mechanism.
+        /// </summary>
+        public SecondLevelRetriesSettings Disable()
+        {
+            config.Settings.Set(Recoverability.SlrNumberOfRetries, 0);
+
+            return this;
         }
 
         EndpointConfiguration config;

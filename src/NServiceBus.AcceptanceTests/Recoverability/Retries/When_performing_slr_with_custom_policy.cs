@@ -45,9 +45,8 @@
                     var testContext = context.ScenarioContext as Context;
 
                     config.EnableFeature<TimeoutManager>();
-                    config.EnableFeature<FirstLevelRetries>();
-                    config.EnableFeature<SecondLevelRetries>();
                     config.SecondLevelRetries().CustomRetryPolicy(new CustomPolicy(testContext).GetDelay);
+                    config.FirstLevelRetries().NumberOfRetries(1);
                 });
             }
 
