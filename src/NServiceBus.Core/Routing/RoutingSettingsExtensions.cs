@@ -38,15 +38,5 @@
         {
             config.Settings.GetOrCreate<DistributionPolicy>().SetDistributionStrategy(endpointName, distributionStrategy);
         }
-
-        /// <summary>
-        /// Configures physical routing.
-        /// </summary>
-        /// <param name="config">Config object.</param>
-        public static EndpointInstances Physical<T>(this RoutingSettings<T> config)
-            where T : TransportDefinition, INonCompetingConsumersTransport
-        {
-            return config.Settings.GetOrCreate<EndpointInstances>();
-        }
     }
 }

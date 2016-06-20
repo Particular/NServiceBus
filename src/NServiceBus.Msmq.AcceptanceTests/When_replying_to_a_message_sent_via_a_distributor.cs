@@ -3,6 +3,7 @@
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using AcceptanceTesting.Customization;
+    using Configuration.AdvanceExtensibility;
     using NServiceBus.Routing;
     using NServiceBus.Routing.Legacy;
     using NUnit.Framework;
@@ -36,7 +37,7 @@
                 {
                     var routing = c.UseTransport<MsmqTransport>().Routing();
                     routing.RouteTo(typeof(MyRequest), ReceiverEndpoint);
-                    routing.Physical().Add(new EndpointInstance(ReceiverEndpoint, "XYZ"));
+                    c.GetSettings().GetOrCreate<EndpointInstances>().Add(new EndpointInstance(ReceiverEndpoint, "XYZ"));
                     c.AddHeaderToAllOutgoingMessages("NServiceBus.Distributor.WorkerSessionId", "SomeID");
                 });
             }
