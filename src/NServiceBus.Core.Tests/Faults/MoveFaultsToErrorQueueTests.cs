@@ -118,16 +118,23 @@ namespace NServiceBus.Core.Tests
         [TestCase(TransportTransactionMode.TransactionScope)]
         public async Task ShouldInvokePipelineWhenFaultedMessageRedeliveredImmediately(TransportTransactionMode transactionMode)
         {
-            var behavior = CreateBehavior(transactionMode);
-            var context = CreateContext();
+            var fakeDispatcher = new FakeDispatcher();
 
-            var continuationCalledAfterDeferral = false;
+            var behavior = CreateBehavior(transactionMode,dispatcher: fakeDispatcher);
+            var context = CreateContext();
 
             await behavior.Invoke(context, () => { throw new Exception(); });
 
+            Assert.Null(fakeDispatcher.ErrorOperation);
 
+            await behavior.Invoke(context, () =>
+            {
+                Assert.Fail("Should not call the main pipeline");
 
-            Assert.IsTrue(continuationCalledAfterDeferral);
+                return TaskEx.CompletedTask;
+            });
+
+            Assert.NotNull(fakeDispatcher.ErrorOperation);
         }
 
         [Test]
