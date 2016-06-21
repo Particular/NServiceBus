@@ -39,7 +39,8 @@
                 b.Build<CriticalError>(),
                 localAddress,
                 transportTransactionMode,
-                failureInfoStorage), "Moves failing messages to the configured error queue");  //context.Pipeline.Register(new MoveFaultsToErrorQueueBehavior.Registration(context.Settings.LocalAddress(), transportTransactionMode, failureInfoStorage));
+                failureInfoStorage,
+                b.Build<IDispatchMessages>()), "Moves failing messages to the configured error queue");  //context.Pipeline.Register(new MoveFaultsToErrorQueueBehavior.Registration(context.Settings.LocalAddress(), transportTransactionMode, failureInfoStorage));
             
             if (IsDelayedRetriesEnabled(context.Settings))
             {

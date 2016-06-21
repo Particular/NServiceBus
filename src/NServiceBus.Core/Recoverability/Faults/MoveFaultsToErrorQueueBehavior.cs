@@ -5,16 +5,18 @@
     using System.Threading.Tasks;
     using Logging;
     using Pipeline;
+    using Routing;
     using Transports;
 
     class MoveFaultsToErrorQueueBehavior : Behavior<ITransportReceiveContext>
     {
-        public MoveFaultsToErrorQueueBehavior(CriticalError criticalError, string localAddress, TransportTransactionMode transportTransactionMode, FailureInfoStorage failureInfoStorage)
+        public MoveFaultsToErrorQueueBehavior(CriticalError criticalError, string localAddress, TransportTransactionMode transportTransactionMode, FailureInfoStorage failureInfoStorage,IDispatchMessages dispatcher)
         {
             this.criticalError = criticalError;
             this.localAddress = localAddress;
             this.transportTransactionMode = transportTransactionMode;
             this.failureInfoStorage = failureInfoStorage;
+            this.dispatcher = dispatcher;
         }
 
         bool RunningWithTransactions => transportTransactionMode != TransportTransactionMode.None;
@@ -62,13 +64,13 @@
                 message.Headers.Remove(Headers.Retries);
                 message.Headers.Remove(Headers.FLRetries);
 
-                
                 failureInfoStorage.ClearFailureInfoForMessage(message.MessageId);
 
-                //var outgoingMessage = new OutgoingMessage(message.MessageId, message.Headers, message.Body);
-                //await fork(faultContext).ConfigureAwait(false);
-                //   context.Message.SetExceptionHeaders(context.Exception, context.SourceQueueAddress);
+                var outgoingMessage = new OutgoingMessage(message.MessageId, message.Headers, message.Body);
 
+                outgoingMessage.SetExceptionHeaders(exception, localAddress);
+
+                await dispatcher.Dispatch(new TransportOperations(new TransportOperation(outgoingMessage, new UnicastAddressTag("error"))), context.Extensions).ConfigureAwait(false);
                 //context.AddFaultData(Headers.HostId, hostInfo.HostId.ToString("N"));
                 //context.AddFaultData(Headers.HostDisplayName, hostInfo.DisplayName);
 
@@ -86,6 +88,7 @@
 
         CriticalError criticalError;
         FailureInfoStorage failureInfoStorage;
+        readonly IDispatchMessages dispatcher;
         string localAddress;
         TransportTransactionMode transportTransactionMode;
         static ILog Logger = LogManager.GetLogger<MoveFaultsToErrorQueueBehavior>();

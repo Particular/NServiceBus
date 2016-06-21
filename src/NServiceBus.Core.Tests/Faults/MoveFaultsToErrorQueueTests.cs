@@ -3,9 +3,10 @@ namespace NServiceBus.Core.Tests
     using System;
     using System.Collections.Generic;
     using System.IO;
+    using System.Linq;
     using System.Threading.Tasks;
+    using Extensibility;
     using Faults;
-    using NServiceBus.Pipeline;
     using NServiceBus.Transports;
     using NUnit.Framework;
     using Testing;
@@ -27,18 +28,18 @@ namespace NServiceBus.Core.Tests
         [TestCase(TransportTransactionMode.TransactionScope)]
         public async Task ShouldForwardToErrorQueueForAllExceptions(TransportTransactionMode transactionMode)
         {
-            var behavior = CreateBehavior(transactionMode, "some-source-queue");
+            var fakeDispatcher = new FakeDispatcher();
+            var behavior = CreateBehavior(transactionMode, "some-source-queue", fakeDispatcher);
             var context = CreateContext("some-id");
-            
+
             await behavior.Invoke(context, () => { throw new Exception(); });
 
             if (transactionMode != TransportTransactionMode.None)
             {
                 await behavior.Invoke(context, () => Task.FromResult(0));
             }
-            Assert.Fail("not implemented");
-            //Assert.AreEqual("some-source-queue", faultContext.SourceQueueAddress);
-            //Assert.AreEqual("some-id", faultContext.Message.MessageId);
+
+            Assert.AreEqual("some-id", fakeDispatcher.ErrorOperation.Message.MessageId);
         }
 
         [TestCase(TransportTransactionMode.None)]
@@ -47,7 +48,12 @@ namespace NServiceBus.Core.Tests
         [TestCase(TransportTransactionMode.TransactionScope)]
         public void ShouldInvokeCriticalErrorIfForwardingFails(TransportTransactionMode transactionMode)
         {
-            var behavior = CreateBehavior(transactionMode);
+            var fakeDispatcher = new FakeDispatcher
+            {
+                ThrowOnDispatch = true
+            };
+
+            var behavior = CreateBehavior(transactionMode,dispatcher: fakeDispatcher);
             var context = CreateContext();
 
             var behaviorInvocation = new AsyncTestDelegate(async () =>
@@ -119,7 +125,7 @@ namespace NServiceBus.Core.Tests
 
             await behavior.Invoke(context, () => { throw new Exception(); });
 
-          
+
 
             Assert.IsTrue(continuationCalledAfterDeferral);
         }
@@ -127,26 +133,37 @@ namespace NServiceBus.Core.Tests
         [Test]
         public async Task ShouldEnrichHeadersWithExceptionDetails()
         {
-           //var sourceQueue = "public-receive-address";
-            //var exception = new Exception("exception-message");
+            var sourceQueue = "my-failing-endpoint";
             var messageId = "message-id";
+            var fakeDispatcher = new FakeDispatcher();
 
             var context = CreateContext(messageId);
-            var behavior = CreateBehavior(TransportTransactionMode.None);
+            var behavior = CreateBehavior(TransportTransactionMode.None, sourceQueue, fakeDispatcher);
 
-            await behavior.Invoke(context, c => Task.FromResult(0));
+            await behavior.Invoke(context, c =>
+            {
+                throw new Exception("exception-message");
+            });
 
-            Assert.AreEqual("public-receive-address", context.Message.Headers[FaultsHeaderKeys.FailedQ]);
-            Assert.AreEqual("exception-message", context.Message.Headers["NServiceBus.ExceptionInfo.Message"]);
+            var messageSentToError = fakeDispatcher.ErrorOperation.Message;
+
+            Assert.AreEqual(sourceQueue, messageSentToError.Headers[FaultsHeaderKeys.FailedQ]);
+            Assert.AreEqual("exception-message", messageSentToError.Headers["NServiceBus.ExceptionInfo.Message"]);
         }
 
-        MoveFaultsToErrorQueueBehavior CreateBehavior(TransportTransactionMode transactionMode, string localAddress = "public-receive-address")
+        MoveFaultsToErrorQueueBehavior CreateBehavior(TransportTransactionMode transactionMode, string localAddress = "public-receive-address", IDispatchMessages dispatcher = null)
         {
+            if (dispatcher == null)
+            {
+                dispatcher = new FakeDispatcher();
+            }
+
             var behavior = new MoveFaultsToErrorQueueBehavior(
                 criticalError,
                 localAddress,
                 transactionMode,
-                new FailureInfoStorage(10));
+                new FailureInfoStorage(10),
+                dispatcher);
 
             return behavior;
         }
@@ -163,6 +180,23 @@ namespace NServiceBus.Core.Tests
             return context;
         }
 
+        class FakeDispatcher : IDispatchMessages
+        {
+            public Task Dispatch(TransportOperations outgoingMessages, ContextBag context)
+            {
+                if (ThrowOnDispatch)
+                {
+                    throw new Exception("Failed to send to error queue");
+                }
+
+                ErrorOperation = outgoingMessages.UnicastTransportOperations.First();
+
+                return Task.FromResult(0);
+            }
+
+            public UnicastTransportOperation ErrorOperation { get; private set; }
+            public bool ThrowOnDispatch { get; set; }
+        }
         class FakeCriticalError : CriticalError
         {
             public FakeCriticalError() : base(_ => TaskEx.CompletedTask)
