@@ -4,29 +4,16 @@
     using System.Collections;
     using System.Collections.Generic;
     using System.Configuration;
-    using Faults;
-    using Transports;
 
     static class ExceptionHeaderHelper
     {
-        public static void SetExceptionHeaders(this IncomingMessage message, Exception e, string failedQueue, string reason = null)
+        public static void SetExceptionHeaders(Dictionary<string, string> headers, Exception e)
         {
-            var headers = message.Headers;
-            SetExceptionHeaders(headers, e, failedQueue, reason, useLegacyStackTrace);
+            SetExceptionHeaders(headers, e, useLegacyStackTrace);
         }
 
-        public static void SetExceptionHeaders(this OutgoingMessage message, Exception e, string failedQueue, string reason = null)
+        public static void SetExceptionHeaders(Dictionary<string, string> headers, Exception e, bool legacyStacktrace)
         {
-            var headers = message.Headers;
-            SetExceptionHeaders(headers, e, failedQueue, reason, useLegacyStackTrace);
-        }
-
-        internal static void SetExceptionHeaders(Dictionary<string, string> headers, Exception e, string failedQueue, string reason, bool legacyStackTrace)
-        {
-            if (!string.IsNullOrWhiteSpace(reason))
-            {
-                headers["NServiceBus.ExceptionInfo.Reason"] = reason;
-            }
             headers["NServiceBus.ExceptionInfo.ExceptionType"] = e.GetType().FullName;
 
             if (e.InnerException != null)
@@ -37,7 +24,8 @@
             headers["NServiceBus.ExceptionInfo.HelpLink"] = e.HelpLink;
             headers["NServiceBus.ExceptionInfo.Message"] = e.GetMessage().Truncate(16384);
             headers["NServiceBus.ExceptionInfo.Source"] = e.Source;
-            if (legacyStackTrace)
+
+            if (legacyStacktrace)
             {
                 headers["NServiceBus.ExceptionInfo.StackTrace"] = e.StackTrace;
             }
@@ -45,7 +33,6 @@
             {
                 headers["NServiceBus.ExceptionInfo.StackTrace"] = e.ToString();
             }
-            headers[FaultsHeaderKeys.FailedQ] = failedQueue;
             headers["NServiceBus.TimeOfFailure"] = DateTimeExtensions.ToWireFormattedString(DateTime.UtcNow);
 
             // ReSharper disable once ConditionIsAlwaysTrueOrFalse

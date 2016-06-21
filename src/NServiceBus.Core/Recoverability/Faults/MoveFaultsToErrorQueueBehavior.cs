@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus
 {
     using System;
+    using System.Collections.Generic;
     using System.Runtime.ExceptionServices;
     using System.Threading.Tasks;
     using Logging;
@@ -10,10 +11,14 @@
 
     class MoveFaultsToErrorQueueBehavior : Behavior<ITransportReceiveContext>
     {
-        public MoveFaultsToErrorQueueBehavior(CriticalError criticalError, string localAddress, TransportTransactionMode transportTransactionMode, FailureInfoStorage failureInfoStorage,IDispatchMessages dispatcher)
+        public MoveFaultsToErrorQueueBehavior(CriticalError criticalError,
+            Dictionary<string,string> staticFaultMetadata,
+            TransportTransactionMode transportTransactionMode,
+            FailureInfoStorage failureInfoStorage,
+            IDispatchMessages dispatcher)
         {
             this.criticalError = criticalError;
-            this.localAddress = localAddress;
+            this.staticFaultMetadata = staticFaultMetadata;
             this.transportTransactionMode = transportTransactionMode;
             this.failureInfoStorage = failureInfoStorage;
             this.dispatcher = dispatcher;
@@ -68,14 +73,15 @@
 
                 var outgoingMessage = new OutgoingMessage(message.MessageId, message.Headers, message.Body);
 
-                outgoingMessage.SetExceptionHeaders(exception, localAddress);
+                ExceptionHeaderHelper.SetExceptionHeaders(outgoingMessage.Headers,exception);
+
+                foreach (var faultMetadata in staticFaultMetadata)
+                {
+                    outgoingMessage.Headers[faultMetadata.Key] = faultMetadata.Value;
+                }
 
                 await dispatcher.Dispatch(new TransportOperations(new TransportOperation(outgoingMessage, new UnicastAddressTag("error"))), context.Extensions).ConfigureAwait(false);
-                //context.AddFaultData(Headers.HostId, hostInfo.HostId.ToString("N"));
-                //context.AddFaultData(Headers.HostDisplayName, hostInfo.DisplayName);
 
-                //context.AddFaultData(Headers.ProcessingMachine, RuntimeEnvironment.MachineName);
-                //context.AddFaultData(Headers.ProcessingEndpoint, endpointName);
                 await context.RaiseNotification(new MessageFaulted(message, exception)).ConfigureAwait(false);
             }
             catch (Exception ex)
@@ -87,9 +93,9 @@
         }
 
         CriticalError criticalError;
+        readonly Dictionary<string, string> staticFaultMetadata;
         FailureInfoStorage failureInfoStorage;
-        readonly IDispatchMessages dispatcher;
-        string localAddress;
+        IDispatchMessages dispatcher;
         TransportTransactionMode transportTransactionMode;
         static ILog Logger = LogManager.GetLogger<MoveFaultsToErrorQueueBehavior>();
     }

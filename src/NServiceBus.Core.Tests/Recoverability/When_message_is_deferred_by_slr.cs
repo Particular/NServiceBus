@@ -63,7 +63,7 @@
 
             var chain = new BehaviorChain(new[]
            {
-                new BehaviorInstance(typeof(MoveFaultsToErrorQueueBehavior), new MoveFaultsToErrorQueueBehavior(criticalError, "", TransportTransactionMode.None, failureStorage,null)),
+                new BehaviorInstance(typeof(MoveFaultsToErrorQueueBehavior), new MoveFaultsToErrorQueueBehavior(criticalError, new Dictionary<string, string>(), TransportTransactionMode.None, failureStorage,null)),
                 new BehaviorInstance(typeof(SecondLevelRetriesBehavior), new SecondLevelRetriesBehavior(policy, "", failureStorage)),
                 new BehaviorInstance(typeof(FirstLevelRetriesBehavior), new FirstLevelRetriesBehavior(failureStorage, new FirstLevelRetryPolicy(0))),
                 new BehaviorInstance(typeof(LastBehaviorT), lastBehavior)

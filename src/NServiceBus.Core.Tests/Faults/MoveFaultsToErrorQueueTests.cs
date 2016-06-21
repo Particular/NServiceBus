@@ -6,7 +6,6 @@ namespace NServiceBus.Core.Tests
     using System.Linq;
     using System.Threading.Tasks;
     using Extensibility;
-    using Faults;
     using NServiceBus.Transports;
     using NUnit.Framework;
     using Testing;
@@ -29,7 +28,7 @@ namespace NServiceBus.Core.Tests
         public async Task ShouldForwardToErrorQueueForAllExceptions(TransportTransactionMode transactionMode)
         {
             var fakeDispatcher = new FakeDispatcher();
-            var behavior = CreateBehavior(transactionMode, "some-source-queue", fakeDispatcher);
+            var behavior = CreateBehavior(transactionMode, dispatcher: fakeDispatcher);
             var context = CreateContext("some-id");
 
             await behavior.Invoke(context, () => { throw new Exception(); });
@@ -53,7 +52,7 @@ namespace NServiceBus.Core.Tests
                 ThrowOnDispatch = true
             };
 
-            var behavior = CreateBehavior(transactionMode,dispatcher: fakeDispatcher);
+            var behavior = CreateBehavior(transactionMode, dispatcher: fakeDispatcher);
             var context = CreateContext();
 
             var behaviorInvocation = new AsyncTestDelegate(async () =>
@@ -120,7 +119,7 @@ namespace NServiceBus.Core.Tests
         {
             var fakeDispatcher = new FakeDispatcher();
 
-            var behavior = CreateBehavior(transactionMode,dispatcher: fakeDispatcher);
+            var behavior = CreateBehavior(transactionMode, dispatcher: fakeDispatcher);
             var context = CreateContext();
 
             await behavior.Invoke(context, () => { throw new Exception(); });
@@ -140,12 +139,11 @@ namespace NServiceBus.Core.Tests
         [Test]
         public async Task ShouldEnrichHeadersWithExceptionDetails()
         {
-            var sourceQueue = "my-failing-endpoint";
             var messageId = "message-id";
             var fakeDispatcher = new FakeDispatcher();
 
             var context = CreateContext(messageId);
-            var behavior = CreateBehavior(TransportTransactionMode.None, sourceQueue, fakeDispatcher);
+            var behavior = CreateBehavior(TransportTransactionMode.None, new Dictionary<string, string> { { "MyKey", "MyValue" } }, fakeDispatcher);
 
             await behavior.Invoke(context, c =>
             {
@@ -154,11 +152,11 @@ namespace NServiceBus.Core.Tests
 
             var messageSentToError = fakeDispatcher.ErrorOperation.Message;
 
-            Assert.AreEqual(sourceQueue, messageSentToError.Headers[FaultsHeaderKeys.FailedQ]);
+            Assert.AreEqual("MyValye", messageSentToError.Headers["MyKey"]);
             Assert.AreEqual("exception-message", messageSentToError.Headers["NServiceBus.ExceptionInfo.Message"]);
         }
 
-        MoveFaultsToErrorQueueBehavior CreateBehavior(TransportTransactionMode transactionMode, string localAddress = "public-receive-address", IDispatchMessages dispatcher = null)
+        MoveFaultsToErrorQueueBehavior CreateBehavior(TransportTransactionMode transactionMode, Dictionary<string, string> staticFaultMetadata = null, IDispatchMessages dispatcher = null)
         {
             if (dispatcher == null)
             {
@@ -167,7 +165,7 @@ namespace NServiceBus.Core.Tests
 
             var behavior = new MoveFaultsToErrorQueueBehavior(
                 criticalError,
-                localAddress,
+                staticFaultMetadata ?? new Dictionary<string, string>(),
                 transactionMode,
                 new FailureInfoStorage(10),
                 dispatcher);
