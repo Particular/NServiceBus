@@ -15,7 +15,7 @@
     using Testing;
 
     [TestFixture]
-    public class SecondLevelRetriesTests
+    public class SecondLevelRetriesHandlerTests
     {
         [SetUp]
         public void SetUp()
@@ -32,40 +32,29 @@
             var context = CreateContext(message, eventAggregator);
 
             var delay = TimeSpan.FromSeconds(5);
-            var behavior = new SecondLevelRetriesBehavior(new FakePolicy(delay), failureInfoStorage, new DelayedRetryExecutor("local address", dispatcher));
+            var behavior = new SecondLevelRetriesHandler(new FakePolicy(delay), failureInfoStorage, new DelayedRetryExecutor("local address", dispatcher));
 
-            await behavior.Invoke(context, () => { throw new Exception("exception-message"); });
-            await behavior.Invoke(context, () => Task.FromResult(0));
+            behavior.MarkForFutureDeferal(context, new Exception("exception-message"));
+            var messageHandeled = await behavior.HandleIfPreviouslyFailed(context);
 
+            Assert.IsTrue(messageHandeled);
             Assert.AreEqual(dispatcher.TransportOperations.UnicastTransportOperations.Count(), 1);
             Assert.AreEqual("exception-message", eventAggregator.GetNotification<MessageToBeRetried>().Exception.Message);
         }
 
         [Test]
-        public async Task ShouldSkipRetryIfNoDelayIsReturned()
+        public Task ShouldSkipRetryIfNoDelayIsReturned()
         {
             var context = CreateContext();
-            var behavior = new SecondLevelRetriesBehavior(new FakePolicy(), failureInfoStorage, new DelayedRetryExecutor("local address", dispatcher));
+            var behavior = new SecondLevelRetriesHandler(new FakePolicy(), failureInfoStorage, new DelayedRetryExecutor("local address", dispatcher));
 
-            await behavior.Invoke(context, () => { throw new Exception(); });
+            behavior.MarkForFutureDeferal(context, new Exception());
 
-            Assert.That(async () => await behavior.Invoke(context, () => Task.FromResult(0)), Throws.InstanceOf<Exception>());
+            Assert.That(async () => await behavior.HandleIfPreviouslyFailed(context), Throws.InstanceOf<Exception>());
             Assert.That(context.Message.Headers.ContainsKey(Headers.Retries) == false);
             Assert.That(dispatcher.TransportOperations, Is.Null);
-        }
 
-        [Test]
-        public void ShouldSkipRetryForDeserializationErrors()
-        {
-            var message = CreateMessage(slrRetryHeader: "1");
-            var context = CreateContext(message);
-            var behavior = new SecondLevelRetriesBehavior(new FakePolicy(TimeSpan.FromSeconds(5)), failureInfoStorage, new DelayedRetryExecutor("local address", dispatcher));
-
-            var behaviorInvocation = new AsyncTestDelegate(async () => await behavior.Invoke(context, () => { throw new MessageDeserializationException(string.Empty); }));
-
-            Assert.That(behaviorInvocation, Throws.InstanceOf<MessageDeserializationException>());
-            Assert.That(context.Message.Headers.ContainsKey(Headers.Retries) == false);
-            Assert.That(dispatcher.TransportOperations, Is.Null);
+            return Task.FromResult(0);
         }
 
         [Test]
@@ -76,44 +65,27 @@
             var context = CreateContext(message);
 
             var retryPolicy = new FakePolicy(TimeSpan.FromSeconds(5));
-            var behavior = new SecondLevelRetriesBehavior(retryPolicy, failureInfoStorage, new DelayedRetryExecutor("local address", dispatcher));
+            var behavior = new SecondLevelRetriesHandler(retryPolicy, failureInfoStorage, new DelayedRetryExecutor("local address", dispatcher));
 
-            await behavior.Invoke(context, () => { throw new Exception("testex"); });
-            await behavior.Invoke(context, () => Task.FromResult(0));
+            behavior.MarkForFutureDeferal(context, new Exception());
+            await behavior.HandleIfPreviouslyFailed(context);
 
-            Assert.AreEqual(currentRetry + 1, retryPolicy.InvokedWithCurrentRetry);
+            Assert.AreEqual(currentRetry + 1, retryPolicy.CurrentRetryValuePassed);
         }
 
         [Test]
-        public async Task ShouldNotInvokeContinuationAfterMessageFailure()
-        {
-            var message = CreateMessage(slrRetryHeader: "1");
-            var context = CreateContext(message);
-
-            var behavior = new SecondLevelRetriesBehavior(new FakePolicy(TimeSpan.FromSeconds(5)), failureInfoStorage, new DelayedRetryExecutor("local address", dispatcher));
-            var calledTwice = false;
-
-            await behavior.Invoke(context, () => { throw new Exception(); });
-            await behavior.Invoke(context, () =>
-            {
-                calledTwice = true;
-                return Task.FromResult(0);
-            });
-
-            Assert.IsFalse(calledTwice, "SLR should not call pipline continuation when processing a message marked for defferal.");
-        }
-
-        [Test]
-        public async Task ShouldAbortMessageReceiveWhenMarkingForDeferal()
+        public Task ShouldAbortMessageReceiveWhenMarkingForDeferal()
         {
             var message = CreateMessage();
             var context = CreateContext(message);
 
-            var behavior = new SecondLevelRetriesBehavior(new FakePolicy(TimeSpan.FromSeconds(5)), failureInfoStorage, new DelayedRetryExecutor("local address", dispatcher));
+            var behavior = new SecondLevelRetriesHandler(new FakePolicy(TimeSpan.FromSeconds(5)), failureInfoStorage, new DelayedRetryExecutor("local address", dispatcher));
 
-            await behavior.Invoke(context, () => { throw new Exception(); });
+            behavior.MarkForFutureDeferal(context, new Exception());
 
             Assert.IsTrue(context.ReceiveOperationAborted, "SLR should request receive operation abort when marking message for deferal.");
+
+            return Task.FromResult(0);
         }
 
         IncomingMessage CreateMessage(string id = "id", string slrRetryHeader = null, byte[] body = null)
@@ -198,11 +170,11 @@
             this.delayToReturn = delayToReturn;
         }
 
-        public int InvokedWithCurrentRetry { get; private set; }
+        public int CurrentRetryValuePassed { get; private set; }
 
         public override bool TryGetDelay(SecondLevelRetryContext slrRetryContext, out TimeSpan delay)
         {
-            InvokedWithCurrentRetry = slrRetryContext.SecondLevelRetryAttempt;
+            CurrentRetryValuePassed = slrRetryContext.SecondLevelRetryAttempt;
 
             if (!delayToReturn.HasValue)
             {

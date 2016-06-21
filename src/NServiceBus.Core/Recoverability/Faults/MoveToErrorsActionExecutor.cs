@@ -7,9 +7,9 @@
     using Routing;
     using Transports;
 
-    class RecoveryActionExecutor
+    class MoveToErrorsActionExecutor
     {
-        public RecoveryActionExecutor(IDispatchMessages dispatcher, string errorQueueAddress, Dictionary<string, string> staticFaultMetadata)
+        public MoveToErrorsActionExecutor(IDispatchMessages dispatcher, string errorQueueAddress, Dictionary<string, string> staticFaultMetadata)
         {
             this.dispatcher = dispatcher;
             this.errorQueueAddress = errorQueueAddress;

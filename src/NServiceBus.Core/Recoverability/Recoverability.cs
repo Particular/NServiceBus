@@ -37,11 +37,10 @@
             var errorQueue = context.Settings.ErrorQueueAddress();
             context.Settings.Get<QueueBindings>().BindSending(errorQueue);
 
-            var transportTransactionMode = context.Settings.GetRequiredTransactionModeForReceives();
             var failureInfoStorage = new FailureInfoStorage(context.Settings.Get<int>(FailureInfoStorageCacheSizeKey));
             var localAddress = context.Settings.LocalAddress();
 
-            context.Pipeline.Register("MoveFaultsToErrorQueue", b =>
+            context.Pipeline.Register("Recoverability", b =>
             {
                 var hostInfo = b.Build<HostInformation>();
                 var staticFaultMetadata = new Dictionary<string, string>
@@ -53,20 +52,18 @@
                     {Headers.HostDisplayName, hostInfo.DisplayName}
                 };
 
-                var recoveryActionExecutor = new RecoveryActionExecutor(b.Build<IDispatchMessages>(), errorQueue, staticFaultMetadata);
+                var recoveryActionExecutor = new MoveToErrorsActionExecutor(b.Build<IDispatchMessages>(), errorQueue, staticFaultMetadata);
 
-                return new MoveFaultsToErrorQueueBehavior(b.Build<CriticalError>(),
-                    transportTransactionMode,
+                var errorBehavior = new MoveFaultsToErrorQueueHandler(
+                    b.Build<CriticalError>(),
                     failureInfoStorage,
                     recoveryActionExecutor);
-            }, "Moves failing messages to the configured error queue");
 
-            if (IsDelayedRetriesEnabled(context.Settings))
-            {
-                var retryPolicy = GetDelayedRetryPolicy(context.Settings);
+                SecondLevelRetriesHandler slrHandler = null;
 
-                context.Pipeline.Register("SecondLevelRetries", b =>
+                if (IsDelayedRetriesEnabled(context.Settings))
                 {
+                    var retryPolicy = GetDelayedRetryPolicy(context.Settings);
                     var delayedRetryExecutor = new DelayedRetryExecutor(
                         localAddress,
                         b.Build<IDispatchMessages>(),
@@ -74,17 +71,23 @@
                             ? null
                             : context.Settings.Get<TimeoutManagerAddressConfiguration>().TransportAddress);
 
-                    return new SecondLevelRetriesBehavior(retryPolicy, failureInfoStorage, delayedRetryExecutor);
-                }, "Performs second level retries");
-            }
+                    slrHandler = new SecondLevelRetriesHandler(retryPolicy, failureInfoStorage, delayedRetryExecutor);
+                }
 
-            if (IsImmediateRetriesEnabled(context.Settings))
-            {
-                var maxRetries = GetMaxRetries(context.Settings);
-                var retryPolicy = new FirstLevelRetryPolicy(maxRetries);
+                FirstLevelRetriesHandler flrHandler = null;
 
-                context.Pipeline.Register("FirstLevelRetries", b => new FirstLevelRetriesBehavior(failureInfoStorage, retryPolicy), "Performs first level retries");
-            }
+                if (IsImmediateRetriesEnabled(context.Settings))
+                {
+                    var maxRetries = GetMaxRetries(context.Settings);
+                    var retryPolicy = new FirstLevelRetryPolicy(maxRetries);
+
+                    flrHandler = new FirstLevelRetriesHandler(failureInfoStorage, retryPolicy);
+                }
+
+                var transportTransactionMode = context.Settings.GetRequiredTransactionModeForReceives();
+
+                return new RecoverabilityBehavior(flrHandler, slrHandler, errorBehavior, flrHandler != null, slrHandler != null, transportTransactionMode != TransportTransactionMode.None);
+            }, "Handles message recoverability");  
 
             RaiseLegacyNotifications(context);
         }
