@@ -39,6 +39,7 @@ namespace NServiceBus.Core.Tests
             }
 
             Assert.AreEqual("some-id", fakeDispatcher.ErrorOperation.Message.MessageId);
+            Assert.AreEqual("error", fakeDispatcher.ErrorOperation.Destination);
         }
 
         [TestCase(TransportTransactionMode.None)]
@@ -152,7 +153,7 @@ namespace NServiceBus.Core.Tests
 
             var messageSentToError = fakeDispatcher.ErrorOperation.Message;
 
-            Assert.AreEqual("MyValye", messageSentToError.Headers["MyKey"]);
+            Assert.AreEqual("MyValue", messageSentToError.Headers["MyKey"]);
             Assert.AreEqual("exception-message", messageSentToError.Headers["NServiceBus.ExceptionInfo.Message"]);
         }
 
@@ -168,7 +169,8 @@ namespace NServiceBus.Core.Tests
                 staticFaultMetadata ?? new Dictionary<string, string>(),
                 transactionMode,
                 new FailureInfoStorage(10),
-                dispatcher);
+                dispatcher,
+                "error");
 
             return behavior;
         }

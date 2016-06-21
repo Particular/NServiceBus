@@ -55,8 +55,9 @@
                     staticFaultMetadata,
                     transportTransactionMode,
                     failureInfoStorage,
-                    b.Build<IDispatchMessages>());
-            }, "Moves failing messages to the configured error queue");  //context.Pipeline.Register(new MoveFaultsToErrorQueueBehavior.Registration(context.Settings.LocalAddress(), transportTransactionMode, failureInfoStorage));
+                    b.Build<IDispatchMessages>(),
+                    errorQueue);
+            }, "Moves failing messages to the configured error queue");
 
             if (IsDelayedRetriesEnabled(context.Settings))
             {

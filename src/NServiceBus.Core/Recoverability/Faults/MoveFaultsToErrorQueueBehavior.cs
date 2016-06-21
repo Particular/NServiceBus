@@ -15,13 +15,15 @@
             Dictionary<string,string> staticFaultMetadata,
             TransportTransactionMode transportTransactionMode,
             FailureInfoStorage failureInfoStorage,
-            IDispatchMessages dispatcher)
+            IDispatchMessages dispatcher,
+            string errorQueueAddress)
         {
             this.criticalError = criticalError;
             this.staticFaultMetadata = staticFaultMetadata;
             this.transportTransactionMode = transportTransactionMode;
             this.failureInfoStorage = failureInfoStorage;
             this.dispatcher = dispatcher;
+            this.errorQueueAddress = errorQueueAddress;
         }
 
         bool RunningWithTransactions => transportTransactionMode != TransportTransactionMode.None;
@@ -80,7 +82,7 @@
                     outgoingMessage.Headers[faultMetadata.Key] = faultMetadata.Value;
                 }
 
-                await dispatcher.Dispatch(new TransportOperations(new TransportOperation(outgoingMessage, new UnicastAddressTag("error"))), context.Extensions).ConfigureAwait(false);
+                await dispatcher.Dispatch(new TransportOperations(new TransportOperation(outgoingMessage, new UnicastAddressTag(errorQueueAddress))), context.Extensions).ConfigureAwait(false);
 
                 await context.RaiseNotification(new MessageFaulted(message, exception)).ConfigureAwait(false);
             }
@@ -93,9 +95,10 @@
         }
 
         CriticalError criticalError;
-        readonly Dictionary<string, string> staticFaultMetadata;
+        Dictionary<string, string> staticFaultMetadata;
         FailureInfoStorage failureInfoStorage;
         IDispatchMessages dispatcher;
+        string errorQueueAddress;
         TransportTransactionMode transportTransactionMode;
         static ILog Logger = LogManager.GetLogger<MoveFaultsToErrorQueueBehavior>();
     }
