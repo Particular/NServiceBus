@@ -113,7 +113,7 @@
                     await Task.Run(async () =>
                     {
                         var executedWhens = new List<Guid>();
-                        
+
                         while (!token.IsCancellationRequested)
                         {
                             if (executedWhens.Count == behavior.Whens.Count)

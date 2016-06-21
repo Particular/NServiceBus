@@ -236,7 +236,7 @@
             }
             finally
             {
-                await StopEndpoints(endpoints).ConfigureAwait(false);
+                await StopEndpoints(endpoints, runDescriptor.ScenarioContext).ConfigureAwait(false);
             }
 
             ThrowOnFailedMessages(runDescriptor, endpoints);
@@ -320,8 +320,19 @@
             }
         }
 
-        static async Task StopEndpoints(IEnumerable<EndpointRunner> endpoints)
+        static async Task StopEndpoints(IEnumerable<EndpointRunner> endpoints, ScenarioContext scenarioContext)
         {
+            var failBecauseUnhandledFailedMessage = false;
+            var startTime = DateTime.Now;
+            while (scenarioContext.UnfinishedFailedMessages.Values.Any(x => x > 0))
+            {
+                if (DateTime.Now - startTime >= TimeSpan.FromSeconds(30))
+                {
+                    failBecauseUnhandledFailedMessage = true;
+                    break;
+                }
+            }
+
             var tasks = endpoints.Select(async endpoint =>
             {
                 Console.WriteLine("Stopping endpoint: {0}", endpoint.Name());
@@ -338,6 +349,11 @@
             var whenAll = Task.WhenAll(tasks);
             var timeoutTask = Task.Delay(TimeSpan.FromMinutes(2));
             var completedTask = await Task.WhenAny(whenAll, timeoutTask).ConfigureAwait(false);
+
+            if (failBecauseUnhandledFailedMessage)
+            {
+                throw new Exception("Some failed messages were not handled by the recoverability feature.");
+            }
 
             if (completedTask == timeoutTask)
             {
