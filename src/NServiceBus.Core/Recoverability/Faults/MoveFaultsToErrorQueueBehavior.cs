@@ -7,7 +7,7 @@
     using Pipeline;
     using Transports;
 
-    class MoveFaultsToErrorQueueBehavior : ForkConnector<ITransportReceiveContext, IFaultContext>
+    class MoveFaultsToErrorQueueBehavior : Behavior<ITransportReceiveContext>
     {
         public MoveFaultsToErrorQueueBehavior(CriticalError criticalError, string localAddress, TransportTransactionMode transportTransactionMode, FailureInfoStorage failureInfoStorage)
         {
@@ -19,7 +19,7 @@
 
         bool RunningWithTransactions => transportTransactionMode != TransportTransactionMode.None;
 
-        public override async Task Invoke(ITransportReceiveContext context, Func<Task> next, Func<IFaultContext, Task> fork)
+        public override async Task Invoke(ITransportReceiveContext context, Func<Task> next)
         {
             var message = context.Message;
 
@@ -27,7 +27,7 @@
 
             if (failureInfo.MoveToErrorQueue)
             {
-                await MoveMessageToErrorQueue(context, fork, message, failureInfo.Exception).ConfigureAwait(false);
+                await MoveMessageToErrorQueue(context, message, failureInfo.Exception).ConfigureAwait(false);
 
                 return;
             }
@@ -46,12 +46,12 @@
                 }
                 else
                 {
-                    await MoveMessageToErrorQueue(context, fork, message, ex).ConfigureAwait(false);
+                    await MoveMessageToErrorQueue(context, message, ex).ConfigureAwait(false);
                 }
             }
         }
 
-        async Task MoveMessageToErrorQueue(ITransportReceiveContext context, Func<IFaultContext, Task> fork, IncomingMessage message, Exception exception)
+        async Task MoveMessageToErrorQueue(ITransportReceiveContext context, IncomingMessage message, Exception exception)
         {
             try
             {
@@ -62,13 +62,18 @@
                 message.Headers.Remove(Headers.Retries);
                 message.Headers.Remove(Headers.FLRetries);
 
-                var outgoingMessage = new OutgoingMessage(message.MessageId, message.Headers, message.Body);
-                var faultContext = this.CreateFaultContext(context, outgoingMessage, localAddress, exception);
-
+                
                 failureInfoStorage.ClearFailureInfoForMessage(message.MessageId);
 
-                await fork(faultContext).ConfigureAwait(false);
+                //var outgoingMessage = new OutgoingMessage(message.MessageId, message.Headers, message.Body);
+                //await fork(faultContext).ConfigureAwait(false);
+                //   context.Message.SetExceptionHeaders(context.Exception, context.SourceQueueAddress);
 
+                //context.AddFaultData(Headers.HostId, hostInfo.HostId.ToString("N"));
+                //context.AddFaultData(Headers.HostDisplayName, hostInfo.DisplayName);
+
+                //context.AddFaultData(Headers.ProcessingMachine, RuntimeEnvironment.MachineName);
+                //context.AddFaultData(Headers.ProcessingEndpoint, endpointName);
                 await context.RaiseNotification(new MessageFaulted(message, exception)).ConfigureAwait(false);
             }
             catch (Exception ex)

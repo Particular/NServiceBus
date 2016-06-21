@@ -40,10 +40,7 @@
                 localAddress,
                 transportTransactionMode,
                 failureInfoStorage), "Moves failing messages to the configured error queue");  //context.Pipeline.Register(new MoveFaultsToErrorQueueBehavior.Registration(context.Settings.LocalAddress(), transportTransactionMode, failureInfoStorage));
-
-            context.Pipeline.Register("AddExceptionHeaders", new AddExceptionHeadersBehavior(), "Adds the exception headers to the message");
-            context.Pipeline.Register(new FaultToDispatchConnector(errorQueue), "Connector to dispatch faulted messages");
-
+            
             if (IsDelayedRetriesEnabled(context.Settings))
             {
                 var retryPolicy = GetDelayedRetryPolicy(context.Settings);

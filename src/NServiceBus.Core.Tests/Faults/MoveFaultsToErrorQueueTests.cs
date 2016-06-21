@@ -4,6 +4,7 @@ namespace NServiceBus.Core.Tests
     using System.Collections.Generic;
     using System.IO;
     using System.Threading.Tasks;
+    using Faults;
     using NServiceBus.Pipeline;
     using NServiceBus.Transports;
     using NUnit.Framework;
@@ -28,18 +29,16 @@ namespace NServiceBus.Core.Tests
         {
             var behavior = CreateBehavior(transactionMode, "some-source-queue");
             var context = CreateContext("some-id");
-
-            IFaultContext faultContext = null;
-
-            await behavior.Invoke(context, () => { throw new Exception(); }, c => CaptureFaultContext(c, out faultContext));
+            
+            await behavior.Invoke(context, () => { throw new Exception(); });
 
             if (transactionMode != TransportTransactionMode.None)
             {
-                await behavior.Invoke(context, () => Task.FromResult(0), c => CaptureFaultContext(c, out faultContext));
+                await behavior.Invoke(context, () => Task.FromResult(0));
             }
-
-            Assert.AreEqual("some-source-queue", faultContext.SourceQueueAddress);
-            Assert.AreEqual("some-id", faultContext.Message.MessageId);
+            Assert.Fail("not implemented");
+            //Assert.AreEqual("some-source-queue", faultContext.SourceQueueAddress);
+            //Assert.AreEqual("some-id", faultContext.Message.MessageId);
         }
 
         [TestCase(TransportTransactionMode.None)]
@@ -76,11 +75,11 @@ namespace NServiceBus.Core.Tests
             var eventAggregator = new FakeEventAggregator();
             var context = CreateContext("some-id", eventAggregator);
 
-            await behavior.Invoke(context, () => { throw new Exception("exception-message"); }, c => Task.FromResult(0));
+            await behavior.Invoke(context, () => { throw new Exception("exception-message"); });
 
             if (transactionMode != TransportTransactionMode.None)
             {
-                await behavior.Invoke(context, () => Task.FromResult(0), c => Task.FromResult(0));
+                await behavior.Invoke(context, () => Task.FromResult(0));
             }
 
             var notification = eventAggregator.GetNotification<MessageFaulted>();
@@ -98,12 +97,12 @@ namespace NServiceBus.Core.Tests
             var context = CreateContext();
             var invokedTwice = false;
 
-            await behavior.Invoke(context, () => { throw new Exception("exception-message"); }, c => Task.FromResult(0));
+            await behavior.Invoke(context, () => { throw new Exception("exception-message"); });
             await behavior.Invoke(context, () =>
             {
                 invokedTwice = true;
                 return Task.FromResult(0);
-            }, c => Task.FromResult(0));
+            });
 
             Assert.IsFalse(invokedTwice, "Pipline continuation should not be called when failed message is processed second time.");
         }
@@ -118,35 +117,38 @@ namespace NServiceBus.Core.Tests
 
             var continuationCalledAfterDeferral = false;
 
-            await behavior.Invoke(context, () => { throw new Exception(); }, c => Task.FromResult(0));
+            await behavior.Invoke(context, () => { throw new Exception(); });
 
-            await behavior.Invoke(context, () => Task.FromResult(0), c =>
-            {
-                return behavior.Invoke(context, () =>
-                {
-                    continuationCalledAfterDeferral = true;
-                    return Task.FromResult(0);
-                });
-            });
+          
 
             Assert.IsTrue(continuationCalledAfterDeferral);
+        }
+
+        [Test]
+        public async Task ShouldEnrichHeadersWithExceptionDetails()
+        {
+           //var sourceQueue = "public-receive-address";
+            //var exception = new Exception("exception-message");
+            var messageId = "message-id";
+
+            var context = CreateContext(messageId);
+            var behavior = CreateBehavior(TransportTransactionMode.None);
+
+            await behavior.Invoke(context, c => Task.FromResult(0));
+
+            Assert.AreEqual("public-receive-address", context.Message.Headers[FaultsHeaderKeys.FailedQ]);
+            Assert.AreEqual("exception-message", context.Message.Headers["NServiceBus.ExceptionInfo.Message"]);
         }
 
         MoveFaultsToErrorQueueBehavior CreateBehavior(TransportTransactionMode transactionMode, string localAddress = "public-receive-address")
         {
             var behavior = new MoveFaultsToErrorQueueBehavior(
                 criticalError,
-                localAddress, 
+                localAddress,
                 transactionMode,
                 new FailureInfoStorage(10));
 
             return behavior;
-        }
-
-        static Task CaptureFaultContext(IFaultContext ctx, out IFaultContext context)
-        {
-            context = ctx;
-            return TaskEx.CompletedTask;
         }
 
         static TestableTransportReceiveContext CreateContext(string messageId = "message-id", FakeEventAggregator eventAggregator = null)
