@@ -65,17 +65,19 @@
                     ReplyToAddress = Configure.PublicReturnAddress
                 });
             }
-            catch (QueueNotFoundException ex)
+            catch (Exception ex)
             {
-                if (retriesCount < 10)
+                if (ex is QueueNotFoundException)
                 {
-                    Thread.Sleep(TimeSpan.FromSeconds(2));
-                    SendSubscribeMessageWithRetries(destination, subscriptionMessage, messageType, ++retriesCount);
+                    if (retriesCount < 10)
+                    {
+                        Thread.Sleep(TimeSpan.FromSeconds(2));
+                        SendSubscribeMessageWithRetries(destination, subscriptionMessage, messageType, ++retriesCount);
+                        return;
+                    }
                 }
-                else
-                {
-                    Logger.ErrorFormat("Failed to subscribe to {0} at publisher queue {1}", ex, messageType, destination);
-                }
+
+                Logger.FatalFormat("Failed to subscribe to {0} at publisher queue {1}. Error: {2}", messageType, destination, ex);
             }
         }
 
