@@ -18,6 +18,6 @@
             }
         }
 
-        public readonly PipelineModifications Modifications = new PipelineModifications();
+        public PipelineModifications Modifications = new PipelineModifications();
     }
 }
