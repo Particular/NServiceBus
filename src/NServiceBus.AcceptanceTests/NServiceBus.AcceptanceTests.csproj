@@ -160,6 +160,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Routing\SubscriptionBehaviorExtensions.cs" />
+    <Compile Include="Sagas\When_saga_handles_unmapped_message.cs" />
     <Compile Include="Satellites\When_a_message_is_available.cs" />
     <Compile Include="UnicastPubSubExtensions.cs" />
     <Compile Include="Routing\When_multi_subscribing_to_a_polymorphic_event_on_multicast_transports.cs" />
