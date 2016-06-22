@@ -63,7 +63,7 @@
 
             var chain = new BehaviorChain(new[]
            {
-                new BehaviorInstance(typeof(MoveFaultsToErrorQueueBehavior), new MoveFaultsToErrorQueueBehavior(criticalError, "", TransportTransactionMode.None, failureStorage)),
+                new BehaviorInstance(typeof(MoveFaultsToErrorQueueBehavior), new MoveFaultsToErrorQueueBehavior(criticalError, new Dictionary<string, string>(), TransportTransactionMode.None, failureStorage,null,"error")),
                 new BehaviorInstance(typeof(SecondLevelRetriesBehavior), new SecondLevelRetriesBehavior(policy, "", failureStorage)),
                 new BehaviorInstance(typeof(FirstLevelRetriesBehavior), new FirstLevelRetriesBehavior(failureStorage, new FirstLevelRetryPolicy(0))),
                 new BehaviorInstance(typeof(LastBehaviorT), lastBehavior)
@@ -102,7 +102,7 @@
 
         TestableTransportReceiveContext CreateContext(IncomingMessage message)
         {
-            var context = new TestableTransportReceiveContext {Message = message };
+            var context = new TestableTransportReceiveContext { Message = message };
 
             context.Extensions.Set<IEventAggregator>(new FakeEventAggregator());
             context.Extensions.Set<IPipelineCache>(new FakePipelineCache(dispatchPipeline));
@@ -130,7 +130,7 @@
                 where TContext : IBehaviorContext
 
             {
-                return (IPipeline<TContext>) pipeline;
+                return (IPipeline<TContext>)pipeline;
             }
 
             IPipeline<IRoutingContext> pipeline;

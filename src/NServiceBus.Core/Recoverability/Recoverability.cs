@@ -1,10 +1,14 @@
 ﻿namespace NServiceBus
 {
     using System;
+    using System.Collections.Generic;
     using Config;
     using ConsistencyGuarantees;
+    using Faults;
     using Features;
+    using Hosting;
     using Settings;
+    using Support;
     using Transports;
 
     class Recoverability : Feature
@@ -35,14 +39,25 @@
             var failureInfoStorage = new FailureInfoStorage(context.Settings.Get<int>(FailureInfoStorageCacheSizeKey));
             var localAddress = context.Settings.LocalAddress();
 
-            context.Pipeline.Register("MoveFaultsToErrorQueue", b => new MoveFaultsToErrorQueueBehavior(
-                b.Build<CriticalError>(),
-                localAddress,
-                transportTransactionMode,
-                failureInfoStorage), "Moves failing messages to the configured error queue");  //context.Pipeline.Register(new MoveFaultsToErrorQueueBehavior.Registration(context.Settings.LocalAddress(), transportTransactionMode, failureInfoStorage));
+            context.Pipeline.Register("MoveFaultsToErrorQueue", b =>
+            {
+                var hostInfo = b.Build<HostInformation>();
+                var staticFaultMetadata = new Dictionary<string, string>
+                {
+                    {FaultsHeaderKeys.FailedQ, localAddress},
+                    {Headers.ProcessingMachine, RuntimeEnvironment.MachineName },
+                    {Headers.ProcessingEndpoint, context.Settings.EndpointName()},
+                    {Headers.HostId, hostInfo.HostId.ToString("N")},
+                    {Headers.HostDisplayName, hostInfo.DisplayName}
+                };
 
-            context.Pipeline.Register("AddExceptionHeaders", new AddExceptionHeadersBehavior(), "Adds the exception headers to the message");
-            context.Pipeline.Register(new FaultToDispatchConnector(errorQueue), "Connector to dispatch faulted messages");
+                return new MoveFaultsToErrorQueueBehavior(b.Build<CriticalError>(),
+                    staticFaultMetadata,
+                    transportTransactionMode,
+                    failureInfoStorage,
+                    b.Build<IDispatchMessages>(),
+                    errorQueue);
+            }, "Moves failing messages to the configured error queue");
 
             if (IsDelayedRetriesEnabled(context.Settings))
             {

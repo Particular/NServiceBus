@@ -124,7 +124,6 @@
     <Compile Include="Pipeline\StageForkConnector.cs" />
     <Compile Include="Pipeline\ConnectorContextExtensions.cs" />
     <Compile Include="Recoverability\FailureInfoStorage.cs" />
-    <Compile Include="Recoverability\Faults\AddExceptionHeadersBehavior.cs" />
     <Compile Include="Recoverability\Faults\MessageProcessingFailed.cs" />
     <Compile Include="Recoverability\Faults\MessageToBeRetried.cs" />
     <Compile Include="Recoverability\Faults\MessageFaulted.cs" />
@@ -152,10 +151,6 @@
     <Compile Include="Transports\TransportOperations.cs" />
     <Compile Include="Transports\TransportSubscriptionInfrastructure.cs" />
     <Compile Include="Transports\UnicastTransportOperation.cs" />
-    <Compile Include="Hosting\FaultHostInformationBehavior.cs" />
-    <Compile Include="Recoverability\Faults\FaultToDispatchConnector.cs" />
-    <Compile Include="Recoverability\Faults\FaultContext.cs" />
-    <Compile Include="Recoverability\Faults\IFaultContext.cs" />
     <Compile Include="Pipeline\IForkConnector.cs" />
     <Compile Include="UnitOfWork\TransactionScopes\TransactionScopeUnitOfWorkBehavior.cs" />
     <Compile Include="MessageSession.cs" />

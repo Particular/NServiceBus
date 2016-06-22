@@ -1,6 +1,5 @@
 namespace NServiceBus
 {
-    using System;
     using System.Collections.Generic;
     using Persistence;
     using Pipeline;
@@ -32,14 +31,6 @@ namespace NServiceBus
         /// Creates a <see cref="IRoutingContext" /> based on the current context.
         /// </summary>
         public static IRoutingContext CreateRoutingContext(this StageConnector<IAuditContext, IRoutingContext> stageConnector, OutgoingMessage outgoingMessage, RoutingStrategy routingStrategy, IAuditContext sourceContext)
-        {
-            return new RoutingContext(outgoingMessage, routingStrategy, sourceContext);
-        }
-
-        /// <summary>
-        /// Creates a <see cref="IRoutingContext" /> based on the current context.
-        /// </summary>
-        public static IRoutingContext CreateRoutingContext(this StageConnector<IFaultContext, IRoutingContext> stageConnector, OutgoingMessage outgoingMessage, RoutingStrategy routingStrategy, IFaultContext sourceContext)
         {
             return new RoutingContext(outgoingMessage, routingStrategy, sourceContext);
         }
@@ -154,15 +145,7 @@ namespace NServiceBus
         {
             return new OutgoingPhysicalMessageContext(messageBody, routingStrategies, sourceContext);
         }
-
-        /// <summary>
-        /// Creates a <see cref="IFaultContext" /> based on the current context.
-        /// </summary>
-        public static IFaultContext CreateFaultContext(this ForkConnector<ITransportReceiveContext, IFaultContext> forkConnector, ITransportReceiveContext sourceContext, OutgoingMessage outgoingMessage, string sourceQueueAddress, Exception exception)
-        {
-            return new FaultContext(outgoingMessage, sourceQueueAddress, exception, sourceContext);
-        }
-
+        
         /// <summary>
         /// Creates a <see cref="IAuditContext" /> based on the current context.
         /// </summary>

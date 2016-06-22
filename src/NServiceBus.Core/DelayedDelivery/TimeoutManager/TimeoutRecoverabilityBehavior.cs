@@ -2,6 +2,7 @@ namespace NServiceBus
 {
     using System;
     using System.Threading.Tasks;
+    using Faults;
     using JetBrains.Annotations;
     using Logging;
     using Pipeline;
@@ -59,9 +60,11 @@ namespace NServiceBus
             {
                 Logger.Error($"Moving timeout message '{message.MessageId}' from '{localAddress}' to '{errorQueueAddress}' because processing failed due to an exception:", failureInfo.Exception);
 
-                message.SetExceptionHeaders(failureInfo.Exception, localAddress);
-
                 var outgoingMessage = new OutgoingMessage(message.MessageId, message.Headers, message.Body);
+                ExceptionHeaderHelper.SetExceptionHeaders(outgoingMessage.Headers, failureInfo.Exception);
+
+                outgoingMessage.Headers[FaultsHeaderKeys.FailedQ] = localAddress;
+
                 var addressTag = new UnicastAddressTag(errorQueueAddress);
 
                 var transportOperations = new TransportOperations(new TransportOperation(outgoingMessage, addressTag));

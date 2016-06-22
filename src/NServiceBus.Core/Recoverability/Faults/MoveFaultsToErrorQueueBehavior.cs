@@ -1,25 +1,34 @@
 ﻿namespace NServiceBus
 {
     using System;
+    using System.Collections.Generic;
     using System.Runtime.ExceptionServices;
     using System.Threading.Tasks;
     using Logging;
     using Pipeline;
+    using Routing;
     using Transports;
 
-    class MoveFaultsToErrorQueueBehavior : ForkConnector<ITransportReceiveContext, IFaultContext>
+    class MoveFaultsToErrorQueueBehavior : Behavior<ITransportReceiveContext>
     {
-        public MoveFaultsToErrorQueueBehavior(CriticalError criticalError, string localAddress, TransportTransactionMode transportTransactionMode, FailureInfoStorage failureInfoStorage)
+        public MoveFaultsToErrorQueueBehavior(CriticalError criticalError,
+            Dictionary<string,string> staticFaultMetadata,
+            TransportTransactionMode transportTransactionMode,
+            FailureInfoStorage failureInfoStorage,
+            IDispatchMessages dispatcher,
+            string errorQueueAddress)
         {
             this.criticalError = criticalError;
-            this.localAddress = localAddress;
+            this.staticFaultMetadata = staticFaultMetadata;
             this.transportTransactionMode = transportTransactionMode;
             this.failureInfoStorage = failureInfoStorage;
+            this.dispatcher = dispatcher;
+            this.errorQueueAddress = errorQueueAddress;
         }
 
         bool RunningWithTransactions => transportTransactionMode != TransportTransactionMode.None;
 
-        public override async Task Invoke(ITransportReceiveContext context, Func<Task> next, Func<IFaultContext, Task> fork)
+        public override async Task Invoke(ITransportReceiveContext context, Func<Task> next)
         {
             var message = context.Message;
 
@@ -27,7 +36,7 @@
 
             if (failureInfo.MoveToErrorQueue)
             {
-                await MoveMessageToErrorQueue(context, fork, message, failureInfo.Exception).ConfigureAwait(false);
+                await MoveMessageToErrorQueue(context, message, failureInfo.Exception).ConfigureAwait(false);
 
                 return;
             }
@@ -46,12 +55,12 @@
                 }
                 else
                 {
-                    await MoveMessageToErrorQueue(context, fork, message, ex).ConfigureAwait(false);
+                    await MoveMessageToErrorQueue(context, message, ex).ConfigureAwait(false);
                 }
             }
         }
 
-        async Task MoveMessageToErrorQueue(ITransportReceiveContext context, Func<IFaultContext, Task> fork, IncomingMessage message, Exception exception)
+        async Task MoveMessageToErrorQueue(ITransportReceiveContext context, IncomingMessage message, Exception exception)
         {
             try
             {
@@ -62,12 +71,18 @@
                 message.Headers.Remove(Headers.Retries);
                 message.Headers.Remove(Headers.FLRetries);
 
-                var outgoingMessage = new OutgoingMessage(message.MessageId, message.Headers, message.Body);
-                var faultContext = this.CreateFaultContext(context, outgoingMessage, localAddress, exception);
-
                 failureInfoStorage.ClearFailureInfoForMessage(message.MessageId);
 
-                await fork(faultContext).ConfigureAwait(false);
+                var outgoingMessage = new OutgoingMessage(message.MessageId, message.Headers, message.Body);
+
+                ExceptionHeaderHelper.SetExceptionHeaders(outgoingMessage.Headers,exception);
+
+                foreach (var faultMetadata in staticFaultMetadata)
+                {
+                    outgoingMessage.Headers[faultMetadata.Key] = faultMetadata.Value;
+                }
+
+                await dispatcher.Dispatch(new TransportOperations(new TransportOperation(outgoingMessage, new UnicastAddressTag(errorQueueAddress))), context.Extensions).ConfigureAwait(false);
 
                 await context.RaiseNotification(new MessageFaulted(message, exception)).ConfigureAwait(false);
             }
@@ -80,8 +95,10 @@
         }
 
         CriticalError criticalError;
+        Dictionary<string, string> staticFaultMetadata;
         FailureInfoStorage failureInfoStorage;
-        string localAddress;
+        IDispatchMessages dispatcher;
+        string errorQueueAddress;
         TransportTransactionMode transportTransactionMode;
         static ILog Logger = LogManager.GetLogger<MoveFaultsToErrorQueueBehavior>();
     }

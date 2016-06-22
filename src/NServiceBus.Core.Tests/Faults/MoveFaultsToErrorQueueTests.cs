@@ -3,8 +3,9 @@ namespace NServiceBus.Core.Tests
     using System;
     using System.Collections.Generic;
     using System.IO;
+    using System.Linq;
     using System.Threading.Tasks;
-    using NServiceBus.Pipeline;
+    using Extensibility;
     using NServiceBus.Transports;
     using NUnit.Framework;
     using Testing;
@@ -26,20 +27,19 @@ namespace NServiceBus.Core.Tests
         [TestCase(TransportTransactionMode.TransactionScope)]
         public async Task ShouldForwardToErrorQueueForAllExceptions(TransportTransactionMode transactionMode)
         {
-            var behavior = CreateBehavior(transactionMode, "some-source-queue");
+            var fakeDispatcher = new FakeDispatcher();
+            var behavior = CreateBehavior(transactionMode, dispatcher: fakeDispatcher);
             var context = CreateContext("some-id");
 
-            IFaultContext faultContext = null;
-
-            await behavior.Invoke(context, () => { throw new Exception(); }, c => CaptureFaultContext(c, out faultContext));
+            await behavior.Invoke(context, () => { throw new Exception(); });
 
             if (transactionMode != TransportTransactionMode.None)
             {
-                await behavior.Invoke(context, () => Task.FromResult(0), c => CaptureFaultContext(c, out faultContext));
+                await behavior.Invoke(context, () => Task.FromResult(0));
             }
 
-            Assert.AreEqual("some-source-queue", faultContext.SourceQueueAddress);
-            Assert.AreEqual("some-id", faultContext.Message.MessageId);
+            Assert.AreEqual("some-id", fakeDispatcher.ErrorOperation.Message.MessageId);
+            Assert.AreEqual("error", fakeDispatcher.ErrorOperation.Destination);
         }
 
         [TestCase(TransportTransactionMode.None)]
@@ -48,7 +48,12 @@ namespace NServiceBus.Core.Tests
         [TestCase(TransportTransactionMode.TransactionScope)]
         public void ShouldInvokeCriticalErrorIfForwardingFails(TransportTransactionMode transactionMode)
         {
-            var behavior = CreateBehavior(transactionMode);
+            var fakeDispatcher = new FakeDispatcher
+            {
+                ThrowOnDispatch = true
+            };
+
+            var behavior = CreateBehavior(transactionMode, dispatcher: fakeDispatcher);
             var context = CreateContext();
 
             var behaviorInvocation = new AsyncTestDelegate(async () =>
@@ -76,11 +81,11 @@ namespace NServiceBus.Core.Tests
             var eventAggregator = new FakeEventAggregator();
             var context = CreateContext("some-id", eventAggregator);
 
-            await behavior.Invoke(context, () => { throw new Exception("exception-message"); }, c => Task.FromResult(0));
+            await behavior.Invoke(context, () => { throw new Exception("exception-message"); });
 
             if (transactionMode != TransportTransactionMode.None)
             {
-                await behavior.Invoke(context, () => Task.FromResult(0), c => Task.FromResult(0));
+                await behavior.Invoke(context, () => Task.FromResult(0));
             }
 
             var notification = eventAggregator.GetNotification<MessageFaulted>();
@@ -98,12 +103,12 @@ namespace NServiceBus.Core.Tests
             var context = CreateContext();
             var invokedTwice = false;
 
-            await behavior.Invoke(context, () => { throw new Exception("exception-message"); }, c => Task.FromResult(0));
+            await behavior.Invoke(context, () => { throw new Exception("exception-message"); });
             await behavior.Invoke(context, () =>
             {
                 invokedTwice = true;
                 return Task.FromResult(0);
-            }, c => Task.FromResult(0));
+            });
 
             Assert.IsFalse(invokedTwice, "Pipline continuation should not be called when failed message is processed second time.");
         }
@@ -113,40 +118,61 @@ namespace NServiceBus.Core.Tests
         [TestCase(TransportTransactionMode.TransactionScope)]
         public async Task ShouldInvokePipelineWhenFaultedMessageRedeliveredImmediately(TransportTransactionMode transactionMode)
         {
-            var behavior = CreateBehavior(transactionMode);
+            var fakeDispatcher = new FakeDispatcher();
+
+            var behavior = CreateBehavior(transactionMode, dispatcher: fakeDispatcher);
             var context = CreateContext();
 
-            var continuationCalledAfterDeferral = false;
+            await behavior.Invoke(context, () => { throw new Exception(); });
 
-            await behavior.Invoke(context, () => { throw new Exception(); }, c => Task.FromResult(0));
+            Assert.Null(fakeDispatcher.ErrorOperation);
 
-            await behavior.Invoke(context, () => Task.FromResult(0), c =>
+            await behavior.Invoke(context, () =>
             {
-                return behavior.Invoke(context, () =>
-                {
-                    continuationCalledAfterDeferral = true;
-                    return Task.FromResult(0);
-                });
+                Assert.Fail("Should not call the main pipeline");
+
+                return TaskEx.CompletedTask;
             });
 
-            Assert.IsTrue(continuationCalledAfterDeferral);
+            Assert.NotNull(fakeDispatcher.ErrorOperation);
         }
 
-        MoveFaultsToErrorQueueBehavior CreateBehavior(TransportTransactionMode transactionMode, string localAddress = "public-receive-address")
+        [Test]
+        public async Task ShouldEnrichHeadersWithExceptionDetails()
         {
+            var messageId = "message-id";
+            var fakeDispatcher = new FakeDispatcher();
+
+            var context = CreateContext(messageId);
+            var behavior = CreateBehavior(TransportTransactionMode.None, new Dictionary<string, string> { { "MyKey", "MyValue" } }, fakeDispatcher);
+
+            await behavior.Invoke(context, c =>
+            {
+                throw new Exception("exception-message");
+            });
+
+            var messageSentToError = fakeDispatcher.ErrorOperation.Message;
+
+            Assert.AreEqual("MyValue", messageSentToError.Headers["MyKey"]);
+            Assert.AreEqual("exception-message", messageSentToError.Headers["NServiceBus.ExceptionInfo.Message"]);
+        }
+
+        MoveFaultsToErrorQueueBehavior CreateBehavior(TransportTransactionMode transactionMode, Dictionary<string, string> staticFaultMetadata = null, IDispatchMessages dispatcher = null)
+        {
+            if (dispatcher == null)
+            {
+                dispatcher = new FakeDispatcher();
+            }
+
             var behavior = new MoveFaultsToErrorQueueBehavior(
                 criticalError,
-                localAddress, 
+                staticFaultMetadata ?? new Dictionary<string, string>(),
                 transactionMode,
-                new FailureInfoStorage(10));
+                new FailureInfoStorage(10),
+                dispatcher,
+                "error");
 
             return behavior;
-        }
-
-        static Task CaptureFaultContext(IFaultContext ctx, out IFaultContext context)
-        {
-            context = ctx;
-            return TaskEx.CompletedTask;
         }
 
         static TestableTransportReceiveContext CreateContext(string messageId = "message-id", FakeEventAggregator eventAggregator = null)
@@ -161,6 +187,23 @@ namespace NServiceBus.Core.Tests
             return context;
         }
 
+        class FakeDispatcher : IDispatchMessages
+        {
+            public Task Dispatch(TransportOperations outgoingMessages, ContextBag context)
+            {
+                if (ThrowOnDispatch)
+                {
+                    throw new Exception("Failed to send to error queue");
+                }
+
+                ErrorOperation = outgoingMessages.UnicastTransportOperations.First();
+
+                return Task.FromResult(0);
+            }
+
+            public UnicastTransportOperation ErrorOperation { get; private set; }
+            public bool ThrowOnDispatch { get; set; }
+        }
         class FakeCriticalError : CriticalError
         {
             public FakeCriticalError() : base(_ => TaskEx.CompletedTask)

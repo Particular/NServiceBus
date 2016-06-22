@@ -60,7 +60,6 @@
     <Compile Include="TestableBehaviorContext.cs" />
     <Compile Include="TestableDispatchContext.cs" />
     <Compile Include="TestableEndpointInstance.cs" />
-    <Compile Include="TestableFaultContext.cs" />
     <Compile Include="TestableForwardingContext.cs" />
     <Compile Include="TestableIncomingContext.cs" />
     <Compile Include="TestableIncomingLogicalMessageContext.cs" />

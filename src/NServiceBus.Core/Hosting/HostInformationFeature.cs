@@ -39,12 +39,10 @@
             context.Container.ConfigureComponent(() => hostInformation, DependencyLifecycle.SingleInstance);
 
             context.Pipeline.Register("AuditHostInformation", typeof(AuditHostInformationBehavior), "Adds audit host information");
-            context.Pipeline.Register("FaultHostInformation", typeof(FaultHostInformationBehavior), "Adds fault host information");
             context.Pipeline.Register("AddHostInfoHeaders", typeof(AddHostInfoHeadersBehavior), "Adds host info headers to outgoing headers");
 
             context.Container.ConfigureComponent(b => new AddHostInfoHeadersBehavior(hostInformation, context.Settings.EndpointName()), DependencyLifecycle.SingleInstance);
             context.Container.ConfigureComponent(b => new AuditHostInformationBehavior(hostInformation, context.Settings.EndpointName()), DependencyLifecycle.SingleInstance);
-            context.Container.ConfigureComponent(b => new FaultHostInformationBehavior(hostInformation, context.Settings.EndpointName()), DependencyLifecycle.SingleInstance);
         }
 
         internal const string HostIdSettingsKey = "NServiceBus.HostInformation.HostId";
