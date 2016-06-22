@@ -51,12 +51,12 @@
                     {Headers.HostDisplayName, hostInfo.DisplayName}
                 };
 
+                var recoveryActionExecutor = new RecoveryActionExecutor(b.Build<IDispatchMessages>(), errorQueue, staticFaultMetadata);
+
                 return new MoveFaultsToErrorQueueBehavior(b.Build<CriticalError>(),
-                    staticFaultMetadata,
                     transportTransactionMode,
                     failureInfoStorage,
-                    b.Build<IDispatchMessages>(),
-                    errorQueue);
+                    recoveryActionExecutor);
             }, "Moves failing messages to the configured error queue");
 
             if (IsDelayedRetriesEnabled(context.Settings))
