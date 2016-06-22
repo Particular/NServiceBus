@@ -53,30 +53,6 @@ namespace NServiceBus
             isStarted = false;
         }
 
-        async Task InvokePipeline(PushContext pushContext)
-        {
-            var pipelineStartedAt = DateTime.UtcNow;
-
-            using (var childBuilder = builder.CreateChildBuilder())
-            {
-                var rootContext = new RootContext(childBuilder, pipelineCache, eventAggregator);
-
-                var message = new IncomingMessage(pushContext.MessageId, pushContext.Headers, pushContext.BodyStream);
-                var context = new TransportReceiveContext(message, pushContext.TransportTransaction, pushContext.ReceiveCancellationTokenSource, rootContext);
-
-                context.Extensions.Merge(pushContext.Context);
-
-                await pipeline.Invoke(context).ConfigureAwait(false);
-
-                //notifications are only relevant for the main pipeline since satellites pipelines are not exposed to user in any way
-                if (isMainReceiver)
-                {
-                    await context.RaiseNotification(new ReceivePipelineCompleted(message, pipelineStartedAt, DateTime.UtcNow)).ConfigureAwait(false);
-                }
-            }
-        }
-
-        bool isMainReceiver;
         bool isStarted;
         IBuilder builder;
         PushRuntimeSettings pushRuntimeSettings;

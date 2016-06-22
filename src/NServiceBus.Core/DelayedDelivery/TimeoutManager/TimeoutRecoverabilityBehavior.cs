@@ -59,15 +59,15 @@ namespace NServiceBus
             {
                 Logger.Error($"Moving timeout message '{context.MessageId}' from '{localAddress}' to '{errorQueueAddress}' because processing failed due to an exception:", failureInfo.Exception);
 
-                var outgoingMessage = new OutgoingMessage(message.MessageId, message.Headers, message.Body);
-                ExceptionHeaderHelper.SetExceptionHeaders(outgoingMessage.Headers, failureInfo.Exception);
-
-                outgoingMessage.Headers[FaultsHeaderKeys.FailedQ] = localAddress;
-
                 var body = new byte[context.BodyStream.Length];
                 await context.BodyStream.ReadAsync(body, 0, body.Length).ConfigureAwait(false);
 
                 var outgoingMessage = new OutgoingMessage(context.MessageId, context.Headers, body);
+
+                ExceptionHeaderHelper.SetExceptionHeaders(outgoingMessage.Headers, failureInfo.Exception);
+
+                outgoingMessage.Headers[FaultsHeaderKeys.FailedQ] = localAddress;
+
                 var addressTag = new UnicastAddressTag(errorQueueAddress);
 
                 var transportOperations = new TransportOperations(new TransportOperation(outgoingMessage, addressTag));
