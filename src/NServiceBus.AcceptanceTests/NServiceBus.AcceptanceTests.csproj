@@ -57,6 +57,7 @@
   <ItemGroup>
     <Compile Include="Basic\When_depending_on_untyped_feature.cs" />
     <Compile Include="Basic\When_extending_behavior_context.cs" />
+    <Compile Include="Serialization\When_configuring_custom_xml_namespace.cs" />
     <Compile Include="Serialization\When_registering_additional_deserializers.cs" />
     <Compile Include="Basic\When_no_content_type.cs" />
     <Compile Include="Basic\When_registering_handlers_explicitly.cs" />
