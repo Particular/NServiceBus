@@ -13,7 +13,7 @@
         const string CustomXmlNamespace = "http://particular.net";
 
         [Test]
-        public async Task Should_use_namespace_in_messages()
+        public async Task Should_use_as_root_namespace_in_messages()
         {
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<EndpointUsingCustomNamespace>(e => e
@@ -21,7 +21,7 @@
                 .Done(c => c.MessageReceived)
                 .Run();
 
-            Assert.AreEqual(CustomXmlNamespace, context.MessageNamespace);
+            Assert.AreEqual($"{CustomXmlNamespace}/{typeof(SimpleMessage).Namespace}", context.MessageNamespace);
         }
 
         class Context : ScenarioContext

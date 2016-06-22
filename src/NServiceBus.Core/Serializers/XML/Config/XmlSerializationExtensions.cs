@@ -59,7 +59,7 @@
         {
             Guard.AgainstNull(nameof(config), config);
 
-            config.Settings.SetProperty<XmlMessageSerializer>(s => s.Namespace, namespaceToUse);
+            config.Settings.Set(XmlSerializer.CustomNamespaceConfigurationKey, namespaceToUse);
 
             return config;
         }

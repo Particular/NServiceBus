@@ -23,9 +23,18 @@
                     .Where(conventions.IsMessageType).ToList();
 
                 var serializer = new XmlMessageSerializer(mapper, conventions);
+
+                string customNamespace;
+                if (settings.TryGet(CustomNamespaceConfigurationKey, out customNamespace))
+                {
+                    serializer.Namespace = customNamespace;
+                }
+
                 serializer.Initialize(messageTypes);
                 return serializer;
             };
         }
+
+        internal const string CustomNamespaceConfigurationKey = "XmlSerializer.CustomNamespace";
     }
 }
