@@ -47,7 +47,7 @@
 
         public EndpointBehaviorBuilder<TContext> CustomConfig(Action<EndpointConfiguration, TContext> action)
         {
-            behavior.CustomConfig.Add(((configuration, context) => action(configuration, (TContext) context)));
+            behavior.CustomConfig.Add((configuration, context) => action(configuration, (TContext) context));
 
             return this;
         }

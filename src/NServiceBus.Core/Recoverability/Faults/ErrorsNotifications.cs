@@ -20,7 +20,7 @@ namespace NServiceBus.Faults
         public event EventHandler<FirstLevelRetry> MessageHasFailedAFirstLevelRetryAttempt;
 
         /// <summary>
-        /// Notification when a message is sent to second level retires queue.
+        /// Notification when a message is sent to second level retries queue.
         /// </summary>
         public event EventHandler<SecondLevelRetry> MessageHasBeenSentToSecondLevelRetries;
 

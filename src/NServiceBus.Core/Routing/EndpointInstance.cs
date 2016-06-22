@@ -166,7 +166,7 @@
                 var hashCode = obj.Key.GetHashCode();
                 if (obj.Value != null)
                 {
-                    hashCode ^= (397*obj.Value.GetHashCode());
+                    hashCode ^= 397*obj.Value.GetHashCode();
                 }
                 return hashCode;
             }

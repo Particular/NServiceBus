@@ -13,7 +13,7 @@
         [Test]
         public async Task Should_reschedule_message_three_times_by_default()
         {
-            var context = await Scenario.Define<Context>((c => { c.Id = Guid.NewGuid(); }))
+            var context = await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
                 .WithEndpoint<RetryEndpoint>(b => b
                     .When((session, ctx) => session.SendLocal(new MessageToBeRetried {Id = ctx.Id}))
                     .DoNotFailOnErrorMessages())
