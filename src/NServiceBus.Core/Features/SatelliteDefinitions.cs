@@ -10,7 +10,7 @@
             satelliteDefinitions.Add(satelliteDefinition);
         }
 
-        public IEnumerable<SatelliteDefinition> Definitions => satelliteDefinitions;
+        public List<SatelliteDefinition> Definitions => satelliteDefinitions;
 
         List<SatelliteDefinition> satelliteDefinitions = new List<SatelliteDefinition>();
     }
