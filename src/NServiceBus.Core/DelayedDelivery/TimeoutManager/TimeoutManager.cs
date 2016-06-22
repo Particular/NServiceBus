@@ -72,13 +72,13 @@
 
             context.AddSatelliteReceiver("Timeout Dispatcher Processor", satelliteAddress, requiredTransactionSupport, PushRuntimeSettings.Default, (builder, pushContext) =>
             {
-                var recBehavior = CreateTimeoutRecoverabilityBehavior(errorQueueAddress, satelliteAddress, builder, failureStorage);
+                var recoverabilityBehavior = CreateTimeoutRecoverabilityBehavior(errorQueueAddress, satelliteAddress, builder, failureStorage);
                 var dispatchBehavior = new DispatchTimeoutBehavior(
                     builder.Build<IDispatchMessages>(),
                     builder.Build<IPersistTimeouts>(),
                     requiredTransactionSupport);
 
-                return recBehavior.Invoke(pushContext, () => dispatchBehavior.Invoke(pushContext));
+                return recoverabilityBehavior.Invoke(pushContext, () => dispatchBehavior.Invoke(pushContext));
             });
 
             return satelliteAddress;
