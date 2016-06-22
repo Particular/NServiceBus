@@ -54,10 +54,13 @@
         public void RegisterHandler(Type handlerType)
         {
             Guard.AgainstNull(nameof(handlerType), handlerType);
+
             if (handlerType.IsAbstract)
             {
                 return;
             }
+
+            ValidateHandlerType(handlerType);
 
             var messageTypes = GetMessageTypesBeingHandledBy(handlerType);
 
@@ -146,9 +149,18 @@
                 .Distinct()
                 .ToList();
         }
+        void ValidateHandlerType(Type handlerType)
+        {
+            var propertyTypes = handlerType.GetProperties().Select(p => p.PropertyType).ToList();
 
-        readonly Conventions conventions;
-        readonly IDictionary<RuntimeTypeHandle, List<DelegateHolder>> handlerAndMessagesHandledByHandlerCache = new Dictionary<RuntimeTypeHandle, List<DelegateHolder>>();
+            if (propertyTypes.Any(t =>typeof(IMessageSession).IsAssignableFrom(t)))
+            {
+                throw new Exception("IMessageSession/IEndpointInstance shouldn't be used by message handlers. Use the context parameter on the `Handle` method to send messages.");
+            }
+        }
+
+        Conventions conventions;
+        IDictionary<RuntimeTypeHandle, List<DelegateHolder>> handlerAndMessagesHandledByHandlerCache = new Dictionary<RuntimeTypeHandle, List<DelegateHolder>>();
         static ILog Log = LogManager.GetLogger<MessageHandlerRegistry>();
 
         class DelegateHolder
