@@ -9,10 +9,6 @@
 
     class RecoveryActionExecutor
     {
-        IDispatchMessages dispatcher;
-        string errorQueueAddress;
-        Dictionary<string, string> staticFaultMetadata;
-
         public RecoveryActionExecutor(IDispatchMessages dispatcher, string errorQueueAddress, Dictionary<string, string> staticFaultMetadata)
         {
             this.dispatcher = dispatcher;
@@ -39,5 +35,9 @@
             var transportOperations = new TransportOperations(new TransportOperation(outgoingMessage, new UnicastAddressTag(errorQueueAddress)));
             return dispatcher.Dispatch(transportOperations, context);
         }
+
+        IDispatchMessages dispatcher;
+        string errorQueueAddress;
+        Dictionary<string, string> staticFaultMetadata;
     }
 }

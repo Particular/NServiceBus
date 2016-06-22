@@ -13,11 +13,6 @@
     [TestFixture]
     public class RecoveryActionExecutorTests
     {
-        const string ErrorQueueAddress = "errorQ";
-        RecoveryActionExecutor recoveryActionExecutor;
-        FakeDispatcher dispatcher;
-        Dictionary<string, string> staticFaultMetadata;
-
         [SetUp]
         public void Setup()
         {
@@ -76,10 +71,10 @@
         [Test]
         public async Task MoveToErrorQueue_should_remove_known_retry_headers()
         {
-            var retryHeaders = new Dictionary<string, string>()
+            var retryHeaders = new Dictionary<string, string>
             {
-                { Headers.FLRetries, "42" },
-                { Headers.Retries, "21" }
+                {Headers.FLRetries, "42"},
+                {Headers.Retries, "21"}
             };
             var incomingMessage = new IncomingMessage("messageId", retryHeaders, Stream.Null);
 
@@ -116,6 +111,11 @@
             var outgoingMessageHeaders = dispatcher.TransportOperations.UnicastTransportOperations.Single().Message.Headers;
             Assert.That(outgoingMessageHeaders, Contains.Item(new KeyValuePair<string, string>("staticFaultMetadataKey", "staticFaultMetadataValue")));
         }
+
+        RecoveryActionExecutor recoveryActionExecutor;
+        FakeDispatcher dispatcher;
+        Dictionary<string, string> staticFaultMetadata;
+        const string ErrorQueueAddress = "errorQ";
 
         class FakeDispatcher : IDispatchMessages
         {
