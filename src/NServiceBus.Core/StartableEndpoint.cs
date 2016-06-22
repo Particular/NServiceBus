@@ -108,12 +108,12 @@ namespace NServiceBus
             var mainPipelineInstance = new Pipeline<ITransportReceiveContext>(builder, settings, pipelineConfiguration.Modifications);
 
             var pushSettings = new PushSettings(settings.LocalAddress(), errorQueue, purgeOnStartup, requiredTransactionSupport);
-            yield return new TransportReceiver(MainPipelineId,builder, pushSettings, dequeueLimitations, (b,context) => InvokePipeline(b,cache, mainPipelineInstance, context));
+            yield return new TransportReceiver(MainPipelineId, builder, pushSettings, dequeueLimitations, (b, context) => InvokePipeline(b, cache, mainPipelineInstance, context));
 
             if (settings.InstanceSpecificQueue() != null)
             {
                 var sharedReceiverPushSettings = new PushSettings(settings.InstanceSpecificQueue(), errorQueue, purgeOnStartup, requiredTransactionSupport);
-                yield return new TransportReceiver(MainPipelineId, builder, sharedReceiverPushSettings, dequeueLimitations, (b, context) => InvokePipeline(b,cache, mainPipelineInstance, context));
+                yield return new TransportReceiver(MainPipelineId, builder, sharedReceiverPushSettings, dequeueLimitations, (b, context) => InvokePipeline(b, cache, mainPipelineInstance, context));
             }
 
             foreach (var satellitePipeline in settings.Get<SatelliteDefinitions>().Definitions)
@@ -144,7 +144,7 @@ namespace NServiceBus
             return PushRuntimeSettings.Default;
         }
 
-        async Task InvokePipeline(IBuilder rootBuilder,IPipelineCache cache,IPipeline<ITransportReceiveContext> pipeline,PushContext pushContext)
+        async Task InvokePipeline(IBuilder rootBuilder, IPipelineCache cache, IPipeline<ITransportReceiveContext> pipeline, PushContext pushContext)
         {
             var pipelineStartedAt = DateTime.UtcNow;
 
@@ -159,7 +159,7 @@ namespace NServiceBus
 
                 await pipeline.Invoke(context).ConfigureAwait(false);
 
-                    await context.RaiseNotification(new ReceivePipelineCompleted(message, pipelineStartedAt, DateTime.UtcNow)).ConfigureAwait(false);
+                await context.RaiseNotification(new ReceivePipelineCompleted(message, pipelineStartedAt, DateTime.UtcNow)).ConfigureAwait(false);
             }
         }
 
