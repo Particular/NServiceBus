@@ -51,7 +51,9 @@ namespace NServiceBus
                     destination = routeExpiredTimeoutTo;
                 }
                 var body = new byte[context.BodyStream.Length];
-                context.BodyStream.Read(body, 0, body.Length);
+
+                await context.BodyStream.ReadAsync(body, 0, body.Length).ConfigureAwait(false);
+
                 var data = new TimeoutData
                 {
                     Destination = destination,
