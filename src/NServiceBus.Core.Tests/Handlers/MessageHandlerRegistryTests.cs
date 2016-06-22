@@ -9,7 +9,9 @@
     {
         [TestCase(typeof(HandlerWithIMessageSessionProperty))]
         [TestCase(typeof(HandlerWithIEndpointInstanceProperty))]
+        [TestCase(typeof(HandlerWithIMessageSessionCtorDep))]
         [TestCase(typeof(HandlerWithIEndpointInstanceCtorDep))]
+        [TestCase(typeof(SagaWithIllegalDep))]
         public void ShouldThrowIfUserTriesToBypassTheHandlerContext(Type handlerType)
         {
             var registry = new MessageHandlerRegistry(new Conventions());
@@ -37,6 +39,20 @@
             }
         }
 
+        class HandlerWithIMessageSessionCtorDep : IHandleMessages<MyMessage>
+        {
+            public HandlerWithIMessageSessionCtorDep(IMessageSession messageSession)
+            {
+                this.MessageSession = messageSession;
+            }
+
+            public Task Handle(MyMessage message, IMessageHandlerContext context)
+            {
+                throw new NotImplementedException();
+            }
+
+            IMessageSession MessageSession;
+        }
         class HandlerWithIEndpointInstanceCtorDep : IHandleMessages<MyMessage>
         {
             public HandlerWithIEndpointInstanceCtorDep(IEndpointInstance endpointInstance)
@@ -50,6 +66,29 @@
             }
 
             IEndpointInstance endpointInstance;
+        }
+
+        class SagaWithIllegalDep : Saga<SagaWithIllegalDep.MySagaData>, IAmStartedByMessages<MyMessage>
+        {
+            public SagaWithIllegalDep(IEndpointInstance endpointInstance)
+            {
+                this.endpointInstance = endpointInstance;
+            }
+
+            public Task Handle(MyMessage message, IMessageHandlerContext context)
+            {
+                throw new NotImplementedException();
+            }
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MySagaData> mapper)
+            {
+                throw new NotImplementedException();
+            }
+
+            IEndpointInstance endpointInstance;
+
+            public class MySagaData : ContainSagaData
+            {
+            }
         }
 
         class MyMessage { }
