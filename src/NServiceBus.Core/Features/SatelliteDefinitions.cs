@@ -3,15 +3,12 @@
     using System.Collections.Generic;
 
     class SatelliteDefinitions
-
     {
+        public List<SatelliteDefinition> Definitions { get; } = new List<SatelliteDefinition>();
+
         public void Add(SatelliteDefinition satelliteDefinition)
         {
-            satelliteDefinitions.Add(satelliteDefinition);
+            Definitions.Add(satelliteDefinition);
         }
-
-        public List<SatelliteDefinition> Definitions => satelliteDefinitions;
-
-        List<SatelliteDefinition> satelliteDefinitions = new List<SatelliteDefinition>();
     }
 }
