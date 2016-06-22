@@ -62,7 +62,7 @@
 
                 failureInfoStorage.ClearFailureInfoForMessage(message.MessageId);
 
-                await recoveryActionExecutor.MoveToErrorQueue(message, exception, context.Extensions).ConfigureAwait(true);
+                await recoveryActionExecutor.MoveToErrorQueue(message, exception, context.Extensions).ConfigureAwait(false);
 
                 await context.RaiseNotification(new MessageFaulted(message, exception)).ConfigureAwait(false);
             }
@@ -76,7 +76,7 @@
 
         CriticalError criticalError;
         FailureInfoStorage failureInfoStorage;
-        readonly RecoveryActionExecutor recoveryActionExecutor;
+        RecoveryActionExecutor recoveryActionExecutor;
         TransportTransactionMode transportTransactionMode;
         static ILog Logger = LogManager.GetLogger<MoveFaultsToErrorQueueBehavior>();
     }
