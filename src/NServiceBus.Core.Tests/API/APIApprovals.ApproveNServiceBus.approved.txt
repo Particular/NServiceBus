@@ -1643,8 +1643,7 @@ namespace NServiceBus.Features
         public NServiceBus.ObjectBuilder.IConfigureComponents Container { get; }
         public NServiceBus.Pipeline.PipelineSettings Pipeline { get; }
         public NServiceBus.Settings.ReadOnlySettings Settings { get; }
-        public NServiceBus.Pipeline.PipelineSettings AddSatellitePipeline(string name, NServiceBus.TransportTransactionMode requiredTransportTransactionMode, NServiceBus.Transports.PushRuntimeSettings runtimeSettings, string qualifier, out string transportAddress) { }
-        public NServiceBus.Pipeline.PipelineSettings AddSatellitePipeline(string name, NServiceBus.TransportTransactionMode requiredTransportTransactionMode, NServiceBus.Transports.PushRuntimeSettings runtimeSettings, string transportAddress) { }
+        public void AddSatelliteReceiver(string name, string transportAddress, NServiceBus.TransportTransactionMode requiredTransportTransactionMode, NServiceBus.Transports.PushRuntimeSettings runtimeSettings, System.Func<NServiceBus.ObjectBuilder.IBuilder, NServiceBus.Transports.PushContext, System.Threading.Tasks.Task> onMessage) { }
         public void RegisterStartupTask<TTask>(TTask startupTask)
             where TTask : NServiceBus.Features.FeatureStartupTask { }
         public void RegisterStartupTask<TTask>(System.Func<TTask> startupTaskFactory)
@@ -2982,6 +2981,10 @@ namespace NServiceBus.Transports
     public interface ISendMessages
     {
         void Send(NServiceBus.TransportMessage message, NServiceBus.Unicast.SendOptions sendOptions);
+    }
+    public class static LogicalAddressExtensions
+    {
+        public static string GetTransportAddress(this NServiceBus.Settings.ReadOnlySettings settings, NServiceBus.LogicalAddress logicalAddress) { }
     }
     public class MulticastTransportOperation : NServiceBus.Transports.IOutgoingTransportOperation
     {

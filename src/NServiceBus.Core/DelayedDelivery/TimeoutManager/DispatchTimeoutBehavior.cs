@@ -2,12 +2,11 @@ namespace NServiceBus
 {
     using System;
     using System.Threading.Tasks;
-    using Pipeline;
     using Routing;
     using Timeout.Core;
     using Transports;
 
-    class DispatchTimeoutBehavior : PipelineTerminator<ISatelliteProcessingContext>
+    class DispatchTimeoutBehavior
     {
         public DispatchTimeoutBehavior(IDispatchMessages dispatcher, IPersistTimeouts persister, TransportTransactionMode transportTransactionMode)
         {
@@ -16,12 +15,11 @@ namespace NServiceBus
             dispatchConsistency = GetDispatchConsistency(transportTransactionMode);
         }
 
-        protected override async Task Terminate(ISatelliteProcessingContext context)
+        public async Task Invoke(PushContext context)
         {
-            var message = context.Message;
-            var timeoutId = message.Headers["Timeout.Id"];
+            var timeoutId = context.Headers["Timeout.Id"];
 
-            var timeoutData = await persister.Peek(timeoutId, context.Extensions).ConfigureAwait(false);
+            var timeoutData = await persister.Peek(timeoutId, context.Context).ConfigureAwait(false);
 
             if (timeoutData == null)
             {
@@ -31,11 +29,11 @@ namespace NServiceBus
             timeoutData.Headers[Headers.TimeSent] = DateTimeExtensions.ToWireFormattedString(DateTime.UtcNow);
             timeoutData.Headers["NServiceBus.RelatedToTimeoutId"] = timeoutData.Id;
 
-            var outgoingMessage = new OutgoingMessage(message.MessageId, timeoutData.Headers, timeoutData.State);
+            var outgoingMessage = new OutgoingMessage(context.MessageId, timeoutData.Headers, timeoutData.State);
             var transportOperation = new TransportOperation(outgoingMessage, new UnicastAddressTag(timeoutData.Destination), dispatchConsistency);
-            await dispatcher.Dispatch(new TransportOperations(transportOperation), context.Extensions).ConfigureAwait(false);
+            await dispatcher.Dispatch(new TransportOperations(transportOperation), context.Context).ConfigureAwait(false);
 
-            var timeoutRemoved = await persister.TryRemove(timeoutId, context.Extensions).ConfigureAwait(false);
+            var timeoutRemoved = await persister.TryRemove(timeoutId, context.Context).ConfigureAwait(false);
             if (!timeoutRemoved)
             {
                 // timeout was concurrently removed between Peek and TryRemove. Throw an exception to rollback the dispatched message if possible.
