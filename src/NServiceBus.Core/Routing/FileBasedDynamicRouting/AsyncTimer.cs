@@ -22,7 +22,7 @@ namespace NServiceBus
                     }
                     catch (OperationCanceledException)
                     {
-                        // nop	 
+                        // nop
                     }
                     catch (Exception ex)
                     {
@@ -34,9 +34,15 @@ namespace NServiceBus
 
         public Task Stop()
         {
+            if (tokenSource == null)
+            {
+                return TaskEx.CompletedTask;
+            }
+
             tokenSource.Cancel();
             tokenSource.Dispose();
-            return task;
+
+            return task ?? TaskEx.CompletedTask;
         }
 
         Task task;

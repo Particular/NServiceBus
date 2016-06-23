@@ -2,19 +2,18 @@ namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
+    using System.IO;
     using System.Linq;
     using System.Threading.Tasks;
     using System.Xml.Linq;
     using Features;
     using Logging;
     using Routing;
-    using Settings;
 
     class FileRoutingTable : FeatureStartupTask
     {
-        public FileRoutingTable(string filePath, TimeSpan checkInterval, IAsyncTimer timer, IRoutingFileAccess fileAccess, int maxLoadAttempts, ReadOnlySettings settings)
+        public FileRoutingTable(string filePath, TimeSpan checkInterval, IAsyncTimer timer, IRoutingFileAccess fileAccess, int maxLoadAttempts)
         {
-            this.settings = settings;
             this.filePath = filePath;
             this.checkInterval = checkInterval;
             this.timer = timer;
@@ -24,21 +23,14 @@ namespace NServiceBus
             errorMessage = $"An error occured while reading the endpoint instance mapping file at {filePath}. See the inner exception for more details.";
         }
 
-        protected override async Task OnStart(IMessageSession session)
+        protected override Task OnStart(IMessageSession session)
         {
-            var endpointInstances = settings.Get<EndpointInstances>();
-            endpointInstances.AddDynamic(FindInstances);
-
-            try
+            if (!File.Exists(filePath))
             {
-                await ReloadData().ConfigureAwait(false);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(errorMessage, ex);
+                throw new Exception($"The endpoint instance mapping file {filePath} does not exist.");
             }
 
-            timer.Start(ReloadData, checkInterval, ex => log.Error(errorMessage, ex));
+            return TaskEx.CompletedTask;
         }
 
         async Task ReloadData()
@@ -48,7 +40,7 @@ namespace NServiceBus
 
             var newInstanceMap = instances
                 .GroupBy(i => i.Endpoint)
-                .ToDictionary(g => g.Key, g => Task.FromResult((IEnumerable<EndpointInstance>)new HashSet<EndpointInstance>(g)));
+                .ToDictionary(g => g.Key, g => new HashSet<EndpointInstance>(g));
 
             instanceMap = newInstanceMap;
         }
@@ -82,29 +74,39 @@ namespace NServiceBus
             }
         }
 
-        Task<IEnumerable<EndpointInstance>> FindInstances(string endpoint)
+        public async Task<IEnumerable<EndpointInstance>> FindInstances(string endpoint)
         {
-            Task<IEnumerable<EndpointInstance>> result;
-            return instanceMap.TryGetValue(endpoint, out result) ? result : emptyEndpointInstancesTask;
+            HashSet<EndpointInstance> result;
+            if (instanceMap == null)
+            {
+                try
+                {
+                    await ReloadData().ConfigureAwait(false);
+                    timer.Start(ReloadData, checkInterval, ex => log.Error(errorMessage, ex));
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception(errorMessage, ex);
+                }
+            }
+            // ReSharper disable once PossibleNullReferenceException
+            return instanceMap.TryGetValue(endpoint, out result)
+                ? result
+                : Enumerable.Empty<EndpointInstance>();
         }
 
-        protected override Task OnStop(IMessageSession session)
-        {
-            return timer.Stop();
-        }
+        protected override Task OnStop(IMessageSession session) => timer.Stop();
 
         TimeSpan checkInterval;
         IRoutingFileAccess fileAccess;
         string filePath;
         string errorMessage;
 
-        Dictionary<string, Task<IEnumerable<EndpointInstance>>> instanceMap = new Dictionary<string, Task<IEnumerable<EndpointInstance>>>();
+        Dictionary<string, HashSet<EndpointInstance>> instanceMap;
         int maxLoadAttempts;
         FileRoutingTableParser parser = new FileRoutingTableParser();
-        ReadOnlySettings settings;
         IAsyncTimer timer;
 
         static readonly ILog log = LogManager.GetLogger(typeof(FileRoutingTable));
-        static Task<IEnumerable<EndpointInstance>> emptyEndpointInstancesTask = Task.FromResult(Enumerable.Empty<EndpointInstance>());
     }
 }
