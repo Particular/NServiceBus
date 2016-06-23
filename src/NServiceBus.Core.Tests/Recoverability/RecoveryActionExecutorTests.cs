@@ -98,6 +98,8 @@
             Assert.That(outgoingMessageHeaders, Contains.Key("NServiceBus.ExceptionInfo.ExceptionType"));
             Assert.That(outgoingMessageHeaders, Contains.Key("NServiceBus.ExceptionInfo.Message"));
             Assert.That(outgoingMessageHeaders, Contains.Key("NServiceBus.ExceptionInfo.StackTrace"));
+            // check for leaking headers
+            Assert.That(incomingMessage.Headers.ContainsKey("NServiceBus.ExceptionInfo.ExceptionType"), Is.False);
         }
 
         [Test]
@@ -110,6 +112,8 @@
 
             var outgoingMessageHeaders = dispatcher.TransportOperations.UnicastTransportOperations.Single().Message.Headers;
             Assert.That(outgoingMessageHeaders, Contains.Item(new KeyValuePair<string, string>("staticFaultMetadataKey", "staticFaultMetadataValue")));
+            // check for leaking headers
+            Assert.That(incomingMessage.Headers.ContainsKey("staticFaultMetadataKey"), Is.False);
         }
 
         RecoveryActionExecutor recoveryActionExecutor;
