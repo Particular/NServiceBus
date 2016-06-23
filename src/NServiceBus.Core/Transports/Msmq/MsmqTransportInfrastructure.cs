@@ -9,6 +9,7 @@ namespace NServiceBus
     using Performance.TimeToBeReceived;
     using Routing;
     using Settings;
+    using Support;
     using Transports;
 
     class MsmqTransportInfrastructure : TransportInfrastructure
@@ -45,14 +46,14 @@ namespace NServiceBus
             return new ReceiveWithNativeTransaction();
         }
 
-        public override EndpointInstance BindToLocalEndpoint(EndpointInstance instance) => instance.AtMachine(Environment.MachineName);
+        public override EndpointInstance BindToLocalEndpoint(EndpointInstance instance) => instance.AtMachine(RuntimeEnvironment.MachineName);
 
         public override string ToTransportAddress(LogicalAddress logicalAddress)
         {
             string machine;
             if (!logicalAddress.EndpointInstance.Properties.TryGetValue("Machine", out machine))
             {
-                machine = Environment.MachineName;
+                machine = RuntimeEnvironment.MachineName;
             }
 
             var queue = new StringBuilder(logicalAddress.EndpointInstance.Endpoint);

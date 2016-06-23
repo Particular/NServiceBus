@@ -7,6 +7,7 @@
     using NServiceBus.Routing;
     using NServiceBus.Transports;
     using NUnit.Framework;
+    using Support;
 
     [TestFixture]
     public class MsmqMessageDispatcherTests
@@ -15,7 +16,7 @@
         public void Should_set_label_when_convention_configured()
         {
             var queueName = "labelTest";
-            var path = $@"{Environment.MachineName}\private$\{queueName}";
+            var path = $@"{RuntimeEnvironment.MachineName}\private$\{queueName}";
             try
             {
                 MsmqHelpers.DeleteQueue(path);

@@ -1,9 +1,9 @@
 ﻿namespace NServiceBus.Core.Tests.Msmq
 {
-    using System;
     using System.Messaging;
     using System.Security.Principal;
     using NUnit.Framework;
+    using Support;
 
     [TestFixture]
     public class MsmqExtensionsTests
@@ -18,7 +18,7 @@
         public void Setup()
         {
             var queueName = "permissionsTest";
-            path = $@"{Environment.MachineName}\private$\{queueName}";
+            path = $@"{RuntimeEnvironment.MachineName}\private$\{queueName}";
             MsmqHelpers.DeleteQueue(path);
             MsmqHelpers.CreateQueue(path);
 
