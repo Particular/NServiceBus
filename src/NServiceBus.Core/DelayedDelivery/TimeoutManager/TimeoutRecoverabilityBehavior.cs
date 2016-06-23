@@ -3,68 +3,44 @@ namespace NServiceBus
     using System;
     using System.Threading.Tasks;
     using Faults;
-    using JetBrains.Annotations;
     using Logging;
     using Routing;
     using Transports;
 
     class TimeoutRecoverabilityBehavior
     {
-        public TimeoutRecoverabilityBehavior(string errorQueueAddress, string localAddress, IDispatchMessages dispatcher, CriticalError criticalError, TimeoutFailureInfoStorage failureInfoStorage)
+        public TimeoutRecoverabilityBehavior(string errorQueueAddress, string localAddress, IDispatchMessages dispatcher, CriticalError criticalError)
         {
             this.localAddress = localAddress;
             this.errorQueueAddress = errorQueueAddress;
             this.dispatcher = dispatcher;
             this.criticalError = criticalError;
-            this.failureInfoStorage = failureInfoStorage;
         }
 
-        public async Task Invoke(PushContext context, Func<Task> next)
+        public async Task<bool> Invoke(PushContext context, Exception exception, int numRetries)
         {
-            var failureInfo = failureInfoStorage.GetFailureInfoForMessage(context.MessageId);
-
-            if (ShouldAttemptAnotherRetry(failureInfo))
+            if (numRetries <= MaxNumberOfFailedRetries)
             {
-                try
-                {
-                    await next().ConfigureAwait(false);
-                    return;
-                }
-                catch (Exception exception)
-                {
-                    failureInfoStorage.RecordFailureInfoForMessage(context.MessageId, exception);
-
-                    Logger.Debug($"Going to retry message '{context.MessageId}' from satellite '{localAddress}' because of an exception:", exception);
-
-                    context.ReceiveCancellationTokenSource.Cancel();
-                    return;
-                }
+                return true;
             }
 
-            failureInfoStorage.ClearFailureInfoForMessage(context.MessageId);
+            await MoveToErrorQueue(context, exception).ConfigureAwait(false);
 
-            Logger.Debug($"Giving up Retries for message '{context.MessageId}' from satellite '{localAddress}' after {failureInfo.NumberOfFailedAttempts} attempts.");
-
-            await MoveToErrorQueue(context, failureInfo).ConfigureAwait(false);
+            return false;
         }
 
-        bool ShouldAttemptAnotherRetry([NotNull] TimeoutProcessingFailureInfo failureInfo)
-        {
-            return failureInfo.NumberOfFailedAttempts <= MaxNumberOfFailedRetries;
-        }
-
-        async Task MoveToErrorQueue(PushContext context, TimeoutProcessingFailureInfo failureInfo)
+        async Task MoveToErrorQueue(PushContext context, Exception exception)
         {
             try
             {
-                Logger.Error($"Moving timeout message '{context.MessageId}' from '{localAddress}' to '{errorQueueAddress}' because processing failed due to an exception:", failureInfo.Exception);
+                Logger.Error($"Moving timeout message '{context.MessageId}' from '{localAddress}' to '{errorQueueAddress}' because processing failed due to an exception:", exception);
 
                 var body = new byte[context.BodyStream.Length];
                 await context.BodyStream.ReadAsync(body, 0, body.Length).ConfigureAwait(false);
 
                 var outgoingMessage = new OutgoingMessage(context.MessageId, context.Headers, body);
 
-                ExceptionHeaderHelper.SetExceptionHeaders(outgoingMessage.Headers, failureInfo.Exception);
+                ExceptionHeaderHelper.SetExceptionHeaders(outgoingMessage.Headers, exception);
 
                 outgoingMessage.Headers[FaultsHeaderKeys.FailedQ] = localAddress;
 
@@ -82,7 +58,6 @@ namespace NServiceBus
         }
 
         CriticalError criticalError;
-        TimeoutFailureInfoStorage failureInfoStorage;
         IDispatchMessages dispatcher;
         string errorQueueAddress;
 

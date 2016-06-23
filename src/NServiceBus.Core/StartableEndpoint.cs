@@ -119,7 +119,7 @@ namespace NServiceBus
             foreach (var satellite in settings.Get<SatelliteDefinitions>().Definitions)
             {
                 var satellitePushSettings = new PushSettings(satellite.ReceiveAddress, errorQueue, purgeOnStartup, satellite.RequiredTransportTransactionMode);
-                yield return new TransportReceiver(satellite.Name, builder, satellitePushSettings, dequeueLimitations, (b, context) => InvokeSatellite(b, context, satellite));
+                yield return new TransportReceiver(satellite.Name, builder, satellitePushSettings, dequeueLimitations, (b, context) => InvokeSatellite(b, context, satellite, new TimeoutFailureInfoStorage(), satellitePushSettings.RequiredTransactionMode != TransportTransactionMode.None));
             }
         }
 
@@ -163,9 +163,51 @@ namespace NServiceBus
             }
         }
 
-        Task InvokeSatellite(IBuilder rootBuilder, PushContext pushContext, SatelliteDefinition satellite)
+        //todo: stop using the timeout failure info storage
+        async Task InvokeSatellite(IBuilder rootBuilder, PushContext pushContext, SatelliteDefinition satellite, TimeoutFailureInfoStorage failureInfoStorage, bool isTransactional)
         {
-            return satellite.OnMessage(rootBuilder, pushContext);
+            if (isTransactional)
+            {
+                var failureInfo = failureInfoStorage.GetFailureInfoForMessage(pushContext.MessageId);
+
+                if (failureInfo != TimeoutProcessingFailureInfo.NullFailureInfo)
+                {
+                    var shouldRetryImmedately = await satellite.OnError(rootBuilder, pushContext, failureInfo.Exception, failureInfo.NumberOfFailedAttempts - 1).ConfigureAwait(false);
+
+                    if (!shouldRetryImmedately)
+                    {
+                        failureInfoStorage.ClearFailureInfoForMessage(pushContext.MessageId);
+                        return;
+                    }
+                }
+            }
+
+            try
+            {
+                await satellite.OnMessage(rootBuilder, pushContext).ConfigureAwait(false);
+            }
+            catch (Exception exception)
+            {
+                if (isTransactional)
+                {
+                    failureInfoStorage.RecordFailureInfoForMessage(pushContext.MessageId, exception);
+                    pushContext.ReceiveCancellationTokenSource.Cancel();
+                    return;
+                }
+
+                var failureInfo = failureInfoStorage.GetFailureInfoForMessage(pushContext.MessageId);
+
+                var shouldRetryImmedately = await satellite.OnError(rootBuilder, pushContext, exception, failureInfo.NumberOfFailedAttempts).ConfigureAwait(false);
+
+                if (shouldRetryImmedately)
+                {
+                    pushContext.ReceiveCancellationTokenSource.Cancel();
+                    return;
+                }
+
+
+                failureInfoStorage.ClearFailureInfoForMessage(pushContext.MessageId);
+            }
         }
 
         IBuilder builder;

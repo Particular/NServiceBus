@@ -49,8 +49,8 @@
                     {
                         builder.Build<Context>().MessageReceived = true;
                         return Task.FromResult(true);
-                    });
-
+                    },
+                    (builder, pushContext, ex, numFailures) => Task.FromResult(false));
                     Address = satelliteAddress;
                 }
 

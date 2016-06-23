@@ -1643,7 +1643,7 @@ namespace NServiceBus.Features
         public NServiceBus.ObjectBuilder.IConfigureComponents Container { get; }
         public NServiceBus.Pipeline.PipelineSettings Pipeline { get; }
         public NServiceBus.Settings.ReadOnlySettings Settings { get; }
-        public void AddSatelliteReceiver(string name, string transportAddress, NServiceBus.TransportTransactionMode requiredTransportTransactionMode, NServiceBus.Transports.PushRuntimeSettings runtimeSettings, System.Func<NServiceBus.ObjectBuilder.IBuilder, NServiceBus.Transports.PushContext, System.Threading.Tasks.Task> onMessage) { }
+        public void AddSatelliteReceiver(string name, string transportAddress, NServiceBus.TransportTransactionMode requiredTransportTransactionMode, NServiceBus.Transports.PushRuntimeSettings runtimeSettings, System.Func<NServiceBus.ObjectBuilder.IBuilder, NServiceBus.Transports.PushContext, System.Threading.Tasks.Task> onMessage, System.Func<NServiceBus.ObjectBuilder.IBuilder, NServiceBus.Transports.PushContext, System.Exception, int, System.Threading.Tasks.Task<bool>> onError) { }
         public void RegisterStartupTask<TTask>(TTask startupTask)
             where TTask : NServiceBus.Features.FeatureStartupTask { }
         public void RegisterStartupTask<TTask>(System.Func<TTask> startupTaskFactory)
