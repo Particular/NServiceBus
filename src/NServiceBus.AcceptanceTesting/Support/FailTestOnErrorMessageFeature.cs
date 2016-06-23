@@ -31,8 +31,6 @@
 
             context.Settings.Get<NotificationSubscriptions>().Subscribe<MessageFaulted>(m =>
             {
-                scenarioContext.UnfinishedFailedMessages.AddOrUpdate(m.Message.MessageId, id => 0, (id, value) => value - 1);
-
                 scenarioContext.FailedMessages.AddOrUpdate(
                     context.Settings.EndpointName(),
                     new[]
@@ -45,6 +43,8 @@
                         result.Add(new FailedMessage(m.Message.MessageId, m.Message.Headers, m.Message.Body, m.Exception));
                         return result;
                     });
+
+                scenarioContext.UnfinishedFailedMessages.AddOrUpdate(m.Message.MessageId, id => 0, (id, value) => value - 1);
 
                 return Task.FromResult(0);
             });
@@ -61,17 +61,11 @@
 
             public override async Task Invoke(ITransportReceiveContext context, Func<Task> next)
             {
-                try
-                {
-                    await next().ConfigureAwait(false);
-                }
-                catch (Exception)
-                {
-                    failedMessages.AddOrUpdate(context.Message.MessageId, id => 1, (id, value) => value + 1);
+                failedMessages.AddOrUpdate(context.Message.MessageId, id => 1, (id, value) => value + 1);
 
-                    // rethrow exception to let NServiceBus properly handle it.
-                    throw;
-                }
+                await next().ConfigureAwait(false);
+
+                failedMessages.AddOrUpdate(context.Message.MessageId, id => 0, (id, value) => value - 1);
             }
         }
     }
