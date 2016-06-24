@@ -3243,7 +3243,7 @@ namespace NServiceBus.Unicast
             "r currently throws a NotImplementedException. Will be removed in version 7.0.0.", true)]
         public void CacheMethodForHandler(System.Type handler, System.Type messageType) { }
         public void Clear() { }
-        public System.Collections.Generic.IEnumerable<NServiceBus.Pipeline.MessageHandler> GetHandlersFor(System.Type messageType) { }
+        public System.Collections.Generic.List<NServiceBus.Pipeline.MessageHandler> GetHandlersFor(System.Type messageType) { }
         [System.ObsoleteAttribute("Use `MessageHandlerRegistry.GetHandlersFor(Type messageType)` instead. The member" +
             " currently throws a NotImplementedException. Will be removed in version 7.0.0.", true)]
         public System.Collections.Generic.IEnumerable<System.Type> GetHandlerTypes(System.Type messageType) { }
