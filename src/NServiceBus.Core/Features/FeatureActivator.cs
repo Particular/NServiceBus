@@ -135,7 +135,7 @@ namespace NServiceBus.Features
             return output;
         }
 
-        static bool DirectedCycleExistsFrom(Node node, IEnumerable<Node> visitedNodes)
+        static bool DirectedCycleExistsFrom(Node node, Node[] visitedNodes)
         {
             if (node.previous.Any())
             {
@@ -147,7 +147,7 @@ namespace NServiceBus.Features
                 var newVisitedNodes = visitedNodes.Union(new[]
                 {
                     node
-                });
+                }).ToArray();
 
                 foreach (var subNode in node.previous)
                 {
