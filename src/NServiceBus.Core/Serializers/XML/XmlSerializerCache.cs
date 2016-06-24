@@ -130,7 +130,7 @@ namespace NServiceBus
             }
         }
 
-        IEnumerable<PropertyInfo> GetAllPropertiesForType(Type t, bool isKeyValuePair)
+        PropertyInfo[] GetAllPropertiesForType(Type t, bool isKeyValuePair)
         {
             var result = new List<PropertyInfo>();
 
@@ -189,10 +189,10 @@ namespace NServiceBus
                 }
             }
 
-            return result.Distinct();
+            return result.Distinct().ToArray();
         }
 
-        IEnumerable<FieldInfo> GetAllFieldsForType(Type t)
+        FieldInfo[] GetAllFieldsForType(Type t)
         {
             return t.GetFields(BindingFlags.FlattenHierarchy | BindingFlags.Instance | BindingFlags.Public);
         }
