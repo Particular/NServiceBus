@@ -208,7 +208,7 @@ namespace NServiceBus
 
                     int number;
 
-                    if (parts.Count() == 2 && Guid.TryParse(parts.First(), out correlationId) &&
+                    if (parts.Length == 2 && Guid.TryParse(parts.First(), out correlationId) &&
                         int.TryParse(parts[1], out number))
                     {
                         result.CorrelationId = correlationIdHeader;
