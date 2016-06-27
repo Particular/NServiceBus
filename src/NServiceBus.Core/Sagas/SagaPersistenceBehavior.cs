@@ -51,6 +51,15 @@
                 }
                 else
                 {
+                    if (!context.Headers.ContainsKey(Headers.SagaId))
+                    {
+                        var finderDefinition = GetSagaFinder(sagaMetadata, context);
+                        if (finderDefinition == null)
+                        {
+                            throw new Exception($"Message type {context.MessageBeingHandled.GetType().Name} is handled by saga {sagaMetadata.SagaType.Name}, but the saga does not contain a property mapping or custom saga finder to map the message to saga data. Consider adding a mapping in the saga's {nameof(Saga.ConfigureHowToFindSaga)} method.");
+                        }
+                    }
+
                     sagaInstanceState.MarkAsNotFound();
 
                     //we don't invoke not found handlers for timeouts
@@ -221,15 +230,7 @@
                 return loader.Load(sagaPersister, sagaId, context.SynchronizedStorageSession, context.Extensions);
             }
 
-            SagaFinderDefinition finderDefinition = null;
-
-            foreach (var messageType in context.MessageMetadata.MessageHierarchy)
-            {
-                if (metadata.TryGetFinder(messageType.FullName, out finderDefinition))
-                {
-                    break;
-                }
-            }
+            var finderDefinition = GetSagaFinder(metadata, context);
 
             //check if we could find a finder
             if (finderDefinition == null)
@@ -241,6 +242,19 @@
             var finder = (SagaFinder) currentContext.Builder.Build(finderType);
 
             return finder.Find(currentContext.Builder, finderDefinition, context.SynchronizedStorageSession, context.Extensions, context.MessageBeingHandled);
+        }
+
+        SagaFinderDefinition GetSagaFinder(SagaMetadata metadata, IInvokeHandlerContext context)
+        {
+            foreach (var messageType in context.MessageMetadata.MessageHierarchy)
+            {
+                SagaFinderDefinition finderDefinition;
+                if (metadata.TryGetFinder(messageType.FullName, out finderDefinition))
+                {
+                    return finderDefinition;
+                }
+            }
+            return null;
         }
 
         IContainSagaData CreateNewSagaEntity(SagaMetadata metadata, IInvokeHandlerContext context)
