@@ -31,9 +31,9 @@
             }
 
             return from handlersAndMessages in handlerAndMessagesHandledByHandlerCache
-                from messagesBeingHandled in handlersAndMessages.Value
-                where Type.GetTypeFromHandle(messagesBeingHandled.MessageType).IsAssignableFrom(messageType)
-                select new MessageHandler(messagesBeingHandled.MethodDelegate, Type.GetTypeFromHandle(handlersAndMessages.Key));
+                   from messagesBeingHandled in handlersAndMessages.Value
+                   where Type.GetTypeFromHandle(messagesBeingHandled.MessageType).IsAssignableFrom(messageType)
+                   select new MessageHandler(messagesBeingHandled.MethodDelegate, Type.GetTypeFromHandle(handlersAndMessages.Key));
         }
 
         /// <summary>
@@ -42,10 +42,10 @@
         public IEnumerable<Type> GetMessageTypes()
         {
             return (from messagesBeingHandled in handlerAndMessagesHandledByHandlerCache.Values
-                from typeHandled in messagesBeingHandled
-                let messageType = Type.GetTypeFromHandle(typeHandled.MessageType)
-                where conventions.IsMessageType(messageType)
-                select messageType).Distinct();
+                    from typeHandled in messagesBeingHandled
+                    let messageType = Type.GetTypeFromHandle(typeHandled.MessageType)
+                    where conventions.IsMessageType(messageType)
+                    select messageType).Distinct();
         }
 
         /// <summary>
@@ -54,10 +54,13 @@
         public void RegisterHandler(Type handlerType)
         {
             Guard.AgainstNull(nameof(handlerType), handlerType);
+
             if (handlerType.IsAbstract)
             {
                 return;
             }
+
+            ValidateHandlerType(handlerType);
 
             var messageTypes = GetMessageTypesBeingHandledBy(handlerType);
 
@@ -137,18 +140,32 @@
         static IEnumerable<Type> GetMessageTypesBeingHandledBy(Type type)
         {
             return (from t in type.GetInterfaces()
-                where t.IsGenericType
-                let potentialMessageType = t.GetGenericArguments()[0]
-                where
-                    typeof(IHandleMessages<>).MakeGenericType(potentialMessageType).IsAssignableFrom(t) ||
-                    typeof(IHandleTimeouts<>).MakeGenericType(potentialMessageType).IsAssignableFrom(t)
-                select potentialMessageType)
+                    where t.IsGenericType
+                    let potentialMessageType = t.GetGenericArguments()[0]
+                    where
+                        typeof(IHandleMessages<>).MakeGenericType(potentialMessageType).IsAssignableFrom(t) ||
+                        typeof(IHandleTimeouts<>).MakeGenericType(potentialMessageType).IsAssignableFrom(t)
+                    select potentialMessageType)
                 .Distinct()
                 .ToList();
         }
+        void ValidateHandlerType(Type handlerType)
+        {
+            var propertyTypes = handlerType.GetProperties().Select(p => p.PropertyType).ToList();
+            var ctorArguments = handlerType.GetConstructors()
+             .SelectMany(ctor => ctor.GetParameters().Select(p => p.ParameterType))
+             .ToList();
 
-        readonly Conventions conventions;
-        readonly IDictionary<RuntimeTypeHandle, List<DelegateHolder>> handlerAndMessagesHandledByHandlerCache = new Dictionary<RuntimeTypeHandle, List<DelegateHolder>>();
+            var dependencies = propertyTypes.Concat(ctorArguments).ToList();
+
+            if (dependencies.Any(t => typeof(IMessageSession).IsAssignableFrom(t)))
+            {
+                throw new Exception($"Interfaces IMessageSession or IEndpointInstance should not be resolved from the container to enable sending or publishing messages from within sagas or message handlers. Instead, use the context parameter on the {handlerType.Name}.Handle method to send or publish messages.");
+            }
+        }
+
+        Conventions conventions;
+        IDictionary<RuntimeTypeHandle, List<DelegateHolder>> handlerAndMessagesHandledByHandlerCache = new Dictionary<RuntimeTypeHandle, List<DelegateHolder>>();
         static ILog Log = LogManager.GetLogger<MessageHandlerRegistry>();
 
         class DelegateHolder
