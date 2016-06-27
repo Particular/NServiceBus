@@ -11,10 +11,6 @@
 
     class DelayedRetryExecutor
     {
-        string timeoutManagerAddress;
-        readonly IDispatchMessages dispatcher;
-        readonly string endpointInputQueue;
-
         public DelayedRetryExecutor(string endpointInputQueue, IDispatchMessages dispatcher, string timeoutManagerAddress = null)
         {
             this.timeoutManagerAddress = timeoutManagerAddress;
@@ -37,7 +33,10 @@
             if (timeoutManagerAddress == null)
             {
                 // transport supports native deferred messages, directly send to input queue with delay constraint:
-                deliveryConstraints = new DeliveryConstraint[] { new DelayDeliveryWith(delay)};
+                deliveryConstraints = new DeliveryConstraint[]
+                {
+                    new DelayDeliveryWith(delay)
+                };
                 messageDestination = new UnicastAddressTag(endpointInputQueue);
             }
             else
@@ -65,5 +64,9 @@
             }
             return 0;
         }
+
+        readonly IDispatchMessages dispatcher;
+        readonly string endpointInputQueue;
+        string timeoutManagerAddress;
     }
 }
