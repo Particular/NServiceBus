@@ -21,7 +21,7 @@
             PushSettings settings);
 
         /// <summary>
-        /// Starts pushing message/>.
+        /// Starts pushing messages.
         /// </summary>
         void Start(PushRuntimeSettings limitations);
 

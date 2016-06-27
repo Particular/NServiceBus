@@ -16,6 +16,7 @@ namespace NServiceBus
         public MessagePump(Func<TransportTransactionMode, ReceiveStrategy> receiveStrategyFactory)
         {
             this.receiveStrategyFactory = receiveStrategyFactory;
+            onReceive = null;
         }
 
         public void Dispose()
@@ -26,10 +27,6 @@ namespace NServiceBus
 
         public Task Init(Func<MessageContext, Task> onMessage, Func<ErrorContext, Task> onError, CriticalError onCriticalError, PushSettings settings)
         {
-            pipeline = onMessage;
-
-            receiveStrategy = receiveStrategyFactory(settings.RequiredTransactionMode);
-
             peekCircuitBreaker = new RepeatedFailuresOverTimeCircuitBreaker("MsmqPeek", TimeSpan.FromSeconds(30), ex => onCriticalError.Raise("Failed to peek " + settings.InputQueue, ex));
             receiveCircuitBreaker = new RepeatedFailuresOverTimeCircuitBreaker("MsmqReceive", TimeSpan.FromSeconds(30), ex => onCriticalError.Raise("Failed to receive from " + settings.InputQueue, ex));
 
@@ -55,6 +52,11 @@ namespace NServiceBus
             {
                 inputQueue.Purge();
             }
+
+            var receiveStrategy = receiveStrategyFactory(settings.RequiredTransactionMode);
+
+
+            onReceive = receiveTokenSource => receiveStrategy.ReceiveMessage(inputQueue, errorQueue, receiveTokenSource, onMessage, onError);
 
             return TaskEx.CompletedTask;
         }
@@ -153,7 +155,7 @@ namespace NServiceBus
                         {
                             try
                             {
-                                await receiveStrategy.ReceiveMessage(inputQueue, errorQueue, tokenSource, pipeline).ConfigureAwait(false);
+                                await onReceive(tokenSource).ConfigureAwait(false);
                                 receiveCircuitBreaker.Success();
                             }
                             catch (MessageQueueException ex)
@@ -224,10 +226,11 @@ namespace NServiceBus
         MessageQueue inputQueue;
 
         Task messagePumpTask;
+
+        Func<CancellationTokenSource, Task> onReceive;
+
         RepeatedFailuresOverTimeCircuitBreaker peekCircuitBreaker;
-        Func<MessageContext, Task> pipeline;
         RepeatedFailuresOverTimeCircuitBreaker receiveCircuitBreaker;
-        ReceiveStrategy receiveStrategy;
         Func<TransportTransactionMode, ReceiveStrategy> receiveStrategyFactory;
         ConcurrentDictionary<Task, Task> runningReceiveTasks;
 

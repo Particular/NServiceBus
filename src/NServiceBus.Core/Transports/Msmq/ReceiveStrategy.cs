@@ -8,6 +8,6 @@ namespace NServiceBus
 
     abstract class ReceiveStrategy
     {
-        public abstract Task ReceiveMessage(MessageQueue inputQueue, MessageQueue errorQueue, CancellationTokenSource cancellationTokenSource, Func<MessageContext, Task> onMessage);
+        public abstract Task ReceiveMessage(MessageQueue inputQueue, MessageQueue errorQueue, CancellationTokenSource cancellationTokenSource, Func<MessageContext, Task> onMessage, Func<ErrorContext, Task> onError);
     }
 }
