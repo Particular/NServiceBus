@@ -155,7 +155,6 @@
     <Compile Include="Recoverability\FailureInfoStorageTests.cs" />
     <Compile Include="Recoverability\RecoveryActionExecutorTests.cs" />
     <Compile Include="Recoverability\SecondLevelRetries\DelayedRetryActionTests.cs" />
-    <Compile Include="Recoverability\When_message_is_deferred_by_slr.cs" />
     <Compile Include="Routing\ApplyReplyToAddressBehaviorTests.cs" />
     <Compile Include="Routing\BestPracticesOptionExtensionsTests.cs" />
     <Compile Include="Routing\DetermineRouteForPublishBehaviorTests.cs" />

@@ -4,6 +4,8 @@
     using System.Collections.Generic;
     using Config;
     using ConsistencyGuarantees;
+    using DelayedDelivery;
+    using DeliveryConstraints;
     using Faults;
     using Features;
     using Hosting;
@@ -63,7 +65,17 @@
             {
                 var retryPolicy = GetDelayedRetryPolicy(context.Settings);
 
-                context.Pipeline.Register("SecondLevelRetries", b => new SecondLevelRetriesBehavior(retryPolicy, localAddress, failureInfoStorage), "Performs second level retries");
+                context.Pipeline.Register("SecondLevelRetries", b =>
+                {
+                    var delayedRetryAction = new DelayedRetryAction(
+                        localAddress,
+                        b.Build<IDispatchMessages>(),
+                        context.DoesTransportSupportConstraint<DelayedDeliveryConstraint>()
+                            ? null
+                            : context.Settings.Get<TimeoutManagerAddressConfiguration>().TransportAddress);
+
+                    return new SecondLevelRetriesBehavior(retryPolicy, failureInfoStorage, delayedRetryAction);
+                }, "Performs second level retries");
             }
 
             if (IsImmediateRetriesEnabled(context.Settings))

@@ -4,28 +4,26 @@
     using System.Collections.Generic;
     using System.Runtime.ExceptionServices;
     using System.Threading.Tasks;
-    using DelayedDelivery;
-    using DeliveryConstraints;
     using Logging;
     using Pipeline;
     using Transports;
 
-    class SecondLevelRetriesBehavior : ForkConnector<ITransportReceiveContext, IRoutingContext>
+    class SecondLevelRetriesBehavior : Behavior<ITransportReceiveContext>
     {
-        public SecondLevelRetriesBehavior(SecondLevelRetryPolicy retryPolicy, string localAddress, FailureInfoStorage failureInfoStorage)
+        public SecondLevelRetriesBehavior(SecondLevelRetryPolicy retryPolicy, FailureInfoStorage failureInfoStorage, DelayedRetryAction delayedRetryAction)
         {
             this.retryPolicy = retryPolicy;
-            this.localAddress = localAddress;
             this.failureInfoStorage = failureInfoStorage;
+            this.delayedRetryAction = delayedRetryAction;
         }
 
-        public override async Task Invoke(ITransportReceiveContext context, Func<Task> next, Func<IRoutingContext, Task> fork)
+        public override async Task Invoke(ITransportReceiveContext context, Func<Task> next)
         {
             var failureInfo = failureInfoStorage.GetFailureInfoForMessage(context.Message.MessageId);
 
             if (failureInfo.DeferForSecondLevelRetry)
             {
-                await DeferMessageForSecondLevelRetry(context, fork, context.Message, failureInfo).ConfigureAwait(false);
+                await DeferMessageForSecondLevelRetry(context, context.Message, failureInfo).ConfigureAwait(false);
 
                 return;
             }
@@ -47,7 +45,7 @@
             }
         }
 
-        async Task DeferMessageForSecondLevelRetry(ITransportReceiveContext context, Func<IRoutingContext, Task> fork, IncomingMessage message, ProcessingFailureInfo failureInfo)
+        async Task DeferMessageForSecondLevelRetry(ITransportReceiveContext context, IncomingMessage message, ProcessingFailureInfo failureInfo)
         {
             var currentRetry = GetNumberOfRetries(message.Headers) + 1;
 
@@ -55,26 +53,18 @@
 
             TimeSpan delay;
 
-            if (retryPolicy.TryGetDelay(new SecondLevelRetryContext { Message = message, Exception = failureInfo.Exception, SecondLevelRetryAttempt = currentRetry }, out delay))
+            if (retryPolicy.TryGetDelay(new SecondLevelRetryContext
             {
-                message.RevertToOriginalBodyIfNeeded();
-                var messageToRetry = new OutgoingMessage(message.MessageId, message.Headers, message.Body);
-
-                messageToRetry.Headers[Headers.Retries] = currentRetry.ToString();
-                messageToRetry.Headers[Headers.RetriesTimestamp] = DateTimeExtensions.ToWireFormattedString(DateTime.UtcNow);
-
-                var dispatchContext = this.CreateRoutingContext(messageToRetry, localAddress, context);
-
-                context.Extensions.Set(new List<DeliveryConstraint>
-                {
-                    new DelayDeliveryWith(delay)
-                });
-
+                Message = message,
+                Exception = failureInfo.Exception,
+                SecondLevelRetryAttempt = currentRetry
+            }, out delay))
+            {
                 Logger.Warn($"Second Level Retry will reschedule message '{message.MessageId}' after a delay of {delay} because of an exception:", failureInfo.Exception);
 
                 failureInfoStorage.ClearFailureInfoForMessage(message.MessageId);
 
-                await fork(dispatchContext).ConfigureAwait(false);
+                await delayedRetryAction.Retry(context.Message, delay, context.Extensions).ConfigureAwait(false);
 
                 await context.RaiseNotification(new MessageToBeRetried(currentRetry, delay, context.Message, failureInfo.Exception)).ConfigureAwait(false);
 
@@ -101,7 +91,7 @@
         }
 
         FailureInfoStorage failureInfoStorage;
-        string localAddress;
+        DelayedRetryAction delayedRetryAction;
         SecondLevelRetryPolicy retryPolicy;
 
         static ILog Logger = LogManager.GetLogger<SecondLevelRetriesBehavior>();
