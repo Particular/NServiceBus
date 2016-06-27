@@ -11,9 +11,9 @@ namespace NServiceBus
 
     class ReceiveWithNoTransaction : ReceiveStrategy
     {
-        public override async Task ReceiveMessage(MessageQueue inputQueue, MessageQueue errorQueue, CancellationTokenSource cancellationTokenSource, Func<MessageContext, Task> onMessage, Func<ErrorContext, Task> onError)
+        public override async Task ReceiveMessage(CancellationTokenSource cancellationTokenSource)
         {
-            var message = inputQueue.Receive(TimeSpan.FromMilliseconds(10), MessageQueueTransactionType.None);
+            var message = InputQueue.Receive(TimeSpan.FromMilliseconds(10), MessageQueueTransactionType.None);
 
             Dictionary<string, string> headers;
 
@@ -23,10 +23,10 @@ namespace NServiceBus
             }
             catch (Exception ex)
             {
-                var error = $"Message '{message.Id}' is corrupt and will be moved to '{errorQueue.QueueName}'";
+                var error = $"Message '{message.Id}' is corrupt and will be moved to '{ErrorQueue.QueueName}'";
                 Logger.Error(error, ex);
 
-                errorQueue.Send(message, errorQueue.Transactional ? MessageQueueTransactionType.Single : MessageQueueTransactionType.None);
+                ErrorQueue.Send(message, ErrorQueue.Transactional ? MessageQueueTransactionType.Single : MessageQueueTransactionType.None);
 
                 return;
             }
@@ -37,14 +37,14 @@ namespace NServiceBus
                 {
                     var pushContext = new MessageContext(message.Id, headers, bodyStream, new TransportTransaction(), cancellationTokenSource, new ContextBag());
 
-                    await onMessage(pushContext).ConfigureAwait(false);
+                    await OnMessage(pushContext).ConfigureAwait(false);
                 }
             }
             catch (Exception)
             {
                 message.BodyStream.Position = 0;
 
-                await onError(new ErrorContext()).ConfigureAwait(false);
+                await OnError(new ErrorContext()).ConfigureAwait(false);
             }
         }
 

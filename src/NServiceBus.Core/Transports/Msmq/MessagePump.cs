@@ -16,7 +16,6 @@ namespace NServiceBus
         public MessagePump(Func<TransportTransactionMode, ReceiveStrategy> receiveStrategyFactory)
         {
             this.receiveStrategyFactory = receiveStrategyFactory;
-            onReceive = null;
         }
 
         public void Dispose()
@@ -53,10 +52,9 @@ namespace NServiceBus
                 inputQueue.Purge();
             }
 
-            var receiveStrategy = receiveStrategyFactory(settings.RequiredTransactionMode);
+            receiveStrategy = receiveStrategyFactory(settings.RequiredTransactionMode);
 
-
-            onReceive = receiveTokenSource => receiveStrategy.ReceiveMessage(inputQueue, errorQueue, receiveTokenSource, onMessage, onError);
+            receiveStrategy.Init(inputQueue, errorQueue, onMessage, onError);
 
             return TaskEx.CompletedTask;
         }
@@ -155,7 +153,7 @@ namespace NServiceBus
                         {
                             try
                             {
-                                await onReceive(tokenSource).ConfigureAwait(false);
+                                await receiveStrategy.ReceiveMessage(tokenSource).ConfigureAwait(false);
                                 receiveCircuitBreaker.Success();
                             }
                             catch (MessageQueueException ex)
@@ -227,7 +225,7 @@ namespace NServiceBus
 
         Task messagePumpTask;
 
-        Func<CancellationTokenSource, Task> onReceive;
+        ReceiveStrategy receiveStrategy;
 
         RepeatedFailuresOverTimeCircuitBreaker peekCircuitBreaker;
         RepeatedFailuresOverTimeCircuitBreaker receiveCircuitBreaker;

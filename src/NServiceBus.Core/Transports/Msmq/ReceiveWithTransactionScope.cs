@@ -17,11 +17,11 @@ namespace NServiceBus
             this.transactionOptions = transactionOptions;
         }
 
-        public override async Task ReceiveMessage(MessageQueue inputQueue, MessageQueue errorQueue, CancellationTokenSource cancellationTokenSource, Func<MessageContext, Task> onMessage, Func<ErrorContext, Task> onError)
+        public override async Task ReceiveMessage(CancellationTokenSource cancellationTokenSource)
         {
             using (var scope = new TransactionScope(TransactionScopeOption.Required, transactionOptions, TransactionScopeAsyncFlowOption.Enabled))
             {
-                var message = inputQueue.Receive(TimeSpan.FromMilliseconds(10), MessageQueueTransactionType.Automatic);
+                var message = InputQueue.Receive(TimeSpan.FromMilliseconds(10), MessageQueueTransactionType.Automatic);
 
                 Dictionary<string, string> headers;
 
@@ -31,10 +31,10 @@ namespace NServiceBus
                 }
                 catch (Exception ex)
                 {
-                    var error = $"Message '{message.Id}' is corrupt and will be moved to '{errorQueue.QueueName}'";
+                    var error = $"Message '{message.Id}' is corrupt and will be moved to '{ErrorQueue.QueueName}'";
                     Logger.Error(error, ex);
 
-                    errorQueue.Send(message, MessageQueueTransactionType.Automatic);
+                    ErrorQueue.Send(message, MessageQueueTransactionType.Automatic);
 
                     scope.Complete();
                     return;
@@ -46,7 +46,7 @@ namespace NServiceBus
                     ambientTransaction.Set(Transaction.Current);
                     var pushContext = new MessageContext(message.Id, headers, bodyStream, ambientTransaction, cancellationTokenSource, new ContextBag());
 
-                    await onMessage(pushContext).ConfigureAwait(false);
+                    await OnMessage(pushContext).ConfigureAwait(false);
                 }
 
                 if (!cancellationTokenSource.Token.IsCancellationRequested)

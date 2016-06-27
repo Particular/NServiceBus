@@ -11,7 +11,7 @@ namespace NServiceBus
 
     class ReceiveWithNativeTransaction : ReceiveStrategy
     {
-        public override async Task ReceiveMessage(MessageQueue inputQueue, MessageQueue errorQueue, CancellationTokenSource cancellationTokenSource, Func<MessageContext, Task> onMessage, Func<ErrorContext, Task> onError)
+        public override async Task ReceiveMessage(CancellationTokenSource cancellationTokenSource)
         {
             using (var msmqTransaction = new MessageQueueTransaction())
             {
@@ -19,7 +19,7 @@ namespace NServiceBus
                 {
                     msmqTransaction.Begin();
 
-                    var message = inputQueue.Receive(TimeSpan.FromMilliseconds(10), msmqTransaction);
+                    var message = InputQueue.Receive(TimeSpan.FromMilliseconds(10), msmqTransaction);
 
                     Dictionary<string, string> headers;
 
@@ -29,10 +29,10 @@ namespace NServiceBus
                     }
                     catch (Exception ex)
                     {
-                        var error = $"Message '{message.Id}' is corrupt and will be moved to '{errorQueue.QueueName}'";
+                        var error = $"Message '{message.Id}' is corrupt and will be moved to '{ErrorQueue.QueueName}'";
                         Logger.Error(error, ex);
 
-                        errorQueue.Send(message, msmqTransaction);
+                        ErrorQueue.Send(message, msmqTransaction);
 
                         msmqTransaction.Commit();
                         return;
@@ -45,7 +45,7 @@ namespace NServiceBus
 
                         var pushContext = new MessageContext(message.Id, headers, bodyStream, nativeMsmqTransaction, cancellationTokenSource, new ContextBag());
 
-                        await onMessage(pushContext).ConfigureAwait(false);
+                        await OnMessage(pushContext).ConfigureAwait(false);
                     }
 
                     if (cancellationTokenSource.Token.IsCancellationRequested)
