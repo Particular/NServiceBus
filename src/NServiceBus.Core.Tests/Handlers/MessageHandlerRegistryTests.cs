@@ -11,6 +11,7 @@
         [TestCase(typeof(HandlerWithIEndpointInstanceProperty))]
         [TestCase(typeof(HandlerWithIMessageSessionCtorDep))]
         [TestCase(typeof(HandlerWithIEndpointInstanceCtorDep))]
+        [TestCase(typeof(HandlerWithInheritedIMessageSessionPropertyDep))]
         [TestCase(typeof(SagaWithIllegalDep))]
         public void ShouldThrowIfUserTriesToBypassTheHandlerContext(Type handlerType)
         {
@@ -54,6 +55,14 @@
             IMessageSession MessageSession;
         }
 
+        class HandlerWithInheritedIMessageSessionPropertyDep : HandlerBaseWithIMessageSessionDep, IHandleMessages<MyMessage>
+        {
+            public Task Handle(MyMessage message, IMessageHandlerContext context)
+            {
+                throw new NotImplementedException();
+            }
+        }
+
         class HandlerWithIEndpointInstanceCtorDep : IHandleMessages<MyMessage>
         {
             public HandlerWithIEndpointInstanceCtorDep(IEndpointInstance endpointInstance)
@@ -91,6 +100,11 @@
             public class MySagaData : ContainSagaData
             {
             }
+        }
+
+        class HandlerBaseWithIMessageSessionDep
+        {
+            public IEndpointInstance EndpointInstance { get; set; }
         }
 
         class MyMessage
