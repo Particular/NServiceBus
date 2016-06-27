@@ -43,7 +43,7 @@
         {
             public HandlerWithIMessageSessionCtorDep(IMessageSession messageSession)
             {
-                this.MessageSession = messageSession;
+                MessageSession = messageSession;
             }
 
             public Task Handle(MyMessage message, IMessageHandlerContext context)
@@ -53,6 +53,7 @@
 
             IMessageSession MessageSession;
         }
+
         class HandlerWithIEndpointInstanceCtorDep : IHandleMessages<MyMessage>
         {
             public HandlerWithIEndpointInstanceCtorDep(IEndpointInstance endpointInstance)
@@ -79,6 +80,7 @@
             {
                 throw new NotImplementedException();
             }
+
             protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MySagaData> mapper)
             {
                 throw new NotImplementedException();
@@ -91,7 +93,8 @@
             }
         }
 
-        class MyMessage { }
+        class MyMessage
+        {
+        }
     }
-
 }
