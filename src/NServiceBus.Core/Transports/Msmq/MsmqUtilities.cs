@@ -41,7 +41,7 @@ namespace NServiceBus
             }
             catch
             {
-                throw new Exception("Could not translate format name to independent name: " + q.FormatName);
+                throw new Exception($"Could not translate format name to independent name: {q.FormatName}");
             }
         }
 
@@ -196,7 +196,7 @@ namespace NServiceBus
             if (Guid.TryParse(correlationIdHeader, out correlationId))
             {
                 //msmq required the id's to be in the {guid}\{incrementing number} format so we need to fake a \0 at the end to make it compatible
-                result.CorrelationId = correlationIdHeader + "\\0";
+                result.CorrelationId = $"{correlationIdHeader}\\0";
                 return;
             }
 
@@ -217,7 +217,7 @@ namespace NServiceBus
             }
             catch (Exception ex)
             {
-                Logger.Warn("Failed to assign a native correlation id for message: " + message.MessageId, ex);
+                Logger.Warn($"Failed to assign a native correlation id for message: {message.MessageId}", ex);
             }
         }
 
