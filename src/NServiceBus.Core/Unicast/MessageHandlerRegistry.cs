@@ -160,7 +160,7 @@
 
             if (dependencies.Any(t => typeof(IMessageSession).IsAssignableFrom(t)))
             {
-                throw new Exception($"IMessageSession/IEndpointInstance shouldn't be injected into message handlers and Sagas. Use the context parameter on the `{handlerType.Name}.Handle` method to send messages.");
+                throw new Exception($"Interfaces IMessageSession or IEndpointInstance should not be resolved from the container to enable sending or publishing messages from within sagas or message handlers. Instead, use the context parameter on the {handlerType.Name}.Handle method to send or publish messages.");
             }
         }
 
