@@ -145,7 +145,7 @@
     <Compile Include="Routing\UnicastSendRouter.cs" />
     <Compile Include="Serialization\SerializationFeature.cs" />
     <Compile Include="Serializers\XML\XmlSerialization.cs" />
-    <Compile Include="Settings\ScaleOutSettings.cs" />
+    <Compile Include="Routing\ConfigureUniquelyAddressableQueue.cs" />
     <Compile Include="Transports\IOutgoingTransportOperation.cs" />
     <Compile Include="Transports\LogicalAddressExtensions.cs" />
     <Compile Include="Transports\Msmq\MsmqScopeOptions.cs" />
@@ -611,7 +611,6 @@
     <Compile Include="Serialization\IMessageSerializer.cs" />
     <Compile Include="SettingsExtensions.cs" />
     <Compile Include="Settings\ReadOnlySettings.cs" />
-    <Compile Include="Settings\ScaleOutExtensions.cs" />
     <Compile Include="Support\RuntimeEnvironment.cs" />
     <Compile Include="Performance\TimeToBeReceived\TimeToBeReceivedAttribute.cs" />
     <Compile Include="Transports\Receiving.cs" />

@@ -28,7 +28,7 @@
             var state = context.Extensions.GetOrCreate<State>();
             if (state.Option == RouteOption.RouteReplyToThisInstance && instanceSpecificQueue == null)
             {
-                throw new InvalidOperationException("Cannot route a reply to this specific instance because endpoint instance ID was not provided by either host, a plugin or user. You can specify it via EndpointConfiguration.ScaleOut().InstanceDiscriminator(string discriminator).");
+                throw new InvalidOperationException("Cannot route a reply to this specific instance because endpoint instance ID was not provided by either host, a plugin or user. You can specify it via EndpointConfiguration.AddUniquelyAddressableQueue(string discriminator).");
             }
             context.Headers[Headers.ReplyToAddress] = ApplyUserOverride(publicReturnAddress ?? sharedQueue, state);
 

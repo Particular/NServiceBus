@@ -161,6 +161,10 @@ namespace NServiceBus
             "ll be removed in version 7.0.0.", true)]
         public static string TransportConnectionString(this NServiceBus.Configure config) { }
     }
+    public class static ConfigureUniquelyAddressableQueue
+    {
+        public static void AddUniquelyAddressableQueue(this NServiceBus.EndpointConfiguration config, string discriminator) { }
+    }
     public class static ConnectorContextExtensions
     {
         public static NServiceBus.Pipeline.IAuditContext CreateAuditContext(this NServiceBus.Pipeline.ForkConnector<NServiceBus.Pipeline.IIncomingPhysicalMessageContext, NServiceBus.Pipeline.IAuditContext> forkConnector, NServiceBus.Transports.OutgoingMessage message, string auditAddress, NServiceBus.Pipeline.IIncomingPhysicalMessageContext sourceContext) { }
@@ -968,12 +972,13 @@ namespace NServiceBus
     {
         public NServiceBus.ToSagaExpression<TSagaData, TMessage> ConfigureMapping<TMessage>(System.Linq.Expressions.Expression<System.Func<TMessage, object>> messageProperty) { }
     }
-    public class static ScaleOutExtensions
+    [System.ObsoleteAttribute("Will be removed in version 7.0.0.", true)]
+    public class static ScaleOutExtentions
     {
+        [System.ObsoleteAttribute("The member currently throws a NotImplementedException. Will be removed in version" +
+            " 7.0.0.", true)]
         public static NServiceBus.Settings.ScaleOutSettings ScaleOut(this NServiceBus.EndpointConfiguration config) { }
     }
-    [System.ObsoleteAttribute("Use `ScaleOutExtensions` instead. Will be removed in version 7.0.0.", true)]
-    public class static ScaleOutExtentions { }
     [System.ObsoleteAttribute("Use extension methods provided on ISendOnlyBus. Will be removed in version 7.0.0." +
         "", true)]
     public class Schedule
@@ -2776,16 +2781,17 @@ namespace NServiceBus.Settings
         [System.ObsoleteAttribute(@"Setting property values explicitly is no longer supported via this API. Use `.ConfigureComponent(b=> new MyMessageHandler(){ MyProperty = X})` to get full control over handler creation. The member currently throws a NotImplementedException. Will be removed in version 7.0.0.", true)]
         public static void ApplyTo(System.Type componentType, NServiceBus.ObjectBuilder.IComponentConfig config) { }
     }
+    [System.ObsoleteAttribute("Will be removed in version 7.0.0.", true)]
     public class ScaleOutSettings
     {
-        public void InstanceDiscriminator(string discriminator) { }
+        public ScaleOutSettings() { }
         [System.ObsoleteAttribute("Not required any more as for MSMQ this is the default behavior and for other tran" +
             "sports the unique instance ID has to be provided. The member currently throws a " +
             "NotImplementedException. Will be removed in version 7.0.0.", true)]
         public void UniqueQueuePerEndpointInstance() { }
-        [System.ObsoleteAttribute("Use `EndpointConfiguration.ScaleOut().InstanceDiscriminator(string discriminator)" +
-            "` instead. The member currently throws a NotImplementedException. Will be remove" +
-            "d in version 7.0.0.", true)]
+        [System.ObsoleteAttribute("Use `EndpointConfiguration.AddUniquelyAddressableQueue(string discriminator)` ins" +
+            "tead. The member currently throws a NotImplementedException. Will be removed in " +
+            "version 7.0.0.", true)]
         public void UniqueQueuePerEndpointInstance(string discriminator) { }
         [System.ObsoleteAttribute("This is the default starting with V6. The member currently throws a NotImplemente" +
             "dException. Will be removed in version 7.0.0.", true)]

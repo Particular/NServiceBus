@@ -55,7 +55,7 @@
         {
             public Receiver()
             {
-                EndpointSetup<DefaultServer>(c => { c.ScaleOut().InstanceDiscriminator("XYZ"); });
+                EndpointSetup<DefaultServer>(c => { c.AddUniquelyAddressableQueue("XYZ"); });
             }
 
             public class MyRequestHandler : IHandleMessages<MyRequest>
