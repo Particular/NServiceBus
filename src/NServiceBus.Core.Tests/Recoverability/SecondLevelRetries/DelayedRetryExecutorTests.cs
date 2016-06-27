@@ -84,19 +84,25 @@
         public async Task Should_update_retry_headers_when_present()
         {
             var delayedRetryExecutor = new DelayedRetryExecutor(EndpointInputQueue, dispatcher);
-            var dictionary = new Dictionary<string, string>
+            var originalHeadersTimestamp = DateTimeExtensions.ToWireFormattedString(new DateTime(2012, 12, 12, 0, 0, 0, DateTimeKind.Utc));
+            var headers = new Dictionary<string, string>
             {
-                {Headers.Retries, "2"}
+                {Headers.Retries, "2"},
+                {Headers.RetriesTimestamp, originalHeadersTimestamp}
             };
-            var incomingMessage = new IncomingMessage("messageId", dictionary, Stream.Null);
+            var incomingMessage = new IncomingMessage("messageId", headers, Stream.Null);
 
+            var now = DateTime.UtcNow;
             await delayedRetryExecutor.Retry(incomingMessage, TimeSpan.Zero, new ContextBag());
 
             var outgoingMessageHeaders = dispatcher.TransportOperations.UnicastTransportOperations.Single().Message.Headers;
             Assert.That(outgoingMessageHeaders[Headers.Retries], Is.EqualTo("3"));
             Assert.That(incomingMessage.Headers[Headers.Retries], Is.EqualTo("2"));
-            Assert.That(outgoingMessageHeaders.ContainsKey(Headers.RetriesTimestamp), Is.True);
-            Assert.That(incomingMessage.Headers.ContainsKey(Headers.RetriesTimestamp), Is.False);
+            var utcDateTime = DateTimeExtensions.ToUtcDateTime(outgoingMessageHeaders[Headers.RetriesTimestamp]);
+            // the serialization removes precision which may lead to now being greater than the deserialized header value
+            var adjustedNow = DateTimeExtensions.ToUtcDateTime(DateTimeExtensions.ToWireFormattedString(now));
+            Assert.That(utcDateTime, Is.GreaterThanOrEqualTo(adjustedNow));
+            Assert.That(incomingMessage.Headers[Headers.RetriesTimestamp], Is.EqualTo(originalHeadersTimestamp));
         }
 
         [Test]
@@ -110,6 +116,8 @@
             var outgoingMessageHeaders = dispatcher.TransportOperations.UnicastTransportOperations.Single().Message.Headers;
             Assert.That(outgoingMessageHeaders[Headers.Retries], Is.EqualTo("1"));
             Assert.That(incomingMessage.Headers.ContainsKey(Headers.Retries), Is.False);
+            Assert.That(outgoingMessageHeaders.ContainsKey(Headers.RetriesTimestamp), Is.True);
+            Assert.That(incomingMessage.Headers.ContainsKey(Headers.RetriesTimestamp), Is.False);
         }
 
         FakeDispatcher dispatcher;
