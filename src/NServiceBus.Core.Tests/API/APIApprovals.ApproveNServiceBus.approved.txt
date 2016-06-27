@@ -1659,7 +1659,7 @@ namespace NServiceBus.Features
         public NServiceBus.ObjectBuilder.IConfigureComponents Container { get; }
         public NServiceBus.Pipeline.PipelineSettings Pipeline { get; }
         public NServiceBus.Settings.ReadOnlySettings Settings { get; }
-        public void AddSatelliteReceiver(string name, string transportAddress, NServiceBus.TransportTransactionMode requiredTransportTransactionMode, NServiceBus.Transports.PushRuntimeSettings runtimeSettings, System.Func<NServiceBus.ObjectBuilder.IBuilder, NServiceBus.Transports.PushContext, System.Threading.Tasks.Task> onMessage) { }
+        public void AddSatelliteReceiver(string name, string transportAddress, NServiceBus.TransportTransactionMode requiredTransportTransactionMode, NServiceBus.Transports.PushRuntimeSettings runtimeSettings, System.Func<NServiceBus.ObjectBuilder.IBuilder, NServiceBus.Transports.MessageContext, System.Threading.Tasks.Task> onMessage) { }
         public void RegisterStartupTask<TTask>(TTask startupTask)
             where TTask : NServiceBus.Features.FeatureStartupTask { }
         public void RegisterStartupTask<TTask>(System.Func<TTask> startupTaskFactory)
@@ -2934,6 +2934,10 @@ namespace NServiceBus.Transports
         Default = 1,
         Isolated = 2,
     }
+    public class ErrorContext
+    {
+        public ErrorContext() { }
+    }
     [System.ObsoleteAttribute("No longer used, safe to remove. Will be removed in version 7.0.0.", true)]
     public interface IAuditMessages { }
     public interface ICancelDeferredMessages
@@ -2990,7 +2994,7 @@ namespace NServiceBus.Transports
     public interface IPublishMessages { }
     public interface IPushMessages
     {
-        System.Threading.Tasks.Task Init(System.Func<NServiceBus.Transports.PushContext, System.Threading.Tasks.Task> pipe, NServiceBus.CriticalError criticalError, NServiceBus.Transports.PushSettings settings);
+        System.Threading.Tasks.Task Init(System.Func<NServiceBus.Transports.MessageContext, System.Threading.Tasks.Task> onMessage, System.Func<NServiceBus.Transports.ErrorContext, System.Threading.Tasks.Task> onError, NServiceBus.CriticalError onCriticalError, NServiceBus.Transports.PushSettings settings);
         void Start(NServiceBus.Transports.PushRuntimeSettings limitations);
         System.Threading.Tasks.Task Stop();
     }
@@ -3002,6 +3006,16 @@ namespace NServiceBus.Transports
     public class static LogicalAddressExtensions
     {
         public static string GetTransportAddress(this NServiceBus.Settings.ReadOnlySettings settings, NServiceBus.LogicalAddress logicalAddress) { }
+    }
+    public class MessageContext
+    {
+        public MessageContext(string messageId, System.Collections.Generic.Dictionary<string, string> headers, System.IO.Stream bodyStream, NServiceBus.Transports.TransportTransaction transportTransaction, System.Threading.CancellationTokenSource receiveCancellationTokenSource, NServiceBus.Extensibility.ContextBag context) { }
+        public System.IO.Stream BodyStream { get; }
+        public NServiceBus.Extensibility.ContextBag Context { get; }
+        public System.Collections.Generic.Dictionary<string, string> Headers { get; }
+        public string MessageId { get; }
+        public System.Threading.CancellationTokenSource ReceiveCancellationTokenSource { get; }
+        public NServiceBus.Transports.TransportTransaction TransportTransaction { get; }
     }
     public class MulticastTransportOperation : NServiceBus.Transports.IOutgoingTransportOperation
     {
@@ -3029,16 +3043,6 @@ namespace NServiceBus.Transports
         public byte[] Body { get; }
         public System.Collections.Generic.Dictionary<string, string> Headers { get; }
         public string MessageId { get; }
-    }
-    public class PushContext
-    {
-        public PushContext(string messageId, System.Collections.Generic.Dictionary<string, string> headers, System.IO.Stream bodyStream, NServiceBus.Transports.TransportTransaction transportTransaction, System.Threading.CancellationTokenSource receiveCancellationTokenSource, NServiceBus.Extensibility.ContextBag context) { }
-        public System.IO.Stream BodyStream { get; }
-        public NServiceBus.Extensibility.ContextBag Context { get; }
-        public System.Collections.Generic.Dictionary<string, string> Headers { get; }
-        public string MessageId { get; }
-        public System.Threading.CancellationTokenSource ReceiveCancellationTokenSource { get; }
-        public NServiceBus.Transports.TransportTransaction TransportTransaction { get; }
     }
     public class PushRuntimeSettings
     {

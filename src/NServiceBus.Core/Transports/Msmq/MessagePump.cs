@@ -23,14 +23,15 @@ namespace NServiceBus
             // Injected
         }
 
-        public Task Init(Func<PushContext, Task> pipe, CriticalError criticalError, PushSettings settings)
+
+        public Task Init(Func<MessageContext, Task> onMessage, Func<ErrorContext, Task> onError, CriticalError onCriticalError, PushSettings settings)
         {
-            pipeline = pipe;
+            pipeline = onMessage;
 
             receiveStrategy = receiveStrategyFactory(settings.RequiredTransactionMode);
 
-            peekCircuitBreaker = new RepeatedFailuresOverTimeCircuitBreaker("MsmqPeek", TimeSpan.FromSeconds(30), ex => criticalError.Raise("Failed to peek " + settings.InputQueue, ex));
-            receiveCircuitBreaker = new RepeatedFailuresOverTimeCircuitBreaker("MsmqReceive", TimeSpan.FromSeconds(30), ex => criticalError.Raise("Failed to receive from " + settings.InputQueue, ex));
+            peekCircuitBreaker = new RepeatedFailuresOverTimeCircuitBreaker("MsmqPeek", TimeSpan.FromSeconds(30), ex => onCriticalError.Raise("Failed to peek " + settings.InputQueue, ex));
+            receiveCircuitBreaker = new RepeatedFailuresOverTimeCircuitBreaker("MsmqReceive", TimeSpan.FromSeconds(30), ex => onCriticalError.Raise("Failed to receive from " + settings.InputQueue, ex));
 
             var inputAddress = MsmqAddress.Parse(settings.InputQueue);
             var errorAddress = MsmqAddress.Parse(settings.ErrorQueue);
@@ -224,7 +225,7 @@ namespace NServiceBus
 
         Task messagePumpTask;
         RepeatedFailuresOverTimeCircuitBreaker peekCircuitBreaker;
-        Func<PushContext, Task> pipeline;
+        Func<MessageContext, Task> pipeline;
         RepeatedFailuresOverTimeCircuitBreaker receiveCircuitBreaker;
         ReceiveStrategy receiveStrategy;
         Func<TransportTransactionMode, ReceiveStrategy> receiveStrategyFactory;

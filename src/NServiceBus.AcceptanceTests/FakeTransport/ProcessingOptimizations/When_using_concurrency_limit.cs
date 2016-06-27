@@ -36,7 +36,7 @@
 
         class FakeReceiver : IPushMessages
         {
-            public Task Init(Func<PushContext, Task> pipe, CriticalError criticalError, PushSettings settings)
+            public Task Init(Func<MessageContext, Task> onMessage, Func<ErrorContext, Task> onError, CriticalError onCriticalError, PushSettings settings)
             {
                 return Task.FromResult(0);
             }

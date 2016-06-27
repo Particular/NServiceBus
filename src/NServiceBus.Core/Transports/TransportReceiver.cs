@@ -13,11 +13,13 @@ namespace NServiceBus
             IBuilder builder,
             PushSettings pushSettings,
             PushRuntimeSettings pushRuntimeSettings,
-            Func<IBuilder, PushContext, Task> onMessage)
+            Func<IBuilder, MessageContext, Task> onMessage,
+            Func<IBuilder, ErrorContext, Task> onError)
         {
             Id = id;
             this.pushRuntimeSettings = pushRuntimeSettings;
             this.onMessage = onMessage;
+            this.onError = onError;
             this.pushSettings = pushSettings;
             receiver = builder.Build<IPushMessages>();
             this.builder = builder;
@@ -34,7 +36,7 @@ namespace NServiceBus
 
             Logger.DebugFormat("Pipeline {0} is starting receiver for queue {1}.", Id, pushSettings.InputQueue);
 
-            await receiver.Init(c => onMessage(builder, c), builder.Build<CriticalError>(), pushSettings).ConfigureAwait(false);
+            await receiver.Init(c => onMessage(builder, c), c => onError(builder, c), builder.Build<CriticalError>(), pushSettings).ConfigureAwait(false);
 
             receiver.Start(pushRuntimeSettings);
 
@@ -56,7 +58,8 @@ namespace NServiceBus
         bool isStarted;
         IBuilder builder;
         PushRuntimeSettings pushRuntimeSettings;
-        Func<IBuilder, PushContext, Task> onMessage;
+        Func<IBuilder, MessageContext, Task> onMessage;
+        Func<IBuilder, ErrorContext, Task> onError;
         PushSettings pushSettings;
         IPushMessages receiver;
 

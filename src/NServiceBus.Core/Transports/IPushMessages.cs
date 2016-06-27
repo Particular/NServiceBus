@@ -9,9 +9,16 @@
     public interface IPushMessages
     {
         /// <summary>
-        /// Initializes the <see cref="IPushMessages" />.
+        /// Prepare the message pump to be started.
         /// </summary>
-        Task Init(Func<PushContext, Task> pipe, CriticalError criticalError, PushSettings settings);
+        /// <param name="onMessage">Called when there is a message available for processing.</param>
+        /// <param name="onError">Called when there is a message has failed mprocessing.</param>
+        /// <param name="onCriticalError">Called when there is a critical error in the message pump.</param>
+        /// <param name="settings">Runtime settings for the message pump.</param>
+        Task Init(Func<MessageContext, Task> onMessage,
+            Func<ErrorContext, Task> onError,
+            CriticalError onCriticalError,
+            PushSettings settings);
 
         /// <summary>
         /// Starts pushing message/>.

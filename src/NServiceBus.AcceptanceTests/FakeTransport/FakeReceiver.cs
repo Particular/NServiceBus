@@ -12,9 +12,9 @@ namespace NServiceBus.AcceptanceTests.FakeTransport
             this.throwCritical = throwCritical;
         }
 
-        public Task Init(Func<PushContext, Task> pipe, CriticalError criticalError, PushSettings settings)
+        public Task Init(Func<MessageContext, Task> onMessage, Func<ErrorContext, Task> onError, CriticalError onCriticalError, PushSettings settings)
         {
-            this.criticalError = criticalError;
+            criticalError = onCriticalError;
             return Task.FromResult(0);
         }
 

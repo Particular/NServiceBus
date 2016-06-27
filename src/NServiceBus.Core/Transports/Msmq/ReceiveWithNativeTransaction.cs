@@ -11,7 +11,7 @@ namespace NServiceBus
 
     class ReceiveWithNativeTransaction : ReceiveStrategy
     {
-        public override async Task ReceiveMessage(MessageQueue inputQueue, MessageQueue errorQueue, CancellationTokenSource cancellationTokenSource, Func<PushContext, Task> onMessage)
+        public override async Task ReceiveMessage(MessageQueue inputQueue, MessageQueue errorQueue, CancellationTokenSource cancellationTokenSource, Func<MessageContext, Task> onMessage)
         {
             using (var msmqTransaction = new MessageQueueTransaction())
             {
@@ -43,7 +43,7 @@ namespace NServiceBus
                         var nativeMsmqTransaction = new TransportTransaction();
                         nativeMsmqTransaction.Set(msmqTransaction);
 
-                        var pushContext = new PushContext(message.Id, headers, bodyStream, nativeMsmqTransaction, cancellationTokenSource, new ContextBag());
+                        var pushContext = new MessageContext(message.Id, headers, bodyStream, nativeMsmqTransaction, cancellationTokenSource, new ContextBag());
 
                         await onMessage(pushContext).ConfigureAwait(false);
                     }

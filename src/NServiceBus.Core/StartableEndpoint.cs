@@ -108,18 +108,33 @@ namespace NServiceBus
             var mainPipelineInstance = new Pipeline<ITransportReceiveContext>(builder, settings, pipelineConfiguration.Modifications);
 
             var pushSettings = new PushSettings(settings.LocalAddress(), errorQueue, purgeOnStartup, requiredTransactionSupport);
-            yield return new TransportReceiver(MainPipelineId, builder, pushSettings, dequeueLimitations, (b, context) => InvokePipeline(b, cache, mainPipelineInstance, context));
+            yield return new TransportReceiver(MainPipelineId,
+                builder,
+                pushSettings,
+                dequeueLimitations,
+                (b, context) => InvokePipeline(b, cache, mainPipelineInstance, context),
+                InvokeError);
 
             if (settings.InstanceSpecificQueue() != null)
             {
                 var sharedReceiverPushSettings = new PushSettings(settings.InstanceSpecificQueue(), errorQueue, purgeOnStartup, requiredTransactionSupport);
-                yield return new TransportReceiver(MainPipelineId, builder, sharedReceiverPushSettings, dequeueLimitations, (b, context) => InvokePipeline(b, cache, mainPipelineInstance, context));
+                yield return new TransportReceiver(MainPipelineId,
+                    builder,
+                    sharedReceiverPushSettings,
+                    dequeueLimitations,
+                    (b, context) => InvokePipeline(b, cache, mainPipelineInstance, context),
+                    InvokeError);
             }
 
             foreach (var satellitePipeline in settings.Get<SatelliteDefinitions>().Definitions)
             {
                 var satellitePushSettings = new PushSettings(satellitePipeline.ReceiveAddress, errorQueue, purgeOnStartup, satellitePipeline.RequiredTransportTransactionMode);
-                yield return new TransportReceiver(satellitePipeline.Name, builder, satellitePushSettings, dequeueLimitations, satellitePipeline.OnMessage);
+                yield return new TransportReceiver(satellitePipeline.Name, 
+                    builder, 
+                    satellitePushSettings, 
+                    dequeueLimitations, 
+                    satellitePipeline.OnMessage,
+                    (b, context) => InvokeError(b, context)); //todo
             }
         }
 
@@ -144,7 +159,7 @@ namespace NServiceBus
             return PushRuntimeSettings.Default;
         }
 
-        async Task InvokePipeline(IBuilder rootBuilder, IPipelineCache cache, IPipeline<ITransportReceiveContext> pipeline, PushContext pushContext)
+        async Task InvokePipeline(IBuilder rootBuilder, IPipelineCache cache, IPipeline<ITransportReceiveContext> pipeline, MessageContext messageContext)
         {
             var pipelineStartedAt = DateTime.UtcNow;
 
@@ -152,15 +167,20 @@ namespace NServiceBus
             {
                 var rootContext = new RootContext(childBuilder, cache, eventAggregator);
 
-                var message = new IncomingMessage(pushContext.MessageId, pushContext.Headers, pushContext.BodyStream);
-                var context = new TransportReceiveContext(message, pushContext.TransportTransaction, pushContext.ReceiveCancellationTokenSource, rootContext);
+                var message = new IncomingMessage(messageContext.MessageId, messageContext.Headers, messageContext.BodyStream);
+                var context = new TransportReceiveContext(message, messageContext.TransportTransaction, messageContext.ReceiveCancellationTokenSource, rootContext);
 
-                context.Extensions.Merge(pushContext.Context);
+                context.Extensions.Merge(messageContext.Context);
 
                 await pipeline.Invoke(context).ConfigureAwait(false);
 
                 await context.RaiseNotification(new ReceivePipelineCompleted(message, pipelineStartedAt, DateTime.UtcNow)).ConfigureAwait(false);
             }
+        }
+
+        Task InvokeError(IBuilder rootBuilder, ErrorContext context)
+        {
+            return TaskEx.CompletedTask;
         }
 
         IBuilder builder;
