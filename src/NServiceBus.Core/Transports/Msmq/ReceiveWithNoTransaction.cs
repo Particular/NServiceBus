@@ -31,11 +31,20 @@ namespace NServiceBus
                 return;
             }
 
-            using (var bodyStream = message.BodyStream)
+            try
             {
-                var pushContext = new MessageContext(message.Id, headers, bodyStream, new TransportTransaction(), cancellationTokenSource, new ContextBag());
+                using (var bodyStream = message.BodyStream)
+                {
+                    var pushContext = new MessageContext(message.Id, headers, bodyStream, new TransportTransaction(), cancellationTokenSource, new ContextBag());
 
-                await onMessage(pushContext).ConfigureAwait(false);
+                    await onMessage(pushContext).ConfigureAwait(false);
+                }
+            }
+            catch (Exception)
+            {
+                message.BodyStream.Position = 0;
+
+                await onError(new ErrorContext()).ConfigureAwait(false);
             }
         }
 
