@@ -3,6 +3,7 @@ namespace NServiceBus.Hosting
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
+    using Support;
 
     /// <summary>
     /// Provides information about the process hosting this endpoint.
@@ -17,7 +18,7 @@ namespace NServiceBus.Hosting
         public HostInformation(Guid hostId, string displayName)
             : this(hostId, displayName, new Dictionary<string, string>
             {
-                {"Machine", Environment.MachineName},
+                {"Machine", RuntimeEnvironment.MachineName},
                 {"ProcessID", Process.GetCurrentProcess().Id.ToString()},
                 {"UserName", Environment.UserName}
             })

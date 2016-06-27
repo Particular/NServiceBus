@@ -8,6 +8,7 @@
     using NServiceBus.Performance.TimeToBeReceived;
     using NServiceBus.Transports;
     using NUnit.Framework;
+    using Support;
 
     [TestFixture]
     public class MsmqUtilitiesTests
@@ -54,10 +55,10 @@
                 new OutgoingMessage("message id", new Dictionary<string, string>(), new byte[0]), 
                 Enumerable.Empty<DeliveryConstraint>());
 
-            message.ResponseQueue = new MessageQueue(new MsmqAddress("local", Environment.MachineName).FullPath);
+            message.ResponseQueue = new MessageQueue(new MsmqAddress("local", RuntimeEnvironment.MachineName).FullPath);
             var headers = MsmqUtilities.ExtractHeaders(message);
 
-            Assert.AreEqual("local@" + Environment.MachineName, headers[Headers.ReplyToAddress]);
+            Assert.AreEqual("local@" + RuntimeEnvironment.MachineName, headers[Headers.ReplyToAddress]);
         }
 
         [Test]

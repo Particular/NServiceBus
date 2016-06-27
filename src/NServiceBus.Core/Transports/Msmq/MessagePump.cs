@@ -8,6 +8,7 @@ namespace NServiceBus
     using System.Threading;
     using System.Threading.Tasks;
     using Logging;
+    using Support;
     using Transports;
 
     class MessagePump : IPushMessages, IDisposable
@@ -34,7 +35,7 @@ namespace NServiceBus
             var inputAddress = MsmqAddress.Parse(settings.InputQueue);
             var errorAddress = MsmqAddress.Parse(settings.ErrorQueue);
 
-            if (!string.Equals(inputAddress.Machine, Environment.MachineName, StringComparison.OrdinalIgnoreCase))
+            if (!string.Equals(inputAddress.Machine, RuntimeEnvironment.MachineName, StringComparison.OrdinalIgnoreCase))
             {
                 throw new Exception($"MSMQ Dequeuing can only run against the local machine. Invalid inputQueue name '{settings.InputQueue}'.");
             }
