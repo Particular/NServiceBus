@@ -14,13 +14,15 @@
     [TestFixture]
     public class DelayedRetryExecutorTests
     {
-        const string TimeoutManagerAddress = "timeout handling endpoint";
-        const string EndpointInputQueue = "endpoint input queue";
+        [SetUp]
+        public void Setup()
+        {
+            dispatcher = new FakeDispatcher();
+        }
 
         [Test]
         public async Task Should_dispatch_original_message_body()
         {
-            var dispatcher = new FakeDispatcher();
             var delayedRetryExecutor = new DelayedRetryExecutor(EndpointInputQueue, dispatcher);
             var originalBody = Encoding.UTF8.GetBytes("original message body");
             var incomingMessage = new IncomingMessage("messageId", new Dictionary<string, string>(), new MemoryStream(originalBody));
@@ -36,7 +38,6 @@
         public async Task Should_float_context_to_dispatcher()
         {
             var context = new ContextBag();
-            var dispatcher = new FakeDispatcher();
             var delayedRetryExecutor = new DelayedRetryExecutor(EndpointInputQueue, dispatcher);
             var incomingMessage = new IncomingMessage("messageId", new Dictionary<string, string>(), Stream.Null);
 
@@ -48,7 +49,6 @@
         [Test]
         public async Task When_native_delayed_delivery_should_add_delivery_constraint()
         {
-            var dispatcher = new FakeDispatcher();
             var delayedRetryExecutor = new DelayedRetryExecutor(EndpointInputQueue, dispatcher);
             var delay = TimeSpan.FromSeconds(42);
             var incomingMessage = new IncomingMessage("messageId", new Dictionary<string, string>(), Stream.Null);
@@ -65,7 +65,6 @@
         [Test]
         public async Task When_no_native_delayed_delivery_should_route_message_to_timeout_manager()
         {
-            var dispatcher = new FakeDispatcher();
             var delayedRetryExecutor = new DelayedRetryExecutor(EndpointInputQueue, dispatcher, TimeoutManagerAddress);
             var delay = TimeSpan.FromSeconds(42);
             var incomingMessage = new IncomingMessage("messageId", new Dictionary<string, string>(), Stream.Null);
@@ -84,9 +83,8 @@
         [Test]
         public async Task Should_update_retry_headers_when_present()
         {
-            var dispatcher = new FakeDispatcher();
             var delayedRetryExecutor = new DelayedRetryExecutor(EndpointInputQueue, dispatcher);
-            var dictionary = new Dictionary<string, string>()
+            var dictionary = new Dictionary<string, string>
             {
                 {Headers.Retries, "2"}
             };
@@ -104,7 +102,6 @@
         [Test]
         public async Task Should_add_retry_headers_when_not_present()
         {
-            var dispatcher = new FakeDispatcher();
             var delayedRetryExecutor = new DelayedRetryExecutor(EndpointInputQueue, dispatcher);
             var incomingMessage = new IncomingMessage("messageId", new Dictionary<string, string>(), Stream.Null);
 
@@ -114,6 +111,11 @@
             Assert.That(outgoingMessageHeaders[Headers.Retries], Is.EqualTo("1"));
             Assert.That(incomingMessage.Headers.ContainsKey(Headers.Retries), Is.False);
         }
+
+        FakeDispatcher dispatcher;
+
+        const string TimeoutManagerAddress = "timeout handling endpoint";
+        const string EndpointInputQueue = "endpoint input queue";
 
         class FakeDispatcher : IDispatchMessages
         {
