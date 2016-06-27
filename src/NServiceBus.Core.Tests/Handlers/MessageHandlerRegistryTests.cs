@@ -104,7 +104,7 @@
 
         class HandlerBaseWithIMessageSessionDep
         {
-            public IEndpointInstance EndpointInstance { get; set; }
+            public IMessageSession MessageSession { get; set; }
         }
 
         class MyMessage
