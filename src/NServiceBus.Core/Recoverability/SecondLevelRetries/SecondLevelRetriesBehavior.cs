@@ -10,11 +10,11 @@
 
     class SecondLevelRetriesBehavior : Behavior<ITransportReceiveContext>
     {
-        public SecondLevelRetriesBehavior(SecondLevelRetryPolicy retryPolicy, FailureInfoStorage failureInfoStorage, DelayedRetryAction delayedRetryAction)
+        public SecondLevelRetriesBehavior(SecondLevelRetryPolicy retryPolicy, FailureInfoStorage failureInfoStorage, DelayedRetryExecutor delayedRetryExecutor)
         {
             this.retryPolicy = retryPolicy;
             this.failureInfoStorage = failureInfoStorage;
-            this.delayedRetryAction = delayedRetryAction;
+            this.delayedRetryExecutor = delayedRetryExecutor;
         }
 
         public override async Task Invoke(ITransportReceiveContext context, Func<Task> next)
@@ -64,7 +64,7 @@
 
                 failureInfoStorage.ClearFailureInfoForMessage(message.MessageId);
 
-                await delayedRetryAction.Retry(context.Message, delay, context.Extensions).ConfigureAwait(false);
+                await delayedRetryExecutor.Retry(context.Message, delay, context.Extensions).ConfigureAwait(false);
 
                 await context.RaiseNotification(new MessageToBeRetried(currentRetry, delay, context.Message, failureInfo.Exception)).ConfigureAwait(false);
 
@@ -91,7 +91,7 @@
         }
 
         FailureInfoStorage failureInfoStorage;
-        DelayedRetryAction delayedRetryAction;
+        DelayedRetryExecutor delayedRetryExecutor;
         SecondLevelRetryPolicy retryPolicy;
 
         static ILog Logger = LogManager.GetLogger<SecondLevelRetriesBehavior>();

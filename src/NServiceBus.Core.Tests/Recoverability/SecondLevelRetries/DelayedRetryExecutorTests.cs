@@ -12,7 +12,7 @@
     using NUnit.Framework;
 
     [TestFixture]
-    public class DelayedRetryActionTests
+    public class DelayedRetryExecutorTests
     {
         const string TimeoutManagerAddress = "timeout handling endpoint";
         const string EndpointInputQueue = "endpoint input queue";
@@ -21,12 +21,12 @@
         public async Task Should_dispatch_original_message_body()
         {
             var dispatcher = new FakeDispatcher();
-            var delayedRetryAction = new DelayedRetryAction(EndpointInputQueue, dispatcher);
+            var delayedRetryExecutor = new DelayedRetryExecutor(EndpointInputQueue, dispatcher);
             var originalBody = Encoding.UTF8.GetBytes("original message body");
             var incomingMessage = new IncomingMessage("messageId", new Dictionary<string, string>(), new MemoryStream(originalBody));
             incomingMessage.Body = Encoding.UTF8.GetBytes("updated message body");
 
-            await delayedRetryAction.Retry(incomingMessage, TimeSpan.Zero, new ContextBag());
+            await delayedRetryExecutor.Retry(incomingMessage, TimeSpan.Zero, new ContextBag());
 
             var outgoingMessage = dispatcher.TransportOperations.UnicastTransportOperations.Single();
             Assert.That(outgoingMessage.Message.Body, Is.EqualTo(originalBody));
@@ -37,10 +37,10 @@
         {
             var context = new ContextBag();
             var dispatcher = new FakeDispatcher();
-            var delayedRetryAction = new DelayedRetryAction(EndpointInputQueue, dispatcher);
+            var delayedRetryExecutor = new DelayedRetryExecutor(EndpointInputQueue, dispatcher);
             var incomingMessage = new IncomingMessage("messageId", new Dictionary<string, string>(), Stream.Null);
 
-            await delayedRetryAction.Retry(incomingMessage, TimeSpan.Zero, context);
+            await delayedRetryExecutor.Retry(incomingMessage, TimeSpan.Zero, context);
 
             Assert.That(dispatcher.ContextBag, Is.SameAs(context));
         }
@@ -49,11 +49,11 @@
         public async Task When_native_delayed_delivery_should_add_delivery_constraint()
         {
             var dispatcher = new FakeDispatcher();
-            var delayedRetryAction = new DelayedRetryAction(EndpointInputQueue, dispatcher);
+            var delayedRetryExecutor = new DelayedRetryExecutor(EndpointInputQueue, dispatcher);
             var delay = TimeSpan.FromSeconds(42);
             var incomingMessage = new IncomingMessage("messageId", new Dictionary<string, string>(), Stream.Null);
 
-            await delayedRetryAction.Retry(incomingMessage, delay, new ContextBag());
+            await delayedRetryExecutor.Retry(incomingMessage, delay, new ContextBag());
 
             var outgoingMessage = dispatcher.TransportOperations.UnicastTransportOperations.Single();
             Assert.That(outgoingMessage.Destination, Is.EqualTo(EndpointInputQueue));
@@ -66,11 +66,11 @@
         public async Task When_no_native_delayed_delivery_should_route_message_to_timeout_manager()
         {
             var dispatcher = new FakeDispatcher();
-            var delayedRetryAction = new DelayedRetryAction(EndpointInputQueue, dispatcher, TimeoutManagerAddress);
+            var delayedRetryExecutor = new DelayedRetryExecutor(EndpointInputQueue, dispatcher, TimeoutManagerAddress);
             var delay = TimeSpan.FromSeconds(42);
             var incomingMessage = new IncomingMessage("messageId", new Dictionary<string, string>(), Stream.Null);
 
-            await delayedRetryAction.Retry(incomingMessage, delay, new ContextBag());
+            await delayedRetryExecutor.Retry(incomingMessage, delay, new ContextBag());
 
             var outgoingMessage = dispatcher.TransportOperations.UnicastTransportOperations.Single();
             var deliveryConstraint = outgoingMessage.DeliveryConstraints.OfType<DelayDeliveryWith>().SingleOrDefault();
@@ -85,14 +85,14 @@
         public async Task Should_update_retry_headers_when_present()
         {
             var dispatcher = new FakeDispatcher();
-            var delayedRetryAction = new DelayedRetryAction(EndpointInputQueue, dispatcher);
+            var delayedRetryExecutor = new DelayedRetryExecutor(EndpointInputQueue, dispatcher);
             var dictionary = new Dictionary<string, string>()
             {
                 {Headers.Retries, "2"}
             };
             var incomingMessage = new IncomingMessage("messageId", dictionary, Stream.Null);
 
-            await delayedRetryAction.Retry(incomingMessage, TimeSpan.Zero, new ContextBag());
+            await delayedRetryExecutor.Retry(incomingMessage, TimeSpan.Zero, new ContextBag());
 
             var outgoingMessageHeaders = dispatcher.TransportOperations.UnicastTransportOperations.Single().Message.Headers;
             Assert.That(outgoingMessageHeaders[Headers.Retries], Is.EqualTo("3"));
@@ -105,10 +105,10 @@
         public async Task Should_add_retry_headers_when_not_present()
         {
             var dispatcher = new FakeDispatcher();
-            var delayedRetryAction = new DelayedRetryAction(EndpointInputQueue, dispatcher);
+            var delayedRetryExecutor = new DelayedRetryExecutor(EndpointInputQueue, dispatcher);
             var incomingMessage = new IncomingMessage("messageId", new Dictionary<string, string>(), Stream.Null);
 
-            await delayedRetryAction.Retry(incomingMessage, TimeSpan.Zero, new ContextBag());
+            await delayedRetryExecutor.Retry(incomingMessage, TimeSpan.Zero, new ContextBag());
 
             var outgoingMessageHeaders = dispatcher.TransportOperations.UnicastTransportOperations.Single().Message.Headers;
             Assert.That(outgoingMessageHeaders[Headers.Retries], Is.EqualTo("1"));

@@ -132,7 +132,7 @@
     <Compile Include="Recoverability\FirstLevelRetries\FirstLevelRetriesConfigExtensions.cs" />
     <Compile Include="Recoverability\FirstLevelRetries\FirstLevelRetriesSettings.cs" />
     <Compile Include="Recoverability\RecoveryActionExecutor.cs" />
-    <Compile Include="Recoverability\SecondLevelRetries\DelayedRetryAction.cs" />
+    <Compile Include="Recoverability\SecondLevelRetries\DelayedRetryExecutor.cs" />
     <Compile Include="Recoverability\SecondLevelRetries\SecondLevelRetryContext.cs" />
     <Compile Include="ReleaseDateAttribute.cs" />
     <Compile Include="Recoverability\ProcessingFailureInfo.cs" />

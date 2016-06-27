@@ -9,13 +9,13 @@
     using Routing;
     using Transports;
 
-    class DelayedRetryAction
+    class DelayedRetryExecutor
     {
         string timeoutManagerAddress;
         readonly IDispatchMessages dispatcher;
         readonly string endpointInputQueue;
 
-        public DelayedRetryAction(string endpointInputQueue, IDispatchMessages dispatcher, string timeoutManagerAddress = null)
+        public DelayedRetryExecutor(string endpointInputQueue, IDispatchMessages dispatcher, string timeoutManagerAddress = null)
         {
             this.timeoutManagerAddress = timeoutManagerAddress;
             this.dispatcher = dispatcher;

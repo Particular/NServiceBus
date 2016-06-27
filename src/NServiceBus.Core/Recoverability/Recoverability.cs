@@ -67,14 +67,14 @@
 
                 context.Pipeline.Register("SecondLevelRetries", b =>
                 {
-                    var delayedRetryAction = new DelayedRetryAction(
+                    var delayedRetryExecutor = new DelayedRetryExecutor(
                         localAddress,
                         b.Build<IDispatchMessages>(),
                         context.DoesTransportSupportConstraint<DelayedDeliveryConstraint>()
                             ? null
                             : context.Settings.Get<TimeoutManagerAddressConfiguration>().TransportAddress);
 
-                    return new SecondLevelRetriesBehavior(retryPolicy, failureInfoStorage, delayedRetryAction);
+                    return new SecondLevelRetriesBehavior(retryPolicy, failureInfoStorage, delayedRetryExecutor);
                 }, "Performs second level retries");
             }
 

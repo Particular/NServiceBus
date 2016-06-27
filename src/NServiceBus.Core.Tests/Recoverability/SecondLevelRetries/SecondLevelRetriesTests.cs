@@ -32,7 +32,7 @@
             var context = CreateContext(message, eventAggregator);
 
             var delay = TimeSpan.FromSeconds(5);
-            var behavior = new SecondLevelRetriesBehavior(new FakePolicy(delay), failureInfoStorage, new DelayedRetryAction("local address", dispatcher));
+            var behavior = new SecondLevelRetriesBehavior(new FakePolicy(delay), failureInfoStorage, new DelayedRetryExecutor("local address", dispatcher));
 
             await behavior.Invoke(context, () => { throw new Exception("exception-message"); });
             await behavior.Invoke(context, () => Task.FromResult(0));
@@ -45,7 +45,7 @@
         public async Task ShouldSkipRetryIfNoDelayIsReturned()
         {
             var context = CreateContext();
-            var behavior = new SecondLevelRetriesBehavior(new FakePolicy(), failureInfoStorage, new DelayedRetryAction("local address", dispatcher));
+            var behavior = new SecondLevelRetriesBehavior(new FakePolicy(), failureInfoStorage, new DelayedRetryExecutor("local address", dispatcher));
 
             await behavior.Invoke(context, () => { throw new Exception(); });
 
@@ -59,7 +59,7 @@
         {
             var message = CreateMessage(slrRetryHeader: "1");
             var context = CreateContext(message);
-            var behavior = new SecondLevelRetriesBehavior(new FakePolicy(TimeSpan.FromSeconds(5)), failureInfoStorage, new DelayedRetryAction("local address", dispatcher));
+            var behavior = new SecondLevelRetriesBehavior(new FakePolicy(TimeSpan.FromSeconds(5)), failureInfoStorage, new DelayedRetryExecutor("local address", dispatcher));
 
             var behaviorInvocation = new AsyncTestDelegate(async () => await behavior.Invoke(context, () => { throw new MessageDeserializationException(string.Empty); }));
 
@@ -76,7 +76,7 @@
             var context = CreateContext(message);
 
             var retryPolicy = new FakePolicy(TimeSpan.FromSeconds(5));
-            var behavior = new SecondLevelRetriesBehavior(retryPolicy, failureInfoStorage, new DelayedRetryAction("local address", dispatcher));
+            var behavior = new SecondLevelRetriesBehavior(retryPolicy, failureInfoStorage, new DelayedRetryExecutor("local address", dispatcher));
 
             await behavior.Invoke(context, () => { throw new Exception("testex"); });
             await behavior.Invoke(context, () => Task.FromResult(0));
@@ -90,7 +90,7 @@
             var message = CreateMessage(slrRetryHeader: "1");
             var context = CreateContext(message);
 
-            var behavior = new SecondLevelRetriesBehavior(new FakePolicy(TimeSpan.FromSeconds(5)), failureInfoStorage, new DelayedRetryAction("local address", dispatcher));
+            var behavior = new SecondLevelRetriesBehavior(new FakePolicy(TimeSpan.FromSeconds(5)), failureInfoStorage, new DelayedRetryExecutor("local address", dispatcher));
             var calledTwice = false;
 
             await behavior.Invoke(context, () => { throw new Exception(); });
@@ -109,7 +109,7 @@
             var message = CreateMessage();
             var context = CreateContext(message);
 
-            var behavior = new SecondLevelRetriesBehavior(new FakePolicy(TimeSpan.FromSeconds(5)), failureInfoStorage, new DelayedRetryAction("local address", dispatcher));
+            var behavior = new SecondLevelRetriesBehavior(new FakePolicy(TimeSpan.FromSeconds(5)), failureInfoStorage, new DelayedRetryExecutor("local address", dispatcher));
 
             await behavior.Invoke(context, () => { throw new Exception(); });
 
