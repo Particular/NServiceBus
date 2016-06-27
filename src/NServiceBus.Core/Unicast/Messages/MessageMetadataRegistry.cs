@@ -91,7 +91,7 @@
         {
             if (type.IsInterface)
             {
-                return type.GetInterfaces().Count();
+                return type.GetInterfaces().Length;
             }
             var result = 0;
 
