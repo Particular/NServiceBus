@@ -24,7 +24,7 @@ namespace NServiceBus
         }
 
 
-        public Task Init(Func<MessageContext, Task> onMessage, Func<ErrorContext, Task> onError, CriticalError onCriticalError, PushSettings settings)
+        public Task Init(Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<bool>> onError, CriticalError onCriticalError, PushSettings settings)
         {
             peekCircuitBreaker = new RepeatedFailuresOverTimeCircuitBreaker("MsmqPeek", TimeSpan.FromSeconds(30), ex => onCriticalError.Raise("Failed to peek " + settings.InputQueue, ex));
             receiveCircuitBreaker = new RepeatedFailuresOverTimeCircuitBreaker("MsmqReceive", TimeSpan.FromSeconds(30), ex => onCriticalError.Raise("Failed to receive from " + settings.InputQueue, ex));
@@ -155,17 +155,6 @@ namespace NServiceBus
                             {
                                 await receiveStrategy.ReceiveMessage(tokenSource).ConfigureAwait(false);
                                 receiveCircuitBreaker.Success();
-                            }
-                            catch (MessageQueueException ex)
-                            {
-                                if (ex.MessageQueueErrorCode == MessageQueueErrorCode.IOTimeout)
-                                {
-                                    //We should only get an IOTimeout exception here if another process removed the message between us peeking and now.
-                                    return;
-                                }
-
-                                Logger.Warn("MSMQ receive operation failed", ex);
-                                await receiveCircuitBreaker.Failure(ex).ConfigureAwait(false);
                             }
                             catch (OperationCanceledException)
                             {

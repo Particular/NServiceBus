@@ -16,7 +16,7 @@
         /// <param name="onCriticalError">Called when there is a critical error in the message pump.</param>
         /// <param name="settings">Runtime settings for the message pump.</param>
         Task Init(Func<MessageContext, Task> onMessage,
-            Func<ErrorContext, Task> onError,
+            Func<ErrorContext, Task<bool>> onError,
             CriticalError onCriticalError,
             PushSettings settings);
 

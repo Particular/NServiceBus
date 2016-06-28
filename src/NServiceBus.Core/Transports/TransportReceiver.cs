@@ -14,7 +14,7 @@ namespace NServiceBus
             PushSettings pushSettings,
             PushRuntimeSettings pushRuntimeSettings,
             Func<IBuilder, MessageContext, Task> onMessage,
-            Func<IBuilder, ErrorContext, Task> onError)
+            Func<IBuilder, ErrorContext, Task<bool>> onError)
         {
             Id = id;
             this.pushRuntimeSettings = pushRuntimeSettings;
@@ -59,7 +59,7 @@ namespace NServiceBus
         IBuilder builder;
         PushRuntimeSettings pushRuntimeSettings;
         Func<IBuilder, MessageContext, Task> onMessage;
-        Func<IBuilder, ErrorContext, Task> onError;
+        Func<IBuilder, ErrorContext, Task<bool>> onError;
         PushSettings pushSettings;
         IPushMessages receiver;
 

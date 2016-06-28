@@ -129,10 +129,10 @@ namespace NServiceBus
             foreach (var satellitePipeline in settings.Get<SatelliteDefinitions>().Definitions)
             {
                 var satellitePushSettings = new PushSettings(satellitePipeline.ReceiveAddress, errorQueue, purgeOnStartup, satellitePipeline.RequiredTransportTransactionMode);
-                yield return new TransportReceiver(satellitePipeline.Name, 
-                    builder, 
-                    satellitePushSettings, 
-                    dequeueLimitations, 
+                yield return new TransportReceiver(satellitePipeline.Name,
+                    builder,
+                    satellitePushSettings,
+                    dequeueLimitations,
                     satellitePipeline.OnMessage,
                     (b, context) => InvokeError(b, context)); //todo
             }
@@ -178,9 +178,9 @@ namespace NServiceBus
             }
         }
 
-        Task InvokeError(IBuilder rootBuilder, ErrorContext context)
+        Task<bool> InvokeError(IBuilder rootBuilder, ErrorContext context)
         {
-            return TaskEx.CompletedTask;
+            return Task.FromResult(false);
         }
 
         IBuilder builder;

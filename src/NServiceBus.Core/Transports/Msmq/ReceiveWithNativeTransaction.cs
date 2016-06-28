@@ -19,7 +19,12 @@ namespace NServiceBus
                 {
                     msmqTransaction.Begin();
 
-                    var message = InputQueue.Receive(TimeSpan.FromMilliseconds(10), msmqTransaction);
+                    Message message;
+
+                    if (!TryReceive(queue => InputQueue.Receive(TimeSpan.FromMilliseconds(10), msmqTransaction), out message))
+                    {
+                        return;
+                    }
 
                     Dictionary<string, string> headers;
 

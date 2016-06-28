@@ -10,7 +10,7 @@ namespace NServiceBus
     {
         public abstract Task ReceiveMessage(CancellationTokenSource cancellationTokenSource);
 
-        public void Init(MessageQueue inputQueue, MessageQueue errorQueue, Func<MessageContext, Task> onMessage, Func<ErrorContext, Task> onError)
+        public void Init(MessageQueue inputQueue, MessageQueue errorQueue, Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<bool>> onError)
         {
             InputQueue = inputQueue;
             ErrorQueue = errorQueue;
@@ -18,9 +18,28 @@ namespace NServiceBus
             OnError = onError;
         }
 
+        protected bool TryReceive(Func<MessageQueue, Message> receiveAction, out Message message)
+        {
+            try
+            {
+                message = receiveAction(InputQueue);
+                return true;
+            }
+            catch (MessageQueueException ex)
+            {
+                if (ex.MessageQueueErrorCode == MessageQueueErrorCode.IOTimeout)
+                {
+                    //We should only get an IOTimeout exception here if another process removed the message between us peeking and now.
+                    message = null;
+                    return false;
+                }
+                throw;
+            }
+        }
+
         protected MessageQueue InputQueue;
         protected MessageQueue ErrorQueue;
         protected Func<MessageContext, Task> OnMessage;
-        protected Func<ErrorContext, Task> OnError;
+        protected Func<ErrorContext, Task<bool>> OnError;
     }
 }

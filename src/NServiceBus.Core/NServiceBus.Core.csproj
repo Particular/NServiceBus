@@ -152,6 +152,7 @@
     <Compile Include="Transports\LogicalAddressExtensions.cs" />
     <Compile Include="Transports\Msmq\MsmqScopeOptions.cs" />
     <Compile Include="Transports\Msmq\MsmqTransportInfrastructure.cs" />
+    <Compile Include="Transports\Msmq\TimeoutFailureInfoStorage.cs" />
     <Compile Include="Transports\MulticastTransportOperation.cs" />
     <Compile Include="Transports\ReceivePipelineCompleted.cs" />
     <Compile Include="Transports\TransportInfrastructure.cs" />

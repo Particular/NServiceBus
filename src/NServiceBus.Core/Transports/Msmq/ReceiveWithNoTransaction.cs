@@ -13,7 +13,12 @@ namespace NServiceBus
     {
         public override async Task ReceiveMessage(CancellationTokenSource cancellationTokenSource)
         {
-            var message = InputQueue.Receive(TimeSpan.FromMilliseconds(10), MessageQueueTransactionType.None);
+            Message message;
+
+            if (!TryReceive(queue => InputQueue.Receive(TimeSpan.FromMilliseconds(10), MessageQueueTransactionType.None), out message))
+            {
+                return;
+            }
 
             Dictionary<string, string> headers;
 

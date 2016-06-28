@@ -21,7 +21,12 @@ namespace NServiceBus
         {
             using (var scope = new TransactionScope(TransactionScopeOption.Required, transactionOptions, TransactionScopeAsyncFlowOption.Enabled))
             {
-                var message = InputQueue.Receive(TimeSpan.FromMilliseconds(10), MessageQueueTransactionType.Automatic);
+                Message message;
+
+                if (!TryReceive(queue => InputQueue.Receive(TimeSpan.FromMilliseconds(10), MessageQueueTransactionType.Automatic), out message))
+                {
+                    return;
+                }
 
                 Dictionary<string, string> headers;
 
