@@ -2,21 +2,19 @@ namespace NServiceBus
 {
     using System;
     using System.Threading.Tasks;
-    using Faults;
     using JetBrains.Annotations;
     using Logging;
-    using Routing;
     using Transports;
 
     class TimeoutRecoverabilityBehavior
     {
-        public TimeoutRecoverabilityBehavior(string errorQueueAddress, string localAddress, IDispatchMessages dispatcher, CriticalError criticalError, TimeoutFailureInfoStorage failureInfoStorage)
+        public TimeoutRecoverabilityBehavior(string errorQueueAddress, string localAddress, CriticalError criticalError, TimeoutFailureInfoStorage failureInfoStorage, RecoveryActionExecutor recoveryActionExecutor)
         {
             this.localAddress = localAddress;
             this.errorQueueAddress = errorQueueAddress;
-            this.dispatcher = dispatcher;
             this.criticalError = criticalError;
             this.failureInfoStorage = failureInfoStorage;
+            this.recoveryActionExecutor = recoveryActionExecutor;
         }
 
         public async Task Invoke(PushContext context, Func<Task> next)
@@ -59,20 +57,8 @@ namespace NServiceBus
             {
                 Logger.Error($"Moving timeout message '{context.MessageId}' from '{localAddress}' to '{errorQueueAddress}' because processing failed due to an exception:", failureInfo.Exception);
 
-                var body = new byte[context.BodyStream.Length];
-                await context.BodyStream.ReadAsync(body, 0, body.Length).ConfigureAwait(false);
-
-                var outgoingMessage = new OutgoingMessage(context.MessageId, context.Headers, body);
-
-                ExceptionHeaderHelper.SetExceptionHeaders(outgoingMessage.Headers, failureInfo.Exception);
-
-                outgoingMessage.Headers[FaultsHeaderKeys.FailedQ] = localAddress;
-
-                var addressTag = new UnicastAddressTag(errorQueueAddress);
-
-                var transportOperations = new TransportOperations(new TransportOperation(outgoingMessage, addressTag));
-
-                await dispatcher.Dispatch(transportOperations, context.Context).ConfigureAwait(false);
+                var message = new IncomingMessage(context.MessageId, context.Headers, context.BodyStream);
+                await recoveryActionExecutor.MoveToErrorQueue(message, failureInfo.Exception, context.Context).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
@@ -83,8 +69,8 @@ namespace NServiceBus
 
         CriticalError criticalError;
         TimeoutFailureInfoStorage failureInfoStorage;
-        IDispatchMessages dispatcher;
         string errorQueueAddress;
+        RecoveryActionExecutor recoveryActionExecutor;
 
         string localAddress;
 

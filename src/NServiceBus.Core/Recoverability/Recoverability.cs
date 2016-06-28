@@ -4,6 +4,8 @@
     using System.Collections.Generic;
     using Config;
     using ConsistencyGuarantees;
+    using DelayedDelivery;
+    using DeliveryConstraints;
     using Faults;
     using Features;
     using Hosting;
@@ -51,19 +53,29 @@
                     {Headers.HostDisplayName, hostInfo.DisplayName}
                 };
 
+                var recoveryActionExecutor = new RecoveryActionExecutor(b.Build<IDispatchMessages>(), errorQueue, staticFaultMetadata);
+
                 return new MoveFaultsToErrorQueueBehavior(b.Build<CriticalError>(),
-                    staticFaultMetadata,
                     transportTransactionMode,
                     failureInfoStorage,
-                    b.Build<IDispatchMessages>(),
-                    errorQueue);
+                    recoveryActionExecutor);
             }, "Moves failing messages to the configured error queue");
 
             if (IsDelayedRetriesEnabled(context.Settings))
             {
                 var retryPolicy = GetDelayedRetryPolicy(context.Settings);
 
-                context.Pipeline.Register("SecondLevelRetries", b => new SecondLevelRetriesBehavior(retryPolicy, localAddress, failureInfoStorage), "Performs second level retries");
+                context.Pipeline.Register("SecondLevelRetries", b =>
+                {
+                    var delayedRetryExecutor = new DelayedRetryExecutor(
+                        localAddress,
+                        b.Build<IDispatchMessages>(),
+                        context.DoesTransportSupportConstraint<DelayedDeliveryConstraint>()
+                            ? null
+                            : context.Settings.Get<TimeoutManagerAddressConfiguration>().TransportAddress);
+
+                    return new SecondLevelRetriesBehavior(retryPolicy, failureInfoStorage, delayedRetryExecutor);
+                }, "Performs second level retries");
             }
 
             if (IsImmediateRetriesEnabled(context.Settings))

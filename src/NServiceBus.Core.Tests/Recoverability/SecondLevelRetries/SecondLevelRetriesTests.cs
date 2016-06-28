@@ -4,10 +4,10 @@
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
-    using System.Text;
     using System.Threading.Tasks;
     using DelayedDelivery;
     using DeliveryConstraints;
+    using Extensibility;
     using NServiceBus.Pipeline;
     using NServiceBus.Routing;
     using NServiceBus.Transports;
@@ -20,8 +20,8 @@
         [SetUp]
         public void SetUp()
         {
-            dispatchPipeline = new FakeDispatchPipeline();
             failureInfoStorage = new FailureInfoStorage(10);
+            dispatcher = new FakeDispatcher();
         }
 
         [Test]
@@ -32,47 +32,26 @@
             var context = CreateContext(message, eventAggregator);
 
             var delay = TimeSpan.FromSeconds(5);
-            var behavior = new SecondLevelRetriesBehavior(new FakePolicy(delay), "deferral-address", failureInfoStorage);
+            var behavior = new SecondLevelRetriesBehavior(new FakePolicy(delay), failureInfoStorage, new DelayedRetryExecutor("local address", dispatcher));
 
             await behavior.Invoke(context, () => { throw new Exception("exception-message"); });
             await behavior.Invoke(context, () => Task.FromResult(0));
 
-            Assert.AreEqual("message-id", dispatchPipeline.MessageId);
-            Assert.AreEqual(delay, dispatchPipeline.MessageDeliveryDelay);
-            Assert.AreEqual("deferral-address", dispatchPipeline.MessageDestination);
+            Assert.AreEqual(dispatcher.TransportOperations.UnicastTransportOperations.Count(), 1);
             Assert.AreEqual("exception-message", eventAggregator.GetNotification<MessageToBeRetried>().Exception.Message);
-        }
-
-        [Test]
-        public async Task ShouldSetTimestampHeaderForFirstRetry()
-        {
-            var message = CreateMessage();
-            var context = CreateContext(message);
-
-            var delay = TimeSpan.FromSeconds(5);
-            var behavior = new SecondLevelRetriesBehavior(new FakePolicy(delay), string.Empty, failureInfoStorage);
-
-            await behavior.Invoke(context, () => { throw new Exception(); });
-            await behavior.Invoke(context, () => Task.FromResult(0));
-
-            var retryTimestampHeader = dispatchPipeline.MessageHeaders.ContainsKey(Headers.RetriesTimestamp)
-                ? dispatchPipeline.MessageHeaders[Headers.RetriesTimestamp]
-                : null;
-
-            Assert.NotNull(retryTimestampHeader, "Message should have retry timestamp set.");
-            Assert.DoesNotThrow(() => DateTimeExtensions.ToUtcDateTime(retryTimestampHeader), "Timestamp should be a proper format.");
         }
 
         [Test]
         public async Task ShouldSkipRetryIfNoDelayIsReturned()
         {
             var context = CreateContext();
-            var behavior = new SecondLevelRetriesBehavior(new FakePolicy(), string.Empty, failureInfoStorage);
+            var behavior = new SecondLevelRetriesBehavior(new FakePolicy(), failureInfoStorage, new DelayedRetryExecutor("local address", dispatcher));
 
             await behavior.Invoke(context, () => { throw new Exception(); });
 
             Assert.That(async () => await behavior.Invoke(context, () => Task.FromResult(0)), Throws.InstanceOf<Exception>());
             Assert.That(context.Message.Headers.ContainsKey(Headers.Retries) == false);
+            Assert.That(dispatcher.TransportOperations, Is.Null);
         }
 
         [Test]
@@ -80,12 +59,13 @@
         {
             var message = CreateMessage(slrRetryHeader: "1");
             var context = CreateContext(message);
-            var behavior = new SecondLevelRetriesBehavior(new FakePolicy(TimeSpan.FromSeconds(5)), string.Empty, failureInfoStorage);
+            var behavior = new SecondLevelRetriesBehavior(new FakePolicy(TimeSpan.FromSeconds(5)), failureInfoStorage, new DelayedRetryExecutor("local address", dispatcher));
 
             var behaviorInvocation = new AsyncTestDelegate(async () => await behavior.Invoke(context, () => { throw new MessageDeserializationException(string.Empty); }));
 
             Assert.That(behaviorInvocation, Throws.InstanceOf<MessageDeserializationException>());
             Assert.That(context.Message.Headers.ContainsKey(Headers.Retries) == false);
+            Assert.That(dispatcher.TransportOperations, Is.Null);
         }
 
         [Test]
@@ -96,7 +76,7 @@
             var context = CreateContext(message);
 
             var retryPolicy = new FakePolicy(TimeSpan.FromSeconds(5));
-            var behavior = new SecondLevelRetriesBehavior(retryPolicy, string.Empty, failureInfoStorage);
+            var behavior = new SecondLevelRetriesBehavior(retryPolicy, failureInfoStorage, new DelayedRetryExecutor("local address", dispatcher));
 
             await behavior.Invoke(context, () => { throw new Exception("testex"); });
             await behavior.Invoke(context, () => Task.FromResult(0));
@@ -105,32 +85,12 @@
         }
 
         [Test]
-        public async Task ShouldRevertMessageBodyWhenDispatchingMessage()
-        {
-            var originalContent = Encoding.UTF8.GetBytes("original");
-            var message = CreateMessage(slrRetryHeader: "1", body: originalContent);
-            var context = CreateContext(message);
-
-            var behavior = new SecondLevelRetriesBehavior(new FakePolicy(TimeSpan.FromSeconds(0)), string.Empty, failureInfoStorage);
-
-            await behavior.Invoke(context, c =>
-            {
-                c.Message.Body = Encoding.UTF8.GetBytes("modified");
-                throw new Exception();
-            });
-
-            await behavior.Invoke(context, () => Task.FromResult(0));
-
-            CollectionAssert.AreEqual(originalContent, context.Message.Body);
-        }
-
-        [Test]
         public async Task ShouldNotInvokeContinuationAfterMessageFailure()
         {
             var message = CreateMessage(slrRetryHeader: "1");
             var context = CreateContext(message);
 
-            var behavior = new SecondLevelRetriesBehavior(new FakePolicy(TimeSpan.FromSeconds(5)), string.Empty, failureInfoStorage);
+            var behavior = new SecondLevelRetriesBehavior(new FakePolicy(TimeSpan.FromSeconds(5)), failureInfoStorage, new DelayedRetryExecutor("local address", dispatcher));
             var calledTwice = false;
 
             await behavior.Invoke(context, () => { throw new Exception(); });
@@ -149,37 +109,11 @@
             var message = CreateMessage();
             var context = CreateContext(message);
 
-            var behavior = new SecondLevelRetriesBehavior(new FakePolicy(TimeSpan.FromSeconds(5)), string.Empty, failureInfoStorage);
+            var behavior = new SecondLevelRetriesBehavior(new FakePolicy(TimeSpan.FromSeconds(5)), failureInfoStorage, new DelayedRetryExecutor("local address", dispatcher));
 
             await behavior.Invoke(context, () => { throw new Exception(); });
 
             Assert.IsTrue(context.ReceiveOperationAborted, "SLR should request receive operation abort when marking message for deferal.");
-        }
-
-        [Test]
-        public async Task ShouldInvokePipelineWhenDeferredMessageDeliveredImmediately()
-        {
-            var message = CreateMessage();
-            var eventAggregator = new FakeEventAggregator();
-            var context = CreateContext(message, eventAggregator);
-
-            var delay = TimeSpan.FromSeconds(1);
-            var behavior = new SecondLevelRetriesBehavior(new FakePolicy(delay), "", failureInfoStorage);
-
-            var continuationCalledAfterDeferral = false;
-
-            await behavior.Invoke(context, () => { throw new Exception(); }, c => Task.FromResult(0));
-
-            await behavior.Invoke(context, () => Task.FromResult(0), c =>
-            {
-                return behavior.Invoke(context, () =>
-                {
-                    continuationCalledAfterDeferral = true;
-                    return Task.FromResult(0);
-                });
-            });
-
-            Assert.IsTrue(continuationCalledAfterDeferral);
         }
 
         IncomingMessage CreateMessage(string id = "id", string slrRetryHeader = null, byte[] body = null)
@@ -207,12 +141,11 @@
             };
 
             context.Extensions.Set<IEventAggregator>(eventAggregator ?? new FakeEventAggregator());
-            context.Extensions.Set<IPipelineCache>(new FakePipelineCache(dispatchPipeline));
 
             return context;
         }
 
-        FakeDispatchPipeline dispatchPipeline;
+        FakeDispatcher dispatcher;
         FailureInfoStorage failureInfoStorage;
     }
 
@@ -281,5 +214,16 @@
         }
 
         TimeSpan? delayToReturn;
+    }
+
+    class FakeDispatcher : IDispatchMessages
+    {
+        public TransportOperations TransportOperations { get; private set; }
+
+        public Task Dispatch(TransportOperations outgoingMessages, ContextBag context)
+        {
+            TransportOperations = outgoingMessages;
+            return TaskEx.CompletedTask;
+        }
     }
 }

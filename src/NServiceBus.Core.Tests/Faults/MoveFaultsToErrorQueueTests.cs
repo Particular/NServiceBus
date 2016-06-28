@@ -166,11 +166,9 @@ namespace NServiceBus.Core.Tests
 
             var behavior = new MoveFaultsToErrorQueueBehavior(
                 criticalError,
-                staticFaultMetadata ?? new Dictionary<string, string>(),
                 transactionMode,
                 new FailureInfoStorage(10),
-                dispatcher,
-                "error");
+                new RecoveryActionExecutor(dispatcher, "error", staticFaultMetadata ?? new Dictionary<string, string>()));
 
             return behavior;
         }
