@@ -2814,7 +2814,11 @@ namespace NServiceBus.Settings
         public void SetDefault<T>(object value) { }
         public void SetDefault<T>(System.Action value) { }
         public void SetDefault(string key, object value) { }
+        [System.ObsoleteAttribute("Set(string key, object value). The member currently throws a NotImplementedExcept" +
+            "ion. Will be removed in version 7.0.0.", true)]
         public void SetProperty<T>(System.Linq.Expressions.Expression<System.Func<T, object>> property, object value) { }
+        [System.ObsoleteAttribute("Set(string key, object value). The member currently throws a NotImplementedExcept" +
+            "ion. Will be removed in version 7.0.0.", true)]
         public void SetPropertyDefault<T>(System.Linq.Expressions.Expression<System.Func<T, object>> property, object value) { }
         public bool TryGet<T>(out T val) { }
         public bool TryGet<T>(string key, out T val) { }

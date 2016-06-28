@@ -4,7 +4,6 @@ namespace NServiceBus.Settings
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Configuration;
-    using System.Linq.Expressions;
 
     /// <summary>
     /// Setting container.
@@ -220,28 +219,6 @@ namespace NServiceBus.Settings
         public void Set<T>(Action value)
         {
             Set(typeof(T).FullName, value);
-        }
-
-        /// <summary>
-        /// Sets the value of the given property.
-        /// </summary>
-        public void SetProperty<T>(Expression<Func<T, object>> property, object value)
-        {
-            Guard.AgainstNull(nameof(property), property);
-            var prop = Reflect<T>.GetProperty(property);
-
-            Set(typeof(T).FullName + "." + prop.Name, value);
-        }
-
-        /// <summary>
-        /// Sets the default value of the given property.
-        /// </summary>
-        public void SetPropertyDefault<T>(Expression<Func<T, object>> property, object value)
-        {
-            Guard.AgainstNull(nameof(property), property);
-            var prop = Reflect<T>.GetProperty(property);
-
-            SetDefault(typeof(T).FullName + "." + prop.Name, value);
         }
 
         /// <summary>
