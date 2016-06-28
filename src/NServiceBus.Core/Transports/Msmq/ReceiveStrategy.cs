@@ -6,6 +6,7 @@ namespace NServiceBus
     using System.Threading;
     using System.Threading.Tasks;
     using Extensibility;
+    using Logging;
     using Transports;
 
     abstract class ReceiveStrategy
@@ -20,11 +21,12 @@ namespace NServiceBus
             OnError = onError;
         }
 
-        protected bool TryReceive(Func<MessageQueue, Message> receiveAction, out Message message)
+        protected bool TryReceive(MessageQueueTransactionType transactionType, out Message message)
         {
             try
             {
-                message = receiveAction(InputQueue);
+                message = InputQueue.Receive(TimeSpan.FromMilliseconds(10), transactionType);
+
                 return true;
             }
             catch (MessageQueueException ex)
@@ -36,6 +38,64 @@ namespace NServiceBus
                     return false;
                 }
                 throw;
+            }
+        }
+
+        protected bool TryReceive(MessageQueueTransaction transaction, out Message message)
+        {
+            try
+            {
+                message = InputQueue.Receive(TimeSpan.FromMilliseconds(10), transaction);
+
+                return true;
+            }
+            catch (MessageQueueException ex)
+            {
+                if (ex.MessageQueueErrorCode == MessageQueueErrorCode.IOTimeout)
+                {
+                    //We should only get an IOTimeout exception here if another process removed the message between us peeking and now.
+                    message = null;
+                    return false;
+                }
+                throw;
+            }
+        }
+
+        protected bool TryExtractHeaders(Message message, MessageQueueTransactionType transactionType, out Dictionary<string, string> headers)
+        {
+            try
+            {
+                headers = MsmqUtilities.ExtractHeaders(message);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                var error = $"Message '{message.Id}' is corrupt and will be moved to '{ErrorQueue.QueueName}'";
+                Logger.Error(error, ex);
+
+                ErrorQueue.Send(message, transactionType);
+
+                headers = null;
+                return false;
+            }
+        }
+
+        protected bool TryExtractHeaders(Message message, MessageQueueTransaction transaction, out Dictionary<string, string> headers)
+        {
+            try
+            {
+                headers = MsmqUtilities.ExtractHeaders(message);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                var error = $"Message '{message.Id}' is corrupt and will be moved to '{ErrorQueue.QueueName}'";
+                Logger.Error(error, ex);
+
+                ErrorQueue.Send(message, transaction);
+
+                headers = null;
+                return false;
             }
         }
 
@@ -59,5 +119,8 @@ namespace NServiceBus
         protected MessageQueue ErrorQueue;
         protected Func<MessageContext, Task> OnMessage;
         protected Func<ErrorContext, Task<bool>> OnError;
+
+        static ILog Logger = LogManager.GetLogger<ReceiveStrategy>();
+
     }
 }

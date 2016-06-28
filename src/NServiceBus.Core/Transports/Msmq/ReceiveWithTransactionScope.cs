@@ -1,13 +1,10 @@
 namespace NServiceBus
 {
-    using System;
     using System.Collections.Generic;
     using System.Messaging;
     using System.Threading;
     using System.Threading.Tasks;
     using System.Transactions;
-    using Extensibility;
-    using Logging;
     using Transports;
 
     class ReceiveWithTransactionScope : ReceiveStrategy
@@ -23,32 +20,22 @@ namespace NServiceBus
             {
                 Message message;
 
-                if (!TryReceive(queue => InputQueue.Receive(TimeSpan.FromMilliseconds(10), MessageQueueTransactionType.Automatic), out message))
+                if (!TryReceive(MessageQueueTransactionType.Automatic, out message))
                 {
                     return;
                 }
 
                 Dictionary<string, string> headers;
 
-                try
+                if (!TryExtractHeaders(message, MessageQueueTransactionType.Automatic, out headers))
                 {
-                    headers = MsmqUtilities.ExtractHeaders(message);
-                }
-                catch (Exception ex)
-                {
-                    var error = $"Message '{message.Id}' is corrupt and will be moved to '{ErrorQueue.QueueName}'";
-                    Logger.Error(error, ex);
-
-                    ErrorQueue.Send(message, MessageQueueTransactionType.Automatic);
-
                     scope.Complete();
                     return;
                 }
 
-                var transportTransaction = new TransportTransaction();
-                transportTransaction.Set(Transaction.Current);
+                var transaction = new ScopeTransportTransaction(Transaction.Current);
 
-                var shouldAbort = await TryProcessMessage(message, headers, transportTransaction).ConfigureAwait(false);
+                var shouldAbort = await TryProcessMessage(message, headers, transaction).ConfigureAwait(false);
 
                 if (!shouldAbort)
                 {
@@ -59,6 +46,13 @@ namespace NServiceBus
 
         TransactionOptions transactionOptions;
 
-        static ILog Logger = LogManager.GetLogger<ReceiveWithTransactionScope>();
+
+        class ScopeTransportTransaction : TransportTransaction
+        {
+            public ScopeTransportTransaction(Transaction current)
+            {
+                Set(current);
+            }
+        }
     }
 }

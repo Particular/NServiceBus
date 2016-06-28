@@ -5,7 +5,6 @@ namespace NServiceBus
     using System.Messaging;
     using System.Threading;
     using System.Threading.Tasks;
-    using Extensibility;
     using Logging;
     using Transports;
 
@@ -29,27 +28,19 @@ namespace NServiceBus
                         msmqTransaction.Begin();
 
                         // ReSharper disable once AccessToDisposedClosure
-                        if (!TryReceive(queue => InputQueue.Receive(TimeSpan.FromMilliseconds(10), msmqTransaction), out message))
+                        if (!TryReceive(msmqTransaction, out message))
                         {
                             return;
                         }
 
                         Dictionary<string, string> headers;
 
-                        try
+                        if (!TryExtractHeaders(message, MessageQueueTransactionType.Automatic, out headers))
                         {
-                            headers = MsmqUtilities.ExtractHeaders(message);
-                        }
-                        catch (Exception ex)
-                        {
-                            var error = $"Message '{message.Id}' is corrupt and will be moved to '{ErrorQueue.QueueName}'";
-                            Logger.Error(error, ex);
-
-                            ErrorQueue.Send(message, msmqTransaction);
-
                             msmqTransaction.Commit();
                             return;
                         }
+
                         var transportTransaction = new TransportTransaction();
 
                         transportTransaction.Set(msmqTransaction);
