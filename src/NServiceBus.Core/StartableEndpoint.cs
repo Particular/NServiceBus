@@ -134,7 +134,7 @@ namespace NServiceBus
                     satellitePushSettings,
                     dequeueLimitations,
                     satellitePipeline.OnMessage,
-                    (b, context) => InvokeError(b, context)); //todo
+                    (b, context) => InvokeSatelliteError(b, context));
             }
         }
 
@@ -179,6 +179,12 @@ namespace NServiceBus
         }
 
         Task<bool> InvokeError(IBuilder rootBuilder, ErrorContext context)
+        {
+            return Task.FromResult(false);
+        }
+
+
+        Task<bool> InvokeSatelliteError(IBuilder rootBuilder, ErrorContext context)
         {
             return Task.FromResult(false);
         }

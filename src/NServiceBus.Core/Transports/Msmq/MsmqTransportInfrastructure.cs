@@ -43,7 +43,7 @@ namespace NServiceBus
                 return new ReceiveWithNoTransaction();
             }
 
-            return new ReceiveWithNativeTransaction();
+            return new ReceiveWithNativeTransaction(new MsmqFailureInfoStorage(1000));
         }
 
         public override EndpointInstance BindToLocalEndpoint(EndpointInstance instance) => instance.AtMachine(RuntimeEnvironment.MachineName);
