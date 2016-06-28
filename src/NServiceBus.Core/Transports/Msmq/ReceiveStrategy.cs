@@ -13,12 +13,13 @@ namespace NServiceBus
     {
         public abstract Task ReceiveMessage();
 
-        public void Init(MessageQueue inputQueue, MessageQueue errorQueue, Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<bool>> onError)
+        public void Init(MessageQueue inputQueue, MessageQueue errorQueue, Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<bool>> onError, Func<Exception,string, Task> onCriticalError)
         {
             InputQueue = inputQueue;
             ErrorQueue = errorQueue;
             OnMessage = onMessage;
             OnError = onError;
+            OnCriticalError = onCriticalError;
         }
 
         protected bool TryReceive(MessageQueueTransactionType transactionType, out Message message)
@@ -113,12 +114,26 @@ namespace NServiceBus
         }
 
 
-        protected MessageQueue InputQueue;
-        protected MessageQueue ErrorQueue;
-        protected Func<MessageContext, Task> OnMessage;
-        protected Func<ErrorContext, Task<bool>> OnError;
+        protected async Task<bool> HandleError(Message message, Dictionary<string, string> headers, Exception exception)
+        {
+            try
+            {
+                return await OnError(new ErrorContext()).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                await OnCriticalError(ex, "Error recoverability failed.").ConfigureAwait(false);
+
+                return false;
+            }
+        }
+
+        MessageQueue InputQueue;
+        MessageQueue ErrorQueue;
+        Func<MessageContext, Task> OnMessage;
+        Func<ErrorContext, Task<bool>> OnError;
+        Func<Exception, string, Task> OnCriticalError;
 
         static ILog Logger = LogManager.GetLogger<ReceiveStrategy>();
-
     }
 }

@@ -54,7 +54,11 @@ namespace NServiceBus
 
             receiveStrategy = receiveStrategyFactory(settings.RequiredTransactionMode);
 
-            receiveStrategy.Init(inputQueue, errorQueue, onMessage, onError);
+            receiveStrategy.Init(inputQueue, errorQueue, onMessage, onError, (ex, errorMessage) =>
+            {
+                onCriticalError.Raise(errorMessage, ex);
+                return TaskEx.CompletedTask;
+            });
 
             return TaskEx.CompletedTask;
         }

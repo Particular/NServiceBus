@@ -25,7 +25,6 @@ namespace NServiceBus
                     {
                         msmqTransaction.Begin();
 
-                        // ReSharper disable once AccessToDisposedClosure
                         if (!TryReceive(msmqTransaction, out message))
                         {
                             return;
@@ -45,12 +44,26 @@ namespace NServiceBus
 
                         transportTransaction.Set(msmqTransaction);
 
-                        var shouldAbort = await TryProcessMessage(message, headers, transportTransaction).ConfigureAwait(false);
+                        MsmqFailureInfoStorage.ProcessingFailureInfo failureInfo;
 
-                        if (shouldAbort)
+                        var shouldTryProcessMessage = true;
+
+                        if (failureInfoStorage.TryGetFailureInfoForMessage(message.Id, out failureInfo))
                         {
-                            msmqTransaction.Abort();
-                            return;
+                            var shouldRetryImmediately = await HandleError(message, headers, failureInfo.Exception).ConfigureAwait(false);
+
+                            shouldTryProcessMessage = shouldRetryImmediately;
+                        }
+
+                        if (shouldTryProcessMessage)
+                        {
+                            var shouldAbortMessageProcessing = await TryProcessMessage(message, headers, transportTransaction).ConfigureAwait(false);
+
+                            if (shouldAbortMessageProcessing)
+                            {
+                                msmqTransaction.Abort();
+                                return;
+                            }
                         }
 
                         failureInfoStorage.ClearFailureInfoForMessage(message.Id);

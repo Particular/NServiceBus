@@ -29,11 +29,11 @@ namespace NServiceBus
             {
                 await TryProcessMessage(message, headers, new TransportTransaction()).ConfigureAwait(false);
             }
-            catch (Exception)
+            catch (Exception exception)
             {
                 message.BodyStream.Position = 0;
 
-                await OnError(new ErrorContext()).ConfigureAwait(false);
+                await HandleError(message, headers, exception).ConfigureAwait(false);
             }
         }
     }
