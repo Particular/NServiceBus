@@ -11,7 +11,7 @@ namespace NServiceBus
 
     abstract class ReceiveStrategy
     {
-        public abstract Task ReceiveMessage(CancellationTokenSource cancellationTokenSource);
+        public abstract Task ReceiveMessage();
 
         public void Init(MessageQueue inputQueue, MessageQueue errorQueue, Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<bool>> onError)
         {
@@ -61,7 +61,7 @@ namespace NServiceBus
             }
         }
 
-        protected bool TryExtractHeaders(Message message, MessageQueueTransactionType transactionType, out Dictionary<string, string> headers)
+        protected bool TryExtractHeaders(Message message, out Dictionary<string, string> headers)
         {
             try
             {
@@ -70,33 +70,31 @@ namespace NServiceBus
             }
             catch (Exception ex)
             {
-                var error = $"Message '{message.Id}' is corrupt and will be moved to '{ErrorQueue.QueueName}'";
-                Logger.Error(error, ex);
+                var error = $"Message '{message.Id}' has corrupted headers";
 
-                ErrorQueue.Send(message, transactionType);
+                Logger.Warn(error, ex);
 
                 headers = null;
                 return false;
             }
         }
 
-        protected bool TryExtractHeaders(Message message, MessageQueueTransaction transaction, out Dictionary<string, string> headers)
+        protected void MovePoisonMessageToErrorQueue(Message message, MessageQueueTransaction transaction)
         {
-            try
-            {
-                headers = MsmqUtilities.ExtractHeaders(message);
-                return true;
-            }
-            catch (Exception ex)
-            {
-                var error = $"Message '{message.Id}' is corrupt and will be moved to '{ErrorQueue.QueueName}'";
-                Logger.Error(error, ex);
+            var error = $"Message '{message.Id}' is classfied as a poison message and will be moved to '{ErrorQueue.QueueName}'";
 
-                ErrorQueue.Send(message, transaction);
+            Logger.Error(error);
 
-                headers = null;
-                return false;
-            }
+            ErrorQueue.Send(message, transaction);
+        }
+
+        protected void MovePoisonMessageToErrorQueue(Message message, MessageQueueTransactionType transactionType)
+        {
+            var error = $"Message '{message.Id}' is classfied as a poison message and will be moved to '{ErrorQueue.QueueName}'";
+
+            Logger.Error(error);
+
+            ErrorQueue.Send(message, transactionType);
         }
 
         protected async Task<bool> TryProcessMessage(Message message, Dictionary<string, string> headers, TransportTransaction transaction)

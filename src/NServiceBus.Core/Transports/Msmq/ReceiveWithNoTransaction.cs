@@ -3,14 +3,12 @@ namespace NServiceBus
     using System;
     using System.Collections.Generic;
     using System.Messaging;
-    using System.Threading;
     using System.Threading.Tasks;
-    using Logging;
     using Transports;
 
     class ReceiveWithNoTransaction : ReceiveStrategy
     {
-        public override async Task ReceiveMessage(CancellationTokenSource cancellationTokenSource)
+        public override async Task ReceiveMessage()
         {
             Message message;
 
@@ -21,8 +19,9 @@ namespace NServiceBus
 
             Dictionary<string, string> headers;
 
-            if (!TryExtractHeaders(message, MessageQueueTransactionType.Automatic, out headers))
+            if (!TryExtractHeaders(message, out headers))
             {
+                MovePoisonMessageToErrorQueue(message, MessageQueueTransactionType.None);
                 return;
             }
 
@@ -37,7 +36,5 @@ namespace NServiceBus
                 await OnError(new ErrorContext()).ConfigureAwait(false);
             }
         }
-
-        static ILog Logger = LogManager.GetLogger<ReceiveWithNoTransaction>();
     }
 }

@@ -2,7 +2,6 @@ namespace NServiceBus
 {
     using System.Collections.Generic;
     using System.Messaging;
-    using System.Threading;
     using System.Threading.Tasks;
     using System.Transactions;
     using Transports;
@@ -14,7 +13,7 @@ namespace NServiceBus
             this.transactionOptions = transactionOptions;
         }
 
-        public override async Task ReceiveMessage(CancellationTokenSource cancellationTokenSource)
+        public override async Task ReceiveMessage()
         {
             using (var scope = new TransactionScope(TransactionScopeOption.Required, transactionOptions, TransactionScopeAsyncFlowOption.Enabled))
             {
@@ -27,8 +26,10 @@ namespace NServiceBus
 
                 Dictionary<string, string> headers;
 
-                if (!TryExtractHeaders(message, MessageQueueTransactionType.Automatic, out headers))
+                if (!TryExtractHeaders(message, out headers))
                 {
+                    MovePoisonMessageToErrorQueue(message, MessageQueueTransactionType.Automatic);
+
                     scope.Complete();
                     return;
                 }
@@ -45,7 +46,6 @@ namespace NServiceBus
         }
 
         TransactionOptions transactionOptions;
-
 
         class ScopeTransportTransaction : TransportTransaction
         {

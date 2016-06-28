@@ -3,9 +3,7 @@ namespace NServiceBus
     using System;
     using System.Collections.Generic;
     using System.Messaging;
-    using System.Threading;
     using System.Threading.Tasks;
-    using Logging;
     using Transports;
 
     class ReceiveWithNativeTransaction : ReceiveStrategy
@@ -15,7 +13,7 @@ namespace NServiceBus
             this.failureInfoStorage = failureInfoStorage;
         }
 
-        public override async Task ReceiveMessage(CancellationTokenSource cancellationTokenSource)
+        public override async Task ReceiveMessage()
         {
             Message message = null;
 
@@ -35,8 +33,10 @@ namespace NServiceBus
 
                         Dictionary<string, string> headers;
 
-                        if (!TryExtractHeaders(message, MessageQueueTransactionType.Automatic, out headers))
+                        if (!TryExtractHeaders(message, out headers))
                         {
+                            MovePoisonMessageToErrorQueue(message, msmqTransaction);
+
                             msmqTransaction.Commit();
                             return;
                         }
@@ -77,7 +77,5 @@ namespace NServiceBus
         }
 
         MsmqFailureInfoStorage failureInfoStorage;
-
-        static ILog Logger = LogManager.GetLogger<ReceiveWithNativeTransaction>();
     }
 }

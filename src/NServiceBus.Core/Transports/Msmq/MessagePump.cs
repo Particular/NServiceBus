@@ -149,26 +149,24 @@ namespace NServiceBus
 
                     var receiveTask = Task.Run(async () =>
                     {
-                        using (var tokenSource = new CancellationTokenSource())
+
+                        try
                         {
-                            try
-                            {
-                                await receiveStrategy.ReceiveMessage(tokenSource).ConfigureAwait(false);
-                                receiveCircuitBreaker.Success();
-                            }
-                            catch (OperationCanceledException)
-                            {
-                                // Intentionally ignored
-                            }
-                            catch (Exception ex)
-                            {
-                                Logger.Warn("MSMQ receive operation failed", ex);
-                                await receiveCircuitBreaker.Failure(ex).ConfigureAwait(false);
-                            }
-                            finally
-                            {
-                                concurrencyLimiter.Release();
-                            }
+                            await receiveStrategy.ReceiveMessage().ConfigureAwait(false);
+                            receiveCircuitBreaker.Success();
+                        }
+                        catch (OperationCanceledException)
+                        {
+                            // Intentionally ignored
+                        }
+                        catch (Exception ex)
+                        {
+                            Logger.Warn("MSMQ receive operation failed", ex);
+                            await receiveCircuitBreaker.Failure(ex).ConfigureAwait(false);
+                        }
+                        finally
+                        {
+                            concurrencyLimiter.Release();
                         }
                     }, CancellationToken.None);
 
