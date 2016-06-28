@@ -39,7 +39,8 @@
         public static SerializationExtensions<XmlSerializer> DontWrapRawXml(this SerializationExtensions<XmlSerializer> config)
         {
             Guard.AgainstNull(nameof(config), config);
-            config.Settings.SetProperty<XmlMessageSerializer>(s => s.SkipWrappingRawXml, true);
+
+            config.Settings.Set(XmlSerializer.SkipWrappingRawXml, true);
 
             return config;
         }

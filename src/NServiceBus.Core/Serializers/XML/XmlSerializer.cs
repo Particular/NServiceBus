@@ -30,11 +30,18 @@
                     serializer.Namespace = customNamespace;
                 }
 
+                bool skipWrappingRawXml;
+                if (settings.TryGet(SkipWrappingRawXml, out skipWrappingRawXml))
+                {
+                    serializer.SkipWrappingRawXml = skipWrappingRawXml;
+                }
+
                 serializer.Initialize(messageTypes);
                 return serializer;
             };
         }
 
         internal const string CustomNamespaceConfigurationKey = "XmlSerializer.CustomNamespace";
+        internal const string SkipWrappingRawXml = "XmlSerializer.SkipWrappingRawXml";
     }
 }
