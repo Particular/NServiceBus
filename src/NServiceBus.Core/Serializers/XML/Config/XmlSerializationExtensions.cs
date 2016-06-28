@@ -71,7 +71,8 @@
         public static SerializationExtensions<XmlSerializer> SanitizeInput(this SerializationExtensions<XmlSerializer> config)
         {
             Guard.AgainstNull(nameof(config), config);
-            config.Settings.SetProperty<XmlMessageSerializer>(s => s.SanitizeInput, true);
+
+            config.Settings.Set(XmlSerializer.SanitizeInput, true);
 
             return config;
         }

@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.AcceptanceTests.Serialization
 {
+    using System.Text;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
@@ -9,7 +10,7 @@
     public class When_sanitizing_xml_messages : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Should_sanitize_illegal_characters_from_messages()
+        public async Task Should_remove_illegal_characters_from_messages()
         {
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<EndpointSanitizingInput>(e => e
@@ -64,11 +65,10 @@
 
                 public Task MutateIncoming(MutateIncomingTransportMessageContext context)
                 {
-                    //TODO: add illegal character to body content
-//                    var body = Encoding.UTF8.GetString(context.Body);
-//                    char x = \u10FFFF;
-//
-//                    context.Body = Encoding.UTF8.GetBytes(invalidXmlContext);
+                    var body = Encoding.UTF8.GetString(context.Body);
+                    var invalidChar = char.ConvertFromUtf32(0x8);
+
+                    context.Body = Encoding.UTF8.GetBytes(body.Replace("Hello World!", $"{invalidChar}Hello {invalidChar}World!{invalidChar}"));
 
                     return Task.FromResult(0);
                 }

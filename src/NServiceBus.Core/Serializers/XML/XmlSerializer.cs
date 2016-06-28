@@ -36,6 +36,12 @@
                     serializer.SkipWrappingRawXml = skipWrappingRawXml;
                 }
 
+                bool sanitizeInput;
+                if (settings.TryGet(SanitizeInput, out sanitizeInput))
+                {
+                    serializer.SanitizeInput = sanitizeInput;
+                }
+
                 serializer.Initialize(messageTypes);
                 return serializer;
             };
@@ -43,5 +49,6 @@
 
         internal const string CustomNamespaceConfigurationKey = "XmlSerializer.CustomNamespace";
         internal const string SkipWrappingRawXml = "XmlSerializer.SkipWrappingRawXml";
+        internal const string SanitizeInput = "XmlSerializer.SkipWrappingRawXml";
     }
 }
