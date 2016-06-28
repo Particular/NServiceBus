@@ -45,16 +45,12 @@ namespace NServiceBus
                     return;
                 }
 
-                using (var bodyStream = message.BodyStream)
-                {
-                    var ambientTransaction = new TransportTransaction();
-                    ambientTransaction.Set(Transaction.Current);
-                    var pushContext = new MessageContext(message.Id, headers, bodyStream, ambientTransaction, cancellationTokenSource, new ContextBag());
+                var transportTransaction = new TransportTransaction();
+                transportTransaction.Set(Transaction.Current);
 
-                    await OnMessage(pushContext).ConfigureAwait(false);
-                }
+                var shouldAbort = await TryProcessMessage(message, headers, transportTransaction).ConfigureAwait(false);
 
-                if (!cancellationTokenSource.Token.IsCancellationRequested)
+                if (!shouldAbort)
                 {
                     scope.Complete();
                 }

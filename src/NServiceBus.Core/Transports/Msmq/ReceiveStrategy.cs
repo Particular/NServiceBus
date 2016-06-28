@@ -1,9 +1,11 @@
 namespace NServiceBus
 {
     using System;
+    using System.Collections.Generic;
     using System.Messaging;
     using System.Threading;
     using System.Threading.Tasks;
+    using Extensibility;
     using Transports;
 
     abstract class ReceiveStrategy
@@ -36,6 +38,22 @@ namespace NServiceBus
                 throw;
             }
         }
+
+        protected async Task<bool> TryProcessMessage(Message message, Dictionary<string, string> headers, TransportTransaction transaction)
+        {
+            using (var tokenSource = new CancellationTokenSource())
+            {
+                using (var bodyStream = message.BodyStream)
+                {
+                    var pushContext = new MessageContext(message.Id, headers, bodyStream, transaction, tokenSource, new ContextBag());
+
+                    await OnMessage(pushContext).ConfigureAwait(false);
+                }
+
+                return tokenSource.Token.IsCancellationRequested;
+            }
+        }
+
 
         protected MessageQueue InputQueue;
         protected MessageQueue ErrorQueue;

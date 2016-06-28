@@ -38,12 +38,7 @@ namespace NServiceBus
 
             try
             {
-                using (var bodyStream = message.BodyStream)
-                {
-                    var pushContext = new MessageContext(message.Id, headers, bodyStream, new TransportTransaction(), cancellationTokenSource, new ContextBag());
-
-                    await OnMessage(pushContext).ConfigureAwait(false);
-                }
+                await TryProcessMessage(message, headers, new TransportTransaction()).ConfigureAwait(false);
             }
             catch (Exception)
             {

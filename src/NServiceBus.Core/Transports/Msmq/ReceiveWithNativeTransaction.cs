@@ -50,18 +50,13 @@ namespace NServiceBus
                             msmqTransaction.Commit();
                             return;
                         }
+                        var transportTransaction = new TransportTransaction();
 
-                        using (var bodyStream = message.BodyStream)
-                        {
-                            var nativeMsmqTransaction = new TransportTransaction();
-                            nativeMsmqTransaction.Set(msmqTransaction);
+                        transportTransaction.Set(msmqTransaction);
 
-                            var pushContext = new MessageContext(message.Id, headers, bodyStream, nativeMsmqTransaction, cancellationTokenSource, new ContextBag());
+                        var shouldAbort = await TryProcessMessage(message, headers, transportTransaction).ConfigureAwait(false);
 
-                            await OnMessage(pushContext).ConfigureAwait(false);
-                        }
-
-                        if (cancellationTokenSource.Token.IsCancellationRequested)
+                        if (shouldAbort)
                         {
                             msmqTransaction.Abort();
                             return;
