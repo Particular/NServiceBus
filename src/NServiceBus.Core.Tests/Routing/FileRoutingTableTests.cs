@@ -5,14 +5,13 @@
     using System.Threading.Tasks;
     using System.Xml.Linq;
     using NServiceBus.Routing;
-    using Settings;
     using NUnit.Framework;
 
     [TestFixture]
     public class FileRoutingTableTests
     {
         [Test]
-        public async Task It_retries_loading_the_file_in_case_or_error()
+        public async Task It_retries_loading_the_file_in_case_of_error()
         {
             var timer = new FakeTimer();
             var firstAttempt = true;
@@ -25,13 +24,10 @@
                 }
                 return XDocument.Parse(@"<endpoints><endpoint name=""A""><instance/></endpoint></endpoints>");
             });
-            var settings = new SettingsHolder();
-            var instances = new EndpointInstances();
-            settings.Set<EndpointInstances>(instances);
-            var table = new FileRoutingTable("unused", TimeSpan.Zero, timer, fileAccess, 2, settings);
-            await table.PerformStartup(null);
 
-            var instance = (await instances.FindInstances("A")).Single();
+            var table = new FileRoutingTable("unused", TimeSpan.Zero, timer, fileAccess, 2);
+
+            var instance = (await table.FindInstances("A")).Single();
             Assert.AreEqual(new EndpointInstance("A"), instance);
         }
 
@@ -43,17 +39,31 @@
             {
                 throw new Exception("Simulated");
             });
-            var settings = new SettingsHolder();
-            var instances = new EndpointInstances();
-            settings.Set<EndpointInstances>(instances);
-            var table = new FileRoutingTable("unused", TimeSpan.Zero, timer, fileAccess, 3, settings);
+
+            var table = new FileRoutingTable("unused", TimeSpan.Zero, timer, fileAccess, 3);
 
             var exception = Assert.ThrowsAsync<Exception>(async () => await table.PerformStartup(null));
+            Assert.That(exception.Message, Does.Contain("The endpoint instance mapping file"));
+            Assert.That(exception.Message, Does.Contain("does not exist."));
+        }
+
+        [Test]
+        public void If_file_does_not_exist_when_resolving_for_the_first_time_it_fails()
+        {
+            var timer = new FakeTimer();
+            var fileAccess = new FakeFileAccess(() =>
+            {
+                throw new Exception("Simulated");
+            });
+
+            var table = new FileRoutingTable("unused", TimeSpan.Zero, timer, fileAccess, 3);
+
+            var exception = Assert.ThrowsAsync<Exception>(async () => await table.FindInstances("SomeEndpoint"));
             Assert.That(exception.InnerException.Message, Does.Contain("Simulated"));
         }
 
         [Test]
-        public async Task It_logs_error_when_filed_access_fails_during_runtime()
+        public async Task It_logs_error_when_file_access_fails_during_runtime()
         {
             var errorCallbackInvoked = false;
             var timer = new FakeTimer(ex =>
@@ -70,11 +80,9 @@
                 }
                 return XDocument.Parse(@"<endpoints><endpoint name=""A""><instance/></endpoint></endpoints>");
             });
-            var settings = new SettingsHolder();
-            var instances = new EndpointInstances();
-            settings.Set<EndpointInstances>(instances);
-            var table = new FileRoutingTable("unused", TimeSpan.Zero, timer, fileAccess, 1, settings);
-            await table.PerformStartup(null);
+
+            var table = new FileRoutingTable("unused", TimeSpan.Zero, timer, fileAccess, 1);
+            await table.FindInstances("SomeEndpoint");
 
             fail = true;
 
@@ -91,10 +99,7 @@
                 this.docCallback = docCallback;
             }
 
-            public XDocument Load(string path)
-            {
-                return docCallback();
-            }
+            public XDocument Load(string path) => docCallback();
         }
 
         class FakeTimer : IAsyncTimer
@@ -127,10 +132,7 @@
                 theErrorCallback = errorCallback;
             }
 
-            public Task Stop()
-            {
-                return TaskEx.CompletedTask;
-            }
+            public Task Stop() => TaskEx.CompletedTask;
         }
     }
 }

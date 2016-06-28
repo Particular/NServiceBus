@@ -1,6 +1,7 @@
 namespace NServiceBus.Features
 {
     using System;
+    using Routing;
 
     class FileRoutingTableFeature : Feature
     {
@@ -20,7 +21,10 @@ namespace NServiceBus.Features
             var checkInterval = context.Settings.Get<TimeSpan>(CheckIntervalSettingsKey);
             var maxLoadAttempts = context.Settings.Get<int>(MaxLoadAttemptsSettingsKey);
 
-            var fileRoutingTable = new FileRoutingTable(filePath, checkInterval, new AsyncTimer(), new RoutingFileAccess(), maxLoadAttempts, context.Settings);
+            var endpointInstances = context.Settings.Get<EndpointInstances>();
+
+            var fileRoutingTable = new FileRoutingTable(filePath, checkInterval, new AsyncTimer(), new RoutingFileAccess(), maxLoadAttempts);
+            endpointInstances.AddDynamic(fileRoutingTable.FindInstances);
             context.RegisterStartupTask(fileRoutingTable);
         }
 
