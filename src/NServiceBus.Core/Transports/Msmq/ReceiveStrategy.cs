@@ -13,7 +13,7 @@ namespace NServiceBus
     {
         public abstract Task ReceiveMessage();
 
-        public void Init(MessageQueue inputQueue, MessageQueue errorQueue, Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<bool>> onError, Func<Exception,string, Task> onCriticalError)
+        public void Init(MessageQueue inputQueue, MessageQueue errorQueue, Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<bool>> onError, Func<Exception, string, Task> onCriticalError)
         {
             InputQueue = inputQueue;
             ErrorQueue = errorQueue;
@@ -122,8 +122,9 @@ namespace NServiceBus
             }
             catch (Exception ex)
             {
-                await OnCriticalError(ex, "Error recoverability failed.").ConfigureAwait(false);
+                await OnCriticalError(ex, $"Failed to execute reverability actions for message `{message.Id}`").ConfigureAwait(false);
 
+                //best thing we can do is roll the message back if possible
                 return false;
             }
         }
