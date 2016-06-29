@@ -1,7 +1,6 @@
 namespace NServiceBus
 {
     using Features;
-    using Routing;
     using Transports;
 
     /// <summary>
@@ -13,7 +12,7 @@ namespace NServiceBus
         /// Enables file-based route table source that is automatically refreshed whenever files get updated.
         /// </summary>
         public static FileRoutingTableSettings FileBasedEndpointInstanceMapping<T>(this RoutingSettings<T> config, string filePath)
-            where T : TransportDefinition, INonCompetingConsumersTransport
+            where T : TransportDefinition, IEnableFiledBasedInstanceMapping
         {
             Guard.AgainstNull(nameof(filePath), filePath);
 

@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus
 {
-    using Routing;
     using Transports;
 
     /// <summary>
@@ -25,18 +24,6 @@
         {
             Guard.AgainstNull(nameof(config), config);
             return new RoutingSettings<T>(config.Settings);
-        }
-
-        /// <summary>
-        /// Sets a distribution strategy for a given endpoint.
-        /// </summary>
-        /// <param name="config">Config object.</param>
-        /// <param name="endpointName">The name of the logical endpoint the given strategy should apply to.</param>
-        /// <param name="distributionStrategy">The instance of a distribution strategy.</param>
-        public static void SetMessageDistributionStrategy<T>(this RoutingSettings<T> config, string endpointName, DistributionStrategy distributionStrategy)
-            where T : TransportDefinition, INonCompetingConsumersTransport
-        {
-            config.Settings.GetOrCreate<DistributionPolicy>().SetDistributionStrategy(endpointName, distributionStrategy);
         }
     }
 }

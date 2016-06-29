@@ -137,9 +137,9 @@
     <Compile Include="Recoverability\SecondLevelRetries\SecondLevelRetryContext.cs" />
     <Compile Include="ReleaseDateAttribute.cs" />
     <Compile Include="Recoverability\ProcessingFailureInfo.cs" />
+    <Compile Include="Routing\FileBasedDynamicRouting\IEnableFiledBasedInstanceMapping.cs" />
     <Compile Include="Routing\IDistributionPolicy.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\IMessageDrivenSubscriptionTransport.cs" />
-    <Compile Include="Routing\INonCompetingConsumersTransport.cs" />
     <Compile Include="Routing\RoutingPluginSettingsExtensions.cs" />
     <Compile Include="Routing\SpecificInstanceDistributionPolicy.cs" />
     <Compile Include="Routing\UnicastPublishRouter.cs" />
