@@ -46,7 +46,7 @@
 
             var failureHandeled = await behavior.HandleMessageFailure(context, new Exception());
 
-            Assert.IsFalse(failureHandeled, "FLR should give up when max retires has been reached.");
+            Assert.IsFalse(failureHandeled, "FLR should give up when max retries has been reached.");
             //should update the failure info storage to capture how many flr attempts where made
             Assert.AreEqual(0, storage.GetFailureInfoForMessage("someid").FLRetries);
         }

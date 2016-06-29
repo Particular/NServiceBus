@@ -6,6 +6,7 @@
     using System.Linq;
     using System.Threading.Tasks;
     using Extensibility;
+    using NServiceBus.Pipeline;
     using NServiceBus.Transports;
     using NUnit.Framework;
     using Testing;
@@ -14,13 +15,23 @@
     public class RecoverabilityBehaviorTests
     {
         static string ErrorQueueAddress = "errors";
+        ITransportReceiveContext context;
+
+        [SetUp]
+        public void SetUp()
+        {
+            context = new TestableTransportReceiveContext
+            {
+                Message = new IncomingMessage("message-id", new Dictionary<string, string>(), Stream.Null)
+            };
+
+            context.Extensions.Set<IEventAggregator>(new FakeEventAggregator());
+        }
 
         [Test]
         public async Task ShouldMoveFailedMessageToErrorQueueImmediatelly_WhenRunningWithNoTransactions()
         {
             var dispatcher = new FakeDispatcher();
-            var context = CreateContext();
-
             var behavior = CreateBehavior(dispatcher);
 
             await behavior.Invoke(context, () => { throw new Exception(); });
@@ -32,8 +43,6 @@
         public async Task ShouldNotMoveFailedMessageToErrorQueueImmediatelly_WhenRunningWithTransactions()
         {
             var dispacher = new FakeDispatcher();
-            var context = CreateContext();
-
             var behavior = CreateBehavior(dispacher, transactionsEnabled: true);
 
             await behavior.Invoke(context, () => { throw new Exception(); });
@@ -45,7 +54,6 @@
         public async Task ShouldMoveFailedMessageToErrorQueueOnSecondInvocation_WhenRunningWithTransactions()
         {
             var dispatcher = new FakeDispatcher();
-            var context = CreateContext();
             var behavior = CreateBehavior(dispatcher, transactionsEnabled: true);
 
             await behavior.Invoke(context, () => { throw new Exception(); });
@@ -59,7 +67,6 @@
         public async Task ShouldNotCallRestOfThePipelineWhenMovingMesasgeToErrorQueue_WhenRunningWithTransactions()
         {
             var dispatcher = new FakeDispatcher();
-            var context = CreateContext();
             var behavior = CreateBehavior(dispatcher, transactionsEnabled: true);
             var pipelineCalled = false;
 
@@ -77,7 +84,6 @@
         public async Task ShouldSkipRetryForDeserializationErrors()
         {
             var dispatcher = new FakeDispatcher();
-            var context = CreateContext();
             var behavior = CreateBehavior(dispatcher, flrEnabled: true, slrEnabled: true, transactionsEnabled: true);
 
             await behavior.Invoke(context, () => { throw new MessageDeserializationException(string.Empty); });
@@ -98,24 +104,12 @@
                 ? new SecondLevelRetriesHandler(new DefaultSecondLevelRetryPolicy(2, TimeSpan.FromSeconds(3)), failureStorage, new DelayedRetryExecutor("input", messageDispatcher))
                 : null; 
 
-            var errorBehavior = new MoveFaultsToErrorQueueHandler(
+            var errorHandler = new MoveFaultsToErrorQueueHandler(
                 new FakeCriticalError(),
-                new FailureInfoStorage(10),
+                failureStorage,
                 new MoveToErrorsActionExecutor(messageDispatcher, ErrorQueueAddress, new Dictionary<string, string>()));
 
-            return new RecoverabilityBehavior(flrHandler, slrHandler, errorBehavior, flrEnabled, slrEnabled, transactionsEnabled);
-        }
-
-        static TestableTransportReceiveContext CreateContext(string messageId = "message-id", FakeEventAggregator eventAggregator = null)
-        {
-            var context = new TestableTransportReceiveContext
-            {
-                Message = new IncomingMessage(messageId, new Dictionary<string, string>(), Stream.Null)
-            };
-
-            context.Extensions.Set<IEventAggregator>(eventAggregator ?? new FakeEventAggregator());
-
-            return context;
+            return new RecoverabilityBehavior(flrHandler, slrHandler, errorHandler, transactionsEnabled);
         }
 
         class FakeDispatcher : IDispatchMessages

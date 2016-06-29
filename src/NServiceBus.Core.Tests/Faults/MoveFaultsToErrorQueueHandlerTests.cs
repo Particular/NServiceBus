@@ -125,6 +125,7 @@ namespace NServiceBus.Core.Tests
             public UnicastTransportOperation ErrorOperation { get; private set; }
             public bool ThrowOnDispatch { get; set; }
         }
+
         class FakeCriticalError : CriticalError
         {
             public FakeCriticalError() : base(_ => TaskEx.CompletedTask)

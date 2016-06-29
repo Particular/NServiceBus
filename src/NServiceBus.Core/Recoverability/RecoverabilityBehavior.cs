@@ -6,16 +6,16 @@
 
     class RecoverabilityBehavior : Behavior<ITransportReceiveContext>
     {
-        public RecoverabilityBehavior(FirstLevelRetriesHandler flrHandler, SecondLevelRetriesHandler slrHandler, MoveFaultsToErrorQueueHandler errorHandler,
-            bool flrEnabled, bool slrEnabled, bool runningWithTransactions)
+        public RecoverabilityBehavior(FirstLevelRetriesHandler flrHandler, SecondLevelRetriesHandler slrHandler, MoveFaultsToErrorQueueHandler errorHandler, bool runningWithTransactions)
         {
             this.flrHandler = flrHandler;
             this.slrHandler = slrHandler;
             this.errorHandler = errorHandler;
 
-            this.flrEnabled = flrEnabled;
-            this.slrEnabled = slrEnabled;
             this.runningWithTransactions = runningWithTransactions;
+
+            flrEnabled = flrHandler != null;
+            slrEnabled = slrHandler != null;
         }
 
         public override async Task Invoke(ITransportReceiveContext context, Func<Task> next)
@@ -31,7 +31,6 @@
             }
             catch (Exception ex)
             {
-
                 if (runningWithTransactions)
                 {
                     errorHandler.MarkForFutureHandling(context, ex);
@@ -56,11 +55,6 @@
             }
             catch (MessageDeserializationException)
             {
-                if (slrEnabled) //TODO: why do we have this thing here :/?
-                {
-                    context.Message.Headers.Remove(Headers.Retries);
-                }
-
                 throw; // no SLR for poison messages
             }
             catch (Exception ex)
@@ -77,7 +71,7 @@
 
                     return;
                 }
-                    
+
                 throw;
             }
         }
@@ -88,6 +82,6 @@
 
         bool flrEnabled;
         bool slrEnabled;
-        readonly bool runningWithTransactions;
+        bool runningWithTransactions;
     }
 }
