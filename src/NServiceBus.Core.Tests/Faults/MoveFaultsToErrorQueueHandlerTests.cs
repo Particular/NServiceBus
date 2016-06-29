@@ -21,6 +21,7 @@ namespace NServiceBus.Core.Tests
             criticalError = new FakeCriticalError();
         }
 
+        [Test]
         public async Task ShouldMovePreviouslyFailedMessageToErrorQueue()
         {
             var fakeDispatcher = new FakeDispatcher();
@@ -35,6 +36,7 @@ namespace NServiceBus.Core.Tests
             Assert.AreEqual("error", fakeDispatcher.ErrorOperation.Destination);
         }
 
+        [Test]
         public void ShouldRaiseCriticalErrorWhenMovingToErrorQueueFails()
         {
             var fakeDispatcher = new FakeDispatcher
@@ -55,6 +57,7 @@ namespace NServiceBus.Core.Tests
             Assert.True(criticalError.ErrorRaised);
         }
 
+        [Test]
         public async Task ShouldRaiseNotificationWhenMessageIsMovedToErrorQueue()
         {
             var behavior = CreateBehavior();
@@ -69,6 +72,7 @@ namespace NServiceBus.Core.Tests
             Assert.AreEqual("exception-message", notification.Exception.Message);
         }
 
+        [Test]
         public async Task ShouldHandleMessageAfterMarkingAsFailed()
         {
             var behavior = CreateBehavior();
