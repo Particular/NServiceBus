@@ -114,7 +114,7 @@ namespace NServiceBus
         }
 
 
-        protected async Task<bool> HandleError(Message message, Dictionary<string, string> headers, Exception exception)
+        protected async Task<bool> HandleError(Message message, Dictionary<string, string> headers, Exception exception, int numberOfProcessingAttempts)
         {
             try
             {

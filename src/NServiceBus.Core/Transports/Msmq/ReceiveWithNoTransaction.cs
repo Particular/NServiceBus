@@ -33,7 +33,7 @@ namespace NServiceBus
             {
                 message.BodyStream.Position = 0;
 
-                await HandleError(message, headers, exception).ConfigureAwait(false);
+                await HandleError(message, headers, exception, 1).ConfigureAwait(false);
             }
         }
     }

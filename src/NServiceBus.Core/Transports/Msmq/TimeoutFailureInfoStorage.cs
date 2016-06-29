@@ -21,7 +21,7 @@ namespace NServiceBus
                 if (failureInfoPerMessage.TryGetValue(messageId, out node))
                 {
                     // We have seen this message before, just update the counter and store exception.
-                    node.FailureInfo = new ProcessingFailureInfo(node.FailureInfo.NumberOfFailedAttempts + 1, ExceptionDispatchInfo.Capture(exception));
+                    node.FailureInfo = new ProcessingFailureInfo(node.FailureInfo.NumberOfProcessingAttempts + 1, ExceptionDispatchInfo.Capture(exception));
 
                     // Maintain invariant: leastRecentlyUsedMessages.First contains the LRU item.
                     leastRecentlyUsedMessages.Remove(node.LeastRecentlyUsedEntry);
@@ -94,13 +94,13 @@ namespace NServiceBus
 
         public class ProcessingFailureInfo
         {
-            public ProcessingFailureInfo(int numberOfFailedAttempts, ExceptionDispatchInfo exceptionDispatchInfo)
+            public ProcessingFailureInfo(int numberOfProcessingAttempts, ExceptionDispatchInfo exceptionDispatchInfo)
             {
-                NumberOfFailedAttempts = numberOfFailedAttempts;
+                NumberOfProcessingAttempts = numberOfProcessingAttempts;
                 ExceptionDispatchInfo = exceptionDispatchInfo;
             }
 
-            public int NumberOfFailedAttempts { get; }
+            public int NumberOfProcessingAttempts { get; }
             public Exception Exception => ExceptionDispatchInfo.SourceException;
             ExceptionDispatchInfo ExceptionDispatchInfo { get; }
         }
