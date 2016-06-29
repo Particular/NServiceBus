@@ -187,16 +187,17 @@ namespace NServiceBus
                     // We insert the original task into the runningReceiveTasks because we want to await the completion
                     // of the running receives. ExecuteSynchronously is a request to execute the continuation as part of
                     // the transition of the antecedents completion phase. This means in most of the cases the continuation
-                    // will be executed during this transition and the antecedent task goes into the completion state only 
+                    // will be executed during this transition and the antecedent task goes into the completion state only
                     // after the continuation is executed. This is not always the case. When the TPL thread handling the
                     // antecedent task is aborted the continuation will be scheduled. But in this case we don't need to await
                     // the continuation to complete because only really care about the receive operations. The final operation
                     // when shutting down is a clear of the running tasks anyway.
-                    receiveTask.ContinueWith(t =>
+                    receiveTask.ContinueWith((t, state) =>
                     {
+                        var receiveTasks = (ConcurrentDictionary<Task, Task>) state;
                         Task toBeRemoved;
-                        runningReceiveTasks.TryRemove(t, out toBeRemoved);
-                    }, TaskContinuationOptions.ExecuteSynchronously)
+                        receiveTasks.TryRemove(t, out toBeRemoved);
+                    }, runningReceiveTasks, TaskContinuationOptions.ExecuteSynchronously)
                         .Ignore();
                 }
             }
