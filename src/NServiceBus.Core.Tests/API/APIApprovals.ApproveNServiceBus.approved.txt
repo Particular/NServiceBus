@@ -907,6 +907,10 @@ namespace NServiceBus
     public abstract class Saga
     {
         protected Saga() { }
+        [System.ObsoleteAttribute("Sagas no longer provide access to bus operations via the .Bus property. Use the c" +
+            "ontext parameter on the Handle method. The member currently throws a NotImplemen" +
+            "tedException. Will be removed in version 7.0.0.", true)]
+        public NServiceBus.IBus Bus { get; set; }
         public bool Completed { get; }
         public NServiceBus.IContainSagaData Entity { get; set; }
         protected internal abstract void ConfigureHowToFindSaga(NServiceBus.IConfigureHowToFindSagaWithMessage sagaMessageFindingConfiguration);

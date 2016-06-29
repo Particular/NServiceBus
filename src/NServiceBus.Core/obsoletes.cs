@@ -1796,6 +1796,16 @@ namespace NServiceBus
     public partial class Saga
     {
         [ObsoleteEx(
+            Message = "Sagas no longer provide access to bus operations via the .Bus property. Use the context parameter on the Handle method.",
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0")]
+        public IBus Bus
+        {
+            get { throw new NotImplementedException(); }
+            set { throw new NotImplementedException(); }
+        }
+
+        [ObsoleteEx(
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0",
             ReplacementTypeOrMember = "RequestTimeout<TTimeoutMessageType>(IMessageHandlerContext, DateTime)")]
