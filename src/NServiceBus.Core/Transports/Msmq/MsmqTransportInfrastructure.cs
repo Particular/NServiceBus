@@ -35,7 +35,7 @@ namespace NServiceBus
         {
             if (minimumConsistencyGuarantee == TransportTransactionMode.TransactionScope)
             {
-                return new ReceiveWithTransactionScope(transactionOptions);
+                return new ReceiveWithTransactionScope(transactionOptions, new MsmqFailureInfoStorage(1000));
             }
 
             if (minimumConsistencyGuarantee == TransportTransactionMode.None)
