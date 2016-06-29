@@ -77,7 +77,7 @@
 
         SubscriptionRouter subscriptionRouter;
 
-        static ILog Logger = LogManager.GetLogger<MessageDrivenUnsubscribeTerminator>();
+        static ILog Logger = LogManager.GetLogger<MessageDrivenSubscribeTerminator>();
 
         public class Settings
         {
