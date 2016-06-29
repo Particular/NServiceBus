@@ -104,9 +104,9 @@ namespace NServiceBus
             {
                 using (var bodyStream = message.BodyStream)
                 {
-                    var pushContext = new MessageContext(message.Id, headers, bodyStream, transaction, tokenSource, new ContextBag());
+                    var messageContext = new MessageContext(message.Id, headers, bodyStream, transaction, tokenSource, new ContextBag());
 
-                    await OnMessage(pushContext).ConfigureAwait(false);
+                    await OnMessage(messageContext).ConfigureAwait(false);
                 }
 
                 return tokenSource.Token.IsCancellationRequested;
