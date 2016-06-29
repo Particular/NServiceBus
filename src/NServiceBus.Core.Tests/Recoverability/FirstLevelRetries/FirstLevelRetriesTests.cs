@@ -18,10 +18,10 @@
             var behavior = CreateFlrBehavior(new FirstLevelRetryPolicy(0));
             var context = CreateContext("someid");
 
-            var failureHandeled = await behavior.HandleMessageFailure(context, new MessageDeserializationException("test"));
+            var failureHandled = await behavior.HandleMessageFailure(context, new MessageDeserializationException("test"));
 
             Assert.IsFalse(
-                failureHandeled, 
+                failureHandled, 
                 "MessageDeserializationException should cause message to be treated as poisonous and never handled"
             );
         }
@@ -32,7 +32,7 @@
             var behavior = CreateFlrBehavior(new FirstLevelRetryPolicy(1));
             var context = CreateContext("someid");
 
-            await behavior.HandleMessageFailure(context, new Exception("test")).ConfigureAwait(false);
+            await behavior.HandleMessageFailure(context, new Exception("test"));
 
             Assert.True(context.ReceiveOperationAborted, "Should request the transport to abort");
         }
@@ -44,9 +44,9 @@
             var behavior = CreateFlrBehavior(new FirstLevelRetryPolicy(0), storage);
             var context = CreateContext("someid");
 
-            var failureHandeled = await behavior.HandleMessageFailure(context, new Exception());
+            var failureHandled = await behavior.HandleMessageFailure(context, new Exception());
 
-            Assert.IsFalse(failureHandeled, "FLR should give up when max retries has been reached.");
+            Assert.IsFalse(failureHandled, "FLR should give up when max retries has been reached.");
             //should update the failure info storage to capture how many flr attempts where made
             Assert.AreEqual(0, storage.GetFailureInfoForMessage("someid").FLRetries);
         }
@@ -60,9 +60,9 @@
 
             storage.RecordFirstLevelRetryAttempt(messageId, ExceptionDispatchInfo.Capture(new Exception()));
 
-            var failureHandeled = await behavior.HandleMessageFailure(CreateContext(messageId), new Exception());
+            var failureHandled = await behavior.HandleMessageFailure(CreateContext(messageId), new Exception());
 
-            Assert.IsFalse(failureHandeled, "FLR should give-up after reaching max retries");
+            Assert.IsFalse(failureHandled, "FLR should give-up after reaching max retries");
             Assert.AreEqual(1, storage.GetFailureInfoForMessage(messageId).FLRetries);
         }
 
@@ -106,9 +106,9 @@
 
             storage.ClearFailureInfoForMessage(messageId);
 
-            var failureHandeled = await behavior.HandleMessageFailure(CreateContext(messageId), new Exception());
+            var failureHandled = await behavior.HandleMessageFailure(CreateContext(messageId), new Exception());
 
-            Assert.IsTrue(failureHandeled, "If storage contains no previous failures for the mesage, it should be handled by FLR");
+            Assert.IsTrue(failureHandled, "If storage contains no previous failures for the mesage, it should be handled by FLR");
         }
         
         static FirstLevelRetriesHandler CreateFlrBehavior(FirstLevelRetryPolicy retryPolicy, FailureInfoStorage storage = null)
