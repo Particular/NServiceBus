@@ -13,11 +13,17 @@
     public class FirstLevelRetriesTests
     {
         [Test]
-        public void ShouldNotPerformFLROnMessagesThatCantBeDeserialized()
+        public async Task ShouldNotPerformFLROnMessagesThatCantBeDeserialized()
         {
             var behavior = CreateFlrBehavior(new FirstLevelRetryPolicy(0));
+            var context = CreateContext("someid");
 
-            Assert.That(async () => await behavior.Invoke(null, () => { throw new MessageDeserializationException("test"); }), Throws.InstanceOf<MessageDeserializationException>());
+            var failureHandled = await behavior.HandleMessageFailure(context, new MessageDeserializationException("test"));
+
+            Assert.IsFalse(
+                failureHandled, 
+                "MessageDeserializationException should cause message to be treated as poisonous and never handled"
+            );
         }
 
         [Test]
@@ -26,35 +32,37 @@
             var behavior = CreateFlrBehavior(new FirstLevelRetryPolicy(1));
             var context = CreateContext("someid");
 
-            await behavior.Invoke(context, () => { throw new Exception("test"); });
+            await behavior.HandleMessageFailure(context, new Exception("test"));
 
             Assert.True(context.ReceiveOperationAborted, "Should request the transport to abort");
         }
 
         [Test]
-        public void ShouldBubbleTheExceptionUpIfThereAreNoMoreRetriesLeft()
+        public async Task ShouldBubbleTheExceptionUpIfThereAreNoMoreRetriesLeft()
         {
             var storage = GetFailureInfoStorage();
             var behavior = CreateFlrBehavior(new FirstLevelRetryPolicy(0), storage);
             var context = CreateContext("someid");
 
-            Assert.That(async () => await behavior.Invoke(context, () => { throw new Exception("test"); }), Throws.InstanceOf<Exception>());
+            var failureHandled = await behavior.HandleMessageFailure(context, new Exception());
 
+            Assert.IsFalse(failureHandled, "FLR should give up when max retries has been reached.");
             //should update the failure info storage to capture how many flr attempts where made
             Assert.AreEqual(0, storage.GetFailureInfoForMessage("someid").FLRetries);
         }
 
         [Test]
-        public void ShouldNotClearStorageAfterGivingUp()
+        public async Task ShouldNotClearStorageAfterGivingUp()
         {
             const string messageId = "someid";
             var storage = GetFailureInfoStorage();
             var behavior = CreateFlrBehavior(new FirstLevelRetryPolicy(1), storage);
 
-            storage.RecordFirstLevelRetryAttempt(messageId, ExceptionDispatchInfo.Capture(new Exception("test")));
+            storage.RecordFirstLevelRetryAttempt(messageId, ExceptionDispatchInfo.Capture(new Exception()));
 
-            Assert.That(async () => await behavior.Invoke(CreateContext(messageId), () => { throw new Exception("test"); }), Throws.InstanceOf<Exception>());
+            var failureHandled = await behavior.HandleMessageFailure(CreateContext(messageId), new Exception());
 
+            Assert.IsFalse(failureHandled, "FLR should give-up after reaching max retries");
             Assert.AreEqual(1, storage.GetFailureInfoForMessage(messageId).FLRetries);
         }
 
@@ -65,7 +73,7 @@
             var storage = GetFailureInfoStorage();
             var behavior = CreateFlrBehavior(new FirstLevelRetryPolicy(1), storage);
 
-            await behavior.Invoke(CreateContext(messageId), () => { throw new Exception("test"); });
+            await behavior.HandleMessageFailure(CreateContext(messageId), new Exception());
 
             Assert.AreEqual(1, storage.GetFailureInfoForMessage(messageId).FLRetries);
         }
@@ -78,7 +86,7 @@
 
             var context = CreateContext("someid", eventAggregator);
 
-            await behavior.Invoke(context, () => { throw new Exception("test"); });
+            await behavior.HandleMessageFailure(context, new Exception("test"));
 
             var failure = eventAggregator.GetNotification<MessageToBeRetried>();
 
@@ -94,16 +102,18 @@
             var storage = GetFailureInfoStorage();
             var behavior = CreateFlrBehavior(new FirstLevelRetryPolicy(1), storage);
 
-            await behavior.Invoke(CreateContext(messageId), () => { throw new Exception("test"); });
+            await behavior.HandleMessageFailure(CreateContext(messageId), new Exception("test"));
 
             storage.ClearFailureInfoForMessage(messageId);
 
-            Assert.DoesNotThrowAsync(async () => await behavior.Invoke(CreateContext(messageId), () => { throw new Exception("test"); }));
+            var failureHandled = await behavior.HandleMessageFailure(CreateContext(messageId), new Exception());
+
+            Assert.IsTrue(failureHandled, "If storage contains no previous failures for the mesage, it should be handled by FLR");
         }
         
-        static FirstLevelRetriesBehavior CreateFlrBehavior(FirstLevelRetryPolicy retryPolicy, FailureInfoStorage storage = null)
+        static FirstLevelRetriesHandler CreateFlrBehavior(FirstLevelRetryPolicy retryPolicy, FailureInfoStorage storage = null)
         {
-            var flrBehavior = new FirstLevelRetriesBehavior(
+            var flrBehavior = new FirstLevelRetriesHandler(
                 storage ?? GetFailureInfoStorage(),
                 retryPolicy);
 

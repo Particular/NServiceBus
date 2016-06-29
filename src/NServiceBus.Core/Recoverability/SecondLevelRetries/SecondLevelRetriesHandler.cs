@@ -8,16 +8,23 @@
     using Pipeline;
     using Transports;
 
-    class SecondLevelRetriesBehavior : Behavior<ITransportReceiveContext>
+    class SecondLevelRetriesHandler
     {
-        public SecondLevelRetriesBehavior(SecondLevelRetryPolicy retryPolicy, FailureInfoStorage failureInfoStorage, DelayedRetryExecutor delayedRetryExecutor)
+        public SecondLevelRetriesHandler(SecondLevelRetryPolicy retryPolicy, FailureInfoStorage failureInfoStorage, DelayedRetryExecutor delayedRetryExecutor)
         {
             this.retryPolicy = retryPolicy;
             this.failureInfoStorage = failureInfoStorage;
             this.delayedRetryExecutor = delayedRetryExecutor;
         }
 
-        public override async Task Invoke(ITransportReceiveContext context, Func<Task> next)
+        public void MarkForFutureDeferal(ITransportReceiveContext context, Exception ex)
+        {
+            failureInfoStorage.MarkForDeferralForSecondLevelRetry(context.Message.MessageId, ExceptionDispatchInfo.Capture(ex));
+
+            context.AbortReceiveOperation();
+        }
+
+        public async Task<bool> HandleIfPreviouslyFailed(ITransportReceiveContext context)
         {
             var failureInfo = failureInfoStorage.GetFailureInfoForMessage(context.Message.MessageId);
 
@@ -25,24 +32,9 @@
             {
                 await DeferMessageForSecondLevelRetry(context, context.Message, failureInfo).ConfigureAwait(false);
 
-                return;
+                return true;
             }
-
-            try
-            {
-                await next().ConfigureAwait(false);
-            }
-            catch (MessageDeserializationException)
-            {
-                context.Message.Headers.Remove(Headers.Retries);
-                throw; // no SLR for poison messages
-            }
-            catch (Exception ex)
-            {
-                failureInfoStorage.MarkForDeferralForSecondLevelRetry(context.Message.MessageId, ExceptionDispatchInfo.Capture(ex));
-
-                context.AbortReceiveOperation();
-            }
+            return false;
         }
 
         async Task DeferMessageForSecondLevelRetry(ITransportReceiveContext context, IncomingMessage message, ProcessingFailureInfo failureInfo)
@@ -94,6 +86,6 @@
         DelayedRetryExecutor delayedRetryExecutor;
         SecondLevelRetryPolicy retryPolicy;
 
-        static ILog Logger = LogManager.GetLogger<SecondLevelRetriesBehavior>();
+        static ILog Logger = LogManager.GetLogger<SecondLevelRetriesHandler>();
     }
 }

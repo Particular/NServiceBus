@@ -11,14 +11,14 @@
     using NUnit.Framework;
 
     [TestFixture]
-    public class RecoveryActionExecutorTests
+    public class MoveToErrorsActionExecutorTests
     {
         [SetUp]
         public void Setup()
         {
             dispatcher = new FakeDispatcher();
             staticFaultMetadata = new Dictionary<string, string>();
-            recoveryActionExecutor = new RecoveryActionExecutor(dispatcher, ErrorQueueAddress, staticFaultMetadata);
+            moveToErrorsActionExecutor = new MoveToErrorsActionExecutor(dispatcher, ErrorQueueAddress, staticFaultMetadata);
         }
 
         [Test]
@@ -27,7 +27,7 @@
             var context = new ContextBag();
             var incomingMessage = new IncomingMessage("messageId", new Dictionary<string, string>(), Stream.Null);
 
-            await recoveryActionExecutor.MoveToErrorQueue(incomingMessage, new Exception(), context);
+            await moveToErrorsActionExecutor.MoveToErrorQueue(incomingMessage, new Exception(), context);
 
             Assert.That(dispatcher.TransportOperations.MulticastTransportOperations.Count(), Is.EqualTo(0));
             Assert.That(dispatcher.TransportOperations.UnicastTransportOperations.Count(), Is.EqualTo(1));
@@ -49,7 +49,7 @@
 
             var incomingMessage = new IncomingMessage("messageId", incomingMessageHeaders, Stream.Null);
 
-            await recoveryActionExecutor.MoveToErrorQueue(incomingMessage, new Exception(), new ContextBag());
+            await moveToErrorsActionExecutor.MoveToErrorQueue(incomingMessage, new Exception(), new ContextBag());
 
             var outgoingMessage = dispatcher.TransportOperations.UnicastTransportOperations.Single();
             Assert.That(incomingMessage.Headers, Is.SubsetOf(outgoingMessage.Message.Headers));
@@ -62,7 +62,7 @@
             var incomingMessage = new IncomingMessage("messageId", new Dictionary<string, string>(), new MemoryStream(originalMessageBody));
             incomingMessage.Body = Encoding.UTF8.GetBytes("new body");
 
-            await recoveryActionExecutor.MoveToErrorQueue(incomingMessage, new Exception(), new ContextBag());
+            await moveToErrorsActionExecutor.MoveToErrorQueue(incomingMessage, new Exception(), new ContextBag());
 
             var outgoingMessage = dispatcher.TransportOperations.UnicastTransportOperations.Single();
             Assert.That(outgoingMessage.Message.Body, Is.EqualTo(originalMessageBody));
@@ -78,7 +78,7 @@
             };
             var incomingMessage = new IncomingMessage("messageId", retryHeaders, Stream.Null);
 
-            await recoveryActionExecutor.MoveToErrorQueue(incomingMessage, new Exception(), new ContextBag());
+            await moveToErrorsActionExecutor.MoveToErrorQueue(incomingMessage, new Exception(), new ContextBag());
 
             var outgoingMessage = dispatcher.TransportOperations.UnicastTransportOperations.Single();
             Assert.That(outgoingMessage.Message.Headers.Keys, Does.Not.Contain(Headers.FLRetries));
@@ -91,7 +91,7 @@
             var incomingMessage = new IncomingMessage("messageId", new Dictionary<string, string>(), Stream.Null);
             var exception = new InvalidOperationException("test exception");
 
-            await recoveryActionExecutor.MoveToErrorQueue(incomingMessage, exception, new ContextBag());
+            await moveToErrorsActionExecutor.MoveToErrorQueue(incomingMessage, exception, new ContextBag());
 
             var outgoingMessageHeaders = dispatcher.TransportOperations.UnicastTransportOperations.Single().Message.Headers;
             // we only test presence of some exception headers set by ExceptionHeaderHelper
@@ -108,7 +108,7 @@
             staticFaultMetadata.Add("staticFaultMetadataKey", "staticFaultMetadataValue");
             var incomingMessage = new IncomingMessage("messageId", new Dictionary<string, string>(), Stream.Null);
 
-            await recoveryActionExecutor.MoveToErrorQueue(incomingMessage, new Exception(), new ContextBag());
+            await moveToErrorsActionExecutor.MoveToErrorQueue(incomingMessage, new Exception(), new ContextBag());
 
             var outgoingMessageHeaders = dispatcher.TransportOperations.UnicastTransportOperations.Single().Message.Headers;
             Assert.That(outgoingMessageHeaders, Contains.Item(new KeyValuePair<string, string>("staticFaultMetadataKey", "staticFaultMetadataValue")));
@@ -116,7 +116,7 @@
             Assert.That(incomingMessage.Headers.ContainsKey("staticFaultMetadataKey"), Is.False);
         }
 
-        RecoveryActionExecutor recoveryActionExecutor;
+        MoveToErrorsActionExecutor moveToErrorsActionExecutor;
         FakeDispatcher dispatcher;
         Dictionary<string, string> staticFaultMetadata;
         const string ErrorQueueAddress = "errorQ";

@@ -131,8 +131,9 @@
     <Compile Include="Recoverability\Recoverability.cs" />
     <Compile Include="Recoverability\FirstLevelRetries\FirstLevelRetriesConfigExtensions.cs" />
     <Compile Include="Recoverability\FirstLevelRetries\FirstLevelRetriesSettings.cs" />
-    <Compile Include="Recoverability\RecoveryActionExecutor.cs" />
+    <Compile Include="Recoverability\Faults\MoveToErrorsActionExecutor.cs" />
     <Compile Include="Recoverability\SecondLevelRetries\DelayedRetryExecutor.cs" />
+    <Compile Include="Recoverability\RecoverabilityBehavior.cs" />
     <Compile Include="Recoverability\SecondLevelRetries\SecondLevelRetryContext.cs" />
     <Compile Include="ReleaseDateAttribute.cs" />
     <Compile Include="Recoverability\ProcessingFailureInfo.cs" />
@@ -454,7 +455,7 @@
     <Compile Include="Pipeline\PipelineCollection.cs" />
     <Compile Include="Recoverability\SecondLevelRetries\CustomSecondLevelRetryPolicy.cs" />
     <Compile Include="Recoverability\SecondLevelRetries\SecondLevelRetryPolicy.cs" />
-    <Compile Include="Recoverability\SecondLevelRetries\SecondLevelRetriesBehavior.cs" />
+    <Compile Include="Recoverability\SecondLevelRetries\SecondLevelRetriesHandler.cs" />
     <Compile Include="Transports\PushSettings.cs" />
     <Compile Include="Gateway\IDeduplicateMessages.cs" />
     <Compile Include="Hosting\HostInfoConfigurationExtensions.cs" />
@@ -517,7 +518,7 @@
     <Compile Include="Sagas\SagaToMessageMap.cs" />
     <Compile Include="Scheduling\Scheduler.cs" />
     <Compile Include="Scheduling\TaskDefinition.cs" />
-    <Compile Include="Recoverability\Faults\MoveFaultsToErrorQueueBehavior.cs" />
+    <Compile Include="Recoverability\Faults\MoveFaultsToErrorQueueHandler.cs" />
     <Compile Include="Recoverability\SecondLevelRetries\DefaultSecondLevelRetryPolicy.cs" />
     <Compile Include="Serialization\SerializationConfigExtensions.cs" />
     <Compile Include="Serialization\SerializationDefinition.cs" />
@@ -532,7 +533,7 @@
     <Compile Include="Sagas\InvokeSagaNotFoundBehavior.cs" />
     <Compile Include="Transports\Msmq\ReceiveWithTransactionScope.cs" />
     <Compile Include="Forwarding\ForwardReceivedMessages.cs" />
-    <Compile Include="Recoverability\FirstLevelRetries\FirstLevelRetriesBehavior.cs" />
+    <Compile Include="Recoverability\FirstLevelRetries\FirstLevelRetriesHandler.cs" />
     <Compile Include="Unicast\Config\RegisterHandlersInOrder.cs" />
     <Compile Include="Performance\Statistics\SLA\SLAMonitoring.cs" />
     <Compile Include="Performance\Statistics\ProcessingStatisticsBehavior.cs" />

@@ -119,7 +119,7 @@
                     {Headers.HostDisplayName, hostInfo.DisplayName}
                 };
 
-            var recoveryActionExecutor = new RecoveryActionExecutor(b.Build<IDispatchMessages>(), errorQueueAddress, staticFaultMetadata);
+            var recoveryActionExecutor = new MoveToErrorsActionExecutor(b.Build<IDispatchMessages>(), errorQueueAddress, staticFaultMetadata);
             return new TimeoutRecoverabilityBehavior(errorQueueAddress, processorAddress, b.Build<CriticalError>(), failureStorage, recoveryActionExecutor);
         }
 
