@@ -14,7 +14,7 @@ namespace NServiceBus
     {
         public void InitType(Type t)
         {
-            logger.Debug("Initializing type: " + t.AssemblyQualifiedName);
+            logger.Debug($"Initializing type: {t.AssemblyQualifiedName}");
 
             if (t.IsSimpleType())
             {
@@ -148,7 +148,7 @@ namespace NServiceBus
 
                 if (typeof(IList) == prop.PropertyType)
                 {
-                    throw new NotSupportedException("IList is not a supported property type for serialization, use List instead. Type: " + t.FullName + " Property: " + prop.Name);
+                    throw new NotSupportedException($"IList is not a supported property type for serialization, use List instead. Type: {t.FullName} Property: {prop.Name}");
                 }
 
                 var args = prop.PropertyType.GetGenericArguments();
@@ -157,11 +157,11 @@ namespace NServiceBus
                 {
                     if (typeof(IList<>).MakeGenericType(args) == prop.PropertyType)
                     {
-                        throw new NotSupportedException("IList<T> is not a supported property type for serialization, use List<T> instead. Type: " + t.FullName + " Property: " + prop.Name);
+                        throw new NotSupportedException($"IList<T> is not a supported property type for serialization, use List<T> instead. Type: {t.FullName} Property: {prop.Name}");
                     }
                     if (typeof(ISet<>).MakeGenericType(args) == prop.PropertyType)
                     {
-                        throw new NotSupportedException("ISet<T> is not a supported property type for serialization, use HashSet<T> instead. Type: " + t.FullName + " Property: " + prop.Name);
+                        throw new NotSupportedException($"ISet<T> is not a supported property type for serialization, use HashSet<T> instead. Type: {t.FullName} Property: {prop.Name}");
                     }
                 }
 
@@ -169,12 +169,12 @@ namespace NServiceBus
                 {
                     if (typeof(IDictionary<,>).MakeGenericType(args[0], args[1]) == prop.PropertyType)
                     {
-                        throw new NotSupportedException("IDictionary<T, K> is not a supported property type for serialization, use Dictionary<T,K> instead. Type: " + t.FullName + " Property: " + prop.Name + ". Consider using a concrete Dictionary<T, K> instead, where T and K cannot be of type 'System.Object'");
+                        throw new NotSupportedException($"IDictionary<T, K> is not a supported property type for serialization, use Dictionary<T,K> instead. Type: {t.FullName} Property: {prop.Name}. Consider using a concrete Dictionary<T, K> instead, where T and K cannot be of type 'System.Object'");
                     }
 
                     if (args[0].FullName == "System.Object" || args[1].FullName == "System.Object")
                     {
-                        throw new NotSupportedException("Dictionary<T, K> is not a supported when Key or Value is of Type System.Object. Type: " + t.FullName + " Property: " + prop.Name + ". Consider using a concrete Dictionary<T, K> where T and K are not of type 'System.Object'");
+                        throw new NotSupportedException($"Dictionary<T, K> is not a supported when Key or Value is of Type System.Object. Type: {t.FullName} Property: {prop.Name}. Consider using a concrete Dictionary<T, K> where T and K are not of type 'System.Object'");
                     }
                 }
 
