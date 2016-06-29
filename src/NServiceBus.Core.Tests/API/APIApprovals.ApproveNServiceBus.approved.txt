@@ -818,7 +818,7 @@ namespace NServiceBus
     public class PersistenceExtensions : NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings
     {
         public PersistenceExtensions(System.Type definitionType, NServiceBus.Settings.SettingsHolder settings, System.Type storageType) { }
-        [System.ObsoleteAttribute("Use `UsePersistence<T, S>()` instead. Will be removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute(@"Example: config.UsePersistence<InMemoryPersistence>().For(TimeoutStorage) should be changed to config.UsePersistence<InMemoryPersistence, Timeouts>(). Use `UsePersistence<T, S>() where T : PersistenceExtension where S : StorageType` instead. Will be removed in version 7.0.0.", true)]
         public NServiceBus.PersistenceExtensions For(params NServiceBus.Persistence.Storage[] specificStorages) { }
     }
     public class PersistenceExtensions<T> : NServiceBus.PersistenceExtensions
@@ -826,7 +826,9 @@ namespace NServiceBus
     {
         public PersistenceExtensions(NServiceBus.Settings.SettingsHolder settings) { }
         protected PersistenceExtensions(NServiceBus.Settings.SettingsHolder settings, System.Type storageType) { }
-        [System.ObsoleteAttribute("Use `UsePersistence<T, S>()` instead. Will be removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute("Example: config.UsePersistence<InMemoryPersistence>().For(TimeoutStorage) should " +
+            "be changed to config.UsePersistence<InMemoryPersistence, Timeouts>(). Use `UsePe" +
+            "rsistence<T, S>()` instead. Will be removed in version 7.0.0.", true)]
         public NServiceBus.PersistenceExtensions<T> For(params NServiceBus.Persistence.Storage[] specificStorages) { }
     }
     public class PersistenceExtensions<T, S> : NServiceBus.PersistenceExtensions<T>
