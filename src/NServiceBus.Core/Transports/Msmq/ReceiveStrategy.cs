@@ -125,7 +125,7 @@ namespace NServiceBus
                 await OnCriticalError(ex, $"Failed to execute reverability actions for message `{message.Id}`").ConfigureAwait(false);
 
                 //best thing we can do is roll the message back if possible
-                return false;
+                return true;
             }
         }
 
