@@ -21,19 +21,19 @@
                 .WithEndpoint<Sender>(b => b.When((session, c) => session.Send(new RequestA())))
                 .WithEndpoint<ReceiverA>(b => b.CustomConfig(c =>
                 {
-                    c.AddUniquelyAddressableQueue("1");
+                    c.MakeInstanceUniquelyAddressable("1");
                 }))
                 .WithEndpoint<ReceiverA>(b => b.CustomConfig(c =>
                 {
-                    c.AddUniquelyAddressableQueue("2");
+                    c.MakeInstanceUniquelyAddressable("2");
                 }))
                 .WithEndpoint<ReceiverB>(b => b.CustomConfig(c =>
                 {
-                    c.AddUniquelyAddressableQueue("1");
+                    c.MakeInstanceUniquelyAddressable("1");
                 }))
                 .WithEndpoint<ReceiverB>(b => b.CustomConfig(c =>
                 {
-                    c.AddUniquelyAddressableQueue("2");
+                    c.MakeInstanceUniquelyAddressable("2");
                 }))
                 .Done(c => c.MessagesReceivedPerEndpoint == numberOfMessagesToSendPerEndpoint)
                 .Run();

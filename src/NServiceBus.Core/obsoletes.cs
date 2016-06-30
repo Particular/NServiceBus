@@ -1274,7 +1274,7 @@ namespace NServiceBus.Settings
         [ObsoleteEx(
             TreatAsErrorFromVersion = "6",
             RemoveInVersion = "7",
-            ReplacementTypeOrMember = "EndpointConfiguration.AddUniquelyAddressableQueue(string discriminator)")]
+            ReplacementTypeOrMember = "EndpointConfiguration.MakeInstanceUniquelyAddressable(string discriminator)")]
         public void UniqueQueuePerEndpointInstance(string discriminator)
         {
             throw new NotImplementedException();

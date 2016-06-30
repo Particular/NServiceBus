@@ -55,7 +55,7 @@
         {
             public Receiver()
             {
-                EndpointSetup<DefaultServer>(c => { c.AddUniquelyAddressableQueue("XYZ"); });
+                EndpointSetup<DefaultServer>(c => { c.MakeInstanceUniquelyAddressable("XYZ"); });
             }
 
             public class MyRequestHandler : IHandleMessages<MyRequest>
