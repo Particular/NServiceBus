@@ -11,16 +11,12 @@
         [Test]
         public void Should_throw_on_startup()
         {
-            var exception = Assert.ThrowsAsync<AggregateException>(async () => await Scenario.Define<Context>()
+            var exception = Assert.ThrowsAsync<AggregateException>(async () => await Scenario.Define<ScenarioContext>()
                 .WithEndpoint<StartedEndpoint>()
                 .Done(c => c.EndpointsStarted)
                 .Run());
 
             StringAssert.Contains("IMessageSession", exception.ToString());
-        }
-
-        class Context : ScenarioContext
-        {
         }
 
         public class StartedEndpoint : EndpointConfigurationBuilder

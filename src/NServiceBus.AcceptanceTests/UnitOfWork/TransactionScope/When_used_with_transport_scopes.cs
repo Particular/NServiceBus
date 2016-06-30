@@ -13,7 +13,7 @@
         {
             var aex = Assert.ThrowsAsync<AggregateException>(async () =>
             {
-                await Scenario.Define<Context>()
+                await Scenario.Define<ScenarioContext>()
                     .WithEndpoint<ScopeEndpoint>(b => b.CustomConfig(c =>
                     {
                         c.UseTransport<FakeTransport>()
@@ -25,10 +25,6 @@
             });
 
             Assert.True(aex.InnerException.InnerException.Message.Contains("A Transaction scope unit of work can't be used when the transport already uses a scope"));
-        }
-
-        public class Context : ScenarioContext
-        {
         }
 
         public class ScopeEndpoint : EndpointConfigurationBuilder

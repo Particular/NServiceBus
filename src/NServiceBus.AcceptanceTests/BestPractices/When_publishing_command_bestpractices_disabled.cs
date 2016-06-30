@@ -10,7 +10,7 @@
         [Test]
         public async Task Should_allow_publishing_commands()
         {
-            var context = await Scenario.Define<Context>()
+            var context = await Scenario.Define<ScenarioContext>()
                 .WithEndpoint<Endpoint>(b => b.When((session, c) =>
                 {
                     var publishOptions = new PublishOptions();
@@ -22,10 +22,6 @@
                 .Run();
 
             Assert.True(context.EndpointsStarted);
-        }
-
-        public class Context : ScenarioContext
-        {
         }
 
         public class Endpoint : EndpointConfigurationBuilder

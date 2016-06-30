@@ -11,14 +11,10 @@
         [Test]
         public Task Should_allow_sending_events()
         {
-            return Scenario.Define<Context>()
+            return Scenario.Define<ScenarioContext>()
                 .WithEndpoint<Endpoint>(b => b.When((session, c) => session.Send(new MyEvent())))
                 .Done(c => c.EndpointsStarted)
                 .Run();
-        }
-
-        public class Context : ScenarioContext
-        {
         }
 
         public class Endpoint : EndpointConfigurationBuilder

@@ -18,16 +18,12 @@
         [Test]
         public Task Should_pass_it_to_the_transport()
         {
-            return Scenario.Define<Context>()
+            return Scenario.Define<ScenarioContext>()
                 .WithEndpoint<ThrottledEndpoint>(b => b.CustomConfig(c => c.LimitMessageProcessingConcurrencyTo(10)))
                 .Done(c => c.EndpointsStarted)
                 .Run();
 
             //Assert in FakeReceiver.Start
-        }
-
-        public class Context : ScenarioContext
-        {
         }
 
         class ThrottledEndpoint : EndpointConfigurationBuilder

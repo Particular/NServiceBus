@@ -13,13 +13,9 @@
         [Test]
         public Task Should_not_invoke_it()
         {
-            return Scenario.Define<Context>()
+            return Scenario.Define<ScenarioContext>()
                 .WithEndpoint<ConfigOverrideEndpoint>().Done(c => c.EndpointsStarted)
                 .Run();
-        }
-
-        public class Context : ScenarioContext
-        {
         }
 
         public class ConfigOverrideEndpoint : EndpointConfigurationBuilder

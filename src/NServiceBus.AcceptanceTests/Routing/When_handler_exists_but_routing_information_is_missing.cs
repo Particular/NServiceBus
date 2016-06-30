@@ -11,16 +11,12 @@
         [Test]
         public Task Should_skip_events_with_missing_routes()
         {
-            return Scenario.Define<Context>()
+            return Scenario.Define<ScenarioContext>()
                 .WithEndpoint<Subscriber>()
                 .Done(c => c.EndpointsStarted)
                 .Repeat(r => r.For<AllTransportsWithMessageDrivenPubSub>())
                 .Should(c => { Assert.True(c.EndpointsStarted); })
                 .Run();
-        }
-
-        public class Context : ScenarioContext
-        {
         }
 
         public class Subscriber : EndpointConfigurationBuilder

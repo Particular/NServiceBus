@@ -11,14 +11,10 @@
         [Test]
         public Task Should_allow_unsubscribing_to_commands()
         {
-            return Scenario.Define<Context>()
+            return Scenario.Define<ScenarioContext>()
                 .WithEndpoint<Endpoint>(b => b.When((session, c) => session.Unsubscribe<MyCommand>()))
                 .Done(c => c.EndpointsStarted)
                 .Run();
-        }
-
-        public class Context : ScenarioContext
-        {
         }
 
         public class Endpoint : EndpointConfigurationBuilder

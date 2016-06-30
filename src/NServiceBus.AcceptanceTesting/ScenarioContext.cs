@@ -6,7 +6,7 @@
     using Faults;
     using Logging;
 
-    public abstract class ScenarioContext
+    public class ScenarioContext
     {
         public Guid TestRunId { get; } = Guid.NewGuid();
 
