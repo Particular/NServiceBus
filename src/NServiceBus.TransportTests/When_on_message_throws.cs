@@ -1,45 +1,41 @@
 namespace NServiceBus.TransportTests
 {
     using System;
-    using System.Collections.Generic;
     using System.Threading;
     using System.Threading.Tasks;
     using NUnit.Framework;
+    using Transports;
 
-    public class When_sending_from_on_error : NServiceBusTransportTest
+    public class When_on_message_throws : NServiceBusTransportTest
     {
         [TestCase(TransportTransactionMode.None)]
         [TestCase(TransportTransactionMode.ReceiveOnly)]
         [TestCase(TransportTransactionMode.SendsAtomicWithReceive)]
         [TestCase(TransportTransactionMode.TransactionScope)]
-        public async Task Should_dispatch_the_message(TransportTransactionMode transactionMode)
+        public async Task Should_call_on_error(TransportTransactionMode transactionMode)
         {
-            var messageReceived = new TaskCompletionSource<bool>();
+            var onErrorCalled = new TaskCompletionSource<ErrorContext>();
             var cts = new CancellationTokenSource();
 
             cts.CancelAfter(TimeSpan.FromSeconds(10));
-            cts.Token.Register(() => messageReceived.SetResult(false));
+            cts.Token.Register(() => onErrorCalled.SetCanceled());
 
             await StartPump(context =>
             {
-                if (context.Headers.ContainsKey("FromOnError"))
-                {
-                    messageReceived.SetResult(true);
-                    return Task.FromResult(0);
-                }
-
                 throw new Exception("Simulated exception");
             },
                 context =>
                 {
-                    SendMessage(InputQueueName, new Dictionary<string, string> { { "FromOnError", "true" } });
+                    onErrorCalled.SetResult(context);
 
                     return Task.FromResult(false);
                 }, transactionMode);
 
             await SendMessage(InputQueueName);
 
-            Assert.True(await messageReceived.Task, "Message not dispatched properly");
+            var errorContext = await onErrorCalled.Task;
+
+            Assert.AreEqual(errorContext.Exception.Message, "Simulated exception");
         }
     }
 }
