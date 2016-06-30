@@ -19,9 +19,7 @@
         {
             var scenarioContext = context.Settings.Get<ScenarioContext>();
 
-            context.Pipeline.Register(
-                b => new CaptureExceptionBehavior(scenarioContext.UnfinishedFailedMessages),
-                "Captures unhandled exceptions from processed messages for the AcceptanceTesting Framework");
+            context.Pipeline.Register(new CaptureExceptionBehavior.Registration(scenarioContext.UnfinishedFailedMessages));
 
             context.Settings.Get<NotificationSubscriptions>().Subscribe<MessageToBeRetried>(m =>
             {
@@ -52,9 +50,7 @@
 
         class CaptureExceptionBehavior : Behavior<ITransportReceiveContext>
         {
-            ConcurrentDictionary<string, int> failedMessages;
-
-            public CaptureExceptionBehavior(ConcurrentDictionary<string, int> failedMessages)
+            CaptureExceptionBehavior(ConcurrentDictionary<string, int> failedMessages)
             {
                 this.failedMessages = failedMessages;
             }
@@ -66,6 +62,16 @@
                 await next().ConfigureAwait(false);
 
                 failedMessages.AddOrUpdate(context.Message.MessageId, id => 0, (id, value) => value - 1);
+            }
+
+            ConcurrentDictionary<string, int> failedMessages;
+
+            public class Registration : RegisterStep
+            {
+                public Registration(ConcurrentDictionary<string, int> failedMessages) : base("CaptureExceptionBehavior", typeof(CaptureExceptionBehavior), "Captures unhandled exceptions from processed messages for the AcceptanceTesting Framework", b => new CaptureExceptionBehavior(failedMessages))
+                {
+                    InsertAfter("Recoverability");
+                }
             }
         }
     }
