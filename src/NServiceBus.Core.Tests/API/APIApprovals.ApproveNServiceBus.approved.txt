@@ -161,9 +161,9 @@ namespace NServiceBus
             "ll be removed in version 7.0.0.", true)]
         public static string TransportConnectionString(this NServiceBus.Configure config) { }
     }
-    public class static ConfigureUniquelyAddressableQueue
+    public class static ConfigureUniquelyAddressableInstance
     {
-        public static void AddUniquelyAddressableQueue(this NServiceBus.EndpointConfiguration config, string discriminator) { }
+        public static void MakeInstanceUniquelyAddressable(this NServiceBus.EndpointConfiguration config, string discriminator) { }
     }
     public class static ConnectorContextExtensions
     {
@@ -2789,9 +2789,9 @@ namespace NServiceBus.Settings
             "sports the unique instance ID has to be provided. The member currently throws a " +
             "NotImplementedException. Will be removed in version 7.0.0.", true)]
         public void UniqueQueuePerEndpointInstance() { }
-        [System.ObsoleteAttribute("Use `EndpointConfiguration.AddUniquelyAddressableQueue(string discriminator)` ins" +
-            "tead. The member currently throws a NotImplementedException. Will be removed in " +
-            "version 7.0.0.", true)]
+        [System.ObsoleteAttribute("Use `EndpointConfiguration.MakeInstanceUniquelyAddressable(string discriminator)`" +
+            " instead. The member currently throws a NotImplementedException. Will be removed" +
+            " in version 7.0.0.", true)]
         public void UniqueQueuePerEndpointInstance(string discriminator) { }
         [System.ObsoleteAttribute("This is the default starting with V6. The member currently throws a NotImplemente" +
             "dException. Will be removed in version 7.0.0.", true)]
