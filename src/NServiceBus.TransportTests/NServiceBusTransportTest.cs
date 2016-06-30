@@ -15,12 +15,11 @@
 
     public abstract class NServiceBusTransportTest
     {
-
         [SetUp]
         public void Setup()
         {
             var transportDefinitionType = DetectTransportTypeByConvention();
-            TransportDefinition = (TransportDefinition)Activator.CreateInstance(transportDefinitionType);
+            TransportDefinition = (TransportDefinition) Activator.CreateInstance(transportDefinitionType);
             TransportInfrastructure = TransportDefinition.Initialize(new SettingsHolder(), "");
 
             ReceiveInfrastructure = TransportInfrastructure.ConfigureReceiveInfrastructure();
@@ -121,10 +120,8 @@
 
         TransportReceiveInfrastructure ReceiveInfrastructure;
         TransportSendInfrastructure SendInfrastructure;
-
         TransportInfrastructure TransportInfrastructure;
         IPushMessages MessagePump;
-
         TransportDefinition TransportDefinition;
     }
 }
