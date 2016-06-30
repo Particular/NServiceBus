@@ -74,7 +74,7 @@
 
             public override bool RequiresConnectionString => false;
 
-            protected override TransportInfrastructure Initialize(SettingsHolder settings, string connectionString)
+            public override TransportInfrastructure Initialize(SettingsHolder settings, string connectionString)
             {
                 return new FakeTransportInfrastructure();
             }
