@@ -14,7 +14,10 @@
         {
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<EndpointSanitizingInput>(e => e
-                    .When(session => session.SendLocal(new SimpleMessage {Value = "Hello World!"})))
+                    .When(session => session.SendLocal(new SimpleMessage
+                    {
+                        Value = "Hello World!"
+                    })))
                 .Done(c => c.MessageReceived)
                 .Run();
 

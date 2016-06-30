@@ -2259,7 +2259,7 @@ namespace NServiceBus.Settings
         [ObsoleteEx(
           RemoveInVersion = "7.0",
           TreatAsErrorFromVersion = "6.0",
-          Message = "Set(string key, object value)")]
+          ReplacementTypeOrMember = "Set(string key, object value)")]
         public void SetProperty<T>(Expression<Func<T, object>> property, object value)
         {
             throw new NotImplementedException();
@@ -2268,7 +2268,7 @@ namespace NServiceBus.Settings
         [ObsoleteEx(
           RemoveInVersion = "7.0",
           TreatAsErrorFromVersion = "6.0",
-          Message = "Set(string key, object value)")]
+          ReplacementTypeOrMember = "Set(string key, object value)")]
         public void SetPropertyDefault<T>(Expression<Func<T, object>> property, object value)
         {
             throw new NotImplementedException();
