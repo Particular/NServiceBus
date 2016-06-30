@@ -84,18 +84,19 @@ namespace NServiceBus
             return message.CorrelationId.Replace("\\0", string.Empty);
         }
 
-        static Dictionary<string, string> DeserializeMessageHeaders(Message m)
+        public static Dictionary<string, string> DeserializeMessageHeaders(Message m)
         {
+            var bytes = m.Extension;
             var result = new Dictionary<string, string>();
 
-            if (m.Extension.Length == 0)
+            if (bytes.Length == 0)
             {
                 return result;
             }
 
             //This is to make us compatible with v3 messages that are affected by this bug:
             //http://stackoverflow.com/questions/3779690/xml-serialization-appending-the-0-backslash-0-or-null-character
-            var extension = Encoding.UTF8.GetString(m.Extension).TrimEnd('\0');
+            var extension = Encoding.UTF8.GetString(bytes).TrimEnd('\0');
             object o;
             using (var stream = new StringReader(extension))
             {
@@ -117,6 +118,12 @@ namespace NServiceBus
             }
 
             return result;
+        }
+
+        public static Dictionary<string, string> DeserializeMessageHeadersFast(Message m)
+        {
+            var bytes = m.Extension;
+            return MsmqFastHeadersParser.ParseHeaders(bytes);
         }
 
         public static Message Convert(OutgoingMessage message, List<DeliveryConstraint> deliveryConstraints)
