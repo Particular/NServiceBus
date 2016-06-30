@@ -12,7 +12,7 @@
         [Test]
         public async Task Should_work()
         {
-            var context = await Scenario.Define<Context>()
+            var context = await Scenario.Define<ScenarioContext>()
                  .WithEndpoint<ScopeEndpoint>(b => b.CustomConfig(c =>
                  {
                      c.GetSettings().Set("FakeTransport.SupportedTransactionMode", TransportTransactionMode.ReceiveOnly);
@@ -24,10 +24,6 @@
                  .Run();
 
             Assert.True(context.EndpointsStarted);
-        }
-
-        public class Context : ScenarioContext
-        {
         }
 
         public class ScopeEndpoint : EndpointConfigurationBuilder

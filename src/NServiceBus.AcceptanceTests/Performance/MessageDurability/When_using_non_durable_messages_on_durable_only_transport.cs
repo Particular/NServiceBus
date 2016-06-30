@@ -11,7 +11,7 @@
         [Test]
         public void Should_throw_exception_at_startup()
         {
-            var exception = Assert.ThrowsAsync<AggregateException>(() => Scenario.Define<Context>()
+            var exception = Assert.ThrowsAsync<AggregateException>(() => Scenario.Define<ScenarioContext>()
                 .WithEndpoint<EndpointUsingNonDurableMessage>(c => c
                     .When(e => e.SendLocal(new NonDurableMessage())))
                 .Done(c => c.EndpointsStarted)
@@ -19,10 +19,6 @@
 
             Assert.That(exception.InnerException.InnerException, Is.TypeOf<Exception>());
             Assert.That(exception.InnerException.InnerException.Message, Does.Contain("The configured transport does not support non-durable messages but some messages have been configured to be non-durable"));
-        }
-
-        class Context : ScenarioContext
-        {
         }
 
         class EndpointUsingNonDurableMessage : EndpointConfigurationBuilder

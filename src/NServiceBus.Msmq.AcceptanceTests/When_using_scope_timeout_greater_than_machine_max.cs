@@ -11,16 +11,12 @@
         {
             var aex = Assert.ThrowsAsync<AggregateException>(async () =>
             {
-                await Scenario.Define<Context>()
+                await Scenario.Define<ScenarioContext>()
                         .WithEndpoint<ScopeEndpoint>()
                         .Run();
             });
 
             Assert.True(aex.InnerException.InnerException.Message.Contains("Timeout requested is longer than the maximum value for this machine"));
-        }
-
-        public class Context : ScenarioContext
-        {
         }
 
         public class ScopeEndpoint : EndpointConfigurationBuilder

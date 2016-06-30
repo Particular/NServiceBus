@@ -11,7 +11,7 @@
         [Test]
         public Task Should_allow_subscribing_to_commands()
         {
-            return Scenario.Define<Context>()
+            return Scenario.Define<ScenarioContext>()
                 .WithEndpoint<Endpoint>(b => b.When((session, c) => session.Subscribe<MyCommand>()))
                 .Done(c => c.EndpointsStarted)
                 .Run();
@@ -20,7 +20,7 @@
         [Test]
         public Task Should_allow_publishing_commands()
         {
-            return Scenario.Define<Context>()
+            return Scenario.Define<ScenarioContext>()
                 .WithEndpoint<Endpoint>(b => b.When((session, c) => session.Publish(new MyCommand())))
                 .Done(c => c.EndpointsStarted)
                 .Run();
@@ -29,14 +29,10 @@
         [Test]
         public Task Should_allow_sending_events()
         {
-            return Scenario.Define<Context>()
+            return Scenario.Define<ScenarioContext>()
                 .WithEndpoint<Endpoint>(b => b.When((session, c) => session.Send(new MyEvent())))
                 .Done(c => c.EndpointsStarted)
                 .Run();
-        }
-
-        public class Context : ScenarioContext
-        {
         }
 
         public class Endpoint : EndpointConfigurationBuilder
