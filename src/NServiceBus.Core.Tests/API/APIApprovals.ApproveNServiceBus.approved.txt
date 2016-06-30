@@ -385,11 +385,6 @@ namespace NServiceBus
             "ly throws a NotImplementedException. Will be removed in version 7.0.0.", true)]
         public static void SetMessageHeader(this NServiceBus.IBus bus, object msg, string key, string value) { }
     }
-    public class static FileBasedRoutingConfigurationExtensions
-    {
-        public static NServiceBus.FileRoutingTableSettings FileBasedEndpointInstanceMapping<T>(this NServiceBus.RoutingSettings<T> config, string filePath)
-            where T : NServiceBus.Transports.TransportDefinition, NServiceBus.Transports.IEnableFiledBasedInstanceMapping { }
-    }
     public class FileRoutingTableSettings : NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings
     {
         public FileRoutingTableSettings(NServiceBus.Settings.SettingsHolder settings) { }
@@ -744,9 +739,9 @@ namespace NServiceBus
     }
     public class static MessageDrivenSubscriptionsConfigExtensions
     {
-        public static void RegisterPublisherForAssembly<T>(this NServiceBus.TransportExtensions<T> transportExtensions, string publisherEndpoint, System.Reflection.Assembly eventAssembly, string eventNamespace = null)
+        public static void RegisterPublisherForAssembly<T>(this NServiceBus.RoutingSettings<T> routingSettings, string publisherEndpoint, System.Reflection.Assembly eventAssembly, string eventNamespace = null)
             where T : NServiceBus.Transports.TransportDefinition, NServiceBus.Routing.IMessageDrivenSubscriptionTransport { }
-        public static void RegisterPublisherForType<T>(this NServiceBus.TransportExtensions<T> transportExtensions, string publisherEndpoint, System.Type eventType)
+        public static void RegisterPublisherForType<T>(this NServiceBus.RoutingSettings<T> routingSettings, string publisherEndpoint, System.Type eventType)
             where T : NServiceBus.Transports.TransportDefinition, NServiceBus.Routing.IMessageDrivenSubscriptionTransport { }
         public static void SubscriptionAuthorizer<T>(this NServiceBus.TransportExtensions<T> transportExtensions, System.Func<NServiceBus.Pipeline.IIncomingPhysicalMessageContext, bool> authorizer)
             where T : NServiceBus.Transports.TransportDefinition, NServiceBus.Routing.IMessageDrivenSubscriptionTransport { }
@@ -771,10 +766,11 @@ namespace NServiceBus
     public class static MsmqConfigurationExtensions
     {
         public static NServiceBus.TransportExtensions<NServiceBus.MsmqTransport> ApplyLabelToMessages(this NServiceBus.TransportExtensions<NServiceBus.MsmqTransport> transportExtensions, System.Func<System.Collections.Generic.IReadOnlyDictionary<string, string>, string> labelGenerator) { }
+        public static NServiceBus.FileRoutingTableSettings FileBasedEndpointInstanceMapping(this NServiceBus.RoutingSettings<NServiceBus.MsmqTransport> config, string filePath) { }
         public static void SetMessageDistributionStrategy(this NServiceBus.RoutingSettings<NServiceBus.MsmqTransport> config, string endpointName, NServiceBus.Routing.DistributionStrategy distributionStrategy) { }
         public static NServiceBus.TransportExtensions<NServiceBus.MsmqTransport> TransactionScopeOptions(this NServiceBus.TransportExtensions<NServiceBus.MsmqTransport> transportExtensions, System.Nullable<System.TimeSpan> timeout = null, System.Nullable<System.Transactions.IsolationLevel> isolationLevel = null) { }
     }
-    public class MsmqTransport : NServiceBus.Transports.TransportDefinition, NServiceBus.Routing.IMessageDrivenSubscriptionTransport, NServiceBus.Transports.IEnableFiledBasedInstanceMapping
+    public class MsmqTransport : NServiceBus.Transports.TransportDefinition, NServiceBus.Routing.IMessageDrivenSubscriptionTransport
     {
         public MsmqTransport() { }
         public override string ExampleConnectionStringForErrorMessage { get; }
@@ -905,7 +901,7 @@ namespace NServiceBus
     }
     public class RoutingSettings : NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings
     {
-        public void RouteTo(System.Type messageType, string destinationEndpoint) { }
+        public void RouteToEndpoint(System.Type messageType, string destination) { }
     }
     public class RoutingSettings<T> : NServiceBus.RoutingSettings
         where T : NServiceBus.Transports.TransportDefinition { }
@@ -2960,7 +2956,6 @@ namespace NServiceBus.Transports
     {
         System.Threading.Tasks.Task Dispatch(NServiceBus.Transports.TransportOperations outgoingMessages, NServiceBus.Extensibility.ContextBag context);
     }
-    public interface IEnableFiledBasedInstanceMapping { }
     public interface IManageSubscriptions
     {
         System.Threading.Tasks.Task Subscribe(System.Type eventType, NServiceBus.Extensibility.ContextBag context);
