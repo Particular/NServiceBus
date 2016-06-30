@@ -119,7 +119,7 @@ namespace NServiceBus
             return result;
         }
 
-        public static Message Convert(OutgoingMessage message, IEnumerable<DeliveryConstraint> deliveryConstraints)
+        public static Message Convert(OutgoingMessage message, List<DeliveryConstraint> deliveryConstraints)
         {
             var result = new Message();
 

@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
     using System.Messaging;
     using DeliveryConstraints;
     using NServiceBus.Performance.TimeToBeReceived;
@@ -21,7 +20,7 @@
             var message = MsmqUtilities.Convert(new OutgoingMessage("message id", new Dictionary<string, string>
             {
                 {"NServiceBus.ExceptionInfo.Message", expected}
-            }, new byte[0]), Enumerable.Empty<DeliveryConstraint>());
+            }, new byte[0]), new List<DeliveryConstraint>());
             var headers = MsmqUtilities.ExtractHeaders(message);
 
             Assert.AreEqual(expected, headers["NServiceBus.ExceptionInfo.Message"]);
@@ -36,10 +35,10 @@
             var message = MsmqUtilities.Convert(new OutgoingMessage("message id", new Dictionary<string, string>
             {
                 {"NServiceBus.ExceptionInfo.Message", expected}
-            }, new byte[0]), Enumerable.Empty<DeliveryConstraint>());
-            var bufferWithNulls = new byte[message.Extension.Length + 10 * sizeof(char)];
+            }, new byte[0]), new List<DeliveryConstraint>());
+            var bufferWithNulls = new byte[message.Extension.Length + 10*sizeof(char)];
 
-            Buffer.BlockCopy(message.Extension, 0, bufferWithNulls, 0, bufferWithNulls.Length - 10 * sizeof(char));
+            Buffer.BlockCopy(message.Extension, 0, bufferWithNulls, 0, bufferWithNulls.Length - 10*sizeof(char));
 
             message.Extension = bufferWithNulls;
 
@@ -52,8 +51,8 @@
         public void Should_fetch_the_replyToAddress_from_responsequeue_for_backwards_compatibility()
         {
             var message = MsmqUtilities.Convert(
-                new OutgoingMessage("message id", new Dictionary<string, string>(), new byte[0]), 
-                Enumerable.Empty<DeliveryConstraint>());
+                new OutgoingMessage("message id", new Dictionary<string, string>(), new byte[0]),
+                new List<DeliveryConstraint>());
 
             message.ResponseQueue = new MessageQueue(new MsmqAddress("local", RuntimeEnvironment.MachineName).FullPath);
             var headers = MsmqUtilities.ExtractHeaders(message);
@@ -78,12 +77,14 @@
         [Test]
         public void Should_use_the_non_durable_setting()
         {
-            var nonDurableDeliveryConstraint = new List<DeliveryConstraint> { new NonDurableDelivery() };
-            var durableDeliveryConstraint = Enumerable.Empty<DeliveryConstraint>();
+            var nonDurableDeliveryConstraint = new List<DeliveryConstraint>
+            {
+                new NonDurableDelivery()
+            };
+            var durableDeliveryConstraint = new List<DeliveryConstraint>();
 
             Assert.False(MsmqUtilities.Convert(new OutgoingMessage("message id", new Dictionary<string, string>(), new byte[0]), nonDurableDeliveryConstraint).Recoverable);
             Assert.True(MsmqUtilities.Convert(new OutgoingMessage("message id", new Dictionary<string, string>(), new byte[0]), durableDeliveryConstraint).Recoverable);
         }
-
     }
 }

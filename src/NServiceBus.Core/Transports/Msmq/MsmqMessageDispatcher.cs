@@ -111,7 +111,7 @@ namespace NServiceBus
             }
         }
 
-        bool IsCombiningTimeToBeReceivedWithTransactions(ReadOnlyContextBag context, DispatchConsistency requiredDispatchConsistency, IEnumerable<DeliveryConstraint> deliveryConstraints)
+        bool IsCombiningTimeToBeReceivedWithTransactions(ReadOnlyContextBag context, DispatchConsistency requiredDispatchConsistency, List<DeliveryConstraint> deliveryConstraints)
         {
             if (!settings.UseTransactionalQueues)
             {

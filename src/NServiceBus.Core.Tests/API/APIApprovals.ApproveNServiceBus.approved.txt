@@ -1511,7 +1511,7 @@ namespace NServiceBus.DeliveryConstraints
     public class static DeliveryConstraintContextExtensions
     {
         public static void AddDeliveryConstraint(this NServiceBus.Extensibility.ContextBag context, NServiceBus.DeliveryConstraints.DeliveryConstraint constraint) { }
-        public static System.Collections.Generic.IEnumerable<NServiceBus.DeliveryConstraints.DeliveryConstraint> GetDeliveryConstraints(this NServiceBus.Extensibility.ContextBag context) { }
+        public static System.Collections.Generic.List<NServiceBus.DeliveryConstraints.DeliveryConstraint> GetDeliveryConstraints(this NServiceBus.Extensibility.ContextBag context) { }
         public static void RemoveDeliveryConstaint(this NServiceBus.Extensibility.ContextBag context, NServiceBus.DeliveryConstraints.DeliveryConstraint constraint) { }
         public static bool TryGetDeliveryConstraint<T>(this NServiceBus.Extensibility.ContextBag context, out T constraint)
             where T : NServiceBus.DeliveryConstraints.DeliveryConstraint { }
@@ -2982,7 +2982,7 @@ namespace NServiceBus.Transports
     }
     public interface IOutgoingTransportOperation
     {
-        System.Collections.Generic.IEnumerable<NServiceBus.DeliveryConstraints.DeliveryConstraint> DeliveryConstraints { get; }
+        System.Collections.Generic.List<NServiceBus.DeliveryConstraints.DeliveryConstraint> DeliveryConstraints { get; }
         NServiceBus.Transports.OutgoingMessage Message { get; }
         NServiceBus.Transports.DispatchConsistency RequiredDispatchConsistency { get; }
     }
@@ -3005,8 +3005,8 @@ namespace NServiceBus.Transports
     }
     public class MulticastTransportOperation : NServiceBus.Transports.IOutgoingTransportOperation
     {
-        public MulticastTransportOperation(NServiceBus.Transports.OutgoingMessage message, System.Type messageType, NServiceBus.Transports.DispatchConsistency requiredDispatchConsistency = 1, System.Collections.Generic.IEnumerable<NServiceBus.DeliveryConstraints.DeliveryConstraint> deliveryConstraints = null) { }
-        public System.Collections.Generic.IEnumerable<NServiceBus.DeliveryConstraints.DeliveryConstraint> DeliveryConstraints { get; }
+        public MulticastTransportOperation(NServiceBus.Transports.OutgoingMessage message, System.Type messageType, NServiceBus.Transports.DispatchConsistency requiredDispatchConsistency = 1, System.Collections.Generic.List<NServiceBus.DeliveryConstraints.DeliveryConstraint> deliveryConstraints = null) { }
+        public System.Collections.Generic.List<NServiceBus.DeliveryConstraints.DeliveryConstraint> DeliveryConstraints { get; }
         public NServiceBus.Transports.OutgoingMessage Message { get; }
         public System.Type MessageType { get; }
         public NServiceBus.Transports.DispatchConsistency RequiredDispatchConsistency { get; }
@@ -3116,17 +3116,17 @@ namespace NServiceBus.Transports
     }
     public class TransportOperation
     {
-        public TransportOperation(NServiceBus.Transports.OutgoingMessage message, NServiceBus.Routing.AddressTag addressTag, NServiceBus.Transports.DispatchConsistency requiredDispatchConsistency = 1, System.Collections.Generic.IEnumerable<NServiceBus.DeliveryConstraints.DeliveryConstraint> deliveryConstraints = null) { }
+        public TransportOperation(NServiceBus.Transports.OutgoingMessage message, NServiceBus.Routing.AddressTag addressTag, NServiceBus.Transports.DispatchConsistency requiredDispatchConsistency = 1, System.Collections.Generic.List<NServiceBus.DeliveryConstraints.DeliveryConstraint> deliveryConstraints = null) { }
         public NServiceBus.Routing.AddressTag AddressTag { get; }
-        public System.Collections.Generic.IEnumerable<NServiceBus.DeliveryConstraints.DeliveryConstraint> DeliveryConstraints { get; }
+        public System.Collections.Generic.List<NServiceBus.DeliveryConstraints.DeliveryConstraint> DeliveryConstraints { get; }
         public NServiceBus.Transports.OutgoingMessage Message { get; }
         public NServiceBus.Transports.DispatchConsistency RequiredDispatchConsistency { get; set; }
     }
     public class TransportOperations
     {
         public TransportOperations(params NServiceBus.Transports.TransportOperation[] transportOperations) { }
-        public System.Collections.Generic.IEnumerable<NServiceBus.Transports.MulticastTransportOperation> MulticastTransportOperations { get; }
-        public System.Collections.Generic.IEnumerable<NServiceBus.Transports.UnicastTransportOperation> UnicastTransportOperations { get; }
+        public System.Collections.Generic.List<NServiceBus.Transports.MulticastTransportOperation> MulticastTransportOperations { get; }
+        public System.Collections.Generic.List<NServiceBus.Transports.UnicastTransportOperation> UnicastTransportOperations { get; }
     }
     public class TransportReceiveInfrastructure
     {
@@ -3146,8 +3146,8 @@ namespace NServiceBus.Transports
     }
     public class UnicastTransportOperation : NServiceBus.Transports.IOutgoingTransportOperation
     {
-        public UnicastTransportOperation(NServiceBus.Transports.OutgoingMessage message, string destination, NServiceBus.Transports.DispatchConsistency requiredDispatchConsistency = 1, System.Collections.Generic.IEnumerable<NServiceBus.DeliveryConstraints.DeliveryConstraint> deliveryConstraints = null) { }
-        public System.Collections.Generic.IEnumerable<NServiceBus.DeliveryConstraints.DeliveryConstraint> DeliveryConstraints { get; }
+        public UnicastTransportOperation(NServiceBus.Transports.OutgoingMessage message, string destination, NServiceBus.Transports.DispatchConsistency requiredDispatchConsistency = 1, System.Collections.Generic.List<NServiceBus.DeliveryConstraints.DeliveryConstraint> deliveryConstraints = null) { }
+        public System.Collections.Generic.List<NServiceBus.DeliveryConstraints.DeliveryConstraint> DeliveryConstraints { get; }
         public string Destination { get; }
         public NServiceBus.Transports.OutgoingMessage Message { get; }
         public NServiceBus.Transports.DispatchConsistency RequiredDispatchConsistency { get; }

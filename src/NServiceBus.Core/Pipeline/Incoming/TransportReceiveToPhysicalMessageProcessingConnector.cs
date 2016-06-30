@@ -76,8 +76,9 @@ namespace NServiceBus
             }
         }
 
-        static IEnumerable<TransportOperation> ConvertToOutboxOperations(IEnumerable<Transports.TransportOperation> operations)
+        static List<TransportOperation> ConvertToOutboxOperations(IEnumerable<Transports.TransportOperation> operations)
         {
+            var transportOperations = new List<TransportOperation>();
             foreach (var operation in operations)
             {
                 var options = new Dictionary<string, string>();
@@ -89,9 +90,10 @@ namespace NServiceBus
 
                 SerializeRoutingStrategy(operation.AddressTag, options);
 
-                yield return new TransportOperation(operation.Message.MessageId,
-                    options, operation.Message.Body, operation.Message.Headers);
+                transportOperations.Add(new TransportOperation(operation.Message.MessageId,
+                    options, operation.Message.Body, operation.Message.Headers));
             }
+            return transportOperations;
         }
 
         static void SerializeRoutingStrategy(AddressTag addressTag, Dictionary<string, string> options)
@@ -145,32 +147,34 @@ namespace NServiceBus
             throw new Exception($"Unknown delivery constraint {constraint.GetType().FullName}");
         }
 
-        static IEnumerable<DeliveryConstraint> DeserializeConstraints(Dictionary<string, string> options)
+        static List<DeliveryConstraint> DeserializeConstraints(Dictionary<string, string> options)
         {
+            var constraints = new List<DeliveryConstraint>(4);
             if (options.ContainsKey("NonDurable"))
             {
-                yield return new NonDurableDelivery();
+                constraints.Add(new NonDurableDelivery());
             }
 
             string deliverAt;
             if (options.TryGetValue("DeliverAt", out deliverAt))
             {
-                yield return new DoNotDeliverBefore(DateTimeExtensions.ToUtcDateTime(deliverAt));
+                constraints.Add(new DoNotDeliverBefore(DateTimeExtensions.ToUtcDateTime(deliverAt)));
             }
 
 
             string delay;
             if (options.TryGetValue("DelayDeliveryFor", out delay))
             {
-                yield return new DelayDeliveryWith(TimeSpan.Parse(delay));
+                constraints.Add(new DelayDeliveryWith(TimeSpan.Parse(delay)));
             }
 
             string ttbr;
 
             if (options.TryGetValue("TimeToBeReceived", out ttbr))
             {
-                yield return new DiscardIfNotReceivedBefore(TimeSpan.Parse(ttbr));
+                constraints.Add(new DiscardIfNotReceivedBefore(TimeSpan.Parse(ttbr)));
             }
+            return constraints;
         }
 
         static AddressTag DeserializeRoutingStrategy(Dictionary<string, string> options)
