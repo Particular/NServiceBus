@@ -50,12 +50,15 @@ namespace NServiceBus
                             return;
                         }
                     }
-                    var shouldAbortMessageProcessing = await TryProcessMessage(message, headers, new ScopeTransportTransaction(Transaction.Current)).ConfigureAwait(false);
-
-                    if (!shouldAbortMessageProcessing)
+                    using (var bodyStream = message.BodyStream)
                     {
-                        failureInfoStorage.ClearFailureInfoForMessage(message.Id);
-                        scope.Complete();
+                        var shouldAbortMessageProcessing = await TryProcessMessage(message, headers, bodyStream, new ScopeTransportTransaction(Transaction.Current)).ConfigureAwait(false);
+
+                        if (!shouldAbortMessageProcessing)
+                        {
+                            failureInfoStorage.ClearFailureInfoForMessage(message.Id);
+                            scope.Complete();
+                        }
                     }
                 }
             }

@@ -12,6 +12,8 @@
 
     public abstract class NServiceBusTransportTest
     {
+        string ErrorQueueName => $"{InputQueueName}.error";
+
         [SetUp]
         public void Setup()
         {
@@ -19,14 +21,21 @@
             TransportDefinition = (TransportDefinition) Activator.CreateInstance(transportDefinitionType);
             TransportInfrastructure = TransportDefinition.Initialize(new SettingsHolder(), "");
 
-            OnlyAppliesToTransportsSupporting(RequestedTransactionMode());
-
             ReceiveInfrastructure = TransportInfrastructure.ConfigureReceiveInfrastructure();
             SendInfrastructure = TransportInfrastructure.ConfigureSendInfrastructure();
         }
 
-        protected async Task StartPump(Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<bool>> onError)
+        protected async Task StartPump(Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<bool>> onError, TransportTransactionMode? transactionMode = null)
         {
+            var transactionModeToUse = transactionMode ?? GetDefaultTransactionMode();
+
+            if (!transactionModeToUse.HasValue)
+            {
+                throw new InvalidOperationException("No transaction mode detected");
+            }
+
+            IgnoreUnsupportedTransactionModes(transactionModeToUse.Value);
+
             MessagePump = ReceiveInfrastructure.MessagePumpFactory();
 
             var queueBindings = new QueueBindings();
@@ -39,7 +48,7 @@
 
             await queueCreator.CreateQueueIfNecessary(queueBindings, WindowsIdentity.GetCurrent().Name);
 
-            var pushSettings = new PushSettings(InputQueueName, ErrorQueueName, true, RequestedTransactionMode());
+            var pushSettings = new PushSettings(InputQueueName, ErrorQueueName, true, transactionModeToUse.Value);
 
             await MessagePump.Init(onMessage, onError, new CriticalError(c => Task.FromResult(0)), pushSettings);
 
@@ -47,7 +56,7 @@
         }
 
 
-        void OnlyAppliesToTransportsSupporting(TransportTransactionMode requestedTransactionMode)
+        void IgnoreUnsupportedTransactionModes(TransportTransactionMode requestedTransactionMode)
         {
             if (TransportInfrastructure.TransactionMode < requestedTransactionMode)
             {
@@ -55,30 +64,32 @@
             }
         }
 
-        protected Task SendMessage(string address)
+        protected Task SendMessage(string address, Dictionary<string, string> headers = null)
         {
             var messageId = Guid.NewGuid().ToString();
-            var message = new OutgoingMessage(messageId, new Dictionary<string, string>(), new byte[0]);
+            var message = new OutgoingMessage(messageId, headers ?? new Dictionary<string, string>(), new byte[0]);
 
             var dispatcher = SendInfrastructure.DispatcherFactory();
             return dispatcher.Dispatch(new TransportOperations(new TransportOperation(message, new UnicastAddressTag(address))), new ContextBag());
         }
 
-        protected TransportReceiveInfrastructure ReceiveInfrastructure;
-        protected TransportSendInfrastructure SendInfrastructure;
-        protected string InputQueueName = "when_scope_dispose_throws";
-
-        protected string ErrorQueueName => $"{InputQueueName}.error";
-
-        protected TransportInfrastructure TransportInfrastructure;
-        protected IPushMessages MessagePump;
-
-        protected abstract TransportTransactionMode RequestedTransactionMode();
+        protected virtual TransportTransactionMode? GetDefaultTransactionMode()
+        {
+            return null;
+        }
 
         Type DetectTransportTypeByConvention()
         {
-            return typeof(MsmqTransport);//todo
+            return typeof(MsmqTransport); //todo
         }
+
+        protected string InputQueueName = "when_scope_dispose_throws";
+
+        TransportReceiveInfrastructure ReceiveInfrastructure;
+        TransportSendInfrastructure SendInfrastructure;
+
+        TransportInfrastructure TransportInfrastructure;
+        IPushMessages MessagePump;
 
         TransportDefinition TransportDefinition;
     }

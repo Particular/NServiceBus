@@ -41,9 +41,10 @@
     <Reference Include="System.Transactions" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="TransactionScopes\NServiceBusTransportTest.cs" />
-    <Compile Include="TransactionScopes\ScopeTransportTest.cs" />
+    <Compile Include="NServiceBusTransportTest.cs" />
+    <Compile Include="ScopeTransportTest.cs" />
     <Compile Include="TransactionScopes\When_scope_dispose_throws.cs" />
+    <Compile Include="When_sending_from_on_error.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="AtomicWithReceive\" />

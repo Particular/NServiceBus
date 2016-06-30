@@ -2,6 +2,7 @@ namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
+    using System.IO;
     using System.Messaging;
     using System.Threading;
     using System.Threading.Tasks;
@@ -98,21 +99,17 @@ namespace NServiceBus
             ErrorQueue.Send(message, transactionType);
         }
 
-        protected async Task<bool> TryProcessMessage(Message message, Dictionary<string, string> headers, TransportTransaction transaction)
+        protected async Task<bool> TryProcessMessage(Message message, Dictionary<string, string> headers, Stream bodyStream, TransportTransaction transaction)
         {
             using (var tokenSource = new CancellationTokenSource())
             {
-                using (var bodyStream = message.BodyStream)
-                {
-                    var messageContext = new MessageContext(message.Id, headers, bodyStream, transaction, tokenSource, new ContextBag());
+                var messageContext = new MessageContext(message.Id, headers, bodyStream, transaction, tokenSource, new ContextBag());
 
-                    await OnMessage(messageContext).ConfigureAwait(false);
-                }
+                await OnMessage(messageContext).ConfigureAwait(false);
 
                 return tokenSource.Token.IsCancellationRequested;
             }
         }
-
 
         protected async Task<bool> HandleError(Message message, Dictionary<string, string> headers, Exception exception, int numberOfProcessingAttempts)
         {

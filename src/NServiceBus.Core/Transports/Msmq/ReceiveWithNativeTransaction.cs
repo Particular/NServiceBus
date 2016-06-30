@@ -57,12 +57,15 @@ namespace NServiceBus
 
                         if (shouldTryProcessMessage)
                         {
-                            var shouldAbortMessageProcessing = await TryProcessMessage(message, headers, transportTransaction).ConfigureAwait(false);
-
-                            if (shouldAbortMessageProcessing)
+                            using (var bodyStream = message.BodyStream)
                             {
-                                msmqTransaction.Abort();
-                                return;
+                                var shouldAbortMessageProcessing = await TryProcessMessage(message, headers, bodyStream, transportTransaction).ConfigureAwait(false);
+
+                                if (shouldAbortMessageProcessing)
+                                {
+                                    msmqTransaction.Abort();
+                                    return;
+                                }
                             }
                         }
 

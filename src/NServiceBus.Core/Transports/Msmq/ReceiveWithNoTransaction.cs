@@ -25,15 +25,18 @@ namespace NServiceBus
                 return;
             }
 
-            try
+            using (var bodyStream = message.BodyStream)
             {
-                await TryProcessMessage(message, headers, new TransportTransaction()).ConfigureAwait(false);
-            }
-            catch (Exception exception)
-            {
-                message.BodyStream.Position = 0;
+                try
+                {
+                    await TryProcessMessage(message, headers, bodyStream, new TransportTransaction()).ConfigureAwait(false);
+                }
+                catch (Exception exception)
+                {
+                    message.BodyStream.Position = 0;
 
-                await HandleError(message, headers, exception, 1).ConfigureAwait(false);
+                    await HandleError(message, headers, exception, 1).ConfigureAwait(false);
+                }
             }
         }
     }

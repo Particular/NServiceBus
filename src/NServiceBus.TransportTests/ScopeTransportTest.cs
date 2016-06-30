@@ -2,7 +2,7 @@
 {
     public class ScopeTransportTest : NServiceBusTransportTest
     {
-        protected override TransportTransactionMode RequestedTransactionMode()
+        protected override TransportTransactionMode? GetDefaultTransactionMode()
         {
             return TransportTransactionMode.TransactionScope;
         }
