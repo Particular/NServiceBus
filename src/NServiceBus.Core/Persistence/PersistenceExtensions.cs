@@ -51,6 +51,7 @@
         /// </summary>
         /// <param name="specificStorages">The list of storage needs.</param>
         [ObsoleteEx(
+            Message = "Example: config.UsePersistence<InMemoryPersistence>().For(TimeoutStorage) should be changed to config.UsePersistence<InMemoryPersistence, Timeouts>()",
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0",
             ReplacementTypeOrMember = "UsePersistence<T, S>()")]
@@ -107,9 +108,10 @@
         /// </summary>
         /// <param name="specificStorages">The list of storage needs.</param>
         [ObsoleteEx(
+            Message = "Example: config.UsePersistence<InMemoryPersistence>().For(TimeoutStorage) should be changed to config.UsePersistence<InMemoryPersistence, Timeouts>()",
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0",
-            ReplacementTypeOrMember = "UsePersistence<T, S>()")]
+            ReplacementTypeOrMember = "UsePersistence<T, S>() where T : PersistenceExtension where S : StorageType")]
         public PersistenceExtensions For(params Storage[] specificStorages)
         {
             if (specificStorages == null || specificStorages.Length == 0)
