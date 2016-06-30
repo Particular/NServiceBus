@@ -1,6 +1,6 @@
 ﻿namespace NServiceBus.TransportTests
 {
-    public class ScopeTransportTest : NServiceBusTransportTest
+    public abstract class ScopeTransportTest : NServiceBusTransportTest
     {
         protected override TransportTransactionMode? GetDefaultTransactionMode()
         {

@@ -2,7 +2,10 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
+    using System.Linq;
     using System.Security.Principal;
+    using System.Threading;
     using System.Threading.Tasks;
     using Extensibility;
     using NUnit.Framework;
@@ -12,13 +15,12 @@
 
     public abstract class NServiceBusTransportTest
     {
-        string ErrorQueueName => $"{InputQueueName}.error";
 
         [SetUp]
         public void Setup()
         {
             var transportDefinitionType = DetectTransportTypeByConvention();
-            TransportDefinition = (TransportDefinition) Activator.CreateInstance(transportDefinitionType);
+            TransportDefinition = (TransportDefinition)Activator.CreateInstance(transportDefinitionType);
             TransportInfrastructure = TransportDefinition.Initialize(new SettingsHolder(), "");
 
             ReceiveInfrastructure = TransportInfrastructure.ConfigureReceiveInfrastructure();
@@ -35,20 +37,22 @@
             }
 
             IgnoreUnsupportedTransactionModes(transactionModeToUse.Value);
+            InputQueueName = GetTestName() + transactionModeToUse.Value;
 
             MessagePump = ReceiveInfrastructure.MessagePumpFactory();
 
             var queueBindings = new QueueBindings();
+            var errorQueueName = $"{InputQueueName}.error";
 
 
             queueBindings.BindReceiving(InputQueueName);
-            queueBindings.BindSending(ErrorQueueName);
+            queueBindings.BindSending(errorQueueName);
 
             var queueCreator = ReceiveInfrastructure.QueueCreatorFactory();
 
             await queueCreator.CreateQueueIfNecessary(queueBindings, WindowsIdentity.GetCurrent().Name);
 
-            var pushSettings = new PushSettings(InputQueueName, ErrorQueueName, true, transactionModeToUse.Value);
+            var pushSettings = new PushSettings(InputQueueName, errorQueueName, true, transactionModeToUse.Value);
 
             await MessagePump.Init(onMessage, onError, new CriticalError(c => Task.FromResult(0)), pushSettings);
 
@@ -83,7 +87,37 @@
             return typeof(MsmqTransport); //todo
         }
 
-        protected string InputQueueName = "when_scope_dispose_throws";
+        string GetTestName()
+        {
+            var index = 1;
+            var frame = new StackFrame(index);
+            Type type;
+
+            while (true)
+            {
+                type = frame.GetMethod().DeclaringType;
+                if (!type.IsAbstract && typeof(NServiceBusTransportTest).IsAssignableFrom(type))
+                {
+                    break;
+                }
+
+                frame = new StackFrame(++index);
+            }
+
+            var classCallingUs = type.FullName.Split('.').Last();
+
+            var testName = classCallingUs.Split('+').First();
+
+            testName = testName.Replace("When_", "");
+
+            testName = Thread.CurrentThread.CurrentCulture.TextInfo.ToTitleCase(testName);
+
+            testName = testName.Replace("_", "");
+
+            return testName;
+        }
+
+        protected string InputQueueName;
 
         TransportReceiveInfrastructure ReceiveInfrastructure;
         TransportSendInfrastructure SendInfrastructure;
