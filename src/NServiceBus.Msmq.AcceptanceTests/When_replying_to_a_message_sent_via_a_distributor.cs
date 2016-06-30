@@ -36,7 +36,7 @@
                 EndpointSetup<DefaultServer>(c =>
                 {
                     var routing = c.UseTransport<MsmqTransport>().Routing();
-                    routing.RouteTo(typeof(MyRequest), ReceiverEndpoint);
+                    routing.RouteToEndpoint(typeof(MyRequest), ReceiverEndpoint);
                     c.GetSettings().GetOrCreate<EndpointInstances>().Add(new EndpointInstance(ReceiverEndpoint, "XYZ"));
                     c.AddHeaderToAllOutgoingMessages("NServiceBus.Distributor.WorkerSessionId", "SomeID");
                 });

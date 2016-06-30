@@ -38,7 +38,7 @@
             {
                 EndpointSetup<DefaultServer>((c,r) =>
                 {
-                    c.UseTransport(r.GetTransportType()).Routing().RouteTo(typeof(Request), ReceiverEndpoint);
+                    c.UseTransport(r.GetTransportType()).Routing().RouteToEndpoint(typeof(Request), ReceiverEndpoint);
                     c.EnableFeature<SpecificRoutingFeature>();
                 });
             }

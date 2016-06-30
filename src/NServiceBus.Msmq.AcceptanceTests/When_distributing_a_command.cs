@@ -74,8 +74,8 @@
                 {
                     var routing = c.UseTransport<MsmqTransport>().Routing();
                     routing.FileBasedEndpointInstanceMapping(filePath);
-                    routing.RouteTo(typeof(RequestA), ReceiverAEndpoint);
-                    routing.RouteTo(typeof(RequestB), ReceiverBEndpoint);
+                    routing.RouteToEndpoint(typeof(RequestA), ReceiverAEndpoint);
+                    routing.RouteToEndpoint(typeof(RequestB), ReceiverBEndpoint);
                 });
             }
 

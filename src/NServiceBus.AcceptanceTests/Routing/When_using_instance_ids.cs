@@ -40,7 +40,7 @@
             {
                 EndpointSetup<DefaultServer>((c,r) =>
                 {
-                    c.UseTransport(r.GetTransportType()).Routing().RouteTo(typeof(MyMessage), GetReceiverEndpoint());
+                    c.UseTransport(r.GetTransportType()).Routing().RouteToEndpoint(typeof(MyMessage), GetReceiverEndpoint());
                 });
             }
         }
@@ -51,7 +51,7 @@
             {
                 EndpointSetup<DefaultServer>((c, r) =>
                 {
-                    c.UseTransport(r.GetTransportType()).Routing().RouteTo(typeof(MyMessage), GetReceiverEndpoint());
+                    c.UseTransport(r.GetTransportType()).Routing().RouteToEndpoint(typeof(MyMessage), GetReceiverEndpoint());
                     c.EnableFeature<SpecificRoutingFeature>();
                 });
             }

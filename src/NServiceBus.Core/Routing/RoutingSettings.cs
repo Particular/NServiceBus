@@ -20,10 +20,10 @@
         /// Adds a static unicast route.
         /// </summary>
         /// <param name="messageType">Message type.</param>
-        /// <param name="destinationEndpoint">Destination endpoint.</param>
-        public void RouteTo(Type messageType, string destinationEndpoint)
+        /// <param name="destination">Destination endpoint.</param>
+        public void RouteToEndpoint(Type messageType, string destination)
         {
-            Settings.GetOrCreate<UnicastRoutingTable>().RouteToEndpoint(messageType, destinationEndpoint);
+            Settings.GetOrCreate<UnicastRoutingTable>().RouteToEndpoint(messageType, destination);
         }
     }
 
