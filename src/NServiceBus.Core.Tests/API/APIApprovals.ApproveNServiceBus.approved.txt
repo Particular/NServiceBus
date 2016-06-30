@@ -388,7 +388,7 @@ namespace NServiceBus
     public class static FileBasedRoutingConfigurationExtensions
     {
         public static NServiceBus.FileRoutingTableSettings FileBasedEndpointInstanceMapping<T>(this NServiceBus.RoutingSettings<T> config, string filePath)
-            where T : NServiceBus.Transports.TransportDefinition, NServiceBus.Routing.INonCompetingConsumersTransport { }
+            where T : NServiceBus.Transports.TransportDefinition, NServiceBus.Transports.IEnableFiledBasedInstanceMapping { }
     }
     public class FileRoutingTableSettings : NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings
     {
@@ -771,9 +771,10 @@ namespace NServiceBus
     public class static MsmqConfigurationExtensions
     {
         public static NServiceBus.TransportExtensions<NServiceBus.MsmqTransport> ApplyLabelToMessages(this NServiceBus.TransportExtensions<NServiceBus.MsmqTransport> transportExtensions, System.Func<System.Collections.Generic.IReadOnlyDictionary<string, string>, string> labelGenerator) { }
+        public static void SetMessageDistributionStrategy(this NServiceBus.RoutingSettings<NServiceBus.MsmqTransport> config, string endpointName, NServiceBus.Routing.DistributionStrategy distributionStrategy) { }
         public static NServiceBus.TransportExtensions<NServiceBus.MsmqTransport> TransactionScopeOptions(this NServiceBus.TransportExtensions<NServiceBus.MsmqTransport> transportExtensions, System.Nullable<System.TimeSpan> timeout = null, System.Nullable<System.Transactions.IsolationLevel> isolationLevel = null) { }
     }
-    public class MsmqTransport : NServiceBus.Transports.TransportDefinition, NServiceBus.Routing.IMessageDrivenSubscriptionTransport, NServiceBus.Routing.INonCompetingConsumersTransport
+    public class MsmqTransport : NServiceBus.Transports.TransportDefinition, NServiceBus.Routing.IMessageDrivenSubscriptionTransport, NServiceBus.Transports.IEnableFiledBasedInstanceMapping
     {
         public MsmqTransport() { }
         public override string ExampleConnectionStringForErrorMessage { get; }
@@ -913,8 +914,6 @@ namespace NServiceBus
         public static NServiceBus.RoutingSettings Routing(this NServiceBus.TransportExtensions config) { }
         public static NServiceBus.RoutingSettings<T> Routing<T>(this NServiceBus.TransportExtensions<T> config)
             where T : NServiceBus.Transports.TransportDefinition { }
-        public static void SetMessageDistributionStrategy<T>(this NServiceBus.RoutingSettings<T> config, string endpointName, NServiceBus.Routing.DistributionStrategy distributionStrategy)
-            where T : NServiceBus.Transports.TransportDefinition, NServiceBus.Routing.INonCompetingConsumersTransport { }
     }
     public abstract class Saga
     {
@@ -2494,7 +2493,6 @@ namespace NServiceBus.Routing
         public void AddDynamic(System.Func<string, System.Threading.Tasks.Task<System.Collections.Generic.IEnumerable<NServiceBus.Routing.EndpointInstance>>> dynamicRule) { }
     }
     public interface IMessageDrivenSubscriptionTransport { }
-    public interface INonCompetingConsumersTransport { }
     public interface IUnicastRoute
     {
         System.Threading.Tasks.Task<System.Collections.Generic.IEnumerable<NServiceBus.UnicastRoutingTarget>> Resolve(System.Func<string, System.Threading.Tasks.Task<System.Collections.Generic.IEnumerable<NServiceBus.Routing.EndpointInstance>>> instanceResolver);
@@ -2962,6 +2960,7 @@ namespace NServiceBus.Transports
     {
         System.Threading.Tasks.Task Dispatch(NServiceBus.Transports.TransportOperations outgoingMessages, NServiceBus.Extensibility.ContextBag context);
     }
+    public interface IEnableFiledBasedInstanceMapping { }
     public interface IManageSubscriptions
     {
         System.Threading.Tasks.Task Subscribe(System.Type eventType, NServiceBus.Extensibility.ContextBag context);
