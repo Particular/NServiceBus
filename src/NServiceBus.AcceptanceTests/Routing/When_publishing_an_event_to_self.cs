@@ -41,6 +41,7 @@
             {
                 EndpointSetup<DefaultPublisher>(b =>
                 {
+                    b.PurgeOnStartup(true);
                     b.OnEndpointSubscribed<Context>((s, context) =>
                     {
                         if (s.MessageType == typeof(Event).AssemblyQualifiedName)
