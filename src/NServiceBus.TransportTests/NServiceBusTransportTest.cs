@@ -56,7 +56,7 @@
 
             await MessagePump.Init(onMessage, onError, new CriticalError(c => Task.FromResult(0)), pushSettings);
 
-            MessagePump.Start(PushRuntimeSettings.Default);
+            MessagePump.Start(new PushRuntimeSettings(1));
         }
 
 

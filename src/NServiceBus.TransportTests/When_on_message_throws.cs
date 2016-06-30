@@ -20,15 +20,18 @@ namespace NServiceBus.TransportTests
             cts.CancelAfter(TimeSpan.FromSeconds(10));
             cts.Token.Register(() => onErrorCalled.SetCanceled());
 
-            await StartPump(context =>
+            await StartPump(async context =>
             {
+                await Console.Out.WriteLineAsync($"Onmessage({context.MessageId})");
+
                 throw new Exception("Simulated exception");
             },
-                context =>
+                async context =>
                 {
+                    await Console.Out.WriteLineAsync($"OnError({context.MessageId}) - {context.NumberOfProcessingAttempts}");
                     onErrorCalled.SetResult(context);
 
-                    return Task.FromResult(false);
+                    return false;
                 }, transactionMode);
 
             await SendMessage(InputQueueName);
@@ -36,6 +39,8 @@ namespace NServiceBus.TransportTests
             var errorContext = await onErrorCalled.Task;
 
             Assert.AreEqual(errorContext.Exception.Message, "Simulated exception");
+
+            Assert.AreEqual(1, errorContext.NumberOfProcessingAttempts);
         }
     }
 }
