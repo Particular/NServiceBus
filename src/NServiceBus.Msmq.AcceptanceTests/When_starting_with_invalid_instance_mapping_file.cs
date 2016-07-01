@@ -28,7 +28,7 @@
 
                 // e.g. spelling error in endpoint:
                 File.WriteAllText(filePath,
-$@"<endpoints>
+@"<endpoints>
     <endpoind name=""someReceiver"">
         <instance discriminator=""1""/>
         <instance discriminator=""2""/>

@@ -1,5 +1,6 @@
 namespace NServiceBus
 {
+    using Features;
     using Routing;
     using Settings;
     using Transports;
@@ -27,6 +28,8 @@ namespace NServiceBus
         /// <returns>the transport infrastructure for msmq.</returns>
         protected internal override TransportInfrastructure Initialize(SettingsHolder settings, string connectionString)
         {
+            settings.EnableFeature(typeof(FileRoutingTableFeature));
+
             return new MsmqTransportInfrastructure(settings, connectionString);
         }
     }
