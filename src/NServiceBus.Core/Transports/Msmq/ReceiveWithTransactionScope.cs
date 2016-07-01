@@ -37,31 +37,18 @@ namespace NServiceBus
                         return;
                     }
 
-                    MsmqFailureInfoStorage.ProcessingFailureInfo failureInfo;
+                    var shouldCommit =  await ProcessMessage(message, headers, scope).ConfigureAwait(false);
 
-                    if (failureInfoStorage.TryGetFailureInfoForMessage(message.Id, out failureInfo))
+                    if (!shouldCommit)
                     {
-                        var shouldRetryImmediately = await HandleError(message, headers, failureInfo.Exception, failureInfo.NumberOfProcessingAttempts).ConfigureAwait(false);
-
-                        if (!shouldRetryImmediately)
-                        {
-                            failureInfoStorage.ClearFailureInfoForMessage(message.Id);
-                            scope.Complete();
-                            return;
-                        }
+                        return;
                     }
-                    using (var bodyStream = message.BodyStream)
-                    {
-                        var shouldAbortMessageProcessing = await TryProcessMessage(message, headers, bodyStream, new ScopeTransportTransaction(Transaction.Current)).ConfigureAwait(false);
 
-                        if (!shouldAbortMessageProcessing)
-                        {
-                            failureInfoStorage.ClearFailureInfoForMessage(message.Id);
-                            scope.Complete();
-                        }
-                    }
+                    scope.Complete();
                 }
             }
+            // We'll only get here if Complete/Dispose throws which should be rare.
+            // Note: If that happens the attempts counter will be inconsistent since the message might be picked up again before we can register the failure in the LRU cache.
             catch (Exception exception)
             {
                 if (message == null)
@@ -70,6 +57,43 @@ namespace NServiceBus
                 }
 
                 failureInfoStorage.RecordFailureInfoForMessage(message.Id, exception);
+            }
+        }
+
+        async Task<bool> ProcessMessage(Message message, Dictionary<string, string> headers, TransactionScope scope)
+        {
+            MsmqFailureInfoStorage.ProcessingFailureInfo failureInfo;
+
+            if (failureInfoStorage.TryGetFailureInfoForMessage(message.Id, out failureInfo))
+            {
+                var shouldRetryImmediately = await HandleError(message, headers, failureInfo.Exception, failureInfo.NumberOfProcessingAttempts).ConfigureAwait(false);
+
+                if (!shouldRetryImmediately)
+                {
+                    failureInfoStorage.ClearFailureInfoForMessage(message.Id);
+                    return true;
+                }
+            }
+
+            try
+            {
+                using (var bodyStream = message.BodyStream)
+                {
+                    var shouldAbortMessageProcessing = await TryProcessMessage(message, headers, bodyStream, new ScopeTransportTransaction(Transaction.Current)).ConfigureAwait(false);
+
+                    if (shouldAbortMessageProcessing)
+                    {
+                        return false;
+                    }
+                }
+
+                failureInfoStorage.ClearFailureInfoForMessage(message.Id);
+                return true;
+            }
+            catch (Exception exception)
+            {
+                failureInfoStorage.RecordFailureInfoForMessage(message.Id, exception);
+                return false;
             }
         }
 

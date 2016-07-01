@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.TransportTests
 {
     using System;
+    using System.Threading;
     using System.Threading.Tasks;
     using System.Transactions;
     using NUnit.Framework;
@@ -12,6 +13,10 @@
         public async Task Should_call_on_error()
         {
             var onErrorTsc = new TaskCompletionSource<ErrorContext>();
+            var cts = new CancellationTokenSource();
+
+            cts.CancelAfter(TimeSpan.FromSeconds(5));
+            cts.Token.Register(() => onErrorTsc.SetResult(null));
 
             await StartPump(context =>
             {
@@ -31,6 +36,10 @@
             var errorContext = await onErrorTsc.Task;
 
             Assert.IsInstanceOf<TransactionAbortedException>(errorContext.Exception);
+
+            // since some transports doesn't have native retry counters we can't expect the attempts to be fully consistent since if
+            // dispose throws the message might be picked up before the counter is incremented
+            Assert.LessOrEqual(1, errorContext.NumberOfProcessingAttempts);
         }
     }
 
