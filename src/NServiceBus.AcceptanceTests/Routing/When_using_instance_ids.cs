@@ -4,16 +4,14 @@
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using AcceptanceTesting.Customization;
+    using Configuration.AdvanceExtensibility;
     using EndpointTemplates;
     using NServiceBus.Routing;
     using NUnit.Framework;
 
     public class When_using_instance_ids : NServiceBusAcceptanceTest
     {
-        public static string GetReceiverEndpoint()
-        {
-            return Conventions.EndpointNamingConvention(typeof(Receiver));
-        }
+        static string ReceiverEndpoint => Conventions.EndpointNamingConvention(typeof(Receiver));
 
         [Test]
         public async Task Should_be_addressable_both_by_shared_queue_and_specific_queue()
@@ -37,7 +35,10 @@
         {
             public UnawareSender()
             {
-                EndpointSetup<DefaultServer>(c => { c.Routing().RouteToEndpoint(typeof(MyMessage), GetReceiverEndpoint()); });
+                EndpointSetup<DefaultServer>((c, r) =>
+                {
+                    c.UseTransport(r.GetTransportType()).Routing().RouteToEndpoint(typeof(MyMessage), ReceiverEndpoint);
+                });
             }
         }
 
@@ -45,10 +46,10 @@
         {
             public AwareSender()
             {
-                EndpointSetup<DefaultServer>(c =>
+                EndpointSetup<DefaultServer>((c, r) =>
                 {
-                    c.Routing().RouteToEndpoint(typeof(MyMessage), GetReceiverEndpoint());
-                    c.Routing().Mapping.Physical.Add(new EndpointInstance(GetReceiverEndpoint(), "XYZ"));
+                    c.UseTransport(r.GetTransportType()).Routing().RouteToEndpoint(typeof(MyMessage), ReceiverEndpoint);
+                    c.GetSettings().GetOrCreate<EndpointInstances>().Add(new EndpointInstance(ReceiverEndpoint, "XYZ"));
                 });
             }
         }

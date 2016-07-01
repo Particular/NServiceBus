@@ -273,6 +273,11 @@ namespace NServiceBus
         InstancePerUnitOfWork = 1,
         InstancePerCall = 2,
     }
+    public class DistributionPolicy : NServiceBus.IDistributionPolicy
+    {
+        public DistributionPolicy() { }
+        public void SetDistributionStrategy(string endpointName, NServiceBus.Routing.DistributionStrategy distributionStrategy) { }
+    }
     public class static DurableMessagesConfig
     {
         public static void DisableDurableMessages(this NServiceBus.EndpointConfiguration config) { }
@@ -379,10 +384,6 @@ namespace NServiceBus
             "ameter. Call options.SetHeader(\"MyHeader\",\"MyValue\") instead. The member current" +
             "ly throws a NotImplementedException. Will be removed in version 7.0.0.", true)]
         public static void SetMessageHeader(this NServiceBus.IBus bus, object msg, string key, string value) { }
-    }
-    public class static FileBasedRoutingConfigurationExtensions
-    {
-        public static NServiceBus.FileRoutingTableSettings DistributeMessagesUsingFileBasedEndpointInstanceMapping(this NServiceBus.RoutingMappingSettings config, string filePath) { }
     }
     public class FileRoutingTableSettings : NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings
     {
@@ -738,9 +739,9 @@ namespace NServiceBus
     }
     public class static MessageDrivenSubscriptionsConfigExtensions
     {
-        public static void RegisterPublisherForAssembly<T>(this NServiceBus.TransportExtensions<T> transportExtensions, string publisherEndpoint, System.Reflection.Assembly eventAssembly, string eventNamespace = null)
+        public static void RegisterPublisherForAssembly<T>(this NServiceBus.RoutingSettings<T> routingSettings, string publisherEndpoint, System.Reflection.Assembly eventAssembly, string eventNamespace = null)
             where T : NServiceBus.Transports.TransportDefinition, NServiceBus.Routing.IMessageDrivenSubscriptionTransport { }
-        public static void RegisterPublisherForType<T>(this NServiceBus.TransportExtensions<T> transportExtensions, string publisherEndpoint, System.Type eventType)
+        public static void RegisterPublisherForType<T>(this NServiceBus.RoutingSettings<T> routingSettings, string publisherEndpoint, System.Type eventType)
             where T : NServiceBus.Transports.TransportDefinition, NServiceBus.Routing.IMessageDrivenSubscriptionTransport { }
         public static void SubscriptionAuthorizer<T>(this NServiceBus.TransportExtensions<T> transportExtensions, System.Func<NServiceBus.Pipeline.IIncomingPhysicalMessageContext, bool> authorizer)
             where T : NServiceBus.Transports.TransportDefinition, NServiceBus.Routing.IMessageDrivenSubscriptionTransport { }
@@ -765,7 +766,8 @@ namespace NServiceBus
     public class static MsmqConfigurationExtensions
     {
         public static NServiceBus.TransportExtensions<NServiceBus.MsmqTransport> ApplyLabelToMessages(this NServiceBus.TransportExtensions<NServiceBus.MsmqTransport> transportExtensions, System.Func<System.Collections.Generic.IReadOnlyDictionary<string, string>, string> labelGenerator) { }
-        public static NServiceBus.FileRoutingTableSettings DistributeMessagesUsingFileBasedEndpointInstanceMapping(this NServiceBus.TransportExtensions<NServiceBus.MsmqTransport> config, string filePath) { }
+        public static NServiceBus.FileRoutingTableSettings FileBasedEndpointInstanceMapping(this NServiceBus.RoutingSettings<NServiceBus.MsmqTransport> config, string filePath) { }
+        public static void SetMessageDistributionStrategy(this NServiceBus.RoutingSettings<NServiceBus.MsmqTransport> config, string endpointName, NServiceBus.Routing.DistributionStrategy distributionStrategy) { }
         public static NServiceBus.TransportExtensions<NServiceBus.MsmqTransport> TransactionScopeOptions(this NServiceBus.TransportExtensions<NServiceBus.MsmqTransport> transportExtensions, System.Nullable<System.TimeSpan> timeout = null, System.Nullable<System.Transactions.IsolationLevel> isolationLevel = null) { }
     }
     public class MsmqTransport : NServiceBus.Transports.TransportDefinition, NServiceBus.Routing.IMessageDrivenSubscriptionTransport
@@ -866,12 +868,6 @@ namespace NServiceBus
     {
         public ReplyOptions() { }
     }
-    public class RoutingMappingSettings : NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings
-    {
-        public NServiceBus.Routing.UnicastRoutingTable Logical { get; }
-        public NServiceBus.Routing.EndpointInstances Physical { get; }
-        public void SetMessageDistributionStrategy(string endpointName, NServiceBus.Routing.DistributionStrategy distributionStrategy) { }
-    }
     public class static RoutingOptionExtensions
     {
         public static string GetDestination(this NServiceBus.ReplyOptions options) { }
@@ -897,14 +893,23 @@ namespace NServiceBus
         public static void SetDestination(this NServiceBus.SendOptions options, string destination) { }
         public static void SetDestination(this NServiceBus.ReplyOptions options, string destination) { }
     }
+    public class static RoutingPluginSettingsExtensions
+    {
+        public static NServiceBus.DistributionPolicy DistributionPolicy(this NServiceBus.Features.FeatureConfigurationContext featureConfigurationContext) { }
+        public static NServiceBus.Routing.EndpointInstances EndpointInstances(this NServiceBus.Features.FeatureConfigurationContext featureConfigurationContext) { }
+        public static NServiceBus.Routing.UnicastRoutingTable RoutingTable(this NServiceBus.Features.FeatureConfigurationContext featureConfigurationContext) { }
+    }
     public class RoutingSettings : NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings
     {
-        public NServiceBus.RoutingMappingSettings Mapping { get; }
         public void RouteToEndpoint(System.Type messageType, string destination) { }
     }
+    public class RoutingSettings<T> : NServiceBus.RoutingSettings
+        where T : NServiceBus.Transports.TransportDefinition { }
     public class static RoutingSettingsExtensions
     {
-        public static NServiceBus.RoutingSettings Routing(this NServiceBus.EndpointConfiguration config) { }
+        public static NServiceBus.RoutingSettings Routing(this NServiceBus.TransportExtensions config) { }
+        public static NServiceBus.RoutingSettings<T> Routing<T>(this NServiceBus.TransportExtensions<T> config)
+            where T : NServiceBus.Transports.TransportDefinition { }
     }
     public abstract class Saga
     {

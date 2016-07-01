@@ -81,7 +81,7 @@
                 EndpointSetup<DefaultServer>(c =>
                 {
                     var transport = c.UseTransport<MsmqTransport>();
-                    transport.RegisterPublisherForType(PublisherEndpoint, typeof(MyEvent));
+                    transport.Routing().RegisterPublisherForType(PublisherEndpoint, typeof(MyEvent));
                     transport.AddAddressTranslationException(new EndpointInstance(SubscriberEndpoint).AtMachine(RuntimeEnvironment.MachineName), SubscriberEndpoint + "-1");
                 }).CustomEndpointName(SubscriberEndpoint);
             }
@@ -105,7 +105,7 @@
                 EndpointSetup<DefaultServer>(c =>
                 {
                     var transport = c.UseTransport<MsmqTransport>();
-                    transport.RegisterPublisherForType(PublisherEndpoint, typeof(MyEvent));
+                    transport.Routing().RegisterPublisherForType(PublisherEndpoint, typeof(MyEvent));
                     transport.AddAddressTranslationException(new EndpointInstance(SubscriberEndpoint).AtMachine(RuntimeEnvironment.MachineName), SubscriberEndpoint + "-2");
                 }).CustomEndpointName(SubscriberEndpoint);
             }

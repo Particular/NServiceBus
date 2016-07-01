@@ -139,7 +139,7 @@
     <Compile Include="Recoverability\ProcessingFailureInfo.cs" />
     <Compile Include="Routing\IDistributionPolicy.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\IMessageDrivenSubscriptionTransport.cs" />
-    <Compile Include="Routing\RoutingMappingSettings.cs" />
+    <Compile Include="Routing\RoutingPluginSettingsExtensions.cs" />
     <Compile Include="Routing\SpecificInstanceDistributionPolicy.cs" />
     <Compile Include="Routing\UnicastPublishRouter.cs" />
     <Compile Include="Routing\UnicastSendRouter.cs" />
@@ -507,7 +507,6 @@
     <Compile Include="Persistence\PersistenceStorageMerger.cs" />
     <Compile Include="Persistence\StorageType.cs" />
     <Compile Include="Pipeline\PipelineModifications.cs" />
-    <Compile Include="Routing\FileBasedDynamicRouting\FileBasedRoutingConfigurationExtensions.cs" />
     <Compile Include="Sagas\CustomFinderAdapter.cs" />
     <Compile Include="Sagas\LoadSagaByIdWrapper.cs" />
     <Compile Include="Sagas\SagaFinder.cs" />

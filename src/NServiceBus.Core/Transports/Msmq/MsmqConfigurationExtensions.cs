@@ -4,6 +4,8 @@ namespace NServiceBus
     using System.Collections.Generic;
     using System.Messaging;
     using System.Transactions;
+    using Features;
+    using Routing;
 
     /// <summary>
     /// Adds extensions methods to <see cref="TransportExtensions{T}" /> for configuration purposes.
@@ -42,11 +44,27 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Enables file-based route table source that is automatically refreshed whenever files get updated.
+        /// Enables a file-based routing table source that is automatically refreshed whenever the file gets updated.
         /// </summary>
-        public static FileRoutingTableSettings DistributeMessagesUsingFileBasedEndpointInstanceMapping(this TransportExtensions<MsmqTransport> config, string filePath)
+        public static FileRoutingTableSettings FileBasedEndpointInstanceMapping(this RoutingSettings<MsmqTransport> config, string filePath)
         {
-            return FileBasedRoutingConfigurationExtensions.EnableFileBasedRouting(config.Settings, filePath);
+            Guard.AgainstNull(nameof(filePath), filePath);
+
+            config.Settings.EnableFeature(typeof(FileRoutingTableFeature));
+            config.Settings.Set(FileRoutingTableFeature.FilePathSettingsKey, filePath);
+
+            return new FileRoutingTableSettings(config.Settings);
+        }
+
+        /// <summary>
+        /// Sets a distribution strategy for a given endpoint.
+        /// </summary>
+        /// <param name="config">Config object.</param>
+        /// <param name="endpointName">The name of the logical endpoint the given strategy should apply to.</param>
+        /// <param name="distributionStrategy">The instance of a distribution strategy.</param>
+        public static void SetMessageDistributionStrategy(this RoutingSettings<MsmqTransport> config, string endpointName, DistributionStrategy distributionStrategy)
+        {
+            config.Settings.GetOrCreate<DistributionPolicy>().SetDistributionStrategy(endpointName, distributionStrategy);
         }
     }
 }
