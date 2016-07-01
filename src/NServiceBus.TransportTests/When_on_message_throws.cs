@@ -1,6 +1,7 @@
 namespace NServiceBus.TransportTests
 {
     using System;
+    using System.Collections.Generic;
     using System.Threading.Tasks;
     using NUnit.Framework;
     using Transports;
@@ -29,13 +30,14 @@ namespace NServiceBus.TransportTests
                     return Task.FromResult(false);
                 }, transactionMode);
 
-            await SendMessage(InputQueueName);
+            await SendMessage(InputQueueName, new Dictionary<string, string> { { "MyHeader", "MyValue" } });
 
             var errorContext = await onErrorCalled.Task;
 
             Assert.AreEqual(errorContext.Exception.Message, "Simulated exception", "Should preserve the exception");
             Assert.AreEqual(1, errorContext.NumberOfDeliveryAttempts, "Should track the number of delivery attempts");
             Assert.AreEqual(0, errorContext.BodyStream.Position, "Should rewind the stream");
+            Assert.AreEqual("MyValue", errorContext.Headers["MyHeader"], "Should pass the message headers");
         }
     }
 }
