@@ -23,7 +23,7 @@
 </endpoints>
 ";
             var doc = XDocument.Parse(xml);
-            var result = new FileRoutingTableParser().Parse(doc);
+            var result = new FileRoutingTableParser().Parse(doc, true);
 
             CollectionAssert.AreEqual(new[]
             {
@@ -43,7 +43,7 @@
             var doc = XDocument.Parse(xml);
             var parser = new FileRoutingTableParser();
 
-            var exception = Assert.Throws<XmlSchemaValidationException>(() => parser.Parse(doc));
+            var exception = Assert.Throws<XmlSchemaValidationException>(() => parser.Parse(doc, true));
             Assert.That(exception.Message, Does.Contain("The element 'endpoints' has incomplete content."));
         }
 
@@ -58,7 +58,7 @@
             var doc = XDocument.Parse(xml);
             var parser = new FileRoutingTableParser();
 
-            var exception = Assert.Throws<XmlSchemaValidationException>(() => parser.Parse(doc));
+            var exception = Assert.Throws<XmlSchemaValidationException>(() => parser.Parse(doc, true));
             Assert.That(exception.Message, Does.Contain("The required attribute 'name' is missing."));
         }
 
@@ -73,7 +73,7 @@
             var doc = XDocument.Parse(xml);
             var parser = new FileRoutingTableParser();
 
-            var exception = Assert.Throws<XmlSchemaValidationException>(() => parser.Parse(doc));
+            var exception = Assert.Throws<XmlSchemaValidationException>(() => parser.Parse(doc, true));
             Assert.That(exception.Message, Does.Contain("The element 'endpoint' has incomplete content."));
         }
     }

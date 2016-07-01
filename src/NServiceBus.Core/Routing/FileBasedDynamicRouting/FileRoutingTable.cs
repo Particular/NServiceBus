@@ -28,21 +28,19 @@ namespace NServiceBus
             errorMessage = $"An error occurred while reading the endpoint instance mapping file at {filePath}. See the inner exception for more details.";
         }
 
-        protected override Task OnStart(IMessageSession session)
+        protected override async Task OnStart(IMessageSession session)
         {
-            if (!File.Exists(filePath))
+            if (File.Exists(filePath))
             {
-
-                throw new Exception($"The endpoint instance mapping file {filePath} does not exist");
+                var doc = await ReadFileWithRetries().ConfigureAwait(false);
+                parser.Parse(doc, true);
             }
-
-            return TaskEx.CompletedTask;
         }
 
         async Task ReloadData()
         {
             var doc = await ReadFileWithRetries().ConfigureAwait(false);
-            var instances = parser.Parse(doc);
+            var instances = parser.Parse(doc, false);
 
             var newInstanceMap = instances
                 .GroupBy(i => i.Endpoint)
@@ -98,7 +96,10 @@ namespace NServiceBus
             // ReSharper disable once PossibleNullReferenceException
             return instanceMap.TryGetValue(endpoint, out result)
                 ? result
-                : Enumerable.Empty<EndpointInstance>();
+                : new HashSet<EndpointInstance>()
+                {
+                    new EndpointInstance(endpoint)
+                };
         }
 
         protected override Task OnStop(IMessageSession session) => timer.Stop();
