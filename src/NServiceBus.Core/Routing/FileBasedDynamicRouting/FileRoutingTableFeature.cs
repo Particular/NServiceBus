@@ -11,6 +11,7 @@ namespace NServiceBus.Features
             {
                 s.SetDefault(CheckIntervalSettingsKey, TimeSpan.FromSeconds(30));
                 s.SetDefault(MaxLoadAttemptsSettingsKey, 10);
+                s.SetDefault(FilePathSettingsKey, "instance-mapping.xml");
             });
             DependsOn<RoutingFeature>();
         }

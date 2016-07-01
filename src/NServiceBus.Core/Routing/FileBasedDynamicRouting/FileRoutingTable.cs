@@ -20,6 +20,11 @@ namespace NServiceBus
             this.fileAccess = fileAccess;
             this.maxLoadAttempts = maxLoadAttempts;
 
+            if (!Path.IsPathRooted(filePath))
+            {
+                this.filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, filePath);
+            }
+
             errorMessage = $"An error occurred while reading the endpoint instance mapping file at {filePath}. See the inner exception for more details.";
         }
 
@@ -27,7 +32,8 @@ namespace NServiceBus
         {
             if (!File.Exists(filePath))
             {
-                throw new Exception($"The endpoint instance mapping file {filePath} does not exist.");
+
+                throw new Exception($"The endpoint instance mapping file {filePath} does not exist");
             }
 
             return TaskEx.CompletedTask;
