@@ -2,10 +2,10 @@
   <xs:element name="endpoints">
     <xs:complexType>
       <xs:sequence>
-        <xs:element minOccurs="1" maxOccurs="unbounded" name="endpoint">
+        <xs:element minOccurs="0" maxOccurs="unbounded" name="endpoint">
           <xs:complexType>
             <xs:sequence>
-              <xs:element minOccurs="1" maxOccurs="unbounded" name="instance">
+              <xs:element minOccurs="0" maxOccurs="unbounded" name="instance">
                 <xs:complexType>
                   <xs:attribute name="discriminator" type="xs:string" use="optional" />
                   <xs:anyAttribute processContents="lax" />
