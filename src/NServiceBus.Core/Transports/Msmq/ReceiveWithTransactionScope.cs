@@ -37,7 +37,7 @@ namespace NServiceBus
                         return;
                     }
 
-                    var shouldCommit =  await ProcessMessage(message, headers, scope).ConfigureAwait(false);
+                    var shouldCommit = await ProcessMessage(message, headers).ConfigureAwait(false);
 
                     if (!shouldCommit)
                     {
@@ -60,13 +60,15 @@ namespace NServiceBus
             }
         }
 
-        async Task<bool> ProcessMessage(Message message, Dictionary<string, string> headers, TransactionScope scope)
+        async Task<bool> ProcessMessage(Message message, Dictionary<string, string> headers)
         {
+            var transportTransaction = new ScopeTransportTransaction(Transaction.Current);
+
             MsmqFailureInfoStorage.ProcessingFailureInfo failureInfo;
 
             if (failureInfoStorage.TryGetFailureInfoForMessage(message.Id, out failureInfo))
             {
-                var shouldRetryImmediately = await HandleError(message, headers, failureInfo.Exception, failureInfo.NumberOfProcessingAttempts).ConfigureAwait(false);
+                var shouldRetryImmediately = await HandleError(message, headers, failureInfo.Exception, failureInfo.NumberOfProcessingAttempts, transportTransaction).ConfigureAwait(false);
 
                 if (!shouldRetryImmediately)
                 {
@@ -79,7 +81,7 @@ namespace NServiceBus
             {
                 using (var bodyStream = message.BodyStream)
                 {
-                    var shouldAbortMessageProcessing = await TryProcessMessage(message, headers, bodyStream, new ScopeTransportTransaction(Transaction.Current)).ConfigureAwait(false);
+                    var shouldAbortMessageProcessing = await TryProcessMessage(message, headers, bodyStream, transportTransaction).ConfigureAwait(false);
 
                     if (shouldAbortMessageProcessing)
                     {

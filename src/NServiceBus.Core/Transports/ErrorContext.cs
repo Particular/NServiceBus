@@ -20,6 +20,11 @@
         public int NumberOfDeliveryAttempts { get; private set; }
 
         /// <summary>
+        /// The active transport transaction.
+        /// </summary>
+        public TransportTransaction TransportTransaction { get; private set; }
+
+        /// <summary>
         /// The headers of the failed message.
         /// </summary>
         public Dictionary<string, string> Headers { get; private set; }
@@ -37,12 +42,13 @@
         /// <summary>
         /// Initializes the error context.
         /// </summary>
-        public ErrorContext(string messageId, Stream bodyStream, Exception exception, Dictionary<string, string> headers, int numberOfDeliveryAttempts)
+        public ErrorContext(string messageId, Stream bodyStream, Exception exception, Dictionary<string, string> headers, int numberOfDeliveryAttempts,TransportTransaction transportTransaction)
         {
             MessageId = messageId;
             BodyStream = bodyStream;
             Exception = exception;
             NumberOfDeliveryAttempts = numberOfDeliveryAttempts;
+            TransportTransaction = transportTransaction;
             Headers = headers;
         }
     }

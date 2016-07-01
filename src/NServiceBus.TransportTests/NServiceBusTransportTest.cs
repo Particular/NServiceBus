@@ -67,13 +67,22 @@
             }
         }
 
-        protected Task SendMessage(string address, Dictionary<string, string> headers = null)
+        protected Task SendMessage(string address, Dictionary<string, string> headers = null, TransportTransaction transportTransaction = null)
         {
             var messageId = Guid.NewGuid().ToString();
             var message = new OutgoingMessage(messageId, headers ?? new Dictionary<string, string>(), new byte[0]);
 
             var dispatcher = SendInfrastructure.DispatcherFactory();
-            return dispatcher.Dispatch(new TransportOperations(new TransportOperation(message, new UnicastAddressTag(address))), new ContextBag());
+
+            var context = new ContextBag();
+
+            //until we fix the seam we have to do this
+            if (transportTransaction != null)
+            {
+                context.Set(transportTransaction);
+            }
+
+            return dispatcher.Dispatch(new TransportOperations(new TransportOperation(message, new UnicastAddressTag(address))), context);
         }
 
         protected void OnTestTimeout(Action onTimeoutAction)

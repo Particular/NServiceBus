@@ -75,7 +75,7 @@ namespace NServiceBus
 
             if (failureInfoStorage.TryGetFailureInfoForMessage(message.Id, out failureInfo))
             {
-                var shouldRetryImmediately = await HandleError(message, headers, failureInfo.Exception, failureInfo.NumberOfProcessingAttempts).ConfigureAwait(false);
+                var shouldRetryImmediately = await HandleError(message, headers, failureInfo.Exception, failureInfo.NumberOfProcessingAttempts, transportTransaction).ConfigureAwait(false);
 
                 shouldTryProcessMessage = shouldRetryImmediately;
             }

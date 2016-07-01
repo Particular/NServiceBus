@@ -111,11 +111,11 @@ namespace NServiceBus
             }
         }
 
-        protected async Task<bool> HandleError(Message message, Dictionary<string, string> headers, Exception exception, int numberOfDeliveryAttempts)
+        protected async Task<bool> HandleError(Message message, Dictionary<string, string> headers, Exception exception, int numberOfDeliveryAttempts, TransportTransaction transportTransaction)
         {
             try
             {
-                return await OnError(new ErrorContext(message.Id, message.BodyStream, exception, headers, numberOfDeliveryAttempts)).ConfigureAwait(false);
+                return await OnError(new ErrorContext(message.Id, message.BodyStream, exception, headers, numberOfDeliveryAttempts, transportTransaction)).ConfigureAwait(false);
             }
             catch (Exception ex)
             {

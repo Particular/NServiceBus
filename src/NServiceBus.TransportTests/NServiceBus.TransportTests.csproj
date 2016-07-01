@@ -42,7 +42,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="NServiceBusTransportTest.cs" />
-    <Compile Include="TransactionScopes\When_scope_dispose_throws.cs" />
+    <Compile Include="When_failure_happens_after_send.cs" />
+    <Compile Include="When_scope_dispose_throws.cs" />
     <Compile Include="When_message_is_available.cs" />
     <Compile Include="When_on_error_throws.cs" />
     <Compile Include="When_on_message_throws.cs" />
@@ -51,7 +52,6 @@
     <Compile Include="When_user_aborts_processing.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="AtomicWithReceive\" />
     <Folder Include="Properties\" />
   </ItemGroup>
   <ItemGroup>

@@ -29,7 +29,7 @@ namespace NServiceBus.TransportTests
             },
                 context =>
                 {
-                    SendMessage(InputQueueName, new Dictionary<string, string> { { "FromOnError", "true" } });
+                    SendMessage(InputQueueName, new Dictionary<string, string> { { "FromOnError", "true" } }, context.TransportTransaction);
 
                     return Task.FromResult(false);
                 }, transactionMode);
