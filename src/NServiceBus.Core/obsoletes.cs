@@ -393,10 +393,16 @@ namespace NServiceBus
 
     [ObsoleteEx(
         RemoveInVersion = "7.0",
-        TreatAsErrorFromVersion = "6.0",
-        ReplacementTypeOrMember = "ScaleOutExtensions")]
+        TreatAsErrorFromVersion = "6.0")]
     public static class ScaleOutExtentions
     {
+        [ObsoleteEx(
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0")]
+        public static Settings.ScaleOutSettings ScaleOut(this EndpointConfiguration config)
+        {
+            throw new NotImplementedException();
+        }
     }
 
     [ObsoleteEx(
@@ -1235,7 +1241,8 @@ namespace NServiceBus.Settings
 {
     using System;
 
-    public partial class ScaleOutSettings
+    [ObsoleteEx(TreatAsErrorFromVersion = "6", RemoveInVersion = "7")]
+    public class ScaleOutSettings
     {
         [ObsoleteEx(
             TreatAsErrorFromVersion = "6",
@@ -1267,7 +1274,7 @@ namespace NServiceBus.Settings
         [ObsoleteEx(
             TreatAsErrorFromVersion = "6",
             RemoveInVersion = "7",
-            ReplacementTypeOrMember = "EndpointConfiguration.ScaleOut().InstanceDiscriminator(string discriminator)")]
+            ReplacementTypeOrMember = "EndpointConfiguration.MakeInstanceUniquelyAddressable(string discriminator)")]
         public void UniqueQueuePerEndpointInstance(string discriminator)
         {
             throw new NotImplementedException();

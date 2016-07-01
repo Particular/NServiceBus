@@ -60,7 +60,7 @@
             {
                 EndpointSetup<DefaultServer>(c =>
                 {
-                    c.ScaleOut().InstanceDiscriminator("XYZ");
+                    c.MakeInstanceUniquelyAddressable("XYZ");
                     c.EnlistWithLegacyMSMQDistributor("Distributor", ReceiverEndpoint, 1);
                 });
             }

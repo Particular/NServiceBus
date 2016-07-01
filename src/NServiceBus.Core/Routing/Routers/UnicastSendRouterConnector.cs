@@ -39,7 +39,7 @@ namespace NServiceBus
 
             if (state.Option == RouteOption.RouteToThisInstance && instanceSpecificQueue == null)
             {
-                throw new InvalidOperationException("Cannot route to this specific instance because endpoint instance ID was not provided by either host, a plugin or user. You can specify it via EndpointConfiguration.ScaleOut().InstanceDiscriminator(string discriminator).");
+                throw new InvalidOperationException("Cannot route to a specific instance because an endpoint instance discriminator was not configured for the destination endpoint. It can be specified via EndpointConfiguration.MakeInstanceUniquelyAddressable(string discriminator).");
             }
             var thisEndpoint = state.Option == RouteOption.RouteToAnyInstanceOfThisEndpoint ? sharedQueue : null;
             var thisInstance = state.Option == RouteOption.RouteToThisInstance ? instanceSpecificQueue : null;

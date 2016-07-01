@@ -14,10 +14,10 @@
         {
             await Scenario.Define<Context>()
                 .WithEndpoint<Publisher>(b => b.When(c => c.EndpointsStarted, async (session, c) => { await session.Publish(new MyEvent()); }))
-                .WithEndpoint<SubscriberA>(b => b.CustomConfig(c => c.ScaleOut().InstanceDiscriminator("1")))
-                .WithEndpoint<SubscriberA>(b => b.CustomConfig(c => c.ScaleOut().InstanceDiscriminator("2")))
-                .WithEndpoint<SubscriberB>(b => b.CustomConfig(c => c.ScaleOut().InstanceDiscriminator("1")))
-                .WithEndpoint<SubscriberB>(b => b.CustomConfig(c => c.ScaleOut().InstanceDiscriminator("2")))
+                .WithEndpoint<SubscriberA>(b => b.CustomConfig(c => c.MakeInstanceUniquelyAddressable("1")))
+                .WithEndpoint<SubscriberA>(b => b.CustomConfig(c => c.MakeInstanceUniquelyAddressable("2")))
+                .WithEndpoint<SubscriberB>(b => b.CustomConfig(c => c.MakeInstanceUniquelyAddressable("1")))
+                .WithEndpoint<SubscriberB>(b => b.CustomConfig(c => c.MakeInstanceUniquelyAddressable("2")))
                 .Done(c => c.SubscriberACounter > 0 && c.SubscriberBCounter > 0)
                 .Repeat(r => r.For<AllTransportsWithCentralizedPubSubSupport>())
                 .Should(c =>
