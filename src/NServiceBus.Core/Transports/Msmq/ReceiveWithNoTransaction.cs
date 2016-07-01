@@ -21,7 +21,7 @@ namespace NServiceBus
 
             if (!TryExtractHeaders(message, out headers))
             {
-                MovePoisonMessageToErrorQueue(message, MessageQueueTransactionType.None);
+                MovePoisonMessageToErrorQueue(message, IsQueuesTransactional ? MessageQueueTransactionType.Single : MessageQueueTransactionType.None);
                 return;
             }
 

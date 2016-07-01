@@ -126,6 +126,8 @@ namespace NServiceBus
             }
         }
 
+        protected bool IsQueuesTransactional => ErrorQueue.Transactional;
+
         MessageQueue InputQueue;
         MessageQueue ErrorQueue;
         Func<MessageContext, Task> OnMessage;
