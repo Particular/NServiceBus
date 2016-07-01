@@ -30,7 +30,7 @@
         public Dictionary<string, string> Headers { get; private set; }
 
         /// <summary>
-        /// The native id of the failed message
+        /// The native id of the failed message.
         /// </summary>
         public string MessageId { get; private set; }
 

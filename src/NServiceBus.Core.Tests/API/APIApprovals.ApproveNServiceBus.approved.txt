@@ -779,7 +779,7 @@ namespace NServiceBus
         public MsmqTransport() { }
         public override string ExampleConnectionStringForErrorMessage { get; }
         public override bool RequiresConnectionString { get; }
-        protected internal override NServiceBus.Transports.TransportInfrastructure Initialize(NServiceBus.Settings.SettingsHolder settings, string connectionString) { }
+        public override NServiceBus.Transports.TransportInfrastructure Initialize(NServiceBus.Settings.SettingsHolder settings, string connectionString) { }
     }
     public class NonDurableDelivery : NServiceBus.DeliveryConstraints.DeliveryConstraint
     {
@@ -2936,7 +2936,13 @@ namespace NServiceBus.Transports
     }
     public class ErrorContext
     {
-        public ErrorContext() { }
+        public ErrorContext(string messageId, System.IO.Stream bodyStream, System.Exception exception, System.Collections.Generic.Dictionary<string, string> headers, int numberOfDeliveryAttempts, NServiceBus.Transports.TransportTransaction transportTransaction) { }
+        public System.IO.Stream BodyStream { get; }
+        public System.Exception Exception { get; }
+        public System.Collections.Generic.Dictionary<string, string> Headers { get; }
+        public string MessageId { get; }
+        public int NumberOfDeliveryAttempts { get; }
+        public NServiceBus.Transports.TransportTransaction TransportTransaction { get; }
     }
     [System.ObsoleteAttribute("No longer used, safe to remove. Will be removed in version 7.0.0.", true)]
     public interface IAuditMessages { }
@@ -2994,7 +3000,7 @@ namespace NServiceBus.Transports
     public interface IPublishMessages { }
     public interface IPushMessages
     {
-        System.Threading.Tasks.Task Init(System.Func<NServiceBus.Transports.MessageContext, System.Threading.Tasks.Task> onMessage, System.Func<NServiceBus.Transports.ErrorContext, System.Threading.Tasks.Task> onError, NServiceBus.CriticalError onCriticalError, NServiceBus.Transports.PushSettings settings);
+        System.Threading.Tasks.Task Init(System.Func<NServiceBus.Transports.MessageContext, System.Threading.Tasks.Task> onMessage, System.Func<NServiceBus.Transports.ErrorContext, System.Threading.Tasks.Task<bool>> onError, System.Func<string, System.Exception, System.Threading.Tasks.Task> onCriticalError, NServiceBus.Transports.PushSettings settings);
         void Start(NServiceBus.Transports.PushRuntimeSettings limitations);
         System.Threading.Tasks.Task Stop();
     }
@@ -3100,7 +3106,7 @@ namespace NServiceBus.Transports
             "ll be removed in version 7.0.0.", true)]
         public bool HasSupportForMultiQueueNativeTransactions { get; set; }
         public virtual bool RequiresConnectionString { get; }
-        protected internal abstract NServiceBus.Transports.TransportInfrastructure Initialize(NServiceBus.Settings.SettingsHolder settings, string connectionString);
+        public abstract NServiceBus.Transports.TransportInfrastructure Initialize(NServiceBus.Settings.SettingsHolder settings, string connectionString);
     }
     public abstract class TransportInfrastructure
     {
@@ -3135,10 +3141,13 @@ namespace NServiceBus.Transports
     public class TransportReceiveInfrastructure
     {
         public TransportReceiveInfrastructure(System.Func<NServiceBus.Transports.IPushMessages> messagePumpFactory, System.Func<NServiceBus.Transports.ICreateQueues> queueCreatorFactory, System.Func<System.Threading.Tasks.Task<NServiceBus.Transports.StartupCheckResult>> preStartupCheck) { }
+        public System.Func<NServiceBus.Transports.IPushMessages> MessagePumpFactory { get; }
+        public System.Func<NServiceBus.Transports.ICreateQueues> QueueCreatorFactory { get; }
     }
     public class TransportSendInfrastructure
     {
         public TransportSendInfrastructure(System.Func<NServiceBus.Transports.IDispatchMessages> dispatcherFactory, System.Func<System.Threading.Tasks.Task<NServiceBus.Transports.StartupCheckResult>> preStartupCheck) { }
+        public System.Func<NServiceBus.Transports.IDispatchMessages> DispatcherFactory { get; }
     }
     public class TransportSubscriptionInfrastructure
     {
