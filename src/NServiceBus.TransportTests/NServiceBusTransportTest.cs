@@ -19,24 +19,24 @@
         public void Setup()
         {
             var transportDefinitionType = DetectTransportTypeByConvention();
-            TransportDefinition = (TransportDefinition) Activator.CreateInstance(transportDefinitionType);
+            TransportDefinition = (TransportDefinition)Activator.CreateInstance(transportDefinitionType);
             TransportInfrastructure = TransportDefinition.Initialize(new SettingsHolder(), "");
 
             ReceiveInfrastructure = TransportInfrastructure.ConfigureReceiveInfrastructure();
             SendInfrastructure = TransportInfrastructure.ConfigureSendInfrastructure();
         }
 
-        protected async Task StartPump(Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<bool>> onError, TransportTransactionMode? transactionMode = null)
+        [TearDown]
+        public void TearDown()
         {
-            var transactionModeToUse = transactionMode ?? GetDefaultTransactionMode();
+            testCancellationTokenSource?.Dispose();
+        }
 
-            if (!transactionModeToUse.HasValue)
-            {
-                throw new InvalidOperationException("No transaction mode detected");
-            }
+        protected async Task StartPump(Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<bool>> onError, TransportTransactionMode transactionMode)
+        {
+            IgnoreUnsupportedTransactionModes(transactionMode);
 
-            IgnoreUnsupportedTransactionModes(transactionModeToUse.Value);
-            InputQueueName = GetTestName() + transactionModeToUse.Value;
+            InputQueueName = GetTestName() + transactionMode;
 
             MessagePump = ReceiveInfrastructure.MessagePumpFactory();
 
@@ -51,7 +51,7 @@
 
             await queueCreator.CreateQueueIfNecessary(queueBindings, WindowsIdentity.GetCurrent().Name);
 
-            var pushSettings = new PushSettings(InputQueueName, errorQueueName, true, transactionModeToUse.Value);
+            var pushSettings = new PushSettings(InputQueueName, errorQueueName, true, transactionMode);
 
             await MessagePump.Init(onMessage, onError, new CriticalError(c => Task.FromResult(0)), pushSettings);
 
@@ -76,9 +76,13 @@
             return dispatcher.Dispatch(new TransportOperations(new TransportOperation(message, new UnicastAddressTag(address))), new ContextBag());
         }
 
-        protected virtual TransportTransactionMode? GetDefaultTransactionMode()
+        protected void OnTestTimeout(Action onTimeoutAction)
         {
-            return null;
+            testCancellationTokenSource = new CancellationTokenSource();
+
+            testCancellationTokenSource.CancelAfter(TimeSpan.FromSeconds(10));
+            testCancellationTokenSource.Token.Register(onTimeoutAction);
+
         }
 
         Type DetectTransportTypeByConvention()
@@ -123,5 +127,6 @@
         TransportInfrastructure TransportInfrastructure;
         IPushMessages MessagePump;
         TransportDefinition TransportDefinition;
+        CancellationTokenSource testCancellationTokenSource;
     }
 }

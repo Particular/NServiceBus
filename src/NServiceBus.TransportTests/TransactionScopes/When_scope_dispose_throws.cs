@@ -1,22 +1,19 @@
 ﻿namespace NServiceBus.TransportTests
 {
     using System;
-    using System.Threading;
     using System.Threading.Tasks;
     using System.Transactions;
     using NUnit.Framework;
     using Transports;
 
-    public class When_scope_dispose_throws : ScopeTransportTest
+    public class When_scope_dispose_throws : NServiceBusTransportTest
     {
         [Test]
         public async Task Should_call_on_error()
         {
-            var onErrorTsc = new TaskCompletionSource<ErrorContext>();
-            var cts = new CancellationTokenSource();
+            var onErrorCalled = new TaskCompletionSource<ErrorContext>();
 
-            cts.CancelAfter(TimeSpan.FromSeconds(5));
-            cts.Token.Register(() => onErrorTsc.SetResult(null));
+            OnTestTimeout(() => onErrorCalled.SetResult(null));
 
             await StartPump(context =>
             {
@@ -27,19 +24,20 @@
             },
             context =>
             {
-                onErrorTsc.SetResult(context);
+                onErrorCalled.SetResult(context);
                 return Task.FromResult(false);
-            });
+            }
+            ,TransportTransactionMode.TransactionScope);
 
             await SendMessage(InputQueueName);
 
-            var errorContext = await onErrorTsc.Task;
+            var errorContext = await onErrorCalled.Task;
 
             Assert.IsInstanceOf<TransactionAbortedException>(errorContext.Exception);
 
             // since some transports doesn't have native retry counters we can't expect the attempts to be fully consistent since if
             // dispose throws the message might be picked up before the counter is incremented
-            Assert.LessOrEqual(1, errorContext.NumberOfProcessingAttempts);
+            Assert.LessOrEqual(1, errorContext.NumberOfDeliveryAttempts);
         }
     }
 

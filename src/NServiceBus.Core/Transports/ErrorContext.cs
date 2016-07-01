@@ -14,9 +14,9 @@
         public Exception Exception { get; private set; }
 
         /// <summary>
-        /// Number of times this message has been attempted to be processed.
+        /// Number of times this message delivered to us by the transport.
         /// </summary>
-        public int NumberOfProcessingAttempts { get; private set; }
+        public int NumberOfDeliveryAttempts { get; private set; }
 
         /// <summary>
         /// The headers of the failed message.
@@ -31,11 +31,11 @@
         /// <summary>
         /// Initializes the error context.
         /// </summary>
-        public ErrorContext(string messageId, Exception exception,Dictionary<string,string> headers, int numberOfProcessingAttempts)
+        public ErrorContext(string messageId, Exception exception,Dictionary<string,string> headers, int numberOfDeliveryAttempts)
         {
             MessageId = messageId;
             Exception = exception;
-            NumberOfProcessingAttempts = numberOfProcessingAttempts;
+            NumberOfDeliveryAttempts = numberOfDeliveryAttempts;
             Headers = headers;
         }
     }

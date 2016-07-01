@@ -2,7 +2,6 @@ namespace NServiceBus.TransportTests
 {
     using System;
     using System.Collections.Generic;
-    using System.Threading;
     using System.Threading.Tasks;
     using NUnit.Framework;
 
@@ -15,10 +14,8 @@ namespace NServiceBus.TransportTests
         public async Task Should_dispatch_the_message(TransportTransactionMode transactionMode)
         {
             var messageReceived = new TaskCompletionSource<bool>();
-            var cts = new CancellationTokenSource();
 
-            cts.CancelAfter(TimeSpan.FromSeconds(10));
-            cts.Token.Register(() => messageReceived.SetResult(false));
+            OnTestTimeout(() => messageReceived.SetResult(false));
 
             await StartPump(context =>
             {

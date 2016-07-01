@@ -42,7 +42,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="NServiceBusTransportTest.cs" />
-    <Compile Include="ScopeTransportTest.cs" />
     <Compile Include="TransactionScopes\When_scope_dispose_throws.cs" />
     <Compile Include="When_on_message_throws.cs" />
     <Compile Include="When_sending_from_on_error.cs" />

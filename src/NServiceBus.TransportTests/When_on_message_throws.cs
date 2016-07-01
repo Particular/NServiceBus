@@ -1,7 +1,6 @@
 namespace NServiceBus.TransportTests
 {
     using System;
-    using System.Threading;
     using System.Threading.Tasks;
     using NUnit.Framework;
     using Transports;
@@ -15,23 +14,18 @@ namespace NServiceBus.TransportTests
         public async Task Should_call_on_error(TransportTransactionMode transactionMode)
         {
             var onErrorCalled = new TaskCompletionSource<ErrorContext>();
-            var cts = new CancellationTokenSource();
 
-            cts.CancelAfter(TimeSpan.FromSeconds(10));
-            cts.Token.Register(() => onErrorCalled.SetCanceled());
+            OnTestTimeout(() => onErrorCalled.SetCanceled());
 
-            await StartPump(async context =>
+            await StartPump(context =>
             {
-                await Console.Out.WriteLineAsync($"Onmessage({context.MessageId})");
-
                 throw new Exception("Simulated exception");
             },
-                async context =>
+                context =>
                 {
-                    await Console.Out.WriteLineAsync($"OnError({context.MessageId}) - {context.NumberOfProcessingAttempts}");
                     onErrorCalled.SetResult(context);
 
-                    return false;
+                    return Task.FromResult(false);
                 }, transactionMode);
 
             await SendMessage(InputQueueName);
@@ -39,8 +33,7 @@ namespace NServiceBus.TransportTests
             var errorContext = await onErrorCalled.Task;
 
             Assert.AreEqual(errorContext.Exception.Message, "Simulated exception");
-
-            Assert.AreEqual(1, errorContext.NumberOfProcessingAttempts);
+            Assert.AreEqual(1, errorContext.NumberOfDeliveryAttempts);
         }
     }
 }
