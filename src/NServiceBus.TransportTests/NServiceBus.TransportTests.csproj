@@ -43,6 +43,7 @@
   <ItemGroup>
     <Compile Include="NServiceBusTransportTest.cs" />
     <Compile Include="TransactionScopes\When_scope_dispose_throws.cs" />
+    <Compile Include="When_message_is_available.cs" />
     <Compile Include="When_on_error_throws.cs" />
     <Compile Include="When_on_message_throws.cs" />
     <Compile Include="When_requesting_immediate_retry.cs" />
