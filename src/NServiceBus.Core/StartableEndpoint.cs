@@ -45,7 +45,7 @@ namespace NServiceBus
 
             AppDomain.CurrentDomain.SetPrincipalPolicy(PrincipalPolicy.WindowsPrincipal);
 
-            mainReceivePipeline = new Pipeline<ITransportReceiveContext>(builder, settings, pipelineConfiguration.Modifications);
+            mainPipeline = new Pipeline<ITransportReceiveContext>(builder, settings, pipelineConfiguration.Modifications);
 
             var receivers = CreateReceivers();
 
@@ -170,7 +170,7 @@ namespace NServiceBus
 
                 context.Extensions.Merge(messageContext.Context);
 
-                await mainReceivePipeline.Invoke(context).ConfigureAwait(false);
+                await mainPipeline.Invoke(context).ConfigureAwait(false);
 
                 await context.RaiseNotification(new ReceivePipelineCompleted(message, pipelineStartedAt, DateTime.UtcNow)).ConfigureAwait(false);
             }
@@ -199,11 +199,13 @@ namespace NServiceBus
         }
 
         IMessageSession messageSession;
-        Pipeline<ITransportReceiveContext> mainReceivePipeline;
         IBuilder builder;
         FeatureActivator featureActivator;
+
+        Pipeline<ITransportReceiveContext> mainPipeline;
         PipelineCache pipelineCache;
         PipelineConfiguration pipelineConfiguration;
+
         SettingsHolder settings;
         IEventAggregator eventAggregator;
         TransportInfrastructure transportInfrastructure;

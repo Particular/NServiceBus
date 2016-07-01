@@ -3001,7 +3001,7 @@ namespace NServiceBus.Transports
     public interface IPushMessages
     {
         System.Threading.Tasks.Task Init(System.Func<NServiceBus.Transports.MessageContext, System.Threading.Tasks.Task> onMessage, System.Func<NServiceBus.Transports.ErrorContext, System.Threading.Tasks.Task<bool>> onError, System.Func<string, System.Exception, System.Threading.Tasks.Task> onCriticalError, NServiceBus.Transports.PushSettings settings);
-        void Start(NServiceBus.Transports.PushRuntimeSettings limitations);
+        System.Threading.Tasks.Task Start(NServiceBus.Transports.PushRuntimeSettings limitations);
         System.Threading.Tasks.Task Stop();
     }
     [System.ObsoleteAttribute("Use `IDispatchMessages` instead. Will be removed in version 7.0.0.", true)]

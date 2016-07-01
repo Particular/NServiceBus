@@ -44,7 +44,7 @@ namespace NServiceBus
                 return TaskEx.CompletedTask;
             }, pushSettings).ConfigureAwait(false);
 
-            receiver.Start(pushRuntimeSettings);
+            await receiver.Start(pushRuntimeSettings).ConfigureAwait(false);
 
             isStarted = true;
         }

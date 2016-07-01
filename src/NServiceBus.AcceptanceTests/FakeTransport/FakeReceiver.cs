@@ -3,7 +3,7 @@ namespace NServiceBus.AcceptanceTests.FakeTransport
     using System;
     using System.Threading.Tasks;
     using Transports;
-  
+
     class FakeReceiver : IPushMessages
     {
         public FakeReceiver(Exception throwCritical)
@@ -17,12 +17,14 @@ namespace NServiceBus.AcceptanceTests.FakeTransport
             return Task.FromResult(0);
         }
 
-        public void Start(PushRuntimeSettings limitations)
+        public Task Start(PushRuntimeSettings limitations)
         {
             if (throwCritical != null)
             {
                 criticalError(throwCritical.Message, throwCritical);
             }
+
+            return Task.FromResult(0);
         }
 
         public Task Stop()

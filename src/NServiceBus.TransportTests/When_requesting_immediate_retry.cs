@@ -6,7 +6,7 @@ namespace NServiceBus.TransportTests
 
     public class When_requesting_immediate_retry : NServiceBusTransportTest
     {
-        //[TestCase(TransportTransactionMode.None)]  - Currently not supported, but there are plans to change that:https://github.com/Particular/NServiceBus/issues/2750
+        //[TestCase(TransportTransactionMode.None)]  - Currently not supported, but there are plans to change that: https://github.com/Particular/NServiceBus/issues/2750
         [TestCase(TransportTransactionMode.ReceiveOnly)]
         [TestCase(TransportTransactionMode.SendsAtomicWithReceive)]
         [TestCase(TransportTransactionMode.TransactionScope)]

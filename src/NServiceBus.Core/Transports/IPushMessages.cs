@@ -23,7 +23,7 @@
         /// <summary>
         /// Starts pushing messages.
         /// </summary>
-        void Start(PushRuntimeSettings limitations);
+        Task Start(PushRuntimeSettings limitations);
 
         /// <summary>
         /// Stops pushing messages.

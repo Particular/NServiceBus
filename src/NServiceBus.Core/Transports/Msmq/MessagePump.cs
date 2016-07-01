@@ -59,7 +59,7 @@ namespace NServiceBus
             return TaskEx.CompletedTask;
         }
 
-        public void Start(PushRuntimeSettings limitations)
+        public Task Start(PushRuntimeSettings limitations)
         {
             MessageQueue.ClearConnectionCache();
 
@@ -71,6 +71,8 @@ namespace NServiceBus
             // ReSharper disable once ConvertClosureToMethodGroup
             // LongRunning is useless combined with async/await
             messagePumpTask = Task.Run(() => ProcessMessages(), CancellationToken.None);
+
+            return TaskEx.CompletedTask;
         }
 
         public async Task Stop()

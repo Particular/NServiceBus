@@ -40,9 +40,11 @@
                 return Task.FromResult(0);
             }
 
-            public void Start(PushRuntimeSettings limitations)
+            public Task Start(PushRuntimeSettings limitations)
             {
                 Assert.AreEqual(10, limitations.MaxConcurrency);
+
+                return Task.FromResult(0);
             }
 
             public Task Stop()
