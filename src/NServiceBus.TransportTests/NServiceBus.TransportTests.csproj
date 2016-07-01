@@ -45,6 +45,7 @@
     <Compile Include="TransactionScopes\When_scope_dispose_throws.cs" />
     <Compile Include="When_on_error_throws.cs" />
     <Compile Include="When_on_message_throws.cs" />
+    <Compile Include="When_requesting_immediate_retry.cs" />
     <Compile Include="When_sending_from_on_error.cs" />
   </ItemGroup>
   <ItemGroup>
