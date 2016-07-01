@@ -20,7 +20,7 @@ namespace NServiceBus
             this.fileAccess = fileAccess;
             this.maxLoadAttempts = maxLoadAttempts;
 
-            errorMessage = $"An error occured while reading the endpoint instance mapping file at {filePath}. See the inner exception for more details.";
+            errorMessage = $"An error occurred while reading the endpoint instance mapping file at {filePath}. See the inner exception for more details.";
         }
 
         protected override Task OnStart(IMessageSession session)
