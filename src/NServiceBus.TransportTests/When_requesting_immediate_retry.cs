@@ -12,9 +12,9 @@ namespace NServiceBus.TransportTests
         [TestCase(TransportTransactionMode.TransactionScope)]
         public async Task Should_retry_immediately(TransportTransactionMode transactionMode)
         {
-            var onErrorCalled = new TaskCompletionSource<bool>();
+            var messageRetried = new TaskCompletionSource<bool>();
 
-            OnTestTimeout(() => onErrorCalled.SetResult(false));
+            OnTestTimeout(() => messageRetried.SetResult(false));
 
             var hasBeenCalled = false;
 
@@ -22,7 +22,7 @@ namespace NServiceBus.TransportTests
             {
                 if (hasBeenCalled)
                 {
-                    onErrorCalled.SetResult(true);
+                    messageRetried.SetResult(true);
                     return Task.FromResult(0);
                 }
                 hasBeenCalled = true;
@@ -32,7 +32,7 @@ namespace NServiceBus.TransportTests
 
             await SendMessage(InputQueueName);
 
-            Assert.True(await onErrorCalled.Task, "Should retry if asked so");
+            Assert.True(await messageRetried.Task, "Should retry if asked so");
         }
     }
 }
