@@ -146,7 +146,6 @@
     <Compile Include="Serialization\SerializationFeature.cs" />
     <Compile Include="Serializers\XML\XmlSerialization.cs" />
     <Compile Include="Routing\ConfigureUniquelyAddressableInstanceExtensions.cs" />
-    <Compile Include="Settings\ScaleOutSettings.cs" />
     <Compile Include="Transports\ErrorContext.cs" />
     <Compile Include="Transports\IOutgoingTransportOperation.cs" />
     <Compile Include="Transports\LogicalAddressExtensions.cs" />
