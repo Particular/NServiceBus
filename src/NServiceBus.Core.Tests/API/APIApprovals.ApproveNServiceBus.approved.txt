@@ -161,7 +161,7 @@ namespace NServiceBus
             "ll be removed in version 7.0.0.", true)]
         public static string TransportConnectionString(this NServiceBus.Configure config) { }
     }
-    public class static ConfigureUniquelyAddressableInstance
+    public class static ConfigureUniquelyAddressableInstanceExtensions
     {
         public static void MakeInstanceUniquelyAddressable(this NServiceBus.EndpointConfiguration config, string discriminator) { }
     }

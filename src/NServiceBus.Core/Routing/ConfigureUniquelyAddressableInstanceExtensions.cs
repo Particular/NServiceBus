@@ -3,7 +3,7 @@
     /// <summary>
     /// Contains an <see cref="EndpointConfiguration" /> extension method to specify an instance discriminator for an instance-specific queue.
     /// </summary>
-    public static class ConfigureUniquelyAddressableInstance
+    public static class ConfigureUniquelyAddressableInstanceExtensions
     {
         /// <summary>
         ///Makes the endpoint instance uniquely addressable when running multiple instances by adding an instance-specific queue.

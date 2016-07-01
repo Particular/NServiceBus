@@ -145,7 +145,7 @@
     <Compile Include="Routing\UnicastSendRouter.cs" />
     <Compile Include="Serialization\SerializationFeature.cs" />
     <Compile Include="Serializers\XML\XmlSerialization.cs" />
-    <Compile Include="Routing\ConfigureUniquelyAddressableInstance.cs" />
+    <Compile Include="Routing\ConfigureUniquelyAddressableInstanceExtensions.cs" />
     <Compile Include="Transports\IOutgoingTransportOperation.cs" />
     <Compile Include="Transports\LogicalAddressExtensions.cs" />
     <Compile Include="Transports\Msmq\MsmqScopeOptions.cs" />
