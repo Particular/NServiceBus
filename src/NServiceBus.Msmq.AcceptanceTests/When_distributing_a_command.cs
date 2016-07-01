@@ -1,10 +1,10 @@
 ﻿namespace NServiceBus.AcceptanceTests
 {
-    using System;
-    using System.IO;
     using System.Threading.Tasks;
     using AcceptanceTesting.Customization;
     using AcceptanceTesting;
+    using Configuration.AdvanceExtensibility;
+    using NServiceBus.Routing;
     using NUnit.Framework;
     using Settings;
 
@@ -57,25 +57,27 @@
         {
             public Sender()
             {
-                var filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "routes.xml");
-                File.WriteAllText(filePath, string.Format(@"<endpoints>
-    <endpoint name=""{0}"">
-        <instance discriminator=""1""/>
-        <instance discriminator=""2""/>
-    </endpoint>
-    <endpoint name=""{1}"">
-        <instance discriminator=""1""/>
-        <instance discriminator=""2""/>
-    </endpoint>
-</endpoints>
-", ReceiverAEndpoint, ReceiverBEndpoint));
+//                var filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "routes.xml");
+//                File.WriteAllText(filePath, string.Format(@"<endpoints>
+//    <endpoint name=""{0}"">
+//        <instance discriminator=""1""/>
+//        <instance discriminator=""2""/>
+//    </endpoint>
+//    <endpoint name=""{1}"">
+//        <instance discriminator=""1""/>
+//        <instance discriminator=""2""/>
+//    </endpoint>
+//</endpoints>
+//", ReceiverAEndpoint, ReceiverBEndpoint));
 
                 EndpointSetup<DefaultServer>(c =>
                 {
                     var routing = c.UseTransport<MsmqTransport>().Routing();
-                    routing.FileBasedEndpointInstanceMapping(filePath);
                     routing.RouteToEndpoint(typeof(RequestA), ReceiverAEndpoint);
                     routing.RouteToEndpoint(typeof(RequestB), ReceiverBEndpoint);
+
+                    routing.GetSettings().GetOrCreate<EndpointInstances>().Add(new EndpointInstance(ReceiverAEndpoint, "1"), new EndpointInstance(ReceiverAEndpoint, "2"));
+                    routing.GetSettings().GetOrCreate<EndpointInstances>().Add(new EndpointInstance(ReceiverBEndpoint, "1"), new EndpointInstance(ReceiverBEndpoint, "2"));
                 });
             }
 
