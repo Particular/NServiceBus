@@ -22,7 +22,7 @@
         public void SetUp()
         {
             var publishers = new Publishers();
-            publishers.AddByAddress("publisher1", typeof(object));
+            publishers.AddByAddress(typeof(object), "publisher1");
             router = new SubscriptionRouter(publishers, new EndpointInstances(), new TransportAddresses(address => null));
             dispatcher = new FakeDispatcher();
             terminator = new MessageDrivenUnsubscribeTerminator(router, "replyToAddress", "Endpoint", dispatcher);

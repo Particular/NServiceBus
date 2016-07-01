@@ -743,9 +743,11 @@ namespace NServiceBus
     }
     public class static MessageDrivenSubscriptionsConfigExtensions
     {
-        public static void RegisterPublisherForAssembly<T>(this NServiceBus.RoutingSettings<T> routingSettings, string publisherEndpoint, System.Reflection.Assembly eventAssembly, string eventNamespace = null)
+        public static void RegisterPublisherForAssembly<T>(this NServiceBus.RoutingSettings<T> routingSettings, System.Reflection.Assembly eventAssembly, string publisherEndpoint)
             where T : NServiceBus.Transports.TransportDefinition, NServiceBus.Routing.IMessageDrivenSubscriptionTransport { }
-        public static void RegisterPublisherForType<T>(this NServiceBus.RoutingSettings<T> routingSettings, string publisherEndpoint, System.Type eventType)
+        public static void RegisterPublisherForAssembly<T>(this NServiceBus.RoutingSettings<T> routingSettings, System.Reflection.Assembly eventAssembly, string eventNamespace, string publisherEndpoint)
+            where T : NServiceBus.Transports.TransportDefinition, NServiceBus.Routing.IMessageDrivenSubscriptionTransport { }
+        public static void RegisterPublisherForType<T>(this NServiceBus.RoutingSettings<T> routingSettings, System.Type eventType, string publisherEndpoint)
             where T : NServiceBus.Transports.TransportDefinition, NServiceBus.Routing.IMessageDrivenSubscriptionTransport { }
         public static void SubscriptionAuthorizer<T>(this NServiceBus.TransportExtensions<T> transportExtensions, System.Func<NServiceBus.Pipeline.IIncomingPhysicalMessageContext, bool> authorizer)
             where T : NServiceBus.Transports.TransportDefinition, NServiceBus.Routing.IMessageDrivenSubscriptionTransport { }
@@ -2562,9 +2564,10 @@ namespace NServiceBus.Routing.MessageDrivenSubscriptions
     public class Publishers
     {
         public Publishers() { }
-        public void Add(string publisher, System.Type eventType) { }
-        public void Add(string publisher, System.Reflection.Assembly eventAssembly, string eventNamespace = null) { }
-        public void AddByAddress(string publisherAddress, System.Type eventType) { }
+        public void Add(System.Type eventType, string publisher) { }
+        public void Add(System.Reflection.Assembly eventAssembly, string publisher) { }
+        public void Add(System.Reflection.Assembly eventAssembly, string eventNamespace, string publisher) { }
+        public void AddByAddress(System.Type eventType, string publisherAddress) { }
         public void AddDynamic(System.Func<System.Type, NServiceBus.Routing.MessageDrivenSubscriptions.PublisherAddress> dynamicRule, string description = null) { }
     }
 }
