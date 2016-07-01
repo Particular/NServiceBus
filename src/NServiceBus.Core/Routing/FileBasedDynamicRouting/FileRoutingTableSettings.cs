@@ -48,7 +48,7 @@ namespace NServiceBus
         {
             if (maxLoadAttempts < 1)
             {
-                throw new ArgumentOutOfRangeException(nameof(maxLoadAttempts), "Value must be at least 0.");
+                throw new ArgumentOutOfRangeException(nameof(maxLoadAttempts), "Value must be at least 1.");
             }
             Settings.Set(FileRoutingTableFeature.MaxLoadAttemptsSettingsKey, maxLoadAttempts);
             return this;
