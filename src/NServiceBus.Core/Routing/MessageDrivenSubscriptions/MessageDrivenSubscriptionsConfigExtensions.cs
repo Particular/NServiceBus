@@ -46,6 +46,8 @@ namespace NServiceBus
         /// <param name="publisherEndpoint">The publisher endpoint.</param>
         public static void RegisterPublisherForType<T>(this RoutingSettings<T> routingSettings, Type eventType, string publisherEndpoint) where T : TransportDefinition, IMessageDrivenSubscriptionTransport
         {
+            Guard.AgainstNullAndEmpty(nameof(publisherEndpoint), publisherEndpoint);
+
             routingSettings.Settings.GetOrCreate<Publishers>().Add(eventType, publisherEndpoint);
         }
 
@@ -57,6 +59,9 @@ namespace NServiceBus
         /// <param name="publisherEndpoint">The publisher endpoint.</param>
         public static void RegisterPublisherForAssembly<T>(this RoutingSettings<T> routingSettings, Assembly eventAssembly, string publisherEndpoint) where T : TransportDefinition, IMessageDrivenSubscriptionTransport
         {
+            Guard.AgainstNull(nameof(eventAssembly), eventAssembly);
+            Guard.AgainstNullAndEmpty(nameof(publisherEndpoint), publisherEndpoint);
+
             routingSettings.Settings.GetOrCreate<Publishers>().Add(eventAssembly, publisherEndpoint);
         }
 
@@ -69,6 +74,10 @@ namespace NServiceBus
         /// <param name="publisherEndpoint">The publisher endpoint.</param>
         public static void RegisterPublisherForAssembly<T>(this RoutingSettings<T> routingSettings, Assembly eventAssembly, string eventNamespace, string publisherEndpoint) where T : TransportDefinition, IMessageDrivenSubscriptionTransport
         {
+            Guard.AgainstNull(nameof(eventAssembly), eventAssembly);
+            Guard.AgainstNull(nameof(eventNamespace), eventNamespace);
+            Guard.AgainstNullAndEmpty(nameof(publisherEndpoint), publisherEndpoint);
+
             routingSettings.Settings.GetOrCreate<Publishers>().Add(eventAssembly, eventNamespace, publisherEndpoint);
         }
     }
