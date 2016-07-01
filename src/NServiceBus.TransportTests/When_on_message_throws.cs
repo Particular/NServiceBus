@@ -19,6 +19,7 @@ namespace NServiceBus.TransportTests
 
             await StartPump(context =>
             {
+                context.BodyStream.Position = 1;
                 throw new Exception("Simulated exception");
             },
                 context =>
@@ -32,8 +33,9 @@ namespace NServiceBus.TransportTests
 
             var errorContext = await onErrorCalled.Task;
 
-            Assert.AreEqual(errorContext.Exception.Message, "Simulated exception");
-            Assert.AreEqual(1, errorContext.NumberOfDeliveryAttempts);
+            Assert.AreEqual(errorContext.Exception.Message, "Simulated exception", "Should preserve the exception");
+            Assert.AreEqual(1, errorContext.NumberOfDeliveryAttempts, "Should track the number of delivery attempts");
+            Assert.AreEqual(0, errorContext.BodyStream.Position, "Should rewind the stream");
         }
     }
 }

@@ -115,7 +115,7 @@ namespace NServiceBus
         {
             try
             {
-                return await OnError(new ErrorContext(message.Id, exception, headers, numberOfDeliveryAttempts)).ConfigureAwait(false);
+                return await OnError(new ErrorContext(message.Id, message.BodyStream, exception, headers, numberOfDeliveryAttempts)).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
