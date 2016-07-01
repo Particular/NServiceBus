@@ -49,7 +49,7 @@ namespace NServiceBus
             return endpointInstances.FindInstances(endpoint);
         }
 
-        static IEnumerable<UnicastRoutingTarget> SelectDestinationsForEachEndpoint(IDistributionPolicy distributationPolicy, List<UnicastRoutingTarget> destinations)
+        static IEnumerable<UnicastRoutingTarget> SelectDestinationsForEachEndpoint(IDistributionPolicy distributionPolicy, List<UnicastRoutingTarget> destinations)
         {
             var destinationsByEndpoint = destinations
                 .GroupBy(d => d.Endpoint, d => d);
@@ -67,7 +67,7 @@ namespace NServiceBus
                 else
                 {
                     //Use the distribution strategy to select subset of instances of a given endpoint
-                    foreach (var destination in distributationPolicy.GetDistributionStrategy(group.Key).SelectDestination(@group.ToArray()))
+                    foreach (var destination in distributionPolicy.GetDistributionStrategy(group.Key).SelectDestination(@group.ToArray()))
                     {
                         yield return destination;
                     }

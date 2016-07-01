@@ -29,7 +29,7 @@
         }
 
         [Test]
-        public async Task ShouldMoveFailedMessageToErrorQueueImmediatelly_WhenRunningWithNoTransactions()
+        public async Task ShouldMoveFailedMessageToErrorQueueImmediately_WhenRunningWithNoTransactions()
         {
             var dispatcher = new FakeDispatcher();
             var behavior = CreateBehavior(dispatcher);
@@ -40,14 +40,14 @@
         }
 
         [Test]
-        public async Task ShouldNotMoveFailedMessageToErrorQueueImmediatelly_WhenRunningWithTransactions()
+        public async Task ShouldNotMoveFailedMessageToErrorQueueImmediately_WhenRunningWithTransactions()
         {
-            var dispacher = new FakeDispatcher();
-            var behavior = CreateBehavior(dispacher, transactionsEnabled: true);
+            var dispatcher = new FakeDispatcher();
+            var behavior = CreateBehavior(dispatcher, transactionsEnabled: true);
 
             await behavior.Invoke(context, () => { throw new Exception(); });
 
-            Assert.IsNull(dispacher.TransportOperation);
+            Assert.IsNull(dispatcher.TransportOperation);
         }
 
         [Test]
