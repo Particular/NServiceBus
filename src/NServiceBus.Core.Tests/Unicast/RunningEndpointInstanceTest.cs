@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
     using System.Threading.Tasks;
     using Features;
     using NServiceBus.Routing;
@@ -20,7 +19,7 @@
             var testee = new RunningEndpointInstance(
                 new SettingsHolder(),
                 new FakeBuilder(),
-                new PipelineCollection(Enumerable.Empty<TransportReceiver>()),
+                new List<TransportReceiver>(),
                 new FeatureRunner(new FeatureActivator(new SettingsHolder())),
                 new MessageSession(new RootContext(null, null, null)), new FakeTransportInfrastructure());
 

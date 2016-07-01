@@ -36,7 +36,7 @@ namespace NServiceBus
                 throw new InvalidOperationException("The transport is already started");
             }
 
-            Logger.DebugFormat("Pipeline {0} is starting receiver for queue {1}.", Id, pushSettings.InputQueue);
+            Logger.DebugFormat("Receiver {0} is starting, listening to queue {1}.", Id, pushSettings.InputQueue);
 
             await receiver.Init(c => onMessage(builder, c), c => onError(builder, c), (m, ex) =>
             {
