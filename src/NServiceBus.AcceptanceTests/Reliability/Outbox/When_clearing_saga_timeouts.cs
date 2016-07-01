@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.AcceptanceTests.Reliability.Outbox
 {
     using System;
-    using System.Linq;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using Configuration.AdvanceExtensibility;
@@ -94,7 +93,7 @@
 
             public Task Store(OutboxMessage message, OutboxTransaction transaction, ContextBag context)
             {
-                testContext.NumberOfOps += message.TransportOperations.Count();
+                testContext.NumberOfOps += message.TransportOperations.Count;
                 return Task.FromResult(0);
             }
 

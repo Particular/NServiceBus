@@ -121,7 +121,7 @@
 
             var messages = metadata.AssociatedMessages;
 
-            Assert.AreEqual(4, messages.Count());
+            Assert.AreEqual(4, messages.Count);
 
             Assert.True(metadata.IsMessageAllowedToStartTheSaga(typeof(SagaWith2StartersAnd1Handler.StartMessage1).FullName));
 

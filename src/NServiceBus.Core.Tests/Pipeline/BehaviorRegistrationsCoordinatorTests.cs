@@ -35,7 +35,7 @@ namespace NServiceBus.Core.Tests.Pipeline
 
             var model = coordinator.BuildPipelineModelFor<IRootContext>();
 
-            Assert.AreEqual(2, model.Count());
+            Assert.AreEqual(2, model.Count);
         }
 
         [Test]
