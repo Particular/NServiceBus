@@ -17,41 +17,41 @@ namespace NServiceBus.Routing.MessageDrivenSubscriptions
         }
 
         /// <summary>
-        /// Registers a publisher endpoint for a given endpoint type.
+        /// Registers a publisher endpoint for a given event type.
         /// </summary>
-        /// <param name="eventType">Event type.</param>
-        /// <param name="publisher">Publisher endpoint.</param>
+        /// <param name="eventType">The event type.</param>
+        /// <param name="publisher">The publisher endpoint.</param>
         public void Add(Type eventType, string publisher)
         {
             rules.Add(new Rule(type => StaticTypeRule(type, eventType, PublisherAddress.CreateFromEndpointName(publisher)), $"{eventType.FullName} -> {publisher}"));
         }
 
         /// <summary>
-        /// Registers a publisher address for a given endpoint type.
+        /// Registers a publisher address for a given event type.
         /// </summary>
-        /// <param name="eventType">Event type.</param>
-        /// <param name="publisherAddress">Publisher physical address.</param>
+        /// <param name="eventType">The event type.</param>
+        /// <param name="publisherAddress">The publisher's physical address.</param>
         public void AddByAddress(Type eventType, string publisherAddress)
         {
             rules.Add(new Rule(type => StaticTypeRule(type, eventType, PublisherAddress.CreateFromPhysicalAddresses(publisherAddress)), $"{eventType.FullName} -> {publisherAddress}"));
         }
 
         /// <summary>
-        /// Registers a publisher for all events in a given assembly (and optionally namespace).
+        /// Registers a publisher endpoint for all event types in a given assembly.
         /// </summary>
-        /// <param name="publisher">Publisher endpoint.</param>
-        /// <param name="eventAssembly">Assembly containing events.</param>
+        /// <param name="eventAssembly">The assembly containing the event types.</param>
+        /// <param name="publisher">The publisher endpoint.</param>
         public void Add(Assembly eventAssembly, string publisher)
         {
             rules.Add(new Rule(type => StaticAssemblyRule(type, eventAssembly, null, PublisherAddress.CreateFromEndpointName(publisher)), $"{eventAssembly.GetName().Name}/* -> {publisher}"));
         }
 
         /// <summary>
-        /// Registers a publisher for all events in a given assembly (and optionally namespace).
+        /// Registers a publisher endpoint for all event types in a given assembly and namespace.
         /// </summary>
-        /// <param name="eventAssembly">Assembly containing events.</param>
-        /// <param name="eventNamespace">Optional namespace containing events.</param>
-        /// <param name="publisher">Publisher endpoint.</param>
+        /// <param name="eventAssembly">The assembly containing the event types.</param>
+        /// <param name="eventNamespace">The namespace containing the event types.</param>
+        /// <param name="publisher">The publisher endpoint.</param>
         public void Add(Assembly eventAssembly, string eventNamespace, string publisher)
         {
             rules.Add(new Rule(type => StaticAssemblyRule(type, eventAssembly, eventNamespace, PublisherAddress.CreateFromEndpointName(publisher)), $"{eventAssembly.GetName().Name}/{eventNamespace} -> {publisher}"));

@@ -52,7 +52,7 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Registers a publisher endpoint for all event types in a given assembly and, optionally, namespace.
+        /// Registers a publisher endpoint for all event types in a given assembly.
         /// </summary>
         /// <param name="routingSettings">The <see cref="RoutingSettings&lt;T&gt;" /> to extend.</param>
         /// <param name="eventAssembly">The assembly containing the event types.</param>
@@ -66,7 +66,7 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Registers a publisher endpoint for all event types in a given assembly and, optionally, namespace.
+        /// Registers a publisher endpoint for all event types in a given assembly and namespace.
         /// </summary>
         /// <param name="routingSettings">The <see cref="RoutingSettings&lt;T&gt;" /> to extend.</param>
         /// <param name="eventAssembly">The assembly containing the event types.</param>
