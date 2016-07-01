@@ -17,7 +17,7 @@
         /// <param name="settings">Runtime settings for the message pump.</param>
         Task Init(Func<MessageContext, Task> onMessage,
             Func<ErrorContext, Task<bool>> onError,
-            CriticalError onCriticalError,
+            Func<string, Exception, Task> onCriticalError,
             PushSettings settings);
 
         /// <summary>

@@ -32,7 +32,7 @@
             testCancellationTokenSource?.Dispose();
         }
 
-        protected async Task StartPump(Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<bool>> onError, TransportTransactionMode transactionMode)
+        protected async Task StartPump(Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<bool>> onError, TransportTransactionMode transactionMode, Func<string, Exception, Task> onCriticalError = null)
         {
             IgnoreUnsupportedTransactionModes(transactionMode);
 
@@ -53,7 +53,7 @@
 
             var pushSettings = new PushSettings(InputQueueName, errorQueueName, true, transactionMode);
 
-            await MessagePump.Init(onMessage, onError, new CriticalError(c => Task.FromResult(0)), pushSettings);
+            await MessagePump.Init(onMessage, onError, onCriticalError, pushSettings);
 
             MessagePump.Start(PushRuntimeSettings.Default);
         }

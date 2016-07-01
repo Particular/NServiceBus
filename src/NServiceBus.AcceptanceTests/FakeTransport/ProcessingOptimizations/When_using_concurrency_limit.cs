@@ -11,7 +11,6 @@
     using NUnit.Framework;
     using Settings;
     using Transports;
-    using CriticalError = NServiceBus.CriticalError;
 
     public class When_using_concurrency_limit : NServiceBusAcceptanceTest
     {
@@ -36,7 +35,7 @@
 
         class FakeReceiver : IPushMessages
         {
-            public Task Init(Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<bool>> onError, CriticalError onCriticalError, PushSettings settings)
+            public Task Init(Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<bool>> onError, Func<string, Exception, Task> onCriticalError, PushSettings settings)
             {
                 return Task.FromResult(0);
             }

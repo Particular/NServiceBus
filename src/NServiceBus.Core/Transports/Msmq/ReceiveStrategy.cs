@@ -14,7 +14,7 @@ namespace NServiceBus
     {
         public abstract Task ReceiveMessage();
 
-        public void Init(MessageQueue inputQueue, MessageQueue errorQueue, Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<bool>> onError, Func<Exception, string, Task> onCriticalError)
+        public void Init(MessageQueue inputQueue, MessageQueue errorQueue, Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<bool>> onError, Func<string, Exception, Task> onCriticalError)
         {
             InputQueue = inputQueue;
             ErrorQueue = errorQueue;
@@ -119,7 +119,7 @@ namespace NServiceBus
             }
             catch (Exception ex)
             {
-                await OnCriticalError(ex, $"Failed to execute reverability actions for message `{message.Id}`").ConfigureAwait(false);
+                await OnCriticalError($"Failed to execute reverability actions for message `{message.Id}`", ex).ConfigureAwait(false);
 
                 //best thing we can do is roll the message back if possible
                 return true;
@@ -130,7 +130,7 @@ namespace NServiceBus
         MessageQueue ErrorQueue;
         Func<MessageContext, Task> OnMessage;
         Func<ErrorContext, Task<bool>> OnError;
-        Func<Exception, string, Task> OnCriticalError;
+        Func<string, Exception, Task> OnCriticalError;
 
         static ILog Logger = LogManager.GetLogger<ReceiveStrategy>();
     }

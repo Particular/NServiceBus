@@ -24,10 +24,10 @@ namespace NServiceBus
         }
 
 
-        public Task Init(Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<bool>> onError, CriticalError onCriticalError, PushSettings settings)
+        public Task Init(Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<bool>> onError, Func<string, Exception, Task> onCriticalError, PushSettings settings)
         {
-            peekCircuitBreaker = new RepeatedFailuresOverTimeCircuitBreaker("MsmqPeek", TimeSpan.FromSeconds(30), ex => onCriticalError.Raise("Failed to peek " + settings.InputQueue, ex));
-            receiveCircuitBreaker = new RepeatedFailuresOverTimeCircuitBreaker("MsmqReceive", TimeSpan.FromSeconds(30), ex => onCriticalError.Raise("Failed to receive from " + settings.InputQueue, ex));
+            peekCircuitBreaker = new RepeatedFailuresOverTimeCircuitBreaker("MsmqPeek", TimeSpan.FromSeconds(30), ex => onCriticalError("Failed to peek " + settings.InputQueue, ex));
+            receiveCircuitBreaker = new RepeatedFailuresOverTimeCircuitBreaker("MsmqReceive", TimeSpan.FromSeconds(30), ex => onCriticalError("Failed to receive from " + settings.InputQueue, ex));
 
             var inputAddress = MsmqAddress.Parse(settings.InputQueue);
             var errorAddress = MsmqAddress.Parse(settings.ErrorQueue);
@@ -54,11 +54,7 @@ namespace NServiceBus
 
             receiveStrategy = receiveStrategyFactory(settings.RequiredTransactionMode);
 
-            receiveStrategy.Init(inputQueue, errorQueue, onMessage, onError, (ex, errorMessage) =>
-            {
-                onCriticalError.Raise(errorMessage, ex);
-                return TaskEx.CompletedTask;
-            });
+            receiveStrategy.Init(inputQueue, errorQueue, onMessage, onError, onCriticalError);
 
             return TaskEx.CompletedTask;
         }
