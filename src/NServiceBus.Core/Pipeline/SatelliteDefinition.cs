@@ -7,7 +7,7 @@
 
     class SatelliteDefinition
     {
-        public SatelliteDefinition(string name, string receiveAddress, TransportTransactionMode requiredTransportTransactionMode, PushRuntimeSettings runtimeSettings, Func<IBuilder,PushContext, Task> onMessage)
+        public SatelliteDefinition(string name, string receiveAddress, TransportTransactionMode requiredTransportTransactionMode, PushRuntimeSettings runtimeSettings, Func<IBuilder, PushContext, Task> onMessage)
         {
             Name = name;
             ReceiveAddress = receiveAddress;
@@ -24,6 +24,6 @@
 
         public PushRuntimeSettings RuntimeSettings { get; private set; }
 
-        public Func<IBuilder,PushContext,Task> OnMessage{ get; private set; }
+        public Func<IBuilder, PushContext, Task> OnMessage { get; private set; }
     }
 }

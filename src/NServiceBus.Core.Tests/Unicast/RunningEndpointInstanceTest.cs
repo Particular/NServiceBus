@@ -2,12 +2,11 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
     using System.Threading.Tasks;
     using Features;
     using NServiceBus.Routing;
-    using Settings;
     using NUnit.Framework;
+    using Settings;
     using Testing;
     using Transports;
 
@@ -20,7 +19,7 @@
             var testee = new RunningEndpointInstance(
                 new SettingsHolder(),
                 new FakeBuilder(),
-                new PipelineCollection(Enumerable.Empty<TransportReceiver>()),
+                new PipelineCollection(),
                 new FeatureRunner(new FeatureActivator(new SettingsHolder())),
                 new MessageSession(new RootContext(null, null, null)), new FakeTransportInfrastructure());
 
@@ -34,6 +33,7 @@
             public override IEnumerable<Type> DeliveryConstraints { get; }
             public override TransportTransactionMode TransactionMode { get; }
             public override OutboundRoutingPolicy OutboundRoutingPolicy { get; }
+
             public override TransportReceiveInfrastructure ConfigureReceiveInfrastructure()
             {
                 throw new NotImplementedException();

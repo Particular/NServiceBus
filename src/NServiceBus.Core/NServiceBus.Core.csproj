@@ -120,8 +120,11 @@
     <Compile Include="Pipeline\Incoming\SatelliteProcessingContext.cs" />
     <Compile Include="Pipeline\Incoming\TransportReceiveToSatelliteConnector.cs" />
     <Compile Include="Pipeline\IPipelineCache.cs" />
+    <Compile Include="Pipeline\IPipelineInvoker.cs" />
     <Compile Include="Pipeline\Outgoing\AttachSenderRelatedInfoOnMessageBehavior.cs" />
     <Compile Include="Pipeline\PipelineCache.cs" />
+    <Compile Include="Pipeline\PipelineInvoker.cs" />
+    <Compile Include="Pipeline\SatellitePipelineInvoker.cs" />
     <Compile Include="Pipeline\StageForkConnector.cs" />
     <Compile Include="Pipeline\ConnectorContextExtensions.cs" />
     <Compile Include="Recoverability\FailureInfoStorage.cs" />

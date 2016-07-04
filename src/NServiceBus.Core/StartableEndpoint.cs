@@ -2,7 +2,6 @@ namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
     using System.Security.Principal;
     using System.Threading.Tasks;
     using Config;
@@ -20,7 +19,8 @@ namespace NServiceBus
             FeatureActivator featureActivator,
             PipelineConfiguration pipelineConfiguration,
             IEventAggregator eventAggregator,
-            TransportInfrastructure transportInfrastructure)
+            TransportInfrastructure transportInfrastructure,
+            CriticalError criticalError)
         {
             this.settings = settings;
             this.builder = builder;
@@ -28,6 +28,7 @@ namespace NServiceBus
             this.pipelineConfiguration = pipelineConfiguration;
             this.eventAggregator = eventAggregator;
             this.transportInfrastructure = transportInfrastructure;
+            this.criticalError = criticalError;
         }
 
         public async Task<IEndpointInstance> Start()
@@ -36,7 +37,7 @@ namespace NServiceBus
 
             var pipelineCache = new PipelineCache(builder, settings);
             await transportInfrastructure.Start().ConfigureAwait(false);
-            var messageSession = CreateMessageSession(pipelineCache);
+            var messageSession = CreateMessageSession(builder, pipelineCache, eventAggregator);
 
             var featureRunner = await StartFeatures(messageSession).ConfigureAwait(false);
 
@@ -47,7 +48,7 @@ namespace NServiceBus
             var runningInstance = new RunningEndpointInstance(settings, builder, pipelineCollection, featureRunner, messageSession, transportInfrastructure);
 
             // set the started endpoint on CriticalError to pass the endpoint to the critical error action
-            builder.Build<CriticalError>().SetEndpoint(runningInstance);
+            criticalError.SetEndpoint(runningInstance);
 
             await StartPipelines(pipelineCollection).ConfigureAwait(false);
 
@@ -64,11 +65,11 @@ namespace NServiceBus
             PipelineCollection pipelineCollection;
             if (settings.GetOrDefault<bool>("Endpoint.SendOnly"))
             {
-                pipelineCollection = new PipelineCollection(Enumerable.Empty<TransportReceiver>());
+                pipelineCollection = new PipelineCollection();
             }
             else
             {
-                var pipelines = BuildPipelines(pipelineCache).ToArray();
+                var pipelines = BuildPipelines(pipelineCache);
                 pipelineCollection = new PipelineCollection(pipelines);
             }
 
@@ -92,35 +93,37 @@ namespace NServiceBus
             }
         }
 
-        IMessageSession CreateMessageSession(IPipelineCache cache)
+        static IMessageSession CreateMessageSession(IBuilder builder, IPipelineCache cache, IEventAggregator eventAggregator)
         {
             var rootContext = new RootContext(builder, cache, eventAggregator);
             return new MessageSession(rootContext);
         }
 
-        IEnumerable<TransportReceiver> BuildPipelines(IPipelineCache cache)
+        List<TransportReceiver> BuildPipelines(IPipelineCache cache)
         {
             var purgeOnStartup = settings.GetOrDefault<bool>("Transport.PurgeOnStartup");
             var errorQueue = settings.ErrorQueueAddress();
             var dequeueLimitations = GeDequeueLimitationsForReceivePipeline();
             var requiredTransactionSupport = settings.GetRequiredTransactionModeForReceives();
+            var receivers = new List<TransportReceiver>();
 
             var mainPipelineInstance = new Pipeline<ITransportReceiveContext>(builder, settings, pipelineConfiguration.Modifications);
 
             var pushSettings = new PushSettings(settings.LocalAddress(), errorQueue, purgeOnStartup, requiredTransactionSupport);
-            yield return new TransportReceiver(MainPipelineId, builder, pushSettings, dequeueLimitations, (b, context) => InvokePipeline(b, cache, mainPipelineInstance, context));
+            receivers.Add(new TransportReceiver(MainPipelineId, criticalError, pushSettings, dequeueLimitations, new PipelineInvoker(builder, cache, mainPipelineInstance, eventAggregator), builder.Build<IPushMessages>()));
 
             if (settings.InstanceSpecificQueue() != null)
             {
                 var sharedReceiverPushSettings = new PushSettings(settings.InstanceSpecificQueue(), errorQueue, purgeOnStartup, requiredTransactionSupport);
-                yield return new TransportReceiver(MainPipelineId, builder, sharedReceiverPushSettings, dequeueLimitations, (b, context) => InvokePipeline(b, cache, mainPipelineInstance, context));
+                receivers.Add(new TransportReceiver(MainPipelineId, criticalError, sharedReceiverPushSettings, dequeueLimitations, new PipelineInvoker(builder, cache, mainPipelineInstance, eventAggregator), builder.Build<IPushMessages>()));
             }
 
             foreach (var satellitePipeline in settings.Get<SatelliteDefinitions>().Definitions)
             {
                 var satellitePushSettings = new PushSettings(satellitePipeline.ReceiveAddress, errorQueue, purgeOnStartup, satellitePipeline.RequiredTransportTransactionMode);
-                yield return new TransportReceiver(satellitePipeline.Name, builder, satellitePushSettings, dequeueLimitations, satellitePipeline.OnMessage);
+                receivers.Add(new TransportReceiver(satellitePipeline.Name, criticalError, satellitePushSettings, dequeueLimitations, new SatellitePipelineInvoker(builder, satellitePipeline), builder.Build<IPushMessages>()));
             }
+            return receivers;
         }
 
         //note: this should be handled in a feature but we don't have a good
@@ -144,31 +147,13 @@ namespace NServiceBus
             return PushRuntimeSettings.Default;
         }
 
-        async Task InvokePipeline(IBuilder rootBuilder, IPipelineCache cache, IPipeline<ITransportReceiveContext> pipeline, PushContext pushContext)
-        {
-            var pipelineStartedAt = DateTime.UtcNow;
-
-            using (var childBuilder = rootBuilder.CreateChildBuilder())
-            {
-                var rootContext = new RootContext(childBuilder, cache, eventAggregator);
-
-                var message = new IncomingMessage(pushContext.MessageId, pushContext.Headers, pushContext.BodyStream);
-                var context = new TransportReceiveContext(message, pushContext.TransportTransaction, pushContext.ReceiveCancellationTokenSource, rootContext);
-
-                context.Extensions.Merge(pushContext.Context);
-
-                await pipeline.Invoke(context).ConfigureAwait(false);
-
-                await context.RaiseNotification(new ReceivePipelineCompleted(message, pipelineStartedAt, DateTime.UtcNow)).ConfigureAwait(false);
-            }
-        }
-
         IBuilder builder;
         FeatureActivator featureActivator;
         PipelineConfiguration pipelineConfiguration;
         SettingsHolder settings;
         IEventAggregator eventAggregator;
         TransportInfrastructure transportInfrastructure;
+        CriticalError criticalError;
 
         const string MainPipelineId = "Main";
     }
