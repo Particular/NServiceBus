@@ -11,16 +11,15 @@
 
     public class When_using_instance_mapping_file : NServiceBusAcceptanceTest
     {
-        static string mappingFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, nameof(When_starting_with_invalid_instance_mapping_file), "mapping.xml");
-        static string destination = Conventions.EndpointNamingConvention(typeof(ScaledOutReceiver));
-
         [SetUp]
         public void SetupMappingFile()
         {
-            Directory.CreateDirectory(Path.GetDirectoryName(mappingFilePath));
+            // this can't be static because the conventions are setup in the NServiceBusAcceptanceTest base class
+            destination = Conventions.EndpointNamingConvention(typeof(ScaledOutReceiver));
+
             // e.g. spelling error in endpoint:
             File.WriteAllText(mappingFilePath,
-$@"<endpoints>
+                $@"<endpoints>
     <endpoint name=""{destination}"">
         <instance discriminator=""2""/>
     </endpoint>
@@ -30,7 +29,7 @@ $@"<endpoints>
         [TearDown]
         public void DeleteMappingFile()
         {
-            Directory.Delete(Path.GetDirectoryName(mappingFilePath), true);
+            File.Delete(mappingFilePath);
         }
 
         [Test]
@@ -52,6 +51,9 @@ $@"<endpoints>
             Assert.That(context.MessagesForInstance1, Is.EqualTo(0));
             Assert.That(context.MessagesForInstance2, Is.EqualTo(5));
         }
+
+        static string mappingFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, nameof(When_starting_with_invalid_instance_mapping_file) + ".xml");
+        static string destination;
 
         public class Context : ScenarioContext
         {
@@ -81,9 +83,6 @@ $@"<endpoints>
 
             public class MessageHandler : IHandleMessages<Message>
             {
-                Context testContext;
-                ReadOnlySettings settings;
-
                 public MessageHandler(Context testContext, ReadOnlySettings settings)
                 {
                     this.testContext = testContext;
@@ -104,6 +103,9 @@ $@"<endpoints>
 
                     return Task.FromResult(0);
                 }
+
+                Context testContext;
+                ReadOnlySettings settings;
             }
         }
 

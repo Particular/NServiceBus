@@ -11,6 +11,26 @@
 
     public class When_using_empty_instance_mapping_file : NServiceBusAcceptanceTest
     {
+        [SetUp]
+        public void SetupMappingFile()
+        {
+            // this can't be static because the conventions are setup in the NServiceBusAcceptanceTest base class
+            logicalEndpointName = Conventions.EndpointNamingConvention(typeof(ScaledOutReceiver));
+
+            // e.g. spelling error in endpoint:
+            File.WriteAllText(mappingFilePath,
+                $@"<endpoints>
+    <endpoint name=""{logicalEndpointName}"">
+    </endpoint>
+</endpoints>");
+        }
+
+        [TearDown]
+        public void DeleteMappingFile()
+        {
+            File.Delete(mappingFilePath);
+        }
+
         [Test]
         public async Task Should_send_messages_to_logical_endpoint_address()
         {
@@ -32,6 +52,9 @@
             Assert.That(context.MessagesForInstance2, Is.GreaterThanOrEqualTo(1));
         }
 
+        static string mappingFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, nameof(When_using_empty_instance_mapping_file) + ".xml");
+        static string logicalEndpointName;
+
         public class Context : ScenarioContext
         {
             public int MessagesForInstance1;
@@ -42,19 +65,11 @@
         {
             public SenderWithEmptyMappingFile()
             {
-                var logicalEndpointName = Conventions.EndpointNamingConvention(typeof(ScaledOutReceiver));
-                var filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "instance-mapping.xml");
-
-                File.WriteAllText(filePath,
-$@"<endpoints>
-    <endpoint name=""{logicalEndpointName}"">
-    </endpoint>
-</endpoints>");
-
                 EndpointSetup<DefaultServer>(c =>
                 {
-                    c.UseTransport<MsmqTransport>().Routing()
-                        .RouteToEndpoint(typeof(Message), logicalEndpointName);
+                    var routingSettings = c.UseTransport<MsmqTransport>().Routing();
+                    routingSettings.RouteToEndpoint(typeof(Message), logicalEndpointName);
+                    routingSettings.InstanceMappingFile().FilePath(mappingFilePath);
                 });
             }
         }
@@ -68,9 +83,6 @@ $@"<endpoints>
 
             public class MessageHandler : IHandleMessages<Message>
             {
-                Context testContext;
-                ReadOnlySettings settings;
-
                 public MessageHandler(Context testContext, ReadOnlySettings settings)
                 {
                     this.testContext = testContext;
@@ -91,6 +103,9 @@ $@"<endpoints>
 
                     return Task.FromResult(0);
                 }
+
+                Context testContext;
+                ReadOnlySettings settings;
             }
         }
 

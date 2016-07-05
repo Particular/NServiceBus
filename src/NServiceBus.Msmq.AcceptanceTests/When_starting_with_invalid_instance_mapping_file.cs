@@ -9,12 +9,11 @@
 
     public class When_starting_with_invalid_instance_mapping_file : NServiceBusAcceptanceTest
     {
-        static string mappingFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, nameof(When_starting_with_invalid_instance_mapping_file), "instance-mapping.xml");
+        static string mappingFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, nameof(When_starting_with_invalid_instance_mapping_file) + ".xml");
 
         [SetUp]
         public void SetupMappingFile()
         {
-            Directory.CreateDirectory(Path.GetDirectoryName(mappingFilePath));
             // e.g. spelling error in endpoint:
             File.WriteAllText(mappingFilePath,
 @"<endpoints>
@@ -28,7 +27,7 @@
         [TearDown]
         public void DeleteMappingFile()
         {
-            Directory.Delete(Path.GetDirectoryName(mappingFilePath), true);
+            File.Delete(mappingFilePath);
         }
 
         [Test]
