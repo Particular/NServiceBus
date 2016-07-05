@@ -57,19 +57,6 @@
         {
             public Sender()
             {
-//                var filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "routes.xml");
-//                File.WriteAllText(filePath, string.Format(@"<endpoints>
-//    <endpoint name=""{0}"">
-//        <instance discriminator=""1""/>
-//        <instance discriminator=""2""/>
-//    </endpoint>
-//    <endpoint name=""{1}"">
-//        <instance discriminator=""1""/>
-//        <instance discriminator=""2""/>
-//    </endpoint>
-//</endpoints>
-//", ReceiverAEndpoint, ReceiverBEndpoint));
-
                 EndpointSetup<DefaultServer>(c =>
                 {
                     var routing = c.UseTransport<MsmqTransport>().Routing();

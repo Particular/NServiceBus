@@ -6,7 +6,7 @@
     using AcceptanceTesting;
     using NUnit.Framework;
 
-    public class When_starting_with_invalid_instance_mapping_file
+    public class When_starting_with_invalid_instance_mapping_file : NServiceBusAcceptanceTest
     {
         [Test]
         public async Task Should_throw_at_startup()

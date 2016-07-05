@@ -9,7 +9,7 @@
     using NUnit.Framework;
     using Settings;
 
-    public class When_using_instance_mapping_file
+    public class When_using_instance_mapping_file : NServiceBusAcceptanceTest
     {
         [Test]
         public async Task Should_send_messages_to_configured_instances()
