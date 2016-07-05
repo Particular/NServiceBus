@@ -34,7 +34,7 @@
         }
 
         [Test]
-        public void It_requires_at_least_one_endpoint()
+        public void It_allows_empty_endpoints_element()
         {
             const string xml = @"
 <endpoints>
@@ -43,8 +43,7 @@
             var doc = XDocument.Parse(xml);
             var parser = new FileRoutingTableParser();
 
-            var exception = Assert.Throws<XmlSchemaValidationException>(() => parser.Parse(doc));
-            Assert.That(exception.Message, Does.Contain("The element 'endpoints' has incomplete content."));
+            Assert.DoesNotThrow(() => parser.Parse(doc));
         }
 
         [Test]
@@ -63,7 +62,7 @@
         }
 
         [Test]
-        public void It_requires_endpoint_to_have_at_least_one_instance()
+        public void It_allows_endpoint_to_not_have_an_instance()
         {
             const string xml = @"
 <endpoints>
@@ -73,8 +72,7 @@
             var doc = XDocument.Parse(xml);
             var parser = new FileRoutingTableParser();
 
-            var exception = Assert.Throws<XmlSchemaValidationException>(() => parser.Parse(doc));
-            Assert.That(exception.Message, Does.Contain("The element 'endpoint' has incomplete content."));
+            Assert.DoesNotThrow(() => parser.Parse(doc));
         }
     }
 }
