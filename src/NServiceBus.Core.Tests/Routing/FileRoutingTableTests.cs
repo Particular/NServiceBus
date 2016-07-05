@@ -1,36 +1,13 @@
 ﻿namespace NServiceBus.Core.Tests.Routing
 {
     using System;
-    using System.Linq;
     using System.Threading.Tasks;
     using System.Xml.Linq;
-    using NServiceBus.Routing;
     using NUnit.Framework;
 
     [TestFixture]
     public class FileRoutingTableTests
     {
-        [Test]
-        public async Task It_retries_loading_the_file_in_case_of_error()
-        {
-            var timer = new FakeTimer();
-            var firstAttempt = true;
-            var fileAccess = new FakeFileAccess(() =>
-            {
-                if (firstAttempt)
-                {
-                    firstAttempt = false;
-                    throw new Exception("Simulated");
-                }
-                return XDocument.Parse(@"<endpoints><endpoint name=""A""><instance/></endpoint></endpoints>");
-            });
-
-            var table = new FileRoutingTable("unused", TimeSpan.Zero, timer, fileAccess, 2);
-
-            var instance = (await table.FindInstances("A")).Single();
-            Assert.AreEqual(new EndpointInstance("A"), instance);
-        }
-
         [Test]
         public void If_file_does_not_exist_when_starting_up_it_fails()
         {

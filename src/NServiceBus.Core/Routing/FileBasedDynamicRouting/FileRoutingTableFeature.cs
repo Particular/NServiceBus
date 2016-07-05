@@ -36,8 +36,7 @@ namespace NServiceBus.Features
             var endpointInstances = context.Settings.Get<EndpointInstances>();
 
             var fileRoutingTable = new FileRoutingTable(filePath, checkInterval, new AsyncTimer(), new RoutingFileAccess(), maxLoadAttempts);
-            //TODO fix this:
-            fileRoutingTable.ReloadData().GetAwaiter().GetResult();
+            fileRoutingTable.ReloadData();
             endpointInstances.AddDynamic(fileRoutingTable.FindInstances);
             context.RegisterStartupTask(fileRoutingTable);
         }
