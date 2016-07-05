@@ -2,6 +2,7 @@ namespace NServiceBus.Routing
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Threading.Tasks;
 
     /// <summary>
@@ -40,6 +41,14 @@ namespace NServiceBus.Routing
                 {
                     dynamicInstances.Add(instance);
                 }
+            }
+
+            if (!dynamicInstances.Any())
+            {
+                return new[]
+                {
+                    new EndpointInstance(endpoint)
+                };
             }
 
             return dynamicInstances;
