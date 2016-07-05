@@ -2,7 +2,6 @@ namespace NServiceBus.Routing
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
     using System.Threading.Tasks;
 
     /// <summary>
@@ -43,7 +42,7 @@ namespace NServiceBus.Routing
                 }
             }
 
-            if (!dynamicInstances.Any())
+            if (dynamicInstances.Count == 0)
             {
                 return new[]
                 {

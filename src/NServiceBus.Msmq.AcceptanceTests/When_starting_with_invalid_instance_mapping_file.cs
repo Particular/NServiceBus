@@ -3,6 +3,7 @@
     using System;
     using System.IO;
     using System.Threading.Tasks;
+    using System.Xml.Schema;
     using AcceptanceTesting;
     using NUnit.Framework;
 
@@ -16,8 +17,7 @@
                 .Done(c => c.EndpointsStarted)
                 .Run());
 
-            //TODO improve exception assertion
-            Assert.That(exception.InnerException, Is.Not.Null);
+            Assert.That(exception.InnerException.InnerException, Is.TypeOf<XmlSchemaValidationException>());
         }
 
         public class SenderWithInvalidMappingFile : EndpointConfigurationBuilder

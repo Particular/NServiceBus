@@ -10,11 +10,13 @@
         [Test]
         public async Task Should_use_logical_endpoint_name_as_address()
         {
-            await Scenario.Define<Context>()
+            var context = await Scenario.Define<Context>()
                 .WithEndpoint<SenderWithoutMappingFile>(e => e.When(c => c.Send(new Message())))
                 .WithEndpoint<ReceiverWithoutMappingFile>()
                 .Done(c => c.ReceivedMessage)
                 .Run();
+
+            Assert.That(context.ReceivedMessage, Is.True);
         }
 
         public class Context : ScenarioContext
@@ -27,6 +29,7 @@
             public SenderWithoutMappingFile()
             {
                 EndpointSetup<DefaultServer>(c => c.UseTransport<MsmqTransport>().Routing()
+                    // only configure logical endpoint
                     .RouteToEndpoint(typeof(Message), Conventions.EndpointNamingConvention(typeof(ReceiverWithoutMappingFile))));
             }
         }

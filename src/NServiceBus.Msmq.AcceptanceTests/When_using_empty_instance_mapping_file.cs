@@ -43,10 +43,8 @@
             public SenderWithEmptyMappingFile()
             {
                 var logicalEndpointName = Conventions.EndpointNamingConvention(typeof(ScaledOutReceiver));
-
                 var filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "instance-mapping.xml");
 
-                // only configure instance 2 for the routing to make sure messages aren't sent to the shared queue
                 File.WriteAllText(filePath,
 $@"<endpoints>
     <endpoint name=""{logicalEndpointName}"">

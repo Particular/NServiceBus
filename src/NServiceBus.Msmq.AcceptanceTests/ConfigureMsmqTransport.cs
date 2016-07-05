@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Messaging;
 using System.Threading.Tasks;
@@ -54,15 +53,6 @@ public class ConfigureEndpointMsmqTransport : IConfigureEndpointTestExecution
             {
                 Console.WriteLine("Could not delete queue '{0}'", queuePath);
             }
-        }
-
-        try
-        {
-            File.Delete(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "instance-mapping.xml"));
-        }
-        catch (Exception)
-        {
-            // ignore
         }
 
         MessageQueue.ClearConnectionCache();

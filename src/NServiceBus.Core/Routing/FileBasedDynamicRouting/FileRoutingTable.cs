@@ -46,16 +46,12 @@ namespace NServiceBus
             HashSet<EndpointInstance> result;
 
             // ReSharper disable once PossibleNullReferenceException
-            if (instanceMap.TryGetValue(endpoint, out result))
-                return Task.FromResult((IEnumerable<EndpointInstance>) result);
-
-            return Task.FromResult(noInstances);
+            return instanceMap.TryGetValue(endpoint, out result)
+                ? Task.FromResult<IEnumerable<EndpointInstance>>(result)
+                : Task.FromResult(noInstances);
         }
 
-        protected override Task OnStop(IMessageSession session)
-        {
-            return timer.Stop();
-        }
+        protected override Task OnStop(IMessageSession session) => timer.Stop();
 
         TimeSpan checkInterval;
         IRoutingFileAccess fileAccess;
