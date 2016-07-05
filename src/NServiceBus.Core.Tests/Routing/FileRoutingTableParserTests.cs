@@ -23,13 +23,13 @@
 </endpoints>
 ";
             var doc = XDocument.Parse(xml);
-            var result = new FileRoutingTableParser().Parse(doc, true);
+            var result = new FileRoutingTableParser().Parse(doc);
 
             CollectionAssert.AreEqual(new[]
             {
                 new EndpointInstance("A", "D1").SetProperty("prop1", "V1").SetProperty("prop2","V2"),
                 new EndpointInstance("A").SetProperty("prop3", "V3").SetProperty("prop4", "V4"),
-                new EndpointInstance("B", "D2").SetProperty("prop5", "V5").SetProperty("prop6", "V6"),
+                new EndpointInstance("B", "D2").SetProperty("prop5", "V5").SetProperty("prop6", "V6")
             }, result);
         }
 
@@ -43,7 +43,7 @@
             var doc = XDocument.Parse(xml);
             var parser = new FileRoutingTableParser();
 
-            var exception = Assert.Throws<XmlSchemaValidationException>(() => parser.Parse(doc, true));
+            var exception = Assert.Throws<XmlSchemaValidationException>(() => parser.Parse(doc));
             Assert.That(exception.Message, Does.Contain("The element 'endpoints' has incomplete content."));
         }
 
@@ -58,7 +58,7 @@
             var doc = XDocument.Parse(xml);
             var parser = new FileRoutingTableParser();
 
-            var exception = Assert.Throws<XmlSchemaValidationException>(() => parser.Parse(doc, true));
+            var exception = Assert.Throws<XmlSchemaValidationException>(() => parser.Parse(doc));
             Assert.That(exception.Message, Does.Contain("The required attribute 'name' is missing."));
         }
 
@@ -73,7 +73,7 @@
             var doc = XDocument.Parse(xml);
             var parser = new FileRoutingTableParser();
 
-            var exception = Assert.Throws<XmlSchemaValidationException>(() => parser.Parse(doc, true));
+            var exception = Assert.Throws<XmlSchemaValidationException>(() => parser.Parse(doc));
             Assert.That(exception.Message, Does.Contain("The element 'endpoint' has incomplete content."));
         }
     }

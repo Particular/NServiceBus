@@ -1,6 +1,5 @@
 namespace NServiceBus
 {
-    using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Xml;
@@ -20,22 +19,9 @@ namespace NServiceBus
             }
         }
 
-        public IEnumerable<EndpointInstance> Parse(XDocument document, bool throwOnValidationError)
+        public IEnumerable<EndpointInstance> Parse(XDocument document)
         {
-            try
-            {
-                document.Validate(schema, null, true);
-            }
-            catch (Exception)
-            {
-                if (throwOnValidationError)
-                {
-                    throw;
-                }
-
-                //TODO log exception
-                return new EndpointInstance[0];
-            }
+            document.Validate(schema, null, true);
 
             var root = document.Root;
             var endpointElements = root.Descendants("endpoint");

@@ -37,7 +37,7 @@ namespace NServiceBus
         public async Task ReloadData()
         {
             var doc = await ReadFileWithRetries().ConfigureAwait(false);
-            var instances = parser.Parse(doc, true);
+            var instances = parser.Parse(doc);
 
             var newInstanceMap = instances
                 .GroupBy(i => i.Endpoint)
