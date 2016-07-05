@@ -11,7 +11,7 @@ namespace NServiceBus
             XDocument doc;
             using (var file = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read))
             {
-                using (var reader = XmlReader.Create(new StreamReader(file)))
+                using (var reader = XmlReader.Create(file))
                 {
                     doc = XDocument.Load(reader);
                 }
