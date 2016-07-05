@@ -770,7 +770,6 @@ namespace NServiceBus
     public class static MsmqConfigurationExtensions
     {
         public static NServiceBus.TransportExtensions<NServiceBus.MsmqTransport> ApplyLabelToMessages(this NServiceBus.TransportExtensions<NServiceBus.MsmqTransport> transportExtensions, System.Func<System.Collections.Generic.IReadOnlyDictionary<string, string>, string> labelGenerator) { }
-        public static NServiceBus.FileRoutingTableSettings FileBasedEndpointInstanceMapping(this NServiceBus.RoutingSettings<NServiceBus.MsmqTransport> config, string filePath) { }
         public static void SetMessageDistributionStrategy(this NServiceBus.RoutingSettings<NServiceBus.MsmqTransport> config, string endpointName, NServiceBus.Routing.DistributionStrategy distributionStrategy) { }
         public static NServiceBus.TransportExtensions<NServiceBus.MsmqTransport> TransactionScopeOptions(this NServiceBus.TransportExtensions<NServiceBus.MsmqTransport> transportExtensions, System.Nullable<System.TimeSpan> timeout = null, System.Nullable<System.Transactions.IsolationLevel> isolationLevel = null) { }
     }
