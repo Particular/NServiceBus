@@ -53,5 +53,17 @@ namespace NServiceBus
             Settings.Set(FileRoutingTableFeature.MaxLoadAttemptsSettingsKey, maxLoadAttempts);
             return this;
         }
+
+        /// <summary>
+        /// Specifies the path and file name for the instance mapping XML. The default is <value>instance-mapping.xml</value>.
+        /// </summary>
+        /// <param name="filePath">The relative or absolute file path to the instance mapping XML file.</param>
+        public FileRoutingTableSettings FilePath(string filePath)
+        {
+            Guard.AgainstNullAndEmpty(nameof(filePath), filePath);
+
+            Settings.Set(FileRoutingTableFeature.FilePathSettingsKey, filePath);
+            return this;
+        }
     }
 }
