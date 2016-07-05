@@ -1,5 +1,7 @@
 namespace NServiceBus.AcceptanceTests
 {
+    using System;
+    using System.IO;
     using System.Linq;
     using AcceptanceTesting.Customization;
     using NUnit.Framework;
@@ -22,12 +24,18 @@ namespace NServiceBus.AcceptanceTests
                 testName = testName.Replace("When_", "");
 
                 var endpointBuilder = classAndEndpoint.Split('+').Last();
-                
+
                 testName = System.Threading.Thread.CurrentThread.CurrentCulture.TextInfo.ToTitleCase(testName);
                 testName = testName.Replace("_", "");
 
                 return testName +"."+ endpointBuilder;
             };
+        }
+
+        [TearDown]
+        public void TearDown()
+        {
+            File.Delete(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "instance-mapping.xml"));
         }
     }
 }

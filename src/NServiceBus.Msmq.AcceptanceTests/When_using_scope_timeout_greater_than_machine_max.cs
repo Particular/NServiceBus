@@ -4,7 +4,7 @@
     using AcceptanceTesting;
     using NUnit.Framework;
 
-    public class When_using_scope_timeout_greater_than_machine_max
+    public class When_using_scope_timeout_greater_than_machine_max : NServiceBusAcceptanceTest
     {
         [Test]
         public void Should_blow_up()
