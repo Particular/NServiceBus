@@ -2,7 +2,6 @@ namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
     using System.Threading.Tasks;
     using DelayedDelivery;
     using DeliveryConstraints;
@@ -37,7 +36,7 @@ namespace NServiceBus
                     context.Extensions.Set(outboxTransaction);
                     await stage(physicalMessageContext).ConfigureAwait(false);
 
-                    var outboxMessage = new OutboxMessage(messageId, ConvertToOutboxOperations(pendingTransportOperations.Operations).ToList());
+                    var outboxMessage = new OutboxMessage(messageId, ConvertToOutboxOperations(pendingTransportOperations.Operations));
                     await outboxStorage.Store(outboxMessage, outboxTransaction, context.Extensions).ConfigureAwait(false);
 
                     context.Extensions.Remove<OutboxTransaction>();
@@ -76,9 +75,10 @@ namespace NServiceBus
             }
         }
 
-        static List<TransportOperation> ConvertToOutboxOperations(IEnumerable<Transports.TransportOperation> operations)
+        static TransportOperation[] ConvertToOutboxOperations(Transports.TransportOperation[] operations)
         {
-            var transportOperations = new List<TransportOperation>();
+            var transportOperations = new TransportOperation[operations.Length];
+            var index = 0;
             foreach (var operation in operations)
             {
                 var options = new Dictionary<string, string>();
@@ -90,8 +90,8 @@ namespace NServiceBus
 
                 SerializeRoutingStrategy(operation.AddressTag, options);
 
-                transportOperations.Add(new TransportOperation(operation.Message.MessageId,
-                    options, operation.Message.Body, operation.Message.Headers));
+                transportOperations[index] = new TransportOperation(operation.Message.MessageId, options, operation.Message.Body, operation.Message.Headers);
+                index++;
             }
             return transportOperations;
         }

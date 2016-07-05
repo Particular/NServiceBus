@@ -23,7 +23,7 @@
                     var addressLabel = rs.Apply(context.Message.Headers);
                     var message = new OutgoingMessage(context.Message.MessageId, context.Message.Headers, context.Message.Body);
                     return new TransportOperation(message, addressLabel, dispatchConsistency, context.Extensions.GetDeliveryConstraints());
-                }).ToList();
+                }).ToArray();
 
             if (log.IsDebugEnabled)
             {
@@ -49,7 +49,7 @@
                 return TaskEx.CompletedTask;
             }
 
-            return stage(this.CreateDispatchContext(operations.ToArray(), context));
+            return stage(this.CreateDispatchContext(operations, context));
         }
 
         static ILog log = LogManager.GetLogger<RoutingToDispatchConnector>();

@@ -93,7 +93,7 @@
 
             public Task Store(OutboxMessage message, OutboxTransaction transaction, ContextBag context)
             {
-                testContext.NumberOfOps += message.TransportOperations.Count;
+                testContext.NumberOfOps += message.TransportOperations.Length;
                 return Task.FromResult(0);
             }
 

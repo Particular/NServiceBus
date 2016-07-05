@@ -808,9 +808,9 @@ namespace NServiceBus
     {
         public PendingTransportOperations() { }
         public bool HasOperations { get; }
-        public System.Collections.Generic.IReadOnlyCollection<NServiceBus.Transports.TransportOperation> Operations { get; }
+        public NServiceBus.Transports.TransportOperation[] Operations { get; }
         public void Add(NServiceBus.Transports.TransportOperation transportOperation) { }
-        public void AddRange(System.Collections.Generic.IEnumerable<NServiceBus.Transports.TransportOperation> transportOperations) { }
+        public void AddRange(NServiceBus.Transports.TransportOperation[] transportOperations) { }
     }
     public class static PersistenceConfig
     {
@@ -2039,9 +2039,9 @@ namespace NServiceBus.Outbox
     }
     public class OutboxMessage
     {
-        public OutboxMessage(string messageId, System.Collections.Generic.IList<NServiceBus.Outbox.TransportOperation> operations) { }
+        public OutboxMessage(string messageId, NServiceBus.Outbox.TransportOperation[] operations) { }
         public string MessageId { get; }
-        public System.Collections.Generic.IList<NServiceBus.Outbox.TransportOperation> TransportOperations { get; }
+        public NServiceBus.Outbox.TransportOperation[] TransportOperations { get; }
     }
     public class OutboxSettings : NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings
     {
