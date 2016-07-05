@@ -11,6 +11,28 @@
 
     public class When_using_instance_mapping_file : NServiceBusAcceptanceTest
     {
+        static string mappingFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, nameof(When_starting_with_invalid_instance_mapping_file), "mapping.xml");
+        static string destination = Conventions.EndpointNamingConvention(typeof(ScaledOutReceiver));
+
+        [SetUp]
+        public void SetupMappingFile()
+        {
+            Directory.CreateDirectory(Path.GetDirectoryName(mappingFilePath));
+            // e.g. spelling error in endpoint:
+            File.WriteAllText(mappingFilePath,
+$@"<endpoints>
+    <endpoint name=""{destination}"">
+        <instance discriminator=""2""/>
+    </endpoint>
+</endpoints>");
+        }
+
+        [TearDown]
+        public void DeleteMappingFile()
+        {
+            Directory.Delete(Path.GetDirectoryName(mappingFilePath), true);
+        }
+
         [Test]
         public async Task Should_send_messages_to_configured_instances()
         {
@@ -41,22 +63,11 @@
         {
             public SenderWithMappingFile()
             {
-                var logicalEndpointName = Conventions.EndpointNamingConvention(typeof(ScaledOutReceiver));
-
-                var filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "instance-mapping.xml");
-
-                // only configure instance 2 for the routing to make sure messages aren't sent to the shared queue
-                File.WriteAllText(filePath,
-$@"<endpoints>
-    <endpoint name=""{logicalEndpointName}"">
-        <instance discriminator=""2""/>
-    </endpoint>
-</endpoints>");
-
                 EndpointSetup<DefaultServer>(c =>
                 {
-                    c.UseTransport<MsmqTransport>().Routing()
-                        .RouteToEndpoint(typeof(Message), logicalEndpointName);
+                    var routingSettings = c.UseTransport<MsmqTransport>().Routing();
+                    routingSettings.RouteToEndpoint(typeof(Message), destination);
+                    routingSettings.InstanceMappingFile().FilePath(mappingFilePath);
                 });
             }
         }
