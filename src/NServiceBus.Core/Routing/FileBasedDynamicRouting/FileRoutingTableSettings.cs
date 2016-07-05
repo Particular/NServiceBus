@@ -55,7 +55,7 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Specifies the path and file name for the instance mapping XML. The default is <value>instance-mapping.xml</value>.
+        /// Specifies the path and file name for the instance mapping XML. The default is <code>instance-mapping.xml</code>.
         /// </summary>
         /// <param name="filePath">The relative or absolute file path to the instance mapping XML file.</param>
         public FileRoutingTableSettings FilePath(string filePath)
