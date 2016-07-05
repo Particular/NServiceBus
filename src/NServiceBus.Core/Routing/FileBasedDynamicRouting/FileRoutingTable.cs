@@ -28,19 +28,16 @@ namespace NServiceBus
             errorMessage = $"An error occurred while reading the endpoint instance mapping file at {filePath}. See the inner exception for more details.";
         }
 
-        protected override async Task OnStart(IMessageSession session)
+        protected override Task OnStart(IMessageSession session)
         {
-            if (File.Exists(filePath))
-            {
-                var doc = await ReadFileWithRetries().ConfigureAwait(false);
-                parser.Parse(doc, true);
-            }
+            timer.Start(ReloadData, checkInterval, ex => log.Error(errorMessage, ex));
+            return TaskEx.CompletedTask;
         }
 
-        async Task ReloadData()
+        public async Task ReloadData()
         {
             var doc = await ReadFileWithRetries().ConfigureAwait(false);
-            var instances = parser.Parse(doc, false);
+            var instances = parser.Parse(doc, true);
 
             var newInstanceMap = instances
                 .GroupBy(i => i.Endpoint)
@@ -78,28 +75,17 @@ namespace NServiceBus
             }
         }
 
-        public async Task<IEnumerable<EndpointInstance>> FindInstances(string endpoint)
+        public Task<IEnumerable<EndpointInstance>> FindInstances(string endpoint)
         {
             HashSet<EndpointInstance> result;
-            if (instanceMap == null)
-            {
-                try
-                {
-                    await ReloadData().ConfigureAwait(false);
-                    timer.Start(ReloadData, checkInterval, ex => log.Error(errorMessage, ex));
-                }
-                catch (Exception ex)
-                {
-                    throw new Exception(errorMessage, ex);
-                }
-            }
+
             // ReSharper disable once PossibleNullReferenceException
-            return instanceMap.TryGetValue(endpoint, out result)
-                ? result
-                : new HashSet<EndpointInstance>()
-                {
-                    new EndpointInstance(endpoint)
-                };
+            if (instanceMap.TryGetValue(endpoint, out result))
+                return Task.FromResult((IEnumerable<EndpointInstance>)result);
+
+            //TODO: cache empty result
+            IEnumerable<EndpointInstance> empty = new EndpointInstance[0];
+            return Task.FromResult(empty);
         }
 
         protected override Task OnStop(IMessageSession session) => timer.Stop();
