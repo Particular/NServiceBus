@@ -48,7 +48,7 @@ namespace NServiceBus
             // ReSharper disable once PossibleNullReferenceException
             return instanceMap.TryGetValue(endpoint, out result)
                 ? Task.FromResult<IEnumerable<EndpointInstance>>(result)
-                : Task.FromResult(noInstances);
+                : noInstances;
         }
 
         protected override Task OnStop(IMessageSession session) => timer.Stop();
@@ -60,7 +60,7 @@ namespace NServiceBus
         Dictionary<string, HashSet<EndpointInstance>> instanceMap;
         FileRoutingTableParser parser = new FileRoutingTableParser();
         IAsyncTimer timer;
-        IEnumerable<EndpointInstance> noInstances = new EndpointInstance[0];
+        Task<IEnumerable<EndpointInstance>> noInstances = Task.FromResult(Enumerable.Empty<EndpointInstance>());
 
         static readonly ILog log = LogManager.GetLogger(typeof(FileRoutingTable));
     }
