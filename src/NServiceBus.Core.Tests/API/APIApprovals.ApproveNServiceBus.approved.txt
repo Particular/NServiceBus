@@ -905,10 +905,13 @@ namespace NServiceBus
     }
     public class RoutingSettings : NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings
     {
-        public void RouteToEndpoint(System.Type messageType, string destination) { }
+        public NServiceBus.RoutingSettings RouteToEndpoint(System.Type messageType, string destination) { }
     }
-    public class RoutingSettings<T> : NServiceBus.RoutingSettings
-        where T : NServiceBus.Transports.TransportDefinition { }
+    public class RoutingSettings<T> : NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings
+        where T : NServiceBus.Transports.TransportDefinition
+    {
+        public NServiceBus.RoutingSettings<T> RouteToEndpoint(System.Type messageType, string destination) { }
+    }
     public class static RoutingSettingsExtensions
     {
         public static NServiceBus.RoutingSettings Routing(this NServiceBus.TransportExtensions config) { }

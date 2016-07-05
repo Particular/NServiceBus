@@ -72,10 +72,10 @@
 
                 EndpointSetup<DefaultServer>(c =>
                 {
-                    var routing = c.UseTransport<MsmqTransport>().Routing();
-                    routing.FileBasedEndpointInstanceMapping(filePath);
-                    routing.RouteToEndpoint(typeof(RequestA), ReceiverAEndpoint);
-                    routing.RouteToEndpoint(typeof(RequestB), ReceiverBEndpoint);
+                    c.UseTransport<MsmqTransport>().Routing()
+                        .RouteToEndpoint(typeof(RequestA), ReceiverAEndpoint)
+                        .RouteToEndpoint(typeof(RequestB), ReceiverBEndpoint)
+                        .FileBasedEndpointInstanceMapping(filePath);
                 });
             }
 
