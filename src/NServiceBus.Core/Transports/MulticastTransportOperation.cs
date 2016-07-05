@@ -2,7 +2,6 @@ namespace NServiceBus.Transports
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
     using DeliveryConstraints;
 
     /// <summary>
@@ -13,11 +12,12 @@ namespace NServiceBus.Transports
         /// <summary>
         /// Creates a new <see cref="MulticastTransportOperation" /> instance.
         /// </summary>
-        public MulticastTransportOperation(OutgoingMessage message, Type messageType, DispatchConsistency requiredDispatchConsistency = DispatchConsistency.Default, IEnumerable<DeliveryConstraint> deliveryConstraints = null)
+        // ReSharper disable once ParameterTypeCanBeEnumerable.Local
+        public MulticastTransportOperation(OutgoingMessage message, Type messageType, DispatchConsistency requiredDispatchConsistency = DispatchConsistency.Default, List<DeliveryConstraint> deliveryConstraints = null)
         {
             Message = message;
             MessageType = messageType;
-            DeliveryConstraints = deliveryConstraints ?? Enumerable.Empty<DeliveryConstraint>();
+            DeliveryConstraints = deliveryConstraints ?? DeliveryConstraint.EmptyConstraints;
             RequiredDispatchConsistency = requiredDispatchConsistency;
         }
 
@@ -27,14 +27,15 @@ namespace NServiceBus.Transports
         public Type MessageType { get; }
 
         /// <summary>
+        /// The delivery constraints that must be honored by the transport.
+        /// </summary>
+        /// <remarks>The delivery constraints should only ever be read. When there are no delivery constraints a cached empty constraints list is returned.</remarks>
+        public List<DeliveryConstraint> DeliveryConstraints { get; }
+
+        /// <summary>
         /// The message to be sent over the transport.
         /// </summary>
         public OutgoingMessage Message { get; }
-
-        /// <summary>
-        /// The delivery constraints that must be honored by the transport.
-        /// </summary>
-        public IEnumerable<DeliveryConstraint> DeliveryConstraints { get; }
 
         /// <summary>
         /// The dispatch consistency the must be honored by the transport.

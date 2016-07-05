@@ -51,11 +51,11 @@ namespace NServiceBus.Transports
         /// <summary>
         /// A list of multicast transport operations.
         /// </summary>
-        public IEnumerable<MulticastTransportOperation> MulticastTransportOperations { get; }
+        public List<MulticastTransportOperation> MulticastTransportOperations { get; }
 
         /// <summary>
         /// A list of unicast transport operations.
         /// </summary>
-        public IEnumerable<UnicastTransportOperation> UnicastTransportOperations { get; }
+        public List<UnicastTransportOperation> UnicastTransportOperations { get; }
     }
 }
