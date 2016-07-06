@@ -4,7 +4,6 @@ namespace NServiceBus
     using System.Collections.Generic;
     using System.Messaging;
     using System.Transactions;
-    using Features;
     using Routing;
 
     /// <summary>
@@ -44,19 +43,6 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Enables a file-based routing table source that is automatically refreshed whenever the file gets updated.
-        /// </summary>
-        public static FileRoutingTableSettings FileBasedEndpointInstanceMapping(this RoutingSettings<MsmqTransport> config, string filePath)
-        {
-            Guard.AgainstNull(nameof(filePath), filePath);
-
-            config.Settings.EnableFeature(typeof(FileRoutingTableFeature));
-            config.Settings.Set(FileRoutingTableFeature.FilePathSettingsKey, filePath);
-
-            return new FileRoutingTableSettings(config.Settings);
-        }
-
-        /// <summary>
         /// Sets a distribution strategy for a given endpoint.
         /// </summary>
         /// <param name="config">Config object.</param>
@@ -65,6 +51,14 @@ namespace NServiceBus
         public static void SetMessageDistributionStrategy(this RoutingSettings<MsmqTransport> config, string endpointName, DistributionStrategy distributionStrategy)
         {
             config.Settings.GetOrCreate<DistributionPolicy>().SetDistributionStrategy(endpointName, distributionStrategy);
+        }
+
+        /// <summary>
+        /// Returns the configuration options for the file based instance mapping file.
+        /// </summary>
+        public static FileRoutingTableSettings InstanceMappingFile(this RoutingSettings<MsmqTransport> config)
+        {
+            return new FileRoutingTableSettings(config.Settings);
         }
     }
 }

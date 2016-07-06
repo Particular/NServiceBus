@@ -42,6 +42,11 @@ namespace NServiceBus.Routing
                 }
             }
 
+            if (dynamicInstances.Count == 0)
+            {
+                dynamicInstances.Add(new EndpointInstance(endpoint));
+            }
+
             return dynamicInstances;
         }
 

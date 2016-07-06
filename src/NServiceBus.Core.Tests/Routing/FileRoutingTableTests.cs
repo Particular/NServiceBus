@@ -1,65 +1,29 @@
 ﻿namespace NServiceBus.Core.Tests.Routing
 {
     using System;
-    using System.Linq;
     using System.Threading.Tasks;
     using System.Xml.Linq;
-    using NServiceBus.Routing;
     using NUnit.Framework;
 
     [TestFixture]
     public class FileRoutingTableTests
     {
         [Test]
-        public async Task It_retries_loading_the_file_in_case_of_error()
+        public void Reload_should_throw_when_file_does_not_exist()
         {
+            const string filePath = "some file path";
             var timer = new FakeTimer();
-            var firstAttempt = true;
+            var fileAccessException = new Exception("Simulated");
             var fileAccess = new FakeFileAccess(() =>
             {
-                if (firstAttempt)
-                {
-                    firstAttempt = false;
-                    throw new Exception("Simulated");
-                }
-                return XDocument.Parse(@"<endpoints><endpoint name=""A""><instance/></endpoint></endpoints>");
+                throw fileAccessException;
             });
+            var table = new FileRoutingTable(filePath, TimeSpan.Zero, timer, fileAccess);
 
-            var table = new FileRoutingTable("unused", TimeSpan.Zero, timer, fileAccess, 2);
+            var exception = Assert.Throws<Exception>(() => table.ReloadData());
 
-            var instance = (await table.FindInstances("A")).Single();
-            Assert.AreEqual(new EndpointInstance("A"), instance);
-        }
-
-        [Test]
-        public void If_file_does_not_exist_when_starting_up_it_fails()
-        {
-            var timer = new FakeTimer();
-            var fileAccess = new FakeFileAccess(() =>
-            {
-                throw new Exception("Simulated");
-            });
-
-            var table = new FileRoutingTable("unused", TimeSpan.Zero, timer, fileAccess, 3);
-
-            var exception = Assert.ThrowsAsync<Exception>(async () => await table.PerformStartup(null));
-            Assert.That(exception.Message, Does.Contain("The endpoint instance mapping file"));
-            Assert.That(exception.Message, Does.Contain("does not exist."));
-        }
-
-        [Test]
-        public void If_file_does_not_exist_when_resolving_for_the_first_time_it_fails()
-        {
-            var timer = new FakeTimer();
-            var fileAccess = new FakeFileAccess(() =>
-            {
-                throw new Exception("Simulated");
-            });
-
-            var table = new FileRoutingTable("unused", TimeSpan.Zero, timer, fileAccess, 3);
-
-            var exception = Assert.ThrowsAsync<Exception>(async () => await table.FindInstances("SomeEndpoint"));
-            Assert.That(exception.InnerException.Message, Does.Contain("Simulated"));
+            Assert.That(exception.Message, Does.Contain($"An error occurred while reading the endpoint instance mapping file at {filePath}. See the inner exception for more details."));
+            Assert.That(exception.InnerException, Is.EqualTo(fileAccessException));
         }
 
         [Test]
@@ -81,12 +45,12 @@
                 return XDocument.Parse(@"<endpoints><endpoint name=""A""><instance/></endpoint></endpoints>");
             });
 
-            var table = new FileRoutingTable("unused", TimeSpan.Zero, timer, fileAccess, 1);
-            await table.FindInstances("SomeEndpoint");
+            var table = new FileRoutingTable("unused", TimeSpan.Zero, timer, fileAccess);
+            await table.PerformStartup(null);
 
             fail = true;
-
             await timer.Trigger();
+
             Assert.IsTrue(errorCallbackInvoked);
         }
 

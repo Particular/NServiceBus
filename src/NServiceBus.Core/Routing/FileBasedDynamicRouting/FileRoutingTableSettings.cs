@@ -39,18 +39,14 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Specifies the maximum number of attempts to load contents of a file before logging an error.
-        /// The default value is 10 attempts.
-        /// Valid values must be at least 1.
+        /// Specifies the path and file name for the instance mapping XML. The default is <code>instance-mapping.xml</code>.
         /// </summary>
-        /// <param name="maxLoadAttempts">Max load attempts.</param>
-        public FileRoutingTableSettings MaxLoadAttempts(int maxLoadAttempts)
+        /// <param name="filePath">The relative or absolute file path to the instance mapping XML file.</param>
+        public FileRoutingTableSettings FilePath(string filePath)
         {
-            if (maxLoadAttempts < 1)
-            {
-                throw new ArgumentOutOfRangeException(nameof(maxLoadAttempts), "Value must be at least 1.");
-            }
-            Settings.Set(FileRoutingTableFeature.MaxLoadAttemptsSettingsKey, maxLoadAttempts);
+            Guard.AgainstNullAndEmpty(nameof(filePath), filePath);
+
+            Settings.Set(FileRoutingTableFeature.FilePathSettingsKey, filePath);
             return this;
         }
     }
