@@ -11,16 +11,19 @@
         [Test]
         public void Reload_should_throw_when_file_does_not_exist()
         {
+            const string filePath = "some file path";
             var timer = new FakeTimer();
+            var fileAccessException = new Exception("Simulated");
             var fileAccess = new FakeFileAccess(() =>
             {
-                throw new Exception("Simulated");
+                throw fileAccessException;
             });
-            var table = new FileRoutingTable("unused", TimeSpan.Zero, timer, fileAccess, 3);
+            var table = new FileRoutingTable(filePath, TimeSpan.Zero, timer, fileAccess);
 
             var exception = Assert.Throws<Exception>(() => table.ReloadData());
 
-            Assert.That(exception.Message, Does.Contain("Simulated"));
+            Assert.That(exception.Message, Does.Contain($"An error occurred while reading the endpoint instance mapping file at {filePath}. See the inner exception for more details."));
+            Assert.That(exception.InnerException, Is.EqualTo(fileAccessException));
         }
 
         [Test]
@@ -42,7 +45,7 @@
                 return XDocument.Parse(@"<endpoints><endpoint name=""A""><instance/></endpoint></endpoints>");
             });
 
-            var table = new FileRoutingTable("unused", TimeSpan.Zero, timer, fileAccess, 1);
+            var table = new FileRoutingTable("unused", TimeSpan.Zero, timer, fileAccess);
             await table.PerformStartup(null);
 
             fail = true;

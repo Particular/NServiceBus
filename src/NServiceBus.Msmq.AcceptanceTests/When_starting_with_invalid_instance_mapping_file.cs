@@ -38,7 +38,8 @@
                 .Done(c => c.EndpointsStarted)
                 .Run());
 
-            Assert.That(exception.InnerException.InnerException, Is.TypeOf<XmlSchemaValidationException>());
+            Assert.That(exception.InnerException.InnerException.Message, Does.Contain($"An error occurred while reading the endpoint instance mapping file at {mappingFilePath}. See the inner exception for more details."));
+            Assert.That(exception.InnerException.InnerException.InnerException, Is.TypeOf<XmlSchemaValidationException>());
         }
 
         public class SenderWithInvalidMappingFile : EndpointConfigurationBuilder

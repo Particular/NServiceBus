@@ -393,7 +393,6 @@ namespace NServiceBus
     {
         public FileRoutingTableSettings(NServiceBus.Settings.SettingsHolder settings) { }
         public NServiceBus.FileRoutingTableSettings FilePath(string filePath) { }
-        public NServiceBus.FileRoutingTableSettings MaxLoadAttempts(int maxLoadAttempts) { }
         public NServiceBus.FileRoutingTableSettings RefreshInterval(System.TimeSpan refreshInterval) { }
     }
     public class FileShareDataBus : NServiceBus.DataBus.DataBusDefinition

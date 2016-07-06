@@ -10,8 +10,7 @@ namespace NServiceBus
 
     class FileRoutingTable : FeatureStartupTask
     {
-        //TODO: remove maxLoadAttempts?
-        public FileRoutingTable(string filePath, TimeSpan checkInterval, IAsyncTimer timer, IRoutingFileAccess fileAccess, int maxLoadAttempts)
+        public FileRoutingTable(string filePath, TimeSpan checkInterval, IAsyncTimer timer, IRoutingFileAccess fileAccess)
         {
             this.filePath = filePath;
             this.checkInterval = checkInterval;
