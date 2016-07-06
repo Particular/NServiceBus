@@ -1,7 +1,5 @@
 namespace NServiceBus.AcceptanceTests
 {
-    using System;
-    using System.IO;
     using System.Linq;
     using AcceptanceTesting.Customization;
     using NUnit.Framework;
@@ -30,12 +28,6 @@ namespace NServiceBus.AcceptanceTests
 
                 return testName +"."+ endpointBuilder;
             };
-        }
-
-        [TearDown]
-        public void TearDown()
-        {
-            File.Delete(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "instance-mapping.xml"));
         }
     }
 }
