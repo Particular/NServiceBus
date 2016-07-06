@@ -22,30 +22,43 @@
         /// Gets the list of handlers <see cref="Type" />s for the given
         /// <paramref name="messageType" />.
         /// </summary>
-        public IEnumerable<MessageHandler> GetHandlersFor(Type messageType)
+        // ReSharper disable once ReturnTypeCanBeEnumerable.Global
+        public List<MessageHandler> GetHandlersFor(Type messageType)
         {
             Guard.AgainstNull(nameof(messageType), messageType);
             if (!conventions.IsMessageType(messageType))
             {
-                return Enumerable.Empty<MessageHandler>();
+                return noMessageHandlers;
             }
 
-            return from handlersAndMessages in handlerAndMessagesHandledByHandlerCache
-                   from messagesBeingHandled in handlersAndMessages.Value
-                   where Type.GetTypeFromHandle(messagesBeingHandled.MessageType).IsAssignableFrom(messageType)
-                   select new MessageHandler(messagesBeingHandled.MethodDelegate, Type.GetTypeFromHandle(handlersAndMessages.Key));
+            var messageHandlers = new List<MessageHandler>();
+            // ReSharper disable once LoopCanBeConvertedToQuery
+            foreach (var handlersAndMessages in handlerAndMessagesHandledByHandlerCache)
+            {
+                var handlerType = handlersAndMessages.Key;
+                // ReSharper disable once LoopCanBeConvertedToQuery
+                foreach (var messagesBeingHandled in handlersAndMessages.Value)
+                {
+                    if (messagesBeingHandled.MessageType.IsAssignableFrom(messageType))
+                    {
+                        messageHandlers.Add(new MessageHandler(messagesBeingHandled.MethodDelegate, handlerType));
+                    }
+                }
+            }
+            return messageHandlers;
         }
 
         /// <summary>
         /// Lists all message type for which we have handlers.
         /// </summary>
+        /// <remarks>This method should not be called on a hot path.</remarks>
         public IEnumerable<Type> GetMessageTypes()
         {
             return (from messagesBeingHandled in handlerAndMessagesHandledByHandlerCache.Values
-                    from typeHandled in messagesBeingHandled
-                    let messageType = Type.GetTypeFromHandle(typeHandled.MessageType)
-                    where conventions.IsMessageType(messageType)
-                    select messageType).Distinct();
+                from typeHandled in messagesBeingHandled
+                let messageType = typeHandled.MessageType
+                where conventions.IsMessageType(messageType)
+                select messageType).Distinct();
         }
 
         /// <summary>
@@ -67,10 +80,9 @@
             foreach (var messageType in messageTypes)
             {
                 List<DelegateHolder> typeList;
-                var typeHandle = handlerType.TypeHandle;
-                if (!handlerAndMessagesHandledByHandlerCache.TryGetValue(typeHandle, out typeList))
+                if (!handlerAndMessagesHandledByHandlerCache.TryGetValue(handlerType, out typeList))
                 {
-                    handlerAndMessagesHandledByHandlerCache[typeHandle] = typeList = new List<DelegateHolder>();
+                    handlerAndMessagesHandledByHandlerCache[handlerType] = typeList = new List<DelegateHolder>();
                 }
 
                 CacheHandlerMethods(handlerType, messageType, typeList);
@@ -102,7 +114,7 @@
 
             var delegateHolder = new DelegateHolder
             {
-                MessageType = messageType.TypeHandle,
+                MessageType = messageType,
                 MethodDelegate = handleMethod
             };
             methodList.Add(delegateHolder);
@@ -137,24 +149,26 @@
             return Expression.Lambda<Func<object, object, IMessageHandlerContext, Task>>(body, target, messageParam, contextParam).Compile();
         }
 
-        static IEnumerable<Type> GetMessageTypesBeingHandledBy(Type type)
+        // ReSharper disable once ReturnTypeCanBeEnumerable.Local
+        static Type[] GetMessageTypesBeingHandledBy(Type type)
         {
             return (from t in type.GetInterfaces()
-                    where t.IsGenericType
-                    let potentialMessageType = t.GetGenericArguments()[0]
-                    where
-                        typeof(IHandleMessages<>).MakeGenericType(potentialMessageType).IsAssignableFrom(t) ||
-                        typeof(IHandleTimeouts<>).MakeGenericType(potentialMessageType).IsAssignableFrom(t)
-                    select potentialMessageType)
+                where t.IsGenericType
+                let potentialMessageType = t.GetGenericArguments()[0]
+                where
+                    typeof(IHandleMessages<>).MakeGenericType(potentialMessageType).IsAssignableFrom(t) ||
+                    typeof(IHandleTimeouts<>).MakeGenericType(potentialMessageType).IsAssignableFrom(t)
+                select potentialMessageType)
                 .Distinct()
-                .ToList();
+                .ToArray();
         }
+
         void ValidateHandlerType(Type handlerType)
         {
             var propertyTypes = handlerType.GetProperties().Select(p => p.PropertyType).ToList();
             var ctorArguments = handlerType.GetConstructors()
-             .SelectMany(ctor => ctor.GetParameters().Select(p => p.ParameterType))
-             .ToList();
+                .SelectMany(ctor => ctor.GetParameters().Select(p => p.ParameterType))
+                .ToList();
 
             var dependencies = propertyTypes.Concat(ctorArguments).ToList();
 
@@ -164,13 +178,14 @@
             }
         }
 
-        Conventions conventions;
-        IDictionary<RuntimeTypeHandle, List<DelegateHolder>> handlerAndMessagesHandledByHandlerCache = new Dictionary<RuntimeTypeHandle, List<DelegateHolder>>();
+        readonly Conventions conventions;
+        readonly Dictionary<Type, List<DelegateHolder>> handlerAndMessagesHandledByHandlerCache = new Dictionary<Type, List<DelegateHolder>>();
+        static List<MessageHandler> noMessageHandlers = new List<MessageHandler>();
         static ILog Log = LogManager.GetLogger<MessageHandlerRegistry>();
 
-        class DelegateHolder
+        struct DelegateHolder
         {
-            public RuntimeTypeHandle MessageType;
+            public Type MessageType;
             public Func<object, object, IMessageHandlerContext, Task> MethodDelegate;
         }
     }
