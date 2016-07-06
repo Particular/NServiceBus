@@ -44,10 +44,7 @@ namespace NServiceBus.Routing
 
             if (dynamicInstances.Count == 0)
             {
-                return new[]
-                {
-                    new EndpointInstance(endpoint)
-                };
+                dynamicInstances.Add(new EndpointInstance(endpoint));
             }
 
             return dynamicInstances;

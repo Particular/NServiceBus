@@ -25,20 +25,27 @@ namespace NServiceBus
             {
                 ReloadData();
                 return TaskEx.CompletedTask;
-            }, checkInterval, ex => log.Error($"An error occurred while reading the endpoint instance mapping file at {filePath}. See the inner exception for more details.", ex));
+            }, checkInterval, ex => log.Error("Unable to update instance mapping information because the instance mapping file couldn't be read.", ex));
             return TaskEx.CompletedTask;
         }
 
         public void ReloadData()
         {
-            var doc = fileAccess.Load(filePath);
-            var instances = parser.Parse(doc);
+            try
+            {
+                var doc = fileAccess.Load(filePath);
+                var instances = parser.Parse(doc);
 
-            var newInstanceMap = instances
+                var newInstanceMap = instances
                 .GroupBy(i => i.Endpoint)
                 .ToDictionary(g => g.Key, g => new HashSet<EndpointInstance>(g));
 
-            instanceMap = newInstanceMap;
+                instanceMap = newInstanceMap;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"An error occurred while reading the endpoint instance mapping file at {filePath}. See the inner exception for more details.", ex);
+            }
         }
 
         public Task<IEnumerable<EndpointInstance>> FindInstances(string endpoint)
