@@ -70,7 +70,7 @@
             {
                 public Registration(ConcurrentDictionary<string, int> failedMessages) : base("CaptureExceptionBehavior", typeof(CaptureExceptionBehavior), "Captures unhandled exceptions from processed messages for the AcceptanceTesting Framework", b => new CaptureExceptionBehavior(failedMessages))
                 {
-                    InsertAfter("Recoverability");
+                    InsertAfterIfExists("Recoverability");
                 }
             }
         }

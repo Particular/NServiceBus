@@ -35,7 +35,7 @@ namespace NServiceBus
         {
             if (minimumConsistencyGuarantee == TransportTransactionMode.TransactionScope)
             {
-                return new ReceiveWithTransactionScope(transactionOptions);
+                return new ReceiveWithTransactionScope(transactionOptions, new MsmqFailureInfoStorage(1000));
             }
 
             if (minimumConsistencyGuarantee == TransportTransactionMode.None)
@@ -43,7 +43,7 @@ namespace NServiceBus
                 return new ReceiveWithNoTransaction();
             }
 
-            return new ReceiveWithNativeTransaction();
+            return new ReceiveWithNativeTransaction(new MsmqFailureInfoStorage(1000));
         }
 
         public override EndpointInstance BindToLocalEndpoint(EndpointInstance instance) => instance.AtMachine(RuntimeEnvironment.MachineName);

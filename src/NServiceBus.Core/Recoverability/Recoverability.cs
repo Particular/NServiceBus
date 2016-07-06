@@ -87,7 +87,7 @@
                 var transportTransactionMode = context.Settings.GetRequiredTransactionModeForReceives();
 
                 return new RecoverabilityBehavior(flrHandler, slrHandler, errorBehavior, transportTransactionMode != TransportTransactionMode.None);
-            }, "Handles message recoverability");  
+            }, "Handles message recoverability");
 
             RaiseLegacyNotifications(context);
         }

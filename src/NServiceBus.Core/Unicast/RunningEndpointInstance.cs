@@ -1,6 +1,8 @@
 namespace NServiceBus
 {
     using System;
+    using System.Collections.Generic;
+    using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
     using Features;
@@ -12,11 +14,11 @@ namespace NServiceBus
 
     class RunningEndpointInstance : IEndpointInstance
     {
-        public RunningEndpointInstance(SettingsHolder settings, IBuilder builder, PipelineCollection pipelineCollection, FeatureRunner featureRunner, IMessageSession messageSession, TransportInfrastructure transportInfrastructure)
+        public RunningEndpointInstance(SettingsHolder settings, IBuilder builder, List<TransportReceiver> receivers, FeatureRunner featureRunner, IMessageSession messageSession, TransportInfrastructure transportInfrastructure)
         {
             this.settings = settings;
             this.builder = builder;
-            this.pipelineCollection = pipelineCollection;
+            this.receivers = receivers;
             this.featureRunner = featureRunner;
             this.messageSession = messageSession;
             this.transportInfrastructure = transportInfrastructure;
@@ -40,7 +42,7 @@ namespace NServiceBus
 
                 Log.Info("Initiating shutdown.");
 
-                await pipelineCollection.Stop().ConfigureAwait(false);
+                await StopReceivers().ConfigureAwait(false);
                 await featureRunner.Stop(messageSession).ConfigureAwait(false);
                 await transportInfrastructure.Stop().ConfigureAwait(false);
                 settings.Clear();
@@ -85,12 +87,24 @@ namespace NServiceBus
             return messageSession.Unsubscribe(eventType, options);
         }
 
+        Task StopReceivers()
+        {
+            var receiverStopTasks = receivers.Select(async receiver =>
+            {
+                Log.DebugFormat("Stopping {0} receiver", receiver.Id);
+                await receiver.Stop().ConfigureAwait(false);
+                Log.DebugFormat("Stopped {0} receiver", receiver.Id);
+            });
+
+            return Task.WhenAll(receiverStopTasks);
+        }
+
         IBuilder builder;
+        List<TransportReceiver> receivers;
         FeatureRunner featureRunner;
         IMessageSession messageSession;
         TransportInfrastructure transportInfrastructure;
 
-        PipelineCollection pipelineCollection;
         SettingsHolder settings;
 
         volatile bool stopped;

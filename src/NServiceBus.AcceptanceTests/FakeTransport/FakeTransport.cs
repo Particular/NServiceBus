@@ -9,7 +9,7 @@
 
         public override string ExampleConnectionStringForErrorMessage => null;
 
-        protected override TransportInfrastructure Initialize(SettingsHolder settings, string connectionString)
+        public override TransportInfrastructure Initialize(SettingsHolder settings, string connectionString)
         {
             return new FakeTransportInfrastructure(settings);
         }

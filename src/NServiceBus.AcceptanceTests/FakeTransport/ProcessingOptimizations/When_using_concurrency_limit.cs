@@ -11,7 +11,6 @@
     using NUnit.Framework;
     using Settings;
     using Transports;
-    using CriticalError = NServiceBus.CriticalError;
 
     public class When_using_concurrency_limit : NServiceBusAcceptanceTest
     {
@@ -36,14 +35,16 @@
 
         class FakeReceiver : IPushMessages
         {
-            public Task Init(Func<PushContext, Task> pipe, CriticalError criticalError, PushSettings settings)
+            public Task Init(Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<bool>> onError, Func<string, Exception, Task> onCriticalError, PushSettings settings)
             {
                 return Task.FromResult(0);
             }
 
-            public void Start(PushRuntimeSettings limitations)
+            public Task Start(PushRuntimeSettings limitations)
             {
                 Assert.AreEqual(10, limitations.MaxConcurrency);
+
+                return Task.FromResult(0);
             }
 
             public Task Stop()
@@ -74,7 +75,7 @@
 
             public override bool RequiresConnectionString => false;
 
-            protected override TransportInfrastructure Initialize(SettingsHolder settings, string connectionString)
+            public override TransportInfrastructure Initialize(SettingsHolder settings, string connectionString)
             {
                 return new FakeTransportInfrastructure();
             }

@@ -17,7 +17,7 @@ namespace NServiceBus
             this.moveToErrorsActionExecutor = moveToErrorsActionExecutor;
         }
 
-        public async Task Invoke(PushContext context, Func<Task> next)
+        public async Task Invoke(MessageContext context, Func<Task> next)
         {
             var failureInfo = failureInfoStorage.GetFailureInfoForMessage(context.MessageId);
 
@@ -51,7 +51,7 @@ namespace NServiceBus
             return failureInfo.NumberOfFailedAttempts <= MaxNumberOfFailedRetries;
         }
 
-        async Task MoveToErrorQueue(PushContext context, TimeoutProcessingFailureInfo failureInfo)
+        async Task MoveToErrorQueue(MessageContext context, TimeoutProcessingFailureInfo failureInfo)
         {
             try
             {

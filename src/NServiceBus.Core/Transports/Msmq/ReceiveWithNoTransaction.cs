@@ -3,42 +3,43 @@ namespace NServiceBus
     using System;
     using System.Collections.Generic;
     using System.Messaging;
-    using System.Threading;
     using System.Threading.Tasks;
-    using Extensibility;
-    using Logging;
     using Transports;
 
     class ReceiveWithNoTransaction : ReceiveStrategy
     {
-        public override async Task ReceiveMessage(MessageQueue inputQueue, MessageQueue errorQueue, CancellationTokenSource cancellationTokenSource, Func<PushContext, Task> onMessage)
+        public override async Task ReceiveMessage()
         {
-            var message = inputQueue.Receive(TimeSpan.FromMilliseconds(10), MessageQueueTransactionType.None);
+            Message message;
 
-            Dictionary<string, string> headers;
-
-            try
+            if (!TryReceive(MessageQueueTransactionType.None, out message))
             {
-                headers = MsmqUtilities.ExtractHeaders(message);
-            }
-            catch (Exception ex)
-            {
-                var error = $"Message '{message.Id}' is corrupt and will be moved to '{errorQueue.QueueName}'";
-                Logger.Error(error, ex);
-
-                errorQueue.Send(message, errorQueue.Transactional ? MessageQueueTransactionType.Single : MessageQueueTransactionType.None);
-
                 return;
             }
 
+            Dictionary<string, string> headers;
+
+            if (!TryExtractHeaders(message, out headers))
+            {
+                MovePoisonMessageToErrorQueue(message, IsQueuesTransactional ? MessageQueueTransactionType.Single : MessageQueueTransactionType.None);
+                return;
+            }
+
+            var transportTransaction = new TransportTransaction();
+
             using (var bodyStream = message.BodyStream)
             {
-                var pushContext = new PushContext(message.Id, headers, bodyStream, new TransportTransaction(), cancellationTokenSource, new ContextBag());
+                try
+                {
+                    await TryProcessMessage(message, headers, bodyStream, transportTransaction).ConfigureAwait(false);
+                }
+                catch (Exception exception)
+                {
+                    message.BodyStream.Position = 0;
 
-                await onMessage(pushContext).ConfigureAwait(false);
+                    await HandleError(message, headers, exception, 1, transportTransaction).ConfigureAwait(false);
+                }
             }
         }
-
-        static ILog Logger = LogManager.GetLogger<ReceiveWithNoTransaction>();
     }
 }

@@ -779,7 +779,7 @@ namespace NServiceBus
         public MsmqTransport() { }
         public override string ExampleConnectionStringForErrorMessage { get; }
         public override bool RequiresConnectionString { get; }
-        protected internal override NServiceBus.Transports.TransportInfrastructure Initialize(NServiceBus.Settings.SettingsHolder settings, string connectionString) { }
+        public override NServiceBus.Transports.TransportInfrastructure Initialize(NServiceBus.Settings.SettingsHolder settings, string connectionString) { }
     }
     public class NonDurableDelivery : NServiceBus.DeliveryConstraints.DeliveryConstraint
     {
@@ -1659,7 +1659,7 @@ namespace NServiceBus.Features
         public NServiceBus.ObjectBuilder.IConfigureComponents Container { get; }
         public NServiceBus.Pipeline.PipelineSettings Pipeline { get; }
         public NServiceBus.Settings.ReadOnlySettings Settings { get; }
-        public void AddSatelliteReceiver(string name, string transportAddress, NServiceBus.TransportTransactionMode requiredTransportTransactionMode, NServiceBus.Transports.PushRuntimeSettings runtimeSettings, System.Func<NServiceBus.ObjectBuilder.IBuilder, NServiceBus.Transports.PushContext, System.Threading.Tasks.Task> onMessage) { }
+        public void AddSatelliteReceiver(string name, string transportAddress, NServiceBus.TransportTransactionMode requiredTransportTransactionMode, NServiceBus.Transports.PushRuntimeSettings runtimeSettings, System.Func<NServiceBus.ObjectBuilder.IBuilder, NServiceBus.Transports.MessageContext, System.Threading.Tasks.Task> onMessage) { }
         public void RegisterStartupTask<TTask>(TTask startupTask)
             where TTask : NServiceBus.Features.FeatureStartupTask { }
         public void RegisterStartupTask<TTask>(System.Func<TTask> startupTaskFactory)
@@ -2938,6 +2938,16 @@ namespace NServiceBus.Transports
         Default = 1,
         Isolated = 2,
     }
+    public class ErrorContext
+    {
+        public ErrorContext(string messageId, System.IO.Stream bodyStream, System.Exception exception, System.Collections.Generic.Dictionary<string, string> headers, int numberOfDeliveryAttempts, NServiceBus.Transports.TransportTransaction transportTransaction) { }
+        public System.IO.Stream BodyStream { get; }
+        public System.Exception Exception { get; }
+        public System.Collections.Generic.Dictionary<string, string> Headers { get; }
+        public string MessageId { get; }
+        public int NumberOfDeliveryAttempts { get; }
+        public NServiceBus.Transports.TransportTransaction TransportTransaction { get; }
+    }
     [System.ObsoleteAttribute("No longer used, safe to remove. Will be removed in version 7.0.0.", true)]
     public interface IAuditMessages { }
     public interface ICancelDeferredMessages
@@ -2994,8 +3004,8 @@ namespace NServiceBus.Transports
     public interface IPublishMessages { }
     public interface IPushMessages
     {
-        System.Threading.Tasks.Task Init(System.Func<NServiceBus.Transports.PushContext, System.Threading.Tasks.Task> pipe, NServiceBus.CriticalError criticalError, NServiceBus.Transports.PushSettings settings);
-        void Start(NServiceBus.Transports.PushRuntimeSettings limitations);
+        System.Threading.Tasks.Task Init(System.Func<NServiceBus.Transports.MessageContext, System.Threading.Tasks.Task> onMessage, System.Func<NServiceBus.Transports.ErrorContext, System.Threading.Tasks.Task<bool>> onError, System.Func<string, System.Exception, System.Threading.Tasks.Task> onCriticalError, NServiceBus.Transports.PushSettings settings);
+        System.Threading.Tasks.Task Start(NServiceBus.Transports.PushRuntimeSettings limitations);
         System.Threading.Tasks.Task Stop();
     }
     [System.ObsoleteAttribute("Use `IDispatchMessages` instead. Will be removed in version 7.0.0.", true)]
@@ -3006,6 +3016,16 @@ namespace NServiceBus.Transports
     public class static LogicalAddressExtensions
     {
         public static string GetTransportAddress(this NServiceBus.Settings.ReadOnlySettings settings, NServiceBus.LogicalAddress logicalAddress) { }
+    }
+    public class MessageContext
+    {
+        public MessageContext(string messageId, System.Collections.Generic.Dictionary<string, string> headers, System.IO.Stream bodyStream, NServiceBus.Transports.TransportTransaction transportTransaction, System.Threading.CancellationTokenSource receiveCancellationTokenSource, NServiceBus.Extensibility.ContextBag context) { }
+        public System.IO.Stream BodyStream { get; }
+        public NServiceBus.Extensibility.ContextBag Context { get; }
+        public System.Collections.Generic.Dictionary<string, string> Headers { get; }
+        public string MessageId { get; }
+        public System.Threading.CancellationTokenSource ReceiveCancellationTokenSource { get; }
+        public NServiceBus.Transports.TransportTransaction TransportTransaction { get; }
     }
     public class MulticastTransportOperation : NServiceBus.Transports.IOutgoingTransportOperation
     {
@@ -3033,16 +3053,6 @@ namespace NServiceBus.Transports
         public byte[] Body { get; }
         public System.Collections.Generic.Dictionary<string, string> Headers { get; }
         public string MessageId { get; }
-    }
-    public class PushContext
-    {
-        public PushContext(string messageId, System.Collections.Generic.Dictionary<string, string> headers, System.IO.Stream bodyStream, NServiceBus.Transports.TransportTransaction transportTransaction, System.Threading.CancellationTokenSource receiveCancellationTokenSource, NServiceBus.Extensibility.ContextBag context) { }
-        public System.IO.Stream BodyStream { get; }
-        public NServiceBus.Extensibility.ContextBag Context { get; }
-        public System.Collections.Generic.Dictionary<string, string> Headers { get; }
-        public string MessageId { get; }
-        public System.Threading.CancellationTokenSource ReceiveCancellationTokenSource { get; }
-        public NServiceBus.Transports.TransportTransaction TransportTransaction { get; }
     }
     public class PushRuntimeSettings
     {
@@ -3100,7 +3110,7 @@ namespace NServiceBus.Transports
             "ll be removed in version 7.0.0.", true)]
         public bool HasSupportForMultiQueueNativeTransactions { get; set; }
         public virtual bool RequiresConnectionString { get; }
-        protected internal abstract NServiceBus.Transports.TransportInfrastructure Initialize(NServiceBus.Settings.SettingsHolder settings, string connectionString);
+        public abstract NServiceBus.Transports.TransportInfrastructure Initialize(NServiceBus.Settings.SettingsHolder settings, string connectionString);
     }
     public abstract class TransportInfrastructure
     {
@@ -3135,10 +3145,13 @@ namespace NServiceBus.Transports
     public class TransportReceiveInfrastructure
     {
         public TransportReceiveInfrastructure(System.Func<NServiceBus.Transports.IPushMessages> messagePumpFactory, System.Func<NServiceBus.Transports.ICreateQueues> queueCreatorFactory, System.Func<System.Threading.Tasks.Task<NServiceBus.Transports.StartupCheckResult>> preStartupCheck) { }
+        public System.Func<NServiceBus.Transports.IPushMessages> MessagePumpFactory { get; }
+        public System.Func<NServiceBus.Transports.ICreateQueues> QueueCreatorFactory { get; }
     }
     public class TransportSendInfrastructure
     {
         public TransportSendInfrastructure(System.Func<NServiceBus.Transports.IDispatchMessages> dispatcherFactory, System.Func<System.Threading.Tasks.Task<NServiceBus.Transports.StartupCheckResult>> preStartupCheck) { }
+        public System.Func<NServiceBus.Transports.IDispatchMessages> DispatcherFactory { get; }
     }
     public class TransportSubscriptionInfrastructure
     {

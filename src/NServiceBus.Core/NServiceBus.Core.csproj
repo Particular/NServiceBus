@@ -146,10 +146,12 @@
     <Compile Include="Serialization\SerializationFeature.cs" />
     <Compile Include="Serializers\XML\XmlSerialization.cs" />
     <Compile Include="Routing\ConfigureUniquelyAddressableInstanceExtensions.cs" />
+    <Compile Include="Transports\ErrorContext.cs" />
     <Compile Include="Transports\IOutgoingTransportOperation.cs" />
     <Compile Include="Transports\LogicalAddressExtensions.cs" />
     <Compile Include="Transports\Msmq\MsmqScopeOptions.cs" />
     <Compile Include="Transports\Msmq\MsmqTransportInfrastructure.cs" />
+    <Compile Include="Transports\Msmq\TimeoutFailureInfoStorage.cs" />
     <Compile Include="Transports\MulticastTransportOperation.cs" />
     <Compile Include="Transports\ReceivePipelineCompleted.cs" />
     <Compile Include="Transports\TransportInfrastructure.cs" />
@@ -435,7 +437,7 @@
     <Compile Include="Transports\Msmq\ReceiveWithNativeTransaction.cs" />
     <Compile Include="Transports\Msmq\ReceiveWithNoTransaction.cs" />
     <Compile Include="Transports\OutgoingMessage.cs" />
-    <Compile Include="Transports\PushContext.cs" />
+    <Compile Include="Transports\MessageContext.cs" />
     <Compile Include="Transports\QueueBindings.cs" />
     <Compile Include="Transports\IncomingMessage.cs" />
     <Compile Include="Transports\TransportOperation.cs" />
@@ -452,7 +454,6 @@
     <Compile Include="Recoverability\FirstLevelRetries\FirstLevelRetryPolicy.cs" />
     <Compile Include="Pipeline\BehaviorInstance.cs" />
     <Compile Include="Pipeline\IPipeline.cs" />
-    <Compile Include="Pipeline\PipelineCollection.cs" />
     <Compile Include="Recoverability\SecondLevelRetries\CustomSecondLevelRetryPolicy.cs" />
     <Compile Include="Recoverability\SecondLevelRetries\SecondLevelRetryPolicy.cs" />
     <Compile Include="Recoverability\SecondLevelRetries\SecondLevelRetriesHandler.cs" />

@@ -15,7 +15,7 @@ namespace NServiceBus
             dispatchConsistency = GetDispatchConsistency(transportTransactionMode);
         }
 
-        public async Task Invoke(PushContext context)
+        public async Task Invoke(MessageContext context)
         {
             var timeoutId = context.Headers["Timeout.Id"];
 

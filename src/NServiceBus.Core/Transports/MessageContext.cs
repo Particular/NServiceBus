@@ -8,7 +8,7 @@
     /// <summary>
     /// Allows the transport to pass relevant info to the pipeline.
     /// </summary>
-    public class PushContext
+    public class MessageContext
     {
         /// <summary>
         /// Initializes the context.
@@ -23,7 +23,7 @@
         /// has been aborted after invoking the pipeline and roll back the message accordingly.
         /// </param>
         /// <param name="context">Any context that the transport wants to be available on the pipeline.</param>
-        public PushContext(string messageId, Dictionary<string, string> headers, Stream bodyStream, TransportTransaction transportTransaction, CancellationTokenSource receiveCancellationTokenSource, ContextBag context)
+        public MessageContext(string messageId, Dictionary<string, string> headers, Stream bodyStream, TransportTransaction transportTransaction, CancellationTokenSource receiveCancellationTokenSource, ContextBag context)
         {
             Guard.AgainstNullAndEmpty(nameof(messageId), messageId);
             Guard.AgainstNull(nameof(bodyStream), bodyStream);
