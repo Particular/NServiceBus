@@ -9,7 +9,7 @@ namespace NServiceBus
         public XDocument Load(string path)
         {
             XDocument doc;
-            using (var file = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read))
+            using (var file = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             {
                 using (var reader = XmlReader.Create(file))
                 {
