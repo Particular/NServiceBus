@@ -34,7 +34,7 @@
             options["DelayDeliveryFor"] = TimeSpan.FromSeconds(10).ToString();
             options["TimeToBeReceived"] = maxTime.ToString();
 
-            fakeOutbox.ExistingMessage = new OutboxMessage(messageId, new List<NServiceBus.Outbox.TransportOperation>
+            fakeOutbox.ExistingMessage = new OutboxMessage(messageId, new[]
             {
                 new NServiceBus.Outbox.TransportOperation("x", options, new byte[0], new Dictionary<string, string>())
             });
@@ -71,7 +71,7 @@
 
             options["Destination"] = "myEndpoint";
 
-            fakeOutbox.ExistingMessage = new OutboxMessage(messageId, new List<NServiceBus.Outbox.TransportOperation>
+            fakeOutbox.ExistingMessage = new OutboxMessage(messageId, new []
             {
                 new NServiceBus.Outbox.TransportOperation("x", options, new byte[0], new Dictionary<string, string>())
             });
@@ -95,7 +95,7 @@
 
             options["EventType"] = typeof(MyEvent).AssemblyQualifiedName;
 
-            fakeOutbox.ExistingMessage = new OutboxMessage(messageId, new List<NServiceBus.Outbox.TransportOperation>
+            fakeOutbox.ExistingMessage = new OutboxMessage(messageId, new []
             {
                 new NServiceBus.Outbox.TransportOperation("x", options, new byte[0], new Dictionary<string, string>())
             });

@@ -2,8 +2,6 @@
 {
     using System;
     using System.Collections.Concurrent;
-    using System.Collections.Generic;
-    using System.Linq;
     using System.Threading.Tasks;
     using Extensibility;
     using Outbox;
@@ -31,7 +29,7 @@
             var tx = (InMemoryOutboxTransaction) transaction;
             tx.Enlist(() =>
             {
-                if (!storage.TryAdd(message.MessageId, new StoredMessage(message.MessageId, message.TransportOperations.ToList())))
+                if (!storage.TryAdd(message.MessageId, new StoredMessage(message.MessageId, message.TransportOperations)))
                 {
                     throw new Exception($"Outbox message with id '{message.MessageId}' is already present in storage.");
                 }
@@ -48,24 +46,21 @@
                 return TaskEx.CompletedTask;
             }
 
-            storedMessage.TransportOperations.Clear();
-            storedMessage.Dispatched = true;
-
+            storedMessage.MarkAsDispatched();
             return TaskEx.CompletedTask;
         }
 
         public void RemoveEntriesOlderThan(DateTime dateTime)
         {
-            var entriesToRemove = storage
-                .Where(e => e.Value.Dispatched && e.Value.StoredAt < dateTime)
-                .Select(e => e.Key)
-                .ToList();
-
-            foreach (var entry in entriesToRemove)
+            foreach (var entry in storage)
             {
-                StoredMessage toRemove;
+                var storedMessage = entry.Value;
+                if (storedMessage.Dispatched && storedMessage.StoredAt < dateTime)
+                {
+                    StoredMessage toRemove;
 
-                storage.TryRemove(entry, out toRemove);
+                    storage.TryRemove(entry.Key, out toRemove);
+                }
             }
         }
 
@@ -75,7 +70,7 @@
 
         class StoredMessage
         {
-            public StoredMessage(string messageId, IList<TransportOperation> transportOperations)
+            public StoredMessage(string messageId, TransportOperation[] transportOperations)
             {
                 TransportOperations = transportOperations;
                 Id = messageId;
@@ -84,11 +79,17 @@
 
             public string Id { get; }
 
-            public bool Dispatched { get; set; }
+            public bool Dispatched { get; private set; }
 
             public DateTime StoredAt { get; }
 
-            public IList<TransportOperation> TransportOperations { get; }
+            public TransportOperation[] TransportOperations { get; private set; }
+
+            public void MarkAsDispatched()
+            {
+                Dispatched = true;
+                TransportOperations = new TransportOperation[0];
+            }
 
             protected bool Equals(StoredMessage other)
             {
