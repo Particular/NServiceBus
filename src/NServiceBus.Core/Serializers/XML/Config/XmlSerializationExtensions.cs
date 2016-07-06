@@ -39,7 +39,8 @@
         public static SerializationExtensions<XmlSerializer> DontWrapRawXml(this SerializationExtensions<XmlSerializer> config)
         {
             Guard.AgainstNull(nameof(config), config);
-            config.Settings.SetProperty<XmlMessageSerializer>(s => s.SkipWrappingRawXml, true);
+
+            config.Settings.Set(XmlSerializer.SkipWrappingRawXml, true);
 
             return config;
         }
@@ -59,7 +60,7 @@
         {
             Guard.AgainstNull(nameof(config), config);
 
-            config.Settings.SetProperty<XmlMessageSerializer>(s => s.Namespace, namespaceToUse);
+            config.Settings.Set(XmlSerializer.CustomNamespaceConfigurationKey, namespaceToUse);
 
             return config;
         }
@@ -70,7 +71,8 @@
         public static SerializationExtensions<XmlSerializer> SanitizeInput(this SerializationExtensions<XmlSerializer> config)
         {
             Guard.AgainstNull(nameof(config), config);
-            config.Settings.SetProperty<XmlMessageSerializer>(s => s.SanitizeInput, true);
+
+            config.Settings.Set(XmlSerializer.SanitizeInput, true);
 
             return config;
         }

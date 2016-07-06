@@ -2250,6 +2250,7 @@ namespace NServiceBus.ObjectBuilder
 namespace NServiceBus.Settings
 {
     using System;
+    using System.Linq.Expressions;
     using ObjectBuilder;
 
     public partial class SettingsHolder
@@ -2268,6 +2269,24 @@ namespace NServiceBus.Settings
           TreatAsErrorFromVersion = "6.0",
           Message = "Setting property values explicitly is no longer supported via this API. Use `.ConfigureComponent(b=> new MyMessageHandler(){ MyProperty = X})` to get full control over handler creation.")]
         public void ApplyTo(Type componentType, IComponentConfig config)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(
+          RemoveInVersion = "7.0",
+          TreatAsErrorFromVersion = "6.0",
+          ReplacementTypeOrMember = "Set(string key, object value)")]
+        public void SetProperty<T>(Expression<Func<T, object>> property, object value)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(
+          RemoveInVersion = "7.0",
+          TreatAsErrorFromVersion = "6.0",
+          ReplacementTypeOrMember = "Set(string key, object value)")]
+        public void SetPropertyDefault<T>(Expression<Func<T, object>> property, object value)
         {
             throw new NotImplementedException();
         }

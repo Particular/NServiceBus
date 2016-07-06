@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.AcceptanceTests.Basic
+﻿namespace NServiceBus.AcceptanceTests.Serialization
 {
     using System;
     using System.Collections.Generic;
@@ -8,8 +8,8 @@
     using AcceptanceTesting;
     using EndpointTemplates;
     using MessageInterfaces;
+    using NServiceBus.Serialization;
     using NUnit.Framework;
-    using Serialization;
     using Settings;
 
     public class When_registering_custom_serializer : NServiceBusAcceptanceTest

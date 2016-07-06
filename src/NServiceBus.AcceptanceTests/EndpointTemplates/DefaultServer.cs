@@ -8,7 +8,7 @@
     using Configuration.AdvanceExtensibility;
     using Features;
     using NServiceBus.Config.ConfigurationSource;
-    using Serialization;
+    using NServiceBus.Serialization;
 
     public class DefaultServer : IEndpointSetupTemplate
     {
