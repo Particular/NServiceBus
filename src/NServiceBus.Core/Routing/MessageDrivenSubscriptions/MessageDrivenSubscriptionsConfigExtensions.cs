@@ -70,7 +70,7 @@ namespace NServiceBus
         /// </summary>
         /// <param name="routingSettings">The <see cref="RoutingSettings&lt;T&gt;" /> to extend.</param>
         /// <param name="eventAssembly">The assembly containing the event types.</param>
-        /// <param name="eventNamespace">The namespace containing the event types.</param>
+        /// <param name="eventNamespace">The namespace containing the event types. The given value must exactly match the target namespace.</param>
         /// <param name="publisherEndpoint">The publisher endpoint.</param>
         public static void RegisterPublisherForAssembly<T>(this RoutingSettings<T> routingSettings, Assembly eventAssembly, string eventNamespace, string publisherEndpoint) where T : TransportDefinition, IMessageDrivenSubscriptionTransport
         {
