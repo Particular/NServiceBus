@@ -906,6 +906,8 @@ namespace NServiceBus
     public class RoutingSettings : NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings
     {
         public void RouteToEndpoint(System.Type messageType, string destination) { }
+        public void RouteToEndpoint(System.Reflection.Assembly assembly, string destination) { }
+        public void RouteToEndpoint(System.Reflection.Assembly assembly, string messageNamespace, string destination) { }
     }
     public class RoutingSettings<T> : NServiceBus.RoutingSettings
         where T : NServiceBus.Transports.TransportDefinition { }
