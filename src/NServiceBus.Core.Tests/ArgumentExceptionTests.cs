@@ -1,7 +1,7 @@
 ﻿namespace NServiceBus.Core.Tests
 {
     using System;
-    using System.Diagnostics;
+    using System.IO;
     using System.Linq;
     using Mono.Cecil;
     using NUnit.Framework;
@@ -10,18 +10,17 @@
     public class ArgumentExceptionTests
     {
         [Test]
-        [Explicit]
         public void WriteAllPublicMembersWithNoArgumentChecking()
         {
+            var stringWriter = new StringWriter();
             var codeBase = typeof(Endpoint).Assembly.CodeBase;
             var uri = new UriBuilder(codeBase);
             var path = Uri.UnescapeDataString(uri.Path);
 
             var readerParameters = new ReaderParameters
-                                   {
-                                       ReadSymbols = true,
-
-                                   };
+            {
+                ReadSymbols = true
+            };
             var module = ModuleDefinition.ReadModule(path, readerParameters);
             foreach (var type in module.GetTypes())
             {
@@ -65,7 +64,7 @@
                     {
                         continue;
                     }
-                    if (method.Parameters.All(x => x.IsOut || x.IsReturnValue|| x.HasDefault))
+                    if (method.Parameters.All(x => x.IsOut || x.IsReturnValue || x.HasDefault))
                     {
                         continue;
                     }
@@ -92,7 +91,7 @@
                     }
                     if (!MethodContainsArgumentException(method))
                     {
-                        WriteMethod(method);
+                        WriteMethod(method, stringWriter);
                     }
                 }
                 foreach (var property in type.Properties)
@@ -120,10 +119,14 @@
 
                     if (!MethodContainsArgumentException(property.SetMethod))
                     {
-                        WriteMethod(property.SetMethod);
+                        WriteMethod(property.SetMethod, stringWriter);
                     }
                 }
             }
+
+            var methods = stringWriter.ToString();
+
+            Assert.That(methods, Is.Null.Or.Empty);
         }
 
         bool MethodCallSelf(MethodDefinition method)
@@ -150,15 +153,14 @@
             return false;
         }
 
-        static void WriteMethod(MethodDefinition method)
+        static void WriteMethod(MethodDefinition method, TextWriter builder)
         {
-                Debug.WriteLine("\r\n" + method.DeclaringType.Name + "." + method.Name);
-                var instruction = method.Body.Instructions.FirstOrDefault(x => x.SequencePoint != null);
-                if (instruction != null)
-                {
-                    Debug.WriteLine("file://" + instruction.SequencePoint.Document.Url.Replace(@"\", "/"));
-                }
-
+            builder.WriteLine("\r\n" + method.DeclaringType.Name + "." + method.Name);
+            var instruction = method.Body.Instructions.FirstOrDefault(x => x.SequencePoint != null);
+            if (instruction != null)
+            {
+                builder.WriteLine("file://" + instruction.SequencePoint.Document.Url.Replace(@"\", "/"));
+            }
         }
 
         static bool MethodContainsArgumentException(MethodDefinition method)
