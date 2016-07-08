@@ -64,9 +64,9 @@ namespace NServiceBus.Core.Tests.Routing
         {
             const string address = "address";
             var publishers = new Publishers();
-            publishers.Add(address, typeof(BaseMessage));
-            publishers.Add(address, typeof(BaseMessage));
-            publishers.Add(address, typeof(InheritedMessage));
+            publishers.Add(typeof(BaseMessage), address);
+            publishers.Add(typeof(BaseMessage), address);
+            publishers.Add(typeof(InheritedMessage), address);
             publishers.AddDynamic(t => PublisherAddress.CreateFromEndpointName(address));
 
             var knownEndpoints = new EndpointInstances();

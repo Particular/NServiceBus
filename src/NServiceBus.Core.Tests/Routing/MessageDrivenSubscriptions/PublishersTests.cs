@@ -24,10 +24,10 @@
         public void Should_return_all_routes_registered_for_type()
         {
             var publishers = new Publishers();
-            publishers.Add("logicalEndpoint", typeof(BaseMessage));
-            publishers.Add("logicalEndpoint", typeof(BaseMessage));
-            publishers.Add("logicalEndpoint2", typeof(BaseMessage));
-            publishers.AddByAddress("address1", typeof(BaseMessage));
+            publishers.Add(typeof(BaseMessage), "logicalEndpoint");
+            publishers.Add(typeof(BaseMessage), "logicalEndpoint");
+            publishers.Add(typeof(BaseMessage), "logicalEndpoint2");
+            publishers.AddByAddress(typeof(BaseMessage), "address1");
 
             var result = publishers.GetPublisherFor(typeof(BaseMessage));
 
@@ -38,7 +38,7 @@
         public void Should_register_all_types_in_assembly_when_not_specifying_namespace()
         {
             var publishers = new Publishers();
-            publishers.Add("someAddress", Assembly.GetExecutingAssembly());
+            publishers.Add(Assembly.GetExecutingAssembly(), "someAddress");
 
             var result1 = publishers.GetPublisherFor(typeof(BaseMessage));
             var result2 = publishers.GetPublisherFor(typeof(SubMessage));
@@ -55,7 +55,7 @@
         public void Should_only_register_types_in_specified_namespace()
         {
             var publishers = new Publishers();
-            publishers.Add("someAddress", Assembly.GetExecutingAssembly(), "MessageNameSpace");
+            publishers.Add(Assembly.GetExecutingAssembly(), "MessageNameSpace", "someAddress");
 
             var result1 = publishers.GetPublisherFor(typeof(BaseMessage));
             var result2 = publishers.GetPublisherFor(typeof(SubMessage));
@@ -73,7 +73,7 @@
         public void Should_support_empty_namespace(string eventNamespace)
         {
             var publishers = new Publishers();
-            publishers.Add("someAddress", Assembly.GetExecutingAssembly(), eventNamespace);
+            publishers.Add(Assembly.GetExecutingAssembly(), eventNamespace, "someAddress");
 
             var result1 = publishers.GetPublisherFor(typeof(BaseMessage));
             var result2 = publishers.GetPublisherFor(typeof(SubMessage));
@@ -90,7 +90,7 @@
         public void Should_return_static_and_dynamic_routes_for_registered_type()
         {
             var publishers = new Publishers();
-            publishers.Add("logicalEndpoint", typeof(BaseMessage));
+            publishers.Add(typeof(BaseMessage), "logicalEndpoint");
             publishers.AddDynamic(e => PublisherAddress.CreateFromEndpointName(e.ToString()));
 
             var result = publishers.GetPublisherFor(typeof(BaseMessage));
@@ -126,7 +126,7 @@
         public void Should_not_return_rules_for_subclasses()
         {
             var publishers = new Publishers();
-            publishers.Add("address", typeof(SubMessage));
+            publishers.Add(typeof(SubMessage), "address");
 
             var result = publishers.GetPublisherFor(typeof(BaseMessage));
 
@@ -137,7 +137,7 @@
         public void Should_not_return_rules_for_baseclasses()
         {
             var publishers = new Publishers();
-            publishers.Add("address", typeof(BaseMessage));
+            publishers.Add(typeof(BaseMessage), "address");
 
             var result = publishers.GetPublisherFor(typeof(SubMessage));
 
@@ -148,7 +148,7 @@
         public void Should_not_return_rules_for_implemented_interfaces()
         {
             var publishers = new Publishers();
-            publishers.Add("address", typeof(IMessageInterface));
+            publishers.Add(typeof(IMessageInterface), "address");
 
             var result = publishers.GetPublisherFor(typeof(BaseMessage));
 
@@ -160,7 +160,7 @@
         {
             var calledOnce = false;
             var publishers = new Publishers();
-            publishers.Add("address", typeof(BaseMessage));
+            publishers.Add(typeof(BaseMessage), "address");
             publishers.AddDynamic(e =>
             {
                 if (calledOnce)
