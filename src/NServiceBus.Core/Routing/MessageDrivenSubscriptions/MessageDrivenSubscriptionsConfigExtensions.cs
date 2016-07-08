@@ -42,23 +42,43 @@ namespace NServiceBus
         /// Registers a publisher endpoint for a given event type.
         /// </summary>
         /// <param name="routingSettings">The <see cref="RoutingSettings&lt;T&gt;" /> to extend.</param>
-        /// <param name="publisherEndpoint">The publisher endpoint.</param>
         /// <param name="eventType">The event type.</param>
-        public static void RegisterPublisherForType<T>(this RoutingSettings<T> routingSettings, string publisherEndpoint, Type eventType) where T : TransportDefinition, IMessageDrivenSubscriptionTransport
+        /// <param name="publisherEndpoint">The publisher endpoint.</param>
+        public static void RegisterPublisherForType<T>(this RoutingSettings<T> routingSettings, Type eventType, string publisherEndpoint) where T : TransportDefinition, IMessageDrivenSubscriptionTransport
         {
-            routingSettings.Settings.GetOrCreate<Publishers>().Add(publisherEndpoint, eventType);
+            Guard.AgainstNullAndEmpty(nameof(publisherEndpoint), publisherEndpoint);
+
+            routingSettings.Settings.GetOrCreate<Publishers>().Add(eventType, publisherEndpoint);
         }
 
         /// <summary>
-        /// Registers a publisher endpoint for all event types in a given assembly and, optionally, namespace.
+        /// Registers a publisher endpoint for all event types in a given assembly.
         /// </summary>
         /// <param name="routingSettings">The <see cref="RoutingSettings&lt;T&gt;" /> to extend.</param>
-        /// <param name="publisherEndpoint">The publisher endpoint.</param>
         /// <param name="eventAssembly">The assembly containing the event types.</param>
-        /// <param name="eventNamespace">The namespace containing the event types.</param>
-        public static void RegisterPublisherForAssembly<T>(this RoutingSettings<T> routingSettings, string publisherEndpoint, Assembly eventAssembly, string eventNamespace = null) where T : TransportDefinition, IMessageDrivenSubscriptionTransport
+        /// <param name="publisherEndpoint">The publisher endpoint.</param>
+        public static void RegisterPublisherForAssembly<T>(this RoutingSettings<T> routingSettings, Assembly eventAssembly, string publisherEndpoint) where T : TransportDefinition, IMessageDrivenSubscriptionTransport
         {
-            routingSettings.Settings.GetOrCreate<Publishers>().Add(publisherEndpoint, eventAssembly, eventNamespace);
+            Guard.AgainstNull(nameof(eventAssembly), eventAssembly);
+            Guard.AgainstNullAndEmpty(nameof(publisherEndpoint), publisherEndpoint);
+
+            routingSettings.Settings.GetOrCreate<Publishers>().Add(eventAssembly, publisherEndpoint);
+        }
+
+        /// <summary>
+        /// Registers a publisher endpoint for all event types in a given assembly and namespace.
+        /// </summary>
+        /// <param name="routingSettings">The <see cref="RoutingSettings&lt;T&gt;" /> to extend.</param>
+        /// <param name="eventAssembly">The assembly containing the event types.</param>
+        /// <param name="eventNamespace">The namespace containing the event types. The given value must exactly match the target namespace.</param>
+        /// <param name="publisherEndpoint">The publisher endpoint.</param>
+        public static void RegisterPublisherForAssembly<T>(this RoutingSettings<T> routingSettings, Assembly eventAssembly, string eventNamespace, string publisherEndpoint) where T : TransportDefinition, IMessageDrivenSubscriptionTransport
+        {
+            Guard.AgainstNull(nameof(eventAssembly), eventAssembly);
+            Guard.AgainstNull(nameof(eventNamespace), eventNamespace);
+            Guard.AgainstNullAndEmpty(nameof(publisherEndpoint), publisherEndpoint);
+
+            routingSettings.Settings.GetOrCreate<Publishers>().Add(eventAssembly, eventNamespace, publisherEndpoint);
         }
     }
 }

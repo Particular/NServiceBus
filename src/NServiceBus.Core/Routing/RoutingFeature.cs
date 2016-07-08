@@ -97,26 +97,26 @@
 
             foreach (MessageEndpointMapping m in legacyRoutingConfig)
             {
-                m.Configure((type, s) =>
+                m.Configure((type, endpointAddress) =>
                 {
-                    ConfigureSendDestination(transportInfrastructure, unicastRoutingTable, type, s);
-                    ConfigureSubscribeDestination(publishers, knownMessageTypes, type, s);
+                    ConfigureSendDestination(transportInfrastructure, unicastRoutingTable, type, endpointAddress);
+                    ConfigureSubscribeDestination(publishers, knownMessageTypes, type, endpointAddress);
                 });
             }
         }
 
-        static void ConfigureSubscribeDestination(Publishers publishers, List<Type> knownMessageTypes, Type type, string s)
+        static void ConfigureSubscribeDestination(Publishers publishers, List<Type> knownMessageTypes, Type type, string address)
         {
             var typesEnclosed = knownMessageTypes.Where(t => t.IsAssignableFrom(type));
             foreach (var t in typesEnclosed)
             {
-                publishers.AddByAddress(s, t);
+                publishers.AddByAddress(t, address);
             }
         }
 
-        static void ConfigureSendDestination(TransportInfrastructure transportInfrastructure, UnicastRoutingTable unicastRoutingTable, Type type, string s)
+        static void ConfigureSendDestination(TransportInfrastructure transportInfrastructure, UnicastRoutingTable unicastRoutingTable, Type type, string address)
         {
-            unicastRoutingTable.RouteToAddress(type, transportInfrastructure.MakeCanonicalForm(s));
+            unicastRoutingTable.RouteToAddress(type, transportInfrastructure.MakeCanonicalForm(address));
         }
     }
 }

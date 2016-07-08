@@ -15,7 +15,7 @@ namespace NServiceBus.Core.Tests.Routing
             var router = new SubscriptionRouter(new Publishers(), new EndpointInstances(), new TransportAddresses(address => null));
             Assert.IsEmpty(await router.GetAddressesForEventType(typeof(Message1)));
         }
-     
+
         [Test]
         public async Task Should_return_correct_base_and_inherited_address_even_if_they_differ()
         {
@@ -26,9 +26,9 @@ namespace NServiceBus.Core.Tests.Routing
             var inheritedType = typeof(InheritedMessage);
 
             var publishers = new Publishers();
-            publishers.Add(baseAddress, baseType );
-            publishers.Add(inheritedAddress, baseType);
-            publishers.Add(inheritedAddress, inheritedType );
+            publishers.Add(baseType, baseAddress);
+            publishers.Add(baseType, inheritedAddress);
+            publishers.Add(inheritedType, inheritedAddress);
             var endpointInstances = new EndpointInstances();
             endpointInstances.AddDynamic(e => Task.FromResult(EnumerableEx.Single(new EndpointInstance(e))));
             var physicalAddresses = new TransportAddresses(address => null);
@@ -47,9 +47,9 @@ namespace NServiceBus.Core.Tests.Routing
             var inheritedType = typeof(InheritedMessage);
 
             var publishers = new Publishers();
-            publishers.Add("addressA", baseType);
-            publishers.Add("addressB", baseType);
-            publishers.Add("addressB", inheritedType);
+            publishers.Add(baseType, "addressA");
+            publishers.Add(baseType, "addressB");
+            publishers.Add(inheritedType, "addressB");
             var knownEndpoints = new EndpointInstances();
             knownEndpoints.AddDynamic(e => Task.FromResult(EnumerableEx.Single(new EndpointInstance(e, null, null))));
             var physicalAddresses = new TransportAddresses(address => null);
@@ -59,31 +59,25 @@ namespace NServiceBus.Core.Tests.Routing
             Assert.AreEqual(2, (await router.GetAddressesForEventType(baseType)).Count());
         }
 
-
         [Test]
         public void Should_not_generate_duplicate_addresses()
         {
         }
 
-
         public class Message1
         {
-
         }
 
         public class Message2
         {
-
         }
 
         public class BaseMessage : IEvent
         {
-
         }
 
         public class InheritedMessage : BaseMessage
         {
-
         }
     }
 }

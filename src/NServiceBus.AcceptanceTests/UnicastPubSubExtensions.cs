@@ -6,9 +6,9 @@ namespace NServiceBus.AcceptanceTests.Routing
 
     static class UnicastPubSubExtensions
     {
-        public static void RegisterPublisherForType(this EndpointConfiguration config, string publisherEndpoint, Type eventType)
+        public static void RegisterPublisherForType(this EndpointConfiguration config, Type eventType, string publisherEndpoint)
         {
-            config.GetSettings().GetOrCreate<Publishers>().Add(publisherEndpoint, eventType);
+            config.GetSettings().GetOrCreate<Publishers>().Add(eventType, publisherEndpoint);
         }
     }
 }
