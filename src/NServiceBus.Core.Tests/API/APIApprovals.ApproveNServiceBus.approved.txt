@@ -2583,9 +2583,8 @@ namespace NServiceBus.Routing.MessageDrivenSubscriptions
         public void Add(System.Type eventType, string publisher) { }
         public void Add(System.Reflection.Assembly eventAssembly, string publisher) { }
         public void Add(System.Reflection.Assembly eventAssembly, string eventNamespace, string publisher) { }
-        public void Add(System.Func<System.Type, NServiceBus.Routing.MessageDrivenSubscriptions.PublisherAddress> dynamicRule, string description) { }
         public void AddByAddress(System.Type eventType, string publisherAddress) { }
-        public void AddDynamic(System.Func<System.Type, NServiceBus.Routing.MessageDrivenSubscriptions.PublisherAddress> dynamicRule) { }
+        public void AddDynamic(System.Func<System.Type, NServiceBus.Routing.MessageDrivenSubscriptions.PublisherAddress> rule) { }
     }
 }
 namespace NServiceBus.Routing.StorageDrivenPublishing

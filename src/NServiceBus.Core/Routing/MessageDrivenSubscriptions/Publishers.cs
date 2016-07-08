@@ -103,12 +103,12 @@ namespace NServiceBus.Routing.MessageDrivenSubscriptions
         }
 
         /// <summary>
-        /// Adds a dynamic rule which is invoked on each subscription to determine the address of the publisher.
+        /// Registers a rule that is invoked for each subscription to determine the address of the publisher.
         /// </summary>
-        /// <param name="dynamicRule">The rule.</param>
-        public void AddDynamic(Func<Type, PublisherAddress> dynamicRule)
+        /// <param name="rule">The function that returns the publisher's physical address for a given event type, or null if there is no publisher.</param>
+        public void AddDynamic(Func<Type, PublisherAddress> rule)
         {
-            dynamicRules.Add(dynamicRule);
+            dynamicRules.Add(rule);
         }
 
         Dictionary<Type, List<PublisherAddress>> staticPublishers = new Dictionary<Type, List<PublisherAddress>>();
