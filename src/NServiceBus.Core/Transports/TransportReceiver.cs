@@ -3,24 +3,24 @@ namespace NServiceBus
     using System;
     using System.Threading.Tasks;
     using Logging;
-    using ObjectBuilder;
     using Transports;
 
     class TransportReceiver
     {
         public TransportReceiver(
             string id,
-            IBuilder builder,
+            CriticalError criticalError,
             PushSettings pushSettings,
             PushRuntimeSettings pushRuntimeSettings,
-            Func<IBuilder, PushContext, Task> onMessage)
+            IPipelineInvoker pipelineInvoker,
+            IPushMessages receiver)
         {
             Id = id;
+            this.criticalError = criticalError;
             this.pushRuntimeSettings = pushRuntimeSettings;
-            this.onMessage = onMessage;
+            this.pipelineInvoker = pipelineInvoker;
             this.pushSettings = pushSettings;
-            receiver = builder.Build<IPushMessages>();
-            this.builder = builder;
+            this.receiver = receiver;
         }
 
         public string Id { get; }
@@ -34,7 +34,7 @@ namespace NServiceBus
 
             Logger.DebugFormat("Pipeline {0} is starting receiver for queue {1}.", Id, pushSettings.InputQueue);
 
-            await receiver.Init(c => onMessage(builder, c), builder.Build<CriticalError>(), pushSettings).ConfigureAwait(false);
+            await receiver.Init(c => pipelineInvoker.Invoke(c), criticalError, pushSettings).ConfigureAwait(false);
 
             receiver.Start(pushRuntimeSettings);
 
@@ -54,9 +54,9 @@ namespace NServiceBus
         }
 
         bool isStarted;
-        IBuilder builder;
+        CriticalError criticalError;
         PushRuntimeSettings pushRuntimeSettings;
-        Func<IBuilder, PushContext, Task> onMessage;
+        IPipelineInvoker pipelineInvoker;
         PushSettings pushSettings;
         IPushMessages receiver;
 

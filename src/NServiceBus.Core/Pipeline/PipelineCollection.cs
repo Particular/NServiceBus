@@ -8,13 +8,22 @@ namespace NServiceBus
 
     class PipelineCollection
     {
-        public PipelineCollection(IEnumerable<TransportReceiver> pipelines)
+        public PipelineCollection()
         {
-            this.pipelines = pipelines.ToArray();
+        }
+
+        public PipelineCollection(List<TransportReceiver> pipelines)
+        {
+            this.pipelines = pipelines;
         }
 
         public async Task Start()
         {
+            if (pipelines == null)
+            {
+                return;
+            }
+
             foreach (var pipeline in pipelines)
             {
                 Logger.DebugFormat("Starting {0} pipeline", pipeline.Id);
@@ -33,6 +42,11 @@ namespace NServiceBus
 
         public Task Stop()
         {
+            if (pipelines == null)
+            {
+                return TaskEx.CompletedTask;
+            }
+
             var pipelineStopTasks = pipelines.Select(async pipeline =>
             {
                 Logger.DebugFormat("Stopping {0} pipeline", pipeline.Id);
@@ -43,7 +57,7 @@ namespace NServiceBus
             return Task.WhenAll(pipelineStopTasks);
         }
 
-        TransportReceiver[] pipelines;
+        List<TransportReceiver> pipelines;
 
 
         static ILog Logger = LogManager.GetLogger<PipelineCollection>();
