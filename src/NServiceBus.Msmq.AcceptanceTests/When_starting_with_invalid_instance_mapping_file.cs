@@ -2,15 +2,12 @@
 {
     using System;
     using System.IO;
-    using System.Threading.Tasks;
     using System.Xml.Schema;
     using AcceptanceTesting;
     using NUnit.Framework;
 
     public class When_starting_with_invalid_instance_mapping_file : NServiceBusAcceptanceTest
     {
-        static string mappingFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, nameof(When_starting_with_invalid_instance_mapping_file) + ".xml");
-
         [SetUp]
         public void SetupMappingFile()
         {
@@ -31,7 +28,7 @@
         }
 
         [Test]
-        public async Task Should_throw_at_startup()
+        public void Should_throw_at_startup()
         {
             var exception = Assert.ThrowsAsync<AggregateException>(() => Scenario.Define<ScenarioContext>()
                 .WithEndpoint<SenderWithInvalidMappingFile>()
@@ -41,6 +38,8 @@
             Assert.That(exception.InnerException.InnerException.Message, Does.Contain($"An error occurred while reading the endpoint instance mapping file at {mappingFilePath}. See the inner exception for more details."));
             Assert.That(exception.InnerException.InnerException.InnerException, Is.TypeOf<XmlSchemaValidationException>());
         }
+
+        static string mappingFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, nameof(When_starting_with_invalid_instance_mapping_file) + ".xml");
 
         public class SenderWithInvalidMappingFile : EndpointConfigurationBuilder
         {
