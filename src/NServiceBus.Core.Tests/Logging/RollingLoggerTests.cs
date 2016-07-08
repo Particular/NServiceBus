@@ -216,40 +216,6 @@
         }
 
         [Test]
-        [Explicit]
-        public void MaxFilesTest()
-        {
-            using (var tempPath = new TempPath())
-            {
-                var logger = new RollingLogger(tempPath.TempDirectory, maxFileSize: 10)
-                {
-                    GetDate = () => new DateTime(2010, 10, 1)
-                };
-                for (var i = 0; i < 1000000000; i++)
-                {
-                    logger.Write("Some long text");
-                }
-            }
-        }
-
-        [Test]
-        [Explicit]
-        public void ManyWritesTest()
-        {
-            using (var tempPath = new TempPath())
-            {
-                var logger = new RollingLogger(tempPath.TempDirectory)
-                {
-                    GetDate = () => new DateTime(2010, 10, 1)
-                };
-                for (var i = 0; i < 1000000; i++)
-                {
-                    logger.Write("Some long text");
-                }
-            }
-        }
-
-        [Test]
         public void When_many_sequence_files_are_written_the_max_is_not_exceeded()
         {
             using (var tempPath = new TempPath())

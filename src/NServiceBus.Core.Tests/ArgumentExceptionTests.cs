@@ -158,7 +158,7 @@
                 {
                     Debug.WriteLine("file://" + instruction.SequencePoint.Document.Url.Replace(@"\", "/"));
                 }
-            
+
         }
 
         static bool MethodContainsArgumentException(MethodDefinition method)
