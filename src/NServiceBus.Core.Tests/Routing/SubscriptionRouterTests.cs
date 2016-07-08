@@ -60,8 +60,19 @@ namespace NServiceBus.Core.Tests.Routing
         }
 
         [Test]
-        public void Should_not_generate_duplicate_addresses()
+        public async Task Should_not_generate_duplicate_addresses()
         {
+            const string address = "address";
+            var publishers = new Publishers();
+            publishers.Add(address, typeof(BaseMessage));
+            publishers.Add(address, typeof(InheritedMessage));
+            var knownEndpoints = new EndpointInstances();
+            knownEndpoints.AddDynamic(e => Task.FromResult(EnumerableEx.Single(new EndpointInstance(e, null, null))));
+            var physicalAddresses = new TransportAddresses(a => null);
+            physicalAddresses.AddRule(i => i.EndpointInstance.Endpoint);
+            var router = new SubscriptionRouter(publishers, knownEndpoints, physicalAddresses);
+
+            Assert.AreEqual(1, (await router.GetAddressesForEventType(typeof(BaseMessage))).Count());
         }
 
         public class Message1
