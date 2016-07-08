@@ -65,14 +65,19 @@ namespace NServiceBus.Core.Tests.Routing
             const string address = "address";
             var publishers = new Publishers();
             publishers.Add(address, typeof(BaseMessage));
+            publishers.Add(address, typeof(BaseMessage));
             publishers.Add(address, typeof(InheritedMessage));
+            publishers.AddDynamic(t => PublisherAddress.CreateFromEndpointName(address));
+
             var knownEndpoints = new EndpointInstances();
             knownEndpoints.AddDynamic(e => Task.FromResult(EnumerableEx.Single(new EndpointInstance(e, null, null))));
             var physicalAddresses = new TransportAddresses(a => null);
             physicalAddresses.AddRule(i => i.EndpointInstance.Endpoint);
             var router = new SubscriptionRouter(publishers, knownEndpoints, physicalAddresses);
 
-            Assert.AreEqual(1, (await router.GetAddressesForEventType(typeof(BaseMessage))).Count());
+            var result = await router.GetAddressesForEventType(typeof(BaseMessage));
+
+            Assert.AreEqual(1, result.Count());
         }
 
         public class Message1

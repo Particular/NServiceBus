@@ -12,8 +12,28 @@ namespace NServiceBus.Routing.MessageDrivenSubscriptions
     {
         internal IEnumerable<PublisherAddress> GetPublisherFor(Type eventType)
         {
-            var distinctPublishers = rules.Select(r => r.Apply(eventType)).Where(e => e != null).Distinct().ToList();
-            return distinctPublishers;
+            List<PublisherAddress> staticPublishersForType;
+            if (!staticPublishers.TryGetValue(eventType, out staticPublishersForType))
+            {
+                staticPublishersForType = emptyList;
+            }
+
+            if (dynamicRules.Count > 0)
+            {
+                var dynamicAddresses = new List<PublisherAddress>();
+                foreach (var rule in dynamicRules)
+                {
+                    var address = rule(eventType);
+                    if (address != null)
+                    {
+                        dynamicAddresses.Add(address);
+                    }
+                }
+
+                return staticPublishersForType.Count > 0 ? staticPublishersForType.Concat(dynamicAddresses) : dynamicAddresses;
+            }
+
+            return staticPublishersForType;
         }
 
         /// <summary>
@@ -23,7 +43,23 @@ namespace NServiceBus.Routing.MessageDrivenSubscriptions
         /// <param name="publisher">The publisher endpoint.</param>
         public void Add(Type eventType, string publisher)
         {
-            rules.Add(new Rule(type => StaticTypeRule(type, eventType, PublisherAddress.CreateFromEndpointName(publisher)), $"{eventType.FullName} -> {publisher}"));
+            AddStaticPublisher(eventType, PublisherAddress.CreateFromEndpointName(publisher));
+        }
+
+        void AddStaticPublisher(Type eventType, PublisherAddress address)
+        {
+            List<PublisherAddress> addresses;
+            if (staticPublishers.TryGetValue(eventType, out addresses))
+            {
+                addresses.Add(address);
+            }
+            else
+            {
+                staticPublishers.Add(eventType, new List<PublisherAddress>
+                {
+                    address
+                });
+            }
         }
 
         /// <summary>
@@ -33,7 +69,7 @@ namespace NServiceBus.Routing.MessageDrivenSubscriptions
         /// <param name="publisherAddress">The publisher's physical address.</param>
         public void AddByAddress(Type eventType, string publisherAddress)
         {
-            rules.Add(new Rule(type => StaticTypeRule(type, eventType, PublisherAddress.CreateFromPhysicalAddresses(publisherAddress)), $"{eventType.FullName} -> {publisherAddress}"));
+            AddStaticPublisher(eventType, PublisherAddress.CreateFromPhysicalAddresses(publisherAddress));
         }
 
         /// <summary>
@@ -43,7 +79,10 @@ namespace NServiceBus.Routing.MessageDrivenSubscriptions
         /// <param name="publisher">The publisher endpoint.</param>
         public void Add(Assembly eventAssembly, string publisher)
         {
-            rules.Add(new Rule(type => StaticAssemblyRule(type, eventAssembly, null, PublisherAddress.CreateFromEndpointName(publisher)), $"{eventAssembly.GetName().Name}/* -> {publisher}"));
+            foreach (var type in eventAssembly.GetTypes())
+            {
+                AddStaticPublisher(type, PublisherAddress.CreateFromEndpointName(publisher));
+            }
         }
 
         /// <summary>
@@ -54,55 +93,26 @@ namespace NServiceBus.Routing.MessageDrivenSubscriptions
         /// <param name="publisher">The publisher endpoint.</param>
         public void Add(Assembly eventAssembly, string eventNamespace, string publisher)
         {
-            rules.Add(new Rule(type => StaticAssemblyRule(type, eventAssembly, eventNamespace, PublisherAddress.CreateFromEndpointName(publisher)), $"{eventAssembly.GetName().Name}/{eventNamespace} -> {publisher}"));
-        }
+            // empty namespace is null, not string.empty
+            eventNamespace = eventNamespace == string.Empty ? null : eventNamespace;
 
-        static PublisherAddress StaticAssemblyRule(Type typeBeingQueried, Assembly configuredAssembly, string configuredNamespace, PublisherAddress configuredAddress)
-        {
-            return typeBeingQueried.Assembly == configuredAssembly && (configuredNamespace == null || configuredNamespace.Equals(typeBeingQueried.Namespace, StringComparison.InvariantCultureIgnoreCase))
-                ? configuredAddress
-                : null;
-        }
-
-        static PublisherAddress StaticTypeRule(Type typeBeingQueried, Type configuredType, PublisherAddress configuredAddress)
-        {
-            return typeBeingQueried == configuredType
-                ? configuredAddress
-                : null;
+            foreach (var type in eventAssembly.GetTypes().Where(t => t.Namespace == eventNamespace))
+            {
+                AddStaticPublisher(type, PublisherAddress.CreateFromEndpointName(publisher));
+            }
         }
 
         /// <summary>
         /// Adds a dynamic rule.
         /// </summary>
         /// <param name="dynamicRule">The rule.</param>
-        /// <param name="description">Optional description of the rule.</param>
-        public void AddDynamic(Func<Type, PublisherAddress> dynamicRule, string description = null)
+        public void AddDynamic(Func<Type, PublisherAddress> dynamicRule)
         {
-            rules.Add(new Rule(dynamicRule, description ?? "dynamic"));
+            dynamicRules.Add(dynamicRule);
         }
 
-        List<Rule> rules = new List<Rule>();
-
-        class Rule
-        {
-            public Rule(Func<Type, PublisherAddress> rule, string description)
-            {
-                this.rule = rule;
-                this.description = description;
-            }
-
-            public PublisherAddress Apply(Type type)
-            {
-                return rule(type);
-            }
-
-            public override string ToString()
-            {
-                return description;
-            }
-
-            string description;
-            Func<Type, PublisherAddress> rule;
-        }
+        Dictionary<Type, List<PublisherAddress>> staticPublishers = new Dictionary<Type, List<PublisherAddress>>();
+        List<Func<Type, PublisherAddress>> dynamicRules = new List<Func<Type, PublisherAddress>>();
+        List<PublisherAddress> emptyList = new List<PublisherAddress>(0);
     }
 }
