@@ -103,7 +103,7 @@ namespace NServiceBus.Routing.MessageDrivenSubscriptions
         }
 
         /// <summary>
-        /// Adds a dynamic rule.
+        /// Adds a dynamic rule which is invoked on each subscription to determine the address of the publisher.
         /// </summary>
         /// <param name="dynamicRule">The rule.</param>
         public void AddDynamic(Func<Type, PublisherAddress> dynamicRule)
