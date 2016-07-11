@@ -10,18 +10,9 @@ namespace NServiceBus.Routing
     /// </summary>
     public class UnicastRoutingTable
     {
-        internal async Task<IEnumerable<IUnicastRoute>> GetDestinationsFor(List<Type> messageTypes, ContextBag contextBag)
+        internal Task<IEnumerable<IUnicastRoute>> GetDestinationsFor(List<Type> messageTypes, ContextBag contextBag)
         {
             var routes = new List<IUnicastRoute>();
-            foreach (var rule in asyncDynamicRules)
-            {
-                routes.AddRange(await rule.Invoke(messageTypes, contextBag).ConfigureAwait(false));
-            }
-
-            foreach (var rule in dynamicRules)
-            {
-                routes.AddRange(rule.Invoke(messageTypes, contextBag));
-            }
 
             foreach (var messageType in messageTypes)
             {
@@ -32,7 +23,17 @@ namespace NServiceBus.Routing
                 }
             }
 
-            return routes;
+            foreach (var rule in dynamicRules)
+            {
+                routes.AddRange(rule.Invoke(messageTypes, contextBag));
+            }
+
+            if (asyncDynamicRules.Count > 0)
+            {
+                return AddAsyncDynamicRules(messageTypes, contextBag, routes);
+            }
+
+            return Task.FromResult<IEnumerable<IUnicastRoute>>(routes);
         }
 
         /// <summary>
@@ -58,7 +59,7 @@ namespace NServiceBus.Routing
         /// <summary>
         /// Adds an external provider of routes.
         /// </summary>
-        /// <remarks>For dynamic routes that do not require async use <see cref="AddDynamic(System.Func{System.Collections.Generic.List{System.Type},NServiceBus.Extensibility.ContextBag,System.Collections.Generic.IEnumerable{NServiceBus.Routing.IUnicastRoute}})"/>.</remarks>
+        /// <remarks>For dynamic routes that do not require async use <see cref="AddDynamic(System.Func{System.Collections.Generic.List{System.Type},NServiceBus.Extensibility.ContextBag,System.Collections.Generic.IEnumerable{NServiceBus.Routing.IUnicastRoute}})" />.</remarks>
         /// <param name="dynamicRule">The rule.</param>
         public void AddDynamic(Func<List<Type>, ContextBag, Task<IEnumerable<IUnicastRoute>>> dynamicRule)
         {
@@ -68,7 +69,7 @@ namespace NServiceBus.Routing
         /// <summary>
         /// Adds an external provider of routes.
         /// </summary>
-        /// <remarks>For dynamic routes that require async use <see cref="AddDynamic(System.Func{System.Collections.Generic.List{System.Type},NServiceBus.Extensibility.ContextBag,System.Threading.Tasks.Task{System.Collections.Generic.IEnumerable{NServiceBus.Routing.IUnicastRoute}}})"/>.</remarks>
+        /// <remarks>For dynamic routes that require async use <see cref="AddDynamic(System.Func{System.Collections.Generic.List{System.Type},NServiceBus.Extensibility.ContextBag,System.Threading.Tasks.Task{System.Collections.Generic.IEnumerable{NServiceBus.Routing.IUnicastRoute}}})" />.</remarks>
         /// <param name="dynamicRule">The rule.</param>
         public void AddDynamic(Func<List<Type>, ContextBag, IEnumerable<IUnicastRoute>> dynamicRule)
         {
@@ -89,6 +90,16 @@ namespace NServiceBus.Routing
                     route
                 });
             }
+        }
+
+        async Task<IEnumerable<IUnicastRoute>> AddAsyncDynamicRules(List<Type> messageTypes, ContextBag contextBag, List<IUnicastRoute> routes)
+        {
+            foreach (var rule in asyncDynamicRules)
+            {
+                routes.AddRange(await rule.Invoke(messageTypes, contextBag).ConfigureAwait(false));
+            }
+
+            return routes;
         }
 
         List<Func<List<Type>, ContextBag, Task<IEnumerable<IUnicastRoute>>>> asyncDynamicRules = new List<Func<List<Type>, ContextBag, Task<IEnumerable<IUnicastRoute>>>>();
