@@ -25,7 +25,7 @@ namespace NServiceBus
             var typesToRoute = messageMetadataRegistry.GetMessageMetadata(messageType)
                 .MessageHierarchy
                 .Distinct()
-                .ToList();
+                .ToArray();
 
             var routes = await GetDestinations(contextBag, typesToRoute).ConfigureAwait(false);
             var destinations = new List<UnicastRoutingTarget>();
@@ -42,7 +42,7 @@ namespace NServiceBus
                 .Select(destination => new UnicastRoutingStrategy(destination));
         }
 
-        protected abstract Task<IEnumerable<IUnicastRoute>> GetDestinations(ContextBag contextBag, List<Type> typesToRoute);
+        protected abstract Task<IEnumerable<IUnicastRoute>> GetDestinations(ContextBag contextBag, Type[] types);
 
         Task<IEnumerable<EndpointInstance>> InstanceResolver(string endpoint)
         {
