@@ -102,39 +102,39 @@
                         WriteMethod(method, stringWriter);
                     }
                 }
-                foreach (var property in type.Properties)
-                {
-                    if (property.PropertyType.Name == "Boolean")
-                    {
-                        continue;
-                    }
-                    if (property.SetMethod == null)
-                    {
-                        continue;
-                    }
-                    if (!property.SetMethod.HasBody)
-                    {
-                        continue;
-                    }
-                    if (!property.SetMethod.IsPublic)
-                    {
-                        continue;
-                    }
-                    if (ContainsObsoleteAttribute(property))
-                    {
-                        continue;
-                    }
+                //foreach (var property in type.Properties)
+                //{
+                //    if (property.PropertyType.Name == "Boolean")
+                //    {
+                //        continue;
+                //    }
+                //    if (property.SetMethod == null)
+                //    {
+                //        continue;
+                //    }
+                //    if (!property.SetMethod.HasBody)
+                //    {
+                //        continue;
+                //    }
+                //    if (!property.SetMethod.IsPublic)
+                //    {
+                //        continue;
+                //    }
+                //    if (ContainsObsoleteAttribute(property))
+                //    {
+                //        continue;
+                //    }
 
-                    if (!MethodContainsArgumentException(property.SetMethod))
-                    {
-                        WriteMethod(property.SetMethod, stringWriter);
-                    }
-                }
+                //    if (!MethodContainsArgumentException(property.SetMethod))
+                //    {
+                //        WriteMethod(property.SetMethod, stringWriter);
+                //    }
+                //}
             }
 
             var methods = stringWriter.ToString();
 
-            Assert.That(methods, Is.Null.Or.Empty);
+            Assert.IsEmpty(methods, methods);
         }
 
         bool MethodCallSelf(MethodDefinition method)
