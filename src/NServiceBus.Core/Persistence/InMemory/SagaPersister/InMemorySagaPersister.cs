@@ -2,7 +2,7 @@ namespace NServiceBus
 {
     using System;
     using System.Collections.Concurrent;
-    using System.Linq;
+    using System.Collections.Generic;
     using System.Runtime.CompilerServices;
     using System.Threading.Tasks;
     using Extensibility;
@@ -26,9 +26,13 @@ namespace NServiceBus
         {
             Guard.AgainstNull(nameof(propertyValue), propertyValue);
 
-            var values = data.Values.Where(x => x.SagaData is TSagaData);
-            foreach (var entity in values)
+            foreach (var entity in data.Values)
             {
+                if (!(entity.SagaData is TSagaData))
+                {
+                    continue;
+                }
+
                 var prop = typeof(TSagaData).GetProperty(propertyName);
                 if (prop == null)
                 {
@@ -89,10 +93,14 @@ namespace NServiceBus
         void ValidateUniqueProperties(SagaCorrelationProperty correlationProperty, IContainSagaData saga)
         {
             var sagaType = saga.GetType();
-            var existingSagas = (from s in data
-                where s.Value.SagaData.GetType() == sagaType && (s.Key != saga.Id)
-                select s.Value)
-                .ToList();
+            var existingSagas = new List<VersionedSagaEntity>();
+            foreach (var s in data)
+            {
+                if (s.Value.SagaData.GetType() == sagaType && (s.Key != saga.Id))
+                {
+                    existingSagas.Add(s.Value);
+                }
+            }
             var uniqueProperty = sagaType.GetProperty(correlationProperty.Name);
 
             if (correlationProperty.Value == null)
