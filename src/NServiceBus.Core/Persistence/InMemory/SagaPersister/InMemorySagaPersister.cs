@@ -4,7 +4,6 @@ namespace NServiceBus
     using System.Collections.Concurrent;
     using System.Linq;
     using System.Runtime.CompilerServices;
-    using System.Threading;
     using System.Threading.Tasks;
     using Extensibility;
     using Persistence;
@@ -68,12 +67,6 @@ namespace NServiceBus
                     ValidateUniqueProperties(correlationProperty, sagaData);
                 }
 
-                VersionedSagaEntity sagaEntity;
-                if (data.TryGetValue(sagaData.Id, out sagaEntity))
-                {
-                    sagaEntity.ConcurrencyCheck(sagaData);
-                }
-
                 data.AddOrUpdate(sagaData.Id,
                     id => new VersionedSagaEntity(sagaData),
                     (id, original) => new VersionedSagaEntity(sagaData, original));
@@ -86,12 +79,6 @@ namespace NServiceBus
             var inMemSession = (InMemorySynchronizedStorageSession) session;
             inMemSession.Enlist(() =>
             {
-                VersionedSagaEntity sagaEntity;
-                if (data.TryGetValue(sagaData.Id, out sagaEntity))
-                {
-                    sagaEntity.ConcurrencyCheck(sagaData);
-                }
-
                 data.AddOrUpdate(sagaData.Id,
                     id => new VersionedSagaEntity(sagaData),
                     (id, original) => new VersionedSagaEntity(sagaData, original));
@@ -134,9 +121,11 @@ namespace NServiceBus
                 SagaData = DeepClone(sagaData);
                 if (original != null)
                 {
+                    original.ConcurrencyCheck(sagaData);
+
                     versionCache = original.versionCache;
                     version = original.version;
-                    Interlocked.Increment(ref version);
+                    version++;
                 }
                 else
                 {
@@ -153,7 +142,7 @@ namespace NServiceBus
                 return (TSagaData) clone;
             }
 
-            public void ConcurrencyCheck(IContainSagaData sagaEntity)
+            void ConcurrencyCheck(IContainSagaData sagaEntity)
             {
                 SagaVersion v;
                 if (!versionCache.TryGetValue(sagaEntity, out v))
@@ -177,9 +166,9 @@ namespace NServiceBus
 
             ConditionalWeakTable<IContainSagaData, SagaVersion> versionCache;
 
-            static JsonMessageSerializer serializer = new JsonMessageSerializer(null);
-
             int version;
+
+            static JsonMessageSerializer serializer = new JsonMessageSerializer(null);
 
             class SagaVersion
             {
