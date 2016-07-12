@@ -302,7 +302,7 @@
         {
             var failBecauseUnhandledFailedMessage = false;
             var startTime = DateTime.Now;
-            while (scenarioContext.UnfinishedFailedMessages.Values.Any(x => x > 0))
+            while (scenarioContext.UnfinishedFailedMessages.Values.Any(x => x))
             {
                 if (DateTime.Now - startTime >= TimeSpan.FromSeconds(30))
                 {

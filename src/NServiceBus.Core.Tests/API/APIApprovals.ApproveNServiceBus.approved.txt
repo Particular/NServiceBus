@@ -167,23 +167,23 @@ namespace NServiceBus
     }
     public class static ConnectorContextExtensions
     {
-        public static NServiceBus.Pipeline.IAuditContext CreateAuditContext(this NServiceBus.Pipeline.ForkConnector<NServiceBus.Pipeline.IIncomingPhysicalMessageContext, NServiceBus.Pipeline.IAuditContext> forkConnector, NServiceBus.Transports.OutgoingMessage message, string auditAddress, NServiceBus.Pipeline.IIncomingPhysicalMessageContext sourceContext) { }
-        public static NServiceBus.Pipeline.IBatchDispatchContext CreateBatchDispatchContext(this NServiceBus.Pipeline.StageForkConnector<NServiceBus.Pipeline.ITransportReceiveContext, NServiceBus.Pipeline.IIncomingPhysicalMessageContext, NServiceBus.Pipeline.IBatchDispatchContext> stageForkConnector, System.Collections.Generic.IReadOnlyCollection<NServiceBus.Transports.TransportOperation> transportOperations, NServiceBus.Pipeline.IIncomingPhysicalMessageContext sourceContext) { }
-        public static NServiceBus.Pipeline.IDispatchContext CreateDispatchContext(this NServiceBus.Pipeline.StageConnector<NServiceBus.Pipeline.IBatchDispatchContext, NServiceBus.Pipeline.IDispatchContext> stageConnector, System.Collections.Generic.IReadOnlyCollection<NServiceBus.Transports.TransportOperation> transportOperations, NServiceBus.Pipeline.IBatchDispatchContext sourceContext) { }
-        public static NServiceBus.Pipeline.IDispatchContext CreateDispatchContext(this NServiceBus.Pipeline.StageConnector<NServiceBus.Pipeline.IRoutingContext, NServiceBus.Pipeline.IDispatchContext> stageConnector, System.Collections.Generic.IReadOnlyCollection<NServiceBus.Transports.TransportOperation> transportOperations, NServiceBus.Pipeline.IRoutingContext sourceContext) { }
-        public static NServiceBus.Pipeline.IForwardingContext CreateForwardingContext(this NServiceBus.Pipeline.ForkConnector<NServiceBus.Pipeline.IIncomingPhysicalMessageContext, NServiceBus.Pipeline.IForwardingContext> forwardingContext, NServiceBus.Transports.OutgoingMessage message, string forwardingAddress, NServiceBus.Pipeline.IIncomingPhysicalMessageContext sourceContext) { }
+        public static NServiceBus.Pipeline.IAuditContext CreateAuditContext(this NServiceBus.Pipeline.ForkConnector<NServiceBus.Pipeline.IIncomingPhysicalMessageContext, NServiceBus.Pipeline.IAuditContext> forkConnector, NServiceBus.Transport.OutgoingMessage message, string auditAddress, NServiceBus.Pipeline.IIncomingPhysicalMessageContext sourceContext) { }
+        public static NServiceBus.Pipeline.IBatchDispatchContext CreateBatchDispatchContext(this NServiceBus.Pipeline.StageForkConnector<NServiceBus.Pipeline.ITransportReceiveContext, NServiceBus.Pipeline.IIncomingPhysicalMessageContext, NServiceBus.Pipeline.IBatchDispatchContext> stageForkConnector, System.Collections.Generic.IReadOnlyCollection<NServiceBus.Transport.TransportOperation> transportOperations, NServiceBus.Pipeline.IIncomingPhysicalMessageContext sourceContext) { }
+        public static NServiceBus.Pipeline.IDispatchContext CreateDispatchContext(this NServiceBus.Pipeline.StageConnector<NServiceBus.Pipeline.IBatchDispatchContext, NServiceBus.Pipeline.IDispatchContext> stageConnector, System.Collections.Generic.IReadOnlyCollection<NServiceBus.Transport.TransportOperation> transportOperations, NServiceBus.Pipeline.IBatchDispatchContext sourceContext) { }
+        public static NServiceBus.Pipeline.IDispatchContext CreateDispatchContext(this NServiceBus.Pipeline.StageConnector<NServiceBus.Pipeline.IRoutingContext, NServiceBus.Pipeline.IDispatchContext> stageConnector, System.Collections.Generic.IReadOnlyCollection<NServiceBus.Transport.TransportOperation> transportOperations, NServiceBus.Pipeline.IRoutingContext sourceContext) { }
+        public static NServiceBus.Pipeline.IForwardingContext CreateForwardingContext(this NServiceBus.Pipeline.ForkConnector<NServiceBus.Pipeline.IIncomingPhysicalMessageContext, NServiceBus.Pipeline.IForwardingContext> forwardingContext, NServiceBus.Transport.OutgoingMessage message, string forwardingAddress, NServiceBus.Pipeline.IIncomingPhysicalMessageContext sourceContext) { }
         public static NServiceBus.Pipeline.IIncomingLogicalMessageContext CreateIncomingLogicalMessageContext(this NServiceBus.Pipeline.StageConnector<NServiceBus.Pipeline.IIncomingPhysicalMessageContext, NServiceBus.Pipeline.IIncomingLogicalMessageContext> stageConnector, NServiceBus.Pipeline.LogicalMessage logicalMessage, NServiceBus.Pipeline.IIncomingPhysicalMessageContext sourceContext) { }
-        public static NServiceBus.Pipeline.IIncomingPhysicalMessageContext CreateIncomingPhysicalMessageContext(this NServiceBus.Pipeline.StageForkConnector<NServiceBus.Pipeline.ITransportReceiveContext, NServiceBus.Pipeline.IIncomingPhysicalMessageContext, NServiceBus.Pipeline.IBatchDispatchContext> stageForkConnector, NServiceBus.Transports.IncomingMessage incomingMessage, NServiceBus.Pipeline.ITransportReceiveContext sourceContext) { }
-        public static NServiceBus.Pipeline.IIncomingPhysicalMessageContext CreateIncomingPhysicalMessageContext(this NServiceBus.Pipeline.StageConnector<NServiceBus.Pipeline.ITransportReceiveContext, NServiceBus.Pipeline.IIncomingPhysicalMessageContext> stageConnector, NServiceBus.Transports.IncomingMessage incomingMessage, NServiceBus.Pipeline.ITransportReceiveContext sourceContext) { }
+        public static NServiceBus.Pipeline.IIncomingPhysicalMessageContext CreateIncomingPhysicalMessageContext(this NServiceBus.Pipeline.StageForkConnector<NServiceBus.Pipeline.ITransportReceiveContext, NServiceBus.Pipeline.IIncomingPhysicalMessageContext, NServiceBus.Pipeline.IBatchDispatchContext> stageForkConnector, NServiceBus.Transport.IncomingMessage incomingMessage, NServiceBus.Pipeline.ITransportReceiveContext sourceContext) { }
+        public static NServiceBus.Pipeline.IIncomingPhysicalMessageContext CreateIncomingPhysicalMessageContext(this NServiceBus.Pipeline.StageConnector<NServiceBus.Pipeline.ITransportReceiveContext, NServiceBus.Pipeline.IIncomingPhysicalMessageContext> stageConnector, NServiceBus.Transport.IncomingMessage incomingMessage, NServiceBus.Pipeline.ITransportReceiveContext sourceContext) { }
         public static NServiceBus.Pipeline.IInvokeHandlerContext CreateInvokeHandlerContext(this NServiceBus.Pipeline.StageConnector<NServiceBus.Pipeline.IIncomingLogicalMessageContext, NServiceBus.Pipeline.IInvokeHandlerContext> stageConnector, NServiceBus.Pipeline.MessageHandler messageHandler, NServiceBus.Persistence.CompletableSynchronizedStorageSession storageSession, NServiceBus.Pipeline.IIncomingLogicalMessageContext sourceContext) { }
         public static NServiceBus.Pipeline.IOutgoingLogicalMessageContext CreateOutgoingLogicalMessageContext(this NServiceBus.Pipeline.StageConnector<NServiceBus.Pipeline.IOutgoingPublishContext, NServiceBus.Pipeline.IOutgoingLogicalMessageContext> stageConnector, NServiceBus.Pipeline.OutgoingLogicalMessage outgoingMessage, System.Collections.Generic.IReadOnlyCollection<NServiceBus.Routing.RoutingStrategy> routingStrategies, NServiceBus.Pipeline.IOutgoingPublishContext sourceContext) { }
         public static NServiceBus.Pipeline.IOutgoingLogicalMessageContext CreateOutgoingLogicalMessageContext(this NServiceBus.Pipeline.StageConnector<NServiceBus.Pipeline.IOutgoingReplyContext, NServiceBus.Pipeline.IOutgoingLogicalMessageContext> stageConnector, NServiceBus.Pipeline.OutgoingLogicalMessage outgoingMessage, System.Collections.Generic.IReadOnlyCollection<NServiceBus.Routing.RoutingStrategy> routingStrategies, NServiceBus.Pipeline.IOutgoingReplyContext sourceContext) { }
         public static NServiceBus.Pipeline.IOutgoingLogicalMessageContext CreateOutgoingLogicalMessageContext(this NServiceBus.Pipeline.StageConnector<NServiceBus.Pipeline.IOutgoingSendContext, NServiceBus.Pipeline.IOutgoingLogicalMessageContext> stageConnector, NServiceBus.Pipeline.OutgoingLogicalMessage outgoingMessage, System.Collections.Generic.IReadOnlyCollection<NServiceBus.Routing.RoutingStrategy> routingStrategies, NServiceBus.Pipeline.IOutgoingSendContext sourceContext) { }
         public static NServiceBus.Pipeline.IOutgoingPhysicalMessageContext CreateOutgoingPhysicalMessageContext(this NServiceBus.Pipeline.StageConnector<NServiceBus.Pipeline.IOutgoingLogicalMessageContext, NServiceBus.Pipeline.IOutgoingPhysicalMessageContext> stageConnector, byte[] messageBody, System.Collections.Generic.IReadOnlyCollection<NServiceBus.Routing.RoutingStrategy> routingStrategies, NServiceBus.Pipeline.IOutgoingLogicalMessageContext sourceContext) { }
-        public static NServiceBus.Pipeline.IRoutingContext CreateRoutingContext(this NServiceBus.Pipeline.ForkConnector<NServiceBus.Pipeline.ITransportReceiveContext, NServiceBus.Pipeline.IRoutingContext> forkConnector, NServiceBus.Transports.OutgoingMessage outgoingMessage, string localAddress, NServiceBus.Pipeline.ITransportReceiveContext sourceContext) { }
-        public static NServiceBus.Pipeline.IRoutingContext CreateRoutingContext(this NServiceBus.Pipeline.StageConnector<NServiceBus.Pipeline.IForwardingContext, NServiceBus.Pipeline.IRoutingContext> stageConnector, NServiceBus.Transports.OutgoingMessage outgoingMessage, NServiceBus.Routing.RoutingStrategy routingStrategy, NServiceBus.Pipeline.IForwardingContext sourceContext) { }
-        public static NServiceBus.Pipeline.IRoutingContext CreateRoutingContext(this NServiceBus.Pipeline.StageConnector<NServiceBus.Pipeline.IAuditContext, NServiceBus.Pipeline.IRoutingContext> stageConnector, NServiceBus.Transports.OutgoingMessage outgoingMessage, NServiceBus.Routing.RoutingStrategy routingStrategy, NServiceBus.Pipeline.IAuditContext sourceContext) { }
-        public static NServiceBus.Pipeline.IRoutingContext CreateRoutingContext(this NServiceBus.Pipeline.StageConnector<NServiceBus.Pipeline.IOutgoingPhysicalMessageContext, NServiceBus.Pipeline.IRoutingContext> stageConnector, NServiceBus.Transports.OutgoingMessage outgoingMessage, System.Collections.Generic.IReadOnlyCollection<NServiceBus.Routing.RoutingStrategy> routingStrategies, NServiceBus.Pipeline.IOutgoingPhysicalMessageContext sourceContext) { }
+        public static NServiceBus.Pipeline.IRoutingContext CreateRoutingContext(this NServiceBus.Pipeline.ForkConnector<NServiceBus.Pipeline.ITransportReceiveContext, NServiceBus.Pipeline.IRoutingContext> forkConnector, NServiceBus.Transport.OutgoingMessage outgoingMessage, string localAddress, NServiceBus.Pipeline.ITransportReceiveContext sourceContext) { }
+        public static NServiceBus.Pipeline.IRoutingContext CreateRoutingContext(this NServiceBus.Pipeline.StageConnector<NServiceBus.Pipeline.IForwardingContext, NServiceBus.Pipeline.IRoutingContext> stageConnector, NServiceBus.Transport.OutgoingMessage outgoingMessage, NServiceBus.Routing.RoutingStrategy routingStrategy, NServiceBus.Pipeline.IForwardingContext sourceContext) { }
+        public static NServiceBus.Pipeline.IRoutingContext CreateRoutingContext(this NServiceBus.Pipeline.StageConnector<NServiceBus.Pipeline.IAuditContext, NServiceBus.Pipeline.IRoutingContext> stageConnector, NServiceBus.Transport.OutgoingMessage outgoingMessage, NServiceBus.Routing.RoutingStrategy routingStrategy, NServiceBus.Pipeline.IAuditContext sourceContext) { }
+        public static NServiceBus.Pipeline.IRoutingContext CreateRoutingContext(this NServiceBus.Pipeline.StageConnector<NServiceBus.Pipeline.IOutgoingPhysicalMessageContext, NServiceBus.Pipeline.IRoutingContext> stageConnector, NServiceBus.Transport.OutgoingMessage outgoingMessage, System.Collections.Generic.IReadOnlyCollection<NServiceBus.Routing.RoutingStrategy> routingStrategies, NServiceBus.Pipeline.IOutgoingPhysicalMessageContext sourceContext) { }
     }
     public abstract class ContainSagaData : NServiceBus.IContainSagaData
     {
@@ -676,6 +676,11 @@ namespace NServiceBus
         public static System.Threading.Tasks.Task SendLocal(this NServiceBus.IPipelineContext context, object message) { }
         public static System.Threading.Tasks.Task SendLocal<T>(this NServiceBus.IPipelineContext context, System.Action<T> messageConstructor) { }
     }
+    public interface IRecoverabilityPolicy
+    {
+        bool RaiseRecoverabilityNotifications { get; }
+        NServiceBus.RecoverabilityAction Invoke(NServiceBus.Transport.ErrorContext errorContext);
+    }
     [System.ObsoleteAttribute("Use IEndpointInstance to create sending session. Will be removed in version 7.0.0" +
         ".", true)]
     public interface ISendOnlyBus : System.IDisposable { }
@@ -744,13 +749,13 @@ namespace NServiceBus
     public class static MessageDrivenSubscriptionsConfigExtensions
     {
         public static void RegisterPublisherForAssembly<T>(this NServiceBus.RoutingSettings<T> routingSettings, System.Reflection.Assembly eventAssembly, string publisherEndpoint)
-            where T : NServiceBus.Transports.TransportDefinition, NServiceBus.Routing.IMessageDrivenSubscriptionTransport { }
+            where T : NServiceBus.Transport.TransportDefinition, NServiceBus.Routing.IMessageDrivenSubscriptionTransport { }
         public static void RegisterPublisherForAssembly<T>(this NServiceBus.RoutingSettings<T> routingSettings, System.Reflection.Assembly eventAssembly, string eventNamespace, string publisherEndpoint)
-            where T : NServiceBus.Transports.TransportDefinition, NServiceBus.Routing.IMessageDrivenSubscriptionTransport { }
+            where T : NServiceBus.Transport.TransportDefinition, NServiceBus.Routing.IMessageDrivenSubscriptionTransport { }
         public static void RegisterPublisherForType<T>(this NServiceBus.RoutingSettings<T> routingSettings, System.Type eventType, string publisherEndpoint)
-            where T : NServiceBus.Transports.TransportDefinition, NServiceBus.Routing.IMessageDrivenSubscriptionTransport { }
+            where T : NServiceBus.Transport.TransportDefinition, NServiceBus.Routing.IMessageDrivenSubscriptionTransport { }
         public static void SubscriptionAuthorizer<T>(this NServiceBus.TransportExtensions<T> transportExtensions, System.Func<NServiceBus.Pipeline.IIncomingPhysicalMessageContext, bool> authorizer)
-            where T : NServiceBus.Transports.TransportDefinition, NServiceBus.Routing.IMessageDrivenSubscriptionTransport { }
+            where T : NServiceBus.Transport.TransportDefinition, NServiceBus.Routing.IMessageDrivenSubscriptionTransport { }
     }
     public class static MessageIdExtensions
     {
@@ -776,12 +781,12 @@ namespace NServiceBus
         public static void SetMessageDistributionStrategy(this NServiceBus.RoutingSettings<NServiceBus.MsmqTransport> config, string endpointName, NServiceBus.Routing.DistributionStrategy distributionStrategy) { }
         public static NServiceBus.TransportExtensions<NServiceBus.MsmqTransport> TransactionScopeOptions(this NServiceBus.TransportExtensions<NServiceBus.MsmqTransport> transportExtensions, System.Nullable<System.TimeSpan> timeout = null, System.Nullable<System.Transactions.IsolationLevel> isolationLevel = null) { }
     }
-    public class MsmqTransport : NServiceBus.Transports.TransportDefinition, NServiceBus.Routing.IMessageDrivenSubscriptionTransport
+    public class MsmqTransport : NServiceBus.Transport.TransportDefinition, NServiceBus.Routing.IMessageDrivenSubscriptionTransport
     {
         public MsmqTransport() { }
         public override string ExampleConnectionStringForErrorMessage { get; }
         public override bool RequiresConnectionString { get; }
-        protected internal override NServiceBus.Transports.TransportInfrastructure Initialize(NServiceBus.Settings.SettingsHolder settings, string connectionString) { }
+        public override NServiceBus.Transport.TransportInfrastructure Initialize(NServiceBus.Settings.SettingsHolder settings, string connectionString) { }
     }
     public class NonDurableDelivery : NServiceBus.DeliveryConstraints.DeliveryConstraint
     {
@@ -810,9 +815,9 @@ namespace NServiceBus
     {
         public PendingTransportOperations() { }
         public bool HasOperations { get; }
-        public NServiceBus.Transports.TransportOperation[] Operations { get; }
-        public void Add(NServiceBus.Transports.TransportOperation transportOperation) { }
-        public void AddRange(NServiceBus.Transports.TransportOperation[] transportOperations) { }
+        public NServiceBus.Transport.TransportOperation[] Operations { get; }
+        public void Add(NServiceBus.Transport.TransportOperation transportOperation) { }
+        public void AddRange(NServiceBus.Transport.TransportOperation[] transportOperations) { }
     }
     public class static PersistenceConfig
     {
@@ -870,6 +875,13 @@ namespace NServiceBus
     {
         public PublishOptions() { }
     }
+    public abstract class RecoverabilityAction
+    {
+        protected internal RecoverabilityAction() { }
+        public static NServiceBus.RecoverabilityAction DelayedRetry(System.TimeSpan timeSpan) { }
+        public static NServiceBus.RecoverabilityAction ImmediateRetry() { }
+        public static NServiceBus.RecoverabilityAction MoveToError() { }
+    }
     public class ReplyOptions : NServiceBus.Extensibility.ExtendableOptions
     {
         public ReplyOptions() { }
@@ -910,12 +922,12 @@ namespace NServiceBus
         public void RouteToEndpoint(System.Type messageType, string destination) { }
     }
     public class RoutingSettings<T> : NServiceBus.RoutingSettings
-        where T : NServiceBus.Transports.TransportDefinition { }
+        where T : NServiceBus.Transport.TransportDefinition { }
     public class static RoutingSettingsExtensions
     {
         public static NServiceBus.RoutingSettings Routing(this NServiceBus.TransportExtensions config) { }
         public static NServiceBus.RoutingSettings<T> Routing<T>(this NServiceBus.TransportExtensions<T> config)
-            where T : NServiceBus.Transports.TransportDefinition { }
+            where T : NServiceBus.Transport.TransportDefinition { }
     }
     public abstract class Saga
     {
@@ -1024,7 +1036,7 @@ namespace NServiceBus
     {
         public SecondLevelRetryContext() { }
         public System.Exception Exception { get; set; }
-        public NServiceBus.Transports.IncomingMessage Message { get; set; }
+        public NServiceBus.Transport.IncomingMessage Message { get; set; }
         public int SecondLevelRetryAttempt { get; set; }
     }
     public class SendOptions : NServiceBus.Extensibility.ExtendableOptions
@@ -1107,7 +1119,7 @@ namespace NServiceBus
         public NServiceBus.TransportExtensions Transactions(NServiceBus.TransportTransactionMode transportTransactionMode) { }
     }
     public class TransportExtensions<T> : NServiceBus.TransportExtensions
-        where T : NServiceBus.Transports.TransportDefinition
+        where T : NServiceBus.Transport.TransportDefinition
     {
         public TransportExtensions(NServiceBus.Settings.SettingsHolder settings) { }
         public NServiceBus.TransportExtensions<T> ConnectionString(string connectionString) { }
@@ -1184,7 +1196,7 @@ namespace NServiceBus
     public class static UseTransportExtensions
     {
         public static NServiceBus.TransportExtensions<T> UseTransport<T>(this NServiceBus.EndpointConfiguration endpointConfiguration)
-            where T : NServiceBus.Transports.TransportDefinition, new () { }
+            where T : NServiceBus.Transport.TransportDefinition, new () { }
         public static NServiceBus.TransportExtensions UseTransport(this NServiceBus.EndpointConfiguration endpointConfiguration, System.Type transportDefinitionType) { }
     }
     public class WireEncryptedString : System.Runtime.Serialization.ISerializable
@@ -1661,7 +1673,7 @@ namespace NServiceBus.Features
         public NServiceBus.ObjectBuilder.IConfigureComponents Container { get; }
         public NServiceBus.Pipeline.PipelineSettings Pipeline { get; }
         public NServiceBus.Settings.ReadOnlySettings Settings { get; }
-        public void AddSatelliteReceiver(string name, string transportAddress, NServiceBus.TransportTransactionMode requiredTransportTransactionMode, NServiceBus.Transports.PushRuntimeSettings runtimeSettings, System.Func<NServiceBus.ObjectBuilder.IBuilder, NServiceBus.Transports.PushContext, System.Threading.Tasks.Task> onMessage) { }
+        public void AddSatelliteReceiver(string name, string transportAddress, NServiceBus.TransportTransactionMode requiredTransportTransactionMode, NServiceBus.Transport.PushRuntimeSettings runtimeSettings, NServiceBus.IRecoverabilityPolicy recoverabilityPolicy, System.Func<NServiceBus.ObjectBuilder.IBuilder, NServiceBus.Transport.MessageContext, System.Threading.Tasks.Task> onMessage) { }
         public void RegisterStartupTask<TTask>(TTask startupTask)
             where TTask : NServiceBus.Features.FeatureStartupTask { }
         public void RegisterStartupTask<TTask>(System.Func<TTask> startupTaskFactory)
@@ -2086,7 +2098,7 @@ namespace NServiceBus.Persistence
     public interface ISynchronizedStorageAdapter
     {
         System.Threading.Tasks.Task<NServiceBus.Persistence.CompletableSynchronizedStorageSession> TryAdapt(NServiceBus.Outbox.OutboxTransaction transaction, NServiceBus.Extensibility.ContextBag context);
-        System.Threading.Tasks.Task<NServiceBus.Persistence.CompletableSynchronizedStorageSession> TryAdapt(NServiceBus.Transports.TransportTransaction transportTransaction, NServiceBus.Extensibility.ContextBag context);
+        System.Threading.Tasks.Task<NServiceBus.Persistence.CompletableSynchronizedStorageSession> TryAdapt(NServiceBus.Transport.TransportTransaction transportTransaction, NServiceBus.Extensibility.ContextBag context);
     }
     public abstract class PersistenceDefinition
     {
@@ -2149,12 +2161,12 @@ namespace NServiceBus.Pipeline
     public interface IAuditContext : NServiceBus.Extensibility.IExtendable, NServiceBus.Pipeline.IBehaviorContext
     {
         string AuditAddress { get; }
-        NServiceBus.Transports.OutgoingMessage Message { get; }
+        NServiceBus.Transport.OutgoingMessage Message { get; }
         void AddAuditData(string key, string value);
     }
     public interface IBatchDispatchContext : NServiceBus.Extensibility.IExtendable, NServiceBus.Pipeline.IBehaviorContext
     {
-        System.Collections.Generic.IReadOnlyCollection<NServiceBus.Transports.TransportOperation> Operations { get; }
+        System.Collections.Generic.IReadOnlyCollection<NServiceBus.Transport.TransportOperation> Operations { get; }
     }
     public interface IBehavior { }
     [System.ObsoleteAttribute("Use `Behavior<T>` instead. Will be removed in version 7.0.0.", true)]
@@ -2171,12 +2183,12 @@ namespace NServiceBus.Pipeline
     }
     public interface IDispatchContext : NServiceBus.Extensibility.IExtendable, NServiceBus.Pipeline.IBehaviorContext
     {
-        System.Collections.Generic.IEnumerable<NServiceBus.Transports.TransportOperation> Operations { get; }
+        System.Collections.Generic.IEnumerable<NServiceBus.Transport.TransportOperation> Operations { get; }
     }
     public interface IForwardingContext : NServiceBus.Extensibility.IExtendable, NServiceBus.Pipeline.IBehaviorContext
     {
         string Address { get; }
-        NServiceBus.Transports.OutgoingMessage Message { get; }
+        NServiceBus.Transport.OutgoingMessage Message { get; }
     }
     public interface IIncomingContext : NServiceBus.Extensibility.IExtendable, NServiceBus.IMessageProcessingContext, NServiceBus.IPipelineContext, NServiceBus.Pipeline.IBehaviorContext { }
     public interface IIncomingLogicalMessageContext : NServiceBus.Extensibility.IExtendable, NServiceBus.IMessageProcessingContext, NServiceBus.IPipelineContext, NServiceBus.Pipeline.IBehaviorContext, NServiceBus.Pipeline.IIncomingContext
@@ -2188,7 +2200,7 @@ namespace NServiceBus.Pipeline
     }
     public interface IIncomingPhysicalMessageContext : NServiceBus.Extensibility.IExtendable, NServiceBus.IMessageProcessingContext, NServiceBus.IPipelineContext, NServiceBus.Pipeline.IBehaviorContext, NServiceBus.Pipeline.IIncomingContext
     {
-        NServiceBus.Transports.IncomingMessage Message { get; }
+        NServiceBus.Transport.IncomingMessage Message { get; }
         void UpdateMessage(byte[] body);
     }
     public interface IInvokeHandlerContext : NServiceBus.Extensibility.IExtendable, NServiceBus.IMessageHandlerContext, NServiceBus.IMessageProcessingContext, NServiceBus.IPipelineContext, NServiceBus.Pipeline.IBehaviorContext, NServiceBus.Pipeline.IIncomingContext
@@ -2231,12 +2243,12 @@ namespace NServiceBus.Pipeline
     }
     public interface IRoutingContext : NServiceBus.Extensibility.IExtendable, NServiceBus.Pipeline.IBehaviorContext
     {
-        NServiceBus.Transports.OutgoingMessage Message { get; }
+        NServiceBus.Transport.OutgoingMessage Message { get; }
         System.Collections.Generic.IReadOnlyCollection<NServiceBus.Routing.RoutingStrategy> RoutingStrategies { get; set; }
     }
     public interface ISatelliteProcessingContext : NServiceBus.Extensibility.IExtendable, NServiceBus.Pipeline.IBehaviorContext
     {
-        NServiceBus.Transports.IncomingMessage Message { get; }
+        NServiceBus.Transport.IncomingMessage Message { get; }
     }
     public interface ISubscribeContext : NServiceBus.Extensibility.IExtendable, NServiceBus.Pipeline.IBehaviorContext
     {
@@ -2244,7 +2256,7 @@ namespace NServiceBus.Pipeline
     }
     public interface ITransportReceiveContext : NServiceBus.Extensibility.IExtendable, NServiceBus.Pipeline.IBehaviorContext
     {
-        NServiceBus.Transports.IncomingMessage Message { get; }
+        NServiceBus.Transport.IncomingMessage Message { get; }
         void AbortReceiveOperation();
     }
     public interface IUnsubscribeContext : NServiceBus.Extensibility.IExtendable, NServiceBus.Pipeline.IBehaviorContext
@@ -2373,9 +2385,9 @@ namespace NServiceBus.Pipeline
     }
     public class static TransportMessageContextExtensions
     {
-        public static bool TryGetIncomingPhysicalMessage(this NServiceBus.Pipeline.IOutgoingReplyContext context, out NServiceBus.Transports.IncomingMessage message) { }
-        public static bool TryGetIncomingPhysicalMessage(this NServiceBus.Pipeline.IOutgoingLogicalMessageContext context, out NServiceBus.Transports.IncomingMessage message) { }
-        public static bool TryGetIncomingPhysicalMessage(this NServiceBus.Pipeline.IOutgoingPhysicalMessageContext context, out NServiceBus.Transports.IncomingMessage message) { }
+        public static bool TryGetIncomingPhysicalMessage(this NServiceBus.Pipeline.IOutgoingReplyContext context, out NServiceBus.Transport.IncomingMessage message) { }
+        public static bool TryGetIncomingPhysicalMessage(this NServiceBus.Pipeline.IOutgoingLogicalMessageContext context, out NServiceBus.Transport.IncomingMessage message) { }
+        public static bool TryGetIncomingPhysicalMessage(this NServiceBus.Pipeline.IOutgoingPhysicalMessageContext context, out NServiceBus.Transport.IncomingMessage message) { }
     }
     [System.ObsoleteAttribute("WellKnownSteps are obsolete. Use an appropriate pipeline stage for your behavior " +
         "instead. Consult the pipeline extension documentation for more information. Will" +
@@ -2934,40 +2946,37 @@ namespace NServiceBus.Timeout.Core
         }
     }
 }
-namespace NServiceBus.Transports
+namespace NServiceBus.Transport
 {
     public enum DispatchConsistency
     {
         Default = 1,
         Isolated = 2,
     }
-    [System.ObsoleteAttribute("No longer used, safe to remove. Will be removed in version 7.0.0.", true)]
-    public interface IAuditMessages { }
+    public class ErrorContext
+    {
+        public ErrorContext(System.Exception exception, System.Collections.Generic.Dictionary<string, string> headers, string transportMessageId, System.IO.Stream bodyStream, NServiceBus.Transport.TransportTransaction transportTransaction, int numberOfDeliveryAttempts) { }
+        public System.Exception Exception { get; }
+        public NServiceBus.Transport.IncomingMessage Message { get; }
+        public int NumberOfDeliveryAttempts { get; }
+        public NServiceBus.Transport.TransportTransaction TransportTransaction { get; }
+    }
+    public enum ErrorHandleResult
+    {
+        Handled = 0,
+        RetryRequired = 1,
+    }
     public interface ICancelDeferredMessages
     {
         System.Threading.Tasks.Task CancelDeferredMessages(string messageKey, NServiceBus.Pipeline.IBehaviorContext context);
     }
     public interface ICreateQueues
     {
-        System.Threading.Tasks.Task CreateQueueIfNecessary(NServiceBus.Transports.QueueBindings queueBindings, string identity);
-    }
-    [System.ObsoleteAttribute("Use `IDispatchMessages` instead. Will be removed in version 7.0.0.", true)]
-    public interface IDeferMessages
-    {
-        [System.ObsoleteAttribute("Use `ICancelDeferredMessages` instead. Will be removed in version 7.0.0.", true)]
-        void ClearDeferredMessages(string headerKey, string headerValue);
-    }
-    [System.ObsoleteAttribute("Use `NServiceBus.Transport.IPushMessages` instead. Will be removed in version 7.0" +
-        ".0.", true)]
-    public interface IDequeueMessages
-    {
-        void Init(NServiceBus.Address address, NServiceBus.Unicast.Transport.TransactionSettings transactionSettings, System.Func<NServiceBus.TransportMessage, bool> tryProcessMessage, System.Action<NServiceBus.TransportMessage, System.Exception> endProcessMessage);
-        void Start(int maximumConcurrencyLevel);
-        void Stop();
+        System.Threading.Tasks.Task CreateQueueIfNecessary(NServiceBus.Transport.QueueBindings queueBindings, string identity);
     }
     public interface IDispatchMessages
     {
-        System.Threading.Tasks.Task Dispatch(NServiceBus.Transports.TransportOperations outgoingMessages, NServiceBus.Extensibility.ContextBag context);
+        System.Threading.Tasks.Task Dispatch(NServiceBus.Transport.TransportOperations outgoingMessages, NServiceBus.Extensibility.ContextBag context);
     }
     public interface IManageSubscriptions
     {
@@ -2984,46 +2993,49 @@ namespace NServiceBus.Transports
     }
     public class static IncomingMessageExtensions
     {
-        public static NServiceBus.MessageIntentEnum GetMesssageIntent(this NServiceBus.Transports.IncomingMessage message) { }
-        public static string GetReplyToAddress(this NServiceBus.Transports.IncomingMessage message) { }
+        public static NServiceBus.MessageIntentEnum GetMesssageIntent(this NServiceBus.Transport.IncomingMessage message) { }
+        public static string GetReplyToAddress(this NServiceBus.Transport.IncomingMessage message) { }
     }
     public interface IOutgoingTransportOperation
     {
         System.Collections.Generic.List<NServiceBus.DeliveryConstraints.DeliveryConstraint> DeliveryConstraints { get; }
-        NServiceBus.Transports.OutgoingMessage Message { get; }
-        NServiceBus.Transports.DispatchConsistency RequiredDispatchConsistency { get; }
+        NServiceBus.Transport.OutgoingMessage Message { get; }
+        NServiceBus.Transport.DispatchConsistency RequiredDispatchConsistency { get; }
     }
-    [System.ObsoleteAttribute("Use `IDispatchMessages` instead. Will be removed in version 7.0.0.", true)]
-    public interface IPublishMessages { }
     public interface IPushMessages
     {
-        System.Threading.Tasks.Task Init(System.Func<NServiceBus.Transports.PushContext, System.Threading.Tasks.Task> pipe, NServiceBus.CriticalError criticalError, NServiceBus.Transports.PushSettings settings);
-        void Start(NServiceBus.Transports.PushRuntimeSettings limitations);
+        System.Threading.Tasks.Task Init(System.Func<NServiceBus.Transport.MessageContext, System.Threading.Tasks.Task> onMessage, System.Func<NServiceBus.Transport.ErrorContext, System.Threading.Tasks.Task<NServiceBus.Transport.ErrorHandleResult>> onError, NServiceBus.CriticalError criticalError, NServiceBus.Transport.PushSettings settings);
+        void Start(NServiceBus.Transport.PushRuntimeSettings limitations);
         System.Threading.Tasks.Task Stop();
-    }
-    [System.ObsoleteAttribute("Use `IDispatchMessages` instead. Will be removed in version 7.0.0.", true)]
-    public interface ISendMessages
-    {
-        void Send(NServiceBus.TransportMessage message, NServiceBus.Unicast.SendOptions sendOptions);
     }
     public class static LogicalAddressExtensions
     {
         public static string GetTransportAddress(this NServiceBus.Settings.ReadOnlySettings settings, NServiceBus.LogicalAddress logicalAddress) { }
     }
-    public class MulticastTransportOperation : NServiceBus.Transports.IOutgoingTransportOperation
+    public class MessageContext
     {
-        public MulticastTransportOperation(NServiceBus.Transports.OutgoingMessage message, System.Type messageType, NServiceBus.Transports.DispatchConsistency requiredDispatchConsistency = 1, System.Collections.Generic.List<NServiceBus.DeliveryConstraints.DeliveryConstraint> deliveryConstraints = null) { }
+        public MessageContext(string messageId, System.Collections.Generic.Dictionary<string, string> headers, System.IO.Stream bodyStream, NServiceBus.Transport.TransportTransaction transportTransaction, System.Threading.CancellationTokenSource receiveCancellationTokenSource, NServiceBus.Extensibility.ContextBag context) { }
+        public System.IO.Stream BodyStream { get; }
+        public NServiceBus.Extensibility.ContextBag Context { get; }
+        public System.Collections.Generic.Dictionary<string, string> Headers { get; }
+        public string MessageId { get; }
+        public System.Threading.CancellationTokenSource ReceiveCancellationTokenSource { get; }
+        public NServiceBus.Transport.TransportTransaction TransportTransaction { get; }
+    }
+    public class MulticastTransportOperation : NServiceBus.Transport.IOutgoingTransportOperation
+    {
+        public MulticastTransportOperation(NServiceBus.Transport.OutgoingMessage message, System.Type messageType, NServiceBus.Transport.DispatchConsistency requiredDispatchConsistency = 1, System.Collections.Generic.List<NServiceBus.DeliveryConstraints.DeliveryConstraint> deliveryConstraints = null) { }
         public System.Collections.Generic.List<NServiceBus.DeliveryConstraints.DeliveryConstraint> DeliveryConstraints { get; }
-        public NServiceBus.Transports.OutgoingMessage Message { get; }
+        public NServiceBus.Transport.OutgoingMessage Message { get; }
         public System.Type MessageType { get; }
-        public NServiceBus.Transports.DispatchConsistency RequiredDispatchConsistency { get; }
+        public NServiceBus.Transport.DispatchConsistency RequiredDispatchConsistency { get; }
     }
     public class OutboundRoutingPolicy
     {
-        public OutboundRoutingPolicy(NServiceBus.Transports.OutboundRoutingType sends, NServiceBus.Transports.OutboundRoutingType publishes, NServiceBus.Transports.OutboundRoutingType replies) { }
-        public NServiceBus.Transports.OutboundRoutingType Publishes { get; }
-        public NServiceBus.Transports.OutboundRoutingType Replies { get; }
-        public NServiceBus.Transports.OutboundRoutingType Sends { get; }
+        public OutboundRoutingPolicy(NServiceBus.Transport.OutboundRoutingType sends, NServiceBus.Transport.OutboundRoutingType publishes, NServiceBus.Transport.OutboundRoutingType replies) { }
+        public NServiceBus.Transport.OutboundRoutingType Publishes { get; }
+        public NServiceBus.Transport.OutboundRoutingType Replies { get; }
+        public NServiceBus.Transport.OutboundRoutingType Sends { get; }
     }
     public enum OutboundRoutingType
     {
@@ -3037,20 +3049,10 @@ namespace NServiceBus.Transports
         public System.Collections.Generic.Dictionary<string, string> Headers { get; }
         public string MessageId { get; }
     }
-    public class PushContext
-    {
-        public PushContext(string messageId, System.Collections.Generic.Dictionary<string, string> headers, System.IO.Stream bodyStream, NServiceBus.Transports.TransportTransaction transportTransaction, System.Threading.CancellationTokenSource receiveCancellationTokenSource, NServiceBus.Extensibility.ContextBag context) { }
-        public System.IO.Stream BodyStream { get; }
-        public NServiceBus.Extensibility.ContextBag Context { get; }
-        public System.Collections.Generic.Dictionary<string, string> Headers { get; }
-        public string MessageId { get; }
-        public System.Threading.CancellationTokenSource ReceiveCancellationTokenSource { get; }
-        public NServiceBus.Transports.TransportTransaction TransportTransaction { get; }
-    }
     public class PushRuntimeSettings
     {
         public PushRuntimeSettings(int maxConcurrency = 100) { }
-        public static NServiceBus.Transports.PushRuntimeSettings Default { get; }
+        public static NServiceBus.Transport.PushRuntimeSettings Default { get; }
         public int MaxConcurrency { get; }
     }
     public class PushSettings
@@ -3071,10 +3073,10 @@ namespace NServiceBus.Transports
     }
     public class StartupCheckResult
     {
-        public static readonly NServiceBus.Transports.StartupCheckResult Success;
+        public static readonly NServiceBus.Transport.StartupCheckResult Success;
         public string ErrorMessage { get; }
         public bool Succeeded { get; }
-        public static NServiceBus.Transports.StartupCheckResult Failed(string errorMessage) { }
+        public static NServiceBus.Transport.StartupCheckResult Failed(string errorMessage) { }
     }
     public class TransportAddresses
     {
@@ -3103,19 +3105,19 @@ namespace NServiceBus.Transports
             "ll be removed in version 7.0.0.", true)]
         public bool HasSupportForMultiQueueNativeTransactions { get; set; }
         public virtual bool RequiresConnectionString { get; }
-        protected internal abstract NServiceBus.Transports.TransportInfrastructure Initialize(NServiceBus.Settings.SettingsHolder settings, string connectionString);
+        public abstract NServiceBus.Transport.TransportInfrastructure Initialize(NServiceBus.Settings.SettingsHolder settings, string connectionString);
     }
     public abstract class TransportInfrastructure
     {
         protected TransportInfrastructure() { }
         public abstract System.Collections.Generic.IEnumerable<System.Type> DeliveryConstraints { get; }
-        public abstract NServiceBus.Transports.OutboundRoutingPolicy OutboundRoutingPolicy { get; }
+        public abstract NServiceBus.Transport.OutboundRoutingPolicy OutboundRoutingPolicy { get; }
         public bool RequireOutboxConsent { get; set; }
         public abstract NServiceBus.TransportTransactionMode TransactionMode { get; }
         public abstract NServiceBus.Routing.EndpointInstance BindToLocalEndpoint(NServiceBus.Routing.EndpointInstance instance);
-        public abstract NServiceBus.Transports.TransportReceiveInfrastructure ConfigureReceiveInfrastructure();
-        public abstract NServiceBus.Transports.TransportSendInfrastructure ConfigureSendInfrastructure();
-        public abstract NServiceBus.Transports.TransportSubscriptionInfrastructure ConfigureSubscriptionInfrastructure();
+        public abstract NServiceBus.Transport.TransportReceiveInfrastructure ConfigureReceiveInfrastructure();
+        public abstract NServiceBus.Transport.TransportSendInfrastructure ConfigureSendInfrastructure();
+        public abstract NServiceBus.Transport.TransportSubscriptionInfrastructure ConfigureSubscriptionInfrastructure();
         public virtual string MakeCanonicalForm(string transportAddress) { }
         public virtual System.Threading.Tasks.Task Start() { }
         public virtual System.Threading.Tasks.Task Stop() { }
@@ -3123,41 +3125,90 @@ namespace NServiceBus.Transports
     }
     public class TransportOperation
     {
-        public TransportOperation(NServiceBus.Transports.OutgoingMessage message, NServiceBus.Routing.AddressTag addressTag, NServiceBus.Transports.DispatchConsistency requiredDispatchConsistency = 1, System.Collections.Generic.List<NServiceBus.DeliveryConstraints.DeliveryConstraint> deliveryConstraints = null) { }
+        public TransportOperation(NServiceBus.Transport.OutgoingMessage message, NServiceBus.Routing.AddressTag addressTag, NServiceBus.Transport.DispatchConsistency requiredDispatchConsistency = 1, System.Collections.Generic.List<NServiceBus.DeliveryConstraints.DeliveryConstraint> deliveryConstraints = null) { }
         public NServiceBus.Routing.AddressTag AddressTag { get; }
         public System.Collections.Generic.List<NServiceBus.DeliveryConstraints.DeliveryConstraint> DeliveryConstraints { get; }
-        public NServiceBus.Transports.OutgoingMessage Message { get; }
-        public NServiceBus.Transports.DispatchConsistency RequiredDispatchConsistency { get; set; }
+        public NServiceBus.Transport.OutgoingMessage Message { get; }
+        public NServiceBus.Transport.DispatchConsistency RequiredDispatchConsistency { get; set; }
     }
     public class TransportOperations
     {
-        public TransportOperations(params NServiceBus.Transports.TransportOperation[] transportOperations) { }
-        public System.Collections.Generic.List<NServiceBus.Transports.MulticastTransportOperation> MulticastTransportOperations { get; }
-        public System.Collections.Generic.List<NServiceBus.Transports.UnicastTransportOperation> UnicastTransportOperations { get; }
+        public TransportOperations(params NServiceBus.Transport.TransportOperation[] transportOperations) { }
+        public System.Collections.Generic.List<NServiceBus.Transport.MulticastTransportOperation> MulticastTransportOperations { get; }
+        public System.Collections.Generic.List<NServiceBus.Transport.UnicastTransportOperation> UnicastTransportOperations { get; }
     }
     public class TransportReceiveInfrastructure
     {
-        public TransportReceiveInfrastructure(System.Func<NServiceBus.Transports.IPushMessages> messagePumpFactory, System.Func<NServiceBus.Transports.ICreateQueues> queueCreatorFactory, System.Func<System.Threading.Tasks.Task<NServiceBus.Transports.StartupCheckResult>> preStartupCheck) { }
+        public TransportReceiveInfrastructure(System.Func<NServiceBus.Transport.IPushMessages> messagePumpFactory, System.Func<NServiceBus.Transport.ICreateQueues> queueCreatorFactory, System.Func<System.Threading.Tasks.Task<NServiceBus.Transport.StartupCheckResult>> preStartupCheck) { }
+        public System.Func<NServiceBus.Transport.IPushMessages> MessagePumpFactory { get; }
+        public System.Func<NServiceBus.Transport.ICreateQueues> QueueCreatorFactory { get; }
     }
     public class TransportSendInfrastructure
     {
-        public TransportSendInfrastructure(System.Func<NServiceBus.Transports.IDispatchMessages> dispatcherFactory, System.Func<System.Threading.Tasks.Task<NServiceBus.Transports.StartupCheckResult>> preStartupCheck) { }
+        public TransportSendInfrastructure(System.Func<NServiceBus.Transport.IDispatchMessages> dispatcherFactory, System.Func<System.Threading.Tasks.Task<NServiceBus.Transport.StartupCheckResult>> preStartupCheck) { }
+        public System.Func<NServiceBus.Transport.IDispatchMessages> DispatcherFactory { get; }
     }
     public class TransportSubscriptionInfrastructure
     {
-        public TransportSubscriptionInfrastructure(System.Func<NServiceBus.Transports.IManageSubscriptions> subscriptionManagerFactory) { }
+        public TransportSubscriptionInfrastructure(System.Func<NServiceBus.Transport.IManageSubscriptions> subscriptionManagerFactory) { }
     }
     public class TransportTransaction : NServiceBus.Extensibility.ContextBag
     {
         public TransportTransaction() { }
     }
-    public class UnicastTransportOperation : NServiceBus.Transports.IOutgoingTransportOperation
+    public class UnicastTransportOperation : NServiceBus.Transport.IOutgoingTransportOperation
     {
-        public UnicastTransportOperation(NServiceBus.Transports.OutgoingMessage message, string destination, NServiceBus.Transports.DispatchConsistency requiredDispatchConsistency = 1, System.Collections.Generic.List<NServiceBus.DeliveryConstraints.DeliveryConstraint> deliveryConstraints = null) { }
+        public UnicastTransportOperation(NServiceBus.Transport.OutgoingMessage message, string destination, NServiceBus.Transport.DispatchConsistency requiredDispatchConsistency = 1, System.Collections.Generic.List<NServiceBus.DeliveryConstraints.DeliveryConstraint> deliveryConstraints = null) { }
         public System.Collections.Generic.List<NServiceBus.DeliveryConstraints.DeliveryConstraint> DeliveryConstraints { get; }
         public string Destination { get; }
-        public NServiceBus.Transports.OutgoingMessage Message { get; }
-        public NServiceBus.Transports.DispatchConsistency RequiredDispatchConsistency { get; }
+        public NServiceBus.Transport.OutgoingMessage Message { get; }
+        public NServiceBus.Transport.DispatchConsistency RequiredDispatchConsistency { get; }
+    }
+}
+namespace NServiceBus.Transport.Msmq
+{
+    public class HeaderInfo
+    {
+        public HeaderInfo() { }
+        public string Key { get; set; }
+        public string Value { get; set; }
+    }
+}
+namespace NServiceBus.Transports
+{
+    [System.ObsoleteAttribute("No longer used, safe to remove. Will be removed in version 7.0.0.", true)]
+    public interface IAuditMessages { }
+    [System.ObsoleteAttribute("Use `NServiceBus.Transport.IDispatchMessages` instead. Will be removed in version" +
+        " 7.0.0.", true)]
+    public interface IDeferMessages
+    {
+        [System.ObsoleteAttribute("Use `NServiceBus.Transport.ICancelDeferredMessages` instead. Will be removed in v" +
+            "ersion 7.0.0.", true)]
+        void ClearDeferredMessages(string headerKey, string headerValue);
+    }
+    [System.ObsoleteAttribute("Use `NServiceBus.Transport.IPushMessages` instead. Will be removed in version 7.0" +
+        ".0.", true)]
+    public interface IDequeueMessages
+    {
+        void Init(NServiceBus.Address address, NServiceBus.Unicast.Transport.TransactionSettings transactionSettings, System.Func<NServiceBus.TransportMessage, bool> tryProcessMessage, System.Action<NServiceBus.TransportMessage, System.Exception> endProcessMessage);
+        void Start(int maximumConcurrencyLevel);
+        void Stop();
+    }
+    [System.ObsoleteAttribute("Use `NServiceBus.Transport.IDispatchMessages` instead. Will be removed in version" +
+        " 7.0.0.", true)]
+    public interface IPublishMessages { }
+    [System.ObsoleteAttribute("Use `NServiceBus.Transport.IDispatchMessages` instead. Will be removed in version" +
+        " 7.0.0.", true)]
+    public interface ISendMessages
+    {
+        void Send(NServiceBus.TransportMessage message, NServiceBus.Unicast.SendOptions sendOptions);
+    }
+    [System.ObsoleteAttribute("The namespace NServiceBus.Transports was renamed to NServiceBus.Transport. Use `N" +
+        "ServiceBus.Transport.TransportDefinition` instead. Will be removed in version 7." +
+        "0.0.", true)]
+    public abstract class TransportDefinition
+    {
+        protected TransportDefinition() { }
     }
 }
 namespace NServiceBus.Transports.Msmq.Config
@@ -3171,12 +3222,6 @@ namespace NServiceBus.Transports.Msmq.Config
 }
 namespace NServiceBus.Transports.Msmq
 {
-    public class HeaderInfo
-    {
-        public HeaderInfo() { }
-        public string Key { get; set; }
-        public string Value { get; set; }
-    }
     [System.ObsoleteAttribute("No longer available, resolve an instance of IPushMessages from the container inst" +
         "ead. Will be removed in version 7.0.0.", true)]
     public class MsmqDequeueStrategy
@@ -3416,7 +3461,7 @@ namespace NServiceBus.Unicast.Transport
     public class static ControlMessage { }
     public class static ControlMessageFactory
     {
-        public static NServiceBus.Transports.OutgoingMessage Create(NServiceBus.MessageIntentEnum intent) { }
+        public static NServiceBus.Transport.OutgoingMessage Create(NServiceBus.MessageIntentEnum intent) { }
     }
     [System.ObsoleteAttribute("Use the pipeline to catch failures. Will be removed in version 7.0.0.", true)]
     public class FailedMessageProcessingEventArgs : System.EventArgs
@@ -3428,7 +3473,8 @@ namespace NServiceBus.Unicast.Transport
     {
         public FinishedMessageProcessingEventArgs() { }
     }
-    [System.ObsoleteAttribute("Use `IPushMessages` instead. Will be removed in version 7.0.0.", true)]
+    [System.ObsoleteAttribute("Use `NServiceBus.Transport.IPushMessages` instead. Will be removed in version 7.0" +
+        ".0.", true)]
     public interface ITransport { }
     [System.ObsoleteAttribute("No longer used, can safely be removed. Will be removed in version 7.0.0.", true)]
     public class StartedMessageProcessingEventArgs

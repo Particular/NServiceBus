@@ -5,7 +5,7 @@
     using ConsistencyGuarantees;
     using Features;
     using Settings;
-    using Transports;
+    using Transport;
 
     class MsmqTimeToBeReceivedOverrideCheck
     {

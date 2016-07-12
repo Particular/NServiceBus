@@ -8,7 +8,7 @@
     using System.Threading.Tasks;
     using Extensibility;
     using NServiceBus.Timeout.Core;
-    using NServiceBus.Transports;
+    using Transport;
     using NUnit.Framework;
 
     public class DispatchTimeoutBehaviorTest
@@ -111,7 +111,7 @@
             };
         }
 
-        static PushContext CreateContext(string timeoutId)
+        static MessageContext CreateContext(string timeoutId)
         {
             var messageId = Guid.NewGuid().ToString("D");
             var headers = new Dictionary<string, string>
@@ -119,7 +119,7 @@
                 {"Timeout.Id", timeoutId}
             };
 
-            return new PushContext(messageId, headers, Stream.Null, new TransportTransaction(), new CancellationTokenSource(), new ContextBag());
+            return new MessageContext(messageId, headers, Stream.Null, new TransportTransaction(), new CancellationTokenSource(), new ContextBag());
         }
 
         class FakeMessageDispatcher : IDispatchMessages

@@ -2,7 +2,7 @@
 {
     using System;
     using System.Configuration;
-    using Transports;
+    using Transport;
 
     sealed class TransportConnectionString
     {

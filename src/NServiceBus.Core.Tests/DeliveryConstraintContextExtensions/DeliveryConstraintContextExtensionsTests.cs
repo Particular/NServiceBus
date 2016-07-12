@@ -8,7 +8,7 @@
     using NServiceBus.Features;
     using NServiceBus.Routing;
     using Settings;
-    using NServiceBus.Transports;
+    using Transport;
     using NUnit.Framework;
 
     [TestFixture]
@@ -44,7 +44,7 @@
 
         class FakeTransportDefinition : TransportDefinition
         {
-            protected internal override TransportInfrastructure Initialize(SettingsHolder settings, string connectionString)
+            public override TransportInfrastructure Initialize(SettingsHolder settings, string connectionString)
             {
                 return new FakeTransportInfrastructure();
             }

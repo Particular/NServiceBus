@@ -4,7 +4,6 @@
     using AcceptanceTesting;
     using EndpointTemplates;
     using Extensibility;
-    using Features;
     using NServiceBus.Persistence;
     using NServiceBus.Sagas;
     using NUnit.Framework;
@@ -33,7 +32,7 @@
         {
             public SagaEndpoint()
             {
-                EndpointSetup<DefaultServer>(c => c.EnableFeature<TimeoutManager>());
+                EndpointSetup<DefaultServer>();
             }
 
             public class CustomFinder : IFindSagas<TestSaga08.SagaData08>.Using<SomeOtherMessage>
@@ -43,7 +42,7 @@
 
                 public ISagaPersister SagaPersister { get; set; }
 
-                public async Task<TestSaga08.SagaData08> FindBy(SomeOtherMessage message, SynchronizedStorageSession storageSession, ReadOnlyContextBag context)
+                public Task<TestSaga08.SagaData08> FindBy(SomeOtherMessage message, SynchronizedStorageSession storageSession, ReadOnlyContextBag context)
                 {
                     Context.FinderUsed = true;
                     var sagaInstance = new TestSaga08.SagaData08
@@ -51,8 +50,8 @@
                         Property = "jfbsjdfbsdjh"
                     };
                     //Make sure saga exists in the store. Persisters expect it there when they save saga instance after processing a message.
-                    await SagaPersister.Save(sagaInstance, SagaCorrelationProperty.None, storageSession, new ContextBag()).ConfigureAwait(false);
-                    return sagaInstance;
+                    //await SagaPersister.Save(sagaInstance, SagaCorrelationProperty.None, storageSession, new ContextBag()).ConfigureAwait(false);
+                    return Task.FromResult(sagaInstance);
                 }
             }
 

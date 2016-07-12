@@ -3,7 +3,7 @@
     using Config;
     using ConsistencyGuarantees;
     using Logging;
-    using Transports;
+    using Transport;
 
     /// <summary>
     /// Provides subscription storage using a msmq queue as the backing store.

@@ -3,7 +3,7 @@
     using System.Collections.Generic;
     using System.Threading.Tasks;
     using Extensibility;
-    using NServiceBus.Transports;
+    using Transport;
 
     public class RecordingFakeDispatcher : IDispatchMessages
     {

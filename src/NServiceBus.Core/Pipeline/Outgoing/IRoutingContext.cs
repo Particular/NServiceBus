@@ -2,7 +2,7 @@ namespace NServiceBus.Pipeline
 {
     using System.Collections.Generic;
     using Routing;
-    using Transports;
+    using Transport;
 
     /// <summary>
     /// Context for the routing part of the pipeline.

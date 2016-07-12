@@ -4,14 +4,14 @@ namespace NServiceBus
     using System.Threading.Tasks;
     using Features;
     using Routing;
-    using Transports;
+    using Transport;
 
     class Receiving : Feature
     {
         internal Receiving()
         {
             EnableByDefault();
-            DependsOn<Transport>();
+            DependsOn<TransportAddressing>();
             Prerequisite(c => !c.Settings.GetOrDefault<bool>("Endpoint.SendOnly"), "Endpoint is configured as send-only");
             Defaults(s =>
             {

@@ -4,7 +4,7 @@ namespace NServiceBus.Core.Tests.Routing
     using System.Threading.Tasks;
     using NServiceBus.Routing;
     using NServiceBus.Routing.MessageDrivenSubscriptions;
-    using NServiceBus.Transports;
+    using Transport;
     using NUnit.Framework;
 
     class SubscriptionRouterTests

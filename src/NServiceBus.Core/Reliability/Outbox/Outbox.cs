@@ -7,7 +7,7 @@
     using ConsistencyGuarantees;
     using Logging;
     using Persistence;
-    using Transports;
+    using Transport;
 
     /// <summary>
     /// Configure the Outbox.

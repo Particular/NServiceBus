@@ -3,7 +3,7 @@ namespace NServiceBus.Testing
 {
     using System.Collections.Generic;
     using Pipeline;
-    using Transports;
+    using Transport;
 
     /// <summary>
     /// A testable implementation of <see cref="IDispatchContext" />.

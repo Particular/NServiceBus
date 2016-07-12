@@ -9,9 +9,10 @@
     using Faults;
     using Features;
     using Hosting;
+    using Logging;
     using Settings;
     using Support;
-    using Transports;
+    using Transport;
 
     class Recoverability : Feature
     {
@@ -28,66 +29,65 @@
                 settings.SetDefault(SlrTimeIncrease, DefaultSecondLevelRetryPolicy.DefaultTimeIncrease);
 
                 settings.SetDefault(FlrNumberOfRetries, 5);
-
-                settings.SetDefault(FailureInfoStorageCacheSizeKey, 1000);
             });
         }
+
         protected internal override void Setup(FeatureConfigurationContext context)
         {
             var errorQueue = context.Settings.ErrorQueueAddress();
             context.Settings.Get<QueueBindings>().BindSending(errorQueue);
 
-            var failureInfoStorage = new FailureInfoStorage(context.Settings.Get<int>(FailureInfoStorageCacheSizeKey));
-            var localAddress = context.Settings.LocalAddress();
+            var transportTransactionMode = context.Settings.GetRequiredTransactionModeForReceives();
 
-            context.Pipeline.Register("Recoverability", b =>
+            if (transportTransactionMode == TransportTransactionMode.None)
             {
-                var hostInfo = b.Build<HostInformation>();
-                var staticFaultMetadata = new Dictionary<string, string>
+                Logger.Warn("First and Second Level Retries will be disabled. Automatic retries are not supported when running with TransportTransactionMode.None. Failed messages will be moved to the error queue instead.");
+            }
+
+            context.Container.ConfigureComponent(b =>
+            {
+                Func<string, MoveToErrorsExecutor> moveToErrorsExecutorFactory = localAddress =>
                 {
-                    {FaultsHeaderKeys.FailedQ, localAddress},
-                    {Headers.ProcessingMachine, RuntimeEnvironment.MachineName },
-                    {Headers.ProcessingEndpoint, context.Settings.EndpointName()},
-                    {Headers.HostId, hostInfo.HostId.ToString("N")},
-                    {Headers.HostDisplayName, hostInfo.DisplayName}
+                    var hostInfo = b.Build<HostInformation>();
+                    var staticFaultMetadata = new Dictionary<string, string>
+                    {
+                        {FaultsHeaderKeys.FailedQ, localAddress},
+                        {Headers.ProcessingMachine, RuntimeEnvironment.MachineName},
+                        {Headers.ProcessingEndpoint, context.Settings.EndpointName()},
+                        {Headers.HostId, hostInfo.HostId.ToString("N")},
+                        {Headers.HostDisplayName, hostInfo.DisplayName}
+                    };
+
+                    return new MoveToErrorsExecutor(b.Build<IDispatchMessages>(), errorQueue, staticFaultMetadata);
                 };
 
-                var recoveryActionExecutor = new MoveToErrorsActionExecutor(b.Build<IDispatchMessages>(), errorQueue, staticFaultMetadata);
-
-                var errorBehavior = new MoveFaultsToErrorQueueHandler(
-                    b.Build<CriticalError>(),
-                    failureInfoStorage,
-                    recoveryActionExecutor);
-
-                SecondLevelRetriesHandler slrHandler = null;
-
-                if (IsDelayedRetriesEnabled(context.Settings))
+                var delayedRetriesEnabled = IsDelayedRetriesEnabled(context.Settings);
+                Func<string, DelayedRetryExecutor> delayedRetryExecutorFactory = localAddress =>
                 {
-                    var retryPolicy = GetDelayedRetryPolicy(context.Settings);
-                    var delayedRetryExecutor = new DelayedRetryExecutor(
+                    if (!delayedRetriesEnabled || transportTransactionMode == TransportTransactionMode.None)
+                    {
+                        return null;
+                    }
+                    return new DelayedRetryExecutor(
                         localAddress,
                         b.Build<IDispatchMessages>(),
-                        context.DoesTransportSupportConstraint<DelayedDeliveryConstraint>()
-                            ? null
-                            : context.Settings.Get<TimeoutManagerAddressConfiguration>().TransportAddress);
+                        context.DoesTransportSupportConstraint<DelayedDeliveryConstraint>() ? null : context.Settings.Get<TimeoutManagerAddressConfiguration>().TransportAddress);
+                };
 
-                    slrHandler = new SecondLevelRetriesHandler(retryPolicy, failureInfoStorage, delayedRetryExecutor);
-                }
+                var delayedRetryPolicy = delayedRetriesEnabled ? GetDelayedRetryPolicy(context.Settings) : null;
 
-                FirstLevelRetriesHandler flrHandler = null;
+                var immediateRetriesEnabled = IsImmediateRetriesEnabled(context.Settings);
+                var maxImmediateRetries = immediateRetriesEnabled ? GetMaxImmediateRetries(context.Settings) : 0;
 
-                if (IsImmediateRetriesEnabled(context.Settings))
-                {
-                    var maxRetries = GetMaxRetries(context.Settings);
-                    var retryPolicy = new FirstLevelRetryPolicy(maxRetries);
 
-                    flrHandler = new FirstLevelRetriesHandler(failureInfoStorage, retryPolicy);
-                }
+                var defaultRecoverabilityPolicy = new DefaultRecoverabilityPolicy(immediateRetriesEnabled, delayedRetriesEnabled, maxImmediateRetries, delayedRetryPolicy);
 
-                var transportTransactionMode = context.Settings.GetRequiredTransactionModeForReceives();
-
-                return new RecoverabilityBehavior(flrHandler, slrHandler, errorBehavior, transportTransactionMode != TransportTransactionMode.None);
-            }, "Handles message recoverability");  
+                return new RecoverabilityExecutorFactory(
+                    defaultRecoverabilityPolicy,
+                    delayedRetryExecutorFactory,
+                    moveToErrorsExecutorFactory,
+                    transportTransactionMode);
+            }, DependencyLifecycle.SingleInstance);
 
             RaiseLegacyNotifications(context);
         }
@@ -149,7 +149,7 @@
                 return false;
             }
 
-            return GetMaxRetries(settings) > 0;
+            return GetMaxImmediateRetries(settings) > 0;
         }
 
         //note: will soon be removed since we're deprecating Notifications in favor of the new notifications
@@ -179,22 +179,18 @@
             });
         }
 
-        int GetMaxRetries(ReadOnlySettings settings)
+        int GetMaxImmediateRetries(ReadOnlySettings settings)
         {
             var retriesConfig = settings.GetConfigSection<TransportConfig>();
 
-            if (retriesConfig == null)
-            {
-                return settings.Get<int>(FlrNumberOfRetries);
-            }
-
-            return retriesConfig.MaxRetries;
+            return retriesConfig?.MaxRetries ?? settings.Get<int>(FlrNumberOfRetries);
         }
 
         public const string SlrNumberOfRetries = "Recoverability.Slr.DefaultPolicy.Retries";
         public const string SlrTimeIncrease = "Recoverability.Slr.DefaultPolicy.Timespan";
         public const string SlrCustomPolicy = "Recoverability.Slr.CustomPolicy";
         public const string FlrNumberOfRetries = "Recoverability.Flr.Retries";
-        public const string FailureInfoStorageCacheSizeKey = "Recoverability.FailureInfoStorage.CacheSize";
+
+        static ILog Logger = LogManager.GetLogger<Recoverability>();
     }
 }

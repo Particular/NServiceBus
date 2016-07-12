@@ -4,7 +4,7 @@ namespace NServiceBus.Testing
     using System;
     using System.Collections.Generic;
     using Pipeline;
-    using Transports;
+    using Transport;
 
     /// <summary>
     /// A testable implementation for <see cref="IForwardingContext" />.

@@ -6,7 +6,7 @@
     using System.Threading.Tasks;
     using Extensibility;
     using NServiceBus.Pipeline;
-    using NServiceBus.Transports;
+    using Transport;
     using NUnit.Framework;
     using Testing;
 

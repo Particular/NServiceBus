@@ -6,7 +6,7 @@
     using Extensibility;
     using NServiceBus.Routing;
     using NServiceBus.Routing.MessageDrivenSubscriptions;
-    using NServiceBus.Transports;
+    using Transport;
     using Unicast.Queuing;
     using NUnit.Framework;
     using Testing;

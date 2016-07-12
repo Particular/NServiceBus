@@ -7,7 +7,7 @@
     using Outbox;
     using Persistence;
     using Pipeline;
-    using Transports;
+    using Transport;
     using Unicast;
 
     class LoadHandlersConnector : StageConnector<IIncomingLogicalMessageContext, IInvokeHandlerContext>

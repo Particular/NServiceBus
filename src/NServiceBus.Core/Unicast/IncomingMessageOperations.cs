@@ -3,7 +3,7 @@ namespace NServiceBus
     using System.Threading.Tasks;
     using Pipeline;
     using Routing;
-    using Transports;
+    using Transport;
 
     static class IncomingMessageOperations
     {

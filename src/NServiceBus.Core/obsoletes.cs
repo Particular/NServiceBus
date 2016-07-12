@@ -906,13 +906,13 @@ namespace NServiceBus.Transports
     [ObsoleteEx(
         RemoveInVersion = "7.0",
         TreatAsErrorFromVersion = "6.0",
-        ReplacementTypeOrMember = "IDispatchMessages")]
+        ReplacementTypeOrMember = "NServiceBus.Transport.IDispatchMessages")]
     public interface IDeferMessages
     {
         [ObsoleteEx(
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0",
-            ReplacementTypeOrMember = "ICancelDeferredMessages")]
+            ReplacementTypeOrMember = "NServiceBus.Transport.ICancelDeferredMessages")]
         void ClearDeferredMessages(string headerKey, string headerValue);
     }
 }
@@ -922,7 +922,7 @@ namespace NServiceBus.Transports
     [ObsoleteEx(
         RemoveInVersion = "7.0",
         TreatAsErrorFromVersion = "6.0",
-        ReplacementTypeOrMember = "IDispatchMessages")]
+        ReplacementTypeOrMember = "NServiceBus.Transport.IDispatchMessages")]
     public interface IPublishMessages
     {
     }
@@ -935,7 +935,7 @@ namespace NServiceBus.Transports
     [ObsoleteEx(
         RemoveInVersion = "7.0",
         TreatAsErrorFromVersion = "6.0",
-        ReplacementTypeOrMember = "IDispatchMessages")]
+        ReplacementTypeOrMember = "NServiceBus.Transport.IDispatchMessages")]
     public interface ISendMessages
     {
         void Send(TransportMessage message, SendOptions sendOptions);
@@ -1559,6 +1559,8 @@ namespace NServiceBus.Satellites
 
 namespace NServiceBus.Unicast.Transport
 {
+    using System;
+
     [ObsoleteEx(
         TreatAsErrorFromVersion = "6",
         RemoveInVersion = "7",
@@ -1566,21 +1568,15 @@ namespace NServiceBus.Unicast.Transport
     public static class ControlMessage
     {
     }
-}
 
-namespace NServiceBus.Unicast.Transport
-{
     [ObsoleteEx(
         TreatAsErrorFromVersion = "6",
         RemoveInVersion = "7",
-        ReplacementTypeOrMember = "IPushMessages")]
+        ReplacementTypeOrMember = "NServiceBus.Transport.IPushMessages")]
     public interface ITransport
     {
     }
-}
 
-namespace NServiceBus.Unicast.Transport
-{
     [ObsoleteEx(
         TreatAsErrorFromVersion = "6",
         RemoveInVersion = "7",
@@ -1588,11 +1584,6 @@ namespace NServiceBus.Unicast.Transport
     public class TransportMessageReceivedEventArgs
     {
     }
-}
-
-namespace NServiceBus.Unicast.Transport
-{
-    using System;
 
     [ObsoleteEx(
         TreatAsErrorFromVersion = "6",
@@ -1609,10 +1600,7 @@ namespace NServiceBus.Unicast.Transport
     public class FinishedMessageProcessingEventArgs : EventArgs
     {
     }
-}
 
-namespace NServiceBus.Unicast.Transport
-{
     [ObsoleteEx(
         TreatAsErrorFromVersion = "6",
         RemoveInVersion = "7",
@@ -1623,6 +1611,18 @@ namespace NServiceBus.Unicast.Transport
 }
 
 namespace NServiceBus.Transports
+{
+    [ObsoleteEx(
+        TreatAsErrorFromVersion = "6",
+        RemoveInVersion = "7",
+        Message = "The namespace NServiceBus.Transports was renamed to NServiceBus.Transport.",
+        ReplacementTypeOrMember = "NServiceBus.Transport.TransportDefinition")]
+    public abstract class TransportDefinition
+    {
+    }
+}
+
+namespace NServiceBus.Transport
 {
     using System;
 

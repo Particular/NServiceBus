@@ -1,7 +1,7 @@
 namespace NServiceBus
 {
     using System;
-    using Transports;
+    using Transport;
 
     class ReceivePipelineCompleted
     {

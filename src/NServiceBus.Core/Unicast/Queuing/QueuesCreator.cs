@@ -4,7 +4,7 @@ namespace NServiceBus
     using Installation;
     using ObjectBuilder;
     using Settings;
-    using Transports;
+    using Transport;
 
     class QueuesCreator : INeedToInstallSomething
     {

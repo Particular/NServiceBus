@@ -1,7 +1,7 @@
 ﻿namespace NServiceBus.Unicast.Tests
 {
     using Outbox;
-    using Transports;
+    using NServiceBus.Transport;
     using NUnit.Framework;
     using Testing;
 

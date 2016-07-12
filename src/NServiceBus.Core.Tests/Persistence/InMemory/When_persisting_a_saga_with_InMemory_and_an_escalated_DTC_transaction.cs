@@ -5,7 +5,7 @@
     using Extensibility;
     using NUnit.Framework;
     using System.Transactions;
-    using Transports;
+    using Transport;
 
     [TestFixture]
     class When_persisting_a_saga_with_InMemory_and_an_escalated_DTC_transaction

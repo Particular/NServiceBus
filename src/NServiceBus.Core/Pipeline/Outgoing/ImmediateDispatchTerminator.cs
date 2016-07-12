@@ -3,7 +3,7 @@
     using System.Linq;
     using System.Threading.Tasks;
     using Pipeline;
-    using Transports;
+    using Transport;
 
     class ImmediateDispatchTerminator : PipelineTerminator<IDispatchContext>
     {

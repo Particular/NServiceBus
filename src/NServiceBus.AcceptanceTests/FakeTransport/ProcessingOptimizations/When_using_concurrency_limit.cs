@@ -10,7 +10,7 @@
     using NServiceBus.Routing;
     using NUnit.Framework;
     using Settings;
-    using Transports;
+    using Transport;
     using CriticalError = NServiceBus.CriticalError;
 
     public class When_using_concurrency_limit : NServiceBusAcceptanceTest
@@ -36,7 +36,7 @@
 
         class FakeReceiver : IPushMessages
         {
-            public Task Init(Func<PushContext, Task> pipe, CriticalError criticalError, PushSettings settings)
+            public Task Init(Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError, CriticalError criticalError, PushSettings settings)
             {
                 return Task.FromResult(0);
             }
@@ -74,7 +74,7 @@
 
             public override bool RequiresConnectionString => false;
 
-            protected override TransportInfrastructure Initialize(SettingsHolder settings, string connectionString)
+            public override TransportInfrastructure Initialize(SettingsHolder settings, string connectionString)
             {
                 return new FakeTransportInfrastructure();
             }

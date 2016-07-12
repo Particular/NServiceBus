@@ -8,7 +8,7 @@
     using Configuration.AdvanceExtensibility;
     using Logging;
     using NServiceBus.Support;
-    using Transports;
+    using Transport;
 
     public class EndpointRunner
     {

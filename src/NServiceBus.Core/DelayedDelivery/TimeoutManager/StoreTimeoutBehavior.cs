@@ -4,7 +4,7 @@ namespace NServiceBus
     using System.Threading.Tasks;
     using Routing;
     using Timeout.Core;
-    using Transports;
+    using Transport;
 
     class StoreTimeoutBehavior
     {
@@ -16,7 +16,7 @@ namespace NServiceBus
             this.owningTimeoutManager = owningTimeoutManager;
         }
 
-        public async Task Invoke(PushContext context)
+        public async Task Invoke(MessageContext context)
         {
             var sagaId = Guid.Empty;
 
@@ -78,7 +78,7 @@ namespace NServiceBus
             }
         }
 
-        static string GetReplyToAddress(PushContext context)
+        static string GetReplyToAddress(MessageContext context)
         {
             string replyToAddress;
             return context.Headers.TryGetValue(Headers.ReplyToAddress, out replyToAddress) ? replyToAddress : null;

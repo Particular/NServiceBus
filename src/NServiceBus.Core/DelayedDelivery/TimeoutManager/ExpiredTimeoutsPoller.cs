@@ -7,7 +7,7 @@ namespace NServiceBus
     using Logging;
     using Routing;
     using Timeout.Core;
-    using Transports;
+    using Transport;
     using Unicast.Transport;
 
     class ExpiredTimeoutsPoller : IDisposable

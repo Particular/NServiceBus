@@ -7,7 +7,7 @@ using NServiceBus;
 using NServiceBus.AcceptanceTesting.Support;
 using NServiceBus.AcceptanceTests.ScenarioDescriptors;
 using NServiceBus.Configuration.AdvanceExtensibility;
-using NServiceBus.Transports;
+using NServiceBus.Transport;
 
 public class ConfigureScenariosForMsmqTransport : IConfigureSupportedScenariosForTestExecution
 {

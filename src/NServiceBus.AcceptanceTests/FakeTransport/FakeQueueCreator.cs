@@ -1,7 +1,7 @@
 namespace NServiceBus.AcceptanceTests.FakeTransport
 {
     using System.Threading.Tasks;
-    using Transports;
+    using Transport;
 
     class FakeQueueCreator : ICreateQueues
     {

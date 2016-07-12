@@ -1,7 +1,7 @@
 namespace NServiceBus.Core.Tests.Msmq
 {
     using System;
-    using NServiceBus.Transports;
+    using Transport;
     using NUnit.Framework;
 
     [TestFixture]
@@ -16,7 +16,7 @@ namespace NServiceBus.Core.Tests.Msmq
 
             var exception = Assert.Throws<Exception>(() =>
             {
-                messagePump.Init(context => null, null, pushSettings);
+                messagePump.Init(context => null, context => null, null, pushSettings);
             });
 
             Assert.That(exception.Message, Does.Contain($"MSMQ Dequeuing can only run against the local machine. Invalid inputQueue name '{pushSettings.InputQueue}'."));

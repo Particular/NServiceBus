@@ -4,7 +4,7 @@ namespace NServiceBus
     using Persistence;
     using Pipeline;
     using Routing;
-    using Transports;
+    using Transport;
 
     /// <summary>
     /// Contains extensions methods to map behavior contexts.

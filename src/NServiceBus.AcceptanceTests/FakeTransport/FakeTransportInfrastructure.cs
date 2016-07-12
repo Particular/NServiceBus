@@ -6,7 +6,7 @@
     using System.Threading.Tasks;
     using NServiceBus.Routing;
     using Settings;
-    using Transports;
+    using Transport;
 
     public class FakeTransportInfrastructure : TransportInfrastructure
     {

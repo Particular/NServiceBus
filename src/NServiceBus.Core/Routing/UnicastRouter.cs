@@ -6,7 +6,7 @@ namespace NServiceBus
     using System.Threading.Tasks;
     using Extensibility;
     using Routing;
-    using Transports;
+    using Transport;
     using Unicast.Messages;
 
     abstract class UnicastRouter : IUnicastRouter

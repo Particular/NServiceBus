@@ -6,7 +6,7 @@ namespace NServiceBus
     using Routing;
     using Routing.MessageDrivenSubscriptions;
     using Settings;
-    using Transports;
+    using Transport;
 
     /// <summary>
     /// Provides extensions for configuring message driven subscriptions.

@@ -3,7 +3,7 @@ namespace NServiceBus
     using System;
     using System.Threading.Tasks;
     using Pipeline;
-    using Transports;
+    using Transport;
 
     class ForceBatchDispatchToBeIsolatedBehavior : Behavior<IBatchDispatchContext>
     {

@@ -10,7 +10,7 @@ namespace NServiceBus
     using DeliveryConstraints;
     using Extensibility;
     using Performance.TimeToBeReceived;
-    using Transports;
+    using Transport;
     using Unicast.Queuing;
 
     class MsmqMessageDispatcher : IDispatchMessages

@@ -1,7 +1,7 @@
 ﻿namespace NServiceBus
 {
     using Features;
-    using Transports;
+    using Transport;
 
     class WorkerFeature : Feature
     {

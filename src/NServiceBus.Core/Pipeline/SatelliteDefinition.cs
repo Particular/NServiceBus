@@ -3,16 +3,17 @@
     using System;
     using System.Threading.Tasks;
     using ObjectBuilder;
-    using Transports;
+    using Transport;
 
     class SatelliteDefinition
     {
-        public SatelliteDefinition(string name, string receiveAddress, TransportTransactionMode requiredTransportTransactionMode, PushRuntimeSettings runtimeSettings, Func<IBuilder,PushContext, Task> onMessage)
+        public SatelliteDefinition(string name, string receiveAddress, TransportTransactionMode requiredTransportTransactionMode, PushRuntimeSettings runtimeSettings, IRecoverabilityPolicy recoverabilityPolicy, Func<IBuilder, MessageContext, Task> onMessage)
         {
             Name = name;
             ReceiveAddress = receiveAddress;
             RequiredTransportTransactionMode = requiredTransportTransactionMode;
             RuntimeSettings = runtimeSettings;
+            RecoverabilityPolicy = recoverabilityPolicy;
             OnMessage = onMessage;
         }
 
@@ -24,6 +25,8 @@
 
         public PushRuntimeSettings RuntimeSettings { get; private set; }
 
-        public Func<IBuilder,PushContext,Task> OnMessage{ get; private set; }
+        public IRecoverabilityPolicy RecoverabilityPolicy { get; private set; }
+
+        public Func<IBuilder, MessageContext, Task> OnMessage { get; private set; }
     }
 }

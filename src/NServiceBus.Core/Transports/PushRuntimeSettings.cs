@@ -1,4 +1,4 @@
-namespace NServiceBus.Transports
+namespace NServiceBus.Transport
 {
     /// <summary>
     /// Contains the limits for how messages should be dequeued.

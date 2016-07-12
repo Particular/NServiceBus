@@ -3,24 +3,27 @@ namespace NServiceBus
     using System;
     using System.Threading.Tasks;
     using Logging;
-    using ObjectBuilder;
-    using Transports;
+    using Transport;
 
     class TransportReceiver
     {
         public TransportReceiver(
             string id,
-            IBuilder builder,
+            IPushMessages pushMessages,
             PushSettings pushSettings,
             PushRuntimeSettings pushRuntimeSettings,
-            Func<IBuilder, PushContext, Task> onMessage)
+            IPipelineExecutor pipelineExecutor,
+            RecoverabilityExecutor recoverabilityExecutor,
+            CriticalError criticalError)
         {
+            this.criticalError = criticalError;
             Id = id;
             this.pushRuntimeSettings = pushRuntimeSettings;
-            this.onMessage = onMessage;
+            this.pipelineExecutor = pipelineExecutor;
+            this.recoverabilityExecutor = recoverabilityExecutor;
             this.pushSettings = pushSettings;
-            receiver = builder.Build<IPushMessages>();
-            this.builder = builder;
+
+            receiver = pushMessages;
         }
 
         public string Id { get; }
@@ -32,9 +35,9 @@ namespace NServiceBus
                 throw new InvalidOperationException("The transport is already started");
             }
 
-            Logger.DebugFormat("Pipeline {0} is starting receiver for queue {1}.", Id, pushSettings.InputQueue);
+            Logger.DebugFormat("Receiver {0} is starting, listening to queue {1}.", Id, pushSettings.InputQueue);
 
-            await receiver.Init(c => onMessage(builder, c), builder.Build<CriticalError>(), pushSettings).ConfigureAwait(false);
+            await receiver.Init(c => pipelineExecutor.Invoke(c), c => recoverabilityExecutor.Invoke(c), criticalError, pushSettings).ConfigureAwait(false);
 
             receiver.Start(pushRuntimeSettings);
 
@@ -53,10 +56,12 @@ namespace NServiceBus
             isStarted = false;
         }
 
+        readonly CriticalError criticalError;
+
         bool isStarted;
-        IBuilder builder;
         PushRuntimeSettings pushRuntimeSettings;
-        Func<IBuilder, PushContext, Task> onMessage;
+        IPipelineExecutor pipelineExecutor;
+        RecoverabilityExecutor recoverabilityExecutor;
         PushSettings pushSettings;
         IPushMessages receiver;
 

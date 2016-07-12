@@ -5,7 +5,7 @@
     using System.Threading.Tasks;
     using Extensibility;
     using NServiceBus.Routing;
-    using NServiceBus.Transports;
+    using Transport;
     using Unicast.Messages;
     using NUnit.Framework;
 

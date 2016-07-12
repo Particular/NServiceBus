@@ -3,7 +3,7 @@ namespace NServiceBus
     using System.Collections.Generic;
     using Pipeline;
     using Routing;
-    using Transports;
+    using Transport;
 
     class RoutingContext : OutgoingContext, IRoutingContext
     {

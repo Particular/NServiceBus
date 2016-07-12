@@ -4,14 +4,14 @@ namespace NServiceBus
     using System.Threading;
     using System.Threading.Tasks;
     using Features;
-    using Transports;
+    using Transport;
 
     class Sending : Feature
     {
         public Sending()
         {
             EnableByDefault();
-            DependsOn<Transport>();
+            DependsOn<TransportAddressing>();
         }
 
         protected internal override void Setup(FeatureConfigurationContext context)

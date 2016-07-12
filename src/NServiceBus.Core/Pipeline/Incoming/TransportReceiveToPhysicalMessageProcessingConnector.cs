@@ -9,7 +9,7 @@ namespace NServiceBus
     using Performance.TimeToBeReceived;
     using Pipeline;
     using Routing;
-    using Transports;
+    using Transport;
     using TransportOperation = Outbox.TransportOperation;
 
     class TransportReceiveToPhysicalMessageProcessingConnector : StageForkConnector<ITransportReceiveContext, IIncomingPhysicalMessageContext, IBatchDispatchContext>
@@ -67,7 +67,7 @@ namespace NServiceBus
                 var message = new OutgoingMessage(operation.MessageId, operation.Headers, operation.Body);
 
                 pendingTransportOperations.Add(
-                    new Transports.TransportOperation(
+                    new Transport.TransportOperation(
                         message,
                         DeserializeRoutingStrategy(operation.Options),
                         DispatchConsistency.Isolated,
@@ -75,7 +75,7 @@ namespace NServiceBus
             }
         }
 
-        static TransportOperation[] ConvertToOutboxOperations(Transports.TransportOperation[] operations)
+        static TransportOperation[] ConvertToOutboxOperations(Transport.TransportOperation[] operations)
         {
             var transportOperations = new TransportOperation[operations.Length];
             var index = 0;

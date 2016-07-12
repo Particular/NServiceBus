@@ -4,7 +4,7 @@
     using Configuration.AdvanceExtensibility;
     using Routing;
     using Settings;
-    using Transports;
+    using Transport;
 
     /// <summary>
     /// Exposes settings related to routing.
