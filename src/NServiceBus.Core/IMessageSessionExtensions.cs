@@ -119,6 +119,9 @@ namespace NServiceBus
         /// <param name="message">The message to publish.</param>
         public static Task Publish(this IMessageSession session, object message)
         {
+            Guard.AgainstNull(nameof(session), session);
+            Guard.AgainstNull(nameof(message), message);
+
             return session.Publish(message, new PublishOptions());
         }
 
@@ -129,6 +132,8 @@ namespace NServiceBus
         /// <typeparam name="T">The message type.</typeparam>
         public static Task Publish<T>(this IMessageSession session)
         {
+            Guard.AgainstNull(nameof(session), session);
+
             return session.Publish<T>(_ => { }, new PublishOptions());
         }
 
@@ -140,6 +145,9 @@ namespace NServiceBus
         /// <param name="messageConstructor">An action which initializes properties of the message.</param>
         public static Task Publish<T>(this IMessageSession session, Action<T> messageConstructor)
         {
+            Guard.AgainstNull(nameof(session), session);
+            Guard.AgainstNull(nameof(messageConstructor), messageConstructor);
+
             return session.Publish(messageConstructor, new PublishOptions());
         }
 

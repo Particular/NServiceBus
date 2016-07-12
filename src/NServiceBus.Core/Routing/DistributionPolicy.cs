@@ -15,6 +15,9 @@ namespace NServiceBus
         /// <param name="distributionStrategy">Distribution strategy to be used.</param>
         public void SetDistributionStrategy(string endpointName, DistributionStrategy distributionStrategy)
         {
+            Guard.AgainstNullAndEmpty(nameof(endpointName), endpointName);
+            Guard.AgainstNull(nameof(distributionStrategy), distributionStrategy);
+
             configuredStrategies[endpointName] = distributionStrategy;
         }
 

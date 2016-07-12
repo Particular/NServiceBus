@@ -30,6 +30,8 @@ namespace NServiceBus
         /// <returns>Delayed retry action.</returns>
         public static DelayedRetry DelayedRetry(TimeSpan timeSpan)
         {
+            Guard.AgainstNegativeAndZero(nameof(timeSpan), timeSpan);
+
             return new DelayedRetry(timeSpan);
         }
 
