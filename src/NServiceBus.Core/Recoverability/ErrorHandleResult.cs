@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.Transport
+﻿namespace NServiceBus
 {
     /// <summary>
     /// Provides information about error handling.

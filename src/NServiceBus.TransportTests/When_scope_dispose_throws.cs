@@ -4,7 +4,6 @@
     using System.Threading.Tasks;
     using System.Transactions;
     using NUnit.Framework;
-    using Transport;
 
     public class When_scope_dispose_throws : NServiceBusTransportTest
     {

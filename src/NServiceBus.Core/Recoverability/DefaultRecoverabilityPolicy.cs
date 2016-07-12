@@ -2,7 +2,6 @@ namespace NServiceBus
 {
     using System;
     using Logging;
-    using Transport;
 
     class DefaultRecoverabilityPolicy : IRecoverabilityPolicy
     {

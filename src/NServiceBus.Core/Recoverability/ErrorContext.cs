@@ -1,8 +1,9 @@
-﻿namespace NServiceBus.Transport
+﻿namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
     using System.IO;
+    using Transport;
 
     /// <summary>
     /// The context for messages that has failed processing.
