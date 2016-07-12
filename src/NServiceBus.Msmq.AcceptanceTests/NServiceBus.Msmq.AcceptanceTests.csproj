@@ -58,6 +58,7 @@
     <Compile Include="SubscriptionEventArgs.cs" />
     <Compile Include="When_Audit_OverrideTimeToBeReceived_set_and_native_receive_tx.cs" />
     <Compile Include="When_a_corrupted_message_is_received.cs" />
+    <Compile Include="When_configuring_routing_for_events.cs" />
     <Compile Include="When_customizing_scope_isolation_level.cs" />
     <Compile Include="When_distributing_an_event.cs" />
     <Compile Include="When_distributing_a_command.cs" />

@@ -25,6 +25,9 @@
         /// <param name="destination">Destination endpoint.</param>
         public void RouteToEndpoint(Type messageType, string destination)
         {
+            if(destination.Contains("@"))
+                throw new ArgumentException($"Expected an endpoint name but received '{destination}'. Use routing file to specify physical address of the endpoint.");
+
             Settings.GetOrCreate<UnicastRoutingTable>().RouteToEndpoint(messageType, destination);
         }
 
