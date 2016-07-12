@@ -16,6 +16,10 @@ namespace NServiceBus
         /// </summary>
         public static IRoutingContext CreateRoutingContext(this ForkConnector<ITransportReceiveContext, IRoutingContext> forkConnector, OutgoingMessage outgoingMessage, string localAddress, ITransportReceiveContext sourceContext)
         {
+            Guard.AgainstNull(nameof(outgoingMessage), outgoingMessage);
+            Guard.AgainstNullAndEmpty(nameof(localAddress), localAddress);
+            Guard.AgainstNull(nameof(sourceContext), sourceContext);
+
             return new RoutingContext(outgoingMessage, new UnicastRoutingStrategy(localAddress), sourceContext);
         }
 
@@ -24,6 +28,10 @@ namespace NServiceBus
         /// </summary>
         public static IRoutingContext CreateRoutingContext(this StageConnector<IForwardingContext, IRoutingContext> stageConnector, OutgoingMessage outgoingMessage, RoutingStrategy routingStrategy, IForwardingContext sourceContext)
         {
+            Guard.AgainstNull(nameof(outgoingMessage), outgoingMessage);
+            Guard.AgainstNull(nameof(routingStrategy), routingStrategy);
+            Guard.AgainstNull(nameof(sourceContext), sourceContext);
+
             return new RoutingContext(outgoingMessage, routingStrategy, sourceContext);
         }
 
@@ -32,6 +40,10 @@ namespace NServiceBus
         /// </summary>
         public static IRoutingContext CreateRoutingContext(this StageConnector<IAuditContext, IRoutingContext> stageConnector, OutgoingMessage outgoingMessage, RoutingStrategy routingStrategy, IAuditContext sourceContext)
         {
+            Guard.AgainstNull(nameof(outgoingMessage), outgoingMessage);
+            Guard.AgainstNull(nameof(routingStrategy), routingStrategy);
+            Guard.AgainstNull(nameof(sourceContext), sourceContext);
+
             return new RoutingContext(outgoingMessage, routingStrategy, sourceContext);
         }
 
@@ -145,7 +157,7 @@ namespace NServiceBus
         {
             return new OutgoingPhysicalMessageContext(messageBody, routingStrategies, sourceContext);
         }
-        
+
         /// <summary>
         /// Creates a <see cref="IAuditContext" /> based on the current context.
         /// </summary>
