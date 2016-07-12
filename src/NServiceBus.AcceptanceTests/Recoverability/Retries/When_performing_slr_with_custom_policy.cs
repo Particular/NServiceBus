@@ -23,10 +23,10 @@
 
             Assert.That(context.SlrRetryContexts.Count, Is.EqualTo(2), "because the custom policy should have been invoked twice");
             Assert.That(context.SlrRetryContexts[0].Message, Is.Not.Null);
-            Assert.That(context.SlrRetryContexts[0].Exception, Is.TypeOf<SimulatedException>());
+            Assert.That(context.SlrRetryContexts[0].ExceptionInfo.TypeFullName, Is.EqualTo(typeof(SimulatedException).FullName));
             Assert.That(context.SlrRetryContexts[0].SecondLevelRetryAttempt, Is.EqualTo(1));
             Assert.That(context.SlrRetryContexts[1].Message, Is.Not.Null);
-            Assert.That(context.SlrRetryContexts[1].Exception, Is.TypeOf<SimulatedException>());
+            Assert.That(context.SlrRetryContexts[1].ExceptionInfo.TypeFullName, Is.EqualTo(typeof(SimulatedException).FullName));
             Assert.That(context.SlrRetryContexts[1].SecondLevelRetryAttempt, Is.EqualTo(2));
         }
 

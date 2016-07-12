@@ -130,6 +130,7 @@
     <Compile Include="Recoverability\DelayedRetry.cs" />
     <Compile Include="Recoverability\ErrorContext.cs" />
     <Compile Include="Recoverability\ErrorHandleResult.cs" />
+    <Compile Include="Recoverability\ExceptionInfo.cs" />
     <Compile Include="Recoverability\Faults\MessageProcessingFailed.cs" />
     <Compile Include="Recoverability\Faults\MessageToBeRetried.cs" />
     <Compile Include="Recoverability\Faults\MessageFaulted.cs" />

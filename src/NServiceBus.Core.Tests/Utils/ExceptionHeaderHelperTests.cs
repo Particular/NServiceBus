@@ -14,7 +14,7 @@ namespace NServiceBus.Core.Tests.Utils
             var exception = GetAnException();
             var dictionary = new Dictionary<string, string>();
 
-            ExceptionHeaderHelper.SetExceptionHeaders(dictionary, exception, false);
+            ExceptionHeaderHelper.SetExceptionHeaders(dictionary, ExceptionInfo.FromException(exception), false);
 
             Assert.AreEqual("System.AggregateException", dictionary["NServiceBus.ExceptionInfo.ExceptionType"]);
             Assert.AreEqual(exception.ToString(), dictionary["NServiceBus.ExceptionInfo.StackTrace"]);
@@ -33,7 +33,7 @@ namespace NServiceBus.Core.Tests.Utils
             var exception = GetAnException();
             var dictionary = new Dictionary<string, string>();
 
-            ExceptionHeaderHelper.SetExceptionHeaders(dictionary, exception, true);
+            ExceptionHeaderHelper.SetExceptionHeaders(dictionary, ExceptionInfo.FromException(exception), true);
 
             Assert.AreEqual("System.AggregateException", dictionary["NServiceBus.ExceptionInfo.ExceptionType"]);
             Assert.AreEqual(exception.StackTrace, dictionary["NServiceBus.ExceptionInfo.StackTrace"]);
@@ -82,7 +82,7 @@ namespace NServiceBus.Core.Tests.Utils
             var exception = new Exception(new string('x', (int)Math.Pow(2, 15)));
             var dictionary = new Dictionary<string, string>();
 
-            ExceptionHeaderHelper.SetExceptionHeaders(dictionary, exception, false);
+            ExceptionHeaderHelper.SetExceptionHeaders(dictionary, ExceptionInfo.FromException(exception), false);
 
             Assert.AreEqual((int)Math.Pow(2, 14), dictionary["NServiceBus.ExceptionInfo.Message"].Length);
         }

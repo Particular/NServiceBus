@@ -22,7 +22,7 @@
             Assert.AreEqual(1, exception.FailedMessages.Count);
             StringAssert.EndsWith(
                 "Sending messages with a custom TimeToBeReceived is not supported on transactional MSMQ.",
-                exception.FailedMessages.Single().Exception.Message);
+                exception.FailedMessages.Single().ExceptionInfo.Message);
         }
 
         public class Context : ScenarioContext

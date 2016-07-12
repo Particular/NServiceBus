@@ -33,7 +33,7 @@
             var testContext = (Context) exception.ScenarioContext;
             Assert.AreEqual(typeof(MessageWhichFailsRetries).AssemblyQualifiedName, failedMessage.Headers[Headers.EnclosedMessageTypes]);
             Assert.AreEqual(testContext.PhysicalMessageId, failedMessage.MessageId);
-            Assert.IsAssignableFrom(typeof(SimulatedException), failedMessage.Exception);
+            Assert.AreEqual(typeof(SimulatedException).FullName, failedMessage.ExceptionInfo.TypeFullName);
 
             Assert.AreEqual(1, testContext.Logs.Count(l => l.Message
                 .StartsWith($"Moving message '{testContext.PhysicalMessageId}' to the error queue because processing failed due to an exception:")));

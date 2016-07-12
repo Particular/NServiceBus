@@ -24,32 +24,32 @@ namespace NServiceBus.Faults
         /// </summary>
         public event EventHandler<SecondLevelRetry> MessageHasBeenSentToSecondLevelRetries;
 
-        internal void InvokeMessageHasBeenSentToErrorQueue(IncomingMessage message, Exception exception)
+        internal void InvokeMessageHasBeenSentToErrorQueue(IncomingMessage message, ExceptionInfo exceptionInfo)
         {
             var failedMessage = new FailedMessage(
                 message.MessageId,
                 new Dictionary<string, string>(message.Headers),
-                CopyOfBody(message.Body), exception);
+                CopyOfBody(message.Body), exceptionInfo);
             MessageSentToErrorQueue?.Invoke(this, failedMessage);
         }
 
-        internal void InvokeMessageHasFailedAFirstLevelRetryAttempt(int firstLevelRetryAttempt, IncomingMessage message, Exception exception)
+        internal void InvokeMessageHasFailedAFirstLevelRetryAttempt(int firstLevelRetryAttempt, IncomingMessage message, ExceptionInfo exceptionInfo)
         {
             var firstLevelRetry = new FirstLevelRetry(
                 message.MessageId,
                 new Dictionary<string, string>(message.Headers),
                 CopyOfBody(message.Body),
-                exception,
+                exceptionInfo,
                 firstLevelRetryAttempt);
             MessageHasFailedAFirstLevelRetryAttempt?.Invoke(this, firstLevelRetry);
         }
 
-        internal void InvokeMessageHasBeenSentToSecondLevelRetries(int secondLevelRetryAttempt, IncomingMessage message, Exception exception)
+        internal void InvokeMessageHasBeenSentToSecondLevelRetries(int secondLevelRetryAttempt, IncomingMessage message, ExceptionInfo exceptionInfo)
         {
             var secondLevelRetry = new SecondLevelRetry(
                 new Dictionary<string, string>(message.Headers),
                 CopyOfBody(message.Body),
-                exception,
+                exceptionInfo,
                 secondLevelRetryAttempt);
 
             MessageHasBeenSentToSecondLevelRetries?.Invoke(this, secondLevelRetry);

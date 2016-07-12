@@ -9,7 +9,7 @@ namespace NServiceBus
         public TimeSpan Delay { get; }
         public bool IsImmediateRetry => Delay == TimeSpan.Zero;
 
-        public MessageToBeRetried(int attempt, TimeSpan delay, IncomingMessage message, Exception exception) : base(message, exception)
+        public MessageToBeRetried(int attempt, TimeSpan delay, IncomingMessage message, ExceptionInfo exceptionInfo) : base(message, exceptionInfo)
         {
             Attempt = attempt;
             Delay = delay;

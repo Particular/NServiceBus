@@ -33,7 +33,7 @@ namespace NServiceBus.TransportTests
 
             var errorContext = await onErrorCalled.Task;
 
-            Assert.AreEqual(errorContext.Exception.Message, "Simulated exception", "Should preserve the exception");
+            Assert.AreEqual(errorContext.ExceptionInfo.Message, "Simulated exception", "Should preserve the exception");
             Assert.AreEqual(1, errorContext.NumberOfDeliveryAttempts, "Should track the number of delivery attempts");
             Assert.AreEqual(0, errorContext.Message.BodyStream.Position, "Should rewind the stream");
             Assert.AreEqual("MyValue", errorContext.Message.Headers["MyHeader"], "Should pass the message headers");

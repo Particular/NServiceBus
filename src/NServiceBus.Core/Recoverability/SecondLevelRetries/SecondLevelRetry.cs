@@ -1,6 +1,5 @@
 namespace NServiceBus.Faults
 {
-    using System;
     using System.Collections.Generic;
 
     /// <summary>
@@ -13,13 +12,13 @@ namespace NServiceBus.Faults
         /// </summary>
         /// <param name="headers">Message headers.</param>
         /// <param name="body">Message body.</param>
-        /// <param name="exception">Exception thrown.</param>
+        /// <param name="exceptionInfo">Exception thrown.</param>
         /// <param name="retryAttempt">Number of retry attempt.</param>
-        public SecondLevelRetry(Dictionary<string, string> headers, byte[] body, Exception exception, int retryAttempt)
+        public SecondLevelRetry(Dictionary<string, string> headers, byte[] body, ExceptionInfo exceptionInfo, int retryAttempt)
         {
             Headers = headers;
             Body = body;
-            Exception = exception;
+            ExceptionInfo = exceptionInfo;
             RetryAttempt = retryAttempt;
         }
 
@@ -36,7 +35,7 @@ namespace NServiceBus.Faults
         /// <summary>
         /// The exception that caused this message to fail.
         /// </summary>
-        public Exception Exception { get; }
+        public ExceptionInfo ExceptionInfo { get; }
 
         /// <summary>
         /// Number of retry attempt.

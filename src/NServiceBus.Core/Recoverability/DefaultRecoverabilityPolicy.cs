@@ -31,7 +31,7 @@ namespace NServiceBus
             {
                 var slrRetryContext = new SecondLevelRetryContext
                 {
-                    Exception = errorContext.Exception,
+                    ExceptionInfo = errorContext.ExceptionInfo,
                     Message = errorContext.Message,
                     SecondLevelRetryAttempt = errorContext.Message.GetCurrentDelayedRetries() + 1
                 };

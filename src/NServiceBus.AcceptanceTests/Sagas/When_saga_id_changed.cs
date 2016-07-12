@@ -28,7 +28,7 @@
             Assert.That(exception.FailedMessages, Has.Count.EqualTo(1));
             var failedMessage = exception.FailedMessages.Single();
             Assert.That(((Context) exception.ScenarioContext).MessageId, Is.EqualTo(failedMessage.MessageId), "Message should be moved to errorqueue");
-            Assert.That(failedMessage.Exception.Message, Contains.Substring("A modification of IContainSagaData.Id has been detected. This property is for infrastructure purposes only and should not be modified. SagaType:"));
+            Assert.That(failedMessage.ExceptionInfo.Message, Contains.Substring("A modification of IContainSagaData.Id has been detected. This property is for infrastructure purposes only and should not be modified. SagaType:"));
         }
 
         public class Context : ScenarioContext
