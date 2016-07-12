@@ -5,7 +5,7 @@ namespace NServiceBus.Testing
     using System.Collections.Generic;
     using Pipeline;
     using Routing;
-    using Transports;
+    using Transport;
 
     /// <summary>
     /// A testable implementation of <see cref="IRoutingContext" />.

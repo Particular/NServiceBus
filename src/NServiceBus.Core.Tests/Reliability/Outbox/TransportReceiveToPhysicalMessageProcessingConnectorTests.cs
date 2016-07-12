@@ -11,10 +11,10 @@
     using NServiceBus.Performance.TimeToBeReceived;
     using NServiceBus.Pipeline;
     using NServiceBus.Routing;
-    using NServiceBus.Transports;
+    using Transport;
     using NUnit.Framework;
     using Testing;
-    using TransportOperation = NServiceBus.Transports.TransportOperation;
+    using TransportOperation = Transport.TransportOperation;
 
     [TestFixture]
     public class TransportReceiveToPhysicalMessageProcessingConnectorTests

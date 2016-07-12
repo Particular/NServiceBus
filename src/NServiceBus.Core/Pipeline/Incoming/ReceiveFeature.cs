@@ -5,7 +5,7 @@
     using Janitor;
     using NServiceBus.Outbox;
     using Persistence;
-    using Transports;
+    using Transport;
     using Unicast;
 
     class ReceiveFeature : Feature

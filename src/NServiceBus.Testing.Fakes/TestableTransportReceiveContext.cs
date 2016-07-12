@@ -5,7 +5,7 @@ namespace NServiceBus.Testing
     using System.Collections.Generic;
     using System.IO;
     using Pipeline;
-    using Transports;
+    using Transport;
 
     /// <summary>
     /// A testable implementation for <see cref="ITransportReceiveContext" />.

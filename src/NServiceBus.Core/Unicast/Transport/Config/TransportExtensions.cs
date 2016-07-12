@@ -4,7 +4,7 @@ namespace NServiceBus
     using Configuration.AdvanceExtensibility;
     using Routing;
     using Settings;
-    using Transports;
+    using Transport;
 
     /// <summary>
     /// This class provides implementers of persisters with an extension mechanism for custom settings via extension methods.

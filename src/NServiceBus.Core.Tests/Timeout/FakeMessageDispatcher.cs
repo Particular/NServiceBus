@@ -3,7 +3,7 @@ namespace NServiceBus.Core.Tests.Timeout
     using System.Linq;
     using System.Threading.Tasks;
     using Extensibility;
-    using NServiceBus.Transports;
+    using Transport;
 
     public class FakeMessageDispatcher : IDispatchMessages
     {

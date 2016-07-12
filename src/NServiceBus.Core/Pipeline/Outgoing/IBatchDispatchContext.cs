@@ -1,7 +1,7 @@
 namespace NServiceBus.Pipeline
 {
     using System.Collections.Generic;
-    using Transports;
+    using Transport;
 
     /// <summary>
     /// Pipeline context for dispatching pending transport operations captured during message processing.

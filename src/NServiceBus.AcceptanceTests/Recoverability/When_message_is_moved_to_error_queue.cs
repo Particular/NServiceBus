@@ -88,7 +88,7 @@
 
                     config.UseTransport(context.GetTransportType())
                         .Transactions(testContext.TransactionMode);
-                    config.Pipeline.Register(new RegisterThrowingBehavior());
+                    config.Pipeline.Register(new ThrowingBehavior(), "Behavior that always throws");
                     config.SendFailedMessagesTo(ErrorSpyQueueName);
                 });
             }
@@ -165,14 +165,6 @@
 
                     return Task.FromResult(0);
                 }
-            }
-        }
-
-        class RegisterThrowingBehavior : RegisterStep
-        {
-            public RegisterThrowingBehavior() : base("ThrowingBehavior", typeof(ThrowingBehavior), "Behavior that always throws")
-            {
-                InsertAfter("Recoverability");
             }
         }
 

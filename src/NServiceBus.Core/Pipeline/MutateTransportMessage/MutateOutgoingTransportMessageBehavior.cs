@@ -4,7 +4,7 @@
     using System.Threading.Tasks;
     using MessageMutator;
     using Pipeline;
-    using Transports;
+    using Transport;
 
     class MutateOutgoingTransportMessageBehavior : Behavior<IOutgoingPhysicalMessageContext>
     {

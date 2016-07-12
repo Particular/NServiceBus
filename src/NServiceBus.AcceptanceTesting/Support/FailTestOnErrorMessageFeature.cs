@@ -19,13 +19,7 @@
         {
             var scenarioContext = context.Settings.Get<ScenarioContext>();
 
-            context.Pipeline.Register(new CaptureExceptionBehavior.Registration(scenarioContext.UnfinishedFailedMessages));
-
-            context.Settings.Get<NotificationSubscriptions>().Subscribe<MessageToBeRetried>(m =>
-            {
-                scenarioContext.UnfinishedFailedMessages.AddOrUpdate(m.Message.MessageId, id => 0, (id, value) => value - 1);
-                return TaskEx.CompletedTask;
-            });
+            context.Pipeline.Register(new CaptureExceptionBehavior(scenarioContext.UnfinishedFailedMessages), "Captures unhandled exceptions from processed messages for the AcceptanceTesting Framework");
 
             context.Settings.Get<NotificationSubscriptions>().Subscribe<MessageFaulted>(m =>
             {
@@ -42,7 +36,8 @@
                         return result;
                     });
 
-                scenarioContext.UnfinishedFailedMessages.AddOrUpdate(m.Message.MessageId, id => 0, (id, value) => value - 1);
+                //We need to set the error flag to false as we want to reset all processing exceptions caused by immediate retries
+                scenarioContext.UnfinishedFailedMessages.AddOrUpdate(m.Message.MessageId, id => false, (id, value) => false);
 
                 return Task.FromResult(0);
             });
@@ -50,29 +45,21 @@
 
         class CaptureExceptionBehavior : Behavior<ITransportReceiveContext>
         {
-            CaptureExceptionBehavior(ConcurrentDictionary<string, int> failedMessages)
+            public CaptureExceptionBehavior(ConcurrentDictionary<string, bool> failedMessages)
             {
                 this.failedMessages = failedMessages;
             }
 
             public override async Task Invoke(ITransportReceiveContext context, Func<Task> next)
             {
-                failedMessages.AddOrUpdate(context.Message.MessageId, id => 1, (id, value) => value + 1);
+                failedMessages.AddOrUpdate(context.Message.MessageId, id => true, (id, value) => true);
 
                 await next().ConfigureAwait(false);
 
-                failedMessages.AddOrUpdate(context.Message.MessageId, id => 0, (id, value) => value - 1);
+                failedMessages.AddOrUpdate(context.Message.MessageId, id => false, (id, value) => false);
             }
 
-            ConcurrentDictionary<string, int> failedMessages;
-
-            public class Registration : RegisterStep
-            {
-                public Registration(ConcurrentDictionary<string, int> failedMessages) : base("CaptureExceptionBehavior", typeof(CaptureExceptionBehavior), "Captures unhandled exceptions from processed messages for the AcceptanceTesting Framework", b => new CaptureExceptionBehavior(failedMessages))
-                {
-                    InsertAfter("Recoverability");
-                }
-            }
+            ConcurrentDictionary<string, bool> failedMessages;
         }
     }
 }

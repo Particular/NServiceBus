@@ -13,7 +13,7 @@ namespace NServiceBus
     using ObjectBuilder.Common;
     using Pipeline;
     using Settings;
-    using Transports;
+    using Transport;
 
     class InitializableEndpoint
     {
@@ -57,7 +57,7 @@ namespace NServiceBus
 
             await RunInstallers(concreteTypes).ConfigureAwait(false);
 
-            var startableEndpoint = new StartableEndpoint(settings, builder, featureActivator, pipelineConfiguration, new EventAggregator(settings.Get<NotificationSubscriptions>()), transportInfrastructure);
+            var startableEndpoint = new StartableEndpoint(settings, builder, featureActivator, pipelineConfiguration, new EventAggregator(settings.Get<NotificationSubscriptions>()), transportInfrastructure, criticalError);
             return startableEndpoint;
         }
 
@@ -99,7 +99,8 @@ namespace NServiceBus
         {
             Func<ICriticalErrorContext, Task> errorAction;
             settings.TryGet("onCriticalErrorAction", out errorAction);
-            container.ConfigureComponent(() => new CriticalError(errorAction), DependencyLifecycle.SingleInstance);
+            criticalError = new CriticalError(errorAction);
+            container.RegisterSingleton(criticalError);
         }
 
         void RunUserRegistrations(List<Action<IConfigureComponents>> registrations)
@@ -182,5 +183,6 @@ namespace NServiceBus
         PipelineConfiguration pipelineConfiguration;
         PipelineSettings pipelineSettings;
         SettingsHolder settings;
+        CriticalError criticalError;
     }
 }

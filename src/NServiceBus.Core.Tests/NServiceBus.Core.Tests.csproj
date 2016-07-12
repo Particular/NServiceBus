@@ -123,7 +123,6 @@
     <Compile Include="Encryption\When_sending_a_message_with_2x_compatibility_disabled.cs" />
     <Compile Include="DelayedDelivery\TimeoutManager\DispatchTimeoutBehaviorTest.cs" />
     <Compile Include="DelayedDelivery\TimeoutManager\ExpiredTimeoutsPollerTests.cs" />
-    <Compile Include="DelayedDelivery\TimeoutManager\TimeoutFailureInfoStorageTests.cs" />
     <Compile Include="DelayedDelivery\TimeoutManager\RecordingFakeDispatcher.cs" />
     <Compile Include="DeliveryConstraintContextExtensions\DeliveryConstraintContextExtensionsTests.cs" />
     <Compile Include="FakeEventAggregator.cs" />
@@ -153,10 +152,11 @@
     <Compile Include="Pipeline\Outgoing\OutgoingReplyContextTests.cs" />
     <Compile Include="Pipeline\Outgoing\OutgoingSendContextTests.cs" />
     <Compile Include="Pipeline\RegisterStepTests.cs" />
-    <Compile Include="Recoverability\FailureInfoStorageTests.cs" />
-    <Compile Include="Recoverability\MoveToErrorsActionExecutorTests.cs" />
-    <Compile Include="Recoverability\SecondLevelRetries\DelayedRetryExecutorTests.cs" />
-    <Compile Include="Recoverability\RecoverabilityBehaviorTests.cs" />
+    <Compile Include="Msmq\MsmqFailureInfoStorageTests.cs" />
+    <Compile Include="Recoverability\MoveToErrorsExecutorTests.cs" />
+    <Compile Include="Recoverability\RecoverabilityExecutorTests.cs" />
+    <Compile Include="Recoverability\DefaultRecoverabilityPolicyTests.cs" />
+    <Compile Include="Recoverability\DelayedRetryExecutorTests.cs" />
     <Compile Include="Routing\ApplyReplyToAddressBehaviorTests.cs" />
     <Compile Include="Routing\BestPracticesOptionExtensionsTests.cs" />
     <Compile Include="Routing\DetermineRouteForPublishBehaviorTests.cs" />
@@ -198,8 +198,6 @@
     <Compile Include="Encryption\ValidationTests.cs" />
     <Compile Include="Encryption\When_message_contains_props_and_fields_that_cannot_be_set.cs" />
     <Compile Include="Features\FeatureDefaultsTests.cs" />
-    <Compile Include="Recoverability\FirstLevelRetries\FirstLevelRetriesTests.cs" />
-    <Compile Include="Faults\MoveFaultsToErrorQueueHandlerTests.cs" />
     <Compile Include="Hosting\HostInfoSettingsTests.cs" />
     <Compile Include="Logging\DefaultFactoryTests.cs" />
     <Compile Include="Msmq\MsmqMessageDispatcherTests.cs" />
@@ -213,7 +211,7 @@
     <Compile Include="Msmq\ConnectionStringParserTests.cs" />
     <Compile Include="Sagas\SagaModelTests.cs" />
     <Compile Include="Sagas\SagaMetadataCreationTests.cs" />
-    <Compile Include="Recoverability\SecondLevelRetries\DefaultRetryPolicyTests.cs" />
+    <Compile Include="Recoverability\DefaultSecondLevelRetryPolicyTests.cs" />
     <Compile Include="Serializers\SerializeMessagesBehaviorTests.cs" />
     <Compile Include="Serializers\XML\SerializingNullableTypesTests.cs" />
     <Compile Include="Settings\SettingsHolderTests.cs" />
@@ -275,7 +273,6 @@
     <Compile Include="Scheduler\DefaultSchedulerTests.cs" />
     <Compile Include="Scheduler\ScheduledTaskMessageHandlerTests.cs" />
     <Compile Include="Scheduler\ScheduleTests.cs" />
-    <Compile Include="Recoverability\SecondLevelRetries\SecondLevelRetriesHandlerTests.cs" />
     <Compile Include="Serializers\Json\JsonMessageSerializerTest.cs" />
     <Compile Include="Serializers\XML\Using_Infer_Type_With_Mixed_Namespace.cs" />
     <Compile Include="Serializers\XML\Using_Infer_Type_With_Nested_Class.cs" />

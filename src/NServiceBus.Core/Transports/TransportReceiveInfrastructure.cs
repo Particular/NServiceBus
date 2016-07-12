@@ -1,4 +1,4 @@
-namespace NServiceBus.Transports
+namespace NServiceBus.Transport
 {
     using System;
     using System.Threading.Tasks;
@@ -25,8 +25,16 @@ namespace NServiceBus.Transports
             PreStartupCheck = preStartupCheck;
         }
 
-        internal Func<IPushMessages> MessagePumpFactory { get; }
-        internal Func<ICreateQueues> QueueCreatorFactory { get; }
+        /// <summary>
+        /// Factory for creating the message pump.
+        /// </summary>
+        public Func<IPushMessages> MessagePumpFactory { get; }
+
+        /// <summary>
+        /// Factory for the queue creator.
+        /// </summary>
+        public Func<ICreateQueues> QueueCreatorFactory { get; }
+
         internal Func<Task<StartupCheckResult>> PreStartupCheck { get; }
     }
 }

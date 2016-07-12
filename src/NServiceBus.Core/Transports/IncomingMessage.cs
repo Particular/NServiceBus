@@ -1,4 +1,4 @@
-namespace NServiceBus.Transports
+namespace NServiceBus.Transport
 {
     using System;
     using System.Collections.Generic;
@@ -43,7 +43,7 @@ namespace NServiceBus.Transports
         }
 
         /// <summary>
-        /// The native id of the message.
+        /// The id of the message.
         /// </summary>
         public string MessageId { get; private set; }
 

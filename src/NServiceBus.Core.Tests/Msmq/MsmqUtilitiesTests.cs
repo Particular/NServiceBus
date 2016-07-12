@@ -5,7 +5,7 @@
     using System.Messaging;
     using DeliveryConstraints;
     using NServiceBus.Performance.TimeToBeReceived;
-    using NServiceBus.Transports;
+    using Transport;
     using NUnit.Framework;
     using Support;
 

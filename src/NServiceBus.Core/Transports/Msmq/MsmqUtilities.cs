@@ -10,8 +10,8 @@ namespace NServiceBus
     using DeliveryConstraints;
     using Logging;
     using Performance.TimeToBeReceived;
-    using Transports;
-    using Transports.Msmq;
+    using Transport;
+    using Transport.Msmq;
 
     class MsmqUtilities
     {

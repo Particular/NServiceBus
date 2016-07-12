@@ -5,7 +5,7 @@
     using EndpointTemplates;
     using Features;
     using NUnit.Framework;
-    using Transports;
+    using Transport;
 
     public class When_a_message_is_available : NServiceBusAcceptanceTest
     {
@@ -45,16 +45,27 @@
                     var satelliteLogicalAddress = new LogicalAddress(instanceName, "MySatellite");
                     var satelliteAddress = context.Settings.GetTransportAddress(satelliteLogicalAddress);
 
-                    context.AddSatelliteReceiver("Test satellite", satelliteAddress, TransportTransactionMode.ReceiveOnly, PushRuntimeSettings.Default, (builder, pushContext) =>
-                    {
-                        builder.Build<Context>().MessageReceived = true;
-                        return Task.FromResult(true);
-                    });
+                    context.AddSatelliteReceiver("Test satellite", satelliteAddress, TransportTransactionMode.ReceiveOnly, PushRuntimeSettings.Default, new SatelliteRecoverabilityPolicy(),
+                        (builder, pushContext) =>
+                        {
+                            builder.Build<Context>().MessageReceived = true;
+                            return Task.FromResult(true);
+                        });
 
                     Address = satelliteAddress;
                 }
 
                 public static string Address;
+
+                class SatelliteRecoverabilityPolicy : IRecoverabilityPolicy
+                {
+                    public RecoverabilityAction Invoke(ErrorContext errorContext)
+                    {
+                        return RecoverabilityAction.MoveToError();
+                    }
+
+                    public bool RaiseRecoverabilityNotifications => false;
+                }
             }
         }
 

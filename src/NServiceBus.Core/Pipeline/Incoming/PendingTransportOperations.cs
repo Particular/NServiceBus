@@ -1,7 +1,7 @@
 namespace NServiceBus
 {
     using System.Collections.Concurrent;
-    using Transports;
+    using Transport;
 
     /// <summary>
     /// Represents the currently pending transport operations. The transport operations that are collected here will be

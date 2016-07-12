@@ -2,7 +2,7 @@ namespace NServiceBus
 {
     using System.Threading.Tasks;
     using Pipeline;
-    using Transports;
+    using Transport;
 
     class NativeSubscribeTerminator : PipelineTerminator<ISubscribeContext>
     {

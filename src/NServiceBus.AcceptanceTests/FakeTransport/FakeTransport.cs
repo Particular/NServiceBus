@@ -1,7 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.FakeTransport
 {
     using Settings;
-    using Transports;
+    using Transport;
 
     public class FakeTransport : TransportDefinition
     {
@@ -9,7 +9,7 @@
 
         public override string ExampleConnectionStringForErrorMessage => null;
 
-        protected override TransportInfrastructure Initialize(SettingsHolder settings, string connectionString)
+        public override TransportInfrastructure Initialize(SettingsHolder settings, string connectionString)
         {
             return new FakeTransportInfrastructure(settings);
         }

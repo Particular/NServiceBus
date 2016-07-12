@@ -5,7 +5,7 @@ namespace NServiceBus.DeliveryConstraints
     using System.Linq;
     using Extensibility;
     using Features;
-    using Transports;
+    using Transport;
 
     /// <summary>
     /// Gives access to <see cref="DeliveryConstraint" />s that exist in the various <see cref="ContextBag" />s.

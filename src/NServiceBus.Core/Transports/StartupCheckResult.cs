@@ -1,4 +1,4 @@
-namespace NServiceBus.Transports
+namespace NServiceBus.Transport
 {
     /// <summary>
     /// Represents a result of a pre-startup check.

@@ -5,7 +5,7 @@
     using System.Threading.Tasks;
     using MessageMutator;
     using NServiceBus.Pipeline;
-    using NServiceBus.Transports;
+    using Transport;
     using NUnit.Framework;
     using Testing;
 

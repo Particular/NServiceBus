@@ -1,7 +1,7 @@
 ﻿namespace NServiceBus
 {
     using Pipeline;
-    using Transports;
+    using Transport;
 
     class IncomingPhysicalMessageContext : IncomingContext, IIncomingPhysicalMessageContext
     {

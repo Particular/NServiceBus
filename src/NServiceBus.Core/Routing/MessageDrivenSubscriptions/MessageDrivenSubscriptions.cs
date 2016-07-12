@@ -2,7 +2,7 @@ namespace NServiceBus.Features
 {
     using System;
     using Persistence;
-    using Transports;
+    using Transport;
 
     /// <summary>
     /// Allows subscribers to register by sending a subscription message to this endpoint.

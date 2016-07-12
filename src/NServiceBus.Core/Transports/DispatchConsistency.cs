@@ -1,4 +1,4 @@
-namespace NServiceBus.Transports
+namespace NServiceBus.Transport
 {
     /// <summary>
     /// The requested level of dispatch consistency.

@@ -14,7 +14,7 @@ namespace NServiceBus
     using ObjectBuilder.Common;
     using Pipeline;
     using Settings;
-    using Transports;
+    using Transport;
 
     /// <summary>
     /// Configuration used to create an endpoint instance.

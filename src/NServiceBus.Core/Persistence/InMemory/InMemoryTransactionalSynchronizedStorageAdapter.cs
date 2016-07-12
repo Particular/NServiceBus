@@ -6,7 +6,7 @@ namespace NServiceBus
     using Extensibility;
     using Outbox;
     using Persistence;
-    using Transports;
+    using Transport;
 
     class InMemoryTransactionalSynchronizedStorageAdapter : ISynchronizedStorageAdapter
     {

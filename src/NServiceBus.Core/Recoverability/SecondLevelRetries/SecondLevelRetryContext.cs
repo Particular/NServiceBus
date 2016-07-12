@@ -1,7 +1,7 @@
 namespace NServiceBus
 {
     using System;
-    using Transports;
+    using Transport;
 
     /// <summary>
     /// Contains information available for custom second level retry policies.

@@ -3,7 +3,7 @@
     using System;
     using System.Collections.Generic;
     using NServiceBus.Routing;
-    using NServiceBus.Transports;
+    using Transport;
     using NUnit.Framework;
     using Testing;
 

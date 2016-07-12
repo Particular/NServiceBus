@@ -2,7 +2,7 @@ namespace NServiceBus.AcceptanceTests.FakeTransport
 {
     using System.Threading.Tasks;
     using Extensibility;
-    using Transports;
+    using Transport;
 
     class FakeDispatcher : IDispatchMessages
     {

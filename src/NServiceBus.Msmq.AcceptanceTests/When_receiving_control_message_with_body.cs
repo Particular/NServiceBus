@@ -11,7 +11,7 @@
     using NServiceBus.Routing;
     using NUnit.Framework;
     using Pipeline;
-    using Transports;
+    using Transport;
 
     public class When_receiving_control_message_with_body : NServiceBusAcceptanceTest
     {

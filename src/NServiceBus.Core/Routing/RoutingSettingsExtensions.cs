@@ -1,6 +1,6 @@
 ﻿namespace NServiceBus
 {
-    using Transports;
+    using Transport;
 
     /// <summary>
     /// Configuration extensions for routing.

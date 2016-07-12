@@ -4,7 +4,7 @@
     using System.Collections.Generic;
     using System.Threading.Tasks;
     using NServiceBus.Features;
-    using NServiceBus.Transports;
+    using Transport;
     using NUnit.Framework;
     using ObjectBuilder;
     using Settings;

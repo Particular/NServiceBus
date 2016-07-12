@@ -2,7 +2,7 @@
 {
     using System;
     using NServiceBus.Routing;
-    using NServiceBus.Transports;
+    using Transport;
     using NUnit.Framework;
 
     [TestFixture]

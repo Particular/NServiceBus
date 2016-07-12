@@ -3,7 +3,7 @@
     using System;
     using System.Linq;
     using NServiceBus.Features;
-    using NServiceBus.Transports;
+    using Transport;
     using NUnit.Framework;
     using Settings;
 

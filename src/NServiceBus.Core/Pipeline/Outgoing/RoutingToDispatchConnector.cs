@@ -8,7 +8,7 @@
     using Logging;
     using Pipeline;
     using Routing;
-    using Transports;
+    using Transport;
 
     class RoutingToDispatchConnector : StageConnector<IRoutingContext, IDispatchContext>
     {

@@ -7,7 +7,7 @@
     using System.Threading.Tasks;
     using Logging;
     using Pipeline;
-    using Transports;
+    using Transport;
     using Unicast.Messages;
 
     class DeserializeLogicalMessagesConnector : StageConnector<IIncomingPhysicalMessageContext, IIncomingLogicalMessageContext>

@@ -2,7 +2,7 @@ namespace NServiceBus.ConsistencyGuarantees
 {
     using System;
     using Settings;
-    using Transports;
+    using Transport;
 
     /// <summary>
     /// Extension methods to provide access to various consistency related convenience methods.

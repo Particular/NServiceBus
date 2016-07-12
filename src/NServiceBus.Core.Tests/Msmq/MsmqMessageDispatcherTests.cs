@@ -5,7 +5,7 @@
     using System.Messaging;
     using Extensibility;
     using NServiceBus.Routing;
-    using NServiceBus.Transports;
+    using Transport;
     using NUnit.Framework;
     using Support;
 

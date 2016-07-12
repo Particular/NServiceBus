@@ -1,6 +1,6 @@
 ﻿namespace NServiceBus.Pipeline
 {
-    using Transports;
+    using Transport;
 
     /// <summary>
     /// Context containing a physical message.

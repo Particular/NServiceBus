@@ -9,7 +9,7 @@ namespace NServiceBus
     using System.Threading.Tasks;
     using Logging;
     using Support;
-    using Transports;
+    using Transport;
 
     class MessagePump : IPushMessages, IDisposable
     {
@@ -23,12 +23,9 @@ namespace NServiceBus
             // Injected
         }
 
-        public Task Init(Func<PushContext, Task> pipe, CriticalError criticalError, PushSettings settings)
+
+        public Task Init(Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError, CriticalError criticalError, PushSettings settings)
         {
-            pipeline = pipe;
-
-            receiveStrategy = receiveStrategyFactory(settings.RequiredTransactionMode);
-
             peekCircuitBreaker = new RepeatedFailuresOverTimeCircuitBreaker("MsmqPeek", TimeSpan.FromSeconds(30), ex => criticalError.Raise("Failed to peek " + settings.InputQueue, ex));
             receiveCircuitBreaker = new RepeatedFailuresOverTimeCircuitBreaker("MsmqReceive", TimeSpan.FromSeconds(30), ex => criticalError.Raise("Failed to receive from " + settings.InputQueue, ex));
 
@@ -54,6 +51,10 @@ namespace NServiceBus
             {
                 inputQueue.Purge();
             }
+
+            receiveStrategy = receiveStrategyFactory(settings.RequiredTransactionMode);
+
+            receiveStrategy.Init(inputQueue, errorQueue, onMessage, onError, criticalError);
 
             return TaskEx.CompletedTask;
         }
@@ -148,37 +149,24 @@ namespace NServiceBus
 
                     var receiveTask = Task.Run(async () =>
                     {
-                        using (var tokenSource = new CancellationTokenSource())
-                        {
-                            try
-                            {
-                                await receiveStrategy.ReceiveMessage(inputQueue, errorQueue, tokenSource, pipeline).ConfigureAwait(false);
-                                receiveCircuitBreaker.Success();
-                            }
-                            catch (MessageQueueException ex)
-                            {
-                                if (ex.MessageQueueErrorCode == MessageQueueErrorCode.IOTimeout)
-                                {
-                                    //We should only get an IOTimeout exception here if another process removed the message between us peeking and now.
-                                    return;
-                                }
 
-                                Logger.Warn("MSMQ receive operation failed", ex);
-                                await receiveCircuitBreaker.Failure(ex).ConfigureAwait(false);
-                            }
-                            catch (OperationCanceledException)
-                            {
-                                // Intentionally ignored
-                            }
-                            catch (Exception ex)
-                            {
-                                Logger.Warn("MSMQ receive operation failed", ex);
-                                await receiveCircuitBreaker.Failure(ex).ConfigureAwait(false);
-                            }
-                            finally
-                            {
-                                concurrencyLimiter.Release();
-                            }
+                        try
+                        {
+                            await receiveStrategy.ReceiveMessage().ConfigureAwait(false);
+                            receiveCircuitBreaker.Success();
+                        }
+                        catch (OperationCanceledException)
+                        {
+                            // Intentionally ignored
+                        }
+                        catch (Exception ex)
+                        {
+                            Logger.Warn("MSMQ receive operation failed", ex);
+                            await receiveCircuitBreaker.Failure(ex).ConfigureAwait(false);
+                        }
+                        finally
+                        {
+                            concurrencyLimiter.Release();
                         }
                     }, CancellationToken.None);
 
@@ -223,10 +211,11 @@ namespace NServiceBus
         MessageQueue inputQueue;
 
         Task messagePumpTask;
-        RepeatedFailuresOverTimeCircuitBreaker peekCircuitBreaker;
-        Func<PushContext, Task> pipeline;
-        RepeatedFailuresOverTimeCircuitBreaker receiveCircuitBreaker;
+
         ReceiveStrategy receiveStrategy;
+
+        RepeatedFailuresOverTimeCircuitBreaker peekCircuitBreaker;
+        RepeatedFailuresOverTimeCircuitBreaker receiveCircuitBreaker;
         Func<TransportTransactionMode, ReceiveStrategy> receiveStrategyFactory;
         ConcurrentDictionary<Task, Task> runningReceiveTasks;
 
