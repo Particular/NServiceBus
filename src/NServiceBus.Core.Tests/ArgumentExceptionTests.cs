@@ -73,6 +73,14 @@
                     {
                         continue;
                     }
+                    if (method.Name.StartsWith("add_") || method.Name.StartsWith("remove_"))
+                    {
+                        continue;
+                    }
+                    if (method.Name.StartsWith("op_"))
+                    {
+                        continue;
+                    }
                     if (ContainsObsoleteAttribute(method))
                     {
                         continue;
