@@ -307,6 +307,7 @@
     <Compile Include="Unicast\Contexts\EventMessage.cs" />
     <Compile Include="Unicast\Contexts\InterfaceMessage.cs" />
     <Compile Include="Unicast\LoadHandlersBehaviorTests.cs" />
+    <Compile Include="Unicast\MessageOperationsTests.cs" />
     <Compile Include="Unicast\RunningEndpointInstanceTest.cs" />
     <Compile Include="Pipeline\Outgoing\AttachSenderRelatedInfoOnMessageTests.cs" />
     <Compile Include="Unicast\MessageTypeTests.cs" />
