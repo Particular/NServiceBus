@@ -385,11 +385,10 @@ namespace NServiceBus
     }
     public class ExceptionInfo
     {
-        public ExceptionInfo(string typeFullName, string innerExceptionTypeFullName, string helpLink, string message, string source, string legacyStackTrace, string stackTrace, string timeOfFailure, System.Collections.Generic.Dictionary<string, string> data) { }
+        public ExceptionInfo(string typeFullName, string innerExceptionTypeFullName, string helpLink, string message, string source, string stackTrace, string timeOfFailure, System.Collections.Generic.Dictionary<string, string> data) { }
         public System.Collections.Generic.Dictionary<string, string> Data { get; }
         public string HelpLink { get; }
         public string InnerExceptionTypeFullName { get; }
-        public string LegacyStackTrace { get; }
         public string Message { get; }
         public string Source { get; }
         public string StackTrace { get; }

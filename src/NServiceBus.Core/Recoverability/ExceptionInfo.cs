@@ -35,11 +35,6 @@
         public string Source { get; }
 
         /// <summary>
-        /// Exception <see cref="Exception.StackTrace"/>.
-        /// </summary>
-        public string LegacyStackTrace { get; }
-
-        /// <summary>
         /// Exception <see cref="Exception.ToString"/>.
         /// </summary>
         public string StackTrace { get; }
@@ -58,14 +53,13 @@
         /// <summary>
         /// Creates new instance of <see cref="ExceptionInfo"/>.
         /// </summary>
-        public ExceptionInfo(string typeFullName, string innerExceptionTypeFullName, string helpLink, string message, string source, string legacyStackTrace, string stackTrace, string timeOfFailure, Dictionary<string, string> data)
+        public ExceptionInfo(string typeFullName, string innerExceptionTypeFullName, string helpLink, string message, string source, string stackTrace, string timeOfFailure, Dictionary<string, string> data)
         {
             TypeFullName = typeFullName;
             InnerExceptionTypeFullName = innerExceptionTypeFullName;
             HelpLink = helpLink;
             Message = message;
             Source = source;
-            LegacyStackTrace = legacyStackTrace;
             StackTrace = stackTrace;
             TimeOfFailure = timeOfFailure;
             Data = data;
@@ -100,7 +94,6 @@
                 e.HelpLink,
                 e.Message,
                 e.Source,
-                e.StackTrace,
                 e.ToString(),
                 DateTimeExtensions.ToWireFormattedString(DateTime.UtcNow),
                 data
