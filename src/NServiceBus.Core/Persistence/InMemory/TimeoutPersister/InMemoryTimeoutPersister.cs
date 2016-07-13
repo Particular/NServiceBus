@@ -128,7 +128,7 @@ namespace NServiceBus
                 nextTimeToRunQuery = now.Add(EmptyResultsNextTimeToRunQuerySpan);
             }
 
-            return Task.FromResult(new TimeoutsChunk(dueTimeouts, nextTimeToRunQuery));
+            return Task.FromResult(new TimeoutsChunk(dueTimeouts.ToArray(), nextTimeToRunQuery));
         }
 
         Func<DateTime> currentTimeProvider;

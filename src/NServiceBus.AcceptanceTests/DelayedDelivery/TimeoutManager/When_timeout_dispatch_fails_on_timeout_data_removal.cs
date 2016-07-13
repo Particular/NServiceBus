@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.AcceptanceTests.DelayedDelivery
 {
     using System;
-    using System.Collections.Generic;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using AcceptanceTesting.Customization;
@@ -123,11 +122,11 @@
                 public Task<TimeoutsChunk> GetNextChunk(DateTime startSlice)
                 {
                     var timeouts = timeoutData != null
-                        ? new List<TimeoutsChunk.Timeout>
+                        ? new[]
                         {
                             new TimeoutsChunk.Timeout(timeoutData.Id, timeoutData.Time)
                         }
-                        : new List<TimeoutsChunk.Timeout>();
+                        : new TimeoutsChunk.Timeout[0];
 
                     return Task.FromResult(new TimeoutsChunk(timeouts, DateTime.UtcNow + TimeSpan.FromSeconds(10)));
                 }
