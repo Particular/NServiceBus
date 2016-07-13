@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Threading.Tasks;
     using Routing;
     using Routing.MessageDrivenSubscriptions;
@@ -25,7 +26,7 @@
                     ResolveInstances,
                     i => physicalAddresses.GetTransportAddress(new LogicalAddress(i))).ConfigureAwait(false));
             }
-            return results;
+            return results.Distinct();
         }
 
         Task<IEnumerable<EndpointInstance>> ResolveInstances(string endpoint)

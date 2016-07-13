@@ -162,6 +162,7 @@
     <Compile Include="Routing\DetermineRouteForPublishBehaviorTests.cs" />
     <Compile Include="Routing\DistributionPolicyTests.cs" />
     <Compile Include="Routing\FileBasedDynamicRouting\FileRoutingTableFeatureTests.cs" />
+    <Compile Include="Routing\MessageDrivenSubscriptions\PublishersTests.cs" />
     <Compile Include="Routing\Routers\UnicastSendRouterConnectorTests.cs" />
     <Compile Include="Routing\EndpointInstanceTests.cs" />
     <Compile Include="Routing\EndpointInstancesTests.cs" />
