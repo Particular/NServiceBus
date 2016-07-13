@@ -6,7 +6,6 @@
 
     class RecoverabilityExecutor
     {
-        //TODO: figure out proper logging for ExceptionInfo
         public RecoverabilityExecutor(IRecoverabilityPolicy recoverabilityPolicy, IEventAggregator eventAggregator, DelayedRetryExecutor delayedRetryExecutor, MoveToErrorsExecutor moveToErrorsExecutor, bool transactionsOn)
         {
             this.recoverabilityPolicy = recoverabilityPolicy;
@@ -21,7 +20,7 @@
 
         public Task<ErrorHandleResult> Invoke(ErrorContext errorContext)
         {
-            if (transactionsOn == false || 
+            if (transactionsOn == false ||
                 errorContext.ExceptionInfo.TypeFullName == typeof(MessageDeserializationException).FullName)
             {
                 return MoveToError(errorContext);
@@ -64,7 +63,7 @@
         {
             var message = errorContext.Message;
 
-            Logger.Info($"First Level Retry is going to retry message '{message.MessageId}' because of an exception:" + Environment.NewLine + errorContext.ExceptionInfo.StackTrace);
+            Logger.Info($"First Level Retry is going to retry message '{message.MessageId}' because of an exception:{Environment.NewLine}{errorContext.ExceptionInfo.StackTrace}");
 
             if (raiseNotifications)
             {
@@ -78,7 +77,7 @@
         {
             var message = errorContext.Message;
 
-            Logger.Error($"Moving message '{message.MessageId}' to the error queue because processing failed due to an exception:" + Environment.NewLine + errorContext.ExceptionInfo.StackTrace);
+            Logger.Error($"Moving message '{message.MessageId}' to the error queue because processing failed due to an exception:{Environment.NewLine}{errorContext.ExceptionInfo.StackTrace}");
 
             await moveToErrorsExecutor.MoveToErrorQueue(message, errorContext.ExceptionInfo, errorContext.TransportTransaction).ConfigureAwait(false);
 
@@ -93,7 +92,7 @@
         {
             var message = errorContext.Message;
 
-            Logger.Warn($"Second Level Retry will reschedule message '{message.MessageId}' after a delay of {action.Delay} because of an exception:" + Environment.NewLine + errorContext.ExceptionInfo.StackTrace);
+            Logger.Warn($"Second Level Retry will reschedule message '{message.MessageId}' after a delay of {action.Delay} because of an exception:{Environment.NewLine}{errorContext.ExceptionInfo.StackTrace}");
 
             var currentSlrAttempts = await delayedRetryExecutor.Retry(message, action.Delay, errorContext.TransportTransaction).ConfigureAwait(false);
 
