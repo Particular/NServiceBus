@@ -23,13 +23,13 @@
             routingSettings.RouteToEndpoint(typeof(SomeMessageType), "destination");
 
             var routingTable = routingSettings.Settings.Get<UnicastRoutingTable>();
-            var result = await routingTable.GetDestinationsFor(new List<Type>
+            var routes = await routingTable.GetDestinationsFor(new List<Type>
             {
                 typeof(SomeMessageType)
             }, new ContextBag());
+            var routingTargets = await RetrieveRoutingTargets(routes);
 
-            Assert.That(result.Count(), Is.EqualTo(1));
-            var routingTargets = await RetrieveRoutingTargets(result);
+            Assert.That(routes.Count(), Is.EqualTo(1));
             Assert.That(routingTargets.Single().Endpoint, Is.EqualTo("destination"));
         }
 
@@ -37,85 +37,63 @@
         public async Task WhenRoutingAssemblyToEndpoint_ShouldConfigureAllContainedMessagesInRoutingTable()
         {
             var routingSettings = new RoutingSettings(new SettingsHolder());
-
             routingSettings.RouteToEndpoint(Assembly.GetExecutingAssembly(), "destination");
-
             var routingTable = routingSettings.Settings.Get<UnicastRoutingTable>();
-            var result = await routingTable.GetDestinationsFor(new List<Type>
+
+            var routes = await routingTable.GetDestinationsFor(new List<Type>
             {
                 typeof(SomeMessageType),
                 typeof(OtherMessageType),
                 typeof(MessageWithoutNamespace)
             }, new ContextBag());
+            var routingTarget = await RetrieveRoutingTargets(routes);
 
-            Assert.That(result.Count(), Is.EqualTo(3));
-            var routingTargets = await RetrieveRoutingTargets(result);
-            Assert.That(routingTargets, Has.All.Property("Endpoint").EqualTo("destination"));
+            Assert.That(routes.Count(), Is.EqualTo(3));
+            Assert.That(routingTarget, Has.All.Property("Endpoint").EqualTo("destination"));
         }
 
         [Test]
         public async Task WhenRoutingAssemblyWithNamespaceToEndpoint_ShouldOnlyConfigureMessagesWithinThatNamespace()
         {
             var routingSettings = new RoutingSettings(new SettingsHolder());
-
             routingSettings.RouteToEndpoint(Assembly.GetExecutingAssembly(), nameof(MessageNamespaceA), "destination");
-
             var routingTable = routingSettings.Settings.Get<UnicastRoutingTable>();
+
             var result1 = await routingTable.GetDestinationsFor(new List<Type>
             {
                 typeof(SomeMessageType)
             }, new ContextBag());
-            Assert.That(result1.Count(), Is.EqualTo(1));
 
             var result2 = await routingTable.GetDestinationsFor(new List<Type>
             {
                 typeof(OtherMessageType),
                 typeof(MessageWithoutNamespace)
             }, new ContextBag());
-            Assert.That(result2.Count(), Is.EqualTo(0));
+
+            Assert.That(result1.Count(), Is.EqualTo(1), "because SomeMessageType is in the given namespace");
+            Assert.That(result2.Count(), Is.EqualTo(0), "because none of the messages are in the given namespace");
         }
 
-        [Test]
-        public async Task WhenRoutingAssemblyWithNamespaceToEndpointAndSpecifyingNullNamespace_ShouldOnlyConfigureMessagesWithinEmptyNamespace()
+        [Theory]
+        [TestCase(null)]
+        [TestCase("")]
+        public async Task WhenRoutingAssemblyWithNamespaceToEndpointAndSpecifyingEmptyNamespace_ShouldOnlyConfigureMessagesWithinEmptyNamespace(string emptyNamespace)
         {
             var routingSettings = new RoutingSettings(new SettingsHolder());
-
-            routingSettings.RouteToEndpoint(Assembly.GetExecutingAssembly(), null, "destination");
-
+            routingSettings.RouteToEndpoint(Assembly.GetExecutingAssembly(), emptyNamespace, "destination");
             var routingTable = routingSettings.Settings.Get<UnicastRoutingTable>();
+
             var result1 = await routingTable.GetDestinationsFor(new List<Type>
             {
                 typeof(MessageWithoutNamespace)
             }, new ContextBag());
-            Assert.That(result1.Count(), Is.EqualTo(1));
-
             var result2 = await routingTable.GetDestinationsFor(new List<Type>
             {
                 typeof(SomeMessageType),
                 typeof(OtherMessageType)
             }, new ContextBag());
-            Assert.That(result2.Count(), Is.EqualTo(0));
-        }
 
-        [Test]
-        public async Task WhenRoutingAssemblyWithNamespaceToEndpointAndSpecifyingEmptyNamespace_ShouldOnlyConfigureMessagesWithinEmptyNamespace()
-        {
-            var routingSettings = new RoutingSettings(new SettingsHolder());
-
-            routingSettings.RouteToEndpoint(Assembly.GetExecutingAssembly(), String.Empty, "destination");
-
-            var routingTable = routingSettings.Settings.Get<UnicastRoutingTable>();
-            var result1 = await routingTable.GetDestinationsFor(new List<Type>
-            {
-                typeof(MessageWithoutNamespace)
-            }, new ContextBag());
             Assert.That(result1.Count(), Is.EqualTo(1));
-
-            var result2 = await routingTable.GetDestinationsFor(new List<Type>
-            {
-                typeof(SomeMessageType),
-                typeof(OtherMessageType)
-            }, new ContextBag());
             Assert.That(result2.Count(), Is.EqualTo(0));
         }
 
