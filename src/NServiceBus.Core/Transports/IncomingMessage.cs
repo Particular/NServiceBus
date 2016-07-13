@@ -34,7 +34,6 @@ namespace NServiceBus.Transport
                 headers[NServiceBus.Headers.MessageId] = messageId;
             }
 
-
             Headers = headers;
             BodyStream = bodyStream;
 

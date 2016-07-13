@@ -157,6 +157,7 @@
     <Compile Include="Transports\ErrorContext.cs" />
     <Compile Include="Transports\ErrorHandleResult.cs" />
     <Compile Include="Transports\IOutgoingTransportOperation.cs" />
+    <Compile Include="Transports\LocalAddressConfigurationExtensions.cs" />
     <Compile Include="Transports\LogicalAddressExtensions.cs" />
     <Compile Include="Transports\Msmq\MsmqScopeOptions.cs" />
     <Compile Include="Transports\Msmq\MsmqTransportInfrastructure.cs" />
@@ -270,7 +271,6 @@
     <Compile Include="Pipeline\Outgoing\IOutgoingPhysicalMessageContext.cs" />
     <Compile Include="Reliability\Outbox\ForceBatchDispatchToBeIsolatedBehavior.cs" />
     <Compile Include="Reliability\Outbox\OutboxTransaction.cs" />
-    <Compile Include="Routing\IUnicastRoute.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\Subscriber.cs" />
     <Compile Include="Routing\MulticastRoutingStrategy.cs" />
     <Compile Include="Routing\RoutingStrategy.cs" />
@@ -403,7 +403,6 @@
     <Compile Include="Routing\MessagingBestPractices\BestPracticesOptionExtensions.cs" />
     <Compile Include="Pipeline\Outgoing\IOutgoingLogicalMessageContext.cs" />
     <Compile Include="Persistence\InMemory\Outbox\InMemoryOutboxSettingsExtensions.cs" />
-    <Compile Include="LogicalAddress.cs" />
     <Compile Include="Pipeline\BehaviorInvoker.cs" />
     <Compile Include="Pipeline\Incoming\IIncomingContext.cs" />
     <Compile Include="Pipeline\Incoming\ITransportReceiveContext.cs" />

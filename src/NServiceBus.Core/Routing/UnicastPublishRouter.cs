@@ -18,35 +18,15 @@ namespace NServiceBus
             this.subscriptionStorage = subscriptionStorage;
         }
 
-        protected override async Task<IEnumerable<IUnicastRoute>> GetDestinations(ContextBag contextBag, Type[] typesToRoute)
+        protected override async Task<List<UnicastRoute>> GetDestinations(ContextBag contextBag, Type[] typesToRoute)
         {
             var messageTypes = typesToRoute.Select(t => new MessageType(t));
             var subscribers = await subscriptionStorage.GetSubscriberAddressesForMessage(messageTypes, contextBag).ConfigureAwait(false);
-            return subscribers.Select(s => new SubscriberDestination(s));
+            return subscribers.Select(subscriber => subscriber.Endpoint != null
+                ? UnicastRoute.CreateFromEndpointInstance(new EndpointInstance(subscriber.Endpoint, address: subscriber.TransportAddress))
+                : UnicastRoute.CreateFromPhysicalAddress(subscriber.TransportAddress)).ToList();
         }
 
         ISubscriptionStorage subscriptionStorage;
-
-        class SubscriberDestination : IUnicastRoute
-        {
-            public SubscriberDestination(Subscriber subscriber)
-            {
-                if (subscriber.Endpoint != null)
-                {
-                    target = UnicastRoutingTarget.ToAnonymousInstance(subscriber.Endpoint, subscriber.TransportAddress);
-                }
-                else
-                {
-                    target = UnicastRoutingTarget.ToTransportAddress(subscriber.TransportAddress);
-                }
-            }
-
-            public Task<IEnumerable<UnicastRoutingTarget>> Resolve(Func<string, Task<IEnumerable<EndpointInstance>>> instanceResolver)
-            {
-                return Task.FromResult(EnumerableEx.Single(target));
-            }
-
-            UnicastRoutingTarget target;
-        }
     }
 }

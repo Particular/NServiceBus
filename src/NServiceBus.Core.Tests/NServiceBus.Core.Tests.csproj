@@ -164,7 +164,6 @@
     <Compile Include="Routing\FileBasedDynamicRouting\FileRoutingTableFeatureTests.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\PublishersTests.cs" />
     <Compile Include="Routing\Routers\UnicastSendRouterConnectorTests.cs" />
-    <Compile Include="Routing\EndpointInstanceTests.cs" />
     <Compile Include="Routing\EndpointInstancesTests.cs" />
     <Compile Include="Routing\FileRoutingTableParserTests.cs" />
     <Compile Include="Routing\FileRoutingTableTests.cs" />
@@ -184,7 +183,6 @@
     <Compile Include="Sagas\When_saga_has_multiple_correlated_properties.cs" />
     <Compile Include="Sagas\When_saga_is_correlated_on_a_unsupported_property_type.cs" />
     <Compile Include="Sagas\When_saga_has_no_start_message.cs" />
-    <Compile Include="Routing\TransportAddressesTest.cs" />
     <Compile Include="Routing\UnicastRouterTests.cs" />
     <Compile Include="Serializers\MessageDeserializerResolverTests.cs" />
     <Compile Include="Performance\TimeToBeReceived\TimeToBeReceivedAttributeTests.cs" />

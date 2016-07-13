@@ -28,26 +28,45 @@ namespace NServiceBus
                 .ToArray();
 
             var routes = await GetDestinations(contextBag, typesToRoute).ConfigureAwait(false);
+
             var destinations = new List<UnicastRoutingTarget>();
             foreach (var route in routes)
             {
-                destinations.AddRange(await route.Resolve(InstanceResolver).ConfigureAwait(false));
+                destinations.AddRange(await ResolveInstances(route).ConfigureAwait(false));
             }
 
             var selectedDestinations = SelectDestinationsForEachEndpoint(distributionPolicy, destinations);
 
             return selectedDestinations
-                .Select(destination => destination.Resolve(x => physicalAddresses.GetTransportAddress(new LogicalAddress(x))))
+                .Select(destination => destination.Resolve(x => physicalAddresses.GetTransportAddress(x)))
                 .Distinct() //Make sure we are sending only one to each transport destination. Might happen when there are multiple routing information sources.
                 .Select(destination => new UnicastRoutingStrategy(destination));
         }
 
-        protected abstract Task<IEnumerable<IUnicastRoute>> GetDestinations(ContextBag contextBag, Type[] types);
-
-        Task<IEnumerable<EndpointInstance>> InstanceResolver(string endpoint)
+        async Task<UnicastRoutingTarget[]> ResolveInstances(UnicastRoute route)
         {
-            return endpointInstances.FindInstances(endpoint);
+            if (route.PhysicalAddress != null)
+            {
+                return new[]
+                {
+                    UnicastRoutingTarget.ToTransportAddress(route.PhysicalAddress)
+                };
+            }
+            else if (route.Instance != null)
+            {
+                return new[]
+                {
+                    UnicastRoutingTarget.ToEndpointInstance(route.Instance)
+                };
+            }
+            else
+            {
+                var instances = await endpointInstances.FindInstances(route.Endpoint).ConfigureAwait(false);
+                return instances.Select(UnicastRoutingTarget.ToEndpointInstance).ToArray();
+            }
         }
+
+        protected abstract Task<List<UnicastRoute>> GetDestinations(ContextBag contextBag, Type[] typesToRoute);
 
         static IEnumerable<UnicastRoutingTarget> SelectDestinationsForEachEndpoint(IDistributionPolicy distributionPolicy, List<UnicastRoutingTarget> destinations)
         {

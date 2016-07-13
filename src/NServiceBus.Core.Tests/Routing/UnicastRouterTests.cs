@@ -16,7 +16,6 @@
         MessageMetadataRegistry metadataRegistry;
         UnicastRoutingTable routingTable;
         EndpointInstances endpointInstances;
-        TransportAddresses transportAddresses;
 
         [Test]
         public void Should_route_a_command_to_a_single_non_scaled_out_destination()
@@ -25,7 +24,6 @@
             metadataRegistry.RegisterMessageType(typeof(Command));
             routingTable.RouteToEndpoint(typeof(Command), sales);
             endpointInstances.Add(new EndpointInstance(sales, null, null));
-            transportAddresses.AddRule(i => i.ToString());
 
             var routes = router.Route(typeof(Command), new DistributionPolicy(), new ContextBag()).Result.ToArray();
 
@@ -42,7 +40,6 @@
             metadataRegistry.RegisterMessageType(typeof(Event));
             routingTable.RouteToEndpoint(typeof(Event), sales);
             endpointInstances.Add(new EndpointInstance(sales));
-            transportAddresses.AddRule(i => i.ToString());
 
             var routes = router.Route(typeof(Event), new DistributionPolicy(), new ContextBag()).Result.ToArray();
 
@@ -63,8 +60,6 @@
             endpointInstances.AddDynamic(e => Task.FromResult(EnumerableEx.Single(new EndpointInstance(sales, "2"))));
             endpointInstances.Add(new EndpointInstance(shipping, "1", null), new EndpointInstance(shipping, "2"));
 
-            transportAddresses.AddRule(i => i.ToString());
-
             var routes = router.Route(typeof(Event), new DistributionPolicy(), new ContextBag()).Result.ToArray();
 
             Assert.AreEqual(2, routes.Length);
@@ -81,7 +76,6 @@
             routingTable.RouteToEndpoint(typeof(Event), sales);
             routingTable.RouteToAddress(typeof(Event), "Sales-1");
             endpointInstances.Add(new EndpointInstance(sales, "1"));
-            transportAddresses.AddRule(i => i.ToString());
 
             var routes = router.Route(typeof(Event), new DistributionPolicy(), new ContextBag()).Result.ToArray();
 
@@ -104,7 +98,6 @@
                 };
                 return Task.FromResult(results);
             });
-            transportAddresses.AddRule(i => i.ToString());
 
             var routes = router.Route(typeof(Event), new DistributionPolicy(), new ContextBag()).Result.ToArray();
 
@@ -142,7 +135,7 @@
             metadataRegistry = new MessageMetadataRegistry(new Conventions());
             routingTable = new UnicastRoutingTable();
             endpointInstances = new EndpointInstances();
-            transportAddresses = new TransportAddresses(address => null);
+            var transportAddresses = new TransportAddresses(address => address.ToString(), endpointInstance => endpointInstance.ToString());
             router = new UnicastSendRouter(
                 metadataRegistry,
                 routingTable,

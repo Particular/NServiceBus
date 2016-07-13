@@ -11,7 +11,7 @@ namespace NServiceBus.Transport
         /// Gets the native transport address for the given logical address.
         /// </summary>
         /// <returns>The native transport address.</returns>
-        public static string GetTransportAddress(this ReadOnlySettings settings, LogicalAddress logicalAddress)
+        public static string GetTransportAddress(this ReadOnlySettings settings, string logicalAddress)
         {
             return settings.Get<TransportAddresses>()
                 .GetTransportAddress(logicalAddress);

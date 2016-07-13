@@ -2,7 +2,6 @@ namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
-    using System.Text;
     using System.Threading.Tasks;
     using System.Transactions;
     using Features;
@@ -48,24 +47,26 @@ namespace NServiceBus
 
         public override EndpointInstance BindToLocalEndpoint(EndpointInstance instance) => instance.AtMachine(RuntimeEnvironment.MachineName);
 
-        public override string ToTransportAddress(LogicalAddress logicalAddress)
+        public override string ToTransportAddress(string logicalAddress)
         {
-            string machine;
-            if (!logicalAddress.EndpointInstance.Properties.TryGetValue("Machine", out machine))
+            if (!logicalAddress.Contains("@"))
             {
-                machine = RuntimeEnvironment.MachineName;
+                var machine = RuntimeEnvironment.MachineName;
+                return $"{logicalAddress}@{machine}";
             }
 
-            var queue = new StringBuilder(logicalAddress.EndpointInstance.Endpoint);
-            if (logicalAddress.EndpointInstance.Discriminator != null)
+            return logicalAddress;
+        }
+
+        public override string ToTransportAddress(EndpointInstance logicalAddress)
+        {
+            string machine;
+            if (logicalAddress.Properties.TryGetValue("Machine", out machine))
             {
-                queue.Append("-" + logicalAddress.EndpointInstance.Discriminator);
+                return ToTransportAddress($"{logicalAddress}@{machine}");
             }
-            if (logicalAddress.Qualifier != null)
-            {
-                queue.Append("." + logicalAddress.Qualifier);
-            }
-            return queue + "@" + machine;
+
+            return ToTransportAddress(logicalAddress.ToString());
         }
 
         public override string MakeCanonicalForm(string transportAddress)
