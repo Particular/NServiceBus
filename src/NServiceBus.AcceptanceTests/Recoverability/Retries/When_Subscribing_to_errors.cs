@@ -27,7 +27,7 @@
                 .Done(c => c.MessageSentToError)
                 .Run();
 
-            Assert.IsInstanceOf<SimulatedException>(context.MessageSentToErrorException);
+            Assert.AreEqual(typeof(SimulatedException).FullName, context.MessageSentToErrorException.TypeFullName);
             Assert.True(context.Logs.Any(l => l.Level == LogLevel.Error && l.Message.Contains("Simulated exception message")), "The last exception should be logged as `error` before sending it to the error queue");
 
             //FLR max retries = 3 means we will be processing 4 times. SLR max retries = 2 means we will do 3*FLR
@@ -43,7 +43,7 @@
             public int TotalNumberOfFLRTimesInvokedInHandler { get; set; }
             public int NumberOfSLRRetriesPerformed { get; set; }
             public bool MessageSentToError { get; set; }
-            public Exception MessageSentToErrorException { get; set; }
+            public ExceptionInfo MessageSentToErrorException { get; set; }
         }
 
         public class SLREndpoint : EndpointConfigurationBuilder
@@ -57,7 +57,7 @@
                     config.EnableFeature<TimeoutManager>();
                     notifications.Errors.MessageSentToErrorQueue += (sender, message) =>
                     {
-                        testContext.MessageSentToErrorException = message.Exception;
+                        testContext.MessageSentToErrorException = message.ExceptionInfo;
                         testContext.MessageSentToError = true;
                     };
 

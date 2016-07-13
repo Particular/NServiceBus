@@ -1,7 +1,5 @@
 namespace NServiceBus
 {
-    using Transport;
-
     /// <summary>
     /// Abstraction for deciding on recoverability action based on failure context.
     /// </summary>

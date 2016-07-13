@@ -365,9 +365,36 @@ namespace NServiceBus
     {
         public static NServiceBus.Routing.EndpointInstance AtMachine(this NServiceBus.Routing.EndpointInstance instance, string machineName) { }
     }
+    public class ErrorContext
+    {
+        public ErrorContext(NServiceBus.ExceptionInfo exceptionInfo, System.Collections.Generic.Dictionary<string, string> headers, string transportMessageId, System.IO.Stream bodyStream, NServiceBus.Transport.TransportTransaction transportTransaction, int numberOfDeliveryAttempts) { }
+        public ErrorContext(System.Exception exception, System.Collections.Generic.Dictionary<string, string> headers, string transportMessageId, System.IO.Stream bodyStream, NServiceBus.Transport.TransportTransaction transportTransaction, int numberOfDeliveryAttempts) { }
+        public NServiceBus.ExceptionInfo ExceptionInfo { get; }
+        public NServiceBus.Transport.IncomingMessage Message { get; }
+        public int NumberOfDeliveryAttempts { get; }
+        public NServiceBus.Transport.TransportTransaction TransportTransaction { get; }
+    }
+    public enum ErrorHandleResult
+    {
+        Handled = 0,
+        RetryRequired = 1,
+    }
     public class static ErrorQueueSettings
     {
         public static string ErrorQueueAddress(this NServiceBus.Settings.ReadOnlySettings settings) { }
+    }
+    public class ExceptionInfo
+    {
+        public ExceptionInfo(string typeFullName, string innerExceptionTypeFullName, string helpLink, string message, string source, string stackTrace, string timeOfFailure, System.Collections.Generic.Dictionary<string, string> data) { }
+        public System.Collections.Generic.Dictionary<string, string> Data { get; }
+        public string HelpLink { get; }
+        public string InnerExceptionTypeFullName { get; }
+        public string Message { get; }
+        public string Source { get; }
+        public string StackTrace { get; }
+        public string TimeOfFailure { get; }
+        public string TypeFullName { get; }
+        public static NServiceBus.ExceptionInfo FromException(System.Exception e) { }
     }
     [System.AttributeUsageAttribute(System.AttributeTargets.Class | System.AttributeTargets.Interface | System.AttributeTargets.All)]
     public sealed class ExpressAttribute : System.Attribute
@@ -679,7 +706,7 @@ namespace NServiceBus
     public interface IRecoverabilityPolicy
     {
         bool RaiseRecoverabilityNotifications { get; }
-        NServiceBus.RecoverabilityAction Invoke(NServiceBus.Transport.ErrorContext errorContext);
+        NServiceBus.RecoverabilityAction Invoke(NServiceBus.ErrorContext errorContext);
     }
     [System.ObsoleteAttribute("Use IEndpointInstance to create sending session. Will be removed in version 7.0.0" +
         ".", true)]
@@ -1037,7 +1064,7 @@ namespace NServiceBus
     public class SecondLevelRetryContext
     {
         public SecondLevelRetryContext() { }
-        public System.Exception Exception { get; set; }
+        public NServiceBus.ExceptionInfo ExceptionInfo { get; set; }
         public NServiceBus.Transport.IncomingMessage Message { get; set; }
         public int SecondLevelRetryAttempt { get; set; }
     }
@@ -1580,9 +1607,9 @@ namespace NServiceBus.Faults
     }
     public struct FailedMessage
     {
-        public FailedMessage(string messageId, System.Collections.Generic.Dictionary<string, string> headers, byte[] body, System.Exception exception) { }
+        public FailedMessage(string messageId, System.Collections.Generic.Dictionary<string, string> headers, byte[] body, NServiceBus.ExceptionInfo exceptionInfo) { }
         public byte[] Body { get; }
-        public System.Exception Exception { get; }
+        public NServiceBus.ExceptionInfo ExceptionInfo { get; }
         public System.Collections.Generic.Dictionary<string, string> Headers { get; }
         public string MessageId { get; }
     }
@@ -1592,9 +1619,9 @@ namespace NServiceBus.Faults
     }
     public struct FirstLevelRetry
     {
-        public FirstLevelRetry(string messageId, System.Collections.Generic.Dictionary<string, string> headers, byte[] body, System.Exception exception, int retryAttempt) { }
+        public FirstLevelRetry(string messageId, System.Collections.Generic.Dictionary<string, string> headers, byte[] body, NServiceBus.ExceptionInfo exceptionInfo, int retryAttempt) { }
         public byte[] Body { get; }
-        public System.Exception Exception { get; }
+        public NServiceBus.ExceptionInfo ExceptionInfo { get; }
         public System.Collections.Generic.Dictionary<string, string> Headers { get; }
         public string MessageId { get; }
         public int RetryAttempt { get; }
@@ -1605,9 +1632,9 @@ namespace NServiceBus.Faults
     public interface IManageMessageFailures { }
     public struct SecondLevelRetry
     {
-        public SecondLevelRetry(System.Collections.Generic.Dictionary<string, string> headers, byte[] body, System.Exception exception, int retryAttempt) { }
+        public SecondLevelRetry(System.Collections.Generic.Dictionary<string, string> headers, byte[] body, NServiceBus.ExceptionInfo exceptionInfo, int retryAttempt) { }
         public byte[] Body { get; }
-        public System.Exception Exception { get; }
+        public NServiceBus.ExceptionInfo ExceptionInfo { get; }
         public System.Collections.Generic.Dictionary<string, string> Headers { get; }
         public int RetryAttempt { get; }
     }
@@ -2955,19 +2982,6 @@ namespace NServiceBus.Transport
         Default = 1,
         Isolated = 2,
     }
-    public class ErrorContext
-    {
-        public ErrorContext(System.Exception exception, System.Collections.Generic.Dictionary<string, string> headers, string transportMessageId, System.IO.Stream bodyStream, NServiceBus.Transport.TransportTransaction transportTransaction, int numberOfDeliveryAttempts) { }
-        public System.Exception Exception { get; }
-        public NServiceBus.Transport.IncomingMessage Message { get; }
-        public int NumberOfDeliveryAttempts { get; }
-        public NServiceBus.Transport.TransportTransaction TransportTransaction { get; }
-    }
-    public enum ErrorHandleResult
-    {
-        Handled = 0,
-        RetryRequired = 1,
-    }
     public interface ICancelDeferredMessages
     {
         System.Threading.Tasks.Task CancelDeferredMessages(string messageKey, NServiceBus.Pipeline.IBehaviorContext context);
@@ -3006,7 +3020,7 @@ namespace NServiceBus.Transport
     }
     public interface IPushMessages
     {
-        System.Threading.Tasks.Task Init(System.Func<NServiceBus.Transport.MessageContext, System.Threading.Tasks.Task> onMessage, System.Func<NServiceBus.Transport.ErrorContext, System.Threading.Tasks.Task<NServiceBus.Transport.ErrorHandleResult>> onError, NServiceBus.CriticalError criticalError, NServiceBus.Transport.PushSettings settings);
+        System.Threading.Tasks.Task Init(System.Func<NServiceBus.Transport.MessageContext, System.Threading.Tasks.Task> onMessage, System.Func<NServiceBus.ErrorContext, System.Threading.Tasks.Task<NServiceBus.ErrorHandleResult>> onError, NServiceBus.CriticalError criticalError, NServiceBus.Transport.PushSettings settings);
         void Start(NServiceBus.Transport.PushRuntimeSettings limitations);
         System.Threading.Tasks.Task Stop();
     }

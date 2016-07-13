@@ -1,8 +1,9 @@
-﻿namespace NServiceBus.Transport
+﻿namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
     using System.IO;
+    using Transport;
 
     /// <summary>
     /// The context for messages that has failed processing.
@@ -10,9 +11,9 @@
     public class ErrorContext
     {
         /// <summary>
-        /// Exception that caused the message processing to fail.
+        /// Details of the exception that caused the message processing to fail.
         /// </summary>
-        public Exception Exception { get; }
+        public ExceptionInfo ExceptionInfo { get; }
 
         /// <summary>
         /// Transport transaction for failed receive message.
@@ -30,11 +31,11 @@
         public IncomingMessage Message { get; }
 
         /// <summary>
-        /// Initializes the error context.
+        /// Creates <see cref="ErrorContext"/>.
         /// </summary>
-        public ErrorContext(Exception exception, Dictionary<string, string> headers, string transportMessageId, Stream bodyStream, TransportTransaction transportTransaction, int numberOfDeliveryAttempts)
+        public ErrorContext(ExceptionInfo exceptionInfo, Dictionary<string, string> headers, string transportMessageId, Stream bodyStream, TransportTransaction transportTransaction, int numberOfDeliveryAttempts)
         {
-            Exception = exception;
+            ExceptionInfo = exceptionInfo;
             TransportTransaction = transportTransaction;
             NumberOfDeliveryAttempts = numberOfDeliveryAttempts;
 
@@ -42,6 +43,15 @@
 
             //Incoming message reads the body stream so we need to rewind it
             Message.BodyStream.Position = 0;
+        }
+
+        /// <summary>
+        /// Creates <see cref="ErrorContext"/>.
+        /// </summary>
+        public ErrorContext(Exception exception, Dictionary<string, string> headers, string transportMessageId, Stream bodyStream, TransportTransaction transportTransaction, int numberOfDeliveryAttempts)
+            : this(ExceptionInfo.FromException(exception), headers, transportMessageId, bodyStream, transportTransaction, numberOfDeliveryAttempts)
+        {
+            
         }
     }
 }

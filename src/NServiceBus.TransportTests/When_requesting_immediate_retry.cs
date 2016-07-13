@@ -3,7 +3,6 @@ namespace NServiceBus.TransportTests
     using System;
     using System.Threading.Tasks;
     using NUnit.Framework;
-    using Transport;
 
     public class When_requesting_immediate_retry : NServiceBusTransportTest
     {

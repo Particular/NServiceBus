@@ -29,7 +29,7 @@
             Assert.AreEqual(1, exception.FailedMessages.Count);
             StringAssert.Contains(
                 "Changing the value of correlated properties at runtime is currently not supported",
-                exception.FailedMessages.Single().Exception.Message);
+                exception.FailedMessages.Single().ExceptionInfo.Message);
         }
 
         public class Context : ScenarioContext

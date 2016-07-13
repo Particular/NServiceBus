@@ -14,29 +14,10 @@ namespace NServiceBus.Core.Tests.Utils
             var exception = GetAnException();
             var dictionary = new Dictionary<string, string>();
 
-            ExceptionHeaderHelper.SetExceptionHeaders(dictionary, exception, false);
+            ExceptionHeaderHelper.SetExceptionHeaders(dictionary, ExceptionInfo.FromException(exception));
 
             Assert.AreEqual("System.AggregateException", dictionary["NServiceBus.ExceptionInfo.ExceptionType"]);
             Assert.AreEqual(exception.ToString(), dictionary["NServiceBus.ExceptionInfo.StackTrace"]);
-            Assert.IsTrue(dictionary.ContainsKey("NServiceBus.TimeOfFailure"));
-
-            Assert.AreEqual("System.Exception", dictionary["NServiceBus.ExceptionInfo.InnerExceptionType"]);
-            Assert.AreEqual("A fake help link", dictionary["NServiceBus.ExceptionInfo.HelpLink"]);
-            Assert.AreEqual("NServiceBus.Core.Tests", dictionary["NServiceBus.ExceptionInfo.Source"]);
-        }
-
-
-
-        [Test]
-        public void VerifyLegacyHeadersAreSet()
-        {
-            var exception = GetAnException();
-            var dictionary = new Dictionary<string, string>();
-
-            ExceptionHeaderHelper.SetExceptionHeaders(dictionary, exception, true);
-
-            Assert.AreEqual("System.AggregateException", dictionary["NServiceBus.ExceptionInfo.ExceptionType"]);
-            Assert.AreEqual(exception.StackTrace, dictionary["NServiceBus.ExceptionInfo.StackTrace"]);
             Assert.IsTrue(dictionary.ContainsKey("NServiceBus.TimeOfFailure"));
 
             Assert.AreEqual("System.Exception", dictionary["NServiceBus.ExceptionInfo.InnerExceptionType"]);
@@ -74,17 +55,6 @@ namespace NServiceBus.Core.Tests.Utils
         void MethodThatThrows2()
         {
             throw new Exception("My Inner Exception");
-        }
-
-        [Test]
-        public void ExceptionMessageIsTruncated()
-        {
-            var exception = new Exception(new string('x', (int)Math.Pow(2, 15)));
-            var dictionary = new Dictionary<string, string>();
-
-            ExceptionHeaderHelper.SetExceptionHeaders(dictionary, exception, false);
-
-            Assert.AreEqual((int)Math.Pow(2, 14), dictionary["NServiceBus.ExceptionInfo.Message"].Length);
         }
     }
 }

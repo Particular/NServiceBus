@@ -2,7 +2,6 @@ namespace NServiceBus.TransportTests
 {
     using System.Threading.Tasks;
     using NUnit.Framework;
-    using Transport;
 
     public class When_user_aborts_processing : NServiceBusTransportTest
     {

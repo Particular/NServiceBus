@@ -1,6 +1,5 @@
 namespace NServiceBus
 {
-    using System;
     using Transport;
 
     /// <summary>
@@ -14,9 +13,9 @@ namespace NServiceBus
         public IncomingMessage Message { get; set; }
 
         /// <summary>
-        /// The exception that occurred.
+        /// Details of the exception that occurred.
         /// </summary>
-        public Exception Exception { get; set; }
+        public ExceptionInfo ExceptionInfo { get; set; }
 
         /// <summary>
         /// The current second level retry attempt.

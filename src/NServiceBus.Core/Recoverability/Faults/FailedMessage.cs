@@ -1,6 +1,5 @@
 namespace NServiceBus.Faults
 {
-    using System;
     using System.Collections.Generic;
 
     /// <summary>
@@ -14,13 +13,13 @@ namespace NServiceBus.Faults
         /// <param name="messageId">The id of the failed message.</param>
         /// <param name="headers">Message headers.</param>
         /// <param name="body">Message body.</param>
-        /// <param name="exception">Exception thrown.</param>
-        public FailedMessage(string messageId, Dictionary<string, string> headers, byte[] body, Exception exception)
+        /// <param name="exceptionInfo">Exception thrown.</param>
+        public FailedMessage(string messageId, Dictionary<string, string> headers, byte[] body, ExceptionInfo exceptionInfo)
         {
             MessageId = messageId;
             Headers = headers;
             Body = body;
-            Exception = exception;
+            ExceptionInfo = exceptionInfo;
         }
 
         /// <summary>
@@ -36,7 +35,7 @@ namespace NServiceBus.Faults
         /// <summary>
         /// The exception that caused this message to fail.
         /// </summary>
-        public Exception Exception { get; }
+        public ExceptionInfo ExceptionInfo { get; }
 
         /// <summary>
         /// The id of the failed message.

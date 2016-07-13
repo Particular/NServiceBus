@@ -4,7 +4,6 @@ namespace NServiceBus.TransportTests
     using System.Collections.Generic;
     using System.Threading.Tasks;
     using NUnit.Framework;
-    using Transport;
 
     public class When_sending_from_on_error : NServiceBusTransportTest
     {

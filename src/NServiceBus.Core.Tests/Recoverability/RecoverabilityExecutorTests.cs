@@ -79,7 +79,7 @@
 
             Assert.AreEqual(0, failure.Attempt);
             Assert.IsTrue(failure.IsImmediateRetry);
-            Assert.AreEqual("test", failure.Exception.Message);
+            Assert.AreEqual("test", failure.ExceptionInfo.Message);
             Assert.AreEqual("message-id", failure.Message.MessageId);
         }
 
@@ -95,7 +95,7 @@
 
             Assert.AreEqual(1, failure.Attempt);
             Assert.IsFalse(failure.IsImmediateRetry);
-            Assert.AreEqual("test", failure.Exception.Message);
+            Assert.AreEqual("test", failure.ExceptionInfo.Message);
             Assert.AreEqual("message-id", failure.Message.MessageId);
         }
 
@@ -109,7 +109,7 @@
 
             var failure = eventAggregator.GetNotification<MessageFaulted>();
 
-            Assert.AreEqual("test", failure.Exception.Message);
+            Assert.AreEqual("test", failure.ExceptionInfo.Message);
             Assert.AreEqual("message-id", failure.Message.MessageId);
         }
 

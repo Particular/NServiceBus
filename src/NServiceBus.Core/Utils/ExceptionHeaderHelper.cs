@@ -1,55 +1,32 @@
 ﻿namespace NServiceBus
 {
-    using System;
-    using System.Collections;
     using System.Collections.Generic;
-    using System.Configuration;
 
     static class ExceptionHeaderHelper
     {
-        public static void SetExceptionHeaders(Dictionary<string, string> headers, Exception e)
+        public static void SetExceptionHeaders(Dictionary<string, string> headers, ExceptionInfo exceptionInfo)
         {
-            SetExceptionHeaders(headers, e, useLegacyStackTrace);
-        }
+            headers["NServiceBus.ExceptionInfo.ExceptionType"] = exceptionInfo.TypeFullName;
 
-        public static void SetExceptionHeaders(Dictionary<string, string> headers, Exception e, bool legacyStacktrace)
-        {
-            headers["NServiceBus.ExceptionInfo.ExceptionType"] = e.GetType().FullName;
-
-            if (e.InnerException != null)
+            if (exceptionInfo.InnerExceptionTypeFullName != null)
             {
-                headers["NServiceBus.ExceptionInfo.InnerExceptionType"] = e.InnerException.GetType().FullName;
+                headers["NServiceBus.ExceptionInfo.InnerExceptionType"] = exceptionInfo.InnerExceptionTypeFullName;
             }
 
-            headers["NServiceBus.ExceptionInfo.HelpLink"] = e.HelpLink;
-            headers["NServiceBus.ExceptionInfo.Message"] = e.GetMessage().Truncate(16384);
-            headers["NServiceBus.ExceptionInfo.Source"] = e.Source;
+            headers["NServiceBus.ExceptionInfo.HelpLink"] = exceptionInfo.HelpLink;
+            headers["NServiceBus.ExceptionInfo.Message"] = exceptionInfo.Message;
+            headers["NServiceBus.ExceptionInfo.Source"] = exceptionInfo.Source;
+            headers["NServiceBus.ExceptionInfo.StackTrace"] = exceptionInfo.StackTrace;
+            headers["NServiceBus.TimeOfFailure"] = exceptionInfo.TimeOfFailure;
 
-            if (legacyStacktrace)
-            {
-                headers["NServiceBus.ExceptionInfo.StackTrace"] = e.StackTrace;
-            }
-            else
-            {
-                headers["NServiceBus.ExceptionInfo.StackTrace"] = e.ToString();
-            }
-            headers["NServiceBus.TimeOfFailure"] = DateTimeExtensions.ToWireFormattedString(DateTime.UtcNow);
-
-            // ReSharper disable once ConditionIsAlwaysTrueOrFalse
-            if (e.Data == null)
-            // ReSharper disable HeuristicUnreachableCode
+            if (exceptionInfo.Data == null)
             {
                 return;
             }
-            // ReSharper restore HeuristicUnreachableCode
 
-            foreach (DictionaryEntry entry in e.Data)
+            foreach (var entry in exceptionInfo.Data)
             {
-                if (entry.Value == null)
-                {
-                    continue;
-                }
-                headers["NServiceBus.ExceptionInfo.Data." + entry.Key] = entry.Value.ToString();
+                headers["NServiceBus.ExceptionInfo.Data." + entry.Key] = entry.Value;
             }
         }
 
@@ -59,7 +36,5 @@
                 : (value.Length <= maxLength
                     ? value
                     : value.Substring(0, maxLength));
-
-        static bool useLegacyStackTrace = string.Equals(ConfigurationManager.AppSettings["NServiceBus/Headers/UseLegacyExceptionStackTrace"], "true", StringComparison.OrdinalIgnoreCase);
     }
 }

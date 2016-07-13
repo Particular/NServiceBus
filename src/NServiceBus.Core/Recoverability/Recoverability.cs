@@ -162,11 +162,11 @@
             {
                 if (e.IsImmediateRetry)
                 {
-                    legacyNotifications.Errors.InvokeMessageHasFailedAFirstLevelRetryAttempt(e.Attempt, e.Message, e.Exception);
+                    legacyNotifications.Errors.InvokeMessageHasFailedAFirstLevelRetryAttempt(e.Attempt, e.Message, e.ExceptionInfo);
                 }
                 else
                 {
-                    legacyNotifications.Errors.InvokeMessageHasBeenSentToSecondLevelRetries(e.Attempt, e.Message, e.Exception);
+                    legacyNotifications.Errors.InvokeMessageHasBeenSentToSecondLevelRetries(e.Attempt, e.Message, e.ExceptionInfo);
                 }
 
                 return TaskEx.CompletedTask;
@@ -174,7 +174,7 @@
 
             notifications.Subscribe<MessageFaulted>(e =>
             {
-                legacyNotifications.Errors.InvokeMessageHasBeenSentToErrorQueue(e.Message, e.Exception);
+                legacyNotifications.Errors.InvokeMessageHasBeenSentToErrorQueue(e.Message, e.ExceptionInfo);
                 return TaskEx.CompletedTask;
             });
         }

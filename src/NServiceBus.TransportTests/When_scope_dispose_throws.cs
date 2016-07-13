@@ -4,7 +4,6 @@
     using System.Threading.Tasks;
     using System.Transactions;
     using NUnit.Framework;
-    using Transport;
 
     public class When_scope_dispose_throws : NServiceBusTransportTest
     {
@@ -33,7 +32,7 @@
 
             var errorContext = await onErrorCalled.Task;
 
-            Assert.IsInstanceOf<TransactionAbortedException>(errorContext.Exception);
+            Assert.AreEqual(typeof(TransactionAbortedException).FullName, errorContext.ExceptionInfo.TypeFullName);
 
             // since some transports doesn't have native retry counters we can't expect the attempts to be fully consistent since if
             // dispose throws the message might be picked up before the counter is incremented

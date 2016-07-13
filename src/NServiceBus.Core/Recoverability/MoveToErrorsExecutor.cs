@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus
 {
-    using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
     using Extensibility;
@@ -16,7 +15,7 @@
             this.staticFaultMetadata = staticFaultMetadata;
         }
 
-        public Task MoveToErrorQueue(IncomingMessage message, Exception exception, TransportTransaction transportTransaction)
+        public Task MoveToErrorQueue(IncomingMessage message, ExceptionInfo exception, TransportTransaction transportTransaction)
         {
             message.RevertToOriginalBodyIfNeeded();
 

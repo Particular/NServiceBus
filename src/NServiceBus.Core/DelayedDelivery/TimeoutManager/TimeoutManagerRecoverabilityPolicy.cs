@@ -1,7 +1,5 @@
 ﻿namespace NServiceBus
 {
-    using Transport;
-
     class TimeoutManagerRecoverabilityPolicy : IRecoverabilityPolicy
     {
         public TimeoutManagerRecoverabilityPolicy()
