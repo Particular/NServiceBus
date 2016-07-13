@@ -14,7 +14,7 @@
             }
 
             headers["NServiceBus.ExceptionInfo.HelpLink"] = exceptionInfo.HelpLink;
-            headers["NServiceBus.ExceptionInfo.Message"] = exceptionInfo.Message.Truncate(16384);
+            headers["NServiceBus.ExceptionInfo.Message"] = exceptionInfo.Message;
             headers["NServiceBus.ExceptionInfo.Source"] = exceptionInfo.Source;
             headers["NServiceBus.ExceptionInfo.StackTrace"] = exceptionInfo.StackTrace;
             headers["NServiceBus.TimeOfFailure"] = exceptionInfo.TimeOfFailure;
