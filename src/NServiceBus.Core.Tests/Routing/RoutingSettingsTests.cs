@@ -1,5 +1,6 @@
 ﻿
 using NServiceBus;
+using System;
 
 namespace NServiceBus.Core.Tests.Routing
 {
