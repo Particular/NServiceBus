@@ -3,8 +3,8 @@
     using System;
     using System.Collections.Generic;
     using System.IO;
-    using Transport;
     using NUnit.Framework;
+    using Transport;
 
     [TestFixture]
     public class DefaultRecoverabilityPolicyTests
@@ -15,7 +15,7 @@
             var policy = CreatePolicy(maxImmediateRetries: 3);
             var errorContext = CreateErrorContext(numberOfDeliveryAttempts: 2);
 
-            var recoverabilityAction = policy.Invoke(errorContext);
+            var recoverabilityAction = policy(errorContext);
 
             Assert.IsInstanceOf<ImmediateRetry>(recoverabilityAction, "We should have one immediate retry left. It is second delivery attempt and we configured immediate reties to 2.");
         }
@@ -26,7 +26,7 @@
             var policy = CreatePolicy(maxImmediateRetries: 1);
             var errorContext = CreateErrorContext(numberOfDeliveryAttempts: 3);
 
-            var recoverabilityAction = policy.Invoke(errorContext);
+            var recoverabilityAction = policy(errorContext);
 
             Assert.IsInstanceOf<DelayedRetry>(recoverabilityAction, "When max number of immediate retries exceeded should return DelayedRetry.");
         }
@@ -37,7 +37,7 @@
             var policy = CreatePolicy(maxImmediateRetries: 1, delayedRetriesEnabled: false);
             var errorContext = CreateErrorContext(numberOfDeliveryAttempts: 3);
 
-            var recoverabilityAction = policy.Invoke(errorContext);
+            var recoverabilityAction = policy(errorContext);
 
             Assert.IsInstanceOf<MoveToError>(recoverabilityAction, "When max number of immediate retries exceeded and delayed retry disabled should return MoveToErrors.");
         }
@@ -49,7 +49,7 @@
             var policy = CreatePolicy(maxImmediateRetries: 0, delayedRetryDelay: deliveryDelay);
             var errorContext = CreateErrorContext(numberOfDeliveryAttempts: 1);
 
-            var recoverabilityAction = policy.Invoke(errorContext);
+            var recoverabilityAction = policy(errorContext);
             var delayedRetryAction = recoverabilityAction as DelayedRetry;
 
             Assert.IsInstanceOf<DelayedRetry>(recoverabilityAction, "When immediate retries turned off and delayed retries left, recoverability policy should return DelayedRetry");
@@ -62,7 +62,7 @@
             var policy = CreatePolicy(maxImmediateRetries: 0, maxDelayedRetries: 0, delayedRetryDelay: TimeSpan.Zero);
             var errorContext = CreateErrorContext();
 
-            var recoverabilityAction = policy.Invoke(errorContext);
+            var recoverabilityAction = policy(errorContext);
 
             Assert.IsInstanceOf<MoveToError>(recoverabilityAction, "When immediate retries turned off and slr policy returns no delay should return MoveToErrors");
         }
@@ -73,7 +73,7 @@
             var policy = CreatePolicy(maxImmediateRetries: 0, delayedRetriesEnabled: false);
             var errorContext = CreateErrorContext();
 
-            var recoverabilityAction = policy.Invoke(errorContext);
+            var recoverabilityAction = policy(errorContext);
 
             Assert.IsInstanceOf<MoveToError>(recoverabilityAction, "When immediate retries turned off and delayed retries disabled should return MoveToErrors");
         }
@@ -82,21 +82,76 @@
         public void When_slr_counter_header_exists_recoverability_policy_should_use_it()
         {
             var policy = CreatePolicy(maxImmediateRetries: 0, maxDelayedRetries: 1, delayedRetryDelay: TimeSpan.Zero);
-            var errorContext = CreateErrorContext(headers: new Dictionary<string, string> { { Headers.Retries, "1" } });
+            var errorContext = CreateErrorContext(retryNumber: 1);
 
-            var recoverabilityAction = policy.Invoke(errorContext);
+            var recoverabilityAction = policy(errorContext);
 
             Assert.IsInstanceOf<MoveToError>(recoverabilityAction, "When slr cunter in headers reaches max slr retries, policy should return MoveToErrors");
         }
 
-        ErrorContext CreateErrorContext(int numberOfDeliveryAttempts = 0, Dictionary<string, string> headers = null)
+        [Test]
+        public void ShouldRetryTheSpecifiedTimesWithIncreasedDelay()
         {
-            return new ErrorContext(new Exception(), headers ?? new Dictionary<string, string>(), "message-id", new MemoryStream(), new TransportTransaction(), numberOfDeliveryAttempts);
+            var baseDelay = TimeSpan.FromSeconds(10);
+            var policy = CreatePolicy(maxImmediateRetries: 0, maxDelayedRetries: 2, delayedRetryDelay: baseDelay);
+
+            var errorContext = CreateErrorContext(retryNumber: 0);
+            var result1 = (DelayedRetry) policy(errorContext);
+
+            errorContext = CreateErrorContext(retryNumber: 1);
+            var result2 = (DelayedRetry) policy(errorContext);
+
+            errorContext = CreateErrorContext(retryNumber: 2);
+            var result3 = policy(errorContext);
+
+
+            Assert.AreEqual(baseDelay, result1.Delay);
+            Assert.AreEqual(TimeSpan.FromSeconds(20), result2.Delay);
+            Assert.IsInstanceOf<MoveToError>(result3);
         }
 
-        DefaultRecoverabilityPolicy CreatePolicy(int maxImmediateRetries = 2, int maxDelayedRetries = 2, TimeSpan? delayedRetryDelay = null, bool delayedRetriesEnabled = true)
+        [Test]
+        public void ShouldCapTheRetryMaxTimeTo24Hours()
         {
-            return new DefaultRecoverabilityPolicy(maxImmediateRetries > 0, delayedRetriesEnabled, maxImmediateRetries, new DefaultSecondLevelRetryPolicy(maxDelayedRetries, delayedRetryDelay ?? TimeSpan.FromSeconds(2)));
+            var provider = DefaultRecoverabilityPolicy.CurrentUtcTimeProvider;
+            try
+            {
+                var now = DateTime.UtcNow;
+                var baseDelay = TimeSpan.FromSeconds(10);
+                DefaultRecoverabilityPolicy.CurrentUtcTimeProvider = () => now;
+
+                var policy = CreatePolicy(maxImmediateRetries: 0, maxDelayedRetries: 2, delayedRetryDelay: baseDelay);
+
+                var moreThanADayAgo = now.AddHours(-24).AddTicks(-1);
+                var headers = new Dictionary<string, string>
+                {
+                    {Headers.RetriesTimestamp, DateTimeExtensions.ToWireFormattedString(moreThanADayAgo)}
+                };
+
+                var errorContext = CreateErrorContext(headers: headers);
+
+                var result = policy(errorContext);
+
+                Assert.IsInstanceOf<MoveToError>(result);
+            }
+            finally
+            {
+                DefaultRecoverabilityPolicy.CurrentUtcTimeProvider = provider;
+            }
+        }
+
+        ErrorContext CreateErrorContext(int numberOfDeliveryAttempts = 0, int? retryNumber = null, Dictionary<string, string> headers = null)
+        {
+            return new ErrorContext(new Exception(), retryNumber.HasValue ? new Dictionary<string, string>
+            {
+                {Headers.Retries, retryNumber.ToString()}
+            } : headers ?? new Dictionary<string, string>(), "message-id", new MemoryStream(), new TransportTransaction(), numberOfDeliveryAttempts);
+        }
+
+        static Func<ErrorContext, RecoverabilityAction> CreatePolicy(int maxImmediateRetries = 2, int maxDelayedRetries = 2, TimeSpan? delayedRetryDelay = null, bool delayedRetriesEnabled = true)
+        {
+            var config = new RecoverabilityConfig(new ImmediateConfig(maxImmediateRetries, maxImmediateRetries > 0), new DelayedConfig(maxDelayedRetries, delayedRetryDelay.GetValueOrDefault(TimeSpan.FromSeconds(2)), delayedRetriesEnabled));
+            return context => DefaultRecoverabilityPolicy.Invoke(config, context);
         }
     }
 }

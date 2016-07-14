@@ -28,9 +28,8 @@
                     RecoverabilityAction.ImmediateRetry(),
                     RecoverabilityAction.DelayedRetry(TimeSpan.FromSeconds(10)),
                     RecoverabilityAction.MoveToError()
-                },
-                raiseNotifications: false);
-            var executor = CreateExecutor(policy);
+                });
+            var executor = CreateExecutor(policy, raiseNotifications: false);
             var errorContext = CreateErrorContext();
 
             await executor.Invoke(errorContext); //force retry
@@ -136,10 +135,12 @@
             return new ErrorContext(raisedException ?? new Exception(exceptionMessage), new Dictionary<string, string>(), messageId, Stream.Null, new TransportTransaction(), numberOfDeliveryAttempts);
         }
 
-        RecoverabilityExecutor CreateExecutor(IRecoverabilityPolicy policy, bool transactionsOn = true, bool delayedRetriesSupported = true)
+        RecoverabilityExecutor CreateExecutor(Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> policy, bool transactionsOn = true, bool delayedRetriesSupported = true, bool raiseNotifications = true)
         {
             return new RecoverabilityExecutor(
+                raiseNotifications,
                 policy,
+                new RecoverabilityConfig(new ImmediateConfig(), new DelayedConfig(0, TimeSpan.MinValue, delayedRetriesSupported)),
                 eventAggregator,
                 delayedRetriesSupported ? new DelayedRetryExecutor(InputQueueAddress, dispatcher) : null,
                 new MoveToErrorsExecutor(dispatcher, ErrorQueueAddress, new Dictionary<string, string>()),
@@ -152,49 +153,36 @@
         static string ErrorQueueAddress = "error-queue";
         static string InputQueueAddress = "input-queue";
 
-        class RetryPolicy : IRecoverabilityPolicy
+        class RetryPolicy
         {
-            RetryPolicy(RecoverabilityAction[] actions, bool raiseNotifications = true)
+            RetryPolicy(RecoverabilityAction[] actions)
             {
                 this.actions = new Queue<RecoverabilityAction>(actions);
-
-                RaiseRecoverabilityNotifications = raiseNotifications;
             }
 
-            public RecoverabilityAction Invoke(ErrorContext errorContext)
+            public RecoverabilityAction Invoke(RecoverabilityConfig config, ErrorContext errorContext)
             {
                 return actions.Dequeue();
             }
 
-            public bool RaiseRecoverabilityNotifications { get; }
-
-            public static IRecoverabilityPolicy AlwaysDelay(TimeSpan delay)
+            public static Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> AlwaysDelay(TimeSpan delay)
             {
-                return new RetryPolicy(new[]
-                {
-                    RecoverabilityAction.DelayedRetry(delay)
-                });
+                return new RetryPolicy(new [] { RecoverabilityAction.DelayedRetry(delay) }).Invoke;
             }
 
-            public static IRecoverabilityPolicy AlwaysMoveToErrors()
+            public static Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> AlwaysMoveToErrors()
             {
-                return new RetryPolicy(new[]
-                {
-                    RecoverabilityAction.MoveToError()
-                });
+                return new RetryPolicy(new[] { RecoverabilityAction.MoveToError() }).Invoke;
             }
 
-            public static IRecoverabilityPolicy AlwaysRetry()
+            public static Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> AlwaysRetry()
             {
-                return new RetryPolicy(new[]
-                {
-                    RecoverabilityAction.ImmediateRetry()
-                });
+                return new RetryPolicy(new[] { RecoverabilityAction.ImmediateRetry() }).Invoke;
             }
 
-            public static IRecoverabilityPolicy Return(RecoverabilityAction[] actions, bool raiseNotifications)
+            public static Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> Return(RecoverabilityAction[] actions)
             {
-                return new RetryPolicy(actions, raiseNotifications);
+                return new RetryPolicy(actions).Invoke;
             }
 
             Queue<RecoverabilityAction> actions;

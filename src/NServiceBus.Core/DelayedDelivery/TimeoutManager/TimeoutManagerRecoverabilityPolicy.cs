@@ -2,24 +2,17 @@
 {
     using Transport;
 
-    class TimeoutManagerRecoverabilityPolicy : IRecoverabilityPolicy
+    class TimeoutManagerRecoverabilityPolicy
     {
-        public TimeoutManagerRecoverabilityPolicy()
+        public static RecoverabilityAction Invoke(RecoverabilityConfig config, ErrorContext errorContext)
         {
-            RaiseRecoverabilityNotifications = false;
-        }
-
-        public RecoverabilityAction Invoke(ErrorContext errorContext)
-        {
-            if (errorContext.NumberOfDeliveryAttempts <= MaxNumberOfFailedRetries)
+            if (errorContext.NumberOfImmediateDeliveryAttempts <= MaxNumberOfFailedRetries)
             {
                 return RecoverabilityAction.ImmediateRetry();
             }
 
             return RecoverabilityAction.MoveToError();
         }
-
-        public bool RaiseRecoverabilityNotifications { get; }
 
         const int MaxNumberOfFailedRetries = 4;
     }

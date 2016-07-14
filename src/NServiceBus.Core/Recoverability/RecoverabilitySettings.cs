@@ -7,7 +7,7 @@ namespace NServiceBus
     using Transport;
 
     /// <summary>
-    /// Configuration settings for recoverability
+    /// Configuration settings for recoverability.
     /// </summary>
     public class RecoverabilitySettings : ExposeSettings
     {
@@ -80,10 +80,10 @@ namespace NServiceBus
     /// </summary>
     public struct ImmediateConfig
     {
-        internal ImmediateConfig(int maxNumberOfRetries, bool disabled)
+        internal ImmediateConfig(int maxNumberOfRetries, bool enabled)
         {
             MaxNumberOfRetries = maxNumberOfRetries;
-            Disabled = disabled;
+            Enabled = enabled;
         }
 
         /// <summary>
@@ -92,9 +92,9 @@ namespace NServiceBus
         public int MaxNumberOfRetries { get;  }
 
         /// <summary>
-        /// Indiciates whether immediate retries are disabled or not.
+        /// Indiciates whether immediate retries are enabled or not.
         /// </summary>
-        public bool Disabled { get; }
+        public bool Enabled { get; }
     }
 
     /// <summary>
@@ -102,11 +102,11 @@ namespace NServiceBus
     /// </summary>
     public struct DelayedConfig
     {
-        internal DelayedConfig(int maxNumberOfRetries, TimeSpan timeIncrease, bool disabled)
+        internal DelayedConfig(int maxNumberOfRetries, TimeSpan timeIncrease, bool enabled)
         {
             MaxNumberOfRetries = maxNumberOfRetries;
             TimeIncrease = timeIncrease;
-            Disabled = disabled;
+            Enabled = enabled;
         }
 
         /// <summary>
@@ -120,18 +120,18 @@ namespace NServiceBus
         public TimeSpan TimeIncrease { get; }
 
         /// <summary>
-        /// Indiciates whether delayed retries are disabled or not.
+        /// Indiciates whether delayed retries are enabled or not.
         /// </summary>
-        public bool Disabled { get; }
+        public bool Enabled { get; }
     }
 
     /// <summary>
-    /// Extension methods for recoverability which extend <see cref="EndpointConfiguration"/>
+    /// Extension methods for recoverability which extend <see cref="EndpointConfiguration"/>.
     /// </summary>
     public static class RecoverabilityEndpointConfigurationExtensions
     {
         /// <summary>
-        /// Configuration settings for recoverability
+        /// Configuration settings for recoverability.
         /// </summary>
         /// <param name="configuration">The endpoint configuration.</param>
         public static RecoverabilitySettings Recoverability(this EndpointConfiguration configuration)
@@ -141,7 +141,7 @@ namespace NServiceBus
     }
 
     /// <summary>
-    /// Configuration settings for immediate retries
+    /// Configuration settings for immediate retries.
     /// </summary>
     public class ImmediateRetriesSettings : ExposeSettings
     {
@@ -212,7 +212,7 @@ namespace NServiceBus
     }
 
     /// <summary>
-    /// Configuration settings for retry faults
+    /// Configuration settings for retry faults.
     /// </summary>
     public class RetryFailedSettings : ExposeSettings
     {

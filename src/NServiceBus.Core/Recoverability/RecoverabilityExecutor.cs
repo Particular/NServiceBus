@@ -7,16 +7,16 @@
 
     class RecoverabilityExecutor
     {
-        public RecoverabilityExecutor(IRecoverabilityPolicy recoverabilityPolicy, IEventAggregator eventAggregator, DelayedRetryExecutor delayedRetryExecutor, MoveToErrorsExecutor moveToErrorsExecutor, bool transactionsOn)
+        public RecoverabilityExecutor(bool raiseRecoverabilityNotifications, Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> recoverabilityPolicy, RecoverabilityConfig configuration, IEventAggregator eventAggregator, DelayedRetryExecutor delayedRetryExecutor, MoveToErrorsExecutor moveToErrorsExecutor, bool transactionsOn)
         {
+            this.configuration = configuration;
             this.recoverabilityPolicy = recoverabilityPolicy;
             this.eventAggregator = eventAggregator;
             this.delayedRetryExecutor = delayedRetryExecutor;
             this.moveToErrorsExecutor = moveToErrorsExecutor;
             this.transactionsOn = transactionsOn;
 
-            raiseNotifications = recoverabilityPolicy.RaiseRecoverabilityNotifications;
-            delayedRetriesEnabled = delayedRetryExecutor != null;
+            raiseNotifications = raiseRecoverabilityNotifications;
         }
 
         public Task<ErrorHandleResult> Invoke(ErrorContext errorContext)
@@ -31,7 +31,7 @@
 
         Task<ErrorHandleResult> PerformRecoverabilityAction(ErrorContext errorContext)
         {
-            var recoveryAction = recoverabilityPolicy.Invoke(errorContext);
+            var recoveryAction = recoverabilityPolicy.Invoke(configuration, errorContext);
 
             if (recoveryAction is ImmediateRetry)
             {
@@ -39,7 +39,7 @@
             }
 
             // When we can't do delayed retries then just fall through to error.
-            if (recoveryAction is DelayedRetry && !delayedRetriesEnabled)
+            if (recoveryAction is DelayedRetry && !configuration.Delayed.Enabled)
             {
                 Logger.Warn("Current recoverability policy requested delayed retry but delayed delivery is not supported by this endpoint. Consider enabling the timeout manager or use a transport which natively supports delayed delivery. Moving to the error queue instead.");
                 recoveryAction = RecoverabilityAction.MoveToError();
@@ -67,7 +67,7 @@
 
             if (raiseNotifications)
             {
-                await eventAggregator.Raise(new MessageToBeRetried(errorContext.NumberOfDeliveryAttempts - 1, TimeSpan.Zero, message, errorContext.Exception)).ConfigureAwait(false);
+                await eventAggregator.Raise(new MessageToBeRetried(errorContext.NumberOfImmediateDeliveryAttempts - 1, TimeSpan.Zero, message, errorContext.Exception)).ConfigureAwait(false);
             }
 
             return ErrorHandleResult.RetryRequired;
@@ -103,14 +103,14 @@
             return ErrorHandleResult.Handled;
         }
 
-        IRecoverabilityPolicy recoverabilityPolicy;
+        Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> recoverabilityPolicy;
         IEventAggregator eventAggregator;
         DelayedRetryExecutor delayedRetryExecutor;
         MoveToErrorsExecutor moveToErrorsExecutor;
         bool transactionsOn;
         bool raiseNotifications;
-        bool delayedRetriesEnabled;
 
         static ILog Logger = LogManager.GetLogger<RecoverabilityExecutor>();
+        RecoverabilityConfig configuration;
     }
 }

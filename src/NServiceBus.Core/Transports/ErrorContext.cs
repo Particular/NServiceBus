@@ -22,7 +22,12 @@
         /// <summary>
         /// Number of immediate processing attempts.
         /// </summary>
-        public int NumberOfDeliveryAttempts { get; }
+        public int NumberOfImmediateDeliveryAttempts { get; }
+
+        /// <summary>
+        /// Number of delayed processing attempts.
+        /// </summary>
+        public int NumberOfDelayedDeliveryAttempts { get; }
 
         /// <summary>
         /// Failed incoming message.
@@ -32,13 +37,15 @@
         /// <summary>
         /// Initializes the error context.
         /// </summary>
-        public ErrorContext(Exception exception, Dictionary<string, string> headers, string transportMessageId, Stream bodyStream, TransportTransaction transportTransaction, int numberOfDeliveryAttempts)
+        public ErrorContext(Exception exception, Dictionary<string, string> headers, string transportMessageId, Stream bodyStream, TransportTransaction transportTransaction, int numberOfImmediateDeliveryAttempts)
         {
             Exception = exception;
             TransportTransaction = transportTransaction;
-            NumberOfDeliveryAttempts = numberOfDeliveryAttempts;
+            NumberOfImmediateDeliveryAttempts = numberOfImmediateDeliveryAttempts;
 
             Message = new IncomingMessage(transportMessageId, headers, bodyStream);
+
+            NumberOfDelayedDeliveryAttempts = Message.GetCurrentDelayedRetries() + 1; // TODO: Remove plus 1?
 
             //Incoming message reads the body stream so we need to rewind it
             Message.BodyStream.Position = 0;

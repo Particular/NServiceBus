@@ -266,7 +266,7 @@ namespace NServiceBus
     }
     public struct DelayedConfig
     {
-        public bool Disabled { get; }
+        public bool Enabled { get; }
         public int MaxNumberOfRetries { get; }
         public System.TimeSpan TimeIncrease { get; }
     }
@@ -647,7 +647,7 @@ namespace NServiceBus
     }
     public struct ImmediateConfig
     {
-        public bool Disabled { get; }
+        public bool Enabled { get; }
         public int MaxNumberOfRetries { get; }
     }
     public class static ImmediateDispatchOptionExtensions
@@ -688,11 +688,6 @@ namespace NServiceBus
         public static System.Threading.Tasks.Task Send<T>(this NServiceBus.IPipelineContext context, string destination, System.Action<T> messageConstructor) { }
         public static System.Threading.Tasks.Task SendLocal(this NServiceBus.IPipelineContext context, object message) { }
         public static System.Threading.Tasks.Task SendLocal<T>(this NServiceBus.IPipelineContext context, System.Action<T> messageConstructor) { }
-    }
-    public interface IRecoverabilityPolicy
-    {
-        bool RaiseRecoverabilityNotifications { get; }
-        NServiceBus.RecoverabilityAction Invoke(NServiceBus.Transport.ErrorContext errorContext);
     }
     [System.ObsoleteAttribute("Use IEndpointInstance to create sending session. Will be removed in version 7.0.0" +
         ".", true)]
@@ -1707,7 +1702,7 @@ namespace NServiceBus.Features
         public NServiceBus.ObjectBuilder.IConfigureComponents Container { get; }
         public NServiceBus.Pipeline.PipelineSettings Pipeline { get; }
         public NServiceBus.Settings.ReadOnlySettings Settings { get; }
-        public void AddSatelliteReceiver(string name, string transportAddress, NServiceBus.TransportTransactionMode requiredTransportTransactionMode, NServiceBus.Transport.PushRuntimeSettings runtimeSettings, NServiceBus.IRecoverabilityPolicy recoverabilityPolicy, System.Func<NServiceBus.ObjectBuilder.IBuilder, NServiceBus.Transport.MessageContext, System.Threading.Tasks.Task> onMessage) { }
+        public void AddSatelliteReceiver(string name, string transportAddress, NServiceBus.TransportTransactionMode requiredTransportTransactionMode, NServiceBus.Transport.PushRuntimeSettings runtimeSettings, System.Func<NServiceBus.RecoverabilityConfig, NServiceBus.Transport.ErrorContext, NServiceBus.RecoverabilityAction> recoverabilityPolicy, System.Func<NServiceBus.ObjectBuilder.IBuilder, NServiceBus.Transport.MessageContext, System.Threading.Tasks.Task> onMessage) { }
         public void RegisterStartupTask<TTask>(TTask startupTask)
             where TTask : NServiceBus.Features.FeatureStartupTask { }
         public void RegisterStartupTask<TTask>(System.Func<TTask> startupTaskFactory)
@@ -2988,10 +2983,11 @@ namespace NServiceBus.Transport
     }
     public class ErrorContext
     {
-        public ErrorContext(System.Exception exception, System.Collections.Generic.Dictionary<string, string> headers, string transportMessageId, System.IO.Stream bodyStream, NServiceBus.Transport.TransportTransaction transportTransaction, int numberOfDeliveryAttempts) { }
+        public ErrorContext(System.Exception exception, System.Collections.Generic.Dictionary<string, string> headers, string transportMessageId, System.IO.Stream bodyStream, NServiceBus.Transport.TransportTransaction transportTransaction, int numberOfImmediateDeliveryAttempts) { }
         public System.Exception Exception { get; }
         public NServiceBus.Transport.IncomingMessage Message { get; }
-        public int NumberOfDeliveryAttempts { get; }
+        public int NumberOfDelayedDeliveryAttempts { get; }
+        public int NumberOfImmediateDeliveryAttempts { get; }
         public NServiceBus.Transport.TransportTransaction TransportTransaction { get; }
     }
     public enum ErrorHandleResult

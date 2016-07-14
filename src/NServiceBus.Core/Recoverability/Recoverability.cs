@@ -25,8 +25,8 @@
                 "Message recoverability is only relevant for endpoints receiving messages.");
             Defaults(settings =>
             {
-                settings.SetDefault(SlrNumberOfRetries, DefaultSecondLevelRetryPolicy.DefaultNumberOfRetries);
-                settings.SetDefault(SlrTimeIncrease, DefaultSecondLevelRetryPolicy.DefaultTimeIncrease);
+                settings.SetDefault(SlrNumberOfRetries, DefaultRecoverabilityPolicy.DefaultNumberOfRetries);
+                settings.SetDefault(SlrTimeIncrease, DefaultRecoverabilityPolicy.DefaultTimeIncrease);
 
                 settings.SetDefault(FlrNumberOfRetries, 5);
             });
@@ -61,10 +61,10 @@
                     return new MoveToErrorsExecutor(b.Build<IDispatchMessages>(), errorQueue, staticFaultMetadata);
                 };
 
-                var delayedRetriesEnabled = IsDelayedRetriesEnabled(context.Settings);
+                var delayedRetryConfig = GetDelayedRetryConfig(context.Settings);
                 Func<string, DelayedRetryExecutor> delayedRetryExecutorFactory = localAddress =>
                 {
-                    if (!delayedRetriesEnabled || transportTransactionMode == TransportTransactionMode.None)
+                    if (!delayedRetryConfig.Enabled || transportTransactionMode == TransportTransactionMode.None)
                     {
                         return null;
                     }
@@ -74,16 +74,11 @@
                         context.DoesTransportSupportConstraint<DelayedDeliveryConstraint>() ? null : context.Settings.Get<TimeoutManagerAddressConfiguration>().TransportAddress);
                 };
 
-                var delayedRetryPolicy = delayedRetriesEnabled ? GetDelayedRetryPolicy(context.Settings) : null;
 
-                var immediateRetriesEnabled = IsImmediateRetriesEnabled(context.Settings);
-                var maxImmediateRetries = immediateRetriesEnabled ? GetMaxImmediateRetries(context.Settings) : 0;
-
-
-                var defaultRecoverabilityPolicy = new DefaultRecoverabilityPolicy(immediateRetriesEnabled, delayedRetriesEnabled, maxImmediateRetries, delayedRetryPolicy);
-
+                var immediateRetryConfig = GetImmediateRetryConfig(context.Settings);
                 return new RecoverabilityExecutorFactory(
-                    defaultRecoverabilityPolicy,
+                    DefaultRecoverabilityPolicy.Invoke,
+                    new RecoverabilityConfig(immediateRetryConfig, delayedRetryConfig),
                     delayedRetryExecutorFactory,
                     moveToErrorsExecutorFactory,
                     transportTransactionMode);
@@ -92,12 +87,20 @@
             RaiseLegacyNotifications(context);
         }
 
-        static SecondLevelRetryPolicy GetDelayedRetryPolicy(ReadOnlySettings settings)
+        static ImmediateConfig GetImmediateRetryConfig(ReadOnlySettings settings)
         {
-            Func<SecondLevelRetryContext, TimeSpan> customRetryPolicy;
-            if (settings.TryGet(SlrCustomPolicy, out customRetryPolicy))
+            var enabled = IsImmediateRetriesEnabled(settings);
+            var maxImmediateRetries = enabled ? GetMaxImmediateRetries(settings) : 0;
+            return new ImmediateConfig(maxImmediateRetries, enabled);
+        }
+
+        static DelayedConfig GetDelayedRetryConfig(ReadOnlySettings settings)
+        {
+            var enabled = IsDelayedRetriesEnabled(settings);
+
+            if (!enabled)
             {
-                return new CustomSecondLevelRetryPolicy(customRetryPolicy);
+                return new DelayedConfig(0, TimeSpan.MinValue, false);
             }
 
             var numberOfRetries = settings.Get<int>(SlrNumberOfRetries);
@@ -110,10 +113,10 @@
                 timeIncrease = retriesConfig.TimeIncrease;
             }
 
-            return new DefaultSecondLevelRetryPolicy(numberOfRetries, timeIncrease);
+            return new DelayedConfig(numberOfRetries, timeIncrease, true);
         }
 
-        bool IsDelayedRetriesEnabled(ReadOnlySettings settings)
+        static bool IsDelayedRetriesEnabled(ReadOnlySettings settings)
         {
             //Transactions must be enabled since SLR requires the transport to be able to rollback
             if (settings.GetRequiredTransactionModeForReceives() == TransportTransactionMode.None)
@@ -141,7 +144,7 @@
             return false;
         }
 
-        bool IsImmediateRetriesEnabled(ReadOnlySettings settings)
+        static bool IsImmediateRetriesEnabled(ReadOnlySettings settings)
         {
             //Transactions must be enabled since FLR requires the transport to be able to rollback
             if (settings.GetRequiredTransactionModeForReceives() == TransportTransactionMode.None)
@@ -179,7 +182,7 @@
             });
         }
 
-        int GetMaxImmediateRetries(ReadOnlySettings settings)
+        static int GetMaxImmediateRetries(ReadOnlySettings settings)
         {
             var retriesConfig = settings.GetConfigSection<TransportConfig>();
 
