@@ -145,7 +145,6 @@
     <Compile Include="Recoverability\DelayedRetryExecutor.cs" />
     <Compile Include="Recoverability\SecondLevelRetries\SecondLevelRetryContext.cs" />
     <Compile Include="ReleaseDateAttribute.cs" />
-    <Compile Include="Routing\ConfiguredUnicastRoutes.cs" />
     <Compile Include="Routing\IDistributionPolicy.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\IMessageDrivenSubscriptionTransport.cs" />
     <Compile Include="Routing\RoutingPluginSettingsExtensions.cs" />

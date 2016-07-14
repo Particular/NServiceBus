@@ -22,6 +22,7 @@
                 s.SetDefault<Publishers>(new Publishers());
                 s.SetDefault<DistributionPolicy>(new DistributionPolicy());
                 s.SetDefault<ConfiguredUnicastRoutes>(new ConfiguredUnicastRoutes());
+                s.SetDefault<ConfiguredPublishers>(new ConfiguredPublishers());
             });
         }
 
@@ -36,6 +37,7 @@
             var distributionPolicy = context.Settings.Get<DistributionPolicy>();
             var transportAddresses = context.Settings.Get<TransportAddresses>();
             var configuredUnicastRoutes = context.Settings.Get<ConfiguredUnicastRoutes>();
+            var configuredPublishers = context.Settings.Get<ConfiguredPublishers>();
 
             var knownMessageTypes = GetKnownMessageTypes(context);
 
@@ -45,9 +47,14 @@
                 ImportMessageEndpointMappings(unicastBusConfig.MessageEndpointMappings, transportInfrastructure, publishers, unicastRoutingTable, knownMessageTypes);
             }
 
-            foreach (var registration in configuredUnicastRoutes.registrations)
+            foreach (var registration in configuredUnicastRoutes)
             {
                 registration(unicastRoutingTable, knownMessageTypes);
+            }
+
+            foreach (var registration in configuredPublishers)
+            {
+                registration(publishers, knownMessageTypes);
             }
 
             var outboundRoutingPolicy = transportInfrastructure.OutboundRoutingPolicy;
@@ -130,5 +137,13 @@
         {
             unicastRoutingTable.RouteToAddress(type, transportInfrastructure.MakeCanonicalForm(address));
         }
+    }
+
+    class ConfiguredUnicastRoutes : List<Action<UnicastRoutingTable, Type[]>>
+    {
+    }
+
+    class ConfiguredPublishers : List<Action<Publishers, Type[]>>
+    {
     }
 }

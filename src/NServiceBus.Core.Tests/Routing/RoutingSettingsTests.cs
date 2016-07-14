@@ -8,6 +8,7 @@
     using Extensibility;
     using MessageNamespaceA;
     using MessageNamespaceB;
+    using NServiceBus.Features;
     using NServiceBus.Routing;
     using NUnit.Framework;
     using Settings;
@@ -132,7 +133,7 @@
         static UnicastRoutingTable ApplyConfiguredRoutes(RoutingSettings routingSettings)
         {
             var routingTable = new UnicastRoutingTable();
-            foreach (var registration in routingSettings.Settings.Get<ConfiguredUnicastRoutes>().registrations)
+            foreach (var registration in routingSettings.Settings.Get<ConfiguredUnicastRoutes>())
             {
                 registration(routingTable, Assembly.GetExecutingAssembly().GetTypes());
             }

@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.Core.Tests.Routing.MessageDrivenSubscriptions
 {
     using System.Linq;
-    using System.Reflection;
     using MessageNameSpace;
     using NServiceBus.Routing.MessageDrivenSubscriptions;
     using NUnit.Framework;
@@ -32,58 +31,6 @@
             var result = publishers.GetPublisherFor(typeof(BaseMessage));
 
             Assert.AreEqual(4, result.Count());
-        }
-
-        [Test]
-        public void Should_register_all_types_in_assembly_when_not_specifying_namespace()
-        {
-            var publishers = new Publishers();
-            publishers.Add(Assembly.GetExecutingAssembly(), "someAddress");
-
-            var result1 = publishers.GetPublisherFor(typeof(BaseMessage));
-            var result2 = publishers.GetPublisherFor(typeof(SubMessage));
-            var result3 = publishers.GetPublisherFor(typeof(EventWithoutNamespace));
-            var result4 = publishers.GetPublisherFor(typeof(IMessageInterface));
-
-            Assert.AreEqual(1, result1.Count());
-            Assert.AreEqual(1, result2.Count());
-            Assert.AreEqual(1, result3.Count());
-            Assert.AreEqual(1, result4.Count());
-        }
-
-        [Test]
-        public void Should_only_register_types_in_specified_namespace()
-        {
-            var publishers = new Publishers();
-            publishers.Add(Assembly.GetExecutingAssembly(), "MessageNameSpace", "someAddress");
-
-            var result1 = publishers.GetPublisherFor(typeof(BaseMessage));
-            var result2 = publishers.GetPublisherFor(typeof(SubMessage));
-            var result3 = publishers.GetPublisherFor(typeof(EventWithoutNamespace));
-            var result4 = publishers.GetPublisherFor(typeof(IMessageInterface));
-
-            Assert.AreEqual(1, result1.Count());
-            Assert.AreEqual(1, result4.Count());
-            Assert.IsEmpty(result2);
-            Assert.IsEmpty(result3);
-        }
-
-        [TestCase("")]
-        [TestCase(null)]
-        public void Should_support_empty_namespace(string eventNamespace)
-        {
-            var publishers = new Publishers();
-            publishers.Add(Assembly.GetExecutingAssembly(), eventNamespace, "someAddress");
-
-            var result1 = publishers.GetPublisherFor(typeof(BaseMessage));
-            var result2 = publishers.GetPublisherFor(typeof(SubMessage));
-            var result3 = publishers.GetPublisherFor(typeof(EventWithoutNamespace));
-            var result4 = publishers.GetPublisherFor(typeof(IMessageInterface));
-
-            Assert.AreEqual(1, result3.Count());
-            Assert.IsEmpty(result1);
-            Assert.IsEmpty(result2);
-            Assert.IsEmpty(result4);
         }
 
         [Test]

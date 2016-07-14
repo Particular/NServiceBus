@@ -3,6 +3,7 @@
     using System;
     using System.Reflection;
     using Configuration.AdvanceExtensibility;
+    using Features;
     using Settings;
     using Transport;
 
@@ -25,10 +26,7 @@
         {
             ThrowOnAddress(destination);
 
-            Settings.GetOrCreate<ConfiguredUnicastRoutes>().Add((routingTable, knownMessageTypes) =>
-            {
-                routingTable.RouteToEndpoint(messageType, destination);
-            });
+            Settings.GetOrCreate<ConfiguredUnicastRoutes>().Add((routingTable, knownMessageTypes) => { routingTable.RouteToEndpoint(messageType, destination); });
         }
 
         /// <summary>
@@ -40,7 +38,6 @@
         {
             ThrowOnAddress(destination);
             Settings.GetOrCreate<ConfiguredUnicastRoutes>().Add((routingTable, knownMessageTypes) =>
-
             {
                 foreach (var knownMessage in knownMessageTypes)
                 {
@@ -64,7 +61,6 @@
 
             // empty namespace is null, not string.empty
             messageNamespace = messageNamespace == string.Empty ? null : messageNamespace;
-
             Settings.GetOrCreate<ConfiguredUnicastRoutes>().Add((routingTable, knownMessageTypes) =>
             {
                 foreach (var knownMessage in knownMessageTypes)
@@ -73,7 +69,8 @@
                     {
                         routingTable.RouteToEndpoint(knownMessage, destination);
                     }
-            }
+                }
+            });
         }
 
         static void ThrowOnAddress(string destination)
@@ -81,8 +78,7 @@
             if (destination.Contains("@"))
             {
                 throw new ArgumentException($"A logical endpoint name should not contain '@', but received '{destination}'. To specify an endpoint's address, use the instance mapping file for the MSMQ transport, or refer to the routing documentation.");
-                }
-            });
+            }
         }
     }
 
