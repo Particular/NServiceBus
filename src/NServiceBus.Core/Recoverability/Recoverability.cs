@@ -190,7 +190,9 @@
         public const string SlrTimeIncrease = "Recoverability.Slr.DefaultPolicy.Timespan";
         public const string SlrCustomPolicy = "Recoverability.Slr.CustomPolicy";
         public const string FlrNumberOfRetries = "Recoverability.Flr.Retries";
+        public const string FaultHeaderCustomization = "Recoverability.Failed.FaultHeaderCustomization";
 
         static ILog Logger = LogManager.GetLogger<Recoverability>();
     }
+
 }

@@ -143,6 +143,7 @@
     <Compile Include="Recoverability\RecoverabilityExecutorFactory.cs" />
     <Compile Include="Recoverability\DefaultRecoverabilityPolicy.cs" />
     <Compile Include="Recoverability\DelayedRetryExecutor.cs" />
+    <Compile Include="Recoverability\RecoverabilitySettings.cs" />
     <Compile Include="Recoverability\SecondLevelRetries\SecondLevelRetryContext.cs" />
     <Compile Include="ReleaseDateAttribute.cs" />
     <Compile Include="Routing\IDistributionPolicy.cs" />

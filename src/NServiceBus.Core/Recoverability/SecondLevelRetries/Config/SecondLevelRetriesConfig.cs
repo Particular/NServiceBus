@@ -3,6 +3,7 @@ namespace NServiceBus.Config
     using System;
     using System.Configuration;
 
+    /// TODO: Should we deprecate this?
     /// <summary>
     /// Configuration options for the SLR feature.
     /// </summary>
