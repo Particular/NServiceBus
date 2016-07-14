@@ -49,10 +49,9 @@
         public async Task WhenRoutingMessageTypeToEndpoint_ShouldConfigureMessageTypeInRoutingTable()
         {
             var routingSettings = new RoutingSettings(new SettingsHolder());
-
             routingSettings.RouteToEndpoint(typeof(SomeMessageType), "destination");
 
-            var routingTable = routingSettings.Settings.Get<UnicastRoutingTable>();
+            var routingTable = ApplyConfiguredRoutes(routingSettings);
             var routes = await routingTable.GetDestinationsFor(new[]
             {
                 typeof(SomeMessageType)
@@ -68,7 +67,8 @@
         {
             var routingSettings = new RoutingSettings(new SettingsHolder());
             routingSettings.RouteToEndpoint(Assembly.GetExecutingAssembly(), "destination");
-            var routingTable = routingSettings.Settings.Get<UnicastRoutingTable>();
+
+            var routingTable = ApplyConfiguredRoutes(routingSettings);
 
             var routes = await routingTable.GetDestinationsFor(new[]
             {
@@ -87,7 +87,8 @@
         {
             var routingSettings = new RoutingSettings(new SettingsHolder());
             routingSettings.RouteToEndpoint(Assembly.GetExecutingAssembly(), nameof(MessageNamespaceA), "destination");
-            var routingTable = routingSettings.Settings.Get<UnicastRoutingTable>();
+
+            var routingTable = ApplyConfiguredRoutes(routingSettings);
 
             var result1 = await routingTable.GetDestinationsFor(new[]
             {
@@ -111,7 +112,8 @@
         {
             var routingSettings = new RoutingSettings(new SettingsHolder());
             routingSettings.RouteToEndpoint(Assembly.GetExecutingAssembly(), emptyNamespace, "destination");
-            var routingTable = routingSettings.Settings.Get<UnicastRoutingTable>();
+
+            var routingTable = ApplyConfiguredRoutes(routingSettings);
 
             var result1 = await routingTable.GetDestinationsFor(new[]
             {
@@ -125,6 +127,16 @@
 
             Assert.That(result1.Count(), Is.EqualTo(1));
             Assert.That(result2.Count(), Is.EqualTo(0));
+        }
+
+        static UnicastRoutingTable ApplyConfiguredRoutes(RoutingSettings routingSettings)
+        {
+            var routingTable = new UnicastRoutingTable();
+            foreach (var registration in routingSettings.Settings.Get<ConfiguredUnicastRoutes>().registrations)
+            {
+                registration(routingTable, Assembly.GetExecutingAssembly().GetTypes());
+            }
+            return routingTable;
         }
 
         static async Task<IEnumerable<UnicastRoutingTarget>> RetrieveRoutingTargets(IEnumerable<IUnicastRoute> result)

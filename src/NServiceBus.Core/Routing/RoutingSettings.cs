@@ -1,10 +1,8 @@
 ﻿namespace NServiceBus
 {
     using System;
-    using System.Linq;
     using System.Reflection;
     using Configuration.AdvanceExtensibility;
-    using Routing;
     using Settings;
     using Transport;
 
@@ -27,7 +25,10 @@
         {
             ThrowOnAddress(destination);
 
-            Settings.GetOrCreate<UnicastRoutingTable>().RouteToEndpoint(messageType, destination);
+            Settings.GetOrCreate<ConfiguredUnicastRoutes>().Add((routingTable, knownMessageTypes) =>
+            {
+                routingTable.RouteToEndpoint(messageType, destination);
+            });
         }
 
         /// <summary>
@@ -38,12 +39,17 @@
         public void RouteToEndpoint(Assembly assembly, string destination)
         {
             ThrowOnAddress(destination);
+            Settings.GetOrCreate<ConfiguredUnicastRoutes>().Add((routingTable, knownMessageTypes) =>
 
-            var routingTable = Settings.GetOrCreate<UnicastRoutingTable>();
-            foreach (var type in assembly.GetTypes())
             {
-                routingTable.RouteToEndpoint(type, destination);
-            }
+                foreach (var knownMessage in knownMessageTypes)
+                {
+                    if (knownMessage.Assembly == assembly)
+                    {
+                        routingTable.RouteToEndpoint(knownMessage, destination);
+                    }
+                }
+            });
         }
 
         /// <summary>
@@ -59,10 +65,14 @@
             // empty namespace is null, not string.empty
             messageNamespace = messageNamespace == string.Empty ? null : messageNamespace;
 
-            var routingTable = Settings.GetOrCreate<UnicastRoutingTable>();
-            foreach (var type in assembly.GetTypes().Where(t => t.Namespace == messageNamespace))
+            Settings.GetOrCreate<ConfiguredUnicastRoutes>().Add((routingTable, knownMessageTypes) =>
             {
-                routingTable.RouteToEndpoint(type, destination);
+                foreach (var knownMessage in knownMessageTypes)
+                {
+                    if (knownMessage.Assembly == assembly && knownMessage.Namespace == messageNamespace)
+                    {
+                        routingTable.RouteToEndpoint(knownMessage, destination);
+                    }
             }
         }
 
@@ -71,7 +81,8 @@
             if (destination.Contains("@"))
             {
                 throw new ArgumentException($"A logical endpoint name should not contain '@', but received '{destination}'. To specify an endpoint's address, use the instance mapping file for the MSMQ transport, or refer to the routing documentation.");
-            }
+                }
+            });
         }
     }
 

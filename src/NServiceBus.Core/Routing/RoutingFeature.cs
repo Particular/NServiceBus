@@ -21,6 +21,7 @@
                 s.SetDefault<EndpointInstances>(new EndpointInstances());
                 s.SetDefault<Publishers>(new Publishers());
                 s.SetDefault<DistributionPolicy>(new DistributionPolicy());
+                s.SetDefault<ConfiguredUnicastRoutes>(new ConfiguredUnicastRoutes());
             });
         }
 
@@ -34,11 +35,19 @@
             var publishers = context.Settings.Get<Publishers>();
             var distributionPolicy = context.Settings.Get<DistributionPolicy>();
             var transportAddresses = context.Settings.Get<TransportAddresses>();
+            var configuredUnicastRoutes = context.Settings.Get<ConfiguredUnicastRoutes>();
+
+            var knownMessageTypes = GetKnownMessageTypes(context);
 
             var unicastBusConfig = context.Settings.GetConfigSection<UnicastBusConfig>();
             if (unicastBusConfig != null)
             {
-                ImportMessageEndpointMappings(context, unicastBusConfig.MessageEndpointMappings, transportInfrastructure, publishers, unicastRoutingTable);
+                ImportMessageEndpointMappings(unicastBusConfig.MessageEndpointMappings, transportInfrastructure, publishers, unicastRoutingTable, knownMessageTypes);
+            }
+
+            foreach (var registration in configuredUnicastRoutes.registrations)
+            {
+                registration(unicastRoutingTable, knownMessageTypes);
             }
 
             var outboundRoutingPolicy = transportInfrastructure.OutboundRoutingPolicy;
@@ -87,14 +96,17 @@
             }
         }
 
-        static void ImportMessageEndpointMappings(FeatureConfigurationContext context, MessageEndpointMappingCollection legacyRoutingConfig, TransportInfrastructure transportInfrastructure, Publishers publishers, UnicastRoutingTable unicastRoutingTable)
+        static Type[] GetKnownMessageTypes(FeatureConfigurationContext context)
         {
             var conventions = context.Settings.Get<Conventions>();
-
             var knownMessageTypes = context.Settings.GetAvailableTypes()
                 .Where(conventions.IsMessageType)
-                .ToList();
+                .ToArray();
+            return knownMessageTypes;
+        }
 
+        static void ImportMessageEndpointMappings(MessageEndpointMappingCollection legacyRoutingConfig, TransportInfrastructure transportInfrastructure, Publishers publishers, UnicastRoutingTable unicastRoutingTable, Type[] knownMessageTypes)
+        {
             foreach (MessageEndpointMapping m in legacyRoutingConfig)
             {
                 m.Configure((type, endpointAddress) =>
@@ -105,7 +117,7 @@
             }
         }
 
-        static void ConfigureSubscribeDestination(Publishers publishers, List<Type> knownMessageTypes, Type type, string address)
+        static void ConfigureSubscribeDestination(Publishers publishers, Type[] knownMessageTypes, Type type, string address)
         {
             var typesEnclosed = knownMessageTypes.Where(t => t.IsAssignableFrom(type));
             foreach (var t in typesEnclosed)
