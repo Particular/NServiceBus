@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.AcceptanceTests.UnitOfWork
+﻿namespace NServiceBus.AcceptanceTests.Core.UnitOfWork
 {
     using System;
     using System.Threading.Tasks;

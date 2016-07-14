@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.AcceptanceTests.Config
+﻿namespace NServiceBus.AcceptanceTests.Core.FakeTransport.ProcessingOptimizations
 {
     using System;
     using System.Collections.Generic;

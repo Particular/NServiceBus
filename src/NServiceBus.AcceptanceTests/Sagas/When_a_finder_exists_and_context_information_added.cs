@@ -6,10 +6,11 @@ namespace NServiceBus.AcceptanceTests.Sagas
     using EndpointTemplates;
     using Extensibility;
     using Features;
-    using NServiceBus.Persistence;
+    using NServiceBus;
     using NServiceBus.Pipeline;
     using NServiceBus.Sagas;
     using NUnit.Framework;
+    using Persistence;
 
     [TestFixture]
     public class When_a_finder_exists_and_context_information_added : NServiceBusAcceptanceTest

@@ -4,9 +4,10 @@
     using AcceptanceTesting;
     using EndpointTemplates;
     using Extensibility;
-    using NServiceBus.Persistence;
+    using NServiceBus;
     using NServiceBus.Sagas;
     using NUnit.Framework;
+    using Persistence;
 
     [TestFixture]
     public class When_a_finder_exists_and_found_saga : NServiceBusAcceptanceTest
