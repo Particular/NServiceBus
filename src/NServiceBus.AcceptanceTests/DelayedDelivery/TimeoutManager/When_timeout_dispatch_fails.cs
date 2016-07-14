@@ -15,8 +15,6 @@
 
     public class When_timeout_dispatch_fails : NServiceBusAcceptanceTest
     {
-        static readonly TimeSpan VeryLongTimeSpan = TimeSpan.FromMinutes(10);
-
         [Test]
         public Task Should_retry_and_move_to_error()
         {
@@ -43,6 +41,7 @@
         }
 
         const string ErrorQueueForTimeoutErrors = "timeout_dispatch_errors";
+        static readonly TimeSpan VeryLongTimeSpan = TimeSpan.FromMinutes(10);
 
         public class Context : ScenarioContext
         {
@@ -86,7 +85,6 @@
             class FakeTimeoutStorage : IQueryTimeouts, IPersistTimeouts
             {
                 public Context TestContext { get; set; }
-                TimeoutData timeoutData;
 
                 public Task Add(TimeoutData timeout, ContextBag context)
                 {
@@ -132,6 +130,8 @@
 
                     return Task.FromResult(new TimeoutsChunk(timeouts, DateTime.UtcNow + TimeSpan.FromSeconds(10)));
                 }
+
+                TimeoutData timeoutData;
             }
 
             class BehaviorThatLogsControlMessageDelivery : Behavior<ITransportReceiveContext>

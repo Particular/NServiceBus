@@ -2939,10 +2939,10 @@ namespace NServiceBus.Timeout.Core
     }
     public class TimeoutsChunk
     {
-        public TimeoutsChunk(System.Collections.Generic.IEnumerable<NServiceBus.Timeout.Core.TimeoutsChunk.Timeout> dueTimeouts, System.DateTime nextTimeToQuery) { }
-        public System.Collections.Generic.IEnumerable<NServiceBus.Timeout.Core.TimeoutsChunk.Timeout> DueTimeouts { get; }
+        public TimeoutsChunk(Timeout[] dueTimeouts, System.DateTime nextTimeToQuery) { }
+        public Timeout[] DueTimeouts { get; }
         public System.DateTime NextTimeToQuery { get; }
-        public class Timeout
+        public struct Timeout
         {
             public Timeout(string id, System.DateTime dueTime) { }
             public System.DateTime DueTime { get; }
