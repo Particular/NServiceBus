@@ -34,7 +34,7 @@
         [Test]
         public void When_max_immediate_retries_exceeded_but_delayed_retry_disabled_return_delayed_retry()
         {
-            var policy = CreatePolicy(maxImmediateRetries: 1, delayedRetriesEnabled: false);
+            var policy = CreatePolicy(maxImmediateRetries: 1, maxDelayedRetries: 0);
             var errorContext = CreateErrorContext(numberOfDeliveryAttempts: 3);
 
             var recoverabilityAction = policy(errorContext);
@@ -70,7 +70,7 @@
         [Test]
         public void When_immediate_retries_turned_off_and_delayed_retry_not_available_should_return_move_to_errors()
         {
-            var policy = CreatePolicy(maxImmediateRetries: 0, delayedRetriesEnabled: false);
+            var policy = CreatePolicy(maxImmediateRetries: 0, maxDelayedRetries: 0);
             var errorContext = CreateErrorContext();
 
             var recoverabilityAction = policy(errorContext);
@@ -148,9 +148,9 @@
             } : headers ?? new Dictionary<string, string>(), "message-id", new MemoryStream(), new TransportTransaction(), numberOfDeliveryAttempts);
         }
 
-        static Func<ErrorContext, RecoverabilityAction> CreatePolicy(int maxImmediateRetries = 2, int maxDelayedRetries = 2, TimeSpan? delayedRetryDelay = null, bool delayedRetriesEnabled = true)
+        static Func<ErrorContext, RecoverabilityAction> CreatePolicy(int maxImmediateRetries = 2, int maxDelayedRetries = 2, TimeSpan? delayedRetryDelay = null)
         {
-            var config = new RecoverabilityConfig(new ImmediateConfig(maxImmediateRetries, maxImmediateRetries > 0), new DelayedConfig(maxDelayedRetries, delayedRetryDelay.GetValueOrDefault(TimeSpan.FromSeconds(2)), delayedRetriesEnabled));
+            var config = new RecoverabilityConfig(new ImmediateConfig(maxImmediateRetries), new DelayedConfig(maxDelayedRetries, delayedRetryDelay.GetValueOrDefault(TimeSpan.FromSeconds(2))));
             return context => DefaultRecoverabilityPolicy.Invoke(config, context);
         }
     }

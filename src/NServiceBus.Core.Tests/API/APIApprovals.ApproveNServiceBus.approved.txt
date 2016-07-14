@@ -266,7 +266,6 @@ namespace NServiceBus
     }
     public struct DelayedConfig
     {
-        public bool Enabled { get; }
         public int MaxNumberOfRetries { get; }
         public System.TimeSpan TimeIncrease { get; }
     }
@@ -647,7 +646,6 @@ namespace NServiceBus
     }
     public struct ImmediateConfig
     {
-        public bool Enabled { get; }
         public int MaxNumberOfRetries { get; }
     }
     public class static ImmediateDispatchOptionExtensions

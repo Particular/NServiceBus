@@ -24,16 +24,14 @@ namespace NServiceBus
             throw new NotImplementedException();
         }
 
+        // TODO: Kill this
         /// <summary>
         /// Registers a custom retry policy. The callback receives the failed message, the exception, and the current second level retry attempt.
         /// </summary>
         /// <param name="customPolicy">The function that is invoked on a failed message to determine the delay until the message is retried.</param>
         public SecondLevelRetriesSettings CustomRetryPolicy(Func<SecondLevelRetryContext, TimeSpan> customPolicy)
         {
-            Guard.AgainstNull(nameof(customPolicy), customPolicy);
-            config.Settings.Set(Recoverability.SlrCustomPolicy, customPolicy);
-
-            return this;
+            throw new NotImplementedException();
         }
 
         EndpointConfiguration config;

@@ -17,6 +17,7 @@
             this.transactionsOn = transactionsOn;
 
             raiseNotifications = raiseRecoverabilityNotifications;
+            delayedRetriesAvailable = delayedRetryExecutor != null;
         }
 
         public Task<ErrorHandleResult> Invoke(ErrorContext errorContext)
@@ -39,7 +40,7 @@
             }
 
             // When we can't do delayed retries then just fall through to error.
-            if (recoveryAction is DelayedRetry && !configuration.Delayed.Enabled)
+            if (recoveryAction is DelayedRetry && !delayedRetriesAvailable)
             {
                 Logger.Warn("Current recoverability policy requested delayed retry but delayed delivery is not supported by this endpoint. Consider enabling the timeout manager or use a transport which natively supports delayed delivery. Moving to the error queue instead.");
                 recoveryAction = RecoverabilityAction.MoveToError();
@@ -112,5 +113,6 @@
 
         static ILog Logger = LogManager.GetLogger<RecoverabilityExecutor>();
         RecoverabilityConfig configuration;
+        bool delayedRetriesAvailable;
     }
 }

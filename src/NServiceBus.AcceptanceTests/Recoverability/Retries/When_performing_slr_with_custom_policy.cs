@@ -8,6 +8,7 @@
     using EndpointTemplates;
     using Features;
     using NUnit.Framework;
+    using Transport;
 
     public class When_performing_slr_with_custom_policy : NServiceBusAcceptanceTest
     {
@@ -24,16 +25,15 @@
             Assert.That(context.SlrRetryContexts.Count, Is.EqualTo(2), "because the custom policy should have been invoked twice");
             Assert.That(context.SlrRetryContexts[0].Message, Is.Not.Null);
             Assert.That(context.SlrRetryContexts[0].Exception, Is.TypeOf<SimulatedException>());
-            Assert.That(context.SlrRetryContexts[0].SecondLevelRetryAttempt, Is.EqualTo(1));
+            Assert.That(context.SlrRetryContexts[0].NumberOfDelayedDeliveryAttempts, Is.EqualTo(1));
             Assert.That(context.SlrRetryContexts[1].Message, Is.Not.Null);
             Assert.That(context.SlrRetryContexts[1].Exception, Is.TypeOf<SimulatedException>());
-            Assert.That(context.SlrRetryContexts[1].SecondLevelRetryAttempt, Is.EqualTo(2));
+            Assert.That(context.SlrRetryContexts[1].NumberOfDelayedDeliveryAttempts, Is.EqualTo(2));
         }
 
         class Context : ScenarioContext
         {
-            public bool MessageMovedToErrorQueue { get; set; }
-            public List<SecondLevelRetryContext> SlrRetryContexts { get; } = new List<SecondLevelRetryContext>();
+            public List<ErrorContext> SlrRetryContexts { get; } = new List<ErrorContext>();
         }
 
         class Endpoint : EndpointConfigurationBuilder
@@ -42,35 +42,23 @@
             {
                 EndpointSetup<DefaultServer>((config, context) =>
                 {
-                    var testContext = context.ScenarioContext as Context;
+                    int slrRetries = 0;
+                    var testContext = (Context) context.ScenarioContext;
 
                     config.EnableFeature<TimeoutManager>();
-                    config.SecondLevelRetries().CustomRetryPolicy(new CustomPolicy(testContext).GetDelay);
                     config.Recoverability()
-                        .Immediate(immediate => immediate.NumberOfRetries(1));
+                        .PolicyOverride((cfg, errorContext) =>
+                        {
+                            testContext.SlrRetryContexts.Add(errorContext);
+
+                            if (slrRetries++ >= 1)
+                            {
+                                return RecoverabilityAction.MoveToError();
+                            }
+
+                            return RecoverabilityAction.DelayedRetry(TimeSpan.FromMilliseconds(1));
+                        });
                 });
-            }
-
-            class CustomPolicy
-            {
-                public CustomPolicy(Context context)
-                {
-                    this.context = context;
-                }
-
-                public TimeSpan GetDelay(SecondLevelRetryContext slrRetryContext)
-                {
-                    context.SlrRetryContexts.Add(slrRetryContext);
-
-                    if (slrRetries++ == 1)
-                    {
-                        return TimeSpan.MinValue;
-                    }
-                    return TimeSpan.FromMilliseconds(1);
-                }
-
-                Context context;
-                int slrRetries;
             }
 
             class Handler : IHandleMessages<MessageToBeRetried>

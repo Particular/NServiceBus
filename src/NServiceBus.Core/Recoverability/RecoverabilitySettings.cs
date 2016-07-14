@@ -17,6 +17,11 @@ namespace NServiceBus
         }
 
         /// <summary>
+        /// Exposes the retry failed settings.
+        /// </summary>
+        public RetryFailedSettings Failed { get; private set; }
+
+        /// <summary>
         /// Exposes the immediate retries settings.
         /// </summary>
         public RecoverabilitySettings Immediate(Action<ImmediateRetriesSettings> customizations)
@@ -33,11 +38,6 @@ namespace NServiceBus
             customizations(new DelayedRetriesSettings(Settings));
             return this;
         }
-
-        /// <summary>
-        /// Exposes the retry failed settings.
-        /// </summary>
-        public RetryFailedSettings Failed { get; private set; }
 
         /// <summary>
         /// Configures a recoverability policy override. It allows to take full control over the recoverability decision process.
@@ -80,21 +80,15 @@ namespace NServiceBus
     /// </summary>
     public struct ImmediateConfig
     {
-        internal ImmediateConfig(int maxNumberOfRetries, bool enabled)
+        internal ImmediateConfig(int maxNumberOfRetries)
         {
             MaxNumberOfRetries = maxNumberOfRetries;
-            Enabled = enabled;
         }
 
         /// <summary>
         /// Gets the configured maximum number of immediate retries.
         /// </summary>
-        public int MaxNumberOfRetries { get;  }
-
-        /// <summary>
-        /// Indiciates whether immediate retries are enabled or not.
-        /// </summary>
-        public bool Enabled { get; }
+        public int MaxNumberOfRetries { get; }
     }
 
     /// <summary>
@@ -102,11 +96,10 @@ namespace NServiceBus
     /// </summary>
     public struct DelayedConfig
     {
-        internal DelayedConfig(int maxNumberOfRetries, TimeSpan timeIncrease, bool enabled)
+        internal DelayedConfig(int maxNumberOfRetries, TimeSpan timeIncrease)
         {
             MaxNumberOfRetries = maxNumberOfRetries;
             TimeIncrease = timeIncrease;
-            Enabled = enabled;
         }
 
         /// <summary>
@@ -118,15 +111,10 @@ namespace NServiceBus
         /// Gets the configured time of increase for individual delayed retries.
         /// </summary>
         public TimeSpan TimeIncrease { get; }
-
-        /// <summary>
-        /// Indiciates whether delayed retries are enabled or not.
-        /// </summary>
-        public bool Enabled { get; }
     }
 
     /// <summary>
-    /// Extension methods for recoverability which extend <see cref="EndpointConfiguration"/>.
+    /// Extension methods for recoverability which extend <see cref="EndpointConfiguration" />.
     /// </summary>
     public static class RecoverabilityEndpointConfigurationExtensions
     {
@@ -150,7 +138,8 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Configures the amount of times a message should be immediately retried after failing before escalating to second level retries.
+        /// Configures the amount of times a message should be immediately retried after failing before escalating to second level
+        /// retries.
         /// </summary>
         /// <param name="numberOfRetries">The number of times to immediately retry a failed message.</param>
         public void NumberOfRetries(int numberOfRetries)

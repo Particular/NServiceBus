@@ -8,7 +8,7 @@ namespace NServiceBus
     {
         public static RecoverabilityAction Invoke(RecoverabilityConfig config, ErrorContext errorContext)
         {
-            if (config.Immediate.Enabled)
+            if (config.Immediate.MaxNumberOfRetries > 0)
             {
                 if (errorContext.NumberOfImmediateDeliveryAttempts <= config.Immediate.MaxNumberOfRetries)
                 {
@@ -32,7 +32,7 @@ namespace NServiceBus
         {
             delay = TimeSpan.MinValue;
 
-            if (!config.Enabled)
+            if (config.MaxNumberOfRetries == 0)
             {
                 return false;
             }

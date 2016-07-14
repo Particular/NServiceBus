@@ -140,7 +140,7 @@
             return new RecoverabilityExecutor(
                 raiseNotifications,
                 policy,
-                new RecoverabilityConfig(new ImmediateConfig(), new DelayedConfig(0, TimeSpan.MinValue, delayedRetriesSupported)),
+                new RecoverabilityConfig(new ImmediateConfig(), new DelayedConfig(0, TimeSpan.MinValue)),
                 eventAggregator,
                 delayedRetriesSupported ? new DelayedRetryExecutor(InputQueueAddress, dispatcher) : null,
                 new MoveToErrorsExecutor(dispatcher, ErrorQueueAddress, new Dictionary<string, string>()),

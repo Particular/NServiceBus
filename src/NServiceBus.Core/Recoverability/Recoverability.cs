@@ -27,7 +27,7 @@
             {
                 settings.SetDefault(SlrNumberOfRetries, DefaultRecoverabilityPolicy.DefaultNumberOfRetries);
                 settings.SetDefault(SlrTimeIncrease, DefaultRecoverabilityPolicy.DefaultTimeIncrease);
-
+                settings.SetDefault(PolicyOverride, (Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction>) DefaultRecoverabilityPolicy.Invoke);
                 settings.SetDefault(FlrNumberOfRetries, 5);
             });
         }
@@ -64,7 +64,8 @@
                 var delayedRetryConfig = GetDelayedRetryConfig(context.Settings);
                 Func<string, DelayedRetryExecutor> delayedRetryExecutorFactory = localAddress =>
                 {
-                    if (!delayedRetryConfig.Enabled || transportTransactionMode == TransportTransactionMode.None)
+                    //Transactions must be enabled since SLR requires the transport to be able to rollback
+                    if (transportTransactionMode == TransportTransactionMode.None) // TODO: Check timeout manager?
                     {
                         return null;
                     }
@@ -74,10 +75,12 @@
                         context.DoesTransportSupportConstraint<DelayedDeliveryConstraint>() ? null : context.Settings.Get<TimeoutManagerAddressConfiguration>().TransportAddress);
                 };
 
-
                 var immediateRetryConfig = GetImmediateRetryConfig(context.Settings);
+
+                var policy = context.Settings.Get<Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction>>(PolicyOverride);
+
                 return new RecoverabilityExecutorFactory(
-                    DefaultRecoverabilityPolicy.Invoke,
+                    policy,
                     new RecoverabilityConfig(immediateRetryConfig, delayedRetryConfig),
                     delayedRetryExecutorFactory,
                     moveToErrorsExecutorFactory,
@@ -91,7 +94,7 @@
         {
             var enabled = IsImmediateRetriesEnabled(settings);
             var maxImmediateRetries = enabled ? GetMaxImmediateRetries(settings) : 0;
-            return new ImmediateConfig(maxImmediateRetries, enabled);
+            return new ImmediateConfig(maxImmediateRetries);
         }
 
         static DelayedConfig GetDelayedRetryConfig(ReadOnlySettings settings)
@@ -100,7 +103,7 @@
 
             if (!enabled)
             {
-                return new DelayedConfig(0, TimeSpan.MinValue, false);
+                return new DelayedConfig(0, TimeSpan.MinValue);
             }
 
             var numberOfRetries = settings.Get<int>(SlrNumberOfRetries);
@@ -113,23 +116,11 @@
                 timeIncrease = retriesConfig.TimeIncrease;
             }
 
-            return new DelayedConfig(numberOfRetries, timeIncrease, true);
+            return new DelayedConfig(numberOfRetries, timeIncrease);
         }
 
         static bool IsDelayedRetriesEnabled(ReadOnlySettings settings)
         {
-            //Transactions must be enabled since SLR requires the transport to be able to rollback
-            if (settings.GetRequiredTransactionModeForReceives() == TransportTransactionMode.None)
-            {
-                return false;
-            }
-
-            Func<SecondLevelRetryContext, TimeSpan> customPolicy;
-            if (settings.TryGet(SlrCustomPolicy, out customPolicy))
-            {
-                return true;
-            }
-
             var retriesConfig = settings.GetConfigSection<SecondLevelRetriesConfig>();
             if (retriesConfig != null && retriesConfig.Enabled && retriesConfig.NumberOfRetries > 0)
             {
@@ -191,12 +182,10 @@
 
         public const string SlrNumberOfRetries = "Recoverability.Slr.DefaultPolicy.Retries";
         public const string SlrTimeIncrease = "Recoverability.Slr.DefaultPolicy.Timespan";
-        public const string SlrCustomPolicy = "Recoverability.Slr.CustomPolicy";
         public const string FlrNumberOfRetries = "Recoverability.Flr.Retries";
         public const string FaultHeaderCustomization = "Recoverability.Failed.FaultHeaderCustomization";
         public const string PolicyOverride = "Recoverability.PolicyOverride";
 
         static ILog Logger = LogManager.GetLogger<Recoverability>();
     }
-
 }
