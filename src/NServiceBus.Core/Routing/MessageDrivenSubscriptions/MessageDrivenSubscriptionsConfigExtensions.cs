@@ -49,7 +49,7 @@ namespace NServiceBus
             Guard.AgainstNullAndEmpty(nameof(publisherEndpoint), publisherEndpoint);
 
             if (publisherEndpoint.Contains("@"))
-                throw new ArgumentException($"Expected an endpoint name but received '{publisherEndpoint}'.");
+                throw new ArgumentException(string.Format(endpointNameExceptionMessageTemplate, publisherEndpoint));
 
             routingSettings.Settings.GetOrCreate<Publishers>().Add(eventType, publisherEndpoint);
         }
@@ -64,6 +64,9 @@ namespace NServiceBus
         {
             Guard.AgainstNull(nameof(eventAssembly), eventAssembly);
             Guard.AgainstNullAndEmpty(nameof(publisherEndpoint), publisherEndpoint);
+
+            if (publisherEndpoint.Contains("@"))
+                throw new ArgumentException(string.Format(endpointNameExceptionMessageTemplate, publisherEndpoint));
 
             routingSettings.Settings.GetOrCreate<Publishers>().Add(eventAssembly, publisherEndpoint);
         }
@@ -81,7 +84,14 @@ namespace NServiceBus
             Guard.AgainstNull(nameof(eventNamespace), eventNamespace);
             Guard.AgainstNullAndEmpty(nameof(publisherEndpoint), publisherEndpoint);
 
+            if (publisherEndpoint.Contains("@"))
+                throw new ArgumentException(string.Format(endpointNameExceptionMessageTemplate, publisherEndpoint));
+
             routingSettings.Settings.GetOrCreate<Publishers>().Add(eventAssembly, eventNamespace, publisherEndpoint);
         }
+
+        static string endpointNameExceptionMessageTemplate = "A logical endpoint name should not contain '@', but received '{0}'. "
+                                          + "To specify an endpoint's address use the instance mapping file for MSMQ transport or refer to the routing documentation.";
+
     }
 }
