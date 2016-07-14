@@ -18,7 +18,7 @@ namespace NServiceBus
             this.subscriptionStorage = subscriptionStorage;
         }
 
-        protected override async Task<IEnumerable<IUnicastRoute>> GetDestinations(ContextBag contextBag, List<Type> typesToRoute)
+        protected override async Task<IEnumerable<IUnicastRoute>> GetDestinations(ContextBag contextBag, Type[] typesToRoute)
         {
             var messageTypes = typesToRoute.Select(t => new MessageType(t));
             var subscribers = await subscriptionStorage.GetSubscriberAddressesForMessage(messageTypes, contextBag).ConfigureAwait(false);

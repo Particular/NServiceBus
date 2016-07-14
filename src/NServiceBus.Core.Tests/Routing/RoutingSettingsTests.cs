@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus.Core.Tests.Routing
 {
-    using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
@@ -23,7 +22,7 @@
             routingSettings.RouteToEndpoint(typeof(SomeMessageType), "destination");
 
             var routingTable = routingSettings.Settings.Get<UnicastRoutingTable>();
-            var routes = await routingTable.GetDestinationsFor(new List<Type>
+            var routes = await routingTable.GetDestinationsFor(new[]
             {
                 typeof(SomeMessageType)
             }, new ContextBag());
@@ -40,7 +39,7 @@
             routingSettings.RouteToEndpoint(Assembly.GetExecutingAssembly(), "destination");
             var routingTable = routingSettings.Settings.Get<UnicastRoutingTable>();
 
-            var routes = await routingTable.GetDestinationsFor(new List<Type>
+            var routes = await routingTable.GetDestinationsFor(new []
             {
                 typeof(SomeMessageType),
                 typeof(OtherMessageType),
@@ -59,12 +58,12 @@
             routingSettings.RouteToEndpoint(Assembly.GetExecutingAssembly(), nameof(MessageNamespaceA), "destination");
             var routingTable = routingSettings.Settings.Get<UnicastRoutingTable>();
 
-            var result1 = await routingTable.GetDestinationsFor(new List<Type>
+            var result1 = await routingTable.GetDestinationsFor(new[]
             {
                 typeof(SomeMessageType)
             }, new ContextBag());
 
-            var result2 = await routingTable.GetDestinationsFor(new List<Type>
+            var result2 = await routingTable.GetDestinationsFor(new[]
             {
                 typeof(OtherMessageType),
                 typeof(MessageWithoutNamespace)
@@ -83,11 +82,11 @@
             routingSettings.RouteToEndpoint(Assembly.GetExecutingAssembly(), emptyNamespace, "destination");
             var routingTable = routingSettings.Settings.Get<UnicastRoutingTable>();
 
-            var result1 = await routingTable.GetDestinationsFor(new List<Type>
+            var result1 = await routingTable.GetDestinationsFor(new[]
             {
                 typeof(MessageWithoutNamespace)
             }, new ContextBag());
-            var result2 = await routingTable.GetDestinationsFor(new List<Type>
+            var result2 = await routingTable.GetDestinationsFor(new[]
             {
                 typeof(SomeMessageType),
                 typeof(OtherMessageType)

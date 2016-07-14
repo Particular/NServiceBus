@@ -10,13 +10,13 @@ namespace NServiceBus
 
     class UnicastSendRouter : UnicastRouter
     {
-        public UnicastSendRouter(MessageMetadataRegistry messageMetadataRegistry, UnicastRoutingTable unicastRoutingTable, EndpointInstances endpointInstances, TransportAddresses physicalAddresses) 
+        public UnicastSendRouter(MessageMetadataRegistry messageMetadataRegistry, UnicastRoutingTable unicastRoutingTable, EndpointInstances endpointInstances, TransportAddresses physicalAddresses)
             : base(messageMetadataRegistry, endpointInstances, physicalAddresses)
         {
             this.unicastRoutingTable = unicastRoutingTable;
         }
 
-        protected override Task<IEnumerable<IUnicastRoute>> GetDestinations(ContextBag contextBag, List<Type> typesToRoute)
+        protected override Task<IEnumerable<IUnicastRoute>> GetDestinations(ContextBag contextBag, Type[] typesToRoute)
         {
             return unicastRoutingTable.GetDestinationsFor(typesToRoute, contextBag);
         }
