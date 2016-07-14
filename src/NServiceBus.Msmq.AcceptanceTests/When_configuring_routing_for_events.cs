@@ -38,7 +38,7 @@
                     .Done(c => c.EventReceived)
                     .Run());
 
-            var expected = $"Expected an endpoint name but received '{PublisherEndpoint}@localhost'. Use routing file to specify physical address of the endpoint.";
+            var expected = $"Expected an endpoint name but received '{PublisherEndpoint}@localhost'.";
             var outerExc = ae.InnerExceptions.First();
 
             Assert.AreEqual(typeof(ArgumentException), outerExc.InnerException.GetType());

@@ -49,7 +49,7 @@ namespace NServiceBus
             Guard.AgainstNullAndEmpty(nameof(publisherEndpoint), publisherEndpoint);
 
             if (publisherEndpoint.Contains("@"))
-                throw new ArgumentException($"Expected an endpoint name but received '{publisherEndpoint}'. Use routing file to specify physical address of the endpoint.");
+                throw new ArgumentException($"Expected an endpoint name but received '{publisherEndpoint}'.");
 
             routingSettings.Settings.GetOrCreate<Publishers>().Add(eventType, publisherEndpoint);
         }

@@ -35,7 +35,7 @@
                                 .Done(c => c.MessageReceived)
                                 .Run());
 
-            var expected = $"Expected an endpoint name but received '{ReceiverEndpoint}@localhost'. Use routing file to specify physical address of the endpoint.";
+            var expected = $"Expected an endpoint name but received '{ReceiverEndpoint}@localhost'.";
             var outerExc = ae.InnerExceptions.Single(ex => ex.Message == "Endpoint ConfiguringRouting.SenderUsingPhysicalAddress failed to initialize");
 
             Assert.AreEqual(typeof(ArgumentException), outerExc.InnerException.GetType());
