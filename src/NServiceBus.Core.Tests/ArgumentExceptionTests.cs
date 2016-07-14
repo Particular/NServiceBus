@@ -161,13 +161,13 @@
             return false;
         }
 
-        static void WriteMethod(MethodDefinition method, TextWriter builder)
+        static void WriteMethod(MethodDefinition method, TextWriter writer)
         {
-            builder.WriteLine("\r\n" + method.DeclaringType.Name + "." + method.Name);
+            writer.WriteLine("\r\n" + method.DeclaringType.Name + "." + method.Name);
             var instruction = method.Body.Instructions.FirstOrDefault(x => x.SequencePoint != null);
             if (instruction != null)
             {
-                builder.WriteLine("file://" + instruction.SequencePoint.Document.Url.Replace(@"\", "/"));
+                writer.WriteLine("file://" + instruction.SequencePoint.Document.Url.Replace(@"\", "/"));
             }
         }
 
