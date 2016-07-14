@@ -58,12 +58,6 @@ namespace NServiceBus.Extensibility
                 return parentBag.TryGet(key, out result);
             }
 
-            if (typeof(T).IsValueType)
-            {
-                result = default(T);
-                return false;
-            }
-
             result = default(T);
             return false;
         }
