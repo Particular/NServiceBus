@@ -1058,14 +1058,11 @@ namespace NServiceBus
     }
     public class SecondLevelRetriesSettings
     {
-        [System.ObsoleteAttribute("Use `CustomRetryPolicy(Func<SecondLevelRetryContext, TimeSpan> customPolicy)` ins" +
-            "tead. The member currently throws a NotImplementedException. Will be removed in " +
-            "version 7.0.0.", true)]
+        [System.ObsoleteAttribute("Use `configuration.Recoverability().PolicyOverride(Func<RecoverabilityConfig, Err" +
+            "orContext, RecoverabilityAction> @override)` instead. The member currently throw" +
+            "s a NotImplementedException. Will be removed in version 7.0.0.", true)]
         public void CustomRetryPolicy(System.Func<NServiceBus.TransportMessage, System.TimeSpan> customPolicy) { }
         public NServiceBus.SecondLevelRetriesSettings CustomRetryPolicy(System.Func<NServiceBus.SecondLevelRetryContext, System.TimeSpan> customPolicy) { }
-        public NServiceBus.SecondLevelRetriesSettings Disable() { }
-        public NServiceBus.SecondLevelRetriesSettings NumberOfRetries(int numberOfRetries) { }
-        public NServiceBus.SecondLevelRetriesSettings TimeIncrease(System.TimeSpan timeIncrease) { }
     }
     public class SecondLevelRetryContext
     {
