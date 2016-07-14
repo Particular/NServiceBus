@@ -3,16 +3,10 @@
     using System;
     using System.Collections;
     using System.Collections.Generic;
-    using System.Configuration;
 
     static class ExceptionHeaderHelper
     {
         public static void SetExceptionHeaders(Dictionary<string, string> headers, Exception e)
-        {
-            SetExceptionHeaders(headers, e, useLegacyStackTrace);
-        }
-
-        public static void SetExceptionHeaders(Dictionary<string, string> headers, Exception e, bool legacyStacktrace)
         {
             headers["NServiceBus.ExceptionInfo.ExceptionType"] = e.GetType().FullName;
 
@@ -24,15 +18,7 @@
             headers["NServiceBus.ExceptionInfo.HelpLink"] = e.HelpLink;
             headers["NServiceBus.ExceptionInfo.Message"] = e.GetMessage().Truncate(16384);
             headers["NServiceBus.ExceptionInfo.Source"] = e.Source;
-
-            if (legacyStacktrace)
-            {
-                headers["NServiceBus.ExceptionInfo.StackTrace"] = e.StackTrace;
-            }
-            else
-            {
-                headers["NServiceBus.ExceptionInfo.StackTrace"] = e.ToString();
-            }
+            headers["NServiceBus.ExceptionInfo.StackTrace"] = e.ToString();
             headers["NServiceBus.TimeOfFailure"] = DateTimeExtensions.ToWireFormattedString(DateTime.UtcNow);
 
             // ReSharper disable once ConditionIsAlwaysTrueOrFalse
@@ -59,7 +45,5 @@
                 : (value.Length <= maxLength
                     ? value
                     : value.Substring(0, maxLength));
-
-        static bool useLegacyStackTrace = string.Equals(ConfigurationManager.AppSettings["NServiceBus/Headers/UseLegacyExceptionStackTrace"], "true", StringComparison.OrdinalIgnoreCase);
     }
 }
