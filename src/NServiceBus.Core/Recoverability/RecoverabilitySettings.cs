@@ -13,22 +13,26 @@ namespace NServiceBus
     {
         internal RecoverabilitySettings(SettingsHolder settings) : base(settings)
         {
-            Immediate = new ImmediateRetriesSettings(settings);
-            Delayed = new DelayedRetriesSettings(settings);
             Failed = new RetryFailedSettings(settings);
         }
-
-        // TODO: Properties or methods?
 
         /// <summary>
         /// Exposes the immediate retries settings.
         /// </summary>
-        public ImmediateRetriesSettings Immediate { get; private set; }
+        public RecoverabilitySettings Immediate(Action<ImmediateRetriesSettings> customizations)
+        {
+            customizations(new ImmediateRetriesSettings(Settings));
+            return this;
+        }
 
         /// <summary>
         /// Exposes the delayed retries settings.
         /// </summary>
-        public DelayedRetriesSettings Delayed { get; private set; }
+        public RecoverabilitySettings Delayed(Action<DelayedRetriesSettings> customizations)
+        {
+            customizations(new DelayedRetriesSettings(Settings));
+            return this;
+        }
 
         /// <summary>
         /// Exposes the retry failed settings.
@@ -149,23 +153,19 @@ namespace NServiceBus
         /// Configures the amount of times a message should be immediately retried after failing before escalating to second level retries.
         /// </summary>
         /// <param name="numberOfRetries">The number of times to immediately retry a failed message.</param>
-        public ImmediateRetriesSettings NumberOfRetries(int numberOfRetries)
+        public void NumberOfRetries(int numberOfRetries)
         {
             Guard.AgainstNegative(nameof(numberOfRetries), numberOfRetries);
 
             Settings.Set(Recoverability.FlrNumberOfRetries, numberOfRetries);
-
-            return this;
         }
 
         /// <summary>
         /// Configures NServiceBus to not retry failed messages using the first level retry mechanism.
         /// </summary>
-        public ImmediateRetriesSettings Disable()
+        public void Disable()
         {
             Settings.Set(Recoverability.FlrNumberOfRetries, 0);
-
-            return this;
         }
     }
 
@@ -205,11 +205,9 @@ namespace NServiceBus
         /// <summary>
         /// Configures NServiceBus to not retry failed messages using the second level retry mechanism.
         /// </summary>
-        public DelayedRetriesSettings Disable()
+        public void Disable()
         {
             Settings.Set(Recoverability.SlrNumberOfRetries, 0);
-
-            return this;
         }
     }
 

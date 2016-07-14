@@ -137,8 +137,6 @@
     <Compile Include="Recoverability\RecoverabilityExecutor.cs" />
     <Compile Include="Recoverability\MoveToError.cs" />
     <Compile Include="Recoverability\Recoverability.cs" />
-    <Compile Include="Recoverability\FirstLevelRetries\FirstLevelRetriesConfigExtensions.cs" />
-    <Compile Include="Recoverability\FirstLevelRetries\FirstLevelRetriesSettings.cs" />
     <Compile Include="Recoverability\MoveToErrorsExecutor.cs" />
     <Compile Include="Recoverability\RecoverabilityExecutorFactory.cs" />
     <Compile Include="Recoverability\DefaultRecoverabilityPolicy.cs" />

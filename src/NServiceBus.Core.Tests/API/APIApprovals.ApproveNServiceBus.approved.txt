@@ -264,12 +264,24 @@ namespace NServiceBus
         public static System.DateTime ToUtcDateTime(string wireFormattedString) { }
         public static string ToWireFormattedString(System.DateTime dateTime) { }
     }
+    public struct DelayedConfig
+    {
+        public bool Disabled { get; }
+        public int MaxNumberOfRetries { get; }
+        public System.TimeSpan TimeIncrease { get; }
+    }
     public class static DelayedDeliveryOptionExtensions
     {
         public static void DelayDeliveryWith(this NServiceBus.SendOptions options, System.TimeSpan delay) { }
         public static void DoNotDeliverBefore(this NServiceBus.SendOptions options, System.DateTimeOffset at) { }
         public static System.Nullable<System.DateTimeOffset> GetDeliveryDate(this NServiceBus.SendOptions options) { }
         public static System.Nullable<System.TimeSpan> GetDeliveryDelay(this NServiceBus.SendOptions options) { }
+    }
+    public class DelayedRetriesSettings : NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings
+    {
+        public void Disable() { }
+        public NServiceBus.DelayedRetriesSettings NumberOfRetries(int numberOfRetries) { }
+        public NServiceBus.DelayedRetriesSettings TimeIncrease(System.TimeSpan timeIncrease) { }
     }
     public enum DependencyLifecycle
     {
@@ -405,15 +417,6 @@ namespace NServiceBus
     public class First<T>
     {
         public First() { }
-    }
-    public class static FirstLevelRetriesConfigExtensions
-    {
-        public static NServiceBus.FirstLevelRetriesSettings FirstLevelRetries(this NServiceBus.EndpointConfiguration config) { }
-    }
-    public class FirstLevelRetriesSettings
-    {
-        public NServiceBus.FirstLevelRetriesSettings Disable() { }
-        public NServiceBus.FirstLevelRetriesSettings NumberOfRetries(int numberOfRetries) { }
     }
     public class static HeaderOptionExtensions
     {
@@ -642,10 +645,20 @@ namespace NServiceBus
         public static System.Threading.Tasks.Task Unsubscribe(this NServiceBus.IMessageSession session, System.Type messageType) { }
         public static System.Threading.Tasks.Task Unsubscribe<T>(this NServiceBus.IMessageSession session) { }
     }
+    public struct ImmediateConfig
+    {
+        public bool Disabled { get; }
+        public int MaxNumberOfRetries { get; }
+    }
     public class static ImmediateDispatchOptionExtensions
     {
         public static bool RequiredImmediateDispatch(this NServiceBus.Extensibility.ExtendableOptions options) { }
         public static void RequireImmediateDispatch(this NServiceBus.Extensibility.ExtendableOptions options) { }
+    }
+    public class ImmediateRetriesSettings : NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings
+    {
+        public void Disable() { }
+        public void NumberOfRetries(int numberOfRetries) { }
     }
     [JetBrains.Annotations.UsedImplicitlyAttribute(JetBrains.Annotations.ImplicitUseTargetFlags.Default | JetBrains.Annotations.ImplicitUseTargetFlags.Itself | JetBrains.Annotations.ImplicitUseTargetFlags.Members | JetBrains.Annotations.ImplicitUseTargetFlags.WithMembers)]
     public interface INeedInitialization
@@ -882,9 +895,29 @@ namespace NServiceBus
         public static NServiceBus.RecoverabilityAction ImmediateRetry() { }
         public static NServiceBus.RecoverabilityAction MoveToError() { }
     }
+    public struct RecoverabilityConfig
+    {
+        public NServiceBus.DelayedConfig Delayed { get; }
+        public NServiceBus.ImmediateConfig Immediate { get; }
+    }
+    public class static RecoverabilityEndpointConfigurationExtensions
+    {
+        public static NServiceBus.RecoverabilitySettings Recoverability(this NServiceBus.EndpointConfiguration configuration) { }
+    }
+    public class RecoverabilitySettings : NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings
+    {
+        public NServiceBus.RetryFailedSettings Failed { get; }
+        public NServiceBus.RecoverabilitySettings Delayed(System.Action<NServiceBus.DelayedRetriesSettings> customizations) { }
+        public NServiceBus.RecoverabilitySettings Immediate(System.Action<NServiceBus.ImmediateRetriesSettings> customizations) { }
+        public NServiceBus.RecoverabilitySettings PolicyOverride(System.Func<NServiceBus.RecoverabilityConfig, NServiceBus.Transport.ErrorContext, NServiceBus.RecoverabilityAction> @override) { }
+    }
     public class ReplyOptions : NServiceBus.Extensibility.ExtendableOptions
     {
         public ReplyOptions() { }
+    }
+    public class RetryFailedSettings : NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings
+    {
+        public NServiceBus.RetryFailedSettings HeaderCustomization(System.Action<System.Collections.Generic.Dictionary<string, string>> customization) { }
     }
     public class static RoutingOptionExtensions
     {
@@ -1698,9 +1731,9 @@ namespace NServiceBus.Features
         Active = 2,
         Deactivated = 3,
     }
-    [System.ObsoleteAttribute("FirstLevelRetries is no longer a separate feature. Please use configureation.Disa" +
-        "bleFirstLevelRetries() to disable immediate retries. Will be removed in version " +
-        "7.0.0.", true)]
+    [System.ObsoleteAttribute("FirstLevelRetries is no longer a separate feature. Please use configuration.Recov" +
+        "erability().Immediate.Disable() to disable immediate retries. Will be removed in" +
+        " version 7.0.0.", true)]
     public class FirstLevelRetries : NServiceBus.Features.Feature
     {
         protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
@@ -1749,9 +1782,8 @@ namespace NServiceBus.Features
     {
         protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
     }
-    [System.ObsoleteAttribute("SecondLevelRetries is no longer a separate feature. Please use configureation.Sec" +
-        "ondLevelRetries().Disable() to delayed retries. Will be removed in version 7.0.0" +
-        ".", true)]
+    [System.ObsoleteAttribute("SecondLevelRetries is no longer a separate feature. Please use configureation.Del" +
+        "ayed.Disable() to delayed retries. Will be removed in version 7.0.0.", true)]
     public class SecondLevelRetries : NServiceBus.Features.Feature
     {
         protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }

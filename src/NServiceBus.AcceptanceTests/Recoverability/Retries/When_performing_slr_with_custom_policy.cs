@@ -46,7 +46,8 @@
 
                     config.EnableFeature<TimeoutManager>();
                     config.SecondLevelRetries().CustomRetryPolicy(new CustomPolicy(testContext).GetDelay);
-                    config.FirstLevelRetries().NumberOfRetries(1);
+                    config.Recoverability()
+                        .Immediate(immediate => immediate.NumberOfRetries(1));
                 });
             }
 
