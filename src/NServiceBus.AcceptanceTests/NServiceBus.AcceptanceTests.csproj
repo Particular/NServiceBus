@@ -99,8 +99,8 @@
     <Compile Include="EndpointTemplates\DefaultPublisher.cs" />
     <Compile Include="EndpointTemplates\DefaultServer.cs" />
     <Compile Include="Mutators\When_using_outgoing_tm_mutator.cs" />
-    <Compile Include="Performance\MessageDurability\When_disabling_durable_messages_on_durable_transport.cs" />
-    <Compile Include="Performance\MessageDurability\When_using_non_durable_messages_on_durable_only_transport.cs" />
+    <Compile Include="Core\MessageDurability\When_disabling_durable_messages_on_durable_transport.cs" />
+    <Compile Include="Core\MessageDurability\When_using_non_durable_messages_on_durable_only_transport.cs" />
     <Compile Include="Performance\When_message_is_faulted.cs" />
     <Compile Include="Persistence\When_a_persistence_does_not_support_outbox.cs" />
     <Compile Include="Persistence\When_a_persistence_does_not_support_saga.cs" />
@@ -140,7 +140,7 @@
     <Compile Include="Basic\When_sending_from_a_send_only.cs" />
     <Compile Include="Basic\When_using_a_greedy_convention.cs" />
     <Compile Include="Hosting\When_sending_ensure_proper_headers.cs" />
-    <Compile Include="Performance\MessageDurability\When_sending_a_non_durable_message.cs" />
+    <Compile Include="Core\MessageDurability\When_sending_a_non_durable_message.cs" />
     <Compile Include="Hosting\When_a_message_is_audited.cs" />
     <Compile Include="Performance\TimeToBeReceived\When_TimeToBeReceived_has_expired_convention.cs" />
     <Compile Include="Performance\TimeToBeReceived\When_TimeToBeReceived_has_not_expired.cs" />
@@ -151,7 +151,7 @@
     <Compile Include="Reliability\Outbox\When_dispatching_forwarded_messages.cs" />
     <Compile Include="Reliability\Outbox\When_a_message_is_audited.cs" />
     <Compile Include="Reliability\Outbox\When_clearing_saga_timeouts.cs" />
-    <Compile Include="Reliability\Outbox\When_dispatching_transport_operations.cs" />
+    <Compile Include="Core\Outbox\When_dispatching_transport_operations.cs" />
     <Compile Include="Encryption\When_using_Rijndael_without_incoming_key_identifier.cs" />
     <Compile Include="PerfMon\CriticalTime\When_deferring_a_message.cs" />
     <Compile Include="Audit\When_audit_is_overridden_in_code.cs" />
