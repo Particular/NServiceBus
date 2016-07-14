@@ -26,6 +26,8 @@ namespace NServiceBus
         /// <param name="transportOperation">The transport operation to be added.</param>
         public void Add(TransportOperation transportOperation)
         {
+            Guard.AgainstNull(nameof(transportOperation), transportOperation);
+
             operations.Push(transportOperation);
         }
 
@@ -35,6 +37,8 @@ namespace NServiceBus
         /// <param name="transportOperations">The transport operations to be added.</param>
         public void AddRange(TransportOperation[] transportOperations)
         {
+            Guard.AgainstNullAndEmpty(nameof(transportOperations), transportOperations);
+
             operations.PushRange(transportOperations);
         }
 
