@@ -4,6 +4,7 @@ namespace NServiceBus
     using System.Collections.Generic;
     using Configuration.AdvanceExtensibility;
     using Settings;
+    using Transport;
 
     /// <summary>
     /// Configuration settings for recoverability
@@ -33,6 +34,91 @@ namespace NServiceBus
         /// Exposes the retry failed settings.
         /// </summary>
         public RetryFailedSettings Failed { get; private set; }
+
+        /// <summary>
+        /// Configures a recoverability policy override. It allows to take full control over the recoverability decision process.
+        /// </summary>
+        /// <param name="override">The recoverability override.</param>
+        public RecoverabilitySettings PolicyOverride(Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> @override)
+        {
+            Guard.AgainstNull(nameof(@override), @override);
+
+            Settings.Set(Recoverability.PolicyOverride, @override);
+
+            return this;
+        }
+    }
+
+    /// <summary>
+    /// Provides information about the recoverability configuration.
+    /// </summary>
+    public struct RecoverabilityConfig
+    {
+        internal RecoverabilityConfig(ImmediateConfig immediateConfig, DelayedConfig delayedConfig)
+        {
+            Immediate = immediateConfig;
+            Delayed = delayedConfig;
+        }
+
+        /// <summary>
+        /// Exposes the immediate retries configuration.
+        /// </summary>
+        public ImmediateConfig Immediate { get; }
+
+        /// <summary>
+        /// Exposes the delayed retries configuration.
+        /// </summary>
+        public DelayedConfig Delayed { get; }
+    }
+
+    /// <summary>
+    /// Provides information about the immediate retries configuration.
+    /// </summary>
+    public struct ImmediateConfig
+    {
+        internal ImmediateConfig(int maxNumberOfRetries, bool disabled)
+        {
+            MaxNumberOfRetries = maxNumberOfRetries;
+            Disabled = disabled;
+        }
+
+        /// <summary>
+        /// Gets the configured maximum number of immediate retries.
+        /// </summary>
+        public int MaxNumberOfRetries { get;  }
+
+        /// <summary>
+        /// Indiciates whether immediate retries are disabled or not.
+        /// </summary>
+        public bool Disabled { get; }
+    }
+
+    /// <summary>
+    /// Provides information about the delayed retries configuration.
+    /// </summary>
+    public struct DelayedConfig
+    {
+        internal DelayedConfig(int maxNumberOfRetries, TimeSpan timeIncrease, bool disabled)
+        {
+            MaxNumberOfRetries = maxNumberOfRetries;
+            TimeIncrease = timeIncrease;
+            Disabled = disabled;
+        }
+
+        /// <summary>
+        /// Gets the configured maximum number of immediate retries.
+        /// </summary>
+        public int MaxNumberOfRetries { get; }
+
+        /// <summary>
+        /// Gets the configured time of increase for individual delayed retries.
+        /// </summary>
+        public TimeSpan TimeIncrease { get; }
+
+        /// <summary>
+        /// Indiciates whether delayed retries are disabled or not.
+        /// </summary>
+        public bool Disabled { get; }
     }
 
     /// <summary>
