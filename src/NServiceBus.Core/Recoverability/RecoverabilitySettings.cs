@@ -40,14 +40,14 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Configures a recoverability policy override. It allows to take full control over the recoverability decision process.
+        /// Configures a custom recoverability policy. It allows to take full control over the recoverability decision process.
         /// </summary>
-        /// <param name="override">The recoverability override.</param>
-        public RecoverabilitySettings PolicyOverride(Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> @override)
+        /// <param name="custom">The custom recoverability.</param>
+        public RecoverabilitySettings CustomPolicy(Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> custom)
         {
-            Guard.AgainstNull(nameof(@override), @override);
+            Guard.AgainstNull(nameof(custom), custom);
 
-            Settings.Set(Recoverability.PolicyOverride, @override);
+            Settings.Set(Recoverability.PolicyOverride, custom);
 
             return this;
         }

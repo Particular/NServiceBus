@@ -25,8 +25,8 @@
                 "Message recoverability is only relevant for endpoints receiving messages.");
             Defaults(settings =>
             {
-                settings.SetDefault(SlrNumberOfRetries, DefaultRecoverabilityPolicy.DefaultNumberOfRetries);
-                settings.SetDefault(SlrTimeIncrease, DefaultRecoverabilityPolicy.DefaultTimeIncrease);
+                settings.SetDefault(SlrNumberOfRetries, DefaultNumberOfRetries);
+                settings.SetDefault(SlrTimeIncrease, DefaultTimeIncrease);
                 settings.SetDefault(FlrNumberOfRetries, 5);
             });
         }
@@ -155,8 +155,10 @@
         public const string SlrTimeIncrease = "Recoverability.Slr.DefaultPolicy.Timespan";
         public const string FlrNumberOfRetries = "Recoverability.Flr.Retries";
         public const string FaultHeaderCustomization = "Recoverability.Failed.FaultHeaderCustomization";
-        public const string PolicyOverride = "Recoverability.PolicyOverride";
+        public const string PolicyOverride = "Recoverability.CustomPolicy";
 
         static ILog Logger = LogManager.GetLogger<Recoverability>();
+        internal static int DefaultNumberOfRetries = 3;
+        internal static TimeSpan DefaultTimeIncrease = TimeSpan.FromSeconds(10);
     }
 }

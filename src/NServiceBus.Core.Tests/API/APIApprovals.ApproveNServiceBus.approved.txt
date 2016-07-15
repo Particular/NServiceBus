@@ -264,6 +264,11 @@ namespace NServiceBus
         public static System.DateTime ToUtcDateTime(string wireFormattedString) { }
         public static string ToWireFormattedString(System.DateTime dateTime) { }
     }
+    public class DefaultRecoverabilityPolicy
+    {
+        public DefaultRecoverabilityPolicy() { }
+        public static NServiceBus.RecoverabilityAction Invoke(NServiceBus.RecoverabilityConfig config, NServiceBus.Transport.ErrorContext errorContext) { }
+    }
     public struct DelayedConfig
     {
         public int MaxNumberOfRetries { get; }
@@ -900,9 +905,9 @@ namespace NServiceBus
     public class RecoverabilitySettings : NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings
     {
         public NServiceBus.RetryFailedSettings Failed { get; }
+        public NServiceBus.RecoverabilitySettings CustomPolicy(System.Func<NServiceBus.RecoverabilityConfig, NServiceBus.Transport.ErrorContext, NServiceBus.RecoverabilityAction> custom) { }
         public NServiceBus.RecoverabilitySettings Delayed(System.Action<NServiceBus.DelayedRetriesSettings> customizations) { }
         public NServiceBus.RecoverabilitySettings Immediate(System.Action<NServiceBus.ImmediateRetriesSettings> customizations) { }
-        public NServiceBus.RecoverabilitySettings PolicyOverride(System.Func<NServiceBus.RecoverabilityConfig, NServiceBus.Transport.ErrorContext, NServiceBus.RecoverabilityAction> @override) { }
     }
     public class ReplyOptions : NServiceBus.Extensibility.ExtendableOptions
     {
@@ -1051,9 +1056,9 @@ namespace NServiceBus
     }
     public class SecondLevelRetriesSettings
     {
-        [System.ObsoleteAttribute("Use `configuration.Recoverability().PolicyOverride(Func<RecoverabilityConfig, Err" +
-            "orContext, RecoverabilityAction> @override)` instead. The member currently throw" +
-            "s a NotImplementedException. Will be removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute("Use `configuration.Recoverability().CustomPolicy(Func<RecoverabilityConfig, Error" +
+            "Context, RecoverabilityAction> @override)` instead. The member currently throws " +
+            "a NotImplementedException. Will be removed in version 7.0.0.", true)]
         public void CustomRetryPolicy(System.Func<NServiceBus.TransportMessage, System.TimeSpan> customPolicy) { }
         public NServiceBus.SecondLevelRetriesSettings CustomRetryPolicy(System.Func<NServiceBus.SecondLevelRetryContext, System.TimeSpan> customPolicy) { }
     }

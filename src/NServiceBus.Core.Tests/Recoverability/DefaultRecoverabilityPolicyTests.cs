@@ -164,7 +164,7 @@
             }
         }
 
-        ErrorContext CreateErrorContext(int numberOfDeliveryAttempts = 0, int? retryNumber = null, Dictionary<string, string> headers = null, Exception exception = null)
+        ErrorContext CreateErrorContext(int numberOfDeliveryAttempts = 1, int? retryNumber = null, Dictionary<string, string> headers = null, Exception exception = null)
         {
             return new ErrorContext(exception ?? new Exception(), retryNumber.HasValue ? new Dictionary<string, string>
             {

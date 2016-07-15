@@ -18,7 +18,7 @@ namespace NServiceBus
         [ObsoleteEx(
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0",
-            ReplacementTypeOrMember = "configuration.Recoverability().PolicyOverride(Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> @override)")]
+            ReplacementTypeOrMember = "configuration.Recoverability().CustomPolicy(Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> @override)")]
         public void CustomRetryPolicy(Func<TransportMessage, TimeSpan> customPolicy)
         {
             throw new NotImplementedException();

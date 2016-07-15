@@ -47,7 +47,7 @@
 
                     config.EnableFeature<TimeoutManager>();
                     config.Recoverability()
-                        .PolicyOverride((cfg, errorContext) =>
+                        .CustomPolicy((cfg, errorContext) =>
                         {
                             testContext.SlrRetryContexts.Add(errorContext);
 

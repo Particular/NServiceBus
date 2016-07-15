@@ -1,11 +1,19 @@
 namespace NServiceBus
 {
     using System;
-    using Logging;
     using Transport;
 
-    class DefaultRecoverabilityPolicy
+    /// <summary>
+    /// The default recoverability policy.
+    /// </summary>
+    public class DefaultRecoverabilityPolicy
     {
+        /// <summary>
+        /// Invokes the default recovery policy.
+        /// </summary>
+        /// <param name="config">The recoverability configuration.</param>
+        /// <param name="errorContext">The error context.</param>
+        /// <returns>The recoverability action.</returns>
         public static RecoverabilityAction Invoke(RecoverabilityConfig config, ErrorContext errorContext)
         {
             if (errorContext.Exception is MessageDeserializationException)
@@ -13,14 +21,9 @@ namespace NServiceBus
                 return RecoverabilityAction.MoveToError();
             }
 
-            if (config.Immediate.MaxNumberOfRetries > 0)
+            if (errorContext.NumberOfImmediateDeliveryAttempts <= config.Immediate.MaxNumberOfRetries)
             {
-                if (errorContext.NumberOfImmediateDeliveryAttempts <= config.Immediate.MaxNumberOfRetries)
-                {
-                    return RecoverabilityAction.ImmediateRetry();
-                }
-
-                Logger.InfoFormat("Giving up First Level Retries for message '{0}'.", errorContext.Message.MessageId);
+                return RecoverabilityAction.ImmediateRetry();
             }
 
             TimeSpan delay;
@@ -29,7 +32,6 @@ namespace NServiceBus
                 return RecoverabilityAction.DelayedRetry(delay);
             }
 
-            Logger.WarnFormat("Giving up Second Level Retries for message '{0}'.", errorContext.Message.MessageId);
             return RecoverabilityAction.MoveToError();
         }
 
@@ -93,10 +95,5 @@ namespace NServiceBus
         }
 
         internal static Func<DateTime> CurrentUtcTimeProvider = () => DateTime.UtcNow;
-
-        public static int DefaultNumberOfRetries = 3;
-        public static TimeSpan DefaultTimeIncrease = TimeSpan.FromSeconds(10);
-
-        static ILog Logger = LogManager.GetLogger<DefaultRecoverabilityPolicy>();
     }
 }
