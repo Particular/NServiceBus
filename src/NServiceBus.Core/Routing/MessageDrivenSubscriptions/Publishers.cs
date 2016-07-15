@@ -106,7 +106,7 @@ namespace NServiceBus.Routing.MessageDrivenSubscriptions
         /// Registers a rule that is invoked for each subscription to determine the address of the publisher.
         /// </summary>
         /// <param name="rule">The function that returns the publisher's physical address for a given event type, or null if there is no publisher.</param>
-        public void AddDynamic(Func<Type, PublisherAddress> rule)
+        public void Add(Func<Type, PublisherAddress> rule)
         {
             dynamicRules.Add(rule);
         }
