@@ -10,7 +10,18 @@
     public class DefaultRecoverabilityPolicyTests
     {
         [Test]
-        public void When_max_immediate_reties_have_not_been_reached_should_return_immediate_retry()
+        public void When_failure_is_caused_by_deserialization_exception_should_move_to_error()
+        {
+            var policy = CreatePolicy(maxImmediateRetries: 3, maxDelayedRetries: 3);
+            var errorContext = CreateErrorContext(numberOfDeliveryAttempts: 1, exception: new MessageDeserializationException("failed"));
+
+            var recoverabilityAction = policy(errorContext);
+
+            Assert.IsInstanceOf<MoveToError>(recoverabilityAction, "Should move deserialization exception directly to error.");
+        }
+
+        [Test]
+        public void When_max_immediate_retries_have_not_been_reached_should_return_immediate_retry()
         {
             var policy = CreatePolicy(maxImmediateRetries: 3);
             var errorContext = CreateErrorContext(numberOfDeliveryAttempts: 2);
@@ -21,9 +32,11 @@
         }
 
         [Test]
-        public void When_max_immediate_retries_exceeded_should_return_delayed_retry()
+        [TestCase(0)]
+        [TestCase(1)]
+        public void When_max_immediate_retries_exceeded_should_return_delayed_retry(int maxImmediateRetries)
         {
-            var policy = CreatePolicy(maxImmediateRetries: 1);
+            var policy = CreatePolicy(maxImmediateRetries);
             var errorContext = CreateErrorContext(numberOfDeliveryAttempts: 3);
 
             var recoverabilityAction = policy(errorContext);
@@ -32,7 +45,7 @@
         }
 
         [Test]
-        public void When_max_immediate_retries_exceeded_but_delayed_retry_disabled_return_delayed_retry()
+        public void When_max_immediate_retries_exceeded_but_delayed_retry_disabled_return_move_to_error()
         {
             var policy = CreatePolicy(maxImmediateRetries: 1, maxDelayedRetries: 0);
             var errorContext = CreateErrorContext(numberOfDeliveryAttempts: 3);
@@ -54,6 +67,17 @@
 
             Assert.IsInstanceOf<DelayedRetry>(recoverabilityAction, "When immediate retries turned off and delayed retries left, recoverability policy should return DelayedRetry");
             Assert.AreEqual(deliveryDelay, delayedRetryAction.Delay);
+        }
+
+        [Test]
+        public void When_immediate_retries_turned_off_and_slr_turned_off_should_return_move_to_errors()
+        {
+            var policy = CreatePolicy(maxImmediateRetries: 0, maxDelayedRetries: 0);
+            var errorContext = CreateErrorContext();
+
+            var recoverabilityAction = policy(errorContext);
+
+            Assert.IsInstanceOf<MoveToError>(recoverabilityAction, "When immediate retries turned off and slr turned off should return MoveToErrors");
         }
 
         [Test]
@@ -140,9 +164,9 @@
             }
         }
 
-        ErrorContext CreateErrorContext(int numberOfDeliveryAttempts = 0, int? retryNumber = null, Dictionary<string, string> headers = null)
+        ErrorContext CreateErrorContext(int numberOfDeliveryAttempts = 0, int? retryNumber = null, Dictionary<string, string> headers = null, Exception exception = null)
         {
-            return new ErrorContext(new Exception(), retryNumber.HasValue ? new Dictionary<string, string>
+            return new ErrorContext(exception ?? new Exception(), retryNumber.HasValue ? new Dictionary<string, string>
             {
                 {Headers.Retries, retryNumber.ToString()}
             } : headers ?? new Dictionary<string, string>(), "message-id", new MemoryStream(), new TransportTransaction(), numberOfDeliveryAttempts);

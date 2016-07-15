@@ -6,13 +6,12 @@
     class RecoverabilityExecutorFactory
     {
         public RecoverabilityExecutorFactory(Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> defaultRecoverabilityPolicy, RecoverabilityConfig configuration, Func<string, DelayedRetryExecutor> delayedRetryExecutorFactory,
-            Func<string, MoveToErrorsExecutor> moveToErrorsExecutorFactory, TransportTransactionMode transportTransactionMode)
+            Func<string, MoveToErrorsExecutor> moveToErrorsExecutorFactory)
         {
             this.configuration = configuration;
             this.defaultRecoverabilityPolicy = defaultRecoverabilityPolicy;
             this.delayedRetryExecutorFactory = delayedRetryExecutorFactory;
             this.moveToErrorsExecutorFactory = moveToErrorsExecutorFactory;
-            this.transportTransactionMode = transportTransactionMode;
         }
 
         public RecoverabilityExecutor CreateDefault(IEventAggregator eventAggregator, string localAddress)
@@ -36,14 +35,12 @@
                 configuration,
                 eventAggregator,
                 delayedRetryExecutor,
-                moveToErrorsExecutor,
-                transportTransactionMode != TransportTransactionMode.None);
+                moveToErrorsExecutor);
         }
 
         Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> defaultRecoverabilityPolicy;
         Func<string, DelayedRetryExecutor> delayedRetryExecutorFactory;
         Func<string, MoveToErrorsExecutor> moveToErrorsExecutorFactory;
-        TransportTransactionMode transportTransactionMode;
         RecoverabilityConfig configuration;
     }
 }

@@ -3,7 +3,6 @@
     using System;
     using System.Collections.Generic;
     using System.IO;
-    using System.Linq;
     using System.Threading.Tasks;
     using Extensibility;
     using NUnit.Framework;
@@ -38,32 +37,6 @@
 
             Assert.IsNull(eventAggregator.GetNotification<MessageFaulted>());
             Assert.IsNull(eventAggregator.GetNotification<MessageToBeRetried>());
-        }
-
-        [Test]
-        public async Task When_failure_is_caused_by_deserialization_exception_no_retries_should_be_performed()
-        {
-            var recoverabilityExecutor = CreateExecutor(RetryPolicy.AlwaysRetry());
-            var errorContext = CreateErrorContext(new MessageDeserializationException(""));
-
-            var errorHandleResult = await recoverabilityExecutor.Invoke(errorContext);
-
-            Assert.AreEqual(ErrorHandleResult.Handled, errorHandleResult, "Deserialization exception should cause immediate send to error queue");
-            Assert.AreEqual(1, dispatcher.TransportOperations.UnicastTransportOperations.Count);
-            Assert.AreEqual(ErrorQueueAddress, dispatcher.TransportOperations.UnicastTransportOperations.First().Destination);
-        }
-
-        [Test]
-        public async Task When_running_with_no_transactions_no_retries_should_be_performed()
-        {
-            var recoverabilityExecutor = CreateExecutor(RetryPolicy.AlwaysRetry(), transactionsOn: false);
-            var errorContext = CreateErrorContext();
-
-            var errorHandleResult = await recoverabilityExecutor.Invoke(errorContext);
-
-            Assert.AreEqual(ErrorHandleResult.Handled, errorHandleResult, "Transactions disabled should cause immediate send to error queue");
-            Assert.AreEqual(1, dispatcher.TransportOperations.UnicastTransportOperations.Count);
-            Assert.AreEqual(ErrorQueueAddress, dispatcher.TransportOperations.UnicastTransportOperations.First().Destination);
         }
 
         [Test]
@@ -143,8 +116,7 @@
                 new RecoverabilityConfig(new ImmediateConfig(), new DelayedConfig(0, TimeSpan.MinValue)),
                 eventAggregator,
                 delayedRetriesSupported ? new DelayedRetryExecutor(InputQueueAddress, dispatcher) : null,
-                new MoveToErrorsExecutor(dispatcher, ErrorQueueAddress, new Dictionary<string, string>()),
-                transactionsOn);
+                new MoveToErrorsExecutor(dispatcher, ErrorQueueAddress, new Dictionary<string, string>()));
         }
 
         FakeDispatcher dispatcher;
@@ -167,17 +139,26 @@
 
             public static Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> AlwaysDelay(TimeSpan delay)
             {
-                return new RetryPolicy(new [] { RecoverabilityAction.DelayedRetry(delay) }).Invoke;
+                return new RetryPolicy(new[]
+                {
+                    RecoverabilityAction.DelayedRetry(delay)
+                }).Invoke;
             }
 
             public static Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> AlwaysMoveToErrors()
             {
-                return new RetryPolicy(new[] { RecoverabilityAction.MoveToError() }).Invoke;
+                return new RetryPolicy(new[]
+                {
+                    RecoverabilityAction.MoveToError()
+                }).Invoke;
             }
 
             public static Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> AlwaysRetry()
             {
-                return new RetryPolicy(new[] { RecoverabilityAction.ImmediateRetry() }).Invoke;
+                return new RetryPolicy(new[]
+                {
+                    RecoverabilityAction.ImmediateRetry()
+                }).Invoke;
             }
 
             public static Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> Return(RecoverabilityAction[] actions)

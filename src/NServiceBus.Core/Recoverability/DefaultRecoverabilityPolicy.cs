@@ -8,6 +8,11 @@ namespace NServiceBus
     {
         public static RecoverabilityAction Invoke(RecoverabilityConfig config, ErrorContext errorContext)
         {
+            if (errorContext.Exception is MessageDeserializationException)
+            {
+                return RecoverabilityAction.MoveToError();
+            }
+
             if (config.Immediate.MaxNumberOfRetries > 0)
             {
                 if (errorContext.NumberOfImmediateDeliveryAttempts <= config.Immediate.MaxNumberOfRetries)

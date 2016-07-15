@@ -88,6 +88,7 @@ namespace NServiceBus
         /// <summary>
         /// Gets the configured maximum number of immediate retries.
         /// </summary>
+        /// <remarks>Zero means no retries possible.</remarks>
         public int MaxNumberOfRetries { get; }
     }
 
@@ -105,6 +106,7 @@ namespace NServiceBus
         /// <summary>
         /// Gets the configured maximum number of immediate retries.
         /// </summary>
+        /// <remarks>Zero means no retries possible.</remarks>
         public int MaxNumberOfRetries { get; }
 
         /// <summary>
