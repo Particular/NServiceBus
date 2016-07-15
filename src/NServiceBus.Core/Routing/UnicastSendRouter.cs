@@ -16,7 +16,7 @@ namespace NServiceBus
             this.unicastRoutingTable = unicastRoutingTable;
         }
 
-        protected override Task<IEnumerable<IUnicastRoute>> GetDestinations(ContextBag contextBag, Type[] typesToRoute)
+        protected override Task<List<UnicastRoute>> GetDestinations(ContextBag contextBag, Type[] typesToRoute)
         {
             return unicastRoutingTable.GetDestinationsFor(typesToRoute, contextBag);
         }

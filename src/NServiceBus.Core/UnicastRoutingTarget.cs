@@ -41,18 +41,6 @@
         }
 
         /// <summary>
-        /// Creates a new destination to an anonymous instance of a known endpoint.
-        /// </summary>
-        /// <param name="endpoint">Endpoint name.</param>
-        /// <param name="transportAddress">Instance transport address.</param>
-        public static UnicastRoutingTarget ToAnonymousInstance(string endpoint, string transportAddress)
-        {
-            Guard.AgainstNull(nameof(endpoint), endpoint);
-            Guard.AgainstNull(nameof(transportAddress), transportAddress);
-            return new UnicastRoutingTarget(endpoint, null, transportAddress);
-        }
-
-        /// <summary>
         /// Creates a new destination to a transport address.
         /// </summary>
         /// <param name="transportAddress">Transport address.</param>

@@ -55,7 +55,15 @@ namespace NServiceBus.Transport
         /// </summary>
         /// <param name="logicalAddress">The logical address.</param>
         /// <returns>The transport address.</returns>
-        public abstract string ToTransportAddress(LogicalAddress logicalAddress);
+        public abstract string ToTransportAddress(string logicalAddress);
+
+        /// <summary>
+        /// Converts a given logical address to the transport address.
+        /// </summary>
+        public virtual string ToTransportAddress(EndpointInstance logicalAddress)
+        {
+            return logicalAddress.Address ?? logicalAddress.Endpoint + "-" + logicalAddress.Discriminator;
+        }
 
         /// <summary>
         /// Returns the canonical for of the given transport address so various transport addresses can be effectively compared and

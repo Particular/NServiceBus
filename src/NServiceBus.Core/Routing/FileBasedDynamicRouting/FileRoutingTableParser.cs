@@ -40,7 +40,7 @@ namespace NServiceBus
                     var properties = i.Attributes().Where(a => a.Name != "discriminator");
                     var propertyDictionary = properties.ToDictionary(a => a.Name.LocalName, a => a.Value);
 
-                    instances.Add(new EndpointInstance(endpointName, discriminator, propertyDictionary));
+                    instances.Add(new EndpointInstance(endpointName, discriminator, null, propertyDictionary));
                 }
             }
 

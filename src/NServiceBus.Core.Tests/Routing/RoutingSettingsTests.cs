@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus.Core.Tests.Routing
 {
-    using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
     using System.Threading.Tasks;
@@ -26,10 +25,9 @@
             {
                 typeof(SomeMessageType)
             }, new ContextBag());
-            var routingTargets = await RetrieveRoutingTargets(routes);
 
-            Assert.That(routes.Count(), Is.EqualTo(1));
-            Assert.That(routingTargets.Single().Endpoint, Is.EqualTo("destination"));
+            Assert.That(routes.Count, Is.EqualTo(1));
+            Assert.That(routes.Single().Endpoint, Is.EqualTo("destination"));
         }
 
         [Test]
@@ -45,10 +43,9 @@
                 typeof(OtherMessageType),
                 typeof(MessageWithoutNamespace)
             }, new ContextBag());
-            var routingTarget = await RetrieveRoutingTargets(routes);
 
-            Assert.That(routes.Count(), Is.EqualTo(3));
-            Assert.That(routingTarget, Has.All.Property("Endpoint").EqualTo("destination"));
+            Assert.That(routes.Count, Is.EqualTo(3));
+            Assert.That(routes, Has.All.Property("Endpoint").EqualTo("destination"));
         }
 
         [Test]
@@ -69,8 +66,8 @@
                 typeof(MessageWithoutNamespace)
             }, new ContextBag());
 
-            Assert.That(result1.Count(), Is.EqualTo(1), "because SomeMessageType is in the given namespace");
-            Assert.That(result2.Count(), Is.EqualTo(0), "because none of the messages are in the given namespace");
+            Assert.That(result1.Count, Is.EqualTo(1), "because SomeMessageType is in the given namespace");
+            Assert.That(result2.Count, Is.EqualTo(0), "because none of the messages are in the given namespace");
         }
 
         [Theory]
@@ -92,16 +89,8 @@
                 typeof(OtherMessageType)
             }, new ContextBag());
 
-            Assert.That(result1.Count(), Is.EqualTo(1));
-            Assert.That(result2.Count(), Is.EqualTo(0));
-        }
-
-        static async Task<IEnumerable<UnicastRoutingTarget>> RetrieveRoutingTargets(IEnumerable<IUnicastRoute> result)
-        {
-            return (await Task.WhenAll(result.Select(x => x.Resolve(e => Task.FromResult<IEnumerable<EndpointInstance>>(new[]
-            {
-                new EndpointInstance(e)
-            }))))).SelectMany(x => x);
+            Assert.That(result1.Count, Is.EqualTo(1));
+            Assert.That(result2.Count, Is.EqualTo(0));
         }
     }
 }

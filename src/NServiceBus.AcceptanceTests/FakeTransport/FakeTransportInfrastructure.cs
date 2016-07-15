@@ -39,9 +39,9 @@
             return instance;
         }
 
-        public override string ToTransportAddress(LogicalAddress logicalAddress)
+        public override string ToTransportAddress(string logicalAddress)
         {
-            return logicalAddress.ToString();
+            return logicalAddress;
         }
 
         public override TransportReceiveInfrastructure ConfigureReceiveInfrastructure()

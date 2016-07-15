@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus.Core.Tests.Routing
 {
-    using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
     using NServiceBus.Routing;
@@ -33,18 +32,6 @@
 
             var salesInstances = await instances.FindInstances(sales);
             Assert.AreEqual(2, salesInstances.Count());
-        }
-
-        [Test]
-        public async Task Should_filter_out_duplicate_instances()
-        {
-            var instances = new EndpointInstances();
-            var sales = "Sales";
-            instances.Add(new EndpointInstance(sales, "dup"), new EndpointInstance(sales, "dup"));
-            instances.AddDynamic(e => Task.FromResult(new List<EndpointInstance> { new EndpointInstance(sales, "dup") }.AsEnumerable()));
-
-            var salesInstances = await instances.FindInstances(sales);
-            Assert.AreEqual(1, salesInstances.Count());
         }
 
         [Test]
