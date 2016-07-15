@@ -86,20 +86,16 @@
         }
 
         [Test]
-        public async Task When_delayed_retries_not_supported_but_policy_demands_it_should_move_to_error()
+        public void When_delayed_retries_not_supported_but_policy_demands_it_should_throw()
         {
             var recoverabilityExecutor = CreateExecutor(
                 RetryPolicy.AlwaysDelay(TimeSpan.FromDays(1)),
                 delayedRetriesSupported: false);
             var errorContext = CreateErrorContext();
 
-            await recoverabilityExecutor.Invoke(errorContext);
+            var exception = Assert.ThrowsAsync<Exception>(async () => await recoverabilityExecutor.Invoke(errorContext));
 
-            var failure = eventAggregator.GetNotification<MessageFaulted>();
-            var retried = eventAggregator.GetNotification<MessageToBeRetried>();
-
-            Assert.IsNotNull(failure);
-            Assert.IsNull(retried);
+            Assert.That(exception.Message, Is.EqualTo("Current recoverability policy requested delayed retry but delayed delivery is not supported by this endpoint. Consider enabling the timeout manager or use a transport which natively supports delayed delivery."));
         }
 
         static ErrorContext CreateErrorContext(Exception raisedException = null, string exceptionMessage = "default-message", string messageId = "default-id", int numberOfDeliveryAttempts = 1)

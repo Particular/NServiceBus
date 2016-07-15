@@ -28,11 +28,10 @@
                 return RaiseImmediateRetryNotifications(errorContext);
             }
 
-            // When we can't do delayed retries then just fall through to error.
+            // When we can't do delayed retries, a policy customization probably didn't honor MaxNumberOfRetries for DelayedRetries
             if (recoveryAction is DelayedRetry && !delayedRetriesCapabilityAvailable)
             {
-                Logger.Warn("Current recoverability policy requested delayed retry but delayed delivery is not supported by this endpoint. Consider enabling the timeout manager or use a transport which natively supports delayed delivery. Moving to the error queue instead.");
-                recoveryAction = RecoverabilityAction.MoveToError();
+                throw new Exception("Current recoverability policy requested delayed retry but delayed delivery is not supported by this endpoint. Consider enabling the timeout manager or use a transport which natively supports delayed delivery.");
             }
 
             var delayedRetryAction = recoveryAction as DelayedRetry;
