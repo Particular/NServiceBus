@@ -45,7 +45,7 @@
 
             Message = new IncomingMessage(transportMessageId, headers, bodyStream);
 
-            NumberOfDelayedDeliveryAttempts = Message.GetCurrentDelayedRetries() + 1; // TODO: Remove plus 1?
+            NumberOfDelayedDeliveryAttempts = Message.GetCurrentDelayedRetries() + 1;
 
             //Incoming message reads the body stream so we need to rewind it
             Message.BodyStream.Position = 0;

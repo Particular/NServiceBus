@@ -4,7 +4,6 @@ namespace NServiceBus.DeliveryConstraints
     using System.Collections.Generic;
     using System.Linq;
     using Extensibility;
-    using Features;
     using Settings;
     using Transport;
 

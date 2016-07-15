@@ -61,7 +61,7 @@
                 var delayedRetryConfig = GetDelayedRetryConfig(context.Settings, transactionsOn);
                 Func<string, DelayedRetryExecutor> delayedRetryExecutorFactory = localAddress =>
                 {
-                    if (!transactionsOn) // TODO: Check timeout manager? Throw??
+                    if (!transactionsOn)
                     {
                         return null;
                     }
