@@ -1,6 +1,7 @@
 namespace NServiceBus
 {
     using System;
+    using Logging;
     using Transport;
 
     /// <summary>
@@ -26,11 +27,15 @@ namespace NServiceBus
                 return RecoverabilityAction.ImmediateRetry();
             }
 
+            Logger.InfoFormat("Giving up First Level Retries for message '{0}'.", errorContext.Message.MessageId);
+
             TimeSpan delay;
             if (TryGetDelay(errorContext.Message, errorContext.NumberOfDelayedDeliveryAttempts, config.Delayed, out delay))
             {
                 return RecoverabilityAction.DelayedRetry(delay);
             }
+
+            Logger.WarnFormat("Giving up Second Level Retries for message '{0}'.", errorContext.Message.MessageId);
 
             return RecoverabilityAction.MoveToError();
         }
@@ -95,5 +100,7 @@ namespace NServiceBus
         }
 
         internal static Func<DateTime> CurrentUtcTimeProvider = () => DateTime.UtcNow;
+
+        static ILog Logger = LogManager.GetLogger<DefaultRecoverabilityPolicy>();
     }
 }
