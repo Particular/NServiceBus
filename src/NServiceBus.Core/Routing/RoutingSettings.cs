@@ -25,8 +25,7 @@
         /// <param name="destination">Destination endpoint.</param>
         public void RouteToEndpoint(Type messageType, string destination)
         {
-            if(destination.Contains("@"))
-                throw new ArgumentException(string.Format(endpointNameExceptionMessageTemplate, destination));
+            ThrowOnAddress(destination);
 
             Settings.GetOrCreate<UnicastRoutingTable>().RouteToEndpoint(messageType, destination);
         }
@@ -38,8 +37,7 @@
         /// <param name="destination">Destination endpoint.</param>
         public void RouteToEndpoint(Assembly assembly, string destination)
         {
-            if (destination.Contains("@"))
-                throw new ArgumentException(string.Format(endpointNameExceptionMessageTemplate, destination));
+            ThrowOnAddress(destination);
 
             var routingTable = Settings.GetOrCreate<UnicastRoutingTable>();
             foreach (var type in assembly.GetTypes())
@@ -56,8 +54,7 @@
         /// <param name="destination">Destination endpoint.</param>
         public void RouteToEndpoint(Assembly assembly, string messageNamespace, string destination)
         {
-            if (destination.Contains("@"))
-                throw new ArgumentException(string.Format(endpointNameExceptionMessageTemplate, destination));
+            ThrowOnAddress(destination);
 
             // empty namespace is null, not string.empty
             messageNamespace = messageNamespace == string.Empty ? null : messageNamespace;
@@ -69,7 +66,13 @@
             }
         }
 
-        string endpointNameExceptionMessageTemplate = "A logical endpoint name should not contain '@', but received '{0}'. To specify an endpoint's address use the instance mapping file for MSMQ transport, or refer to the routing documentation.";
+        static void ThrowOnAddress(string destination)
+        {
+            if (destination.Contains("@"))
+            {
+                throw new ArgumentException($"A logical endpoint name should not contain '@', but received '{destination}'. To specify an endpoint's address, use the instance mapping file for the MSMQ transport, or refer to the routing documentation.");
+            }
+        }
     }
 
     /// <summary>

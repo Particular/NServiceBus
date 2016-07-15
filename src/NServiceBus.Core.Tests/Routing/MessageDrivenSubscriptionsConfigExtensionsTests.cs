@@ -10,10 +10,8 @@
     using Settings;
 
     [TestFixture]
-    public class MessageDrivenSubscriptionsConfigExtensions
+    public class MessageDrivenSubscriptionsConfigExtensionsTests
     {
-        string expectedExceptionMessageForWrongEndpointName = "A logical endpoint name should not contain '@', but received 'EndpointName@MyHost'. To specify an endpoint's address use the instance mapping file for MSMQ transport, or refer to the routing documentation.";
-
         [Test]
         public void WhenPassingTransportAddressForPublisherInsteadOfEndpointName_ShouldThrowException()
         {
@@ -48,19 +46,19 @@
         }
 
         [Test]
-        public void WhenPassingEndpointNameForPublisher_ShouldAddRouteToUnicastTable()
+        public void WhenPassingEndpointNameForPublisher_ShouldAddRouteToPublishers()
         {
             var routingSettings = new RoutingSettings<MsmqTransport>(new SettingsHolder());
             routingSettings.RegisterPublisherForType(typeof(Event), "EndpointName");
-            
+
             var publishers = routingSettings.GetSettings().Get<Publishers>();
-            
+
             var publishersForEvent = publishers.GetPublisherFor(typeof(Event));
             Assert.AreEqual(publishersForEvent.Count(), 1);
         }
 
         [Test]
-        public void WhenPassingEndpointNameForPublisher_UsingAssembly_ShouldAddRoutesToUnicastTable()
+        public void WhenPassingEndpointNameForPublisher_UsingAssembly_ShouldAddAllEventsToPublishers()
         {
             var routingSettings = new RoutingSettings<MsmqTransport>(new SettingsHolder());
             routingSettings.RegisterPublisherForAssembly(Assembly.GetExecutingAssembly(), "EndpointName");
@@ -74,7 +72,7 @@
         }
 
         [Test]
-        public void WhenPassingEndpointNameForPublisher_UsingAssemblyAndNamespace_ShouldAddRouteToUnicastTable()
+        public void WhenPassingEndpointNameForPublisher_UsingAssemblyAndNamespace_ShouldAddEventsWithNamespaceToPublishers()
         {
             var routingSettings = new RoutingSettings<MsmqTransport>(new SettingsHolder());
             routingSettings.RegisterPublisherForAssembly(Assembly.GetExecutingAssembly(), nameof(EventNamespace), "EndpointName");
@@ -86,6 +84,8 @@
             Assert.AreEqual(publishersForEvent.Count(), 0);
             Assert.AreEqual(publishersForEventWithNamespace.Count(), 1);
         }
+
+        string expectedExceptionMessageForWrongEndpointName = "A logical endpoint name should not contain '@', but received 'EndpointName@MyHost'. To specify an endpoint's address, use the instance mapping file for the MSMQ transport, or refer to the routing documentation.";
     }
 }
 
@@ -95,7 +95,6 @@ namespace EventNamespace
     {
     }
 }
-
 
 class Event
 {

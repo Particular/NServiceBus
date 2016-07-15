@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus.Core.Tests.Routing
 {
-    using NServiceBus;
     using System;
     using System.Collections.Generic;
     using System.Linq;
@@ -16,9 +15,7 @@
     [TestFixture]
     public class RoutingSettingsTests
     {
-        string expectedExceptionMessageForWrongEndpointName = "A logical endpoint name should not contain '@', but received 'EndpointName@MyHost'. To specify an endpoint's address use the instance mapping file for MSMQ transport, or refer to the routing documentation.";
-
-       [Test]
+        [Test]
         public void WhenPassingTransportAddressForSenderInsteadOfEndpointName_ShouldThrowException()
         {
             var routingSettings = new RoutingSettings(new SettingsHolder());
@@ -73,7 +70,7 @@
             routingSettings.RouteToEndpoint(Assembly.GetExecutingAssembly(), "destination");
             var routingTable = routingSettings.Settings.Get<UnicastRoutingTable>();
 
-            var routes = await routingTable.GetDestinationsFor(new []
+            var routes = await routingTable.GetDestinationsFor(new[]
             {
                 typeof(SomeMessageType),
                 typeof(OtherMessageType),
@@ -137,6 +134,8 @@
                 new EndpointInstance(e)
             }))))).SelectMany(x => x);
         }
+
+        string expectedExceptionMessageForWrongEndpointName = "A logical endpoint name should not contain '@', but received 'EndpointName@MyHost'. To specify an endpoint's address, use the instance mapping file for the MSMQ transport, or refer to the routing documentation.";
     }
 }
 
