@@ -37,15 +37,11 @@ namespace NServiceBus.AcceptanceTests.Recoverability.Retries
                 {
                     var scenarioContext = (Context) context.ScenarioContext;
                     configure.EnableFeature<TimeoutManager>();
-                    configure.SecondLevelRetries().CustomRetryPolicy(RetryPolicy);
+                    configure.Recoverability()
+                        .CustomPolicy((cfg, errorContext) => RecoverabilityAction.MoveToError());
                     configure.Notifications.Errors.MessageSentToErrorQueue += (sender, message) => { scenarioContext.MessageSentToErrorQueue = true; };
                 })
-                    .WithConfig<SecondLevelRetriesConfig>(c => c.TimeIncrease = TimeSpan.FromMilliseconds(1));
-            }
-
-            static TimeSpan RetryPolicy(SecondLevelRetryContext slrRetryContext)
-            {
-                return TimeSpan.MinValue;
+                .WithConfig<SecondLevelRetriesConfig>(c => c.TimeIncrease = TimeSpan.FromMilliseconds(1));
             }
 
             class MessageToBeRetriedHandler : IHandleMessages<MessageToBeRetried>

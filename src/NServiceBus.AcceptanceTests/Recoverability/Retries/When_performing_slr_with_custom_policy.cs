@@ -42,7 +42,7 @@
             {
                 EndpointSetup<DefaultServer>((config, context) =>
                 {
-                    int slrRetries = 0;
+                    var slrRetries = 0;
                     var testContext = (Context) context.ScenarioContext;
 
                     config.EnableFeature<TimeoutManager>();

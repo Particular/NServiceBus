@@ -1052,22 +1052,17 @@ namespace NServiceBus
     }
     public class static SecondLevelRetriesConfigExtensions
     {
+        [System.ObsoleteAttribute("Use `configuration.Recoverability().Delayed(delayed => )` instead. Will be remove" +
+            "d in version 7.0.0.", true)]
         public static NServiceBus.SecondLevelRetriesSettings SecondLevelRetries(this NServiceBus.EndpointConfiguration config) { }
     }
     public class SecondLevelRetriesSettings
     {
+        public SecondLevelRetriesSettings() { }
         [System.ObsoleteAttribute("Use `configuration.Recoverability().CustomPolicy(Func<RecoverabilityConfig, Error" +
-            "Context, RecoverabilityAction> @override)` instead. The member currently throws " +
-            "a NotImplementedException. Will be removed in version 7.0.0.", true)]
+            "Context, RecoverabilityAction> @custom)` instead. The member currently throws a " +
+            "NotImplementedException. Will be removed in version 7.0.0.", true)]
         public void CustomRetryPolicy(System.Func<NServiceBus.TransportMessage, System.TimeSpan> customPolicy) { }
-        public NServiceBus.SecondLevelRetriesSettings CustomRetryPolicy(System.Func<NServiceBus.SecondLevelRetryContext, System.TimeSpan> customPolicy) { }
-    }
-    public class SecondLevelRetryContext
-    {
-        public SecondLevelRetryContext() { }
-        public System.Exception Exception { get; set; }
-        public NServiceBus.Transport.IncomingMessage Message { get; set; }
-        public int SecondLevelRetryAttempt { get; set; }
     }
     public class SendOptions : NServiceBus.Extensibility.ExtendableOptions
     {
