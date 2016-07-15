@@ -32,5 +32,27 @@
                 return null;
             }
         }
+
+        [Test]
+        public void Show_thow_friendly_exception_when_IMutateOutgoingMessages_MutateOutgoing_modifies_messageId_header()
+        {
+            var behavior = new MutateOutgoingMessageBehavior();
+
+            var context = new TestableOutgoingLogicalMessageContext();
+            context.Extensions.Set(new IncomingMessage("messageId", new Dictionary<string, string>(), Stream.Null));
+            context.Extensions.Set(new LogicalMessage(null, null));
+            context.Builder.Register<IMutateOutgoingMessages>(() => new MutateOutgoingMessagesModifiesMessageIdHeader());
+
+            Assert.That(async () => await behavior.Invoke(context, () => TaskEx.CompletedTask), Throws.Exception.With.Message.EqualTo("Setting Message Id by manipulating the `NServiceBus.MessageId` header is not supported. Use `sendOptions.SetMessageId(...)` instead."));
+        }
+
+        class MutateOutgoingMessagesModifiesMessageIdHeader : IMutateOutgoingMessages
+        {
+            public Task MutateOutgoing(MutateOutgoingMessageContext context)
+            {
+                context.OutgoingHeaders[Headers.MessageId] = "Some new value";
+                return TaskEx.CompletedTask;
+            }
+        }
     }
 }

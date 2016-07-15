@@ -1975,7 +1975,7 @@ namespace NServiceBus.MessageMutator
     public class MutateOutgoingMessageContext
     {
         public MutateOutgoingMessageContext(object outgoingMessage, System.Collections.Generic.Dictionary<string, string> outgoingHeaders, object incomingMessage, System.Collections.Generic.IReadOnlyDictionary<string, string> incomingHeaders) { }
-        public System.Collections.Generic.Dictionary<string, string> OutgoingHeaders { get; }
+        public System.Collections.Generic.IDictionary<string, string> OutgoingHeaders { get; }
         public object OutgoingMessage { get; set; }
         public bool TryGetIncomingHeaders(out System.Collections.Generic.IReadOnlyDictionary<, > incomingHeaders) { }
         public bool TryGetIncomingMessage(out object incomingMessage) { }
@@ -1984,7 +1984,7 @@ namespace NServiceBus.MessageMutator
     {
         public MutateOutgoingTransportMessageContext(byte[] outgoingBody, object outgoingMessage, System.Collections.Generic.Dictionary<string, string> outgoingHeaders, object incomingMessage, System.Collections.Generic.IReadOnlyDictionary<string, string> incomingHeaders) { }
         public byte[] OutgoingBody { get; set; }
-        public System.Collections.Generic.Dictionary<string, string> OutgoingHeaders { get; }
+        public System.Collections.Generic.IDictionary<string, string> OutgoingHeaders { get; }
         public object OutgoingMessage { get; }
         public bool TryGetIncomingHeaders(out System.Collections.Generic.IReadOnlyDictionary<, > incomingHeaders) { }
         public bool TryGetIncomingMessage(out object incomingMessage) { }
