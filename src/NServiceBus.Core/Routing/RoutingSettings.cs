@@ -69,8 +69,7 @@
             }
         }
 
-        string endpointNameExceptionMessageTemplate = "A logical endpoint name should not contain '@', but received '{0}'. "
-                                      + "To specify an endpoint's address use the instance mapping file for MSMQ transport or refer to the routing documentation.";
+        string endpointNameExceptionMessageTemplate = "A logical endpoint name should not contain '@', but received '{0}'. To specify an endpoint's address use the instance mapping file for MSMQ transport, or refer to the routing documentation.";
     }
 
     /// <summary>

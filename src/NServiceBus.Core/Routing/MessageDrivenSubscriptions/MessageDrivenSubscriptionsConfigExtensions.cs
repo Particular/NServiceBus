@@ -90,8 +90,7 @@ namespace NServiceBus
             routingSettings.Settings.GetOrCreate<Publishers>().Add(eventAssembly, eventNamespace, publisherEndpoint);
         }
 
-        static string endpointNameExceptionMessageTemplate = "A logical endpoint name should not contain '@', but received '{0}'. "
-                                          + "To specify an endpoint's address use the instance mapping file for MSMQ transport or refer to the routing documentation.";
+        static string endpointNameExceptionMessageTemplate = "A logical endpoint name should not contain '@', but received '{0}'. To specify an endpoint's address use the instance mapping file for MSMQ transport, or refer to the routing documentation.";
 
     }
 }

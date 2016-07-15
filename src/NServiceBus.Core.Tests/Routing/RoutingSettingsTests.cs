@@ -1,9 +1,7 @@
-﻿
-using NServiceBus;
-using System;
-
-namespace NServiceBus.Core.Tests.Routing
+﻿namespace NServiceBus.Core.Tests.Routing
 {
+    using NServiceBus;
+    using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
@@ -18,7 +16,7 @@ namespace NServiceBus.Core.Tests.Routing
     [TestFixture]
     public class RoutingSettingsTests
     {
-        string expectedExceptionMessageForWrongEndpointName = "A logical endpoint name should not contain '@', but received 'EndpointName@MyHost'. To specify an endpoint's address use the instance mapping file for MSMQ transport or refer to the routing documentation.";
+        string expectedExceptionMessageForWrongEndpointName = "A logical endpoint name should not contain '@', but received 'EndpointName@MyHost'. To specify an endpoint's address use the instance mapping file for MSMQ transport, or refer to the routing documentation.";
 
        [Test]
         public void WhenPassingTransportAddressForSenderInsteadOfEndpointName_ShouldThrowException()
@@ -47,39 +45,6 @@ namespace NServiceBus.Core.Tests.Routing
             var expectedExceptionMessage = expectedExceptionMessageForWrongEndpointName;
 
             var exception = Assert.Throws<ArgumentException>(() => routingSettings.RouteToEndpoint(Assembly.GetExecutingAssembly(), nameof(MessageNamespaceA), "EndpointName@MyHost"));
-            Assert.AreEqual(expectedExceptionMessage, exception.Message);
-        }
-
-        [Test]
-        public void WhenPassingTransportAddressForPublisherInsteadOfEndpointName_ShouldThrowException()
-        {
-            var routingSettings = new RoutingSettings<MsmqTransport>(new SettingsHolder());
-
-            var expectedExceptionMessage = expectedExceptionMessageForWrongEndpointName;
-
-            var exception = Assert.Throws<ArgumentException>(() => routingSettings.RegisterPublisherForType(typeof(Event), "EndpointName@MyHost"));
-            Assert.AreEqual(expectedExceptionMessage, exception.Message);
-        }
-
-        [Test]
-        public void WhenPassingTransportAddressForPublisherInsteadOfEndpointName_UsingAssembly_ShouldThrowException()
-        {
-            var routingSettings = new RoutingSettings<MsmqTransport>(new SettingsHolder());
-
-            var expectedExceptionMessage = expectedExceptionMessageForWrongEndpointName;
-
-            var exception = Assert.Throws<ArgumentException>(() => routingSettings.RegisterPublisherForAssembly(Assembly.GetExecutingAssembly(), "EndpointName@MyHost"));
-            Assert.AreEqual(expectedExceptionMessage, exception.Message);
-        }
-
-        [Test]
-        public void WhenPassingTransportAddressForPublisherInsteadOfEndpointName_UsingAssemblyAndNamespace_ShouldThrowException()
-        {
-            var routingSettings = new RoutingSettings<MsmqTransport>(new SettingsHolder());
-
-            var expectedExceptionMessage = expectedExceptionMessageForWrongEndpointName;
-
-            var exception = Assert.Throws<ArgumentException>(() => routingSettings.RegisterPublisherForAssembly(Assembly.GetExecutingAssembly(), nameof(MessageNamespaceA), "EndpointName@MyHost"));
             Assert.AreEqual(expectedExceptionMessage, exception.Message);
         }
 
@@ -192,5 +157,3 @@ namespace MessageNamespaceB
 class MessageWithoutNamespace
 {
 }
-
-class Event : IEvent { }
