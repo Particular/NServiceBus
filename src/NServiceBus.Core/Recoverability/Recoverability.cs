@@ -28,6 +28,7 @@
                 settings.SetDefault(SlrNumberOfRetries, DefaultNumberOfRetries);
                 settings.SetDefault(SlrTimeIncrease, DefaultTimeIncrease);
                 settings.SetDefault(FlrNumberOfRetries, 5);
+                settings.SetDefault(FaultHeaderCustomization, new Action<Dictionary<string, string>>(headers => { }));
             });
         }
 
@@ -51,7 +52,9 @@
                         {Headers.HostDisplayName, hostInfo.DisplayName}
                     };
 
-                    return new MoveToErrorsExecutor(b.Build<IDispatchMessages>(), errorQueue, staticFaultMetadata);
+                    var headerCustomizations = context.Settings.Get<Action<Dictionary<string, string>>>(FaultHeaderCustomization);
+
+                    return new MoveToErrorsExecutor(b.Build<IDispatchMessages>(), errorQueue, staticFaultMetadata, headerCustomizations);
                 };
 
                 var transactionsOn = context.Settings.GetRequiredTransactionModeForReceives() != TransportTransactionMode.None;

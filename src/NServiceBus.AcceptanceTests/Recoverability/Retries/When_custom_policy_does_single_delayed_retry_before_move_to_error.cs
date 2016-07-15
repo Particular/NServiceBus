@@ -8,7 +8,7 @@ namespace NServiceBus.AcceptanceTests.Recoverability.Retries
     using NUnit.Framework;
     using Transport;
 
-    public class When_performing_slr_with_non_min_policy : NServiceBusAcceptanceTest
+    public class When_custom_policy_does_single_delayed_retry_before_move_to_error : NServiceBusAcceptanceTest
     {
         [Test]
         public async Task Should_execute_twice()

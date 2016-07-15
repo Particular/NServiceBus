@@ -90,7 +90,6 @@
         {
             var recoverabilityExecutor = CreateExecutor(
                 RetryPolicy.AlwaysDelay(TimeSpan.FromDays(1)),
-                transactionsOn: true,
                 delayedRetriesSupported: false);
             var errorContext = CreateErrorContext();
 
@@ -108,7 +107,7 @@
             return new ErrorContext(raisedException ?? new Exception(exceptionMessage), new Dictionary<string, string>(), messageId, Stream.Null, new TransportTransaction(), numberOfDeliveryAttempts);
         }
 
-        RecoverabilityExecutor CreateExecutor(Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> policy, bool transactionsOn = true, bool delayedRetriesSupported = true, bool raiseNotifications = true)
+        RecoverabilityExecutor CreateExecutor(Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> policy, bool delayedRetriesSupported = true, bool raiseNotifications = true)
         {
             return new RecoverabilityExecutor(
                 raiseNotifications,
@@ -116,7 +115,7 @@
                 new RecoverabilityConfig(new ImmediateConfig(), new DelayedConfig(0, TimeSpan.MinValue)),
                 eventAggregator,
                 delayedRetriesSupported ? new DelayedRetryExecutor(InputQueueAddress, dispatcher) : null,
-                new MoveToErrorsExecutor(dispatcher, ErrorQueueAddress, new Dictionary<string, string>()));
+                new MoveToErrorsExecutor(dispatcher, ErrorQueueAddress, new Dictionary<string, string>(), headers => { }));
         }
 
         FakeDispatcher dispatcher;

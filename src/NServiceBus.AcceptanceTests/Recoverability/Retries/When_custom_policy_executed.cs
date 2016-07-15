@@ -10,10 +10,10 @@
     using NUnit.Framework;
     using Transport;
 
-    public class When_performing_slr_with_custom_policy : NServiceBusAcceptanceTest
+    public class When_custom_policy_executed : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Should_expose_error_context_to_policy()
+        public async Task Should_provide_error_context_to_policy()
         {
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<Endpoint>(b =>
@@ -22,18 +22,18 @@
                 .Done(c => c.FailedMessages.Any())
                 .Run();
 
-            Assert.That(context.SlrRetryContexts.Count, Is.EqualTo(2), "because the custom policy should have been invoked twice");
-            Assert.That(context.SlrRetryContexts[0].Message, Is.Not.Null);
-            Assert.That(context.SlrRetryContexts[0].Exception, Is.TypeOf<SimulatedException>());
-            Assert.That(context.SlrRetryContexts[0].NumberOfDelayedDeliveryAttempts, Is.EqualTo(1));
-            Assert.That(context.SlrRetryContexts[1].Message, Is.Not.Null);
-            Assert.That(context.SlrRetryContexts[1].Exception, Is.TypeOf<SimulatedException>());
-            Assert.That(context.SlrRetryContexts[1].NumberOfDelayedDeliveryAttempts, Is.EqualTo(2));
+            Assert.That(context.ErrorContexts.Count, Is.EqualTo(2), "because the custom policy should have been invoked twice");
+            Assert.That(context.ErrorContexts[0].Message, Is.Not.Null);
+            Assert.That(context.ErrorContexts[0].Exception, Is.TypeOf<SimulatedException>());
+            Assert.That(context.ErrorContexts[0].NumberOfDelayedDeliveryAttempts, Is.EqualTo(1));
+            Assert.That(context.ErrorContexts[1].Message, Is.Not.Null);
+            Assert.That(context.ErrorContexts[1].Exception, Is.TypeOf<SimulatedException>());
+            Assert.That(context.ErrorContexts[1].NumberOfDelayedDeliveryAttempts, Is.EqualTo(2));
         }
 
         class Context : ScenarioContext
         {
-            public List<ErrorContext> SlrRetryContexts { get; } = new List<ErrorContext>();
+            public List<ErrorContext> ErrorContexts { get; } = new List<ErrorContext>();
         }
 
         class Endpoint : EndpointConfigurationBuilder
@@ -49,7 +49,7 @@
                     config.Recoverability()
                         .CustomPolicy((cfg, errorContext) =>
                         {
-                            testContext.SlrRetryContexts.Add(errorContext);
+                            testContext.ErrorContexts.Add(errorContext);
 
                             if (slrRetries++ >= 1)
                             {

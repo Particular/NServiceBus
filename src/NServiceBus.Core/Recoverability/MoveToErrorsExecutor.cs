@@ -9,11 +9,12 @@
 
     class MoveToErrorsExecutor
     {
-        public MoveToErrorsExecutor(IDispatchMessages dispatcher, string errorQueueAddress, Dictionary<string, string> staticFaultMetadata)
+        public MoveToErrorsExecutor(IDispatchMessages dispatcher, string errorQueueAddress, Dictionary<string, string> staticFaultMetadata, Action<Dictionary<string, string>> headerCustomizations)
         {
             this.dispatcher = dispatcher;
             this.errorQueueAddress = errorQueueAddress;
             this.staticFaultMetadata = staticFaultMetadata;
+            this.headerCustomizations = headerCustomizations;
         }
 
         public Task MoveToErrorQueue(IncomingMessage message, Exception exception, TransportTransaction transportTransaction)
@@ -32,6 +33,8 @@
                 outgoingMessage.Headers[faultMetadata.Key] = faultMetadata.Value;
             }
 
+            headerCustomizations(outgoingMessage.Headers);
+
             var transportOperations = new TransportOperations(new TransportOperation(outgoingMessage, new UnicastAddressTag(errorQueueAddress)));
 
             var dispatchContext = new ContextBag();
@@ -43,5 +46,6 @@
         IDispatchMessages dispatcher;
         string errorQueueAddress;
         Dictionary<string, string> staticFaultMetadata;
+        Action<Dictionary<string, string>> headerCustomizations;
     }
 }

@@ -13,13 +13,16 @@ namespace NServiceBus
     {
         internal RecoverabilitySettings(SettingsHolder settings) : base(settings)
         {
-            Failed = new RetryFailedSettings(settings);
         }
 
         /// <summary>
         /// Exposes the retry failed settings.
         /// </summary>
-        public RetryFailedSettings Failed { get; private set; }
+        public RecoverabilitySettings Failed(Action<RetryFailedSettings> customizations)
+        {
+            customizations(new RetryFailedSettings(Settings));
+            return this;
+        }
 
         /// <summary>
         /// Exposes the immediate retries settings.

@@ -8,7 +8,7 @@ namespace NServiceBus.AcceptanceTests.Recoverability.Retries
     using NServiceBus.Config;
     using NUnit.Framework;
 
-    public class When_performing_slr_with_min_policy : NServiceBusAcceptanceTest
+    public class When_custom_policy_always_moves_to_error : NServiceBusAcceptanceTest
     {
         [Test]
         public async Task Should_execute_once()

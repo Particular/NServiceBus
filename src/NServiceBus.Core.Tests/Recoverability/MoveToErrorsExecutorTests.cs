@@ -18,7 +18,7 @@
         {
             dispatcher = new FakeDispatcher();
             staticFaultMetadata = new Dictionary<string, string>();
-            moveToErrorsExecutor = new MoveToErrorsExecutor(dispatcher, ErrorQueueAddress, staticFaultMetadata);
+            moveToErrorsExecutor = new MoveToErrorsExecutor(dispatcher, ErrorQueueAddress, staticFaultMetadata, headers => { });
         }
 
         [Test]
@@ -114,6 +114,26 @@
             Assert.That(outgoingMessageHeaders, Contains.Item(new KeyValuePair<string, string>("staticFaultMetadataKey", "staticFaultMetadataValue")));
             // check for leaking headers
             Assert.That(incomingMessage.Headers.ContainsKey("staticFaultMetadataKey"), Is.False);
+        }
+
+        [Test]
+        public async Task MoveToErrorQueue_should_apply_header_customizations_before_dispatch()
+        {
+            staticFaultMetadata.Add("staticFaultMetadataKey", "staticFaultMetadataValue");
+            var incomingMessage = new IncomingMessage("messageId", new Dictionary<string, string>(), Stream.Null);
+            var exception = new InvalidOperationException("test exception");
+
+            Dictionary<string, string> passedInHeaders = null;
+            moveToErrorsExecutor = new MoveToErrorsExecutor(dispatcher, ErrorQueueAddress, staticFaultMetadata, headers =>
+            {
+                passedInHeaders = headers;
+            });
+
+            await moveToErrorsExecutor.MoveToErrorQueue(incomingMessage, exception, new TransportTransaction());
+
+            Assert.NotNull(passedInHeaders);
+            Assert.That(passedInHeaders, Contains.Key("staticFaultMetadataKey"));
+            Assert.That(passedInHeaders, Contains.Key("NServiceBus.ExceptionInfo.Message"));
         }
 
         MoveToErrorsExecutor moveToErrorsExecutor;
