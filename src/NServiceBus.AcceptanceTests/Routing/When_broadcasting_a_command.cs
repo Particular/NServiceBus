@@ -49,8 +49,8 @@
                 {
                     context.DistributionPolicy().SetDistributionStrategy(ReceiverEndpoint, new AllInstancesDistributionStrategy());
                     context.EndpointInstances().Add(
-                        new EndpointInstance(ReceiverEndpoint, "1"),
-                        new EndpointInstance(ReceiverEndpoint, "2"));
+                        new EndpointInstance(ReceiverEndpoint, ReceiverEndpoint + "-1"),
+                        new EndpointInstance(ReceiverEndpoint, ReceiverEndpoint + "-2"));
                 }
             }
 

@@ -21,27 +21,16 @@ namespace NServiceBus.Routing
             return new UnicastRoute { endpoint = endpoint };
         }
 
-        /// <summary>
-        /// Creates a destination based on the name of the endpoint instance.
-        /// </summary>
-        /// <param name="instance">Destination instance name.</param>
-        /// <returns>The new destination route.</returns>
-        public static UnicastRoute CreateFromEndpointInstance(EndpointInstance instance)
-        {
-            Guard.AgainstNull(nameof(instance), instance);
-            return new UnicastRoute { instance = instance };
-        }
-
-        /// <summary>
-        /// Creates a destination based on the physical address.
-        /// </summary>
-        /// <param name="physicalAddress">Destination physical address.</param>
-        /// <returns>The new destination route.</returns>
-        public static UnicastRoute CreateFromPhysicalAddress(string physicalAddress)
-        {
-            Guard.AgainstNullAndEmpty(nameof(physicalAddress), physicalAddress);
-            return new UnicastRoute { physicalAddress = physicalAddress };
-        }
+        ///// <summary>
+        ///// Creates a destination based on the name of the endpoint instance.
+        ///// </summary>
+        ///// <param name="instance">Destination instance name.</param>
+        ///// <returns>The new destination route.</returns>
+        //public static UnicastRoute CreateFromEndpointInstance(EndpointInstance instance)
+        //{
+        //    Guard.AgainstNull(nameof(instance), instance);
+        //    return new UnicastRoute { instance = instance };
+        //}
 
         private UnicastRoute()
         {
@@ -49,20 +38,15 @@ namespace NServiceBus.Routing
 
         async Task<IEnumerable<UnicastRoutingTarget>> IUnicastRoute.Resolve(Func<string, Task<IEnumerable<EndpointInstance>>> instanceResolver)
         {
-            if (physicalAddress != null)
-            {
-                return EnumerableEx.Single(UnicastRoutingTarget.ToTransportAddress(physicalAddress));
-            }
-            if (instance != null)
-            {
-                return EnumerableEx.Single(UnicastRoutingTarget.ToEndpointInstance(instance));
-            }
+            //if (instance != null)
+            //{
+            //    return EnumerableEx.Single(UnicastRoutingTarget.ToEndpointInstance(instance));
+            //}
             var instances = await instanceResolver(endpoint).ConfigureAwait(false);
             return instances.Select(UnicastRoutingTarget.ToEndpointInstance);
         }
 
         string endpoint;
-        EndpointInstance instance;
-        string physicalAddress;
+        //EndpointInstance instance;
     }
 }

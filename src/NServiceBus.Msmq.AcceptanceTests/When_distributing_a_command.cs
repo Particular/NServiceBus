@@ -63,8 +63,9 @@
                     routing.RouteToEndpoint(typeof(RequestA), ReceiverAEndpoint);
                     routing.RouteToEndpoint(typeof(RequestB), ReceiverBEndpoint);
 
-                    routing.GetSettings().GetOrCreate<EndpointInstances>().Add(new EndpointInstance(ReceiverAEndpoint, "1"), new EndpointInstance(ReceiverAEndpoint, "2"));
-                    routing.GetSettings().GetOrCreate<EndpointInstances>().Add(new EndpointInstance(ReceiverBEndpoint, "1"), new EndpointInstance(ReceiverBEndpoint, "2"));
+                    // problematic because of transports currently decide how to translate the discriminator into an address
+                    routing.GetSettings().GetOrCreate<EndpointInstances>().Add(new EndpointInstance(ReceiverAEndpoint, ReceiverAEndpoint + "-1"), new EndpointInstance(ReceiverAEndpoint, ReceiverAEndpoint + "-2"));
+                    routing.GetSettings().GetOrCreate<EndpointInstances>().Add(new EndpointInstance(ReceiverBEndpoint, ReceiverBEndpoint + "-1"), new EndpointInstance(ReceiverBEndpoint, ReceiverBEndpoint + "-2"));
                 });
             }
 

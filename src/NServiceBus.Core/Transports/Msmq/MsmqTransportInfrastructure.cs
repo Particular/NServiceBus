@@ -56,15 +56,17 @@ namespace NServiceBus
                 machine = RuntimeEnvironment.MachineName;
             }
 
-            var queue = new StringBuilder(logicalAddress.EndpointInstance.Endpoint);
-            if (logicalAddress.EndpointInstance.Discriminator != null)
-            {
-                queue.Append("-" + logicalAddress.EndpointInstance.Discriminator);
-            }
+            var queue = new StringBuilder(logicalAddress.EndpointInstance.InstanceName);
             if (logicalAddress.Qualifier != null)
             {
                 queue.Append("." + logicalAddress.Qualifier);
             }
+
+            if (logicalAddress.EndpointInstance.InstanceName.Contains("@"))
+            {
+                return queue.ToString();
+            }
+
             return queue + "@" + machine;
         }
 

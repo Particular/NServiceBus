@@ -16,9 +16,9 @@
             var endpointName = "endpointA";
             var instances = new[]
             {
-                UnicastRoutingTarget.ToEndpointInstance(new EndpointInstance(endpointName, "1")),
-                UnicastRoutingTarget.ToEndpointInstance(new EndpointInstance(endpointName, "2")),
-                UnicastRoutingTarget.ToEndpointInstance(new EndpointInstance(endpointName, "3"))
+                UnicastRoutingTarget.ToEndpointInstance(new EndpointInstance(endpointName, endpointName+"1")),
+                UnicastRoutingTarget.ToEndpointInstance(new EndpointInstance(endpointName, endpointName+"2")),
+                UnicastRoutingTarget.ToEndpointInstance(new EndpointInstance(endpointName, endpointName+"3"))
             };
 
             var result = new List<UnicastRoutingTarget>();
@@ -40,9 +40,9 @@
             var endpointName = "endpointA";
             var instances = new[]
             {
-                UnicastRoutingTarget.ToEndpointInstance(new EndpointInstance(endpointName, "1")),
-                UnicastRoutingTarget.ToEndpointInstance(new EndpointInstance(endpointName, "2")),
-                UnicastRoutingTarget.ToEndpointInstance(new EndpointInstance(endpointName, "3"))
+                UnicastRoutingTarget.ToEndpointInstance(new EndpointInstance(endpointName, endpointName+"1")),
+                UnicastRoutingTarget.ToEndpointInstance(new EndpointInstance(endpointName, endpointName+"2")),
+                UnicastRoutingTarget.ToEndpointInstance(new EndpointInstance(endpointName, endpointName+"3"))
             };
 
             var result = new List<UnicastRoutingTarget>();
@@ -62,14 +62,14 @@
 
             var instances = new List<UnicastRoutingTarget>
             {
-                UnicastRoutingTarget.ToEndpointInstance(new EndpointInstance(endpointName, "1")),
-                UnicastRoutingTarget.ToEndpointInstance(new EndpointInstance(endpointName, "2")),
+                UnicastRoutingTarget.ToEndpointInstance(new EndpointInstance(endpointName, endpointName+"1")),
+                UnicastRoutingTarget.ToEndpointInstance(new EndpointInstance(endpointName, endpointName+"2")),
             };
 
             var result = new List<UnicastRoutingTarget>();
             result.AddRange(strategy.SelectDestination(instances));
             result.AddRange(strategy.SelectDestination(instances));
-            instances.Add(UnicastRoutingTarget.ToEndpointInstance(new EndpointInstance(endpointName, "3"))); // add new instance
+            instances.Add(UnicastRoutingTarget.ToEndpointInstance(new EndpointInstance(endpointName, endpointName + "3"))); // add new instance
             result.AddRange(strategy.SelectDestination(instances));
 
             Assert.That(result.Count, Is.EqualTo(3));
@@ -86,9 +86,9 @@
             var endpointName = "endpointA";
             var instances = new List<UnicastRoutingTarget>
             {
-                UnicastRoutingTarget.ToEndpointInstance(new EndpointInstance(endpointName, "1")),
-                UnicastRoutingTarget.ToEndpointInstance(new EndpointInstance(endpointName, "2")),
-                UnicastRoutingTarget.ToEndpointInstance(new EndpointInstance(endpointName, "3"))
+                UnicastRoutingTarget.ToEndpointInstance(new EndpointInstance(endpointName, endpointName+"1")),
+                UnicastRoutingTarget.ToEndpointInstance(new EndpointInstance(endpointName, endpointName+"2")),
+                UnicastRoutingTarget.ToEndpointInstance(new EndpointInstance(endpointName, endpointName+"3"))
             };
 
             var result = new List<UnicastRoutingTarget>();

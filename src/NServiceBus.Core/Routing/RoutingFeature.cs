@@ -116,7 +116,10 @@
 
         static void ConfigureSendDestination(TransportInfrastructure transportInfrastructure, UnicastRoutingTable unicastRoutingTable, Type type, string address)
         {
-            unicastRoutingTable.RouteToAddress(type, transportInfrastructure.MakeCanonicalForm(address));
+            // needs to be optimized for duplicates by assembly/hierachy traversal
+            var canonicalAddress = transportInfrastructure.MakeCanonicalForm(address);
+            unicastRoutingTable.RouteToEndpoint(type, canonicalAddress);
+
         }
     }
 }

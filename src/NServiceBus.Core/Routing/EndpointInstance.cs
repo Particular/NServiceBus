@@ -12,15 +12,28 @@
         /// Creates a new endpoint name for a given discriminator.
         /// </summary>
         /// <param name="endpoint">The name of the endpoint.</param>
-        /// <param name="discriminator">A specific discriminator for scale-out purposes.</param>
         /// <param name="properties">A bag of additional properties that differentiate this endpoint instance from other instances.</param>
-        public EndpointInstance(string endpoint, string discriminator = null, IReadOnlyDictionary<string, string> properties = null)
+        public EndpointInstance(string endpoint, IReadOnlyDictionary<string, string> properties = null)
         {
             Guard.AgainstNull(nameof(endpoint), endpoint);
 
             Properties = properties ?? new Dictionary<string, string>();
             Endpoint = endpoint;
-            Discriminator = discriminator;
+        }
+
+        /// <summary>
+        /// Creates a new endpoint name for a given discriminator.
+        /// </summary>
+        /// <param name="endpoint">The name of the endpoint.</param>
+        /// <param name="instanceName">The name of the this instance.</param>
+        /// <param name="properties">A bag of additional properties that differentiate this endpoint instance from other instances.</param>
+        public EndpointInstance(string endpoint, string instanceName, IReadOnlyDictionary<string, string> properties = null)
+        {
+            Guard.AgainstNull(nameof(endpoint), endpoint);
+
+            Properties = properties ?? new Dictionary<string, string>();
+            Endpoint = endpoint;
+            InstanceName = instanceName;
         }
 
         /// <summary>
@@ -29,9 +42,9 @@
         public string Endpoint { get; }
 
         /// <summary>
-        /// A specific discriminator for scale-out purposes.
+        /// The configured instance name.
         /// </summary>
-        public string Discriminator { get; }
+        public string InstanceName { get; }
 
         /// <summary>
         /// Returns all the differentiating properties of this instance.
@@ -52,7 +65,7 @@
                 newProperties[property.Key] = property.Value;
             }
             newProperties[key] = value;
-            return new EndpointInstance(Endpoint, Discriminator, newProperties);
+            return new EndpointInstance(Endpoint, InstanceName, newProperties);
         }
 
         /// <summary>
@@ -64,9 +77,7 @@
         public override string ToString()
         {
             var propsFormatted = Properties.Select(kvp => $"{kvp.Key}:{kvp.Value}");
-            var instanceId = Discriminator != null
-                ? $"{Endpoint}-{Discriminator}"
-                : Endpoint;
+            var instanceId = Endpoint;
 
             var parts = new[]
             {
@@ -78,8 +89,8 @@
         bool Equals(EndpointInstance other)
         {
             return PropertiesEqual(Properties, other.Properties)
-                   && Equals(Endpoint, other.Endpoint)
-                   && string.Equals(Discriminator, other.Discriminator);
+                   && Equals(InstanceName, other.InstanceName)
+                   && Equals(Endpoint, other.Endpoint);
         }
 
         static bool PropertiesEqual(IReadOnlyDictionary<string, string> left, IReadOnlyDictionary<string, string> right)
@@ -130,8 +141,8 @@
             unchecked
             {
                 var hashCode = Properties.Aggregate(Endpoint.GetHashCode(), (i, pair) => (i*397) ^ propertyComparer.GetHashCode(pair));
-                hashCode = (hashCode*397) ^ (Discriminator?.GetHashCode() ?? 0);
-                return hashCode;
+                hashCode = (hashCode*397);
+                return hashCode ^ (InstanceName?.GetHashCode() ?? 0);
             }
         }
 

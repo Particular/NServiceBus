@@ -13,7 +13,7 @@
         {
             var addresses = new TransportAddresses(address => null);
             addresses.AddRule(i => "Rule");
-            addresses.AddSpecialCase(new EndpointInstance("Sales", null, null), "SpecialCase");
+            addresses.AddSpecialCase(new EndpointInstance("Sales", null), "SpecialCase");
 
             Assert.AreEqual("SpecialCase", addresses.GetTransportAddress(new LogicalAddress(new EndpointInstance("Sales"))));
             Assert.AreEqual("Rule", addresses.GetTransportAddress(new LogicalAddress(new EndpointInstance("Billing"))));

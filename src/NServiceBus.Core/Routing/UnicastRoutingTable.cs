@@ -47,16 +47,6 @@ namespace NServiceBus.Routing
         }
 
         /// <summary>
-        /// Adds a static unicast route.
-        /// </summary>
-        /// <param name="messageType">Message type.</param>
-        /// <param name="destinationAddress">Destination endpoint instance address.</param>
-        public void RouteToAddress(Type messageType, string destinationAddress)
-        {
-            AddStaticRoute(messageType, UnicastRoute.CreateFromPhysicalAddress(destinationAddress));
-        }
-
-        /// <summary>
         /// Adds an external provider of routes.
         /// </summary>
         /// <remarks>For dynamic routes that do not require async use <see cref="AddDynamic(System.Func{Type[],NServiceBus.Extensibility.ContextBag,System.Collections.Generic.IEnumerable{NServiceBus.Routing.IUnicastRoute}})" />.</remarks>
