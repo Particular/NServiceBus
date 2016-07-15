@@ -25,6 +25,8 @@
         /// <param name="destination">Destination endpoint.</param>
         public void RouteToEndpoint(Type messageType, string destination)
         {
+            ThrowOnAddress(destination);
+
             Settings.GetOrCreate<UnicastRoutingTable>().RouteToEndpoint(messageType, destination);
         }
 
@@ -35,6 +37,8 @@
         /// <param name="destination">Destination endpoint.</param>
         public void RouteToEndpoint(Assembly assembly, string destination)
         {
+            ThrowOnAddress(destination);
+
             var routingTable = Settings.GetOrCreate<UnicastRoutingTable>();
             foreach (var type in assembly.GetTypes())
             {
@@ -50,6 +54,8 @@
         /// <param name="destination">Destination endpoint.</param>
         public void RouteToEndpoint(Assembly assembly, string messageNamespace, string destination)
         {
+            ThrowOnAddress(destination);
+
             // empty namespace is null, not string.empty
             messageNamespace = messageNamespace == string.Empty ? null : messageNamespace;
 
@@ -57,6 +63,14 @@
             foreach (var type in assembly.GetTypes().Where(t => t.Namespace == messageNamespace))
             {
                 routingTable.RouteToEndpoint(type, destination);
+            }
+        }
+
+        static void ThrowOnAddress(string destination)
+        {
+            if (destination.Contains("@"))
+            {
+                throw new ArgumentException($"A logical endpoint name should not contain '@', but received '{destination}'. To specify an endpoint's address, use the instance mapping file for the MSMQ transport, or refer to the routing documentation.");
             }
         }
     }

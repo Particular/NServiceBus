@@ -48,6 +48,8 @@ namespace NServiceBus
         {
             Guard.AgainstNullAndEmpty(nameof(publisherEndpoint), publisherEndpoint);
 
+            ThrowOnAddress(publisherEndpoint);
+
             routingSettings.Settings.GetOrCreate<Publishers>().Add(eventType, publisherEndpoint);
         }
 
@@ -62,6 +64,8 @@ namespace NServiceBus
             Guard.AgainstNull(nameof(eventAssembly), eventAssembly);
             Guard.AgainstNullAndEmpty(nameof(publisherEndpoint), publisherEndpoint);
 
+            ThrowOnAddress(publisherEndpoint);
+
             routingSettings.Settings.GetOrCreate<Publishers>().Add(eventAssembly, publisherEndpoint);
         }
 
@@ -70,7 +74,10 @@ namespace NServiceBus
         /// </summary>
         /// <param name="routingSettings">The <see cref="RoutingSettings&lt;T&gt;" /> to extend.</param>
         /// <param name="eventAssembly">The assembly containing the event types.</param>
-        /// <param name="eventNamespace">The namespace containing the event types. The given value must exactly match the target namespace.</param>
+        /// <param name="eventNamespace">
+        /// The namespace containing the event types. The given value must exactly match the target
+        /// namespace.
+        /// </param>
         /// <param name="publisherEndpoint">The publisher endpoint.</param>
         public static void RegisterPublisherForAssembly<T>(this RoutingSettings<T> routingSettings, Assembly eventAssembly, string eventNamespace, string publisherEndpoint) where T : TransportDefinition, IMessageDrivenSubscriptionTransport
         {
@@ -78,7 +85,17 @@ namespace NServiceBus
             Guard.AgainstNull(nameof(eventNamespace), eventNamespace);
             Guard.AgainstNullAndEmpty(nameof(publisherEndpoint), publisherEndpoint);
 
+            ThrowOnAddress(publisherEndpoint);
+
             routingSettings.Settings.GetOrCreate<Publishers>().Add(eventAssembly, eventNamespace, publisherEndpoint);
+        }
+
+        static void ThrowOnAddress(string publisherEndpoint)
+        {
+            if (publisherEndpoint.Contains("@"))
+            {
+                throw new ArgumentException($"A logical endpoint name should not contain '@', but received '{publisherEndpoint}'. To specify an endpoint's address, use the instance mapping file for the MSMQ transport, or refer to the routing documentation.");
+            }
         }
     }
 }

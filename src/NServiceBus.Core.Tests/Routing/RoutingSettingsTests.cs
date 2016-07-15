@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Core.Tests.Routing
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
@@ -14,6 +15,36 @@
     [TestFixture]
     public class RoutingSettingsTests
     {
+        [Test]
+        public void WhenPassingTransportAddressForSenderInsteadOfEndpointName_ShouldThrowException()
+        {
+            var routingSettings = new RoutingSettings(new SettingsHolder());
+            var expectedExceptionMessage = expectedExceptionMessageForWrongEndpointName;
+
+            var exception = Assert.Throws<ArgumentException>(() => routingSettings.RouteToEndpoint(typeof(MessageWithoutNamespace), "EndpointName@MyHost"));
+            Assert.AreEqual(expectedExceptionMessage, exception.Message);
+        }
+
+        [Test]
+        public void WhenPassingTransportAddressForSenderInsteadOfEndpointName_UsingAssembly_ShouldThrowException()
+        {
+            var routingSettings = new RoutingSettings(new SettingsHolder());
+            var expectedExceptionMessage = expectedExceptionMessageForWrongEndpointName;
+
+            var exception = Assert.Throws<ArgumentException>(() => routingSettings.RouteToEndpoint(Assembly.GetExecutingAssembly(), "EndpointName@MyHost"));
+            Assert.AreEqual(expectedExceptionMessage, exception.Message);
+        }
+
+        [Test]
+        public void WhenPassingTransportAddressForSenderInsteadOfEndpointName_UsingAssemblyAndNamespace_ShouldThrowException()
+        {
+            var routingSettings = new RoutingSettings(new SettingsHolder());
+            var expectedExceptionMessage = expectedExceptionMessageForWrongEndpointName;
+
+            var exception = Assert.Throws<ArgumentException>(() => routingSettings.RouteToEndpoint(Assembly.GetExecutingAssembly(), nameof(MessageNamespaceA), "EndpointName@MyHost"));
+            Assert.AreEqual(expectedExceptionMessage, exception.Message);
+        }
+
         [Test]
         public async Task WhenRoutingMessageTypeToEndpoint_ShouldConfigureMessageTypeInRoutingTable()
         {
@@ -39,7 +70,7 @@
             routingSettings.RouteToEndpoint(Assembly.GetExecutingAssembly(), "destination");
             var routingTable = routingSettings.Settings.Get<UnicastRoutingTable>();
 
-            var routes = await routingTable.GetDestinationsFor(new []
+            var routes = await routingTable.GetDestinationsFor(new[]
             {
                 typeof(SomeMessageType),
                 typeof(OtherMessageType),
@@ -103,6 +134,8 @@
                 new EndpointInstance(e)
             }))))).SelectMany(x => x);
         }
+
+        string expectedExceptionMessageForWrongEndpointName = "A logical endpoint name should not contain '@', but received 'EndpointName@MyHost'. To specify an endpoint's address, use the instance mapping file for the MSMQ transport, or refer to the routing documentation.";
     }
 }
 
