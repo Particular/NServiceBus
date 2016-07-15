@@ -287,6 +287,10 @@ namespace NServiceBus
         public NServiceBus.DelayedRetriesSettings NumberOfRetries(int numberOfRetries) { }
         public NServiceBus.DelayedRetriesSettings TimeIncrease(System.TimeSpan timeIncrease) { }
     }
+    public sealed class DelayedRetry : NServiceBus.RecoverabilityAction
+    {
+        public System.TimeSpan Delay { get; }
+    }
     public enum DependencyLifecycle
     {
         SingleInstance = 0,
@@ -663,6 +667,7 @@ namespace NServiceBus
         public void Disable() { }
         public void NumberOfRetries(int numberOfRetries) { }
     }
+    public sealed class ImmediateRetry : NServiceBus.RecoverabilityAction { }
     [JetBrains.Annotations.UsedImplicitlyAttribute(JetBrains.Annotations.ImplicitUseTargetFlags.Default | JetBrains.Annotations.ImplicitUseTargetFlags.Itself | JetBrains.Annotations.ImplicitUseTargetFlags.Members | JetBrains.Annotations.ImplicitUseTargetFlags.WithMembers)]
     public interface INeedInitialization
     {
@@ -785,6 +790,7 @@ namespace NServiceBus
     {
         public static void LimitMessageProcessingConcurrencyTo(this NServiceBus.EndpointConfiguration config, int maxConcurrency) { }
     }
+    public sealed class MoveToError : NServiceBus.RecoverabilityAction { }
     public class static MsmqConfigurationExtensions
     {
         public static NServiceBus.TransportExtensions<NServiceBus.MsmqTransport> ApplyLabelToMessages(this NServiceBus.TransportExtensions<NServiceBus.MsmqTransport> transportExtensions, System.Func<System.Collections.Generic.IReadOnlyDictionary<string, string>, string> labelGenerator) { }
@@ -889,9 +895,9 @@ namespace NServiceBus
     public abstract class RecoverabilityAction
     {
         protected internal RecoverabilityAction() { }
-        public static NServiceBus.RecoverabilityAction DelayedRetry(System.TimeSpan timeSpan) { }
-        public static NServiceBus.RecoverabilityAction ImmediateRetry() { }
-        public static NServiceBus.RecoverabilityAction MoveToError() { }
+        public static NServiceBus.DelayedRetry DelayedRetry(System.TimeSpan timeSpan) { }
+        public static NServiceBus.ImmediateRetry ImmediateRetry() { }
+        public static NServiceBus.MoveToError MoveToError() { }
     }
     public struct RecoverabilityConfig
     {

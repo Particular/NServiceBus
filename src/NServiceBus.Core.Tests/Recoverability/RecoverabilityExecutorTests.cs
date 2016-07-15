@@ -22,7 +22,7 @@
         public async Task When_notification_turned_off_no_notification_should_be_raised()
         {
             var policy = RetryPolicy.Return(
-                actions: new[]
+                actions: new RecoverabilityAction[]
                 {
                     RecoverabilityAction.ImmediateRetry(),
                     RecoverabilityAction.DelayedRetry(TimeSpan.FromSeconds(10)),
