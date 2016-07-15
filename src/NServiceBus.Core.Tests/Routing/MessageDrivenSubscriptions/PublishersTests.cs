@@ -91,7 +91,7 @@
         {
             var publishers = new Publishers();
             publishers.Add(typeof(BaseMessage), "logicalEndpoint");
-            publishers.AddDynamic(e => PublisherAddress.CreateFromEndpointName(e.ToString()));
+            publishers.Add(e => PublisherAddress.CreateFromEndpointName(e.ToString()));
 
             var result = publishers.GetPublisherFor(typeof(BaseMessage));
 
@@ -103,7 +103,7 @@
         {
             var c = 0;
             var publishers = new Publishers();
-            publishers.AddDynamic(t => PublisherAddress.CreateFromEndpointName((++c).ToString()));
+            publishers.Add(t => PublisherAddress.CreateFromEndpointName((++c).ToString()));
 
             publishers.GetPublisherFor(typeof(BaseMessage));
             publishers.GetPublisherFor(typeof(BaseMessage));
@@ -115,7 +115,7 @@
         public void Should_not_return_null_results_from_dynamic_rules()
         {
             var publishers = new Publishers();
-            publishers.AddDynamic(t => null);
+            publishers.Add(t => null);
 
             var result = publishers.GetPublisherFor(typeof(BaseMessage));
 
@@ -161,7 +161,7 @@
             var calledOnce = false;
             var publishers = new Publishers();
             publishers.Add(typeof(BaseMessage), "address");
-            publishers.AddDynamic(e =>
+            publishers.Add(e =>
             {
                 if (calledOnce)
                 {
