@@ -28,7 +28,7 @@
             if (recoveryAction is ImmediateRetry && !immediateRetriesAvailable)
             {
                 Logger.Warn("Recoverability policy requested ImmediateRetry however immediate retires are not available with current endpoint configuration. Moving message to error queeu instead.");
-                return MoveToError(errorContext);
+                return MoveToError(errorContext, configuration.Failed.ErrorQueue);
             }
 
             if (recoveryAction is ImmediateRetry)
@@ -40,7 +40,7 @@
             if (recoveryAction is DelayedRetry && !delayedRetriesAvailable)
             {
                 Logger.Warn("Recoverability policy requested DelayedRetry however delayed delivery capability is not available with current endpoint configuration. Moving message to error queue instead.");
-                return MoveToError(errorContext);
+                return MoveToError(errorContext, configuration.Failed.ErrorQueue);
             }
 
             var delayedRetryAction = recoveryAction as DelayedRetry;
@@ -49,9 +49,10 @@
                 return DeferMessage(delayedRetryAction, errorContext);
             }
 
-            if (recoveryAction is MoveToError)
+            var moveToError = recoveryAction as MoveToError;
+            if (moveToError != null)
             {
-                return MoveToError(errorContext);
+                return MoveToError(errorContext, moveToError.ErrorQueue);
             }
 
             throw new Exception("Unknown recoverability action returned from RecoverabilityPolicy");
@@ -71,13 +72,13 @@
             return ErrorHandleResult.RetryRequired;
         }
 
-        async Task<ErrorHandleResult> MoveToError(ErrorContext errorContext)
+        async Task<ErrorHandleResult> MoveToError(ErrorContext errorContext, string errorQueue)
         {
             var message = errorContext.Message;
 
-            Logger.Error($"Moving message '{message.MessageId}' to the error queue because processing failed due to an exception:", errorContext.Exception);
+            Logger.Error($"Moving message '{message.MessageId}' to the error queue '{ errorQueue }' because processing failed due to an exception:", errorContext.Exception);
 
-            await moveToErrorsExecutor.MoveToErrorQueue(message, errorContext.Exception, errorContext.TransportTransaction).ConfigureAwait(false);
+            await moveToErrorsExecutor.MoveToErrorQueue(errorQueue, message, errorContext.Exception, errorContext.TransportTransaction).ConfigureAwait(false);
 
             if (raiseNotifications)
             {

@@ -54,7 +54,7 @@
 
                     var headerCustomizations = context.Settings.Get<Action<Dictionary<string, string>>>(FaultHeaderCustomization);
 
-                    return new MoveToErrorsExecutor(b.Build<IDispatchMessages>(), errorQueue, staticFaultMetadata, headerCustomizations);
+                    return new MoveToErrorsExecutor(b.Build<IDispatchMessages>(), staticFaultMetadata, headerCustomizations);
                 };
 
                 var transactionsOn = context.Settings.GetRequiredTransactionModeForReceives() != TransportTransactionMode.None;
@@ -88,7 +88,7 @@
 
                 return new RecoverabilityExecutorFactory(
                     policy,
-                    new RecoverabilityConfig(immediateRetryConfig, delayedRetryConfig),
+                    new RecoverabilityConfig(immediateRetryConfig, delayedRetryConfig, new FailedConfig(errorQueue)),
                     delayedRetryExecutorFactory,
                     moveToErrorsExecutorFactory,
                     immediateRetriesAvailable,

@@ -26,7 +26,7 @@
                 {
                     RecoverabilityAction.ImmediateRetry(),
                     RecoverabilityAction.DelayedRetry(TimeSpan.FromSeconds(10)),
-                    RecoverabilityAction.MoveToError()
+                    RecoverabilityAction.MoveToError("errorQueue")
                 });
             var executor = CreateExecutor(policy, raiseNotifications: false);
             var errorContext = CreateErrorContext();
@@ -129,10 +129,10 @@
                 immediateRetriesSupported,
                 delayedRetriesSupported,
                 policy,
-                new RecoverabilityConfig(new ImmediateConfig(), new DelayedConfig(0, TimeSpan.MinValue)),
+                new RecoverabilityConfig(new ImmediateConfig(), new DelayedConfig(0, TimeSpan.MinValue), new FailedConfig(ErrorQueueAddress)),
                 eventAggregator,
                 delayedRetriesSupported ? new DelayedRetryExecutor(InputQueueAddress, dispatcher) : null,
-                new MoveToErrorsExecutor(dispatcher, ErrorQueueAddress, new Dictionary<string, string>(), headers => { }));
+                new MoveToErrorsExecutor(dispatcher, new Dictionary<string, string>(), headers => { }));
         }
 
         FakeDispatcher dispatcher;
@@ -165,7 +165,7 @@
             {
                 return new RetryPolicy(new[]
                 {
-                    RecoverabilityAction.MoveToError()
+                    RecoverabilityAction.MoveToError("errorQueue")
                 }).Invoke;
             }
 

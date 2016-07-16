@@ -36,14 +36,13 @@ namespace NServiceBus
         /// <summary>
         /// Creates a move to error recoverability action.
         /// </summary>
+        /// <param name="errorQueue">The address of the error queue.</param>
         /// <returns>Move to error action.</returns>
-        public static MoveToError MoveToError()
+        public static MoveToError MoveToError(string errorQueue)
         {
-            return CachedMoveToError;
+            return new MoveToError(errorQueue);
         }
 
         static ImmediateRetry CachedImmediateRetry = new ImmediateRetry();
-
-        static MoveToError CachedMoveToError = new MoveToError();
     }
 }

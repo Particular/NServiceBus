@@ -46,7 +46,7 @@
                     var satelliteAddress = context.Settings.GetTransportAddress(satelliteLogicalAddress);
 
                     context.AddSatelliteReceiver("Test satellite", satelliteAddress, TransportTransactionMode.ReceiveOnly, PushRuntimeSettings.Default,
-                        (c, ec) => RecoverabilityAction.MoveToError(),
+                        (c, ec) => RecoverabilityAction.MoveToError(c.Failed.ErrorQueue),
                         (builder, pushContext) =>
                         {
                             builder.Build<Context>().MessageReceived = true;

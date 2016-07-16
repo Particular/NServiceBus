@@ -61,7 +61,7 @@
                 .Done(c => c.MessageMovedToErrorQueue)
                 .Run();
 
-            Assert.That(context.Logs, Has.Some.Message.Match("Moving message .+ to the error queue because processing failed due to an exception: NServiceBus.AcceptanceTesting.SimulatedException:"));
+            Assert.That(context.Logs, Has.Some.Message.Match($"Moving message .+ to the error queue '{ Conventions.EndpointNamingConvention(typeof(ErrorSpy)) }' because processing failed due to an exception: NServiceBus.AcceptanceTesting.SimulatedException:"));
         }
 
         class Context : ScenarioContext

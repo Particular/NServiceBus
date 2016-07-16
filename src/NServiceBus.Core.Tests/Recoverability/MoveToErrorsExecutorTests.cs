@@ -18,23 +18,25 @@
         {
             dispatcher = new FakeDispatcher();
             staticFaultMetadata = new Dictionary<string, string>();
-            moveToErrorsExecutor = new MoveToErrorsExecutor(dispatcher, ErrorQueueAddress, staticFaultMetadata, headers => { });
+            moveToErrorsExecutor = new MoveToErrorsExecutor(dispatcher, staticFaultMetadata, headers => { });
         }
 
         [Test]
-        public async Task MoveToErrorQueue_should_dispatch_message_to_error_queue()
+        [TestCase(ErrorQueueAddress)]
+        [TestCase("random_error_queue")]
+        public async Task MoveToErrorQueue_should_dispatch_message_to_error_queue(string errorQueueAddress)
         {
             var transportTransaction = new TransportTransaction();
             var incomingMessage = new IncomingMessage("messageId", new Dictionary<string, string>(), Stream.Null);
 
-            await moveToErrorsExecutor.MoveToErrorQueue(incomingMessage, new Exception(), transportTransaction);
+            await moveToErrorsExecutor.MoveToErrorQueue(errorQueueAddress, incomingMessage, new Exception(), transportTransaction);
 
             Assert.That(dispatcher.TransportOperations.MulticastTransportOperations.Count(), Is.EqualTo(0));
             Assert.That(dispatcher.TransportOperations.UnicastTransportOperations.Count(), Is.EqualTo(1));
             Assert.That(dispatcher.ContextBag.Get<TransportTransaction>(), Is.EqualTo(transportTransaction));
 
             var outgoingMessage = dispatcher.TransportOperations.UnicastTransportOperations.Single();
-            Assert.That(outgoingMessage.Destination, Is.EqualTo(ErrorQueueAddress));
+            Assert.That(outgoingMessage.Destination, Is.EqualTo(errorQueueAddress));
             Assert.That(outgoingMessage.Message.MessageId, Is.EqualTo(incomingMessage.MessageId));
         }
 
@@ -49,7 +51,7 @@
 
             var incomingMessage = new IncomingMessage("messageId", incomingMessageHeaders, Stream.Null);
 
-            await moveToErrorsExecutor.MoveToErrorQueue(incomingMessage, new Exception(), new TransportTransaction());
+            await moveToErrorsExecutor.MoveToErrorQueue(ErrorQueueAddress, incomingMessage, new Exception(), new TransportTransaction());
 
             var outgoingMessage = dispatcher.TransportOperations.UnicastTransportOperations.Single();
             Assert.That(incomingMessage.Headers, Is.SubsetOf(outgoingMessage.Message.Headers));
@@ -62,7 +64,7 @@
             var incomingMessage = new IncomingMessage("messageId", new Dictionary<string, string>(), new MemoryStream(originalMessageBody));
             incomingMessage.Body = Encoding.UTF8.GetBytes("new body");
 
-            await moveToErrorsExecutor.MoveToErrorQueue(incomingMessage, new Exception(), new TransportTransaction());
+            await moveToErrorsExecutor.MoveToErrorQueue(ErrorQueueAddress, incomingMessage, new Exception(), new TransportTransaction());
 
             var outgoingMessage = dispatcher.TransportOperations.UnicastTransportOperations.Single();
             Assert.That(outgoingMessage.Message.Body, Is.EqualTo(originalMessageBody));
@@ -78,7 +80,7 @@
             };
             var incomingMessage = new IncomingMessage("messageId", retryHeaders, Stream.Null);
 
-            await moveToErrorsExecutor.MoveToErrorQueue(incomingMessage, new Exception(), new TransportTransaction());
+            await moveToErrorsExecutor.MoveToErrorQueue(ErrorQueueAddress, incomingMessage, new Exception(), new TransportTransaction());
 
             var outgoingMessage = dispatcher.TransportOperations.UnicastTransportOperations.Single();
             Assert.That(outgoingMessage.Message.Headers.Keys, Does.Not.Contain(Headers.FLRetries));
@@ -91,7 +93,7 @@
             var incomingMessage = new IncomingMessage("messageId", new Dictionary<string, string>(), Stream.Null);
             var exception = new InvalidOperationException("test exception");
 
-            await moveToErrorsExecutor.MoveToErrorQueue(incomingMessage, exception, new TransportTransaction());
+            await moveToErrorsExecutor.MoveToErrorQueue(ErrorQueueAddress, incomingMessage, exception, new TransportTransaction());
 
             var outgoingMessageHeaders = dispatcher.TransportOperations.UnicastTransportOperations.Single().Message.Headers;
             // we only test presence of some exception headers set by ExceptionHeaderHelper
@@ -108,7 +110,7 @@
             staticFaultMetadata.Add("staticFaultMetadataKey", "staticFaultMetadataValue");
             var incomingMessage = new IncomingMessage("messageId", new Dictionary<string, string>(), Stream.Null);
 
-            await moveToErrorsExecutor.MoveToErrorQueue(incomingMessage, new Exception(), new TransportTransaction());
+            await moveToErrorsExecutor.MoveToErrorQueue(ErrorQueueAddress, incomingMessage, new Exception(), new TransportTransaction());
 
             var outgoingMessageHeaders = dispatcher.TransportOperations.UnicastTransportOperations.Single().Message.Headers;
             Assert.That(outgoingMessageHeaders, Contains.Item(new KeyValuePair<string, string>("staticFaultMetadataKey", "staticFaultMetadataValue")));
@@ -124,12 +126,12 @@
             var exception = new InvalidOperationException("test exception");
 
             Dictionary<string, string> passedInHeaders = null;
-            moveToErrorsExecutor = new MoveToErrorsExecutor(dispatcher, ErrorQueueAddress, staticFaultMetadata, headers =>
+            moveToErrorsExecutor = new MoveToErrorsExecutor(dispatcher, staticFaultMetadata, headers =>
             {
                 passedInHeaders = headers;
             });
 
-            await moveToErrorsExecutor.MoveToErrorQueue(incomingMessage, exception, new TransportTransaction());
+            await moveToErrorsExecutor.MoveToErrorQueue(ErrorQueueAddress, incomingMessage, exception, new TransportTransaction());
 
             Assert.NotNull(passedInHeaders);
             Assert.That(passedInHeaders, Contains.Key("staticFaultMetadataKey"));

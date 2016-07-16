@@ -52,7 +52,7 @@
 
                             if (errorContext.DelayedDeliveriesPerformed >= 1)
                             {
-                                return RecoverabilityAction.MoveToError();
+                                return RecoverabilityAction.MoveToError(cfg.Failed.ErrorQueue);
                             }
 
                             return RecoverabilityAction.DelayedRetry(TimeSpan.FromMilliseconds(1));

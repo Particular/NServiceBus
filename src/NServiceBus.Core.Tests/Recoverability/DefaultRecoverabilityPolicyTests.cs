@@ -164,7 +164,7 @@
 
         static Func<ErrorContext, RecoverabilityAction> CreatePolicy(int maxImmediateRetries = 2, int maxDelayedRetries = 2, TimeSpan? delayedRetryDelay = null)
         {
-            var config = new RecoverabilityConfig(new ImmediateConfig(maxImmediateRetries), new DelayedConfig(maxDelayedRetries, delayedRetryDelay.GetValueOrDefault(TimeSpan.FromSeconds(2))));
+            var config = new RecoverabilityConfig(new ImmediateConfig(maxImmediateRetries), new DelayedConfig(maxDelayedRetries, delayedRetryDelay.GetValueOrDefault(TimeSpan.FromSeconds(2))), new FailedConfig("errorQueue"));
             return context => DefaultRecoverabilityPolicy.Invoke(config, context);
         }
     }

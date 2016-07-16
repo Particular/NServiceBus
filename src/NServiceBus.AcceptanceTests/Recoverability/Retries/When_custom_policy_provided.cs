@@ -50,7 +50,7 @@ namespace NServiceBus.AcceptanceTests.Recoverability.Retries
                         {
                             testContext.Configuration = cfg;
 
-                            return RecoverabilityAction.MoveToError();
+                            return RecoverabilityAction.MoveToError(cfg.Failed.ErrorQueue);
                         });
                 });
             }

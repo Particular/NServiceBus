@@ -36,7 +36,7 @@
             Assert.IsAssignableFrom(typeof(SimulatedException), failedMessage.Exception);
 
             Assert.AreEqual(1, testContext.Logs.Count(l => l.Message
-                .StartsWith($"Moving message '{testContext.PhysicalMessageId}' to the error queue because processing failed due to an exception:")));
+                .StartsWith($"Moving message '{testContext.PhysicalMessageId}' to the error queue 'error' because processing failed due to an exception:")));
         }
 
         public class RetryEndpoint : EndpointConfigurationBuilder

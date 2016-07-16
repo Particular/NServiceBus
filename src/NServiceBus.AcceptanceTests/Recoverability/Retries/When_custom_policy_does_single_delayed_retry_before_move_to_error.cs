@@ -50,7 +50,7 @@ namespace NServiceBus.AcceptanceTests.Recoverability.Retries
                     return RecoverabilityAction.DelayedRetry(TimeSpan.FromMilliseconds(10));
                 }
 
-                return RecoverabilityAction.MoveToError();
+                return RecoverabilityAction.MoveToError(config.Failed.ErrorQueue);
             }
 
             class MessageToBeRetriedHandler : IHandleMessages<MessageToBeRetried>

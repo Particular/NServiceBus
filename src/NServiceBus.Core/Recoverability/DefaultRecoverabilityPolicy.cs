@@ -19,7 +19,7 @@ namespace NServiceBus
         {
             if (errorContext.Exception is MessageDeserializationException)
             {
-                return RecoverabilityAction.MoveToError();
+                return RecoverabilityAction.MoveToError(config.Failed.ErrorQueue);
             }
 
             if (errorContext.ImmediateProcessingFailures <= config.Immediate.MaxNumberOfRetries)
@@ -37,7 +37,7 @@ namespace NServiceBus
 
             Logger.WarnFormat("Giving up Second Level Retries for message '{0}'.", errorContext.Message.MessageId);
 
-            return RecoverabilityAction.MoveToError();
+            return RecoverabilityAction.MoveToError(config.Failed.ErrorQueue);
         }
 
         static bool TryGetDelay(IncomingMessage message, int delayedDeliveriesPerformed, DelayedConfig config, out TimeSpan delay)

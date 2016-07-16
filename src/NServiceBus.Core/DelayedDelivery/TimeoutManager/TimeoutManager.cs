@@ -114,7 +114,7 @@
                 return RecoverabilityAction.ImmediateRetry();
             }
 
-            return RecoverabilityAction.MoveToError();
+            return RecoverabilityAction.MoveToError(config.Failed.ErrorQueue);
         }
 
         const int MaxNumberOfImmediateRetries = 4;

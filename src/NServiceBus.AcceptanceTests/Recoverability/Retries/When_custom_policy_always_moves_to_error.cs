@@ -37,7 +37,7 @@ namespace NServiceBus.AcceptanceTests.Recoverability.Retries
                     var scenarioContext = (Context) context.ScenarioContext;
                     configure.EnableFeature<TimeoutManager>();
                     configure.Recoverability()
-                        .CustomPolicy((cfg, errorContext) => RecoverabilityAction.MoveToError());
+                        .CustomPolicy((cfg, errorContext) => RecoverabilityAction.MoveToError(cfg.Failed.ErrorQueue));
                     configure.Notifications.Errors.MessageSentToErrorQueue += (sender, message) => { scenarioContext.MessageSentToErrorQueue = true; };
                 });
             }

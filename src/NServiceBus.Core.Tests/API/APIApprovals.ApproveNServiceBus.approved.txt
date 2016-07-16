@@ -408,6 +408,10 @@ namespace NServiceBus
             "ly throws a NotImplementedException. Will be removed in version 7.0.0.", true)]
         public static void SetMessageHeader(this NServiceBus.IBus bus, object msg, string key, string value) { }
     }
+    public struct FailedConfig
+    {
+        public string ErrorQueue { get; }
+    }
     public class FileRoutingTableSettings : NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings
     {
         public FileRoutingTableSettings(NServiceBus.Settings.SettingsHolder settings) { }
@@ -788,7 +792,10 @@ namespace NServiceBus
     {
         public static void LimitMessageProcessingConcurrencyTo(this NServiceBus.EndpointConfiguration config, int maxConcurrency) { }
     }
-    public sealed class MoveToError : NServiceBus.RecoverabilityAction { }
+    public sealed class MoveToError : NServiceBus.RecoverabilityAction
+    {
+        public string ErrorQueue { get; }
+    }
     public class static MsmqConfigurationExtensions
     {
         public static NServiceBus.TransportExtensions<NServiceBus.MsmqTransport> ApplyLabelToMessages(this NServiceBus.TransportExtensions<NServiceBus.MsmqTransport> transportExtensions, System.Func<System.Collections.Generic.IReadOnlyDictionary<string, string>, string> labelGenerator) { }
@@ -895,11 +902,12 @@ namespace NServiceBus
         protected internal RecoverabilityAction() { }
         public static NServiceBus.DelayedRetry DelayedRetry(System.TimeSpan timeSpan) { }
         public static NServiceBus.ImmediateRetry ImmediateRetry() { }
-        public static NServiceBus.MoveToError MoveToError() { }
+        public static NServiceBus.MoveToError MoveToError(string errorQueue) { }
     }
     public struct RecoverabilityConfig
     {
         public NServiceBus.DelayedConfig Delayed { get; }
+        public NServiceBus.FailedConfig Failed { get; }
         public NServiceBus.ImmediateConfig Immediate { get; }
     }
     public class static RecoverabilityEndpointConfigurationExtensions

@@ -61,10 +61,11 @@ namespace NServiceBus
     /// </summary>
     public struct RecoverabilityConfig
     {
-        internal RecoverabilityConfig(ImmediateConfig immediateConfig, DelayedConfig delayedConfig)
+        internal RecoverabilityConfig(ImmediateConfig immediateConfig, DelayedConfig delayedConfig, FailedConfig failedConfig)
         {
             Immediate = immediateConfig;
             Delayed = delayedConfig;
+            Failed = failedConfig;
         }
 
         /// <summary>
@@ -76,6 +77,11 @@ namespace NServiceBus
         /// Exposes the delayed retries configuration.
         /// </summary>
         public DelayedConfig Delayed { get; }
+
+        /// <summary>
+        /// Exposes the failed retries configuration.
+        /// </summary>
+        public FailedConfig Failed { get; }
     }
 
     /// <summary>
@@ -116,6 +122,22 @@ namespace NServiceBus
         /// Gets the configured time of increase for individual delayed retries.
         /// </summary>
         public TimeSpan TimeIncrease { get; }
+    }
+
+    /// <summary>
+    /// Provides information about the fault configuration.
+    /// </summary>
+    public struct FailedConfig
+    {
+        internal FailedConfig(string errorQueue)
+        {
+            ErrorQueue = errorQueue;
+        }
+
+        /// <summary>
+        /// Gets the configured standard error queue.
+        /// </summary>
+        public string ErrorQueue { get; }
     }
 
     /// <summary>
