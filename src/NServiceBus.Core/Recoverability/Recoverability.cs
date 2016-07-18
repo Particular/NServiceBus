@@ -60,7 +60,7 @@
                 var transactionsOn = context.Settings.GetRequiredTransactionModeForReceives() != TransportTransactionMode.None;
                 var delayedRetryConfig = GetDelayedRetryConfig(context.Settings, transactionsOn);
                 var delayedRetriesAvailable = transactionsOn
-                                              && (context.Settings.DoesTransportSupportConstraint<DelayedDeliveryConstraint>() || context.Settings.GetOrDefault<TimeoutManagerAddressConfiguration>() != null);
+                                              && (context.Settings.DoesTransportSupportConstraint<DelayedDeliveryConstraint>() || context.Settings.Get<TimeoutManagerAddressConfiguration>().TransportAddress != null);
 
                 Func<string, DelayedRetryExecutor> delayedRetryExecutorFactory = localAddress =>
                 {

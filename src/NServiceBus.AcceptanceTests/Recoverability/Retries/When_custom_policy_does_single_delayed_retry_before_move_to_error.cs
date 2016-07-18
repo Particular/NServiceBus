@@ -45,7 +45,7 @@ namespace NServiceBus.AcceptanceTests.Recoverability.Retries
 
             RecoverabilityAction RetryPolicy(RecoverabilityConfig config, ErrorContext context)
             {
-                if (context.NumberOfFailedDelayedDeliveryAttempts == 0)
+                if (context.DelayedDeliveriesPerformed == 0)
                 {
                     return RecoverabilityAction.DelayedRetry(TimeSpan.FromMilliseconds(10));
                 }

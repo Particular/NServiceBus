@@ -5,7 +5,7 @@
 
     static class DelayedRetriesHeaderExtensions
     {
-        public static int GetCurrentDelayedRetries(this IncomingMessage message)
+        public static int GetDelayedDeliveriesPerformed(this IncomingMessage message)
         {
             string value;
             if (message.Headers.TryGetValue(Headers.Retries, out value))
@@ -20,12 +20,12 @@
             return 0;
         }
 
-        public static void SetCurrentDelayedRetries(this OutgoingMessage message, int currentDelayedRetry)
+        public static void SetCurrentDelayedDeliveries(this OutgoingMessage message, int currentDelayedRetry)
         {
             message.Headers[Headers.Retries] = currentDelayedRetry.ToString();
         }
 
-        public static void SetDelayedRetryTimestamp(this OutgoingMessage message, DateTime timestamp)
+        public static void SetDelayedDeliveryTimestamp(this OutgoingMessage message, DateTime timestamp)
         {
             message.Headers[Headers.RetriesTimestamp] = DateTimeExtensions.ToWireFormattedString(timestamp);
         }

@@ -20,14 +20,14 @@
         public TransportTransaction TransportTransaction { get; }
 
         /// <summary>
-        /// Number of failed immediate processing attempts. This number is re-set to 0 with each delayed retry.
+        /// Number of failed immediate processing attempts. This number is re-set with each delayed delivery.
         /// </summary>
-        public int NumberOfFailedImmediateDeliveryAttempts { get; }
+        public int ImmediateProcessingFailures { get; }
 
         /// <summary>
-        /// Number of failed delayed processing attempts.
+        /// Number of delayed deliveries performed so fat.
         /// </summary>
-        public int NumberOfFailedDelayedDeliveryAttempts { get; }
+        public int DelayedDeliveriesPerformed { get; }
 
         /// <summary>
         /// Failed incoming message.
@@ -37,15 +37,15 @@
         /// <summary>
         /// Initializes the error context.
         /// </summary>
-        public ErrorContext(Exception exception, Dictionary<string, string> headers, string transportMessageId, Stream bodyStream, TransportTransaction transportTransaction, int numberOfFailedImmediateDeliveryAttempts)
+        public ErrorContext(Exception exception, Dictionary<string, string> headers, string transportMessageId, Stream bodyStream, TransportTransaction transportTransaction, int immediateProcessingFailures)
         {
             Exception = exception;
             TransportTransaction = transportTransaction;
-            NumberOfFailedImmediateDeliveryAttempts = numberOfFailedImmediateDeliveryAttempts;
+            ImmediateProcessingFailures = immediateProcessingFailures;
 
             Message = new IncomingMessage(transportMessageId, headers, bodyStream);
 
-            NumberOfFailedDelayedDeliveryAttempts = Message.GetCurrentDelayedRetries();
+            DelayedDeliveriesPerformed = Message.GetDelayedDeliveriesPerformed();
 
             //Incoming message reads the body stream so we need to rewind it
             Message.BodyStream.Position = 0;

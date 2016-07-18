@@ -22,10 +22,10 @@
         {
             var outgoingMessage = new OutgoingMessage(message.MessageId, new Dictionary<string, string>(message.Headers), message.Body);
 
-            var currentDelayedRetriesAttempt = message.GetCurrentDelayedRetries() + 1;
+            var currentDelayedRetriesAttempt = message.GetDelayedDeliveriesPerformed() + 1;
 
-            outgoingMessage.SetCurrentDelayedRetries(currentDelayedRetriesAttempt);
-            outgoingMessage.SetDelayedRetryTimestamp(DateTime.UtcNow);
+            outgoingMessage.SetCurrentDelayedDeliveries(currentDelayedRetriesAttempt);
+            outgoingMessage.SetDelayedDeliveryTimestamp(DateTime.UtcNow);
 
             UnicastAddressTag messageDestination;
             List<DeliveryConstraint> deliveryConstraints = null;

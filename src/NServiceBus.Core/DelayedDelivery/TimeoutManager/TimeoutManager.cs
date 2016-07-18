@@ -109,7 +109,7 @@
 
         static RecoverabilityAction RecoverabilityPolicy(RecoverabilityConfig config, ErrorContext errorContext)
         {
-            if (errorContext.NumberOfFailedImmediateDeliveryAttempts <= MaxNumberOfFailedRetries)
+            if (errorContext.ImmediateProcessingFailures <= MaxNumberOfImmediateRetries)
             {
                 return RecoverabilityAction.ImmediateRetry();
             }
@@ -117,7 +117,7 @@
             return RecoverabilityAction.MoveToError();
         }
 
-        const int MaxNumberOfFailedRetries = 4;
+        const int MaxNumberOfImmediateRetries = 4;
         TimeSpan TimeToWaitBeforeTriggeringCriticalError = TimeSpan.FromMinutes(2);
     }
 }

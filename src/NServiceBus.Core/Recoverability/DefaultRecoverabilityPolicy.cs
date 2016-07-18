@@ -22,7 +22,7 @@ namespace NServiceBus
                 return RecoverabilityAction.MoveToError();
             }
 
-            if (errorContext.NumberOfFailedImmediateDeliveryAttempts <= config.Immediate.MaxNumberOfRetries)
+            if (errorContext.ImmediateProcessingFailures <= config.Immediate.MaxNumberOfRetries)
             {
                 return RecoverabilityAction.ImmediateRetry();
             }
@@ -30,7 +30,7 @@ namespace NServiceBus
             Logger.InfoFormat("Giving up First Level Retries for message '{0}'.", errorContext.Message.MessageId);
 
             TimeSpan delay;
-            if (TryGetDelay(errorContext.Message, errorContext.NumberOfFailedDelayedDeliveryAttempts, config.Delayed, out delay))
+            if (TryGetDelay(errorContext.Message, errorContext.DelayedDeliveriesPerformed, config.Delayed, out delay))
             {
                 return RecoverabilityAction.DelayedRetry(delay);
             }
@@ -40,7 +40,7 @@ namespace NServiceBus
             return RecoverabilityAction.MoveToError();
         }
 
-        static bool TryGetDelay(IncomingMessage message, int failedDelayedDeliveryAttempts, DelayedConfig config, out TimeSpan delay)
+        static bool TryGetDelay(IncomingMessage message, int delayedDeliveriesPerformed, DelayedConfig config, out TimeSpan delay)
         {
             delay = TimeSpan.MinValue;
 
@@ -49,7 +49,7 @@ namespace NServiceBus
                 return false;
             }
 
-            if (failedDelayedDeliveryAttempts >= config.MaxNumberOfRetries)
+            if (delayedDeliveriesPerformed >= config.MaxNumberOfRetries)
             {
                 return false;
             }
@@ -59,7 +59,7 @@ namespace NServiceBus
                 return false;
             }
 
-            delay = TimeSpan.FromTicks(config.TimeIncrease.Ticks*(failedDelayedDeliveryAttempts + 1));
+            delay = TimeSpan.FromTicks(config.TimeIncrease.Ticks*(delayedDeliveriesPerformed + 1));
 
             return true;
         }
