@@ -82,7 +82,7 @@ namespace NServiceBus
             {
                 var handledAt = DateTimeExtensions.ToUtcDateTime(timestampHeader);
 
-                var now = CurrentUtcTimeProvider();
+                var now = DateTime.UtcNow;
                 if (now > handledAt.AddDays(1))
                 {
                     return true;
@@ -98,8 +98,6 @@ namespace NServiceBus
 
             return false;
         }
-
-        internal static Func<DateTime> CurrentUtcTimeProvider = () => DateTime.UtcNow;
 
         static ILog Logger = LogManager.GetLogger<DefaultRecoverabilityPolicy>();
     }

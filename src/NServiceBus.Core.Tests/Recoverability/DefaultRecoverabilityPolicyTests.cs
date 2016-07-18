@@ -136,31 +136,22 @@
         [Test]
         public void ShouldCapTheRetryMaxTimeTo24Hours()
         {
-            var provider = DefaultRecoverabilityPolicy.CurrentUtcTimeProvider;
-            try
+            var now = DateTime.UtcNow;
+            var baseDelay = TimeSpan.FromSeconds(10);
+
+            var policy = CreatePolicy(maxImmediateRetries: 0, maxDelayedRetries: 2, delayedRetryDelay: baseDelay);
+
+            var moreThanADayAgo = now.AddHours(-24).AddTicks(-1);
+            var headers = new Dictionary<string, string>
             {
-                var now = DateTime.UtcNow;
-                var baseDelay = TimeSpan.FromSeconds(10);
-                DefaultRecoverabilityPolicy.CurrentUtcTimeProvider = () => now;
+                {Headers.RetriesTimestamp, DateTimeExtensions.ToWireFormattedString(moreThanADayAgo)}
+            };
 
-                var policy = CreatePolicy(maxImmediateRetries: 0, maxDelayedRetries: 2, delayedRetryDelay: baseDelay);
+            var errorContext = CreateErrorContext(headers: headers);
 
-                var moreThanADayAgo = now.AddHours(-24).AddTicks(-1);
-                var headers = new Dictionary<string, string>
-                {
-                    {Headers.RetriesTimestamp, DateTimeExtensions.ToWireFormattedString(moreThanADayAgo)}
-                };
+            var result = policy(errorContext);
 
-                var errorContext = CreateErrorContext(headers: headers);
-
-                var result = policy(errorContext);
-
-                Assert.IsInstanceOf<MoveToError>(result);
-            }
-            finally
-            {
-                DefaultRecoverabilityPolicy.CurrentUtcTimeProvider = provider;
-            }
+            Assert.IsInstanceOf<MoveToError>(result);
         }
 
         ErrorContext CreateErrorContext(int numberOfDeliveryAttempts = 1, int? retryNumber = null, Dictionary<string, string> headers = null, Exception exception = null)
