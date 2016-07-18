@@ -5,7 +5,6 @@ namespace NServiceBus.AcceptanceTests.Recoverability.Retries
     using AcceptanceTesting;
     using EndpointTemplates;
     using Features;
-    using NServiceBus.Config;
     using NUnit.Framework;
 
     public class When_custom_policy_always_moves_to_error : NServiceBusAcceptanceTest
@@ -40,8 +39,7 @@ namespace NServiceBus.AcceptanceTests.Recoverability.Retries
                     configure.Recoverability()
                         .CustomPolicy((cfg, errorContext) => RecoverabilityAction.MoveToError());
                     configure.Notifications.Errors.MessageSentToErrorQueue += (sender, message) => { scenarioContext.MessageSentToErrorQueue = true; };
-                })
-                .WithConfig<SecondLevelRetriesConfig>(c => c.TimeIncrease = TimeSpan.FromMilliseconds(1));
+                });
             }
 
             class MessageToBeRetriedHandler : IHandleMessages<MessageToBeRetried>

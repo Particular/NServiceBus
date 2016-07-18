@@ -128,7 +128,6 @@
             errorContext = CreateErrorContext(retryNumber: 2);
             var result3 = policy(errorContext);
 
-
             Assert.AreEqual(baseDelay, result1.Delay);
             Assert.AreEqual(TimeSpan.FromSeconds(20), result2.Delay);
             Assert.IsInstanceOf<MoveToError>(result3);

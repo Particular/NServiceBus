@@ -45,7 +45,8 @@
                     var satelliteLogicalAddress = new LogicalAddress(instanceName, "MySatellite");
                     var satelliteAddress = context.Settings.GetTransportAddress(satelliteLogicalAddress);
 
-                    context.AddSatelliteReceiver("Test satellite", satelliteAddress, TransportTransactionMode.ReceiveOnly, PushRuntimeSettings.Default, SatelliteRecoverabilityPolicy.Invoke,
+                    context.AddSatelliteReceiver("Test satellite", satelliteAddress, TransportTransactionMode.ReceiveOnly, PushRuntimeSettings.Default,
+                        (c, ec) => RecoverabilityAction.MoveToError(),
                         (builder, pushContext) =>
                         {
                             builder.Build<Context>().MessageReceived = true;
@@ -56,14 +57,6 @@
                 }
 
                 public static string Address;
-
-                class SatelliteRecoverabilityPolicy
-                {
-                    public static RecoverabilityAction Invoke(RecoverabilityConfig config, ErrorContext errorContext)
-                    {
-                        return RecoverabilityAction.MoveToError();
-                    }
-                }
             }
         }
 

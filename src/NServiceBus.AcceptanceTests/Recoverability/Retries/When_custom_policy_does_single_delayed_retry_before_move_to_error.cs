@@ -45,15 +45,10 @@ namespace NServiceBus.AcceptanceTests.Recoverability.Retries
 
             RecoverabilityAction RetryPolicy(RecoverabilityConfig config, ErrorContext context)
             {
-                if (count == 0)
-                {
-                    count++;
-                    return RecoverabilityAction.DelayedRetry(TimeSpan.FromMilliseconds(10));
-                }
-                return RecoverabilityAction.MoveToError();
+                return context.NumberOfDelayedDeliveryAttempts == 1
+                    ? (RecoverabilityAction) RecoverabilityAction.DelayedRetry(TimeSpan.FromMilliseconds(10))
+                    : RecoverabilityAction.MoveToError();
             }
-
-            int count;
 
             class MessageToBeRetriedHandler : IHandleMessages<MessageToBeRetried>
             {

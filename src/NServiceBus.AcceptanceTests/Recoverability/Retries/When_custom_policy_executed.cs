@@ -42,7 +42,6 @@
             {
                 EndpointSetup<DefaultServer>((config, context) =>
                 {
-                    var slrRetries = 0;
                     var testContext = (Context) context.ScenarioContext;
 
                     config.EnableFeature<TimeoutManager>();
@@ -51,7 +50,7 @@
                         {
                             testContext.ErrorContexts.Add(errorContext);
 
-                            if (slrRetries++ >= 1)
+                            if (errorContext.NumberOfDelayedDeliveryAttempts >= 2)
                             {
                                 return RecoverabilityAction.MoveToError();
                             }

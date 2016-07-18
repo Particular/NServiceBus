@@ -13,7 +13,6 @@ namespace NServiceBus.AcceptanceTests.Recoverability.Retries
         [Test]
         public async Task Should_pass_recoverability_configuration()
         {
-
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<Endpoint>(b =>
                     b.When(bus => bus.SendLocal(new MessageToBeRetried()))
@@ -21,10 +20,14 @@ namespace NServiceBus.AcceptanceTests.Recoverability.Retries
                 .Done(c => c.FailedMessages.Any())
                 .Run();
 
-            Assert.That(context.Configuration.Immediate.MaxNumberOfRetries, Is.EqualTo(2));
-            Assert.That(context.Configuration.Delayed.MaxNumberOfRetries, Is.EqualTo(2));
-            Assert.That(context.Configuration.Delayed.TimeIncrease, Is.EqualTo(TimeSpan.FromMinutes(1)));
+            Assert.That(context.Configuration.Immediate.MaxNumberOfRetries, Is.EqualTo(MaxImmediateRetries));
+            Assert.That(context.Configuration.Delayed.MaxNumberOfRetries, Is.EqualTo(MaxDelayedRetries));
+            Assert.That(context.Configuration.Delayed.TimeIncrease, Is.EqualTo(DelayedRetryDelayIncrease));
         }
+
+        static TimeSpan DelayedRetryDelayIncrease = TimeSpan.FromMinutes(1);
+        const int MaxImmediateRetries = 2;
+        const int MaxDelayedRetries = 2;
 
         class Context : ScenarioContext
         {
@@ -37,12 +40,12 @@ namespace NServiceBus.AcceptanceTests.Recoverability.Retries
             {
                 EndpointSetup<DefaultServer>((config, context) =>
                 {
-                    var testContext = (Context)context.ScenarioContext;
+                    var testContext = (Context) context.ScenarioContext;
 
                     config.EnableFeature<TimeoutManager>();
                     config.Recoverability()
-                        .Immediate(immediate => immediate.NumberOfRetries(2))
-                        .Delayed(delayed => delayed.NumberOfRetries(2).TimeIncrease(TimeSpan.FromMinutes(1)))
+                        .Immediate(immediate => immediate.NumberOfRetries(MaxImmediateRetries))
+                        .Delayed(delayed => delayed.NumberOfRetries(MaxDelayedRetries).TimeIncrease(DelayedRetryDelayIncrease))
                         .CustomPolicy((cfg, errorContext) =>
                         {
                             testContext.Configuration = cfg;
