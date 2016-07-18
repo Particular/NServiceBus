@@ -67,7 +67,7 @@
             var satelliteLogicalAddress = new LogicalAddress(instanceName, "TimeoutsDispatcher");
             var satelliteAddress = context.Settings.GetTransportAddress(satelliteLogicalAddress);
 
-            context.AddSatelliteReceiver("Timeout Dispatcher Processor", satelliteAddress, requiredTransactionSupport, PushRuntimeSettings.Default, TimeoutManagerRecoverabilityPolicy.Invoke,
+            context.AddSatelliteReceiver("Timeout Dispatcher Processor", satelliteAddress, requiredTransactionSupport, PushRuntimeSettings.Default, RecoverabilityPolicy,
                 (builder, pushContext) =>
                 {
                     var dispatchBehavior = new DispatchTimeoutBehavior(
@@ -87,7 +87,7 @@
             var satelliteLogicalAddress = new LogicalAddress(instanceName, "Timeouts");
             var satelliteAddress = context.Settings.GetTransportAddress(satelliteLogicalAddress);
 
-            context.AddSatelliteReceiver("Timeout Message Processor", satelliteAddress, requiredTransactionSupport, PushRuntimeSettings.Default, TimeoutManagerRecoverabilityPolicy.Invoke,
+            context.AddSatelliteReceiver("Timeout Message Processor", satelliteAddress, requiredTransactionSupport, PushRuntimeSettings.Default, RecoverabilityPolicy,
                 (builder, pushContext) =>
                 {
                     var storeBehavior = new StoreTimeoutBehavior(
@@ -107,6 +107,17 @@
             return settings.Get<TimeoutManagerAddressConfiguration>().TransportAddress != null;
         }
 
+        static RecoverabilityAction RecoverabilityPolicy(RecoverabilityConfig config, ErrorContext errorContext)
+        {
+            if (errorContext.NumberOfImmediateDeliveryAttempts <= MaxNumberOfFailedRetries)
+            {
+                return RecoverabilityAction.ImmediateRetry();
+            }
+
+            return RecoverabilityAction.MoveToError();
+        }
+
+        const int MaxNumberOfFailedRetries = 4;
         TimeSpan TimeToWaitBeforeTriggeringCriticalError = TimeSpan.FromMinutes(2);
     }
 }
