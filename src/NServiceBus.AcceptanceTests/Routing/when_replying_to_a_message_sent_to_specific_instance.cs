@@ -36,7 +36,7 @@
                 EndpointSetup<DefaultServer>((c, r) =>
                 {
                     c.UseTransport(r.GetTransportType()).Routing().RouteToEndpoint(typeof(MyRequest), ReceiverEndpoint);
-                    c.GetSettings().GetOrCreate<EndpointInstances>().Add(new EndpointInstance(ReceiverEndpoint, ReceiverEndpoint + "XYZ"));
+                    c.GetSettings().GetOrCreate<EndpointInstances>().Add(new EndpointInstance(ReceiverEndpoint, ReceiverEndpoint + "-XYZ"));
                 });
             }
 

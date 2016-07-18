@@ -5,6 +5,7 @@
     using DelayedDelivery;
     using DeliveryConstraints;
     using Persistence;
+    using Routing;
     using Settings;
     using Timeout.Core;
     using Transport;
@@ -64,7 +65,7 @@
         static string SetupDispatcherSatellite(FeatureConfigurationContext context, TransportTransactionMode requiredTransactionSupport)
         {
             var instanceName = context.Settings.EndpointInstanceName();
-            var satelliteLogicalAddress = new LogicalAddress(instanceName, "TimeoutsDispatcher");
+            var satelliteLogicalAddress = new LogicalAddress(new EndpointInstance(instanceName.Endpoint), "TimeoutsDispatcher");
             var satelliteAddress = context.Settings.GetTransportAddress(satelliteLogicalAddress);
 
             context.AddSatelliteReceiver("Timeout Dispatcher Processor", satelliteAddress, requiredTransactionSupport, PushRuntimeSettings.Default, new TimeoutManagerRecoverabilityPolicy(),
@@ -84,7 +85,7 @@
         static void SetupStorageSatellite(FeatureConfigurationContext context, TransportTransactionMode requiredTransactionSupport)
         {
             var instanceName = context.Settings.EndpointInstanceName();
-            var satelliteLogicalAddress = new LogicalAddress(instanceName, "Timeouts");
+            var satelliteLogicalAddress = new LogicalAddress(new EndpointInstance(instanceName.Endpoint), "Timeouts");
             var satelliteAddress = context.Settings.GetTransportAddress(satelliteLogicalAddress);
 
             context.AddSatelliteReceiver("Timeout Message Processor", satelliteAddress, requiredTransactionSupport, PushRuntimeSettings.Default, new TimeoutManagerRecoverabilityPolicy(),
