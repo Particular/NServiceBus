@@ -7,21 +7,29 @@
 
     class RecoverabilityExecutor
     {
-        public RecoverabilityExecutor(bool raiseRecoverabilityNotifications, Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> recoverabilityPolicy, RecoverabilityConfig configuration, IEventAggregator eventAggregator, DelayedRetryExecutor delayedRetryExecutor, MoveToErrorsExecutor moveToErrorsExecutor)
+        public RecoverabilityExecutor(bool raiseRecoverabilityNotifications, bool immediateRetriesAvailable, bool delayedRetriesAvailable, Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> recoverabilityPolicy, RecoverabilityConfig configuration, IEventAggregator eventAggregator, DelayedRetryExecutor delayedRetryExecutor, MoveToErrorsExecutor moveToErrorsExecutor)
         {
             this.configuration = configuration;
             this.recoverabilityPolicy = recoverabilityPolicy;
             this.eventAggregator = eventAggregator;
             this.delayedRetryExecutor = delayedRetryExecutor;
             this.moveToErrorsExecutor = moveToErrorsExecutor;
+            this.immediateRetriesAvailable = immediateRetriesAvailable;
+            this.delayedRetriesAvailable = delayedRetriesAvailable;
 
             raiseNotifications = raiseRecoverabilityNotifications;
-            delayedRetriesCapabilityAvailable = delayedRetryExecutor != null;
         }
 
         public Task<ErrorHandleResult> Invoke(ErrorContext errorContext)
         {
-            var recoveryAction = recoverabilityPolicy.Invoke(configuration, errorContext);
+            var recoveryAction = recoverabilityPolicy(configuration, errorContext);
+
+            // When we can't do immediate retries and policy did not honor MaxNumberOfRetries for ImmediateRetries
+            if (recoveryAction is ImmediateRetry && !immediateRetriesAvailable)
+            {
+                Logger.Warn("Recoverability policy requested ImmediateRetry however immediate retires are not available with current endpoint configuration. Moving message to error queeu instead.");
+                return MoveToError(errorContext);
+            }
 
             if (recoveryAction is ImmediateRetry)
             {
@@ -29,9 +37,10 @@
             }
 
             // When we can't do delayed retries, a policy customization probably didn't honor MaxNumberOfRetries for DelayedRetries
-            if (recoveryAction is DelayedRetry && !delayedRetriesCapabilityAvailable)
+            if (recoveryAction is DelayedRetry && !delayedRetriesAvailable)
             {
-                throw new Exception("Current recoverability policy requested delayed retry but delayed delivery is not supported by this endpoint. Consider enabling the timeout manager or use a transport which natively supports delayed delivery.");
+                Logger.Warn("Recoverability policy requested DelayedRetry however delayed delivery capability is not available with current endpoint configuration. Moving message to error queue instead.");
+                return MoveToError(errorContext);
             }
 
             var delayedRetryAction = recoveryAction as DelayedRetry;
@@ -97,9 +106,10 @@
         DelayedRetryExecutor delayedRetryExecutor;
         MoveToErrorsExecutor moveToErrorsExecutor;
         bool raiseNotifications;
+        bool immediateRetriesAvailable;
+        bool delayedRetriesAvailable;
 
         static ILog Logger = LogManager.GetLogger<RecoverabilityExecutor>();
         RecoverabilityConfig configuration;
-        bool delayedRetriesCapabilityAvailable;
     }
 }

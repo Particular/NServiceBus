@@ -6,12 +6,14 @@
     class RecoverabilityExecutorFactory
     {
         public RecoverabilityExecutorFactory(Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> defaultRecoverabilityPolicy, RecoverabilityConfig configuration, Func<string, DelayedRetryExecutor> delayedRetryExecutorFactory,
-            Func<string, MoveToErrorsExecutor> moveToErrorsExecutorFactory)
+            Func<string, MoveToErrorsExecutor> moveToErrorsExecutorFactory, bool immediateRetriesAvailable, bool delayedRetriesAvailable)
         {
             this.configuration = configuration;
             this.defaultRecoverabilityPolicy = defaultRecoverabilityPolicy;
             this.delayedRetryExecutorFactory = delayedRetryExecutorFactory;
             this.moveToErrorsExecutorFactory = moveToErrorsExecutorFactory;
+            this.immediateRetriesAvailable = immediateRetriesAvailable;
+            this.delayedRetriesAvailable = delayedRetriesAvailable;
         }
 
         public RecoverabilityExecutor CreateDefault(IEventAggregator eventAggregator, string localAddress)
@@ -31,6 +33,8 @@
 
             return new RecoverabilityExecutor(
                 raiseNotifications,
+                immediateRetriesAvailable,
+                delayedRetriesAvailable,
                 customRecoverabilityPolicy,
                 configuration,
                 eventAggregator,
@@ -41,6 +45,8 @@
         Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> defaultRecoverabilityPolicy;
         Func<string, DelayedRetryExecutor> delayedRetryExecutorFactory;
         Func<string, MoveToErrorsExecutor> moveToErrorsExecutorFactory;
+        readonly bool immediateRetriesAvailable;
+        readonly bool delayedRetriesAvailable;
         RecoverabilityConfig configuration;
     }
 }

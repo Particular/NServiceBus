@@ -59,24 +59,30 @@
 
                 var transactionsOn = context.Settings.GetRequiredTransactionModeForReceives() != TransportTransactionMode.None;
                 var delayedRetryConfig = GetDelayedRetryConfig(context.Settings, transactionsOn);
+                var delayedRetriesAvailable = transactionsOn
+                                              && (context.Settings.DoesTransportSupportConstraint<DelayedDeliveryConstraint>() || context.Settings.GetOrDefault<TimeoutManagerAddressConfiguration>() != null);
+
                 Func<string, DelayedRetryExecutor> delayedRetryExecutorFactory = localAddress =>
                 {
-                    if (!transactionsOn)
+                    if (delayedRetriesAvailable)
                     {
-                        return null;
+                        return new DelayedRetryExecutor(
+                            localAddress,
+                            b.Build<IDispatchMessages>(),
+                            context.Settings.DoesTransportSupportConstraint<DelayedDeliveryConstraint>()
+                                ? null
+                                : context.Settings.Get<TimeoutManagerAddressConfiguration>().TransportAddress);
                     }
-                    return new DelayedRetryExecutor(
-                        localAddress,
-                        b.Build<IDispatchMessages>(),
-                        context.Settings.DoesTransportSupportConstraint<DelayedDeliveryConstraint>() ? null : context.Settings.Get<TimeoutManagerAddressConfiguration>().TransportAddress);
+
+                    return null;
                 };
 
                 var immediateRetryConfig = GetImmediateRetryConfig(context.Settings, transactionsOn);
+                var immediateRetriesAvailable = transactionsOn;
 
                 Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> policy;
                 if (!context.Settings.TryGet(PolicyOverride, out policy))
                 {
-
                     policy = DefaultRecoverabilityPolicy.Invoke;
                 }
 
@@ -84,7 +90,10 @@
                     policy,
                     new RecoverabilityConfig(immediateRetryConfig, delayedRetryConfig),
                     delayedRetryExecutorFactory,
-                    moveToErrorsExecutorFactory);
+                    moveToErrorsExecutorFactory,
+                    immediateRetriesAvailable,
+                    delayedRetriesAvailable);
+
             }, DependencyLifecycle.SingleInstance);
 
             RaiseLegacyNotifications(context);

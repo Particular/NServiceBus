@@ -86,16 +86,35 @@
         }
 
         [Test]
-        public void When_delayed_retries_not_supported_but_policy_demands_it_should_throw()
+        public async Task When_delayed_retries_not_supported_but_policy_demands_it_should_move_to_errors()
         {
             var recoverabilityExecutor = CreateExecutor(
                 RetryPolicy.AlwaysDelay(TimeSpan.FromDays(1)),
                 delayedRetriesSupported: false);
-            var errorContext = CreateErrorContext();
+            var errorContext = CreateErrorContext(messageId: "message-id");
 
-            var exception = Assert.ThrowsAsync<Exception>(async () => await recoverabilityExecutor.Invoke(errorContext));
+            await recoverabilityExecutor.Invoke(errorContext);
 
-            Assert.That(exception.Message, Is.EqualTo("Current recoverability policy requested delayed retry but delayed delivery is not supported by this endpoint. Consider enabling the timeout manager or use a transport which natively supports delayed delivery."));
+            var failure = eventAggregator.GetNotification<MessageFaulted>();
+
+            Assert.AreEqual(1, eventAggregator.NotificationsRaised.Count);
+            Assert.AreEqual("message-id", failure.Message.MessageId);
+        }
+
+        [Test]
+        public async Task When_immediate_retries_not_supported_but_policy_demands_it_should_move_to_errors()
+        {
+            var recoverabilityExecutor = CreateExecutor(
+                RetryPolicy.AlwaysRetry(),
+                immediateRetriesSupported: false);
+            var errorContext = CreateErrorContext(messageId: "message-id");
+
+            await recoverabilityExecutor.Invoke(errorContext);
+
+            var failure = eventAggregator.GetNotification<MessageFaulted>();
+
+            Assert.AreEqual(1, eventAggregator.NotificationsRaised.Count);
+            Assert.AreEqual("message-id", failure.Message.MessageId);
         }
 
         static ErrorContext CreateErrorContext(Exception raisedException = null, string exceptionMessage = "default-message", string messageId = "default-id", int numberOfDeliveryAttempts = 1)
@@ -103,10 +122,12 @@
             return new ErrorContext(raisedException ?? new Exception(exceptionMessage), new Dictionary<string, string>(), messageId, Stream.Null, new TransportTransaction(), numberOfDeliveryAttempts);
         }
 
-        RecoverabilityExecutor CreateExecutor(Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> policy, bool delayedRetriesSupported = true, bool raiseNotifications = true)
+        RecoverabilityExecutor CreateExecutor(Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> policy, bool delayedRetriesSupported = true, bool immediateRetriesSupported = true, bool raiseNotifications = true)
         {
             return new RecoverabilityExecutor(
                 raiseNotifications,
+                immediateRetriesSupported,
+                delayedRetriesSupported,
                 policy,
                 new RecoverabilityConfig(new ImmediateConfig(), new DelayedConfig(0, TimeSpan.MinValue)),
                 eventAggregator,
