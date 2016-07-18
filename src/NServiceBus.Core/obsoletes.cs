@@ -2344,7 +2344,7 @@ namespace NServiceBus.Features
     [ObsoleteEx(
         RemoveInVersion = "7.0",
         TreatAsErrorFromVersion = "6.0",
-        Message = "FirstLevelRetries is no longer a separate feature. Please use configuration.Recoverability().Immediate.Disable() to disable immediate retries.")]
+        Message = "FirstLevelRetries is no longer a separate feature. Please use configuration.Recoverability().Immediate.NumberOfRetries(0) to disable immediate retries.")]
     public class FirstLevelRetries : Feature
     {
         internal FirstLevelRetries()
@@ -2362,7 +2362,7 @@ namespace NServiceBus.Features
     [ObsoleteEx(
         RemoveInVersion = "7.0",
         TreatAsErrorFromVersion = "6.0",
-        Message = "SecondLevelRetries is no longer a separate feature. Please use configureation.Delayed.Disable() to delayed retries.")]
+        Message = "SecondLevelRetries is no longer a separate feature. Please use configuration.Delayed.NumberOfRetries(0) to disable delayed retries.")]
     public class SecondLevelRetries : Feature
     {
         internal SecondLevelRetries()

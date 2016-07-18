@@ -283,7 +283,6 @@ namespace NServiceBus
     }
     public class DelayedRetriesSettings : NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings
     {
-        public void Disable() { }
         public NServiceBus.DelayedRetriesSettings NumberOfRetries(int numberOfRetries) { }
         public NServiceBus.DelayedRetriesSettings TimeIncrease(System.TimeSpan timeIncrease) { }
     }
@@ -664,7 +663,6 @@ namespace NServiceBus
     }
     public class ImmediateRetriesSettings : NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings
     {
-        public void Disable() { }
         public void NumberOfRetries(int numberOfRetries) { }
     }
     public sealed class ImmediateRetry : NServiceBus.RecoverabilityAction { }
@@ -1728,8 +1726,8 @@ namespace NServiceBus.Features
         Deactivated = 3,
     }
     [System.ObsoleteAttribute("FirstLevelRetries is no longer a separate feature. Please use configuration.Recov" +
-        "erability().Immediate.Disable() to disable immediate retries. Will be removed in" +
-        " version 7.0.0.", true)]
+        "erability().Immediate.NumberOfRetries(0) to disable immediate retries. Will be r" +
+        "emoved in version 7.0.0.", true)]
     public class FirstLevelRetries : NServiceBus.Features.Feature
     {
         protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
@@ -1778,8 +1776,9 @@ namespace NServiceBus.Features
     {
         protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
     }
-    [System.ObsoleteAttribute("SecondLevelRetries is no longer a separate feature. Please use configureation.Del" +
-        "ayed.Disable() to delayed retries. Will be removed in version 7.0.0.", true)]
+    [System.ObsoleteAttribute("SecondLevelRetries is no longer a separate feature. Please use configuration.Dela" +
+        "yed.NumberOfRetries(0) to disable delayed retries. Will be removed in version 7." +
+        "0.0.", true)]
     public class SecondLevelRetries : NServiceBus.Features.Feature
     {
         protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }

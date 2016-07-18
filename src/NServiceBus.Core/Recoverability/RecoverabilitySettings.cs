@@ -153,14 +153,6 @@ namespace NServiceBus
 
             Settings.Set(Recoverability.FlrNumberOfRetries, numberOfRetries);
         }
-
-        /// <summary>
-        /// Configures NServiceBus to not retry failed messages using the first level retry mechanism.
-        /// </summary>
-        public void Disable()
-        {
-            Settings.Set(Recoverability.FlrNumberOfRetries, 0);
-        }
     }
 
     /// <summary>
@@ -194,14 +186,6 @@ namespace NServiceBus
             Settings.Set(Recoverability.SlrTimeIncrease, timeIncrease);
 
             return this;
-        }
-
-        /// <summary>
-        /// Configures NServiceBus to not retry failed messages using the second level retry mechanism.
-        /// </summary>
-        public void Disable()
-        {
-            Settings.Set(Recoverability.SlrNumberOfRetries, 0);
         }
     }
 

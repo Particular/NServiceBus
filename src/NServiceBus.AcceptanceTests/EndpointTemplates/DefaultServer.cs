@@ -38,8 +38,8 @@
 
             configuration.DisableFeature<TimeoutManager>();
             configuration.Recoverability()
-                .Delayed(delayed => delayed.Disable())
-                .Immediate(immediate => immediate.Disable());
+                .Delayed(delayed => delayed.NumberOfRetries(0))
+                .Immediate(immediate => immediate.NumberOfRetries(0));
 
             await configuration.DefineTransport(settings, endpointConfiguration.EndpointName).ConfigureAwait(false);
 
