@@ -109,7 +109,7 @@
 
         static RecoverabilityAction RecoverabilityPolicy(RecoverabilityConfig config, ErrorContext errorContext)
         {
-            if (errorContext.NumberOfImmediateDeliveryAttempts <= MaxNumberOfFailedRetries)
+            if (errorContext.NumberOfFailedImmediateDeliveryAttempts <= MaxNumberOfFailedRetries)
             {
                 return RecoverabilityAction.ImmediateRetry();
             }

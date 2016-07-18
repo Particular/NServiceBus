@@ -25,10 +25,10 @@
             Assert.That(context.ErrorContexts.Count, Is.EqualTo(2), "because the custom policy should have been invoked twice");
             Assert.That(context.ErrorContexts[0].Message, Is.Not.Null);
             Assert.That(context.ErrorContexts[0].Exception, Is.TypeOf<SimulatedException>());
-            Assert.That(context.ErrorContexts[0].NumberOfDelayedDeliveryAttempts, Is.EqualTo(1));
+            Assert.That(context.ErrorContexts[0].NumberOfFailedDelayedDeliveryAttempts, Is.EqualTo(0));
             Assert.That(context.ErrorContexts[1].Message, Is.Not.Null);
             Assert.That(context.ErrorContexts[1].Exception, Is.TypeOf<SimulatedException>());
-            Assert.That(context.ErrorContexts[1].NumberOfDelayedDeliveryAttempts, Is.EqualTo(2));
+            Assert.That(context.ErrorContexts[1].NumberOfFailedDelayedDeliveryAttempts, Is.EqualTo(1));
         }
 
         class Context : ScenarioContext
@@ -50,7 +50,7 @@
                         {
                             testContext.ErrorContexts.Add(errorContext);
 
-                            if (errorContext.NumberOfDelayedDeliveryAttempts >= 2)
+                            if (errorContext.NumberOfFailedDelayedDeliveryAttempts >= 1)
                             {
                                 return RecoverabilityAction.MoveToError();
                             }

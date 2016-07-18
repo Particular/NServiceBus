@@ -45,9 +45,12 @@ namespace NServiceBus.AcceptanceTests.Recoverability.Retries
 
             RecoverabilityAction RetryPolicy(RecoverabilityConfig config, ErrorContext context)
             {
-                return context.NumberOfDelayedDeliveryAttempts == 1
-                    ? (RecoverabilityAction) RecoverabilityAction.DelayedRetry(TimeSpan.FromMilliseconds(10))
-                    : RecoverabilityAction.MoveToError();
+                if (context.NumberOfFailedDelayedDeliveryAttempts == 0)
+                {
+                    return RecoverabilityAction.DelayedRetry(TimeSpan.FromMilliseconds(10));
+                }
+
+                return RecoverabilityAction.MoveToError();
             }
 
             class MessageToBeRetriedHandler : IHandleMessages<MessageToBeRetried>

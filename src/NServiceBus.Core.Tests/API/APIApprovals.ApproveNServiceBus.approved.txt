@@ -2986,11 +2986,11 @@ namespace NServiceBus.Transport
     }
     public class ErrorContext
     {
-        public ErrorContext(System.Exception exception, System.Collections.Generic.Dictionary<string, string> headers, string transportMessageId, System.IO.Stream bodyStream, NServiceBus.Transport.TransportTransaction transportTransaction, int numberOfImmediateDeliveryAttempts) { }
+        public ErrorContext(System.Exception exception, System.Collections.Generic.Dictionary<string, string> headers, string transportMessageId, System.IO.Stream bodyStream, NServiceBus.Transport.TransportTransaction transportTransaction, int numberOfFailedImmediateDeliveryAttempts) { }
         public System.Exception Exception { get; }
         public NServiceBus.Transport.IncomingMessage Message { get; }
-        public int NumberOfDelayedDeliveryAttempts { get; }
-        public int NumberOfImmediateDeliveryAttempts { get; }
+        public int NumberOfFailedDelayedDeliveryAttempts { get; }
+        public int NumberOfFailedImmediateDeliveryAttempts { get; }
         public NServiceBus.Transport.TransportTransaction TransportTransaction { get; }
     }
     public enum ErrorHandleResult

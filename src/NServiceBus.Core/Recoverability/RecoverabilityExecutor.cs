@@ -56,7 +56,7 @@
 
             if (raiseNotifications)
             {
-                await eventAggregator.Raise(new MessageToBeRetried(errorContext.NumberOfImmediateDeliveryAttempts - 1, TimeSpan.Zero, message, errorContext.Exception)).ConfigureAwait(false);
+                await eventAggregator.Raise(new MessageToBeRetried(errorContext.NumberOfFailedImmediateDeliveryAttempts - 1, TimeSpan.Zero, message, errorContext.Exception)).ConfigureAwait(false);
             }
 
             return ErrorHandleResult.RetryRequired;
