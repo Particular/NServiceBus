@@ -54,7 +54,8 @@
             var salesInstancess = await instances.FindInstances("Sales");
 
             var singleInstance = salesInstancess.Single();
-            Assert.IsEmpty(singleInstance.Properties);
+            Assert.AreEqual("Sales", singleInstance.Endpoint);
+            Assert.AreEqual("Sales", singleInstance.InstanceName);
         }
 
         [Test]

@@ -51,7 +51,7 @@ namespace NServiceBus.Core.Tests.Routing
             publishers.Add(baseType, "addressB");
             publishers.Add(inheritedType, "addressB");
             var knownEndpoints = new EndpointInstances();
-            knownEndpoints.AddDynamic(e => Task.FromResult(EnumerableEx.Single(new EndpointInstance(e, null))));
+            knownEndpoints.AddDynamic(e => Task.FromResult(EnumerableEx.Single(new EndpointInstance(e))));
             var physicalAddresses = new TransportAddresses(address => null);
             physicalAddresses.AddRule(i => i.EndpointInstance.Endpoint);
             var router = new SubscriptionRouter(publishers, knownEndpoints, physicalAddresses);
@@ -70,7 +70,7 @@ namespace NServiceBus.Core.Tests.Routing
             publishers.AddDynamic(t => PublisherAddress.CreateFromEndpointName(address));
 
             var knownEndpoints = new EndpointInstances();
-            knownEndpoints.AddDynamic(e => Task.FromResult(EnumerableEx.Single(new EndpointInstance(e, null))));
+            knownEndpoints.AddDynamic(e => Task.FromResult(EnumerableEx.Single(new EndpointInstance(e))));
             var physicalAddresses = new TransportAddresses(a => null);
             physicalAddresses.AddRule(i => i.EndpointInstance.Endpoint);
             var router = new SubscriptionRouter(publishers, knownEndpoints, physicalAddresses);

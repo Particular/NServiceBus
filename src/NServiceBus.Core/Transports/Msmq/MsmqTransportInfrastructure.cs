@@ -50,12 +50,6 @@ namespace NServiceBus
 
         public override string ToTransportAddress(LogicalAddress logicalAddress)
         {
-            string machine;
-            if (!logicalAddress.EndpointInstance.Properties.TryGetValue("Machine", out machine))
-            {
-                machine = RuntimeEnvironment.MachineName;
-            }
-
             var queue = new StringBuilder(logicalAddress.EndpointInstance.InstanceName);
             if (logicalAddress.Qualifier != null)
             {
@@ -67,7 +61,7 @@ namespace NServiceBus
                 return queue.ToString();
             }
 
-            return queue + "@" + machine;
+            return queue + "@" + RuntimeEnvironment.MachineName;
         }
 
         public override string MakeCanonicalForm(string transportAddress)

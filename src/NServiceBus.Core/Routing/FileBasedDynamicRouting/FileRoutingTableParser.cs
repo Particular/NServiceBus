@@ -1,7 +1,6 @@
 namespace NServiceBus
 {
     using System.Collections.Generic;
-    using System.Linq;
     using System.Xml;
     using System.Xml.Linq;
     using System.Xml.Schema;
@@ -34,13 +33,24 @@ namespace NServiceBus
 
                 foreach (var i in e.Descendants("instance"))
                 {
+                    var instanceAddress = endpointName;
+
                     var discriminatorAttribute = i.Attribute("discriminator");
                     var discriminator = discriminatorAttribute?.Value;
+                    if (!string.IsNullOrWhiteSpace(discriminator))
+                    {
+                        instanceAddress += $"-{discriminator}";
+                    }
 
-                    var properties = i.Attributes().Where(a => a.Name != "discriminator");
-                    var propertyDictionary = properties.ToDictionary(a => a.Name.LocalName, a => a.Value);
 
-                    instances.Add(new EndpointInstance(endpointName, $"{endpointName}-{discriminator}", propertyDictionary));
+                    var machineAttribute = i.Attribute("machine");
+                    var machine = machineAttribute?.Value;
+                    if (!string.IsNullOrWhiteSpace(machine))
+                    {
+                        instanceAddress += $"@{machine}";
+                    }
+
+                    instances.Add(new EndpointInstance(endpointName, instanceAddress));
                 }
             }
 

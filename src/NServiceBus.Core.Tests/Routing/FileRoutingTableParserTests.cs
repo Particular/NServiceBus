@@ -8,17 +8,19 @@
     [TestFixture]
     public class FileRoutingTableParserTests
     {
+        //TODO: add test for machine name
+
         [Test]
         public void It_can_parse_valid_file()
         {
             const string xml = @"
 <endpoints>
     <endpoint name=""A"">
-        <instance discriminator=""D1"" prop1=""V1"" prop2=""V2""/>
-        <instance prop3=""V3"" prop4=""V4""/>
+        <instance discriminator=""D1""/>
+        <instance />
     </endpoint>
     <endpoint name=""B"">
-        <instance discriminator=""D2"" prop5=""V5"" prop6=""V6""/>
+        <instance discriminator=""D2""/>
     </endpoint>
 </endpoints>
 ";
@@ -27,9 +29,9 @@
 
             CollectionAssert.AreEqual(new[]
             {
-                new EndpointInstance("A", "A-D1").SetProperty("prop1", "V1").SetProperty("prop2","V2"),
-                new EndpointInstance("A", "A").SetProperty("prop3", "V3").SetProperty("prop4", "V4"),
-                new EndpointInstance("B", "B-D2").SetProperty("prop5", "V5").SetProperty("prop6", "V6")
+                new EndpointInstance("A", "A-D1"),
+                new EndpointInstance("A", "A"),
+                new EndpointInstance("B", "B-D2")
             }, result);
         }
 

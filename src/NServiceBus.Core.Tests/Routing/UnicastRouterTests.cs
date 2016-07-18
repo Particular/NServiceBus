@@ -24,7 +24,7 @@
             var sales = "Sales";
             metadataRegistry.RegisterMessageType(typeof(Command));
             routingTable.RouteToEndpoint(typeof(Command), sales);
-            endpointInstances.Add(new EndpointInstance(sales, null));
+            endpointInstances.Add(new EndpointInstance(sales));
             transportAddresses.AddRule(i => i.ToString());
 
             var routes = router.Route(typeof(Command), new DistributionPolicy(), new ContextBag()).Result.ToArray();
