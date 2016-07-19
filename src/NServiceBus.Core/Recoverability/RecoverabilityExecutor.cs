@@ -55,7 +55,8 @@
                 return MoveToError(errorContext, moveToError.ErrorQueue);
             }
 
-            throw new Exception("Unknown recoverability action returned from RecoverabilityPolicy");
+            Logger.Warn("Recoverability policy returned an unsupported recoverability action. Moving message to error queue instead.");
+            return MoveToError(errorContext, configuration.Failed.ErrorQueue);
         }
 
         async Task<ErrorHandleResult> RaiseImmediateRetryNotifications(ErrorContext errorContext)

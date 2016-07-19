@@ -117,6 +117,21 @@
             Assert.AreEqual("message-id", failure.Message.MessageId);
         }
 
+        [Test]
+        public async Task When_unsupported_action_returned_should_move_to_errors()
+        {
+            var recoverabilityExecutor = CreateExecutor(
+                RetryPolicy.Unsupported());
+            var errorContext = CreateErrorContext(messageId: "message-id");
+
+            await recoverabilityExecutor.Invoke(errorContext);
+
+            var failure = eventAggregator.GetNotification<MessageFaulted>();
+
+            Assert.AreEqual(1, eventAggregator.NotificationsRaised.Count);
+            Assert.AreEqual("message-id", failure.Message.MessageId);
+        }
+
         static ErrorContext CreateErrorContext(Exception raisedException = null, string exceptionMessage = "default-message", string messageId = "default-id", int numberOfDeliveryAttempts = 1)
         {
             return new ErrorContext(raisedException ?? new Exception(exceptionMessage), new Dictionary<string, string>(), messageId, Stream.Null, new TransportTransaction(), numberOfDeliveryAttempts);
@@ -182,7 +197,19 @@
                 return new RetryPolicy(actions).Invoke;
             }
 
+            public static Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> Unsupported()
+            {
+                return new RetryPolicy(new[]
+                {
+                    new UnsupportedAction()
+                }).Invoke;
+            }
+
             Queue<RecoverabilityAction> actions;
+        }
+
+        class UnsupportedAction : RecoverabilityAction
+        {
         }
 
         class FakeDispatcher : IDispatchMessages
