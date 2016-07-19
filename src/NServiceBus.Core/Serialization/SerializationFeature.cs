@@ -42,16 +42,7 @@
             var additionalDeserializers = additionalDeserializerDefinitions.Select(d => CreateMessageSerializer(d, mapper, context)).ToArray();
             var resolver = new MessageDeserializerResolver(defaultSerializer, additionalDeserializers);
 
-            var knownMessages = context.Settings.GetAvailableTypes()
-                .Where(context.Settings.Get<Conventions>().IsMessageType)
-                .ToList();
-
-            var messageMetadataRegistry = new MessageMetadataRegistry(context.Settings.Get<Conventions>());
-            foreach (var msg in knownMessages)
-            {
-                messageMetadataRegistry.RegisterMessageType(msg);
-            }
-
+            var messageMetadataRegistry = settings.Get<MessageMetadataRegistry>();
             var logicalMessageFactory = new LogicalMessageFactory(messageMetadataRegistry, mapper);
             context.Pipeline.Register(new DeserializeLogicalMessagesConnector(resolver, logicalMessageFactory, messageMetadataRegistry), "Deserializes the physical message body into logical messages");
             context.Pipeline.Register(new SerializeMessageConnector(defaultSerializer, messageMetadataRegistry), "Converts a logical message into a physical message");

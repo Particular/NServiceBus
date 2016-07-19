@@ -53,6 +53,8 @@
     <Compile Include="DefaultServer.cs" />
     <Compile Include="FakePromotableResourceManager.cs" />
     <Compile Include="NServiceBusAcceptanceTest.cs" />
+    <Compile Include="Routing\When_subscribing_to_base_of_polymorphic_event.cs" />
+    <Compile Include="Routing\When_subscribing_to_child_of_polymorphic_event.cs" />
     <Compile Include="SubscriptionBehavior.cs" />
     <Compile Include="SubscriptionBehaviorExtensions.cs" />
     <Compile Include="SubscriptionEventArgs.cs" />
