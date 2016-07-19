@@ -27,12 +27,12 @@
                     context.Settings.EndpointName(),
                     new[]
                     {
-                        new FailedMessage(m.Message.MessageId, m.Message.Headers, m.Message.Body, m.Exception)
+                        new FailedMessage(m.Message.MessageId, m.Message.Headers, m.Message.Body, m.Exception, m.ErrorQueue)
                     },
                     (i, failed) =>
                     {
                         var result = failed.ToList();
-                        result.Add(new FailedMessage(m.Message.MessageId, m.Message.Headers, m.Message.Body, m.Exception));
+                        result.Add(new FailedMessage(m.Message.MessageId, m.Message.Headers, m.Message.Body, m.Exception, m.ErrorQueue));
                         return result;
                     });
 

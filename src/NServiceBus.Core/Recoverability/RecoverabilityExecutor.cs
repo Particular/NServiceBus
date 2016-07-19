@@ -83,7 +83,7 @@
 
             if (raiseNotifications)
             {
-                await eventAggregator.Raise(new MessageFaulted(message, errorContext.Exception)).ConfigureAwait(false);
+                await eventAggregator.Raise(new MessageFaulted(message, errorContext.Exception, errorQueue)).ConfigureAwait(false);
             }
             return ErrorHandleResult.Handled;
         }

@@ -132,6 +132,20 @@
             Assert.AreEqual("message-id", failure.Message.MessageId);
         }
 
+        public async Task When_moving_to_custom_error_queue_custom_error_queue_address_should_be_set_on_notification()
+        {
+            var customErrorQueueAddress = "custom-error-queue";
+            var recoverabilityExecutor = CreateExecutor(RetryPolicy.AlwaysMoveToErrors(customErrorQueueAddress));
+            var errorContext = CreateErrorContext();
+
+            await recoverabilityExecutor.Invoke(errorContext);
+
+            var failure = eventAggregator.GetNotification<MessageFaulted>();
+
+            Assert.AreEqual(1, eventAggregator.NotificationsRaised.Count);
+            Assert.AreEqual(customErrorQueueAddress, failure.ErrorQueue);
+        }
+
         static ErrorContext CreateErrorContext(Exception raisedException = null, string exceptionMessage = "default-message", string messageId = "default-id", int numberOfDeliveryAttempts = 1)
         {
             return new ErrorContext(raisedException ?? new Exception(exceptionMessage), new Dictionary<string, string>(), messageId, Stream.Null, new TransportTransaction(), numberOfDeliveryAttempts);
@@ -176,11 +190,11 @@
                 }).Invoke;
             }
 
-            public static Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> AlwaysMoveToErrors()
+            public static Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> AlwaysMoveToErrors(string errorQueueAddress = "errorQueue")
             {
                 return new RetryPolicy(new[]
                 {
-                    RecoverabilityAction.MoveToError("errorQueue")
+                    RecoverabilityAction.MoveToError(errorQueueAddress)
                 }).Invoke;
             }
 

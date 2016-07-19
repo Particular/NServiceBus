@@ -1616,8 +1616,13 @@ namespace NServiceBus.Faults
     }
     public struct FailedMessage
     {
+        [System.ObsoleteAttribute("Use `FailedMessage(string messageId, Dictionary<string, string> headers, byte[] b" +
+            "ody, Exception exception, string errorQueue)` instead. The member currently thro" +
+            "ws a NotImplementedException. Will be removed in version 7.0.0.", true)]
         public FailedMessage(string messageId, System.Collections.Generic.Dictionary<string, string> headers, byte[] body, System.Exception exception) { }
+        public FailedMessage(string messageId, System.Collections.Generic.Dictionary<string, string> headers, byte[] body, System.Exception exception, string errorQueue) { }
         public byte[] Body { get; }
+        public string ErrorQueue { get; }
         public System.Exception Exception { get; }
         public System.Collections.Generic.Dictionary<string, string> Headers { get; }
         public string MessageId { get; }

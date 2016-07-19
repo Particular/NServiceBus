@@ -5,8 +5,11 @@ namespace NServiceBus
 
     class MessageFaulted : MessageProcessingFailed
     {
-        public MessageFaulted(IncomingMessage message, Exception exception) : base(message, exception)
+        public string ErrorQueue { get; }
+
+        public MessageFaulted(IncomingMessage message, Exception exception, string errorQueue) : base(message, exception)
         {
+            ErrorQueue = errorQueue;
         }
     }
 }

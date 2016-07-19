@@ -37,7 +37,6 @@
             var errorQueue = context.Settings.ErrorQueueAddress();
             context.Settings.Get<QueueBindings>().BindSending(errorQueue);
 
-
             context.Container.ConfigureComponent(b =>
             {
                 Func<string, MoveToErrorsExecutor> moveToErrorsExecutorFactory = localAddress =>
@@ -159,7 +158,7 @@
 
             notifications.Subscribe<MessageFaulted>(e =>
             {
-                legacyNotifications.Errors.InvokeMessageHasBeenSentToErrorQueue(e.Message, e.Exception);
+                legacyNotifications.Errors.InvokeMessageHasBeenSentToErrorQueue(e.Message, e.Exception, e.ErrorQueue);
                 return TaskEx.CompletedTask;
             });
         }
