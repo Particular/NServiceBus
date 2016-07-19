@@ -6,8 +6,9 @@ namespace NServiceBus.AcceptanceTests.Recoverability.Retries
     using EndpointTemplates;
     using Features;
     using NUnit.Framework;
+    using Transport;
 
-    public class When_performing_slr_with_non_min_policy : NServiceBusAcceptanceTest
+    public class When_custom_policy_does_single_delayed_retry_before_move_to_error : NServiceBusAcceptanceTest
     {
         [Test]
         public async Task Should_execute_twice()
@@ -36,22 +37,21 @@ namespace NServiceBus.AcceptanceTests.Recoverability.Retries
                 {
                     var scenarioContext = (Context) context.ScenarioContext;
                     configure.EnableFeature<TimeoutManager>();
-                    configure.SecondLevelRetries().CustomRetryPolicy(RetryPolicy);
+                    configure.Recoverability()
+                        .CustomPolicy(RetryPolicy);
                     configure.Notifications.Errors.MessageSentToErrorQueue += (sender, message) => { scenarioContext.MessageSentToErrorQueue = true; };
                 });
             }
 
-            TimeSpan RetryPolicy(SecondLevelRetryContext slrRetryContext)
+            RecoverabilityAction RetryPolicy(RecoverabilityConfig config, ErrorContext context)
             {
-                if (count == 0)
+                if (context.DelayedDeliveriesPerformed == 0)
                 {
-                    count++;
-                    return TimeSpan.FromMilliseconds(10);
+                    return RecoverabilityAction.DelayedRetry(TimeSpan.FromMilliseconds(10));
                 }
-                return TimeSpan.MinValue;
-            }
 
-            int count;
+                return RecoverabilityAction.MoveToError(config.Failed.ErrorQueue);
+            }
 
             class MessageToBeRetriedHandler : IHandleMessages<MessageToBeRetried>
             {

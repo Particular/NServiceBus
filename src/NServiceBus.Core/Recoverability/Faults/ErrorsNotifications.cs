@@ -24,12 +24,12 @@ namespace NServiceBus.Faults
         /// </summary>
         public event EventHandler<SecondLevelRetry> MessageHasBeenSentToSecondLevelRetries;
 
-        internal void InvokeMessageHasBeenSentToErrorQueue(IncomingMessage message, Exception exception)
+        internal void InvokeMessageHasBeenSentToErrorQueue(IncomingMessage message, Exception exception, string errorQueue)
         {
             var failedMessage = new FailedMessage(
                 message.MessageId,
                 new Dictionary<string, string>(message.Headers),
-                CopyOfBody(message.Body), exception);
+                CopyOfBody(message.Body), exception, errorQueue);
             MessageSentToErrorQueue?.Invoke(this, failedMessage);
         }
 

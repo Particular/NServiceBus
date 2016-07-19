@@ -21,7 +21,7 @@
 
             Prerequisite(context => !context.Settings.GetOrDefault<bool>("Endpoint.SendOnly"), "Send only endpoints can't use the timeoutmanager since it requires receive capabilities");
             Prerequisite(context => !HasAlternateTimeoutManagerBeenConfigured(context.Settings), "A user configured timeoutmanager address has been found and this endpoint will send timeouts to that endpoint");
-            Prerequisite(c => !c.DoesTransportSupportConstraint<DelayedDeliveryConstraint>(), "The selected transport supports delayed delivery natively");
+            Prerequisite(c => !c.Settings.DoesTransportSupportConstraint<DelayedDeliveryConstraint>(), "The selected transport supports delayed delivery natively");
         }
 
         /// <summary>
@@ -67,7 +67,7 @@
             var satelliteLogicalAddress = new LogicalAddress(instanceName, "TimeoutsDispatcher");
             var satelliteAddress = context.Settings.GetTransportAddress(satelliteLogicalAddress);
 
-            context.AddSatelliteReceiver("Timeout Dispatcher Processor", satelliteAddress, requiredTransactionSupport, PushRuntimeSettings.Default, new TimeoutManagerRecoverabilityPolicy(),
+            context.AddSatelliteReceiver("Timeout Dispatcher Processor", satelliteAddress, requiredTransactionSupport, PushRuntimeSettings.Default, RecoverabilityPolicy,
                 (builder, pushContext) =>
                 {
                     var dispatchBehavior = new DispatchTimeoutBehavior(
@@ -87,7 +87,7 @@
             var satelliteLogicalAddress = new LogicalAddress(instanceName, "Timeouts");
             var satelliteAddress = context.Settings.GetTransportAddress(satelliteLogicalAddress);
 
-            context.AddSatelliteReceiver("Timeout Message Processor", satelliteAddress, requiredTransactionSupport, PushRuntimeSettings.Default, new TimeoutManagerRecoverabilityPolicy(),
+            context.AddSatelliteReceiver("Timeout Message Processor", satelliteAddress, requiredTransactionSupport, PushRuntimeSettings.Default, RecoverabilityPolicy,
                 (builder, pushContext) =>
                 {
                     var storeBehavior = new StoreTimeoutBehavior(
@@ -107,6 +107,17 @@
             return settings.Get<TimeoutManagerAddressConfiguration>().TransportAddress != null;
         }
 
+        static RecoverabilityAction RecoverabilityPolicy(RecoverabilityConfig config, ErrorContext errorContext)
+        {
+            if (errorContext.ImmediateProcessingFailures <= MaxNumberOfImmediateRetries)
+            {
+                return RecoverabilityAction.ImmediateRetry();
+            }
+
+            return RecoverabilityAction.MoveToError(config.Failed.ErrorQueue);
+        }
+
+        const int MaxNumberOfImmediateRetries = 4;
         TimeSpan TimeToWaitBeforeTriggeringCriticalError = TimeSpan.FromMinutes(2);
     }
 }

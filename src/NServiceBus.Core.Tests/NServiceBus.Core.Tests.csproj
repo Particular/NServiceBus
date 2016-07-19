@@ -214,7 +214,6 @@
     <Compile Include="Msmq\ConnectionStringParserTests.cs" />
     <Compile Include="Sagas\SagaModelTests.cs" />
     <Compile Include="Sagas\SagaMetadataCreationTests.cs" />
-    <Compile Include="Recoverability\DefaultSecondLevelRetryPolicyTests.cs" />
     <Compile Include="Serializers\SerializeMessagesBehaviorTests.cs" />
     <Compile Include="Serializers\XML\SerializingNullableTypesTests.cs" />
     <Compile Include="Settings\SettingsHolderTests.cs" />

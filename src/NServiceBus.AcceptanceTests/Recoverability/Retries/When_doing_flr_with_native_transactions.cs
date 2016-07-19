@@ -27,8 +27,6 @@
                     Assert.AreEqual(5 + 1, c.NumberOfTimesInvoked, "The FLR should by default retry 5 times");
                     Assert.AreEqual(5, c.Logs.Count(l => l.Message
                         .StartsWith($"First Level Retry is going to retry message '{c.PhysicalMessageId}' because of an exception:")));
-                    Assert.AreEqual(1, c.Logs.Count(l => l.Message
-                        .StartsWith($"Giving up First Level Retries for message '{c.PhysicalMessageId}'.")));
                 })
                 .Run();
         }
@@ -51,7 +49,7 @@
                 EndpointSetup<DefaultServer>((config, context) =>
                 {
                     var scenarioContext = (Context) context.ScenarioContext;
-                    config.FirstLevelRetries().NumberOfRetries(5);
+                    config.Recoverability().Immediate(immediate => immediate.NumberOfRetries(5));
                     config.Notifications.Errors.MessageSentToErrorQueue += (sender, message) => scenarioContext.ForwardedToErrorQueue = true;
                     config.UseTransport(context.GetTransportType())
                         .Transactions(TransportTransactionMode.ReceiveOnly);

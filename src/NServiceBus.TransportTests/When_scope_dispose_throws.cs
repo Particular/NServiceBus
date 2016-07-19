@@ -37,7 +37,7 @@
 
             // since some transports doesn't have native retry counters we can't expect the attempts to be fully consistent since if
             // dispose throws the message might be picked up before the counter is incremented
-            Assert.LessOrEqual(1, errorContext.NumberOfDeliveryAttempts);
+            Assert.LessOrEqual(1, errorContext.ImmediateProcessingFailures);
         }
     }
 

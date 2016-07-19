@@ -24,8 +24,6 @@ namespace NServiceBus.AcceptanceTests.Recoverability.Retries
             Assert.IsTrue(context.ForwardedToErrorQueue);
             Assert.AreEqual(3, context.Logs.Count(l => l.Message
                 .StartsWith($"Second Level Retry will reschedule message '{context.PhysicalMessageId}'")));
-            Assert.AreEqual(1, context.Logs.Count(l => l.Message
-                .StartsWith($"Giving up Second Level Retries for message '{context.PhysicalMessageId}'.")));
         }
 
         class Context : ScenarioContext
@@ -44,7 +42,7 @@ namespace NServiceBus.AcceptanceTests.Recoverability.Retries
                     configure.EnableFeature<TimeoutManager>();
                     configure.Notifications.Errors.MessageSentToErrorQueue += (sender, message) => { scenarioContext.ForwardedToErrorQueue = true; };
                 })
-                    .WithConfig<SecondLevelRetriesConfig>(c => c.TimeIncrease = TimeSpan.FromMilliseconds(1));
+                .WithConfig<SecondLevelRetriesConfig>(c => c.TimeIncrease = TimeSpan.FromMilliseconds(1));
             }
 
             class MessageToBeRetriedHandler : IHandleMessages<MessageToBeRetried>

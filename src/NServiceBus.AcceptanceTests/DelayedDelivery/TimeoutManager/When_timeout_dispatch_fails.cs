@@ -40,9 +40,7 @@
                 .Run();
         }
 
-        const string ErrorQueueForTimeoutErrors = "timeout_dispatch_errors";
         static readonly TimeSpan VeryLongTimeSpan = TimeSpan.FromMinutes(10);
-
         public class Context : ScenarioContext
         {
             public bool FailedTimeoutMovedToError { get; set; }

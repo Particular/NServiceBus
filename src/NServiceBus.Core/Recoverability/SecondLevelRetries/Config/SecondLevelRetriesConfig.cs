@@ -3,6 +3,7 @@ namespace NServiceBus.Config
     using System;
     using System.Configuration;
 
+    /// TODO: Should we deprecate this?
     /// <summary>
     /// Configuration options for the SLR feature.
     /// </summary>
@@ -14,8 +15,8 @@ namespace NServiceBus.Config
         public SecondLevelRetriesConfig()
         {
             Properties.Add(new ConfigurationProperty("Enabled", typeof(bool), true));
-            Properties.Add(new ConfigurationProperty("TimeIncrease", typeof(TimeSpan), DefaultSecondLevelRetryPolicy.DefaultTimeIncrease, null, new TimeSpanValidator(TimeSpan.Zero, TimeSpan.MaxValue), ConfigurationPropertyOptions.None));
-            Properties.Add(new ConfigurationProperty("NumberOfRetries", typeof(int), DefaultSecondLevelRetryPolicy.DefaultNumberOfRetries, null, new IntegerValidator(0, int.MaxValue), ConfigurationPropertyOptions.None));
+            Properties.Add(new ConfigurationProperty("TimeIncrease", typeof(TimeSpan), Recoverability.DefaultTimeIncrease, null, new TimeSpanValidator(TimeSpan.Zero, TimeSpan.MaxValue), ConfigurationPropertyOptions.None));
+            Properties.Add(new ConfigurationProperty("NumberOfRetries", typeof(int), Recoverability.DefaultNumberOfRetries, null, new IntegerValidator(0, int.MaxValue), ConfigurationPropertyOptions.None));
         }
 
         /// <summary>

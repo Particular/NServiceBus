@@ -7,42 +7,40 @@
 
     class RecoverabilityExecutor
     {
-        public RecoverabilityExecutor(IRecoverabilityPolicy recoverabilityPolicy, IEventAggregator eventAggregator, DelayedRetryExecutor delayedRetryExecutor, MoveToErrorsExecutor moveToErrorsExecutor, bool transactionsOn)
+        public RecoverabilityExecutor(bool raiseRecoverabilityNotifications, bool immediateRetriesAvailable, bool delayedRetriesAvailable, Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> recoverabilityPolicy, RecoverabilityConfig configuration, IEventAggregator eventAggregator, DelayedRetryExecutor delayedRetryExecutor, MoveToErrorsExecutor moveToErrorsExecutor)
         {
+            this.configuration = configuration;
             this.recoverabilityPolicy = recoverabilityPolicy;
             this.eventAggregator = eventAggregator;
             this.delayedRetryExecutor = delayedRetryExecutor;
             this.moveToErrorsExecutor = moveToErrorsExecutor;
-            this.transactionsOn = transactionsOn;
+            this.immediateRetriesAvailable = immediateRetriesAvailable;
+            this.delayedRetriesAvailable = delayedRetriesAvailable;
 
-            raiseNotifications = recoverabilityPolicy.RaiseRecoverabilityNotifications;
-            delayedRetriesEnabled = delayedRetryExecutor != null;
+            raiseNotifications = raiseRecoverabilityNotifications;
         }
 
         public Task<ErrorHandleResult> Invoke(ErrorContext errorContext)
         {
-            if (transactionsOn == false || errorContext.Exception is MessageDeserializationException)
+            var recoveryAction = recoverabilityPolicy(configuration, errorContext);
+
+            // When we can't do immediate retries and policy did not honor MaxNumberOfRetries for ImmediateRetries
+            if (recoveryAction is ImmediateRetry && !immediateRetriesAvailable)
             {
-                return MoveToError(errorContext);
+                Logger.Warn("Recoverability policy requested ImmediateRetry however immediate retires are not available with current endpoint configuration. Moving message to error queue instead.");
+                return MoveToError(errorContext, configuration.Failed.ErrorQueue);
             }
-
-            return PerformRecoverabilityAction(errorContext);
-        }
-
-        Task<ErrorHandleResult> PerformRecoverabilityAction(ErrorContext errorContext)
-        {
-            var recoveryAction = recoverabilityPolicy.Invoke(errorContext);
 
             if (recoveryAction is ImmediateRetry)
             {
                 return RaiseImmediateRetryNotifications(errorContext);
             }
 
-            // When we can't do delayed retries then just fall through to error.
-            if (recoveryAction is DelayedRetry && !delayedRetriesEnabled)
+            // When we can't do delayed retries, a policy customization probably didn't honor MaxNumberOfRetries for DelayedRetries
+            if (recoveryAction is DelayedRetry && !delayedRetriesAvailable)
             {
-                Logger.Warn("Current recoverability policy requested delayed retry but delayed delivery is not supported by this endpoint. Consider enabling the timeout manager or use a transport which natively supports delayed delivery. Moving to the error queue instead.");
-                recoveryAction = RecoverabilityAction.MoveToError();
+                Logger.Warn("Recoverability policy requested DelayedRetry however delayed delivery capability is not available with current endpoint configuration. Moving message to error queue instead.");
+                return MoveToError(errorContext, configuration.Failed.ErrorQueue);
             }
 
             var delayedRetryAction = recoveryAction as DelayedRetry;
@@ -51,12 +49,14 @@
                 return DeferMessage(delayedRetryAction, errorContext);
             }
 
-            if (recoveryAction is MoveToError)
+            var moveToError = recoveryAction as MoveToError;
+            if (moveToError != null)
             {
-                return MoveToError(errorContext);
+                return MoveToError(errorContext, moveToError.ErrorQueue);
             }
 
-            throw new Exception("Unknown recoverability action returned from RecoverabilityPolicy");
+            Logger.Warn("Recoverability policy returned an unsupported recoverability action. Moving message to error queue instead.");
+            return MoveToError(errorContext, configuration.Failed.ErrorQueue);
         }
 
         async Task<ErrorHandleResult> RaiseImmediateRetryNotifications(ErrorContext errorContext)
@@ -67,23 +67,23 @@
 
             if (raiseNotifications)
             {
-                await eventAggregator.Raise(new MessageToBeRetried(errorContext.NumberOfDeliveryAttempts - 1, TimeSpan.Zero, message, errorContext.Exception)).ConfigureAwait(false);
+                await eventAggregator.Raise(new MessageToBeRetried(errorContext.ImmediateProcessingFailures - 1, TimeSpan.Zero, message, errorContext.Exception)).ConfigureAwait(false);
             }
 
             return ErrorHandleResult.RetryRequired;
         }
 
-        async Task<ErrorHandleResult> MoveToError(ErrorContext errorContext)
+        async Task<ErrorHandleResult> MoveToError(ErrorContext errorContext, string errorQueue)
         {
             var message = errorContext.Message;
 
-            Logger.Error($"Moving message '{message.MessageId}' to the error queue because processing failed due to an exception:", errorContext.Exception);
+            Logger.Error($"Moving message '{message.MessageId}' to the error queue '{ errorQueue }' because processing failed due to an exception:", errorContext.Exception);
 
-            await moveToErrorsExecutor.MoveToErrorQueue(message, errorContext.Exception, errorContext.TransportTransaction).ConfigureAwait(false);
+            await moveToErrorsExecutor.MoveToErrorQueue(errorQueue, message, errorContext.Exception, errorContext.TransportTransaction).ConfigureAwait(false);
 
             if (raiseNotifications)
             {
-                await eventAggregator.Raise(new MessageFaulted(message, errorContext.Exception)).ConfigureAwait(false);
+                await eventAggregator.Raise(new MessageFaulted(message, errorContext.Exception, errorQueue)).ConfigureAwait(false);
             }
             return ErrorHandleResult.Handled;
         }
@@ -103,14 +103,15 @@
             return ErrorHandleResult.Handled;
         }
 
-        IRecoverabilityPolicy recoverabilityPolicy;
+        Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> recoverabilityPolicy;
         IEventAggregator eventAggregator;
         DelayedRetryExecutor delayedRetryExecutor;
         MoveToErrorsExecutor moveToErrorsExecutor;
-        bool transactionsOn;
         bool raiseNotifications;
-        bool delayedRetriesEnabled;
+        bool immediateRetriesAvailable;
+        bool delayedRetriesAvailable;
 
         static ILog Logger = LogManager.GetLogger<RecoverabilityExecutor>();
+        RecoverabilityConfig configuration;
     }
 }

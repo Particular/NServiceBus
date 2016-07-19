@@ -5,10 +5,9 @@ namespace NServiceBus.AcceptanceTests.Recoverability.Retries
     using AcceptanceTesting;
     using EndpointTemplates;
     using Features;
-    using NServiceBus.Config;
     using NUnit.Framework;
 
-    public class When_performing_slr_with_min_policy : NServiceBusAcceptanceTest
+    public class When_custom_policy_always_moves_to_error : NServiceBusAcceptanceTest
     {
         [Test]
         public async Task Should_execute_once()
@@ -37,15 +36,10 @@ namespace NServiceBus.AcceptanceTests.Recoverability.Retries
                 {
                     var scenarioContext = (Context) context.ScenarioContext;
                     configure.EnableFeature<TimeoutManager>();
-                    configure.SecondLevelRetries().CustomRetryPolicy(RetryPolicy);
+                    configure.Recoverability()
+                        .CustomPolicy((cfg, errorContext) => RecoverabilityAction.MoveToError(cfg.Failed.ErrorQueue));
                     configure.Notifications.Errors.MessageSentToErrorQueue += (sender, message) => { scenarioContext.MessageSentToErrorQueue = true; };
-                })
-                    .WithConfig<SecondLevelRetriesConfig>(c => c.TimeIncrease = TimeSpan.FromMilliseconds(1));
-            }
-
-            static TimeSpan RetryPolicy(SecondLevelRetryContext slrRetryContext)
-            {
-                return TimeSpan.MinValue;
+                });
             }
 
             class MessageToBeRetriedHandler : IHandleMessages<MessageToBeRetried>

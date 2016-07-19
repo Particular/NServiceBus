@@ -20,12 +20,12 @@
 
         public async Task<int> Retry(IncomingMessage message, TimeSpan delay, TransportTransaction transportTransaction)
         {
-            var currentDelayedRetriesAttempt = message.GetCurrentDelayedRetries() + 1;
-
             var outgoingMessage = new OutgoingMessage(message.MessageId, new Dictionary<string, string>(message.Headers), message.Body);
 
-            outgoingMessage.SetCurrentDelayedRetries(currentDelayedRetriesAttempt);
-            outgoingMessage.SetDelayedRetryTimestamp(DateTime.UtcNow);
+            var currentDelayedRetriesAttempt = message.GetDelayedDeliveriesPerformed() + 1;
+
+            outgoingMessage.SetCurrentDelayedDeliveries(currentDelayedRetriesAttempt);
+            outgoingMessage.SetDelayedDeliveryTimestamp(DateTime.UtcNow);
 
             UnicastAddressTag messageDestination;
             List<DeliveryConstraint> deliveryConstraints = null;

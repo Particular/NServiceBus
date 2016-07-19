@@ -29,8 +29,6 @@
                     Assert.AreEqual(maxretries + 1, c.NumberOfTimesInvoked, $"The FLR should by default retry {maxretries} times");
                     Assert.AreEqual(maxretries, c.Logs.Count(l => l.Message
                         .StartsWith($"First Level Retry is going to retry message '{c.PhysicalMessageId}' because of an exception:")));
-                    Assert.AreEqual(1, c.Logs.Count(l => l.Message
-                        .StartsWith($"Giving up First Level Retries for message '{c.PhysicalMessageId}'.")));
                 })
                 .Run();
         }
@@ -57,7 +55,7 @@
                     var scenarioContext = (Context) context.ScenarioContext;
                     b.Notifications.Errors.MessageSentToErrorQueue += (sender, message) => scenarioContext.GaveUpOnRetries = true;
                 })
-                    .WithConfig<TransportConfig>(c => c.MaxRetries = maxretries);
+                .WithConfig<TransportConfig>(c => c.MaxRetries = maxretries);
             }
 
             class MessageToBeRetriedHandler : IHandleMessages<MessageToBeRetried>

@@ -45,7 +45,7 @@
 
             if (nonDurableMessages.Any())
             {
-                if (!context.DoesTransportSupportConstraint<NonDurableDelivery>())
+                if (!context.Settings.DoesTransportSupportConstraint<NonDurableDelivery>())
                 {
                     throw new Exception("The configured transport does not support non-durable messages but some messages have been configured to be non-durable (e.g. by using the [Express] attribute). Make the messages durable, or use a transport supporting non-durable messages.");
                 }
