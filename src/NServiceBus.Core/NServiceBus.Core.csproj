@@ -125,6 +125,14 @@
     <Compile Include="Pipeline\satellitePipelineExecutor.cs" />
     <Compile Include="Pipeline\StageForkConnector.cs" />
     <Compile Include="Pipeline\ConnectorContextExtensions.cs" />
+    <Compile Include="Recoverability\DelayedConfig.cs" />
+    <Compile Include="Recoverability\Settings\DelayedRetriesSettings.cs" />
+    <Compile Include="Recoverability\FailedConfig.cs" />
+    <Compile Include="Recoverability\ImmediateConfig.cs" />
+    <Compile Include="Recoverability\Settings\ImmediateRetriesSettings.cs" />
+    <Compile Include="Recoverability\RecoverabilityConfig.cs" />
+    <Compile Include="Recoverability\Settings\RecoverabilityEndpointConfigurationExtensions.cs" />
+    <Compile Include="Recoverability\Settings\RetryFailedSettings.cs" />
     <Compile Include="Recoverability\DelayedRetriesHeaderExtensions.cs" />
     <Compile Include="Recoverability\DelayedRetry.cs" />
     <Compile Include="Recoverability\Faults\MessageProcessingFailed.cs" />
@@ -139,7 +147,7 @@
     <Compile Include="Recoverability\RecoverabilityExecutorFactory.cs" />
     <Compile Include="Recoverability\DefaultRecoverabilityPolicy.cs" />
     <Compile Include="Recoverability\DelayedRetryExecutor.cs" />
-    <Compile Include="Recoverability\RecoverabilitySettings.cs" />
+    <Compile Include="Recoverability\Settings\RecoverabilitySettings.cs" />
     <Compile Include="ReleaseDateAttribute.cs" />
     <Compile Include="Routing\IDistributionPolicy.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\IMessageDrivenSubscriptionTransport.cs" />
