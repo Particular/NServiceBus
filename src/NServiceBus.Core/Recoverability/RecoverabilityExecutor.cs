@@ -27,7 +27,7 @@
             // When we can't do immediate retries and policy did not honor MaxNumberOfRetries for ImmediateRetries
             if (recoveryAction is ImmediateRetry && !immediateRetriesAvailable)
             {
-                Logger.Warn("Recoverability policy requested ImmediateRetry however immediate retires are not available with current endpoint configuration. Moving message to error queeu instead.");
+                Logger.Warn("Recoverability policy requested ImmediateRetry however immediate retires are not available with current endpoint configuration. Moving message to error queue instead.");
                 return MoveToError(errorContext, configuration.Failed.ErrorQueue);
             }
 

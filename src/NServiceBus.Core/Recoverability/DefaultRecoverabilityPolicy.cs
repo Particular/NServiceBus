@@ -4,10 +4,11 @@ namespace NServiceBus
     using Logging;
     using Transport;
 
+
     /// <summary>
     /// The default recoverability policy.
     /// </summary>
-    public class DefaultRecoverabilityPolicy
+    public static class DefaultRecoverabilityPolicy
     {
         /// <summary>
         /// Invokes the default recovery policy.
@@ -99,6 +100,6 @@ namespace NServiceBus
             return false;
         }
 
-        static ILog Logger = LogManager.GetLogger<DefaultRecoverabilityPolicy>();
+        static ILog Logger = LogManager.GetLogger(typeof(DefaultRecoverabilityPolicy));
     }
 }

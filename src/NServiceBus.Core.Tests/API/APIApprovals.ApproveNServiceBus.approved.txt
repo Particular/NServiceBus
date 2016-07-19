@@ -264,9 +264,8 @@ namespace NServiceBus
         public static System.DateTime ToUtcDateTime(string wireFormattedString) { }
         public static string ToWireFormattedString(System.DateTime dateTime) { }
     }
-    public class DefaultRecoverabilityPolicy
+    public class static DefaultRecoverabilityPolicy
     {
-        public DefaultRecoverabilityPolicy() { }
         public static NServiceBus.RecoverabilityAction Invoke(NServiceBus.RecoverabilityConfig config, NServiceBus.Transport.ErrorContext errorContext) { }
     }
     public struct DelayedConfig

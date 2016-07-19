@@ -60,7 +60,7 @@ namespace NServiceBus.AcceptanceTests.Recoverability
         {
             public ErrorSpy()
             {
-                EndpointSetup<DefaultServer>(config => config.LimitMessageProcessingConcurrencyTo(1));
+                EndpointSetup<DefaultServer>();
             }
 
             class InitiatingMessageHandler : IHandleMessages<InitiatingMessage>

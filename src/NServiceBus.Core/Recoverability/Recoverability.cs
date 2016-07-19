@@ -99,6 +99,7 @@
             RaiseLegacyNotifications(context);
         }
 
+
         static ImmediateConfig GetImmediateRetryConfig(ReadOnlySettings settings, bool transactionsOn)
         {
             if (!transactionsOn)
