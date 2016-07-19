@@ -19,18 +19,19 @@ namespace NServiceBus.TransportTests
             var hasBeenCalled = false;
             var onErrorCalled = false;
 
-            await StartPump(context =>
-            {
-                if (hasBeenCalled)
+            await StartPump(
+                context =>
                 {
-                    messageRedelivered.SetResult(true);
-                    return Task.FromResult(0);
-                }
-                hasBeenCalled = true;
-                context.ReceiveCancellationTokenSource.Cancel();
+                    if (hasBeenCalled)
+                    {
+                        messageRedelivered.SetResult(true);
+                        return Task.FromResult(0);
+                    }
+                    hasBeenCalled = true;
+                    context.ReceiveCancellationTokenSource.Cancel();
 
-                return Task.FromResult(0);
-            },
+                    return Task.FromResult(0);
+                },
                 context =>
                 {
                     onErrorCalled = true;

@@ -18,21 +18,22 @@ namespace NServiceBus.TransportTests
 
             OnTestTimeout(() => messageReceived.SetResult(false));
 
-            await StartPump(context =>
-            {
-                if (context.Headers.ContainsKey("FromOnError"))
-                {
-                    messageReceived.SetResult(true);
-                    return Task.FromResult(0);
-                }
-
-                throw new Exception("Simulated exception");
-            },
+            await StartPump(
                 context =>
                 {
-                    SendMessage(InputQueueName, new Dictionary<string, string> { { "FromOnError", "true" } }, context.TransportTransaction);
+                    if (context.Headers.ContainsKey("FromOnError"))
+                    {
+                        messageReceived.SetResult(true);
+                        return Task.FromResult(0);
+                    }
 
-                    return Task.FromResult(ErrorHandleResult.Handled);
+                    throw new Exception("Simulated exception");
+                },
+                async context =>
+                {
+                    await SendMessage(InputQueueName, new Dictionary<string, string> { { "FromOnError", "true" } }, context.TransportTransaction);
+
+                    return ErrorHandleResult.Handled;
                 }, transactionMode);
 
             await SendMessage(InputQueueName);

@@ -25,20 +25,20 @@
                 {
                     throw new Exception("Simulated exception");
                 },
-                context =>
+                async context =>
                 {
                     numberOfOnErrorInvocations += 1;
 
                     if (numberOfOnErrorInvocations == 1)
                     {
-                        SendMessage(InputQueueName, context.Message.Headers, context.TransportTransaction);
+                        await SendMessage(InputQueueName, context.Message.Headers, context.TransportTransaction);
                     }
                     else
                     {
                         onErrorInvoked.SetResult(context);
                     }
 
-                    return Task.FromResult(ErrorHandleResult.Handled);
+                    return ErrorHandleResult.Handled;
                 }, transactionMode);
 
             await SendMessage(InputQueueName, new Dictionary<string, string> { { "MyHeader", "MyValue" } });
