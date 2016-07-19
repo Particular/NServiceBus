@@ -19,16 +19,17 @@ namespace NServiceBus.TransportTests
 
             var hasBeenCalled = false;
 
-            await StartPump(context =>
-            {
-                if (hasBeenCalled)
+            await StartPump(
+                context =>
                 {
-                    messageRetried.SetResult(true);
-                    return Task.FromResult(0);
-                }
-                hasBeenCalled = true;
-                throw new Exception("Simulated exception");
-            },
+                    if (hasBeenCalled)
+                    {
+                        messageRetried.SetResult(true);
+                        return Task.FromResult(0);
+                    }
+                    hasBeenCalled = true;
+                    throw new Exception("Simulated exception");
+                },
                 context => Task.FromResult(ErrorHandleResult.RetryRequired), transactionMode);
 
             await SendMessage(InputQueueName);
