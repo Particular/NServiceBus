@@ -22,21 +22,20 @@
         }
 
         [Test]
-        [TestCase(ErrorQueueAddress)]
-        [TestCase("random_error_queue")]
-        public async Task MoveToErrorQueue_should_dispatch_message_to_error_queue(string errorQueueAddress)
+        public async Task MoveToErrorQueue_should_dispatch_message_to_error_queue()
         {
+            var customErrorQueue = "random_error_queue";
             var transportTransaction = new TransportTransaction();
             var incomingMessage = new IncomingMessage("messageId", new Dictionary<string, string>(), Stream.Null);
 
-            await moveToErrorsExecutor.MoveToErrorQueue(errorQueueAddress, incomingMessage, new Exception(), transportTransaction);
+            await moveToErrorsExecutor.MoveToErrorQueue(customErrorQueue, incomingMessage, new Exception(), transportTransaction);
 
             Assert.That(dispatcher.TransportOperations.MulticastTransportOperations.Count(), Is.EqualTo(0));
             Assert.That(dispatcher.TransportOperations.UnicastTransportOperations.Count(), Is.EqualTo(1));
             Assert.That(dispatcher.ContextBag.Get<TransportTransaction>(), Is.EqualTo(transportTransaction));
 
             var outgoingMessage = dispatcher.TransportOperations.UnicastTransportOperations.Single();
-            Assert.That(outgoingMessage.Destination, Is.EqualTo(errorQueueAddress));
+            Assert.That(outgoingMessage.Destination, Is.EqualTo(customErrorQueue));
             Assert.That(outgoingMessage.Message.MessageId, Is.EqualTo(incomingMessage.MessageId));
         }
 

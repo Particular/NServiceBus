@@ -32,11 +32,9 @@
         }
 
         [Test]
-        [TestCase(0)]
-        [TestCase(1)]
-        public void When_max_immediate_retries_exceeded_should_return_delayed_retry(int maxImmediateRetries)
+        public void When_max_immediate_retries_exceeded_should_return_delayed_retry()
         {
-            var policy = CreatePolicy(maxImmediateRetries);
+            var policy = CreatePolicy(2);
             var errorContext = CreateErrorContext(numberOfDeliveryAttempts: 3);
 
             var recoverabilityAction = policy(errorContext);
