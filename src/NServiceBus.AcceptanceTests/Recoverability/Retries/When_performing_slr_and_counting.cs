@@ -24,8 +24,6 @@ namespace NServiceBus.AcceptanceTests.Recoverability.Retries
             Assert.IsTrue(context.ForwardedToErrorQueue);
             Assert.AreEqual(3, context.Logs.Count(l => l.Message
                 .StartsWith($"Second Level Retry will reschedule message '{context.PhysicalMessageId}'")));
-            Assert.AreEqual(1, context.Logs.Count(l => l.Message
-                .StartsWith($"Giving up Second Level Retries for message '{context.PhysicalMessageId}'.")));
         }
 
         class Context : ScenarioContext

@@ -27,8 +27,6 @@
                     Assert.AreEqual(5 + 1, c.NumberOfTimesInvoked, "The FLR should by default retry 5 times");
                     Assert.AreEqual(5, c.Logs.Count(l => l.Message
                         .StartsWith($"First Level Retry is going to retry message '{c.PhysicalMessageId}' because of an exception:")));
-                    Assert.AreEqual(1, c.Logs.Count(l => l.Message
-                        .StartsWith($"Giving up First Level Retries for message '{c.PhysicalMessageId}'.")));
                 })
                 .Run();
         }

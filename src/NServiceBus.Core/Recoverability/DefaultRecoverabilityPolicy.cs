@@ -28,15 +28,11 @@ namespace NServiceBus
                 return RecoverabilityAction.ImmediateRetry();
             }
 
-            Logger.InfoFormat("Giving up First Level Retries for message '{0}'.", errorContext.Message.MessageId);
-
             TimeSpan delay;
             if (TryGetDelay(errorContext.Message, errorContext.DelayedDeliveriesPerformed, config.Delayed, out delay))
             {
                 return RecoverabilityAction.DelayedRetry(delay);
             }
-
-            Logger.WarnFormat("Giving up Second Level Retries for message '{0}'.", errorContext.Message.MessageId);
 
             return RecoverabilityAction.MoveToError(config.Failed.ErrorQueue);
         }
