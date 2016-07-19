@@ -63,6 +63,7 @@
         public void TearDown()
         {
             testCancellationTokenSource?.Dispose();
+            MessagePump?.Stop().GetAwaiter().GetResult();
             Configurer?.Cleanup().GetAwaiter().GetResult();
         }
 
