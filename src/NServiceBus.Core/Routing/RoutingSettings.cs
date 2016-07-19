@@ -26,7 +26,14 @@
         {
             ThrowOnAddress(destination);
 
-            Settings.GetOrCreate<ConfiguredUnicastRoutes>().Add((routingTable, knownMessageTypes) => { routingTable.RouteToEndpoint(messageType, destination); });
+            Settings.GetOrCreate<ConfiguredUnicastRoutes>().Add((routingTable, knownMessageTypes, registry) =>
+            {
+                var metadata = registry.GetMessageMetadata(messageType);
+                foreach (var type in metadata.MessageHierarchy)
+                {
+                    routingTable.RouteToEndpoint(type, destination);
+                }
+            });
         }
 
         /// <summary>
@@ -37,7 +44,7 @@
         public void RouteToEndpoint(Assembly assembly, string destination)
         {
             ThrowOnAddress(destination);
-            Settings.GetOrCreate<ConfiguredUnicastRoutes>().Add((routingTable, knownMessageTypes) =>
+            Settings.GetOrCreate<ConfiguredUnicastRoutes>().Add((routingTable, knownMessageTypes, registry) =>
             {
                 foreach (var knownMessage in knownMessageTypes)
                 {
@@ -61,7 +68,7 @@
 
             // empty namespace is null, not string.empty
             messageNamespace = messageNamespace == string.Empty ? null : messageNamespace;
-            Settings.GetOrCreate<ConfiguredUnicastRoutes>().Add((routingTable, knownMessageTypes) =>
+            Settings.GetOrCreate<ConfiguredUnicastRoutes>().Add((routingTable, knownMessageTypes, registry) =>
             {
                 foreach (var knownMessage in knownMessageTypes)
                 {

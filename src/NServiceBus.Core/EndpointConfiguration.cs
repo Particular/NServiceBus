@@ -15,6 +15,7 @@ namespace NServiceBus
     using Pipeline;
     using Settings;
     using Transport;
+    using Unicast.Messages;
 
     /// <summary>
     /// Configuration used to create an endpoint instance.
@@ -206,6 +207,18 @@ namespace NServiceBus
 
             Settings.SetDefault("TypesToScan", scannedTypes);
             Settings.Set("Endpoint.SendOnly", sendOnly);
+            Settings.SetDefault<Conventions>(conventionsBuilder.Conventions);
+
+            var knownMessages = Settings.Get<List<Type>>("TypesToScan")
+                .Where(Settings.Get<Conventions>().IsMessageType)
+                .ToList();
+            var messageMetadataRegistry = new MessageMetadataRegistry(Settings.Get<Conventions>());
+            foreach (var msg in knownMessages)
+            {
+                messageMetadataRegistry.RegisterMessageType(msg);
+            }
+            Settings.Set<MessageMetadataRegistry>(messageMetadataRegistry);
+
             ActivateAndInvoke<INeedInitialization>(scannedTypes, t => t.Customize(this));
 
             UseTransportExtensions.EnsureTransportConfigured(this);
@@ -217,8 +230,6 @@ namespace NServiceBus
             {
                 Settings.SetDefault("PublicReturnAddress", publicReturnAddress);
             }
-
-            Settings.SetDefault<Conventions>(conventionsBuilder.Conventions);
 
             return new InitializableEndpoint(Settings, container, registrations, Pipeline, pipelineCollection);
         }

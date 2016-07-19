@@ -12,6 +12,7 @@
     using NServiceBus.Routing;
     using NUnit.Framework;
     using Settings;
+    using Unicast.Messages;
 
     [TestFixture]
     public class RoutingSettingsTests
@@ -135,7 +136,7 @@
             var routingTable = new UnicastRoutingTable();
             foreach (var registration in routingSettings.Settings.Get<ConfiguredUnicastRoutes>())
             {
-                registration(routingTable, Assembly.GetExecutingAssembly().GetTypes());
+                registration(routingTable, Assembly.GetExecutingAssembly().GetTypes(), new MessageMetadataRegistry(new Conventions()));
             }
             return routingTable;
         }

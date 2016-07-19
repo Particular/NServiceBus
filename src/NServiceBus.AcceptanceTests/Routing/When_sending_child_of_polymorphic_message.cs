@@ -6,7 +6,6 @@
     using AcceptanceTesting.Customization;
     using Configuration.AdvanceExtensibility;
     using EndpointTemplates;
-    using NServiceBus.Routing;
     using NUnit.Framework;
 
     public class When_sending_child_of_polymorphic_message : NServiceBusAcceptanceTest
@@ -48,8 +47,11 @@
             public PolymorphicRoutingConfigSender()
             {
                 // configure routing for the child message, no routing for the base message
-                EndpointSetup<DefaultServer>(c => c.GetSettings().GetOrCreate<UnicastRoutingTable>()
-                    .RouteToEndpoint(typeof(IBaseMessage), Conventions.EndpointNamingConvention(typeof(PolymorphicMessageReceiver))));
+                EndpointSetup<DefaultServer>(c =>
+                {
+                    var routingSettings = new TransportExtensions(c.GetSettings()).Routing();
+                    routingSettings.RouteToEndpoint(typeof(IBaseMessage), Conventions.EndpointNamingConvention(typeof(PolymorphicMessageReceiver)));
+                });
             }
         }
 

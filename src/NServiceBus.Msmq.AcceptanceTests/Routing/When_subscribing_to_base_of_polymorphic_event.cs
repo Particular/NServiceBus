@@ -1,14 +1,11 @@
-﻿namespace NServiceBus.AcceptanceTests.Routing.AutomaticSubscriptions
+﻿namespace NServiceBus.AcceptanceTests.Routing
 {
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using AcceptanceTesting.Customization;
-    using Configuration.AdvanceExtensibility;
-    using EndpointTemplates;
     using Features;
-    using NServiceBus.Routing;
     using NUnit.Framework;
 
     public class When_subscribing_to_base_of_polymorphic_event
@@ -52,8 +49,8 @@
                 EndpointSetup<DefaultServer>(c =>
                 {
                     c.DisableFeature<AutoSubscribe>();
-                    c.GetSettings().GetOrCreate<UnicastRoutingTable>()
-                        .RouteToEndpoint(typeof(ChildEvent), Conventions.EndpointNamingConvention(typeof(PolymorphicEventPublisher)));
+                    c.UseTransport<MsmqTransport>().Routing()
+                        .RegisterPublisherForType(typeof(ChildEvent), Conventions.EndpointNamingConvention(typeof(PolymorphicEventPublisher)));
                 });
             }
         }

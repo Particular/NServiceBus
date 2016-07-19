@@ -40,6 +40,7 @@
             var configuredPublishers = context.Settings.Get<ConfiguredPublishers>();
 
             var knownMessageTypes = GetKnownMessageTypes(context);
+            var messageMetadata = context.Settings.Get<MessageMetadataRegistry>();
 
             var unicastBusConfig = context.Settings.GetConfigSection<UnicastBusConfig>();
             if (unicastBusConfig != null)
@@ -49,7 +50,7 @@
 
             foreach (var registration in configuredUnicastRoutes)
             {
-                registration(unicastRoutingTable, knownMessageTypes);
+                registration(unicastRoutingTable, knownMessageTypes, messageMetadata);
             }
 
             foreach (var registration in configuredPublishers)
@@ -139,7 +140,7 @@
         }
     }
 
-    class ConfiguredUnicastRoutes : List<Action<UnicastRoutingTable, Type[]>>
+    class ConfiguredUnicastRoutes : List<Action<UnicastRoutingTable, Type[], MessageMetadataRegistry>>
     {
     }
 

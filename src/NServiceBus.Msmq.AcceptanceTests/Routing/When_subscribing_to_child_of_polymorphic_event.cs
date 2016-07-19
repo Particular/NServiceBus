@@ -1,12 +1,9 @@
-﻿namespace NServiceBus.AcceptanceTests.Routing.AutomaticSubscriptions
+﻿namespace NServiceBus.AcceptanceTests.Routing
 {
     using System;
     using AcceptanceTesting;
     using AcceptanceTesting.Customization;
-    using Configuration.AdvanceExtensibility;
-    using EndpointTemplates;
     using Features;
-    using NServiceBus.Routing;
     using NUnit.Framework;
 
     public class When_subscribing_to_child_of_polymorphic_event : NServiceBusAcceptanceTest
@@ -21,7 +18,7 @@
                 .Done(c => true)
                 .Run());
 
-            Assert.That(exception.InnerException.InnerException, Is.TypeOf<Exception>().With.Message.Contain("No publisher address could be found for message type NServiceBus.AcceptanceTests.Routing.AutomaticSubscriptions.When_subscribing_to_child_of_polymorphic_event+ChildEvent"));
+            Assert.That(exception.InnerException.InnerException, Is.TypeOf<Exception>().With.Message.Contain("No publisher address could be found for message type NServiceBus.AcceptanceTests.Routing.When_subscribing_to_child_of_polymorphic_event+ChildEvent"));
         }
 
         [Test]
@@ -34,7 +31,7 @@
                 .Done(c => true)
                 .Run());
 
-            Assert.That(exception.InnerException.InnerException, Is.TypeOf<Exception>().With.Message.Contain("No publisher address could be found for message type NServiceBus.AcceptanceTests.Routing.AutomaticSubscriptions.When_subscribing_to_child_of_polymorphic_event+ChildEvent"));
+            Assert.That(exception.InnerException.InnerException, Is.TypeOf<Exception>().With.Message.Contain("No publisher address could be found for message type NServiceBus.AcceptanceTests.Routing.When_subscribing_to_child_of_polymorphic_event+ChildEvent"));
         }
 
         class PolymorphicRoutingConfigSubscriber : EndpointConfigurationBuilder
@@ -45,8 +42,8 @@
                 EndpointSetup<DefaultServer>(c =>
                 {
                     c.DisableFeature<AutoSubscribe>();
-                    c.GetSettings().GetOrCreate<UnicastRoutingTable>()
-                        .RouteToEndpoint(typeof(BaseEvent), Conventions.EndpointNamingConvention(typeof(PolymorphicEventPublisher)));
+                    c.UseTransport<MsmqTransport>().Routing()
+                        .RegisterPublisherForType(typeof(BaseEvent), Conventions.EndpointNamingConvention(typeof(PolymorphicEventPublisher)));
                 });
             }
         }
