@@ -100,7 +100,6 @@
     <Compile Include="Audit\AuditToDispatchConnector.cs" />
     <Compile Include="Audit\InvokeAuditPipelineBehavior.cs" />
     <Compile Include="DelayedDelivery\TimeoutManagerRoutingStrategy.cs" />
-    <Compile Include="DelayedDelivery\TimeoutManager\TimeoutManagerRecoverabilityPolicy.cs" />
     <Compile Include="DelayedDelivery\TimeoutManager\TimeoutProcessingFailureInfo.cs" />
     <Compile Include="Features\SatelliteDefinitions.cs" />
     <Compile Include="Notifications.cs" />
@@ -132,18 +131,15 @@
     <Compile Include="Recoverability\Faults\MessageToBeRetried.cs" />
     <Compile Include="Recoverability\Faults\MessageFaulted.cs" />
     <Compile Include="Recoverability\ImmediateRetry.cs" />
-    <Compile Include="Recoverability\IRecoverabilityPolicy.cs" />
     <Compile Include="Recoverability\RecoverabilityAction.cs" />
     <Compile Include="Recoverability\RecoverabilityExecutor.cs" />
     <Compile Include="Recoverability\MoveToError.cs" />
     <Compile Include="Recoverability\Recoverability.cs" />
-    <Compile Include="Recoverability\FirstLevelRetries\FirstLevelRetriesConfigExtensions.cs" />
-    <Compile Include="Recoverability\FirstLevelRetries\FirstLevelRetriesSettings.cs" />
     <Compile Include="Recoverability\MoveToErrorsExecutor.cs" />
     <Compile Include="Recoverability\RecoverabilityExecutorFactory.cs" />
     <Compile Include="Recoverability\DefaultRecoverabilityPolicy.cs" />
     <Compile Include="Recoverability\DelayedRetryExecutor.cs" />
-    <Compile Include="Recoverability\SecondLevelRetries\SecondLevelRetryContext.cs" />
+    <Compile Include="Recoverability\RecoverabilitySettings.cs" />
     <Compile Include="ReleaseDateAttribute.cs" />
     <Compile Include="Routing\IDistributionPolicy.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\IMessageDrivenSubscriptionTransport.cs" />
@@ -463,8 +459,6 @@
     <Compile Include="Recoverability\FirstLevelRetries\FirstLevelRetryPolicy.cs" />
     <Compile Include="Pipeline\BehaviorInstance.cs" />
     <Compile Include="Pipeline\IPipeline.cs" />
-    <Compile Include="Recoverability\SecondLevelRetries\CustomSecondLevelRetryPolicy.cs" />
-    <Compile Include="Recoverability\SecondLevelRetries\SecondLevelRetryPolicy.cs" />
     <Compile Include="Transports\PushSettings.cs" />
     <Compile Include="Gateway\IDeduplicateMessages.cs" />
     <Compile Include="Hosting\HostInfoConfigurationExtensions.cs" />
@@ -526,7 +520,6 @@
     <Compile Include="Sagas\SagaToMessageMap.cs" />
     <Compile Include="Scheduling\Scheduler.cs" />
     <Compile Include="Scheduling\TaskDefinition.cs" />
-    <Compile Include="Recoverability\SecondLevelRetries\DefaultSecondLevelRetryPolicy.cs" />
     <Compile Include="Serialization\SerializationConfigExtensions.cs" />
     <Compile Include="Serialization\SerializationDefinition.cs" />
     <Compile Include="Serialization\SerializationExtensions.cs" />

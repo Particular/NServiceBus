@@ -3,7 +3,6 @@
     using System;
     using System.Collections.Generic;
     using System.IO;
-    using System.Linq;
     using System.Threading.Tasks;
     using Extensibility;
     using NUnit.Framework;
@@ -23,14 +22,13 @@
         public async Task When_notification_turned_off_no_notification_should_be_raised()
         {
             var policy = RetryPolicy.Return(
-                actions: new[]
+                actions: new RecoverabilityAction[]
                 {
                     RecoverabilityAction.ImmediateRetry(),
                     RecoverabilityAction.DelayedRetry(TimeSpan.FromSeconds(10)),
                     RecoverabilityAction.MoveToError()
-                },
-                raiseNotifications: false);
-            var executor = CreateExecutor(policy);
+                });
+            var executor = CreateExecutor(policy, raiseNotifications: false);
             var errorContext = CreateErrorContext();
 
             await executor.Invoke(errorContext); //force retry
@@ -39,32 +37,6 @@
 
             Assert.IsNull(eventAggregator.GetNotification<MessageFaulted>());
             Assert.IsNull(eventAggregator.GetNotification<MessageToBeRetried>());
-        }
-
-        [Test]
-        public async Task When_failure_is_caused_by_deserialization_exception_no_retries_should_be_performed()
-        {
-            var recoverabilityExecutor = CreateExecutor(RetryPolicy.AlwaysRetry());
-            var errorContext = CreateErrorContext(new MessageDeserializationException(""));
-
-            var errorHandleResult = await recoverabilityExecutor.Invoke(errorContext);
-
-            Assert.AreEqual(ErrorHandleResult.Handled, errorHandleResult, "Deserialization exception should cause immediate send to error queue");
-            Assert.AreEqual(1, dispatcher.TransportOperations.UnicastTransportOperations.Count);
-            Assert.AreEqual(ErrorQueueAddress, dispatcher.TransportOperations.UnicastTransportOperations.First().Destination);
-        }
-
-        [Test]
-        public async Task When_running_with_no_transactions_no_retries_should_be_performed()
-        {
-            var recoverabilityExecutor = CreateExecutor(RetryPolicy.AlwaysRetry(), transactionsOn: false);
-            var errorContext = CreateErrorContext();
-
-            var errorHandleResult = await recoverabilityExecutor.Invoke(errorContext);
-
-            Assert.AreEqual(ErrorHandleResult.Handled, errorHandleResult, "Transactions disabled should cause immediate send to error queue");
-            Assert.AreEqual(1, dispatcher.TransportOperations.UnicastTransportOperations.Count);
-            Assert.AreEqual(ErrorQueueAddress, dispatcher.TransportOperations.UnicastTransportOperations.First().Destination);
         }
 
         [Test]
@@ -114,21 +86,35 @@
         }
 
         [Test]
-        public async Task When_delayed_retries_not_supported_but_policy_demands_it_should_move_to_error()
+        public async Task When_delayed_retries_not_supported_but_policy_demands_it_should_move_to_errors()
         {
             var recoverabilityExecutor = CreateExecutor(
                 RetryPolicy.AlwaysDelay(TimeSpan.FromDays(1)),
-                transactionsOn: true,
                 delayedRetriesSupported: false);
-            var errorContext = CreateErrorContext();
+            var errorContext = CreateErrorContext(messageId: "message-id");
 
             await recoverabilityExecutor.Invoke(errorContext);
 
             var failure = eventAggregator.GetNotification<MessageFaulted>();
-            var retried = eventAggregator.GetNotification<MessageToBeRetried>();
 
-            Assert.IsNotNull(failure);
-            Assert.IsNull(retried);
+            Assert.AreEqual(1, eventAggregator.NotificationsRaised.Count);
+            Assert.AreEqual("message-id", failure.Message.MessageId);
+        }
+
+        [Test]
+        public async Task When_immediate_retries_not_supported_but_policy_demands_it_should_move_to_errors()
+        {
+            var recoverabilityExecutor = CreateExecutor(
+                RetryPolicy.AlwaysRetry(),
+                immediateRetriesSupported: false);
+            var errorContext = CreateErrorContext(messageId: "message-id");
+
+            await recoverabilityExecutor.Invoke(errorContext);
+
+            var failure = eventAggregator.GetNotification<MessageFaulted>();
+
+            Assert.AreEqual(1, eventAggregator.NotificationsRaised.Count);
+            Assert.AreEqual("message-id", failure.Message.MessageId);
         }
 
         static ErrorContext CreateErrorContext(Exception raisedException = null, string exceptionMessage = "default-message", string messageId = "default-id", int numberOfDeliveryAttempts = 1)
@@ -136,14 +122,17 @@
             return new ErrorContext(raisedException ?? new Exception(exceptionMessage), new Dictionary<string, string>(), messageId, Stream.Null, new TransportTransaction(), numberOfDeliveryAttempts);
         }
 
-        RecoverabilityExecutor CreateExecutor(IRecoverabilityPolicy policy, bool transactionsOn = true, bool delayedRetriesSupported = true)
+        RecoverabilityExecutor CreateExecutor(Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> policy, bool delayedRetriesSupported = true, bool immediateRetriesSupported = true, bool raiseNotifications = true)
         {
             return new RecoverabilityExecutor(
+                raiseNotifications,
+                immediateRetriesSupported,
+                delayedRetriesSupported,
                 policy,
+                new RecoverabilityConfig(new ImmediateConfig(), new DelayedConfig(0, TimeSpan.MinValue)),
                 eventAggregator,
                 delayedRetriesSupported ? new DelayedRetryExecutor(InputQueueAddress, dispatcher) : null,
-                new MoveToErrorsExecutor(dispatcher, ErrorQueueAddress, new Dictionary<string, string>()),
-                transactionsOn);
+                new MoveToErrorsExecutor(dispatcher, ErrorQueueAddress, new Dictionary<string, string>(), headers => { }));
         }
 
         FakeDispatcher dispatcher;
@@ -152,49 +141,45 @@
         static string ErrorQueueAddress = "error-queue";
         static string InputQueueAddress = "input-queue";
 
-        class RetryPolicy : IRecoverabilityPolicy
+        class RetryPolicy
         {
-            RetryPolicy(RecoverabilityAction[] actions, bool raiseNotifications = true)
+            RetryPolicy(RecoverabilityAction[] actions)
             {
                 this.actions = new Queue<RecoverabilityAction>(actions);
-
-                RaiseRecoverabilityNotifications = raiseNotifications;
             }
 
-            public RecoverabilityAction Invoke(ErrorContext errorContext)
+            public RecoverabilityAction Invoke(RecoverabilityConfig config, ErrorContext errorContext)
             {
                 return actions.Dequeue();
             }
 
-            public bool RaiseRecoverabilityNotifications { get; }
-
-            public static IRecoverabilityPolicy AlwaysDelay(TimeSpan delay)
+            public static Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> AlwaysDelay(TimeSpan delay)
             {
                 return new RetryPolicy(new[]
                 {
                     RecoverabilityAction.DelayedRetry(delay)
-                });
+                }).Invoke;
             }
 
-            public static IRecoverabilityPolicy AlwaysMoveToErrors()
+            public static Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> AlwaysMoveToErrors()
             {
                 return new RetryPolicy(new[]
                 {
                     RecoverabilityAction.MoveToError()
-                });
+                }).Invoke;
             }
 
-            public static IRecoverabilityPolicy AlwaysRetry()
+            public static Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> AlwaysRetry()
             {
                 return new RetryPolicy(new[]
                 {
                     RecoverabilityAction.ImmediateRetry()
-                });
+                }).Invoke;
             }
 
-            public static IRecoverabilityPolicy Return(RecoverabilityAction[] actions, bool raiseNotifications)
+            public static Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> Return(RecoverabilityAction[] actions)
             {
-                return new RetryPolicy(actions, raiseNotifications);
+                return new RetryPolicy(actions).Invoke;
             }
 
             Queue<RecoverabilityAction> actions;

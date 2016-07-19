@@ -54,7 +54,7 @@
                 EndpointSetup<DefaultPublisher>(b =>
                 {
                     //FLR on since subscription storages can throw on concurrency violation and need to retry
-                    b.FirstLevelRetries().NumberOfRetries(5);
+                    b.Recoverability().Immediate(immediate => immediate.NumberOfRetries(5));
                     b.OnEndpointSubscribed<Context>((args, context) =>
                     {
                         context.AddTrace("Publisher1 OnEndpointSubscribed " + args.MessageType);
@@ -74,7 +74,7 @@
                 EndpointSetup<DefaultPublisher>(b =>
                 {
                     //FLR on since subscription storages can throw on concurrency violation and need to retry
-                    b.FirstLevelRetries().NumberOfRetries(5);
+                    b.Recoverability().Immediate(immediate => immediate.NumberOfRetries(5));
 
                     b.OnEndpointSubscribed<Context>((args, context) =>
                     {

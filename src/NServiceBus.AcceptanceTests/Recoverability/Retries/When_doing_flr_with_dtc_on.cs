@@ -57,7 +57,7 @@
                     var scenarioContext = (Context) context.ScenarioContext;
                     b.Notifications.Errors.MessageSentToErrorQueue += (sender, message) => scenarioContext.GaveUpOnRetries = true;
                 })
-                    .WithConfig<TransportConfig>(c => c.MaxRetries = maxretries);
+                .WithConfig<TransportConfig>(c => c.MaxRetries = maxretries);
             }
 
             class MessageToBeRetriedHandler : IHandleMessages<MessageToBeRetried>

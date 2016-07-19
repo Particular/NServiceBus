@@ -18,7 +18,7 @@ namespace NServiceBus
         /// Creates an immediate retry recoverability action.
         /// </summary>
         /// <returns>Immediate retry action.</returns>
-        public static RecoverabilityAction ImmediateRetry()
+        public static ImmediateRetry ImmediateRetry()
         {
             return CachedImmediateRetry;
         }
@@ -28,7 +28,7 @@ namespace NServiceBus
         /// </summary>
         /// <param name="timeSpan">Delivery delay.</param>
         /// <returns>Delayed retry action.</returns>
-        public static RecoverabilityAction DelayedRetry(TimeSpan timeSpan)
+        public static DelayedRetry DelayedRetry(TimeSpan timeSpan)
         {
             return new DelayedRetry(timeSpan);
         }
@@ -37,13 +37,13 @@ namespace NServiceBus
         /// Creates a move to error recoverability action.
         /// </summary>
         /// <returns>Move to error action.</returns>
-        public static RecoverabilityAction MoveToError()
+        public static MoveToError MoveToError()
         {
             return CachedMoveToError;
         }
 
-        static RecoverabilityAction CachedImmediateRetry = new ImmediateRetry();
+        static ImmediateRetry CachedImmediateRetry = new ImmediateRetry();
 
-        static RecoverabilityAction CachedMoveToError = new MoveToError();
+        static MoveToError CachedMoveToError = new MoveToError();
     }
 }

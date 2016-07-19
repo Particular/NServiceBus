@@ -19,7 +19,7 @@
 
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-            var transportHasNativeDelayedDelivery = context.DoesTransportSupportConstraint<DelayedDeliveryConstraint>();
+            var transportHasNativeDelayedDelivery = context.Settings.DoesTransportSupportConstraint<DelayedDeliveryConstraint>();
             var timeoutMgrDisabled = IsTimeoutManagerDisabled(context);
 
             if (!transportHasNativeDelayedDelivery)

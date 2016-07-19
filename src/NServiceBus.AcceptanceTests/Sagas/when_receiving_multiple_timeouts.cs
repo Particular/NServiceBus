@@ -43,7 +43,7 @@
                 {
                     c.EnableFeature<TimeoutManager>();
                     c.ExecuteTheseHandlersFirst(typeof(CatchAllMessageHandler));
-                    c.FirstLevelRetries().NumberOfRetries(5);
+                    c.Recoverability().Immediate(immediate => immediate.NumberOfRetries(5));
                 });
             }
 

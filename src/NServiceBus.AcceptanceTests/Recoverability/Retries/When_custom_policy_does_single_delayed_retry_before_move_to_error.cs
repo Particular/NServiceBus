@@ -5,13 +5,13 @@ namespace NServiceBus.AcceptanceTests.Recoverability.Retries
     using AcceptanceTesting;
     using EndpointTemplates;
     using Features;
-    using NServiceBus.Config;
     using NUnit.Framework;
+    using Transport;
 
-    public class When_performing_slr_with_min_policy : NServiceBusAcceptanceTest
+    public class When_custom_policy_does_single_delayed_retry_before_move_to_error : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Should_execute_once()
+        public async Task Should_execute_twice()
         {
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<RetryEndpoint>(b => b
@@ -20,7 +20,7 @@ namespace NServiceBus.AcceptanceTests.Recoverability.Retries
                 .Done(c => c.MessageSentToErrorQueue)
                 .Run();
 
-            Assert.AreEqual(context.Count, 1);
+            Assert.AreEqual(context.Count, 2);
         }
 
         class Context : ScenarioContext
@@ -37,15 +37,20 @@ namespace NServiceBus.AcceptanceTests.Recoverability.Retries
                 {
                     var scenarioContext = (Context) context.ScenarioContext;
                     configure.EnableFeature<TimeoutManager>();
-                    configure.SecondLevelRetries().CustomRetryPolicy(RetryPolicy);
+                    configure.Recoverability()
+                        .CustomPolicy(RetryPolicy);
                     configure.Notifications.Errors.MessageSentToErrorQueue += (sender, message) => { scenarioContext.MessageSentToErrorQueue = true; };
-                })
-                    .WithConfig<SecondLevelRetriesConfig>(c => c.TimeIncrease = TimeSpan.FromMilliseconds(1));
+                });
             }
 
-            static TimeSpan RetryPolicy(SecondLevelRetryContext slrRetryContext)
+            RecoverabilityAction RetryPolicy(RecoverabilityConfig config, ErrorContext context)
             {
-                return TimeSpan.MinValue;
+                if (context.DelayedDeliveriesPerformed == 0)
+                {
+                    return RecoverabilityAction.DelayedRetry(TimeSpan.FromMilliseconds(10));
+                }
+
+                return RecoverabilityAction.MoveToError();
             }
 
             class MessageToBeRetriedHandler : IHandleMessages<MessageToBeRetried>

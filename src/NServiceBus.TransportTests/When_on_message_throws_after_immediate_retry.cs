@@ -43,7 +43,7 @@
 
             var errorContext = await onErrorInvoked.Task;
 
-            Assert.AreEqual(numberOfOnErrorInvocations, errorContext.NumberOfDeliveryAttempts, "Should track delivery attempts between immediate retries");
+            Assert.AreEqual(numberOfOnErrorInvocations, errorContext.ImmediateProcessingFailures, "Should track delivery attempts between immediate retries");
         }
     }
 }

@@ -7,10 +7,10 @@ namespace NServiceBus.AcceptanceTests.Recoverability.Retries
     using Features;
     using NUnit.Framework;
 
-    public class When_performing_slr_with_non_min_policy : NServiceBusAcceptanceTest
+    public class When_custom_policy_always_moves_to_error : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Should_execute_twice()
+        public async Task Should_execute_once()
         {
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<RetryEndpoint>(b => b
@@ -19,7 +19,7 @@ namespace NServiceBus.AcceptanceTests.Recoverability.Retries
                 .Done(c => c.MessageSentToErrorQueue)
                 .Run();
 
-            Assert.AreEqual(context.Count, 2);
+            Assert.AreEqual(context.Count, 1);
         }
 
         class Context : ScenarioContext
@@ -36,22 +36,11 @@ namespace NServiceBus.AcceptanceTests.Recoverability.Retries
                 {
                     var scenarioContext = (Context) context.ScenarioContext;
                     configure.EnableFeature<TimeoutManager>();
-                    configure.SecondLevelRetries().CustomRetryPolicy(RetryPolicy);
+                    configure.Recoverability()
+                        .CustomPolicy((cfg, errorContext) => RecoverabilityAction.MoveToError());
                     configure.Notifications.Errors.MessageSentToErrorQueue += (sender, message) => { scenarioContext.MessageSentToErrorQueue = true; };
                 });
             }
-
-            TimeSpan RetryPolicy(SecondLevelRetryContext slrRetryContext)
-            {
-                if (count == 0)
-                {
-                    count++;
-                    return TimeSpan.FromMilliseconds(10);
-                }
-                return TimeSpan.MinValue;
-            }
-
-            int count;
 
             class MessageToBeRetriedHandler : IHandleMessages<MessageToBeRetried>
             {
