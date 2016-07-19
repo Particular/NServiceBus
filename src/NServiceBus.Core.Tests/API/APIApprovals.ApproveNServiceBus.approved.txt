@@ -2495,9 +2495,9 @@ namespace NServiceBus.Routing
     public sealed class EndpointInstance
     {
         public EndpointInstance(string endpoint) { }
-        public EndpointInstance(string endpoint, string instanceName) { }
+        public EndpointInstance(string endpoint, string instanceAddress) { }
         public string Endpoint { get; }
-        public string InstanceName { get; }
+        public string InstanceAddress { get; }
         public override bool Equals(object obj) { }
         public override int GetHashCode() { }
     }

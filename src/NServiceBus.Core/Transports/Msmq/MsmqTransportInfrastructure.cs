@@ -50,13 +50,13 @@ namespace NServiceBus
 
         public override string ToTransportAddress(LogicalAddress logicalAddress)
         {
-            var queue = new StringBuilder(logicalAddress.EndpointInstance.InstanceName);
+            var queue = new StringBuilder(logicalAddress.EndpointInstance.InstanceAddress);
             if (logicalAddress.Qualifier != null)
             {
                 queue.Append("." + logicalAddress.Qualifier);
             }
 
-            if (logicalAddress.EndpointInstance.InstanceName.Contains("@"))
+            if (logicalAddress.EndpointInstance.InstanceAddress.Contains("@"))
             {
                 return queue.ToString();
             }

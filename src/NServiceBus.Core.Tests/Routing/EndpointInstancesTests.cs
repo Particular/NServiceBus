@@ -55,7 +55,7 @@
 
             var singleInstance = salesInstancess.Single();
             Assert.AreEqual("Sales", singleInstance.Endpoint);
-            Assert.AreEqual("Sales", singleInstance.InstanceName);
+            Assert.AreEqual("Sales", singleInstance.InstanceAddress);
         }
 
         [Test]

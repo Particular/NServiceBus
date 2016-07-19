@@ -17,14 +17,14 @@
         /// Creates a new endpoint name for a given discriminator.
         /// </summary>
         /// <param name="endpoint">The name of the endpoint.</param>
-        /// <param name="instanceName">The name of the this instance.</param>
-        public EndpointInstance(string endpoint, string instanceName)
+        /// <param name="instanceAddress">The name of the this instance.</param>
+        public EndpointInstance(string endpoint, string instanceAddress)
         {
             Guard.AgainstNull(nameof(endpoint), endpoint);
-            Guard.AgainstNull(nameof(instanceName), instanceName);
+            Guard.AgainstNull(nameof(instanceAddress), instanceAddress);
 
             Endpoint = endpoint;
-            InstanceName = instanceName;
+            InstanceAddress = instanceAddress;
         }
 
         /// <summary>
@@ -35,11 +35,11 @@
         /// <summary>
         /// The configured instance name.
         /// </summary>
-        public string InstanceName { get; }
+        public string InstanceAddress { get; }
 
         bool Equals(EndpointInstance other)
         {
-            return string.Equals(Endpoint, other.Endpoint) && string.Equals(InstanceName, other.InstanceName);
+            return string.Equals(Endpoint, other.Endpoint) && string.Equals(InstanceAddress, other.InstanceAddress);
         }
 
         /// <summary>
@@ -62,7 +62,7 @@
         {
             unchecked
             {
-                return ((Endpoint != null ? Endpoint.GetHashCode() : 0)*397) ^ (InstanceName != null ? InstanceName.GetHashCode() : 0);
+                return ((Endpoint != null ? Endpoint.GetHashCode() : 0)*397) ^ (InstanceAddress != null ? InstanceAddress.GetHashCode() : 0);
             }
         }
 
