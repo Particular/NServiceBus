@@ -3,7 +3,6 @@ namespace NServiceBus.Routing.MessageDrivenSubscriptions
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Reflection;
 
     /// <summary>
     /// Manages the information about publishers.
@@ -70,36 +69,6 @@ namespace NServiceBus.Routing.MessageDrivenSubscriptions
         public void AddByAddress(Type eventType, string publisherAddress)
         {
             AddStaticPublisher(eventType, PublisherAddress.CreateFromPhysicalAddresses(publisherAddress));
-        }
-
-        /// <summary>
-        /// Registers a publisher endpoint for all event types in a given assembly.
-        /// </summary>
-        /// <param name="eventAssembly">The assembly containing the event types.</param>
-        /// <param name="publisher">The publisher endpoint.</param>
-        public void Add(Assembly eventAssembly, string publisher)
-        {
-            foreach (var type in eventAssembly.GetTypes())
-            {
-                AddStaticPublisher(type, PublisherAddress.CreateFromEndpointName(publisher));
-            }
-        }
-
-        /// <summary>
-        /// Registers a publisher endpoint for all event types in a given assembly and namespace.
-        /// </summary>
-        /// <param name="eventAssembly">The assembly containing the event types.</param>
-        /// <param name="eventNamespace">The namespace containing the event types.</param>
-        /// <param name="publisher">The publisher endpoint.</param>
-        public void Add(Assembly eventAssembly, string eventNamespace, string publisher)
-        {
-            // empty namespace is null, not string.empty
-            eventNamespace = eventNamespace == string.Empty ? null : eventNamespace;
-
-            foreach (var type in eventAssembly.GetTypes().Where(t => t.Namespace == eventNamespace))
-            {
-                AddStaticPublisher(type, PublisherAddress.CreateFromEndpointName(publisher));
-            }
         }
 
         /// <summary>

@@ -2,9 +2,9 @@ namespace NServiceBus
 {
     using System;
     using System.Reflection;
+    using Features;
     using Pipeline;
     using Routing;
-    using Routing.MessageDrivenSubscriptions;
     using Settings;
     using Transport;
 
@@ -49,8 +49,8 @@ namespace NServiceBus
             Guard.AgainstNullAndEmpty(nameof(publisherEndpoint), publisherEndpoint);
 
             ThrowOnAddress(publisherEndpoint);
+            routingSettings.Settings.GetOrCreate<ConfiguredPublishers>().Add((publishers, knownMessageTypes) => publishers.Add(eventType, publisherEndpoint));
 
-            routingSettings.Settings.GetOrCreate<Publishers>().Add(eventType, publisherEndpoint);
         }
 
         /// <summary>
@@ -66,7 +66,16 @@ namespace NServiceBus
 
             ThrowOnAddress(publisherEndpoint);
 
-            routingSettings.Settings.GetOrCreate<Publishers>().Add(eventAssembly, publisherEndpoint);
+            routingSettings.Settings.GetOrCreate<ConfiguredPublishers>().Add((publishers, knownMessageTypes) =>
+            {
+                foreach (var knownMessageType in knownMessageTypes)
+                {
+                    if (knownMessageType.Assembly == eventAssembly)
+                    {
+                        publishers.Add(knownMessageType, publisherEndpoint);
+                    }
+                }
+            });
         }
 
         /// <summary>
@@ -82,15 +91,26 @@ namespace NServiceBus
         public static void RegisterPublisherForAssembly<T>(this RoutingSettings<T> routingSettings, Assembly eventAssembly, string eventNamespace, string publisherEndpoint) where T : TransportDefinition, IMessageDrivenSubscriptionTransport
         {
             Guard.AgainstNull(nameof(eventAssembly), eventAssembly);
-            Guard.AgainstNull(nameof(eventNamespace), eventNamespace);
             Guard.AgainstNullAndEmpty(nameof(publisherEndpoint), publisherEndpoint);
 
             ThrowOnAddress(publisherEndpoint);
 
-            routingSettings.Settings.GetOrCreate<Publishers>().Add(eventAssembly, eventNamespace, publisherEndpoint);
-        }
+            // empty namespace is null, not string.empty
+            eventNamespace = eventNamespace == string.Empty ? null : eventNamespace;
 
-        static void ThrowOnAddress(string publisherEndpoint)
+            routingSettings.Settings.GetOrCreate<ConfiguredPublishers>().Add((publishers, knownMessageTypes) =>
+            {
+                foreach (var knownMessageType in knownMessageTypes)
+                {
+                    if (knownMessageType.Assembly == eventAssembly && knownMessageType.Namespace == eventNamespace)
+                    {
+                        publishers.Add(knownMessageType, publisherEndpoint);
+                    }
+                }
+            });
+        }
+        
+                static void ThrowOnAddress(string publisherEndpoint)
         {
             if (publisherEndpoint.Contains("@"))
             {
