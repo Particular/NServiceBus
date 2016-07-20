@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.AcceptanceTests.CriticalError
+﻿namespace NServiceBus.AcceptanceTests.Core.FakeTransport.CriticalError
 {
     using System;
     using System.Linq;
@@ -6,7 +6,6 @@
     using AcceptanceTesting;
     using Configuration.AdvanceExtensibility;
     using EndpointTemplates;
-    using FakeTransport;
     using NUnit.Framework;
     using ScenarioDescriptors;
 

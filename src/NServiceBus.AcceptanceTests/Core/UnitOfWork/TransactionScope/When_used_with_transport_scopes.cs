@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.AcceptanceTests.UnitOfWork
+﻿namespace NServiceBus.AcceptanceTests.Core.UnitOfWork.TransactionScope
 {
     using System;
     using AcceptanceTesting;

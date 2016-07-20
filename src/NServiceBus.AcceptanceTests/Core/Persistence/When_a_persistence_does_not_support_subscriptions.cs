@@ -1,14 +1,12 @@
-﻿namespace NServiceBus.AcceptanceTests.Persistence
+namespace NServiceBus.AcceptanceTests.Core.Persistence
 {
-    using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
-    using Features;
     using NServiceBus.Persistence;
     using NUnit.Framework;
     using ScenarioDescriptors;
 
-    public class When_a_persistence_does_not_support_timeouts : NServiceBusAcceptanceTest
+    public class When_a_persistence_does_not_support_subscriptions : NServiceBusAcceptanceTest
     {
         [Test]
         public void should_throw_exception()
@@ -16,10 +14,10 @@
             Assert.That(async () =>
             {
                 await Scenario.Define<Context>()
-                    .WithEndpoint<Endpoint>(e => e.When(b => Task.FromResult(0)))
-                    .Repeat(r => r.For<AllTransportsWithoutNativeDeferral>())
+                    .WithEndpoint<Endpoint>(e => e.When(b => b.Subscribe<object>()))
+                    .Repeat(r => r.For<AllTransportsWithMessageDrivenPubSub>())
                     .Run();
-            }, Throws.Exception.InnerException.InnerException.With.Message.Contains("DisableFeature<TimeoutManager>()"));
+            }, Throws.Exception.InnerException.InnerException.With.Message.Contains("DisableFeature<MessageDrivenSubscriptions>()"));
         }
 
         class Endpoint : EndpointConfigurationBuilder
@@ -31,9 +29,7 @@
                     c.UsePersistence<InMemoryPersistence, StorageType.Sagas>();
                     c.UsePersistence<InMemoryPersistence, StorageType.GatewayDeduplication>();
                     c.UsePersistence<InMemoryPersistence, StorageType.Outbox>();
-                    c.UsePersistence<InMemoryPersistence, StorageType.Subscriptions>();
-
-                    c.EnableFeature<TimeoutManager>();
+                    c.UsePersistence<InMemoryPersistence, StorageType.Timeouts>();
                 });
             }
         }
