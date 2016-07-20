@@ -44,13 +44,12 @@ namespace NServiceBus
         /// <param name="routingSettings">The <see cref="RoutingSettings&lt;T&gt;" /> to extend.</param>
         /// <param name="eventType">The event type.</param>
         /// <param name="publisherEndpoint">The publisher endpoint.</param>
-        public static void RegisterPublisherForType<T>(this RoutingSettings<T> routingSettings, Type eventType, string publisherEndpoint) where T : TransportDefinition, IMessageDrivenSubscriptionTransport
+        public static void RegisterPublisher<T>(this RoutingSettings<T> routingSettings, Type eventType, string publisherEndpoint) where T : TransportDefinition, IMessageDrivenSubscriptionTransport
         {
             Guard.AgainstNullAndEmpty(nameof(publisherEndpoint), publisherEndpoint);
 
             ThrowOnAddress(publisherEndpoint);
             routingSettings.Settings.GetOrCreate<ConfiguredPublishers>().Add((publishers, knownMessageTypes) => publishers.Add(eventType, publisherEndpoint));
-
         }
 
         /// <summary>
@@ -59,7 +58,7 @@ namespace NServiceBus
         /// <param name="routingSettings">The <see cref="RoutingSettings&lt;T&gt;" /> to extend.</param>
         /// <param name="eventAssembly">The assembly containing the event types.</param>
         /// <param name="publisherEndpoint">The publisher endpoint.</param>
-        public static void RegisterPublisherForAssembly<T>(this RoutingSettings<T> routingSettings, Assembly eventAssembly, string publisherEndpoint) where T : TransportDefinition, IMessageDrivenSubscriptionTransport
+        public static void RegisterPublisher<T>(this RoutingSettings<T> routingSettings, Assembly eventAssembly, string publisherEndpoint) where T : TransportDefinition, IMessageDrivenSubscriptionTransport
         {
             Guard.AgainstNull(nameof(eventAssembly), eventAssembly);
             Guard.AgainstNullAndEmpty(nameof(publisherEndpoint), publisherEndpoint);
@@ -88,7 +87,7 @@ namespace NServiceBus
         /// namespace.
         /// </param>
         /// <param name="publisherEndpoint">The publisher endpoint.</param>
-        public static void RegisterPublisherForAssembly<T>(this RoutingSettings<T> routingSettings, Assembly eventAssembly, string eventNamespace, string publisherEndpoint) where T : TransportDefinition, IMessageDrivenSubscriptionTransport
+        public static void RegisterPublisher<T>(this RoutingSettings<T> routingSettings, Assembly eventAssembly, string eventNamespace, string publisherEndpoint) where T : TransportDefinition, IMessageDrivenSubscriptionTransport
         {
             Guard.AgainstNull(nameof(eventAssembly), eventAssembly);
             Guard.AgainstNullAndEmpty(nameof(publisherEndpoint), publisherEndpoint);
@@ -109,8 +108,8 @@ namespace NServiceBus
                 }
             });
         }
-        
-                static void ThrowOnAddress(string publisherEndpoint)
+
+        static void ThrowOnAddress(string publisherEndpoint)
         {
             if (publisherEndpoint.Contains("@"))
             {
