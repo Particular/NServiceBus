@@ -14,10 +14,9 @@ namespace NServiceBus
     {
         public abstract Task ReceiveMessage();
 
-        public void Init(MessageQueue inputQueue, MessageQueue errorQueue, Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError, CriticalError criticalError)
+        public void Init(MessageQueue inputQueue, Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError, CriticalError criticalError)
         {
             this.inputQueue = inputQueue;
-            this.errorQueue = errorQueue;
             this.onMessage = onMessage;
             this.onError = onError;
             this.criticalError = criticalError;
@@ -63,12 +62,12 @@ namespace NServiceBus
             }
         }
 
-        protected bool TryExtractHeaders(Message message, out Dictionary<string, string> headers)
+        protected Exception TryExtractHeaders(Message message, out Dictionary<string, string> headers)
         {
             try
             {
                 headers = MsmqUtilities.ExtractHeaders(message);
-                return true;
+                return null;
             }
             catch (Exception ex)
             {
@@ -77,26 +76,8 @@ namespace NServiceBus
                 Logger.Warn(error, ex);
 
                 headers = null;
-                return false;
+                return ex;
             }
-        }
-
-        protected void MovePoisonMessageToErrorQueue(Message message, MessageQueueTransaction transaction)
-        {
-            var error = $"Message '{message.Id}' is classfied as a poison message and will be moved to '{errorQueue.QueueName}'";
-
-            Logger.Error(error);
-
-            errorQueue.Send(message, transaction);
-        }
-
-        protected void MovePoisonMessageToErrorQueue(Message message, MessageQueueTransactionType transactionType)
-        {
-            var error = $"Message '{message.Id}' is classfied as a poison message and will be moved to '{errorQueue.QueueName}'";
-
-            Logger.Error(error);
-
-            errorQueue.Send(message, transactionType);
         }
 
         protected async Task<bool> TryProcessMessage(Message message, Dictionary<string, string> headers, Stream bodyStream, TransportTransaction transaction)
@@ -111,11 +92,11 @@ namespace NServiceBus
             }
         }
 
-        protected async Task<ErrorHandleResult> HandleError(Message message, Dictionary<string, string> headers, Exception exception, TransportTransaction transportTransaction, int processingAttempts)
+        protected async Task<ErrorHandleResult> HandleError(Message message, Dictionary<string, string> headers, Exception exception, TransportTransaction transportTransaction, int processingAttempts, bool isPoison = false)
         {
             try
             {
-                var errorContext = new ErrorContext(exception, headers, message.Id, message.BodyStream, transportTransaction, processingAttempts);
+                var errorContext = new ErrorContext(exception, headers, message.Id, message.BodyStream, transportTransaction, processingAttempts, isPoison);
 
                 return await onError(errorContext).ConfigureAwait(false);
             }
@@ -128,10 +109,7 @@ namespace NServiceBus
             }
         }
 
-        protected bool IsQueuesTransactional => errorQueue.Transactional;
-
         MessageQueue inputQueue;
-        MessageQueue errorQueue;
         Func<MessageContext, Task> onMessage;
         Func<ErrorContext, Task<ErrorHandleResult>> onError;
         CriticalError criticalError;

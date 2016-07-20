@@ -76,10 +76,8 @@
             MessagePump = ReceiveInfrastructure.MessagePumpFactory();
 
             var queueBindings = new QueueBindings();
-            ErrorQueueName = $"{InputQueueName}.error";
 
             queueBindings.BindReceiving(InputQueueName);
-            queueBindings.BindSending(ErrorQueueName);
 
             var queueCreator = ReceiveInfrastructure.QueueCreatorFactory();
 
@@ -87,7 +85,7 @@
 
             transportSettings.Set<QueueBindings>(queueBindings);
 
-            var pushSettings = new PushSettings(InputQueueName, ErrorQueueName, true, transactionMode);
+            var pushSettings = new PushSettings(InputQueueName, true, transactionMode);
 
             await MessagePump.Init(onMessage, onError, new FakeCriticalError(onCriticalError), pushSettings);
 
@@ -165,7 +163,6 @@
         }
 
         protected string InputQueueName;
-        protected string ErrorQueueName;
 
         SettingsHolder transportSettings;
         Lazy<IDispatchMessages> lazyDispatcher;

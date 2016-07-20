@@ -28,17 +28,21 @@ namespace NServiceBus
                         return;
                     }
 
+                    var transportTransaction = new TransportTransaction();
+                    transportTransaction.Set(msmqTransaction);
+
                     Dictionary<string, string> headers;
 
-                    if (!TryExtractHeaders(message, out headers))
+                    Exception ex;
+                    if ((ex = TryExtractHeaders(message, out headers)) != null)
                     {
-                        MovePoisonMessageToErrorQueue(message, msmqTransaction);
+                        await HandleError(message, new Dictionary<string, string>(), ex, transportTransaction, 1, isPoison: true).ConfigureAwait(false);
 
                         msmqTransaction.Commit();
                         return;
                     }
 
-                    var shouldCommit = await ProcessMessage(msmqTransaction, message, headers).ConfigureAwait(false);
+                    var shouldCommit = await ProcessMessage(message, headers, transportTransaction).ConfigureAwait(false);
 
                     if (shouldCommit)
                     {
@@ -63,12 +67,8 @@ namespace NServiceBus
             }
         }
 
-        async Task<bool> ProcessMessage(MessageQueueTransaction msmqTransaction, Message message, Dictionary<string, string> headers)
+        async Task<bool> ProcessMessage(Message message, Dictionary<string, string> headers, TransportTransaction transportTransaction)
         {
-            var transportTransaction = new TransportTransaction();
-
-            transportTransaction.Set(msmqTransaction);
-
             MsmqFailureInfoStorage.ProcessingFailureInfo failureInfo;
 
             var shouldTryProcessMessage = true;

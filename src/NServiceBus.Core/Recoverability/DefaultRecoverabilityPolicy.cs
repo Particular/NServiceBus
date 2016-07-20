@@ -18,6 +18,11 @@ namespace NServiceBus
         /// <returns>The recoverability action.</returns>
         public static RecoverabilityAction Invoke(RecoverabilityConfig config, ErrorContext errorContext)
         {
+            if (errorContext.Message.IsPoison)
+            {
+                return RecoverabilityAction.MoveToError(config.Failed.ErrorQueue);
+            }
+
             if (errorContext.Exception is MessageDeserializationException)
             {
                 return RecoverabilityAction.MoveToError(config.Failed.ErrorQueue);

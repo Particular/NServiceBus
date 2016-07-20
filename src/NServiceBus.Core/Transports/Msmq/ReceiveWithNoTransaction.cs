@@ -19,13 +19,14 @@ namespace NServiceBus
 
             Dictionary<string, string> headers;
 
-            if (!TryExtractHeaders(message, out headers))
+            var transportTransaction = new TransportTransaction();
+
+            Exception ex;
+            if ((ex = TryExtractHeaders(message, out headers)) != null)
             {
-                MovePoisonMessageToErrorQueue(message, IsQueuesTransactional ? MessageQueueTransactionType.Single : MessageQueueTransactionType.None);
+                await HandleError(message, new Dictionary<string, string>(), ex, transportTransaction, 1, isPoison: true).ConfigureAwait(false);
                 return;
             }
-
-            var transportTransaction = new TransportTransaction();
 
             using (var bodyStream = message.BodyStream)
             {
