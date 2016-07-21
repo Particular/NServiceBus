@@ -21,7 +21,7 @@
         {
             var routingSettings = new RoutingSettings<MessageDrivenTransportDefinition>(new SettingsHolder());
 
-            var exception = Assert.Throws<ArgumentException>(() => routingSettings.RegisterPublisherForType(typeof(Event), "EndpointName@MyHost"));
+            var exception = Assert.Throws<ArgumentException>(() => routingSettings.RegisterPublisher(typeof(Event), "EndpointName@MyHost"));
             Assert.AreEqual(expectedExceptionMessageForWrongEndpointName, exception.Message);
         }
 
@@ -30,7 +30,7 @@
         {
             var routingSettings = new RoutingSettings<MessageDrivenTransportDefinition>(new SettingsHolder());
 
-            var exception = Assert.Throws<ArgumentException>(() => routingSettings.RegisterPublisherForAssembly(Assembly.GetExecutingAssembly(), "EndpointName@MyHost"));
+            var exception = Assert.Throws<ArgumentException>(() => routingSettings.RegisterPublisher(Assembly.GetExecutingAssembly(), "EndpointName@MyHost"));
             Assert.AreEqual(expectedExceptionMessageForWrongEndpointName, exception.Message);
         }
 
@@ -39,7 +39,7 @@
         {
             var routingSettings = new RoutingSettings<MessageDrivenTransportDefinition>(new SettingsHolder());
 
-            var exception = Assert.Throws<ArgumentException>(() => routingSettings.RegisterPublisherForAssembly(Assembly.GetExecutingAssembly(), nameof(EventNamespace), "EndpointName@MyHost"));
+            var exception = Assert.Throws<ArgumentException>(() => routingSettings.RegisterPublisher(Assembly.GetExecutingAssembly(), nameof(EventNamespace), "EndpointName@MyHost"));
             Assert.AreEqual(expectedExceptionMessageForWrongEndpointName, exception.Message);
         }
 
@@ -47,7 +47,7 @@
         public void WhenPassingEndpointNameForPublisher_ShouldAddRouteToPublishers()
         {
             var routingSettings = new RoutingSettings<MessageDrivenTransportDefinition>(new SettingsHolder());
-            routingSettings.RegisterPublisherForType(typeof(Event), "EndpointName");
+            routingSettings.RegisterPublisher(typeof(Event), "EndpointName");
 
             var publishers = ApplyPublisherRegistrations(routingSettings);
 
@@ -59,7 +59,7 @@
         public void WhenPassingEndpointNameForPublisher_UsingAssembly_ShouldAddAllEventsToPublishers()
         {
             var routingSettings = new RoutingSettings<MessageDrivenTransportDefinition>(new SettingsHolder());
-            routingSettings.RegisterPublisherForAssembly(Assembly.GetExecutingAssembly(), "EndpointName");
+            routingSettings.RegisterPublisher(Assembly.GetExecutingAssembly(), "EndpointName");
 
             var publishers = ApplyPublisherRegistrations(routingSettings);
 
@@ -73,7 +73,7 @@
         public void WhenPassingEndpointNameForPublisher_UsingAssemblyAndNamespace_ShouldAddEventsWithNamespaceToPublishers()
         {
             var routingSettings = new RoutingSettings<MessageDrivenTransportDefinition>(new SettingsHolder());
-            routingSettings.RegisterPublisherForAssembly(Assembly.GetExecutingAssembly(), nameof(EventNamespace), "EndpointName");
+            routingSettings.RegisterPublisher(Assembly.GetExecutingAssembly(), nameof(EventNamespace), "EndpointName");
 
             var publishers = ApplyPublisherRegistrations(routingSettings);
 
@@ -87,7 +87,7 @@
         public void Should_register_all_types_in_assembly_when_not_specifying_namespace()
         {
             var routingSettings = new RoutingSettings<MessageDrivenTransportDefinition>(new SettingsHolder());
-            routingSettings.RegisterPublisherForAssembly(Assembly.GetExecutingAssembly(), "someAddress");
+            routingSettings.RegisterPublisher(Assembly.GetExecutingAssembly(), "someAddress");
 
             var publishers = ApplyPublisherRegistrations(routingSettings);
 
@@ -106,7 +106,7 @@
         public void Should_only_register_types_in_specified_namespace()
         {
             var routingSettings = new RoutingSettings<MessageDrivenTransportDefinition>(new SettingsHolder());
-            routingSettings.RegisterPublisherForAssembly(Assembly.GetExecutingAssembly(), "MessageNameSpace", "someAddress");
+            routingSettings.RegisterPublisher(Assembly.GetExecutingAssembly(), "MessageNameSpace", "someAddress");
 
             var publishers = ApplyPublisherRegistrations(routingSettings);
 
@@ -127,7 +127,7 @@
         public void Should_support_empty_namespace(string eventNamespace)
         {
             var routingSettings = new RoutingSettings<MessageDrivenTransportDefinition>(new SettingsHolder());
-            routingSettings.RegisterPublisherForAssembly(Assembly.GetExecutingAssembly(), eventNamespace, "someAddress");
+            routingSettings.RegisterPublisher(Assembly.GetExecutingAssembly(), eventNamespace, "someAddress");
 
             var publishers = ApplyPublisherRegistrations(routingSettings);
 

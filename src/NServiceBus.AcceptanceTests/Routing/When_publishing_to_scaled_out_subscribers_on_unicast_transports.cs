@@ -71,7 +71,7 @@
         {
             public SubscriberA()
             {
-                EndpointSetup<DefaultServer>(c => { c.RegisterPublisherForType(typeof(MyEvent), PublisherEndpoint); });
+                EndpointSetup<DefaultServer>(c => { c.RegisterPublisher(typeof(MyEvent), PublisherEndpoint); });
             }
 
             public class MyEventHandler : IHandleMessages<MyEvent>
@@ -90,7 +90,7 @@
         {
             public SubscriberB()
             {
-                EndpointSetup<DefaultServer>(c => { c.RegisterPublisherForType(typeof(MyEvent), PublisherEndpoint); });
+                EndpointSetup<DefaultServer>(c => { c.RegisterPublisher(typeof(MyEvent), PublisherEndpoint); });
             }
 
             public class MyEventHandler : IHandleMessages<MyEvent>

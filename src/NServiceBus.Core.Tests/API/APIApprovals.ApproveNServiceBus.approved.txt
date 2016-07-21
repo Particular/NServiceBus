@@ -765,11 +765,11 @@ namespace NServiceBus
     }
     public class static MessageDrivenSubscriptionsConfigExtensions
     {
-        public static void RegisterPublisherForAssembly<T>(this NServiceBus.RoutingSettings<T> routingSettings, System.Reflection.Assembly eventAssembly, string publisherEndpoint)
+        public static void RegisterPublisher<T>(this NServiceBus.RoutingSettings<T> routingSettings, System.Type eventType, string publisherEndpoint)
             where T : NServiceBus.Transport.TransportDefinition, NServiceBus.Routing.IMessageDrivenSubscriptionTransport { }
-        public static void RegisterPublisherForAssembly<T>(this NServiceBus.RoutingSettings<T> routingSettings, System.Reflection.Assembly eventAssembly, string eventNamespace, string publisherEndpoint)
+        public static void RegisterPublisher<T>(this NServiceBus.RoutingSettings<T> routingSettings, System.Reflection.Assembly assembly, string publisherEndpoint)
             where T : NServiceBus.Transport.TransportDefinition, NServiceBus.Routing.IMessageDrivenSubscriptionTransport { }
-        public static void RegisterPublisherForType<T>(this NServiceBus.RoutingSettings<T> routingSettings, System.Type eventType, string publisherEndpoint)
+        public static void RegisterPublisher<T>(this NServiceBus.RoutingSettings<T> routingSettings, System.Reflection.Assembly assembly, string @namespace, string publisherEndpoint)
             where T : NServiceBus.Transport.TransportDefinition, NServiceBus.Routing.IMessageDrivenSubscriptionTransport { }
         public static void SubscriptionAuthorizer<T>(this NServiceBus.TransportExtensions<T> transportExtensions, System.Func<NServiceBus.Pipeline.IIncomingPhysicalMessageContext, bool> authorizer)
             where T : NServiceBus.Transport.TransportDefinition, NServiceBus.Routing.IMessageDrivenSubscriptionTransport { }
@@ -963,7 +963,7 @@ namespace NServiceBus
     {
         public void RouteToEndpoint(System.Type messageType, string destination) { }
         public void RouteToEndpoint(System.Reflection.Assembly assembly, string destination) { }
-        public void RouteToEndpoint(System.Reflection.Assembly assembly, string messageNamespace, string destination) { }
+        public void RouteToEndpoint(System.Reflection.Assembly assembly, string @namespace, string destination) { }
     }
     public class RoutingSettings<T> : NServiceBus.RoutingSettings
         where T : NServiceBus.Transport.TransportDefinition { }
