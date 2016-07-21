@@ -49,8 +49,8 @@ namespace NServiceBus.Routing
         /// <summary>
         /// Adds a static unicast route to a specific endpoint instance.
         /// </summary>
-        /// <param name="messageType"></param>
-        /// <param name="instance"></param>
+        /// <param name="messageType">Message type.</param>
+        /// <param name="instance">Destination endpoint instance.</param>
         public void RouteToInstance(Type messageType, EndpointInstance instance)
         {
             AddStaticRoute(messageType, UnicastRoute.CreateFromEndpointInstance(instance));
