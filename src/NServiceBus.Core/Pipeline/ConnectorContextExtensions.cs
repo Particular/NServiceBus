@@ -216,7 +216,7 @@ namespace NServiceBus
         public static IForwardingContext CreateForwardingContext(this ForkConnector<IIncomingPhysicalMessageContext, IForwardingContext> forwardingContext, OutgoingMessage message, string forwardingAddress, IIncomingPhysicalMessageContext sourceContext)
         {
             Guard.AgainstNull(nameof(message), message);
-            Guard.AgainstNull(nameof(forwardingAddress), forwardingAddress);
+            Guard.AgainstNullAndEmpty(nameof(forwardingAddress), forwardingAddress);
             Guard.AgainstNull(nameof(sourceContext), sourceContext);
 
             return new ForwardingContext(message, forwardingAddress, sourceContext);
