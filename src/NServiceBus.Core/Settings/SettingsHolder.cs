@@ -262,6 +262,33 @@ namespace NServiceBus.Settings
             locked = true;
         }
 
+        internal void Merge(ReadOnlySettings settings)
+        {
+            Guard.AgainstNull(nameof(settings), settings);
+
+            EnsureMergingIsPossible();
+
+            var holder = settings as SettingsHolder ?? new SettingsHolder();
+
+            foreach (var @default in holder.Defaults)
+            {
+                Defaults[@default.Key] = @default.Value;
+            }
+
+            foreach (var @override in holder.Overrides)
+            {
+                Overrides[@override.Key] = @override.Value;
+            }
+        }
+
+        void EnsureMergingIsPossible()
+        {
+            if (locked)
+            {
+                throw new ConfigurationErrorsException("Unable to merge settings. The settings has been locked for modifications. Move any configuration code earlier in the configuration pipeline");
+            }
+        }
+
         void EnsureWriteEnabled(string key)
         {
             if (locked)
@@ -291,7 +318,9 @@ namespace NServiceBus.Settings
         }
 
         ConcurrentDictionary<string, object> Defaults = new ConcurrentDictionary<string, object>(StringComparer.OrdinalIgnoreCase);
+
         bool locked;
+
         ConcurrentDictionary<string, object> Overrides = new ConcurrentDictionary<string, object>(StringComparer.OrdinalIgnoreCase);
     }
 }

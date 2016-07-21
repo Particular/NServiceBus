@@ -156,6 +156,7 @@
     <Compile Include="Routing\UnicastPublishRouter.cs" />
     <Compile Include="Routing\UnicastSendRouter.cs" />
     <Compile Include="Serialization\SerializationFeature.cs" />
+    <Compile Include="Serialization\SerializationSettingsExtensions.cs" />
     <Compile Include="Serializers\XML\XmlSerialization.cs" />
     <Compile Include="Routing\ConfigureUniquelyAddressableInstanceExtensions.cs" />
     <Compile Include="Transports\ErrorContext.cs" />

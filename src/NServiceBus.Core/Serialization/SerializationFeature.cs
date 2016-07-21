@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
     using Features;
@@ -8,6 +9,7 @@
     using MessageInterfaces.MessageMapper.Reflection;
     using Pipeline;
     using Serialization;
+    using Settings;
     using Unicast.Messages;
 
     class SerializationFeature : Feature
@@ -15,10 +17,6 @@
         public SerializationFeature()
         {
             EnableByDefault();
-            Defaults(s =>
-            {
-                s.SetDefault("AdditionalDeserializers", new List<SerializationDefinition>());
-            });
         }
 
         protected internal sealed override void Setup(FeatureConfigurationContext context)
@@ -29,17 +27,16 @@
             var messageTypes = settings.GetAvailableTypes().Where(conventions.IsMessageType);
             mapper.Initialize(messageTypes);
 
-            SerializationDefinition defaultSerializerDefinition;
+            var defaultSerializerAndDefinition = settings.GetMainSerializer();
 
-            if (!context.Settings.TryGet(out defaultSerializerDefinition))
+            var defaultSerializer = CreateMessageSerializer(defaultSerializerAndDefinition, mapper, settings);
+
+            var additionalDeserializers = new List<IMessageSerializer>();
+            foreach (var definitionAndSettings in context.Settings.GetAdditionalSerializers())
             {
-                defaultSerializerDefinition = new XmlSerializer();
+                additionalDeserializers.Add(CreateMessageSerializer(definitionAndSettings, mapper, settings));
             }
 
-            var defaultSerializer = CreateMessageSerializer(defaultSerializerDefinition, mapper, context);
-
-            var additionalDeserializerDefinitions = context.Settings.Get<List<SerializationDefinition>>("AdditionalDeserializers");
-            var additionalDeserializers = additionalDeserializerDefinitions.Select(d => CreateMessageSerializer(d, mapper, context)).ToArray();
             var resolver = new MessageDeserializerResolver(defaultSerializer, additionalDeserializers);
 
             var knownMessages = context.Settings.GetAvailableTypes()
@@ -63,9 +60,14 @@
             LogFoundMessages(messageMetadataRegistry.GetAllMessages().ToList());
         }
 
-        static IMessageSerializer CreateMessageSerializer(SerializationDefinition definition, IMessageMapper mapper, FeatureConfigurationContext context)
+        static IMessageSerializer CreateMessageSerializer(Tuple<SerializationDefinition, SettingsHolder> definitionAndSettings, IMessageMapper mapper, ReadOnlySettings mainSettings)
         {
-            var serializerFactory = definition.Configure(context.Settings);
+            var definition = definitionAndSettings.Item1;
+            var deserializerSettings = definitionAndSettings.Item2;
+            deserializerSettings.Merge(mainSettings);
+            deserializerSettings.PreventChanges();
+
+            var serializerFactory = definition.Configure(deserializerSettings);
             var serializer = serializerFactory(mapper);
             return serializer;
         }

@@ -1,8 +1,9 @@
 ﻿namespace NServiceBus
 {
     using System;
-    using System.Collections.Generic;
+    using Configuration.AdvanceExtensibility;
     using Serialization;
+    using Settings;
 
     /// <summary>
     /// Provides configuration options for serialization.
@@ -33,9 +34,9 @@
             Guard.AgainstNull(nameof(config), config);
             Guard.AgainstNull(nameof(serializationDefinition), serializationDefinition);
 
-            config.Settings.Set<SerializationDefinition>(serializationDefinition);
-
-            return CreateSerializationExtension<T>(config);
+            var settings = new SettingsHolder();
+            config.Settings.SetMainSerializer(serializationDefinition, settings);
+            return CreateSerializationExtension<T>(settings);
         }
 
         /// <summary>
@@ -62,21 +63,17 @@
             Guard.AgainstNull(nameof(config), config);
             Guard.AgainstNull(nameof(serializationDefinition), serializationDefinition);
 
-            List<SerializationDefinition> deserializers;
-            if (!config.Settings.TryGet("AdditionalDeserializers", out deserializers))
-            {
-                deserializers = new List<SerializationDefinition>();
-                config.Settings.Set("AdditionalDeserializers", deserializers);
-            }
+            var additionalSerializers = config.GetSettings().GetAdditionalSerializers();
 
-            deserializers.Add(serializationDefinition);
-            return CreateSerializationExtension<T>(config);
+            var settings = new SettingsHolder();
+            additionalSerializers.Add(Tuple.Create<SerializationDefinition, SettingsHolder>(serializationDefinition, settings));
+            return CreateSerializationExtension<T>(settings);
         }
 
-        static SerializationExtensions<T> CreateSerializationExtension<T>(EndpointConfiguration config) where T : SerializationDefinition
+        static SerializationExtensions<T> CreateSerializationExtension<T>(SettingsHolder settings) where T : SerializationDefinition
         {
             var type = typeof(SerializationExtensions<>).MakeGenericType(typeof(T));
-            var extension = (SerializationExtensions<T>) Activator.CreateInstance(type, config.Settings);
+            var extension = (SerializationExtensions<T>) Activator.CreateInstance(type, settings);
             return extension;
         }
     }
