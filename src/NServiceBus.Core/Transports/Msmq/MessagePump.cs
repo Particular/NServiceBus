@@ -119,6 +119,9 @@ namespace NServiceBus
 
         async Task InnerProcessMessages()
         {
+            // create this state only once to safe allocations
+            var receiveMessageState = new ReceiveMessageState(receiveStrategy, receiveCircuitBreaker, concurrencyLimiter);
+
             using (var enumerator = inputQueue.GetMessageEnumerator2())
             {
                 while (!cancellationTokenSource.IsCancellationRequested)
@@ -147,28 +150,7 @@ namespace NServiceBus
 
                     await concurrencyLimiter.WaitAsync(cancellationToken).ConfigureAwait(false);
 
-                    var receiveTask = Task.Run(async () =>
-                    {
-
-                        try
-                        {
-                            await receiveStrategy.ReceiveMessage().ConfigureAwait(false);
-                            receiveCircuitBreaker.Success();
-                        }
-                        catch (OperationCanceledException)
-                        {
-                            // Intentionally ignored
-                        }
-                        catch (Exception ex)
-                        {
-                            Logger.Warn("MSMQ receive operation failed", ex);
-                            await receiveCircuitBreaker.Failure(ex).ConfigureAwait(false);
-                        }
-                        finally
-                        {
-                            concurrencyLimiter.Release();
-                        }
-                    }, CancellationToken.None);
+                    var receiveTask = ReceiveMessage(receiveMessageState);
 
                     runningReceiveTasks.TryAdd(receiveTask, receiveTask);
 
@@ -189,6 +171,33 @@ namespace NServiceBus
                         .Ignore();
                 }
             }
+        }
+
+        static Task ReceiveMessage(ReceiveMessageState receiveMessageState)
+        {
+            return TaskEx.Run(async state =>
+            {
+                var receiveState = (ReceiveMessageState) state;
+
+                try
+                {
+                    await receiveState.Strategy.ReceiveMessage().ConfigureAwait(false);
+                    receiveState.ReceiveCircuitBreaker.Success();
+                }
+                catch (OperationCanceledException)
+                {
+                    // Intentionally ignored
+                }
+                catch (Exception ex)
+                {
+                    Logger.Warn("MSMQ receive operation failed", ex);
+                    await receiveState.ReceiveCircuitBreaker.Failure(ex).ConfigureAwait(false);
+                }
+                finally
+                {
+                    receiveState.ConcurrencyLimiter.Release();
+                }
+            }, receiveMessageState);
         }
 
         bool QueueIsTransactional()
@@ -232,5 +241,20 @@ namespace NServiceBus
             Extension = true,
             AppSpecific = true
         };
+
+        class ReceiveMessageState
+        {
+            public ReceiveMessageState(ReceiveStrategy strategy, RepeatedFailuresOverTimeCircuitBreaker receiveCircuitBreaker, SemaphoreSlim concurrencyLimiter)
+            {
+                Strategy = strategy;
+                ReceiveCircuitBreaker = receiveCircuitBreaker;
+                ConcurrencyLimiter = concurrencyLimiter;
+            }
+
+            public ReceiveStrategy Strategy { get; }
+            public RepeatedFailuresOverTimeCircuitBreaker ReceiveCircuitBreaker { get; }
+            public SemaphoreSlim ConcurrencyLimiter { get; }
+        }
+
     }
 }
