@@ -53,19 +53,19 @@
         /// Adds a static unicast route for all types contained in the specified assembly within the given namespace.
         /// </summary>
         /// <param name="assembly">The assembly whose messages should be routed.</param>
-        /// <param name="messageNamespace">The namespace of the messages which should be routed.</param>
+        /// <param name="namespace">The namespace of the messages which should be routed.</param>
         /// <param name="destination">Destination endpoint.</param>
-        public void RouteToEndpoint(Assembly assembly, string messageNamespace, string destination)
+        public void RouteToEndpoint(Assembly assembly, string @namespace, string destination)
         {
             ThrowOnAddress(destination);
 
             // empty namespace is null, not string.empty
-            messageNamespace = messageNamespace == string.Empty ? null : messageNamespace;
+            @namespace = @namespace == string.Empty ? null : @namespace;
             Settings.GetOrCreate<ConfiguredUnicastRoutes>().Add((routingTable, knownMessageTypes) =>
             {
                 foreach (var knownMessage in knownMessageTypes)
                 {
-                    if (knownMessage.Assembly == assembly && knownMessage.Namespace == messageNamespace)
+                    if (knownMessage.Assembly == assembly && knownMessage.Namespace == @namespace)
                     {
                         routingTable.RouteToEndpoint(knownMessage, destination);
                     }
