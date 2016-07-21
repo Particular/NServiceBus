@@ -2,6 +2,7 @@
 {
     using System.Linq;
     using MessageNameSpace;
+    using NServiceBus.Routing;
     using NServiceBus.Routing.MessageDrivenSubscriptions;
     using NUnit.Framework;
     using OtherMesagenameSpace;
@@ -26,11 +27,12 @@
             publishers.Add(typeof(BaseMessage), "logicalEndpoint");
             publishers.Add(typeof(BaseMessage), "logicalEndpoint");
             publishers.Add(typeof(BaseMessage), "logicalEndpoint2");
+            publishers.Add(typeof(BaseMessage), new EndpointInstance("logicalEndpoint", "42"));
             publishers.AddByAddress(typeof(BaseMessage), "address1");
 
             var result = publishers.GetPublisherFor(typeof(BaseMessage));
 
-            Assert.AreEqual(4, result.Count());
+            Assert.AreEqual(5, result.Count());
         }
 
         [Test]

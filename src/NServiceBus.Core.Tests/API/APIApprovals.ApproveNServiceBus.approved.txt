@@ -2621,6 +2621,7 @@ namespace NServiceBus.Routing.MessageDrivenSubscriptions
     {
         public Publishers() { }
         public void Add(System.Type eventType, string publisher) { }
+        public void Add(System.Type eventType, NServiceBus.Routing.EndpointInstance endpointInstance) { }
         public void AddByAddress(System.Type eventType, string publisherAddress) { }
         public void AddDynamic(System.Func<System.Type, NServiceBus.Routing.MessageDrivenSubscriptions.PublisherAddress> dynamicRule) { }
     }
