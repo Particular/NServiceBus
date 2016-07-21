@@ -105,11 +105,8 @@
 
         static Type[] GetKnownMessageTypes(FeatureConfigurationContext context)
         {
-            var conventions = context.Settings.Get<Conventions>();
-            var knownMessageTypes = context.Settings.GetAvailableTypes()
-                .Where(conventions.IsMessageType)
-                .ToArray();
-            return knownMessageTypes;
+            var registry = context.Settings.Get<MessageMetadataRegistry>();
+            return registry.GetAllMessages().Select(m => m.MessageType).ToArray();
         }
 
         static void ImportMessageEndpointMappings(MessageEndpointMappingCollection legacyRoutingConfig, TransportInfrastructure transportInfrastructure, Publishers publishers, UnicastRoutingTable unicastRoutingTable, Type[] knownMessageTypes)

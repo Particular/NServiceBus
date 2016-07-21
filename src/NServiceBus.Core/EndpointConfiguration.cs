@@ -15,6 +15,7 @@ namespace NServiceBus
     using Pipeline;
     using Settings;
     using Transport;
+    using Unicast.Messages;
 
     /// <summary>
     /// Configuration used to create an endpoint instance.
@@ -218,7 +219,12 @@ namespace NServiceBus
                 Settings.SetDefault("PublicReturnAddress", publicReturnAddress);
             }
 
-            Settings.SetDefault<Conventions>(conventionsBuilder.Conventions);
+            var conventions = conventionsBuilder.Conventions;
+            Settings.SetDefault<Conventions>(conventions);
+            var messageMetadataRegistry = new MessageMetadataRegistry(conventions);
+            messageMetadataRegistry.RegisterMessageTypesFoundIn(Settings.GetAvailableTypes());
+
+            Settings.SetDefault<MessageMetadataRegistry>(messageMetadataRegistry);
 
             return new InitializableEndpoint(Settings, container, registrations, Pipeline, pipelineCollection);
         }

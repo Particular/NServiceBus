@@ -69,7 +69,18 @@
             return new List<MessageMetadata>(messages.Values);
         }
 
-        internal MessageMetadata RegisterMessageType(Type messageType)
+        internal void RegisterMessageTypesFoundIn(IList<Type> availableTypes)
+        {
+            foreach (var type in availableTypes)
+            {
+                if (conventions.IsMessageType(type))
+                {
+                    RegisterMessageType(type);
+                }
+            }
+        }
+
+        MessageMetadata RegisterMessageType(Type messageType)
         {
             //get the parent types
             var parentMessages = GetParentTypes(messageType)

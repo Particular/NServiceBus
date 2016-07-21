@@ -15,7 +15,7 @@
         {
             var registry = new MessageMetadataRegistry(new Conventions());
 
-            registry.RegisterMessageType(typeof(MyMessage));
+            registry.RegisterMessageTypesFoundIn(new List<Type> { typeof(MyMessage) });
 
             var context = ContextHelpers.GetOutgoingContext(new MyMessage());
             var behavior = new SerializeMessageConnector(new FakeSerializer("myContentType"), registry);
@@ -45,6 +45,6 @@
             public string ContentType { get; }
         }
 
-        class MyMessage { }
+        class MyMessage : IMessage { }
     }
 }

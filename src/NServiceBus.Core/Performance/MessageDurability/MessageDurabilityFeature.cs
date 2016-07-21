@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using DeliveryConstraints;
+    using Unicast.Messages;
 
     class MessageDurabilityFeature : Feature
     {
@@ -14,12 +15,6 @@
 
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-            var conventions = context.Settings.Get<Conventions>();
-
-            var knownMessages = context.Settings.GetAvailableTypes()
-                .Where(conventions.IsMessageType)
-                .ToList();
-
             var defaultToDurableMessages = context.Settings.DurableMessagesEnabled();
 
             var nonDurableMessages = new HashSet<Type>();
@@ -31,15 +26,16 @@
                 durabilityConvention = t => t.GetCustomAttributes(typeof(ExpressAttribute), true).Any();
             }
 
-            foreach (var messageType in knownMessages)
+            var registry = context.Settings.Get<MessageMetadataRegistry>();
+            foreach (var messageMetadata in registry.GetAllMessages())
             {
                 if (!defaultToDurableMessages)
                 {
-                    nonDurableMessages.Add(messageType);
+                    nonDurableMessages.Add(messageMetadata.MessageType);
                 }
-                else if(durabilityConvention(messageType))
+                else if(durabilityConvention(messageMetadata.MessageType))
                 {
-                    nonDurableMessages.Add(messageType);
+                    nonDurableMessages.Add(messageMetadata.MessageType);
                 }
             }
 

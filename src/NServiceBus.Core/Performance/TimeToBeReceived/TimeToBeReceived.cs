@@ -4,6 +4,7 @@
     using System.Linq;
     using DeliveryConstraints;
     using Performance.TimeToBeReceived;
+    using Unicast.Messages;
 
     class TimeToBeReceived : Feature
     {
@@ -26,11 +27,10 @@
             context.Container.ConfigureComponent(b => new ApplyTimeToBeReceivedBehavior(mappings), DependencyLifecycle.SingleInstance);
         }
 
-        TimeToBeReceivedMappings GetMappings(FeatureConfigurationContext context)
+        static TimeToBeReceivedMappings GetMappings(FeatureConfigurationContext context)
         {
-            var knownMessages = context.Settings.GetAvailableTypes()
-                .Where(context.Settings.Get<Conventions>().IsMessageType)
-                .ToList();
+            var registry = context.Settings.Get<MessageMetadataRegistry>();
+            var knownMessages = registry.GetAllMessages().Select(m => m.MessageType);
 
             var convention = TimeToBeReceivedMappings.DefaultConvention;
 
