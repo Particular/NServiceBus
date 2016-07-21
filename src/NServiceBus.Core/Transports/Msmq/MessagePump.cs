@@ -119,9 +119,6 @@ namespace NServiceBus
 
         async Task InnerProcessMessages()
         {
-            // create this state only once to safe allocations
-            var receiveMessageState = new ReceiveMessageState(receiveStrategy, receiveCircuitBreaker, concurrencyLimiter);
-
             using (var enumerator = inputQueue.GetMessageEnumerator2())
             {
                 while (!cancellationTokenSource.IsCancellationRequested)
@@ -150,7 +147,7 @@ namespace NServiceBus
 
                     await concurrencyLimiter.WaitAsync(cancellationToken).ConfigureAwait(false);
 
-                    var receiveTask = ReceiveMessage(receiveMessageState);
+                    var receiveTask = ReceiveMessage();
 
                     runningReceiveTasks.TryAdd(receiveTask, receiveTask);
 
@@ -173,16 +170,16 @@ namespace NServiceBus
             }
         }
 
-        static Task ReceiveMessage(ReceiveMessageState receiveMessageState)
+        Task ReceiveMessage()
         {
             return TaskEx.Run(async state =>
             {
-                var receiveState = (ReceiveMessageState) state;
+                var messagePump = (MessagePump) state;
 
                 try
                 {
-                    await receiveState.Strategy.ReceiveMessage().ConfigureAwait(false);
-                    receiveState.ReceiveCircuitBreaker.Success();
+                    await messagePump.receiveStrategy.ReceiveMessage().ConfigureAwait(false);
+                    messagePump.receiveCircuitBreaker.Success();
                 }
                 catch (OperationCanceledException)
                 {
@@ -191,13 +188,13 @@ namespace NServiceBus
                 catch (Exception ex)
                 {
                     Logger.Warn("MSMQ receive operation failed", ex);
-                    await receiveState.ReceiveCircuitBreaker.Failure(ex).ConfigureAwait(false);
+                    await messagePump.receiveCircuitBreaker.Failure(ex).ConfigureAwait(false);
                 }
                 finally
                 {
-                    receiveState.ConcurrencyLimiter.Release();
+                    messagePump.concurrencyLimiter.Release();
                 }
-            }, receiveMessageState);
+            }, this);
         }
 
         bool QueueIsTransactional()
@@ -241,20 +238,5 @@ namespace NServiceBus
             Extension = true,
             AppSpecific = true
         };
-
-        class ReceiveMessageState
-        {
-            public ReceiveMessageState(ReceiveStrategy strategy, RepeatedFailuresOverTimeCircuitBreaker receiveCircuitBreaker, SemaphoreSlim concurrencyLimiter)
-            {
-                Strategy = strategy;
-                ReceiveCircuitBreaker = receiveCircuitBreaker;
-                ConcurrencyLimiter = concurrencyLimiter;
-            }
-
-            public ReceiveStrategy Strategy { get; }
-            public RepeatedFailuresOverTimeCircuitBreaker ReceiveCircuitBreaker { get; }
-            public SemaphoreSlim ConcurrencyLimiter { get; }
-        }
-
     }
 }
