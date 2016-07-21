@@ -4,6 +4,7 @@
     using AcceptanceTesting;
     using EndpointTemplates;
     using Features;
+    using NServiceBus.Routing;
     using NUnit.Framework;
     using Transport;
 
@@ -42,7 +43,7 @@
                 protected override void Setup(FeatureConfigurationContext context)
                 {
                     var instanceName = context.Settings.EndpointInstanceName();
-                    var satelliteLogicalAddress = new LogicalAddress(instanceName, "MySatellite");
+                    var satelliteLogicalAddress = new LogicalAddress(new EndpointInstance(instanceName.Endpoint), "MySatellite");
                     var satelliteAddress = context.Settings.GetTransportAddress(satelliteLogicalAddress);
 
                     context.AddSatelliteReceiver("Test satellite", satelliteAddress, TransportTransactionMode.ReceiveOnly, PushRuntimeSettings.Default,

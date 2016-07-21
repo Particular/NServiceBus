@@ -29,7 +29,7 @@
         {
             var instances = new EndpointInstances();
             var sales = "Sales";
-            instances.Add(new EndpointInstance(sales, "1"), new EndpointInstance(sales, "2"));
+            instances.Add(new EndpointInstance(sales, sales + "1"), new EndpointInstance(sales, sales + "2"));
 
             var salesInstances = await instances.FindInstances(sales);
             Assert.AreEqual(2, salesInstances.Count());
@@ -40,8 +40,8 @@
         {
             var instances = new EndpointInstances();
             var sales = "Sales";
-            instances.Add(new EndpointInstance(sales, "dup"), new EndpointInstance(sales, "dup"));
-            instances.AddDynamic(e => Task.FromResult(new List<EndpointInstance> { new EndpointInstance(sales, "dup") }.AsEnumerable()));
+            instances.Add(new EndpointInstance(sales, sales + "dup"), new EndpointInstance(sales, sales + "dup"));
+            instances.AddDynamic(e => Task.FromResult(new List<EndpointInstance> { new EndpointInstance(sales, sales + "dup") }.AsEnumerable()));
 
             var salesInstances = await instances.FindInstances(sales);
             Assert.AreEqual(1, salesInstances.Count());
@@ -54,8 +54,8 @@
             var salesInstancess = await instances.FindInstances("Sales");
 
             var singleInstance = salesInstancess.Single();
-            Assert.IsNull(singleInstance.Discriminator);
-            Assert.IsEmpty(singleInstance.Properties);
+            Assert.AreEqual("Sales", singleInstance.Endpoint);
+            Assert.AreEqual("Sales", singleInstance.InstanceAddress);
         }
 
         [Test]
@@ -63,9 +63,9 @@
         {
             var instances = new EndpointInstances();
             var endpointName = "endpointA";
-            instances.Add(new EndpointInstance(endpointName, "1"));
+            instances.Add(new EndpointInstance(endpointName, endpointName + "1"));
             var invocationCounter = 0;
-            instances.AddDynamic(e => Task.FromResult(e == endpointName && invocationCounter++ == 0 ? new [] { new EndpointInstance(endpointName, "2") }.AsEnumerable() : Enumerable.Empty<EndpointInstance>()));
+            instances.AddDynamic(e => Task.FromResult(e == endpointName && invocationCounter++ == 0 ? new [] { new EndpointInstance(endpointName, endpointName + "2") }.AsEnumerable() : Enumerable.Empty<EndpointInstance>()));
 
             var result1 = await instances.FindInstances(endpointName);
             var result2 = await instances.FindInstances(endpointName);

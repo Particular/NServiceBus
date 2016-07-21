@@ -14,15 +14,15 @@ namespace NServiceBus.Core.Tests.Routing
             var policy = new DistributionPolicy();
             var endpointAInstances = new[]
             {
-                UnicastRoutingTarget.ToEndpointInstance(new EndpointInstance(endpointA, "1")),
-                UnicastRoutingTarget.ToEndpointInstance(new EndpointInstance(endpointA, "2")),
+                UnicastRoutingTarget.ToEndpointInstance(new EndpointInstance(endpointA, endpointA+"1")),
+                UnicastRoutingTarget.ToEndpointInstance(new EndpointInstance(endpointA, endpointA+"2"))
             };
 
             var endpointB = "endpointB";
             var endpointBInstances = new[]
             {
-                UnicastRoutingTarget.ToEndpointInstance(new EndpointInstance(endpointB, "1")),
-                UnicastRoutingTarget.ToEndpointInstance(new EndpointInstance(endpointB, "2")),
+                UnicastRoutingTarget.ToEndpointInstance(new EndpointInstance(endpointB, endpointB+"1")),
+                UnicastRoutingTarget.ToEndpointInstance(new EndpointInstance(endpointB, endpointB+"2"))
             };
 
             var result = new List<UnicastRoutingTarget>();

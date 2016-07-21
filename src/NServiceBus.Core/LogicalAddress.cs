@@ -59,9 +59,9 @@
         {
             if (Qualifier != null)
             {
-                return EndpointInstance + "." + Qualifier;
+                return EndpointInstance.InstanceAddress + "." + Qualifier;
             }
-            return EndpointInstance.ToString();
+            return EndpointInstance.InstanceAddress;
         }
 
         /// <summary>

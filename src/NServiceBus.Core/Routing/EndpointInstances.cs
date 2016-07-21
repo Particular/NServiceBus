@@ -26,7 +26,7 @@ namespace NServiceBus.Routing
 
             return Task.FromResult<IEnumerable<EndpointInstance>>(new[]
             {
-                new EndpointInstance(endpoint)
+                new EndpointInstance(endpoint, endpoint)
             });
         }
 
@@ -44,7 +44,7 @@ namespace NServiceBus.Routing
 
             if (dynamicInstances.Count == 0)
             {
-                dynamicInstances.Add(new EndpointInstance(endpoint));
+                dynamicInstances.Add(new EndpointInstance(endpoint, endpoint));
             }
 
             return dynamicInstances;

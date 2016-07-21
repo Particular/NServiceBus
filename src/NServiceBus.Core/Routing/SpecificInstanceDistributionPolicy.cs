@@ -28,7 +28,7 @@ namespace NServiceBus
 
             public override IEnumerable<UnicastRoutingTarget> SelectDestination(IList<UnicastRoutingTarget> allInstances)
             {
-                var target = allInstances.FirstOrDefault(t => t.Instance != null && t.Instance.Discriminator == specificInstance);
+                var target = allInstances.FirstOrDefault(t => t.Instance != null && t.Instance.Endpoint.EndsWith("." + specificInstance));
                 if (target == null)
                 {
                     throw new Exception($"Specified instance {specificInstance} has not been configured in the routing tables.");

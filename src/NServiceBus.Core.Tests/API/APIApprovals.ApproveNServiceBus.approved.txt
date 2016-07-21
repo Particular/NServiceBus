@@ -2533,14 +2533,12 @@ namespace NServiceBus.Routing
     }
     public sealed class EndpointInstance
     {
-        public EndpointInstance(string endpoint, string discriminator = null, System.Collections.Generic.IReadOnlyDictionary<string, string> properties = null) { }
-        public string Discriminator { get; }
+        public EndpointInstance(string endpoint) { }
+        public EndpointInstance(string endpoint, string instanceAddress) { }
         public string Endpoint { get; }
-        public System.Collections.Generic.IReadOnlyDictionary<string, string> Properties { get; }
+        public string InstanceAddress { get; }
         public override bool Equals(object obj) { }
         public override int GetHashCode() { }
-        public NServiceBus.Routing.EndpointInstance SetProperty(string key, string value) { }
-        public override string ToString() { }
     }
     public class EndpointInstances
     {
@@ -2583,9 +2581,7 @@ namespace NServiceBus.Routing
     }
     public class UnicastRoute : NServiceBus.Routing.IUnicastRoute
     {
-        public static NServiceBus.Routing.UnicastRoute CreateFromEndpointInstance(NServiceBus.Routing.EndpointInstance instance) { }
         public static NServiceBus.Routing.UnicastRoute CreateFromEndpointName(string endpoint) { }
-        public static NServiceBus.Routing.UnicastRoute CreateFromPhysicalAddress(string physicalAddress) { }
     }
     public class UnicastRoutingStrategy : NServiceBus.Routing.RoutingStrategy
     {
@@ -2597,7 +2593,6 @@ namespace NServiceBus.Routing
         public UnicastRoutingTable() { }
         public void AddDynamic(System.Func<System.Type[], NServiceBus.Extensibility.ContextBag, System.Threading.Tasks.Task<System.Collections.Generic.IEnumerable<NServiceBus.Routing.IUnicastRoute>>> dynamicRule) { }
         public void AddDynamic(System.Func<System.Type[], NServiceBus.Extensibility.ContextBag, System.Collections.Generic.IEnumerable<NServiceBus.Routing.IUnicastRoute>> dynamicRule) { }
-        public void RouteToAddress(System.Type messageType, string destinationAddress) { }
         public void RouteToEndpoint(System.Type messageType, string destination) { }
     }
 }

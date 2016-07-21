@@ -20,10 +20,11 @@ namespace NServiceBus
 
                 if (userDiscriminator != null)
                 {
-                    var p = s.Get<TransportInfrastructure>().BindToLocalEndpoint(new EndpointInstance(s.EndpointName(), userDiscriminator));
+                    var endpoint = $"{s.EndpointName()}-{userDiscriminator}";
+                    var p = s.Get<TransportInfrastructure>().BindToLocalEndpoint(new EndpointInstance(endpoint, endpoint));
                     s.SetDefault("NServiceBus.EndpointSpecificQueue", transportAddresses.GetTransportAddress(new LogicalAddress(p)));
                 }
-                var instanceProperties = s.Get<TransportInfrastructure>().BindToLocalEndpoint(new EndpointInstance(s.EndpointName()));
+                var instanceProperties = s.Get<TransportInfrastructure>().BindToLocalEndpoint(new EndpointInstance(s.EndpointName(), s.EndpointName()));
                 s.SetDefault("NServiceBus.SharedQueue", transportAddresses.GetTransportAddress(new LogicalAddress(instanceProperties)));
 
                 s.SetDefault<EndpointInstance>(instanceProperties);
