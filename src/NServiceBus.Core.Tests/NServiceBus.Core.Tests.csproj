@@ -180,13 +180,14 @@
     <Compile Include="Routing\RoutingToDispatchConnectorTests.cs" />
     <Compile Include="Routing\SingleInstanceRoundRobinDistributionStrategyTests.cs" />
     <Compile Include="Routing\SubscriptionRouterTests.cs" />
+    <Compile Include="Routing\UnicastPublisherRouterTests.cs" />
     <Compile Include="Sagas\CustomFinderAdapterTests.cs" />
     <Compile Include="Sagas\InvokeSagaNotFoundBehaviorTests.cs" />
     <Compile Include="Sagas\When_saga_has_multiple_correlated_properties.cs" />
     <Compile Include="Sagas\When_saga_is_correlated_on_a_unsupported_property_type.cs" />
     <Compile Include="Sagas\When_saga_has_no_start_message.cs" />
     <Compile Include="Routing\TransportAddressesTest.cs" />
-    <Compile Include="Routing\UnicastRouterTests.cs" />
+    <Compile Include="Routing\UnicastSendRouterTests.cs" />
     <Compile Include="Serializers\MessageDeserializerResolverTests.cs" />
     <Compile Include="Performance\TimeToBeReceived\TimeToBeReceivedAttributeTests.cs" />
     <Compile Include="Config\TestConfigurationSection.cs" />
