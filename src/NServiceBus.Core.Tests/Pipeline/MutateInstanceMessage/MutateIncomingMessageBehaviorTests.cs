@@ -21,9 +21,9 @@
             {
                 Message = logicalMessage
             };
-            
+
             context.Builder.Register<IMutateIncomingMessages>(() => new MutateIncomingMessagesReturnsNull());
-            
+
             Assert.That(async () => await behavior.Invoke(context, () => TaskEx.CompletedTask), Throws.Exception.With.Message.EqualTo("Return a Task or mark the method as async."));
         }
 

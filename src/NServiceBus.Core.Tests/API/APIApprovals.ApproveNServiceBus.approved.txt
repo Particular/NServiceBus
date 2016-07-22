@@ -3413,8 +3413,9 @@ namespace NServiceBus.Unicast.Messages
 {
     public class MessageMetadata
     {
-        public MessageMetadata(System.Type messageType, System.Collections.Generic.IEnumerable<System.Type> messageHierarchy = null) { }
-        public System.Collections.Generic.IEnumerable<System.Type> MessageHierarchy { get; }
+        public MessageMetadata(System.Type messageType) { }
+        public MessageMetadata(System.Type messageType, System.Type[] messageHierarchy) { }
+        public System.Type[] MessageHierarchy { get; }
         public System.Type MessageType { get; }
         [System.ObsoleteAttribute("You can access Recoverable via the DeliveryConstraints collection on the outgoing" +
             " context, the new constraint is called NonDurableDelivery. The member currently " +

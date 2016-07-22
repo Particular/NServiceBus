@@ -1,22 +1,31 @@
 ﻿namespace NServiceBus.Unicast.Messages
 {
     using System;
-    using System.Collections.Generic;
 
     /// <summary>
     /// Message metadata class.
     /// </summary>
     public partial class MessageMetadata
     {
+        static Type[] emptyHierarchy = new Type[0];
+
+        /// <summary>
+        /// Create a new instance of <see cref="MessageMetadata"/>.
+        /// </summary>
+        /// <param name="messageType">The type of the message this metadata belongs to.</param>
+        public MessageMetadata(Type messageType) : this(messageType, null)
+        {
+        }
+
         /// <summary>
         /// Create a new instance of <see cref="MessageMetadata"/>.
         /// </summary>
         /// <param name="messageType">The type of the message this metadata belongs to.</param>
         /// <param name="messageHierarchy">the hierarchy of all message types implemented by the message this metadata belongs to.</param>
-        public MessageMetadata(Type messageType, IEnumerable<Type> messageHierarchy = null)
+        public MessageMetadata(Type messageType, Type[] messageHierarchy)
         {
             MessageType = messageType;
-            MessageHierarchy = (messageHierarchy == null ? new List<Type>() : new List<Type>(messageHierarchy)).AsReadOnly();
+            MessageHierarchy = messageHierarchy ?? emptyHierarchy;
         }
 
         /// <summary>
@@ -28,6 +37,6 @@
         /// <summary>
         /// The message instance hierarchy.
         /// </summary>
-        public IEnumerable<Type> MessageHierarchy { get; private set; }
+        public Type[] MessageHierarchy { get; private set; }
     }
 }
