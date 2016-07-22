@@ -25,6 +25,12 @@
             }
         }
 
+        [SetUp]
+        public void SetUp()
+        {
+            testId = Guid.NewGuid().ToString();
+        }
+
         static IConfigureTransportInfrastructure CreateConfigurer()
         {
             var typeName = "Configure" + SpecificTransport + "Infrastructure";
@@ -86,7 +92,29 @@
             await queueCreator.CreateQueueIfNecessary(queueBindings, WindowsIdentity.GetCurrent().Name);
 
             var pushSettings = new PushSettings(InputQueueName, ErrorQueueName, configuration.PurgeInputQueueOnStartup, transactionMode);
-            await MessagePump.Init(onMessage, onError, new FakeCriticalError(onCriticalError), pushSettings);
+            await MessagePump.Init(
+                context =>
+                {
+                    if (context.Headers.ContainsKey(TestIdHeaderName) &&
+                        context.Headers[TestIdHeaderName] == testId)
+                    {
+                        return onMessage(context);
+                    }
+
+                    return Task.FromResult(0);
+                },
+                context =>
+                {
+                    if (context.Message.Headers.ContainsKey(TestIdHeaderName) &&
+                        context.Message.Headers[TestIdHeaderName] == testId)
+                    {
+                        return onError(context);
+                    }
+
+                    return Task.FromResult(ErrorHandleResult.Handled);
+                },
+                new FakeCriticalError(onCriticalError),
+                pushSettings);
 
             MessagePump.Start(PushRuntimeSettings.Default);
         }
@@ -103,6 +131,11 @@
         {
             var messageId = Guid.NewGuid().ToString();
             var message = new OutgoingMessage(messageId, headers ?? new Dictionary<string, string>(), new byte[0]);
+
+            if (message.Headers.ContainsKey(TestIdHeaderName) == false)
+            {
+                message.Headers.Add(TestIdHeaderName, testId);
+            }
 
             var dispatcher = lazyDispatcher.Value;
 
@@ -121,7 +154,7 @@
         {
             testCancellationTokenSource = new CancellationTokenSource();
 
-            testCancellationTokenSource.CancelAfter(TimeSpan.FromSeconds(10));
+            testCancellationTokenSource.CancelAfter(TimeSpan.FromSeconds(300));
             testCancellationTokenSource.Token.Register(onTimeoutAction);
         }
 
@@ -164,6 +197,8 @@
         protected string InputQueueName;
         protected string ErrorQueueName;
 
+        string testId;
+
         SettingsHolder transportSettings = new SettingsHolder();
         Lazy<IDispatchMessages> lazyDispatcher;
         TransportReceiveInfrastructure ReceiveInfrastructure;
@@ -174,6 +209,7 @@
         IConfigureTransportInfrastructure Configurer;
 
         static string MsmqDescriptorKey = "MsmqTransport";
+        static string TestIdHeaderName = "TransportTest.TestId";
 
         class FakeCriticalError : CriticalError
         {
