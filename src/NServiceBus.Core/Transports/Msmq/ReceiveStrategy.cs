@@ -103,7 +103,8 @@ namespace NServiceBus
         {
             using (var tokenSource = new CancellationTokenSource())
             {
-                var messageContext = new MessageContext(message.Id, headers, bodyStream, transaction, tokenSource, new ContextBag());
+                var body = await ReadStream(message.BodyStream).ConfigureAwait(false);
+                var messageContext = new MessageContext(message.Id, headers, body, transaction, tokenSource, new ContextBag());
 
                 await onMessage(messageContext).ConfigureAwait(false);
 
@@ -115,7 +116,8 @@ namespace NServiceBus
         {
             try
             {
-                var errorContext = new ErrorContext(exception, headers, message.Id, message.BodyStream, transportTransaction, processingAttempts);
+                var body = await ReadStream(message.BodyStream).ConfigureAwait(false);
+                var errorContext = new ErrorContext(exception, headers, message.Id, body, transportTransaction, processingAttempts);
 
                 return await onError(errorContext).ConfigureAwait(false);
             }
@@ -126,6 +128,15 @@ namespace NServiceBus
                 //best thing we can do is roll the message back if possible
                 return ErrorHandleResult.RetryRequired;
             }
+        }
+
+        static async Task<byte[]> ReadStream(Stream bodyStream)
+        {
+            bodyStream.Seek(0, SeekOrigin.Begin);
+            var length = (int) bodyStream.Length;
+            var body = new byte[length];
+            await bodyStream.ReadAsync(body, 0, length).ConfigureAwait(false);
+            return body;
         }
 
         protected bool IsQueuesTransactional => errorQueue.Transactional;

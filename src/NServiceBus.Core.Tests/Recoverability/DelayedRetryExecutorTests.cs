@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.IO;
     using System.Linq;
     using System.Threading.Tasks;
     using DelayedDelivery;
@@ -111,7 +110,7 @@
 
         IncomingMessage CreateMessage(Dictionary<string, string> headers = null)
         {
-            return new IncomingMessage("messageId", headers ?? new Dictionary<string, string>(), Stream.Null);
+            return new IncomingMessage("messageId", headers ?? new Dictionary<string, string>(), new byte[0]);
         }
 
         DelayedRetryExecutor CreateExecutor(bool nativeDeferralsOn = true)

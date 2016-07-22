@@ -1,9 +1,9 @@
 ﻿// ReSharper disable PartialTypeWithSinglePart
+
 namespace NServiceBus.Testing
 {
     using System;
     using System.Collections.Generic;
-    using System.IO;
     using Pipeline;
     using Transport;
 
@@ -17,7 +17,7 @@ namespace NServiceBus.Testing
         /// </summary>
         public TestableIncomingPhysicalMessageContext()
         {
-            Message = new IncomingMessage(Guid.NewGuid().ToString(), new Dictionary<string, string>(), Stream.Null);
+            Message = new IncomingMessage(Guid.NewGuid().ToString(), new Dictionary<string, string>(), new byte[] { });
         }
 
         /// <summary>
@@ -25,7 +25,7 @@ namespace NServiceBus.Testing
         /// </summary>
         public virtual void UpdateMessage(byte[] body)
         {
-            Message = new IncomingMessage(Message.MessageId, Message.Headers, new MemoryStream(body));
+            Message = new IncomingMessage(Message.MessageId, Message.Headers, body);
         }
 
         /// <summary>

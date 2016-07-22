@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.IO;
     using NUnit.Framework;
     using Transport;
 
@@ -157,7 +156,7 @@
             return new ErrorContext(exception ?? new Exception(), retryNumber.HasValue ? new Dictionary<string, string>
             {
                 {Headers.Retries, retryNumber.ToString()}
-            } : headers ?? new Dictionary<string, string>(), "message-id", new MemoryStream(), new TransportTransaction(), numberOfDeliveryAttempts);
+            } : headers ?? new Dictionary<string, string>(), "message-id", new byte[0], new TransportTransaction(), numberOfDeliveryAttempts);
         }
 
         static Func<ErrorContext, RecoverabilityAction> CreatePolicy(int maxImmediateRetries = 2, int maxDelayedRetries = 2, TimeSpan? delayedRetryDelay = null)

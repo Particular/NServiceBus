@@ -3002,7 +3002,7 @@ namespace NServiceBus.Transport
     }
     public class ErrorContext
     {
-        public ErrorContext(System.Exception exception, System.Collections.Generic.Dictionary<string, string> headers, string transportMessageId, System.IO.Stream bodyStream, NServiceBus.Transport.TransportTransaction transportTransaction, int immediateProcessingFailures) { }
+        public ErrorContext(System.Exception exception, System.Collections.Generic.Dictionary<string, string> headers, string transportMessageId, byte[] body, NServiceBus.Transport.TransportTransaction transportTransaction, int immediateProcessingFailures) { }
         public int DelayedDeliveriesPerformed { get; }
         public System.Exception Exception { get; }
         public int ImmediateProcessingFailures { get; }
@@ -3033,9 +3033,8 @@ namespace NServiceBus.Transport
     }
     public class IncomingMessage
     {
-        public IncomingMessage(string messageId, System.Collections.Generic.Dictionary<string, string> headers, System.IO.Stream bodyStream) { }
+        public IncomingMessage(string messageId, System.Collections.Generic.Dictionary<string, string> headers, byte[] body) { }
         public byte[] Body { get; }
-        public System.IO.Stream BodyStream { get; }
         public System.Collections.Generic.Dictionary<string, string> Headers { get; }
         public string MessageId { get; }
     }
@@ -3062,8 +3061,8 @@ namespace NServiceBus.Transport
     }
     public class MessageContext
     {
-        public MessageContext(string messageId, System.Collections.Generic.Dictionary<string, string> headers, System.IO.Stream bodyStream, NServiceBus.Transport.TransportTransaction transportTransaction, System.Threading.CancellationTokenSource receiveCancellationTokenSource, NServiceBus.Extensibility.ContextBag context) { }
-        public System.IO.Stream BodyStream { get; }
+        public MessageContext(string messageId, System.Collections.Generic.Dictionary<string, string> headers, byte[] body, NServiceBus.Transport.TransportTransaction transportTransaction, System.Threading.CancellationTokenSource receiveCancellationTokenSource, NServiceBus.Extensibility.ContextBag context) { }
+        public byte[] Body { get; }
         public NServiceBus.Extensibility.ContextBag Context { get; }
         public System.Collections.Generic.Dictionary<string, string> Headers { get; }
         public string MessageId { get; }

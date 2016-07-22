@@ -2,7 +2,6 @@ namespace NServiceBus.Transport
 {
     using System;
     using System.Collections.Generic;
-    using System.IO;
 
     /// <summary>
     /// The raw message coming from the transport.
@@ -14,11 +13,11 @@ namespace NServiceBus.Transport
         /// </summary>
         /// <param name="messageId">Native message id.</param>
         /// <param name="headers">The message headers.</param>
-        /// <param name="bodyStream">The message body stream.</param>
-        public IncomingMessage(string messageId, Dictionary<string, string> headers, Stream bodyStream)
+        /// <param name="body">The message body.</param>
+        public IncomingMessage(string messageId, Dictionary<string, string> headers, byte[] body)
         {
             Guard.AgainstNullAndEmpty(nameof(messageId), messageId);
-            Guard.AgainstNull(nameof(bodyStream), bodyStream);
+            Guard.AgainstNull(nameof(body), body);
             Guard.AgainstNull(nameof(headers), headers);
 
             string originalMessageId;
@@ -36,10 +35,8 @@ namespace NServiceBus.Transport
 
 
             Headers = headers;
-            BodyStream = bodyStream;
 
-            Body = new byte[bodyStream.Length];
-            bodyStream.Read(Body, 0, Body.Length);
+            Body = body;
         }
 
         /// <summary>
@@ -51,11 +48,6 @@ namespace NServiceBus.Transport
         /// The message headers.
         /// </summary>
         public Dictionary<string, string> Headers { get; private set; }
-
-        /// <summary>
-        /// The message body.
-        /// </summary>
-        public Stream BodyStream { get; private set; }
 
         /// <summary>
         /// Gets/sets a byte array to the body content of the message.

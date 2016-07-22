@@ -1,7 +1,7 @@
 namespace NServiceBus.TransportTests
 {
     using System.Collections.Generic;
-    using System.IO;
+    using System.Text;
     using System.Threading.Tasks;
     using NUnit.Framework;
     using Transport;
@@ -18,17 +18,21 @@ namespace NServiceBus.TransportTests
 
             OnTestTimeout(() => onMessageCalled.SetCanceled());
 
-            await StartPump(async context =>
+            await StartPump(context =>
             {
-                var body = await new StreamReader(context.BodyStream).ReadToEndAsync();
+                var body = Encoding.UTF8.GetString(context.Body);
 
                 Assert.AreEqual("", body, "Should pass the body");
 
                 onMessageCalled.SetResult(context);
+                return Task.FromResult(0);
             },
                 context => Task.FromResult(ErrorHandleResult.Handled), transactionMode);
 
-            await SendMessage(InputQueueName, new Dictionary<string, string> { { "MyHeader", "MyValue" } });
+            await SendMessage(InputQueueName, new Dictionary<string, string>
+            {
+                {"MyHeader", "MyValue"}
+            });
 
             var messageContext = await onMessageCalled.Task;
 
