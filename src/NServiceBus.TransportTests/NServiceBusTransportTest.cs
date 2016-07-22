@@ -69,7 +69,9 @@
 
             Configurer = CreateConfigurer();
 
-            TransportInfrastructure = Configurer.Configure(transportSettings, transactionMode);
+            var configuration = Configurer.Configure(transportSettings, transactionMode);
+
+            TransportInfrastructure = configuration.TransportInfrastructure;
 
             IgnoreUnsupportedTransactionModes(transactionMode);
 
@@ -83,7 +85,7 @@
             var queueCreator = ReceiveInfrastructure.QueueCreatorFactory();
             await queueCreator.CreateQueueIfNecessary(queueBindings, WindowsIdentity.GetCurrent().Name);
 
-            var pushSettings = new PushSettings(InputQueueName, ErrorQueueName, false, transactionMode);
+            var pushSettings = new PushSettings(InputQueueName, ErrorQueueName, configuration.PurgeInputQueueOnStartup, transactionMode);
             await MessagePump.Init(onMessage, onError, new FakeCriticalError(onCriticalError), pushSettings);
 
             MessagePump.Start(PushRuntimeSettings.Default);
