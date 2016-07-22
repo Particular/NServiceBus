@@ -10,7 +10,7 @@ using NServiceBus.TransportTests;
 
 class ConfigureMsmqTransportInfrastructure : IConfigureTransportInfrastructure
 {
-    public TransportInfrastructure Configure(SettingsHolder settings)
+    public TransportInfrastructure Configure(SettingsHolder settings, TransportTransactionMode transactionMode)
     {
         var msmqTransportDefinition = new MsmqTransport();
         settingsHolder = settings;

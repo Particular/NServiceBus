@@ -14,8 +14,9 @@ namespace NServiceBus.TransportTests
         /// Gives the transport a chance to configure before the test starts.
         /// </summary>
         /// <param name="settings">The settings to be passed into the infrastructure.</param>
+        /// <param name="transactionMode">Transaction mode for which transport seam should be configured.</param>
         /// <returns>The created transport infrastructure.</returns>
-        TransportInfrastructure Configure(SettingsHolder settings);
+        TransportInfrastructure Configure(SettingsHolder settings, TransportTransactionMode transactionMode);
 
         /// <summary>
         /// Gives the transport chance to clean up after the test is complete. Implementations of this class may store

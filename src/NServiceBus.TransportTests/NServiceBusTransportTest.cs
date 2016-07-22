@@ -25,20 +25,6 @@
             }
         }
 
-        [SetUp]
-        public void Setup()
-        {
-            Configurer = CreateConfigurer();
-
-            transportSettings = new SettingsHolder();
-            TransportInfrastructure = Configurer.Configure(transportSettings);
-
-            ReceiveInfrastructure = TransportInfrastructure.ConfigureReceiveInfrastructure();
-            SendInfrastructure = TransportInfrastructure.ConfigureSendInfrastructure();
-
-            lazyDispatcher = new Lazy<IDispatchMessages>(() => SendInfrastructure.DispatcherFactory());
-        }
-
         static IConfigureTransportInfrastructure CreateConfigurer()
         {
             var typeName = "Configure" + SpecificTransport + "Infrastructure";
@@ -65,30 +51,39 @@
             testCancellationTokenSource?.Dispose();
             MessagePump?.Stop().GetAwaiter().GetResult();
             Configurer?.Cleanup().GetAwaiter().GetResult();
+
+            transportSettings.Clear();
         }
 
         protected async Task StartPump(Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError, TransportTransactionMode transactionMode, Action<string, Exception> onCriticalError = null)
         {
+            InputQueueName = GetTestName() + transactionMode;
+            ErrorQueueName = $"{InputQueueName}.error";
+
+            transportSettings.Set("NServiceBus.Routing.EndpointName", InputQueueName);
+
+            var queueBindings = new QueueBindings();
+            queueBindings.BindReceiving(InputQueueName);
+            queueBindings.BindSending(ErrorQueueName);
+            transportSettings.Set<QueueBindings>(queueBindings);
+
+            Configurer = CreateConfigurer();
+
+            TransportInfrastructure = Configurer.Configure(transportSettings, transactionMode);
+
             IgnoreUnsupportedTransactionModes(transactionMode);
 
-            InputQueueName = GetTestName() + transactionMode;
+            ReceiveInfrastructure = TransportInfrastructure.ConfigureReceiveInfrastructure();
+            SendInfrastructure = TransportInfrastructure.ConfigureSendInfrastructure();
+
+            lazyDispatcher = new Lazy<IDispatchMessages>(() => SendInfrastructure.DispatcherFactory());
 
             MessagePump = ReceiveInfrastructure.MessagePumpFactory();
 
-            var queueBindings = new QueueBindings();
-            ErrorQueueName = $"{InputQueueName}.error";
-
-            queueBindings.BindReceiving(InputQueueName);
-            queueBindings.BindSending(ErrorQueueName);
-
             var queueCreator = ReceiveInfrastructure.QueueCreatorFactory();
-
             await queueCreator.CreateQueueIfNecessary(queueBindings, WindowsIdentity.GetCurrent().Name);
 
-            transportSettings.Set<QueueBindings>(queueBindings);
-
-            var pushSettings = new PushSettings(InputQueueName, ErrorQueueName, true, transactionMode);
-
+            var pushSettings = new PushSettings(InputQueueName, ErrorQueueName, false, transactionMode);
             await MessagePump.Init(onMessage, onError, new FakeCriticalError(onCriticalError), pushSettings);
 
             MessagePump.Start(PushRuntimeSettings.Default);
@@ -167,7 +162,7 @@
         protected string InputQueueName;
         protected string ErrorQueueName;
 
-        SettingsHolder transportSettings;
+        SettingsHolder transportSettings = new SettingsHolder();
         Lazy<IDispatchMessages> lazyDispatcher;
         TransportReceiveInfrastructure ReceiveInfrastructure;
         TransportSendInfrastructure SendInfrastructure;
