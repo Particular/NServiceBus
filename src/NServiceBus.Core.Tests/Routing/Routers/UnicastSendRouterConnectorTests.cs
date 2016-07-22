@@ -228,8 +228,8 @@
             FakeRoutingStrategy strategy = null)
         {
             var metadataRegistry = new MessageMetadataRegistry(new Conventions());
-            metadataRegistry.RegisterMessageType(typeof(MyMessage));
-            metadataRegistry.RegisterMessageType(typeof(MessageWithoutRouting));
+            metadataRegistry.RegisterMessageTypesFoundIn(new List<Type> { typeof(MyMessage), typeof(MessageWithoutRouting) });
+
             return new UnicastSendRouterConnector(sharedQueue, instanceSpecificQueue, strategy ?? new FakeRoutingStrategy(), new DistributionPolicy());
         }
 

@@ -23,9 +23,8 @@
         {
             var mapper = new MessageMapper();
             var settings = context.Settings;
-            var conventions = settings.Get<Conventions>();
-            var messageTypes = settings.GetAvailableTypes().Where(conventions.IsMessageType);
-            mapper.Initialize(messageTypes);
+            var messageMetadataRegistry = settings.Get<MessageMetadataRegistry>();
+            mapper.Initialize(messageMetadataRegistry.GetAllMessages().Select(m => m.MessageType));
 
             var defaultSerializerAndDefinition = settings.GetMainSerializer();
 
@@ -38,16 +37,6 @@
             }
 
             var resolver = new MessageDeserializerResolver(defaultSerializer, additionalDeserializers);
-
-            var knownMessages = context.Settings.GetAvailableTypes()
-                .Where(context.Settings.Get<Conventions>().IsMessageType)
-                .ToList();
-
-            var messageMetadataRegistry = new MessageMetadataRegistry(context.Settings.Get<Conventions>());
-            foreach (var msg in knownMessages)
-            {
-                messageMetadataRegistry.RegisterMessageType(msg);
-            }
 
             var logicalMessageFactory = new LogicalMessageFactory(messageMetadataRegistry, mapper);
             context.Pipeline.Register(new DeserializeLogicalMessagesConnector(resolver, logicalMessageFactory, messageMetadataRegistry), "Deserializes the physical message body into logical messages");
