@@ -28,10 +28,14 @@ namespace NServiceBus
                 .ToArray();
 
             var routes = await GetDestinations(contextBag, typesToRoute).ConfigureAwait(false);
-            var destinations = new List<UnicastRoutingTarget>();
+            var destinations = new HashSet<UnicastRoutingTarget>();
             foreach (var route in routes)
             {
-                destinations.AddRange(await route.Resolve(InstanceResolver).ConfigureAwait(false));
+                var routingTargets = await route.Resolve(InstanceResolver).ConfigureAwait(false);
+                foreach (var routingTarget in routingTargets)
+                {
+                    destinations.Add(routingTarget);
+                }
             }
 
             var selectedDestinations = SelectDestinationsForEachEndpoint(distributionPolicy, destinations);
@@ -49,7 +53,7 @@ namespace NServiceBus
             return endpointInstances.FindInstances(endpoint);
         }
 
-        static IEnumerable<UnicastRoutingTarget> SelectDestinationsForEachEndpoint(IDistributionPolicy distributionPolicy, List<UnicastRoutingTarget> destinations)
+        static IEnumerable<UnicastRoutingTarget> SelectDestinationsForEachEndpoint(IDistributionPolicy distributionPolicy, HashSet<UnicastRoutingTarget> destinations)
         {
             var destinationsByEndpoint = destinations
                 .GroupBy(d => d.Endpoint, d => d);
