@@ -31,6 +31,6 @@
         /// <summary>
         /// The message instance hierarchy.
         /// </summary>
-        public IEnumerable<Type> MessageHierarchy { get; private set; }
+        public Type[] MessageHierarchy { get; private set; }
     }
 }

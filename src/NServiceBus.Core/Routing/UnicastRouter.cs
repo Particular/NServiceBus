@@ -22,10 +22,7 @@ namespace NServiceBus
 
         public async Task<IEnumerable<UnicastRoutingStrategy>> Route(Type messageType, IDistributionPolicy distributionPolicy, ContextBag contextBag)
         {
-            var typesToRoute = messageMetadataRegistry.GetMessageMetadata(messageType)
-                .MessageHierarchy
-                .Distinct()
-                .ToArray();
+            var typesToRoute = messageMetadataRegistry.GetMessageMetadata(messageType).MessageHierarchy;
 
             var routes = await GetDestinations(contextBag, typesToRoute).ConfigureAwait(false);
             var destinations = new HashSet<UnicastRoutingTarget>();
