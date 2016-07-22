@@ -147,28 +147,7 @@ namespace NServiceBus
 
                     await concurrencyLimiter.WaitAsync(cancellationToken).ConfigureAwait(false);
 
-                    var receiveTask = Task.Run(async () =>
-                    {
-
-                        try
-                        {
-                            await receiveStrategy.ReceiveMessage().ConfigureAwait(false);
-                            receiveCircuitBreaker.Success();
-                        }
-                        catch (OperationCanceledException)
-                        {
-                            // Intentionally ignored
-                        }
-                        catch (Exception ex)
-                        {
-                            Logger.Warn("MSMQ receive operation failed", ex);
-                            await receiveCircuitBreaker.Failure(ex).ConfigureAwait(false);
-                        }
-                        finally
-                        {
-                            concurrencyLimiter.Release();
-                        }
-                    }, CancellationToken.None);
+                    var receiveTask = ReceiveMessage();
 
                     runningReceiveTasks.TryAdd(receiveTask, receiveTask);
 
@@ -189,6 +168,33 @@ namespace NServiceBus
                         .Ignore();
                 }
             }
+        }
+
+        Task ReceiveMessage()
+        {
+            return TaskEx.Run(async state =>
+            {
+                var messagePump = (MessagePump) state;
+
+                try
+                {
+                    await messagePump.receiveStrategy.ReceiveMessage().ConfigureAwait(false);
+                    messagePump.receiveCircuitBreaker.Success();
+                }
+                catch (OperationCanceledException)
+                {
+                    // Intentionally ignored
+                }
+                catch (Exception ex)
+                {
+                    Logger.Warn("MSMQ receive operation failed", ex);
+                    await messagePump.receiveCircuitBreaker.Failure(ex).ConfigureAwait(false);
+                }
+                finally
+                {
+                    messagePump.concurrencyLimiter.Release();
+                }
+            }, this);
         }
 
         bool QueueIsTransactional()
