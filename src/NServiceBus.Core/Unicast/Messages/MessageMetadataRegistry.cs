@@ -74,13 +74,12 @@
             //get the parent types
             var parentMessages = GetParentTypes(messageType)
                 .Where(conventions.IsMessageType)
-                .OrderByDescending(PlaceInMessageHierarchy)
-                .ToList();
+                .OrderByDescending(PlaceInMessageHierarchy);
 
             var metadata = new MessageMetadata(messageType, new[]
             {
                 messageType
-            }.Concat(parentMessages));
+            }.Concat(parentMessages).ToArray());
 
             messages[messageType.TypeHandle] = metadata;
 
