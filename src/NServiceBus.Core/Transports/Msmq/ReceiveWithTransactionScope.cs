@@ -27,17 +27,20 @@ namespace NServiceBus
                         return;
                     }
 
+                    var transportTransaction = new ScopeTransportTransaction(Transaction.Current);
+
                     Dictionary<string, string> headers;
 
-                    if (!TryExtractHeaders(message, out headers))
+                    Exception ex;
+                    if ((ex = TryExtractHeaders(message, out headers)) != null)
                     {
-                        MovePoisonMessageToErrorQueue(message, MessageQueueTransactionType.Automatic);
+                        await HandleError(message, new Dictionary<string, string>(), ex, transportTransaction, 1, isPoison: true).ConfigureAwait(false);
 
                         scope.Complete();
                         return;
                     }
 
-                    var shouldCommit = await ProcessMessage(message, headers).ConfigureAwait(false);
+                    var shouldCommit = await ProcessMessage(message, headers, transportTransaction).ConfigureAwait(false);
 
                     if (!shouldCommit)
                     {
@@ -60,10 +63,8 @@ namespace NServiceBus
             }
         }
 
-        async Task<bool> ProcessMessage(Message message, Dictionary<string, string> headers)
+        async Task<bool> ProcessMessage(Message message, Dictionary<string, string> headers, TransportTransaction transportTransaction)
         {
-            var transportTransaction = new ScopeTransportTransaction(Transaction.Current);
-
             MsmqFailureInfoStorage.ProcessingFailureInfo failureInfo;
 
             if (failureInfoStorage.TryGetFailureInfoForMessage(message.Id, out failureInfo))

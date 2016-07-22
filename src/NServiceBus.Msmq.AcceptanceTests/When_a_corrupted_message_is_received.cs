@@ -1,18 +1,19 @@
 ﻿namespace NServiceBus.AcceptanceTests
 {
     using System;
+    using System.Collections.Concurrent;
     using System.Linq;
     using System.Messaging;
     using System.Text;
     using System.Threading.Tasks;
     using AcceptanceTesting;
+    using AcceptanceTesting.Customization;
     using Logging;
     using NUnit.Framework;
+    using Transport;
 
     public class When_a_corrupted_message_is_received : NServiceBusAcceptanceTest
     {
-        const string errorQueue = @".\private$\errorQueueForCorruptedMessages";
-
         [TestCase(TransportTransactionMode.TransactionScope)]
         [TestCase(TransportTransactionMode.SendsAtomicWithReceive)]
         [TestCase(TransportTransactionMode.ReceiveOnly)]
@@ -22,17 +23,22 @@
             DeleteQueue();
             try
             {
-                await Scenario.Define<Context>()
+                var context = await Scenario.Define<Context>()
                     .WithEndpoint<Endpoint>(b =>
                     {
-                        b.CustomConfig(c =>
+                        b.CustomConfig((c, ctx) =>
                         {
                             c.UseTransport<MsmqTransport>()
                                 .Transactions(transactionMode);
+                            c.Recoverability().CustomPolicy((cfg, errorContext) =>
+                            {
+                                ctx.ErrorContexts.Add(errorContext);
+                                return DefaultRecoverabilityPolicy.Invoke(cfg, errorContext);
+                            });
                         });
                         b.When((session, c) =>
                         {
-                            var endpoint = AcceptanceTesting.Customization.Conventions.EndpointNamingConvention(typeof(Endpoint));
+                            var endpoint = Conventions.EndpointNamingConvention(typeof(Endpoint));
 
                             var inputQueue = $@".\private$\{endpoint}";
 
@@ -48,7 +54,10 @@
                     })
                     .Done(c => c.Logs.Any(l => l.Level == LogLevel.Error))
                     .Run();
+
                 Assert.True(MessageExistsInErrorQueue(), "The message should have been moved to the error queue");
+                Assert.AreEqual(1, context.ErrorContexts.Count);
+                Assert.True(context.ErrorContexts.All(x => x.Message.IsPoison));
             }
             finally
             {
@@ -77,8 +86,16 @@
             }
         }
 
+        const string errorQueue = @".\private$\errorQueueForCorruptedMessages";
+
         public class Context : ScenarioContext
         {
+            public Context()
+            {
+                ErrorContexts = new ConcurrentBag<ErrorContext>();
+            }
+
+            public ConcurrentBag<ErrorContext> ErrorContexts { get; }
         }
 
 
@@ -86,10 +103,7 @@
         {
             public Endpoint()
             {
-                EndpointSetup<DefaultServer>(c =>
-                {
-                    c.SendFailedMessagesTo("errorQueueForCorruptedMessages");
-                });
+                EndpointSetup<DefaultServer>(c => { c.SendFailedMessagesTo("errorQueueForCorruptedMessages"); });
             }
         }
     }

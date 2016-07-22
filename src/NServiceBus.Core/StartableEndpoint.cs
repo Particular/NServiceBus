@@ -87,17 +87,16 @@ namespace NServiceBus
             }
 
             var purgeOnStartup = settings.GetOrDefault<bool>("Transport.PurgeOnStartup");
-            var errorQueue = settings.ErrorQueueAddress();
             var dequeueLimitations = GeDequeueLimitationsForReceivePipeline();
             var requiredTransactionSupport = settings.GetRequiredTransactionModeForReceives();
             var recoverabilityExecutorFactory = builder.Build<RecoverabilityExecutorFactory>();
 
-            var receivers = BuildMainReceivers(errorQueue, purgeOnStartup, requiredTransactionSupport, dequeueLimitations, recoverabilityExecutorFactory);
+            var receivers = BuildMainReceivers(purgeOnStartup, requiredTransactionSupport, dequeueLimitations, recoverabilityExecutorFactory);
 
             foreach (var satellitePipeline in settings.Get<SatelliteDefinitions>().Definitions)
             {
                 var satelliteRecoverabilityExecutor = recoverabilityExecutorFactory.Create(satellitePipeline.RecoverabilityPolicy, eventAggregator, satellitePipeline.ReceiveAddress);
-                var satellitePushSettings = new PushSettings(satellitePipeline.ReceiveAddress, errorQueue, purgeOnStartup, satellitePipeline.RequiredTransportTransactionMode);
+                var satellitePushSettings = new PushSettings(satellitePipeline.ReceiveAddress, purgeOnStartup, satellitePipeline.RequiredTransportTransactionMode);
 
                 receivers.Add(new TransportReceiver(satellitePipeline.Name, builder.Build<IPushMessages>(), satellitePushSettings, dequeueLimitations, new SatellitePipelineExecutor(builder, satellitePipeline), satelliteRecoverabilityExecutor, criticalError));
             }
@@ -105,11 +104,11 @@ namespace NServiceBus
             return receivers;
         }
 
-        List<TransportReceiver> BuildMainReceivers(string errorQueue, bool purgeOnStartup, TransportTransactionMode requiredTransactionSupport, PushRuntimeSettings dequeueLimitations, RecoverabilityExecutorFactory recoverabilityExecutorFactory)
+        List<TransportReceiver> BuildMainReceivers(bool purgeOnStartup, TransportTransactionMode requiredTransactionSupport, PushRuntimeSettings dequeueLimitations, RecoverabilityExecutorFactory recoverabilityExecutorFactory)
         {
             var localAddress = settings.LocalAddress();
             var recoverabilityExecutor = recoverabilityExecutorFactory.CreateDefault(eventAggregator, localAddress);
-            var pushSettings = new PushSettings(settings.LocalAddress(), errorQueue, purgeOnStartup, requiredTransactionSupport);
+            var pushSettings = new PushSettings(settings.LocalAddress(), purgeOnStartup, requiredTransactionSupport);
             var mainPipelineExecutor = new MainPipelineExecutor(builder, eventAggregator, pipelineCache, mainPipeline);
 
             var receivers = new List<TransportReceiver>();
@@ -120,7 +119,7 @@ namespace NServiceBus
             {
                 var instanceSpecificQueue = settings.InstanceSpecificQueue();
                 var instanceSpecificRecoverabilityExecutor = recoverabilityExecutorFactory.CreateDefault(eventAggregator, instanceSpecificQueue);
-                var sharedReceiverPushSettings = new PushSettings(settings.InstanceSpecificQueue(), errorQueue, purgeOnStartup, requiredTransactionSupport);
+                var sharedReceiverPushSettings = new PushSettings(settings.InstanceSpecificQueue(), purgeOnStartup, requiredTransactionSupport);
 
                 receivers.Add(new TransportReceiver(MainReceiverId, builder.Build<IPushMessages>(), sharedReceiverPushSettings, dequeueLimitations, mainPipelineExecutor, instanceSpecificRecoverabilityExecutor, criticalError));
             }

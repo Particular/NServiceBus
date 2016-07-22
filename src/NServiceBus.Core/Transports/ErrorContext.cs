@@ -37,13 +37,13 @@
         /// <summary>
         /// Initializes the error context.
         /// </summary>
-        public ErrorContext(Exception exception, Dictionary<string, string> headers, string transportMessageId, Stream bodyStream, TransportTransaction transportTransaction, int immediateProcessingFailures)
+        public ErrorContext(Exception exception, Dictionary<string, string> headers, string transportMessageId, Stream bodyStream, TransportTransaction transportTransaction, int immediateProcessingFailures, bool isPoison = false)
         {
             Exception = exception;
             TransportTransaction = transportTransaction;
             ImmediateProcessingFailures = immediateProcessingFailures;
 
-            Message = new IncomingMessage(transportMessageId, headers, bodyStream);
+            Message = new IncomingMessage(transportMessageId, headers, bodyStream, isPoison);
 
             DelayedDeliveriesPerformed = Message.GetDelayedDeliveriesPerformed();
 

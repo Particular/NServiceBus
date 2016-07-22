@@ -15,11 +15,14 @@ namespace NServiceBus.Transport
         /// <param name="messageId">Native message id.</param>
         /// <param name="headers">The message headers.</param>
         /// <param name="bodyStream">The message body stream.</param>
-        public IncomingMessage(string messageId, Dictionary<string, string> headers, Stream bodyStream)
+        /// <param name="isPoison"></param>
+        public IncomingMessage(string messageId, Dictionary<string, string> headers, Stream bodyStream, bool isPoison = false)
         {
             Guard.AgainstNullAndEmpty(nameof(messageId), messageId);
             Guard.AgainstNull(nameof(bodyStream), bodyStream);
             Guard.AgainstNull(nameof(headers), headers);
+
+            IsPoison = isPoison;
 
             string originalMessageId;
 
@@ -38,9 +41,17 @@ namespace NServiceBus.Transport
             Headers = headers;
             BodyStream = bodyStream;
 
-            body = new byte[bodyStream.Length];
-            bodyStream.Read(body, 0, body.Length);
+            if (!isPoison)
+            {
+                body = new byte[bodyStream.Length];
+                bodyStream.Read(body, 0, body.Length);
+            }
         }
+
+        /// <summary>
+        ///
+        /// </summary>
+        public bool IsPoison { get; }
 
         /// <summary>
         /// The id of the message.

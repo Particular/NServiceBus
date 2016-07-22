@@ -30,7 +30,6 @@ namespace NServiceBus
             receiveCircuitBreaker = new RepeatedFailuresOverTimeCircuitBreaker("MsmqReceive", TimeSpan.FromSeconds(30), ex => criticalError.Raise("Failed to receive from " + settings.InputQueue, ex));
 
             var inputAddress = MsmqAddress.Parse(settings.InputQueue);
-            var errorAddress = MsmqAddress.Parse(settings.ErrorQueue);
 
             if (!string.Equals(inputAddress.Machine, RuntimeEnvironment.MachineName, StringComparison.OrdinalIgnoreCase))
             {
@@ -38,7 +37,6 @@ namespace NServiceBus
             }
 
             inputQueue = new MessageQueue(inputAddress.FullPath, false, true, QueueAccessMode.Receive);
-            errorQueue = new MessageQueue(errorAddress.FullPath, false, true, QueueAccessMode.Send);
 
             if (settings.RequiredTransactionMode != TransportTransactionMode.None && !QueueIsTransactional())
             {
@@ -54,7 +52,7 @@ namespace NServiceBus
 
             receiveStrategy = receiveStrategyFactory(settings.RequiredTransactionMode);
 
-            receiveStrategy.Init(inputQueue, errorQueue, onMessage, onError, criticalError);
+            receiveStrategy.Init(inputQueue, onMessage, onError, criticalError);
 
             return TaskEx.CompletedTask;
         }
@@ -93,7 +91,6 @@ namespace NServiceBus
             concurrencyLimiter.Dispose();
             runningReceiveTasks.Clear();
             inputQueue.Dispose();
-            errorQueue.Dispose();
         }
 
         [DebuggerNonUserCode]
@@ -213,7 +210,6 @@ namespace NServiceBus
         CancellationToken cancellationToken;
         CancellationTokenSource cancellationTokenSource;
         SemaphoreSlim concurrencyLimiter;
-        MessageQueue errorQueue;
         MessageQueue inputQueue;
 
         Task messagePumpTask;
