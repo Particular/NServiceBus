@@ -15,7 +15,7 @@
 
         public void UpdateMessage(byte[] body)
         {
-            Message.Body = body;
+            Message.UpdateBody(body);
         }
     }
 }
