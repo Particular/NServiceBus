@@ -27,8 +27,7 @@
             var routes = await router.Route(typeof(Command), new DistributionPolicy(), new ContextBag());
 
             Assert.AreEqual(1, routes.Count());
-            var destination = ExtractDestination(routes.First());
-            Assert.AreEqual(logicalEndpointName, destination);
+            Assert.AreEqual(logicalEndpointName, ExtractDestination(routes.First()));
         }
 
         [Test]
@@ -51,7 +50,7 @@
         }
 
         [Test]
-        public async Task Should_not_send_multiple_copies_of_message_to_one_physical_destination()
+        public async Task Should_not_route_multiple_copies_of_message_to_one_physical_destination()
         {
             var sales = "Sales";
             routingTable.RouteToEndpoint(typeof(Command), sales);

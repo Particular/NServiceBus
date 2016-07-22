@@ -28,8 +28,8 @@
 
             var routes = await router.Route(typeof(Event), new DistributionPolicy(), new ContextBag());
 
-            Assert.AreEqual(2, routes.Count());
             var destinations = routes.Select(ExtractDestination).ToList();
+            Assert.AreEqual(2, destinations.Count);
             Assert.Contains("address1", destinations);
             Assert.Contains("address2", destinations);
         }
@@ -46,14 +46,14 @@
 
             var routes = (await router.Route(typeof(Event), new DistributionPolicy(), new ContextBag())).ToArray();
 
-            Assert.AreEqual(2, routes.Length);
             var destinations = routes.Select(ExtractDestination).ToList();
+            Assert.AreEqual(2, destinations.Count);
             Assert.Contains("sales1", destinations);
             Assert.Contains("shipping1", destinations);
         }
 
         [Test]
-        public async Task Should_not_send_multiple_copies_of_message_to_one_physical_destination()
+        public async Task Should_not_route_multiple_copies_of_message_to_one_physical_destination()
         {
             subscriptionStorage.Subscribers.Add(new Subscriber("address", null));
             subscriptionStorage.Subscribers.Add(new Subscriber("address", null));
@@ -68,7 +68,7 @@
         }
 
         [Test]
-        public async Task Should_not_send_events_to_configured_endpoint_instances()
+        public async Task Should_not_route_events_to_configured_endpoint_instances()
         {
             var logicalEndpoint = "sales";
             subscriptionStorage.Subscribers.Add(new Subscriber("address", logicalEndpoint));
