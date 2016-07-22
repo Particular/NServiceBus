@@ -2599,6 +2599,7 @@ namespace NServiceBus.Routing
         public void AddDynamic(System.Func<System.Type[], NServiceBus.Extensibility.ContextBag, System.Collections.Generic.IEnumerable<NServiceBus.Routing.IUnicastRoute>> dynamicRule) { }
         public void RouteToAddress(System.Type messageType, string destinationAddress) { }
         public void RouteToEndpoint(System.Type messageType, string destination) { }
+        public void RouteToInstance(System.Type messageType, NServiceBus.Routing.EndpointInstance instance) { }
     }
 }
 namespace NServiceBus.Routing.Legacy
@@ -2620,6 +2621,7 @@ namespace NServiceBus.Routing.MessageDrivenSubscriptions
     {
         public Publishers() { }
         public void Add(System.Type eventType, string publisher) { }
+        public void Add(System.Type eventType, NServiceBus.Routing.EndpointInstance endpointInstance) { }
         public void AddByAddress(System.Type eventType, string publisherAddress) { }
         public void AddDynamic(System.Func<System.Type, NServiceBus.Routing.MessageDrivenSubscriptions.PublisherAddress> dynamicRule) { }
     }

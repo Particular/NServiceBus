@@ -36,13 +36,23 @@ namespace NServiceBus.Routing.MessageDrivenSubscriptions
         }
 
         /// <summary>
-        /// Registers a publisher endpoint for a given event type.
+        /// Registers a logical publisher for a given event type.
         /// </summary>
         /// <param name="eventType">The event type.</param>
         /// <param name="publisher">The publisher endpoint.</param>
         public void Add(Type eventType, string publisher)
         {
             AddStaticPublisher(eventType, PublisherAddress.CreateFromEndpointName(publisher));
+        }
+
+        /// <summary>
+        /// Registers a publisher endpoint instance for a given event type.
+        /// </summary>
+        /// <param name="eventType">The event type.</param>
+        /// <param name="endpointInstance">The publisher endpoint instance.</param>
+        public void Add(Type eventType, EndpointInstance endpointInstance)
+        {
+            AddStaticPublisher(eventType, PublisherAddress.CreateFromEndpointInstances(endpointInstance));
         }
 
         void AddStaticPublisher(Type eventType, PublisherAddress address)
