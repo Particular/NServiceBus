@@ -47,7 +47,7 @@
 
             if (configurerType == null)
             {
-                throw new InvalidOperationException($"Transport Test project must include a non-namespaced class named '{typeName}' implementing {typeof(IConfigureTransportInfrastructure).Name}. See {typeof(ConfigureMsmqTransportInfrastructure).FullName} for an example.");
+                throw new InvalidOperationException($"Transport Test project must include a non-namespaced class named '{typeName}' implementing {typeof(IConfigureTransportInfrastructure).Name}.");
             }
 
             var configurer = Activator.CreateInstance(configurerType) as IConfigureTransportInfrastructure;
