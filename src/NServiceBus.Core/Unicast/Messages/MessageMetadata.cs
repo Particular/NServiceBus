@@ -2,12 +2,15 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
 
     /// <summary>
     /// Message metadata class.
     /// </summary>
     public partial class MessageMetadata
     {
+        static Type[] emptyHierarchy = new Type[0];
+
         /// <summary>
         /// Create a new instance of <see cref="MessageMetadata"/>.
         /// </summary>
@@ -16,7 +19,7 @@
         public MessageMetadata(Type messageType, IEnumerable<Type> messageHierarchy = null)
         {
             MessageType = messageType;
-            MessageHierarchy = (messageHierarchy == null ? new List<Type>() : new List<Type>(messageHierarchy)).AsReadOnly();
+            MessageHierarchy = messageHierarchy?.ToArray() ?? emptyHierarchy;
         }
 
         /// <summary>
