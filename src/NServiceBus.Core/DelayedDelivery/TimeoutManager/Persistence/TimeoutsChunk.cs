@@ -47,12 +47,12 @@ namespace NServiceBus.Timeout.Core
             /// <summary>
             /// The id of the timeout.
             /// </summary>
-            public string Id { get; private set; }
+            public string Id { get; }
 
             /// <summary>
             /// The due time of the timeout.
             /// </summary>
-            public DateTime DueTime { get; private set; }
+            public DateTime DueTime { get; }
         }
     }
 }
