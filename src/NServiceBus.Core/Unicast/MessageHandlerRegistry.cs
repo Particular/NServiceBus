@@ -180,10 +180,10 @@
 
         readonly Conventions conventions;
         readonly Dictionary<Type, List<DelegateHolder>> handlerAndMessagesHandledByHandlerCache = new Dictionary<Type, List<DelegateHolder>>();
-        static List<MessageHandler> noMessageHandlers = new List<MessageHandler>();
+        static List<MessageHandler> noMessageHandlers = new List<MessageHandler>(0);
         static ILog Log = LogManager.GetLogger<MessageHandlerRegistry>();
 
-        struct DelegateHolder
+        class DelegateHolder
         {
             public Type MessageType;
             public Func<object, object, IMessageHandlerContext, Task> MethodDelegate;
