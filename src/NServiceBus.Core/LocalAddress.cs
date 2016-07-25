@@ -3,15 +3,15 @@
     /// <summary>
     /// Represents a logical address (independent of transport) of a local queue.
     /// </summary>
-    public sealed class LogicalAddress
+    public sealed class LocalAddress
     {
         /// <summary>
-        /// Creates new root logical address for the provided endpoint instance name.
+        /// Creates new local address for the provided endpoint instance name.
         /// </summary>
         /// <param name="endpoint">The logical name of the endpoint.</param>
         /// <param name="qualifier">The qualifier to apply to the given logical endpoint name.</param>
         /// <param name="discriminator">The discriminator to apply to the given logical endpoint name.</param>
-        public LogicalAddress(string endpoint, string qualifier = null, string discriminator = null)
+        public LocalAddress(string endpoint, string qualifier = null, string discriminator = null)
         {
             Endpoint = endpoint;
             Qualifier = qualifier;
@@ -19,13 +19,13 @@
         }
 
         /// <summary>
-        /// Returns the qualifier of the address.
+        /// Returns the qualifier of the local address.
         /// </summary>
         /// <returns>The configured qualifier or <code>null</code> when no qualifier is specified.</returns>
         public string Qualifier { get; }
 
         /// <summary>
-        /// Returns the discriminator of the address.
+        /// Returns the discriminator of the localaddress.
         /// </summary>
         /// <returns>The configured discriminator or <code>null</code> when no discriminator is specified.</returns>
         public string Discriminator { get; }
@@ -34,6 +34,7 @@
         /// Returns the logical endpoint name excluding qualifier and discriminator.
         /// </summary>
         public string Endpoint { get; }
+
         /// <summary>
         /// Returns a string that represents the current object.
         /// </summary>
@@ -54,7 +55,7 @@
             return name;
         }
 
-        bool Equals(LogicalAddress other)
+        bool Equals(LocalAddress other)
         {
             return string.Equals(Qualifier, other.Qualifier) && string.Equals(Discriminator, other.Discriminator) && string.Equals(Endpoint, other.Endpoint);
         }
@@ -66,7 +67,7 @@
         {
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
-            return obj is LogicalAddress && Equals((LogicalAddress) obj);
+            return obj is LocalAddress && Equals((LocalAddress) obj);
         }
 
         /// <summary>Serves as the default hash function. </summary>
@@ -85,7 +86,7 @@
         /// <summary>
         /// Compares for equality.
         /// </summary>
-        public static bool operator ==(LogicalAddress left, LogicalAddress right)
+        public static bool operator ==(LocalAddress left, LocalAddress right)
         {
             return Equals(left, right);
         }
@@ -93,7 +94,7 @@
         /// <summary>
         /// Compares for inequality.
         /// </summary>
-        public static bool operator !=(LogicalAddress left, LogicalAddress right)
+        public static bool operator !=(LocalAddress left, LocalAddress right)
         {
             return !Equals(left, right);
         }

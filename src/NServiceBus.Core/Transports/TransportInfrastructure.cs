@@ -46,11 +46,11 @@ namespace NServiceBus.Transport
         public abstract TransportSubscriptionInfrastructure ConfigureSubscriptionInfrastructure();
 
         /// <summary>
-        /// Converts a given <see cref="LogicalAddress"/> to the transport address.
+        /// Converts a given <see cref="LocalAddress"/> to the transport address.
         /// </summary>
-        /// <param name="logicalAddress">The logical address.</param>
+        /// <param name="localAddress">The logical address.</param>
         /// <returns>The transport address.</returns>
-        public abstract string ToTransportAddress(LogicalAddress logicalAddress);
+        public abstract string ToTransportAddress(LocalAddress localAddress);
 
         /// <summary>
         /// Converts a given <see cref="EndpointInstance"/> to the the transport address.

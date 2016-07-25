@@ -10,7 +10,7 @@ namespace NServiceBus.Transport
     /// </summary>
     public class TransportAddresses
     {
-        internal TransportAddresses(Func<EndpointInstance, string> instanceTransportDefault, Func<LogicalAddress, string> logicalTransportDefault)
+        internal TransportAddresses(Func<EndpointInstance, string> instanceTransportDefault, Func<LocalAddress, string> logicalTransportDefault)
         {
             this.instanceTransportDefault = instanceTransportDefault;
             this.logicalTransportDefault = logicalTransportDefault;
@@ -39,9 +39,9 @@ namespace NServiceBus.Transport
             rules.Add(dynamicRule);
         }
 
-        internal string GetTransportAddress(LogicalAddress logicalAddress)
+        internal string GetTransportAddress(LocalAddress localAddress)
         {
-            return logicalTransportDefault(logicalAddress);
+            return logicalTransportDefault(localAddress);
         }
 
         internal string GetTransportAddress(EndpointInstance endpointInstance)
@@ -62,6 +62,6 @@ namespace NServiceBus.Transport
         Dictionary<EndpointInstance, string> exceptions = new Dictionary<EndpointInstance, string>();
         List<Func<EndpointInstance, string>> rules = new List<Func<EndpointInstance, string>>();
         Func<EndpointInstance, string> instanceTransportDefault;
-        Func<LogicalAddress, string> logicalTransportDefault;
+        Func<LocalAddress, string> logicalTransportDefault;
     }
 }

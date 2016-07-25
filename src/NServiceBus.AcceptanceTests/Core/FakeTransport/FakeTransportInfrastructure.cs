@@ -34,9 +34,9 @@
 
         public override OutboundRoutingPolicy OutboundRoutingPolicy { get; } = new OutboundRoutingPolicy(OutboundRoutingType.Unicast, OutboundRoutingType.Unicast, OutboundRoutingType.Unicast);
 
-        public override string ToTransportAddress(LogicalAddress logicalAddress)
+        public override string ToTransportAddress(LocalAddress localAddress)
         {
-            return logicalAddress.ToString();
+            return localAddress.ToString();
         }
 
         public override string ToTransportAddress(EndpointInstance endpointInstance)

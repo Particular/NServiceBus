@@ -20,9 +20,9 @@ namespace NServiceBus
 
                 if (userDiscriminator != null)
                 {
-                    s.SetDefault(UniqueEndpointAddressSettingsKey, transportAddresses.GetTransportAddress(new LogicalAddress(receivingName, discriminator: userDiscriminator)));
+                    s.SetDefault(UniqueEndpointAddressSettingsKey, transportAddresses.GetTransportAddress(new LocalAddress(receivingName, discriminator: userDiscriminator)));
                 }
-                var address = new LogicalAddress(receivingName);
+                var address = new LocalAddress(receivingName);
                 s.SetDefault(SharedQueueAddressSettingsKey, transportAddresses.GetTransportAddress(address));
                 s.SetDefault(SharedQueueLogicalAddressSettingsKey, address);
             });

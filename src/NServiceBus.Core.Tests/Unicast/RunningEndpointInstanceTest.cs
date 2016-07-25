@@ -48,7 +48,7 @@
                 throw new NotImplementedException();
             }
 
-            public override string ToTransportAddress(LogicalAddress logicalAddress)
+            public override string ToTransportAddress(LocalAddress localAddress)
             {
                 throw new NotImplementedException();
             }

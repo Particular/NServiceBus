@@ -747,19 +747,19 @@ namespace NServiceBus
     }
     [System.ObsoleteAttribute("Use `LoadMessageHandlersExtensions` instead. Will be removed in version 7.0.0.", true)]
     public class static LoadMessageHandlersExtentions { }
-    public class static LocalAddressOverrideExtensions
+    public sealed class LocalAddress
     {
-        public static void OverrideLocalAddress(this NServiceBus.EndpointConfiguration configuration, string addressOverride) { }
-    }
-    public sealed class LogicalAddress
-    {
-        public LogicalAddress(string endpoint, string qualifier = null, string discriminator = null) { }
+        public LocalAddress(string endpoint, string qualifier = null, string discriminator = null) { }
         public string Discriminator { get; }
         public string Endpoint { get; }
         public string Qualifier { get; }
         public override bool Equals(object obj) { }
         public override int GetHashCode() { }
         public override string ToString() { }
+    }
+    public class static LocalAddressOverrideExtensions
+    {
+        public static void OverrideLocalAddress(this NServiceBus.EndpointConfiguration configuration, string addressOverride) { }
     }
     public class MessageDeserializationException : System.Runtime.Serialization.SerializationException
     {
@@ -1117,7 +1117,7 @@ namespace NServiceBus
             where T :  class, new () { }
         public static string InstanceSpecificQueue(this NServiceBus.Settings.ReadOnlySettings settings) { }
         public static string LocalAddress(this NServiceBus.Settings.ReadOnlySettings settings) { }
-        public static NServiceBus.LogicalAddress LocalLogicalAddress(this NServiceBus.Settings.ReadOnlySettings settings) { }
+        public static NServiceBus.LocalAddress LocalLogicalAddress(this NServiceBus.Settings.ReadOnlySettings settings) { }
     }
     [System.ObsoleteAttribute("Use `SettingsExtensions` instead. Will be removed in version 7.0.0.", true)]
     public class static SettingsExtentions { }
@@ -3058,7 +3058,7 @@ namespace NServiceBus.Transport
     }
     public class static LogicalAddressExtensions
     {
-        public static string GetTransportAddress(this NServiceBus.Settings.ReadOnlySettings settings, NServiceBus.LogicalAddress logicalAddress) { }
+        public static string GetTransportAddress(this NServiceBus.Settings.ReadOnlySettings settings, NServiceBus.LocalAddress localAddress) { }
     }
     public class MessageContext
     {
@@ -3167,7 +3167,7 @@ namespace NServiceBus.Transport
         public virtual string MakeCanonicalForm(string transportAddress) { }
         public virtual System.Threading.Tasks.Task Start() { }
         public virtual System.Threading.Tasks.Task Stop() { }
-        public abstract string ToTransportAddress(NServiceBus.LogicalAddress logicalAddress);
+        public abstract string ToTransportAddress(NServiceBus.LocalAddress localAddress);
         public abstract string ToTransportAddress(NServiceBus.Routing.EndpointInstance endpointInstance);
     }
     public class TransportOperation

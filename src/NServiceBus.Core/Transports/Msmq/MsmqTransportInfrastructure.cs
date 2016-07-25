@@ -63,16 +63,16 @@ namespace NServiceBus
             return queue + "@" + machine;
         }
 
-        public override string ToTransportAddress(LogicalAddress logicalAddress)
+        public override string ToTransportAddress(LocalAddress localAddress)
         {
-            var queue = new StringBuilder(logicalAddress.Endpoint);
-            if (logicalAddress.Discriminator != null)
+            var queue = new StringBuilder(localAddress.Endpoint);
+            if (localAddress.Discriminator != null)
             {
-                queue.Append("-" + logicalAddress.Discriminator);
+                queue.Append("-" + localAddress.Discriminator);
             }
-            if (logicalAddress.Qualifier != null)
+            if (localAddress.Qualifier != null)
             {
-                queue.Append("." + logicalAddress.Qualifier);
+                queue.Append("." + localAddress.Qualifier);
             }
             return queue + "@" + RuntimeEnvironment.MachineName;
         }

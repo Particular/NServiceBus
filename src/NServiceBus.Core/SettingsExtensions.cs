@@ -74,9 +74,9 @@ namespace NServiceBus
         /// <summary>
         /// Returns the local logical address of this endpoint.
         /// </summary>
-        public static LogicalAddress LocalLogicalAddress(this ReadOnlySettings settings)
+        public static LocalAddress LocalLogicalAddress(this ReadOnlySettings settings)
         {
-            return settings.Get<LogicalAddress>(Receiving.SharedQueueLogicalAddressSettingsKey);
+            return settings.Get<LocalAddress>(Receiving.SharedQueueLogicalAddressSettingsKey);
         }
 
         /// <summary>
