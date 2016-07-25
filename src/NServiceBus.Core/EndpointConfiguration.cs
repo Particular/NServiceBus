@@ -178,6 +178,16 @@ namespace NServiceBus
         }
 
         /// <summary>
+        /// Overrides the local address.
+        /// </summary>
+        /// <param name="transportAddress">The transportAddress.</param>
+        public void OverrideLocalAddress(string transportAddress)
+        {
+            Guard.AgainstNullAndEmpty(nameof(transportAddress), transportAddress);
+            localAddress = transportAddress;
+        }
+
+        /// <summary>
         /// Specifies the range of types that NServiceBus scans for handlers etc.
         /// </summary>
         internal void TypesToScanInternal(IEnumerable<Type> typesToScan)
@@ -217,6 +227,10 @@ namespace NServiceBus
             if (publicReturnAddress != null)
             {
                 Settings.SetDefault("PublicReturnAddress", publicReturnAddress);
+            }
+            if (localAddress != null)
+            {
+                Settings.SetDefault("LocalAddressBase", localAddress);
             }
 
             var conventions = conventionsBuilder.Conventions;
@@ -287,6 +301,7 @@ namespace NServiceBus
         List<Type> excludedTypes = new List<Type>();
         PipelineConfiguration pipelineCollection;
         string publicReturnAddress;
+        string localAddress;
         List<Action<IConfigureComponents>> registrations = new List<Action<IConfigureComponents>>();
         bool scanAssembliesInNestedDirectories;
         List<Type> scannedTypes;

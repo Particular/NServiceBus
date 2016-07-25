@@ -5,9 +5,9 @@
     using System.Threading.Tasks;
     using Extensibility;
     using NServiceBus.Routing;
-    using Transport;
     using Unicast.Messages;
     using NUnit.Framework;
+    using Transport;
 
     [TestFixture]
     public class UnicastSendRouterTests
@@ -16,7 +16,6 @@
         MessageMetadataRegistry metadataRegistry;
         UnicastRoutingTable routingTable;
         EndpointInstances endpointInstances;
-        TransportAddresses transportAddresses;
 
         [Test]
         public async Task When_routing_command_to_logical_endpoint_without_configured_instances_should_route_to_a_single_destination()
@@ -83,12 +82,11 @@
             metadataRegistry = new MessageMetadataRegistry(new Conventions());
             routingTable = new UnicastRoutingTable();
             endpointInstances = new EndpointInstances();
-            transportAddresses = new TransportAddresses(address => address.ToString());
             router = new UnicastSendRouter(
                 metadataRegistry,
                 routingTable,
                 endpointInstances,
-                transportAddresses);
+                i => i.ToString());
         }
 
         class Command : ICommand

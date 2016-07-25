@@ -26,10 +26,8 @@ namespace NServiceBus.AcceptanceTests.Hosting
             {
                 EndpointSetup<DefaultServer>((c, d) =>
                 {
+                    c.OverrideLocalAddress("OverriddenLocalAddress");
                     c.EnableFeature<TimeoutManager>();
-                    c.UseTransport(d.GetTransportType())
-                        .Transactions(TransportTransactionMode.None)
-                        .AddAddressTranslationRule(address => "OverriddenLocalAddress" + address.Qualifier); //Overriding -> Overridden
                 });
             }
         }

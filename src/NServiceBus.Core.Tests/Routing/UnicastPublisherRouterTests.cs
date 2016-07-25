@@ -1,12 +1,12 @@
 ﻿namespace NServiceBus.Core.Tests.Routing
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
     using Extensibility;
     using NServiceBus.Routing;
     using NUnit.Framework;
-    using Transport;
     using Unicast.Messages;
     using Unicast.Subscriptions;
     using Unicast.Subscriptions.MessageDrivenSubscriptions;
@@ -17,7 +17,6 @@
         UnicastPublishRouter router;
         MessageMetadataRegistry metadataRegistry;
         EndpointInstances endpointInstances;
-        TransportAddresses transportAddresses;
         FakeSubscriptionStorage subscriptionStorage;
 
         [Test]
@@ -102,12 +101,11 @@
             metadataRegistry = new MessageMetadataRegistry(new Conventions());
             endpointInstances = new EndpointInstances();
             subscriptionStorage = new FakeSubscriptionStorage();
-            transportAddresses = new TransportAddresses(address => address.ToString());
             router = new UnicastPublishRouter(
                 metadataRegistry,
                 subscriptionStorage,
                 endpointInstances,
-                transportAddresses);
+                i => i.ToString());
         }
 
         class FakeSubscriptionStorage : ISubscriptionStorage
@@ -115,12 +113,12 @@
             public List<Subscriber> Subscribers { get; }= new List<Subscriber>();
             public Task Subscribe(Subscriber subscriber, MessageType messageType, ContextBag context)
             {
-                throw new System.NotImplementedException();
+                throw new NotImplementedException();
             }
 
             public Task Unsubscribe(Subscriber subscriber, MessageType messageType, ContextBag context)
             {
-                throw new System.NotImplementedException();
+                throw new NotImplementedException();
             }
 
             public Task<IEnumerable<Subscriber>> GetSubscriberAddressesForMessage(IEnumerable<MessageType> messageTypes, ContextBag context)

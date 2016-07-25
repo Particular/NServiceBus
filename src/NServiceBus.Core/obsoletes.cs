@@ -186,16 +186,6 @@ namespace NServiceBus
         }
 
         [ObsoleteEx(
-            ReplacementTypeOrMember = "EndpointConfiguration.UseTransport<T>().AddAddressTranslationRule(Func<LogicalAddress, string> rule)",
-            RemoveInVersion = "7.0",
-            TreatAsErrorFromVersion = "6.0")]
-        public void OverrideLocalAddress(string queue)
-        {
-            throw new NotImplementedException();
-        }
-
-
-        [ObsoleteEx(
             Message = "Endpoint name is now a mandatory constructor argument on EndpointConfiguration.",
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0")]

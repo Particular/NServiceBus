@@ -11,7 +11,6 @@ namespace NServiceBus
         public Sending()
         {
             EnableByDefault();
-            DependsOn<TransportAddressing>();
         }
 
         protected internal override void Setup(FeatureConfigurationContext context)
