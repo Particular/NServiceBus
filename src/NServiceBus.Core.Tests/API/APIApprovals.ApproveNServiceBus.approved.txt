@@ -268,8 +268,9 @@ namespace NServiceBus
     {
         public static NServiceBus.RecoverabilityAction Invoke(NServiceBus.RecoverabilityConfig config, NServiceBus.Transport.ErrorContext errorContext) { }
     }
-    public struct DelayedConfig
+    public class DelayedConfig
     {
+        public DelayedConfig(int maxNumberOfRetries, System.TimeSpan timeIncrease) { }
         public int MaxNumberOfRetries { get; }
         public System.TimeSpan TimeIncrease { get; }
     }
@@ -407,8 +408,9 @@ namespace NServiceBus
             "ly throws a NotImplementedException. Will be removed in version 7.0.0.", true)]
         public static void SetMessageHeader(this NServiceBus.IBus bus, object msg, string key, string value) { }
     }
-    public struct FailedConfig
+    public class FailedConfig
     {
+        public FailedConfig(string errorQueue) { }
         public string ErrorQueue { get; }
     }
     public class FileRoutingTableSettings : NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings
@@ -655,8 +657,9 @@ namespace NServiceBus
         public static System.Threading.Tasks.Task Unsubscribe(this NServiceBus.IMessageSession session, System.Type messageType) { }
         public static System.Threading.Tasks.Task Unsubscribe<T>(this NServiceBus.IMessageSession session) { }
     }
-    public struct ImmediateConfig
+    public class ImmediateConfig
     {
+        public ImmediateConfig(int maxNumberOfRetries) { }
         public int MaxNumberOfRetries { get; }
     }
     public class static ImmediateDispatchOptionExtensions
@@ -903,8 +906,9 @@ namespace NServiceBus
         public static NServiceBus.ImmediateRetry ImmediateRetry() { }
         public static NServiceBus.MoveToError MoveToError(string errorQueue) { }
     }
-    public struct RecoverabilityConfig
+    public class RecoverabilityConfig
     {
+        public RecoverabilityConfig(NServiceBus.ImmediateConfig immediateConfig, NServiceBus.DelayedConfig delayedConfig, NServiceBus.FailedConfig failedConfig) { }
         public NServiceBus.DelayedConfig Delayed { get; }
         public NServiceBus.FailedConfig Failed { get; }
         public NServiceBus.ImmediateConfig Immediate { get; }
