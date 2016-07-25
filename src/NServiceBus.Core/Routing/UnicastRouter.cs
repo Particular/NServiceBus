@@ -6,18 +6,17 @@ namespace NServiceBus
     using System.Threading.Tasks;
     using Extensibility;
     using Routing;
-    using Transport;
     using Unicast.Messages;
 
     abstract class UnicastRouter : IUnicastRouter
     {
-        public UnicastRouter(MessageMetadataRegistry messageMetadataRegistry,
+        protected UnicastRouter(MessageMetadataRegistry messageMetadataRegistry,
             EndpointInstances endpointInstances,
-            TransportAddresses physicalAddresses)
+            Func<EndpointInstance, string> transportAddressTranslation)
         {
             this.messageMetadataRegistry = messageMetadataRegistry;
             this.endpointInstances = endpointInstances;
-            this.physicalAddresses = physicalAddresses;
+            this.transportAddressTranslation = transportAddressTranslation;
         }
 
         public async Task<IEnumerable<UnicastRoutingStrategy>> Route(Type messageType, IDistributionPolicy distributionPolicy, ContextBag contextBag)
@@ -38,7 +37,7 @@ namespace NServiceBus
             var selectedDestinations = SelectDestinationsForEachEndpoint(distributionPolicy, destinations);
 
             return selectedDestinations
-                .Select(destination => destination.Resolve(x => physicalAddresses.GetTransportAddress(new LogicalAddress(x))))
+                .Select(destination => destination.Resolve(x => transportAddressTranslation(x)))
                 .Distinct() //Make sure we are sending only one to each transport destination. Might happen when there are multiple routing information sources.
                 .Select(destination => new UnicastRoutingStrategy(destination));
         }
@@ -77,7 +76,7 @@ namespace NServiceBus
         }
 
         EndpointInstances endpointInstances;
+        Func<EndpointInstance, string> transportAddressTranslation;
         MessageMetadataRegistry messageMetadataRegistry;
-        TransportAddresses physicalAddresses;
     }
 }

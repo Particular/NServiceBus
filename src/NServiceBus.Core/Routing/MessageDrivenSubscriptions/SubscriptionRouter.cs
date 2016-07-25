@@ -6,15 +6,14 @@
     using System.Threading.Tasks;
     using Routing;
     using Routing.MessageDrivenSubscriptions;
-    using Transport;
 
     class SubscriptionRouter
     {
-        public SubscriptionRouter(Publishers publishers, EndpointInstances endpointInstances, TransportAddresses physicalAddresses)
+        public SubscriptionRouter(Publishers publishers, EndpointInstances endpointInstances, Func<EndpointInstance, string> transportAddressTranslation)
         {
             this.publishers = publishers;
             this.endpointInstances = endpointInstances;
-            this.physicalAddresses = physicalAddresses;
+            this.transportAddressTranslation = transportAddressTranslation;
         }
 
         public async Task<IEnumerable<string>> GetAddressesForEventType(Type messageType)
@@ -24,7 +23,7 @@
             {
                 results.AddRange(await publisherAddress.Resolve(
                     ResolveInstances,
-                    i => physicalAddresses.GetTransportAddress(new LogicalAddress(i))).ConfigureAwait(false));
+                    i => transportAddressTranslation(i)).ConfigureAwait(false));
             }
             return results.Distinct();
         }
@@ -35,7 +34,7 @@
         }
 
         EndpointInstances endpointInstances;
-        TransportAddresses physicalAddresses;
+        readonly Func<EndpointInstance, string> transportAddressTranslation;
 
         Publishers publishers;
     }
