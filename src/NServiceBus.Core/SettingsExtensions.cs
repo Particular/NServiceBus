@@ -4,7 +4,6 @@ namespace NServiceBus
     using System.Collections.Generic;
     using System.Linq;
     using Config.ConfigurationSource;
-    using Routing;
     using Settings;
 
     /// <summary>
@@ -64,21 +63,20 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Returns the name of this instance of the endpoint.
-        /// </summary>
-        public static EndpointInstance EndpointInstanceName(this ReadOnlySettings settings)
-        {
-            Guard.AgainstNull(nameof(settings), settings);
-            return settings.Get<EndpointInstance>();
-        }
-
-        /// <summary>
         /// Returns the shared queue name of this endpoint.
         /// </summary>
         public static string LocalAddress(this ReadOnlySettings settings)
         {
             Guard.AgainstNull(nameof(settings), settings);
-            return settings.Get<string>("NServiceBus.SharedQueue");
+            return settings.Get<string>(Receiving.SharedQueueAddressSettingsKey);
+        }
+
+        /// <summary>
+        /// Returns the local logical address of this endpoint.
+        /// </summary>
+        public static LogicalAddress LocalLogicalAddress(this ReadOnlySettings settings)
+        {
+            return settings.Get<LogicalAddress>(Receiving.SharedQueueLogicalAddressSettingsKey);
         }
 
         /// <summary>
@@ -87,7 +85,7 @@ namespace NServiceBus
         public static string InstanceSpecificQueue(this ReadOnlySettings settings)
         {
             Guard.AgainstNull(nameof(settings), settings);
-            return settings.GetOrDefault<string>("NServiceBus.EndpointSpecificQueue");
+            return settings.GetOrDefault<string>(Receiving.UniqueEndpointAddressSettingsKey);
         }
 
         static bool HasConstructorThatAcceptsSettings(Type sectionOverrideType)

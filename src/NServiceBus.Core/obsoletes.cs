@@ -186,16 +186,6 @@ namespace NServiceBus
         }
 
         [ObsoleteEx(
-            ReplacementTypeOrMember = "EndpointConfiguration.UseTransport<T>().AddAddressTranslationRule(Func<LogicalAddress, string> rule)",
-            RemoveInVersion = "7.0",
-            TreatAsErrorFromVersion = "6.0")]
-        public void OverrideLocalAddress(string queue)
-        {
-            throw new NotImplementedException();
-        }
-
-
-        [ObsoleteEx(
             Message = "Endpoint name is now a mandatory constructor argument on EndpointConfiguration.",
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0")]
@@ -470,6 +460,22 @@ namespace NServiceBus
         TreatAsErrorFromVersion = "6.0",
         ReplacementTypeOrMember = "SanitizeInput(this SerializationExtensions<XmlSerializer> config)")]
         public static SerializationExtentions<XmlSerializer> SanitizeInput(this SerializationExtentions<XmlSerializer> config)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    [ObsoleteEx(
+        TreatAsErrorFromVersion = "6",
+        RemoveInVersion = "7",
+        Message = "Not available any more.")]
+    public static class ConfigureTransportConnectionString
+    {
+        [ObsoleteEx(
+            TreatAsErrorFromVersion = "6",
+            RemoveInVersion = "7",
+            Message = "Not available any more.")]
+        public static string TransportConnectionString(this Configure config)
         {
             throw new NotImplementedException();
         }

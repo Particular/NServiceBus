@@ -15,7 +15,7 @@
             Guard.AgainstNull(nameof(config), config);
             Guard.AgainstNullAndEmpty(nameof(discriminator), discriminator);
 
-            config.Settings.Set("EndpointInstanceDiscriminator", discriminator);
+            config.Settings.Set(Receiving.EndpointInstanceDiscriminator, discriminator);
         }
     }
 }

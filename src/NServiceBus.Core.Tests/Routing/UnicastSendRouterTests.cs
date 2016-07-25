@@ -83,7 +83,7 @@
             metadataRegistry = new MessageMetadataRegistry(new Conventions());
             routingTable = new UnicastRoutingTable();
             endpointInstances = new EndpointInstances();
-            transportAddresses = new TransportAddresses(address => address.ToString());
+            transportAddresses = new TransportAddresses(address => address.ToString(), address => address.ToString());
             router = new UnicastSendRouter(
                 metadataRegistry,
                 routingTable,

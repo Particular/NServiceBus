@@ -46,26 +46,35 @@ namespace NServiceBus
             return new ReceiveWithNativeTransaction(new MsmqFailureInfoStorage(1000));
         }
 
-        public override EndpointInstance BindToLocalEndpoint(EndpointInstance instance) => instance.AtMachine(RuntimeEnvironment.MachineName);
-
-        public override string ToTransportAddress(LogicalAddress logicalAddress)
+        public override string ToTransportAddress(EndpointInstance endpointInstance)
         {
             string machine;
-            if (!logicalAddress.EndpointInstance.Properties.TryGetValue("machine", out machine))
+            if (!endpointInstance.Properties.TryGetValue("machine", out machine))
             {
                 machine = RuntimeEnvironment.MachineName;
             }
 
-            var queue = new StringBuilder(logicalAddress.EndpointInstance.Endpoint);
-            if (logicalAddress.EndpointInstance.Discriminator != null)
+            var queue = new StringBuilder(endpointInstance.Endpoint);
+            if (endpointInstance.Discriminator != null)
             {
-                queue.Append("-" + logicalAddress.EndpointInstance.Discriminator);
+                queue.Append("-" + endpointInstance.Discriminator);
+            }
+
+            return queue + "@" + machine;
+        }
+
+        public override string ToTransportAddress(LogicalAddress logicalAddress)
+        {
+            var queue = new StringBuilder(logicalAddress.Endpoint);
+            if (logicalAddress.Discriminator != null)
+            {
+                queue.Append("-" + logicalAddress.Discriminator);
             }
             if (logicalAddress.Qualifier != null)
             {
                 queue.Append("." + logicalAddress.Qualifier);
             }
-            return queue + "@" + machine;
+            return queue + "@" + RuntimeEnvironment.MachineName;
         }
 
         public override string MakeCanonicalForm(string transportAddress)

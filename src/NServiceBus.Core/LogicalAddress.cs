@@ -1,105 +1,89 @@
 ﻿namespace NServiceBus
 {
-    using System;
-    using JetBrains.Annotations;
-    using Routing;
-
     /// <summary>
-    /// Represents a logical address (independent of transport).
+    /// Represents a logical address (independent of transport) of a local queue.
     /// </summary>
     public sealed class LogicalAddress
     {
         /// <summary>
-        /// Creates new qualified logical address for the provided endpoint instance name.
-        /// </summary>
-        /// <param name="endpointInstance">The name of the instance.</param>
-        /// <param name="qualifier">The qualifier of this address.</param>
-        public LogicalAddress(EndpointInstance endpointInstance, [NotNull] string qualifier)
-        {
-            if (qualifier == null)
-            {
-                throw new ArgumentNullException(nameof(qualifier));
-            }
-            EndpointInstance = endpointInstance;
-            Qualifier = qualifier;
-        }
-
-        /// <summary>
         /// Creates new root logical address for the provided endpoint instance name.
         /// </summary>
-        /// <param name="endpointInstance">The name of the instance.</param>
-        public LogicalAddress(EndpointInstance endpointInstance)
+        /// <param name="endpoint">The logical name of the endpoint.</param>
+        /// <param name="qualifier">The qualifier to apply to the given logical endpoint name.</param>
+        /// <param name="discriminator">The discriminator to apply to the given logical endpoint name.</param>
+        public LogicalAddress(string endpoint, string qualifier = null, string discriminator = null)
         {
-            EndpointInstance = endpointInstance;
+            Endpoint = endpoint;
+            Qualifier = qualifier;
+            Discriminator = discriminator;
         }
 
-
         /// <summary>
-        /// Returns the qualifier or null for the root logical address for a given instance name.
+        /// Returns the qualifier of the address.
         /// </summary>
+        /// <returns>The configured qualifier or <code>null</code> when no qualifier is specified.</returns>
         public string Qualifier { get; }
 
         /// <summary>
-        /// Returns the instance name.
+        /// Returns the discriminator of the address.
         /// </summary>
-        public EndpointInstance EndpointInstance { get; }
+        /// <returns>The configured discriminator or <code>null</code> when no discriminator is specified.</returns>
+        public string Discriminator { get; }
 
-        bool Equals(LogicalAddress other)
-        {
-            return string.Equals(Qualifier, other.Qualifier) && Equals(EndpointInstance, other.EndpointInstance);
-        }
-
+        /// <summary>
+        /// Returns the logical endpoint name excluding qualifier and discriminator.
+        /// </summary>
+        public string Endpoint { get; }
         /// <summary>
         /// Returns a string that represents the current object.
         /// </summary>
-        /// <returns>
-        /// A string that represents the current object.
-        /// </returns>
         public override string ToString()
         {
+            var name = Endpoint;
+
+            if (Discriminator != null)
+            {
+                name += $"-{Discriminator}";
+            }
+
             if (Qualifier != null)
             {
-                return EndpointInstance + "." + Qualifier;
+                name += $".{Qualifier}";
             }
-            return EndpointInstance.ToString();
+
+            return name;
         }
 
-        /// <summary>
-        /// Determines whether the specified object is equal to the current object.
-        /// </summary>
-        /// <returns>
-        /// true if the specified object  is equal to the current object; otherwise, false.
-        /// </returns>
+        bool Equals(LogicalAddress other)
+        {
+            return string.Equals(Qualifier, other.Qualifier) && string.Equals(Discriminator, other.Discriminator) && string.Equals(Endpoint, other.Endpoint);
+        }
+
+        /// <summary>Determines whether the specified object is equal to the current object.</summary>
+        /// <returns>true if the specified object  is equal to the current object; otherwise, false.</returns>
         /// <param name="obj">The object to compare with the current object. </param>
         public override bool Equals(object obj)
         {
-            if (ReferenceEquals(null, obj))
-            {
-                return false;
-            }
-            if (ReferenceEquals(this, obj))
-            {
-                return true;
-            }
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
             return obj is LogicalAddress && Equals((LogicalAddress) obj);
         }
 
-        /// <summary>
-        /// Serves as a hash function for a particular type.
-        /// </summary>
-        /// <returns>
-        /// A hash code for the current object.
-        /// </returns>
+        /// <summary>Serves as the default hash function. </summary>
+        /// <returns>A hash code for the current object.</returns>
         public override int GetHashCode()
         {
             unchecked
             {
-                return ((Qualifier?.GetHashCode() ?? 0)*397) ^ (EndpointInstance?.GetHashCode() ?? 0);
+                var hashCode = (Qualifier != null ? Qualifier.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ (Discriminator != null ? Discriminator.GetHashCode() : 0);
+                hashCode = (hashCode*397) ^ (Endpoint != null ? Endpoint.GetHashCode() : 0);
+                return hashCode;
             }
         }
 
         /// <summary>
-        /// Checks for equality.
+        /// Compares for equality.
         /// </summary>
         public static bool operator ==(LogicalAddress left, LogicalAddress right)
         {
@@ -107,7 +91,7 @@
         }
 
         /// <summary>
-        /// Checks for inequality.
+        /// Compares for inequality.
         /// </summary>
         public static bool operator !=(LogicalAddress left, LogicalAddress right)
         {

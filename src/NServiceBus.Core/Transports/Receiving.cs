@@ -3,7 +3,6 @@ namespace NServiceBus
     using System;
     using System.Threading.Tasks;
     using Features;
-    using Routing;
     using Transport;
 
     class Receiving : Feature
@@ -16,17 +15,16 @@ namespace NServiceBus
             Defaults(s =>
             {
                 var transportAddresses = s.Get<TransportAddresses>();
-                var userDiscriminator = s.GetOrDefault<string>("EndpointInstanceDiscriminator");
+                var userDiscriminator = s.GetOrDefault<string>(EndpointInstanceDiscriminator);
+                var receivingName = s.GetOrDefault<string>(SharedQueueAddressOverrideSettingsKey) ?? s.EndpointName();
 
                 if (userDiscriminator != null)
                 {
-                    var p = s.Get<TransportInfrastructure>().BindToLocalEndpoint(new EndpointInstance(s.EndpointName(), userDiscriminator));
-                    s.SetDefault("NServiceBus.EndpointSpecificQueue", transportAddresses.GetTransportAddress(new LogicalAddress(p)));
+                    s.SetDefault(UniqueEndpointAddressSettingsKey, transportAddresses.GetTransportAddress(new LogicalAddress(receivingName, discriminator: userDiscriminator)));
                 }
-                var instanceProperties = s.Get<TransportInfrastructure>().BindToLocalEndpoint(new EndpointInstance(s.EndpointName()));
-                s.SetDefault("NServiceBus.SharedQueue", transportAddresses.GetTransportAddress(new LogicalAddress(instanceProperties)));
-
-                s.SetDefault<EndpointInstance>(instanceProperties);
+                var address = new LogicalAddress(receivingName);
+                s.SetDefault(SharedQueueAddressSettingsKey, transportAddresses.GetTransportAddress(address));
+                s.SetDefault(SharedQueueLogicalAddressSettingsKey, address);
             });
         }
 
@@ -51,6 +49,12 @@ namespace NServiceBus
 
             context.RegisterStartupTask(new PrepareForReceiving(lazyReceiveConfigResult));
         }
+
+        internal const string SharedQueueAddressSettingsKey = "NServiceBus.SharedQueue";
+        internal const string SharedQueueLogicalAddressSettingsKey = "NServiceBus.LocalLogicalAddress";
+        internal const string SharedQueueAddressOverrideSettingsKey = "NServiceBus.LocalAddressOverride";
+        internal const string UniqueEndpointAddressSettingsKey = "NServiceBus.EndpointSpecificQueue";
+        internal const string EndpointInstanceDiscriminator = "EndpointInstanceDiscriminator";
 
         class PrepareForReceiving : FeatureStartupTask
         {

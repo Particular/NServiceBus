@@ -162,6 +162,7 @@
     <Compile Include="Transports\ErrorContext.cs" />
     <Compile Include="Transports\ErrorHandleResult.cs" />
     <Compile Include="Transports\IOutgoingTransportOperation.cs" />
+    <Compile Include="Transports\LocalAddressOverrideExtensions.cs" />
     <Compile Include="Transports\LogicalAddressExtensions.cs" />
     <Compile Include="Transports\Msmq\MsmqScopeOptions.cs" />
     <Compile Include="Transports\Msmq\MsmqTransportInfrastructure.cs" />
