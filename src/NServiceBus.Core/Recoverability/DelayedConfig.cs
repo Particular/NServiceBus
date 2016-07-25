@@ -5,10 +5,18 @@ namespace NServiceBus
     /// <summary>
     /// Provides information about the delayed retries configuration.
     /// </summary>
-    public struct DelayedConfig
+    public class DelayedConfig
     {
-        internal DelayedConfig(int maxNumberOfRetries, TimeSpan timeIncrease)
+        /// <summary>
+        /// Creates a new delayed retries configuration.
+        /// </summary>
+        /// <param name="maxNumberOfRetries">The maximum number of delayed retries.</param>
+        /// <param name="timeIncrease">The time of increase for individual delayed retries.</param>
+        public DelayedConfig(int maxNumberOfRetries, TimeSpan timeIncrease)
         {
+            Guard.AgainstNegative(nameof(maxNumberOfRetries), maxNumberOfRetries);
+            Guard.AgainstNegative(nameof(timeIncrease), timeIncrease);
+
             MaxNumberOfRetries = maxNumberOfRetries;
             TimeIncrease = timeIncrease;
         }

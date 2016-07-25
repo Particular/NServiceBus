@@ -120,7 +120,7 @@
             {
                 Logger.Warn("Delayed Retries will be disabled. Delayed retries are not supported when running with TransportTransactionMode.None. Failed messages will be moved to the error queue instead.");
                 //Transactions must be enabled since SLR requires the transport to be able to rollback
-                return new DelayedConfig(0, TimeSpan.MinValue);
+                return new DelayedConfig(0, TimeSpan.Zero);
             }
 
             var numberOfRetries = settings.Get<int>(SlrNumberOfRetries);

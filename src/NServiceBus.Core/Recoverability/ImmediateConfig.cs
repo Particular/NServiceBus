@@ -3,10 +3,16 @@ namespace NServiceBus
     /// <summary>
     /// Provides information about the immediate retries configuration.
     /// </summary>
-    public struct ImmediateConfig
+    public class ImmediateConfig
     {
-        internal ImmediateConfig(int maxNumberOfRetries)
+        /// <summary>
+        /// Creates a new immediate retries configuration.
+        /// </summary>
+        /// <param name="maxNumberOfRetries">The maximum number of immediate retries.</param>
+        public ImmediateConfig(int maxNumberOfRetries)
         {
+            Guard.AgainstNegative(nameof(maxNumberOfRetries), maxNumberOfRetries);
+
             MaxNumberOfRetries = maxNumberOfRetries;
         }
 
