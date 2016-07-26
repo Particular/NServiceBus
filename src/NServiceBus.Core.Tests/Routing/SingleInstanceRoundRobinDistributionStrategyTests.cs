@@ -63,7 +63,7 @@
             var instances = new List<UnicastRoutingTarget>
             {
                 UnicastRoutingTarget.ToEndpointInstance(new EndpointInstance(endpointName, "1")),
-                UnicastRoutingTarget.ToEndpointInstance(new EndpointInstance(endpointName, "2")),
+                UnicastRoutingTarget.ToEndpointInstance(new EndpointInstance(endpointName, "2"))
             };
 
             var result = new List<UnicastRoutingTarget>();
@@ -100,6 +100,44 @@
             Assert.That(result.Count, Is.EqualTo(3));
             Assert.That(result, Has.Exactly(2).EqualTo(instances[0]));
             Assert.That(result, Has.Exactly(1).EqualTo(instances[1]));
+        }
+
+        [Test]
+        public void WhenAlternatingInstancesQueriedFor_ShouldProvideFairDistribution()
+        {
+            var strategy = new SingleInstanceRoundRobinDistributionStrategy();
+
+            const string endpointA = "endpointA";
+            var a = new List<UnicastRoutingTarget>
+            {
+                UnicastRoutingTarget.ToEndpointInstance(new EndpointInstance(endpointA, "1")),
+                UnicastRoutingTarget.ToEndpointInstance(new EndpointInstance(endpointA, "2")),
+                UnicastRoutingTarget.ToEndpointInstance(new EndpointInstance(endpointA, "3"))
+            };
+
+            const string endpointB = "endpointB";
+            var b = new List<UnicastRoutingTarget>
+            {
+                UnicastRoutingTarget.ToEndpointInstance(new EndpointInstance(endpointB, "1"))
+            };
+
+            var result = new List<UnicastRoutingTarget>();
+
+            result.AddRange(strategy.SelectDestination(a));
+            result.AddRange(strategy.SelectDestination(b));
+            result.AddRange(strategy.SelectDestination(b));
+
+            result.AddRange(strategy.SelectDestination(a));
+            result.AddRange(strategy.SelectDestination(b));
+            result.AddRange(strategy.SelectDestination(b));
+
+            result.AddRange(strategy.SelectDestination(a));
+            result.AddRange(strategy.SelectDestination(b));
+            result.AddRange(strategy.SelectDestination(b));
+
+            var allInstances = a.Concat(b).ToArray();
+
+            CollectionAssert.AreEquivalent(allInstances, result.Distinct());
         }
     }
 }
