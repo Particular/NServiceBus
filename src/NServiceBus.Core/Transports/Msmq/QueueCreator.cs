@@ -40,7 +40,7 @@ namespace NServiceBus
             Logger.Debug($"Creating '{address}' if needed.");
 
             MessageQueue queue;
-            if (MsmqUtilities.TryOpenQueue(msmqAddress, out queue) || MsmqUtilities.TryCreateQueue(msmqAddress, identity, settings.UseTransactionalQueues, out queue))
+            if (!MsmqUtilities.TryOpenQueue(msmqAddress, out queue) && MsmqUtilities.TryCreateQueue(msmqAddress, identity, settings.UseTransactionalQueues, out queue))
             {
                 using (queue)
                 {
