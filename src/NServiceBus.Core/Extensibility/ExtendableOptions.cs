@@ -7,10 +7,24 @@ namespace NServiceBus.Extensibility
     /// </summary>
     public abstract class ExtendableOptions
     {
-        internal ContextBag Context = new ContextBag();
+        /// <summary>
+        /// Creates an instance of an extendable option.
+        /// </summary>
+        protected ExtendableOptions()
+        {
+            Context = new ContextBag();
+            OutgoingHeaders = new Dictionary<string, string>();
+            MessageId = CombGuid.Generate().ToString();
+        }
 
-        internal string MessageId = CombGuid.Generate().ToString();
+        internal ContextBag Context { get; }
 
-        internal Dictionary<string, string> OutgoingHeaders = new Dictionary<string, string>();
+        internal string MessageId
+        {
+            get { return OutgoingHeaders[Headers.MessageId]; }
+            set { OutgoingHeaders[Headers.MessageId] = value; }
+        }
+
+        internal Dictionary<string, string> OutgoingHeaders { get; }
     }
 }
