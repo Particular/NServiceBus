@@ -29,7 +29,7 @@ namespace NServiceBus
         public EndpointConfiguration(string endpointName)
             : base(new SettingsHolder())
         {
-            Guard.AgainstNullAndEmpty(nameof(endpointName), endpointName);
+            ValidateEndpointName(endpointName);
 
             Settings.Set("NServiceBus.Routing.EndpointName", endpointName);
 
@@ -55,7 +55,7 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Access to the current endpoint <see cref="Notifications"/>.
+        /// Access to the current endpoint <see cref="Notifications" />.
         /// </summary>
         public Notifications Notifications { get; }
 
@@ -227,6 +227,19 @@ namespace NServiceBus
             Settings.SetDefault<MessageMetadataRegistry>(messageMetadataRegistry);
 
             return new InitializableEndpoint(Settings, container, registrations, Pipeline, pipelineCollection);
+        }
+
+        static void ValidateEndpointName(string endpointName)
+        {
+            if (string.IsNullOrWhiteSpace(endpointName))
+            {
+                throw new ArgumentException("Endpoint name must not be empty", nameof(endpointName));
+            }
+
+            if (endpointName.Contains("@"))
+            {
+                throw new ArgumentException("Endpoint name must not contain an '@' character.", nameof(endpointName));
+            }
         }
 
         static void ForAllTypes<T>(IEnumerable<Type> types, Action<Type> action) where T : class

@@ -125,6 +125,7 @@
     <Compile Include="DelayedDelivery\TimeoutManager\ExpiredTimeoutsPollerTests.cs" />
     <Compile Include="DelayedDelivery\TimeoutManager\RecordingFakeDispatcher.cs" />
     <Compile Include="DeliveryConstraintContextExtensions\DeliveryConstraintContextExtensionsTests.cs" />
+    <Compile Include="EndpointConfigurationTests.cs" />
     <Compile Include="FakeEventAggregator.cs" />
     <Compile Include="Fakes\TestableContextChecker.cs" />
     <Compile Include="Fakes\TestableMessageHandlerContextTests.cs" />
