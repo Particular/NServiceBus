@@ -39,22 +39,29 @@ namespace NServiceBus
 
             Logger.Debug($"Creating '{address}' if needed.");
 
-            MessageQueue queue;
-            if (!MsmqUtilities.TryOpenQueue(msmqAddress, out queue) && MsmqUtilities.TryCreateQueue(msmqAddress, identity, settings.UseTransactionalQueues, out queue))
+            MessageQueue queue = null;
+            try
             {
-                using (queue)
+                if (!MsmqUtilities.TryOpenQueue(msmqAddress, out queue) && MsmqUtilities.TryCreateQueue(msmqAddress, identity, settings.UseTransactionalQueues, out queue))
                 {
-                    Logger.Debug("Setting queue permissions.");
+                    using (queue)
+                    {
+                        Logger.Debug("Setting queue permissions.");
 
-                    try
-                    {
-                        QueuePermissions.SetPermissionsForQueue(queue, identity);
-                    }
-                    catch (MessageQueueException ex)
-                    {
-                        Logger.Error($"Unable to set permissions for queue {queue.QueueName}", ex);
+                        try
+                        {
+                            QueuePermissions.SetPermissionsForQueue(queue, identity);
+                        }
+                        catch (MessageQueueException ex)
+                        {
+                            Logger.Error($"Unable to set permissions for queue {queue.QueueName}", ex);
+                        }
                     }
                 }
+            }
+            finally
+            {
+                queue?.Dispose();
             }
         }
 
