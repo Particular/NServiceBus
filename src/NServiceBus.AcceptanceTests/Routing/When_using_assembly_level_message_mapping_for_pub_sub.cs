@@ -102,14 +102,14 @@
                 }
             }
         }
-        
+
         public class MyEvent : IEvent
         {
         }
-        
+
         public class DoneCommand : ICommand
         {
-            
+
         }
     }
 }
