@@ -120,6 +120,7 @@
     <Compile Include="Pipeline\IPipelineCache.cs" />
     <Compile Include="Pipeline\IPipelineExecutor.cs" />
     <Compile Include="Pipeline\MainPipelineExecutor.cs" />
+    <Compile Include="Pipeline\Outgoing\OutgoingMessageHeaders.cs" />
     <Compile Include="Pipeline\Outgoing\AttachSenderRelatedInfoOnMessageBehavior.cs" />
     <Compile Include="Pipeline\PipelineCache.cs" />
     <Compile Include="Pipeline\satellitePipelineExecutor.cs" />
@@ -549,6 +550,7 @@
     <Compile Include="Hosting\AuditHostInformationBehavior.cs" />
     <Compile Include="UnitOfWork\UnitOfWorkSettings.cs" />
     <Compile Include="UnitOfWork\UnitOfWorkSettingsExtensions.cs" />
+    <Compile Include="Utils\DictionaryWrapper.cs" />
     <Compile Include="Utils\MessageQueueExtensions.cs" />
     <Compile Include="Utils\PathUtilities.cs" />
     <Compile Include="Routing\FileBasedDynamicRouting\FileRoutingTable.cs" />

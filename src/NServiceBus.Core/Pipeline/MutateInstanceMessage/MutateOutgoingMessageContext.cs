@@ -14,7 +14,7 @@ namespace NServiceBus.MessageMutator
         {
             Guard.AgainstNull(nameof(outgoingHeaders), outgoingHeaders);
             Guard.AgainstNull(nameof(outgoingMessage), outgoingMessage);
-            OutgoingHeaders = outgoingHeaders;
+            OutgoingHeaders = new OutgoingMessageHeaders(outgoingHeaders);
             this.incomingMessage = incomingMessage;
             this.incomingHeaders = incomingHeaders;
             this.outgoingMessage = outgoingMessage;
@@ -37,7 +37,7 @@ namespace NServiceBus.MessageMutator
         /// <summary>
         /// The current outgoing headers.
         /// </summary>
-        public Dictionary<string, string> OutgoingHeaders { get; private set; }
+        public IDictionary<string, string> OutgoingHeaders { get; private set; }
 
         /// <summary>
         /// Gets the incoming message that initiated the current send if it exists.
