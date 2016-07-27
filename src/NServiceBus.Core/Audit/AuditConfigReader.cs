@@ -22,6 +22,8 @@
         /// <returns>True if a configured audit address can be found, false otherwise.</returns>
         public static bool TryGetAuditQueueAddress(this ReadOnlySettings settings, out string address)
         {
+            Guard.AgainstNull(nameof(settings), settings);
+
             Result result;
             if (!GetConfiguredAuditQueue(settings, out result))
             {

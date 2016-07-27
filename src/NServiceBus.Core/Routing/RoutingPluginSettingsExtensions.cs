@@ -14,6 +14,7 @@
         /// <param name="featureConfigurationContext">Context.</param>
         public static UnicastRoutingTable RoutingTable(this FeatureConfigurationContext featureConfigurationContext)
         {
+            Guard.AgainstNull(nameof(featureConfigurationContext), featureConfigurationContext);
             return featureConfigurationContext.Settings.Get<UnicastRoutingTable>();
         }
 
@@ -23,6 +24,7 @@
         /// <param name="featureConfigurationContext">Context.</param>
         public static EndpointInstances EndpointInstances(this FeatureConfigurationContext featureConfigurationContext)
         {
+            Guard.AgainstNull(nameof(featureConfigurationContext), featureConfigurationContext);
             return featureConfigurationContext.Settings.Get<EndpointInstances>();
         }
 
@@ -32,6 +34,7 @@
         /// <param name="featureConfigurationContext">Context.</param>
         public static DistributionPolicy DistributionPolicy(this FeatureConfigurationContext featureConfigurationContext)
         {
+            Guard.AgainstNull(nameof(featureConfigurationContext), featureConfigurationContext);
             return featureConfigurationContext.Settings.Get<DistributionPolicy>();
         }
     }
