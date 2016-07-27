@@ -14,7 +14,7 @@ namespace NServiceBus
         /// <param name="machineName">Machine name.</param>
         public static EndpointInstance AtMachine(this EndpointInstance instance, string machineName)
         {
-            return instance.SetProperty("Machine", machineName);
+            return instance.SetProperty("machine", machineName);
         }
     }
 }

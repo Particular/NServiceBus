@@ -51,7 +51,7 @@ namespace NServiceBus
         public override string ToTransportAddress(LogicalAddress logicalAddress)
         {
             string machine;
-            if (!logicalAddress.EndpointInstance.Properties.TryGetValue("Machine", out machine))
+            if (!logicalAddress.EndpointInstance.Properties.TryGetValue("machine", out machine))
             {
                 machine = RuntimeEnvironment.MachineName;
             }
