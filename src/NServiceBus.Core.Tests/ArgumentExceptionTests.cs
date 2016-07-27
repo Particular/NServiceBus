@@ -103,34 +103,6 @@
                         WriteMethod(method, stringWriter);
                     }
                 }
-                //foreach (var property in type.Properties)
-                //{
-                //    if (property.PropertyType.Name == "Boolean")
-                //    {
-                //        continue;
-                //    }
-                //    if (property.SetMethod == null)
-                //    {
-                //        continue;
-                //    }
-                //    if (!property.SetMethod.HasBody)
-                //    {
-                //        continue;
-                //    }
-                //    if (!property.SetMethod.IsPublic)
-                //    {
-                //        continue;
-                //    }
-                //    if (ContainsObsoleteAttribute(property))
-                //    {
-                //        continue;
-                //    }
-
-                //    if (!MethodContainsArgumentException(property.SetMethod))
-                //    {
-                //        WriteMethod(property.SetMethod, stringWriter);
-                //    }
-                //}
             }
 
             var methods = stringWriter.ToString();
