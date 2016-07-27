@@ -26,17 +26,9 @@
         }
 
         [SetUp]
-        public void Setup()
+        public void SetUp()
         {
-            Configurer = CreateConfigurer();
-
-            transportSettings = new SettingsHolder();
-            TransportInfrastructure = Configurer.Configure(transportSettings);
-
-            ReceiveInfrastructure = TransportInfrastructure.ConfigureReceiveInfrastructure();
-            SendInfrastructure = TransportInfrastructure.ConfigureSendInfrastructure();
-
-            lazyDispatcher = new Lazy<IDispatchMessages>(() => SendInfrastructure.DispatcherFactory());
+            testId = Guid.NewGuid().ToString();
         }
 
         static IConfigureTransportInfrastructure CreateConfigurer()
@@ -47,7 +39,7 @@
 
             if (configurerType == null)
             {
-                throw new InvalidOperationException($"Transport Test project must include a non-namespaced class named '{typeName}' implementing {typeof(IConfigureTransportInfrastructure).Name}. See {typeof(ConfigureMsmqTransportInfrastructure).FullName} for an example.");
+                throw new InvalidOperationException($"Transport Test project must include a non-namespaced class named '{typeName}' implementing {typeof(IConfigureTransportInfrastructure).Name}.");
             }
 
             var configurer = Activator.CreateInstance(configurerType) as IConfigureTransportInfrastructure;
@@ -65,31 +57,64 @@
             testCancellationTokenSource?.Dispose();
             MessagePump?.Stop().GetAwaiter().GetResult();
             Configurer?.Cleanup().GetAwaiter().GetResult();
+
+            transportSettings.Clear();
         }
 
         protected async Task StartPump(Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError, TransportTransactionMode transactionMode, Action<string, Exception> onCriticalError = null)
         {
+            InputQueueName = GetTestName() + transactionMode;
+            ErrorQueueName = $"{InputQueueName}.error";
+
+            transportSettings.Set("NServiceBus.Routing.EndpointName", InputQueueName);
+
+            var queueBindings = new QueueBindings();
+            queueBindings.BindReceiving(InputQueueName);
+            queueBindings.BindSending(ErrorQueueName);
+            transportSettings.Set<QueueBindings>(queueBindings);
+
+            Configurer = CreateConfigurer();
+
+            var configuration = Configurer.Configure(transportSettings, transactionMode);
+
+            TransportInfrastructure = configuration.TransportInfrastructure;
+
             IgnoreUnsupportedTransactionModes(transactionMode);
 
-            InputQueueName = GetTestName() + transactionMode;
+            ReceiveInfrastructure = TransportInfrastructure.ConfigureReceiveInfrastructure();
+            SendInfrastructure = TransportInfrastructure.ConfigureSendInfrastructure();
+
+            lazyDispatcher = new Lazy<IDispatchMessages>(() => SendInfrastructure.DispatcherFactory());
 
             MessagePump = ReceiveInfrastructure.MessagePumpFactory();
 
-            var queueBindings = new QueueBindings();
-            ErrorQueueName = $"{InputQueueName}.error";
-
-            queueBindings.BindReceiving(InputQueueName);
-            queueBindings.BindSending(ErrorQueueName);
-
             var queueCreator = ReceiveInfrastructure.QueueCreatorFactory();
-
             await queueCreator.CreateQueueIfNecessary(queueBindings, WindowsIdentity.GetCurrent().Name);
 
-            transportSettings.Set<QueueBindings>(queueBindings);
+            var pushSettings = new PushSettings(InputQueueName, ErrorQueueName, configuration.PurgeInputQueueOnStartup, transactionMode);
+            await MessagePump.Init(
+                context =>
+                {
+                    if (context.Headers.ContainsKey(TestIdHeaderName) &&
+                        context.Headers[TestIdHeaderName] == testId)
+                    {
+                        return onMessage(context);
+                    }
 
-            var pushSettings = new PushSettings(InputQueueName, ErrorQueueName, true, transactionMode);
+                    return Task.FromResult(0);
+                },
+                context =>
+                {
+                    if (context.Message.Headers.ContainsKey(TestIdHeaderName) &&
+                        context.Message.Headers[TestIdHeaderName] == testId)
+                    {
+                        return onError(context);
+                    }
 
-            await MessagePump.Init(onMessage, onError, new FakeCriticalError(onCriticalError), pushSettings);
+                    return Task.FromResult(ErrorHandleResult.Handled);
+                },
+                new FakeCriticalError(onCriticalError),
+                pushSettings);
 
             MessagePump.Start(PushRuntimeSettings.Default);
         }
@@ -106,6 +131,11 @@
         {
             var messageId = Guid.NewGuid().ToString();
             var message = new OutgoingMessage(messageId, headers ?? new Dictionary<string, string>(), new byte[0]);
+
+            if (message.Headers.ContainsKey(TestIdHeaderName) == false)
+            {
+                message.Headers.Add(TestIdHeaderName, testId);
+            }
 
             var dispatcher = lazyDispatcher.Value;
 
@@ -167,7 +197,9 @@
         protected string InputQueueName;
         protected string ErrorQueueName;
 
-        SettingsHolder transportSettings;
+        string testId;
+
+        SettingsHolder transportSettings = new SettingsHolder();
         Lazy<IDispatchMessages> lazyDispatcher;
         TransportReceiveInfrastructure ReceiveInfrastructure;
         TransportSendInfrastructure SendInfrastructure;
@@ -177,6 +209,7 @@
         IConfigureTransportInfrastructure Configurer;
 
         static string MsmqDescriptorKey = "MsmqTransport";
+        static string TestIdHeaderName = "TransportTest.TestId";
 
         class FakeCriticalError : CriticalError
         {

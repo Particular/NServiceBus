@@ -10,11 +10,15 @@ using NServiceBus.TransportTests;
 
 class ConfigureMsmqTransportInfrastructure : IConfigureTransportInfrastructure
 {
-    public TransportInfrastructure Configure(SettingsHolder settings)
+    public TransportConfigurationResult Configure(SettingsHolder settings, TransportTransactionMode transactionMode)
     {
         var msmqTransportDefinition = new MsmqTransport();
         settingsHolder = settings;
-        return msmqTransportDefinition.Initialize(settingsHolder, "");
+        return new TransportConfigurationResult
+        {
+            TransportInfrastructure = msmqTransportDefinition.Initialize(settingsHolder, ""),
+            PurgeInputQueueOnStartup = true
+        };
     }
 
     public Task Cleanup()
