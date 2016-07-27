@@ -11,8 +11,8 @@
 
     public class When_distributing_an_event : NServiceBusAcceptanceTest
     {
-        static string PublisherEndpoint => Conventions.EndpointNamingConvention(typeof(Publisher));
-        static string SubscriberEndpoint => Conventions.EndpointNamingConvention(typeof(Subscriber));
+        static string PublisherEndpoint => Conventions.NameOf<Publisher>();
+        static string SubscriberEndpoint => Conventions.NameOf<Subscriber>();
 
         [Test]
         public async Task Should_round_robin()

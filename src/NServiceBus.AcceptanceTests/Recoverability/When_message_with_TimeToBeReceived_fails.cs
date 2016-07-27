@@ -6,6 +6,7 @@
     using EndpointTemplates;
     using NServiceBus.Config;
     using NUnit.Framework;
+    using Conventions = AcceptanceTesting.Customization.Conventions;
 
     public class When_message_with_TimeToBeReceived_fails : NServiceBusAcceptanceTest
     {
@@ -37,7 +38,7 @@
             {
                 EndpointSetup<DefaultServer>(b =>
                 {
-                    b.SendFailedMessagesTo("errorQueueForAcceptanceTest");
+                    b.Recoverability().Failed(failed => failed.SendTo(Conventions.NameOf<EndpointThatHandlesErrorMessages>()));
                 })
                     .WithConfig<TransportConfig>(c => { c.MaxRetries = 0; });
             }
@@ -63,8 +64,7 @@
         {
             public EndpointThatHandlesErrorMessages()
             {
-                EndpointSetup<DefaultServer>()
-                    .CustomEndpointName("errorQueueForAcceptanceTest");
+                EndpointSetup<DefaultServer>();
             }
 
             class ErrorMessageHandler : IHandleMessages<MessageThatFails>

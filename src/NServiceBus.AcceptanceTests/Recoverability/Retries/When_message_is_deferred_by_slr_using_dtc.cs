@@ -10,6 +10,7 @@
     using NServiceBus.Config;
     using NUnit.Framework;
     using ScenarioDescriptors;
+    using Conventions = AcceptanceTesting.Customization.Conventions;
 
     public class When_message_is_deferred_by_slr_using_dtc : NServiceBusAcceptanceTest
     {
@@ -31,8 +32,6 @@
                 .Run();
         }
 
-        const string ErrorQueueName = "error_spy_queue";
-
         class Context : ScenarioContext
         {
             public Guid Id { get; set; }
@@ -48,7 +47,7 @@
                 EndpointSetup<DefaultServer>(config =>
                 {
                     config.EnableFeature<TimeoutManager>();
-                    config.SendFailedMessagesTo(ErrorQueueName);
+                    config.Recoverability().Failed(failed => failed.SendTo(Conventions.NameOf<ErrorSpy>()));
                 })
                 .WithConfig<SecondLevelRetriesConfig>(slrConfig =>
                 {
@@ -84,7 +83,7 @@
         {
             public ErrorSpy()
             {
-                EndpointSetup<DefaultServer>().CustomEndpointName(ErrorQueueName);
+                EndpointSetup<DefaultServer>();
             }
 
             class Handler : IHandleMessages<MessageToFail>

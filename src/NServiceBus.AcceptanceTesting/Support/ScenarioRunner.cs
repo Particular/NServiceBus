@@ -164,7 +164,7 @@
 
             foreach (var behaviorDescriptor in behaviorDescriptors)
             {
-                routingTable[behaviorDescriptor.EndpointBuilderType] = GetEndpointNameForRun(behaviorDescriptor);
+                routingTable[behaviorDescriptor.EndpointBuilderType] = Conventions.NameOf(behaviorDescriptor.EndpointBuilderType);
             }
 
             return routingTable;
@@ -348,7 +348,7 @@
 
             var runnerInitializations = endpointBehaviors.Select(async endpointBehavior =>
             {
-                var endpointName = GetEndpointNameForRun(endpointBehavior);
+                var endpointName = Conventions.NameOf(endpointBehavior.EndpointBuilderType);
 
                 if (endpointName.Length > 77)
                 {
@@ -383,11 +383,6 @@
                 Console.WriteLine(e);
                 throw;
             }
-        }
-
-        static string GetEndpointNameForRun(EndpointBehavior endpointBehavior)
-        {
-            return Conventions.EndpointNamingConvention(endpointBehavior.EndpointBuilderType);
         }
     }
 

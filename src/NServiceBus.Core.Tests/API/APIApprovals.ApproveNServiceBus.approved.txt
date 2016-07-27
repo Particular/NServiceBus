@@ -101,10 +101,6 @@ namespace NServiceBus
             "", true)]
         public static void DefineCriticalErrorAction(this NServiceBus.EndpointConfiguration endpointConfiguration, System.Action<string, System.Exception> onCriticalError) { }
     }
-    public class static ConfigureError
-    {
-        public static void SendFailedMessagesTo(this NServiceBus.EndpointConfiguration config, string errorQueue) { }
-    }
     public class static ConfigureFileShareDataBus
     {
         public static NServiceBus.DataBus.DataBusExtensions<NServiceBus.FileShareDataBus> BasePath(this NServiceBus.DataBus.DataBusExtensions<NServiceBus.FileShareDataBus> config, string basePath) { }
@@ -931,6 +927,7 @@ namespace NServiceBus
     public class RetryFailedSettings : NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings
     {
         public NServiceBus.RetryFailedSettings HeaderCustomization(System.Action<System.Collections.Generic.Dictionary<string, string>> customization) { }
+        public NServiceBus.RetryFailedSettings SendTo(string errorQueue) { }
     }
     public class static RoutingOptionExtensions
     {

@@ -15,7 +15,7 @@
         public void SetupMappingFile()
         {
             // this can't be static because the conventions are setup in the NServiceBusAcceptanceTest base class
-            logicalEndpointName = Conventions.EndpointNamingConvention(typeof(ScaledOutReceiver));
+            logicalEndpointName = Conventions.NameOf<ScaledOutReceiver>();
 
             // e.g. spelling error in endpoint:
             File.WriteAllText(mappingFilePath,

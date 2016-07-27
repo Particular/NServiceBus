@@ -8,6 +8,7 @@
     using AcceptanceTesting;
     using Logging;
     using NUnit.Framework;
+    using Conventions = AcceptanceTesting.Customization.Conventions;
 
     public class When_a_corrupted_message_is_received : NServiceBusAcceptanceTest
     {
@@ -32,7 +33,7 @@
                         });
                         b.When((session, c) =>
                         {
-                            var endpoint = AcceptanceTesting.Customization.Conventions.EndpointNamingConvention(typeof(Endpoint));
+                            var endpoint = Conventions.NameOf<Endpoint>();
 
                             var inputQueue = $@".\private$\{endpoint}";
 
@@ -88,7 +89,7 @@
             {
                 EndpointSetup<DefaultServer>(c =>
                 {
-                    c.SendFailedMessagesTo("errorQueueForCorruptedMessages");
+                    c.Recoverability().Failed(failed => failed.SendTo("errorQueueForCorruptedMessages"));
                 });
             }
         }

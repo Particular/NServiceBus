@@ -11,8 +11,8 @@
     public class When_distributing_a_command : NServiceBusAcceptanceTest
     {
         const int numberOfMessagesToSendPerEndpoint = 20;
-        static string ReceiverAEndpoint => Conventions.EndpointNamingConvention(typeof(ReceiverA));
-        static string ReceiverBEndpoint => Conventions.EndpointNamingConvention(typeof(ReceiverB));
+        static string ReceiverAEndpoint => Conventions.NameOf<ReceiverA>();
+        static string ReceiverBEndpoint => Conventions.NameOf<ReceiverB>();
 
         [Test]
         public async Task Should_round_robin()

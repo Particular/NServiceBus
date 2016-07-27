@@ -15,6 +15,19 @@ namespace NServiceBus
         }
 
         /// <summary>
+        /// Configures the error queue address to which failed messages will be sent to.
+        /// </summary>
+        /// <param name="errorQueue">The name of the error queue to use.</param>
+        public RetryFailedSettings SendTo(string errorQueue)
+        {
+            Guard.AgainstNullAndEmpty(nameof(errorQueue), errorQueue);
+
+            Settings.Set("errorQueue", errorQueue);
+
+            return this;
+        }
+
+        /// <summary>
         /// Configures a header customization action which gets called after all fault headers have been applied.
         /// </summary>
         /// <param name="customization">The customization action.</param>

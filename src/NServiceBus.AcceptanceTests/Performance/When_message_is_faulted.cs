@@ -6,6 +6,7 @@
     using AcceptanceTesting;
     using EndpointTemplates;
     using NUnit.Framework;
+    using Conventions = AcceptanceTesting.Customization.Conventions;
 
     public class When_message_is_faulted : NServiceBusAcceptanceTest
     {
@@ -51,7 +52,7 @@
         {
             public EndpointWithAuditOn()
             {
-                EndpointSetup<DefaultServer>((c, r) => { c.SendFailedMessagesTo("errorQueueForAcceptanceTest"); }).AuditTo<EndpointThatHandlesAuditMessages>();
+                EndpointSetup<DefaultServer>((c, r) => { c.Recoverability().Failed(failed => failed.SendTo(Conventions.NameOf<EndpointThatHandlesErrorMessages>())); }).AuditTo<EndpointThatHandlesAuditMessages>();
             }
 
             class MessageToBeAuditedHandler : IHandleMessages<MessageToBeAudited>
@@ -102,8 +103,7 @@
         {
             public EndpointThatHandlesErrorMessages()
             {
-                EndpointSetup<DefaultServer>()
-                    .CustomEndpointName("errorQueueForAcceptanceTest");
+                EndpointSetup<DefaultServer>();
             }
 
             class ErrorMessageHandler : IHandleMessages<MessageThatFails>

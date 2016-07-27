@@ -53,7 +53,7 @@
                 {
                     config.EnableFeature<TimeoutManager>();
                     config.UsePersistence<FakeTimeoutPersistence>();
-                    config.SendFailedMessagesTo(Conventions.EndpointNamingConvention(typeof(Endpoint)));
+                    config.Recoverability().Failed(failed => failed.SendTo(Conventions.NameOf<Endpoint>()));
                     config.RegisterComponents(c => c.ConfigureComponent<FakeTimeoutStorage>(DependencyLifecycle.SingleInstance));
                     config.Pipeline.Register<BehaviorThatLogsControlMessageDelivery.Registration>();
                     config.LimitMessageProcessingConcurrencyTo(1);

@@ -6,6 +6,7 @@
     using EndpointTemplates;
     using NServiceBus.Config;
     using NUnit.Framework;
+    using Conventions = AcceptanceTesting.Customization.Conventions;
 
     public class When_error_is_overridden_in_code : NServiceBusAcceptanceTest
     {
@@ -29,7 +30,7 @@
             {
                 EndpointSetup<DefaultServer>(b =>
                 {
-                    b.SendFailedMessagesTo("error_with_code_source");
+                    b.Recoverability().Failed(failed => failed.SendTo(Conventions.NameOf<ErrorSpy>()));
                 })
                     .WithConfig<TransportConfig>(c => { c.MaxRetries = 0; });
             }
@@ -47,8 +48,7 @@
         {
             public ErrorSpy()
             {
-                EndpointSetup<DefaultServer>()
-                    .CustomEndpointName("error_with_code_source");
+                EndpointSetup<DefaultServer>();
             }
 
             class Handler : IHandleMessages<Message>

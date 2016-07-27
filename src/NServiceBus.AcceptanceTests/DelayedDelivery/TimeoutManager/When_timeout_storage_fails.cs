@@ -11,6 +11,7 @@
     using Persistence;
     using ScenarioDescriptors;
     using Timeout.Core;
+    using Conventions = AcceptanceTesting.Customization.Conventions;
 
     public class When_timeout_storage_fails : NServiceBusAcceptanceTest
     {
@@ -36,8 +37,6 @@
                 .Run();
         }
 
-        const string ErrorQueueForTimeoutErrors = "timeout_store_errors";
-
         public class Context : ScenarioContext
         {
             public bool FailedTimeoutMovedToError { get; set; }
@@ -52,7 +51,7 @@
                 {
                     config.EnableFeature<TimeoutManager>();
                     config.UsePersistence<FakeTimeoutPersistence>();
-                    config.SendFailedMessagesTo(ErrorQueueForTimeoutErrors);
+                    config.Recoverability().Failed(failed => failed.SendTo(Conventions.NameOf<ErrorSpy>()));
                     config.RegisterComponents(c => c.ConfigureComponent<FakeTimeoutStorage>(DependencyLifecycle.SingleInstance));
                 });
             }
@@ -107,8 +106,7 @@
         {
             public ErrorSpy()
             {
-                EndpointSetup<DefaultServer>()
-                    .CustomEndpointName(ErrorQueueForTimeoutErrors);
+                EndpointSetup<DefaultServer>();
             }
 
             class Handler : IHandleMessages<MyMessage>

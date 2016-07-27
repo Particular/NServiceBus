@@ -30,7 +30,7 @@
             {
                 EndpointSetup<DefaultServer>(c => c.UseTransport<MsmqTransport>().Routing()
                     // only configure logical endpoint
-                    .RouteToEndpoint(typeof(Message), Conventions.EndpointNamingConvention(typeof(ReceiverWithoutMappingFile))));
+                    .RouteToEndpoint(typeof(Message), Conventions.NameOf<ReceiverWithoutMappingFile>()));
             }
         }
 

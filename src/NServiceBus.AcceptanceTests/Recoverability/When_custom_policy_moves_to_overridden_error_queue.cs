@@ -38,10 +38,9 @@ namespace NServiceBus.AcceptanceTests.Recoverability
             {
                 EndpointSetup<DefaultServer>((config, context) =>
                 {
-                    config.Recoverability().CustomPolicy((c, ec) =>
-                        RecoverabilityAction.MoveToError(Conventions.EndpointNamingConvention(typeof(ErrorSpy))));
-
-                    config.SendFailedMessagesTo("error");
+                    config.Recoverability()
+                        .CustomPolicy((c, ec) => RecoverabilityAction.MoveToError(Conventions.NameOf<ErrorSpy>()))
+                        .Failed(failed => failed.SendTo("error"));
                 });
             }
 
