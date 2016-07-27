@@ -18,11 +18,7 @@
             logicalEndpointName = Conventions.EndpointNamingConvention(typeof(ScaledOutReceiver));
 
             // e.g. spelling error in endpoint:
-            File.WriteAllText(mappingFilePath,
-                $@"<endpoints>
-    <endpoint name=""{logicalEndpointName}"">
-    </endpoint>
-</endpoints>");
+            File.WriteAllText(mappingFilePath, "<endpoints></endpoints>");
         }
 
         [TearDown]

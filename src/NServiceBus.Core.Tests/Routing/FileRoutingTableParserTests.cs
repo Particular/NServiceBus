@@ -62,7 +62,7 @@
         }
 
         [Test]
-        public void It_allows_endpoint_to_not_have_an_instance()
+        public void It_requires_endpoint_to_have_an_instance()
         {
             const string xml = @"
 <endpoints>
@@ -72,7 +72,8 @@
             var doc = XDocument.Parse(xml);
             var parser = new FileRoutingTableParser();
 
-            Assert.DoesNotThrow(() => parser.Parse(doc));
+            var exception = Assert.Throws<XmlSchemaValidationException>(() => parser.Parse(doc));
+            Assert.That(exception.Message, Does.Contain("The element 'endpoint' has incomplete content. List of possible elements expected: 'instance'."));
         }
     }
 }
