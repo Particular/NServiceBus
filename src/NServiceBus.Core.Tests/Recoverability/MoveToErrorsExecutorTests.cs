@@ -61,7 +61,7 @@
         {
             var originalMessageBody = Encoding.UTF8.GetBytes("message body");
             var incomingMessage = new IncomingMessage("messageId", new Dictionary<string, string>(), new MemoryStream(originalMessageBody));
-            incomingMessage.Body = Encoding.UTF8.GetBytes("new body");
+            incomingMessage.UpdateBody(Encoding.UTF8.GetBytes("new body"));
 
             await moveToErrorsExecutor.MoveToErrorQueue(ErrorQueueAddress, incomingMessage, new Exception(), new TransportTransaction());
 

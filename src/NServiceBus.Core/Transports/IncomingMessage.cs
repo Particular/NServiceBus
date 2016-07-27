@@ -38,8 +38,8 @@ namespace NServiceBus.Transport
             Headers = headers;
             BodyStream = bodyStream;
 
-            body = new byte[bodyStream.Length];
-            bodyStream.Read(body, 0, body.Length);
+            Body = new byte[bodyStream.Length];
+            bodyStream.Read(Body, 0, Body.Length);
         }
 
         /// <summary>
@@ -60,25 +60,21 @@ namespace NServiceBus.Transport
         /// <summary>
         /// Gets/sets a byte array to the body content of the message.
         /// </summary>
-        public byte[] Body
-        {
-            get { return body; }
-            set { UpdateBody(value); }
-        }
+        public byte[] Body { get; private set; }
 
         /// <summary>
         /// Use this method to update the body if this message.
         /// </summary>
-        void UpdateBody(byte[] updatedBody)
+        internal void UpdateBody(byte[] updatedBody)
         {
             //preserve the original body if needed
-            if (body != null && originalBody == null)
+            if (Body != null && originalBody == null)
             {
-                originalBody = new byte[body.Length];
-                Buffer.BlockCopy(body, 0, originalBody, 0, body.Length);
+                originalBody = new byte[Body.Length];
+                Buffer.BlockCopy(Body, 0, originalBody, 0, Body.Length);
             }
 
-            body = updatedBody;
+            Body = updatedBody;
         }
 
         /// <summary>
@@ -88,11 +84,10 @@ namespace NServiceBus.Transport
         {
             if (originalBody != null)
             {
-                body = originalBody;
+                Body = originalBody;
             }
         }
 
-        byte[] body;
         byte[] originalBody;
     }
 }

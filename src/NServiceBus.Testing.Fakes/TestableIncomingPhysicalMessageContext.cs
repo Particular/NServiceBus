@@ -12,17 +12,22 @@ namespace NServiceBus.Testing
     /// </summary>
     public partial class TestableIncomingPhysicalMessageContext : TestableIncomingContext, IIncomingPhysicalMessageContext
     {
+        public TestableIncomingPhysicalMessageContext()
+        {
+            Message = new IncomingMessage(Guid.NewGuid().ToString(), new Dictionary<string, string>(), Stream.Null);
+        }
+
         /// <summary>
         /// Updates the message with the given body.
         /// </summary>
         public virtual void UpdateMessage(byte[] body)
         {
-            Message.Body = body;
+            Message = new IncomingMessage(Message.MessageId, Message.Headers, new MemoryStream(body));
         }
 
         /// <summary>
         /// The physical message being processed.
         /// </summary>
-        public IncomingMessage Message { get; set; } = new IncomingMessage(Guid.NewGuid().ToString(), new Dictionary<string, string>(), Stream.Null);
+        public IncomingMessage Message { get; set; }
     }
 }
