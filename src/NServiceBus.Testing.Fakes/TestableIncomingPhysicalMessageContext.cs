@@ -12,6 +12,9 @@ namespace NServiceBus.Testing
     /// </summary>
     public partial class TestableIncomingPhysicalMessageContext : TestableIncomingContext, IIncomingPhysicalMessageContext
     {
+        /// <summary>
+        /// Creates a new instance of <see cref="TestableIncomingPhysicalMessageContext"/>.
+        /// </summary>
         public TestableIncomingPhysicalMessageContext()
         {
             Message = new IncomingMessage(Guid.NewGuid().ToString(), new Dictionary<string, string>(), Stream.Null);
