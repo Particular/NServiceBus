@@ -4,6 +4,7 @@
     using System.Reflection;
     using Configuration.AdvanceExtensibility;
     using Features;
+    using Routing;
     using Settings;
     using Transport;
 
@@ -26,7 +27,7 @@
         {
             ThrowOnAddress(destination);
 
-            Settings.GetOrCreate<ConfiguredUnicastRoutes>().Add((routingTable, knownMessageTypes) => { routingTable.RouteToEndpoint(messageType, destination); });
+            Settings.GetOrCreate<ConfiguredUnicastRoutes>().Add((routingTable, knownMessageTypes) => { routingTable.RouteTo(messageType, UnicastRoute.CreateFromEndpointName(destination)); });
         }
 
         /// <summary>
@@ -43,7 +44,7 @@
                 {
                     if (knownMessage.Assembly == assembly)
                     {
-                        routingTable.RouteToEndpoint(knownMessage, destination);
+                        routingTable.RouteTo(knownMessage, UnicastRoute.CreateFromEndpointName(destination));
                     }
                 }
             });
@@ -67,7 +68,7 @@
                 {
                     if (knownMessage.Assembly == assembly && knownMessage.Namespace == @namespace)
                     {
-                        routingTable.RouteToEndpoint(knownMessage, destination);
+                        routingTable.RouteTo(knownMessage, UnicastRoute.CreateFromEndpointName(destination));
                     }
                 }
             });

@@ -37,33 +37,22 @@ namespace NServiceBus.Routing
         }
 
         /// <summary>
-        /// Adds a static unicast route to a logical endpoint.
+        /// Adds a static unicast route for a given message type.
         /// </summary>
-        /// <param name="messageType">Message type.</param>
-        /// <param name="destination">Destination endpoint.</param>
-        public void RouteToEndpoint(Type messageType, string destination)
+        public void RouteTo(Type messageType, IUnicastRoute route)
         {
-            AddStaticRoute(messageType, UnicastRoute.CreateFromEndpointName(destination));
-        }
-
-        /// <summary>
-        /// Adds a static unicast route to a specific endpoint instance.
-        /// </summary>
-        /// <param name="messageType">Message type.</param>
-        /// <param name="instance">Destination endpoint instance.</param>
-        public void RouteToInstance(Type messageType, EndpointInstance instance)
-        {
-            AddStaticRoute(messageType, UnicastRoute.CreateFromEndpointInstance(instance));
-        }
-
-        /// <summary>
-        /// Adds a static unicast route to a specific transport address.
-        /// </summary>
-        /// <param name="messageType">Message type.</param>
-        /// <param name="destinationAddress">Destination endpoint instance address.</param>
-        public void RouteToAddress(Type messageType, string destinationAddress)
-        {
-            AddStaticRoute(messageType, UnicastRoute.CreateFromPhysicalAddress(destinationAddress));
+            List<IUnicastRoute> existingRoutes;
+            if (staticRoutes.TryGetValue(messageType, out existingRoutes))
+            {
+                existingRoutes.Add(route);
+            }
+            else
+            {
+                staticRoutes.Add(messageType, new List<IUnicastRoute>
+                {
+                    route
+                });
+            }
         }
 
         /// <summary>
@@ -84,22 +73,6 @@ namespace NServiceBus.Routing
         public void AddDynamic(Func<Type[], ContextBag, IEnumerable<IUnicastRoute>> dynamicRule)
         {
             dynamicRules.Add(dynamicRule);
-        }
-
-        void AddStaticRoute(Type messageType, IUnicastRoute route)
-        {
-            List<IUnicastRoute> existingRoutes;
-            if (staticRoutes.TryGetValue(messageType, out existingRoutes))
-            {
-                existingRoutes.Add(route);
-            }
-            else
-            {
-                staticRoutes.Add(messageType, new List<IUnicastRoute>
-                {
-                    route
-                });
-            }
         }
 
         async Task<IEnumerable<IUnicastRoute>> AddAsyncDynamicRules(Type[] messageTypes, ContextBag contextBag, List<IUnicastRoute> routes)

@@ -22,7 +22,7 @@
         public async Task When_routing_command_to_logical_endpoint_without_configured_instances_should_route_to_a_single_destination()
         {
             var logicalEndpointName = "Sales";
-            routingTable.RouteToEndpoint(typeof(Command), logicalEndpointName);
+            routingTable.RouteTo(typeof(Command), UnicastRoute.CreateFromEndpointName(logicalEndpointName));
 
             var routes = await router.Route(typeof(Command), new DistributionPolicy(), new ContextBag());
 
@@ -35,8 +35,8 @@
         {
             var sales = "Sales";
             var shipping = "Shipping";
-            routingTable.RouteToEndpoint(typeof(Command), sales);
-            routingTable.RouteToEndpoint(typeof(Command), shipping);
+            routingTable.RouteTo(typeof(Command), UnicastRoute.CreateFromEndpointName(sales));
+            routingTable.RouteTo(typeof(Command), UnicastRoute.CreateFromEndpointName(shipping));
 
             endpointInstances.Add(new EndpointInstance(sales, "1"));
             endpointInstances.AddDynamic(e => Task.FromResult(EnumerableEx.Single(new EndpointInstance(sales, "2"))));
@@ -53,9 +53,9 @@
         public async Task Should_not_route_multiple_copies_of_message_to_one_physical_destination()
         {
             var sales = "Sales";
-            routingTable.RouteToEndpoint(typeof(Command), sales);
+            routingTable.RouteTo(typeof(Command), UnicastRoute.CreateFromEndpointName(sales));
             endpointInstances.Add(new EndpointInstance(sales, "1"));
-            routingTable.RouteToAddress(typeof(Command), sales+"-1");
+            routingTable.RouteTo(typeof(Command), UnicastRoute.CreateFromPhysicalAddress(sales + "-1"));
 
             var routes = await router.Route(typeof(Command), new DistributionPolicy(), new ContextBag());
 
