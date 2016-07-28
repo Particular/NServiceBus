@@ -40,8 +40,8 @@
             }
         }
 
-        static string PublisherEndpoint => Conventions.EndpointNamingConvention(typeof(Publisher));
-        
+        static string PublisherEndpoint => Conventions.NameOf<Publisher>();
+
         public class Subscriber : EndpointConfigurationBuilder
         {
             public Subscriber()

@@ -11,7 +11,7 @@
 
     public class When_using_assembly_level_message_mapping_for_pub_sub : NServiceBusAcceptanceTest
     {
-        static string OtherEndpointName => Conventions.EndpointNamingConvention(typeof(OtherEndpoint));
+        static string OtherEndpointName => Conventions.NameOf<OtherEndpoint>();
 
         [Test]
         public async Task The_mapping_should_not_cause_publishing_to_non_subscribers()

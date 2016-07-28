@@ -10,7 +10,7 @@
 
     public class When_replying_to_a_message_sent_via_a_distributor : NServiceBusAcceptanceTest
     {
-        static string ReceiverEndpoint => Conventions.EndpointNamingConvention(typeof(Receiver));
+        static string ReceiverEndpoint => Conventions.NameOf<Receiver>();
 
         [Test]
         public async Task Reply_address_should_be_set_to_that_specific_instance()

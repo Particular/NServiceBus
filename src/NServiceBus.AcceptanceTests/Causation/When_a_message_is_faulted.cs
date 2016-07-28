@@ -4,6 +4,7 @@
     using AcceptanceTesting;
     using EndpointTemplates;
     using NUnit.Framework;
+    using Conventions = AcceptanceTesting.Customization.Conventions;
 
     public class When_a_message_is_faulted : NServiceBusAcceptanceTest
     {
@@ -35,7 +36,7 @@
             {
                 EndpointSetup<DefaultServer>((c, r) =>
                 {
-                    c.SendFailedMessagesTo("errorQueueForAcceptanceTest");
+                    c.Recoverability().Failed(failed => failed.SendTo(Conventions.NameOf<EndpointThatHandlesErrorMessages>()));
                 });
             }
 
@@ -70,8 +71,7 @@
         {
             public EndpointThatHandlesErrorMessages()
             {
-                EndpointSetup<DefaultServer>()
-                    .CustomEndpointName("errorQueueForAcceptanceTest");
+                EndpointSetup<DefaultServer>();
             }
 
             class ErrorMessageHandler : IHandleMessages<MessageThatFails>

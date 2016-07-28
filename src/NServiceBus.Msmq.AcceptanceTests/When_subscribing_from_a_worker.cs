@@ -42,7 +42,7 @@
             }
         }
 
-        static string DistributorEndpoint => Conventions.EndpointNamingConvention(typeof(Distributor));
+        static string DistributorEndpoint => Conventions.NameOf<Distributor>();
 
         public class Distributor : EndpointConfigurationBuilder
         {

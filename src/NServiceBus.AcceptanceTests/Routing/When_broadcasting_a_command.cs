@@ -10,7 +10,7 @@
 
     public class When_broadcasting_a_command : NServiceBusAcceptanceTest
     {
-        static string ReceiverEndpoint => Conventions.EndpointNamingConvention(typeof(Receiver));
+        static string ReceiverEndpoint => Conventions.NameOf<Receiver>();
 
         [Test]
         public async Task Should_send_it_to_all_instances()

@@ -55,7 +55,7 @@
                 EndpointSetup<DefaultServer>(c =>
                 {
                     // configure the scaled out publisher instances:
-                    var publisherName = Conventions.EndpointNamingConvention(typeof(ScaledOutPublisher));
+                    var publisherName = Conventions.NameOf<ScaledOutPublisher>();
                     c.GetSettings().GetOrCreate<Publishers>().Add(typeof(MyEvent), publisherName);
                     c.GetSettings().GetOrCreate<EndpointInstances>().Add(new EndpointInstance(publisherName, "1"), new EndpointInstance(publisherName, "2"));
                 });

@@ -64,7 +64,7 @@
                         {"NServiceBus.ContentType", "text/xml"}
                     }, body);
 
-                    var endpoint = Conventions.EndpointNamingConvention(typeof(TestingEndpoint));
+                    var endpoint = Conventions.NameOf<TestingEndpoint>();
                     return dispatcher.Dispatch(new TransportOperations(new TransportOperation(outgoingMessage, new UnicastAddressTag(endpoint))), new ContextBag());
                 }
 

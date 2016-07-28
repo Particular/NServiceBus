@@ -50,9 +50,7 @@ namespace NServiceBus.AcceptanceTests.Recoverability
                             headers.Remove("NServiceBus.ExceptionInfo.ExceptionType");
                             headers["NServiceBus.ExceptionInfo.Message"] = headers["NServiceBus.ExceptionInfo.Message"].ToLower();
                             headers["NServiceBus.ExceptionInfo.NotInventedHere"] = "NotInventedHere";
-                        }));
-
-                    config.SendFailedMessagesTo(Conventions.EndpointNamingConvention(typeof(ErrorSpy)));
+                        }).SendTo(Conventions.NameOf<ErrorSpy>()));
                 });
             }
 

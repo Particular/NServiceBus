@@ -11,7 +11,7 @@
 
     public class When_using_instance_ids : NServiceBusAcceptanceTest
     {
-        static string ReceiverEndpoint => Conventions.EndpointNamingConvention(typeof(Receiver));
+        static string ReceiverEndpoint => Conventions.NameOf<Receiver>();
 
         [Test]
         public async Task Should_be_addressable_both_by_shared_queue_and_specific_queue()

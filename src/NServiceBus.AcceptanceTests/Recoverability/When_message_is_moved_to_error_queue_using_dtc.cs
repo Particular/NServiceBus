@@ -8,6 +8,7 @@
     using EndpointTemplates;
     using NUnit.Framework;
     using ScenarioDescriptors;
+    using Conventions = AcceptanceTesting.Customization.Conventions;
 
     public class When_message_is_moved_to_error_queue_using_dtc : NServiceBusAcceptanceTest
     {
@@ -28,8 +29,6 @@
                 .Run();
         }
 
-        const string ErrorQueueName = "error_spy_queue";
-
         class Context : ScenarioContext
         {
             public Guid Id { get; set; }
@@ -43,7 +42,7 @@
             {
                 EndpointSetup<DefaultServer>(config =>
                 {
-                    config.SendFailedMessagesTo(ErrorQueueName);
+                    config.Recoverability().Failed(failed => failed.SendTo(Conventions.NameOf<ErrorSpy>()));
                 });
             }
 
@@ -72,7 +71,7 @@
         {
             public ErrorSpy()
             {
-                EndpointSetup<DefaultServer>().CustomEndpointName(ErrorQueueName);
+                EndpointSetup<DefaultServer>();
             }
 
             class Handler : IHandleMessages<MessageToFail>

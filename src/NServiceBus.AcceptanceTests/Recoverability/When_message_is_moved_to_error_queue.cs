@@ -61,7 +61,7 @@
                 .Done(c => c.MessageMovedToErrorQueue)
                 .Run();
 
-            Assert.That(context.Logs, Has.Some.Message.Match($"Moving message .+ to the error queue '{ Conventions.EndpointNamingConvention(typeof(ErrorSpy)) }' because processing failed due to an exception: NServiceBus.AcceptanceTesting.SimulatedException:"));
+            Assert.That(context.Logs, Has.Some.Message.Match($"Moving message .+ to the error queue '{ Conventions.NameOf<ErrorSpy>() }' because processing failed due to an exception: NServiceBus.AcceptanceTesting.SimulatedException:"));
         }
 
         class Context : ScenarioContext
@@ -82,7 +82,7 @@
                     config.UseTransport(context.GetTransportType())
                         .Transactions(testContext.TransactionMode);
                     config.Pipeline.Register(new ThrowingBehavior(), "Behavior that always throws");
-                    config.SendFailedMessagesTo(Conventions.EndpointNamingConvention(typeof(ErrorSpy)));
+                    config.Recoverability().Failed(failed => failed.SendTo(Conventions.NameOf<ErrorSpy>()));
                 });
             }
 
@@ -94,7 +94,7 @@
                 {
                     if (initiatingMessage.Id == TestContext.TestRunId)
                     {
-                        await context.Send(Conventions.EndpointNamingConvention(typeof(ErrorSpy)), new SubsequentMessage
+                        await context.Send(Conventions.NameOf<ErrorSpy>(), new SubsequentMessage
                         {
                             Id = initiatingMessage.Id
                         });
@@ -107,7 +107,7 @@
         {
             public EndpointWithFailingHandler()
             {
-                EndpointSetup<DefaultServer>((config, context) => { config.SendFailedMessagesTo(Conventions.EndpointNamingConvention(typeof(ErrorSpy))); });
+                EndpointSetup<DefaultServer>((config, context) => { config.Recoverability().Failed(failed => failed.SendTo(Conventions.NameOf<ErrorSpy>())); });
             }
 
             class InitiatingMessageHandler : IHandleMessages<InitiatingMessage>
