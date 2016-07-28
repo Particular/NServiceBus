@@ -139,15 +139,12 @@
 
             var dispatcher = lazyDispatcher.Value;
 
-            var context = new ContextBag();
-
-            //until we fix the seam we have to do this
-            if (transportTransaction != null)
+            if (transportTransaction == null)
             {
-                context.Set(transportTransaction);
+                transportTransaction = new TransportTransaction();
             }
 
-            return dispatcher.Dispatch(new TransportOperations(new TransportOperation(message, new UnicastAddressTag(address))), context);
+            return dispatcher.Dispatch(new TransportOperations(new TransportOperation(message, new UnicastAddressTag(address))), transportTransaction, new ContextBag());
         }
 
         protected void OnTestTimeout(Action onTimeoutAction)

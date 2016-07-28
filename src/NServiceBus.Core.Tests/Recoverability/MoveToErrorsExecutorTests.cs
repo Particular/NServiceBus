@@ -31,7 +31,7 @@
 
             Assert.That(dispatcher.TransportOperations.MulticastTransportOperations.Count(), Is.EqualTo(0));
             Assert.That(dispatcher.TransportOperations.UnicastTransportOperations.Count(), Is.EqualTo(1));
-            Assert.That(dispatcher.ContextBag.Get<TransportTransaction>(), Is.EqualTo(transportTransaction));
+            Assert.That(dispatcher.Transaction, Is.EqualTo(transportTransaction));
 
             var outgoingMessage = dispatcher.TransportOperations.UnicastTransportOperations.Single();
             Assert.That(outgoingMessage.Destination, Is.EqualTo(customErrorQueue));
@@ -140,14 +140,17 @@
 
         class FakeDispatcher : IDispatchMessages
         {
-            public TransportOperations TransportOperations { get; set; }
+            public TransportOperations TransportOperations { get; private set; }
 
-            public ContextBag ContextBag { get; set; }
+            public ContextBag ContextBag { get; private set; }
 
-            public Task Dispatch(TransportOperations outgoingMessages, ContextBag context)
+            public TransportTransaction Transaction { get; private set; }
+
+            public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transaction, ContextBag context)
             {
                 TransportOperations = outgoingMessages;
                 ContextBag = context;
+                Transaction = transaction;
                 return Task.FromResult(0);
             }
         }

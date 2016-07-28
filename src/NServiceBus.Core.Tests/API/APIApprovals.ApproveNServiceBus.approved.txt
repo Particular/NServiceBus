@@ -3024,7 +3024,7 @@ namespace NServiceBus.Transport
     }
     public interface IDispatchMessages
     {
-        System.Threading.Tasks.Task Dispatch(NServiceBus.Transport.TransportOperations outgoingMessages, NServiceBus.Extensibility.ContextBag context);
+        System.Threading.Tasks.Task Dispatch(NServiceBus.Transport.TransportOperations outgoingMessages, NServiceBus.Transport.TransportTransaction transaction, NServiceBus.Extensibility.ContextBag context);
     }
     public interface IManageSubscriptions
     {
@@ -3199,7 +3199,7 @@ namespace NServiceBus.Transport
     {
         public TransportSubscriptionInfrastructure(System.Func<NServiceBus.Transport.IManageSubscriptions> subscriptionManagerFactory) { }
     }
-    public class TransportTransaction : NServiceBus.Extensibility.ContextBag
+    public sealed class TransportTransaction : NServiceBus.Extensibility.ContextBag
     {
         public TransportTransaction() { }
     }
