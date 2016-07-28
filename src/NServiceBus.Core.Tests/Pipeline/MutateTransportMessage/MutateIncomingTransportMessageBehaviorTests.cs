@@ -12,7 +12,7 @@
         public void Should_throw_friendly_exception_when_IMutateIncomingTransportMessages_MutateIncoming_returns_null()
         {
             var behavior = new MutateIncomingTransportMessageBehavior();
-            
+
             var context = new TestableIncomingPhysicalMessageContext();
 
             context.Builder.Register<IMutateIncomingTransportMessages>(() => new MutateIncomingTransportMessagesReturnsNull());
@@ -20,11 +20,83 @@
             Assert.That(async () => await behavior.Invoke(context, () => TaskEx.CompletedTask), Throws.Exception.With.Message.EqualTo("Return a Task or mark the method as async."));
         }
 
+        [Test]
+        public async Task When_no_mutator_updates_the_body_should_not_update_the_body()
+        {
+            var behavior = new MutateIncomingTransportMessageBehavior();
+
+            var context = new InterceptUpdateMessageIncomingPhysicalMessageContext();
+
+            context.Builder.Register<IMutateIncomingTransportMessages>(() => new MutatorWhichDoesNotMutateTheBody());
+
+            await behavior.Invoke(context, () => TaskEx.CompletedTask);
+
+            Assert.False(context.UpdateMessageBodyCalled);
+        }
+
+        [Test]
+        public async Task When_no_mutator_available_should_not_update_the_body()
+        {
+            var behavior = new MutateIncomingTransportMessageBehavior();
+
+            var context = new InterceptUpdateMessageIncomingPhysicalMessageContext();
+
+            context.Builder.Register(() => new IMutateIncomingTransportMessages[]{ });
+
+            await behavior.Invoke(context, () => TaskEx.CompletedTask);
+
+            Assert.False(context.UpdateMessageBodyCalled);
+        }
+
+        [Test]
+        public async Task When_mutator_modifies_the_body_should_update_the_body()
+        {
+            var behavior = new MutateIncomingTransportMessageBehavior();
+
+            var context = new InterceptUpdateMessageIncomingPhysicalMessageContext();
+
+            context.Builder.Register<IMutateIncomingTransportMessages>(() => new MutatorWhichMutatesTheBody());
+
+            await behavior.Invoke(context, () => TaskEx.CompletedTask);
+
+            Assert.True(context.UpdateMessageBodyCalled);
+        }
+
+        class InterceptUpdateMessageIncomingPhysicalMessageContext : TestableIncomingPhysicalMessageContext
+        {
+            public bool UpdateMessageBodyCalled { get; private set; }
+
+            public override void UpdateMessage(byte[] body)
+            {
+                base.UpdateMessage(body);
+
+                UpdateMessageBodyCalled = true;
+            }
+        }
+
         class MutateIncomingTransportMessagesReturnsNull : IMutateIncomingTransportMessages
         {
             public Task MutateIncoming(MutateIncomingTransportMessageContext context)
             {
                 return null;
+            }
+        }
+
+        class MutatorWhichDoesNotMutateTheBody : IMutateIncomingTransportMessages
+        {
+            public Task MutateIncoming(MutateIncomingTransportMessageContext context)
+            {
+                return TaskEx.CompletedTask;
+            }
+        }
+
+        class MutatorWhichMutatesTheBody : IMutateIncomingTransportMessages
+        {
+            public Task MutateIncoming(MutateIncomingTransportMessageContext context)
+            {
+                context.Body = new byte[0];
+
+                return TaskEx.CompletedTask;
             }
         }
     }

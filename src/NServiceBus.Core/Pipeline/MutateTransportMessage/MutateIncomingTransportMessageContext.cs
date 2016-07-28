@@ -15,7 +15,9 @@ namespace NServiceBus.MessageMutator
             Guard.AgainstNull(nameof(headers), headers);
             Guard.AgainstNull(nameof(body), body);
             Headers = headers;
-            Body = body;
+
+            // Intentionally assign to field to not set the MessageBodyChanged flag.
+            this.body = body;
         }
 
         /// <summary>

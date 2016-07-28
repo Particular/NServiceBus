@@ -24,11 +24,83 @@
             Assert.That(async () => await behavior.Invoke(context, () => TaskEx.CompletedTask), Throws.Exception.With.Message.EqualTo("Return a Task or mark the method as async."));
         }
 
+        [Test]
+        public async Task When_no_mutator_updates_the_body_should_not_update_the_body()
+        {
+            var behavior = new MutateOutgoingMessageBehavior();
+
+            var context = new InterceptUpdateMessageOutgoingLogicalMessageContext();
+
+            context.Builder.Register<IMutateOutgoingMessages>(() => new MutatorWhichDoesNotMutateTheBody());
+
+            await behavior.Invoke(context, () => TaskEx.CompletedTask);
+
+            Assert.False(context.UpdateMessageCalled);
+        }
+
+        [Test]
+        public async Task When_no_mutator_available_should_not_update_the_body()
+        {
+            var behavior = new MutateOutgoingMessageBehavior();
+
+            var context = new InterceptUpdateMessageOutgoingLogicalMessageContext();
+
+            context.Builder.Register(() => new IMutateOutgoingMessages[] { });
+
+            await behavior.Invoke(context, () => TaskEx.CompletedTask);
+
+            Assert.False(context.UpdateMessageCalled);
+        }
+
+        [Test]
+        public async Task When_mutator_modifies_the_body_should_update_the_body()
+        {
+            var behavior = new MutateOutgoingMessageBehavior();
+
+            var context = new InterceptUpdateMessageOutgoingLogicalMessageContext();
+
+            context.Builder.Register<IMutateOutgoingMessages>(() => new MutatorWhichMutatesTheBody());
+
+            await behavior.Invoke(context, () => TaskEx.CompletedTask);
+
+            Assert.True(context.UpdateMessageCalled);
+        }
+
+        class InterceptUpdateMessageOutgoingLogicalMessageContext : TestableOutgoingLogicalMessageContext
+        {
+            public bool UpdateMessageCalled { get; private set; }
+
+            public override void UpdateMessage(object newInstance)
+            {
+                base.UpdateMessage(newInstance);
+
+                UpdateMessageCalled = true;
+            }
+        }
+
         class MutateOutgoingMessagesReturnsNull : IMutateOutgoingMessages
         {
             public Task MutateOutgoing(MutateOutgoingMessageContext context)
             {
                 return null;
+            }
+        }
+
+        class MutatorWhichDoesNotMutateTheBody : IMutateOutgoingMessages
+        {
+            public Task MutateOutgoing(MutateOutgoingMessageContext context)
+            {
+                return TaskEx.CompletedTask;
+            }
+        }
+
+        class MutatorWhichMutatesTheBody : IMutateOutgoingMessages
+        {
+            public Task MutateOutgoing(MutateOutgoingMessageContext context)
+            {
+                context.OutgoingMessage = new object();
+
+                return TaskEx.CompletedTask;
             }
         }
     }
