@@ -14,7 +14,7 @@
         [Test]
         public async Task Should_set_messageintent_to_publish()
         {
-            var router = new UnicastPublishRouterConnector(new Router(), new DistributionPolicy());
+            var router = new UnicastPublishRouterConnector(new FakePublishRouter(), new DistributionPolicy());
             var context = new TestableOutgoingPublishContext();
 
             await router.Invoke(context, ctx => TaskEx.CompletedTask);
@@ -23,7 +23,7 @@
             Assert.AreEqual(MessageIntentEnum.Publish.ToString(), context.Headers[Headers.MessageIntent]);
         }
 
-        class Router : IUnicastRouter
+        class FakePublishRouter : IUnicastPublishRouter
         {
             public Task<IEnumerable<UnicastRoutingStrategy>> Route(Type messageType, IDistributionPolicy distributionPolicy, ContextBag contextBag)
             {

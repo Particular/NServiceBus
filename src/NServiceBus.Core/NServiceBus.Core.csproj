@@ -150,6 +150,7 @@
     <Compile Include="Recoverability\Settings\RecoverabilitySettings.cs" />
     <Compile Include="ReleaseDateAttribute.cs" />
     <Compile Include="Routing\IDistributionPolicy.cs" />
+    <Compile Include="Routing\IUnicastSendRouter.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\IMessageDrivenSubscriptionTransport.cs" />
     <Compile Include="Routing\RoutingPluginSettingsExtensions.cs" />
     <Compile Include="Routing\SpecificInstanceDistributionPolicy.cs" />
@@ -283,13 +284,12 @@
     <Compile Include="Sagas\SagaLoader.cs" />
     <Compile Include="Routing\UnicastRoute.cs" />
     <Compile Include="Routing\DistributionPolicy.cs" />
-    <Compile Include="Routing\IUnicastRouter.cs" />
+    <Compile Include="Routing\IUnicastPublishRouter.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\PublisherAddress.cs" />
     <Compile Include="Routing\SingleInstanceRoundRobinDistributionStrategy.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\SubscriptionRouter.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\Publishers.cs" />
     <Compile Include="Routing\Routers\UnicastPublishRouterConnector.cs" />
-    <Compile Include="Routing\UnicastRouter.cs" />
     <Compile Include="Routing\FileBasedDynamicRouting\FileRoutingTableSettings.cs" />
     <Compile Include="Routing\EndpointInstances.cs" />
     <Compile Include="Serialization\SerializationContextExtensions.cs" />

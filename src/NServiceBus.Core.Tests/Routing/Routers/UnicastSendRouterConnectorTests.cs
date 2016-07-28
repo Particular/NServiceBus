@@ -166,14 +166,14 @@
         [Test]
         public async Task Should_route_using_the_mappings_if_no_destination_is_set()
         {
-            var strategy = new FakeRoutingStrategy
+            var strategy = new FakeSendRouter
             {
                 FixedDestination = new[]
                 {
                     new UnicastRoutingStrategy("MappedDestination")
                 }
             };
-            var behavior = InitializeBehavior(strategy: strategy);
+            var behavior = InitializeBehavior(router: strategy);
             var options = new SendOptions();
 
             var context = CreateContext(options);
@@ -191,14 +191,14 @@
         [Test]
         public void Should_throw_if_no_route_can_be_found()
         {
-            var strategy = new FakeRoutingStrategy
+            var strategy = new FakeSendRouter
             {
                 FixedDestination = new UnicastRoutingStrategy[]
                 {
                 }
             };
 
-            var behavior = InitializeBehavior(strategy: strategy);
+            var behavior = InitializeBehavior(router: strategy);
             var options = new SendOptions();
 
             var context = CreateContext(options, new MessageWithoutRouting());
@@ -225,15 +225,15 @@
         static UnicastSendRouterConnector InitializeBehavior(
             string sharedQueue = null,
             string instanceSpecificQueue = null,
-            FakeRoutingStrategy strategy = null)
+            FakeSendRouter router = null)
         {
             var metadataRegistry = new MessageMetadataRegistry(new Conventions());
             metadataRegistry.RegisterMessageTypesFoundIn(new List<Type> { typeof(MyMessage), typeof(MessageWithoutRouting) });
 
-            return new UnicastSendRouterConnector(sharedQueue, instanceSpecificQueue, strategy ?? new FakeRoutingStrategy(), new DistributionPolicy());
+            return new UnicastSendRouterConnector(sharedQueue, instanceSpecificQueue, router ?? new FakeSendRouter(), new DistributionPolicy());
         }
 
-        class FakeRoutingStrategy : IUnicastRouter
+        class FakeSendRouter : IUnicastSendRouter
         {
             public IEnumerable<UnicastRoutingStrategy> FixedDestination { get; set; }
 

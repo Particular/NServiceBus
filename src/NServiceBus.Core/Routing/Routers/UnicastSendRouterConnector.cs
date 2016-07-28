@@ -22,7 +22,7 @@ namespace NServiceBus
         public UnicastSendRouterConnector(
             string sharedQueue,
             string instanceSpecificQueue,
-            IUnicastRouter unicastRouter,
+            IUnicastSendRouter unicastRouter,
             DistributionPolicy distributionPolicy)
         {
             this.sharedQueue = sharedQueue;
@@ -77,7 +77,7 @@ namespace NServiceBus
         IDistributionPolicy defaultDistributionPolicy;
         string instanceSpecificQueue;
         string sharedQueue;
-        IUnicastRouter unicastRouter;
+        IUnicastSendRouter unicastRouter;
 
         public class State
         {
