@@ -27,7 +27,7 @@
 
             await delayedRetryExecutor.Retry(incomingMessage, TimeSpan.Zero, transportTransaction);
 
-            Assert.AreEqual(dispatcher.ContextBag.Get<TransportTransaction>(), transportTransaction);
+            Assert.AreEqual(dispatcher.Transaction, transportTransaction);
         }
 
         [Test]
@@ -131,10 +131,13 @@
 
             public ContextBag ContextBag { get; private set; }
 
-            public Task Dispatch(TransportOperations outgoingMessages, ContextBag context)
+            public TransportTransaction Transaction { get; private set; }
+
+            public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transaction, ContextBag context)
             {
                 TransportOperations = outgoingMessages;
                 ContextBag = context;
+                Transaction = transaction;
                 return Task.FromResult(0);
             }
         }

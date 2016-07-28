@@ -24,7 +24,7 @@ namespace NServiceBus
             this.messageLabelGenerator = messageLabelGenerator;
         }
 
-        public Task Dispatch(TransportOperations outgoingMessages, ContextBag context)
+        public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transaction, ContextBag context)
         {
             Guard.AgainstNull(nameof(outgoingMessages), outgoingMessages);
 
@@ -35,13 +35,13 @@ namespace NServiceBus
 
             foreach (var unicastTransportOperation in outgoingMessages.UnicastTransportOperations)
             {
-                ExecuteTransportOperation(context, unicastTransportOperation);
+                ExecuteTransportOperation(transaction, unicastTransportOperation);
             }
 
             return TaskEx.CompletedTask;
         }
 
-        void ExecuteTransportOperation(ReadOnlyContextBag context, UnicastTransportOperation transportOperation)
+        void ExecuteTransportOperation(TransportTransaction transaction, UnicastTransportOperation transportOperation)
         {
             var message = transportOperation.Message;
 
@@ -49,7 +49,7 @@ namespace NServiceBus
             var destinationAddress = MsmqAddress.Parse(destination);
 
             if (IsCombiningTimeToBeReceivedWithTransactions(
-                context,
+                transaction,
                 transportOperation.RequiredDispatchConsistency,
                 transportOperation.DeliveryConstraints))
             {
@@ -82,7 +82,7 @@ namespace NServiceBus
                         }
 
                         MessageQueueTransaction activeTransaction;
-                        if (TryGetNativeTransaction(context, out activeTransaction))
+                        if (TryGetNativeTransaction(transaction, out activeTransaction))
                         {
                             q.Send(toSend, label, activeTransaction);
                             return;
@@ -111,7 +111,7 @@ namespace NServiceBus
             }
         }
 
-        bool IsCombiningTimeToBeReceivedWithTransactions(ReadOnlyContextBag context, DispatchConsistency requiredDispatchConsistency, List<DeliveryConstraint> deliveryConstraints)
+        bool IsCombiningTimeToBeReceivedWithTransactions(TransportTransaction transaction, DispatchConsistency requiredDispatchConsistency, List<DeliveryConstraint> deliveryConstraints)
         {
             if (!settings.UseTransactionalQueues)
             {
@@ -138,19 +138,11 @@ namespace NServiceBus
 
             MessageQueueTransaction activeReceiveTransaction;
 
-            return TryGetNativeTransaction(context, out activeReceiveTransaction);
+            return TryGetNativeTransaction(transaction, out activeReceiveTransaction);
         }
 
-        bool TryGetNativeTransaction(ReadOnlyContextBag context, out MessageQueueTransaction transaction)
+        static bool TryGetNativeTransaction(TransportTransaction transportTransaction, out MessageQueueTransaction transaction)
         {
-            TransportTransaction transportTransaction;
-
-            if (!context.TryGet(out transportTransaction))
-            {
-                transaction = null;
-                return false;
-            }
-
             return transportTransaction.TryGet(out transaction);
         }
 

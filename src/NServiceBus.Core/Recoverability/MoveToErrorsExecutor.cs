@@ -36,10 +36,7 @@
 
             var transportOperations = new TransportOperations(new TransportOperation(outgoingMessage, new UnicastAddressTag(errorQueueAddress)));
 
-            var dispatchContext = new ContextBag();
-            dispatchContext.Set(transportTransaction);
-
-            return dispatcher.Dispatch(transportOperations, dispatchContext);
+            return dispatcher.Dispatch(transportOperations, transportTransaction, new ContextBag());
         }
 
         IDispatchMessages dispatcher;

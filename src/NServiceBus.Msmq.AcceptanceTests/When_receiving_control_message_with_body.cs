@@ -65,7 +65,7 @@
                     }, body);
 
                     var endpoint = Conventions.EndpointNamingConvention(typeof(TestingEndpoint));
-                    return dispatcher.Dispatch(new TransportOperations(new TransportOperation(outgoingMessage, new UnicastAddressTag(endpoint))), new ContextBag());
+                    return dispatcher.Dispatch(new TransportOperations(new TransportOperation(outgoingMessage, new UnicastAddressTag(endpoint))), new TransportTransaction(), new ContextBag());
                 }
 
                 protected override Task OnStop(IMessageSession session)

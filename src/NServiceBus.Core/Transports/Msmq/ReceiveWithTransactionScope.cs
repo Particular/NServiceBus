@@ -62,7 +62,8 @@ namespace NServiceBus
 
         async Task<bool> ProcessMessage(Message message, Dictionary<string, string> headers)
         {
-            var transportTransaction = new ScopeTransportTransaction(Transaction.Current);
+            var transportTransaction = new TransportTransaction();
+            transportTransaction.Set(Transaction.Current);
 
             MsmqFailureInfoStorage.ProcessingFailureInfo failureInfo;
 
@@ -101,13 +102,5 @@ namespace NServiceBus
 
         TransactionOptions transactionOptions;
         MsmqFailureInfoStorage failureInfoStorage;
-
-        class ScopeTransportTransaction : TransportTransaction
-        {
-            public ScopeTransportTransaction(Transaction current)
-            {
-                Set(current);
-            }
-        }
     }
 }

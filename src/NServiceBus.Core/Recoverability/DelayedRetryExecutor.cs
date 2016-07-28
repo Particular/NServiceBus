@@ -48,10 +48,7 @@
 
             var transportOperations = new TransportOperations(new TransportOperation(outgoingMessage, messageDestination, deliveryConstraints: deliveryConstraints));
 
-            var dispatchContext = new ContextBag();
-            dispatchContext.Set(transportTransaction);
-
-            await dispatcher.Dispatch(transportOperations, dispatchContext).ConfigureAwait(false);
+            await dispatcher.Dispatch(transportOperations, transportTransaction, new ContextBag()).ConfigureAwait(false);
 
             return currentDelayedRetriesAttempt;
         }

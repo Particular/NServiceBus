@@ -53,7 +53,8 @@
             try
             {
                 var transportOperation = new TransportOperation(unsubscribeMessage, new UnicastAddressTag(destination));
-                await dispatcher.Dispatch(new TransportOperations(transportOperation), context).ConfigureAwait(false);
+                var transportTransaction = context.GetOrCreate<TransportTransaction>();
+                await dispatcher.Dispatch(new TransportOperations(transportOperation), transportTransaction, context).ConfigureAwait(false);
             }
             catch (QueueNotFoundException ex)
             {

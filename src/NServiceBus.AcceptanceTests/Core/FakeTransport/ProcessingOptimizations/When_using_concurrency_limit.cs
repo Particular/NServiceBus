@@ -62,7 +62,7 @@
 
         class FakeDispatcher : IDispatchMessages
         {
-            public Task Dispatch(TransportOperations outgoingMessages, ContextBag context)
+            public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transaction, ContextBag context)
             {
                 return Task.FromResult(0);
             }
