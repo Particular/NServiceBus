@@ -301,14 +301,17 @@
         static async Task StopEndpoints(IEnumerable<EndpointRunner> endpoints, ScenarioContext scenarioContext)
         {
             var failBecauseUnhandledFailedMessage = false;
-            var startTime = DateTime.Now;
+            var startTime = DateTime.UtcNow;
+            var maxTime = TimeSpan.FromSeconds(30);
             while (scenarioContext.UnfinishedFailedMessages.Values.Any(x => x))
             {
-                if (DateTime.Now - startTime >= TimeSpan.FromSeconds(30))
+                if (DateTime.UtcNow - startTime > maxTime)
                 {
                     failBecauseUnhandledFailedMessage = true;
                     break;
                 }
+
+                await Task.Delay(1).ConfigureAwait(false);
             }
 
             var tasks = endpoints.Select(async endpoint =>
