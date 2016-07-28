@@ -15,8 +15,10 @@ namespace NServiceBus.MessageMutator
             Guard.AgainstNull(nameof(outgoingHeaders), outgoingHeaders);
             Guard.AgainstNull(nameof(outgoingBody), outgoingBody);
             Guard.AgainstNull(nameof(outgoingMessage), outgoingMessage);
+
             OutgoingHeaders = outgoingHeaders;
-            OutgoingBody = outgoingBody;
+            // Intentionally assign to field to not set the MessageBodyChanged flag.
+            this.outgoingBody = outgoingBody;
             OutgoingMessage = outgoingMessage;
             this.incomingHeaders = incomingHeaders;
             this.incomingMessage = incomingMessage;
@@ -25,7 +27,7 @@ namespace NServiceBus.MessageMutator
         /// <summary>
         /// The current outgoing message.
         /// </summary>
-        public object OutgoingMessage { get; private set; }
+        public object OutgoingMessage { get; }
 
         /// <summary>
         /// The body of the message.
@@ -44,7 +46,7 @@ namespace NServiceBus.MessageMutator
         /// <summary>
         /// The current outgoing headers.
         /// </summary>
-        public Dictionary<string, string> OutgoingHeaders { get; private set; }
+        public Dictionary<string, string> OutgoingHeaders { get; }
 
         /// <summary>
         /// Gets the incoming message that initiated the current send if it exists.

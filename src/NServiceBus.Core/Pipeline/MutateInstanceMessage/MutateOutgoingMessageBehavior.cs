@@ -21,7 +21,7 @@
                 context.Headers,
                 incomingLogicalMessage?.Instance,
                 incomingPhysicalMessage?.Headers);
-            
+
             foreach (var mutator in context.Builder.BuildAll<IMutateOutgoingMessages>())
             {
                 await mutator.MutateOutgoing(mutatorContext)
