@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.Transport
 {
     using System.Collections.Generic;
-    using System.IO;
     using System.Threading;
     using Extensibility;
 
@@ -15,7 +14,7 @@
         /// </summary>
         /// <param name="messageId">Native message id.</param>
         /// <param name="headers">The message headers.</param>
-        /// <param name="bodyStream">The message body stream.</param>
+        /// <param name="body">The message body.</param>
         /// <param name="transportTransaction">Transaction (along with connection if applicable) used to receive the message.</param>
         /// <param name="receiveCancellationTokenSource">
         /// Allows the pipeline to flag that it has been aborted and the receive operation should be rolled back.
@@ -23,17 +22,17 @@
         /// has been aborted after invoking the pipeline and roll back the message accordingly.
         /// </param>
         /// <param name="context">Any context that the transport wants to be available on the pipeline.</param>
-        public MessageContext(string messageId, Dictionary<string, string> headers, Stream bodyStream, TransportTransaction transportTransaction, CancellationTokenSource receiveCancellationTokenSource, ContextBag context)
+        public MessageContext(string messageId, Dictionary<string, string> headers, byte[] body, TransportTransaction transportTransaction, CancellationTokenSource receiveCancellationTokenSource, ContextBag context)
         {
             Guard.AgainstNullAndEmpty(nameof(messageId), messageId);
-            Guard.AgainstNull(nameof(bodyStream), bodyStream);
+            Guard.AgainstNull(nameof(body), body);
             Guard.AgainstNull(nameof(headers), headers);
             Guard.AgainstNull(nameof(transportTransaction), transportTransaction);
             Guard.AgainstNull(nameof(receiveCancellationTokenSource), receiveCancellationTokenSource);
             Guard.AgainstNull(nameof(context), context);
 
             Headers = headers;
-            BodyStream = bodyStream;
+            Body = body;
             MessageId = messageId;
             Context = context;
             TransportTransaction = transportTransaction;
@@ -53,7 +52,7 @@
         /// <summary>
         /// The message body.
         /// </summary>
-        public Stream BodyStream { get; }
+        public byte[] Body { get; }
 
         /// <summary>
         /// Transaction (along with connection if applicable) used to receive the message.

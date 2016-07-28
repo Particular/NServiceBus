@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.IO;
     using System.Linq;
     using System.Threading.Tasks;
     using DelayedDelivery;
@@ -11,9 +10,9 @@
     using NServiceBus.Performance.TimeToBeReceived;
     using NServiceBus.Pipeline;
     using NServiceBus.Routing;
-    using Transport;
     using NUnit.Framework;
     using Testing;
+    using Transport;
     using TransportOperation = Transport.TransportOperation;
 
     [TestFixture]
@@ -71,7 +70,7 @@
 
             options["Destination"] = "myEndpoint";
 
-            fakeOutbox.ExistingMessage = new OutboxMessage(messageId, new []
+            fakeOutbox.ExistingMessage = new OutboxMessage(messageId, new[]
             {
                 new NServiceBus.Outbox.TransportOperation("x", options, new byte[0], new Dictionary<string, string>())
             });
@@ -95,7 +94,7 @@
 
             options["EventType"] = typeof(MyEvent).AssemblyQualifiedName;
 
-            fakeOutbox.ExistingMessage = new OutboxMessage(messageId, new []
+            fakeOutbox.ExistingMessage = new OutboxMessage(messageId, new[]
             {
                 new NServiceBus.Outbox.TransportOperation("x", options, new byte[0], new Dictionary<string, string>())
             });
@@ -114,7 +113,7 @@
         {
             var context = new TestableTransportReceiveContext
             {
-                Message = new IncomingMessage(messageId, new Dictionary<string, string>(), Stream.Null)
+                Message = new IncomingMessage(messageId, new Dictionary<string, string>(), new byte[0])
             };
 
             context.Extensions.Set<IPipelineCache>(new FakePipelineCache(pipeline));

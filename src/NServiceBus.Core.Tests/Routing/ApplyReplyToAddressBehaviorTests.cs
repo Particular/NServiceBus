@@ -2,13 +2,12 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.IO;
     using System.Threading.Tasks;
     using Extensibility;
     using NServiceBus.Pipeline;
-    using Transport;
     using NUnit.Framework;
     using Testing;
+    using Transport;
 
     [TestFixture]
     public class ApplyReplyToAddressBehaviorTests
@@ -27,8 +26,11 @@
 
         static IOutgoingLogicalMessageContext CreateContext(ExtendableOptions options)
         {
-            var context = new TestableOutgoingLogicalMessageContext { Extensions = options.Context };
-            
+            var context = new TestableOutgoingLogicalMessageContext
+            {
+                Extensions = options.Context
+            };
+
             return context;
         }
 
@@ -95,8 +97,8 @@
 
             context.Extensions.Set(new IncomingMessage("ID", new Dictionary<string, string>
             {
-                { LegacyDistributorHeaders.WorkerSessionId, "SessionID" }
-            }, new MemoryStream()));
+                {LegacyDistributorHeaders.WorkerSessionId, "SessionID"}
+            }, new byte[0]));
 
             var state = context.Extensions.GetOrCreate<ApplyReplyToAddressBehavior.State>();
             state.Option = ApplyReplyToAddressBehavior.RouteOption.RouteReplyToThisInstance;
@@ -146,10 +148,6 @@
             {
                 Assert.Pass();
             }
-        }
-
-        class MyMessage
-        {
         }
     }
 }

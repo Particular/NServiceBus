@@ -2,14 +2,13 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.IO;
     using System.Linq;
     using System.Threading.Tasks;
     using NServiceBus.Pipeline;
     using NServiceBus.Routing;
-    using Transport;
     using NUnit.Framework;
     using Testing;
+    using Transport;
 
     [TestFixture]
     public class DetermineRouteForReplyBehaviorTests
@@ -25,14 +24,14 @@
                 "id",
                 new Dictionary<string, string>
                 {
-                    { Headers.ReplyToAddress, "ReplyAddressOfIncomingMessage" }
+                    {Headers.ReplyToAddress, "ReplyAddressOfIncomingMessage"}
                 },
-                Stream.Null));
+                new byte[0]));
 
             UnicastAddressTag addressTag = null;
             await behavior.Invoke(context, c =>
             {
-                addressTag = (UnicastAddressTag)c.RoutingStrategies.Single().Apply(new Dictionary<string, string>());
+                addressTag = (UnicastAddressTag) c.RoutingStrategies.Single().Apply(new Dictionary<string, string>());
                 return TaskEx.CompletedTask;
             });
 
@@ -49,7 +48,7 @@
             context.Extensions.Set(new IncomingMessage(
                 "id",
                 new Dictionary<string, string>(),
-                Stream.Null));
+                new byte[0]));
 
             Assert.That(async () => await behavior.Invoke(context, _ => TaskEx.CompletedTask), Throws.InstanceOf<Exception>().And.Message.Contains(typeof(MyReply).FullName));
         }
@@ -68,7 +67,7 @@
             UnicastAddressTag addressTag = null;
             await behavior.Invoke(context, c =>
             {
-                addressTag = (UnicastAddressTag)c.RoutingStrategies.Single().Apply(new Dictionary<string, string>());
+                addressTag = (UnicastAddressTag) c.RoutingStrategies.Single().Apply(new Dictionary<string, string>());
                 return TaskEx.CompletedTask;
             });
 

@@ -2,14 +2,13 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.IO;
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
     using Extensibility;
     using NServiceBus.Timeout.Core;
-    using Transport;
     using NUnit.Framework;
+    using Transport;
 
     public class DispatchTimeoutBehaviorTest
     {
@@ -119,7 +118,7 @@
                 {"Timeout.Id", timeoutId}
             };
 
-            return new MessageContext(messageId, headers, Stream.Null, new TransportTransaction(), new CancellationTokenSource(), new ContextBag());
+            return new MessageContext(messageId, headers, new byte[0], new TransportTransaction(), new CancellationTokenSource(), new ContextBag());
         }
 
         class FakeMessageDispatcher : IDispatchMessages
@@ -135,11 +134,6 @@
 
         class FailingMessageDispatcher : IDispatchMessages
         {
-            public Task Dispatch(IEnumerable<TransportOperation> outgoingMessages, ContextBag context)
-            {
-                throw new Exception("simulated exception");
-            }
-
             public Task Dispatch(TransportOperations outgoingMessages, ContextBag context)
             {
                 throw new Exception("simulated exception");
@@ -148,6 +142,9 @@
 
         class FakeTimeoutStorage : IPersistTimeouts
         {
+            public Func<string, ContextBag, bool> OnTryRemove { get; set; } = (id, bag) => true;
+            public Func<string, ContextBag, TimeoutData> OnPeek { get; set; } = (id, bag) => null;
+
             public Task Add(TimeoutData timeout, ContextBag context)
             {
                 return TaskEx.CompletedTask;
@@ -167,9 +164,6 @@
             {
                 return TaskEx.CompletedTask;
             }
-
-            public Func<string, ContextBag, bool> OnTryRemove { get; set; } = (id, bag) => true;
-            public Func<string, ContextBag, TimeoutData> OnPeek { get; set; } = (id, bag) => null;
         }
     }
 }
