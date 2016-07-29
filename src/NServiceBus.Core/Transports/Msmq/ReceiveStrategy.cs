@@ -123,7 +123,7 @@ namespace NServiceBus
             }
             catch (Exception ex)
             {
-                criticalError.Raise($"Failed to execute reverability actions for message `{message.Id}`", ex);
+                criticalError.Raise($"Failed to execute recoverability actions for message `{message.Id}`", ex);
 
                 //best thing we can do is roll the message back if possible
                 return ErrorHandleResult.RetryRequired;
