@@ -14,10 +14,10 @@ namespace NServiceBus.Routing
         {
             var routes = new List<IUnicastRoute>();
 
-            List<IUnicastRoute> messageRoutes;
+            IUnicastRoute messageRoutes;
             if (staticRoutes.TryGetValue(messageType, out messageRoutes))
             {
-                routes.AddRange(messageRoutes);
+                routes.Add(messageRoutes);
             }
 
             foreach (var rule in dynamicRules)
@@ -38,18 +38,7 @@ namespace NServiceBus.Routing
         /// </summary>
         public void RouteTo(Type messageType, IUnicastRoute route)
         {
-            List<IUnicastRoute> existingRoutes;
-            if (staticRoutes.TryGetValue(messageType, out existingRoutes))
-            {
-                existingRoutes.Add(route);
-            }
-            else
-            {
-                staticRoutes.Add(messageType, new List<IUnicastRoute>
-                {
-                    route
-                });
-            }
+            staticRoutes[messageType] = route;
         }
 
         /// <summary>
@@ -84,6 +73,6 @@ namespace NServiceBus.Routing
 
         List<Func<Type, ContextBag, Task<IEnumerable<IUnicastRoute>>>> asyncDynamicRules = new List<Func<Type, ContextBag, Task<IEnumerable<IUnicastRoute>>>>();
         List<Func<Type, ContextBag, IEnumerable<IUnicastRoute>>> dynamicRules = new List<Func<Type, ContextBag, IEnumerable<IUnicastRoute>>>();
-        Dictionary<Type, List<IUnicastRoute>> staticRoutes = new Dictionary<Type, List<IUnicastRoute>>();
+        Dictionary<Type, IUnicastRoute> staticRoutes = new Dictionary<Type, IUnicastRoute>();
     }
 }
