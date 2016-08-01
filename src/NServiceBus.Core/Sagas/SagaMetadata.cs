@@ -197,7 +197,7 @@ Sagas must have at least one message that is allowed to start the saga. Add at l
 
             foreach (var mapping in mapper.Mappings)
             {
-                var associatedMessage = associatedMessages.FirstOrDefault(m => m.MessageType == mapping.MessageType);
+                var associatedMessage = associatedMessages.FirstOrDefault(m => mapping.MessageType.IsAssignableFrom(m.MessageType));
                 if (associatedMessage == null)
                 {
                     var msgType = mapping.MessageType.Name;
@@ -205,10 +205,7 @@ Sagas must have at least one message that is allowed to start the saga. Add at l
                     {
                         throw new Exception($"Custom saga finder {mapping.CustomFinderType.FullName} maps message type {msgType} for saga {sagaType.Name}, but the saga does not handle that message. If {sagaType.Name} is supposed to handle this message, it should implement IAmStartedByMessages<{msgType}> or IHandleMessages<{msgType}>.");
                     }
-                    else
-                    {
-                        throw new Exception($"Saga {sagaType.Name} contains a mapping for {msgType} in the ConfigureHowToFindSaga method, but does not handle that message. If {sagaType.Name} is supposed to handle this message, it should implement IAmStartedByMessages<{msgType}> or IHandleMessages<{msgType}>.");
-                    }
+                    throw new Exception($"Saga {sagaType.Name} contains a mapping for {msgType} in the ConfigureHowToFindSaga method, but does not handle that message. If {sagaType.Name} is supposed to handle this message, it should implement IAmStartedByMessages<{msgType}> or IHandleMessages<{msgType}>.");
                 }
                 SetFinderForMessage(mapping, sagaEntityType, finders);
             }
@@ -217,7 +214,7 @@ Sagas must have at least one message that is allowed to start the saga. Add at l
             {
                 if (messageType.IsAllowedToStartSaga)
                 {
-                    var match = mapper.Mappings.FirstOrDefault(m => m.MessageType == messageType.MessageType);
+                    var match = mapper.Mappings.FirstOrDefault(m => m.MessageType.IsAssignableFrom(messageType.MessageType));
                     if (match == null)
                     {
                         var simpleName = messageType.MessageType.Name;
