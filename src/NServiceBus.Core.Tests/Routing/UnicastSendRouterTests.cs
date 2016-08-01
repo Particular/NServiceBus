@@ -7,7 +7,6 @@
     using NServiceBus.Routing;
     using Unicast.Messages;
     using NUnit.Framework;
-    using Transport;
 
     [TestFixture]
     public class UnicastSendRouterTests

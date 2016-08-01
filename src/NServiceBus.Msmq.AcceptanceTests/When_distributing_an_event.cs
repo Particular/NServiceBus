@@ -5,9 +5,7 @@
     using AcceptanceTesting.Customization;
     using AcceptanceTesting;
     using Features;
-    using NServiceBus.Routing;
     using NUnit.Framework;
-    using Support;
 
     public class When_distributing_an_event : NServiceBusAcceptanceTest
     {

@@ -60,5 +60,16 @@ namespace NServiceBus
         {
             return new FileRoutingTableSettings(config.Settings);
         }
+
+        /// <summary>
+        /// Overrides the default address translation rule "endpoint-id.quailfier@machine".
+        /// </summary>
+        /// <param name="config">Config object.</param>
+        /// <param name="translationRule">New translation rule.</param>
+        public static TransportExtensions<MsmqTransport> OverrideAddressTranslation(this TransportExtensions<MsmqTransport> config, Func<LogicalAddress, string> translationRule)
+        {
+            config.Settings.Set("NServiceBus.Transports.MSMQ.AddressTranslationRule", translationRule);
+            return config;
+        }
     }
 }
