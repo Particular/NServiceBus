@@ -8,17 +8,21 @@
     using NUnit.Framework;
 
     [TestFixture]
-    public class When_a_base_class_message_hits_a_saga : NServiceBusAcceptanceTest
+    public class When_a_base_class_message_starts_a_saga : NServiceBusAcceptanceTest
     {
         [Test]
         public async Task Should_find_existing_instance()
         {
             var correlationId = Guid.NewGuid();
             var context = await Scenario.Define<Context>()
-                .WithEndpoint<SagaEndpoint>(b => b.When(session => session.SendLocal(new StartSagaMessage
+                .WithEndpoint<SagaEndpoint>(b => b.When(session =>
                 {
-                    SomeId = correlationId
-                })))
+                    var startSagaMessage = new StartSagaMessage
+                    {
+                        SomeId = correlationId
+                    };
+                    return session.SendLocal(startSagaMessage);
+                }))
                 .Done(c => c.SecondMessageFoundExistingSaga)
                 .Run(TimeSpan.FromSeconds(20));
 
@@ -37,7 +41,8 @@
                 EndpointSetup<DefaultServer>(c => c.EnableFeature<TimeoutManager>());
             }
 
-            public class TestSaga04 : Saga<TestSaga04.SagaData04>, IAmStartedByMessages<StartSagaMessageBase>
+            public class TestSaga : Saga<TestSaga.SagaData>,
+                IAmStartedByMessages<StartSagaMessageBase>
             {
                 public Context TestContext { get; set; }
 
@@ -49,22 +54,23 @@
                     }
                     else
                     {
-                        return context.SendLocal(new StartSagaMessage
+                        var startSagaMessage = new StartSagaMessage
                         {
                             SomeId = message.SomeId
-                        });
+                        };
+                        return context.SendLocal(startSagaMessage);
                     }
 
                     return Task.FromResult(0);
                 }
 
-                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData04> mapper)
+                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper)
                 {
                     mapper.ConfigureMapping<StartSagaMessageBase>(m => m.SomeId)
                         .ToSaga(s => s.SomeId);
                 }
 
-                public class SagaData04 : ContainSagaData
+                public class SagaData : ContainSagaData
                 {
                     public virtual Guid SomeId { get; set; }
                 }
