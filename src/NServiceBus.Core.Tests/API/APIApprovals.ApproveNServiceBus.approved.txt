@@ -2525,11 +2525,6 @@ namespace NServiceBus.Routing
     {
         protected AddressTag() { }
     }
-    public class AllInstancesDistributionStrategy : NServiceBus.Routing.DistributionStrategy
-    {
-        public AllInstancesDistributionStrategy() { }
-        public override System.Collections.Generic.IEnumerable<NServiceBus.UnicastRoutingTarget> SelectDestination(System.Collections.Generic.IList<NServiceBus.UnicastRoutingTarget> allInstances) { }
-    }
     public abstract class DistributionStrategy
     {
         protected DistributionStrategy() { }

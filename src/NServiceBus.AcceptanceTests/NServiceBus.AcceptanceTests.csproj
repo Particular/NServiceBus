@@ -177,7 +177,6 @@
     <Compile Include="Routing\When_handler_exists_but_routing_information_is_missing.cs" />
     <Compile Include="Routing\When_publishing_to_scaled_out_subscribers_on_unicast_transports.cs" />
     <Compile Include="Routing\When_publishing_to_scaled_out_subscribers_on_multicast_transports.cs" />
-    <Compile Include="Routing\When_broadcasting_a_command.cs" />
     <Compile Include="Routing\When_replying_to_a_message_sent_to_specific_instance.cs" />
     <Compile Include="Routing\When_using_assembly_level_message_mapping_for_pub_sub.cs" />
     <Compile Include="Routing\When_using_legacy_routing_configuration_combined_with_message_driven_pub_sub.cs" />
