@@ -751,7 +751,7 @@ namespace NServiceBus
     }
     [System.ObsoleteAttribute("Use `LoadMessageHandlersExtensions` instead. Will be removed in version 7.0.0.", true)]
     public class static LoadMessageHandlersExtentions { }
-    public sealed class LogicalAddress
+    public struct LogicalAddress
     {
         public LogicalAddress(NServiceBus.Routing.EndpointInstance endpointInstance, [JetBrains.Annotations.NotNullAttribute()] string qualifier) { }
         public LogicalAddress(NServiceBus.Routing.EndpointInstance endpointInstance) { }

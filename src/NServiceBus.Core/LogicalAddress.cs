@@ -7,7 +7,7 @@
     /// <summary>
     /// Represents a logical address (independent of transport).
     /// </summary>
-    public sealed class LogicalAddress
+    public struct LogicalAddress
     {
         /// <summary>
         /// Creates new qualified logical address for the provided endpoint instance name.
@@ -31,8 +31,8 @@
         public LogicalAddress(EndpointInstance endpointInstance)
         {
             EndpointInstance = endpointInstance;
+            Qualifier = null;
         }
-
 
         /// <summary>
         /// Returns the qualifier or null for the root logical address for a given instance name.
