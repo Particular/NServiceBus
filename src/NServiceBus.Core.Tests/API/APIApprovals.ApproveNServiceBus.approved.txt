@@ -161,10 +161,6 @@ namespace NServiceBus
             "ll be removed in version 7.0.0.", true)]
         public static string TransportConnectionString(this NServiceBus.Configure config) { }
     }
-    public class static ConfigureUniquelyAddressableInstanceExtensions
-    {
-        public static void MakeInstanceUniquelyAddressable(this NServiceBus.EndpointConfiguration config, string discriminator) { }
-    }
     public class static ConnectorContextExtensions
     {
         public static NServiceBus.Pipeline.IAuditContext CreateAuditContext(this NServiceBus.Pipeline.ForkConnector<NServiceBus.Pipeline.IIncomingPhysicalMessageContext, NServiceBus.Pipeline.IAuditContext> forkConnector, NServiceBus.Transport.OutgoingMessage message, string auditAddress, NServiceBus.Pipeline.IIncomingPhysicalMessageContext sourceContext) { }
@@ -348,12 +344,10 @@ namespace NServiceBus
         public void EndpointName(string name) { }
         public void ExcludeAssemblies(params string[] assemblies) { }
         public void ExcludeTypes(params System.Type[] types) { }
-        public void OverrideInputQueueName(string baseInputQueueName) { }
         [System.ObsoleteAttribute("Use `EndpointConfiguration.OverrideInputQueueName(string baseQueueName)` instead." +
             " The member currently throws a NotImplementedException. Will be removed in versi" +
             "on 7.0.0.", true)]
         public void OverrideLocalAddress(string transportAddress) { }
-        public void OverridePublicReturnAddress(string address) { }
         [System.ObsoleteAttribute("Use `EndpointConfiguration.OverridePublicReturnAddress(string address)` instead. " +
             "The member currently throws a NotImplementedException. Will be removed in versio" +
             "n 7.0.0.", true)]
@@ -901,6 +895,11 @@ namespace NServiceBus
     {
         public PublishOptions() { }
     }
+    public class static ReceiveSettingsExtensions
+    {
+        public static void MakeInstanceUniquelyAddressable(this NServiceBus.EndpointConfiguration config, string discriminator) { }
+        public static void OverrideInputQueueName(this NServiceBus.EndpointConfiguration config, string baseInputQueueName) { }
+    }
     public abstract class RecoverabilityAction
     {
         protected internal RecoverabilityAction() { }
@@ -933,6 +932,10 @@ namespace NServiceBus
     public class RetryFailedSettings : NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings
     {
         public NServiceBus.RetryFailedSettings HeaderCustomization(System.Action<System.Collections.Generic.Dictionary<string, string>> customization) { }
+    }
+    public class static RoutingFeatureSettingsExtensions
+    {
+        public static void OverridePublicReturnAddress(this NServiceBus.EndpointConfiguration configuration, string address) { }
     }
     public class static RoutingOptionExtensions
     {

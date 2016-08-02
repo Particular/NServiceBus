@@ -1,9 +1,9 @@
 ﻿namespace NServiceBus
 {
     /// <summary>
-    /// Contains an <see cref="EndpointConfiguration" /> extension method to specify an instance discriminator for an instance-specific queue.
+    /// Configuration extensions for receive settings.
     /// </summary>
-    public static class ConfigureUniquelyAddressableInstanceExtensions
+    public static class ReceiveSettingsExtensions
     {
         /// <summary>
         ///Makes the endpoint instance uniquely addressable when running multiple instances by adding an instance-specific queue.
@@ -16,6 +16,17 @@
             Guard.AgainstNullAndEmpty(nameof(discriminator), discriminator);
 
             config.Settings.Set("EndpointInstanceDiscriminator", discriminator);
+        }
+
+        /// <summary>
+        /// Overrides the base name of the input queue. The actual input queue name consists of this base name, instance ID and subqueue qualifier.
+        /// </summary>
+        /// <param name="config">The <see cref="EndpointConfiguration" /> instance to apply the settings to.</param>
+        /// <param name="baseInputQueueName">The base name of the input queue.</param>
+        public static void OverrideInputQueueName(this EndpointConfiguration config, string baseInputQueueName)
+        {
+            Guard.AgainstNullAndEmpty(nameof(baseInputQueueName), baseInputQueueName);
+            config.Settings.SetDefault("BaseInputQueueName", baseInputQueueName);
         }
     }
 }

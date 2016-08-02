@@ -168,26 +168,6 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Sets the public return address of this endpoint.
-        /// </summary>
-        /// <param name="address">The public address.</param>
-        public void OverridePublicReturnAddress(string address)
-        {
-            Guard.AgainstNullAndEmpty(nameof(address), address);
-            Settings.SetDefault("PublicReturnAddress", address);
-        }
-
-        /// <summary>
-        /// Overrides the base name of the input queue. The actual input queue name consists of this base name, instance ID and subqueue qualifier.
-        /// </summary>
-        /// <param name="baseInputQueueName">The base name of the input queue.</param>
-        public void OverrideInputQueueName(string baseInputQueueName)
-        {
-            Guard.AgainstNullAndEmpty(nameof(baseInputQueueName), baseInputQueueName);
-            Settings.SetDefault("BaseInputQueueName", baseInputQueueName);
-        }
-
-        /// <summary>
         /// Specifies the range of types that NServiceBus scans for handlers etc.
         /// </summary>
         internal void TypesToScanInternal(IEnumerable<Type> typesToScan)

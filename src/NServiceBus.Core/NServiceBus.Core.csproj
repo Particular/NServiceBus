@@ -151,6 +151,7 @@
     <Compile Include="ReleaseDateAttribute.cs" />
     <Compile Include="Routing\IDistributionPolicy.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\IMessageDrivenSubscriptionTransport.cs" />
+    <Compile Include="Routing\RoutingFeatureSettingsExtensions.cs" />
     <Compile Include="Routing\RoutingPluginSettingsExtensions.cs" />
     <Compile Include="Routing\SpecificInstanceDistributionPolicy.cs" />
     <Compile Include="Routing\UnicastPublishRouter.cs" />
@@ -158,7 +159,7 @@
     <Compile Include="Serialization\SerializationFeature.cs" />
     <Compile Include="Serialization\SerializationSettingsExtensions.cs" />
     <Compile Include="Serializers\XML\XmlSerialization.cs" />
-    <Compile Include="Transports\ConfigureUniquelyAddressableInstanceExtensions.cs" />
+    <Compile Include="Transports\ReceiveSettingsExtensions.cs" />
     <Compile Include="Transports\ErrorContext.cs" />
     <Compile Include="Transports\ErrorHandleResult.cs" />
     <Compile Include="Transports\IOutgoingTransportOperation.cs" />
