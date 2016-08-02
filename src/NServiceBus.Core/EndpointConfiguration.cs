@@ -33,7 +33,7 @@ namespace NServiceBus
 
             Settings.Set("NServiceBus.Routing.EndpointName", endpointName);
 
-            configurationSourceToUse = new DefaultConfigurationSource();
+            Settings.SetDefault<IConfigurationSource>(new DefaultConfigurationSource());
 
             pipelineCollection = new PipelineConfiguration();
             Settings.Set<PipelineConfiguration>(pipelineCollection);
@@ -114,7 +114,7 @@ namespace NServiceBus
         /// </summary>
         public void SendOnly()
         {
-            sendOnly = true;
+            Settings.Set("Endpoint.SendOnly", true);
         }
 
         /// <summary>
@@ -123,7 +123,7 @@ namespace NServiceBus
         public void CustomConfigurationSource(IConfigurationSource configurationSource)
         {
             Guard.AgainstNull(nameof(configurationSource), configurationSource);
-            configurationSourceToUse = configurationSource;
+            Settings.Set<IConfigurationSource>(configurationSource);
         }
 
         /// <summary>
@@ -168,26 +168,6 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Sets the public return address of this endpoint.
-        /// </summary>
-        /// <param name="address">The public address.</param>
-        public void OverridePublicReturnAddress(string address)
-        {
-            Guard.AgainstNullAndEmpty(nameof(address), address);
-            publicReturnAddress = address;
-        }
-
-        /// <summary>
-        /// Overrides the base name of the input queue. The actual input queue name consists of this base name, instance ID and subqueue qualifier.
-        /// </summary>
-        /// <param name="baseInputQueueName">The base name of the input queue.</param>
-        public void OverrideInputQueueName(string baseInputQueueName)
-        {
-            Guard.AgainstNullAndEmpty(nameof(baseInputQueueName), baseInputQueueName);
-            this.baseInputQueueName = baseInputQueueName;
-        }
-
-        /// <summary>
         /// Specifies the range of types that NServiceBus scans for handlers etc.
         /// </summary>
         internal void TypesToScanInternal(IEnumerable<Type> typesToScan)
@@ -216,22 +196,10 @@ namespace NServiceBus
             }
 
             Settings.SetDefault("TypesToScan", scannedTypes);
-            Settings.Set("Endpoint.SendOnly", sendOnly);
             ActivateAndInvoke<INeedInitialization>(scannedTypes, t => t.Customize(this));
 
             UseTransportExtensions.EnsureTransportConfigured(this);
             var container = customBuilder ?? new AutofacObjectBuilder();
-
-            Settings.SetDefault<IConfigurationSource>(configurationSourceToUse);
-
-            if (publicReturnAddress != null)
-            {
-                Settings.SetDefault("PublicReturnAddress", publicReturnAddress);
-            }
-            if (baseInputQueueName != null)
-            {
-                Settings.SetDefault("BaseInputQueueName", baseInputQueueName);
-            }
 
             var conventions = conventionsBuilder.Conventions;
             Settings.SetDefault<Conventions>(conventions);
@@ -307,17 +275,13 @@ namespace NServiceBus
                 .Types;
         }
 
-        IConfigurationSource configurationSourceToUse;
         ConventionsBuilder conventionsBuilder;
         IContainer customBuilder;
         List<string> excludedAssemblies = new List<string>();
         List<Type> excludedTypes = new List<Type>();
         PipelineConfiguration pipelineCollection;
-        string publicReturnAddress;
-        string baseInputQueueName;
         List<Action<IConfigureComponents>> registrations = new List<Action<IConfigureComponents>>();
         bool scanAssembliesInNestedDirectories;
         List<Type> scannedTypes;
-        bool sendOnly;
     }
 }
