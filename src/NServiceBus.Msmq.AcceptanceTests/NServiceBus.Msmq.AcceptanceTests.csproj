@@ -69,6 +69,7 @@
     <Compile Include="When_replying_to_a_message_sent_via_a_distributor.cs" />
     <Compile Include="When_setting_label_generator.cs" />
     <Compile Include="When_starting_up_the_endpoint.cs" />
+    <Compile Include="When_starting_with_missing_instance_mapping_file.cs" />
     <Compile Include="When_starting_with_invalid_instance_mapping_file.cs" />
     <Compile Include="When_subscribing_with_address_containing_host_name.cs" />
     <Compile Include="When_subscribing_from_a_worker.cs" />
