@@ -41,7 +41,7 @@
                 EndpointSetup<DefaultServer>(c => c.EnableFeature<TimeoutManager>());
             }
 
-            public class TestSaga : Saga<TestSaga.SagaData>,
+            public class BaseClassIsMappedSaga : Saga<BaseClassIsMappedSaga.BaseClassIsMappedSagaData>,
                 IAmStartedByMessages<StartSagaMessage>,
                 IAmStartedByMessages<SecondSagaMessage>
             {
@@ -56,13 +56,13 @@
                     return context.SendLocal(sagaMessage);
                 }
 
-                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper)
+                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<BaseClassIsMappedSagaData> mapper)
                 {
                     mapper.ConfigureMapping<SagaMessageBase>(m => m.SomeId)
                         .ToSaga(s => s.SomeId);
                 }
 
-                public class SagaData : ContainSagaData
+                public class BaseClassIsMappedSagaData : ContainSagaData
                 {
                     public virtual Guid SomeId { get; set; }
                 }
