@@ -34,7 +34,7 @@
         }
 
         EndpointInstances endpointInstances;
-        readonly Func<EndpointInstance, string> transportAddressTranslation;
+        Func<EndpointInstance, string> transportAddressTranslation;
 
         Publishers publishers;
     }

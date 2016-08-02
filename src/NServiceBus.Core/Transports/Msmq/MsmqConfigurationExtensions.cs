@@ -62,7 +62,7 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Overrides the default address translation rule "endpoint-id.quailfier@machine".
+        /// Overrides the default address translation rule "endpoint.quailfier-id@machine".
         /// </summary>
         /// <param name="config">Config object.</param>
         /// <param name="translationRule">New translation rule.</param>
