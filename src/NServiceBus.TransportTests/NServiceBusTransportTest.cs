@@ -15,16 +15,6 @@
 
     public abstract class NServiceBusTransportTest
     {
-        public static string SpecificTransport
-        {
-            get
-            {
-                var specificTransport = EnvironmentHelper.GetEnvironmentVariable("Transport.UseSpecific");
-
-                return !string.IsNullOrEmpty(specificTransport) ? specificTransport : MsmqDescriptorKey;
-            }
-        }
-
         [SetUp]
         public void SetUp()
         {
@@ -33,7 +23,14 @@
 
         static IConfigureTransportInfrastructure CreateConfigurer()
         {
-            var typeName = "Configure" + SpecificTransport + "Infrastructure";
+            var transport = EnvironmentHelper.GetEnvironmentVariable("Transport.UseSpecific");
+
+            if (string.IsNullOrWhiteSpace(transport))
+            {
+                transport = transportDefinitions.Value.FirstOrDefault(t => t.Name != MsmqDescriptorKey)?.Name ?? MsmqDescriptorKey;
+            }
+
+            var typeName = $"Configure{transport}Infrastructure";
 
             var configurerType = Type.GetType(typeName, false);
 
@@ -48,6 +45,7 @@
             {
                 throw new InvalidOperationException($"{typeName} does not implement {typeof(IConfigureTransportInfrastructure).Name}.");
             }
+
             return configurer;
         }
 
@@ -207,6 +205,8 @@
 
         static string MsmqDescriptorKey = "MsmqTransport";
         static string TestIdHeaderName = "TransportTest.TestId";
+
+        static Lazy<List<Type>> transportDefinitions = new Lazy<List<Type>>(() => TypeScanner.GetAllTypesAssignableTo<TransportDefinition>().ToList());
 
         class FakeCriticalError : CriticalError
         {

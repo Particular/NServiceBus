@@ -48,6 +48,7 @@
     <Compile Include="IConfigureTransportInfrastructure.cs" />
     <Compile Include="NServiceBusTransportTest.cs" />
     <Compile Include="TransportConfigurationResult.cs" />
+    <Compile Include="TypeScanner.cs" />
     <Compile Include="When_failure_happens_after_send.cs" />
     <Compile Include="When_on_error_throws.cs" />
     <Compile Include="When_on_message_throws_after_delayed_retry.cs" />
