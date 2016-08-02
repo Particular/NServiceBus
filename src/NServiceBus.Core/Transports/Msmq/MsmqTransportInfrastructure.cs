@@ -20,7 +20,7 @@ namespace NServiceBus
 
             this.settings = settings;
             this.connectionString = connectionString;
-            this.addressTrnaslationRule = settings.GetOrDefault<Func<LogicalAddress, string>>("NServiceBus.Transports.MSMQ.AddressTranslationRule") ?? DefaultAddressTranslationRule;
+            this.addressTranslationRule = settings.GetOrDefault<Func<LogicalAddress, string>>("NServiceBus.Transports.MSMQ.AddressTranslationRule") ?? DefaultAddressTranslationRule;
         }
 
         public override IEnumerable<Type> DeliveryConstraints { get; } = new[]
@@ -51,7 +51,7 @@ namespace NServiceBus
 
         public override string ToTransportAddress(LogicalAddress logicalAddress)
         {
-            return addressTrnaslationRule(logicalAddress);
+            return addressTranslationRule(logicalAddress);
         }
 
         static string DefaultAddressTranslationRule(LogicalAddress logicalAddress)
@@ -147,6 +147,6 @@ namespace NServiceBus
 
         string connectionString;
         ReadOnlySettings settings;
-        Func<LogicalAddress, string> addressTrnaslationRule;
+        Func<LogicalAddress, string> addressTranslationRule;
     }
 }
