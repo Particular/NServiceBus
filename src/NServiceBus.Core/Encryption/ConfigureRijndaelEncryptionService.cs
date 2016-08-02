@@ -5,7 +5,6 @@ namespace NServiceBus
     using System.Linq;
     using System.Text;
     using Config;
-    using Features;
     using Logging;
     using Settings;
 
