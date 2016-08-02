@@ -44,7 +44,7 @@
             var unicastBusConfig = context.Settings.GetConfigSection<UnicastBusConfig>();
             if (unicastBusConfig != null)
             {
-                ImportMessageEndpointMappings(unicastBusConfig.MessageEndpointMappings, transportInfrastructure, publishers, unicastRoutingTable, knownMessageTypes);
+                ImportMessageEndpointMappings(unicastBusConfig.MessageEndpointMappings, transportInfrastructure, publishers, unicastRoutingTable);
             }
 
             foreach (var registration in configuredUnicastRoutes)
@@ -109,30 +109,16 @@
             return registry.GetAllMessages().Select(m => m.MessageType).ToArray();
         }
 
-        static void ImportMessageEndpointMappings(MessageEndpointMappingCollection legacyRoutingConfig, TransportInfrastructure transportInfrastructure, Publishers publishers, UnicastRoutingTable unicastRoutingTable, Type[] knownMessageTypes)
+        static void ImportMessageEndpointMappings(MessageEndpointMappingCollection legacyRoutingConfig, TransportInfrastructure transportInfrastructure, Publishers publishers, UnicastRoutingTable unicastRoutingTable)
         {
             foreach (MessageEndpointMapping m in legacyRoutingConfig)
             {
                 m.Configure((type, endpointAddress) =>
                 {
-                    ConfigureSendDestination(transportInfrastructure, unicastRoutingTable, type, endpointAddress);
-                    ConfigureSubscribeDestination(publishers, knownMessageTypes, type, endpointAddress);
+                    unicastRoutingTable.RouteTo(type, UnicastRoute.CreateFromPhysicalAddress(transportInfrastructure.MakeCanonicalForm(endpointAddress)));
+                    publishers.AddByAddress(type, endpointAddress);
                 });
             }
-        }
-
-        static void ConfigureSubscribeDestination(Publishers publishers, Type[] knownMessageTypes, Type type, string address)
-        {
-            var typesEnclosed = knownMessageTypes.Where(t => t.IsAssignableFrom(type));
-            foreach (var t in typesEnclosed)
-            {
-                publishers.AddByAddress(t, address);
-            }
-        }
-
-        static void ConfigureSendDestination(TransportInfrastructure transportInfrastructure, UnicastRoutingTable unicastRoutingTable, Type type, string address)
-        {
-            unicastRoutingTable.RouteTo(type, UnicastRoute.CreateFromPhysicalAddress(transportInfrastructure.MakeCanonicalForm(address)));
         }
     }
 

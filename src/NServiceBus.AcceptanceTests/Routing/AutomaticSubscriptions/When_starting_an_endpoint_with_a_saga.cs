@@ -38,7 +38,7 @@ namespace NServiceBus.AcceptanceTests.Routing.AutomaticSubscriptions
             public Subscriber()
             {
                 EndpointSetup<DefaultServer>(c => c.Pipeline.Register("SubscriptionSpy", typeof(SubscriptionSpy), "Spies on subscriptions made"))
-                    .AddMapping<MyEventWithParent>(typeof(Subscriber)) //just map to our self for this test
+                    .AddMapping<MyEventBase>(typeof(Subscriber)) //just map to our self for this test
                     .AddMapping<MyEvent>(typeof(Subscriber)); //just map to our self for this test
             }
 
@@ -103,10 +103,6 @@ namespace NServiceBus.AcceptanceTests.Routing.AutomaticSubscriptions
         }
 
         public class MyEventWithParent : MyEventBase
-        {
-        }
-
-        public class MyMessage : IMessage
         {
         }
 
