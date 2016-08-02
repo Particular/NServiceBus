@@ -178,13 +178,13 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Overrides the local address.
+        /// Overrides the base name of the input queue. The actual input queue name consists of this base name, instance ID and subqueue qualifier.
         /// </summary>
-        /// <param name="transportAddress">The transportAddress.</param>
-        public void OverrideLocalAddress(string transportAddress)
+        /// <param name="baseInputQueueName">The base name of the input queue.</param>
+        public void OverrideInputQueueName(string baseInputQueueName)
         {
-            Guard.AgainstNullAndEmpty(nameof(transportAddress), transportAddress);
-            localAddress = transportAddress;
+            Guard.AgainstNullAndEmpty(nameof(baseInputQueueName), baseInputQueueName);
+            this.baseInputQueueName = baseInputQueueName;
         }
 
         /// <summary>
@@ -228,9 +228,9 @@ namespace NServiceBus
             {
                 Settings.SetDefault("PublicReturnAddress", publicReturnAddress);
             }
-            if (localAddress != null)
+            if (baseInputQueueName != null)
             {
-                Settings.SetDefault("LocalAddressBase", localAddress);
+                Settings.SetDefault("BaseInputQueueName", baseInputQueueName);
             }
 
             var conventions = conventionsBuilder.Conventions;
@@ -314,7 +314,7 @@ namespace NServiceBus
         List<Type> excludedTypes = new List<Type>();
         PipelineConfiguration pipelineCollection;
         string publicReturnAddress;
-        string localAddress;
+        string baseInputQueueName;
         List<Action<IConfigureComponents>> registrations = new List<Action<IConfigureComponents>>();
         bool scanAssembliesInNestedDirectories;
         List<Type> scannedTypes;

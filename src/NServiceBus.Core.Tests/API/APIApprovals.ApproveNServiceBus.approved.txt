@@ -348,6 +348,10 @@ namespace NServiceBus
         public void EndpointName(string name) { }
         public void ExcludeAssemblies(params string[] assemblies) { }
         public void ExcludeTypes(params System.Type[] types) { }
+        public void OverrideInputQueueName(string baseInputQueueName) { }
+        [System.ObsoleteAttribute("Use `EndpointConfiguration.OverrideInputQueueName(string baseQueueName)` instead." +
+            " The member currently throws a NotImplementedException. Will be removed in versi" +
+            "on 7.0.0.", true)]
         public void OverrideLocalAddress(string transportAddress) { }
         public void OverridePublicReturnAddress(string address) { }
         [System.ObsoleteAttribute("Use `EndpointConfiguration.OverridePublicReturnAddress(string address)` instead. " +

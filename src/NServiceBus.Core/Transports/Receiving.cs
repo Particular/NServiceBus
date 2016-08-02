@@ -16,13 +16,13 @@ namespace NServiceBus
             {
                 var transportInfrastructure = s.Get<TransportInfrastructure>();
                 var userDiscriminator = s.GetOrDefault<string>("EndpointInstanceDiscriminator");
-                var addressBase = s.GetOrDefault<string>("LocalAddressBase") ?? s.EndpointName();
+                var baseQueueName = s.GetOrDefault<string>("BaseInputQueueName") ?? s.EndpointName();
                 if (userDiscriminator != null)
                 {
-                    var p = s.Get<TransportInfrastructure>().BindToLocalEndpoint(new EndpointInstance(addressBase, userDiscriminator));
+                    var p = s.Get<TransportInfrastructure>().BindToLocalEndpoint(new EndpointInstance(baseQueueName, userDiscriminator));
                     s.SetDefault("NServiceBus.EndpointSpecificQueue", transportInfrastructure.ToTransportAddress(new LogicalAddress(p)));
                 }
-                var instanceProperties = s.Get<TransportInfrastructure>().BindToLocalEndpoint(new EndpointInstance(addressBase));
+                var instanceProperties = s.Get<TransportInfrastructure>().BindToLocalEndpoint(new EndpointInstance(baseQueueName));
                 s.SetDefault("NServiceBus.SharedQueue", transportInfrastructure.ToTransportAddress(new LogicalAddress(instanceProperties)));
 
                 s.SetDefault<EndpointInstance>(instanceProperties);
