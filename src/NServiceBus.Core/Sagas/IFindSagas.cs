@@ -2,17 +2,20 @@ namespace NServiceBus.Sagas
 {
     using System.Threading.Tasks;
     using Extensibility;
+    using JetBrains.Annotations;
     using Persistence;
 
     /// <summary>
     /// Interface indicating that implementers can find sagas of the given type.
     /// </summary>
+    [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
     public abstract class IFindSagas<T> where T : IContainSagaData
     {
         /// <summary>
         /// Narrower interface indicating that implementers can find sagas
         /// of type T using messages of type M.
         /// </summary>
+        [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
         public interface Using<M> : IFinder
         {
             /// <summary>
