@@ -132,7 +132,7 @@
 
         static void ConfigureSendDestination(TransportInfrastructure transportInfrastructure, UnicastRoutingTable unicastRoutingTable, Type type, string address)
         {
-            unicastRoutingTable.RouteToAddress(type, transportInfrastructure.MakeCanonicalForm(address));
+            unicastRoutingTable.RouteTo(type, UnicastRoute.CreateFromPhysicalAddress(transportInfrastructure.MakeCanonicalForm(address)));
         }
     }
 
