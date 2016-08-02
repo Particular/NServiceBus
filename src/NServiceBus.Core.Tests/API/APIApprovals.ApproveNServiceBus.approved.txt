@@ -348,10 +348,11 @@ namespace NServiceBus
         public void EndpointName(string name) { }
         public void ExcludeAssemblies(params string[] assemblies) { }
         public void ExcludeTypes(params System.Type[] types) { }
-        [System.ObsoleteAttribute("Use `EndpointConfiguration.UseTransport<T>().AddAddressTranslationRule(Func<Logic" +
-            "alAddress, string> rule)` instead. The member currently throws a NotImplementedE" +
-            "xception. Will be removed in version 7.0.0.", true)]
-        public void OverrideLocalAddress(string queue) { }
+        public void OverrideInputQueueName(string baseInputQueueName) { }
+        [System.ObsoleteAttribute("Use `EndpointConfiguration.OverrideInputQueueName(string baseQueueName)` instead." +
+            " The member currently throws a NotImplementedException. Will be removed in versi" +
+            "on 7.0.0.", true)]
+        public void OverrideLocalAddress(string transportAddress) { }
         public void OverridePublicReturnAddress(string address) { }
         [System.ObsoleteAttribute("Use `EndpointConfiguration.OverridePublicReturnAddress(string address)` instead. " +
             "The member currently throws a NotImplementedException. Will be removed in versio" +
@@ -802,6 +803,7 @@ namespace NServiceBus
     {
         public static NServiceBus.TransportExtensions<NServiceBus.MsmqTransport> ApplyLabelToMessages(this NServiceBus.TransportExtensions<NServiceBus.MsmqTransport> transportExtensions, System.Func<System.Collections.Generic.IReadOnlyDictionary<string, string>, string> labelGenerator) { }
         public static NServiceBus.FileRoutingTableSettings InstanceMappingFile(this NServiceBus.RoutingSettings<NServiceBus.MsmqTransport> config) { }
+        public static NServiceBus.TransportExtensions<NServiceBus.MsmqTransport> OverrideAddressTranslation(this NServiceBus.TransportExtensions<NServiceBus.MsmqTransport> config, System.Func<NServiceBus.LogicalAddress, string> translationRule) { }
         public static void SetMessageDistributionStrategy(this NServiceBus.RoutingSettings<NServiceBus.MsmqTransport> config, string endpointName, NServiceBus.Routing.DistributionStrategy distributionStrategy) { }
         public static NServiceBus.TransportExtensions<NServiceBus.MsmqTransport> TransactionScopeOptions(this NServiceBus.TransportExtensions<NServiceBus.MsmqTransport> transportExtensions, System.Nullable<System.TimeSpan> timeout = null, System.Nullable<System.Transactions.IsolationLevel> isolationLevel = null) { }
     }
@@ -1152,9 +1154,6 @@ namespace NServiceBus
     public class TransportExtensions : NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings
     {
         public TransportExtensions(NServiceBus.Settings.SettingsHolder settings) { }
-        public NServiceBus.TransportExtensions AddAddressTranslationException(NServiceBus.LogicalAddress logicalAddress, string transportAddress) { }
-        public NServiceBus.TransportExtensions AddAddressTranslationException(NServiceBus.Routing.EndpointInstance endpointInstance, string transportAddress) { }
-        public NServiceBus.TransportExtensions AddAddressTranslationRule(System.Func<NServiceBus.LogicalAddress, string> rule) { }
         public NServiceBus.TransportExtensions ConnectionString(string connectionString) { }
         public NServiceBus.TransportExtensions ConnectionString(System.Func<string> connectionString) { }
         public NServiceBus.TransportExtensions ConnectionStringName(string name) { }
@@ -3117,12 +3116,6 @@ namespace NServiceBus.Transport
         public string ErrorMessage { get; }
         public bool Succeeded { get; }
         public static NServiceBus.Transport.StartupCheckResult Failed(string errorMessage) { }
-    }
-    public class TransportAddresses
-    {
-        public void AddRule(System.Func<NServiceBus.LogicalAddress, string> dynamicRule) { }
-        public void AddSpecialCase([JetBrains.Annotations.NotNullAttribute()] NServiceBus.LogicalAddress endpointInstance, string physicalAddress) { }
-        public void AddSpecialCase([JetBrains.Annotations.NotNullAttribute()] NServiceBus.Routing.EndpointInstance endpointInstance, string physicalAddress) { }
     }
     public abstract class TransportDefinition
     {

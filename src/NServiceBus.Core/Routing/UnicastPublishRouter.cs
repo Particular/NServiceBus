@@ -6,14 +6,14 @@ namespace NServiceBus
     using System.Threading.Tasks;
     using Extensibility;
     using Routing;
-    using Transport;
     using Unicast.Messages;
     using Unicast.Subscriptions;
     using Unicast.Subscriptions.MessageDrivenSubscriptions;
 
     class UnicastPublishRouter : UnicastRouter
     {
-        public UnicastPublishRouter(MessageMetadataRegistry messageMetadataRegistry, ISubscriptionStorage subscriptionStorage, EndpointInstances endpointInstances, TransportAddresses physicalAddresses) : base(messageMetadataRegistry, endpointInstances, physicalAddresses)
+        public UnicastPublishRouter(MessageMetadataRegistry messageMetadataRegistry, ISubscriptionStorage subscriptionStorage, EndpointInstances endpointInstances, Func<EndpointInstance, string> transportAddressTranslation) 
+            : base(messageMetadataRegistry, endpointInstances, transportAddressTranslation)
         {
             this.subscriptionStorage = subscriptionStorage;
         }

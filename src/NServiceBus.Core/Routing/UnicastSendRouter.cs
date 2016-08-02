@@ -5,13 +5,12 @@ namespace NServiceBus
     using System.Threading.Tasks;
     using Extensibility;
     using Routing;
-    using Transport;
     using Unicast.Messages;
 
     class UnicastSendRouter : UnicastRouter
     {
-        public UnicastSendRouter(MessageMetadataRegistry messageMetadataRegistry, UnicastRoutingTable unicastRoutingTable, EndpointInstances endpointInstances, TransportAddresses physicalAddresses)
-            : base(messageMetadataRegistry, endpointInstances, physicalAddresses)
+        public UnicastSendRouter(MessageMetadataRegistry messageMetadataRegistry, UnicastRoutingTable unicastRoutingTable, EndpointInstances endpointInstances, Func<EndpointInstance, string> transportAddressTranslation)
+            : base(messageMetadataRegistry, endpointInstances, transportAddressTranslation)
         {
             this.unicastRoutingTable = unicastRoutingTable;
         }

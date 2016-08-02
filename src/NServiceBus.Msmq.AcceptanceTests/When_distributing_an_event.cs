@@ -5,9 +5,7 @@
     using AcceptanceTesting.Customization;
     using AcceptanceTesting;
     using Features;
-    using NServiceBus.Routing;
     using NUnit.Framework;
-    using Support;
 
     public class When_distributing_an_event : NServiceBusAcceptanceTest
     {
@@ -80,9 +78,9 @@
             {
                 EndpointSetup<DefaultServer>(c =>
                 {
+                    c.OverrideInputQueueName(SubscriberEndpoint + "-1");
                     var transport = c.UseTransport<MsmqTransport>();
                     transport.Routing().RegisterPublisher(typeof(MyEvent), PublisherEndpoint);
-                    transport.AddAddressTranslationException(new EndpointInstance(SubscriberEndpoint).AtMachine(RuntimeEnvironment.MachineName), SubscriberEndpoint + "-1");
                 }).CustomEndpointName(SubscriberEndpoint);
             }
 
@@ -104,9 +102,9 @@
             {
                 EndpointSetup<DefaultServer>(c =>
                 {
+                    c.OverrideInputQueueName(SubscriberEndpoint + "-2");
                     var transport = c.UseTransport<MsmqTransport>();
                     transport.Routing().RegisterPublisher(typeof(MyEvent), PublisherEndpoint);
-                    transport.AddAddressTranslationException(new EndpointInstance(SubscriberEndpoint).AtMachine(RuntimeEnvironment.MachineName), SubscriberEndpoint + "-2");
                 }).CustomEndpointName(SubscriberEndpoint);
             }
 

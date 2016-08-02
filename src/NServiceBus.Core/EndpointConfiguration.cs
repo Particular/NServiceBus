@@ -178,6 +178,16 @@ namespace NServiceBus
         }
 
         /// <summary>
+        /// Overrides the base name of the input queue. The actual input queue name consists of this base name, instance ID and subqueue qualifier.
+        /// </summary>
+        /// <param name="baseInputQueueName">The base name of the input queue.</param>
+        public void OverrideInputQueueName(string baseInputQueueName)
+        {
+            Guard.AgainstNullAndEmpty(nameof(baseInputQueueName), baseInputQueueName);
+            this.baseInputQueueName = baseInputQueueName;
+        }
+
+        /// <summary>
         /// Specifies the range of types that NServiceBus scans for handlers etc.
         /// </summary>
         internal void TypesToScanInternal(IEnumerable<Type> typesToScan)
@@ -217,6 +227,10 @@ namespace NServiceBus
             if (publicReturnAddress != null)
             {
                 Settings.SetDefault("PublicReturnAddress", publicReturnAddress);
+            }
+            if (baseInputQueueName != null)
+            {
+                Settings.SetDefault("BaseInputQueueName", baseInputQueueName);
             }
 
             var conventions = conventionsBuilder.Conventions;
@@ -300,6 +314,7 @@ namespace NServiceBus
         List<Type> excludedTypes = new List<Type>();
         PipelineConfiguration pipelineCollection;
         string publicReturnAddress;
+        string baseInputQueueName;
         List<Action<IConfigureComponents>> registrations = new List<Action<IConfigureComponents>>();
         bool scanAssembliesInNestedDirectories;
         List<Type> scannedTypes;
