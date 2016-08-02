@@ -6,7 +6,7 @@ namespace NServiceBus.AcceptanceTests.Hosting
     using Features;
     using NUnit.Framework;
 
-    public class When_overriding_local_addresses : NServiceBusAcceptanceTest
+    public class When_overriding_input_queue_name : NServiceBusAcceptanceTest
     {
         [Test]
         public async Task Should_use_custom_queue_names()
@@ -17,7 +17,7 @@ namespace NServiceBus.AcceptanceTests.Hosting
                 .Run();
 
             Assert.IsTrue(context.Done);
-            Assert.IsTrue(context.InputQueue.StartsWith("OverriddenLocalAddress"));
+            Assert.IsTrue(context.InputQueue.StartsWith("OverriddenInputQueue"));
         }
 
         public class MyEndpoint : EndpointConfigurationBuilder
@@ -26,7 +26,7 @@ namespace NServiceBus.AcceptanceTests.Hosting
             {
                 EndpointSetup<DefaultServer>((c, d) =>
                 {
-                    c.OverrideLocalAddress("OverriddenLocalAddress");
+                    c.OverrideInputQueueName("OverriddenInputQueue");
                     c.EnableFeature<TimeoutManager>();
                 });
             }

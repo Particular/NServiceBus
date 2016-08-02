@@ -78,7 +78,7 @@
             {
                 EndpointSetup<DefaultServer>(c =>
                 {
-                    c.OverrideLocalAddress(SubscriberEndpoint + "-1");
+                    c.OverrideInputQueueName(SubscriberEndpoint + "-1");
                     var transport = c.UseTransport<MsmqTransport>();
                     transport.Routing().RegisterPublisher(typeof(MyEvent), PublisherEndpoint);
                 }).CustomEndpointName(SubscriberEndpoint);
@@ -102,7 +102,7 @@
             {
                 EndpointSetup<DefaultServer>(c =>
                 {
-                    c.OverrideLocalAddress(SubscriberEndpoint + "-2");
+                    c.OverrideInputQueueName(SubscriberEndpoint + "-2");
                     var transport = c.UseTransport<MsmqTransport>();
                     transport.Routing().RegisterPublisher(typeof(MyEvent), PublisherEndpoint);
                 }).CustomEndpointName(SubscriberEndpoint);

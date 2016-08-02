@@ -48,7 +48,7 @@
         {
             public Receiver()
             {
-                EndpointSetup<DefaultServer>(c => c.OverrideLocalAddress("q_" + DefaultReceiverAddress));
+                EndpointSetup<DefaultServer>(c => c.OverrideInputQueueName("q_" + DefaultReceiverAddress));
             }
 
             public class MessageHandler : IHandleMessages<Message>
