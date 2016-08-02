@@ -5,6 +5,7 @@ namespace NServiceBus
     using System.Linq;
     using System.Text;
     using Config;
+    using Features;
     using Logging;
     using Settings;
 
@@ -169,12 +170,14 @@ namespace NServiceBus
         public static void RegisterEncryptionService(this EndpointConfiguration config, Func<IEncryptionService> func)
         {
             Guard.AgainstNull(nameof(config), config);
-            config.Settings.Set("EncryptionServiceConstructor", func);
+
+            config.EnableFeature<Encryptor>();
+            config.Settings.Set(EncryptedServiceContstructorKey, func);
         }
 
-        internal static bool GetEncryptionServiceConstructor(this ReadOnlySettings settings, out Func<IEncryptionService> func)
+        internal static Func<IEncryptionService> GetEncryptionServiceConstructor(this ReadOnlySettings settings)
         {
-            return settings.TryGet("EncryptionServiceConstructor", out func);
+            return settings.Get<Func<IEncryptionService>>(EncryptedServiceContstructorKey);
         }
 
         static byte[] ParseKey(string key, KeyFormat keyFormat)
@@ -211,6 +214,8 @@ namespace NServiceBus
                 result.Add(item.KeyIdentifier, key);
             }
         }
+
+        const string EncryptedServiceContstructorKey = "EncryptionServiceConstructor";
 
         static readonly ILog Log = LogManager.GetLogger(typeof(ConfigureRijndaelEncryptionService));
     }
