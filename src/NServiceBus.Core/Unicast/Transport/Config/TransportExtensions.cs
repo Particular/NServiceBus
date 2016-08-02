@@ -115,20 +115,9 @@ namespace NServiceBus
         /// Adds a rule for translating endpoint instance names to physical addresses in direct routing.
         /// </summary>
         /// <param name="rule">The rule.</param>
-        public TransportExtensions AddAddressTranslationRule(Func<LogicalAddress, string> rule)
+        public TransportExtensions AddAddressTranslationRule(Func<EndpointInstance, string> rule)
         {
             GetOrCreateTransportAddresses().AddRule(rule);
-            return this;
-        }
-
-        /// <summary>
-        /// Adds an exception to the translation rules for a given endpoint instance.
-        /// </summary>
-        /// <param name="logicalAddress">Logical address for which the exception is created.</param>
-        /// <param name="transportAddress">Transport address of that instance.</param>
-        public TransportExtensions AddAddressTranslationException(LogicalAddress logicalAddress, string transportAddress)
-        {
-            GetOrCreateTransportAddresses().AddSpecialCase(logicalAddress, transportAddress);
             return this;
         }
 
@@ -152,28 +141,14 @@ namespace NServiceBus
                 {
                     var transportInfrastructure = Settings.Get<TransportInfrastructure>();
                     return transportInfrastructure.ToTransportAddress(a);
+                }, a =>
+                {
+                    var transportInfrastructure = Settings.Get<TransportInfrastructure>();
+                    return transportInfrastructure.ToTransportAddress(a);
                 });
                 Settings.Set<TransportAddresses>(value);
             }
             return value;
-        }
-    }
-
-    /// <summary>
-    /// Allows you to read which transport connectionstring has been set.
-    /// </summary>
-    public static class ConfigureTransportConnectionString
-    {
-        /// <summary>
-        /// Gets the transport connectionstring.
-        /// </summary>
-        [ObsoleteEx(
-            TreatAsErrorFromVersion = "6",
-            RemoveInVersion = "7",
-            Message = "Not available any more.")]
-        public static string TransportConnectionString(this Configure config)
-        {
-            throw new NotImplementedException();
         }
     }
 }

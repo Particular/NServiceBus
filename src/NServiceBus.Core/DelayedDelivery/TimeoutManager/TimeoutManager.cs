@@ -63,8 +63,8 @@
 
         static string SetupDispatcherSatellite(FeatureConfigurationContext context, TransportTransactionMode requiredTransactionSupport)
         {
-            var instanceName = context.Settings.EndpointInstanceName();
-            var satelliteLogicalAddress = new LogicalAddress(instanceName, "TimeoutsDispatcher");
+            var localAddress = context.Settings.LocalLogicalAddress();
+            var satelliteLogicalAddress = new LocalAddress(localAddress.Endpoint, "TimeoutsDispatcher");
             var satelliteAddress = context.Settings.GetTransportAddress(satelliteLogicalAddress);
 
             context.AddSatelliteReceiver("Timeout Dispatcher Processor", satelliteAddress, requiredTransactionSupport, PushRuntimeSettings.Default, RecoverabilityPolicy,
@@ -83,8 +83,8 @@
 
         static void SetupStorageSatellite(FeatureConfigurationContext context, TransportTransactionMode requiredTransactionSupport)
         {
-            var instanceName = context.Settings.EndpointInstanceName();
-            var satelliteLogicalAddress = new LogicalAddress(instanceName, "Timeouts");
+            var localAddress = context.Settings.LocalLogicalAddress();
+            var satelliteLogicalAddress = new LocalAddress(localAddress.Endpoint, "Timeouts");
             var satelliteAddress = context.Settings.GetTransportAddress(satelliteLogicalAddress);
 
             context.AddSatelliteReceiver("Timeout Message Processor", satelliteAddress, requiredTransactionSupport, PushRuntimeSettings.Default, RecoverabilityPolicy,

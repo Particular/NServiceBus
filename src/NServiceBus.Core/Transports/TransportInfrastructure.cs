@@ -46,16 +46,18 @@ namespace NServiceBus.Transport
         public abstract TransportSubscriptionInfrastructure ConfigureSubscriptionInfrastructure();
 
         /// <summary>
-        /// Returns the discriminator for this endpoint instance.
+        /// Converts a given <see cref="LocalAddress"/> to the transport address.
         /// </summary>
-        public abstract EndpointInstance BindToLocalEndpoint(EndpointInstance instance);
+        /// <param name="localAddress">The logical address.</param>
+        /// <returns>The transport address.</returns>
+        public abstract string ToTransportAddress(LocalAddress localAddress);
 
         /// <summary>
-        /// Converts a given logical address to the transport address.
+        /// Converts a given <see cref="EndpointInstance"/> to the the transport address.
         /// </summary>
-        /// <param name="logicalAddress">The logical address.</param>
+        /// <param name="endpointInstance">The endpoint instance.</param>
         /// <returns>The transport address.</returns>
-        public abstract string ToTransportAddress(LogicalAddress logicalAddress);
+        public abstract string ToTransportAddress(EndpointInstance endpointInstance);
 
         /// <summary>
         /// Returns the canonical for of the given transport address so various transport addresses can be effectively compared and

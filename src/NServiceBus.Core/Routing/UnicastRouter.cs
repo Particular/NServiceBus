@@ -38,7 +38,7 @@ namespace NServiceBus
             var selectedDestinations = SelectDestinationsForEachEndpoint(distributionPolicy, destinations);
 
             return selectedDestinations
-                .Select(destination => destination.Resolve(x => physicalAddresses.GetTransportAddress(new LogicalAddress(x))))
+                .Select(destination => destination.Resolve(x => physicalAddresses.GetTransportAddress(x)))
                 .Distinct() //Make sure we are sending only one to each transport destination. Might happen when there are multiple routing information sources.
                 .Select(destination => new UnicastRoutingStrategy(destination));
         }

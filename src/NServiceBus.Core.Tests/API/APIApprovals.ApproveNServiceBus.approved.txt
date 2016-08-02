@@ -155,6 +155,7 @@ namespace NServiceBus
         public static void RijndaelEncryptionService(this NServiceBus.EndpointConfiguration config, string encryptionKeyIdentifier, byte[] encryptionKey, System.Collections.Generic.IList<byte[]> decryptionKeys = null) { }
         public static void RijndaelEncryptionService(this NServiceBus.EndpointConfiguration config, string encryptionKeyIdentifier, System.Collections.Generic.IDictionary<string, byte[]> keys, System.Collections.Generic.IList<byte[]> decryptionKeys = null) { }
     }
+    [System.ObsoleteAttribute("Not available any more. Will be removed in version 7.0.0.", true)]
     public class static ConfigureTransportConnectionString
     {
         [System.ObsoleteAttribute("Not available any more. The member currently throws a NotImplementedException. Wi" +
@@ -348,10 +349,6 @@ namespace NServiceBus
         public void EndpointName(string name) { }
         public void ExcludeAssemblies(params string[] assemblies) { }
         public void ExcludeTypes(params System.Type[] types) { }
-        [System.ObsoleteAttribute("Use `EndpointConfiguration.UseTransport<T>().AddAddressTranslationRule(Func<Logic" +
-            "alAddress, string> rule)` instead. The member currently throws a NotImplementedE" +
-            "xception. Will be removed in version 7.0.0.", true)]
-        public void OverrideLocalAddress(string queue) { }
         public void OverridePublicReturnAddress(string address) { }
         [System.ObsoleteAttribute("Use `EndpointConfiguration.OverridePublicReturnAddress(string address)` instead. " +
             "The member currently throws a NotImplementedException. Will be removed in versio" +
@@ -750,15 +747,19 @@ namespace NServiceBus
     }
     [System.ObsoleteAttribute("Use `LoadMessageHandlersExtensions` instead. Will be removed in version 7.0.0.", true)]
     public class static LoadMessageHandlersExtentions { }
-    public sealed class LogicalAddress
+    public sealed class LocalAddress
     {
-        public LogicalAddress(NServiceBus.Routing.EndpointInstance endpointInstance, [JetBrains.Annotations.NotNullAttribute()] string qualifier) { }
-        public LogicalAddress(NServiceBus.Routing.EndpointInstance endpointInstance) { }
-        public NServiceBus.Routing.EndpointInstance EndpointInstance { get; }
+        public LocalAddress(string endpoint, string qualifier = null, string discriminator = null) { }
+        public string Discriminator { get; }
+        public string Endpoint { get; }
         public string Qualifier { get; }
         public override bool Equals(object obj) { }
         public override int GetHashCode() { }
         public override string ToString() { }
+    }
+    public class static LocalAddressOverrideExtensions
+    {
+        public static void OverrideLocalAddress(this NServiceBus.EndpointConfiguration configuration, string addressOverride) { }
     }
     public class MessageDeserializationException : System.Runtime.Serialization.SerializationException
     {
@@ -1110,13 +1111,13 @@ namespace NServiceBus
     }
     public class static SettingsExtensions
     {
-        public static NServiceBus.Routing.EndpointInstance EndpointInstanceName(this NServiceBus.Settings.ReadOnlySettings settings) { }
         public static string EndpointName(this NServiceBus.Settings.ReadOnlySettings settings) { }
         public static System.Collections.Generic.IList<System.Type> GetAvailableTypes(this NServiceBus.Settings.ReadOnlySettings settings) { }
         public static T GetConfigSection<T>(this NServiceBus.Settings.ReadOnlySettings settings)
             where T :  class, new () { }
         public static string InstanceSpecificQueue(this NServiceBus.Settings.ReadOnlySettings settings) { }
         public static string LocalAddress(this NServiceBus.Settings.ReadOnlySettings settings) { }
+        public static NServiceBus.LocalAddress LocalLogicalAddress(this NServiceBus.Settings.ReadOnlySettings settings) { }
     }
     [System.ObsoleteAttribute("Use `SettingsExtensions` instead. Will be removed in version 7.0.0.", true)]
     public class static SettingsExtentions { }
@@ -1152,9 +1153,8 @@ namespace NServiceBus
     public class TransportExtensions : NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings
     {
         public TransportExtensions(NServiceBus.Settings.SettingsHolder settings) { }
-        public NServiceBus.TransportExtensions AddAddressTranslationException(NServiceBus.LogicalAddress logicalAddress, string transportAddress) { }
         public NServiceBus.TransportExtensions AddAddressTranslationException(NServiceBus.Routing.EndpointInstance endpointInstance, string transportAddress) { }
-        public NServiceBus.TransportExtensions AddAddressTranslationRule(System.Func<NServiceBus.LogicalAddress, string> rule) { }
+        public NServiceBus.TransportExtensions AddAddressTranslationRule(System.Func<NServiceBus.Routing.EndpointInstance, string> rule) { }
         public NServiceBus.TransportExtensions ConnectionString(string connectionString) { }
         public NServiceBus.TransportExtensions ConnectionString(System.Func<string> connectionString) { }
         public NServiceBus.TransportExtensions ConnectionStringName(string name) { }
@@ -3055,7 +3055,7 @@ namespace NServiceBus.Transport
     }
     public class static LogicalAddressExtensions
     {
-        public static string GetTransportAddress(this NServiceBus.Settings.ReadOnlySettings settings, NServiceBus.LogicalAddress logicalAddress) { }
+        public static string GetTransportAddress(this NServiceBus.Settings.ReadOnlySettings settings, NServiceBus.LocalAddress localAddress) { }
     }
     public class MessageContext
     {
@@ -3125,9 +3125,8 @@ namespace NServiceBus.Transport
     }
     public class TransportAddresses
     {
-        public void AddRule(System.Func<NServiceBus.LogicalAddress, string> dynamicRule) { }
-        public void AddSpecialCase([JetBrains.Annotations.NotNullAttribute()] NServiceBus.LogicalAddress endpointInstance, string physicalAddress) { }
-        public void AddSpecialCase([JetBrains.Annotations.NotNullAttribute()] NServiceBus.Routing.EndpointInstance endpointInstance, string physicalAddress) { }
+        public void AddRule(System.Func<NServiceBus.Routing.EndpointInstance, string> dynamicRule) { }
+        public void AddSpecialCase(NServiceBus.Routing.EndpointInstance endpointInstance, string physicalAddress) { }
     }
     public abstract class TransportDefinition
     {
@@ -3159,14 +3158,14 @@ namespace NServiceBus.Transport
         public abstract NServiceBus.Transport.OutboundRoutingPolicy OutboundRoutingPolicy { get; }
         public bool RequireOutboxConsent { get; set; }
         public abstract NServiceBus.TransportTransactionMode TransactionMode { get; }
-        public abstract NServiceBus.Routing.EndpointInstance BindToLocalEndpoint(NServiceBus.Routing.EndpointInstance instance);
         public abstract NServiceBus.Transport.TransportReceiveInfrastructure ConfigureReceiveInfrastructure();
         public abstract NServiceBus.Transport.TransportSendInfrastructure ConfigureSendInfrastructure();
         public abstract NServiceBus.Transport.TransportSubscriptionInfrastructure ConfigureSubscriptionInfrastructure();
         public virtual string MakeCanonicalForm(string transportAddress) { }
         public virtual System.Threading.Tasks.Task Start() { }
         public virtual System.Threading.Tasks.Task Stop() { }
-        public abstract string ToTransportAddress(NServiceBus.LogicalAddress logicalAddress);
+        public abstract string ToTransportAddress(NServiceBus.LocalAddress localAddress);
+        public abstract string ToTransportAddress(NServiceBus.Routing.EndpointInstance endpointInstance);
     }
     public class TransportOperation
     {

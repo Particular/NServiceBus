@@ -102,7 +102,7 @@
             metadataRegistry = new MessageMetadataRegistry(new Conventions());
             endpointInstances = new EndpointInstances();
             subscriptionStorage = new FakeSubscriptionStorage();
-            transportAddresses = new TransportAddresses(address => address.ToString());
+            transportAddresses = new TransportAddresses(address => address.ToString(), address => address.ToString());
             router = new UnicastPublishRouter(
                 metadataRegistry,
                 subscriptionStorage,

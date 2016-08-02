@@ -11,7 +11,7 @@ namespace NServiceBus
             Defaults(s =>
             {
                 var transportInfrastructure = s.Get<TransportInfrastructure>();
-                s.SetDefault<TransportAddresses>(new TransportAddresses(transportInfrastructure.ToTransportAddress));
+                s.SetDefault<TransportAddresses>(new TransportAddresses(transportInfrastructure.ToTransportAddress, transportInfrastructure.ToTransportAddress));
             });
         }
 
