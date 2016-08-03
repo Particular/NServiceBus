@@ -59,7 +59,7 @@
             var outboundRoutingPolicy = transportInfrastructure.OutboundRoutingPolicy;
             context.Pipeline.Register(b =>
             {
-                var unicastSendRouter = new UnicastSendRouter(unicastRoutingTable, endpointInstances, i => transportInfrastructure.ToTransportAddress(new LogicalAddress(i)));
+                var unicastSendRouter = new UnicastSendRouter(unicastRoutingTable, endpointInstances, i => transportInfrastructure.ToTransportAddress(i));
                 return new UnicastSendRouterConnector(context.Settings.LocalAddress(), context.Settings.InstanceSpecificQueue(), unicastSendRouter, distributionPolicy);
             }, "Determines how the message being sent should be routed");
 
@@ -68,7 +68,7 @@
             {
                 context.Pipeline.Register(b =>
                 {
-                    var unicastPublishRouter = new UnicastPublishRouter(b.Build<MessageMetadataRegistry>(), b.Build<ISubscriptionStorage>(), endpointInstances, i => transportInfrastructure.ToTransportAddress(new LogicalAddress(i)));
+                    var unicastPublishRouter = new UnicastPublishRouter(b.Build<MessageMetadataRegistry>(), b.Build<ISubscriptionStorage>(), endpointInstances, i => transportInfrastructure.ToTransportAddress(i));
                     return new UnicastPublishRouterConnector(unicastPublishRouter, distributionPolicy);
                 }, "Determines how the published messages should be routed");
             }
@@ -86,7 +86,7 @@
                 if (outboundRoutingPolicy.Publishes == OutboundRoutingType.Unicast)
                 {
                     var subscriberAddress = distributorAddress ?? context.Settings.LocalAddress();
-                    var subscriptionRouter = new SubscriptionRouter(publishers, endpointInstances, i => transportInfrastructure.ToTransportAddress(new LogicalAddress(i)));
+                    var subscriptionRouter = new SubscriptionRouter(publishers, endpointInstances, i => transportInfrastructure.ToTransportAddress(i));
 
                     context.Pipeline.Register(b => new MessageDrivenSubscribeTerminator(subscriptionRouter, subscriberAddress, context.Settings.EndpointName(), b.Build<IDispatchMessages>()), "Sends subscription requests when message driven subscriptions is in use");
                     context.Pipeline.Register(b => new MessageDrivenUnsubscribeTerminator(subscriptionRouter, subscriberAddress, context.Settings.EndpointName(), b.Build<IDispatchMessages>()), "Sends requests to unsubscribe when message driven subscriptions is in use");

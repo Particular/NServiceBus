@@ -62,11 +62,11 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Overrides the default address translation rule "endpoint.quailfier-id@machine".
+        /// Overrides the default address translation rule "endpoint-identifier@machine".
         /// </summary>
         /// <param name="config">Config object.</param>
         /// <param name="translationRule">New translation rule.</param>
-        public static TransportExtensions<MsmqTransport> OverrideAddressTranslation(this TransportExtensions<MsmqTransport> config, Func<LogicalAddress, string> translationRule)
+        public static TransportExtensions<MsmqTransport> OverrideAddressTranslation(this TransportExtensions<MsmqTransport> config, Func<EndpointInstance, string> translationRule)
         {
             config.Settings.Set("NServiceBus.Transports.MSMQ.AddressTranslationRule", translationRule);
             return config;

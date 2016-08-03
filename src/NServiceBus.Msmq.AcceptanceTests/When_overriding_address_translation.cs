@@ -7,7 +7,7 @@
 
     public class When_overriding_address_translation : NServiceBusAcceptanceTest
     {
-        public static string DefaultReceiverAddress => Conventions.EndpointNamingConvention(typeof(Receiver));
+        static string DefaultReceiverAddress => Conventions.EndpointNamingConvention(typeof(Receiver));
 
         [Test]
         public async Task Should_use_the_overridden_rule()
@@ -39,7 +39,7 @@
                     routing.RouteToEndpoint(typeof(Message), DefaultReceiverAddress);
 
                     // add translation rule
-                    transport.OverrideAddressTranslation(a => "q_" + a.EndpointInstance.Endpoint);
+                    transport.OverrideAddressTranslation(a => "q_" + a.Endpoint);
                 });
             }
         }

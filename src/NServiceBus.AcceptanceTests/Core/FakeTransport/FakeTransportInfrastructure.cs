@@ -34,14 +34,14 @@
 
         public override OutboundRoutingPolicy OutboundRoutingPolicy { get; } = new OutboundRoutingPolicy(OutboundRoutingType.Unicast, OutboundRoutingType.Unicast, OutboundRoutingType.Unicast);
 
-        public override EndpointInstance BindToLocalEndpoint(EndpointInstance instance)
-        {
-            return instance;
-        }
-
         public override string ToTransportAddress(LogicalAddress logicalAddress)
         {
             return logicalAddress.ToString();
+        }
+
+        public override string ToTransportAddress(EndpointInstance endpointInstance)
+        {
+            return endpointInstance.ToString();
         }
 
         public override TransportReceiveInfrastructure ConfigureReceiveInfrastructure()

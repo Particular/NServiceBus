@@ -1,53 +1,39 @@
 ﻿namespace NServiceBus
 {
-    using System;
-    using JetBrains.Annotations;
-    using Routing;
-
     /// <summary>
     /// Represents a logical address (independent of transport).
     /// </summary>
-    public struct LogicalAddress
+    public class LogicalAddress
     {
         /// <summary>
         /// Creates new qualified logical address for the provided endpoint instance name.
         /// </summary>
-        /// <param name="endpointInstance">The name of the instance.</param>
+        /// <param name="instanceName">The name of the instance.</param>
         /// <param name="qualifier">The qualifier of this address.</param>
-        public LogicalAddress(EndpointInstance endpointInstance, [NotNull] string qualifier)
+        /// <param name="discriminator">The discriminator of this address.</param>
+        public LogicalAddress(string instanceName, string qualifier = null, string discriminator = null)
         {
-            if (qualifier == null)
-            {
-                throw new ArgumentNullException(nameof(qualifier));
-            }
-            EndpointInstance = endpointInstance;
+            Guard.AgainstNullAndEmpty(nameof(instanceName), instanceName);
+
+            InstanceName = instanceName;
             Qualifier = qualifier;
+            Discriminator = discriminator;
         }
 
         /// <summary>
-        /// Creates new root logical address for the provided endpoint instance name.
-        /// </summary>
-        /// <param name="endpointInstance">The name of the instance.</param>
-        public LogicalAddress(EndpointInstance endpointInstance)
-        {
-            EndpointInstance = endpointInstance;
-            Qualifier = null;
-        }
-
-        /// <summary>
-        /// Returns the qualifier or null for the root logical address for a given instance name.
+        /// Returns the qualifier or null for the logical endpoint.
         /// </summary>
         public string Qualifier { get; }
 
         /// <summary>
+        /// Returns the discriminator or null for the logical endpoint.
+        /// </summary>
+        public string Discriminator { get; }
+
+        /// <summary>
         /// Returns the instance name.
         /// </summary>
-        public EndpointInstance EndpointInstance { get; }
-
-        bool Equals(LogicalAddress other)
-        {
-            return string.Equals(Qualifier, other.Qualifier) && Equals(EndpointInstance, other.EndpointInstance);
-        }
+        public string InstanceName { get; }
 
         /// <summary>
         /// Returns a string that represents the current object.
@@ -57,61 +43,16 @@
         /// </returns>
         public override string ToString()
         {
+            var value = InstanceName;
+            if (Discriminator != null)
+            {
+                value += "-" + Discriminator;
+            }
             if (Qualifier != null)
             {
-                return EndpointInstance + "." + Qualifier;
+                value += "." + Qualifier;
             }
-            return EndpointInstance.ToString();
-        }
-
-        /// <summary>
-        /// Determines whether the specified object is equal to the current object.
-        /// </summary>
-        /// <returns>
-        /// true if the specified object  is equal to the current object; otherwise, false.
-        /// </returns>
-        /// <param name="obj">The object to compare with the current object. </param>
-        public override bool Equals(object obj)
-        {
-            if (ReferenceEquals(null, obj))
-            {
-                return false;
-            }
-            if (ReferenceEquals(this, obj))
-            {
-                return true;
-            }
-            return obj is LogicalAddress && Equals((LogicalAddress) obj);
-        }
-
-        /// <summary>
-        /// Serves as a hash function for a particular type.
-        /// </summary>
-        /// <returns>
-        /// A hash code for the current object.
-        /// </returns>
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                return ((Qualifier?.GetHashCode() ?? 0)*397) ^ (EndpointInstance?.GetHashCode() ?? 0);
-            }
-        }
-
-        /// <summary>
-        /// Checks for equality.
-        /// </summary>
-        public static bool operator ==(LogicalAddress left, LogicalAddress right)
-        {
-            return Equals(left, right);
-        }
-
-        /// <summary>
-        /// Checks for inequality.
-        /// </summary>
-        public static bool operator !=(LogicalAddress left, LogicalAddress right)
-        {
-            return !Equals(left, right);
+            return value;
         }
     }
 }

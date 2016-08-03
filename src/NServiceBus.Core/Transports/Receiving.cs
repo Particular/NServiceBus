@@ -3,7 +3,6 @@ namespace NServiceBus
     using System;
     using System.Threading.Tasks;
     using Features;
-    using Routing;
     using Transport;
 
     class Receiving : Feature
@@ -19,13 +18,12 @@ namespace NServiceBus
                 var baseQueueName = s.GetOrDefault<string>("BaseInputQueueName") ?? s.EndpointName();
                 if (userDiscriminator != null)
                 {
-                    var p = s.Get<TransportInfrastructure>().BindToLocalEndpoint(new EndpointInstance(baseQueueName, userDiscriminator));
-                    s.SetDefault("NServiceBus.EndpointSpecificQueue", transportInfrastructure.ToTransportAddress(new LogicalAddress(p)));
+                    s.SetDefault("NServiceBus.EndpointSpecificQueue", transportInfrastructure.ToTransportAddress(new LogicalAddress(baseQueueName, discriminator:userDiscriminator)));
                 }
-                var instanceProperties = s.Get<TransportInfrastructure>().BindToLocalEndpoint(new EndpointInstance(baseQueueName));
-                s.SetDefault("NServiceBus.SharedQueue", transportInfrastructure.ToTransportAddress(new LogicalAddress(instanceProperties)));
+                var logicalAddress = new LogicalAddress(baseQueueName);
+                s.SetDefault("NServiceBus.SharedQueue", transportInfrastructure.ToTransportAddress(logicalAddress));
 
-                s.SetDefault<EndpointInstance>(instanceProperties);
+                s.SetDefault<LogicalAddress>(logicalAddress);
             });
         }
 

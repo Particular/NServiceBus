@@ -745,14 +745,12 @@ namespace NServiceBus
     }
     [System.ObsoleteAttribute("Use `LoadMessageHandlersExtensions` instead. Will be removed in version 7.0.0.", true)]
     public class static LoadMessageHandlersExtentions { }
-    public struct LogicalAddress
+    public class LogicalAddress
     {
-        public LogicalAddress(NServiceBus.Routing.EndpointInstance endpointInstance, [JetBrains.Annotations.NotNullAttribute()] string qualifier) { }
-        public LogicalAddress(NServiceBus.Routing.EndpointInstance endpointInstance) { }
-        public NServiceBus.Routing.EndpointInstance EndpointInstance { get; }
+        public LogicalAddress(string instanceName, string qualifier = null, string discriminator = null) { }
+        public string Discriminator { get; }
+        public string InstanceName { get; }
         public string Qualifier { get; }
-        public override bool Equals(object obj) { }
-        public override int GetHashCode() { }
         public override string ToString() { }
     }
     public class MessageDeserializationException : System.Runtime.Serialization.SerializationException
@@ -797,7 +795,7 @@ namespace NServiceBus
     {
         public static NServiceBus.TransportExtensions<NServiceBus.MsmqTransport> ApplyLabelToMessages(this NServiceBus.TransportExtensions<NServiceBus.MsmqTransport> transportExtensions, System.Func<System.Collections.Generic.IReadOnlyDictionary<string, string>, string> labelGenerator) { }
         public static NServiceBus.FileRoutingTableSettings InstanceMappingFile(this NServiceBus.RoutingSettings<NServiceBus.MsmqTransport> config) { }
-        public static NServiceBus.TransportExtensions<NServiceBus.MsmqTransport> OverrideAddressTranslation(this NServiceBus.TransportExtensions<NServiceBus.MsmqTransport> config, System.Func<NServiceBus.LogicalAddress, string> translationRule) { }
+        public static NServiceBus.TransportExtensions<NServiceBus.MsmqTransport> OverrideAddressTranslation(this NServiceBus.TransportExtensions<NServiceBus.MsmqTransport> config, System.Func<NServiceBus.Routing.EndpointInstance, string> translationRule) { }
         public static void SetMessageDistributionStrategy(this NServiceBus.RoutingSettings<NServiceBus.MsmqTransport> config, string endpointName, NServiceBus.Routing.DistributionStrategy distributionStrategy) { }
         public static NServiceBus.TransportExtensions<NServiceBus.MsmqTransport> TransactionScopeOptions(this NServiceBus.TransportExtensions<NServiceBus.MsmqTransport> transportExtensions, System.Nullable<System.TimeSpan> timeout = null, System.Nullable<System.Transactions.IsolationLevel> isolationLevel = null) { }
     }
@@ -1115,7 +1113,7 @@ namespace NServiceBus
     }
     public class static SettingsExtensions
     {
-        public static NServiceBus.Routing.EndpointInstance EndpointInstanceName(this NServiceBus.Settings.ReadOnlySettings settings) { }
+        public static string EndpointInstanceName(this NServiceBus.Settings.ReadOnlySettings settings) { }
         public static string EndpointName(this NServiceBus.Settings.ReadOnlySettings settings) { }
         public static System.Collections.Generic.IList<System.Type> GetAvailableTypes(this NServiceBus.Settings.ReadOnlySettings settings) { }
         public static T GetConfigSection<T>(this NServiceBus.Settings.ReadOnlySettings settings)
@@ -3153,7 +3151,6 @@ namespace NServiceBus.Transport
         public abstract NServiceBus.Transport.OutboundRoutingPolicy OutboundRoutingPolicy { get; }
         public bool RequireOutboxConsent { get; set; }
         public abstract NServiceBus.TransportTransactionMode TransactionMode { get; }
-        public abstract NServiceBus.Routing.EndpointInstance BindToLocalEndpoint(NServiceBus.Routing.EndpointInstance instance);
         public abstract NServiceBus.Transport.TransportReceiveInfrastructure ConfigureReceiveInfrastructure();
         public abstract NServiceBus.Transport.TransportSendInfrastructure ConfigureSendInfrastructure();
         public abstract NServiceBus.Transport.TransportSubscriptionInfrastructure ConfigureSubscriptionInfrastructure();
@@ -3161,6 +3158,7 @@ namespace NServiceBus.Transport
         public virtual System.Threading.Tasks.Task Start() { }
         public virtual System.Threading.Tasks.Task Stop() { }
         public abstract string ToTransportAddress(NServiceBus.LogicalAddress logicalAddress);
+        public abstract string ToTransportAddress(NServiceBus.Routing.EndpointInstance endpointInstance);
     }
     public class TransportOperation
     {
