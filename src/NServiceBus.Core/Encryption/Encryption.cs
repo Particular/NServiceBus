@@ -1,9 +1,14 @@
-﻿namespace NServiceBus
+﻿namespace NServiceBus.Features
 {
-    using Features;
-
-    class Encryptor : Feature
+    class Encryption : Feature
     {
+        public Encryption()
+        {
+            Prerequisite(c => c.Settings.HasSetting(ConfigureRijndaelEncryptionService.EncryptedServiceContstructorKey), "Encryption service not defined.");
+
+            EnableByDefault();
+        }
+
         protected internal override void Setup(FeatureConfigurationContext context)
         {
             var serviceConstructor = context.Settings.GetEncryptionServiceConstructor();

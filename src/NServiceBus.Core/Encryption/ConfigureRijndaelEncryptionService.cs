@@ -170,7 +170,6 @@ namespace NServiceBus
         {
             Guard.AgainstNull(nameof(config), config);
 
-            config.EnableFeature<Encryptor>();
             config.Settings.Set(EncryptedServiceContstructorKey, func);
         }
 
@@ -214,7 +213,7 @@ namespace NServiceBus
             }
         }
 
-        const string EncryptedServiceContstructorKey = "EncryptionServiceConstructor";
+        internal const string EncryptedServiceContstructorKey = "EncryptionServiceConstructor";
 
         static readonly ILog Log = LogManager.GetLogger(typeof(ConfigureRijndaelEncryptionService));
     }
