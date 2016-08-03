@@ -5,14 +5,12 @@
     using System.Threading.Tasks;
     using Extensibility;
     using NServiceBus.Routing;
-    using Unicast.Messages;
     using NUnit.Framework;
 
     [TestFixture]
     public class UnicastSendRouterTests
     {
         UnicastSendRouter router;
-        MessageMetadataRegistry metadataRegistry;
         UnicastRoutingTable routingTable;
         EndpointInstances endpointInstances;
 
@@ -78,11 +76,9 @@
         [SetUp]
         public void Setup()
         {
-            metadataRegistry = new MessageMetadataRegistry(new Conventions());
             routingTable = new UnicastRoutingTable();
             endpointInstances = new EndpointInstances();
             router = new UnicastSendRouter(
-                metadataRegistry,
                 routingTable,
                 endpointInstances,
                 i => i.ToString());

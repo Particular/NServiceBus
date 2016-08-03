@@ -22,12 +22,12 @@ namespace NServiceBus
         public UnicastSendRouterConnector(
             string sharedQueue,
             string instanceSpecificQueue,
-            IUnicastRouter unicastRouter,
+            IUnicastSendRouter unicastSendRouter,
             DistributionPolicy distributionPolicy)
         {
             this.sharedQueue = sharedQueue;
             this.instanceSpecificQueue = instanceSpecificQueue;
-            this.unicastRouter = unicastRouter;
+            this.unicastSendRouter = unicastSendRouter;
             defaultDistributionPolicy = distributionPolicy;
         }
 
@@ -49,7 +49,7 @@ namespace NServiceBus
             var distributionPolicy = state.Option == RouteOption.RouteToSpecificInstance ? new SpecificInstanceDistributionPolicy(state.SpecificInstance) : defaultDistributionPolicy;
 
             var routingStrategies = string.IsNullOrEmpty(destination)
-                ? await unicastRouter.Route(messageType, distributionPolicy, context.Extensions).ConfigureAwait(false)
+                ? await unicastSendRouter.Route(messageType, distributionPolicy, context.Extensions).ConfigureAwait(false)
                 : RouteToDestination(destination);
 
             context.Headers[Headers.MessageIntent] = MessageIntentEnum.Send.ToString();
@@ -77,7 +77,7 @@ namespace NServiceBus
         IDistributionPolicy defaultDistributionPolicy;
         string instanceSpecificQueue;
         string sharedQueue;
-        IUnicastRouter unicastRouter;
+        IUnicastSendRouter unicastSendRouter;
 
         public class State
         {

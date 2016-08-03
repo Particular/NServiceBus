@@ -59,7 +59,7 @@
             var outboundRoutingPolicy = transportInfrastructure.OutboundRoutingPolicy;
             context.Pipeline.Register(b =>
             {
-                var unicastSendRouter = new UnicastSendRouter(b.Build<MessageMetadataRegistry>(), unicastRoutingTable, endpointInstances, i => transportInfrastructure.ToTransportAddress(new LogicalAddress(i)));
+                var unicastSendRouter = new UnicastSendRouter(unicastRoutingTable, endpointInstances, i => transportInfrastructure.ToTransportAddress(new LogicalAddress(i)));
                 return new UnicastSendRouterConnector(context.Settings.LocalAddress(), context.Settings.InstanceSpecificQueue(), unicastSendRouter, distributionPolicy);
             }, "Determines how the message being sent should be routed");
 

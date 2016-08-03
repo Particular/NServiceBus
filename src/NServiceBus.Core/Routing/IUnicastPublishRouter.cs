@@ -6,7 +6,7 @@ namespace NServiceBus
     using Extensibility;
     using Routing;
 
-    interface IUnicastRouter
+    interface IUnicastPublishRouter
     {
         Task<IEnumerable<UnicastRoutingStrategy>> Route(Type messageType, IDistributionPolicy distributionPolicy, ContextBag contextBag);
     }

@@ -10,9 +10,9 @@ namespace NServiceBus
 
     class UnicastPublishRouterConnector : StageConnector<IOutgoingPublishContext, IOutgoingLogicalMessageContext>
     {
-        public UnicastPublishRouterConnector(IUnicastRouter unicastRouter, DistributionPolicy distributionPolicy)
+        public UnicastPublishRouterConnector(IUnicastPublishRouter unicastPublishRouter, DistributionPolicy distributionPolicy)
         {
-            this.unicastRouter = unicastRouter;
+            this.unicastPublishRouter = unicastPublishRouter;
             this.distributionPolicy = distributionPolicy;
         }
 
@@ -40,11 +40,11 @@ namespace NServiceBus
 
         async Task<List<UnicastRoutingStrategy>> GetRoutingStrategies(IOutgoingPublishContext context, Type eventType)
         {
-            var addressLabels = await unicastRouter.Route(eventType, distributionPolicy, context.Extensions).ConfigureAwait(false);
+            var addressLabels = await unicastPublishRouter.Route(eventType, distributionPolicy, context.Extensions).ConfigureAwait(false);
             return addressLabels.ToList();
         }
 
         DistributionPolicy distributionPolicy;
-        IUnicastRouter unicastRouter;
+        IUnicastPublishRouter unicastPublishRouter;
     }
 }
