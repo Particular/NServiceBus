@@ -30,14 +30,39 @@ namespace NServiceBus.Routing
                 return AddAsyncDynamicRules(messageType, contextBag, routes);
             }
 
+            if (routes.Count > 1)
+            {
+                throw new Exception($"Found ambiguous routes for message '{messageType.Name}'. Check your dynamic and static routes and avoid multiple routes for the same message type.");
+            }
+
             return Task.FromResult<IEnumerable<IUnicastRoute>>(routes);
         }
 
         /// <summary>
         /// Adds a static unicast route for a given message type.
         /// </summary>
+        /// /// <param name="messageType">The message type to use the route for.</param>
+        /// <param name="route">The route to use for the given message type.</param>
+        /// <exception cref="Exception">Throws an exception when an ambiguous route exists.</exception>
         public void RouteTo(Type messageType, IUnicastRoute route)
         {
+            RouteTo(messageType, route, false);
+        }
+
+        /// <summary>
+        /// Adds a static unicast route for a given message type.
+        /// </summary>
+        /// <param name="messageType">The message type to use the route for.</param>
+        /// <param name="route">The route to use for the given message type.</param>
+        /// <param name="overrideExistingRoute">Will override an existing route for the message type without throwing an exception when set to <code>true</code>.</param>
+        /// <exception cref="Exception">Throws an exception when an ambiguous route exists and <paramref name="overrideExistingRoute"/> is not set to <code>true</code>.</exception>
+        public void RouteTo(Type messageType, IUnicastRoute route, bool overrideExistingRoute)
+        {
+            if (!overrideExistingRoute && staticRoutes.ContainsKey(messageType))
+            {
+                throw new Exception($"The static routing table already contains a route for message '{messageType.Name}'. Remove the ambiguous route registrations or override the existing route.");
+            }
+
             staticRoutes[messageType] = route;
         }
 
@@ -61,11 +86,16 @@ namespace NServiceBus.Routing
             dynamicRules.Add(dynamicRule);
         }
 
-        async Task<IEnumerable<IUnicastRoute>> AddAsyncDynamicRules(Type messageTypes, ContextBag contextBag, List<IUnicastRoute> routes)
+        async Task<IEnumerable<IUnicastRoute>> AddAsyncDynamicRules(Type messageType, ContextBag contextBag, List<IUnicastRoute> routes)
         {
             foreach (var rule in asyncDynamicRules)
             {
-                routes.AddRange(await rule.Invoke(messageTypes, contextBag).ConfigureAwait(false));
+                routes.AddRange(await rule.Invoke(messageType, contextBag).ConfigureAwait(false));
+            }
+
+            if (routes.Count > 1)
+            {
+                throw new Exception($"Found ambiguous routes for message '{messageType.Name}'. Check your dynamic and static routes and avoid multiple routes for the same message type.");
             }
 
             return routes;
