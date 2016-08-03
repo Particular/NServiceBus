@@ -68,7 +68,7 @@ namespace NServiceBus
         public static string EndpointInstanceName(this ReadOnlySettings settings)
         {
             Guard.AgainstNull(nameof(settings), settings);
-            return settings.Get<LogicalAddress>().InstanceName;
+            return settings.Get<LocalAddress>().InstanceName;
         }
 
         /// <summary>

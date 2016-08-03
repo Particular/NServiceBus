@@ -3,15 +3,15 @@
     /// <summary>
     /// Represents a logical address (independent of transport).
     /// </summary>
-    public class LogicalAddress
+    public class LocalAddress
     {
         /// <summary>
-        /// Creates new qualified logical address for the provided endpoint instance name.
+        /// Creates new qualified local address for the provided endpoint instance name.
         /// </summary>
         /// <param name="instanceName">The name of the instance.</param>
         /// <param name="qualifier">The qualifier of this address.</param>
         /// <param name="discriminator">The discriminator of this address.</param>
-        public LogicalAddress(string instanceName, string qualifier = null, string discriminator = null)
+        public LocalAddress(string instanceName, string qualifier = null, string discriminator = null)
         {
             Guard.AgainstNullAndEmpty(nameof(instanceName), instanceName);
 
@@ -21,12 +21,12 @@
         }
 
         /// <summary>
-        /// Returns the qualifier or null for the logical endpoint.
+        /// Returns the qualifier or null for the local endpoint.
         /// </summary>
         public string Qualifier { get; }
 
         /// <summary>
-        /// Returns the discriminator or null for the logical endpoint.
+        /// Returns the discriminator or null for the local endpoint.
         /// </summary>
         public string Discriminator { get; }
 

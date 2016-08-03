@@ -8,12 +8,12 @@ namespace NServiceBus.Transport
     public static class LogicalAddressExtensions
     {
         /// <summary>
-        /// Gets the native transport address for the given logical address.
+        /// Gets the native transport address for the given local address.
         /// </summary>
         /// <returns>The native transport address.</returns>
-        public static string GetTransportAddress(this ReadOnlySettings settings, LogicalAddress logicalAddress)
+        public static string GetTransportAddress(this ReadOnlySettings settings, LocalAddress localAddress)
         {
-            return settings.Get<TransportInfrastructure>().ToTransportAddress(logicalAddress);
+            return settings.Get<TransportInfrastructure>().ToTransportAddress(localAddress);
         }
     }
 }

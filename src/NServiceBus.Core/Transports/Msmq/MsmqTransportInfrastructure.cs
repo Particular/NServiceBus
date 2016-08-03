@@ -47,18 +47,18 @@ namespace NServiceBus
             return new ReceiveWithNativeTransaction(new MsmqFailureInfoStorage(1000));
         }
 
-        public override string ToTransportAddress(LogicalAddress logicalAddress)
+        public override string ToTransportAddress(LocalAddress localAddress)
         {
-            var address = new StringBuilder(logicalAddress.InstanceName);
+            var address = new StringBuilder(localAddress.InstanceName);
 
-            if (logicalAddress.Discriminator != null)
+            if (localAddress.Discriminator != null)
             {
-                address.Append("-" + logicalAddress.Discriminator);
+                address.Append("-" + localAddress.Discriminator);
             }
 
-            if (logicalAddress.Qualifier != null)
+            if (localAddress.Qualifier != null)
             {
-                address.Append("." + logicalAddress.Qualifier);
+                address.Append("." + localAddress.Qualifier);
             }
 
             return address + "@" + RuntimeEnvironment.MachineName;

@@ -745,9 +745,9 @@ namespace NServiceBus
     }
     [System.ObsoleteAttribute("Use `LoadMessageHandlersExtensions` instead. Will be removed in version 7.0.0.", true)]
     public class static LoadMessageHandlersExtentions { }
-    public class LogicalAddress
+    public class LocalAddress
     {
-        public LogicalAddress(string instanceName, string qualifier = null, string discriminator = null) { }
+        public LocalAddress(string instanceName, string qualifier = null, string discriminator = null) { }
         public string Discriminator { get; }
         public string InstanceName { get; }
         public string Qualifier { get; }
@@ -3053,7 +3053,7 @@ namespace NServiceBus.Transport
     }
     public class static LogicalAddressExtensions
     {
-        public static string GetTransportAddress(this NServiceBus.Settings.ReadOnlySettings settings, NServiceBus.LogicalAddress logicalAddress) { }
+        public static string GetTransportAddress(this NServiceBus.Settings.ReadOnlySettings settings, NServiceBus.LocalAddress localAddress) { }
     }
     public class MessageContext
     {
@@ -3157,7 +3157,7 @@ namespace NServiceBus.Transport
         public virtual string MakeCanonicalForm(string transportAddress) { }
         public virtual System.Threading.Tasks.Task Start() { }
         public virtual System.Threading.Tasks.Task Stop() { }
-        public abstract string ToTransportAddress(NServiceBus.LogicalAddress logicalAddress);
+        public abstract string ToTransportAddress(NServiceBus.LocalAddress localAddress);
         public abstract string ToTransportAddress(NServiceBus.Routing.EndpointInstance endpointInstance);
     }
     public class TransportOperation

@@ -18,12 +18,12 @@ namespace NServiceBus
                 var baseQueueName = s.GetOrDefault<string>("BaseInputQueueName") ?? s.EndpointName();
                 if (userDiscriminator != null)
                 {
-                    s.SetDefault("NServiceBus.EndpointSpecificQueue", transportInfrastructure.ToTransportAddress(new LogicalAddress(baseQueueName, discriminator:userDiscriminator)));
+                    s.SetDefault("NServiceBus.EndpointSpecificQueue", transportInfrastructure.ToTransportAddress(new LocalAddress(baseQueueName, discriminator:userDiscriminator)));
                 }
-                var logicalAddress = new LogicalAddress(baseQueueName);
+                var logicalAddress = new LocalAddress(baseQueueName);
                 s.SetDefault("NServiceBus.SharedQueue", transportInfrastructure.ToTransportAddress(logicalAddress));
 
-                s.SetDefault<LogicalAddress>(logicalAddress);
+                s.SetDefault<LocalAddress>(logicalAddress);
             });
         }
 
