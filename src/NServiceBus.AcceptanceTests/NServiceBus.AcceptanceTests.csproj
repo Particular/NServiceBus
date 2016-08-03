@@ -58,6 +58,7 @@
     <Compile Include="Basic\When_depending_on_untyped_feature.cs" />
     <Compile Include="Basic\When_extending_behavior_context.cs" />
     <Compile Include="Encryption\When_using_Rijndael_with_unobtrusive_mode.cs" />
+    <Compile Include="Performance\TimeToBeReceived\When_TimeToBeReceived_used_with_unobtrusive_mode.cs" />
     <Compile Include="Recoverability\Retries\When_custom_policy_provided.cs" />
     <Compile Include="Recoverability\When_custom_policy_moves_to_overridden_error_queue.cs" />
     <Compile Include="Recoverability\When_message_is_moved_to_error_queue_with_header_customizations.cs" />
