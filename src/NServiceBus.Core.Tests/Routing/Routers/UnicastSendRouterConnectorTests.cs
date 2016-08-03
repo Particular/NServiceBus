@@ -166,14 +166,14 @@
         [Test]
         public async Task Should_route_using_the_mappings_if_no_destination_is_set()
         {
-            var strategy = new FakeSendRouter
+            var router = new FakeSendRouter
             {
                 FixedDestination = new[]
                 {
                     new UnicastRoutingStrategy("MappedDestination")
                 }
             };
-            var behavior = InitializeBehavior(router: strategy);
+            var behavior = InitializeBehavior(router: router);
             var options = new SendOptions();
 
             var context = CreateContext(options);
@@ -191,14 +191,14 @@
         [Test]
         public void Should_throw_if_no_route_can_be_found()
         {
-            var strategy = new FakeSendRouter
+            var router = new FakeSendRouter
             {
                 FixedDestination = new UnicastRoutingStrategy[]
                 {
                 }
             };
 
-            var behavior = InitializeBehavior(router: strategy);
+            var behavior = InitializeBehavior(router: router);
             var options = new SendOptions();
 
             var context = CreateContext(options, new MessageWithoutRouting());
