@@ -131,14 +131,6 @@
             }))))).SelectMany(x => x);
         }
 
-        static Task<IEnumerable<UnicastRoutingTarget>> RetrieveRoutingTarget(IUnicastRoute result)
-        {
-            return result.Resolve(x => Task.FromResult<IEnumerable<EndpointInstance>>(new[]
-            {
-                new EndpointInstance(x)
-            }));
-        }
-
         string expectedExceptionMessageForWrongEndpointName = "A logical endpoint name should not contain '@', but received 'EndpointName@MyHost'. To specify an endpoint's address, use the instance mapping file for the MSMQ transport, or refer to the routing documentation.";
     }
 }
