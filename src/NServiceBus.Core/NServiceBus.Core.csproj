@@ -336,7 +336,7 @@
     <Compile Include="Encryption\DecryptBehavior.cs" />
     <Compile Include="Encryption\EncryptBehavior.cs" />
     <Compile Include="Encryption\EncryptedValue.cs" />
-    <Compile Include="Encryption\Encryptor.cs" />
+    <Compile Include="Encryption\Encryption.cs" />
     <Compile Include="Encryption\KeyFormat.cs" />
     <Compile Include="Encryption\RijndaelEncryptionServiceConfigValidations.cs" />
     <Compile Include="Encryption\RijndaelExpiredKey.cs" />

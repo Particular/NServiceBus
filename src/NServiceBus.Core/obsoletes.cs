@@ -898,6 +898,12 @@ namespace NServiceBus.Features
     public class ConfigureTransport
     {
     }
+
+    [ObsoleteEx(
+        RemoveInVersion = "7.0",
+        TreatAsErrorFromVersion = "6.0",
+        Message = "Encryption is no longer enabled by default. Encryption gets enabled by calling configuration.RegisterEncryptionService or configuration.RijndaelEncryptionService.")]
+    public class Encryptor { }
 }
 
 namespace NServiceBus.Transports

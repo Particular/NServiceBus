@@ -1,10 +1,10 @@
+// ReSharper disable ReturnTypeCanBeEnumerable.Local
 namespace NServiceBus
 {
     using System;
     using System.Collections;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
-    using System.Linq;
     using System.Reflection;
 
     class EncryptionInspector
@@ -48,22 +48,24 @@ namespace NServiceBus
             return false;
         }
 
-        public IEnumerable<Tuple<object, MemberInfo>> ScanObject(object root)
+        public List<Tuple<object, MemberInfo>> ScanObject(object root)
         {
             var visitedMembers = new HashSet<object>();
             return ScanObject(root, visitedMembers);
         }
 
-        IEnumerable<Tuple<object, MemberInfo>> ScanObject(object root, ISet<object> visitedMembers)
+        List<Tuple<object, MemberInfo>> ScanObject(object root, HashSet<object> visitedMembers)
         {
             if (root == null || visitedMembers.Contains(root))
             {
-                yield break;
+                return AlreadyVisited;
             }
 
             visitedMembers.Add(root);
 
             var members = GetFieldsAndProperties(root);
+
+            var properties = new List<Tuple<object, MemberInfo>>();
 
             foreach (var member in members)
             {
@@ -72,12 +74,10 @@ namespace NServiceBus
                     var value = member.GetValue(root);
                     if (value is string || value is WireEncryptedString)
                     {
-                        yield return Tuple.Create(root, member);
+                        properties.Add(Tuple.Create(root, member));
+                        continue;
                     }
-                    else
-                    {
-                        throw new Exception("Only string properties are supported for convention based encryption. Check the configured conventions.");
-                    }
+                    throw new Exception("Only string properties are supported for convention based encryption. Check the configured conventions.");
                 }
 
                 //don't recurse over primitives or system types
@@ -115,59 +115,52 @@ namespace NServiceBus
                             break;
                         }
 
-                        foreach (var i in ScanObject(item, visitedMembers))
-                        {
-                            yield return i;
-                        }
+                        properties.AddRange(ScanObject(item, visitedMembers));
                     }
                 }
                 else
                 {
-                    foreach (var i in ScanObject(child, visitedMembers))
-                    {
-                        yield return i;
-                    }
+                    properties.AddRange(ScanObject(child, visitedMembers));
                 }
             }
+            return properties;
         }
 
-        static IEnumerable<MemberInfo> GetFieldsAndProperties(object target)
+        static List<MemberInfo> GetFieldsAndProperties(object target)
         {
             if (target == null)
             {
-                return new List<MemberInfo>();
+                return NoMembers;
             }
 
-            var messageType = target.GetType();
-
-            IEnumerable<MemberInfo> members;
-            if (!cache.TryGetValue(messageType.TypeHandle, out members))
+            return cache.GetOrAdd(target.GetType().TypeHandle, typeHandle =>
             {
-                cache[messageType.TypeHandle] = members = messageType.GetMembers(BindingFlags.Public | BindingFlags.Instance)
-                    .Where(m =>
+                var messageType = Type.GetTypeFromHandle(typeHandle);
+                var members = new List<MemberInfo>();
+                foreach (var member in messageType.GetMembers(BindingFlags.Public | BindingFlags.Instance))
+                {
+                    var fieldInfo = member as FieldInfo;
+                    if (fieldInfo != null && !fieldInfo.IsInitOnly)
                     {
-                        var fieldInfo = m as FieldInfo;
-                        if (fieldInfo != null)
-                        {
-                            return !fieldInfo.IsInitOnly;
-                        }
+                        members.Add(fieldInfo);
+                    }
 
-                        var propInfo = m as PropertyInfo;
-                        if (propInfo != null)
-                        {
-                            return propInfo.CanWrite;
-                        }
-
-                        return false;
-                    })
-                    .ToList();
-            }
-
-            return members;
+                    var propInfo = member as PropertyInfo;
+                    if (propInfo != null && propInfo.CanWrite)
+                    {
+                        members.Add(propInfo);
+                    }
+                }
+                return members;
+            });
         }
 
         Conventions conventions;
 
-        static ConcurrentDictionary<RuntimeTypeHandle, IEnumerable<MemberInfo>> cache = new ConcurrentDictionary<RuntimeTypeHandle, IEnumerable<MemberInfo>>();
+        static List<MemberInfo> NoMembers = new List<MemberInfo>(0);
+
+        static List<Tuple<object, MemberInfo>> AlreadyVisited = new List<Tuple<object, MemberInfo>>(0);
+
+        static ConcurrentDictionary<RuntimeTypeHandle, List<MemberInfo>> cache = new ConcurrentDictionary<RuntimeTypeHandle, List<MemberInfo>>();
     }
 }

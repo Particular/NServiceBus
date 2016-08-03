@@ -1687,9 +1687,12 @@ namespace NServiceBus.Features
     {
         protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
     }
-    public class Encryptor : NServiceBus.Features.Feature
+    [System.ObsoleteAttribute("Encryption is no longer enabled by default. Encryption gets enabled by calling co" +
+        "nfiguration.RegisterEncryptionService or configuration.RijndaelEncryptionService" +
+        ". Will be removed in version 7.0.0.", true)]
+    public class Encryptor
     {
-        protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
+        public Encryptor() { }
     }
     public abstract class Feature
     {
