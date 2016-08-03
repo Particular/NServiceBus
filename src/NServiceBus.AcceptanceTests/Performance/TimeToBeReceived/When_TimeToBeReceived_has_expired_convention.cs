@@ -57,7 +57,7 @@
                     {
                         if (messageType == typeof(MyMessage))
                         {
-                            return TimeSpan.Parse("00:00:02");
+                            return TimeSpan.FromSeconds(2);
                         }
                         return TimeSpan.MaxValue;
                     });

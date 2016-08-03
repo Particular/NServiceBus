@@ -1,47 +1,65 @@
 ﻿namespace NServiceBus
 {
     using System;
+    using System.Collections.Concurrent;
     using System.Collections.Generic;
-    using System.Linq;
 
     class TimeToBeReceivedMappings
     {
-        public TimeToBeReceivedMappings(IEnumerable<Type> knownMessages, Func<Type, TimeSpan> convention)
+        public TimeToBeReceivedMappings(IEnumerable<Type> knownMessages, Func<Type, TimeSpan> convention, bool doesTransportSupportDiscardIfNotReceivedBefore)
         {
-            mappings = new Dictionary<Type, TimeSpan>();
+            this.doesTransportSupportDiscardIfNotReceivedBefore = doesTransportSupportDiscardIfNotReceivedBefore;
+            this.convention = convention;
+
+            mappings = new ConcurrentDictionary<Type, TimeSpan>();
 
             foreach (var messageType in knownMessages)
             {
-                var timeToBeReceived = convention(messageType);
-
-                if (timeToBeReceived <= TimeSpan.Zero)
-                {
-                    throw new Exception("TimeToBeReceived must be greater that 0");
-                }
-
-                if (timeToBeReceived < TimeSpan.MaxValue)
-                {
-                    mappings[messageType] = timeToBeReceived;
-                }
+                mappings[messageType] = GetTimeToBeReceived(convention, messageType, doesTransportSupportDiscardIfNotReceivedBefore);
             }
         }
 
-        public bool HasEntries => mappings.Any();
-
         public bool TryGetTimeToBeReceived(Type messageType, out TimeSpan timeToBeReceived)
         {
-            return mappings.TryGetValue(messageType, out timeToBeReceived);
+            timeToBeReceived = mappings.GetOrAdd(messageType, type => GetTimeToBeReceived(convention, type, doesTransportSupportDiscardIfNotReceivedBefore));
+            return timeToBeReceived != TimeSpan.MaxValue;
         }
 
-        Dictionary<Type, TimeSpan> mappings;
+        // ReSharper disable once UnusedParameter.Local
+        static TimeSpan GetTimeToBeReceived(Func<Type, TimeSpan> convention, Type messageType, bool doesTransportSupportDiscardIfNotReceivedBefore)
+        {
+            var timeToBeReceived = convention(messageType);
+
+            if (timeToBeReceived < TimeSpan.MaxValue && !doesTransportSupportDiscardIfNotReceivedBefore)
+            {
+                throw new Exception("Messages with TimeToBeReceived found but the selected transport does not support this type of restriction. Remove TTBR from messages or select a transport that does support TTBR");
+            }
+
+            if (timeToBeReceived <= TimeSpan.Zero)
+            {
+                throw new Exception("TimeToBeReceived must be greater that 0");
+            }
+            return timeToBeReceived;
+        }
+
+        ConcurrentDictionary<Type, TimeSpan> mappings;
+
+        Func<Type, TimeSpan> convention;
+
+        bool doesTransportSupportDiscardIfNotReceivedBefore;
 
         public static Func<Type, TimeSpan> DefaultConvention = t =>
         {
-            var attributes = t.GetCustomAttributes(typeof(TimeToBeReceivedAttribute), true)
-                .Select(s => s as TimeToBeReceivedAttribute)
-                .ToList();
-
-            return attributes.Count > 0 ? attributes.Last().TimeToBeReceived : TimeSpan.MaxValue;
+            var timeToBeReceived = TimeSpan.MaxValue;
+            foreach (var customAttribute in t.GetCustomAttributes(typeof(TimeToBeReceivedAttribute), true))
+            {
+                var attribute = customAttribute as TimeToBeReceivedAttribute;
+                if (attribute != null)
+                {
+                    timeToBeReceived = attribute.TimeToBeReceived;
+                }
+            }
+            return timeToBeReceived;
         };
     }
 }
