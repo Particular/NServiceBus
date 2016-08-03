@@ -20,7 +20,7 @@ namespace NServiceBus
 
             this.settings = settings;
             this.connectionString = connectionString;
-            this.addressTranslationRule = settings.GetOrDefault<Func<LogicalAddress, string>>("NServiceBus.Transports.MSMQ.AddressTranslationRule") ?? DefaultAddressTranslationRule;
+            this.addressTranslationRule = settings.GetOrDefault<Func<EndpointInstance, string>>("NServiceBus.Transports.MSMQ.AddressTranslationRule") ?? DefaultAddressTranslationRule;
         }
 
         public override IEnumerable<Type> DeliveryConstraints { get; } = new[]
@@ -47,31 +47,45 @@ namespace NServiceBus
             return new ReceiveWithNativeTransaction(new MsmqFailureInfoStorage(1000));
         }
 
-        public override EndpointInstance BindToLocalEndpoint(EndpointInstance instance) => instance.AtMachine(RuntimeEnvironment.MachineName);
-
-        public override string ToTransportAddress(LogicalAddress logicalAddress)
+        public override string ToTransportAddress(LocalAddress localAddress)
         {
-            return addressTranslationRule(logicalAddress);
+            var address = new StringBuilder(localAddress.InstanceName);
+
+            if (localAddress.Discriminator != null)
+            {
+                address.Append("-" + localAddress.Discriminator);
+            }
+
+            if (localAddress.Qualifier != null)
+            {
+                address.Append("." + localAddress.Qualifier);
+            }
+
+            return address + "@" + RuntimeEnvironment.MachineName;
         }
 
-        static string DefaultAddressTranslationRule(LogicalAddress logicalAddress)
+        public override string ToTransportAddress(EndpointInstance endpointInstance)
         {
-            string machine;
-            if (!logicalAddress.EndpointInstance.Properties.TryGetValue("machine", out machine))
+            return addressTranslationRule(endpointInstance);
+        }
+
+        static string DefaultAddressTranslationRule(EndpointInstance endpointInstance)
+        {
+            var address = new StringBuilder(endpointInstance.Endpoint);
+
+            if (endpointInstance.Discriminator != null)
             {
-                machine = RuntimeEnvironment.MachineName;
+                address.Append("-" + endpointInstance.Discriminator);
             }
 
-            var queue = new StringBuilder(logicalAddress.EndpointInstance.Endpoint);
-            if (logicalAddress.EndpointInstance.Discriminator != null)
+            string machineName;
+            if (!endpointInstance.Properties.TryGetValue("machine", out machineName))
             {
-                queue.Append("-" + logicalAddress.EndpointInstance.Discriminator);
+                machineName = RuntimeEnvironment.MachineName;
             }
-            if (logicalAddress.Qualifier != null)
-            {
-                queue.Append("." + logicalAddress.Qualifier);
-            }
-            return queue + "@" + machine;
+
+            address.Append("@").Append(machineName);
+            return address.ToString();
         }
 
         public override string MakeCanonicalForm(string transportAddress)
@@ -147,6 +161,6 @@ namespace NServiceBus
 
         string connectionString;
         ReadOnlySettings settings;
-        Func<LogicalAddress, string> addressTranslationRule;
+        Func<EndpointInstance, string> addressTranslationRule;
     }
 }

@@ -54,13 +54,12 @@
 
         class FakeTransportInfrastructure : TransportInfrastructure
         {
-
-            public override EndpointInstance BindToLocalEndpoint(EndpointInstance instance)
+            public override string ToTransportAddress(LocalAddress localAddress)
             {
                 throw new NotImplementedException();
             }
 
-            public override string ToTransportAddress(LogicalAddress logicalAddress)
+            public override string ToTransportAddress(EndpointInstance endpointInstance)
             {
                 throw new NotImplementedException();
             }

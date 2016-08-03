@@ -86,14 +86,14 @@
             public override TransportTransactionMode TransactionMode { get; } = TransportTransactionMode.None;
             public override OutboundRoutingPolicy OutboundRoutingPolicy { get; } = new OutboundRoutingPolicy(OutboundRoutingType.Unicast, OutboundRoutingType.Unicast, OutboundRoutingType.Unicast);
 
-            public override EndpointInstance BindToLocalEndpoint(EndpointInstance instance)
+            public override string ToTransportAddress(LocalAddress localAddress)
             {
-                return instance;
+                return localAddress.ToString();
             }
 
-            public override string ToTransportAddress(LogicalAddress logicalAddress)
+            public override string ToTransportAddress(EndpointInstance endpointInstance)
             {
-                return logicalAddress.ToString();
+                return endpointInstance.ToString();
             }
 
             public override TransportReceiveInfrastructure ConfigureReceiveInfrastructure()
