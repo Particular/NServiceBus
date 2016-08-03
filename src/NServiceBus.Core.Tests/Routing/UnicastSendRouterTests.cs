@@ -30,7 +30,7 @@
         public async Task When_multiple_dynamic_instances_for_logical_endpoints_should_route_message_to_a_single_instance()
         {
             var sales = "Sales";
-            routingTable.AddDynamic((t, c) => new[] { UnicastRoute.CreateFromEndpointName(sales) });
+            routingTable.AddDynamic((t, c) => UnicastRoute.CreateFromEndpointName(sales));
 
             endpointInstances.Add(new EndpointInstance(sales, "1"));
             endpointInstances.AddDynamic(e => Task.FromResult(EnumerableEx.Single(new EndpointInstance(sales, "2"))));

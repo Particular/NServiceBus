@@ -1,8 +1,6 @@
 ﻿namespace NServiceBus.Core.Tests.Routing
 {
     using System;
-    using System.Collections.Generic;
-    using System.Linq;
     using System.Threading.Tasks;
     using Extensibility;
     using NServiceBus.Routing;
@@ -32,49 +30,70 @@
             routingTable.RouteTo(typeof(Command), UnicastRoute.CreateFromEndpointInstance(new EndpointInstance("billing")), true);
             routingTable.RouteTo(typeof(Command), expectedRoute, true);
 
-            var routes = await routingTable.GetDestinationsFor(typeof(Command), new ContextBag());
+            var route = await routingTable.GetRouteFor(typeof(Command), new ContextBag());
 
-            Assert.That(routes, Has.Count.EqualTo(1));
-            Assert.That(routes.Single(), Is.EqualTo(expectedRoute));
+            Assert.That(route, Is.EqualTo(expectedRoute));
         }
 
         [Test]
-        public void When_returning_multiple_dynamic_routes_for_same_type_should_throw_exceptions()
+        public async Task When_static_rule_matches_should_not_execute_dynamic_rules()
         {
             var routingTable = new UnicastRoutingTable();
-            routingTable.AddDynamic((t, c) => new[]
-            {
-                UnicastRoute.CreateFromPhysicalAddress("a")
-            });
-            routingTable.AddDynamic((t, c) => new[]
-            {
-                UnicastRoute.CreateFromPhysicalAddress("b")
-            });
-            routingTable.AddDynamic((t, c) => Task.FromResult<IEnumerable<IUnicastRoute>>(new[]
-            {
-                UnicastRoute.CreateFromPhysicalAddress("c")
-            }));
+            var staticRoute = UnicastRoute.CreateFromPhysicalAddress("somewhere");
+            routingTable.RouteTo(typeof(Command), staticRoute);
+            routingTable.AddDynamic((t,c) => ThrowSync());
+            routingTable.AddDynamic((t,c) => Task.FromResult(ThrowSync()));
 
-            var exception = Assert.ThrowsAsync<Exception>(() => routingTable.GetDestinationsFor(typeof(Command), new ContextBag()));
-            Assert.That(exception.Message, Does.Contain($"Found ambiguous routes for message '{nameof(Command)}'. Check your dynamic and static routes and avoid multiple routes for the same message type."));
+            var route = await routingTable.GetRouteFor(typeof(Command), new ContextBag());
+
+            Assert.That(route, Is.EqualTo(staticRoute));
         }
 
         [Test]
-        public void When_static_and_dynamic_routes_found_for_same_type_should_throw_exception()
+        public async Task When_returning_dynamic_routes_for_same_type_return_route_from_first_matching_rule()
         {
             var routingTable = new UnicastRoutingTable();
-            routingTable.RouteTo(typeof(Command), UnicastRoute.CreateFromEndpointName("a"));
-            routingTable.AddDynamic((t, c) => new[]
-            {
-                UnicastRoute.CreateFromPhysicalAddress("b")
-            });
-            routingTable.AddDynamic((t, c) => Task.FromResult<IEnumerable<IUnicastRoute>>(new[]
-            {
-                UnicastRoute.CreateFromPhysicalAddress("c")
-            }));
+            var firstMatch = UnicastRoute.CreateFromPhysicalAddress("a");
+            routingTable.AddDynamic((t, c) => (IUnicastRoute)null);
+            routingTable.AddDynamic((t, c) => firstMatch);
+            routingTable.AddDynamic((t, c) => UnicastRoute.CreateFromPhysicalAddress("c"));
 
-            var exception = Assert.ThrowsAsync<Exception>(() => routingTable.GetDestinationsFor(typeof(Command), new ContextBag()));
-            Assert.That(exception.Message, Does.Contain($"Found ambiguous routes for message '{nameof(Command)}'. Check your dynamic and static routes and avoid multiple routes for the same message type."));
+            var route = await routingTable.GetRouteFor(typeof(Command), new ContextBag());
+
+            Assert.That(route, Is.EqualTo(firstMatch));
+        }
+
+        [Test]
+        public async Task When_matching_dynamic_route_should_not_execute_async_dynamic_routes()
+        {
+            var routingTable = new UnicastRoutingTable();
+            var syncRoute = UnicastRoute.CreateFromPhysicalAddress("a");
+            routingTable.AddDynamic((t, c) => Task.FromResult(ThrowSync()));
+            routingTable.AddDynamic((t, c) => syncRoute);
+            routingTable.AddDynamic((t, c) => Task.FromResult(ThrowSync()));
+
+            var route = await routingTable.GetRouteFor(typeof(Command), new ContextBag());
+
+            Assert.That(route, Is.EqualTo(syncRoute));
+        }
+
+        [Test]
+        public async Task When_multiple_async_dynamic_routes_for_same_type_return_route_from_first_matching_rule()
+        {
+            var routingTable = new UnicastRoutingTable();
+            var firstMatch = UnicastRoute.CreateFromPhysicalAddress("a");
+            routingTable.AddDynamic((t, c) => Task.FromResult<IUnicastRoute>(null));
+            routingTable.AddDynamic((t, c) => Task.FromResult<IUnicastRoute>(firstMatch));
+            routingTable.AddDynamic((t, c) => Task.FromResult<IUnicastRoute>(UnicastRoute.CreateFromPhysicalAddress("c")));
+
+            var route = await routingTable.GetRouteFor(typeof(Command), new ContextBag());
+
+            Assert.That(route, Is.EqualTo(firstMatch));
+        }
+
+        static IUnicastRoute ThrowSync()
+        {
+            throw new Exception();
         }
 
         class Command

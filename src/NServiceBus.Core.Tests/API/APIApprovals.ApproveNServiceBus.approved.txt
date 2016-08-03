@@ -2599,8 +2599,8 @@ namespace NServiceBus.Routing
     public class UnicastRoutingTable
     {
         public UnicastRoutingTable() { }
-        public void AddDynamic(System.Func<System.Type, NServiceBus.Extensibility.ContextBag, System.Threading.Tasks.Task<System.Collections.Generic.IEnumerable<NServiceBus.Routing.IUnicastRoute>>> dynamicRule) { }
-        public void AddDynamic(System.Func<System.Type, NServiceBus.Extensibility.ContextBag, System.Collections.Generic.IEnumerable<NServiceBus.Routing.IUnicastRoute>> dynamicRule) { }
+        public void AddDynamic(System.Func<System.Type, NServiceBus.Extensibility.ContextBag, System.Threading.Tasks.Task<NServiceBus.Routing.IUnicastRoute>> dynamicRule) { }
+        public void AddDynamic(System.Func<System.Type, NServiceBus.Extensibility.ContextBag, NServiceBus.Routing.IUnicastRoute> dynamicRule) { }
         public void RouteTo(System.Type messageType, NServiceBus.Routing.IUnicastRoute route) { }
         public void RouteTo(System.Type messageType, NServiceBus.Routing.IUnicastRoute route, bool overrideExistingRoute) { }
     }

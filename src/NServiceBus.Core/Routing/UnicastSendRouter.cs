@@ -18,15 +18,18 @@ namespace NServiceBus
 
         public async Task<IEnumerable<UnicastRoutingStrategy>> Route(Type messageType, IDistributionPolicy distributionPolicy, ContextBag contextBag)
         {
-            var routes = await unicastRoutingTable.GetDestinationsFor(messageType, contextBag).ConfigureAwait(false);
-            var destinations = new HashSet<UnicastRoutingTarget>();
-            foreach (var route in routes)
+            var route = await unicastRoutingTable.GetRouteFor(messageType, contextBag).ConfigureAwait(false);
+            if (route == null)
             {
-                var routingTargets = await route.Resolve(endpoint => endpointInstances.FindInstances(endpoint)).ConfigureAwait(false);
-                foreach (var routingTarget in routingTargets)
-                {
-                    destinations.Add(routingTarget);
-                }
+                return emptyRoute;
+            }
+
+            var destinations = new HashSet<UnicastRoutingTarget>();
+
+            var routingTargets = await route.Resolve(endpoint => endpointInstances.FindInstances(endpoint)).ConfigureAwait(false);
+            foreach (var routingTarget in routingTargets)
+            {
+                destinations.Add(routingTarget);
             }
 
             var selectedDestinations = SelectDestinationsForEachEndpoint(distributionPolicy, destinations);
@@ -66,5 +69,6 @@ namespace NServiceBus
         EndpointInstances endpointInstances;
         Func<EndpointInstance, string> transportAddressTranslation;
         UnicastRoutingTable unicastRoutingTable;
+        static UnicastRoutingStrategy[] emptyRoute = new UnicastRoutingStrategy[0];
     }
 }
