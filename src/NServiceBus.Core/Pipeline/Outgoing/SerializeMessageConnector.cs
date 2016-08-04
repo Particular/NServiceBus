@@ -1,8 +1,8 @@
 namespace NServiceBus
 {
     using System;
+    using System.Collections.Generic;
     using System.IO;
-    using System.Linq;
     using System.Threading.Tasks;
     using Logging;
     using Pipeline;
@@ -51,8 +51,14 @@ namespace NServiceBus
         string SerializeEnclosedMessageTypes(Type messageType)
         {
             var metadata = messageMetadataRegistry.GetMessageMetadata(messageType);
-            var distinctTypes = metadata.MessageHierarchy.Distinct();
-            return string.Join(";", distinctTypes.Select(t => t.AssemblyQualifiedName));
+
+            var assemblyQualifiedNames = new HashSet<string>();
+            foreach (var type in metadata.MessageHierarchy)
+            {
+                assemblyQualifiedNames.Add(type.AssemblyQualifiedName);
+            }
+
+            return string.Join(";", assemblyQualifiedNames);
         }
 
         MessageMetadataRegistry messageMetadataRegistry;
