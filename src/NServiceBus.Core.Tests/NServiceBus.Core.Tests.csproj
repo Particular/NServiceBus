@@ -182,6 +182,7 @@
     <Compile Include="Routing\SingleInstanceRoundRobinDistributionStrategyTests.cs" />
     <Compile Include="Routing\SubscriptionRouterTests.cs" />
     <Compile Include="Routing\UnicastPublisherRouterTests.cs" />
+    <Compile Include="Routing\UnicastRoutingTableTests.cs" />
     <Compile Include="Sagas\CustomFinderAdapterTests.cs" />
     <Compile Include="Sagas\InvokeSagaNotFoundBehaviorTests.cs" />
     <Compile Include="Sagas\When_saga_has_multiple_correlated_properties.cs" />

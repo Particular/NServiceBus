@@ -10,80 +10,73 @@ namespace NServiceBus.Routing
     /// </summary>
     public class UnicastRoutingTable
     {
-        internal Task<IEnumerable<IUnicastRoute>> GetDestinationsFor(Type messageType, ContextBag contextBag)
+        internal Task<IUnicastRoute> GetRouteFor(Type messageType, ContextBag contextBag)
         {
-            var routes = new List<IUnicastRoute>();
-
-            List<IUnicastRoute> messageRoutes;
-            if (staticRoutes.TryGetValue(messageType, out messageRoutes))
+            IUnicastRoute unicastRoute;
+            if (staticRoutes.TryGetValue(messageType, out unicastRoute))
             {
-                routes.AddRange(messageRoutes);
+                return Task.FromResult(unicastRoute);
             }
 
-            foreach (var rule in dynamicRules)
+            if (fallbackRoute != null)
             {
-                routes.AddRange(rule.Invoke(messageType, contextBag));
+                return fallbackRoute(messageType, contextBag);
             }
 
-            if (asyncDynamicRules.Count > 0)
-            {
-                return AddAsyncDynamicRules(messageType, contextBag, routes);
-            }
-
-            return Task.FromResult<IEnumerable<IUnicastRoute>>(routes);
+            return noRoute;
         }
 
         /// <summary>
         /// Adds a static unicast route for a given message type.
         /// </summary>
+        /// ///
+        /// <param name="messageType">The message type to use the route for.</param>
+        /// <param name="route">The route to use for the given message type.</param>
+        /// <exception cref="Exception">Throws an exception when an ambiguous route exists.</exception>
         public void RouteTo(Type messageType, IUnicastRoute route)
         {
-            List<IUnicastRoute> existingRoutes;
-            if (staticRoutes.TryGetValue(messageType, out existingRoutes))
-            {
-                existingRoutes.Add(route);
-            }
-            else
-            {
-                staticRoutes.Add(messageType, new List<IUnicastRoute>
-                {
-                    route
-                });
-            }
+            RouteTo(messageType, route, false);
         }
 
         /// <summary>
-        /// Adds an external provider of routes.
+        /// Adds a static unicast route for a given message type.
         /// </summary>
-        /// <remarks>For dynamic routes that do not require async use <see cref="AddDynamic(System.Func{Type,NServiceBus.Extensibility.ContextBag,System.Collections.Generic.IEnumerable{NServiceBus.Routing.IUnicastRoute}})" />.</remarks>
-        /// <param name="dynamicRule">The rule.</param>
-        public void AddDynamic(Func<Type, ContextBag, Task<IEnumerable<IUnicastRoute>>> dynamicRule)
+        /// <param name="messageType">The message type to use the route for.</param>
+        /// <param name="route">The route to use for the given message type.</param>
+        /// <param name="overrideExistingRoute">
+        /// Will override an existing route for the message type without throwing an exception
+        /// when set to <code>true</code>.
+        /// </param>
+        /// <exception cref="Exception">
+        /// Throws an exception when an ambiguous route exists and
+        /// <paramref name="overrideExistingRoute" /> is not set to <code>true</code>.
+        /// </exception>
+        public void RouteTo(Type messageType, IUnicastRoute route, bool overrideExistingRoute)
         {
-            asyncDynamicRules.Add(dynamicRule);
+            if (!overrideExistingRoute && staticRoutes.ContainsKey(messageType))
+            {
+                throw new Exception($"The static routing table already contains a route for message '{messageType.Name}'. Remove the ambiguous route registrations or override the existing route.");
+            }
+
+            staticRoutes[messageType] = route;
         }
 
         /// <summary>
-        /// Adds an external provider of routes.
+        /// Configures a dynamically executed fallback rule which is executed when no static route was found for a given message type.
         /// </summary>
-        /// <remarks>For dynamic routes that require async use <see cref="AddDynamic(System.Func{Type,NServiceBus.Extensibility.ContextBag,System.Threading.Tasks.Task{System.Collections.Generic.IEnumerable{NServiceBus.Routing.IUnicastRoute}}})" />.</remarks>
-        /// <param name="dynamicRule">The rule.</param>
-        public void AddDynamic(Func<Type, ContextBag, IEnumerable<IUnicastRoute>> dynamicRule)
+        /// <param name="fallbackRoute">The dynamic rule which is invoked to determine the route for a given message type.</param>
+        public void SetFallbackRoute(Func<Type, ContextBag, Task<IUnicastRoute>> fallbackRoute)
         {
-            dynamicRules.Add(dynamicRule);
-        }
-
-        async Task<IEnumerable<IUnicastRoute>> AddAsyncDynamicRules(Type messageTypes, ContextBag contextBag, List<IUnicastRoute> routes)
-        {
-            foreach (var rule in asyncDynamicRules)
+            if (this.fallbackRoute != null)
             {
-                routes.AddRange(await rule.Invoke(messageTypes, contextBag).ConfigureAwait(false));
+                throw new Exception("A custom fallback route has already been configured. Only one fallback route is supported.");
             }
 
-            return routes;
+            this.fallbackRoute = fallbackRoute;
         }
 
-        List<Func<Type, ContextBag, Task<IEnumerable<IUnicastRoute>>>> asyncDynamicRules = new List<Func<Type, ContextBag, Task<IEnumerable<IUnicastRoute>>>>();
-        List<Func<Type, ContextBag, IEnumerable<IUnicastRoute>>> dynamicRules = new List<Func<Type, ContextBag, IEnumerable<IUnicastRoute>>>();
-        Dictionary<Type, List<IUnicastRoute>> staticRoutes = new Dictionary<Type, List<IUnicastRoute>>();
+        Func<Type, ContextBag, Task<IUnicastRoute>> fallbackRoute = null;
+        Dictionary<Type, IUnicastRoute> staticRoutes = new Dictionary<Type, IUnicastRoute>();
+        static Task<IUnicastRoute> noRoute = Task.FromResult<IUnicastRoute>(null);
     }
 }
