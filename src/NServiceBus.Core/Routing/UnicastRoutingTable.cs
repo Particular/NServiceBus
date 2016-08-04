@@ -18,18 +18,9 @@ namespace NServiceBus.Routing
                 return Task.FromResult(unicastRoute);
             }
 
-            foreach (var rule in dynamicRules)
+            if (fallbackRoute != null)
             {
-                var route = rule(messageType, contextBag);
-                if (route != null)
-                {
-                    return Task.FromResult(route);
-                }
-            }
-
-            if (asyncDynamicRules.Count > 0)
-            {
-                return ExecuteDynamicRules(messageType, contextBag);
+                return fallbackRoute(messageType, contextBag);
             }
 
             return noRoute;
@@ -71,49 +62,20 @@ namespace NServiceBus.Routing
         }
 
         /// <summary>
-        /// Adds an external provider of routes.
+        /// Configures a dynamically executed fallback rule which is executed when no static route was found for a given message type.
         /// </summary>
-        /// <remarks>
-        /// For dynamic routes that do not require async use
-        /// <see cref="AddDynamic(System.Func{Type,NServiceBus.Extensibility.ContextBag,NServiceBus.Routing.IUnicastRoute})" />.
-        /// </remarks>
-        /// <param name="dynamicRule">The rule.</param>
-        public void AddDynamic(Func<Type, ContextBag, Task<IUnicastRoute>> dynamicRule)
+        /// <param name="fallbackRoute">The dynamic rule which is invoked to determine the route for a given message type.</param>
+        public void SetFallbackRoute(Func<Type, ContextBag, Task<IUnicastRoute>> fallbackRoute)
         {
-            asyncDynamicRules.Add(dynamicRule);
-        }
-
-        /// <summary>
-        /// Adds an external provider of routes.
-        /// </summary>
-        /// <remarks>
-        /// For dynamic routes that require async use
-        /// <see
-        ///     cref="AddDynamic(System.Func{Type,NServiceBus.Extensibility.ContextBag,System.Threading.Tasks.Task{NServiceBus.Routing.IUnicastRoute}})" />
-        /// .
-        /// </remarks>
-        /// <param name="dynamicRule">The rule.</param>
-        public void AddDynamic(Func<Type, ContextBag, IUnicastRoute> dynamicRule)
-        {
-            dynamicRules.Add(dynamicRule);
-        }
-
-        async Task<IUnicastRoute> ExecuteDynamicRules(Type messageType, ContextBag contextBag)
-        {
-            foreach (var rule in asyncDynamicRules)
+            if (this.fallbackRoute != null)
             {
-                var route = await rule(messageType, contextBag).ConfigureAwait(false);
-                if (route != null)
-                {
-                    return route;
-                }
+                throw new Exception("A custom fallback route has already been configured. Only one fallback route is supported.");
             }
 
-            return null;
+            this.fallbackRoute = fallbackRoute;
         }
 
-        List<Func<Type, ContextBag, Task<IUnicastRoute>>> asyncDynamicRules = new List<Func<Type, ContextBag, Task<IUnicastRoute>>>();
-        List<Func<Type, ContextBag, IUnicastRoute>> dynamicRules = new List<Func<Type, ContextBag, IUnicastRoute>>();
+        Func<Type, ContextBag, Task<IUnicastRoute>> fallbackRoute = null;
         Dictionary<Type, IUnicastRoute> staticRoutes = new Dictionary<Type, IUnicastRoute>();
         static Task<IUnicastRoute> noRoute = Task.FromResult<IUnicastRoute>(null);
     }

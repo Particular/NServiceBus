@@ -36,59 +36,53 @@
         }
 
         [Test]
-        public async Task When_static_rule_matches_should_not_execute_dynamic_rules()
+        public async Task When_static_rule_found_should_not_execute_fallback()
         {
             var routingTable = new UnicastRoutingTable();
             var staticRoute = UnicastRoute.CreateFromPhysicalAddress("somewhere");
+            var executedFallbackRoute = false;
             routingTable.RouteTo(typeof(Command), staticRoute);
-            routingTable.AddDynamic((t,c) => ThrowSync());
-            routingTable.AddDynamic((t,c) => Task.FromResult(ThrowSync()));
+            routingTable.SetFallbackRoute((t, c) =>
+            {
+                executedFallbackRoute = true;
+                return Task.FromResult<IUnicastRoute>(null);
+            });
 
             var route = await routingTable.GetRouteFor(typeof(Command), new ContextBag());
 
             Assert.That(route, Is.EqualTo(staticRoute));
+            Assert.That(executedFallbackRoute, Is.False);
         }
 
         [Test]
-        public async Task When_returning_dynamic_routes_for_same_type_return_route_from_first_matching_rule()
+        public async Task When_no_static_rule_found_should_execute_fallback()
         {
             var routingTable = new UnicastRoutingTable();
-            var firstMatch = UnicastRoute.CreateFromPhysicalAddress("a");
-            routingTable.AddDynamic((t, c) => (IUnicastRoute)null);
-            routingTable.AddDynamic((t, c) => firstMatch);
-            routingTable.AddDynamic((t, c) => UnicastRoute.CreateFromPhysicalAddress("c"));
+            var dynamicRoute = UnicastRoute.CreateFromPhysicalAddress("somewhere");
+            routingTable.SetFallbackRoute((t, c) => Task.FromResult<IUnicastRoute>(dynamicRoute));
 
             var route = await routingTable.GetRouteFor(typeof(Command), new ContextBag());
 
-            Assert.That(route, Is.EqualTo(firstMatch));
+            Assert.That(route, Is.EqualTo(dynamicRoute));
         }
 
         [Test]
-        public async Task When_matching_dynamic_route_should_not_execute_async_dynamic_routes()
+        public async Task When_no_static_rule_found_and_no_fallback_configured_should_return_null()
         {
             var routingTable = new UnicastRoutingTable();
-            var syncRoute = UnicastRoute.CreateFromPhysicalAddress("a");
-            routingTable.AddDynamic((t, c) => Task.FromResult(ThrowSync()));
-            routingTable.AddDynamic((t, c) => syncRoute);
-            routingTable.AddDynamic((t, c) => Task.FromResult(ThrowSync()));
 
             var route = await routingTable.GetRouteFor(typeof(Command), new ContextBag());
 
-            Assert.That(route, Is.EqualTo(syncRoute));
+            Assert.That(route, Is.Null);
         }
 
         [Test]
-        public async Task When_multiple_async_dynamic_routes_for_same_type_return_route_from_first_matching_rule()
+        public void When_overriding_route_fallback_should_throw_exception()
         {
             var routingTable = new UnicastRoutingTable();
-            var firstMatch = UnicastRoute.CreateFromPhysicalAddress("a");
-            routingTable.AddDynamic((t, c) => Task.FromResult<IUnicastRoute>(null));
-            routingTable.AddDynamic((t, c) => Task.FromResult<IUnicastRoute>(firstMatch));
-            routingTable.AddDynamic((t, c) => Task.FromResult<IUnicastRoute>(UnicastRoute.CreateFromPhysicalAddress("c")));
+            routingTable.SetFallbackRoute((t, c) => Task.FromResult<IUnicastRoute>(null));
 
-            var route = await routingTable.GetRouteFor(typeof(Command), new ContextBag());
-
-            Assert.That(route, Is.EqualTo(firstMatch));
+            Assert.That(() => routingTable.SetFallbackRoute((t, c) => Task.FromResult<IUnicastRoute>(null)), Throws.Exception.TypeOf<Exception>().And.Message.Contains("A custom fallback route has already been configured. Only one fallback route is supported."));
         }
 
         static IUnicastRoute ThrowSync()
