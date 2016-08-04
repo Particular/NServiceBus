@@ -48,15 +48,6 @@
                 EndpointSetup<DefaultServer>(b =>
                     {
                         b.DisableFeature<AutoSubscribe>();
-                        var recoverability = b.Recoverability();
-                        recoverability.Delayed(settings =>
-                        {
-                            settings.NumberOfRetries(0);
-                        });
-                        recoverability.Immediate(settings =>
-                        {
-                            settings.NumberOfRetries(0);
-                        });
                     })
                     .AddMapping<DidSomething>(typeof(SagaEndpoint));
             }
@@ -116,19 +107,16 @@
             }
         }
 
-        [Serializable]
         public class StartSaga : ICommand
         {
             public Guid DataId { get; set; }
         }
 
-        [Serializable]
         public class DidSomething : IEvent
         {
             public Guid DataId { get; set; }
         }
 
-        [Serializable]
         public class DidSomethingResponse : IMessage
         {
             public Guid ReceivedDataId { get; set; }
