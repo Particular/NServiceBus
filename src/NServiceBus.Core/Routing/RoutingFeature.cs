@@ -114,7 +114,7 @@
             {
                 m.Configure((type, endpointAddress) =>
                 {
-                    unicastRoutingTable.RouteTo(type, UnicastRoute.CreateFromPhysicalAddress(transportInfrastructure.MakeCanonicalForm(endpointAddress)), true);
+                    unicastRoutingTable.RouteTo(type, UnicastRoute.CreateFromPhysicalAddress(transportInfrastructure.MakeCanonicalForm(endpointAddress)), overrideExistingRoute: true);
                     publishers.AddByAddress(type, endpointAddress);
                 });
             }

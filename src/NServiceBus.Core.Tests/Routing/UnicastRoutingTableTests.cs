@@ -22,7 +22,7 @@
         }
 
         [Test]
-        public async Task When_overriding_static_routes_with_same_type_should_only_use_last_route()
+        public async Task When_overriding_static_routes_should_use_route_which_overrides_previous_routes()
         {
             var routingTable = new UnicastRoutingTable();
             var expectedRoute = UnicastRoute.CreateFromEndpointName("sales");
