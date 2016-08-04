@@ -149,8 +149,8 @@ namespace NServiceBus.Timeout.Hosting.Windows
                 if (nextRetrieval > timeoutData.Time)
                 {
                     nextRetrieval = timeoutData.Time;
+                    timeoutPushed = true;
                 }
-                timeoutPushed = true;
             }
         }
 
