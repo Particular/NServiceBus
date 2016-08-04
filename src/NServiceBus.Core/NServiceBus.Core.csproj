@@ -464,7 +464,6 @@
     <Compile Include="Features\DisplayDiagnosticsForFeatures.cs" />
     <Compile Include="Features\ExposeSettings.cs" />
     <Compile Include="Features\PrerequisiteStatus.cs" />
-    <Compile Include="Recoverability\ImmediateRetries\ImmediateRetryPolicy.cs" />
     <Compile Include="Pipeline\BehaviorInstance.cs" />
     <Compile Include="Pipeline\IPipeline.cs" />
     <Compile Include="Transports\PushSettings.cs" />
