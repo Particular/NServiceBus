@@ -104,7 +104,6 @@
             router = new UnicastPublishRouter(
                 metadataRegistry,
                 subscriptionStorage,
-                endpointInstances,
                 i => i.ToString());
         }
 
