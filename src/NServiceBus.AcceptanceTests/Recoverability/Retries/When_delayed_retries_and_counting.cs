@@ -6,10 +6,9 @@ namespace NServiceBus.AcceptanceTests.Recoverability.Retries
     using AcceptanceTesting;
     using EndpointTemplates;
     using Features;
-    using NServiceBus.Config;
     using NUnit.Framework;
 
-    public class When_performing_slr_and_counting : NServiceBusAcceptanceTest
+    public class When_delayed_retries_and_counting : NServiceBusAcceptanceTest
     {
         [Test]
         public async Task Should_reschedule_message_three_times_by_default()
@@ -23,7 +22,7 @@ namespace NServiceBus.AcceptanceTests.Recoverability.Retries
 
             Assert.IsTrue(context.ForwardedToErrorQueue);
             Assert.AreEqual(3, context.Logs.Count(l => l.Message
-                .StartsWith($"Second Level Retry will reschedule message '{context.PhysicalMessageId}'")));
+                .StartsWith($"Delayed Retry will reschedule message '{context.PhysicalMessageId}'")));
         }
 
         class Context : ScenarioContext
@@ -36,13 +35,15 @@ namespace NServiceBus.AcceptanceTests.Recoverability.Retries
         {
             public RetryEndpoint()
             {
+                PerformDefaultRetries(true);
                 EndpointSetup<DefaultServer>((configure, context) =>
                 {
                     var scenarioContext = (Context) context.ScenarioContext;
                     configure.EnableFeature<TimeoutManager>();
                     configure.Notifications.Errors.MessageSentToErrorQueue += (sender, message) => { scenarioContext.ForwardedToErrorQueue = true; };
-                })
-                .WithConfig<SecondLevelRetriesConfig>(c => c.TimeIncrease = TimeSpan.FromMilliseconds(1));
+                    var recoverability = configure.Recoverability();
+                    recoverability.Delayed(settings => settings.TimeIncrease(TimeSpan.FromMilliseconds(1)));
+                });
             }
 
             class MessageToBeRetriedHandler : IHandleMessages<MessageToBeRetried>

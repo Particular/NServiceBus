@@ -11,7 +11,7 @@
         [TestCase(TransportTransactionMode.ReceiveOnly)]
         [TestCase(TransportTransactionMode.SendsAtomicWithReceive)]
         [TestCase(TransportTransactionMode.TransactionScope)]
-        public async Task Should_reinvoke_on_error_with_orignal_exception(TransportTransactionMode transactionMode)
+        public async Task Should_reinvoke_on_error_with_original_exception(TransportTransactionMode transactionMode)
         {
             var onErrorCalled = new TaskCompletionSource<ErrorContext>();
 

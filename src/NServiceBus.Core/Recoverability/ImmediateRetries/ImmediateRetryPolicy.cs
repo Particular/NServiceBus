@@ -1,8 +1,8 @@
 namespace NServiceBus
 {
-    class FirstLevelRetryPolicy
+    class ImmediateRetryPolicy
     {
-        public FirstLevelRetryPolicy(int maxRetries)
+        public ImmediateRetryPolicy(int maxRetries)
         {
             this.maxRetries = maxRetries;
         }

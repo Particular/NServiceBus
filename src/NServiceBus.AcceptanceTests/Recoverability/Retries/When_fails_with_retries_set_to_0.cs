@@ -10,7 +10,7 @@
     public class When_fails_with_retries_set_to_0 : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Should_not_retry_the_message_using_flr()
+        public async Task Should_not_retry_the_message_using_immediate_retries()
         {
             var context = await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
                 .WithEndpoint<RetryEndpoint>(b =>
@@ -24,7 +24,7 @@
                 .Done(c => c.GaveUp)
                 .Run();
 
-            Assert.AreEqual(1, context.NumberOfTimesInvoked, "No FLR should be in use if MaxRetries is set to 0");
+            Assert.AreEqual(1, context.NumberOfTimesInvoked, "No Immediate Retry should be in use if MaxRetries is set to 0");
         }
 
         class Context : ScenarioContext

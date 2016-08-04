@@ -8,7 +8,7 @@
     using NUnit.Framework;
     using ScenarioDescriptors;
 
-    public class When_doing_flr_with_native_transactions : NServiceBusAcceptanceTest
+    public class When_immediate_retries_with_native_transactions : NServiceBusAcceptanceTest
     {
         [Test]
         public Task Should_do_5_retries_by_default_with_native_transactions()
@@ -24,9 +24,9 @@
                 .Repeat(r => r.For(Transports.Default))
                 .Should(c =>
                 {
-                    Assert.AreEqual(5 + 1, c.NumberOfTimesInvoked, "The FLR should by default retry 5 times");
+                    Assert.AreEqual(5 + 1, c.NumberOfTimesInvoked, "The Immediate Retries should by default retry 5 times");
                     Assert.AreEqual(5, c.Logs.Count(l => l.Message
-                        .StartsWith($"First Level Retry is going to retry message '{c.PhysicalMessageId}' because of an exception:")));
+                        .StartsWith($"Immediate Retry is going to retry message '{c.PhysicalMessageId}' because of an exception:")));
                 })
                 .Run();
         }
@@ -46,10 +46,10 @@
         {
             public RetryEndpoint()
             {
+                PerformDefaultRetries(true);
                 EndpointSetup<DefaultServer>((config, context) =>
                 {
                     var scenarioContext = (Context) context.ScenarioContext;
-                    config.Recoverability().Immediate(immediate => immediate.NumberOfRetries(5));
                     config.Notifications.Errors.MessageSentToErrorQueue += (sender, message) => scenarioContext.ForwardedToErrorQueue = true;
                     config.UseTransport(context.GetTransportType())
                         .Transactions(TransportTransactionMode.ReceiveOnly);

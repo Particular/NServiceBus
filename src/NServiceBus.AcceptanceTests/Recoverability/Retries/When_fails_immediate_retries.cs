@@ -5,17 +5,16 @@
     using AcceptanceTesting;
     using EndpointTemplates;
     using Features;
-    using NServiceBus.Config;
     using NUnit.Framework;
     using ScenarioDescriptors;
 
-    public class When_fails_flr : NServiceBusAcceptanceTest
+    public class When_fails_immediate_retries : NServiceBusAcceptanceTest
     {
         [Test]
-        public Task Should_be_moved_to_slr()
+        public Task Should_be_moved_to_delayed_retries()
         {
             return Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
-                .WithEndpoint<SLREndpoint>(b => b
+                .WithEndpoint<DelayedRetryEndpoint>(b => b
                     .When((session, context) => session.SendLocal(new MessageToBeRetried
                     {
                         Id = context.Id
@@ -25,13 +24,13 @@
                 .Repeat(r => r.For(Transports.Default))
                 .Should(context =>
                 {
-                    Assert.GreaterOrEqual(1, context.NumberOfSlrRetriesPerformed, "The SLR should only do one retry");
-                    Assert.GreaterOrEqual(context.TimeOfSecondAttempt - context.TimeOfFirstAttempt, SlrDelay, "The SLR should delay the retry");
+                    Assert.GreaterOrEqual(1, context.NumberOfDelayedRetriesPerformed, "Should only do one retry");
+                    Assert.GreaterOrEqual(context.TimeOfSecondAttempt - context.TimeOfFirstAttempt, Delay, "Should delay the retry");
                 })
                 .Run();
         }
 
-        static TimeSpan SlrDelay = TimeSpan.FromMilliseconds(1);
+        static TimeSpan Delay = TimeSpan.FromMilliseconds(1);
 
         class Context : ScenarioContext
         {
@@ -42,22 +41,22 @@
             public DateTime TimeOfFirstAttempt { get; set; }
             public DateTime TimeOfSecondAttempt { get; set; }
 
-            public int NumberOfSlrRetriesPerformed { get; set; }
+            public int NumberOfDelayedRetriesPerformed { get; set; }
         }
 
-        public class SLREndpoint : EndpointConfigurationBuilder
+        public class DelayedRetryEndpoint : EndpointConfigurationBuilder
         {
-            public SLREndpoint()
+            public DelayedRetryEndpoint()
             {
                 EndpointSetup<DefaultServer>(config =>
                 {
                     config.EnableFeature<TimeoutManager>();
-                })
-                    .WithConfig<SecondLevelRetriesConfig>(c =>
+                    config.Recoverability().Delayed(settings =>
                     {
-                        c.NumberOfRetries = 1;
-                        c.TimeIncrease = SlrDelay;
+                        settings.NumberOfRetries(1);
+                        settings.TimeIncrease(Delay);
                     });
+                });
             }
 
             class MessageToBeRetriedHandler : IHandleMessages<MessageToBeRetried>
@@ -85,9 +84,9 @@
 
                     string retries;
 
-                    if (context.MessageHeaders.TryGetValue(Headers.Retries, out retries))
+                    if (context.MessageHeaders.TryGetValue(Headers.DelayedRetries, out retries))
                     {
-                        TestContext.NumberOfSlrRetriesPerformed = int.Parse(retries);
+                        TestContext.NumberOfDelayedRetriesPerformed = int.Parse(retries);
                     }
 
                     throw new SimulatedException();

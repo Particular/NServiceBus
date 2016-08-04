@@ -5,7 +5,6 @@
     using AcceptanceTesting;
     using EndpointTemplates;
     using Features;
-    using NServiceBus.Config;
     using NUnit.Framework;
     using Routing;
     using ScenarioDescriptors;
@@ -46,10 +45,20 @@
         {
             public ReplyEndpoint()
             {
-                EndpointSetup<DefaultServer>(b => b.DisableFeature<AutoSubscribe>())
-                    .AddMapping<DidSomething>(typeof(SagaEndpoint))
-                    .WithConfig<TransportConfig>(c => { c.MaxRetries = 0; })
-                    .WithConfig<SecondLevelRetriesConfig>(c => { c.Enabled = false; });
+                EndpointSetup<DefaultServer>(b =>
+                    {
+                        b.DisableFeature<AutoSubscribe>();
+                        var recoverability = b.Recoverability();
+                        recoverability.Delayed(settings =>
+                        {
+                            settings.NumberOfRetries(0);
+                        });
+                        recoverability.Immediate(settings =>
+                        {
+                            settings.NumberOfRetries(0);
+                        });
+                    })
+                    .AddMapping<DidSomething>(typeof(SagaEndpoint));
             }
 
             class DidSomethingHandler : IHandleMessages<DidSomething>

@@ -436,8 +436,11 @@ namespace NServiceBus
         public const string ControlMessageHeader = "NServiceBus.ControlMessage";
         public const string ConversationId = "NServiceBus.ConversationId";
         public const string CorrelationId = "NServiceBus.CorrelationId";
+        public const string DelayedRetries = "NServiceBus.Retries";
+        public const string DelayedRetriesTimestamp = "NServiceBus.Retries.Timestamp";
         public const string DestinationSites = "NServiceBus.DestinationSites";
         public const string EnclosedMessageTypes = "NServiceBus.EnclosedMessageTypes";
+        [System.ObsoleteAttribute("Use `ImmediateRetries` instead. Will be removed in version 7.0.0.", true)]
         public const string FLRetries = "NServiceBus.FLRetries";
         public const string HasLicenseExpired = "$.diagnostics.license.expired";
         public const string HeaderName = "Header";
@@ -445,6 +448,7 @@ namespace NServiceBus
         public const string HostId = "$.diagnostics.hostid";
         public const string HttpFrom = "NServiceBus.From";
         public const string HttpTo = "NServiceBus.To";
+        public const string ImmediateRetries = "NServiceBus.FLRetries";
         public const string IsDeferredMessage = "NServiceBus.IsDeferredMessage";
         public const string IsSagaTimeoutMessage = "NServiceBus.IsSagaTimeoutMessage";
         public const string MessageId = "NServiceBus.MessageId";
@@ -464,7 +468,9 @@ namespace NServiceBus
         public const string ProcessingStarted = "NServiceBus.ProcessingStarted";
         public const string RelatedTo = "NServiceBus.RelatedTo";
         public const string ReplyToAddress = "NServiceBus.ReplyToAddress";
+        [System.ObsoleteAttribute("Use `DelayedRetries` instead. Will be removed in version 7.0.0.", true)]
         public const string Retries = "NServiceBus.Retries";
+        [System.ObsoleteAttribute("Use `DelayedRetriesTimestamp` instead. Will be removed in version 7.0.0.", true)]
         public const string RetriesTimestamp = "NServiceBus.Retries.Timestamp";
         public const string ReturnMessageErrorCodeHeader = "NServiceBus.ReturnMessage.ErrorCode";
         public const string RijndaelKeyIdentifier = "NServiceBus.RijndaelKeyIdentifier";
@@ -1070,18 +1076,24 @@ namespace NServiceBus
         public static System.Threading.Tasks.Task ScheduleEvery(this NServiceBus.IMessageSession session, System.TimeSpan timeSpan, System.Func<NServiceBus.IPipelineContext, System.Threading.Tasks.Task> task) { }
         public static System.Threading.Tasks.Task ScheduleEvery(this NServiceBus.IMessageSession session, System.TimeSpan timeSpan, string name, System.Func<NServiceBus.IPipelineContext, System.Threading.Tasks.Task> task) { }
     }
+    [System.ObsoleteAttribute("Use `endpointConfiguration.Recoverability().Delayed(delayed => )` instead. Will b" +
+        "e removed in version 7.0.0.", true)]
     public class static SecondLevelRetriesConfigExtensions
     {
-        [System.ObsoleteAttribute("Use `configuration.Recoverability().Delayed(delayed => )` instead. Will be remove" +
-            "d in version 7.0.0.", true)]
+        [System.ObsoleteAttribute("Use `endpointConfiguration.Recoverability().Delayed(delayed => )` instead. The me" +
+            "mber currently throws a NotImplementedException. Will be removed in version 7.0." +
+            "0.", true)]
         public static NServiceBus.SecondLevelRetriesSettings SecondLevelRetries(this NServiceBus.EndpointConfiguration config) { }
     }
+    [System.ObsoleteAttribute("Use `endpointConfiguration.Recoverability().CustomPolicy(Func<RecoverabilityConfi" +
+        "g, ErrorContext, RecoverabilityAction> @custom)` instead. Will be removed in ver" +
+        "sion 7.0.0.", true)]
     public class SecondLevelRetriesSettings
     {
         public SecondLevelRetriesSettings() { }
-        [System.ObsoleteAttribute("Use `configuration.Recoverability().CustomPolicy(Func<RecoverabilityConfig, Error" +
-            "Context, RecoverabilityAction> @custom)` instead. The member currently throws a " +
-            "NotImplementedException. Will be removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute("Use `endpointConfiguration.Recoverability().CustomPolicy(Func<RecoverabilityConfi" +
+            "g, ErrorContext, RecoverabilityAction> @custom)` instead. The member currently t" +
+            "hrows a NotImplementedException. Will be removed in version 7.0.0.", true)]
         public void CustomRetryPolicy(System.Func<NServiceBus.TransportMessage, System.TimeSpan> customPolicy) { }
     }
     public class SendOptions : NServiceBus.Extensibility.ExtendableOptions
@@ -1415,11 +1427,20 @@ namespace NServiceBus.Config
         public void Remove(string name) { }
         public void RemoveAt(int index) { }
     }
+    [System.ObsoleteAttribute("Second Level Retries has been renamed to Delayed Retries. The app.config API has " +
+        "been removed, use the code API via endpointConfiguration.Recoverability().Delaye" +
+        "d(settings => ...);. Will be removed in version 7.0.0.", true)]
     public class SecondLevelRetriesConfig : System.Configuration.ConfigurationSection
     {
+        [System.ObsoleteAttribute("Second Level Retries has been renamed to Delayed Retries. The app.config API has " +
+            "been removed, use the code API via endpointConfiguration.Recoverability().Delaye" +
+            "d(settings => ...);. Will be removed in version 7.0.0.", true)]
         public SecondLevelRetriesConfig() { }
+        [System.ObsoleteAttribute(@"Second Level Retries has been renamed to Delayed Retries. The app.config API has been removed, use the code API via endpointConfiguration.Recoverability().Delayed(settings => ...);. To disable use endpointConfiguration.Recoverability().Delayed(settings => settings.NumberOfRetries(0));. Will be removed in version 7.0.0.", true)]
         public bool Enabled { get; set; }
+        [System.ObsoleteAttribute(@"Second Level Retries has been renamed to Delayed Retries. The app.config API has been removed, use the code API via endpointConfiguration.Recoverability().Delayed(settings => ...);. To change the NumberOfRetries use endpointConfiguration.Recoverability().Delayed(settings => settings.NumberOfRetries(5);. Will be removed in version 7.0.0.", true)]
         public int NumberOfRetries { get; set; }
+        [System.ObsoleteAttribute(@"Second Level Retries has been renamed to Delayed Retries. The app.config API has been removed, use the code API via endpointConfiguration.Recoverability().Delayed(settings => ...);. To change the TimeIncrease use endpointConfiguration.Recoverability().Delayed(settings => settings.TimeIncrease(TimeSpan.FromMinutes(5));. Will be removed in version 7.0.0.", true)]
         public System.TimeSpan TimeIncrease { get; set; }
     }
     public class TransportConfig : System.Configuration.ConfigurationSection
@@ -1613,11 +1634,25 @@ namespace NServiceBus.Extensibility
 }
 namespace NServiceBus.Faults
 {
+    public struct DelayedRetry
+    {
+        public DelayedRetry(System.Collections.Generic.Dictionary<string, string> headers, byte[] body, System.Exception exception, int retryAttempt) { }
+        public byte[] Body { get; }
+        public System.Exception Exception { get; }
+        public System.Collections.Generic.Dictionary<string, string> Headers { get; }
+        public int RetryAttempt { get; }
+    }
     public class ErrorsNotifications
     {
+        [System.ObsoleteAttribute("Use `MessageHasBeenSentToDelayedRetries` instead. Will be removed in version 7.0." +
+            "0.", true)]
+        public System.EventHandler MessageHasBeenSentToSecondLevelRetries;
+        [System.ObsoleteAttribute("Use `MessageHasFailedAnImmediateRetryAttempt` instead. Will be removed in version" +
+            " 7.0.0.", true)]
+        public System.EventHandler MessageHasFailedAFirstLevelRetryAttempt;
         public ErrorsNotifications() { }
-        public event System.EventHandler<NServiceBus.Faults.SecondLevelRetry> MessageHasBeenSentToSecondLevelRetries;
-        public event System.EventHandler<NServiceBus.Faults.FirstLevelRetry> MessageHasFailedAFirstLevelRetryAttempt;
+        public event System.EventHandler<NServiceBus.Faults.DelayedRetry> MessageHasBeenSentToDelayedRetries;
+        public event System.EventHandler<NServiceBus.Faults.ImmediateRetry> MessageHasFailedAnImmediateRetryAttempt;
         public event System.EventHandler<NServiceBus.Faults.FailedMessage> MessageSentToErrorQueue;
     }
     public struct FailedMessage
@@ -1637,27 +1672,25 @@ namespace NServiceBus.Faults
     {
         public const string FailedQ = "NServiceBus.FailedQ";
     }
-    public struct FirstLevelRetry
+    [System.ObsoleteAttribute("First Level Retries has been renamed to Immediate Retries. Use `NServiceBus.Fault" +
+        "s.ImmediateRetry` instead. Will be removed in version 7.0.0.", true)]
+    public struct FirstLevelRetry { }
+    [System.ObsoleteAttribute("IManageMessageFailures is no longer an extension point. To take control of the er" +
+        "ror handling part of the message processing pipeline, review the Version 5 to 6 " +
+        "upgrade guide for details. Will be removed in version 7.0.0.", true)]
+    public interface IManageMessageFailures { }
+    public struct ImmediateRetry
     {
-        public FirstLevelRetry(string messageId, System.Collections.Generic.Dictionary<string, string> headers, byte[] body, System.Exception exception, int retryAttempt) { }
+        public ImmediateRetry(string messageId, System.Collections.Generic.Dictionary<string, string> headers, byte[] body, System.Exception exception, int retryAttempt) { }
         public byte[] Body { get; }
         public System.Exception Exception { get; }
         public System.Collections.Generic.Dictionary<string, string> Headers { get; }
         public string MessageId { get; }
         public int RetryAttempt { get; }
     }
-    [System.ObsoleteAttribute("IManageMessageFailures is no longer an extension point. To take control of the er" +
-        "ror handling part of the message processing pipeline, review the Version 5 to 6 " +
-        "upgrade guide for details. Will be removed in version 7.0.0.", true)]
-    public interface IManageMessageFailures { }
-    public struct SecondLevelRetry
-    {
-        public SecondLevelRetry(System.Collections.Generic.Dictionary<string, string> headers, byte[] body, System.Exception exception, int retryAttempt) { }
-        public byte[] Body { get; }
-        public System.Exception Exception { get; }
-        public System.Collections.Generic.Dictionary<string, string> Headers { get; }
-        public int RetryAttempt { get; }
-    }
+    [System.ObsoleteAttribute("Second Level Retries has been renamed to Delayed Retries. Use `NServiceBus.Faults" +
+        ".DelayedRetry` instead. Will be removed in version 7.0.0.", true)]
+    public struct SecondLevelRetry { }
 }
 namespace NServiceBus.Features
 {

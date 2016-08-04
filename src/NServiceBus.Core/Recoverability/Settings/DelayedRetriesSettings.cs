@@ -14,13 +14,13 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Configures the number of times a message should be retried with a delay after failing first level retries.
+        /// Configures the number of times a message should be retried with a delay after failing immediate retries.
         /// </summary>
         public DelayedRetriesSettings NumberOfRetries(int numberOfRetries)
         {
             Guard.AgainstNegative(nameof(numberOfRetries), numberOfRetries);
 
-            Settings.Set(Recoverability.SlrNumberOfRetries, numberOfRetries);
+            Settings.Set(Recoverability.NumberOfDelayedRetries, numberOfRetries);
 
             return this;
         }
@@ -32,7 +32,7 @@ namespace NServiceBus
         {
             Guard.AgainstNegative(nameof(timeIncrease), timeIncrease);
 
-            Settings.Set(Recoverability.SlrTimeIncrease, timeIncrease);
+            Settings.Set(Recoverability.DelayedRetriesTimeIncrease, timeIncrease);
 
             return this;
         }

@@ -43,6 +43,12 @@
 
             return this;
         }
+        public EndpointConfigurationBuilder PerformDefaultRetries(bool performDefaultRetries)
+        {
+            configuration.PerformDefaultRetries = performDefaultRetries;
+
+            return this;
+        }
 
         EndpointCustomizationConfiguration CreateScenario()
         {

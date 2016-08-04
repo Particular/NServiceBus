@@ -25,9 +25,9 @@
                 "Message recoverability is only relevant for endpoints receiving messages.");
             Defaults(settings =>
             {
-                settings.SetDefault(SlrNumberOfRetries, DefaultNumberOfRetries);
-                settings.SetDefault(SlrTimeIncrease, DefaultTimeIncrease);
-                settings.SetDefault(FlrNumberOfRetries, 5);
+                settings.SetDefault(NumberOfDelayedRetries, DefaultNumberOfRetries);
+                settings.SetDefault(DelayedRetriesTimeIncrease, DefaultTimeIncrease);
+                settings.SetDefault(NumberOfImmediateRetries, 5);
                 settings.SetDefault(FaultHeaderCustomization, new Action<Dictionary<string, string>>(headers => { }));
             });
         }
@@ -103,13 +103,13 @@
         {
             if (!transactionsOn)
             {
-                Logger.Warn("Immediate Retries will be disabled. Immediate retries are not supported when running with TransportTransactionMode.None. Failed messages will be moved to the error queue instead.");
-                //Transactions must be enabled since FLR requires the transport to be able to rollback
+                Logger.Warn("Immediate Retries will be disabled. Immediate Retries are not supported when running with TransportTransactionMode.None. Failed messages will be moved to the error queue instead.");
+                //Transactions must be enabled since Immediate Retries requires the transport to be able to rollback
                 return new ImmediateConfig(0);
             }
 
             var retriesConfig = settings.GetConfigSection<TransportConfig>();
-            var maxImmediateRetries = retriesConfig?.MaxRetries ?? settings.Get<int>(FlrNumberOfRetries);
+            var maxImmediateRetries = retriesConfig?.MaxRetries ?? settings.Get<int>(NumberOfImmediateRetries);
 
             return new ImmediateConfig(maxImmediateRetries);
         }
@@ -119,12 +119,12 @@
             if (!transactionsOn)
             {
                 Logger.Warn("Delayed Retries will be disabled. Delayed retries are not supported when running with TransportTransactionMode.None. Failed messages will be moved to the error queue instead.");
-                //Transactions must be enabled since SLR requires the transport to be able to rollback
+                //Transactions must be enabled since Delayed Retries requires the transport to be able to rollback
                 return new DelayedConfig(0, TimeSpan.Zero);
             }
 
-            var numberOfRetries = settings.Get<int>(SlrNumberOfRetries);
-            var timeIncrease = settings.Get<TimeSpan>(SlrTimeIncrease);
+            var numberOfRetries = settings.Get<int>(NumberOfDelayedRetries);
+            var timeIncrease = settings.Get<TimeSpan>(DelayedRetriesTimeIncrease);
 
             var retriesConfig = settings.GetConfigSection<SecondLevelRetriesConfig>();
             if (retriesConfig != null)
@@ -146,11 +146,11 @@
             {
                 if (e.IsImmediateRetry)
                 {
-                    legacyNotifications.Errors.InvokeMessageHasFailedAFirstLevelRetryAttempt(e.Attempt, e.Message, e.Exception);
+                    legacyNotifications.Errors.InvokeMessageHasFailedAnImmediateRetryAttempt(e.Attempt, e.Message, e.Exception);
                 }
                 else
                 {
-                    legacyNotifications.Errors.InvokeMessageHasBeenSentToSecondLevelRetries(e.Attempt, e.Message, e.Exception);
+                    legacyNotifications.Errors.InvokeMessageHasBeenSentToDelayedRetries(e.Attempt, e.Message, e.Exception);
                 }
 
                 return TaskEx.CompletedTask;
@@ -163,9 +163,9 @@
             });
         }
 
-        public const string SlrNumberOfRetries = "Recoverability.Slr.DefaultPolicy.Retries";
-        public const string SlrTimeIncrease = "Recoverability.Slr.DefaultPolicy.Timespan";
-        public const string FlrNumberOfRetries = "Recoverability.Flr.Retries";
+        public const string NumberOfDelayedRetries = "Recoverability.Delayed.DefaultPolicy.Retries";
+        public const string DelayedRetriesTimeIncrease = "Recoverability.Delayed.DefaultPolicy.Timespan";
+        public const string NumberOfImmediateRetries = "Recoverability.Immediate.Retries";
         public const string FaultHeaderCustomization = "Recoverability.Failed.FaultHeaderCustomization";
         public const string PolicyOverride = "Recoverability.CustomPolicy";
 

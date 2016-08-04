@@ -65,7 +65,7 @@ namespace NServiceBus
         {
             string timestampHeader;
 
-            if (!message.Headers.TryGetValue(Headers.RetriesTimestamp, out timestampHeader))
+            if (!message.Headers.TryGetValue(Headers.DelayedRetriesTimestamp, out timestampHeader))
             {
                 return false;
             }

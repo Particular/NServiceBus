@@ -5,10 +5,9 @@
     using AcceptanceTesting;
     using EndpointTemplates;
     using Features;
-    using NServiceBus.Config;
     using NUnit.Framework;
 
-    public class When_performing_slr_with_flr_disabled : NServiceBusAcceptanceTest
+    public class When_delayed_retries_with_immediate_retries_disabled : NServiceBusAcceptanceTest
     {
         [Test]
         public async Task Should_reschedule_message_three_times_by_default()
@@ -20,7 +19,7 @@
                 .Done(c => c.ReceiveCount >= 4)
                 .Run();
 
-            Assert.AreEqual(4, context.ReceiveCount, "Message should be delivered 4 times. Once initially and retried 3 times by SLR");
+            Assert.AreEqual(4, context.ReceiveCount, "Message should be delivered 4 times. Once initially and retried 3 times by Delayed Retries");
         }
 
         class Context : ScenarioContext
@@ -33,10 +32,14 @@
         {
             public RetryEndpoint()
             {
+                PerformDefaultRetries(true);
                 EndpointSetup<DefaultServer>((configure, context) =>
                 {
                     configure.EnableFeature<TimeoutManager>();
-                }).WithConfig<SecondLevelRetriesConfig>(c => c.TimeIncrease = TimeSpan.FromMilliseconds(1));
+                    var recoverability = configure.Recoverability();
+                    recoverability.Delayed(settings => settings.TimeIncrease(TimeSpan.FromMilliseconds(1)));
+                    recoverability.Immediate(settings => settings.NumberOfRetries(0));
+                });
             }
 
             class MessageToBeRetriedHandler : IHandleMessages<MessageToBeRetried>

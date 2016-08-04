@@ -5,11 +5,10 @@
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
-    using NServiceBus.Config;
     using NUnit.Framework;
     using ScenarioDescriptors;
 
-    public class When_doing_flr_with_dtc_on : NServiceBusAcceptanceTest
+    public class When_immediate_retries_with_dtc_on : NServiceBusAcceptanceTest
     {
         [Test]
         public Task Should_do_X_retries_by_default_with_dtc_on()
@@ -26,9 +25,9 @@
                 .Should(c =>
                 {
                     //we add 1 since first call + X retries totals to X+1
-                    Assert.AreEqual(maxretries + 1, c.NumberOfTimesInvoked, $"The FLR should by default retry {maxretries} times");
+                    Assert.AreEqual(maxretries + 1, c.NumberOfTimesInvoked, $"The Immediate Retries should by default retry {maxretries} times");
                     Assert.AreEqual(maxretries, c.Logs.Count(l => l.Message
-                        .StartsWith($"First Level Retry is going to retry message '{c.PhysicalMessageId}' because of an exception:")));
+                        .StartsWith($"Immediate Retry is going to retry message '{c.PhysicalMessageId}' because of an exception:")));
                 })
                 .Run();
         }
@@ -50,12 +49,14 @@
         {
             public RetryEndpoint()
             {
+                PerformDefaultRetries(true);
                 EndpointSetup<DefaultServer>((b, context) =>
                 {
                     var scenarioContext = (Context) context.ScenarioContext;
                     b.Notifications.Errors.MessageSentToErrorQueue += (sender, message) => scenarioContext.GaveUpOnRetries = true;
-                })
-                .WithConfig<TransportConfig>(c => c.MaxRetries = maxretries);
+                    var recoverability = b.Recoverability();
+                    recoverability.Immediate(settings => settings.NumberOfRetries(maxretries));
+                });
             }
 
             class MessageToBeRetriedHandler : IHandleMessages<MessageToBeRetried>

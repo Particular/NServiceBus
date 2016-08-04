@@ -7,10 +7,9 @@
     using EndpointTemplates;
     using Features;
     using MessageMutator;
-    using NServiceBus.Config;
     using NUnit.Framework;
 
-    public class When_performing_slr_with_serialization_exception : NServiceBusAcceptanceTest
+    public class When_delayed_retries_with_serialization_exception : NServiceBusAcceptanceTest
     {
         [Test]
         public async Task Should_preserve_the_original_body_for_serialization_exceptions()
@@ -19,16 +18,16 @@
                 .WithEndpoint<RetryEndpoint>(b => b
                     .When(session => session.SendLocal(new MessageToBeRetried()))
                     .DoNotFailOnErrorMessages())
-                .Done(c => c.SlrChecksum != default(byte))
+                .Done(c => c.DelayedRetryChecksum != default(byte))
                 .Run();
 
-            Assert.AreEqual(context.OriginalBodyChecksum, context.SlrChecksum, "The body of the message sent to slr should be the same as the original message coming off the queue");
+            Assert.AreEqual(context.OriginalBodyChecksum, context.DelayedRetryChecksum, "The body of the message sent to delayed retry should be the same as the original message coming off the queue");
         }
 
         class Context : ScenarioContext
         {
             public byte OriginalBodyChecksum { get; set; }
-            public byte SlrChecksum { get; set; }
+            public byte DelayedRetryChecksum { get; set; }
             public bool ForwardedToErrorQueue { get; set; }
         }
 
@@ -44,10 +43,10 @@
                     configure.Notifications.Errors.MessageSentToErrorQueue += (sender, message) =>
                     {
                         testContext.ForwardedToErrorQueue = true;
-                        testContext.SlrChecksum = Checksum(message.Body);
+                        testContext.DelayedRetryChecksum = Checksum(message.Body);
                     };
-                })
-                    .WithConfig<SecondLevelRetriesConfig>(c => c.TimeIncrease = TimeSpan.FromMilliseconds(1));
+                    configure.Recoverability().Delayed(settings => settings.TimeIncrease(TimeSpan.FromMilliseconds(1)));
+                });
             }
 
             static byte Checksum(byte[] data)

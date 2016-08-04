@@ -4,18 +4,18 @@ namespace NServiceBus.Faults
     using System.Collections.Generic;
 
     /// <summary>
-    /// Second level retry event data.
+    /// Delayed Retry event data.
     /// </summary>
-    public struct SecondLevelRetry
+    public struct DelayedRetry
     {
         /// <summary>
-        /// Creates a new instance of <see cref="SecondLevelRetry" />.
+        /// Creates a new instance of <see cref="DelayedRetry" />.
         /// </summary>
         /// <param name="headers">Message headers.</param>
         /// <param name="body">Message body.</param>
         /// <param name="exception">Exception thrown.</param>
         /// <param name="retryAttempt">Number of retry attempt.</param>
-        public SecondLevelRetry(Dictionary<string, string> headers, byte[] body, Exception exception, int retryAttempt)
+        public DelayedRetry(Dictionary<string, string> headers, byte[] body, Exception exception, int retryAttempt)
         {
             Headers = headers;
             Body = body;

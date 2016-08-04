@@ -63,7 +63,7 @@
         {
             var message = errorContext.Message;
 
-            Logger.Info($"First Level Retry is going to retry message '{message.MessageId}' because of an exception:", errorContext.Exception);
+            Logger.Info($"Immediate Retry is going to retry message '{message.MessageId}' because of an exception:", errorContext.Exception);
 
             if (raiseNotifications)
             {
@@ -92,13 +92,13 @@
         {
             var message = errorContext.Message;
 
-            Logger.Warn($"Second Level Retry will reschedule message '{message.MessageId}' after a delay of {action.Delay} because of an exception:", errorContext.Exception);
+            Logger.Warn($"Delayed Retry will reschedule message '{message.MessageId}' after a delay of {action.Delay} because of an exception:", errorContext.Exception);
 
-            var currentSlrAttempts = await delayedRetryExecutor.Retry(message, action.Delay, errorContext.TransportTransaction).ConfigureAwait(false);
+            var currentDelayedRetriesAttempts = await delayedRetryExecutor.Retry(message, action.Delay, errorContext.TransportTransaction).ConfigureAwait(false);
 
             if (raiseNotifications)
             {
-                await eventAggregator.Raise(new MessageToBeRetried(currentSlrAttempts, action.Delay, message, errorContext.Exception)).ConfigureAwait(false);
+                await eventAggregator.Raise(new MessageToBeRetried(currentDelayedRetriesAttempts, action.Delay, message, errorContext.Exception)).ConfigureAwait(false);
             }
             return ErrorHandleResult.Handled;
         }

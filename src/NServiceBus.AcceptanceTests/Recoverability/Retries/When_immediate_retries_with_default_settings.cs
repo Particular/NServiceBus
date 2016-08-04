@@ -7,7 +7,7 @@
     using NUnit.Framework;
     using ScenarioDescriptors;
 
-    public class When_doing_flr_with_default_settings : NServiceBusAcceptanceTest
+    public class When_immediate_retries_with_default_settings : NServiceBusAcceptanceTest
     {
         [Test]
         public async Task Should_not_do_any_retries_if_transactions_are_off()

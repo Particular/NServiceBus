@@ -8,7 +8,7 @@
         public static int GetDelayedDeliveriesPerformed(this IncomingMessage message)
         {
             string value;
-            if (message.Headers.TryGetValue(Headers.Retries, out value))
+            if (message.Headers.TryGetValue(Headers.DelayedRetries, out value))
             {
                 int i;
                 if (int.TryParse(value, out i))
@@ -22,12 +22,12 @@
 
         public static void SetCurrentDelayedDeliveries(this OutgoingMessage message, int currentDelayedRetry)
         {
-            message.Headers[Headers.Retries] = currentDelayedRetry.ToString();
+            message.Headers[Headers.DelayedRetries] = currentDelayedRetry.ToString();
         }
 
         public static void SetDelayedDeliveryTimestamp(this OutgoingMessage message, DateTime timestamp)
         {
-            message.Headers[Headers.RetriesTimestamp] = DateTimeExtensions.ToWireFormattedString(timestamp);
+            message.Headers[Headers.DelayedRetriesTimestamp] = DateTimeExtensions.ToWireFormattedString(timestamp);
         }
     }
 }

@@ -5,18 +5,17 @@
     using AcceptanceTesting;
     using EndpointTemplates;
     using Features;
-    using NServiceBus.Config;
     using NUnit.Framework;
     using ScenarioDescriptors;
 
     //repro for issue: https://github.com/NServiceBus/NServiceBus/issues/1020
-    public class When_a_saga_message_goes_through_the_slr : NServiceBusAcceptanceTest
+    public class When_saga_message_goes_through_delayed_retries : NServiceBusAcceptanceTest
     {
         [Test]
         public Task Should_invoke_the_correct_handle_methods_on_the_saga()
         {
             return Scenario.Define<Context>()
-                .WithEndpoint<SagaMsgThruSlrEndpt>(b => b
+                .WithEndpoint<SagaMessageThroughDelayedRetryEndpoint>(b => b
                     .When(session => session.SendLocal(new StartSagaMessage
                     {
                         SomeId = Guid.NewGuid()
@@ -29,21 +28,22 @@
         public class Context : ScenarioContext
         {
             public bool SecondMessageProcessed { get; set; }
-
             public int NumberOfTimesInvoked { get; set; }
         }
 
-        public class SagaMsgThruSlrEndpt : EndpointConfigurationBuilder
+        public class SagaMessageThroughDelayedRetryEndpoint : EndpointConfigurationBuilder
         {
-            public SagaMsgThruSlrEndpt()
+            public SagaMessageThroughDelayedRetryEndpoint()
             {
                 EndpointSetup<DefaultServer>(b =>
                 {
                     b.EnableFeature<TimeoutManager>();
-                }).WithConfig<SecondLevelRetriesConfig>(slr =>
-                {
-                    slr.NumberOfRetries = 1;
-                    slr.TimeIncrease = TimeSpan.FromMilliseconds(1);
+                    var recoverability = b.Recoverability();
+                    recoverability.Delayed(settings =>
+                    {
+                        settings.NumberOfRetries(1);
+                        settings.TimeIncrease(TimeSpan.FromMilliseconds(1));
+                    });
                 });
             }
 

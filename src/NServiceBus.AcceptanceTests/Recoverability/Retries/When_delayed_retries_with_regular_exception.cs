@@ -7,10 +7,9 @@ namespace NServiceBus.AcceptanceTests.Recoverability.Retries
     using EndpointTemplates;
     using Features;
     using MessageMutator;
-    using NServiceBus.Config;
     using NUnit.Framework;
 
-    public class When_performing_slr_with_regular_exception : NServiceBusAcceptanceTest
+    public class When_delayed_retries_with_regular_exception : NServiceBusAcceptanceTest
     {
         [Test]
         public async Task Should_preserve_the_original_body_for_regular_exceptions()
@@ -19,16 +18,16 @@ namespace NServiceBus.AcceptanceTests.Recoverability.Retries
                 .WithEndpoint<RetryEndpoint>(b => b
                     .When(session => session.SendLocal(new MessageToBeRetried()))
                     .DoNotFailOnErrorMessages())
-                .Done(c => c.SlrChecksum != default(byte))
+                .Done(c => c.DelayedRetryChecksum != default(byte))
                 .Run(TimeSpan.FromSeconds(120));
 
-            Assert.AreEqual(context.OriginalBodyChecksum, context.SlrChecksum, "The body of the message sent to slr should be the same as the original message coming off the queue");
+            Assert.AreEqual(context.OriginalBodyChecksum, context.DelayedRetryChecksum, "The body of the message sent to Delayed Retry should be the same as the original message coming off the queue");
         }
 
         class Context : ScenarioContext
         {
             public byte OriginalBodyChecksum { get; set; }
-            public byte SlrChecksum { get; set; }
+            public byte DelayedRetryChecksum { get; set; }
         }
 
         public class RetryEndpoint : EndpointConfigurationBuilder
@@ -39,10 +38,11 @@ namespace NServiceBus.AcceptanceTests.Recoverability.Retries
                 {
                     var scenarioContext = (Context) context.ScenarioContext;
                     configure.EnableFeature<TimeoutManager>();
-                    configure.Notifications.Errors.MessageSentToErrorQueue += (sender, message) => { scenarioContext.SlrChecksum = Checksum(message.Body); };
+                    configure.Notifications.Errors.MessageSentToErrorQueue += (sender, message) => { scenarioContext.DelayedRetryChecksum = Checksum(message.Body); };
                     configure.RegisterComponents(c => c.ConfigureComponent<BodyMutator>(DependencyLifecycle.InstancePerCall));
-                })
-                    .WithConfig<SecondLevelRetriesConfig>(c => c.TimeIncrease = TimeSpan.FromMilliseconds(1));
+                    var recoverability = configure.Recoverability();
+                    recoverability.Delayed(settings => settings.TimeIncrease(TimeSpan.FromMilliseconds(1)));
+                });
             }
 
             public static byte Checksum(byte[] data)
