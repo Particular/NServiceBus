@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus.Core.Tests.Routing
 {
-    using System.Collections.Generic;
     using NServiceBus.Routing;
     using NUnit.Framework;
 
@@ -47,7 +46,7 @@
 
         class FakeDistributionStrategy : DistributionStrategy
         {
-            public override IEnumerable<UnicastRoutingTarget> SelectDestination(IList<UnicastRoutingTarget> allInstances)
+            public override UnicastRoutingTarget SelectDestination(UnicastRoutingTarget[] allInstances)
             {
                 return null;
             }

@@ -22,9 +22,9 @@
             };
 
             var result = new List<UnicastRoutingTarget>();
-            result.AddRange(strategy.SelectDestination(instances));
-            result.AddRange(strategy.SelectDestination(instances));
-            result.AddRange(strategy.SelectDestination(instances));
+            result.Add(strategy.SelectDestination(instances));
+            result.Add(strategy.SelectDestination(instances));
+            result.Add(strategy.SelectDestination(instances));
 
             Assert.That(result.Count, Is.EqualTo(3));
             Assert.That(result, Has.Exactly(1).EqualTo(instances[0]));
@@ -46,10 +46,10 @@
             };
 
             var result = new List<UnicastRoutingTarget>();
-            result.AddRange(strategy.SelectDestination(instances));
-            result.AddRange(strategy.SelectDestination(instances));
-            result.AddRange(strategy.SelectDestination(instances));
-            result.AddRange(strategy.SelectDestination(instances));
+            result.Add(strategy.SelectDestination(instances));
+            result.Add(strategy.SelectDestination(instances));
+            result.Add(strategy.SelectDestination(instances));
+            result.Add(strategy.SelectDestination(instances));
 
             Assert.That(result.Last(), Is.EqualTo(result.First()));
         }
@@ -60,17 +60,17 @@
             var endpointName = "endpointA";
             var strategy = new SingleInstanceRoundRobinDistributionStrategy();
 
-            var instances = new List<UnicastRoutingTarget>
+            var instances = new []
             {
                 UnicastRoutingTarget.ToEndpointInstance(new EndpointInstance(endpointName, "1")),
                 UnicastRoutingTarget.ToEndpointInstance(new EndpointInstance(endpointName, "2")),
             };
 
             var result = new List<UnicastRoutingTarget>();
-            result.AddRange(strategy.SelectDestination(instances));
-            result.AddRange(strategy.SelectDestination(instances));
-            instances.Add(UnicastRoutingTarget.ToEndpointInstance(new EndpointInstance(endpointName, "3"))); // add new instance
-            result.AddRange(strategy.SelectDestination(instances));
+            result.Add(strategy.SelectDestination(instances));
+            result.Add(strategy.SelectDestination(instances));
+            instances = instances.Concat(new [] { UnicastRoutingTarget.ToEndpointInstance(new EndpointInstance(endpointName, "3"))}).ToArray(); // add new instance
+            result.Add(strategy.SelectDestination(instances));
 
             Assert.That(result.Count, Is.EqualTo(3));
             Assert.That(result, Has.Exactly(1).EqualTo(instances[0]));
@@ -84,7 +84,7 @@
             var strategy = new SingleInstanceRoundRobinDistributionStrategy();
 
             var endpointName = "endpointA";
-            var instances = new List<UnicastRoutingTarget>
+            var instances = new []
             {
                 UnicastRoutingTarget.ToEndpointInstance(new EndpointInstance(endpointName, "1")),
                 UnicastRoutingTarget.ToEndpointInstance(new EndpointInstance(endpointName, "2")),
@@ -92,10 +92,10 @@
             };
 
             var result = new List<UnicastRoutingTarget>();
-            result.AddRange(strategy.SelectDestination(instances));
-            result.AddRange(strategy.SelectDestination(instances));
-            instances.RemoveAt(2); // remove last instance.
-            result.AddRange(strategy.SelectDestination(instances));
+            result.Add(strategy.SelectDestination(instances));
+            result.Add(strategy.SelectDestination(instances));
+            instances = instances.Take(2).ToArray(); // remove last instance.
+            result.Add(strategy.SelectDestination(instances));
 
             Assert.That(result.Count, Is.EqualTo(3));
             Assert.That(result, Has.Exactly(2).EqualTo(instances[0]));
