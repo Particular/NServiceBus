@@ -6,16 +6,16 @@ namespace NServiceBus.Faults
     /// <summary>
     /// Delayed Retry event data.
     /// </summary>
-    public struct DelayedRetry
+    public class DelayedRetryMessage
     {
         /// <summary>
-        /// Creates a new instance of <see cref="DelayedRetry" />.
+        /// Creates a new instance of <see cref="DelayedRetryMessage" />.
         /// </summary>
         /// <param name="headers">Message headers.</param>
         /// <param name="body">Message body.</param>
         /// <param name="exception">Exception thrown.</param>
         /// <param name="retryAttempt">Number of retry attempt.</param>
-        public DelayedRetry(Dictionary<string, string> headers, byte[] body, Exception exception, int retryAttempt)
+        public DelayedRetryMessage(Dictionary<string, string> headers, byte[] body, Exception exception, int retryAttempt)
         {
             Headers = headers;
             Body = body;

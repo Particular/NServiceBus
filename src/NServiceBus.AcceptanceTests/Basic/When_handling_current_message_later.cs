@@ -4,9 +4,6 @@
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
-    using Features;
-    using NServiceBus.Config;
-    using NServiceBus;
     using NUnit.Framework;
     using UnitOfWork;
 
@@ -44,10 +41,8 @@
                 EndpointSetup<DefaultServer>(b =>
                 {
                     b.RegisterComponents(r => r.ConfigureComponent<CheckUnitOfWorkOutcome>(DependencyLifecycle.InstancePerCall));
-                    b.DisableFeature<TimeoutManager>();
                     b.ExecuteTheseHandlersFirst(typeof(FirstHandler), typeof(SecondHandler));
-                })
-                    .WithConfig<TransportConfig>(c => { c.MaxRetries = 0; });
+                });
             }
 
             class CheckUnitOfWorkOutcome : IManageUnitsOfWork

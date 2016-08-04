@@ -4,7 +4,6 @@
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
-    using NServiceBus.Config;
     using NUnit.Framework;
 
     public class When_error_is_overridden_in_code : NServiceBusAcceptanceTest
@@ -27,11 +26,7 @@
         {
             public UserEndpoint()
             {
-                EndpointSetup<DefaultServer>(b =>
-                {
-                    b.SendFailedMessagesTo("error_with_code_source");
-                })
-                    .WithConfig<TransportConfig>(c => { c.MaxRetries = 0; });
+                EndpointSetup<DefaultServer>(b => { b.SendFailedMessagesTo("error_with_code_source"); });
             }
 
             class Handler : IHandleMessages<Message>

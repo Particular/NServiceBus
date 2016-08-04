@@ -36,6 +36,20 @@
             {
                 throw new NotSupportedException($"The {nameof(MasterNodeConfig)} configuration section is no longer supported. Remove this from this configuration section. Switch to the code API by using `{nameof(EndpointConfiguration)}.EnlistWithLegacyMSMQDistributor` instead.");
             }
+
+            var secondLevelRetriesConfig = context.Settings.GetConfigSection<SecondLevelRetriesConfig>();
+
+            if (secondLevelRetriesConfig != null)
+            {
+                throw new NotSupportedException($"The {nameof(secondLevelRetriesConfig)} configuration section is no longer supported. Remove this from this configuration section. Switch to the code API by using `endpointConfiguration.Recoverability().Delayed(settings => ...)` instead.");
+            }
+
+            var transportConfig = context.Settings.GetConfigSection<TransportConfig>();
+
+            if (transportConfig != null)
+            {
+                throw new NotSupportedException($"The {nameof(transportConfig)} configuration section is no longer supported. Remove this from this configuration section. Switch to the code API by using `endpointConfiguration.LimitMessageProcessingConcurrencyTo(1)` to change the concurrency level or `endpointConfiguration.Recoverability().Immediate(settings => settings.NumberOfRetries(5)` to change the number of immediate retries instead.");
+            }
         }
     }
 }

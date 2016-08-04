@@ -356,7 +356,7 @@
     <Compile Include="Pipeline\IBehavior.cs" />
     <Compile Include="Pipeline\MutateInstanceMessage\MutateIncomingMessageContext.cs" />
     <Compile Include="Pipeline\MutateTransportMessage\MutateIncomingTransportMessageContext.cs" />
-    <Compile Include="Recoverability\ImmediateRetries\ImmediateRetry.cs" />
+    <Compile Include="Recoverability\ImmediateRetries\ImmediateRetryMessage.cs" />
     <Compile Include="Recoverability\Faults\ErrorQueueSettings.cs" />
     <Compile Include="Forwarding\IForwardingContext.cs" />
     <Compile Include="Forwarding\ForwardingToRoutingConnector.cs" />
@@ -459,7 +459,7 @@
     <Compile Include="Sagas\SagaInvocationResult.cs" />
     <Compile Include="Pipeline\Incoming\TransportReceiveToPhysicalMessageProcessingConnector.cs" />
     <Compile Include="Pipeline\IBehaviorInvoker.cs" />
-    <Compile Include="Recoverability\DelayedRetries\DelayedRetry.cs" />
+    <Compile Include="Recoverability\DelayedRetries\DelayedRetryMessage.cs" />
     <Compile Include="Features\AdvanceExtensibilityExtensions.cs" />
     <Compile Include="Features\DisplayDiagnosticsForFeatures.cs" />
     <Compile Include="Features\ExposeSettings.cs" />
@@ -671,7 +671,6 @@
     <Compile Include="Transports\Msmq\QueueCreator.cs" />
     <Compile Include="Transports\Msmq\MsmqUtilities.cs" />
     <Compile Include="Encryption\RijndaelEncryptionServiceConfig.cs" />
-    <Compile Include="Transports\TransportConfig.cs" />
     <Compile Include="Unicast\UnicastBusConfig.cs" />
     <Compile Include="DataBus\DataBusFileBased.cs" />
     <Compile Include="DataBus\DefaultDatabusSerializer.cs" />

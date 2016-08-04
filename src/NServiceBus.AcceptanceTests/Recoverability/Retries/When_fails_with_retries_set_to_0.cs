@@ -4,7 +4,6 @@
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
-    using NServiceBus.Config;
     using NUnit.Framework;
 
     public class When_fails_with_retries_set_to_0 : NServiceBusAcceptanceTest
@@ -42,9 +41,9 @@
                 EndpointSetup<DefaultServer>((configure, context) =>
                 {
                     var scenarioContext = (Context) context.ScenarioContext;
+                    configure.Recoverability().Immediate(immediate => immediate.NumberOfRetries(0));
                     configure.Notifications.Errors.MessageSentToErrorQueue += (sender, message) => scenarioContext.GaveUp = true;
-                })
-                    .WithConfig<TransportConfig>(c => { c.MaxRetries = 0; });
+                });
             }
 
             class MessageToBeRetriedHandler : IHandleMessages<MessageToBeRetried>

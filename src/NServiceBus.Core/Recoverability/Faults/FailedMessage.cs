@@ -6,7 +6,7 @@ namespace NServiceBus.Faults
     /// <summary>
     /// Error message event data.
     /// </summary>
-    public struct FailedMessage
+    public class FailedMessage
     {
         /// <summary>
         /// Creates a new instance of <see cref="FailedMessage" />.

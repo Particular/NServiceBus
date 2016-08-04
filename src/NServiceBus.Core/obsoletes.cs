@@ -1017,6 +1017,8 @@ namespace NServiceBus.Unicast.Subscriptions
 
 namespace NServiceBus.Unicast.Routing
 {
+    using System;
+
     [ObsoleteEx(
         RemoveInVersion = "7.0",
         TreatAsErrorFromVersion = "6.0",
@@ -1027,7 +1029,11 @@ namespace NServiceBus.Unicast.Routing
             TreatAsErrorFromVersion = "6",
             RemoveInVersion = "7",
             ReplacementTypeOrMember = "config.AutoSubscribe().AutoSubscribePlainMessages()")]
-        public bool SubscribeToPlainMessages { get; set; }
+        public bool SubscribeToPlainMessages
+        {
+            get { throw new NotImplementedException(); }
+            set { throw new NotImplementedException(); }
+        }
     }
 }
 
@@ -1079,45 +1085,33 @@ namespace NServiceBus.Config
         const string Error = "Second Level Retries has been renamed to Delayed Retries. The app.config API has been removed, use the code API via endpointConfiguration.Recoverability().Delayed(settings => ...);.";
 
         [ObsoleteEx(
-             Message = Error,
-             RemoveInVersion = "7",
-             TreatAsErrorFromVersion = "6")]
-        public SecondLevelRetriesConfig()
-        {
-            throw new NotImplementedException(Error);
-        }
-
-        const string EnabledError = Error  + " To disable use endpointConfiguration.Recoverability().Delayed(settings => settings.NumberOfRetries(0));";
-        [ObsoleteEx(
-             Message = EnabledError,
+             Message = Error  + " To disable use endpointConfiguration.Recoverability().Delayed(settings => settings.NumberOfRetries(0));",
              RemoveInVersion = "7",
              TreatAsErrorFromVersion = "6")]
         public bool Enabled
         {
-            get { throw new NotImplementedException(EnabledError); }
-            set { throw new NotImplementedException(EnabledError); }
+            get { throw new NotImplementedException(); }
+            set { throw new NotImplementedException(); }
         }
 
-        const string TimeIncreaseError = Error + " To change the TimeIncrease use endpointConfiguration.Recoverability().Delayed(settings => settings.TimeIncrease(TimeSpan.FromMinutes(5));";
         [ObsoleteEx(
-             Message = TimeIncreaseError,
+             Message = Error + " To change the TimeIncrease use endpointConfiguration.Recoverability().Delayed(settings => settings.TimeIncrease(TimeSpan.FromMinutes(5));",
              RemoveInVersion = "7",
              TreatAsErrorFromVersion = "6")]
         public TimeSpan TimeIncrease
         {
-            get { throw new NotImplementedException(TimeIncreaseError); }
-            set { throw new NotImplementedException(TimeIncreaseError); }
+            get { throw new NotImplementedException(); }
+            set { throw new NotImplementedException(); }
         }
 
-        const string NumberOfRetriesError = Error + " To change the NumberOfRetries use endpointConfiguration.Recoverability().Delayed(settings => settings.NumberOfRetries(5);";
         [ObsoleteEx(
-             Message = NumberOfRetriesError,
+             Message = Error + " To change the NumberOfRetries use endpointConfiguration.Recoverability().Delayed(settings => settings.NumberOfRetries(5);",
              RemoveInVersion = "7",
              TreatAsErrorFromVersion = "6")]
         public int NumberOfRetries
         {
-            get { throw new NotImplementedException(NumberOfRetriesError); }
-            set { throw new NotImplementedException(NumberOfRetriesError); }
+            get { throw new NotImplementedException(); }
+            set { throw new NotImplementedException(); }
         }
     }
 
@@ -1127,6 +1121,45 @@ namespace NServiceBus.Config
         ReplacementTypeOrMember = "EndpointConfiguration.EnlistWithLegacyMSMQDistributor")]
     public class MasterNodeConfig : ConfigurationSection
     {
+    }
+
+    [ObsoleteEx(
+        Message = Error,
+        RemoveInVersion = "7",
+        TreatAsErrorFromVersion = "6")]
+    public class TransportConfig : ConfigurationSection
+    {
+        const string Error = "The app.config API TransportConfig has been removed, use the code API.";
+
+        [ObsoleteEx(
+            TreatAsErrorFromVersion = "6",
+            RemoveInVersion = "7",
+            Message = Error + " To change the concurrency level use endpointConfiguration.LimitMessageProcessingConcurrencyTo(1);")]
+        public int MaximumConcurrencyLevel
+        {
+            get { throw new NotImplementedException(); }
+            set { throw new NotImplementedException(); }
+        }
+
+        [ObsoleteEx(
+            TreatAsErrorFromVersion = "6",
+            RemoveInVersion = "7",
+            Message = Error + " To change the NumberOfRetries use endpointConfiguration.Recoverability().Immediate(settings => settings.NumberOfRetries(5);")]
+        public int MaxRetries
+        {
+            get { throw new NotImplementedException(); }
+            set { throw new NotImplementedException(); }
+        }
+
+        [ObsoleteEx(
+            TreatAsErrorFromVersion = "6",
+            RemoveInVersion = "7",
+            Message = "Message throughput throttling has been removed. Consult the documentation for further information.")]
+        public int MaximumMessageThroughputPerSecond
+        {
+            get { throw new NotImplementedException(); }
+            set { throw new NotImplementedException(); }
+        }
     }
 }
 
@@ -1156,12 +1189,29 @@ namespace NServiceBus.SecondLevelRetries.Config
 
 namespace NServiceBus.Faults
 {
+    using System;
+
+    public partial class ErrorsNotifications
+    {
+        [ObsoleteEx(
+            TreatAsErrorFromVersion = "6.0",
+            RemoveInVersion = "7.0",
+            ReplacementTypeOrMember = nameof(MessageHasBeenSentToDelayedRetries)
+            )]
+        public EventHandler MessageHasBeenSentToSecondLevelRetries;
+
+        [ObsoleteEx(
+            TreatAsErrorFromVersion = "6.0",
+            RemoveInVersion = "7.0",
+            ReplacementTypeOrMember = nameof(MessageHasFailedAnImmediateRetryAttempt))]
+        public EventHandler MessageHasFailedAFirstLevelRetryAttempt;
+    }
 
     [ObsoleteEx(
          Message = "First Level Retries has been renamed to Immediate Retries",
          RemoveInVersion = "7",
          TreatAsErrorFromVersion = "6",
-         ReplacementTypeOrMember = "NServiceBus.Faults.ImmediateRetry")]
+         ReplacementTypeOrMember = "NServiceBus.Faults.ImmediateRetryMessage")]
     public struct FirstLevelRetry
     {
     }
@@ -1169,7 +1219,7 @@ namespace NServiceBus.Faults
          Message = "Second Level Retries has been renamed to Delayed Retries",
          RemoveInVersion = "7",
          TreatAsErrorFromVersion = "6",
-         ReplacementTypeOrMember = "NServiceBus.Faults.DelayedRetry")]
+         ReplacementTypeOrMember = "NServiceBus.Faults.DelayedRetryMessage")]
     public struct SecondLevelRetry
     {
     }
