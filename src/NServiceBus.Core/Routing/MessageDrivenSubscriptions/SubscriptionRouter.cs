@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
     using System.Threading.Tasks;
     using Routing;
     using Routing.MessageDrivenSubscriptions;
@@ -18,19 +17,17 @@
 
         public async Task<IEnumerable<string>> GetAddressesForEventType(Type messageType)
         {
-            var results = new List<string>();
+            var results = new HashSet<string>();
             foreach (var publisherAddress in publishers.GetPublisherFor(messageType))
             {
-                results.AddRange(await publisherAddress.Resolve(
-                    ResolveInstances,
-                    i => transportAddressTranslation(i)).ConfigureAwait(false));
+                var addresses = await publisherAddress.Resolve(endpoint => endpointInstances.FindInstances(endpoint), i => transportAddressTranslation(i)).ConfigureAwait(false);
+                foreach (var address in addresses)
+                {
+                    results.Add(address);
+                }
             }
-            return results.Distinct();
-        }
 
-        Task<IEnumerable<EndpointInstance>> ResolveInstances(string endpoint)
-        {
-            return endpointInstances.FindInstances(endpoint);
+            return results;
         }
 
         EndpointInstances endpointInstances;
