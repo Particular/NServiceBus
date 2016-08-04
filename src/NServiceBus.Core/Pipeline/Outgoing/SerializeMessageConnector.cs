@@ -1,4 +1,4 @@
-﻿namespace NServiceBus
+namespace NServiceBus
 {
     using System;
     using System.IO;
@@ -9,7 +9,6 @@
     using Serialization;
     using Unicast.Messages;
 
-    //todo: rename to LogicalOutgoingContext
     class SerializeMessageConnector : StageConnector<IOutgoingLogicalMessageContext, IOutgoingPhysicalMessageContext>
     {
         public SerializeMessageConnector(IMessageSerializer messageSerializer, MessageMetadataRegistry messageMetadataRegistry)

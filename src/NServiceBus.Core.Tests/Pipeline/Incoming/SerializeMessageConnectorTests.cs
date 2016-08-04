@@ -1,23 +1,31 @@
-﻿namespace NServiceBus.Core.Tests.Serializers
+﻿namespace NServiceBus.Core.Tests.Pipeline.Incoming
 {
     using System;
     using System.Collections.Generic;
     using System.IO;
     using System.Threading.Tasks;
-    using Serialization;
-    using Unicast.Messages;
+    using NServiceBus.Pipeline;
     using NUnit.Framework;
+    using Serialization;
+    using Testing;
+    using Unicast.Messages;
 
-    public class SerializeMessagesBehaviorTests
+    [TestFixture]
+    public class SerializeMessageConnectorTests
     {
         [Test]
         public async Task Should_set_content_type_header()
         {
             var registry = new MessageMetadataRegistry(new Conventions());
 
-            registry.RegisterMessageTypesFoundIn(new List<Type> { typeof(MyMessage) });
+            registry.RegisterMessageTypesFoundIn(new List<Type>
+            {
+                typeof(MyMessage)
+            });
 
-            var context = ContextHelpers.GetOutgoingContext(new MyMessage());
+            var context = new TestableOutgoingLogicalMessageContext();
+            context.Message = new OutgoingLogicalMessage(typeof(MyMessage), new MyMessage());
+
             var behavior = new SerializeMessageConnector(new FakeSerializer("myContentType"), registry);
 
             await behavior.Invoke(context, c => TaskEx.CompletedTask);
@@ -34,7 +42,6 @@
 
             public void Serialize(object message, Stream stream)
             {
-
             }
 
             public object[] Deserialize(Stream stream, IList<Type> messageTypes = null)
@@ -45,6 +52,8 @@
             public string ContentType { get; }
         }
 
-        class MyMessage : IMessage { }
+        class MyMessage : IMessage
+        {
+        }
     }
 }

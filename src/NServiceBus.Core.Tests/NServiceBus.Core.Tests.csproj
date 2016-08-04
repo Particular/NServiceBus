@@ -141,6 +141,7 @@
     <Compile Include="Persistence\InMemory\When_persisting_a_saga_with_InMemory_and_an_escalated_DTC_transaction.cs" />
     <Compile Include="Persistence\PersistenceStartupTests.cs" />
     <Compile Include="Pipeline\HeaderOptionExtensionsTests.cs" />
+    <Compile Include="Pipeline\Incoming\SerializeMessageConnectorTests.cs" />
     <Compile Include="Pipeline\Incoming\InvokeHandlerTerminatorTest.cs" />
     <Compile Include="Pipeline\MutateInstanceMessage\MutateIncomingMessageBehaviorTests.cs" />
     <Compile Include="Pipeline\MutateInstanceMessage\MutateOutgoingMessageBehaviorTests.cs" />
@@ -215,7 +216,6 @@
     <Compile Include="Msmq\ConnectionStringParserTests.cs" />
     <Compile Include="Sagas\SagaModelTests.cs" />
     <Compile Include="Sagas\SagaMetadataCreationTests.cs" />
-    <Compile Include="Serializers\SerializeMessagesBehaviorTests.cs" />
     <Compile Include="Serializers\XML\SerializingNullableTypesTests.cs" />
     <Compile Include="Settings\SettingsHolderTests.cs" />
     <Compile Include="StandardsTests.cs" />

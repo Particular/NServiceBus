@@ -121,6 +121,7 @@
     <Compile Include="Pipeline\IPipelineExecutor.cs" />
     <Compile Include="Pipeline\MainPipelineExecutor.cs" />
     <Compile Include="Pipeline\Outgoing\AttachSenderRelatedInfoOnMessageBehavior.cs" />
+    <Compile Include="Pipeline\Outgoing\SerializeMessageConnector.cs" />
     <Compile Include="Pipeline\PipelineCache.cs" />
     <Compile Include="Pipeline\satellitePipelineExecutor.cs" />
     <Compile Include="Pipeline\StageForkConnector.cs" />
@@ -625,7 +626,6 @@
     <Compile Include="Pipeline\Incoming\LoadHandlersConnector.cs" />
     <Compile Include="Pipeline\Incoming\LogicalMessage.cs" />
     <Compile Include="Pipeline\Incoming\MessageHandler.cs" />
-    <Compile Include="Serialization\SerializeMessageConnector.cs" />
     <Compile Include="Pipeline\Outgoing\OutgoingPhysicalToRoutingConnector.cs" />
     <Compile Include="Pipeline\MutateInstanceMessage\MutateOutgoingMessageBehavior.cs" />
     <Compile Include="Pipeline\MutateTransportMessage\MutateOutgoingTransportMessageBehavior.cs" />
