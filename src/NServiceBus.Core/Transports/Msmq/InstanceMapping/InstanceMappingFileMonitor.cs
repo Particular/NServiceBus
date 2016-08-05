@@ -9,14 +9,15 @@ namespace NServiceBus
     using Logging;
     using Routing;
 
-    class InstanceMappingTable : FeatureStartupTask
+    class InstanceMappingFileMonitor : FeatureStartupTask
     {
-        public InstanceMappingTable(string filePath, TimeSpan checkInterval, IAsyncTimer timer, IInstanceMappingFileAccess fileAccess)
+        public InstanceMappingFileMonitor(string filePath, TimeSpan checkInterval, IAsyncTimer timer, IInstanceMappingFileAccess fileAccess, EndpointInstances endpointInstances)
         {
             this.filePath = filePath;
             this.checkInterval = checkInterval;
             this.timer = timer;
             this.fileAccess = fileAccess;
+            this.endpointInstances = endpointInstances;
         }
 
         protected override Task OnStart(IMessageSession session)
@@ -35,14 +36,8 @@ namespace NServiceBus
             {
                 var doc = fileAccess.Load(filePath);
                 var instances = parser.Parse(doc);
-
-                var newInstanceMap = instances
-                    .GroupBy(i => i.Endpoint)
-                    .ToDictionary(g => g.Key, g => new HashSet<EndpointInstance>(g));
-
-                LogChanges(instanceMap, newInstanceMap);
-
-                instanceMap = newInstanceMap;
+                LogChanges(instances, filePath);
+                endpointInstances.AddOrReplaceInstances("InstanceMappingFile", instances);
             }
             catch (Exception ex)
             {
@@ -50,16 +45,19 @@ namespace NServiceBus
             }
         }
 
-        void LogChanges(Dictionary<string, HashSet<EndpointInstance>> oldInstanceMap, Dictionary<string, HashSet<EndpointInstance>> newInstanceMap)
+        void LogChanges(List<EndpointInstance> instances, string filepath)
         {
             var output = new StringBuilder();
             var hasChanges = false;
-            output.AppendLine($"Updating instance mapping table from '{filePath}':");
 
-            foreach (var endpoint in newInstanceMap)
+            var instancesPerEndpoint = instances.GroupBy(i => i.Endpoint).ToDictionary(g => g.Key, g => g.ToArray());
+
+            output.AppendLine($"Updating instance mapping table from '{filepath}':");
+
+            foreach (var endpoint in instancesPerEndpoint)
             {
-                HashSet<EndpointInstance> existingInstances;
-                if (oldInstanceMap.TryGetValue(endpoint.Key, out existingInstances))
+                EndpointInstance[] existingInstances;
+                if (previousInstances.TryGetValue(endpoint.Key, out existingInstances))
                 {
                     var newInstances = endpoint.Value.Except(existingInstances).Count();
                     var removedInstances = existingInstances.Except(endpoint.Value).Count();
@@ -72,12 +70,12 @@ namespace NServiceBus
                 }
                 else
                 {
-                    output.AppendLine($"Added endpoint '{endpoint.Key}' with {Instances(endpoint.Value.Count)}");
+                    output.AppendLine($"Added endpoint '{endpoint.Key}' with {Instances(endpoint.Value.Length)}");
                     hasChanges = true;
                 }
             }
 
-            foreach (var removedEndpoint in oldInstanceMap.Keys.Except(newInstanceMap.Keys))
+            foreach (var removedEndpoint in previousInstances.Keys.Except(instancesPerEndpoint.Keys))
             {
                 output.AppendLine($"Removed all instances of endpoint '{removedEndpoint}'");
                 hasChanges = true;
@@ -87,6 +85,8 @@ namespace NServiceBus
             {
                 log.Info(output.ToString());
             }
+
+            previousInstances = instancesPerEndpoint;
         }
 
         static string Instances(int count)
@@ -94,27 +94,16 @@ namespace NServiceBus
             return count > 1 ? $"{count} instances" : $"{count} instance";
         }
 
-        public Task<IEnumerable<EndpointInstance>> FindInstances(string endpoint)
-        {
-            HashSet<EndpointInstance> result;
-
-            // ReSharper disable once PossibleNullReferenceException
-            return instanceMap.TryGetValue(endpoint, out result)
-                ? Task.FromResult<IEnumerable<EndpointInstance>>(result)
-                : noInstances;
-        }
-
         protected override Task OnStop(IMessageSession session) => timer.Stop();
 
         TimeSpan checkInterval;
         IInstanceMappingFileAccess fileAccess;
         string filePath;
-
-        Dictionary<string, HashSet<EndpointInstance>> instanceMap = new Dictionary<string, HashSet<EndpointInstance>>(0);
+        EndpointInstances endpointInstances;
         InstanceMappingFileParser parser = new InstanceMappingFileParser();
         IAsyncTimer timer;
-        Task<IEnumerable<EndpointInstance>> noInstances = Task.FromResult(Enumerable.Empty<EndpointInstance>());
+        IDictionary<string, EndpointInstance[]> previousInstances = new Dictionary<string, EndpointInstance[]>(0);
 
-        static readonly ILog log = LogManager.GetLogger(typeof(InstanceMappingTable));
+        static ILog log = LogManager.GetLogger(typeof(InstanceMappingFileMonitor));
     }
 }

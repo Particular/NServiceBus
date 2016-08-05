@@ -9,89 +9,44 @@ namespace NServiceBus.Routing.MessageDrivenSubscriptions
     /// </summary>
     public class Publishers
     {
-        internal IEnumerable<PublisherAddress> GetPublisherFor(Type eventType)
+        internal PublisherAddress GetPublisherFor(Type eventType)
         {
-            List<PublisherAddress> staticPublishersForType;
-            if (!staticPublishers.TryGetValue(eventType, out staticPublishersForType))
-            {
-                staticPublishersForType = emptyList;
-            }
+            PublisherAddress address;
+            return publishers.TryGetValue(eventType, out address)
+                ? address
+                : null;
+        }
 
-            if (dynamicRules.Count > 0)
+        /// <summary>
+        /// Adds or replaces a set of publisher registrations.
+        /// </summary>
+        /// <param name="sourceKey">Key for this registration source.</param>
+        /// <param name="entries">Entries.</param>
+        public void AddOrReplacePublishers(string sourceKey, IList<PublisherTableEntry> entries)
+        {
+            lock (updateLock)
             {
-                var dynamicAddresses = new List<PublisherAddress>();
-                foreach (var rule in dynamicRules)
+                pubisherRegistrations[sourceKey] = entries;
+                var newRouteTableTemplate = new Dictionary<Type, PublisherTableEntry>();
+                foreach (var entry in pubisherRegistrations.Values.SelectMany(g => g))
                 {
-                    var address = rule(eventType);
-                    if (address != null)
+                    PublisherTableEntry existing;
+                    if (!newRouteTableTemplate.TryGetValue(entry.EventType, out existing))
                     {
-                        dynamicAddresses.Add(address);
+                        newRouteTableTemplate[entry.EventType] = entry;
+                    }
+                    else
+                    {
+                        throw new Exception($"Publisher for type {entry.EventType.FullName} already registered.");
                     }
                 }
-
-                return staticPublishersForType.Count > 0 ? staticPublishersForType.Concat(dynamicAddresses) : dynamicAddresses;
-            }
-
-            return staticPublishersForType;
-        }
-
-        /// <summary>
-        /// Registers a logical publisher for a given event type.
-        /// </summary>
-        /// <param name="eventType">The event type.</param>
-        /// <param name="publisher">The publisher endpoint.</param>
-        public void Add(Type eventType, string publisher)
-        {
-            AddStaticPublisher(eventType, PublisherAddress.CreateFromEndpointName(publisher));
-        }
-
-        /// <summary>
-        /// Registers a publisher endpoint instance for a given event type.
-        /// </summary>
-        /// <param name="eventType">The event type.</param>
-        /// <param name="endpointInstance">The publisher endpoint instance.</param>
-        public void Add(Type eventType, EndpointInstance endpointInstance)
-        {
-            AddStaticPublisher(eventType, PublisherAddress.CreateFromEndpointInstances(endpointInstance));
-        }
-
-        void AddStaticPublisher(Type eventType, PublisherAddress address)
-        {
-            List<PublisherAddress> addresses;
-            if (staticPublishers.TryGetValue(eventType, out addresses))
-            {
-                addresses.Add(address);
-            }
-            else
-            {
-                staticPublishers.Add(eventType, new List<PublisherAddress>
-                {
-                    address
-                });
+                var newRouteTable = newRouteTableTemplate.ToDictionary(e => e.Key, e => e.Value.Address);
+                publishers = newRouteTable;
             }
         }
 
-        /// <summary>
-        /// Registers a publisher address for a given event type.
-        /// </summary>
-        /// <param name="eventType">The event type.</param>
-        /// <param name="publisherAddress">The publisher's physical address.</param>
-        public void AddByAddress(Type eventType, string publisherAddress)
-        {
-            AddStaticPublisher(eventType, PublisherAddress.CreateFromPhysicalAddresses(publisherAddress));
-        }
-
-        /// <summary>
-        /// Adds a dynamic rule.
-        /// </summary>
-        /// <param name="dynamicRule">The rule.</param>
-        public void AddDynamic(Func<Type, PublisherAddress> dynamicRule)
-        {
-            dynamicRules.Add(dynamicRule);
-        }
-
-        Dictionary<Type, List<PublisherAddress>> staticPublishers = new Dictionary<Type, List<PublisherAddress>>();
-        List<Func<Type, PublisherAddress>> dynamicRules = new List<Func<Type, PublisherAddress>>();
-        List<PublisherAddress> emptyList = new List<PublisherAddress>(0);
+        Dictionary<Type, PublisherAddress> publishers = new Dictionary<Type, PublisherAddress>();
+        Dictionary<object, IList<PublisherTableEntry>> pubisherRegistrations = new Dictionary<object, IList<PublisherTableEntry>>();
+        object updateLock = new object();
     }
 }

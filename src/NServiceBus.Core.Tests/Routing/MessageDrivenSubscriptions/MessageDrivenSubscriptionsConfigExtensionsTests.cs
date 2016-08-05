@@ -1,7 +1,7 @@
 ﻿namespace NServiceBus.Core.Tests.Routing.MessageDrivenSubscriptions
 {
+    using NServiceBus;
     using System;
-    using System.Linq;
     using System.Reflection;
     using EventNamespace;
     using MessageNameSpace;
@@ -14,7 +14,7 @@
     using Transport;
 
     [TestFixture]
-    public class MessageDrivenSubscriptionsConfigExtensionsTests
+    public class RoutingSettingsTests
     {
         [Test]
         public void WhenPassingTransportAddressForPublisherInsteadOfEndpointName_ShouldThrowException()
@@ -52,7 +52,7 @@
             var publishers = ApplyPublisherRegistrations(routingSettings);
 
             var publishersForEvent = publishers.GetPublisherFor(typeof(Event));
-            Assert.AreEqual(publishersForEvent.Count(), 1);
+            Assert.IsNotNull(publishersForEvent);
         }
 
         [Test]
@@ -65,8 +65,9 @@
 
             var publishersForEvent = publishers.GetPublisherFor(typeof(Event));
             var publishersForEventWithNamespace = publishers.GetPublisherFor(typeof(EventWithNamespace));
-            Assert.AreEqual(publishersForEvent.Count(), 1);
-            Assert.AreEqual(publishersForEventWithNamespace.Count(), 1);
+
+            Assert.IsNotNull(publishersForEvent);
+            Assert.IsNotNull(publishersForEventWithNamespace);
         }
 
         [Test]
@@ -79,8 +80,9 @@
 
             var publishersForEvent = publishers.GetPublisherFor(typeof(Event));
             var publishersForEventWithNamespace = publishers.GetPublisherFor(typeof(EventWithNamespace));
-            Assert.AreEqual(publishersForEvent.Count(), 0);
-            Assert.AreEqual(publishersForEventWithNamespace.Count(), 1);
+
+            Assert.IsNull(publishersForEvent);
+            Assert.IsNotNull(publishersForEventWithNamespace);
         }
 
         [Test]
@@ -96,10 +98,10 @@
             var result3 = publishers.GetPublisherFor(typeof(EventWithoutNamespace));
             var result4 = publishers.GetPublisherFor(typeof(IMessageInterface));
 
-            Assert.AreEqual(1, result1.Count());
-            Assert.AreEqual(1, result2.Count());
-            Assert.AreEqual(1, result3.Count());
-            Assert.AreEqual(1, result4.Count());
+            Assert.IsNotNull(result1);
+            Assert.IsNotNull(result2);
+            Assert.IsNotNull(result3);
+            Assert.IsNotNull(result4);
         }
 
         [Test]
@@ -115,10 +117,10 @@
             var result3 = publishers.GetPublisherFor(typeof(EventWithoutNamespace));
             var result4 = publishers.GetPublisherFor(typeof(IMessageInterface));
 
-            Assert.AreEqual(1, result1.Count());
-            Assert.AreEqual(1, result4.Count());
-            Assert.IsEmpty(result2);
-            Assert.IsEmpty(result3);
+            Assert.IsNotNull(result1);
+            Assert.IsNotNull(result4);
+            Assert.IsNull(result2);
+            Assert.IsNull(result3);
         }
 
         [Theory]
@@ -136,24 +138,17 @@
             var result3 = publishers.GetPublisherFor(typeof(EventWithoutNamespace));
             var result4 = publishers.GetPublisherFor(typeof(IMessageInterface));
 
-            Assert.AreEqual(1, result3.Count());
-            Assert.IsEmpty(result1);
-            Assert.IsEmpty(result2);
-            Assert.IsEmpty(result4);
+            Assert.IsNotNull(result3);
+            Assert.IsNull(result1);
+            Assert.IsNull(result2);
+            Assert.IsNull(result4);
         }
 
         static Publishers ApplyPublisherRegistrations(RoutingSettings<MessageDrivenTransportDefinition> routingSettings)
         {
             var publishers = new Publishers();
-            var conventions = new Conventions();
-            conventions.IsMessageTypeAction = type => true;
-
             var registrations = routingSettings.Settings.Get<ConfiguredPublishers>();
-            foreach (var publisherRegistration in registrations)
-            {
-                publisherRegistration(publishers, conventions);
-            }
-
+            registrations.Apply(publishers, new Conventions());
             return publishers;
         }
 
@@ -173,11 +168,38 @@
 
 namespace EventNamespace
 {
-    class EventWithNamespace
+    using NServiceBus;
+    class EventWithNamespace : IEvent
     {
     }
 }
 
-class Event
+class Event : NServiceBus.IEvent
+{
+}
+
+namespace MessageNameSpace
+{
+    using NServiceBus;
+
+    interface IMessageInterface : IEvent
+    {
+    }
+
+    class BaseMessage : IMessageInterface
+    {
+    }
+}
+
+namespace OtherMesagenameSpace
+{
+    using MessageNameSpace;
+
+    class SubMessage : BaseMessage
+    {
+    }
+}
+
+class EventWithoutNamespace : NServiceBus.IEvent
 {
 }

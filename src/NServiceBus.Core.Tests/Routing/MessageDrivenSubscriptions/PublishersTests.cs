@@ -1,155 +1,78 @@
-﻿namespace NServiceBus.Core.Tests.Routing.MessageDrivenSubscriptions
+﻿
+namespace NServiceBus.Core.Tests.Routing.MessageDrivenSubscriptions
 {
-    using System.Linq;
-    using MessageNameSpace;
-    using NServiceBus.Routing;
+    using System.Collections.Generic;
     using NServiceBus.Routing.MessageDrivenSubscriptions;
     using NUnit.Framework;
-    using OtherMesagenameSpace;
 
     [TestFixture]
     public class PublishersTests
     {
         [Test]
-        public void Should_return_empty_list_for_events_with_no_routes()
+        public void When_group_does_not_exist_should_add_routes()
         {
-            var publishers = new Publishers();
-
-            var result = publishers.GetPublisherFor(typeof(BaseMessage));
-
-            Assert.IsEmpty(result);
-        }
-
-        [Test]
-        public void Should_return_all_routes_registered_for_type()
-        {
-            var publishers = new Publishers();
-            publishers.Add(typeof(BaseMessage), "logicalEndpoint");
-            publishers.Add(typeof(BaseMessage), "logicalEndpoint");
-            publishers.Add(typeof(BaseMessage), "logicalEndpoint2");
-            publishers.Add(typeof(BaseMessage), new EndpointInstance("logicalEndpoint", "42"));
-            publishers.AddByAddress(typeof(BaseMessage), "address1");
-
-            var result = publishers.GetPublisherFor(typeof(BaseMessage));
-
-            Assert.AreEqual(5, result.Count());
-        }
-
-        [Test]
-        public void Should_return_static_and_dynamic_routes_for_registered_type()
-        {
-            var publishers = new Publishers();
-            publishers.Add(typeof(BaseMessage), "logicalEndpoint");
-            publishers.AddDynamic(e => PublisherAddress.CreateFromEndpointName(e.ToString()));
-
-            var result = publishers.GetPublisherFor(typeof(BaseMessage));
-
-            Assert.AreEqual(2, result.Count());
-        }
-
-        [Test]
-        public void Should_evaluate_dynamic_rules_on_each_call()
-        {
-            var c = 0;
-            var publishers = new Publishers();
-            publishers.AddDynamic(t => PublisherAddress.CreateFromEndpointName((++c).ToString()));
-
-            publishers.GetPublisherFor(typeof(BaseMessage));
-            publishers.GetPublisherFor(typeof(BaseMessage));
-
-            Assert.AreEqual(2, c);
-        }
-
-        [Test]
-        public void Should_not_return_null_results_from_dynamic_rules()
-        {
-            var publishers = new Publishers();
-            publishers.AddDynamic(t => null);
-
-            var result = publishers.GetPublisherFor(typeof(BaseMessage));
-
-            Assert.IsEmpty(result);
-        }
-
-        [Test]
-        public void Should_not_return_rules_for_subclasses()
-        {
-            var publishers = new Publishers();
-            publishers.Add(typeof(SubMessage), "address");
-
-            var result = publishers.GetPublisherFor(typeof(BaseMessage));
-
-            Assert.IsEmpty(result);
-        }
-
-        [Test]
-        public void Should_not_return_rules_for_baseclasses()
-        {
-            var publishers = new Publishers();
-            publishers.Add(typeof(BaseMessage), "address");
-
-            var result = publishers.GetPublisherFor(typeof(SubMessage));
-
-            Assert.IsEmpty(result);
-        }
-
-        [Test]
-        public void Should_not_return_rules_for_implemented_interfaces()
-        {
-            var publishers = new Publishers();
-            publishers.Add(typeof(IMessageInterface), "address");
-
-            var result = publishers.GetPublisherFor(typeof(BaseMessage));
-
-            Assert.IsEmpty(result);
-        }
-
-        [Test]
-        public void Dynamic_rules_should_not_leak_into_static_rules()
-        {
-            var calledOnce = false;
-            var publishers = new Publishers();
-            publishers.Add(typeof(BaseMessage), "address");
-            publishers.AddDynamic(e =>
+            var publisherTable = new Publishers();
+            var publisher = PublisherAddress.CreateFromEndpointName("Endpoint1");
+            publisherTable.AddOrReplacePublishers("key", new List<PublisherTableEntry>
             {
-                if (calledOnce)
-                {
-                    return null;
-                }
-
-                calledOnce = true;
-                return PublisherAddress.CreateFromEndpointName("x");
+                new PublisherTableEntry(typeof(MyEvent), publisher),
             });
 
-            var result1 = publishers.GetPublisherFor(typeof(BaseMessage));
-            var result2 = publishers.GetPublisherFor(typeof(BaseMessage));
+            var retrievedPublisher = publisherTable.GetPublisherFor(typeof(MyEvent));
+            Assert.AreSame(publisher, retrievedPublisher);
+        }
 
-            Assert.AreEqual(2, result1.Count());
-            Assert.AreEqual(1, result2.Count());
+        [Test]
+        public void When_group_exists_should_replace_existing_routes()
+        {
+            var publisherTable = new Publishers();
+            var oldPublisher = PublisherAddress.CreateFromEndpointName("Endpoint1");
+            var newPublisher = PublisherAddress.CreateFromEndpointName("Endpoint2");
+            publisherTable.AddOrReplacePublishers("key", new List<PublisherTableEntry>
+            {
+                new PublisherTableEntry(typeof(MyEvent), oldPublisher),
+            });
+
+            publisherTable.AddOrReplacePublishers("key", new List<PublisherTableEntry>
+            {
+                new PublisherTableEntry(typeof(MyEvent), newPublisher),
+            });
+
+            var retrievedPublisher = publisherTable.GetPublisherFor(typeof(MyEvent));
+            Assert.AreSame(newPublisher, retrievedPublisher);
+        }
+
+        [Test]
+        public void When_routes_are_ambiguous_should_throw_exception()
+        {
+            var publisherTable = new Publishers();
+            var lowPriorityPublisher = PublisherAddress.CreateFromEndpointName("Endpoint1");
+            var highPriorityPublisher = PublisherAddress.CreateFromEndpointName("Endpoint1");
+
+            publisherTable.AddOrReplacePublishers("key2", new List<PublisherTableEntry>
+            {
+                new PublisherTableEntry(typeof(MyEvent), highPriorityPublisher),
+            });
+
+            Assert.That(() =>
+            {
+                publisherTable.AddOrReplacePublishers("key1", new List<PublisherTableEntry>
+                {
+                    new PublisherTableEntry(typeof(MyEvent), lowPriorityPublisher),
+                });
+            }, Throws.Exception);
+        }
+
+        class MyEvent : IEvent
+        {
+        }
+
+        class MyEvent2 : IEvent
+        {
+        }
+
+        class MyEvent3 : IEvent
+        {
         }
     }
-}
-
-namespace MessageNameSpace
-{
-    interface IMessageInterface
-    {
-    }
-
-    class BaseMessage : IMessageInterface
-    {
-    }
-}
-
-namespace OtherMesagenameSpace
-{
-    using MessageNameSpace;
-
-    class SubMessage : BaseMessage
-    {
-    }
-}
-
-class EventWithoutNamespace
-{
 }

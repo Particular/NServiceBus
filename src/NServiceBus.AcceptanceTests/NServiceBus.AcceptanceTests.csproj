@@ -69,6 +69,8 @@
     <Compile Include="Recoverability\When_message_is_moved_to_error_queue_with_header_customizations.cs" />
     <Compile Include="MessageDrivenPubSubRoutingExtensions.cs" />
     <Compile Include="Routing\When_configure_routes_for_unobtrusive_messages.cs" />
+    <Compile Include="Routing\When_extending_command_routing.cs" />
+    <Compile Include="Routing\When_extending_event_routing.cs" />
     <Compile Include="Routing\When_registering_publishers_unobtrusive_messages.cs" />
     <Compile Include="Routing\When_publishing_an_interface_with_unobtrusive.cs" />
     <Compile Include="Routing\When_replying_to_message_with_interface.cs" />
@@ -187,7 +189,7 @@
     <Compile Include="Serialization\When_sanitizing_xml_messages.cs" />
     <Compile Include="Serialization\When_skip_wrapping_xml.cs" />
     <Compile Include="Serialization\When_wrapping_is_not_skipped.cs" />
-    <Compile Include="UnicastPubSubExtensions.cs" />
+    <Compile Include="UnicastRoutingExtensions.cs" />
     <Compile Include="Routing\When_multi_subscribing_to_a_polymorphic_event_on_multicast_transports.cs" />
     <Compile Include="Routing\When_handler_exists_but_routing_information_is_missing.cs" />
     <Compile Include="Routing\When_publishing_to_scaled_out_subscribers_on_unicast_transports.cs" />

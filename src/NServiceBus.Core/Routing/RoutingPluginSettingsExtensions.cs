@@ -2,6 +2,7 @@
 {
     using Features;
     using Routing;
+    using Routing.MessageDrivenSubscriptions;
 
     /// <summary>
     /// Provides convinient API for plugins that need to extend the routing.
@@ -16,6 +17,16 @@
         {
             Guard.AgainstNull(nameof(featureConfigurationContext), featureConfigurationContext);
             return featureConfigurationContext.Settings.Get<UnicastRoutingTable>();
+        }
+
+        /// <summary>
+        /// Returns the publishers table.
+        /// </summary>
+        /// <param name="featureConfigurationContext">Context.</param>
+        public static Publishers Publishers(this FeatureConfigurationContext featureConfigurationContext)
+        {
+            Guard.AgainstNull(nameof(featureConfigurationContext), featureConfigurationContext);
+            return featureConfigurationContext.Settings.Get<Publishers>();
         }
 
         /// <summary>

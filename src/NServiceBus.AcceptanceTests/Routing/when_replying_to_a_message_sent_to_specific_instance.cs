@@ -3,10 +3,10 @@
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using AcceptanceTesting.Customization;
-    using Configuration.AdvanceExtensibility;
     using EndpointTemplates;
     using NServiceBus.Routing;
     using NUnit.Framework;
+    using Routing;
 
     public class When_replying_to_a_message_sent_to_specific_instance : NServiceBusAcceptanceTest
     {
@@ -35,8 +35,9 @@
             {
                 EndpointSetup<DefaultServer>((c, r) =>
                 {
-                    c.UseTransport(r.GetTransportType()).Routing().RouteToEndpoint(typeof(MyRequest), ReceiverEndpoint);
-                    c.GetSettings().GetOrCreate<EndpointInstances>().Add(new EndpointInstance(ReceiverEndpoint, "XYZ"));
+                    var routing = c.UseTransport(r.GetTransportType()).Routing();
+                    routing.RouteToEndpoint(typeof(MyRequest), ReceiverEndpoint);
+                    routing.RegisterEndpointInstances(new EndpointInstance(ReceiverEndpoint, "XYZ"));
                 });
             }
 
