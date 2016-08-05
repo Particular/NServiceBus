@@ -37,6 +37,7 @@
             var distributionPolicy = context.Settings.Get<DistributionPolicy>();
             var configuredUnicastRoutes = context.Settings.Get<ConfiguredUnicastRoutes>();
             var configuredPublishers = context.Settings.Get<ConfiguredPublishers>();
+            var conventions = context.Settings.Get<Conventions>();
 
             var knownMessageTypes = GetKnownMessageTypes(context);
 
@@ -48,7 +49,7 @@
 
             foreach (var registration in configuredUnicastRoutes)
             {
-                registration(unicastRoutingTable, knownMessageTypes);
+                registration(unicastRoutingTable, conventions);
             }
 
             foreach (var registration in configuredPublishers)
@@ -121,7 +122,7 @@
         }
     }
 
-    class ConfiguredUnicastRoutes : List<Action<UnicastRoutingTable, Type[]>>
+    class ConfiguredUnicastRoutes : List<Action<UnicastRoutingTable, Conventions>>
     {
     }
 

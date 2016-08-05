@@ -116,9 +116,14 @@
         static UnicastRoutingTable ApplyConfiguredRoutes(RoutingSettings routingSettings)
         {
             var routingTable = new UnicastRoutingTable();
+            var conventions = new Conventions
+            {
+                IsMessageTypeAction = type => true
+            };
+
             foreach (var registration in routingSettings.Settings.Get<ConfiguredUnicastRoutes>())
             {
-                registration(routingTable, Assembly.GetExecutingAssembly().GetTypes());
+                registration(routingTable, conventions);
             }
             return routingTable;
         }

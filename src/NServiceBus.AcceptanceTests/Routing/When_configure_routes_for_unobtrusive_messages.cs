@@ -36,7 +36,7 @@
             Assert.That(context.ReceivedMessage, Is.True);
         }
 
-        class Context : ScenarioContext
+        public class Context : ScenarioContext
         {
             public bool ReceivedMessage { get; set; }
         }
@@ -72,10 +72,11 @@
             {
                 EndpointSetup<DefaultServer>(c => c
                     .Conventions()
-                    .DefiningCommandsAs(t => t == typeof(SomeCommand)));
+                    .DefiningCommandsAs(t => t == typeof(SomeCommand)))
+                    .IncludeType<SomeCommand>();
             }
 
-            class CommandHandler : IHandleMessages<SomeCommand>
+            public class CommandHandler : IHandleMessages<SomeCommand>
             {
                 Context testContext;
 
@@ -99,7 +100,7 @@
 // custom namespace is required to avoid automatically loading the type by the testing framework
 namespace CustomMessageNamespace
 {
-    class SomeCommand
+    public class SomeCommand
     {
     }
 }

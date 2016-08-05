@@ -16,7 +16,6 @@
         /// <summary>
         /// Creates a new instance of <see cref="RoutingSettings"/>.
         /// </summary>
-        /// <param name="settings"></param>
         public RoutingSettings(SettingsHolder settings)
             : base(settings)
         {
@@ -31,7 +30,7 @@
         {
             ThrowOnAddress(destination);
 
-            Settings.GetOrCreate<ConfiguredUnicastRoutes>().Add((routingTable, knownMessageTypes) => { routingTable.RouteTo(messageType, UnicastRoute.CreateFromEndpointName(destination)); });
+            Settings.GetOrCreate<ConfiguredUnicastRoutes>().Add((routingTable, conventions) => { routingTable.RouteTo(messageType, UnicastRoute.CreateFromEndpointName(destination)); });
         }
 
         /// <summary>
@@ -42,13 +41,13 @@
         public void RouteToEndpoint(Assembly assembly, string destination)
         {
             ThrowOnAddress(destination);
-            Settings.GetOrCreate<ConfiguredUnicastRoutes>().Add((routingTable, knownMessageTypes) =>
+            Settings.GetOrCreate<ConfiguredUnicastRoutes>().Add((routingTable, conventions) =>
             {
-                foreach (var knownMessage in knownMessageTypes)
+                foreach (var type in assembly.GetTypes())
                 {
-                    if (knownMessage.Assembly == assembly)
+                    if (conventions.IsMessageType(type))
                     {
-                        routingTable.RouteTo(knownMessage, UnicastRoute.CreateFromEndpointName(destination));
+                        routingTable.RouteTo(type, UnicastRoute.CreateFromEndpointName(destination));
                     }
                 }
             });
@@ -66,13 +65,13 @@
 
             // empty namespace is null, not string.empty
             @namespace = @namespace == string.Empty ? null : @namespace;
-            Settings.GetOrCreate<ConfiguredUnicastRoutes>().Add((routingTable, knownMessageTypes) =>
+            Settings.GetOrCreate<ConfiguredUnicastRoutes>().Add((routingTable, conventions) =>
             {
-                foreach (var knownMessage in knownMessageTypes)
+                foreach (var type in assembly.GetTypes())
                 {
-                    if (knownMessage.Assembly == assembly && knownMessage.Namespace == @namespace)
+                    if (type.Namespace == @namespace && conventions.IsMessageType(type))
                     {
-                        routingTable.RouteTo(knownMessage, UnicastRoute.CreateFromEndpointName(destination));
+                        routingTable.RouteTo(type, UnicastRoute.CreateFromEndpointName(destination));
                     }
                 }
             });
