@@ -24,15 +24,9 @@ namespace NServiceBus
                 return emptyRoute;
             }
 
-            var destinations = new HashSet<UnicastRoutingTarget>();
-
             var routingTargets = await route.Resolve(endpoint => endpointInstances.FindInstances(endpoint)).ConfigureAwait(false);
-            foreach (var routingTarget in routingTargets)
-            {
-                destinations.Add(routingTarget);
-            }
 
-            var selectedDestinations = SelectDestinationsForEachEndpoint(distributionPolicy, destinations);
+            var selectedDestinations = SelectDestination(distributionPolicy, routingTargets);
 
             return selectedDestinations
                 .Select(destination => destination.Resolve(x => transportAddressTranslation(x)))
@@ -40,7 +34,7 @@ namespace NServiceBus
                 .Select(destination => new UnicastRoutingStrategy(destination));
         }
 
-        static IEnumerable<UnicastRoutingTarget> SelectDestinationsForEachEndpoint(IDistributionPolicy distributionPolicy, HashSet<UnicastRoutingTarget> destinations)
+        static IEnumerable<UnicastRoutingTarget> SelectDestination(IDistributionPolicy distributionPolicy, IEnumerable<UnicastRoutingTarget> destinations)
         {
             var destinationsByEndpoint = destinations
                 .GroupBy(d => d.Endpoint, d => d);
