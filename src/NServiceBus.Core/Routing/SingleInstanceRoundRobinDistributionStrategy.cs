@@ -17,11 +17,12 @@ namespace NServiceBus.Routing
             {
                 yield break;
             }
-            var result = currentAllInstances[(int)(index % currentAllInstances.Count)];
-            Interlocked.Increment(ref index);
+            var i = Interlocked.Increment(ref index);
+            var result = currentAllInstances[(int)(i % currentAllInstances.Count)];
             yield return result;
         }
 
-        long index;
+        // start with -1 so the index will be at 0 after the first increment.
+        long index = -1;
     }
 }
