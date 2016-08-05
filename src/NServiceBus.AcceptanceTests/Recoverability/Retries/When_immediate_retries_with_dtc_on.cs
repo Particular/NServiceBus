@@ -11,7 +11,7 @@
     public class When_immediate_retries_with_dtc_on : NServiceBusAcceptanceTest
     {
         [Test]
-        public Task Should_do_X_retries_by_default_with_dtc_on()
+        public Task Should_do_the_configured_number_of_retries_with_dtc_on()
         {
             return Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
                 .WithEndpoint<RetryEndpoint>(b => b
@@ -25,7 +25,7 @@
                 .Should(c =>
                 {
                     //we add 1 since first call + X retries totals to X+1
-                    Assert.AreEqual(maxretries + 1, c.NumberOfTimesInvoked, $"The Immediate Retries should by default retry {maxretries} times");
+                    Assert.AreEqual(maxretries + 1, c.NumberOfTimesInvoked, $"The Immediate Retries should retry {maxretries} times");
                     Assert.AreEqual(maxretries, c.Logs.Count(l => l.Message
                         .StartsWith($"Immediate Retry is going to retry message '{c.PhysicalMessageId}' because of an exception:")));
                 })
@@ -49,13 +49,13 @@
         {
             public RetryEndpoint()
             {
-                PerformDefaultRetries();
                 EndpointSetup<DefaultServer>((b, context) =>
                 {
                     var scenarioContext = (Context) context.ScenarioContext;
                     b.Notifications.Errors.MessageSentToErrorQueue += (sender, message) => scenarioContext.GaveUpOnRetries = true;
                     var recoverability = b.Recoverability();
                     recoverability.Immediate(settings => settings.NumberOfRetries(maxretries));
+                    recoverability.Delayed(settings => settings.TimeIncrease(TimeSpan.FromMilliseconds(1)).NumberOfRetries(3));
                 });
             }
 

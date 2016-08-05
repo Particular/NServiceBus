@@ -36,8 +36,6 @@
 
         public string AddressOfAuditQueue { get; set; }
 
-        public bool PerformDefaultRetries { get; set; }
-
         public IDictionary<Type, object> UserDefinedConfigSections { get; private set; }
 
         public string CustomMachineName { get; set; }

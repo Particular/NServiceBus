@@ -11,7 +11,7 @@ namespace NServiceBus.AcceptanceTests.Recoverability.Retries
     public class When_delayed_retries_and_counting : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Should_reschedule_message_three_times_by_default()
+        public async Task Should_reschedule_message_the_number_of_times_configured()
         {
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<RetryEndpoint>(b => b
@@ -21,9 +21,11 @@ namespace NServiceBus.AcceptanceTests.Recoverability.Retries
                 .Run(TimeSpan.FromSeconds(120));
 
             Assert.IsTrue(context.ForwardedToErrorQueue);
-            Assert.AreEqual(3, context.Logs.Count(l => l.Message
+            Assert.AreEqual(ConfiguredNumberOfImmediateRetries, context.Logs.Count(l => l.Message
                 .StartsWith($"Delayed Retry will reschedule message '{context.PhysicalMessageId}'")));
         }
+
+        const int ConfiguredNumberOfImmediateRetries = 3;
 
         class Context : ScenarioContext
         {
@@ -35,14 +37,15 @@ namespace NServiceBus.AcceptanceTests.Recoverability.Retries
         {
             public RetryEndpoint()
             {
-                PerformDefaultRetries();
                 EndpointSetup<DefaultServer>((configure, context) =>
                 {
                     var scenarioContext = (Context) context.ScenarioContext;
                     configure.EnableFeature<TimeoutManager>();
                     configure.Notifications.Errors.MessageSentToErrorQueue += (sender, message) => { scenarioContext.ForwardedToErrorQueue = true; };
+
                     var recoverability = configure.Recoverability();
-                    recoverability.Delayed(settings => settings.TimeIncrease(TimeSpan.FromMilliseconds(1)));
+                    recoverability.Immediate(immediate => immediate.NumberOfRetries(0));
+                    recoverability.Delayed(settings => settings.TimeIncrease(TimeSpan.FromMilliseconds(1)).NumberOfRetries(ConfiguredNumberOfImmediateRetries));
                 });
             }
 
