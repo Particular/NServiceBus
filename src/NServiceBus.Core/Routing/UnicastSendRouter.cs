@@ -18,7 +18,7 @@ namespace NServiceBus
 
         public async Task<IEnumerable<UnicastRoutingStrategy>> Route(Type messageType, IDistributionPolicy distributionPolicy, ContextBag contextBag)
         {
-            var route = await unicastRoutingTable.GetRouteFor(messageType, contextBag).ConfigureAwait(false);
+            var route = unicastRoutingTable.GetRouteFor(messageType);
             if (route == null)
             {
                 return emptyRoute;
