@@ -13,7 +13,11 @@
     /// </summary>
     public class RoutingSettings : ExposeSettings
     {
-        internal RoutingSettings(SettingsHolder settings)
+        /// <summary>
+        /// Creates a new instance of <see cref="RoutingSettings"/>.
+        /// </summary>
+        /// <param name="settings"></param>
+        public RoutingSettings(SettingsHolder settings)
             : base(settings)
         {
         }
