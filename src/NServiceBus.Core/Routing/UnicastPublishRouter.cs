@@ -12,11 +12,10 @@ namespace NServiceBus
 
     class UnicastPublishRouter : IUnicastPublishRouter
     {
-        public UnicastPublishRouter(MessageMetadataRegistry messageMetadataRegistry, ISubscriptionStorage subscriptionStorage, EndpointInstances endpointInstances, Func<EndpointInstance, string> transportAddressTranslation)
+        public UnicastPublishRouter(MessageMetadataRegistry messageMetadataRegistry, ISubscriptionStorage subscriptionStorage, Func<EndpointInstance, string> transportAddressTranslation)
         {
             this.messageMetadataRegistry = messageMetadataRegistry;
             this.subscriptionStorage = subscriptionStorage;
-            this.endpointInstances = endpointInstances;
             this.transportAddressTranslation = transportAddressTranslation;
         }
 
@@ -25,17 +24,8 @@ namespace NServiceBus
             var typesToRoute = messageMetadataRegistry.GetMessageMetadata(messageType).MessageHierarchy;
 
             var routes = await GetDestinations(contextBag, typesToRoute).ConfigureAwait(false);
-            var destinations = new HashSet<UnicastRoutingTarget>();
-            foreach (var route in routes)
-            {
-                var routingTargets = await route.Resolve(endpoint => endpointInstances.FindInstances(endpoint)).ConfigureAwait(false);
-                foreach (var routingTarget in routingTargets)
-                {
-                    destinations.Add(routingTarget);
-                }
-            }
 
-            var selectedDestinations = SelectDestinationsForEachEndpoint(distributionPolicy, destinations);
+            var selectedDestinations = SelectDestinationsForEachEndpoint(distributionPolicy, routes);
 
             return selectedDestinations
                 .Select(destination => destination.Resolve(x => transportAddressTranslation(x)))
@@ -43,7 +33,7 @@ namespace NServiceBus
                 .Select(destination => new UnicastRoutingStrategy(destination));
         }
 
-        static IEnumerable<UnicastRoutingTarget> SelectDestinationsForEachEndpoint(IDistributionPolicy distributionPolicy, HashSet<UnicastRoutingTarget> destinations)
+        static IEnumerable<UnicastRoutingTarget> SelectDestinationsForEachEndpoint(IDistributionPolicy distributionPolicy, IEnumerable<UnicastRoutingTarget> destinations)
         {
             var destinationsByEndpoint = destinations
                 .GroupBy(d => d.Endpoint, d => d);
@@ -69,38 +59,22 @@ namespace NServiceBus
             }
         }
 
-        async Task<IEnumerable<IUnicastRoute>> GetDestinations(ContextBag contextBag, Type[] typesToRoute)
+        async Task<IEnumerable<UnicastRoutingTarget>> GetDestinations(ContextBag contextBag, Type[] typesToRoute)
         {
             var messageTypes = typesToRoute.Select(t => new MessageType(t));
             var subscribers = await subscriptionStorage.GetSubscriberAddressesForMessage(messageTypes, contextBag).ConfigureAwait(false);
-            return subscribers.Select(s => new SubscriberDestination(s));
+            return subscribers.Select(s => CreateRoutingTarget(s));
         }
 
-        EndpointInstances endpointInstances;
+        static UnicastRoutingTarget CreateRoutingTarget(Subscriber subscriber)
+        {
+            return subscriber.Endpoint != null
+                ? UnicastRoutingTarget.ToAnonymousInstance(subscriber.Endpoint, subscriber.TransportAddress)
+                : UnicastRoutingTarget.ToTransportAddress(subscriber.TransportAddress);
+        }
+
         Func<EndpointInstance, string> transportAddressTranslation;
         MessageMetadataRegistry messageMetadataRegistry;
         ISubscriptionStorage subscriptionStorage;
-
-        class SubscriberDestination : IUnicastRoute
-        {
-            public SubscriberDestination(Subscriber subscriber)
-            {
-                if (subscriber.Endpoint != null)
-                {
-                    target = UnicastRoutingTarget.ToAnonymousInstance(subscriber.Endpoint, subscriber.TransportAddress);
-                }
-                else
-                {
-                    target = UnicastRoutingTarget.ToTransportAddress(subscriber.TransportAddress);
-                }
-            }
-
-            public Task<IEnumerable<UnicastRoutingTarget>> Resolve(Func<string, Task<IEnumerable<EndpointInstance>>> instanceResolver)
-            {
-                return Task.FromResult(EnumerableEx.Single(target));
-            }
-
-            UnicastRoutingTarget target;
-        }
     }
 }
