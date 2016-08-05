@@ -35,7 +35,7 @@ namespace NServiceBus.AcceptanceTests.Recoverability.Retries
         {
             public RetryEndpoint()
             {
-                PerformDefaultRetries(true);
+                PerformDefaultRetries();
                 EndpointSetup<DefaultServer>((configure, context) =>
                 {
                     var scenarioContext = (Context) context.ScenarioContext;

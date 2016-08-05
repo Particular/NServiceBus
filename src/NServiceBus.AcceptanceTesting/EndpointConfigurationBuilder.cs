@@ -43,9 +43,9 @@
 
             return this;
         }
-        public EndpointConfigurationBuilder PerformDefaultRetries(bool performDefaultRetries)
+        public EndpointConfigurationBuilder PerformDefaultRetries()
         {
-            configuration.PerformDefaultRetries = performDefaultRetries;
+            configuration.PerformDefaultRetries = true;
 
             return this;
         }

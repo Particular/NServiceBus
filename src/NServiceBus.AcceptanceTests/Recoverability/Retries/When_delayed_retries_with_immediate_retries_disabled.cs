@@ -32,7 +32,7 @@
         {
             public RetryEndpoint()
             {
-                PerformDefaultRetries(true);
+                PerformDefaultRetries();
                 EndpointSetup<DefaultServer>((configure, context) =>
                 {
                     configure.EnableFeature<TimeoutManager>();

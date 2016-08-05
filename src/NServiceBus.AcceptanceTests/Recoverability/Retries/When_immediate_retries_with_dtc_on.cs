@@ -49,7 +49,7 @@
         {
             public RetryEndpoint()
             {
-                PerformDefaultRetries(true);
+                PerformDefaultRetries();
                 EndpointSetup<DefaultServer>((b, context) =>
                 {
                     var scenarioContext = (Context) context.ScenarioContext;
