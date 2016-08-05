@@ -6,78 +6,8 @@ namespace NServiceBus.Config
     /// <summary>
     /// A configuration section for UnicastBus specific settings.
     /// </summary>
-    public class UnicastBusConfig : ConfigurationSection
+    public partial class UnicastBusConfig : ConfigurationSection
     {
-        /// <summary>
-        /// Gets/sets the address for sending control messages to the distributor.
-        /// </summary>
-        [ConfigurationProperty("DistributorControlAddress", IsRequired = false)]
-        [ObsoleteEx(
-            TreatAsErrorFromVersion = "6",
-            RemoveInVersion = "7",
-            Message = "Switch to the code API by using 'EndpointConfiguration.EnlistWithLegacyMSMQDistributor' instead.")]
-        public string DistributorControlAddress
-        {
-            get
-            {
-                var result = this["DistributorControlAddress"] as string;
-                if (string.IsNullOrWhiteSpace(result))
-                {
-                    result = null;
-                }
-
-                return result;
-            }
-            set { this["DistributorControlAddress"] = value; }
-        }
-
-        /// <summary>
-        /// Gets/sets the distributor's data address - used as the return address of messages sent by this endpoint.
-        /// </summary>
-        [ConfigurationProperty("DistributorDataAddress", IsRequired = false)]
-        [ObsoleteEx(
-            TreatAsErrorFromVersion = "6",
-            RemoveInVersion = "7",
-            Message = "Switch to the code API by using 'EndpointConfiguration.EnlistWithLegacyMSMQDistributor' instead.")]
-        public string DistributorDataAddress
-        {
-            get
-            {
-                var result = this["DistributorDataAddress"] as string;
-                if (string.IsNullOrWhiteSpace(result))
-                {
-                    result = null;
-                }
-
-                return result;
-            }
-            set { this["DistributorDataAddress"] = value; }
-        }
-
-        /// <summary>
-        /// Gets/sets the address to which messages received will be forwarded.
-        /// </summary>
-        [ConfigurationProperty("ForwardReceivedMessagesTo", IsRequired = false)]
-        [ObsoleteEx(
-            TreatAsErrorFromVersion = "6",
-            RemoveInVersion = "7",
-            Message = "Use 'EndpointConfiguration.ForwardReceivedMessagesTo' to configure the forwarding address.")]
-        public string ForwardReceivedMessagesTo
-        {
-            get
-            {
-                var result = this["ForwardReceivedMessagesTo"] as string;
-                if (string.IsNullOrWhiteSpace(result))
-                {
-                    result = null;
-                }
-
-                return result;
-            }
-            set { this["ForwardReceivedMessagesTo"] = value; }
-        }
-
-
         /// <summary>
         /// Gets/sets the time to be received set on forwarded messages.
         /// </summary>

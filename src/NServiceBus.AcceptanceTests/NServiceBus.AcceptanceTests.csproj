@@ -266,7 +266,7 @@
     <Compile Include="Routing\When_base_event_from_2_publishers.cs" />
     <Compile Include="Routing\When_subscribing_to_a_polymorphic_event.cs" />
     <Compile Include="Routing\When_publishing.cs" />
-    <Compile Include="Recoverability\Retries\When_fails_immediate_retries.cs" />
+    <Compile Include="Recoverability\Retries\when_immediate_retries_fail.cs" />
     <Compile Include="Recoverability\Retries\When_fails_with_retries_set_to_0.cs" />
     <Compile Include="Recoverability\Retries\When_immediate_retries_with_default_settings.cs" />
     <Compile Include="Sagas\when_reply_from_saga_not_found_handler.cs" />

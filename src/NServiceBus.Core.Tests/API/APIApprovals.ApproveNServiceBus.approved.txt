@@ -1433,11 +1433,11 @@ namespace NServiceBus.Config
     public class SecondLevelRetriesConfig : System.Configuration.ConfigurationSection
     {
         public SecondLevelRetriesConfig() { }
-        [System.ObsoleteAttribute(@"Second Level Retries has been renamed to Delayed Retries. The app.config API has been removed, use the code API via endpointConfiguration.Recoverability().Delayed(settings => ...);. To disable use endpointConfiguration.Recoverability().Delayed(settings => settings.NumberOfRetries(0));. The member currently throws a NotImplementedException. Will be removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute(@"Second Level Retries has been renamed to Delayed Retries. The app.config API has been removed, use the code API via endpointConfiguration.Recoverability().Delayed(settings => ...);. To disable use endpointConfiguration.Recoverability().Delayed(settings => settings.NumberOfRetries(0));. Will be removed in version 7.0.0.", true)]
         public bool Enabled { get; set; }
-        [System.ObsoleteAttribute(@"Second Level Retries has been renamed to Delayed Retries. The app.config API has been removed, use the code API via endpointConfiguration.Recoverability().Delayed(settings => ...);. To change the NumberOfRetries use endpointConfiguration.Recoverability().Delayed(settings => settings.NumberOfRetries(5);. The member currently throws a NotImplementedException. Will be removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute(@"Second Level Retries has been renamed to Delayed Retries. The app.config API has been removed, use the code API via endpointConfiguration.Recoverability().Delayed(settings => ...);. To change the NumberOfRetries use endpointConfiguration.Recoverability().Delayed(settings => settings.NumberOfRetries(5);. Will be removed in version 7.0.0.", true)]
         public int NumberOfRetries { get; set; }
-        [System.ObsoleteAttribute(@"Second Level Retries has been renamed to Delayed Retries. The app.config API has been removed, use the code API via endpointConfiguration.Recoverability().Delayed(settings => ...);. To change the TimeIncrease use endpointConfiguration.Recoverability().Delayed(settings => settings.TimeIncrease(TimeSpan.FromMinutes(5));. The member currently throws a NotImplementedException. Will be removed in version 7.0.0.", true)]
+        [System.ObsoleteAttribute(@"Second Level Retries has been renamed to Delayed Retries. The app.config API has been removed, use the code API via endpointConfiguration.Recoverability().Delayed(settings => ...);. To change the TimeIncrease use endpointConfiguration.Recoverability().Delayed(settings => settings.TimeIncrease(TimeSpan.FromMinutes(5));. Will be removed in version 7.0.0.", true)]
         public System.TimeSpan TimeIncrease { get; set; }
     }
     [System.ObsoleteAttribute("The app.config API TransportConfig has been removed, use the code API. Will be re" +
@@ -1445,13 +1445,19 @@ namespace NServiceBus.Config
     public class TransportConfig : System.Configuration.ConfigurationSection
     {
         public TransportConfig() { }
-        [System.ObsoleteAttribute(@"The app.config API TransportConfig has been removed, use the code API. To change the concurrency level use endpointConfiguration.LimitMessageProcessingConcurrencyTo(1);. The member currently throws a NotImplementedException. Will be removed in version 7.0.0.", true)]
+        [System.Configuration.ConfigurationPropertyAttribute("MaximumConcurrencyLevel", DefaultValue=0, IsRequired=false)]
+        [System.ObsoleteAttribute("The app.config API TransportConfig has been removed, use the code API. To change " +
+            "the concurrency level use endpointConfiguration.LimitMessageProcessingConcurrenc" +
+            "yTo(1);. Will be removed in version 7.0.0.", true)]
         public int MaximumConcurrencyLevel { get; set; }
+        [System.Configuration.ConfigurationPropertyAttribute("MaximumMessageThroughputPerSecond", DefaultValue=-1, IsRequired=false)]
         [System.ObsoleteAttribute("Message throughput throttling has been removed. Consult the documentation for fur" +
-            "ther information. The member currently throws a NotImplementedException. Will be" +
-            " removed in version 7.0.0.", true)]
+            "ther information. Will be removed in version 7.0.0.", true)]
         public int MaximumMessageThroughputPerSecond { get; set; }
-        [System.ObsoleteAttribute(@"The app.config API TransportConfig has been removed, use the code API. To change the NumberOfRetries use endpointConfiguration.Recoverability().Immediate(settings => settings.NumberOfRetries(5);. The member currently throws a NotImplementedException. Will be removed in version 7.0.0.", true)]
+        [System.Configuration.ConfigurationPropertyAttribute("MaxRetries", DefaultValue=5, IsRequired=false)]
+        [System.ObsoleteAttribute("The app.config API TransportConfig has been removed, use the code API. To change " +
+            "the NumberOfRetries use endpointConfiguration.Recoverability().Immediate(setting" +
+            "s => settings.NumberOfRetries(5);. Will be removed in version 7.0.0.", true)]
         public int MaxRetries { get; set; }
     }
     public class UnicastBusConfig : System.Configuration.ConfigurationSection
@@ -1776,9 +1782,9 @@ namespace NServiceBus.Features
         Active = 2,
         Deactivated = 3,
     }
-    [System.ObsoleteAttribute("FirstLevelRetries is no longer a separate feature. Please use configuration.Recov" +
-        "erability().Immediate.NumberOfRetries(0) to disable immediate retries. Will be r" +
-        "emoved in version 7.0.0.", true)]
+    [System.ObsoleteAttribute("FirstLevelRetries is no longer a separate feature. Please use endpointConfigurati" +
+        "on.Recoverability().Immediate(cfg => cfg.NumberOfRetries(0)); to disable Immedia" +
+        "te Retries. Will be removed in version 7.0.0.", true)]
     public class FirstLevelRetries : NServiceBus.Features.Feature
     {
         protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
@@ -1827,9 +1833,9 @@ namespace NServiceBus.Features
     {
         protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
     }
-    [System.ObsoleteAttribute("SecondLevelRetries is no longer a separate feature. Please use configuration.Dela" +
-        "yed.NumberOfRetries(0) to disable delayed retries. Will be removed in version 7." +
-        "0.0.", true)]
+    [System.ObsoleteAttribute("SecondLevelRetries is no longer a separate feature. Please use endpointConfigurat" +
+        "ion.Recoverability().Delayed(cfg => cfg.NumberOfRetries(0)) to disable Delayed R" +
+        "etries. Will be removed in version 7.0.0.", true)]
     public class SecondLevelRetries : NServiceBus.Features.Feature
     {
         protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }

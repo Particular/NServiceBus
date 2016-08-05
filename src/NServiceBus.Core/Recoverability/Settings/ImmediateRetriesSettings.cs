@@ -4,7 +4,7 @@ namespace NServiceBus
     using Settings;
 
     /// <summary>
-    /// Configuration settings for immediate retries.
+    /// Configuration settings for Immediate Retries.
     /// </summary>
     public class ImmediateRetriesSettings : ExposeSettings
     {
@@ -14,7 +14,7 @@ namespace NServiceBus
 
         /// <summary>
         /// Configures the amount of times a message should be immediately retried after failing
-        /// before escalating to delayed retries.
+        /// before escalating to Delayed Retries.
         /// </summary>
         /// <param name="numberOfRetries">The number of times to immediately retry a failed message.</param>
         public void NumberOfRetries(int numberOfRetries)

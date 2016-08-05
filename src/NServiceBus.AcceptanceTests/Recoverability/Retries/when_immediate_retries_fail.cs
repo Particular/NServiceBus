@@ -8,10 +8,10 @@
     using NUnit.Framework;
     using ScenarioDescriptors;
 
-    public class When_fails_immediate_retries : NServiceBusAcceptanceTest
+    public class when_immediate_retries_fail : NServiceBusAcceptanceTest
     {
         [Test]
-        public Task Should_be_moved_to_delayed_retries()
+        public Task Should_do_delayed_retries()
         {
             return Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
                 .WithEndpoint<DelayedRetryEndpoint>(b => b

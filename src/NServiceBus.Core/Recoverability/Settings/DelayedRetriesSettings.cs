@@ -5,7 +5,7 @@ namespace NServiceBus
     using Settings;
 
     /// <summary>
-    /// Configuration settings for delayed retries.
+    /// Configuration settings for Delayed Retries.
     /// </summary>
     public class DelayedRetriesSettings : ExposeSettings
     {
@@ -14,7 +14,7 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Configures the number of times a message should be retried with a delay after failing immediate retries.
+        /// Configures the number of times a message should be retried with a delay after failing Immediate Retries.
         /// </summary>
         public DelayedRetriesSettings NumberOfRetries(int numberOfRetries)
         {
@@ -26,7 +26,7 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Configures the delay interval increase for each failed second level retry attempt.
+        /// Configures the delay interval increase for each failed Delayed Retries attempt.
         /// </summary>
         public DelayedRetriesSettings TimeIncrease(TimeSpan timeIncrease)
         {

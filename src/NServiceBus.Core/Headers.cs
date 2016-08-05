@@ -91,7 +91,7 @@
         public const string OriginatingSagaType = "NServiceBus.OriginatingSagaType";
 
         /// <summary>
-        /// The number of Delayed Retries that has been performed for this message.
+        /// The number of Delayed Retries that have been performed for this message.
         /// </summary>
         public const string DelayedRetries = "NServiceBus.Retries";
 
@@ -120,7 +120,7 @@
 #pragma warning restore 1591
 
         /// <summary>
-        /// The number of Immediate Retries that has been performed for this message.
+        /// The number of Immediate Retries that have been performed for this message.
         /// </summary>
         public const string ImmediateRetries = "NServiceBus.FLRetries";
 
