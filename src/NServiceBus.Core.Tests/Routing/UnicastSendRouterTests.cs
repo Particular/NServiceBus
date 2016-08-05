@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Core.Tests.Routing
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
@@ -18,7 +19,7 @@
         public async Task When_routing_command_to_logical_endpoint_without_configured_instances_should_route_to_a_single_destination()
         {
             var logicalEndpointName = "Sales";
-            routingTable.RouteTo(typeof(Command), UnicastRoute.CreateFromEndpointName(logicalEndpointName));
+            routingTable.AddOrReplaceRoutes(Guid.NewGuid(), new List<RouteTableEntry> {new RouteTableEntry(typeof(Command), UnicastRoute.CreateFromEndpointName(logicalEndpointName)) });
 
             var routes = await router.Route(typeof(Command), new DistributionPolicy(), new ContextBag());
 
@@ -30,7 +31,7 @@
         public async Task When_multiple_dynamic_instances_for_logical_endpoints_should_route_message_to_a_single_instance()
         {
             var sales = "Sales";
-            routingTable.RouteTo(typeof(Command), UnicastRoute.CreateFromEndpointName(sales));
+            routingTable.AddOrReplaceRoutes(Guid.NewGuid(), new List<RouteTableEntry> { new RouteTableEntry(typeof(Command), UnicastRoute.CreateFromEndpointName(sales)) });
 
             endpointInstances.Add(new EndpointInstance(sales, "1"));
             endpointInstances.AddDynamic(e => Task.FromResult(EnumerableEx.Single(new EndpointInstance(sales, "2"))));

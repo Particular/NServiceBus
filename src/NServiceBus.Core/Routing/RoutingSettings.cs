@@ -30,7 +30,7 @@
         {
             ThrowOnAddress(destination);
 
-            Settings.GetOrCreate<ConfiguredUnicastRoutes>().Add((routingTable, conventions) => { routingTable.RouteTo(messageType, UnicastRoute.CreateFromEndpointName(destination)); });
+            Settings.GetOrCreate<ConfiguredUnicastRoutes>().Add(new TypeRouteSource(messageType, UnicastRoute.CreateFromEndpointName(destination)));
         }
 
         /// <summary>
@@ -45,16 +45,7 @@
 
             ThrowOnAddress(destination);
 
-            Settings.GetOrCreate<ConfiguredUnicastRoutes>().Add((routingTable, conventions) =>
-            {
-                foreach (var type in assembly.GetTypes())
-                {
-                    if (conventions.IsMessageType(type))
-                    {
-                        routingTable.RouteTo(type, UnicastRoute.CreateFromEndpointName(destination));
-                    }
-                }
-            });
+            Settings.GetOrCreate<ConfiguredUnicastRoutes>().Add(new AssemblyRouteSource(assembly, Settings.Get<Conventions>(), UnicastRoute.CreateFromEndpointName(destination)));
         }
 
         /// <summary>
@@ -72,16 +63,8 @@
 
             // empty namespace is null, not string.empty
             @namespace = @namespace == string.Empty ? null : @namespace;
-            Settings.GetOrCreate<ConfiguredUnicastRoutes>().Add((routingTable, conventions) =>
-            {
-                foreach (var type in assembly.GetTypes())
-                {
-                    if (type.Namespace == @namespace && conventions.IsMessageType(type))
-                    {
-                        routingTable.RouteTo(type, UnicastRoute.CreateFromEndpointName(destination));
-                    }
-                }
-            });
+
+            Settings.GetOrCreate<ConfiguredUnicastRoutes>().Add(new NamespaceRouteSource(assembly, @namespace, Settings.Get<Conventions>(), UnicastRoute.CreateFromEndpointName(destination)));
         }
 
         static void ThrowOnAddress(string destination)

@@ -44,10 +44,7 @@
                 ImportMessageEndpointMappings(unicastBusConfig.MessageEndpointMappings, transportInfrastructure, publishers, unicastRoutingTable);
             }
 
-            foreach (var registration in configuredUnicastRoutes)
-            {
-                registration(unicastRoutingTable, conventions);
-            }
+            configuredUnicastRoutes.Apply(unicastRoutingTable);
 
             foreach (var registration in configuredPublishers)
             {
@@ -102,19 +99,40 @@
 
         static void ImportMessageEndpointMappings(MessageEndpointMappingCollection legacyRoutingConfig, TransportInfrastructure transportInfrastructure, Publishers publishers, UnicastRoutingTable unicastRoutingTable)
         {
+            var entries = new Dictionary<Type, RouteTableEntry>();
+
             foreach (MessageEndpointMapping m in legacyRoutingConfig)
             {
-                m.Configure((type, endpointAddress) =>
+                m.Configure((type, address) =>
                 {
-                    unicastRoutingTable.RouteTo(type, UnicastRoute.CreateFromPhysicalAddress(transportInfrastructure.MakeCanonicalForm(endpointAddress)), overrideExistingRoute: true);
-                    publishers.AddByAddress(type, endpointAddress);
+                    entries[type] = new RouteTableEntry(type, UnicastRoute.CreateFromPhysicalAddress(transportInfrastructure.MakeCanonicalForm(address)));
+                    publishers.AddByAddress(type, address);
                 });
             }
+
+            unicastRoutingTable.AddOrReplaceRoutes("MessageEndpointMappings", entries.Values.ToList());
         }
     }
 
-    class ConfiguredUnicastRoutes : List<Action<UnicastRoutingTable, Conventions>>
+    class ConfiguredUnicastRoutes
     {
+        List<IRouteSource> routeSources = new List<IRouteSource>();
+
+        public void Add(IRouteSource routeSource)
+        {
+            Guard.AgainstNull(nameof(routeSource), routeSource);
+            routeSources.Add(routeSource);
+        }
+
+        public void Apply(UnicastRoutingTable unicastRoutingTable)
+        {
+            var entries = new Dictionary<Type, RouteTableEntry>();
+            foreach (var source in routeSources.OrderBy(x => x.Priority)) //Higher priority routes sources override lowe priority.
+            {
+                source.GenerateRoutes(e => entries[e.MessageType] = e);
+            }
+            unicastRoutingTable.AddOrReplaceRoutes("EndpointConfiguration", entries.Values.ToList());
+        }
     }
 
     class ConfiguredPublishers : List<Action<Publishers, Conventions>>

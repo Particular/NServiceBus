@@ -2609,6 +2609,12 @@ namespace NServiceBus.Routing
         public MulticastRoutingStrategy(System.Type messageType) { }
         public override NServiceBus.Routing.AddressTag Apply(System.Collections.Generic.Dictionary<string, string> headers) { }
     }
+    public class RouteTableEntry
+    {
+        public RouteTableEntry(System.Type messageType, NServiceBus.Routing.IUnicastRoute route) { }
+        public System.Type MessageType { get; }
+        public NServiceBus.Routing.IUnicastRoute Route { get; }
+    }
     public abstract class RoutingStrategy
     {
         protected RoutingStrategy() { }
@@ -2638,9 +2644,7 @@ namespace NServiceBus.Routing
     public class UnicastRoutingTable
     {
         public UnicastRoutingTable() { }
-        public void RouteTo(System.Type messageType, NServiceBus.Routing.IUnicastRoute route) { }
-        public void RouteTo(System.Type messageType, NServiceBus.Routing.IUnicastRoute route, bool overrideExistingRoute) { }
-        public void SetFallbackRoute(System.Func<System.Type, NServiceBus.Extensibility.ContextBag, System.Threading.Tasks.Task<NServiceBus.Routing.IUnicastRoute>> fallbackRoute) { }
+        public void AddOrReplaceRoutes(object sourceKey, System.Collections.Generic.IList<NServiceBus.Routing.RouteTableEntry> entries) { }
     }
 }
 namespace NServiceBus.Routing.Legacy
