@@ -34,6 +34,36 @@
             Assert.IsTrue(all.All(x => x.Disposed));
         }
 
+        [Test]
+        public void GetDefaultTest()
+        {
+            var settings = new SettingsHolder();
+            settings.Set("MySetting", "explicitValue");
+            settings.SetDefault("MySetting", "defaultValue");
+
+            Assert.AreEqual("defaultValue", settings.GetDefault<string>("MySetting"));
+        }
+
+        [Test]
+        public void GetConditional_ConditionPassedTest()
+        {
+            var settings = new SettingsHolder();
+            settings.Set("MySetting", "explicitValue");
+            settings.SetDefault("MySetting", "defaultValue");
+
+            Assert.AreEqual("explicitValue", settings.GetConditional<string>("MySetting", () => true));
+        }
+
+        [Test]
+        public void GetConditional_ConditionFailedTest()
+        {
+            var settings = new SettingsHolder();
+            settings.Set("MySetting", "explicitValue");
+            settings.SetDefault("MySetting", "defaultValue");
+
+            Assert.AreEqual("defaultValue", settings.GetConditional<string>("MySetting", () => false));
+        }
+
         class SomeDisposable : IDisposable
         {
             public bool Disposed;

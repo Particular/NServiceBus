@@ -42,6 +42,11 @@ namespace NServiceBus.Settings
         object Get(string key);
 
         /// <summary>
+        /// Gets the setting value if the specified condition is true, otherwise the default value.
+        /// </summary>
+        T GetConditional<T>(string key, Func<bool> condition);
+
+        /// <summary>
         /// Gets the setting or default based on the typename.
         /// </summary>
         /// <typeparam name="T">The setting to get.</typeparam>
@@ -55,6 +60,14 @@ namespace NServiceBus.Settings
         /// <param name="key">The key of the setting to get.</param>
         /// <returns>The setting value.</returns>
         T GetOrDefault<T>(string key);
+
+        /// <summary>
+        /// Gets the default value for the setting or <code>default(T).</code>.
+        /// </summary>
+        /// <typeparam name="T">The value of the setting.</typeparam>
+        /// <param name="key">The key of the setting to get.</param>
+        /// <returns>The setting's default value.</returns>
+        T GetDefault<T>(string key);
 
         /// <summary>
         /// Determines whether the <see cref="ReadOnlySettings" /> contains the specified key.

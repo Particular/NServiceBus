@@ -96,6 +96,19 @@ namespace NServiceBus.Settings
         }
 
         /// <summary>
+        /// Gets the setting value if the specified condition is true, otherwise the default value.
+        /// </summary>
+        public T GetConditional<T>(string key, Func<bool> condition)
+        {
+            if (condition())
+            {
+                return GetOrDefault<T>(key);
+            }
+
+            return GetDefault<T>(key);
+        }
+
+        /// <summary>
         /// Gets the setting or default based on the typename.
         /// </summary>
         /// <typeparam name="T">The setting to get.</typeparam>
@@ -119,6 +132,26 @@ namespace NServiceBus.Settings
             {
                 return (T)result;
             }
+
+            if (Defaults.TryGetValue(key, out result))
+            {
+                return (T)result;
+            }
+
+            return default(T);
+        }
+
+        /// <summary>
+        /// Gets the default value for the setting or <code>default(T).</code>.
+        /// </summary>
+        /// <typeparam name="T">The value of the setting.</typeparam>
+        /// <param name="key">The key of the setting to get.</param>
+        /// <returns>The setting's default value.</returns>
+        public T GetDefault<T>(string key)
+        {
+            Guard.AgainstNullAndEmpty(nameof(key), key);
+
+            object result;
 
             if (Defaults.TryGetValue(key, out result))
             {
