@@ -149,13 +149,19 @@ namespace NServiceBus
 
         void WireUpInstallers(IEnumerable<Type> concreteTypes)
         {
-            foreach (var installerType in concreteTypes.Where(IsINeedToInstallSomething))
+            var installerTypes = concreteTypes.Where(IsInstaller).Where(NotAlreadyRegistered);
+            foreach (var installerType in installerTypes)
             {
                 container.ConfigureComponent(installerType, DependencyLifecycle.InstancePerCall);
             }
         }
 
-        static bool IsINeedToInstallSomething(Type t)
+        bool NotAlreadyRegistered(Type installerType)
+        {
+            return !container.HasComponent(installerType);
+        }
+
+        static bool IsInstaller(Type t)
         {
             return typeof(INeedToInstallSomething).IsAssignableFrom(t);
         }
