@@ -3,6 +3,10 @@
     using System;
     using System.Collections.Generic;
     using System.Messaging;
+    using BenchmarkDotNet.Attributes;
+    using BenchmarkDotNet.Configs;
+    using BenchmarkDotNet.Diagnostics.Windows;
+    using BenchmarkDotNet.Running;
     using DeliveryConstraints;
     using NServiceBus.Performance.TimeToBeReceived;
     using Transport;
@@ -85,6 +89,99 @@
 
             Assert.False(MsmqUtilities.Convert(new OutgoingMessage("message id", new Dictionary<string, string>(), new byte[0]), nonDurableDeliveryConstraint).Recoverable);
             Assert.True(MsmqUtilities.Convert(new OutgoingMessage("message id", new Dictionary<string, string>(), new byte[0]), durableDeliveryConstraint).Recoverable);
+        }
+
+        [Test]
+        public void Ensure_fast_method_deserializes_properly()
+        {
+            var expected = MsmqUtilities.DeserializeMessageHeaders(HeadersPerformanceTests.Msg);
+            var parsed = MsmqUtilities.DeserializeMessageHeadersFast(HeadersPerformanceTests.Msg);
+
+            CollectionAssert.AreEquivalent(expected, parsed);
+        }
+
+        [Test]
+        [Explicit]
+        public void BenchmarkParsing()
+        {
+            BenchmarkRunner.Run<HeadersPerformanceTests>();
+        }
+    }
+
+    [Config(typeof(Config))]
+    public class HeadersPerformanceTests
+    {
+        [Benchmark]
+        public Dictionary<string, string> Current()
+        {
+            return MsmqUtilities.DeserializeMessageHeaders(Msg);
+        }
+
+        [Benchmark]
+        public Dictionary<string, string> Fast()
+        {
+            return MsmqUtilities.DeserializeMessageHeadersFast(Msg);
+        }
+
+//<?xml version = "1.0" ?>
+//< ArrayOfHeaderInfo xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+//  <HeaderInfo>
+//    <Key>NServiceBus.ControlMessage</Key>
+//    <Value>True</Value>
+//  </HeaderInfo>
+//  <HeaderInfo>
+//    <Key>NServiceBus.MessageIntent</Key>
+//    <Value>Subscribe</Value>
+//  </HeaderInfo>
+//  <HeaderInfo>
+//    <Key>SubscriptionMessageType</Key>
+//    <Value>NServiceBus.AcceptanceTests.Routing.When_subscribing_with_address_containing_host_name+MyEvent, NServiceBus.Msmq.AcceptanceTests, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null</Value>
+//  </HeaderInfo>
+//  <HeaderInfo>
+//    <Key>NServiceBus.ReplyToAddress</Key>
+//    <Value>SubscribingWithAddressContainingHostName.Subscriber @DESKTOP-VFHGG46</Value>
+//  </HeaderInfo>
+//  <HeaderInfo>
+//    <Key>NServiceBus.SubscriberAddress</Key>
+//    <Value>SubscribingWithAddressContainingHostName.Subscriber @DESKTOP-VFHGG46</Value>
+//  </HeaderInfo>
+//  <HeaderInfo>
+//    <Key>NServiceBus.SubscriberEndpoint</Key>
+//    <Value>SubscribingWithAddressContainingHostName.Subscriber</Value>
+//  </HeaderInfo>
+//  <HeaderInfo>
+//    <Key>NServiceBus.TimeSent</Key>
+//    <Value>2016-06-30 13:02:46:369296 Z</Value>
+//  </HeaderInfo>
+//  <HeaderInfo>
+//    <Key>NServiceBus.Version</Key>
+//    <Value>6.0.0</Value>
+//  </HeaderInfo>
+//  <HeaderInfo>
+//    <Key>CorrId</Key>
+//    <Value />
+//  </HeaderInfo>
+//</ArrayOfHeaderInfo>
+
+        internal static readonly Message Msg = MsmqUtilities.Convert(new OutgoingMessage("message id", new Dictionary<string, string>
+        {
+            {Headers.ControlMessageHeader, "True"},
+            {Headers.MessageIntent, MessageIntentEnum.Subscribe.ToString()},
+            {Headers.SubscriptionMessageType, "NServiceBus.AcceptanceTests.Routing.When_subscribing_with_address_containing_host_name+MyEvent, NServiceBus.Msmq.AcceptanceTests, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null"},
+            {Headers.ReplyToAddress, "SubscribingWithAddressContainingHostName.Subscriber@DESKTOP"},
+            {Headers.SubscriberTransportAddress, "SubscribingWithAddressContainingHostName.Subscriber@DESKTOP"},
+            {Headers.SubscriberEndpoint, "SubscribingWithAddressContainingHostName.Subscriber"},
+            {Headers.TimeSent, "2016-06-30 13:02:46:369296 Z"},
+            {Headers.NServiceBusVersion, "6.0.0"},
+            {Headers.CorrelationId, ""}
+        }, new byte[0]), new List<DeliveryConstraint>());
+
+        private class Config : ManualConfig
+        {
+            public Config()
+            {
+                Add(new MemoryDiagnoser());
+            }
         }
     }
 }
