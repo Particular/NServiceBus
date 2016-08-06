@@ -68,14 +68,17 @@
         }
 
         [Test]
-        public void When_a_finder_and_a_mapping_exists_for_same_property()
+        [TestCase(typeof(SagaWithMappingAndFinder.Finder), typeof(SagaWithMappingAndFinder), typeof(SagaWithMappingAndFinder.StartSagaMessage))]
+        [TestCase(typeof(SagaWithMappingForBaseAndFinderForDerived.Finder), typeof(SagaWithMappingForBaseAndFinderForDerived), typeof(SagaWithMappingForBaseAndFinderForDerived.StartSagaMessage))]
+        [TestCase(typeof(SagaWithMappingForDerivedAndFinderForBase.Finder), typeof(SagaWithMappingForDerivedAndFinderForBase), typeof(SagaWithMappingForDerivedAndFinderForBase.StartSagaMessageBase))]
+        public void When_a_finder_and_a_mapping_exists_for_same_property(Type finderType, Type sagaType, Type mappedMessageType)
         {
             var availableTypes = new List<Type>
             {
-                typeof(SagaWithMappingAndFinder.Finder)
+                finderType
             };
-            var exception = Assert.Throws<Exception>(() => { SagaMetadata.Create(typeof(SagaWithMappingAndFinder), availableTypes, new Conventions()); });
-            Assert.AreEqual("A custom IFindSagas and an existing mapping where found for message 'NServiceBus.Core.Tests.Sagas.TypeBasedSagas.SagaMetadataCreationTests+SagaWithMappingAndFinder+StartSagaMessage'. Either remove the message mapping for remove the finder. Finder name 'NServiceBus.Core.Tests.Sagas.TypeBasedSagas.SagaMetadataCreationTests+SagaWithMappingAndFinder+Finder'.", exception.Message);
+            var exception = Assert.Throws<Exception>(() => { SagaMetadata.Create(sagaType, availableTypes, new Conventions()); });
+            Assert.AreEqual($"A custom IFindSagas and an existing mapping where found for message '{ mappedMessageType.FullName }'. Either remove the message mapping for remove the finder. Finder name '{ finderType.FullName }'.", exception.Message);
         }
 
         [Test]
@@ -359,6 +362,80 @@
             public class StartSagaMessage : IMessage
             {
                 public string Property { get; set; }
+            }
+        }
+
+        public class SagaWithMappingForBaseAndFinderForDerived : Saga<SagaWithMappingForBaseAndFinderForDerived.SagaData>,
+            IAmStartedByMessages<SagaWithMappingForBaseAndFinderForDerived.StartSagaMessage>
+        {
+            public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
+            {
+                return TaskEx.CompletedTask;
+            }
+
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper)
+            {
+                mapper.ConfigureMapping<StartSagaMessageBase>(m => m.Property)
+                    .ToSaga(s => s.Property);
+            }
+
+            public class SagaData : ContainSagaData
+            {
+                public string Property { get; set; }
+            }
+
+            public class Finder : IFindSagas<SagaData>.Using<StartSagaMessage>
+            {
+                public Task<SagaData> FindBy(StartSagaMessage message, SynchronizedStorageSession storageSession, ReadOnlyContextBag context)
+                {
+                    return Task.FromResult(default(SagaData));
+                }
+            }
+
+            public class StartSagaMessageBase : IMessage
+            {
+                public string Property { get; set; }
+            }
+
+            public class StartSagaMessage : StartSagaMessageBase
+            {
+            }
+        }
+
+        public class SagaWithMappingForDerivedAndFinderForBase : Saga<SagaWithMappingForDerivedAndFinderForBase.SagaData>,
+    IAmStartedByMessages<SagaWithMappingForDerivedAndFinderForBase.StartSagaMessage>
+        {
+            public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
+            {
+                return TaskEx.CompletedTask;
+            }
+
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper)
+            {
+                mapper.ConfigureMapping<StartSagaMessage>(m => m.Property)
+                    .ToSaga(s => s.Property);
+            }
+
+            public class SagaData : ContainSagaData
+            {
+                public string Property { get; set; }
+            }
+
+            public class Finder : IFindSagas<SagaData>.Using<StartSagaMessageBase>
+            {
+                public Task<SagaData> FindBy(StartSagaMessageBase message, SynchronizedStorageSession storageSession, ReadOnlyContextBag context)
+                {
+                    return Task.FromResult(default(SagaData));
+                }
+            }
+
+            public class StartSagaMessageBase : IMessage
+            {
+                public string Property { get; set; }
+            }
+
+            public class StartSagaMessage : StartSagaMessageBase
+            {
             }
         }
 

@@ -2656,10 +2656,12 @@ namespace NServiceBus.Sagas
         public void AttachNewEntity(NServiceBus.IContainSagaData sagaEntity) { }
     }
     public interface IFinder { }
+    [JetBrains.Annotations.UsedImplicitlyAttribute(JetBrains.Annotations.ImplicitUseTargetFlags.Default | JetBrains.Annotations.ImplicitUseTargetFlags.Itself | JetBrains.Annotations.ImplicitUseTargetFlags.Members | JetBrains.Annotations.ImplicitUseTargetFlags.WithMembers)]
     public abstract class IFindSagas<T>
         where T : NServiceBus.IContainSagaData
     {
         protected IFindSagas() { }
+        [JetBrains.Annotations.UsedImplicitlyAttribute(JetBrains.Annotations.ImplicitUseTargetFlags.Default | JetBrains.Annotations.ImplicitUseTargetFlags.Itself | JetBrains.Annotations.ImplicitUseTargetFlags.Members | JetBrains.Annotations.ImplicitUseTargetFlags.WithMembers)]
         public interface Using<T, M> : NServiceBus.Sagas.IFinder
             where T : NServiceBus.IContainSagaData
         {
