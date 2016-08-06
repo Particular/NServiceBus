@@ -19,6 +19,14 @@ namespace NServiceBus
         {
             return new RoutingContext(outgoingMessage, new UnicastRoutingStrategy(localAddress), sourceContext);
         }
+        
+        /// <summary>
+        /// Creates a <see cref="IRoutingContext" /> based on the current context.
+        /// </summary>
+        public static IRoutingContext CreateRoutingContext(this ForkConnector<ISatelliteProcessingContext, IRoutingContext> forkConnector, OutgoingMessage outgoingMessage, string localAddress, ISatelliteProcessingContext sourceContext)
+        {
+            return new RoutingContext(outgoingMessage, new UnicastRoutingStrategy(localAddress), sourceContext);
+        }
 
         /// <summary>
         /// Creates a <see cref="IRoutingContext" /> based on the current context.

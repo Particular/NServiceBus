@@ -100,6 +100,7 @@
     <Compile Include="Persistence\When_a_persistence_does_not_support_saga.cs" />
     <Compile Include="Persistence\When_a_persistence_does_not_support_subscriptions.cs" />
     <Compile Include="Persistence\When_a_persistence_does_not_support_timeouts.cs" />
+    <Compile Include="PipelineExt\When_processing_a_message_in_a_satellite.cs" />
     <Compile Include="Pipeline\When_replacing_behavior.cs" />
     <Compile Include="Persistence\When_a_persistence_does_not_provide_ISynchronizationContext.cs" />
     <Compile Include="Recoverability\Retries\When_message_is_deferred_by_slr_using_dtc.cs" />
