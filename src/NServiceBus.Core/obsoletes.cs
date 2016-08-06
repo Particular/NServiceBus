@@ -391,13 +391,15 @@ namespace NServiceBus
     }
 
     [ObsoleteEx(
-        RemoveInVersion = "7.0",
-        TreatAsErrorFromVersion = "6.0")]
+         RemoveInVersion = "7.0",
+         TreatAsErrorFromVersion = "6.0",
+         ReplacementTypeOrMember = "ConfigureUniquelyAddressableInstanceExtensions")]
     public static class ScaleOutExtentions
     {
         [ObsoleteEx(
-            RemoveInVersion = "7.0",
-            TreatAsErrorFromVersion = "6.0")]
+             RemoveInVersion = "7.0",
+             TreatAsErrorFromVersion = "6.0",
+             ReplacementTypeOrMember = "ConfigureUniquelyAddressableInstanceExtensions.MakeInstanceUniquelyAddressable")]
         public static Settings.ScaleOutSettings ScaleOut(this EndpointConfiguration config)
         {
             throw new NotImplementedException();

@@ -1044,11 +1044,13 @@ namespace NServiceBus
     {
         public NServiceBus.ToSagaExpression<TSagaData, TMessage> ConfigureMapping<TMessage>(System.Linq.Expressions.Expression<System.Func<TMessage, object>> messageProperty) { }
     }
-    [System.ObsoleteAttribute("Will be removed in version 7.0.0.", true)]
+    [System.ObsoleteAttribute("Use `ConfigureUniquelyAddressableInstanceExtensions` instead. Will be removed in " +
+        "version 7.0.0.", true)]
     public class static ScaleOutExtentions
     {
-        [System.ObsoleteAttribute("The member currently throws a NotImplementedException. Will be removed in version" +
-            " 7.0.0.", true)]
+        [System.ObsoleteAttribute("Use `ConfigureUniquelyAddressableInstanceExtensions.MakeInstanceUniquelyAddressab" +
+            "le` instead. The member currently throws a NotImplementedException. Will be remo" +
+            "ved in version 7.0.0.", true)]
         public static NServiceBus.Settings.ScaleOutSettings ScaleOut(this NServiceBus.EndpointConfiguration config) { }
     }
     [System.ObsoleteAttribute("Use extension methods provided on ISendOnlyBus. Will be removed in version 7.0.0." +
