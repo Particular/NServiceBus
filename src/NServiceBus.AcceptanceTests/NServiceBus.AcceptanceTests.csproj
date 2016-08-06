@@ -154,6 +154,7 @@
     <Compile Include="DelayedDelivery\When_deferring_a_message.cs" />
     <Compile Include="ConfigureEndpointMsmqTransport.cs" />
     <Compile Include="Hosting\When_feature_overrides_hostid.cs" />
+    <Compile Include="Recoverability\When_transaction_fails_to_commit.cs" />
     <Compile Include="Reliability\Outbox\When_dispatching_forwarded_messages.cs" />
     <Compile Include="Reliability\Outbox\When_a_message_is_audited.cs" />
     <Compile Include="Reliability\Outbox\When_clearing_saga_timeouts.cs" />
