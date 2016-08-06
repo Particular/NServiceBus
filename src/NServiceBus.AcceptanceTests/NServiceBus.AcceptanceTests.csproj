@@ -56,6 +56,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Basic\When_extending_behavior_context.cs" />
+    <Compile Include="Basic\When_messagehandlers_share_same_class.cs" />
     <Compile Include="Basic\When_registering_additional_deserializers.cs" />
     <Compile Include="Basic\When_no_content_type.cs" />
     <Compile Include="Basic\When_registering_handlers_explicitly.cs" />

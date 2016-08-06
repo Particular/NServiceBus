@@ -50,7 +50,7 @@ namespace NServiceBus.Features
 
             foreach (var t in types.Where(IsMessageHandler))
             {
-                context.Container.ConfigureComponent(t, DependencyLifecycle.InstancePerUnitOfWork);
+                context.Container.ConfigureComponent(t, DependencyLifecycle.InstancePerCall);
                 handlerRegistry.RegisterHandler(t);
             }
 
