@@ -1,18 +1,13 @@
 ﻿namespace NServiceBus.AcceptanceTesting.Support
 {
     using System;
-    using System.Collections.Generic;
 
     public class EndpointBehaviorBuilder<TContext> where TContext:ScenarioContext
     {
         
         public EndpointBehaviorBuilder(Type type)
         {
-            behavior = new EndpointBehavior(type)
-                {
-                    Givens = new List<IGivenDefinition>(),
-                    Whens = new List<IWhenDefinition>()
-                };
+            behavior = new EndpointBehavior(type);
         }
 
 
@@ -52,7 +47,14 @@
 
         public EndpointBehaviorBuilder<TContext> CustomConfig(Action<BusConfiguration> action)
         {
-            behavior.CustomConfig.Add(action);
+            behavior.CustomConfig.Add(new CustomConfigDefinition<TContext>((busConfig, context) => action(busConfig)));
+
+            return this;
+        }
+
+        public EndpointBehaviorBuilder<TContext> CustomConfig(Action<BusConfiguration, TContext> action)
+        {
+            behavior.CustomConfig.Add(new CustomConfigDefinition<TContext>(action));
 
             return this;
         }

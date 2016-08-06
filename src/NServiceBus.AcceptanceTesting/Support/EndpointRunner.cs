@@ -48,7 +48,7 @@
 
                 scenarioContext.ContextPropertyChanged += scenarioContext_ContextPropertyChanged;
 
-                endpointBehavior.CustomConfig.ForEach(customAction => customAction(busConfiguration));
+                endpointBehavior.CustomConfig.ForEach(config => config.ExecuteAction(busConfiguration, scenarioContext));
 
                 if (configuration.SendOnly)
                 {

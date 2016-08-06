@@ -11,16 +11,30 @@
         public EndpointBehavior(Type builderType)
         {
             EndpointBuilderType = builderType;
-            CustomConfig = new List<Action<BusConfiguration>>();
         }
 
         public Type EndpointBuilderType { get; private set; }
 
-        public List<IGivenDefinition> Givens { get; set; }
-        public List<IWhenDefinition> Whens { get; set; }
-
-        public List<Action<BusConfiguration>> CustomConfig { get; set; }
+        public List<IGivenDefinition> Givens { get; } = new List<IGivenDefinition>();
+        public List<IWhenDefinition> Whens { get; } = new List<IWhenDefinition>();
+        public List<ICustomConfigDefinition> CustomConfig { get; } = new List<ICustomConfigDefinition>();
         public string AppConfig { get; set; }
+    }
+
+    [Serializable]
+    public class CustomConfigDefinition<TContext> : ICustomConfigDefinition where TContext : ScenarioContext
+    {
+        readonly Action<BusConfiguration, TContext> action;
+
+        public CustomConfigDefinition(Action<BusConfiguration, TContext> action)
+        {
+            this.action = action;
+        }
+
+        public void ExecuteAction(BusConfiguration busConfiguration, ScenarioContext context)
+        {
+            action(busConfiguration, (TContext) context);
+        }
     }
 
     [Serializable]
@@ -71,6 +85,11 @@
         readonly Action<IBus> busAction;
         readonly Action<IBus, TContext> busAndContextAction;
         Guid id;
+    }
+
+    public interface ICustomConfigDefinition
+    {
+        void ExecuteAction(BusConfiguration busConfiguration, ScenarioContext context);
     }
 
     public interface IGivenDefinition
