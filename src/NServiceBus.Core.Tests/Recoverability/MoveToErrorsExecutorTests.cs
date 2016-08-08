@@ -73,16 +73,16 @@
         {
             var retryHeaders = new Dictionary<string, string>
             {
-                {Headers.FLRetries, "42"},
-                {Headers.Retries, "21"}
+                {Headers.ImmediateRetries, "42"},
+                {Headers.DelayedRetries, "21"}
             };
             var incomingMessage = new IncomingMessage("messageId", retryHeaders, new byte[0]);
 
             await moveToErrorsExecutor.MoveToErrorQueue(ErrorQueueAddress, incomingMessage, new Exception(), new TransportTransaction());
 
             var outgoingMessage = dispatcher.TransportOperations.UnicastTransportOperations.Single();
-            Assert.That(outgoingMessage.Message.Headers.Keys, Does.Not.Contain(Headers.FLRetries));
-            Assert.That(outgoingMessage.Message.Headers.Keys, Does.Not.Contain(Headers.Retries));
+            Assert.That(outgoingMessage.Message.Headers.Keys, Does.Not.Contain(Headers.ImmediateRetries));
+            Assert.That(outgoingMessage.Message.Headers.Keys, Does.Not.Contain(Headers.DelayedRetries));
         }
 
         [Test]

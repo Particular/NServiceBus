@@ -356,7 +356,7 @@
     <Compile Include="Pipeline\IBehavior.cs" />
     <Compile Include="Pipeline\MutateInstanceMessage\MutateIncomingMessageContext.cs" />
     <Compile Include="Pipeline\MutateTransportMessage\MutateIncomingTransportMessageContext.cs" />
-    <Compile Include="Recoverability\FirstLevelRetries\FirstLevelRetry.cs" />
+    <Compile Include="Recoverability\ImmediateRetries\ImmediateRetryMessage.cs" />
     <Compile Include="Recoverability\Faults\ErrorQueueSettings.cs" />
     <Compile Include="Forwarding\IForwardingContext.cs" />
     <Compile Include="Forwarding\ForwardingToRoutingConnector.cs" />
@@ -459,12 +459,11 @@
     <Compile Include="Sagas\SagaInvocationResult.cs" />
     <Compile Include="Pipeline\Incoming\TransportReceiveToPhysicalMessageProcessingConnector.cs" />
     <Compile Include="Pipeline\IBehaviorInvoker.cs" />
-    <Compile Include="Recoverability\SecondLevelRetries\SecondLevelRetry.cs" />
+    <Compile Include="Recoverability\DelayedRetries\DelayedRetryMessage.cs" />
     <Compile Include="Features\AdvanceExtensibilityExtensions.cs" />
     <Compile Include="Features\DisplayDiagnosticsForFeatures.cs" />
     <Compile Include="Features\ExposeSettings.cs" />
     <Compile Include="Features\PrerequisiteStatus.cs" />
-    <Compile Include="Recoverability\FirstLevelRetries\FirstLevelRetryPolicy.cs" />
     <Compile Include="Pipeline\BehaviorInstance.cs" />
     <Compile Include="Pipeline\IPipeline.cs" />
     <Compile Include="Transports\PushSettings.cs" />
@@ -642,8 +641,6 @@
     <Compile Include="CriticalError\ConfigureCriticalErrorAction.cs" />
     <Compile Include="DataBus\ConfigureFileShareDataBus.cs" />
     <Compile Include="Features\FeatureActivator.cs" />
-    <Compile Include="Recoverability\SecondLevelRetries\Config\SecondLevelRetriesConfigExtensions.cs" />
-    <Compile Include="Recoverability\SecondLevelRetries\Config\SecondLevelRetriesSettings.cs" />
     <Compile Include="Serializers\Json\Config\JsonSerializerConfigurationExtensions.cs" />
     <Compile Include="Pipeline\Incoming\DeserializeLogicalMessagesConnector.cs" />
     <Compile Include="Licensing\ConfigureLicenseExtensions.cs" />
@@ -673,8 +670,6 @@
     <Compile Include="Transports\Msmq\QueueCreator.cs" />
     <Compile Include="Transports\Msmq\MsmqUtilities.cs" />
     <Compile Include="Encryption\RijndaelEncryptionServiceConfig.cs" />
-    <Compile Include="Recoverability\SecondLevelRetries\Config\SecondLevelRetriesConfig.cs" />
-    <Compile Include="Transports\TransportConfig.cs" />
     <Compile Include="Unicast\UnicastBusConfig.cs" />
     <Compile Include="DataBus\DataBusFileBased.cs" />
     <Compile Include="DataBus\DefaultDatabusSerializer.cs" />
@@ -792,6 +787,7 @@
   <ItemGroup>
     <Analyzer Include="..\packages\Particular.CodeRules.0.1.1\tools\..\analyzers\dotnet\cs\Particular.CodeRules.dll" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="AfterBuild" Condition=" '$(Configuration)' == 'Release' ">
     <MakeDir Directories="$(TargetDir)temp\" />

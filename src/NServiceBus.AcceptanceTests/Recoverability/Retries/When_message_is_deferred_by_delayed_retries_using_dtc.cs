@@ -7,11 +7,10 @@
     using AcceptanceTesting;
     using EndpointTemplates;
     using Features;
-    using NServiceBus.Config;
     using NUnit.Framework;
     using ScenarioDescriptors;
 
-    public class When_message_is_deferred_by_slr_using_dtc : NServiceBusAcceptanceTest
+    public class When_message_is_deferred_by_delayed_retries_using_dtc : NServiceBusAcceptanceTest
     {
         [Test]
         public Task Should_not_commit_distributed_transaction()
@@ -49,11 +48,12 @@
                 {
                     config.EnableFeature<TimeoutManager>();
                     config.SendFailedMessagesTo(ErrorQueueName);
-                })
-                .WithConfig<SecondLevelRetriesConfig>(slrConfig =>
-                {
-                    slrConfig.NumberOfRetries = 3;
-                    slrConfig.TimeIncrease = TimeSpan.FromSeconds(1);
+                    var recoverability = config.Recoverability();
+                    recoverability.Delayed(settings =>
+                    {
+                        settings.NumberOfRetries(3);
+                        settings.TimeIncrease(TimeSpan.FromSeconds(1));
+                    });
                 });
             }
 

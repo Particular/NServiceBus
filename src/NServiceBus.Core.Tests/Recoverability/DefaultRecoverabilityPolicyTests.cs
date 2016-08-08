@@ -53,7 +53,7 @@
         }
 
         [Test]
-        public void When_immediate_retries_turned_off_and_slr_policy_returns_delay_should_return_delayed_retry()
+        public void When_immediate_retries_turned_off_and_delayed_retry_policy_returns_delay_should_return_delayed_retry()
         {
             var deliveryDelay = TimeSpan.FromSeconds(10);
             var policy = CreatePolicy(maxImmediateRetries: 0, delayedRetryDelay: deliveryDelay);
@@ -67,25 +67,25 @@
         }
 
         [Test]
-        public void When_immediate_retries_turned_off_and_slr_turned_off_should_return_move_to_errors()
+        public void When_immediate_retries_turned_off_and_delayed_retries_turned_off_should_return_move_to_errors()
         {
             var policy = CreatePolicy(maxImmediateRetries: 0, maxDelayedRetries: 0);
             var errorContext = CreateErrorContext();
 
             var recoverabilityAction = policy(errorContext);
 
-            Assert.IsInstanceOf<MoveToError>(recoverabilityAction, "When immediate retries turned off and slr turned off should return MoveToErrors");
+            Assert.IsInstanceOf<MoveToError>(recoverabilityAction, "When Immediate Retries turned off and Delayed Retry turned off should return MoveToErrors");
         }
 
         [Test]
-        public void When_immediate_retries_turned_off_and_slr_policy_returns_no_delay_should_return_move_to_errors()
+        public void When_immediate_retries_turned_off_and_delayed_retry_policy_returns_no_delay_should_return_move_to_errors()
         {
             var policy = CreatePolicy(maxImmediateRetries: 0, maxDelayedRetries: 0, delayedRetryDelay: TimeSpan.Zero);
             var errorContext = CreateErrorContext();
 
             var recoverabilityAction = policy(errorContext);
 
-            Assert.IsInstanceOf<MoveToError>(recoverabilityAction, "When immediate retries turned off and slr policy returns no delay should return MoveToErrors");
+            Assert.IsInstanceOf<MoveToError>(recoverabilityAction, "When Immediate Retries turned off and Delayed Retries policy returns no delay should return MoveToErrors");
         }
 
         [Test]
@@ -100,14 +100,14 @@
         }
 
         [Test]
-        public void When_slr_counter_header_exists_recoverability_policy_should_use_it()
+        public void When_delayed_retry_counter_header_exists_recoverability_policy_should_use_it()
         {
             var policy = CreatePolicy(maxImmediateRetries: 0, maxDelayedRetries: 1, delayedRetryDelay: TimeSpan.Zero);
             var errorContext = CreateErrorContext(retryNumber: 1);
 
             var recoverabilityAction = policy(errorContext);
 
-            Assert.IsInstanceOf<MoveToError>(recoverabilityAction, "When slr cunter in headers reaches max slr retries, policy should return MoveToErrors");
+            Assert.IsInstanceOf<MoveToError>(recoverabilityAction, "When Delayed Retries cunter in headers reaches max delayed retries, policy should return MoveToErrors");
         }
 
         [Test]
@@ -141,7 +141,7 @@
             var moreThanADayAgo = now.AddHours(-24).AddTicks(-1);
             var headers = new Dictionary<string, string>
             {
-                {Headers.RetriesTimestamp, DateTimeExtensions.ToWireFormattedString(moreThanADayAgo)}
+                {Headers.DelayedRetriesTimestamp, DateTimeExtensions.ToWireFormattedString(moreThanADayAgo)}
             };
 
             var errorContext = CreateErrorContext(headers: headers);
@@ -155,7 +155,7 @@
         {
             return new ErrorContext(exception ?? new Exception(), retryNumber.HasValue ? new Dictionary<string, string>
             {
-                {Headers.Retries, retryNumber.ToString()}
+                {Headers.DelayedRetries, retryNumber.ToString()}
             } : headers ?? new Dictionary<string, string>(), "message-id", new byte[0], new TransportTransaction(), numberOfDeliveryAttempts);
         }
 

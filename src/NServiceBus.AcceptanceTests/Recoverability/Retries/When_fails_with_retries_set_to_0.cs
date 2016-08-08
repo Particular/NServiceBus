@@ -4,13 +4,12 @@
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
-    using NServiceBus.Config;
     using NUnit.Framework;
 
     public class When_fails_with_retries_set_to_0 : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Should_not_retry_the_message_using_flr()
+        public async Task Should_not_retry_the_message_using_immediate_retries()
         {
             var context = await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
                 .WithEndpoint<RetryEndpoint>(b =>
@@ -24,7 +23,7 @@
                 .Done(c => c.GaveUp)
                 .Run();
 
-            Assert.AreEqual(1, context.NumberOfTimesInvoked, "No FLR should be in use if MaxRetries is set to 0");
+            Assert.AreEqual(1, context.NumberOfTimesInvoked, "No Immediate Retry should be in use if MaxRetries is set to 0");
         }
 
         class Context : ScenarioContext
@@ -42,9 +41,9 @@
                 EndpointSetup<DefaultServer>((configure, context) =>
                 {
                     var scenarioContext = (Context) context.ScenarioContext;
+                    configure.Recoverability().Immediate(immediate => immediate.NumberOfRetries(0));
                     configure.Notifications.Errors.MessageSentToErrorQueue += (sender, message) => scenarioContext.GaveUp = true;
-                })
-                    .WithConfig<TransportConfig>(c => { c.MaxRetries = 0; });
+                });
             }
 
             class MessageToBeRetriedHandler : IHandleMessages<MessageToBeRetried>

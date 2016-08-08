@@ -22,17 +22,18 @@
 
             var outgoingMessage = new OutgoingMessage(message.MessageId, new Dictionary<string, string>(message.Headers), message.Body);
 
-            outgoingMessage.Headers.Remove(Headers.Retries);
-            outgoingMessage.Headers.Remove(Headers.FLRetries);
+            var headers = outgoingMessage.Headers;
+            headers.Remove(Headers.DelayedRetries);
+            headers.Remove(Headers.ImmediateRetries);
 
-            ExceptionHeaderHelper.SetExceptionHeaders(outgoingMessage.Headers, exception);
+            ExceptionHeaderHelper.SetExceptionHeaders(headers, exception);
 
             foreach (var faultMetadata in staticFaultMetadata)
             {
-                outgoingMessage.Headers[faultMetadata.Key] = faultMetadata.Value;
+                headers[faultMetadata.Key] = faultMetadata.Value;
             }
 
-            headerCustomizations(outgoingMessage.Headers);
+            headerCustomizations(headers);
 
             var transportOperations = new TransportOperations(new TransportOperation(outgoingMessage, new UnicastAddressTag(errorQueueAddress)));
 

@@ -73,8 +73,8 @@
 
             var incomingMessage = CreateMessage(new Dictionary<string, string>
             {
-                {Headers.Retries, "2"},
-                {Headers.RetriesTimestamp, originalHeadersTimestamp}
+                {Headers.DelayedRetries, "2"},
+                {Headers.DelayedRetriesTimestamp, originalHeadersTimestamp}
             });
 
             var now = DateTime.UtcNow;
@@ -82,14 +82,14 @@
 
             var outgoingMessageHeaders = dispatcher.UnicastTransportOperations.Single().Message.Headers;
 
-            Assert.AreEqual("3", outgoingMessageHeaders[Headers.Retries]);
-            Assert.AreEqual("2", incomingMessage.Headers[Headers.Retries]);
+            Assert.AreEqual("3", outgoingMessageHeaders[Headers.DelayedRetries]);
+            Assert.AreEqual("2", incomingMessage.Headers[Headers.DelayedRetries]);
 
-            var utcDateTime = DateTimeExtensions.ToUtcDateTime(outgoingMessageHeaders[Headers.RetriesTimestamp]);
+            var utcDateTime = DateTimeExtensions.ToUtcDateTime(outgoingMessageHeaders[Headers.DelayedRetriesTimestamp]);
             // the serialization removes precision which may lead to now being greater than the deserialized header value
             var adjustedNow = DateTimeExtensions.ToUtcDateTime(DateTimeExtensions.ToWireFormattedString(now));
             Assert.That(utcDateTime, Is.GreaterThanOrEqualTo(adjustedNow));
-            Assert.AreEqual(originalHeadersTimestamp, incomingMessage.Headers[Headers.RetriesTimestamp]);
+            Assert.AreEqual(originalHeadersTimestamp, incomingMessage.Headers[Headers.DelayedRetriesTimestamp]);
         }
 
         [Test]
@@ -102,10 +102,10 @@
 
             var outgoingMessageHeaders = dispatcher.TransportOperations.UnicastTransportOperations.Single().Message.Headers;
 
-            Assert.AreEqual("1", outgoingMessageHeaders[Headers.Retries]);
-            Assert.IsFalse(incomingMessage.Headers.ContainsKey(Headers.Retries));
-            Assert.IsTrue(outgoingMessageHeaders.ContainsKey(Headers.RetriesTimestamp));
-            Assert.IsFalse(incomingMessage.Headers.ContainsKey(Headers.RetriesTimestamp));
+            Assert.AreEqual("1", outgoingMessageHeaders[Headers.DelayedRetries]);
+            Assert.IsFalse(incomingMessage.Headers.ContainsKey(Headers.DelayedRetries));
+            Assert.IsTrue(outgoingMessageHeaders.ContainsKey(Headers.DelayedRetriesTimestamp));
+            Assert.IsFalse(incomingMessage.Headers.ContainsKey(Headers.DelayedRetriesTimestamp));
         }
 
         IncomingMessage CreateMessage(Dictionary<string, string> headers = null)

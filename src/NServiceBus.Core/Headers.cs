@@ -91,19 +91,47 @@
         public const string OriginatingSagaType = "NServiceBus.OriginatingSagaType";
 
         /// <summary>
-        /// The number of second-level retries that has been performed for this message.
+        /// The number of Delayed Retries that have been performed for this message.
         /// </summary>
-        public const string Retries = "NServiceBus.Retries";
+        public const string DelayedRetries = "NServiceBus.Retries";
+
+        [ObsoleteEx(
+            TreatAsErrorFromVersion = "6.0",
+            RemoveInVersion = "7.0",
+            ReplacementTypeOrMember = nameof(DelayedRetries)
+            )]
+#pragma warning disable 1591
+        public const string Retries = DelayedRetries;
+#pragma warning restore 1591
 
         /// <summary>
-        /// The time the last second-level retry has been performed for this message.
+        /// The time the last Delayed Retry has been performed for this message.
         /// </summary>
-        public const string RetriesTimestamp = "NServiceBus.Retries.Timestamp";
+        public const string DelayedRetriesTimestamp = "NServiceBus.Retries.Timestamp";
+
+
+        [ObsoleteEx(
+            TreatAsErrorFromVersion = "6.0",
+            RemoveInVersion = "7.0",
+            ReplacementTypeOrMember = nameof(DelayedRetriesTimestamp)
+            )]
+#pragma warning disable 1591
+        public const string RetriesTimestamp = DelayedRetriesTimestamp;
+#pragma warning restore 1591
 
         /// <summary>
-        /// The number of first-level retries that has been performed for this message.
+        /// The number of Immediate Retries that have been performed for this message.
         /// </summary>
-        public const string FLRetries = "NServiceBus.FLRetries";
+        public const string ImmediateRetries = "NServiceBus.FLRetries";
+
+        [ObsoleteEx(
+            TreatAsErrorFromVersion = "6.0",
+            RemoveInVersion = "7.0",
+            ReplacementTypeOrMember = nameof(ImmediateRetries)
+            )]
+#pragma warning disable 1591
+        public const string FLRetries = ImmediateRetries;
+#pragma warning restore 1591
 
         /// <summary>
         /// The time processing of this message started.

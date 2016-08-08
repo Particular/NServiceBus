@@ -4,19 +4,19 @@ namespace NServiceBus.Faults
     using System.Collections.Generic;
 
     /// <summary>
-    /// first level retry event data.
+    /// Immediate Retry event data.
     /// </summary>
-    public struct FirstLevelRetry
+    public class ImmediateRetryMessage
     {
         /// <summary>
-        /// Creates a new instance of <see cref="FirstLevelRetry" />.
+        /// Creates a new instance of <see cref="ImmediateRetryMessage" />.
         /// </summary>
         /// <param name="messageId">The id of the failed message.</param>
         /// <param name="headers">Message headers.</param>
         /// <param name="body">Message body.</param>
         /// <param name="exception">Exception thrown.</param>
         /// <param name="retryAttempt">Number of retry attempt.</param>
-        public FirstLevelRetry(string messageId, Dictionary<string, string> headers, byte[] body, Exception exception, int retryAttempt)
+        public ImmediateRetryMessage(string messageId, Dictionary<string, string> headers, byte[] body, Exception exception, int retryAttempt)
         {
             Guard.AgainstNullAndEmpty(nameof(messageId), messageId);
             Guard.AgainstNull(nameof(headers), headers);

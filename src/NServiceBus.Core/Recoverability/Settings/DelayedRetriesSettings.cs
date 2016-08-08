@@ -5,7 +5,7 @@ namespace NServiceBus
     using Settings;
 
     /// <summary>
-    /// Configuration settings for delayed retries.
+    /// Configuration settings for Delayed Retries.
     /// </summary>
     public class DelayedRetriesSettings : ExposeSettings
     {
@@ -14,25 +14,25 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Configures the number of times a message should be retried with a delay after failing first level retries.
+        /// Configures the number of times a message should be retried with a delay after failing Immediate Retries.
         /// </summary>
         public DelayedRetriesSettings NumberOfRetries(int numberOfRetries)
         {
             Guard.AgainstNegative(nameof(numberOfRetries), numberOfRetries);
 
-            Settings.Set(Recoverability.SlrNumberOfRetries, numberOfRetries);
+            Settings.Set(Recoverability.NumberOfDelayedRetries, numberOfRetries);
 
             return this;
         }
 
         /// <summary>
-        /// Configures the delay interval increase for each failed second level retry attempt.
+        /// Configures the delay interval increase for each failed Delayed Retries attempt.
         /// </summary>
         public DelayedRetriesSettings TimeIncrease(TimeSpan timeIncrease)
         {
             Guard.AgainstNegative(nameof(timeIncrease), timeIncrease);
 
-            Settings.Set(Recoverability.SlrTimeIncrease, timeIncrease);
+            Settings.Set(Recoverability.DelayedRetriesTimeIncrease, timeIncrease);
 
             return this;
         }

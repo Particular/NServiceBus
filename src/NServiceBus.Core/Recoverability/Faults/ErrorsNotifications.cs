@@ -7,7 +7,7 @@ namespace NServiceBus.Faults
     /// <summary>
     /// Errors notifications.
     /// </summary>
-    public class ErrorsNotifications
+    public partial class ErrorsNotifications
     {
         /// <summary>
         /// Notification when a message is moved to the error queue.
@@ -15,14 +15,14 @@ namespace NServiceBus.Faults
         public event EventHandler<FailedMessage> MessageSentToErrorQueue;
 
         /// <summary>
-        /// Notification when a message fails a first level retry.
+        /// Notification when a message fails a immediate retry.
         /// </summary>
-        public event EventHandler<FirstLevelRetry> MessageHasFailedAFirstLevelRetryAttempt;
+        public event EventHandler<ImmediateRetryMessage> MessageHasFailedAnImmediateRetryAttempt;
 
         /// <summary>
-        /// Notification when a message is sent to second level retries queue.
+        /// Notification when a message is sent to Delayed Retries queue.
         /// </summary>
-        public event EventHandler<SecondLevelRetry> MessageHasBeenSentToSecondLevelRetries;
+        public event EventHandler<DelayedRetryMessage> MessageHasBeenSentToDelayedRetries;
 
         internal void InvokeMessageHasBeenSentToErrorQueue(IncomingMessage message, Exception exception, string errorQueue)
         {
@@ -33,26 +33,26 @@ namespace NServiceBus.Faults
             MessageSentToErrorQueue?.Invoke(this, failedMessage);
         }
 
-        internal void InvokeMessageHasFailedAFirstLevelRetryAttempt(int firstLevelRetryAttempt, IncomingMessage message, Exception exception)
+        internal void InvokeMessageHasFailedAnImmediateRetryAttempt(int immediateRetryAttempt, IncomingMessage message, Exception exception)
         {
-            var firstLevelRetry = new FirstLevelRetry(
+            var retry = new ImmediateRetryMessage(
                 message.MessageId,
                 new Dictionary<string, string>(message.Headers),
                 CopyOfBody(message.Body),
                 exception,
-                firstLevelRetryAttempt);
-            MessageHasFailedAFirstLevelRetryAttempt?.Invoke(this, firstLevelRetry);
+                immediateRetryAttempt);
+            MessageHasFailedAnImmediateRetryAttempt?.Invoke(this, retry);
         }
 
-        internal void InvokeMessageHasBeenSentToSecondLevelRetries(int secondLevelRetryAttempt, IncomingMessage message, Exception exception)
+        internal void InvokeMessageHasBeenSentToDelayedRetries(int delayedRetryAttempt, IncomingMessage message, Exception exception)
         {
-            var secondLevelRetry = new SecondLevelRetry(
+            var retry = new DelayedRetryMessage(
                 new Dictionary<string, string>(message.Headers),
                 CopyOfBody(message.Body),
                 exception,
-                secondLevelRetryAttempt);
+                delayedRetryAttempt);
 
-            MessageHasBeenSentToSecondLevelRetries?.Invoke(this, secondLevelRetry);
+            MessageHasBeenSentToDelayedRetries?.Invoke(this, retry);
         }
 
         static byte[] CopyOfBody(byte[] body)

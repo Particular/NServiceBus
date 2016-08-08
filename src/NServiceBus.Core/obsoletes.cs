@@ -113,6 +113,41 @@ namespace NServiceBus
     {
     }
 
+
+    [ObsoleteEx(
+        RemoveInVersion = "7.0",
+        TreatAsErrorFromVersion = "6.0",
+        ReplacementTypeOrMember = "endpointConfiguration.Recoverability().Delayed(delayed => )")]
+    public static class SecondLevelRetriesConfigExtensions
+    {
+        [ObsoleteEx(
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0",
+            ReplacementTypeOrMember = "endpointConfiguration.Recoverability().Delayed(delayed => )")]
+        public static SecondLevelRetriesSettings SecondLevelRetries(this EndpointConfiguration config)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    [ObsoleteEx(
+        RemoveInVersion = "7.0",
+        TreatAsErrorFromVersion = "6.0",
+        ReplacementTypeOrMember = "endpointConfiguration.Recoverability().CustomPolicy(Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> @custom)")]
+    public class SecondLevelRetriesSettings
+    {
+        [ObsoleteEx(
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0",
+            ReplacementTypeOrMember = "endpointConfiguration.Recoverability().CustomPolicy(Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> @custom)")]
+        public void CustomRetryPolicy(Func<TransportMessage, TimeSpan> customPolicy)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+
+
     [ObsoleteEx(
         RemoveInVersion = "7.0",
         TreatAsErrorFromVersion = "6.0",
@@ -982,6 +1017,8 @@ namespace NServiceBus.Unicast.Subscriptions
 
 namespace NServiceBus.Unicast.Routing
 {
+    using System;
+
     [ObsoleteEx(
         RemoveInVersion = "7.0",
         TreatAsErrorFromVersion = "6.0",
@@ -992,7 +1029,11 @@ namespace NServiceBus.Unicast.Routing
             TreatAsErrorFromVersion = "6",
             RemoveInVersion = "7",
             ReplacementTypeOrMember = "config.AutoSubscribe().AutoSubscribePlainMessages()")]
-        public bool SubscribeToPlainMessages { get; set; }
+        public bool SubscribeToPlainMessages
+        {
+            get { throw new NotImplementedException(); }
+            set { throw new NotImplementedException(); }
+        }
     }
 }
 
@@ -1024,6 +1065,7 @@ namespace NServiceBus.AutomaticSubscriptions.Config
 
 namespace NServiceBus.Config
 {
+    using System;
     using System.Configuration;
 
     [ObsoleteEx(
@@ -1035,11 +1077,162 @@ namespace NServiceBus.Config
     }
 
     [ObsoleteEx(
+        Message = Error,
+        RemoveInVersion = "7",
+        TreatAsErrorFromVersion = "6")]
+    public class SecondLevelRetriesConfig : ConfigurationSection
+    {
+        const string Error = "Second Level Retries has been renamed to Delayed Retries. The app.config API has been removed, use the code API via endpointConfiguration.Recoverability().Delayed(settings => ...);.";
+
+        public SecondLevelRetriesConfig()
+        {
+            Properties.Add(new ConfigurationProperty("Enabled", typeof(bool), true));
+            Properties.Add(new ConfigurationProperty("TimeIncrease", typeof(TimeSpan), Recoverability.DefaultTimeIncrease, null, new TimeSpanValidator(TimeSpan.Zero, TimeSpan.MaxValue), ConfigurationPropertyOptions.None));
+            Properties.Add(new ConfigurationProperty("NumberOfRetries", typeof(int), Recoverability.DefaultNumberOfRetries, null, new IntegerValidator(0, int.MaxValue), ConfigurationPropertyOptions.None));
+        }
+
+        [ObsoleteEx(
+            Message = Error + " To disable use endpointConfiguration.Recoverability().Delayed(settings => settings.NumberOfRetries(0));",
+            RemoveInVersion = "7",
+            TreatAsErrorFromVersion = "6")]
+        public bool Enabled
+        {
+            get { return (bool) this["Enabled"]; }
+            set { this["Enabled"] = value; }
+        }
+
+        [ObsoleteEx(
+            Message = Error + " To change the TimeIncrease use endpointConfiguration.Recoverability().Delayed(settings => settings.TimeIncrease(TimeSpan.FromMinutes(5));",
+            RemoveInVersion = "7",
+            TreatAsErrorFromVersion = "6")]
+        public TimeSpan TimeIncrease
+        {
+            get { return (TimeSpan) this["TimeIncrease"]; }
+            set { this["TimeIncrease"] = value; }
+        }
+
+        [ObsoleteEx(
+            Message = Error + " To change the NumberOfRetries use endpointConfiguration.Recoverability().Delayed(settings => settings.NumberOfRetries(5);",
+            RemoveInVersion = "7",
+            TreatAsErrorFromVersion = "6")]
+        public int NumberOfRetries
+        {
+            get { return (int) this["NumberOfRetries"]; }
+            set { this["NumberOfRetries"] = value; }
+        }
+    }
+
+    [ObsoleteEx(
         TreatAsErrorFromVersion = "6",
         RemoveInVersion = "7",
         ReplacementTypeOrMember = "EndpointConfiguration.EnlistWithLegacyMSMQDistributor")]
     public class MasterNodeConfig : ConfigurationSection
     {
+    }
+
+    [ObsoleteEx(
+        Message = Error,
+        RemoveInVersion = "7",
+        TreatAsErrorFromVersion = "6")]
+    public class TransportConfig : ConfigurationSection
+    {
+        const string Error = "The app.config API TransportConfig has been removed, use the code API.";
+
+        [ObsoleteEx(
+            TreatAsErrorFromVersion = "6",
+            RemoveInVersion = "7",
+            Message = Error + " To change the concurrency level use endpointConfiguration.LimitMessageProcessingConcurrencyTo(1);")]
+        [ConfigurationPropertyAttribute("MaximumConcurrencyLevel", DefaultValue = 0, IsRequired = false)]
+        public int MaximumConcurrencyLevel
+        {
+            get { return (int) this["MaximumConcurrencyLevel"]; }
+            set { this["MaximumConcurrencyLevel"] = value; }
+        }
+
+        [ObsoleteEx(
+            TreatAsErrorFromVersion = "6",
+            RemoveInVersion = "7",
+            Message = Error + " To change the NumberOfRetries use endpointConfiguration.Recoverability().Immediate(settings => settings.NumberOfRetries(5);")]
+        [ConfigurationPropertyAttribute("MaxRetries", DefaultValue = 5, IsRequired = false)]
+        public int MaxRetries
+        {
+            get { return (int) this["MaxRetries"]; }
+            set { this["MaxRetries"] = value; }
+        }
+
+        [ObsoleteEx(
+            TreatAsErrorFromVersion = "6",
+            RemoveInVersion = "7",
+            Message = "Message throughput throttling has been removed. Consult the documentation for further information.")]
+        [ConfigurationPropertyAttribute("MaximumMessageThroughputPerSecond", DefaultValue = -1, IsRequired = false)]
+        public int MaximumMessageThroughputPerSecond
+        {
+            get { return (int) this["MaximumMessageThroughputPerSecond"]; }
+            set { this["MaximumMessageThroughputPerSecond"] = value; }
+        }
+    }
+
+    public partial class UnicastBusConfig
+    {
+        [ConfigurationProperty("DistributorControlAddress", IsRequired = false)]
+        [ObsoleteEx(
+            TreatAsErrorFromVersion = "6",
+            RemoveInVersion = "7",
+            Message = "Switch to the code API by using 'EndpointConfiguration.EnlistWithLegacyMSMQDistributor' instead.")]
+        public string DistributorControlAddress
+        {
+            get
+            {
+                var result = this["DistributorControlAddress"] as string;
+                if (string.IsNullOrWhiteSpace(result))
+                {
+                    result = null;
+                }
+
+                return result;
+            }
+            set { this["DistributorControlAddress"] = value; }
+        }
+
+        [ConfigurationProperty("DistributorDataAddress", IsRequired = false)]
+        [ObsoleteEx(
+            TreatAsErrorFromVersion = "6",
+            RemoveInVersion = "7",
+            Message = "Switch to the code API by using 'EndpointConfiguration.EnlistWithLegacyMSMQDistributor' instead.")]
+        public string DistributorDataAddress
+        {
+            get
+            {
+                var result = this["DistributorDataAddress"] as string;
+                if (string.IsNullOrWhiteSpace(result))
+                {
+                    result = null;
+                }
+
+                return result;
+            }
+            set { this["DistributorDataAddress"] = value; }
+        }
+
+        [ConfigurationProperty("ForwardReceivedMessagesTo", IsRequired = false)]
+        [ObsoleteEx(
+            TreatAsErrorFromVersion = "6",
+            RemoveInVersion = "7",
+            Message = "Use 'EndpointConfiguration.ForwardReceivedMessagesTo' to configure the forwarding address.")]
+        public string ForwardReceivedMessagesTo
+        {
+            get
+            {
+                var result = this["ForwardReceivedMessagesTo"] as string;
+                if (string.IsNullOrWhiteSpace(result))
+                {
+                    result = null;
+                }
+
+                return result;
+            }
+            set { this["ForwardReceivedMessagesTo"] = value; }
+        }
     }
 }
 
@@ -1069,10 +1262,45 @@ namespace NServiceBus.SecondLevelRetries.Config
 
 namespace NServiceBus.Faults
 {
+    using System;
+
+    public partial class ErrorsNotifications
+    {
+        [ObsoleteEx(
+            TreatAsErrorFromVersion = "6.0",
+            RemoveInVersion = "7.0",
+            ReplacementTypeOrMember = nameof(MessageHasBeenSentToDelayedRetries)
+            )]
+        public EventHandler MessageHasBeenSentToSecondLevelRetries;
+
+        [ObsoleteEx(
+            TreatAsErrorFromVersion = "6.0",
+            RemoveInVersion = "7.0",
+            ReplacementTypeOrMember = nameof(MessageHasFailedAnImmediateRetryAttempt))]
+        public EventHandler MessageHasFailedAFirstLevelRetryAttempt;
+    }
+
     [ObsoleteEx(
-        Message = "IManageMessageFailures is no longer an extension point. To take control of the error handling part of the message processing pipeline, review the Version 5 to 6 upgrade guide for details.",
-        RemoveInVersion = "7",
-        TreatAsErrorFromVersion = "6")]
+         Message = "First Level Retries has been renamed to Immediate Retries",
+         RemoveInVersion = "7",
+         TreatAsErrorFromVersion = "6",
+         ReplacementTypeOrMember = "NServiceBus.Faults.ImmediateRetryMessage")]
+    public struct FirstLevelRetry
+    {
+    }
+    [ObsoleteEx(
+         Message = "Second Level Retries has been renamed to Delayed Retries",
+         RemoveInVersion = "7",
+         TreatAsErrorFromVersion = "6",
+         ReplacementTypeOrMember = "NServiceBus.Faults.DelayedRetryMessage")]
+    public struct SecondLevelRetry
+    {
+    }
+
+    [ObsoleteEx(
+         Message = "IManageMessageFailures is no longer an extension point. To take control of the error handling part of the message processing pipeline, review the Version 5 to 6 upgrade guide for details.",
+         RemoveInVersion = "7",
+         TreatAsErrorFromVersion = "6")]
     public interface IManageMessageFailures
     {
     }
@@ -2349,7 +2577,7 @@ namespace NServiceBus.Features
     [ObsoleteEx(
         RemoveInVersion = "7.0",
         TreatAsErrorFromVersion = "6.0",
-        Message = "FirstLevelRetries is no longer a separate feature. Please use configuration.Recoverability().Immediate.NumberOfRetries(0) to disable immediate retries.")]
+        Message = "FirstLevelRetries is no longer a separate feature. Please use endpointConfiguration.Recoverability().Immediate(cfg => cfg.NumberOfRetries(0)); to disable Immediate Retries.")]
     public class FirstLevelRetries : Feature
     {
         internal FirstLevelRetries()
@@ -2367,7 +2595,7 @@ namespace NServiceBus.Features
     [ObsoleteEx(
         RemoveInVersion = "7.0",
         TreatAsErrorFromVersion = "6.0",
-        Message = "SecondLevelRetries is no longer a separate feature. Please use configuration.Delayed.NumberOfRetries(0) to disable delayed retries.")]
+        Message = "SecondLevelRetries is no longer a separate feature. Please use endpointConfiguration.Recoverability().Delayed(cfg => cfg.NumberOfRetries(0)) to disable Delayed Retries.")]
     public class SecondLevelRetries : Feature
     {
         internal SecondLevelRetries()

@@ -5,23 +5,24 @@
     using AcceptanceTesting;
     using EndpointTemplates;
     using Features;
-    using NServiceBus.Config;
     using NUnit.Framework;
 
-    public class When_performing_slr_with_flr_disabled : NServiceBusAcceptanceTest
+    public class When_delayed_retries_with_immediate_retries_disabled : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Should_reschedule_message_three_times_by_default()
+        public async Task Should_reschedule_message_the_configured_number_of_times()
         {
             var context = await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
                 .WithEndpoint<RetryEndpoint>(b => b
                     .When((session, ctx) => session.SendLocal(new MessageToBeRetried {Id = ctx.Id}))
                     .DoNotFailOnErrorMessages())
-                .Done(c => c.ReceiveCount >= 4)
+                .Done(c => c.ReceiveCount >= ConfiguredNumberOfDelayedRetries + 1)
                 .Run();
 
-            Assert.AreEqual(4, context.ReceiveCount, "Message should be delivered 4 times. Once initially and retried 3 times by SLR");
+            Assert.AreEqual(ConfiguredNumberOfDelayedRetries + 1, context.ReceiveCount, "Message should be delivered 4 times. Once initially and retried 3 times by Delayed Retries");
         }
+
+        const int ConfiguredNumberOfDelayedRetries = 3;
 
         class Context : ScenarioContext
         {
@@ -36,7 +37,10 @@
                 EndpointSetup<DefaultServer>((configure, context) =>
                 {
                     configure.EnableFeature<TimeoutManager>();
-                }).WithConfig<SecondLevelRetriesConfig>(c => c.TimeIncrease = TimeSpan.FromMilliseconds(1));
+                    var recoverability = configure.Recoverability();
+                    recoverability.Delayed(settings => settings.TimeIncrease(TimeSpan.FromMilliseconds(1)).NumberOfRetries(ConfiguredNumberOfDelayedRetries));
+                    recoverability.Immediate(settings => settings.NumberOfRetries(0));
+                });
             }
 
             class MessageToBeRetriedHandler : IHandleMessages<MessageToBeRetried>

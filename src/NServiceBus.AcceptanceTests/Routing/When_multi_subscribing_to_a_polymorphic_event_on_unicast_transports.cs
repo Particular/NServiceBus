@@ -53,7 +53,7 @@
             {
                 EndpointSetup<DefaultPublisher>(b =>
                 {
-                    //FLR on since subscription storages can throw on concurrency violation and need to retry
+                    //Immediate Retries on since subscription storages can throw on concurrency violation and need to retry
                     b.Recoverability().Immediate(immediate => immediate.NumberOfRetries(5));
                     b.OnEndpointSubscribed<Context>((args, context) =>
                     {
@@ -73,7 +73,7 @@
             {
                 EndpointSetup<DefaultPublisher>(b =>
                 {
-                    //FLR on since subscription storages can throw on concurrency violation and need to retry
+                    // Immediate Retries on since subscription storages can throw on concurrency violation and need to retry
                     b.Recoverability().Immediate(immediate => immediate.NumberOfRetries(5));
 
                     b.OnEndpointSubscribed<Context>((args, context) =>
