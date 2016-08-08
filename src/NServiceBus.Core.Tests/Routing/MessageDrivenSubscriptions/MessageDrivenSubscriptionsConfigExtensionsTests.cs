@@ -145,12 +145,13 @@
         static Publishers ApplyPublisherRegistrations(RoutingSettings<MessageDrivenTransportDefinition> routingSettings)
         {
             var publishers = new Publishers();
-            var messageTypes = Assembly.GetExecutingAssembly().GetTypes();
+            var conventions = new Conventions();
+            conventions.IsMessageTypeAction = type => true;
 
             var registrations = routingSettings.Settings.Get<ConfiguredPublishers>();
             foreach (var publisherRegistration in registrations)
             {
-                publisherRegistration(publishers, messageTypes);
+                publisherRegistration(publishers, conventions);
             }
 
             return publishers;

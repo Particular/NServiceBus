@@ -976,7 +976,10 @@ namespace NServiceBus
         public void RouteToEndpoint(System.Reflection.Assembly assembly, string @namespace, string destination) { }
     }
     public class RoutingSettings<T> : NServiceBus.RoutingSettings
-        where T : NServiceBus.Transport.TransportDefinition { }
+        where T : NServiceBus.Transport.TransportDefinition
+    {
+        public RoutingSettings(NServiceBus.Settings.SettingsHolder settings) { }
+    }
     public class static RoutingSettingsExtensions
     {
         public static NServiceBus.RoutingSettings Routing(this NServiceBus.TransportExtensions config) { }

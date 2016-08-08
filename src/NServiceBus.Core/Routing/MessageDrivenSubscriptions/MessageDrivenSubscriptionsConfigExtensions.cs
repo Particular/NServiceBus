@@ -49,7 +49,7 @@ namespace NServiceBus
             Guard.AgainstNullAndEmpty(nameof(publisherEndpoint), publisherEndpoint);
 
             ThrowOnAddress(publisherEndpoint);
-            routingSettings.Settings.GetOrCreate<ConfiguredPublishers>().Add((publishers, knownMessageTypes) => publishers.Add(eventType, publisherEndpoint));
+            routingSettings.Settings.GetOrCreate<ConfiguredPublishers>().Add((publishers, conventions) => publishers.Add(eventType, publisherEndpoint));
         }
 
         /// <summary>
@@ -65,13 +65,13 @@ namespace NServiceBus
 
             ThrowOnAddress(publisherEndpoint);
 
-            routingSettings.Settings.GetOrCreate<ConfiguredPublishers>().Add((publishers, knownMessageTypes) =>
+            routingSettings.Settings.GetOrCreate<ConfiguredPublishers>().Add((publishers, conventions) =>
             {
-                foreach (var knownMessageType in knownMessageTypes)
+                foreach (var type in assembly.GetTypes())
                 {
-                    if (knownMessageType.Assembly == assembly)
+                    if (conventions.IsMessageType(type))
                     {
-                        publishers.Add(knownMessageType, publisherEndpoint);
+                        publishers.Add(type, publisherEndpoint);
                     }
                 }
             });
@@ -96,14 +96,13 @@ namespace NServiceBus
 
             // empty namespace is null, not string.empty
             @namespace = @namespace == string.Empty ? null : @namespace;
-
-            routingSettings.Settings.GetOrCreate<ConfiguredPublishers>().Add((publishers, knownMessageTypes) =>
+            routingSettings.Settings.GetOrCreate<ConfiguredPublishers>().Add((publishers, conventions) =>
             {
-                foreach (var knownMessageType in knownMessageTypes)
+                foreach (var type in assembly.GetTypes())
                 {
-                    if (knownMessageType.Assembly == assembly && knownMessageType.Namespace == @namespace)
+                    if (type.Namespace == @namespace && conventions.IsMessageType(type))
                     {
-                        publishers.Add(knownMessageType, publisherEndpoint);
+                        publishers.Add(type, publisherEndpoint);
                     }
                 }
             });
