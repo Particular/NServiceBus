@@ -1,10 +1,7 @@
 ﻿namespace NServiceBus.Features
 {
     using System;
-    using System.Collections.Generic;
-    using System.Linq;
     using DeliveryConstraints;
-    using Unicast.Messages;
 
     class MessageDurabilityFeature : Feature
     {
@@ -15,39 +12,37 @@
 
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-            var defaultToDurableMessages = context.Settings.DurableMessagesEnabled();
-
-            var nonDurableMessages = new HashSet<Type>();
-
-            Func<Type, bool> durabilityConvention;
+            defaultToDurableMessages = context.Settings.DurableMessagesEnabled();
 
             if (!context.Settings.TryGet("messageDurabilityConvention", out durabilityConvention))
             {
-                durabilityConvention = t => t.GetCustomAttributes(typeof(ExpressAttribute), true).Any();
+                durabilityConvention = t => t.GetCustomAttributes(typeof(ExpressAttribute), true).Length > 0;
             }
 
-            var registry = context.Settings.Get<MessageMetadataRegistry>();
-            foreach (var messageMetadata in registry.GetAllMessages())
+            doesSupportNonDurableDelivery = context.Settings.DoesTransportSupportConstraint<NonDurableDelivery>();
+
+            if (!defaultToDurableMessages && !doesSupportNonDurableDelivery)
             {
-                if (!defaultToDurableMessages)
-                {
-                    nonDurableMessages.Add(messageMetadata.MessageType);
-                }
-                else if(durabilityConvention(messageMetadata.MessageType))
-                {
-                    nonDurableMessages.Add(messageMetadata.MessageType);
-                }
+                throw new Exception(DoesNotSupportNonDurableDeliveryExceptionMessage);
             }
 
-            if (nonDurableMessages.Any())
-            {
-                if (!context.Settings.DoesTransportSupportConstraint<NonDurableDelivery>())
-                {
-                    throw new Exception("The configured transport does not support non-durable messages but some messages have been configured to be non-durable (e.g. by using the [Express] attribute). Make the messages durable, or use a transport supporting non-durable messages.");
-                }
-
-                context.Pipeline.Register(b => new DetermineMessageDurabilityBehavior(nonDurableMessages), "Adds the NonDurableDelivery constraint for messages that have requested to be delivered in non-durable mode");
-            }
+            context.Pipeline.Register(new DetermineMessageDurabilityBehavior(t => Convention(t, doesSupportNonDurableDelivery, defaultToDurableMessages, durabilityConvention)), "Adds the NonDurableDelivery constraint for messages that have requested to be delivered in non-durable mode");
         }
+
+        public static bool Convention(Type messageType, bool doesSupportNonDurableDelivery, bool defaultToDurableMessages, Func<Type, bool> durabilityConvention)
+        {
+            var nonDurable = !defaultToDurableMessages || durabilityConvention(messageType);
+            if (nonDurable && !doesSupportNonDurableDelivery)
+            {
+                throw new Exception(DoesNotSupportNonDurableDeliveryExceptionMessage);
+            }
+            return nonDurable;
+        }
+
+        // fields here opt-in for delegate caching.
+        bool defaultToDurableMessages;
+        bool doesSupportNonDurableDelivery;
+        Func<Type, bool> durabilityConvention;
+        const string DoesNotSupportNonDurableDeliveryExceptionMessage = "The configured transport does not support non-durable messages but some messages have been configured to be non-durable (e.g. by using the [Express] attribute). Make the messages durable, or use a transport supporting non-durable messages.";
     }
 }

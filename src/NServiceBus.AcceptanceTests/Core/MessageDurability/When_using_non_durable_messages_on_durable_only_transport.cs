@@ -9,7 +9,7 @@
     public class When_using_non_durable_messages_on_durable_only_transport : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Should_throw_exception_at_startup()
+        public void Should_throw_exception_when_sending()
         {
             var exception = Assert.ThrowsAsync<AggregateException>(() => Scenario.Define<ScenarioContext>()
                 .WithEndpoint<EndpointUsingNonDurableMessage>(c => c

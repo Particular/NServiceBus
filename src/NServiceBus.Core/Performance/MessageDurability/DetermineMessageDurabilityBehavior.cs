@@ -1,21 +1,22 @@
 namespace NServiceBus
 {
     using System;
-    using System.Collections.Generic;
+    using System.Collections.Concurrent;
     using System.Threading.Tasks;
     using DeliveryConstraints;
     using Pipeline;
 
     class DetermineMessageDurabilityBehavior : Behavior<IOutgoingLogicalMessageContext>
     {
-        public DetermineMessageDurabilityBehavior(HashSet<Type> nonDurableMessages)
+        public DetermineMessageDurabilityBehavior(Func<Type, bool> convention)
         {
-            this.nonDurableMessages = nonDurableMessages;
+            this.convention = convention;
+            durabilityCache = new ConcurrentDictionary<Type, bool>();
         }
 
         public override Task Invoke(IOutgoingLogicalMessageContext context, Func<Task> next)
         {
-            if (nonDurableMessages.Contains(context.Message.MessageType))
+            if (durabilityCache.GetOrAdd(context.Message.MessageType, t => convention(t)))
             {
                 context.Extensions.AddDeliveryConstraint(new NonDurableDelivery());
 
@@ -25,6 +26,8 @@ namespace NServiceBus
             return next();
         }
 
-        readonly HashSet<Type> nonDurableMessages;
+        Func<Type, bool> convention;
+
+        ConcurrentDictionary<Type, bool> durabilityCache;
     }
 }
