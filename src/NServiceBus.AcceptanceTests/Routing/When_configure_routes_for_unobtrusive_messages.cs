@@ -4,7 +4,7 @@
     using AcceptanceTesting;
     using AcceptanceTesting.Customization;
     using Configuration.AdvanceExtensibility;
-    using CustomMessageNamespace;
+    using CustomCommandMessageNamespace;
     using EndpointTemplates;
     using NUnit.Framework;
 
@@ -92,13 +92,11 @@
                 }
             }
         }
-
-
     }
 }
 
 // custom namespace is required to avoid automatically loading the type by the testing framework
-namespace CustomMessageNamespace
+namespace CustomCommandMessageNamespace
 {
     public class SomeCommand
     {

@@ -63,6 +63,7 @@
     <Compile Include="Recoverability\When_custom_policy_moves_to_overridden_error_queue.cs" />
     <Compile Include="Recoverability\When_message_is_moved_to_error_queue_with_header_customizations.cs" />
     <Compile Include="Routing\When_configure_routes_for_unobtrusive_messages.cs" />
+    <Compile Include="Routing\When_registering_publishers_unobtrusive_messages.cs" />
     <Compile Include="Routing\When_subscribing_to_scaled_out_publisher_on_unicast_transport.cs" />
     <Compile Include="Serialization\When_configuring_custom_xml_namespace.cs" />
     <Compile Include="Serialization\When_registering_additional_deserializers.cs" />

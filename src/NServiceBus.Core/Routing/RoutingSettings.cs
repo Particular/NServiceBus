@@ -92,7 +92,10 @@
     public class RoutingSettings<T> : RoutingSettings
         where T : TransportDefinition
     {
-        internal RoutingSettings(SettingsHolder settings)
+        /// <summary>
+        /// Creates a new instance of <see cref="RoutingSettings{T}"/>.
+        /// </summary>
+        public RoutingSettings(SettingsHolder settings)
             : base(settings)
         {
         }
