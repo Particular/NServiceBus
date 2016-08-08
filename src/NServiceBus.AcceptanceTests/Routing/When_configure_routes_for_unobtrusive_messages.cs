@@ -11,7 +11,7 @@
     public class When_configure_routes_for_unobtrusive_messages : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Should_use_configured_routes_from_routing_api()
+        public async Task Should_use_routes_from_routing_api()
         {
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<SendingEndpointUsingRoutingApi>(e => e
@@ -24,7 +24,7 @@
         }
 
         [Test]
-        public async Task Should_use_configured_routes_from_endpoint_mapping()
+        public async Task Should_use_routes_from_endpoint_mapping()
         {
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<SendingEndpointUsingEndpointMapping>(e => e

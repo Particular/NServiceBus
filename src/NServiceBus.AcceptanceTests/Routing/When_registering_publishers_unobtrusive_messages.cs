@@ -12,15 +12,15 @@
     using Settings;
     using Transport;
 
-    public class When_registering_publishers_unobtrusive_messages
+    public class When_registering_publishers_unobtrusive_messages : NServiceBusAcceptanceTest
     {
         [Test]
-        public Task Should_use_configured_routes_from_routing_api()
+        public Task Should_use_routes_from_routing_api()
         {
             return Scenario.Define<Context>()
-                .WithEndpoint<PublishingEndpoint>(e => e
+                .WithEndpoint<Publisher>(e => e
                     .When(c => c.Subscribed, async s => await s.Publish(new SomeEvent())))
-                .WithEndpoint<SubscribingEndpointUsingRoutingApi>()
+                .WithEndpoint<SubscriberUsingRoutingApi>()
                 .Done(c => c.ReceivedMessage)
                 .Repeat(r => r.For<AllTransportsWithMessageDrivenPubSub>())
                 .Should(context =>
@@ -32,12 +32,12 @@
         }
 
         [Test]
-        public Task Should_use_configured_routes_from_endpoint_mapping()
+        public Task Should_use_routes_from_endpoint_mapping()
         {
             return Scenario.Define<Context>()
-                .WithEndpoint<PublishingEndpoint>(e => e
+                .WithEndpoint<Publisher>(e => e
                     .When(c => c.Subscribed, async s => await s.Publish(new SomeEvent())))
-                .WithEndpoint<SubscribingEndpointUsingEndpointMappings>()
+                .WithEndpoint<SubscriberUsingEndpointMappings>()
                 .Done(c => c.ReceivedMessage)
                 .Repeat(r => r.For<AllTransportsWithMessageDrivenPubSub>())
                 .Should(context =>
@@ -54,9 +54,9 @@
             public bool ReceivedMessage { get; set; }
         }
 
-        public class PublishingEndpoint : EndpointConfigurationBuilder
+        public class Publisher : EndpointConfigurationBuilder
         {
-            public PublishingEndpoint()
+            public Publisher()
             {
                 EndpointSetup<DefaultServer>(c =>
                 {
@@ -66,16 +66,16 @@
             }
         }
 
-        public class SubscribingEndpointUsingRoutingApi : EndpointConfigurationBuilder
+        public class SubscriberUsingRoutingApi : EndpointConfigurationBuilder
         {
-            public SubscribingEndpointUsingRoutingApi()
+            public SubscriberUsingRoutingApi()
             {
                 EndpointSetup<DefaultServer>(c =>
                 {
                     c.Conventions().DefiningEventsAs(t => t == typeof(SomeEvent));
 
                     var routing = new RoutingSettings<MessageDrivenPubSubTransportDefinition>(c.GetSettings());
-                    routing.RegisterPublisher(typeof(SomeEvent).Assembly, Conventions.EndpointNamingConvention(typeof(PublishingEndpoint)));
+                    routing.RegisterPublisher(typeof(SomeEvent).Assembly, Conventions.EndpointNamingConvention(typeof(Publisher)));
                 }).IncludeType<SomeEvent>();
             }
 
@@ -96,13 +96,13 @@
             }
         }
 
-        public class SubscribingEndpointUsingEndpointMappings : EndpointConfigurationBuilder
+        public class SubscriberUsingEndpointMappings : EndpointConfigurationBuilder
         {
-            public SubscribingEndpointUsingEndpointMappings()
+            public SubscriberUsingEndpointMappings()
             {
                 EndpointSetup<DefaultServer>(c => c
                 .Conventions().DefiningEventsAs(t => t == typeof(SomeEvent)))
-                .AddMapping<SomeEvent>(typeof(PublishingEndpoint))
+                .AddMapping<SomeEvent>(typeof(Publisher))
                 .IncludeType<SomeEvent>();
             }
 
