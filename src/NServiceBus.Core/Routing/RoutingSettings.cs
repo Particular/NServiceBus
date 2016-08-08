@@ -40,7 +40,11 @@
         /// <param name="destination">Destination endpoint.</param>
         public void RouteToEndpoint(Assembly assembly, string destination)
         {
+            Guard.AgainstNull(nameof(assembly), assembly);
+            Guard.AgainstNullAndEmpty(nameof(destination), destination);
+
             ThrowOnAddress(destination);
+
             Settings.GetOrCreate<ConfiguredUnicastRoutes>().Add((routingTable, conventions) =>
             {
                 foreach (var type in assembly.GetTypes())
@@ -61,6 +65,9 @@
         /// <param name="destination">Destination endpoint.</param>
         public void RouteToEndpoint(Assembly assembly, string @namespace, string destination)
         {
+            Guard.AgainstNull(nameof(assembly), assembly);
+            Guard.AgainstNullAndEmpty(nameof(destination), destination);
+
             ThrowOnAddress(destination);
 
             // empty namespace is null, not string.empty
