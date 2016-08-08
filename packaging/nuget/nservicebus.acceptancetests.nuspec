@@ -21,6 +21,8 @@
     </dependencies>
 	<frameworkAssemblies>
 		<frameworkAssembly assemblyName="System.Messaging" targetFramework="net452" />
+		<frameworkAssembly assemblyName="System.Transactions" targetFramework="net452" />
+		<frameworkAssembly assemblyName="System.Configuration" targetFramework="net452" />
 	</frameworkAssemblies>
   </metadata>
   <files>
