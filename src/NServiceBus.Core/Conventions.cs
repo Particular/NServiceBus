@@ -11,28 +11,27 @@
     /// </summary>
     public partial class Conventions
     {
-        internal IEnumerable<DataBusPropertyInfo> GetDataBusProperties(object message)
+        internal List<DataBusPropertyInfo> GetDataBusProperties(object message)
         {
-            var messageType = message.GetType();
-            List<DataBusPropertyInfo> value;
-
-            if (!cache.TryGetValue(messageType, out value))
+            return cache.GetOrAdd(message.GetType(), messageType =>
             {
-                value = messageType.GetProperties()
-                    .Where(IsDataBusProperty)
-                    .Select(property => new DataBusPropertyInfo
+                var properties = new List<DataBusPropertyInfo>();
+                // ReSharper disable once LoopCanBeConvertedToQuery
+                foreach (var propertyInfo in messageType.GetProperties())
+                {
+                    if (IsDataBusProperty(propertyInfo))
                     {
-                        Name = property.Name,
-                        Getter = DelegateFactory.CreateGet(property),
-                        Setter = DelegateFactory.CreateSet(property)
-                    }).ToList();
-
-                cache[messageType] = value;
-            }
-
-            return value;
+                        properties.Add(new DataBusPropertyInfo
+                        {
+                            Name = propertyInfo.Name,
+                            Getter = DelegateFactory.CreateGet(propertyInfo),
+                            Setter = DelegateFactory.CreateSet(propertyInfo)
+                        });
+                    }
+                }
+                return properties;
+            });
         }
-
 
         /// <summary>
         /// Returns true if the given type is a message type.
