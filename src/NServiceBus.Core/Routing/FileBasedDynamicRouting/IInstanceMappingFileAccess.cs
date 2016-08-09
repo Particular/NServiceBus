@@ -2,7 +2,7 @@ namespace NServiceBus
 {
     using System.Xml.Linq;
 
-    interface IRoutingFileAccess
+    interface IInstanceMappingFileAccess
     {
         XDocument Load(string path);
     }

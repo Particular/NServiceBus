@@ -56,9 +56,9 @@ namespace NServiceBus
         /// <summary>
         /// Returns the configuration options for the file based instance mapping file.
         /// </summary>
-        public static FileRoutingTableSettings InstanceMappingFile(this RoutingSettings<MsmqTransport> config)
+        public static InstanceMappingFileSettings InstanceMappingFile(this RoutingSettings<MsmqTransport> config)
         {
-            return new FileRoutingTableSettings(config.Settings);
+            return new InstanceMappingFileSettings(config.Settings);
         }
 
         /// <summary>

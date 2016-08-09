@@ -6,7 +6,7 @@
     using NUnit.Framework;
 
     [TestFixture]
-    public class FileRoutingTableTests
+    public class InstanceMappingTableTests
     {
         [Test]
         public void Reload_should_throw_when_file_does_not_exist()
@@ -18,7 +18,7 @@
             {
                 throw fileAccessException;
             });
-            var table = new FileRoutingTable(filePath, TimeSpan.Zero, timer, fileAccess);
+            var table = new InstanceMappingTable(filePath, TimeSpan.Zero, timer, fileAccess);
 
             var exception = Assert.Throws<Exception>(() => table.ReloadData());
 
@@ -45,7 +45,7 @@
                 return XDocument.Parse(@"<endpoints><endpoint name=""A""><instance/></endpoint></endpoints>");
             });
 
-            var table = new FileRoutingTable("unused", TimeSpan.Zero, timer, fileAccess);
+            var table = new InstanceMappingTable("unused", TimeSpan.Zero, timer, fileAccess);
             await table.PerformStartup(null);
 
             fail = true;
@@ -54,7 +54,7 @@
             Assert.IsTrue(errorCallbackInvoked);
         }
 
-        class FakeFileAccess : IRoutingFileAccess
+        class FakeFileAccess : IInstanceMappingFileAccess
         {
             readonly Func<XDocument> docCallback;
 

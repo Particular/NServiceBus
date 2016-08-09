@@ -7,9 +7,9 @@ namespace NServiceBus
     using System.Xml.Schema;
     using Routing;
 
-    class FileRoutingTableParser
+    class InstanceMappingFileParser
     {
-        public FileRoutingTableParser()
+        public InstanceMappingFileParser()
         {
             using (var stream = GetType().Assembly.GetManifestResourceStream("NServiceBus.Routing.FileBasedDynamicRouting.endpoints.xsd"))
             using (var xmlReader = XmlReader.Create(stream))

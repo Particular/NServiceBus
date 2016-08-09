@@ -6,25 +6,24 @@ namespace NServiceBus
     using Settings;
 
     /// <summary>
-    /// Allows configuring file-based direct routing table.
+    /// Allows configuring file-based instance mappings.
     /// </summary>
-    public class FileRoutingTableSettings : ExposeSettings
+    public class InstanceMappingFileSettings : ExposeSettings
     {
         /// <summary>
-        /// Creates new instance.
+        /// Creates new instance of <see cref="InstanceMappingFileSettings"/>.
         /// </summary>
-        public FileRoutingTableSettings(SettingsHolder settings)
+        public InstanceMappingFileSettings(SettingsHolder settings)
             : base(settings)
         {
         }
 
         /// <summary>
-        /// Specifies the interval between route data refresh attempts.
+        /// Specifies the interval between data refresh attempts.
         /// The default value is 30 seconds.
-        /// Valid values must be between 1 second and less than 1 day.
         /// </summary>
-        /// <param name="refreshInterval">Refresh interval.</param>
-        public FileRoutingTableSettings RefreshInterval(TimeSpan refreshInterval)
+        /// <param name="refreshInterval">Refresh interval. Valid values must be between 1 second and less than 1 day.</param>
+        public InstanceMappingFileSettings RefreshInterval(TimeSpan refreshInterval)
         {
             if (refreshInterval < TimeSpan.FromSeconds(1))
             {
@@ -34,7 +33,7 @@ namespace NServiceBus
             {
                 throw new ArgumentOutOfRangeException(nameof(refreshInterval), "Value must be less than 1 day.");
             }
-            Settings.Set(FileRoutingTableFeature.CheckIntervalSettingsKey, refreshInterval);
+            Settings.Set(InstanceMappingFileFeature.CheckIntervalSettingsKey, refreshInterval);
             return this;
         }
 
@@ -42,11 +41,11 @@ namespace NServiceBus
         /// Specifies the path and file name for the instance mapping XML. The default is <code>instance-mapping.xml</code>.
         /// </summary>
         /// <param name="filePath">The relative or absolute file path to the instance mapping XML file.</param>
-        public FileRoutingTableSettings FilePath(string filePath)
+        public InstanceMappingFileSettings FilePath(string filePath)
         {
             Guard.AgainstNullAndEmpty(nameof(filePath), filePath);
 
-            Settings.Set(FileRoutingTableFeature.FilePathSettingsKey, filePath);
+            Settings.Set(InstanceMappingFileFeature.FilePathSettingsKey, filePath);
             return this;
         }
     }

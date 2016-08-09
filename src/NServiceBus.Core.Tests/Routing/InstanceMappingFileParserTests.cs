@@ -6,7 +6,7 @@
     using NUnit.Framework;
 
     [TestFixture]
-    public class FileRoutingTableParserTests
+    public class InstanceMappingFileParserTests
     {
         [Test]
         public void It_can_parse_valid_file()
@@ -23,7 +23,7 @@
 </endpoints>
 ";
             var doc = XDocument.Parse(xml);
-            var result = new FileRoutingTableParser().Parse(doc);
+            var result = new InstanceMappingFileParser().Parse(doc);
 
             CollectionAssert.AreEqual(new[]
             {
@@ -41,7 +41,7 @@
 </endpoints>
 ";
             var doc = XDocument.Parse(xml);
-            var parser = new FileRoutingTableParser();
+            var parser = new InstanceMappingFileParser();
 
             Assert.DoesNotThrow(() => parser.Parse(doc));
         }
@@ -55,7 +55,7 @@
 </endpoints>
 ";
             var doc = XDocument.Parse(xml);
-            var parser = new FileRoutingTableParser();
+            var parser = new InstanceMappingFileParser();
 
             var exception = Assert.Throws<XmlSchemaValidationException>(() => parser.Parse(doc));
             Assert.That(exception.Message, Does.Contain("The required attribute 'name' is missing."));
@@ -70,7 +70,7 @@
 </endpoints>
 ";
             var doc = XDocument.Parse(xml);
-            var parser = new FileRoutingTableParser();
+            var parser = new InstanceMappingFileParser();
 
             var exception = Assert.Throws<XmlSchemaValidationException>(() => parser.Parse(doc));
             Assert.That(exception.Message, Does.Contain("The element 'endpoint' has incomplete content. List of possible elements expected: 'instance'."));

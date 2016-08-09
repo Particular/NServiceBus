@@ -9,9 +9,9 @@ namespace NServiceBus
     using Logging;
     using Routing;
 
-    class FileRoutingTable : FeatureStartupTask
+    class InstanceMappingTable : FeatureStartupTask
     {
-        public FileRoutingTable(string filePath, TimeSpan checkInterval, IAsyncTimer timer, IRoutingFileAccess fileAccess)
+        public InstanceMappingTable(string filePath, TimeSpan checkInterval, IAsyncTimer timer, IInstanceMappingFileAccess fileAccess)
         {
             this.filePath = filePath;
             this.checkInterval = checkInterval;
@@ -107,14 +107,14 @@ namespace NServiceBus
         protected override Task OnStop(IMessageSession session) => timer.Stop();
 
         TimeSpan checkInterval;
-        IRoutingFileAccess fileAccess;
+        IInstanceMappingFileAccess fileAccess;
         string filePath;
 
         Dictionary<string, HashSet<EndpointInstance>> instanceMap = new Dictionary<string, HashSet<EndpointInstance>>(0);
-        FileRoutingTableParser parser = new FileRoutingTableParser();
+        InstanceMappingFileParser parser = new InstanceMappingFileParser();
         IAsyncTimer timer;
         Task<IEnumerable<EndpointInstance>> noInstances = Task.FromResult(Enumerable.Empty<EndpointInstance>());
 
-        static readonly ILog log = LogManager.GetLogger(typeof(FileRoutingTable));
+        static readonly ILog log = LogManager.GetLogger(typeof(InstanceMappingTable));
     }
 }
