@@ -71,8 +71,11 @@
         {
             var logicalEndpoint = "sales";
             subscriptionStorage.Subscribers.Add(new Subscriber("address", logicalEndpoint));
-            endpointInstances.Add(new EndpointInstance(logicalEndpoint, "1"));
-            endpointInstances.Add(new EndpointInstance(logicalEndpoint, "2"));
+            endpointInstances.AddOrReplaceInstances(Guid.NewGuid(), new List<EndpointInstance>
+            {
+                new EndpointInstance(logicalEndpoint, "1"),
+                new EndpointInstance(logicalEndpoint, "2")
+            });
 
             var routes = await router.Route(typeof(Event), new DistributionPolicy(), new ContextBag());
 

@@ -29,9 +29,8 @@ namespace NServiceBus.Features
             var checkInterval = context.Settings.Get<TimeSpan>(CheckIntervalSettingsKey);
             var endpointInstances = context.Settings.Get<EndpointInstances>();
 
-            var instanceMappingTable = new InstanceMappingTable(filePath, checkInterval, new AsyncTimer(), new InstanceMappingFileAccess());
+            var instanceMappingTable = new InstanceMappingTable(filePath, checkInterval, new AsyncTimer(), new InstanceMappingFileAccess(), endpointInstances);
             instanceMappingTable.ReloadData();
-            endpointInstances.AddDynamic(instanceMappingTable.FindInstances);
             context.RegisterStartupTask(instanceMappingTable);
         }
 

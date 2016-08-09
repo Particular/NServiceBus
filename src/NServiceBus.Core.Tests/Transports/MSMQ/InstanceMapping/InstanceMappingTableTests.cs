@@ -3,6 +3,7 @@
     using System;
     using System.Threading.Tasks;
     using System.Xml.Linq;
+    using NServiceBus.Routing;
     using NUnit.Framework;
 
     [TestFixture]
@@ -18,7 +19,7 @@
             {
                 throw fileAccessException;
             });
-            var table = new InstanceMappingTable(filePath, TimeSpan.Zero, timer, fileAccess);
+            var table = new InstanceMappingTable(filePath, TimeSpan.Zero, timer, fileAccess, new EndpointInstances());
 
             var exception = Assert.Throws<Exception>(() => table.ReloadData());
 
@@ -45,7 +46,7 @@
                 return XDocument.Parse(@"<endpoints><endpoint name=""A""><instance/></endpoint></endpoints>");
             });
 
-            var table = new InstanceMappingTable("unused", TimeSpan.Zero, timer, fileAccess);
+            var table = new InstanceMappingTable("unused", TimeSpan.Zero, timer, fileAccess, new EndpointInstances());
             await table.PerformStartup(null);
 
             fail = true;
