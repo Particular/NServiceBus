@@ -4,7 +4,6 @@
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
-    using Features;
     using NUnit.Framework;
 
     [TestFixture]
@@ -38,7 +37,7 @@
         {
             public SagaEndpoint()
             {
-                EndpointSetup<DefaultServer>(c => c.EnableFeature<TimeoutManager>());
+                EndpointSetup<DefaultServer>();
             }
 
             public class BaseClassStartsSaga : Saga<BaseClassStartsSaga.BaseClassStartsSagaData>,

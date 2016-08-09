@@ -4,7 +4,6 @@
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
-    using Features;
     using NUnit.Framework;
 
     [TestFixture]
@@ -38,7 +37,7 @@
         {
             public SagaEndpoint()
             {
-                EndpointSetup<DefaultServer>(c => c.EnableFeature<TimeoutManager>());
+                EndpointSetup<DefaultServer>();
             }
 
             public class BaseClassIsMappedSaga : Saga<BaseClassIsMappedSaga.BaseClassIsMappedSagaData>,
@@ -46,6 +45,12 @@
                 IAmStartedByMessages<SecondSagaMessage>
             {
                 public Context TestContext { get; set; }
+
+                public Task Handle(SecondSagaMessage message, IMessageHandlerContext context)
+                {
+                    TestContext.SecondMessageFoundExistingSaga = true;
+                    return Task.FromResult(0);
+                }
 
                 public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
                 {
@@ -65,12 +70,6 @@
                 public class BaseClassIsMappedSagaData : ContainSagaData
                 {
                     public virtual Guid SomeId { get; set; }
-                }
-
-                public Task Handle(SecondSagaMessage message, IMessageHandlerContext context)
-                {
-                    TestContext.SecondMessageFoundExistingSaga = true;
-                    return Task.FromResult(0);
                 }
             }
         }
