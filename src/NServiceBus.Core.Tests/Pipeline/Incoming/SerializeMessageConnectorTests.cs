@@ -33,7 +33,7 @@
             Assert.AreEqual("myContentType", context.Headers[Headers.ContentType]);
         }
 
-        public class FakeSerializer : IMessageSerializer
+        class FakeSerializer : IMessageSerializer
         {
             public FakeSerializer(string contentType)
             {
