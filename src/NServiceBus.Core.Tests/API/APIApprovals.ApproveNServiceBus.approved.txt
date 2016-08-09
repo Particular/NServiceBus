@@ -2662,10 +2662,13 @@ namespace NServiceBus.Routing.MessageDrivenSubscriptions
     public class Publishers
     {
         public Publishers() { }
-        public void Add(System.Type eventType, string publisher) { }
-        public void Add(System.Type eventType, NServiceBus.Routing.EndpointInstance endpointInstance) { }
-        public void AddByAddress(System.Type eventType, string publisherAddress) { }
-        public void AddDynamic(System.Func<System.Type, NServiceBus.Routing.MessageDrivenSubscriptions.PublisherAddress> dynamicRule) { }
+        public void AddOrReplacePublishers(object sourceKey, System.Collections.Generic.IList<NServiceBus.Routing.MessageDrivenSubscriptions.PublisherTableEntry> entries) { }
+    }
+    public class PublisherTableEntry
+    {
+        public PublisherTableEntry(System.Type eventType, NServiceBus.Routing.MessageDrivenSubscriptions.PublisherAddress address) { }
+        public NServiceBus.Routing.MessageDrivenSubscriptions.PublisherAddress Address { get; }
+        public System.Type EventType { get; }
     }
 }
 namespace NServiceBus.Routing.StorageDrivenPublishing

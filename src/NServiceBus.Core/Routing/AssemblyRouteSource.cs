@@ -18,7 +18,7 @@ namespace NServiceBus
             this.route = route;
         }
 
-        public void GenerateRoutes(Action<RouteTableEntry> registerRouteCallback)
+        public void Generate(Action<RouteTableEntry> registerRouteCallback)
         {
             foreach (var type in messageAssembly.GetTypes().Where(t => conventions.IsMessageType(t)))
             {

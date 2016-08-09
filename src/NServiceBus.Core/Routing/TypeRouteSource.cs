@@ -14,7 +14,7 @@ namespace NServiceBus
             this.route = route;
         }
 
-        public void GenerateRoutes(Action<RouteTableEntry> registerRouteCallback)
+        public void Generate(Action<RouteTableEntry> registerRouteCallback)
         {
             registerRouteCallback(new RouteTableEntry(messageType, route));
         }

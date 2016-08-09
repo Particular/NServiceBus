@@ -5,7 +5,7 @@ namespace NServiceBus
 
     interface IRouteSource
     {
-        void GenerateRoutes(Action<RouteTableEntry> registerRouteCallback);
+        void Generate(Action<RouteTableEntry> registerRouteCallback);
         RouteSourcePriority Priority { get; }
     }
 }

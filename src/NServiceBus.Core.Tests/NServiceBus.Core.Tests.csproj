@@ -180,7 +180,6 @@
     <Compile Include="Routing\RoutingSettingsTests.cs" />
     <Compile Include="Routing\RoutingToDispatchConnectorTests.cs" />
     <Compile Include="Routing\SingleInstanceRoundRobinDistributionStrategyTests.cs" />
-    <Compile Include="Routing\SubscriptionRouterTests.cs" />
     <Compile Include="Routing\UnicastPublisherRouterTests.cs" />
     <Compile Include="Routing\UnicastRoutingTableTests.cs" />
     <Compile Include="Sagas\CustomFinderAdapterTests.cs" />

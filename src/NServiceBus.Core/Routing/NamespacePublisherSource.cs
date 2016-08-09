@@ -3,28 +3,28 @@ namespace NServiceBus
     using System;
     using System.Linq;
     using System.Reflection;
-    using Routing;
+    using Routing.MessageDrivenSubscriptions;
 
-    class NamespaceRouteSource : IRouteSource
+    class NamespacePublisherSource : IPublisherSource
     {
         Assembly messageAssembly;
         string messageNamespace;
         Conventions conventions;
-        IUnicastRoute route;
+        PublisherAddress address;
 
-        public NamespaceRouteSource(Assembly messageAssembly, string messageNamespace, Conventions conventions, IUnicastRoute route)
+        public NamespacePublisherSource(Assembly messageAssembly, string messageNamespace, Conventions conventions, PublisherAddress address)
         {
             this.messageAssembly = messageAssembly;
             this.conventions = conventions;
-            this.route = route;
+            this.address = address;
             this.messageNamespace = messageNamespace;
         }
 
-        public void Generate(Action<RouteTableEntry> registerRouteCallback)
+        public void Generate(Action<PublisherTableEntry> registerPublisherCallback)
         {
             foreach (var type in messageAssembly.GetTypes().Where(t => t.Namespace == messageNamespace).Where(t => conventions.IsMessageType(t)))
             {
-                registerRouteCallback(new RouteTableEntry(type, route));
+                registerPublisherCallback(new PublisherTableEntry(type, address));
             }
         }
 
