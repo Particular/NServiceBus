@@ -69,8 +69,8 @@
                 EndpointSetup<DefaultServer>(c =>
                 {
                     // replace before register to ensure out-of-order replacements work correctly.
-                    c.Pipeline.Replace("demoBehavior", typeof(ReplacementBehavior));
-                    c.Pipeline.Register("demoBehavior", typeof(OriginalBehavior), "test behavior replacement");
+                    c.Pipeline.Replace("demoBehavior", new ReplacementBehavior((Context)ScenarioContext));
+                    c.Pipeline.Register("demoBehavior", new OriginalBehavior((Context)ScenarioContext), "test behavior replacement");
                 });
             }
 

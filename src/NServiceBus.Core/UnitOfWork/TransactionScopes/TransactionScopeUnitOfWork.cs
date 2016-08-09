@@ -16,10 +16,7 @@
             }
 
             var transactionOptions = context.Settings.Get<Settings>().TransactionOptions;
-
-            context.Container.ConfigureComponent(b => new TransactionScopeUnitOfWorkBehavior(transactionOptions), DependencyLifecycle.InstancePerCall);
-
-            context.Pipeline.Register("HandlerTransactionScopeWrapper", typeof(TransactionScopeUnitOfWorkBehavior), "Makes sure that the handlers gets wrapped in a transaction scope");
+            context.Pipeline.Register("HandlerTransactionScopeWrapper", new TransactionScopeUnitOfWorkBehavior(transactionOptions), "Makes sure that the handlers gets wrapped in a transaction scope");
         }
 
         public class Settings
