@@ -71,7 +71,7 @@
             {
                 deserializer1,
                 deserializer2
-            }), Throws.Exception.TypeOf<Exception>().And.Message.Contains($"Multiple additional deserializers are registered for content-type '{deserializer1.ContentType}'. Remove ambiguous deserializers for this content-type."));
+            }), Throws.Exception.TypeOf<Exception>().And.Message.Contains($"Multiple deserializers are registered for content-type '{deserializer1.ContentType}'. Remove ambiguous deserializers."));
         }
 
         class FakeSerializer : IMessageSerializer

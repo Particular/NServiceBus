@@ -14,7 +14,7 @@
             {
                 if (serializersMap.ContainsKey(additionalDeserializer.ContentType))
                 {
-                    throw new Exception($"Multiple additional deserializers are registered for content-type '{additionalDeserializer.ContentType}'. Remove ambiguous deserializers for this content-type.");
+                    throw new Exception($"Multiple deserializers are registered for content-type '{additionalDeserializer.ContentType}'. Remove ambiguous deserializers.");
                 }
 
                 serializersMap.Add(additionalDeserializer.ContentType, additionalDeserializer);
