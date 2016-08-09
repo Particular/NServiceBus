@@ -38,23 +38,14 @@
             var configuredUnicastRoutes = context.Settings.Get<ConfiguredUnicastRoutes>();
             var configuredPublishers = context.Settings.Get<ConfiguredPublishers>();
 
-            var knownMessageTypes = GetKnownMessageTypes(context);
-
             var unicastBusConfig = context.Settings.GetConfigSection<UnicastBusConfig>();
             if (unicastBusConfig != null)
             {
                 ImportMessageEndpointMappings(unicastBusConfig.MessageEndpointMappings, transportInfrastructure, publishers, unicastRoutingTable);
             }
 
-            foreach (var registration in configuredUnicastRoutes)
-            {
-                registration(unicastRoutingTable, knownMessageTypes);
-            }
-
-            foreach (var registration in configuredPublishers)
-            {
-                registration(publishers, knownMessageTypes);
-            }
+            configuredUnicastRoutes.Apply(unicastRoutingTable);
+            configuredPublishers.Apply(publishers);
 
             var outboundRoutingPolicy = transportInfrastructure.OutboundRoutingPolicy;
             context.Pipeline.Register(b =>
@@ -102,30 +93,22 @@
             }
         }
 
-        static Type[] GetKnownMessageTypes(FeatureConfigurationContext context)
-        {
-            var registry = context.Settings.Get<MessageMetadataRegistry>();
-            return registry.GetAllMessages().Select(m => m.MessageType).ToArray();
-        }
-
         static void ImportMessageEndpointMappings(MessageEndpointMappingCollection legacyRoutingConfig, TransportInfrastructure transportInfrastructure, Publishers publishers, UnicastRoutingTable unicastRoutingTable)
         {
+            var routeTableEntries = new Dictionary<Type, RouteTableEntry>();
+            var publisherTableEntries = new Dictionary<Type, PublisherTableEntry>();
+
             foreach (MessageEndpointMapping m in legacyRoutingConfig)
             {
-                m.Configure((type, endpointAddress) =>
+                m.Configure((type, address) =>
                 {
-                    unicastRoutingTable.RouteTo(type, UnicastRoute.CreateFromPhysicalAddress(transportInfrastructure.MakeCanonicalForm(endpointAddress)), overrideExistingRoute: true);
-                    publishers.AddByAddress(type, endpointAddress);
+                    routeTableEntries[type] = new RouteTableEntry(type, UnicastRoute.CreateFromPhysicalAddress(transportInfrastructure.MakeCanonicalForm(address)));
+                    publisherTableEntries[type] = new PublisherTableEntry(type, PublisherAddress.CreateFromPhysicalAddresses(address));
                 });
             }
+
+            publishers.AddOrReplacePublishers("MessageEndpointMappings", publisherTableEntries.Values.ToList());
+            unicastRoutingTable.AddOrReplaceRoutes("MessageEndpointMappings", routeTableEntries.Values.ToList());
         }
-    }
-
-    class ConfiguredUnicastRoutes : List<Action<UnicastRoutingTable, Type[]>>
-    {
-    }
-
-    class ConfiguredPublishers : List<Action<Publishers, Type[]>>
-    {
     }
 }

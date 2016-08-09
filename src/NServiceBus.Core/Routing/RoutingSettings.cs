@@ -27,7 +27,7 @@
         {
             ThrowOnAddress(destination);
 
-            Settings.GetOrCreate<ConfiguredUnicastRoutes>().Add((routingTable, knownMessageTypes) => { routingTable.RouteTo(messageType, UnicastRoute.CreateFromEndpointName(destination)); });
+            Settings.GetOrCreate<ConfiguredUnicastRoutes>().Add(new TypeRouteSource(messageType, UnicastRoute.CreateFromEndpointName(destination)));
         }
 
         /// <summary>
@@ -38,16 +38,8 @@
         public void RouteToEndpoint(Assembly assembly, string destination)
         {
             ThrowOnAddress(destination);
-            Settings.GetOrCreate<ConfiguredUnicastRoutes>().Add((routingTable, knownMessageTypes) =>
-            {
-                foreach (var knownMessage in knownMessageTypes)
-                {
-                    if (knownMessage.Assembly == assembly)
-                    {
-                        routingTable.RouteTo(knownMessage, UnicastRoute.CreateFromEndpointName(destination));
-                    }
-                }
-            });
+
+            Settings.GetOrCreate<ConfiguredUnicastRoutes>().Add(new AssemblyRouteSource(assembly, Settings.Get<Conventions>(), UnicastRoute.CreateFromEndpointName(destination)));
         }
 
         /// <summary>
@@ -62,16 +54,8 @@
 
             // empty namespace is null, not string.empty
             @namespace = @namespace == string.Empty ? null : @namespace;
-            Settings.GetOrCreate<ConfiguredUnicastRoutes>().Add((routingTable, knownMessageTypes) =>
-            {
-                foreach (var knownMessage in knownMessageTypes)
-                {
-                    if (knownMessage.Assembly == assembly && knownMessage.Namespace == @namespace)
-                    {
-                        routingTable.RouteTo(knownMessage, UnicastRoute.CreateFromEndpointName(destination));
-                    }
-                }
-            });
+
+            Settings.GetOrCreate<ConfiguredUnicastRoutes>().Add(new NamespaceRouteSource(assembly, @namespace, Settings.Get<Conventions>(), UnicastRoute.CreateFromEndpointName(destination)));
         }
 
         static void ThrowOnAddress(string destination)
