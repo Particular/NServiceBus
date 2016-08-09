@@ -28,7 +28,7 @@ namespace NServiceBus
         /// <returns>the transport infrastructure for msmq.</returns>
         public override TransportInfrastructure Initialize(SettingsHolder settings, string connectionString)
         {
-            settings.EnableFeature(typeof(FileRoutingTableFeature));
+            settings.EnableFeature(typeof(InstanceMappingFileFeature));
 
             return new MsmqTransportInfrastructure(settings, connectionString);
         }

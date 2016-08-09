@@ -408,12 +408,6 @@ namespace NServiceBus
         public FailedConfig(string errorQueue) { }
         public string ErrorQueue { get; }
     }
-    public class FileRoutingTableSettings : NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings
-    {
-        public FileRoutingTableSettings(NServiceBus.Settings.SettingsHolder settings) { }
-        public NServiceBus.FileRoutingTableSettings FilePath(string filePath) { }
-        public NServiceBus.FileRoutingTableSettings RefreshInterval(System.TimeSpan refreshInterval) { }
-    }
     public class FileShareDataBus : NServiceBus.DataBus.DataBusDefinition
     {
         public FileShareDataBus() { }
@@ -683,6 +677,12 @@ namespace NServiceBus
     {
         public static void EnableInstallers(this NServiceBus.EndpointConfiguration config, string username = null) { }
     }
+    public class InstanceMappingFileSettings : NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings
+    {
+        public InstanceMappingFileSettings(NServiceBus.Settings.SettingsHolder settings) { }
+        public NServiceBus.InstanceMappingFileSettings FilePath(string filePath) { }
+        public NServiceBus.InstanceMappingFileSettings RefreshInterval(System.TimeSpan refreshInterval) { }
+    }
     public interface IPipelineContext : NServiceBus.Extensibility.IExtendable
     {
         System.Threading.Tasks.Task Publish(object message, NServiceBus.PublishOptions options);
@@ -802,7 +802,7 @@ namespace NServiceBus
     public class static MsmqConfigurationExtensions
     {
         public static NServiceBus.TransportExtensions<NServiceBus.MsmqTransport> ApplyLabelToMessages(this NServiceBus.TransportExtensions<NServiceBus.MsmqTransport> transportExtensions, System.Func<System.Collections.Generic.IReadOnlyDictionary<string, string>, string> labelGenerator) { }
-        public static NServiceBus.FileRoutingTableSettings InstanceMappingFile(this NServiceBus.RoutingSettings<NServiceBus.MsmqTransport> config) { }
+        public static NServiceBus.InstanceMappingFileSettings InstanceMappingFile(this NServiceBus.RoutingSettings<NServiceBus.MsmqTransport> config) { }
         public static NServiceBus.TransportExtensions<NServiceBus.MsmqTransport> OverrideAddressTranslation(this NServiceBus.TransportExtensions<NServiceBus.MsmqTransport> config, System.Func<NServiceBus.LogicalAddress, string> translationRule) { }
         public static void SetMessageDistributionStrategy(this NServiceBus.RoutingSettings<NServiceBus.MsmqTransport> config, string endpointName, NServiceBus.Routing.DistributionStrategy distributionStrategy) { }
         public static NServiceBus.TransportExtensions<NServiceBus.MsmqTransport> TransactionScopeOptions(this NServiceBus.TransportExtensions<NServiceBus.MsmqTransport> transportExtensions, System.Nullable<System.TimeSpan> timeout = null, System.Nullable<System.Transactions.IsolationLevel> isolationLevel = null) { }

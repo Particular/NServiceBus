@@ -4,9 +4,9 @@ namespace NServiceBus.Features
     using System.IO;
     using Routing;
 
-    class FileRoutingTableFeature : Feature
+    class InstanceMappingFileFeature : Feature
     {
-        public FileRoutingTableFeature()
+        public InstanceMappingFileFeature()
         {
             Defaults(s =>
             {
@@ -29,16 +29,16 @@ namespace NServiceBus.Features
             var checkInterval = context.Settings.Get<TimeSpan>(CheckIntervalSettingsKey);
             var endpointInstances = context.Settings.Get<EndpointInstances>();
 
-            var fileRoutingTable = new FileRoutingTable(filePath, checkInterval, new AsyncTimer(), new RoutingFileAccess());
-            fileRoutingTable.ReloadData();
-            endpointInstances.AddDynamic(fileRoutingTable.FindInstances);
-            context.RegisterStartupTask(fileRoutingTable);
+            var instanceMappingTable = new InstanceMappingTable(filePath, checkInterval, new AsyncTimer(), new InstanceMappingFileAccess());
+            instanceMappingTable.ReloadData();
+            endpointInstances.AddDynamic(instanceMappingTable.FindInstances);
+            context.RegisterStartupTask(instanceMappingTable);
         }
 
         static string GetRootedPath(string filePath)
         {
-            return Path.IsPathRooted(filePath) 
-                ? filePath 
+            return Path.IsPathRooted(filePath)
+                ? filePath
                 : Path.Combine(AppDomain.CurrentDomain.BaseDirectory, filePath);
         }
 

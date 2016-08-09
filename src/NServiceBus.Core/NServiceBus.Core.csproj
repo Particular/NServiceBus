@@ -47,7 +47,7 @@
     <None Include="FodyWeavers.xml">
       <SubType>Designer</SubType>
     </None>
-    <EmbeddedResource Include="Routing\FileBasedDynamicRouting\endpoints.xsd">
+    <EmbeddedResource Include="Transports\Msmq\InstanceMapping\endpoints.xsd">
       <SubType>Designer</SubType>
     </EmbeddedResource>
     <Reference Include="Autofac">
@@ -227,11 +227,11 @@
     <Compile Include="Pipeline\Outgoing\RoutingContext.cs" />
     <Compile Include="Pipeline\RegisterStepExtensions.cs" />
     <Compile Include="Pipeline\SatelliteDefinition.cs" />
-    <Compile Include="Routing\FileBasedDynamicRouting\AsyncTimer.cs" />
-    <Compile Include="Routing\FileBasedDynamicRouting\FileRoutingTableParser.cs" />
-    <Compile Include="Routing\FileBasedDynamicRouting\IAsyncTimer.cs" />
-    <Compile Include="Routing\FileBasedDynamicRouting\IRoutingFileAccess.cs" />
-    <Compile Include="Routing\FileBasedDynamicRouting\RoutingFileAccess.cs" />
+    <Compile Include="Utils\AsyncTimer.cs" />
+    <Compile Include="Transports\Msmq\InstanceMapping\InstanceMappingFileParser.cs" />
+    <Compile Include="Utils\IAsyncTimer.cs" />
+    <Compile Include="Transports\Msmq\InstanceMapping\IInstanceMappingFileAccess.cs" />
+    <Compile Include="Transports\Msmq\InstanceMapping\InstanceMappingFileAccess.cs" />
     <Compile Include="Routing\Legacy\ConfigureMSMQDistributor.cs" />
     <Compile Include="Routing\Legacy\LegacyDistributorHeaders.cs" />
     <Compile Include="Routing\Legacy\ProcessedMessageCounterBehavior.cs" />
@@ -292,7 +292,7 @@
     <Compile Include="Routing\MessageDrivenSubscriptions\SubscriptionRouter.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\Publishers.cs" />
     <Compile Include="Routing\Routers\UnicastPublishRouterConnector.cs" />
-    <Compile Include="Routing\FileBasedDynamicRouting\FileRoutingTableSettings.cs" />
+    <Compile Include="Transports\Msmq\InstanceMapping\InstanceMappingFileSettings.cs" />
     <Compile Include="Routing\EndpointInstances.cs" />
     <Compile Include="Serialization\SerializationContextExtensions.cs" />
     <Compile Include="Transports\TransportTransaction.cs" />
@@ -549,8 +549,8 @@
     <Compile Include="UnitOfWork\UnitOfWorkSettingsExtensions.cs" />
     <Compile Include="Utils\MessageQueueExtensions.cs" />
     <Compile Include="Utils\PathUtilities.cs" />
-    <Compile Include="Routing\FileBasedDynamicRouting\FileRoutingTable.cs" />
-    <Compile Include="Routing\FileBasedDynamicRouting\FileRoutingTableFeature.cs" />
+    <Compile Include="Transports\Msmq\InstanceMapping\InstanceMappingTable.cs" />
+    <Compile Include="Transports\Msmq\InstanceMapping\InstanceMappingFileFeature.cs" />
     <Compile Include="Unicast\Transport\Config\TransportExtensions.cs" />
     <Compile Include="Performance\Statistics\ReceivePerformanceDiagnosticsBehavior.cs" />
     <Compile Include="Utils\Guard.cs" />

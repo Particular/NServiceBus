@@ -4,7 +4,7 @@ namespace NServiceBus
     using System.Xml;
     using System.Xml.Linq;
 
-    class RoutingFileAccess : IRoutingFileAccess
+    class InstanceMappingFileAccess : IInstanceMappingFileAccess
     {
         public XDocument Load(string path)
         {
