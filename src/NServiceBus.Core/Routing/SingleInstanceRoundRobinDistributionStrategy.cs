@@ -1,6 +1,5 @@
 namespace NServiceBus.Routing
 {
-    using System.Collections.Generic;
     using System.Threading;
 
     /// <summary>
@@ -11,15 +10,15 @@ namespace NServiceBus.Routing
         /// <summary>
         /// Selects destination instances from all known instances of a given endpoint.
         /// </summary>
-        public override IEnumerable<UnicastRoutingTarget> SelectDestination(IList<UnicastRoutingTarget> currentAllInstances)
+        public override UnicastRoutingTarget SelectDestination(UnicastRoutingTarget[] currentAllInstances)
         {
-            if (currentAllInstances.Count == 0)
+            if (currentAllInstances.Length == 0)
             {
-                yield break;
+                return null;
             }
             var i = Interlocked.Increment(ref index);
-            var result = currentAllInstances[(int)(i % currentAllInstances.Count)];
-            yield return result;
+            var result = currentAllInstances[(int)(i % currentAllInstances.Length)];
+            return result;
         }
 
         // start with -1 so the index will be at 0 after the first increment.
