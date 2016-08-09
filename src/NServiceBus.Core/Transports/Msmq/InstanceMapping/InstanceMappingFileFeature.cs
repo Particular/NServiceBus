@@ -29,10 +29,10 @@ namespace NServiceBus.Features
             var checkInterval = context.Settings.Get<TimeSpan>(CheckIntervalSettingsKey);
             var endpointInstances = context.Settings.Get<EndpointInstances>();
 
-            var fileRoutingTable = new InstanceMappingTable(filePath, checkInterval, new AsyncTimer(), new InstanceMappingFileAccess());
-            fileRoutingTable.ReloadData();
-            endpointInstances.AddDynamic(fileRoutingTable.FindInstances);
-            context.RegisterStartupTask(fileRoutingTable);
+            var instanceMappingTable = new InstanceMappingTable(filePath, checkInterval, new AsyncTimer(), new InstanceMappingFileAccess());
+            instanceMappingTable.ReloadData();
+            endpointInstances.AddDynamic(instanceMappingTable.FindInstances);
+            context.RegisterStartupTask(instanceMappingTable);
         }
 
         static string GetRootedPath(string filePath)
