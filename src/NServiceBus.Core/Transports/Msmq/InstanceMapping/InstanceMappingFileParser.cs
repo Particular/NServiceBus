@@ -11,7 +11,7 @@ namespace NServiceBus
     {
         public InstanceMappingFileParser()
         {
-            using (var stream = GetType().Assembly.GetManifestResourceStream("NServiceBus.Routing.FileBasedDynamicRouting.endpoints.xsd"))
+            using (var stream = GetType().Assembly.GetManifestResourceStream("NServiceBus.Transports.Msmq.InstanceMapping.endpoints.xsd"))
             using (var xmlReader = XmlReader.Create(stream))
             {
                 schema = new XmlSchemaSet();
