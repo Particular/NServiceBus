@@ -54,5 +54,20 @@
             var serializer = resolver.Resolve(headers);
             Assert.IsInstanceOf<XmlMessageSerializer>(serializer);
         }
+
+        [Test]
+        public void MultipleDeserializersWithSameContentTypeShouldThrowException()
+        {
+            var mapper = new MessageMapper();
+            var xml = new XmlMessageSerializer(mapper, new Conventions());
+            var json1 = new JsonMessageSerializer(mapper);
+            var json2 = new JsonMessageSerializer(mapper);
+
+            Assert.That(() => new MessageDeserializerResolver(xml, new IMessageSerializer[]
+            {
+                json1,
+                json2
+            }), Throws.Exception.TypeOf<Exception>().And.Message.Contains("Multiple additional deserializers are registered for content-type 'application/json'. Remove ambiguous deserializers for this content-type."));
+        }
     }
 }

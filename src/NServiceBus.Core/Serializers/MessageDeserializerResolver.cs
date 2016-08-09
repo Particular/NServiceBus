@@ -1,7 +1,7 @@
 ﻿namespace NServiceBus
 {
+    using System;
     using System.Collections.Generic;
-    using System.Linq;
     using Serialization;
 
     class MessageDeserializerResolver
@@ -9,7 +9,16 @@
         public MessageDeserializerResolver(IMessageSerializer defaultSerializer, IEnumerable<IMessageSerializer> additionalDeserializers)
         {
             this.defaultSerializer = defaultSerializer;
-            serializersMap = additionalDeserializers.ToDictionary(key => key.ContentType, value => value);
+
+            foreach (var additionalDeserializer in additionalDeserializers)
+            {
+                if (serializersMap.ContainsKey(additionalDeserializer.ContentType))
+                {
+                    throw new Exception($"Multiple additional deserializers are registered for content-type '{additionalDeserializer.ContentType}'. Remove ambiguous deserializers for this content-type.");
+                }
+
+                serializersMap.Add(additionalDeserializer.ContentType, additionalDeserializer);
+            }
         }
 
         public IMessageSerializer Resolve(Dictionary<string, string> headers)
@@ -27,6 +36,6 @@
         }
 
         IMessageSerializer defaultSerializer;
-        Dictionary<string, IMessageSerializer> serializersMap;
+        Dictionary<string, IMessageSerializer> serializersMap = new Dictionary<string, IMessageSerializer>();
     }
 }
