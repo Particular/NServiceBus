@@ -4,7 +4,6 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
-    using Extensibility;
     using NServiceBus.Pipeline;
     using NServiceBus.Routing;
     using Unicast.Messages;
@@ -237,9 +236,9 @@
         {
             public IEnumerable<UnicastRoutingStrategy> FixedDestination { get; set; }
 
-            public Task<IEnumerable<UnicastRoutingStrategy>> Route(Type messageType, IDistributionPolicy distributionPolicy, ContextBag contextBag)
+            public IEnumerable<UnicastRoutingStrategy> Route(Type messageType, IDistributionPolicy distributionPolicy)
             {
-                return Task.FromResult(FixedDestination);
+                return FixedDestination;
             }
         }
 

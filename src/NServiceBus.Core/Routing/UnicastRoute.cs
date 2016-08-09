@@ -3,7 +3,6 @@ namespace NServiceBus.Routing
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Threading.Tasks;
 
     /// <summary>
     /// A destination of address routing.
@@ -47,7 +46,7 @@ namespace NServiceBus.Routing
         {
         }
 
-        async Task<IEnumerable<UnicastRoutingTarget>> IUnicastRoute.Resolve(Func<string, Task<IEnumerable<EndpointInstance>>> instanceResolver)
+        IEnumerable<UnicastRoutingTarget> IUnicastRoute.Resolve(Func<string, IEnumerable<EndpointInstance>> instanceResolver)
         {
             if (physicalAddress != null)
             {
@@ -57,7 +56,7 @@ namespace NServiceBus.Routing
             {
                 return EnumerableEx.Single(UnicastRoutingTarget.ToEndpointInstance(instance));
             }
-            var instances = await instanceResolver(endpoint).ConfigureAwait(false);
+            var instances = instanceResolver(endpoint);
             return instances.Select(UnicastRoutingTarget.ToEndpointInstance);
         }
 

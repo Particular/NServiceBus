@@ -49,7 +49,7 @@ namespace NServiceBus
             var distributionPolicy = state.Option == RouteOption.RouteToSpecificInstance ? new SpecificInstanceDistributionPolicy(state.SpecificInstance) : defaultDistributionPolicy;
 
             var routingStrategies = string.IsNullOrEmpty(destination)
-                ? await unicastSendRouter.Route(messageType, distributionPolicy, context.Extensions).ConfigureAwait(false)
+                ? unicastSendRouter.Route(messageType, distributionPolicy)
                 : RouteToDestination(destination);
 
             context.Headers[Headers.MessageIntent] = MessageIntentEnum.Send.ToString();

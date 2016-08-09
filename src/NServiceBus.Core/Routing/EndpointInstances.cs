@@ -1,107 +1,51 @@
 namespace NServiceBus.Routing
 {
-    using System;
     using System.Collections.Generic;
-    using System.Threading.Tasks;
+    using System.Linq;
 
     /// <summary>
     /// Stores the information about instances of known endpoints.
     /// </summary>
     public class EndpointInstances
     {
-        internal Task<IEnumerable<EndpointInstance>> FindInstances(string endpoint)
+        internal IEnumerable<EndpointInstance> FindInstances(string endpoint)
         {
-            HashSet<EndpointInstance> staticInstances;
-            staticRules.TryGetValue(endpoint, out staticInstances);
-
-            if (dynamicRules.Count > 0)
-            {
-                return FindDynamicInstances(endpoint, staticInstances);
-            }
-
-            if (staticInstances != null)
-            {
-                return Task.FromResult<IEnumerable<EndpointInstance>>(staticInstances);
-            }
-
-            return Task.FromResult<IEnumerable<EndpointInstance>>(new[]
-            {
-                new EndpointInstance(endpoint)
-            });
+            HashSet<EndpointInstance> instances;
+            return cache.TryGetValue(endpoint, out instances)
+                ? instances
+                : EnumerableEx.Single(new EndpointInstance(endpoint));
         }
 
-        async Task<IEnumerable<EndpointInstance>> FindDynamicInstances(string endpoint, HashSet<EndpointInstance> staticInstances)
+        /// <summary>
+        /// Adds or replaces a set of endpoint instances registered under a given key (registration source ID).
+        /// </summary>
+        /// <param name="sourceKey">Source key.</param>
+        /// <param name="endpointInstances">List of endpoint instances known by this source.</param>
+        public void AddOrReplaceInstances(object sourceKey, IList<EndpointInstance> endpointInstances)
         {
-            var dynamicInstances = staticInstances != null ? new HashSet<EndpointInstance>(staticInstances) : new HashSet<EndpointInstance>();
-            foreach (var rule in dynamicRules)
+            Guard.AgainstNull(nameof(sourceKey), sourceKey);
+            Guard.AgainstNull(nameof(endpointInstances), endpointInstances);
+            lock (updateLock)
             {
-                var instancesFromRule = await rule.Invoke(endpoint).ConfigureAwait(false);
-                foreach (var instance in instancesFromRule)
+                registrations[sourceKey] = endpointInstances;
+                var newCache = new Dictionary<string, HashSet<EndpointInstance>>();
+
+                foreach (var instance in registrations.Values.SelectMany(x => x))
                 {
-                    dynamicInstances.Add(instance);
-                }
-            }
-
-            if (dynamicInstances.Count == 0)
-            {
-                dynamicInstances.Add(new EndpointInstance(endpoint));
-            }
-
-            return dynamicInstances;
-        }
-
-        /// <summary>
-        /// Adds a dynamic rule for determining endpoint instances.
-        /// </summary>
-        /// <param name="dynamicRule">The rule.</param>
-        public void AddDynamic(Func<string, Task<IEnumerable<EndpointInstance>>> dynamicRule)
-        {
-            dynamicRules.Add(dynamicRule);
-        }
-
-        /// <summary>
-        /// Registers provided endpoint instances.
-        /// </summary>
-        /// <param name="instances">A static list of endpoint instances.</param>
-        public void Add(params EndpointInstance[] instances) => Add((IEnumerable<EndpointInstance>)instances);
-
-        /// <summary>
-        /// Registers provided endpoint instances.
-        /// </summary>
-        /// <param name="instances">A static list of endpoint instances.</param>
-        public void Add(IEnumerable<EndpointInstance> instances)
-        {
-            Guard.AgainstNull(nameof(instances), instances);
-
-            foreach (var instance in instances)
-            {
-                Add(instance);
-            }
-        }
-
-        /// <summary>
-        /// Registers provided endpoint instance.
-        /// </summary>
-        /// <param name="instance">The endpoint instance.</param>
-        public void Add(EndpointInstance instance)
-        {
-            Guard.AgainstNull(nameof(instance), instance);
-
-            HashSet<EndpointInstance> existingInstances;
-            if (staticRules.TryGetValue(instance.Endpoint, out existingInstances))
-            {
-                existingInstances.Add(instance);
-            }
-            else
-            {
-                staticRules.Add(instance.Endpoint, new HashSet<EndpointInstance>
+                    HashSet<EndpointInstance> instanceSet;
+                    if (!newCache.TryGetValue(instance.Endpoint, out instanceSet))
                     {
-                        instance
-                    });
+                        instanceSet = new HashSet<EndpointInstance>();
+                        newCache[instance.Endpoint] = instanceSet;
+                    }
+                    instanceSet.Add(instance);
+                }
+                cache = newCache;
             }
         }
-
-        Dictionary<string, HashSet<EndpointInstance>> staticRules = new Dictionary<string, HashSet<EndpointInstance>>();
-        List<Func<string, Task<IEnumerable<EndpointInstance>>>> dynamicRules = new List<Func<string, Task<IEnumerable<EndpointInstance>>>>();
+        
+        Dictionary<string, HashSet<EndpointInstance>> cache = new Dictionary<string, HashSet<EndpointInstance>>();
+        Dictionary<object, IList<EndpointInstance>> registrations = new Dictionary<object, IList<EndpointInstance>>();
+        object updateLock = new object();
     }
 }

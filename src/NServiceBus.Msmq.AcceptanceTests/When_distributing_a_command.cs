@@ -1,5 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests
 {
+    using System;
+    using System.Collections.Generic;
     using System.Threading.Tasks;
     using AcceptanceTesting.Customization;
     using AcceptanceTesting;
@@ -63,8 +65,13 @@
                     routing.RouteToEndpoint(typeof(RequestA), ReceiverAEndpoint);
                     routing.RouteToEndpoint(typeof(RequestB), ReceiverBEndpoint);
 
-                    routing.GetSettings().GetOrCreate<EndpointInstances>().Add(new EndpointInstance(ReceiverAEndpoint, "1"), new EndpointInstance(ReceiverAEndpoint, "2"));
-                    routing.GetSettings().GetOrCreate<EndpointInstances>().Add(new EndpointInstance(ReceiverBEndpoint, "1"), new EndpointInstance(ReceiverBEndpoint, "2"));
+                    routing.GetSettings().GetOrCreate<EndpointInstances>().AddOrReplaceInstances(Guid.NewGuid(), new List<EndpointInstance>
+                    {
+                        new EndpointInstance(ReceiverAEndpoint, "1"), 
+                        new EndpointInstance(ReceiverAEndpoint, "2"),
+                        new EndpointInstance(ReceiverBEndpoint, "1"),
+                        new EndpointInstance(ReceiverBEndpoint, "2")
+                    });
                 });
             }
 
