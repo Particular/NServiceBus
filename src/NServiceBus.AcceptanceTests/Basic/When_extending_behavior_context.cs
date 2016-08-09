@@ -38,7 +38,7 @@
             {
                 EndpointSetup<DefaultServer>(c => c.Pipeline.Register(
                     "CustomContextExtensionBehavior",
-                    typeof(CustomContextExtensionBehavior),
+                    new CustomContextExtensionBehavior(),
                     "Puts customized data on the message context"));
             }
 

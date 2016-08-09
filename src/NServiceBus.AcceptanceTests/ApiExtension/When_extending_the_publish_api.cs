@@ -59,7 +59,7 @@
                 {
                     b.OnEndpointSubscribed<Context>((s, context) => { context.Subscriber1Subscribed = true; });
 
-                    b.Pipeline.Register("PublishExtensionBehavior", typeof(PublishExtensionBehavior), "Testing publish extensions");
+                    b.Pipeline.Register("PublishExtensionBehavior", new PublishExtensionBehavior(), "Testing publish extensions");
                 });
             }
 

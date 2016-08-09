@@ -25,8 +25,6 @@
 
         public class CorruptionBehavior : Behavior<IDispatchContext>
         {
-            public Context Context { get; set; }
-
             public override Task Invoke(IDispatchContext context, Func<Task> next)
             {
                 context.Operations.First().Message.Headers[Headers.MessageId] = "";
