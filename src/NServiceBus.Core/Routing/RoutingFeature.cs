@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using Config;
     using Routing;
     using Routing.MessageDrivenSubscriptions;
@@ -127,9 +128,12 @@
         public void Apply(UnicastRoutingTable unicastRoutingTable)
         {
             var entries = new Dictionary<Type, RouteTableEntry>();
-            foreach (var source in routeSources.OrderBy(x => x.Priority)) //Higher priority routes sources override lowe priority.
+            foreach (var source in routeSources.OrderBy(x => x.Priority)) //Higher priority routes sources override lower priority.
             {
-                source.GenerateRoutes(e => entries[e.MessageType] = e);
+                foreach (var route in source.GenerateRoutes())
+                {
+                    entries[route.MessageType] = route;
+                }
             }
             unicastRoutingTable.AddOrReplaceRoutes("EndpointConfiguration", entries.Values.ToList());
         }

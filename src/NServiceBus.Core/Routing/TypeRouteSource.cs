@@ -1,6 +1,7 @@
 namespace NServiceBus
 {
     using System;
+    using System.Collections.Generic;
     using Routing;
 
     class TypeRouteSource : IRouteSource
@@ -14,9 +15,9 @@ namespace NServiceBus
             this.route = route;
         }
 
-        public void GenerateRoutes(Action<RouteTableEntry> registerRouteCallback)
+        public IEnumerable<RouteTableEntry> GenerateRoutes()
         {
-            registerRouteCallback(new RouteTableEntry(messageType, route));
+            yield return new RouteTableEntry(messageType, route);
         }
 
         public RouteSourcePriority Priority => RouteSourcePriority.Type;

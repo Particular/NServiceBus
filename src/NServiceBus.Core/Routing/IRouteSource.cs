@@ -1,11 +1,11 @@
 namespace NServiceBus
 {
-    using System;
+    using System.Collections.Generic;
     using Routing;
 
     interface IRouteSource
     {
-        void GenerateRoutes(Action<RouteTableEntry> registerRouteCallback);
+        IEnumerable<RouteTableEntry> GenerateRoutes();
         RouteSourcePriority Priority { get; }
     }
 }
