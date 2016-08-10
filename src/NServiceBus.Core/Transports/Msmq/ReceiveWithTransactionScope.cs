@@ -20,7 +20,7 @@ namespace NServiceBus
             Message message = null;
             try
             {
-                using (var scope = new TransactionScope(TransactionScopeOption.Required, transactionOptions, TransactionScopeAsyncFlowOption.Enabled))
+                using (var scope = new TransactionScope(TransactionScopeOption.RequiresNew, transactionOptions, TransactionScopeAsyncFlowOption.Enabled))
                 {
                     if (!TryReceive(MessageQueueTransactionType.Automatic, out message))
                     {
