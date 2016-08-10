@@ -4,7 +4,6 @@
     using AcceptanceTesting;
     using AcceptanceTesting.Customization;
     using Configuration.AdvanceExtensibility;
-    using CustomCommandMessageNamespace;
     using EndpointTemplates;
     using NUnit.Framework;
 
@@ -15,7 +14,7 @@
         {
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<SendingEndpointUsingRoutingApi>(e => e
-                    .When(async s => await s.Send(new SomeCommand())))
+                    .When(s => s.Send(new SomeCommand())))
                 .WithEndpoint<ReceivingEndpoint>()
                 .Done(c => c.ReceivedMessage)
                 .Run();
@@ -28,7 +27,7 @@
         {
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<SendingEndpointUsingEndpointMapping>(e => e
-                    .When(async s => await s.Send(new SomeCommand())))
+                    .When(s => s.Send(new SomeCommand())))
                 .WithEndpoint<ReceivingEndpoint>()
                 .Done(c => c.ReceivedMessage)
                 .Run();
@@ -51,7 +50,7 @@
 
                     var routing = new RoutingSettings(c.GetSettings());
                     routing.RouteToEndpoint(typeof(SomeCommand).Assembly, Conventions.EndpointNamingConvention(typeof(ReceivingEndpoint)));
-                });
+                }).ExcludeType<SomeCommand>(); //exclude type to simulate an unobtrusive message assembly which isn't automatically loaded.
             }
         }
 
@@ -62,7 +61,9 @@
                 EndpointSetup<DefaultServer>(c =>
                 {
                     c.Conventions().DefiningCommandsAs(t => t == typeof(SomeCommand));
-                }).AddMapping<SomeCommand>(typeof(ReceivingEndpoint));
+                })
+                .AddMapping<SomeCommand>(typeof(ReceivingEndpoint))
+                .ExcludeType<SomeCommand>(); //exclude type to simulate an unobtrusive message assembly which isn't automatically loaded.
             }
         }
 
@@ -72,8 +73,7 @@
             {
                 EndpointSetup<DefaultServer>(c => c
                     .Conventions()
-                    .DefiningCommandsAs(t => t == typeof(SomeCommand)))
-                    .IncludeType<SomeCommand>();
+                    .DefiningCommandsAs(t => t == typeof(SomeCommand)));
             }
 
             public class CommandHandler : IHandleMessages<SomeCommand>
@@ -92,13 +92,9 @@
                 }
             }
         }
-    }
-}
 
-// custom namespace is required to avoid automatically loading the type by the testing framework
-namespace CustomCommandMessageNamespace
-{
-    public class SomeCommand
-    {
+        public class SomeCommand
+        {
+        }
     }
 }

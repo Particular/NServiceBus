@@ -3,7 +3,6 @@
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using Configuration.AdvanceExtensibility;
-    using CustomEventMessageNamespace;
     using EndpointTemplates;
     using NUnit.Framework;
     using AcceptanceTesting.Customization;
@@ -19,7 +18,7 @@
         {
             return Scenario.Define<Context>()
                 .WithEndpoint<Publisher>(e => e
-                    .When(c => c.Subscribed, async s => await s.Publish(new SomeEvent())))
+                    .When(c => c.Subscribed, s => s.Publish(new SomeEvent())))
                 .WithEndpoint<SubscriberUsingRoutingApi>()
                 .Done(c => c.ReceivedMessage)
                 .Repeat(r => r.For<AllTransportsWithMessageDrivenPubSub>())
@@ -36,7 +35,7 @@
         {
             return Scenario.Define<Context>()
                 .WithEndpoint<Publisher>(e => e
-                    .When(c => c.Subscribed, async s => await s.Publish(new SomeEvent())))
+                    .When(c => c.Subscribed, s => s.Publish(new SomeEvent())))
                 .WithEndpoint<SubscriberUsingEndpointMappings>()
                 .Done(c => c.ReceivedMessage)
                 .Repeat(r => r.For<AllTransportsWithMessageDrivenPubSub>())
@@ -62,7 +61,7 @@
                 {
                     c.OnEndpointSubscribed<Context>((e, ctx) => ctx.Subscribed = true);
                     c.Conventions().DefiningEventsAs(t => t == typeof(SomeEvent));
-                });
+                }).ExcludeType<SomeEvent>();
             }
         }
 
@@ -76,7 +75,7 @@
 
                     var routing = new RoutingSettings<MessageDrivenPubSubTransportDefinition>(c.GetSettings());
                     routing.RegisterPublisher(typeof(SomeEvent).Assembly, Conventions.EndpointNamingConvention(typeof(Publisher)));
-                }).IncludeType<SomeEvent>();
+                });
             }
 
             public class EventHandler : IHandleMessages<SomeEvent>
@@ -102,8 +101,7 @@
             {
                 EndpointSetup<DefaultServer>(c => c
                 .Conventions().DefiningEventsAs(t => t == typeof(SomeEvent)))
-                .AddMapping<SomeEvent>(typeof(Publisher))
-                .IncludeType<SomeEvent>();
+                .AddMapping<SomeEvent>(typeof(Publisher));
             }
 
             public class EventHandler : IHandleMessages<SomeEvent>
@@ -132,13 +130,9 @@
                 throw new System.NotImplementedException();
             }
         }
-    }
-}
 
-// custom namespace is required to avoid automatically loading the type by the testing framework
-namespace CustomEventMessageNamespace
-{
-    public class SomeEvent
-    {
+        public class SomeEvent
+        {
+        }
     }
 }
