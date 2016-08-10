@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
     using Config;
     using Routing;
     using Routing.MessageDrivenSubscriptions;
@@ -37,8 +36,7 @@
             var distributionPolicy = context.Settings.Get<DistributionPolicy>();
             var configuredUnicastRoutes = context.Settings.Get<ConfiguredUnicastRoutes>();
             var configuredPublishers = context.Settings.Get<ConfiguredPublishers>();
-
-            var knownMessageTypes = GetKnownMessageTypes(context);
+            var conventions = context.Settings.Get<Conventions>();
 
             var unicastBusConfig = context.Settings.GetConfigSection<UnicastBusConfig>();
             if (unicastBusConfig != null)
@@ -48,12 +46,12 @@
 
             foreach (var registration in configuredUnicastRoutes)
             {
-                registration(unicastRoutingTable, knownMessageTypes);
+                registration(unicastRoutingTable, conventions);
             }
 
             foreach (var registration in configuredPublishers)
             {
-                registration(publishers, knownMessageTypes);
+                registration(publishers, conventions);
             }
 
             var outboundRoutingPolicy = transportInfrastructure.OutboundRoutingPolicy;
@@ -102,12 +100,6 @@
             }
         }
 
-        static Type[] GetKnownMessageTypes(FeatureConfigurationContext context)
-        {
-            var registry = context.Settings.Get<MessageMetadataRegistry>();
-            return registry.GetAllMessages().Select(m => m.MessageType).ToArray();
-        }
-
         static void ImportMessageEndpointMappings(MessageEndpointMappingCollection legacyRoutingConfig, TransportInfrastructure transportInfrastructure, Publishers publishers, UnicastRoutingTable unicastRoutingTable)
         {
             foreach (MessageEndpointMapping m in legacyRoutingConfig)
@@ -121,11 +113,11 @@
         }
     }
 
-    class ConfiguredUnicastRoutes : List<Action<UnicastRoutingTable, Type[]>>
+    class ConfiguredUnicastRoutes : List<Action<UnicastRoutingTable, Conventions>>
     {
     }
 
-    class ConfiguredPublishers : List<Action<Publishers, Type[]>>
+    class ConfiguredPublishers : List<Action<Publishers, Conventions>>
     {
     }
 }
