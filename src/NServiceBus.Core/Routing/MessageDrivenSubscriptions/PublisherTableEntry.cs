@@ -8,15 +8,6 @@ namespace NServiceBus.Routing.MessageDrivenSubscriptions
     public class PublisherTableEntry
     {
         /// <summary>
-        /// Type of event.
-        /// </summary>
-        public Type EventType { get; }
-        /// <summary>
-        /// Addres.
-        /// </summary>
-        public PublisherAddress Address { get; }
-        
-        /// <summary>
         /// Creates a new entry.
         /// </summary>
         public PublisherTableEntry(Type eventType, PublisherAddress address)
@@ -24,5 +15,15 @@ namespace NServiceBus.Routing.MessageDrivenSubscriptions
             EventType = eventType;
             Address = address;
         }
+
+        /// <summary>
+        /// Type of event.
+        /// </summary>
+        public Type EventType { get; }
+
+        /// <summary>
+        /// Addres.
+        /// </summary>
+        public PublisherAddress Address { get; }
     }
 }

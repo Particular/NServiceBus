@@ -52,7 +52,6 @@ namespace NServiceBus
             Settings.Set<NotificationSubscriptions>(new NotificationSubscriptions());
 
             conventionsBuilder = new ConventionsBuilder(Settings);
-            Settings.SetDefault<Conventions>(conventionsBuilder.Conventions);
         }
 
         /// <summary>
@@ -202,7 +201,9 @@ namespace NServiceBus
             UseTransportExtensions.EnsureTransportConfigured(this);
             var container = customBuilder ?? new AutofacObjectBuilder();
 
-            var messageMetadataRegistry = new MessageMetadataRegistry(conventionsBuilder.Conventions);
+            var conventions = conventionsBuilder.Conventions;
+            Settings.SetDefault<Conventions>(conventions);
+            var messageMetadataRegistry = new MessageMetadataRegistry(conventions);
             messageMetadataRegistry.RegisterMessageTypesFoundIn(Settings.GetAvailableTypes());
 
             Settings.SetDefault<MessageMetadataRegistry>(messageMetadataRegistry);

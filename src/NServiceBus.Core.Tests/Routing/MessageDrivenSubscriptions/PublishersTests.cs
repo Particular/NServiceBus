@@ -11,7 +11,7 @@ namespace NServiceBus.Core.Tests.Routing.MessageDrivenSubscriptions
     public class PublishersTests
     {
         [Test]
-        public void When_group_does_not_exist_routes_are_added()
+        public void When_group_does_not_exist_should_add_routes()
         {
             var publisherTable = new Publishers();
             var publisher = PublisherAddress.CreateFromEndpointName("Endpoint1");
@@ -25,7 +25,7 @@ namespace NServiceBus.Core.Tests.Routing.MessageDrivenSubscriptions
         }
 
         [Test]
-        public void When_group_exists_routes_are_replaced()
+        public void When_group_exists_should_replace_existing_routes()
         {
             var publisherTable = new Publishers();
             var oldPublisher = PublisherAddress.CreateFromEndpointName("Endpoint1");
@@ -45,7 +45,7 @@ namespace NServiceBus.Core.Tests.Routing.MessageDrivenSubscriptions
         }
 
         [Test]
-        public void When_routes_are_ambiguous_it_throws_exception()
+        public void When_routes_are_ambiguous_should_throw_exception()
         {
             var publisherTable = new Publishers();
             var lowPriorityPublisher = PublisherAddress.CreateFromEndpointName("Endpoint1");
@@ -66,7 +66,7 @@ namespace NServiceBus.Core.Tests.Routing.MessageDrivenSubscriptions
         }
 
         [Test]
-        public void Should_log_changes()
+        public void When_adding_or_replacing_routes_should_log_changes()
         {
             var publishersTable = new Publishers();
             var log = "";

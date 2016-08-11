@@ -9,7 +9,7 @@
     class UnicastRoutingTableTests
     {
         [Test]
-        public void When_group_does_not_exist_routes_are_added()
+        public void When_group_does_not_exist_should_add_routes()
         {
             var routingTable = new UnicastRoutingTable();
             var route = UnicastRoute.CreateFromEndpointName("Endpoint1");
@@ -23,7 +23,7 @@
         }
 
         [Test]
-        public void When_group_exists_routes_are_replaced()
+        public void When_group_exists_should_replace_existing_routes()
         {
             var routingTable = new UnicastRoutingTable();
             var oldRoute = UnicastRoute.CreateFromEndpointName("Endpoint1");
@@ -43,7 +43,7 @@
         }
 
         [Test]
-        public void When_routes_are_ambiguous_it_throws_exception()
+        public void When_routes_are_ambiguous_should_throw_exception()
         {
             var routingTable = new UnicastRoutingTable();
             var lowPriorityRoute = UnicastRoute.CreateFromEndpointName("Endpoint1");
@@ -64,7 +64,7 @@
         }
 
         [Test]
-        public void Should_log_changes()
+        public void When_adding_or_replacing_routes_should_log_changes()
         {
             var routingTable = new UnicastRoutingTable();
             var log = "";

@@ -1,0 +1,4 @@
+﻿Route table refreshed.
+NServiceBus.Core.Tests.Routing.UnicastRoutingTableTests+Command -> Endpoint
+NServiceBus.Core.Tests.Routing.UnicastRoutingTableTests+Command2 -> [Endpoint-XYZ]
+NServiceBus.Core.Tests.Routing.UnicastRoutingTableTests+Command3 -> <Endpoint@Machine>

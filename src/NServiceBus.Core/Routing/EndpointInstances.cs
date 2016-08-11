@@ -11,10 +11,15 @@ namespace NServiceBus.Routing
     {
         internal IEnumerable<EndpointInstance> FindInstances(string endpoint)
         {
-            HashSet<EndpointInstance> instances;
-            return cache.TryGetValue(endpoint, out instances)
-                ? instances
-                : EnumerableEx.Single(new EndpointInstance(endpoint));
+            HashSet<EndpointInstance> registeredInstances;
+            return allInstances.TryGetValue(endpoint, out registeredInstances)
+                ? registeredInstances
+                : DefaultInstance(endpoint);
+        }
+
+        static IEnumerable<EndpointInstance> DefaultInstance(string endpoint)
+        {
+            yield return new EndpointInstance(endpoint);
         }
 
         internal void SetLogChangeAction(Action<string> logChangeAction)
@@ -46,10 +51,10 @@ namespace NServiceBus.Routing
                     }
                     instanceSet.Add(instance);
                 }
-                cache = newCache;
+                allInstances = newCache;
                 if (logChangeAction != null)
                 {
-                    var routesFormatted = string.Join(Environment.NewLine, cache.Select(kvp => $"{kvp.Key} -> {FormatInstances(kvp.Value)}"));
+                    var routesFormatted = string.Join(Environment.NewLine, allInstances.Select(kvp => $"{kvp.Key} -> {FormatInstances(kvp.Value)}"));
                     logChangeAction($"Instance mapping refreshed.{Environment.NewLine}{routesFormatted}");
                 }
             }
@@ -60,7 +65,7 @@ namespace NServiceBus.Routing
             return string.Join(", ", endpointInstances.Select(x => $"[{x.ToString()}]").OrderBy(x => x));
         }
 
-        Dictionary<string, HashSet<EndpointInstance>> cache = new Dictionary<string, HashSet<EndpointInstance>>();
+        Dictionary<string, HashSet<EndpointInstance>> allInstances = new Dictionary<string, HashSet<EndpointInstance>>();
         Dictionary<object, IList<EndpointInstance>> registrations = new Dictionary<object, IList<EndpointInstance>>();
         object updateLock = new object();
         Action<string> logChangeAction;

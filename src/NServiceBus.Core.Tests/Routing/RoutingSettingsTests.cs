@@ -1,7 +1,6 @@
-﻿using NServiceBus;
-
-namespace NServiceBus.Core.Tests.Routing
+﻿namespace NServiceBus.Core.Tests.Routing
 {
+    using NServiceBus;
     using System;
     using System.Linq;
     using System.Reflection;
@@ -18,8 +17,7 @@ namespace NServiceBus.Core.Tests.Routing
         [Test]
         public void WhenPassingTransportAddressForSenderInsteadOfEndpointName_ShouldThrowException()
         {
-            var settings = new SettingsHolder();
-            var routingSettings = new RoutingSettings(settings);
+            var routingSettings = new RoutingSettings(new SettingsHolder());
             var expectedExceptionMessage = expectedExceptionMessageForWrongEndpointName;
 
             var exception = Assert.Throws<ArgumentException>(() => routingSettings.RouteToEndpoint(typeof(MessageWithoutNamespace), "EndpointName@MyHost"));
@@ -29,8 +27,7 @@ namespace NServiceBus.Core.Tests.Routing
         [Test]
         public void WhenPassingTransportAddressForSenderInsteadOfEndpointName_UsingAssembly_ShouldThrowException()
         {
-            var settings = new SettingsHolder();
-            var routingSettings = new RoutingSettings(settings);
+            var routingSettings = new RoutingSettings(new SettingsHolder());
             var expectedExceptionMessage = expectedExceptionMessageForWrongEndpointName;
 
             var exception = Assert.Throws<ArgumentException>(() => routingSettings.RouteToEndpoint(Assembly.GetExecutingAssembly(), "EndpointName@MyHost"));
@@ -40,8 +37,7 @@ namespace NServiceBus.Core.Tests.Routing
         [Test]
         public void WhenPassingTransportAddressForSenderInsteadOfEndpointName_UsingAssemblyAndNamespace_ShouldThrowException()
         {
-            var settings = new SettingsHolder();
-            var routingSettings = new RoutingSettings(settings);
+            var routingSettings = new RoutingSettings(new SettingsHolder());
             var expectedExceptionMessage = expectedExceptionMessageForWrongEndpointName;
 
             var exception = Assert.Throws<ArgumentException>(() => routingSettings.RouteToEndpoint(Assembly.GetExecutingAssembly(), nameof(MessageNamespaceA), "EndpointName@MyHost"));
@@ -51,8 +47,7 @@ namespace NServiceBus.Core.Tests.Routing
         [Test]
         public void WhenRoutingMessageTypeToEndpoint_ShouldConfigureMessageTypeInRoutingTable()
         {
-            var settings = new SettingsHolder();
-            var routingSettings = new RoutingSettings(settings);
+            var routingSettings = new RoutingSettings(new SettingsHolder());
             routingSettings.RouteToEndpoint(typeof(SomeMessageType), "destination");
 
             var routingTable = ApplyConfiguredRoutes(routingSettings);
@@ -69,8 +64,7 @@ namespace NServiceBus.Core.Tests.Routing
         [Test]
         public void WhenRoutingAssemblyToEndpoint_ShouldConfigureAllContainedMessagesInRoutingTable()
         {
-            var settings = new SettingsHolder();
-            var routingSettings = new RoutingSettings(settings);
+            var routingSettings = new RoutingSettings(new SettingsHolder());
             routingSettings.RouteToEndpoint(Assembly.GetExecutingAssembly(), "destination");
 
             var routingTable = ApplyConfiguredRoutes(routingSettings);
@@ -87,8 +81,7 @@ namespace NServiceBus.Core.Tests.Routing
         [Test]
         public void WhenRoutingAssemblyWithNamespaceToEndpoint_ShouldOnlyConfigureMessagesWithinThatNamespace()
         {
-            var settings = new SettingsHolder();
-            var routingSettings = new RoutingSettings(settings);
+            var routingSettings = new RoutingSettings(new SettingsHolder());
             routingSettings.RouteToEndpoint(Assembly.GetExecutingAssembly(), nameof(MessageNamespaceA), "destination");
 
             var routingTable = ApplyConfiguredRoutes(routingSettings);
@@ -107,8 +100,7 @@ namespace NServiceBus.Core.Tests.Routing
         [TestCase("")]
         public void WhenRoutingAssemblyWithNamespaceToEndpointAndSpecifyingEmptyNamespace_ShouldOnlyConfigureMessagesWithinEmptyNamespace(string emptyNamespace)
         {
-            var settings = new SettingsHolder();
-            var routingSettings = new RoutingSettings(settings);
+            var routingSettings = new RoutingSettings(new SettingsHolder());
             routingSettings.RouteToEndpoint(Assembly.GetExecutingAssembly(), emptyNamespace, "destination");
 
             var routingTable = ApplyConfiguredRoutes(routingSettings);
@@ -150,6 +142,6 @@ namespace MessageNamespaceB
     }
 }
 
-class MessageWithoutNamespace : IMessage
+class MessageWithoutNamespace : NServiceBus.IMessage
 {
 }

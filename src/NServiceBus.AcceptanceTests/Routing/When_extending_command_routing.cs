@@ -11,7 +11,6 @@
     using Features;
     using NServiceBus.Routing;
     using NUnit.Framework;
-    using ScenarioDescriptors;
 
     public class When_extending_command_routing : NServiceBusAcceptanceTest
     {
@@ -20,7 +19,7 @@
         [Test]
         public async Task Should_route_commands_correctly()
         {
-            await Scenario.Define<Context>()
+            var ctx = await Scenario.Define<Context>()
                 .WithEndpoint<Sender>(b =>
                     b.When(c => c.EndpointsStarted, async session =>
                     {
@@ -32,12 +31,9 @@
                 )
                 .WithEndpoint<Receiver>()
                 .Done(c => c.MessageDelivered >= 4)
-                .Repeat(r => r.For(Transports.Default))
-                .Should(c =>
-                {
-                    Assert.IsTrue(c.MessageDelivered >= 4);
-                })
                 .Run();
+
+            Assert.IsTrue(ctx.MessageDelivered >= 4);
         }
 
         public class Context : ScenarioContext
