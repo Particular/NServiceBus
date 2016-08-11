@@ -45,7 +45,7 @@
 
             ThrowOnAddress(destination);
 
-            Settings.GetOrCreate<ConfiguredUnicastRoutes>().Add(new AssemblyRouteSource(assembly, Settings.Get<Conventions>(), UnicastRoute.CreateFromEndpointName(destination)));
+            Settings.GetOrCreate<ConfiguredUnicastRoutes>().Add(new AssemblyRouteSource(assembly, UnicastRoute.CreateFromEndpointName(destination)));
         }
 
         /// <summary>
@@ -64,7 +64,7 @@
             // empty namespace is null, not string.empty
             @namespace = @namespace == string.Empty ? null : @namespace;
 
-            Settings.GetOrCreate<ConfiguredUnicastRoutes>().Add(new NamespaceRouteSource(assembly, @namespace, Settings.Get<Conventions>(), UnicastRoute.CreateFromEndpointName(destination)));
+            Settings.GetOrCreate<ConfiguredUnicastRoutes>().Add(new NamespaceRouteSource(assembly, @namespace, UnicastRoute.CreateFromEndpointName(destination)));
         }
 
         static void ThrowOnAddress(string destination)

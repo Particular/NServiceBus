@@ -9,18 +9,16 @@ namespace NServiceBus
     {
         Assembly messageAssembly;
         string messageNamespace;
-        Conventions conventions;
         IUnicastRoute route;
 
-        public NamespaceRouteSource(Assembly messageAssembly, string messageNamespace, Conventions conventions, IUnicastRoute route)
+        public NamespaceRouteSource(Assembly messageAssembly, string messageNamespace, IUnicastRoute route)
         {
             this.messageAssembly = messageAssembly;
-            this.conventions = conventions;
             this.route = route;
             this.messageNamespace = messageNamespace;
         }
 
-        public IEnumerable<RouteTableEntry> GenerateRoutes()
+        public IEnumerable<RouteTableEntry> GenerateRoutes(Conventions conventions)
         {
             return messageAssembly.GetTypes().Where(t => t.Namespace == messageNamespace).Where(t => conventions.IsMessageType(t)).Select(t => new RouteTableEntry(t, route));
         }

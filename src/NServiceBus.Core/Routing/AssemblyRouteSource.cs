@@ -8,17 +8,15 @@ namespace NServiceBus
     class AssemblyRouteSource : IRouteSource
     {
         Assembly messageAssembly;
-        Conventions conventions;
         IUnicastRoute route;
 
-        public AssemblyRouteSource(Assembly messageAssembly, Conventions conventions, IUnicastRoute route)
+        public AssemblyRouteSource(Assembly messageAssembly, IUnicastRoute route)
         {
             this.messageAssembly = messageAssembly;
-            this.conventions = conventions;
             this.route = route;
         }
 
-        public IEnumerable<RouteTableEntry> GenerateRoutes()
+        public IEnumerable<RouteTableEntry> GenerateRoutes(Conventions conventions)
         {
             return messageAssembly.GetTypes().Where(t => conventions.IsMessageType(t)).Select(t => new RouteTableEntry(t, route));
         }

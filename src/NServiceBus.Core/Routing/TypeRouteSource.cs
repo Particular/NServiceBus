@@ -15,7 +15,7 @@ namespace NServiceBus
             this.route = route;
         }
 
-        public IEnumerable<RouteTableEntry> GenerateRoutes()
+        public IEnumerable<RouteTableEntry> GenerateRoutes(Conventions conventions)
         {
             yield return new RouteTableEntry(messageType, route);
         }

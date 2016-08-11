@@ -5,7 +5,7 @@ namespace NServiceBus
 
     interface IRouteSource
     {
-        IEnumerable<RouteTableEntry> GenerateRoutes();
+        IEnumerable<RouteTableEntry> GenerateRoutes(Conventions conventions);
         RouteSourcePriority Priority { get; }
     }
 }

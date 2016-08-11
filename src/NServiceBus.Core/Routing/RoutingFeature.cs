@@ -45,7 +45,7 @@
                 ImportMessageEndpointMappings(unicastBusConfig.MessageEndpointMappings, transportInfrastructure, publishers, unicastRoutingTable);
             }
 
-            configuredUnicastRoutes.Apply(unicastRoutingTable);
+            configuredUnicastRoutes.Apply(unicastRoutingTable, conventions);
 
             foreach (var registration in configuredPublishers)
             {
@@ -125,12 +125,12 @@
             routeSources.Add(routeSource);
         }
 
-        public void Apply(UnicastRoutingTable unicastRoutingTable)
+        public void Apply(UnicastRoutingTable unicastRoutingTable, Conventions conventions)
         {
             var entries = new Dictionary<Type, RouteTableEntry>();
             foreach (var source in routeSources.OrderBy(x => x.Priority)) //Higher priority routes sources override lower priority.
             {
-                foreach (var route in source.GenerateRoutes())
+                foreach (var route in source.GenerateRoutes(conventions))
                 {
                     entries[route.MessageType] = route;
                 }

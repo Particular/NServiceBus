@@ -21,7 +21,6 @@ namespace NServiceBus.Core.Tests.Routing
         public void WhenPassingTransportAddressForSenderInsteadOfEndpointName_ShouldThrowException()
         {
             var settings = new SettingsHolder();
-            settings.Set<Conventions>(new Conventions());
             var routingSettings = new RoutingSettings(settings);
             var expectedExceptionMessage = expectedExceptionMessageForWrongEndpointName;
 
@@ -33,7 +32,6 @@ namespace NServiceBus.Core.Tests.Routing
         public void WhenPassingTransportAddressForSenderInsteadOfEndpointName_UsingAssembly_ShouldThrowException()
         {
             var settings = new SettingsHolder();
-            settings.Set<Conventions>(new Conventions());
             var routingSettings = new RoutingSettings(settings);
             var expectedExceptionMessage = expectedExceptionMessageForWrongEndpointName;
 
@@ -45,7 +43,6 @@ namespace NServiceBus.Core.Tests.Routing
         public void WhenPassingTransportAddressForSenderInsteadOfEndpointName_UsingAssemblyAndNamespace_ShouldThrowException()
         {
             var settings = new SettingsHolder();
-            settings.Set<Conventions>(new Conventions());
             var routingSettings = new RoutingSettings(settings);
             var expectedExceptionMessage = expectedExceptionMessageForWrongEndpointName;
 
@@ -57,7 +54,6 @@ namespace NServiceBus.Core.Tests.Routing
         public async Task WhenRoutingMessageTypeToEndpoint_ShouldConfigureMessageTypeInRoutingTable()
         {
             var settings = new SettingsHolder();
-            settings.Set<Conventions>(new Conventions());
             var routingSettings = new RoutingSettings(settings);
             routingSettings.RouteToEndpoint(typeof(SomeMessageType), "destination");
 
@@ -73,7 +69,6 @@ namespace NServiceBus.Core.Tests.Routing
         public void WhenRoutingAssemblyToEndpoint_ShouldConfigureAllContainedMessagesInRoutingTable()
         {
             var settings = new SettingsHolder();
-            settings.Set<Conventions>(new Conventions());
             var routingSettings = new RoutingSettings(settings);
             routingSettings.RouteToEndpoint(Assembly.GetExecutingAssembly(), "destination");
 
@@ -92,7 +87,6 @@ namespace NServiceBus.Core.Tests.Routing
         public void WhenRoutingAssemblyWithNamespaceToEndpoint_ShouldOnlyConfigureMessagesWithinThatNamespace()
         {
             var settings = new SettingsHolder();
-            settings.Set<Conventions>(new Conventions());
             var routingSettings = new RoutingSettings(settings);
             routingSettings.RouteToEndpoint(Assembly.GetExecutingAssembly(), nameof(MessageNamespaceA), "destination");
 
@@ -113,7 +107,6 @@ namespace NServiceBus.Core.Tests.Routing
         public void WhenRoutingAssemblyWithNamespaceToEndpointAndSpecifyingEmptyNamespace_ShouldOnlyConfigureMessagesWithinEmptyNamespace(string emptyNamespace)
         {
             var settings = new SettingsHolder();
-            settings.Set<Conventions>(new Conventions());
             var routingSettings = new RoutingSettings(settings);
             routingSettings.RouteToEndpoint(Assembly.GetExecutingAssembly(), emptyNamespace, "destination");
 
@@ -132,7 +125,7 @@ namespace NServiceBus.Core.Tests.Routing
         {
             var routingTable = new UnicastRoutingTable();
             var configuredRoutes = routingSettings.Settings.GetOrDefault<ConfiguredUnicastRoutes>();
-            configuredRoutes?.Apply(routingTable);
+            configuredRoutes?.Apply(routingTable, new Conventions());
             return routingTable;
         }
 
