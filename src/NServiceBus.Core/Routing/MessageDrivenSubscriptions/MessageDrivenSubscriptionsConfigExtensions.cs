@@ -5,6 +5,7 @@ namespace NServiceBus
     using Features;
     using Pipeline;
     using Routing;
+    using Routing.MessageDrivenSubscriptions;
     using Settings;
     using Transport;
 
@@ -49,7 +50,7 @@ namespace NServiceBus
             Guard.AgainstNullAndEmpty(nameof(publisherEndpoint), publisherEndpoint);
 
             ThrowOnAddress(publisherEndpoint);
-            routingSettings.Settings.GetOrCreate<ConfiguredPublishers>().Add((publishers, conventions) => publishers.Add(eventType, publisherEndpoint));
+            routingSettings.Settings.GetOrCreate<ConfiguredPublishers>().Add(new TypePublisherSource(eventType, PublisherAddress.CreateFromEndpointName(publisherEndpoint)));
         }
 
         /// <summary>
@@ -65,16 +66,7 @@ namespace NServiceBus
 
             ThrowOnAddress(publisherEndpoint);
 
-            routingSettings.Settings.GetOrCreate<ConfiguredPublishers>().Add((publishers, conventions) =>
-            {
-                foreach (var type in assembly.GetTypes())
-                {
-                    if (conventions.IsMessageType(type))
-                    {
-                        publishers.Add(type, publisherEndpoint);
-                    }
-                }
-            });
+            routingSettings.Settings.GetOrCreate<ConfiguredPublishers>().Add(new AssemblyPublisherSource(assembly, PublisherAddress.CreateFromEndpointName(publisherEndpoint)));
         }
 
         /// <summary>
@@ -96,16 +88,8 @@ namespace NServiceBus
 
             // empty namespace is null, not string.empty
             @namespace = @namespace == string.Empty ? null : @namespace;
-            routingSettings.Settings.GetOrCreate<ConfiguredPublishers>().Add((publishers, conventions) =>
-            {
-                foreach (var type in assembly.GetTypes())
-                {
-                    if (type.Namespace == @namespace && conventions.IsMessageType(type))
-                    {
-                        publishers.Add(type, publisherEndpoint);
-                    }
-                }
-            });
+
+            routingSettings.Settings.GetOrCreate<ConfiguredPublishers>().Add(new NamespacePublisherSource(assembly, @namespace, PublisherAddress.CreateFromEndpointName(publisherEndpoint)));
         }
 
         static void ThrowOnAddress(string publisherEndpoint)

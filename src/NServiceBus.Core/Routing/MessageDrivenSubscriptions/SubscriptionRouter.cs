@@ -17,17 +17,9 @@
 
         public async Task<IEnumerable<string>> GetAddressesForEventType(Type messageType)
         {
-            var results = new HashSet<string>();
-            foreach (var publisherAddress in publishers.GetPublisherFor(messageType))
-            {
-                var addresses = await publisherAddress.Resolve(endpoint => endpointInstances.FindInstances(endpoint), i => transportAddressTranslation(i)).ConfigureAwait(false);
-                foreach (var address in addresses)
-                {
-                    results.Add(address);
-                }
-            }
-
-            return results;
+            var publisher = publishers.GetPublisherFor(messageType);
+            var publisherTransportAddresses = await publisher.Resolve(e => endpointInstances.FindInstances(e), i => transportAddressTranslation(i)).ConfigureAwait(false);
+            return publisherTransportAddresses;
         }
 
         EndpointInstances endpointInstances;

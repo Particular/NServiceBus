@@ -20,7 +20,9 @@ namespace NServiceBus
 
         public IEnumerable<RouteTableEntry> GenerateRoutes(Conventions conventions)
         {
-            return messageAssembly.GetTypes().Where(t => t.Namespace == messageNamespace).Where(t => conventions.IsMessageType(t)).Select(t => new RouteTableEntry(t, route));
+            return messageAssembly.GetTypes()
+                .Where(t => conventions.IsMessageType(t) && t.Namespace == messageNamespace)
+                .Select(t => new RouteTableEntry(t, route));
         }
 
         public RouteSourcePriority Priority => RouteSourcePriority.Namespace;

@@ -1,7 +1,8 @@
-﻿namespace NServiceBus.Core.Tests.Routing.MessageDrivenSubscriptions
+﻿using NServiceBus;
+
+namespace NServiceBus.Core.Tests.Routing.MessageDrivenSubscriptions
 {
     using System;
-    using System.Linq;
     using System.Reflection;
     using EventNamespace;
     using MessageNameSpace;
@@ -14,12 +15,13 @@
     using Transport;
 
     [TestFixture]
-    public class MessageDrivenSubscriptionsConfigExtensionsTests
+    public class RoutingSettingsTests
     {
         [Test]
         public void WhenPassingTransportAddressForPublisherInsteadOfEndpointName_ShouldThrowException()
         {
-            var routingSettings = new RoutingSettings<MessageDrivenTransportDefinition>(new SettingsHolder());
+            var settings = new SettingsHolder();
+            var routingSettings = new RoutingSettings<MessageDrivenTransportDefinition>(settings);
 
             var exception = Assert.Throws<ArgumentException>(() => routingSettings.RegisterPublisher(typeof(Event), "EndpointName@MyHost"));
             Assert.AreEqual(expectedExceptionMessageForWrongEndpointName, exception.Message);
@@ -28,7 +30,8 @@
         [Test]
         public void WhenPassingTransportAddressForPublisherInsteadOfEndpointName_UsingAssembly_ShouldThrowException()
         {
-            var routingSettings = new RoutingSettings<MessageDrivenTransportDefinition>(new SettingsHolder());
+            var settings = new SettingsHolder();
+            var routingSettings = new RoutingSettings<MessageDrivenTransportDefinition>(settings);
 
             var exception = Assert.Throws<ArgumentException>(() => routingSettings.RegisterPublisher(Assembly.GetExecutingAssembly(), "EndpointName@MyHost"));
             Assert.AreEqual(expectedExceptionMessageForWrongEndpointName, exception.Message);
@@ -37,7 +40,8 @@
         [Test]
         public void WhenPassingTransportAddressForPublisherInsteadOfEndpointName_UsingAssemblyAndNamespace_ShouldThrowException()
         {
-            var routingSettings = new RoutingSettings<MessageDrivenTransportDefinition>(new SettingsHolder());
+            var settings = new SettingsHolder();
+            var routingSettings = new RoutingSettings<MessageDrivenTransportDefinition>(settings);
 
             var exception = Assert.Throws<ArgumentException>(() => routingSettings.RegisterPublisher(Assembly.GetExecutingAssembly(), nameof(EventNamespace), "EndpointName@MyHost"));
             Assert.AreEqual(expectedExceptionMessageForWrongEndpointName, exception.Message);
@@ -46,47 +50,53 @@
         [Test]
         public void WhenPassingEndpointNameForPublisher_ShouldAddRouteToPublishers()
         {
-            var routingSettings = new RoutingSettings<MessageDrivenTransportDefinition>(new SettingsHolder());
+            var settings = new SettingsHolder();
+            var routingSettings = new RoutingSettings<MessageDrivenTransportDefinition>(settings);
             routingSettings.RegisterPublisher(typeof(Event), "EndpointName");
 
             var publishers = ApplyPublisherRegistrations(routingSettings);
 
             var publishersForEvent = publishers.GetPublisherFor(typeof(Event));
-            Assert.AreEqual(publishersForEvent.Count(), 1);
+            Assert.IsNotNull(publishersForEvent);
         }
 
         [Test]
         public void WhenPassingEndpointNameForPublisher_UsingAssembly_ShouldAddAllEventsToPublishers()
         {
-            var routingSettings = new RoutingSettings<MessageDrivenTransportDefinition>(new SettingsHolder());
+            var settings = new SettingsHolder();
+            var routingSettings = new RoutingSettings<MessageDrivenTransportDefinition>(settings);
             routingSettings.RegisterPublisher(Assembly.GetExecutingAssembly(), "EndpointName");
 
             var publishers = ApplyPublisherRegistrations(routingSettings);
 
             var publishersForEvent = publishers.GetPublisherFor(typeof(Event));
             var publishersForEventWithNamespace = publishers.GetPublisherFor(typeof(EventWithNamespace));
-            Assert.AreEqual(publishersForEvent.Count(), 1);
-            Assert.AreEqual(publishersForEventWithNamespace.Count(), 1);
+
+            Assert.IsNotNull(publishersForEvent);
+            Assert.IsNotNull(publishersForEventWithNamespace);
         }
 
         [Test]
         public void WhenPassingEndpointNameForPublisher_UsingAssemblyAndNamespace_ShouldAddEventsWithNamespaceToPublishers()
         {
-            var routingSettings = new RoutingSettings<MessageDrivenTransportDefinition>(new SettingsHolder());
+            var settings = new SettingsHolder();
+            var routingSettings = new RoutingSettings<MessageDrivenTransportDefinition>(settings);
             routingSettings.RegisterPublisher(Assembly.GetExecutingAssembly(), nameof(EventNamespace), "EndpointName");
 
             var publishers = ApplyPublisherRegistrations(routingSettings);
 
             var publishersForEvent = publishers.GetPublisherFor(typeof(Event));
             var publishersForEventWithNamespace = publishers.GetPublisherFor(typeof(EventWithNamespace));
-            Assert.AreEqual(publishersForEvent.Count(), 0);
-            Assert.AreEqual(publishersForEventWithNamespace.Count(), 1);
+
+            Assert.IsNull(publishersForEvent);
+            Assert.IsNotNull(publishersForEventWithNamespace);
         }
 
         [Test]
         public void Should_register_all_types_in_assembly_when_not_specifying_namespace()
         {
-            var routingSettings = new RoutingSettings<MessageDrivenTransportDefinition>(new SettingsHolder());
+            var settings = new SettingsHolder();
+            var routingSettings = new RoutingSettings<MessageDrivenTransportDefinition>(settings);
             routingSettings.RegisterPublisher(Assembly.GetExecutingAssembly(), "someAddress");
 
             var publishers = ApplyPublisherRegistrations(routingSettings);
@@ -96,16 +106,17 @@
             var result3 = publishers.GetPublisherFor(typeof(EventWithoutNamespace));
             var result4 = publishers.GetPublisherFor(typeof(IMessageInterface));
 
-            Assert.AreEqual(1, result1.Count());
-            Assert.AreEqual(1, result2.Count());
-            Assert.AreEqual(1, result3.Count());
-            Assert.AreEqual(1, result4.Count());
+            Assert.IsNotNull(result1);
+            Assert.IsNotNull(result2);
+            Assert.IsNotNull(result3);
+            Assert.IsNotNull(result4);
         }
 
         [Test]
         public void Should_only_register_types_in_specified_namespace()
         {
-            var routingSettings = new RoutingSettings<MessageDrivenTransportDefinition>(new SettingsHolder());
+            var settings = new SettingsHolder();
+            var routingSettings = new RoutingSettings<MessageDrivenTransportDefinition>(settings);
             routingSettings.RegisterPublisher(Assembly.GetExecutingAssembly(), "MessageNameSpace", "someAddress");
 
             var publishers = ApplyPublisherRegistrations(routingSettings);
@@ -115,10 +126,10 @@
             var result3 = publishers.GetPublisherFor(typeof(EventWithoutNamespace));
             var result4 = publishers.GetPublisherFor(typeof(IMessageInterface));
 
-            Assert.AreEqual(1, result1.Count());
-            Assert.AreEqual(1, result4.Count());
-            Assert.IsEmpty(result2);
-            Assert.IsEmpty(result3);
+            Assert.IsNotNull(result1);
+            Assert.IsNotNull(result4);
+            Assert.IsNull(result2);
+            Assert.IsNull(result3);
         }
 
         [Theory]
@@ -126,7 +137,8 @@
         [TestCase(null)]
         public void Should_support_empty_namespace(string eventNamespace)
         {
-            var routingSettings = new RoutingSettings<MessageDrivenTransportDefinition>(new SettingsHolder());
+            var settings = new SettingsHolder();
+            var routingSettings = new RoutingSettings<MessageDrivenTransportDefinition>(settings);
             routingSettings.RegisterPublisher(Assembly.GetExecutingAssembly(), eventNamespace, "someAddress");
 
             var publishers = ApplyPublisherRegistrations(routingSettings);
@@ -136,24 +148,17 @@
             var result3 = publishers.GetPublisherFor(typeof(EventWithoutNamespace));
             var result4 = publishers.GetPublisherFor(typeof(IMessageInterface));
 
-            Assert.AreEqual(1, result3.Count());
-            Assert.IsEmpty(result1);
-            Assert.IsEmpty(result2);
-            Assert.IsEmpty(result4);
+            Assert.IsNotNull(result3);
+            Assert.IsNull(result1);
+            Assert.IsNull(result2);
+            Assert.IsNull(result4);
         }
 
         static Publishers ApplyPublisherRegistrations(RoutingSettings<MessageDrivenTransportDefinition> routingSettings)
         {
             var publishers = new Publishers();
-            var conventions = new Conventions();
-            conventions.IsMessageTypeAction = type => true;
-
             var registrations = routingSettings.Settings.Get<ConfiguredPublishers>();
-            foreach (var publisherRegistration in registrations)
-            {
-                publisherRegistration(publishers, conventions);
-            }
-
+            registrations.Apply(publishers, new Conventions());
             return publishers;
         }
 
@@ -173,11 +178,36 @@
 
 namespace EventNamespace
 {
-    class EventWithNamespace
+    using NServiceBus;
+    class EventWithNamespace : IEvent
     {
     }
 }
 
-class Event
+class Event : IEvent
+{
+}
+
+namespace MessageNameSpace
+{
+    interface IMessageInterface : IEvent
+    {
+    }
+
+    class BaseMessage : IMessageInterface
+    {
+    }
+}
+
+namespace OtherMesagenameSpace
+{
+    using MessageNameSpace;
+
+    class SubMessage : BaseMessage
+    {
+    }
+}
+
+class EventWithoutNamespace : IEvent
 {
 }
