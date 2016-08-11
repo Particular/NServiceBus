@@ -63,7 +63,7 @@ namespace NServiceBus
             }, options);
         }
 
-        internal ConcurrentDictionary<Guid, TaskDefinition> scheduledTasks = new ConcurrentDictionary<Guid, TaskDefinition>();
+        ConcurrentDictionary<Guid, TaskDefinition> scheduledTasks = new ConcurrentDictionary<Guid, TaskDefinition>();
 
         static ILog logger = LogManager.GetLogger<DefaultScheduler>();
     }
