@@ -98,7 +98,7 @@
     <Compile Include="Core\FakeTransport\FakeTransportSetingsExtensions.cs" />
     <Compile Include="Core\FakeTransport\ProcessingOptimizations\When_using_concurrency_limit.cs" />
     <Compile Include="Basic\When_depending_on_typed_feature.cs" />
-    <Compile Include="Hosting\When_overriding_local_addresses.cs" />
+    <Compile Include="Hosting\When_overriding_input_queue_name.cs" />
     <Compile Include="Hosting\When_a_message_is_faulted.cs" />
     <Compile Include="MessageId\When_message_has_empty_id_header.cs" />
     <Compile Include="MessageId\When_message_has_no_id_header.cs" />
