@@ -29,9 +29,10 @@
                 return metadata;
             }
 
-            if (conventions.IsMessageType(messageType))
+            metadata = RegisterMessageType(messageType);
+            if (metadata != null)
             {
-                return RegisterMessageType(messageType);
+                return metadata;
             }
 
             var message = $"Could not find metadata for '{messageType.FullName}'.{Environment.NewLine}Ensure the following:{Environment.NewLine}1. '{messageType.FullName}' is included in initial scanning. {Environment.NewLine}2. '{messageType.FullName}' implements either 'IMessage', 'IEvent' or 'ICommand' or alternatively, if you don't want to implement an interface, you can use 'Unobtrusive Mode'.";
@@ -54,8 +55,15 @@
                 Logger.DebugFormat("Message type: '{0}' could not be determined by a 'Type.GetType', scanning known messages for a match", messageTypeIdentifier);
                 return messages.Values.FirstOrDefault(m => m.MessageType.FullName == messageTypeIdentifier);
             }
+
             MessageMetadata metadata;
             if (messages.TryGetValue(messageType.TypeHandle, out metadata))
+            {
+                return metadata;
+            }
+
+            metadata = RegisterMessageType(messageType);
+            if (metadata != null)
             {
                 return metadata;
             }
@@ -73,31 +81,32 @@
         {
             foreach (var type in availableTypes)
             {
-                if (conventions.IsMessageType(type))
-                {
-                    RegisterMessageType(type);
-                }
+                RegisterMessageType(type);
             }
         }
 
         MessageMetadata RegisterMessageType(Type messageType)
         {
-            //get the parent types
-            var parentMessages = GetParentTypes(messageType)
-                .Where(conventions.IsMessageType)
-                .OrderByDescending(PlaceInMessageHierarchy);
-
-            var metadata = new MessageMetadata(messageType, new[]
+            if (conventions.IsMessageType(messageType))
             {
-                messageType
-            }.Concat(parentMessages).ToArray());
+                //get the parent types
+                var parentMessages = GetParentTypes(messageType)
+                    .Where(conventions.IsMessageType)
+                    .OrderByDescending(PlaceInMessageHierarchy);
 
-            messages[messageType.TypeHandle] = metadata;
+                var metadata = new MessageMetadata(messageType, new[]
+                {
+                    messageType
+                }.Concat(parentMessages).ToArray());
 
-            return metadata;
+                messages[messageType.TypeHandle] = metadata;
+
+                return metadata;
+            }
+            return null;
         }
 
-        int PlaceInMessageHierarchy(Type type)
+        static int PlaceInMessageHierarchy(Type type)
         {
             if (type.IsInterface)
             {
