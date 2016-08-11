@@ -3,10 +3,8 @@
 namespace NServiceBus.Core.Tests.Routing
 {
     using System;
-    using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
-    using System.Threading.Tasks;
     using MessageNamespaceA;
     using MessageNamespaceB;
     using NServiceBus.Features;
@@ -51,7 +49,7 @@ namespace NServiceBus.Core.Tests.Routing
         }
 
         [Test]
-        public async Task WhenRoutingMessageTypeToEndpoint_ShouldConfigureMessageTypeInRoutingTable()
+        public void WhenRoutingMessageTypeToEndpoint_ShouldConfigureMessageTypeInRoutingTable()
         {
             var settings = new SettingsHolder();
             var routingSettings = new RoutingSettings(settings);
@@ -59,7 +57,10 @@ namespace NServiceBus.Core.Tests.Routing
 
             var routingTable = ApplyConfiguredRoutes(routingSettings);
             var route = routingTable.GetRouteFor(typeof(SomeMessageType));
-            var routingTargets = await RetrieveRoutingTargets(route);
+            var routingTargets = route.Resolve(e => new[]
+            {
+                new EndpointInstance(e)
+            });
 
             Assert.That(route, Is.Not.Null);
             Assert.That(routingTargets.Single().Endpoint, Is.EqualTo("destination"));
@@ -127,14 +128,6 @@ namespace NServiceBus.Core.Tests.Routing
             var configuredRoutes = routingSettings.Settings.GetOrDefault<ConfiguredUnicastRoutes>();
             configuredRoutes?.Apply(routingTable, new Conventions());
             return routingTable;
-        }
-
-        static Task<IEnumerable<UnicastRoutingTarget>> RetrieveRoutingTargets(IUnicastRoute result)
-        {
-            return result.Resolve(e => Task.FromResult<IEnumerable<EndpointInstance>>(new[]
-            {
-                new EndpointInstance(e)
-            }));
         }
 
         string expectedExceptionMessageForWrongEndpointName = "A logical endpoint name should not contain '@', but received 'EndpointName@MyHost'. To specify an endpoint's address, use the instance mapping file for the MSMQ transport, or refer to the routing documentation.";

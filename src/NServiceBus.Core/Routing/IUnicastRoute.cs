@@ -2,7 +2,6 @@ namespace NServiceBus.Routing
 {
     using System;
     using System.Collections.Generic;
-    using System.Threading.Tasks;
 
     /// <summary>
     /// Represents destination of address routing.
@@ -13,6 +12,6 @@ namespace NServiceBus.Routing
         /// Resolves the destination, possibly resulting in multiple destination transport addresses.
         /// </summary>
         /// <param name="instanceResolver">A function that returns the collection of instances for a given endpoint.</param>
-        Task<IEnumerable<UnicastRoutingTarget>> Resolve(Func<string, Task<IEnumerable<EndpointInstance>>> instanceResolver);
+        IEnumerable<UnicastRoutingTarget> Resolve(Func<string, IEnumerable<EndpointInstance>> instanceResolver);
     }
 }

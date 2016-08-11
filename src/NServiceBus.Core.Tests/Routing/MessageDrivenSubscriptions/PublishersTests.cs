@@ -1,5 +1,4 @@
-﻿using NServiceBus;
-
+﻿
 namespace NServiceBus.Core.Tests.Routing.MessageDrivenSubscriptions
 {
     using System.Collections.Generic;

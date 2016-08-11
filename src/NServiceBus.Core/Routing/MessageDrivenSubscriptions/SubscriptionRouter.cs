@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Threading.Tasks;
     using Routing;
     using Routing.MessageDrivenSubscriptions;
 
@@ -15,10 +14,10 @@
             this.transportAddressTranslation = transportAddressTranslation;
         }
 
-        public async Task<IEnumerable<string>> GetAddressesForEventType(Type messageType)
+        public IEnumerable<string> GetAddressesForEventType(Type messageType)
         {
             var publisher = publishers.GetPublisherFor(messageType);
-            var publisherTransportAddresses = await publisher.Resolve(e => endpointInstances.FindInstances(e), i => transportAddressTranslation(i)).ConfigureAwait(false);
+            var publisherTransportAddresses = publisher.Resolve(e => endpointInstances.FindInstances(e), i => transportAddressTranslation(i));
             return publisherTransportAddresses;
         }
 

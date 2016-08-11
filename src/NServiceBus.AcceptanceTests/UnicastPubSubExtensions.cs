@@ -3,7 +3,6 @@ namespace NServiceBus.AcceptanceTests.Routing
     using System;
     using System.Collections.Generic;
     using Configuration.AdvanceExtensibility;
-    using NServiceBus.Routing;
     using NServiceBus.Routing.MessageDrivenSubscriptions;
 
     static class UnicastPubSubExtensions

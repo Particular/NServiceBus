@@ -1,5 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.ScaleOut
 {
+    using System;
+    using System.Collections.Generic;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using AcceptanceTesting.Customization;
@@ -36,7 +38,10 @@
                 EndpointSetup<DefaultServer>((c, r) =>
                 {
                     c.UseTransport(r.GetTransportType()).Routing().RouteToEndpoint(typeof(MyRequest), ReceiverEndpoint);
-                    c.GetSettings().GetOrCreate<EndpointInstances>().Add(new EndpointInstance(ReceiverEndpoint, "XYZ"));
+                    c.GetSettings().GetOrCreate<EndpointInstances>().AddOrReplaceInstances(Guid.NewGuid(), new List<EndpointInstance>
+                    {
+                        new EndpointInstance(ReceiverEndpoint, "XYZ")
+                    });
                 });
             }
 

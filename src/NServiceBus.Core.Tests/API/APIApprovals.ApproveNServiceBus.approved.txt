@@ -972,6 +972,7 @@ namespace NServiceBus
     {
         public static NServiceBus.DistributionPolicy DistributionPolicy(this NServiceBus.Features.FeatureConfigurationContext featureConfigurationContext) { }
         public static NServiceBus.Routing.EndpointInstances EndpointInstances(this NServiceBus.Features.FeatureConfigurationContext featureConfigurationContext) { }
+        public static NServiceBus.Routing.MessageDrivenSubscriptions.Publishers Publishers(this NServiceBus.Features.FeatureConfigurationContext featureConfigurationContext) { }
         public static NServiceBus.Routing.UnicastRoutingTable RoutingTable(this NServiceBus.Features.FeatureConfigurationContext featureConfigurationContext) { }
     }
     public class RoutingSettings : NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings
@@ -2589,15 +2590,12 @@ namespace NServiceBus.Routing
     public class EndpointInstances
     {
         public EndpointInstances() { }
-        public void Add(params NServiceBus.Routing.EndpointInstance[] instances) { }
-        public void Add(System.Collections.Generic.IEnumerable<NServiceBus.Routing.EndpointInstance> instances) { }
-        public void Add(NServiceBus.Routing.EndpointInstance instance) { }
-        public void AddDynamic(System.Func<string, System.Threading.Tasks.Task<System.Collections.Generic.IEnumerable<NServiceBus.Routing.EndpointInstance>>> dynamicRule) { }
+        public void AddOrReplaceInstances(object sourceKey, System.Collections.Generic.IList<NServiceBus.Routing.EndpointInstance> endpointInstances) { }
     }
     public interface IMessageDrivenSubscriptionTransport { }
     public interface IUnicastRoute
     {
-        System.Threading.Tasks.Task<System.Collections.Generic.IEnumerable<NServiceBus.UnicastRoutingTarget>> Resolve(System.Func<string, System.Threading.Tasks.Task<System.Collections.Generic.IEnumerable<NServiceBus.Routing.EndpointInstance>>> instanceResolver);
+        System.Collections.Generic.IEnumerable<NServiceBus.UnicastRoutingTarget> Resolve(System.Func<string, System.Collections.Generic.IEnumerable<NServiceBus.Routing.EndpointInstance>> instanceResolver);
     }
     public class MulticastAddressTag : NServiceBus.Routing.AddressTag
     {
