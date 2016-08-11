@@ -27,7 +27,7 @@
                         return session.Send(new MyRequest());
                     }))
                 .WithEndpoint<XmlCustomSerializationReceiver>()
-                .Done(c => c.DeserializeCalled)
+                .Done(c => c.HandlerGotTheRequest)
                 .Run();
 
             Assert.True(context.HandlerGotTheRequest);
@@ -36,7 +36,7 @@
             Assert.AreEqual("SomeFancySettings", context.ValueFromSettings);
         }
 
-        class Context : ScenarioContext
+        public class Context : ScenarioContext
         {
             public bool HandlerGotTheRequest { get; set; }
             public bool SerializeCalled { get; set; }
@@ -48,7 +48,7 @@
         {
             public CustomSerializationSender()
             {
-                EndpointSetup<DefaultServer>(c => c.UseSerialization<MyCustomSerializer>())
+                EndpointSetup<DefaultServer>(c => c.UseSerialization<MyCustomSerializer>().Settings((Context) ScenarioContext, ""))
                     .AddMapping<MyRequest>(typeof(XmlCustomSerializationReceiver));
             }
         }
@@ -60,7 +60,7 @@
                 EndpointSetup<DefaultServer>(c =>
                 {
                     c.UseSerialization<XmlSerializer>();
-                    c.AddDeserializer<MyCustomSerializer>().Settings("SomeFancySettings");
+                    c.AddDeserializer<MyCustomSerializer>().Settings((Context) ScenarioContext, "SomeFancySettings");
                 });
             }
 
@@ -71,9 +71,6 @@
                 public Task Handle(MyRequest request, IMessageHandlerContext context)
                 {
                     Context.HandlerGotTheRequest = true;
-                    Context.DeserializeCalled = request.DeserializerCalled;
-                    Context.SerializeCalled = request.SerializerCalled;
-                    Context.ValueFromSettings = request.ValueFromSettings;
                     return Task.FromResult(0);
                 }
             }
@@ -82,26 +79,22 @@
         [Serializable]
         class MyRequest : IMessage
         {
-            public bool DeserializerCalled { get; set; }
-            public bool SerializerCalled { get; set; }
-            public string ValueFromSettings { get; set; }
         }
-
 
         public class MyCustomSerializer : SerializationDefinition
         {
             public override Func<IMessageMapper, IMessageSerializer> Configure(ReadOnlySettings settings)
             {
-                return mapper => new MyCustomMessageSerializer(settings.GetOrDefault<string>("MyCustomSerializer.Settings"));
+                var context = settings.Get<Context>();
+                return mapper => new MyCustomMessageSerializer(context, settings.Get<string>("MyCustomSerializer.Settings.Value"));
             }
         }
 
         class MyCustomMessageSerializer : IMessageSerializer
         {
-            readonly string valueFromSettings;
-
-            public MyCustomMessageSerializer(string valueFromSettings)
+            public MyCustomMessageSerializer(Context context, string valueFromSettings)
             {
+                this.context = context;
                 this.valueFromSettings = valueFromSettings;
             }
 
@@ -109,8 +102,7 @@
             {
                 var serializer = new BinaryFormatter();
 
-                ((MyRequest) message).SerializerCalled = true;
-                ((MyRequest) message).ValueFromSettings = valueFromSettings;
+                context.SerializeCalled = true;
 
                 serializer.Serialize(stream, message);
             }
@@ -121,8 +113,9 @@
 
                 stream.Position = 0;
                 var msg = serializer.Deserialize(stream);
-                ((MyRequest) msg).DeserializerCalled = true;
-                ((MyRequest)msg).ValueFromSettings = valueFromSettings;
+                context.DeserializeCalled = true;
+                context.ValueFromSettings = valueFromSettings;
+
                 return new[]
                 {
                     msg
@@ -130,15 +123,18 @@
             }
 
             public string ContentType => "MyCustomSerializer";
+            readonly Context context;
+            readonly string valueFromSettings;
         }
     }
 
     static class CustomSettingsForMyCustomSerializer
     {
-        public static SerializationExtensions<When_registering_additional_deserializers.MyCustomSerializer> Settings(this SerializationExtensions<When_registering_additional_deserializers.MyCustomSerializer> extensions, string valueFromSettings)
+        public static void Settings(this SerializationExtensions<When_registering_additional_deserializers.MyCustomSerializer> extensions, When_registering_additional_deserializers.Context context, string valueFromSettings)
         {
-            extensions.GetSettings().Set("MyCustomSerializer.Settings", valueFromSettings);
-            return extensions;
+            var settings = extensions.GetSettings();
+            settings.Set("MyCustomSerializer.Settings", context);
+            settings.Set("MyCustomSerializer.Settings.Value", valueFromSettings);
         }
     }
 }
