@@ -42,7 +42,7 @@
         {
             public SendOptionsExtensions()
             {
-                EndpointSetup<DefaultServer>(c => c.Pipeline.Register("TestingSendOptionsExtension", typeof(TestingSendOptionsExtensionBehavior), "Testing send options extensions"));
+                EndpointSetup<DefaultServer>(c => c.Pipeline.Register("TestingSendOptionsExtension", new TestingSendOptionsExtensionBehavior(), "Testing send options extensions"));
             }
 
             class SendMessageHandler : IHandleMessages<SendMessage>

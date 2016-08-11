@@ -38,7 +38,7 @@
                 EndpointSetup<DefaultServer>((config, context) =>
                 {
                     config.UseTransport(context.GetTransportType()).Transactions(TransportTransactionMode.None);
-                    config.Pipeline.Register("WrapInScope", typeof(WrapHandlersInScope), "Wraps the handlers in a scope");
+                    config.Pipeline.Register("WrapInScope", new WrapHandlersInScope(), "Wraps the handlers in a scope");
                 });
             }
 

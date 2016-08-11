@@ -41,14 +41,14 @@ namespace NServiceBus.AcceptanceTests.Routing.AutomaticSubscriptions
         {
             public Subscriber()
             {
-                EndpointSetup<DefaultServer>(c => c.Pipeline.Register("SubscriptionSpy", typeof(SubscriptionSpy), "Spies on subscriptions made"))
+                EndpointSetup<DefaultServer>(c => c.Pipeline.Register("SubscriptionSpy", new SubscriptionSpy((Context)ScenarioContext), "Spies on subscriptions made"))
                     .AddMapping<MyMessage>(typeof(Subscriber)) //just map to our self for this test
                     .AddMapping<MyCommand>(typeof(Subscriber)) //just map to our self for this test
                     .AddMapping<MyEventWithNoHandler>(typeof(Subscriber)) //just map to our self for this test
                     .AddMapping<MyEvent>(typeof(Subscriber)); //just map to our self for this test
             }
 
-            public class SubscriptionSpy : Behavior<ISubscribeContext>
+            class SubscriptionSpy : Behavior<ISubscribeContext>
             {
                 public SubscriptionSpy(Context testContext)
                 {

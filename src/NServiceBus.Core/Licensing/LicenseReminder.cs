@@ -28,11 +28,11 @@ namespace NServiceBus.Features
                     return;
                 }
 
-                context.Pipeline.Register("LicenseReminder", typeof(AuditInvalidLicenseBehavior), "Audits that the message was processed by an endpoint with an expired license");
+                context.Pipeline.Register("LicenseReminder", new AuditInvalidLicenseBehavior(), "Audits that the message was processed by an endpoint with an expired license");
 
                 if (Debugger.IsAttached)
                 {
-                    context.Pipeline.Register("LogErrorOnInvalidLicense", typeof(LogErrorOnInvalidLicenseBehavior), "Logs an error when running in debug mode with an expired license");
+                    context.Pipeline.Register("LogErrorOnInvalidLicense", new LogErrorOnInvalidLicenseBehavior(), "Logs an error when running in debug mode with an expired license");
                 }
             }
             catch (Exception ex)

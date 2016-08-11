@@ -20,9 +20,10 @@ namespace NServiceBus.Features
         protected internal override void Setup(FeatureConfigurationContext context)
         {
             context.Settings.Get<Conventions>().AddSystemMessagesConventions(t => typeof(ScheduledTask).IsAssignableFrom(t));
-            context.Container.ConfigureComponent<DefaultScheduler>(DependencyLifecycle.SingleInstance);
-            context.Container.ConfigureComponent<ScheduleBehavior>(DependencyLifecycle.SingleInstance);
-            context.Pipeline.Register(typeof(ScheduleBehavior), "Registers a task definition for scheduling.");
+
+            var defaultScheduler = new DefaultScheduler();
+            context.Container.RegisterSingleton(defaultScheduler);
+            context.Pipeline.Register("ScheduleBehavior", new ScheduleBehavior(defaultScheduler), "Registers a task definition for scheduling.");
         }
     }
 }

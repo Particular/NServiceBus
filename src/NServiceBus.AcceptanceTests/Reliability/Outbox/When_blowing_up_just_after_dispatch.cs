@@ -37,13 +37,13 @@
                     {
                         b.GetSettings().Set("DisableOutboxTransportCheck", true);
                         b.EnableOutbox();
-                        b.Pipeline.Register("BlowUpAfterDispatchBehavior", typeof(BlowUpAfterDispatchBehavior), "For testing");
+                        b.Pipeline.Register("BlowUpAfterDispatchBehavior", new BlowUpAfterDispatchBehavior(), "For testing");
                     });
             }
 
             class BlowUpAfterDispatchBehavior : Behavior<IBatchDispatchContext>
             {
-                public async override Task Invoke(IBatchDispatchContext context, Func<Task> next)
+                public override async Task Invoke(IBatchDispatchContext context, Func<Task> next)
                 {
                     if (!context.Operations.Any(op => op.Message.Headers[Headers.EnclosedMessageTypes].Contains(typeof(PlaceOrder).Name)))
                     {

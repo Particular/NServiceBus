@@ -13,9 +13,7 @@ namespace NServiceBus
         protected internal override void Setup(FeatureConfigurationContext context)
         {
             var headers = context.Settings.Get<CurrentStaticHeaders>();
-
-            context.Container.ConfigureComponent(b => new ApplyStaticHeadersBehavior(headers), DependencyLifecycle.SingleInstance);
-            context.Pipeline.Register("ApplyStaticHeaders", typeof(ApplyStaticHeadersBehavior), "Applies static headers to outgoing messages");
+            context.Pipeline.Register("ApplyStaticHeaders", new ApplyStaticHeadersBehavior(headers), "Applies static headers to outgoing messages");
         }
     }
 }

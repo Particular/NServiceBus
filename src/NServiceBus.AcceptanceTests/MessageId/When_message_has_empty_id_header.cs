@@ -25,8 +25,6 @@
 
         public class CorruptionBehavior : Behavior<IDispatchContext>
         {
-            public Context Context { get; set; }
-
             public override Task Invoke(IDispatchContext context, Func<Task> next)
             {
                 context.Operations.First().Message.Headers[Headers.MessageId] = "";
@@ -46,7 +44,7 @@
         {
             public Endpoint()
             {
-                EndpointSetup<DefaultServer>(c => c.Pipeline.Register("CorruptionBehavior", typeof(CorruptionBehavior), "Corrupting the message id"));
+                EndpointSetup<DefaultServer>(c => c.Pipeline.Register("CorruptionBehavior", new CorruptionBehavior(), "Corrupting the message id"));
             }
 
             class Handler : IHandleMessages<Message>
