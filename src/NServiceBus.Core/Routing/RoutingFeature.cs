@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using Config;
+    using Logging;
     using Routing;
     using Routing.MessageDrivenSubscriptions;
     using Transport;
@@ -32,8 +33,12 @@
             var transportInfrastructure = context.Settings.Get<TransportInfrastructure>();
 
             var unicastRoutingTable = context.Settings.Get<UnicastRoutingTable>();
+            unicastRoutingTable.SetLogChangeAction(GetLogAction<UnicastRoutingTable>());
             var endpointInstances = context.Settings.Get<EndpointInstances>();
+            endpointInstances.SetLogChangeAction(GetLogAction<EndpointInstances>());
             var publishers = context.Settings.Get<Publishers>();
+            publishers.SetLogChangeAction(GetLogAction<Publishers>());
+
             var distributionPolicy = context.Settings.Get<DistributionPolicy>();
             var configuredUnicastRoutes = context.Settings.Get<ConfiguredUnicastRoutes>();
             var configuredPublishers = context.Settings.Get<ConfiguredPublishers>();
@@ -109,6 +114,15 @@
 
             publishers.AddOrReplacePublishers("MessageEndpointMappings", publisherTableEntries.Values.ToList());
             unicastRoutingTable.AddOrReplaceRoutes("MessageEndpointMappings", routeTableEntries.Values.ToList());
+        }
+
+        static Action<string> GetLogAction<T>()
+        {
+            var logger = LogManager.GetLogger<T>();
+            var action = logger.IsDebugEnabled
+                ? x => logger.Debug(x)
+                : (Action<string>)null;
+            return action;
         }
     }
 }

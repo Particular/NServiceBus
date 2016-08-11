@@ -1,0 +1,4 @@
+﻿Route table refreshed.
+NServiceBus.Core.Tests.Routing.MessageDrivenSubscriptions.PublishersTests+MyEvent -> Endpoint
+NServiceBus.Core.Tests.Routing.MessageDrivenSubscriptions.PublishersTests+MyEvent2 -> [Endpoint-X], [Endpoint-Y]
+NServiceBus.Core.Tests.Routing.MessageDrivenSubscriptions.PublishersTests+MyEvent3 -> <queue@machine1>, <queue@machine2>

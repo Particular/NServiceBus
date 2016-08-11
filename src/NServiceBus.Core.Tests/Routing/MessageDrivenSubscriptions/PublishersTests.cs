@@ -2,6 +2,8 @@
 namespace NServiceBus.Core.Tests.Routing.MessageDrivenSubscriptions
 {
     using System.Collections.Generic;
+    using ApprovalTests;
+    using NServiceBus.Routing;
     using NServiceBus.Routing.MessageDrivenSubscriptions;
     using NUnit.Framework;
 
@@ -63,7 +65,30 @@ namespace NServiceBus.Core.Tests.Routing.MessageDrivenSubscriptions
             }, Throws.Exception);
         }
 
+        [Test]
+        public void Should_log_changes()
+        {
+            var publishersTable = new Publishers();
+            var log = "";
+            publishersTable.SetLogChangeAction(x => { log = x; });
+            publishersTable.AddOrReplacePublishers("key", new List<PublisherTableEntry>
+            {
+                new PublisherTableEntry(typeof(MyEvent), PublisherAddress.CreateFromEndpointName("Endpoint")),
+                new PublisherTableEntry(typeof(MyEvent2), PublisherAddress.CreateFromEndpointInstances(new EndpointInstance("Endpoint", "X"), new EndpointInstance("Endpoint", "Y"))),
+                new PublisherTableEntry(typeof(MyEvent3), PublisherAddress.CreateFromPhysicalAddresses("queue@machine1", "queue@machine2"))
+            });
+            Approvals.Verify(log);
+        }
+
         class MyEvent : IEvent
+        {
+        }
+
+        class MyEvent2 : IEvent
+        {
+        }
+
+        class MyEvent3 : IEvent
         {
         }
     }

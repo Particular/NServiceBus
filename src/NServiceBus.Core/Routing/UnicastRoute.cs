@@ -60,6 +60,21 @@ namespace NServiceBus.Routing
             return instances.Select(UnicastRoutingTarget.ToEndpointInstance);
         }
 
+        /// <summary>Returns a string that represents the current object.</summary>
+        /// <returns>A string that represents the current object.</returns>
+        public override string ToString()
+        {
+            if (endpoint != null)
+            {
+                return endpoint;
+            }
+            if (instance != null)
+            {
+                return $"[{instance}]";
+            }
+            return $"<{physicalAddress}>";
+        }
+
         string endpoint;
         EndpointInstance instance;
         string physicalAddress;

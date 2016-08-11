@@ -17,6 +17,11 @@ namespace NServiceBus.Routing
                 : null;
         }
 
+        internal void SetLogChangeAction(Action<string> logChangeAction)
+        {
+            this.logChangeAction = logChangeAction;
+        }
+
         /// <summary>
         /// Adds or replaces a group of routes for a given group key.
         /// </summary>
@@ -37,11 +42,18 @@ namespace NServiceBus.Routing
                     newRouteTable[entry.MessageType] = entry.Route;
                 }
                 routeTable = newRouteTable;
+                if (logChangeAction != null)
+                {
+                    var routesFormatted = string.Join(Environment.NewLine, routeTable.Select(kvp => $"{kvp.Key.FullName} -> {kvp.Value}"));
+                    logChangeAction($"Route table refreshed.{Environment.NewLine}{routesFormatted}");
+                }
             }
         }
 
         Dictionary<Type, IUnicastRoute> routeTable = new Dictionary<Type, IUnicastRoute>();
         Dictionary<object, IList<RouteTableEntry>> routeGroups = new Dictionary<object, IList<RouteTableEntry>>();
         object updateLock = new object();
+
+        Action<string> logChangeAction;
     }
 }
