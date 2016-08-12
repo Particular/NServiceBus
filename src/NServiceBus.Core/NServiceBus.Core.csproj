@@ -150,13 +150,13 @@
     <Compile Include="Recoverability\DelayedRetryExecutor.cs" />
     <Compile Include="Recoverability\Settings\RecoverabilitySettings.cs" />
     <Compile Include="ReleaseDateAttribute.cs" />
-    <Compile Include="Routing\AssemblyPublisherSource.cs" />
+    <Compile Include="Routing\MessageDrivenSubscriptions\AssemblyPublisherSource.cs" />
     <Compile Include="Routing\AssemblyRouteSource.cs" />
     <Compile Include="Routing\ConfiguredPublishers.cs" />
     <Compile Include="Routing\ConfiguredUnicastRoutes.cs" />
-    <Compile Include="Routing\IPublisherSource.cs" />
-    <Compile Include="Routing\NamespacePublisherSource.cs" />
-    <Compile Include="Routing\TypePublisherSource.cs" />
+    <Compile Include="Routing\MessageDrivenSubscriptions\IPublisherSource.cs" />
+    <Compile Include="Routing\MessageDrivenSubscriptions\NamespacePublisherSource.cs" />
+    <Compile Include="Routing\MessageDrivenSubscriptions\TypePublisherSource.cs" />
     <Compile Include="Routing\TypeRouteSource.cs" />
     <Compile Include="Routing\IDistributionPolicy.cs" />
     <Compile Include="Routing\IRouteSource.cs" />
@@ -562,7 +562,7 @@
     <Compile Include="UnitOfWork\UnitOfWorkSettingsExtensions.cs" />
     <Compile Include="Utils\MessageQueueExtensions.cs" />
     <Compile Include="Utils\PathUtilities.cs" />
-    <Compile Include="Transports\Msmq\InstanceMapping\InstanceMappingTable.cs" />
+    <Compile Include="Transports\Msmq\InstanceMapping\InstanceMappingFileMonitor.cs" />
     <Compile Include="Transports\Msmq\InstanceMapping\InstanceMappingFileFeature.cs" />
     <Compile Include="Unicast\Transport\Config\TransportExtensions.cs" />
     <Compile Include="Performance\Statistics\ReceivePerformanceDiagnosticsBehavior.cs" />

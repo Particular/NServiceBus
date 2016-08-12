@@ -7,9 +7,9 @@ namespace NServiceBus
     using Logging;
     using Routing;
 
-    class InstanceMappingTable : FeatureStartupTask
+    class InstanceMappingFileMonitor : FeatureStartupTask
     {
-        public InstanceMappingTable(string filePath, TimeSpan checkInterval, IAsyncTimer timer, IInstanceMappingFileAccess fileAccess, EndpointInstances endpointInstances)
+        public InstanceMappingFileMonitor(string filePath, TimeSpan checkInterval, IAsyncTimer timer, IInstanceMappingFileAccess fileAccess, EndpointInstances endpointInstances)
         {
             this.filePath = filePath;
             this.checkInterval = checkInterval;
@@ -34,7 +34,7 @@ namespace NServiceBus
             {
                 var doc = fileAccess.Load(filePath);
                 var instances = parser.Parse(doc);
-                endpointInstances.AddOrReplaceInstances("FileRoutingTable", instances.ToList());
+                endpointInstances.AddOrReplaceInstances("InstanceMappingFile", instances.ToList());
             }
             catch (Exception ex)
             {
@@ -51,6 +51,6 @@ namespace NServiceBus
         InstanceMappingFileParser parser = new InstanceMappingFileParser();
         IAsyncTimer timer;
 
-        static readonly ILog log = LogManager.GetLogger(typeof(InstanceMappingTable));
+        static readonly ILog log = LogManager.GetLogger(typeof(InstanceMappingFileMonitor));
     }
 }

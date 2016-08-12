@@ -29,7 +29,7 @@ namespace NServiceBus.Features
             var checkInterval = context.Settings.Get<TimeSpan>(CheckIntervalSettingsKey);
             var endpointInstances = context.Settings.Get<EndpointInstances>();
 
-            var instanceMappingTable = new InstanceMappingTable(filePath, checkInterval, new AsyncTimer(), new InstanceMappingFileAccess(), endpointInstances);
+            var instanceMappingTable = new InstanceMappingFileMonitor(filePath, checkInterval, new AsyncTimer(), new InstanceMappingFileAccess(), endpointInstances);
             instanceMappingTable.ReloadData();
             context.RegisterStartupTask(instanceMappingTable);
         }
@@ -41,8 +41,8 @@ namespace NServiceBus.Features
                 : Path.Combine(AppDomain.CurrentDomain.BaseDirectory, filePath);
         }
 
-        public const string CheckIntervalSettingsKey = "FileBasedRouting.CheckInterval";
-        public const string FilePathSettingsKey = "FileBasedRouting.FilePath";
+        public const string CheckIntervalSettingsKey = "InstanceMappingFile.CheckInterval";
+        public const string FilePathSettingsKey = "InstanceMappingFile.FilePath";
         const string DefaultInstanceMappingFileName = "instance-mapping.xml";
     }
 }
