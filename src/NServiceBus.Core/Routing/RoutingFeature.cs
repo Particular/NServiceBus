@@ -41,7 +41,7 @@
             var unicastBusConfig = context.Settings.GetConfigSection<UnicastBusConfig>();
             if (unicastBusConfig != null)
             {
-                ImportMessageEndpointMappings(unicastBusConfig.MessageEndpointMappings, transportInfrastructure, publishers, unicastRoutingTable);
+                unicastBusConfig.MessageEndpointMappings.ImportMessageEndpointMappings(publishers, unicastRoutingTable, transportInfrastructure.MakeCanonicalForm);
             }
 
             foreach (var registration in configuredUnicastRoutes)
@@ -97,18 +97,6 @@
                     context.Pipeline.Register(new NativeSubscribeTerminator(subscriptionManager), "Requests the transport to subscribe to a given message type");
                     context.Pipeline.Register(new NativeUnsubscribeTerminator(subscriptionManager), "Requests the transport to unsubscribe to a given message type");
                 }
-            }
-        }
-
-        static void ImportMessageEndpointMappings(MessageEndpointMappingCollection legacyRoutingConfig, TransportInfrastructure transportInfrastructure, Publishers publishers, UnicastRoutingTable unicastRoutingTable)
-        {
-            foreach (MessageEndpointMapping m in legacyRoutingConfig)
-            {
-                m.Configure((type, endpointAddress) =>
-                {
-                    unicastRoutingTable.RouteTo(type, UnicastRoute.CreateFromPhysicalAddress(transportInfrastructure.MakeCanonicalForm(endpointAddress)), overrideExistingRoute: true);
-                    publishers.AddByAddress(type, endpointAddress);
-                });
             }
         }
     }

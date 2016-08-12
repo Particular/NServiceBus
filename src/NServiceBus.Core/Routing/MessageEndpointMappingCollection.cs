@@ -1,6 +1,10 @@
 namespace NServiceBus.Config
 {
+    using System;
     using System.Configuration;
+    using System.Linq;
+    using Routing;
+    using Routing.MessageDrivenSubscriptions;
 
     /// <summary>
     /// A configuration element collection of MessageEndpointMappings.
@@ -159,6 +163,19 @@ namespace NServiceBus.Config
         public override bool IsReadOnly()
         {
             return false;
+        }
+
+        internal void ImportMessageEndpointMappings(Publishers publishers, UnicastRoutingTable unicastRoutingTable, Func<string, string> makeCanonicalAddress)
+        {
+            foreach (var m in this.Cast<MessageEndpointMapping>().OrderByDescending(m => m))
+            {
+                m.Configure((type, endpointAddress) =>
+                {
+                    var canonicalForm = makeCanonicalAddress(endpointAddress);
+                    unicastRoutingTable.RouteTo(type, UnicastRoute.CreateFromPhysicalAddress(canonicalForm), overrideExistingRoute: true);
+                    publishers.AddByAddress(type, canonicalForm);
+                });
+            }
         }
     }
 }

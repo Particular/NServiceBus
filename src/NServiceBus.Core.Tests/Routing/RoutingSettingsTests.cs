@@ -145,6 +145,10 @@ namespace MessageNamespaceA
     class SomeMessageType
     {
     }
+
+    class YetAnotherMessageType
+    {
+    }
 }
 
 namespace MessageNamespaceB
