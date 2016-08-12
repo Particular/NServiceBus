@@ -32,7 +32,7 @@ namespace NServiceBus.Routing
         /// </summary>
         /// <param name="sourceKey">Source key.</param>
         /// <param name="endpointInstances">List of endpoint instances known by this source.</param>
-        public void AddOrReplaceInstances(object sourceKey, IList<EndpointInstance> endpointInstances)
+        public void AddOrReplaceInstances(string sourceKey, IList<EndpointInstance> endpointInstances)
         {
             Guard.AgainstNull(nameof(sourceKey), sourceKey);
             Guard.AgainstNull(nameof(endpointInstances), endpointInstances);

@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus.AcceptanceTests.Routing
 {
-    using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
     using AcceptanceTesting;
@@ -52,16 +51,13 @@
         {
             public Subscriber()
             {
-                EndpointSetup<DefaultServer>(c =>
+                EndpointSetup<DefaultServer>((c, r) =>
                 {
                     // configure the scaled out publisher instances:
                     var publisherName = Conventions.EndpointNamingConvention(typeof(ScaledOutPublisher));
-                    c.RegisterPublisher(typeof(MyEvent), publisherName);
-                    c.GetSettings().GetOrCreate<EndpointInstances>().AddOrReplaceInstances(Guid.NewGuid(),new List<EndpointInstance>
-                    {
-                        new EndpointInstance(publisherName, "1"),
-                        new EndpointInstance(publisherName, "2")
-                    });
+                    var routing = c.UseTransport(r.GetTransportType()).Routing();
+                    routing.RegisterPublisher(typeof(MyEvent), publisherName);
+                    routing.RegisterEndpointInstances(new EndpointInstance(publisherName, "1"), new EndpointInstance(publisherName, "2"));
                 });
             }
         }

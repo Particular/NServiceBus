@@ -27,7 +27,7 @@ namespace NServiceBus.Routing.MessageDrivenSubscriptions
         /// </summary>
         /// <param name="sourceKey">Key for this registration source.</param>
         /// <param name="entries">Entries.</param>
-        public void AddOrReplacePublishers(object sourceKey, IList<PublisherTableEntry> entries)
+        public void AddOrReplacePublishers(string sourceKey, IList<PublisherTableEntry> entries)
         {
             lock (updateLock)
             {

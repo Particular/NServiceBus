@@ -27,7 +27,7 @@ namespace NServiceBus.Routing
         /// </summary>
         /// <param name="sourceKey">Key for the route source.</param>
         /// <param name="entries">Group entries.</param>
-        public void AddOrReplaceRoutes(object sourceKey, IList<RouteTableEntry> entries)
+        public void AddOrReplaceRoutes(string sourceKey, IList<RouteTableEntry> entries)
         {
             lock (updateLock)
             {

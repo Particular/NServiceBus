@@ -71,7 +71,11 @@
         {
             public SubscriberA()
             {
-                EndpointSetup<DefaultServer>(c => { c.RegisterPublisher(typeof(MyEvent), PublisherEndpoint); });
+                EndpointSetup<DefaultServer>((c, r) =>
+                {
+                    var routing = c.UseTransport(r.GetTransportType()).Routing();
+                    routing.RegisterPublisher(typeof(MyEvent), PublisherEndpoint);
+                });
             }
 
             public class MyEventHandler : IHandleMessages<MyEvent>
@@ -90,7 +94,11 @@
         {
             public SubscriberB()
             {
-                EndpointSetup<DefaultServer>(c => { c.RegisterPublisher(typeof(MyEvent), PublisherEndpoint); });
+                EndpointSetup<DefaultServer>((c, r) =>
+                {
+                    var routing = c.UseTransport(r.GetTransportType()).Routing();
+                    routing.RegisterPublisher(typeof(MyEvent), PublisherEndpoint);
+                });
             }
 
             public class MyEventHandler : IHandleMessages<MyEvent>

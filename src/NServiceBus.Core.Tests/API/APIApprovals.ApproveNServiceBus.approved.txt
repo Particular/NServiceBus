@@ -2590,7 +2590,7 @@ namespace NServiceBus.Routing
     public class EndpointInstances
     {
         public EndpointInstances() { }
-        public void AddOrReplaceInstances(object sourceKey, System.Collections.Generic.IList<NServiceBus.Routing.EndpointInstance> endpointInstances) { }
+        public void AddOrReplaceInstances(string sourceKey, System.Collections.Generic.IList<NServiceBus.Routing.EndpointInstance> endpointInstances) { }
     }
     public interface IMessageDrivenSubscriptionTransport { }
     public interface IUnicastRoute
@@ -2643,7 +2643,7 @@ namespace NServiceBus.Routing
     public class UnicastRoutingTable
     {
         public UnicastRoutingTable() { }
-        public void AddOrReplaceRoutes(object sourceKey, System.Collections.Generic.IList<NServiceBus.Routing.RouteTableEntry> entries) { }
+        public void AddOrReplaceRoutes(string sourceKey, System.Collections.Generic.IList<NServiceBus.Routing.RouteTableEntry> entries) { }
     }
 }
 namespace NServiceBus.Routing.Legacy
@@ -2665,7 +2665,7 @@ namespace NServiceBus.Routing.MessageDrivenSubscriptions
     public class Publishers
     {
         public Publishers() { }
-        public void AddOrReplacePublishers(object sourceKey, System.Collections.Generic.IList<NServiceBus.Routing.MessageDrivenSubscriptions.PublisherTableEntry> entries) { }
+        public void AddOrReplacePublishers(string sourceKey, System.Collections.Generic.IList<NServiceBus.Routing.MessageDrivenSubscriptions.PublisherTableEntry> entries) { }
     }
     public class PublisherTableEntry
     {

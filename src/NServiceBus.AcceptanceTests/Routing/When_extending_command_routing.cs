@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus.AcceptanceTests.Routing
 {
-    using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading;
@@ -57,11 +56,11 @@
 
                 protected override void Setup(FeatureConfigurationContext context)
                 {
-                    context.RoutingTable().AddOrReplaceRoutes(Guid.NewGuid(), new List<RouteTableEntry>
+                    context.RoutingTable().AddOrReplaceRoutes("CustomRoutingFeature", new List<RouteTableEntry>
                     {
                         new RouteTableEntry(typeof(MyCommand), UnicastRoute.CreateFromEndpointName(ReceiverEndpoint))
                     });
-                    context.EndpointInstances().AddOrReplaceInstances(Guid.NewGuid(), new List<EndpointInstance>()
+                    context.EndpointInstances().AddOrReplaceInstances("CustomRoutingFeature", new List<EndpointInstance>()
                     {
                         new EndpointInstance(ReceiverEndpoint, "XYZ"),
                         new EndpointInstance(ReceiverEndpoint, "ABC")

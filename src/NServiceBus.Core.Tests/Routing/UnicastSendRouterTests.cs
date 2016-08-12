@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus.Core.Tests.Routing
 {
-    using System;
     using System.Collections.Generic;
     using System.Linq;
     using NServiceBus.Routing;
@@ -17,7 +16,7 @@
         public void When_routing_command_to_logical_endpoint_without_configured_instances_should_route_to_a_single_destination()
         {
             var logicalEndpointName = "Sales";
-            routingTable.AddOrReplaceRoutes(Guid.NewGuid(), new List<RouteTableEntry> {new RouteTableEntry(typeof(Command), UnicastRoute.CreateFromEndpointName(logicalEndpointName)) });
+            routingTable.AddOrReplaceRoutes("A", new List<RouteTableEntry> {new RouteTableEntry(typeof(Command), UnicastRoute.CreateFromEndpointName(logicalEndpointName)) });
 
             var routes = router.Route(typeof(Command), new DistributionPolicy());
 
@@ -29,9 +28,9 @@
         public void When_multiple_dynamic_instances_for_logical_endpoints_should_route_message_to_a_single_instance()
         {
             var sales = "Sales";
-            routingTable.AddOrReplaceRoutes(Guid.NewGuid(), new List<RouteTableEntry> { new RouteTableEntry(typeof(Command), UnicastRoute.CreateFromEndpointName(sales)) });
+            routingTable.AddOrReplaceRoutes("A", new List<RouteTableEntry> { new RouteTableEntry(typeof(Command), UnicastRoute.CreateFromEndpointName(sales)) });
 
-            endpointInstances.AddOrReplaceInstances(Guid.NewGuid(), new List<EndpointInstance>
+            endpointInstances.AddOrReplaceInstances("A", new List<EndpointInstance>
             {
                 new EndpointInstance(sales, "1"),
                 new EndpointInstance(sales, "2"),

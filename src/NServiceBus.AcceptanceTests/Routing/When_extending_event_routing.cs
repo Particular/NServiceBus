@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus.AcceptanceTests.Routing
 {
-    using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
     using AcceptanceTesting;
@@ -65,7 +64,7 @@
 
                 protected override void Setup(FeatureConfigurationContext context)
                 {
-                    context.Publishers().AddOrReplacePublishers(Guid.NewGuid(), new List<PublisherTableEntry>
+                    context.Publishers().AddOrReplacePublishers("CustomRoutingFeature", new List<PublisherTableEntry>
                     {
                         new PublisherTableEntry(typeof(MyEvent), PublisherAddress.CreateFromEndpointName(PublisherEndpoint))
                     });

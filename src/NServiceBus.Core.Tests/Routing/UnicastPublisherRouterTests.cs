@@ -71,7 +71,7 @@
         {
             var logicalEndpoint = "sales";
             subscriptionStorage.Subscribers.Add(new Subscriber("address", logicalEndpoint));
-            endpointInstances.AddOrReplaceInstances(Guid.NewGuid(), new List<EndpointInstance>
+            endpointInstances.AddOrReplaceInstances("A", new List<EndpointInstance>
             {
                 new EndpointInstance(logicalEndpoint, "1"),
                 new EndpointInstance(logicalEndpoint, "2")

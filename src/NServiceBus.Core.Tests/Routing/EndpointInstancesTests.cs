@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus.Core.Tests.Routing
 {
-    using System;
     using System.Collections.Generic;
     using System.Linq;
     using ApprovalTests;
@@ -16,7 +15,7 @@
             var instances = new EndpointInstances();
             const string endpointName1 = "EndpointA";
             const string endpointName2 = "EndpointB";
-            instances.AddOrReplaceInstances(Guid.NewGuid(), new List<EndpointInstance>
+            instances.AddOrReplaceInstances("A", new List<EndpointInstance>
             {
                 new EndpointInstance(endpointName1),
                 new EndpointInstance(endpointName2)
@@ -34,7 +33,7 @@
         {
             var instances = new EndpointInstances();
             var sales = "Sales";
-            instances.AddOrReplaceInstances(Guid.NewGuid(), new List<EndpointInstance>
+            instances.AddOrReplaceInstances("A", new List<EndpointInstance>
             {
                 new EndpointInstance(sales, "1"),
                 new EndpointInstance(sales, "2")
@@ -49,7 +48,7 @@
         {
             var instances = new EndpointInstances();
             var sales = "Sales";
-            instances.AddOrReplaceInstances(Guid.NewGuid(), new List<EndpointInstance>
+            instances.AddOrReplaceInstances("A", new List<EndpointInstance>
             {
                 new EndpointInstance(sales, "dup"),
                 new EndpointInstance(sales, "dup")

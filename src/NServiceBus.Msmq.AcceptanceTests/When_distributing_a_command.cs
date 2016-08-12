@@ -1,13 +1,11 @@
 ﻿namespace NServiceBus.AcceptanceTests
 {
-    using System;
-    using System.Collections.Generic;
     using System.Threading.Tasks;
     using AcceptanceTesting.Customization;
     using AcceptanceTesting;
-    using Configuration.AdvanceExtensibility;
     using NServiceBus.Routing;
     using NUnit.Framework;
+    using Routing;
     using Settings;
 
     public class When_distributing_a_command : NServiceBusAcceptanceTest
@@ -65,13 +63,12 @@
                     routing.RouteToEndpoint(typeof(RequestA), ReceiverAEndpoint);
                     routing.RouteToEndpoint(typeof(RequestB), ReceiverBEndpoint);
 
-                    routing.GetSettings().GetOrCreate<EndpointInstances>().AddOrReplaceInstances(Guid.NewGuid(), new List<EndpointInstance>
-                    {
-                        new EndpointInstance(ReceiverAEndpoint, "1"), 
+                    routing.RegisterEndpointInstances(
+                        new EndpointInstance(ReceiverAEndpoint, "1"),
                         new EndpointInstance(ReceiverAEndpoint, "2"),
                         new EndpointInstance(ReceiverBEndpoint, "1"),
                         new EndpointInstance(ReceiverBEndpoint, "2")
-                    });
+                        );
                 });
             }
 
