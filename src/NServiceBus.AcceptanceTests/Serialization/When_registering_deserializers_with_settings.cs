@@ -15,6 +15,9 @@ namespace NServiceBus.AcceptanceTests.Serialization
 
     public class When_registering_deserializers_with_settings : NServiceBusAcceptanceTest
     {
+        const string Value1 = "SomeFancySettingsForMainSerializer";
+        const string Value2 = "SomeFancySettingsForDeserializer";
+
         [Test]
         public async Task Should_not_override_serializer_settings()
         {
@@ -33,11 +36,11 @@ namespace NServiceBus.AcceptanceTests.Serialization
             Assert.True(context.HandlerGotTheRequest);
             Assert.True(context.SerializeCalled);
             Assert.True(context.DeserializeCalled);
-            Assert.AreEqual("SomeFancySettingsForMainSerializer", context.ValueFromSettingsForMainSerializer);
-            Assert.AreEqual("SomeFancySettingsForDeserializer", context.ValueFromSettingsForDeserializer);
+            Assert.AreEqual(Value1, context.ValueFromSettingsForMainSerializer);
+            Assert.AreEqual(Value2, context.ValueFromSettingsForDeserializer);
         }
 
-        class Context : ScenarioContext
+        public class Context : ScenarioContext
         {
             public bool HandlerGotTheRequest { get; set; }
             public bool SerializeCalled { get; set; }
@@ -50,10 +53,11 @@ namespace NServiceBus.AcceptanceTests.Serialization
         {
             public XmlCustomSerializationReceiver()
             {
+                var context = (Context)ScenarioContext;
                 EndpointSetup<DefaultServer>(c =>
                 {
-                    c.UseSerialization<MyCustomSerializer>().Settings("SomeFancySettingsForMainSerializer");
-                    c.AddDeserializer<MyCustomSerializer>().Settings("SomeFancySettingsForDeserializer");
+                    c.UseSerialization<MyCustomSerializer>().Settings(Value1, context);
+                    c.AddDeserializer<MyCustomSerializer>().Settings(Value2, context);
                 });
             }
 
@@ -64,10 +68,6 @@ namespace NServiceBus.AcceptanceTests.Serialization
                 public Task Handle(MyRequest request, IMessageHandlerContext context)
                 {
                     Context.HandlerGotTheRequest = true;
-                    Context.DeserializeCalled = request.DeserializerCalled;
-                    Context.SerializeCalled = request.SerializerCalled;
-                    Context.ValueFromSettingsForMainSerializer = request.ValueFromSettingsForMainSerializer;
-                    Context.ValueFromSettingsForDeserializer = request.ValueFromSettingsForDeserializer;
                     return Task.FromResult(0);
                 }
             }
@@ -76,10 +76,6 @@ namespace NServiceBus.AcceptanceTests.Serialization
         [Serializable]
         class MyRequest : IMessage
         {
-            public bool DeserializerCalled { get; set; }
-            public bool SerializerCalled { get; set; }
-            public string ValueFromSettingsForMainSerializer { get; set; }
-            public string ValueFromSettingsForDeserializer { get; set; }
         }
 
 
@@ -87,25 +83,27 @@ namespace NServiceBus.AcceptanceTests.Serialization
         {
             public override Func<IMessageMapper, IMessageSerializer> Configure(ReadOnlySettings settings)
             {
-                return mapper => new MyCustomMessageSerializer(settings.GetOrDefault<string>("MyCustomSerializer.Settings"));
+                return mapper => new MyCustomMessageSerializer(settings.GetOrDefault<string>("MyCustomSerializer.Settings"), settings.Get<Context>());
             }
         }
 
         class MyCustomMessageSerializer : IMessageSerializer
         {
             readonly string valueFromSettings;
+            readonly Context context;
 
-            public MyCustomMessageSerializer(string valueFromSettings)
+            public MyCustomMessageSerializer(string valueFromSettings, Context context)
             {
                 this.valueFromSettings = valueFromSettings;
+                this.context = context;
             }
 
             public void Serialize(object message, Stream stream)
             {
                 var serializer = new BinaryFormatter();
 
-                ((MyRequest)message).SerializerCalled = true;
-                ((MyRequest)message).ValueFromSettingsForMainSerializer = valueFromSettings;
+                context.SerializeCalled = true;
+                context.ValueFromSettingsForMainSerializer = valueFromSettings;
 
                 serializer.Serialize(stream, message);
             }
@@ -116,8 +114,9 @@ namespace NServiceBus.AcceptanceTests.Serialization
 
                 stream.Position = 0;
                 var msg = serializer.Deserialize(stream);
-                ((MyRequest)msg).DeserializerCalled = true;
-                ((MyRequest)msg).ValueFromSettingsForDeserializer = valueFromSettings;
+                context.DeserializeCalled = true;
+                context.ValueFromSettingsForDeserializer = valueFromSettings;
+
                 return new[]
                 {
                     msg
@@ -130,9 +129,11 @@ namespace NServiceBus.AcceptanceTests.Serialization
 
     static class CustomSettingsForMyCustomSerializer2
     {
-        public static SerializationExtensions<When_registering_deserializers_with_settings.MyCustomSerializer> Settings(this SerializationExtensions<When_registering_deserializers_with_settings.MyCustomSerializer> extensions, string valueFromSettings)
+        public static SerializationExtensions<When_registering_deserializers_with_settings.MyCustomSerializer> Settings(this SerializationExtensions<When_registering_deserializers_with_settings.MyCustomSerializer> extensions, string valueFromSettings, When_registering_deserializers_with_settings.Context context)
         {
-            extensions.GetSettings().Set("MyCustomSerializer.Settings", valueFromSettings);
+            var settings = extensions.GetSettings();
+            settings.Set("MyCustomSerializer.Settings", valueFromSettings);
+            settings.Set<When_registering_deserializers_with_settings.Context>(context);
             return extensions;
         }
     }

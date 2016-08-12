@@ -6,6 +6,7 @@
     using System.Runtime.Serialization.Formatters.Binary;
     using System.Threading.Tasks;
     using AcceptanceTesting;
+    using Configuration.AdvanceExtensibility;
     using EndpointTemplates;
     using MessageInterfaces;
     using NServiceBus.Serialization;
@@ -19,11 +20,7 @@
         {
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<EndpointWithCustomSerializer>(b => b.When(
-                    (session, c) => session.SendLocal(new MyRequest
-                    {
-                        Serialized = false,
-                        Deserialized = false
-                    })))
+                    (session, c) => session.SendLocal(new MyRequest())))
                 .Done(c => c.HandlerGotTheRequest)
                 .Run();
 
@@ -42,7 +39,12 @@
         {
             public EndpointWithCustomSerializer()
             {
-                EndpointSetup<DefaultServer>(c => c.UseSerialization<MySuperSerializer>());
+                var context = (Context) ScenarioContext;
+                EndpointSetup<DefaultServer>(c =>
+                {
+                    c.UseSerialization<MySuperSerializer>();
+                    c.GetSettings().Set<Context>(context);
+                });
             }
 
             public class MyRequestHandler : IHandleMessages<MyRequest>
@@ -52,8 +54,6 @@
                 public Task Handle(MyRequest request, IMessageHandlerContext context)
                 {
                     Context.HandlerGotTheRequest = true;
-                    Context.DeserializeCalled = request.Deserialized;
-                    Context.SerializeCalled = request.Serialized;
                     return Task.FromResult(0);
                 }
             }
@@ -62,23 +62,26 @@
         [Serializable]
         public class MyRequest : IMessage
         {
-            public bool Serialized { get; set; }
-            public bool Deserialized { get; set; }
         }
 
         class MySuperSerializer : SerializationDefinition
         {
             public override Func<IMessageMapper, IMessageSerializer> Configure(ReadOnlySettings settings)
             {
-                return mapper => new MyCustomSerializer();
+                return mapper => new MyCustomSerializer(settings.Get<Context>());
             }
         }
 
         class MyCustomSerializer : IMessageSerializer
         {
+            public MyCustomSerializer(Context context)
+            {
+                this.context = context;
+            }
+
             public void Serialize(object message, Stream stream)
             {
-                ((MyRequest) message).Serialized = true;
+                context.SerializeCalled = true;
 
                 var serializer = new BinaryFormatter();
                 serializer.Serialize(stream, message);
@@ -91,7 +94,7 @@
                 stream.Position = 0;
                 var msg = serializer.Deserialize(stream);
 
-                ((MyRequest) msg).Deserialized = true;
+                context.DeserializeCalled = true;
 
                 return new[]
                 {
@@ -100,6 +103,7 @@
             }
 
             public string ContentType => "MyCustomSerializer";
+            readonly Context context;
         }
     }
 }
