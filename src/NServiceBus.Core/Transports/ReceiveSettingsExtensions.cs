@@ -23,7 +23,7 @@
         /// </summary>
         /// <param name="config">The <see cref="EndpointConfiguration" /> instance to apply the settings to.</param>
         /// <param name="baseInputQueueName">The base name of the input queue.</param>
-        public static void OverrideInputQueueName(this EndpointConfiguration config, string baseInputQueueName)
+        public static void OverrideLocalAddress(this EndpointConfiguration config, string baseInputQueueName)
         {
             Guard.AgainstNullAndEmpty(nameof(baseInputQueueName), baseInputQueueName);
             config.Settings.SetDefault("BaseInputQueueName", baseInputQueueName);
