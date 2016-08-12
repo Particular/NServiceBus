@@ -5,7 +5,6 @@ namespace NServiceBus.Config
     using System.Linq;
     using Routing;
     using Routing.MessageDrivenSubscriptions;
-    using Transport;
 
     /// <summary>
     /// A configuration element collection of MessageEndpointMappings.
