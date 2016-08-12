@@ -84,6 +84,21 @@
             Assert.AreEqual(DispatchConsistency.Default, transportOperation.RequiredDispatchConsistency);
         }
 
+        [Test]
+        public async Task Invoke_should_pass_transport_transaction_from_message_context()
+        {
+            var messageDispatcher = new FakeMessageDispatcher();
+            var timeoutPersister = new InMemoryTimeoutPersister(() => DateTime.UtcNow);
+            var timeoutData = CreateTimeout();
+            await timeoutPersister.Add(timeoutData, null);
+            var context = CreateContext(timeoutData.Id);
+
+            var behavior = new DispatchTimeoutBehavior(messageDispatcher, timeoutPersister, TransportTransactionMode.TransactionScope);
+            await behavior.Invoke(context);
+
+            Assert.AreSame(context.TransportTransaction, messageDispatcher.TransportTransactionUsed, "Wrong transport transaction passed to the dispatcher");
+        }
+
         [TestCase(TransportTransactionMode.SendsAtomicWithReceive)]
         [TestCase(TransportTransactionMode.ReceiveOnly)]
         [TestCase(TransportTransactionMode.None)]
@@ -124,10 +139,12 @@
         class FakeMessageDispatcher : IDispatchMessages
         {
             public TransportOperations OutgoingTransportOperations { get; private set; } = new TransportOperations();
+            public TransportTransaction TransportTransactionUsed { get; private set; }
 
             public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transportTransaction, ContextBag context)
             {
                 OutgoingTransportOperations = outgoingMessages;
+                TransportTransactionUsed = transportTransaction;
                 return TaskEx.CompletedTask;
             }
         }

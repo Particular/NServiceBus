@@ -31,8 +31,7 @@ namespace NServiceBus
 
             var outgoingMessage = new OutgoingMessage(context.MessageId, timeoutData.Headers, timeoutData.State);
             var transportOperation = new TransportOperation(outgoingMessage, new UnicastAddressTag(timeoutData.Destination), dispatchConsistency);
-            var transportTransaction = context.Context.GetOrCreate<TransportTransaction>();
-            await dispatcher.Dispatch(new TransportOperations(transportOperation), transportTransaction, context.Context).ConfigureAwait(false);
+            await dispatcher.Dispatch(new TransportOperations(transportOperation), context.TransportTransaction, context.Context).ConfigureAwait(false);
 
             var timeoutRemoved = await persister.TryRemove(timeoutId, context.Context).ConfigureAwait(false);
             if (!timeoutRemoved)
