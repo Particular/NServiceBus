@@ -65,8 +65,7 @@ namespace NServiceBus
                 {
                     var outgoingMessage = new OutgoingMessage(context.MessageId, data.Headers, data.State);
                     var transportOperation = new TransportOperation(outgoingMessage, new UnicastAddressTag(data.Destination));
-                    var transportTransaction = context.Context.GetOrCreate<TransportTransaction>();
-                    await dispatcher.Dispatch(new TransportOperations(transportOperation), transportTransaction, context.Context).ConfigureAwait(false);
+                    await dispatcher.Dispatch(new TransportOperations(transportOperation), context.TransportTransaction, context.Context).ConfigureAwait(false);
                     return;
                 }
 

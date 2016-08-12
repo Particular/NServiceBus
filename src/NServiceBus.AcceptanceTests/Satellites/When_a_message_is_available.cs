@@ -18,11 +18,17 @@
                 .Run();
 
             Assert.True(context.MessageReceived);
+            // In the future we want the transport transaction to be an explicit
+            // concept in the persisters API as well. Adding transport transaction
+            // to the context will not be necessary at that point.
+            // See GitHub issue #4047 for more background information.
+            Assert.True(context.TransportTransactionAddedToContext);
         }
 
         class Context : ScenarioContext
         {
             public bool MessageReceived { get; set; }
+            public bool TransportTransactionAddedToContext { get; set; }
         }
 
         class Endpoint : EndpointConfigurationBuilder
@@ -49,7 +55,9 @@
                         (c, ec) => RecoverabilityAction.MoveToError(c.Failed.ErrorQueue),
                         (builder, pushContext) =>
                         {
-                            builder.Build<Context>().MessageReceived = true;
+                            var testContext = builder.Build<Context>();
+                            testContext.MessageReceived = true;
+                            testContext.TransportTransactionAddedToContext = ReferenceEquals(pushContext.Context.Get<TransportTransaction>(), pushContext.TransportTransaction);
                             return Task.FromResult(true);
                         });
 
