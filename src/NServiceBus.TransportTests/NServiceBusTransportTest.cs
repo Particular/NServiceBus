@@ -7,6 +7,7 @@
     using System.Security.Principal;
     using System.Threading;
     using System.Threading.Tasks;
+    using DeliveryConstraints;
     using Extensibility;
     using NUnit.Framework;
     using Routing;
@@ -78,6 +79,7 @@
             TransportInfrastructure = configuration.TransportInfrastructure;
 
             IgnoreUnsupportedTransactionModes(transactionMode);
+            IgnoreUnsupportedDeliveryConstraints();
 
             ReceiveInfrastructure = TransportInfrastructure.ConfigureReceiveInfrastructure();
             SendInfrastructure = TransportInfrastructure.ConfigureSendInfrastructure();
@@ -117,6 +119,19 @@
             MessagePump.Start(PushRuntimeSettings.Default);
         }
 
+        void IgnoreUnsupportedDeliveryConstraints()
+        {
+            var supportedDeliveryConstraints = TransportInfrastructure.DeliveryConstraints.ToList();
+            var unsupportedDeliveryConstraints = requiredDeliveryConstraints.Where(required => !supportedDeliveryConstraints.Contains(required))
+                .ToList();
+
+            if (unsupportedDeliveryConstraints.Any())
+            {
+                var unsupported = string.Join(",", unsupportedDeliveryConstraints.Select(c => c.Name));
+                Assert.Ignore($"Transport doesn't support required delivery constraint(s) {unsupported}");
+            }
+        }
+
         void IgnoreUnsupportedTransactionModes(TransportTransactionMode requestedTransactionMode)
         {
             if (TransportInfrastructure.TransactionMode < requestedTransactionMode)
@@ -125,7 +140,10 @@
             }
         }
 
-        protected Task SendMessage(string address, Dictionary<string, string> headers = null, TransportTransaction transportTransaction = null)
+        protected Task SendMessage(string address,
+            Dictionary<string, string> headers = null,
+            TransportTransaction transportTransaction = null,
+            List<DeliveryConstraint> deliveryConstraints = null)
         {
             var messageId = Guid.NewGuid().ToString();
             var message = new OutgoingMessage(messageId, headers ?? new Dictionary<string, string>(), new byte[0]);
@@ -141,8 +159,9 @@
             {
                 transportTransaction = new TransportTransaction();
             }
+            var transportOperation = new TransportOperation(message, new UnicastAddressTag(address), DispatchConsistency.Default, deliveryConstraints ?? new List<DeliveryConstraint>());
 
-            return dispatcher.Dispatch(new TransportOperations(new TransportOperation(message, new UnicastAddressTag(address))), transportTransaction, new ContextBag());
+            return dispatcher.Dispatch(new TransportOperations(transportOperation), transportTransaction, new ContextBag());
         }
 
         protected void OnTestTimeout(Action onTimeoutAction)
@@ -157,6 +176,11 @@
         {
             var msmqTransportDefinition = new MsmqTransport();
             return msmqTransportDefinition.Initialize(new SettingsHolder(), "");
+        }
+
+        protected void RequireDeliveryConstraint<T>() where T : DeliveryConstraint
+        {
+            requiredDeliveryConstraints.Add(typeof(T));
         }
 
         static string GetTestName()
@@ -194,6 +218,7 @@
 
         string testId;
 
+        List<Type> requiredDeliveryConstraints = new List<Type>();
         SettingsHolder transportSettings = new SettingsHolder();
         Lazy<IDispatchMessages> lazyDispatcher;
         TransportReceiveInfrastructure ReceiveInfrastructure;
