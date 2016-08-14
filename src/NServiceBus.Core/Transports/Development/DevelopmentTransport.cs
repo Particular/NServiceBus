@@ -1,7 +1,7 @@
 ﻿namespace NServiceBus
 {
-    using NServiceBus.Settings;
-    using NServiceBus.Transports;
+    using Settings;
+    using Transport;
 
     /// <summary>
     /// A transport optimized for development use. DO NOT use in production.
@@ -19,7 +19,7 @@
         /// <param name="settings">An instance of the current settings.</param>
         /// <param name="connectionString">The connection string.</param>
         /// <returns>The supported factories.</returns>
-        protected internal override TransportInfrastructure Initialize(SettingsHolder settings, string connectionString)
+        public override TransportInfrastructure Initialize(SettingsHolder settings, string connectionString)
         {
             return new DevelopmentTransportInfrastructure(settings);
         }

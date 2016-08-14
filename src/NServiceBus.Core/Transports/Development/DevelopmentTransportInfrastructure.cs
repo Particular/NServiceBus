@@ -4,10 +4,10 @@
     using System.Collections.Generic;
     using System.IO;
     using System.Threading.Tasks;
-    using NServiceBus.Performance.TimeToBeReceived;
-    using NServiceBus.Routing;
-    using NServiceBus.Settings;
-    using NServiceBus.Transports;
+    using Performance.TimeToBeReceived;
+    using Routing;
+    using Settings;
+    using Transport;
 
     class DevelopmentTransportInfrastructure : TransportInfrastructure
     {
@@ -37,7 +37,7 @@
 
         public override TransportSubscriptionInfrastructure ConfigureSubscriptionInfrastructure()
         {
-            return new TransportSubscriptionInfrastructure(() => new DevelopmentTransportSubscriptionManager(settings.EndpointName().ToString(), settings.LocalAddress()));
+            return new TransportSubscriptionInfrastructure(() => new DevelopmentTransportSubscriptionManager(settings.EndpointName(), settings.LocalAddress()));
         }
 
         public override EndpointInstance BindToLocalEndpoint(EndpointInstance instance)
@@ -47,7 +47,7 @@
 
         public override string ToTransportAddress(LogicalAddress logicalAddress)
         {
-            return Path.Combine(logicalAddress.EndpointInstance.Endpoint.ToString(),
+            return Path.Combine(logicalAddress.EndpointInstance.Endpoint,
                 logicalAddress.EndpointInstance.Discriminator ?? "",
                 logicalAddress.Qualifier ?? "");
         }

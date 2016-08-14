@@ -5,8 +5,8 @@ namespace NServiceBus
     using System.IO;
     using System.Linq;
     using System.Threading.Tasks;
-    using NServiceBus.Extensibility;
-    using NServiceBus.Transports;
+    using Extensibility;
+    using Transport;
 
     class DevelopmentTransportDispatcher : IDispatchMessages
     {
@@ -15,7 +15,7 @@ namespace NServiceBus
             basePath = Path.Combine("c:\\bus");
         }
 
-        public Task Dispatch(TransportOperations outgoingMessages, ContextBag context)
+        public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transaction, ContextBag context)
         {
             DispatchUnicast(outgoingMessages.UnicastTransportOperations, context);
             DispatchMulticast(outgoingMessages.MulticastTransportOperations, context);
@@ -36,7 +36,7 @@ namespace NServiceBus
             }
         }
 
-      
+
         void DispatchUnicast(IEnumerable<UnicastTransportOperation> transportOperations, ContextBag context)
         {
             foreach (var transportOperation in transportOperations)
@@ -78,6 +78,7 @@ namespace NServiceBus
                 File.Move(tempFile, messagePath);
             }
         }
+
         IEnumerable<string> GetSubscribersFor(Type messageType)
         {
             var subscribers = new List<string>();
@@ -104,9 +105,12 @@ namespace NServiceBus
 
         static List<Type> GetPotentialEventTypes(Type messageType)
         {
-            var allEventTypes = new List<Type> { messageType };
+            var allEventTypes = new List<Type>
+            {
+                messageType
+            };
 
-            allEventTypes.AddRange(messageType.GetInterfaces().Where(i =>!IsCoreMarkerInterface(i)));
+            allEventTypes.AddRange(messageType.GetInterfaces().Where(i => !IsCoreMarkerInterface(i)));
 
             var currentType = messageType;
 
@@ -117,7 +121,7 @@ namespace NServiceBus
                 {
                     break;
                 }
-                
+
                 currentType = currentType.BaseType;
             }
             return allEventTypes;

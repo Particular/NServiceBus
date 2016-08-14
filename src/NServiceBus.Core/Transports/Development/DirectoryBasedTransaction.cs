@@ -4,9 +4,8 @@ namespace NServiceBus
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
-    using NServiceBus.Transports;
 
-    class DirectoryBasedTransaction:TransportTransaction
+    class DirectoryBasedTransaction
     {
         public DirectoryBasedTransaction(string basePath)
         {

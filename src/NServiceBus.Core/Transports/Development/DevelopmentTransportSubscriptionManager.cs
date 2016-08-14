@@ -3,8 +3,8 @@
     using System;
     using System.IO;
     using System.Threading.Tasks;
-    using NServiceBus.Extensibility;
-    using NServiceBus.Transports;
+    using Extensibility;
+    using Transport;
 
     class DevelopmentTransportSubscriptionManager : IManageSubscriptions
     {

@@ -164,7 +164,6 @@
     <Compile Include="Transports\ReceiveSettingsExtensions.cs" />
     <Compile Include="Transports\ErrorContext.cs" />
     <Compile Include="Transports\ErrorHandleResult.cs" />
-    <Compile Include="Settings\ScaleOutSettings.cs" />
     <Compile Include="Transports\Development\DevelopmentTransportInfrastructure.cs" />
     <Compile Include="Transports\Development\DevelopmentTransportSubscriptionManager.cs" />
     <Compile Include="Transports\IOutgoingTransportOperation.cs" />

@@ -7,17 +7,15 @@
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
-    using NServiceBus.Extensibility;
-    using NServiceBus.Logging;
-    using NServiceBus.Transports;
+    using Extensibility;
+    using Logging;
+    using Transport;
 
     class DevelopmentTransportMessagePump : IPushMessages
     {
-        static ILog Logger = LogManager.GetLogger<DevelopmentTransportMessagePump>();
-
-        public Task Init(Func<PushContext, Task> pipe, CriticalError criticalError, PushSettings settings)
+        public Task Init(Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError, CriticalError criticalError, PushSettings settings)
         {
-            pipeline = pipe;
+            this.onMessage = onMessage;
             path = Path.Combine("c:\\bus", settings.InputQueue);
             purgeOnStartup = settings.PurgeOnStartup;
 
@@ -163,8 +161,14 @@
                     var context = new ContextBag();
                     context.Set(transaction);
 
-                    var pushContext = new PushContext(messageId, headers, bodyStream, transaction, tokenSource, context);
-                    await pipeline(pushContext).ConfigureAwait(false);
+                    var body = await ReadStream(bodyStream).ConfigureAwait(false);
+
+                    var transportTransaction = new TransportTransaction();
+
+                    transportTransaction.Set(transaction);
+
+                    var messageContext = new MessageContext(messageId, headers, body, transportTransaction, tokenSource, new ContextBag());
+                    await onMessage(messageContext).ConfigureAwait(false);
                 }
 
                 if (tokenSource.IsCancellationRequested)
@@ -181,6 +185,15 @@
             }
         }
 
+        static async Task<byte[]> ReadStream(Stream bodyStream)
+        {
+            bodyStream.Seek(0, SeekOrigin.Begin);
+            var length = (int)bodyStream.Length;
+            var body = new byte[length];
+            await bodyStream.ReadAsync(body, 0, length).ConfigureAwait(false);
+            return body;
+        }
+
         CancellationToken cancellationToken;
         CancellationTokenSource cancellationTokenSource;
         SemaphoreSlim concurrencyLimiter;
@@ -188,8 +201,9 @@
         Task messagePumpTask;
 
         string path;
-        Func<PushContext, Task> pipeline;
+        Func<MessageContext, Task> onMessage;
         bool purgeOnStartup;
         ConcurrentDictionary<Task, Task> runningReceiveTasks;
+        static ILog Logger = LogManager.GetLogger<DevelopmentTransportMessagePump>();
     }
 }
