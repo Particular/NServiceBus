@@ -17,11 +17,6 @@ namespace NServiceBus.Routing.MessageDrivenSubscriptions
                 : null;
         }
 
-        internal void SetLogChangeAction(Action<string> logChangeAction)
-        {
-            this.logChangeAction = logChangeAction;
-        }
-
         /// <summary>
         /// Adds or replaces a set of publisher registrations.
         /// </summary>
@@ -47,17 +42,11 @@ namespace NServiceBus.Routing.MessageDrivenSubscriptions
                 }
                 var newRouteTable = newRouteTableTemplate.ToDictionary(e => e.Key, e => e.Value.Address);
                 publishers = newRouteTable;
-                if (logChangeAction != null)
-                {
-                    var routesFormatted = string.Join(Environment.NewLine, publishers.Select(kvp => $"{kvp.Key.FullName} -> {kvp.Value}"));
-                    logChangeAction($"Route table refreshed.{Environment.NewLine}{routesFormatted}");
-                }
             }
         }
 
         Dictionary<Type, PublisherAddress> publishers = new Dictionary<Type, PublisherAddress>();
         Dictionary<object, IList<PublisherTableEntry>> pubisherRegistrations = new Dictionary<object, IList<PublisherTableEntry>>();
         object updateLock = new object();
-        Action<string> logChangeAction;
     }
 }

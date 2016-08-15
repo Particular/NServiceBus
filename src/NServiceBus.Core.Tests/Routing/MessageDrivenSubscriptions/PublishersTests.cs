@@ -2,8 +2,6 @@
 namespace NServiceBus.Core.Tests.Routing.MessageDrivenSubscriptions
 {
     using System.Collections.Generic;
-    using ApprovalTests;
-    using NServiceBus.Routing;
     using NServiceBus.Routing.MessageDrivenSubscriptions;
     using NUnit.Framework;
 
@@ -63,21 +61,6 @@ namespace NServiceBus.Core.Tests.Routing.MessageDrivenSubscriptions
                     new PublisherTableEntry(typeof(MyEvent), lowPriorityPublisher),
                 });
             }, Throws.Exception);
-        }
-
-        [Test]
-        public void When_adding_or_replacing_routes_should_log_changes()
-        {
-            var publishersTable = new Publishers();
-            var log = "";
-            publishersTable.SetLogChangeAction(x => { log = x; });
-            publishersTable.AddOrReplacePublishers("key", new List<PublisherTableEntry>
-            {
-                new PublisherTableEntry(typeof(MyEvent), PublisherAddress.CreateFromEndpointName("Endpoint")),
-                new PublisherTableEntry(typeof(MyEvent2), PublisherAddress.CreateFromEndpointInstances(new EndpointInstance("Endpoint", "X"), new EndpointInstance("Endpoint", "Y"))),
-                new PublisherTableEntry(typeof(MyEvent3), PublisherAddress.CreateFromPhysicalAddresses("queue@machine1", "queue@machine2"))
-            });
-            Approvals.Verify(log);
         }
 
         class MyEvent : IEvent

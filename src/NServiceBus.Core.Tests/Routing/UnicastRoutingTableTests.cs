@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.Core.Tests.Routing
 {
     using System.Collections.Generic;
-    using ApprovalTests;
     using NServiceBus.Routing;
     using NUnit.Framework;
 
@@ -61,21 +60,6 @@
                     new RouteTableEntry(typeof(Command), lowPriorityRoute),
                 });
             }, Throws.Exception);
-        }
-
-        [Test]
-        public void When_adding_or_replacing_routes_should_log_changes()
-        {
-            var routingTable = new UnicastRoutingTable();
-            var log = "";
-            routingTable.SetLogChangeAction(x => { log = x; });
-            routingTable.AddOrReplaceRoutes("key", new List<RouteTableEntry>
-            {
-                new RouteTableEntry(typeof(Command), UnicastRoute.CreateFromEndpointName("Endpoint")),
-                new RouteTableEntry(typeof(Command2), UnicastRoute.CreateFromEndpointInstance(new EndpointInstance("Endpoint", "XYZ"))),
-                new RouteTableEntry(typeof(Command3), UnicastRoute.CreateFromPhysicalAddress("Endpoint@Machine")),
-            });
-            Approvals.Verify(log);
         }
 
         class Command
