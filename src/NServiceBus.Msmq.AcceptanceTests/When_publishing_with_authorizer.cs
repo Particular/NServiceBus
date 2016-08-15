@@ -26,7 +26,7 @@
                     await session.Subscribe<MyEvent>();
                 }))
                 .Done(c =>
-                    c.Subscriber1GotTheEvent && 
+                    c.Subscriber1GotTheEvent &&
                     c.DeclinedSubscriber2)
                 .Run(TimeSpan.FromSeconds(10));
 

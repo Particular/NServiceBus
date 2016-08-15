@@ -6,7 +6,7 @@ namespace NServiceBus.Routing
     using Extensibility;
 
     /// <summary>
-    /// Manages the unicast routing table.
+    /// The unicast routing table.
     /// </summary>
     public class UnicastRoutingTable
     {
@@ -29,7 +29,6 @@ namespace NServiceBus.Routing
         /// <summary>
         /// Adds a static unicast route for a given message type.
         /// </summary>
-        /// ///
         /// <param name="messageType">The message type to use the route for.</param>
         /// <param name="route">The route to use for the given message type.</param>
         /// <exception cref="Exception">Throws an exception when an ambiguous route exists.</exception>
