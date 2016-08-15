@@ -168,7 +168,7 @@
         {
             testCancellationTokenSource = new CancellationTokenSource();
 
-            testCancellationTokenSource.CancelAfter(TimeSpan.FromSeconds(10));
+            testCancellationTokenSource.CancelAfter(TimeSpan.FromSeconds(30));
             testCancellationTokenSource.Token.Register(onTimeoutAction);
         }
 
