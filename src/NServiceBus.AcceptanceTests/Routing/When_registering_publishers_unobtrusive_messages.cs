@@ -2,14 +2,10 @@
 {
     using System.Threading.Tasks;
     using AcceptanceTesting;
-    using Configuration.AdvanceExtensibility;
     using EndpointTemplates;
     using NUnit.Framework;
     using AcceptanceTesting.Customization;
-    using NServiceBus.Routing;
     using ScenarioDescriptors;
-    using Settings;
-    using Transport;
 
     public class When_registering_publishers_unobtrusive_messages : NServiceBusAcceptanceTest
     {
@@ -73,8 +69,7 @@
                 {
                     c.Conventions().DefiningEventsAs(t => t == typeof(SomeEvent));
 
-                    var routing = new RoutingSettings<MessageDrivenPubSubTransportDefinition>(c.GetSettings());
-                    routing.RegisterPublisher(typeof(SomeEvent).Assembly, Conventions.EndpointNamingConvention(typeof(Publisher)));
+                    c.MessageDrivenPubSubRouting().RegisterPublisher(typeof(SomeEvent).Assembly, Conventions.EndpointNamingConvention(typeof(Publisher)));
                 });
             }
 
@@ -118,16 +113,6 @@
                     testContext.ReceivedMessage = true;
                     return Task.FromResult(0);
                 }
-            }
-        }
-
-        class MessageDrivenPubSubTransportDefinition : TransportDefinition, IMessageDrivenSubscriptionTransport
-        {
-            public override string ExampleConnectionStringForErrorMessage { get; }
-
-            public override TransportInfrastructure Initialize(SettingsHolder settings, string connectionString)
-            {
-                throw new System.NotImplementedException();
             }
         }
 
