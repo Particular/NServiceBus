@@ -59,6 +59,7 @@
     <Compile Include="When_requesting_immediate_retry.cs" />
     <Compile Include="When_sending_from_on_error.cs" />
     <Compile Include="When_user_aborts_processing.cs" />
+    <Compile Include="When_using_non_durable_delivery.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />

@@ -236,7 +236,6 @@
     <Compile Include="Core\UnitOfWork\TransactionScope\When_using_timeout_greater_than_machine_max.cs" />
     <Compile Include="Core\UnitOfWork\TransactionScope\When_used_with_transport_scopes.cs" />
     <Compile Include="Core\UnitOfWork\When_a_subscription_message_arrives.cs" />
-    <Compile Include="Volatile\When_sending_to_non_durable_endpoint.cs" />
     <Compile Include="Encryption\When_using_Rijndael_with_multikey.cs" />
     <Compile Include="Encryption\When_using_Rijndael_with_custom.cs" />
     <Compile Include="Encryption\When_using_Rijndael_with_config.cs" />
