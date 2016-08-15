@@ -12,7 +12,7 @@
     using Testing;
 
     [TestFixture]
-    public class InstanceMappingTableTests
+    public class InstanceMappingFileMonitorTests
     {
         [Test]
         public void Reload_should_throw_when_file_does_not_exist()
