@@ -2,7 +2,6 @@
 {
     using System.Collections.Generic;
     using System.Linq;
-    using ApprovalTests;
     using NServiceBus.Routing;
     using NUnit.Framework;
 
@@ -67,25 +66,6 @@
             var singleInstance = salesInstancess.Single();
             Assert.IsNull(singleInstance.Discriminator);
             Assert.IsEmpty(singleInstance.Properties);
-        }
-
-        [Test]
-        public void Should_log_changes()
-        {
-            var instances = new EndpointInstances();
-            var log = "";
-            instances.SetLogChangeAction(x => { log = x; });
-            instances.AddOrReplaceInstances("key", new List<EndpointInstance>
-            {
-                new EndpointInstance("Endpoint"),
-                new EndpointInstance("Endpoint", "XYZ"),
-                new EndpointInstance("AnotherEndpoint", null, new Dictionary<string, string>
-                {
-                    { "K1", "V1"},
-                    { "K2", "V2"}
-                })
-            });
-            Approvals.Verify(log);
         }
     }
 }

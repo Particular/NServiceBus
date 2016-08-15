@@ -2,6 +2,7 @@ namespace NServiceBus.Features
 {
     using System;
     using System.IO;
+    using Logging;
     using Routing;
 
     class InstanceMappingFileFeature : Feature

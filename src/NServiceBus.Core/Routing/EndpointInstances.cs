@@ -1,6 +1,5 @@
 namespace NServiceBus.Routing
 {
-    using System;
     using System.Collections.Generic;
     using System.Linq;
 
@@ -20,11 +19,6 @@ namespace NServiceBus.Routing
         static IEnumerable<EndpointInstance> DefaultInstance(string endpoint)
         {
             yield return new EndpointInstance(endpoint);
-        }
-
-        internal void SetLogChangeAction(Action<string> logChangeAction)
-        {
-            this.logChangeAction = logChangeAction;
         }
 
         /// <summary>
@@ -52,22 +46,11 @@ namespace NServiceBus.Routing
                     instanceSet.Add(instance);
                 }
                 allInstances = newCache;
-                if (logChangeAction != null)
-                {
-                    var routesFormatted = string.Join(Environment.NewLine, allInstances.Select(kvp => $"{kvp.Key} -> {FormatInstances(kvp.Value)}"));
-                    logChangeAction($"Instance mapping refreshed.{Environment.NewLine}{routesFormatted}");
-                }
             }
-        }
-
-        static string FormatInstances(IEnumerable<EndpointInstance> endpointInstances)
-        {
-            return string.Join(", ", endpointInstances.Select(x => $"[{x.ToString()}]").OrderBy(x => x));
         }
 
         Dictionary<string, HashSet<EndpointInstance>> allInstances = new Dictionary<string, HashSet<EndpointInstance>>();
         Dictionary<object, IList<EndpointInstance>> registrations = new Dictionary<object, IList<EndpointInstance>>();
         object updateLock = new object();
-        Action<string> logChangeAction;
     }
 }

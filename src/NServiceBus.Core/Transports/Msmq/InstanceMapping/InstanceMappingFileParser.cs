@@ -19,7 +19,7 @@ namespace NServiceBus
             }
         }
 
-        public IEnumerable<EndpointInstance> Parse(XDocument document)
+        public List<EndpointInstance> Parse(XDocument document)
         {
             document.Validate(schema, null, true);
 
