@@ -14,6 +14,24 @@
     [TestFixture]
     public class InstanceMappingFileMonitorTests
     {
+        StringBuilder logOutput;
+
+        [OneTimeSetUp]
+        public void TestFixtureSetup()
+        {
+            var loggerFactory = LogManager.Use<TestingLoggerFactory>();
+            loggerFactory.Level(LogLevel.Info);
+            logOutput = new StringBuilder();
+            var stringWriter = new StringWriter(logOutput);
+            loggerFactory.WriteTo(stringWriter);
+        }
+
+        [SetUp]
+        public void Setup()
+        {
+            logOutput.Clear();
+        }
+
         [Test]
         public void Reload_should_throw_when_file_does_not_exist()
         {
@@ -63,22 +81,18 @@
         [Test]
         public void Should_log_added_endpoints()
         {
-            var stringBuilder = SetupLogger();
-
             var fileAccess = new FakeFileAccess(() => XDocument.Parse(@"<endpoints><endpoint name=""A""><instance discriminator=""1"" /><instance discriminator=""2"" /></endpoint></endpoints>"));
             var monitor = new InstanceMappingFileMonitor("filepath", TimeSpan.Zero, new FakeTimer(), fileAccess, new EndpointInstances());
 
             monitor.ReloadData();
 
-            Assert.That(stringBuilder.ToString(), Does.Contain(@"Updating instance mapping table from 'filepath':
+            Assert.That(logOutput.ToString(), Does.Contain(@"Updating instance mapping table from 'filepath':
 Added endpoint 'A' with 2 instances"));
         }
 
         [Test]
         public void Should_log_removed_endpoints()
         {
-            var stringBuilder = SetupLogger();
-
             var fileData = new Queue<string>();
             fileData.Enqueue(@"<endpoints><endpoint name=""A""><instance discriminator=""1"" /><instance discriminator=""2"" /></endpoint></endpoints>");
             fileData.Enqueue(@"<endpoints></endpoints>");
@@ -86,18 +100,16 @@ Added endpoint 'A' with 2 instances"));
             var monitor = new InstanceMappingFileMonitor("filepath", TimeSpan.Zero, new FakeTimer(), fileAccess, new EndpointInstances());
 
             monitor.ReloadData();
-            stringBuilder.Clear();
+            logOutput.Clear();
             monitor.ReloadData();
 
-            Assert.That(stringBuilder.ToString(), Does.Contain(@"Updating instance mapping table from 'filepath':
+            Assert.That(logOutput.ToString(), Does.Contain(@"Updating instance mapping table from 'filepath':
 Removed all instances of endpoint 'A'"));
         }
 
         [Test]
         public void Should_log_changed_instances()
         {
-            var stringBuilder = SetupLogger();
-
             var fileData = new Queue<string>();
             fileData.Enqueue(@"<endpoints><endpoint name=""A""><instance discriminator=""1"" /><instance discriminator=""2"" /></endpoint></endpoints>");
             fileData.Enqueue(@"<endpoints><endpoint name=""A""><instance discriminator=""1"" /><instance discriminator=""3"" /><instance discriminator=""4"" /></endpoint></endpoints>");
@@ -105,21 +117,11 @@ Removed all instances of endpoint 'A'"));
             var monitor = new InstanceMappingFileMonitor("filepath", TimeSpan.Zero, new FakeTimer(), fileAccess, new EndpointInstances());
 
             monitor.ReloadData();
-            stringBuilder.Clear();
+            logOutput.Clear();
             monitor.ReloadData();
 
-            Assert.That(stringBuilder.ToString(), Does.Contain(@"Updating instance mapping table from 'filepath':
+            Assert.That(logOutput.ToString(), Does.Contain(@"Updating instance mapping table from 'filepath':
 Updated endpoint 'A': +2 instances, -1 instance"));
-        }
-
-        static StringBuilder SetupLogger()
-        {
-            var loggerFactory = LogManager.Use<TestingLoggerFactory>();
-            loggerFactory.Level(LogLevel.Info);
-            var sb = new StringBuilder();
-            var stringWriter = new StringWriter(sb);
-            loggerFactory.WriteTo(stringWriter);
-            return sb;
         }
 
         class FakeFileAccess : IInstanceMappingFileAccess

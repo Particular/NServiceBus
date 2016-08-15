@@ -104,6 +104,6 @@ namespace NServiceBus
         IAsyncTimer timer;
         IDictionary<string, EndpointInstance[]> previousInstances = new Dictionary<string, EndpointInstance[]>(0);
 
-        ILog log = LogManager.GetLogger(typeof(InstanceMappingFileMonitor));
+        static ILog log = LogManager.GetLogger(typeof(InstanceMappingFileMonitor));
     }
 }
