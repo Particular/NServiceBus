@@ -22,10 +22,10 @@
         }
 
         /// <summary>
-        /// Adds a static unicast route.
+        /// Adds a static unicast route for a given message type.
         /// </summary>
-        /// <param name="messageType">Message type.</param>
-        /// <param name="destination">Destination endpoint.</param>
+        /// <param name="messageType">The message which should be routed.</param>
+        /// <param name="destination">The destination endpoint.</param>
         public void RouteToEndpoint(Type messageType, string destination)
         {
             ThrowOnAddress(destination);
@@ -58,10 +58,10 @@
         }
 
         /// <summary>
-        /// Adds a static unicast route for all types contained in the specified assembly within the given namespace.
+        /// Adds a static unicast route for all types contained in the specified assembly and within the given namespace.
         /// </summary>
         /// <param name="assembly">The assembly whose messages should be routed.</param>
-        /// <param name="namespace">The namespace of the messages which should be routed.</param>
+        /// <param name="namespace">The namespace of the messages which should be routed. The given value must exactly match the target namespace.</param>
         /// <param name="destination">Destination endpoint.</param>
         public void RouteToEndpoint(Assembly assembly, string @namespace, string destination)
         {

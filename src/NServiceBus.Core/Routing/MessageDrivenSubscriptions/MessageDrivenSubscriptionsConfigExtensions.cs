@@ -14,15 +14,11 @@ namespace NServiceBus
     public static class MessageDrivenSubscriptionsConfigExtensions
     {
         /// <summary>
-        /// Sets an authorizer to be used when verifying a <see cref="MessageIntentEnum.Subscribe" /> or
+        /// Sets an authorizer to be used when processing a <see cref="MessageIntentEnum.Subscribe" /> or
         /// <see cref="MessageIntentEnum.Unsubscribe" /> message.
         /// </summary>
-        /// <remarks>
-        /// This is a "single instance" extension point, so calling this api multiple times will result in only the last
-        /// one added being executed at message receive time.
-        /// </remarks>
         /// <param name="transportExtensions">The <see cref="TransportExtensions&lt;T&gt;" /> to extend.</param>
-        /// <param name="authorizer">The <see cref="Func{TI,TR}" /> to execute.</param>
+        /// <param name="authorizer">The authorization callback to execute. If the callback returns <code>true</code> for a message, it is authorized to subscribe/unsubscribe, otherwhise it is not authorized.</param>
         public static void SubscriptionAuthorizer<T>(this TransportExtensions<T> transportExtensions, Func<IIncomingPhysicalMessageContext, bool> authorizer) where T : TransportDefinition, IMessageDrivenSubscriptionTransport
         {
             Guard.AgainstNull(nameof(authorizer), authorizer);
@@ -82,10 +78,7 @@ namespace NServiceBus
         /// </summary>
         /// <param name="routingSettings">The <see cref="RoutingSettings&lt;T&gt;" /> to extend.</param>
         /// <param name="assembly">The assembly containing the event types.</param>
-        /// <param name="namespace">
-        /// The namespace containing the event types. The given value must exactly match the target
-        /// namespace.
-        /// </param>
+        /// <param name="namespace"> The namespace containing the event types. The given value must exactly match the target namespace.</param>
         /// <param name="publisherEndpoint">The publisher endpoint.</param>
         public static void RegisterPublisher<T>(this RoutingSettings<T> routingSettings, Assembly assembly, string @namespace, string publisherEndpoint) where T : TransportDefinition, IMessageDrivenSubscriptionTransport
         {
