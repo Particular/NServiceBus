@@ -313,6 +313,7 @@
     <Compile Include="ScenarioDescriptors\Transports.cs" />
     <Compile Include="Basic\When_sending_to_another_endpoint.cs" />
     <Compile Include="Versioning\When_multiple_versions_of_a_message_is_published.cs" />
+    <Compile Include="Routing\When_overriding_local_address.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\packaging\nuget\nservicebus.acceptancetests.nuspec">

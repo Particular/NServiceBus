@@ -1,16 +1,38 @@
 ﻿namespace NServiceBus.AcceptanceTests
 {
+    using System;
+    using System.IO;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using AcceptanceTesting.Customization;
     using NUnit.Framework;
 
-    public class When_overriding_address_translation : NServiceBusAcceptanceTest
+    public class When_overriding_local_address : NServiceBusAcceptanceTest
     {
-        public static string DefaultReceiverAddress => Conventions.EndpointNamingConvention(typeof(Receiver));
+        public static string ReceiverEndpointName => Conventions.EndpointNamingConvention(typeof(Receiver));
+        public static string ReceiverQueueName => "q_" + ReceiverEndpointName;
+
+        static string mappingFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, nameof(When_overriding_local_address) + ".xml");
+
+        [SetUp]
+        public void SetupMappingFile()
+        {
+            File.WriteAllText(mappingFilePath,
+$@"<endpoints>
+    <endpoint name=""{ReceiverEndpointName}"">
+        <instance queue=""{ReceiverQueueName}""/>
+    </endpoint>
+</endpoints>");
+        }
+
+        [TearDown]
+        public void DeleteMappingFile()
+        {
+            File.Delete(mappingFilePath);
+        }
 
         [Test]
-        public async Task Should_use_the_overridden_rule()
+        public async Task Should_use_provided_instance_mapping()
         {
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<Sender>(e => e.When(c => c.Send(new Message())))
@@ -36,10 +58,8 @@
                     var routing = transport.Routing();
 
                     // only configure logical endpoint in routing
-                    routing.RouteToEndpoint(typeof(Message), DefaultReceiverAddress);
-
-                    // add translation rule
-                    transport.OverrideAddressTranslation(a => "q_" + a.EndpointInstance.Endpoint);
+                    routing.RouteToEndpoint(typeof(Message), ReceiverEndpointName);
+                    routing.InstanceMappingFile().FilePath(mappingFilePath);
                 });
             }
         }
@@ -48,7 +68,7 @@
         {
             public Receiver()
             {
-                EndpointSetup<DefaultServer>(c => c.OverrideLocalAddress("q_" + DefaultReceiverAddress));
+                EndpointSetup<DefaultServer>(c => c.OverrideLocalAddress(ReceiverQueueName));
             }
 
             public class MessageHandler : IHandleMessages<Message>

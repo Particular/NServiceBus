@@ -4,7 +4,6 @@ namespace NServiceBus
     using System.Collections.Generic;
     using System.Linq;
     using Config.ConfigurationSource;
-    using Routing;
     using Settings;
 
     /// <summary>
@@ -64,12 +63,12 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Returns the name of this instance of the endpoint.
+        /// Returns the logical address of this endpoint.
         /// </summary>
-        public static EndpointInstance EndpointInstanceName(this ReadOnlySettings settings)
+        public static LogicalAddress LogicalAddress(this ReadOnlySettings settings)
         {
             Guard.AgainstNull(nameof(settings), settings);
-            return settings.Get<EndpointInstance>();
+            return settings.Get<LogicalAddress>();
         }
 
         /// <summary>
