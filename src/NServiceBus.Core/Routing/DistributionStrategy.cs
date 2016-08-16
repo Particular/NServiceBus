@@ -9,5 +9,12 @@ namespace NServiceBus.Routing
         /// Selects destination instances from all known instances of a given endpoint.
         /// </summary>
         public abstract EndpointInstance SelectDestination(EndpointInstance[] allInstances);
+
+        /// <summary>
+        /// TODO
+        /// </summary>
+        /// <param name="transportAddresses"></param>
+        /// <returns></returns>
+        public abstract string SelectDestination(string[] transportAddresses);
     }
 }

@@ -74,6 +74,11 @@
                     {
                         return allInstances.First(x => x.Discriminator.Contains("XYZ"));
                     }
+
+                    public override string SelectDestination(string[] transportAddresses)
+                    {
+                        throw new System.NotImplementedException();
+                    }
                 }
             }
         }

@@ -50,6 +50,11 @@
             {
                 return null;
             }
+
+            public override string SelectDestination(string[] transportAddresses)
+            {
+                throw new System.NotImplementedException();
+            }
         }
     }
 }

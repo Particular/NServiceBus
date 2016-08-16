@@ -35,6 +35,12 @@ namespace NServiceBus
                 return target;
             }
 
+            public override string SelectDestination(string[] transportAddresses)
+            {
+                // This strategy can't be used for publishes
+                throw new NotSupportedException();
+            }
+
             string specificInstance;
         }
     }

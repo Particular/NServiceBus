@@ -21,6 +21,22 @@ namespace NServiceBus.Routing
             return result;
         }
 
+        /// <summary>
+        /// TODO
+        /// </summary>
+        /// <param name="transportAddresses"></param>
+        /// <returns></returns>
+        public override string SelectDestination(string[] transportAddresses)
+        {
+            if (transportAddresses.Length == 0)
+            {
+                return null;
+            }
+            var i = Interlocked.Increment(ref index);
+            var result = transportAddresses[(int)(i % transportAddresses.Length)];
+            return result;
+        }
+
         // start with -1 so the index will be at 0 after the first increment.
         long index = -1;
     }
