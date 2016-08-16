@@ -46,7 +46,7 @@
             Assert.DoesNotThrow(() => parser.Parse(doc));
         }
 
-        [Test]
+        [Test, TestWithInvariantCulture]
         public void It_requires_endpoint_name()
         {
             const string xml = @"
@@ -61,7 +61,7 @@
             Assert.That(exception.Message, Does.Contain("The required attribute 'name' is missing."));
         }
 
-        [Test]
+        [Test, TestWithInvariantCulture]
         public void It_requires_endpoint_to_have_an_instance()
         {
             const string xml = @"

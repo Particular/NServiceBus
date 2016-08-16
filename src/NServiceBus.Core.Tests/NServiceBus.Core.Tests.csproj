@@ -163,6 +163,7 @@
     <Compile Include="Routing\DetermineRouteForPublishBehaviorTests.cs" />
     <Compile Include="Routing\DistributionPolicyTests.cs" />
     <Compile Include="Routing\MessageEndpointMappingTests.cs" />
+    <Compile Include="TestWithInvariantCultureAttribute.cs" />
     <Compile Include="Transports\MSMQ\InstanceMapping\InstanceMappingFileFeatureTests.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\MessageDrivenSubscriptionsConfigExtensionsTests.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\PublishersTests.cs" />

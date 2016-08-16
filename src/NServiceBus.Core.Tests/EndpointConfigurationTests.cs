@@ -3,7 +3,7 @@
     using System;
     using NUnit.Framework;
 
-    [TestFixture]
+    [TestFixture, TestWithInvariantCulture]
     public class EndpointConfigurationTests
     {
         [Theory]
