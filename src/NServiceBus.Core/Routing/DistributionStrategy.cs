@@ -8,6 +8,6 @@ namespace NServiceBus.Routing
         /// <summary>
         /// Selects destination instances from all known instances of a given endpoint.
         /// </summary>
-        public abstract UnicastRoutingTarget SelectDestination(UnicastRoutingTarget[] allInstances);
+        public abstract EndpointInstance SelectDestination(EndpointInstance[] allInstances);
     }
 }

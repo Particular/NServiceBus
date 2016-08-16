@@ -10,7 +10,7 @@ namespace NServiceBus.Routing
         /// <summary>
         /// Selects destination instances from all known instances of a given endpoint.
         /// </summary>
-        public override UnicastRoutingTarget SelectDestination(UnicastRoutingTarget[] currentAllInstances)
+        public override EndpointInstance SelectDestination(EndpointInstance[] currentAllInstances)
         {
             if (currentAllInstances.Length == 0)
             {

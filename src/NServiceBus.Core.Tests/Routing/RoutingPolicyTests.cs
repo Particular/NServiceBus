@@ -14,18 +14,18 @@ namespace NServiceBus.Core.Tests.Routing
             var policy = new DistributionPolicy();
             var endpointAInstances = new[]
             {
-                UnicastRoutingTarget.ToEndpointInstance(new EndpointInstance(endpointA, "1")),
-                UnicastRoutingTarget.ToEndpointInstance(new EndpointInstance(endpointA, "2")),
+                new EndpointInstance(endpointA, "1"),
+                new EndpointInstance(endpointA, "2")
             };
 
             var endpointB = "endpointB";
             var endpointBInstances = new[]
             {
-                UnicastRoutingTarget.ToEndpointInstance(new EndpointInstance(endpointB, "1")),
-                UnicastRoutingTarget.ToEndpointInstance(new EndpointInstance(endpointB, "2")),
+                new EndpointInstance(endpointB, "1"),
+                new EndpointInstance(endpointB, "2")
             };
 
-            var result = new List<UnicastRoutingTarget>();
+            var result = new List<EndpointInstance>();
             result.Add(InvokeDistributionStrategy(policy, endpointAInstances));
             result.Add(InvokeDistributionStrategy(policy, endpointBInstances));
             result.Add(InvokeDistributionStrategy(policy, endpointAInstances));
@@ -38,7 +38,7 @@ namespace NServiceBus.Core.Tests.Routing
             Assert.That(result, Has.Exactly(1).EqualTo(endpointBInstances[1]));
         }
 
-        static UnicastRoutingTarget InvokeDistributionStrategy(IDistributionPolicy policy, UnicastRoutingTarget[] instances)
+        static EndpointInstance InvokeDistributionStrategy(IDistributionPolicy policy, EndpointInstance[] instances)
         {
             return policy.GetDistributionStrategy(instances[0].Endpoint).SelectDestination(instances);
         }

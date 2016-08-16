@@ -25,9 +25,9 @@ namespace NServiceBus
                 this.specificInstance = specificInstance;
             }
 
-            public override UnicastRoutingTarget SelectDestination(UnicastRoutingTarget[] allInstances)
+            public override EndpointInstance SelectDestination(EndpointInstance[] allInstances)
             {
-                var target = allInstances.FirstOrDefault(t => t.Instance != null && t.Instance.Discriminator == specificInstance);
+                var target = allInstances.FirstOrDefault(t => t.Discriminator == specificInstance);
                 if (target == null)
                 {
                     throw new Exception($"Specified instance {specificInstance} has not been configured in the routing tables.");

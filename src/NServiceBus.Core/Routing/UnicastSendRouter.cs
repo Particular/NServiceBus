@@ -39,12 +39,12 @@ namespace NServiceBus
                 };
             }
 
-            var instances = endpointInstances.FindInstances(route.Endpoint);
+            var instances = endpointInstances.FindInstances(route.Endpoint).ToArray();
             //TODO adjust distribution policy
-            var selectedInstance = distributionPolicy.GetDistributionStrategy(route.Endpoint).SelectDestination(instances.Select(UnicastRoutingTarget.ToEndpointInstance).ToArray());
+            var selectedInstance = distributionPolicy.GetDistributionStrategy(route.Endpoint).SelectDestination(instances);
             return new[]
             {
-                new UnicastRoutingStrategy(selectedInstance.Resolve(transportAddressTranslation))
+                new UnicastRoutingStrategy(transportAddressTranslation(selectedInstance))
             };
         }
 

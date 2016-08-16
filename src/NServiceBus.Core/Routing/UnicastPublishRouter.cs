@@ -51,10 +51,10 @@ namespace NServiceBus
                 else
                 {
                     //Use the distribution strategy to select subset of instances of a given endpoint
-                    var destinationForEndpoint = distributionPolicy.GetDistributionStrategy(@group.Key).SelectDestination(@group.ToArray());
+                    var destinationForEndpoint = distributionPolicy.GetDistributionStrategy(@group.Key).SelectDestination(@group.Select(t => t.Instance).ToArray());
                     if (destinationForEndpoint != null)
                     {
-                        yield return destinationForEndpoint;
+                        yield return UnicastRoutingTarget.ToEndpointInstance(destinationForEndpoint);
                     }
                 }
             }
