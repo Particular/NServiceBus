@@ -1,11 +1,9 @@
 ﻿namespace NServiceBus.Core.Tests.Routing
 {
+    using NServiceBus;
     using System;
-    using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
-    using System.Threading.Tasks;
-    using Extensibility;
     using MessageNamespaceA;
     using MessageNamespaceB;
     using NServiceBus.Features;
@@ -47,30 +45,33 @@
         }
 
         [Test]
-        public async Task WhenRoutingMessageTypeToEndpoint_ShouldConfigureMessageTypeInRoutingTable()
+        public void WhenRoutingMessageTypeToEndpoint_ShouldConfigureMessageTypeInRoutingTable()
         {
             var routingSettings = new RoutingSettings(new SettingsHolder());
             routingSettings.RouteToEndpoint(typeof(SomeMessageType), "destination");
 
             var routingTable = ApplyConfiguredRoutes(routingSettings);
-            var route = await routingTable.GetRouteFor(typeof(SomeMessageType), new ContextBag());
-            var routingTargets = await RetrieveRoutingTargets(route);
+            var route = routingTable.GetRouteFor(typeof(SomeMessageType));
+            var routingTargets = route.Resolve(e => new[]
+            {
+                new EndpointInstance(e)
+            });
 
             Assert.That(route, Is.Not.Null);
             Assert.That(routingTargets.Single().Endpoint, Is.EqualTo("destination"));
         }
 
         [Test]
-        public async Task WhenRoutingAssemblyToEndpoint_ShouldConfigureAllContainedMessagesInRoutingTable()
+        public void WhenRoutingAssemblyToEndpoint_ShouldConfigureAllContainedMessagesInRoutingTable()
         {
             var routingSettings = new RoutingSettings(new SettingsHolder());
             routingSettings.RouteToEndpoint(Assembly.GetExecutingAssembly(), "destination");
 
             var routingTable = ApplyConfiguredRoutes(routingSettings);
 
-            var someMessageRoute = await routingTable.GetRouteFor(typeof(SomeMessageType), new ContextBag());
-            var otherMessageRoute = await routingTable.GetRouteFor(typeof(OtherMessageType), new ContextBag());
-            var messageWithoutNamespaceRoute = await routingTable.GetRouteFor(typeof(MessageWithoutNamespace), new ContextBag());
+            var someMessageRoute = routingTable.GetRouteFor(typeof(SomeMessageType));
+            var otherMessageRoute = routingTable.GetRouteFor(typeof(OtherMessageType));
+            var messageWithoutNamespaceRoute = routingTable.GetRouteFor(typeof(MessageWithoutNamespace));
 
             Assert.That(someMessageRoute, Is.Not.Null);
             Assert.That(otherMessageRoute, Is.Not.Null);
@@ -78,16 +79,16 @@
         }
 
         [Test]
-        public async Task WhenRoutingAssemblyWithNamespaceToEndpoint_ShouldOnlyConfigureMessagesWithinThatNamespace()
+        public void WhenRoutingAssemblyWithNamespaceToEndpoint_ShouldOnlyConfigureMessagesWithinThatNamespace()
         {
             var routingSettings = new RoutingSettings(new SettingsHolder());
             routingSettings.RouteToEndpoint(Assembly.GetExecutingAssembly(), nameof(MessageNamespaceA), "destination");
 
             var routingTable = ApplyConfiguredRoutes(routingSettings);
 
-            var someMessageRoute = await routingTable.GetRouteFor(typeof(SomeMessageType), new ContextBag());
-            var otherMessageRoute = await routingTable.GetRouteFor(typeof(OtherMessageType), new ContextBag());
-            var messageWithoutNamespaceRoute = await routingTable.GetRouteFor(typeof(MessageWithoutNamespace), new ContextBag());
+            var someMessageRoute = routingTable.GetRouteFor(typeof(SomeMessageType));
+            var otherMessageRoute = routingTable.GetRouteFor(typeof(OtherMessageType));
+            var messageWithoutNamespaceRoute = routingTable.GetRouteFor(typeof(MessageWithoutNamespace));
 
             Assert.That(someMessageRoute, Is.Not.Null, "because SomeMessageType is in the given namespace");
             Assert.That(otherMessageRoute, Is.Null, "because OtherMessageType is not in the given namespace");
@@ -97,16 +98,16 @@
         [Theory]
         [TestCase(null)]
         [TestCase("")]
-        public async Task WhenRoutingAssemblyWithNamespaceToEndpointAndSpecifyingEmptyNamespace_ShouldOnlyConfigureMessagesWithinEmptyNamespace(string emptyNamespace)
+        public void WhenRoutingAssemblyWithNamespaceToEndpointAndSpecifyingEmptyNamespace_ShouldOnlyConfigureMessagesWithinEmptyNamespace(string emptyNamespace)
         {
             var routingSettings = new RoutingSettings(new SettingsHolder());
             routingSettings.RouteToEndpoint(Assembly.GetExecutingAssembly(), emptyNamespace, "destination");
 
             var routingTable = ApplyConfiguredRoutes(routingSettings);
 
-            var someMessageRoute = await routingTable.GetRouteFor(typeof(SomeMessageType), new ContextBag());
-            var otherMessageRoute = await routingTable.GetRouteFor(typeof(OtherMessageType), new ContextBag());
-            var messageWithoutNamespaceRoute = await routingTable.GetRouteFor(typeof(MessageWithoutNamespace), new ContextBag());
+            var someMessageRoute = routingTable.GetRouteFor(typeof(SomeMessageType));
+            var otherMessageRoute = routingTable.GetRouteFor(typeof(OtherMessageType));
+            var messageWithoutNamespaceRoute = routingTable.GetRouteFor(typeof(MessageWithoutNamespace));
 
             Assert.That(someMessageRoute, Is.Null);
             Assert.That(otherMessageRoute, Is.Null);
@@ -116,24 +117,9 @@
         static UnicastRoutingTable ApplyConfiguredRoutes(RoutingSettings routingSettings)
         {
             var routingTable = new UnicastRoutingTable();
-            var conventions = new Conventions
-            {
-                IsMessageTypeAction = type => true
-            };
-
-            foreach (var registration in routingSettings.Settings.Get<ConfiguredUnicastRoutes>())
-            {
-                registration(routingTable, conventions);
-            }
+            var configuredRoutes = routingSettings.Settings.GetOrDefault<ConfiguredUnicastRoutes>();
+            configuredRoutes?.Apply(routingTable, new Conventions());
             return routingTable;
-        }
-
-        static Task<IEnumerable<UnicastRoutingTarget>> RetrieveRoutingTargets(IUnicastRoute result)
-        {
-            return result.Resolve(e => Task.FromResult<IEnumerable<EndpointInstance>>(new[]
-            {
-                new EndpointInstance(e)
-            }));
         }
 
         string expectedExceptionMessageForWrongEndpointName = "A logical endpoint name should not contain '@', but received 'EndpointName@MyHost'. To specify an endpoint's address, use the instance mapping file for the MSMQ transport, or refer to the routing documentation.";
@@ -142,7 +128,8 @@
 
 namespace MessageNamespaceA
 {
-    class SomeMessageType
+    using NServiceBus;
+    class SomeMessageType : IMessage
     {
     }
 
@@ -153,11 +140,12 @@ namespace MessageNamespaceA
 
 namespace MessageNamespaceB
 {
-    class OtherMessageType
+    using NServiceBus;
+    class OtherMessageType : IMessage
     {
     }
 }
 
-class MessageWithoutNamespace
+class MessageWithoutNamespace : NServiceBus.IMessage
 {
 }

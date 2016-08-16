@@ -7,7 +7,6 @@
     using Configuration.AdvanceExtensibility;
     using EndpointTemplates;
     using NServiceBus.Routing;
-    using NServiceBus.Routing.MessageDrivenSubscriptions;
     using NUnit.Framework;
     using ScenarioDescriptors;
 
@@ -52,12 +51,13 @@
         {
             public Subscriber()
             {
-                EndpointSetup<DefaultServer>(c =>
+                EndpointSetup<DefaultServer>((c, r) =>
                 {
                     // configure the scaled out publisher instances:
                     var publisherName = Conventions.EndpointNamingConvention(typeof(ScaledOutPublisher));
-                    c.GetSettings().GetOrCreate<Publishers>().Add(typeof(MyEvent), publisherName);
-                    c.GetSettings().GetOrCreate<EndpointInstances>().Add(new EndpointInstance(publisherName, "1"), new EndpointInstance(publisherName, "2"));
+                    var routing = c.UseTransport(r.GetTransportType()).Routing();
+                    c.MessageDrivenPubSubRouting().RegisterPublisher(typeof(MyEvent), publisherName);
+                    routing.RegisterEndpointInstances(new EndpointInstance(publisherName, "1"), new EndpointInstance(publisherName, "2"));
                 });
             }
         }

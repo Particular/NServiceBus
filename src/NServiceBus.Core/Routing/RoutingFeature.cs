@@ -1,7 +1,5 @@
 ﻿namespace NServiceBus.Features
 {
-    using System;
-    using System.Collections.Generic;
     using Config;
     using Routing;
     using Routing.MessageDrivenSubscriptions;
@@ -33,26 +31,16 @@
             var unicastRoutingTable = context.Settings.Get<UnicastRoutingTable>();
             var endpointInstances = context.Settings.Get<EndpointInstances>();
             var publishers = context.Settings.Get<Publishers>();
+
             var distributionPolicy = context.Settings.Get<DistributionPolicy>();
             var configuredUnicastRoutes = context.Settings.Get<ConfiguredUnicastRoutes>();
             var configuredPublishers = context.Settings.Get<ConfiguredPublishers>();
             var conventions = context.Settings.Get<Conventions>();
-
             var unicastBusConfig = context.Settings.GetConfigSection<UnicastBusConfig>();
-            if (unicastBusConfig != null)
-            {
-                unicastBusConfig.MessageEndpointMappings.ImportMessageEndpointMappings(publishers, unicastRoutingTable, transportInfrastructure.MakeCanonicalForm);
-            }
 
-            foreach (var registration in configuredUnicastRoutes)
-            {
-                registration(unicastRoutingTable, conventions);
-            }
-
-            foreach (var registration in configuredPublishers)
-            {
-                registration(publishers, conventions);
-            }
+            unicastBusConfig?.MessageEndpointMappings.Apply(publishers, unicastRoutingTable, transportInfrastructure.MakeCanonicalForm);
+            configuredUnicastRoutes.Apply(unicastRoutingTable, conventions);
+            configuredPublishers.Apply(publishers, conventions);
 
             var outboundRoutingPolicy = transportInfrastructure.OutboundRoutingPolicy;
             context.Pipeline.Register(b =>
@@ -99,13 +87,5 @@
                 }
             }
         }
-    }
-
-    class ConfiguredUnicastRoutes : List<Action<UnicastRoutingTable, Conventions>>
-    {
-    }
-
-    class ConfiguredPublishers : List<Action<Publishers, Conventions>>
-    {
     }
 }

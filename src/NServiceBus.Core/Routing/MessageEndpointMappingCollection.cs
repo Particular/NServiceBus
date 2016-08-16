@@ -1,6 +1,7 @@
 namespace NServiceBus.Config
 {
     using System;
+    using System.Collections.Generic;
     using System.Configuration;
     using System.Linq;
     using Routing;
@@ -51,7 +52,7 @@ namespace NServiceBus.Config
         /// </summary>
         public MessageEndpointMapping this[int index]
         {
-            get { return (MessageEndpointMapping) BaseGet(index); }
+            get { return (MessageEndpointMapping)BaseGet(index); }
             set
             {
                 if (BaseGet(index) != null)
@@ -65,7 +66,7 @@ namespace NServiceBus.Config
         /// <summary>
         /// Gets the MessageEndpointMapping for the given name.
         /// </summary>
-        new public MessageEndpointMapping this[string Name] => (MessageEndpointMapping) BaseGet(Name);
+        new public MessageEndpointMapping this[string Name] => (MessageEndpointMapping)BaseGet(Name);
 
         /// <summary>
         /// Creates a new MessageEndpointMapping.
@@ -93,7 +94,7 @@ namespace NServiceBus.Config
         /// </summary>
         protected override object GetElementKey(ConfigurationElement element)
         {
-            var messageEndpointMapping = (MessageEndpointMapping) element;
+            var messageEndpointMapping = (MessageEndpointMapping)element;
 
             return $"{messageEndpointMapping.Messages}{messageEndpointMapping.AssemblyName}{messageEndpointMapping.TypeFullName}{messageEndpointMapping.Namespace}";
         }
@@ -165,17 +166,23 @@ namespace NServiceBus.Config
             return false;
         }
 
-        internal void ImportMessageEndpointMappings(Publishers publishers, UnicastRoutingTable unicastRoutingTable, Func<string, string> makeCanonicalAddress)
+        internal void Apply(Publishers publishers, UnicastRoutingTable unicastRoutingTable, Func<string, string> makeCanonicalAddress)
         {
+            var routeTableEntries = new Dictionary<Type, RouteTableEntry>();
+            var publisherTableEntries = new Dictionary<Type, PublisherTableEntry>();
+
             foreach (var m in this.Cast<MessageEndpointMapping>().OrderByDescending(m => m))
             {
                 m.Configure((type, endpointAddress) =>
                 {
                     var canonicalForm = makeCanonicalAddress(endpointAddress);
-                    unicastRoutingTable.RouteTo(type, UnicastRoute.CreateFromPhysicalAddress(canonicalForm), overrideExistingRoute: true);
-                    publishers.AddByAddress(type, canonicalForm);
+                    routeTableEntries[type] = new RouteTableEntry(type, UnicastRoute.CreateFromPhysicalAddress(canonicalForm));
+                    publisherTableEntries[type] = new PublisherTableEntry(type, PublisherAddress.CreateFromPhysicalAddresses(canonicalForm));
                 });
             }
+
+            publishers.AddOrReplacePublishers("MessageEndpointMappings", publisherTableEntries.Values.ToList());
+            unicastRoutingTable.AddOrReplaceRoutes("MessageEndpointMappings", routeTableEntries.Values.ToList());
         }
     }
 }
