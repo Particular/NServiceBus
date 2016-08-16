@@ -261,7 +261,6 @@
     <Compile Include="Transports\StartupCheckResult.cs" />
     <Compile Include="Transports\TransportReceiveInfrastructure.cs" />
     <Compile Include="Transports\TransportSendInfrastructure.cs" />
-    <Compile Include="UnicastRoutingTarget.cs" />
     <Compile Include="EnumerableEx.cs" />
     <Compile Include="IMessageHandlerContext.cs" />
     <Compile Include="IHandleMessages.cs" />
