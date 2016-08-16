@@ -9,9 +9,9 @@ namespace NServiceBus
     {
         Assembly messageAssembly;
         string messageNamespace;
-        IUnicastRoute route;
+        UnicastRoute route;
 
-        public NamespaceRouteSource(Assembly messageAssembly, string messageNamespace, IUnicastRoute route)
+        public NamespaceRouteSource(Assembly messageAssembly, string messageNamespace, UnicastRoute route)
         {
             this.messageAssembly = messageAssembly;
             this.route = route;

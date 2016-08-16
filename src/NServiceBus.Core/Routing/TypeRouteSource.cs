@@ -7,9 +7,9 @@ namespace NServiceBus
     class TypeRouteSource : IRouteSource
     {
         Type messageType;
-        IUnicastRoute route;
+        UnicastRoute route;
 
-        public TypeRouteSource(Type messageType, IUnicastRoute route)
+        public TypeRouteSource(Type messageType, UnicastRoute route)
         {
             this.messageType = messageType;
             this.route = route;

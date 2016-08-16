@@ -290,7 +290,6 @@
     <Compile Include="Pipeline\Outgoing\IOutgoingPhysicalMessageContext.cs" />
     <Compile Include="Reliability\Outbox\ForceBatchDispatchToBeIsolatedBehavior.cs" />
     <Compile Include="Reliability\Outbox\OutboxTransaction.cs" />
-    <Compile Include="Routing\IUnicastRoute.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\Subscriber.cs" />
     <Compile Include="Routing\MulticastRoutingStrategy.cs" />
     <Compile Include="Routing\RoutingStrategy.cs" />

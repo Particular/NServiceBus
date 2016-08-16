@@ -8,9 +8,9 @@ namespace NServiceBus
     class AssemblyRouteSource : IRouteSource
     {
         Assembly messageAssembly;
-        IUnicastRoute route;
+        UnicastRoute route;
 
-        public AssemblyRouteSource(Assembly messageAssembly, IUnicastRoute route)
+        public AssemblyRouteSource(Assembly messageAssembly, UnicastRoute route)
         {
             this.messageAssembly = messageAssembly;
             this.route = route;

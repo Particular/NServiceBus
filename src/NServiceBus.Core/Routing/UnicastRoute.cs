@@ -1,13 +1,9 @@
 namespace NServiceBus.Routing
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-
     /// <summary>
     /// A destination of address routing.
     /// </summary>
-    public class UnicastRoute : IUnicastRoute
+    public class UnicastRoute
     {
         /// <summary>
         /// Creates a destination based on the name of the endpoint.
@@ -17,7 +13,7 @@ namespace NServiceBus.Routing
         public static UnicastRoute CreateFromEndpointName(string endpoint)
         {
             Guard.AgainstNull(nameof(endpoint), endpoint);
-            return new UnicastRoute { endpoint = endpoint };
+            return new UnicastRoute { Endpoint = endpoint };
         }
 
         /// <summary>
@@ -28,7 +24,7 @@ namespace NServiceBus.Routing
         public static UnicastRoute CreateFromEndpointInstance(EndpointInstance instance)
         {
             Guard.AgainstNull(nameof(instance), instance);
-            return new UnicastRoute { instance = instance };
+            return new UnicastRoute { Instance = instance };
         }
 
         /// <summary>
@@ -39,44 +35,55 @@ namespace NServiceBus.Routing
         public static UnicastRoute CreateFromPhysicalAddress(string physicalAddress)
         {
             Guard.AgainstNullAndEmpty(nameof(physicalAddress), physicalAddress);
-            return new UnicastRoute { physicalAddress = physicalAddress };
+            return new UnicastRoute { PhysicalAddress = physicalAddress };
         }
 
         private UnicastRoute()
         {
         }
 
-        IEnumerable<UnicastRoutingTarget> IUnicastRoute.Resolve(Func<string, IEnumerable<EndpointInstance>> instanceResolver)
-        {
-            if (physicalAddress != null)
-            {
-                return new[] { UnicastRoutingTarget.ToTransportAddress(physicalAddress) };
-            }
-            if (instance != null)
-            {
-                return new[] { UnicastRoutingTarget.ToEndpointInstance(instance) };
-            }
-            var instances = instanceResolver(endpoint);
-            return instances.Select(UnicastRoutingTarget.ToEndpointInstance);
-        }
+//        IEnumerable<UnicastRoutingTarget> IUnicastRoute.Resolve(Func<string, IEnumerable<EndpointInstance>> instanceResolver)
+//        {
+//            if (physicalAddress != null)
+//            {
+//                return new[] { UnicastRoutingTarget.ToTransportAddress(physicalAddress) };
+//            }
+//            if (instance != null)
+//            {
+//                return new[] { UnicastRoutingTarget.ToEndpointInstance(instance) };
+//            }
+//            var instances = instanceResolver(endpoint);
+//            return instances.Select(UnicastRoutingTarget.ToEndpointInstance);
+//        }
 
         /// <summary>Returns a string that represents the current object.</summary>
         /// <returns>A string that represents the current object.</returns>
         public override string ToString()
         {
-            if (endpoint != null)
+            if (Endpoint != null)
             {
-                return endpoint;
+                return Endpoint;
             }
-            if (instance != null)
+            if (Instance != null)
             {
-                return $"[{instance}]";
+                return $"[{Instance}]";
             }
-            return $"<{physicalAddress}>";
+            return $"<{PhysicalAddress}>";
         }
 
-        string endpoint;
-        EndpointInstance instance;
-        string physicalAddress;
+        /// <summary>
+        /// The logical endpoint name if present.
+        /// </summary>
+        public string Endpoint { get; private set; }
+
+        /// <summary>
+        /// The endpoint instance if present.
+        /// </summary>
+        public EndpointInstance Instance { get; private set; }
+
+        /// <summary>
+        /// The physical address if present.
+        /// </summary>
+        public string PhysicalAddress { get; private set; }
     }
 }
