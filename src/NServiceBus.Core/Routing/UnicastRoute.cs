@@ -50,11 +50,11 @@ namespace NServiceBus.Routing
         {
             if (physicalAddress != null)
             {
-                return EnumerableEx.Single(UnicastRoutingTarget.ToTransportAddress(physicalAddress));
+                return new[] { UnicastRoutingTarget.ToTransportAddress(physicalAddress) };
             }
             if (instance != null)
             {
-                return EnumerableEx.Single(UnicastRoutingTarget.ToEndpointInstance(instance));
+                return new[] { UnicastRoutingTarget.ToEndpointInstance(instance) };
             }
             var instances = instanceResolver(endpoint);
             return instances.Select(UnicastRoutingTarget.ToEndpointInstance);
