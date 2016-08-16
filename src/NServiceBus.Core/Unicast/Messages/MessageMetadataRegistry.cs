@@ -48,7 +48,7 @@
         {
             Guard.AgainstNullAndEmpty(nameof(messageTypeIdentifier), messageTypeIdentifier);
 
-            var messageType = Type.GetType(messageTypeIdentifier, false);
+            var messageType = GetType(messageTypeIdentifier);
 
             if (messageType == null)
             {
@@ -70,6 +70,24 @@
 
             Logger.WarnFormat("Message header '{0}' was mapped to type '{1}' but that type was not found in the message registry, ensure the same message registration conventions are used in all endpoints, especially if using unobtrusive mode. ", messageType, messageType.FullName);
             return null;
+        }
+
+        Type GetType(string messageTypeIdentifier)
+        {
+            for (int i = 0; i < cachedTypes.Count; i++)
+            {
+                var tuple = cachedTypes[0];
+
+                if (tuple.Item1 == messageTypeIdentifier)
+                {
+                    return tuple.Item2;
+                }
+            }
+
+            var type = Type.GetType(messageTypeIdentifier, false);
+            cachedTypes.Add(Tuple.Create(messageTypeIdentifier, type));
+
+            return type;
         }
 
         internal IEnumerable<MessageMetadata> GetAllMessages()
@@ -143,6 +161,7 @@
 
         Conventions conventions;
         Dictionary<RuntimeTypeHandle, MessageMetadata> messages = new Dictionary<RuntimeTypeHandle, MessageMetadata>();
+        List<Tuple<string, Type>> cachedTypes = new List<Tuple<string, Type>>();
 
         static ILog Logger = LogManager.GetLogger<MessageMetadataRegistry>();
     }
