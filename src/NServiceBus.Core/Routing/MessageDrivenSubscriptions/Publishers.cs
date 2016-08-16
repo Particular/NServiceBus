@@ -9,12 +9,12 @@ namespace NServiceBus.Routing.MessageDrivenSubscriptions
     /// </summary>
     public class Publishers
     {
-        internal PublisherAddress GetPublisherFor(Type eventType)
+        internal IEnumerable<PublisherAddress> GetPublisherFor(Type eventType)
         {
-            PublisherAddress address;
-            return publishers.TryGetValue(eventType, out address)
-                ? address
-                : null;
+            HashSet<PublisherAddress> addresses;
+            return publishers.TryGetValue(eventType, out addresses)
+                ? addresses
+                : Enumerable.Empty<PublisherAddress>();
         }
 
         /// <summary>
@@ -27,25 +27,22 @@ namespace NServiceBus.Routing.MessageDrivenSubscriptions
             lock (updateLock)
             {
                 pubisherRegistrations[sourceKey] = entries;
-                var newRouteTableTemplate = new Dictionary<Type, PublisherTableEntry>();
+                var newRouteTable = new Dictionary<Type, HashSet<PublisherAddress>>();
                 foreach (var entry in pubisherRegistrations.Values.SelectMany(g => g))
                 {
-                    PublisherTableEntry existing;
-                    if (!newRouteTableTemplate.TryGetValue(entry.EventType, out existing))
+                    HashSet<PublisherAddress> publishersOfThisEvent;
+                    if (!newRouteTable.TryGetValue(entry.EventType, out publishersOfThisEvent))
                     {
-                        newRouteTableTemplate[entry.EventType] = entry;
+                        publishersOfThisEvent = new HashSet<PublisherAddress>();
+                        newRouteTable[entry.EventType] = publishersOfThisEvent;
                     }
-                    else
-                    {
-                        throw new Exception($"Publisher for type {entry.EventType.FullName} already registered.");
-                    }
+                    publishersOfThisEvent.Add(entry.Address);
                 }
-                var newRouteTable = newRouteTableTemplate.ToDictionary(e => e.Key, e => e.Value.Address);
                 publishers = newRouteTable;
             }
         }
 
-        Dictionary<Type, PublisherAddress> publishers = new Dictionary<Type, PublisherAddress>();
+        Dictionary<Type, HashSet<PublisherAddress>> publishers = new Dictionary<Type, HashSet<PublisherAddress>>();
         Dictionary<object, IList<PublisherTableEntry>> pubisherRegistrations = new Dictionary<object, IList<PublisherTableEntry>>();
         object updateLock = new object();
     }

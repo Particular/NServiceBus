@@ -2656,6 +2656,8 @@ namespace NServiceBus.Routing.MessageDrivenSubscriptions
         public static NServiceBus.Routing.MessageDrivenSubscriptions.PublisherAddress CreateFromEndpointInstances(params NServiceBus.Routing.EndpointInstance[] instances) { }
         public static NServiceBus.Routing.MessageDrivenSubscriptions.PublisherAddress CreateFromEndpointName(string endpoint) { }
         public static NServiceBus.Routing.MessageDrivenSubscriptions.PublisherAddress CreateFromPhysicalAddresses(params string[] addresses) { }
+        public override bool Equals(object obj) { }
+        public override int GetHashCode() { }
         public override string ToString() { }
     }
     public class Publishers

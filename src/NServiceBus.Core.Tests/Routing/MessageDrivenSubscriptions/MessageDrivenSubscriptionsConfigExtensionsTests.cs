@@ -2,6 +2,7 @@
 {
     using NServiceBus;
     using System;
+    using System.Linq;
     using System.Reflection;
     using EventNamespace;
     using MessageNameSpace;
@@ -51,7 +52,7 @@
 
             var publishers = ApplyPublisherRegistrations(routingSettings);
 
-            var publishersForEvent = publishers.GetPublisherFor(typeof(Event));
+            var publishersForEvent = publishers.GetPublisherFor(typeof(Event)).SingleOrDefault();
             Assert.IsNotNull(publishersForEvent);
         }
 
@@ -63,8 +64,8 @@
 
             var publishers = ApplyPublisherRegistrations(routingSettings);
 
-            var publishersForEvent = publishers.GetPublisherFor(typeof(Event));
-            var publishersForEventWithNamespace = publishers.GetPublisherFor(typeof(EventWithNamespace));
+            var publishersForEvent = publishers.GetPublisherFor(typeof(Event)).SingleOrDefault();
+            var publishersForEventWithNamespace = publishers.GetPublisherFor(typeof(EventWithNamespace)).SingleOrDefault();
 
             Assert.IsNotNull(publishersForEvent);
             Assert.IsNotNull(publishersForEventWithNamespace);
@@ -78,8 +79,8 @@
 
             var publishers = ApplyPublisherRegistrations(routingSettings);
 
-            var publishersForEvent = publishers.GetPublisherFor(typeof(Event));
-            var publishersForEventWithNamespace = publishers.GetPublisherFor(typeof(EventWithNamespace));
+            var publishersForEvent = publishers.GetPublisherFor(typeof(Event)).SingleOrDefault();
+            var publishersForEventWithNamespace = publishers.GetPublisherFor(typeof(EventWithNamespace)).SingleOrDefault();
 
             Assert.IsNull(publishersForEvent);
             Assert.IsNotNull(publishersForEventWithNamespace);
@@ -93,10 +94,10 @@
 
             var publishers = ApplyPublisherRegistrations(routingSettings);
 
-            var result1 = publishers.GetPublisherFor(typeof(BaseMessage));
-            var result2 = publishers.GetPublisherFor(typeof(SubMessage));
-            var result3 = publishers.GetPublisherFor(typeof(EventWithoutNamespace));
-            var result4 = publishers.GetPublisherFor(typeof(IMessageInterface));
+            var result1 = publishers.GetPublisherFor(typeof(BaseMessage)).SingleOrDefault();
+            var result2 = publishers.GetPublisherFor(typeof(SubMessage)).SingleOrDefault();
+            var result3 = publishers.GetPublisherFor(typeof(EventWithoutNamespace)).SingleOrDefault();
+            var result4 = publishers.GetPublisherFor(typeof(IMessageInterface)).SingleOrDefault();
 
             Assert.IsNotNull(result1);
             Assert.IsNotNull(result2);
@@ -112,10 +113,10 @@
 
             var publishers = ApplyPublisherRegistrations(routingSettings);
 
-            var result1 = publishers.GetPublisherFor(typeof(BaseMessage));
-            var result2 = publishers.GetPublisherFor(typeof(SubMessage));
-            var result3 = publishers.GetPublisherFor(typeof(EventWithoutNamespace));
-            var result4 = publishers.GetPublisherFor(typeof(IMessageInterface));
+            var result1 = publishers.GetPublisherFor(typeof(BaseMessage)).SingleOrDefault();
+            var result2 = publishers.GetPublisherFor(typeof(SubMessage)).SingleOrDefault();
+            var result3 = publishers.GetPublisherFor(typeof(EventWithoutNamespace)).SingleOrDefault();
+            var result4 = publishers.GetPublisherFor(typeof(IMessageInterface)).SingleOrDefault();
 
             Assert.IsNotNull(result1);
             Assert.IsNotNull(result4);
@@ -133,10 +134,10 @@
 
             var publishers = ApplyPublisherRegistrations(routingSettings);
 
-            var result1 = publishers.GetPublisherFor(typeof(BaseMessage));
-            var result2 = publishers.GetPublisherFor(typeof(SubMessage));
-            var result3 = publishers.GetPublisherFor(typeof(EventWithoutNamespace));
-            var result4 = publishers.GetPublisherFor(typeof(IMessageInterface));
+            var result1 = publishers.GetPublisherFor(typeof(BaseMessage)).SingleOrDefault();
+            var result2 = publishers.GetPublisherFor(typeof(SubMessage)).SingleOrDefault();
+            var result3 = publishers.GetPublisherFor(typeof(EventWithoutNamespace)).SingleOrDefault();
+            var result4 = publishers.GetPublisherFor(typeof(IMessageInterface)).SingleOrDefault();
 
             Assert.IsNotNull(result3);
             Assert.IsNull(result1);

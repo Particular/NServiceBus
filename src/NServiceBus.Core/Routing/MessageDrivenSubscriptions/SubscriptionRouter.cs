@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using Routing;
     using Routing.MessageDrivenSubscriptions;
 
@@ -16,8 +17,8 @@
 
         public IEnumerable<string> GetAddressesForEventType(Type messageType)
         {
-            var publisher = publishers.GetPublisherFor(messageType);
-            var publisherTransportAddresses = publisher.Resolve(e => endpointInstances.FindInstances(e), i => transportAddressTranslation(i));
+            var publishersOfThisEvent = publishers.GetPublisherFor(messageType);
+            var publisherTransportAddresses = publishersOfThisEvent.SelectMany(p => p.Resolve(e => endpointInstances.FindInstances(e), i => transportAddressTranslation(i)));
             return publisherTransportAddresses;
         }
 
