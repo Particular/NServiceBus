@@ -167,10 +167,7 @@
         {
             var router = new FakeSendRouter
             {
-                FixedDestination = new[]
-                {
-                    new UnicastRoutingStrategy("MappedDestination")
-                }
+                FixedDestination = new UnicastRoutingStrategy("MappedDestination")
             };
             var behavior = InitializeBehavior(router: router);
             var options = new SendOptions();
@@ -192,9 +189,7 @@
         {
             var router = new FakeSendRouter
             {
-                FixedDestination = new UnicastRoutingStrategy[]
-                {
-                }
+                FixedDestination = null
             };
 
             var behavior = InitializeBehavior(router: router);
@@ -234,9 +229,9 @@
 
         class FakeSendRouter : IUnicastSendRouter
         {
-            public IEnumerable<UnicastRoutingStrategy> FixedDestination { get; set; }
+            public UnicastRoutingStrategy FixedDestination { get; set; }
 
-            public IEnumerable<UnicastRoutingStrategy> Route(Type messageType, IDistributionPolicy distributionPolicy)
+            public UnicastRoutingStrategy Route(Type messageType, IDistributionPolicy distributionPolicy)
             {
                 return FixedDestination;
             }

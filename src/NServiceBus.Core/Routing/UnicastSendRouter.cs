@@ -1,7 +1,6 @@
 namespace NServiceBus
 {
     using System;
-    using System.Collections.Generic;
     using System.Linq;
     using Routing;
 
@@ -14,43 +13,31 @@ namespace NServiceBus
             this.transportAddressTranslation = transportAddressTranslation;
         }
 
-        //TODO change to single return value
-        public IEnumerable<UnicastRoutingStrategy> Route(Type messageType, IDistributionPolicy distributionPolicy)
+        public UnicastRoutingStrategy Route(Type messageType, IDistributionPolicy distributionPolicy)
         {
             var route = unicastRoutingTable.GetRouteFor(messageType);
             if (route == null)
             {
-                return emptyRoute;
+                return null;
             }
 
             if (route.PhysicalAddress != null)
             {
-                return new[]
-                {
-                    new UnicastRoutingStrategy(route.PhysicalAddress)
-                };
+                return new UnicastRoutingStrategy(route.PhysicalAddress);
             }
 
             if (route.Instance != null)
             {
-                return new[]
-                {
-                    new UnicastRoutingStrategy(transportAddressTranslation(route.Instance))
-                };
+                return new UnicastRoutingStrategy(transportAddressTranslation(route.Instance));
             }
 
             var instances = endpointInstances.FindInstances(route.Endpoint).ToArray();
-            //TODO adjust distribution policy
             var selectedInstance = distributionPolicy.GetDistributionStrategy(route.Endpoint).SelectDestination(instances);
-            return new[]
-            {
-                new UnicastRoutingStrategy(transportAddressTranslation(selectedInstance))
-            };
+            return new UnicastRoutingStrategy(transportAddressTranslation(selectedInstance));
         }
 
         EndpointInstances endpointInstances;
         Func<EndpointInstance, string> transportAddressTranslation;
         UnicastRoutingTable unicastRoutingTable;
-        static UnicastRoutingStrategy[] emptyRoute = new UnicastRoutingStrategy[0];
     }
 }

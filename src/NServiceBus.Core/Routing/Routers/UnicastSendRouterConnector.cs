@@ -1,8 +1,6 @@
 namespace NServiceBus
 {
     using System;
-    using System.Collections.Generic;
-    using System.Linq;
     using System.Threading.Tasks;
     using Pipeline;
     using Routing;
@@ -48,15 +46,23 @@ namespace NServiceBus
 
             var distributionPolicy = state.Option == RouteOption.RouteToSpecificInstance ? new SpecificInstanceDistributionPolicy(state.SpecificInstance) : defaultDistributionPolicy;
 
-            var routingStrategies = string.IsNullOrEmpty(destination)
+            var routingStrategy = string.IsNullOrEmpty(destination)
                 ? unicastSendRouter.Route(messageType, distributionPolicy)
                 : RouteToDestination(destination);
+
+            if (routingStrategy == null)
+            {
+                throw new Exception($"No destination specified for message: {messageType}");
+            }
 
             context.Headers[Headers.MessageIntent] = MessageIntentEnum.Send.ToString();
 
             var logicalMessageContext = this.CreateOutgoingLogicalMessageContext(
                 context.Message,
-                routingStrategies.EnsureNonEmpty(() => "No destination specified for message: " + messageType).ToArray(),
+                new[]
+                {
+                    routingStrategy
+                },
                 context);
 
             try
@@ -69,9 +75,9 @@ namespace NServiceBus
             }
         }
 
-        static IEnumerable<UnicastRoutingStrategy> RouteToDestination(string physicalAddress)
+        static UnicastRoutingStrategy RouteToDestination(string physicalAddress)
         {
-            yield return new UnicastRoutingStrategy(physicalAddress);
+            return new UnicastRoutingStrategy(physicalAddress);
         }
 
         IDistributionPolicy defaultDistributionPolicy;

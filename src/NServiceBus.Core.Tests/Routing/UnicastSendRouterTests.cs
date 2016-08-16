@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.Core.Tests.Routing
 {
     using System.Collections.Generic;
-    using System.Linq;
     using NServiceBus.Routing;
     using NUnit.Framework;
 
@@ -18,10 +17,9 @@
             var logicalEndpointName = "Sales";
             routingTable.AddOrReplaceRoutes("A", new List<RouteTableEntry> {new RouteTableEntry(typeof(Command), UnicastRoute.CreateFromEndpointName(logicalEndpointName)) });
 
-            var routes = router.Route(typeof(Command), new DistributionPolicy());
+            var route = router.Route(typeof(Command), new DistributionPolicy());
 
-            Assert.AreEqual(1, routes.Count());
-            Assert.AreEqual(logicalEndpointName, ExtractDestination(routes.First()));
+            Assert.AreEqual(logicalEndpointName, ExtractDestination(route));
         }
 
         [Test]
@@ -36,18 +34,17 @@
                 new EndpointInstance(sales, "2"),
             });
 
-            var routes = router.Route(typeof(Command), new DistributionPolicy()).ToArray();
+            var route = router.Route(typeof(Command), new DistributionPolicy());
 
-            Assert.AreEqual(1, routes.Length);
-            Assert.AreEqual("Sales-1", ExtractDestination(routes[0]));
+            Assert.AreEqual("Sales-1", ExtractDestination(route));
         }
 
         [Test]
         public void Should_return_empty_list_when_no_routes_found()
         {
-            var routes = router.Route(typeof(Command), new DistributionPolicy());
+            var route = router.Route(typeof(Command), new DistributionPolicy());
 
-            Assert.IsEmpty(routes);
+            Assert.IsNull(route);
         }
 
         static string ExtractDestination(UnicastRoutingStrategy route)
