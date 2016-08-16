@@ -1,8 +1,5 @@
 ﻿namespace NServiceBus.Features
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
     using Config;
     using Routing;
     using Routing.MessageDrivenSubscriptions;
@@ -40,11 +37,8 @@
             var configuredPublishers = context.Settings.Get<ConfiguredPublishers>();
             var conventions = context.Settings.Get<Conventions>();
             var unicastBusConfig = context.Settings.GetConfigSection<UnicastBusConfig>();
-            if (unicastBusConfig != null)
-            {
-                unicastBusConfig.MessageEndpointMappings.ImportMessageEndpointMappings(publishers, unicastRoutingTable, transportInfrastructure.MakeCanonicalForm);
-            }
 
+            unicastBusConfig?.MessageEndpointMappings.Apply(publishers, unicastRoutingTable, transportInfrastructure.MakeCanonicalForm);
             configuredUnicastRoutes.Apply(unicastRoutingTable, conventions);
             configuredPublishers.Apply(publishers, conventions);
 
@@ -93,17 +87,5 @@
                 }
             }
         }
-            var routeTableEntries = new Dictionary<Type, RouteTableEntry>();
-            var publisherTableEntries = new Dictionary<Type, PublisherTableEntry>();
-
-                m.Configure((type, address) =>
-                {
-                    routeTableEntries[type] = new RouteTableEntry(type, UnicastRoute.CreateFromPhysicalAddress(transportInfrastructure.MakeCanonicalForm(address)));
-                    publisherTableEntries[type] = new PublisherTableEntry(type, PublisherAddress.CreateFromPhysicalAddresses(address));
-                });
-            }
-
-            publishers.AddOrReplacePublishers("MessageEndpointMappings", publisherTableEntries.Values.ToList());
-            unicastRoutingTable.AddOrReplaceRoutes("MessageEndpointMappings", routeTableEntries.Values.ToList());
     }
 }
