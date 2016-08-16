@@ -20,7 +20,8 @@
         }
 
         /// <summary>
-        /// Returns the publishers table.
+        /// Returns the publishers table. This API is only used when running a transport that does not have a native Publish-Subscribe support. Refer to the documentation for more information
+        /// about native and emulated Publish-Subscribe.
         /// </summary>
         /// <param name="featureConfigurationContext">Context.</param>
         public static Publishers Publishers(this FeatureConfigurationContext featureConfigurationContext)
@@ -30,7 +31,8 @@
         }
 
         /// <summary>
-        /// Returns the routing table.
+        /// Returns the routing table. This API is only used when running a transport that does not have native scale-out support via Competing Consumers pattern. Refer to the documentation for 
+        /// more information about scaling out.
         /// </summary>
         /// <param name="featureConfigurationContext">Context.</param>
         public static EndpointInstances EndpointInstances(this FeatureConfigurationContext featureConfigurationContext)
@@ -40,7 +42,8 @@
         }
 
         /// <summary>
-        /// Returns the distribution policy.
+        /// Returns the distribution policy. This API is only used when running a transport that does not have native scale-out support via Competing Consumers pattern. Refer to the documentation for 
+        /// more information about scaling out.
         /// </summary>
         /// <param name="featureConfigurationContext">Context.</param>
         public static DistributionPolicy DistributionPolicy(this FeatureConfigurationContext featureConfigurationContext)

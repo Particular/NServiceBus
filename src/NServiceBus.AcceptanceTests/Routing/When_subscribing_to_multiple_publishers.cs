@@ -3,6 +3,7 @@
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
+    using Features;
     using NUnit.Framework;
     using ScenarioDescriptors;
 
@@ -47,8 +48,9 @@
             {
                 EndpointSetup<DefaultServer>(c =>
                 {
+                    c.DisableFeature<AutoSubscribe>();
                     var routing = c.MessageDrivenPubSubRouting();
-                    routing.RegisterPublisher(typeof(SomeEvent), "Publisher1");
+                    routing.RegisterPublisher(typeof(SomeEvent).Assembly, "Publisher1");
                     routing.RegisterPublisher(typeof(SomeEvent), "Publisher2");
                 });
             }

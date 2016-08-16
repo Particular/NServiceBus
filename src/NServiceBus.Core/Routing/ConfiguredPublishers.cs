@@ -1,6 +1,5 @@
 namespace NServiceBus.Features
 {
-    using System;
     using System.Collections.Generic;
     using System.Linq;
     using Routing.MessageDrivenSubscriptions;
@@ -17,15 +16,8 @@ namespace NServiceBus.Features
 
         public void Apply(Publishers publishers, Conventions conventions)
         {
-            var entries = new Dictionary<Type, PublisherTableEntry>();
-            foreach (var source in publisherSources.OrderBy(x => x.Priority)) //Higher priority routes sources override lowe priority.
-            {
-                foreach (var entry in source.Generate(conventions))
-                {
-                    entries[entry.EventType] = entry;
-                }
-            }
-            publishers.AddOrReplacePublishers("EndpointConfiguration", entries.Values.ToList());
+            var entries = publisherSources.SelectMany(s => s.Generate(conventions)).ToList();
+            publishers.AddOrReplacePublishers("EndpointConfiguration", entries);
         }
     }
 }

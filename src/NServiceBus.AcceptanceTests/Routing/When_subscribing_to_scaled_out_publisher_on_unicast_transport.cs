@@ -56,7 +56,7 @@
                     // configure the scaled out publisher instances:
                     var publisherName = Conventions.EndpointNamingConvention(typeof(ScaledOutPublisher));
                     var routing = c.UseTransport(r.GetTransportType()).Routing();
-                    routing.RegisterPublisher(typeof(MyEvent), publisherName);
+                    c.MessageDrivenPubSubRouting().RegisterPublisher(typeof(MyEvent), publisherName);
                     routing.RegisterEndpointInstances(new EndpointInstance(publisherName, "1"), new EndpointInstance(publisherName, "2"));
                 });
             }

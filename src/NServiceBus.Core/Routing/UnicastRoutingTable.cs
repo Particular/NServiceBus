@@ -18,7 +18,9 @@ namespace NServiceBus.Routing
         }
 
         /// <summary>
-        /// Adds or replaces a group of routes for a given group key.
+        /// Adds or replaces a set of routes for a given group key. The route set is identified <paramref name="sourceKey"></paramref>.
+        /// If the method is called the first time with a given <paramref name="sourceKey"></paramref>, the routes are added.
+        /// If the method is called with the same <paramref name="sourceKey"></paramref> multiple times, the routes registered previously under this key are replaced.
         /// </summary>
         /// <param name="sourceKey">Key for the route source.</param>
         /// <param name="entries">Group entries.</param>

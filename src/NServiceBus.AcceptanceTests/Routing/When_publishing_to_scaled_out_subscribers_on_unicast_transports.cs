@@ -71,10 +71,9 @@
         {
             public SubscriberA()
             {
-                EndpointSetup<DefaultServer>((c, r) =>
+                EndpointSetup<DefaultServer>(c =>
                 {
-                    var routing = c.UseTransport(r.GetTransportType()).Routing();
-                    routing.RegisterPublisher(typeof(MyEvent), PublisherEndpoint);
+                    c.MessageDrivenPubSubRouting().RegisterPublisher(typeof(MyEvent), PublisherEndpoint);
                 });
             }
 
@@ -94,10 +93,9 @@
         {
             public SubscriberB()
             {
-                EndpointSetup<DefaultServer>((c, r) =>
-                {
-                    var routing = c.UseTransport(r.GetTransportType()).Routing();
-                    routing.RegisterPublisher(typeof(MyEvent), PublisherEndpoint);
+                EndpointSetup<DefaultServer>(c =>
+                {                    
+                    c.MessageDrivenPubSubRouting().RegisterPublisher(typeof(MyEvent), PublisherEndpoint);
                 });
             }
 

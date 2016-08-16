@@ -18,7 +18,9 @@ namespace NServiceBus.Routing.MessageDrivenSubscriptions
         }
 
         /// <summary>
-        /// Adds or replaces a set of publisher registrations.
+        /// Adds or replaces a set of publisher registrations. The registration set is identified <paramref name="sourceKey"></paramref>.
+        /// If the method is called the first time with a given <paramref name="sourceKey"></paramref>, the registrations are added.
+        /// If the method is called with the same <paramref name="sourceKey"></paramref> multiple times, the publishers registered previously under this key are replaced.
         /// </summary>
         /// <param name="sourceKey">Key for this registration source.</param>
         /// <param name="entries">Entries.</param>
@@ -26,9 +28,9 @@ namespace NServiceBus.Routing.MessageDrivenSubscriptions
         {
             lock (updateLock)
             {
-                pubisherRegistrations[sourceKey] = entries;
+                publisherRegistrations[sourceKey] = entries;
                 var newRouteTable = new Dictionary<Type, HashSet<PublisherAddress>>();
-                foreach (var entry in pubisherRegistrations.Values.SelectMany(g => g))
+                foreach (var entry in publisherRegistrations.Values.SelectMany(g => g))
                 {
                     HashSet<PublisherAddress> publishersOfThisEvent;
                     if (!newRouteTable.TryGetValue(entry.EventType, out publishersOfThisEvent))
@@ -43,7 +45,7 @@ namespace NServiceBus.Routing.MessageDrivenSubscriptions
         }
 
         Dictionary<Type, HashSet<PublisherAddress>> publishers = new Dictionary<Type, HashSet<PublisherAddress>>();
-        Dictionary<object, IList<PublisherTableEntry>> pubisherRegistrations = new Dictionary<object, IList<PublisherTableEntry>>();
+        Dictionary<object, IList<PublisherTableEntry>> publisherRegistrations = new Dictionary<object, IList<PublisherTableEntry>>();
         object updateLock = new object();
     }
 }
