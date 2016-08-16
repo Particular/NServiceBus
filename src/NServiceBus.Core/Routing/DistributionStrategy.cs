@@ -1,20 +1,22 @@
 namespace NServiceBus.Routing
 {
     /// <summary>
-    /// Governs to how many and which instances of a given endpoint a message is to be sent.
+    /// Governs to which instances of a given endpoint a message is to be sent.
     /// </summary>
     public abstract class DistributionStrategy
     {
         /// <summary>
-        /// Selects destination instances from all known instances of a given endpoint.
+        /// Selects a destination instance for a command from all known instances of a logical endpoint.
         /// </summary>
-        public abstract EndpointInstance SelectDestination(EndpointInstance[] allInstances);
+        /// /// <param name="allInstances">All known endpoint instances belonging to the same logical endpoint.</param>
+        /// <returns>The endpoint instance to receive the message.</returns>
+        public abstract EndpointInstance SelectReceiver(EndpointInstance[] allInstances);
 
         /// <summary>
-        /// TODO
+        /// Selects a subscriber address to receive an event from all known subscriber addresses of a logical endpoint.
         /// </summary>
-        /// <param name="transportAddresses"></param>
-        /// <returns></returns>
-        public abstract string SelectDestination(string[] transportAddresses);
+        /// <param name="subscriberAddresses">All known subscriber addresses belonging to the same logical endpoint.</param>
+        /// <returns>The subscriber address to receive the event.</returns>
+        public abstract string SelectSubscriber(string[] subscriberAddresses);
     }
 }

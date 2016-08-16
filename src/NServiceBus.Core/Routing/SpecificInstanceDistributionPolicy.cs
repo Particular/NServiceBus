@@ -25,7 +25,7 @@ namespace NServiceBus
                 this.specificInstance = specificInstance;
             }
 
-            public override EndpointInstance SelectDestination(EndpointInstance[] allInstances)
+            public override EndpointInstance SelectReceiver(EndpointInstance[] allInstances)
             {
                 var target = allInstances.FirstOrDefault(t => t.Discriminator == specificInstance);
                 if (target == null)
@@ -35,7 +35,7 @@ namespace NServiceBus
                 return target;
             }
 
-            public override string SelectDestination(string[] transportAddresses)
+            public override string SelectSubscriber(string[] subscriberAddresses)
             {
                 // This strategy can't be used for publishes
                 throw new NotSupportedException();

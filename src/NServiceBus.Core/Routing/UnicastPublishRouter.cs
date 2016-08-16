@@ -49,7 +49,7 @@ namespace NServiceBus
                 else
                 {
                     //TODO use a real distribution strategy
-                    var subscriber = distributionPolicy.GetDistributionStrategy(subscribers.First().Endpoint).SelectDestination(group.Select(s => s.TransportAddress).ToArray());
+                    var subscriber = distributionPolicy.GetDistributionStrategy(group.First().Endpoint).SelectSubscriber(group.Select(s => s.TransportAddress).ToArray());
                     yield return subscriber;
 //                    //Use the distribution strategy to select subset of instances of a given endpoint
 //                    var destinationForEndpoint = distributionPolicy.GetDistributionStrategy(@group.Key).SelectDestination(@group.Select(t => t.Instance).ToArray());

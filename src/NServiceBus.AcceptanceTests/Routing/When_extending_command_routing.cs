@@ -70,12 +70,12 @@
 
                 class XyzDistributionStrategy : DistributionStrategy
                 {
-                    public override EndpointInstance SelectDestination(EndpointInstance[] allInstances)
+                    public override EndpointInstance SelectReceiver(EndpointInstance[] allInstances)
                     {
                         return allInstances.First(x => x.Discriminator.Contains("XYZ"));
                     }
 
-                    public override string SelectDestination(string[] transportAddresses)
+                    public override string SelectSubscriber(string[] subscriberAddresses)
                     {
                         throw new System.NotImplementedException();
                     }

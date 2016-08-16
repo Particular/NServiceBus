@@ -46,12 +46,12 @@
 
         class FakeDistributionStrategy : DistributionStrategy
         {
-            public override EndpointInstance SelectDestination(EndpointInstance[] allInstances)
+            public override EndpointInstance SelectReceiver(EndpointInstance[] allInstances)
             {
                 return null;
             }
 
-            public override string SelectDestination(string[] transportAddresses)
+            public override string SelectSubscriber(string[] subscriberAddresses)
             {
                 throw new System.NotImplementedException();
             }

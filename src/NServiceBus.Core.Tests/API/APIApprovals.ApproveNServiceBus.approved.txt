@@ -1221,17 +1221,6 @@ namespace NServiceBus
         SendsAtomicWithReceive = 2,
         TransactionScope = 3,
     }
-    public sealed class UnicastRoutingTarget
-    {
-        public string Endpoint { get; }
-        public NServiceBus.Routing.EndpointInstance Instance { get; }
-        public string TransportAddress { get; }
-        public override bool Equals(object obj) { }
-        public override int GetHashCode() { }
-        public static NServiceBus.UnicastRoutingTarget ToAnonymousInstance(string endpoint, string transportAddress) { }
-        public static NServiceBus.UnicastRoutingTarget ToEndpointInstance(NServiceBus.Routing.EndpointInstance instance) { }
-        public static NServiceBus.UnicastRoutingTarget ToTransportAddress(string transportAddress) { }
-    }
     public class UnitOfWorkSettings
     {
         public NServiceBus.UnitOfWorkSettings WrapHandlersInATransactionScope(System.Nullable<System.TimeSpan> timeout = null, System.Nullable<System.Transactions.IsolationLevel> isolationLevel = null) { }
@@ -2570,7 +2559,8 @@ namespace NServiceBus.Routing
     public abstract class DistributionStrategy
     {
         protected DistributionStrategy() { }
-        public abstract NServiceBus.UnicastRoutingTarget SelectDestination(NServiceBus.UnicastRoutingTarget[] allInstances);
+        public abstract NServiceBus.Routing.EndpointInstance SelectDestination(NServiceBus.Routing.EndpointInstance[] allInstances);
+        public abstract string SelectDestination(string[] transportAddresses);
     }
     public sealed class EndpointInstance
     {
@@ -2589,10 +2579,6 @@ namespace NServiceBus.Routing
         public void AddOrReplaceInstances(string sourceKey, System.Collections.Generic.IList<NServiceBus.Routing.EndpointInstance> endpointInstances) { }
     }
     public interface IMessageDrivenSubscriptionTransport { }
-    public interface IUnicastRoute
-    {
-        System.Collections.Generic.IEnumerable<NServiceBus.UnicastRoutingTarget> Resolve(System.Func<string, System.Collections.Generic.IEnumerable<NServiceBus.Routing.EndpointInstance>> instanceResolver);
-    }
     public class MulticastAddressTag : NServiceBus.Routing.AddressTag
     {
         public MulticastAddressTag(System.Type messageType) { }
@@ -2605,9 +2591,9 @@ namespace NServiceBus.Routing
     }
     public class RouteTableEntry
     {
-        public RouteTableEntry(System.Type messageType, NServiceBus.Routing.IUnicastRoute route) { }
+        public RouteTableEntry(System.Type messageType, NServiceBus.Routing.UnicastRoute route) { }
         public System.Type MessageType { get; }
-        public NServiceBus.Routing.IUnicastRoute Route { get; }
+        public NServiceBus.Routing.UnicastRoute Route { get; }
     }
     public abstract class RoutingStrategy
     {
@@ -2617,15 +2603,19 @@ namespace NServiceBus.Routing
     public class SingleInstanceRoundRobinDistributionStrategy : NServiceBus.Routing.DistributionStrategy
     {
         public SingleInstanceRoundRobinDistributionStrategy() { }
-        public override NServiceBus.UnicastRoutingTarget SelectDestination(NServiceBus.UnicastRoutingTarget[] currentAllInstances) { }
+        public override NServiceBus.Routing.EndpointInstance SelectDestination(NServiceBus.Routing.EndpointInstance[] currentAllInstances) { }
+        public override string SelectDestination(string[] transportAddresses) { }
     }
     public class UnicastAddressTag : NServiceBus.Routing.AddressTag
     {
         public UnicastAddressTag(string destination) { }
         public string Destination { get; }
     }
-    public class UnicastRoute : NServiceBus.Routing.IUnicastRoute
+    public class UnicastRoute
     {
+        public string Endpoint { get; }
+        public NServiceBus.Routing.EndpointInstance Instance { get; }
+        public string PhysicalAddress { get; }
         public static NServiceBus.Routing.UnicastRoute CreateFromEndpointInstance(NServiceBus.Routing.EndpointInstance instance) { }
         public static NServiceBus.Routing.UnicastRoute CreateFromEndpointName(string endpoint) { }
         public static NServiceBus.Routing.UnicastRoute CreateFromPhysicalAddress(string physicalAddress) { }
