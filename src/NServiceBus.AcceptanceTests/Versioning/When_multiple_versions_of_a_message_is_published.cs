@@ -12,7 +12,7 @@
         [Test]
         public async Task Should_deliver_is_to_both_v1_and_vX_subscribers()
         {
-            await Scenario.Define<Context>()
+            var context = await Scenario.Define<Context>()
                 .WithEndpoint<V2Publisher>(b =>
                     b.When(c => c.V1Subscribed && c.V2Subscribed, (session, c) =>
                     {
@@ -40,6 +40,9 @@
                 }))
                 .Done(c => c.V1SubscriberGotTheMessage && c.V2SubscriberGotTheMessage)
                 .Run();
+
+            Assert.True(context.V1SubscriberGotTheMessage);
+            Assert.True(context.V2SubscriberGotTheMessage);
         }
 
         public class Context : ScenarioContext
@@ -113,14 +116,14 @@
             }
         }
 
-        public interface V1Event : IEvent
+        public class V1Event : IEvent
         {
-            int SomeData { get; set; }
+            public int SomeData { get; set; }
         }
 
-        public interface V2Event : V1Event
+        public class V2Event : V1Event
         {
-            string MoreInfo { get; set; }
+            public string MoreInfo { get; set; }
         }
     }
 }
