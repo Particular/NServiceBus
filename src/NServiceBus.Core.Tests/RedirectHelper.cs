@@ -7,7 +7,6 @@ using NUnit.Framework;
 [SetUpFixture]
 public class RedirectHelper
 {
-
     [OneTimeSetUp]
     public void Initialize()
     {
