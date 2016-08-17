@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.Unicast.Messages
 {
     using System;
+    using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Linq;
     using Logging;
@@ -83,18 +84,13 @@
 
         Type GetType(string messageTypeIdentifier)
         {
-            for (var i = 0; i < cachedTypes.Count; i++)
+            Type type;
+
+            if (!cachedTypes.TryGetValue(messageTypeIdentifier, out type))
             {
-                var tuple = cachedTypes[0];
-
-                if (tuple.Item1 == messageTypeIdentifier)
-                {
-                    return tuple.Item2;
-                }
+                type = Type.GetType(messageTypeIdentifier, false);
+                cachedTypes[messageTypeIdentifier] = type;
             }
-
-            var type = Type.GetType(messageTypeIdentifier, false);
-            cachedTypes.Add(Tuple.Create(messageTypeIdentifier, type));
 
             return type;
         }
@@ -170,7 +166,7 @@
 
         Conventions conventions;
         Dictionary<RuntimeTypeHandle, MessageMetadata> messages = new Dictionary<RuntimeTypeHandle, MessageMetadata>();
-        List<Tuple<string, Type>> cachedTypes = new List<Tuple<string, Type>>();
+        ConcurrentDictionary<string, Type> cachedTypes = new ConcurrentDictionary<string, Type>();
 
         static ILog Logger = LogManager.GetLogger<MessageMetadataRegistry>();
     }
