@@ -46,7 +46,7 @@
             context.Pipeline.Register(b =>
             {
                 var unicastSendRouter = new UnicastSendRouter(unicastRoutingTable, endpointInstances, i => transportInfrastructure.ToTransportAddress(new LogicalAddress(i)));
-                return new UnicastSendRouterConnector(context.Settings.LocalAddress(), context.Settings.InstanceSpecificQueue(), unicastSendRouter, distributionPolicy);
+                return new UnicastSendRouterConnector(context.Settings.LocalAddress(), context.Settings.InstanceSpecificQueue(), unicastSendRouter, distributionPolicy, i => transportInfrastructure.ToTransportAddress(new LogicalAddress(i)));
             }, "Determines how the message being sent should be routed");
 
             context.Pipeline.Register(new UnicastReplyRouterConnector(), "Determines how replies should be routed");

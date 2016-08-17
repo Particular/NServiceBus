@@ -224,7 +224,7 @@
             var metadataRegistry = new MessageMetadataRegistry(new Conventions());
             metadataRegistry.RegisterMessageTypesFoundIn(new List<Type> { typeof(MyMessage), typeof(MessageWithoutRouting) });
 
-            return new UnicastSendRouterConnector(sharedQueue, instanceSpecificQueue, router ?? new FakeSendRouter(), new DistributionPolicy());
+            return new UnicastSendRouterConnector(sharedQueue, instanceSpecificQueue, router ?? new FakeSendRouter(), new DistributionPolicy(), e => e.ToString());
         }
 
         class FakeSendRouter : IUnicastSendRouter

@@ -1,22 +1,36 @@
 namespace NServiceBus.Routing
 {
     /// <summary>
-    /// Governs to which instances of a given endpoint a message is to be sent.
+    /// Determines which instance of a given endpoint a message is to be sent.
     /// </summary>
     public abstract class DistributionStrategy
     {
         /// <summary>
-        /// Selects a destination instance for a command from all known instances of a logical endpoint.
+        /// Creates a new <see cref="DistributionStrategy"/>.
         /// </summary>
-        /// /// <param name="allInstances">All known endpoint instances belonging to the same logical endpoint.</param>
-        /// <returns>The endpoint instance to receive the message.</returns>
-        public abstract EndpointInstance SelectReceiver(EndpointInstance[] allInstances);
+        /// <param name="endpoint">The name of the endpoint this distribution strategy resolves instances for.</param>
+        /// <param name="scope">The scope for this strategy.</param>
+        protected DistributionStrategy(string endpoint, DistributionStrategyScope scope)
+        {
+            Guard.AgainstNullAndEmpty(nameof(endpoint), endpoint);
+
+            Endpoint = endpoint;
+            Scope = scope;
+        }
 
         /// <summary>
-        /// Selects a subscriber address to receive an event from all known subscriber addresses of a logical endpoint.
+        /// Selects a destination instance for a message from all known addresses of a logical endpoint.
         /// </summary>
-        /// <param name="subscriberAddresses">All known subscriber addresses belonging to the same logical endpoint.</param>
-        /// <returns>The subscriber address to receive the event.</returns>
-        public abstract string SelectSubscriber(string[] subscriberAddresses);
+        public abstract string SelectReceiver(string[] receiverAddresses);
+
+        /// <summary>
+        /// The name of the endpoint this distribution strategy resolves instances for.
+        /// </summary>
+        public string Endpoint { get; }
+
+        /// <summary>
+        /// The scope of this strategy.
+        /// </summary>
+        public DistributionStrategyScope Scope { get; }
     }
 }

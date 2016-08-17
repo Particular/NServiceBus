@@ -4,6 +4,6 @@ namespace NServiceBus
 
     interface IDistributionPolicy
     {
-        DistributionStrategy GetDistributionStrategy(string endpointName);
+        DistributionStrategy GetDistributionStrategy(string endpointName, DistributionStrategyScope scope);
     }
 }
