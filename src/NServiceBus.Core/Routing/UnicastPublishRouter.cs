@@ -48,7 +48,7 @@ namespace NServiceBus
                 }
                 else
                 {
-                    var subscriber = distributionPolicy.GetDistributionStrategy(group.First().Endpoint).SelectSubscriber(group.Select(s => s.TransportAddress).ToArray());
+                    var subscriber = distributionPolicy.GetDistributionStrategy(group.First().Endpoint, DistributionStrategyScope.Publishes).SelectReceiver(group.Select(s => s.TransportAddress).ToArray());
                     addresses.Add(subscriber);
                 }
             }

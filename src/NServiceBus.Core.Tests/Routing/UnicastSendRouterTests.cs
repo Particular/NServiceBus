@@ -3,6 +3,7 @@
     using System.Collections.Generic;
     using NServiceBus.Routing;
     using NUnit.Framework;
+    using Settings;
 
     [TestFixture]
     public class UnicastSendRouterTests
@@ -17,7 +18,7 @@
             var logicalEndpointName = "Sales";
             routingTable.AddOrReplaceRoutes("A", new List<RouteTableEntry> {new RouteTableEntry(typeof(Command), UnicastRoute.CreateFromEndpointName(logicalEndpointName)) });
 
-            var route = router.Route(typeof(Command), new DistributionPolicy());
+            var route = router.Route(typeof(Command), new DistributionPolicy(new SettingsHolder()));
 
             Assert.AreEqual(logicalEndpointName, ExtractDestination(route));
         }
@@ -34,7 +35,7 @@
                 new EndpointInstance(sales, "2"),
             });
 
-            var route = router.Route(typeof(Command), new DistributionPolicy());
+            var route = router.Route(typeof(Command), new DistributionPolicy(new SettingsHolder()));
 
             Assert.AreEqual("Sales-1", ExtractDestination(route));
         }
@@ -42,7 +43,7 @@
         [Test]
         public void Should_return_empty_list_when_no_routes_found()
         {
-            var route = router.Route(typeof(Command), new DistributionPolicy());
+            var route = router.Route(typeof(Command), new DistributionPolicy(new SettingsHolder()));
 
             Assert.IsNull(route);
         }

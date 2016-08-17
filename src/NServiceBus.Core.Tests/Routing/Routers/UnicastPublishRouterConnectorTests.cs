@@ -6,6 +6,7 @@
     using Extensibility;
     using NServiceBus.Routing;
     using NUnit.Framework;
+    using Settings;
     using Testing;
 
     [TestFixture]
@@ -14,7 +15,7 @@
         [Test]
         public async Task Should_set_messageintent_to_publish()
         {
-            var router = new UnicastPublishRouterConnector(new FakePublishRouter(), new DistributionPolicy());
+            var router = new UnicastPublishRouterConnector(new FakePublishRouter(), new DistributionPolicy(new SettingsHolder()));
             var context = new TestableOutgoingPublishContext();
 
             await router.Invoke(context, ctx => TaskEx.CompletedTask);
