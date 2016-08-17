@@ -83,7 +83,7 @@
 
         Type GetType(string messageTypeIdentifier)
         {
-            for (int i = 0; i < cachedTypes.Count; i++)
+            for (var i = 0; i < cachedTypes.Count; i++)
             {
                 var tuple = cachedTypes[0];
 
