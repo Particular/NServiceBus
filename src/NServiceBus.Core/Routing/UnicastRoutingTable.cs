@@ -9,9 +9,9 @@ namespace NServiceBus.Routing
     /// </summary>
     public class UnicastRoutingTable
     {
-        internal IUnicastRoute GetRouteFor(Type messageType)
+        internal UnicastRoute GetRouteFor(Type messageType)
         {
-            IUnicastRoute unicastRoute;
+            UnicastRoute unicastRoute;
             return routeTable.TryGetValue(messageType, out unicastRoute)
                 ? unicastRoute
                 : null;
@@ -29,7 +29,7 @@ namespace NServiceBus.Routing
             lock (updateLock)
             {
                 routeGroups[sourceKey] = entries;
-                var newRouteTable = new Dictionary<Type, IUnicastRoute>();
+                var newRouteTable = new Dictionary<Type, UnicastRoute>();
                 foreach (var entry in routeGroups.Values.SelectMany(g => g))
                 {
                     if (newRouteTable.ContainsKey(entry.MessageType))
@@ -42,7 +42,7 @@ namespace NServiceBus.Routing
             }
         }
 
-        Dictionary<Type, IUnicastRoute> routeTable = new Dictionary<Type, IUnicastRoute>();
+        Dictionary<Type, UnicastRoute> routeTable = new Dictionary<Type, UnicastRoute>();
         Dictionary<object, IList<RouteTableEntry>> routeGroups = new Dictionary<object, IList<RouteTableEntry>>();
         object updateLock = new object();
     }

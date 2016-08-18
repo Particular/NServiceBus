@@ -7,11 +7,6 @@ namespace NServiceBus
 
     static class EnumerableEx
     {
-        public static IEnumerable<T> Single<T>(T singleElement)
-        {
-            return new[] { singleElement };
-        }
-
         public static IEnumerable<T> EnsureNonEmpty<T>(this IEnumerable<T> source, Func<string> exceptionMessage)
         {
             return new NonEmptyEnumerable<T>(source, () => { throw new Exception(exceptionMessage()); });

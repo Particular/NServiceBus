@@ -63,7 +63,7 @@
             var routes = await router.Route(typeof(Event), new DistributionPolicy(), new ContextBag());
 
             Assert.AreEqual(1, routes.Count());
-            Assert.AreEqual("address", ExtractDestination(routes.First()));
+            Assert.AreEqual("address", ExtractDestination(routes.Single()));
         }
 
         [Test]
@@ -106,8 +106,7 @@
             subscriptionStorage = new FakeSubscriptionStorage();
             router = new UnicastPublishRouter(
                 metadataRegistry,
-                subscriptionStorage,
-                i => i.ToString());
+                subscriptionStorage);
         }
 
         class FakeSubscriptionStorage : ISubscriptionStorage

@@ -46,9 +46,14 @@
 
         class FakeDistributionStrategy : DistributionStrategy
         {
-            public override UnicastRoutingTarget SelectDestination(UnicastRoutingTarget[] allInstances)
+            public override EndpointInstance SelectReceiver(EndpointInstance[] allInstances)
             {
                 return null;
+            }
+
+            public override string SelectSubscriber(string[] subscriberAddresses)
+            {
+                throw new System.NotImplementedException();
             }
         }
     }

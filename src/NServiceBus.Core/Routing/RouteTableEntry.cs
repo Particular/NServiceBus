@@ -14,12 +14,12 @@ namespace NServiceBus.Routing
         /// <summary>
         /// Route for the message type.
         /// </summary>
-        public IUnicastRoute Route { get; }
-        
+        public UnicastRoute Route { get; }
+
         /// <summary>
         /// Creates a new entry.
         /// </summary>
-        public RouteTableEntry(Type messageType, IUnicastRoute route)
+        public RouteTableEntry(Type messageType, UnicastRoute route)
         {
             this.MessageType = messageType;
             this.Route = route;

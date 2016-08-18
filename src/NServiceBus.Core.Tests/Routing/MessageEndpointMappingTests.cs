@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus.Core.Tests.Routing
 {
-    using System.Linq;
     using System.Reflection;
     using MessageNamespaceA;
     using MessageNamespaceB;
@@ -106,13 +105,9 @@
             var yetAnotherRoute = routingTable.GetRouteFor(typeof(YetAnotherMessageType));
             var otherMessageRoute = routingTable.GetRouteFor(typeof(OtherMessageType));
 
-            var someMessageDestion = GetDestination(someMessageRoute);
-            var otherMessageDestination = GetDestination(otherMessageRoute);
-            var yetAnotherDestination = GetDestination(yetAnotherRoute);
-
-            Assert.AreEqual("type_destination", someMessageDestion);
-            Assert.AreEqual("namespace_destination", yetAnotherDestination);
-            Assert.AreEqual("assembly_destination", otherMessageDestination);
+            Assert.AreEqual("type_destination", someMessageRoute.PhysicalAddress);
+            Assert.AreEqual("namespace_destination", yetAnotherRoute.PhysicalAddress);
+            Assert.AreEqual("assembly_destination", otherMessageRoute.PhysicalAddress);
         }
 
         static UnicastRoutingTable ApplyMappings(MessageEndpointMappingCollection mappings)
@@ -120,15 +115,6 @@
             var routeTable = new UnicastRoutingTable();
             mappings.Apply(new Publishers(), routeTable, x => x);
             return routeTable;
-        }
-
-        static string GetDestination(IUnicastRoute result)
-        {
-            var targets = result.Resolve(e => new[]
-            {
-                new EndpointInstance(e)
-            });
-            return targets.Single().TransportAddress;
         }
     }
 }

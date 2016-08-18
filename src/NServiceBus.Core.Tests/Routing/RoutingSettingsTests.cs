@@ -2,7 +2,6 @@
 {
     using NServiceBus;
     using System;
-    using System.Linq;
     using System.Reflection;
     using MessageNamespaceA;
     using MessageNamespaceB;
@@ -52,13 +51,9 @@
 
             var routingTable = ApplyConfiguredRoutes(routingSettings);
             var route = routingTable.GetRouteFor(typeof(SomeMessageType));
-            var routingTargets = route.Resolve(e => new[]
-            {
-                new EndpointInstance(e)
-            });
 
             Assert.That(route, Is.Not.Null);
-            Assert.That(routingTargets.Single().Endpoint, Is.EqualTo("destination"));
+            Assert.That(route.Endpoint, Is.EqualTo("destination"));
         }
 
         [Test]

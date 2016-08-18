@@ -70,9 +70,14 @@
 
                 class XyzDistributionStrategy : DistributionStrategy
                 {
-                    public override UnicastRoutingTarget SelectDestination(UnicastRoutingTarget[] allInstances)
+                    public override EndpointInstance SelectReceiver(EndpointInstance[] allInstances)
                     {
-                        return allInstances.First(x => x.Instance.Discriminator.Contains("XYZ"));
+                        return allInstances.First(x => x.Discriminator.Contains("XYZ"));
+                    }
+
+                    public override string SelectSubscriber(string[] subscriberAddresses)
+                    {
+                        throw new System.NotImplementedException();
                     }
                 }
             }
