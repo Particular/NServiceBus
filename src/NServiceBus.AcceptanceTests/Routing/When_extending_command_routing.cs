@@ -65,19 +65,14 @@
                         new EndpointInstance(ReceiverEndpoint, "XYZ"),
                         new EndpointInstance(ReceiverEndpoint, "ABC")
                     });
-                    context.DistributionPolicy().SetDistributionStrategy(ReceiverEndpoint, new XyzDistributionStrategy());
+                    context.DistributionPolicy().SetDistributionStrategy(ReceiverEndpoint, _ => new XyzDistributionStrategy());
                 }
 
                 class XyzDistributionStrategy : DistributionStrategy
                 {
-                    public override EndpointInstance SelectReceiver(EndpointInstance[] allInstances)
+                    public override string SelectReceiver(string[] receiverAddresses)
                     {
-                        return allInstances.First(x => x.Discriminator.Contains("XYZ"));
-                    }
-
-                    public override string SelectSubscriber(string[] subscriberAddresses)
-                    {
-                        throw new System.NotImplementedException();
+                        return receiverAddresses.First(x => x.Contains("XYZ"));
                     }
                 }
             }

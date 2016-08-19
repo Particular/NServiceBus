@@ -8,6 +8,7 @@
     using NServiceBus.Routing;
     using Unicast.Messages;
     using NUnit.Framework;
+    using Settings;
     using Testing;
 
     [TestFixture]
@@ -224,7 +225,7 @@
             var metadataRegistry = new MessageMetadataRegistry(new Conventions());
             metadataRegistry.RegisterMessageTypesFoundIn(new List<Type> { typeof(MyMessage), typeof(MessageWithoutRouting) });
 
-            return new UnicastSendRouterConnector(sharedQueue, instanceSpecificQueue, router ?? new FakeSendRouter(), new DistributionPolicy());
+            return new UnicastSendRouterConnector(sharedQueue, instanceSpecificQueue, router ?? new FakeSendRouter(), new DistributionPolicy(new SettingsHolder()), e => e.ToString());
         }
 
         class FakeSendRouter : IUnicastSendRouter

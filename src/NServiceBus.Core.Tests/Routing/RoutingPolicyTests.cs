@@ -1,8 +1,8 @@
 namespace NServiceBus.Core.Tests.Routing
 {
     using System.Collections.Generic;
-    using NServiceBus.Routing;
     using NUnit.Framework;
+    using Settings;
 
     [TestFixture]
     public class RoutingPolicyTests
@@ -11,25 +11,25 @@ namespace NServiceBus.Core.Tests.Routing
         public void ShouldScopeDistributionToEndpointName()
         {
             var endpointA = "endpointA";
-            var policy = new DistributionPolicy();
+            var policy = new DistributionPolicy(new SettingsHolder());
             var endpointAInstances = new[]
             {
-                new EndpointInstance(endpointA, "1"),
-                new EndpointInstance(endpointA, "2")
+                endpointA + "1",
+                endpointA + "2"
             };
 
             var endpointB = "endpointB";
             var endpointBInstances = new[]
             {
-                new EndpointInstance(endpointB, "1"),
-                new EndpointInstance(endpointB, "2")
+                endpointB + "1",
+                endpointB + "2"
             };
 
-            var result = new List<EndpointInstance>();
-            result.Add(InvokeDistributionStrategy(policy, endpointAInstances));
-            result.Add(InvokeDistributionStrategy(policy, endpointBInstances));
-            result.Add(InvokeDistributionStrategy(policy, endpointAInstances));
-            result.Add(InvokeDistributionStrategy(policy, endpointBInstances));
+            var result = new List<string>();
+            result.Add(InvokeDistributionStrategy(policy, endpointA, endpointAInstances));
+            result.Add(InvokeDistributionStrategy(policy, endpointB, endpointBInstances));
+            result.Add(InvokeDistributionStrategy(policy, endpointA, endpointAInstances));
+            result.Add(InvokeDistributionStrategy(policy, endpointB, endpointBInstances));
 
             Assert.That(result.Count, Is.EqualTo(4));
             Assert.That(result, Has.Exactly(1).EqualTo(endpointAInstances[0]));
@@ -38,9 +38,9 @@ namespace NServiceBus.Core.Tests.Routing
             Assert.That(result, Has.Exactly(1).EqualTo(endpointBInstances[1]));
         }
 
-        static EndpointInstance InvokeDistributionStrategy(IDistributionPolicy policy, EndpointInstance[] instances)
+        static string InvokeDistributionStrategy(IDistributionPolicy policy, string endpointName, string[] instanceAddress)
         {
-            return policy.GetDistributionStrategy(instances[0].Endpoint).SelectReceiver(instances);
+            return policy.GetDistributionStrategy(endpointName, DistributionStrategyScope.Sends).SelectReceiver(instanceAddress);
         }
     }
 }

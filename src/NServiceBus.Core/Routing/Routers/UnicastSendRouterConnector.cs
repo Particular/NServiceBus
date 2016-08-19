@@ -21,12 +21,14 @@ namespace NServiceBus
             string sharedQueue,
             string instanceSpecificQueue,
             IUnicastSendRouter unicastSendRouter,
-            DistributionPolicy distributionPolicy)
+            DistributionPolicy distributionPolicy,
+            Func<EndpointInstance, string> transportAddressTranslation)
         {
             this.sharedQueue = sharedQueue;
             this.instanceSpecificQueue = instanceSpecificQueue;
             this.unicastSendRouter = unicastSendRouter;
             defaultDistributionPolicy = distributionPolicy;
+            this.transportAddressTranslation = transportAddressTranslation;
         }
 
         public override async Task Invoke(IOutgoingSendContext context, Func<IOutgoingLogicalMessageContext, Task> stage)
@@ -44,7 +46,7 @@ namespace NServiceBus
             var explicitDestination = state.Option == RouteOption.ExplicitDestination ? state.ExplicitDestination : null;
             var destination = explicitDestination ?? thisInstance ?? thisEndpoint;
 
-            var distributionPolicy = state.Option == RouteOption.RouteToSpecificInstance ? new SpecificInstanceDistributionPolicy(state.SpecificInstance) : defaultDistributionPolicy;
+            var distributionPolicy = state.Option == RouteOption.RouteToSpecificInstance ? new SpecificInstanceDistributionPolicy(state.SpecificInstance, transportAddressTranslation) : defaultDistributionPolicy;
 
             var routingStrategy = string.IsNullOrEmpty(destination)
                 ? unicastSendRouter.Route(messageType, distributionPolicy)
@@ -81,6 +83,7 @@ namespace NServiceBus
         }
 
         IDistributionPolicy defaultDistributionPolicy;
+        Func<EndpointInstance, string> transportAddressTranslation;
         string instanceSpecificQueue;
         string sharedQueue;
         IUnicastSendRouter unicastSendRouter;

@@ -294,8 +294,13 @@ namespace NServiceBus
     }
     public class DistributionPolicy : NServiceBus.IDistributionPolicy
     {
-        public DistributionPolicy() { }
-        public void SetDistributionStrategy(string endpointName, NServiceBus.Routing.DistributionStrategy distributionStrategy) { }
+        public DistributionPolicy(NServiceBus.Settings.ReadOnlySettings settings) { }
+        public void SetDistributionStrategy(string endpoint, System.Func<NServiceBus.Settings.ReadOnlySettings, NServiceBus.Routing.DistributionStrategy> distributionStrategyFactory) { }
+    }
+    public enum DistributionStrategyScope
+    {
+        Sends = 0,
+        Publishes = 1,
     }
     public class static DurableMessagesConfig
     {
@@ -800,7 +805,7 @@ namespace NServiceBus
         public static NServiceBus.TransportExtensions<NServiceBus.MsmqTransport> ApplyLabelToMessages(this NServiceBus.TransportExtensions<NServiceBus.MsmqTransport> transportExtensions, System.Func<System.Collections.Generic.IReadOnlyDictionary<string, string>, string> labelGenerator) { }
         public static NServiceBus.InstanceMappingFileSettings InstanceMappingFile(this NServiceBus.RoutingSettings<NServiceBus.MsmqTransport> config) { }
         public static NServiceBus.TransportExtensions<NServiceBus.MsmqTransport> OverrideAddressTranslation(this NServiceBus.TransportExtensions<NServiceBus.MsmqTransport> config, System.Func<NServiceBus.LogicalAddress, string> translationRule) { }
-        public static void SetMessageDistributionStrategy(this NServiceBus.RoutingSettings<NServiceBus.MsmqTransport> config, string endpointName, NServiceBus.Routing.DistributionStrategy distributionStrategy) { }
+        public static void SetMessageDistributionStrategy(this NServiceBus.RoutingSettings<NServiceBus.MsmqTransport> config, string endpoint, System.Func<NServiceBus.Settings.ReadOnlySettings, NServiceBus.Routing.DistributionStrategy> distributionStrategyFactory) { }
         public static NServiceBus.TransportExtensions<NServiceBus.MsmqTransport> TransactionScopeOptions(this NServiceBus.TransportExtensions<NServiceBus.MsmqTransport> transportExtensions, System.Nullable<System.TimeSpan> timeout = null, System.Nullable<System.Transactions.IsolationLevel> isolationLevel = null) { }
     }
     public class MsmqTransport : NServiceBus.Transport.TransportDefinition, NServiceBus.Routing.IMessageDrivenSubscriptionTransport
@@ -2559,8 +2564,7 @@ namespace NServiceBus.Routing
     public abstract class DistributionStrategy
     {
         protected DistributionStrategy() { }
-        public abstract NServiceBus.Routing.EndpointInstance SelectReceiver(NServiceBus.Routing.EndpointInstance[] allInstances);
-        public abstract string SelectSubscriber(string[] subscriberAddresses);
+        public abstract string SelectReceiver(string[] receiverAddresses);
     }
     public sealed class EndpointInstance
     {
@@ -2603,8 +2607,7 @@ namespace NServiceBus.Routing
     public class SingleInstanceRoundRobinDistributionStrategy : NServiceBus.Routing.DistributionStrategy
     {
         public SingleInstanceRoundRobinDistributionStrategy() { }
-        public override NServiceBus.Routing.EndpointInstance SelectReceiver(NServiceBus.Routing.EndpointInstance[] allInstances) { }
-        public override string SelectSubscriber(string[] subscriberAddresses) { }
+        public override string SelectReceiver(string[] receiverAddresses) { }
     }
     public class UnicastAddressTag : NServiceBus.Routing.AddressTag
     {
