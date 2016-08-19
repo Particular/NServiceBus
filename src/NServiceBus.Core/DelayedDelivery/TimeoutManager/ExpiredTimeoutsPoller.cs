@@ -82,14 +82,14 @@ namespace NServiceBus
         {
             while (!cancellationToken.IsCancellationRequested)
             {
-                await SpinOnce().ConfigureAwait(false);
+                await SpinOnce(cancellationToken).ConfigureAwait(false);
                 await Task.Delay(NextRetrievalPollSleep, cancellationToken).ConfigureAwait(false);
             }
         }
 
-        internal async Task SpinOnce()
+        internal async Task SpinOnce(CancellationToken cancellationToken)
         {
-            if (NextRetrieval > currentTimeProvider())
+            if (NextRetrieval > currentTimeProvider() || cancellationToken.IsCancellationRequested)
             {
                 return;
             }
@@ -99,6 +99,11 @@ namespace NServiceBus
 
             foreach (var timeoutData in timeoutChunk.DueTimeouts)
             {
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    return;
+                }
+
                 if (startSlice < timeoutData.DueTime)
                 {
                     startSlice = timeoutData.DueTime;
