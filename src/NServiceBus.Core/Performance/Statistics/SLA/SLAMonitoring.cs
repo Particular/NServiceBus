@@ -67,12 +67,7 @@ namespace NServiceBus.Features
 
             public void Update(DateTime sent, DateTime processingStarted, DateTime processingEnded)
             {
-                var dataPoint = new DataPoint
-                {
-                    CriticalTime = processingEnded - sent,
-                    ProcessingTime = processingEnded - processingStarted,
-                    OccurredAt = processingEnded
-                };
+                var dataPoint = new DataPoint(processingEnded - sent, processingEnded, processingEnded - processingStarted);
 
                 lock (dataPoints)
                 {
@@ -191,10 +186,20 @@ namespace NServiceBus.Features
 
             struct DataPoint
             {
-                public TimeSpan CriticalTime;
-                public DateTime OccurredAt;
-                public TimeSpan ProcessingTime;
+                public DataPoint(TimeSpan criticalTime, DateTime occurredAt, TimeSpan processingTime)
+                {
+                    CriticalTime = criticalTime;
+                    OccurredAt = occurredAt;
+                    ProcessingTime = processingTime;
+                }
+
+                public TimeSpan CriticalTime { get; }
+
+                public DateTime OccurredAt { get; }
+
+                public TimeSpan ProcessingTime { get; }
             }
+
         }
     }
 }
