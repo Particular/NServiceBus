@@ -12,15 +12,7 @@
         public async Task Should_forward_message()
         {
             var context = await Scenario.Define<Context>()
-                .WithEndpoint<EndpointThatForwards>(b => b.When((session, c) =>
-                {
-                    var options = new SendOptions();
-
-                    options.RouteToThisEndpoint();
-                    options.RouteReplyTo(CustomReplyToAddress);
-
-                    return session.Send(new MessageToForward(), options);
-                }))
+                .WithEndpoint<EndpointThatForwards>(b => b.When((session, c) => session.SendLocal(new MessageToForward())))
                 .WithEndpoint<ForwardReceiver>()
                 .Done(c => c.GotForwardedMessage)
                 .Run();
@@ -28,8 +20,6 @@
             Assert.IsTrue(context.GotForwardedMessage);
             CollectionAssert.AreEqual(context.ForwardedHeaders, context.ReceivedHeaders, "Headers should be preserved on the forwarded message");
         }
-
-        static string CustomReplyToAddress = "MyClient";
 
         public class Context : ScenarioContext
         {
