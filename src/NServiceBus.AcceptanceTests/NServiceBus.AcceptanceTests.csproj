@@ -63,6 +63,7 @@
     <Compile Include="DataBus\When_sending_databus_properties_with_unobtrusive.cs" />
     <Compile Include="Basic\When_sending_interface_message_with_conventions.cs" />
     <Compile Include="Encryption\When_using_Rijndael_with_unobtrusive_mode.cs" />
+    <Compile Include="Forwarding\When_requesting_message_to_be_forwarded.cs" />
     <Compile Include="Performance\TimeToBeReceived\When_TimeToBeReceived_used_with_unobtrusive_mode.cs" />
     <Compile Include="Recoverability\Retries\When_custom_policy_provided.cs" />
     <Compile Include="Recoverability\When_custom_policy_moves_to_overridden_error_queue.cs" />
@@ -150,7 +151,7 @@
     <Compile Include="Licensing\When_a_message_is_audited.cs" />
     <Compile Include="Recoverability\When_message_with_TimeToBeReceived_fails.cs" />
     <Compile Include="Audit\When_auditing_message_with_TimeToBeReceived.cs" />
-    <Compile Include="Forwarding\When_ForwardReceivedMessagesTo_is_set.cs" />
+    <Compile Include="Forwarding\When_forwarding_is_configured_for_endpoint.cs" />
     <Compile Include="Audit\When_a_replymessage_is_audited.cs" />
     <Compile Include="Performance\When_message_is_audited.cs" />
     <Compile Include="Basic\When_receiving_with_catch_all_handlers_registered.cs" />
