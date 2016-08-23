@@ -3,6 +3,7 @@
     using System;
     using ConsistencyGuarantees;
     using DelayedDelivery;
+    using DelayedDelivery.TimeoutManager;
     using DeliveryConstraints;
     using Persistence;
     using Settings;
@@ -34,13 +35,15 @@
                 throw new Exception("The selected persistence doesn't have support for timeout storage. Select another persistence or disable the timeout manager feature using endpointConfiguration.DisableFeature<TimeoutManager>()");
             }
 
-            var requiredTransactionSupport = context.Settings.GetRequiredTransactionModeForReceives();
+            var requiredTransactionMode = context.Settings.GetRequiredTransactionModeForReceives();
 
-            SetupStorageSatellite(context, requiredTransactionSupport);
+            SetupStorageSatellite(context, requiredTransactionMode);
 
-            var dispatcherAddress = SetupDispatcherSatellite(context, requiredTransactionSupport);
+            var dispatcherAddress = SetupDispatcherSatellite(context, requiredTransactionMode);
 
             SetupTimeoutPoller(context, dispatcherAddress);
+
+            SetupLegacyTimeoutsSatellite(context, requiredTransactionMode);
         }
 
         static void SetupTimeoutPoller(FeatureConfigurationContext context, string dispatcherAddress)
@@ -98,6 +101,19 @@
                 });
 
             context.Settings.Get<TimeoutManagerAddressConfiguration>().Set(satelliteAddress);
+        }
+
+        static void SetupLegacyTimeoutsSatellite(FeatureConfigurationContext context, TransportTransactionMode requiredTransactionMode)
+        {
+            var satelliteAddress = CreateSatelliteInputQueueAddress(context, "Retries");
+
+            context.AddSatelliteReceiver("Legacy Timeouts Processor", satelliteAddress, requiredTransactionMode, PushRuntimeSettings.Default, RecoverabilityPolicy,
+                (builder, pushContext) =>
+                {
+                    var legacyTimeoutsBehavior = new LegacyTimeoutsBehavior();
+
+                    return legacyTimeoutsBehavior.Invoke(pushContext);
+                });
         }
 
         static bool HasAlternateTimeoutManagerBeenConfigured(ReadOnlySettings settings)
