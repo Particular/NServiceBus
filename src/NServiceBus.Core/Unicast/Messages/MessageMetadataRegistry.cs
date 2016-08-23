@@ -165,7 +165,7 @@
         }
 
         Conventions conventions;
-        Dictionary<RuntimeTypeHandle, MessageMetadata> messages = new Dictionary<RuntimeTypeHandle, MessageMetadata>();
+        ConcurrentDictionary<RuntimeTypeHandle, MessageMetadata> messages = new ConcurrentDictionary<RuntimeTypeHandle, MessageMetadata>();
         ConcurrentDictionary<string, Type> cachedTypes = new ConcurrentDictionary<string, Type>();
 
         static ILog Logger = LogManager.GetLogger<MessageMetadataRegistry>();
