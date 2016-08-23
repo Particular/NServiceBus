@@ -59,6 +59,7 @@
                 {
                     if (item.MessageType.FullName == messageTypeIdentifier)
                     {
+                        cachedTypes[messageTypeIdentifier] = item.MessageType;
                         return item;
                     }
                 }
