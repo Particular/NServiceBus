@@ -168,7 +168,6 @@
     <Compile Include="Routing\MessageDrivenSubscriptions\PublisherTableEntry.cs" />
     <Compile Include="Routing\RouteTableEntry.cs" />
     <Compile Include="Routing\RoutingFeatureSettingsExtensions.cs" />
-    <Compile Include="Routing\RoutingPluginSettingsExtensions.cs" />
     <Compile Include="Routing\SpecificInstanceDistributionPolicy.cs" />
     <Compile Include="Routing\UnicastPublishRouter.cs" />
     <Compile Include="Routing\UnicastSendRouter.cs" />
