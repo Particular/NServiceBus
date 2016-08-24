@@ -113,7 +113,7 @@
         static UnicastRoutingTable ApplyMappings(MessageEndpointMappingCollection mappings)
         {
             var routeTable = new UnicastRoutingTable();
-            mappings.Apply(new Publishers(), routeTable, x => x);
+            mappings.Apply(new Publishers(), routeTable, x => x, new Conventions());
             return routeTable;
         }
     }

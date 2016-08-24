@@ -163,7 +163,13 @@
     <Compile Include="Routing\BestPracticesOptionExtensionsTests.cs" />
     <Compile Include="Routing\DetermineRouteForPublishBehaviorTests.cs" />
     <Compile Include="Routing\DistributionPolicyTests.cs" />
+    <Compile Include="Routing\MessageDrivenSubscriptions\AssemblyPublisherSourceTests.cs" />
     <Compile Include="Routing\MessageEndpointMappingTests.cs" />
+    <Compile Include="Routing\MessageDrivenSubscriptions\NamespacePublisherSourceTests.cs" />
+    <Compile Include="Routing\MessageDrivenSubscriptions\TypePublisherSourceTests.cs" />
+    <Compile Include="Routing\AssemblyRouteSourceTests.cs" />
+    <Compile Include="Routing\NamespaceRouteSourceTests.cs" />
+    <Compile Include="Routing\TypeRouteSourceTests.cs" />
     <Compile Include="Transports\MSMQ\InstanceMapping\InstanceMappingFileFeatureTests.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\MessageDrivenSubscriptionsConfigExtensionsTests.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\PublishersTests.cs" />

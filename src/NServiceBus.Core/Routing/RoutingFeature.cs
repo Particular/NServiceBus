@@ -38,7 +38,7 @@
             var conventions = context.Settings.Get<Conventions>();
             var unicastBusConfig = context.Settings.GetConfigSection<UnicastBusConfig>();
 
-            unicastBusConfig?.MessageEndpointMappings.Apply(publishers, unicastRoutingTable, transportInfrastructure.MakeCanonicalForm);
+            unicastBusConfig?.MessageEndpointMappings.Apply(publishers, unicastRoutingTable, transportInfrastructure.MakeCanonicalForm, conventions);
             configuredUnicastRoutes.Apply(unicastRoutingTable, conventions);
             configuredPublishers.Apply(publishers, conventions);
 

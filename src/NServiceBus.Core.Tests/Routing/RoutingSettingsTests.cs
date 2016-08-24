@@ -128,7 +128,7 @@ namespace MessageNamespaceA
     {
     }
 
-    class YetAnotherMessageType
+    class YetAnotherMessageType : IMessage
     {
     }
 }
