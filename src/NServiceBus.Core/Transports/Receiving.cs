@@ -15,17 +15,22 @@ namespace NServiceBus
             Defaults(s =>
             {
                 var transportInfrastructure = s.Get<TransportInfrastructure>();
-                var userDiscriminator = s.GetOrDefault<string>("EndpointInstanceDiscriminator");
+                var discriminator = s.GetOrDefault<string>("EndpointInstanceDiscriminator");
                 var baseQueueName = s.GetOrDefault<string>("BaseInputQueueName") ?? s.EndpointName();
-                if (userDiscriminator != null)
-                {
-                    var p = s.Get<TransportInfrastructure>().BindToLocalEndpoint(new EndpointInstance(baseQueueName, userDiscriminator));
-                    s.SetDefault("NServiceBus.EndpointSpecificQueue", transportInfrastructure.ToTransportAddress(new LogicalAddress(p)));
-                }
-                var instanceProperties = s.Get<TransportInfrastructure>().BindToLocalEndpoint(new EndpointInstance(baseQueueName));
-                s.SetDefault("NServiceBus.SharedQueue", transportInfrastructure.ToTransportAddress(new LogicalAddress(instanceProperties)));
 
-                s.SetDefault<EndpointInstance>(instanceProperties);
+                var mainInstance = transportInfrastructure.BindToLocalEndpoint(new EndpointInstance(s.EndpointName()));
+
+                var mainLogicalAddress = LogicalAddress.CreateLocalAddress(baseQueueName, mainInstance.Properties);
+                s.SetDefault<LogicalAddress>(mainLogicalAddress);
+
+                var mainAddress = transportInfrastructure.ToTransportAddress(mainLogicalAddress);
+                s.SetDefault("NServiceBus.SharedQueue", mainAddress);
+
+                if (discriminator != null)
+                {
+                    var instanceSpecificAddress = transportInfrastructure.ToTransportAddress(mainLogicalAddress.CreateIndividualizedAddress(discriminator));
+                    s.SetDefault("NServiceBus.EndpointSpecificQueue", instanceSpecificAddress);
+                }
             });
         }
 

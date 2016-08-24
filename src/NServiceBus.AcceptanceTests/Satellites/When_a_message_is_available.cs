@@ -47,8 +47,7 @@
 
                 protected override void Setup(FeatureConfigurationContext context)
                 {
-                    var instanceName = context.Settings.EndpointInstanceName();
-                    var satelliteLogicalAddress = new LogicalAddress(instanceName, "MySatellite");
+                    var satelliteLogicalAddress = context.Settings.LogicalAddress().CreateQualifiedAddress("MySatellite");
                     var satelliteAddress = context.Settings.GetTransportAddress(satelliteLogicalAddress);
 
                     context.AddSatelliteReceiver("Test satellite", satelliteAddress, TransportTransactionMode.ReceiveOnly, PushRuntimeSettings.Default,
