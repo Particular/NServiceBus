@@ -930,6 +930,7 @@ namespace NServiceBus
     {
         public NServiceBus.RecoverabilitySettings CustomPolicy(System.Func<NServiceBus.RecoverabilityConfig, NServiceBus.Transport.ErrorContext, NServiceBus.RecoverabilityAction> custom) { }
         public NServiceBus.RecoverabilitySettings Delayed(System.Action<NServiceBus.DelayedRetriesSettings> customizations) { }
+        public NServiceBus.RecoverabilitySettings DisableLegacyRetriesSatellite() { }
         public NServiceBus.RecoverabilitySettings Failed(System.Action<NServiceBus.RetryFailedSettings> customizations) { }
         public NServiceBus.RecoverabilitySettings Immediate(System.Action<NServiceBus.ImmediateRetriesSettings> customizations) { }
     }

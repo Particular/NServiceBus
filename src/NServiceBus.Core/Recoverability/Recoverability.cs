@@ -98,7 +98,12 @@
 
             RaiseLegacyNotifications(context);
 
-            SetupLegacyRetriesSatellite(context);
+            //HINT: we turn-off legacy retries satellite only when explicitly configured by the user
+            bool disableLegacyRetriesSatellite;
+            if (context.Settings.TryGet(DisableLegacyRetriesSatellite, out disableLegacyRetriesSatellite) == false)
+            {
+                SetupLegacyRetriesSatellite(context);
+            }
         }
 
         static ImmediateConfig GetImmediateRetryConfig(ReadOnlySettings settings, bool transactionsOn)
@@ -216,6 +221,7 @@
         public const string NumberOfImmediateRetries = "Recoverability.Immediate.Retries";
         public const string FaultHeaderCustomization = "Recoverability.Failed.FaultHeaderCustomization";
         public const string PolicyOverride = "Recoverability.CustomPolicy";
+        public const string DisableLegacyRetriesSatellite = "Recoverability.DisableLegacyRetriesSatellite";
 
         static ILog Logger = LogManager.GetLogger<Recoverability>();
         internal static int DefaultNumberOfRetries = 3;

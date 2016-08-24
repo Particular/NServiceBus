@@ -53,5 +53,16 @@ namespace NServiceBus
 
             return this;
         }
+
+        /// <summary>
+        /// Disables legacy retries satellite (enabled by default). It prevents in-flight, retry messages from being left
+        /// in .Retries queue when migrating from previous versions on NServiceBus. For further details can be found in V5 to V6 Upgrade Guide.
+        /// </summary>
+        public RecoverabilitySettings DisableLegacyRetriesSatellite()
+        {
+            Settings.Set(Recoverability.DisableLegacyRetriesSatellite, true);
+
+            return this;
+        }
     }
 }
