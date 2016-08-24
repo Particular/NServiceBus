@@ -182,7 +182,7 @@
             var requiredTransactionMode = context.Settings.GetRequiredTransactionModeForReceives();
             var maxNumberOfImmediateRetries = 4;
 
-            context.AddSatelliteReceiver("Legacy Retries Processor", retriesQueueTransportAddress, requiredTransactionMode, PushRuntimeSettings.Default,
+            context.AddSatelliteReceiver("Legacy Retries Processor", retriesQueueTransportAddress, requiredTransactionMode, new PushRuntimeSettings(maxConcurrency: 1),
                 (config, errorContext) =>
                 {
                     if (errorContext.ImmediateProcessingFailures <= maxNumberOfImmediateRetries)
