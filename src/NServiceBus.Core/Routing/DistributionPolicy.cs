@@ -1,28 +1,30 @@
 namespace NServiceBus
 {
+    using System;
     using System.Collections.Concurrent;
     using Routing;
 
     /// <summary>
-    /// Allows to configure distribution strategies.
+    /// Configures distribution strategies.
     /// </summary>
     public class DistributionPolicy : IDistributionPolicy
     {
         /// <summary>
         /// Sets the distribution strategy for a given endpoint.
         /// </summary>
-        /// <param name="endpointName">Endpoint name.</param>
         /// <param name="distributionStrategy">Distribution strategy to be used.</param>
-        public void SetDistributionStrategy(string endpointName, DistributionStrategy distributionStrategy)
+        public void SetDistributionStrategy(DistributionStrategy distributionStrategy)
         {
-            Guard.AgainstNullAndEmpty(nameof(endpointName), endpointName);
             Guard.AgainstNull(nameof(distributionStrategy), distributionStrategy);
 
-            configuredStrategies[endpointName] = distributionStrategy;
+            configuredStrategies[Tuple.Create(distributionStrategy.Endpoint, distributionStrategy.Scope)] = distributionStrategy;
         }
 
-        DistributionStrategy IDistributionPolicy.GetDistributionStrategy(string endpointName) => configuredStrategies.GetOrAdd(endpointName, key => new SingleInstanceRoundRobinDistributionStrategy());
+        DistributionStrategy IDistributionPolicy.GetDistributionStrategy(string endpointName, DistributionStrategyScope scope)
+        {
+            return configuredStrategies.GetOrAdd(Tuple.Create(endpointName, scope), key => new SingleInstanceRoundRobinDistributionStrategy(key.Item1, key.Item2));
+        }
 
-        ConcurrentDictionary<string, DistributionStrategy> configuredStrategies = new ConcurrentDictionary<string, DistributionStrategy>();
+        ConcurrentDictionary<Tuple<string, DistributionStrategyScope>, DistributionStrategy> configuredStrategies = new ConcurrentDictionary<Tuple<string, DistributionStrategyScope>, DistributionStrategy>();
     }
 }
