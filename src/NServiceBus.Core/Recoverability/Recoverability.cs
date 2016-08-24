@@ -10,6 +10,7 @@
     using Features;
     using Hosting;
     using Logging;
+    using Routing;
     using Settings;
     using Support;
     using Transport;
@@ -96,8 +97,9 @@
             }, DependencyLifecycle.SingleInstance);
 
             RaiseLegacyNotifications(context);
-        }
 
+            SetupLegacyRetriesSatellite(context);
+        }
 
         static ImmediateConfig GetImmediateRetryConfig(ReadOnlySettings settings, bool transactionsOn)
         {
@@ -161,6 +163,40 @@
                 legacyNotifications.Errors.InvokeMessageHasBeenSentToErrorQueue(e.Message, e.Exception, e.ErrorQueue);
                 return TaskEx.CompletedTask;
             });
+        }
+
+        void SetupLegacyRetriesSatellite(FeatureConfigurationContext context)
+        {
+            var instanceName = context.Settings.EndpointInstanceName();
+            var retriesQueueLogicalAddress = new LogicalAddress(instanceName, "Retries");
+            var retriesQueueTransportAddress = context.Settings.GetTransportAddress(retriesQueueLogicalAddress);
+
+            var mainQueueLogicalAddress = new LogicalAddress(instanceName);
+            var mainQueueTransportAddress = context.Settings.GetTransportAddress(mainQueueLogicalAddress);
+
+            var requiredTransactionMode = context.Settings.GetRequiredTransactionModeForReceives();
+            var maxNumberOfImmediateRetries = 4;
+
+            context.AddSatelliteReceiver("Legacy Retries Processor", retriesQueueTransportAddress, requiredTransactionMode, PushRuntimeSettings.Default,
+                (config, errorContext) =>
+                {
+                    if (errorContext.ImmediateProcessingFailures <= maxNumberOfImmediateRetries)
+                    {
+                        return RecoverabilityAction.ImmediateRetry();
+                    }
+
+                    return RecoverabilityAction.MoveToError(config.Failed.ErrorQueue);
+                },
+                (builder, pushContext) =>
+                {
+                    var messageDispatcher = builder.Build<IDispatchMessages>();
+
+                    //TODO: remove exception headers
+                    var outgoingMessage = new OutgoingMessage(pushContext.MessageId, pushContext.Headers, pushContext.Body);
+                    var outgoingOperation = new TransportOperation(outgoingMessage, new UnicastAddressTag(mainQueueTransportAddress));
+
+                    return messageDispatcher.Dispatch(new TransportOperations(outgoingOperation), pushContext.TransportTransaction, pushContext.Context);
+                });
         }
 
         public const string NumberOfDelayedRetries = "Recoverability.Delayed.DefaultPolicy.Retries";
