@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.Unicast.Messages
 {
     using System;
+    using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Linq;
     using Logging;
@@ -48,12 +49,22 @@
         {
             Guard.AgainstNullAndEmpty(nameof(messageTypeIdentifier), messageTypeIdentifier);
 
-            var messageType = Type.GetType(messageTypeIdentifier, false);
+            var messageType = GetType(messageTypeIdentifier);
 
             if (messageType == null)
             {
                 Logger.DebugFormat("Message type: '{0}' could not be determined by a 'Type.GetType', scanning known messages for a match", messageTypeIdentifier);
-                return messages.Values.FirstOrDefault(m => m.MessageType.FullName == messageTypeIdentifier);
+
+                foreach (var item in messages.Values)
+                {
+                    if (item.MessageType.FullName == messageTypeIdentifier)
+                    {
+                        cachedTypes[messageTypeIdentifier] = item.MessageType;
+                        return item;
+                    }
+                }
+
+                return null;
             }
 
             MessageMetadata metadata;
@@ -70,6 +81,19 @@
 
             Logger.WarnFormat("Message header '{0}' was mapped to type '{1}' but that type was not found in the message registry, ensure the same message registration conventions are used in all endpoints, especially if using unobtrusive mode. ", messageType, messageType.FullName);
             return null;
+        }
+
+        Type GetType(string messageTypeIdentifier)
+        {
+            Type type;
+
+            if (!cachedTypes.TryGetValue(messageTypeIdentifier, out type))
+            {
+                type = Type.GetType(messageTypeIdentifier, false);
+                cachedTypes[messageTypeIdentifier] = type;
+            }
+
+            return type;
         }
 
         internal IEnumerable<MessageMetadata> GetAllMessages()
@@ -142,7 +166,8 @@
         }
 
         Conventions conventions;
-        Dictionary<RuntimeTypeHandle, MessageMetadata> messages = new Dictionary<RuntimeTypeHandle, MessageMetadata>();
+        ConcurrentDictionary<RuntimeTypeHandle, MessageMetadata> messages = new ConcurrentDictionary<RuntimeTypeHandle, MessageMetadata>();
+        ConcurrentDictionary<string, Type> cachedTypes = new ConcurrentDictionary<string, Type>();
 
         static ILog Logger = LogManager.GetLogger<MessageMetadataRegistry>();
     }
