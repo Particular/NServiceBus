@@ -191,8 +191,20 @@
                 {
                     var messageDispatcher = builder.Build<IDispatchMessages>();
 
-                    //TODO: remove exception headers
-                    var outgoingMessage = new OutgoingMessage(pushContext.MessageId, pushContext.Headers, pushContext.Body);
+                    var outgoingHeaders = pushContext.Headers;
+                    outgoingHeaders.Remove("NServiceBus.ExceptionInfo.Reason");
+                    outgoingHeaders.Remove("NServiceBus.ExceptionInfo.ExceptionType");
+                    outgoingHeaders.Remove("NServiceBus.ExceptionInfo.InnerExceptionType");
+                    outgoingHeaders.Remove("NServiceBus.ExceptionInfo.HelpLink");
+                    outgoingHeaders.Remove("NServiceBus.ExceptionInfo.Message");
+                    outgoingHeaders.Remove("NServiceBus.ExceptionInfo.Source");
+                    outgoingHeaders.Remove("NServiceBus.FailedQ");
+                    outgoingHeaders.Remove("NServiceBus.TimeOfFailure");
+
+                    //TODO: this one is added by v3. Not sure what is it used for.
+                    outgoingHeaders.Remove("NServiceBus.OriginalId");
+
+                    var outgoingMessage = new OutgoingMessage(pushContext.MessageId, outgoingHeaders, pushContext.Body);
                     var outgoingOperation = new TransportOperation(outgoingMessage, new UnicastAddressTag(mainQueueTransportAddress));
 
                     return messageDispatcher.Dispatch(new TransportOperations(outgoingOperation), pushContext.TransportTransaction, pushContext.Context);
