@@ -6,8 +6,8 @@
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using AcceptanceTesting.Customization;
+    using Configuration.AdvanceExtensibility;
     using EndpointTemplates;
-    using Features;
     using NServiceBus.Routing;
     using NUnit.Framework;
 
@@ -44,40 +44,33 @@
         {
             public Sender()
             {
-                EndpointSetup<DefaultServer>();
+                EndpointSetup<DefaultServer>(c =>
+                {
+                    c.GetSettings().GetOrCreate<UnicastRoutingTable>()
+                        .AddOrReplaceRoutes("CustomRoutingFeature", new List<RouteTableEntry>
+                        {
+                            new RouteTableEntry(typeof(MyCommand), UnicastRoute.CreateFromEndpointName(ReceiverEndpoint))
+                        });
+                    c.GetSettings().GetOrCreate<EndpointInstances>()
+                        .AddOrReplaceInstances("CustomRoutingFeature", new List<EndpointInstance>
+                        {
+                            new EndpointInstance(ReceiverEndpoint, "XYZ"),
+                            new EndpointInstance(ReceiverEndpoint, "ABC")
+                        });
+                    c.GetSettings().GetOrCreate<DistributionPolicy>()
+                        .SetDistributionStrategy(new XyzDistributionStrategy(ReceiverEndpoint));
+                });
             }
 
-            public class CustomRoutingFeature : Feature
+            class XyzDistributionStrategy : DistributionStrategy
             {
-                public CustomRoutingFeature()
+                public XyzDistributionStrategy(string endpoint) : base(endpoint, DistributionStrategyScope.Send)
                 {
-                    EnableByDefault();
                 }
 
-                protected override void Setup(FeatureConfigurationContext context)
+                public override string SelectReceiver(string[] receiverAddresses)
                 {
-                    context.RoutingTable().AddOrReplaceRoutes("CustomRoutingFeature", new List<RouteTableEntry>
-                    {
-                        new RouteTableEntry(typeof(MyCommand), UnicastRoute.CreateFromEndpointName(ReceiverEndpoint))
-                    });
-                    context.EndpointInstances().AddOrReplaceInstances("CustomRoutingFeature", new List<EndpointInstance>()
-                    {
-                        new EndpointInstance(ReceiverEndpoint, "XYZ"),
-                        new EndpointInstance(ReceiverEndpoint, "ABC")
-                    });
-                    context.DistributionPolicy().SetDistributionStrategy(new XyzDistributionStrategy(ReceiverEndpoint));
-                }
-
-                class XyzDistributionStrategy : DistributionStrategy
-                {
-                    public XyzDistributionStrategy(string endpoint) : base(endpoint, DistributionStrategyScope.Send)
-                    {
-                    }
-
-                    public override string SelectReceiver(string[] receiverAddresses)
-                    {
-                        return receiverAddresses.First(x => x.Contains("XYZ"));
-                    }
+                    return receiverAddresses.First(x => x.Contains("XYZ"));
                 }
             }
         }

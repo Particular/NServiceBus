@@ -969,13 +969,6 @@ namespace NServiceBus
         public static void SetDestination(this NServiceBus.SendOptions options, string destination) { }
         public static void SetDestination(this NServiceBus.ReplyOptions options, string destination) { }
     }
-    public class static RoutingPluginSettingsExtensions
-    {
-        public static NServiceBus.DistributionPolicy DistributionPolicy(this NServiceBus.Features.FeatureConfigurationContext featureConfigurationContext) { }
-        public static NServiceBus.Routing.EndpointInstances EndpointInstances(this NServiceBus.Features.FeatureConfigurationContext featureConfigurationContext) { }
-        public static NServiceBus.Routing.MessageDrivenSubscriptions.Publishers Publishers(this NServiceBus.Features.FeatureConfigurationContext featureConfigurationContext) { }
-        public static NServiceBus.Routing.UnicastRoutingTable RoutingTable(this NServiceBus.Features.FeatureConfigurationContext featureConfigurationContext) { }
-    }
     public class RoutingSettings : NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings
     {
         public RoutingSettings(NServiceBus.Settings.SettingsHolder settings) { }

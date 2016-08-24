@@ -4,6 +4,7 @@
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using AcceptanceTesting.Customization;
+    using Configuration.AdvanceExtensibility;
     using EndpointTemplates;
     using Features;
     using NServiceBus.Routing.MessageDrivenSubscriptions;
@@ -21,10 +22,7 @@
                 .WithEndpoint<Publisher>(b =>
                     b.When(c => c.Subscribed, session => session.Publish<MyEvent>())
                 )
-                .WithEndpoint<Subscriber>(b => b.When(async (session, context) =>
-                {
-                    await session.Subscribe<MyEvent>();
-                }))
+                .WithEndpoint<Subscriber>(b => b.When(async (session, context) => { await session.Subscribe<MyEvent>(); }))
                 .Done(c => c.MessageDelivered)
                 .Repeat(r => r.For<AllTransportsWithMessageDrivenPubSub>())
                 .Should(c => Assert.True(c.MessageDelivered))
@@ -41,10 +39,7 @@
         {
             public Publisher()
             {
-                EndpointSetup<DefaultPublisher>(b => b.OnEndpointSubscribed<Context>((s, context) =>
-                {
-                    context.Subscribed = true;
-                }));
+                EndpointSetup<DefaultPublisher>(b => b.OnEndpointSubscribed<Context>((s, context) => { context.Subscribed = true; }));
             }
         }
 
@@ -52,23 +47,15 @@
         {
             public Subscriber()
             {
-                EndpointSetup<DefaultServer>(c => c.DisableFeature<AutoSubscribe>());
-            }
-
-            public class CustomRoutingFeature : Feature
-            {
-                public CustomRoutingFeature()
+                EndpointSetup<DefaultServer>(c =>
                 {
-                    EnableByDefault();
-                }
-
-                protected override void Setup(FeatureConfigurationContext context)
-                {
-                    context.Publishers().AddOrReplacePublishers("CustomRoutingFeature", new List<PublisherTableEntry>
-                    {
-                        new PublisherTableEntry(typeof(MyEvent), PublisherAddress.CreateFromEndpointName(PublisherEndpoint))
-                    });
-                }
+                    c.DisableFeature<AutoSubscribe>();
+                    c.GetSettings().GetOrCreate<Publishers>()
+                        .AddOrReplacePublishers("CustomRoutingFeature", new List<PublisherTableEntry>
+                        {
+                            new PublisherTableEntry(typeof(MyEvent), PublisherAddress.CreateFromEndpointName(PublisherEndpoint))
+                        });
+                });
             }
 
             public class MyEventHandler : IHandleMessages<MyEvent>

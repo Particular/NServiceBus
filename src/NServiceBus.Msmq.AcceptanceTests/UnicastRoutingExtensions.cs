@@ -10,7 +10,7 @@ namespace NServiceBus.AcceptanceTests.Routing
     {
         public static void RegisterPublisher(this RoutingSettings config, Type eventType, string publisherEndpoint)
         {
-            config.GetSettings().GetOrCreate<Publishers>().AddOrReplacePublishers(Guid.NewGuid().ToString(), 
+            config.GetSettings().GetOrCreate<Publishers>().AddOrReplacePublishers(Guid.NewGuid().ToString(),
                 new List<PublisherTableEntry> { new PublisherTableEntry(eventType, PublisherAddress.CreateFromEndpointName(publisherEndpoint))});
         }
 
