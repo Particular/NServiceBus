@@ -47,7 +47,7 @@
                 EnableBestPracticeEnforcement(context);
             }
 
-            unicastBusConfig?.MessageEndpointMappings.Apply(publishers, unicastRoutingTable, transportInfrastructure.MakeCanonicalForm, conventions);
+            unicastBusConfig?.MessageEndpointMappings.Apply(publishers, unicastRoutingTable, transportInfrastructure.MakeCanonicalForm, conventions, context.Settings.GetAvailableTypes());
             configuredUnicastRoutes.Apply(unicastRoutingTable, conventions);
             configuredPublishers.Apply(publishers, conventions, enforceBestPractices);
 

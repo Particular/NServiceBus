@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Core.Tests.Routing
 {
+    using System;
     using System.Reflection;
     using MessageNamespaceA;
     using MessageNamespaceB;
@@ -113,7 +114,7 @@
         static UnicastRoutingTable ApplyMappings(MessageEndpointMappingCollection mappings)
         {
             var routeTable = new UnicastRoutingTable();
-            mappings.Apply(new Publishers(), routeTable, x => x, new Conventions());
+            mappings.Apply(new Publishers(), routeTable, x => x, new Conventions(), new Type[0]);
             return routeTable;
         }
     }

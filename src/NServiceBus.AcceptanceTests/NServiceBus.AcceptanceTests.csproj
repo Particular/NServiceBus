@@ -79,6 +79,11 @@
     <Compile Include="Routing\When_registering_publishers_unobtrusive_messages.cs" />
     <Compile Include="Routing\When_publishing_an_interface_with_unobtrusive.cs" />
     <Compile Include="Routing\When_replying_to_message_with_interface.cs" />
+    <Compile Include="Routing\When_subscribing_to_a_base_event_on_unicast_transports.cs" />
+    <Compile Include="Routing\When_sending_a_base_command.cs" />
+    <Compile Include="Routing\When_subscribing_to_a_base_event_with_routes_to_base_and_specific_events.cs" />
+    <Compile Include="Routing\When_subscribing_to_a_base_event_with_a_route_for_a_derived_events.cs" />
+    <Compile Include="Routing\When_subscribing_to_a_derived_event_on_unicast_transports.cs" />
     <Compile Include="Routing\When_subscribing_to_multiple_publishers.cs" />
     <Compile Include="Routing\When_subscribing_to_scaled_out_publisher_on_unicast_transport.cs" />
     <Compile Include="Sagas\When_a_base_class_mapped_is_handled_by_a_saga.cs" />
@@ -282,7 +287,6 @@
     <Compile Include="Routing\When_publishing_with_only_local_messagehandlers.cs" />
     <Compile Include="Routing\SubscriptionEventArgs.cs" />
     <Compile Include="Routing\When_base_event_from_2_publishers.cs" />
-    <Compile Include="Routing\When_subscribing_to_a_polymorphic_event.cs" />
     <Compile Include="Routing\When_publishing.cs" />
     <Compile Include="Recoverability\Retries\when_immediate_retries_fail.cs" />
     <Compile Include="Recoverability\Retries\When_fails_with_retries_set_to_0.cs" />
