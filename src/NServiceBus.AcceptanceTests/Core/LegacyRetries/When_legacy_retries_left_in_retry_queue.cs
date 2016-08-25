@@ -48,8 +48,7 @@
         {
             public RetryEndpoint()
             {
-                EndpointSetup<DefaultServer>(c => c.UseTransport<MsmqTransport>())
-                    .AddMapping<LegacyRetryMessage>(typeof(RetryEndpoint));
+                EndpointSetup<DefaultServer>().AddMapping<LegacyRetryMessage>(typeof(RetryEndpoint));
             }
 
             class LegacyRetriesMessages : IHandleMessages<LegacyRetryMessage>

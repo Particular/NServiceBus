@@ -59,7 +59,7 @@ namespace NServiceBus
         /// in .Retries queue when migrating from previous versions on NServiceBus. For further details can be found in V5 to V6 Upgrade Guide.
         /// </summary>
         [ObsoleteEx(
-            Message = "Invocation of this method is no longer needed. Legacy retries satellites no longer exists starting from version 7.",
+            Message = "Legacy retry satellite is no longer needed as of Version 7.",
             RemoveInVersion = "8.0",
             TreatAsErrorFromVersion = "7.0")]
         public RecoverabilitySettings DisableLegacyRetriesSatellite()
