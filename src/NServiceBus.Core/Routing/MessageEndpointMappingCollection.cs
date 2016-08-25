@@ -181,10 +181,6 @@ namespace NServiceBus.Config
                     }
                     var canonicalForm = makeCanonicalAddress(endpointAddress);
                     routeTableEntries[type] = new RouteTableEntry(type, UnicastRoute.CreateFromPhysicalAddress(canonicalForm));
-                    if (!conventions.IsEventType(type))
-                    {
-                        return;
-                    }
                     publisherTableEntries[type] = new PublisherTableEntry(type, PublisherAddress.CreateFromPhysicalAddresses(canonicalForm));
                 });
             }
