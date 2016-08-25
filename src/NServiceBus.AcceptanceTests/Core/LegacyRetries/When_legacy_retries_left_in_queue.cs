@@ -9,12 +9,11 @@
     using NUnit.Framework;
     using Support;
 
-    public class Legacy_retries_are_picked_up : NServiceBusAcceptanceTest
+    public class When_legacy_retries_left_in_queue : NServiceBusAcceptanceTest
     {
         [Test]
-        public void test()
+        public async Task they_get_pickedup()
         {
-            //setup => create queue & insert messages to be pickedup
             var queueName = "legacyretriesarepickedup.legacyendpoint.retries";
             var path = $@"{RuntimeEnvironment.MachineName}\private$\{queueName}";
             if (MessageQueue.Exists(path))
@@ -22,29 +21,21 @@
                 MessageQueue.Delete(path);
             }
             MessageQueue.Create(path, true);
-            var retriesQueues = MessageQueue.GetPrivateQueuesByMachine(".");
-            try
-            {
-                Scenario.Define<MyContext>()
-                    .WithEndpoint<RetryEndpoint>()
-                    .Done(c => c.NumberOfPickedUpMessages == 3)
-                    .Run(TimeSpan.FromSeconds(10));
-            }
-            catch (Exception exc)
-            {
-                var res = exc;
-            }
+
+            //TODO: insert messages into the queue
             var retriesQueue = MessageQueue.GetPrivateQueuesByMachine(".")
                 .Single(q => q.QueueName.Equals($@"private$\{queueName}"));
 
-            Assert.IsNull(retriesQueue.Peek());
+            await Scenario.Define<MyContext>()
+                .WithEndpoint<RetryEndpoint>()
+                .Done(c => c.NumberOfPickedUpMessages == 3)
+                .Run(TimeSpan.FromSeconds(10));
         }
 
 
         class MyContext : ScenarioContext
         {
             public int NumberOfPickedUpMessages { get; set; }
-
         }
 
         public class RetryEndpoint : EndpointConfigurationBuilder
@@ -67,7 +58,7 @@
                 }
             }
         }
-        
+
         public class LegacyRetryMessage : IMessage
         {
         }

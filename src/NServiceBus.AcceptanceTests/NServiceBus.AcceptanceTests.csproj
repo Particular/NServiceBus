@@ -59,7 +59,7 @@
     <Compile Include="Basic\When_extending_behavior_context.cs" />
     <Compile Include="Basic\When_receiving_unobtrusive_message_without_handler.cs" />
     <Compile Include="Core\Feature\When_feature_startup_task_fails.cs" />
-    <Compile Include="Core\LegacyRetries\Legacy_retries_are_picked_up.cs" />
+    <Compile Include="Core\LegacyRetries\When_legacy_retries_left_in_queue.cs" />
     <Compile Include="Core\MessageDurability\When_sending_a_non_durable_message_with_conventions.cs" />
     <Compile Include="DataBus\When_sending_databus_properties_with_unobtrusive.cs" />
     <Compile Include="Basic\When_sending_interface_message_with_conventions.cs" />
