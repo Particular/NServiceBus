@@ -206,7 +206,7 @@
                     outgoingHeaders.Remove("NServiceBus.FailedQ");
                     outgoingHeaders.Remove("NServiceBus.TimeOfFailure");
 
-                    //TODO: this one is added by v3. Not sure what is it used for.
+                    //HINT: this header is added by v3 when doing SLR
                     outgoingHeaders.Remove("NServiceBus.OriginalId");
 
                     var outgoingMessage = new OutgoingMessage(pushContext.MessageId, outgoingHeaders, pushContext.Body);
