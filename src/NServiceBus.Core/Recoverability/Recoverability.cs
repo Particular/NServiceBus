@@ -172,11 +172,10 @@
 
         void SetupLegacyRetriesSatellite(FeatureConfigurationContext context)
         {
-            var instanceName = context.Settings.EndpointInstanceName();
-            var retriesQueueLogicalAddress = new LogicalAddress(instanceName, "Retries");
+            var retriesQueueLogicalAddress = context.Settings.LogicalAddress().CreateQualifiedAddress("Retries");
             var retriesQueueTransportAddress = context.Settings.GetTransportAddress(retriesQueueLogicalAddress);
 
-            var mainQueueLogicalAddress = new LogicalAddress(instanceName);
+            var mainQueueLogicalAddress = context.Settings.LogicalAddress();
             var mainQueueTransportAddress = context.Settings.GetTransportAddress(mainQueueLogicalAddress);
 
             var requiredTransactionMode = context.Settings.GetRequiredTransactionModeForReceives();

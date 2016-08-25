@@ -3,7 +3,6 @@
     using System;
     using ConsistencyGuarantees;
     using DelayedDelivery;
-    using DelayedDelivery.TimeoutManager;
     using DeliveryConstraints;
     using Persistence;
     using Settings;
@@ -35,11 +34,11 @@
                 throw new Exception("The selected persistence doesn't have support for timeout storage. Select another persistence or disable the timeout manager feature using endpointConfiguration.DisableFeature<TimeoutManager>()");
             }
 
-            var requiredTransactionMode = context.Settings.GetRequiredTransactionModeForReceives();
+            var requiredTransactionSupport = context.Settings.GetRequiredTransactionModeForReceives();
 
-            SetupStorageSatellite(context, requiredTransactionMode);
+            SetupStorageSatellite(context, requiredTransactionSupport);
 
-            var dispatcherAddress = SetupDispatcherSatellite(context, requiredTransactionMode);
+            var dispatcherAddress = SetupDispatcherSatellite(context, requiredTransactionSupport);
 
             SetupTimeoutPoller(context, dispatcherAddress);
         }
@@ -99,8 +98,6 @@
                 });
 
             context.Settings.Get<TimeoutManagerAddressConfiguration>().Set(satelliteAddress);
-        }
-
         }
 
         static bool HasAlternateTimeoutManagerBeenConfigured(ReadOnlySettings settings)
