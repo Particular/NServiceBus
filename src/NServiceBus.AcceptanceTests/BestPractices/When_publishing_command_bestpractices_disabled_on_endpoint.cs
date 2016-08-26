@@ -30,7 +30,11 @@
         {
             public Endpoint()
             {
-                EndpointSetup<DefaultServer>(c => c.DisableFeature<BestPracticeEnforcement>())
+                EndpointSetup<DefaultServer>((c, r) =>
+                {
+                    var routing = c.UseTransport(r.GetTransportType()).Routing();
+                    routing.DisableBestPracticeEnforcement();
+                })
                     .AddMapping<MyCommand>(typeof(Endpoint))
                     .AddMapping<MyEvent>(typeof(Endpoint));
             }

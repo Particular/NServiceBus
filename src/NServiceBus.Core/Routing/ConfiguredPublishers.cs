@@ -14,10 +14,17 @@ namespace NServiceBus.Features
             publisherSources.Add(publisherSource);
         }
 
-        public void Apply(Publishers publishers, Conventions conventions)
+        public void Apply(Publishers publishers, Conventions conventions, bool enforceBestPractices)
         {
-            var entries = publisherSources.SelectMany(s => s.Generate(conventions)).ToList();
+            var entries = publisherSources.SelectMany(s => Generate(conventions, s, enforceBestPractices)).ToList();
             publishers.AddOrReplacePublishers("EndpointConfiguration", entries);
+        }
+
+        static IEnumerable<PublisherTableEntry> Generate(Conventions conventions, IPublisherSource source, bool enforceBestPractices)
+        {
+            return enforceBestPractices 
+                ? source.GenerateWithBestPracticeEnforcement(conventions) 
+                : source.GenerateWithouthBestPracticeEnforcement(conventions);
         }
     }
 }

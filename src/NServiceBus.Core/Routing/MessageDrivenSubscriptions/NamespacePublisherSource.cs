@@ -19,7 +19,7 @@ namespace NServiceBus
             this.messageNamespace = messageNamespace;
         }
 
-        public IEnumerable<PublisherTableEntry> Generate(Conventions conventions)
+        public IEnumerable<PublisherTableEntry> GenerateWithBestPracticeEnforcement(Conventions conventions)
         {
             var entries = messageAssembly.GetTypes()
                 .Where(t => conventions.IsEventType(t) && string.Equals(t.Namespace, messageNamespace, StringComparison.OrdinalIgnoreCase))
@@ -29,6 +29,21 @@ namespace NServiceBus
             if (!entries.Any())
             {
                 throw new Exception($"Cannot configure publisher for namespace {messageNamespace} because it contains no types considered as events. Event types have to either implement NServiceBus.IEvent interface or match a defined event convention.");
+            }
+
+            return entries;
+        }
+
+        public IEnumerable<PublisherTableEntry> GenerateWithouthBestPracticeEnforcement(Conventions conventions)
+        {
+            var entries = messageAssembly.GetTypes()
+                .Where(t => conventions.IsMessageType(t) && !conventions.IsCommandType(t) && string.Equals(t.Namespace, messageNamespace, StringComparison.OrdinalIgnoreCase))
+                .Select(t => new PublisherTableEntry(t, address))
+                .ToArray();
+
+            if (!entries.Any())
+            {
+                throw new Exception($"Cannot configure publisher for namespace {messageNamespace} because it contains no types considered as messages. Message types have to either implement NServiceBus.IMessage interface or match a defined convention.");
             }
 
             return entries;

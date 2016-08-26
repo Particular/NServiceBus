@@ -67,6 +67,14 @@
             Settings.GetOrCreate<ConfiguredUnicastRoutes>().Add(new NamespaceRouteSource(assembly, @namespace, UnicastRoute.CreateFromEndpointName(destination)));
         }
 
+        /// <summary>
+        /// Disables the enforcement of messaging best practices (e.g. validating that a published message is an event).
+        /// </summary>
+        public void DisableBestPracticeEnforcement()
+        {
+            Settings.Set(RoutingFeature.EnforceBestPracticesSettingsKey, false);
+        }
+
         static void ThrowOnAddress(string destination)
         {
             if (destination.Contains("@"))

@@ -14,7 +14,7 @@
         public void It_returns_only_event_types()
         {
             var source = new NamespacePublisherSource(Assembly.GetExecutingAssembly(), "NServiceBus.Core.Tests.Routing.NamespacePublisherSourceTest", PublisherAddress.CreateFromEndpointName("Destination"));
-            var routes = source.Generate(new Conventions()).ToArray();
+            var routes = source.GenerateWithBestPracticeEnforcement(new Conventions()).ToArray();
 
             Assert.IsTrue(routes.Any(r => r.EventType == typeof(Event)));
             Assert.IsFalse(routes.Any(r => r.EventType == typeof(NonMessage)));
@@ -25,7 +25,7 @@
         public void It_returns_only_types_from_specified_namespace()
         {
             var source = new NamespacePublisherSource(Assembly.GetExecutingAssembly(), "NServiceBus.Core.Tests.Routing.NamespacePublisherSourceTest", PublisherAddress.CreateFromEndpointName("Destination"));
-            var routes = source.Generate(new Conventions()).ToArray();
+            var routes = source.GenerateWithBestPracticeEnforcement(new Conventions()).ToArray();
 
             Assert.IsTrue(routes.Any(r => r.EventType == typeof(Event)));
             Assert.IsFalse(routes.Any(r => r.EventType == typeof(ExcludedEvent)));
@@ -35,7 +35,7 @@
         public void It_matches_namespace_in_case_insensitive_way()
         {
             var source = new NamespacePublisherSource(Assembly.GetExecutingAssembly(), "NServiceBus.Core.Tests.Routing.NAMESPACEpublisherSOURCEtest", PublisherAddress.CreateFromEndpointName("Destination"));
-            var routes = source.Generate(new Conventions()).ToArray();
+            var routes = source.GenerateWithBestPracticeEnforcement(new Conventions()).ToArray();
 
             Assert.IsTrue(routes.Any(r => r.EventType == typeof(Event)));
         }
@@ -45,8 +45,23 @@
         {
             var source = new NamespacePublisherSource(Assembly.GetExecutingAssembly(), "NServiceBus.Core.Tests.Routing.NamespacePublisherSourceTest.NoMessages", PublisherAddress.CreateFromEndpointName("Destination"));
 
-            Assert.That(() => source.Generate(new Conventions()).ToArray(), Throws.Exception.Message.Contains("Cannot configure publisher for namespace"));
+            Assert.That(() => source.GenerateWithBestPracticeEnforcement(new Conventions()).ToArray(), Throws.Exception.Message.Contains("Cannot configure publisher for namespace"));
         }
+
+        [Test]
+        public void Without_best_practice_enforcement_it_throws_if_specified_assembly_contains_only_commands()
+        {
+            var source = new NamespacePublisherSource(Assembly.GetExecutingAssembly(), "NServiceBus.Core.Tests.Routing.NamespacePublisherSourceTest.Commands", PublisherAddress.CreateFromEndpointName("Destination"));
+
+            Assert.That(() => source.GenerateWithouthBestPracticeEnforcement(new Conventions()).ToArray(), Throws.Exception.Message.Contains("Cannot configure publisher for namespace"));
+        }
+    }
+}
+
+namespace NServiceBus.Core.Tests.Routing.NamespacePublisherSourceTest.Commands
+{
+    class Command : ICommand
+    {
     }
 }
 
