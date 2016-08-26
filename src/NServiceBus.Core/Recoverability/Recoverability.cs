@@ -10,6 +10,7 @@
     using Features;
     using Hosting;
     using Logging;
+    using Routing;
     using Settings;
     using Support;
     using Transport;
@@ -96,8 +97,14 @@
             }, DependencyLifecycle.SingleInstance);
 
             RaiseLegacyNotifications(context);
-        }
 
+            //HINT: we turn off the legacy retries satellite only when explicitly configured by the user
+            bool disableLegacyRetriesSatellite;
+            if (context.Settings.TryGet(DisableLegacyRetriesSatellite, out disableLegacyRetriesSatellite) == false)
+            {
+                SetupLegacyRetriesSatellite(context);
+            }
+        }
 
         static ImmediateConfig GetImmediateRetryConfig(ReadOnlySettings settings, bool transactionsOn)
         {
@@ -163,11 +170,51 @@
             });
         }
 
+        void SetupLegacyRetriesSatellite(FeatureConfigurationContext context)
+        {
+            var retriesQueueLogicalAddress = context.Settings.LogicalAddress().CreateQualifiedAddress("Retries");
+            var retriesQueueTransportAddress = context.Settings.GetTransportAddress(retriesQueueLogicalAddress);
+
+            var mainQueueLogicalAddress = context.Settings.LogicalAddress();
+            var mainQueueTransportAddress = context.Settings.GetTransportAddress(mainQueueLogicalAddress);
+
+            var requiredTransactionMode = context.Settings.GetRequiredTransactionModeForReceives();
+
+            context.AddSatelliteReceiver("Legacy Retries Processor", retriesQueueTransportAddress, requiredTransactionMode, new PushRuntimeSettings(maxConcurrency: 1),
+                (config, errorContext) =>
+                {
+                    return RecoverabilityAction.MoveToError(config.Failed.ErrorQueue);
+                },
+                (builder, messageContext) =>
+                {
+                    var messageDispatcher = builder.Build<IDispatchMessages>();
+
+                    var outgoingHeaders = messageContext.Headers;
+                    outgoingHeaders.Remove("NServiceBus.ExceptionInfo.Reason");
+                    outgoingHeaders.Remove("NServiceBus.ExceptionInfo.ExceptionType");
+                    outgoingHeaders.Remove("NServiceBus.ExceptionInfo.InnerExceptionType");
+                    outgoingHeaders.Remove("NServiceBus.ExceptionInfo.HelpLink");
+                    outgoingHeaders.Remove("NServiceBus.ExceptionInfo.Message");
+                    outgoingHeaders.Remove("NServiceBus.ExceptionInfo.Source");
+                    outgoingHeaders.Remove("NServiceBus.FailedQ");
+                    outgoingHeaders.Remove("NServiceBus.TimeOfFailure");
+
+                    //HINT: this header is added by v3 when doing SLR
+                    outgoingHeaders.Remove("NServiceBus.OriginalId");
+
+                    var outgoingMessage = new OutgoingMessage(messageContext.MessageId, outgoingHeaders, messageContext.Body);
+                    var outgoingOperation = new TransportOperation(outgoingMessage, new UnicastAddressTag(mainQueueTransportAddress));
+
+                    return messageDispatcher.Dispatch(new TransportOperations(outgoingOperation), messageContext.TransportTransaction, messageContext.Context);
+                });
+        }
+
         public const string NumberOfDelayedRetries = "Recoverability.Delayed.DefaultPolicy.Retries";
         public const string DelayedRetriesTimeIncrease = "Recoverability.Delayed.DefaultPolicy.Timespan";
         public const string NumberOfImmediateRetries = "Recoverability.Immediate.Retries";
         public const string FaultHeaderCustomization = "Recoverability.Failed.FaultHeaderCustomization";
         public const string PolicyOverride = "Recoverability.CustomPolicy";
+        public const string DisableLegacyRetriesSatellite = "Recoverability.DisableLegacyRetriesSatellite";
 
         static ILog Logger = LogManager.GetLogger<Recoverability>();
         internal static int DefaultNumberOfRetries = 3;
