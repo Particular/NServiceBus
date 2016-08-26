@@ -98,7 +98,7 @@
 
             RaiseLegacyNotifications(context);
 
-            //HINT: we turn-off legacy retries satellite only when explicitly configured by the user
+            //HINT: we turn off the legacy retries satellite only when explicitly configured by the user
             bool disableLegacyRetriesSatellite;
             if (context.Settings.TryGet(DisableLegacyRetriesSatellite, out disableLegacyRetriesSatellite) == false)
             {
@@ -179,23 +179,17 @@
             var mainQueueTransportAddress = context.Settings.GetTransportAddress(mainQueueLogicalAddress);
 
             var requiredTransactionMode = context.Settings.GetRequiredTransactionModeForReceives();
-            var maxNumberOfImmediateRetries = 4;
 
             context.AddSatelliteReceiver("Legacy Retries Processor", retriesQueueTransportAddress, requiredTransactionMode, new PushRuntimeSettings(maxConcurrency: 1),
                 (config, errorContext) =>
                 {
-                    if (errorContext.ImmediateProcessingFailures <= maxNumberOfImmediateRetries)
-                    {
-                        return RecoverabilityAction.ImmediateRetry();
-                    }
-
                     return RecoverabilityAction.MoveToError(config.Failed.ErrorQueue);
                 },
-                (builder, pushContext) =>
+                (builder, messageContext) =>
                 {
                     var messageDispatcher = builder.Build<IDispatchMessages>();
 
-                    var outgoingHeaders = pushContext.Headers;
+                    var outgoingHeaders = messageContext.Headers;
                     outgoingHeaders.Remove("NServiceBus.ExceptionInfo.Reason");
                     outgoingHeaders.Remove("NServiceBus.ExceptionInfo.ExceptionType");
                     outgoingHeaders.Remove("NServiceBus.ExceptionInfo.InnerExceptionType");
@@ -208,10 +202,10 @@
                     //HINT: this header is added by v3 when doing SLR
                     outgoingHeaders.Remove("NServiceBus.OriginalId");
 
-                    var outgoingMessage = new OutgoingMessage(pushContext.MessageId, outgoingHeaders, pushContext.Body);
+                    var outgoingMessage = new OutgoingMessage(messageContext.MessageId, outgoingHeaders, messageContext.Body);
                     var outgoingOperation = new TransportOperation(outgoingMessage, new UnicastAddressTag(mainQueueTransportAddress));
 
-                    return messageDispatcher.Dispatch(new TransportOperations(outgoingOperation), pushContext.TransportTransaction, pushContext.Context);
+                    return messageDispatcher.Dispatch(new TransportOperations(outgoingOperation), messageContext.TransportTransaction, messageContext.Context);
                 });
         }
 
