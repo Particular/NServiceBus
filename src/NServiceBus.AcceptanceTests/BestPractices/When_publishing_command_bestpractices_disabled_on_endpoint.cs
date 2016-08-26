@@ -3,7 +3,6 @@
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
-    using Features;
     using NUnit.Framework;
 
     public class When_publishing_command_bestpractices_disabled_on_endpoint : NServiceBusAcceptanceTest
