@@ -1,16 +1,25 @@
 namespace NServiceBus.Transport
 {
+    using System;
+
     /// <summary>
-    /// Contains the limits for how messages should be dequeued.
+    /// Controls how the message pump should behave.
     /// </summary>
     public class PushRuntimeSettings
     {
         /// <summary>
-        /// Restricts the concurrency.
+        /// Constructs the settings.
         /// </summary>
-        /// <param name="maxConcurrency">The max value to enforce.</param>
-        public PushRuntimeSettings(int maxConcurrency = 100)
+        /// <param name="maxConcurrency">The maximum concurrency to allow. 0 allows NServiceBus to pick the a suitable default.</param>
+        public PushRuntimeSettings(int maxConcurrency = 0)
         {
+            Guard.AgainstNegative(nameof(maxConcurrency), maxConcurrency);
+
+            if (maxConcurrency == 0)
+            {
+                maxConcurrency = Math.Max(2, Environment.ProcessorCount);
+            }
+
             MaxConcurrency = maxConcurrency;
         }
 
