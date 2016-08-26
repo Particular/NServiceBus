@@ -12,7 +12,6 @@
         public async Task Should_throw_when_sending()
         {
             var context = await Scenario.Define<Context>()
-                .WithEndpoint<Receiver>()
                 .WithEndpoint<Sender>(b => b.When(async (session, c) =>
                 {
                     try

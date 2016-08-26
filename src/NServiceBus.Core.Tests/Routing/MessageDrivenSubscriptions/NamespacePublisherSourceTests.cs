@@ -32,6 +32,15 @@
         }
 
         [Test]
+        public void It_matches_namespace_in_case_insensitive_way()
+        {
+            var source = new NamespacePublisherSource(Assembly.GetExecutingAssembly(), "NServiceBus.Core.Tests.Routing.NAMESPACEpublisherSOURCEtest", PublisherAddress.CreateFromEndpointName("Destination"));
+            var routes = source.Generate(new Conventions()).ToArray();
+
+            Assert.IsTrue(routes.Any(r => r.EventType == typeof(Event)));
+        }
+
+        [Test]
         public void It_throws_if_specified_namespace_contains_no_message_types()
         {
             var source = new NamespacePublisherSource(Assembly.GetExecutingAssembly(), "NServiceBus.Core.Tests.Routing.NamespacePublisherSourceTest.NoMessages", PublisherAddress.CreateFromEndpointName("Destination"));

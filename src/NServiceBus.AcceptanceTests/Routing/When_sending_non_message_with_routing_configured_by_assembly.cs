@@ -27,7 +27,7 @@
                 .Done(c => c.GotTheException)
                 .Run();
 
-            StringAssert.Contains("No destination specified for messag", context.Exception.ToString());
+            StringAssert.Contains("No destination specified for message", context.Exception.ToString());
         }
 
         public class Context : ScenarioContext

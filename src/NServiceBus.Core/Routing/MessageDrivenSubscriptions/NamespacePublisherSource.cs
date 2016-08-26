@@ -22,13 +22,13 @@ namespace NServiceBus
         public IEnumerable<PublisherTableEntry> Generate(Conventions conventions)
         {
             var entries = messageAssembly.GetTypes()
-                .Where(t => conventions.IsEventType(t) && t.Namespace == messageNamespace)
+                .Where(t => conventions.IsEventType(t) && string.Equals(t.Namespace, messageNamespace, StringComparison.OrdinalIgnoreCase))
                 .Select(t => new PublisherTableEntry(t, address))
                 .ToArray();
 
             if (!entries.Any())
             {
-                throw new Exception($"Cannot configure publisher for namespace {messageNamespace} because it contains no types considered as events. Event types have to either implement NServiceBus.IEvent interface or follow a defined event convention.");
+                throw new Exception($"Cannot configure publisher for namespace {messageNamespace} because it contains no types considered as events. Event types have to either implement NServiceBus.IEvent interface or match a defined event convention.");
             }
 
             return entries;

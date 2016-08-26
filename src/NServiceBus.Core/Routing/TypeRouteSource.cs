@@ -19,10 +19,9 @@ namespace NServiceBus
         {
             if (!conventions.IsMessageType(messageType))
             {
-                throw new Exception($"Cannot configure routing for type {messageType.FullName} because it is not considered a message. Message types have to either implement NServiceBus.IMessage interface or follow a defined message convention.");
+                throw new Exception($"Cannot configure routing for type {messageType.FullName} because it is not considered a message. Message types have to either implement NServiceBus.IMessage interface or match a defined message convention.");
             }
             yield return new RouteTableEntry(messageType, route);
-
         }
 
         public RouteSourcePriority Priority => RouteSourcePriority.Type;

@@ -26,7 +26,7 @@ namespace NServiceBus
 
             if (!entries.Any())
             {
-                throw new Exception($"Cannot configure publisher for assembly {messageAssembly.GetName().Name} because it contains no types considered as events. Event types have to either implement NServiceBus.IEvent interface or follow a defined event convention.");
+                throw new Exception($"Cannot configure publisher for assembly {messageAssembly.GetName().Name} because it contains no types considered as events. Event types have to either implement NServiceBus.IEvent interface or match a defined event convention.");
             }
 
             return entries;
