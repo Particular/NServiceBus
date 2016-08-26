@@ -28,7 +28,7 @@ namespace NServiceBus
             yield return new PublisherTableEntry(messageType, address);
         }
 
-        public IEnumerable<PublisherTableEntry> GenerateWithouthBestPracticeEnforcement(Conventions conventions)
+        public IEnumerable<PublisherTableEntry> GenerateWithoutBestPracticeEnforcement(Conventions conventions)
         {
             if (!conventions.IsMessageType(messageType))
             {

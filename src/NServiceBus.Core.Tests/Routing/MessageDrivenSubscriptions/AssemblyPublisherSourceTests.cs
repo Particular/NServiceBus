@@ -38,7 +38,7 @@
 
             var source = new AssemblyPublisherSource(typeof(string).Assembly, PublisherAddress.CreateFromEndpointName("Destination"));
 
-            Assert.That(() => source.GenerateWithouthBestPracticeEnforcement(conventionBuilder.Conventions).ToArray(), Throws.Exception.Message.Contains("Cannot configure publisher for assembly"));
+            Assert.That(() => source.GenerateWithoutBestPracticeEnforcement(conventionBuilder.Conventions).ToArray(), Throws.Exception.Message.Contains("Cannot configure publisher for assembly"));
         }
 
         class NonMessage

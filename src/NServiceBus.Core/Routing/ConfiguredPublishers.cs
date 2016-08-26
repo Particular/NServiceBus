@@ -24,7 +24,7 @@ namespace NServiceBus.Features
         {
             return enforceBestPractices 
                 ? source.GenerateWithBestPracticeEnforcement(conventions) 
-                : source.GenerateWithouthBestPracticeEnforcement(conventions);
+                : source.GenerateWithoutBestPracticeEnforcement(conventions);
         }
     }
 }

@@ -34,7 +34,7 @@ namespace NServiceBus
             return entries;
         }
 
-        public IEnumerable<PublisherTableEntry> GenerateWithouthBestPracticeEnforcement(Conventions conventions)
+        public IEnumerable<PublisherTableEntry> GenerateWithoutBestPracticeEnforcement(Conventions conventions)
         {
             var entries = messageAssembly.GetTypes()
                 .Where(t => conventions.IsMessageType(t) && !conventions.IsCommandType(t) && string.Equals(t.Namespace, messageNamespace, StringComparison.OrdinalIgnoreCase))

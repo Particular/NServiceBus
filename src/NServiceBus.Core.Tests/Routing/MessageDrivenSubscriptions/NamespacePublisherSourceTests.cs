@@ -53,7 +53,7 @@
         {
             var source = new NamespacePublisherSource(Assembly.GetExecutingAssembly(), "NServiceBus.Core.Tests.Routing.NamespacePublisherSourceTest.Commands", PublisherAddress.CreateFromEndpointName("Destination"));
 
-            Assert.That(() => source.GenerateWithouthBestPracticeEnforcement(new Conventions()).ToArray(), Throws.Exception.Message.Contains("Cannot configure publisher for namespace"));
+            Assert.That(() => source.GenerateWithoutBestPracticeEnforcement(new Conventions()).ToArray(), Throws.Exception.Message.Contains("Cannot configure publisher for namespace"));
         }
     }
 }
