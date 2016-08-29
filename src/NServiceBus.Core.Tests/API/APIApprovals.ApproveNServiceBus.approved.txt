@@ -3132,7 +3132,8 @@ namespace NServiceBus.Transport
     }
     public class PushRuntimeSettings
     {
-        public PushRuntimeSettings(int maxConcurrency = 0) { }
+        public PushRuntimeSettings() { }
+        public PushRuntimeSettings(int maxConcurrency) { }
         public static NServiceBus.Transport.PushRuntimeSettings Default { get; }
         public int MaxConcurrency { get; }
     }
