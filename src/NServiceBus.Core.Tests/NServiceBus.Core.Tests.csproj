@@ -116,6 +116,7 @@
     <Compile Include="Config\When_using_initialization.cs" />
     <Compile Include="ContextBagTests.cs" />
     <Compile Include="Correlation\CorrelationContextExtensionsTests.cs" />
+    <Compile Include="DateTimeExtensionsTests.cs" />
     <Compile Include="DelayedDelivery\DelayedDeliveryOptionExtensionsTests.cs" />
     <Compile Include="DelayedDelivery\RouteDeferredMessageToTimeoutManagerBehaviorTests.cs" />
     <Compile Include="Encryption\When_decrypting_a_member_that_is_missing_encryption_data.cs" />
