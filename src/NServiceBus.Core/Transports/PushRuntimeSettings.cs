@@ -10,7 +10,7 @@ namespace NServiceBus.Transport
         /// <summary>
         /// Constructs the settings.
         /// </summary>
-        /// <param name="maxConcurrency">The maximum concurrency to allow. 0 allows NServiceBus to pick the a suitable default.</param>
+        /// <param name="maxConcurrency">The maximum concurrency to allow. Zero allows NServiceBus to pick a suitable default.</param>
         public PushRuntimeSettings(int maxConcurrency = 0)
         {
             Guard.AgainstNegative(nameof(maxConcurrency), maxConcurrency);

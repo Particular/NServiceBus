@@ -10,7 +10,7 @@
         [Test]
         public void Should_default_concurrency_to_num_processors()
         {
-            Assert.AreEqual(Environment.ProcessorCount, new PushRuntimeSettings().MaxConcurrency);
+            Assert.AreEqual(Math.Max(2, Environment.ProcessorCount), new PushRuntimeSettings().MaxConcurrency);
         }
     }
 }
