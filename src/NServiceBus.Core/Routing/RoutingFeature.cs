@@ -9,11 +9,14 @@
 
     class RoutingFeature : Feature
     {
+        public const string EnforceBestPracticesSettingsKey = "NServiceBus.Routing.EnforceBestPractices";
+
         public RoutingFeature()
         {
             EnableByDefault();
             Defaults(s =>
             {
+                s.SetDefault(EnforceBestPracticesSettingsKey, true);
                 s.SetDefault<UnicastRoutingTable>(new UnicastRoutingTable());
                 s.SetDefault<EndpointInstances>(new EndpointInstances());
                 s.SetDefault<Publishers>(new Publishers());
@@ -38,9 +41,15 @@
             var conventions = context.Settings.Get<Conventions>();
             var unicastBusConfig = context.Settings.GetConfigSection<UnicastBusConfig>();
 
-            unicastBusConfig?.MessageEndpointMappings.Apply(publishers, unicastRoutingTable, transportInfrastructure.MakeCanonicalForm);
+            var enforceBestPractices = context.Settings.Get<bool>(EnforceBestPracticesSettingsKey);
+            if (enforceBestPractices)
+            {
+                EnableBestPracticeEnforcement(context);
+            }
+
+            unicastBusConfig?.MessageEndpointMappings.Apply(publishers, unicastRoutingTable, transportInfrastructure.MakeCanonicalForm, conventions);
             configuredUnicastRoutes.Apply(unicastRoutingTable, conventions);
-            configuredPublishers.Apply(publishers, conventions);
+            configuredPublishers.Apply(publishers, conventions, enforceBestPractices);
 
             var outboundRoutingPolicy = transportInfrastructure.OutboundRoutingPolicy;
             context.Pipeline.Register(b =>
@@ -86,6 +95,36 @@
                     context.Pipeline.Register(new NativeUnsubscribeTerminator(subscriptionManager), "Requests the transport to unsubscribe to a given message type");
                 }
             }
+        }
+
+        void EnableBestPracticeEnforcement(FeatureConfigurationContext context)
+        {
+            var validations = new Validations(context.Settings.Get<Conventions>());
+
+            context.Pipeline.Register(
+                "EnforceSendBestPractices",
+                new EnforceSendBestPracticesBehavior(validations),
+                "Enforces send messaging best practices");
+
+            context.Pipeline.Register(
+                "EnforceReplyBestPractices",
+                new EnforceReplyBestPracticesBehavior(validations),
+                "Enforces reply messaging best practices");
+
+            context.Pipeline.Register(
+                "EnforcePublishBestPractices",
+                new EnforcePublishBestPracticesBehavior(validations),
+                "Enforces publish messaging best practices");
+
+            context.Pipeline.Register(
+                "EnforceSubscribeBestPractices",
+                new EnforceSubscribeBestPracticesBehavior(validations),
+                "Enforces subscribe messaging best practices");
+
+            context.Pipeline.Register(
+                "EnforceUnsubscribeBestPractices",
+                new EnforceUnsubscribeBestPracticesBehavior(validations),
+                "Enforces unsubscribe messaging best practices");
         }
     }
 }

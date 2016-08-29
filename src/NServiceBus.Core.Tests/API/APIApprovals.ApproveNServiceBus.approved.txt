@@ -975,6 +975,7 @@ namespace NServiceBus
     public class RoutingSettings : NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings
     {
         public RoutingSettings(NServiceBus.Settings.SettingsHolder settings) { }
+        public void DoNotEnforceBestPractices() { }
         public void RouteToEndpoint(System.Type messageType, string destination) { }
         public void RouteToEndpoint(System.Reflection.Assembly assembly, string destination) { }
         public void RouteToEndpoint(System.Reflection.Assembly assembly, string @namespace, string destination) { }
@@ -1693,10 +1694,6 @@ namespace NServiceBus.Features
         protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
     }
     public class AutoSubscribe : NServiceBus.Features.Feature
-    {
-        protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
-    }
-    public class BestPracticeEnforcement : NServiceBus.Features.Feature
     {
         protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
     }

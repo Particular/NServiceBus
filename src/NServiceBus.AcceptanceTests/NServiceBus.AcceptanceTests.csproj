@@ -73,6 +73,9 @@
     <Compile Include="Routing\When_configure_routes_for_unobtrusive_messages.cs" />
     <Compile Include="Routing\When_extending_command_routing.cs" />
     <Compile Include="Routing\When_extending_event_routing.cs" />
+    <Compile Include="Routing\When_sending_non_message_with_routing_configured_by_type.cs" />
+    <Compile Include="Routing\When_sending_non_message_with_routing_configured_by_assembly.cs" />
+    <Compile Include="Routing\When_sending_non_message_with_routing_configured_via_mappings.cs" />
     <Compile Include="Routing\When_registering_publishers_unobtrusive_messages.cs" />
     <Compile Include="Routing\When_publishing_an_interface_with_unobtrusive.cs" />
     <Compile Include="Routing\When_replying_to_message_with_interface.cs" />

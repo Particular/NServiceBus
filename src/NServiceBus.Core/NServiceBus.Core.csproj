@@ -411,7 +411,6 @@
     <Compile Include="Routing\MessageDrivenSubscriptions\MessageDrivenSubscribeTerminator.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\MessageDrivenSubscriptions.cs" />
     <Compile Include="Routing\DistributionStrategy.cs" />
-    <Compile Include="Routing\MessagingBestPractices\BestPracticeEnforcement.cs" />
     <Compile Include="Routing\MessagingBestPractices\EnforceBestPracticesOptions.cs" />
     <Compile Include="Routing\MessagingBestPractices\EnforcePublishBestPracticesBehavior.cs" />
     <Compile Include="Routing\MessagingBestPractices\EnforceReplyBestPracticesBehavior.cs" />

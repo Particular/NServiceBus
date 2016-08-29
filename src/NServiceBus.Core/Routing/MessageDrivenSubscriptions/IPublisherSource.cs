@@ -5,7 +5,8 @@ namespace NServiceBus
 
     interface IPublisherSource
     {
-        IEnumerable<PublisherTableEntry> Generate(Conventions conventions);
+        IEnumerable<PublisherTableEntry> GenerateWithBestPracticeEnforcement(Conventions conventions);
+        IEnumerable<PublisherTableEntry> GenerateWithoutBestPracticeEnforcement(Conventions conventions);
         RouteSourcePriority Priority { get; }
     }
 }

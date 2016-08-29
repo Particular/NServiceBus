@@ -149,7 +149,7 @@
         {
             var publishers = new Publishers();
             var registrations = routingSettings.Settings.Get<ConfiguredPublishers>();
-            registrations.Apply(publishers, new Conventions());
+            registrations.Apply(publishers, new Conventions(), true);
             return publishers;
         }
 

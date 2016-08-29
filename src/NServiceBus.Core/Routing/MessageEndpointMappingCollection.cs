@@ -166,7 +166,7 @@ namespace NServiceBus.Config
             return false;
         }
 
-        internal void Apply(Publishers publishers, UnicastRoutingTable unicastRoutingTable, Func<string, string> makeCanonicalAddress)
+        internal void Apply(Publishers publishers, UnicastRoutingTable unicastRoutingTable, Func<string, string> makeCanonicalAddress, Conventions conventions)
         {
             var routeTableEntries = new Dictionary<Type, RouteTableEntry>();
             var publisherTableEntries = new Dictionary<Type, PublisherTableEntry>();
@@ -175,6 +175,10 @@ namespace NServiceBus.Config
             {
                 m.Configure((type, endpointAddress) =>
                 {
+                    if (!conventions.IsMessageType(type))
+                    {
+                        return;
+                    }
                     var canonicalForm = makeCanonicalAddress(endpointAddress);
                     routeTableEntries[type] = new RouteTableEntry(type, UnicastRoute.CreateFromPhysicalAddress(canonicalForm));
                     publisherTableEntries[type] = new PublisherTableEntry(type, PublisherAddress.CreateFromPhysicalAddresses(canonicalForm));

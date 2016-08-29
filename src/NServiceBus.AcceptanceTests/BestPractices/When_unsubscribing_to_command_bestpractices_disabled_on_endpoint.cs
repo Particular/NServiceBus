@@ -3,7 +3,6 @@
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
-    using Features;
     using NUnit.Framework;
 
     public class When_unsubscribing_to_command_bestpractices_disabled_on_endpoint : NServiceBusAcceptanceTest
@@ -21,7 +20,11 @@
         {
             public Endpoint()
             {
-                EndpointSetup<DefaultServer>(c => c.DisableFeature<BestPracticeEnforcement>())
+                EndpointSetup<DefaultServer>((c, r) =>
+                {
+                    var routing = c.UseTransport(r.GetTransportType()).Routing();
+                    routing.DoNotEnforceBestPractices();
+                })
                     .AddMapping<MyCommand>(typeof(Endpoint))
                     .AddMapping<MyEvent>(typeof(Endpoint));
             }
