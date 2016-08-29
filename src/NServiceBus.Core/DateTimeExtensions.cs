@@ -24,6 +24,11 @@ namespace NServiceBus
         {
             Guard.AgainstNullAndEmpty(nameof(wireFormattedString), wireFormattedString);
 
+            if (wireFormattedString.Length != format.Length)
+            {
+                throw new FormatException(errorMessage);
+            }
+
             var year = 0;
             var month = 0;
             var day = 0;
@@ -39,30 +44,37 @@ namespace NServiceBus
                 switch (format[i])
                 {
                     case 'y':
+                        if (digit < '0' || digit > '9') throw new FormatException(errorMessage);
                         year = year * 10 + (digit - '0');
                         break;
 
                     case 'M':
+                        if (digit < '0' || digit > '9') throw new FormatException(errorMessage);
                         month = month * 10 + (digit - '0');
                         break;
 
                     case 'd':
+                        if (digit < '0' || digit > '9') throw new FormatException(errorMessage);
                         day = day * 10 + (digit - '0');
                         break;
 
                     case 'H':
+                        if (digit < '0' || digit > '9') throw new FormatException(errorMessage);
                         hour = hour * 10 + (digit - '0');
                         break;
 
                     case 'm':
+                        if (digit < '0' || digit > '9') throw new FormatException(errorMessage);
                         minute = minute * 10 + (digit - '0');
                         break;
 
                     case 's':
+                        if (digit < '0' || digit > '9') throw new FormatException(errorMessage);
                         second = second * 10 + (digit - '0');
                         break;
 
                     case 'f':
+                        if (digit < '0' || digit > '9') throw new FormatException(errorMessage);
                         microSecond = microSecond * 10 + (digit - '0');
                         break;
                 }
@@ -72,5 +84,6 @@ namespace NServiceBus
         }
 
         const string format = "yyyy-MM-dd HH:mm:ss:ffffff Z";
+        const string errorMessage = "String was not recognized as a valid DateTime.";
     }
 }
