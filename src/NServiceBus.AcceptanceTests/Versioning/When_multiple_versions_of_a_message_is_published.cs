@@ -60,18 +60,22 @@
         {
             public V2Publisher()
             {
-                EndpointSetup<DefaultPublisher>(b => b.OnEndpointSubscribed<Context>((s, context) =>
+                EndpointSetup<DefaultPublisher>(b =>
                 {
-                    if (s.SubscriberReturnAddress.Contains("V1Subscriber"))
+                    b.UseSerialization<JsonSerializer>();
+                    b.OnEndpointSubscribed<Context>((s, context) =>
                     {
-                        context.V1Subscribed = true;
-                    }
+                        if (s.SubscriberReturnAddress.Contains("V1Subscriber"))
+                        {
+                            context.V1Subscribed = true;
+                        }
 
-                    if (s.SubscriberReturnAddress.Contains("V2Subscriber"))
-                    {
-                        context.V2Subscribed = true;
-                    }
-                }));
+                        if (s.SubscriberReturnAddress.Contains("V2Subscriber"))
+                        {
+                            context.V2Subscribed = true;
+                        }
+                    });
+                });
             }
         }
 
@@ -79,7 +83,11 @@
         {
             public V1Subscriber()
             {
-                EndpointSetup<DefaultServer>(b => b.DisableFeature<AutoSubscribe>())
+                EndpointSetup<DefaultServer>(b =>
+                {
+                    b.UseSerialization<JsonSerializer>();
+                    b.DisableFeature<AutoSubscribe>();
+                })
                     .ExcludeType<V2Event>()
                     .AddMapping<V1Event>(typeof(V2Publisher));
             }
@@ -100,7 +108,11 @@
         {
             public V2Subscriber()
             {
-                EndpointSetup<DefaultServer>(b => b.DisableFeature<AutoSubscribe>())
+                EndpointSetup<DefaultServer>(b =>
+                {
+                    b.UseSerialization<JsonSerializer>();
+                    b.DisableFeature<AutoSubscribe>();
+                })
                     .AddMapping<V2Event>(typeof(V2Publisher));
             }
 
