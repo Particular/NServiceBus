@@ -191,6 +191,7 @@
     <Compile Include="Serialization\When_sanitizing_xml_messages.cs" />
     <Compile Include="Serialization\When_skip_wrapping_xml.cs" />
     <Compile Include="Serialization\When_wrapping_is_not_skipped.cs" />
+    <Compile Include="Serialization\When_xml_serializer_used_with_unobtrusive_mode.cs" />
     <Compile Include="UnicastRoutingExtensions.cs" />
     <Compile Include="Routing\When_multi_subscribing_to_a_polymorphic_event_on_multicast_transports.cs" />
     <Compile Include="Routing\When_handler_exists_but_routing_information_is_missing.cs" />
