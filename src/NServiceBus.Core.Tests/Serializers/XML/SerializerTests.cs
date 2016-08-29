@@ -82,10 +82,10 @@ namespace NServiceBus.Serializers.XML.Test
         public void Should_deserialize_multiple_messages_from_different_namespaces()
         {
             var xml = @"<?xml version=""1.0"" ?>
-<Messages 
-    xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" 
-    xmlns:xsd=""http://www.w3.org/2001/XMLSchema"" 
-    xmlns=""http://tempuri.net/NServiceBus.Serializers.XML.Test.A"" 
+<Messages
+    xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance""
+    xmlns:xsd=""http://www.w3.org/2001/XMLSchema""
+    xmlns=""http://tempuri.net/NServiceBus.Serializers.XML.Test.A""
     xmlns:q1=""http://tempuri.net/NServiceBus.Serializers.XML.Test.B"">
     <Command1>
         <Id>1eb17e5d-8573-49af-a5cb-76b4a602bb79</Id>
@@ -307,6 +307,23 @@ namespace NServiceBus.Serializers.XML.Test
         }
 
         [Test]
+        public void Should_deserialize_a_single_message_with_typeName_passed_in_externally_even_when_not_initialized_with_type()
+        {
+            using (var stream = new MemoryStream())
+            {
+                var writer = new StreamWriter(stream);
+                writer.WriteLine("<WhatEver><Double>23.4</Double></WhatEver>");
+                writer.Flush();
+                stream.Position = 0;
+
+                var msgArray = SerializerFactory.Create()
+                    .Deserialize(stream, new[] { typeof(MessageWithDouble) });
+
+                Assert.AreEqual(23.4, ((MessageWithDouble)msgArray[0]).Double);
+            }
+        }
+
+        [Test]
         public void Should_deserialize_a_batched_messages_with_typeName_passed_in_externally()
         {
             using (var stream = new MemoryStream())
@@ -322,6 +339,24 @@ namespace NServiceBus.Serializers.XML.Test
                 Assert.AreEqual(23.4, ((MessageWithDouble)msgArray[0]).Double);
                 Assert.AreEqual(typeof(EmptyMessage), msgArray[1].GetType());
 
+            }
+        }
+
+        [Test]
+        public void Should_deserialize_a_batched_messages_with_typeName_passed_in_externally_even_when_not_initialized_with_type()
+        {
+            using (var stream = new MemoryStream())
+            {
+                var writer = new StreamWriter(stream);
+                writer.WriteLine("<Messages><WhatEver><Double>23.4</Double></WhatEver><TheEmptyMessage></TheEmptyMessage></Messages>");
+                writer.Flush();
+                stream.Position = 0;
+
+                var msgArray = SerializerFactory.Create()
+                    .Deserialize(stream, new[] { typeof(MessageWithDouble), typeof(EmptyMessage) });
+
+                Assert.AreEqual(23.4, ((MessageWithDouble)msgArray[0]).Double);
+                Assert.AreEqual(typeof(EmptyMessage), msgArray[1].GetType());
             }
         }
 
@@ -467,9 +502,9 @@ namespace NServiceBus.Serializers.XML.Test
 
             var xmlReaderSettings = new XmlReaderSettings
             {
-                IgnoreProcessingInstructions = true, 
-                ValidationType = ValidationType.None, 
-                IgnoreWhitespace = true, 
+                IgnoreProcessingInstructions = true,
+                ValidationType = ValidationType.None,
+                IgnoreWhitespace = true,
                 CheckCharacters = false,
                 ConformanceLevel = ConformanceLevel.Auto
             };
@@ -522,85 +557,85 @@ namespace NServiceBus.Serializers.XML.Test
             }
         }
 
-		[Test]
-		public void SerializeClosedGenericListsInAlternateNamespace()
-		{
-			IMessageMapper mapper = new MessageMapper();
-			var serializer = SerializerFactory.Create<MessageWithClosedListInAlternateNamespace>();
-			var msg = mapper.CreateInstance<MessageWithClosedListInAlternateNamespace>();
+        [Test]
+        public void SerializeClosedGenericListsInAlternateNamespace()
+        {
+            IMessageMapper mapper = new MessageMapper();
+            var serializer = SerializerFactory.Create<MessageWithClosedListInAlternateNamespace>();
+            var msg = mapper.CreateInstance<MessageWithClosedListInAlternateNamespace>();
 
-			msg.Items = new AlternateNamespace.AlternateItemList { new AlternateNamespace.MessageWithListItemAlternate { Data = "Hello" } };
+            msg.Items = new AlternateNamespace.AlternateItemList { new AlternateNamespace.MessageWithListItemAlternate { Data = "Hello" } };
 
-			using (var stream = new MemoryStream())
-			{
-				serializer.Serialize(msg, stream);
-				stream.Position = 0;
+            using (var stream = new MemoryStream())
+            {
+                serializer.Serialize(msg, stream);
+                stream.Position = 0;
 
-				var msgArray = serializer.Deserialize(stream);
-				var m = (MessageWithClosedListInAlternateNamespace)msgArray[0];
-				Assert.AreEqual("Hello", m.Items.First().Data);
-			}
-		}
+                var msgArray = serializer.Deserialize(stream);
+                var m = (MessageWithClosedListInAlternateNamespace)msgArray[0];
+                Assert.AreEqual("Hello", m.Items.First().Data);
+            }
+        }
 
         [Test]
-		public void SerializeClosedGenericListsInAlternateNamespaceMultipleIEnumerableImplementations()
-		{
-			IMessageMapper mapper = new MessageMapper();
-			var serializer = SerializerFactory.Create<MessageWithClosedListInAlternateNamespaceMultipleIEnumerableImplementations>();
-			var msg = mapper.CreateInstance<MessageWithClosedListInAlternateNamespaceMultipleIEnumerableImplementations>();
+        public void SerializeClosedGenericListsInAlternateNamespaceMultipleIEnumerableImplementations()
+        {
+            IMessageMapper mapper = new MessageMapper();
+            var serializer = SerializerFactory.Create<MessageWithClosedListInAlternateNamespaceMultipleIEnumerableImplementations>();
+            var msg = mapper.CreateInstance<MessageWithClosedListInAlternateNamespaceMultipleIEnumerableImplementations>();
 
-			msg.Items = new AlternateNamespace.AlternateItemListMultipleIEnumerableImplementations { new AlternateNamespace.MessageWithListItemAlternate { Data = "Hello" } };
+            msg.Items = new AlternateNamespace.AlternateItemListMultipleIEnumerableImplementations { new AlternateNamespace.MessageWithListItemAlternate { Data = "Hello" } };
 
-			using (var stream = new MemoryStream())
-			{
-				serializer.Serialize(msg, stream);
-				stream.Position = 0;
+            using (var stream = new MemoryStream())
+            {
+                serializer.Serialize(msg, stream);
+                stream.Position = 0;
 
-				var msgArray = serializer.Deserialize(stream);
-				var m = (MessageWithClosedListInAlternateNamespaceMultipleIEnumerableImplementations)msgArray[0];
-				Assert.AreEqual("Hello", m.Items.First<AlternateNamespace.MessageWithListItemAlternate>().Data);
-			}
-		}
+                var msgArray = serializer.Deserialize(stream);
+                var m = (MessageWithClosedListInAlternateNamespaceMultipleIEnumerableImplementations)msgArray[0];
+                Assert.AreEqual("Hello", m.Items.First<AlternateNamespace.MessageWithListItemAlternate>().Data);
+            }
+        }
 
         [Test]
-		public void SerializeClosedGenericListsInAlternateNamespaceMultipleIListImplementations()
-		{
-			IMessageMapper mapper = new MessageMapper();
-			var serializer = SerializerFactory.Create<MessageWithClosedListInAlternateNamespaceMultipleIListImplementations>();
-			var msg = mapper.CreateInstance<MessageWithClosedListInAlternateNamespaceMultipleIListImplementations>();
+        public void SerializeClosedGenericListsInAlternateNamespaceMultipleIListImplementations()
+        {
+            IMessageMapper mapper = new MessageMapper();
+            var serializer = SerializerFactory.Create<MessageWithClosedListInAlternateNamespaceMultipleIListImplementations>();
+            var msg = mapper.CreateInstance<MessageWithClosedListInAlternateNamespaceMultipleIListImplementations>();
 
-			msg.Items = new AlternateNamespace.AlternateItemListMultipleIListImplementations { new AlternateNamespace.MessageWithListItemAlternate { Data = "Hello" } };
+            msg.Items = new AlternateNamespace.AlternateItemListMultipleIListImplementations { new AlternateNamespace.MessageWithListItemAlternate { Data = "Hello" } };
 
-			using (var stream = new MemoryStream())
-			{
-				serializer.Serialize(msg, stream);
-				stream.Position = 0;
+            using (var stream = new MemoryStream())
+            {
+                serializer.Serialize(msg, stream);
+                stream.Position = 0;
 
-				var msgArray = serializer.Deserialize(stream);
-				var m = (MessageWithClosedListInAlternateNamespaceMultipleIListImplementations)msgArray[0];
-				Assert.AreEqual("Hello", m.Items.First<AlternateNamespace.MessageWithListItemAlternate>().Data);
-			}
-		}
+                var msgArray = serializer.Deserialize(stream);
+                var m = (MessageWithClosedListInAlternateNamespaceMultipleIListImplementations)msgArray[0];
+                Assert.AreEqual("Hello", m.Items.First<AlternateNamespace.MessageWithListItemAlternate>().Data);
+            }
+        }
 
-		[Test]
-		public void SerializeClosedGenericListsInSameNamespace()
-		{
-			IMessageMapper mapper = new MessageMapper();
-			var serializer = SerializerFactory.Create<MessageWithClosedList>();
-			var msg = mapper.CreateInstance<MessageWithClosedList>();
+        [Test]
+        public void SerializeClosedGenericListsInSameNamespace()
+        {
+            IMessageMapper mapper = new MessageMapper();
+            var serializer = SerializerFactory.Create<MessageWithClosedList>();
+            var msg = mapper.CreateInstance<MessageWithClosedList>();
 
-			msg.Items = new ItemList { new MessageWithListItem { Data = "Hello" } };
+            msg.Items = new ItemList { new MessageWithListItem { Data = "Hello" } };
 
-			using (var stream = new MemoryStream())
-			{
-				serializer.Serialize(msg, stream);
-				stream.Position = 0;
+            using (var stream = new MemoryStream())
+            {
+                serializer.Serialize(msg, stream);
+                stream.Position = 0;
 
-				var msgArray = serializer.Deserialize(stream);
-				var m = (MessageWithClosedList)msgArray[0];
-				Assert.AreEqual("Hello", m.Items.First().Data);
-			}
-		}
+                var msgArray = serializer.Deserialize(stream);
+                var m = (MessageWithClosedList)msgArray[0];
+                Assert.AreEqual("Hello", m.Items.First().Data);
+            }
+        }
 
         [Test]
         public void SerializeEmptyLists()
@@ -679,7 +714,7 @@ namespace NServiceBus.Serializers.XML.Test
                 m1.Risk = new Risk
                 {
                     Percent = 0.15D,
-                    Annum = true, 
+                    Annum = true,
                     Accuracy = 0.314M
                 };
             }
@@ -988,25 +1023,25 @@ namespace NServiceBus.Serializers.XML.Test
         public ArrayList ArrayList { get; set; }
     }
 
-	public class MessageWithClosedListInAlternateNamespace : IMessage
-	{
-		public AlternateNamespace.AlternateItemList Items { get; set; }
-	}
+    public class MessageWithClosedListInAlternateNamespace : IMessage
+    {
+        public AlternateNamespace.AlternateItemList Items { get; set; }
+    }
 
-	public class MessageWithClosedListInAlternateNamespaceMultipleIEnumerableImplementations : IMessage
-	{
-		public AlternateNamespace.AlternateItemListMultipleIEnumerableImplementations Items { get; set; }
-	}
+    public class MessageWithClosedListInAlternateNamespaceMultipleIEnumerableImplementations : IMessage
+    {
+        public AlternateNamespace.AlternateItemListMultipleIEnumerableImplementations Items { get; set; }
+    }
 
-	public class MessageWithClosedListInAlternateNamespaceMultipleIListImplementations : IMessage
-	{
-		public AlternateNamespace.AlternateItemListMultipleIListImplementations Items { get; set; }
-	}
+    public class MessageWithClosedListInAlternateNamespaceMultipleIListImplementations : IMessage
+    {
+        public AlternateNamespace.AlternateItemListMultipleIListImplementations Items { get; set; }
+    }
 
-	public class MessageWithClosedList : IMessage
-	{
-		public ItemList Items { get; set; }
-	}
+    public class MessageWithClosedList : IMessage
+    {
+        public ItemList Items { get; set; }
+    }
 
     [Serializable]
     public class MessageWithXDocument : IMessage
@@ -1020,9 +1055,9 @@ namespace NServiceBus.Serializers.XML.Test
         public XElement Document { get; set; }
     }
 
-	public class ItemList : List<MessageWithListItem>
-	{
-	}
+    public class ItemList : List<MessageWithListItem>
+    {
+    }
 
     public class CompositeMessage : IMyEventA, IMyEventB
     {
@@ -1057,67 +1092,67 @@ namespace NServiceBus.Serializers.XML.Test.AlternateNamespace
     using System.Linq;
 
     public class AlternateItemList : List<MessageWithListItemAlternate>
-	{
-	}
+    {
+    }
 
-	public class MessageWithListItemAlternate
-	{
-		public string Data { get; set; }
-	}
+    public class MessageWithListItemAlternate
+    {
+        public string Data { get; set; }
+    }
 
-	public class AlternateItemListMultipleIEnumerableImplementations : List<MessageWithListItemAlternate>, IEnumerable<string>
-	{
-		public new IEnumerator<string> GetEnumerator()
-		{
-			return ToArray().Select(item => item.Data).GetEnumerator();
-		}
-	}
+    public class AlternateItemListMultipleIEnumerableImplementations : List<MessageWithListItemAlternate>, IEnumerable<string>
+    {
+        public new IEnumerator<string> GetEnumerator()
+        {
+            return ToArray().Select(item => item.Data).GetEnumerator();
+        }
+    }
 
-	public class AlternateItemListMultipleIListImplementations : List<MessageWithListItemAlternate>, IList<string>
-	{
-	    IList<string> stringList  = new List<string>();
+    public class AlternateItemListMultipleIListImplementations : List<MessageWithListItemAlternate>, IList<string>
+    {
+        IList<string> stringList  = new List<string>();
 
-		IEnumerator<string> IEnumerable<string>.GetEnumerator()
-		{
-			return stringList.GetEnumerator();
-		}
+        IEnumerator<string> IEnumerable<string>.GetEnumerator()
+        {
+            return stringList.GetEnumerator();
+        }
 
-		void ICollection<string>.Add(string item)
-		{
-			stringList.Add(item);
-		}
+        void ICollection<string>.Add(string item)
+        {
+            stringList.Add(item);
+        }
 
-		bool ICollection<string>.Contains(string item)
-		{
-			return stringList.Contains(item);
-		}
+        bool ICollection<string>.Contains(string item)
+        {
+            return stringList.Contains(item);
+        }
 
-		void ICollection<string>.CopyTo(string[] array, int arrayIndex)
-		{
-			stringList.CopyTo(array, arrayIndex);
-		}
+        void ICollection<string>.CopyTo(string[] array, int arrayIndex)
+        {
+            stringList.CopyTo(array, arrayIndex);
+        }
 
-		bool ICollection<string>.Remove(string item)
-		{
-			return stringList.Remove(item);
-		}
+        bool ICollection<string>.Remove(string item)
+        {
+            return stringList.Remove(item);
+        }
 
-		bool ICollection<string>.IsReadOnly => stringList.IsReadOnly;
+        bool ICollection<string>.IsReadOnly => stringList.IsReadOnly;
 
-	    int IList<string>.IndexOf(string item)
-		{
-			return stringList.IndexOf(item);
-		}
+        int IList<string>.IndexOf(string item)
+        {
+            return stringList.IndexOf(item);
+        }
 
-		void IList<string>.Insert(int index, string item)
-		{
-			stringList.Insert(index, item);
-		}
+        void IList<string>.Insert(int index, string item)
+        {
+            stringList.Insert(index, item);
+        }
 
-		string IList<string>.this[int index]
-		{
-			get { return stringList[index]; }
-			set { stringList[index] = value; }
-		}
-	}
+        string IList<string>.this[int index]
+        {
+            get { return stringList[index]; }
+            set { stringList[index] = value; }
+        }
+    }
 }
