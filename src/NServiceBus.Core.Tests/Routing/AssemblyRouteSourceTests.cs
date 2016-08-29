@@ -13,8 +13,9 @@
         {
             var source = new AssemblyRouteSource(Assembly.GetExecutingAssembly(), UnicastRoute.CreateFromEndpointName("Destination"));
             var routes = source.GenerateRoutes(new Conventions()).ToArray();
+            var routeTypes = routes.Select(r => r.MessageType);
 
-            Assert.IsFalse(routes.Any(r => r.MessageType == typeof(NonMessage)));
+            CollectionAssert.DoesNotContain(routeTypes, typeof(NonMessage));
         }
 
 

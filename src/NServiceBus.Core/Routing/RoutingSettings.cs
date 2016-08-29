@@ -70,7 +70,7 @@
         /// <summary>
         /// Disables the enforcement of messaging best practices (e.g. validating that a published message is an event).
         /// </summary>
-        public void DisableBestPracticeEnforcement()
+        public void DoNotEnforceBestPractices()
         {
             Settings.Set(RoutingFeature.EnforceBestPracticesSettingsKey, false);
         }

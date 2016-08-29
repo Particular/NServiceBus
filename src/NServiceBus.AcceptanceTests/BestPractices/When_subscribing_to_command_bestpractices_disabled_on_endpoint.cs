@@ -41,7 +41,7 @@
                 EndpointSetup<DefaultServer>((c, r) =>
                 {
                     var routing = c.UseTransport(r.GetTransportType()).Routing();
-                    routing.DisableBestPracticeEnforcement();
+                    routing.DoNotEnforceBestPractices();
                 })
                     .AddMapping<MyCommand>(typeof(Endpoint))
                     .AddMapping<MyEvent>(typeof(Endpoint));

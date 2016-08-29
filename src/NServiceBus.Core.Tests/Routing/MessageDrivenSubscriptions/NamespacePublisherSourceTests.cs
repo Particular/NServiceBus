@@ -14,21 +14,23 @@
         public void It_returns_only_event_types()
         {
             var source = new NamespacePublisherSource(Assembly.GetExecutingAssembly(), "NServiceBus.Core.Tests.Routing.NamespacePublisherSourceTest", PublisherAddress.CreateFromEndpointName("Destination"));
-            var routes = source.GenerateWithBestPracticeEnforcement(new Conventions()).ToArray();
+            var routes = source.GenerateWithBestPracticeEnforcement(new Conventions());
+            var routedTypes = routes.Select(r => r.EventType).ToArray();
 
-            Assert.IsTrue(routes.Any(r => r.EventType == typeof(Event)));
-            Assert.IsFalse(routes.Any(r => r.EventType == typeof(NonMessage)));
-            Assert.IsFalse(routes.Any(r => r.EventType == typeof(NonEvent)));
+            CollectionAssert.Contains(routedTypes, typeof(Event));
+            CollectionAssert.DoesNotContain(routedTypes, typeof(NonMessage));
+            CollectionAssert.DoesNotContain(routedTypes, typeof(NonEvent));
         }
 
         [Test]
         public void It_returns_only_types_from_specified_namespace()
         {
             var source = new NamespacePublisherSource(Assembly.GetExecutingAssembly(), "NServiceBus.Core.Tests.Routing.NamespacePublisherSourceTest", PublisherAddress.CreateFromEndpointName("Destination"));
-            var routes = source.GenerateWithBestPracticeEnforcement(new Conventions()).ToArray();
+            var routes = source.GenerateWithBestPracticeEnforcement(new Conventions());
+            var routedTypes = routes.Select(r => r.EventType).ToArray();
 
-            Assert.IsTrue(routes.Any(r => r.EventType == typeof(Event)));
-            Assert.IsFalse(routes.Any(r => r.EventType == typeof(ExcludedEvent)));
+            CollectionAssert.Contains(routedTypes, typeof(Event));
+            CollectionAssert.DoesNotContain(routedTypes, typeof(ExcludedEvent));
         }
 
         [Test]
@@ -36,8 +38,9 @@
         {
             var source = new NamespacePublisherSource(Assembly.GetExecutingAssembly(), "NServiceBus.Core.Tests.Routing.NAMESPACEpublisherSOURCEtest", PublisherAddress.CreateFromEndpointName("Destination"));
             var routes = source.GenerateWithBestPracticeEnforcement(new Conventions()).ToArray();
+            var routedTypes = routes.Select(r => r.EventType);
 
-            Assert.IsTrue(routes.Any(r => r.EventType == typeof(Event)));
+            CollectionAssert.Contains(routedTypes, typeof(Event));
         }
 
         [Test]
