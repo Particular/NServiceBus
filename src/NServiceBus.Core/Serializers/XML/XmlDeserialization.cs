@@ -277,7 +277,7 @@
                     logger.Debug($"Trying to deserialize message to {baseType.FullName}");
                     return baseType;
                 }
-                    // ReSharper disable once EmptyGeneralCatchClause
+                // ReSharper disable once EmptyGeneralCatchClause
                 catch
                 {
                     // intentionally swallow exception
@@ -629,17 +629,21 @@
 
         PropertyInfo GetProperty(Type t, string name)
         {
-            IEnumerable<PropertyInfo> props;
-            cache.typeToProperties.TryGetValue(t, out props);
+            IEnumerable<PropertyInfo> properties;
+            if (!cache.typeToProperties.TryGetValue(t, out properties))
+            {
+                cache.InitType(t);
+                cache.typeToProperties.TryGetValue(t, out properties);
+            }
 
-            if (props == null)
+            if (properties == null)
             {
                 return null;
             }
 
             var n = GetNameAfterColon(name);
 
-            foreach (var prop in props)
+            foreach (var prop in properties)
             {
                 if (prop.Name == n)
                 {
