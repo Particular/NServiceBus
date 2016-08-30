@@ -78,11 +78,11 @@
     <Compile Include="Routing\When_sending_non_message_with_routing_configured_via_mappings.cs" />
     <Compile Include="Routing\When_registering_publishers_unobtrusive_messages.cs" />
     <Compile Include="Routing\When_publishing_an_interface_with_unobtrusive.cs" />
-    <Compile Include="Routing\When_replying_to_message_with_interface.cs" />
+    <Compile Include="Routing\When_replying_to_message_with_interface_and_unobtrusive.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\When_subscribing_to_a_base_event.cs" />
     <Compile Include="Routing\When_sending_a_base_command.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\When_subscribing_to_a_base_event_with_routes_to_base_and_specific_events.cs" />
-    <Compile Include="Routing\MessageDrivenSubscriptions\When_subscribing_to_a_base_event_with_a_route_for_a_derived_events.cs" />
+    <Compile Include="Routing\MessageDrivenSubscriptions\When_subscribing_to_a_base_event_with_a_route_for_a_derived_event.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\When_subscribing_to_a_derived_event.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\When_subscribing_to_multiple_publishers.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\When_subscribing_to_scaled_out_publisher.cs" />
@@ -189,7 +189,7 @@
     <Compile Include="Reliability\Outbox\When_a_duplicate_message_arrives.cs" />
     <Compile Include="Routing\AutomaticSubscriptions\When_starting_an_endpoint_with_a_saga.cs" />
     <Compile Include="Routing\AutomaticSubscriptions\When_starting_an_endpoint_with_a_saga_autosubscribe_disabled.cs" />
-    <Compile Include="Routing\AutomaticSubscriptions\When_starting_an_endpoint_with_autoSubscribe.cs">
+    <Compile Include="Routing\AutomaticSubscriptions\When_starting_an_endpoint_with_autosubscribe.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Routing\SubscriptionBehaviorExtensions.cs" />
@@ -201,8 +201,8 @@
     <Compile Include="Serialization\When_wrapping_is_not_skipped.cs" />
     <Compile Include="UnicastRoutingExtensions.cs" />
     <Compile Include="Routing\NativePublishSubscribe\When_multi_subscribing_to_a_polymorphic_event.cs" />
-    <Compile Include="Routing\MessageDrivenSubscriptions\When_handler_exists_but_routing_information_is_missing.cs" />
-    <Compile Include="Routing\MessageDrivenSubscriptions\When_publishing_to_scaled_out_subscribers_on_unicast_transports.cs" />
+    <Compile Include="Routing\MessageDrivenSubscriptions\When_using_autosubscribe_with_missing_routing_information.cs" />
+    <Compile Include="Routing\MessageDrivenSubscriptions\When_publishing_to_scaled_out_subscribers.cs" />
     <Compile Include="Routing\NativePublishSubscribe\When_publishing_to_scaled_out_subscribers.cs" />
     <Compile Include="Routing\When_replying_to_a_message_sent_to_specific_instance.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\When_using_assembly_level_message_mapping_for_pub_sub.cs" />

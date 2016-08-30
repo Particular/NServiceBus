@@ -7,7 +7,7 @@
     using NUnit.Framework;
     using ScenarioDescriptors;
 
-    public class When_subscribing_to_a_base_event_with_a_route_for_a_derived_events : NServiceBusAcceptanceTest
+    public class When_subscribing_to_a_base_event_with_a_route_for_a_derived_event : NServiceBusAcceptanceTest
     {
         [Test]
         public async Task Event_should_be_delivered()
