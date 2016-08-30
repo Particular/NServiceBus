@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.AcceptanceTests.Routing
+﻿namespace NServiceBus.AcceptanceTests.Routing.MessageDrivenSubscriptions
 {
     using System.Collections.Generic;
     using System.Threading.Tasks;

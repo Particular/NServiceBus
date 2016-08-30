@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.AcceptanceTests.Routing
+﻿namespace NServiceBus.AcceptanceTests.Routing.MessageDrivenSubscriptions
 {
     using System.Threading;
     using System.Threading.Tasks;
@@ -8,7 +8,7 @@
     using NUnit.Framework;
     using ScenarioDescriptors;
 
-    public class When_publishing_to_scaled_out_subscribers_on_unicast_transports : NServiceBusAcceptanceTest
+    public class When_publishing_to_scaled_out_subscribers : NServiceBusAcceptanceTest
     {
         static string PublisherEndpoint => Conventions.EndpointNamingConvention(typeof(Publisher));
 

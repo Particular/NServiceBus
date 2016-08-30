@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.AcceptanceTests.Routing
+﻿namespace NServiceBus.AcceptanceTests.Routing.MessageDrivenSubscriptions
 {
     using System.Collections.Generic;
     using System.Threading.Tasks;
@@ -10,7 +10,7 @@
     using NUnit.Framework;
     using ScenarioDescriptors;
 
-    public class When_subscribing_to_scaled_out_publisher_on_unicast_transport : NServiceBusAcceptanceTest
+    public class When_subscribing_to_scaled_out_publisher : NServiceBusAcceptanceTest
     {
         [Test]
         public Task Should_send_subscription_message_to_each_instance()

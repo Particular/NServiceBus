@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.AcceptanceTests.Routing
+﻿namespace NServiceBus.AcceptanceTests.Routing.MessageDrivenSubscriptions
 {
     using System.Threading.Tasks;
     using AcceptanceTesting;
@@ -6,7 +6,7 @@
     using NUnit.Framework;
     using ScenarioDescriptors;
 
-    public class when_using_autosubscribe_with_missing_routing_information : NServiceBusAcceptanceTest
+    public class When_using_autosubscribe_with_missing_routing_information : NServiceBusAcceptanceTest
     {
         [Test]
         public Task Should_skip_events_with_missing_routes()
