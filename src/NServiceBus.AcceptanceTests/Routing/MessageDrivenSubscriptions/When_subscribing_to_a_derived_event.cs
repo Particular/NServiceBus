@@ -10,9 +10,9 @@
     public class When_subscribing_to_a_derived_event : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Base_event_should_not_be_delivered()
+        public Task Base_event_should_not_be_delivered()
         {
-            await Scenario.Define<Context>()
+            return Scenario.Define<Context>()
                 .WithEndpoint<Publisher>(b => b.When(c => c.SubscriberSubscribed, async session =>
                 {
                     await session.Publish<IBaseEvent>();

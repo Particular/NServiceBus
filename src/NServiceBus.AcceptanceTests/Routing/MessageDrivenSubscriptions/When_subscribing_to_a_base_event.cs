@@ -10,9 +10,9 @@
     public class When_subscribing_to_a_base_event : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Both_base_and_specific_events_should_be_delivered()
+        public Task Both_base_and_specific_events_should_be_delivered()
         {
-            await Scenario.Define<Context>()
+            return Scenario.Define<Context>()
                 .WithEndpoint<Publisher>(b => b.When(c => c.SubscriberSubscribed, async session =>
                 {
                     await session.Publish(new SpecificEvent());
