@@ -166,12 +166,10 @@ namespace NServiceBus.Config
             return false;
         }
 
-        internal void Apply(Publishers publishers, UnicastRoutingTable unicastRoutingTable, Func<string, string> makeCanonicalAddress, Conventions conventions, IEnumerable<Type> allScannedTypes)
+        internal void Apply(Publishers publishers, UnicastRoutingTable unicastRoutingTable, Func<string, string> makeCanonicalAddress, Conventions conventions)
         {
             var routeTableEntries = new Dictionary<Type, RouteTableEntry>();
             var publisherTableEntries = new List<PublisherTableEntry>();
-
-            var allMessageTypes = allScannedTypes.Where(conventions.IsMessageType).ToArray();
 
             foreach (var m in this.Cast<MessageEndpointMapping>().OrderByDescending(m => m))
             {
@@ -182,7 +180,7 @@ namespace NServiceBus.Config
                         return;
                     }
                     var canonicalForm = makeCanonicalAddress(endpointAddress);
-                    var baseTypes = allMessageTypes.Where(candidate => candidate != type && candidate.IsAssignableFrom(type)).ToArray();
+                    var baseTypes = GetBaseTypes(type, conventions);
 
                     RegisterMessageRoute(type, canonicalForm, routeTableEntries, baseTypes);
                     RegisterEventRoute(type, canonicalForm, publisherTableEntries, baseTypes);
@@ -208,6 +206,34 @@ namespace NServiceBus.Config
                 routeTableEntries[baseType] = new RouteTableEntry(baseType, route);
             }
             routeTableEntries[mappedType] = new RouteTableEntry(mappedType, route);
+        }
+
+        static List<Type> GetBaseTypes(Type messageType, Conventions conventions)
+        {
+            var result = new List<Type>();
+            var baseType = messageType.BaseType;
+            while (baseType != typeof(object) && baseType != null)
+            {
+                if (conventions.IsMessageType(baseType))
+                {
+                    if (!result.Contains(baseType))
+                    {
+                        result.Add(baseType);
+                    }
+                }
+
+                baseType = baseType.BaseType;
+            }
+
+            foreach (var i in messageType.GetInterfaces())
+            {
+                if (conventions.IsMessageType(i) && !result.Contains(i))
+                {
+                    result.Add(i);
+                }
+            }
+
+            return result;
         }
     }
 }
