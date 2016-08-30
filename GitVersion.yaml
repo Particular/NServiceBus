@@ -3,3 +3,5 @@ next-version: 6.0
 branches:
   develop:
     tag: alpha
+  releases?[/-]:
+    tag: rc
