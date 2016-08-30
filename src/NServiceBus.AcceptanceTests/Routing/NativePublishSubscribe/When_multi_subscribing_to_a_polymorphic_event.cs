@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.AcceptanceTests.Routing
+﻿namespace NServiceBus.AcceptanceTests.Routing.NativePublishSubscribe
 {
     using System.Threading.Tasks;
     using AcceptanceTesting;
@@ -6,7 +6,7 @@
     using NUnit.Framework;
     using ScenarioDescriptors;
 
-    public class When_multi_subscribing_to_a_polymorphic_event_on_multicast_transports : NServiceBusAcceptanceTest
+    public class When_multi_subscribing_to_a_polymorphic_event : NServiceBusAcceptanceTest
     {
         [Test]
         public Task Both_events_should_be_delivered()

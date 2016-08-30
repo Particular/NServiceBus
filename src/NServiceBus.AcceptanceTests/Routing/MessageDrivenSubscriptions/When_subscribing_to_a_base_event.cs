@@ -1,17 +1,18 @@
-﻿namespace NServiceBus.AcceptanceTests.Routing
+﻿namespace NServiceBus.AcceptanceTests.Routing.MessageDrivenSubscriptions
 {
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
     using Features;
     using NUnit.Framework;
+    using ScenarioDescriptors;
 
-    public class When_subscribing_to_a_base_event_on_unicast_transports : NServiceBusAcceptanceTest
+    public class When_subscribing_to_a_base_event : NServiceBusAcceptanceTest
     {
         [Test]
         public async Task Both_base_and_specific_events_should_be_delivered()
         {
-            var context = await Scenario.Define<Context>()
+            await Scenario.Define<Context>()
                 .WithEndpoint<Publisher>(b => b.When(c => c.SubscriberSubscribed, async session =>
                 {
                     await session.Publish(new SpecificEvent());
@@ -19,10 +20,13 @@
                 }))
                 .WithEndpoint<GeneralSubscriber>(b => b.When(async (session, c) => await session.Subscribe<IBaseEvent>()))
                 .Done(c => c.SubscriberGotBaseEvent && c.SubscriberGotSpecificEvent)
+                .Repeat(r => r.For<AllTransportsWithMessageDrivenPubSub>())
+                .Should(c =>
+                {
+                    Assert.True(c.SubscriberGotBaseEvent);
+                    Assert.True(c.SubscriberGotSpecificEvent);
+                })
                 .Run();
-
-            Assert.True(context.SubscriberGotBaseEvent);
-            Assert.True(context.SubscriberGotSpecificEvent);
         }
 
         public class Context : ScenarioContext

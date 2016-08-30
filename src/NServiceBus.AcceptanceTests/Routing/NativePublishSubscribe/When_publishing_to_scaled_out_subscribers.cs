@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.AcceptanceTests.Routing
+﻿namespace NServiceBus.AcceptanceTests.Routing.NativePublishSubscribe
 {
     using System.Threading;
     using System.Threading.Tasks;
@@ -7,7 +7,7 @@
     using NUnit.Framework;
     using ScenarioDescriptors;
 
-    public class When_publishing_to_scaled_out_subscribers_on_multicast_transports : NServiceBusAcceptanceTest
+    public class When_publishing_to_scaled_out_subscribers : NServiceBusAcceptanceTest
     {
         [Test]
         public async Task Each_event_should_be_delivered_to_single_instance_of_each_subscriber()

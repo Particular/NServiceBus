@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.AcceptanceTests.Routing
+﻿namespace NServiceBus.AcceptanceTests.Routing.MessageDrivenSubscriptions
 {
     using System.Threading.Tasks;
     using AcceptanceTesting;
@@ -7,10 +7,10 @@
     using NUnit.Framework;
     using ScenarioDescriptors;
 
-    public class When_using_legacy_routing_configuration_combined_with_message_driven_pub_sub : NServiceBusAcceptanceTest
+    public class When_using_legacy_routing_configuration : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Messages_should_not_get_duplicated()
+        public async Task Events_routes_and_command_routes_should_be_kept_separate()
         {
             await Scenario.Define<Context>()
                 .WithEndpoint<Publisher>(b =>

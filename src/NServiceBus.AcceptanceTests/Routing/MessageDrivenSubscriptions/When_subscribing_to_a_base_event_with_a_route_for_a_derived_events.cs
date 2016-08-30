@@ -1,17 +1,18 @@
-﻿namespace NServiceBus.AcceptanceTests.Routing
+﻿namespace NServiceBus.AcceptanceTests.Routing.MessageDrivenSubscriptions
 {
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
     using Features;
     using NUnit.Framework;
+    using ScenarioDescriptors;
 
     public class When_subscribing_to_a_base_event_with_a_route_for_a_derived_events : NServiceBusAcceptanceTest
     {
         [Test]
         public async Task Event_should_be_delivered()
         {
-            var context = await Scenario.Define<Context>()
+            await Scenario.Define<Context>()
                 .WithEndpoint<PublisherOne>(b => b.When(c => c.SubscriberSubscribedToOne, async session =>
                 {
                     await session.Publish(new EventOne());
@@ -22,9 +23,9 @@
                 }))
                 .WithEndpoint<Subscriber>(b => b.When(async (session, c) => await session.Subscribe<IBaseEvent>()))
                 .Done(c => c.SubscriberGotEventOne)
+                .Repeat(r => r.For<AllTransportsWithMessageDrivenPubSub>())
+                .Should(c => Assert.IsTrue(c.SubscriberGotEventOne))
                 .Run();
-
-            Assert.True(context.SubscriberGotEventOne);
         }
 
         public class Context : ScenarioContext
