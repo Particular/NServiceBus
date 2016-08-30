@@ -1765,7 +1765,7 @@ namespace NServiceBus.Pipeline
 namespace NServiceBus.Satellites
 {
     [ObsoleteEx(
-        Message = "ISatellite is no longer an extension point. In order to create a satellite one must create a feature that uses AddSatelliteReceiver() method and a class that inherits from PipelineTerminator<ISatelliteProcessingContext> that is used for processing the messages.",
+        Message = "No longer an extension point. Instead create a feature and use FeatureSetupContex.AddSatelliteReceiver(...).",
         RemoveInVersion = "7",
         TreatAsErrorFromVersion = "6")]
     public interface IAdvancedSatellite
@@ -1773,7 +1773,7 @@ namespace NServiceBus.Satellites
     }
 
     [ObsoleteEx(
-        Message = "ISatellite is no longer an extension point. In order to create a satellite one must create a feature that uses AddSatelliteReceiver() method and a class that inherits from PipelineTerminator<ISatelliteProcessingContext> that is used for processing the messages.",
+        Message = "No longer an extension point. Instead create a feature and use FeatureSetupContex.AddSatelliteReceiver(...).",
         RemoveInVersion = "7",
         TreatAsErrorFromVersion = "6")]
     public interface ISatellite
