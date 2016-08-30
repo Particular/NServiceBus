@@ -2783,11 +2783,11 @@ namespace NServiceBus.Sagas
 }
 namespace NServiceBus.Satellites
 {
-    [System.ObsoleteAttribute("No longer an extension point. Instead create a feature and use FeatureSetupContex" +
-        ".AddSatelliteReceiver(...). Will be removed in version 7.0.0.", true)]
+    [System.ObsoleteAttribute("No longer an extension point. Instead create a Feature and use FeatureConfigurati" +
+        "onContext.AddSatelliteReceiver(...). Will be removed in version 7.0.0.", true)]
     public interface IAdvancedSatellite { }
-    [System.ObsoleteAttribute("No longer an extension point. Instead create a feature and use FeatureSetupContex" +
-        ".AddSatelliteReceiver(...). Will be removed in version 7.0.0.", true)]
+    [System.ObsoleteAttribute("No longer an extension point. Instead create a Feature and use FeatureConfigurati" +
+        "onContext.AddSatelliteReceiver(...). Will be removed in version 7.0.0.", true)]
     public interface ISatellite { }
 }
 namespace NServiceBus.SecondLevelRetries.Config
