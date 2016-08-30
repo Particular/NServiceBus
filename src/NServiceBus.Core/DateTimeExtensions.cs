@@ -80,10 +80,21 @@ namespace NServiceBus
                 }
             }
 
-            return new DateTime(year, month, day, hour, minute, second, microSecond / 1000, DateTimeKind.Utc);
+            return new DateTime(year, month, day, hour, minute, second, DateTimeKind.Utc).AddMicroseconds(microSecond);
+        }
+
+        internal static int Microseconds(this DateTime self)
+        {
+            return (int)Math.Floor(self.Ticks % TimeSpan.TicksPerMillisecond / (double)ticksPerMicrosecond);
+        }
+
+        internal static DateTime AddMicroseconds(this DateTime self, int microseconds)
+        {
+            return self.AddTicks(microseconds * ticksPerMicrosecond);
         }
 
         const string format = "yyyy-MM-dd HH:mm:ss:ffffff Z";
         const string errorMessage = "String was not recognized as a valid DateTime.";
+        const int ticksPerMicrosecond = 10;
     }
 }

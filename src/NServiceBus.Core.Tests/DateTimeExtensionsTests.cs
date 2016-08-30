@@ -1,5 +1,4 @@
-﻿
-namespace NServiceBus.Core.Tests
+﻿namespace NServiceBus.Core.Tests
 {
     using System;
     using System.Globalization;
@@ -19,7 +18,7 @@ namespace NServiceBus.Core.Tests
         }
 
         [Test]
-        public void When_roundtripping_UtcNow_should_be_accurate_to_millisecond()
+        public void When_roundtripping_UtcNow_should_be_accurate_to_microseconds()
         {
             var date = DateTime.UtcNow;
             var dateString = DateTimeExtensions.ToWireFormattedString(date);
@@ -32,10 +31,11 @@ namespace NServiceBus.Core.Tests
             Assert.AreEqual(date.Minute, result.Minute);
             Assert.AreEqual(date.Second, result.Second);
             Assert.AreEqual(date.Millisecond, result.Millisecond);
+            Assert.AreEqual(date.Microseconds(), result.Microseconds());
         }
 
         [Test]
-        public void When_converting_string_should_be_accurate_to_millisecond()
+        public void When_converting_string_should_be_accurate_to_microseconds()
         {
             var dateString = "2016-08-16 10:06:20:123456 Z";
             var date = DateTime.ParseExact(dateString, "yyyy-MM-dd HH:mm:ss:ffffff Z", CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal);
@@ -48,6 +48,7 @@ namespace NServiceBus.Core.Tests
             Assert.AreEqual(date.Minute, result.Minute);
             Assert.AreEqual(date.Second, result.Second);
             Assert.AreEqual(date.Millisecond, result.Millisecond);
+            Assert.AreEqual(date.Microseconds(), result.Microseconds());
         }
 
         [Test]
