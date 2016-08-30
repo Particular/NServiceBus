@@ -2322,10 +2322,6 @@ namespace NServiceBus.Pipeline
         NServiceBus.Transport.OutgoingMessage Message { get; }
         System.Collections.Generic.IReadOnlyCollection<NServiceBus.Routing.RoutingStrategy> RoutingStrategies { get; set; }
     }
-    public interface ISatelliteProcessingContext : NServiceBus.Extensibility.IExtendable, NServiceBus.Pipeline.IBehaviorContext
-    {
-        NServiceBus.Transport.IncomingMessage Message { get; }
-    }
     public interface ISubscribeContext : NServiceBus.Extensibility.IExtendable, NServiceBus.Pipeline.IBehaviorContext
     {
         System.Type EventType { get; }
