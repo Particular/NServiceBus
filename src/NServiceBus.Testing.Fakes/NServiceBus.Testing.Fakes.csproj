@@ -76,7 +76,6 @@
     <Compile Include="TestableOutgoingSendContext.cs" />
     <Compile Include="TestablePipelineContext.cs" />
     <Compile Include="TestableRoutingContext.cs" />
-    <Compile Include="TestableSatelliteProcessingContext.cs" />
     <Compile Include="TestableSubscribeContext.cs" />
     <Compile Include="TestableTransportReceiveContext.cs" />
     <Compile Include="TestableUnsubscribeContext.cs" />
