@@ -6,24 +6,23 @@
     [TestFixture]
     public class MessagingBestPracticesTests
     {
-       
         [TestFixture]
         public class When_replying
         {
             [Test]
             public void Should_throw_for_command()
             {
-                var invalidOperationException = Assert.Throws<Exception>(() => 
-                    new Validations(new Conventions()).AssertIsValidForReply(typeof(MyCommand)));
-                Assert.AreEqual("Reply is neither supported for Commands nor Events. Commands should be sent to their logical owner using bus.Send and bus. Events should be Published with bus.Publish.", invalidOperationException.Message);
+                var invalidOperationException = Assert.Throws<Exception>(() =>
+                        new Validations(new Conventions()).AssertIsValidForReply(typeof(MyCommand)));
+                Assert.AreEqual("Reply is neither supported for Commands nor Events. Commands should be sent to their logical owner. Events should be published.", invalidOperationException.Message);
             }
 
             [Test]
             public void Should_throw_for_event()
             {
                 var invalidOperationException = Assert.Throws<Exception>(() =>
-                    new Validations(new Conventions()).AssertIsValidForReply(typeof(MyEvent)));
-                Assert.AreEqual("Reply is neither supported for Commands nor Events. Commands should be sent to their logical owner using bus.Send and bus. Events should be Published with bus.Publish.", invalidOperationException.Message);
+                        new Validations(new Conventions()).AssertIsValidForReply(typeof(MyEvent)));
+                Assert.AreEqual("Reply is neither supported for Commands nor Events. Commands should be sent to their logical owner. Events should be published.", invalidOperationException.Message);
             }
 
             [Test]
@@ -41,7 +40,7 @@
             public void Should_throw_for_command()
             {
                 var invalidOperationException = Assert.Throws<Exception>(() =>
-                    new Validations(new Conventions()).AssertIsValidForPubSub(typeof(MyCommand)));
+                        new Validations(new Conventions()).AssertIsValidForPubSub(typeof(MyCommand)));
                 Assert.AreEqual("Pub/Sub is not supported for Commands. They should be be sent direct to their logical owner.", invalidOperationException.Message);
             }
 
@@ -56,27 +55,23 @@
             {
                 new Validations(new Conventions()).AssertIsValidForPubSub(typeof(MyMessage));
             }
-
-     
         }
 
         public class MyMessage : IMessage
         {
-
         }
+
         public class MyCommand : ICommand
         {
-
         }
+
         public class MyEvent : IEvent
         {
-
         }
 
         [TimeToBeReceived("00:00:01")]
         public class MyDeferredMessage : IMessage
         {
         }
-
     }
 }
