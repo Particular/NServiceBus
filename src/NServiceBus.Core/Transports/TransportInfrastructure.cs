@@ -49,7 +49,7 @@ namespace NServiceBus.Transport
         /// Returns the discriminator for this endpoint instance.
         /// </summary>
         public abstract EndpointInstance BindToLocalEndpoint(EndpointInstance instance);
-
+        
         /// <summary>
         /// Converts a given logical address to the transport address.
         /// </summary>

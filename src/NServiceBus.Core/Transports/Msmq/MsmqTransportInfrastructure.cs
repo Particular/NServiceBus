@@ -51,19 +51,19 @@ namespace NServiceBus
         public override string ToTransportAddress(LogicalAddress logicalAddress)
         {
             string machine;
-            if (!logicalAddress.EndpointInstance.Properties.TryGetValue("machine", out machine))
+            if (!logicalAddress.TryGetProperty("machine", out machine))
             {
                 machine = RuntimeEnvironment.MachineName;
             }
             string queueName;
-            if (!logicalAddress.EndpointInstance.Properties.TryGetValue("queue", out queueName))
+            if (!logicalAddress.TryGetProperty("queue", out queueName))
             {
-                queueName = logicalAddress.EndpointInstance.Endpoint;
+                queueName = logicalAddress.QueueName;
             }
             var queue = new StringBuilder(queueName);
-            if (logicalAddress.EndpointInstance.Discriminator != null)
+            if (logicalAddress.Discriminator != null)
             {
-                queue.Append("-" + logicalAddress.EndpointInstance.Discriminator);
+                queue.Append("-" + logicalAddress.Discriminator);
             }
             if (logicalAddress.Qualifier != null)
             {

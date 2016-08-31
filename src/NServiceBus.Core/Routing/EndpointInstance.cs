@@ -18,7 +18,7 @@
         {
             Guard.AgainstNull(nameof(endpoint), endpoint);
 
-            Properties = properties ?? new Dictionary<string, string>();
+            Properties = properties ?? emptyDictionary;
             Endpoint = endpoint;
             Discriminator = discriminator;
         }
@@ -152,6 +152,7 @@
         }
 
         static readonly IEqualityComparer<KeyValuePair<string, string>> propertyComparer = new PropertyComparer();
+        static Dictionary<string, string> emptyDictionary = new Dictionary<string, string>();
 
         class PropertyComparer : IEqualityComparer<KeyValuePair<string, string>>
         {
