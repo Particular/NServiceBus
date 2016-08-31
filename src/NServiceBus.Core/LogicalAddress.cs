@@ -7,7 +7,7 @@
     /// <summary>
     /// Represents a logical address (independent of transport).
     /// </summary>
-    public struct LogicalAddress
+    public class LogicalAddress
     {
         LogicalAddress(EndpointInstance endpointInstance, string qualifier)
         {

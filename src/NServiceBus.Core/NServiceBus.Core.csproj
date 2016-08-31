@@ -155,6 +155,7 @@
     <Compile Include="Routing\MessageDrivenSubscriptions\IPublisherSource.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\NamespacePublisherSource.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\TypePublisherSource.cs" />
+    <Compile Include="Routing\TransportAddressTranslator.cs" />
     <Compile Include="Routing\TypeRouteSource.cs" />
     <Compile Include="Routing\IDistributionPolicy.cs" />
     <Compile Include="Routing\IRouteSource.cs" />
