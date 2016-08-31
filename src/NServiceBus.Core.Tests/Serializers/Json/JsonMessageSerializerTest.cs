@@ -9,8 +9,33 @@ namespace NServiceBus.Serializers.Json.Tests
     using MessageInterfaces.MessageMapper.Reflection;
     using NUnit.Framework;
 
+    class MessageWithException
+    {
+        public Exception Blah { get; set; }
+    }
+
+    public interface IMessageWithInterface
+    {
+        IFoo Blah { get; set; }
+    }
+
+    class MessageWithInterface : IMessageWithInterface
+    {
+        public IFoo Blah { get; set; }
+    }
+
+    public interface IFoo
+    {
+        string Message { get; set; }
+    }
+
+    class Foo2 : IFoo
+    {
+       public string Message { get; set; }
+    }
+
     [TestFixture]
-    public class JsonMessageSerializerTest 
+    public class JsonMessageSerializerTest
     {
 
         public class SimpleMessage1
@@ -21,6 +46,70 @@ namespace NServiceBus.Serializers.Json.Tests
         public class SimpleMessage2
         {
             public string PropertyOnMessage2 { get; set; }
+        }
+
+
+        [Test]
+        public void TestMWE()
+        {
+            var messageMapper = new MessageMapper();
+            messageMapper.Initialize(new[] { typeof(MessageWithException) });
+            var serializer = new NServiceBus.JsonMessageSerializer(messageMapper);
+
+            var message = new MessageWithException { Blah = new Exception("message") };
+
+            using (var stream = new MemoryStream())
+            {
+                serializer.Serialize(message, stream);
+
+                stream.Position = 0;
+
+                var result = (MessageWithException)serializer.Deserialize(stream, new[] { typeof(MessageWithException) })[0];
+
+                Assert.AreEqual(message.Blah.Message, result.Blah.Message);
+            }
+        }
+
+        [Test]
+        public void TestMWI()
+        {
+            var messageMapper = new MessageMapper();
+            messageMapper.Initialize(new[] { typeof(MessageWithInterface) });
+            var serializer = new NServiceBus.JsonMessageSerializer(messageMapper);
+
+            var message = new MessageWithInterface { Blah = new Foo2 { Message = "message" } };
+
+            using (var stream = new MemoryStream())
+            {
+                serializer.Serialize(message, stream);
+
+                stream.Position = 0;
+
+                var result = (MessageWithInterface)serializer.Deserialize(stream, new[] { typeof(MessageWithInterface) })[0];
+
+                Assert.AreEqual(message.Blah.Message, result.Blah.Message);
+            }
+        }
+
+        [Test]
+        public void TestIMWI()
+        {
+            var messageMapper = new MessageMapper();
+            messageMapper.Initialize(new[] { typeof(IMessageWithInterface) });
+            var serializer = new NServiceBus.JsonMessageSerializer(messageMapper);
+
+            IMessageWithInterface message = new MessageWithInterface { Blah = new Foo2 { Message = "message" } };
+
+            using (var stream = new MemoryStream())
+            {
+                serializer.Serialize(message, stream);
+
+                stream.Position = 0;
+
+                var result = (IMessageWithInterface)serializer.Deserialize(stream, new[] { typeof(IMessageWithInterface) })[0];
+
+                Assert.AreEqual(message.Blah.Message, result.Blah.Message);
+            }
         }
 
 
@@ -217,7 +306,7 @@ namespace NServiceBus.Serializers.Json.Tests
                 Assert.AreEqual("test", result.SomeProperty);
             }
         }
-        
+
 
         [Test]
         public void When_Using_Property_WithXContainerAssignable_should_preserve_xml()
