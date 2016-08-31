@@ -1,5 +1,6 @@
 ﻿namespace MessageMapperTests
 {
+    using System;
     using System.Collections;
     using System.Collections.Generic;
     using System.Threading.Tasks;
@@ -70,11 +71,22 @@
             });
         }
 
+        [Test]
+        public void Should_create_instance_of_a_type_that_contains_exception_property()
+        {
+            var mapper = new MessageMapper();
+
+            mapper.Initialize(new[] { typeof(MessageClassWithExceptionProperty) });
+
+            mapper.CreateInstance<MessageClassWithExceptionProperty>();
+        }
+
+
         public class SampleMessageClass
         {
         }
 
-        public interface ISampleMessageInterface 
+        public interface ISampleMessageInterface
         {
         }
 
@@ -89,6 +101,11 @@
             {
                 return GetEnumerator();
             }
+        }
+
+        public class MessageClassWithExceptionProperty
+        {
+            public Exception Error { get; set; }
         }
     }
 }
