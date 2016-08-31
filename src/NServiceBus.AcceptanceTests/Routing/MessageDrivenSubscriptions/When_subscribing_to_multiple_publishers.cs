@@ -27,6 +27,7 @@
                         cfg.OverrideLocalAddress("Publisher2");
                         cfg.OnEndpointSubscribed<Context>((args, ctx) => ctx.SubscribedToPublisher2 = true);
                     }))
+                .Done(c => c.SubscribedToPublisher1 && c.SubscribedToPublisher2)
                 .Repeat(r => r.For<AllTransportsWithMessageDrivenPubSub>())
                 .Should(c =>
                 {
