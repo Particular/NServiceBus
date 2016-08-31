@@ -753,8 +753,9 @@ namespace NServiceBus
     public class static LoadMessageHandlersExtentions { }
     public struct LogicalAddress
     {
-        public NServiceBus.Routing.EndpointInstance EndpointInstance { get; }
+        public string Discriminator { get; }
         public string Qualifier { get; }
+        public string QueueName { get; }
         public NServiceBus.LogicalAddress CreateIndividualizedAddress(string discriminator) { }
         public static NServiceBus.LogicalAddress CreateLocalAddress(string queueName, System.Collections.Generic.IReadOnlyDictionary<string, string> properties) { }
         public NServiceBus.LogicalAddress CreateQualifiedAddress(string qualifier) { }
@@ -762,6 +763,7 @@ namespace NServiceBus
         public override bool Equals(object obj) { }
         public override int GetHashCode() { }
         public override string ToString() { }
+        public bool TryGetProperty(string propertyName, out string value) { }
     }
     public class MessageDeserializationException : System.Runtime.Serialization.SerializationException
     {
