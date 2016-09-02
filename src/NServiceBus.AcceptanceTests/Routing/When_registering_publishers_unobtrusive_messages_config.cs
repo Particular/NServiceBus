@@ -4,35 +4,17 @@
     using AcceptanceTesting;
     using EndpointTemplates;
     using NUnit.Framework;
-    using AcceptanceTesting.Customization;
     using ScenarioDescriptors;
 
-    public class When_registering_publishers_unobtrusive_messages : NServiceBusAcceptanceTest
+    public class When_registering_publishers_unobtrusive_messages_config : NServiceBusAcceptanceTest
     {
         [Test]
-        public Task Should_use_routes_from_routing_api()
+        public Task Should_deliver_event()
         {
             return Scenario.Define<Context>()
                 .WithEndpoint<Publisher>(e => e
                     .When(c => c.Subscribed, s => s.Publish(new SomeEvent())))
-                .WithEndpoint<SubscriberUsingRoutingApi>()
-                .Done(c => c.ReceivedMessage)
-                .Repeat(r => r.For<AllTransportsWithMessageDrivenPubSub>())
-                .Should(context =>
-                {
-                    Assert.That(context.Subscribed, Is.True);
-                    Assert.That(context.ReceivedMessage, Is.True);
-                })
-                .Run();
-        }
-
-        [Test]
-        public Task Should_use_routes_from_endpoint_mapping()
-        {
-            return Scenario.Define<Context>()
-                .WithEndpoint<Publisher>(e => e
-                    .When(c => c.Subscribed, s => s.Publish(new SomeEvent())))
-                .WithEndpoint<SubscriberUsingEndpointMappings>()
+                .WithEndpoint<Subscriber>()
                 .Done(c => c.ReceivedMessage)
                 .Repeat(r => r.For<AllTransportsWithMessageDrivenPubSub>())
                 .Should(context =>
@@ -61,38 +43,9 @@
             }
         }
 
-        public class SubscriberUsingRoutingApi : EndpointConfigurationBuilder
+        public class Subscriber : EndpointConfigurationBuilder
         {
-            public SubscriberUsingRoutingApi()
-            {
-                EndpointSetup<DefaultServer>(c =>
-                {
-                    c.Conventions().DefiningEventsAs(t => t == typeof(SomeEvent));
-
-                    c.MessageDrivenPubSubRouting().RegisterPublisher(typeof(SomeEvent).Assembly, Conventions.EndpointNamingConvention(typeof(Publisher)));
-                });
-            }
-
-            public class EventHandler : IHandleMessages<SomeEvent>
-            {
-                Context testContext;
-
-                public EventHandler(Context testContext)
-                {
-                    this.testContext = testContext;
-                }
-
-                public Task Handle(SomeEvent message, IMessageHandlerContext context)
-                {
-                    testContext.ReceivedMessage = true;
-                    return Task.FromResult(0);
-                }
-            }
-        }
-
-        public class SubscriberUsingEndpointMappings : EndpointConfigurationBuilder
-        {
-            public SubscriberUsingEndpointMappings()
+            public Subscriber()
             {
                 EndpointSetup<DefaultServer>(c => c
                 .Conventions().DefiningEventsAs(t => t == typeof(SomeEvent)))
