@@ -147,13 +147,13 @@ namespace NServiceBus.Pipeline
             }
         }
 
-        internal BehaviorInstance CreateBehavior(IBuilder defaultBuilder)
+        internal IBehavior CreateBehavior(IBuilder defaultBuilder)
         {
             var behavior = factoryMethod != null
                 ? factoryMethod(defaultBuilder)
                 : (IBehavior) defaultBuilder.Build(BehaviorType);
 
-            return new BehaviorInstance(BehaviorType, behavior);
+            return behavior;
         }
 
         internal static RegisterStep Create(string pipelineStep, Type behavior, string description, Func<IBuilder, IBehavior> factoryMethod = null)

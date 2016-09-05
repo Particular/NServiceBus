@@ -113,6 +113,7 @@
     <Compile Include="Notifications\IEventAggregator.cs" />
     <Compile Include="Notifications\NotificationSubscriptions.cs" />
     <Compile Include="Notifications\EventAggregatorExtensions.cs" />
+    <Compile Include="Pipeline\CreatePipelineExecutionFunc.cs" />
     <Compile Include="Pipeline\ForkConnector.cs" />
     <Compile Include="Pipeline\IPipelineCache.cs" />
     <Compile Include="Pipeline\IPipelineExecutor.cs" />
@@ -415,7 +416,6 @@
     <Compile Include="Pipeline\Outgoing\IOutgoingLogicalMessageContext.cs" />
     <Compile Include="Persistence\InMemory\Outbox\InMemoryOutboxSettingsExtensions.cs" />
     <Compile Include="LogicalAddress.cs" />
-    <Compile Include="Pipeline\BehaviorInvoker.cs" />
     <Compile Include="Pipeline\Incoming\IIncomingContext.cs" />
     <Compile Include="Pipeline\Incoming\ITransportReceiveContext.cs" />
     <Compile Include="Pipeline\PipelineModelBuilder.cs" />
@@ -465,13 +465,11 @@
     <Compile Include="Pipeline\Outgoing\MessageIdExtensions.cs" />
     <Compile Include="Sagas\SagaInvocationResult.cs" />
     <Compile Include="Pipeline\Incoming\TransportReceiveToPhysicalMessageProcessingConnector.cs" />
-    <Compile Include="Pipeline\IBehaviorInvoker.cs" />
     <Compile Include="Recoverability\DelayedRetries\DelayedRetryMessage.cs" />
     <Compile Include="Features\AdvanceExtensibilityExtensions.cs" />
     <Compile Include="Features\DisplayDiagnosticsForFeatures.cs" />
     <Compile Include="Features\ExposeSettings.cs" />
     <Compile Include="Features\PrerequisiteStatus.cs" />
-    <Compile Include="Pipeline\BehaviorInstance.cs" />
     <Compile Include="Pipeline\IPipeline.cs" />
     <Compile Include="Transports\PushSettings.cs" />
     <Compile Include="Gateway\IDeduplicateMessages.cs" />
@@ -644,7 +642,6 @@
     <Compile Include="Routing\MessageDrivenSubscriptions\StorageInitializer.cs" />
     <Compile Include="UnitOfWork\UnitOfWorkBehavior.cs" />
     <Compile Include="Pipeline\Behavior.cs" />
-    <Compile Include="Pipeline\BehaviorChain.cs" />
     <Compile Include="CriticalError\ConfigureCriticalErrorAction.cs" />
     <Compile Include="DataBus\ConfigureFileShareDataBus.cs" />
     <Compile Include="Features\FeatureActivator.cs" />

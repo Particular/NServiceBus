@@ -15,7 +15,7 @@
         {
             foreach (var exceptionType in GetExceptionTypes())
             {
-                if (exceptionType.GetCustomAttribute<ObsoleteAttribute>() !=null )
+                if (exceptionType.GetCustomAttribute<ObsoleteAttribute>() != null)
                 {
                     continue;
                 }
@@ -23,11 +23,15 @@
                 {
                     continue;
                 }
-                var constructor = exceptionType.GetConstructor(BindingFlags.NonPublic | BindingFlags.CreateInstance | BindingFlags.Instance, null, new[] { typeof(SerializationInfo), typeof(StreamingContext) }, null);
+                var constructor = exceptionType.GetConstructor(BindingFlags.NonPublic | BindingFlags.CreateInstance | BindingFlags.Instance, null, new[]
+                {
+                    typeof(SerializationInfo),
+                    typeof(StreamingContext)
+                }, null);
                 Assert.IsNotNull(constructor, string.Format("Exception '{0}' should implement 'protected {0}(SerializationInfo info, StreamingContext context){{}}'", exceptionType.Name));
                 var serializableAttribute = exceptionType.GetCustomAttributes(typeof(SerializableAttribute), false).FirstOrDefault();
                 Assert.IsNotNull(serializableAttribute, $"Exception '{exceptionType.Name}' should have a 'SerializableAttribute'");
-                var properties = exceptionType.GetProperties(BindingFlags.Public|BindingFlags.Instance|BindingFlags.DeclaredOnly);
+                var properties = exceptionType.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
                 if (properties.Length > 0)
                 {
                     var getObjectDataMethod = exceptionType.GetMethod("GetObjectData");

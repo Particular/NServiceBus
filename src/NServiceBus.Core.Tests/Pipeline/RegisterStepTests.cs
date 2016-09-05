@@ -83,7 +83,7 @@
             var behavior = registerStep.CreateBehavior(builder);
 
             Assert.IsFalse(originalBehaviorFactoryCalled);
-            Assert.AreEqual(typeof(BehaviorB), behavior.Type);
+            Assert.IsInstanceOf<BehaviorB>(behavior);
         }
 
         [Test]
@@ -93,7 +93,7 @@
             Func<IBuilder, IBehavior> replacementBehaviorFactory = b =>
             {
                 replacementBehaviorFactoryCalled = true;
-                return new BehaviorA();
+                return new BehaviorB();
             };
 
             var builder = new FakeBuilder(typeof(BehaviorB));
@@ -104,7 +104,7 @@
             var behavior = registerStep.CreateBehavior(builder);
 
             Assert.IsTrue(replacementBehaviorFactoryCalled);
-            Assert.AreEqual(typeof(BehaviorB), behavior.Type);
+            Assert.IsInstanceOf<BehaviorB>(behavior);
         }
 
         class BehaviorA : Behavior<IRoutingContext>
