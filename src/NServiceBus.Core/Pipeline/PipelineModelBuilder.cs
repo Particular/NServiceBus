@@ -16,7 +16,7 @@ namespace NServiceBus
             this.replacements = replacements;
         }
 
-        public IList<RegisterStep> Build()
+        public List<RegisterStep> Build()
         {
             var registrations = new Dictionary<string, RegisterStep>(StringComparer.CurrentCultureIgnoreCase);
             var listOfBeforeAndAfterIds = new List<string>();
@@ -59,7 +59,7 @@ namespace NServiceBus
             }
 
             // Step 3: validate the removals
-            foreach (var metadata in removals.Distinct(new CaseInsensitiveIdComparer()))
+            foreach (var metadata in removals.Distinct(idComparer))
             {
                 if (!registrations.ContainsKey(metadata.RemoveId))
                 {
@@ -84,7 +84,7 @@ namespace NServiceBus
 
             var finalOrder = new List<RegisterStep>();
 
-            if (!registrations.Any())
+            if (registrations.Count == 0)
             {
                 return finalOrder;
             }
@@ -151,9 +151,9 @@ namespace NServiceBus
             return typeof(IStageConnector).IsAssignableFrom(stageStep.BehaviorType);
         }
 
-        static IEnumerable<RegisterStep> Sort(IList<RegisterStep> registrations)
+        static IEnumerable<RegisterStep> Sort(List<RegisterStep> registrations)
         {
-            if (!registrations.Any())
+            if (registrations.Count == 0)
             {
                 return registrations;
             }
@@ -252,8 +252,8 @@ namespace NServiceBus
         List<ReplaceStep> replacements;
 
         Type rootContextType;
+        static CaseInsensitiveIdComparer idComparer = new CaseInsensitiveIdComparer();
         static ILog Logger = LogManager.GetLogger<PipelineModelBuilder>();
-
 
         class Node
         {
@@ -269,7 +269,7 @@ namespace NServiceBus
 
             public Type OutputContext { get; private set; }
 
-            internal void Visit(ICollection<RegisterStep> output)
+            internal void Visit(List<RegisterStep> output)
             {
                 if (visited)
                 {
@@ -286,12 +286,12 @@ namespace NServiceBus
                 }
             }
 
-            public IList<Dependency> Afters;
-            public IList<Dependency> Befores;
-            internal List<Node> previous = new List<Node>();
-            RegisterStep rego;
+            public List<Dependency> Afters;
+            public List<Dependency> Befores;
 
             public string StepId;
+            internal List<Node> previous = new List<Node>();
+            RegisterStep rego;
             bool visited;
         }
 

@@ -41,8 +41,8 @@ namespace NServiceBus.Pipeline
         /// </summary>
         public string Description { get; private set; }
 
-        internal IList<Dependency> Befores { get; private set; }
-        internal IList<Dependency> Afters { get; private set; }
+        internal List<Dependency> Befores { get; private set; }
+        internal List<Dependency> Afters { get; private set; }
 
         /// <summary>
         /// Gets the type of <see cref="Behavior{TContext}" /> that is being registered.
