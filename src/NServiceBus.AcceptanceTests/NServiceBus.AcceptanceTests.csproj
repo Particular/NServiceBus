@@ -63,6 +63,7 @@
     <Compile Include="Core\MessageDurability\When_sending_a_non_durable_message_with_conventions.cs" />
     <Compile Include="DataBus\When_sending_databus_properties_with_unobtrusive.cs" />
     <Compile Include="Basic\When_sending_interface_message_with_conventions.cs" />
+    <Compile Include="DelayedDelivery\TimeoutManager\When_using_external_timeout_manager.cs" />
     <Compile Include="Encryption\When_using_Rijndael_with_unobtrusive_mode.cs" />
     <Compile Include="Forwarding\When_requesting_message_to_be_forwarded.cs" />
     <Compile Include="Performance\TimeToBeReceived\When_TimeToBeReceived_used_with_unobtrusive_mode.cs" />
