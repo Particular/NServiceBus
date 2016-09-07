@@ -22,7 +22,7 @@ namespace NServiceBus.Pipeline
 
             return Invoke(context, next, ctx =>
             {
-                var cache = context.Extensions.Get<IPipelineCache>();
+                var cache = ctx.Extensions.Get<IPipelineCache>();
                 var pipeline = cache.Pipeline<TForkContext>();
                 return pipeline.Invoke(ctx);
             });
