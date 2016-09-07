@@ -1,0 +1,7 @@
+﻿context0 => value(NServiceBus.Core.Tests.Pipeline.PipelineTest+StageFork).Invoke(context0,
+    context1 => value(NServiceBus.Core.Tests.Pipeline.PipelineTest+Behavior1).Invoke(context1,
+        context2 => value(NServiceBus.Core.Tests.Pipeline.PipelineTest+Stage1).Invoke(context2,
+            context3 => value(NServiceBus.Core.Tests.Pipeline.PipelineTest+Behavior2).Invoke(context3,
+                context4 => value(NServiceBus.Core.Tests.Pipeline.PipelineTest+Stage2).Invoke(context4,
+                    context5 => value(NServiceBus.Core.Tests.Pipeline.PipelineTest+Terminator).Invoke(context5,
+                        context6 => value(System.Threading.Tasks.Task`1[System.Int32]))))))),

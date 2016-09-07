@@ -8,6 +8,7 @@
     using System.Linq.Expressions;
     using System.Text;
     using System.Threading.Tasks;
+    using ApprovalTests;
     using NServiceBus.Pipeline;
     using NUnit.Framework;
     using Settings;
@@ -59,14 +60,7 @@ behavior2
 
             var expression = behaviors.CreatePipelineExecutionExpression();
 
-            Assert.AreEqual(@"context0 => value(NServiceBus.Core.Tests.Pipeline.PipelineTest+StageFork).Invoke(context0,
-    context1 => value(NServiceBus.Core.Tests.Pipeline.PipelineTest+Behavior1).Invoke(context1,
-        context2 => value(NServiceBus.Core.Tests.Pipeline.PipelineTest+Stage1).Invoke(context2,
-            context3 => value(NServiceBus.Core.Tests.Pipeline.PipelineTest+Behavior2).Invoke(context3,
-                context4 => value(NServiceBus.Core.Tests.Pipeline.PipelineTest+Stage2).Invoke(context4,
-                    context5 => value(NServiceBus.Core.Tests.Pipeline.PipelineTest+Terminator).Invoke(context5,
-                        context6 => value(System.Threading.Tasks.Task`1[System.Int32]))))))),
-", expression.PrettyPrint());
+            Approvals.Verify(expression.PrettyPrint());
         }
 
         [Test]
@@ -117,7 +111,9 @@ behavior2
             {
                 writer.WriteLine(instance);
                 await stage(new TestableIncomingPhysicalMessageContext()).ConfigureAwait(false);
-                await fork(new TestableBatchDispatchContext()).ConfigureAwait(false);
+                var dispatchContext = new TestableBatchDispatchContext();
+                dispatchContext.Extensions.Merge(context.Extensions);
+                await fork(dispatchContext).ConfigureAwait(false);
             }
 
             readonly string instance;
