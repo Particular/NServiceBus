@@ -43,18 +43,18 @@
             });
         }
 
-        class CaptureExceptionBehavior : Behavior<ITransportReceiveContext>
+        class CaptureExceptionBehavior : IBehavior<ITransportReceiveContext, ITransportReceiveContext>
         {
             public CaptureExceptionBehavior(ConcurrentDictionary<string, bool> failedMessages)
             {
                 this.failedMessages = failedMessages;
             }
 
-            public override async Task Invoke(ITransportReceiveContext context, Func<Task> next)
+            public async Task Invoke(ITransportReceiveContext context, Func<ITransportReceiveContext, Task> next)
             {
                 failedMessages.AddOrUpdate(context.Message.MessageId, id => true, (id, value) => true);
 
-                await next().ConfigureAwait(false);
+                await next(context).ConfigureAwait(false);
 
                 failedMessages.AddOrUpdate(context.Message.MessageId, id => false, (id, value) => false);
             }

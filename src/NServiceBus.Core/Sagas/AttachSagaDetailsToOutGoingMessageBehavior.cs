@@ -5,9 +5,9 @@
     using Pipeline;
     using Sagas;
 
-    class AttachSagaDetailsToOutGoingMessageBehavior : Behavior<IOutgoingLogicalMessageContext>
+    class AttachSagaDetailsToOutGoingMessageBehavior : IBehavior<IOutgoingLogicalMessageContext, IOutgoingLogicalMessageContext>
     {
-        public override Task Invoke(IOutgoingLogicalMessageContext context, Func<Task> next)
+        public Task Invoke(IOutgoingLogicalMessageContext context, Func<IOutgoingLogicalMessageContext, Task> next)
         {
             ActiveSagaInstance saga;
 
@@ -18,7 +18,7 @@
                 context.Headers[Headers.OriginatingSagaType] = saga.Metadata.SagaType.AssemblyQualifiedName;
             }
 
-            return next();
+            return next(context);
         }
 
 

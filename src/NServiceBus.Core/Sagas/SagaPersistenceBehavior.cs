@@ -10,7 +10,7 @@
     using Sagas;
     using Transport;
 
-    class SagaPersistenceBehavior : Behavior<IInvokeHandlerContext>
+    class SagaPersistenceBehavior : IBehavior<IInvokeHandlerContext, IInvokeHandlerContext>
     {
         public SagaPersistenceBehavior(ISagaPersister persister, ICancelDeferredMessages timeoutCancellation, SagaMetadataCollection sagaMetadataCollection)
         {
@@ -19,7 +19,7 @@
             this.sagaMetadataCollection = sagaMetadataCollection;
         }
 
-        public override async Task Invoke(IInvokeHandlerContext context, Func<Task> next)
+        public async Task Invoke(IInvokeHandlerContext context, Func<IInvokeHandlerContext, Task> next)
         {
             currentContext = context;
 
@@ -29,7 +29,7 @@
 
             if (saga == null)
             {
-                await next().ConfigureAwait(false);
+                await next(context).ConfigureAwait(false);
                 return;
             }
 
@@ -80,7 +80,7 @@
                 sagaInstanceState.AttachExistingEntity(loadedEntity);
             }
 
-            await next().ConfigureAwait(false);
+            await next(context).ConfigureAwait(false);
 
             if (sagaInstanceState.NotFound)
             {

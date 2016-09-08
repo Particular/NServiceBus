@@ -42,16 +42,16 @@ namespace NServiceBus.AcceptanceTests.Routing.AutomaticSubscriptions
                     .AddMapping<MyEvent>(typeof(Subscriber)); //just map to our self for this test
             }
 
-            class SubscriptionSpy : Behavior<ISubscribeContext>
+            class SubscriptionSpy : IBehavior<ISubscribeContext, ISubscribeContext>
             {
                 public SubscriptionSpy(Context testContext)
                 {
                     this.testContext = testContext;
                 }
 
-                public override async Task Invoke(ISubscribeContext context, Func<Task> next)
+                public async Task Invoke(ISubscribeContext context, Func<ISubscribeContext, Task> next)
                 {
-                    await next().ConfigureAwait(false);
+                    await next(context).ConfigureAwait(false);
 
                     testContext.EventsSubscribedTo.Add(context.EventType);
                 }

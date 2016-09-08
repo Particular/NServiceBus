@@ -22,7 +22,7 @@
             var headers = new Dictionary<string, string>();
             string destination = null;
             var context = CreateContext(new UnicastRoutingStrategy("target"), new DelayDeliveryWith(delay));
-        
+
             await behavior.Invoke(context, c =>
             {
                 var addressTag = (UnicastAddressTag) c.RoutingStrategies.First().Apply(headers);
@@ -41,8 +41,8 @@
             var delay = TimeSpan.FromDays(1);
 
             var context = CreateContext(new MulticastRoutingStrategy(null), new DelayDeliveryWith(delay));
-        
-            Assert.That(async () => await behavior.Invoke(context, () => TaskEx.CompletedTask), Throws.InstanceOf<Exception>().And.Message.Contains("Delayed delivery using the Timeout Manager is only supported for messages with unicast routing"));
+
+            Assert.That(async () => await behavior.Invoke(context, ctx => TaskEx.CompletedTask), Throws.InstanceOf<Exception>().And.Message.Contains("Delayed delivery using the Timeout Manager is only supported for messages with unicast routing"));
         }
 
         [Test]
@@ -53,7 +53,7 @@
 
             var context = CreateContext(new UnicastRoutingStrategy("target"), new DelayDeliveryWith(delay), new DiscardIfNotReceivedBefore(TimeSpan.FromSeconds(30)));
 
-            Assert.That(async () => await behavior.Invoke(context, () => TaskEx.CompletedTask), Throws.InstanceOf<Exception>().And.Message.Contains("Postponed delivery of messages with TimeToBeReceived set is not supported. Remove the TimeToBeReceived attribute to postpone messages of this type."));
+            Assert.That(async () => await behavior.Invoke(context, ctx => TaskEx.CompletedTask), Throws.InstanceOf<Exception>().And.Message.Contains("Postponed delivery of messages with TimeToBeReceived set is not supported. Remove the TimeToBeReceived attribute to postpone messages of this type."));
         }
 
         [Test]
@@ -61,10 +61,10 @@
         {
             var behavior = new RouteDeferredMessageToTimeoutManagerBehavior("tm");
             var delay = TimeSpan.FromDays(1);
-            
+
             var headers = new Dictionary<string, string>();
             var context = CreateContext(new UnicastRoutingStrategy("target"), new DelayDeliveryWith(delay));
-        
+
             await behavior.Invoke(context, c =>
             {
                 c.RoutingStrategies.First().Apply(headers);
@@ -79,7 +79,7 @@
         {
             var behavior = new RouteDeferredMessageToTimeoutManagerBehavior("tm");
             var at = DateTime.UtcNow + TimeSpan.FromDays(1);
-            
+
             var headers = new Dictionary<string, string>();
             var context = CreateContext(new UnicastRoutingStrategy("target"), new DoNotDeliverBefore(at));
 

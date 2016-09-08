@@ -4,16 +4,16 @@
     using System.Threading.Tasks;
     using Pipeline;
 
-    class ProcessedMessageCounterBehavior : Behavior<IIncomingPhysicalMessageContext>
+    class ProcessedMessageCounterBehavior : IBehavior<IIncomingPhysicalMessageContext, IIncomingPhysicalMessageContext>
     {
         public ProcessedMessageCounterBehavior(ReadyMessageSender readyMessageSender)
         {
             this.readyMessageSender = readyMessageSender;
         }
 
-        public override async Task Invoke(IIncomingPhysicalMessageContext context, Func<Task> next)
+        public async Task Invoke(IIncomingPhysicalMessageContext context, Func<IIncomingPhysicalMessageContext, Task> next)
         {
-            await next().ConfigureAwait(false);
+            await next(context).ConfigureAwait(false);
             await readyMessageSender.MessageProcessed(context.Message.Headers).ConfigureAwait(false);
         }
 

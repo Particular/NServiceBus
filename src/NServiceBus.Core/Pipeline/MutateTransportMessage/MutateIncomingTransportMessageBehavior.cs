@@ -5,9 +5,9 @@
     using MessageMutator;
     using Pipeline;
 
-    class MutateIncomingTransportMessageBehavior : Behavior<IIncomingPhysicalMessageContext>
+    class MutateIncomingTransportMessageBehavior : IBehavior<IIncomingPhysicalMessageContext, IIncomingPhysicalMessageContext>
     {
-        public override async Task Invoke(IIncomingPhysicalMessageContext context, Func<Task> next)
+        public async Task Invoke(IIncomingPhysicalMessageContext context, Func<IIncomingPhysicalMessageContext, Task> next)
         {
             var mutators = context.Builder.BuildAll<IMutateIncomingTransportMessages>();
             var transportMessage = context.Message;
@@ -24,7 +24,7 @@
                 context.UpdateMessage(mutatorContext.Body);
             }
 
-            await next().ConfigureAwait(false);
+            await next(context).ConfigureAwait(false);
         }
     }
 }

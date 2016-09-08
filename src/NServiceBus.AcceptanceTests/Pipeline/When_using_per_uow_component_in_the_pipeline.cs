@@ -67,7 +67,7 @@
                 });
             }
 
-            class HeaderProcessingBehavior : Behavior<IIncomingLogicalMessageContext>
+            class HeaderProcessingBehavior : IBehavior<IIncomingLogicalMessageContext, IIncomingLogicalMessageContext>
             {
                 Context testContext;
 
@@ -76,13 +76,13 @@
                     this.testContext = testContext;
                 }
 
-                public override Task Invoke(IIncomingLogicalMessageContext context, Func<Task> next)
+                public Task Invoke(IIncomingLogicalMessageContext context, Func<IIncomingLogicalMessageContext, Task> next)
                 {
                     var uowScopeComponent = context.Builder.Build<UnitOfWorkComponent>();
                     testContext.ValueAlreadyInitialized |= uowScopeComponent.ValueFromHeader != null;
                     uowScopeComponent.ValueFromHeader = context.MessageHeaders["Value"];
 
-                    return next();
+                    return next(context);
                 }
             }
 

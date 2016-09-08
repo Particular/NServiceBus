@@ -87,29 +87,29 @@
                 });
             }
 
-            public class AssertBehavior : Behavior<IIncomingPhysicalMessageContext>
+            public class AssertBehavior : IBehavior<IIncomingPhysicalMessageContext, IIncomingPhysicalMessageContext>
             {
-                public AssertBehavior(Context context)
+                public AssertBehavior(Context testContext)
                 {
-                    this.context = context;
+                    this.testContext = testContext;
                 }
 
-                public override async Task Invoke(IIncomingPhysicalMessageContext c, Func<Task> next)
+                public async Task Invoke(IIncomingPhysicalMessageContext context, Func<IIncomingPhysicalMessageContext, Task> next)
                 {
                     try
                     {
-                        await next().ConfigureAwait(false);
+                        await next(context).ConfigureAwait(false);
                     }
                     catch (Exception)
                     {
-                        context.ControlMessageFailed = true;
+                        testContext.ControlMessageFailed = true;
                         return;
                     }
 
-                    context.ControlMessageProcessed = true;
+                    testContext.ControlMessageProcessed = true;
                 }
 
-                readonly Context context;
+                Context testContext;
             }
         }
     }

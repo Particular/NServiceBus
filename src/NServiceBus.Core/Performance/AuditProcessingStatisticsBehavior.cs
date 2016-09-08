@@ -4,9 +4,9 @@
     using System.Threading.Tasks;
     using Pipeline;
 
-    class AuditProcessingStatisticsBehavior : Behavior<IAuditContext>
+    class AuditProcessingStatisticsBehavior : IBehavior<IAuditContext, IAuditContext>
     {
-        public override Task Invoke(IAuditContext context, Func<Task> next)
+        public Task Invoke(IAuditContext context, Func<IAuditContext, Task> next)
         {
             ProcessingStatisticsBehavior.State state;
 
@@ -17,7 +17,7 @@
                 context.AddAuditData(Headers.ProcessingEnded, DateTimeExtensions.ToWireFormattedString(DateTime.UtcNow));
             }
 
-            return next();
+            return next(context);
         }
     }
 }

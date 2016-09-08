@@ -147,11 +147,11 @@
         static Task InvokeBehavior(FakeBuilder builder, Exception toThrow = null)
         {
             var runner = new UnitOfWorkBehavior();
-            
+
             var context = new TestableIncomingPhysicalMessageContext();
             context.Builder = builder;
 
-            return runner.Invoke(context, () =>
+            return runner.Invoke(context, ctx =>
             {
                 if (toThrow != null)
                 {

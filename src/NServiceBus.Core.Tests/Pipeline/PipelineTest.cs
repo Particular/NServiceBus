@@ -127,7 +127,7 @@ behavior2
             }
         }
 
-        class Behavior1 : Behavior<IIncomingPhysicalMessageContext>
+        class Behavior1 : IBehavior<IIncomingPhysicalMessageContext, IIncomingPhysicalMessageContext>
         {
             public Behavior1(string instance, TextWriter writer)
             {
@@ -135,10 +135,10 @@ behavior2
                 this.writer = writer;
             }
 
-            public override Task Invoke(IIncomingPhysicalMessageContext context, Func<Task> next)
+            public Task Invoke(IIncomingPhysicalMessageContext context, Func<IIncomingPhysicalMessageContext, Task> next)
             {
                 writer.WriteLine(instance);
-                return next();
+                return next(context);
             }
 
             readonly string instance;
@@ -177,7 +177,7 @@ behavior2
             }
         }
 
-        class Behavior2 : Behavior<IIncomingLogicalMessageContext>
+        class Behavior2 : IBehavior<IIncomingLogicalMessageContext, IIncomingLogicalMessageContext>
         {
             public Behavior2(string instance, TextWriter writer)
             {
@@ -185,10 +185,10 @@ behavior2
                 this.writer = writer;
             }
 
-            public override Task Invoke(IIncomingLogicalMessageContext context, Func<Task> next)
+            public Task Invoke(IIncomingLogicalMessageContext context, Func<IIncomingLogicalMessageContext, Task> next)
             {
                 writer.WriteLine(instance);
-                return next();
+                return next(context);
             }
 
             readonly string instance;

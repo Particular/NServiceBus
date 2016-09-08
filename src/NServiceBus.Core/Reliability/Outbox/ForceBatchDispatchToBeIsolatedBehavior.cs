@@ -5,15 +5,15 @@ namespace NServiceBus
     using Pipeline;
     using Transport;
 
-    class ForceBatchDispatchToBeIsolatedBehavior : Behavior<IBatchDispatchContext>
+    class ForceBatchDispatchToBeIsolatedBehavior : IBehavior<IBatchDispatchContext, IBatchDispatchContext>
     {
-        public override Task Invoke(IBatchDispatchContext context, Func<Task> next)
+        public Task Invoke(IBatchDispatchContext context, Func<IBatchDispatchContext, Task> next)
         {
             foreach (var operation in context.Operations)
             {
                 operation.RequiredDispatchConsistency = DispatchConsistency.Isolated;
             }
-            return next();
+            return next(context);
         }
     }
 }

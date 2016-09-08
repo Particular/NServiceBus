@@ -5,7 +5,7 @@
     using System.Threading.Tasks;
     using Pipeline;
 
-    class EncryptBehavior : Behavior<IOutgoingLogicalMessageContext>
+    class EncryptBehavior : IBehavior<IOutgoingLogicalMessageContext, IOutgoingLogicalMessageContext>
     {
         public EncryptBehavior(EncryptionInspector messageInspector, IEncryptionService encryptionService)
         {
@@ -13,7 +13,7 @@
             this.encryptionService = encryptionService;
         }
 
-        public override Task Invoke(IOutgoingLogicalMessageContext context, Func<Task> next)
+        public Task Invoke(IOutgoingLogicalMessageContext context, Func<IOutgoingLogicalMessageContext, Task> next)
         {
             var currentMessageToSend = context.Message.Instance;
 
@@ -24,7 +24,7 @@
 
             context.UpdateMessage(currentMessageToSend);
 
-            return next();
+            return next(context);
         }
 
         void EncryptMember(object message, MemberInfo member, IOutgoingLogicalMessageContext context)

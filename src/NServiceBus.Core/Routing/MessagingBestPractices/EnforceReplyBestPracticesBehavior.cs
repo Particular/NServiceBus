@@ -4,14 +4,14 @@ namespace NServiceBus
     using System.Threading.Tasks;
     using Pipeline;
 
-    class EnforceReplyBestPracticesBehavior : Behavior<IOutgoingReplyContext>
+    class EnforceReplyBestPracticesBehavior : IBehavior<IOutgoingReplyContext, IOutgoingReplyContext>
     {
         public EnforceReplyBestPracticesBehavior(Validations validations)
         {
             this.validations = validations;
         }
 
-        public override Task Invoke(IOutgoingReplyContext context, Func<Task> next)
+        public Task Invoke(IOutgoingReplyContext context, Func<IOutgoingReplyContext, Task> next)
         {
             EnforceBestPracticesOptions options;
 
@@ -20,7 +20,7 @@ namespace NServiceBus
                 validations.AssertIsValidForReply(context.Message.MessageType);
             }
 
-            return next();
+            return next(context);
         }
 
         Validations validations;

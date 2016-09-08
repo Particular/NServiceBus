@@ -6,13 +6,13 @@
     using Logging;
     using Pipeline;
 
-    class AuditInvalidLicenseBehavior : Behavior<IAuditContext>
+    class AuditInvalidLicenseBehavior : IBehavior<IAuditContext, IAuditContext>
     {
-        public override async Task Invoke(IAuditContext context, Func<Task> next)
+        public async Task Invoke(IAuditContext context, Func<IAuditContext, Task> next)
         {
             context.AddAuditData(Headers.HasLicenseExpired, "true");
 
-            await next().ConfigureAwait(false);
+            await next(context).ConfigureAwait(false);
 
             if (Debugger.IsAttached)
             {

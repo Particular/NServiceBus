@@ -5,9 +5,9 @@
     using Pipeline;
     using Transport;
 
-    class AttachCorrelationIdBehavior : Behavior<IOutgoingLogicalMessageContext>
+    class AttachCorrelationIdBehavior : IBehavior<IOutgoingLogicalMessageContext, IOutgoingLogicalMessageContext>
     {
-        public override Task Invoke(IOutgoingLogicalMessageContext context, Func<Task> next)
+        public Task Invoke(IOutgoingLogicalMessageContext context, Func<IOutgoingLogicalMessageContext, Task> next)
         {
             var correlationId = context.Extensions.GetOrCreate<State>().CustomCorrelationId;
 
@@ -40,7 +40,7 @@
             }
 
             context.Headers[Headers.CorrelationId] = correlationId;
-            return next();
+            return next(context);
         }
 
         public class State

@@ -23,24 +23,24 @@
             Assert.AreEqual(context.MessageId, context.Headers[Headers.MessageId], "Should populate the NServiceBus.MessageId header with the new value");
         }
 
-        public class CorruptionBehavior : Behavior<IDispatchContext>
+        class CorruptionBehavior : IBehavior<IDispatchContext, IDispatchContext>
         {
-            public override Task Invoke(IDispatchContext context, Func<Task> next)
+            public Task Invoke(IDispatchContext context, Func<IDispatchContext, Task> next)
             {
                 context.Operations.First().Message.Headers[Headers.MessageId] = "";
 
-                return next();
+                return next(context);
             }
         }
 
-        public class Context : ScenarioContext
+        class Context : ScenarioContext
         {
             public bool MessageReceived { get; set; }
             public string MessageId { get; set; }
             public IReadOnlyDictionary<string, string> Headers { get; set; }
         }
 
-        public class Endpoint : EndpointConfigurationBuilder
+        class Endpoint : EndpointConfigurationBuilder
         {
             public Endpoint()
             {

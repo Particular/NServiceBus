@@ -21,7 +21,7 @@
             context.Extensions.Set(new LogicalMessage(null, null));
             context.Builder.Register<IMutateOutgoingMessages>(() => new MutateOutgoingMessagesReturnsNull());
 
-            Assert.That(async () => await behavior.Invoke(context, () => TaskEx.CompletedTask), Throws.Exception.With.Message.EqualTo("Return a Task or mark the method as async."));
+            Assert.That(async () => await behavior.Invoke(context, ctx => TaskEx.CompletedTask), Throws.Exception.With.Message.EqualTo("Return a Task or mark the method as async."));
         }
 
         [Test]
@@ -33,7 +33,7 @@
 
             context.Builder.Register<IMutateOutgoingMessages>(() => new MutatorWhichDoesNotMutateTheBody());
 
-            await behavior.Invoke(context, () => TaskEx.CompletedTask);
+            await behavior.Invoke(context, ctx => TaskEx.CompletedTask);
 
             Assert.False(context.UpdateMessageCalled);
         }
@@ -47,7 +47,7 @@
 
             context.Builder.Register(() => new IMutateOutgoingMessages[] { });
 
-            await behavior.Invoke(context, () => TaskEx.CompletedTask);
+            await behavior.Invoke(context, ctx => TaskEx.CompletedTask);
 
             Assert.False(context.UpdateMessageCalled);
         }
@@ -61,7 +61,7 @@
 
             context.Builder.Register<IMutateOutgoingMessages>(() => new MutatorWhichMutatesTheBody());
 
-            await behavior.Invoke(context, () => TaskEx.CompletedTask);
+            await behavior.Invoke(context, ctx => TaskEx.CompletedTask);
 
             Assert.True(context.UpdateMessageCalled);
         }

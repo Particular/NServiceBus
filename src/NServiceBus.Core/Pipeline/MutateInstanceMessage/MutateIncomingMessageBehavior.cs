@@ -5,9 +5,9 @@
     using MessageMutator;
     using Pipeline;
 
-    class MutateIncomingMessageBehavior : Behavior<IIncomingLogicalMessageContext>
+    class MutateIncomingMessageBehavior : IBehavior<IIncomingLogicalMessageContext, IIncomingLogicalMessageContext>
     {
-        public override async Task Invoke(IIncomingLogicalMessageContext context, Func<Task> next)
+        public async Task Invoke(IIncomingLogicalMessageContext context, Func<IIncomingLogicalMessageContext, Task> next)
         {
             var logicalMessage = context.Message;
             var current = logicalMessage.Instance;
@@ -25,7 +25,7 @@
                 context.UpdateMessageInstance(mutatorContext.Message);
             }
 
-            await next().ConfigureAwait(false);
+            await next(context).ConfigureAwait(false);
         }
     }
 }

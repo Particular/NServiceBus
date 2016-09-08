@@ -6,7 +6,7 @@
     using Pipeline;
     using Support;
 
-    class AuditHostInformationBehavior : Behavior<IAuditContext>
+    class AuditHostInformationBehavior : IBehavior<IAuditContext, IAuditContext>
     {
         public AuditHostInformationBehavior(HostInformation hostInfo, string endpoint)
         {
@@ -14,7 +14,7 @@
             this.endpoint = endpoint;
         }
 
-        public override Task Invoke(IAuditContext context, Func<Task> next)
+        public Task Invoke(IAuditContext context, Func<IAuditContext, Task> next)
         {
             context.AddAuditData(Headers.HostId, hostInfo.HostId.ToString("N"));
             context.AddAuditData(Headers.HostDisplayName, hostInfo.DisplayName);
@@ -22,7 +22,7 @@
             context.AddAuditData(Headers.ProcessingMachine, RuntimeEnvironment.MachineName);
             context.AddAuditData(Headers.ProcessingEndpoint, endpoint);
 
-            return next();
+            return next(context);
         }
 
         string endpoint;

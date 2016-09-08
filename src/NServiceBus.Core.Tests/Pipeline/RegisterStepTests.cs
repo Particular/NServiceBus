@@ -107,17 +107,17 @@
             Assert.IsInstanceOf<BehaviorB>(behavior);
         }
 
-        class BehaviorA : Behavior<IRoutingContext>
+        class BehaviorA : IBehavior<IRoutingContext, IRoutingContext>
         {
-            public override Task Invoke(IRoutingContext context, Func<Task> next)
+            public Task Invoke(IRoutingContext context, Func<IRoutingContext, Task> next)
             {
                 return TaskEx.CompletedTask;
             }
         }
 
-        class BehaviorB : Behavior<IRoutingContext>
+        class BehaviorB : IBehavior<IRoutingContext, IRoutingContext>
         {
-            public override Task Invoke(IRoutingContext context, Func<Task> next)
+            public Task Invoke(IRoutingContext context, Func<IRoutingContext, Task> next)
             {
                 return TaskEx.CompletedTask;
             }

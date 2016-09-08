@@ -5,13 +5,13 @@
     using Pipeline;
     using Transport;
 
-    class PopulateAutoCorrelationHeadersForRepliesBehavior : Behavior<IOutgoingReplyContext>
+    class PopulateAutoCorrelationHeadersForRepliesBehavior : IBehavior<IOutgoingReplyContext, IOutgoingReplyContext>
     {
-        public override Task Invoke(IOutgoingReplyContext context, Func<Task> next)
+        public Task Invoke(IOutgoingReplyContext context, Func<IOutgoingReplyContext, Task> next)
         {
             FlowDetailsForRequestingSagaToOutgoingMessage(context);
 
-            return next();
+            return next(context);
         }
 
         static void FlowDetailsForRequestingSagaToOutgoingMessage(IOutgoingReplyContext context)

@@ -5,13 +5,13 @@ namespace NServiceBus
     using Logging;
     using Pipeline;
 
-    class LogErrorOnInvalidLicenseBehavior : Behavior<IIncomingPhysicalMessageContext>
+    class LogErrorOnInvalidLicenseBehavior : IBehavior<IIncomingPhysicalMessageContext, IIncomingPhysicalMessageContext>
     {
-        public override Task Invoke(IIncomingPhysicalMessageContext context, Func<Task> next)
+        public Task Invoke(IIncomingPhysicalMessageContext context, Func<IIncomingPhysicalMessageContext, Task> next)
         {
             Log.Error("Your license has expired");
 
-            return next();
+            return next(context);
         }
 
         static ILog Log = LogManager.GetLogger<LogErrorOnInvalidLicenseBehavior>();

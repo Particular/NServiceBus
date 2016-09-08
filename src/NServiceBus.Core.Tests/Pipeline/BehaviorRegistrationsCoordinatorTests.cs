@@ -183,7 +183,6 @@ namespace NServiceBus.Core.Tests.Pipeline
                     foreach (var b in before.Split(','))
                     {
                         InsertBefore(b);
-                        
                     }
                 }
 
@@ -198,18 +197,18 @@ namespace NServiceBus.Core.Tests.Pipeline
             }
         }
 
-        class FakeBehavior: Behavior<IRootContext>
+        class FakeBehavior: IBehavior<IRootContext, IRootContext>
         {
-            public override Task Invoke(IRootContext context, Func<Task> next)
+            public Task Invoke(IRootContext context, Func<IRootContext, Task> next)
             {
                 throw new NotImplementedException();
             }
         }
 
 
-        class ReplacedBehavior : Behavior<IRootContext>
+        class ReplacedBehavior : IBehavior<IRootContext, IRootContext>
         {
-            public override Task Invoke(IRootContext context, Func<Task> next)
+            public Task Invoke(IRootContext context, Func<IRootContext, Task> next)
             {
                 throw new NotImplementedException();
             }

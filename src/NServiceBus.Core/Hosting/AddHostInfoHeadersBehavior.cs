@@ -6,7 +6,7 @@
     using Pipeline;
     using Support;
 
-    class AddHostInfoHeadersBehavior : Behavior<IOutgoingLogicalMessageContext>
+    class AddHostInfoHeadersBehavior : IBehavior<IOutgoingLogicalMessageContext, IOutgoingLogicalMessageContext>
     {
         public AddHostInfoHeadersBehavior(HostInformation hostInformation, string endpoint)
         {
@@ -14,13 +14,13 @@
             this.endpoint = endpoint;
         }
 
-        public override Task Invoke(IOutgoingLogicalMessageContext context, Func<Task> next)
+        public Task Invoke(IOutgoingLogicalMessageContext context, Func<IOutgoingLogicalMessageContext, Task> next)
         {
             context.Headers[Headers.OriginatingMachine] = RuntimeEnvironment.MachineName;
             context.Headers[Headers.OriginatingEndpoint] = endpoint;
             context.Headers[Headers.OriginatingHostId] = hostInformation.HostId.ToString("N");
 
-            return next();
+            return next(context);
         }
 
         string endpoint;

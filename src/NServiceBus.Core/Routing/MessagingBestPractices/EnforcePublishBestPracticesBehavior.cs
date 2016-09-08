@@ -4,14 +4,14 @@
     using System.Threading.Tasks;
     using Pipeline;
 
-    class EnforcePublishBestPracticesBehavior : Behavior<IOutgoingPublishContext>
+    class EnforcePublishBestPracticesBehavior : IBehavior<IOutgoingPublishContext, IOutgoingPublishContext>
     {
         public EnforcePublishBestPracticesBehavior(Validations validations)
         {
             this.validations = validations;
         }
 
-        public override Task Invoke(IOutgoingPublishContext context, Func<Task> next)
+        public Task Invoke(IOutgoingPublishContext context, Func<IOutgoingPublishContext, Task> next)
         {
             EnforceBestPracticesOptions options;
 
@@ -20,7 +20,7 @@
                 validations.AssertIsValidForPubSub(context.Message.MessageType);
             }
 
-            return next();
+            return next(context);
         }
 
         Validations validations;

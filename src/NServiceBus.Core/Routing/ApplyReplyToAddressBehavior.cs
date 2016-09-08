@@ -5,7 +5,7 @@
     using Pipeline;
     using Transport;
 
-    class ApplyReplyToAddressBehavior : Behavior<IOutgoingLogicalMessageContext>
+    class ApplyReplyToAddressBehavior : IBehavior<IOutgoingLogicalMessageContext, IOutgoingLogicalMessageContext>
     {
         public enum RouteOption
         {
@@ -23,7 +23,7 @@
             this.distributorAddress = distributorAddress;
         }
 
-        public override Task Invoke(IOutgoingLogicalMessageContext context, Func<Task> next)
+        public Task Invoke(IOutgoingLogicalMessageContext context, Func<IOutgoingLogicalMessageContext, Task> next)
         {
             var state = context.Extensions.GetOrCreate<State>();
             if (state.Option == RouteOption.RouteReplyToThisInstance && instanceSpecificQueue == null)
@@ -38,7 +38,7 @@
             {
                 context.Headers[Headers.ReplyToAddress] = distributorAddress;
             }
-            return next();
+            return next(context);
         }
 
 
