@@ -1328,6 +1328,10 @@ namespace NServiceBus.Config
     public class MasterNodeConfig : System.Configuration.ConfigurationSection
     {
         public MasterNodeConfig() { }
+        [System.Configuration.ConfigurationPropertyAttribute("Node", IsRequired=false)]
+        [System.ObsoleteAttribute("Use `EndpointConfiguration.EnlistWithLegacyMSMQDistributor` instead. Will be remo" +
+            "ved in version 7.0.0.", true)]
+        public string Node { get; set; }
     }
     public class MessageEndpointMapping : System.Configuration.ConfigurationElement, System.IComparable<NServiceBus.Config.MessageEndpointMapping>
     {
