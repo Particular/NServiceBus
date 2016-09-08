@@ -1119,6 +1119,12 @@ namespace NServiceBus.Config
         ReplacementTypeOrMember = "EndpointConfiguration.EnlistWithLegacyMSMQDistributor")]
     public class MasterNodeConfig : ConfigurationSection
     {
+        [ObsoleteEx(
+            TreatAsErrorFromVersion = "6",
+            RemoveInVersion = "7",
+            ReplacementTypeOrMember = "EndpointConfiguration.EnlistWithLegacyMSMQDistributor")]
+        [ConfigurationProperty("Node", IsRequired = false)]
+        public string Node { get; set; }
     }
 
     [ObsoleteEx(
