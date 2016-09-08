@@ -20,19 +20,17 @@
         protected internal override void Setup(FeatureConfigurationContext context)
         {
             var transportHasNativeDelayedDelivery = context.Settings.DoesTransportSupportConstraint<DelayedDeliveryConstraint>();
-            var timeoutMgrDisabled = IsTimeoutManagerDisabled(context);
+            var timeoutManagerAddress = context.Settings.Get<TimeoutManagerAddressConfiguration>().TransportAddress;
 
             if (!transportHasNativeDelayedDelivery)
             {
-                if (timeoutMgrDisabled)
+                if (timeoutManagerAddress == null)
                 {
                     DoNotClearTimeouts(context);
                     context.Pipeline.Register<ThrowIfCannotDeferMessageBehavior.Registration>();
                 }
                 else
                 {
-                    var timeoutManagerAddress = context.Settings.Get<TimeoutManagerAddressConfiguration>().TransportAddress;
-
                     context.Pipeline.Register("RouteDeferredMessageToTimeoutManager", new RouteDeferredMessageToTimeoutManagerBehavior(timeoutManagerAddress), "Reroutes deferred messages to the timeout manager");
                     context.Container.ConfigureComponent(b => new RequestCancelingOfDeferredMessagesFromTimeoutManager(timeoutManagerAddress), DependencyLifecycle.SingleInstance);
                 }
@@ -41,16 +39,6 @@
             {
                 DoNotClearTimeouts(context);
             }
-        }
-
-        static bool IsTimeoutManagerDisabled(FeatureConfigurationContext context)
-        {
-            FeatureState timeoutMgrState;
-            if (context.Settings.TryGet("NServiceBus.Features.TimeoutManager", out timeoutMgrState))
-            {
-                return timeoutMgrState == FeatureState.Deactivated || timeoutMgrState == FeatureState.Disabled;
-            }
-            return true;
         }
 
         static void DoNotClearTimeouts(FeatureConfigurationContext context)
