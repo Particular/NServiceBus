@@ -58,9 +58,10 @@ behavior2
                 new Terminator("terminator", stringWriter),
             };
 
-            var expression = behaviors.CreatePipelineExecutionExpression();
+            var expressions = new List<Expression>();
+            behaviors.CreatePipelineExecutionExpression(expressions);
 
-            Approvals.Verify(expression.PrettyPrint());
+            Approvals.Verify(expressions.PrettyPrint());
         }
 
         [Test]
@@ -274,13 +275,13 @@ behavior2
 
     static class LambdaExpressionPrettyPrint
     {
-        public static string PrettyPrint(this LambdaExpression expression)
+        public static string PrettyPrint(this List<Expression> expression)
         {
+            expression.Reverse();
             var sb = new StringBuilder();
-            var splitted = expression.ToString().Split(',');
-            for (var i = 0; i < splitted.Length; i++)
+            for (var i = 0; i < expression.Count; i++)
             {
-                sb.AppendLine($"{new string(' ', i*4)}{splitted[i].TrimStart()},");
+                sb.AppendLine($"{new string(' ', i * 4)}{expression[i].ToString().TrimStart()},");
             }
             return sb.ToString();
         }
