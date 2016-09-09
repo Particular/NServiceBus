@@ -209,7 +209,7 @@ namespace NServiceBus.Hosting.Helpers
             {
                 var loadException = ex as FileLoadException;
 
-                if (loadException != null)
+                if (loadException?.FileName != null)
                 {
                     var assemblyName = new AssemblyName(loadException.FileName);
                     var assemblyPublicKeyToken = BitConverter.ToString(assemblyName.GetPublicKeyToken()).Replace("-", "").ToLowerInvariant();
