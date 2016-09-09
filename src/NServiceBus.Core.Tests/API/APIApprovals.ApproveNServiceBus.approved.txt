@@ -2226,7 +2226,7 @@ namespace NServiceBus.Pipeline
         public System.Threading.Tasks.Task Invoke(TContext context, System.Func<TContext, System.Threading.Tasks.Task> next) { }
         public abstract System.Threading.Tasks.Task Invoke(TContext context, System.Func<System.Threading.Tasks.Task> next);
     }
-    public abstract class ForkConnector<TFromContext, TForkContext> : NServiceBus.Pipeline.Behavior<TFromContext>, NServiceBus.IForkConnector, NServiceBus.IForkConnector<TForkContext>
+    public abstract class ForkConnector<TFromContext, TForkContext> : NServiceBus.Pipeline.Behavior<TFromContext>, NServiceBus.IForkConnector, NServiceBus.IForkConnector<TFromContext, TFromContext, TForkContext>, NServiceBus.Pipeline.IBehavior, NServiceBus.Pipeline.IBehavior<TFromContext, TFromContext>
         where TFromContext : NServiceBus.Pipeline.IBehaviorContext
         where TForkContext : NServiceBus.Pipeline.IBehaviorContext
     {
@@ -2439,14 +2439,14 @@ namespace NServiceBus.Pipeline
         public void InsertBeforeIfExists(NServiceBus.Pipeline.WellKnownStep step) { }
         public virtual bool IsEnabled(NServiceBus.Settings.ReadOnlySettings settings) { }
     }
-    public abstract class StageConnector<TFromContext, TToContext> : NServiceBus.IStageConnector, NServiceBus.Pipeline.IBehavior, NServiceBus.Pipeline.IBehavior<TFromContext, TToContext>
+    public abstract class StageConnector<TFromContext, TToContext> : NServiceBus.IStageConnector, NServiceBus.IStageConnector<TFromContext, TToContext>, NServiceBus.Pipeline.IBehavior, NServiceBus.Pipeline.IBehavior<TFromContext, TToContext>
         where TFromContext : NServiceBus.Pipeline.IBehaviorContext
         where TToContext : NServiceBus.Pipeline.IBehaviorContext
     {
         protected StageConnector() { }
         public abstract System.Threading.Tasks.Task Invoke(TFromContext context, System.Func<TToContext, System.Threading.Tasks.Task> stage);
     }
-    public abstract class StageForkConnector<TFromContext, TToContext, TForkContext> : NServiceBus.IForkConnector, NServiceBus.IForkConnector<TForkContext>, NServiceBus.IStageConnector, NServiceBus.Pipeline.IBehavior, NServiceBus.Pipeline.IBehavior<TFromContext, TToContext>
+    public abstract class StageForkConnector<TFromContext, TToContext, TForkContext> : NServiceBus.IForkConnector, NServiceBus.IForkConnector<TFromContext, TToContext, TForkContext>, NServiceBus.IStageConnector, NServiceBus.IStageForkConnector<TFromContext, TToContext, TForkContext>, NServiceBus.Pipeline.IBehavior, NServiceBus.Pipeline.IBehavior<TFromContext, TToContext>
         where TFromContext : NServiceBus.Pipeline.IBehaviorContext
         where TToContext : NServiceBus.Pipeline.IBehaviorContext
         where TForkContext : NServiceBus.Pipeline.IBehaviorContext

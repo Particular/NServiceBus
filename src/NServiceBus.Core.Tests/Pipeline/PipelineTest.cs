@@ -133,7 +133,7 @@
             Assert.That(average, Is.LessThan(firstRunTicks / 5));
         }
 
-        class StageFork : StageForkConnector<ITransportReceiveContext, IIncomingPhysicalMessageContext, IBatchDispatchContext>
+        class StageFork : IStageForkConnector<ITransportReceiveContext, IIncomingPhysicalMessageContext, IBatchDispatchContext>
         {
             public StageFork(string instance, TextWriter writer)
             {
@@ -141,24 +141,25 @@
                 this.writer = writer;
             }
 
-            public override async Task Invoke(ITransportReceiveContext context, Func<IIncomingPhysicalMessageContext, Task> stage, Func<IBatchDispatchContext, Task> fork)
+            public async Task Invoke(ITransportReceiveContext context, Func<IIncomingPhysicalMessageContext, Task> next)
             {
                 context.PrintInstanceWithRunSpecificIfPossible(instance, writer);
 
                 var physicalMessageContext = new TestableIncomingPhysicalMessageContext();
                 physicalMessageContext.Extensions.Merge(context.Extensions);
 
-                await stage(physicalMessageContext).ConfigureAwait(false);
+                await next(physicalMessageContext).ConfigureAwait(false);
 
                 var dispatchContext = new TestableBatchDispatchContext();
                 dispatchContext.Extensions.Merge(context.Extensions);
 
-                await fork(dispatchContext).ConfigureAwait(false);
+                await this.Fork(dispatchContext).ConfigureAwait(false);
             }
 
 
 
             readonly string instance;
+
             readonly TextWriter writer;
 
             public class Registration : RegisterStep
