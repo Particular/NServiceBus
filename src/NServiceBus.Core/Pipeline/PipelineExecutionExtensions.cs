@@ -38,7 +38,7 @@
                 {
                     throw new InvalidOperationException("Behaviors must implement IBehavior<TInContext, TOutContext>");
                 }
-                var methodInfo = behaviorInterfaceType.GetMethods().FirstOrDefault();
+                var methodInfo = currentBehavior.GetType().GetInterfaceMap(behaviorInterfaceType).TargetMethods.FirstOrDefault();
                 if (methodInfo == null)
                 {
                     throw new InvalidOperationException("Behaviors must implement IBehavior<TInContext, TOutContext> and provide an invocation method.");
