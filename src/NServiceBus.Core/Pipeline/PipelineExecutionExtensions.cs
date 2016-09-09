@@ -8,7 +8,7 @@
     using System.Threading.Tasks;
     using Pipeline;
 
-    static class BehaviorExtensions
+    static class PipelineExecutionExtensions
     {
         // ReSharper disable once SuggestBaseTypeForParameter
         public static Func<TRootContext, Task> CreatePipelineExecutionFuncFor<TRootContext>(this IBehavior[] behaviors)
@@ -33,7 +33,7 @@
             for (var i = length; i >= 0; i--)
             {
                 var currentBehavior = behaviors[i];
-                var behaviorInterfaceType = currentBehavior.GetType().GetInterfaces().FirstOrDefault(t => t.GetGenericArguments().Length == 2 && t.FullName.StartsWith("NServiceBus.Pipeline.IBehavior"));
+                var behaviorInterfaceType = currentBehavior.GetType().GetBehaviorInterface();
                 if (behaviorInterfaceType == null)
                 {
                     throw new InvalidOperationException("Behaviors must implement IBehavior<TInContext, TOutContext>");
