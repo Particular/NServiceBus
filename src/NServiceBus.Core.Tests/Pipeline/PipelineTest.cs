@@ -9,6 +9,7 @@
     using System.Text;
     using System.Threading.Tasks;
     using ApprovalTests;
+    using Extensibility;
     using NServiceBus.Pipeline;
     using NUnit.Framework;
     using Settings;
@@ -28,6 +29,8 @@
             pipelineModifications.Additions.Add(new Stage1.Registration(stringWriter));
             pipelineModifications.Additions.Add(new Behavior2.Registration(stringWriter));
             pipelineModifications.Additions.Add(new StageFork.Registration(stringWriter));
+            pipelineModifications.Additions.Add(new Stage2.Registration(stringWriter));
+            pipelineModifications.Additions.Add(new Terminator.Registration(stringWriter));
 
             var pipeline = new Pipeline<ITransportReceiveContext>(new FakeBuilder(), new SettingsHolder(), pipelineModifications);
 
@@ -36,11 +39,41 @@
 
             await pipeline.Invoke(context);
 
-            Assert.AreEqual(@"stagefork1
-behavior1
-stage1
-behavior2
-", stringWriter.ToString());
+            Approvals.Verify(stringWriter.ToString());
+        }
+
+        [Test]
+        public async Task ShouldNotCacheContext()
+        {
+            var stringWriter = new StringWriter();
+
+            var pipelineModifications = new PipelineModifications();
+            pipelineModifications.Additions.Add(new Behavior1.Registration(stringWriter));
+            pipelineModifications.Additions.Add(new Stage1.Registration(stringWriter));
+            pipelineModifications.Additions.Add(new Behavior2.Registration(stringWriter));
+            pipelineModifications.Additions.Add(new StageFork.Registration(stringWriter));
+            pipelineModifications.Additions.Add(new Stage2.Registration(stringWriter));
+            pipelineModifications.Additions.Add(new Terminator.Registration(stringWriter));
+
+            var pipeline = new Pipeline<ITransportReceiveContext>(new FakeBuilder(), new SettingsHolder(), pipelineModifications);
+
+            stringWriter.WriteLine("Run 1");
+
+            var context = new TestableTransportReceiveContext();
+            context.Extensions.Set<IPipelineCache>(new FakePipelineCache());
+            context.Extensions.Set(ExtendableExtensions.RunSpecificKey, 1);
+
+            await pipeline.Invoke(context);
+
+            stringWriter.WriteLine("Run 2");
+
+            context = new TestableTransportReceiveContext();
+            context.Extensions.Set<IPipelineCache>(new FakePipelineCache());
+            context.Extensions.Set(ExtendableExtensions.RunSpecificKey, 2);
+
+            await pipeline.Invoke(context);
+
+            Approvals.Verify(stringWriter.ToString());
         }
 
         [Test]
@@ -110,12 +143,20 @@ behavior2
 
             public override async Task Invoke(ITransportReceiveContext context, Func<IIncomingPhysicalMessageContext, Task> stage, Func<IBatchDispatchContext, Task> fork)
             {
-                writer.WriteLine(instance);
-                await stage(new TestableIncomingPhysicalMessageContext()).ConfigureAwait(false);
+                context.PrintInstanceWithRunSpecificIfPossible(instance, writer);
+
+                var physicalMessageContext = new TestableIncomingPhysicalMessageContext();
+                physicalMessageContext.Extensions.Merge(context.Extensions);
+
+                await stage(physicalMessageContext).ConfigureAwait(false);
+
                 var dispatchContext = new TestableBatchDispatchContext();
                 dispatchContext.Extensions.Merge(context.Extensions);
+
                 await fork(dispatchContext).ConfigureAwait(false);
             }
+
+
 
             readonly string instance;
             readonly TextWriter writer;
@@ -128,6 +169,8 @@ behavior2
             }
         }
 
+
+
         class Behavior1 : IBehavior<IIncomingPhysicalMessageContext, IIncomingPhysicalMessageContext>
         {
             public Behavior1(string instance, TextWriter writer)
@@ -138,7 +181,7 @@ behavior2
 
             public Task Invoke(IIncomingPhysicalMessageContext context, Func<IIncomingPhysicalMessageContext, Task> next)
             {
-                writer.WriteLine(instance);
+                context.PrintInstanceWithRunSpecificIfPossible(instance, writer);
                 return next(context);
             }
 
@@ -163,8 +206,12 @@ behavior2
 
             public override Task Invoke(IIncomingPhysicalMessageContext context, Func<IIncomingLogicalMessageContext, Task> stage)
             {
-                writer.WriteLine(instance);
-                return stage(new TestableIncomingLogicalMessageContext());
+                context.PrintInstanceWithRunSpecificIfPossible(instance, writer);
+
+                var logicalMessageContext = new TestableIncomingLogicalMessageContext();
+                logicalMessageContext.Extensions.Merge(context.Extensions);
+
+                return stage(logicalMessageContext);
             }
 
             string instance;
@@ -213,8 +260,12 @@ behavior2
 
             public override Task Invoke(IIncomingLogicalMessageContext context, Func<IDispatchContext, Task> stage)
             {
-                writer.WriteLine(instance);
-                return stage(new TestableDispatchContext());
+                context.PrintInstanceWithRunSpecificIfPossible(instance, writer);
+
+                var dispatchContext = new TestableDispatchContext();
+                dispatchContext.Extensions.Merge(context.Extensions);
+
+                return stage(dispatchContext);
             }
 
             string instance;
@@ -238,7 +289,7 @@ behavior2
 
             protected override Task Terminate(IDispatchContext context)
             {
-                writer.WriteLine(instance);
+                context.PrintInstanceWithRunSpecificIfPossible(instance, writer);
                 return TaskEx.CompletedTask;
             }
 
@@ -284,6 +335,24 @@ behavior2
                 sb.AppendLine($"{new string(' ', i * 4)}{expression[i].ToString().TrimStart()},");
             }
             return sb.ToString();
+        }
+    }
+
+    static class ExtendableExtensions
+    {
+        public const string RunSpecificKey = "RunSpecific";
+
+        public static void PrintInstanceWithRunSpecificIfPossible(this IExtendable context, string instance, TextWriter writer)
+        {
+            int runSpecific;
+            if (context.Extensions.TryGet(RunSpecificKey, out runSpecific))
+            {
+                writer.WriteLine($"{instance}: {runSpecific}");
+            }
+            else
+            {
+                writer.WriteLine(instance);
+            }
         }
     }
 }
