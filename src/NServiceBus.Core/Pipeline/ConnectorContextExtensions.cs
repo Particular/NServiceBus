@@ -67,8 +67,7 @@ namespace NServiceBus
             Guard.AgainstNull(nameof(incomingMessage), incomingMessage);
             Guard.AgainstNull(nameof(sourceContext), sourceContext);
 
-            var connector = (IStageForkConnector<ITransportReceiveContext, IIncomingPhysicalMessageContext, IBatchDispatchContext>) stageForkConnector;
-            return connector.CreateIncomingPhysicalMessageContext(incomingMessage, sourceContext);
+            return new IncomingPhysicalMessageContext(incomingMessage, sourceContext);
         }
 
         internal static IIncomingPhysicalMessageContext CreateIncomingPhysicalMessageContext(this IStageForkConnector<ITransportReceiveContext, IIncomingPhysicalMessageContext, IBatchDispatchContext> stageForkConnector, IncomingMessage incomingMessage, ITransportReceiveContext sourceContext)
@@ -118,8 +117,7 @@ namespace NServiceBus
             Guard.AgainstNull(nameof(transportOperations), transportOperations);
             Guard.AgainstNull(nameof(sourceContext), sourceContext);
 
-            var connector = (IStageForkConnector<ITransportReceiveContext, IIncomingPhysicalMessageContext, IBatchDispatchContext>) stageForkConnector;
-            return connector.CreateBatchDispatchContext(transportOperations, sourceContext);
+            return new BatchDispatchContext(transportOperations, sourceContext);
         }
 
         internal static IBatchDispatchContext CreateBatchDispatchContext(this IStageForkConnector<ITransportReceiveContext, IIncomingPhysicalMessageContext, IBatchDispatchContext> stageForkConnector, IReadOnlyCollection<TransportOperation> transportOperations, IIncomingPhysicalMessageContext sourceContext)
