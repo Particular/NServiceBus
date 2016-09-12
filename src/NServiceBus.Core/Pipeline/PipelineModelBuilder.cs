@@ -134,8 +134,7 @@ namespace NServiceBus
                     }
                     else
                     {
-                        var args = stageConnector.BehaviorType.BaseType.GetGenericArguments();
-                        var stageEndType = args[1];
+                        var stageEndType = stageConnector.GetOutputContext();
                         currentStage = stages.SingleOrDefault(stage => stage.Key == stageEndType);
                     }
                 }
