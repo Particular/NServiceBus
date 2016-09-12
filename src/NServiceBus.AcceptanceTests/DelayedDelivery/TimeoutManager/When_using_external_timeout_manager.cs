@@ -8,38 +8,34 @@
     using Features;
     using NServiceBus.Config;
     using NUnit.Framework;
+    using ScenarioDescriptors;
 
     public class When_using_external_timeout_manager : NServiceBusAcceptanceTest
     {
         [Test]
         public async Task Should_delay_delivery()
         {
-            var delay = TimeSpan.FromMilliseconds(1);
-
-            var context = await Scenario.Define<Context>()
+            await Scenario.Define<Context>()
                 .WithEndpoint<EndpointWithTimeoutManager>()
                 .WithEndpoint<Endpoint>(b => b.When((session, c) =>
                 {
                     var options = new SendOptions();
 
-                    options.DelayDeliveryWith(delay);
+                    options.DelayDeliveryWith(TimeSpan.FromMilliseconds(5000));
                     options.RouteToThisEndpoint();
-
-                    c.SentAt = DateTime.UtcNow;
 
                     return session.Send(new MyMessage(), options);
                 }))
                 .Done(c => c.WasCalled)
+                .Repeat(r => r.For<AllTransportsWithoutNativeDeferral>())
+                .Should(c => { Assert.IsTrue(c.TimeoutManagerHeaderDetected); })
                 .Run();
-
-            Assert.GreaterOrEqual(context.ReceivedAt - context.SentAt, delay);
         }
 
         public class Context : ScenarioContext
         {
+            public bool TimeoutManagerHeaderDetected { get; set; }
             public bool WasCalled { get; set; }
-            public DateTime SentAt { get; set; }
-            public DateTime ReceivedAt { get; set; }
         }
 
         public class Endpoint : EndpointConfigurationBuilder
@@ -49,10 +45,7 @@
                 var address = Conventions.EndpointNamingConvention(typeof(EndpointWithTimeoutManager)) + ".Timeouts";
 
                 EndpointSetup<DefaultServer>(config => config.DisableFeature<TimeoutManager>())
-                    .WithConfig<UnicastBusConfig>(c =>
-                    {
-                        c.TimeoutManagerAddress = address;
-                    });
+                    .WithConfig<UnicastBusConfig>(c => { c.TimeoutManagerAddress = address; });
             }
 
             public class MyMessageHandler : IHandleMessages<MyMessage>
@@ -61,7 +54,7 @@
 
                 public Task Handle(MyMessage message, IMessageHandlerContext context)
                 {
-                    Context.ReceivedAt = DateTime.UtcNow;
+                    Context.TimeoutManagerHeaderDetected = context.MessageHeaders.ContainsKey("NServiceBus.RelatedToTimeoutId");
                     Context.WasCalled = true;
                     return Task.FromResult(0);
                 }
