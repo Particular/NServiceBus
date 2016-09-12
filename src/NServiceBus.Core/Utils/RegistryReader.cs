@@ -14,7 +14,7 @@
             }
             catch (Exception ex)
             {
-                Logger.Warn($@"We couldn't read the registry to retrieve the {name}, from 'HKEY_LOCAL_MACHINE\SOFTWARE\ParticularSoftware\ServiceBus'.", ex);
+                Logger.Warn($@"Could not read the registry to retrieve the {name}, from 'HKEY_LOCAL_MACHINE\SOFTWARE\ParticularSoftware\ServiceBus'.", ex);
             }
 
             return defaultValue;

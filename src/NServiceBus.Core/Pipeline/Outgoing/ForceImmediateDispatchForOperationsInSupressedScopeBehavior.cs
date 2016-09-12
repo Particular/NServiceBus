@@ -30,7 +30,7 @@ namespace NServiceBus
         }
 
         static string scopeWarning = @"
-We detected that you suppressed the ambient transaction when requesting the outgoing operation. 
+Suppressed ambient transaction detected when requesting the outgoing operation. 
 Support for this behavior is deprecated and will be removed in Version 7. The new api for requesting immediate dispatch is:
 
 var options = new Send|Publish|ReplyOptions();

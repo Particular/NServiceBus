@@ -212,12 +212,12 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
         {
             if (!interfaceType.IsVisible)
             {
-                throw new Exception(string.Format("We can only generate a concrete implementation for '{0}' if '{0}' is public.", interfaceType));
+                throw new Exception($"Can only generate a concrete implementation for '{interfaceType}' if '{interfaceType}' is public.");
             }
 
             if (interfaceType.GetMethods().Any(mi => !(mi.IsSpecialName && (mi.Name.StartsWith("set_") || mi.Name.StartsWith("get_")))))
             {
-                throw new Exception($"We can only generate a concrete implementation for '{interfaceType.Name}' because the interface contains methods. Make sure interface messages do not contain methods.");
+                throw new Exception($"Can only generate a concrete implementation for '{interfaceType.Name}' because the interface contains methods. Ensure interface messages do not contain methods.");
             }
             var mapped = concreteProxyCreator.CreateTypeFrom(interfaceType);
             interfaceToConcreteTypeMapping[interfaceType.TypeHandle] = mapped.TypeHandle;

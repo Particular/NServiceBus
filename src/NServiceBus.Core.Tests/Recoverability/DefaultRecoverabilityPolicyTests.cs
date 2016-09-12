@@ -27,7 +27,7 @@
 
             var recoverabilityAction = policy(errorContext);
 
-            Assert.IsInstanceOf<ImmediateRetry>(recoverabilityAction, "We should have one immediate retry left. It is second delivery attempt and we configured immediate reties to 2.");
+            Assert.IsInstanceOf<ImmediateRetry>(recoverabilityAction, "Should have one immediate retry left. It is second delivery attempt and we configured immediate reties to 2.");
         }
 
         [Test]
