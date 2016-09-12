@@ -24,7 +24,7 @@
                 .Should(c =>
                 {
                     Assert.True(c.MessageDispatched, "Should dispatch the message immediately");
-                    Assert.True(c.Logs.Any(l => l.Level == LogLevel.Warn && l.Message.Contains("We detected that you suppressed the ambient transaction")));
+                    Assert.True(c.Logs.Any(l => l.Level == LogLevel.Warn && l.Message.Contains("Suppressed ambient transaction detected when requesting the outgoing operation")));
                 })
                 .Run();
         }
