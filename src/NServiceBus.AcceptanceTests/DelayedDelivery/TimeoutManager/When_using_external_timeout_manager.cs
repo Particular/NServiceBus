@@ -21,7 +21,7 @@
                 {
                     var options = new SendOptions();
 
-                    options.DelayDeliveryWith(TimeSpan.FromMilliseconds(1000));
+                    options.DelayDeliveryWith(TimeSpan.FromMilliseconds(2000));
                     options.RouteToThisEndpoint();
 
                     return session.Send(new MyMessage(), options);
