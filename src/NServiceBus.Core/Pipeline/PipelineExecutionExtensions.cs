@@ -28,9 +28,9 @@
         public static Delegate CreatePipelineExecutionExpression(this IBehavior[] behaviors, List<Expression> expressions = null)
         {
             Delegate lambdaExpression = null;
-            var length = behaviors.Length - 1;
+            var behaviorCount = behaviors.Length - 1;
             // We start from the end of the list know the lambda expressions deeper in the call stack in advance
-            for (var i = length; i >= 0; i--)
+            for (var i = behaviorCount; i >= 0; i--)
             {
                 var currentBehavior = behaviors[i];
                 var behaviorInterfaceType = currentBehavior.GetType().GetBehaviorInterface();
@@ -38,7 +38,8 @@
                 {
                     throw new InvalidOperationException("Behaviors must implement IBehavior<TInContext, TOutContext>");
                 }
-                var methodInfo = behaviorInterfaceType.GetMethods().FirstOrDefault();
+                // Select the method on the type which was implemented from the behavior interface.
+                var methodInfo = currentBehavior.GetType().GetInterfaceMap(behaviorInterfaceType).TargetMethods.FirstOrDefault();
                 if (methodInfo == null)
                 {
                     throw new InvalidOperationException("Behaviors must implement IBehavior<TInContext, TOutContext> and provide an invocation method.");
@@ -49,7 +50,7 @@
 
                 var inContextParameter = Expression.Parameter(inContextType, $"context{i}");
 
-                if (i == length)
+                if (i == behaviorCount)
                 {
                     if (currentBehavior is IPipelineTerminator)
                     {
