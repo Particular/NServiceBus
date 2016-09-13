@@ -7,9 +7,9 @@ namespace NServiceBus
     using Pipeline;
 
     [ObsoleteEx(RemoveInVersion = "7")]
-    class ForceImmediateDispatchForOperationsInSuppressedScopeBehavior : Behavior<IRoutingContext>
+    class ForceImmediateDispatchForOperationsInSuppressedScopeBehavior : IBehavior<IRoutingContext, IRoutingContext>
     {
-        public override Task Invoke(IRoutingContext context, Func<Task> next)
+        public Task Invoke(IRoutingContext context, Func<IRoutingContext, Task> next)
         {
             var state = context.Extensions.GetOrCreate<InvokeHandlerTerminator.State>();
 
@@ -26,7 +26,7 @@ namespace NServiceBus
                 }
             }
 
-            return next();
+            return next(context);
         }
 
         static string scopeWarning = @"

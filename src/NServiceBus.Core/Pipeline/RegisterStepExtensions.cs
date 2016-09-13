@@ -23,7 +23,7 @@ namespace NServiceBus
                 .Any(x => x.IsGenericType && x.GetGenericTypeDefinition() == BehaviorInterfaceType);
         }
 
-        static Type GetBehaviorInterface(this Type behaviorType)
+        public static Type GetBehaviorInterface(this Type behaviorType)
         {
             return behaviorType.GetInterfaces()
                 .First(x => x.IsGenericType && x.GetGenericTypeDefinition() == BehaviorInterfaceType);

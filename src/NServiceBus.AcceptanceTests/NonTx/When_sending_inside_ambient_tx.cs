@@ -42,13 +42,13 @@
                 });
             }
 
-            class WrapHandlersInScope : Behavior<IIncomingLogicalMessageContext>
+            class WrapHandlersInScope : IBehavior<IIncomingLogicalMessageContext, IIncomingLogicalMessageContext>
             {
-                public override async Task Invoke(IIncomingLogicalMessageContext context, Func<Task> next)
+                public async Task Invoke(IIncomingLogicalMessageContext context, Func<IIncomingLogicalMessageContext, Task> next)
                 {
                     using (var tx = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
                     {
-                        await next();
+                        await next(context).ConfigureAwait(false);
                         tx.Complete();
                     }
                 }

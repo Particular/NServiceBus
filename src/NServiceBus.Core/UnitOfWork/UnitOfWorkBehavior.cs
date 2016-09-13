@@ -7,9 +7,9 @@
     using Pipeline;
     using UnitOfWork;
 
-    class UnitOfWorkBehavior : Behavior<IIncomingPhysicalMessageContext>
+    class UnitOfWorkBehavior : IBehavior<IIncomingPhysicalMessageContext, IIncomingPhysicalMessageContext>
     {
-        public override async Task Invoke(IIncomingPhysicalMessageContext context, Func<Task> next)
+        public async Task Invoke(IIncomingPhysicalMessageContext context, Func<IIncomingPhysicalMessageContext, Task> next)
         {
             var unitsOfWork = new Stack<IManageUnitsOfWork>();
 
@@ -23,7 +23,7 @@
                         .ConfigureAwait(false);
                 }
 
-                await next().ConfigureAwait(false);
+                await next(context).ConfigureAwait(false);
 
                 while (unitsOfWork.Count > 0)
                 {
@@ -49,7 +49,7 @@
             }
         }
 
-        async Task<List<Exception>> AppendEndExceptions(Stack<IManageUnitsOfWork> unitsOfWork, Exception initialException)
+        static async Task<List<Exception>> AppendEndExceptions(Stack<IManageUnitsOfWork> unitsOfWork, Exception initialException)
         {
             var exceptionsToThrow = new List<Exception>();
             while (unitsOfWork.Count > 0)

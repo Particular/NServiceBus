@@ -9,7 +9,7 @@ namespace NServiceBus.Pipeline
     /// <typeparam name="TFromContext">The context to connect from.</typeparam>
     /// <typeparam name="TToContext">The context to connect to.</typeparam>
     /// <typeparam name="TForkContext">The context to fork an independent pipeline to.</typeparam>
-    public abstract class StageForkConnector<TFromContext, TToContext, TForkContext> : IBehavior<TFromContext, TToContext>, IForkConnector<TForkContext>, IStageConnector
+    public abstract class StageForkConnector<TFromContext, TToContext, TForkContext> : IStageForkConnector<TFromContext, TToContext, TForkContext>
         where TFromContext : IBehaviorContext
         where TToContext : IBehaviorContext
         where TForkContext : IBehaviorContext
@@ -22,7 +22,7 @@ namespace NServiceBus.Pipeline
 
             return Invoke(context, next, ctx =>
             {
-                var cache = context.Extensions.Get<IPipelineCache>();
+                var cache = ctx.Extensions.Get<IPipelineCache>();
                 var pipeline = cache.Pipeline<TForkContext>();
                 return pipeline.Invoke(ctx);
             });

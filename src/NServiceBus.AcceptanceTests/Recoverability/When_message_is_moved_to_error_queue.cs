@@ -157,11 +157,11 @@
             }
         }
 
-        class ThrowingBehavior : Behavior<ITransportReceiveContext>
+        class ThrowingBehavior : IBehavior<ITransportReceiveContext, ITransportReceiveContext>
         {
-            public override async Task Invoke(ITransportReceiveContext context, Func<Task> next)
+            public async Task Invoke(ITransportReceiveContext context, Func<ITransportReceiveContext, Task> next)
             {
-                await next().ConfigureAwait(false);
+                await next(context).ConfigureAwait(false);
 
                 throw new SimulatedException();
             }

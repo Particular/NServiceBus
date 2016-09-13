@@ -66,33 +66,33 @@
 
         interface IRootContext : IBehaviorContext { }
 
-        class ValidBehavior : Behavior<IRootContext>
+        class ValidBehavior : IBehavior<IRootContext, IRootContext>
         {
-            public override Task Invoke(IRootContext context, Func<Task> next)
+            public Task Invoke(IRootContext context, Func<IRootContext, Task> next)
             {
                 return TaskEx.CompletedTask;
             }
         }
 
-        class BehaviorUsingBehaviorContext : Behavior<IBehaviorContext>
+        class BehaviorUsingBehaviorContext : IBehavior<IBehaviorContext, IBehaviorContext>
         {
-            public override Task Invoke(IBehaviorContext context, Func<Task> next)
+            public Task Invoke(IBehaviorContext context, Func<IBehaviorContext, Task> next)
             {
                 return TaskEx.CompletedTask;
             }
         }
 
-        class BehaviorUsingIncomingContext : Behavior<IIncomingContext>
+        class BehaviorUsingIncomingContext : IBehavior<IIncomingContext, IIncomingContext>
         {
-            public override Task Invoke(IIncomingContext context, Func<Task> next)
+            public Task Invoke(IIncomingContext context, Func<IIncomingContext, Task> next)
             {
                 return TaskEx.CompletedTask;
             }
         }
 
-        class BehaviorUsingOutgoingContext : Behavior<IOutgoingContext>
+        class BehaviorUsingOutgoingContext : IBehavior<IOutgoingContext, IOutgoingContext>
         {
-            public override Task Invoke(IOutgoingContext context, Func<Task> next)
+            public Task Invoke(IOutgoingContext context, Func<IOutgoingContext, Task> next)
             {
                 return TaskEx.CompletedTask;
             }
@@ -106,32 +106,33 @@
             }
         }
 
-        class BehaviorUsingContextInterface : Behavior<IAuditContext>
+        class BehaviorUsingContextInterface : IBehavior<IAuditContext, IAuditContext>
         {
-            public override Task Invoke(IAuditContext context, Func<Task> next)
+            public Task Invoke(IAuditContext context, Func<IAuditContext, Task> next)
             {
                 return TaskEx.CompletedTask;
             }
         }
 
-        class BehaviorUsingContextImplementationOnTFrom : Behavior<RootContext>
+        class BehaviorUsingContextImplementationOnTFrom : IBehavior<RootContext, RootContext>
         {
-            public override Task Invoke(RootContext context, Func<Task> next)
+            public Task Invoke(RootContext context, Func<RootContext, Task> next)
             {
                 return TaskEx.CompletedTask;
             }
         }
 
-        class GenericBehavior<T> : Behavior<IRootContext>
+        class GenericBehavior<T> : IBehavior<IRootContext, IRootContext>
         {
-            public override Task Invoke(IRootContext context, Func<Task> next)
+            public Task Invoke(IRootContext context, Func<IRootContext, Task> next)
             {
                 return TaskEx.CompletedTask;
             }
         }
 
-        abstract class AbstractBehavior : Behavior<IRootContext>
+        abstract class AbstractBehavior : IBehavior<IRootContext, IRootContext>
         {
+            public abstract Task Invoke(IRootContext context, Func<IRootContext, Task> next);
         }
     }
 }

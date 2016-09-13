@@ -6,7 +6,7 @@
     using DataBus;
     using Pipeline;
 
-    class DataBusReceiveBehavior : Behavior<IIncomingLogicalMessageContext>
+    class DataBusReceiveBehavior : IBehavior<IIncomingLogicalMessageContext, IIncomingLogicalMessageContext>
     {
         public DataBusReceiveBehavior(IDataBus databus, IDataBusSerializer serializer, Conventions conventions)
         {
@@ -15,7 +15,7 @@
             dataBus = databus;
         }
 
-        public override async Task Invoke(IIncomingLogicalMessageContext context, Func<Task> next)
+        public async Task Invoke(IIncomingLogicalMessageContext context, Func<IIncomingLogicalMessageContext, Task> next)
         {
             var message = context.Message.Instance;
 
@@ -60,7 +60,7 @@
                 }
             }
 
-            await next().ConfigureAwait(false);
+            await next(context).ConfigureAwait(false);
         }
 
         Conventions conventions;

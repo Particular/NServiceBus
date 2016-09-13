@@ -6,9 +6,10 @@ namespace NServiceBus
     {
     }
 
-    // ReSharper disable once UnusedTypeParameter
-    interface IForkConnector<TForkContext> : IForkConnector
+    interface IForkConnector<in TFromContext, out TToContext, TForkContext> : IBehavior<TFromContext, TToContext>, IForkConnector
         where TForkContext : IBehaviorContext
+        where TFromContext : IBehaviorContext
+        where TToContext : IBehaviorContext
     {
     }
 }

@@ -30,33 +30,33 @@
             public bool MessageHandled { get; set; }
         }
 
-        class OriginalBehavior : Behavior<ITransportReceiveContext>
+        class OriginalBehavior : IBehavior<ITransportReceiveContext, ITransportReceiveContext>
         {
             public OriginalBehavior(Context testContext)
             {
                 this.testContext = testContext;
             }
 
-            public override Task Invoke(ITransportReceiveContext context, Func<Task> next)
+            public Task Invoke(ITransportReceiveContext context, Func<ITransportReceiveContext, Task> next)
             {
                 testContext.OriginalBehaviorInvoked = true;
-                return next();
+                return next(context);
             }
 
             Context testContext;
         }
 
-        class ReplacementBehavior : Behavior<ITransportReceiveContext>
+        class ReplacementBehavior : IBehavior<ITransportReceiveContext, ITransportReceiveContext>
         {
             public ReplacementBehavior(Context testContext)
             {
                 this.testContext = testContext;
             }
 
-            public override Task Invoke(ITransportReceiveContext context, Func<Task> next)
+            public Task Invoke(ITransportReceiveContext context, Func<ITransportReceiveContext, Task> next)
             {
                 testContext.ReplacementBehaviorInvoked = true;
-                return next();
+                return next(context);
             }
 
             Context testContext;

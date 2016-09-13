@@ -47,7 +47,7 @@ namespace NServiceBus.Core.Tests.DataBus
                             {"NServiceBus.DataBus." + propertyKey, databusKey}
                         },
                         null),
-                    () => TaskEx.CompletedTask);
+                    ctx => TaskEx.CompletedTask);
             }
 
             var instance = (MessageWithDataBusProperty)message.Instance;

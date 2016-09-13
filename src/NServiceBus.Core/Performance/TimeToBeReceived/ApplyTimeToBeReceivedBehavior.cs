@@ -6,14 +6,14 @@
     using Performance.TimeToBeReceived;
     using Pipeline;
 
-    class ApplyTimeToBeReceivedBehavior : Behavior<IOutgoingLogicalMessageContext>
+    class ApplyTimeToBeReceivedBehavior : IBehavior<IOutgoingLogicalMessageContext, IOutgoingLogicalMessageContext>
     {
         public ApplyTimeToBeReceivedBehavior(TimeToBeReceivedMappings timeToBeReceivedMappings)
         {
             this.timeToBeReceivedMappings = timeToBeReceivedMappings;
         }
 
-        public override Task Invoke(IOutgoingLogicalMessageContext context, Func<Task> next)
+        public Task Invoke(IOutgoingLogicalMessageContext context, Func<IOutgoingLogicalMessageContext, Task> next)
         {
             TimeSpan timeToBeReceived;
 
@@ -23,7 +23,7 @@
                 context.Headers[Headers.TimeToBeReceived] = timeToBeReceived.ToString();
             }
 
-            return next();
+            return next(context);
         }
 
         TimeToBeReceivedMappings timeToBeReceivedMappings;

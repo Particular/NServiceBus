@@ -6,9 +6,9 @@
     using Pipeline;
     using Transport;
 
-    class MutateOutgoingMessageBehavior : Behavior<IOutgoingLogicalMessageContext>
+    class MutateOutgoingMessageBehavior : IBehavior<IOutgoingLogicalMessageContext, IOutgoingLogicalMessageContext>
     {
-        public override async Task Invoke(IOutgoingLogicalMessageContext context, Func<Task> next)
+        public async Task Invoke(IOutgoingLogicalMessageContext context, Func<IOutgoingLogicalMessageContext, Task> next)
         {
             LogicalMessage incomingLogicalMessage;
             context.Extensions.TryGet(out incomingLogicalMessage);
@@ -34,7 +34,7 @@
                 context.UpdateMessage(mutatorContext.OutgoingMessage);
             }
 
-            await next().ConfigureAwait(false);
+            await next(context).ConfigureAwait(false);
         }
     }
 }

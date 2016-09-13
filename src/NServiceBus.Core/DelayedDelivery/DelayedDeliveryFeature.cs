@@ -27,7 +27,7 @@
                 if (timeoutManagerAddress == null)
                 {
                     DoNotClearTimeouts(context);
-                    context.Pipeline.Register<ThrowIfCannotDeferMessageBehavior.Registration>();
+                    context.Pipeline.Register("ThrowIfCannotDeferMessage", new ThrowIfCannotDeferMessageBehavior(), "Throws an exception if an attempt is made to defer a message without infrastructure support.");
                 }
                 else
                 {

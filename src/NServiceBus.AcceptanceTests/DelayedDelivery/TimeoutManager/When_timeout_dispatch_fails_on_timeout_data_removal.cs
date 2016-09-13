@@ -135,20 +135,20 @@
                 TimeoutData timeoutData;
             }
 
-            class BehaviorThatLogsControlMessageDelivery : Behavior<ITransportReceiveContext>
+            class BehaviorThatLogsControlMessageDelivery : IBehavior<ITransportReceiveContext, ITransportReceiveContext>
             {
                 public Context TestContext { get; set; }
 
-                public override async Task Invoke(ITransportReceiveContext context, Func<Task> next)
+                public Task Invoke(ITransportReceiveContext context, Func<ITransportReceiveContext, Task> next)
                 {
                     if (context.Message.Headers.ContainsKey(Headers.ControlMessageHeader) &&
                         context.Message.Headers["Timeout.Id"] == TestContext.TestRunId.ToString())
                     {
                         TestContext.FailedTimeoutMovedToError = true;
-                        return;
+                        return Task.FromResult(0);
                     }
 
-                    await next().ConfigureAwait(false);
+                    return next(context);
                 }
 
                 public class Registration : RegisterStep

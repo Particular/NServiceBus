@@ -6,7 +6,7 @@ namespace NServiceBus
     using DeliveryConstraints;
     using Pipeline;
 
-    class DetermineMessageDurabilityBehavior : Behavior<IOutgoingLogicalMessageContext>
+    class DetermineMessageDurabilityBehavior : IBehavior<IOutgoingLogicalMessageContext, IOutgoingLogicalMessageContext>
     {
         public DetermineMessageDurabilityBehavior(Func<Type, bool> convention)
         {
@@ -14,7 +14,7 @@ namespace NServiceBus
             durabilityCache = new ConcurrentDictionary<Type, bool>();
         }
 
-        public override Task Invoke(IOutgoingLogicalMessageContext context, Func<Task> next)
+        public Task Invoke(IOutgoingLogicalMessageContext context, Func<IOutgoingLogicalMessageContext, Task> next)
         {
             if (durabilityCache.GetOrAdd(context.Message.MessageType, t => convention(t)))
             {
@@ -23,7 +23,7 @@ namespace NServiceBus
                 context.Headers[Headers.NonDurableMessage] = true.ToString();
             }
 
-            return next();
+            return next(context);
         }
 
         Func<Type, bool> convention;

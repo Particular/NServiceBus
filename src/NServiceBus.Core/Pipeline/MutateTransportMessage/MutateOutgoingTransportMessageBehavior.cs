@@ -6,9 +6,9 @@
     using Pipeline;
     using Transport;
 
-    class MutateOutgoingTransportMessageBehavior : Behavior<IOutgoingPhysicalMessageContext>
+    class MutateOutgoingTransportMessageBehavior : IBehavior<IOutgoingPhysicalMessageContext, IOutgoingPhysicalMessageContext>
     {
-        public override async Task Invoke(IOutgoingPhysicalMessageContext context, Func<Task> next)
+        public async Task Invoke(IOutgoingPhysicalMessageContext context, Func<IOutgoingPhysicalMessageContext, Task> next)
         {
             var outgoingMessage = context.Extensions.Get<OutgoingLogicalMessage>();
 
@@ -37,7 +37,7 @@
                 context.UpdateMessage(mutatorContext.OutgoingBody);
             }
 
-            await next().ConfigureAwait(false);
+            await next(context).ConfigureAwait(false);
         }
     }
 }

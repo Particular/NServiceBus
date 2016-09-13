@@ -4,21 +4,21 @@ namespace NServiceBus
     using System.Threading.Tasks;
     using Pipeline;
 
-    class ScheduleBehavior : Behavior<IOutgoingLogicalMessageContext>
+    class ScheduleBehavior : IBehavior<IOutgoingLogicalMessageContext, IOutgoingLogicalMessageContext>
     {
         public ScheduleBehavior(DefaultScheduler scheduler)
         {
             this.scheduler = scheduler;
         }
 
-        public override Task Invoke(IOutgoingLogicalMessageContext context, Func<Task> next)
+        public Task Invoke(IOutgoingLogicalMessageContext context, Func<IOutgoingLogicalMessageContext, Task> next)
         {
             State state;
             if (context.Extensions.TryGet(out state))
             {
                 scheduler.Schedule(state.TaskDefinition);
             }
-            return next();
+            return next(context);
         }
 
         DefaultScheduler scheduler;

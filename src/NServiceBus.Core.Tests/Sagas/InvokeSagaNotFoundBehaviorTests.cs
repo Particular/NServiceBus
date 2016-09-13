@@ -24,7 +24,7 @@
 
             incomingContext.Builder.Register<IHandleSagaNotFound>(new HandleSagaNotFoundReturnsNull1(), validSagaHandler);
 
-            Assert.That(async () => await behavior.Invoke(incomingContext, () => TaskEx.CompletedTask), Throws.Nothing);
+            Assert.That(async () => await behavior.Invoke(incomingContext, ctx => TaskEx.CompletedTask), Throws.Nothing);
 
             Assert.False(validSagaHandler.Handled);
         }

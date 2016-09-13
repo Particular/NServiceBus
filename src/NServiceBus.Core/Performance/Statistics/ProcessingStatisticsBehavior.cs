@@ -4,9 +4,9 @@
     using System.Threading.Tasks;
     using Pipeline;
 
-    class ProcessingStatisticsBehavior : Behavior<IIncomingPhysicalMessageContext>
+    class ProcessingStatisticsBehavior : IBehavior<IIncomingPhysicalMessageContext, IIncomingPhysicalMessageContext>
     {
-        public override async Task Invoke(IIncomingPhysicalMessageContext context, Func<Task> next)
+        public async Task Invoke(IIncomingPhysicalMessageContext context, Func<IIncomingPhysicalMessageContext, Task> next)
         {
             var state = new State();
 
@@ -22,7 +22,7 @@
             context.Extensions.Set(state);
             try
             {
-                await next().ConfigureAwait(false);
+                await next(context).ConfigureAwait(false);
             }
             finally
             {

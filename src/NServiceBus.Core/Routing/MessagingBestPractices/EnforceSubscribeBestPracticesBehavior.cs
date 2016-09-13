@@ -4,14 +4,14 @@ namespace NServiceBus
     using System.Threading.Tasks;
     using Pipeline;
 
-    class EnforceSubscribeBestPracticesBehavior : Behavior<ISubscribeContext>
+    class EnforceSubscribeBestPracticesBehavior : IBehavior<ISubscribeContext, ISubscribeContext>
     {
         public EnforceSubscribeBestPracticesBehavior(Validations validations)
         {
             this.validations = validations;
         }
 
-        public override Task Invoke(ISubscribeContext context, Func<Task> next)
+        public Task Invoke(ISubscribeContext context, Func<ISubscribeContext, Task> next)
         {
             EnforceBestPracticesOptions options;
 
@@ -20,7 +20,7 @@ namespace NServiceBus
                 validations.AssertIsValidForPubSub(context.EventType);
             }
 
-            return next();
+            return next(context);
         }
 
         Validations validations;

@@ -6,7 +6,7 @@ namespace NServiceBus
     using Pipeline;
 
     [SkipWeaving]
-    class ReceivePerformanceDiagnosticsBehavior : Behavior<IIncomingPhysicalMessageContext>
+    class ReceivePerformanceDiagnosticsBehavior : IBehavior<IIncomingPhysicalMessageContext, IIncomingPhysicalMessageContext>
     {
         public ReceivePerformanceDiagnosticsBehavior(string transportAddress)
         {
@@ -26,13 +26,13 @@ namespace NServiceBus
                 transportAddress);
         }
 
-        public override async Task Invoke(IIncomingPhysicalMessageContext context, Func<Task> next)
+        public async Task Invoke(IIncomingPhysicalMessageContext context, Func<IIncomingPhysicalMessageContext, Task> next)
         {
             messagesPulledFromQueueCounter.Increment();
 
             try
             {
-                await next().ConfigureAwait(false);
+                await next(context).ConfigureAwait(false);
             }
             catch (Exception)
             {

@@ -18,7 +18,7 @@
             physicalContext.Extensions.Set(new OutgoingLogicalMessage(typeof(FakeMessage), new FakeMessage()));
             physicalContext.Builder.Register<IMutateOutgoingTransportMessages>(() => new MutateOutgoingTransportMessagesReturnsNull());
 
-            Assert.That(async () => await behavior.Invoke(physicalContext, () => TaskEx.CompletedTask), Throws.Exception.With.Message.EqualTo("Return a Task or mark the method as async."));
+            Assert.That(async () => await behavior.Invoke(physicalContext, ctx => TaskEx.CompletedTask), Throws.Exception.With.Message.EqualTo("Return a Task or mark the method as async."));
         }
 
         [Test]
@@ -31,7 +31,7 @@
 
             context.Builder.Register<IMutateOutgoingTransportMessages>(() => new MutatorWhichDoesNotMutateTheBody());
 
-            await behavior.Invoke(context, () => TaskEx.CompletedTask);
+            await behavior.Invoke(context, ctx => TaskEx.CompletedTask);
 
             Assert.False(context.UpdateMessageCalled);
         }
@@ -46,7 +46,7 @@
 
             context.Builder.Register(() => new IMutateOutgoingTransportMessages[] { });
 
-            await behavior.Invoke(context, () => TaskEx.CompletedTask);
+            await behavior.Invoke(context, ctx => TaskEx.CompletedTask);
 
             Assert.False(context.UpdateMessageCalled);
         }
@@ -61,7 +61,7 @@
 
             context.Builder.Register<IMutateOutgoingTransportMessages>(() => new MutatorWhichMutatesTheBody());
 
-            await behavior.Invoke(context, () => TaskEx.CompletedTask);
+            await behavior.Invoke(context, ctx => TaskEx.CompletedTask);
 
             Assert.True(context.UpdateMessageCalled);
         }

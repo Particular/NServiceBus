@@ -6,7 +6,7 @@
     /// <summary>
     /// Connects two stages of the pipeline.
     /// </summary>
-    public abstract class StageConnector<TFromContext, TToContext> : IBehavior<TFromContext, TToContext>, IStageConnector
+    public abstract class StageConnector<TFromContext, TToContext> : IStageConnector<TFromContext, TToContext>
         where TFromContext : IBehaviorContext
         where TToContext : IBehaviorContext
     {

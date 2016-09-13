@@ -26,12 +26,12 @@
                 .Run();
         }
 
-        public class Context : ScenarioContext
+       class Context : ScenarioContext
         {
             public bool MessageAudited { get; set; }
         }
 
-        public class EndpointWithAuditOn : EndpointConfigurationBuilder
+        class EndpointWithAuditOn : EndpointConfigurationBuilder
         {
             public EndpointWithAuditOn()
             {
@@ -45,17 +45,17 @@
                     .AuditTo<AuditSpyEndpoint>();
             }
 
-            class BlowUpAfterDispatchBehavior : Behavior<IBatchDispatchContext>
+            class BlowUpAfterDispatchBehavior : IBehavior<IBatchDispatchContext, IBatchDispatchContext>
             {
-                public override async Task Invoke(IBatchDispatchContext context, Func<Task> next)
+                public async Task Invoke(IBatchDispatchContext context, Func<IBatchDispatchContext, Task> next)
                 {
                     if (!context.Operations.Any(op => op.Message.Headers[Headers.EnclosedMessageTypes].Contains(typeof(MessageToBeAudited).Name)))
                     {
-                        await next().ConfigureAwait(false);
+                        await next(context).ConfigureAwait(false);
                         return;
                     }
 
-                    await next().ConfigureAwait(false);
+                    await next(context).ConfigureAwait(false);
 
                     throw new SimulatedException();
                 }
