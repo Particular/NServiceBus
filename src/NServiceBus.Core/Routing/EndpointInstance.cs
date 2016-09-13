@@ -8,6 +8,8 @@
     /// </summary>
     public sealed class EndpointInstance
     {
+        int hashCode; //Instances are not mutable and hashcode is accessed frequently.
+
         /// <summary>
         /// Creates a new endpoint name for a given discriminator.
         /// </summary>
@@ -21,6 +23,7 @@
             Properties = properties ?? new Dictionary<string, string>();
             Endpoint = endpoint;
             Discriminator = discriminator;
+            hashCode = CalculateHashCode();
         }
 
         /// <summary>
@@ -126,6 +129,11 @@
         /// A hash code for the current object.
         /// </returns>
         public override int GetHashCode()
+        {
+            return hashCode;
+        }
+
+        int CalculateHashCode()
         {
             unchecked
             {
