@@ -28,7 +28,12 @@ namespace NServiceBus
 
         public string Id { get; }
 
-        public async Task Start()
+        public Task Init()
+        {
+            return receiver.Init(c => pipelineExecutor.Invoke(c), c => recoverabilityExecutor.Invoke(c), criticalError, pushSettings);
+        }
+
+        public void Start()
         {
             if (isStarted)
             {
@@ -36,8 +41,6 @@ namespace NServiceBus
             }
 
             Logger.DebugFormat("Receiver {0} is starting, listening to queue {1}.", Id, pushSettings.InputQueue);
-
-            await receiver.Init(c => pipelineExecutor.Invoke(c), c => recoverabilityExecutor.Invoke(c), criticalError, pushSettings).ConfigureAwait(false);
 
             receiver.Start(pushRuntimeSettings);
 

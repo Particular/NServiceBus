@@ -36,20 +36,19 @@ namespace NServiceBus
 
             await transportInfrastructure.Start().ConfigureAwait(false);
 
-            var featureRunner = await StartFeatures(messageSession).ConfigureAwait(false);
-
             AppDomain.CurrentDomain.SetPrincipalPolicy(PrincipalPolicy.WindowsPrincipal);
 
-            mainPipeline = new Pipeline<ITransportReceiveContext>(builder, settings, pipelineConfiguration.Modifications);
+            var mainPipeline = new Pipeline<ITransportReceiveContext>(builder, settings, pipelineConfiguration.Modifications);
+            var receivers = CreateReceivers(mainPipeline);
+            await InitializeReceivers(receivers).ConfigureAwait(false);
 
-            var receivers = CreateReceivers();
+            var featureRunner = await StartFeatures(messageSession).ConfigureAwait(false);
 
             var runningInstance = new RunningEndpointInstance(settings, builder, receivers, featureRunner, messageSession, transportInfrastructure);
-
             // set the started endpoint on CriticalError to pass the endpoint to the critical error action
             criticalError.SetEndpoint(runningInstance);
 
-            await StartReceivers(receivers).ConfigureAwait(false);
+            StartReceivers(receivers);
 
             return runningInstance;
         }
@@ -61,15 +60,29 @@ namespace NServiceBus
             return featureRunner;
         }
 
-        static async Task StartReceivers(List<TransportReceiver> receivers)
+        static async Task InitializeReceivers(List<TransportReceiver> receivers)
         {
             foreach (var receiver in receivers)
             {
-                Logger.DebugFormat("Starting {0} receiver", receiver.Id);
                 try
                 {
-                    await receiver.Start().ConfigureAwait(false);
-                    Logger.DebugFormat("Started {0} receiver", receiver.Id);
+                    await receiver.Init().ConfigureAwait(false);
+                }
+                catch (Exception ex)
+                {
+                    Logger.Fatal($"Receiver {receiver.Id} failed to initialize.", ex);
+                    throw;
+                }
+            }
+        }
+
+        static void StartReceivers(List<TransportReceiver> receivers)
+        {
+            foreach (var receiver in receivers)
+            {
+                try
+                {
+                    receiver.Start();
                 }
                 catch (Exception ex)
                 {
@@ -79,7 +92,7 @@ namespace NServiceBus
             }
         }
 
-        List<TransportReceiver> CreateReceivers()
+        List<TransportReceiver> CreateReceivers(IPipeline<ITransportReceiveContext> mainPipeline)
         {
             if (settings.GetOrDefault<bool>("Endpoint.SendOnly"))
             {
@@ -92,7 +105,7 @@ namespace NServiceBus
             var requiredTransactionSupport = settings.GetRequiredTransactionModeForReceives();
             var recoverabilityExecutorFactory = builder.Build<RecoverabilityExecutorFactory>();
 
-            var receivers = BuildMainReceivers(errorQueue, purgeOnStartup, requiredTransactionSupport, dequeueLimitations, recoverabilityExecutorFactory);
+            var receivers = BuildMainReceivers(errorQueue, purgeOnStartup, requiredTransactionSupport, dequeueLimitations, recoverabilityExecutorFactory, mainPipeline);
 
             foreach (var satellitePipeline in settings.Get<SatelliteDefinitions>().Definitions)
             {
@@ -105,7 +118,7 @@ namespace NServiceBus
             return receivers;
         }
 
-        List<TransportReceiver> BuildMainReceivers(string errorQueue, bool purgeOnStartup, TransportTransactionMode requiredTransactionSupport, PushRuntimeSettings dequeueLimitations, RecoverabilityExecutorFactory recoverabilityExecutorFactory)
+        List<TransportReceiver> BuildMainReceivers(string errorQueue, bool purgeOnStartup, TransportTransactionMode requiredTransactionSupport, PushRuntimeSettings dequeueLimitations, RecoverabilityExecutorFactory recoverabilityExecutorFactory, IPipeline<ITransportReceiveContext> mainPipeline)
         {
             var localAddress = settings.LocalAddress();
             var recoverabilityExecutor = recoverabilityExecutorFactory.CreateDefault(eventAggregator, localAddress);
@@ -163,7 +176,6 @@ namespace NServiceBus
         IBuilder builder;
         FeatureActivator featureActivator;
 
-        IPipeline<ITransportReceiveContext> mainPipeline;
         IPipelineCache pipelineCache;
         PipelineConfiguration pipelineConfiguration;
 

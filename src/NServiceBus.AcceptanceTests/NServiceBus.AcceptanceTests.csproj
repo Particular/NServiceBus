@@ -71,6 +71,7 @@
     <Compile Include="Recoverability\When_custom_policy_moves_to_overridden_error_queue.cs" />
     <Compile Include="Recoverability\When_message_is_moved_to_error_queue_with_header_customizations.cs" />
     <Compile Include="MessageDrivenPubSubRoutingExtensions.cs" />
+    <Compile Include="Core\Routing\AutomaticSubscriptions\When_handling_local_event.cs" />
     <Compile Include="Routing\When_configure_routes_for_unobtrusive_messages.cs" />
     <Compile Include="Routing\When_extending_command_routing.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\When_extending_event_routing.cs" />
