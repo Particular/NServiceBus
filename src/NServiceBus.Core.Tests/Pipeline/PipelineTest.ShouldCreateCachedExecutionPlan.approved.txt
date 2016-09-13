@@ -1,6 +1,0 @@
-﻿context0 => value(NServiceBus.Core.Tests.Pipeline.PipelineTest+StageFork).Invoke(context0, value(System.Func`2[NServiceBus.Pipeline.IIncomingPhysicalMessageContext,System.Threading.Tasks.Task])),
-    context1 => value(NServiceBus.Core.Tests.Pipeline.PipelineTest+Behavior1).Invoke(context1, value(System.Func`2[NServiceBus.Pipeline.IIncomingPhysicalMessageContext,System.Threading.Tasks.Task])),
-        context2 => value(NServiceBus.Core.Tests.Pipeline.PipelineTest+Stage1).Invoke(context2, value(System.Func`2[NServiceBus.Pipeline.IIncomingLogicalMessageContext,System.Threading.Tasks.Task])),
-            context3 => value(NServiceBus.Core.Tests.Pipeline.PipelineTest+Behavior2).Invoke(context3, value(System.Func`2[NServiceBus.Pipeline.IIncomingLogicalMessageContext,System.Threading.Tasks.Task])),
-                context4 => value(NServiceBus.Core.Tests.Pipeline.PipelineTest+Stage2).Invoke(context4, value(System.Func`2[NServiceBus.Pipeline.IDispatchContext,System.Threading.Tasks.Task])),
-                    context5 => value(NServiceBus.Core.Tests.Pipeline.PipelineTest+Terminator).Invoke(context5, value(System.Func`2[NServiceBus.Pipeline.PipelineTerminator`1+ITerminatingContext[NServiceBus.Pipeline.IDispatchContext],System.Threading.Tasks.Task])),
