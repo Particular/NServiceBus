@@ -1,8 +1,9 @@
-﻿namespace NServiceBus.AcceptanceTests.Routing.AutomaticSubscriptions
+﻿namespace NServiceBus.AcceptanceTests.Core.Routing.AutomaticSubscriptions
 {
     using System;
     using System.Threading.Tasks;
     using AcceptanceTesting;
+    using AcceptanceTests.Routing;
     using EndpointTemplates;
     using NUnit.Framework;
 
