@@ -17,7 +17,7 @@
     using FakeBuilder = Testing.FakeBuilder;
 
     [TestFixture]
-    public class PipelineTest
+    public class PipelineTests
     {
         [Test]
         public async Task ShouldExecutePipeline()
