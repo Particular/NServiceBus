@@ -138,7 +138,10 @@
             await storage.Subscribe(new Subscriber("sub1", "endpoint"), messageType, new ContextBag());
 
             var subscribers = await storage.GetSubscriberAddressesForMessage(messageTypes, new ContextBag());
-            Assert.AreEqual(1, subscribers.Count());
+
+            var subscriber = subscribers.Single();
+            Assert.AreEqual(subscriber.TransportAddress, "sub1");
+            Assert.AreEqual(subscriber.Endpoint, "endpoint");
         }
 
         [Test]
