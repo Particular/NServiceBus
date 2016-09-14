@@ -24,7 +24,9 @@
             var mapper = new MessageMapper();
             var settings = context.Settings;
             var messageMetadataRegistry = settings.Get<MessageMetadataRegistry>();
-            mapper.Initialize(messageMetadataRegistry.GetAllMessages().Select(m => m.MessageType));
+            mapper.Initialize(messageMetadataRegistry.GetAllMessages()
+                .Where(m => m.MessageType.IsInterface)
+                .Select(m => m.MessageType));
 
             var defaultSerializerAndDefinition = settings.GetMainSerializer();
 
