@@ -154,8 +154,6 @@ namespace NServiceBus.ContainerTests
                 Assert.False(AnotherDisposableComponent.DisposeCalled, "Dispose should not be called on AnotherSingletonComponent because it belongs to main container");
                 Assert.True(DisposableComponent.DisposeCalled, "Dispose should be called on DisposableComponent");
             }
-
-            //Not supported by, typeof(SpringObjectBuilder));
         }
 
         public interface IInstanceToReplaceInNested
