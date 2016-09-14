@@ -60,13 +60,13 @@ namespace NServiceBus
         {
             lock (locker)
             {
-                var found = entries.Any(e =>
+                var subscriptions = entries.Where(e =>
                     e.MessageType == messageType &&
-                    e.Subscriber.TransportAddress == subscriber.TransportAddress);
+                    e.Subscriber.TransportAddress == subscriber.TransportAddress).ToArray();
 
-                if (!found)
+                if (subscriptions.Length == 0)
                 {
-                    Add(subscriber, messageType);
+                    StoreSubscription(subscriber, messageType);
 
                     var entry = new Entry
                     {
@@ -77,6 +77,8 @@ namespace NServiceBus
 
                     log.DebugFormat("Subscriber {0} added for message {1}.", subscriber, messageType);
                 }
+
+                Replace(subscriber, messageType, subscriptions);
             }
             return TaskEx.CompletedTask;
         }
@@ -92,7 +94,7 @@ namespace NServiceBus
 
                 foreach (var entry in toRemove)
                 {
-                    Remove(subscriber.TransportAddress, entry.MessageType);
+                    DeleteSubscription(subscriber.TransportAddress, entry.MessageType);
                     entries.Remove(entry);
                     log.Debug($"Subscriber {subscriber} removed for message {entry.MessageType}.");
                 }
@@ -100,7 +102,25 @@ namespace NServiceBus
             return TaskEx.CompletedTask;
         }
 
-        void Add(Subscriber subscriber, MessageType messageType)
+        void Replace(Subscriber subscriber, MessageType messageType, Entry[] found)
+        {
+            //TODO should we only remove when the new entry is successfully added?
+            foreach (var e in found)
+            {
+                DeleteSubscription(subscriber.TransportAddress, e.MessageType);
+                entries.Remove(e);
+            }
+
+            StoreSubscription(subscriber, messageType);
+            var item = new Entry
+            {
+                MessageType = messageType,
+                Subscriber = subscriber
+            };
+            entries.Add(item);
+        }
+
+        void StoreSubscription(Subscriber subscriber, MessageType messageType)
         {
             var toSend = new Message
             {
@@ -134,7 +154,7 @@ namespace NServiceBus
             return new Subscriber(parts[0], endpointName);
         }
 
-        void Remove(string subscriber, MessageType messageType)
+        void DeleteSubscription(string subscriber, MessageType messageType)
         {
             var messageId = RemoveFromLookup(subscriber, messageType);
 
