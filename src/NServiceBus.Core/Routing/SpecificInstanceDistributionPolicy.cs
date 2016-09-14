@@ -12,11 +12,11 @@ namespace NServiceBus
             this.transportAddressTranslation = transportAddressTranslation;
         }
 
-        public DistributionStrategy GetDistributionStrategy(string endpointName, DistributionStrategyScope scope)
+        public DistributionStrategy GetDistributionStrategy(string endpointName)
         {
             return new SpecificInstanceDistributionStrategy(
                 new EndpointInstance(endpointName, discriminator),
-                transportAddressTranslation, scope);
+                transportAddressTranslation);
         }
 
         readonly Func<EndpointInstance, string> transportAddressTranslation;
@@ -24,7 +24,8 @@ namespace NServiceBus
 
         class SpecificInstanceDistributionStrategy : DistributionStrategy
         {
-            public SpecificInstanceDistributionStrategy(EndpointInstance instance, Func<EndpointInstance, string> transportAddressTranslation, DistributionStrategyScope scope) : base(instance.Endpoint, scope)
+            public SpecificInstanceDistributionStrategy(EndpointInstance instance, Func<EndpointInstance, string> transportAddressTranslation) 
+                : base(instance.Endpoint)
             {
                 this.instance = instance;
                 this.transportAddressTranslation = transportAddressTranslation;

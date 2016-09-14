@@ -64,7 +64,7 @@
 
             class XyzDistributionStrategy : DistributionStrategy
             {
-                public XyzDistributionStrategy(string endpoint) : base(endpoint, DistributionStrategyScope.Send)
+                public XyzDistributionStrategy(string endpoint) : base(endpoint)
                 {
                 }
 

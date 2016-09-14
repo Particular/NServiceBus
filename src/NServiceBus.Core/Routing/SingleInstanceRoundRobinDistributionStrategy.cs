@@ -11,9 +11,8 @@ namespace NServiceBus.Routing
         /// Creates a new <see cref="SingleInstanceRoundRobinDistributionStrategy"/> instance.
         /// </summary>
         /// <param name="endpoint">The name of the endpoint this distribution strategy resolves instances for.</param>
-        /// <param name="scope">The scope for this strategy.</param>
-        public SingleInstanceRoundRobinDistributionStrategy(string endpoint, DistributionStrategyScope scope)
-            : base(endpoint, scope)
+        public SingleInstanceRoundRobinDistributionStrategy(string endpoint)
+            : base(endpoint)
         {
         }
 
