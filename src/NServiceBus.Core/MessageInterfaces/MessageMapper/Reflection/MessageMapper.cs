@@ -150,8 +150,11 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
                 return;
             }
 
+            var typeName = GetTypeName(t);
+
             if (!t.IsInterface)
             {
+                nameToType[typeName] = t.TypeHandle;
                 return;
             }
 
@@ -175,7 +178,6 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
                 return;
             }
 
-            var typeName = GetTypeName(t);
 
             // check and proxy generation is not threadsafe
             lock (messageInitializationLock)
