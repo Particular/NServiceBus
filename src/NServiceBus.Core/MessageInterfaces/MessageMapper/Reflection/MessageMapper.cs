@@ -150,6 +150,11 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
                 return;
             }
 
+            if (!t.IsInterface)
+            {
+                return;
+            }
+
             if (typeof(IEnumerable).IsAssignableFrom(t))
             {
                 InitType(t.GetElementType());
