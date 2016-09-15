@@ -5,11 +5,6 @@ namespace NServiceBus
 
     static class StringConversions
     {
-        public static bool IsType(object instance)
-        {
-            return instance is string;
-        }
-
         public static void EncryptValue(this IEncryptionService encryptionService, ref string stringToEncrypt, IOutgoingLogicalMessageContext context)
         {
             var encryptedValue = encryptionService.Encrypt(stringToEncrypt, context);
