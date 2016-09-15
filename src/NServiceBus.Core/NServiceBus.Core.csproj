@@ -192,7 +192,6 @@
     <Compile Include="CriticalError\CriticalErrorContext.cs" />
     <Compile Include="Encryption\StringConversions.cs" />
     <Compile Include="EndpointConfiguration.cs" />
-    <Compile Include="PipelineContext.cs" />
     <Compile Include="DelayedDelivery\TimeoutManager\TimeoutPollerRunner.cs" />
     <Compile Include="Extensibility\IExtendable.cs" />
     <Compile Include="Features\FeatureDiagnosticData.cs" />
