@@ -120,7 +120,7 @@ namespace NServiceBus.Config
         /// </summary>
         protected override void BaseAdd(ConfigurationElement element)
         {
-            BaseAdd(element, true);
+            BaseAdd(element, false);
         }
 
         /// <summary>
