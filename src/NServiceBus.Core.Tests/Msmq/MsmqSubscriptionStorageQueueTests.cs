@@ -214,9 +214,8 @@
                 messageType1, messageType2, messageType3
             }, new ContextBag())).ToArray();
 
-            Assert.That(subscribers.Length, Is.EqualTo(2));
+            Assert.That(subscribers.Length, Is.EqualTo(1));
             Assert.That(subscribers, Has.Exactly(1).Matches<Subscriber>(s => s.TransportAddress == "sub1" && s.Endpoint == null));
-            Assert.That(subscribers, Has.Exactly(1).Matches<Subscriber>(s => s.TransportAddress == "sub1" && s.Endpoint == "endpointA"));
         }
 
         static MsmqSubscriptionStorage CreateAndInit(FakeStorageQueue queue)
