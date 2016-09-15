@@ -11,13 +11,10 @@
         [Test]
         public async Task Should_not_involve_mapper()
         {
-            var exToSend = new Exception
+            var exToSend = new Exception("boom")
             {
                 HelpLink = "test"
             };
-
-            //the xml serializer will only transfer get/set props so we use help link for this test. You would have to use the
-            // json serializer for all the props to transfer properly
 
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<Endpoint>(e => e
@@ -29,6 +26,7 @@
                 .Run();
 
             Assert.AreEqual("test", context.ReceivedProperty.HelpLink);
+            Assert.AreEqual("boom", context.ReceivedProperty.Message);
         }
 
         class Context : ScenarioContext
@@ -41,7 +39,8 @@
         {
             public Endpoint()
             {
-                EndpointSetup<DefaultServer>();
+                //note: we need to use json.net since our xml serializer can't handle properties with readonly properties properly
+                EndpointSetup<DefaultServer>(c => c.UseSerialization<JsonSerializer>());
             }
 
             class MessageWithPropContainingInterfacesHandler : IHandleMessages<MessageWithPropContainingInterfaces>
