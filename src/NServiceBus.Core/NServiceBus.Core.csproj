@@ -216,7 +216,6 @@
     <Compile Include="Persistence\InMemory\InMemorySynchronizedStorage.cs" />
     <Compile Include="Persistence\InMemory\InMemoryTransactionalSynchronizedStorageAdapter.cs" />
     <Compile Include="Persistence\Msmq\Msmq.cs" />
-    <Compile Include="Persistence\Msmq\SubscriptionStorage\Entry.cs" />
     <Compile Include="Persistence\Msmq\SubscriptionStorage\IMsmqSubscriptionStorageQueue.cs" />
     <Compile Include="Persistence\Msmq\SubscriptionStorage\MsmqSubscriptionPersistence.cs" />
     <Compile Include="Persistence\Msmq\SubscriptionStorage\MsmqSubscriptionStorage.cs" />
