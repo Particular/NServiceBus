@@ -120,7 +120,14 @@ namespace NServiceBus.Config
         /// </summary>
         protected override void BaseAdd(ConfigurationElement element)
         {
-            BaseAdd(element, true);
+            try
+            {
+                BaseAdd(element, true);
+            }
+            catch (ConfigurationErrorsException e)
+            {
+                throw new Exception($"An ambigious message endpoint mapping has been defined at line: {e.Line}. Check the 'MessageEndpointMappings' section in {e.Filename} for conflicting mappings.", e);
+            }
         }
 
         /// <summary>
