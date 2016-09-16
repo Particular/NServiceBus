@@ -84,7 +84,7 @@
 
         void PurchaseButton_Click(object sender, EventArgs e)
         {
-            Process.Start("http://particular.net/licensing");
+            Process.Start("https://particular.net/licensing");
         }
 
         void getTrialLicenseButton_Click(object sender, EventArgs e)
@@ -98,7 +98,7 @@
 
             if (CurrentLicense != null && CurrentLicense.IsTrialLicense)
             {   
-                var builder = new UriBuilder("http://particular.net/extend-nservicebus-trial")
+                var builder = new UriBuilder("https://particular.net/extend-nservicebus-trial")
                 {
                     Query = string.Join("&", parameterCollection.AllKeys.Select(key => $"{HttpUtility.UrlEncode(key)}={HttpUtility.UrlEncode(parameterCollection[key])}"))
                 };
@@ -110,7 +110,7 @@
             {
                 // We won't ever get here. If it's a extended license, then this dialog wont be invoked.
                 // See LicenseManager::InitializeLicense function for the why. Code is left here for cleanup later.
-                Process.Start("http://particular.net/extend-your-trial-45"); 
+                Process.Start("https://particular.net/extend-your-trial-45"); 
             }
         }
 

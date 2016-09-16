@@ -35,7 +35,7 @@ namespace NServiceBus
 
             if (LicenseExpirationChecker.HasLicenseExpired(foundLicense))
             {
-                Logger.Fatal("Your license has expired! You can renew it at http://particular.net/licensing.");
+                Logger.Fatal("Your license has expired! You can renew it at https://particular.net/licensing.");
                 return;
             }
 
