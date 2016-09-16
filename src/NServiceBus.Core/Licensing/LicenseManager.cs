@@ -35,6 +35,13 @@ namespace NServiceBus
 
             if (LicenseExpirationChecker.HasLicenseExpired(foundLicense))
             {
+                // foundLicense could be a trial license.  The extended trail licenses are installed like a commercial license
+                // Checking both the IsTrailLicense and the IsExtendedTrial properties due to a fault with the extended trial license generation 
+                if (foundLicense.IsTrialLicense || foundLicense.IsExtendedTrial)
+                {
+                    PromptUserForLicenseIfTrialHasExpired();
+                    return;
+                }
                 Logger.Fatal("Your license has expired! You can renew it at https://particular.net/licensing.");
                 return;
             }
