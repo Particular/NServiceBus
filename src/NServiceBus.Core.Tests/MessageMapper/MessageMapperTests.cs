@@ -72,13 +72,21 @@
         }
 
         [Test]
-        public void Should_create_instance_of_a_type_that_contains_exception_property()
+        public void Should_create_instance_of_concrete_type_with_illegal_interface_property()
         {
             var mapper = new MessageMapper();
 
-            mapper.Initialize(new[] { typeof(MessageClassWithExceptionProperty) });
+            mapper.Initialize(new[] { typeof(ConcreteMessageWithIllegalInterfaceProperty) });
 
-            mapper.CreateInstance<MessageClassWithExceptionProperty>();
+            mapper.CreateInstance<ConcreteMessageWithIllegalInterfaceProperty>();
+        }
+
+        [Test]
+        public void Should_fail_for_interface_message_with_illegal_interface_property()
+        {
+            var mapper = new MessageMapper();
+
+            Assert.Throws<Exception>(() => mapper.Initialize(new[] { typeof(InterfaceMessageWithIllegalInterfaceProperty) }));
         }
 
 
@@ -103,9 +111,22 @@
             }
         }
 
-        public class MessageClassWithExceptionProperty
+        public class ConcreteMessageWithIllegalInterfaceProperty
         {
-            public Exception Error { get; set; }
+            public IIllegalProperty MyProperty { get; set; }
+        }
+
+        public interface InterfaceMessageWithIllegalInterfaceProperty
+        {
+            IIllegalProperty MyProperty { get; set; }
+        }
+
+        public interface IIllegalProperty
+        {
+            string SomeProperty { get; set; }
+
+            //this is not supported by our mapper
+            void SomeMethod();
         }
     }
 }
