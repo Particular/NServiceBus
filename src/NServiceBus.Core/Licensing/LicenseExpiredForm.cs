@@ -108,8 +108,9 @@
             }
             else
             {
-                Process.Start("http://particular.net/extend-your-trial-45");
-                //TODO: Check with Alex whether we need to provide the same parameters to the ContactUs url as well. 
+                // We won't ever get here. If it's a extended license, then this dialog wont be invoked.
+                // See LicenseManager::InitializeLicense function for the why. Code is left here for cleanup later.
+                Process.Start("http://particular.net/extend-your-trial-45"); 
             }
         }
 
