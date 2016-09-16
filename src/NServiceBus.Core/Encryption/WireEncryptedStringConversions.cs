@@ -5,11 +5,6 @@ namespace NServiceBus
 
     static class WireEncryptedStringConversions
     {
-        public static bool IsType(object instance)
-        {
-            return instance is WireEncryptedString;
-        }
-
         public static void EncryptValue(this IEncryptionService encryptionService, WireEncryptedString wireEncryptedString, IOutgoingLogicalMessageContext context)
         {
             wireEncryptedString.EncryptedValue = encryptionService.Encrypt(wireEncryptedString.Value, context);

@@ -100,7 +100,6 @@
     <Compile Include="Audit\AuditToDispatchConnector.cs" />
     <Compile Include="Audit\InvokeAuditPipelineBehavior.cs" />
     <Compile Include="DelayedDelivery\TimeoutManagerRoutingStrategy.cs" />
-    <Compile Include="DelayedDelivery\TimeoutManager\TimeoutProcessingFailureInfo.cs" />
     <Compile Include="Features\SatelliteDefinitions.cs" />
     <Compile Include="Notifications.cs" />
     <Compile Include="Notifications\EventAggregator.cs" />
@@ -193,7 +192,6 @@
     <Compile Include="CriticalError\CriticalErrorContext.cs" />
     <Compile Include="Encryption\StringConversions.cs" />
     <Compile Include="EndpointConfiguration.cs" />
-    <Compile Include="PipelineContext.cs" />
     <Compile Include="DelayedDelivery\TimeoutManager\TimeoutPollerRunner.cs" />
     <Compile Include="Extensibility\IExtendable.cs" />
     <Compile Include="Features\FeatureDiagnosticData.cs" />
