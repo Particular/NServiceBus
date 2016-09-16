@@ -5,15 +5,22 @@ namespace NServiceBus.AcceptanceTests.Routing
 
     static class SubscriptionBehaviorExtensions
     {
-        public static void OnEndpointSubscribed<TContext>(this EndpointConfiguration b, Action<SubscriptionEventArgs, TContext> action) where TContext : ScenarioContext
+        public static void OnEndpointSubscribed<TContext>(this EndpointConfiguration configuration, Action<SubscriptionEventArgs, TContext> action) where TContext : ScenarioContext
         {
-            b.Pipeline.Register<SubscriptionBehavior<TContext>.Registration>();
-
-            b.RegisterComponents(c => c.ConfigureComponent(builder =>
+            configuration.Pipeline.Register(new SubscriptionBehavior<TContext>.Registration("NotifySubscriptionBehavior", builder =>
             {
                 var context = builder.Build<TContext>();
-                return new SubscriptionBehavior<TContext>(action, context);
-            }, DependencyLifecycle.InstancePerCall));
+                return new SubscriptionBehavior<TContext>(action, context, MessageIntentEnum.Subscribe);
+            }));
+        }
+
+        public static void OnEndpointUnsubscribed<TContext>(this EndpointConfiguration configuration, Action<SubscriptionEventArgs, TContext> action) where TContext : ScenarioContext
+        {
+            configuration.Pipeline.Register(new SubscriptionBehavior<TContext>.Registration("NotifyUnsubscriptionBehavior", builder =>
+            {
+                var context = builder.Build<TContext>();
+                return new SubscriptionBehavior<TContext>(action, context, MessageIntentEnum.Unsubscribe);
+            }));
         }
     }
 }
