@@ -89,14 +89,15 @@
 
         void getTrialLicenseButton_Click(object sender, EventArgs e)
         {
-            if (CurrentLicense != null && CurrentLicense.IsTrialLicense)
+            var parameterCollection = new NameValueCollection
             {
-                var parameterCollection = new NameValueCollection
-                {
-                    {"NugetUser", IsNugetUser().ToString()},
-                    {"PlatformInstaller", HasUserInstalledPlatform().ToString()},
-                    {"TrialStartDate", TrialStartDateStore.GetTrialStartDate().ToString()}
-                };
+                {"NugetUser", IsNugetUser().ToString()},
+                {"PlatformInstaller", HasUserInstalledPlatform().ToString()},
+                {"TrialStartDate", TrialStartDateStore.GetTrialStartDate().ToString()}
+            };
+
+            if (CurrentLicense != null && CurrentLicense.IsTrialLicense)
+            {   
                 var builder = new UriBuilder("http://particular.net/extend-nservicebus-trial")
                 {
                     Query = string.Join("&", parameterCollection.AllKeys.Select(key => $"{HttpUtility.UrlEncode(key)}={HttpUtility.UrlEncode(parameterCollection[key])}"))
@@ -108,7 +109,6 @@
             else
             {
                 Process.Start("http://particular.net/extend-your-trial-45");
-                // the above url redirects to: http://particular.net/contact-us-to-extend-your-trial-period
                 //TODO: Check with Alex whether we need to provide the same parameters to the ContactUs url as well. 
             }
         }
@@ -127,8 +127,6 @@
 
         bool HasUserInstalledPlatform()
         {
-            //TODO: Should we check HKLM? Also there seems to be another key Software\Particular\PlatformInstaller
-            //TODO: is that an older version of Platform Installer? Should we check that as well?
             using (var regRoot = Registry.CurrentUser.OpenSubKey(@"Software\ParticularSoftware\PlatformInstaller"))
             {
                 if (regRoot != null)
