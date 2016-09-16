@@ -96,22 +96,26 @@
                 {"TrialStartDate", TrialStartDateStore.GetTrialStartDate().ToString()}
             };
 
+            UriBuilder builder;
             if (CurrentLicense != null && CurrentLicense.IsTrialLicense)
-            {   
-                var builder = new UriBuilder("https://particular.net/extend-nservicebus-trial")
+            {
+                // Original 14 day trial expired, give the user a chance to extend trial
+                builder = new UriBuilder("https://particular.net/extend-nservicebus-trial")
                 {
                     Query = string.Join("&", parameterCollection.AllKeys.Select(key => $"{HttpUtility.UrlEncode(key)}={HttpUtility.UrlEncode(parameterCollection[key])}"))
                 };
-
-                // Create query string with all values
-                Process.Start(builder.Uri.AbsoluteUri);
             }
             else
             {
-                // We won't ever get here. If it's a extended license, then this dialog wont be invoked.
-                // See LicenseManager::InitializeLicense function for the why. Code is left here for cleanup later.
-                Process.Start("https://particular.net/extend-your-trial-45"); 
+                // Extended trial license expired, ask the user to Contact Sales
+                builder = new UriBuilder("https://particular.net/extend-your-trial-45")
+                {
+                    Query = string.Join("&", parameterCollection.AllKeys.Select(key => $"{HttpUtility.UrlEncode(key)}={HttpUtility.UrlEncode(parameterCollection[key])}"))
+                };
             }
+
+            // Create query string with all values
+            Process.Start(builder.Uri.AbsoluteUri);
         }
 
         bool IsNugetUser()
