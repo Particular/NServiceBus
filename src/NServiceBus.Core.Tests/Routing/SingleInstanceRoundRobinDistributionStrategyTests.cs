@@ -11,7 +11,7 @@
         [Test]
         public void ShouldRoundRobinOverAllProvidedInstances()
         {
-            var strategy = new SingleInstanceRoundRobinDistributionStrategy("endpointA", DistributionStrategyScope.Send);
+            var strategy = new SingleInstanceRoundRobinDistributionStrategy("endpointA");
 
             var instances = new[]
             {
@@ -34,7 +34,7 @@
         [Test]
         public void ShouldRestartAtFirstInstance()
         {
-            var strategy = new SingleInstanceRoundRobinDistributionStrategy("endpointA", DistributionStrategyScope.Send);
+            var strategy = new SingleInstanceRoundRobinDistributionStrategy("endpointA");
 
             var instances = new[]
             {
@@ -55,7 +55,7 @@
         [Test]
         public void WhenNewInstancesAdded_ShouldIncludeAllInstancesInDistribution()
         {
-            var strategy = new SingleInstanceRoundRobinDistributionStrategy("endpointA", DistributionStrategyScope.Send);
+            var strategy = new SingleInstanceRoundRobinDistributionStrategy("endpointA");
 
             var instances = new []
             {
@@ -78,7 +78,7 @@
         [Test]
         public void WhenInstancesRemoved_ShouldOnlyDistributeAcrossRemainingInstances()
         {
-            var strategy = new SingleInstanceRoundRobinDistributionStrategy("endpointA", DistributionStrategyScope.Send);
+            var strategy = new SingleInstanceRoundRobinDistributionStrategy("endpointA");
 
             var instances = new []
             {

@@ -9,13 +9,11 @@ namespace NServiceBus.Routing
         /// Creates a new <see cref="DistributionStrategy"/>.
         /// </summary>
         /// <param name="endpoint">The name of the endpoint this distribution strategy resolves instances for.</param>
-        /// <param name="scope">The scope for this strategy.</param>
-        protected DistributionStrategy(string endpoint, DistributionStrategyScope scope)
+        protected DistributionStrategy(string endpoint)
         {
             Guard.AgainstNullAndEmpty(nameof(endpoint), endpoint);
 
             Endpoint = endpoint;
-            Scope = scope;
         }
 
         /// <summary>
@@ -27,10 +25,5 @@ namespace NServiceBus.Routing
         /// The name of the endpoint this distribution strategy resolves instances for.
         /// </summary>
         public string Endpoint { get; }
-
-        /// <summary>
-        /// The scope of this strategy.
-        /// </summary>
-        public DistributionStrategyScope Scope { get; }
     }
 }

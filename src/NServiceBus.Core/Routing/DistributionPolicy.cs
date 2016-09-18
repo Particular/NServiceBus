@@ -1,6 +1,5 @@
 namespace NServiceBus
 {
-    using System;
     using System.Collections.Concurrent;
     using Routing;
 
@@ -17,14 +16,14 @@ namespace NServiceBus
         {
             Guard.AgainstNull(nameof(distributionStrategy), distributionStrategy);
 
-            configuredStrategies[Tuple.Create(distributionStrategy.Endpoint, distributionStrategy.Scope)] = distributionStrategy;
+            configuredStrategies[distributionStrategy.Endpoint] = distributionStrategy;
         }
 
-        DistributionStrategy IDistributionPolicy.GetDistributionStrategy(string endpointName, DistributionStrategyScope scope)
+        DistributionStrategy IDistributionPolicy.GetDistributionStrategy(string endpointName)
         {
-            return configuredStrategies.GetOrAdd(Tuple.Create(endpointName, scope), key => new SingleInstanceRoundRobinDistributionStrategy(key.Item1, key.Item2));
+            return configuredStrategies.GetOrAdd(endpointName, key => new SingleInstanceRoundRobinDistributionStrategy(key));
         }
 
-        ConcurrentDictionary<Tuple<string, DistributionStrategyScope>, DistributionStrategy> configuredStrategies = new ConcurrentDictionary<Tuple<string, DistributionStrategyScope>, DistributionStrategy>();
+        ConcurrentDictionary<string, DistributionStrategy> configuredStrategies = new ConcurrentDictionary<string, DistributionStrategy>();
     }
 }

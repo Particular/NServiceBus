@@ -296,11 +296,6 @@ namespace NServiceBus
         public DistributionPolicy() { }
         public void SetDistributionStrategy(NServiceBus.Routing.DistributionStrategy distributionStrategy) { }
     }
-    public enum DistributionStrategyScope
-    {
-        Send = 0,
-        Publish = 1,
-    }
     public class static DurableMessagesConfig
     {
         public static void DisableDurableMessages(this NServiceBus.EndpointConfiguration config) { }
@@ -2556,9 +2551,8 @@ namespace NServiceBus.Routing
     }
     public abstract class DistributionStrategy
     {
-        protected DistributionStrategy(string endpoint, NServiceBus.DistributionStrategyScope scope) { }
+        protected DistributionStrategy(string endpoint) { }
         public string Endpoint { get; }
-        public NServiceBus.DistributionStrategyScope Scope { get; }
         public abstract string SelectReceiver(string[] receiverAddresses);
     }
     public sealed class EndpointInstance
@@ -2601,7 +2595,7 @@ namespace NServiceBus.Routing
     }
     public class SingleInstanceRoundRobinDistributionStrategy : NServiceBus.Routing.DistributionStrategy
     {
-        public SingleInstanceRoundRobinDistributionStrategy(string endpoint, NServiceBus.DistributionStrategyScope scope) { }
+        public SingleInstanceRoundRobinDistributionStrategy(string endpoint) { }
         public override string SelectReceiver(string[] receiverAddresses) { }
     }
     public class UnicastAddressTag : NServiceBus.Routing.AddressTag

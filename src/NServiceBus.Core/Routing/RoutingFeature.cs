@@ -63,7 +63,7 @@
             {
                 context.Pipeline.Register(b =>
                 {
-                    var unicastPublishRouter = new UnicastPublishRouter(b.Build<MessageMetadataRegistry>(), b.Build<ISubscriptionStorage>());
+                    var unicastPublishRouter = new UnicastPublishRouter(b.Build<MessageMetadataRegistry>(), b.Build<ISubscriptionStorage>(), endpointInstances, i => transportInfrastructure.ToTransportAddress(LogicalAddress.CreateRemoteAddress(i)));
                     return new UnicastPublishRouterConnector(unicastPublishRouter, distributionPolicy);
                 }, "Determines how the published messages should be routed");
             }

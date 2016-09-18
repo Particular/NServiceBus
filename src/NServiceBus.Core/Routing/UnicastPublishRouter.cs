@@ -12,17 +12,19 @@ namespace NServiceBus
 
     class UnicastPublishRouter : IUnicastPublishRouter
     {
-        public UnicastPublishRouter(MessageMetadataRegistry messageMetadataRegistry, ISubscriptionStorage subscriptionStorage)
+        public UnicastPublishRouter(MessageMetadataRegistry messageMetadataRegistry, ISubscriptionStorage subscriptionStorage, EndpointInstances endpointInstances, Func<EndpointInstance, string> transportAddressTranslation)
         {
             this.messageMetadataRegistry = messageMetadataRegistry;
             this.subscriptionStorage = subscriptionStorage;
+            this.endpointInstances = endpointInstances;
+            this.transportAddressTranslation = transportAddressTranslation;
         }
 
         public async Task<IEnumerable<UnicastRoutingStrategy>> Route(Type messageType, IDistributionPolicy distributionPolicy, ContextBag contextBag)
         {
             var typesToRoute = messageMetadataRegistry.GetMessageMetadata(messageType).MessageHierarchy;
 
-            var subscribers = await GetSubscribers(contextBag, typesToRoute).ConfigureAwait(false);
+            var subscribers = (await GetSubscribers(contextBag, typesToRoute).ConfigureAwait(false)).ToArray();
 
             var selectedDestinations = SelectDestinationsForEachEndpoint(distributionPolicy, subscribers);
 
@@ -48,7 +50,11 @@ namespace NServiceBus
                 }
                 else
                 {
-                    var subscriber = distributionPolicy.GetDistributionStrategy(group.First().Endpoint, DistributionStrategyScope.Publish).SelectReceiver(group.Select(s => s.TransportAddress).ToArray());
+                    var endpointName = @group.First().Endpoint;
+
+                    var instances = endpointInstances.FindInstances(endpointName).Select(e => transportAddressTranslation(e)).ToArray();
+
+                    var subscriber = distributionPolicy.GetDistributionStrategy(endpointName).SelectReceiver(instances);
                     addresses.Add(subscriber);
                 }
             }
@@ -63,6 +69,8 @@ namespace NServiceBus
             return subscribers;
         }
 
+        EndpointInstances endpointInstances;
+        Func<EndpointInstance, string> transportAddressTranslation;
         MessageMetadataRegistry messageMetadataRegistry;
         ISubscriptionStorage subscriptionStorage;
     }

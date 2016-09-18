@@ -39,7 +39,7 @@ namespace NServiceBus.Core.Tests.Routing
 
         static string InvokeDistributionStrategy(IDistributionPolicy policy, string endpointName, string[] instanceAddress)
         {
-            return policy.GetDistributionStrategy(endpointName, DistributionStrategyScope.Send).SelectReceiver(instanceAddress);
+            return policy.GetDistributionStrategy(endpointName).SelectReceiver(instanceAddress);
         }
     }
 }

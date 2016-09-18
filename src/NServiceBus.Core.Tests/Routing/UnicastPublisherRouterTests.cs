@@ -43,12 +43,20 @@
             subscriptionStorage.Subscribers.Add(new Subscriber("shipping1", shipping));
             subscriptionStorage.Subscribers.Add(new Subscriber("shipping2", shipping));
 
+            endpointInstances.AddOrReplaceInstances("key", new List<EndpointInstance>
+            {
+                new EndpointInstance("Sales", "1"),
+                new EndpointInstance("Sales", "2"),
+                new EndpointInstance("Shipping", "1"),
+                new EndpointInstance("Shipping", "2")
+            });
+
             var routes = (await router.Route(typeof(Event), new DistributionPolicy(), new ContextBag())).ToArray();
 
             var destinations = routes.Select(ExtractDestination).ToList();
             Assert.AreEqual(2, destinations.Count);
-            Assert.Contains("sales1", destinations);
-            Assert.Contains("shipping1", destinations);
+            Assert.Contains("Sales-1", destinations);
+            Assert.Contains("Shipping-1", destinations);
         }
 
         [Test]
@@ -56,31 +64,11 @@
         {
             subscriptionStorage.Subscribers.Add(new Subscriber("address", null));
             subscriptionStorage.Subscribers.Add(new Subscriber("address", null));
-            subscriptionStorage.Subscribers.Add(new Subscriber("address", "sales"));
-            subscriptionStorage.Subscribers.Add(new Subscriber("address", "sales"));
-            subscriptionStorage.Subscribers.Add(new Subscriber("address", "shipping"));
 
             var routes = await router.Route(typeof(Event), new DistributionPolicy(), new ContextBag());
 
             Assert.AreEqual(1, routes.Count());
             Assert.AreEqual("address", ExtractDestination(routes.Single()));
-        }
-
-        [Test]
-        public async Task Should_not_route_events_to_configured_endpoint_instances()
-        {
-            var logicalEndpoint = "sales";
-            subscriptionStorage.Subscribers.Add(new Subscriber("address", logicalEndpoint));
-            endpointInstances.AddOrReplaceInstances("A", new List<EndpointInstance>
-            {
-                new EndpointInstance(logicalEndpoint, "1"),
-                new EndpointInstance(logicalEndpoint, "2")
-            });
-
-            var routes = await router.Route(typeof(Event), new DistributionPolicy(), new ContextBag());
-
-            Assert.AreEqual(1, routes.Count());
-            Assert.AreEqual("address", ExtractDestination(routes.First()));
         }
 
         [Test]
@@ -106,7 +94,9 @@
             subscriptionStorage = new FakeSubscriptionStorage();
             router = new UnicastPublishRouter(
                 metadataRegistry,
-                subscriptionStorage);
+                subscriptionStorage,
+                endpointInstances,
+                i => i.Endpoint+"-"+i.Discriminator);
         }
 
         class FakeSubscriptionStorage : ISubscriptionStorage
