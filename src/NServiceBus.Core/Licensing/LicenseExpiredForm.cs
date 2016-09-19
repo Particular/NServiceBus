@@ -114,7 +114,7 @@
                 };
             }
 
-            // Create query string with all values
+            // Open the url with the querystrings
             Process.Start(builder.Uri.AbsoluteUri);
         }
 
