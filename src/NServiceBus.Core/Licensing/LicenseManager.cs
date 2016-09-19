@@ -35,10 +35,11 @@ namespace NServiceBus
 
             if (LicenseExpirationChecker.HasLicenseExpired(foundLicense))
             {
-                // foundLicense could be a trial license.  The extended trail licenses are installed like a commercial license
-                // Checking both the IsTrailLicense and the IsExtendedTrial properties due to a fault with the extended trial license generation 
-                if (foundLicense.IsTrialLicense || foundLicense.IsExtendedTrial)
+                // If the found license is a trial license then it is actually a extended trial license not a locally generated trial.
+                // Set the property to indicate that it is an extended license as it's not set by the license generation 
+                if (foundLicense.IsTrialLicense)
                 {
+                    foundLicense.IsExtendedTrial = true;
                     PromptUserForLicenseIfTrialHasExpired();
                     return;
                 }

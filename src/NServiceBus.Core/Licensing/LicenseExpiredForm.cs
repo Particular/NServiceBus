@@ -27,7 +27,7 @@
 
             warningText.Text = "The trial period is now over";
 
-            if (CurrentLicense != null && CurrentLicense.IsTrialLicense)
+            if (CurrentLicense != null && !CurrentLicense.IsExtendedTrial)
             {
                 Text = "NServiceBus - Initial Trial Expired";
                 instructionsText.Text = "To extend the free trial, click 'Extend trial' and register online. When the license file is received, save it to disk and then click the 'Browse' button below to select it.";
@@ -97,7 +97,7 @@
             };
 
             UriBuilder builder;
-            if (CurrentLicense != null && CurrentLicense.IsTrialLicense)
+            if (CurrentLicense != null && !CurrentLicense.IsExtendedTrial)
             {
                 // Original 14 day trial expired, give the user a chance to extend trial
                 builder = new UriBuilder("https://particular.net/extend-nservicebus-trial")
