@@ -126,7 +126,7 @@ namespace NServiceBus.Config
             }
             catch (ConfigurationErrorsException e)
             {
-                throw new Exception($"An ambigious message endpoint mapping has been defined at line: {e.Line}. Check the 'MessageEndpointMappings' section in {e.Filename} for conflicting mappings.", e);
+                throw new Exception($"An ambiguous message endpoint mapping has been defined at line: {e.Line}. Check the 'MessageEndpointMappings' section in {e.Filename} for conflicting mappings.", e);
             }
         }
 
