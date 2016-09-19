@@ -34,13 +34,6 @@
             Assert.AreEqual(0, subscribers.Count());
         }
 
-        static MsmqSubscriptionStorage CreateAndInit(FakeStorageQueue queue)
-        {
-            var storage = new MsmqSubscriptionStorage(queue);
-            storage.Init();
-            return storage;
-        }
-
         [Test]
         public async Task Subscribers_are_deduplicated_based_on_transport_address_comparison_case_invariant()
         {
@@ -88,7 +81,6 @@
             Assert.IsTrue(subscribers.Any(s => s.TransportAddress == "legacy" && s.Endpoint == null));
             Assert.IsTrue(subscribers.Any(s => s.TransportAddress == "new" && s.Endpoint == "endpoint"));
         }
-
 
         [Test]
         public async Task Can_subscribe_to_multiple_events()
@@ -138,7 +130,10 @@
             await storage.Subscribe(new Subscriber("sub1", "endpoint"), messageType, new ContextBag());
 
             var subscribers = await storage.GetSubscriberAddressesForMessage(messageTypes, new ContextBag());
-            Assert.AreEqual(1, subscribers.Count());
+
+            var subscriber = subscribers.Single();
+            Assert.AreEqual(subscriber.TransportAddress, "sub1");
+            Assert.AreEqual(subscriber.Endpoint, "endpoint");
         }
 
         [Test]
@@ -158,11 +153,87 @@
             Assert.AreEqual(0, subscribers.Count());
         }
 
-        class SomeMessage : IMessage
+        [Test]
+        public async Task Should_handle_subscriptions_from_v5()
+        {
+            var queue = new FakeStorageQueue();
+            var storage = CreateAndInit(queue);
+
+            var messageType = new MessageType(typeof(SomeMessage));
+            await storage.Subscribe(new Subscriber("sub1", null), messageType, new ContextBag());
+
+            var subscriber = (await storage.GetSubscriberAddressesForMessage(new[] { messageType }, new ContextBag())).Single();
+
+            Assert.That(subscriber.TransportAddress, Is.EqualTo("sub1"));
+            Assert.That(subscriber.Endpoint, Is.Null);
+        }
+
+        [Test]
+        public async Task Should_read_subscriptions_from_queue_when_initializing()
+        {
+            var messageType = new MessageType(typeof(SomeMessage));
+
+            var queue = new FakeStorageQueue();
+            queue.Send(new Message
+            {
+                Label = "subscriberA|endpointA",
+                Body = $"{messageType.TypeName}, Version={messageType.Version}"
+            });
+            queue.Send(new Message
+            {
+                Label = "subscriberB|",
+                Body = $"{messageType.TypeName}, Version={messageType.Version}"
+            });
+            var storage = CreateAndInit(queue);
+
+            var subscribers = (await storage.GetSubscriberAddressesForMessage(new[]
+            {
+                messageType
+            }, new ContextBag())).ToArray();
+
+            Assert.That(subscribers.Length, Is.EqualTo(2));
+            Assert.That(subscribers, Has.Exactly(1).Matches<Subscriber>(s => s.TransportAddress == "subscriberA" && s.Endpoint == "endpointA"));
+            Assert.That(subscribers, Has.Exactly(1).Matches<Subscriber>(s => s.TransportAddress == "subscriberB" && s.Endpoint == null));
+        }
+
+        [Test]
+        public async Task Should_deduplicate_subscribers()
+        {
+            var queue = new FakeStorageQueue();
+            var storage = CreateAndInit(queue);
+
+            var messageType1 = new MessageType(typeof(SomeMessage));
+            var messageType2 = new MessageType(typeof(OtherMessage));
+            var messageType3 = new MessageType(typeof(AnotherMessage));
+            await storage.Subscribe(new Subscriber("sub1", "endpointA"), messageType1, new ContextBag());
+            await storage.Subscribe(new Subscriber("sub1", "endpointA"), messageType2, new ContextBag());
+            await storage.Subscribe(new Subscriber("sub1", null), messageType3, new ContextBag());
+
+            var subscribers = (await storage.GetSubscriberAddressesForMessage(new[]
+            {
+                messageType1, messageType2, messageType3
+            }, new ContextBag())).ToArray();
+
+            Assert.That(subscribers.Length, Is.EqualTo(1));
+            Assert.That(subscribers, Has.Exactly(1).Matches<Subscriber>(s => s.TransportAddress == "sub1" && s.Endpoint == null));
+        }
+
+        static MsmqSubscriptionStorage CreateAndInit(FakeStorageQueue queue)
+        {
+            var storage = new MsmqSubscriptionStorage(queue);
+            storage.Init();
+            return storage;
+        }
+
+        class SomeMessage
         {
         }
 
-        class OtherMessage : IMessage
+        class OtherMessage
+        {
+        }
+
+        class AnotherMessage
         {
         }
 
