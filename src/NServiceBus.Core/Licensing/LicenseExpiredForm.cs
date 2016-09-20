@@ -3,6 +3,7 @@
     using System;
     using System.Diagnostics;
     using System.Globalization;
+    using System.Reflection;
     using System.Windows.Forms;
     using Janitor;
     using Logging;
@@ -23,21 +24,27 @@
         {
             base.OnLoad(e);
 
-            warningText.Text = "The trial period is now over";
+            var version = Assembly.GetExecutingAssembly().GetName().Version;
 
             if (CurrentLicense != null && !CurrentLicense.IsExtendedTrial)
             {
-                Text = "NServiceBus - Initial Trial Expired";
-                instructionsText.Text = "To extend the free trial, click 'Extend trial' and register online. When the license file is received, save it to disk and then click the 'Browse' button below to select it.";
+                Text = $"NServiceBus License (v{version.ToString(3)})";
+                warningText.Text = "It's time to extend your trial.";
+                instructionsText.Text = @"Your 14-day trial is up, but you can instantly extend your trial for 30 days.
+
+When you receive your new license file, save it to disk and click the 'Browse' button to select it.";
                 getTrialLicenseButton.Text = "Extend Trial";
                 purchaseButton.Visible = false;
                 getTrialLicenseButton.Left = purchaseButton.Left;
             }
             else
             {
-                Text = "NServiceBus - Extended Trial Expired";
-                instructionsText.Text = "Click 'Contact Sales' to request an extension to the free trial, or click 'Buy Now' to purchase a license online. When the license file is received, save it to disk and then click the 'Browse' button below to select it.";
-                getTrialLicenseButton.Text = "Contact Sales";
+                Text = $"NServiceBus License (v{version.ToString(3)})";
+                warningText.Text = "It's time to buy a license.";
+                instructionsText.Text = @"Your 45-day trial is up, but we don't want to stop you in your tracks. If you need to extend your trial, please contact us and we'll work something out.
+
+When you receive your new license file, save it to disk and click the 'Browse' button to select it.";
+                getTrialLicenseButton.Text = "Contact Us";
             }
 
             Visible = true;
@@ -87,7 +94,6 @@
 
         void getTrialLicenseButton_Click(object sender, EventArgs e)
         {
-
             string baseUrl;
             if (CurrentLicense != null && !CurrentLicense.IsExtendedTrial)
             {
@@ -102,9 +108,9 @@
 
             var trialStart = TrialStartDateStore.GetTrialStartDate().ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
             var url = $"{baseUrl}?NugetUser={IsNugetUser()}&PlatformInstaller={HasUserInstalledPlatform()}&TrialStartDate={trialStart}";
-            
+
             // Open the url with the querystrings
-            Process.Start(url); 
+            Process.Start(url);
         }
 
         static string IsNugetUser()
@@ -113,7 +119,7 @@
             {
                 if (regRoot != null)
                 {
-                    return (string)regRoot.GetValue("NuGetUser", "false");
+                    return (string) regRoot.GetValue("NuGetUser", "false");
                 }
             }
             return bool.FalseString;

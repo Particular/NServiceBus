@@ -71,7 +71,7 @@ namespace NServiceBus
             }
             else
             {
-                var message = $"Trial for Particular Service Platform is still active, trial expires on {trialLicense.ExpirationDate.Value.ToLocalTime().ToShortDateString()}.";
+                var message = $"Trial for the Particular Service Platform has been active since {trialStartDate.ToLocalTime().ToShortDateString()}.";
                 Logger.Info(message);
             }
 
