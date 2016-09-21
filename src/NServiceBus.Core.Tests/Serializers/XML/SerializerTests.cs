@@ -49,8 +49,8 @@ namespace NServiceBus.Serializers.XML.Test
         }
 
 
-        [Test]
-        public void DoesNotHandleConreteMessageWithInterfaceProperty()
+        [Test] //note: This is not a desired behavior but this test document this limitation
+        public void Limitation_DoesNotHandleConreteMessageWithInterfaceProperty()
         {
             var message = new MessageWithInvalidInterfaceProperty
             {
@@ -70,8 +70,8 @@ namespace NServiceBus.Serializers.XML.Test
             }
         }
 
-        [Test]
-        public void DoesNotHandleTypesImplementingISerializable()
+        [Test] //note: This is not a desired behavior but this test document this limitation
+        public void Limitation_DoesNotHandleTypesImplementingISerializable()
         {
             var message = new MessageImplementingISerializable("test");
 
