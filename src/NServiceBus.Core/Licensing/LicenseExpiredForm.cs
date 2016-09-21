@@ -1,9 +1,8 @@
 ﻿namespace NServiceBus
 {
     using System;
-    using System.Collections.Specialized;
     using System.Diagnostics;
-    using System.Linq;
+    using System.Globalization;
     using System.Web;
     using System.Windows.Forms;
     using Janitor;
@@ -89,57 +88,48 @@
 
         void getTrialLicenseButton_Click(object sender, EventArgs e)
         {
-            var parameterCollection = new NameValueCollection
-            {
-                {"NugetUser", IsNugetUser().ToString()},
-                {"PlatformInstaller", HasUserInstalledPlatform().ToString()},
-                {"TrialStartDate", TrialStartDateStore.GetTrialStartDate().ToString()}
-            };
 
-            UriBuilder builder;
+            string baseUrl;
             if (CurrentLicense != null && !CurrentLicense.IsExtendedTrial)
             {
                 // Original 14 day trial expired, give the user a chance to extend trial
-                builder = new UriBuilder("https://particular.net/extend-nservicebus-trial")
-                {
-                    Query = string.Join("&", parameterCollection.AllKeys.Select(key => $"{HttpUtility.UrlEncode(key)}={HttpUtility.UrlEncode(parameterCollection[key])}"))
-                };
+                baseUrl = "https://particular.net/extend-nservicebus-trial";
             }
             else
             {
                 // Extended trial license expired, ask the user to Contact Sales
-                builder = new UriBuilder("https://particular.net/extend-your-trial-45")
-                {
-                    Query = string.Join("&", parameterCollection.AllKeys.Select(key => $"{HttpUtility.UrlEncode(key)}={HttpUtility.UrlEncode(parameterCollection[key])}"))
-                };
+                baseUrl = "https://particular.net/extend-your-trial-45";
             }
 
+            var trialStart = HttpUtility.UrlEncode(TrialStartDateStore.GetTrialStartDate().ToString("yyyy-MM-dd", CultureInfo.InvariantCulture));
+            var url = $"{baseUrl}?NugetUser={IsNugetUser()}&PlatformInstaller={HasUserInstalledPlatform()}&TrialStartDate={trialStart}";
+            
             // Open the url with the querystrings
-            Process.Start(builder.Uri.AbsoluteUri);
+            Process.Start(url); 
         }
 
-        bool IsNugetUser()
+        static string IsNugetUser()
         {
             using (var regRoot = Registry.CurrentUser.OpenSubKey(@"Software\ParticularSoftware"))
             {
                 if (regRoot != null)
                 {
-                    return bool.Parse((string) regRoot.GetValue("NuGetUser", "false"));
+                    return (string)regRoot.GetValue("NuGetUser", "false");
                 }
             }
-            return false;
+            return bool.FalseString;
         }
 
-        bool HasUserInstalledPlatform()
+        static string HasUserInstalledPlatform()
         {
             using (var regRoot = Registry.CurrentUser.OpenSubKey(@"Software\ParticularSoftware\PlatformInstaller"))
             {
                 if (regRoot != null)
                 {
-                    return true;
+                    return bool.TrueString;
                 }
             }
-            return false;
+            return bool.FalseString;
         }
 
         public string ResultingLicenseText;
