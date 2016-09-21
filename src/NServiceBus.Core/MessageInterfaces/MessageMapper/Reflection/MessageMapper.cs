@@ -184,6 +184,17 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
                 if (t.IsInterface)
                 {
                     GenerateImplementationFor(t);
+
+                    foreach (var field in t.GetFields(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy))
+                    {
+                        InitType(field.FieldType);
+                    }
+
+                    foreach (var prop in t.GetProperties())
+                    {
+                        InitType(prop.PropertyType);
+                    }
+
                 }
                 else
                 {
@@ -195,16 +206,6 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
                 }
 
                 nameToType[typeName] = t.TypeHandle;
-            }
-
-            foreach (var field in t.GetFields(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy))
-            {
-                InitType(field.FieldType);
-            }
-
-            foreach (var prop in t.GetProperties())
-            {
-                InitType(prop.PropertyType);
             }
         }
 
