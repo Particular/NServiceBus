@@ -92,6 +92,7 @@
     <Compile Include="Routing\MessageDrivenSubscriptions\When_subscribing_to_scaled_out_publisher.cs" />
     <Compile Include="Sagas\When_a_base_class_mapped_is_handled_by_a_saga.cs" />
     <Compile Include="Sagas\When_a_base_class_message_starts_a_saga.cs" />
+    <Compile Include="Sagas\When_saga_handles_messages_concurrently.cs" />
     <Compile Include="Serialization\When_configuring_custom_xml_namespace.cs" />
     <Compile Include="Serialization\When_registering_additional_deserializers.cs" />
     <Compile Include="Basic\When_no_content_type.cs" />
