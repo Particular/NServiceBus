@@ -3,7 +3,6 @@
     using System;
     using System.Diagnostics;
     using System.Globalization;
-    using System.Web;
     using System.Windows.Forms;
     using Janitor;
     using Logging;
@@ -101,7 +100,7 @@
                 baseUrl = "https://particular.net/extend-your-trial-45";
             }
 
-            var trialStart = HttpUtility.UrlEncode(TrialStartDateStore.GetTrialStartDate().ToString("yyyy-MM-dd", CultureInfo.InvariantCulture));
+            var trialStart = TrialStartDateStore.GetTrialStartDate().ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
             var url = $"{baseUrl}?NugetUser={IsNugetUser()}&PlatformInstaller={HasUserInstalledPlatform()}&TrialStartDate={trialStart}";
             
             // Open the url with the querystrings
