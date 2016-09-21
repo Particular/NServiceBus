@@ -10,7 +10,7 @@
 
     public class When_configuring_custom_xml_namespace : NServiceBusAcceptanceTest
     {
-        const string CustomXmlNamespace = "http://particular.net";
+        const string CustomXmlNamespace = "https://particular.net";
 
         [Test]
         public async Task Should_use_as_root_namespace_in_messages()

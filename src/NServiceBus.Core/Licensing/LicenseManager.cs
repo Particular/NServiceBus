@@ -35,7 +35,15 @@ namespace NServiceBus
 
             if (LicenseExpirationChecker.HasLicenseExpired(foundLicense))
             {
-                Logger.Fatal("Your license has expired! You can renew it at http://particular.net/licensing.");
+                // If the found license is a trial license then it is actually a extended trial license not a locally generated trial.
+                // Set the property to indicate that it is an extended license as it's not set by the license generation 
+                if (foundLicense.IsTrialLicense)
+                {
+                    foundLicense.IsExtendedTrial = true;
+                    PromptUserForLicenseIfTrialHasExpired();
+                    return;
+                }
+                Logger.Fatal("Your license has expired! You can renew it at https://particular.net/licensing.");
                 return;
             }
 
