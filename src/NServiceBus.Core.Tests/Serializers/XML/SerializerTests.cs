@@ -48,30 +48,8 @@ namespace NServiceBus.Serializers.XML.Test
             }
         }
 
-
-        [Test] //note: This is not a desired behavior but this test document this limitation
-        public void Limitation_DoesNotHandleConreteMessageWithInterfaceProperty()
-        {
-            var message = new MessageWithInvalidInterfaceProperty
-            {
-                InterfaceProperty = new InvalidInterfaceImplementation
-                {
-                    SomeProperty = "test"
-                }
-            };
-            var serializer = SerializerFactory.Create<MessageWithInvalidInterfaceProperty>();
-
-            using (var stream = new MemoryStream())
-            {
-                serializer.Serialize(message, stream);
-                stream.Position = 0;
-
-                Assert.Throws<Exception>(() => serializer.Deserialize(stream));
-            }
-        }
-
-        [Test] //note: This is not a desired behavior but this test document this limitation
-        public void Limitation_DoesNotHandleTypesImplementingISerializable()
+        [Test] //note: This is not a desired behavior, but this test documents this limitation
+        public void Limitation_Does_not_handle_types_implementing_ISerializable()
         {
             var message = new MessageImplementingISerializable("test");
 
@@ -88,8 +66,29 @@ namespace NServiceBus.Serializers.XML.Test
             }
         }
 
+        [Test] //note: This is not a desired behavior, but this test documents this limitation
+        public void Limitation_Does_not_handle_concrete_message_with_invalid_interface_property()
+        {
+            var message = new MessageWithInvalidInterfaceProperty
+            {
+                InterfaceProperty = new InvalidInterfacePropertyImplementation
+                {
+                    SomeProperty = "test"
+                }
+            };
+            var serializer = SerializerFactory.Create<MessageWithInvalidInterfaceProperty>();
+
+            using (var stream = new MemoryStream())
+            {
+                serializer.Serialize(message, stream);
+                stream.Position = 0;
+
+                Assert.Throws<Exception>(() => serializer.Deserialize(stream));
+            }
+        }
+
         [Test]
-        public void ShouldHandleMessageWithInterfaceProperty()
+        public void Should_handle_concrete_message_with_interface_property()
         {
             var message = new MessageWithInterfaceProperty
             {
@@ -108,37 +107,36 @@ namespace NServiceBus.Serializers.XML.Test
 
                 var result = (MessageWithInterfaceProperty)serializer.Deserialize(stream)[0];
 
-                Assert.AreEqual("test", result.InterfaceProperty.SomeProperty);
+                Assert.AreEqual(message.InterfaceProperty.SomeProperty, result.InterfaceProperty.SomeProperty);
             }
         }
 
         [Test]
-        public void ShouldHandleInterfaceMessageWithInterfaceProperty()
+        public void Should_handle_interface_message_with_interface_property()
         {
-            InterfaceMessageWithInterfaceProperty interfaceMessage = new InterfaceMessageWithInterfacePropertyImplementation()
+            IMessageWithInterfaceProperty message = new InterfaceMessageWithInterfacePropertyImplementation
             {
                 InterfaceProperty = new InterfacePropertyImplementation
                 {
                     SomeProperty = "test"
                 }
             };
-            var serializer = SerializerFactory.Create<InterfaceMessageWithInterfaceProperty>();
+            var serializer = SerializerFactory.Create<IMessageWithInterfaceProperty>();
 
             using (var stream = new MemoryStream())
             {
-                serializer.Serialize(interfaceMessage, stream);
+                serializer.Serialize(message, stream);
 
                 stream.Position = 0;
 
-                var result = (InterfaceMessageWithInterfaceProperty)serializer.Deserialize(stream, new[]
+                var result = (IMessageWithInterfaceProperty)serializer.Deserialize(stream, new[]
                 {
-                    typeof(InterfaceMessageWithInterfaceProperty)
+                    typeof(IMessageWithInterfaceProperty)
                 })[0];
 
-                Assert.AreEqual("test", result.InterfaceProperty.SomeProperty);
+                Assert.AreEqual(message.InterfaceProperty.SomeProperty, result.InterfaceProperty.SomeProperty);
             }
         }
-
 
         [Test, Ignore("ArrayList is not supported")]
         public void Should_deserialize_arrayList()
@@ -1413,12 +1411,6 @@ namespace NServiceBus.Serializers.XML.Test.AlternateNamespace
         IList<string> stringList = new List<string>();
     }
 
-
-    class MessageWithInvalidInterfaceProperty
-    {
-        public IInvalidInterface InterfaceProperty { get; set; }
-    }
-
     class MessageImplementingISerializable : ISerializable
     {
         public MessageImplementingISerializable(string readOnlyProperty)
@@ -1438,30 +1430,25 @@ namespace NServiceBus.Serializers.XML.Test.AlternateNamespace
         public string ReadOnlyProperty { get; }
     }
 
-    public interface IInvalidInterface
+    class MessageWithInvalidInterfaceProperty
+    {
+        public IInvalidInterfaceProperty InterfaceProperty { get; set; }
+    }
+
+    public interface IInvalidInterfaceProperty
     {
         string SomeProperty { get; set; }
 
         void SomeMethod();
     }
 
-    class InvalidInterfaceImplementation : IInvalidInterface
+    class InvalidInterfacePropertyImplementation : IInvalidInterfaceProperty
     {
         public string SomeProperty { get; set; }
 
         public void SomeMethod()
         {
         }
-    }
-
-    public interface InterfaceMessageWithInterfaceProperty
-    {
-        IInterfaceProperty InterfaceProperty { get; set; }
-    }
-
-    class InterfaceMessageWithInterfacePropertyImplementation : InterfaceMessageWithInterfaceProperty
-    {
-        public IInterfaceProperty InterfaceProperty { get; set; }
     }
 
     class MessageWithInterfaceProperty
@@ -1477,5 +1464,15 @@ namespace NServiceBus.Serializers.XML.Test.AlternateNamespace
     class InterfacePropertyImplementation : IInterfaceProperty
     {
         public string SomeProperty { get; set; }
+    }
+
+    public interface IMessageWithInterfaceProperty
+    {
+        IInterfaceProperty InterfaceProperty { get; set; }
+    }
+
+    class InterfaceMessageWithInterfacePropertyImplementation : IMessageWithInterfaceProperty
+    {
+        public IInterfaceProperty InterfaceProperty { get; set; }
     }
 }

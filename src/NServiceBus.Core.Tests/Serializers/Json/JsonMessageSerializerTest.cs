@@ -14,7 +14,7 @@ namespace NServiceBus.Serializers.Json.Tests
     public class JsonMessageSerializerTest
     {
         [Test]
-        public void ShouldHandleConreteMessageWithInvalidInterfaceProperty()
+        public void Should_handle_concrete_message_with_invalid_interface_property()
         {
             var messageMapper = new MessageMapper();
             messageMapper.Initialize(new[]
@@ -26,7 +26,7 @@ namespace NServiceBus.Serializers.Json.Tests
 
             var message = new MessageWithInvalidInterfaceProperty
             {
-                InvalidInterfaceProperty = new InvlaidInterfacePropertyImplementation
+                InterfaceProperty = new InvalidInterfacePropertyImplementation
                 {
                     SomeProperty = "test"
                 }
@@ -43,21 +43,21 @@ namespace NServiceBus.Serializers.Json.Tests
                     typeof(MessageWithInvalidInterfaceProperty)
                 })[0];
 
-                Assert.AreEqual("test", result.InvalidInterfaceProperty.SomeProperty);
+                Assert.AreEqual(message.InterfaceProperty.SomeProperty, result.InterfaceProperty.SomeProperty);
             }
         }
 
         [Test]
-        public void ShouldHandleConcreteMessageWithInterfaceProperty()
+        public void Should_handle_concrete_message_with_interface_property()
         {
             var messageMapper = new MessageMapper();
             messageMapper.Initialize(new[]
             {
-                typeof(MessageWithInterface)
+                typeof(MessageWithInterfaceProperty)
             });
             var serializer = new JsonMessageSerializer(messageMapper);
 
-            var message = new MessageWithInterface
+            var message = new MessageWithInterfaceProperty
             {
                 InterfaceProperty = new InterfacePropertyImplementation
                 {
@@ -71,9 +71,9 @@ namespace NServiceBus.Serializers.Json.Tests
 
                 stream.Position = 0;
 
-                var result = (MessageWithInterface) serializer.Deserialize(stream, new[]
+                var result = (MessageWithInterfaceProperty) serializer.Deserialize(stream, new[]
                 {
-                    typeof(MessageWithInterface)
+                    typeof(MessageWithInterfaceProperty)
                 })[0];
 
                 Assert.AreEqual(message.InterfaceProperty.SomeProperty, result.InterfaceProperty.SomeProperty);
@@ -81,16 +81,16 @@ namespace NServiceBus.Serializers.Json.Tests
         }
 
         [Test]
-        public void ShouldHandleInterfaceMessageWithInterfaceProperty()
+        public void Should_handle_interface_message_with_interface_property()
         {
             var messageMapper = new MessageMapper();
             messageMapper.Initialize(new[]
             {
-                typeof(IMessageWithInterface)
+                typeof(IMessageWithInterfaceProperty)
             });
             var serializer = new JsonMessageSerializer(messageMapper);
 
-            IMessageWithInterface message = new MessageWithInterface
+            IMessageWithInterfaceProperty message = new InterfaceMessageWithInterfacePropertyImplementation
             {
                 InterfaceProperty = new InterfacePropertyImplementation
                 {
@@ -104,15 +104,14 @@ namespace NServiceBus.Serializers.Json.Tests
 
                 stream.Position = 0;
 
-                var result = (IMessageWithInterface) serializer.Deserialize(stream, new[]
+                var result = (IMessageWithInterfaceProperty) serializer.Deserialize(stream, new[]
                 {
-                    typeof(IMessageWithInterface)
+                    typeof(IMessageWithInterfaceProperty)
                 })[0];
 
                 Assert.AreEqual(message.InterfaceProperty.SomeProperty, result.InterfaceProperty.SomeProperty);
             }
         }
-
 
         [Test]
         public void Deserialize_messages_wrapped_in_array_from_older_endpoint()
@@ -731,22 +730,7 @@ namespace NServiceBus.Serializers.Json.Tests
 
     class MessageWithInvalidInterfaceProperty
     {
-        public IInvalidInterfaceProperty InvalidInterfaceProperty { get; set; }
-    }
-
-    public interface IMessageWithInterface
-    {
-        IInterfaceProperty InterfaceProperty { get; set; }
-    }
-
-    class MessageWithInterface : IMessageWithInterface
-    {
-        public IInterfaceProperty InterfaceProperty { get; set; }
-    }
-
-    public interface IInterfaceProperty
-    {
-        string SomeProperty { get; set; }
+        public IInvalidInterfaceProperty InterfaceProperty { get; set; }
     }
 
     public interface IInvalidInterfaceProperty
@@ -756,17 +740,37 @@ namespace NServiceBus.Serializers.Json.Tests
         void SomeMethod();
     }
 
-    class InterfacePropertyImplementation : IInterfaceProperty
-    {
-        public string SomeProperty { get; set; }
-    }
-
-    class InvlaidInterfacePropertyImplementation : IInvalidInterfaceProperty
+    class InvalidInterfacePropertyImplementation : IInvalidInterfaceProperty
     {
         public string SomeProperty { get; set; }
 
         public void SomeMethod()
         {
         }
+    }
+
+    class MessageWithInterfaceProperty
+    {
+        public IInterfaceProperty InterfaceProperty { get; set; }
+    }
+
+    public interface IInterfaceProperty
+    {
+        string SomeProperty { get; set; }
+    }
+
+    class InterfacePropertyImplementation : IInterfaceProperty
+    {
+        public string SomeProperty { get; set; }
+    }
+
+    public interface IMessageWithInterfaceProperty
+    {
+        IInterfaceProperty InterfaceProperty { get; set; }
+    }
+
+    class InterfaceMessageWithInterfacePropertyImplementation : IMessageWithInterfaceProperty
+    {
+        public IInterfaceProperty InterfaceProperty { get; set; }
     }
 }
