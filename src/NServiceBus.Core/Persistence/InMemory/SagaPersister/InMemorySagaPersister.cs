@@ -17,7 +17,11 @@ namespace NServiceBus
             inMemSession.Enlist(() =>
             {
                 VersionedSagaEntity value;
-                data.TryRemove(sagaData.Id, out value);
+                if (data.TryRemove(sagaData.Id, out value))
+                {
+                    object lockToken;
+                    lockers.TryRemove(value.LockTokenKey, out lockToken);
+                }
             });
             return TaskEx.CompletedTask;
         }
@@ -66,14 +70,19 @@ namespace NServiceBus
             var inMemSession = (InMemorySynchronizedStorageSession) session;
             inMemSession.Enlist(() =>
             {
-                if (correlationProperty != SagaCorrelationProperty.None)
+                var lockenTokenKey = $"{sagaData.GetType().FullName}.{(correlationProperty == null ? "None" : correlationProperty.Name)}.{(correlationProperty == null ? "None" : correlationProperty.Value)}";
+                var lockToken = lockers.GetOrAdd(lockenTokenKey, key => new object());
+                lock (lockToken)
                 {
-                    ValidateUniqueProperties(correlationProperty, sagaData);
-                }
+                    if (correlationProperty != SagaCorrelationProperty.None)
+                    {
+                        ValidateUniqueProperties(correlationProperty, sagaData);
+                    }
 
-                data.AddOrUpdate(sagaData.Id,
-                    id => new VersionedSagaEntity(sagaData),
-                    (id, original) => new VersionedSagaEntity(sagaData, original));
+                    data.AddOrUpdate(sagaData.Id,
+                        id => new VersionedSagaEntity(sagaData, lockenTokenKey),
+                        (id, original) => new VersionedSagaEntity(sagaData, lockenTokenKey, original)); // we can never end up here.
+                }
             });
             return TaskEx.CompletedTask;
         }
@@ -84,8 +93,8 @@ namespace NServiceBus
             inMemSession.Enlist(() =>
             {
                 data.AddOrUpdate(sagaData.Id,
-                    id => new VersionedSagaEntity(sagaData),
-                    (id, original) => new VersionedSagaEntity(sagaData, original));
+                    id => new VersionedSagaEntity(sagaData, $"{sagaData.GetType().FullName}.None.None"), // we can never end up here.
+                    (id, original) => new VersionedSagaEntity(sagaData, original.LockTokenKey, original));
             });
             return TaskEx.CompletedTask;
         }
@@ -121,11 +130,13 @@ namespace NServiceBus
         }
 
         ConcurrentDictionary<Guid, VersionedSagaEntity> data = new ConcurrentDictionary<Guid, VersionedSagaEntity>();
+        ConcurrentDictionary<string, object> lockers = new ConcurrentDictionary<string, object>();
 
         class VersionedSagaEntity
         {
-            public VersionedSagaEntity(IContainSagaData sagaData, VersionedSagaEntity original = null)
+            public VersionedSagaEntity(IContainSagaData sagaData, string lockTokenKey, VersionedSagaEntity original = null)
             {
+                LockTokenKey = lockTokenKey;
                 SagaData = DeepClone(sagaData);
                 if (original != null)
                 {
@@ -171,6 +182,7 @@ namespace NServiceBus
             }
 
             public IContainSagaData SagaData;
+            public readonly string LockTokenKey;
 
             ConditionalWeakTable<IContainSagaData, SagaVersion> versionCache;
 
