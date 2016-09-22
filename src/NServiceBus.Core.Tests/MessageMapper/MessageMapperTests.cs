@@ -1,5 +1,6 @@
 ﻿namespace MessageMapperTests
 {
+    using System;
     using System.Collections;
     using System.Collections.Generic;
     using System.Threading.Tasks;
@@ -70,11 +71,30 @@
             });
         }
 
+        [Test]
+        public void Should_create_instance_of_concrete_type_with_illegal_interface_property()
+        {
+            var mapper = new MessageMapper();
+
+            mapper.Initialize(new[] { typeof(ConcreteMessageWithIllegalInterfaceProperty) });
+
+            mapper.CreateInstance<ConcreteMessageWithIllegalInterfaceProperty>();
+        }
+
+        [Test]
+        public void Should_fail_for_interface_message_with_illegal_interface_property()
+        {
+            var mapper = new MessageMapper();
+
+            Assert.Throws<Exception>(() => mapper.Initialize(new[] { typeof(InterfaceMessageWithIllegalInterfaceProperty) }));
+        }
+
+
         public class SampleMessageClass
         {
         }
 
-        public interface ISampleMessageInterface 
+        public interface ISampleMessageInterface
         {
         }
 
@@ -89,6 +109,24 @@
             {
                 return GetEnumerator();
             }
+        }
+
+        public class ConcreteMessageWithIllegalInterfaceProperty
+        {
+            public IIllegalProperty MyProperty { get; set; }
+        }
+
+        public interface InterfaceMessageWithIllegalInterfaceProperty
+        {
+            IIllegalProperty MyProperty { get; set; }
+        }
+
+        public interface IIllegalProperty
+        {
+            string SomeProperty { get; set; }
+
+            //this is not supported by our mapper
+            void SomeMethod();
         }
     }
 }
