@@ -6,6 +6,6 @@ namespace NServiceBus
     {
         IEnumerable<MsmqSubscriptionMessage> GetAllMessages();
         string Send(string body, string label);
-        void ReceiveById(string messageId);
+        void TryReceiveById(string messageId);
     }
 }

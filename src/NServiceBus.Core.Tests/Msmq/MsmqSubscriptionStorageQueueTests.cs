@@ -48,11 +48,10 @@
             var storage = CreateAndInit(queue);
 
             var messageType = new MessageType(typeof(SomeMessage));
-            var messageTypes = new[] { messageType };
             await storage.Subscribe(new Subscriber("sub1", null), messageType, new ContextBag());
             await storage.Subscribe(new Subscriber("SUB1", null), messageType, new ContextBag());
 
-            var subscribers = await storage.GetSubscriberAddressesForMessage(messageTypes, new ContextBag());
+            var subscribers = await storage.GetSubscriberAddressesForMessage(new[] { messageType }, new ContextBag());
             Assert.AreEqual(1, subscribers.Count());
         }
 
@@ -63,11 +62,10 @@
             var storage = CreateAndInit(queue);
 
             var messageType = new MessageType(typeof(SomeMessage));
-            var messageTypes = new[] { messageType };
             await storage.Subscribe(new Subscriber("sub1", null), messageType, new ContextBag());
             await storage.Subscribe(new Subscriber("sub2", null), messageType, new ContextBag());
 
-            var subscribers = await storage.GetSubscriberAddressesForMessage(messageTypes, new ContextBag());
+            var subscribers = await storage.GetSubscriberAddressesForMessage(new[] { messageType }, new ContextBag());
             Assert.AreEqual(2, subscribers.Count());
         }
 
@@ -89,7 +87,6 @@
             Assert.IsTrue(subscribers.Any(s => s.TransportAddress == "new" && s.Endpoint == "endpoint"));
         }
 
-
         [Test]
         public async Task Can_subscribe_to_multiple_events()
         {
@@ -97,8 +94,8 @@
             var storage = CreateAndInit(queue);
 
             var someMessageType = new MessageType(typeof(SomeMessage));
-            await storage.Subscribe(new Subscriber("sub1", null), someMessageType, new ContextBag());
             var otherMessageType = new MessageType(typeof(OtherMessage));
+            await storage.Subscribe(new Subscriber("sub1", null), someMessageType, new ContextBag());
             await storage.Subscribe(new Subscriber("sub1", null), otherMessageType, new ContextBag());
 
             var subscribers = await storage.GetSubscriberAddressesForMessage(new[] { someMessageType }, new ContextBag());
@@ -109,7 +106,7 @@
         }
 
         [Test]
-        public async Task Can_subscribe_to_multiple_events_at_once()
+        public async Task Same_subscriber_for_multiple_message_types_is_returned_only_once()
         {
             var queue = new FakeStorageQueue();
             var storage = CreateAndInit(queue);
@@ -119,10 +116,12 @@
             await storage.Subscribe(new Subscriber("sub1", null), someMessageType, new ContextBag());
             await storage.Subscribe(new Subscriber("sub1", null), otherMessageType, new ContextBag());
 
-            var subscribers = await storage.GetSubscriberAddressesForMessage(new[] { someMessageType }, new ContextBag());
-            Assert.AreEqual(1, subscribers.Count());
+            var subscribers = await storage.GetSubscriberAddressesForMessage(new[]
+            {
+                someMessageType,
+                otherMessageType
+            }, new ContextBag());
 
-            subscribers = await storage.GetSubscriberAddressesForMessage(new[] { otherMessageType }, new ContextBag());
             Assert.AreEqual(1, subscribers.Count());
         }
 
@@ -140,8 +139,8 @@
             var subscribers = await storage.GetSubscriberAddressesForMessage(messageTypes, new ContextBag());
 
             var subscriber = subscribers.Single();
-            Assert.AreEqual(subscriber.TransportAddress, "sub1");
-            Assert.AreEqual(subscriber.Endpoint, "endpoint");
+            Assert.AreEqual("sub1", subscriber.TransportAddress);
+            Assert.AreEqual("endpoint", subscriber.Endpoint);
         }
 
         [Test]
@@ -192,7 +191,7 @@
                 return id;
             }
 
-            public void ReceiveById(string messageId)
+            public void TryReceiveById(string messageId)
             {
                 q.RemoveAll(m => m.Id == messageId);
             }

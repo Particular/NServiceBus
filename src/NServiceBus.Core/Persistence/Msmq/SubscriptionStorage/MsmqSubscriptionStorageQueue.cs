@@ -63,9 +63,16 @@ namespace NServiceBus
             return toSend.Id;
         }
 
-        public void ReceiveById(string messageId)
+        public void TryReceiveById(string messageId)
         {
-            q.ReceiveById(messageId, GetTransactionType(transactionsEnabled, dontUseExternalTransaction));
+            try
+            {
+                q.ReceiveById(messageId, GetTransactionType(transactionsEnabled, dontUseExternalTransaction));
+            }
+            catch (InvalidOperationException)
+            {
+                // thrown when message not found
+            }
         }
 
         MessageQueueTransactionType GetTransactionType(bool transactionsEnabled, bool dontUseExternalTransaction)

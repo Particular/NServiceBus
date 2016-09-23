@@ -23,60 +23,89 @@ namespace NServiceBus
 
         public void Init()
         {
+            var allEntries = new List<Entry>();
+
             foreach (var m in storageQueue.GetAllMessages())
             {
                 var messageTypeString = m.Body as string;
                 var messageType = new MessageType(messageTypeString); //this will parse both 2.6 and 3.0 type strings
                 var subscriber = Deserialize(m.Label);
 
-                entries.Add(new Entry
+                allEntries.Add(new Entry
                 {
                     MessageType = messageType,
-                    Subscriber = subscriber
+                    Subscriber = subscriber,
+                    Subscribed = m.ArrivedTime,
+                    MessageId = m.Id
                 });
-                AddToLookup(subscriber.TransportAddress, messageType, m.Id);
+            }
+
+            var e1 = allEntries.GroupBy(e => e.Subscriber, e => e);
+            var e2 = e1
+                .ToDictionary(e => e.Key, e => e
+                    .GroupBy(x => x.MessageType)
+                    .ToDictionary(x => x.Key, x => x
+                        .OrderByDescending(y => y)
+                        .ToList()));
+
+            foreach (var subscriberEntry in e2)
+            {
+                foreach (var subscriptions in subscriberEntry.Value.Values)
+                {
+                    var first = true;
+                    foreach (var subscription in subscriptions)
+                    {
+                        if (first)
+                        {
+                            // keep this one
+                            AddToLookup(subscription.Subscriber, subscription.MessageType, subscription.MessageId);
+                            first = false;
+                        }
+                        else
+                        {
+                            //remove outdated entries
+                            storageQueue.TryReceiveById(subscription.MessageId);
+                        }
+                    }
+
+                }
             }
         }
 
         public Task<IEnumerable<Subscriber>> GetSubscriberAddressesForMessage(IEnumerable<MessageType> messageTypes, ContextBag context)
         {
-            var messagelist = messageTypes.ToList();
-            lock (locker)
-            {
-                var result = (from e in entries
-                    from m in messagelist
-                    where e.MessageType == m
-                    select e)
-                    .Distinct(EntryComparer)
-                    .Select(e => e.Subscriber)
-                    .ToArray();
+            var messagelist = messageTypes.ToArray();
+            var result = new HashSet<Subscriber>();
 
-                return Task.FromResult((IEnumerable<Subscriber>) result);
+            lock (lookup)
+            {
+                foreach (var subscribers in lookup)
+                {
+                    foreach (var messageType in messagelist)
+                    {
+                        string messageId;
+                        if (subscribers.Value.TryGetValue(messageType, out messageId))
+                        {
+                            result.Add(subscribers.Key);
+                        }
+                    }
+                }
             }
+
+            return Task.FromResult<IEnumerable<Subscriber>>(result);
         }
 
         public Task Subscribe(Subscriber subscriber, MessageType messageType, ContextBag context)
         {
             lock (locker)
             {
-                var found = entries.Any(e =>
-                    e.MessageType == messageType &&
-                    e.Subscriber.TransportAddress == subscriber.TransportAddress);
+                var body = messageType.TypeName + ", Version=" + messageType.Version;
+                var label = Serialize(subscriber);
+                var messageId = storageQueue.Send(body, label);
 
-                if (!found)
-                {
-                    Add(subscriber, messageType);
-
-                    var entry = new Entry
-                    {
-                        MessageType = messageType,
-                        Subscriber = subscriber
-                    };
-                    entries.Add(entry);
-
-                    log.DebugFormat("Subscriber {0} added for message {1}.", subscriber, messageType);
-                }
+                AddToLookup(subscriber, messageType, messageId);
             }
+
             return TaskEx.CompletedTask;
         }
 
@@ -84,28 +113,15 @@ namespace NServiceBus
         {
             lock (locker)
             {
-                var toRemove =
-                    from e in entries.ToArray()
-                    where e.MessageType == messageType && e.Subscriber.TransportAddress == subscriber.TransportAddress
-                    select e;
+                var messageId = RemoveFromLookup(subscriber, messageType);
 
-                foreach (var entry in toRemove)
+                if (messageId != null)
                 {
-                    Remove(subscriber.TransportAddress, entry.MessageType);
-                    entries.Remove(entry);
-                    log.Debug($"Subscriber {subscriber} removed for message {entry.MessageType}.");
+                    storageQueue.TryReceiveById(messageId);
                 }
             }
+
             return TaskEx.CompletedTask;
-        }
-
-        void Add(Subscriber subscriber, MessageType messageType)
-        {
-            var body = messageType.TypeName + ", Version=" + messageType.Version;
-            var label = Serialize(subscriber);
-            var messageId = storageQueue.Send(body, label);
-
-            AddToLookup(subscriber.TransportAddress, messageType, messageId);
         }
 
         static string Serialize(Subscriber subscriber)
@@ -128,79 +144,75 @@ namespace NServiceBus
             return new Subscriber(parts[0], endpointName);
         }
 
-        void Remove(string subscriber, MessageType messageType)
-        {
-            var messageId = RemoveFromLookup(subscriber, messageType);
-
-            if (messageId == null)
-            {
-                return;
-            }
-
-            storageQueue.ReceiveById(messageId);
-        }
-
-
-        void AddToLookup(string subscriber, MessageType typeName, string messageId)
+        void AddToLookup(Subscriber subscriber, MessageType typeName, string messageId)
         {
             lock (lookup)
             {
                 Dictionary<MessageType, string> dictionary;
                 if (!lookup.TryGetValue(subscriber, out dictionary))
                 {
-                    lookup[subscriber] = dictionary = new Dictionary<MessageType, string>();
+                    dictionary = new Dictionary<MessageType, string>();
+                }
+                else
+                {
+                    // replace existing subscriber
+                    lookup.Remove(subscriber);
                 }
 
-                if (!dictionary.ContainsKey(typeName))
-                {
-                    dictionary.Add(typeName, messageId);
-                }
+                dictionary[typeName] = messageId;
+                lookup[subscriber] = dictionary;
             }
         }
 
-        string RemoveFromLookup(string subscriber, MessageType typeName)
+        string RemoveFromLookup(Subscriber subscriber, MessageType typeName)
         {
-            string messageId = null;
             lock (lookup)
             {
-                Dictionary<MessageType, string> endpoints;
-                if (lookup.TryGetValue(subscriber, out endpoints))
+                Dictionary<MessageType, string> subscriptions;
+                if (lookup.TryGetValue(subscriber, out subscriptions))
                 {
-                    if (endpoints.TryGetValue(typeName, out messageId))
+                    string messageId;
+                    if (subscriptions.TryGetValue(typeName, out messageId))
                     {
-                        endpoints.Remove(typeName);
-                        if (endpoints.Count == 0)
+                        subscriptions.Remove(typeName);
+                        if (subscriptions.Count == 0)
                         {
                             lookup.Remove(subscriber);
                         }
+
+                        return messageId;
                     }
                 }
             }
-            return messageId;
+
+            return null;
         }
 
-        List<Entry> entries = new List<Entry>();
         object locker = new object();
-        Dictionary<string, Dictionary<MessageType, string>> lookup = new Dictionary<string, Dictionary<MessageType, string>>(StringComparer.OrdinalIgnoreCase);
+        Dictionary<Subscriber, Dictionary<MessageType, string>> lookup = new Dictionary<Subscriber, Dictionary<MessageType, string>>(SubscriberComparer);
         IMsmqSubscriptionStorageQueue storageQueue;
         static ILog log = LogManager.GetLogger(typeof(ISubscriptionStorage));
-        static readonly EntryBySubscriberAddressComparer EntryComparer = new EntryBySubscriberAddressComparer();
+        static readonly TransportAddressEqualityComparer SubscriberComparer = new TransportAddressEqualityComparer();
 
         static readonly char[] EntrySeparator =
         {
             '|'
         };
 
-        class EntryBySubscriberAddressComparer : IEqualityComparer<Entry>
+        sealed class TransportAddressEqualityComparer : IEqualityComparer<Subscriber>
         {
-            public bool Equals(Entry x, Entry y)
+            public bool Equals(Subscriber x, Subscriber y)
             {
-                return x.Subscriber.TransportAddress.Equals(y.Subscriber.TransportAddress, StringComparison.OrdinalIgnoreCase);
+                if (ReferenceEquals(x, y)) return true;
+                if (ReferenceEquals(x, null)) return false;
+                if (ReferenceEquals(y, null)) return false;
+                if (x.GetType() != y.GetType()) return false;
+                return string.Equals(x.TransportAddress, y.TransportAddress, StringComparison.OrdinalIgnoreCase);
             }
 
-            public int GetHashCode(Entry obj)
+            public int GetHashCode(Subscriber obj)
             {
-                return obj.Subscriber.TransportAddress.ToLowerInvariant().GetHashCode();
+                return (obj.TransportAddress != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(obj.TransportAddress) : 0);
             }
         }
     }
