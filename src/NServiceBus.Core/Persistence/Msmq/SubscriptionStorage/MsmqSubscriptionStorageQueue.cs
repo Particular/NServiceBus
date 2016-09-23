@@ -2,6 +2,7 @@ namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Messaging;
     using System.Transactions;
 
@@ -42,15 +43,24 @@ namespace NServiceBus
             q.MessageReadPropertyFilter = messageReadPropertyFilter;
         }
 
-        public IEnumerable<Message> GetAllMessages()
+        public IEnumerable<MsmqSubscriptionMessage> GetAllMessages()
         {
-            return q.GetAllMessages();
+            return q.GetAllMessages().Select(m => new MsmqSubscriptionMessage(m));
         }
 
-        public void Send(Message toSend)
+        public string Send(string body, string label)
         {
-            toSend.Formatter = q.Formatter;
+            var toSend = new Message()
+            {
+                Recoverable = true,
+                Formatter = q.Formatter,
+                Body = body,
+                Label = label
+            };
+
             q.Send(toSend, GetTransactionType(transactionsEnabled, dontUseExternalTransaction));
+
+            return toSend.Id;
         }
 
         public void ReceiveById(string messageId)

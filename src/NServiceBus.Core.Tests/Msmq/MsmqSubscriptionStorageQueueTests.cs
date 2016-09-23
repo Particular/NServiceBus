@@ -1,8 +1,8 @@
 ﻿namespace NServiceBus.Core.Tests.Msmq
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Messaging;
     using System.Threading.Tasks;
     using Extensibility;
     using Unicast.Subscriptions.MessageDrivenSubscriptions;
@@ -168,16 +168,25 @@
 
         class FakeStorageQueue : IMsmqSubscriptionStorageQueue
         {
-            readonly List<Message> q = new List<Message>();
+            readonly List<MsmqSubscriptionMessage> q = new List<MsmqSubscriptionMessage>();
 
-            public IEnumerable<Message> GetAllMessages()
+            public IEnumerable<MsmqSubscriptionMessage> GetAllMessages()
             {
                 return q.ToArray();
             }
 
-            public void Send(Message toSend)
+            public string Send(string body, string label)
             {
-                q.Add(toSend);
+                var id = Guid.NewGuid().ToString();
+                q.Add(new MsmqSubscriptionMessage()
+                {
+                    ArrivedTime = DateTime.Now,
+                    Body = body,
+                    Label = label,
+                    Id = id
+                });
+
+                return id;
             }
 
             public void ReceiveById(string messageId)

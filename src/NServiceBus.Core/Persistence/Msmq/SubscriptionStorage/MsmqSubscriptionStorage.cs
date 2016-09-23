@@ -3,7 +3,6 @@ namespace NServiceBus
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Messaging;
     using System.Threading.Tasks;
     using Extensibility;
     using Logging;
@@ -102,16 +101,11 @@ namespace NServiceBus
 
         void Add(Subscriber subscriber, MessageType messageType)
         {
-            var toSend = new Message
-            {
-                Recoverable = true,
-                Label = Serialize(subscriber),
-                Body = messageType.TypeName + ", Version=" + messageType.Version
-            };
+            var body = messageType.TypeName + ", Version=" + messageType.Version;
+            var label = Serialize(subscriber);
+            var messageId = storageQueue.Send(body, label);
 
-            storageQueue.Send(toSend);
-
-            AddToLookup(subscriber.TransportAddress, messageType, toSend.Id);
+            AddToLookup(subscriber.TransportAddress, messageType, messageId);
         }
 
         static string Serialize(Subscriber subscriber)
