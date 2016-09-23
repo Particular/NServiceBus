@@ -23,51 +23,31 @@ namespace NServiceBus
 
         public void Init()
         {
-            var allEntries = new List<Entry>();
+            var messages = storageQueue.GetAllMessages().OrderByDescending(m => m.ArrivedTime).ToArray();
 
-            foreach (var m in storageQueue.GetAllMessages())
+            lock (lookup)
             {
-                var messageTypeString = m.Body as string;
-                var messageType = new MessageType(messageTypeString); //this will parse both 2.6 and 3.0 type strings
-                var subscriber = Deserialize(m.Label);
-
-                allEntries.Add(new Entry
+                foreach (var m in messages)
                 {
-                    MessageType = messageType,
-                    Subscriber = subscriber,
-                    Subscribed = m.ArrivedTime,
-                    MessageId = m.Id
-                });
-            }
+                    var messageTypeString = m.Body as string;
+                    var messageType = new MessageType(messageTypeString); //this will parse both 2.6 and 3.0 type strings
+                    var subscriber = Deserialize(m.Label);
 
-            var e1 = allEntries.GroupBy(e => e.Subscriber, e => e);
-            var e2 = e1
-                .ToDictionary(e => e.Key, e => e
-                    .GroupBy(x => x.MessageType)
-                    .ToDictionary(x => x.Key, x => x
-                        .OrderByDescending(y => y)
-                        .ToList()));
-
-            foreach (var subscriberEntry in e2)
-            {
-                foreach (var subscriptions in subscriberEntry.Value.Values)
-                {
-                    var first = true;
-                    foreach (var subscription in subscriptions)
+                    Dictionary<MessageType, string> endpointSubscriptions;
+                    if (!lookup.TryGetValue(subscriber, out endpointSubscriptions))
                     {
-                        if (first)
-                        {
-                            // keep this one
-                            AddToLookup(subscription.Subscriber, subscription.MessageType, subscription.MessageId);
-                            first = false;
-                        }
-                        else
-                        {
-                            //remove outdated entries
-                            storageQueue.TryReceiveById(subscription.MessageId);
-                        }
+                        lookup[subscriber] = endpointSubscriptions = new Dictionary<MessageType, string>();
                     }
 
+                    if (endpointSubscriptions.ContainsKey(messageType))
+                    {
+                        // this message is stale and can be removed
+                        storageQueue.TryReceiveById(m.Id);
+                    }
+                    else
+                    {
+                        endpointSubscriptions[messageType] = m.Id;
+                    }
                 }
             }
         }
@@ -97,28 +77,22 @@ namespace NServiceBus
 
         public Task Subscribe(Subscriber subscriber, MessageType messageType, ContextBag context)
         {
-            lock (locker)
-            {
-                var body = messageType.TypeName + ", Version=" + messageType.Version;
-                var label = Serialize(subscriber);
-                var messageId = storageQueue.Send(body, label);
+            var body = messageType.TypeName + ", Version=" + messageType.Version;
+            var label = Serialize(subscriber);
+            var messageId = storageQueue.Send(body, label);
 
-                AddToLookup(subscriber, messageType, messageId);
-            }
+            AddToLookup(subscriber, messageType, messageId);
 
             return TaskEx.CompletedTask;
         }
 
         public Task Unsubscribe(Subscriber subscriber, MessageType messageType, ContextBag context)
         {
-            lock (locker)
-            {
-                var messageId = RemoveFromLookup(subscriber, messageType);
+            var messageId = RemoveFromLookup(subscriber, messageType);
 
-                if (messageId != null)
-                {
-                    storageQueue.TryReceiveById(messageId);
-                }
+            if (messageId != null)
+            {
+                storageQueue.TryReceiveById(messageId);
             }
 
             return TaskEx.CompletedTask;
@@ -188,11 +162,10 @@ namespace NServiceBus
             return null;
         }
 
-        object locker = new object();
         Dictionary<Subscriber, Dictionary<MessageType, string>> lookup = new Dictionary<Subscriber, Dictionary<MessageType, string>>(SubscriberComparer);
         IMsmqSubscriptionStorageQueue storageQueue;
         static ILog log = LogManager.GetLogger(typeof(ISubscriptionStorage));
-        static readonly TransportAddressEqualityComparer SubscriberComparer = new TransportAddressEqualityComparer();
+        static TransportAddressEqualityComparer SubscriberComparer = new TransportAddressEqualityComparer();
 
         static readonly char[] EntrySeparator =
         {
