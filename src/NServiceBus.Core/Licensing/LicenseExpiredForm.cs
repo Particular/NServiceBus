@@ -30,7 +30,7 @@
             {
                 Text = $"NServiceBus License (v{version.ToString(3)})";
                 warningText.Text = "It's time to extend your trial.";
-                instructionsText.Text = @"Your 14-day trial is up, but you can instantly extend your trial for 30 days.
+                instructionsText.Text = @"Your 14-day trial is up, but you can instantly extend your trial for FREE. NServiceBus will remain fully functional although continued use is in violation of our EULA.
 
 When you receive your new license file, save it to disk and click the 'Browse' button to select it.";
                 getTrialLicenseButton.Text = "Extend Trial";
@@ -41,7 +41,7 @@ When you receive your new license file, save it to disk and click the 'Browse' b
             {
                 Text = $"NServiceBus License (v{version.ToString(3)})";
                 warningText.Text = "It's time to buy a license.";
-                instructionsText.Text = @"Your 45-day trial is up, but we don't want to stop you in your tracks. If you need to extend your trial, please contact us and we'll work something out.
+                instructionsText.Text = @"Your extended trial is up, but we don't want to stop you in your tracks. If you need to extend your trial further, please contact us and we'll work something out. NServiceBus will remain fully functional although continued use is in violation of our EULA.
 
 When you receive your new license file, save it to disk and click the 'Browse' button to select it.";
                 getTrialLicenseButton.Text = "Contact Us";

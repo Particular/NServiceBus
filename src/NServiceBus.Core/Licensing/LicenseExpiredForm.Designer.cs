@@ -114,7 +114,7 @@
             this.instructionsText.Name = "instructionsText";
             this.instructionsText.ReadOnly = true;
             this.instructionsText.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.None;
-            this.instructionsText.Size = new System.Drawing.Size(520, 77);
+            this.instructionsText.Size = new System.Drawing.Size(520, 112);
             this.instructionsText.TabIndex = 18;
             this.instructionsText.Text = "Instructions....";
             // 
