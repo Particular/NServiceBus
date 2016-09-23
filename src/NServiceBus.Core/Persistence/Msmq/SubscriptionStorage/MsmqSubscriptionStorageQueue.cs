@@ -32,7 +32,8 @@ namespace NServiceBus
             {
                 Id = true,
                 Body = true,
-                Label = true
+                Label = true,
+                ArrivedTime = true
             };
 
             q.Formatter = new XmlMessageFormatter(new[]
