@@ -80,11 +80,13 @@ namespace NServiceBus
 
         public Task Subscribe(Subscriber subscriber, MessageType messageType, ContextBag context)
         {
-            var body = messageType.TypeName + ", Version=" + messageType.Version;
+            var body = $"{messageType.TypeName}, Version={messageType.Version}";
             var label = Serialize(subscriber);
             var messageId = storageQueue.Send(body, label);
 
             AddToLookup(subscriber, messageType, messageId);
+
+            log.DebugFormat($"Subscriber {subscriber.TransportAddress} added for message {messageType}.");
 
             return TaskEx.CompletedTask;
         }
@@ -97,6 +99,8 @@ namespace NServiceBus
             {
                 storageQueue.TryReceiveById(messageId);
             }
+
+            log.Debug($"Subscriber {subscriber.TransportAddress} removed for message {messageType}.");
 
             return TaskEx.CompletedTask;
         }

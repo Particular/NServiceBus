@@ -3,7 +3,6 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Threading;
     using System.Threading.Tasks;
     using Extensibility;
     using Unicast.Subscriptions.MessageDrivenSubscriptions;
@@ -252,6 +251,8 @@
         {
             public readonly List<MsmqSubscriptionMessage> Messages = new List<MsmqSubscriptionMessage>();
 
+            DateTime arrivedTime = DateTime.Now;
+
             public IEnumerable<MsmqSubscriptionMessage> GetAllMessages()
             {
                 return Messages.ToArray();
@@ -259,14 +260,11 @@
 
             public string Send(string body, string label)
             {
-                // Wait for a short period of time to ensure multiple sends have different DateTime.Now values
-                // This is needed to ensure the expected order of messages when subscribing.
-                Thread.Sleep(1);
                 var id = Guid.NewGuid().ToString();
 
                 Messages.Add(new MsmqSubscriptionMessage
                 {
-                    ArrivedTime = DateTime.Now,
+                    ArrivedTime = arrivedTime = arrivedTime.AddMilliseconds(1),
                     Body = body,
                     Label = label,
                     Id = id
