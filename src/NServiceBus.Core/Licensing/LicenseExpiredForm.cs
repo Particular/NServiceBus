@@ -24,11 +24,11 @@
         {
             base.OnLoad(e);
 
-            var version = Assembly.GetExecutingAssembly().GetName().Version;
+            var version = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).FileVersion;
 
             if (CurrentLicense != null && !CurrentLicense.IsExtendedTrial)
             {
-                Text = $"NServiceBus License (v{version.ToString(3)})";
+                Text = $"NServiceBus License (v{version})";
                 warningText.Text = "It's time to extend your trial.";
                 instructionsText.Text = @"Your 14-day trial is up, but you can instantly extend your trial for FREE. NServiceBus will remain fully functional although continued use is in violation of our EULA.
 
@@ -39,7 +39,7 @@ When you receive your new license file, save it to disk and click the 'Browse' b
             }
             else
             {
-                Text = $"NServiceBus License (v{version.ToString(3)})";
+                Text = $"NServiceBus License (v{version})";
                 warningText.Text = "It's time to buy a license.";
                 instructionsText.Text = @"Your extended trial is up, but we don't want to stop you in your tracks. If you need to extend your trial further, please contact us and we'll work something out. NServiceBus will remain fully functional although continued use is in violation of our EULA.
 
