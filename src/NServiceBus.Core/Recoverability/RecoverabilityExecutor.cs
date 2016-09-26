@@ -27,7 +27,7 @@
             // When we can't do immediate retries and policy did not honor MaxNumberOfRetries for ImmediateRetries
             if (recoveryAction is ImmediateRetry && !immediateRetriesAvailable)
             {
-                Logger.Warn("Recoverability policy requested ImmediateRetry however immediate retires are not available with current endpoint configuration. Moving message to error queue instead.");
+                Logger.Warn("Recoverability policy requested ImmediateRetry however immediate retries are not available with the current endpoint configuration. Moving message to error queue instead.");
                 return MoveToError(errorContext, configuration.Failed.ErrorQueue);
             }
 
@@ -39,7 +39,7 @@
             // When we can't do delayed retries, a policy customization probably didn't honor MaxNumberOfRetries for DelayedRetries
             if (recoveryAction is DelayedRetry && !delayedRetriesAvailable)
             {
-                Logger.Warn("Recoverability policy requested DelayedRetry however delayed delivery capability is not available with current endpoint configuration. Moving message to error queue instead.");
+                Logger.Warn("Recoverability policy requested DelayedRetry however delayed delivery capability is not available with the current endpoint configuration. Moving message to error queue instead.");
                 return MoveToError(errorContext, configuration.Failed.ErrorQueue);
             }
 
