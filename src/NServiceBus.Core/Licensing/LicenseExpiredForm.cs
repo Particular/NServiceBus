@@ -3,7 +3,6 @@
     using System;
     using System.Diagnostics;
     using System.Globalization;
-    using System.Reflection;
     using System.Windows.Forms;
     using Janitor;
     using Logging;
@@ -24,7 +23,7 @@
         {
             base.OnLoad(e);
 
-            var version = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).FileVersion;
+            var version = GitFlowVersion.MajorMinorPatch;
 
             if (CurrentLicense != null && !CurrentLicense.IsExtendedTrial)
             {
