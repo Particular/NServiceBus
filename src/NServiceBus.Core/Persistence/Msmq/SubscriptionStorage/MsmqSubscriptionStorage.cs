@@ -3,6 +3,7 @@ namespace NServiceBus
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading;
     using System.Threading.Tasks;
     using Extensibility;
     using Logging;
@@ -28,8 +29,10 @@ namespace NServiceBus
                 .ThenBy(x => x.Id) // ensure same order of messages with same timestamp accross all endpoints
                 .ToArray();
 
-            lock (lookup)
+            try
             {
+                rwLock.EnterWriteLock();
+
                 foreach (var m in messages)
                 {
                     var messageTypeString = m.Body as string;
@@ -53,6 +56,10 @@ namespace NServiceBus
                     }
                 }
             }
+            finally
+            {
+                rwLock.ExitWriteLock();
+            }
         }
 
         public Task<IEnumerable<Subscriber>> GetSubscriberAddressesForMessage(IEnumerable<MessageType> messageTypes, ContextBag context)
@@ -60,8 +67,11 @@ namespace NServiceBus
             var messagelist = messageTypes.ToArray();
             var result = new HashSet<Subscriber>();
 
-            lock (lookup)
+            try
             {
+                // note: ReaderWriterLockSlim has a thread affinity and cannot be used with await!
+                rwLock.EnterReadLock();
+
                 foreach (var subscribers in lookup)
                 {
                     foreach (var messageType in messagelist)
@@ -73,6 +83,10 @@ namespace NServiceBus
                         }
                     }
                 }
+            }
+            finally
+            {
+                rwLock.ExitReadLock();
             }
 
             return Task.FromResult<IEnumerable<Subscriber>>(result);
@@ -127,8 +141,11 @@ namespace NServiceBus
 
         void AddToLookup(Subscriber subscriber, MessageType typeName, string messageId)
         {
-            lock (lookup)
+            try
             {
+                // note: ReaderWriterLockSlim has a thread affinity and cannot be used with await!
+                rwLock.EnterWriteLock();
+
                 Dictionary<MessageType, string> dictionary;
                 if (!lookup.TryGetValue(subscriber, out dictionary))
                 {
@@ -143,12 +160,19 @@ namespace NServiceBus
                 dictionary[typeName] = messageId;
                 lookup[subscriber] = dictionary;
             }
+            finally
+            {
+                rwLock.ExitWriteLock();
+            }
         }
 
         string RemoveFromLookup(Subscriber subscriber, MessageType typeName)
         {
-            lock (lookup)
+            try
             {
+                // note: ReaderWriterLockSlim has a thread affinity and cannot be used with await!
+                rwLock.EnterWriteLock();
+
                 Dictionary<MessageType, string> subscriptions;
                 if (lookup.TryGetValue(subscriber, out subscriptions))
                 {
@@ -165,12 +189,18 @@ namespace NServiceBus
                     }
                 }
             }
+            finally
+            {
+                rwLock.ExitWriteLock();
+            }
 
             return null;
         }
 
         Dictionary<Subscriber, Dictionary<MessageType, string>> lookup = new Dictionary<Subscriber, Dictionary<MessageType, string>>(SubscriberComparer);
         IMsmqSubscriptionStorageQueue storageQueue;
+        ReaderWriterLockSlim rwLock = new ReaderWriterLockSlim(LockRecursionPolicy.NoRecursion);
+
         static ILog log = LogManager.GetLogger(typeof(ISubscriptionStorage));
         static TransportAddressEqualityComparer SubscriberComparer = new TransportAddressEqualityComparer();
 
