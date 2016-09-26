@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.Features
 {
     using Config;
-    using ConsistencyGuarantees;
     using Logging;
     using Transport;
 
@@ -44,9 +43,7 @@
 
             context.Container.ConfigureComponent(b =>
             {
-                var isTransactional = context.Settings.GetRequiredTransactionModeForReceives() != TransportTransactionMode.None;
-
-                var queue = new MsmqSubscriptionStorageQueue(MsmqAddress.Parse(queueName), isTransactional, false);
+                var queue = new MsmqSubscriptionStorageQueue(MsmqAddress.Parse(queueName));
                 return new MsmqSubscriptionStorage(queue);
             }, DependencyLifecycle.SingleInstance);
         }
