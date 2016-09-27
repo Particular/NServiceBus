@@ -1,12 +1,11 @@
 namespace NServiceBus
 {
     using System.Collections.Generic;
-    using System.Messaging;
 
     interface IMsmqSubscriptionStorageQueue
     {
-        IEnumerable<Message> GetAllMessages();
-        void Send(Message toSend);
-        void ReceiveById(string messageId);
+        IEnumerable<MsmqSubscriptionMessage> GetAllMessages();
+        string Send(string body, string label);
+        void TryReceiveById(string messageId);
     }
 }

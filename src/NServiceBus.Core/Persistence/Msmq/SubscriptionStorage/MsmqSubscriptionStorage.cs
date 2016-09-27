@@ -3,7 +3,7 @@ namespace NServiceBus
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Messaging;
+    using System.Threading;
     using System.Threading.Tasks;
     using Extensibility;
     using Logging;
@@ -24,94 +24,99 @@ namespace NServiceBus
 
         public void Init()
         {
-            foreach (var m in storageQueue.GetAllMessages())
-            {
-                var messageTypeString = m.Body as string;
-                var messageType = new MessageType(messageTypeString); //this will parse both 2.6 and 3.0 type strings
-                var subscriber = Deserialize(m.Label);
+            var messages = storageQueue.GetAllMessages()
+                .OrderByDescending(m => m.ArrivedTime)
+                .ThenBy(x => x.Id) // ensure same order of messages with same timestamp accross all endpoints
+                .ToArray();
 
-                entries.Add(new Entry
+            try
+            {
+                rwLock.EnterWriteLock();
+
+                foreach (var m in messages)
                 {
-                    MessageType = messageType,
-                    Subscriber = subscriber
-                });
-                AddToLookup(subscriber.TransportAddress, messageType, m.Id);
+                    var messageTypeString = m.Body as string;
+                    var messageType = new MessageType(messageTypeString); //this will parse both 2.6 and 3.0 type strings
+                    var subscriber = Deserialize(m.Label);
+
+                    Dictionary<MessageType, string> endpointSubscriptions;
+                    if (!lookup.TryGetValue(subscriber, out endpointSubscriptions))
+                    {
+                        lookup[subscriber] = endpointSubscriptions = new Dictionary<MessageType, string>();
+                    }
+
+                    if (endpointSubscriptions.ContainsKey(messageType))
+                    {
+                        // this message is stale and can be removed
+                        storageQueue.TryReceiveById(m.Id);
+                    }
+                    else
+                    {
+                        endpointSubscriptions[messageType] = m.Id;
+                    }
+                }
+            }
+            finally
+            {
+                rwLock.ExitWriteLock();
             }
         }
 
         public Task<IEnumerable<Subscriber>> GetSubscriberAddressesForMessage(IEnumerable<MessageType> messageTypes, ContextBag context)
         {
-            var messagelist = messageTypes.ToList();
-            lock (locker)
-            {
-                var result = (from e in entries
-                    from m in messagelist
-                    where e.MessageType == m
-                    select e)
-                    .Distinct(EntryComparer)
-                    .Select(e => e.Subscriber)
-                    .ToArray();
+            var messagelist = messageTypes.ToArray();
+            var result = new HashSet<Subscriber>();
 
-                return Task.FromResult((IEnumerable<Subscriber>) result);
+            try
+            {
+                // note: ReaderWriterLockSlim has a thread affinity and cannot be used with await!
+                rwLock.EnterReadLock();
+
+                foreach (var subscribers in lookup)
+                {
+                    foreach (var messageType in messagelist)
+                    {
+                        string messageId;
+                        if (subscribers.Value.TryGetValue(messageType, out messageId))
+                        {
+                            result.Add(subscribers.Key);
+                        }
+                    }
+                }
             }
+            finally
+            {
+                rwLock.ExitReadLock();
+            }
+
+            return Task.FromResult<IEnumerable<Subscriber>>(result);
         }
 
         public Task Subscribe(Subscriber subscriber, MessageType messageType, ContextBag context)
         {
-            lock (locker)
-            {
-                var found = entries.Any(e =>
-                    e.MessageType == messageType &&
-                    e.Subscriber.TransportAddress == subscriber.TransportAddress);
+            var body = $"{messageType.TypeName}, Version={messageType.Version}";
+            var label = Serialize(subscriber);
+            var messageId = storageQueue.Send(body, label);
 
-                if (!found)
-                {
-                    Add(subscriber, messageType);
+            AddToLookup(subscriber, messageType, messageId);
 
-                    var entry = new Entry
-                    {
-                        MessageType = messageType,
-                        Subscriber = subscriber
-                    };
-                    entries.Add(entry);
+            log.DebugFormat($"Subscriber {subscriber.TransportAddress} added for message {messageType}.");
 
-                    log.DebugFormat("Subscriber {0} added for message {1}.", subscriber, messageType);
-                }
-            }
             return TaskEx.CompletedTask;
         }
 
         public Task Unsubscribe(Subscriber subscriber, MessageType messageType, ContextBag context)
         {
-            lock (locker)
-            {
-                var toRemove =
-                    from e in entries.ToArray()
-                    where e.MessageType == messageType && e.Subscriber.TransportAddress == subscriber.TransportAddress
-                    select e;
+            var messageId = RemoveFromLookup(subscriber, messageType);
 
-                foreach (var entry in toRemove)
-                {
-                    Remove(subscriber.TransportAddress, entry.MessageType);
-                    entries.Remove(entry);
-                    log.Debug($"Subscriber {subscriber} removed for message {entry.MessageType}.");
-                }
+            if (messageId != null)
+            {
+                storageQueue.TryReceiveById(messageId);
             }
+
+            log.Debug($"Subscriber {subscriber.TransportAddress} removed for message {messageType}.");
+
             return TaskEx.CompletedTask;
-        }
-
-        void Add(Subscriber subscriber, MessageType messageType)
-        {
-            var toSend = new Message
-            {
-                Recoverable = true,
-                Label = Serialize(subscriber),
-                Body = messageType.TypeName + ", Version=" + messageType.Version
-            };
-
-            storageQueue.Send(toSend);
-
-            AddToLookup(subscriber.TransportAddress, messageType, toSend.Id);
         }
 
         static string Serialize(Subscriber subscriber)
@@ -134,79 +139,90 @@ namespace NServiceBus
             return new Subscriber(parts[0], endpointName);
         }
 
-        void Remove(string subscriber, MessageType messageType)
+        void AddToLookup(Subscriber subscriber, MessageType typeName, string messageId)
         {
-            var messageId = RemoveFromLookup(subscriber, messageType);
-
-            if (messageId == null)
+            try
             {
-                return;
-            }
+                // note: ReaderWriterLockSlim has a thread affinity and cannot be used with await!
+                rwLock.EnterWriteLock();
 
-            storageQueue.ReceiveById(messageId);
-        }
-
-
-        void AddToLookup(string subscriber, MessageType typeName, string messageId)
-        {
-            lock (lookup)
-            {
                 Dictionary<MessageType, string> dictionary;
                 if (!lookup.TryGetValue(subscriber, out dictionary))
                 {
-                    lookup[subscriber] = dictionary = new Dictionary<MessageType, string>();
+                    dictionary = new Dictionary<MessageType, string>();
+                }
+                else
+                {
+                    // replace existing subscriber
+                    lookup.Remove(subscriber);
                 }
 
-                if (!dictionary.ContainsKey(typeName))
-                {
-                    dictionary.Add(typeName, messageId);
-                }
+                dictionary[typeName] = messageId;
+                lookup[subscriber] = dictionary;
+            }
+            finally
+            {
+                rwLock.ExitWriteLock();
             }
         }
 
-        string RemoveFromLookup(string subscriber, MessageType typeName)
+        string RemoveFromLookup(Subscriber subscriber, MessageType typeName)
         {
-            string messageId = null;
-            lock (lookup)
+            try
             {
-                Dictionary<MessageType, string> endpoints;
-                if (lookup.TryGetValue(subscriber, out endpoints))
+                // note: ReaderWriterLockSlim has a thread affinity and cannot be used with await!
+                rwLock.EnterWriteLock();
+
+                Dictionary<MessageType, string> subscriptions;
+                if (lookup.TryGetValue(subscriber, out subscriptions))
                 {
-                    if (endpoints.TryGetValue(typeName, out messageId))
+                    string messageId;
+                    if (subscriptions.TryGetValue(typeName, out messageId))
                     {
-                        endpoints.Remove(typeName);
-                        if (endpoints.Count == 0)
+                        subscriptions.Remove(typeName);
+                        if (subscriptions.Count == 0)
                         {
                             lookup.Remove(subscriber);
                         }
+
+                        return messageId;
                     }
                 }
             }
-            return messageId;
+            finally
+            {
+                rwLock.ExitWriteLock();
+            }
+
+            return null;
         }
 
-        List<Entry> entries = new List<Entry>();
-        object locker = new object();
-        Dictionary<string, Dictionary<MessageType, string>> lookup = new Dictionary<string, Dictionary<MessageType, string>>(StringComparer.OrdinalIgnoreCase);
+        Dictionary<Subscriber, Dictionary<MessageType, string>> lookup = new Dictionary<Subscriber, Dictionary<MessageType, string>>(SubscriberComparer);
         IMsmqSubscriptionStorageQueue storageQueue;
+        ReaderWriterLockSlim rwLock = new ReaderWriterLockSlim(LockRecursionPolicy.NoRecursion);
+
         static ILog log = LogManager.GetLogger(typeof(ISubscriptionStorage));
-        static readonly EntryBySubscriberAddressComparer EntryComparer = new EntryBySubscriberAddressComparer();
+        static TransportAddressEqualityComparer SubscriberComparer = new TransportAddressEqualityComparer();
 
         static readonly char[] EntrySeparator =
         {
             '|'
         };
 
-        class EntryBySubscriberAddressComparer : IEqualityComparer<Entry>
+        sealed class TransportAddressEqualityComparer : IEqualityComparer<Subscriber>
         {
-            public bool Equals(Entry x, Entry y)
+            public bool Equals(Subscriber x, Subscriber y)
             {
-                return x.Subscriber.TransportAddress.Equals(y.Subscriber.TransportAddress, StringComparison.OrdinalIgnoreCase);
+                if (ReferenceEquals(x, y)) return true;
+                if (ReferenceEquals(x, null)) return false;
+                if (ReferenceEquals(y, null)) return false;
+                if (x.GetType() != y.GetType()) return false;
+                return string.Equals(x.TransportAddress, y.TransportAddress, StringComparison.OrdinalIgnoreCase);
             }
 
-            public int GetHashCode(Entry obj)
+            public int GetHashCode(Subscriber obj)
             {
-                return obj.Subscriber.TransportAddress.ToLowerInvariant().GetHashCode();
+                return (obj.TransportAddress != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(obj.TransportAddress) : 0);
             }
         }
     }
