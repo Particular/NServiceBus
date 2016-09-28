@@ -70,7 +70,7 @@ namespace NServiceBus
             var inMemSession = (InMemorySynchronizedStorageSession) session;
             inMemSession.Enlist(() =>
             {
-                var lockenTokenKey = $"{sagaData.GetType().FullName}.{(correlationProperty == null ? "None" : correlationProperty.Name)}.{(correlationProperty == null ? "None" : correlationProperty.Value)}";
+                var lockenTokenKey = $"{sagaData.GetType().FullName}.{correlationProperty?.Name ?? "None"}.{correlationProperty?.Value ?? "None"}";
                 var lockToken = lockers.GetOrAdd(lockenTokenKey, key => new object());
                 lock (lockToken)
                 {
@@ -103,6 +103,7 @@ namespace NServiceBus
         {
             var sagaType = saga.GetType();
             var existingSagas = new List<VersionedSagaEntity>();
+            // ReSharper disable once LoopCanBeConvertedToQuery
             foreach (var s in data)
             {
                 if (s.Value.SagaData.GetType() == sagaType && (s.Key != saga.Id))
@@ -182,7 +183,7 @@ namespace NServiceBus
             }
 
             public IContainSagaData SagaData;
-            public readonly string LockTokenKey;
+            public string LockTokenKey;
 
             ConditionalWeakTable<IContainSagaData, SagaVersion> versionCache;
 

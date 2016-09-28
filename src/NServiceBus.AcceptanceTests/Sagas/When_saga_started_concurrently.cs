@@ -5,42 +5,37 @@
     using AcceptanceTesting;
     using EndpointTemplates;
     using NUnit.Framework;
-    using ScenarioDescriptors;
 
-    public class When_saga_handles_messages_concurrently : NServiceBusAcceptanceTest
+    public class When_saga_started_concurrently : NServiceBusAcceptanceTest
     {
         [Test]
-        public Task Should_complete_saga_eventually()
+        public async Task Should_start_single_saga()
         {
-            return Scenario.Define<Context>(c => { c.SomeId = Guid.NewGuid().ToString(); })
+            var context = await Scenario.Define<Context>(c => { c.SomeId = Guid.NewGuid().ToString(); })
                 .WithEndpoint<ConcurrentHandlerEndpoint>(b =>
                 {
-                    b.When((session, context) =>
+                    b.When((session, ctx) =>
                     {
                         var t1 = session.SendLocal(new StartMessageOne
                         {
-                            SomeId = context.SomeId
+                            SomeId = ctx.SomeId
                         });
                         var t2 = session.SendLocal(new StartMessageTwo
                         {
-                            SomeId = context.SomeId
+                            SomeId = ctx.SomeId
                         });
                         return Task.WhenAll(t1, t2);
                     });
                 })
                 .Done(c => c.PlacedSagaId != Guid.Empty && c.BilledSagaId != Guid.Empty)
-                .Repeat(r => r.For(Transports.Default))
-                .Should(c =>
-                {
-                    Assert.AreNotEqual(Guid.Empty, c.PlacedSagaId);
-                    Assert.AreNotEqual(Guid.Empty, c.BilledSagaId);
-                    Assert.AreEqual(c.PlacedSagaId, c.BilledSagaId, "Both messages should have been handled by the same saga, but SagaIds don't match.");
-                    Assert.True(c.SagaCompleted);
-                })
                 .Run();
+
+            Assert.AreNotEqual(Guid.Empty, context.PlacedSagaId);
+            Assert.AreNotEqual(Guid.Empty, context.BilledSagaId);
+            Assert.AreEqual(context.PlacedSagaId, context.BilledSagaId, "Both messages should have been handled by the same saga, but SagaIds don't match.");
         }
 
-        public class Context : ScenarioContext
+        class Context : ScenarioContext
         {
             public string SomeId { get; set; }
             public Guid PlacedSagaId { get; set; }
@@ -48,7 +43,7 @@
             public bool SagaCompleted { get; set; }
         }
 
-        public class ConcurrentHandlerEndpoint : EndpointConfigurationBuilder
+        class ConcurrentHandlerEndpoint : EndpointConfigurationBuilder
         {
             public ConcurrentHandlerEndpoint()
             {
@@ -59,7 +54,7 @@
                 });
             }
 
-            public class ConcurrentlyStartedSaga : Saga<ConcurrentlyStartedSagaData>,
+            class ConcurrentlyStartedSaga : Saga<ConcurrentlyStartedSagaData>,
                 IAmStartedByMessages<StartMessageTwo>,
                 IAmStartedByMessages<StartMessageOne>
             {
@@ -73,7 +68,7 @@
                         SagaId = Data.Id,
                         Type = nameof(StartMessageOne)
                     });
-                    await CheckForCompletion(context);
+                    CheckForCompletion(context);
                 }
 
                 public async Task Handle(StartMessageTwo message, IMessageHandlerContext context)
@@ -84,7 +79,7 @@
                         SagaId = Data.Id,
                         Type = nameof(StartMessageTwo)
                     });
-                    await CheckForCompletion(context);
+                    CheckForCompletion(context);
                 }
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<ConcurrentlyStartedSagaData> mapper)
@@ -93,25 +88,26 @@
                     mapper.ConfigureMapping<StartMessageTwo>(msg => msg.SomeId).ToSaga(saga => saga.OrderId);
                 }
 
-                Task CheckForCompletion(IMessageHandlerContext context)
+                void CheckForCompletion(IMessageHandlerContext context)
                 {
-                    if (Data.Billed && Data.Placed)
+                    if (!Data.Billed || !Data.Placed)
                     {
-                        MarkAsComplete();
-                        Context.SagaCompleted = true;
+                        return;
                     }
-                    return Task.FromResult(0);
+                    MarkAsComplete();
+                    Context.SagaCompleted = true;
                 }
             }
 
-            public class ConcurrentlyStartedSagaData : ContainSagaData
+            class ConcurrentlyStartedSagaData : ContainSagaData
             {
                 public virtual string OrderId { get; set; }
                 public virtual bool Placed { get; set; }
                 public virtual bool Billed { get; set; }
             }
 
-            public class LogSuccessfulHandler : IHandleMessages<SuccessfulProcessing>
+            // Intercepts the messages sent out by the saga
+            class LogSuccessfulHandler : IHandleMessages<SuccessfulProcessing>
             {
                 public Context Context { get; set; }
 
@@ -135,17 +131,17 @@
             }
         }
 
-        public class StartMessageOne : ICommand
+        class StartMessageOne : ICommand
         {
             public string SomeId { get; set; }
         }
 
-        public class StartMessageTwo : ICommand
+        class StartMessageTwo : ICommand
         {
             public string SomeId { get; set; }
         }
 
-        public class SuccessfulProcessing : ICommand
+        class SuccessfulProcessing : ICommand
         {
             public string Type { get; set; }
             public Guid SagaId { get; set; }
