@@ -232,6 +232,32 @@
             Assert.AreEqual(queue1.Messages.Single(), queue2.Messages.Single());
         }
 
+        [Test]
+        public async Task ShouldIgnoreMessageVersionOnSubscriptions()
+        {
+            var subscriptionMessage = new MsmqSubscriptionMessage
+            {
+                ArrivedTime = DateTime.UtcNow,
+                Id = Guid.NewGuid().ToString(),
+                Body = "SomeMessage, Version=1.0.0",
+                Label = "subscriberA@server1|subscriberA"
+            };
+
+            var storageQueue = new FakeStorageQueue();
+            var subscriptionStorage = new MsmqSubscriptionStorage(storageQueue);
+
+            storageQueue.Messages.Add(subscriptionMessage);
+
+            subscriptionStorage.Init();
+
+            var subscribers = await subscriptionStorage.GetSubscriberAddressesForMessage(new[]
+            {
+                new MessageType("SomeMessage", "2.0.0")
+            }, new ContextBag());
+
+            Assert.AreEqual("subscriberA", subscribers.Single().Endpoint);
+        }
+
         static MsmqSubscriptionStorage CreateAndInit(FakeStorageQueue queue)
         {
             var storage = new MsmqSubscriptionStorage(queue);
