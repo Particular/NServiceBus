@@ -12,7 +12,8 @@
 
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-            var performanceDiagnosticsBehavior = new ReceivePerformanceDiagnosticsBehavior(context.Settings.LocalAddress());
+            var logicalAddress = context.Settings.LogicalAddress();
+            var performanceDiagnosticsBehavior = new ReceivePerformanceDiagnosticsBehavior(logicalAddress.EndpointInstance.Endpoint);
 
             context.Pipeline.Register(performanceDiagnosticsBehavior, "Provides various performance counters for receive statistics");
             context.Pipeline.Register("ProcessingStatistics", new ProcessingStatisticsBehavior(), "Collects timing for ProcessingStarted and adds the state to determine ProcessingEnded");
