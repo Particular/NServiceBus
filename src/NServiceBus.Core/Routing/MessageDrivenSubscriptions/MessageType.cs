@@ -96,7 +96,7 @@ namespace NServiceBus.Unicast.Subscriptions
             {
                 return true;
             }
-            return Equals(other.TypeName, TypeName) && other.Version.Major == Version.Major;
+            return Equals(other.TypeName, TypeName);
         }
 
         /// <summary>
@@ -116,7 +116,7 @@ namespace NServiceBus.Unicast.Subscriptions
             {
                 return false;
             }
-            return Equals((MessageType) obj);
+            return Equals((MessageType)obj);
         }
 
         /// <summary>
@@ -124,10 +124,7 @@ namespace NServiceBus.Unicast.Subscriptions
         /// </summary>
         public override int GetHashCode()
         {
-            unchecked
-            {
-                return (TypeName.GetHashCode()*397) ^ Version.GetHashCode();
-            }
+            return TypeName.GetHashCode();
         }
 
         /// <summary>
