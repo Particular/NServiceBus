@@ -233,7 +233,7 @@
         }
 
         [Test]
-        public async Task ShouldIgnoreMessageVersionOnSubscriptions()
+        public async Task Should_ignore_message_version_on_subscriptions()
         {
             var subscriptionMessage = new MsmqSubscriptionMessage
             {
@@ -255,6 +255,7 @@
                 new MessageType("SomeMessage", "2.0.0")
             }, new ContextBag());
 
+            Assert.AreEqual(1, subscribers.Count(), "Expected a subscription to be returned");
             Assert.AreEqual("subscriberA", subscribers.Single().Endpoint);
         }
 
