@@ -96,7 +96,7 @@ namespace NServiceBus.Unicast.Subscriptions
             {
                 return true;
             }
-            return Equals(other.TypeName, TypeName) && other.Version.Major == Version.Major;
+            return Equals(other.TypeName, TypeName);
         }
 
         /// <summary>
@@ -126,7 +126,7 @@ namespace NServiceBus.Unicast.Subscriptions
         {
             unchecked
             {
-                return (TypeName.GetHashCode()*397) ^ Version.GetHashCode();
+                return TypeName.GetHashCode()*397;
             }
         }
 
