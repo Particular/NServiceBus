@@ -22,7 +22,6 @@
                 new MessageType("SomeMessage", "2.0.0")
             }, new ContextBag());
 
-            Assert.AreEqual(1, subscribers.Count(), "Expected a subscription to be returned");
             Assert.AreEqual("subscriberA", subscribers.Single().Endpoint);
         }
     }
