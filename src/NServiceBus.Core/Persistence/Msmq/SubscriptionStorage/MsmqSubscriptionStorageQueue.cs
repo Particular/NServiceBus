@@ -2,36 +2,21 @@ namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Messaging;
-    using System.Transactions;
 
     class MsmqSubscriptionStorageQueue : IMsmqSubscriptionStorageQueue
     {
-        public MsmqSubscriptionStorageQueue(MsmqAddress queueAddress, bool transactionsEnabled, bool dontUseExternalTransaction)
+        public MsmqSubscriptionStorageQueue(MsmqAddress queueAddress)
         {
-            this.transactionsEnabled = transactionsEnabled;
-            this.dontUseExternalTransaction = dontUseExternalTransaction;
             q = new MessageQueue(queueAddress.FullPath);
-            bool transactional;
-            try
-            {
-                transactional = q.Transactional;
-            }
-            catch (Exception ex)
-            {
-                throw new ArgumentException($"There is a problem with the subscription storage queue {queueAddress}. See enclosed exception for details.", ex);
-            }
-
-            if (!transactional && transactionsEnabled)
-            {
-                throw new ArgumentException("Queue must be transactional (" + queueAddress + ").");
-            }
 
             var messageReadPropertyFilter = new MessagePropertyFilter
             {
                 Id = true,
                 Body = true,
-                Label = true
+                Label = true,
+                ArrivedTime = true
             };
 
             q.Formatter = new XmlMessageFormatter(new[]
@@ -42,51 +27,38 @@ namespace NServiceBus
             q.MessageReadPropertyFilter = messageReadPropertyFilter;
         }
 
-        public IEnumerable<Message> GetAllMessages()
+        public IEnumerable<MsmqSubscriptionMessage> GetAllMessages()
         {
-            return q.GetAllMessages();
+            return q.GetAllMessages().Select(m => new MsmqSubscriptionMessage(m));
         }
 
-        public void Send(Message toSend)
+        public string Send(string body, string label)
         {
-            toSend.Formatter = q.Formatter;
-            q.Send(toSend, GetTransactionType(transactionsEnabled, dontUseExternalTransaction));
-        }
-
-        public void ReceiveById(string messageId)
-        {
-            q.ReceiveById(messageId, GetTransactionType(transactionsEnabled, dontUseExternalTransaction));
-        }
-
-        MessageQueueTransactionType GetTransactionType(bool transactionsEnabled, bool dontUseExternalTransaction)
-        {
-            if (!transactionsEnabled)
+            var toSend = new Message()
             {
-                return MessageQueueTransactionType.None;
-            }
+                Recoverable = true,
+                Formatter = q.Formatter,
+                Body = body,
+                Label = label
+            };
 
-            if (ConfigurationIsWrong(dontUseExternalTransaction))
-            {
-                throw new InvalidOperationException(@"This endpoint is not configured to be transactional. Processing subscriptions on a non-transactional endpoint is not supported by default. If this is still required, set the 'DontUseExternalTransaction' property of MsmqSubscriptionStorage to 'true'.
-The recommended solution to this problem is to include '.IsTransaction(true)' after '.MsmqTransport()' in the initialization code, or if using NServiceBus.Host.exe to have the class which implements IConfigureThisEndpoint to also inherit AsA_Server or AsA_Publisher.");
-            }
+            q.Send(toSend, MessageQueueTransactionType.None);
 
-            var t = MessageQueueTransactionType.Automatic;
-            if (dontUseExternalTransaction)
-            {
-                t = MessageQueueTransactionType.Single;
-            }
-
-            return t;
+            return toSend.Id;
         }
 
-        bool ConfigurationIsWrong(bool DontUseExternalTransaction)
+        public void TryReceiveById(string messageId)
         {
-            return Transaction.Current == null && !DontUseExternalTransaction;
+            try
+            {
+                q.ReceiveById(messageId, MessageQueueTransactionType.None);
+            }
+            catch (InvalidOperationException)
+            {
+                // thrown when message not found
+            }
         }
 
-        bool dontUseExternalTransaction;
         MessageQueue q;
-        bool transactionsEnabled;
     }
 }

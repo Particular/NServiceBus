@@ -1,7 +1,6 @@
 namespace NServiceBus.Timeout.Core
 {
     using System;
-    using System.Collections.Generic;
 
     /// <summary>
     /// Contains a collection of timeouts that are due and when to query for timeouts again.
@@ -13,7 +12,7 @@ namespace NServiceBus.Timeout.Core
         /// </summary>
         /// <param name="dueTimeouts">timeouts that are due.</param>
         /// <param name="nextTimeToQuery">the next time to query for due timeouts again.</param>
-        public TimeoutsChunk(IEnumerable<Timeout> dueTimeouts, DateTime nextTimeToQuery)
+        public TimeoutsChunk(Timeout[] dueTimeouts, DateTime nextTimeToQuery)
         {
             DueTimeouts = dueTimeouts;
             NextTimeToQuery = nextTimeToQuery;
@@ -22,7 +21,7 @@ namespace NServiceBus.Timeout.Core
         /// <summary>
         /// timeouts that are due.
         /// </summary>
-        public IEnumerable<Timeout> DueTimeouts { get; private set; }
+        public Timeout[] DueTimeouts { get; private set; }
 
         /// <summary>
         /// the next time to query for due timeouts again.
@@ -32,7 +31,7 @@ namespace NServiceBus.Timeout.Core
         /// <summary>
         /// Represents a timeout.
         /// </summary>
-        public class Timeout
+        public struct Timeout
         {
             /// <summary>
             /// Creates a new instance of a timeout representation.
@@ -48,12 +47,12 @@ namespace NServiceBus.Timeout.Core
             /// <summary>
             /// The id of the timeout.
             /// </summary>
-            public string Id { get; private set; }
+            public string Id { get; }
 
             /// <summary>
             /// The due time of the timeout.
             /// </summary>
-            public DateTime DueTime { get; private set; }
+            public DateTime DueTime { get; }
         }
     }
 }

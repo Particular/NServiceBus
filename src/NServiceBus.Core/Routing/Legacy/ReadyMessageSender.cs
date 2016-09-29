@@ -7,7 +7,7 @@
     using Features;
     using Logging;
     using Routing;
-    using Transports;
+    using Transport;
     using Unicast.Transport;
 
     class ReadyMessageSender : FeatureStartupTask
@@ -47,7 +47,7 @@
             }
 
             var transportOperation = new TransportOperation(readyMessage, new UnicastAddressTag(distributorControlAddress));
-            return dispatcher.Dispatch(new TransportOperations(transportOperation), new ContextBag());
+            return dispatcher.Dispatch(new TransportOperations(transportOperation), new TransportTransaction(), new ContextBag());
         }
 
         public Task MessageProcessed(Dictionary<string, string> headers)

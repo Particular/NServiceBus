@@ -2,13 +2,12 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.IO;
     using System.Threading.Tasks;
-    using NServiceBus.Extensibility;
+    using Extensibility;
     using NServiceBus.Pipeline;
-    using NServiceBus.Transports;
     using NUnit.Framework;
     using Testing;
+    using Transport;
 
     [TestFixture]
     public class ApplyReplyToAddressBehaviorTests
@@ -20,15 +19,18 @@
             var options = new SendOptions();
             var context = CreateContext(options);
 
-            await behavior.Invoke(context, () => TaskEx.CompletedTask);
+            await behavior.Invoke(context, ctx => TaskEx.CompletedTask);
 
             Assert.AreEqual("PublicAddress", context.Headers[Headers.ReplyToAddress]);
         }
 
         static IOutgoingLogicalMessageContext CreateContext(ExtendableOptions options)
         {
-            var context = new TestableOutgoingLogicalMessageContext { Extensions = options.Context };
-            
+            var context = new TestableOutgoingLogicalMessageContext
+            {
+                Extensions = options.Context
+            };
+
             return context;
         }
 
@@ -39,7 +41,7 @@
             var options = new SendOptions();
             var context = CreateContext(options);
 
-            await behavior.Invoke(context, () => TaskEx.CompletedTask);
+            await behavior.Invoke(context, ctx => TaskEx.CompletedTask);
 
             Assert.AreEqual("MyEndpoint", context.Headers[Headers.ReplyToAddress]);
         }
@@ -53,7 +55,7 @@
             options.RouteReplyToAnyInstance();
 
             var context = CreateContext(options);
-            await behavior.Invoke(context, () => TaskEx.CompletedTask);
+            await behavior.Invoke(context, ctx => TaskEx.CompletedTask);
 
             Assert.AreEqual("MyEndpoint", context.Headers[Headers.ReplyToAddress]);
         }
@@ -67,7 +69,7 @@
             options.RouteReplyToThisInstance();
 
             var context = CreateContext(options);
-            await behavior.Invoke(context, () => TaskEx.CompletedTask);
+            await behavior.Invoke(context, ctx => TaskEx.CompletedTask);
 
             Assert.AreEqual("MyInstance", context.Headers[Headers.ReplyToAddress]);
         }
@@ -81,7 +83,7 @@
             options.RouteReplyTo("Destination");
 
             var context = CreateContext(options);
-            await behavior.Invoke(context, () => TaskEx.CompletedTask);
+            await behavior.Invoke(context, ctx => TaskEx.CompletedTask);
 
             Assert.AreEqual("Destination", context.Headers[Headers.ReplyToAddress]);
         }
@@ -95,13 +97,13 @@
 
             context.Extensions.Set(new IncomingMessage("ID", new Dictionary<string, string>
             {
-                { LegacyDistributorHeaders.WorkerSessionId, "SessionID" }
-            }, new MemoryStream()));
+                {LegacyDistributorHeaders.WorkerSessionId, "SessionID"}
+            }, new byte[0]));
 
             var state = context.Extensions.GetOrCreate<ApplyReplyToAddressBehavior.State>();
             state.Option = ApplyReplyToAddressBehavior.RouteOption.RouteReplyToThisInstance;
 
-            await behavior.Invoke(context, () => TaskEx.CompletedTask);
+            await behavior.Invoke(context, ctx => TaskEx.CompletedTask);
 
             Assert.AreEqual("MyDistributor", context.Headers[Headers.ReplyToAddress]);
         }
@@ -115,9 +117,10 @@
             options.RouteReplyToThisInstance();
 
             var context = CreateContext(options);
+
             try
             {
-                await behavior.Invoke(context, () => TaskEx.CompletedTask);
+                await behavior.Invoke(context, ctx => TaskEx.CompletedTask);
                 Assert.Fail("Expected exception");
             }
             catch (Exception)
@@ -139,17 +142,13 @@
                 options.RouteReplyToAnyInstance();
                 options.RouteReplyToThisInstance();
 
-                await behavior.Invoke(context, () => TaskEx.CompletedTask);
+                await behavior.Invoke(context, ctx => TaskEx.CompletedTask);
                 Assert.Fail("Expected exception");
             }
             catch (Exception)
             {
                 Assert.Pass();
             }
-        }
-
-        class MyMessage
-        {
         }
     }
 }

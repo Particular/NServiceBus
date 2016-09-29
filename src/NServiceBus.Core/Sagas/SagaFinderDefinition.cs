@@ -14,10 +14,11 @@ namespace NServiceBus.Sagas
         /// <param name="type">The type of the finder.</param>
         /// <param name="messageType">The type of message this finder is associated with.</param>
         /// <param name="properties">Custom properties.</param>
-        public SagaFinderDefinition(Type type, string messageType, Dictionary<string, object> properties)
+        internal SagaFinderDefinition(Type type, Type messageType, Dictionary<string, object> properties)
         {
             Type = type;
             MessageType = messageType;
+            MessageTypeName = messageType.FullName;
             Properties = properties;
         }
 
@@ -29,7 +30,12 @@ namespace NServiceBus.Sagas
         /// <summary>
         /// The type of message this finder is associated with.
         /// </summary>
-        public string MessageType { get; private set; }
+        public Type MessageType { get; private set; }
+
+        /// <summary>
+        /// The full name of the message type.
+        /// </summary>
+        public string MessageTypeName { get; private set; }
 
         /// <summary>
         /// Custom properties.

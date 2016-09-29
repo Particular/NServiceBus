@@ -11,7 +11,7 @@
     using NServiceBus.Routing;
     using NUnit.Framework;
     using Pipeline;
-    using Transports;
+    using Transport;
 
     public class When_receiving_control_message_with_body : NServiceBusAcceptanceTest
     {
@@ -65,7 +65,7 @@
                     }, body);
 
                     var endpoint = Conventions.EndpointNamingConvention(typeof(TestingEndpoint));
-                    return dispatcher.Dispatch(new TransportOperations(new TransportOperation(outgoingMessage, new UnicastAddressTag(endpoint))), new ContextBag());
+                    return dispatcher.Dispatch(new TransportOperations(new TransportOperation(outgoingMessage, new UnicastAddressTag(endpoint))), new TransportTransaction(), new ContextBag());
                 }
 
                 protected override Task OnStop(IMessageSession session)
@@ -82,34 +82,34 @@
                 EndpointSetup<DefaultServer>((config, context) =>
                 {
                     config.UseTransport<MsmqTransport>();
-                    config.Pipeline.Register("AssertBehavior", typeof(AssertBehavior), "Asserts message was processed without any failures");
+                    config.Pipeline.Register("AssertBehavior", new AssertBehavior((Context)ScenarioContext), "Asserts message was processed without any failures");
                     config.EnableFeature<V33ControlMessageSimulator>();
                 });
             }
 
-            public class AssertBehavior : Behavior<IIncomingPhysicalMessageContext>
+            public class AssertBehavior : IBehavior<IIncomingPhysicalMessageContext, IIncomingPhysicalMessageContext>
             {
-                public AssertBehavior(Context context)
+                public AssertBehavior(Context testContext)
                 {
-                    this.context = context;
+                    this.testContext = testContext;
                 }
 
-                public override async Task Invoke(IIncomingPhysicalMessageContext c, Func<Task> next)
+                public async Task Invoke(IIncomingPhysicalMessageContext context, Func<IIncomingPhysicalMessageContext, Task> next)
                 {
                     try
                     {
-                        await next().ConfigureAwait(false);
+                        await next(context).ConfigureAwait(false);
                     }
                     catch (Exception)
                     {
-                        context.ControlMessageFailed = true;
+                        testContext.ControlMessageFailed = true;
                         return;
                     }
 
-                    context.ControlMessageProcessed = true;
+                    testContext.ControlMessageProcessed = true;
                 }
 
-                readonly Context context;
+                Context testContext;
             }
         }
     }

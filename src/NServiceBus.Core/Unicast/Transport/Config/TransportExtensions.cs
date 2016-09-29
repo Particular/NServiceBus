@@ -2,9 +2,8 @@ namespace NServiceBus
 {
     using System;
     using Configuration.AdvanceExtensibility;
-    using Routing;
     using Settings;
-    using Transports;
+    using Transport;
 
     /// <summary>
     /// This class provides implementers of persisters with an extension mechanism for custom settings via extension methods.
@@ -58,7 +57,7 @@ namespace NServiceBus
     }
 
     /// <summary>
-    /// This class provides implementers of transports with an extension mechanism for custom settings via extention methods.
+    /// This class provides implementers of transports with an extension mechanism for custom settings via extension methods.
     /// </summary>
     public class TransportExtensions : ExposeSettings
     {
@@ -109,53 +108,6 @@ namespace NServiceBus
         {
             Settings.Set<TransportTransactionMode>(transportTransactionMode);
             return this;
-        }
-
-        /// <summary>
-        /// Adds a rule for translating endpoint instance names to physical addresses in direct routing.
-        /// </summary>
-        /// <param name="rule">The rule.</param>
-        public TransportExtensions AddAddressTranslationRule(Func<LogicalAddress, string> rule)
-        {
-            GetOrCreateTransportAddresses().AddRule(rule);
-            return this;
-        }
-
-        /// <summary>
-        /// Adds an exception to the translation rules for a given endpoint instance.
-        /// </summary>
-        /// <param name="logicalAddress">Logical address for which the exception is created.</param>
-        /// <param name="transportAddress">Transport address of that instance.</param>
-        public TransportExtensions AddAddressTranslationException(LogicalAddress logicalAddress, string transportAddress)
-        {
-            GetOrCreateTransportAddresses().AddSpecialCase(logicalAddress, transportAddress);
-            return this;
-        }
-
-        /// <summary>
-        /// Adds an exception to the translation rules for a given endpoint instance.
-        /// </summary>
-        /// <param name="endpointInstance">Endpoint instance for which the exception is created.</param>
-        /// <param name="transportAddress">Transport address of that instance.</param>
-        public TransportExtensions AddAddressTranslationException(EndpointInstance endpointInstance, string transportAddress)
-        {
-            GetOrCreateTransportAddresses().AddSpecialCase(endpointInstance, transportAddress);
-            return this;
-        }
-
-        TransportAddresses GetOrCreateTransportAddresses()
-        {
-            TransportAddresses value;
-            if (!Settings.TryGet(out value))
-            {
-                value = new TransportAddresses(a =>
-                {
-                    var transportInfrastructure = Settings.Get<TransportInfrastructure>();
-                    return transportInfrastructure.ToTransportAddress(a);
-                });
-                Settings.Set<TransportAddresses>(value);
-            }
-            return value;
         }
     }
 

@@ -70,7 +70,7 @@ namespace NServiceBus.Core.Tests.Encryption
             Assert.IsTrue(RijndaelEncryptionServiceConfigValidations.ConfigurationHasDuplicateKeyIdentifiers(section));
         }
         [Test]
-        public void Should_be_true_when_duplicate_key_identifer_in_concat_expired_keys()
+        public void Should_be_true_when_duplicate_key_identifier_in_concat_expired_keys()
         {
             var section = new RijndaelEncryptionServiceConfig
             {

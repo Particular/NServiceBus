@@ -21,29 +21,27 @@
             Assert.IsFalse(string.IsNullOrWhiteSpace(context.MessageId));
         }
 
-        public class CorruptionBehavior : Behavior<IDispatchContext>
+        class CorruptionBehavior : IBehavior<IDispatchContext, IDispatchContext>
         {
-            public Context Context { get; set; }
-
-            public override Task Invoke(IDispatchContext context, Func<Task> next)
+            public Task Invoke(IDispatchContext context, Func<IDispatchContext, Task> next)
             {
                 context.Operations.First().Message.Headers[Headers.MessageId] = null;
 
-                return next();
+                return next(context);
             }
         }
 
-        public class Context : ScenarioContext
+        class Context : ScenarioContext
         {
             public bool MessageReceived { get; set; }
             public string MessageId { get; set; }
         }
 
-        public class Endpoint : EndpointConfigurationBuilder
+        class Endpoint : EndpointConfigurationBuilder
         {
             public Endpoint()
             {
-                EndpointSetup<DefaultServer>(c => c.Pipeline.Register("CorruptionBehavior", typeof(When_message_has_empty_id_header.CorruptionBehavior), "Corrupting the message id"));
+                EndpointSetup<DefaultServer>(c => c.Pipeline.Register("CorruptionBehavior", new CorruptionBehavior(), "Corrupting the message id"));
             }
 
             class Handler : IHandleMessages<Message>

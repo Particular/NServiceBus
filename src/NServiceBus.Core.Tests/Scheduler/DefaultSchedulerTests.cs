@@ -9,23 +9,10 @@
     [TestFixture]
     public class DefaultSchedulerTests
     {
-        TestableMessageHandlerContext handlingContext = new TestableMessageHandlerContext();
-        DefaultScheduler scheduler;
-
         [SetUp]
         public void SetUp()
         {
             scheduler = new DefaultScheduler();
-        }
-
-        [Test]
-        public void When_scheduling_a_task_it_should_be_added_to_the_storage()
-        {
-            var task = new TaskDefinition{Every = TimeSpan.FromSeconds(5)};
-            var taskId = task.Id;
-            scheduler.Schedule(task);
-
-            Assert.IsTrue(scheduler.scheduledTasks.ContainsKey(taskId));
         }
 
         [Test]
@@ -41,7 +28,7 @@
             scheduler.Schedule(task);
 
             await scheduler.Start(taskId, handlingContext);
-            
+
             Assert.That(handlingContext.SentMessages.Any(message => message.Options.GetDeliveryDelay().HasValue));
         }
 
@@ -66,5 +53,8 @@
 
             Assert.That(i == 2);
         }
+
+        TestableMessageHandlerContext handlingContext = new TestableMessageHandlerContext();
+        DefaultScheduler scheduler;
     }
 }

@@ -3,70 +3,77 @@
     using System;
     using System.Threading.Tasks;
     using AcceptanceTesting;
+    using AcceptanceTesting.Customization;
     using EndpointTemplates;
-    using Features;
     using NServiceBus.Pipeline;
     using NUnit.Framework;
     using ScenarioDescriptors;
 
     public class When_message_is_moved_to_error_queue : NServiceBusAcceptanceTest
     {
-        [TestCase(TransportTransactionMode.ReceiveOnly)]
         [TestCase(TransportTransactionMode.SendsAtomicWithReceive)]
         [TestCase(TransportTransactionMode.TransactionScope)]
-        public async Task Should_not_send_outgoing_messages(TransportTransactionMode transactionMode)
+        public Task Should_not_send_outgoing_messages(TransportTransactionMode transactionMode)
         {
-            await Scenario.Define<Context>(c =>
-            {
-                c.Id = Guid.NewGuid();
-                c.TransactionMode = transactionMode;
-            })
-            .WithEndpoint<Endpoint>(b => b.DoNotFailOnErrorMessages()
-                .When((session, context) => session.SendLocal(new InitiatingMessage
-                {
-                    Id = context.Id
-                }))
-            )
-            .WithEndpoint<ErrorSpy>()
-            .Done(c => c.MessageMovedToErrorQueue)
-            .Repeat(r => r.For<AllDtcTransports>())
-            .Should(c => Assert.IsFalse(c.OutgoingMessageSent, "Outgoing messages should not be sent"))
-            .Run();
+            return Scenario.Define<Context>(c => { c.TransactionMode = transactionMode; })
+                .WithEndpoint<EndpointWithOutgoingMessages>(b => b.DoNotFailOnErrorMessages()
+                    .When((session, context) => session.SendLocal(new InitiatingMessage
+                    {
+                        Id = context.TestRunId
+                    }))
+                )
+                .WithEndpoint<ErrorSpy>()
+                .Done(c => c.MessageMovedToErrorQueue)
+                .Repeat(r => r.For<AllDtcTransports>())
+                .Should(c => Assert.IsFalse(c.OutgoingMessageSent, "Outgoing messages should not be sent"))
+                .Run();
+        }
+
+        [TestCase(TransportTransactionMode.ReceiveOnly)]
+        [TestCase(TransportTransactionMode.None)]
+        public Task May_send_outgoing_messages(TransportTransactionMode transactionMode)
+        {
+            return Scenario.Define<Context>(c => { c.TransactionMode = transactionMode; })
+                .WithEndpoint<EndpointWithOutgoingMessages>(b => b.DoNotFailOnErrorMessages()
+                    .When((session, context) => session.SendLocal(new InitiatingMessage
+                    {
+                        Id = context.TestRunId
+                    }))
+                )
+                .WithEndpoint<ErrorSpy>()
+                .Done(c => c.MessageMovedToErrorQueue)
+                .Repeat(r => r.For<AllDtcTransports>())
+                .Run();
         }
 
         [Test]
-        public async Task May_send_outgoing_messages_without_transport_transactions()
+        public async Task Should_log_exception()
         {
-            await Scenario.Define<Context>(c =>
-            {
-                c.Id = Guid.NewGuid();
-                c.TransactionMode = TransportTransactionMode.None;
-            })
-            .WithEndpoint<Endpoint>(b => b.DoNotFailOnErrorMessages()
-                .When((session, context) => session.SendLocal(new InitiatingMessage
-                {
-                    Id = context.Id
-                }))
-            )
-            .WithEndpoint<ErrorSpy>()
-            .Done(c => c.MessageMovedToErrorQueue)
-            .Repeat(r => r.For<AllDtcTransports>())
-            .Run();
-        }
+            var context = await Scenario.Define<Context>()
+                .WithEndpoint<EndpointWithOutgoingMessages>(b => b
+                    .DoNotFailOnErrorMessages()
+                    .When((session, ctx) => session.SendLocal(new InitiatingMessage
+                    {
+                        Id = ctx.TestRunId
+                    }))
+                )
+                .WithEndpoint<ErrorSpy>()
+                .Done(c => c.MessageMovedToErrorQueue)
+                .Run();
 
-        const string ErrorSpyQueueName = "error_spy_queue";
+            Assert.That(context.Logs, Has.Some.Message.Match($"Moving message .+ to the error queue '{ Conventions.EndpointNamingConvention(typeof(ErrorSpy)) }' because processing failed due to an exception: NServiceBus.AcceptanceTesting.SimulatedException:"));
+        }
 
         class Context : ScenarioContext
         {
-            public Guid Id { get; set; }
             public bool MessageMovedToErrorQueue { get; set; }
             public bool OutgoingMessageSent { get; set; }
             public TransportTransactionMode TransactionMode { get; set; }
         }
 
-        class Endpoint : EndpointConfigurationBuilder
+        class EndpointWithOutgoingMessages : EndpointConfigurationBuilder
         {
-            public Endpoint()
+            public EndpointWithOutgoingMessages()
             {
                 EndpointSetup<DefaultServer>((config, context) =>
                 {
@@ -74,10 +81,8 @@
 
                     config.UseTransport(context.GetTransportType())
                         .Transactions(testContext.TransactionMode);
-                    config.DisableFeature<FirstLevelRetries>();
-                    config.DisableFeature<SecondLevelRetries>();
-                    config.Pipeline.Register(new RegisterThrowingBehavior());
-                    config.SendFailedMessagesTo(ErrorSpyQueueName);
+                    config.Pipeline.Register(new ThrowingBehavior(), "Behavior that always throws");
+                    config.SendFailedMessagesTo(Conventions.EndpointNamingConvention(typeof(ErrorSpy)));
                 });
             }
 
@@ -87,9 +92,9 @@
 
                 public async Task Handle(InitiatingMessage initiatingMessage, IMessageHandlerContext context)
                 {
-                    if (initiatingMessage.Id == TestContext.Id)
+                    if (initiatingMessage.Id == TestContext.TestRunId)
                     {
-                        await context.Send(ErrorSpyQueueName, new SubsequentMessage
+                        await context.Send(Conventions.EndpointNamingConvention(typeof(ErrorSpy)), new SubsequentMessage
                         {
                             Id = initiatingMessage.Id
                         });
@@ -98,12 +103,27 @@
             }
         }
 
+        class EndpointWithFailingHandler : EndpointConfigurationBuilder
+        {
+            public EndpointWithFailingHandler()
+            {
+                EndpointSetup<DefaultServer>((config, context) => { config.SendFailedMessagesTo(Conventions.EndpointNamingConvention(typeof(ErrorSpy))); });
+            }
+
+            class InitiatingMessageHandler : IHandleMessages<InitiatingMessage>
+            {
+                public Task Handle(InitiatingMessage message, IMessageHandlerContext context)
+                {
+                    throw new SimulatedException("message should be moved to the error queue");
+                }
+            }
+        }
+
         class ErrorSpy : EndpointConfigurationBuilder
         {
             public ErrorSpy()
             {
-                EndpointSetup<DefaultServer>(config => config.LimitMessageProcessingConcurrencyTo(1))
-                    .CustomEndpointName(ErrorSpyQueueName);
+                EndpointSetup<DefaultServer>(config => config.LimitMessageProcessingConcurrencyTo(1));
             }
 
             class InitiatingMessageHandler : IHandleMessages<InitiatingMessage>
@@ -112,7 +132,7 @@
 
                 public Task Handle(InitiatingMessage initiatingMessage, IMessageHandlerContext context)
                 {
-                    if (initiatingMessage.Id == TestContext.Id)
+                    if (initiatingMessage.Id == TestContext.TestRunId)
                     {
                         TestContext.MessageMovedToErrorQueue = true;
                     }
@@ -127,7 +147,7 @@
 
                 public Task Handle(SubsequentMessage message, IMessageHandlerContext context)
                 {
-                    if (message.Id == TestContext.Id)
+                    if (message.Id == TestContext.TestRunId)
                     {
                         TestContext.OutgoingMessageSent = true;
                     }
@@ -137,19 +157,11 @@
             }
         }
 
-        class RegisterThrowingBehavior : RegisterStep
+        class ThrowingBehavior : IBehavior<ITransportReceiveContext, ITransportReceiveContext>
         {
-            public RegisterThrowingBehavior() : base("ThrowingBehavior", typeof(ThrowingBehavior), "Behavior that always throws")
+            public async Task Invoke(ITransportReceiveContext context, Func<ITransportReceiveContext, Task> next)
             {
-                InsertAfter("MoveFaultsToErrorQueue");
-            }
-        }
-
-        class ThrowingBehavior : Behavior<ITransportReceiveContext>
-        {
-            public override async Task Invoke(ITransportReceiveContext context, Func<Task> next)
-            {
-                await next().ConfigureAwait(false);
+                await next(context).ConfigureAwait(false);
 
                 throw new SimulatedException();
             }

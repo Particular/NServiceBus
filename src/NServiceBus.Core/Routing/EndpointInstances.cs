@@ -1,65 +1,56 @@
 namespace NServiceBus.Routing
 {
-    using System;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Threading.Tasks;
 
     /// <summary>
     /// Stores the information about instances of known endpoints.
     /// </summary>
     public class EndpointInstances
     {
-        internal async Task<IEnumerable<EndpointInstance>> FindInstances(EndpointName endpoint)
+        internal IEnumerable<EndpointInstance> FindInstances(string endpoint)
         {
-            var instances = new List<EndpointInstance>();
-            foreach (var rule in rules)
-            {
-                instances.AddRange(await rule.Invoke(endpoint).ConfigureAwait(false));
-            }
-            var distinctInstances = instances.Distinct().ToArray();
-            return distinctInstances.EnsureNonEmpty(() => new EndpointInstance(endpoint));
+            HashSet<EndpointInstance> registeredInstances;
+            return allInstances.TryGetValue(endpoint, out registeredInstances)
+                ? registeredInstances
+                : DefaultInstance(endpoint);
         }
 
-
-        /// <summary>
-        /// Adds a dynamic rule for determining endpoint instances.
-        /// </summary>
-        /// <param name="dynamicRule">The rule.</param>
-        public void AddDynamic(Func<EndpointName, Task<IEnumerable<EndpointInstance>>> dynamicRule)
+        static IEnumerable<EndpointInstance> DefaultInstance(string endpoint)
         {
-            rules.Add(dynamicRule);
+            yield return new EndpointInstance(endpoint);
         }
 
         /// <summary>
-        /// Adds static information about an endpoint.
+        /// Adds or replaces a set of endpoint instances registered under a given key (registration source ID).
         /// </summary>
-        /// <param name="endpoint">Name of the endpoint.</param>
-        /// <param name="instances">A static list of endpoint's instances.</param>
-        public void Add(EndpointName endpoint, params EndpointInstance[] instances)
+        /// <param name="sourceKey">Source key.</param>
+        /// <param name="endpointInstances">List of endpoint instances known by this source.</param>
+        public void AddOrReplaceInstances(string sourceKey, IList<EndpointInstance> endpointInstances)
         {
-            Guard.AgainstNull(nameof(endpoint), endpoint);
-            if (instances.Length == 0)
+            Guard.AgainstNull(nameof(sourceKey), sourceKey);
+            Guard.AgainstNull(nameof(endpointInstances), endpointInstances);
+            lock (updateLock)
             {
-                throw new ArgumentException("The list of instances can't be empty.", nameof(instances));
+                registrations[sourceKey] = endpointInstances;
+                var newCache = new Dictionary<string, HashSet<EndpointInstance>>();
+
+                foreach (var instance in registrations.Values.SelectMany(x => x))
+                {
+                    HashSet<EndpointInstance> instanceSet;
+                    if (!newCache.TryGetValue(instance.Endpoint, out instanceSet))
+                    {
+                        instanceSet = new HashSet<EndpointInstance>();
+                        newCache[instance.Endpoint] = instanceSet;
+                    }
+                    instanceSet.Add(instance);
+                }
+                allInstances = newCache;
             }
-            if (instances.Any(i => i.Endpoint != endpoint))
-            {
-                throw new ArgumentException("At least one of the instances belongs to a different endpoint than specified in the 'endpoint' parameter.", nameof(instances));
-            }
-            rules.Add(e => StaticRule(e, endpoint, instances));
         }
 
-        static Task<IEnumerable<EndpointInstance>> StaticRule(EndpointName endpointBeingQueried, EndpointName configuredEndpoint, IEnumerable<EndpointInstance> configuredInstances)
-        {
-            if (endpointBeingQueried == configuredEndpoint)
-            {
-                return Task.FromResult(configuredInstances);
-            }
-            return EmptyStaticRuleTask;
-        }
-
-        List<Func<EndpointName, Task<IEnumerable<EndpointInstance>>>> rules = new List<Func<EndpointName, Task<IEnumerable<EndpointInstance>>>>();
-        static Task<IEnumerable<EndpointInstance>> EmptyStaticRuleTask = Task.FromResult(Enumerable.Empty<EndpointInstance>());
+        Dictionary<string, HashSet<EndpointInstance>> allInstances = new Dictionary<string, HashSet<EndpointInstance>>();
+        Dictionary<object, IList<EndpointInstance>> registrations = new Dictionary<object, IList<EndpointInstance>>();
+        object updateLock = new object();
     }
 }

@@ -1,7 +1,7 @@
 ﻿namespace NServiceBus.Core.Tests
 {
     using System;
-    using System.Diagnostics;
+    using System.IO;
     using System.Linq;
     using Mono.Cecil;
     using NUnit.Framework;
@@ -13,15 +13,15 @@
         [Explicit]
         public void WriteAllPublicMembersWithNoArgumentChecking()
         {
+            var stringWriter = new StringWriter();
             var codeBase = typeof(Endpoint).Assembly.CodeBase;
             var uri = new UriBuilder(codeBase);
             var path = Uri.UnescapeDataString(uri.Path);
 
             var readerParameters = new ReaderParameters
-                                   {
-                                       ReadSymbols = true,
-
-                                   };
+            {
+                ReadSymbols = true
+            };
             var module = ModuleDefinition.ReadModule(path, readerParameters);
             foreach (var type in module.GetTypes())
             {
@@ -65,12 +65,20 @@
                     {
                         continue;
                     }
-                    if (method.Parameters.All(x => x.IsOut || x.IsReturnValue|| x.HasDefault))
+                    if (method.Parameters.All(x => x.IsOut || x.IsReturnValue || x.HasDefault))
                     {
                         continue;
                     }
 
                     if (method.Name.StartsWith("set_") || method.Name.StartsWith("get_"))
+                    {
+                        continue;
+                    }
+                    if (method.Name.StartsWith("add_") || method.Name.StartsWith("remove_"))
+                    {
+                        continue;
+                    }
+                    if (method.Name.StartsWith("op_"))
                     {
                         continue;
                     }
@@ -92,38 +100,14 @@
                     }
                     if (!MethodContainsArgumentException(method))
                     {
-                        WriteMethod(method);
-                    }
-                }
-                foreach (var property in type.Properties)
-                {
-                    if (property.PropertyType.Name == "Boolean")
-                    {
-                        continue;
-                    }
-                    if (property.SetMethod == null)
-                    {
-                        continue;
-                    }
-                    if (!property.SetMethod.HasBody)
-                    {
-                        continue;
-                    }
-                    if (!property.SetMethod.IsPublic)
-                    {
-                        continue;
-                    }
-                    if (ContainsObsoleteAttribute(property))
-                    {
-                        continue;
-                    }
-
-                    if (!MethodContainsArgumentException(property.SetMethod))
-                    {
-                        WriteMethod(property.SetMethod);
+                        WriteMethod(method, stringWriter);
                     }
                 }
             }
+
+            var methods = stringWriter.ToString();
+
+            Assert.IsEmpty(methods, methods);
         }
 
         bool MethodCallSelf(MethodDefinition method)
@@ -150,15 +134,14 @@
             return false;
         }
 
-        static void WriteMethod(MethodDefinition method)
+        static void WriteMethod(MethodDefinition method, TextWriter writer)
         {
-                Debug.WriteLine("\r\n" + method.DeclaringType.Name + "." + method.Name);
-                var instruction = method.Body.Instructions.FirstOrDefault(x => x.SequencePoint != null);
-                if (instruction != null)
-                {
-                    Debug.WriteLine("file://" + instruction.SequencePoint.Document.Url.Replace(@"\", "/"));
-                }
-            
+            writer.WriteLine("\r\n" + method.DeclaringType.Name + "." + method.Name);
+            var instruction = method.Body.Instructions.FirstOrDefault(x => x.SequencePoint != null);
+            if (instruction != null)
+            {
+                writer.WriteLine("file://" + instruction.SequencePoint.Document.Url.Replace(@"\", "/"));
+            }
         }
 
         static bool MethodContainsArgumentException(MethodDefinition method)

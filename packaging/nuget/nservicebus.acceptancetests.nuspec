@@ -17,16 +17,18 @@
     <dependencies>
       <dependency id="NServiceBus" version="$version$" />
 	    <dependency id="NServiceBus.AcceptanceTesting" version="$version$" />
-	    <dependency id="NUnit" version="[2.0.0, 3.0.0)" />
+	    <dependency id="NUnit" version="[3.0.0, 4.0.0)" />
     </dependencies>
 	<frameworkAssemblies>
 		<frameworkAssembly assemblyName="System.Messaging" targetFramework="net452" />
+		<frameworkAssembly assemblyName="System.Transactions" targetFramework="net452" />
+		<frameworkAssembly assemblyName="System.Configuration" targetFramework="net452" />
 	</frameworkAssemblies>
   </metadata>
   <files>
     <file
       src="..\..\src\NServiceBus.AcceptanceTests\**\*.cs"
       target="content\App_Packages\NSB.AcceptanceTests.$version$"
-      exclude="**\bin\**\*.*;**\obj\**\*.*;..\..\src\NServiceBus.AcceptanceTests\Exceptions\**\*.cs;..\..\src\NServiceBus.AcceptanceTests\FakeTransport\**\*.cs;..\..\src\NServiceBus.AcceptanceTests\Persistence\**\*.cs;..\..\src\NServiceBus.AcceptanceTests\UnitOfWork\**\*.cs" />
+      exclude="**\bin\**\*.*;**\obj\**\*.*;..\..\src\NServiceBus.AcceptanceTests\Core\**\*.cs" />
   </files>
 </package>

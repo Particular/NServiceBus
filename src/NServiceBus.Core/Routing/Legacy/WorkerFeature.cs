@@ -1,7 +1,7 @@
 ﻿namespace NServiceBus
 {
     using Features;
-    using Transports;
+    using Transport;
 
     class WorkerFeature : Feature
     {
@@ -14,7 +14,7 @@
             context.Container.ConfigureComponent(b => new ProcessedMessageCounterBehavior(b.Build<ReadyMessageSender>()), DependencyLifecycle.SingleInstance);
 
             context.RegisterStartupTask(b => b.Build<ReadyMessageSender>());
-            context.Pipeline.Register("ProcessedMessageCounterBehavior", typeof(ProcessedMessageCounterBehavior), "Counts messages processed by the worker.");
+            context.Pipeline.Register("ProcessedMessageCounterBehavior", b => b.Build<ProcessedMessageCounterBehavior>(), "Counts messages processed by the worker.");
         }
     }
 }

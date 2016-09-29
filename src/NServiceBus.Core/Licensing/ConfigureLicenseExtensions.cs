@@ -18,7 +18,7 @@ namespace NServiceBus
         {
             Guard.AgainstNullAndEmpty(nameof(licenseText), licenseText);
             Guard.AgainstNull(nameof(config), config);
-            Logger.Info(@"Using license supplied via fluent API.");
+            Logger.Info("Using license supplied via fluent API.");
             config.Settings.Set(LicenseReminder.LicenseTextSettingsKey, licenseText);
         }
 

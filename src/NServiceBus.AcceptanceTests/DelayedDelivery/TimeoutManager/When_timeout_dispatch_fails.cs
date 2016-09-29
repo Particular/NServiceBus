@@ -3,24 +3,23 @@
     using System;
     using System.Threading.Tasks;
     using AcceptanceTesting;
-    using AcceptanceTesting.Customization;
     using EndpointTemplates;
     using Extensibility;
     using Features;
-    using NServiceBus.Persistence;
+    using NServiceBus;
     using NServiceBus.Pipeline;
     using NUnit.Framework;
+    using Persistence;
     using ScenarioDescriptors;
     using Timeout.Core;
+    using Conventions = AcceptanceTesting.Customization.Conventions;
 
     public class When_timeout_dispatch_fails : NServiceBusAcceptanceTest
     {
-        static readonly TimeSpan VeryLongTimeSpan = TimeSpan.FromMinutes(10);
-
         [Test]
-        public async Task Should_retry_and_move_to_error()
+        public Task Should_retry_and_move_to_error()
         {
-            await Scenario.Define<Context>()
+            return Scenario.Define<Context>()
                 .WithEndpoint<Endpoint>(b =>
                     b.DoNotFailOnErrorMessages()
                         .When((bus, c) =>
@@ -42,8 +41,7 @@
                 .Run();
         }
 
-        const string ErrorQueueForTimeoutErrors = "timeout_dispatch_errors";
-
+        static readonly TimeSpan VeryLongTimeSpan = TimeSpan.FromMinutes(10);
         public class Context : ScenarioContext
         {
             public bool FailedTimeoutMovedToError { get; set; }
@@ -86,7 +84,6 @@
             class FakeTimeoutStorage : IQueryTimeouts, IPersistTimeouts
             {
                 public Context TestContext { get; set; }
-                TimeoutData timeoutData;
 
                 public Task Add(TimeoutData timeout, ContextBag context)
                 {
@@ -132,22 +129,24 @@
 
                     return Task.FromResult(new TimeoutsChunk(timeouts, DateTime.UtcNow + TimeSpan.FromSeconds(10)));
                 }
+
+                TimeoutData timeoutData;
             }
 
-            class BehaviorThatLogsControlMessageDelivery : Behavior<ITransportReceiveContext>
+            class BehaviorThatLogsControlMessageDelivery : IBehavior<ITransportReceiveContext, ITransportReceiveContext>
             {
                 public Context TestContext { get; set; }
 
-                public override async Task Invoke(ITransportReceiveContext context, Func<Task> next)
+                public Task Invoke(ITransportReceiveContext context, Func<ITransportReceiveContext, Task> next)
                 {
                     if (context.Message.Headers.ContainsKey(Headers.ControlMessageHeader) &&
                         context.Message.Headers["Timeout.Id"] == TestContext.TestRunId.ToString())
                     {
                         TestContext.FailedTimeoutMovedToError = true;
-                        return;
+                        return Task.FromResult(0);
                     }
 
-                    await next().ConfigureAwait(false);
+                    return next(context);
                 }
 
                 public class Registration : RegisterStep

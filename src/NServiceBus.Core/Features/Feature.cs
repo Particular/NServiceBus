@@ -96,15 +96,14 @@
 
         /// <summary>
         /// Registers this feature as depending on the given feature. This means that this feature won't be activated unless
-        /// the dependant feature is active.
-        /// This also causes this feature to be activated after the other feature.
+        /// the dependant feature is active. This also causes this feature to be activated after the other feature.
         /// </summary>
-        /// <param name="featureName">The name of the feature that this feature depends on.</param>
-        protected void DependsOn(string featureName)
+        /// <param name="featureTypeName">The <see cref="Type.FullName"/> of the feature that this feature depends on.</param>
+        protected void DependsOn(string featureTypeName)
         {
             Dependencies.Add(new List<string>
             {
-                featureName
+                featureTypeName
             });
         }
 
@@ -217,17 +216,7 @@
 
         static string GetFeatureName(Type featureType)
         {
-            var name = featureType.Name;
-
-            if (name.EndsWith("Feature"))
-            {
-                if (name.Length > featureStringLength)
-                {
-                    name = name.Substring(0, name.Length - featureStringLength);
-                }
-            }
-
-            return name;
+            return featureType.FullName;
         }
 
         readonly List<Action<SettingsHolder>> registeredDefaults = new List<Action<SettingsHolder>>();

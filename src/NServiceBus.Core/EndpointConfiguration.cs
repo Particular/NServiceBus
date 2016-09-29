@@ -13,9 +13,9 @@ namespace NServiceBus
     using ObjectBuilder;
     using ObjectBuilder.Common;
     using Pipeline;
-    using Routing;
     using Settings;
-    using Transports;
+    using Transport;
+    using Unicast.Messages;
 
     /// <summary>
     /// Configuration used to create an endpoint instance.
@@ -29,15 +29,17 @@ namespace NServiceBus
         public EndpointConfiguration(string endpointName)
             : base(new SettingsHolder())
         {
-            Guard.AgainstNullAndEmpty(nameof(endpointName), endpointName);
+            ValidateEndpointName(endpointName);
 
-            Settings.Set<EndpointName>(new EndpointName(endpointName));
+            Settings.Set("NServiceBus.Routing.EndpointName", endpointName);
 
-            configurationSourceToUse = new DefaultConfigurationSource();
+            Settings.SetDefault<IConfigurationSource>(new DefaultConfigurationSource());
 
             pipelineCollection = new PipelineConfiguration();
             Settings.Set<PipelineConfiguration>(pipelineCollection);
-            Pipeline = new PipelineSettings(pipelineCollection.MainPipeline);
+            Settings.Set<SatelliteDefinitions>(new SatelliteDefinitions());
+
+            Pipeline = new PipelineSettings(pipelineCollection.Modifications);
 
             Settings.Set<QueueBindings>(new QueueBindings());
 
@@ -53,7 +55,7 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Access to the current endpoint <see cref="Notifications"/>.
+        /// Access to the current endpoint <see cref="Notifications" />.
         /// </summary>
         public Notifications Notifications { get; }
 
@@ -112,7 +114,7 @@ namespace NServiceBus
         /// </summary>
         public void SendOnly()
         {
-            sendOnly = true;
+            Settings.Set("Endpoint.SendOnly", true);
         }
 
         /// <summary>
@@ -121,7 +123,7 @@ namespace NServiceBus
         public void CustomConfigurationSource(IConfigurationSource configurationSource)
         {
             Guard.AgainstNull(nameof(configurationSource), configurationSource);
-            configurationSourceToUse = configurationSource;
+            Settings.Set<IConfigurationSource>(configurationSource);
         }
 
         /// <summary>
@@ -166,16 +168,6 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Sets the public return address of this endpoint.
-        /// </summary>
-        /// <param name="address">The public address.</param>
-        public void OverridePublicReturnAddress(string address)
-        {
-            Guard.AgainstNullAndEmpty(nameof(address), address);
-            publicReturnAddress = address;
-        }
-
-        /// <summary>
         /// Specifies the range of types that NServiceBus scans for handlers etc.
         /// </summary>
         internal void TypesToScanInternal(IEnumerable<Type> typesToScan)
@@ -204,22 +196,32 @@ namespace NServiceBus
             }
 
             Settings.SetDefault("TypesToScan", scannedTypes);
-            Settings.Set("Endpoint.SendOnly", sendOnly);
             ActivateAndInvoke<INeedInitialization>(scannedTypes, t => t.Customize(this));
 
             UseTransportExtensions.EnsureTransportConfigured(this);
             var container = customBuilder ?? new AutofacObjectBuilder();
 
-            Settings.SetDefault<IConfigurationSource>(configurationSourceToUse);
+            var conventions = conventionsBuilder.Conventions;
+            Settings.SetDefault<Conventions>(conventions);
+            var messageMetadataRegistry = new MessageMetadataRegistry(conventions);
+            messageMetadataRegistry.RegisterMessageTypesFoundIn(Settings.GetAvailableTypes());
 
-            if (publicReturnAddress != null)
-            {
-                Settings.SetDefault("PublicReturnAddress", publicReturnAddress);
-            }
-
-            Settings.SetDefault<Conventions>(conventionsBuilder.Conventions);
+            Settings.SetDefault<MessageMetadataRegistry>(messageMetadataRegistry);
 
             return new InitializableEndpoint(Settings, container, registrations, Pipeline, pipelineCollection);
+        }
+
+        static void ValidateEndpointName(string endpointName)
+        {
+            if (string.IsNullOrWhiteSpace(endpointName))
+            {
+                throw new ArgumentException("Endpoint name must not be empty", nameof(endpointName));
+            }
+
+            if (endpointName.Contains("@"))
+            {
+                throw new ArgumentException("Endpoint name must not contain an '@' character.", nameof(endpointName));
+            }
         }
 
         static void ForAllTypes<T>(IEnumerable<Type> types, Action<Type> action) where T : class
@@ -273,16 +275,13 @@ namespace NServiceBus
                 .Types;
         }
 
-        IConfigurationSource configurationSourceToUse;
         ConventionsBuilder conventionsBuilder;
         IContainer customBuilder;
         List<string> excludedAssemblies = new List<string>();
         List<Type> excludedTypes = new List<Type>();
         PipelineConfiguration pipelineCollection;
-        string publicReturnAddress;
         List<Action<IConfigureComponents>> registrations = new List<Action<IConfigureComponents>>();
         bool scanAssembliesInNestedDirectories;
         List<Type> scannedTypes;
-        bool sendOnly;
     }
 }

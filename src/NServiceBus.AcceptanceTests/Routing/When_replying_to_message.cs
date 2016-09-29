@@ -4,6 +4,7 @@
     using AcceptanceTesting;
     using EndpointTemplates;
     using NUnit.Framework;
+    using Conventions = AcceptanceTesting.Customization.Conventions;
 
     public class When_replying_to_message : NServiceBusAcceptanceTest
     {
@@ -25,11 +26,9 @@
         [Test]
         public async Task Should_reply_to_configured_return_address()
         {
-            const string returnAddress = "ReplyingToMessage.OtherEndpoint";
-
             var ctx = await Scenario.Define<Context>()
                 .WithEndpoint<SendingEndpoint>(c => c
-                    .CustomConfig(b => b.OverridePublicReturnAddress(returnAddress))
+                    .CustomConfig(b => b.OverridePublicReturnAddress(Conventions.EndpointNamingConvention(typeof(OtherEndpoint))))
                     .When(b => b.Send(new MyMessage())))
                 .WithEndpoint<ReplyingEndpoint>()
                 .WithEndpoint<OtherEndpoint>()

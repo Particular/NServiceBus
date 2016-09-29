@@ -21,10 +21,82 @@
             {
                 Message = logicalMessage
             };
-            
+
             context.Builder.Register<IMutateIncomingMessages>(() => new MutateIncomingMessagesReturnsNull());
-            
-            Assert.That(async () => await behavior.Invoke(context, () => TaskEx.CompletedTask), Throws.Exception.With.Message.EqualTo("Return a Task or mark the method as async."));
+
+            Assert.That(async () => await behavior.Invoke(context, ctx => TaskEx.CompletedTask), Throws.Exception.With.Message.EqualTo("Return a Task or mark the method as async."));
+        }
+
+        [Test]
+        public async Task When_no_mutator_updates_the_body_should_not_update_the_body()
+        {
+            var behavior = new MutateIncomingMessageBehavior();
+
+            var context = new InterceptUpdateMessageIncomingLogicalMessageContext();
+
+            context.Builder.Register<IMutateIncomingMessages>(() => new MutatorWhichDoesNotMutateTheBody());
+
+            await behavior.Invoke(context, ctx => TaskEx.CompletedTask);
+
+            Assert.False(context.UpdateMessageCalled);
+        }
+
+        [Test]
+        public async Task When_no_mutator_available_should_not_update_the_body()
+        {
+            var behavior = new MutateIncomingMessageBehavior();
+
+            var context = new InterceptUpdateMessageIncomingLogicalMessageContext();
+
+            context.Builder.Register(() => new IMutateIncomingMessages[] { });
+
+            await behavior.Invoke(context, ctx => TaskEx.CompletedTask);
+
+            Assert.False(context.UpdateMessageCalled);
+        }
+
+        [Test]
+        public async Task When_mutator_modifies_the_body_should_update_the_body()
+        {
+            var behavior = new MutateIncomingMessageBehavior();
+
+            var context = new InterceptUpdateMessageIncomingLogicalMessageContext();
+
+            context.Builder.Register<IMutateIncomingMessages>(() => new MutatorWhichMutatesTheBody());
+
+            await behavior.Invoke(context, ctx => TaskEx.CompletedTask);
+
+            Assert.True(context.UpdateMessageCalled);
+        }
+
+        class InterceptUpdateMessageIncomingLogicalMessageContext : TestableIncomingLogicalMessageContext
+        {
+            public bool UpdateMessageCalled { get; private set; }
+
+            public override void UpdateMessageInstance(object newInstance)
+            {
+                base.UpdateMessageInstance(newInstance);
+
+                UpdateMessageCalled = true;
+            }
+        }
+
+        class MutatorWhichDoesNotMutateTheBody : IMutateIncomingMessages
+        {
+            public Task MutateIncoming(MutateIncomingMessageContext context)
+            {
+                return TaskEx.CompletedTask;
+            }
+        }
+
+        class MutatorWhichMutatesTheBody : IMutateIncomingMessages
+        {
+            public Task MutateIncoming(MutateIncomingMessageContext context)
+            {
+                context.Message = new object();
+
+                return TaskEx.CompletedTask;
+            }
         }
 
         class MutateIncomingMessagesReturnsNull : IMutateIncomingMessages

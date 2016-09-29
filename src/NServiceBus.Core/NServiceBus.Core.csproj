@@ -47,11 +47,14 @@
     <None Include="FodyWeavers.xml">
       <SubType>Designer</SubType>
     </None>
+    <EmbeddedResource Include="Transports\Msmq\InstanceMapping\endpoints.xsd">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
     <Reference Include="Autofac">
       <HintPath>..\packages\Autofac.3.5.2\lib\net40\Autofac.dll</HintPath>
     </Reference>
-    <Reference Include="Janitor, Version=1.1.6.0, Culture=neutral, PublicKeyToken=d34c7d3bba3746e6, processorArchitecture=MSIL">
-      <HintPath>..\packages\Janitor.Fody.1.1.6.0\lib\dotnet\Janitor.dll</HintPath>
+    <Reference Include="Janitor, Version=1.2.0.0, Culture=neutral, PublicKeyToken=d34c7d3bba3746e6, processorArchitecture=MSIL">
+      <HintPath>..\packages\Janitor.Fody.1.2.0.0\lib\dotnet\Janitor.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
@@ -59,8 +62,8 @@
       <HintPath>..\packages\Newtonsoft.Json.8.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Obsolete, Version=4.0.4.0, Culture=neutral, PublicKeyToken=1ca091877d12ca03, processorArchitecture=MSIL">
-      <HintPath>..\packages\Obsolete.Fody.4.0.4\lib\dotnet\Obsolete.dll</HintPath>
+    <Reference Include="Obsolete, Version=4.1.0.0, Culture=neutral, PublicKeyToken=1ca091877d12ca03, processorArchitecture=MSIL">
+      <HintPath>..\packages\Obsolete.Fody.4.1.0\lib\dotnet\Obsolete.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="System" />
@@ -97,60 +100,99 @@
     <Compile Include="Audit\AuditToDispatchConnector.cs" />
     <Compile Include="Audit\InvokeAuditPipelineBehavior.cs" />
     <Compile Include="DelayedDelivery\TimeoutManagerRoutingStrategy.cs" />
-    <Compile Include="DelayedDelivery\TimeoutManager\TimeoutFailureInfoStorage.cs" />
-    <Compile Include="DelayedDelivery\TimeoutManager\TimeoutProcessingFailureInfo.cs" />
+    <Compile Include="Features\SatelliteDefinitions.cs" />
     <Compile Include="Notifications.cs" />
     <Compile Include="Notifications\EventAggregator.cs" />
     <Compile Include="Encryption\WireEncryptedStringConversions.cs" />
     <Compile Include="CircuitBreakers\ICircuitBreaker.cs" />
     <Compile Include="CriticalError\ICriticalErrorContext.cs" />
     <Compile Include="DetectObsoleteConfigurationSettings.cs" />
-    <Compile Include="DelayedDelivery\TimeoutManager\TimeoutRecoverabilityBehavior.cs" />
     <Compile Include="Endpoint.cs" />
     <Compile Include="Forwarding\ConfigureForwarding.cs" />
     <Compile Include="Notifications\IEventAggregator.cs" />
     <Compile Include="Notifications\NotificationSubscriptions.cs" />
     <Compile Include="Notifications\EventAggregatorExtensions.cs" />
+    <Compile Include="Persistence\Msmq\SubscriptionStorage\MsmqSubscriptionMessage.cs" />
+    <Compile Include="Pipeline\PipelineExecutionExtensions.cs" />
     <Compile Include="Pipeline\ForkConnector.cs" />
-    <Compile Include="Pipeline\Incoming\ISatelliteProcessingContext.cs" />
-    <Compile Include="Pipeline\Incoming\SatelliteProcessingContext.cs" />
-    <Compile Include="Pipeline\Incoming\TransportReceiveToSatelliteConnector.cs" />
+    <Compile Include="Pipeline\ForkExtensions.cs" />
     <Compile Include="Pipeline\IPipelineCache.cs" />
+    <Compile Include="Pipeline\IPipelineExecutor.cs" />
+    <Compile Include="Pipeline\MainPipelineExecutor.cs" />
     <Compile Include="Pipeline\Outgoing\AttachSenderRelatedInfoOnMessageBehavior.cs" />
+    <Compile Include="Pipeline\Outgoing\SerializeMessageConnector.cs" />
     <Compile Include="Pipeline\PipelineCache.cs" />
+    <Compile Include="Pipeline\SatellitePipelineExecutor.cs" />
     <Compile Include="Pipeline\StageForkConnector.cs" />
     <Compile Include="Pipeline\ConnectorContextExtensions.cs" />
-    <Compile Include="Recoverability\FailureInfoStorage.cs" />
-    <Compile Include="Recoverability\Faults\AddExceptionHeadersBehavior.cs" />
+    <Compile Include="Recoverability\DelayedConfig.cs" />
+    <Compile Include="Recoverability\Settings\DelayedRetriesSettings.cs" />
+    <Compile Include="Recoverability\FailedConfig.cs" />
+    <Compile Include="Recoverability\ImmediateConfig.cs" />
+    <Compile Include="Recoverability\Settings\ImmediateRetriesSettings.cs" />
+    <Compile Include="Recoverability\RecoverabilityConfig.cs" />
+    <Compile Include="Recoverability\Settings\RecoverabilityEndpointConfigurationExtensions.cs" />
+    <Compile Include="Recoverability\Settings\RetryFailedSettings.cs" />
+    <Compile Include="Recoverability\DelayedRetriesHeaderExtensions.cs" />
+    <Compile Include="Recoverability\DelayedRetry.cs" />
     <Compile Include="Recoverability\Faults\MessageProcessingFailed.cs" />
     <Compile Include="Recoverability\Faults\MessageToBeRetried.cs" />
     <Compile Include="Recoverability\Faults\MessageFaulted.cs" />
+    <Compile Include="Recoverability\ImmediateRetry.cs" />
+    <Compile Include="Recoverability\RecoverabilityAction.cs" />
+    <Compile Include="Recoverability\RecoverabilityExecutor.cs" />
+    <Compile Include="Recoverability\MoveToError.cs" />
+    <Compile Include="Recoverability\Recoverability.cs" />
+    <Compile Include="Recoverability\MoveToErrorsExecutor.cs" />
+    <Compile Include="Recoverability\RecoverabilityExecutorFactory.cs" />
+    <Compile Include="Recoverability\DefaultRecoverabilityPolicy.cs" />
+    <Compile Include="Recoverability\DelayedRetryExecutor.cs" />
+    <Compile Include="Recoverability\Settings\RecoverabilitySettings.cs" />
     <Compile Include="ReleaseDateAttribute.cs" />
-    <Compile Include="Recoverability\ProcessingFailureInfo.cs" />
-    <Compile Include="Routing\RoutingMappingSettings.cs" />
+    <Compile Include="Routing\DistributionStrategyScope.cs" />
+    <Compile Include="Routing\MessageDrivenSubscriptions\AssemblyPublisherSource.cs" />
+    <Compile Include="Routing\AssemblyRouteSource.cs" />
+    <Compile Include="Routing\ConfiguredPublishers.cs" />
+    <Compile Include="Routing\ConfiguredUnicastRoutes.cs" />
+    <Compile Include="Routing\MessageDrivenSubscriptions\IPublisherSource.cs" />
+    <Compile Include="Routing\MessageDrivenSubscriptions\NamespacePublisherSource.cs" />
+    <Compile Include="Routing\MessageDrivenSubscriptions\TypePublisherSource.cs" />
+    <Compile Include="Routing\TypeRouteSource.cs" />
+    <Compile Include="Routing\IDistributionPolicy.cs" />
+    <Compile Include="Routing\IRouteSource.cs" />
+    <Compile Include="Routing\IUnicastSendRouter.cs" />
+    <Compile Include="Routing\MessageDrivenSubscriptions\IMessageDrivenSubscriptionTransport.cs" />
+    <Compile Include="Routing\NamespaceRouteSource.cs" />
+    <Compile Include="Routing\RouteSourcePriority.cs" />
+    <Compile Include="Routing\MessageDrivenSubscriptions\PublisherTableEntry.cs" />
+    <Compile Include="Routing\RouteTableEntry.cs" />
+    <Compile Include="Routing\RoutingFeatureSettingsExtensions.cs" />
+    <Compile Include="Routing\SpecificInstanceDistributionPolicy.cs" />
+    <Compile Include="Routing\UnicastPublishRouter.cs" />
+    <Compile Include="Routing\UnicastSendRouter.cs" />
     <Compile Include="Serialization\SerializationFeature.cs" />
+    <Compile Include="Serialization\SerializationSettingsExtensions.cs" />
     <Compile Include="Serializers\XML\XmlSerialization.cs" />
-    <Compile Include="Settings\ScaleOutSettings.cs" />
+    <Compile Include="Transports\ReceiveSettingsExtensions.cs" />
+    <Compile Include="Transports\ErrorContext.cs" />
+    <Compile Include="Transports\ErrorHandleResult.cs" />
     <Compile Include="Transports\IOutgoingTransportOperation.cs" />
+    <Compile Include="Transports\LogicalAddressExtensions.cs" />
     <Compile Include="Transports\Msmq\MsmqScopeOptions.cs" />
     <Compile Include="Transports\Msmq\MsmqTransportInfrastructure.cs" />
+    <Compile Include="Transports\Msmq\MsmqFailureInfoStorage.cs" />
     <Compile Include="Transports\MulticastTransportOperation.cs" />
     <Compile Include="Transports\ReceivePipelineCompleted.cs" />
     <Compile Include="Transports\TransportInfrastructure.cs" />
     <Compile Include="Transports\TransportOperations.cs" />
     <Compile Include="Transports\TransportSubscriptionInfrastructure.cs" />
     <Compile Include="Transports\UnicastTransportOperation.cs" />
-    <Compile Include="Hosting\FaultHostInformationBehavior.cs" />
-    <Compile Include="Recoverability\Faults\FaultToDispatchConnector.cs" />
-    <Compile Include="Recoverability\Faults\FaultContext.cs" />
-    <Compile Include="Recoverability\Faults\IFaultContext.cs" />
     <Compile Include="Pipeline\IForkConnector.cs" />
     <Compile Include="UnitOfWork\TransactionScopes\TransactionScopeUnitOfWorkBehavior.cs" />
     <Compile Include="MessageSession.cs" />
     <Compile Include="CriticalError\CriticalErrorContext.cs" />
     <Compile Include="Encryption\StringConversions.cs" />
     <Compile Include="EndpointConfiguration.cs" />
-    <Compile Include="PipelineContext.cs" />
     <Compile Include="DelayedDelivery\TimeoutManager\TimeoutPollerRunner.cs" />
     <Compile Include="Extensibility\IExtendable.cs" />
     <Compile Include="Features\FeatureDiagnosticData.cs" />
@@ -173,7 +215,6 @@
     <Compile Include="Persistence\InMemory\InMemorySynchronizedStorage.cs" />
     <Compile Include="Persistence\InMemory\InMemoryTransactionalSynchronizedStorageAdapter.cs" />
     <Compile Include="Persistence\Msmq\Msmq.cs" />
-    <Compile Include="Persistence\Msmq\SubscriptionStorage\Entry.cs" />
     <Compile Include="Persistence\Msmq\SubscriptionStorage\IMsmqSubscriptionStorageQueue.cs" />
     <Compile Include="Persistence\Msmq\SubscriptionStorage\MsmqSubscriptionPersistence.cs" />
     <Compile Include="Persistence\Msmq\SubscriptionStorage\MsmqSubscriptionStorage.cs" />
@@ -195,12 +236,12 @@
     <Compile Include="Pipeline\Outgoing\OutgoingSendContext.cs" />
     <Compile Include="Pipeline\Outgoing\RoutingContext.cs" />
     <Compile Include="Pipeline\RegisterStepExtensions.cs" />
-    <Compile Include="Pipeline\SatellitePipelineModifications.cs" />
-    <Compile Include="Routing\FileBasedDynamicRouting\AsyncTimer.cs" />
-    <Compile Include="Routing\FileBasedDynamicRouting\FileRoutingTableParser.cs" />
-    <Compile Include="Routing\FileBasedDynamicRouting\IAsyncTimer.cs" />
-    <Compile Include="Routing\FileBasedDynamicRouting\IRoutingFileAccess.cs" />
-    <Compile Include="Routing\FileBasedDynamicRouting\RoutingFileAccess.cs" />
+    <Compile Include="Pipeline\SatelliteDefinition.cs" />
+    <Compile Include="Utils\AsyncTimer.cs" />
+    <Compile Include="Transports\Msmq\InstanceMapping\InstanceMappingFileParser.cs" />
+    <Compile Include="Utils\IAsyncTimer.cs" />
+    <Compile Include="Transports\Msmq\InstanceMapping\IInstanceMappingFileAccess.cs" />
+    <Compile Include="Transports\Msmq\InstanceMapping\InstanceMappingFileAccess.cs" />
     <Compile Include="Routing\Legacy\ConfigureMSMQDistributor.cs" />
     <Compile Include="Routing\Legacy\LegacyDistributorHeaders.cs" />
     <Compile Include="Routing\Legacy\ProcessedMessageCounterBehavior.cs" />
@@ -215,10 +256,8 @@
     <Compile Include="Transports\Msmq\MsmqTimeToBeReceivedOverrideCheck.cs" />
     <Compile Include="Transports\Msmq\TimeToBeReceivedOverrideChecker.cs" />
     <Compile Include="Transports\StartupCheckResult.cs" />
-    <Compile Include="Transports\Transport.cs" />
     <Compile Include="Transports\TransportReceiveInfrastructure.cs" />
     <Compile Include="Transports\TransportSendInfrastructure.cs" />
-    <Compile Include="UnicastRoutingTarget.cs" />
     <Compile Include="EnumerableEx.cs" />
     <Compile Include="IMessageHandlerContext.cs" />
     <Compile Include="IHandleMessages.cs" />
@@ -247,32 +286,28 @@
     <Compile Include="Pipeline\Outgoing\IOutgoingPhysicalMessageContext.cs" />
     <Compile Include="Reliability\Outbox\ForceBatchDispatchToBeIsolatedBehavior.cs" />
     <Compile Include="Reliability\Outbox\OutboxTransaction.cs" />
-    <Compile Include="Routing\IUnicastRoute.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\Subscriber.cs" />
     <Compile Include="Routing\MulticastRoutingStrategy.cs" />
     <Compile Include="Routing\RoutingStrategy.cs" />
     <Compile Include="Routing\UnicastRoutingStrategy.cs" />
     <Compile Include="Sagas\SagaCorrelationProperty.cs" />
     <Compile Include="Sagas\SagaLoader.cs" />
-    <Compile Include="Routing\AllInstancesDistributionStrategy.cs" />
     <Compile Include="Routing\UnicastRoute.cs" />
     <Compile Include="Routing\DistributionPolicy.cs" />
-    <Compile Include="Routing\IUnicastRouter.cs" />
+    <Compile Include="Routing\IUnicastPublishRouter.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\PublisherAddress.cs" />
     <Compile Include="Routing\SingleInstanceRoundRobinDistributionStrategy.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\SubscriptionRouter.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\Publishers.cs" />
     <Compile Include="Routing\Routers\UnicastPublishRouterConnector.cs" />
-    <Compile Include="Routing\UnicastRouter.cs" />
-    <Compile Include="Routing\FileBasedDynamicRouting\FileRoutingTableSettings.cs" />
+    <Compile Include="Transports\Msmq\InstanceMapping\InstanceMappingFileSettings.cs" />
     <Compile Include="Routing\EndpointInstances.cs" />
     <Compile Include="Serialization\SerializationContextExtensions.cs" />
     <Compile Include="Transports\TransportTransaction.cs" />
     <Compile Include="Transports\TransportTransactionMode.cs" />
     <Compile Include="Transports\Sending.cs" />
-    <Compile Include="Transports\TransportAddresses.cs" />
     <Compile Include="Routing\UnicastRoutingTable.cs" />
-    <Compile Include="Routing\UnicastRoutingSettings.cs" />
+    <Compile Include="Routing\RoutingSettings.cs" />
     <Compile Include="Routing\RoutingSettingsExtensions.cs" />
     <Compile Include="TaskEx.cs" />
     <Compile Include="Pipeline\Outgoing\IDispatchContext.cs" />
@@ -292,7 +327,7 @@
     <Compile Include="DataBus\CustomIDataBus.cs" />
     <Compile Include="DataBus\DataBus.cs" />
     <Compile Include="DataBus\DataBusDefinition.cs" />
-    <Compile Include="DataBus\DataBusExtentions.cs" />
+    <Compile Include="DataBus\DataBusExtensions.cs" />
     <Compile Include="DataBus\FileShareDataBus.cs" />
     <Compile Include="DataBus\UseDataBusExtensions.cs" />
     <Compile Include="DelayedDelivery\DelayedDeliveryConstraint.cs" />
@@ -310,7 +345,7 @@
     <Compile Include="Encryption\DecryptBehavior.cs" />
     <Compile Include="Encryption\EncryptBehavior.cs" />
     <Compile Include="Encryption\EncryptedValue.cs" />
-    <Compile Include="Encryption\Encryptor.cs" />
+    <Compile Include="Encryption\Encryption.cs" />
     <Compile Include="Encryption\KeyFormat.cs" />
     <Compile Include="Encryption\RijndaelEncryptionServiceConfigValidations.cs" />
     <Compile Include="Encryption\RijndaelExpiredKey.cs" />
@@ -321,7 +356,6 @@
     <Compile Include="Extensibility\ReadOnlyContextBag.cs" />
     <Compile Include="Recoverability\Faults\ConfigureError.cs" />
     <Compile Include="Routing\EndpointInstance.cs" />
-    <Compile Include="Routing\EndpointName.cs" />
     <Compile Include="Recoverability\Faults\FailedMessage.cs" />
     <Compile Include="Recoverability\Faults\ErrorsNotifications.cs" />
     <Compile Include="Features\FeatureRunner.cs" />
@@ -330,9 +364,8 @@
     <Compile Include="Pipeline\IBehavior.cs" />
     <Compile Include="Pipeline\MutateInstanceMessage\MutateIncomingMessageContext.cs" />
     <Compile Include="Pipeline\MutateTransportMessage\MutateIncomingTransportMessageContext.cs" />
-    <Compile Include="Recoverability\FirstLevelRetries\FirstLevelRetry.cs" />
+    <Compile Include="Recoverability\ImmediateRetries\ImmediateRetryMessage.cs" />
     <Compile Include="Recoverability\Faults\ErrorQueueSettings.cs" />
-    <Compile Include="Recoverability\Faults\StoreFaultsInErrorQueue.cs" />
     <Compile Include="Forwarding\IForwardingContext.cs" />
     <Compile Include="Forwarding\ForwardingToRoutingConnector.cs" />
     <Compile Include="Forwarding\InvokeForwardingPipelineBehavior.cs" />
@@ -375,7 +408,6 @@
     <Compile Include="Routing\MessageDrivenSubscriptions\MessageDrivenSubscribeTerminator.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\MessageDrivenSubscriptions.cs" />
     <Compile Include="Routing\DistributionStrategy.cs" />
-    <Compile Include="Routing\MessagingBestPractices\BestPracticeEnforcement.cs" />
     <Compile Include="Routing\MessagingBestPractices\EnforceBestPracticesOptions.cs" />
     <Compile Include="Routing\MessagingBestPractices\EnforcePublishBestPracticesBehavior.cs" />
     <Compile Include="Routing\MessagingBestPractices\EnforceReplyBestPracticesBehavior.cs" />
@@ -383,7 +415,6 @@
     <Compile Include="Pipeline\Outgoing\IOutgoingLogicalMessageContext.cs" />
     <Compile Include="Persistence\InMemory\Outbox\InMemoryOutboxSettingsExtensions.cs" />
     <Compile Include="LogicalAddress.cs" />
-    <Compile Include="Pipeline\BehaviorInvoker.cs" />
     <Compile Include="Pipeline\Incoming\IIncomingContext.cs" />
     <Compile Include="Pipeline\Incoming\ITransportReceiveContext.cs" />
     <Compile Include="Pipeline\PipelineModelBuilder.cs" />
@@ -425,7 +456,7 @@
     <Compile Include="Transports\Msmq\ReceiveWithNativeTransaction.cs" />
     <Compile Include="Transports\Msmq\ReceiveWithNoTransaction.cs" />
     <Compile Include="Transports\OutgoingMessage.cs" />
-    <Compile Include="Transports\PushContext.cs" />
+    <Compile Include="Transports\MessageContext.cs" />
     <Compile Include="Transports\QueueBindings.cs" />
     <Compile Include="Transports\IncomingMessage.cs" />
     <Compile Include="Transports\TransportOperation.cs" />
@@ -433,21 +464,12 @@
     <Compile Include="Pipeline\Outgoing\MessageIdExtensions.cs" />
     <Compile Include="Sagas\SagaInvocationResult.cs" />
     <Compile Include="Pipeline\Incoming\TransportReceiveToPhysicalMessageProcessingConnector.cs" />
-    <Compile Include="Pipeline\IBehaviorInvoker.cs" />
-    <Compile Include="Recoverability\SecondLevelRetries\SecondLevelRetry.cs" />
+    <Compile Include="Recoverability\DelayedRetries\DelayedRetryMessage.cs" />
     <Compile Include="Features\AdvanceExtensibilityExtensions.cs" />
     <Compile Include="Features\DisplayDiagnosticsForFeatures.cs" />
     <Compile Include="Features\ExposeSettings.cs" />
     <Compile Include="Features\PrerequisiteStatus.cs" />
-    <Compile Include="Recoverability\FirstLevelRetries\FirstLevelRetries.cs" />
-    <Compile Include="Recoverability\FirstLevelRetries\FirstLevelRetryPolicy.cs" />
-    <Compile Include="Pipeline\BehaviorInstance.cs" />
     <Compile Include="Pipeline\IPipeline.cs" />
-    <Compile Include="Pipeline\StepRegistrationSequence.cs" />
-    <Compile Include="Pipeline\PipelineCollection.cs" />
-    <Compile Include="Recoverability\SecondLevelRetries\CustomSecondLevelRetryPolicy.cs" />
-    <Compile Include="Recoverability\SecondLevelRetries\SecondLevelRetryPolicy.cs" />
-    <Compile Include="Recoverability\SecondLevelRetries\SecondLevelRetriesBehavior.cs" />
     <Compile Include="Transports\PushSettings.cs" />
     <Compile Include="Gateway\IDeduplicateMessages.cs" />
     <Compile Include="Hosting\HostInfoConfigurationExtensions.cs" />
@@ -477,7 +499,7 @@
     <Compile Include="Features\FeatureConfigurationContext.cs" />
     <Compile Include="Features\EndpointConfigurationExtensions.cs" />
     <Compile Include="Features\FeatureStartupTask.cs" />
-    <Compile Include="Features\SettingsExtentions.cs" />
+    <Compile Include="Features\SettingsExtensions.cs" />
     <Compile Include="GitFlowVersion.cs" />
     <Compile Include="Headers.cs" />
     <Compile Include="Hosting\Helpers\Image.cs" />
@@ -494,12 +516,11 @@
     <Compile Include="Unicast\Transport\Config\InboundTransport.cs" />
     <Compile Include="Unicast\Transport\Config\OutboundTransport.cs" />
     <Compile Include="Persistence\EnabledPersistence.cs" />
-    <Compile Include="Persistence\PersistenceExtentions.cs" />
+    <Compile Include="Persistence\PersistenceExtensions.cs" />
     <Compile Include="Persistence\PersistenceStartup.cs" />
     <Compile Include="Persistence\PersistenceStorageMerger.cs" />
     <Compile Include="Persistence\StorageType.cs" />
     <Compile Include="Pipeline\PipelineModifications.cs" />
-    <Compile Include="Routing\FileBasedDynamicRouting\FileBasedRoutingConfigurationExtensions.cs" />
     <Compile Include="Sagas\CustomFinderAdapter.cs" />
     <Compile Include="Sagas\LoadSagaByIdWrapper.cs" />
     <Compile Include="Sagas\SagaFinder.cs" />
@@ -510,14 +531,12 @@
     <Compile Include="Sagas\SagaToMessageMap.cs" />
     <Compile Include="Scheduling\Scheduler.cs" />
     <Compile Include="Scheduling\TaskDefinition.cs" />
-    <Compile Include="Recoverability\Faults\MoveFaultsToErrorQueueBehavior.cs" />
-    <Compile Include="Recoverability\SecondLevelRetries\DefaultSecondLevelRetryPolicy.cs" />
     <Compile Include="Serialization\SerializationConfigExtensions.cs" />
     <Compile Include="Serialization\SerializationDefinition.cs" />
-    <Compile Include="Serialization\SerializationExtentions.cs" />
+    <Compile Include="Serialization\SerializationExtensions.cs" />
     <Compile Include="Serializers\Json\JsonSerializer.cs" />
     <Compile Include="Serializers\XML\XmlSerializer.cs" />
-    <Compile Include="Serializers\XML\Config\XmlSerializationExtentions.cs" />
+    <Compile Include="Serializers\XML\Config\XmlSerializationExtensions.cs" />
     <Compile Include="Serializers\XML\XmlDeserialization.cs" />
     <Compile Include="Serializers\XML\XmlSerializerCache.cs" />
     <Compile Include="Performance\MessageDurability\DurableMessagesConfig.cs" />
@@ -525,10 +544,7 @@
     <Compile Include="Sagas\InvokeSagaNotFoundBehavior.cs" />
     <Compile Include="Transports\Msmq\ReceiveWithTransactionScope.cs" />
     <Compile Include="Forwarding\ForwardReceivedMessages.cs" />
-    <Compile Include="Recoverability\FirstLevelRetries\FirstLevelRetriesBehavior.cs" />
     <Compile Include="Unicast\Config\RegisterHandlersInOrder.cs" />
-    <Compile Include="Performance\Statistics\SLA\SLABehavior.cs" />
-    <Compile Include="Performance\Statistics\CriticalTime\CriticalTimeBehavior.cs" />
     <Compile Include="Performance\Statistics\SLA\SLAMonitoring.cs" />
     <Compile Include="Performance\Statistics\ProcessingStatisticsBehavior.cs" />
     <Compile Include="MessageDeserializationException.cs" />
@@ -537,8 +553,8 @@
     <Compile Include="UnitOfWork\UnitOfWorkSettingsExtensions.cs" />
     <Compile Include="Utils\MessageQueueExtensions.cs" />
     <Compile Include="Utils\PathUtilities.cs" />
-    <Compile Include="Routing\FileBasedDynamicRouting\FileRoutingTable.cs" />
-    <Compile Include="Routing\FileBasedDynamicRouting\FileRoutingTableFeature.cs" />
+    <Compile Include="Transports\Msmq\InstanceMapping\InstanceMappingFileMonitor.cs" />
+    <Compile Include="Transports\Msmq\InstanceMapping\InstanceMappingFileFeature.cs" />
     <Compile Include="Unicast\Transport\Config\TransportExtensions.cs" />
     <Compile Include="Performance\Statistics\ReceivePerformanceDiagnosticsBehavior.cs" />
     <Compile Include="Utils\Guard.cs" />
@@ -588,7 +604,6 @@
     <Compile Include="Pipeline\RegisterStep.cs" />
     <Compile Include="Pipeline\RemoveStep.cs" />
     <Compile Include="Pipeline\ReplaceStep.cs" />
-    <Compile Include="Pipeline\WellknownStep.cs" />
     <Compile Include="Sagas\AttachSagaDetailsToOutGoingMessageBehavior.cs" />
     <Compile Include="Sagas\ContainSagaData.cs" />
     <Compile Include="Sagas\IAmStartedByMessages.cs" />
@@ -604,9 +619,8 @@
     <Compile Include="Sagas\SagaT.cs" />
     <Compile Include="Sagas\ToSagaExpression.cs" />
     <Compile Include="Serialization\IMessageSerializer.cs" />
-    <Compile Include="SettingsExtentions.cs" />
+    <Compile Include="SettingsExtensions.cs" />
     <Compile Include="Settings\ReadOnlySettings.cs" />
-    <Compile Include="Settings\ScaleOutExtentions.cs" />
     <Compile Include="Support\RuntimeEnvironment.cs" />
     <Compile Include="Performance\TimeToBeReceived\TimeToBeReceivedAttribute.cs" />
     <Compile Include="Transports\Receiving.cs" />
@@ -615,7 +629,6 @@
     <Compile Include="Pipeline\Incoming\LoadHandlersConnector.cs" />
     <Compile Include="Pipeline\Incoming\LogicalMessage.cs" />
     <Compile Include="Pipeline\Incoming\MessageHandler.cs" />
-    <Compile Include="Serialization\SerializeMessageConnector.cs" />
     <Compile Include="Pipeline\Outgoing\OutgoingPhysicalToRoutingConnector.cs" />
     <Compile Include="Pipeline\MutateInstanceMessage\MutateOutgoingMessageBehavior.cs" />
     <Compile Include="Pipeline\MutateTransportMessage\MutateOutgoingTransportMessageBehavior.cs" />
@@ -628,12 +641,9 @@
     <Compile Include="Routing\MessageDrivenSubscriptions\StorageInitializer.cs" />
     <Compile Include="UnitOfWork\UnitOfWorkBehavior.cs" />
     <Compile Include="Pipeline\Behavior.cs" />
-    <Compile Include="Pipeline\BehaviorChain.cs" />
     <Compile Include="CriticalError\ConfigureCriticalErrorAction.cs" />
     <Compile Include="DataBus\ConfigureFileShareDataBus.cs" />
     <Compile Include="Features\FeatureActivator.cs" />
-    <Compile Include="Recoverability\SecondLevelRetries\Config\SecondLevelRetriesConfigExtensions.cs" />
-    <Compile Include="Recoverability\SecondLevelRetries\Config\SecondLevelRetriesSettings.cs" />
     <Compile Include="Serializers\Json\Config\JsonSerializerConfigurationExtensions.cs" />
     <Compile Include="Pipeline\Incoming\DeserializeLogicalMessagesConnector.cs" />
     <Compile Include="Licensing\ConfigureLicenseExtensions.cs" />
@@ -663,9 +673,6 @@
     <Compile Include="Transports\Msmq\QueueCreator.cs" />
     <Compile Include="Transports\Msmq\MsmqUtilities.cs" />
     <Compile Include="Encryption\RijndaelEncryptionServiceConfig.cs" />
-    <Compile Include="Recoverability\SecondLevelRetries\Config\SecondLevelRetriesConfig.cs" />
-    <Compile Include="Recoverability\SecondLevelRetries\SecondLevelRetries.cs" />
-    <Compile Include="Transports\TransportConfig.cs" />
     <Compile Include="Unicast\UnicastBusConfig.cs" />
     <Compile Include="DataBus\DataBusFileBased.cs" />
     <Compile Include="DataBus\DefaultDatabusSerializer.cs" />
@@ -725,14 +732,12 @@
       <DependentUpon>LicenseExpiredForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Unicast\BuilderExtensions.cs" />
-    <Compile Include="Unicast\Config\LoadMessageHandlersExtentions.cs" />
+    <Compile Include="Unicast\Config\LoadMessageHandlersExtensions.cs" />
     <Compile Include="Unicast\MessagesEventArgs.cs" />
     <Compile Include="Unicast\MessageEventArgs.cs" />
     <Compile Include="Unicast\Messages\MessageMetadataRegistry.cs" />
     <Compile Include="Unicast\Messages\MessageMetadata.cs" />
     <Compile Include="Routing\MessagingBestPractices\Validations.cs" />
-    <Compile Include="Performance\Statistics\CriticalTime\CriticalTimeCalculator.cs" />
-    <Compile Include="Performance\Statistics\SLA\EstimatedTimeToSLABreachCalculator.cs" />
     <Compile Include="Causation\AttachCausationHeadersBehavior.cs" />
     <Compile Include="Unicast\Queuing\QueueNotFoundException.cs" />
     <Compile Include="Unicast\Queuing\QueuesCreator.cs" />
@@ -785,6 +790,7 @@
   <ItemGroup>
     <Analyzer Include="..\packages\Particular.CodeRules.0.1.1\tools\..\analyzers\dotnet\cs\Particular.CodeRules.dll" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="AfterBuild" Condition=" '$(Configuration)' == 'Release' ">
     <MakeDir Directories="$(TargetDir)temp\" />
@@ -802,10 +808,10 @@
     </PropertyGroup>
     <Error Condition="!Exists('..\packages\Fody.1.29.4\build\dotnet\Fody.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Fody.1.29.4\build\dotnet\Fody.targets'))" />
     <Error Condition="!Exists('..\packages\Particular.CodeRules.0.1.1\build\Particular.CodeRules.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Particular.CodeRules.0.1.1\build\Particular.CodeRules.props'))" />
-    <Error Condition="!Exists('..\packages\GitVersionTask.3.4.1\build\dotnet\GitVersionTask.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\GitVersionTask.3.4.1\build\dotnet\GitVersionTask.targets'))" />
     <Error Condition="!Exists('..\packages\NuGetPackager.0.6.0\build\NuGetPackager.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\NuGetPackager.0.6.0\build\NuGetPackager.targets'))" />
+    <Error Condition="!Exists('..\packages\GitVersionTask.3.6.3\build\dotnet\GitVersionTask.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\GitVersionTask.3.6.3\build\dotnet\GitVersionTask.targets'))" />
   </Target>
   <Import Project="..\packages\Fody.1.29.4\build\dotnet\Fody.targets" Condition="Exists('..\packages\Fody.1.29.4\build\dotnet\Fody.targets')" />
   <Import Project="..\packages\NuGetPackager.0.6.0\build\NuGetPackager.targets" Condition="Exists('..\packages\NuGetPackager.0.6.0\build\NuGetPackager.targets')" />
-  <Import Project="..\packages\GitVersionTask.3.4.1\build\dotnet\GitVersionTask.targets" Condition="Exists('..\packages\GitVersionTask.3.4.1\build\dotnet\GitVersionTask.targets')" />
+  <Import Project="..\packages\GitVersionTask.3.6.3\build\dotnet\GitVersionTask.targets" Condition="Exists('..\packages\GitVersionTask.3.6.3\build\dotnet\GitVersionTask.targets')" />
 </Project>

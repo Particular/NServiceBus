@@ -6,10 +6,11 @@ namespace NServiceBus.AcceptanceTests.Sagas
     using EndpointTemplates;
     using Extensibility;
     using Features;
-    using NServiceBus.Persistence;
+    using NServiceBus;
     using NServiceBus.Pipeline;
     using NServiceBus.Sagas;
     using NUnit.Framework;
+    using Persistence;
 
     [TestFixture]
     public class When_a_finder_exists_and_context_information_added : NServiceBusAcceptanceTest
@@ -26,13 +27,13 @@ namespace NServiceBus.AcceptanceTests.Sagas
             Assert.AreEqual("SomeData", context.ContextBag.Get<SagaEndpoint.BehaviorWhichAddsThingsToTheContext.State>().SomeData);
         }
 
-        public class Context : ScenarioContext
+        class Context : ScenarioContext
         {
             public bool FinderUsed { get; set; }
             public ReadOnlyContextBag ContextBag { get; set; }
         }
 
-        public class SagaEndpoint : EndpointConfigurationBuilder
+        class SagaEndpoint : EndpointConfigurationBuilder
         {
             public SagaEndpoint()
             {
@@ -73,16 +74,16 @@ namespace NServiceBus.AcceptanceTests.Sagas
                 }
             }
 
-            public class BehaviorWhichAddsThingsToTheContext : Behavior<IIncomingPhysicalMessageContext>
+            public class BehaviorWhichAddsThingsToTheContext : IBehavior<IIncomingPhysicalMessageContext, IIncomingPhysicalMessageContext>
             {
-                public override Task Invoke(IIncomingPhysicalMessageContext context, Func<Task> next)
+                public Task Invoke(IIncomingPhysicalMessageContext context, Func<IIncomingPhysicalMessageContext, Task> next)
                 {
                     context.Extensions.Set(new State
                     {
                         SomeData = "SomeData"
                     });
 
-                    return next();
+                    return next(context);
                 }
 
                 public class State

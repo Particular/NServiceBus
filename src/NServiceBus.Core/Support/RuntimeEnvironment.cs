@@ -9,7 +9,9 @@
     {
         static RuntimeEnvironment()
         {
-            MachineNameAction = () => Environment.MachineName;
+            var machineName = Environment.MachineName;
+
+            MachineNameAction = () => machineName;
         }
 
         /// <summary>

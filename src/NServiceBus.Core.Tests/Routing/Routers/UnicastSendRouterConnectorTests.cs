@@ -4,13 +4,11 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
-    using NServiceBus.Extensibility;
     using NServiceBus.Pipeline;
     using NServiceBus.Routing;
-    using NServiceBus.Unicast.Messages;
+    using Unicast.Messages;
     using NUnit.Framework;
     using Testing;
-    using Conventions = NServiceBus.Conventions;
 
     [TestFixture]
     public class UnicastSendRouterConnectorTests
@@ -167,14 +165,11 @@
         [Test]
         public async Task Should_route_using_the_mappings_if_no_destination_is_set()
         {
-            var strategy = new FakeRoutingStrategy
+            var router = new FakeSendRouter
             {
-                FixedDestination = new[]
-                {
-                    new UnicastRoutingStrategy("MappedDestination")
-                }
+                FixedDestination = new UnicastRoutingStrategy("MappedDestination")
             };
-            var behavior = InitializeBehavior(strategy: strategy);
+            var behavior = InitializeBehavior(router: router);
             var options = new SendOptions();
 
             var context = CreateContext(options);
@@ -192,14 +187,12 @@
         [Test]
         public void Should_throw_if_no_route_can_be_found()
         {
-            var strategy = new FakeRoutingStrategy
+            var router = new FakeSendRouter
             {
-                FixedDestination = new UnicastRoutingStrategy[]
-                {
-                }
+                FixedDestination = null
             };
 
-            var behavior = InitializeBehavior(strategy: strategy);
+            var behavior = InitializeBehavior(router: router);
             var options = new SendOptions();
 
             var context = CreateContext(options, new MessageWithoutRouting());
@@ -226,21 +219,21 @@
         static UnicastSendRouterConnector InitializeBehavior(
             string sharedQueue = null,
             string instanceSpecificQueue = null,
-            FakeRoutingStrategy strategy = null)
+            FakeSendRouter router = null)
         {
             var metadataRegistry = new MessageMetadataRegistry(new Conventions());
-            metadataRegistry.RegisterMessageType(typeof(MyMessage));
-            metadataRegistry.RegisterMessageType(typeof(MessageWithoutRouting));
-            return new UnicastSendRouterConnector(sharedQueue, instanceSpecificQueue, strategy ?? new FakeRoutingStrategy(), new DistributionPolicy());
+            metadataRegistry.RegisterMessageTypesFoundIn(new List<Type> { typeof(MyMessage), typeof(MessageWithoutRouting) });
+
+            return new UnicastSendRouterConnector(sharedQueue, instanceSpecificQueue, router ?? new FakeSendRouter(), new DistributionPolicy(), e => e.ToString());
         }
 
-        class FakeRoutingStrategy : IUnicastRouter
+        class FakeSendRouter : IUnicastSendRouter
         {
-            public IEnumerable<UnicastRoutingStrategy> FixedDestination { get; set; }
+            public UnicastRoutingStrategy FixedDestination { get; set; }
 
-            public Task<IEnumerable<UnicastRoutingStrategy>> Route(Type messageType, DistributionStrategy distributionStrategy, ContextBag contextBag)
+            public UnicastRoutingStrategy Route(Type messageType, IDistributionPolicy distributionPolicy)
             {
-                return Task.FromResult(FixedDestination);
+                return FixedDestination;
             }
         }
 

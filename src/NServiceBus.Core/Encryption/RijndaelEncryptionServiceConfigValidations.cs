@@ -7,7 +7,7 @@ namespace NServiceBus
     {
         public static bool ConfigurationHasDuplicateKeyIdentifiers(RijndaelEncryptionServiceConfig section)
         {
-            // Combine all key identifier values, filter the empty ones, split them 
+            // Combine all key identifier values, filter the empty ones, split them
             return section
                 .ExpiredKeys
                 .Cast<RijndaelExpiredKey>()

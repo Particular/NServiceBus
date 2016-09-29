@@ -4,7 +4,7 @@
     using System.Collections.Generic;
     using System.Threading.Tasks;
     using NServiceBus.Features;
-    using NServiceBus.Transports;
+    using Transport;
     using NUnit.Framework;
     using ObjectBuilder;
     using Settings;
@@ -27,7 +27,7 @@
         public async Task Should_start_and_stop_features()
         {
             var feature = new FeatureWithStartupTask();
-       
+
             featureSettings.Add(feature);
 
             var builder = new FakeBuilder(typeof(FeatureWithStartupTask.Runner));
@@ -129,7 +129,7 @@
 
         public FakeBuilder()
         {
-            
+
         }
         public FakeBuilder(Type type)
         {

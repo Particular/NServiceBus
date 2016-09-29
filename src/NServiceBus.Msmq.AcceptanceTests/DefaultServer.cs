@@ -5,12 +5,12 @@
     using System.Linq;
     using System.Reflection;
     using System.Threading.Tasks;
-    using NServiceBus.AcceptanceTesting.Customization;
-    using NServiceBus.AcceptanceTesting.Support;
-    using NServiceBus.Config.ConfigurationSource;
-    using NServiceBus.Features;
-    using NServiceBus.Hosting.Helpers;
-    using NServiceBus.ObjectBuilder;
+    using AcceptanceTesting.Customization;
+    using AcceptanceTesting.Support;
+    using Config.ConfigurationSource;
+    using Features;
+    using Hosting.Helpers;
+    using ObjectBuilder;
 
     public class DefaultServer : IEndpointSetupTemplate
     {
@@ -39,8 +39,9 @@
             builder.EnableInstallers();
 
             builder.DisableFeature<TimeoutManager>();
-            builder.DisableFeature<SecondLevelRetries>();
-            builder.DisableFeature<FirstLevelRetries>();
+            builder.Recoverability()
+                .Delayed(delayed => delayed.NumberOfRetries(0))
+                .Immediate(immediate => immediate.NumberOfRetries(0));
 
             builder.RegisterComponents(r => { RegisterInheritanceHierarchyOfContextOnContainer(runDescriptor, r); });
 

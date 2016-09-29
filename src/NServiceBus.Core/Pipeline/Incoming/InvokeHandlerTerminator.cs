@@ -7,7 +7,7 @@
 
     class InvokeHandlerTerminator : PipelineTerminator<IInvokeHandlerContext>
     {
-        protected override async Task Terminate(IInvokeHandlerContext context)
+        protected override Task Terminate(IInvokeHandlerContext context)
         {
             context.Extensions.Set(new State
             {
@@ -18,15 +18,14 @@
 
             if (context.Extensions.TryGet(out saga) && saga.NotFound && saga.Metadata.SagaType == context.MessageHandler.Instance.GetType())
             {
-                return;
+                return TaskEx.CompletedTask;
             }
 
             var messageHandler = context.MessageHandler;
 
-            await messageHandler
+            return messageHandler
                 .Invoke(context.MessageBeingHandled, context)
-                .ThrowIfNull()
-                .ConfigureAwait(false);
+                .ThrowIfNull();
         }
 
         public class State

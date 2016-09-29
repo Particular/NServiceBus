@@ -1,31 +1,33 @@
 namespace NServiceBus
 {
     using System;
-    using System.Collections.Generic;
+    using System.Collections.Concurrent;
     using System.Threading.Tasks;
     using DeliveryConstraints;
     using Pipeline;
 
-    class DetermineMessageDurabilityBehavior : Behavior<IOutgoingLogicalMessageContext>
+    class DetermineMessageDurabilityBehavior : IBehavior<IOutgoingLogicalMessageContext, IOutgoingLogicalMessageContext>
     {
-        public DetermineMessageDurabilityBehavior(Dictionary<Type, bool> durabilitySettings)
+        public DetermineMessageDurabilityBehavior(Func<Type, bool> convention)
         {
-            this.durabilitySettings = durabilitySettings;
+            this.convention = convention;
+            durabilityCache = new ConcurrentDictionary<Type, bool>();
         }
 
-        public override Task Invoke(IOutgoingLogicalMessageContext context, Func<Task> next)
+        public Task Invoke(IOutgoingLogicalMessageContext context, Func<IOutgoingLogicalMessageContext, Task> next)
         {
-            bool isDurable;
-            if (durabilitySettings.TryGetValue(context.Message.MessageType, out isDurable) && !isDurable)
+            if (durabilityCache.GetOrAdd(context.Message.MessageType, t => convention(t)))
             {
                 context.Extensions.AddDeliveryConstraint(new NonDurableDelivery());
 
                 context.Headers[Headers.NonDurableMessage] = true.ToString();
             }
 
-            return next();
+            return next(context);
         }
 
-        Dictionary<Type, bool> durabilitySettings;
+        Func<Type, bool> convention;
+
+        ConcurrentDictionary<Type, bool> durabilityCache;
     }
 }

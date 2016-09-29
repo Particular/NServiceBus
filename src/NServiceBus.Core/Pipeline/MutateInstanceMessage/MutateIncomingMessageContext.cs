@@ -19,7 +19,7 @@ namespace NServiceBus.MessageMutator
         }
 
         /// <summary>
-        /// The current imcoming message.
+        /// The current incoming message.
         /// </summary>
         public object Message
         {

@@ -2,14 +2,13 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
     using System.Threading.Tasks;
-    using NServiceBus.Features;
+    using Features;
     using NServiceBus.Routing;
-    using NServiceBus.Settings;
+    using Settings;
     using NUnit.Framework;
     using Testing;
-    using Transports;
+    using NServiceBus.Transport;
 
     [TestFixture]
     public class RunningEndpointInstanceTest
@@ -18,9 +17,9 @@
         public async Task ShouldAllowMultipleStops()
         {
             var testee = new RunningEndpointInstance(
-                new SettingsHolder(), 
-                new FakeBuilder(), 
-                new PipelineCollection(Enumerable.Empty<TransportReceiver>()), 
+                new SettingsHolder(),
+                new FakeBuilder(),
+                new List<TransportReceiver>(),
                 new FeatureRunner(new FeatureActivator(new SettingsHolder())),
                 new MessageSession(new RootContext(null, null, null)), new FakeTransportInfrastructure());
 

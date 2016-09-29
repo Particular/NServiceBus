@@ -1,7 +1,6 @@
-namespace NServiceBus.Transports
+namespace NServiceBus.Transport
 {
     using System.Collections.Generic;
-    using System.Linq;
     using DeliveryConstraints;
 
     /// <summary>
@@ -12,11 +11,11 @@ namespace NServiceBus.Transports
         /// <summary>
         /// Creates a new <see cref="UnicastTransportOperation" /> instance.
         /// </summary>
-        public UnicastTransportOperation(OutgoingMessage message, string destination, DispatchConsistency requiredDispatchConsistency = DispatchConsistency.Default, IEnumerable<DeliveryConstraint> deliveryConstraints = null)
+        public UnicastTransportOperation(OutgoingMessage message, string destination, DispatchConsistency requiredDispatchConsistency = DispatchConsistency.Default, List<DeliveryConstraint> deliveryConstraints = null)
         {
             Message = message;
             Destination = destination;
-            DeliveryConstraints = deliveryConstraints ?? Enumerable.Empty<DeliveryConstraint>();
+            DeliveryConstraints = deliveryConstraints ?? DeliveryConstraint.EmptyConstraints;
             RequiredDispatchConsistency = requiredDispatchConsistency;
         }
 
@@ -33,7 +32,7 @@ namespace NServiceBus.Transports
         /// <summary>
         /// The delivery constraints that must be honored by the transport.
         /// </summary>
-        public IEnumerable<DeliveryConstraint> DeliveryConstraints { get; }
+        public List<DeliveryConstraint> DeliveryConstraints { get; }
 
         /// <summary>
         /// The dispatch consistency the must be honored by the transport.

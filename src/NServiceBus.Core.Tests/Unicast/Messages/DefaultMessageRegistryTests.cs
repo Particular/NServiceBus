@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.Unicast.Tests
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq;
     using NUnit.Framework;
     using Unicast.Messages;
@@ -21,9 +22,14 @@
             [Test]
             public void Should_return_metadata_for_a_mapped_type()
             {
-                var defaultMessageRegistry = new MessageMetadataRegistry(new Conventions());
-                defaultMessageRegistry.RegisterMessageType(typeof(int));
+                var conventions = new Conventions();
+                conventions.IsMessageTypeAction = type => type == typeof(int);
+
+                var defaultMessageRegistry = new MessageMetadataRegistry(conventions);
+                defaultMessageRegistry.RegisterMessageTypesFoundIn(new List<Type> { typeof(int) });
+
                 var messageMetadata = defaultMessageRegistry.GetMessageMetadata(typeof(int));
+
                 Assert.AreEqual(typeof(int), messageMetadata.MessageType);
                 Assert.AreEqual(1, messageMetadata.MessageHierarchy.Count());
             }
@@ -34,7 +40,7 @@
             {
                 var defaultMessageRegistry = new MessageMetadataRegistry(new Conventions());
 
-                defaultMessageRegistry.RegisterMessageType(typeof(MyEvent));
+                defaultMessageRegistry.RegisterMessageTypesFoundIn(new List<Type> { typeof(MyEvent) });
                 var messageMetadata = defaultMessageRegistry.GetMessageMetadata(typeof(MyEvent));
 
                 Assert.AreEqual(5, messageMetadata.MessageHierarchy.Count());

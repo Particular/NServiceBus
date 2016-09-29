@@ -3,44 +3,44 @@ namespace NServiceBus
     using System;
     using System.Threading.Tasks;
     using Logging;
-    using ObjectBuilder;
-    using Pipeline;
-    using Transports;
+    using Transport;
 
     class TransportReceiver
     {
         public TransportReceiver(
             string id,
-            IBuilder builder,
-            IPushMessages receiver,
+            IPushMessages pushMessages,
             PushSettings pushSettings,
-            IPipeline<ITransportReceiveContext> pipeline,
-            IPipelineCache pipelineCache,
-            PushRuntimeSettings pushRuntimeSettings, 
-            IEventAggregator eventAggregator)
+            PushRuntimeSettings pushRuntimeSettings,
+            IPipelineExecutor pipelineExecutor,
+            RecoverabilityExecutor recoverabilityExecutor,
+            CriticalError criticalError)
         {
+            this.criticalError = criticalError;
             Id = id;
-            this.pipeline = pipeline;
-            this.pipelineCache = pipelineCache;
             this.pushRuntimeSettings = pushRuntimeSettings;
-            this.eventAggregator = eventAggregator;
+            this.pipelineExecutor = pipelineExecutor;
+            this.recoverabilityExecutor = recoverabilityExecutor;
             this.pushSettings = pushSettings;
-            this.receiver = receiver;
-            this.builder = builder;
+
+            receiver = pushMessages;
         }
 
         public string Id { get; }
 
-        public async Task Start()
+        public Task Init()
+        {
+            return receiver.Init(c => pipelineExecutor.Invoke(c), c => recoverabilityExecutor.Invoke(c), criticalError, pushSettings);
+        }
+
+        public void Start()
         {
             if (isStarted)
             {
                 throw new InvalidOperationException("The transport is already started");
             }
 
-            Logger.DebugFormat("Pipeline {0} is starting receiver for queue {1}.", Id, pushSettings.InputQueue);
-
-            await receiver.Init(InvokePipeline, builder.Build<CriticalError>(), pushSettings).ConfigureAwait(false);
+            Logger.DebugFormat("Receiver {0} is starting, listening to queue {1}.", Id, pushSettings.InputQueue);
 
             receiver.Start(pushRuntimeSettings);
 
@@ -59,28 +59,14 @@ namespace NServiceBus
             isStarted = false;
         }
 
-        async Task InvokePipeline(PushContext pushContext)
-        {
-            using (var childBuilder = builder.CreateChildBuilder())
-            {
-                var rootContext = new RootContext(childBuilder, pipelineCache, eventAggregator);
-                var context = new TransportReceiveContext(new IncomingMessage(pushContext.MessageId, pushContext.Headers, pushContext.BodyStream), pushContext.TransportTransaction, pushContext.ReceiveCancellationTokenSource, rootContext);
-                context.Extensions.Merge(pushContext.Context);
-                await pipeline.Invoke(context).ConfigureAwait(false);
-
-                await context.RaiseNotification(new ReceivePipelineCompleted()).ConfigureAwait(false);
-            }
-        }
-
-        IBuilder builder;
+        readonly CriticalError criticalError;
 
         bool isStarted;
-        IPipeline<ITransportReceiveContext> pipeline;
-        IPipelineCache pipelineCache;
         PushRuntimeSettings pushRuntimeSettings;
+        IPipelineExecutor pipelineExecutor;
+        RecoverabilityExecutor recoverabilityExecutor;
         PushSettings pushSettings;
         IPushMessages receiver;
-        IEventAggregator eventAggregator;
 
         static ILog Logger = LogManager.GetLogger<TransportReceiver>();
     }

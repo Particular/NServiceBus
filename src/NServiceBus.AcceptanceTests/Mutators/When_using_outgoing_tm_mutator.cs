@@ -11,9 +11,9 @@
     public class When_using_outgoing_tm_mutator : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Should_be_able_to_update_message()
+        public Task Should_be_able_to_update_message()
         {
-            await Scenario.Define<Context>()
+            return Scenario.Define<Context>()
                 .WithEndpoint<Endpoint>(b => b.When(session => session.SendLocal(new MessageToBeMutated())))
                 .Done(c => c.MessageProcessed)
                 .Repeat(r => r.For(Serializers.Xml))

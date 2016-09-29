@@ -3,9 +3,9 @@
     using System;
     using System.Threading.Tasks;
     using Pipeline;
-    using Transports;
+    using Transport;
 
-    class ApplyReplyToAddressBehavior : Behavior<IOutgoingLogicalMessageContext>
+    class ApplyReplyToAddressBehavior : IBehavior<IOutgoingLogicalMessageContext, IOutgoingLogicalMessageContext>
     {
         public enum RouteOption
         {
@@ -23,12 +23,12 @@
             this.distributorAddress = distributorAddress;
         }
 
-        public override Task Invoke(IOutgoingLogicalMessageContext context, Func<Task> next)
+        public Task Invoke(IOutgoingLogicalMessageContext context, Func<IOutgoingLogicalMessageContext, Task> next)
         {
             var state = context.Extensions.GetOrCreate<State>();
             if (state.Option == RouteOption.RouteReplyToThisInstance && instanceSpecificQueue == null)
             {
-                throw new InvalidOperationException("Cannot route a reply to this specific instance because endpoint instance ID was not provided by either host, a plugin or user. You can specify it via EndpointConfiguration.ScaleOut().InstanceDiscriminator(string discriminator).");
+                throw new InvalidOperationException("Cannot route a reply to a specific instance because an endpoint instance discriminator was not configured for the destination endpoint. It can be specified via EndpointConfiguration.MakeInstanceUniquelyAddressable(string discriminator).");
             }
             context.Headers[Headers.ReplyToAddress] = ApplyUserOverride(publicReturnAddress ?? sharedQueue, state);
 
@@ -38,7 +38,7 @@
             {
                 context.Headers[Headers.ReplyToAddress] = distributorAddress;
             }
-            return next();
+            return next(context);
         }
 
 

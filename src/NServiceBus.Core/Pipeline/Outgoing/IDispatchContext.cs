@@ -1,7 +1,7 @@
 namespace NServiceBus.Pipeline
 {
     using System.Collections.Generic;
-    using Transports;
+    using Transport;
 
     /// <summary>
     /// Context for the immediate dispatch part of the pipeline.

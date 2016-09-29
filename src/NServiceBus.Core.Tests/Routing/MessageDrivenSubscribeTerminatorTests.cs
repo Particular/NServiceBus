@@ -6,7 +6,7 @@
     using Extensibility;
     using NServiceBus.Routing;
     using NServiceBus.Routing.MessageDrivenSubscriptions;
-    using NServiceBus.Transports;
+    using Transport;
     using NUnit.Framework;
     using Testing;
     using Unicast.Queuing;
@@ -18,16 +18,16 @@
         public void SetUp()
         {
             var publishers = new Publishers();
-            publishers.AddByAddress("publisher1", typeof(object));
-            router = new SubscriptionRouter(publishers, new EndpointInstances(), new TransportAddresses(address => null));
+            publishers.AddOrReplacePublishers("A", new List<PublisherTableEntry> {new PublisherTableEntry(typeof(object), PublisherAddress.CreateFromPhysicalAddresses("publisher1"))});
+            router = new SubscriptionRouter(publishers, new EndpointInstances(), i => i.ToString());
             dispatcher = new FakeDispatcher();
-            subscribeTerminator = new MessageDrivenSubscribeTerminator(router, "replyToAddress", new EndpointName("Endpoint"), dispatcher);
+            subscribeTerminator = new MessageDrivenSubscribeTerminator(router, "replyToAddress", "Endpoint", dispatcher);
         }
 
         [Test]
         public async Task Should_include_TimeSent_and_Version_headers()
         {
-            var unsubscribeTerminator = new MessageDrivenUnsubscribeTerminator(router, "replyToAddress", new EndpointName("Endpoint"), dispatcher);
+            var unsubscribeTerminator = new MessageDrivenUnsubscribeTerminator(router, "replyToAddress", "Endpoint", dispatcher);
 
             await subscribeTerminator.Invoke(new TestableSubscribeContext(), c => TaskEx.CompletedTask);
             await unsubscribeTerminator.Invoke(new TestableUnsubscribeContext(), c => TaskEx.CompletedTask);
@@ -53,13 +53,13 @@
         [Test]
         public async Task Should_Dispatch_according_to_max_retries_when_dispatch_fails()
         {
-            var options = new SubscribeOptions();
-            var state = options.GetExtensions().GetOrCreate<MessageDrivenSubscribeTerminator.Settings>();
+            var context = new TestableSubscribeContext();
+            var state = context.Extensions.GetOrCreate<MessageDrivenSubscribeTerminator.Settings>();
             state.MaxRetries = 10;
             state.RetryDelay = TimeSpan.Zero;
             dispatcher.FailDispatch(10);
 
-            await subscribeTerminator.Invoke(new TestableSubscribeContext(), c => TaskEx.CompletedTask);
+            await subscribeTerminator.Invoke(context, c => TaskEx.CompletedTask);
 
             Assert.AreEqual(1, dispatcher.DispatchedTransportOperations.Count);
             Assert.AreEqual(10, dispatcher.FailedNumberOfTimes);
@@ -68,13 +68,16 @@
         [Test]
         public void Should_Throw_when_max_retries_reached()
         {
-            var options = new SubscribeOptions();
-            var state = options.GetExtensions().GetOrCreate<MessageDrivenSubscribeTerminator.Settings>();
+            var context = new TestableSubscribeContext();
+            var state = context.Extensions.GetOrCreate<MessageDrivenSubscribeTerminator.Settings>();
             state.MaxRetries = 10;
             state.RetryDelay = TimeSpan.Zero;
             dispatcher.FailDispatch(11);
 
-            Assert.That(async () => await subscribeTerminator.Invoke(new TestableSubscribeContext(), c => TaskEx.CompletedTask), Throws.InstanceOf<QueueNotFoundException>());
+            Assert.That(async () =>
+            {
+                await subscribeTerminator.Invoke(context, c => TaskEx.CompletedTask);
+            }, Throws.InstanceOf<QueueNotFoundException>());
 
             Assert.AreEqual(0, dispatcher.DispatchedTransportOperations.Count);
             Assert.AreEqual(11, dispatcher.FailedNumberOfTimes);
@@ -90,7 +93,7 @@
 
             public List<TransportOperations> DispatchedTransportOperations { get; } = new List<TransportOperations>();
 
-            public Task Dispatch(TransportOperations outgoingMessages, ContextBag context)
+            public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transaction, ContextBag context)
             {
                 if (numberOfTimes.HasValue && FailedNumberOfTimes < numberOfTimes.Value)
                 {

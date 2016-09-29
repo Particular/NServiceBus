@@ -13,9 +13,9 @@ namespace NServiceBus.AcceptanceTests.Routing.AutomaticSubscriptions
     public class When_starting_an_endpoint_with_autosubscribe : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Should_autosubscribe_to_relevant_messagetypes()
+        public Task Should_autosubscribe_to_relevant_messagetypes()
         {
-            await Scenario.Define<Context>()
+            return Scenario.Define<Context>()
                 .WithEndpoint<Subscriber>()
                 .Done(c => c.EventsSubscribedTo.Count >= 1)
                 .Repeat(b => b.For<AllTransportsWithMessageDrivenPubSub>())
@@ -41,23 +41,23 @@ namespace NServiceBus.AcceptanceTests.Routing.AutomaticSubscriptions
         {
             public Subscriber()
             {
-                EndpointSetup<DefaultServer>(c => c.Pipeline.Register("SubscriptionSpy", typeof(SubscriptionSpy), "Spies on subscriptions made"))
+                EndpointSetup<DefaultServer>(c => c.Pipeline.Register("SubscriptionSpy", new SubscriptionSpy((Context)ScenarioContext), "Spies on subscriptions made"))
                     .AddMapping<MyMessage>(typeof(Subscriber)) //just map to our self for this test
                     .AddMapping<MyCommand>(typeof(Subscriber)) //just map to our self for this test
                     .AddMapping<MyEventWithNoHandler>(typeof(Subscriber)) //just map to our self for this test
                     .AddMapping<MyEvent>(typeof(Subscriber)); //just map to our self for this test
             }
 
-            public class SubscriptionSpy : Behavior<ISubscribeContext>
+            class SubscriptionSpy : IBehavior<ISubscribeContext, ISubscribeContext>
             {
                 public SubscriptionSpy(Context testContext)
                 {
                     this.testContext = testContext;
                 }
 
-                public override async Task Invoke(ISubscribeContext context, Func<Task> next)
+                public async Task Invoke(ISubscribeContext context, Func<ISubscribeContext, Task> next)
                 {
-                    await next().ConfigureAwait(false);
+                    await next(context).ConfigureAwait(false);
 
                     testContext.EventsSubscribedTo.Add(context.EventType);
                 }

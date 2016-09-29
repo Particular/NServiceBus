@@ -7,13 +7,11 @@
     using EndpointTemplates;
     using NServiceBus.Routing;
     using NUnit.Framework;
+    using Routing;
 
     public class When_using_instance_ids : NServiceBusAcceptanceTest
     {
-        public static string GetReceiverEndpoint()
-        {
-            return Conventions.EndpointNamingConvention(typeof(Receiver));
-        }
+        static string ReceiverEndpoint => Conventions.EndpointNamingConvention(typeof(Receiver));
 
         [Test]
         public async Task Should_be_addressable_both_by_shared_queue_and_specific_queue()
@@ -37,7 +35,10 @@
         {
             public UnawareSender()
             {
-                EndpointSetup<DefaultServer>(c => { c.UnicastRouting().RouteToEndpoint(typeof(MyMessage), GetReceiverEndpoint()); });
+                EndpointSetup<DefaultServer>((c, r) =>
+                {
+                    c.UseTransport(r.GetTransportType()).Routing().RouteToEndpoint(typeof(MyMessage), ReceiverEndpoint);
+                });
             }
         }
 
@@ -45,10 +46,11 @@
         {
             public AwareSender()
             {
-                EndpointSetup<DefaultServer>(c =>
+                EndpointSetup<DefaultServer>((c, r) =>
                 {
-                    c.UnicastRouting().RouteToEndpoint(typeof(MyMessage), GetReceiverEndpoint());
-                    c.UnicastRouting().Mapping.Physical.Add(new EndpointName(GetReceiverEndpoint()), new EndpointInstance(GetReceiverEndpoint(), "XYZ"));
+                    var routing = c.UseTransport(r.GetTransportType()).Routing();
+                    routing.RouteToEndpoint(typeof(MyMessage), ReceiverEndpoint);
+                    routing.RegisterEndpointInstances(new EndpointInstance(ReceiverEndpoint, "XYZ"));
                 });
             }
         }
@@ -57,7 +59,7 @@
         {
             public Receiver()
             {
-                EndpointSetup<DefaultServer>(c => { c.ScaleOut().InstanceDiscriminator("XYZ"); });
+                EndpointSetup<DefaultServer>(c => { c.MakeInstanceUniquelyAddressable("XYZ"); });
             }
 
             public class MyMessageHandler : IHandleMessages<MyMessage>

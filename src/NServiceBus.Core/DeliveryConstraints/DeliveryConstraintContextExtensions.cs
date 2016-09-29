@@ -4,8 +4,8 @@ namespace NServiceBus.DeliveryConstraints
     using System.Collections.Generic;
     using System.Linq;
     using Extensibility;
-    using Features;
-    using Transports;
+    using Settings;
+    using Transport;
 
     /// <summary>
     /// Gives access to <see cref="DeliveryConstraint" />s that exist in the various <see cref="ContextBag" />s.
@@ -48,7 +48,7 @@ namespace NServiceBus.DeliveryConstraints
             constraint = null;
             return false;
         }
-        
+
         /// <summary>
         /// Tries to remove an instance of <typeparamref name="T" /> from a <see cref="ContextBag" />.
         /// </summary>
@@ -72,7 +72,7 @@ namespace NServiceBus.DeliveryConstraints
         /// <summary>
         /// Removes a <see cref="DeliveryConstraint" /> to a <see cref="ContextBag" />.
         /// </summary>
-        public static IEnumerable<DeliveryConstraint> GetDeliveryConstraints(this ContextBag context)
+        public static List<DeliveryConstraint> GetDeliveryConstraints(this ContextBag context)
         {
             List<DeliveryConstraint> constraints;
 
@@ -99,16 +99,16 @@ namespace NServiceBus.DeliveryConstraints
             constraints.Remove(constraint);
         }
 
-        internal static bool TryGet<T>(this IEnumerable<DeliveryConstraint> list, out T constraint) where T : DeliveryConstraint
+        internal static bool TryGet<T>(this List<DeliveryConstraint> list, out T constraint) where T : DeliveryConstraint
         {
             constraint = list.OfType<T>().FirstOrDefault();
 
             return constraint != null;
         }
 
-        internal static bool DoesTransportSupportConstraint<T>(this FeatureConfigurationContext context) where T : DeliveryConstraint
+        internal static bool DoesTransportSupportConstraint<T>(this ReadOnlySettings settings) where T : DeliveryConstraint
         {
-            return context.Settings.Get<TransportInfrastructure>()
+            return settings.Get<TransportInfrastructure>()
                 .DeliveryConstraints.Any(t => typeof(T).IsAssignableFrom(t));
         }
     }

@@ -1,13 +1,12 @@
 ﻿namespace NServiceBus.Core.Tests.Pipeline.MutateInstanceMessage
 {
     using System.Collections.Generic;
-    using System.IO;
     using System.Threading.Tasks;
     using MessageMutator;
     using NServiceBus.Pipeline;
-    using NServiceBus.Transports;
     using NUnit.Framework;
     using Testing;
+    using Transport;
 
     [TestFixture]
     class MutateOutgoingMessageBehaviorTests
@@ -18,11 +17,65 @@
             var behavior = new MutateOutgoingMessageBehavior();
 
             var context = new TestableOutgoingLogicalMessageContext();
-            context.Extensions.Set(new IncomingMessage("messageId", new Dictionary<string, string>(), Stream.Null ));
+            context.Extensions.Set(new IncomingMessage("messageId", new Dictionary<string, string>(), new byte[0]));
             context.Extensions.Set(new LogicalMessage(null, null));
             context.Builder.Register<IMutateOutgoingMessages>(() => new MutateOutgoingMessagesReturnsNull());
 
-            Assert.That(async () => await behavior.Invoke(context, () => TaskEx.CompletedTask), Throws.Exception.With.Message.EqualTo("Return a Task or mark the method as async."));
+            Assert.That(async () => await behavior.Invoke(context, ctx => TaskEx.CompletedTask), Throws.Exception.With.Message.EqualTo("Return a Task or mark the method as async."));
+        }
+
+        [Test]
+        public async Task When_no_mutator_updates_the_body_should_not_update_the_body()
+        {
+            var behavior = new MutateOutgoingMessageBehavior();
+
+            var context = new InterceptUpdateMessageOutgoingLogicalMessageContext();
+
+            context.Builder.Register<IMutateOutgoingMessages>(() => new MutatorWhichDoesNotMutateTheBody());
+
+            await behavior.Invoke(context, ctx => TaskEx.CompletedTask);
+
+            Assert.False(context.UpdateMessageCalled);
+        }
+
+        [Test]
+        public async Task When_no_mutator_available_should_not_update_the_body()
+        {
+            var behavior = new MutateOutgoingMessageBehavior();
+
+            var context = new InterceptUpdateMessageOutgoingLogicalMessageContext();
+
+            context.Builder.Register(() => new IMutateOutgoingMessages[] { });
+
+            await behavior.Invoke(context, ctx => TaskEx.CompletedTask);
+
+            Assert.False(context.UpdateMessageCalled);
+        }
+
+        [Test]
+        public async Task When_mutator_modifies_the_body_should_update_the_body()
+        {
+            var behavior = new MutateOutgoingMessageBehavior();
+
+            var context = new InterceptUpdateMessageOutgoingLogicalMessageContext();
+
+            context.Builder.Register<IMutateOutgoingMessages>(() => new MutatorWhichMutatesTheBody());
+
+            await behavior.Invoke(context, ctx => TaskEx.CompletedTask);
+
+            Assert.True(context.UpdateMessageCalled);
+        }
+
+        class InterceptUpdateMessageOutgoingLogicalMessageContext : TestableOutgoingLogicalMessageContext
+        {
+            public bool UpdateMessageCalled { get; private set; }
+
+            public override void UpdateMessage(object newInstance)
+            {
+                base.UpdateMessage(newInstance);
+
+                UpdateMessageCalled = true;
+            }
         }
 
         class MutateOutgoingMessagesReturnsNull : IMutateOutgoingMessages
@@ -30,6 +83,24 @@
             public Task MutateOutgoing(MutateOutgoingMessageContext context)
             {
                 return null;
+            }
+        }
+
+        class MutatorWhichDoesNotMutateTheBody : IMutateOutgoingMessages
+        {
+            public Task MutateOutgoing(MutateOutgoingMessageContext context)
+            {
+                return TaskEx.CompletedTask;
+            }
+        }
+
+        class MutatorWhichMutatesTheBody : IMutateOutgoingMessages
+        {
+            public Task MutateOutgoing(MutateOutgoingMessageContext context)
+            {
+                context.OutgoingMessage = new object();
+
+                return TaskEx.CompletedTask;
             }
         }
     }

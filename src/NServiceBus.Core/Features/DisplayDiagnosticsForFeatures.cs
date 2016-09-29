@@ -30,7 +30,7 @@ namespace NServiceBus.Features
                             statusText.AppendLine("   -" + reason);
                         }
                     }
-                    else if (!diagnosticData.DependenciesAreMeet)
+                    else if (!diagnosticData.DependenciesAreMet)
                     {
                         statusText.AppendLine($"Did not meet one of the dependencies: {string.Join(",", diagnosticData.Dependencies.Select(t => "[" + string.Join(",", t.Select(t1 => t1)) + "]"))}");
                     }

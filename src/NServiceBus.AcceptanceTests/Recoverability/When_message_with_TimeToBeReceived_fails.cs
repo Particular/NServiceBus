@@ -4,8 +4,6 @@
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
-    using Features;
-    using NServiceBus.Config;
     using NUnit.Framework;
 
     public class When_message_with_TimeToBeReceived_fails : NServiceBusAcceptanceTest
@@ -36,12 +34,7 @@
         {
             public EndpointThatThrows()
             {
-                EndpointSetup<DefaultServer>(b =>
-                {
-                    b.DisableFeature<SecondLevelRetries>();
-                    b.SendFailedMessagesTo("errorQueueForAcceptanceTest");
-                })
-                    .WithConfig<TransportConfig>(c => { c.MaxRetries = 0; });
+                EndpointSetup<DefaultServer>(b => { b.SendFailedMessagesTo("errorQueueForAcceptanceTest"); });
             }
 
             class ThrowingMessageHandler : IHandleMessages<MessageThatFails>

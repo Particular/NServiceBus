@@ -42,7 +42,7 @@
         {
             public SendOptionsExtensions()
             {
-                EndpointSetup<DefaultServer>(c => c.Pipeline.Register("TestingSendOptionsExtension", typeof(TestingSendOptionsExtensionBehavior), "Testing send options extensions"));
+                EndpointSetup<DefaultServer>(c => c.Pipeline.Register("TestingSendOptionsExtension", new TestingSendOptionsExtensionBehavior(), "Testing send options extensions"));
             }
 
             class SendMessageHandler : IHandleMessages<SendMessage>
@@ -57,9 +57,9 @@
                 }
             }
 
-            public class TestingSendOptionsExtensionBehavior : Behavior<IOutgoingLogicalMessageContext>
+            public class TestingSendOptionsExtensionBehavior : IBehavior<IOutgoingLogicalMessageContext, IOutgoingLogicalMessageContext>
             {
-                public override Task Invoke(IOutgoingLogicalMessageContext context, Func<Task> next)
+                public Task Invoke(IOutgoingLogicalMessageContext context, Func<IOutgoingLogicalMessageContext, Task> next)
                 {
                     Context data;
                     if (context.Extensions.TryGet(out data))
@@ -70,7 +70,7 @@
                         });
                     }
 
-                    return next();
+                    return next(context);
                 }
 
                 public class Context

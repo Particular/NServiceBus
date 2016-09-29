@@ -1,26 +1,22 @@
 ﻿namespace NServiceBus.AcceptanceTests
 {
     using System;
-    using NServiceBus.AcceptanceTesting;
+    using AcceptanceTesting;
     using NUnit.Framework;
 
-    public class When_using_scope_timeout_greater_than_machine_max
+    public class When_using_scope_timeout_greater_than_machine_max : NServiceBusAcceptanceTest
     {
         [Test]
         public void Should_blow_up()
         {
-            var aex = Assert.Throws<AggregateException>(async () =>
+            var aex = Assert.ThrowsAsync<AggregateException>(async () =>
             {
-                await Scenario.Define<Context>()
+                await Scenario.Define<ScenarioContext>()
                         .WithEndpoint<ScopeEndpoint>()
                         .Run();
             });
 
             Assert.True(aex.InnerException.InnerException.Message.Contains("Timeout requested is longer than the maximum value for this machine"));
-        }
-
-        public class Context : ScenarioContext
-        {
         }
 
         public class ScopeEndpoint : EndpointConfigurationBuilder

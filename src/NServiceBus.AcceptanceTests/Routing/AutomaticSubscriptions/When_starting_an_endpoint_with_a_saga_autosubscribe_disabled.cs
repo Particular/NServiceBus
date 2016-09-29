@@ -37,21 +37,21 @@ namespace NServiceBus.AcceptanceTests.Routing.AutomaticSubscriptions
         {
             public Subscriber()
             {
-                EndpointSetup<DefaultServer>(c => c.Pipeline.Register("SubscriptionSpy", typeof(SubscriptionSpy), "Spies on subscriptions made"))
+                EndpointSetup<DefaultServer>(c => c.Pipeline.Register("SubscriptionSpy", new SubscriptionSpy((Context)ScenarioContext), "Spies on subscriptions made"))
                     .AddMapping<MyEventWithParent>(typeof(Subscriber)) //just map to our self for this test
                     .AddMapping<MyEvent>(typeof(Subscriber)); //just map to our self for this test
             }
 
-            public class SubscriptionSpy : Behavior<ISubscribeContext>
+            class SubscriptionSpy : IBehavior<ISubscribeContext, ISubscribeContext>
             {
                 public SubscriptionSpy(Context testContext)
                 {
                     this.testContext = testContext;
                 }
 
-                public override async Task Invoke(ISubscribeContext context, Func<Task> next)
+                public async Task Invoke(ISubscribeContext context, Func<ISubscribeContext, Task> next)
                 {
-                    await next().ConfigureAwait(false);
+                    await next(context).ConfigureAwait(false);
 
                     testContext.EventsSubscribedTo.Add(context.EventType);
                 }
@@ -68,10 +68,12 @@ namespace NServiceBus.AcceptanceTests.Routing.AutomaticSubscriptions
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<NotAutoSubscribedSagaSagaData> mapper)
                 {
+                    mapper.ConfigureMapping<MyEvent>(msg => msg.SomeId).ToSaga(saga => saga.SomeId);
                 }
 
                 public class NotAutoSubscribedSagaSagaData : ContainSagaData
                 {
+                    public virtual string SomeId { get; set; }
                 }
             }
 
@@ -85,16 +87,19 @@ namespace NServiceBus.AcceptanceTests.Routing.AutomaticSubscriptions
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<NotAutosubscribeSuperClassEventSagaData> mapper)
                 {
+                    mapper.ConfigureMapping<MyEventBase>(saga => saga.SomeId).ToSaga(saga => saga.SomeId);
                 }
 
                 public class NotAutosubscribeSuperClassEventSagaData : ContainSagaData
                 {
+                    public virtual string SomeId { get; set; }
                 }
             }
         }
 
         public class MyEventBase : IEvent
         {
+            public string SomeId { get; set; }
         }
 
         public class MyEventWithParent : MyEventBase
@@ -107,6 +112,7 @@ namespace NServiceBus.AcceptanceTests.Routing.AutomaticSubscriptions
 
         public class MyEvent : IEvent
         {
+            public string SomeId { get; set; }
         }
     }
 }

@@ -212,7 +212,7 @@
 
             if (!string.IsNullOrEmpty(defaultNameSpace))
             {
-                typeName = defaultNameSpace + "." + typeName;
+                typeName = $"{defaultNameSpace}.{typeName}";
             }
 
             if (name.Contains(":"))
@@ -222,7 +222,7 @@
                 var prefix = node.Name.Substring(0, colonIndex);
                 var ns = prefixesToNamespaces[prefix];
 
-                typeName = ns.Substring(ns.LastIndexOf("/") + 1) + "." + name;
+                typeName = $"{ns.Substring(ns.LastIndexOf("/") + 1)}.{name}";
             }
 
             if (name.Contains("NServiceBus."))
@@ -269,22 +269,22 @@
                 return mappedType;
             }
 
-            logger.Debug("Could not load " + typeName + ". Trying base types...");
+            logger.Debug($"Could not load {typeName}. Trying base types...");
             foreach (var baseType in messageBaseTypes)
             {
                 try
                 {
-                    logger.Debug("Trying to deserialize message to " + baseType.FullName);
+                    logger.Debug($"Trying to deserialize message to {baseType.FullName}");
                     return baseType;
                 }
-                    // ReSharper disable once EmptyGeneralCatchClause
+                // ReSharper disable once EmptyGeneralCatchClause
                 catch
                 {
                     // intentionally swallow exception
                 }
             }
 
-            throw new Exception("Could not determine type for node: '" + node.Name + "'.");
+            throw new Exception($"Could not determine type for node: '{node.Name}'.");
         }
 
         object GetObjectOfTypeFromNode(Type t, XmlNode node)
@@ -306,7 +306,7 @@
                 Type type = null;
                 if (n.Name.Contains(":"))
                 {
-                    type = Type.GetType("System." + n.Name.Substring(0, n.Name.IndexOf(":")), false, true);
+                    type = Type.GetType($"System.{n.Name.Substring(0, n.Name.IndexOf(":"))}", false, true);
                 }
 
                 var prop = GetProperty(t, n.Name);
@@ -495,7 +495,7 @@
                         return Activator.CreateInstance(type);
                     }
 
-                    throw new Exception("Type not supported by the serializer: " + type.AssemblyQualifiedName);
+                    throw new Exception($"Type not supported by the serializer: {type.AssemblyQualifiedName}");
                 }
             }
 
@@ -629,17 +629,21 @@
 
         PropertyInfo GetProperty(Type t, string name)
         {
-            IEnumerable<PropertyInfo> props;
-            cache.typeToProperties.TryGetValue(t, out props);
+            IEnumerable<PropertyInfo> properties;
+            if (!cache.typeToProperties.TryGetValue(t, out properties))
+            {
+                cache.InitType(t);
+                cache.typeToProperties.TryGetValue(t, out properties);
+            }
 
-            if (props == null)
+            if (properties == null)
             {
                 return null;
             }
 
             var n = GetNameAfterColon(name);
 
-            foreach (var prop in props)
+            foreach (var prop in properties)
             {
                 if (prop.Name == n)
                 {

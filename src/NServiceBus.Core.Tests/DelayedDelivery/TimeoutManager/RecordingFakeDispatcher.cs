@@ -2,8 +2,8 @@
 {
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using NServiceBus.Extensibility;
-    using NServiceBus.Transports;
+    using Extensibility;
+    using Transport;
 
     public class RecordingFakeDispatcher : IDispatchMessages
     {
@@ -11,20 +11,22 @@
         {
             public TransportOperations Operations { get; }
             public ContextBag Context { get; }
+            public TransportTransaction Transaction { get; }
 
-            public DispatchedMessage(TransportOperations operations, ContextBag context)
+            public DispatchedMessage(TransportOperations operations, TransportTransaction transaction, ContextBag context)
             {
                 Operations = operations;
                 Context = context;
+                Transaction = transaction;
             }
         }
 
         public readonly List<DispatchedMessage> DispatchedMessages = new List<DispatchedMessage>();
 
-        public async Task Dispatch(TransportOperations outgoingMessages, ContextBag context)
+        public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transaction, ContextBag context)
         {
-            DispatchedMessages.Add(new DispatchedMessage(outgoingMessages, context));
-            await TaskEx.CompletedTask;
+            DispatchedMessages.Add(new DispatchedMessage(outgoingMessages, transaction, context));
+            return TaskEx.CompletedTask;
         }
     }
 }

@@ -13,15 +13,19 @@
 
         protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData> mapper)
         {
+            mapper.ConfigureMapping<StartMessage>(msg => msg.SomeId).ToSaga(saga => saga.SomeId);
         }
     }
 
     class StartMessage
     {
+        public string SomeId { get; set; }
     }
 
     public class TestSagaData : ContainSagaData
     {
+        public string SomeId { get; set; } = "Test";
+
         public RelatedClass RelatedClass { get; set; }
 
         public IList<OrderLine> OrderLines { get; set; }

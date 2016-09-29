@@ -1,7 +1,7 @@
 namespace NServiceBus
 {
     using Settings;
-    using Transports;
+    using Transport;
 
     class InboundTransport
     {

@@ -1,11 +1,11 @@
 ﻿// ReSharper disable PartialTypeWithSinglePart
+
 namespace NServiceBus.Testing
 {
     using System;
     using System.Collections.Generic;
-    using System.IO;
     using Pipeline;
-    using Transports;
+    using Transport;
 
     /// <summary>
     /// A testable implementation for <see cref="ITransportReceiveContext" />.
@@ -28,6 +28,6 @@ namespace NServiceBus.Testing
         /// <summary>
         /// The physical message being processed.
         /// </summary>
-        public IncomingMessage Message { get; set; } = new IncomingMessage(Guid.NewGuid().ToString(), new Dictionary<string, string>(), Stream.Null);
+        public IncomingMessage Message { get; set; } = new IncomingMessage(Guid.NewGuid().ToString(), new Dictionary<string, string>(), new byte[0]);
     }
 }

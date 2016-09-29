@@ -2,7 +2,7 @@
 {
     using System.Threading;
     using Pipeline;
-    using Transports;
+    using Transport;
 
     /// <summary>
     /// Context containing a physical message.

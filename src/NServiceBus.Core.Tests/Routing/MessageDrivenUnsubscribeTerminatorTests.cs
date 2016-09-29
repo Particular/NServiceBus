@@ -3,11 +3,11 @@
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using NServiceBus.Extensibility;
+    using Extensibility;
     using NServiceBus.Routing;
     using NServiceBus.Routing.MessageDrivenSubscriptions;
-    using NServiceBus.Transports;
-    using NServiceBus.Unicast.Queuing;
+    using Transport;
+    using Unicast.Queuing;
     using NUnit.Framework;
     using Testing;
 
@@ -22,10 +22,10 @@
         public void SetUp()
         {
             var publishers = new Publishers();
-            publishers.AddByAddress("publisher1", typeof(object));
-            router = new SubscriptionRouter(publishers, new EndpointInstances(), new TransportAddresses(address => null));
+            publishers.AddOrReplacePublishers("A", new List<PublisherTableEntry> {new PublisherTableEntry(typeof(object), PublisherAddress.CreateFromPhysicalAddresses("publisher1"))});
+            router = new SubscriptionRouter(publishers, new EndpointInstances(), i => i.ToString());
             dispatcher = new FakeDispatcher();
-            terminator = new MessageDrivenUnsubscribeTerminator(router, "replyToAddress", new EndpointName("Endpoint"), dispatcher);
+            terminator = new MessageDrivenUnsubscribeTerminator(router, "replyToAddress", "Endpoint", dispatcher);
         }
 
         [Test]
@@ -69,7 +69,7 @@
             {
                 Extensions = options.Context
             };
-            
+
             Assert.That(async () => await terminator.Invoke(context, c => TaskEx.CompletedTask), Throws.InstanceOf<QueueNotFoundException>());
 
             Assert.AreEqual(0, dispatcher.DispatchedTransportOperations.Count);
@@ -89,7 +89,7 @@
                 numberOfTimes = times;
             }
 
-            public Task Dispatch(TransportOperations outgoingMessages, ContextBag context)
+            public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transaction, ContextBag context)
             {
                 if (numberOfTimes.HasValue && FailedNumberOfTimes < numberOfTimes.Value)
                 {

@@ -4,7 +4,7 @@ namespace NServiceBus
     using System.Threading.Tasks;
     using Features;
     using Logging;
-    using Transports;
+    using Transport;
 
     class QueueCreator : ICreateQueues
     {

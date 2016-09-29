@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.IO;
     using System.Linq;
     using System.Threading.Tasks;
     using DelayedDelivery;
@@ -11,10 +10,10 @@
     using NServiceBus.Performance.TimeToBeReceived;
     using NServiceBus.Pipeline;
     using NServiceBus.Routing;
-    using NServiceBus.Transports;
     using NUnit.Framework;
     using Testing;
-    using TransportOperation = NServiceBus.Transports.TransportOperation;
+    using Transport;
+    using TransportOperation = Transport.TransportOperation;
 
     [TestFixture]
     public class TransportReceiveToPhysicalMessageProcessingConnectorTests
@@ -34,7 +33,7 @@
             options["DelayDeliveryFor"] = TimeSpan.FromSeconds(10).ToString();
             options["TimeToBeReceived"] = maxTime.ToString();
 
-            fakeOutbox.ExistingMessage = new OutboxMessage(messageId, new List<NServiceBus.Outbox.TransportOperation>
+            fakeOutbox.ExistingMessage = new OutboxMessage(messageId, new[]
             {
                 new NServiceBus.Outbox.TransportOperation("x", options, new byte[0], new Dictionary<string, string>())
             });
@@ -71,7 +70,7 @@
 
             options["Destination"] = "myEndpoint";
 
-            fakeOutbox.ExistingMessage = new OutboxMessage(messageId, new List<NServiceBus.Outbox.TransportOperation>
+            fakeOutbox.ExistingMessage = new OutboxMessage(messageId, new[]
             {
                 new NServiceBus.Outbox.TransportOperation("x", options, new byte[0], new Dictionary<string, string>())
             });
@@ -95,7 +94,7 @@
 
             options["EventType"] = typeof(MyEvent).AssemblyQualifiedName;
 
-            fakeOutbox.ExistingMessage = new OutboxMessage(messageId, new List<NServiceBus.Outbox.TransportOperation>
+            fakeOutbox.ExistingMessage = new OutboxMessage(messageId, new[]
             {
                 new NServiceBus.Outbox.TransportOperation("x", options, new byte[0], new Dictionary<string, string>())
             });
@@ -114,7 +113,7 @@
         {
             var context = new TestableTransportReceiveContext
             {
-                Message = new IncomingMessage(messageId, new Dictionary<string, string>(), Stream.Null)
+                Message = new IncomingMessage(messageId, new Dictionary<string, string>(), new byte[0])
             };
 
             context.Extensions.Set<IPipelineCache>(new FakePipelineCache(pipeline));
@@ -131,9 +130,9 @@
             behavior = new TransportReceiveToPhysicalMessageProcessingConnector(fakeOutbox);
         }
 
-        async Task Invoke(ITransportReceiveContext context)
+        Task Invoke(ITransportReceiveContext context)
         {
-            await behavior.Invoke(context, c => TaskEx.CompletedTask).ConfigureAwait(false);
+            return behavior.Invoke(context, c => TaskEx.CompletedTask);
         }
 
         TransportReceiveToPhysicalMessageProcessingConnector behavior;

@@ -25,6 +25,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Msmq.Acceptance
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.Testing.Fakes", "NServiceBus.Testing.Fakes\NServiceBus.Testing.Fakes.csproj", "{80105366-8EF9-494D-A296-E100E82224CF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.TransportTests", "NServiceBus.TransportTests\NServiceBus.TransportTests.csproj", "{7EF57153-179F-449A-9C81-BD049B1B5613}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -121,6 +123,18 @@ Global
 		{80105366-8EF9-494D-A296-E100E82224CF}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{80105366-8EF9-494D-A296-E100E82224CF}.Release|x86.ActiveCfg = Release|Any CPU
 		{80105366-8EF9-494D-A296-E100E82224CF}.Release|x86.Build.0 = Release|Any CPU
+		{7EF57153-179F-449A-9C81-BD049B1B5613}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7EF57153-179F-449A-9C81-BD049B1B5613}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7EF57153-179F-449A-9C81-BD049B1B5613}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{7EF57153-179F-449A-9C81-BD049B1B5613}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{7EF57153-179F-449A-9C81-BD049B1B5613}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{7EF57153-179F-449A-9C81-BD049B1B5613}.Debug|x86.Build.0 = Debug|Any CPU
+		{7EF57153-179F-449A-9C81-BD049B1B5613}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7EF57153-179F-449A-9C81-BD049B1B5613}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7EF57153-179F-449A-9C81-BD049B1B5613}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{7EF57153-179F-449A-9C81-BD049B1B5613}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{7EF57153-179F-449A-9C81-BD049B1B5613}.Release|x86.ActiveCfg = Release|Any CPU
+		{7EF57153-179F-449A-9C81-BD049B1B5613}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -129,5 +143,6 @@ Global
 		{0A282BF4-0957-4074-8D5E-C2FB8634A3AA} = {2904B75F-8F07-4C07-BABC-BC42533B3E75}
 		{758357F6-CD31-4337-80C4-BA377FC257AF} = {2904B75F-8F07-4C07-BABC-BC42533B3E75}
 		{80105366-8EF9-494D-A296-E100E82224CF} = {2904B75F-8F07-4C07-BABC-BC42533B3E75}
+		{7EF57153-179F-449A-9C81-BD049B1B5613} = {2904B75F-8F07-4C07-BABC-BC42533B3E75}
 	EndGlobalSection
 EndGlobal

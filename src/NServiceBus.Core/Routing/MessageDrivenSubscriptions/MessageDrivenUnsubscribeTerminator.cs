@@ -7,13 +7,13 @@
     using Logging;
     using Pipeline;
     using Routing;
-    using Transports;
+    using Transport;
     using Unicast.Queuing;
     using Unicast.Transport;
 
     class MessageDrivenUnsubscribeTerminator : PipelineTerminator<IUnsubscribeContext>
     {
-        public MessageDrivenUnsubscribeTerminator(SubscriptionRouter subscriptionRouter, string replyToAddress, EndpointName endpoint, IDispatchMessages dispatcher)
+        public MessageDrivenUnsubscribeTerminator(SubscriptionRouter subscriptionRouter, string replyToAddress, string endpoint, IDispatchMessages dispatcher)
         {
             this.subscriptionRouter = subscriptionRouter;
             this.replyToAddress = replyToAddress;
@@ -25,7 +25,7 @@
         {
             var eventType = context.EventType;
 
-            var publisherAddresses = (await subscriptionRouter.GetAddressesForEventType(eventType).ConfigureAwait(false))
+            var publisherAddresses = subscriptionRouter.GetAddressesForEventType(eventType)
                 .EnsureNonEmpty(() => $"No publisher address could be found for message type {eventType}. Ensure the configured publisher endpoint has at least one known instance.");
 
             var unsubscribeTasks = new List<Task>();
@@ -38,7 +38,7 @@
                 unsubscribeMessage.Headers[Headers.SubscriptionMessageType] = eventType.AssemblyQualifiedName;
                 unsubscribeMessage.Headers[Headers.ReplyToAddress] = replyToAddress;
                 unsubscribeMessage.Headers[Headers.SubscriberTransportAddress] = replyToAddress;
-                unsubscribeMessage.Headers[Headers.SubscriberEndpoint] = endpoint.ToString();
+                unsubscribeMessage.Headers[Headers.SubscriberEndpoint] = endpoint;
                 unsubscribeMessage.Headers[Headers.TimeSent] = DateTimeExtensions.ToWireFormattedString(DateTime.UtcNow);
                 unsubscribeMessage.Headers[Headers.NServiceBusVersion] = GitFlowVersion.MajorMinorPatch;
 
@@ -53,7 +53,8 @@
             try
             {
                 var transportOperation = new TransportOperation(unsubscribeMessage, new UnicastAddressTag(destination));
-                await dispatcher.Dispatch(new TransportOperations(transportOperation), context).ConfigureAwait(false);
+                var transportTransaction = context.GetOrCreate<TransportTransaction>();
+                await dispatcher.Dispatch(new TransportOperations(transportOperation), transportTransaction, context).ConfigureAwait(false);
             }
             catch (QueueNotFoundException ex)
             {
@@ -71,7 +72,7 @@
             }
         }
 
-        readonly EndpointName endpoint;
+        readonly string endpoint;
         IDispatchMessages dispatcher;
         string replyToAddress;
 

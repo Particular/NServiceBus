@@ -3,7 +3,7 @@
     using System.Threading.Tasks;
     using Extensibility;
     using Outbox;
-    using Transports;
+    using Transport;
 
     /// <summary>
     /// Converts the outbox transaction into a synchronized storage session if possible.

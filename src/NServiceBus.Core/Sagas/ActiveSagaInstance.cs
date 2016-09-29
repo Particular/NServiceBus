@@ -169,8 +169,8 @@ namespace NServiceBus.Sagas
             }
 
             throw new Exception(
-                $@"We detected that the correlated property '{correlationProperty.PropertyInfo.Name}' on saga '{Metadata.SagaType.Name}' does not have a value'.
-All correlated properties must have a non null or empty value assigned to them when a new saga instance is created.");
+                $@"The correlated property '{correlationProperty.PropertyInfo.Name}' on saga '{Metadata.SagaType.Name}' does not have a value.
+A correlated property must have a non default (i.e. non null and non-empty) value assigned when a new saga instance is created.");
         }
 
         void ValidateCorrelationPropertyNotModified()
@@ -193,7 +193,7 @@ All correlated properties must have a non null or empty value assigned to them w
             }
 
             throw new Exception(
-                $@"We detected that the value of the correlated property '{correlationProperty.PropertyInfo.Name}' on saga '{Metadata.SagaType.Name}' has changed from '{correlationProperty.Value}' to '{currentValue}'.
+                $@"The value of the correlated property '{correlationProperty.PropertyInfo.Name}' on saga '{Metadata.SagaType.Name}' has changed from '{correlationProperty.Value}' to '{currentValue}'.
 Changing the value of correlated properties at runtime is currently not supported.");
         }
 

@@ -4,7 +4,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using AcceptanceTesting.Support;
-    using NServiceBus.Transports;
+    using Transport;
 
     public static class Transports
     {
@@ -19,7 +19,7 @@
                     var runDescriptor = new RunDescriptor(key);
                     runDescriptor.Settings.Set("Transport", transportDefinitionType);
 
-                    var connectionString = Environment.GetEnvironmentVariable(key + ".ConnectionString");
+                    var connectionString = EnvironmentHelper.GetEnvironmentVariable(key + ".ConnectionString");
 
                     if (string.IsNullOrEmpty(connectionString) && DefaultConnectionStrings.ContainsKey(key))
                     {
@@ -74,7 +74,7 @@
         {
             {"RabbitMQTransport", "host=localhost"},
             {"SqlServerTransport", @"Server=localhost\sqlexpress;Database=nservicebus;Trusted_Connection=True;"},
-            {"MsmqTransport", @"cacheSendConnection=false;journal=false;"}
+            {"MsmqTransport", "cacheSendConnection=false;journal=false;"}
         };
     }
 }

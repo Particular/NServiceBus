@@ -2,9 +2,8 @@ namespace NServiceBus
 {
     using System;
     using System.Collections.Concurrent;
-    using System.Linq;
+    using System.Collections.Generic;
     using System.Runtime.CompilerServices;
-    using System.Threading;
     using System.Threading.Tasks;
     using Extensibility;
     using Persistence;
@@ -18,7 +17,11 @@ namespace NServiceBus
             inMemSession.Enlist(() =>
             {
                 VersionedSagaEntity value;
-                data.TryRemove(sagaData.Id, out value);
+                if (data.TryRemove(sagaData.Id, out value))
+                {
+                    object lockToken;
+                    lockers.TryRemove(value.LockTokenKey, out lockToken);
+                }
             });
             return TaskEx.CompletedTask;
         }
@@ -27,9 +30,13 @@ namespace NServiceBus
         {
             Guard.AgainstNull(nameof(propertyValue), propertyValue);
 
-            var values = data.Values.Where(x => x.SagaData is TSagaData);
-            foreach (var entity in values)
+            foreach (var entity in data.Values)
             {
+                if (!(entity.SagaData is TSagaData))
+                {
+                    continue;
+                }
+
                 var prop = typeof(TSagaData).GetProperty(propertyName);
                 if (prop == null)
                 {
@@ -41,7 +48,7 @@ namespace NServiceBus
                 {
                     continue;
                 }
-                var sagaData = entity.Read<TSagaData>(version);
+                var sagaData = entity.Read<TSagaData>();
                 return Task.FromResult(sagaData);
             }
             return Task.FromResult(default(TSagaData));
@@ -52,7 +59,7 @@ namespace NServiceBus
             VersionedSagaEntity result;
             if (data.TryGetValue(sagaId, out result) && result?.SagaData is TSagaData)
             {
-                var sagaData = result.Read<TSagaData>(version);
+                var sagaData = result.Read<TSagaData>();
                 return Task.FromResult(sagaData);
             }
             return Task.FromResult(default(TSagaData));
@@ -63,22 +70,19 @@ namespace NServiceBus
             var inMemSession = (InMemorySynchronizedStorageSession) session;
             inMemSession.Enlist(() =>
             {
-                if (correlationProperty != SagaCorrelationProperty.None)
+                var lockenTokenKey = $"{sagaData.GetType().FullName}.{correlationProperty?.Name ?? "None"}.{correlationProperty?.Value ?? "None"}";
+                var lockToken = lockers.GetOrAdd(lockenTokenKey, key => new object());
+                lock (lockToken)
                 {
-                    ValidateUniqueProperties(correlationProperty, sagaData);
+                    if (correlationProperty != SagaCorrelationProperty.None)
+                    {
+                        ValidateUniqueProperties(correlationProperty, sagaData);
+                    }
+
+                    data.AddOrUpdate(sagaData.Id,
+                        id => new VersionedSagaEntity(sagaData, lockenTokenKey),
+                        (id, original) => new VersionedSagaEntity(sagaData, lockenTokenKey, original)); // we can never end up here.
                 }
-
-                VersionedSagaEntity sagaEntity;
-                if (data.TryGetValue(sagaData.Id, out sagaEntity))
-                {
-                    sagaEntity.ConcurrencyCheck(sagaData, version);
-                }
-
-                data.AddOrUpdate(sagaData.Id,
-                    id => new VersionedSagaEntity(sagaData),
-                    (id, original) => new VersionedSagaEntity(sagaData, original));
-
-                Interlocked.Increment(ref version);
             });
             return TaskEx.CompletedTask;
         }
@@ -88,17 +92,9 @@ namespace NServiceBus
             var inMemSession = (InMemorySynchronizedStorageSession) session;
             inMemSession.Enlist(() =>
             {
-                VersionedSagaEntity sagaEntity;
-                if (data.TryGetValue(sagaData.Id, out sagaEntity))
-                {
-                    sagaEntity.ConcurrencyCheck(sagaData, version);
-                }
-
                 data.AddOrUpdate(sagaData.Id,
-                    id => new VersionedSagaEntity(sagaData),
-                    (id, original) => new VersionedSagaEntity(sagaData, original));
-
-                Interlocked.Increment(ref version);
+                    id => new VersionedSagaEntity(sagaData, $"{sagaData.GetType().FullName}.None.None"), // we can never end up here.
+                    (id, original) => new VersionedSagaEntity(sagaData, original.LockTokenKey, original));
             });
             return TaskEx.CompletedTask;
         }
@@ -106,10 +102,15 @@ namespace NServiceBus
         void ValidateUniqueProperties(SagaCorrelationProperty correlationProperty, IContainSagaData saga)
         {
             var sagaType = saga.GetType();
-            var existingSagas = (from s in data
-                where s.Value.SagaData.GetType() == sagaType && (s.Key != saga.Id)
-                select s.Value)
-                .ToList();
+            var existingSagas = new List<VersionedSagaEntity>();
+            // ReSharper disable once LoopCanBeConvertedToQuery
+            foreach (var s in data)
+            {
+                if (s.Value.SagaData.GetType() == sagaType && (s.Key != saga.Id))
+                {
+                    existingSagas.Add(s.Value);
+                }
+            }
             var uniqueProperty = sagaType.GetProperty(correlationProperty.Name);
 
             if (correlationProperty.Value == null)
@@ -130,26 +131,38 @@ namespace NServiceBus
         }
 
         ConcurrentDictionary<Guid, VersionedSagaEntity> data = new ConcurrentDictionary<Guid, VersionedSagaEntity>();
-
-        int version;
+        ConcurrentDictionary<string, object> lockers = new ConcurrentDictionary<string, object>();
 
         class VersionedSagaEntity
         {
-            public VersionedSagaEntity(IContainSagaData sagaData, VersionedSagaEntity original = null)
+            public VersionedSagaEntity(IContainSagaData sagaData, string lockTokenKey, VersionedSagaEntity original = null)
             {
+                LockTokenKey = lockTokenKey;
                 SagaData = DeepClone(sagaData);
-                versionCache = original?.versionCache ?? new ConditionalWeakTable<IContainSagaData, SagaVersion>();
+                if (original != null)
+                {
+                    original.ConcurrencyCheck(sagaData);
+
+                    versionCache = original.versionCache;
+                    version = original.version;
+                    version++;
+                }
+                else
+                {
+                    versionCache = new ConditionalWeakTable<IContainSagaData, SagaVersion>();
+                    versionCache.Add(sagaData, new SagaVersion(version));
+                }
             }
 
-            public TSagaData Read<TSagaData>(long currentVersion)
+            public TSagaData Read<TSagaData>()
                 where TSagaData : IContainSagaData
             {
                 var clone = DeepClone(SagaData);
-                versionCache.Add(clone, new SagaVersion(currentVersion));
+                versionCache.Add(clone, new SagaVersion(version));
                 return (TSagaData) clone;
             }
 
-            public void ConcurrencyCheck(IContainSagaData sagaEntity, long currentVersion)
+            void ConcurrencyCheck(IContainSagaData sagaEntity)
             {
                 SagaVersion v;
                 if (!versionCache.TryGetValue(sagaEntity, out v))
@@ -157,9 +170,9 @@ namespace NServiceBus
                     throw new Exception($"InMemorySagaPersister in an inconsistent state: entity Id[{sagaEntity.Id}] not read.");
                 }
 
-                if (v.Version != currentVersion)
+                if (v.Version != version)
                 {
-                    throw new Exception($@"InMemorySagaPersister concurrency violation: saga entity Id[{sagaEntity.Id}] already saved.");
+                    throw new Exception($"InMemorySagaPersister concurrency violation: saga entity Id[{sagaEntity.Id}] already saved.");
                 }
             }
 
@@ -170,8 +183,11 @@ namespace NServiceBus
             }
 
             public IContainSagaData SagaData;
+            public string LockTokenKey;
 
             ConditionalWeakTable<IContainSagaData, SagaVersion> versionCache;
+
+            int version;
 
             static JsonMessageSerializer serializer = new JsonMessageSerializer(null);
 

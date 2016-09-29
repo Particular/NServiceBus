@@ -4,7 +4,7 @@ namespace NServiceBus
     using Pipeline;
     using Routing;
     using Settings;
-    using Transports;
+    using Transport;
 
     static class MessageOperationsInvokeHandlerContext
     {

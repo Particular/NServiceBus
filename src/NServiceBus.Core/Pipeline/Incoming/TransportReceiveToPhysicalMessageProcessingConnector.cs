@@ -2,7 +2,6 @@ namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
     using System.Threading.Tasks;
     using DelayedDelivery;
     using DeliveryConstraints;
@@ -10,17 +9,17 @@ namespace NServiceBus
     using Performance.TimeToBeReceived;
     using Pipeline;
     using Routing;
-    using Transports;
+    using Transport;
     using TransportOperation = Outbox.TransportOperation;
 
-    class TransportReceiveToPhysicalMessageProcessingConnector : StageForkConnector<ITransportReceiveContext, IIncomingPhysicalMessageContext, IBatchDispatchContext>
+    class TransportReceiveToPhysicalMessageProcessingConnector : IStageForkConnector<ITransportReceiveContext, IIncomingPhysicalMessageContext, IBatchDispatchContext>
     {
         public TransportReceiveToPhysicalMessageProcessingConnector(IOutboxStorage outboxStorage)
         {
             this.outboxStorage = outboxStorage;
         }
 
-        public override async Task Invoke(ITransportReceiveContext context, Func<IIncomingPhysicalMessageContext, Task> stage, Func<IBatchDispatchContext, Task> fork)
+        public async Task Invoke(ITransportReceiveContext context, Func<IIncomingPhysicalMessageContext, Task> next)
         {
             var messageId = context.Message.MessageId;
             var physicalMessageContext = this.CreateIncomingPhysicalMessageContext(context.Message, context);
@@ -35,9 +34,9 @@ namespace NServiceBus
                 using (var outboxTransaction = await outboxStorage.BeginTransaction(context.Extensions).ConfigureAwait(false))
                 {
                     context.Extensions.Set(outboxTransaction);
-                    await stage(physicalMessageContext).ConfigureAwait(false);
+                    await next(physicalMessageContext).ConfigureAwait(false);
 
-                    var outboxMessage = new OutboxMessage(messageId, ConvertToOutboxOperations(pendingTransportOperations.Operations).ToList());
+                    var outboxMessage = new OutboxMessage(messageId, ConvertToOutboxOperations(pendingTransportOperations.Operations));
                     await outboxStorage.Store(outboxMessage, outboxTransaction, context.Extensions).ConfigureAwait(false);
 
                     context.Extensions.Remove<OutboxTransaction>();
@@ -55,7 +54,7 @@ namespace NServiceBus
             {
                 var batchDispatchContext = this.CreateBatchDispatchContext(pendingTransportOperations.Operations, physicalMessageContext);
 
-                await fork(batchDispatchContext).ConfigureAwait(false);
+                await this.Fork(batchDispatchContext).ConfigureAwait(false);
             }
 
             await outboxStorage.SetAsDispatched(messageId, context.Extensions).ConfigureAwait(false);
@@ -68,7 +67,7 @@ namespace NServiceBus
                 var message = new OutgoingMessage(operation.MessageId, operation.Headers, operation.Body);
 
                 pendingTransportOperations.Add(
-                    new Transports.TransportOperation(
+                    new Transport.TransportOperation(
                         message,
                         DeserializeRoutingStrategy(operation.Options),
                         DispatchConsistency.Isolated,
@@ -76,8 +75,10 @@ namespace NServiceBus
             }
         }
 
-        static IEnumerable<TransportOperation> ConvertToOutboxOperations(IEnumerable<Transports.TransportOperation> operations)
+        static TransportOperation[] ConvertToOutboxOperations(Transport.TransportOperation[] operations)
         {
+            var transportOperations = new TransportOperation[operations.Length];
+            var index = 0;
             foreach (var operation in operations)
             {
                 var options = new Dictionary<string, string>();
@@ -89,9 +90,10 @@ namespace NServiceBus
 
                 SerializeRoutingStrategy(operation.AddressTag, options);
 
-                yield return new TransportOperation(operation.Message.MessageId,
-                    options, operation.Message.Body, operation.Message.Headers);
+                transportOperations[index] = new TransportOperation(operation.Message.MessageId, options, operation.Message.Body, operation.Message.Headers);
+                index++;
             }
+            return transportOperations;
         }
 
         static void SerializeRoutingStrategy(AddressTag addressTag, Dictionary<string, string> options)
@@ -145,32 +147,34 @@ namespace NServiceBus
             throw new Exception($"Unknown delivery constraint {constraint.GetType().FullName}");
         }
 
-        static IEnumerable<DeliveryConstraint> DeserializeConstraints(Dictionary<string, string> options)
+        static List<DeliveryConstraint> DeserializeConstraints(Dictionary<string, string> options)
         {
+            var constraints = new List<DeliveryConstraint>(4);
             if (options.ContainsKey("NonDurable"))
             {
-                yield return new NonDurableDelivery();
+                constraints.Add(new NonDurableDelivery());
             }
 
             string deliverAt;
             if (options.TryGetValue("DeliverAt", out deliverAt))
             {
-                yield return new DoNotDeliverBefore(DateTimeExtensions.ToUtcDateTime(deliverAt));
+                constraints.Add(new DoNotDeliverBefore(DateTimeExtensions.ToUtcDateTime(deliverAt)));
             }
 
 
             string delay;
             if (options.TryGetValue("DelayDeliveryFor", out delay))
             {
-                yield return new DelayDeliveryWith(TimeSpan.Parse(delay));
+                constraints.Add(new DelayDeliveryWith(TimeSpan.Parse(delay)));
             }
 
             string ttbr;
 
             if (options.TryGetValue("TimeToBeReceived", out ttbr))
             {
-                yield return new DiscardIfNotReceivedBefore(TimeSpan.Parse(ttbr));
+                constraints.Add(new DiscardIfNotReceivedBefore(TimeSpan.Parse(ttbr)));
             }
+            return constraints;
         }
 
         static AddressTag DeserializeRoutingStrategy(Dictionary<string, string> options)

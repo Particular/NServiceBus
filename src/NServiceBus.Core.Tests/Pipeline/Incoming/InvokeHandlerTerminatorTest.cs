@@ -178,21 +178,20 @@
                 throw new NotImplementedException();
             }
 
-            protected internal override void ConfigureHowToFindSaga(IConfigureHowToFindSagaWithMessage sagaMessageFindingConfiguration)
-            {
-            }
-
             protected override void ConfigureHowToFindSaga(SagaPropertyMapper<FakeSagaData> mapper)
             {
+                mapper.ConfigureMapping<StartMessage>(msg => msg.SomeId).ToSaga(saga => saga.SomeId);
             }
 
             public class FakeSagaData : ContainSagaData
             {
+                public string SomeId { get; set; }
             }
         }
 
         class StartMessage
         {
+            public string SomeId { get; set; }
         }
 
         class FakeMessageHandler

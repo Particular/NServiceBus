@@ -1,4 +1,4 @@
-namespace NServiceBus.Transports
+namespace NServiceBus.Transport
 {
     using Settings;
 
@@ -26,6 +26,6 @@ namespace NServiceBus.Transports
         /// <param name="settings">An instance of the current settings.</param>
         /// <param name="connectionString">The connection string.</param>
         /// <returns>The supported factories.</returns>
-        protected internal abstract TransportInfrastructure Initialize(SettingsHolder settings, string connectionString);
+        public abstract TransportInfrastructure Initialize(SettingsHolder settings, string connectionString);
     }
 }

@@ -1,9 +1,8 @@
 namespace NServiceBus.Core.Tests.Timeout
 {
-    using System.Linq;
     using System.Threading.Tasks;
-    using NServiceBus.Extensibility;
-    using NServiceBus.Transports;
+    using Extensibility;
+    using Transport;
 
     public class FakeMessageDispatcher : IDispatchMessages
     {
@@ -13,9 +12,9 @@ namespace NServiceBus.Core.Tests.Timeout
             set { messagesSent = value; }
         }
 
-        public Task Dispatch(TransportOperations outgoingMessages, ContextBag context)
+        public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transportTransaction, ContextBag context)
         {
-            MessagesSent += outgoingMessages.MulticastTransportOperations.Count() + outgoingMessages.UnicastTransportOperations.Count();
+            MessagesSent += outgoingMessages.MulticastTransportOperations.Count + outgoingMessages.UnicastTransportOperations.Count;
             return TaskEx.CompletedTask;
         }
 

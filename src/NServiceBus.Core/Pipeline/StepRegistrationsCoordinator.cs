@@ -23,13 +23,12 @@ namespace NServiceBus
             additions.Add(rego);
         }
 
-        public IList<RegisterStep> BuildPipelineModelFor<TRootContext>() where TRootContext : IBehaviorContext
+        public List<RegisterStep> BuildPipelineModelFor<TRootContext>() where TRootContext : IBehaviorContext
         {
-            var relevantAdditions = additions.ToList();
-            var relevantRemovals = removals.Where(removal => relevantAdditions.Any(a => a.StepId == removal.RemoveId)).ToList();
-            var relevantReplacements = replacements.Where(removal => relevantAdditions.Any(a => a.StepId == removal.ReplaceId)).ToList();
+            var relevantRemovals = removals.Where(removal => additions.Any(a => a.StepId == removal.RemoveId)).ToList();
+            var relevantReplacements = replacements.Where(removal => additions.Any(a => a.StepId == removal.ReplaceId)).ToList();
 
-            var piplineModelBuilder = new PipelineModelBuilder(typeof(TRootContext), relevantAdditions, relevantRemovals, relevantReplacements);
+            var piplineModelBuilder = new PipelineModelBuilder(typeof(TRootContext), additions, relevantRemovals, relevantReplacements);
 
             return piplineModelBuilder.Build();
         }

@@ -1,28 +1,29 @@
 ﻿namespace NServiceBus
 {
     using System;
+    using System.Collections.Generic;
     using System.Threading.Tasks;
     using Pipeline;
-    using Transports;
+    using Transport;
 
-    class InvokeAuditPipelineBehavior : ForkConnector<IIncomingPhysicalMessageContext, IAuditContext>
+    class InvokeAuditPipelineBehavior : IForkConnector<IIncomingPhysicalMessageContext, IIncomingPhysicalMessageContext, IAuditContext>
     {
         public InvokeAuditPipelineBehavior(string auditAddress)
         {
             this.auditAddress = auditAddress;
         }
 
-        public override async Task Invoke(IIncomingPhysicalMessageContext context, Func<Task> next, Func<IAuditContext, Task> fork)
+        public async Task Invoke(IIncomingPhysicalMessageContext context, Func<IIncomingPhysicalMessageContext, Task> next)
         {
-            await next().ConfigureAwait(false);
+            await next(context).ConfigureAwait(false);
 
             context.Message.RevertToOriginalBodyIfNeeded();
 
-            var processedMessage = new OutgoingMessage(context.Message.MessageId, context.Message.Headers, context.Message.Body);
+            var processedMessage = new OutgoingMessage(context.Message.MessageId, new Dictionary<string, string>(context.Message.Headers), context.Message.Body);
 
             var auditContext = this.CreateAuditContext(processedMessage, auditAddress, context);
 
-            await fork(auditContext).ConfigureAwait(false);
+            await this.Fork(auditContext).ConfigureAwait(false);
         }
 
         string auditAddress;

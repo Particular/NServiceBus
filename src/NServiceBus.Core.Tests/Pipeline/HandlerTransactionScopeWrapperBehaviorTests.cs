@@ -17,17 +17,17 @@
             {
                 using (new TransactionScope(TransactionScopeOption.Required, TransactionScopeAsyncFlowOption.Enabled))
                 {
-                    await behavior.Invoke(null, () => TaskEx.CompletedTask);
+                    await behavior.Invoke(null, ctx => TaskEx.CompletedTask);
                 }
             }, Throws.InstanceOf<Exception>().And.Message.Contains("Ambient transaction detected. The transaction scope unit of work is not supported when there already is a scope present."));
         }
 
         [Test]
-        public async Task ShouldWrapInnerBehaviorsIfNoAmbientExists()
+        public Task ShouldWrapInnerBehaviorsIfNoAmbientExists()
         {
             var behavior = new TransactionScopeUnitOfWorkBehavior(new TransactionOptions { IsolationLevel = IsolationLevel.ReadCommitted });
 
-            await behavior.Invoke(null, () =>
+            return behavior.Invoke(null, ctx =>
             {
                 Assert.NotNull(Transaction.Current);
                 return TaskEx.CompletedTask;

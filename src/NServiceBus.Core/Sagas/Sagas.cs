@@ -6,7 +6,7 @@
     using NServiceBus.Sagas;
     using ObjectBuilder;
     using Persistence;
-    using Pipeline;
+    using Transport;
 
     /// <summary>
     /// Used to configure saga.
@@ -43,17 +43,10 @@
                 throw new Exception("The selected persistence doesn't have support for saga storage. Select another persistence or disable the sagas feature using endpointConfiguration.DisableFeature<Sagas>()");
             }
 
-            // Register the Saga related behaviors for incoming messages
-            context.Pipeline.Register(WellKnownStep.InvokeSaga, typeof(SagaPersistenceBehavior), "Invokes the saga logic");
-            context.Pipeline.Register("InvokeSagaNotFound", typeof(InvokeSagaNotFoundBehavior), "Invokes saga not found logic");
-            context.Pipeline.Register("AttachSagaDetailsToOutGoingMessage", typeof(AttachSagaDetailsToOutGoingMessageBehavior), "Makes sure that outgoing messages have saga info attached to them");
-
             var sagaMetaModel = context.Settings.Get<SagaMetadataCollection>();
             sagaMetaModel.Initialize(context.Settings.GetAvailableTypes(), conventions);
 
             RegisterCustomFindersInContainer(context.Container, sagaMetaModel);
-
-            context.Container.RegisterSingleton(sagaMetaModel);
 
             foreach (var t in context.Settings.GetAvailableTypes())
             {
@@ -62,6 +55,11 @@
                     context.Container.ConfigureComponent(t, DependencyLifecycle.InstancePerCall);
                 }
             }
+
+            // Register the Saga related behaviors for incoming messages
+            context.Pipeline.Register("InvokeSaga", b => new SagaPersistenceBehavior(b.Build<ISagaPersister>(), b.Build<ICancelDeferredMessages>(), sagaMetaModel), "Invokes the saga logic");
+            context.Pipeline.Register("InvokeSagaNotFound", new InvokeSagaNotFoundBehavior(), "Invokes saga not found logic");
+            context.Pipeline.Register("AttachSagaDetailsToOutGoingMessage", new AttachSagaDetailsToOutGoingMessageBehavior(), "Makes sure that outgoing messages have saga info attached to them");
         }
 
         static void RegisterCustomFindersInContainer(IConfigureComponents container, IEnumerable<SagaMetadata> sagaMetaModel)

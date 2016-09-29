@@ -4,14 +4,14 @@
     using System.Threading.Tasks;
     using Pipeline;
 
-    class EnforceSendBestPracticesBehavior : Behavior<IOutgoingSendContext>
+    class EnforceSendBestPracticesBehavior : IBehavior<IOutgoingSendContext, IOutgoingSendContext>
     {
         public EnforceSendBestPracticesBehavior(Validations validations)
         {
             this.validations = validations;
         }
 
-        public override Task Invoke(IOutgoingSendContext context, Func<Task> next)
+        public Task Invoke(IOutgoingSendContext context, Func<IOutgoingSendContext, Task> next)
         {
             EnforceBestPracticesOptions options;
 
@@ -20,7 +20,7 @@
                 validations.AssertIsValidForSend(context.Message.MessageType);
             }
 
-            return next();
+            return next(context);
         }
 
         Validations validations;

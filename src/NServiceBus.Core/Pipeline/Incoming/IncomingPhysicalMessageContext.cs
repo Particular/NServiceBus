@@ -1,7 +1,7 @@
 ﻿namespace NServiceBus
 {
     using Pipeline;
-    using Transports;
+    using Transport;
 
     class IncomingPhysicalMessageContext : IncomingContext, IIncomingPhysicalMessageContext
     {
@@ -15,7 +15,7 @@
 
         public void UpdateMessage(byte[] body)
         {
-            Message.Body = body;
+            Message.UpdateBody(body);
         }
     }
 }

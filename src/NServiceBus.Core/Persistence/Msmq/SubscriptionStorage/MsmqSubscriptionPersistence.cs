@@ -1,9 +1,8 @@
 ﻿namespace NServiceBus.Features
 {
     using Config;
-    using ConsistencyGuarantees;
     using Logging;
-    using Transports;
+    using Transport;
 
     /// <summary>
     /// Provides subscription storage using a msmq queue as the backing store.
@@ -44,9 +43,7 @@
 
             context.Container.ConfigureComponent(b =>
             {
-                var isTransactional = context.Settings.GetRequiredTransactionModeForReceives() != TransportTransactionMode.None;
-
-                var queue = new MsmqSubscriptionStorageQueue(MsmqAddress.Parse(queueName), isTransactional, false);
+                var queue = new MsmqSubscriptionStorageQueue(MsmqAddress.Parse(queueName));
                 return new MsmqSubscriptionStorage(queue);
             }, DependencyLifecycle.SingleInstance);
         }

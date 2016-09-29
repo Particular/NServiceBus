@@ -10,7 +10,7 @@ namespace NServiceBus.AcceptanceTests.BestPractices
         [Test]
         public async Task Should_allow_sending_events()
         {
-            var context = await Scenario.Define<Context>()
+            var context = await Scenario.Define<ScenarioContext>()
                 .WithEndpoint<Endpoint>(b => b.When((session, c) =>
                 {
                     var sendOptions = new SendOptions();
@@ -24,9 +24,6 @@ namespace NServiceBus.AcceptanceTests.BestPractices
             Assert.True(context.EndpointsStarted);
         }
 
-        public class Context : ScenarioContext
-        {
-        }
 
         public class Endpoint : EndpointConfigurationBuilder
         {

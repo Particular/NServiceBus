@@ -1,4 +1,4 @@
-namespace NServiceBus.Transports
+namespace NServiceBus.Transport
 {
     /// <summary>
     /// Represents a result of a pre-startup check.
@@ -12,7 +12,7 @@ namespace NServiceBus.Transports
         }
 
         /// <summary>
-        /// Returns weather the result was a succes.
+        /// Returns weather the result was a success.
         /// </summary>
         public bool Succeeded { get; }
 

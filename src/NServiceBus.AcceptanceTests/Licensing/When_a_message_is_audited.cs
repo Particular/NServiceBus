@@ -5,6 +5,7 @@
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
+    using Logging;
     using NUnit.Framework;
 
     public class When_a_message_is_audited : NServiceBusAcceptanceTest
@@ -22,7 +23,7 @@
 
             if (Debugger.IsAttached)
             {
-                Assert.True(context.Logs.Any(m => m.Level == "error" && m.Message.StartsWith("Your license has expired")), "Error should be logged");
+                Assert.True(context.Logs.Any(m => m.Level == LogLevel.Error && m.Message.StartsWith("Your license has expired")), "Error should be logged");
             }
         }
 

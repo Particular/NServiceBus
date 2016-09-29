@@ -13,9 +13,9 @@
     public class When_blowing_up_just_after_dispatch : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Should_still_release_the_outgoing_messages_to_the_transport()
+        public Task Should_still_release_the_outgoing_messages_to_the_transport()
         {
-            await Scenario.Define<Context>()
+            return Scenario.Define<Context>()
                 .WithEndpoint<NonDtcReceivingEndpoint>(b => b.When(session => session.SendLocal(new PlaceOrder())))
                 .Done(c => c.OrderAckReceived == 1)
                 .Repeat(r => r.For<AllOutboxCapableStorages>())
@@ -37,27 +37,27 @@
                     {
                         b.GetSettings().Set("DisableOutboxTransportCheck", true);
                         b.EnableOutbox();
-                        b.Pipeline.Register("BlowUpAfterDispatchBehavior", typeof(BlowUpAfterDispatchBehavior), "For testing");
+                        b.Pipeline.Register("BlowUpAfterDispatchBehavior", new BlowUpAfterDispatchBehavior(), "For testing");
                     });
             }
 
-            class BlowUpAfterDispatchBehavior : Behavior<IBatchDispatchContext>
+            class BlowUpAfterDispatchBehavior : IBehavior<IBatchDispatchContext, IBatchDispatchContext>
             {
-                public async override Task Invoke(IBatchDispatchContext context, Func<Task> next)
+                public async Task Invoke(IBatchDispatchContext context, Func<IBatchDispatchContext, Task> next)
                 {
                     if (!context.Operations.Any(op => op.Message.Headers[Headers.EnclosedMessageTypes].Contains(typeof(PlaceOrder).Name)))
                     {
-                        await next().ConfigureAwait(false);
+                        await next(context).ConfigureAwait(false);
                         return;
                     }
 
                     if (called)
                     {
-                        Console.Out.WriteLine("Called once, skipping next");
+                        Console.WriteLine("Called once, skipping next");
                         return;
                     }
 
-                    await next().ConfigureAwait(false);
+                    await next(context).ConfigureAwait(false);
 
                     called = true;
 

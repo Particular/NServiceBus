@@ -13,9 +13,9 @@
     public class When_dispatching_forwarded_messages : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Should_be_dispatched_immediately()
+        public Task Should_be_dispatched_immediately()
         {
-            await Scenario.Define<Context>()
+            return Scenario.Define<Context>()
                 .WithEndpoint<EndpointWithAuditOn>(b => b
                     .When(session => session.SendLocal(new MessageToBeForwarded()))
                     .DoNotFailOnErrorMessages())
@@ -26,12 +26,12 @@
                 .Run();
         }
 
-        public class Context : ScenarioContext
+        class Context : ScenarioContext
         {
             public bool Done { get; set; }
         }
 
-        public class EndpointWithAuditOn : EndpointConfigurationBuilder
+        class EndpointWithAuditOn : EndpointConfigurationBuilder
         {
             public EndpointWithAuditOn()
             {
@@ -40,22 +40,22 @@
                     {
                         b.GetSettings().Set("DisableOutboxTransportCheck", true);
                         b.EnableOutbox();
-                        b.Pipeline.Register("BlowUpAfterDispatchBehavior", typeof(BlowUpAfterDispatchBehavior), "For testing");
+                        b.Pipeline.Register("BlowUpAfterDispatchBehavior", new BlowUpAfterDispatchBehavior(), "For testing");
                         b.ForwardReceivedMessagesTo("forward_receiver_outbox");
                     });
             }
 
-            class BlowUpAfterDispatchBehavior : Behavior<IBatchDispatchContext>
+            class BlowUpAfterDispatchBehavior : IBehavior<IBatchDispatchContext, IBatchDispatchContext>
             {
-                public override async Task Invoke(IBatchDispatchContext context, Func<Task> next)
+                public async Task Invoke(IBatchDispatchContext context, Func<IBatchDispatchContext, Task> next)
                 {
                     if (!context.Operations.Any(op => op.Message.Headers[Headers.EnclosedMessageTypes].Contains(typeof(MessageToBeForwarded).Name)))
                     {
-                        await next().ConfigureAwait(false);
+                        await next(context).ConfigureAwait(false);
                         return;
                     }
 
-                    await next().ConfigureAwait(false);
+                    await next(context).ConfigureAwait(false);
 
                     throw new SimulatedException();
                 }

@@ -4,7 +4,6 @@ namespace NServiceBus.Settings
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Configuration;
-    using System.Linq.Expressions;
 
     /// <summary>
     /// Setting container.
@@ -19,7 +18,7 @@ namespace NServiceBus.Settings
         public T Get<T>(string key)
         {
             Guard.AgainstNullAndEmpty(nameof(key), key);
-            return (T)Get(key);
+            return (T) Get(key);
         }
 
         /// <summary>
@@ -59,7 +58,7 @@ namespace NServiceBus.Settings
                 return false;
             }
 
-            val = (T)tmp;
+            val = (T) tmp;
             return true;
         }
 
@@ -70,7 +69,7 @@ namespace NServiceBus.Settings
         /// <returns>The value if found, throws if not.</returns>
         public T Get<T>()
         {
-            return (T)Get(typeof(T).FullName);
+            return (T) Get(typeof(T).FullName);
         }
 
         /// <summary>
@@ -117,12 +116,12 @@ namespace NServiceBus.Settings
             object result;
             if (Overrides.TryGetValue(key, out result))
             {
-                return (T)result;
+                return (T) result;
             }
 
             if (Defaults.TryGetValue(key, out result))
             {
-                return (T)result;
+                return (T) result;
             }
 
             return default(T);
@@ -175,6 +174,21 @@ namespace NServiceBus.Settings
         }
 
         /// <summary>
+        /// Gets the requested value, a new one will be created and added if needed.
+        /// </summary>
+        public T GetOrCreate<T>()
+            where T : class, new()
+        {
+            T value;
+            if (!TryGet(out value))
+            {
+                value = new T();
+                Set<T>(value);
+            }
+            return value;
+        }
+
+        /// <summary>
         /// Sets the setting value.
         /// </summary>
         /// <param name="key">The key to use to store the setting.</param>
@@ -205,28 +219,6 @@ namespace NServiceBus.Settings
         public void Set<T>(Action value)
         {
             Set(typeof(T).FullName, value);
-        }
-
-        /// <summary>
-        /// Sets the value of the given property.
-        /// </summary>
-        public void SetProperty<T>(Expression<Func<T, object>> property, object value)
-        {
-            Guard.AgainstNull(nameof(property), property);
-            var prop = Reflect<T>.GetProperty(property);
-
-            Set(typeof(T).FullName + "." + prop.Name, value);
-        }
-
-        /// <summary>
-        /// Sets the default value of the given property.
-        /// </summary>
-        public void SetPropertyDefault<T>(Expression<Func<T, object>> property, object value)
-        {
-            Guard.AgainstNull(nameof(property), property);
-            var prop = Reflect<T>.GetProperty(property);
-
-            SetDefault(typeof(T).FullName + "." + prop.Name, value);
         }
 
         /// <summary>
@@ -270,6 +262,33 @@ namespace NServiceBus.Settings
             locked = true;
         }
 
+        internal void Merge(ReadOnlySettings settings)
+        {
+            Guard.AgainstNull(nameof(settings), settings);
+
+            EnsureMergingIsPossible();
+
+            var holder = settings as SettingsHolder ?? new SettingsHolder();
+
+            foreach (var @default in holder.Defaults)
+            {
+                Defaults[@default.Key] = @default.Value;
+            }
+
+            foreach (var @override in holder.Overrides)
+            {
+                Overrides[@override.Key] = @override.Value;
+            }
+        }
+
+        void EnsureMergingIsPossible()
+        {
+            if (locked)
+            {
+                throw new ConfigurationErrorsException("Unable to merge settings. The settings has been locked for modifications. Move any configuration code earlier in the configuration pipeline");
+            }
+        }
+
         void EnsureWriteEnabled(string key)
         {
             if (locked)
@@ -299,7 +318,9 @@ namespace NServiceBus.Settings
         }
 
         ConcurrentDictionary<string, object> Defaults = new ConcurrentDictionary<string, object>(StringComparer.OrdinalIgnoreCase);
+
         bool locked;
+
         ConcurrentDictionary<string, object> Overrides = new ConcurrentDictionary<string, object>(StringComparer.OrdinalIgnoreCase);
     }
 }

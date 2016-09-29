@@ -3,11 +3,11 @@
     using System;
     using System.Linq;
     using System.Threading.Tasks;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.Pipeline;
-    using NServiceBus.Transports;
+    using AcceptanceTesting;
+    using Pipeline;
+    using Transport;
 
-    class SubscriptionBehavior<TContext> : Behavior<IIncomingPhysicalMessageContext> where TContext : ScenarioContext
+    class SubscriptionBehavior<TContext> : IBehavior<IIncomingPhysicalMessageContext, IIncomingPhysicalMessageContext> where TContext : ScenarioContext
     {
         Action<SubscriptionEventArgs, TContext> action;
         TContext scenarioContext;
@@ -18,9 +18,9 @@
             this.scenarioContext = scenarioContext;
         }
 
-        public override async Task Invoke(IIncomingPhysicalMessageContext context, Func<Task> next)
+        public async Task Invoke(IIncomingPhysicalMessageContext context, Func<IIncomingPhysicalMessageContext, Task> next)
         {
-            await next().ConfigureAwait(false);
+            await next(context).ConfigureAwait(false);
             var subscriptionMessageType = GetSubscriptionMessageTypeFrom(context.Message);
             if (subscriptionMessageType != null)
             {

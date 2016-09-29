@@ -3,93 +3,47 @@ namespace NServiceBus.Routing
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Threading.Tasks;
-    using Extensibility;
 
     /// <summary>
-    /// Manages the unicast routing table.
+    /// The unicast routing table.
     /// </summary>
     public class UnicastRoutingTable
     {
-        internal async Task<IEnumerable<IUnicastRoute>> GetDestinationsFor(List<Type> messageTypes, ContextBag contextBag)
+        internal UnicastRoute GetRouteFor(Type messageType)
         {
-            var routes = new List<IUnicastRoute>();
-            foreach (var rule in asyncDynamicRules)
+            UnicastRoute unicastRoute;
+            return routeTable.TryGetValue(messageType, out unicastRoute)
+                ? unicastRoute
+                : null;
+        }
+
+        /// <summary>
+        /// Adds or replaces a set of routes for a given group key. The route set is identified <paramref name="sourceKey"></paramref>.
+        /// If the method is called the first time with a given <paramref name="sourceKey"></paramref>, the routes are added.
+        /// If the method is called with the same <paramref name="sourceKey"></paramref> multiple times, the routes registered previously under this key are replaced.
+        /// </summary>
+        /// <param name="sourceKey">Key for the route source.</param>
+        /// <param name="entries">Group entries.</param>
+        public void AddOrReplaceRoutes(string sourceKey, IList<RouteTableEntry> entries)
+        {
+            lock (updateLock)
             {
-                routes.AddRange(await rule.Invoke(messageTypes, contextBag).ConfigureAwait(false));
+                routeGroups[sourceKey] = entries;
+                var newRouteTable = new Dictionary<Type, UnicastRoute>();
+                foreach (var entry in routeGroups.Values.SelectMany(g => g))
+                {
+                    if (newRouteTable.ContainsKey(entry.MessageType))
+                    {
+                        throw new Exception($"Route for type {entry.MessageType.FullName} already exists.");
+                    }
+                    newRouteTable[entry.MessageType] = entry.Route;
+                }
+                routeTable = newRouteTable;
             }
-
-            foreach (var rule in dynamicRules)
-            {
-                routes.AddRange(rule.Invoke(messageTypes, contextBag));
-            }
-
-            var staticRoutes = messageTypes
-                .SelectMany(type => staticRules, (type, rule) => rule.Invoke(type, contextBag))
-                .Where(route => route != null);
-
-            routes.AddRange(staticRoutes);
-
-            return routes;
         }
 
-        /// <summary>
-        /// Adds a static unicast route.
-        /// </summary>
-        /// <param name="messageType">Message type.</param>
-        /// <param name="destination">Destination endpoint.</param>
-        public void RouteToEndpoint(Type messageType, EndpointName destination)
-        {
-            staticRules.Add((t, c) => StaticRule(t, messageType, new UnicastRoute(destination)));
-        }
-
-        /// <summary>
-        /// Adds a static unicast route.
-        /// </summary>
-        /// <param name="messageType">Message type.</param>
-        /// <param name="destination">Destination endpoint.</param>
-        public void RouteToEndpoint(Type messageType, string destination)
-        {
-            RouteToEndpoint(messageType, new EndpointName(destination));
-        }
-
-        /// <summary>
-        /// Adds a static unicast route.
-        /// </summary>
-        /// <param name="messageType">Message type.</param>
-        /// <param name="destinationAddress">Destination endpoint instance address.</param>
-        public void RouteToAddress(Type messageType, string destinationAddress)
-        {
-            staticRules.Add((t, c) => StaticRule(t, messageType, new UnicastRoute(destinationAddress)));
-        }
-
-        /// <summary>
-        /// Adds an external provider of routes.
-        /// </summary>
-        /// <remarks>For dynamic routes that do not require async use <see cref="AddDynamic(System.Func{System.Collections.Generic.List{System.Type},NServiceBus.Extensibility.ContextBag,System.Collections.Generic.IEnumerable{NServiceBus.Routing.IUnicastRoute}})"/>.</remarks>
-        /// <param name="dynamicRule">The rule.</param>
-        public void AddDynamic(Func<List<Type>, ContextBag, Task<IEnumerable<IUnicastRoute>>> dynamicRule)
-        {
-            asyncDynamicRules.Add(dynamicRule);
-        }
-
-        /// <summary>
-        /// Adds an external provider of routes.
-        /// </summary>
-        /// <remarks>For dynamic routes that require async use <see cref="AddDynamic(System.Func{System.Collections.Generic.List{System.Type},NServiceBus.Extensibility.ContextBag,System.Threading.Tasks.Task{System.Collections.Generic.IEnumerable{NServiceBus.Routing.IUnicastRoute}}})"/>.</remarks>
-        /// <param name="dynamicRule">The rule.</param>
-        public void AddDynamic(Func<List<Type>, ContextBag, IEnumerable<IUnicastRoute>> dynamicRule)
-        {
-            dynamicRules.Add(dynamicRule);
-        }
-
-        static IUnicastRoute StaticRule(Type messageBeingRouted, Type configuredMessage, UnicastRoute configuredDestination)
-        {
-            return messageBeingRouted == configuredMessage ? configuredDestination : null;
-        }
-
-        List<Func<List<Type>, ContextBag, Task<IEnumerable<IUnicastRoute>>>> asyncDynamicRules = new List<Func<List<Type>, ContextBag, Task<IEnumerable<IUnicastRoute>>>>();
-        List<Func<List<Type>, ContextBag, IEnumerable<IUnicastRoute>>> dynamicRules = new List<Func<List<Type>, ContextBag, IEnumerable<IUnicastRoute>>>();
-        List<Func<Type, ContextBag, IUnicastRoute>> staticRules = new List<Func<Type, ContextBag, IUnicastRoute>>();
+        Dictionary<Type, UnicastRoute> routeTable = new Dictionary<Type, UnicastRoute>();
+        Dictionary<object, IList<RouteTableEntry>> routeGroups = new Dictionary<object, IList<RouteTableEntry>>();
+        object updateLock = new object();
     }
 }

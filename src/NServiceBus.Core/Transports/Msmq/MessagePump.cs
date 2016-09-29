@@ -8,7 +8,8 @@ namespace NServiceBus
     using System.Threading;
     using System.Threading.Tasks;
     using Logging;
-    using Transports;
+    using Support;
+    using Transport;
 
     class MessagePump : IPushMessages, IDisposable
     {
@@ -22,22 +23,18 @@ namespace NServiceBus
             // Injected
         }
 
-        public Task Init(Func<PushContext, Task> pipe, CriticalError criticalError, PushSettings settings)
+
+        public Task Init(Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError, CriticalError criticalError, PushSettings settings)
         {
-            pipeline = pipe;
-
-            receiveStrategy = receiveStrategyFactory(settings.RequiredTransactionMode);
-
             peekCircuitBreaker = new RepeatedFailuresOverTimeCircuitBreaker("MsmqPeek", TimeSpan.FromSeconds(30), ex => criticalError.Raise("Failed to peek " + settings.InputQueue, ex));
             receiveCircuitBreaker = new RepeatedFailuresOverTimeCircuitBreaker("MsmqReceive", TimeSpan.FromSeconds(30), ex => criticalError.Raise("Failed to receive from " + settings.InputQueue, ex));
 
             var inputAddress = MsmqAddress.Parse(settings.InputQueue);
             var errorAddress = MsmqAddress.Parse(settings.ErrorQueue);
 
-            if (!string.Equals(errorAddress.Machine, Environment.MachineName, StringComparison.OrdinalIgnoreCase))
+            if (!string.Equals(inputAddress.Machine, RuntimeEnvironment.MachineName, StringComparison.OrdinalIgnoreCase))
             {
-                var message = $"MSMQ Dequeuing can only run against the local machine. Invalid inputQueue name '{settings.InputQueue}'";
-                throw new Exception(message);
+                throw new Exception($"MSMQ Dequeuing can only run against the local machine. Invalid inputQueue name '{settings.InputQueue}'.");
             }
 
             inputQueue = new MessageQueue(inputAddress.FullPath, false, true, QueueAccessMode.Receive);
@@ -45,7 +42,7 @@ namespace NServiceBus
 
             if (settings.RequiredTransactionMode != TransportTransactionMode.None && !QueueIsTransactional())
             {
-                throw new ArgumentException("Queue must be transactional if you configure the endpoint to be transactional (" + settings.InputQueue + ").");
+                throw new ArgumentException($"Queue must be transactional if you configure the endpoint to be transactional ({settings.InputQueue}).");
             }
 
             inputQueue.MessageReadPropertyFilter = DefaultReadPropertyFilter;
@@ -54,6 +51,10 @@ namespace NServiceBus
             {
                 inputQueue.Purge();
             }
+
+            receiveStrategy = receiveStrategyFactory(settings.RequiredTransactionMode);
+
+            receiveStrategy.Init(inputQueue, errorQueue, onMessage, onError, criticalError);
 
             return TaskEx.CompletedTask;
         }
@@ -146,55 +147,54 @@ namespace NServiceBus
 
                     await concurrencyLimiter.WaitAsync(cancellationToken).ConfigureAwait(false);
 
-                    var tokenSource = new CancellationTokenSource();
-
-                    var receiveTask = Task.Run(async () =>
-                    {
-                        try
-                        {
-                            await receiveStrategy.ReceiveMessage(inputQueue, errorQueue, tokenSource, pipeline).ConfigureAwait(false);
-                            receiveCircuitBreaker.Success();
-                        }
-                        catch (MessageQueueException ex)
-                        {
-                            if (ex.MessageQueueErrorCode == MessageQueueErrorCode.IOTimeout)
-                            {
-                                //We should only get an IOTimeout exception here if another process removed the message between us peeking and now.
-                                return;
-                            }
-
-                            Logger.Warn("MSMQ receive operation failed", ex);
-                            await receiveCircuitBreaker.Failure(ex).ConfigureAwait(false);
-                        }
-                        catch (Exception ex)
-                        {
-                            Logger.Warn("MSMQ receive operation failed", ex);
-                            await receiveCircuitBreaker.Failure(ex).ConfigureAwait(false);
-                        }
-                        finally
-                        {
-                            concurrencyLimiter.Release();
-                        }
-                    }, tokenSource.Token).ContinueWith(t => tokenSource.Dispose());
+                    var receiveTask = ReceiveMessage();
 
                     runningReceiveTasks.TryAdd(receiveTask, receiveTask);
 
                     // We insert the original task into the runningReceiveTasks because we want to await the completion
                     // of the running receives. ExecuteSynchronously is a request to execute the continuation as part of
                     // the transition of the antecedents completion phase. This means in most of the cases the continuation
-                    // will be executed during this transition and the antecedent task goes into the completion state only 
+                    // will be executed during this transition and the antecedent task goes into the completion state only
                     // after the continuation is executed. This is not always the case. When the TPL thread handling the
                     // antecedent task is aborted the continuation will be scheduled. But in this case we don't need to await
                     // the continuation to complete because only really care about the receive operations. The final operation
                     // when shutting down is a clear of the running tasks anyway.
-                    receiveTask.ContinueWith(t =>
+                    receiveTask.ContinueWith((t, state) =>
                     {
+                        var receiveTasks = (ConcurrentDictionary<Task, Task>) state;
                         Task toBeRemoved;
-                        runningReceiveTasks.TryRemove(t, out toBeRemoved);
-                    }, TaskContinuationOptions.ExecuteSynchronously)
+                        receiveTasks.TryRemove(t, out toBeRemoved);
+                    }, runningReceiveTasks, TaskContinuationOptions.ExecuteSynchronously)
                         .Ignore();
                 }
             }
+        }
+
+        Task ReceiveMessage()
+        {
+            return TaskEx.Run(async state =>
+            {
+                var messagePump = (MessagePump) state;
+
+                try
+                {
+                    await messagePump.receiveStrategy.ReceiveMessage().ConfigureAwait(false);
+                    messagePump.receiveCircuitBreaker.Success();
+                }
+                catch (OperationCanceledException)
+                {
+                    // Intentionally ignored
+                }
+                catch (Exception ex)
+                {
+                    Logger.Warn("MSMQ receive operation failed", ex);
+                    await messagePump.receiveCircuitBreaker.Failure(ex).ConfigureAwait(false);
+                }
+                finally
+                {
+                    messagePump.concurrencyLimiter.Release();
+                }
+            }, this);
         }
 
         bool QueueIsTransactional()
@@ -217,10 +217,11 @@ namespace NServiceBus
         MessageQueue inputQueue;
 
         Task messagePumpTask;
-        RepeatedFailuresOverTimeCircuitBreaker peekCircuitBreaker;
-        Func<PushContext, Task> pipeline;
-        RepeatedFailuresOverTimeCircuitBreaker receiveCircuitBreaker;
+
         ReceiveStrategy receiveStrategy;
+
+        RepeatedFailuresOverTimeCircuitBreaker peekCircuitBreaker;
+        RepeatedFailuresOverTimeCircuitBreaker receiveCircuitBreaker;
         Func<TransportTransactionMode, ReceiveStrategy> receiveStrategyFactory;
         ConcurrentDictionary<Task, Task> runningReceiveTasks;
 

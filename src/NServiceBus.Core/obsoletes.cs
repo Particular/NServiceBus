@@ -35,6 +35,8 @@ namespace NServiceBus
     using System;
     using System.Collections.Generic;
     using System.Reflection;
+    using System.Text;
+    using DataBus;
     using ObjectBuilder;
 
     public static partial class ConfigureCriticalErrorAction
@@ -111,6 +113,41 @@ namespace NServiceBus
     {
     }
 
+
+    [ObsoleteEx(
+        RemoveInVersion = "7.0",
+        TreatAsErrorFromVersion = "6.0",
+        ReplacementTypeOrMember = "endpointConfiguration.Recoverability().Delayed(delayed => )")]
+    public static class SecondLevelRetriesConfigExtensions
+    {
+        [ObsoleteEx(
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0",
+            ReplacementTypeOrMember = "endpointConfiguration.Recoverability().Delayed(delayed => )")]
+        public static SecondLevelRetriesSettings SecondLevelRetries(this EndpointConfiguration config)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    [ObsoleteEx(
+        RemoveInVersion = "7.0",
+        TreatAsErrorFromVersion = "6.0",
+        ReplacementTypeOrMember = "endpointConfiguration.Recoverability().CustomPolicy(Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> @custom)")]
+    public class SecondLevelRetriesSettings
+    {
+        [ObsoleteEx(
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0",
+            ReplacementTypeOrMember = "endpointConfiguration.Recoverability().CustomPolicy(Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> @custom)")]
+        public void CustomRetryPolicy(Func<TransportMessage, TimeSpan> customPolicy)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+
+
     [ObsoleteEx(
         RemoveInVersion = "7.0",
         TreatAsErrorFromVersion = "6.0",
@@ -182,16 +219,6 @@ namespace NServiceBus
         {
             throw new NotImplementedException();
         }
-
-        [ObsoleteEx(
-            ReplacementTypeOrMember = "EndpointConfiguration.UseTransport<T>().AddAddressTranslationRule(Func<LogicalAddress, string> rule)",
-            RemoveInVersion = "7.0",
-            TreatAsErrorFromVersion = "6.0")]
-        public void OverrideLocalAddress(string queue)
-        {
-            throw new NotImplementedException();
-        }
-
 
         [ObsoleteEx(
             Message = "Endpoint name is now a mandatory constructor argument on EndpointConfiguration.",
@@ -356,6 +383,122 @@ namespace NServiceBus
     public interface IWantToRunWhenBusStartsAndStops
     {
     }
+
+    [ObsoleteEx(
+        RemoveInVersion = "7.0",
+        TreatAsErrorFromVersion = "6.0",
+        ReplacementTypeOrMember = "PersistenceExtensions<T, S>")]
+    public class PersistenceExtentions<T, S>
+    {
+    }
+
+    [ObsoleteEx(
+        RemoveInVersion = "7.0",
+        TreatAsErrorFromVersion = "6.0",
+        ReplacementTypeOrMember = "PersistenceExtensions<T>")]
+    public class PersistenceExtentions<T>
+    {
+    }
+
+    [ObsoleteEx(
+        RemoveInVersion = "7.0",
+        TreatAsErrorFromVersion = "6.0",
+        ReplacementTypeOrMember = "PersistenceExtensions")]
+    public class PersistenceExtentions
+    {
+    }
+
+    [ObsoleteEx(
+        RemoveInVersion = "7.0",
+        TreatAsErrorFromVersion = "6.0",
+        ReplacementTypeOrMember = "SerializationExtensions<T>")]
+    public class SerializationExtentions<T>
+    {
+    }
+
+    [ObsoleteEx(
+        RemoveInVersion = "7.0",
+        TreatAsErrorFromVersion = "6.0")]
+    public static class ScaleOutExtentions
+    {
+        [ObsoleteEx(
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0")]
+        public static Settings.ScaleOutSettings ScaleOut(this EndpointConfiguration config)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    [ObsoleteEx(
+        RemoveInVersion = "7.0",
+        TreatAsErrorFromVersion = "6.0",
+        ReplacementTypeOrMember = "SettingsExtensions")]
+    public static class SettingsExtentions
+    {
+    }
+
+    [ObsoleteEx(
+        RemoveInVersion = "7.0",
+        TreatAsErrorFromVersion = "6.0",
+        ReplacementTypeOrMember = "LoadMessageHandlersExtensions")]
+    public static class LoadMessageHandlersExtentions
+    {
+    }
+
+    public static partial class ConfigureFileShareDataBus
+    {
+        [ObsoleteEx(
+        RemoveInVersion = "7.0",
+        TreatAsErrorFromVersion = "6.0",
+        ReplacementTypeOrMember = "BasePath(this DataBusExtensions<FileShareDataBus> config, string basePath)")]
+        public static DataBusExtentions<FileShareDataBus> BasePath(this DataBusExtentions<FileShareDataBus> config, string basePath)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public static partial class JsonSerializerConfigurationExtensions
+    {
+        [ObsoleteEx(
+        RemoveInVersion = "7.0",
+        TreatAsErrorFromVersion = "6.0",
+        ReplacementTypeOrMember = "Encoding(this SerializationExtensions<JsonSerializer> config, Encoding encoding)")]
+        public static void Encoding(this SerializationExtentions<JsonSerializer> config, Encoding encoding)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public static partial class XmlSerializationExtensions
+    {
+        [ObsoleteEx(
+        RemoveInVersion = "7.0",
+        TreatAsErrorFromVersion = "6.0",
+        ReplacementTypeOrMember = "DontWrapRawXml(this SerializationExtensions<XmlSerializer> config)")]
+        public static SerializationExtentions<XmlSerializer> DontWrapRawXml(this SerializationExtentions<XmlSerializer> config)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(
+        RemoveInVersion = "7.0",
+        TreatAsErrorFromVersion = "6.0",
+        ReplacementTypeOrMember = "Namespace(this SerializationExtensions<XmlSerializer> config, string namespaceToUse)")]
+        public static SerializationExtentions<XmlSerializer> Namespace(this SerializationExtentions<XmlSerializer> config, string namespaceToUse)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(
+        RemoveInVersion = "7.0",
+        TreatAsErrorFromVersion = "6.0",
+        ReplacementTypeOrMember = "SanitizeInput(this SerializationExtensions<XmlSerializer> config)")]
+        public static SerializationExtentions<XmlSerializer> SanitizeInput(this SerializationExtentions<XmlSerializer> config)
+        {
+            throw new NotImplementedException();
+        }
+    }
 }
 
 namespace NServiceBus.Unicast
@@ -488,7 +631,8 @@ namespace NServiceBus.Timeout.Core
         [ObsoleteEx(
             Message = "Not used anymore",
             RemoveInVersion = "7.0",
-            TreatAsErrorFromVersion = "6.0")] public const string OriginalReplyToAddress = "NServiceBus.Timeout.ReplyToAddress";
+            TreatAsErrorFromVersion = "6.0")]
+        public const string OriginalReplyToAddress = "NServiceBus.Timeout.ReplyToAddress";
     }
 }
 
@@ -686,7 +830,7 @@ namespace NServiceBus
         [ObsoleteEx(
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0",
-            Message = "Headers can be set using the ``.SetHeader` method on the context object passed into the behavior or mutator")]
+            Message = @"Use the overload of the Send, Publish or Reply method that accepts an options parameter. Call options.SetHeader(""MyHeader"",""MyValue"") instead.")]
         public static void SetMessageHeader(this IBus bus, object msg, string key, string value)
         {
             throw new NotImplementedException();
@@ -780,6 +924,12 @@ namespace NServiceBus.Features
     public class ConfigureTransport
     {
     }
+
+    [ObsoleteEx(
+        RemoveInVersion = "7.0",
+        TreatAsErrorFromVersion = "6.0",
+        Message = "Encryption is no longer enabled by default. Encryption gets enabled by calling configuration.RegisterEncryptionService or configuration.RijndaelEncryptionService.")]
+    public class Encryptor { }
 }
 
 namespace NServiceBus.Transports
@@ -787,13 +937,13 @@ namespace NServiceBus.Transports
     [ObsoleteEx(
         RemoveInVersion = "7.0",
         TreatAsErrorFromVersion = "6.0",
-        ReplacementTypeOrMember = "IDispatchMessages")]
+        ReplacementTypeOrMember = "NServiceBus.Transport.IDispatchMessages")]
     public interface IDeferMessages
     {
         [ObsoleteEx(
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0",
-            ReplacementTypeOrMember = "ICancelDeferredMessages")]
+            ReplacementTypeOrMember = "NServiceBus.Transport.ICancelDeferredMessages")]
         void ClearDeferredMessages(string headerKey, string headerValue);
     }
 }
@@ -803,7 +953,7 @@ namespace NServiceBus.Transports
     [ObsoleteEx(
         RemoveInVersion = "7.0",
         TreatAsErrorFromVersion = "6.0",
-        ReplacementTypeOrMember = "IDispatchMessages")]
+        ReplacementTypeOrMember = "NServiceBus.Transport.IDispatchMessages")]
     public interface IPublishMessages
     {
     }
@@ -816,7 +966,7 @@ namespace NServiceBus.Transports
     [ObsoleteEx(
         RemoveInVersion = "7.0",
         TreatAsErrorFromVersion = "6.0",
-        ReplacementTypeOrMember = "IDispatchMessages")]
+        ReplacementTypeOrMember = "NServiceBus.Transport.IDispatchMessages")]
     public interface ISendMessages
     {
         void Send(TransportMessage message, SendOptions sendOptions);
@@ -858,6 +1008,8 @@ namespace NServiceBus.Unicast.Subscriptions
 
 namespace NServiceBus.Unicast.Routing
 {
+    using System;
+
     [ObsoleteEx(
         RemoveInVersion = "7.0",
         TreatAsErrorFromVersion = "6.0",
@@ -868,7 +1020,11 @@ namespace NServiceBus.Unicast.Routing
             TreatAsErrorFromVersion = "6",
             RemoveInVersion = "7",
             ReplacementTypeOrMember = "config.AutoSubscribe().AutoSubscribePlainMessages()")]
-        public bool SubscribeToPlainMessages { get; set; }
+        public bool SubscribeToPlainMessages
+        {
+            get { throw new NotImplementedException(); }
+            set { throw new NotImplementedException(); }
+        }
     }
 }
 
@@ -900,6 +1056,7 @@ namespace NServiceBus.AutomaticSubscriptions.Config
 
 namespace NServiceBus.Config
 {
+    using System;
     using System.Configuration;
 
     [ObsoleteEx(
@@ -911,20 +1068,236 @@ namespace NServiceBus.Config
     }
 
     [ObsoleteEx(
+        Message = Error,
+        RemoveInVersion = "7",
+        TreatAsErrorFromVersion = "6")]
+    public class SecondLevelRetriesConfig : ConfigurationSection
+    {
+        const string Error = "Second Level Retries has been renamed to Delayed Retries. The app.config API has been removed, use the code API via endpointConfiguration.Recoverability().Delayed(settings => ...);.";
+
+        public SecondLevelRetriesConfig()
+        {
+            Properties.Add(new ConfigurationProperty("Enabled", typeof(bool), true));
+            Properties.Add(new ConfigurationProperty("TimeIncrease", typeof(TimeSpan), Recoverability.DefaultTimeIncrease, null, new TimeSpanValidator(TimeSpan.Zero, TimeSpan.MaxValue), ConfigurationPropertyOptions.None));
+            Properties.Add(new ConfigurationProperty("NumberOfRetries", typeof(int), Recoverability.DefaultNumberOfRetries, null, new IntegerValidator(0, int.MaxValue), ConfigurationPropertyOptions.None));
+        }
+
+        [ObsoleteEx(
+            Message = Error + " To disable use endpointConfiguration.Recoverability().Delayed(settings => settings.NumberOfRetries(0));",
+            RemoveInVersion = "7",
+            TreatAsErrorFromVersion = "6")]
+        public bool Enabled
+        {
+            get { return (bool) this["Enabled"]; }
+            set { this["Enabled"] = value; }
+        }
+
+        [ObsoleteEx(
+            Message = Error + " To change the TimeIncrease use endpointConfiguration.Recoverability().Delayed(settings => settings.TimeIncrease(TimeSpan.FromMinutes(5));",
+            RemoveInVersion = "7",
+            TreatAsErrorFromVersion = "6")]
+        public TimeSpan TimeIncrease
+        {
+            get { return (TimeSpan) this["TimeIncrease"]; }
+            set { this["TimeIncrease"] = value; }
+        }
+
+        [ObsoleteEx(
+            Message = Error + " To change the NumberOfRetries use endpointConfiguration.Recoverability().Delayed(settings => settings.NumberOfRetries(5);",
+            RemoveInVersion = "7",
+            TreatAsErrorFromVersion = "6")]
+        public int NumberOfRetries
+        {
+            get { return (int) this["NumberOfRetries"]; }
+            set { this["NumberOfRetries"] = value; }
+        }
+    }
+
+    [ObsoleteEx(
         TreatAsErrorFromVersion = "6",
         RemoveInVersion = "7",
         ReplacementTypeOrMember = "EndpointConfiguration.EnlistWithLegacyMSMQDistributor")]
     public class MasterNodeConfig : ConfigurationSection
     {
+        [ObsoleteEx(
+            TreatAsErrorFromVersion = "6",
+            RemoveInVersion = "7",
+            ReplacementTypeOrMember = "EndpointConfiguration.EnlistWithLegacyMSMQDistributor")]
+        [ConfigurationProperty("Node", IsRequired = false)]
+        public string Node { get; set; }
+    }
+
+    [ObsoleteEx(
+        Message = Error,
+        RemoveInVersion = "7",
+        TreatAsErrorFromVersion = "6")]
+    public class TransportConfig : ConfigurationSection
+    {
+        const string Error = "The app.config API TransportConfig has been removed, use the code API.";
+
+        [ObsoleteEx(
+            TreatAsErrorFromVersion = "6",
+            RemoveInVersion = "7",
+            Message = Error + " To change the concurrency level use endpointConfiguration.LimitMessageProcessingConcurrencyTo(1);")]
+        [ConfigurationPropertyAttribute("MaximumConcurrencyLevel", DefaultValue = 0, IsRequired = false)]
+        public int MaximumConcurrencyLevel
+        {
+            get { return (int) this["MaximumConcurrencyLevel"]; }
+            set { this["MaximumConcurrencyLevel"] = value; }
+        }
+
+        [ObsoleteEx(
+            TreatAsErrorFromVersion = "6",
+            RemoveInVersion = "7",
+            Message = Error + " To change the NumberOfRetries use endpointConfiguration.Recoverability().Immediate(settings => settings.NumberOfRetries(5);")]
+        [ConfigurationPropertyAttribute("MaxRetries", DefaultValue = 5, IsRequired = false)]
+        public int MaxRetries
+        {
+            get { return (int) this["MaxRetries"]; }
+            set { this["MaxRetries"] = value; }
+        }
+
+        [ObsoleteEx(
+            TreatAsErrorFromVersion = "6",
+            RemoveInVersion = "7",
+            Message = "Message throughput throttling has been removed. Consult the documentation for further information.")]
+        [ConfigurationPropertyAttribute("MaximumMessageThroughputPerSecond", DefaultValue = -1, IsRequired = false)]
+        public int MaximumMessageThroughputPerSecond
+        {
+            get { return (int) this["MaximumMessageThroughputPerSecond"]; }
+            set { this["MaximumMessageThroughputPerSecond"] = value; }
+        }
+    }
+
+    public partial class UnicastBusConfig
+    {
+        [ConfigurationProperty("DistributorControlAddress", IsRequired = false)]
+        [ObsoleteEx(
+            TreatAsErrorFromVersion = "6",
+            RemoveInVersion = "7",
+            Message = "Switch to the code API by using 'EndpointConfiguration.EnlistWithLegacyMSMQDistributor' instead.")]
+        public string DistributorControlAddress
+        {
+            get
+            {
+                var result = this["DistributorControlAddress"] as string;
+                if (string.IsNullOrWhiteSpace(result))
+                {
+                    result = null;
+                }
+
+                return result;
+            }
+            set { this["DistributorControlAddress"] = value; }
+        }
+
+        [ConfigurationProperty("DistributorDataAddress", IsRequired = false)]
+        [ObsoleteEx(
+            TreatAsErrorFromVersion = "6",
+            RemoveInVersion = "7",
+            Message = "Switch to the code API by using 'EndpointConfiguration.EnlistWithLegacyMSMQDistributor' instead.")]
+        public string DistributorDataAddress
+        {
+            get
+            {
+                var result = this["DistributorDataAddress"] as string;
+                if (string.IsNullOrWhiteSpace(result))
+                {
+                    result = null;
+                }
+
+                return result;
+            }
+            set { this["DistributorDataAddress"] = value; }
+        }
+
+        [ConfigurationProperty("ForwardReceivedMessagesTo", IsRequired = false)]
+        [ObsoleteEx(
+            TreatAsErrorFromVersion = "6",
+            RemoveInVersion = "7",
+            Message = "Use 'EndpointConfiguration.ForwardReceivedMessagesTo' to configure the forwarding address.")]
+        public string ForwardReceivedMessagesTo
+        {
+            get
+            {
+                var result = this["ForwardReceivedMessagesTo"] as string;
+                if (string.IsNullOrWhiteSpace(result))
+                {
+                    result = null;
+                }
+
+                return result;
+            }
+            set { this["ForwardReceivedMessagesTo"] = value; }
+        }
+    }
+}
+
+namespace NServiceBus.SecondLevelRetries.Config
+{
+    using System;
+
+    [ObsoleteEx(
+        RemoveInVersion = "7.0",
+        TreatAsErrorFromVersion = "6.0",
+        ReplacementTypeOrMember = "NServiceBus.SecondLevelRetriesSettings")]
+    public class SecondLevelRetriesSettings
+    {
+        /// <summary>
+        /// Register a custom retry policy.
+        /// </summary>
+        [ObsoleteEx(
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0",
+            ReplacementTypeOrMember = "NServiceBus.SecondLevelRetriesSettings.CustomRetryPolicy(Func<IncomingMessage, TimeSpan> customPolicy)")]
+        public void CustomRetryPolicy(Func<TransportMessage, TimeSpan> customPolicy)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
 
 namespace NServiceBus.Faults
 {
+    using System;
+
+    public partial class ErrorsNotifications
+    {
+        [ObsoleteEx(
+            TreatAsErrorFromVersion = "6.0",
+            RemoveInVersion = "7.0",
+            ReplacementTypeOrMember = nameof(MessageHasBeenSentToDelayedRetries)
+            )]
+        public EventHandler MessageHasBeenSentToSecondLevelRetries;
+
+        [ObsoleteEx(
+            TreatAsErrorFromVersion = "6.0",
+            RemoveInVersion = "7.0",
+            ReplacementTypeOrMember = nameof(MessageHasFailedAnImmediateRetryAttempt))]
+        public EventHandler MessageHasFailedAFirstLevelRetryAttempt;
+    }
+
     [ObsoleteEx(
-        Message = "IManageMessageFailures is no longer an extension point. To take control of the error handling part of the message processing pipeline, review the Version 5 to 6 upgrade guide for details.",
-        RemoveInVersion = "7",
-        TreatAsErrorFromVersion = "6")]
+         Message = "First Level Retries has been renamed to Immediate Retries",
+         RemoveInVersion = "7",
+         TreatAsErrorFromVersion = "6",
+         ReplacementTypeOrMember = "NServiceBus.Faults.ImmediateRetryMessage")]
+    public struct FirstLevelRetry
+    {
+    }
+    [ObsoleteEx(
+         Message = "Second Level Retries has been renamed to Delayed Retries",
+         RemoveInVersion = "7",
+         TreatAsErrorFromVersion = "6",
+         ReplacementTypeOrMember = "NServiceBus.Faults.DelayedRetryMessage")]
+    public struct SecondLevelRetry
+    {
+    }
+
+    [ObsoleteEx(
+         Message = "IManageMessageFailures is no longer an extension point. To take control of the error handling part of the message processing pipeline, review the Version 5 to 6 upgrade guide for details.",
+         RemoveInVersion = "7",
+         TreatAsErrorFromVersion = "6")]
     public interface IManageMessageFailures
     {
     }
@@ -1073,7 +1446,7 @@ namespace NServiceBus.Unicast.Transport
         public bool DoNotWrapHandlersExecutionInATransactionScope { get; set; }
 
         [ObsoleteEx(
-            Message = "SuppressDistributedTransactions is no longer used here. Uuse `context.Settings.GetRequiredTransactionModeForReceives() != Transactions.TransactionScope` instead.",
+            Message = "SuppressDistributedTransactions is no longer used here. Use `context.Settings.GetRequiredTransactionModeForReceives() != Transactions.TransactionScope` instead.",
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0")]
         public bool SuppressDistributedTransactions { get; set; }
@@ -1098,7 +1471,8 @@ namespace NServiceBus.Settings
 {
     using System;
 
-    public partial class ScaleOutSettings
+    [ObsoleteEx(TreatAsErrorFromVersion = "6", RemoveInVersion = "7")]
+    public class ScaleOutSettings
     {
         [ObsoleteEx(
             TreatAsErrorFromVersion = "6",
@@ -1130,7 +1504,7 @@ namespace NServiceBus.Settings
         [ObsoleteEx(
             TreatAsErrorFromVersion = "6",
             RemoveInVersion = "7",
-            ReplacementTypeOrMember = "EndpointConfiguration.ScaleOut().InstanceDiscriminator(string discriminator)")]
+            ReplacementTypeOrMember = "EndpointConfiguration.MakeInstanceUniquelyAddressable(string discriminator)")]
         public void UniqueQueuePerEndpointInstance(string discriminator)
         {
             throw new NotImplementedException();
@@ -1206,6 +1580,8 @@ namespace NServiceBus.Pipeline.Contexts
 
 namespace NServiceBus.Pipeline
 {
+    using System;
+
     [ObsoleteEx(
         TreatAsErrorFromVersion = "6",
         RemoveInVersion = "7",
@@ -1213,10 +1589,7 @@ namespace NServiceBus.Pipeline
     public interface IBehavior<in TContext>
     {
     }
-}
 
-namespace NServiceBus.Pipeline
-{
     [ObsoleteEx(
         TreatAsErrorFromVersion = "6",
         RemoveInVersion = "7",
@@ -1224,12 +1597,181 @@ namespace NServiceBus.Pipeline
     public class PipelineExecutor
     {
     }
+
+    [ObsoleteEx(
+        RemoveInVersion = "7.0",
+        TreatAsErrorFromVersion = "6.0",
+        Message = "WellKnownSteps are obsolete. Use an appropriate pipeline stage for your behavior instead. Consult the pipeline extension documentation for more information.")]
+    public class WellKnownStep
+    {
+        [ObsoleteEx(
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0",
+            Message = "Use an appropriate pipeline stage for your behavior instead. Consult the pipeline extension documentation for more information.")]
+        public static WellKnownStep HostInformation;
+
+        [ObsoleteEx(
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0",
+            Message = "Use an appropriate pipeline stage for your behavior instead. Consult the pipeline extension documentation for more information.")]
+        public static WellKnownStep ProcessingStatistics;
+
+        [ObsoleteEx(
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0",
+            Message = "Use an appropriate pipeline stage for your behavior instead. Consult the pipeline extension documentation for more information.")]
+        public static readonly WellKnownStep AuditProcessedMessage;
+
+        [ObsoleteEx(
+            Message = "The child container creation is now an integral part of the pipeline invocation and no longer a separate behavior.",
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0")]
+        public static readonly WellKnownStep CreateChildContainer;
+
+        [ObsoleteEx(
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0",
+            Message = "Use an appropriate pipeline stage for your behavior instead. Consult the pipeline extension documentation for more information.")]
+        public static readonly WellKnownStep ExecuteUnitOfWork;
+
+        [ObsoleteEx(
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0",
+            Message = "Use an appropriate pipeline stage for your behavior instead. Consult the pipeline extension documentation for more information.")]
+        public static readonly WellKnownStep MutateIncomingTransportMessage;
+
+        [ObsoleteEx(
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0",
+            Message = "Use an appropriate pipeline stage for your behavior instead. Consult the pipeline extension documentation for more information.")]
+        public static readonly WellKnownStep DispatchMessageToTransport;
+
+        [ObsoleteEx(
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0",
+            Message = "Use an appropriate pipeline stage for your behavior instead. Consult the pipeline extension documentation for more information.")]
+        public static readonly WellKnownStep InvokeHandlers;
+
+        [ObsoleteEx(
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0",
+            Message = "Use an appropriate pipeline stage for your behavior instead. Consult the pipeline extension documentation for more information.")]
+        public static readonly WellKnownStep MutateIncomingMessages;
+
+        [ObsoleteEx(
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0",
+            Message = "Use an appropriate pipeline stage for your behavior instead. Consult the pipeline extension documentation for more information.")]
+        public static readonly WellKnownStep InvokeSaga;
+
+        [ObsoleteEx(
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0",
+            Message = "Use an appropriate pipeline stage for your behavior instead. Consult the pipeline extension documentation for more information.")]
+        public static readonly WellKnownStep MutateOutgoingMessages;
+
+        [ObsoleteEx(
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0",
+            Message = "Use an appropriate pipeline stage for your behavior instead. Consult the pipeline extension documentation for more information.")]
+        public static readonly WellKnownStep MutateOutgoingTransportMessage;
+
+        [ObsoleteEx(
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0",
+            Message = "Use an appropriate pipeline stage for your behavior instead. Consult the pipeline extension documentation for more information.")]
+        public static readonly WellKnownStep EnforceSendBestPractices;
+
+        [ObsoleteEx(
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0",
+            Message = "Use an appropriate pipeline stage for your behavior instead. Consult the pipeline extension documentation for more information.")]
+        public static readonly WellKnownStep EnforceReplyBestPractices;
+
+        [ObsoleteEx(
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0",
+            Message = "Use an appropriate pipeline stage for your behavior instead. Consult the pipeline extension documentation for more information.")]
+        public static readonly WellKnownStep EnforcePublishBestPractices;
+
+        [ObsoleteEx(
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0",
+            Message = "Use an appropriate pipeline stage for your behavior instead. Consult the pipeline extension documentation for more information.")]
+        public static readonly WellKnownStep EnforceSubscribeBestPractices;
+
+        [ObsoleteEx(
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0",
+            Message = "Use an appropriate pipeline stage for your behavior instead. Consult the pipeline extension documentation for more information.")]
+        public static readonly WellKnownStep EnforceUnsubscribeBestPractices;
+    }
+
+    public abstract partial class RegisterStep
+    {
+        [ObsoleteEx(
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0",
+            Message = "Use an appropriate pipeline stage for your behavior instead. Consult the pipeline extension documentation for more information.")]
+        public void InsertBeforeIfExists(WellKnownStep step)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0",
+            Message = "Use an appropriate pipeline stage for your behavior instead. Consult the pipeline extension documentation for more information.")]
+        public void InsertBefore(WellKnownStep step)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0",
+            Message = "Use an appropriate pipeline stage for your behavior instead. Consult the pipeline extension documentation for more information.")]
+        public void InsertAfterIfExists(WellKnownStep step)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0",
+            Message = "Use an appropriate pipeline stage for your behavior instead. Consult the pipeline extension documentation for more information.")]
+        public void InsertAfter(WellKnownStep step)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public partial class PipelineSettings
+    {
+        [ObsoleteEx(
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0",
+            ReplacementTypeOrMember = "Remove(string stepId)")]
+        public void Remove(WellKnownStep wellKnownStep)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0",
+            ReplacementTypeOrMember = "Replace(string stepId, Type newBehavior, string description)")]
+        public void Replace(WellKnownStep wellKnownStep, Type newBehavior, string description = null)
+        {
+            throw new NotImplementedException();
+        }
+    }
 }
 
 namespace NServiceBus.Satellites
 {
     [ObsoleteEx(
-        Message = "ISatellite is no longer an extension point. In order to create a satellite one must create a feature that uses AddSatellitePipeline() method and a class that inherits from SatelliteBehavior that is used for processing the messages.",
+        Message = "No longer an extension point. Instead create a Feature and use FeatureConfigurationContext.AddSatelliteReceiver(...).",
         RemoveInVersion = "7",
         TreatAsErrorFromVersion = "6")]
     public interface IAdvancedSatellite
@@ -1237,7 +1779,7 @@ namespace NServiceBus.Satellites
     }
 
     [ObsoleteEx(
-        Message = "ISatellite is no longer an extension point. In order to create a satellite one must create a feature that uses AddSatellitePipeline() method and a class that inherits from SatelliteBehavior that is used for processing the messages.",
+        Message = "No longer an extension point. Instead create a Feature and use FeatureConfigurationContext.AddSatelliteReceiver(...).",
         RemoveInVersion = "7",
         TreatAsErrorFromVersion = "6")]
     public interface ISatellite
@@ -1247,6 +1789,8 @@ namespace NServiceBus.Satellites
 
 namespace NServiceBus.Unicast.Transport
 {
+    using System;
+
     [ObsoleteEx(
         TreatAsErrorFromVersion = "6",
         RemoveInVersion = "7",
@@ -1254,21 +1798,15 @@ namespace NServiceBus.Unicast.Transport
     public static class ControlMessage
     {
     }
-}
 
-namespace NServiceBus.Unicast.Transport
-{
     [ObsoleteEx(
         TreatAsErrorFromVersion = "6",
         RemoveInVersion = "7",
-        ReplacementTypeOrMember = "IPushMessages")]
+        ReplacementTypeOrMember = "NServiceBus.Transport.IPushMessages")]
     public interface ITransport
     {
     }
-}
 
-namespace NServiceBus.Unicast.Transport
-{
     [ObsoleteEx(
         TreatAsErrorFromVersion = "6",
         RemoveInVersion = "7",
@@ -1276,11 +1814,6 @@ namespace NServiceBus.Unicast.Transport
     public class TransportMessageReceivedEventArgs
     {
     }
-}
-
-namespace NServiceBus.Unicast.Transport
-{
-    using System;
 
     [ObsoleteEx(
         TreatAsErrorFromVersion = "6",
@@ -1297,10 +1830,7 @@ namespace NServiceBus.Unicast.Transport
     public class FinishedMessageProcessingEventArgs : EventArgs
     {
     }
-}
 
-namespace NServiceBus.Unicast.Transport
-{
     [ObsoleteEx(
         TreatAsErrorFromVersion = "6",
         RemoveInVersion = "7",
@@ -1311,6 +1841,18 @@ namespace NServiceBus.Unicast.Transport
 }
 
 namespace NServiceBus.Transports
+{
+    [ObsoleteEx(
+        TreatAsErrorFromVersion = "6",
+        RemoveInVersion = "7",
+        Message = "The namespace NServiceBus.Transports was renamed to NServiceBus.Transport.",
+        ReplacementTypeOrMember = "NServiceBus.Transport.TransportDefinition")]
+    public abstract class TransportDefinition
+    {
+    }
+}
+
+namespace NServiceBus.Transport
 {
     using System;
 
@@ -1380,7 +1922,8 @@ namespace NServiceBus
         [ObsoleteEx(
             TreatAsErrorFromVersion = "6",
             RemoveInVersion = "7",
-            Message = "The WinIdName header is no longer attached to outgoing message to avoid passing security related information on the wire. Should you rely on the header being present you can add a message mutator that sets it.")] public const string WindowsIdentityName = "WinIdName";
+            Message = "The WinIdName header is no longer attached to outgoing message to avoid passing security related information on the wire. Should you rely on the header being present you can add a message mutator that sets it.")]
+        public const string WindowsIdentityName = "WinIdName";
     }
 }
 
@@ -1489,6 +2032,16 @@ namespace NServiceBus
 
     public partial class Saga
     {
+        [ObsoleteEx(
+            Message = "Sagas no longer provide access to bus operations via the .Bus property. Use the context parameter on the Handle method.",
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0")]
+        public IBus Bus
+        {
+            get { throw new NotImplementedException(); }
+            set { throw new NotImplementedException(); }
+        }
+
         [ObsoleteEx(
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0",
@@ -1697,7 +2250,7 @@ namespace NServiceBus.Settings
             TreatAsErrorFromVersion = "6.0",
             Message =
                 @"DoNotWrapHandlersExecutionInATransactionScope() has been removed since transaction scopes are no longer used by non DTC transports delay the dispatch of all outgoing operations until handlers have been executed.
-In Version 6 handlers will only be wrapped in a transactionscope if running the MSMQ or SQLServer transports in default mode. This means that performing storage operations against data sources also supporting transaction scopes 
+In Version 6 handlers will only be wrapped in a transactionscope if running the MSMQ or SQLServer transports in default mode. This means that performing storage operations against data sources also supporting transaction scopes
 will escalate to a distributed transaction. Previous versions allowed opting out of this behavior using config.Transactions().DoNotWrapHandlersExecutionInATransactionScope(). In Version 6 it's recommended to use `EndpointConfiguration.UseTransport<MyTransport>().Transactions(TransportTransactionMode.ReceiveOnly)` to lean on native transport transaction and the new batched dispatch support to achieve the same level of consistency with better performance.
 Suppressing the ambient transaction created by the MSMQ and SQL Server transports can still be achieved by creating a custom pipeline behavior with a suppressed transaction scope.")]
         public TransactionSettings DoNotWrapHandlersExecutionInATransactionScope()
@@ -1927,6 +2480,7 @@ namespace NServiceBus.ObjectBuilder
 namespace NServiceBus.Settings
 {
     using System;
+    using System.Linq.Expressions;
     using ObjectBuilder;
 
     public partial class SettingsHolder
@@ -1945,6 +2499,24 @@ namespace NServiceBus.Settings
           TreatAsErrorFromVersion = "6.0",
           Message = "Setting property values explicitly is no longer supported via this API. Use `.ConfigureComponent(b=> new MyMessageHandler(){ MyProperty = X})` to get full control over handler creation.")]
         public void ApplyTo(Type componentType, IComponentConfig config)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(
+          RemoveInVersion = "7.0",
+          TreatAsErrorFromVersion = "6.0",
+          ReplacementTypeOrMember = "Set(string key, object value)")]
+        public void SetProperty<T>(Expression<Func<T, object>> property, object value)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(
+          RemoveInVersion = "7.0",
+          TreatAsErrorFromVersion = "6.0",
+          ReplacementTypeOrMember = "Set(string key, object value)")]
+        public void SetPropertyDefault<T>(Expression<Func<T, object>> property, object value)
         {
             throw new NotImplementedException();
         }
@@ -1974,6 +2546,61 @@ namespace NServiceBus.Settings
         public static void ApplyTo(Type componentType, IComponentConfig config)
         {
             throw new NotImplementedException();
+        }
+    }
+}
+
+namespace NServiceBus.DataBus
+{
+    [ObsoleteEx(
+        RemoveInVersion = "7.0",
+        TreatAsErrorFromVersion = "6.0",
+        ReplacementTypeOrMember = "DataBusExtensions<T>")]
+    public class DataBusExtentions<T>
+    {
+    }
+
+    [ObsoleteEx(
+        RemoveInVersion = "7.0",
+        TreatAsErrorFromVersion = "6.0",
+        ReplacementTypeOrMember = "DataBusExtensions")]
+    public class DataBusExtentions
+    {
+    }
+}
+
+namespace NServiceBus.Features
+{
+    [ObsoleteEx(
+        RemoveInVersion = "7.0",
+        TreatAsErrorFromVersion = "6.0",
+        Message = "FirstLevelRetries is no longer a separate feature. Please use endpointConfiguration.Recoverability().Immediate(cfg => cfg.NumberOfRetries(0)); to disable Immediate Retries.")]
+    public class FirstLevelRetries : Feature
+    {
+        internal FirstLevelRetries()
+        {
+        }
+        protected internal override void Setup(FeatureConfigurationContext context)
+        {
+            throw new System.NotImplementedException();
+        }
+    }
+}
+
+namespace NServiceBus.Features
+{
+    [ObsoleteEx(
+        RemoveInVersion = "7.0",
+        TreatAsErrorFromVersion = "6.0",
+        Message = "SecondLevelRetries is no longer a separate feature. Please use endpointConfiguration.Recoverability().Delayed(cfg => cfg.NumberOfRetries(0)) to disable Delayed Retries.")]
+    public class SecondLevelRetries : Feature
+    {
+        internal SecondLevelRetries()
+        {
+        }
+
+        protected internal override void Setup(FeatureConfigurationContext context)
+        {
         }
     }
 }

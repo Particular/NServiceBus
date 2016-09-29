@@ -4,29 +4,33 @@ namespace NServiceBus
     using System.Threading.Tasks;
     using Features;
     using Routing;
-    using Transports;
+    using Transport;
 
     class Receiving : Feature
     {
         internal Receiving()
         {
             EnableByDefault();
-            DependsOn<Transport>();
             Prerequisite(c => !c.Settings.GetOrDefault<bool>("Endpoint.SendOnly"), "Endpoint is configured as send-only");
             Defaults(s =>
             {
-                var transportAddresses = s.Get<TransportAddresses>();
-                var userDiscriminator = s.GetOrDefault<string>("EndpointInstanceDiscriminator");
+                var transportInfrastructure = s.Get<TransportInfrastructure>();
+                var discriminator = s.GetOrDefault<string>("EndpointInstanceDiscriminator");
+                var baseQueueName = s.GetOrDefault<string>("BaseInputQueueName") ?? s.EndpointName();
 
-                if (userDiscriminator != null)
+                var mainInstance = transportInfrastructure.BindToLocalEndpoint(new EndpointInstance(s.EndpointName()));
+
+                var mainLogicalAddress = LogicalAddress.CreateLocalAddress(baseQueueName, mainInstance.Properties);
+                s.SetDefault<LogicalAddress>(mainLogicalAddress);
+
+                var mainAddress = transportInfrastructure.ToTransportAddress(mainLogicalAddress);
+                s.SetDefault("NServiceBus.SharedQueue", mainAddress);
+
+                if (discriminator != null)
                 {
-                    var p = s.Get<TransportInfrastructure>().BindToLocalEndpoint(new EndpointInstance(s.EndpointName(), userDiscriminator));
-                    s.SetDefault("NServiceBus.EndpointSpecificQueue", transportAddresses.GetTransportAddress(new LogicalAddress(p)));
+                    var instanceSpecificAddress = transportInfrastructure.ToTransportAddress(mainLogicalAddress.CreateIndividualizedAddress(discriminator));
+                    s.SetDefault("NServiceBus.EndpointSpecificQueue", instanceSpecificAddress);
                 }
-                var instanceProperties = s.Get<TransportInfrastructure>().BindToLocalEndpoint(new EndpointInstance(s.EndpointName()));
-                s.SetDefault("NServiceBus.SharedQueue", transportAddresses.GetTransportAddress(new LogicalAddress(instanceProperties)));
-
-                s.SetDefault<EndpointInstance>(instanceProperties);
             });
         }
 

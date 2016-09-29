@@ -13,9 +13,9 @@
     public class When_a_message_is_audited : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Should_be_dispatched_immediately()
+        public Task Should_be_dispatched_immediately()
         {
-            await Scenario.Define<Context>()
+            return Scenario.Define<Context>()
                 .WithEndpoint<EndpointWithAuditOn>(b => b
                     .When(session => session.SendLocal(new MessageToBeAudited()))
                     .DoNotFailOnErrorMessages())
@@ -26,12 +26,12 @@
                 .Run();
         }
 
-        public class Context : ScenarioContext
+       class Context : ScenarioContext
         {
             public bool MessageAudited { get; set; }
         }
 
-        public class EndpointWithAuditOn : EndpointConfigurationBuilder
+        class EndpointWithAuditOn : EndpointConfigurationBuilder
         {
             public EndpointWithAuditOn()
             {
@@ -40,22 +40,22 @@
                     {
                         b.GetSettings().Set("DisableOutboxTransportCheck", true);
                         b.EnableOutbox();
-                        b.Pipeline.Register("BlowUpAfterDispatchBehavior", typeof(BlowUpAfterDispatchBehavior), "For testing");
+                        b.Pipeline.Register("BlowUpAfterDispatchBehavior", new BlowUpAfterDispatchBehavior(), "For testing");
                     })
                     .AuditTo<AuditSpyEndpoint>();
             }
 
-            class BlowUpAfterDispatchBehavior : Behavior<IBatchDispatchContext>
+            class BlowUpAfterDispatchBehavior : IBehavior<IBatchDispatchContext, IBatchDispatchContext>
             {
-                public async override Task Invoke(IBatchDispatchContext context, Func<Task> next)
+                public async Task Invoke(IBatchDispatchContext context, Func<IBatchDispatchContext, Task> next)
                 {
                     if (!context.Operations.Any(op => op.Message.Headers[Headers.EnclosedMessageTypes].Contains(typeof(MessageToBeAudited).Name)))
                     {
-                        await next().ConfigureAwait(false);
+                        await next(context).ConfigureAwait(false);
                         return;
                     }
 
-                    await next().ConfigureAwait(false);
+                    await next(context).ConfigureAwait(false);
 
                     throw new SimulatedException();
                 }

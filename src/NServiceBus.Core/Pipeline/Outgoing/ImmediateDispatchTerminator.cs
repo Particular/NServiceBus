@@ -3,7 +3,7 @@
     using System.Linq;
     using System.Threading.Tasks;
     using Pipeline;
-    using Transports;
+    using Transport;
 
     class ImmediateDispatchTerminator : PipelineTerminator<IDispatchContext>
     {
@@ -14,7 +14,8 @@
 
         protected override Task Terminate(IDispatchContext context)
         {
-            return dispatcher.Dispatch(new TransportOperations(context.Operations.ToArray()), context.Extensions);
+            var transaction = context.Extensions.GetOrCreate<TransportTransaction>();
+            return dispatcher.Dispatch(new TransportOperations(context.Operations.ToArray()), transaction, context.Extensions);
         }
 
         IDispatchMessages dispatcher;

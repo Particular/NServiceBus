@@ -4,9 +4,9 @@ namespace NServiceBus
     using System.Threading.Tasks;
     using Pipeline;
 
-    class AttachSenderRelatedInfoOnMessageBehavior : Behavior<IRoutingContext>
+    class AttachSenderRelatedInfoOnMessageBehavior : IBehavior<IRoutingContext, IRoutingContext>
     {
-        public override Task Invoke(IRoutingContext context, Func<Task> next)
+        public Task Invoke(IRoutingContext context, Func<IRoutingContext, Task> next)
         {
             var message = context.Message;
 
@@ -19,7 +19,7 @@ namespace NServiceBus
             {
                 message.Headers[Headers.TimeSent] = DateTimeExtensions.ToWireFormattedString(DateTime.UtcNow);
             }
-            return next();
+            return next(context);
         }
     }
 }

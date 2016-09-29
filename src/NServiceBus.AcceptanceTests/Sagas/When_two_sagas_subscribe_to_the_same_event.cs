@@ -13,9 +13,9 @@
     public class When_two_sagas_subscribe_to_the_same_event : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Should_invoke_all_handlers_on_all_sagas()
+        public Task Should_invoke_all_handlers_on_all_sagas()
         {
-            await Scenario.Define<Context>()
+            return Scenario.Define<Context>()
                 .WithEndpoint<Publisher>(b => b.When((session, context) =>
                 {
                     if (context.HasNativePubSubSupport)

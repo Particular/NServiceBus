@@ -7,7 +7,7 @@
     {
         internal InMemoryGatewayPersistence()
         {
-            DependsOn("Gateway");
+            DependsOn("NServiceBus.Features.Gateway");
         }
 
         /// <summary>

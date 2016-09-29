@@ -11,9 +11,9 @@
     public class When_scheduling_a_recurring_task : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Should_execute_the_task()
+        public Task Should_execute_the_task()
         {
-            await Scenario.Define<Context>()
+            return Scenario.Define<Context>()
                 .WithEndpoint<SchedulingEndpoint>()
                 .Done(c => c.InvokedAt.HasValue)
                 .Repeat(r => r.For(Transports.Default))

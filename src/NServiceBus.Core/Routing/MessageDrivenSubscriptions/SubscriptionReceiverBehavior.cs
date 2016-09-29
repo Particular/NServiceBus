@@ -5,12 +5,11 @@
     using System.Threading.Tasks;
     using Logging;
     using Pipeline;
-    using Routing;
-    using Transports;
+    using Transport;
     using Unicast.Subscriptions;
     using Unicast.Subscriptions.MessageDrivenSubscriptions;
 
-    class SubscriptionReceiverBehavior : Behavior<IIncomingPhysicalMessageContext>
+    class SubscriptionReceiverBehavior : IBehavior<IIncomingPhysicalMessageContext, IIncomingPhysicalMessageContext>
     {
         public SubscriptionReceiverBehavior(ISubscriptionStorage subscriptionStorage, Func<IIncomingPhysicalMessageContext, bool> authorizer)
         {
@@ -18,7 +17,7 @@
             this.authorizer = authorizer;
         }
 
-        public override async Task Invoke(IIncomingPhysicalMessageContext context, Func<Task> next)
+        public async Task Invoke(IIncomingPhysicalMessageContext context, Func<IIncomingPhysicalMessageContext, Task> next)
         {
             var incomingMessage = context.Message;
             var messageTypeString = GetSubscriptionMessageTypeFrom(incomingMessage);
@@ -27,7 +26,7 @@
 
             if (string.IsNullOrEmpty(messageTypeString) && intent != MessageIntentEnum.Subscribe && intent != MessageIntentEnum.Unsubscribe)
             {
-                await next().ConfigureAwait(false);
+                await next(context).ConfigureAwait(false);
                 return;
             }
 
@@ -42,11 +41,11 @@
             }
 
             string subscriberAddress;
-            EndpointName subscriberEndpoint = null;
+            string subscriberEndpoint = null;
 
             if (incomingMessage.Headers.TryGetValue(Headers.SubscriberTransportAddress, out subscriberAddress))
             {
-                subscriberEndpoint = new EndpointName(incomingMessage.Headers[Headers.SubscriberEndpoint]);
+                subscriberEndpoint = incomingMessage.Headers[Headers.SubscriberEndpoint];
             }
             else
             {
@@ -106,7 +105,7 @@
             public Registration()
                 : base("ProcessSubscriptionRequests", typeof(SubscriptionReceiverBehavior), "Check for subscription messages and execute the requested behavior to subscribe or unsubscribe.")
             {
-                InsertAfterIfExists(WellKnownStep.ExecuteUnitOfWork);
+                InsertAfterIfExists("ExecuteUnitOfWork");
             }
         }
     }

@@ -33,7 +33,7 @@
             lock (persistence)
             {
                 var items = persistence.Where(msg => msg.TimeReceived <= until).ToList();
-                count = items.Count();
+                count = items.Count;
 
                 items.ForEach(item => persistence.Remove(item));
             }

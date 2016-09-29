@@ -3,7 +3,6 @@
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
-    using Features;
     using NUnit.Framework;
 
     public class When_a_message_is_faulted : NServiceBusAcceptanceTest
@@ -38,7 +37,6 @@
             {
                 EndpointSetup<DefaultServer>(c =>
                 {
-                    c.DisableFeature<SecondLevelRetries>();
                     c.SendFailedMessagesTo("errorQueueForAcceptanceTest");
                 });
             }

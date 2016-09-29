@@ -60,7 +60,6 @@
     <Compile Include="TestableBehaviorContext.cs" />
     <Compile Include="TestableDispatchContext.cs" />
     <Compile Include="TestableEndpointInstance.cs" />
-    <Compile Include="TestableFaultContext.cs" />
     <Compile Include="TestableForwardingContext.cs" />
     <Compile Include="TestableIncomingContext.cs" />
     <Compile Include="TestableIncomingLogicalMessageContext.cs" />
@@ -77,7 +76,6 @@
     <Compile Include="TestableOutgoingSendContext.cs" />
     <Compile Include="TestablePipelineContext.cs" />
     <Compile Include="TestableRoutingContext.cs" />
-    <Compile Include="TestableSatelliteProcessingContext.cs" />
     <Compile Include="TestableSubscribeContext.cs" />
     <Compile Include="TestableTransportReceiveContext.cs" />
     <Compile Include="TestableUnsubscribeContext.cs" />
@@ -104,13 +102,13 @@
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Import Project="..\packages\GitVersionTask.3.4.1\build\dotnet\GitVersionTask.targets" Condition="Exists('..\packages\GitVersionTask.3.4.1\build\dotnet\GitVersionTask.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\packages\GitVersionTask.3.4.1\build\dotnet\GitVersionTask.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\GitVersionTask.3.4.1\build\dotnet\GitVersionTask.targets'))" />
     <Error Condition="!Exists('..\packages\NuGetPackager.0.6.0\build\NuGetPackager.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\NuGetPackager.0.6.0\build\NuGetPackager.targets'))" />
+    <Error Condition="!Exists('..\packages\GitVersionTask.3.6.3\build\dotnet\GitVersionTask.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\GitVersionTask.3.6.3\build\dotnet\GitVersionTask.targets'))" />
   </Target>
   <Import Project="..\packages\NuGetPackager.0.6.0\build\NuGetPackager.targets" Condition="Exists('..\packages\NuGetPackager.0.6.0\build\NuGetPackager.targets')" />
+  <Import Project="..\packages\GitVersionTask.3.6.3\build\dotnet\GitVersionTask.targets" Condition="Exists('..\packages\GitVersionTask.3.6.3\build\dotnet\GitVersionTask.targets')" />
 </Project>

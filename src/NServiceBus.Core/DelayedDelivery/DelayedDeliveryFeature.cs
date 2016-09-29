@@ -19,20 +19,18 @@
 
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-            var transportHasNativeDelayedDelivery = context.DoesTransportSupportConstraint<DelayedDeliveryConstraint>();
-            var timeoutMgrDisabled = IsTimeoutManagerDisabled(context);
+            var transportHasNativeDelayedDelivery = context.Settings.DoesTransportSupportConstraint<DelayedDeliveryConstraint>();
+            var timeoutManagerAddress = context.Settings.Get<TimeoutManagerAddressConfiguration>().TransportAddress;
 
             if (!transportHasNativeDelayedDelivery)
             {
-                if (timeoutMgrDisabled)
+                if (timeoutManagerAddress == null)
                 {
                     DoNotClearTimeouts(context);
-                    context.Pipeline.Register<ThrowIfCannotDeferMessageBehavior.Registration>();
+                    context.Pipeline.Register("ThrowIfCannotDeferMessage", new ThrowIfCannotDeferMessageBehavior(), "Throws an exception if an attempt is made to defer a message without infrastructure support.");
                 }
                 else
                 {
-                    var timeoutManagerAddress = context.Settings.Get<TimeoutManagerAddressConfiguration>().TransportAddress;
-
                     context.Pipeline.Register("RouteDeferredMessageToTimeoutManager", new RouteDeferredMessageToTimeoutManagerBehavior(timeoutManagerAddress), "Reroutes deferred messages to the timeout manager");
                     context.Container.ConfigureComponent(b => new RequestCancelingOfDeferredMessagesFromTimeoutManager(timeoutManagerAddress), DependencyLifecycle.SingleInstance);
                 }
@@ -41,16 +39,6 @@
             {
                 DoNotClearTimeouts(context);
             }
-        }
-
-        static bool IsTimeoutManagerDisabled(FeatureConfigurationContext context)
-        {
-            FeatureState timeoutMgrState;
-            if (context.Settings.TryGet("NServiceBus.Features.TimeoutManager", out timeoutMgrState))
-            {
-                return timeoutMgrState == FeatureState.Deactivated || timeoutMgrState == FeatureState.Disabled;
-            }
-            return true;
         }
 
         static void DoNotClearTimeouts(FeatureConfigurationContext context)

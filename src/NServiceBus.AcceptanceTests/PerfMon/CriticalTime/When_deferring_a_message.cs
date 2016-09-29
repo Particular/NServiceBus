@@ -6,6 +6,7 @@
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
+    using Features;
     using NUnit.Framework;
     using ScenarioDescriptors;
 
@@ -59,7 +60,11 @@
         {
             public Endpoint()
             {
-                EndpointSetup<DefaultServer>(builder => builder.EnableCriticalTimePerformanceCounter())
+                EndpointSetup<DefaultServer>(builder =>
+                {
+                    builder.EnableCriticalTimePerformanceCounter();
+                    builder.EnableFeature<TimeoutManager>();
+                })
                     .AddMapping<MyMessage>(typeof(Endpoint));
             }
         }

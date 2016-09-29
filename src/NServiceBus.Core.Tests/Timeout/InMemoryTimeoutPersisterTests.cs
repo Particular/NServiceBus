@@ -3,7 +3,7 @@ namespace NServiceBus.Core.Tests.Timeout
     using System;
     using System.Linq;
     using System.Threading.Tasks;
-    using NServiceBus.Extensibility;
+    using Extensibility;
     using NServiceBus.Timeout.Core;
     using NUnit.Framework;
 
@@ -15,9 +15,7 @@ namespace NServiceBus.Core.Tests.Timeout
         {
             var now = DateTime.UtcNow;
             var persister = new InMemoryTimeoutPersister(() => DateTime.UtcNow);
-            
             var result = await persister.GetNextChunk(now);
-            
             Assert.That(result.NextTimeToQuery, Is.EqualTo(now.AddMinutes(1)).Within(100).Milliseconds);
         }
 
@@ -120,7 +118,7 @@ namespace NServiceBus.Core.Tests.Timeout
                                {
                                    SagaId = newGuid
                                };
-            
+
             await persister.Add(inputTimeout, new ContextBag());
             await persister.RemoveTimeoutBy(newGuid, new ContextBag());
             var result = await persister.TryRemove(inputTimeout.Id, new ContextBag());

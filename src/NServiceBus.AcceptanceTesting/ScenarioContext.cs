@@ -3,9 +3,10 @@
     using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
-    using NServiceBus.Faults;
+    using Faults;
+    using Logging;
 
-    public abstract class ScenarioContext
+    public class ScenarioContext
     {
         public Guid TestRunId { get; } = Guid.NewGuid();
 
@@ -14,13 +15,11 @@
         public bool HasNativePubSubSupport { get; set; }
 
         public string Trace => string.Join(Environment.NewLine, traceQueue.ToArray());
-        
+
         public void AddTrace(string trace)
         {
             traceQueue.Enqueue($"{DateTime.Now:HH:mm:ss.ffffff} - {trace}");
         }
-
-        public ConcurrentQueue<Exception> Exceptions = new ConcurrentQueue<Exception>();
 
         public ConcurrentDictionary<string, IReadOnlyCollection<FailedMessage>> FailedMessages = new ConcurrentDictionary<string, IReadOnlyCollection<FailedMessage>>();
 
@@ -28,10 +27,19 @@
 
         ConcurrentQueue<string> traceQueue = new ConcurrentQueue<string>();
 
+        internal LogLevel LogLevel { get; set; } = LogLevel.Info;
+
+        internal ConcurrentDictionary<string, bool> UnfinishedFailedMessages = new ConcurrentDictionary<string, bool>();
+
+        public void SetLogLevel(LogLevel level)
+        {
+            LogLevel = level;
+        }
+
         public class LogItem
         {
             public string Message { get; set; }
-            public string Level { get; set; }
+            public LogLevel Level { get; set; }
 
             public override string ToString()
             {

@@ -3,12 +3,12 @@
     using System;
     using System.Collections.Generic;
     using Extensibility;
-    using NServiceBus.DelayedDelivery;
-    using NServiceBus.DeliveryConstraints;
+    using DelayedDelivery;
+    using DeliveryConstraints;
     using NServiceBus.Features;
     using NServiceBus.Routing;
-    using NServiceBus.Settings;
-    using NServiceBus.Transports;
+    using Settings;
+    using Transport;
     using NUnit.Framework;
 
     [TestFixture]
@@ -23,7 +23,7 @@
             settings.Set<TransportInfrastructure>(fakeTransportDefinition.Initialize(settings, null));
 
             var context = new FeatureConfigurationContext(settings, null, null);
-            var result = context.DoesTransportSupportConstraint<DeliveryConstraint>();
+            var result = context.Settings.DoesTransportSupportConstraint<DeliveryConstraint>();
             Assert.IsTrue(result);
         }
 
@@ -44,7 +44,7 @@
 
         class FakeTransportDefinition : TransportDefinition
         {
-            protected internal override TransportInfrastructure Initialize(SettingsHolder settings, string connectionString)
+            public override TransportInfrastructure Initialize(SettingsHolder settings, string connectionString)
             {
                 return new FakeTransportInfrastructure();
             }

@@ -1,13 +1,12 @@
 ﻿namespace NServiceBus
 {
     using System;
-    using System.Linq;
     using System.Threading.Tasks;
     using Extensibility;
     using Outbox;
     using Persistence;
     using Pipeline;
-    using Transports;
+    using Transport;
     using Unicast;
 
     class LoadHandlersConnector : StageConnector<IIncomingLogicalMessageContext, IInvokeHandlerContext>
@@ -25,9 +24,9 @@
             var transportTransaction = context.Extensions.Get<TransportTransaction>();
             using (var storageSession = await AdaptOrOpenNewSynchronizedStorageSession(transportTransaction, outboxTransaction, context.Extensions).ConfigureAwait(false))
             {
-                var handlersToInvoke = messageHandlerRegistry.GetHandlersFor(context.Message.MessageType).ToList();
+                var handlersToInvoke = messageHandlerRegistry.GetHandlersFor(context.Message.MessageType);
 
-                if (!context.MessageHandled && !handlersToInvoke.Any())
+                if (!context.MessageHandled && handlersToInvoke.Count == 0)
                 {
                     var error = $"No handlers could be found for message type: {context.Message.MessageType}";
                     throw new InvalidOperationException(error);

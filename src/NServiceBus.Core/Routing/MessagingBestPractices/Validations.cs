@@ -33,7 +33,7 @@ namespace NServiceBus
             {
                 return;
             }
-            throw new Exception("Reply is neither supported for Commands nor Events. Commands should be sent to their logical owner using bus.Send and bus. Events should be Published with bus.Publish.");
+            throw new Exception("Reply is neither supported for Commands nor Events. Commands should be sent to their logical owner. Events should be published.");
         }
 
         public void AssertIsValidForPubSub(Type messageType)

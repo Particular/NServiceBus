@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.AcceptanceTests.Reliability.Outbox
 {
     using System;
-    using System.Linq;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using Configuration.AdvanceExtensibility;
@@ -9,16 +8,17 @@
     using Extensibility;
     using Features;
     using NServiceBus.Outbox;
-    using NServiceBus.Persistence;
+    using NServiceBus;
     using NUnit.Framework;
+    using Persistence;
     using ScenarioDescriptors;
 
     public class When_clearing_saga_timeouts : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Should_record_the_request_to_clear_in_outbox()
+        public Task Should_record_the_request_to_clear_in_outbox()
         {
-            await Scenario.Define<Context>()
+            return Scenario.Define<Context>()
                 .WithEndpoint<NonDtcReceivingEndpoint>(b => b.When(session => session.SendLocal(new PlaceOrder
                 {
                     DataId = Guid.NewGuid()
@@ -94,7 +94,7 @@
 
             public Task Store(OutboxMessage message, OutboxTransaction transaction, ContextBag context)
             {
-                testContext.NumberOfOps += message.TransportOperations.Count();
+                testContext.NumberOfOps += message.TransportOperations.Length;
                 return Task.FromResult(0);
             }
 

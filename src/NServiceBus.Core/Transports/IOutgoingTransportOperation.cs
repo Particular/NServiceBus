@@ -1,4 +1,4 @@
-namespace NServiceBus.Transports
+namespace NServiceBus.Transport
 {
     using System.Collections.Generic;
     using DeliveryConstraints;
@@ -16,7 +16,7 @@ namespace NServiceBus.Transports
         /// <summary>
         /// The delivery constraints that must be honored by the transport.
         /// </summary>
-        IEnumerable<DeliveryConstraint> DeliveryConstraints { get; }
+        List<DeliveryConstraint> DeliveryConstraints { get; }
 
         /// <summary>
         /// The dispatch consistency the must be honored by the transport.

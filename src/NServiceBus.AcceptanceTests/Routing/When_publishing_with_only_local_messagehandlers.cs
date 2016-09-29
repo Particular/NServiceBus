@@ -10,9 +10,9 @@
     public class When_publishing_with_only_local_messagehandlers : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Should_trigger_the_catch_all_handler_for_message_driven_subscriptions()
+        public Task Should_trigger_the_catch_all_handler_for_message_driven_subscriptions()
         {
-            await Scenario.Define<Context>()
+            return Scenario.Define<Context>()
                 .WithEndpoint<MessageDrivenPublisher>(b =>
                     b.When(c => c.LocalEndpointSubscribed, session => session.Publish(new EventHandledByLocalEndpoint())))
                 .Done(c => c.CatchAllHandlerGotTheMessage)
@@ -22,9 +22,9 @@
         }
 
         [Test]
-        public async Task Should_trigger_the_catch_all_handler_for_publishers_with_centralized_pubsub()
+        public Task Should_trigger_the_catch_all_handler_for_publishers_with_centralized_pubsub()
         {
-            await Scenario.Define<Context>()
+            return Scenario.Define<Context>()
                 .WithEndpoint<CentralizedStoragePublisher>(b =>
                 {
                     b.When(session => session.Subscribe<EventHandledByLocalEndpoint>());

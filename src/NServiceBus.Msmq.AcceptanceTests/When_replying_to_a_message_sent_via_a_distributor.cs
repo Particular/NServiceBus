@@ -1,11 +1,12 @@
 ﻿namespace NServiceBus.AcceptanceTests.ScaleOut
 {
     using System.Threading.Tasks;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTesting.Customization;
+    using AcceptanceTesting;
+    using AcceptanceTesting.Customization;
     using NServiceBus.Routing;
     using NServiceBus.Routing.Legacy;
     using NUnit.Framework;
+    using Routing;
 
     public class When_replying_to_a_message_sent_via_a_distributor : NServiceBusAcceptanceTest
     {
@@ -34,8 +35,9 @@
             {
                 EndpointSetup<DefaultServer>(c =>
                 {
-                    c.UnicastRouting().RouteToEndpoint(typeof(MyRequest), ReceiverEndpoint);
-                    c.UnicastRouting().Mapping.Physical.Add(new EndpointName(ReceiverEndpoint), new EndpointInstance(ReceiverEndpoint, "XYZ"));
+                    var routing = c.UseTransport<MsmqTransport>().Routing();
+                    routing.RouteToEndpoint(typeof(MyRequest), ReceiverEndpoint);
+                    routing.RegisterEndpointInstances(new EndpointInstance(ReceiverEndpoint, "XYZ"));
                     c.AddHeaderToAllOutgoingMessages("NServiceBus.Distributor.WorkerSessionId", "SomeID");
                 });
             }
@@ -58,7 +60,7 @@
             {
                 EndpointSetup<DefaultServer>(c =>
                 {
-                    c.ScaleOut().InstanceDiscriminator("XYZ");
+                    c.MakeInstanceUniquelyAddressable("XYZ");
                     c.EnlistWithLegacyMSMQDistributor("Distributor", ReceiverEndpoint, 1);
                 });
             }

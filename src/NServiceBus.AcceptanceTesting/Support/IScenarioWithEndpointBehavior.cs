@@ -24,8 +24,6 @@
 
         IAdvancedScenarioWithEndpointBehavior<TContext> Report(Action<RunSummary> summaries);
 
-        IAdvancedScenarioWithEndpointBehavior<TContext> MaxTestParallelism(int maxParallelism);
-
         Task<IEnumerable<TContext>> Run(TimeSpan? testExecutionTimeout = null);
 
         Task<IEnumerable<TContext>> Run(RunSettings settings);

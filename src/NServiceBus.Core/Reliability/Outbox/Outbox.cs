@@ -7,7 +7,7 @@
     using ConsistencyGuarantees;
     using Logging;
     using Persistence;
-    using Transports;
+    using Transport;
 
     /// <summary>
     /// Configure the Outbox.
@@ -74,7 +74,7 @@ The reason this is required is to ensure that all the guidelines regarding this 
             //note: in the future we should change the persister api to give us a "outbox factory" so that we can register it in DI here instead of relying on the persister to do it
 
             context.RegisterStartupTask(new DtcRunningWarning());
-            context.Pipeline.Register("ForceBatchDispatchToBeIsolated", typeof(ForceBatchDispatchToBeIsolatedBehavior), "Makes sure that we dispatch straight to the transport so that we can safely set the outbox record to dispatched one the dispatch pipeline returns.");
+            context.Pipeline.Register("ForceBatchDispatchToBeIsolated", new ForceBatchDispatchToBeIsolatedBehavior(), "Makes sure that we dispatch straight to the transport so that we can safely set the outbox record to dispatched one the dispatch pipeline returns.");
         }
     }
 

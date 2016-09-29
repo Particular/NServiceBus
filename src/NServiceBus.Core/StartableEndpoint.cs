@@ -2,80 +2,55 @@ namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics;
-    using System.Linq;
     using System.Security.Principal;
     using System.Threading.Tasks;
     using Config;
     using ConsistencyGuarantees;
     using Features;
-    using Installation;
+    using Logging;
     using ObjectBuilder;
     using Pipeline;
     using Settings;
-    using Transports;
+    using Transport;
 
     class StartableEndpoint : IStartableEndpoint
     {
-        public StartableEndpoint(SettingsHolder settings,
-            IBuilder builder, 
-            FeatureActivator featureActivator, 
-            PipelineConfiguration pipelineConfiguration, 
-            IEventAggregator eventAggregator,
-            TransportInfrastructure transportInfrastructure)
+        public StartableEndpoint(SettingsHolder settings, IBuilder builder, FeatureActivator featureActivator, PipelineConfiguration pipelineConfiguration, IEventAggregator eventAggregator, TransportInfrastructure transportInfrastructure, CriticalError criticalError)
         {
+            this.criticalError = criticalError;
             this.settings = settings;
             this.builder = builder;
             this.featureActivator = featureActivator;
             this.pipelineConfiguration = pipelineConfiguration;
             this.eventAggregator = eventAggregator;
             this.transportInfrastructure = transportInfrastructure;
+
+            pipelineCache = new PipelineCache(builder, settings);
+
+            messageSession = new MessageSession(new RootContext(builder, pipelineCache, eventAggregator));
         }
 
         public async Task<IEndpointInstance> Start()
         {
             DetectThrottlingConfig();
 
-            var pipelineCache = new PipelineCache(builder, settings);
             await transportInfrastructure.Start().ConfigureAwait(false);
-            var messageSession = CreateMessageSession(pipelineCache);
-
-            await RunInstallers().ConfigureAwait(false);
-            var featureRunner = await StartFeatures(messageSession).ConfigureAwait(false);
 
             AppDomain.CurrentDomain.SetPrincipalPolicy(PrincipalPolicy.WindowsPrincipal);
 
-            var pipelineCollection = CreateIncomingPipelines(pipelineCache);
+            var mainPipeline = new Pipeline<ITransportReceiveContext>(builder, settings, pipelineConfiguration.Modifications);
+            var receivers = CreateReceivers(mainPipeline);
+            await InitializeReceivers(receivers).ConfigureAwait(false);
 
-            var runningInstance = new RunningEndpointInstance(settings, builder, pipelineCollection, featureRunner, messageSession, transportInfrastructure);
+            var featureRunner = await StartFeatures(messageSession).ConfigureAwait(false);
 
+            var runningInstance = new RunningEndpointInstance(settings, builder, receivers, featureRunner, messageSession, transportInfrastructure);
             // set the started endpoint on CriticalError to pass the endpoint to the critical error action
-            builder.Build<CriticalError>().SetEndpoint(runningInstance);
+            criticalError.SetEndpoint(runningInstance);
 
-            await StartPipelines(pipelineCollection).ConfigureAwait(false);
+            StartReceivers(receivers);
 
             return runningInstance;
-        }
-
-        static Task StartPipelines(PipelineCollection pipelineCollection)
-        {
-            return pipelineCollection.Start();
-        }
-
-        PipelineCollection CreateIncomingPipelines(IPipelineCache pipelineCache)
-        {
-            PipelineCollection pipelineCollection;
-            if (settings.GetOrDefault<bool>("Endpoint.SendOnly"))
-            {
-                pipelineCollection = new PipelineCollection(Enumerable.Empty<TransportReceiver>());
-            }
-            else
-            {
-                var pipelines = BuildPipelines(pipelineCache).ToArray();
-                pipelineCollection = new PipelineCollection(pipelines);
-            }
-
-            return pipelineCollection;
         }
 
         async Task<FeatureRunner> StartFeatures(IMessageSession session)
@@ -85,66 +60,85 @@ namespace NServiceBus
             return featureRunner;
         }
 
-        async Task RunInstallers()
+        static async Task InitializeReceivers(List<TransportReceiver> receivers)
         {
-            if (Debugger.IsAttached || settings.GetOrDefault<bool>("Installers.Enable"))
+            foreach (var receiver in receivers)
             {
-                var username = GetInstallationUserName();
-                foreach (var installer in builder.BuildAll<INeedToInstallSomething>())
+                try
                 {
-                    await installer.Install(username).ConfigureAwait(false);
+                    await receiver.Init().ConfigureAwait(false);
+                }
+                catch (Exception ex)
+                {
+                    Logger.Fatal($"Receiver {receiver.Id} failed to initialize.", ex);
+                    throw;
                 }
             }
         }
 
-        string GetInstallationUserName()
+        static void StartReceivers(List<TransportReceiver> receivers)
         {
-            string username;
-            return settings.TryGet("Installers.UserName", out username)
-                ? username
-                : WindowsIdentity.GetCurrent().Name;
-        }
-
-        [ObsoleteEx(Message = "Not needed anymore", RemoveInVersion = "7.0")]
-        void DetectThrottlingConfig()
-        {
-            var throughputConfiguration = settings.GetConfigSection<TransportConfig>()?.MaximumMessageThroughputPerSecond;
-            if (throughputConfiguration.HasValue && throughputConfiguration != -1)
+            foreach (var receiver in receivers)
             {
-                throw new NotSupportedException($"Message throughput throttling has been removed. Remove the '{nameof(TransportConfig.MaximumMessageThroughputPerSecond)}' attribute from the '{nameof(TransportConfig)}' configuration section and consult the documentation for further information.");
+                try
+                {
+                    receiver.Start();
+                }
+                catch (Exception ex)
+                {
+                    Logger.Fatal($"Receiver {receiver.Id} failed to start.", ex);
+                    throw;
+                }
             }
         }
 
-        IMessageSession CreateMessageSession(IPipelineCache cache)
+        List<TransportReceiver> CreateReceivers(IPipeline<ITransportReceiveContext> mainPipeline)
         {
-            var rootContext = new RootContext(builder, cache, eventAggregator);
-            return new MessageSession(rootContext);
-        }
+            if (settings.GetOrDefault<bool>("Endpoint.SendOnly"))
+            {
+                return new List<TransportReceiver>();
+            }
 
-        IEnumerable<TransportReceiver> BuildPipelines(IPipelineCache cache)
-        {
             var purgeOnStartup = settings.GetOrDefault<bool>("Transport.PurgeOnStartup");
-            var errorQueue = ErrorQueueSettings.GetConfiguredErrorQueue(settings);
+            var errorQueue = settings.ErrorQueueAddress();
             var dequeueLimitations = GeDequeueLimitationsForReceivePipeline();
             var requiredTransactionSupport = settings.GetRequiredTransactionModeForReceives();
+            var recoverabilityExecutorFactory = builder.Build<RecoverabilityExecutorFactory>();
 
-            var mainPipelineInstance = new Pipeline<ITransportReceiveContext>(builder, settings, pipelineConfiguration.MainPipeline);
+            var receivers = BuildMainReceivers(errorQueue, purgeOnStartup, requiredTransactionSupport, dequeueLimitations, recoverabilityExecutorFactory, mainPipeline);
 
+            foreach (var satellitePipeline in settings.Get<SatelliteDefinitions>().Definitions)
+            {
+                var satelliteRecoverabilityExecutor = recoverabilityExecutorFactory.Create(satellitePipeline.RecoverabilityPolicy, eventAggregator, satellitePipeline.ReceiveAddress);
+                var satellitePushSettings = new PushSettings(satellitePipeline.ReceiveAddress, errorQueue, purgeOnStartup, satellitePipeline.RequiredTransportTransactionMode);
+
+                receivers.Add(new TransportReceiver(satellitePipeline.Name, builder.Build<IPushMessages>(), satellitePushSettings, dequeueLimitations, new SatellitePipelineExecutor(builder, satellitePipeline), satelliteRecoverabilityExecutor, criticalError));
+            }
+
+            return receivers;
+        }
+
+        List<TransportReceiver> BuildMainReceivers(string errorQueue, bool purgeOnStartup, TransportTransactionMode requiredTransactionSupport, PushRuntimeSettings dequeueLimitations, RecoverabilityExecutorFactory recoverabilityExecutorFactory, IPipeline<ITransportReceiveContext> mainPipeline)
+        {
+            var localAddress = settings.LocalAddress();
+            var recoverabilityExecutor = recoverabilityExecutorFactory.CreateDefault(eventAggregator, localAddress);
             var pushSettings = new PushSettings(settings.LocalAddress(), errorQueue, purgeOnStartup, requiredTransactionSupport);
-            yield return BuildReceiver(mainPipelineInstance, "Main", pushSettings, dequeueLimitations, cache);
+            var mainPipelineExecutor = new MainPipelineExecutor(builder, eventAggregator, pipelineCache, mainPipeline);
+
+            var receivers = new List<TransportReceiver>();
+
+            receivers.Add(new TransportReceiver(MainReceiverId, builder.Build<IPushMessages>(), pushSettings, dequeueLimitations, mainPipelineExecutor, recoverabilityExecutor, criticalError));
 
             if (settings.InstanceSpecificQueue() != null)
             {
+                var instanceSpecificQueue = settings.InstanceSpecificQueue();
+                var instanceSpecificRecoverabilityExecutor = recoverabilityExecutorFactory.CreateDefault(eventAggregator, instanceSpecificQueue);
                 var sharedReceiverPushSettings = new PushSettings(settings.InstanceSpecificQueue(), errorQueue, purgeOnStartup, requiredTransactionSupport);
-                yield return BuildReceiver(mainPipelineInstance, "Main", sharedReceiverPushSettings, dequeueLimitations, cache);
+
+                receivers.Add(new TransportReceiver(MainReceiverId, builder.Build<IPushMessages>(), sharedReceiverPushSettings, dequeueLimitations, mainPipelineExecutor, instanceSpecificRecoverabilityExecutor, criticalError));
             }
 
-            foreach (var satellitePipeline in pipelineConfiguration.SatellitePipelines)
-            {
-                var satellitePushSettings = new PushSettings(satellitePipeline.ReceiveAddress, errorQueue, purgeOnStartup, satellitePipeline.RequiredTransportTransactionMode);
-                var satellitePipelineInstance = new Pipeline<ITransportReceiveContext>(builder, settings, satellitePipeline);
-                yield return BuildReceiver(satellitePipelineInstance, satellitePipeline.Name, satellitePushSettings, satellitePipeline.RuntimeSettings, cache);
-            }
+            return receivers;
         }
 
         //note: this should be handled in a feature but we don't have a good
@@ -168,26 +162,29 @@ namespace NServiceBus
             return PushRuntimeSettings.Default;
         }
 
-        TransportReceiver BuildReceiver(Pipeline<ITransportReceiveContext> pipelineInstance, string name, PushSettings pushSettings, PushRuntimeSettings runtimeSettings, IPipelineCache cache)
+        [ObsoleteEx(Message = "Not needed anymore", RemoveInVersion = "7.0")]
+        void DetectThrottlingConfig()
         {
-            var receiver = new TransportReceiver(
-                name,
-                builder,
-                builder.Build<IPushMessages>(),
-                pushSettings,
-                pipelineInstance,
-                cache,
-                runtimeSettings,
-                eventAggregator);
-
-            return receiver;
+            var throughputConfiguration = settings.GetConfigSection<TransportConfig>()?.MaximumMessageThroughputPerSecond;
+            if (throughputConfiguration.HasValue && throughputConfiguration != -1)
+            {
+                throw new NotSupportedException($"Message throughput throttling has been removed. Remove the '{nameof(TransportConfig.MaximumMessageThroughputPerSecond)}' attribute from the '{nameof(TransportConfig)}' configuration section and consult the documentation for further information.");
+            }
         }
 
+        IMessageSession messageSession;
         IBuilder builder;
         FeatureActivator featureActivator;
+
+        IPipelineCache pipelineCache;
         PipelineConfiguration pipelineConfiguration;
+
         SettingsHolder settings;
         IEventAggregator eventAggregator;
         TransportInfrastructure transportInfrastructure;
+        CriticalError criticalError;
+
+        const string MainReceiverId = "Main";
+        static ILog Logger = LogManager.GetLogger<StartableEndpoint>();
     }
 }

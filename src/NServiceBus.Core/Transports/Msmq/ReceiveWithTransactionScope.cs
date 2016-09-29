@@ -3,61 +3,104 @@ namespace NServiceBus
     using System;
     using System.Collections.Generic;
     using System.Messaging;
-    using System.Threading;
     using System.Threading.Tasks;
     using System.Transactions;
-    using Extensibility;
-    using Logging;
-    using Transports;
+    using Transport;
 
     class ReceiveWithTransactionScope : ReceiveStrategy
     {
-        public ReceiveWithTransactionScope(TransactionOptions transactionOptions)
+        public ReceiveWithTransactionScope(TransactionOptions transactionOptions, MsmqFailureInfoStorage failureInfoStorage)
         {
             this.transactionOptions = transactionOptions;
+            this.failureInfoStorage = failureInfoStorage;
         }
 
-        public override async Task ReceiveMessage(MessageQueue inputQueue, MessageQueue errorQueue, CancellationTokenSource cancellationTokenSource, Func<PushContext, Task> onMessage)
+        public override async Task ReceiveMessage()
         {
-            using (var scope = new TransactionScope(TransactionScopeOption.Required, transactionOptions, TransactionScopeAsyncFlowOption.Enabled))
+            Message message = null;
+            try
             {
-                var message = inputQueue.Receive(TimeSpan.FromMilliseconds(10), MessageQueueTransactionType.Automatic);
-
-                Dictionary<string, string> headers;
-
-                try
+                using (var scope = new TransactionScope(TransactionScopeOption.RequiresNew, transactionOptions, TransactionScopeAsyncFlowOption.Enabled))
                 {
-                    headers = MsmqUtilities.ExtractHeaders(message);
-                }
-                catch (Exception ex)
-                {
-                    var error = $"Message '{message.Id}' is corrupt and will be moved to '{errorQueue.QueueName}'";
-                    Logger.Error(error, ex);
+                    if (!TryReceive(MessageQueueTransactionType.Automatic, out message))
+                    {
+                        return;
+                    }
 
-                    errorQueue.Send(message, MessageQueueTransactionType.Automatic);
+                    Dictionary<string, string> headers;
+
+                    if (!TryExtractHeaders(message, out headers))
+                    {
+                        MovePoisonMessageToErrorQueue(message, MessageQueueTransactionType.Automatic);
+
+                        scope.Complete();
+                        return;
+                    }
+
+                    var shouldCommit = await ProcessMessage(message, headers).ConfigureAwait(false);
+
+                    if (!shouldCommit)
+                    {
+                        return;
+                    }
 
                     scope.Complete();
-                    return;
+                }
+            }
+            // We'll only get here if Complete/Dispose throws which should be rare.
+            // Note: If that happens the attempts counter will be inconsistent since the message might be picked up again before we can register the failure in the LRU cache.
+            catch (Exception exception)
+            {
+                if (message == null)
+                {
+                    throw;
                 }
 
+                failureInfoStorage.RecordFailureInfoForMessage(message.Id, exception);
+            }
+        }
+
+        async Task<bool> ProcessMessage(Message message, Dictionary<string, string> headers)
+        {
+            var transportTransaction = new TransportTransaction();
+            transportTransaction.Set(Transaction.Current);
+
+            MsmqFailureInfoStorage.ProcessingFailureInfo failureInfo;
+
+            if (failureInfoStorage.TryGetFailureInfoForMessage(message.Id, out failureInfo))
+            {
+                var errorHandleResult = await HandleError(message, headers, failureInfo.Exception, transportTransaction, failureInfo.NumberOfProcessingAttempts).ConfigureAwait(false);
+
+                if (errorHandleResult == ErrorHandleResult.Handled)
+                {
+                    failureInfoStorage.ClearFailureInfoForMessage(message.Id);
+                    return true;
+                }
+            }
+
+            try
+            {
                 using (var bodyStream = message.BodyStream)
                 {
-                    var ambientTransaction = new TransportTransaction();
-                    ambientTransaction.Set(Transaction.Current);
-                    var pushContext = new PushContext(message.Id, headers, bodyStream, ambientTransaction, cancellationTokenSource, new ContextBag());
+                    var shouldAbortMessageProcessing = await TryProcessMessage(message, headers, bodyStream, transportTransaction).ConfigureAwait(false);
 
-                    await onMessage(pushContext).ConfigureAwait(false);
+                    if (shouldAbortMessageProcessing)
+                    {
+                        return false;
+                    }
                 }
 
-                if (!cancellationTokenSource.Token.IsCancellationRequested)
-                {
-                    scope.Complete();
-                }
+                failureInfoStorage.ClearFailureInfoForMessage(message.Id);
+                return true;
+            }
+            catch (Exception exception)
+            {
+                failureInfoStorage.RecordFailureInfoForMessage(message.Id, exception);
+                return false;
             }
         }
 
         TransactionOptions transactionOptions;
-
-        static ILog Logger = LogManager.GetLogger<ReceiveWithTransactionScope>();
+        MsmqFailureInfoStorage failureInfoStorage;
     }
 }

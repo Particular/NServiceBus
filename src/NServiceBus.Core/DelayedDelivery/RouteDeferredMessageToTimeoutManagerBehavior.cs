@@ -11,19 +11,19 @@ namespace NServiceBus
     using Pipeline;
     using Routing;
 
-    class RouteDeferredMessageToTimeoutManagerBehavior : Behavior<IRoutingContext>
+    class RouteDeferredMessageToTimeoutManagerBehavior : IBehavior<IRoutingContext, IRoutingContext>
     {
         public RouteDeferredMessageToTimeoutManagerBehavior(string timeoutManagerAddress)
         {
             this.timeoutManagerAddress = timeoutManagerAddress;
         }
 
-        public override Task Invoke(IRoutingContext context, Func<Task> next)
+        public Task Invoke(IRoutingContext context, Func<IRoutingContext, Task> next)
         {
             DateTime deliverAt;
             if (!IsDeferred(context, out deliverAt))
             {
-                return next();
+                return next(context);
             }
 
             DiscardIfNotReceivedBefore discardIfNotReceivedBefore;
@@ -35,7 +35,7 @@ namespace NServiceBus
             var newRoutingStrategies = context.RoutingStrategies.Select(s => RerouteToTimeoutManager(s, context, deliverAt));
             context.RoutingStrategies = newRoutingStrategies.ToArray();
 
-            return next();
+            return next(context);
         }
 
         RoutingStrategy RerouteToTimeoutManager(RoutingStrategy routingStrategy, IRoutingContext context, DateTime deliverAt)

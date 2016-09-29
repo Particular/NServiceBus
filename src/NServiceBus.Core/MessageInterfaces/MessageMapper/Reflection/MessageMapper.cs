@@ -106,7 +106,7 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
         /// </summary>
         public T CreateInstance<T>()
         {
-            return (T) CreateInstance(typeof(T));
+            return (T)CreateInstance(typeof(T));
         }
 
         /// <summary>
@@ -129,7 +129,7 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
             RuntimeMethodHandle constructor;
             if (typeToConstructor.TryGetValue(mapped.TypeHandle, out constructor))
             {
-                return ((ConstructorInfo) MethodBase.GetMethodFromHandle(constructor, mapped.TypeHandle)).Invoke(null);
+                return ((ConstructorInfo)MethodBase.GetMethodFromHandle(constructor, mapped.TypeHandle)).Invoke(null);
             }
 
             return FormatterServices.GetUninitializedObject(mapped);
@@ -197,6 +197,11 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
                 nameToType[typeName] = t.TypeHandle;
             }
 
+            if (!t.IsInterface)
+            {
+                return;
+            }
+
             foreach (var field in t.GetFields(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy))
             {
                 InitType(field.FieldType);
@@ -212,12 +217,12 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
         {
             if (!interfaceType.IsVisible)
             {
-                throw new Exception(string.Format("We can only generate a concrete implementation for '{0}' if '{0}' is public.", interfaceType));
+                throw new Exception($"Can only generate a concrete implementation for '{interfaceType}' if '{interfaceType}' is public.");
             }
 
             if (interfaceType.GetMethods().Any(mi => !(mi.IsSpecialName && (mi.Name.StartsWith("set_") || mi.Name.StartsWith("get_")))))
             {
-                throw new Exception($"We can only generate a concrete implementation for '{interfaceType.Name}' because the interface contains methods. Make sure interface messages do not contain methods.");
+                throw new Exception($"Can only generate a concrete implementation for '{interfaceType.Name}' because the interface contains methods. Ensure interface messages do not contain methods.");
             }
             var mapped = concreteProxyCreator.CreateTypeFrom(interfaceType);
             interfaceToConcreteTypeMapping[interfaceType.TypeHandle] = mapped.TypeHandle;

@@ -1,7 +1,6 @@
-namespace NServiceBus.Transports
+namespace NServiceBus.Transport
 {
     using System.Collections.Generic;
-    using System.Linq;
     using DeliveryConstraints;
     using Routing;
 
@@ -17,12 +16,12 @@ namespace NServiceBus.Transports
         /// <param name="addressTag">The address to use when routing this message.</param>
         /// <param name="requiredDispatchConsistency">The required consistency level for the dispatch operation.</param>
         /// <param name="deliveryConstraints">The delivery constraints that must be honored by the transport.</param>
-        public TransportOperation(OutgoingMessage message, AddressTag addressTag, DispatchConsistency requiredDispatchConsistency = DispatchConsistency.Default, IEnumerable<DeliveryConstraint> deliveryConstraints = null)
+        public TransportOperation(OutgoingMessage message, AddressTag addressTag, DispatchConsistency requiredDispatchConsistency = DispatchConsistency.Default, List<DeliveryConstraint> deliveryConstraints = null)
         {
             Message = message;
             AddressTag = addressTag;
             RequiredDispatchConsistency = requiredDispatchConsistency;
-            DeliveryConstraints = deliveryConstraints ?? Enumerable.Empty<DeliveryConstraint>();
+            DeliveryConstraints = deliveryConstraints ?? DeliveryConstraint.EmptyConstraints;
         }
 
         /// <summary>
@@ -38,7 +37,8 @@ namespace NServiceBus.Transports
         /// <summary>
         /// The delivery constraints that must be honored by the transport.
         /// </summary>
-        public IEnumerable<DeliveryConstraint> DeliveryConstraints { get; }
+        /// <remarks>The delivery constraints should only ever be read. When there are no delivery constraints you'll get a cached empty constraints list.</remarks>
+        public List<DeliveryConstraint> DeliveryConstraints { get; }
 
         /// <summary>
         /// The dispatch consistency the must be honored by the transport.

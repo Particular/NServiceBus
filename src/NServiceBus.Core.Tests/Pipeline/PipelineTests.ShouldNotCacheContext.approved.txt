@@ -1,0 +1,14 @@
+﻿Run 1
+stagefork1: 1
+behavior1: 1
+stage1: 1
+behavior2
+stage2: 1
+terminator: 1
+Run 2
+stagefork1: 2
+behavior1: 2
+stage1: 2
+behavior2
+stage2: 2
+terminator: 2

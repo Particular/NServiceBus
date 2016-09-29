@@ -1,27 +1,30 @@
 namespace NServiceBus
 {
     using System;
-    using System.Collections.Generic;
-    using System.Linq;
+    using System.Collections.Concurrent;
     using Routing;
 
-    class DistributionPolicy
+    /// <summary>
+    /// Configures distribution strategies.
+    /// </summary>
+    public class DistributionPolicy : IDistributionPolicy
     {
-        public DistributionPolicy()
+        /// <summary>
+        /// Sets the distribution strategy for a given endpoint.
+        /// </summary>
+        /// <param name="distributionStrategy">Distribution strategy to be used.</param>
+        public void SetDistributionStrategy(DistributionStrategy distributionStrategy)
         {
-            strategies.Add(new Tuple<Func<Type, bool>, DistributionStrategy>(_ => true, new SingleInstanceRoundRobinDistributionStrategy()));
+            Guard.AgainstNull(nameof(distributionStrategy), distributionStrategy);
+
+            configuredStrategies[Tuple.Create(distributionStrategy.Endpoint, distributionStrategy.Scope)] = distributionStrategy;
         }
 
-        internal void SetDistributionStrategy(DistributionStrategy distributionStrategy, Func<Type, bool> typeMatchingRule)
+        DistributionStrategy IDistributionPolicy.GetDistributionStrategy(string endpointName, DistributionStrategyScope scope)
         {
-            strategies.Insert(0, Tuple.Create(typeMatchingRule, distributionStrategy));
+            return configuredStrategies.GetOrAdd(Tuple.Create(endpointName, scope), key => new SingleInstanceRoundRobinDistributionStrategy(key.Item1, key.Item2));
         }
 
-        internal DistributionStrategy GetDistributionStrategy(Type messageType)
-        {
-            return strategies.Where(s => s.Item1(messageType)).Select(s => s.Item2).FirstOrDefault();
-        }
-
-        List<Tuple<Func<Type, bool>, DistributionStrategy>> strategies = new List<Tuple<Func<Type, bool>, DistributionStrategy>>();
+        ConcurrentDictionary<Tuple<string, DistributionStrategyScope>, DistributionStrategy> configuredStrategies = new ConcurrentDictionary<Tuple<string, DistributionStrategyScope>, DistributionStrategy>();
     }
 }

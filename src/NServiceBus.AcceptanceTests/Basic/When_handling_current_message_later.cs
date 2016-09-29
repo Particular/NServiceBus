@@ -4,10 +4,8 @@
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
-    using Features;
-    using NServiceBus.Config;
-    using NServiceBus.UnitOfWork;
     using NUnit.Framework;
+    using UnitOfWork;
 
     public class When_handling_current_message_later : NServiceBusAcceptanceTest
     {
@@ -43,11 +41,8 @@
                 EndpointSetup<DefaultServer>(b =>
                 {
                     b.RegisterComponents(r => r.ConfigureComponent<CheckUnitOfWorkOutcome>(DependencyLifecycle.InstancePerCall));
-                    b.DisableFeature<TimeoutManager>();
-                    b.DisableFeature<SecondLevelRetries>();
                     b.ExecuteTheseHandlersFirst(typeof(FirstHandler), typeof(SecondHandler));
-                })
-                    .WithConfig<TransportConfig>(c => { c.MaxRetries = 0; });
+                });
             }
 
             class CheckUnitOfWorkOutcome : IManageUnitsOfWork

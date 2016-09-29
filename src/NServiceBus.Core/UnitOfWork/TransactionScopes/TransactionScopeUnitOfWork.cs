@@ -4,21 +4,19 @@
     using System.Configuration;
     using System.Transactions;
     using System.Transactions.Configuration;
+    using ConsistencyGuarantees;
 
     class TransactionScopeUnitOfWork : Feature
     {
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-            if (context.Settings.Get<TransportTransactionMode>() == TransportTransactionMode.TransactionScope)
+            if (context.Settings.GetRequiredTransactionModeForReceives() == TransportTransactionMode.TransactionScope)
             {
                 throw new Exception("A Transaction scope unit of work can't be used when the transport already uses a scope for the receive operation. Remove the call to config.UnitOfWork().WrapHandlersInATransactionScope() or configure the transport to use a lower transaction mode");
             }
 
             var transactionOptions = context.Settings.Get<Settings>().TransactionOptions;
-
-            context.Container.ConfigureComponent(b => new TransactionScopeUnitOfWorkBehavior(transactionOptions), DependencyLifecycle.InstancePerCall);
-
-            context.Pipeline.Register("HandlerTransactionScopeWrapper", typeof(TransactionScopeUnitOfWorkBehavior), "Makes sure that the handlers gets wrapped in a transaction scope");
+            context.Pipeline.Register("HandlerTransactionScopeWrapper", new TransactionScopeUnitOfWorkBehavior(transactionOptions), "Makes sure that the handlers gets wrapped in a transaction scope");
         }
 
         public class Settings

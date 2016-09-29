@@ -7,150 +7,120 @@
     /// <summary>
     /// This class is written under the assumption that acceptance tests are executed sequentially.
     /// </summary>
-    class ContextAppender : ILoggerFactory, ILog
+    class ContextAppender : ILog
     {
-        /// <summary>
-        /// Because ILoggerFactory interface methods are only used in a static context. This is the only way to set the currently executing context.
-        /// </summary>
-        /// <param name="newContext">The new context to be set</param>
-        public static void SetContext(ScenarioContext newContext)
+        public ContextAppender(LogLevel level, Func<ScenarioContext> context)
         {
-            context = newContext;
+            this.level = level;
+            this.context = context;
         }
 
-        static ScenarioContext context;
+        public bool IsDebugEnabled => level <= LogLevel.Debug;
+        public bool IsInfoEnabled => level <= LogLevel.Info;
+        public bool IsWarnEnabled => level <= LogLevel.Warn;
+        public bool IsErrorEnabled => level <= LogLevel.Error;
+        public bool IsFatalEnabled => level <= LogLevel.Fatal;
 
-        public ILog GetLogger(Type type)
-        {
-            return this;
-        }
-
-        public ILog GetLogger(string name)
-        {
-            return this;
-        }
-
-        public bool IsDebugEnabled => false;
-        public bool IsInfoEnabled => true;
-        public bool IsWarnEnabled => true;
-        public bool IsErrorEnabled => true;
-        public bool IsFatalEnabled => true;
-
-
-        static void RecordLog(string message, string level)
-        {
-            context?.Logs.Enqueue(new ScenarioContext.LogItem
-            {
-                Level = level,
-                Message = message
-            });
-        }
-
-        static void AppendException(Exception exception)
-        {
-            context?.Exceptions.Enqueue(exception);
-        }
 
         public void Debug(string message)
         {
-            //we don't care about debug logs
+            Log(message, LogLevel.Debug);
         }
 
         public void Debug(string message, Exception exception)
         {
-            AppendException(exception);
+            Log(message, LogLevel.Debug);
         }
 
         public void DebugFormat(string format, params object[] args)
         {
-            //we don't care about debug logs
+            var fullMessage = string.Format(format, args);
+            Log(fullMessage, LogLevel.Debug);
         }
 
         public void Info(string message)
         {
-            Trace.WriteLine(message);
-            RecordLog(message, "info");
+            Log(message, LogLevel.Info);
         }
 
 
         public void Info(string message, Exception exception)
         {
             var fullMessage = $"{message} {exception}";
-            Trace.WriteLine(fullMessage);
-            AppendException(exception);
-            RecordLog(fullMessage, "info");
+            Log(fullMessage, LogLevel.Info);
         }
 
         public void InfoFormat(string format, params object[] args)
         {
             var fullMessage = string.Format(format, args);
-            Trace.WriteLine(fullMessage);
-            RecordLog(fullMessage, "info");
+            Log(fullMessage, LogLevel.Info);
         }
 
         public void Warn(string message)
         {
-            Trace.WriteLine(message);
-            RecordLog(message, "warn");
+            Log(message, LogLevel.Warn);
         }
 
         public void Warn(string message, Exception exception)
         {
             var fullMessage = $"{message} {exception}";
-            Trace.WriteLine(fullMessage);
-            AppendException(exception);
-            RecordLog(fullMessage, "warn");
+            Log(fullMessage, LogLevel.Warn);
         }
 
         public void WarnFormat(string format, params object[] args)
         {
             var fullMessage = string.Format(format, args);
-            Trace.WriteLine(fullMessage);
-            RecordLog(fullMessage, "warn");
+            Log(fullMessage, LogLevel.Warn);
         }
 
         public void Error(string message)
         {
-            Trace.WriteLine(message);
-
-            RecordLog(message, "error");
+            Log(message, LogLevel.Error);
         }
 
         public void Error(string message, Exception exception)
         {
             var fullMessage = $"{message} {exception}";
-            Trace.WriteLine(fullMessage);
-            AppendException(exception);
-            RecordLog(fullMessage, "error");
+            Log(fullMessage, LogLevel.Error);
         }
 
         public void ErrorFormat(string format, params object[] args)
         {
             var fullMessage = string.Format(format, args);
-            Trace.WriteLine(fullMessage);
-            RecordLog(fullMessage, "error");
+            Log(fullMessage, LogLevel.Error);
         }
 
         public void Fatal(string message)
         {
-            Trace.WriteLine(message);
-
-            RecordLog(message, "fatal");
+            Log(message, LogLevel.Fatal);
         }
 
         public void Fatal(string message, Exception exception)
         {
             var fullMessage = $"{message} {exception}";
-            Trace.WriteLine(fullMessage);
-            AppendException(exception);
-            RecordLog(fullMessage, "fatal");
+            Log(fullMessage, LogLevel.Fatal);
         }
 
         public void FatalFormat(string format, params object[] args)
         {
             var fullMessage = string.Format(format, args);
-            Trace.WriteLine(fullMessage);
-            RecordLog(fullMessage, "fatal");
+            Log(fullMessage, LogLevel.Fatal);
         }
+
+        void Log(string message, LogLevel messageSeverity)
+        {
+            if (level <= messageSeverity)
+            {
+                Trace.WriteLine(message);
+                context().Logs.Enqueue(new ScenarioContext.LogItem
+                {
+                    Level = messageSeverity,
+                    Message = message
+                });
+            }
+        }
+
+        LogLevel level;
+        Func<ScenarioContext> context;
     }
 }

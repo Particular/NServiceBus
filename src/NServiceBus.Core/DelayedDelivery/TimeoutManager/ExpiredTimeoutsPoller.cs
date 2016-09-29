@@ -7,7 +7,7 @@ namespace NServiceBus
     using Logging;
     using Routing;
     using Timeout.Core;
-    using Transports;
+    using Transport;
     using Unicast.Transport;
 
     class ExpiredTimeoutsPoller : IDisposable
@@ -82,14 +82,14 @@ namespace NServiceBus
         {
             while (!cancellationToken.IsCancellationRequested)
             {
-                await SpinOnce().ConfigureAwait(false);
+                await SpinOnce(cancellationToken).ConfigureAwait(false);
                 await Task.Delay(NextRetrievalPollSleep, cancellationToken).ConfigureAwait(false);
             }
         }
 
-        internal async Task SpinOnce()
+        internal async Task SpinOnce(CancellationToken cancellationToken)
         {
-            if (NextRetrieval > currentTimeProvider())
+            if (NextRetrieval > currentTimeProvider() || cancellationToken.IsCancellationRequested)
             {
                 return;
             }
@@ -99,6 +99,11 @@ namespace NServiceBus
 
             foreach (var timeoutData in timeoutChunk.DueTimeouts)
             {
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    return;
+                }
+
                 if (startSlice < timeoutData.DueTime)
                 {
                     startSlice = timeoutData.DueTime;
@@ -109,7 +114,7 @@ namespace NServiceBus
                 dispatchRequest.Headers["Timeout.Id"] = timeoutData.Id;
 
                 var transportOperation = new TransportOperation(dispatchRequest, new UnicastAddressTag(dispatcherAddress));
-                await dispatcher.Dispatch(new TransportOperations(transportOperation), new ContextBag()).ConfigureAwait(false);
+                await dispatcher.Dispatch(new TransportOperations(transportOperation), new TransportTransaction(), new ContextBag()).ConfigureAwait(false);
             }
 
             lock (lockObject)

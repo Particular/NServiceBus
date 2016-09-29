@@ -35,20 +35,20 @@
                 .Run();
         }
 
-        public class Context : ScenarioContext
+        class Context : ScenarioContext
         {
             public bool GotTheEvent { get; set; }
             public bool Subscribed { get; set; }
             public Type EventTypePassedToRouting { get; set; }
         }
 
-        public class Publisher : EndpointConfigurationBuilder
+        class Publisher : EndpointConfigurationBuilder
         {
             public Publisher()
             {
                 EndpointSetup<DefaultPublisher>(c =>
                 {
-                    c.Pipeline.Register("EventTypeSpy", typeof(EventTypeSpy), "EventTypeSpy");
+                    c.Pipeline.Register("EventTypeSpy", new EventTypeSpy((Context)ScenarioContext), "EventTypeSpy");
                     c.OnEndpointSubscribed<Context>((s, context) =>
                     {
                         if (s.SubscriberReturnAddress.Contains("Subscriber"))
@@ -59,24 +59,24 @@
                 });
             }
 
-            class EventTypeSpy : Behavior<IOutgoingLogicalMessageContext>
+            class EventTypeSpy : IBehavior<IOutgoingLogicalMessageContext, IOutgoingLogicalMessageContext>
             {
                 public EventTypeSpy(Context testContext)
                 {
                     this.testContext = testContext;
                 }
 
-                public override Task Invoke(IOutgoingLogicalMessageContext context, Func<Task> next)
+                public Task Invoke(IOutgoingLogicalMessageContext context, Func<IOutgoingLogicalMessageContext, Task> next)
                 {
                     testContext.EventTypePassedToRouting = context.Message.MessageType;
-                    return next();
+                    return next(context);
                 }
 
                 Context testContext;
             }
         }
 
-        public class Subscriber : EndpointConfigurationBuilder
+        class Subscriber : EndpointConfigurationBuilder
         {
             public Subscriber()
             {

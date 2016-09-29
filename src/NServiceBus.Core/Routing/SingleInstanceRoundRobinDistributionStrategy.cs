@@ -1,7 +1,6 @@
 namespace NServiceBus.Routing
 {
-    using System.Collections.Generic;
-    using System.Linq;
+    using System.Threading;
 
     /// <summary>
     /// Selects a single instance based on a round-robin scheme.
@@ -9,33 +8,30 @@ namespace NServiceBus.Routing
     public class SingleInstanceRoundRobinDistributionStrategy : DistributionStrategy
     {
         /// <summary>
-        /// Selects destination instances from all known instances of a given endpoint.
+        /// Creates a new <see cref="SingleInstanceRoundRobinDistributionStrategy"/> instance.
         /// </summary>
-        public override IEnumerable<UnicastRoutingTarget> SelectDestination(IEnumerable<UnicastRoutingTarget> currentAllInstances)
+        /// <param name="endpoint">The name of the endpoint this distribution strategy resolves instances for.</param>
+        /// <param name="scope">The scope for this strategy.</param>
+        public SingleInstanceRoundRobinDistributionStrategy(string endpoint, DistributionStrategyScope scope)
+            : base(endpoint, scope)
         {
-            var localAllInstances = allInstances;
-            var currentList = currentAllInstances.ToList();
-            if (localAllInstances == null || !currentList.SequenceEqual(localAllInstances))
-            {
-                lock (lockObject)
-                {
-                    localAllInstances = allInstances;
-                    if (localAllInstances == null || !currentList.SequenceEqual(localAllInstances))
-                    {
-                        allInstances = currentList;
-                        localAllInstances = currentList;
-                        index = 0;
-                    }
-                }
-            }
-            var arrayIndex = index%localAllInstances.Count;
-            var destination = allInstances[(int) arrayIndex];
-            index++;
-            yield return destination;
         }
 
-        volatile IList<UnicastRoutingTarget> allInstances;
-        long index;
-        object lockObject = new object();
+        /// <summary>
+        /// Selects a destination instance for a message from all known addresses of a logical endpoint.
+        /// </summary>
+        public override string SelectReceiver(string[] receiverAddresses)
+        {
+            if (receiverAddresses.Length == 0)
+            {
+                return default(string);
+            }
+            var i = Interlocked.Increment(ref index);
+            var result = receiverAddresses[(int)(i % receiverAddresses.Length)];
+            return result;
+        }
+
+        // start with -1 so the index will be at 0 after the first increment.
+        long index = -1;
     }
 }

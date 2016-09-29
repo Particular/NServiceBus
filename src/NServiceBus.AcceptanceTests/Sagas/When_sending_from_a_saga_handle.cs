@@ -11,9 +11,9 @@
     public class When_sending_from_a_saga_handle : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Should_match_different_saga()
+        public Task Should_match_different_saga()
         {
-            await Scenario.Define<Context>()
+            return Scenario.Define<Context>()
                 .WithEndpoint<Endpoint>(b => b.When(session => session.SendLocal(new StartSaga1
                 {
                     DataId = Guid.NewGuid()

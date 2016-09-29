@@ -1,6 +1,7 @@
 namespace NServiceBus
 {
     using System;
+    using System.Threading;
     using System.Threading.Tasks;
 
     static class TaskEx
@@ -39,5 +40,7 @@ namespace NServiceBus
 
             throw new Exception(TaskIsNullExceptionMessage);
         }
+
+        public static Task Run(Func<object, Task> func, object state) => Task.Factory.StartNew(func, state, CancellationToken.None, TaskCreationOptions.DenyChildAttach, TaskScheduler.Default).Unwrap();
     }
 }

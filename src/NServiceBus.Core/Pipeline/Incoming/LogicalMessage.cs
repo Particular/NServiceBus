@@ -9,7 +9,7 @@
     public class LogicalMessage
     {
         /// <summary>
-        /// Create a new <see cref="LogicalMessage"/> instance containg a message object and it's corresponding <see cref="MessageMetadata"/>.
+        /// Create a new <see cref="LogicalMessage"/> instance containing a message object and it's corresponding <see cref="MessageMetadata"/>.
         /// </summary>
         public LogicalMessage(MessageMetadata metadata, object message)
         {

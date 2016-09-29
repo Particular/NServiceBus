@@ -3,29 +3,28 @@
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
-    using Features;
     using NUnit.Framework;
 
     public class When_sending_events_bestpractices_disabled_on_endpoint : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Should_allow_sending_events()
+        public Task Should_allow_sending_events()
         {
-            await Scenario.Define<Context>()
+            return Scenario.Define<ScenarioContext>()
                 .WithEndpoint<Endpoint>(b => b.When((session, c) => session.Send(new MyEvent())))
                 .Done(c => c.EndpointsStarted)
                 .Run();
-        }
-
-        public class Context : ScenarioContext
-        {
         }
 
         public class Endpoint : EndpointConfigurationBuilder
         {
             public Endpoint()
             {
-                EndpointSetup<DefaultServer>(c => c.DisableFeature<BestPracticeEnforcement>())
+                EndpointSetup<DefaultServer>((c, r) =>
+                {
+                    var routing = c.UseTransport(r.GetTransportType()).Routing();
+                    routing.DoNotEnforceBestPractices();
+                })
                     .AddMapping<MyCommand>(typeof(Endpoint))
                     .AddMapping<MyEvent>(typeof(Endpoint));
             }

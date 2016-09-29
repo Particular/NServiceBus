@@ -3,7 +3,7 @@ namespace NServiceBus.Core.Tests.Timeout
     using System;
     using System.Linq;
     using System.Threading.Tasks;
-    using NServiceBus.Extensibility;
+    using Extensibility;
     using NServiceBus.Timeout.Core;
     using NUnit.Framework;
 

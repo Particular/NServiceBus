@@ -1,12 +1,15 @@
 namespace NServiceBus
 {
     using System;
-    using Transports;
+    using Transport;
 
     class MessageFaulted : MessageProcessingFailed
     {
-        public MessageFaulted(IncomingMessage message, Exception exception) : base(message, exception)
+        public string ErrorQueue { get; }
+
+        public MessageFaulted(IncomingMessage message, Exception exception, string errorQueue) : base(message, exception)
         {
+            ErrorQueue = errorQueue;
         }
     }
 }

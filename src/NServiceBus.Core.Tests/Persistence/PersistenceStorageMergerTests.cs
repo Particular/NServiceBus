@@ -3,7 +3,7 @@
     using System;
     using System.Collections.Generic;
     using NServiceBus.Persistence;
-    using NServiceBus.Settings;
+    using Settings;
     using NUnit.Framework;
 
     [TestFixture]

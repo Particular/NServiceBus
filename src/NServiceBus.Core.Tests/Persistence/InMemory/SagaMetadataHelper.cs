@@ -1,6 +1,6 @@
 namespace NServiceBus.SagaPersisters.InMemory.Tests
 {
-    using NServiceBus.Sagas;
+    using Sagas;
 
     class SagaMetadataHelper
     {

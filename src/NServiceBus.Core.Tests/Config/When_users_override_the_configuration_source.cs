@@ -3,7 +3,7 @@ namespace NServiceBus.Core.Tests.Config
     using System.Threading.Tasks;
     using NServiceBus.Config.ConfigurationSource;
     using NServiceBus.Features;
-    using NServiceBus.Settings;
+    using Settings;
     using NUnit.Framework;
 
     [TestFixture]

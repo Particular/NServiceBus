@@ -280,41 +280,41 @@
             }
         }
 
-        class SomeBehaviorOfParentContext : Behavior<IParentContext>
+        class SomeBehaviorOfParentContext : IBehavior<IParentContext, IParentContext>
         {
-            public override Task Invoke(IParentContext context, Func<Task> next)
+            public Task Invoke(IParentContext context, Func<IParentContext, Task> next)
             {
                 throw new NotImplementedException();
             }
         }
 
-        class AnotherBehaviorOfParentContext : Behavior<IParentContext>
+        class AnotherBehaviorOfParentContext : IBehavior<IParentContext, IParentContext>
         {
-            public override Task Invoke(IParentContext context, Func<Task> next)
+            public Task Invoke(IParentContext context, Func<IParentContext, Task> next)
             {
                 throw new NotImplementedException();
             }
         }
 
-        class RootBehavior : Behavior<IParentContext>
+        class RootBehavior : IBehavior<IParentContext, IParentContext>
         {
-            public override Task Invoke(IParentContext context, Func<Task> next)
+            public Task Invoke(IParentContext context, Func<IParentContext, Task> next)
             {
                 throw new NotImplementedException();
             }
         }
 
-        class ChildBehaviorOfChildContext : Behavior<IChildContext>
+        class ChildBehaviorOfChildContext : IBehavior<IChildContext, IChildContext>
         {
-            public override Task Invoke(IChildContext context, Func<Task> next)
+            public Task Invoke(IChildContext context, Func<IChildContext, Task> next)
             {
                 throw new NotImplementedException();
             }
         }
 
-        class ChildBehaviorOfChildContextNotInheritedFromParentContext : Behavior<IChildContextNotInheritedFromParentContext>
+        class ChildBehaviorOfChildContextNotInheritedFromParentContext : IBehavior<IChildContextNotInheritedFromParentContext, IChildContextNotInheritedFromParentContext>
         {
-            public override Task Invoke(IChildContextNotInheritedFromParentContext context, Func<Task> next)
+            public Task Invoke(IChildContextNotInheritedFromParentContext context, Func<IChildContextNotInheritedFromParentContext, Task> next)
             {
                 throw new NotImplementedException();
             }

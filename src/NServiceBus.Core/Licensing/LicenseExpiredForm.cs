@@ -2,9 +2,11 @@
 {
     using System;
     using System.Diagnostics;
+    using System.Globalization;
     using System.Windows.Forms;
     using Janitor;
     using Logging;
+    using Microsoft.Win32;
     using Particular.Licensing;
 
     [SkipWeaving]
@@ -23,7 +25,7 @@
 
             warningText.Text = "The trial period is now over";
 
-            if (CurrentLicense != null && CurrentLicense.IsTrialLicense)
+            if (CurrentLicense != null && !CurrentLicense.IsExtendedTrial)
             {
                 Text = "NServiceBus - Initial Trial Expired";
                 instructionsText.Text = "To extend the free trial, click 'Extend trial' and register online. When the license file is received, save it to disk and then click the 'Browse' button below to select it.";
@@ -80,19 +82,53 @@
 
         void PurchaseButton_Click(object sender, EventArgs e)
         {
-            Process.Start("http://particular.net/licensing");
+            Process.Start("https://particular.net/licensing");
         }
 
         void getTrialLicenseButton_Click(object sender, EventArgs e)
         {
-            if (CurrentLicense != null && CurrentLicense.IsTrialLicense)
+
+            string baseUrl;
+            if (CurrentLicense != null && !CurrentLicense.IsExtendedTrial)
             {
-                Process.Start("http://particular.net/extend-your-trial-14");
+                // Original 14 day trial expired, give the user a chance to extend trial
+                baseUrl = "https://particular.net/extend-nservicebus-trial";
             }
             else
             {
-                Process.Start("http://particular.net/extend-your-trial-45");
+                // Extended trial license expired, ask the user to Contact Sales
+                baseUrl = "https://particular.net/extend-your-trial-45";
             }
+
+            var trialStart = TrialStartDateStore.GetTrialStartDate().ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
+            var url = $"{baseUrl}?NugetUser={IsNugetUser()}&PlatformInstaller={HasUserInstalledPlatform()}&TrialStartDate={trialStart}";
+            
+            // Open the url with the querystrings
+            Process.Start(url); 
+        }
+
+        static string IsNugetUser()
+        {
+            using (var regRoot = Registry.CurrentUser.OpenSubKey(@"Software\ParticularSoftware"))
+            {
+                if (regRoot != null)
+                {
+                    return (string)regRoot.GetValue("NuGetUser", "false");
+                }
+            }
+            return bool.FalseString;
+        }
+
+        static string HasUserInstalledPlatform()
+        {
+            using (var regRoot = Registry.CurrentUser.OpenSubKey(@"Software\ParticularSoftware\PlatformInstaller"))
+            {
+                if (regRoot != null)
+                {
+                    return bool.TrueString;
+                }
+            }
+            return bool.FalseString;
         }
 
         public string ResultingLicenseText;

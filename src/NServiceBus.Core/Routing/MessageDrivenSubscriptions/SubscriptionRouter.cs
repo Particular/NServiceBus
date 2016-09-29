@@ -2,39 +2,28 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Threading.Tasks;
+    using System.Linq;
     using Routing;
     using Routing.MessageDrivenSubscriptions;
-    using Transports;
 
     class SubscriptionRouter
     {
-        public SubscriptionRouter(Publishers publishers, EndpointInstances endpointInstances, TransportAddresses physicalAddresses)
+        public SubscriptionRouter(Publishers publishers, EndpointInstances endpointInstances, Func<EndpointInstance, string> transportAddressTranslation)
         {
             this.publishers = publishers;
             this.endpointInstances = endpointInstances;
-            this.physicalAddresses = physicalAddresses;
+            this.transportAddressTranslation = transportAddressTranslation;
         }
 
-        public async Task<IEnumerable<string>> GetAddressesForEventType(Type messageType)
+        public IEnumerable<string> GetAddressesForEventType(Type messageType)
         {
-            var results = new List<string>();
-            foreach (var publisherAddress in publishers.GetPublisherFor(messageType))
-            {
-                results.AddRange(await publisherAddress.Resolve(
-                    ResolveInstances,
-                    i => physicalAddresses.GetTransportAddress(new LogicalAddress(i))).ConfigureAwait(false));
-            }
-            return results;
-        }
-
-        Task<IEnumerable<EndpointInstance>> ResolveInstances(EndpointName endpoint)
-        {
-            return endpointInstances.FindInstances(endpoint);
+            var publishersOfThisEvent = publishers.GetPublisherFor(messageType);
+            var publisherTransportAddresses = publishersOfThisEvent.SelectMany(p => p.Resolve(e => endpointInstances.FindInstances(e), i => transportAddressTranslation(i)));
+            return publisherTransportAddresses;
         }
 
         EndpointInstances endpointInstances;
-        TransportAddresses physicalAddresses;
+        Func<EndpointInstance, string> transportAddressTranslation;
 
         Publishers publishers;
     }

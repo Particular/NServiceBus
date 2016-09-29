@@ -8,7 +8,7 @@
     public class DoNotDeliverBefore : DelayedDeliveryConstraint
     {
         /// <summary>
-        /// Initializes a new insatnce of <see cref="DoNotDeliverBefore" />.
+        /// Initializes a new instance of <see cref="DoNotDeliverBefore" />.
         /// </summary>
         /// <param name="at">The earliest time this message should be made available to its consumers.</param>
         public DoNotDeliverBefore(DateTime at)

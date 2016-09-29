@@ -1,31 +1,28 @@
 ﻿namespace NServiceBus.Features
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Threading.Tasks;
     using Config;
-    using Extensibility;
-    using ObjectBuilder;
-    using Pipeline;
     using Routing;
     using Routing.MessageDrivenSubscriptions;
-    using Settings;
-    using Transports;
-    using Unicast.Subscriptions;
+    using Transport;
+    using Unicast.Messages;
     using Unicast.Subscriptions.MessageDrivenSubscriptions;
 
     class RoutingFeature : Feature
     {
+        public const string EnforceBestPracticesSettingsKey = "NServiceBus.Routing.EnforceBestPractices";
+
         public RoutingFeature()
         {
             EnableByDefault();
             Defaults(s =>
             {
+                s.SetDefault(EnforceBestPracticesSettingsKey, true);
                 s.SetDefault<UnicastRoutingTable>(new UnicastRoutingTable());
                 s.SetDefault<EndpointInstances>(new EndpointInstances());
                 s.SetDefault<Publishers>(new Publishers());
                 s.SetDefault<DistributionPolicy>(new DistributionPolicy());
+                s.SetDefault<ConfiguredUnicastRoutes>(new ConfiguredUnicastRoutes());
+                s.SetDefault<ConfiguredPublishers>(new ConfiguredPublishers());
             });
         }
 
@@ -34,144 +31,100 @@
             var canReceive = !context.Settings.GetOrDefault<bool>("Endpoint.SendOnly");
             var transportInfrastructure = context.Settings.Get<TransportInfrastructure>();
 
-            context.Container.ConfigureComponent(b => context.Settings.Get<UnicastRoutingTable>(), DependencyLifecycle.SingleInstance);
-            context.Container.ConfigureComponent(b => context.Settings.Get<EndpointInstances>(), DependencyLifecycle.SingleInstance);
-            context.Container.ConfigureComponent(b => context.Settings.Get<Publishers>(), DependencyLifecycle.SingleInstance);
-            context.Container.ConfigureComponent(b => context.Settings.Get<DistributionPolicy>(), DependencyLifecycle.SingleInstance);
-            context.Container.ConfigureComponent<UnicastRouter>(DependencyLifecycle.SingleInstance);
-            context.Container.ConfigureComponent(b => new UnicastSendRouterConnector(context.Settings.LocalAddress(), context.Settings.InstanceSpecificQueue(), b.Build<UnicastRouter>(), b.Build<DistributionPolicy>()), DependencyLifecycle.InstancePerCall);
+            var unicastRoutingTable = context.Settings.Get<UnicastRoutingTable>();
+            var endpointInstances = context.Settings.Get<EndpointInstances>();
+            var publishers = context.Settings.Get<Publishers>();
 
+            var distributionPolicy = context.Settings.Get<DistributionPolicy>();
+            var configuredUnicastRoutes = context.Settings.Get<ConfiguredUnicastRoutes>();
+            var configuredPublishers = context.Settings.Get<ConfiguredPublishers>();
+            var conventions = context.Settings.Get<Conventions>();
             var unicastBusConfig = context.Settings.GetConfigSection<UnicastBusConfig>();
-            if (unicastBusConfig != null)
+
+            var enforceBestPractices = context.Settings.Get<bool>(EnforceBestPracticesSettingsKey);
+            if (enforceBestPractices)
             {
-                var routeTable = context.Settings.Get<UnicastRoutingTable>();
-                var publishers = context.Settings.Get<Publishers>();
-                var legacyRoutingConfig = unicastBusConfig.MessageEndpointMappings;
-                var conventions = context.Settings.Get<Conventions>();
-
-                var knownMessageTypes = context.Settings.GetAvailableTypes()
-                    .Where(conventions.IsMessageType)
-                    .ToList();
-
-                foreach (MessageEndpointMapping m in legacyRoutingConfig)
-                {
-                    m.Configure((type, s) => routeTable.RouteToAddress(type, transportInfrastructure.MakeCanonicalForm(s)));
-                    m.Configure((type, s) =>
-                    {
-                        var typesEnclosed = knownMessageTypes.Where(t => t.IsAssignableFrom(type));
-                        foreach (var t in typesEnclosed)
-                        {
-                            publishers.Add(s, t);
-                        }
-                    });
-                }
+                EnableBestPracticeEnforcement(context);
             }
 
-            context.RegisterStartupTask(b => new SubscriptionStoreRouteInformationProvider(context.Settings, b));
+            unicastBusConfig?.MessageEndpointMappings.Apply(publishers, unicastRoutingTable, transportInfrastructure.MakeCanonicalForm, conventions);
+            configuredUnicastRoutes.Apply(unicastRoutingTable, conventions);
+            configuredPublishers.Apply(publishers, conventions, enforceBestPractices);
+
             var outboundRoutingPolicy = transportInfrastructure.OutboundRoutingPolicy;
-            context.Pipeline.Register("UnicastSendRouterConnector", typeof(UnicastSendRouterConnector), "Determines how the message being sent should be routed");
-            context.Pipeline.Register("UnicastReplyRouterConnector", typeof(UnicastReplyRouterConnector), "Determines how replies should be routed");
+            context.Pipeline.Register(b =>
+            {
+                var unicastSendRouter = new UnicastSendRouter(unicastRoutingTable, endpointInstances, i => transportInfrastructure.ToTransportAddress(LogicalAddress.CreateRemoteAddress(i)));
+                return new UnicastSendRouterConnector(context.Settings.LocalAddress(), context.Settings.InstanceSpecificQueue(), unicastSendRouter, distributionPolicy, i => transportInfrastructure.ToTransportAddress(LogicalAddress.CreateRemoteAddress(i)));
+            }, "Determines how the message being sent should be routed");
+
+            context.Pipeline.Register(new UnicastReplyRouterConnector(), "Determines how replies should be routed");
             if (outboundRoutingPolicy.Publishes == OutboundRoutingType.Unicast)
             {
-                context.Pipeline.Register("UnicastPublishRouterConnector", typeof(UnicastPublishRouterConnector), "Determines how the published messages should be routed");
+                context.Pipeline.Register(b =>
+                {
+                    var unicastPublishRouter = new UnicastPublishRouter(b.Build<MessageMetadataRegistry>(), b.Build<ISubscriptionStorage>());
+                    return new UnicastPublishRouterConnector(unicastPublishRouter, distributionPolicy);
+                }, "Determines how the published messages should be routed");
             }
             else
             {
-                context.Pipeline.Register("MulticastPublishRouterBehavior", typeof(MulticastPublishRouterBehavior), "Determines how the published messages should be routed");
+                context.Pipeline.Register(new MulticastPublishRouterBehavior(), "Determines how the published messages should be routed");
             }
 
             if (canReceive)
             {
                 var publicReturnAddress = context.Settings.GetOrDefault<string>("PublicReturnAddress");
                 var distributorAddress = context.Settings.GetOrDefault<string>("LegacyDistributor.Address");
-                context.Pipeline.Register("ApplyReplyToAddress", new ApplyReplyToAddressBehavior(context.Settings.LocalAddress(), context.Settings.InstanceSpecificQueue(), publicReturnAddress, distributorAddress), "Applies the public reply to address to outgoing messages");
+                context.Pipeline.Register(new ApplyReplyToAddressBehavior(context.Settings.LocalAddress(), context.Settings.InstanceSpecificQueue(), publicReturnAddress, distributorAddress), "Applies the public reply to address to outgoing messages");
 
                 if (outboundRoutingPolicy.Publishes == OutboundRoutingType.Unicast)
                 {
-                    context.Container.ConfigureComponent<SubscriptionRouter>(DependencyLifecycle.SingleInstance);
-
-                    context.Pipeline.Register("MessageDrivenSubscribeTerminator", typeof(MessageDrivenSubscribeTerminator), "Sends subscription requests when message driven subscriptions is in use");
-                    context.Pipeline.Register("MessageDrivenUnsubscribeTerminator", typeof(MessageDrivenUnsubscribeTerminator), "Sends requests to unsubscribe when message driven subscriptions is in use");
-
                     var subscriberAddress = distributorAddress ?? context.Settings.LocalAddress();
-                    context.Container.ConfigureComponent(b => new MessageDrivenSubscribeTerminator(b.Build<SubscriptionRouter>(), subscriberAddress, context.Settings.EndpointName(), b.Build<IDispatchMessages>()), DependencyLifecycle.SingleInstance);
-                    context.Container.ConfigureComponent(b => new MessageDrivenUnsubscribeTerminator(b.Build<SubscriptionRouter>(), subscriberAddress, context.Settings.EndpointName(), b.Build<IDispatchMessages>()), DependencyLifecycle.SingleInstance);
+                    var subscriptionRouter = new SubscriptionRouter(publishers, endpointInstances, i => transportInfrastructure.ToTransportAddress(LogicalAddress.CreateRemoteAddress(i)));
+
+                    context.Pipeline.Register(b => new MessageDrivenSubscribeTerminator(subscriptionRouter, subscriberAddress, context.Settings.EndpointName(), b.Build<IDispatchMessages>()), "Sends subscription requests when message driven subscriptions is in use");
+                    context.Pipeline.Register(b => new MessageDrivenUnsubscribeTerminator(subscriptionRouter, subscriberAddress, context.Settings.EndpointName(), b.Build<IDispatchMessages>()), "Sends requests to unsubscribe when message driven subscriptions is in use");
                 }
                 else
                 {
                     var transportSubscriptionInfrastructure = transportInfrastructure.ConfigureSubscriptionInfrastructure();
                     var subscriptionManager = transportSubscriptionInfrastructure.SubscriptionManagerFactory();
 
-                    context.Container.RegisterSingleton(subscriptionManager);
-                    context.Pipeline.Register("NativeSubscribeTerminator", typeof(NativeSubscribeTerminator), "Requests the transport to subscribe to a given message type");
-                    context.Pipeline.Register("NativeUnsubscribeTerminator", typeof(NativeUnsubscribeTerminator), "Requests the transport to unsubscribe to a given message type");
+                    context.Pipeline.Register(new NativeSubscribeTerminator(subscriptionManager), "Requests the transport to subscribe to a given message type");
+                    context.Pipeline.Register(new NativeUnsubscribeTerminator(subscriptionManager), "Requests the transport to unsubscribe to a given message type");
                 }
             }
         }
 
-        class SubscriptionStoreRouteInformationProvider : FeatureStartupTask
+        void EnableBestPracticeEnforcement(FeatureConfigurationContext context)
         {
-            public SubscriptionStoreRouteInformationProvider(ReadOnlySettings settings, IBuilder builder)
-            {
-                this.settings = settings;
-                this.builder = builder;
-            }
+            var validations = new Validations(context.Settings.Get<Conventions>());
 
-            protected override Task OnStart(IMessageSession session)
-            {
-                var transportInfrastructure = settings.Get<TransportInfrastructure>();
-                if (transportInfrastructure.OutboundRoutingPolicy.Publishes == OutboundRoutingType.Unicast) //Publish via send
-                {
-                    var subscriptions = builder.BuildAll<ISubscriptionStorage>().FirstOrDefault();
-                    if (subscriptions != null)
-                    {
-                        settings.Get<UnicastRoutingTable>().AddDynamic((t, c) => QuerySubscriptionStore(subscriptions, t, c));
-                    }
-                }
-                return TaskEx.CompletedTask;
-            }
+            context.Pipeline.Register(
+                "EnforceSendBestPractices",
+                new EnforceSendBestPracticesBehavior(validations),
+                "Enforces send messaging best practices");
 
-            protected override Task OnStop(IMessageSession session)
-            {
-                return TaskEx.CompletedTask;
-            }
+            context.Pipeline.Register(
+                "EnforceReplyBestPractices",
+                new EnforceReplyBestPracticesBehavior(validations),
+                "Enforces reply messaging best practices");
 
-            static async Task<IEnumerable<IUnicastRoute>> QuerySubscriptionStore(ISubscriptionStorage subscriptions, List<Type> types, ContextBag contextBag)
-            {
-                if (!(contextBag is IOutgoingPublishContext))
-                {
-                    return new List<IUnicastRoute>();
-                }
+            context.Pipeline.Register(
+                "EnforcePublishBestPractices",
+                new EnforcePublishBestPracticesBehavior(validations),
+                "Enforces publish messaging best practices");
 
-                var messageTypes = types.Select(t => new MessageType(t));
-                var subscribers = await subscriptions.GetSubscriberAddressesForMessage(messageTypes, contextBag).ConfigureAwait(false);
-                return subscribers.Select(s => new SubscriberDestination(s));
-            }
+            context.Pipeline.Register(
+                "EnforceSubscribeBestPractices",
+                new EnforceSubscribeBestPracticesBehavior(validations),
+                "Enforces subscribe messaging best practices");
 
-            IBuilder builder;
-            ReadOnlySettings settings;
-
-            class SubscriberDestination : IUnicastRoute
-            {
-                public SubscriberDestination(Subscriber subscriber)
-                {
-                    if (subscriber.Endpoint != null)
-                    {
-                        target = UnicastRoutingTarget.ToAnonymousInstance(subscriber.Endpoint, subscriber.TransportAddress);
-                    }
-                    else
-                    {
-                        target = UnicastRoutingTarget.ToTransportAddress(subscriber.TransportAddress);
-                    }
-                }
-
-                public Task<IEnumerable<UnicastRoutingTarget>> Resolve(Func<EndpointName, Task<IEnumerable<EndpointInstance>>> instanceResolver)
-                {
-                    return Task.FromResult(EnumerableEx.Single(target));
-                }
-
-                UnicastRoutingTarget target;
-            }
+            context.Pipeline.Register(
+                "EnforceUnsubscribeBestPractices",
+                new EnforceUnsubscribeBestPracticesBehavior(validations),
+                "Enforces unsubscribe messaging best practices");
         }
     }
 }

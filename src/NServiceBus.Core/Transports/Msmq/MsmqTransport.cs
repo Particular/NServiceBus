@@ -1,12 +1,14 @@
 namespace NServiceBus
 {
+    using Features;
+    using Routing;
     using Settings;
-    using Transports;
+    using Transport;
 
     /// <summary>
     /// Transport definition for MSMQ.
     /// </summary>
-    public class MsmqTransport : TransportDefinition
+    public class MsmqTransport : TransportDefinition, IMessageDrivenSubscriptionTransport
     {
         /// <summary>
         /// <see cref="TransportDefinition.ExampleConnectionStringForErrorMessage" />.
@@ -24,8 +26,10 @@ namespace NServiceBus
         /// <param name="settings">The settings.</param>
         /// <param name="connectionString">The connection string.</param>
         /// <returns>the transport infrastructure for msmq.</returns>
-        protected internal override TransportInfrastructure Initialize(SettingsHolder settings, string connectionString)
+        public override TransportInfrastructure Initialize(SettingsHolder settings, string connectionString)
         {
+            settings.EnableFeature(typeof(InstanceMappingFileFeature));
+
             return new MsmqTransportInfrastructure(settings, connectionString);
         }
     }

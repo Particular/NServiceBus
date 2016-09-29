@@ -9,7 +9,8 @@ namespace NServiceBus
     using Performance.TimeToBeReceived;
     using Routing;
     using Settings;
-    using Transports;
+    using Support;
+    using Transport;
 
     class MsmqTransportInfrastructure : TransportInfrastructure
     {
@@ -23,7 +24,8 @@ namespace NServiceBus
 
         public override IEnumerable<Type> DeliveryConstraints { get; } = new[]
         {
-            typeof(DiscardIfNotReceivedBefore)
+            typeof(DiscardIfNotReceivedBefore),
+            typeof(NonDurableDelivery)
         };
 
         public override TransportTransactionMode TransactionMode { get; } = TransportTransactionMode.TransactionScope;
@@ -33,7 +35,7 @@ namespace NServiceBus
         {
             if (minimumConsistencyGuarantee == TransportTransactionMode.TransactionScope)
             {
-                return new ReceiveWithTransactionScope(transactionOptions);
+                return new ReceiveWithTransactionScope(transactionOptions, new MsmqFailureInfoStorage(1000));
             }
 
             if (minimumConsistencyGuarantee == TransportTransactionMode.None)
@@ -41,20 +43,24 @@ namespace NServiceBus
                 return new ReceiveWithNoTransaction();
             }
 
-            return new ReceiveWithNativeTransaction();
+            return new ReceiveWithNativeTransaction(new MsmqFailureInfoStorage(1000));
         }
 
-        public override EndpointInstance BindToLocalEndpoint(EndpointInstance instance) => instance.AtMachine(Environment.MachineName);
+        public override EndpointInstance BindToLocalEndpoint(EndpointInstance instance) => instance.AtMachine(RuntimeEnvironment.MachineName);
 
         public override string ToTransportAddress(LogicalAddress logicalAddress)
         {
             string machine;
-            if (!logicalAddress.EndpointInstance.Properties.TryGetValue("Machine", out machine))
+            if (!logicalAddress.EndpointInstance.Properties.TryGetValue("machine", out machine))
             {
-                machine = Environment.MachineName;
+                machine = RuntimeEnvironment.MachineName;
             }
-
-            var queue = new StringBuilder(logicalAddress.EndpointInstance.Endpoint.ToString());
+            string queueName;
+            if (!logicalAddress.EndpointInstance.Properties.TryGetValue("queue", out queueName))
+            {
+                queueName = logicalAddress.EndpointInstance.Endpoint;
+            }
+            var queue = new StringBuilder(queueName);
             if (logicalAddress.EndpointInstance.Discriminator != null)
             {
                 queue.Append("-" + logicalAddress.EndpointInstance.Discriminator);

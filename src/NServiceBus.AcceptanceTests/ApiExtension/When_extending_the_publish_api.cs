@@ -59,13 +59,13 @@
                 {
                     b.OnEndpointSubscribed<Context>((s, context) => { context.Subscriber1Subscribed = true; });
 
-                    b.Pipeline.Register("PublishExtensionBehavior", typeof(PublishExtensionBehavior), "Testing publish extensions");
+                    b.Pipeline.Register("PublishExtensionBehavior", new PublishExtensionBehavior(), "Testing publish extensions");
                 });
             }
 
-            public class PublishExtensionBehavior : Behavior<IOutgoingLogicalMessageContext>
+            public class PublishExtensionBehavior : IBehavior<IOutgoingLogicalMessageContext, IOutgoingLogicalMessageContext>
             {
-                public override Task Invoke(IOutgoingLogicalMessageContext context, Func<Task> next)
+                public Task Invoke(IOutgoingLogicalMessageContext context, Func<IOutgoingLogicalMessageContext, Task> next)
                 {
                     Context data;
 
@@ -78,7 +78,7 @@
                         Assert.Fail("Expected to find the data");
                     }
 
-                    return next();
+                    return next(context);
                 }
 
                 public class Context

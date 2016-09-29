@@ -10,8 +10,8 @@ namespace NServiceBus
     using DeliveryConstraints;
     using Logging;
     using Performance.TimeToBeReceived;
-    using Transports;
-    using Transports.Msmq;
+    using Transport;
+    using Transport.Msmq;
 
     class MsmqUtilities
     {
@@ -41,7 +41,7 @@ namespace NServiceBus
             }
             catch
             {
-                throw new Exception("Could not translate format name to independent name: " + q.FormatName);
+                throw new Exception($"Could not translate format name to independent name: {q.FormatName}");
             }
         }
 
@@ -119,7 +119,7 @@ namespace NServiceBus
             return result;
         }
 
-        public static Message Convert(OutgoingMessage message, IEnumerable<DeliveryConstraint> deliveryConstraints)
+        public static Message Convert(OutgoingMessage message, List<DeliveryConstraint> deliveryConstraints)
         {
             var result = new Message();
 
@@ -196,7 +196,7 @@ namespace NServiceBus
             if (Guid.TryParse(correlationIdHeader, out correlationId))
             {
                 //msmq required the id's to be in the {guid}\{incrementing number} format so we need to fake a \0 at the end to make it compatible
-                result.CorrelationId = correlationIdHeader + "\\0";
+                result.CorrelationId = $"{correlationIdHeader}\\0";
                 return;
             }
 
@@ -208,7 +208,7 @@ namespace NServiceBus
 
                     int number;
 
-                    if (parts.Count() == 2 && Guid.TryParse(parts.First(), out correlationId) &&
+                    if (parts.Length == 2 && Guid.TryParse(parts.First(), out correlationId) &&
                         int.TryParse(parts[1], out number))
                     {
                         result.CorrelationId = correlationIdHeader;
@@ -217,7 +217,7 @@ namespace NServiceBus
             }
             catch (Exception ex)
             {
-                Logger.Warn("Failed to assign a native correlation id for message: " + message.MessageId, ex);
+                Logger.Warn($"Failed to assign a native correlation id for message: {message.MessageId}", ex);
             }
         }
 

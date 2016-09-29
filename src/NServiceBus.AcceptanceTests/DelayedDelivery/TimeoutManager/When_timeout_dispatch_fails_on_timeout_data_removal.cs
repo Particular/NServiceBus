@@ -1,25 +1,25 @@
 ﻿namespace NServiceBus.AcceptanceTests.DelayedDelivery
 {
     using System;
-    using System.Collections.Generic;
     using System.Threading.Tasks;
     using AcceptanceTesting;
-    using AcceptanceTesting.Customization;
     using EndpointTemplates;
     using Extensibility;
     using Features;
-    using NServiceBus.Persistence;
+    using NServiceBus;
     using NServiceBus.Pipeline;
     using NUnit.Framework;
+    using Persistence;
     using ScenarioDescriptors;
     using Timeout.Core;
+    using Conventions = AcceptanceTesting.Customization.Conventions;
 
     public class When_timeout_dispatch_fails_on_timeout_data_removal : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Should_move_control_message_to_errors_and_not_dispatch_original_message_to_handler()
+        public Task Should_move_control_message_to_errors_and_not_dispatch_original_message_to_handler()
         {
-            await Scenario.Define<Context>()
+            return Scenario.Define<Context>()
                 .WithEndpoint<Endpoint>(b => b.DoNotFailOnErrorMessages()
                     .When((bus, c) =>
                     {
@@ -123,11 +123,11 @@
                 public Task<TimeoutsChunk> GetNextChunk(DateTime startSlice)
                 {
                     var timeouts = timeoutData != null
-                        ? new List<TimeoutsChunk.Timeout>
+                        ? new[]
                         {
                             new TimeoutsChunk.Timeout(timeoutData.Id, timeoutData.Time)
                         }
-                        : new List<TimeoutsChunk.Timeout>();
+                        : new TimeoutsChunk.Timeout[0];
 
                     return Task.FromResult(new TimeoutsChunk(timeouts, DateTime.UtcNow + TimeSpan.FromSeconds(10)));
                 }
@@ -135,20 +135,20 @@
                 TimeoutData timeoutData;
             }
 
-            class BehaviorThatLogsControlMessageDelivery : Behavior<ITransportReceiveContext>
+            class BehaviorThatLogsControlMessageDelivery : IBehavior<ITransportReceiveContext, ITransportReceiveContext>
             {
                 public Context TestContext { get; set; }
 
-                public override async Task Invoke(ITransportReceiveContext context, Func<Task> next)
+                public Task Invoke(ITransportReceiveContext context, Func<ITransportReceiveContext, Task> next)
                 {
                     if (context.Message.Headers.ContainsKey(Headers.ControlMessageHeader) &&
                         context.Message.Headers["Timeout.Id"] == TestContext.TestRunId.ToString())
                     {
                         TestContext.FailedTimeoutMovedToError = true;
-                        return;
+                        return Task.FromResult(0);
                     }
 
-                    await next().ConfigureAwait(false);
+                    return next(context);
                 }
 
                 public class Registration : RegisterStep

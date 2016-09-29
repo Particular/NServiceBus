@@ -3,11 +3,11 @@ namespace NServiceBus
     using System.Threading.Tasks;
     using Pipeline;
     using Routing;
-    using Transports;
+    using Transport;
 
     static class IncomingMessageOperations
     {
-        public static async Task ForwardCurrentMessageTo(IIncomingContext context, string destination)
+        public static Task ForwardCurrentMessageTo(IIncomingContext context, string destination)
         {
             var messageBeingProcessed = context.Extensions.Get<IncomingMessage>();
 
@@ -21,7 +21,7 @@ namespace NServiceBus
 
             var routingContext = new RoutingContext(outgoingMessage, new UnicastRoutingStrategy(destination), context);
 
-            await pipeline.Invoke(routingContext).ConfigureAwait(false);
+            return pipeline.Invoke(routingContext);
         }
     }
 }

@@ -2,8 +2,8 @@
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.Core.Tests.Features;
-    using NServiceBus.ObjectBuilder;
+    using Features;
+    using ObjectBuilder;
     using NServiceBus.Pipeline;
     using NUnit.Framework;
 
@@ -83,7 +83,7 @@
             var behavior = registerStep.CreateBehavior(builder);
 
             Assert.IsFalse(originalBehaviorFactoryCalled);
-            Assert.AreEqual(typeof(BehaviorB), behavior.Type);
+            Assert.IsInstanceOf<BehaviorB>(behavior);
         }
 
         [Test]
@@ -93,7 +93,7 @@
             Func<IBuilder, IBehavior> replacementBehaviorFactory = b =>
             {
                 replacementBehaviorFactoryCalled = true;
-                return new BehaviorA();
+                return new BehaviorB();
             };
 
             var builder = new FakeBuilder(typeof(BehaviorB));
@@ -104,20 +104,20 @@
             var behavior = registerStep.CreateBehavior(builder);
 
             Assert.IsTrue(replacementBehaviorFactoryCalled);
-            Assert.AreEqual(typeof(BehaviorB), behavior.Type);
+            Assert.IsInstanceOf<BehaviorB>(behavior);
         }
 
-        class BehaviorA : Behavior<IRoutingContext>
+        class BehaviorA : IBehavior<IRoutingContext, IRoutingContext>
         {
-            public override Task Invoke(IRoutingContext context, Func<Task> next)
+            public Task Invoke(IRoutingContext context, Func<IRoutingContext, Task> next)
             {
                 return TaskEx.CompletedTask;
             }
         }
 
-        class BehaviorB : Behavior<IRoutingContext>
+        class BehaviorB : IBehavior<IRoutingContext, IRoutingContext>
         {
-            public override Task Invoke(IRoutingContext context, Func<Task> next)
+            public Task Invoke(IRoutingContext context, Func<IRoutingContext, Task> next)
             {
                 return TaskEx.CompletedTask;
             }

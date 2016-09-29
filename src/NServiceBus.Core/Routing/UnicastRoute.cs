@@ -1,61 +1,84 @@
 namespace NServiceBus.Routing
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Threading.Tasks;
-
     /// <summary>
     /// A destination of address routing.
     /// </summary>
-    public class UnicastRoute : IUnicastRoute
+    public class UnicastRoute
     {
+        private UnicastRoute()
+        {
+        }
+
+        /// <summary>
+        /// The logical endpoint name if present.
+        /// </summary>
+        public string Endpoint { get; private set; }
+
+        /// <summary>
+        /// The endpoint instance if present.
+        /// </summary>
+        public EndpointInstance Instance { get; private set; }
+
+        /// <summary>
+        /// The physical address if present.
+        /// </summary>
+        public string PhysicalAddress { get; private set; }
+
         /// <summary>
         /// Creates a destination based on the name of the endpoint.
         /// </summary>
         /// <param name="endpoint">Destination endpoint.</param>
-        public UnicastRoute(EndpointName endpoint)
+        /// <returns>The new destination route.</returns>
+        public static UnicastRoute CreateFromEndpointName(string endpoint)
         {
             Guard.AgainstNull(nameof(endpoint), endpoint);
-            this.endpoint = endpoint;
+            return new UnicastRoute
+            {
+                Endpoint = endpoint
+            };
         }
 
         /// <summary>
         /// Creates a destination based on the name of the endpoint instance.
         /// </summary>
         /// <param name="instance">Destination instance name.</param>
-        public UnicastRoute(EndpointInstance instance)
+        /// <returns>The new destination route.</returns>
+        public static UnicastRoute CreateFromEndpointInstance(EndpointInstance instance)
         {
             Guard.AgainstNull(nameof(instance), instance);
-            this.instance = instance;
+            return new UnicastRoute
+            {
+                Instance = instance
+            };
         }
 
         /// <summary>
         /// Creates a destination based on the physical address.
         /// </summary>
         /// <param name="physicalAddress">Destination physical address.</param>
-        public UnicastRoute(string physicalAddress)
+        /// <returns>The new destination route.</returns>
+        public static UnicastRoute CreateFromPhysicalAddress(string physicalAddress)
         {
             Guard.AgainstNullAndEmpty(nameof(physicalAddress), physicalAddress);
-            this.physicalAddress = physicalAddress;
+            return new UnicastRoute
+            {
+                PhysicalAddress = physicalAddress
+            };
         }
 
-        async Task<IEnumerable<UnicastRoutingTarget>> IUnicastRoute.Resolve(Func<EndpointName, Task<IEnumerable<EndpointInstance>>> instanceResolver)
+        /// <summary>Returns a string that represents the current object.</summary>
+        /// <returns>A string that represents the current object.</returns>
+        public override string ToString()
         {
-            if (physicalAddress != null)
+            if (Endpoint != null)
             {
-                return EnumerableEx.Single(UnicastRoutingTarget.ToTransportAddress(physicalAddress));
+                return Endpoint;
             }
-            if (instance != null)
+            if (Instance != null)
             {
-                return EnumerableEx.Single(UnicastRoutingTarget.ToEndpointInstance(instance));
+                return $"[{Instance}]";
             }
-            var instances = await instanceResolver(endpoint).ConfigureAwait(false);
-            return instances.Select(UnicastRoutingTarget.ToEndpointInstance);
+            return $"<{PhysicalAddress}>";
         }
-
-        EndpointName endpoint;
-        EndpointInstance instance;
-        string physicalAddress;
     }
 }

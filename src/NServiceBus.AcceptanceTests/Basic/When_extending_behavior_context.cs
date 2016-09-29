@@ -38,7 +38,7 @@
             {
                 EndpointSetup<DefaultServer>(c => c.Pipeline.Register(
                     "CustomContextExtensionBehavior",
-                    typeof(CustomContextExtensionBehavior),
+                    new CustomContextExtensionBehavior(),
                     "Puts customized data on the message context"));
             }
 
@@ -68,12 +68,12 @@
                 }
             }
 
-            class CustomContextExtensionBehavior : Behavior<IIncomingLogicalMessageContext>
+            class CustomContextExtensionBehavior : IBehavior<IIncomingLogicalMessageContext, IIncomingLogicalMessageContext>
             {
-                public override Task Invoke(IIncomingLogicalMessageContext context, Func<Task> next)
+                public Task Invoke(IIncomingLogicalMessageContext context, Func<IIncomingLogicalMessageContext, Task> next)
                 {
                     context.Extensions.Set("CustomExtension", ExtensionValue);
-                    return next();
+                    return next(context);
                 }
             }
         }

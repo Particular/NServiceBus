@@ -1,7 +1,7 @@
 ﻿namespace NServiceBus.Core.Tests.Reliability.Outbox
 {
     using System.Threading.Tasks;
-    using NServiceBus.Extensibility;
+    using Extensibility;
     using NServiceBus.Outbox;
 
     class FakeOutboxStorage : IOutboxStorage

@@ -5,9 +5,10 @@
     using EndpointTemplates;
     using Extensibility;
     using Features;
-    using NServiceBus.Persistence;
+    using NServiceBus;
     using NServiceBus.Sagas;
     using NUnit.Framework;
+    using Persistence;
 
     [TestFixture]
     public class When_a_finder_exists : NServiceBusAcceptanceTest

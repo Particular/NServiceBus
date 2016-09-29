@@ -10,9 +10,9 @@
     public class When_saga_has_a_non_empty_constructor : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Should_hydrate_and_invoke_the_existing_instance()
+        public Task Should_hydrate_and_invoke_the_existing_instance()
         {
-            await Scenario.Define<Context>()
+            return Scenario.Define<Context>()
                 .WithEndpoint<NonEmptySagaCtorEndpt>(b => b.When(session => session.SendLocal(new StartSagaMessage
                 {
                     SomeId = IdThatSagaIsCorrelatedOn

@@ -18,12 +18,12 @@
         FileShareDataBusImplementation dataBus;
         string basePath = Path.GetTempPath();
 
-        Task<string> Put(string content, TimeSpan timeToLive)
+        async Task<string> Put(string content, TimeSpan timeToLive)
         {
             var byteArray = Encoding.ASCII.GetBytes(content);
             using (var stream = new MemoryStream(byteArray))
             {
-                return dataBus.Put(stream, timeToLive);
+                return await dataBus.Put(stream, timeToLive);
             }
         }
 
@@ -34,8 +34,9 @@
 
             var key = await Put(content, TimeSpan.MaxValue);
             using (var stream = await dataBus.Get(key))
+            using (var streamReader = new StreamReader(stream))
             {
-                Assert.AreEqual(new StreamReader(stream).ReadToEnd(), content);
+                Assert.AreEqual(await streamReader.ReadToEndAsync(), content);
             }
         }
 
@@ -49,25 +50,26 @@
             Parallel.For(0, 10, async i =>
             {
                 using (var stream = await dataBus.Get(key))
+                using (var streamReader = new StreamReader(stream))
                 {
-                    Assert.AreEqual(new StreamReader(stream).ReadToEnd(), content);
+                    Assert.AreEqual(await streamReader.ReadToEndAsync(), content);
                 }
             });
         }
 
         [Test]
-        public void Should_handle_max_ttl()
+        public async Task Should_handle_max_ttl()
         {
-            Put("Test", TimeSpan.MaxValue);
+            await Put("Test", TimeSpan.MaxValue);
             Assert.True(Directory.Exists(Path.Combine(basePath, DateTime.MaxValue.ToString("yyyy-MM-dd_HH"))));
         }
 
         [Test]
-        public void Should_honor_the_ttl_limit()
+        public async Task Should_honor_the_ttl_limit()
         {
             dataBus.MaxMessageTimeToLive = TimeSpan.FromDays(1);
 
-            Put("Test", TimeSpan.MaxValue);
+            await Put("Test", TimeSpan.MaxValue);
             Assert.True(Directory.Exists(Path.Combine(basePath, DateTime.Now.AddDays(1).ToString("yyyy-MM-dd_HH"))));
         }
     }

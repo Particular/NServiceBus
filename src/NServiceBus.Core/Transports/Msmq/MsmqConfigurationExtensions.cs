@@ -4,6 +4,7 @@ namespace NServiceBus
     using System.Collections.Generic;
     using System.Messaging;
     using System.Transactions;
+    using Routing;
 
     /// <summary>
     /// Adds extensions methods to <see cref="TransportExtensions{T}" /> for configuration purposes.
@@ -42,11 +43,21 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Enables file-based route table source that is automatically refreshed whenever files get updated.
+        /// Sets a distribution strategy for a given endpoint.
         /// </summary>
-        public static FileRoutingTableSettings DistributeMessagesUsingFileBasedEndpointInstanceMapping(this TransportExtensions<MsmqTransport> config, string filePath)
+        /// <param name="config">Config object.</param>
+        /// <param name="distributionStrategy">The instance of a distribution strategy.</param>
+        public static void SetMessageDistributionStrategy(this RoutingSettings<MsmqTransport> config, DistributionStrategy distributionStrategy)
         {
-            return config.UnicastRouting().Mapping.DistributeMessagesUsingFileBasedEndpointInstanceMapping(filePath);
+            config.Settings.GetOrCreate<DistributionPolicy>().SetDistributionStrategy(distributionStrategy);
+        }
+
+        /// <summary>
+        /// Returns the configuration options for the file based instance mapping file.
+        /// </summary>
+        public static InstanceMappingFileSettings InstanceMappingFile(this RoutingSettings<MsmqTransport> config)
+        {
+            return new InstanceMappingFileSettings(config.Settings);
         }
     }
 }

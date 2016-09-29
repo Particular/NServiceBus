@@ -12,19 +12,22 @@
         public async Task Should_receive_the_message()
         {
             var context = await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
-                .WithEndpoint<Endpoint>(b => b.When((session, c) => session.SendLocal(new MyMessage
+                .WithEndpoint<Endpoint>(b => b.When(async(session, c) =>
                 {
-                    Id = c.Id
-                })))
-                .Done(c => c.WasCalled)
+                    await session.SendLocal<MyMessage>(m => m.Id = c.Id);
+                    await session.SendLocal<IMyInterfaceMessage>(m => m.Id = c.Id);
+                }))
+                .Done(c => c.MessageClassReceived && c.MessageInterfaceReceived)
                 .Run();
 
-            Assert.True(context.WasCalled);
+            Assert.True(context.MessageClassReceived);
+            Assert.True(context.MessageInterfaceReceived);
         }
 
         public class Context : ScenarioContext
         {
-            public bool WasCalled { get; set; }
+            public bool MessageClassReceived { get; set; }
+            public bool MessageInterfaceReceived { get; set; }
             public Guid Id { get; set; }
         }
 
@@ -32,14 +35,18 @@
         {
             public Endpoint()
             {
-                EndpointSetup<DefaultServer>(b => b.Conventions().DefiningMessagesAs(type => type == typeof(MyMessage)));
+                EndpointSetup<DefaultServer>(b => b.Conventions().DefiningMessagesAs(type => type.Name.EndsWith("Message")));
             }
         }
 
-        [Serializable]
         public class MyMessage
         {
             public Guid Id { get; set; }
+        }
+
+        public interface IMyInterfaceMessage
+        {
+            Guid Id { get; set; }
         }
 
         public class MyMessageHandler : IHandleMessages<MyMessage>
@@ -53,7 +60,24 @@
                     return Task.FromResult(0);
                 }
 
-                Context.WasCalled = true;
+                Context.MessageClassReceived = true;
+
+                return Task.FromResult(0);
+            }
+        }
+
+        public class MyMessageInterfaceHandler : IHandleMessages<IMyInterfaceMessage>
+        {
+            public Context Context { get; set; }
+
+            public Task Handle(IMyInterfaceMessage interfaceMessage, IMessageHandlerContext context)
+            {
+                if (Context.Id != interfaceMessage.Id)
+                {
+                    return Task.FromResult(0);
+                }
+
+                Context.MessageInterfaceReceived = true;
 
                 return Task.FromResult(0);
             }

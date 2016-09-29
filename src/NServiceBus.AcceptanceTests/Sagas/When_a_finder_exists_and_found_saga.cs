@@ -4,10 +4,10 @@
     using AcceptanceTesting;
     using EndpointTemplates;
     using Extensibility;
-    using Features;
-    using NServiceBus.Persistence;
+    using NServiceBus;
     using NServiceBus.Sagas;
     using NUnit.Framework;
+    using Persistence;
 
     [TestFixture]
     public class When_a_finder_exists_and_found_saga : NServiceBusAcceptanceTest
@@ -16,7 +16,7 @@
         public async Task Should_find_saga_and_not_correlate()
         {
             var context = await Scenario.Define<Context>()
-                .WithEndpoint<SagaEndpoint>(b => b.When(session => session.SendLocal(new StartSagaMessage())))
+                .WithEndpoint<SagaEndpoint>(b => b.When(session => session.SendLocal(new StartSagaMessage { Property = "Test" })))
                 .Done(c => c.Completed)
                 .Run();
 
@@ -33,7 +33,7 @@
         {
             public SagaEndpoint()
             {
-                EndpointSetup<DefaultServer>(c => c.EnableFeature<TimeoutManager>());
+                EndpointSetup<DefaultServer>();
             }
 
             public class CustomFinder : IFindSagas<TestSaga08.SagaData08>.Using<SomeOtherMessage>
@@ -41,13 +41,18 @@
                 // ReSharper disable once MemberCanBePrivate.Global
                 public Context Context { get; set; }
 
-                public Task<TestSaga08.SagaData08> FindBy(SomeOtherMessage message, SynchronizedStorageSession storageSession, ReadOnlyContextBag context)
+                public ISagaPersister SagaPersister { get; set; }
+
+                public async Task<TestSaga08.SagaData08> FindBy(SomeOtherMessage message, SynchronizedStorageSession storageSession, ReadOnlyContextBag context)
                 {
                     Context.FinderUsed = true;
-                    return Task.FromResult(new TestSaga08.SagaData08
+                    var sagaInstance = new TestSaga08.SagaData08
                     {
                         Property = "jfbsjdfbsdjh"
-                    });
+                    };
+                    //Make sure saga exists in the store. Persisters expect it there when they save saga instance after processing a message.
+                    await SagaPersister.Save(sagaInstance, SagaCorrelationProperty.None, storageSession, new ContextBag()).ConfigureAwait(false);
+                    return sagaInstance;
                 }
             }
 
@@ -70,7 +75,8 @@
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData08> mapper)
                 {
-                    // not required because of CustomFinder
+                    mapper.ConfigureMapping<StartSagaMessage>(saga => saga.Property).ToSaga(saga => saga.Property);
+                    // Mapping not required for SomeOtherMessage because CustomFinder used
                 }
 
                 public class SagaData08 : ContainSagaData
@@ -82,10 +88,12 @@
 
         public class StartSagaMessage : IMessage
         {
+            public string Property { get; set; }
         }
 
         public class SomeOtherMessage : IMessage
         {
+            public string Property { get; set; }
         }
     }
 }

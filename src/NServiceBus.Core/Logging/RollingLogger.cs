@@ -20,13 +20,18 @@ namespace NServiceBus
         public void Write(string message)
         {
             SyncFileSystem();
+            InnerWrite(message);
+        }
+
+        void InnerWrite(string message)
+        {
             try
             {
                 AppendLine(message);
             }
             catch (Exception exception)
             {
-                var errorMessage = $"NServiceBus.Logging.RollingLogger Could not write to log file {currentfilePath} {exception}";
+                var errorMessage = $"NServiceBus.RollingLogger Could not write to log file '{currentfilePath}'. Exception: {exception}";
                 Trace.WriteLine(errorMessage);
             }
         }
@@ -65,7 +70,15 @@ namespace NServiceBus
         {
             foreach (var file in GetFilesToDelete(logFiles))
             {
-                File.Delete(file);
+                try
+                {
+                    File.Delete(file);
+                }
+                catch (Exception exception)
+                {
+                    var errorMessage = $"NServiceBus.RollingLogger Could not purge log file '{file}'. Exception: {exception}";
+                    InnerWrite(errorMessage);
+                }
             }
         }
 

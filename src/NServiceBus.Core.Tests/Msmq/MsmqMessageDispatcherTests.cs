@@ -3,10 +3,11 @@
     using System;
     using System.Collections.Generic;
     using System.Messaging;
-    using NServiceBus.Extensibility;
+    using Extensibility;
     using NServiceBus.Routing;
-    using NServiceBus.Transports;
+    using Transport;
     using NUnit.Framework;
+    using Support;
 
     [TestFixture]
     public class MsmqMessageDispatcherTests
@@ -15,7 +16,7 @@
         public void Should_set_label_when_convention_configured()
         {
             var queueName = "labelTest";
-            var path = $@"{Environment.MachineName}\private$\{queueName}";
+            var path = $@"{RuntimeEnvironment.MachineName}\private$\{queueName}";
             try
             {
                 MsmqHelpers.DeleteQueue(path);
@@ -29,7 +30,7 @@
                 var headers = new Dictionary<string, string>();
                 var outgoingMessage = new OutgoingMessage("1", headers, bytes);
                 var transportOperation = new TransportOperation(outgoingMessage, new UnicastAddressTag(queueName), DispatchConsistency.Default);
-                messageSender.Dispatch(new TransportOperations(transportOperation), new ContextBag());
+                messageSender.Dispatch(new TransportOperations(transportOperation), new TransportTransaction(), new ContextBag());
                 var messageLabel = ReadMessageLabel(path);
                 Assert.AreEqual("mylabel", messageLabel);
 
@@ -57,7 +58,7 @@
                 var headers = new Dictionary<string, string>();
                 var outgoingMessage = new OutgoingMessage("1", headers, bytes);
                 var transportOperation = new TransportOperation(outgoingMessage, new UnicastAddressTag(queueName), DispatchConsistency.Default);
-                messageSender.Dispatch(new TransportOperations(transportOperation), new ContextBag());
+                messageSender.Dispatch(new TransportOperations(transportOperation), new TransportTransaction(), new ContextBag());
                 var messageLabel = ReadMessageLabel(path);
                 Assert.IsEmpty(messageLabel);
 

@@ -3,7 +3,6 @@ namespace NServiceBus.Routing.MessageDrivenSubscriptions
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Reflection;
 
     /// <summary>
     /// Manages the information about publishers.
@@ -12,87 +11,41 @@ namespace NServiceBus.Routing.MessageDrivenSubscriptions
     {
         internal IEnumerable<PublisherAddress> GetPublisherFor(Type eventType)
         {
-            var distinctPublishers = rules.Select(r => r.Apply(eventType)).Where(e => e != null).Distinct().ToList();
-            return distinctPublishers;
+            HashSet<PublisherAddress> addresses;
+            return publishers.TryGetValue(eventType, out addresses)
+                ? addresses
+                : Enumerable.Empty<PublisherAddress>();
         }
 
         /// <summary>
-        /// Registers a publisher endpoint for a given endpoint type.
+        /// Adds or replaces a set of publisher registrations. The registration set is identified <paramref name="sourceKey"></paramref>.
+        /// If the method is called the first time with a given <paramref name="sourceKey"></paramref>, the registrations are added.
+        /// If the method is called with the same <paramref name="sourceKey"></paramref> multiple times, the publishers registered previously under this key are replaced.
         /// </summary>
-        /// <param name="publisher">Publisher endpoint.</param>
-        /// <param name="eventType">Event type.</param>
-        public void Add(string publisher, Type eventType)
+        /// <param name="sourceKey">Key for this registration source.</param>
+        /// <param name="entries">Entries.</param>
+        public void AddOrReplacePublishers(string sourceKey, IList<PublisherTableEntry> entries)
         {
-            rules.Add(new Rule(type => StaticTypeRule(type, eventType, new PublisherAddress(new EndpointName(publisher))), $"{eventType.FullName} -> {publisher}"));
-        }
-
-        /// <summary>
-        /// Registers a publisher address for a given endpoint type.
-        /// </summary>
-        /// <param name="publisherAddress">Publisher physical address.</param>
-        /// <param name="eventType">Event type.</param>
-        public void AddByAddress(string publisherAddress, Type eventType)
-        {
-            rules.Add(new Rule(type => StaticTypeRule(type, eventType, new PublisherAddress(publisherAddress)), $"{eventType.FullName} -> {publisherAddress}"));
-        }
-
-        /// <summary>
-        /// Registers a publisher for all events in a given assembly (and optionally namespace).
-        /// </summary>
-        /// <param name="publisher">Publisher endpoint.</param>
-        /// <param name="eventAssembly">Assembly containing events.</param>
-        /// <param name="eventNamespace">Optional namespace containing events.</param>
-        public void Add(string publisher, Assembly eventAssembly, string eventNamespace = null)
-        {
-            rules.Add(new Rule(type => StaticAssemblyRule(type, eventAssembly, eventNamespace, new PublisherAddress(new EndpointName(publisher))), $"{eventAssembly.GetName().Name}/{eventNamespace ?? "*"} -> {publisher}"));
-        }
-
-        static PublisherAddress StaticAssemblyRule(Type typeBeingQueried, Assembly configuredAssembly, string configuredNamespace, PublisherAddress configuredAddress)
-        {
-            return typeBeingQueried.Assembly == configuredAssembly && (configuredNamespace == null || configuredNamespace.Equals(typeBeingQueried.Namespace, StringComparison.InvariantCultureIgnoreCase))
-                ? configuredAddress
-                : null;
-        }
-
-        static PublisherAddress StaticTypeRule(Type typeBeingQueried, Type configuredType, PublisherAddress configuredAddress)
-        {
-            return typeBeingQueried == configuredType
-                ? configuredAddress
-                : null;
-        }
-
-        /// <summary>
-        /// Adds a dynamic rule.
-        /// </summary>
-        /// <param name="dynamicRule">The rule.</param>
-        /// <param name="description">Optional description of the rule.</param>
-        public void AddDynamic(Func<Type, PublisherAddress> dynamicRule, string description = null)
-        {
-            rules.Add(new Rule(dynamicRule, description ?? "dynamic"));
-        }
-
-        List<Rule> rules = new List<Rule>();
-
-        class Rule
-        {
-            public Rule(Func<Type, PublisherAddress> rule, string description)
+            lock (updateLock)
             {
-                this.rule = rule;
-                this.description = description;
+                publisherRegistrations[sourceKey] = entries;
+                var newRouteTable = new Dictionary<Type, HashSet<PublisherAddress>>();
+                foreach (var entry in publisherRegistrations.Values.SelectMany(g => g))
+                {
+                    HashSet<PublisherAddress> publishersOfThisEvent;
+                    if (!newRouteTable.TryGetValue(entry.EventType, out publishersOfThisEvent))
+                    {
+                        publishersOfThisEvent = new HashSet<PublisherAddress>();
+                        newRouteTable[entry.EventType] = publishersOfThisEvent;
+                    }
+                    publishersOfThisEvent.Add(entry.Address);
+                }
+                publishers = newRouteTable;
             }
-
-            public PublisherAddress Apply(Type type)
-            {
-                return rule(type);
-            }
-
-            public override string ToString()
-            {
-                return description;
-            }
-
-            string description;
-            Func<Type, PublisherAddress> rule;
         }
+
+        Dictionary<Type, HashSet<PublisherAddress>> publishers = new Dictionary<Type, HashSet<PublisherAddress>>();
+        Dictionary<object, IList<PublisherTableEntry>> publisherRegistrations = new Dictionary<object, IList<PublisherTableEntry>>();
+        object updateLock = new object();
     }
 }

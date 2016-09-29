@@ -12,9 +12,9 @@
     public class When_sending_inside_ambient_tx : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Should_not_roll_the_message_back_to_the_queue_in_case_of_failure()
+        public Task Should_not_roll_the_message_back_to_the_queue_in_case_of_failure()
         {
-            await Scenario.Define<Context>()
+            return Scenario.Define<Context>()
                 .WithEndpoint<NonTransactionalEndpoint>(b => b
                     .When(session => session.SendLocal(new MyMessage()))
                     .DoNotFailOnErrorMessages())
@@ -38,17 +38,17 @@
                 EndpointSetup<DefaultServer>((config, context) =>
                 {
                     config.UseTransport(context.GetTransportType()).Transactions(TransportTransactionMode.None);
-                    config.Pipeline.Register("WrapInScope", typeof(WrapHandlersInScope), "Wraps the handlers in a scope");
+                    config.Pipeline.Register("WrapInScope", new WrapHandlersInScope(), "Wraps the handlers in a scope");
                 });
             }
 
-            class WrapHandlersInScope : Behavior<IIncomingLogicalMessageContext>
+            class WrapHandlersInScope : IBehavior<IIncomingLogicalMessageContext, IIncomingLogicalMessageContext>
             {
-                public override async Task Invoke(IIncomingLogicalMessageContext context, Func<Task> next)
+                public async Task Invoke(IIncomingLogicalMessageContext context, Func<IIncomingLogicalMessageContext, Task> next)
                 {
                     using (var tx = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
                     {
-                        await next();
+                        await next(context).ConfigureAwait(false);
                         tx.Complete();
                     }
                 }

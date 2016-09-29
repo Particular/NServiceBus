@@ -8,7 +8,7 @@
     using Configuration.AdvanceExtensibility;
     using Features;
     using NServiceBus.Config.ConfigurationSource;
-    using Serialization;
+    using NServiceBus.Serialization;
 
     public class DefaultServer : IEndpointSetupTemplate
     {
@@ -30,32 +30,34 @@
 
             typesToInclude.AddRange(types);
 
-            var builder = new EndpointConfiguration(endpointConfiguration.EndpointName);
+            var configuration = new EndpointConfiguration(endpointConfiguration.EndpointName);
 
-            builder.TypesToIncludeInScan(typesToInclude);
-            builder.CustomConfigurationSource(configSource);
-            builder.EnableInstallers();
+            configuration.TypesToIncludeInScan(typesToInclude);
+            configuration.CustomConfigurationSource(configSource);
+            configuration.EnableInstallers();
 
-            builder.DisableFeature<TimeoutManager>();
-            builder.DisableFeature<SecondLevelRetries>();
-            builder.DisableFeature<FirstLevelRetries>();
+            configuration.DisableFeature<TimeoutManager>();
 
-            await builder.DefineTransport(settings, endpointConfiguration.EndpointName).ConfigureAwait(false);
+            var recoverability = configuration.Recoverability();
+            recoverability.Delayed(delayed => delayed.NumberOfRetries(0));
+            recoverability.Immediate(immediate => immediate.NumberOfRetries(0));
 
-            builder.DefineBuilder(settings);
-            builder.RegisterComponentsAndInheritanceHierarchy(runDescriptor);
+            await configuration.DefineTransport(settings, endpointConfiguration.EndpointName).ConfigureAwait(false);
+
+            configuration.DefineBuilder(settings);
+            configuration.RegisterComponentsAndInheritanceHierarchy(runDescriptor);
 
             Type serializerType;
             if (settings.TryGet("Serializer", out serializerType))
             {
-                builder.UseSerialization((SerializationDefinition) Activator.CreateInstance(serializerType));
+                configuration.UseSerialization((SerializationDefinition)Activator.CreateInstance(serializerType));
             }
-            await builder.DefinePersistence(settings, endpointConfiguration.EndpointName).ConfigureAwait(false);
+            await configuration.DefinePersistence(settings, endpointConfiguration.EndpointName).ConfigureAwait(false);
 
-            builder.GetSettings().SetDefault("ScaleOut.UseSingleBrokerQueue", true);
-            configurationBuilderCustomization(builder);
+            configuration.GetSettings().SetDefault("ScaleOut.UseSingleBrokerQueue", true);
+            configurationBuilderCustomization(configuration);
 
-            return builder;
+            return configuration;
         }
 
         List<Type> typesToInclude;

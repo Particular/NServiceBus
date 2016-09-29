@@ -7,13 +7,13 @@
     using Logging;
     using Pipeline;
     using Routing;
-    using Transports;
+    using Transport;
     using Unicast.Queuing;
     using Unicast.Transport;
 
     class MessageDrivenSubscribeTerminator : PipelineTerminator<ISubscribeContext>
     {
-        public MessageDrivenSubscribeTerminator(SubscriptionRouter subscriptionRouter, string subscriberAddress, EndpointName subscriberEndpoint, IDispatchMessages dispatcher)
+        public MessageDrivenSubscribeTerminator(SubscriptionRouter subscriptionRouter, string subscriberAddress, string subscriberEndpoint, IDispatchMessages dispatcher)
         {
             this.subscriptionRouter = subscriptionRouter;
             this.subscriberAddress = subscriberAddress;
@@ -25,7 +25,7 @@
         {
             var eventType = context.EventType;
 
-            var publisherAddresses = (await subscriptionRouter.GetAddressesForEventType(eventType).ConfigureAwait(false))
+            var publisherAddresses = subscriptionRouter.GetAddressesForEventType(eventType)
                 .EnsureNonEmpty(() => $"No publisher address could be found for message type {eventType}. Ensure the configured publisher endpoint has at least one known instance.");
 
             var subscribeTasks = new List<Task>();
@@ -38,7 +38,7 @@
                 subscriptionMessage.Headers[Headers.SubscriptionMessageType] = eventType.AssemblyQualifiedName;
                 subscriptionMessage.Headers[Headers.ReplyToAddress] = subscriberAddress;
                 subscriptionMessage.Headers[Headers.SubscriberTransportAddress] = subscriberAddress;
-                subscriptionMessage.Headers[Headers.SubscriberEndpoint] = subscriberEndpoint.ToString();
+                subscriptionMessage.Headers[Headers.SubscriberEndpoint] = subscriberEndpoint;
                 subscriptionMessage.Headers[Headers.TimeSent] = DateTimeExtensions.ToWireFormattedString(DateTime.UtcNow);
                 subscriptionMessage.Headers[Headers.NServiceBusVersion] = GitFlowVersion.MajorMinorPatch;
 
@@ -53,7 +53,8 @@
             try
             {
                 var transportOperation = new TransportOperation(subscriptionMessage, new UnicastAddressTag(destination));
-                await dispatcher.Dispatch(new TransportOperations(transportOperation), context).ConfigureAwait(false);
+                var transportTransaction = context.GetOrCreate<TransportTransaction>();
+                await dispatcher.Dispatch(new TransportOperations(transportOperation), transportTransaction, context).ConfigureAwait(false);
             }
             catch (QueueNotFoundException ex)
             {
@@ -73,11 +74,11 @@
 
         IDispatchMessages dispatcher;
         string subscriberAddress;
-        EndpointName subscriberEndpoint;
+        string subscriberEndpoint;
 
         SubscriptionRouter subscriptionRouter;
 
-        static ILog Logger = LogManager.GetLogger<MessageDrivenUnsubscribeTerminator>();
+        static ILog Logger = LogManager.GetLogger<MessageDrivenSubscribeTerminator>();
 
         public class Settings
         {

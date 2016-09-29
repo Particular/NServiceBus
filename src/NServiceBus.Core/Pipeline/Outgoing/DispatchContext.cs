@@ -2,7 +2,7 @@ namespace NServiceBus
 {
     using System.Collections.Generic;
     using Pipeline;
-    using Transports;
+    using Transport;
 
     class DispatchContext : BehaviorContext, IDispatchContext
     {

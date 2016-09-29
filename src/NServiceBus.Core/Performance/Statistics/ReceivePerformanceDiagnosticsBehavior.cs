@@ -6,33 +6,33 @@ namespace NServiceBus
     using Pipeline;
 
     [SkipWeaving]
-    class ReceivePerformanceDiagnosticsBehavior : Behavior<IIncomingPhysicalMessageContext>
+    class ReceivePerformanceDiagnosticsBehavior : IBehavior<IIncomingPhysicalMessageContext, IIncomingPhysicalMessageContext>
     {
-        public ReceivePerformanceDiagnosticsBehavior(string transportAddress)
+        public ReceivePerformanceDiagnosticsBehavior(string queueName)
         {
-            this.transportAddress = transportAddress;
+            this.queueName = queueName;
         }
 
         public void Warmup()
         {
             messagesPulledFromQueueCounter = PerformanceCounterHelper.TryToInstantiatePerformanceCounter(
                 "# of msgs pulled from the input queue /sec",
-                transportAddress);
+                queueName);
             successRateCounter = PerformanceCounterHelper.TryToInstantiatePerformanceCounter(
                 "# of msgs successfully processed / sec",
-                transportAddress);
+                queueName);
             failureRateCounter = PerformanceCounterHelper.TryToInstantiatePerformanceCounter(
                 "# of msgs failures / sec",
-                transportAddress);
+                queueName);
         }
 
-        public override async Task Invoke(IIncomingPhysicalMessageContext context, Func<Task> next)
+        public async Task Invoke(IIncomingPhysicalMessageContext context, Func<IIncomingPhysicalMessageContext, Task> next)
         {
             messagesPulledFromQueueCounter.Increment();
 
             try
             {
-                await next().ConfigureAwait(false);
+                await next(context).ConfigureAwait(false);
             }
             catch (Exception)
             {
@@ -54,6 +54,6 @@ namespace NServiceBus
         IPerformanceCounterInstance messagesPulledFromQueueCounter;
         IPerformanceCounterInstance successRateCounter;
 
-        string transportAddress;
+        string queueName;
     }
 }

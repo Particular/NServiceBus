@@ -1,9 +1,9 @@
 ﻿namespace NServiceBus.Features
 {
-    using System;
     using System.Linq;
     using DeliveryConstraints;
     using Performance.TimeToBeReceived;
+    using Unicast.Messages;
 
     class TimeToBeReceived : Feature
     {
@@ -16,21 +16,13 @@
         {
             var mappings = GetMappings(context);
 
-            if (mappings.HasEntries && !context.DoesTransportSupportConstraint<DiscardIfNotReceivedBefore>())
-            {
-                throw new Exception("Messages with TimeToBeReceived found but the selected transport does not support this type of restriction. Remove TTBR from messages, disable this feature or select a transport that does support TTBR");
-            }
-
-            context.Pipeline.Register("ApplyTimeToBeReceived", typeof(ApplyTimeToBeReceivedBehavior), "Adds the `DiscardIfNotReceivedBefore` constraint to relevant messages");
-
-            context.Container.ConfigureComponent(b => new ApplyTimeToBeReceivedBehavior(mappings), DependencyLifecycle.SingleInstance);
+            context.Pipeline.Register("ApplyTimeToBeReceived", new ApplyTimeToBeReceivedBehavior(mappings), "Adds the `DiscardIfNotReceivedBefore` constraint to relevant messages");
         }
 
-        TimeToBeReceivedMappings GetMappings(FeatureConfigurationContext context)
+        static TimeToBeReceivedMappings GetMappings(FeatureConfigurationContext context)
         {
-            var knownMessages = context.Settings.GetAvailableTypes()
-                .Where(context.Settings.Get<Conventions>().IsMessageType)
-                .ToList();
+            var registry = context.Settings.Get<MessageMetadataRegistry>();
+            var knownMessages = registry.GetAllMessages().Select(m => m.MessageType);
 
             var convention = TimeToBeReceivedMappings.DefaultConvention;
 
@@ -40,7 +32,8 @@
                 convention = userDefinedConvention.GetTimeToBeReceivedForMessage;
             }
 
-            return new TimeToBeReceivedMappings(knownMessages, convention);
+            var doesTransportSupportDiscardIfNotReceivedBefore = context.Settings.DoesTransportSupportConstraint<DiscardIfNotReceivedBefore>();
+            return new TimeToBeReceivedMappings(knownMessages, convention, doesTransportSupportDiscardIfNotReceivedBefore);
         }
     }
 }

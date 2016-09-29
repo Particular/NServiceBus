@@ -20,7 +20,7 @@
         /// Returns whether <see cref="DoNotEnforceBestPractices(NServiceBus.Extensibility.ExtendableOptions)" /> has ben called or
         /// not.
         /// </summary>
-        /// <returns><c>true</c> if best practice enforcment has ben disabled, <c>false</c> otherwhise.</returns>
+        /// <returns><c>true</c> if best practice enforcement has ben disabled, <c>false</c> otherwise.</returns>
         public static bool IgnoredBestPractices(this ExtendableOptions options)
         {
             EnforceBestPracticesOptions bestPracticesOptions;

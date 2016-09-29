@@ -14,17 +14,18 @@
         [Test]
         public void Should_throw()
         {
-            var exception = Assert.Throws<AggregateException>(async () =>
+            var exception = Assert.ThrowsAsync<AggregateException>(async () =>
                 await Scenario.Define<Context>()
                     .WithEndpoint<Endpoint>(
                         b => b.When(session => session.SendLocal(new StartSaga
                         {
                             DataId = Guid.NewGuid()
                         })))
-                    .Done(c => c.Exceptions.Any())
+                    .Done(c => c.FailedMessages.Any())
                     .Run())
                 .ExpectFailedMessages();
 
+            Assert.IsTrue(((Context)exception.ScenarioContext).ModifiedCorrelationProperty);
             Assert.AreEqual(1, exception.FailedMessages.Count);
             StringAssert.Contains(
                 "Changing the value of correlated properties at runtime is currently not supported",
@@ -33,6 +34,7 @@
 
         public class Context : ScenarioContext
         {
+            public bool ModifiedCorrelationProperty { get; set; }
         }
 
         public class Endpoint : EndpointConfigurationBuilder
@@ -45,9 +47,12 @@
             public class CorrIdChangedSaga : Saga<CorrIdChangedSaga.CorrIdChangedSagaData>,
                 IAmStartedByMessages<StartSaga>
             {
+                public Context TestContext { get; set; }
+
                 public Task Handle(StartSaga message, IMessageHandlerContext context)
                 {
                     Data.DataId = Guid.NewGuid();
+                    TestContext.ModifiedCorrelationProperty = true;
                     return Task.FromResult(0);
                 }
 

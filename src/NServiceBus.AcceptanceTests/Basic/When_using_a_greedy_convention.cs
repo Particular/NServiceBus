@@ -5,24 +5,21 @@
     using AcceptanceTesting;
     using EndpointTemplates;
     using NUnit.Framework;
-    using ScenarioDescriptors;
 
     public class When_using_a_greedy_convention : NServiceBusAcceptanceTest
     {
         [Test]
         public async Task Should_receive_the_message()
         {
-            await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
+            var context = await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
                 .WithEndpoint<Endpoint>(b => b.When((session, c) => session.SendLocal(new MyMessage
                 {
                     Id = c.Id
                 })))
                 .Done(c => c.WasCalled)
-                .Repeat(r => r
-                    .For(Transports.Default)
-                )
-                .Should(c => Assert.True(c.WasCalled, "The message handler should be called"))
                 .Run();
+
+            Assert.True(context.WasCalled, "The message handler should be called");
         }
 
         public class Context : ScenarioContext

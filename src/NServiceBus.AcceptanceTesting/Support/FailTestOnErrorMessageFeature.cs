@@ -1,11 +1,12 @@
 ﻿namespace NServiceBus.AcceptanceTesting.Support
 {
+    using System;
+    using System.Collections.Concurrent;
     using System.Linq;
     using System.Threading.Tasks;
     using Faults;
     using Features;
-    using Routing;
-    using Settings;
+    using Pipeline;
 
     public class FailTestOnErrorMessageFeature : Feature
     {
@@ -16,49 +17,49 @@
 
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-            context.RegisterStartupTask(b => new FailTestOnErrorMessageFeatureStartupTask(b.Build<ScenarioContext>(), context.Settings, context.Settings.Get<Notifications>()));
-        }
+            var scenarioContext = context.Settings.Get<ScenarioContext>();
 
-        class FailTestOnErrorMessageFeatureStartupTask : FeatureStartupTask
-        {
-            public FailTestOnErrorMessageFeatureStartupTask(ScenarioContext context, ReadOnlySettings settings, Notifications notifications)
-            {
-                scenarioContext = context;
-                this.notifications = notifications;
-                endpoint = settings.EndpointName();
-            }
+            context.Pipeline.Register(new CaptureExceptionBehavior(scenarioContext.UnfinishedFailedMessages), "Captures unhandled exceptions from processed messages for the AcceptanceTesting Framework");
 
-            protected override Task OnStart(IMessageSession session)
-            {
-                notifications.Errors.MessageSentToErrorQueue += OnMessageSentToErrorQueue;
-                return TaskEx.CompletedTask;
-            }
-
-            protected override Task OnStop(IMessageSession session)
-            {
-                notifications.Errors.MessageSentToErrorQueue -= OnMessageSentToErrorQueue;
-                return TaskEx.CompletedTask;
-            }
-
-            void OnMessageSentToErrorQueue(object sender, FailedMessage failedMessage)
+            context.Settings.Get<NotificationSubscriptions>().Subscribe<MessageFaulted>(m =>
             {
                 scenarioContext.FailedMessages.AddOrUpdate(
-                    endpoint.ToString(),
+                    context.Settings.EndpointName(),
                     new[]
                     {
-                        failedMessage
+                        new FailedMessage(m.Message.MessageId, m.Message.Headers, m.Message.Body, m.Exception, m.ErrorQueue)
                     },
                     (i, failed) =>
                     {
                         var result = failed.ToList();
-                        result.Add(failedMessage);
+                        result.Add(new FailedMessage(m.Message.MessageId, m.Message.Headers, m.Message.Body, m.Exception, m.ErrorQueue));
                         return result;
                     });
+
+                //We need to set the error flag to false as we want to reset all processing exceptions caused by immediate retries
+                scenarioContext.UnfinishedFailedMessages.AddOrUpdate(m.Message.MessageId, id => false, (id, value) => false);
+
+                return Task.FromResult(0);
+            });
+        }
+
+        class CaptureExceptionBehavior : IBehavior<ITransportReceiveContext, ITransportReceiveContext>
+        {
+            public CaptureExceptionBehavior(ConcurrentDictionary<string, bool> failedMessages)
+            {
+                this.failedMessages = failedMessages;
             }
 
-            EndpointName endpoint;
-            Notifications notifications;
-            ScenarioContext scenarioContext;
+            public async Task Invoke(ITransportReceiveContext context, Func<ITransportReceiveContext, Task> next)
+            {
+                failedMessages.AddOrUpdate(context.Message.MessageId, id => true, (id, value) => true);
+
+                await next(context).ConfigureAwait(false);
+
+                failedMessages.AddOrUpdate(context.Message.MessageId, id => false, (id, value) => false);
+            }
+
+            ConcurrentDictionary<string, bool> failedMessages;
         }
     }
 }

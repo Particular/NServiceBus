@@ -71,7 +71,7 @@
                 }
             }
 
-            var chunk = new TimeoutsChunk(timeoutsDue, DateTime.Now.AddSeconds(5));
+            var chunk = new TimeoutsChunk(timeoutsDue.ToArray(), DateTime.Now.AddSeconds(5));
 
             return Task.FromResult(chunk);
         }

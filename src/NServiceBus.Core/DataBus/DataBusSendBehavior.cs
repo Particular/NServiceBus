@@ -9,7 +9,7 @@
     using Performance.TimeToBeReceived;
     using Pipeline;
 
-    class DataBusSendBehavior : Behavior<IOutgoingLogicalMessageContext>
+    class DataBusSendBehavior : IBehavior<IOutgoingLogicalMessageContext, IOutgoingLogicalMessageContext>
     {
         public DataBusSendBehavior(IDataBus databus, IDataBusSerializer serializer, Conventions conventions)
         {
@@ -18,7 +18,7 @@
             dataBus = databus;
         }
 
-        public override async Task Invoke(IOutgoingLogicalMessageContext context, Func<Task> next)
+        public async Task Invoke(IOutgoingLogicalMessageContext context, Func<IOutgoingLogicalMessageContext, Task> next)
         {
             var timeToBeReceived = TimeSpan.MaxValue;
 
@@ -78,7 +78,7 @@
                 }
             }
 
-            await next().ConfigureAwait(false);
+            await next(context).ConfigureAwait(false);
         }
 
         Conventions conventions;
@@ -89,7 +89,7 @@
         {
             public Registration(Conventions conventions) : base("DataBusSend", typeof(DataBusSendBehavior), "Saves the payload into the shared location", b => new DataBusSendBehavior(b.Build<IDataBus>(), b.Build<IDataBusSerializer>(), conventions))
             {
-                InsertAfter(WellKnownStep.MutateOutgoingMessages);
+                InsertAfter("MutateOutgoingMessages");
                 InsertAfter("ApplyTimeToBeReceived");
             }
         }

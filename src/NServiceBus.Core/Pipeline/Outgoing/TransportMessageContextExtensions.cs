@@ -1,6 +1,6 @@
 namespace NServiceBus.Pipeline
 {
-    using Transports;
+    using Transport;
 
     /// <summary>
     /// Context extension to provide access to the incoming physical message.

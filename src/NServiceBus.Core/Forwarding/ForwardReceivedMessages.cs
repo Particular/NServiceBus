@@ -1,6 +1,6 @@
 ﻿namespace NServiceBus.Features
 {
-    using Transports;
+    using Transport;
 
     /// <summary>
     /// Provides message forwarding capabilities.
@@ -26,7 +26,7 @@
 
             context.Pipeline.Register("InvokeForwardingPipeline", new InvokeForwardingPipelineBehavior(forwardReceivedMessagesQueue), "Execute the forwarding pipeline");
 
-            context.Pipeline.Register("ForwardingToRoutingConnector", new ForwardingToRoutingConnector(), "Makes sure that forwarded messages gets dispatched to the transport");
+            context.Pipeline.Register(new ForwardingToRoutingConnector(), "Makes sure that forwarded messages gets dispatched to the transport");
         }
     }
 }

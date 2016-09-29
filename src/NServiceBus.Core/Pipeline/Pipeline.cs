@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus
 {
+    using System;
     using System.Linq;
     using System.Threading.Tasks;
     using Janitor;
@@ -20,16 +21,20 @@
                 coordinator.Register(rego);
             }
 
+            // Important to keep a reference
             behaviors = coordinator.BuildPipelineModelFor<TContext>()
                 .Select(r => r.CreateBehavior(builder)).ToArray();
+
+            pipeline = behaviors.CreatePipelineExecutionFuncFor<TContext>();
         }
 
         public Task Invoke(TContext context)
         {
-            var pipeline = new BehaviorChain(behaviors);
-            return pipeline.Invoke(context);
+            return pipeline(context);
         }
 
-        BehaviorInstance[] behaviors;
+        // ReSharper disable once PrivateFieldCanBeConvertedToLocalVariable
+        IBehavior[] behaviors;
+        Func<TContext, Task> pipeline;
     }
 }

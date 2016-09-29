@@ -30,33 +30,33 @@
             public bool MessageHandled { get; set; }
         }
 
-        class OriginalBehavior : Behavior<ITransportReceiveContext>
+        class OriginalBehavior : IBehavior<ITransportReceiveContext, ITransportReceiveContext>
         {
             public OriginalBehavior(Context testContext)
             {
                 this.testContext = testContext;
             }
 
-            public override Task Invoke(ITransportReceiveContext context, Func<Task> next)
+            public Task Invoke(ITransportReceiveContext context, Func<ITransportReceiveContext, Task> next)
             {
                 testContext.OriginalBehaviorInvoked = true;
-                return next();
+                return next(context);
             }
 
             Context testContext;
         }
 
-        class ReplacementBehavior : Behavior<ITransportReceiveContext>
+        class ReplacementBehavior : IBehavior<ITransportReceiveContext, ITransportReceiveContext>
         {
             public ReplacementBehavior(Context testContext)
             {
                 this.testContext = testContext;
             }
 
-            public override Task Invoke(ITransportReceiveContext context, Func<Task> next)
+            public Task Invoke(ITransportReceiveContext context, Func<ITransportReceiveContext, Task> next)
             {
                 testContext.ReplacementBehaviorInvoked = true;
-                return next();
+                return next(context);
             }
 
             Context testContext;
@@ -69,8 +69,8 @@
                 EndpointSetup<DefaultServer>(c =>
                 {
                     // replace before register to ensure out-of-order replacements work correctly.
-                    c.Pipeline.Replace("demoBehavior", typeof(ReplacementBehavior));
-                    c.Pipeline.Register("demoBehavior", typeof(OriginalBehavior), "test behavior replacement");
+                    c.Pipeline.Replace("demoBehavior", new ReplacementBehavior((Context)ScenarioContext));
+                    c.Pipeline.Register("demoBehavior", new OriginalBehavior((Context)ScenarioContext), "test behavior replacement");
                 });
             }
 

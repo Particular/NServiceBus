@@ -2,9 +2,9 @@
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.Features;
-    using NServiceBus.Pipeline;
+    using AcceptanceTesting;
+    using Features;
+    using Pipeline;
     using NUnit.Framework;
 
     public class When_publishing_with_authorizer : NServiceBusAcceptanceTest
@@ -26,7 +26,7 @@
                     await session.Subscribe<MyEvent>();
                 }))
                 .Done(c =>
-                    c.Subscriber1GotTheEvent && 
+                    c.Subscriber1GotTheEvent &&
                     c.DeclinedSubscriber2)
                 .Run(TimeSpan.FromSeconds(10));
 

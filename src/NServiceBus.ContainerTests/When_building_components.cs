@@ -1,7 +1,7 @@
 namespace NServiceBus.ContainerTests
 {
     using NServiceBus;
-    using NServiceBus.ObjectBuilder.Common;
+    using ObjectBuilder.Common;
     using NUnit.Framework;
 
     [TestFixture]

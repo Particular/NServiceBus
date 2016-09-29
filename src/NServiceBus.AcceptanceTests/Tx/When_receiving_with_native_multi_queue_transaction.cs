@@ -4,16 +4,15 @@
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
-    using Features;
     using NUnit.Framework;
     using ScenarioDescriptors;
 
     public class When_receiving_with_native_multi_queue_transaction : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Should_not_send_outgoing_messages_if_receiving_transaction_is_rolled_back()
+        public Task Should_not_send_outgoing_messages_if_receiving_transaction_is_rolled_back()
         {
-            await Scenario.Define<Context>(c => { c.FirstAttempt = true; })
+            return Scenario.Define<Context>(c => { c.FirstAttempt = true; })
                 .WithEndpoint<Endpoint>(b => b.When(session => session.SendLocal(new MyMessage())))
                 .Done(c => c.MessageHandled)
                 .Repeat(r => r.For<AllNativeMultiQueueTransactionTransports>())
@@ -38,7 +37,7 @@
             {
                 EndpointSetup<DefaultServer>((config, context) =>
                 {
-                    config.EnableFeature<FirstLevelRetries>();
+                    config.Recoverability().Immediate(immediate => immediate.NumberOfRetries(1));
                     config.UseTransport(context.GetTransportType())
                         .Transactions(TransportTransactionMode.ReceiveOnly);
                 });

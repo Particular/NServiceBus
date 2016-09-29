@@ -3,8 +3,8 @@
     using System;
     using System.Linq;
     using System.Threading.Tasks;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTesting.Support;
+    using AcceptanceTesting;
+    using AcceptanceTesting.Support;
     using NUnit.Framework;
 
     public class When_TimeToBeReceived_set_and_native_receivetransaction : NServiceBusAcceptanceTest
@@ -12,10 +12,10 @@
         [Test]
         public void Should_throw_on_send()
         {
-            var exception = Assert.Throws<AggregateException>(async () =>
+            var exception = Assert.ThrowsAsync<AggregateException>(async () =>
                 await Scenario.Define<Context>()
                     .WithEndpoint<Endpoint>(b => b.When(async (session, c) => await session.SendLocal(new MyMessage())))
-                    .Done(c => c.Exceptions.Any())
+                    .Done(c => c.HandlerInvoked)
                     .Run())
                 .ExpectFailedMessages();
 
@@ -27,7 +27,9 @@
 
         public class Context : ScenarioContext
         {
+            public bool HandlerInvoked { get; set; }
         }
+
         public class Endpoint : EndpointConfigurationBuilder
         {
             public Endpoint()
@@ -41,9 +43,10 @@
             {
                 public Context Context { get; set; }
 
-                public async Task Handle(MyMessage message, IMessageHandlerContext context)
+                public Task Handle(MyMessage message, IMessageHandlerContext context)
                 {
-                    await context.SendLocal(new MyTimeToBeReceivedMessage());
+                    Context.HandlerInvoked = true;
+                    return context.SendLocal(new MyTimeToBeReceivedMessage());
                 }
             }
         }

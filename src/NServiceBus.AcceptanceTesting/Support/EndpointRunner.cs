@@ -5,10 +5,10 @@
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
-    using NServiceBus.Configuration.AdvanceExtensibility;
-    using NServiceBus.Logging;
+    using Configuration.AdvanceExtensibility;
+    using Logging;
     using NServiceBus.Support;
-    using NServiceBus.Transports;
+    using Transport;
 
     public class EndpointRunner
     {
@@ -23,7 +23,7 @@
 
         public bool FailOnErrorMessage => !behavior.DoNotFailOnErrorMessages;
 
-        public async Task<Result> Initialize(RunDescriptor run, EndpointBehavior endpointBehavior,
+        public async Task Initialize(RunDescriptor run, EndpointBehavior endpointBehavior,
             IDictionary<Type, string> routingTable, string endpointName)
         {
             try
@@ -63,13 +63,11 @@
                     var transportInfrastructure = endpointConfiguration.GetSettings().Get<TransportInfrastructure>();
                     scenarioContext.HasNativePubSubSupport = transportInfrastructure.OutboundRoutingPolicy.Publishes == OutboundRoutingType.Multicast;
                 }
-
-                return Result.Success();
             }
             catch (Exception ex)
             {
                 Logger.Error("Failed to initialize endpoint " + endpointName, ex);
-                return Result.Failure(ex);
+                throw;
             }
         }
 
@@ -83,7 +81,7 @@
             }
         }
 
-        public async Task<Result> Start(CancellationToken token)
+        public async Task Start(CancellationToken token)
         {
             try
             {
@@ -91,20 +89,18 @@
 
                 if (token.IsCancellationRequested)
                 {
-                    return Result.Failure(new OperationCanceledException("Endpoint start was aborted"));
+                    throw new OperationCanceledException("Endpoint start was aborted");
                 }
-
-                return Result.Success();
             }
             catch (Exception ex)
             {
                 Logger.Error("Failed to start endpoint " + configuration.EndpointName, ex);
 
-                return Result.Failure(ex);
+                throw;
             }
         }
 
-        public async Task<Result> Whens(CancellationToken token)
+        public async Task Whens(CancellationToken token)
         {
             try
             {
@@ -113,7 +109,7 @@
                     await Task.Run(async () =>
                     {
                         var executedWhens = new List<Guid>();
-                        
+
                         while (!token.IsCancellationRequested)
                         {
                             if (executedWhens.Count == behavior.Whens.Count)
@@ -146,29 +142,25 @@
                         }
                     }, token).ConfigureAwait(false);
                 }
-                return Result.Success();
             }
             catch (Exception ex)
             {
                 Logger.Error($"Failed to execute Whens on endpoint{configuration.EndpointName}", ex);
 
-                return Result.Failure(ex);
+                throw;
             }
         }
 
-        public async Task<Result> Stop()
+        public async Task Stop()
         {
             try
             {
                 await endpointInstance.Stop().ConfigureAwait(false);
-
-                return Result.Success();
             }
             catch (Exception ex)
             {
                 Logger.Error("Failed to stop endpoint " + configuration.EndpointName, ex);
-
-                return Result.Failure(ex);
+                throw;
             }
             finally
             {
@@ -192,36 +184,6 @@
         public string Name()
         {
             return configuration.EndpointName;
-        }
-
-        public class Result
-        {
-            public Exception Exception { get; set; }
-
-            public bool Failed => Exception != null;
-
-            public static Result Success()
-            {
-                return new Result();
-            }
-
-            public static Result Failure(Exception ex)
-            {
-                var baseException = ex.GetBaseException();
-
-                if (ex.GetType().IsSerializable)
-                {
-                    return new Result
-                    {
-                        Exception = baseException
-                    };
-                }
-
-                return new Result
-                {
-                    Exception = new Exception(baseException.Message)
-                };
-            }
         }
     }
 }

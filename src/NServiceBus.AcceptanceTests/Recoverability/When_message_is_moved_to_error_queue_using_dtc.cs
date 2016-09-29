@@ -6,16 +6,15 @@
     using System.Transactions;
     using AcceptanceTesting;
     using EndpointTemplates;
-    using Features;
     using NUnit.Framework;
     using ScenarioDescriptors;
 
     public class When_message_is_moved_to_error_queue_using_dtc : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Should_not_commit_distributed_transaction()
+        public Task Should_not_commit_distributed_transaction()
         {
-            await Scenario.Define<Context>(c => c.Id = Guid.NewGuid())
+            return Scenario.Define<Context>(c => c.Id = Guid.NewGuid())
                 .WithEndpoint<Endpoint>(b => b.DoNotFailOnErrorMessages()
                     .When((session, context) => session.SendLocal(new MessageToFail
                     {
@@ -44,8 +43,6 @@
             {
                 EndpointSetup<DefaultServer>(config =>
                 {
-                    config.DisableFeature<FirstLevelRetries>();
-                    config.DisableFeature<SecondLevelRetries>();
                     config.SendFailedMessagesTo(ErrorQueueName);
                 });
             }

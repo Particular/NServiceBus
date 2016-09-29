@@ -1,6 +1,11 @@
 namespace NServiceBus.Config
 {
+    using System;
+    using System.Collections.Generic;
     using System.Configuration;
+    using System.Linq;
+    using Routing;
+    using Routing.MessageDrivenSubscriptions;
 
     /// <summary>
     /// A configuration element collection of MessageEndpointMappings.
@@ -47,7 +52,7 @@ namespace NServiceBus.Config
         /// </summary>
         public MessageEndpointMapping this[int index]
         {
-            get { return (MessageEndpointMapping) BaseGet(index); }
+            get { return (MessageEndpointMapping)BaseGet(index); }
             set
             {
                 if (BaseGet(index) != null)
@@ -61,7 +66,7 @@ namespace NServiceBus.Config
         /// <summary>
         /// Gets the MessageEndpointMapping for the given name.
         /// </summary>
-        new public MessageEndpointMapping this[string Name] => (MessageEndpointMapping) BaseGet(Name);
+        new public MessageEndpointMapping this[string Name] => (MessageEndpointMapping)BaseGet(Name);
 
         /// <summary>
         /// Creates a new MessageEndpointMapping.
@@ -89,7 +94,7 @@ namespace NServiceBus.Config
         /// </summary>
         protected override object GetElementKey(ConfigurationElement element)
         {
-            var messageEndpointMapping = (MessageEndpointMapping) element;
+            var messageEndpointMapping = (MessageEndpointMapping)element;
 
             return $"{messageEndpointMapping.Messages}{messageEndpointMapping.AssemblyName}{messageEndpointMapping.TypeFullName}{messageEndpointMapping.Namespace}";
         }
@@ -159,6 +164,76 @@ namespace NServiceBus.Config
         public override bool IsReadOnly()
         {
             return false;
+        }
+
+        internal void Apply(Publishers publishers, UnicastRoutingTable unicastRoutingTable, Func<string, string> makeCanonicalAddress, Conventions conventions)
+        {
+            var routeTableEntries = new Dictionary<Type, RouteTableEntry>();
+            var publisherTableEntries = new List<PublisherTableEntry>();
+
+            foreach (var m in this.Cast<MessageEndpointMapping>().OrderByDescending(m => m))
+            {
+                m.Configure((type, endpointAddress) =>
+                {
+                    if (!conventions.IsMessageType(type))
+                    {
+                        return;
+                    }
+                    var canonicalForm = makeCanonicalAddress(endpointAddress);
+                    var baseTypes = GetBaseTypes(type, conventions);
+
+                    RegisterMessageRoute(type, canonicalForm, routeTableEntries, baseTypes);
+                    RegisterEventRoute(type, canonicalForm, publisherTableEntries, baseTypes);
+                });
+            }
+
+            publishers.AddOrReplacePublishers("MessageEndpointMappings", publisherTableEntries);
+            unicastRoutingTable.AddOrReplaceRoutes("MessageEndpointMappings", routeTableEntries.Values.ToList());
+        }
+
+        static void RegisterEventRoute(Type mappedType, string address, List<PublisherTableEntry> publisherTableEntries, IEnumerable<Type> baseTypes)
+        {
+            var publisherAddress = PublisherAddress.CreateFromPhysicalAddresses(address);
+            publisherTableEntries.AddRange(baseTypes.Select(type => new PublisherTableEntry(type, publisherAddress)));
+            publisherTableEntries.Add(new PublisherTableEntry(mappedType, publisherAddress));
+        }
+
+        static void RegisterMessageRoute(Type mappedType, string address, Dictionary<Type, RouteTableEntry> routeTableEntries, IEnumerable<Type> baseTypes)
+        {
+            var route = UnicastRoute.CreateFromPhysicalAddress(address);
+            foreach (var baseType in baseTypes)
+            {
+                routeTableEntries[baseType] = new RouteTableEntry(baseType, route);
+            }
+            routeTableEntries[mappedType] = new RouteTableEntry(mappedType, route);
+        }
+
+        static List<Type> GetBaseTypes(Type messageType, Conventions conventions)
+        {
+            var result = new List<Type>();
+            var baseType = messageType.BaseType;
+            while (baseType != typeof(object) && baseType != null)
+            {
+                if (conventions.IsMessageType(baseType))
+                {
+                    if (!result.Contains(baseType))
+                    {
+                        result.Add(baseType);
+                    }
+                }
+
+                baseType = baseType.BaseType;
+            }
+
+            foreach (var i in messageType.GetInterfaces())
+            {
+                if (conventions.IsMessageType(i) && !result.Contains(i))
+                {
+                    result.Add(i);
+                }
+            }
+
+            return result;
         }
     }
 }

@@ -41,9 +41,9 @@
             {
                 EndpointSetup<DefaultServer>(c =>
                 {
-                    c.EnableFeature<FirstLevelRetries>();
                     c.EnableFeature<TimeoutManager>();
                     c.ExecuteTheseHandlersFirst(typeof(CatchAllMessageHandler));
+                    c.Recoverability().Immediate(immediate => immediate.NumberOfRetries(5));
                 });
             }
 

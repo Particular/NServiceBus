@@ -10,49 +10,25 @@
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
-    using NServiceBus.AcceptanceTesting.Customization;
+    using Customization;
 
     public class ScenarioRunner
     {
-        public static async Task Run(List<RunDescriptor> runDescriptors, List<EndpointBehavior> behaviorDescriptors, List<IScenarioVerification> shoulds, Func<ScenarioContext, bool> done, int limitTestParallelismTo, Action<RunSummary> reports, Func<Exception, bool> allowedExceptions)
+        public static async Task Run(List<RunDescriptor> runDescriptors, List<EndpointBehavior> behaviorDescriptors, List<IScenarioVerification> shoulds, Func<ScenarioContext, bool> done, Action<RunSummary> reports)
         {
             var totalRuns = runDescriptors.Count;
-            var cts = new CancellationTokenSource();
-            var po = new ParallelOptions
-            {
-                CancellationToken = cts.Token
-            };
-            var maxParallelismSetting = Environment.GetEnvironmentVariable("max_test_parallelism");
-            int maxParallelism;
-
-            if (int.TryParse(maxParallelismSetting, out maxParallelism))
-            {
-                Console.WriteLine("Parallelism limited to: {0}", maxParallelism);
-
-                po.MaxDegreeOfParallelism = maxParallelism;
-            }
-
-            if (limitTestParallelismTo > 0)
-            {
-                po.MaxDegreeOfParallelism = limitTestParallelismTo;
-            }
 
             var results = new ConcurrentBag<RunSummary>();
 
             try
             {
-                var runs = runDescriptors.Select(runDescriptor => Task.Run(async () =>
+                foreach (var runDescriptor in runDescriptors)
                 {
-                    if (po.CancellationToken.IsCancellationRequested)
-                    {
-                        return;
-                    }
-
                     Console.WriteLine("{0} - Started @ {1}", runDescriptor.Key, DateTime.Now.ToString(CultureInfo.InvariantCulture));
 
-                    ContextAppender.SetContext(runDescriptor.ScenarioContext);
-                    var runResult = await PerformTestRun(behaviorDescriptors, shoulds, runDescriptor, done, allowedExceptions).ConfigureAwait(false);
-                    ContextAppender.SetContext(null);
+                    ContextAppenderFactory.SetContext(runDescriptor.ScenarioContext);
+                    var runResult = await PerformTestRun(behaviorDescriptors, shoulds, runDescriptor, done).ConfigureAwait(false);
+                    ContextAppenderFactory.SetContext(null);
 
                     Console.WriteLine("{0} - Finished @ {1}", runDescriptor.Key, DateTime.Now.ToString(CultureInfo.InvariantCulture));
 
@@ -65,11 +41,9 @@
 
                     if (runResult.Failed)
                     {
-                        cts.Cancel();
+                        break;
                     }
-                }, cts.Token));
-
-                await Task.WhenAll(runs).ConfigureAwait(false);
+                }
             }
             catch (OperationCanceledException)
             {
@@ -148,7 +122,7 @@
             Console.WriteLine("------------------------------------------------------");
         }
 
-        static async Task<RunResult> PerformTestRun(List<EndpointBehavior> behaviorDescriptors, List<IScenarioVerification> shoulds, RunDescriptor runDescriptor, Func<ScenarioContext, bool> done, Func<Exception, bool> allowedExceptions)
+        static async Task<RunResult> PerformTestRun(List<EndpointBehavior> behaviorDescriptors, List<IScenarioVerification> shoulds, RunDescriptor runDescriptor, Func<ScenarioContext, bool> done)
         {
             var runResult = new RunResult
             {
@@ -156,16 +130,15 @@
             };
 
             var runTimer = new Stopwatch();
-
             runTimer.Start();
 
             try
             {
-                var runners = await InitializeRunners(runDescriptor, behaviorDescriptors).ConfigureAwait(false);
+                var endpoints = await InitializeRunners(runDescriptor, behaviorDescriptors).ConfigureAwait(false);
 
-                runResult.ActiveEndpoints = runners.Select(r => r.EndpointName).ToList();
+                runResult.ActiveEndpoints = endpoints.Select(r => r.EndpointName).ToList();
 
-                await PerformScenarios(runDescriptor, runners, () => done(runDescriptor.ScenarioContext), allowedExceptions).ConfigureAwait(false);
+                await PerformScenarios(runDescriptor, endpoints, () => done(runDescriptor.ScenarioContext)).ConfigureAwait(false);
 
                 runTimer.Stop();
 
@@ -208,7 +181,7 @@
             Console.WriteLine();
         }
 
-        static async Task PerformScenarios(RunDescriptor runDescriptor, IEnumerable<ActiveRunner> runners, Func<bool> done, Func<Exception, bool> allowedExceptions)
+        static async Task PerformScenarios(RunDescriptor runDescriptor, IEnumerable<ActiveRunner> runners, Func<bool> done)
         {
             var cts = new CancellationTokenSource();
             var endpoints = runners.Select(r => r.Instance).ToList();
@@ -216,17 +189,18 @@
             // ReSharper disable once LoopVariableIsNeverChangedInsideLoop
             try
             {
-                await StartEndpoints(endpoints, allowedExceptions, cts).ConfigureAwait(false);
+                await StartEndpoints(endpoints, cts).ConfigureAwait(false);
                 runDescriptor.ScenarioContext.EndpointsStarted = true;
-                await ExecuteWhens(endpoints, allowedExceptions, cts).ConfigureAwait(false);
+                await ExecuteWhens(endpoints, cts).ConfigureAwait(false);
 
                 var startTime = DateTime.UtcNow;
-                var maxTime = runDescriptor.Settings.TestExecutionTimeout;
+                var maxTime = runDescriptor.Settings.TestExecutionTimeout ?? TimeSpan.FromSeconds(90);
 
                 while (!done() && !cts.Token.IsCancellationRequested)
                 {
                     if (DateTime.UtcNow - startTime > maxTime)
                     {
+                        ThrowOnFailedMessages(runDescriptor, endpoints);
                         throw new ScenarioException(GenerateTestTimedOutMessage(maxTime));
                     }
 
@@ -235,12 +209,22 @@
             }
             finally
             {
-                await StopEndpoints(endpoints).ConfigureAwait(false);
+                await StopEndpoints(endpoints, runDescriptor.ScenarioContext).ConfigureAwait(false);
             }
 
-            if (runDescriptor.ScenarioContext.FailedMessages.Any(kvp => endpoints.Single(e => e.Name() == kvp.Key).FailOnErrorMessage))
+            ThrowOnFailedMessages(runDescriptor, endpoints);
+        }
+
+        static void ThrowOnFailedMessages(RunDescriptor runDescriptor, List<EndpointRunner> endpoints)
+        {
+            var unexpectedFailedMessages = runDescriptor.ScenarioContext.FailedMessages
+                .Where(kvp => endpoints.Single(e => e.Name() == kvp.Key).FailOnErrorMessage)
+                .SelectMany(kvp => kvp.Value)
+                .ToList();
+
+            if (unexpectedFailedMessages.Any())
             {
-                throw new MessagesFailedException(runDescriptor.ScenarioContext);
+                throw new MessagesFailedException(unexpectedFailedMessages, runDescriptor.ScenarioContext);
             }
         }
 
@@ -254,9 +238,9 @@
             return sb.ToString();
         }
 
-        static async Task StartEndpoints(IEnumerable<EndpointRunner> endpoints, Func<Exception, bool> allowedExceptions, CancellationTokenSource cts)
+        static async Task StartEndpoints(IEnumerable<EndpointRunner> endpoints, CancellationTokenSource cts)
         {
-            var tasks = endpoints.Select(endpoint => StartEndpoint(endpoint, allowedExceptions, cts));
+            var tasks = endpoints.Select(endpoint => StartEndpoint(endpoint, cts));
             var whenAll = Task.WhenAll(tasks);
             var timeoutTask = Task.Delay(TimeSpan.FromMinutes(2));
             var completedTask = await Task.WhenAny(whenAll, timeoutTask).ConfigureAwait(false);
@@ -268,28 +252,30 @@
             await completedTask.ConfigureAwait(false);
         }
 
-        static async Task StartEndpoint(EndpointRunner endpoint, Func<Exception, bool> allowedExceptions, CancellationTokenSource cts)
+        static async Task StartEndpoint(EndpointRunner endpoint, CancellationTokenSource cts)
         {
             var token = cts.Token;
-            var result = await endpoint.Start(token).ConfigureAwait(false);
-
-            if (result.Failed && !allowedExceptions(result.Exception))
+            try
+            {
+                await endpoint.Start(token).ConfigureAwait(false);
+            }
+            catch (Exception ex)
             {
                 cts.Cancel();
-                throw new ScenarioException("Endpoint failed to start", result.Exception);
+                throw new ScenarioException("Endpoint failed to start", ex);
             }
         }
 
-        static async Task ExecuteWhens(IEnumerable<EndpointRunner> endpoints, Func<Exception, bool> allowedExceptions, CancellationTokenSource cts)
+        static async Task ExecuteWhens(IEnumerable<EndpointRunner> endpoints, CancellationTokenSource cts)
         {
-            var tasks = endpoints.Select(endpoint => ExecuteWhens(endpoint, allowedExceptions, cts));
+            var tasks = endpoints.Select(endpoint => ExecuteWhens(endpoint, cts));
             var whenAll = Task.WhenAll(tasks);
             var timeoutTask = Task.Delay(TimeSpan.FromSeconds(30));
             var completedTask = await Task.WhenAny(whenAll, timeoutTask).ConfigureAwait(false);
 
             if (completedTask.Equals(timeoutTask))
             {
-                throw new Exception("Executing given and whens took longer than 2 minutes");
+                throw new Exception("Executing given and whens took longer than 30 seconds.");
             }
 
             if (completedTask.IsFaulted && completedTask.Exception != null)
@@ -298,35 +284,60 @@
             }
         }
 
-        static async Task ExecuteWhens(EndpointRunner endpoint, Func<Exception, bool> allowedExceptions, CancellationTokenSource cts)
+        static async Task ExecuteWhens(EndpointRunner endpoint, CancellationTokenSource cts)
         {
             var token = cts.Token;
-            var result = await endpoint.Whens(token).ConfigureAwait(false);
-            if (result.Failed && !allowedExceptions(result.Exception))
+            try
+            {
+                await endpoint.Whens(token).ConfigureAwait(false);
+            }
+            catch (Exception ex)
             {
                 cts.Cancel();
-                throw new ScenarioException("Whens failed to execute", result.Exception);
+                throw new ScenarioException("Whens failed to execute", ex);
             }
         }
 
-        static async Task StopEndpoints(IEnumerable<EndpointRunner> endpoints)
+        static async Task StopEndpoints(IEnumerable<EndpointRunner> endpoints, ScenarioContext scenarioContext)
         {
+            var failBecauseUnhandledFailedMessage = false;
+            var startTime = DateTime.UtcNow;
+            var maxTime = TimeSpan.FromSeconds(30);
+            while (scenarioContext.UnfinishedFailedMessages.Values.Any(x => x))
+            {
+                if (DateTime.UtcNow - startTime > maxTime)
+                {
+                    failBecauseUnhandledFailedMessage = true;
+                    break;
+                }
+
+                await Task.Delay(1).ConfigureAwait(false);
+            }
+
             var tasks = endpoints.Select(async endpoint =>
             {
                 Console.WriteLine("Stopping endpoint: {0}", endpoint.Name());
                 var stopwatch = Stopwatch.StartNew();
-                var result = await endpoint.Stop().ConfigureAwait(false);
-                stopwatch.Stop();
-                if (result.Failed)
+                try
                 {
-                    throw new ScenarioException("Endpoint failed to stop", result.Exception);
+                    await endpoint.Stop().ConfigureAwait(false);
+                    stopwatch.Stop();
+                    Console.WriteLine("Endpoint: {0} stopped ({1}s)", endpoint.Name(), stopwatch.Elapsed);
                 }
-                Console.WriteLine("Endpoint: {0} stopped ({1}s)", endpoint.Name(), stopwatch.Elapsed);
+                catch (Exception ex)
+                {
+                    throw new ScenarioException("Endpoint failed to stop", ex);
+                }
             });
 
             var whenAll = Task.WhenAll(tasks);
             var timeoutTask = Task.Delay(TimeSpan.FromMinutes(2));
             var completedTask = await Task.WhenAny(whenAll, timeoutTask).ConfigureAwait(false);
+
+            if (failBecauseUnhandledFailedMessage)
+            {
+                throw new Exception("Some failed messages were not handled by the recoverability feature.");
+            }
 
             if (completedTask == timeoutTask)
             {
@@ -334,14 +345,13 @@
             }
         }
 
-        static async Task<List<ActiveRunner>> InitializeRunners(RunDescriptor runDescriptor, List<EndpointBehavior> behaviorDescriptors)
+        static async Task<ActiveRunner[]> InitializeRunners(RunDescriptor runDescriptor, List<EndpointBehavior> endpointBehaviors)
         {
-            var runners = new List<ActiveRunner>();
-            var routingTable = CreateRoutingTable(behaviorDescriptors);
+            var routingTable = CreateRoutingTable(endpointBehaviors);
 
-            foreach (var behaviorDescriptor in behaviorDescriptors)
+            var runnerInitializations = endpointBehaviors.Select(async endpointBehavior =>
             {
-                var endpointName = GetEndpointNameForRun(behaviorDescriptor);
+                var endpointName = GetEndpointNameForRun(endpointBehavior);
 
                 if (endpointName.Length > 77)
                 {
@@ -354,17 +364,28 @@
                     EndpointName = endpointName
                 };
 
-                runner.InitializeTask = Task.Run(() => runner.Instance.Initialize(runDescriptor, behaviorDescriptor, routingTable, endpointName));
-                runners.Add(runner);
-            }
+                try
+                {
+                    await runner.Instance.Initialize(runDescriptor, endpointBehavior, routingTable, endpointName).ConfigureAwait(false);
+                }
+                catch (Exception e)
+                {
+                    throw new ScenarioException($"Endpoint {runner.Instance.Name()} failed to initialize", e);
+                }
 
-            await Task.WhenAll(runners.Select(r => r.InitializeTask).ToArray()).ConfigureAwait(false);
-            var failedRunner = runners.FirstOrDefault(r => r.InitializeTask.Result.Failed);
-            if (failedRunner != null)
+                return runner;
+            });
+
+            try
             {
-                throw new ScenarioException($"Endpoint {failedRunner.Instance.Name()} failed to initialize", failedRunner.InitializeTask.Result.Exception);
+                var x = await Task.WhenAll(runnerInitializations).ConfigureAwait(false);
+                return x;
             }
-            return runners;
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
         }
 
         static string GetEndpointNameForRun(EndpointBehavior endpointBehavior)

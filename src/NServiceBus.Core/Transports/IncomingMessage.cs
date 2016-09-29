@@ -1,8 +1,7 @@
-namespace NServiceBus.Transports
+namespace NServiceBus.Transport
 {
     using System;
     using System.Collections.Generic;
-    using System.IO;
 
     /// <summary>
     /// The raw message coming from the transport.
@@ -14,11 +13,11 @@ namespace NServiceBus.Transports
         /// </summary>
         /// <param name="messageId">Native message id.</param>
         /// <param name="headers">The message headers.</param>
-        /// <param name="bodyStream">The message body stream.</param>
-        public IncomingMessage(string messageId, Dictionary<string, string> headers, Stream bodyStream)
+        /// <param name="body">The message body.</param>
+        public IncomingMessage(string messageId, Dictionary<string, string> headers, byte[] body)
         {
             Guard.AgainstNullAndEmpty(nameof(messageId), messageId);
-            Guard.AgainstNull(nameof(bodyStream), bodyStream);
+            Guard.AgainstNull(nameof(body), body);
             Guard.AgainstNull(nameof(headers), headers);
 
             string originalMessageId;
@@ -36,14 +35,12 @@ namespace NServiceBus.Transports
 
 
             Headers = headers;
-            BodyStream = bodyStream;
 
-            body = new byte[bodyStream.Length];
-            bodyStream.Read(body, 0, body.Length);
+            Body = body;
         }
 
         /// <summary>
-        /// The native id of the message.
+        /// The id of the message.
         /// </summary>
         public string MessageId { get; private set; }
 
@@ -53,32 +50,23 @@ namespace NServiceBus.Transports
         public Dictionary<string, string> Headers { get; private set; }
 
         /// <summary>
-        /// The message body.
-        /// </summary>
-        public Stream BodyStream { get; private set; }
-
-        /// <summary>
         /// Gets/sets a byte array to the body content of the message.
         /// </summary>
-        public byte[] Body
-        {
-            get { return body; }
-            set { UpdateBody(value); }
-        }
+        public byte[] Body { get; private set; }
 
         /// <summary>
         /// Use this method to update the body if this message.
         /// </summary>
-        void UpdateBody(byte[] updatedBody)
+        internal void UpdateBody(byte[] updatedBody)
         {
             //preserve the original body if needed
-            if (body != null && originalBody == null)
+            if (Body != null && originalBody == null)
             {
-                originalBody = new byte[body.Length];
-                Buffer.BlockCopy(body, 0, originalBody, 0, body.Length);
+                originalBody = new byte[Body.Length];
+                Buffer.BlockCopy(Body, 0, originalBody, 0, Body.Length);
             }
 
-            body = updatedBody;
+            Body = updatedBody;
         }
 
         /// <summary>
@@ -88,11 +76,10 @@ namespace NServiceBus.Transports
         {
             if (originalBody != null)
             {
-                body = originalBody;
+                Body = originalBody;
             }
         }
 
-        byte[] body;
         byte[] originalBody;
     }
 }

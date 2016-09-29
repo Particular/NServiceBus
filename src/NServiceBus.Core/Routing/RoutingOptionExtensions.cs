@@ -79,7 +79,7 @@
         /// Returns whether the message should be routed to this endpoint.
         /// </summary>
         /// <param name="options">Option being extended.</param>
-        /// <returns><c>true</c> when <see cref="RouteToThisEndpoint" /> has been called, <c>false</c> otherwhise.</returns>
+        /// <returns><c>true</c> when <see cref="RouteToThisEndpoint" /> has been called, <c>false</c> otherwise.</returns>
         public static bool IsRoutingToThisEndpoint(this SendOptions options)
         {
             Guard.AgainstNull(nameof(options), options);
@@ -109,7 +109,7 @@
         /// Returns whether the message should be routed to this endpoint instance.
         /// </summary>
         /// <param name="options">Option being extended.</param>
-        /// <returns><c>true</c> when <see cref="IsRoutingToThisInstance" /> has been called, <c>false</c> otherwhise.</returns>
+        /// <returns><c>true</c> when <see cref="IsRoutingToThisInstance" /> has been called, <c>false</c> otherwise.</returns>
         public static bool IsRoutingToThisInstance(this SendOptions options)
         {
             Guard.AgainstNull(nameof(options), options);
