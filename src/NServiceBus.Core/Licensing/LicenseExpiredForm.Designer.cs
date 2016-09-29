@@ -31,7 +31,6 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(LicenseExpiredForm));
             this.headerPanel = new System.Windows.Forms.Panel();
             this.logoPictureBox = new System.Windows.Forms.PictureBox();
-            this.thanksLabel = new System.Windows.Forms.Label();
             this.browseButton = new System.Windows.Forms.Button();
             this.purchaseButton = new System.Windows.Forms.Button();
             this.warningText = new System.Windows.Forms.RichTextBox();
@@ -62,18 +61,6 @@
             this.logoPictureBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
             this.logoPictureBox.TabIndex = 0;
             this.logoPictureBox.TabStop = false;
-            // 
-            // thanksLabel
-            // 
-            this.thanksLabel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.thanksLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.thanksLabel.ForeColor = System.Drawing.Color.Black;
-            this.thanksLabel.Location = new System.Drawing.Point(39, 105);
-            this.thanksLabel.Name = "thanksLabel";
-            this.thanksLabel.Size = new System.Drawing.Size(562, 48);
-            this.thanksLabel.TabIndex = 2;
-            this.thanksLabel.Text = "Thank you for using NServiceBus in Particular";
             // 
             // browseButton
             // 
@@ -108,14 +95,14 @@
             this.warningText.BackColor = System.Drawing.Color.White;
             this.warningText.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.warningText.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.warningText.ForeColor = System.Drawing.Color.Red;
-            this.warningText.Location = new System.Drawing.Point(43, 138);
+            this.warningText.ForeColor = System.Drawing.Color.Black;
+            this.warningText.Location = new System.Drawing.Point(43, 105);
             this.warningText.Name = "warningText";
             this.warningText.ReadOnly = true;
             this.warningText.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.None;
             this.warningText.Size = new System.Drawing.Size(520, 28);
             this.warningText.TabIndex = 17;
-            this.warningText.Text = "The Trial period is now over";
+            this.warningText.Text = "It\'s time to extend your trial.";
             // 
             // instructionsText
             // 
@@ -123,11 +110,11 @@
             this.instructionsText.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.instructionsText.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.instructionsText.ForeColor = System.Drawing.Color.Black;
-            this.instructionsText.Location = new System.Drawing.Point(43, 185);
+            this.instructionsText.Location = new System.Drawing.Point(43, 138);
             this.instructionsText.Name = "instructionsText";
             this.instructionsText.ReadOnly = true;
             this.instructionsText.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.None;
-            this.instructionsText.Size = new System.Drawing.Size(520, 77);
+            this.instructionsText.Size = new System.Drawing.Size(520, 112);
             this.instructionsText.TabIndex = 18;
             this.instructionsText.Text = "Instructions....";
             // 
@@ -156,7 +143,6 @@
             this.Controls.Add(this.warningText);
             this.Controls.Add(this.purchaseButton);
             this.Controls.Add(this.browseButton);
-            this.Controls.Add(this.thanksLabel);
             this.Controls.Add(this.headerPanel);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
@@ -176,7 +162,6 @@
 
         private System.Windows.Forms.Panel headerPanel;
         private System.Windows.Forms.PictureBox logoPictureBox;
-        private System.Windows.Forms.Label thanksLabel;
         private System.Windows.Forms.Button browseButton;
         private System.Windows.Forms.Button purchaseButton;
         private System.Windows.Forms.RichTextBox warningText;
