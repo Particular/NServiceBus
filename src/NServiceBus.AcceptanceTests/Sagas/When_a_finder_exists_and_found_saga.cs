@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.AcceptanceTests.Sagas
 {
+    using System;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
@@ -48,7 +49,8 @@
                     Context.FinderUsed = true;
                     var sagaInstance = new TestSaga08.SagaData08
                     {
-                        Property = "jfbsjdfbsdjh"
+                        Property = Guid.NewGuid().ToString("N"),
+                        Id = Guid.NewGuid()
                     };
                     //Make sure saga exists in the store. Persisters expect it there when they save saga instance after processing a message.
                     await SagaPersister.Save(sagaInstance, SagaCorrelationProperty.None, storageSession, new ContextBag()).ConfigureAwait(false);

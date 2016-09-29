@@ -21,7 +21,7 @@
                 {
                     var options = new SendOptions();
 
-                    options.DelayDeliveryWith(TimeSpan.FromMilliseconds(2000));
+                    options.DelayDeliveryWith(TimeSpan.FromDays(5));
                     options.RouteToThisEndpoint();
 
                     return session.Send(new MyMessage(), options);
@@ -42,22 +42,10 @@
         {
             public Endpoint()
             {
-                var address = Conventions.EndpointNamingConvention(typeof(EndpointWithTimeoutManager)) + ".Timeouts";
+                var address = Conventions.EndpointNamingConvention(typeof(EndpointWithTimeoutManager));
 
                 EndpointSetup<DefaultServer>(config => config.DisableFeature<TimeoutManager>())
                     .WithConfig<UnicastBusConfig>(c => { c.TimeoutManagerAddress = address; });
-            }
-
-            public class MyMessageHandler : IHandleMessages<MyMessage>
-            {
-                public Context Context { get; set; }
-
-                public Task Handle(MyMessage message, IMessageHandlerContext context)
-                {
-                    Context.TimeoutManagerHeaderDetected = context.MessageHeaders.ContainsKey("NServiceBus.RelatedToTimeoutId");
-                    Context.WasCalled = true;
-                    return Task.FromResult(0);
-                }
             }
         }
 
@@ -66,6 +54,18 @@
             public EndpointWithTimeoutManager()
             {
                 EndpointSetup<DefaultServer>(config => config.EnableFeature<TimeoutManager>());
+            }
+
+            public class MyMessageHandler : IHandleMessages<MyMessage>
+            {
+                public Context Context { get; set; }
+
+                public Task Handle(MyMessage message, IMessageHandlerContext context)
+                {
+                    Context.TimeoutManagerHeaderDetected = context.MessageHeaders.ContainsKey("NServiceBus.Timeout.Expire");
+                    Context.WasCalled = true;
+                    return Task.FromResult(0);
+                }
             }
         }
 
