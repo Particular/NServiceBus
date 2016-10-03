@@ -64,7 +64,7 @@
             }
         }
 
-        [Serializable]
+        
         public class StartSagaMessage : ICommand
         {
             public string SomeId { get; set; }

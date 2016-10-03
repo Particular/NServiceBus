@@ -105,17 +105,17 @@
             }
         }
 
-        [Serializable]
+        
         public class BaseEvent : IEvent
         {
         }
 
-        [Serializable]
+        
         public class DerivedEvent1 : BaseEvent
         {
         }
 
-        [Serializable]
+        
         public class DerivedEvent2 : BaseEvent
         {
         }

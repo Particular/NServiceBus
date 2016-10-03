@@ -51,7 +51,7 @@
             public bool FatalErrorOccurred { get; set; }
         }
 
-        [Serializable]
+        
         public class MyMessage : IMessage
         {
         }

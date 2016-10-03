@@ -71,7 +71,7 @@
             }
         }
 
-        [Serializable]
+        
         public class MessageWithSecretData : IMessage
         {
             public WireEncryptedString Secret { get; set; }

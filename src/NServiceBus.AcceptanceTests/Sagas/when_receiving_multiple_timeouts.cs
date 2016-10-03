@@ -139,7 +139,7 @@
             }
         }
 
-        [Serializable]
+        
         public class StartSaga1 : ICommand
         {
             public Guid ContextId { get; set; }

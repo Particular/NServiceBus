@@ -67,7 +67,7 @@
             }
         }
 
-        [Serializable]
+        
         public class MyEvent : IEvent
         {
         }

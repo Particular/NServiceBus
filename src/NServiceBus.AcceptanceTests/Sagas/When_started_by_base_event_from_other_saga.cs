@@ -90,7 +90,7 @@
             }
         }
 
-        [Serializable]
+        
         public class StartSaga : ICommand
         {
             public Guid DataId { get; set; }

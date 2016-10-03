@@ -101,7 +101,7 @@
             }
         }
 
-        [Serializable]
+        
         public class MessageToBeAudited : IMessage
         {
         }

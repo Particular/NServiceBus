@@ -76,17 +76,17 @@
             }
         }
 
-        [Serializable]
+        
         public abstract class MyBaseCommand : ICommand
         {
         }
 
-        [Serializable]
+        
         public class MyCommand1 : MyBaseCommand
         {
         }
 
-        [Serializable]
+        
         public class MyCommand2 : MyBaseCommand
         {
         }

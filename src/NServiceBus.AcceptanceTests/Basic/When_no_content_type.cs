@@ -63,7 +63,7 @@
             }
         }
 
-        [Serializable]
+        
         public class Message : IMessage
         {
             public string Property { get; set; }

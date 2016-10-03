@@ -76,7 +76,7 @@
             }
         }
 
-        [Serializable]
+        
         class MyRequest : IMessage
         {
         }

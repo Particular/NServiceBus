@@ -61,7 +61,7 @@
             public bool MessageAudited { get; set; }
         }
 
-        [Serializable]
+        
         public class MessageToBeAudited : IMessage
         {
         }

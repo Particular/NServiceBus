@@ -76,12 +76,12 @@
             }
         }
 
-        [Serializable]
+        
         public class MyMessage : ICommand
         {
         }
 
-        [Serializable]
+        
         public class MessageHandledEvent : IMessage
         {
             public bool HasFailed { get; set; }

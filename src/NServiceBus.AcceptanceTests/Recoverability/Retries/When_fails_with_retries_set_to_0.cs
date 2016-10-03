@@ -62,7 +62,7 @@
             }
         }
 
-        [Serializable]
+        
         public class MessageToBeRetried : IMessage
         {
             public Guid ContextId { get; set; }

@@ -80,13 +80,13 @@
             }
         }
 
-        [Serializable]
+        
         public class StartSagaMessage : ICommand
         {
             public Guid SomeId { get; set; }
         }
 
-        [Serializable]
+        
         public class OtherMessage : ICommand
         {
             public Guid SomeId { get; set; }

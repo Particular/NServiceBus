@@ -154,19 +154,19 @@
             }
         }
 
-        [Serializable]
+        
         public class StartSagaMessage : ICommand
         {
             public Guid SomeId { get; set; }
         }
 
-        [Serializable]
+        
         public class CompleteSagaMessage : ICommand
         {
             public Guid SomeId { get; set; }
         }
 
-        [Serializable]
+        
         public class AnotherMessage : ICommand
         {
             public Guid SomeId { get; set; }

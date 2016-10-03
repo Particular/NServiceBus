@@ -87,7 +87,7 @@
             }
         }
 
-        [Serializable]
+        
         public class MyMessageWithLargePayload : ICommand
         {
             public DataBusProperty<byte[]> Payload { get; set; }

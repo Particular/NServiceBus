@@ -63,7 +63,7 @@
             public bool MessageReceived { get; set; }
         }
 
-        [Serializable]
+        
         public class Message : IMessage
         {
         }

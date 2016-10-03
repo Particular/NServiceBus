@@ -43,7 +43,7 @@
             }
         }
 
-        [Serializable]
+        
         public class MyMessage
         {
             public Guid Id { get; set; }

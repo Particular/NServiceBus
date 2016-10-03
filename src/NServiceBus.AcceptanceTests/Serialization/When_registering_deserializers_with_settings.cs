@@ -73,7 +73,7 @@ namespace NServiceBus.AcceptanceTests.Serialization
             }
         }
 
-        [Serializable]
+        
         class MyRequest : IMessage
         {
         }

@@ -150,7 +150,7 @@
             }
         }
 
-        [Serializable]
+        
         public class GroupPendingEvent : IEvent
         {
             public Guid DataId { get; set; }
@@ -161,7 +161,7 @@
             public Guid DataId { get; set; }
         }
 
-        [Serializable]
+        
         public class StartSaga2 : ICommand
         {
             public Guid DataId { get; set; }

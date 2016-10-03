@@ -94,7 +94,7 @@
             }
         }
 
-        [Serializable]
+        
         [TimeToBeReceived("00:00:03")]
         class MessageToBeAudited : IMessage
         {

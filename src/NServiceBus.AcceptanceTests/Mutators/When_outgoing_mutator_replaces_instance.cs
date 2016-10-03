@@ -82,12 +82,12 @@
             }
         }
 
-        [Serializable]
+        
         public class V1Message : ICommand
         {
         }
 
-        [Serializable]
+        
         public class V2Message : ICommand
         {
         }

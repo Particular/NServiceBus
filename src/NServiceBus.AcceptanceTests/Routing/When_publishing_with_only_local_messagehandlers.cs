@@ -100,7 +100,7 @@
             }
         }
 
-        [Serializable]
+        
         public class EventHandledByLocalEndpoint : IEvent
         {
         }

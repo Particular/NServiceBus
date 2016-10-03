@@ -91,7 +91,7 @@
             }
         }
 
-        [Serializable]
+        
         public class Message : ICommand
         {
         }

@@ -26,7 +26,7 @@
             public bool SecondHandlerInvoked { get; set; }
         }
 
-        [Serializable]
+        
         public class SomeMessage : IMessage
         {
         }

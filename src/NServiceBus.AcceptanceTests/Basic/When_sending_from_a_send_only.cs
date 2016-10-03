@@ -103,7 +103,7 @@
             }
         }
 
-        [Serializable]
+        
         public class MyMessage : ICommand
         {
             public Guid Id { get; set; }
