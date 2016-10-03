@@ -23,7 +23,7 @@
             Assert.AreEqual("John", result.FirstName);
         }
 
-        [Serializable]
+        
         public class MessageWithXmlIgnore : MessageWithXmlIgnoreBase
         {
             [XmlIgnore]
@@ -32,7 +32,7 @@
             public string FirstName { get; set; }
         }
 
-        [Serializable]
+        
         public class MessageWithXmlIgnoreBase : IMessage
         {
             [XmlIgnore]

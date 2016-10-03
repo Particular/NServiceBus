@@ -7,7 +7,7 @@ namespace NServiceBus.Serializers.XML.Test
     using System.Xml.Linq;
     using NUnit.Framework;
 
-    [Serializable]
+    
     public class MessageWithArray
     {
         public Guid SagaId { get; set; }
@@ -20,14 +20,14 @@ namespace NServiceBus.Serializers.XML.Test
         }
     }
 
-    [Serializable]
+    
     public class MessageWithArrayAndNoDefaultCtor
     {
         public Guid SagaId { get; set; }
         public string[] SomeWords { get; set; }
     }
 
-    [Serializable]
+    
     public class MessageWithNullableArray
     {
         public Guid SagaId { get; set; }

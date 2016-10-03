@@ -61,7 +61,7 @@ namespace NServiceBus.Serializers.XML.Test
         }
     }
 
-    [Serializable]
+    
     public class MessageWithLists : IMessage
     {
         public List<bool> Bools { get; set; }

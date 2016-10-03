@@ -122,7 +122,7 @@ namespace NServiceBus.Serializers.XML.Test
         }
     }
 
-    [Serializable]
+    
     public class MessageWithDictionaries : IMessage
     {
         public Dictionary<bool, bool> Bools { get; set; }

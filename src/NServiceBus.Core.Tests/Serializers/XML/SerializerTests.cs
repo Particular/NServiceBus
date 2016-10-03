@@ -1265,13 +1265,13 @@ namespace NServiceBus.Serializers.XML.Test
         public List<MessageWithListItem> Items { get; set; }
     }
 
-    [Serializable]
+    
     public class MessageWithHashtable : IMessage
     {
         public Hashtable Hashtable { get; set; }
     }
 
-    [Serializable]
+    
     public class MessageWithArrayList : IMessage
     {
         public ArrayList ArrayList { get; set; }
@@ -1297,13 +1297,13 @@ namespace NServiceBus.Serializers.XML.Test
         public ItemList Items { get; set; }
     }
 
-    [Serializable]
+    
     public class MessageWithXDocument : IMessage
     {
         public XDocument Document { get; set; }
     }
 
-    [Serializable]
+    
     public class MessageWithXElement : IMessage
     {
         public XElement Document { get; set; }

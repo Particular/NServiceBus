@@ -6,7 +6,7 @@ namespace NServiceBus.Serializers.XML.Test
     using System.Xml.Linq;
     using NUnit.Framework;
 
-    [Serializable]
+    
     public class MessageWithNullable : IMessage
     {
         public string FirstName { get; set; }

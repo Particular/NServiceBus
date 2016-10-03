@@ -2,7 +2,7 @@
 {
     using System;
 
-    [Serializable]
+    
     public class Risk
     {
         public bool Annum { get; set; }
