@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus.AcceptanceTests.Correlation
 {
-    using System;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
@@ -48,7 +47,7 @@
             }
         }
 
-        
+
         public class MyRequest : IMessage
         {
         }

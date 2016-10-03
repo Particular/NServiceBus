@@ -1,8 +1,5 @@
 ﻿namespace NServiceBus.Serializers.XML
 {
-    using System;
-
-    
     public class Risk
     {
         public bool Annum { get; set; }

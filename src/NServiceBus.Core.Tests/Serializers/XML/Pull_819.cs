@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus.Serializers.XML.Test
 {
-    using System;
     using System.Collections;
     using System.Collections.Generic;
     using System.Xml.Serialization;
@@ -23,7 +22,6 @@
             Assert.AreEqual("John", result.FirstName);
         }
 
-        
         public class MessageWithXmlIgnore : MessageWithXmlIgnoreBase
         {
             [XmlIgnore]
@@ -32,7 +30,6 @@
             public string FirstName { get; set; }
         }
 
-        
         public class MessageWithXmlIgnoreBase : IMessage
         {
             [XmlIgnore]

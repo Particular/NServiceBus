@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus.AcceptanceTests.Encryption
 {
-    using System;
     using System.Collections.Generic;
     using System.Text;
     using System.Threading.Tasks;
@@ -71,7 +70,7 @@
             }
         }
 
-        
+
         public class MessageWithSecretData : IMessage
         {
             public WireEncryptedString Secret { get; set; }

@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus.AcceptanceTests.Routing
 {
-    using System;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
@@ -100,7 +99,7 @@
             }
         }
 
-        
+
         public class EventHandledByLocalEndpoint : IEvent
         {
         }

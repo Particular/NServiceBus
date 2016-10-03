@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus.AcceptanceTests.Routing
 {
-    using System;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
@@ -105,17 +104,17 @@
             }
         }
 
-        
+
         public class BaseEvent : IEvent
         {
         }
 
-        
+
         public class DerivedEvent1 : BaseEvent
         {
         }
 
-        
+
         public class DerivedEvent2 : BaseEvent
         {
         }

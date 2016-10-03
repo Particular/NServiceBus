@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus.AcceptanceTests.Recoverability
 {
-    using System;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
@@ -63,7 +62,7 @@
             public bool MessageReceived { get; set; }
         }
 
-        
+
         public class Message : IMessage
         {
         }

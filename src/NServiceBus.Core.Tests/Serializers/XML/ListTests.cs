@@ -1,6 +1,5 @@
 namespace NServiceBus.Serializers.XML.Test
 {
-    using System;
     using System.Collections.Generic;
     using System.Globalization;
     using NUnit.Framework;

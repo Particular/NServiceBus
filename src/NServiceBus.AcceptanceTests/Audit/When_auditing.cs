@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus.AcceptanceTests.Audit
 {
-    using System;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
@@ -101,7 +100,7 @@
             }
         }
 
-        
+
         public class MessageToBeAudited : IMessage
         {
         }

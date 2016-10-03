@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus.AcceptanceTests.Mutators
 {
-    using System;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
@@ -82,12 +81,12 @@
             }
         }
 
-        
+
         public class V1Message : ICommand
         {
         }
 
-        
+
         public class V2Message : ICommand
         {
         }

@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus.AcceptanceTests.Basic
 {
-    using System;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
@@ -26,7 +25,6 @@
             public bool SecondHandlerInvoked { get; set; }
         }
 
-        
         public class SomeMessage : IMessage
         {
         }
