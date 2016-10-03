@@ -89,7 +89,7 @@
             }
         }
 
-        [Serializable]
+        
         public class MessageToBeAudited : IMessage
         {
             public string RunId { get; set; }

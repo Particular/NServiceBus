@@ -3,7 +3,7 @@
     using System;
     using System.Collections.Generic;
 
-    [Serializable]
+    
     public class M2 : M1
     {
         public Guid Id { get; set; }

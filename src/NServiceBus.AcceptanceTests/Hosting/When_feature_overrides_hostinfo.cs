@@ -70,7 +70,7 @@ namespace NServiceBus.AcceptanceTests.Hosting
             public Guid OriginatingHostId { get; set; }
         }
 
-        [Serializable]
+        
         public class MyMessage : ICommand
         {
         }

@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus.AcceptanceTests.Tx
 {
-    using System;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
@@ -76,12 +75,12 @@
             }
         }
 
-        [Serializable]
+        
         public class MyMessage : ICommand
         {
         }
 
-        [Serializable]
+        
         public class MessageHandledEvent : IMessage
         {
             public bool HasFailed { get; set; }

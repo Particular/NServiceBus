@@ -58,12 +58,12 @@
             }
         }
 
-        [Serializable]
+        
         class PlaceOrder : ICommand
         {
         }
 
-        [Serializable]
+        
         class SendOrderAcknowledgement : IMessage
         {
         }

@@ -76,12 +76,12 @@
             }
         }
 
-        [Serializable]
+        
         public class MyMessage : IMessage
         {
         }
 
-        [Serializable]
+        
         public class MyOtherMessage : IMessage
         {
         }

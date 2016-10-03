@@ -92,12 +92,12 @@
             }
         }
 
-        [Serializable]
+        
         public class MyMessage : ICommand
         {
         }
 
-        [Serializable]
+        
         public class CompleteTest : ICommand
         {
             public bool EnlistedInTheAmbientTx { get; set; }

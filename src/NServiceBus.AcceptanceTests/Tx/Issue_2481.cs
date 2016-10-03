@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus.AcceptanceTests.Tx
 {
-    using System;
     using System.Threading.Tasks;
     using System.Transactions;
     using AcceptanceTesting;
@@ -52,7 +51,7 @@
             }
         }
 
-        [Serializable]
+        
         public class MyMessage : ICommand
         {
         }

@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus.AcceptanceTests.Tx
 {
-    using System;
     using System.Threading.Tasks;
     using System.Transactions;
     using AcceptanceTesting;
@@ -114,13 +113,13 @@
             }
         }
 
-        [Serializable]
+        
         public class MessageThatIsEnlisted : ICommand
         {
             public int SequenceNumber { get; set; }
         }
 
-        [Serializable]
+        
         public class MessageThatIsNotEnlisted : ICommand
         {
         }

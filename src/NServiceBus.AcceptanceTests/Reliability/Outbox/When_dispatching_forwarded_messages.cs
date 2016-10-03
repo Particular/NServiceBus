@@ -90,7 +90,7 @@
             }
         }
 
-        [Serializable]
+        
         public class MessageToBeForwarded : IMessage
         {
             public string RunId { get; set; }

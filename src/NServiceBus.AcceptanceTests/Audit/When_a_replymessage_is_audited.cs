@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus.AcceptanceTests.Audit
 {
-    using System;
     using System.Linq;
     using System.Threading.Tasks;
     using AcceptanceTesting;
@@ -111,7 +110,7 @@
             }
         }
 
-        [Serializable]
+
         public class ResponseToBeAudited : IMessage
         {
         }

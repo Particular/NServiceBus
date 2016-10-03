@@ -3,7 +3,7 @@
     using System;
     using System.Collections.Generic;
 
-    [Serializable]
+    
     public class M1 : IM1
     {
         public float Age { get; set; }

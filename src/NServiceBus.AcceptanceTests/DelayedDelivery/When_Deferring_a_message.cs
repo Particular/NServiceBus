@@ -59,7 +59,7 @@
             }
         }
 
-        [Serializable]
+        
         public class MyMessage : IMessage
         {
         }

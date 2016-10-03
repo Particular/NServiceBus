@@ -92,19 +92,19 @@
             }
         }
 
-        [Serializable]
+        
         public class StartSaga1 : ICommand
         {
             public Guid ContextId { get; set; }
         }
 
-        [Serializable]
+        
         public class MessageToSaga : ICommand
         {
             public Guid ContextId { get; set; }
         }
 
-        [Serializable]
+        
         public class Reply : IMessage
         {
         }

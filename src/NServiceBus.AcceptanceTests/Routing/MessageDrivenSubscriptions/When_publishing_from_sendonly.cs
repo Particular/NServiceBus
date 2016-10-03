@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus.AcceptanceTests.Routing.MessageDrivenSubscriptions
 {
-    using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
@@ -67,7 +66,7 @@
             }
         }
 
-        [Serializable]
+
         public class MyEvent : IEvent
         {
         }

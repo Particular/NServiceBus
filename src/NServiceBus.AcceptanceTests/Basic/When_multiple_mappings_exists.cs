@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus.AcceptanceTests.Basic
 {
-    using System;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
@@ -76,17 +75,17 @@
             }
         }
 
-        [Serializable]
+
         public abstract class MyBaseCommand : ICommand
         {
         }
 
-        [Serializable]
+
         public class MyCommand1 : MyBaseCommand
         {
         }
 
-        [Serializable]
+
         public class MyCommand2 : MyBaseCommand
         {
         }

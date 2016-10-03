@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus.AcceptanceTests.Sagas
 {
-    using System;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
@@ -64,7 +63,7 @@
             }
         }
 
-        [Serializable]
+
         public class StartSagaMessage : ICommand
         {
             public string SomeId { get; set; }

@@ -80,7 +80,7 @@
             }
         }
 
-        [Serializable]
+        
         public class SendMessage : ICommand
         {
             public string Secret { get; set; }

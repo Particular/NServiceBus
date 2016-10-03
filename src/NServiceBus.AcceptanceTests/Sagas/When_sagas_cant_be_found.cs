@@ -241,18 +241,18 @@
             }
         }
 
-        [Serializable]
+        
         public class StartSaga : ICommand
         {
             public Guid Id { get; set; }
         }
 
-        [Serializable]
+        
         public class FinishMessage : ICommand
         {
         }
 
-        [Serializable]
+        
         public class MessageToSaga : ICommand
         {
             public Guid Id { get; set; }

@@ -1,6 +1,5 @@
 namespace NServiceBus.Serializers.XML.Test
 {
-    using System;
     using System.Collections.Generic;
     using System.Globalization;
     using NUnit.Framework;
@@ -61,7 +60,7 @@ namespace NServiceBus.Serializers.XML.Test
         }
     }
 
-    [Serializable]
+    
     public class MessageWithLists : IMessage
     {
         public List<bool> Bools { get; set; }

@@ -75,7 +75,7 @@ namespace NServiceBus.AcceptanceTests.Hosting
             public bool Done { get; set; }
         }
 
-        [Serializable]
+        
         public class MyMessage : ICommand
         {
         }

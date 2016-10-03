@@ -70,7 +70,7 @@ namespace NServiceBus.AcceptanceTests.Recoverability.Retries
             }
         }
 
-        [Serializable]
+        
         public class MessageToBeRetried : IMessage
         {
         }

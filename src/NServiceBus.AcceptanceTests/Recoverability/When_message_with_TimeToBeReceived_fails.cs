@@ -97,7 +97,7 @@
             }
         }
 
-        [Serializable]
+        
         [TimeToBeReceived("00:00:03")]
         class MessageThatFails : IMessage
         {

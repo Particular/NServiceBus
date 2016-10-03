@@ -91,7 +91,7 @@
             }
         }
 
-        [Serializable]
+        
         public class MessageToBeRetried : IMessage
         {
         }

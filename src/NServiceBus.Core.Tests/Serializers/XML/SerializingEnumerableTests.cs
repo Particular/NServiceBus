@@ -5,7 +5,7 @@
     using System.Linq;
     using NUnit.Framework;
 
-    [Serializable]
+    
     public class MessageWithEnumerableOfString
     {
         public Guid SagaId { get; set; }

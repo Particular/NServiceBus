@@ -144,7 +144,7 @@
             }
         }
 
-        [Serializable]
+        
         public class Message : IMessage
         {
             public string ContextId { get; set; }

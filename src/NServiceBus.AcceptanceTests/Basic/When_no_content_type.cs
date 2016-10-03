@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus.AcceptanceTests.Basic
 {
-    using System;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
@@ -63,7 +62,7 @@
             }
         }
 
-        [Serializable]
+
         public class Message : IMessage
         {
             public string Property { get; set; }

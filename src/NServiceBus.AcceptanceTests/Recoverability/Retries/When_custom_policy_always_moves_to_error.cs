@@ -1,6 +1,5 @@
 namespace NServiceBus.AcceptanceTests.Recoverability.Retries
 {
-    using System;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
@@ -59,7 +58,7 @@ namespace NServiceBus.AcceptanceTests.Recoverability.Retries
             }
         }
 
-        [Serializable]
+
         public class MessageToBeRetried : IMessage
         {
         }

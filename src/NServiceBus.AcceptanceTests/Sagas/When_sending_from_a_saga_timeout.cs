@@ -91,13 +91,13 @@
             }
         }
 
-        [Serializable]
+        
         public class StartSaga1 : ICommand
         {
             public Guid DataId { get; set; }
         }
 
-        [Serializable]
+        
         public class StartSaga2 : ICommand
         {
             public Guid DataId { get; set; }
