@@ -128,6 +128,8 @@
     <Compile Include="Msmq\ConnectionStringParserTests.cs" />
     <Compile Include="ObservableTests.cs" />
     <Compile Include="Persistence\InMemory\InMemorySagaPersistenceFixture.cs" />
+    <Compile Include="Persistence\InMemory\InMemorySubscriptionStorageTests.cs" />
+    <Compile Include="Persistence\Msmq\MsmqSubscriptionStorageTests.cs" />
     <Compile Include="Persistence\PersistenceExtentionsTests.cs" />
     <Compile Include="Persistence\PersistenceStorageMergerTests.cs" />
     <Compile Include="Sagas\SagaModelTests.cs" />
