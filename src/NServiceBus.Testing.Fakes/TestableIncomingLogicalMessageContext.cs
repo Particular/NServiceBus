@@ -11,13 +11,6 @@ namespace NServiceBus.Testing
     public partial class TestableIncomingLogicalMessageContext : TestableIncomingContext, IIncomingLogicalMessageContext
     {
         /// <summary>
-        /// Creates a new instance of <see cref="TestableIncomingLogicalMessageContext" />.
-        /// </summary>
-        public TestableIncomingLogicalMessageContext(IMessageCreator messageCreator = null) : base(messageCreator)
-        {
-        }
-
-        /// <summary>
         /// Message being handled.
         /// </summary>
         public LogicalMessage Message { get; set; } = new LogicalMessage(new MessageMetadata(typeof(object)), new object());

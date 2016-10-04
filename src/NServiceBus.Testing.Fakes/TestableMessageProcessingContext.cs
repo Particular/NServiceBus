@@ -13,13 +13,6 @@ namespace NServiceBus.Testing
     public partial class TestableMessageProcessingContext : TestablePipelineContext, IMessageProcessingContext
     {
         /// <summary>
-        /// Creates a new instance of <see cref="TestableMessageProcessingContext" />.
-        /// </summary>
-        public TestableMessageProcessingContext(IMessageCreator messageCreator = null) : base(messageCreator)
-        {
-        }
-
-        /// <summary>
         /// A list of all messages sent by <see cref="IMessageProcessingContext.Reply" />.
         /// </summary>
         public virtual RepliedMessage<object>[] RepliedMessages => repliedMessages.ToArray();

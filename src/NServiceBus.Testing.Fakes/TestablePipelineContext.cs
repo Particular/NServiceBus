@@ -4,21 +4,12 @@ namespace NServiceBus.Testing
     using System.Collections.Concurrent;
     using System.Threading.Tasks;
     using Extensibility;
-    using MessageInterfaces.MessageMapper.Reflection;
 
     /// <summary>
     /// A testable implementation of <see cref="IPipelineContext" />.
     /// </summary>
     public partial class TestablePipelineContext : IPipelineContext
     {
-        /// <summary>
-        /// Creates a new <see cref="TestableMessageHandlerContext" /> instance.
-        /// </summary>
-        public TestablePipelineContext(IMessageCreator messageCreator = null)
-        {
-            this.messageCreator = messageCreator ?? new MessageMapper();
-        }
-
         /// <summary>
         /// A list of all messages sent by <see cref="IPipelineContext.Send" />.
         /// </summary>
@@ -56,12 +47,7 @@ namespace NServiceBus.Testing
             publishedMessages.Enqueue(new PublishedMessage<object>(message, options));
             return Task.FromResult(0);
         }
-
-        /// <summary>
-        /// the <see cref="IMessageCreator" /> instance used to create proxy implementation for message interfaces.
-        /// </summary>
-        protected IMessageCreator messageCreator;
-
+        
         ConcurrentQueue<PublishedMessage<object>> publishedMessages = new ConcurrentQueue<PublishedMessage<object>>();
 
         ConcurrentQueue<SentMessage<object>> sentMessages = new ConcurrentQueue<SentMessage<object>>();

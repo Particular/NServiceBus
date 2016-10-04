@@ -3,24 +3,24 @@
     using System;
     using System.Collections.Generic;
 
-    public interface IM2 : IM1
+    public class IM2 : IM1
     {
-        Guid Id { get; set; }
-        IM1 Parent { get; set; }
-        List<IM1> Names { get; set; }
-        SomeEnum Some { get; set; }
-        DateTime Start { get; set; }
-        TimeSpan Duration { get; set; }
-        DateTimeOffset Offset { get; set; }
-        IM1[] MoreNames { get; set; }
-        MyDictionary Lookup { get; set; }
-        Dictionary<string, List<Foo>> Foos { get; set; }
-        byte[] Data { get; set; }
-        IEnumerable<string> SomeStrings { get; set; }
-        Foo[] ArrayFoos { get; set; }
-        Bar[] Bars { get; set; }
-        HashSet<int> NaturalNumbers { get; set; }
-        HashSet<string> Developers { get; set; }
+        public Guid Id { get; set; }
+        public IM1 Parent { get; set; }
+        public List<IM1> Names { get; set; }
+        public SomeEnum Some { get; set; }
+        public DateTime Start { get; set; }
+        public TimeSpan Duration { get; set; }
+        public DateTimeOffset Offset { get; set; }
+        public IM1[] MoreNames { get; set; }
+        public MyDictionary Lookup { get; set; }
+        public Dictionary<string, List<Foo>> Foos { get; set; }
+        public byte[] Data { get; set; }
+        public IEnumerable<string> SomeStrings { get; set; }
+        public Foo[] ArrayFoos { get; set; }
+        public Bar[] Bars { get; set; }
+        public HashSet<int> NaturalNumbers { get; set; }
+        public HashSet<string> Developers { get; set; }
     }
 
     public class Foo

@@ -601,12 +601,6 @@ namespace NServiceBus
     [System.ObsoleteAttribute("Use `IMessageHandlerContext` provided to message handlers instead. Will be remove" +
         "d in version 7.0.0.", true)]
     public interface IMessageContext { }
-    public interface IMessageCreator
-    {
-        T CreateInstance<T>();
-        T CreateInstance<T>(System.Action<T> action);
-        object CreateInstance(System.Type messageType);
-    }
     public interface IMessageHandlerContext : NServiceBus.Extensibility.IExtendable, NServiceBus.IMessageProcessingContext, NServiceBus.IPipelineContext
     {
         NServiceBus.Persistence.SynchronizedStorageSession SynchronizedStorageSession { get; }
@@ -1973,7 +1967,7 @@ namespace NServiceBus.Logging
 }
 namespace NServiceBus.MessageInterfaces
 {
-    public interface IMessageMapper : NServiceBus.IMessageCreator
+    public interface IMessageMapper
     {
         System.Type GetMappedTypeFor(System.Type t);
         System.Type GetMappedTypeFor(string typeName);
@@ -1982,7 +1976,7 @@ namespace NServiceBus.MessageInterfaces
 }
 namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
 {
-    public class MessageMapper : NServiceBus.IMessageCreator, NServiceBus.MessageInterfaces.IMessageMapper
+    public class MessageMapper : NServiceBus.MessageInterfaces.IMessageMapper
     {
         public MessageMapper() { }
         public T CreateInstance<T>(System.Action<T> action) { }

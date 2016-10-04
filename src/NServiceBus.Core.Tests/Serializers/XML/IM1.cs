@@ -2,13 +2,13 @@
 {
     using System;
 
-    public interface IM1 : IMessage
+    public class IM1 : IMessage
     {
-        float Age { get; set; }
-        int Int { get; set; }
-        string Name { get; set; }
-        string Address { get; set; }
-        Uri Uri { get; set; }
-        Risk Risk { get; set; }
+        public float Age { get; set; }
+        public int Int { get; set; }
+        public string Name { get; set; }
+        public string Address { get; set; }
+        public Uri Uri { get; set; }
+        public Risk Risk { get; set; }
     }
 }

@@ -21,8 +21,6 @@ namespace NServiceBus
         {
             this.messageMapper = messageMapper;
             this.encoding = encoding;
-
-            messageContractResolver = new MessageContractResolver(messageMapper);
         }
 
         /// <summary>
@@ -99,7 +97,6 @@ namespace NServiceBus
             }
 
             var jsonSerializer = Newtonsoft.Json.JsonSerializer.Create(settings);
-            jsonSerializer.ContractResolver = messageContractResolver;
             jsonSerializer.Binder = new JsonMessageSerializationBinder(messageMapper, messageTypes);
 
             var reader = CreateJsonReader(stream);
@@ -200,7 +197,6 @@ namespace NServiceBus
 
         Encoding encoding;
 
-        MessageContractResolver messageContractResolver;
         IMessageMapper messageMapper;
 
         JsonSerializerSettings serializerSettings = new JsonSerializerSettings

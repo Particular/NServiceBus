@@ -509,7 +509,6 @@
     <Compile Include="IdGeneration\CombGuid.cs" />
     <Compile Include="IEvent.cs" />
     <Compile Include="IMessage.cs" />
-    <Compile Include="IMessageCreator.cs" />
     <Compile Include="Unicast\IncomingMessageOperations.cs" />
     <Compile Include="Unicast\MessageOperationsInvokeHandlerContext.cs" />
     <Compile Include="Unicast\MessageOperations.cs" />
@@ -712,7 +711,6 @@
     <Compile Include="Scheduling\DefaultScheduler.cs" />
     <Compile Include="Scheduling\Messages\ScheduledTask.cs" />
     <Compile Include="Scheduling\ScheduledTaskMessageHandler.cs" />
-    <Compile Include="Serializers\Json\MessageContractResolver.cs" />
     <Compile Include="Serializers\Json\JsonMessageSerializationBinder.cs" />
     <Compile Include="Serializers\Json\XContainerJsonConverter.cs" />
     <Compile Include="Serializers\Json\JsonMessageSerializer.cs" />

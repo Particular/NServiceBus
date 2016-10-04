@@ -79,40 +79,7 @@ namespace NServiceBus.Serializers.Json.Tests
                 Assert.AreEqual(message.InterfaceProperty.SomeProperty, result.InterfaceProperty.SomeProperty);
             }
         }
-
-        [Test]
-        public void Should_handle_interface_message_with_interface_property()
-        {
-            var messageMapper = new MessageMapper();
-            messageMapper.Initialize(new[]
-            {
-                typeof(IMessageWithInterfaceProperty)
-            });
-            var serializer = new JsonMessageSerializer(messageMapper);
-
-            IMessageWithInterfaceProperty message = new InterfaceMessageWithInterfacePropertyImplementation
-            {
-                InterfaceProperty = new InterfacePropertyImplementation
-                {
-                    SomeProperty = "test"
-                }
-            };
-
-            using (var stream = new MemoryStream())
-            {
-                serializer.Serialize(message, stream);
-
-                stream.Position = 0;
-
-                var result = (IMessageWithInterfaceProperty) serializer.Deserialize(stream, new[]
-                {
-                    typeof(IMessageWithInterfaceProperty)
-                })[0];
-
-                Assert.AreEqual(message.InterfaceProperty.SomeProperty, result.InterfaceProperty.SomeProperty);
-            }
-        }
-
+        
         [Test]
         public void Deserialize_messages_wrapped_in_array_from_older_endpoint()
         {
@@ -281,35 +248,7 @@ namespace NServiceBus.Serializers.Json.Tests
                 Assert.That(result.Contains("SomeProperty"), result);
             }
         }
-
-        [Test]
-        public void Deserialize_message_without_concrete_implementation()
-        {
-            var messageMapper = new MessageMapper();
-            messageMapper.Initialize(new[]
-            {
-                typeof(ISuperMessageWithoutConcreteImpl)
-            });
-            var serializer = new JsonMessageSerializer(messageMapper);
-
-            using (var stream = new MemoryStream())
-            {
-                var msg = messageMapper.CreateInstance<ISuperMessageWithoutConcreteImpl>();
-                msg.SomeProperty = "test";
-
-                serializer.Serialize(msg, stream);
-
-                stream.Position = 0;
-
-                var result = (ISuperMessageWithoutConcreteImpl) serializer.Deserialize(stream, new[]
-                {
-                    typeof(ISuperMessageWithoutConcreteImpl)
-                })[0];
-
-                Assert.AreEqual("test", result.SomeProperty);
-            }
-        }
-
+        
         [Test]
         public void Deserialize_message_with_concrete_implementation_and_interface()
         {

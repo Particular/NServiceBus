@@ -13,13 +13,6 @@ namespace NServiceBus.Testing
     public partial class TestableInvokeHandlerContext : TestableIncomingContext, IInvokeHandlerContext
     {
         /// <summary>
-        /// Creates a new instance of <see cref="TestableInvokeHandlerContext" />.
-        /// </summary>
-        public TestableInvokeHandlerContext(IMessageCreator messageCreator = null) : base(messageCreator)
-        {
-        }
-
-        /// <summary>
         /// Indicates if <see cref="IMessageHandlerContext.DoNotContinueDispatchingCurrentMessageToHandlers" /> has been called.
         /// </summary>
         public bool DoNotContinueDispatchingCurrentMessageToHandlersWasCalled { get; set; }

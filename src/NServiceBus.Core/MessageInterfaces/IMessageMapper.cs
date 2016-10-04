@@ -7,7 +7,7 @@ namespace NServiceBus.MessageInterfaces
     /// Enables looking up interfaced mapped to generated concrete types.
     /// and vice versa.
     /// </summary>
-    public interface IMessageMapper : IMessageCreator
+    public interface IMessageMapper
     {
         /// <summary>
         /// Initializes the mapper with the given types to be scanned.

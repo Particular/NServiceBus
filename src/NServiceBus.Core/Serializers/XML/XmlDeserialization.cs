@@ -299,7 +299,7 @@
                 return GetPropertyValue(t, node);
             }
 
-            var result = mapper.CreateInstance(t);
+            var result = Activator.CreateInstance(t);
 
             foreach (XmlNode n in node.ChildNodes)
             {

@@ -16,8 +16,6 @@ namespace NServiceBus.Serializers.XML.Test
     using A;
     using AlternateNamespace;
     using B;
-    using MessageInterfaces;
-    using MessageInterfaces.MessageMapper.Reflection;
     using NUnit.Framework;
     using Serialization;
 
@@ -27,9 +25,8 @@ namespace NServiceBus.Serializers.XML.Test
         [Test]
         public void SerializeInvalidCharacters()
         {
-            IMessageMapper mapper = new MessageMapper();
             var serializer = SerializerFactory.Create<MessageWithInvalidCharacter>();
-            var msg = mapper.CreateInstance<MessageWithInvalidCharacter>();
+            var msg = Activator.CreateInstance<MessageWithInvalidCharacter>();
 
             var sb = new StringBuilder();
             sb.Append("Hello");
@@ -476,9 +473,8 @@ namespace NServiceBus.Serializers.XML.Test
         [Test]
         public void TestMultipleInterfacesDuplicatedProperty()
         {
-            var mapper = new MessageMapper();
-            var serializer = SerializerFactory.Create<IThird>(mapper);
-            var msgBeforeSerialization = mapper.CreateInstance<IThird>(x => x.FirstName = "Danny");
+            var serializer = SerializerFactory.Create<IThird>();
+            var msgBeforeSerialization = new IThird { FirstName = "Danny"};
 
             var count = 0;
             using (var stream = new MemoryStream())
@@ -548,11 +544,10 @@ namespace NServiceBus.Serializers.XML.Test
         [Test]
         public void TestInterfaces()
         {
-            var mapper = new MessageMapper();
-            var serializer = SerializerFactory.Create<IM2>(mapper);
+            var serializer = SerializerFactory.Create<IM2>();
 
 
-            var o = mapper.CreateInstance<IM2>();
+            var o = new IM2();
 
             o.Id = Guid.NewGuid();
             o.Age = 10;
@@ -652,7 +647,7 @@ namespace NServiceBus.Serializers.XML.Test
                 "Jonathan Oliver et al"
             });
 
-            o.Parent = mapper.CreateInstance<IM1>();
+            o.Parent = new IM1();
             o.Parent.Name = "udi";
             o.Parent.Age = 10;
             o.Parent.Address = Guid.NewGuid().ToString();
@@ -668,7 +663,7 @@ namespace NServiceBus.Serializers.XML.Test
             o.Names = new List<IM1>();
             for (var i = 0; i < number; i++)
             {
-                var m1 = mapper.CreateInstance<IM1>();
+                var m1 = new IM1();
                 o.Names.Add(m1);
                 m1.Age = 10;
                 m1.Address = Guid.NewGuid().ToString();
@@ -753,9 +748,8 @@ namespace NServiceBus.Serializers.XML.Test
         [Test]
         public void SerializeLists()
         {
-            IMessageMapper mapper = new MessageMapper();
             var serializer = SerializerFactory.Create<MessageWithList>();
-            var msg = mapper.CreateInstance<MessageWithList>();
+            var msg = new MessageWithList();
 
             msg.Items = new List<MessageWithListItem>
             {
@@ -779,9 +773,8 @@ namespace NServiceBus.Serializers.XML.Test
         [Test]
         public void SerializeClosedGenericListsInAlternateNamespace()
         {
-            IMessageMapper mapper = new MessageMapper();
             var serializer = SerializerFactory.Create<MessageWithClosedListInAlternateNamespace>();
-            var msg = mapper.CreateInstance<MessageWithClosedListInAlternateNamespace>();
+            var msg = new MessageWithClosedListInAlternateNamespace();
 
             msg.Items = new AlternateItemList
             {
@@ -805,9 +798,8 @@ namespace NServiceBus.Serializers.XML.Test
         [Test]
         public void SerializeClosedGenericListsInAlternateNamespaceMultipleIEnumerableImplementations()
         {
-            IMessageMapper mapper = new MessageMapper();
             var serializer = SerializerFactory.Create<MessageWithClosedListInAlternateNamespaceMultipleIEnumerableImplementations>();
-            var msg = mapper.CreateInstance<MessageWithClosedListInAlternateNamespaceMultipleIEnumerableImplementations>();
+            var msg = new MessageWithClosedListInAlternateNamespaceMultipleIEnumerableImplementations();
 
             msg.Items = new AlternateItemListMultipleIEnumerableImplementations
             {
@@ -831,9 +823,8 @@ namespace NServiceBus.Serializers.XML.Test
         [Test]
         public void SerializeClosedGenericListsInAlternateNamespaceMultipleIListImplementations()
         {
-            IMessageMapper mapper = new MessageMapper();
             var serializer = SerializerFactory.Create<MessageWithClosedListInAlternateNamespaceMultipleIListImplementations>();
-            var msg = mapper.CreateInstance<MessageWithClosedListInAlternateNamespaceMultipleIListImplementations>();
+            var msg = new MessageWithClosedListInAlternateNamespaceMultipleIListImplementations();
 
             msg.Items = new AlternateItemListMultipleIListImplementations
             {
@@ -857,9 +848,8 @@ namespace NServiceBus.Serializers.XML.Test
         [Test]
         public void SerializeClosedGenericListsInSameNamespace()
         {
-            IMessageMapper mapper = new MessageMapper();
             var serializer = SerializerFactory.Create<MessageWithClosedList>();
-            var msg = mapper.CreateInstance<MessageWithClosedList>();
+            var msg = new MessageWithClosedList();
 
             msg.Items = new ItemList
             {
@@ -883,9 +873,8 @@ namespace NServiceBus.Serializers.XML.Test
         [Test]
         public void SerializeEmptyLists()
         {
-            IMessageMapper mapper = new MessageMapper();
             var serializer = SerializerFactory.Create<MessageWithList>();
-            var msg = mapper.CreateInstance<MessageWithList>();
+            var msg = new MessageWithList();
 
             msg.Items = new List<MessageWithListItem>();
 
@@ -1265,13 +1254,13 @@ namespace NServiceBus.Serializers.XML.Test
         public List<MessageWithListItem> Items { get; set; }
     }
 
-    
+
     public class MessageWithHashtable : IMessage
     {
         public Hashtable Hashtable { get; set; }
     }
 
-    
+
     public class MessageWithArrayList : IMessage
     {
         public ArrayList ArrayList { get; set; }
@@ -1297,13 +1286,13 @@ namespace NServiceBus.Serializers.XML.Test
         public ItemList Items { get; set; }
     }
 
-    
+
     public class MessageWithXDocument : IMessage
     {
         public XDocument Document { get; set; }
     }
 
-    
+
     public class MessageWithXElement : IMessage
     {
         public XElement Document { get; set; }

@@ -9,19 +9,13 @@ namespace NServiceBus.Serializers.XML.Test
 
     class SerializerFactory
     {
-        public static XmlMessageSerializer Create<T>(MessageMapper mapper = null)
+        public static XmlMessageSerializer Create<T>()
         {
             var types = new List<Type>
             {
                 typeof(T)
             };
-            if (mapper == null)
-            {
-                mapper = new MessageMapper();
-            }
-
-            mapper.Initialize(types);
-            var serializer = new XmlMessageSerializer(mapper, new Conventions());
+            var serializer = new XmlMessageSerializer(new MessageMapper(), new Conventions());
 
             serializer.Initialize(types);
 
