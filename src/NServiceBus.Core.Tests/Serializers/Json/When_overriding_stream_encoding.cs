@@ -1,7 +1,6 @@
 namespace NServiceBus.Serializers.Json.Tests
 {
     using System.Text;
-    using MessageInterfaces.MessageMapper.Reflection;
     using Serialization;
     using Settings;
     using NUnit.Framework;
@@ -16,7 +15,7 @@ namespace NServiceBus.Serializers.Json.Tests
             var extensions = new SerializationExtensions<JsonSerializer>(settings);
             extensions.Encoding(Encoding.UTF7);
 
-            var serializer = (NServiceBus.JsonMessageSerializer)new JsonSerializer().Configure(settings)(new MessageMapper());
+            var serializer = (NServiceBus.JsonMessageSerializer)new JsonSerializer().Configure(settings)();
             Assert.AreSame(Encoding.UTF7, serializer.Encoding);
         }
     }

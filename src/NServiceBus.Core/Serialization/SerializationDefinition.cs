@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.Serialization
 {
     using System;
-    using MessageInterfaces;
     using Settings;
 
     /// <summary>
@@ -12,6 +11,6 @@
         /// <summary>
         /// Provides a factory method for building a message serializer.
         /// </summary>
-        public abstract Func<IMessageMapper, IMessageSerializer> Configure(ReadOnlySettings settings);
+        public abstract Func<IMessageSerializer> Configure(ReadOnlySettings settings);
     }
 }

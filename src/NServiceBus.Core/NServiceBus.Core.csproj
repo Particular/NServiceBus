@@ -691,8 +691,6 @@
     <Compile Include="Logging\ILog.cs" />
     <Compile Include="Logging\ILoggerFactory.cs" />
     <Compile Include="Logging\LogManager.cs" />
-    <Compile Include="MessageInterfaces\IMessageMapper.cs" />
-    <Compile Include="MessageInterfaces\MessageMapper\Reflection\MessageMapper.cs" />
     <Compile Include="ObjectBuilder\Autofac\AutofacObjectBuilder.cs" />
     <Compile Include="ObjectBuilder\Common\CommonObjectBuilder.cs" />
     <Compile Include="ObjectBuilder\Common\IContainer.cs" />

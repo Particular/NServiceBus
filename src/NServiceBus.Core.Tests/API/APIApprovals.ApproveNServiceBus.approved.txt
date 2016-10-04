@@ -707,7 +707,7 @@ namespace NServiceBus
     public class JsonSerializer : NServiceBus.Serialization.SerializationDefinition
     {
         public JsonSerializer() { }
-        public override System.Func<NServiceBus.MessageInterfaces.IMessageMapper, NServiceBus.Serialization.IMessageSerializer> Configure(NServiceBus.Settings.ReadOnlySettings settings) { }
+        public override System.Func<NServiceBus.Serialization.IMessageSerializer> Configure(NServiceBus.Settings.ReadOnlySettings settings) { }
     }
     public class static JsonSerializerConfigurationExtensions
     {
@@ -1259,7 +1259,7 @@ namespace NServiceBus
     public class XmlSerializer : NServiceBus.Serialization.SerializationDefinition
     {
         public XmlSerializer() { }
-        public override System.Func<NServiceBus.MessageInterfaces.IMessageMapper, NServiceBus.Serialization.IMessageSerializer> Configure(NServiceBus.Settings.ReadOnlySettings settings) { }
+        public override System.Func<NServiceBus.Serialization.IMessageSerializer> Configure(NServiceBus.Settings.ReadOnlySettings settings) { }
     }
 }
 namespace NServiceBus.AutomaticSubscriptions.Config
@@ -1965,28 +1965,6 @@ namespace NServiceBus.Logging
         public static void UseFactory(NServiceBus.Logging.ILoggerFactory loggerFactory) { }
     }
 }
-namespace NServiceBus.MessageInterfaces
-{
-    public interface IMessageMapper
-    {
-        System.Type GetMappedTypeFor(System.Type t);
-        System.Type GetMappedTypeFor(string typeName);
-        void Initialize(System.Collections.Generic.IEnumerable<System.Type> types);
-    }
-}
-namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
-{
-    public class MessageMapper : NServiceBus.MessageInterfaces.IMessageMapper
-    {
-        public MessageMapper() { }
-        public T CreateInstance<T>(System.Action<T> action) { }
-        public T CreateInstance<T>() { }
-        public object CreateInstance(System.Type t) { }
-        public System.Type GetMappedTypeFor(System.Type t) { }
-        public System.Type GetMappedTypeFor(string typeName) { }
-        public void Initialize(System.Collections.Generic.IEnumerable<System.Type> types) { }
-    }
-}
 namespace NServiceBus.MessageMutator
 {
     [System.ObsoleteAttribute("Have the mutator implement both IMutateOutgoingMessages and IMutateIncomingMessag" +
@@ -2328,12 +2306,6 @@ namespace NServiceBus.Pipeline
             "stead. The member currently throws a NotImplementedException. Will be removed in" +
             " version 7.0.0.", true)]
         public void UpdateMessageInstance(object newInstance) { }
-    }
-    public class LogicalMessageFactory
-    {
-        public LogicalMessageFactory(NServiceBus.Unicast.Messages.MessageMetadataRegistry messageMetadataRegistry, NServiceBus.MessageInterfaces.IMessageMapper messageMapper) { }
-        public NServiceBus.Pipeline.LogicalMessage Create(object message) { }
-        public NServiceBus.Pipeline.LogicalMessage Create(System.Type messageType, object message) { }
     }
     public class MessageHandler
     {
@@ -2800,7 +2772,7 @@ namespace NServiceBus.Serialization
     public abstract class SerializationDefinition
     {
         protected SerializationDefinition() { }
-        public abstract System.Func<NServiceBus.MessageInterfaces.IMessageMapper, NServiceBus.Serialization.IMessageSerializer> Configure(NServiceBus.Settings.ReadOnlySettings settings);
+        public abstract System.Func<NServiceBus.Serialization.IMessageSerializer> Configure(NServiceBus.Settings.ReadOnlySettings settings);
     }
     public class SerializationExtensions<T> : NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings
         where T : NServiceBus.Serialization.SerializationDefinition

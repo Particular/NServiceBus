@@ -133,7 +133,6 @@
     <Compile Include="Features\FeatureDifferingOnlyByNamespaceTests.cs" />
     <Compile Include="GlobalTestSetup.cs" />
     <Compile Include="Handlers\MessageHandlerRegistryTests.cs" />
-    <Compile Include="MessageMapper\MessageMapperTests.cs" />
     <Compile Include="Msmq\MsmqMessagePumpTests.cs" />
     <Compile Include="Msmq\TimeToBeReceivedOverrideCheckerTest.cs" />
     <Compile Include="Msmq\MsmqExtensionsTests.cs" />
@@ -275,9 +274,6 @@
     <Compile Include="Encryption\Mailing_list_complex_dto.cs" />
     <Compile Include="Encryption\WireEncryptedStringSpecs.cs" />
     <Compile Include="ExceptionTests.cs" />
-    <Compile Include="MessageMapper\When_mapping_ienumerable_implementations.cs" />
-    <Compile Include="MessageMapper\When_mapping_interfaces.cs" />
-    <Compile Include="MessageMapper\When_mapping_usinggenerics.cs" />
     <Compile Include="Msmq\MsmqUtilitiesTests.cs" />
     <Compile Include="Reliability\Outbox\FakeOutboxStorage.cs" />
     <Compile Include="Reliability\Outbox\TransportReceiveToPhysicalMessageProcessingConnectorTests.cs" />

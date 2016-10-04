@@ -8,7 +8,6 @@ namespace NServiceBus.AcceptanceTests.Serialization
     using AcceptanceTesting;
     using Configuration.AdvanceExtensibility;
     using EndpointTemplates;
-    using MessageInterfaces;
     using NServiceBus.Serialization;
     using NUnit.Framework;
     using Settings;
@@ -81,9 +80,9 @@ namespace NServiceBus.AcceptanceTests.Serialization
 
         public class MyCustomSerializer : SerializationDefinition
         {
-            public override Func<IMessageMapper, IMessageSerializer> Configure(ReadOnlySettings settings)
+            public override Func<IMessageSerializer> Configure(ReadOnlySettings settings)
             {
-                return mapper => new MyCustomMessageSerializer(settings.GetOrDefault<string>("MyCustomSerializer.Settings"), settings.Get<Context>());
+                return () => new MyCustomMessageSerializer(settings.GetOrDefault<string>("MyCustomSerializer.Settings"), settings.Get<Context>());
             }
         }
 
