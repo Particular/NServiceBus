@@ -3,19 +3,15 @@ namespace NServiceBus.InMemory.SagaPersister
     using System;
     using System.Collections.Concurrent;
     using System.Runtime.CompilerServices;
+    using NServiceBus.Saga;
     using NServiceBus.Sagas;
-    using Saga;
-    using Serializers.Json;
+    using NServiceBus.Serializers.Json;
 
     /// <summary>
-    /// In memory implementation of ISagaPersister for quick development.
+    ///     In memory implementation of ISagaPersister for quick development.
     /// </summary>
     class InMemorySagaPersister : ISagaPersister
     {
-        readonly SagaMetaModel sagaModel;
-        ConcurrentDictionary<Guid, VersionedSagaEntity> data = new ConcurrentDictionary<Guid, VersionedSagaEntity>();
-        ConcurrentDictionary<string, object> lockers = new ConcurrentDictionary<string, object>();
-
         public InMemorySagaPersister(SagaMetaModel sagaModel)
         {
             this.sagaModel = sagaModel;
@@ -45,12 +41,14 @@ namespace NServiceBus.InMemory.SagaPersister
                 {
                     continue;
                 }
+
                 var existingValue = prop.GetValue(entity.SagaData);
 
                 if (existingValue.ToString() != propertyValue.ToString())
                 {
                     continue;
                 }
+
                 var sagaData = entity.Read<TSagaData>();
                 return sagaData;
             }
@@ -97,7 +95,10 @@ namespace NServiceBus.InMemory.SagaPersister
             // ReSharper disable once LoopCanBeConvertedToQuery
             foreach (var storedSaga in data)
             {
-                if (storedSaga.Value.SagaData.GetType() != sagaType || (storedSaga.Key == saga.Id)) continue;
+                if (storedSaga.Value.SagaData.GetType() != sagaType || (storedSaga.Key == saga.Id))
+                {
+                    continue;
+                }
 
                 foreach (var correlationProperty in sagaMetaData.CorrelationProperties)
                 {
@@ -118,8 +119,14 @@ namespace NServiceBus.InMemory.SagaPersister
             }
         }
 
+        readonly SagaMetaModel sagaModel;
+        ConcurrentDictionary<Guid, VersionedSagaEntity> data = new ConcurrentDictionary<Guid, VersionedSagaEntity>();
+        ConcurrentDictionary<string, object> lockers = new ConcurrentDictionary<string, object>();
+
         class VersionedSagaEntity
         {
+            static JsonMessageSerializer serializer = new JsonMessageSerializer(null);
+
             public VersionedSagaEntity(IContainSagaData sagaData, string lockTokenKey, VersionedSagaEntity original = null)
             {
                 LockTokenKey = lockTokenKey;
@@ -144,7 +151,7 @@ namespace NServiceBus.InMemory.SagaPersister
             {
                 var clone = DeepClone(SagaData);
                 versionCache.Add(clone, new SagaVersion(version));
-                return (TSagaData)clone;
+                return (TSagaData) clone;
             }
 
             void ConcurrencyCheck(IContainSagaData sagaEntity)
@@ -164,17 +171,16 @@ namespace NServiceBus.InMemory.SagaPersister
             static IContainSagaData DeepClone(IContainSagaData source)
             {
                 var json = serializer.SerializeObject(source);
-                return (IContainSagaData)serializer.DeserializeObject(json, source.GetType());
+                return (IContainSagaData) serializer.DeserializeObject(json, source.GetType());
             }
 
-            public IContainSagaData SagaData;
             public string LockTokenKey;
 
-            ConditionalWeakTable<IContainSagaData, SagaVersion> versionCache;
+            public IContainSagaData SagaData;
 
             int version;
 
-            static JsonMessageSerializer serializer = new JsonMessageSerializer(null);
+            ConditionalWeakTable<IContainSagaData, SagaVersion> versionCache;
 
             class SagaVersion
             {
