@@ -13,10 +13,9 @@ namespace NServiceBus
 
     class DeserializeLogicalMessagesConnector : StageConnector<IIncomingPhysicalMessageContext, IIncomingLogicalMessageContext>
     {
-        public DeserializeLogicalMessagesConnector(MessageDeserializerResolver deserializerResolver, LogicalMessageFactory logicalMessageFactory, MessageMetadataRegistry messageMetadataRegistry)
+        public DeserializeLogicalMessagesConnector(MessageDeserializerResolver deserializerResolver, MessageMetadataRegistry messageMetadataRegistry)
         {
             this.deserializerResolver = deserializerResolver;
-            this.logicalMessageFactory = logicalMessageFactory;
             this.messageMetadataRegistry = messageMetadataRegistry;
         }
 
@@ -117,7 +116,7 @@ namespace NServiceBus
                 for (var i = 0; i < deserializedMessages.Length; i++)
                 {
                     var x = deserializedMessages[i];
-                    logicalMessages[i] = logicalMessageFactory.Create(x.GetType(), x);
+                    logicalMessages[i] = new LogicalMessage(messageMetadataRegistry.GetMessageMetadata(x.GetType()), x);
                 }
                 return logicalMessages;
             }
@@ -134,7 +133,6 @@ namespace NServiceBus
         }
 
         MessageDeserializerResolver deserializerResolver;
-        LogicalMessageFactory logicalMessageFactory;
         MessageMetadataRegistry messageMetadataRegistry;
 
         static LogicalMessage[] NoMessagesFound = new LogicalMessage[0];

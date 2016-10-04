@@ -636,7 +636,6 @@
     <Compile Include="Routing\MessagingBestPractices\EnforceSendBestPracticesBehavior.cs" />
     <Compile Include="Sagas\ActiveSagaInstance.cs" />
     <Compile Include="Sagas\SagaPersistenceBehavior.cs" />
-    <Compile Include="Pipeline\Incoming\LogicalMessageFactory.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\StorageInitializer.cs" />
     <Compile Include="UnitOfWork\UnitOfWorkBehavior.cs" />
     <Compile Include="Pipeline\Behavior.cs" />

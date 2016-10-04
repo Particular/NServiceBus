@@ -3,8 +3,6 @@
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using MessageInterfaces;
-    using MessageInterfaces.MessageMapper.Reflection;
     using NUnit.Framework;
     using Pipeline;
     using Testing;
@@ -56,7 +54,6 @@
             pipelineCache.RegisterPipeline(pipeline);
 
             var context = new TestableMessageHandlerContext();
-            context.Builder.Register<IMessageMapper>(() => new MessageMapper());
             context.Extensions.Set<IPipelineCache>(pipelineCache);
 
             return context;

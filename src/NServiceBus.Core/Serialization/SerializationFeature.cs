@@ -7,7 +7,6 @@
     using Logging;
     using MessageInterfaces;
     using MessageInterfaces.MessageMapper.Reflection;
-    using Pipeline;
     using Serialization;
     using Settings;
     using Unicast.Messages;
@@ -38,14 +37,12 @@
 
             var resolver = new MessageDeserializerResolver(defaultSerializer, additionalDeserializers);
 
-            var logicalMessageFactory = new LogicalMessageFactory(messageMetadataRegistry, mapper);
-            context.Pipeline.Register(new DeserializeLogicalMessagesConnector(resolver, logicalMessageFactory, messageMetadataRegistry), "Deserializes the physical message body into logical messages");
+            context.Pipeline.Register(new DeserializeLogicalMessagesConnector(resolver, messageMetadataRegistry), "Deserializes the physical message body into logical messages");
             context.Pipeline.Register(new SerializeMessageConnector(defaultSerializer, messageMetadataRegistry), "Converts a logical message into a physical message");
 
             context.Container.ConfigureComponent(_ => mapper, DependencyLifecycle.SingleInstance);
             context.Container.ConfigureComponent(_ => messageMetadataRegistry, DependencyLifecycle.SingleInstance);
-            context.Container.ConfigureComponent(_ => logicalMessageFactory, DependencyLifecycle.SingleInstance);
-
+        
             LogFoundMessages(messageMetadataRegistry.GetAllMessages().ToList());
         }
 
