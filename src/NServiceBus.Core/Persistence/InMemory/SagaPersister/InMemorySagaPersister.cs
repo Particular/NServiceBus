@@ -2,24 +2,16 @@ namespace NServiceBus.InMemory.SagaPersister
 {
     using System;
     using System.Collections.Concurrent;
-    using System.Linq;
-    using System.Threading;
+    using System.Runtime.CompilerServices;
+    using NServiceBus.Saga;
     using NServiceBus.Sagas;
-    using NServiceBus.Utils;
-    using Saga;
-    using Serializers.Json;
+    using NServiceBus.Serializers.Json;
 
     /// <summary>
-    /// In memory implementation of ISagaPersister for quick development.
+    ///     In memory implementation of ISagaPersister for quick development.
     /// </summary>
     class InMemorySagaPersister : ISagaPersister
     {
-        readonly SagaMetaModel sagaModel;
-        int version;
-
-        JsonMessageSerializer serializer = new JsonMessageSerializer(null);
-        ConcurrentDictionary<Guid, VersionedSagaEntity> data = new ConcurrentDictionary<Guid, VersionedSagaEntity>();
-
         public InMemorySagaPersister(SagaMetaModel sagaModel)
         {
             this.sagaModel = sagaModel;
@@ -28,26 +20,37 @@ namespace NServiceBus.InMemory.SagaPersister
         public void Complete(IContainSagaData saga)
         {
             VersionedSagaEntity value;
-            data.TryRemove(saga.Id, out value);
+            if (data.TryRemove(saga.Id, out value))
+            {
+                object lockToken;
+                lockers.TryRemove(value.LockTokenKey, out lockToken);
+            }
         }
 
         public TSagaData Get<TSagaData>(string propertyName, object propertyValue) where TSagaData : IContainSagaData
         {
-            var values = data.Values.Where(x => x.SagaEntity is TSagaData);
-            foreach (var entity in values)
+            foreach (var entity in data.Values)
             {
-                var prop = entity.SagaEntity.GetType().GetProperty(propertyName);
+                if (!(entity.SagaData is TSagaData))
+                {
+                    continue;
+                }
+
+                var prop = typeof(TSagaData).GetProperty(propertyName);
                 if (prop == null)
                 {
                     continue;
                 }
-                if (!prop.GetValue(entity.SagaEntity, null).Equals(propertyValue))
+
+                var existingValue = prop.GetValue(entity.SagaData);
+
+                if (existingValue.ToString() != propertyValue.ToString())
                 {
                     continue;
                 }
-                var clone = (TSagaData)DeepClone(entity.SagaEntity);
-                entity.RecordRead(clone, version);
-                return clone;
+
+                var sagaData = entity.Read<TSagaData>();
+                return sagaData;
             }
             return default(TSagaData);
         }
@@ -55,28 +58,26 @@ namespace NServiceBus.InMemory.SagaPersister
         public TSagaData Get<TSagaData>(Guid sagaId) where TSagaData : IContainSagaData
         {
             VersionedSagaEntity result;
-            if (data.TryGetValue(sagaId, out result) && (result != null) && (result.SagaEntity is TSagaData))
+            if (data.TryGetValue(sagaId, out result) && result?.SagaData is TSagaData)
             {
-                var clone = (TSagaData)DeepClone(result.SagaEntity);
-                result.RecordRead(clone, version);
-                return clone;
+                var sagaData = result.Read<TSagaData>();
+                return sagaData;
             }
             return default(TSagaData);
         }
 
         public void Save(IContainSagaData saga)
         {
-            ValidateUniqueProperties(saga);
-
-            VersionedSagaEntity sagaEntity;
-            if (data.TryGetValue(saga.Id, out sagaEntity))
+            var lockenTokenKey = $"{saga.GetType().FullName}";
+            var lockToken = lockers.GetOrAdd(lockenTokenKey, key => new object());
+            lock (lockToken)
             {
-                sagaEntity.ConcurrencyCheck(saga, version);
+                ValidateUniqueProperties(saga);
+
+                data.AddOrUpdate(saga.Id,
+                    id => new VersionedSagaEntity(saga, lockenTokenKey),
+                    (id, original) => new VersionedSagaEntity(saga, lockenTokenKey, original)); // we can never end up here.
             }
-
-            data.AddOrUpdate(saga.Id, id => new VersionedSagaEntity { SagaEntity = DeepClone(saga) }, (id, original) => new VersionedSagaEntity { SagaEntity = DeepClone(saga), VersionCache = original.VersionCache });
-
-            Interlocked.Increment(ref version);
         }
 
         public void Update(IContainSagaData saga)
@@ -86,17 +87,19 @@ namespace NServiceBus.InMemory.SagaPersister
 
         void ValidateUniqueProperties(IContainSagaData saga)
         {
-            var sagaMetaData = sagaModel.FindByEntityName(saga.GetType().FullName);
+            var sagaType = saga.GetType();
+            var sagaMetaData = sagaModel.FindByEntityName(sagaType.FullName);
 
-            if (!sagaMetaData.CorrelationProperties.Any()) return;
+            if (sagaMetaData.CorrelationProperties.Count == 0) return;
 
-            var sagasFromSameType = from s in data
-                                    where
-                                        (s.Value.SagaEntity.GetType() == saga.GetType() && (s.Key != saga.Id))
-                                    select s.Value;
-
-            foreach (var storedSaga in sagasFromSameType)
+            // ReSharper disable once LoopCanBeConvertedToQuery
+            foreach (var storedSaga in data)
             {
+                if (storedSaga.Value.SagaData.GetType() != sagaType || (storedSaga.Key == saga.Id))
+                {
+                    continue;
+                }
+
                 foreach (var correlationProperty in sagaMetaData.CorrelationProperties)
                 {
                     var uniqueProperty = saga.GetType().GetProperty(correlationProperty.Name);
@@ -104,43 +107,89 @@ namespace NServiceBus.InMemory.SagaPersister
                     {
                         continue;
                     }
+
                     var inComingSagaPropertyValue = uniqueProperty.GetValue(saga, null);
-                    var storedSagaPropertyValue = uniqueProperty.GetValue(storedSaga.SagaEntity, null);
+                    var storedSagaPropertyValue = uniqueProperty.GetValue(storedSaga.Value.SagaData, null);
                     if (inComingSagaPropertyValue.Equals(storedSagaPropertyValue))
                     {
-                        var message = string.Format("Cannot store a saga. The saga with id '{0}' already has property '{1}' with value '{2}'.", storedSaga.SagaEntity.Id, uniqueProperty, storedSagaPropertyValue);
+                        var message = $"Cannot store a saga. The saga with id '{storedSaga.Value.SagaData.Id}' already has property '{uniqueProperty}' with value '{storedSagaPropertyValue}'.";
                         throw new InvalidOperationException(message);
                     }
                 }
             }
         }
 
-        IContainSagaData DeepClone(IContainSagaData source)
-        {
-            var json = serializer.SerializeObject(source);
-
-            return (IContainSagaData)serializer.DeserializeObject(json, source.GetType());
-        }
+        readonly SagaMetaModel sagaModel;
+        ConcurrentDictionary<Guid, VersionedSagaEntity> data = new ConcurrentDictionary<Guid, VersionedSagaEntity>();
+        ConcurrentDictionary<string, object> lockers = new ConcurrentDictionary<string, object>();
 
         class VersionedSagaEntity
         {
-            public IContainSagaData SagaEntity;
+            static JsonMessageSerializer serializer = new JsonMessageSerializer(null);
 
-            public WeakKeyDictionary<IContainSagaData, int> VersionCache = new WeakKeyDictionary<IContainSagaData, int>();
-
-            public void RecordRead(IContainSagaData sagaEntity, int currentVersion)
+            public VersionedSagaEntity(IContainSagaData sagaData, string lockTokenKey, VersionedSagaEntity original = null)
             {
-                VersionCache[sagaEntity] = currentVersion;
+                LockTokenKey = lockTokenKey;
+                SagaData = DeepClone(sagaData);
+                if (original != null)
+                {
+                    original.ConcurrencyCheck(sagaData);
+
+                    versionCache = original.versionCache;
+                    version = original.version;
+                    version++;
+                }
+                else
+                {
+                    versionCache = new ConditionalWeakTable<IContainSagaData, SagaVersion>();
+                    versionCache.Add(sagaData, new SagaVersion(version));
+                }
             }
 
-            public void ConcurrencyCheck(IContainSagaData sagaEntity, int currentVersion)
+            public TSagaData Read<TSagaData>()
+                where TSagaData : IContainSagaData
             {
-                int v;
-                if (!VersionCache.TryGetValue(sagaEntity, out v))
-                    throw new Exception(string.Format("InMemorySagaPersister in an inconsistent state: entity Id[{0}] not read.", sagaEntity.Id));
+                var clone = DeepClone(SagaData);
+                versionCache.Add(clone, new SagaVersion(version));
+                return (TSagaData) clone;
+            }
 
-                if (v != currentVersion)
-                    throw new Exception(string.Format("InMemorySagaPersister concurrency violation: saga entity Id[{0}] already saved.", sagaEntity.Id));
+            void ConcurrencyCheck(IContainSagaData sagaEntity)
+            {
+                SagaVersion v;
+                if (!versionCache.TryGetValue(sagaEntity, out v))
+                {
+                    throw new Exception($"InMemorySagaPersister in an inconsistent state: entity Id[{sagaEntity.Id}] not read.");
+                }
+
+                if (v.Version != version)
+                {
+                    throw new Exception($"InMemorySagaPersister concurrency violation: saga entity Id[{sagaEntity.Id}] already saved.");
+                }
+            }
+
+            static IContainSagaData DeepClone(IContainSagaData source)
+            {
+                var json = serializer.SerializeObject(source);
+                return (IContainSagaData) serializer.DeserializeObject(json, source.GetType());
+            }
+
+            public string LockTokenKey;
+
+            public IContainSagaData SagaData;
+
+            int version;
+
+            ConditionalWeakTable<IContainSagaData, SagaVersion> versionCache;
+
+            class SagaVersion
+            {
+                public SagaVersion(long version)
+                {
+                    Version = version;
+                }
+
+                public long Version;
             }
         }
     }

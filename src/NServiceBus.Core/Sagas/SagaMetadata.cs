@@ -33,7 +33,7 @@ namespace NServiceBus.Sagas
         /// <summary>
         /// Properties this saga is correlated on
         /// </summary>
-        public IEnumerable<CorrelationProperty> CorrelationProperties;
+        public List<CorrelationProperty> CorrelationProperties;
 
         /// <summary>
         /// The name of the saga
