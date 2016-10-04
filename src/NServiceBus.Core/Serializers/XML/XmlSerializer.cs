@@ -20,7 +20,7 @@
             return mapper =>
             {
                 var conventions = settings.Get<Conventions>();
-                var serializer = new XmlMessageSerializer(mapper, conventions);
+                var serializer = new XmlMessageSerializer(conventions);
 
                 string customNamespace;
                 if (settings.TryGet(CustomNamespaceConfigurationKey, out customNamespace))

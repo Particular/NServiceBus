@@ -10,13 +10,11 @@
     using System.Xml;
     using System.Xml.Linq;
     using Logging;
-    using MessageInterfaces;
 
     class XmlDeserialization
     {
-        public XmlDeserialization(IMessageMapper mapper, XmlSerializerCache cache, bool skipWrappingRawXml, bool sanitizeInput)
+        public XmlDeserialization(XmlSerializerCache cache, bool skipWrappingRawXml, bool sanitizeInput)
         {
-            this.mapper = mapper;
             this.cache = cache;
             this.skipWrappingRawXml = skipWrappingRawXml;
             this.sanitizeInput = sanitizeInput;
@@ -156,7 +154,7 @@
 
                         if (prefix.Contains(BASETYPE))
                         {
-                            var baseType = mapper.GetMappedTypeFor(attr.Value);
+                            var baseType = cache.GetMappedTypeFor(attr.Value);
                             if (baseType != null)
                             {
                                 messageBaseTypes.Add(baseType);
@@ -262,8 +260,7 @@
                 }
             }
 
-            var mappedType = mapper.GetMappedTypeFor(typeName);
-
+            var mappedType = cache.GetMappedTypeFor(typeName);
             if (mappedType != null)
             {
                 return mappedType;
@@ -667,7 +664,6 @@
 
         XmlSerializerCache cache;
         string defaultNameSpace;
-        IMessageMapper mapper;
         List<Type> messageBaseTypes = new List<Type>();
         IDictionary<string, string> prefixesToNamespaces = new Dictionary<string, string>();
         bool sanitizeInput;

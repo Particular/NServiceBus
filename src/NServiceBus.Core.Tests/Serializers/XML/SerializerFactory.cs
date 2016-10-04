@@ -4,7 +4,6 @@ namespace NServiceBus.Serializers.XML.Test
     using System.Collections.Generic;
     using System.IO;
     using System.Xml;
-    using MessageInterfaces.MessageMapper.Reflection;
     using XmlMessageSerializer = NServiceBus.XmlMessageSerializer;
 
     class SerializerFactory
@@ -15,7 +14,7 @@ namespace NServiceBus.Serializers.XML.Test
             {
                 typeof(T)
             };
-            var serializer = new XmlMessageSerializer(new MessageMapper(), new Conventions());
+            var serializer = new XmlMessageSerializer(new Conventions());
 
             serializer.Initialize(types);
 
@@ -24,9 +23,7 @@ namespace NServiceBus.Serializers.XML.Test
 
         public static XmlMessageSerializer Create(params Type[] types)
         {
-            var mapper = new MessageMapper();
-            mapper.Initialize(types);
-            var serializer = new XmlMessageSerializer(mapper, new Conventions());
+            var serializer = new XmlMessageSerializer( new Conventions());
 
             serializer.Initialize(types);
 
