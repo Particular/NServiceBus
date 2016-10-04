@@ -20,11 +20,6 @@ namespace NServiceBus
             return MessageOperations.Publish(context, message, options);
         }
 
-        public Task Publish<T>(Action<T> messageConstructor, PublishOptions publishOptions)
-        {
-            return MessageOperations.Publish(context, messageConstructor, publishOptions);
-        }
-
         public Task Subscribe(Type eventType, SubscribeOptions options)
         {
             return MessageOperations.Subscribe(context, eventType, options);

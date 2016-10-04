@@ -1,7 +1,6 @@
 ﻿// ReSharper disable PartialTypeWithSinglePart
 namespace NServiceBus.Testing
 {
-    using System;
     using System.Collections.Concurrent;
     using System.Threading.Tasks;
     using Extensibility;
@@ -56,17 +55,6 @@ namespace NServiceBus.Testing
         {
             publishedMessages.Enqueue(new PublishedMessage<object>(message, options));
             return Task.FromResult(0);
-        }
-
-        /// <summary>
-        /// Instantiates a message of type T and publishes it.
-        /// </summary>
-        /// <typeparam name="T">The type of message, usually an interface.</typeparam>
-        /// <param name="messageConstructor">An action which initializes properties of the message.</param>
-        /// <param name="publishOptions">Specific options for this event.</param>
-        public virtual Task Publish<T>(Action<T> messageConstructor, PublishOptions publishOptions)
-        {
-            return Publish(messageCreator.CreateInstance(messageConstructor), publishOptions);
         }
 
         /// <summary>

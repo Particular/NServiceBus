@@ -23,14 +23,6 @@ namespace NServiceBus
         Task Publish(object message, PublishOptions options);
 
         /// <summary>
-        /// Instantiates a message of type T and publishes it.
-        /// </summary>
-        /// <typeparam name="T">The type of message, usually an interface.</typeparam>
-        /// <param name="messageConstructor">An action which initializes properties of the message.</param>
-        /// <param name="publishOptions">Specific options for this event.</param>
-        Task Publish<T>(Action<T> messageConstructor, PublishOptions publishOptions);
-
-        /// <summary>
         /// Subscribes to receive published messages of the specified type.
         /// This method is only necessary if you turned off auto-subscribe.
         /// </summary>

@@ -14,7 +14,7 @@
         {
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<EndpointWithReplacement>(e => e
-                    .When(s => s.SendLocal<Message>(m => { })))
+                    .When(s => s.SendLocal(new Message())))
                 .Done(c => c.MessageHandled)
                 .Run();
 

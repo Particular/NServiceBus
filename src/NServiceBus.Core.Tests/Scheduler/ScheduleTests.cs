@@ -68,11 +68,6 @@
                 throw new NotImplementedException();
             }
 
-            public Task Publish<T>(Action<T> messageConstructor, PublishOptions publishOptions)
-            {
-                throw new NotImplementedException();
-            }
-
             public Task Subscribe(Type eventType, SubscribeOptions options)
             {
                 throw new NotImplementedException();

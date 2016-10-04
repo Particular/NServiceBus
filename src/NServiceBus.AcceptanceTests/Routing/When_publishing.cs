@@ -15,11 +15,11 @@
         {
             await Scenario.Define<Context>()
                 .WithEndpoint<Publisher3>(b =>
-                    b.When(c => c.Subscriber3Subscribed, session => session.Publish<IFoo>())
+                    b.When(c => c.Subscriber3Subscribed, session => session.Publish(new Foo()))
                 )
                 .WithEndpoint<Subscriber3>(b => b.When(async (session, context) =>
                 {
-                    await session.Subscribe<IFoo>();
+                    await session.Subscribe<Foo>();
 
                     if (context.HasNativePubSubSupport)
                     {
@@ -138,14 +138,14 @@
             public Subscriber3()
             {
                 EndpointSetup<DefaultServer>(c => c.DisableFeature<AutoSubscribe>())
-                    .AddMapping<IFoo>(typeof(Publisher3));
+                    .AddMapping<Foo>(typeof(Publisher3));
             }
 
-            public class MyEventHandler : IHandleMessages<IFoo>
+            public class MyEventHandler : IHandleMessages<Foo>
             {
                 public Context Context { get; set; }
 
-                public Task Handle(IFoo messageThatIsEnlisted, IMessageHandlerContext context)
+                public Task Handle(Foo messageThatIsEnlisted, IMessageHandlerContext context)
                 {
                     Context.Subscriber3GotTheEvent = true;
                     return Task.FromResult(0);
@@ -194,11 +194,11 @@
             }
         }
 
-        public interface IFoo : IEvent
+        public class Foo : IEvent
         {
         }
 
-        
+
         public class MyEvent : IEvent
         {
         }

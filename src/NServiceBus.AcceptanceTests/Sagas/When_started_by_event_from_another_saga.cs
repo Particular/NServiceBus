@@ -68,7 +68,7 @@
                     Data.DataId = message.DataId;
 
                     //Publish the event, which will start the second saga
-                    await context.Publish<SomethingHappenedEvent>(m => { m.DataId = message.DataId; });
+                    await context.Publish(new SomethingHappenedEvent { DataId = message.DataId });
 
                     //Request a timeout
                     await RequestTimeout<Timeout1>(context, TimeSpan.FromMilliseconds(1));
@@ -145,19 +145,19 @@
             }
         }
 
-        
+
         public class StartSaga : ICommand
         {
             public Guid DataId { get; set; }
         }
 
-        public interface SomethingHappenedEvent : BaseEvent
+        public class SomethingHappenedEvent : BaseEvent
         {
         }
 
-        public interface BaseEvent : IEvent
+        public class BaseEvent : IEvent
         {
-            Guid DataId { get; set; }
+            public Guid DataId { get; set; }
         }
     }
 }

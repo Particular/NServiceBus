@@ -18,7 +18,7 @@
             await Scenario.Define<SagaContext>()
                 .WithEndpoint<Publisher>(b =>
                     b.When(c => c.IsEventSubscriptionReceived,
-                        session => { return session.Publish<SomethingHappenedEvent>(m => { m.DataId = Guid.NewGuid(); }); })
+                        session => { return session.Publish(new SomethingHappenedEvent { DataId = Guid.NewGuid() }); })
                 )
                 .WithEndpoint<SagaThatIsStartedByABaseEvent>(
                     b => b.When(async (session, context) =>
@@ -90,19 +90,19 @@
             }
         }
 
-        
+
         public class StartSaga : ICommand
         {
             public Guid DataId { get; set; }
         }
 
-        public interface SomethingHappenedEvent : BaseEvent
+        public class SomethingHappenedEvent : BaseEvent
         {
         }
 
-        public interface BaseEvent : IEvent
+        public class BaseEvent : IEvent
         {
-            Guid DataId { get; set; }
+            public Guid DataId { get; set; }
         }
     }
 }

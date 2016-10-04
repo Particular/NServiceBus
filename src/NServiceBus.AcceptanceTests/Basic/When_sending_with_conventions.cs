@@ -14,8 +14,8 @@
             var context = await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
                 .WithEndpoint<Endpoint>(b => b.When(async(session, c) =>
                 {
-                    await session.SendLocal<MyMessage>(m => m.Id = c.Id);
-                    await session.SendLocal<IMyInterfaceMessage>(m => m.Id = c.Id);
+                    await session.SendLocal(new MyMessage { Id = c.Id});
+                    await session.SendLocal(new MyInterfaceMessage { Id = c.Id });
                 }))
                 .Done(c => c.MessageClassReceived && c.MessageInterfaceReceived)
                 .Run();
@@ -44,9 +44,9 @@
             public Guid Id { get; set; }
         }
 
-        public interface IMyInterfaceMessage
+        public class MyInterfaceMessage
         {
-            Guid Id { get; set; }
+            public Guid Id { get; set; }
         }
 
         public class MyMessageHandler : IHandleMessages<MyMessage>
@@ -66,11 +66,11 @@
             }
         }
 
-        public class MyMessageInterfaceHandler : IHandleMessages<IMyInterfaceMessage>
+        public class MyMessageInterfaceHandler : IHandleMessages<MyInterfaceMessage>
         {
             public Context Context { get; set; }
 
-            public Task Handle(IMyInterfaceMessage interfaceMessage, IMessageHandlerContext context)
+            public Task Handle(MyInterfaceMessage interfaceMessage, IMessageHandlerContext context)
             {
                 if (Context.Id != interfaceMessage.Id)
                 {
