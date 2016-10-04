@@ -63,11 +63,6 @@
                 return defaultScheduler.Start(ScheduledDefinition.Id, new TestablePipelineContext());
             }
 
-            public Task Send<T>(Action<T> messageConstructor, SendOptions options)
-            {
-                throw new NotImplementedException();
-            }
-
             public Task Publish(object message, PublishOptions options)
             {
                 throw new NotImplementedException();

@@ -22,23 +22,6 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Instantiates a message of <typeparamref name="T" /> and sends it.
-        /// </summary>
-        /// <typeparam name="T">The type of message, usually an interface.</typeparam>
-        /// <param name="context">The instance of <see cref="IPipelineContext" /> to use for the action.</param>
-        /// <param name="messageConstructor">An action which initializes properties of the message.</param>
-        /// <remarks>
-        /// The message will be sent to the destination configured for <typeparamref name="T" />.
-        /// </remarks>
-        public static Task Send<T>(this IPipelineContext context, Action<T> messageConstructor)
-        {
-            Guard.AgainstNull(nameof(context), context);
-            Guard.AgainstNull(nameof(messageConstructor), messageConstructor);
-
-            return context.Send(messageConstructor, new SendOptions());
-        }
-
-        /// <summary>
         /// Sends the message.
         /// </summary>
         /// <param name="context">The instance of <see cref="IPipelineContext" /> to use for the action.</param>

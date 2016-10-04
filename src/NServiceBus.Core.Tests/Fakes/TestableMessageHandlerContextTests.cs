@@ -23,16 +23,6 @@
         }
 
         [Test]
-        public async Task Send_ShouldInvokeMessageInitializer()
-        {
-            var context = new TestableMessageHandlerContext();
-
-            await context.Send<ITestMessage>(m => m.Value = "initialized value");
-
-            Assert.AreEqual("initialized value", context.SentMessages[0].Message<ITestMessage>().Value);
-        }
-
-        [Test]
         public async Task Publish_ShouldContainMessageInPublishedMessages()
         {
             var context = new TestableMessageHandlerContext();

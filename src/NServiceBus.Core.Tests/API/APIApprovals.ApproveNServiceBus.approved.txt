@@ -632,7 +632,6 @@ namespace NServiceBus
         System.Threading.Tasks.Task Publish(object message, NServiceBus.PublishOptions options);
         System.Threading.Tasks.Task Publish<T>(System.Action<T> messageConstructor, NServiceBus.PublishOptions publishOptions);
         System.Threading.Tasks.Task Send(object message, NServiceBus.SendOptions options);
-        System.Threading.Tasks.Task Send<T>(System.Action<T> messageConstructor, NServiceBus.SendOptions options);
         System.Threading.Tasks.Task Subscribe(System.Type eventType, NServiceBus.SubscribeOptions options);
         System.Threading.Tasks.Task Unsubscribe(System.Type eventType, NServiceBus.UnsubscribeOptions options);
     }
@@ -688,7 +687,6 @@ namespace NServiceBus
         System.Threading.Tasks.Task Publish(object message, NServiceBus.PublishOptions options);
         System.Threading.Tasks.Task Publish<T>(System.Action<T> messageConstructor, NServiceBus.PublishOptions publishOptions);
         System.Threading.Tasks.Task Send(object message, NServiceBus.SendOptions options);
-        System.Threading.Tasks.Task Send<T>(System.Action<T> messageConstructor, NServiceBus.SendOptions options);
     }
     public class static IPipelineContextExtensions
     {
@@ -696,7 +694,6 @@ namespace NServiceBus
         public static System.Threading.Tasks.Task Publish<T>(this NServiceBus.IPipelineContext context) { }
         public static System.Threading.Tasks.Task Publish<T>(this NServiceBus.IPipelineContext context, System.Action<T> messageConstructor) { }
         public static System.Threading.Tasks.Task Send(this NServiceBus.IPipelineContext context, object message) { }
-        public static System.Threading.Tasks.Task Send<T>(this NServiceBus.IPipelineContext context, System.Action<T> messageConstructor) { }
         public static System.Threading.Tasks.Task Send(this NServiceBus.IPipelineContext context, string destination, object message) { }
         public static System.Threading.Tasks.Task Send<T>(this NServiceBus.IPipelineContext context, string destination, System.Action<T> messageConstructor) { }
         public static System.Threading.Tasks.Task SendLocal(this NServiceBus.IPipelineContext context, object message) { }
