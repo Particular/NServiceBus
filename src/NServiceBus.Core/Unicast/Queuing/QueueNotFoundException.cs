@@ -40,8 +40,7 @@ namespace NServiceBus.Unicast.Queuing
             System.Runtime.Serialization.SerializationInfo info, 
             System.Runtime.Serialization.StreamingContext context) : base(info, context)
         {
-            if (info != null)
-                Queue = Address.Parse(info.GetString("Queue"));
+            Queue = Address.Parse(info.GetString("Queue"));
         }
 
         /// <summary>

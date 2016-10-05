@@ -375,9 +375,7 @@ namespace NServiceBus.Transports.Msmq
         static string GetUserName()
         {
             var windowsIdentity = WindowsIdentity.GetCurrent();
-            return windowsIdentity != null
-                ? windowsIdentity.Name
-                : "Unknown User";
+            return windowsIdentity.Name;
         }
 
         CircuitBreaker circuitBreaker = new CircuitBreaker(100, TimeSpan.FromSeconds(30));
