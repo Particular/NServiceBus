@@ -10,5 +10,5 @@ using NServiceBus;
 [assembly: ComVisible(false)]
 [assembly: CLSCompliant(true)]
 
-// TODO: Introduce proper way to automatically generate these dates before final release of 6.0.0
-[assembly: ReleaseDate("2016-09-01", "2016-09-01")]
+// TODO: Introduce proper way to automatically generate these dates before first hotfix/next minor
+[assembly: ReleaseDate("2016-10-05", "2016-10-05")]
