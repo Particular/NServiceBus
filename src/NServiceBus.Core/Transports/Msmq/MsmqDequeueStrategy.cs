@@ -197,14 +197,15 @@ namespace NServiceBus.Transports.Msmq
                     if (transactionSettings.SuppressDistributedTransactions)
                     {
                         using (var msmqTransaction = new MessageQueueTransaction())
-                        {
-                            msmqTransaction.Begin();
-                            
+                        {                           
                             Message message;
 
-                            if (!TryReceiveMessage(() => queue.Receive(receiveTimeout, msmqTransaction),out message))
+                            if (!TryReceiveMessage(() =>
                             {
-                                msmqTransaction.Commit();
+                                msmqTransaction.Begin();
+                                return queue.Receive(receiveTimeout, msmqTransaction);
+                            }, out message))
+                            {
                                 return;
                             }
 
@@ -245,7 +246,7 @@ namespace NServiceBus.Transports.Msmq
                         {
                             Message message;
 
-                            if (!TryReceiveMessage(() => queue.Receive(receiveTimeout, MessageQueueTransactionType.Automatic),out message))
+                            if (!TryReceiveMessage(() => queue.Receive(receiveTimeout, MessageQueueTransactionType.Automatic), out message))
                             {
                                 scope.Complete();
                                 return;
@@ -274,7 +275,7 @@ namespace NServiceBus.Transports.Msmq
                 {
                     Message message;
 
-                    if (!TryReceiveMessage(() => queue.Receive(receiveTimeout, MessageQueueTransactionType.None),out message))
+                    if (!TryReceiveMessage(() => queue.Receive(receiveTimeout, MessageQueueTransactionType.None), out message))
                     {
                         return;
                     }
