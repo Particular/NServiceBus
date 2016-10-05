@@ -173,8 +173,7 @@ namespace NServiceBus.Transports.Msmq
 
             throttlingSemaphore.Wait();
 
-            Task.Factory
-                .StartNew(() => Action(transactionSettings, transactionOptions, unitOfWork, receiveQueue, errorQueue, circuitBreaker, criticalError, peekResetEvent, receiveTimeout, throttlingSemaphore, tryProcessMessage, endProcessMessage), CancellationToken.None, TaskCreationOptions.LongRunning, TaskScheduler.Default)
+            Task.Run(() => Action(transactionSettings, transactionOptions, unitOfWork, receiveQueue, errorQueue, circuitBreaker, criticalError, peekResetEvent, receiveTimeout, throttlingSemaphore, tryProcessMessage, endProcessMessage))
                 .ContinueWith(task => task.Exception.Handle(ex =>
                 {
                     Logger.Error("Error processing message.", ex);
