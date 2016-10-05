@@ -200,11 +200,11 @@ namespace NServiceBus.Transports.Msmq
                         {                           
                             Message message;
 
-                            if (!TryReceiveMessage(() =>
+                            if (!TryReceiveMessage(tx =>
                             {
-                                msmqTransaction.Begin();
-                                return queue.Receive(receiveTimeout, msmqTransaction);
-                            }, out message))
+                                tx.Begin();
+                                return queue.Receive(receiveTimeout, tx);
+                            }, out message, msmqTransaction))
                             {
                                 return;
                             }
@@ -246,7 +246,7 @@ namespace NServiceBus.Transports.Msmq
                         {
                             Message message;
 
-                            if (!TryReceiveMessage(() => queue.Receive(receiveTimeout, MessageQueueTransactionType.Automatic), out message))
+                            if (!TryReceiveMessage(_ => queue.Receive(receiveTimeout, MessageQueueTransactionType.Automatic), out message))
                             {
                                 scope.Complete();
                                 return;
@@ -275,7 +275,7 @@ namespace NServiceBus.Transports.Msmq
                 {
                     Message message;
 
-                    if (!TryReceiveMessage(() => queue.Receive(receiveTimeout, MessageQueueTransactionType.None), out message))
+                    if (!TryReceiveMessage(_ => queue.Receive(receiveTimeout, MessageQueueTransactionType.None), out message))
                     {
                         return;
                     }
@@ -323,14 +323,15 @@ namespace NServiceBus.Transports.Msmq
                 RaiseCriticalException(messageQueueException);
             }
         }
+
         [DebuggerNonUserCode]
-        bool TryReceiveMessage(Func<Message> receive,out Message message)
+        bool TryReceiveMessage(Func<MessageQueueTransaction, Message> receive, out Message message, MessageQueueTransaction transaction = null)
         {
             message = null;
 
             try
             {
-                message = receive();
+                message = receive(transaction);
                 return true;
             }
             catch (MessageQueueException messageQueueException)
