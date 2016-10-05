@@ -1,10 +1,11 @@
 ﻿namespace NServiceBus.AcceptanceTesting.Support
 {
     using System;
+    using System.Threading.Tasks;
     using Config.ConfigurationSource;
 
     public interface IEndpointSetupTemplate
     {
-        BusConfiguration GetConfiguration(RunDescriptor runDescriptor, EndpointConfiguration endpointConfiguration, IConfigurationSource configSource, Action<BusConfiguration> configurationBuilderCustomization);
+        Task<EndpointConfiguration> GetConfiguration(RunDescriptor runDescriptor, EndpointCustomizationConfiguration endpointConfiguration, IConfigurationSource configSource, Action<EndpointConfiguration> configurationBuilderCustomization);
     }
 }

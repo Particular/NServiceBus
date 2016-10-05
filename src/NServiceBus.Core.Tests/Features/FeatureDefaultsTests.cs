@@ -3,12 +3,64 @@
     using System.Collections.Generic;
     using System.Linq;
     using NServiceBus.Features;
+    using Transport;
     using NUnit.Framework;
     using Settings;
 
     [TestFixture]
     public class FeatureDefaultsTests
     {
+        public class FeatureThatEnablesAnother : Feature
+        {
+            public FeatureThatEnablesAnother()
+            {
+                EnableByDefault();
+                Defaults(s => s.EnableFeatureByDefault<FeatureThatIsEnabledByAnother>());
+            }
+
+            protected internal override void Setup(FeatureConfigurationContext context)
+            {
+            }
+        }
+
+        public class FeatureThatIsEnabledByAnother : Feature
+        {
+            public FeatureThatIsEnabledByAnother()
+            {
+                Defaults(s => DefaultCalled = true);
+            }
+
+            public bool DefaultCalled;
+            
+            protected internal override void Setup(FeatureConfigurationContext context)
+            {
+            }
+        }
+
+        private FeatureActivator featureSettings;
+        private SettingsHolder settings;
+
+        [SetUp]
+        public void Init()
+        {
+            settings = new SettingsHolder();
+            settings.Set<TransportDefinition>(new MsmqTransport());
+            featureSettings = new FeatureActivator(settings);
+        }
+
+        [Test]
+        public void Feature_enabled_by_later_feature_should_have_default_called()
+        {
+            var featureThatIsEnabledByAnother = new FeatureThatIsEnabledByAnother();
+            //the orders matter here to expose a bug
+            featureSettings.Add(featureThatIsEnabledByAnother);
+            featureSettings.Add(new FeatureThatEnablesAnother());
+
+            featureSettings.SetupFeatures(null, null);
+
+            Assert.True(featureThatIsEnabledByAnother.DefaultCalled, "FeatureThatIsEnabledByAnother wasn't activated");
+        }
+
         [Test]
         public void Should_enable_features_in_defaults()
         {
@@ -31,29 +83,26 @@
                 OnDefaults = f => defaultsOrder.Add(f)
             };
 
-            var settings = new SettingsHolder();
-            var featureSettings = new FeatureActivator(settings);
-
             //the orders matter here to expose a bug
             featureSettings.Add(level3);
             featureSettings.Add(level2);
             featureSettings.Add(level1);
 
-            featureSettings.SetupFeatures(new FeatureConfigurationContext(null));
+            featureSettings.SetupFeatures(null, null);
 
             Assert.True(level1.IsActive, "Activate1 wasn't activated");
             Assert.True(level2.IsActive, "Activate2 wasn't activated");
             Assert.True(level3.IsActive, "Activate3 wasn't activated");
 
-            Assert.IsInstanceOf<Activate1>(defaultsOrder[0], "Upstream deps should be activated first");
-            Assert.IsInstanceOf<Activate2>(defaultsOrder[1], "Upstream deps should be activated first");
-            Assert.IsInstanceOf<Activate3>(defaultsOrder[2], "Upstream deps should be activated first");
+            Assert.IsInstanceOf<Activate1>(defaultsOrder[0], "Upstream dependencies should be activated first");
+            Assert.IsInstanceOf<Activate2>(defaultsOrder[1], "Upstream dependencies should be activated first");
+            Assert.IsInstanceOf<Activate3>(defaultsOrder[2], "Upstream dependencies should be activated first");
 
             CollectionAssert.AreEqual(defaultsOrder, activatedOrder);
         }
 
         [Test]
-        public void Should_activate_upstream_deps_first()
+        public void Should_activate_upstream_dependencies_first()
         {
             var defaultsOrder = new List<Feature>();
 
@@ -66,23 +115,20 @@
                 OnDefaults = f => defaultsOrder.Add(f)
             };
 
-            var settings = new SettingsHolder();
-            var featureSettings = new FeatureActivator(settings);
-
             featureSettings.Add(dependingFeature);
             featureSettings.Add(feature);
 
             settings.EnableFeatureByDefault<MyFeature1>();
 
-            featureSettings.SetupFeatures(new FeatureConfigurationContext(null));
+            featureSettings.SetupFeatures(null, null);
 
             Assert.True(dependingFeature.IsActive);
 
-            Assert.IsInstanceOf<MyFeature1>(defaultsOrder.First(), "Upstream deps should be activated first");
+            Assert.IsInstanceOf<MyFeature1>(defaultsOrder.First(), "Upstream dependencies should be activated first");
         }
 
         [Test]
-        public void Should_activate_all_upstream_deps_first()
+        public void Should_activate_all_upstream_dependencies_first()
         {
             var defaultsOrder = new List<Feature>();
 
@@ -103,9 +149,6 @@
                 OnDefaults = f => defaultsOrder.Add(f)
             };
 
-            var settings = new SettingsHolder();
-            var featureSettings = new FeatureActivator(settings);
-
             featureSettings.Add(dependingFeature);
             featureSettings.Add(feature);
             featureSettings.Add(feature2);
@@ -115,17 +158,17 @@
             settings.EnableFeatureByDefault<MyFeature2>();
             settings.EnableFeatureByDefault<MyFeature3>();
 
-            featureSettings.SetupFeatures(new FeatureConfigurationContext(null));
+            featureSettings.SetupFeatures(null, null);
 
             Assert.True(dependingFeature.IsActive);
 
-            Assert.IsInstanceOf<MyFeature1>(defaultsOrder[0], "Upstream deps should be activated first");
-            Assert.IsInstanceOf<MyFeature2>(defaultsOrder[1], "Upstream deps should be activated first");
-            Assert.IsInstanceOf<MyFeature3>(defaultsOrder[2], "Upstream deps should be activated first");
+            Assert.IsInstanceOf<MyFeature1>(defaultsOrder[0], "Upstream dependencies should be activated first");
+            Assert.IsInstanceOf<MyFeature2>(defaultsOrder[1], "Upstream dependencies should be activated first");
+            Assert.IsInstanceOf<MyFeature3>(defaultsOrder[2], "Upstream dependencies should be activated first");
         }
 
         [Test]
-        public void Should_activate_all_upstream_deps_when_chain_deep()
+        public void Should_activate_all_upstream_dependencies_when_chain_deep()
         {
             var defaultsOrder = new List<Feature>();
            
@@ -142,23 +185,20 @@
                 OnDefaults = f => defaultsOrder.Add(f)
             };
 
-            var settings = new SettingsHolder();
-            var featureSettings = new FeatureActivator(settings);
-
             //the orders matter here to expose a bug
             featureSettings.Add(level3);
             featureSettings.Add(level2);
             featureSettings.Add(level1);
 
-            featureSettings.SetupFeatures(new FeatureConfigurationContext(null));
+            featureSettings.SetupFeatures(null, null);
 
             Assert.True(level1.IsActive, "Level1 wasn't activated");
             Assert.True(level2.IsActive, "Level2 wasn't activated");
             Assert.True(level3.IsActive, "Level3 wasn't activated");
 
-            Assert.IsInstanceOf<Level1>(defaultsOrder[0], "Upstream deps should be activated first");
-            Assert.IsInstanceOf<Level2>(defaultsOrder[1], "Upstream deps should be activated first");
-            Assert.IsInstanceOf<Level3>(defaultsOrder[2], "Upstream deps should be activated first");
+            Assert.IsInstanceOf<Level1>(defaultsOrder[0], "Upstream dependencies should be activated first");
+            Assert.IsInstanceOf<Level2>(defaultsOrder[1], "Upstream dependencies should be activated first");
+            Assert.IsInstanceOf<Level3>(defaultsOrder[2], "Upstream dependencies should be activated first");
         }
 
         public class Level1 : TestFeature

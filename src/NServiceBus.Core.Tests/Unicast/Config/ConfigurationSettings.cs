@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.Unicast.Config.Tests
 {
-    using NServiceBus.Features;
+    using System.Threading.Tasks;
+    using Features;
     using NUnit.Framework;
 
     [TestFixture]
@@ -44,29 +45,31 @@
         }
 
         [Test]
-        public void Specific_generic_type_definition_handler_should_not_be_classified_as_a_handler()
+        public void Specific_generic_type_definition_handler_should_be_classified_as_a_handler()
         {
             Assert.IsTrue(RegisterHandlersInOrder.IsMessageHandler(typeof(GenericTypeDefinitionHandler<string>)));
         }
 
         [Test]
-        public void Generic_implemented_type_definition_handler_should_not_be_classified_as_a_handler()
+        public void Generic_implemented_type_definition_handler_should_be_classified_as_a_handler()
         {
             Assert.IsTrue(RegisterHandlersInOrder.IsMessageHandler(typeof(GenericImplementedHandler)));
         }
 
-        
+
         public class SimpleHandler : IHandleMessages<SimpleMessage>
         {
-            public void Handle(SimpleMessage message)
+            public Task Handle(SimpleMessage message, IMessageHandlerContext context)
             {
+                return TaskEx.CompletedTask;
             }
         }
 
         public class GenericTypeDefinitionHandler<T> : IHandleMessages<SimpleMessage>
         {
-            public void Handle(SimpleMessage message)
+            public Task Handle(SimpleMessage message, IMessageHandlerContext context)
             {
+                return TaskEx.CompletedTask;
             }
         }
 
@@ -84,8 +87,9 @@
 
         public abstract class AbstractHandler : IHandleMessages<SimpleMessage>
         {
-            public void Handle(SimpleMessage message)
+            public Task Handle(SimpleMessage message, IMessageHandlerContext context)
             {
+                return TaskEx.CompletedTask;
             }
         }
 

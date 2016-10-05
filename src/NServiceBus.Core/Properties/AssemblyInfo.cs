@@ -1,10 +1,14 @@
 ﻿using System;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using NServiceBus;
 
 [assembly: AssemblyTitle("NServiceBus.Core")]
-[assembly: AssemblyCopyright("Copyright 2010-2014 NServiceBus. All rights reserved")]
+[assembly: AssemblyCopyright("Copyright NServiceBus Ltd. All rights reserved")]
 [assembly: AssemblyProduct("NServiceBus.Core")]
 [assembly: AssemblyCompany("NServiceBus Ltd.")]
 [assembly: ComVisible(false)]
 [assembly: CLSCompliant(true)]
+
+// TODO: Introduce proper way to automatically generate these dates before first hotfix/next minor
+[assembly: ReleaseDate("2016-10-05", "2016-10-05")]

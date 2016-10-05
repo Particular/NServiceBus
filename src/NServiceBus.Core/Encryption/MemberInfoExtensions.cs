@@ -1,8 +1,7 @@
-namespace NServiceBus.Encryption
+namespace NServiceBus
 {
     using System;
     using System.Reflection;
-    using Utils.Reflection;
 
     static class MemberInfoExtensions
     {
@@ -17,7 +16,7 @@ namespace NServiceBus.Encryption
             }
 
             var propertyInfo = (PropertyInfo) member;
-            
+
             if (!propertyInfo.CanRead)
             {
                 if (propertyInfo.PropertyType.IsValueType)

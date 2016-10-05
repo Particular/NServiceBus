@@ -1,30 +1,28 @@
-namespace NServiceBus.Persistence.InMemory.Tests
+﻿namespace NServiceBus.Persistence.InMemory.Tests
 {
     using System.Linq;
-    using NServiceBus.InMemory.SubscriptionStorage;
-    using NServiceBus.Unicast.Subscriptions;
-    using NServiceBus.Unicast.Subscriptions.MessageDrivenSubscriptions;
+    using System.Threading.Tasks;
+    using Extensibility;
     using NUnit.Framework;
+    using Unicast.Subscriptions;
+    using Unicast.Subscriptions.MessageDrivenSubscriptions;
 
     [TestFixture]
     class InMemorySubscriptionStorageTests
     {
         [Test]
-        public void Should_ignore_message_version_on_subscriptions()
+        public async Task Should_ignore_message_version_on_subscriptions()
         {
-            ISubscriptionStorage storage = new InMemorySubscriptionStorage();
+            var storage = new InMemorySubscriptionStorage();
 
-            storage.Subscribe(new Address("subscriberA", "subscriberA"), new[]
-            {
-                new MessageType("SomeMessage", "1.0.0")
-            });
+            await storage.Subscribe(new Subscriber("subscriberA@server1", "subscriberA"), new MessageType("SomeMessage", "1.0.0"), new ContextBag());
 
-            var subscribers = storage.GetSubscriberAddressesForMessage(new[]
+            var subscribers = await storage.GetSubscriberAddressesForMessage(new[]
             {
                 new MessageType("SomeMessage", "2.0.0")
-            });
+            }, new ContextBag());
 
-            Assert.AreEqual("subscriberA", subscribers.Single().Queue);
+            Assert.AreEqual("subscriberA", subscribers.Single().Endpoint);
         }
     }
 }

@@ -1,39 +1,58 @@
 namespace NServiceBus.Core.Tests.Config
 {
-    using System;
+    using System.Threading.Tasks;
     using NServiceBus.Config.ConfigurationSource;
+    using NServiceBus.Features;
+    using Settings;
     using NUnit.Framework;
 
     [TestFixture]
     public class When_users_override_the_configuration_source
     {
-        IConfigurationSource userConfigurationSource;
-
-        Configure config;
-
-        [SetUp]
-        public void SetUp()
-        {
-            userConfigurationSource = new UserConfigurationSource();
-
-            var builder = new BusConfiguration();
-            builder.TypesToScan(new Type[]
-                {
-                });
-            builder.CustomConfigurationSource(userConfigurationSource);
-
-            config = builder.BuildConfiguration();
-        }
-
-      
         [Test]
-        public void NService_bus_should_resolve_configuration_from_that_source()
+        public async Task NService_bus_should_resolve_configuration_from_that_source()
         {
-            var section = config.Settings.GetConfigSection<TestConfigurationSection>();
+            var builder = new EndpointConfiguration("myendpoint");
 
-            Assert.AreEqual(section.TestSetting,"TestValue");
+            builder.SendOnly();
+            builder.TypesToScanInternal(new[] { typeof(ConfigSectionValidatorFeature) });
+            builder.DisableFeature<MessageDrivenSubscriptions>();
+            builder.EnableFeature<ConfigSectionValidatorFeature>();
+            builder.CustomConfigurationSource(new UserConfigurationSource());
+
+            var endpoint = await Endpoint.Start(builder);
+            await endpoint.Stop();
         }
 
+        class ConfigSectionValidatorFeature : Feature
+        {
+            protected internal override void Setup(FeatureConfigurationContext context)
+            {
+                context.RegisterStartupTask(new ValidatorTask(context.Settings));
+            }
+
+            class ValidatorTask : FeatureStartupTask
+            {
+                ReadOnlySettings settings;
+
+                public ValidatorTask(ReadOnlySettings settings)
+                {
+                    this.settings = settings;
+                }
+
+                protected override Task OnStart(IMessageSession session)
+                {
+                    var section = settings.GetConfigSection<TestConfigurationSection>();
+                    Assert.AreEqual(section.TestSetting, "TestValue");
+                    return TaskEx.CompletedTask;
+                }
+
+                protected override Task OnStop(IMessageSession session)
+                {
+                    return TaskEx.CompletedTask;
+                }
+            }
+        }
     }
 
     public class UserConfigurationSource : IConfigurationSource

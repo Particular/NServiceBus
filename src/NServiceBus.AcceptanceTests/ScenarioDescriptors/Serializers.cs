@@ -1,56 +1,27 @@
 ﻿namespace NServiceBus.AcceptanceTests.ScenarioDescriptors
 {
-    using System.Collections.Generic;
     using AcceptanceTesting.Support;
 
     public static class Serializers
     {
-        public static readonly RunDescriptor Binary = new RunDescriptor
+        public static RunDescriptor Xml
+        {
+            get
             {
-                Key = "Binary",
-                Settings =
-                    new Dictionary<string, string>
-                        {
-                            {
-                                "Serializer", typeof (BinarySerializer).AssemblyQualifiedName
-                            }
-                        }
-            };
+                var xml = new RunDescriptor("Xml");
+                xml.Settings.Set("Serializer", typeof(XmlSerializer));
+                return xml;
+            }
+        }
 
-        public static readonly RunDescriptor Bson = new RunDescriptor
+        public static RunDescriptor Json
+        {
+            get
             {
-                Key = "Bson",
-                Settings =
-                    new Dictionary<string, string>
-                        {
-                            {
-                                "Serializer", typeof (BsonSerializer).AssemblyQualifiedName
-                            }
-                        }
-            };
-
-        public static readonly RunDescriptor Xml = new RunDescriptor
-            {
-                Key = "Xml",
-                Settings =
-                    new Dictionary<string, string>
-                        {
-                            {
-                                "Serializer", typeof (XmlSerializer).AssemblyQualifiedName
-                            }
-                        }
-            };
-
-        public static readonly RunDescriptor Json = new RunDescriptor
-            {
-                Key = "Json",
-                Settings =
-                    new Dictionary<string, string>
-                        {
-                            {
-                                "Serializer", typeof (JsonSerializer).AssemblyQualifiedName
-                            }
-                        }
-            };
+                var json = new RunDescriptor("Json");
+                json.Settings.Set("Serializer", typeof(JsonSerializer));
+                return json;
+            }
+        }
     }
 }

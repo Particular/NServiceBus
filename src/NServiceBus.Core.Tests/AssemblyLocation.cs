@@ -3,13 +3,8 @@ using System.IO;
 
 public static class AssemblyLocation
 {
-    public static string CurrentDirectory
-    {
-        get
-        {
-            return Path.GetDirectoryName(CurrentAssemblyPath);
-        }
-    }
+    public static string CurrentDirectory => Path.GetDirectoryName(CurrentAssemblyPath);
+
     public static string CurrentAssemblyPath
     {
         get

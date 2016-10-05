@@ -1,24 +1,25 @@
 ﻿namespace NServiceBus
 {
     using System;
+    using System.Threading.Tasks;
     using System.Transactions;
-    using NServiceBus.DataBus;
+    using DataBus;
     using Pipeline;
-    using Pipeline.Contexts;
 
-    class DataBusReceiveBehavior : IBehavior<IncomingContext>
+    class DataBusReceiveBehavior : IBehavior<IIncomingLogicalMessageContext, IIncomingLogicalMessageContext>
     {
-        public IDataBus DataBus { get; set; }
-
-        public IDataBusSerializer DataBusSerializer { get; set; }
-
-        public Conventions Conventions { get; set; }
-
-        public void Invoke(IncomingContext context, Action next)
+        public DataBusReceiveBehavior(IDataBus databus, IDataBusSerializer serializer, Conventions conventions)
         {
-            var message = context.IncomingLogicalMessage.Instance;
+            this.conventions = conventions;
+            dataBusSerializer = serializer;
+            dataBus = databus;
+        }
 
-            foreach (var property in Conventions.GetDataBusProperties(message))
+        public async Task Invoke(IIncomingLogicalMessageContext context, Func<IIncomingLogicalMessageContext, Task> next)
+        {
+            var message = context.Message.Instance;
+
+            foreach (var property in conventions.GetDataBusProperties(message))
             {
                 var propertyValue = property.Getter(message);
 
@@ -31,41 +32,46 @@
                 }
                 else
                 {
-                    headerKey = String.Format("{0}.{1}", message.GetType().FullName, property.Name);
+                    headerKey = $"{message.GetType().FullName}.{property.Name}";
                 }
 
                 string dataBusKey;
 
-                if (!context.IncomingLogicalMessage.Headers.TryGetValue("NServiceBus.DataBus." + headerKey, out dataBusKey))
+                if (!context.Headers.TryGetValue("NServiceBus.DataBus." + headerKey, out dataBusKey))
                 {
                     continue;
                 }
 
-                using (new TransactionScope(TransactionScopeOption.Suppress))
-                using (var stream = DataBus.Get(dataBusKey))
+                using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
                 {
-                    var value = DataBusSerializer.Deserialize(stream);
+                    using (var stream = await dataBus.Get(dataBusKey).ConfigureAwait(false))
+                    {
+                        var value = dataBusSerializer.Deserialize(stream);
 
-                    if (dataBusProperty != null)
-                    {
-                        dataBusProperty.SetValue(value);
-                    }
-                    else
-                    {
-                        property.Setter(message, value);
+                        if (dataBusProperty != null)
+                        {
+                            dataBusProperty.SetValue(value);
+                        }
+                        else
+                        {
+                            property.Setter(message, value);
+                        }
                     }
                 }
             }
 
-            next();
+            await next(context).ConfigureAwait(false);
         }
+
+        Conventions conventions;
+        IDataBus dataBus;
+        IDataBusSerializer dataBusSerializer;
 
         public class Registration : RegisterStep
         {
-            public Registration() : base("DataBusReceive", typeof(DataBusReceiveBehavior), "Copies the databus shared data back to the logical message")
+            public Registration(Conventions conventions) : base("DataBusReceive", typeof(DataBusReceiveBehavior), "Copies the databus shared data back to the logical message", b => new DataBusReceiveBehavior(b.Build<IDataBus>(), b.Build<IDataBusSerializer>(), conventions))
             {
-                InsertAfter(WellKnownStep.MutateIncomingMessages);
-                InsertBefore(WellKnownStep.InvokeHandlers);
+                InsertAfter("MutateIncomingMessages");
             }
         }
     }

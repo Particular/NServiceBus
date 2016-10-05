@@ -1,4 +1,4 @@
-namespace NServiceBus.Licensing
+namespace NServiceBus
 {
     using System.Diagnostics;
     using System.Threading;
@@ -7,45 +7,56 @@ namespace NServiceBus.Licensing
     using Microsoft.Win32;
     using Particular.Licensing;
 
-    static class LicenseManager
+    class LicenseManager
     {
-        internal static bool HasLicenseExpired()
+        internal bool HasLicenseExpired()
         {
             return license == null || LicenseExpirationChecker.HasLicenseExpired(license);
         }
 
-        internal static void InitializeLicenseText(string license)
+        internal void InitializeLicense(string licenseText)
         {
-            licenseText = license;
-        }
-
-        internal static void PromptUserForLicenseIfTrialHasExpired()
-        {
-            if (!(Debugger.IsAttached && SystemInformation.UserInteractive))
+            //only do this if not been configured by the fluent API
+            if (licenseText == null)
             {
-                //We only prompt user if user is in debugging mode and we are running in interactive mode
+                licenseText = GetExistingLicense();
+            }
+
+            if (string.IsNullOrWhiteSpace(licenseText))
+            {
+                license = GetTrialLicense();
+                PromptUserForLicenseIfTrialHasExpired();
                 return;
             }
 
-            bool createdNew;
-            using (new Mutex(true, string.Format("NServiceBus-{0}", GitFlowVersion.MajorMinor), out createdNew))
+            LicenseVerifier.Verify(licenseText);
+
+            var foundLicense = LicenseDeserializer.Deserialize(licenseText);
+
+            if (LicenseExpirationChecker.HasLicenseExpired(foundLicense))
             {
-                if (!createdNew)
+                // If the found license is a trial license then it is actually a extended trial license not a locally generated trial.
+                // Set the property to indicate that it is an extended license as it's not set by the license generation 
+                if (foundLicense.IsTrialLicense)
                 {
-                    //Dialog already displaying for this software version by another process, so we just use the already assigned license.
+                    foundLicense.IsExtendedTrial = true;
+                    PromptUserForLicenseIfTrialHasExpired();
                     return;
                 }
-
-                if (license == null || LicenseExpirationChecker.HasLicenseExpired(license))
-                {
-                    var licenseProvidedByUser = LicenseExpiredFormDisplayer.PromptUserForLicense(license);
-
-                    if (licenseProvidedByUser != null)
-                    {
-                        license = licenseProvidedByUser;
-                    }
-                }
+                Logger.Fatal("Your license has expired! You can renew it at https://particular.net/licensing.");
+                return;
             }
+
+            if (foundLicense.UpgradeProtectionExpiration != null)
+            {
+                Logger.InfoFormat("License upgrade protection expires on: {0}", foundLicense.UpgradeProtectionExpiration);
+            }
+            else
+            {
+                Logger.InfoFormat("License expires on {0}", foundLicense.ExpirationDate);
+            }
+
+            license = foundLicense;
         }
 
         static License GetTrialLicense()
@@ -60,47 +71,11 @@ namespace NServiceBus.Licensing
             }
             else
             {
-                var message = string.Format("Trial for Particular Service Platform is still active, trial expires on {0}.", trialLicense.ExpirationDate.Value.ToLocalTime().ToShortDateString());
+                var message = $"Trial for Particular Service Platform is still active, trial expires on {trialLicense.ExpirationDate.Value.ToLocalTime().ToShortDateString()}.";
                 Logger.Info(message);
             }
 
             return trialLicense;
-        }
-
-        internal static void InitializeLicense()
-        {
-            //only do this if not been configured by the fluent API
-            if (licenseText == null)
-            {
-                licenseText = GetExistingLicense();
-            }
-
-            if (string.IsNullOrWhiteSpace(licenseText))
-            {
-                license = GetTrialLicense();
-                return;
-            }
-
-            LicenseVerifier.Verify(licenseText);
-
-            var foundLicense = LicenseDeserializer.Deserialize(licenseText);
-
-            if (LicenseExpirationChecker.HasLicenseExpired(foundLicense))
-            {
-                Logger.Fatal(" You can renew it at http://particular.net/licensing.");
-                return;
-            }
-
-            if (foundLicense.UpgradeProtectionExpiration != null)
-            {
-                Logger.InfoFormat("UpgradeProtectionExpiration: {0}", foundLicense.UpgradeProtectionExpiration);
-            }
-            else
-            {
-                Logger.InfoFormat("Expires on {0}", foundLicense.ExpirationDate);
-            }
-
-            license = foundLicense;
         }
 
         static string GetExistingLicense()
@@ -122,10 +97,37 @@ namespace NServiceBus.Licensing
             return LicenseLocationConventions.TryFindLicenseText();
         }
 
+        void PromptUserForLicenseIfTrialHasExpired()
+        {
+            if (!(Debugger.IsAttached && SystemInformation.UserInteractive))
+            {
+                //We only prompt user if user is in debugging mode and we are running in interactive mode
+                return;
+            }
+
+            bool createdNew;
+            using (new Mutex(true, $"NServiceBus-{GitFlowVersion.MajorMinor}", out createdNew))
+            {
+                if (!createdNew)
+                {
+                    //Dialog already displaying for this software version by another process, so we just use the already assigned license.
+                    return;
+                }
+
+                if (license == null || LicenseExpirationChecker.HasLicenseExpired(license))
+                {
+                    var licenseProvidedByUser = LicenseExpiredFormDisplayer.PromptUserForLicense(license);
+
+                    if (licenseProvidedByUser != null)
+                    {
+                        license = licenseProvidedByUser;
+                    }
+                }
+            }
+        }
+
+        License license;
+
         static ILog Logger = LogManager.GetLogger(typeof(LicenseManager));
-        static string licenseText;
-        static License license;
-
-
     }
 }

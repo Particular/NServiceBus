@@ -3,29 +3,38 @@
     using System;
     using System.Diagnostics;
     using System.Threading;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
-    using NServiceBus.AcceptanceTests.ScenarioDescriptors;
+    using System.Threading.Tasks;
+    using AcceptanceTesting;
+    using EndpointTemplates;
+    using Features;
     using NUnit.Framework;
+    using ScenarioDescriptors;
 
     public class When_deferring_a_message : NServiceBusAcceptanceTest
     {
-        float counterValue;
-
         [Test]
         [Explicit("Since perf counters need to be enabled with powershell")]
-        public void Critical_time_should_not_include_the_time_message_was_waiting_in_the_timeout_store()
+        public async Task Critical_time_should_not_include_the_time_message_was_waiting_in_the_timeout_store()
         {
             using (var counter = new PerformanceCounter("NServiceBus", "Critical Time", "DeferringAMessage.Endpoint", false))
-            using (new Timer(state => CheckPerfCounter(counter), null, 0, 100))
             {
-                var context = new Context();
-                Scenario.Define(context)
-                    .WithEndpoint<Endpoint>(b => b.Given((bus, c) => bus.Defer(TimeSpan.FromSeconds(5), new MyMessage())))
-                    .Done(c => c.WasCalled)
-                    .Repeat(r => r.For(Transports.Default))
-                    .Should(c => Assert.True(c.WasCalled, "The message handler should be called"))
-                    .Run();
+                using (new Timer(state => CheckPerfCounter(counter), null, 0, 100))
+                {
+                    await Scenario.Define<Context>()
+                        .WithEndpoint<Endpoint>(b => b.When((session, c) =>
+                        {
+                            var options = new SendOptions();
+
+                            options.DelayDeliveryWith(TimeSpan.FromMilliseconds(1));
+                            options.RouteToThisEndpoint();
+
+                            return session.Send(new MyMessage(), options);
+                        }))
+                        .Done(c => c.WasCalled)
+                        .Repeat(r => r.For(Transports.Default))
+                        .Should(c => Assert.True(c.WasCalled, "The message handler should be called"))
+                        .Run();
+                }
             }
             Assert.Greater(counterValue, 0, "Critical time has not been recorded");
             Assert.Less(counterValue, 2);
@@ -40,6 +49,8 @@
             }
         }
 
+        float counterValue;
+
         public class Context : ScenarioContext
         {
             public bool WasCalled { get; set; }
@@ -49,7 +60,11 @@
         {
             public Endpoint()
             {
-                EndpointSetup<DefaultServer>(builder => builder.EnableCriticalTimePerformanceCounter())
+                EndpointSetup<DefaultServer>(builder =>
+                {
+                    builder.EnableCriticalTimePerformanceCounter();
+                    builder.EnableFeature<TimeoutManager>();
+                })
                     .AddMapping<MyMessage>(typeof(Endpoint));
             }
         }
@@ -61,10 +76,12 @@
         public class MyMessageHandler : IHandleMessages<MyMessage>
         {
             public Context Context { get; set; }
-            
-            public void Handle(MyMessage message)
+
+            public Task Handle(MyMessage message, IMessageHandlerContext context)
             {
                 Context.WasCalled = true;
+
+                return Task.FromResult(0);
             }
         }
     }

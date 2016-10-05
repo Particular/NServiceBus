@@ -1,36 +1,48 @@
 namespace NServiceBus.Features
 {
     using System;
+    using System.Diagnostics;
     using Logging;
-    using NServiceBus.Licensing;
 
     class LicenseReminder : Feature
     {
         public LicenseReminder()
         {
             EnableByDefault();
+
+            Defaults(s => s.SetDefault(LicenseTextSettingsKey, null));
         }
 
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-            var expiredLicense = true;
             try
             {
-                LicenseManager.InitializeLicense();
+                var licenseManager = new LicenseManager();
+                licenseManager.InitializeLicense(context.Settings.Get<string>(LicenseTextSettingsKey));
 
-                expiredLicense = LicenseManager.HasLicenseExpired();
+                context.Container.RegisterSingleton(licenseManager);
+
+                var licenseExpired = licenseManager.HasLicenseExpired();
+                if (!licenseExpired)
+                {
+                    return;
+                }
+
+                context.Pipeline.Register("LicenseReminder", new AuditInvalidLicenseBehavior(), "Audits that the message was processed by an endpoint with an expired license");
+
+                if (Debugger.IsAttached)
+                {
+                    context.Pipeline.Register("LogErrorOnInvalidLicense", new LogErrorOnInvalidLicenseBehavior(), "Logs an error when running in debug mode with an expired license");
+                }
             }
             catch (Exception ex)
             {
                 //we only log here to prevent licensing issue to abort startup and cause production outages
                 Logger.Fatal("Failed to initialize the license", ex);
             }
-
-            context.Container.ConfigureComponent<LicenseBehavior>(DependencyLifecycle.InstancePerCall)
-                .ConfigureProperty(p => p.LicenseExpired, expiredLicense);
-
-            context.Pipeline.Register("LicenseReminder", typeof(LicenseBehavior), "Reminds users if license has expired");
         }
+
+        public const string LicenseTextSettingsKey = "LicenseText";
 
         static ILog Logger = LogManager.GetLogger<LicenseReminder>();
     }

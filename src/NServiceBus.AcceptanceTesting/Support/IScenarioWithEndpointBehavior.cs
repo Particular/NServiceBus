@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Threading.Tasks;
 
     public interface IScenarioWithEndpointBehavior<TContext> where TContext : ScenarioContext
     {
@@ -11,12 +12,10 @@
 
         IScenarioWithEndpointBehavior<TContext> Done(Func<TContext, bool> func);
 
-        TContext Run(TimeSpan? testExecutionTimeout = null);
-        TContext Run(RunSettings settings);
+        Task<TContext> Run(TimeSpan? testExecutionTimeout = null);
+        Task<TContext> Run(RunSettings settings);
 
         IAdvancedScenarioWithEndpointBehavior<TContext> Repeat(Action<RunDescriptorsBuilder> runtimeDescriptor);
-
-        IScenarioWithEndpointBehavior<TContext> AllowExceptions(Func<Exception,bool> filter = null);
     }
 
     public interface IAdvancedScenarioWithEndpointBehavior<TContext> where TContext : ScenarioContext
@@ -25,11 +24,8 @@
 
         IAdvancedScenarioWithEndpointBehavior<TContext> Report(Action<RunSummary> summaries);
 
+        Task<IEnumerable<TContext>> Run(TimeSpan? testExecutionTimeout = null);
 
-        IAdvancedScenarioWithEndpointBehavior<TContext> MaxTestParallelism(int maxParallelism);
-
-        IEnumerable<TContext> Run(TimeSpan? testExecutionTimeout = null);
-
-        IEnumerable<TContext> Run(RunSettings settings);
+        Task<IEnumerable<TContext>> Run(RunSettings settings);
     }
 }

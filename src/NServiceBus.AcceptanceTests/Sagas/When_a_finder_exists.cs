@@ -1,20 +1,25 @@
 ﻿namespace NServiceBus.AcceptanceTests.Sagas
 {
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
-    using NServiceBus.Saga;
+    using System.Threading.Tasks;
+    using AcceptanceTesting;
+    using EndpointTemplates;
+    using Extensibility;
+    using Features;
+    using NServiceBus;
+    using NServiceBus.Sagas;
     using NUnit.Framework;
+    using Persistence;
 
     [TestFixture]
-    public class When_a_finder_exists
+    public class When_a_finder_exists : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Should_use_it_to_find_saga()
+        public async Task Should_use_it_to_find_saga()
         {
-            var context = Scenario.Define<Context>()
-                   .WithEndpoint<SagaEndpoint>(b => b.Given(bus => bus.SendLocal(new StartSagaMessage())))
-                   .Done(c => c.FinderUsed)
-                   .Run();
+            var context = await Scenario.Define<Context>()
+                .WithEndpoint<SagaEndpoint>(b => b.When(session => session.SendLocal(new StartSagaMessage())))
+                .Done(c => c.FinderUsed)
+                .Run();
 
             Assert.True(context.FinderUsed);
         }
@@ -28,36 +33,38 @@
         {
             public SagaEndpoint()
             {
-                EndpointSetup<DefaultServer>();
+                EndpointSetup<DefaultServer>(c => c.EnableFeature<TimeoutManager>());
             }
 
-            class CustomFinder : IFindSagas<TestSaga.SagaData>.Using<StartSagaMessage>
+            class CustomFinder : IFindSagas<TestSaga06.SagaData06>.Using<StartSagaMessage>
             {
                 public Context Context { get; set; }
-                public TestSaga.SagaData FindBy(StartSagaMessage message)
+
+                public Task<TestSaga06.SagaData06> FindBy(StartSagaMessage message, SynchronizedStorageSession storageSession, ReadOnlyContextBag context)
                 {
                     Context.FinderUsed = true;
-                    return null;
+                    return Task.FromResult(default(TestSaga06.SagaData06));
                 }
             }
 
-            public class TestSaga : Saga<TestSaga.SagaData>, IAmStartedByMessages<StartSagaMessage>
+            public class TestSaga06 : Saga<TestSaga06.SagaData06>, IAmStartedByMessages<StartSagaMessage>
             {
                 public Context Context { get; set; }
 
-                public void Handle(StartSagaMessage message)
+                public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
                 {
+                    return Task.FromResult(0);
                 }
 
-                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper)
+                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData06> mapper)
                 {
+                    // not required because of CustomFinder
                 }
 
-                public class SagaData : ContainSagaData
+                public class SagaData06 : ContainSagaData
                 {
                 }
             }
-
         }
 
         public class StartSagaMessage : IMessage

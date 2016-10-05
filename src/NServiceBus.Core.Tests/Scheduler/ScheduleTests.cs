@@ -1,77 +1,94 @@
 ﻿namespace NServiceBus.Scheduling.Tests
 {
     using System;
-    using System.Linq;
     using System.Threading.Tasks;
-    using Core.Tests;
-    using Core.Tests.Fakes;
     using NUnit.Framework;
+    using Testing;
 
     [TestFixture]
     public class ScheduleTests
     {
-        const string ACTION_NAME = "my action";
-        FuncBuilder container = new FuncBuilder();
-        FakeBus bus = new FakeBus();
-        Schedule schedule;
-
-        DefaultScheduler defaultScheduler;
-
         [SetUp]
         public void SetUp()
         {
-            defaultScheduler = new DefaultScheduler(bus);
-            container.Register<IBus>(() => bus);
-            container.Register<DefaultScheduler>(() => defaultScheduler);
-
-            schedule = new Schedule(container);
+            scheduler = new DefaultScheduler();
+            session = new FakeMessageSession(scheduler);
         }
 
         [Test]
-        public void When_scheduling_an_action_with_a_name_the_task_should_get_that_name()
+        public async Task When_scheduling_an_action_with_a_name_the_task_should_get_that_name()
         {
-            schedule.Every(TimeSpan.FromMinutes(5), ACTION_NAME, () => { });
-            Assert.That(EnsureThatNameExists(ACTION_NAME));
+            var wasCalled = true;
+            await session.ScheduleEvery(TimeSpan.FromMinutes(5), ACTION_NAME, c =>
+            {
+                wasCalled = true;
+                return TaskEx.CompletedTask;
+            });
+
+            Assert.IsTrue(wasCalled);
+            Assert.AreEqual(ACTION_NAME, session.ScheduledDefinition.Name);
         }
 
         [Test]
-        public void When_scheduling_an_action_without_a_name_the_task_should_get_the_DeclaringType_as_name()
+        public async Task When_scheduling_an_action_without_a_name_the_task_should_get_the_DeclaringType_as_name()
         {
-            schedule.Every(TimeSpan.FromMinutes(5), () => { });
-            Assert.That(EnsureThatNameExists("ScheduleTests"));
+            var wasCalled = true;
+            await session.ScheduleEvery(TimeSpan.FromMinutes(5), c =>
+            {
+                wasCalled = true;
+                return TaskEx.CompletedTask;
+            });
+
+            Assert.IsTrue(wasCalled);
+            Assert.AreEqual(nameof(ScheduleTests), session.ScheduledDefinition.Name);
         }
 
-        [Test]
-        public void Ensure_retrieving_name_from_type_works_for_old_compiler()
+        DefaultScheduler scheduler;
+        FakeMessageSession session;
+        const string ACTION_NAME = "my action";
+
+        class FakeMessageSession : IMessageSession
         {
-            schedule.Every(TimeSpan.FromMinutes(5), OldCompilerBits.ActionProvider.SimpleAction());
-            Assert.That(EnsureThatNameExists("ActionProvider"));
-        }
+            public FakeMessageSession(DefaultScheduler defaultScheduler)
+            {
+                this.defaultScheduler = defaultScheduler;
+            }
 
-        [Test]
-        public void Ensure_retrieving_name_from_type_works_for_new_compiler()
-        {
-            schedule.Every(TimeSpan.FromMinutes(5), NewCompilerBits.ActionProvider.SimpleAction());
-            Assert.That(EnsureThatNameExists("ActionProvider"));
-        }
+            public TaskDefinition ScheduledDefinition { get; private set; }
 
-        [Test]
-        public void Schedule_tasks_using_multiple_threads()
-        {
-            Parallel.For(0, 20, i => schedule.Every(TimeSpan.FromSeconds(1), () => { }));
+            public Task Send(object message, SendOptions options)
+            {
+                ScheduledDefinition = options.Context.Get<ScheduleBehavior.State>().TaskDefinition;
+                defaultScheduler.Schedule(ScheduledDefinition);
+                return defaultScheduler.Start(ScheduledDefinition.Id, new TestablePipelineContext());
+            }
 
-            bus.DeferWasCalled = 0;
+            public Task Send<T>(Action<T> messageConstructor, SendOptions options)
+            {
+                throw new NotImplementedException();
+            }
 
-            Parallel.ForEach(defaultScheduler.scheduledTasks,
-                              t => new ScheduledTaskMessageHandler(defaultScheduler).Handle(
-                                  new Messages.ScheduledTask { TaskId = t.Key }));
+            public Task Publish(object message, PublishOptions options)
+            {
+                throw new NotImplementedException();
+            }
 
-            Assert.That(bus.DeferWasCalled, Is.EqualTo(20));
-        }
+            public Task Publish<T>(Action<T> messageConstructor, PublishOptions publishOptions)
+            {
+                throw new NotImplementedException();
+            }
 
-        bool EnsureThatNameExists(string name)
-        {
-            return defaultScheduler.scheduledTasks.Any(task => task.Value.Name.Equals(name));
+            public Task Subscribe(Type eventType, SubscribeOptions options)
+            {
+                throw new NotImplementedException();
+            }
+
+            public Task Unsubscribe(Type eventType, UnsubscribeOptions options)
+            {
+                throw new NotImplementedException();
+            }
+
+            readonly DefaultScheduler defaultScheduler;
         }
     }
 }

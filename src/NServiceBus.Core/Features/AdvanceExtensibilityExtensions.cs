@@ -1,6 +1,6 @@
 ﻿namespace NServiceBus.Configuration.AdvanceExtensibility
 {
-    using NServiceBus.Settings;
+    using Settings;
 
     /// <summary>
     /// Extension methods declarations.
@@ -8,10 +8,11 @@
     public static class AdvanceExtensibilityExtensions
     {
         /// <summary>
-        /// Gives access to the <see cref="SettingsHolder"/> for extensibility.
+        /// Gives access to the <see cref="SettingsHolder" /> for extensibility.
         /// </summary>
         public static SettingsHolder GetSettings(this ExposeSettings config)
         {
+            Guard.AgainstNull(nameof(config), config);
             return config.Settings;
         }
     }

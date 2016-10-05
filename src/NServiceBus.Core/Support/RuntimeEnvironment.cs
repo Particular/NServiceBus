@@ -3,26 +3,25 @@
     using System;
 
     /// <summary>
-    /// Abstracts the runtime environment
+    /// Abstracts the runtime environment.
     /// </summary>
     public static class RuntimeEnvironment
     {
         static RuntimeEnvironment()
         {
-            MachineNameAction = () => Environment.MachineName;
+            var machineName = Environment.MachineName;
+
+            MachineNameAction = () => machineName;
         }
 
         /// <summary>
-        /// Returns the machine name where this endpoint is currently running
+        /// Returns the machine name where this endpoint is currently running.
         /// </summary>
-        public static string MachineName 
-        {
-            get { return MachineNameAction(); }
-        }
+        public static string MachineName => MachineNameAction();
 
 
         /// <summary>
-        /// Get the machine name, allows for overrides
+        /// Get the machine name, allows for overrides.
         /// </summary>
         public static Func<string> MachineNameAction { get; set; }
     }

@@ -1,47 +1,15 @@
 ﻿namespace NServiceBus.Core.Tests
 {
-    using System;
     using NUnit.Framework;
 
     [TestFixture]
     public class ConventionsTests
     {
-        [Test]
-        public void Should_use_TimeToBeReceived_from_bottom_of_tree()
-        {
-            var conventions = new NServiceBus.Conventions();
-            var timeToBeReceivedAction = conventions.GetTimeToBeReceived(typeof(InheritedClassWithAttribute));
-            Assert.AreEqual(TimeSpan.FromSeconds(2), timeToBeReceivedAction);
-        }
-
-        [Test]
-        public void Should_use_inherited_TimeToBeReceived()
-        {
-            var conventions = new NServiceBus.Conventions();
-            var timeToBeReceivedAction = conventions.GetTimeToBeReceived(typeof(InheritedClassWithNoAttribute));
-            Assert.AreEqual(TimeSpan.FromSeconds(1), timeToBeReceivedAction);
-        }
-
-        [TimeToBeReceivedAttribute("00:00:01")]
-        class BaseClass
-        {
-        }
-
-        [TimeToBeReceivedAttribute("00:00:02")]
-        class InheritedClassWithAttribute : BaseClass
-        {
-
-        }
-
-        class InheritedClassWithNoAttribute : BaseClass
-        {
-
-        }
-
+      
         [Test]
         public void IsMessageType_should_return_false_for_unknown_type()
         {
-            var conventions = new NServiceBus.Conventions();
+            var conventions = new Conventions();
             Assert.IsFalse(conventions.IsMessageType(typeof(NoAMessage)));
         }
 
@@ -53,7 +21,7 @@
         [Test]
         public void IsMessageType_should_return_true_for_IMessage()
         {
-            var conventions = new NServiceBus.Conventions();
+            var conventions = new Conventions();
             Assert.IsTrue(conventions.IsMessageType(typeof(MyMessage)));
         }
 
@@ -65,7 +33,7 @@
         [Test]
         public void IsMessageType_should_return_true_for_ICommand()
         {
-            var conventions = new NServiceBus.Conventions();
+            var conventions = new Conventions();
             Assert.IsTrue(conventions.IsMessageType(typeof(MyCommand)));
         }
 
@@ -77,7 +45,7 @@
         [Test]
         public void IsMessageType_should_return_true_for_IEvent()
         {
-            var conventions = new NServiceBus.Conventions();
+            var conventions = new Conventions();
             Assert.IsTrue(conventions.IsMessageType(typeof(MyEvent)));
         }
 
@@ -89,7 +57,7 @@
         [Test]
         public void IsMessageType_should_return_true_for_systemMessage()
         {
-            var conventions = new NServiceBus.Conventions();
+            var conventions = new Conventions();
             conventions.AddSystemMessagesConventions(type => type == typeof(MySystemMessage));
             Assert.IsTrue(conventions.IsMessageType(typeof(MySystemMessage)));
         }
@@ -106,52 +74,32 @@
             [Test]
             public void IsCommandType_should_return_false_for_NServiceBus_types()
             {
-                var conventions = new NServiceBus.Conventions
+                var conventions = new Conventions
                 {
-                    IsCommandTypeAction = t => t.Assembly == typeof(NServiceBus.Conventions).Assembly
+                    IsCommandTypeAction = t => t.Assembly == typeof(Conventions).Assembly
                 };
-                Assert.IsFalse(conventions.IsCommandType(typeof(NServiceBus.Conventions)));
+                Assert.IsFalse(conventions.IsCommandType(typeof(Conventions)));
             }
 
-            [Test]
-            public void IsExpressMessageType_should_return_false_for_NServiceBus_types()
-            {
-                var conventions = new NServiceBus.Conventions
-                {
-                    IsExpressMessageAction = t => t.Assembly == typeof(NServiceBus.Conventions).Assembly
-                };
-                Assert.IsFalse(conventions.IsExpressMessageType(typeof(NServiceBus.Conventions)));
-            }
-
+        
             [Test]
             public void IsMessageType_should_return_false_for_NServiceBus_types()
             {
-                var conventions = new NServiceBus.Conventions
+                var conventions = new Conventions
                 {
-                    IsMessageTypeAction = t => t.Assembly == typeof(NServiceBus.Conventions).Assembly
+                    IsMessageTypeAction = t => t.Assembly == typeof(Conventions).Assembly
                 };
-                Assert.IsFalse(conventions.IsMessageType(typeof(NServiceBus.Conventions)));
+                Assert.IsFalse(conventions.IsMessageType(typeof(Conventions)));
             }
 
             [Test]
             public void IsEventType_should_return_false_for_NServiceBus_types()
             {
-                var conventions = new NServiceBus.Conventions
+                var conventions = new Conventions
                 {
-                    IsEventTypeAction = t => t.Assembly == typeof(NServiceBus.Conventions).Assembly
+                    IsEventTypeAction = t => t.Assembly == typeof(Conventions).Assembly
                 };
-                Assert.IsFalse(conventions.IsEventType(typeof(NServiceBus.Conventions)));
-            }
-
-            [Test]
-            public void IsExpressType_should_return_true_for_matching_type()
-            {
-                var conventions = new NServiceBus.Conventions
-                {
-                    IsExpressMessageAction = t => t.Assembly == typeof(NServiceBus.Conventions).Assembly ||
-                                               t == typeof(MyConventionExpress)
-                };
-                Assert.IsTrue(conventions.IsExpressMessageType(typeof(MyConventionExpress)));
+                Assert.IsFalse(conventions.IsEventType(typeof(Conventions)));
             }
 
             public class MyConventionExpress
@@ -161,9 +109,9 @@
             [Test]
             public void IsCommandType_should_return_true_for_matching_type()
             {
-                var conventions = new NServiceBus.Conventions
+                var conventions = new Conventions
                 {
-                    IsCommandTypeAction = t => t.Assembly == typeof(NServiceBus.Conventions).Assembly ||
+                    IsCommandTypeAction = t => t.Assembly == typeof(Conventions).Assembly ||
                                                t == typeof(MyConventionCommand)
                 };
                 Assert.IsTrue(conventions.IsCommandType(typeof(MyConventionCommand)));
@@ -176,9 +124,9 @@
             [Test]
             public void IsMessageType_should_return_true_for_matching_type()
             {
-                var conventions = new NServiceBus.Conventions
+                var conventions = new Conventions
                 {
-                    IsMessageTypeAction = t => t.Assembly == typeof(NServiceBus.Conventions).Assembly ||
+                    IsMessageTypeAction = t => t.Assembly == typeof(Conventions).Assembly ||
                                                t == typeof(MyConventionMessage)
                 };
                 Assert.IsTrue(conventions.IsMessageType(typeof(MyConventionMessage)));
@@ -191,9 +139,9 @@
             [Test]
             public void IsEventType_should_return_true_for_matching_type()
             {
-                var conventions = new NServiceBus.Conventions
+                var conventions = new Conventions
                 {
-                    IsEventTypeAction = t => t.Assembly == typeof(NServiceBus.Conventions).Assembly ||
+                    IsEventTypeAction = t => t.Assembly == typeof(Conventions).Assembly ||
                                                t == typeof(MyConventionEvent)
                 };
                 Assert.IsTrue(conventions.IsEventType(typeof(MyConventionEvent)));

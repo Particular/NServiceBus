@@ -1,13 +1,15 @@
-namespace NServiceBus.Transports
+namespace NServiceBus.Transport
 {
+    using System.Threading.Tasks;
+
     /// <summary>
-    /// Abstraction of the capability to create queues
+    /// Abstraction of the capability to create queues.
     /// </summary>
     public interface ICreateQueues
     {
         /// <summary>
-        /// Create a messages queue where its name is the address parameter, for the given account.
+        /// Creates message queues for the defined queue bindings and identity.
         /// </summary>
-        void CreateQueueIfNecessary(Address address, string account);
+        Task CreateQueueIfNecessary(QueueBindings queueBindings, string identity);
     }
 }

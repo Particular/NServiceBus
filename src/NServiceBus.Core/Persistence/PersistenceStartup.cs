@@ -1,20 +1,15 @@
-﻿namespace NServiceBus.Persistence
+﻿namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
-    using NServiceBus.Logging;
-    using NServiceBus.Settings;
-    using Utils.Reflection;
+    using Logging;
+    using Persistence;
+    using Settings;
 
     class PersistenceStartup : IWantToRunBeforeConfigurationIsFinalized
     {
-        const string errorMessage = "No persistence has been selected, please select your persistence by calling configuration.UsePersistence<T>() in your class that implements either IConfigureThisEndpoint or INeedInitialization, where T can be any of the supported persistence option. If you were previously using RavenDB, note that it has been moved to its own stand alone nuget 'NServiceBus.RavenDB' and you'll need to install this package and then call configuration.UsePersistence<RavenDBPersistence>()";
-
-        static ILog Logger = LogManager.GetLogger(typeof(PersistenceStartup));
-
-        public void Run(Configure config)
+        public void Run(SettingsHolder settings)
         {
-            var settings = config.Settings;
             List<EnabledPersistence> definitions;
 
             if (!settings.TryGet("PersistenceDefinitions", out definitions))
@@ -39,7 +34,7 @@
 
                 foreach (var storageType in definition.SelectedStorages)
                 {
-                    Logger.InfoFormat("Activating persistence '{0}' to provide storage for '{1}' storage.", definition.DefinitionType.Name, storageType);
+                    Logger.DebugFormat("Activating persistence '{0}' to provide storage for '{1}' storage.", definition.DefinitionType.Name, storageType);
                     persistenceDefinition.ApplyActionForStorage(storageType, settings);
                     resultingSupportedStorages.Add(storageType);
                 }
@@ -50,8 +45,14 @@
 
         internal static bool HasSupportFor<T>(ReadOnlySettings settings) where T : StorageType
         {
-            return settings.Get<List<Type>>("ResultingSupportedStorages")
-                .Contains(typeof(T));
+            List<Type> supportedStorages;
+            settings.TryGet("ResultingSupportedStorages", out supportedStorages);
+
+            return supportedStorages?.Contains(typeof(T)) ?? false;
         }
+
+        const string errorMessage = "No persistence has been selected, select a persistence by calling endpointConfiguration.UsePersistence<T>() in the class that implements either IConfigureThisEndpoint or INeedInitialization, where T can be any of the supported persistence option. If previously using RavenDB, note that it has been moved to its own stand alone nuget 'NServiceBus.RavenDB'. This package will need to be installed and then enabled by calling endpointConfiguration.UsePersistence<RavenDBPersistence>().";
+
+        static ILog Logger = LogManager.GetLogger(typeof(PersistenceStartup));
     }
 }

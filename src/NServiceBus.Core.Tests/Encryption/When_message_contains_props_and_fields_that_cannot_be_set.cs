@@ -11,8 +11,7 @@
         {
             var message = new BogusEntityMessage{ Entity = new BogusEntity()};
 
-            Assert.DoesNotThrow(() => mutator.MutateIncoming(message, null));
-            Assert.DoesNotThrow(() => mutator.MutateOutgoing(message, null));
+            Assert.IsEmpty(inspector.ScanObject(message));
         }
 
         public class BogusEntityMessage : IMessage
@@ -23,23 +22,16 @@
         public class BogusEntity
         {
             //This field generates a stackoverflow
-            readonly string foo;
 
             public BogusEntity()
             {
-                foo = "Foo";
+                ExposesReadOnlyField = "Foo";
             }
 
-            public string ExposesReadOnlyField { get { return foo; } }
+            public string ExposesReadOnlyField { get; private set; }
 
             //This property generates a stackoverflow
-            public List<BogusEntity> ExposesGetOnlyProperty
-            {
-                get
-                {
-                    return new List<BogusEntity> { new BogusEntity() };
-                }
-            }
+            public List<BogusEntity> ExposesGetOnlyProperty => new List<BogusEntity> { new BogusEntity() };
         }
     }
 }

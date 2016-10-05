@@ -1,19 +1,11 @@
-namespace NServiceBus.Logging
+namespace NServiceBus
 {
     using System;
     using System.Diagnostics;
+    using Logging;
 
     class DefaultLoggerFactory : ILoggerFactory
     {
-        LogLevel filterLevel;
-        bool isDebugEnabled;
-        bool isInfoEnabled;
-        bool isWarnEnabled;
-        bool isErrorEnabled;
-        bool isFatalEnabled;
-        RollingLogger rollingLogger;
-
-        object locker = new object();
         public DefaultLoggerFactory(LogLevel filterLevel, string loggingDirectory)
         {
             this.filterLevel = filterLevel;
@@ -38,7 +30,7 @@ namespace NServiceBus.Logging
                 IsInfoEnabled = isInfoEnabled,
                 IsWarnEnabled = isWarnEnabled,
                 IsErrorEnabled = isErrorEnabled,
-                IsFatalEnabled = isFatalEnabled,
+                IsFatalEnabled = isFatalEnabled
             };
         }
 
@@ -50,7 +42,7 @@ namespace NServiceBus.Logging
             }
             var datePart = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
             var paddedLevel = messageLevel.ToString().ToUpper().PadRight(5);
-            var fullMessage = string.Format("{0} {1} {2} {3}", datePart, paddedLevel, name, message);
+            var fullMessage = $"{datePart} {paddedLevel} {name} {message}";
             lock (locker)
             {
                 rollingLogger.Write(fullMessage);
@@ -58,5 +50,15 @@ namespace NServiceBus.Logging
                 Trace.WriteLine(fullMessage);
             }
         }
+
+        LogLevel filterLevel;
+        bool isDebugEnabled;
+        bool isErrorEnabled;
+        bool isFatalEnabled;
+        bool isInfoEnabled;
+        bool isWarnEnabled;
+
+        object locker = new object();
+        RollingLogger rollingLogger;
     }
 }

@@ -3,7 +3,7 @@ namespace NServiceBus.Container
     using Settings;
 
     /// <summary>
-    ///     Container customization.
+    /// Container customization.
     /// </summary>
     public class ContainerCustomizations
     {
@@ -13,7 +13,7 @@ namespace NServiceBus.Container
         }
 
         /// <summary>
-        ///     The settings instance to use to store an existing container instance.
+        /// The settings instance to use to store an existing container instance.
         /// </summary>
         public SettingsHolder Settings { get; private set; }
     }

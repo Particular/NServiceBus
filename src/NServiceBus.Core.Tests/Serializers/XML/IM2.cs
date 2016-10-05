@@ -20,7 +20,7 @@
         Foo[] ArrayFoos { get; set; }
         Bar[] Bars { get; set; }
         HashSet<int> NaturalNumbers { get; set; }
-        HashSet<string> Developers { get; set; }        
+        HashSet<string> Developers { get; set; }
     }
 
     public class Foo
@@ -37,6 +37,6 @@
 
     public class MyDictionary : Dictionary<string, string>
     {
-        
+
     }
 }

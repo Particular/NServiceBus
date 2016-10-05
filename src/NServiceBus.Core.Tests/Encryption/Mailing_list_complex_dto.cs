@@ -11,52 +11,40 @@
         {
             var message = new TestDto();
 
-            var dict = message.Options[TestEnum.EnumValue1];
-            dict["test"] = "aString";
-
             message.Options[TestEnum.EnumValue1]["test"] = "aString";
 
-            var result = (TestDto)mutator.MutateOutgoing(message, null);
-
-            Assert.True(result.Options.ContainsKey(TestEnum.EnumValue1));
+            inspector.ScanObject(message);
         }
 
-        private enum TestEnum
+        enum TestEnum
         {
             EnumValue1
         }
 
-        private class TestOptions
+        class TestOptions
         {
-            private readonly Dictionary<TestEnum, Dictionary<string, string>> _dictionary = new Dictionary<TestEnum, Dictionary<string, string>>();
-            public Dictionary<TestEnum, Dictionary<string, string>> Dictionary { get { return _dictionary; } }
+            public Dictionary<TestEnum, Dictionary<string, string>> Dictionary { get; } = new Dictionary<TestEnum, Dictionary<string, string>>();
 
             public bool ContainsKey(TestEnum key)
             {
-                return _dictionary.ContainsKey(key);
+                return Dictionary.ContainsKey(key);
             }
 
-            public IEnumerable<TestEnum> Keys { get { return _dictionary.Keys; } }
+            public IEnumerable<TestEnum> Keys => Dictionary.Keys;
 
-            public Dictionary<string, string> this[TestEnum appEnum]
-            {
-                get
-                {
-                    return _dictionary.ContainsKey(appEnum)
-                               ? _dictionary[appEnum]
-                               : _dictionary[appEnum] = new Dictionary<string, string>();
-                }
-            }
+            public Dictionary<string, string> this[TestEnum appEnum] => Dictionary.ContainsKey(appEnum)
+                ? Dictionary[appEnum]
+                : Dictionary[appEnum] = new Dictionary<string, string>();
         }
 
-        private class TestDto
+        class TestDto
         {
             public TestDto()
             {
                 Options = new TestOptions();
             }
 
-            public TestOptions Options { get; set; }
+            public TestOptions Options { get; }
         }
     }
 }

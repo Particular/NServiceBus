@@ -2,44 +2,31 @@
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
-    using NServiceBus.Config;
-    using NServiceBus.Saga;
+    using AcceptanceTesting;
+    using EndpointTemplates;
     using NUnit.Framework;
 
     public class When_saga_started_concurrently : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Should_start_single_saga()
+        public async Task Should_start_single_saga()
         {
-            var context = new Context
-            {
-                SomeId = Guid.NewGuid().ToString()
-            };
-
-            Scenario.Define(context)
+            var context = await Scenario.Define<Context>(c => { c.SomeId = Guid.NewGuid().ToString(); })
                 .WithEndpoint<ConcurrentHandlerEndpoint>(b =>
                 {
-                    b.When(bus =>
+                    b.When((session, ctx) =>
                     {
-                        Parallel.Invoke(() =>
+                        var t1 = session.SendLocal(new StartMessageOne
                         {
-                            bus.SendLocal(new StartMessageOne
-                            {
-                                SomeId = context.SomeId
-                            });
-                        }, () =>
-                        {
-                            bus.SendLocal(new StartMessageTwo
-                                {
-                                    SomeId = context.SomeId
-                                }
-                            );
+                            SomeId = ctx.SomeId
                         });
+                        var t2 = session.SendLocal(new StartMessageTwo
+                        {
+                            SomeId = ctx.SomeId
+                        });
+                        return Task.WhenAll(t1, t2);
                     });
                 })
-                .AllowExceptions()
                 .Done(c => c.PlacedSagaId != Guid.Empty && c.BilledSagaId != Guid.Empty)
                 .Run();
 
@@ -60,16 +47,11 @@
         {
             public ConcurrentHandlerEndpoint()
             {
-                EndpointSetup<DefaultServer>(b => { })
-                    .WithConfig<TransportConfig>(c =>
-                    {
-                        c.MaxRetries = 3;
-                        c.MaximumConcurrencyLevel = 2;
-                    })
-                    .WithConfig<SecondLevelRetriesConfig>(c =>
-                    {
-                        c.Enabled = false;
-                    });
+                EndpointSetup<DefaultServer>(b =>
+                {
+                    b.LimitMessageProcessingConcurrencyTo(2);
+                    b.Recoverability().Immediate(immediate => immediate.NumberOfRetries(3));
+                });
             }
 
             class ConcurrentlyStartedSaga : Saga<ConcurrentlyStartedSagaData>,
@@ -78,28 +60,26 @@
             {
                 public Context Context { get; set; }
 
-                public void Handle(StartMessageOne message)
+                public async Task Handle(StartMessageOne message, IMessageHandlerContext context)
                 {
-                    Data.OrderId = message.SomeId;
                     Data.Placed = true;
-                    Bus.SendLocal(new SuccessfulProcessing
+                    await context.SendLocal(new SuccessfulProcessing
                     {
                         SagaId = Data.Id,
                         Type = nameof(StartMessageOne)
                     });
-                    CheckForCompletion();
+                    CheckForCompletion(context);
                 }
 
-                public void Handle(StartMessageTwo message)
+                public async Task Handle(StartMessageTwo message, IMessageHandlerContext context)
                 {
-                    Data.OrderId = message.SomeId;
                     Data.Billed = true;
-                    Bus.SendLocal(new SuccessfulProcessing
+                    await context.SendLocal(new SuccessfulProcessing
                     {
                         SagaId = Data.Id,
                         Type = nameof(StartMessageTwo)
                     });
-                    CheckForCompletion();
+                    CheckForCompletion(context);
                 }
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<ConcurrentlyStartedSagaData> mapper)
@@ -108,7 +88,7 @@
                     mapper.ConfigureMapping<StartMessageTwo>(msg => msg.SomeId).ToSaga(saga => saga.OrderId);
                 }
 
-                void CheckForCompletion()
+                void CheckForCompletion(IMessageHandlerContext context)
                 {
                     if (!Data.Billed || !Data.Placed)
                     {
@@ -121,7 +101,6 @@
 
             class ConcurrentlyStartedSagaData : ContainSagaData
             {
-                [Unique]
                 public virtual string OrderId { get; set; }
                 public virtual bool Placed { get; set; }
                 public virtual bool Billed { get; set; }
@@ -132,7 +111,7 @@
             {
                 public Context Context { get; set; }
 
-                public void Handle(SuccessfulProcessing message)
+                public Task Handle(SuccessfulProcessing message, IMessageHandlerContext context)
                 {
                     if (message.Type == nameof(StartMessageOne))
                     {
@@ -146,23 +125,22 @@
                     {
                         throw new Exception("Unknown type");
                     }
+
+                    return Task.FromResult(0);
                 }
             }
         }
 
-        [Serializable]
         class StartMessageOne : ICommand
         {
             public string SomeId { get; set; }
         }
 
-        [Serializable]
         class StartMessageTwo : ICommand
         {
             public string SomeId { get; set; }
         }
 
-        [Serializable]
         class SuccessfulProcessing : ICommand
         {
             public string Type { get; set; }

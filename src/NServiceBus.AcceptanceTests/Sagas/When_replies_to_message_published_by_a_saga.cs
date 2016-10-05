@@ -1,30 +1,29 @@
 ﻿namespace NServiceBus.AcceptanceTests.Sagas
 {
     using System;
-    using EndpointTemplates;
+    using System.Threading.Tasks;
     using AcceptanceTesting;
+    using EndpointTemplates;
     using Features;
-    using NServiceBus.Config;
     using NUnit.Framework;
-    using PubSub;
-    using Saga;
+    using Routing;
     using ScenarioDescriptors;
 
     public class When_replies_to_message_published_by_a_saga : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Should_reply_to_a_message_published_by_a_saga()
+        public async Task Should_reply_to_a_message_published_by_a_saga()
         {
-            Scenario.Define<Context>()
+            await Scenario.Define<Context>()
                 .WithEndpoint<SagaEndpoint>
-                (b => b.When(c => c.Subscribed, bus => bus.SendLocal(new StartSaga
+                (b => b.When(c => c.Subscribed, session => session.SendLocal(new StartSaga
                 {
                     DataId = Guid.NewGuid()
                 }))
                 )
-                .WithEndpoint<ReplyEndpoint>(b => b.Given((bus, context) =>
+                .WithEndpoint<ReplyEndpoint>(b => b.When(async (session, context) =>
                 {
-                    bus.Subscribe<DidSomething>();
+                    await session.Subscribe<DidSomething>();
                     if (context.HasNativePubSubSupport)
                     {
                         context.Subscribed = true;
@@ -46,25 +45,21 @@
         {
             public ReplyEndpoint()
             {
-                EndpointSetup<DefaultServer>(b => b.DisableFeature<AutoSubscribe>())
-                    .AddMapping<DidSomething>(typeof(SagaEndpoint))
-                    .WithConfig<TransportConfig>(c =>
+                EndpointSetup<DefaultServer>(b =>
                     {
-                        c.MaxRetries = 0;
+                        b.DisableFeature<AutoSubscribe>();
                     })
-                    .WithConfig<SecondLevelRetriesConfig>(c =>
-                    {
-                        c.Enabled = false;
-                    });
+                    .AddMapping<DidSomething>(typeof(SagaEndpoint));
             }
 
             class DidSomethingHandler : IHandleMessages<DidSomething>
             {
-                public IBus Bus { get; set; }
-
-                public void Handle(DidSomething message)
+                public Task Handle(DidSomething message, IMessageHandlerContext context)
                 {
-                    Bus.Reply(new DidSomethingResponse { DataId = message.DataId });
+                    return context.Reply(new DidSomethingResponse
+                    {
+                        ReceivedDataId = message.DataId
+                    });
                 }
             }
         }
@@ -73,56 +68,58 @@
         {
             public SagaEndpoint()
             {
-                EndpointSetup<DefaultPublisher>(b => b.OnEndpointSubscribed<Context>((s, context) =>
+                EndpointSetup<DefaultPublisher>(b =>
                 {
-                    context.Subscribed = true;
-                }));
+                    b.EnableFeature<TimeoutManager>();
+                    b.OnEndpointSubscribed<Context>((s, context) => { context.Subscribed = true; });
+                });
             }
 
-            public class Saga2 : Saga<Saga2.MySaga2Data>, IAmStartedByMessages<StartSaga>, IHandleMessages<DidSomethingResponse>
+            public class ReplyToPubMsgSaga : Saga<ReplyToPubMsgSaga.ReplyToPubMsgSagaData>, IAmStartedByMessages<StartSaga>, IHandleMessages<DidSomethingResponse>
             {
                 public Context Context { get; set; }
 
-                public void Handle(StartSaga message)
+                public Task Handle(StartSaga message, IMessageHandlerContext context)
                 {
                     Data.DataId = message.DataId;
-                    Bus.Publish(new DidSomething { DataId = message.DataId });
+                    return context.Publish(new DidSomething
+                    {
+                        DataId = message.DataId
+                    });
                 }
 
-                public void Handle(DidSomethingResponse message)
+                public Task Handle(DidSomethingResponse message, IMessageHandlerContext context)
                 {
-                    Context.DidSagaReplyMessageGetCorrelated = message.DataId == Data.DataId;
+                    Context.DidSagaReplyMessageGetCorrelated = message.ReceivedDataId == Data.DataId;
                     MarkAsComplete();
-                }
-                
-                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MySaga2Data> mapper)
-                {
+                    return Task.FromResult(0);
                 }
 
-                public class MySaga2Data : ContainSagaData
+                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<ReplyToPubMsgSagaData> mapper)
                 {
-                    [Unique]
+                    mapper.ConfigureMapping<StartSaga>(m => m.DataId).ToSaga(s => s.DataId);
+                }
+
+                public class ReplyToPubMsgSagaData : ContainSagaData
+                {
                     public virtual Guid DataId { get; set; }
                 }
             }
         }
-        
-        [Serializable]
+
         public class StartSaga : ICommand
         {
             public Guid DataId { get; set; }
         }
 
-        [Serializable]
         public class DidSomething : IEvent
         {
             public Guid DataId { get; set; }
         }
 
-        [Serializable]
         public class DidSomethingResponse : IMessage
         {
-            public Guid DataId { get; set; }
+            public Guid ReceivedDataId { get; set; }
         }
     }
 }

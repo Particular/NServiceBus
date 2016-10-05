@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.Utils
+﻿namespace NServiceBus
 {
     using System;
     using Logging;
@@ -6,17 +6,15 @@
 
     static class RegistryReader
     {
-        static ILog Logger = LogManager.GetLogger(typeof(RegistryReader));
-
         public static string Read(string name, string defaultValue = null)
         {
             try
-            {              
+            {
                 return ReadRegistryKeyValue(name, defaultValue);
             }
             catch (Exception ex)
             {
-                Logger.Warn(string.Format(@"We couldn't read the registry to retrieve the {0}, from 'HKEY_LOCAL_MACHINE\SOFTWARE\ParticularSoftware\ServiceBus'.", name), ex);
+                Logger.Warn($@"Could not read the registry to retrieve the {name}, from 'HKEY_LOCAL_MACHINE\SOFTWARE\ParticularSoftware\ServiceBus'.", ex);
             }
 
             return defaultValue;
@@ -42,5 +40,7 @@
                 return (string) key.GetValue(keyName, defaultValue);
             }
         }
+
+        static ILog Logger = LogManager.GetLogger(typeof(RegistryReader));
     }
 }

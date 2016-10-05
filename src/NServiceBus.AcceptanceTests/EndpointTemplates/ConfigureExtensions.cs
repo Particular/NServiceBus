@@ -1,91 +1,39 @@
 ﻿namespace NServiceBus.AcceptanceTests.EndpointTemplates
 {
     using System;
-    using System.Collections.Generic;
+    using System.Threading.Tasks;
+    using AcceptanceTesting.Support;
+    using ObjectBuilder;
     using ScenarioDescriptors;
 
     public static class ConfigureExtensions
     {
-        public static string GetOrNull(this IDictionary<string, string> dictionary, string key)
+        public static Task DefineTransport(this EndpointConfiguration config, RunSettings settings, string endpointName)
         {
-            if (!dictionary.ContainsKey(key))
+            Type transportType;
+            if (!settings.TryGet("Transport", out transportType))
             {
-                return null;
+                settings.Merge(Transports.Default.Settings);
             }
 
-            return dictionary[key];
+            return ConfigureTestExecution(TestDependencyType.Transport, config, settings, endpointName);
         }
 
-        public static void DefineTransport(this BusConfiguration builder, IDictionary<string, string> settings, Type endpointBuilderType)
+        public static Task DefinePersistence(this EndpointConfiguration config, RunSettings settings, string endpointName)
         {
-            if (!settings.ContainsKey("Transport"))
+            Type persistenceType;
+            if (!settings.TryGet("Persistence", out persistenceType))
             {
-                settings = Transports.Default.Settings;
+                settings.Merge(Persistence.Default.Settings);
             }
 
-            const string typeName = "ConfigureTransport";
-
-            var transportType = Type.GetType(settings["Transport"]);
-            var transportTypeName = "Configure" + transportType.Name;
-
-            var configurerType = endpointBuilderType.GetNestedType(typeName) ??
-                                 Type.GetType(transportTypeName, false);
-
-            if (configurerType != null)
-            {
-                var configurer = Activator.CreateInstance(configurerType);
-
-                dynamic dc = configurer;
-
-                dc.Configure(builder);
-                return;
-            }
-
-            builder.UseTransport(transportType).ConnectionString(settings["Transport.ConnectionString"]);
+            return ConfigureTestExecution(TestDependencyType.Persistence, config, settings, endpointName);
         }
 
-        public static void DefineTransactions(this BusConfiguration config, IDictionary<string, string> settings)
+        public static void DefineBuilder(this EndpointConfiguration config, RunSettings settings)
         {
-            if (settings.ContainsKey("Transactions.Disable"))
-            {
-                config.Transactions().Disable();
-            }
-            if (settings.ContainsKey("Transactions.SuppressDistributedTransactions"))
-            {
-                config.Transactions().DisableDistributedTransactions();
-            }
-        }
-
-        public static void DefinePersistence(this BusConfiguration config, IDictionary<string, string> settings)
-        {
-            if (!settings.ContainsKey("Persistence"))
-            {
-                settings = Persistence.Default.Settings;
-            }
-
-            var persistenceType = Type.GetType(settings["Persistence"]);
-
-
-            var typeName = "Configure" + persistenceType.Name;
-
-            var configurerType = Type.GetType(typeName, false);
-
-            if (configurerType != null)
-            {
-                var configurer = Activator.CreateInstance(configurerType);
-
-                dynamic dc = configurer;
-
-                dc.Configure(config);
-                return;
-            }
-
-            config.UsePersistence(persistenceType);
-        }
-
-        public static void DefineBuilder(this BusConfiguration config, IDictionary<string, string> settings)
-        {
-            if (!settings.ContainsKey("Builder"))
+            Type builderType;
+            if (!settings.TryGet("Builder", out builderType))
             {
                 var builderDescriptor = Builders.Default;
 
@@ -94,11 +42,10 @@
                     return; //go with the default builder
                 }
 
-                settings = builderDescriptor.Settings;
+                settings.Merge(builderDescriptor.Settings);
             }
 
-            var builderType = Type.GetType(settings["Builder"]);
-
+            builderType = settings.Get<Type>("Builder");
 
             var typeName = "Configure" + builderType.Name;
 
@@ -114,6 +61,61 @@
             }
 
             config.UseContainer(builderType);
+        }
+
+        public static void RegisterComponentsAndInheritanceHierarchy(this EndpointConfiguration builder, RunDescriptor runDescriptor)
+        {
+            builder.RegisterComponents(r => { RegisterInheritanceHierarchyOfContextOnContainer(runDescriptor, r); });
+        }
+
+        static async Task ConfigureTestExecution(TestDependencyType type, EndpointConfiguration config, RunSettings settings, string endpointName)
+        {
+            var dependencyTypeString = type.ToString();
+
+            var dependencyType = settings.Get<Type>(dependencyTypeString);
+
+            var typeName = "ConfigureEndpoint" + dependencyType.Name;
+
+            var configurerType = Type.GetType(typeName, false);
+
+            if (configurerType == null)
+            {
+                throw new InvalidOperationException($"Acceptance Test project must include a non-namespaced class named '{typeName}' implementing {typeof(IConfigureEndpointTestExecution).Name}. See {typeof(ConfigureEndpointMsmqTransport).FullName} for an example.");
+            }
+
+            var configurer = Activator.CreateInstance(configurerType) as IConfigureEndpointTestExecution;
+
+            if (configurer == null)
+            {
+                throw new InvalidOperationException($"{typeName} does not implement {typeof(IConfigureEndpointTestExecution).Name}.");
+            }
+
+            await configurer.Configure(endpointName, config, settings).ConfigureAwait(false);
+
+            ActiveTestExecutionConfigurer cleaners;
+            var cleanerKey = "ConfigureTestExecution." + endpointName;
+            if (!settings.TryGet(cleanerKey, out cleaners))
+            {
+                cleaners = new ActiveTestExecutionConfigurer();
+                settings.Set(cleanerKey, cleaners);
+            }
+            cleaners.Add(configurer);
+        }
+
+        static void RegisterInheritanceHierarchyOfContextOnContainer(RunDescriptor runDescriptor, IConfigureComponents r)
+        {
+            var type = runDescriptor.ScenarioContext.GetType();
+            while (type != typeof(object))
+            {
+                r.RegisterSingleton(type, runDescriptor.ScenarioContext);
+                type = type.BaseType;
+            }
+        }
+
+        enum TestDependencyType
+        {
+            Transport,
+            Persistence
         }
     }
 }

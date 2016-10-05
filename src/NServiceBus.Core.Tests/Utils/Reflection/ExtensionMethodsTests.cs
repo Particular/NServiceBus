@@ -4,7 +4,6 @@
     using System.Collections.Generic;
     using System.Reflection;
     using System.Reflection.Emit;
-    using NServiceBus.Utils.Reflection;
     using NUnit.Framework;
 
     [TestFixture]
@@ -45,7 +44,7 @@
         [Test]
         public void Should_return_true_for_particular_assembly()
         {
-            Assert.IsTrue(typeof(ExecuteLogicalMessagesBehavior).IsFromParticularAssembly());
+            Assert.IsTrue(typeof(TransportReceiveToPhysicalMessageProcessingConnector).IsFromParticularAssembly());
         }
 
         [Test]

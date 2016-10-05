@@ -7,8 +7,7 @@ using NUnit.Framework;
 [SetUpFixture]
 public class RedirectHelper
 {
-
-    [SetUp]
+    [OneTimeSetUp]
     public void Initialize()
     {
         AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;

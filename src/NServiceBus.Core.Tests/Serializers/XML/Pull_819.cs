@@ -15,7 +15,7 @@
             var result = ExecuteSerializer.ForMessage<MessageWithXmlIgnore>(m3 =>
             {
                 m3.FirstName = "John";
-                m3.LastName = "Simons";
+                m3.LastName = "Smith";
                 m3.List = new ArrayList();
                 m3.GenericList = new List<string>();
             });

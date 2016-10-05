@@ -1,50 +1,47 @@
 namespace NServiceBus
 {
-    using System;
     using System.IO;
-    using Licensing;
+    using Features;
     using Logging;
 
     /// <summary>
     /// Contains extension methods to configure license.
     /// </summary>
-    public static partial class ConfigureLicenseExtensions
+    public static class ConfigureLicenseExtensions
     {
-        static ILog Logger = LogManager.GetLogger(typeof(LicenseManager));
-
         /// <summary>
         /// Allows user to specify the license string.
         /// </summary>
-        /// <param name="config">The current <see cref="BusConfiguration"/>.</param>
+        /// <param name="config">The <see cref="EndpointConfiguration" /> instance to apply the settings to.</param>
         /// <param name="licenseText">The license text.</param>
-// ReSharper disable UnusedParameter.Global
-        public static void License(this BusConfiguration config, string licenseText)
-// ReSharper restore UnusedParameter.Global
+        public static void License(this EndpointConfiguration config, string licenseText)
         {
-            if (string.IsNullOrWhiteSpace(licenseText))
-            {
-                throw new ArgumentException("licenseText is required", "licenseText");
-            }
-            Logger.Info(@"Using license supplied via fluent API.");
-            LicenseManager.InitializeLicenseText(licenseText);
+            Guard.AgainstNullAndEmpty(nameof(licenseText), licenseText);
+            Guard.AgainstNull(nameof(config), config);
+            Logger.Info("Using license supplied via fluent API.");
+            config.Settings.Set(LicenseReminder.LicenseTextSettingsKey, licenseText);
         }
 
 
         /// <summary>
         /// Allows user to specify the path for the license file.
         /// </summary>
-        /// <param name="config">The current <see cref="BusConfiguration"/>.</param>
+        /// <param name="config">The <see cref="EndpointConfiguration" /> instance to apply the settings to.</param>
         /// <param name="licenseFile">A relative or absolute path to the license file.</param>
-        public static void LicensePath(this BusConfiguration config, string licenseFile)
+        public static void LicensePath(this EndpointConfiguration config, string licenseFile)
         {
+            Guard.AgainstNull(nameof(config), config);
+            Guard.AgainstNullAndEmpty(nameof(licenseFile), licenseFile);
             if (!File.Exists(licenseFile))
             {
                 throw new FileNotFoundException("License file not found", licenseFile);
             }
 
             var licenseText = NonLockingFileReader.ReadAllTextWithoutLocking(licenseFile);
-            
+
             config.License(licenseText);
         }
+
+        static ILog Logger = LogManager.GetLogger(typeof(LicenseManager));
     }
 }

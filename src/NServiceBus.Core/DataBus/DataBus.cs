@@ -1,24 +1,18 @@
 namespace NServiceBus.Features
 {
     using System;
-    using System.Linq;
+    using System.Threading.Tasks;
     using NServiceBus.DataBus;
-    using NServiceBus.Settings;
+    using Settings;
 
     /// <summary>
-    /// Used to configure the databus. 
+    /// Used to configure the databus.
     /// </summary>
     public class DataBus : Feature
     {
         internal DataBus()
         {
-            EnableByDefault();
-
-            Prerequisite(DataBusPropertiesFound, "No databus properties was found in available messages");
-
             Defaults(s => s.EnableFeatureByDefault(GetSelectedFeatureForDataBus(s)));
-
-            RegisterStartupTask<IDataBusInitializer>();
         }
 
         static Type GetSelectedFeatureForDataBus(SettingsHolder settings)
@@ -33,18 +27,8 @@ namespace NServiceBus.Features
             return dataBusDefinition.ProvidedByFeature();
         }
 
-        class IDataBusInitializer : FeatureStartupTask
-        {
-            public IDataBus DataBus { get; set; }
-
-            protected override void OnStart()
-            {
-                DataBus.Start();
-            }
-        }
-
         /// <summary>
-        ///     Called when the features is activated
+        /// Called when the features is activated.
         /// </summary>
         protected internal override void Setup(FeatureConfigurationContext context)
         {
@@ -53,46 +37,27 @@ namespace NServiceBus.Features
                 context.Container.ConfigureComponent<DefaultDataBusSerializer>(DependencyLifecycle.SingleInstance);
             }
 
-            context.Pipeline.Register<DataBusReceiveBehavior.Registration>();
-            context.Pipeline.Register<DataBusSendBehavior.Registration>();
+            context.RegisterStartupTask(b => b.Build<IDataBusInitializer>());
+            context.Container.ConfigureComponent<IDataBusInitializer>(DependencyLifecycle.SingleInstance);
+
+            var conventions = context.Settings.Get<Conventions>();
+            context.Pipeline.Register(new DataBusReceiveBehavior.Registration(conventions));
+            context.Pipeline.Register(new DataBusSendBehavior.Registration(conventions));
         }
 
-        static bool DataBusPropertiesFound(FeatureConfigurationContext context)
+        class IDataBusInitializer : FeatureStartupTask
         {
-            var dataBusPropertyFound = false;
-            var conventions = context.Settings.Get<Conventions>();
+            public IDataBus DataBus { get; set; }
 
-            if (!context.Container.HasComponent<IDataBusSerializer>() && System.Diagnostics.Debugger.IsAttached)
+            protected override Task OnStart(IMessageSession session)
             {
-                var properties = context.Settings.GetAvailableTypes()
-                    .Where(conventions.IsMessageType)
-                    .SelectMany(messageType => messageType.GetProperties())
-                    .Where(conventions.IsDataBusProperty);
-
-                foreach (var property in properties)
-                {
-                    dataBusPropertyFound = true;
-
-                    if (!property.PropertyType.IsSerializable)
-                    {
-                        throw new InvalidOperationException(
-                            String.Format(
-                                @"The property type for '{0}' is not serializable. 
-In order to use the databus feature for transporting the data stored in the property types defined in the call '.DefiningDataBusPropertiesAs()', need to be serializable. 
-To fix this, please mark the property type '{0}' as serializable, see http://msdn.microsoft.com/en-us/library/system.runtime.serialization.iserializable.aspx on how to do this.",
-                                String.Format("{0}.{1}", property.DeclaringType.FullName, property.Name)));
-                    }
-                }
-            }
-            else
-            {
-                dataBusPropertyFound = context.Settings.GetAvailableTypes()
-                    .Where(conventions.IsMessageType)
-                    .SelectMany(messageType => messageType.GetProperties())
-                    .Any(conventions.IsDataBusProperty);
+                return DataBus.Start();
             }
 
-            return dataBusPropertyFound;
+            protected override Task OnStop(IMessageSession session)
+            {
+                return TaskEx.CompletedTask;
+            }
         }
     }
 }

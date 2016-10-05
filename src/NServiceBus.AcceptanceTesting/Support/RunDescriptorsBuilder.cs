@@ -8,7 +8,7 @@
     {
         IList<RunDescriptor> descriptors = new List<RunDescriptor>();
 
-        readonly List<string> excludes = new List<string>();
+        List<string> excludes = new List<string>();
         public RunDescriptorsBuilder For<T>(params RunDescriptor[] runDescriptorsToExclude) where T : ScenarioDescriptor, new()
         {
             excludes.AddRange(runDescriptorsToExclude
@@ -48,13 +48,12 @@
                 }
             }
 
-
             descriptors = result;
 
             return this;
         }
 
-        public IList<RunDescriptor> Build()
+        public List<RunDescriptor> Build()
         {
             //if we have found a empty permutation this means that we shouldn't run any permutations. This happens when a test is specified to run for a given key
             // but that key is not available. Eg running tests for sql server but the sql transport isn't available

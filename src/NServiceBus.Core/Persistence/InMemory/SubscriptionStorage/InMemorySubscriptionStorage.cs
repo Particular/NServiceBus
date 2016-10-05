@@ -1,59 +1,48 @@
-namespace NServiceBus.InMemory.SubscriptionStorage
+namespace NServiceBus
 {
     using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
-    using NServiceBus.Unicast.Subscriptions;
-    using NServiceBus.Unicast.Subscriptions.MessageDrivenSubscriptions;
+    using System.Threading.Tasks;
+    using Extensibility;
+    using Unicast.Subscriptions;
+    using Unicast.Subscriptions.MessageDrivenSubscriptions;
 
-    /// <summary>
-    ///     In memory implementation of the subscription storage
-    /// </summary>
     class InMemorySubscriptionStorage : ISubscriptionStorage
     {
-        void ISubscriptionStorage.Subscribe(Address address, IEnumerable<MessageType> messageTypes)
+        public Task Subscribe(Subscriber subscriber, MessageType messageType, ContextBag context)
         {
-            foreach (var m in messageTypes)
-            {
-                var dict = storage.GetOrAdd(m, type => new ConcurrentDictionary<Address, object>());
+            var dict = storage.GetOrAdd(messageType, type => new ConcurrentDictionary<string, Subscriber>(StringComparer.OrdinalIgnoreCase));
 
-                dict.AddOrUpdate(address, addValueFactory, updateValueFactory);
-            }
+            dict.AddOrUpdate(subscriber.TransportAddress, _ => subscriber, (_, __) => subscriber);
+            return TaskEx.CompletedTask;
         }
 
-        void ISubscriptionStorage.Unsubscribe(Address address, IEnumerable<MessageType> messageTypes)
+        public Task Unsubscribe(Subscriber subscriber, MessageType messageType, ContextBag context)
         {
-            foreach (var m in messageTypes)
+            ConcurrentDictionary<string, Subscriber> dict;
+            if (storage.TryGetValue(messageType, out dict))
             {
-                ConcurrentDictionary<Address, object> dict;
-                if (storage.TryGetValue(m, out dict))
-                {
-                    object _;
-                    dict.TryRemove(address, out _);
-                }
+                Subscriber _;
+                dict.TryRemove(subscriber.TransportAddress, out _);
             }
+            return TaskEx.CompletedTask;
         }
 
-        IEnumerable<Address> ISubscriptionStorage.GetSubscriberAddressesForMessage(IEnumerable<MessageType> messageTypes)
+        public Task<IEnumerable<Subscriber>> GetSubscriberAddressesForMessage(IEnumerable<MessageType> messageTypes, ContextBag context)
         {
-            var result = new HashSet<Address>();
+            var result = new HashSet<Subscriber>();
             foreach (var m in messageTypes)
             {
-                ConcurrentDictionary<Address, object> list;
+                ConcurrentDictionary<string, Subscriber> list;
                 if (storage.TryGetValue(m, out list))
                 {
-                    result.UnionWith(list.Keys);
+                    result.UnionWith(list.Values);
                 }
             }
-            return result;
+            return Task.FromResult((IEnumerable<Subscriber>) result);
         }
 
-        public void Init()
-        {
-        }
-
-        readonly ConcurrentDictionary<MessageType, ConcurrentDictionary<Address, object>> storage = new ConcurrentDictionary<MessageType, ConcurrentDictionary<Address, object>>();
-        Func<Address, object> addValueFactory = a => null;
-        Func<Address, object, object> updateValueFactory = (a, o) => null;
+        ConcurrentDictionary<MessageType, ConcurrentDictionary<string, Subscriber>> storage = new ConcurrentDictionary<MessageType, ConcurrentDictionary<string, Subscriber>>();
     }
 }

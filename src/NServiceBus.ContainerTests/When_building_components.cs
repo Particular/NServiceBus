@@ -1,7 +1,7 @@
 namespace NServiceBus.ContainerTests
 {
     using NServiceBus;
-    using NServiceBus.ObjectBuilder.Common;
+    using ObjectBuilder.Common;
     using NUnit.Framework;
 
     [TestFixture]
@@ -28,25 +28,31 @@ namespace NServiceBus.ContainerTests
         }
 
         [Test]
-        public void UoW_components_should_resolve_from_main_container()
+        public void UoW_components_should_yield_the_same_instance()
         {
             using (var builder = TestContainerBuilder.ConstructBuilder())
             {
                 InitializeBuilder(builder);
-                Assert.NotNull(builder.Build(typeof(InstancePerUoWComponent)));
+
+                var instance1 = builder.Build(typeof(InstancePerUoWComponent));
+                var instance2 = builder.Build(typeof(InstancePerUoWComponent));
+
+                Assert.AreSame(instance1, instance2);
             }
-            //Not supported by typeof(WindsorObjectBuilder));
         }
 
         [Test]
-        public void Lambda_uow_components_should_resolve_from_main_container()
+        public void Lambda_uow_components_should_yield_the_same_instance()
         {
             using (var builder = TestContainerBuilder.ConstructBuilder())
             {
                 InitializeBuilder(builder);
-                Assert.NotNull(builder.Build(typeof(LambdaComponentUoW)));
+
+                var instance1 = builder.Build(typeof(LambdaComponentUoW));
+                var instance2 = builder.Build(typeof(LambdaComponentUoW));
+
+                Assert.AreSame(instance1, instance2);
             }
-            //Not supported by typeof(WindsorObjectBuilder));
         }
 
         [Test]
@@ -128,6 +134,16 @@ namespace NServiceBus.ContainerTests
         {
         }
 
+        public interface ISingletonComponentWithPropertyDependency
+        {
+             
+        }
+
+        public class SingletonComponentWithPropertyDependency : ISingletonComponentWithPropertyDependency
+        {
+            public SingletonComponent Dependency { get; set; }
+        }
+
         public class SinglecallComponent
         {
         }
@@ -169,7 +185,7 @@ namespace NServiceBus.ContainerTests
             ConstructorDependency = constructorDependency;
         }
 
-        public ConstructorDependency ConstructorDependency { get; private set; }
+        public ConstructorDependency ConstructorDependency { get; }
 
         public SetterDependency SetterDependency { get; set; }
     }

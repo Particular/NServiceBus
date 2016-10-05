@@ -1,31 +1,29 @@
 namespace NServiceBus.Core.Tests.DataBus
 {
-    using System;
-    using System.Collections.Generic;
     using System.IO;
     using System.Runtime.Serialization.Formatters.Binary;
-    using NServiceBus.Pipeline.Contexts;
+    using System.Threading.Tasks;
+    using NServiceBus.Pipeline;
     using NUnit.Framework;
-    using Unicast;
-    using Unicast.Messages;
+    using Testing;
 
     [TestFixture]
-    class When_applying_the_databus_message_mutator_to_null_properties : on_the_bus
+    class When_applying_the_databus_message_mutator_to_null_properties
     {
         [Test]
-        public void Should_not_blow_up()
+        public async Task Should_not_blow_up()
         {
-            var metadata = new MessageMetadata(timeToBeReceived: TimeSpan.FromDays(1));
-            var message = new LogicalMessage(metadata, new MessageWithNullDataBusProperty(), new Dictionary<string, string>(), null);
-            var context = new OutgoingContext(null,new SendOptions(Address.Parse("MyEndpoint")), message);
+            var context = new TestableOutgoingLogicalMessageContext();
+            context.Message = new OutgoingLogicalMessage(typeof(MessageWithNullDataBusProperty), new MessageWithNullDataBusProperty());
 
-            
+            var sendBehavior = new DataBusSendBehavior(null, new DefaultDataBusSerializer(), new Conventions());
+
             using (var stream = new MemoryStream())
             {
                 new BinaryFormatter().Serialize(stream, "test");
                 stream.Position = 0;
 
-                sendBehavior.Invoke(context, () => { });            
+                await sendBehavior.Invoke(context, ctx => TaskEx.CompletedTask);
             }
         }
 

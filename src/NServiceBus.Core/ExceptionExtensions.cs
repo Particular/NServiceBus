@@ -12,7 +12,7 @@ namespace NServiceBus
             }
             catch (Exception)
             {
-                return string.Format("Could not read Message from exception type '{0}'.", exception.GetType());
+                return $"Could not read Message from exception type '{exception.GetType()}'.";
             }
         }
     }

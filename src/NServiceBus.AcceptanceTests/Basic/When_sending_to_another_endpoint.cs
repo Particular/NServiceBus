@@ -2,39 +2,37 @@
 {
     using System;
     using System.Collections.Generic;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
+    using System.Threading.Tasks;
+    using AcceptanceTesting;
+    using EndpointTemplates;
     using NUnit.Framework;
 
     public class When_sending_to_another_endpoint : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Should_receive_the_message()
+        public async Task Should_receive_the_message()
         {
-            var context = new Context
-            {
-                Id = Guid.NewGuid()
-            };
+            var context = await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
+                .WithEndpoint<Sender>(b => b.When((session, c) =>
+                {
+                    var sendOptions = new SendOptions();
 
-            Scenario.Define(context)
-                    .WithEndpoint<Sender>(b => b.Given((bus, c) =>
+                    sendOptions.SetHeader("MyHeader", "MyHeaderValue");
+                    sendOptions.SetMessageId("MyMessageId");
+
+                    return session.Send(new MyMessage
                     {
-                        bus.OutgoingHeaders["MyStaticHeader"] = "StaticHeaderValue";
-                        bus.Send<MyMessage>(m=>
-                        {
-                            m.Id = c.Id;
-                            bus.SetMessageHeader(m, "MyHeader", "MyHeaderValue");
-                        });
-                    }))
-                    .WithEndpoint<Receiver>()
-                    .Done(c => c.WasCalled)
-                    .Run();
+                        Id = c.Id
+                    }, sendOptions);
+                }))
+                .WithEndpoint<Receiver>()
+                .Done(c => c.WasCalled)
+                .Run();
 
             Assert.True(context.WasCalled, "The message handler should be called");
             Assert.AreEqual(1, context.TimesCalled, "The message handler should only be invoked once");
             Assert.AreEqual("StaticHeaderValue", context.ReceivedHeaders["MyStaticHeader"], "Static headers should be attached to outgoing messages");
             Assert.AreEqual("MyHeaderValue", context.MyHeader, "Static headers should be attached to outgoing messages");
-                       
         }
 
         public class Context : ScenarioContext
@@ -43,7 +41,7 @@
 
             public int TimesCalled { get; set; }
 
-            public IDictionary<string, string> ReceivedHeaders { get; set; }
+            public IReadOnlyDictionary<string, string> ReceivedHeaders { get; set; }
 
             public Guid Id { get; set; }
 
@@ -54,8 +52,7 @@
         {
             public Sender()
             {
-                EndpointSetup<DefaultServer>()
-                    .AddMapping<MyMessage>(typeof(Receiver));
+                EndpointSetup<DefaultServer>(c => { c.AddHeaderToAllOutgoingMessages("MyStaticHeader", "StaticHeaderValue"); }).AddMapping<MyMessage>(typeof(Receiver));
             }
         }
 
@@ -68,22 +65,26 @@
 
             public class MyMessageHandler : IHandleMessages<MyMessage>
             {
-                public Context Context { get; set; }
+                public Context TestContext { get; set; }
 
-                public IBus Bus { get; set; }
-
-                public void Handle(MyMessage message)
+                public Task Handle(MyMessage message, IMessageHandlerContext context)
                 {
-                    if (Context.Id != message.Id)
-                        return;
+                    if (TestContext.Id != message.Id)
+                    {
+                        return Task.FromResult(0);
+                    }
 
-                    Context.TimesCalled++;
+                    Assert.AreEqual(context.MessageId, "MyMessageId");
 
-                    Context.MyHeader = Bus.GetMessageHeader(message, "MyHeader");
+                    TestContext.TimesCalled++;
 
-                    Context.ReceivedHeaders = Bus.CurrentMessageContext.Headers;
+                    TestContext.MyHeader = context.MessageHeaders["MyHeader"];
 
-                    Context.WasCalled = true;
+                    TestContext.ReceivedHeaders = context.MessageHeaders;
+
+                    TestContext.WasCalled = true;
+
+                    return Task.FromResult(0);
                 }
             }
         }

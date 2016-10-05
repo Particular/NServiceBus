@@ -2,7 +2,8 @@ namespace NServiceBus.Core.Tests.Timeout
 {
     using System;
     using System.Linq;
-    using NServiceBus.InMemory.TimeoutPersister;
+    using System.Threading.Tasks;
+    using Extensibility;
     using NServiceBus.Timeout.Core;
     using NUnit.Framework;
 
@@ -10,103 +11,142 @@ namespace NServiceBus.Core.Tests.Timeout
     public class InMemoryTimeoutPersisterTests
     {
         [Test]
-        public void When_empty_NextTimeToRunQuery_is_1_minute()
+        public async Task When_empty_NextTimeToRunQuery_is_1_minute()
         {
-            DateTime nextTimeToRunQuery;
             var now = DateTime.UtcNow;
-            new InMemoryTimeoutPersister().GetNextChunk(now, out nextTimeToRunQuery);
-            Assert.That(nextTimeToRunQuery, Is.EqualTo(now.AddMinutes(1)).Within(100).Milliseconds);
+            var persister = new InMemoryTimeoutPersister(() => DateTime.UtcNow);
+            var result = await persister.GetNextChunk(now);
+            Assert.That(result.NextTimeToQuery, Is.EqualTo(now.AddMinutes(1)).Within(100).Milliseconds);
         }
 
         [Test]
-        public void When_multiple_NextTimeToRunQuery_is_min_date()
+        public async Task When_multiple_NextTimeToRunQuery_is_min_date()
         {
-            DateTime nextTimeToRunQuery;
             var now = DateTime.UtcNow;
-            var persister = new InMemoryTimeoutPersister();
-            persister.Add(new TimeoutData
+            var persister = new InMemoryTimeoutPersister(() => DateTime.UtcNow);
+            await persister.Add(new TimeoutData
                           {
                               Time = DateTime.Now.AddDays(2)
-                          });
+                          }, new ContextBag());
             var expectedDate = DateTime.Now.AddDays(1);
-            persister.Add(new TimeoutData
+            await persister.Add(new TimeoutData
                           {
                               Time = expectedDate
-                          });
-            persister.GetNextChunk(now, out nextTimeToRunQuery);
-            Assert.AreEqual(expectedDate, nextTimeToRunQuery);
+                          }, new ContextBag());
+
+            var result = await persister.GetNextChunk(now);
+
+            Assert.AreEqual(expectedDate, result.NextTimeToQuery);
         }
 
         [Test]
-        public void When_multiple_future_are_returned()
+        public async Task When_multiple_future_are_returned()
         {
-            DateTime nextTime;
-            var persister = new InMemoryTimeoutPersister();
-            persister.Add(new TimeoutData
+            var persister = new InMemoryTimeoutPersister(() => DateTime.UtcNow);
+            await persister.Add(new TimeoutData
                           {
                               Time = DateTime.Now.AddDays(-2)
-                          });
-            persister.Add(new TimeoutData
+                          }, new ContextBag());
+            await persister.Add(new TimeoutData
                           {
                               Time = DateTime.Now.AddDays(-4)
-                          });
-            persister.Add(new TimeoutData
+                          }, new ContextBag());
+            await persister.Add(new TimeoutData
                           {
                               Time = DateTime.Now.AddDays(-1)
-                          });
-            var nextChunk = persister.GetNextChunk(DateTime.Now.AddDays(-3), out nextTime);
-            Assert.AreEqual(2, nextChunk.Count());
+                          }, new ContextBag());
+
+            var result = await persister.GetNextChunk(DateTime.Now.AddDays(-3));
+
+            Assert.AreEqual(2, result.DueTimeouts.Count());
         }
 
         [Test]
-        public void When_existing_is_removed_existing_is_outted()
+        public async Task TryRemove_when_existing_is_removed_should_return_true()
         {
-            var persister = new InMemoryTimeoutPersister();
+            var persister = new InMemoryTimeoutPersister(() => DateTime.UtcNow);
             var inputTimeout = new TimeoutData();
-            persister.Add(inputTimeout);
-            TimeoutData removedTimeout;
-            var removed = persister.TryRemove(inputTimeout.Id, out removedTimeout);
-            Assert.IsTrue(removed);
-            Assert.AreSame(inputTimeout, removedTimeout);
+            await persister.Add(inputTimeout, new ContextBag());
+
+            var result = await persister.TryRemove(inputTimeout.Id, new ContextBag());
+
+            Assert.IsTrue(result);
         }
 
         [Test]
-        public void When_existing_is_removed_by_saga_id()
+        public async Task TryRemove_when_non_existing_is_removed_should_return_false()
         {
-            var persister = new InMemoryTimeoutPersister();
+            var persister = new InMemoryTimeoutPersister(() => DateTime.UtcNow);
+            var inputTimeout = new TimeoutData();
+            await persister.Add(inputTimeout, new ContextBag());
+
+            var result = await persister.TryRemove(Guid.NewGuid().ToString(), new ContextBag());
+
+            Assert.False(result);
+        }
+
+        [Test]
+        public async Task Peek_when_timeout_exists_should_return_timeout()
+        {
+            var persister = new InMemoryTimeoutPersister(() => DateTime.UtcNow);
+            var inputTimeout = new TimeoutData();
+            await persister.Add(inputTimeout, new ContextBag());
+
+            var result = await persister.Peek(inputTimeout.Id, new ContextBag());
+
+            Assert.AreSame(inputTimeout, result);
+        }
+
+        [Test]
+        public async Task Peek_when_timeout_does_not_exist_should_return_null()
+        {
+            var persister = new InMemoryTimeoutPersister(() => DateTime.UtcNow);
+            var inputTimeout = new TimeoutData();
+            await persister.Add(inputTimeout, new ContextBag());
+
+            var result = await persister.Peek(Guid.NewGuid().ToString(), new ContextBag());
+
+            Assert.IsNull(result);
+        }
+
+        [Test]
+        public async Task When_existing_is_removed_by_saga_id()
+        {
+            var persister = new InMemoryTimeoutPersister(() => DateTime.UtcNow);
             var newGuid = Guid.NewGuid();
             var inputTimeout = new TimeoutData
                                {
                                    SagaId = newGuid
                                };
-            persister.Add(inputTimeout);
 
-            persister.RemoveTimeoutBy(newGuid);
-            TimeoutData removedTimeout;
-            var removed = persister.TryRemove(inputTimeout.Id, out removedTimeout);
-            Assert.False(removed);
+            await persister.Add(inputTimeout, new ContextBag());
+            await persister.RemoveTimeoutBy(newGuid, new ContextBag());
+            var result = await persister.TryRemove(inputTimeout.Id, new ContextBag());
+
+            Assert.IsFalse(result);
         }
 
         [Test]
-        public void When_all_in_past_NextTimeToRunQuery_is_1_minute()
+        public async Task When_all_in_past_NextTimeToRunQuery_is_1_minute()
         {
-            DateTime nextTimeToRunQuery;
             var now = DateTime.UtcNow;
-            var persister = new InMemoryTimeoutPersister();
-            persister.Add(new TimeoutData
+            var persister = new InMemoryTimeoutPersister(() => DateTime.UtcNow);
+            await persister.Add(new TimeoutData
                           {
                               Time = DateTime.Now.AddDays(-1)
-                          });
-            persister.Add(new TimeoutData
+                          }, new ContextBag());
+            await persister.Add(new TimeoutData
                           {
                               Time = DateTime.Now.AddDays(-3)
-                          });
-            persister.Add(new TimeoutData
+                          }, new ContextBag());
+            await persister.Add(new TimeoutData
                           {
                               Time = DateTime.Now.AddDays(-2)
-                          });
-            persister.GetNextChunk(now, out nextTimeToRunQuery);
-            Assert.That(nextTimeToRunQuery, Is.EqualTo(now.AddMinutes(1)).Within(100).Milliseconds);
+                          }, new ContextBag());
+
+            var result = await persister.GetNextChunk(now);
+
+            Assert.That(result.NextTimeToQuery, Is.EqualTo(now.AddMinutes(1)).Within(100).Milliseconds);
         }
     }
 }

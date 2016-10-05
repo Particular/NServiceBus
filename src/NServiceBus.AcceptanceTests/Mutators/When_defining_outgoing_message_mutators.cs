@@ -1,26 +1,23 @@
 ﻿namespace NServiceBus.AcceptanceTests.Mutators
 {
     using System;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
-    using NServiceBus.MessageMutator;
-    using NServiceBus.Unicast.Messages;
+    using System.Threading.Tasks;
+    using AcceptanceTesting;
+    using EndpointTemplates;
+    using MessageMutator;
     using NUnit.Framework;
 
     public class When_defining_outgoing_message_mutators : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Should_be_applied_to_outgoing_messages()
+        public async Task Should_be_applied_to_outgoing_messages()
         {
-            var context = new Context();
-
-            Scenario.Define(context)
-                    .WithEndpoint<OutgoingMutatorEndpoint>(b => b.Given(bus => bus.SendLocal(new MessageToBeMutated())))
-                    .Done(c => c.MessageProcessed)
-                    .Run();
+            var context = await Scenario.Define<Context>()
+                .WithEndpoint<Endpoint>(b => b.When(session => session.SendLocal(new Message())))
+                .Done(c => c.MessageProcessed)
+                .Run();
 
             Assert.True(context.TransportMutatorCalled);
-            Assert.IsTrue(context.OutgoingMessageLogicalMessageReceived);
             Assert.True(context.MessageMutatorCalled);
         }
 
@@ -29,73 +26,73 @@
             public bool MessageProcessed { get; set; }
             public bool TransportMutatorCalled { get; set; }
             public bool MessageMutatorCalled { get; set; }
-            public bool OutgoingMessageLogicalMessageReceived { get; set; }
         }
 
-        public class OutgoingMutatorEndpoint : EndpointConfigurationBuilder
+        public class Endpoint : EndpointConfigurationBuilder
         {
-            public OutgoingMutatorEndpoint()
+            public Endpoint()
             {
-                EndpointSetup<DefaultServer>();
+                EndpointSetup<DefaultServer>(c => c.RegisterComponents(
+                    components =>
+                    {
+                        components.ConfigureComponent<TransportMutator>(DependencyLifecycle.InstancePerCall);
+                        components.ConfigureComponent<MessageMutator>(DependencyLifecycle.InstancePerCall);
+                    }));
             }
 
-
-            class MyTransportMessageMutator : IMutateOutgoingTransportMessages, INeedInitialization
+            class TransportMutator :
+                IMutateOutgoingTransportMessages
             {
-
-                public Context Context { get; set; }
-
-                public void MutateOutgoing(LogicalMessage logicalMessage, TransportMessage transportMessage)
+                public TransportMutator(Context testContext)
                 {
-                    Context.OutgoingMessageLogicalMessageReceived = logicalMessage != null;
-                    transportMessage.Headers["TransportMutatorCalled"] = true.ToString();
+                    this.testContext = testContext;
                 }
 
-                public void Customize(BusConfiguration configuration)
+                public Task MutateOutgoing(MutateOutgoingTransportMessageContext context)
                 {
-                    configuration.RegisterComponents(c => c.ConfigureComponent<MyTransportMessageMutator>(DependencyLifecycle.InstancePerCall));
+                    testContext.TransportMutatorCalled = true;
+                    return Task.FromResult(0);
                 }
+
+                Context testContext;
             }
 
-            class MyMessageMutator : IMutateOutgoingMessages, INeedInitialization
+            class MessageMutator : IMutateOutgoingMessages
             {
-                public IBus Bus { get; set; }
-             
-                public object MutateOutgoing(object message)
+                public MessageMutator(Context testContext)
                 {
-                    Bus.SetMessageHeader(message, "MessageMutatorCalled", "true");
-
-                    return message;
+                    this.testContext = testContext;
                 }
 
-                public void Customize(BusConfiguration configuration)
+                public Task MutateOutgoing(MutateOutgoingMessageContext context)
                 {
-                    configuration.RegisterComponents(c => c.ConfigureComponent<MyMessageMutator>(DependencyLifecycle.InstancePerCall));
+                    testContext.MessageMutatorCalled = true;
+                    return Task.FromResult(0);
                 }
 
+                Context testContext;
             }
 
-            class MessageToBeMutatedHandler : IHandleMessages<MessageToBeMutated>
+            class Handler : IHandleMessages<Message>
             {
-                public Context Context { get; set; }
-
-                public IBus Bus { get; set; }
-
-
-                public void Handle(MessageToBeMutated message)
+                public Handler(Context testContext)
                 {
-                    Context.TransportMutatorCalled = Bus.CurrentMessageContext.Headers.ContainsKey("TransportMutatorCalled");
-                    Context.MessageMutatorCalled = Bus.CurrentMessageContext.Headers.ContainsKey("MessageMutatorCalled");
-
-                    Context.MessageProcessed = true;
-
+                    this.testContext = testContext;
                 }
-            }
 
+                public Task Handle(Message message, IMessageHandlerContext context)
+                {
+                    testContext.MessageProcessed = true;
+
+                    return Task.FromResult(0);
+                }
+
+                Context testContext;
+            }
         }
 
         [Serializable]
-        public class MessageToBeMutated : ICommand
+        public class Message : ICommand
         {
         }
     }

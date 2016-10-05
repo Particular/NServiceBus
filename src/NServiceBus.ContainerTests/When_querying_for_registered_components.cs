@@ -1,11 +1,11 @@
 namespace NServiceBus.ContainerTests
 {
     using NServiceBus;
-    using NServiceBus.ObjectBuilder.Common;
+    using ObjectBuilder.Common;
     using NUnit.Framework;
 
     [TestFixture]
-    public class When_querying_for_registered_components 
+    public class When_querying_for_registered_components
     {
         [Test]
         public void Existing_components_should_return_true()

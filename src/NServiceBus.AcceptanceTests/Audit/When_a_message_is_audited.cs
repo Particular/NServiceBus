@@ -2,46 +2,41 @@
 {
     using System;
     using System.Linq;
-    using EndpointTemplates;
+    using System.Threading.Tasks;
     using AcceptanceTesting;
+    using EndpointTemplates;
     using MessageMutator;
     using NUnit.Framework;
 
     public class When_a_message_is_audited : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Should_preserve_the_original_body()
+        public async Task Should_preserve_the_original_body()
         {
-            var context = new Context();
-
-            Scenario.Define(context)
-                    .WithEndpoint<EndpointWithAuditOn>(b => b.Given(bus => bus.SendLocal(new MessageToBeAudited())))
-                    .WithEndpoint<AuditSpyEndpoint>()
-                    .Done(c => c.AuditChecksum != default(byte))
-                    .Run();
+            var context = await Scenario.Define<Context>(c => { c.RunId = Guid.NewGuid(); })
+                .WithEndpoint<EndpointWithAuditOn>(b => b.When((session, c) => session.SendLocal(new MessageToBeAudited
+                {
+                    RunId = c.RunId
+                })))
+                .WithEndpoint<AuditSpyEndpoint>()
+                .Done(c => c.Done)
+                .Run();
 
             Assert.AreEqual(context.OriginalBodyChecksum, context.AuditChecksum, "The body of the message sent to audit should be the same as the original message coming off the queue");
         }
 
-        [Test]
-        public void Should_add_the_license_diagnostic_headers()
+        public static byte Checksum(byte[] data)
         {
-            var context = new Context();
-
-            Scenario.Define(context)
-                    .WithEndpoint<EndpointWithAuditOn>(b => b.Given(bus => bus.SendLocal(new MessageToBeAudited())))
-                    .WithEndpoint<AuditSpyEndpoint>()
-                    .Done(c => c.HasDiagnosticLicensingHeaders)
-                    .Run();
-            Assert.IsTrue(context.HasDiagnosticLicensingHeaders);
+            var longSum = data.Sum(x => (long) x);
+            return unchecked((byte) longSum);
         }
-
 
         public class Context : ScenarioContext
         {
+            public Guid RunId { get; set; }
+            public bool Done { get; set; }
             public byte OriginalBodyChecksum { get; set; }
             public byte AuditChecksum { get; set; }
-            public bool HasDiagnosticLicensingHeaders { get; set; }
         }
 
         public class EndpointWithAuditOn : EndpointConfigurationBuilder
@@ -56,10 +51,9 @@
             {
                 public Context Context { get; set; }
 
-                public void MutateIncoming(TransportMessage transportMessage)
+                public Task MutateIncoming(MutateIncomingTransportMessageContext context)
                 {
-
-                    var originalBody = transportMessage.Body;
+                    var originalBody = context.Body;
 
                     Context.OriginalBodyChecksum = Checksum(originalBody);
 
@@ -70,10 +64,11 @@
 
                     modifiedBody[modifiedBody.Length - 1] = 13;
 
-                    transportMessage.Body = modifiedBody;
+                    context.Body = modifiedBody;
+                    return Task.FromResult(0);
                 }
 
-                public void Customize(BusConfiguration configuration)
+                public void Customize(EndpointConfiguration configuration)
                 {
                     configuration.RegisterComponents(c => c.ConfigureComponent<BodyMutator>(DependencyLifecycle.InstancePerCall));
                 }
@@ -81,8 +76,9 @@
 
             public class MessageToBeAuditedHandler : IHandleMessages<MessageToBeAudited>
             {
-                public void Handle(MessageToBeAudited message)
+                public Task Handle(MessageToBeAudited message, IMessageHandlerContext context)
                 {
+                    return Task.FromResult(0);
                 }
             }
         }
@@ -98,14 +94,13 @@
             {
                 public Context Context { get; set; }
 
-                public void MutateIncoming(TransportMessage transportMessage)
+                public Task MutateIncoming(MutateIncomingTransportMessageContext transportMessage)
                 {
                     Context.AuditChecksum = Checksum(transportMessage.Body);
-                    string licenseExpired;
-                    Context.HasDiagnosticLicensingHeaders = transportMessage.Headers.TryGetValue(Headers.HasLicenseExpired, out licenseExpired);
+                    return Task.FromResult(0);
                 }
 
-                public void Customize(BusConfiguration configuration)
+                public void Customize(EndpointConfiguration configuration)
                 {
                     configuration.RegisterComponents(c => c.ConfigureComponent<BodySpy>(DependencyLifecycle.InstancePerCall));
                 }
@@ -113,21 +108,26 @@
 
             public class MessageToBeAuditedHandler : IHandleMessages<MessageToBeAudited>
             {
-                public void Handle(MessageToBeAudited message)
+                public Context TestContext { get; set; }
+
+                public Task Handle(MessageToBeAudited message, IMessageHandlerContext context)
                 {
+                    if (message.RunId != TestContext.RunId)
+                    {
+                        return Task.FromResult(0);
+                    }
+
+                    TestContext.Done = true;
+
+                    return Task.FromResult(0);
                 }
             }
-        }
-
-        public static byte Checksum(byte[] data)
-        {
-            var longSum = data.Sum(x => (long)x);
-            return unchecked((byte)longSum);
         }
 
         [Serializable]
         public class MessageToBeAudited : IMessage
         {
+            public Guid RunId { get; set; }
         }
     }
 }

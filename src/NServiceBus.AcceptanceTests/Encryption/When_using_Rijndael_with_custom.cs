@@ -3,40 +3,48 @@
     using System;
     using System.Collections.Generic;
     using System.Text;
-    using EndpointTemplates;
+    using System.Threading.Tasks;
     using AcceptanceTesting;
+    using EndpointTemplates;
     using NUnit.Framework;
 
     public class When_using_Rijndael_with_custom : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Should_receive_decrypted_message()
+        public async Task Should_receive_decrypted_message()
         {
-            var context = Scenario.Define<Context>()
-                    .WithEndpoint<Endpoint>(b => b.Given(bus => bus.SendLocal(new MessageWithSecretData
+            var context = await Scenario.Define<Context>()
+                .WithEndpoint<Endpoint>(b => b.When(session => session.SendLocal(new MessageWithSecretData
+                {
+                    Secret = "betcha can't guess my secret",
+                    SubProperty = new MySecretSubProperty
+                    {
+                        Secret = "My sub secret"
+                    },
+                    CreditCards = new List<CreditCardDetails>
+                    {
+                        new CreditCardDetails
                         {
-                            Secret = "betcha can't guess my secret",
-                            SubProperty = new MySecretSubProperty { Secret = "My sub secret" },
-                            CreditCards = new List<CreditCardDetails>
-                                {
-                                    new CreditCardDetails
-                                        {
-                                            ValidTo = DateTime.UtcNow.AddYears(1),
-                                            Number = "312312312312312"
-                                        },
-                                    new CreditCardDetails
-                                        {
-                                            ValidTo = DateTime.UtcNow.AddYears(2),
-                                            Number = "543645546546456"
-                                        }
-                                }
-                        })))
-                    .Done(c => c.GetTheMessage)
-                    .Run();
+                            ValidTo = DateTime.UtcNow.AddYears(1),
+                            Number = "312312312312312"
+                        },
+                        new CreditCardDetails
+                        {
+                            ValidTo = DateTime.UtcNow.AddYears(2),
+                            Number = "543645546546456"
+                        }
+                    }
+                })))
+                .Done(c => c.GetTheMessage)
+                .Run();
 
             Assert.AreEqual("betcha can't guess my secret", context.Secret);
             Assert.AreEqual("My sub secret", context.SubPropertySecret);
-            CollectionAssert.AreEquivalent(new List<string> { "312312312312312", "543645546546456" }, context.CreditCards);
+            CollectionAssert.AreEquivalent(new List<string>
+            {
+                "312312312312312",
+                "543645546546456"
+            }, context.CreditCards);
         }
 
         public class Context : ScenarioContext
@@ -56,7 +64,7 @@
             {
                 var keys = new Dictionary<string, byte[]>
                 {
-                   {"1st", Encoding.ASCII.GetBytes("gdDbqRpqdRbTs3mhdZh9qCaDaxJXl+e6")}
+                    {"1st", Encoding.ASCII.GetBytes("gdDbqRpqdRbTs3mhdZh9qCaDaxJXl+e6")}
                 };
 
                 EndpointSetup<DefaultServer>(builder => builder.RijndaelEncryptionService("1st", keys));
@@ -66,7 +74,7 @@
             {
                 public Context Context { get; set; }
 
-                public void Handle(MessageWithSecretData message)
+                public Task Handle(MessageWithSecretData message, IMessageHandlerContext context)
                 {
                     Context.Secret = message.Secret.Value;
 
@@ -74,11 +82,13 @@
 
                     Context.CreditCards = new List<string>
                     {
-                        message.CreditCards[0].Number.Value, 
+                        message.CreditCards[0].Number.Value,
                         message.CreditCards[1].Number.Value
                     };
 
                     Context.GetTheMessage = true;
+
+                    return Task.FromResult(0);
                 }
             }
         }
@@ -103,6 +113,5 @@
         {
             public WireEncryptedString Secret { get; set; }
         }
-
     }
 }

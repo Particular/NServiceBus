@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>NServiceBus.AcceptanceTesting</RootNamespace>
     <AssemblyName>NServiceBus.AcceptanceTesting</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
     <TargetFrameworkProfile />
@@ -27,8 +27,9 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
     <Prefer32Bit>false</Prefer32Bit>
+    <NoWarn>436</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -39,6 +40,7 @@
     <WarningLevel>4</WarningLevel>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <Prefer32Bit>false</Prefer32Bit>
+    <NoWarn>436</NoWarn>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.CSharp" />
@@ -48,6 +50,8 @@
     <Reference Include="System.Data" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ContextAppenderFactory.cs" />
+    <Compile Include="Customization\EndpointConfigurationExtensions.cs" />
     <Compile Include="Customization\Conventions.cs" />
     <Compile Include="IScenarioVerification.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -55,16 +59,22 @@
     <Compile Include="ScenarioWithContext.cs" />
     <Compile Include="Support\ActiveRunner.cs" />
     <Compile Include="ScenarioContext.cs" />
+    <Compile Include="ContextAppender.cs" />
+    <Compile Include="Support\ActiveTestExecutionConfigurer.cs" />
+    <Compile Include="Support\AggregateExceptionTestExtensions.cs" />
     <Compile Include="Support\EndpointBehavior.cs" />
     <Compile Include="Support\BehaviourFactory.cs" />
     <Compile Include="Support\DefaultScenarioDescriptor.cs" />
     <Compile Include="Support\EndpointBehaviorBuilder.cs" />
-    <Compile Include="Support\EndpointConfiguration.cs" />
+    <Compile Include="Support\EndpointCustomizationConfiguration.cs" />
     <Compile Include="Support\EndpointRunner.cs" />
-    <Compile Include="Support\GivenDefinition.cs" />
-    <Compile Include="Support\IBusAdapter.cs" />
+    <Compile Include="Support\FailTestOnErrorMessageFeature.cs" />
+    <Compile Include="Support\IConfigureEndpointTestExecution.cs" />
+    <Compile Include="Support\IConfigureSupportedScenariosForTestExecution.cs" />
     <Compile Include="Support\IEndpointSetupTemplate.cs" />
     <Compile Include="Support\IScenarioWithEndpointBehavior.cs" />
+    <Compile Include="Support\IWhenDefinition.cs" />
+    <Compile Include="Support\MessagesFailedException.cs" />
     <Compile Include="Support\RunDescriptor.cs" />
     <Compile Include="Support\RunDescriptorsBuilder.cs" />
     <Compile Include="Scenario.cs" />
@@ -74,6 +84,8 @@
     <Compile Include="Support\ScenarioDescriptor.cs" />
     <Compile Include="Support\ScenarioException.cs" />
     <Compile Include="Support\ScenarioRunner.cs" />
+    <Compile Include="Support\SimulatedException.cs" />
+    <Compile Include="Support\WhenDefinition.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\NServiceBus.Core\NServiceBus.Core.csproj">
@@ -87,11 +99,11 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
-      <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\packages\GitVersionTask.2.0.1\Build\GitVersionTask.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\GitVersionTask.2.0.1\Build\GitVersionTask.targets'))" />
-    <Error Condition="!Exists('..\packages\NuGetPackager.0.5.4\build\NuGetPackager.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\NuGetPackager.0.5.4\build\NuGetPackager.targets'))" />
+    <Error Condition="!Exists('..\packages\NuGetPackager.0.6.0\build\NuGetPackager.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\NuGetPackager.0.6.0\build\NuGetPackager.targets'))" />
+    <Error Condition="!Exists('..\packages\GitVersionTask.3.6.3\build\dotnet\GitVersionTask.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\GitVersionTask.3.6.3\build\dotnet\GitVersionTask.targets'))" />
   </Target>
-  <Import Project="..\packages\GitVersionTask.2.0.1\Build\GitVersionTask.targets" Condition="Exists('..\packages\GitVersionTask.2.0.1\Build\GitVersionTask.targets')" />
-  <Import Project="..\packages\NuGetPackager.0.5.4\build\NuGetPackager.targets" Condition="Exists('..\packages\NuGetPackager.0.5.4\build\NuGetPackager.targets')" />
+  <Import Project="..\packages\NuGetPackager.0.6.0\build\NuGetPackager.targets" Condition="Exists('..\packages\NuGetPackager.0.6.0\build\NuGetPackager.targets')" />
+  <Import Project="..\packages\GitVersionTask.3.6.3\build\dotnet\GitVersionTask.targets" Condition="Exists('..\packages\GitVersionTask.3.6.3\build\dotnet\GitVersionTask.targets')" />
 </Project>

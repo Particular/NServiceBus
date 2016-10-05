@@ -3,12 +3,13 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using NServiceBus.ObjectBuilder;
-    using NServiceBus.Saga;
     using NServiceBus.Sagas;
+    using ObjectBuilder;
+    using Persistence;
+    using Transport;
 
     /// <summary>
-    ///     Used to configure saga.
+    /// Used to configure saga.
     /// </summary>
     public class Sagas : Feature
     {
@@ -27,25 +28,25 @@
                 }
             });
 
-            Prerequisite(config => config.Settings.GetAvailableTypes().Any(IsSagaType), "No sagas was found in scanned types");
+            Defaults(s => s.Set<SagaMetadataCollection>(new SagaMetadataCollection()));
+
+            Prerequisite(config => config.Settings.GetAvailableTypes().Any(IsSagaType), "No sagas were found in the scanned types");
         }
 
         /// <summary>
-        ///     See <see cref="Feature.Setup" />
+        /// See <see cref="Feature.Setup" />.
         /// </summary>
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-            // Register the Saga related behaviors for incoming messages
-            context.Pipeline.Register<SagaPersistenceBehavior.Registration>();
-            context.Pipeline.Register<InvokeSagaNotFoundBehavior.Registration>();
+            if (!PersistenceStartup.HasSupportFor<StorageType.Sagas>(context.Settings))
+            {
+                throw new Exception("The selected persistence doesn't have support for saga storage. Select another persistence or disable the sagas feature using endpointConfiguration.DisableFeature<Sagas>()");
+            }
 
-            var typeBasedSagas = TypeBasedSagaMetaModel.Create(context.Settings.GetAvailableTypes(),conventions);
-
-            var sagaMetaModel = new SagaMetaModel(typeBasedSagas);
+            var sagaMetaModel = context.Settings.Get<SagaMetadataCollection>();
+            sagaMetaModel.Initialize(context.Settings.GetAvailableTypes(), conventions);
 
             RegisterCustomFindersInContainer(context.Container, sagaMetaModel);
-
-            context.Container.RegisterSingleton(sagaMetaModel);
 
             foreach (var t in context.Settings.GetAvailableTypes())
             {
@@ -55,6 +56,10 @@
                 }
             }
 
+            // Register the Saga related behaviors for incoming messages
+            context.Pipeline.Register("InvokeSaga", b => new SagaPersistenceBehavior(b.Build<ISagaPersister>(), b.Build<ICancelDeferredMessages>(), sagaMetaModel), "Invokes the saga logic");
+            context.Pipeline.Register("InvokeSagaNotFound", new InvokeSagaNotFoundBehavior(), "Invokes saga not found logic");
+            context.Pipeline.Register("AttachSagaDetailsToOutGoingMessage", new AttachSagaDetailsToOutGoingMessageBehavior(), "Makes sure that outgoing messages have saga info attached to them");
         }
 
         static void RegisterCustomFindersInContainer(IConfigureComponents container, IEnumerable<SagaMetadata> sagaMetaModel)
@@ -72,13 +77,11 @@
             }
         }
 
-
         static bool IsSagaType(Type t)
         {
             return IsCompatible(t, typeof(Saga));
         }
 
-        
         static bool IsSagaNotFoundHandler(Type t)
         {
             return IsCompatible(t, typeof(IHandleSagaNotFound));
@@ -97,8 +100,6 @@
             return sagas.Any(t => timeoutHandler.IsAssignableFrom(t) && !messageHandler.IsAssignableFrom(t));
         }
 
-     
-     
         Conventions conventions;
     }
 }

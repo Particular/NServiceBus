@@ -1,4 +1,4 @@
-namespace NServiceBus.Licensing
+namespace NServiceBus
 {
     using System.Threading;
     using Particular.Licensing;
@@ -25,7 +25,6 @@ namespace NServiceBus.Licensing
 
                     return LicenseDeserializer.Deserialize(form.ResultingLicenseText);
                 }
-
             }
             finally
             {

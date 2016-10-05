@@ -10,13 +10,13 @@
     class FileVersionRetriever
     {
         /// <summary>
-        /// Retrieves a semver compliant version from a <see cref="Type"/>.
+        /// Retrieves a semver compliant version from a <see cref="Type" />.
         /// </summary>
-        /// <param name="type"><see cref="Type"/> to retrieve version from.</param>
+        /// <param name="type"><see cref="Type" /> to retrieve version from.</param>
         /// <returns>SemVer compliant version.</returns>
         public static string GetFileVersion(Type type)
         {
-            if (!String.IsNullOrEmpty(type.Assembly.Location))
+            if (!string.IsNullOrEmpty(type.Assembly.Location))
             {
                 var fileVersion = FileVersionInfo.GetVersionInfo(type.Assembly.Location);
 
@@ -27,7 +27,7 @@
 
             if (customAttributes.Length >= 1)
             {
-                var fileVersion = (AssemblyFileVersionAttribute)customAttributes[0];
+                var fileVersion = (AssemblyFileVersionAttribute) customAttributes[0];
                 Version version;
                 if (Version.TryParse(fileVersion.Version, out version))
                 {

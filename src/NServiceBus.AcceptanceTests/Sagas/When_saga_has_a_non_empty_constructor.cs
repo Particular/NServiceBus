@@ -1,81 +1,82 @@
 ﻿namespace NServiceBus.AcceptanceTests.Sagas
 {
     using System;
-    using EndpointTemplates;
+    using System.Threading.Tasks;
     using AcceptanceTesting;
+    using EndpointTemplates;
     using NUnit.Framework;
-    using Saga;
     using ScenarioDescriptors;
 
     public class When_saga_has_a_non_empty_constructor : NServiceBusAcceptanceTest
     {
-        static Guid IdThatSagaIsCorrelatedOn = Guid.NewGuid();
-
         [Test]
-        public void Should_hydrate_and_invoke_the_existing_instance()
+        public Task Should_hydrate_and_invoke_the_existing_instance()
         {
-            Scenario.Define<Context>()
-                    .WithEndpoint<SagaEndpoint>(b => b.Given(bus =>
-                        {
-                            bus.SendLocal(new StartSagaMessage { SomeId = IdThatSagaIsCorrelatedOn });
-                            bus.SendLocal(new OtherMessage { SomeId = IdThatSagaIsCorrelatedOn });                                    
-                        }))
-                    .Done(c => c.SecondMessageReceived)
-                    .Repeat(r => r.For(Persistence.Default))
-                    .Run();
+            return Scenario.Define<Context>()
+                .WithEndpoint<NonEmptySagaCtorEndpt>(b => b.When(session => session.SendLocal(new StartSagaMessage
+                {
+                    SomeId = IdThatSagaIsCorrelatedOn
+                })))
+                .Done(c => c.SecondMessageReceived)
+                .Repeat(r => r.For(Persistence.Default))
+                .Run();
         }
+
+        static Guid IdThatSagaIsCorrelatedOn = Guid.NewGuid();
 
         public class Context : ScenarioContext
         {
             public bool SecondMessageReceived { get; set; }
-
         }
 
-        public class SagaEndpoint : EndpointConfigurationBuilder
+        public class NonEmptySagaCtorEndpt : EndpointConfigurationBuilder
         {
-            public SagaEndpoint()
+            public NonEmptySagaCtorEndpt()
             {
-                EndpointSetup<DefaultServer>(
-                    
-                    builder => builder.Transactions().DoNotWrapHandlersExecutionInATransactionScope());
+                EndpointSetup<DefaultServer>();
             }
 
-            public class TestSaga : Saga<TestSagaData>,
-                IAmStartedByMessages<StartSagaMessage>, IHandleMessages<OtherMessage>
+            public class TestSaga11 : Saga<TestSagaData11>,
+                IAmStartedByMessages<StartSagaMessage>,
+                IHandleMessages<OtherMessage>
             {
-                Context context;
-
-                // ReSharper disable once UnusedParameter.Local
-                public TestSaga(IBus bus,Context context)
+                public TestSaga11(Context testContext)
                 {
-                    this.context = context;
+                    this.testContext = testContext;
                 }
 
-                public void Handle(StartSagaMessage message)
+                public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
                 {
                     Data.SomeId = message.SomeId;
+                    return context.SendLocal(new OtherMessage
+                    {
+                        SomeId = message.SomeId
+                    });
                 }
 
-                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData> mapper)
+                public Task Handle(OtherMessage message, IMessageHandlerContext context)
                 {
+                    testContext.SecondMessageReceived = true;
+                    return Task.FromResult(0);
+                }
+
+                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData11> mapper)
+                {
+                    mapper.ConfigureMapping<StartSagaMessage>(m => m.SomeId)
+                        .ToSaga(s => s.SomeId);
                     mapper.ConfigureMapping<OtherMessage>(m => m.SomeId)
-                        .ToSaga(s=>s.SomeId);
+                        .ToSaga(s => s.SomeId);
                 }
 
-                public void Handle(OtherMessage message)
-                {
-                    context.SecondMessageReceived = true;
-                }
+                Context testContext;
             }
 
-            public class TestSagaData : IContainSagaData
+            public class TestSagaData11 : IContainSagaData
             {
+                public virtual Guid SomeId { get; set; }
                 public virtual Guid Id { get; set; }
                 public virtual string Originator { get; set; }
                 public virtual string OriginalMessageId { get; set; }
-
-                [Unique]
-                public virtual Guid SomeId { get; set; }
             }
         }
 
@@ -83,8 +84,8 @@
         public class StartSagaMessage : ICommand
         {
             public Guid SomeId { get; set; }
-
         }
+
         [Serializable]
         public class OtherMessage : ICommand
         {

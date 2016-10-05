@@ -1,4 +1,4 @@
-namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
+namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
@@ -9,9 +9,6 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
 
     class ConcreteProxyCreator
     {
-        internal const string SUFFIX = "__impl";
-        ModuleBuilder moduleBuilder;
-
         public ConcreteProxyCreator()
         {
             var assemblyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly(
@@ -75,7 +72,10 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
                     "set_" + prop.Name,
                     getMethodBuilder.Attributes,
                     null,
-                    new[] { propertyType });
+                    new[]
+                    {
+                        propertyType
+                    });
 
                 var setIL = setMethodBuilder.GetILGenerator();
                 // Load the instance and then the numeric argument, then store the
@@ -115,7 +115,9 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
             // Get constructor with the largest number of parameters
             foreach (var cInfo in customAttribute.GetType().GetConstructors().
                 Where(cInfo => longestCtor == null || longestCtor.GetParameters().Length < cInfo.GetParameters().Length))
+            {
                 longestCtor = cInfo;
+            }
 
             if (longestCtor == null)
             {
@@ -163,7 +165,7 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
                 var defaultAttributes = attrPropInfo.GetCustomAttributes(typeof(DefaultValueAttribute), true);
                 if (defaultAttributes.Length > 0)
                 {
-                    defaultValue = ((DefaultValueAttribute)defaultAttributes[0]).Value;
+                    defaultValue = ((DefaultValueAttribute) defaultAttributes[0]).Value;
                 }
                 var value = attrPropInfo.GetValue(customAttribute, null);
                 if (value == defaultValue)
@@ -187,18 +189,18 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
                 props.AddRange(GetAllProperties(interfaceType));
             }
 
-            var names = new List<PropertyInfo>(props.Count);
+            var tracked = new List<PropertyInfo>(props.Count);
             var duplicates = new List<PropertyInfo>(props.Count);
             foreach (var p in props)
             {
-                var duplicate = names.SingleOrDefault(n => n.Name == p.Name && n.PropertyType == p.PropertyType);
+                var duplicate = tracked.SingleOrDefault(n => n.Name == p.Name && n.PropertyType == p.PropertyType);
                 if (duplicate != null)
                 {
                     duplicates.Add(p);
                 }
                 else
                 {
-                    names.Add(p);
+                    tracked.Add(p);
                 }
             }
 
@@ -210,5 +212,7 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
             return props;
         }
 
+        ModuleBuilder moduleBuilder;
+        internal const string SUFFIX = "__impl";
     }
 }

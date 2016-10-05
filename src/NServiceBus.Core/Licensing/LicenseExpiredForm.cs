@@ -1,16 +1,17 @@
-﻿namespace NServiceBus.Licensing
+﻿namespace NServiceBus
 {
     using System;
     using System.Diagnostics;
+    using System.Globalization;
     using System.Windows.Forms;
     using Janitor;
     using Logging;
+    using Microsoft.Win32;
     using Particular.Licensing;
 
     [SkipWeaving]
     partial class LicenseExpiredForm : Form
     {
-        static ILog Logger = LogManager.GetLogger<LicenseExpiredForm>();
         public LicenseExpiredForm()
         {
             InitializeComponent();
@@ -24,10 +25,10 @@
 
             warningText.Text = "The trial period is now over";
 
-            if (CurrentLicense != null && CurrentLicense.IsTrialLicense)
+            if (CurrentLicense != null && !CurrentLicense.IsExtendedTrial)
             {
                 Text = "NServiceBus - Initial Trial Expired";
-                instructionsText.Text = "To extend your free trial, click 'Extend trial' and register online. When you receive your license file, save it to disk and then click the 'Browse' button below to select it.";
+                instructionsText.Text = "To extend the free trial, click 'Extend trial' and register online. When the license file is received, save it to disk and then click the 'Browse' button below to select it.";
                 getTrialLicenseButton.Text = "Extend Trial";
                 purchaseButton.Visible = false;
                 getTrialLicenseButton.Left = purchaseButton.Left;
@@ -35,7 +36,7 @@
             else
             {
                 Text = "NServiceBus - Extended Trial Expired";
-                instructionsText.Text = "Please click 'Contact Sales' to request an extension to your free trial, or click 'Buy Now' to purchase a license online. When you receive your license file, save it to disk and then click the 'Browse' button below to select it.";
+                instructionsText.Text = "Click 'Contact Sales' to request an extension to the free trial, or click 'Buy Now' to purchase a license online. When the license file is received, save it to disk and then click the 'Browse' button below to select it.";
                 getTrialLicenseButton.Text = "Contact Sales";
             }
 
@@ -61,7 +62,7 @@
 
                         if (LicenseExpirationChecker.HasLicenseExpired(license))
                         {
-                            var message = "The license you provided has expired, please select another file.";
+                            var message = "The license you provided has expired, select another file.";
                             Logger.Warn(message);
                             MessageBox.Show(this, message, "License expired", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                             return;
@@ -71,7 +72,7 @@
                     }
                     catch (Exception exception)
                     {
-                        var message = string.Format("An error occurred when parsing the license.\r\nMessage: {0}\r\nThe exception details have been appended to your log.", exception.Message);
+                        var message = $"An error occurred when parsing the license.\r\nMessage: {exception.Message}\r\nThe exception details have been appended to the log.";
                         Logger.Warn("Error parsing license", exception);
                         MessageBox.Show(this, message, "Error parsing license", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
@@ -79,23 +80,58 @@
             }
         }
 
-        public string ResultingLicenseText;
-
         void PurchaseButton_Click(object sender, EventArgs e)
         {
-            Process.Start("http://particular.net/licensing");
+            Process.Start("https://particular.net/licensing");
         }
 
-        private void getTrialLicenseButton_Click(object sender, EventArgs e)
+        void getTrialLicenseButton_Click(object sender, EventArgs e)
         {
-            if (CurrentLicense != null && CurrentLicense.IsTrialLicense)
+
+            string baseUrl;
+            if (CurrentLicense != null && !CurrentLicense.IsExtendedTrial)
             {
-                Process.Start("http://particular.net/extend-your-trial-14");
+                // Original 14 day trial expired, give the user a chance to extend trial
+                baseUrl = "https://particular.net/extend-nservicebus-trial";
             }
             else
             {
-                Process.Start("http://particular.net/extend-your-trial-45");
+                // Extended trial license expired, ask the user to Contact Sales
+                baseUrl = "https://particular.net/extend-your-trial-45";
             }
+
+            var trialStart = TrialStartDateStore.GetTrialStartDate().ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
+            var url = $"{baseUrl}?NugetUser={IsNugetUser()}&PlatformInstaller={HasUserInstalledPlatform()}&TrialStartDate={trialStart}";
+            
+            // Open the url with the querystrings
+            Process.Start(url); 
         }
+
+        static string IsNugetUser()
+        {
+            using (var regRoot = Registry.CurrentUser.OpenSubKey(@"Software\ParticularSoftware"))
+            {
+                if (regRoot != null)
+                {
+                    return (string)regRoot.GetValue("NuGetUser", "false");
+                }
+            }
+            return bool.FalseString;
+        }
+
+        static string HasUserInstalledPlatform()
+        {
+            using (var regRoot = Registry.CurrentUser.OpenSubKey(@"Software\ParticularSoftware\PlatformInstaller"))
+            {
+                if (regRoot != null)
+                {
+                    return bool.TrueString;
+                }
+            }
+            return bool.FalseString;
+        }
+
+        public string ResultingLicenseText;
+        static ILog Logger = LogManager.GetLogger<LicenseExpiredForm>();
     }
 }

@@ -1,12 +1,13 @@
 ﻿namespace NServiceBus
 {
-    using NServiceBus.ObjectBuilder;
-    using NServiceBus.Saga;
-    using NServiceBus.Sagas;
-    using NServiceBus.Unicast.Messages;
+    using System.Threading.Tasks;
+    using Extensibility;
+    using ObjectBuilder;
+    using Persistence;
+    using Sagas;
 
     abstract class SagaFinder
     {
-        internal abstract IContainSagaData Find(IBuilder builder,SagaFinderDefinition finderDefinition, LogicalMessage message);
+        public abstract Task<IContainSagaData> Find(IBuilder builder, SagaFinderDefinition finderDefinition, SynchronizedStorageSession storageSession, ContextBag context, object message);
     }
 }

@@ -3,27 +3,28 @@
     using System;
     using System.Collections.Generic;
     using System.Text;
-    using EndpointTemplates;
+    using System.Threading.Tasks;
     using AcceptanceTesting;
-    using NServiceBus.MessageMutator;
+    using EndpointTemplates;
+    using MessageMutator;
     using NUnit.Framework;
     using ScenarioDescriptors;
 
     public class When_using_Rijndael_without_incoming_key_identifier : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Should_process_decrypted_message_without_key_identifier()
+        public Task Should_process_decrypted_message_without_key_identifier()
         {
-            Scenario.Define<Context>()
-                    .WithEndpoint<Sender>(b => b.Given((bus, context) => bus.Send(new MessageWithSecretData
-                        {
-                            Secret = "betcha can't guess my secret",
-                        })))
-                    .WithEndpoint<Receiver>()
-                    .Done(c => c.Done)
-                    .Repeat(r => r.For(Transports.Default))
-                    .Should(c => Assert.AreEqual("betcha can't guess my secret", c.Secret))
-                    .Run();
+            return Scenario.Define<Context>()
+                .WithEndpoint<Sender>(b => b.When((bus, context) => bus.Send(new MessageWithSecretData
+                {
+                    Secret = "betcha can't guess my secret"
+                })))
+                .WithEndpoint<Receiver>()
+                .Done(c => c.Done)
+                .Repeat(r => r.For(Transports.Default))
+                .Should(c => Assert.AreEqual("betcha can't guess my secret", c.Secret))
+                .Run();
         }
 
         public class Context : ScenarioContext
@@ -47,22 +48,25 @@
             {
                 var keys = new Dictionary<string, byte[]>
                 {
-                    {"new", Encoding.ASCII.GetBytes("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb") },
+                    {"new", Encoding.ASCII.GetBytes("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb")}
                 };
 
-                var expiredKeys = new[] { Encoding.ASCII.GetBytes("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa") };
+                var expiredKeys = new[]
+                {
+                    Encoding.ASCII.GetBytes("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+                };
                 EndpointSetup<DefaultServer>(builder => builder.RijndaelEncryptionService("new", keys, expiredKeys));
-
             }
 
             public class Handler : IHandleMessages<MessageWithSecretData>
             {
                 public Context Context { get; set; }
 
-                public void Handle(MessageWithSecretData message)
+                public Task Handle(MessageWithSecretData message, IMessageHandlerContext context)
                 {
                     Context.Secret = message.Secret.Value;
                     Context.Done = true;
+                    return Task.FromResult(0);
                 }
             }
         }
@@ -73,15 +77,15 @@
             public WireEncryptedString Secret { get; set; }
         }
 
-
         class RemoveKeyIdentifierHeaderMutator : IMutateIncomingTransportMessages, INeedInitialization
         {
-            public void MutateIncoming(TransportMessage transportMessage)
+            public Task MutateIncoming(MutateIncomingTransportMessageContext context)
             {
-                transportMessage.Headers.Remove(Headers.RijndaelKeyIdentifier);
+                context.Headers.Remove(Headers.RijndaelKeyIdentifier);
+                return Task.FromResult(0);
             }
 
-            public void Customize(BusConfiguration configuration)
+            public void Customize(EndpointConfiguration configuration)
             {
                 configuration.RegisterComponents(c => c.ConfigureComponent<RemoveKeyIdentifierHeaderMutator>(DependencyLifecycle.InstancePerCall));
             }

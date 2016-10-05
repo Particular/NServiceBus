@@ -2,20 +2,21 @@
 {
     using Config;
     using Logging;
-    using Persistence.SubscriptionStorage;
+    using Transport;
 
     /// <summary>
-    /// Provides subscription storage using a msmq queue as the backing store
+    /// Provides subscription storage using a msmq queue as the backing store.
     /// </summary>
-    public class MsmqSubscriptionPersistence:Feature
+    public class MsmqSubscriptionPersistence : Feature
     {
         internal MsmqSubscriptionPersistence()
         {
         }
+
         /// <summary>
-        /// Invoked if the feature is activated
+        /// Invoked if the feature is activated.
         /// </summary>
-        /// <param name="context">The feature context</param>
+        /// <param name="context">The feature context.</param>
         protected internal override void Setup(FeatureConfigurationContext context)
         {
             var queueName = context.Settings.GetOrDefault<string>("MsmqSubscriptionPersistence.QueueName");
@@ -27,7 +28,7 @@
                 if (cfg == null)
                 {
                     Logger.Warn("Could not find configuration section for Msmq Subscription Storage and no name was specified for this endpoint. Going to default the subscription queue");
-                    queueName = "NServiceBus.Subscriptions"; 
+                    queueName = "NServiceBus.Subscriptions";
                 }
                 else
                 {
@@ -35,14 +36,16 @@
                 }
             }
 
-            var storageQueue = Address.Parse(queueName);
+            if (queueName != null)
+            {
+                context.Settings.Get<QueueBindings>().BindSending(queueName);
+            }
 
-            context.Container.ConfigureComponent<SubscriptionsQueueCreator>(DependencyLifecycle.InstancePerCall)
-                .ConfigureProperty(t => t.StorageQueue, storageQueue);
-
-            context.Container.ConfigureComponent<MsmqSubscriptionStorage>(DependencyLifecycle.SingleInstance)
-                .ConfigureProperty(s => s.Queue, storageQueue)
-                .ConfigureProperty(s => s.TransactionsEnabled, context.Settings.Get<bool>("Transactions.Enabled"));
+            context.Container.ConfigureComponent(b =>
+            {
+                var queue = new MsmqSubscriptionStorageQueue(MsmqAddress.Parse(queueName));
+                return new MsmqSubscriptionStorage(queue);
+            }, DependencyLifecycle.SingleInstance);
         }
 
         static ILog Logger = LogManager.GetLogger(typeof(MsmqSubscriptionPersistence));

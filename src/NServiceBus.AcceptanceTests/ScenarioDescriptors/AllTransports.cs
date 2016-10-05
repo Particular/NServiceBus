@@ -5,50 +5,34 @@
     using System.Linq;
     using System.Reflection;
     using AcceptanceTesting.Support;
-    using Hosting.Helpers;
-    using NServiceBus.Transports;
+    using NServiceBus.Hosting.Helpers;
 
     public class AllTransports : ScenarioDescriptor
     {
-        public AllTransports()
+        protected AllTransports()
         {
             AddRange(ActiveTransports);
         }
 
-        static IEnumerable<RunDescriptor> ActiveTransports
+        static IEnumerable<RunDescriptor> ActiveTransports => new List<RunDescriptor>
         {
-            get
-            {
-                if (activeTransports == null)
-                {
-                    //temporary fix until we can get rid of the "AllTransports" all together
-                    activeTransports = new List<RunDescriptor>
-                    {
-                        Transports.Default
-                    }; 
-                }
-
-                return activeTransports;
-            }
-        }
-
-        static ICollection<RunDescriptor> activeTransports;
+            Transports.Default
+        };
     }
 
     public class AllDtcTransports : AllTransports
     {
         public AllDtcTransports()
         {
-            AllTransportsFilter.Run(t => t.HasSupportForDistributedTransactions.HasValue
-                                         && !t.HasSupportForDistributedTransactions.Value, Remove);
+            ScenarioFilter.Run(this, Remove);
         }
     }
 
-    public class AllBrokerTransports : AllTransports
+    public class AllNativeMultiQueueTransactionTransports : AllTransports
     {
-        public AllBrokerTransports()
+        public AllNativeMultiQueueTransactionTransports()
         {
-            AllTransportsFilter.Run(t => !t.HasNativePubSubSupport, Remove);
+            ScenarioFilter.Run(this, Remove);
         }
     }
 
@@ -56,7 +40,7 @@
     {
         public AllTransportsWithCentralizedPubSubSupport()
         {
-            AllTransportsFilter.Run(t => !t.HasSupportForCentralizedPubSub, Remove);
+            ScenarioFilter.Run(this, Remove);
         }
     }
 
@@ -64,31 +48,28 @@
     {
         public AllTransportsWithMessageDrivenPubSub()
         {
-            AllTransportsFilter.Run(t => t.HasNativePubSubSupport, Remove);
+            ScenarioFilter.Run(this, Remove);
         }
     }
 
-    public class MsmqOnly : ScenarioDescriptor
+    public class AllTransportsWithoutNativeDeferral : AllTransports
     {
-        public MsmqOnly()
+        public AllTransportsWithoutNativeDeferral()
         {
-            if (Transports.Default == Transports.Msmq)
-            {
-                Add(Transports.Msmq);
-            }
+            ScenarioFilter.Run(this, Remove);
+        }
+    }
+
+    public class AllTransportsWithoutNativeDeferralAndWithAtomicSendAndReceive : AllTransports
+    {
+        public AllTransportsWithoutNativeDeferralAndWithAtomicSendAndReceive()
+        {
+            ScenarioFilter.Run(this, Remove);
         }
     }
 
     public class TypeScanner
     {
-
-        public static IEnumerable<Type> GetAllTypesAssignableTo<T>()
-        {
-            return AvailableAssemblies.SelectMany(a => a.GetTypes())
-                                      .Where(t => typeof (T).IsAssignableFrom(t) && t != typeof(T))
-                                      .ToList();
-        }
-
         static IEnumerable<Assembly> AvailableAssemblies
         {
             get
@@ -97,28 +78,54 @@
                 {
                     var result = new AssemblyScanner().GetScannableAssemblies();
 
-                    assemblies = result.Assemblies;
+                    assemblies = result.Assemblies.Where(a =>
+                    {
+                        var references = a.GetReferencedAssemblies();
+
+                        return references.All(an => an.Name != "nunit.framework");
+                    }).ToList();
                 }
-                    
+
                 return assemblies;
             }
+        }
+
+        public static IEnumerable<Type> GetAllTypesAssignableTo<T>()
+        {
+            return AvailableAssemblies.SelectMany(a => a.GetTypes())
+                .Where(t => typeof(T).IsAssignableFrom(t) && t != typeof(T))
+                .ToList();
         }
 
         static List<Assembly> assemblies;
     }
 
-    public static class AllTransportsFilter
+    public static class ScenarioFilter
     {
-        public static void Run(Func<TransportDefinition, bool> condition, Func<RunDescriptor, bool> remove)
+        public static void Run(ScenarioDescriptor scenarioDescriptor, Func<RunDescriptor, bool> remove)
         {
-            foreach (var rundescriptor in Transports.AllAvailable)
+            var runDescriptors = Transports.AllAvailable;
+            foreach (var rundescriptor in runDescriptors)
             {
-                var transportAssemblyQualifiedName = rundescriptor.Settings["Transport"];
-                var type = Type.GetType(transportAssemblyQualifiedName);
-                if (type != null)
+                Type type;
+                if (rundescriptor.Settings.TryGet("Transport", out type))
                 {
-                    var transport = Activator.CreateInstance(type, true) as TransportDefinition;
-                    if (condition(transport))
+                    var configurerTypeName = "ConfigureScenariosFor" + type.Name;
+                    var configurerType = Type.GetType(configurerTypeName, false);
+
+                    if (configurerType == null)
+                    {
+                        throw new InvalidOperationException($"Acceptance Test project must include a non-namespaced class named '{configurerTypeName}' implementing {typeof(IConfigureSupportedScenariosForTestExecution).Name}. See {typeof(ConfigureScenariosForMsmqTransport).FullName} for an example.");
+                    }
+
+                    var configurer = Activator.CreateInstance(configurerType) as IConfigureSupportedScenariosForTestExecution;
+
+                    if (configurer == null)
+                    {
+                        throw new InvalidOperationException($"{configurerTypeName} does not implement {typeof(IConfigureSupportedScenariosForTestExecution).Name}.");
+                    }
+
+                    if (configurer.UnsupportedScenarioDescriptorTypes.Contains(scenarioDescriptor.GetType()))
                     {
                         remove(rundescriptor);
                     }

@@ -1,4 +1,4 @@
-namespace NServiceBus.Hosting.Helpers
+namespace NServiceBus
 {
     using System;
     using System.IO;
@@ -31,8 +31,6 @@ namespace NServiceBus.Hosting.Helpers
     // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
     class Image : IDisposable
     {
-        Stream stream;
-
         public enum CompilationMode
         {
             NativeOrInvalid,
@@ -40,39 +38,54 @@ namespace NServiceBus.Hosting.Helpers
             CLRx64
         }
 
-        public static CompilationMode GetCompilationMode(string file)
-        {
-            if (file == null)
-            {
-                throw new ArgumentNullException("file", "You must specify a file name");
-            }
-
-            using (var stream = new FileStream(file, FileMode.Open, FileAccess.Read, FileShare.Read))
-            using (var image = new Image(stream))
-            {
-                return image.GetCompilationMode();
-            }
-        }
-
         Image(Stream stream)
         {
             this.stream = stream;
         }
 
+        public void Dispose()
+        {
+        }
+
+        public static CompilationMode GetCompilationMode(string file)
+        {
+            Guard.AgainstNull(nameof(file), file);
+
+            using (var stream = new FileStream(file, FileMode.Open, FileAccess.Read, FileShare.Read))
+            {
+                using (var image = new Image(stream))
+                {
+                    return image.GetCompilationMode();
+                }
+            }
+        }
+
         CompilationMode GetCompilationMode()
         {
             if (stream.Length < 318)
+            {
                 return CompilationMode.NativeOrInvalid;
+            }
             if (ReadUInt16() != 0x5a4d)
+            {
                 return CompilationMode.NativeOrInvalid;
+            }
             if (!Advance(58))
+            {
                 return CompilationMode.NativeOrInvalid;
+            }
             if (!MoveTo(ReadUInt32()))
+            {
                 return CompilationMode.NativeOrInvalid;
+            }
             if (ReadUInt32() != 0x00004550)
+            {
                 return CompilationMode.NativeOrInvalid;
+            }
             if (!Advance(20))
+            {
                 return CompilationMode.NativeOrInvalid;
+            }
 
             var result = CompilationMode.NativeOrInvalid;
             switch (ReadUInt16())
@@ -103,7 +116,9 @@ namespace NServiceBus.Hosting.Helpers
         bool Advance(int length)
         {
             if (stream.Position + length >= stream.Length)
+            {
                 return false;
+            }
 
             stream.Seek(length, SeekOrigin.Current);
             return true;
@@ -112,28 +127,28 @@ namespace NServiceBus.Hosting.Helpers
         bool MoveTo(uint position)
         {
             if (position >= stream.Length)
+            {
                 return false;
+            }
 
             stream.Position = position;
             return true;
         }
 
-        public void Dispose()
-        {
-        }
-
         ushort ReadUInt16()
         {
-            return (ushort)(stream.ReadByte()
-                            | (stream.ReadByte() << 8));
+            return (ushort) (stream.ReadByte()
+                             | (stream.ReadByte() << 8));
         }
 
         uint ReadUInt32()
         {
-            return (uint)(stream.ReadByte()
-                          | (stream.ReadByte() << 8)
-                          | (stream.ReadByte() << 16)
-                          | (stream.ReadByte() << 24));
+            return (uint) (stream.ReadByte()
+                           | (stream.ReadByte() << 8)
+                           | (stream.ReadByte() << 16)
+                           | (stream.ReadByte() << 24));
         }
+
+        Stream stream;
     }
 }

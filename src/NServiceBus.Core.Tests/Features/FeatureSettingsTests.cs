@@ -3,25 +3,34 @@
     using System;
     using System.Linq;
     using NServiceBus.Features;
+    using Transport;
     using NUnit.Framework;
     using Settings;
 
     [TestFixture]
     public class FeatureSettingsTests
     {
+        private FeatureActivator featureSettings;
+        private SettingsHolder settings;
+
+        [SetUp]
+        public void Init()
+        {
+            settings = new SettingsHolder();
+            settings.Set<TransportDefinition>(new MsmqTransport());
+            featureSettings = new FeatureActivator(settings);
+        }
+
         [Test]
         public void Should_check_prerequisites()
         {
             var featureWithTrueCondition = new MyFeatureWithSatisfiedPrerequisite();
             var featureWithFalseCondition = new MyFeatureWithUnsatisfiedPrerequisite();
 
-            var featureSettings = new FeatureActivator(new SettingsHolder());
-
             featureSettings.Add(featureWithTrueCondition);
             featureSettings.Add(featureWithFalseCondition);
 
-
-            featureSettings.SetupFeatures(new FeatureConfigurationContext(null));
+            featureSettings.SetupFeatures(null, null);
 
             Assert.True(featureWithTrueCondition.IsActive);
             Assert.False(featureWithFalseCondition.IsActive);
@@ -32,26 +41,20 @@
         [Test]
         public void Should_register_defaults_if_feature_is_activated()
         {
-            var settings = new SettingsHolder();
-            var featureSettings = new FeatureActivator(settings);
-
             featureSettings.Add(new MyFeatureWithDefaults());
 
-            featureSettings.SetupFeatures(new FeatureConfigurationContext(null));
+            featureSettings.SetupFeatures(null, null);
 
             Assert.True(settings.HasSetting("Test1"));
         }
 
-        [Test,Ignore("We need to discuss if this is possible since prereqs can only be checked when settings is locked. And with settings locked we can't register defaults. So there is always a chance that the feature decides to not go ahead with the setup and in that case defaults would already been applied")]
+        [Test,Ignore("Discuss if this is possible since pre-requirements can only be checked when settings is locked. And with settings locked we can't register defaults. So there is always a chance that the feature decides to not go ahead with the setup and in that case defaults would already been applied")]
         public void Should_not_register_defaults_if_feature_is_not_activated()
         {
-            var settings = new SettingsHolder();
-            var featureSettings = new FeatureActivator(settings);
-
             featureSettings.Add(new MyFeatureWithDefaultsNotActive());
             featureSettings.Add(new MyFeatureWithDefaultsNotActiveDueToUnsatisfiedPrerequisite());
 
-            featureSettings.SetupFeatures(new FeatureConfigurationContext(null));
+            featureSettings.SetupFeatures(null, null);
 
             Assert.False(settings.HasSetting("Test1"));
             Assert.False(settings.HasSetting("Test2"));
@@ -115,10 +118,7 @@
         {
             Defaults(s =>
             {
-                if (OnDefaults != null)
-                {
-                    OnDefaults(this);
-                }
+                OnDefaults?.Invoke(this);
             });
         }
 
@@ -133,10 +133,7 @@
 
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-            if (OnActivation != null)
-            {
-                OnActivation(this);
-            }
+            OnActivation?.Invoke(this);
         }
     }
 }

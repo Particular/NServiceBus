@@ -1,29 +1,32 @@
 ﻿namespace NServiceBus.SagaPersisters.InMemory.Tests
 {
     using System;
+    using System.Threading.Tasks;
+    using Extensibility;
     using NUnit.Framework;
 
     [TestFixture]
-    class When_persisting_different_sagas_with_unique_properties : InMemorySagaPersistenceFixture
+    class When_persisting_different_sagas_with_unique_properties
     {
-        public When_persisting_different_sagas_with_unique_properties()
-        {
-            RegisterSaga<SagaWithTwoUniqueProperties>();
-            RegisterSaga<AnotherSagaWithTwoUniqueProperties>();
-            RegisterSaga<SagaWithUniqueProperty>();
-        }
         [Test]
-        public void  It_should_persist_successfully()
+        public async Task It_should_persist_successfully()
         {
-            var saga1 = new SagaWithTwoUniquePropertiesData { Id = Guid.NewGuid(), UniqueString = "whatever", UniqueInt = 5 };
-            var saga2 = new AnotherSagaWithTwoUniquePropertiesData { Id = Guid.NewGuid(), UniqueString = "whatever", UniqueInt = 5 };
-            var saga3 = new SagaWithUniquePropertyData {Id = Guid.NewGuid(), UniqueString = "whatever"};
+             var saga1 = new SagaWithUniquePropertyData
+            {
+                Id = Guid.NewGuid(),
+                UniqueString = "whatever"
+            };
+            var saga2 = new AnotherSagaWithUniquePropertyData
+            {
+                Id = Guid.NewGuid(),
+                UniqueString = "whatever"
+            };
 
-           
-
-            persister.Save(saga1);
-            persister.Save(saga2);
-            persister.Save(saga3);
+            var persister = new InMemorySagaPersister();
+            var transaction = new InMemorySynchronizedStorageSession();
+            await persister.Save(saga1, SagaMetadataHelper.GetMetadata<SagaWithUniqueProperty>(saga1), transaction, new ContextBag());
+            await persister.Save(saga2, SagaMetadataHelper.GetMetadata<AnotherSagaTwoUniqueProperty>(saga2), transaction, new ContextBag());
+            await transaction.CompleteAsync();
         }
     }
 }

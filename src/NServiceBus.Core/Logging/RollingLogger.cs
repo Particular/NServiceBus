@@ -1,4 +1,4 @@
-namespace NServiceBus.Logging
+namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
@@ -10,15 +10,6 @@ namespace NServiceBus.Logging
 
     class RollingLogger
     {
-        string targetDirectory;
-        int numberOfArchiveFilesToKeep;
-        long maxFileSize;
-        const long fileLimitInBytes = 10L * 1024 * 1024; //10MB
-        internal Func<DateTime> GetDate = () => DateTime.Now.Date;
-        DateTime lastWriteDate;
-        long currentFileSize;
-        protected string currentfilePath;
-
         public RollingLogger(string targetDirectory, int numberOfArchiveFilesToKeep = 10, long maxFileSize = fileLimitInBytes)
         {
             this.targetDirectory = targetDirectory;
@@ -29,13 +20,18 @@ namespace NServiceBus.Logging
         public void Write(string message)
         {
             SyncFileSystem();
+            InnerWrite(message);
+        }
+
+        void InnerWrite(string message)
+        {
             try
             {
                 AppendLine(message);
             }
             catch (Exception exception)
             {
-                var errorMessage = string.Format("NServiceBus.Logging.RollingLogger Could not write to log file {0} {1}", currentfilePath, exception);
+                var errorMessage = $"NServiceBus.RollingLogger Could not write to log file '{currentfilePath}'. Exception: {exception}";
                 Trace.WriteLine(errorMessage);
             }
         }
@@ -74,7 +70,15 @@ namespace NServiceBus.Logging
         {
             foreach (var file in GetFilesToDelete(logFiles))
             {
-                File.Delete(file);
+                try
+                {
+                    File.Delete(file);
+                }
+                catch (Exception exception)
+                {
+                    var errorMessage = $"NServiceBus.RollingLogger Could not purge log file '{file}'. Exception: {exception}";
+                    InnerWrite(errorMessage);
+                }
             }
         }
 
@@ -168,15 +172,24 @@ namespace NServiceBus.Logging
                 }
             }
 
-            var fileName = string.Format("nsb_log_{0}_{1}.txt", today.ToString("yyyy-MM-dd"), sequenceNumber);
+            var fileName = $"nsb_log_{today.ToString("yyyy-MM-dd")}_{sequenceNumber}.txt";
             currentfilePath = Path.Combine(targetDirectory, fileName);
         }
+
+        protected string currentfilePath;
+        long currentFileSize;
+        internal Func<DateTime> GetDate = () => DateTime.Now.Date;
+        DateTime lastWriteDate;
+        long maxFileSize;
+        int numberOfArchiveFilesToKeep;
+        string targetDirectory;
+        const long fileLimitInBytes = 10L*1024*1024; //10MB
 
         internal class LogFile
         {
             public DateTime DatePart;
-            public int SequenceNumber;
             public string Path;
+            public int SequenceNumber;
         }
     }
 }

@@ -4,8 +4,6 @@
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
-    using NServiceBus.Licensing;
-    using NServiceBus.Logging;
     using NUnit.Framework;
 
     [TestFixture]
@@ -214,40 +212,6 @@
                 var second = files[1];
                 Assert.AreEqual("nsb_log_2010-10-01_1.txt", Path.GetFileName(second));
                 Assert.AreEqual("Bar\r\n", NonLockingFileReader.ReadAllTextWithoutLocking(second));
-            }
-        }
-
-        [Test]
-        [Explicit]
-        public void MaxFilesTest()
-        {
-            using (var tempPath = new TempPath())
-            {
-                var logger = new RollingLogger(tempPath.TempDirectory, maxFileSize: 10)
-                {
-                    GetDate = () => new DateTime(2010, 10, 1)
-                };
-                for (var i = 0; i < 1000000000; i++)
-                {
-                    logger.Write("Some long text");
-                }
-            }
-        }
-
-        [Test]
-        [Explicit]
-        public void ManyWritesTest()
-        {
-            using (var tempPath = new TempPath())
-            {
-                var logger = new RollingLogger(tempPath.TempDirectory)
-                {
-                    GetDate = () => new DateTime(2010, 10, 1)
-                };
-                for (var i = 0; i < 1000000; i++)
-                {
-                    logger.Write("Some long text");
-                }
             }
         }
 

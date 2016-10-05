@@ -1,101 +1,72 @@
 ﻿namespace NServiceBus.AcceptanceTests.Sagas
 {
     using System;
-    using System.Diagnostics;
-    using EndpointTemplates;
+    using System.Linq;
+    using System.Threading.Tasks;
     using AcceptanceTesting;
-    using NServiceBus.Config;
-    using NServiceBus.Faults;
-    using NServiceBus.Features;
+    using AcceptanceTesting.Support;
+    using EndpointTemplates;
     using NUnit.Framework;
-    using Saga;
-    using ScenarioDescriptors;
 
+    [TestFixture]
     public class When_saga_id_changed : NServiceBusAcceptanceTest
     {
         [Test]
         public void Should_throw()
         {
-            var context = new Context();
-            Scenario.Define(context)
-                .WithEndpoint<Endpoint>(
-                    b => b.Given(bus => bus.SendLocal(new StartSaga
-                    {
-                        DataId = Guid.NewGuid()
-                    })))
-                    .AllowExceptions()
-                .Done(c => c.ExceptionReceived)
-                .Repeat(r => r.For(Transports.Default))
-                .Run();
+            var exception = Assert.ThrowsAsync<AggregateException>(async () =>
+                await Scenario.Define<Context>()
+                    .WithEndpoint<Endpoint>(
+                        b => b.When(session => session.SendLocal(new StartSaga
+                        {
+                            DataId = Guid.NewGuid()
+                        })))
+                    .Done(c => c.FailedMessages.Any())
+                    .Run())
+                .ExpectFailedMessages();
 
-            Debug.WriteLine(context.ExceptionMessage, "A modification of IContainSagaData.Id has been detected. This property is for infrastructure purposes only and should not be modified. SagaType: " + typeof(Endpoint.MySaga));
+            Assert.That(exception.FailedMessages, Has.Count.EqualTo(1));
+            var failedMessage = exception.FailedMessages.Single();
+            Assert.That(((Context) exception.ScenarioContext).MessageId, Is.EqualTo(failedMessage.MessageId), "Message should be moved to errorqueue");
+            Assert.That(failedMessage.Exception.Message, Contains.Substring("A modification of IContainSagaData.Id has been detected. This property is for infrastructure purposes only and should not be modified. SagaType:"));
         }
 
         public class Context : ScenarioContext
         {
-            public bool ExceptionReceived { get; set; }
-            public string ExceptionMessage { get; set; }
+            public string MessageId { get; set; }
         }
 
         public class Endpoint : EndpointConfigurationBuilder
         {
             public Endpoint()
             {
-                EndpointSetup<DefaultServer>(b =>
-                {
-                    b.RegisterComponents(c => c.ConfigureComponent<CustomFaultManager>(DependencyLifecycle.SingleInstance));
-                    b.DisableFeature<TimeoutManager>();
-                })
-                    .WithConfig<TransportConfig>(c =>
-                    {
-                        c.MaxRetries = 0;
-                    });
+                EndpointSetup<DefaultServer>();
             }
 
-            public class MySaga : Saga<MySaga.MySagaData>,
+            public class SagaIdChangedSaga : Saga<SagaIdChangedSaga.SagaIdChangedSagaData>,
                 IAmStartedByMessages<StartSaga>
             {
-                public Context Context { get; set; }
+                public Context TestContext { get; set; }
 
-                public void Handle(StartSaga message)
+                public Task Handle(StartSaga message, IMessageHandlerContext context)
                 {
-                    Data.DataId = message.DataId;
                     Data.Id = Guid.NewGuid();
+                    TestContext.MessageId = context.MessageId;
+                    return Task.FromResult(0);
                 }
 
-                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MySagaData> mapper)
+                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaIdChangedSagaData> mapper)
                 {
                     mapper.ConfigureMapping<StartSaga>(m => m.DataId).ToSaga(s => s.DataId);
                 }
 
-                public class MySagaData : ContainSagaData
+                public class SagaIdChangedSagaData : ContainSagaData
                 {
-                    [Unique]
                     public virtual Guid DataId { get; set; }
-                }
-
-            }
-            class CustomFaultManager : IManageMessageFailures
-            {
-                public Context Context { get; set; }
-
-                public void SerializationFailedForMessage(TransportMessage message, Exception e)
-                {
-                }
-
-                public void ProcessingAlwaysFailsForMessage(TransportMessage message, Exception e)
-                {
-                    Context.ExceptionMessage = e.Message;
-                    Context.ExceptionReceived = true;
-                }
-
-                public void Init(Address address)
-                {
                 }
             }
         }
 
-        [Serializable]
         public class StartSaga : ICommand
         {
             public Guid DataId { get; set; }

@@ -9,6 +9,7 @@ namespace NServiceBus.Config
         /// Key is specified as in ASCII characters.
         /// </summary>
         Ascii = 0,
+
         /// <summary>
         /// Key is specified as a Base64 encoded string.
         /// </summary>

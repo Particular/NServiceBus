@@ -1,58 +1,54 @@
 namespace NServiceBus
 {
     using System;
-    using NServiceBus.Utils;
-    using NServiceBus.Utils.Reflection;
-    using Transports;
+    using Transport;
 
     /// <summary>
     /// Extension methods to configure transport.
     /// </summary>
-    public static partial class UseTransportExtensions
+    public static class UseTransportExtensions
     {
-        private const string TransportDefinitionTypeKey = "transportDefinitionType";
-
         /// <summary>
         /// Configures NServiceBus to use the given transport.
         /// </summary>
-        public static TransportExtensions<T> UseTransport<T>(this BusConfiguration busConfiguration) where T : TransportDefinition, new()
+        public static TransportExtensions<T> UseTransport<T>(this EndpointConfiguration endpointConfiguration) where T : TransportDefinition, new()
         {
+            Guard.AgainstNull(nameof(endpointConfiguration), endpointConfiguration);
             var type = typeof(TransportExtensions<>).MakeGenericType(typeof(T));
-            var extension = (TransportExtensions<T>)Activator.CreateInstance(type, busConfiguration.Settings);
+            var extension = (TransportExtensions<T>) Activator.CreateInstance(type, endpointConfiguration.Settings);
 
-            busConfiguration.Settings.Set(TransportDefinitionTypeKey, typeof(T));
-
+            var transportDefinition = new T();
+            ConfigureTransport(endpointConfiguration, transportDefinition);
             return extension;
         }
 
         /// <summary>
         /// Configures NServiceBus to use the given transport.
         /// </summary>
-        public static TransportExtensions UseTransport(this BusConfiguration busConfiguration, Type transportDefinitionType)
+        public static TransportExtensions UseTransport(this EndpointConfiguration endpointConfiguration, Type transportDefinitionType)
         {
-            Guard.TypeHasDefaultConstructor(transportDefinitionType, "transportDefinitionType");
+            Guard.AgainstNull(nameof(endpointConfiguration), endpointConfiguration);
+            Guard.AgainstNull(nameof(transportDefinitionType), transportDefinitionType);
+            Guard.TypeHasDefaultConstructor(transportDefinitionType, nameof(transportDefinitionType));
 
-            busConfiguration.Settings.Set(TransportDefinitionTypeKey, transportDefinitionType);
-
-            return new TransportExtensions(busConfiguration.Settings);
+            var transportDefinition = transportDefinitionType.Construct<TransportDefinition>();
+            ConfigureTransport(endpointConfiguration, transportDefinition);
+            return new TransportExtensions(endpointConfiguration.Settings);
         }
 
-        internal static void SetupTransport(BusConfiguration busConfiguration)
+        static void ConfigureTransport(EndpointConfiguration endpointConfiguration, TransportDefinition transportDefinition)
         {
-            var transportDefinition = GetTransportDefinition(busConfiguration);
-            busConfiguration.Settings.Set<TransportDefinition>(transportDefinition);
-            transportDefinition.Configure(busConfiguration);
+            endpointConfiguration.Settings.Set<InboundTransport>(new InboundTransport());
+            endpointConfiguration.Settings.Set<TransportDefinition>(transportDefinition);
+            endpointConfiguration.Settings.Set<OutboundTransport>(new OutboundTransport(true));
         }
 
-        static TransportDefinition GetTransportDefinition(BusConfiguration busConfiguration)
+        internal static void EnsureTransportConfigured(EndpointConfiguration endpointConfiguration)
         {
-            Type transportDefinitionType;
-            if (!busConfiguration.Settings.TryGet(TransportDefinitionTypeKey, out transportDefinitionType))
+            if (!endpointConfiguration.Settings.HasExplicitValue<TransportDefinition>())
             {
-                return new MsmqTransport();
+                endpointConfiguration.UseTransport<MsmqTransport>();
             }
-
-            return transportDefinitionType.Construct<TransportDefinition>();
         }
     }
 }

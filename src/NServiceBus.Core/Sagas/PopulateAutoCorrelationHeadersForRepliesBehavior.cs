@@ -1,49 +1,58 @@
 ﻿namespace NServiceBus
 {
     using System;
-    using NServiceBus.Sagas;
+    using System.Threading.Tasks;
     using Pipeline;
-    using Pipeline.Contexts;
-    using Unicast;
-    using Unicast.Transport;
+    using Transport;
 
-
-    class PopulateAutoCorrelationHeadersForRepliesBehavior : IBehavior<OutgoingContext>
+    class PopulateAutoCorrelationHeadersForRepliesBehavior : IBehavior<IOutgoingReplyContext, IOutgoingReplyContext>
     {
-        public void Invoke(OutgoingContext context, Action next)
+        public Task Invoke(IOutgoingReplyContext context, Func<IOutgoingReplyContext, Task> next)
         {
-            if (context.OutgoingLogicalMessage.IsControlMessage())
-            {
-                next();
-                return;
-            }
+            FlowDetailsForRequestingSagaToOutgoingMessage(context);
 
-            ActiveSagaInstance saga;
+            return next(context);
+        }
 
-            if (context.TryGet(out saga) && !saga.NotFound)
-            {
-                context.OutgoingLogicalMessage.Headers[Headers.OriginatingSagaId] = saga.SagaId;
-                context.OutgoingLogicalMessage.Headers[Headers.OriginatingSagaType] = saga.Metadata.SagaType.AssemblyQualifiedName;
-            }
+        static void FlowDetailsForRequestingSagaToOutgoingMessage(IOutgoingReplyContext context)
+        {
+            IncomingMessage incomingMessage;
 
-            //auto correlate with the saga we are replying to if needed
-            if (context.DeliveryOptions is ReplyOptions  && context.IncomingMessage != null)
+            if (context.TryGetIncomingPhysicalMessage(out incomingMessage))
             {
                 string sagaId;
+
+                incomingMessage.Headers.TryGetValue(Headers.OriginatingSagaId, out sagaId);
+
                 string sagaType;
 
-                if (context.IncomingMessage.Headers.TryGetValue(Headers.OriginatingSagaId, out sagaId))
+                incomingMessage.Headers.TryGetValue(Headers.OriginatingSagaType, out sagaType);
+
+                State state;
+
+                if (context.Extensions.TryGet(out state))
                 {
-                    context.OutgoingLogicalMessage.Headers[Headers.SagaId] = sagaId;
+                    sagaId = state.SagaIdToUse;
+                    sagaType = state.SagaTypeToUse;
                 }
 
-                if (context.IncomingMessage.Headers.TryGetValue(Headers.OriginatingSagaType, out sagaType))
+                if (!string.IsNullOrEmpty(sagaId))
                 {
-                    context.OutgoingLogicalMessage.Headers[Headers.SagaType] = sagaType;
+                    context.Headers[Headers.SagaId] = sagaId;
+                }
+
+                if (!string.IsNullOrEmpty(sagaType))
+                {
+                    context.Headers[Headers.SagaType] = sagaType;
                 }
             }
+        }
 
-            next();
+        public class State
+        {
+            public string SagaIdToUse { get; set; }
+
+            public string SagaTypeToUse { get; set; }
         }
     }
 }

@@ -6,11 +6,12 @@ namespace NServiceBus
     public static class HostInfoConfigurationExtensions
     {
         /// <summary>
-        /// Entry point for HostInfo related configuration
+        /// Entry point for HostInfo related configuration.
         /// </summary>
-        /// <param name="config"><see cref="Configure"/> instance.</param>
-        public static HostInfoSettings UniquelyIdentifyRunningInstance(this BusConfiguration config)
+        /// <param name="config">The <see cref="EndpointConfiguration" /> instance to apply the settings to.</param>
+        public static HostInfoSettings UniquelyIdentifyRunningInstance(this EndpointConfiguration config)
         {
+            Guard.AgainstNull(nameof(config), config);
             return new HostInfoSettings(config);
         }
     }

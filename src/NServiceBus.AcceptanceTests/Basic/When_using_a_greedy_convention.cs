@@ -1,24 +1,25 @@
 ﻿namespace NServiceBus.AcceptanceTests.Basic
 {
     using System;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
-    using NServiceBus.AcceptanceTests.ScenarioDescriptors;
+    using System.Threading.Tasks;
+    using AcceptanceTesting;
+    using EndpointTemplates;
     using NUnit.Framework;
 
     public class When_using_a_greedy_convention : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Should_receive_the_message()
+        public async Task Should_receive_the_message()
         {
-            Scenario.Define(() => new Context { Id = Guid.NewGuid() })
-                    .WithEndpoint<EndPoint>(b => b.Given((bus, context) => bus.SendLocal(new MyMessage { Id = context.Id })))
-                    .Done(c => c.WasCalled)
-                    .Repeat(r => r
-                        .For(Transports.Default)
-                    )
-                    .Should(c => Assert.True(c.WasCalled, "The message handler should be called"))
-                    .Run();
+            var context = await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
+                .WithEndpoint<Endpoint>(b => b.When((session, c) => session.SendLocal(new MyMessage
+                {
+                    Id = c.Id
+                })))
+                .Done(c => c.WasCalled)
+                .Run();
+
+            Assert.True(context.WasCalled, "The message handler should be called");
         }
 
         public class Context : ScenarioContext
@@ -28,9 +29,9 @@
             public Guid Id { get; set; }
         }
 
-        public class EndPoint : EndpointConfigurationBuilder
+        public class Endpoint : EndpointConfigurationBuilder
         {
-            public EndPoint()
+            public Endpoint()
             {
                 EndpointSetup<DefaultServer>(c => c.Conventions().DefiningMessagesAs(MessageConvention));
             }
@@ -43,7 +44,7 @@
         }
 
         [Serializable]
-        public class MyMessage 
+        public class MyMessage
         {
             public Guid Id { get; set; }
         }
@@ -51,12 +52,16 @@
         public class MyMessageHandler : IHandleMessages<MyMessage>
         {
             public Context Context { get; set; }
-            public void Handle(MyMessage message)
+
+            public Task Handle(MyMessage message, IMessageHandlerContext context)
             {
                 if (Context.Id != message.Id)
-                    return;
+                {
+                    return Task.FromResult(0);
+                }
 
                 Context.WasCalled = true;
+                return Task.FromResult(0);
             }
         }
     }

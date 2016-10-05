@@ -1,49 +1,36 @@
-
-namespace NServiceBus.Unicast.Queuing
+namespace NServiceBus
 {
-    using System;
-    using System.Linq;
+    using System.Threading.Tasks;
     using Installation;
-    using Logging;
-    using NServiceBus.Configuration.AdvanceExtensibility;
-    using Transports;
+    using ObjectBuilder;
+    using Settings;
+    using Transport;
 
-    class QueuesCreator : INeedInitialization, INeedToInstallSomething
+    class QueuesCreator : INeedToInstallSomething
     {
-        public ICreateQueues QueueCreator { get; set; }
-
-        public void Install(string identity, Configure config)
+        public QueuesCreator(IBuilder builder, ReadOnlySettings settings)
         {
-            if (config.Settings.Get<bool>("Endpoint.SendOnly"))
-            {
-                return;
-            }
-
-            if (!config.CreateQueues())
-            {
-                return;
-            }
-
-            var wantQueueCreatedInstances = config.Builder.BuildAll<IWantQueueCreated>().ToList();
-
-            foreach (var wantQueueCreatedInstance in wantQueueCreatedInstances.Where(wantQueueCreatedInstance => wantQueueCreatedInstance.ShouldCreateQueue()))
-            {
-                if (wantQueueCreatedInstance.Address == null)
-                {
-                    throw new InvalidOperationException(string.Format("IWantQueueCreated implementation {0} returned a null address", wantQueueCreatedInstance.GetType().FullName));
-                }
-
-                QueueCreator.CreateQueueIfNecessary(wantQueueCreatedInstance.Address, identity);
-                Logger.DebugFormat("Verified that the queue: [{0}] existed", wantQueueCreatedInstance.Address);
-            }
+            this.builder = builder;
+            this.settings = settings;
         }
 
-        public void Customize(BusConfiguration configuration)
+        public Task Install(string identity)
         {
-            Configure.ForAllTypes<IWantQueueCreated>(configuration.GetSettings().GetAvailableTypes(),
-                type => configuration.RegisterComponents(c => c.ConfigureComponent(type, DependencyLifecycle.InstancePerCall)));
+            if (settings.Get<bool>("Endpoint.SendOnly"))
+            {
+                return TaskEx.CompletedTask;
+            }
+            if (!settings.CreateQueues())
+            {
+                return TaskEx.CompletedTask;
+            }
+            var queueCreator = builder.Build<ICreateQueues>();
+            var queueBindings = settings.Get<QueueBindings>();
+
+            return queueCreator.CreateQueueIfNecessary(queueBindings, identity);
         }
 
-        static ILog Logger = LogManager.GetLogger<QueuesCreator>();
+        readonly IBuilder builder;
+        readonly ReadOnlySettings settings;
     }
 }

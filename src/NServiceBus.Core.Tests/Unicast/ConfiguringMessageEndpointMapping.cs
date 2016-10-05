@@ -22,9 +22,9 @@ namespace NServiceBus.Unicast.Tests
 
     public class Configuring_message_endpoint_mapping
     {
-        public IDictionary<Type, Address> Configure(Action<MessageEndpointMapping> setupMapping)
+        public IDictionary<Type, string> Configure(Action<MessageEndpointMapping> setupMapping)
         {
-            var mappings = new Dictionary<Type, Address>();
+            var mappings = new Dictionary<Type, string>();
 
             var mapping = new MessageEndpointMapping{ Endpoint = "SomeEndpoint" };
 
@@ -60,10 +60,9 @@ namespace NServiceBus.Unicast.Tests
     public class When_configuring_an_endpoint_mapping_using_an_assembly_name_in_the_messages_property_that_does_not_exist : Configuring_message_endpoint_mapping
     {
         [Test]
-        [ExpectedException(typeof(ArgumentException))]
         public void Should_fail()
         {
-            Configure(m => m.Messages = "NServiceBus.Unicast.Tests.MessagesThatDoesNotExist");
+            Assert.That(() => Configure(m => m.Messages = "NServiceBus.Unicast.Tests.MessagesThatDoesNotExist"), Throws.ArgumentException);
         }
     }
 
@@ -81,10 +80,9 @@ namespace NServiceBus.Unicast.Tests
     public class When_configuring_an_endpoint_mapping_using_a_type_name_in_the_messages_property_that_does_not_exist : Configuring_message_endpoint_mapping
     {
         [Test]
-        [ExpectedException(typeof(ArgumentException))]
         public void Should_fail()
         {
-            Configure(m => m.Messages = "NServiceBus.Unicast.Tests.Messages.MessageThatDoesNotExist, NServiceBus.Core.Tests");
+            Assert.That(() => Configure(m => m.Messages = "NServiceBus.Unicast.Tests.Messages.MessageThatDoesNotExist, NServiceBus.Core.Tests"), Throws.ArgumentException);
         }
     }
 
@@ -103,10 +101,9 @@ namespace NServiceBus.Unicast.Tests
     public class When_configuring_an_endpoint_mapping_using_the_assembly_property_with_an_assembly_that_does_not_exist : Configuring_message_endpoint_mapping
     {
         [Test]
-        [ExpectedException(typeof(ArgumentException))]
         public void Should_fail()
         {
-            Configure(m => m.AssemblyName = "NServiceBus.Unicast.Tests.MessagesThatDoesNotExist");
+            Assert.That(() => Configure(m => m.AssemblyName = "NServiceBus.Unicast.Tests.MessagesThatDoesNotExist"), Throws.ArgumentException);
         }
     }
 
@@ -124,10 +121,9 @@ namespace NServiceBus.Unicast.Tests
     public class When_configuring_an_endpoint_mapping_using_the_type_property_with_a_type_that_does_not_exist : Configuring_message_endpoint_mapping
     {
         [Test]
-        [ExpectedException(typeof(ArgumentException))]
         public void Should_fail()
         {
-            Configure(m => { m.AssemblyName = "NServiceBus.Core.Tests"; m.TypeFullName = "NServiceBus.Unicast.Tests.Messages.MessageThatDoesNotExist"; });
+            Assert.That(() => Configure(m => { m.AssemblyName = "NServiceBus.Core.Tests"; m.TypeFullName = "NServiceBus.Unicast.Tests.Messages.MessageThatDoesNotExist"; }), Throws.ArgumentException);
         }
     }
 

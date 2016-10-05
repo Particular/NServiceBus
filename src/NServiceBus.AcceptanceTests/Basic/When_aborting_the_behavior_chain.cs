@@ -1,19 +1,18 @@
 ﻿namespace NServiceBus.AcceptanceTests.Basic
 {
     using System;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
+    using System.Threading.Tasks;
+    using AcceptanceTesting;
+    using EndpointTemplates;
     using NUnit.Framework;
 
     public class When_aborting_the_behavior_chain : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Subsequent_handlers_will_not_be_invoked()
+        public async Task Subsequent_handlers_will_not_be_invoked()
         {
-            var context = new Context();
-
-            Scenario.Define(context)
-                .WithEndpoint<MyEndpoint>(b => b.Given(bus => bus.SendLocal(new SomeMessage())))
+            var context = await Scenario.Define<Context>()
+                .WithEndpoint<MyEndpoint>(b => b.When(session => session.SendLocal(new SomeMessage())))
                 .Done(c => c.FirstHandlerInvoked)
                 .Run();
 
@@ -28,44 +27,40 @@
         }
 
         [Serializable]
-        public class SomeMessage : IMessage { }
+        public class SomeMessage : IMessage
+        {
+        }
 
         public class MyEndpoint : EndpointConfigurationBuilder
         {
             public MyEndpoint()
             {
-                EndpointSetup<DefaultServer>();
-            }
-
-            class EnsureOrdering : ISpecifyMessageHandlerOrdering
-            {
-                public void SpecifyOrder(Order order)
-                {
-                    order.Specify(First<FirstHandler>.Then<SecondHandler>());
-                }
+                EndpointSetup<DefaultServer>(c => c.ExecuteTheseHandlersFirst(typeof(FirstHandler), typeof(SecondHandler)));
             }
 
             class FirstHandler : IHandleMessages<SomeMessage>
             {
                 public Context Context { get; set; }
-                
-                public IBus Bus { get; set; }
-                
-                public void Handle(SomeMessage message)
+
+                public Task Handle(SomeMessage message, IMessageHandlerContext context)
                 {
                     Context.FirstHandlerInvoked = true;
 
-                    Bus.DoNotContinueDispatchingCurrentMessageToHandlers();
+                    context.DoNotContinueDispatchingCurrentMessageToHandlers();
+
+                    return Task.FromResult(0);
                 }
             }
 
             class SecondHandler : IHandleMessages<SomeMessage>
             {
                 public Context Context { get; set; }
-                
-                public void Handle(SomeMessage message)
+
+                public Task Handle(SomeMessage message, IMessageHandlerContext context)
                 {
                     Context.SecondHandlerInvoked = true;
+
+                    return Task.FromResult(0);
                 }
             }
         }

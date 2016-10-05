@@ -1,79 +1,70 @@
-namespace NServiceBus.Scheduling
+namespace NServiceBus
 {
     using System;
     using System.Collections.Concurrent;
     using System.Diagnostics;
-    using System.Threading;
     using System.Threading.Tasks;
     using Logging;
 
     class DefaultScheduler
     {
-        public DefaultScheduler(IBus bus)
-        {
-            this.bus = bus;
-        }
-
         public void Schedule(TaskDefinition taskDefinition)
         {
             scheduledTasks[taskDefinition.Id] = taskDefinition;
-            logger.DebugFormat("Task {0}/{1} scheduled with timeSpan {2}", taskDefinition.Name, taskDefinition.Id, taskDefinition.Every);
-            DeferTask(taskDefinition);
         }
 
-        public void Start(Guid taskId)
+        public async Task Start(Guid taskId, IPipelineContext context)
         {
             TaskDefinition taskDefinition;
 
             if (!scheduledTasks.TryGetValue(taskId, out taskDefinition))
             {
-                logger.InfoFormat("Could not find any scheduled task {0} with with Id. The DefaultScheduler does not persist tasks between restarts.", taskId);
+                logger.InfoFormat("Could not find any scheduled task with id {0}. The DefaultScheduler does not persist tasks between restarts.", taskId);
                 return;
             }
 
-            DeferTask(taskDefinition);
-            ExecuteTask(taskDefinition);
+            await DeferTask(taskDefinition, context).ConfigureAwait(false);
+            await ExecuteTask(taskDefinition, context).ConfigureAwait(false);
         }
 
-        static void ExecuteTask(TaskDefinition taskDefinition)
+        static async Task ExecuteTask(TaskDefinition taskDefinition, IPipelineContext context)
         {
-            logger.InfoFormat("Start executing scheduled task {0}", taskDefinition.Name);
+            logger.InfoFormat("Start executing scheduled task named '{0}'.", taskDefinition.Name);
             var sw = new Stopwatch();
             sw.Start();
 
-            Task.Factory
-                .StartNew(taskDefinition.Task, CancellationToken.None, TaskCreationOptions.None, TaskScheduler.Default)
-                .ContinueWith(task =>
-                {
-                    sw.Stop();
-
-                    if (task.IsFaulted)
-                    {
-                        task.Exception.Handle(ex =>
-                        {
-                            logger.Error(String.Format("Failed to execute scheduled task {0}", taskDefinition.Name), ex);
-                            return true;
-                        });
-                    }
-                    else
-                    {
-                        logger.InfoFormat("Scheduled task {0} run for {1}", taskDefinition.Name, sw.Elapsed.ToString());
-                    }
-                });
+            try
+            {
+                await taskDefinition.Task(context).ConfigureAwait(false);
+                logger.InfoFormat("Scheduled task '{0}' run for {1}", taskDefinition.Name, sw.Elapsed);
+            }
+            catch (Exception ex)
+            {
+                logger.Error($"Failed to execute scheduled task '{taskDefinition.Name}'.", ex);
+            }
+            finally
+            {
+                sw.Stop();
+            }
         }
 
-        void DeferTask(TaskDefinition taskDefinition)
+        static Task DeferTask(TaskDefinition taskDefinition, IPipelineContext context)
         {
-            bus.Defer(taskDefinition.Every, new Messages.ScheduledTask
+            var options = new SendOptions();
+
+            options.DelayDeliveryWith(taskDefinition.Every);
+            options.RouteToThisEndpoint();
+
+            return context.Send(new ScheduledTask
             {
                 TaskId = taskDefinition.Id,
                 Name = taskDefinition.Name,
                 Every = taskDefinition.Every
-            });
+            }, options);
         }
 
+        ConcurrentDictionary<Guid, TaskDefinition> scheduledTasks = new ConcurrentDictionary<Guid, TaskDefinition>();
+
         static ILog logger = LogManager.GetLogger<DefaultScheduler>();
-        IBus bus;
-        internal ConcurrentDictionary<Guid, TaskDefinition> scheduledTasks = new ConcurrentDictionary<Guid, TaskDefinition>();
     }
 }

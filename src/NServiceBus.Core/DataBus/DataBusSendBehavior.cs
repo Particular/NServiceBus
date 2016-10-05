@@ -2,37 +2,43 @@
 {
     using System;
     using System.IO;
+    using System.Threading.Tasks;
     using System.Transactions;
-    using NServiceBus.DataBus;
+    using DataBus;
+    using DeliveryConstraints;
+    using Performance.TimeToBeReceived;
     using Pipeline;
-    using Pipeline.Contexts;
-    using Unicast.Transport;
 
-    class DataBusSendBehavior : IBehavior<OutgoingContext>
+    class DataBusSendBehavior : IBehavior<IOutgoingLogicalMessageContext, IOutgoingLogicalMessageContext>
     {
-        public IDataBus DataBus { get; set; }
-
-        public IDataBusSerializer DataBusSerializer { get; set; }
-
-        public Conventions Conventions { get; set; }
-
-        public void Invoke(OutgoingContext context, Action next)
+        public DataBusSendBehavior(IDataBus databus, IDataBusSerializer serializer, Conventions conventions)
         {
-            if (context.OutgoingLogicalMessage.IsControlMessage())
+            this.conventions = conventions;
+            dataBusSerializer = serializer;
+            dataBus = databus;
+        }
+
+        public async Task Invoke(IOutgoingLogicalMessageContext context, Func<IOutgoingLogicalMessageContext, Task> next)
+        {
+            var timeToBeReceived = TimeSpan.MaxValue;
+
+            DiscardIfNotReceivedBefore constraint;
+
+            if (context.Extensions.TryGetDeliveryConstraint(out constraint))
             {
-                next();
-                return;
+                timeToBeReceived = constraint.MaxTime;
             }
 
-            var timeToBeReceived = context.OutgoingLogicalMessage.Metadata.TimeToBeReceived;
-            var message = context.OutgoingLogicalMessage.Instance;
+            var message = context.Message.Instance;
 
-            foreach (var property in Conventions.GetDataBusProperties(message))
+            foreach (var property in conventions.GetDataBusProperties(message))
             {
                 var propertyValue = property.Getter(message);
 
                 if (propertyValue == null)
+                {
                     continue;
+                }
 
                 using (var stream = new MemoryStream())
                 {
@@ -43,14 +49,14 @@
                         propertyValue = dataBusProperty.GetValue();
                     }
 
-                    DataBusSerializer.Serialize(propertyValue, stream);
+                    dataBusSerializer.Serialize(propertyValue, stream);
                     stream.Position = 0;
 
                     string headerValue;
 
-                    using (new TransactionScope(TransactionScopeOption.Suppress))
+                    using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
                     {
-                        headerValue = DataBus.Put(stream, timeToBeReceived);
+                        headerValue = await dataBus.Put(stream, timeToBeReceived).ConfigureAwait(false);
                     }
 
                     string headerKey;
@@ -64,23 +70,27 @@
                     else
                     {
                         property.Setter(message, null);
-                        headerKey = String.Format("{0}.{1}", message.GetType().FullName, property.Name);
+                        headerKey = $"{message.GetType().FullName}.{property.Name}";
                     }
 
                     //we use the headers to in order to allow the infrastructure (eg. the gateway) to modify the actual key
-                    context.OutgoingLogicalMessage.Headers["NServiceBus.DataBus." + headerKey] = headerValue;
+                    context.Headers["NServiceBus.DataBus." + headerKey] = headerValue;
                 }
             }
 
-            next();
+            await next(context).ConfigureAwait(false);
         }
+
+        Conventions conventions;
+        IDataBus dataBus;
+        IDataBusSerializer dataBusSerializer;
 
         public class Registration : RegisterStep
         {
-            public Registration(): base("DataBusSend", typeof(DataBusSendBehavior), "Saves the payload into the shared location")
+            public Registration(Conventions conventions) : base("DataBusSend", typeof(DataBusSendBehavior), "Saves the payload into the shared location", b => new DataBusSendBehavior(b.Build<IDataBus>(), b.Build<IDataBusSerializer>(), conventions))
             {
-                InsertAfter(WellKnownStep.MutateOutgoingMessages);
-                InsertBefore(WellKnownStep.CreatePhysicalMessage);
+                InsertAfter("MutateOutgoingMessages");
+                InsertAfter("ApplyTimeToBeReceived");
             }
         }
     }

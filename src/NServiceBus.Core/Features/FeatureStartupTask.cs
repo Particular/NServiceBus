@@ -1,28 +1,34 @@
 ﻿namespace NServiceBus.Features
 {
+    using System.Threading.Tasks;
+
     /// <summary>
     /// Base for feature startup tasks.
     /// </summary>
     public abstract class FeatureStartupTask
     {
         /// <summary>
-        /// Will be called when the endpoint starts up if the feature has been activated.
+        /// Will be called after an endpoint has been started but before processing any messages, if the feature has been
+        /// activated.
         /// </summary>
-        protected abstract void OnStart();
-        
+        /// <param name="session">Bus session.</param>
+        protected abstract Task OnStart(IMessageSession session);
+
         /// <summary>
-        ///  Will be called when the endpoint stops and the feature is active.
+        /// Will be called after an endpoint has been started but before processing any messages, if the feature has been
+        /// activated.
         /// </summary>
-        protected virtual void OnStop(){}
-        
-        internal void PerformStartup()
+        /// <param name="session">Bus session.</param>
+        protected abstract Task OnStop(IMessageSession session);
+
+        internal Task PerformStartup(IMessageSession session)
         {
-            OnStart();
+            return OnStart(session);
         }
 
-        internal void PerformStop()
+        internal Task PerformStop(IMessageSession session)
         {
-            OnStop();
+            return OnStop(session);
         }
     }
 }

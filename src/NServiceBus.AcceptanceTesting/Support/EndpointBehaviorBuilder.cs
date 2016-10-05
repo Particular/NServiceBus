@@ -2,64 +2,59 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Threading.Tasks;
 
-    public class EndpointBehaviorBuilder<TContext> where TContext:ScenarioContext
+    public class EndpointBehaviorBuilder<TContext> where TContext : ScenarioContext
     {
-        
         public EndpointBehaviorBuilder(Type type)
         {
             behavior = new EndpointBehavior(type)
-                {
-                    Givens = new List<IGivenDefinition>(),
-                    Whens = new List<IWhenDefinition>()
-                };
+            {
+                Whens = new List<IWhenDefinition>()
+            };
         }
 
-
-        public EndpointBehaviorBuilder<TContext> Given(Action<IBus> action)
-        {
-            behavior.Givens.Add(new GivenDefinition<TContext>(action));
-
-            return this;
-        }
-
-
-        public EndpointBehaviorBuilder<TContext> Given(Action<IBus,TContext> action)
-        {
-            behavior.Givens.Add(new GivenDefinition<TContext>(action));
-
-            return this;
-        }
-
-        public EndpointBehaviorBuilder<TContext> When(Action<IBus> action)
+        public EndpointBehaviorBuilder<TContext> When(Func<IMessageSession, TContext, Task> action)
         {
             return When(c => true, action);
         }
 
-        public EndpointBehaviorBuilder<TContext> When(Predicate<TContext> condition, Action<IBus> action)
+        public EndpointBehaviorBuilder<TContext> When(Func<IMessageSession, Task> action)
         {
-            behavior.Whens.Add(new WhenDefinition<TContext>(condition,action));
+            return When(c => true, action);
+        }
+
+        public EndpointBehaviorBuilder<TContext> When(Predicate<TContext> condition, Func<IMessageSession, Task> action)
+        {
+            behavior.Whens.Add(new WhenDefinition<TContext>(condition, action));
 
             return this;
         }
 
-        public EndpointBehaviorBuilder<TContext> When(Predicate<TContext> condition, Action<IBus,TContext> action)
+        public EndpointBehaviorBuilder<TContext> When(Predicate<TContext> condition, Func<IMessageSession, TContext, Task> action)
         {
-            behavior.Whens.Add(new WhenDefinition<TContext>(condition,action));
+            behavior.Whens.Add(new WhenDefinition<TContext>(condition, action));
 
             return this;
         }
 
-        public EndpointBehaviorBuilder<TContext> CustomConfig(Action<BusConfiguration> action)
+        public EndpointBehaviorBuilder<TContext> CustomConfig(Action<EndpointConfiguration> action)
         {
-            behavior.CustomConfig.Add(action);
+            behavior.CustomConfig.Add((busConfig, context) => action(busConfig));
 
             return this;
         }
 
-        public EndpointBehaviorBuilder<TContext> AppConfig(string appConfig)
+        public EndpointBehaviorBuilder<TContext> CustomConfig(Action<EndpointConfiguration, TContext> action)
         {
-            behavior.AppConfig = appConfig;
+            behavior.CustomConfig.Add((configuration, context) => action(configuration, (TContext) context));
+
+            return this;
+        }
+
+        public EndpointBehaviorBuilder<TContext> DoNotFailOnErrorMessages()
+        {
+            behavior.DoNotFailOnErrorMessages = true;
 
             return this;
         }
@@ -69,6 +64,6 @@
             return behavior;
         }
 
-        readonly EndpointBehavior behavior;
+        EndpointBehavior behavior;
     }
 }

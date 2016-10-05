@@ -1,53 +1,75 @@
 namespace NServiceBus.Core.Tests.DataBus
 {
     using System;
-    using System.Collections.Generic;
     using System.IO;
-    using NServiceBus.Pipeline.Contexts;
+    using System.Threading.Tasks;
+    using DeliveryConstraints;
+    using NServiceBus.DataBus;
+    using NServiceBus.Performance.TimeToBeReceived;
+    using NServiceBus.Pipeline;
     using NUnit.Framework;
-    using Rhino.Mocks;
-    using Unicast;
-    using Unicast.Messages;
+    using Testing;
 
     [TestFixture]
-    class When_applying_the_databus_message_mutator_to_outgoing_messages : on_the_bus
+    class When_applying_the_databus_message_mutator_to_outgoing_messages
     {
         [Test]
-        public void Outgoing_databus_properties_should_be_dehydrated()
+        public async Task Outgoing_databus_properties_should_be_dehydrated()
         {
-            var metadata = new MessageMetadata();
-            var message = new LogicalMessage(metadata, new MessageWithDataBusProperty
+            var context = new TestableOutgoingLogicalMessageContext();
+            context.Message = new OutgoingLogicalMessage(typeof(MessageWithDataBusProperty), new MessageWithDataBusProperty
             {
                 DataBusProperty = new DataBusProperty<string>("test")
-            }, new Dictionary<string, string>(), null);
+            });
 
-            Invoke(message);
+            var fakeDatabus = new FakeDataBus();
 
-            dataBus.AssertWasCalled(
-                x => x.Put(Arg<Stream>.Is.Anything, Arg<TimeSpan>.Is.Equal(TimeSpan.MaxValue)));
-        }
+            var sendBehavior = new DataBusSendBehavior(fakeDatabus, new DefaultDataBusSerializer(), new Conventions());
 
-        void Invoke(LogicalMessage message)
-        {
-           
-            var context = new OutgoingContext(null, new SendOptions(Address.Parse("MyEndpoint")), message);
+            await sendBehavior.Invoke(context, ctx => TaskEx.CompletedTask);
 
-            sendBehavior.Invoke(context, () => { });
+            Assert.AreEqual(TimeSpan.MaxValue, fakeDatabus.TTBRUsed);
         }
 
         [Test]
-        public void Time_to_live_should_be_passed_on_the_databus()
+        public async Task Time_to_live_should_be_passed_on_the_databus()
         {
-            var metadata = new MessageMetadata(timeToBeReceived: TimeSpan.FromMinutes(1));
-            var message = new LogicalMessage(metadata, new MessageWithExplicitTimeToLive
+            var context = new TestableOutgoingLogicalMessageContext();
+            context.Message = new OutgoingLogicalMessage(typeof(MessageWithExplicitTimeToLive), new MessageWithExplicitTimeToLive
             {
                 DataBusProperty = new DataBusProperty<string>("test")
-            }, new Dictionary<string, string>(), null);
+            });
 
-            Invoke(message);
-           
-            dataBus.AssertWasCalled(
-                x => x.Put(Arg<Stream>.Is.Anything, Arg<TimeSpan>.Is.Equal(TimeSpan.FromMinutes(1))));
+            context.Extensions.AddDeliveryConstraint(new DiscardIfNotReceivedBefore(TimeSpan.FromMinutes(1)));
+
+            var fakeDatabus = new FakeDataBus();
+
+            var sendBehavior = new DataBusSendBehavior(fakeDatabus, new DefaultDataBusSerializer(), new Conventions());
+
+            await sendBehavior.Invoke(context, ctx => TaskEx.CompletedTask);
+
+            Assert.AreEqual(TimeSpan.FromMinutes(1), fakeDatabus.TTBRUsed);
+        }
+
+        class FakeDataBus : IDataBus
+        {
+            public Task<Stream> Get(string key)
+            {
+                throw new NotImplementedException();
+            }
+
+            public Task<string> Put(Stream stream, TimeSpan timeToBeReceived)
+            {
+                TTBRUsed = timeToBeReceived;
+                return Task.FromResult(Guid.NewGuid().ToString());
+            }
+
+            public Task Start()
+            {
+                throw new NotImplementedException();
+            }
+
+            public TimeSpan TTBRUsed;
         }
     }
 }

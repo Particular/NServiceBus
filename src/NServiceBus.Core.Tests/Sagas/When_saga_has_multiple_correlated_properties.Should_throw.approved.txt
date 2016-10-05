@@ -1,0 +1,1 @@
+﻿Sagas can only have mappings that correlate on a single saga property. Use custom finders to correlate NServiceBus.Core.Tests.Sagas.TypeBasedSagas.When_saga_has_multiple_correlated_properties+Message1,NServiceBus.Core.Tests.Sagas.TypeBasedSagas.When_saga_has_multiple_correlated_properties+Message2 to saga SagaWithMultipleCorrelatedProperties

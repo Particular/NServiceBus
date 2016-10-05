@@ -1,104 +1,109 @@
 ﻿namespace NServiceBus.AcceptanceTests.Sagas
 {
     using System;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
-    using NServiceBus.Saga;
+    using System.Threading.Tasks;
+    using AcceptanceTesting;
+    using EndpointTemplates;
+    using Features;
+    using NServiceBus.Sagas;
     using NUnit.Framework;
 
     public class When_message_has_a_saga_id : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Should_not_start_a_new_saga_if_not_found()
+        public async Task Should_not_start_a_new_saga_if_not_found()
         {
-            var context = Scenario.Define<Context>()
-                .WithEndpoint<SagaEndpoint>(b => b.Given(bus =>
+            var context = await Scenario.Define<Context>()
+                .WithEndpoint<SagaEndpoint>(b => b.When(session =>
                 {
-                    var message = new MessageWithSagaId();
+                    var message = new MessageWithSagaId
+                    {
+                        DataId = Guid.NewGuid()
+                    };
+                    var options = new SendOptions();
 
-                    bus.SetMessageHeader(message, Headers.SagaId, Guid.NewGuid().ToString());
-                    bus.SetMessageHeader(message, Headers.SagaType, typeof(MySaga).AssemblyQualifiedName);
-
-                    bus.SendLocal(message);
+                    options.SetHeader(Headers.SagaId, Guid.NewGuid().ToString());
+                    options.SetHeader(Headers.SagaType, typeof(SagaEndpoint.MessageWithSagaIdSaga).AssemblyQualifiedName);
+                    options.RouteToThisEndpoint();
+                    return session.Send(message, options);
                 }))
-                .Done(c => c.OtherSagaStarted)
+                .Done(c => c.Done)
                 .Run();
 
-            Assert.False(context.NotFoundHandlerCalled);
-            Assert.True(context.OtherSagaStarted);
+            Assert.True(context.NotFoundHandlerCalled);
             Assert.False(context.MessageHandlerCalled);
             Assert.False(context.TimeoutHandlerCalled);
         }
 
-        class MySaga : Saga<MySaga.SagaData>, IAmStartedByMessages<MessageWithSagaId>,
-            IHandleTimeouts<MessageWithSagaId>,
-            IHandleSagaNotFound
-        {
-            public Context Context { get; set; }
-
-            public class SagaData : ContainSagaData
-            {
-            }
-
-            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper)
-            {
-
-            }
-
-            public void Handle(MessageWithSagaId message)
-            {
-                Context.MessageHandlerCalled = true;
-            }
-
-            public void Handle(object message)
-            {
-                Context.NotFoundHandlerCalled = true;
-            }
-
-            public void Timeout(MessageWithSagaId state)
-            {
-                Context.TimeoutHandlerCalled = true;
-            }
-        }
-
-        class MyOtherSaga : Saga<MyOtherSaga.SagaData>, IAmStartedByMessages<MessageWithSagaId>
-        {
-            public Context Context { get; set; }
-
-            public void Handle(MessageWithSagaId message)
-            {
-                Context.OtherSagaStarted = true;
-            }
-            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper)
-            {
-
-            }
-
-            public class SagaData : ContainSagaData
-            {
-            }
-
-        }
-
-
-        class Context : ScenarioContext
+        public class Context : ScenarioContext
         {
             public bool NotFoundHandlerCalled { get; set; }
             public bool MessageHandlerCalled { get; set; }
             public bool TimeoutHandlerCalled { get; set; }
             public bool OtherSagaStarted { get; set; }
+            public bool Done { get; set; }
         }
 
         public class SagaEndpoint : EndpointConfigurationBuilder
         {
             public SagaEndpoint()
             {
-                EndpointSetup<DefaultServer>();
+                EndpointSetup<DefaultServer>(c => c.EnableFeature<TimeoutManager>());
+            }
+
+            public class MessageWithSagaIdSaga : Saga<MessageWithSagaIdSaga.MessageWithSagaIdSagaData>,
+                IAmStartedByMessages<MessageWithSagaId>,
+                IHandleTimeouts<MessageWithSagaId>,
+                IHandleSagaNotFound
+            {
+                public Context TestContext { get; set; }
+
+                public Task Handle(MessageWithSagaId message, IMessageHandlerContext context)
+                {
+                    TestContext.MessageHandlerCalled = true;
+                    return Task.FromResult(0);
+                }
+
+                public Task Handle(object message, IMessageProcessingContext context)
+                {
+                    TestContext.NotFoundHandlerCalled = true;
+                    return Task.FromResult(0);
+                }
+
+                public Task Timeout(MessageWithSagaId state, IMessageHandlerContext context)
+                {
+                    TestContext.TimeoutHandlerCalled = true;
+                    return Task.FromResult(0);
+                }
+
+                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MessageWithSagaIdSagaData> mapper)
+                {
+                    mapper.ConfigureMapping<MessageWithSagaId>(m => m.DataId)
+                        .ToSaga(s => s.DataId);
+                }
+
+                public class MessageWithSagaIdSagaData : ContainSagaData
+                {
+                    public virtual Guid DataId { get; set; }
+                }
+            }
+
+            class MessageWithSagaIdHandler : IHandleMessages<MessageWithSagaId>
+            {
+                public Context TestContext { get; set; }
+
+                public Task Handle(MessageWithSagaId message, IMessageHandlerContext context)
+                {
+                    TestContext.Done = true;
+
+                    return Task.FromResult(0);
+                }
             }
         }
 
         public class MessageWithSagaId : IMessage
         {
+            public Guid DataId { get; set; }
         }
     }
 }

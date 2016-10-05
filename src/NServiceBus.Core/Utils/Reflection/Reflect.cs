@@ -1,6 +1,6 @@
 //http://netfx.googlecode.com/svn/trunk/Source/Reflection/Reflect.cs
 
-namespace NServiceBus.Utils.Reflection
+namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
@@ -8,12 +8,15 @@ namespace NServiceBus.Utils.Reflection
     using System.Linq.Expressions;
     using System.Reflection;
 
-    static class Reflect<TTarget> 
+    static class Reflect<TTarget>
     {
         public static PropertyInfo GetProperty(Expression<Func<TTarget, object>> property)
         {
             var info = GetMemberInfo(property, false) as PropertyInfo;
-            if (info == null) throw new ArgumentException("Member is not a property");
+            if (info == null)
+            {
+                throw new ArgumentException("Member is not a property");
+            }
 
             return info;
         }
@@ -30,12 +33,18 @@ namespace NServiceBus.Utils.Reflection
             return GetMemberInfo(property, checkForSingleDot) as PropertyInfo;
         }
 
-        static MemberInfo GetMemberInfo(Expression member, bool checkForSingleDot)
+        public static MemberInfo GetMemberInfo(Expression member, bool checkForSingleDot)
         {
-            if (member == null) throw new ArgumentNullException("member");
+            if (member == null)
+            {
+                throw new ArgumentNullException(nameof(member));
+            }
 
             var lambda = member as LambdaExpression;
-            if (lambda == null) throw new ArgumentException("Not a lambda expression", "member");
+            if (lambda == null)
+            {
+                throw new ArgumentException("Not a lambda expression", nameof(member));
+            }
 
             MemberExpression memberExpr = null;
 
@@ -45,14 +54,17 @@ namespace NServiceBus.Utils.Reflection
             {
                 // The cast is an unary expression, where the operand is the 
                 // actual member access expression.
-                memberExpr = ((UnaryExpression)lambda.Body).Operand as MemberExpression;
+                memberExpr = ((UnaryExpression) lambda.Body).Operand as MemberExpression;
             }
             else if (lambda.Body.NodeType == ExpressionType.MemberAccess)
             {
                 memberExpr = lambda.Body as MemberExpression;
             }
 
-            if (memberExpr == null) throw new ArgumentException("Not a member access", "member");
+            if (memberExpr == null)
+            {
+                throw new ArgumentException("Not a member access", nameof(member));
+            }
 
             if (checkForSingleDot)
             {
@@ -60,11 +72,10 @@ namespace NServiceBus.Utils.Reflection
                 {
                     return memberExpr.Member;
                 }
-                throw new ArgumentException("Argument passed contains more than a single dot which is not allowed: " + member, "member");
+                throw new ArgumentException("Argument passed contains more than a single dot which is not allowed: " + member, nameof(member));
             }
 
             return memberExpr.Member;
         }
-
     }
 }

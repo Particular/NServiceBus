@@ -17,7 +17,7 @@
             return this;
         }
 
-        public EndpointConfigurationBuilder AuditTo(Address addressOfAuditQueue)
+        public EndpointConfigurationBuilder AuditTo(string addressOfAuditQueue)
         {
             configuration.AddressOfAuditQueue = addressOfAuditQueue;
             return this;
@@ -39,12 +39,12 @@
 
         public EndpointConfigurationBuilder AddMapping<T>(Type endpoint)
         {
-            configuration.EndpointMappings.Add(typeof(T),endpoint);
+            configuration.EndpointMappings.Add(typeof(T), endpoint);
 
             return this;
         }
 
-        EndpointConfiguration CreateScenario()
+        EndpointCustomizationConfiguration CreateScenario()
         {
             configuration.BuilderType = GetType();
 
@@ -56,29 +56,49 @@
             return EndpointSetup<T>(c => { });
         }
 
-        public EndpointConfigurationBuilder EndpointSetup<T>(Action<BusConfiguration> configurationBuilderCustomization = null) where T : IEndpointSetupTemplate, new()
+        public EndpointConfigurationBuilder EndpointSetup<T>(Action<EndpointConfiguration> configurationBuilderCustomization) where T : IEndpointSetupTemplate, new()
         {
             if (configurationBuilderCustomization == null)
             {
                 configurationBuilderCustomization = b => { };
             }
-            configuration.GetConfiguration = (settings, routingTable) =>
+
+            return EndpointSetup<T>((bc, esc) =>
+            {
+                configurationBuilderCustomization(bc);
+            });
+        }
+
+        public EndpointConfigurationBuilder EndpointSetup<T>(Action<EndpointConfiguration, RunDescriptor> configurationBuilderCustomization) where T : IEndpointSetupTemplate, new()
+        {
+            if (configurationBuilderCustomization == null)
+            {
+                configurationBuilderCustomization = (rd, b) => { };
+            }
+            configuration.GetConfiguration = async (runDescriptor, routingTable) =>
+            {
+                var endpointSetupTemplate = new T();
+                var scenarioConfigSource = new ScenarioConfigSource(configuration, routingTable);
+                var endpointConfiguration = await endpointSetupTemplate.GetConfiguration(runDescriptor, configuration, scenarioConfigSource, bc =>
                 {
-                    var endpointSetupTemplate = new T();
-                    var scenarioConfigSource = new ScenarioConfigSource(configuration, routingTable);
-                    return endpointSetupTemplate.GetConfiguration(settings, configuration, scenarioConfigSource, configurationBuilderCustomization);
-                };
+                    configurationBuilderCustomization(bc, runDescriptor);
+                }).ConfigureAwait(false);
+
+                return endpointConfiguration;
+            };
 
             return this;
         }
 
-        EndpointConfiguration IEndpointConfigurationFactory.Get()
+
+        EndpointCustomizationConfiguration IEndpointConfigurationFactory.Get()
         {
             return CreateScenario();
         }
+        public ScenarioContext ScenarioContext { get; set; }
 
-       
-        readonly EndpointConfiguration configuration = new EndpointConfiguration();
+
+        EndpointCustomizationConfiguration configuration = new EndpointCustomizationConfiguration();
 
         public EndpointConfigurationBuilder WithConfig<T>(Action<T> action) where T : new()
         {
@@ -86,8 +106,8 @@
 
             action(config);
 
-            configuration.UserDefinedConfigSections[typeof (T)] = config;
-            
+            configuration.UserDefinedConfigSections[typeof(T)] = config;
+
             return this;
         }
 

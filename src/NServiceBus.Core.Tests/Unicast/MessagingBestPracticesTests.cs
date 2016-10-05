@@ -12,34 +12,24 @@
             [Test]
             public void Should_throw_for_command()
             {
-                var invalidOperationException = Assert.Throws<InvalidOperationException>(() => MessagingBestPractices.AssertIsValidForReply(typeof(MyCommand), new Conventions()));
-                Assert.AreEqual("Reply is neither supported for Commands nor Events. Commands should be sent to their logical owner using bus.Send and bus. Events should be Published with bus.Publish.", invalidOperationException.Message);
+                var invalidOperationException = Assert.Throws<Exception>(() =>
+                        new Validations(new Conventions()).AssertIsValidForReply(typeof(MyCommand)));
+                Assert.AreEqual("Reply is neither supported for Commands nor Events. Commands should be sent to their logical owner. Events should be published.", invalidOperationException.Message);
             }
 
             [Test]
             public void Should_throw_for_event()
             {
-                var invalidOperationException = Assert.Throws<InvalidOperationException>(() => MessagingBestPractices.AssertIsValidForReply(typeof(MyEvent), new Conventions()));
-                Assert.AreEqual("Reply is neither supported for Commands nor Events. Commands should be sent to their logical owner using bus.Send and bus. Events should be Published with bus.Publish.", invalidOperationException.Message);
+                var invalidOperationException = Assert.Throws<Exception>(() =>
+                        new Validations(new Conventions()).AssertIsValidForReply(typeof(MyEvent)));
+                Assert.AreEqual("Reply is neither supported for Commands nor Events. Commands should be sent to their logical owner. Events should be published.", invalidOperationException.Message);
             }
 
             [Test]
             public void Should_not_throw_for_message()
             {
-                MessagingBestPractices.AssertIsValidForReply(typeof(MyMessage), new Conventions());
-            }
-
-            public class MyMessage : IMessage
-            {
-                
-            }
-            public class MyCommand : ICommand
-            {
-                
-            }
-            public class MyEvent : IEvent
-            {
-                
+                new Validations(new Conventions())
+                    .AssertIsValidForReply(typeof(MyMessage));
             }
         }
 
@@ -49,35 +39,39 @@
             [Test]
             public void Should_throw_for_command()
             {
-                var invalidOperationException = Assert.Throws<InvalidOperationException>(() => MessagingBestPractices.AssertIsValidForPubSub(typeof(MyCommand), new Conventions()));
+                var invalidOperationException = Assert.Throws<Exception>(() =>
+                        new Validations(new Conventions()).AssertIsValidForPubSub(typeof(MyCommand)));
                 Assert.AreEqual("Pub/Sub is not supported for Commands. They should be be sent direct to their logical owner.", invalidOperationException.Message);
             }
 
             [Test]
             public void Should_not_throw_for_event()
             {
-                MessagingBestPractices.AssertIsValidForPubSub(typeof(MyEvent), new Conventions());
-                //TODO: verify log
+                new Validations(new Conventions()).AssertIsValidForPubSub(typeof(MyEvent));
             }
 
             [Test]
             public void Should_not_throw_for_message()
             {
-                MessagingBestPractices.AssertIsValidForPubSub(typeof(MyMessage), new Conventions());
+                new Validations(new Conventions()).AssertIsValidForPubSub(typeof(MyMessage));
             }
+        }
 
-            public class MyMessage : IMessage
-            {
-                
-            }
-            public class MyCommand : ICommand
-            {
-                
-            }
-            public class MyEvent : IEvent
-            {
-                
-            }
+        public class MyMessage : IMessage
+        {
+        }
+
+        public class MyCommand : ICommand
+        {
+        }
+
+        public class MyEvent : IEvent
+        {
+        }
+
+        [TimeToBeReceived("00:00:01")]
+        public class MyDeferredMessage : IMessage
+        {
         }
     }
 }

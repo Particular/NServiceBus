@@ -1,23 +1,24 @@
 ﻿namespace NServiceBus.AcceptanceTests.Tx
 {
     using System;
+    using System.Threading.Tasks;
     using System.Transactions;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
-    using NServiceBus.AcceptanceTests.ScenarioDescriptors;
+    using AcceptanceTesting;
+    using EndpointTemplates;
     using NUnit.Framework;
+    using ScenarioDescriptors;
 
     public class When_receiving_with_the_default_settings : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Should_wrap_the_handler_pipeline_with_a_transactionscope()
+        public Task Should_wrap_the_handler_pipeline_with_a_transactionscope()
         {
-            Scenario.Define<Context>()
-                    .WithEndpoint<TransactionalEndpoint>(b => b.Given(bus => bus.SendLocal(new MyMessage())))
-                    .Done(c => c.HandlerInvoked)
-                    .Repeat(r => r.For(Transports.Default))
-                    .Should(c => Assert.True(c.AmbientTransactionExists, "There should exist an ambient transaction"))
-                    .Run();
+            return Scenario.Define<Context>()
+                .WithEndpoint<TransactionalEndpoint>(b => b.When(session => session.SendLocal(new MyMessage())))
+                .Done(c => c.HandlerInvoked)
+                .Repeat(r => r.For<AllDtcTransports>())
+                .Should(c => Assert.True(c.AmbientTransactionExists, "There should exist an ambient transaction"))
+                .Run();
         }
 
         public class Context : ScenarioContext
@@ -37,10 +38,11 @@
             {
                 public Context Context { get; set; }
 
-                public void Handle(MyMessage messageThatIsEnlisted)
+                public Task Handle(MyMessage messageThatIsEnlisted, IMessageHandlerContext context)
                 {
-                    Context.AmbientTransactionExists = (Transaction.Current != null);
+                    Context.AmbientTransactionExists = Transaction.Current != null;
                     Context.HandlerInvoked = true;
+                    return Task.FromResult(0);
                 }
             }
         }

@@ -1,6 +1,6 @@
 ﻿namespace NServiceBus.Features
 {
-    using NServiceBus.InMemory.TimeoutPersister;
+    using System;
 
     /// <summary>
     /// Used to configure in memory timeout persistence.
@@ -13,11 +13,11 @@
         }
 
         /// <summary>
-        /// See <see cref="Feature.Setup"/>
+        /// See <see cref="Feature.Setup" />.
         /// </summary>
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-            context.Container.ConfigureComponent<InMemoryTimeoutPersister>(DependencyLifecycle.SingleInstance);
+            context.Container.ConfigureComponent(_ => new InMemoryTimeoutPersister(() => DateTime.UtcNow), DependencyLifecycle.SingleInstance);
         }
     }
 }

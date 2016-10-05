@@ -1,24 +1,22 @@
 ﻿namespace NServiceBus.AcceptanceTests.Basic
 {
     using System;
-    using System.Threading;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
+    using System.Threading.Tasks;
+    using AcceptanceTesting;
+    using EndpointTemplates;
     using NUnit.Framework;
 
     public class When_multiple_mappings_exists : NServiceBusAcceptanceTest
     {
         [Test]
-        public void First_registration_should_be_the_final_destination()
+        public async Task First_registration_should_be_the_final_destination()
         {
-            var context = new Context();
-
-            Scenario.Define(context)
-                    .WithEndpoint<Sender>(b => b.Given((bus, c) => bus.Send(new MyCommand1())))
-                    .WithEndpoint<Receiver1>()
-                    .WithEndpoint<Receiver2>()
-                    .Done(c => c.WasCalled1 || c.WasCalled2)
-                    .Run();
+            var context = await Scenario.Define<Context>()
+                .WithEndpoint<Sender>(b => b.When((session, c) => session.Send(new MyCommand1())))
+                .WithEndpoint<Receiver1>()
+                .WithEndpoint<Receiver2>()
+                .Done(c => c.WasCalled1 || c.WasCalled2)
+                .Run();
 
             Assert.IsTrue(context.WasCalled1);
             Assert.IsFalse(context.WasCalled2);
@@ -51,12 +49,10 @@
             {
                 public Context Context { get; set; }
 
-                public IBus Bus { get; set; }
-
-                public void Handle(MyBaseCommand message)
+                public Task Handle(MyBaseCommand message, IMessageHandlerContext context)
                 {
                     Context.WasCalled1 = true;
-                    Thread.Sleep(2000); // Just to be sure the other receiver is finished
+                    return Task.Delay(2000); // Just to be sure the other receiver is finished
                 }
             }
         }
@@ -72,12 +68,10 @@
             {
                 public Context Context { get; set; }
 
-                public IBus Bus { get; set; }
-
-                public void Handle(MyBaseCommand message)
+                public Task Handle(MyBaseCommand message, IMessageHandlerContext context)
                 {
                     Context.WasCalled2 = true;
-                    Thread.Sleep(2000); // Just to be sure the other receiver is finished
+                    return Task.Delay(2000); // Just to be sure the other receiver is finished
                 }
             }
         }

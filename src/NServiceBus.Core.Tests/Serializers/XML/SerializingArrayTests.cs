@@ -2,7 +2,9 @@ namespace NServiceBus.Serializers.XML.Test
 {
     using System;
     using System.IO;
+    using System.Linq;
     using System.Text;
+    using System.Xml.Linq;
     using NUnit.Framework;
 
     [Serializable]
@@ -118,17 +120,19 @@ namespace NServiceBus.Serializers.XML.Test
                 SerializerFactory.Create<MessageWithNullableArray>().Serialize(message, stream);
                 stream.Position = 0;
                 var reader = new StreamReader(stream);
-                var xml = reader.ReadToEnd().Replace("\r\n", "\n").Replace("\n", "\r\n");
+                var xml = reader.ReadToEnd();
 
-                Assert.AreEqual(@"<?xml version=""1.0"" ?>
+                var expected = XDocument.Parse(@"<?xml version=""1.0"" ?>
 <MessageWithNullableArray xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"" xmlns=""http://tempuri.net/NServiceBus.Serializers.XML.Test"">
 <SagaId>00000000-0000-0000-0000-000000000000</SagaId>
 <SomeInts>
-<NullableOfInt32>
-null</NullableOfInt32>
+<NullableOfInt32>null</NullableOfInt32>
 </SomeInts>
 </MessageWithNullableArray>
-", xml);
+");
+                var actual = XDocument.Parse(xml);
+
+                Assert.AreEqual(expected.ToString(), actual.ToString());
             }
         }
 
@@ -140,6 +144,94 @@ null</NullableOfInt32>
 <SagaId>00000000-0000-0000-0000-000000000000</SagaId>
 <SomeInts>
 <NullableOfInt32>null</NullableOfInt32>
+</SomeInts>
+</MessageWithNullableArray>
+";
+            var data = Encoding.UTF8.GetBytes(xml);
+
+            using (var stream = new MemoryStream(data))
+            {
+                var msgArray = SerializerFactory.Create<MessageWithNullableArray>().Deserialize(stream, new[] { typeof(MessageWithNullableArray) });
+                var result = (MessageWithNullableArray)msgArray[0];
+
+                Assert.AreEqual(null, result.SomeInts[0]);
+            }
+        }
+
+        [Test]
+        public void CanDeserializeNullableArrayWithFirstEntryXsiNilAttributeSetToTrue()
+        {
+            var xml = @"<?xml version=""1.0"" ?>
+<MessageWithNullableArray xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"" xmlns=""http://tempuri.net/NServiceBus.Serializers.XML.Test"">
+<SagaId>00000000-0000-0000-0000-000000000000</SagaId>
+<SomeInts>
+<NullableOfInt32 xsi:nil=""true""></NullableOfInt32>
+</SomeInts>
+</MessageWithNullableArray>
+";
+            var data = Encoding.UTF8.GetBytes(xml);
+
+            using (var stream = new MemoryStream(data))
+            {
+                var msgArray = SerializerFactory.Create<MessageWithNullableArray>().Deserialize(stream, new[] { typeof(MessageWithNullableArray) });
+                var result = (MessageWithNullableArray)msgArray[0];
+
+                Assert.AreEqual(null, result.SomeInts[0]);
+            }
+        }
+
+        [Test]
+        public void CanDeserializeNullableArrayWithXsiNilAttributeSetToTrue()
+        {
+            var xml = @"<?xml version=""1.0"" ?>
+<MessageWithNullableArray xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"" xmlns=""http://tempuri.net/NServiceBus.Serializers.XML.Test"">
+<SagaId>00000000-0000-0000-0000-000000000000</SagaId>
+<SomeInts xsi:nil=""true"">
+</SomeInts>
+</MessageWithNullableArray>
+";
+            var data = Encoding.UTF8.GetBytes(xml);
+
+            using (var stream = new MemoryStream(data))
+            {
+                var msgArray = SerializerFactory.Create<MessageWithNullableArray>().Deserialize(stream, new[] { typeof(MessageWithNullableArray) });
+                var result = (MessageWithNullableArray)msgArray[0];
+
+                Assert.IsFalse(result.SomeInts.Any());
+            }
+        }
+
+        [Test]
+        public void CanDeserializeNullableArrayWithNoElementsToEmptyList()
+        {
+            var xml = @"<?xml version=""1.0"" ?>
+<MessageWithNullableArray xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"" xmlns=""http://tempuri.net/NServiceBus.Serializers.XML.Test"">
+<SagaId>00000000-0000-0000-0000-000000000000</SagaId>
+<SomeInts>
+</SomeInts>
+</MessageWithNullableArray>
+";
+            var data = Encoding.UTF8.GetBytes(xml);
+
+            using (var stream = new MemoryStream(data))
+            {
+                var msgArray = SerializerFactory.Create<MessageWithNullableArray>().Deserialize(stream, new[] { typeof(MessageWithNullableArray) });
+                var result = (MessageWithNullableArray)msgArray[0];
+
+                Assert.NotNull(result.SomeInts);
+                Assert.AreEqual(0, result.SomeInts.Length);
+            }
+        }
+
+        [Test]
+        public void CanDeserializeNullableArrayWithValueSetToEmptyString()
+        {
+            var xml = @"<?xml version=""1.0"" ?>
+<MessageWithNullableArray xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"" xmlns=""http://tempuri.net/NServiceBus.Serializers.XML.Test"">
+<SagaId>00000000-0000-0000-0000-000000000000</SagaId>
+<SomeInts>
+<NullableOfInt32>
+</NullableOfInt32>
 </SomeInts>
 </MessageWithNullableArray>
 ";

@@ -1,8 +1,9 @@
 namespace NServiceBus.Serializers.Json.Tests
 {
-    using System;
     using System.Text;
-    using Features;
+    using MessageInterfaces.MessageMapper.Reflection;
+    using Serialization;
+    using Settings;
     using NUnit.Framework;
 
     [TestFixture]
@@ -11,17 +12,11 @@ namespace NServiceBus.Serializers.Json.Tests
         [Test]
         public void Should_construct_serializer_that_uses_requested_encoding()
         {
-            var builder = new BusConfiguration();
+            var settings = new SettingsHolder();
+            var extensions = new SerializationExtensions<JsonSerializer>(settings);
+            extensions.Encoding(Encoding.UTF7);
 
-            builder.TypesToScan(new Type[0]);
-            builder.UseSerialization<JsonSerializer>().Encoding(Encoding.UTF7);
-
-            var config = builder.BuildConfiguration();
-
-            var context = new FeatureConfigurationContext(config);
-            new JsonSerialization().SetupFeature(context);
-
-            var serializer = config.Builder.Build<JsonMessageSerializer>();
+            var serializer = (NServiceBus.JsonMessageSerializer)new JsonSerializer().Configure(settings)(new MessageMapper());
             Assert.AreSame(Encoding.UTF7, serializer.Encoding);
         }
     }

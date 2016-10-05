@@ -1,83 +1,81 @@
 ﻿namespace NServiceBus.AcceptanceTests.Sagas
 {
     using System;
-    using EndpointTemplates;
+    using System.Threading.Tasks;
     using AcceptanceTesting;
+    using EndpointTemplates;
     using NUnit.Framework;
-    using Saga;
-    using ScenarioDescriptors;
 
     public class When_a_existing_saga_instance_exists : NServiceBusAcceptanceTest
     {
-        static Guid IdThatSagaIsCorrelatedOn = Guid.NewGuid();
-
         [Test]
-        public void Should_hydrate_and_invoke_the_existing_instance()
+        public async Task Should_hydrate_and_invoke_the_existing_instance()
         {
-            Scenario.Define<Context>()
-                    .WithEndpoint<SagaEndpoint>(b => b.Given(bus =>
-                        {
-                            bus.SendLocal(new StartSagaMessage { SomeId = IdThatSagaIsCorrelatedOn });
-                            bus.SendLocal(new StartSagaMessage { SomeId = IdThatSagaIsCorrelatedOn, SecondMessage = true });                                    
-                        }))
-                    .Done(c => c.SecondMessageReceived)
-                    .Repeat(r => r.For(Persistence.Default))
-                    .Should(c => Assert.AreEqual(c.FirstSagaInstance, c.SecondSagaInstance, "The same saga instance should be invoked invoked for both messages"))
+            var context = await Scenario.Define<Context>()
+                .WithEndpoint<ExistingSagaInstanceEndpt>(b => b.When(session => session.SendLocal(new StartSagaMessage
+                {
+                    SomeId = Guid.NewGuid()
+                })))
+                .Done(c => c.SecondMessageReceived)
+                .Run();
 
-                    .Run();
+            Assert.AreEqual(context.FirstSagaId, context.SecondSagaId, "The same saga instance should be invoked invoked for both messages");
         }
 
         public class Context : ScenarioContext
         {
             public bool SecondMessageReceived { get; set; }
 
-            public Guid FirstSagaInstance { get; set; }
-            public Guid SecondSagaInstance { get; set; }
+            public Guid FirstSagaId { get; set; }
+            public Guid SecondSagaId { get; set; }
         }
 
-        public class SagaEndpoint : EndpointConfigurationBuilder
+        public class ExistingSagaInstanceEndpt : EndpointConfigurationBuilder
         {
-            public SagaEndpoint()
+            public ExistingSagaInstanceEndpt()
             {
-                EndpointSetup<DefaultServer>(
-                    
-                    builder => builder.Transactions().DoNotWrapHandlersExecutionInATransactionScope());
+                EndpointSetup<DefaultServer>();
             }
 
-            public class TestSaga : Saga<TestSagaData>, IAmStartedByMessages<StartSagaMessage>
+            public class TestSaga05 : Saga<TestSagaData05>, IAmStartedByMessages<StartSagaMessage>
             {
-                public Context Context { get; set; }
-                public void Handle(StartSagaMessage message)
+                public Context TestContext { get; set; }
+
+                public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
                 {
                     Data.SomeId = message.SomeId;
 
                     if (message.SecondMessage)
                     {
-                        Context.SecondSagaInstance = Data.Id;
-                        Context.SecondMessageReceived = true;
+                        TestContext.SecondSagaId = Data.Id;
+                        TestContext.SecondMessageReceived = true;
                     }
                     else
                     {
-                        Context.FirstSagaInstance = Data.Id;
+                        TestContext.FirstSagaId = Data.Id;
+                        return context.SendLocal(new StartSagaMessage
+                        {
+                            SomeId = message.SomeId,
+                            SecondMessage = true
+                        });
                     }
+
+                    return Task.FromResult(0);
                 }
 
-                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData> mapper)
+                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData05> mapper)
                 {
                     mapper.ConfigureMapping<StartSagaMessage>(m => m.SomeId)
-                        .ToSaga(s=>s.SomeId);
+                        .ToSaga(s => s.SomeId);
                 }
-
             }
 
-            public class TestSagaData : IContainSagaData
+            public class TestSagaData05 : IContainSagaData
             {
+                public virtual Guid SomeId { get; set; }
                 public virtual Guid Id { get; set; }
                 public virtual string Originator { get; set; }
                 public virtual string OriginalMessageId { get; set; }
-
-                [Unique]
-                public virtual Guid SomeId { get; set; }
             }
         }
 

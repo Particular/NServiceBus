@@ -1,22 +1,22 @@
 ﻿namespace NServiceBus.AcceptanceTests.Basic
 {
     using System;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
-    using NServiceBus.Config;
-    using NServiceBus.Features;
-    using NServiceBus.UnitOfWork;
+    using System.Threading.Tasks;
+    using AcceptanceTesting;
+    using EndpointTemplates;
     using NUnit.Framework;
+    using UnitOfWork;
 
     public class When_handling_current_message_later : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Should_commit_unit_of_work_and_execute_subsequent_handlers()
+        public async Task Should_commit_unit_of_work_and_execute_subsequent_handlers()
         {
-            var context = new Context();
-
-            Scenario.Define(context)
-                .WithEndpoint<MyEndpoint>(b => b.Given(bus => bus.SendLocal(new SomeMessage())))
+            var context = await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
+                .WithEndpoint<MyEndpoint>(b => b.When((session, c) => session.SendLocal(new SomeMessage
+                {
+                    Id = c.Id
+                })))
                 .Done(c => c.Done)
                 .Run();
 
@@ -27,6 +27,7 @@
 
         public class Context : ScenarioContext
         {
+            public Guid Id { get; set; }
             public bool Done { get; set; }
             public int FirstHandlerInvocationCount { get; set; }
             public int SecondHandlerInvocationCount { get; set; }
@@ -40,66 +41,70 @@
                 EndpointSetup<DefaultServer>(b =>
                 {
                     b.RegisterComponents(r => r.ConfigureComponent<CheckUnitOfWorkOutcome>(DependencyLifecycle.InstancePerCall));
-                    b.DisableFeature<TimeoutManager>();
-                    b.DisableFeature<SecondLevelRetries>();
-                })
-                    .WithConfig<TransportConfig>(c =>
-                    {
-                        c.MaxRetries = 0;
-                    });
-            }
-
-            class EnsureOrdering : ISpecifyMessageHandlerOrdering
-            {
-                public void SpecifyOrder(Order order)
-                {
-                    order.Specify(First<FirstHandler>.Then<SecondHandler>());
-                }
+                    b.ExecuteTheseHandlersFirst(typeof(FirstHandler), typeof(SecondHandler));
+                });
             }
 
             class CheckUnitOfWorkOutcome : IManageUnitsOfWork
             {
                 public Context Context { get; set; }
 
-                public void Begin()
+                public Task Begin()
                 {
+                    return Task.FromResult(0);
                 }
 
-                public void End(Exception ex = null)
+                public Task End(Exception ex = null)
                 {
-                    Context.UoWCommited = (ex == null);
+                    Context.UoWCommited = ex == null;
+                    return Task.FromResult(0);
                 }
             }
 
             class FirstHandler : IHandleMessages<SomeMessage>
             {
-                public Context Context { get; set; }
-                public IBus Bus { get; set; }
+                public Context TestContext { get; set; }
 
-                public void Handle(SomeMessage message)
+                public Task Handle(SomeMessage message, IMessageHandlerContext context)
                 {
-                    Context.FirstHandlerInvocationCount++;
-
-                    if (Context.FirstHandlerInvocationCount == 1)
+                    if (message.Id != TestContext.Id)
                     {
-                        Bus.HandleCurrentMessageLater();
+                        return Task.FromResult(0);
                     }
+                    TestContext.FirstHandlerInvocationCount++;
+
+                    if (TestContext.FirstHandlerInvocationCount == 1)
+                    {
+                        return context.HandleCurrentMessageLater();
+                    }
+
+                    return Task.FromResult(0);
                 }
             }
 
             class SecondHandler : IHandleMessages<SomeMessage>
             {
                 public Context Context { get; set; }
-                public void Handle(SomeMessage message)
+
+                public Task Handle(SomeMessage message, IMessageHandlerContext context)
                 {
+                    if (message.Id != Context.Id)
+                    {
+                        return Task.FromResult(0);
+                    }
+
                     Context.SecondHandlerInvocationCount++;
                     Context.Done = true;
+
+                    return Task.FromResult(0);
                 }
             }
         }
+
         [Serializable]
-        public class SomeMessage : IMessage { }
-
+        public class SomeMessage : IMessage
+        {
+            public Guid Id { get; set; }
+        }
     }
-
 }

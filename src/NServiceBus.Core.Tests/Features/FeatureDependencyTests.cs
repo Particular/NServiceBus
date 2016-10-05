@@ -10,7 +10,7 @@
     [TestFixture]
     public class FeatureDependencyTests
     {
-        private IEnumerable<FeatureCombinations> FeatureCombinationsForTests
+        static IEnumerable<FeatureCombinations> FeatureCombinationsForTests
         {
             get
             {
@@ -59,13 +59,13 @@
             featureSettings.Add(dependingFeature);
             Array.ForEach(setup.AvailableFeatures, featureSettings.Add);
 
-            featureSettings.SetupFeatures(new FeatureConfigurationContext(null));
+            featureSettings.SetupFeatures(null, null);
 
             Assert.AreEqual(setup.ShouldBeActive, dependingFeature.IsActive);
         }
 
         [Test]
-        public void Should_activate_upstream_deps_first()
+        public void Should_activate_upstream_dependencies_first()
         {
             var order = new List<Feature>();
 
@@ -86,15 +86,69 @@
 
             settings.EnableFeatureByDefault<MyFeature1>();
 
-            featureSettings.SetupFeatures(new FeatureConfigurationContext(null));
+            featureSettings.SetupFeatures(null, null);
 
             Assert.True(dependingFeature.IsActive);
 
-            Assert.IsInstanceOf<MyFeature1>(order.First(), "Upstream deps should be activated first");
+            Assert.IsInstanceOf<MyFeature1>(order.First(), "Upstream dependencies should be activated first");
         }
 
         [Test]
-        public void Should_activate_all_upstream_deps_first()
+        public void Should_activate_named_dependency_first()
+        {
+            var order = new List<Feature>();
+
+            var dependingFeature = new DependsOnOneByName_Feature
+            {
+                OnActivation = f => order.Add(f)
+            };
+            var feature = new MyFeature2
+            {
+                OnActivation = f => order.Add(f)
+            };
+
+            var settings = new SettingsHolder();
+            var featureSettings = new FeatureActivator(settings);
+
+            featureSettings.Add(dependingFeature);
+            featureSettings.Add(feature);
+
+            settings.EnableFeatureByDefault<MyFeature2>();
+
+            featureSettings.SetupFeatures(null, null);
+
+            Assert.True(dependingFeature.IsActive);
+            Assert.IsInstanceOf<MyFeature2>(order.First(), "Upstream dependencies should be activated first");
+        }
+
+        [Test]
+        public void Should_not_activate_feature_when_named_dependency_disabled()
+        {
+            var order = new List<Feature>();
+
+            var dependingFeature = new DependsOnOneByName_Feature
+            {
+                OnActivation = f => order.Add(f)
+            };
+            var feature = new MyFeature2
+            {
+                OnActivation = f => order.Add(f)
+            };
+
+            var settings = new SettingsHolder();
+            var featureSettings = new FeatureActivator(settings);
+
+            featureSettings.Add(dependingFeature);
+            featureSettings.Add(feature);
+
+            featureSettings.SetupFeatures(null, null);
+
+            Assert.False(dependingFeature.IsActive);
+            Assert.IsEmpty(order);
+        }
+
+        [Test]
+        public void Should_activate_all_upstream_dependencies_first()
         {
             var order = new List<Feature>();
 
@@ -127,21 +181,21 @@
             settings.EnableFeatureByDefault<MyFeature2>();
             settings.EnableFeatureByDefault<MyFeature3>();
 
-            featureSettings.SetupFeatures(new FeatureConfigurationContext(null));
+            featureSettings.SetupFeatures(null, null);
 
             Assert.True(dependingFeature.IsActive);
 
-            Assert.IsInstanceOf<MyFeature1>(order[0], "Upstream deps should be activated first");
-            Assert.IsInstanceOf<MyFeature2>(order[1], "Upstream deps should be activated first");
-            Assert.IsInstanceOf<MyFeature3>(order[2], "Upstream deps should be activated first");
+            Assert.IsInstanceOf<MyFeature1>(order[0], "Upstream dependencies should be activated first");
+            Assert.IsInstanceOf<MyFeature2>(order[1], "Upstream dependencies should be activated first");
+            Assert.IsInstanceOf<MyFeature3>(order[2], "Upstream dependencies should be activated first");
         }
 
         [Test]
-        public void Should_activate_all_upstream_deps_when_chain_deep()
+        public void Should_activate_all_upstream_dependencies_when_chain_deep()
         {
             var order = new List<Feature>();
 
-           
+
             var level1 = new Level1
             {
                 OnActivation = f => order.Add(f)
@@ -163,16 +217,40 @@
             featureSettings.Add(level2);
             featureSettings.Add(level1);
 
-            featureSettings.SetupFeatures(new FeatureConfigurationContext(null));
+            featureSettings.SetupFeatures(null, null);
 
 
             Assert.True(level1.IsActive, "Level1 wasn't activated");
             Assert.True(level2.IsActive, "Level2 wasn't activated");
             Assert.True(level3.IsActive, "Level3 wasn't activated");
 
-            Assert.IsInstanceOf<Level1>(order[0], "Upstream deps should be activated first");
-            Assert.IsInstanceOf<Level2>(order[1], "Upstream deps should be activated first");
-            Assert.IsInstanceOf<Level3>(order[2], "Upstream deps should be activated first");
+            Assert.IsInstanceOf<Level1>(order[0], "Upstream dependencies should be activated first");
+            Assert.IsInstanceOf<Level2>(order[1], "Upstream dependencies should be activated first");
+            Assert.IsInstanceOf<Level3>(order[2], "Upstream dependencies should be activated first");
+        }
+
+        [Test]
+        public void Should_throw_exception_when_dependency_cycle_is_found()
+        {
+            var order = new List<Feature>();
+
+
+            var level1 = new CycleLevel1
+            {
+                OnActivation = f => order.Add(f)
+            };
+            var level2 = new CycleLevel2
+            {
+                OnActivation = f => order.Add(f)
+            };
+
+            var settings = new SettingsHolder();
+            var featureSettings = new FeatureActivator(settings);
+
+            featureSettings.Add(level1);
+            featureSettings.Add(level2);
+
+            Assert.Throws<ArgumentException>(() => featureSettings.SetupFeatures(null, null));
         }
 
         public class Level1 : TestFeature
@@ -201,6 +279,24 @@
             }
         }
 
+        public class CycleLevel1 : TestFeature
+        {
+            public CycleLevel1()
+            {
+                EnableByDefault();
+                DependsOn<CycleLevel2>();
+            }
+        }
+
+        public class CycleLevel2 : TestFeature
+        {
+            public CycleLevel2()
+            {
+                EnableByDefault();
+                DependsOn<CycleLevel1>();
+            }
+        }
+
         public class MyFeature1 : TestFeature
         {
 
@@ -222,6 +318,15 @@
             {
                 EnableByDefault();
                 DependsOn<MyFeature1>();
+            }
+        }
+
+        public class DependsOnOneByName_Feature : TestFeature
+        {
+            public DependsOnOneByName_Feature()
+            {
+                EnableByDefault();
+                DependsOn("NServiceBus.Core.Tests.Features.FeatureDependencyTests+MyFeature2");
             }
         }
 

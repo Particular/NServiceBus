@@ -1,34 +1,34 @@
 ﻿namespace NServiceBus.AcceptanceTests.Sagas
 {
     using System;
-    using EndpointTemplates;
+    using System.Threading.Tasks;
     using AcceptanceTesting;
+    using EndpointTemplates;
     using Features;
     using NUnit.Framework;
-    using PubSub;
-    using Saga;
+    using Routing;
     using ScenarioDescriptors;
 
     //Repro for #1323
     public class When_started_by_base_event_from_other_saga : NServiceBusAcceptanceTest
     {
-
         [Test]
-        public void Should_start_the_saga_when_set_up_to_start_for_the_base_event()
+        public async Task Should_start_the_saga_when_set_up_to_start_for_the_base_event()
         {
-            Scenario.Define<SagaContext>()
+            await Scenario.Define<SagaContext>()
                 .WithEndpoint<Publisher>(b =>
                     b.When(c => c.IsEventSubscriptionReceived,
-                        bus =>
-                            bus.Publish<SomethingHappenedEvent>(m => { m.DataId = Guid.NewGuid(); }))
+                        session => { return session.Publish<SomethingHappenedEvent>(m => { m.DataId = Guid.NewGuid(); }); })
                 )
                 .WithEndpoint<SagaThatIsStartedByABaseEvent>(
-                    b => b.Given((bus, context) =>
+                    b => b.When(async (session, context) =>
                     {
-                        bus.Subscribe<BaseEvent>();
+                        await session.Subscribe<BaseEvent>();
 
                         if (context.HasNativePubSubSupport)
+                        {
                             context.IsEventSubscriptionReceived = true;
+                        }
                     }))
                 .Done(c => c.DidSagaComplete)
                 .Repeat(r => r.For(Transports.Default))
@@ -48,7 +48,7 @@
             {
                 EndpointSetup<DefaultPublisher>(b => b.OnEndpointSubscribed<SagaContext>((s, context) =>
                 {
-                    context.AddTrace("Subscription received for " + s.SubscriberReturnAddress.Queue);
+                    context.AddTrace("Subscription received for " + s.SubscriberReturnAddress);
                     context.IsEventSubscriptionReceived = true;
                 }));
             }
@@ -58,29 +58,34 @@
         {
             public SagaThatIsStartedByABaseEvent()
             {
-                EndpointSetup<DefaultServer>(c => c.DisableFeature<AutoSubscribe>())
+                EndpointSetup<DefaultServer>(c =>
+                {
+                    c.EnableFeature<TimeoutManager>();
+                    c.DisableFeature<AutoSubscribe>();
+                })
                     .AddMapping<BaseEvent>(typeof(Publisher));
             }
 
-            public class SagaStartedByBaseEvent : Saga<SagaStartedByBaseEvent.SagaData>, IAmStartedByMessages<BaseEvent>
+            public class SagaStartedByBaseEvent : Saga<SagaStartedByBaseEvent.SagaStartedByBaseEventSagaData>, IAmStartedByMessages<BaseEvent>
             {
                 public SagaContext Context { get; set; }
 
-                public void Handle(BaseEvent message)
+                public Task Handle(BaseEvent message, IMessageHandlerContext context)
                 {
                     Data.DataId = message.DataId;
                     MarkAsComplete();
                     Context.DidSagaComplete = true;
+                    return Task.FromResult(0);
                 }
 
-                public class SagaData : ContainSagaData
+                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaStartedByBaseEventSagaData> mapper)
                 {
-                    [Unique]
+                    mapper.ConfigureMapping<BaseEvent>(m => m.DataId).ToSaga(s => s.DataId);
+                }
+
+                public class SagaStartedByBaseEventSagaData : ContainSagaData
+                {
                     public virtual Guid DataId { get; set; }
-                }
-
-                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData> mapper)
-                {
                 }
             }
         }
@@ -93,7 +98,6 @@
 
         public interface SomethingHappenedEvent : BaseEvent
         {
-
         }
 
         public interface BaseEvent : IEvent

@@ -1,31 +1,30 @@
-namespace NServiceBus.Serializers.XML
+namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
-    using NServiceBus.MessageInterfaces;
-    using NServiceBus.Serialization;
+    using MessageInterfaces;
+    using Serialization;
 
-    /// <summary>
-    ///     Implementation of the message serializer over XML supporting interface-based messages.
-    /// </summary>
-    public class XmlMessageSerializer : IMessageSerializer
+    class XmlMessageSerializer : IMessageSerializer
     {
         /// <summary>
-        ///     Initializes an instance of a <see cref="XmlMessageSerializer" />.
+        /// Initializes an instance of a <see cref="XmlMessageSerializer" />.
         /// </summary>
-        /// <param name="mapper">Message Mapper</param>
+        /// <param name="mapper">Message Mapper.</param>
         /// <param name="conventions">The endpoint conventions.</param>
         public XmlMessageSerializer(IMessageMapper mapper, Conventions conventions)
         {
+            Guard.AgainstNull(nameof(mapper), mapper);
+            Guard.AgainstNull(nameof(conventions), conventions);
             this.mapper = mapper;
             this.conventions = conventions;
         }
 
         /// <summary>
-        ///     The namespace to place in outgoing XML.
-        ///     <para>If the provided namespace ends with trailing forward slashes, those will be removed on the fly.</para>
+        /// The namespace to place in outgoing XML.
+        /// <para>If the provided namespace ends with trailing forward slashes, those will be removed on the fly.</para>
         /// </summary>
         public string Namespace
         {
@@ -34,22 +33,22 @@ namespace NServiceBus.Serializers.XML
         }
 
         /// <summary>
-        ///     If true, then the serializer will use a sanitizing stream to skip invalid characters from the stream before parsing
+        /// If true, then the serializer will use a sanitizing stream to skip invalid characters from the stream before parsing.
         /// </summary>
         public bool SanitizeInput { get; set; }
 
         /// <summary>
-        ///     Removes the wrapping of properties containing XDocument or XElement with property name as root element
+        /// Removes the wrapping of properties containing XDocument or XElement with property name as root element.
         /// </summary>
         public bool SkipWrappingRawXml { get; set; }
 
         /// <summary>
-        ///     Deserializes from the given stream a set of messages.
+        /// Deserializes from the given stream a set of messages.
         /// </summary>
         /// <param name="stream">Stream that contains messages.</param>
         /// <param name="messageTypesToDeserialize">
-        ///     The list of message types to deserialize. If null the types must be inferred
-        ///     from the serialized data.
+        /// The list of message types to deserialize. If null the types must be inferred
+        /// from the serialized data.
         /// </param>
         /// <returns>Deserialized messages.</returns>
         public object[] Deserialize(Stream stream, IList<Type> messageTypesToDeserialize = null)
@@ -59,40 +58,29 @@ namespace NServiceBus.Serializers.XML
                 return null;
             }
 
-            var deserializer = new Deserializer(mapper, cache)
-            {
-                SanitizeInput = SanitizeInput,
-                SkipWrappingRawXml = SkipWrappingRawXml,
-            };
-
+            var deserializer = new XmlDeserialization(mapper, cache, SkipWrappingRawXml, SanitizeInput);
             return deserializer.Deserialize(stream, messageTypesToDeserialize);
         }
 
         /// <summary>
-        ///     Serializes the given messages to the given stream.
+        /// Gets the content type into which this serializer serializes the content to.
+        /// </summary>
+        public string ContentType => ContentTypes.Xml;
+
+        /// <summary>
+        /// Serializes the given messages to the given stream.
         /// </summary>
         public void Serialize(object message, Stream stream)
         {
-            var serializer = new Serializer(mapper, conventions, cache)
+            var messageType = mapper.GetMappedTypeFor(message.GetType());
+            using (var serializer = new XmlSerialization(messageType, stream, message, conventions, cache, SkipWrappingRawXml, Namespace))
             {
-                Namespace = Namespace,
-                SkipWrappingRawXml = SkipWrappingRawXml,
-            };
-
-            var buffer = serializer.Serialize(message);
-            stream.Write(buffer, 0, buffer.Length);
+                serializer.Serialize();
+            }
         }
 
         /// <summary>
-        ///     Supported content type
-        /// </summary>
-        public string ContentType
-        {
-            get { return ContentTypes.Xml; }
-        }
-
-        /// <summary>
-        ///     Scans the given type storing maps to fields and properties to save on reflection at runtime.
+        /// Scans the given type storing maps to fields and properties to save on reflection at runtime.
         /// </summary>
         public void InitType(Type t)
         {
@@ -100,7 +88,7 @@ namespace NServiceBus.Serializers.XML
         }
 
         /// <summary>
-        ///     Initialized the serializer with the given message types
+        /// Initialized the serializer with the given message types.
         /// </summary>
         public void Initialize(IEnumerable<Type> types)
         {
@@ -119,21 +107,13 @@ namespace NServiceBus.Serializers.XML
 
         string TrimPotentialTrailingForwardSlashes(string value)
         {
-            if (value == null)
-            {
-                return null;
-            }
-
-            return value.TrimEnd(new[]
-            {
-                '/'
-            });
+            return value?.TrimEnd('/');
         }
 
-        readonly Conventions conventions;
-        readonly IMessageMapper mapper;
-
         XmlSerializerCache cache = new XmlSerializerCache();
+
+        Conventions conventions;
+        IMessageMapper mapper;
 
         string nameSpace = "http://tempuri.net";
     }

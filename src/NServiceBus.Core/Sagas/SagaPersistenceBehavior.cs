@@ -1,134 +1,155 @@
 ﻿namespace NServiceBus
 {
     using System;
+    using System.Collections.Generic;
+    using System.ComponentModel;
     using System.Linq;
-    using NServiceBus.Logging;
-    using NServiceBus.Pipeline;
-    using NServiceBus.Pipeline.Contexts;
-    using NServiceBus.Saga;
-    using NServiceBus.Sagas;
-    using NServiceBus.Timeout;
-    using NServiceBus.Transports;
-    using NServiceBus.Unicast;
-    using NServiceBus.Unicast.Messages;
+    using System.Threading.Tasks;
+    using Logging;
+    using Pipeline;
+    using Sagas;
+    using Transport;
 
-    class SagaPersistenceBehavior : IBehavior<IncomingContext>
+    class SagaPersistenceBehavior : IBehavior<IInvokeHandlerContext, IInvokeHandlerContext>
     {
-        public ISagaPersister SagaPersister { get; set; }
+        public SagaPersistenceBehavior(ISagaPersister persister, ICancelDeferredMessages timeoutCancellation, SagaMetadataCollection sagaMetadataCollection)
+        {
+            sagaPersister = persister;
+            this.timeoutCancellation = timeoutCancellation;
+            this.sagaMetadataCollection = sagaMetadataCollection;
+        }
 
-        public IDeferMessages MessageDeferrer { get; set; }
-
-        public IMessageHandlerRegistry MessageHandlerRegistry { get; set; }
-
-        public SagaMetaModel SagaMetaModel { get; set; }
-
-        public void Invoke(IncomingContext context, Action next)
+        public async Task Invoke(IInvokeHandlerContext context, Func<IInvokeHandlerContext, Task> next)
         {
             currentContext = context;
 
-            // We need this for backwards compatibility because in v4.0.0 we still have this headers being sent as part of the message even if MessageIntent == MessageIntentEnum.Publish
-            if (context.PhysicalMessage.MessageIntent == MessageIntentEnum.Publish)
-            {
-                context.PhysicalMessage.Headers.Remove(Headers.SagaId);
-                context.PhysicalMessage.Headers.Remove(Headers.SagaType);
-            }
+            RemoveSagaHeadersIfProcessingAEvent(context);
 
-            var saga = context.MessageHandler.Instance as Saga.Saga;
+            var saga = context.MessageHandler.Instance as Saga;
 
             if (saga == null)
             {
-                next();
+                await next(context).ConfigureAwait(false);
                 return;
             }
 
-            var sagaMetadata = SagaMetaModel.FindByName(context.MessageHandler.Instance.GetType().FullName);
-            var sagaInstanceState = new ActiveSagaInstance(saga, sagaMetadata);
+            var sagaMetadata = sagaMetadataCollection.Find(context.MessageHandler.Instance.GetType());
+            var sagaInstanceState = new ActiveSagaInstance(saga, sagaMetadata, () => DateTime.UtcNow);
 
             //so that other behaviors can access the saga
-            context.Set(sagaInstanceState);
+            context.Extensions.Set(sagaInstanceState);
 
-            var loadedEntity = TryLoadSagaEntity(sagaMetadata, context.IncomingLogicalMessage);
+            var loadedEntity = await TryLoadSagaEntity(sagaMetadata, context).ConfigureAwait(false);
 
             if (loadedEntity == null)
             {
                 //if this message are not allowed to start the saga
-                if (IsMessageAllowedToStartTheSaga(context.IncomingLogicalMessage, sagaMetadata))
+                if (IsMessageAllowedToStartTheSaga(context, sagaMetadata))
                 {
-                    context.Set("Sagas.SagaWasInvoked", true);
-
-                    sagaInstanceState.AttachNewEntity(CreateNewSagaEntity(sagaMetadata, context.IncomingLogicalMessage));
+                    context.Extensions.Get<SagaInvocationResult>().SagaFound();
+                    sagaInstanceState.AttachNewEntity(CreateNewSagaEntity(sagaMetadata, context));
                 }
                 else
                 {
+                    if (!context.Headers.ContainsKey(Headers.SagaId))
+                    {
+                        var finderDefinition = GetSagaFinder(sagaMetadata, context);
+                        if (finderDefinition == null)
+                        {
+                            throw new Exception($"Message type {context.MessageBeingHandled.GetType().Name} is handled by saga {sagaMetadata.SagaType.Name}, but the saga does not contain a property mapping or custom saga finder to map the message to saga data. Consider adding a mapping in the saga's {nameof(Saga.ConfigureHowToFindSaga)} method.");
+                        }
+                    }
+
                     sagaInstanceState.MarkAsNotFound();
 
                     //we don't invoke not found handlers for timeouts
-                    if (IsTimeoutMessage(context.IncomingLogicalMessage))
+                    if (IsTimeoutMessage(context.Headers))
                     {
-                        context.Set("Sagas.SagaWasInvoked", true);
-
-                        logger.InfoFormat("No saga found for timeout message {0}, ignoring since the saga has been marked as complete before the timeout fired", context.PhysicalMessage.Id);
+                        context.Extensions.Get<SagaInvocationResult>().SagaFound();
+                        logger.InfoFormat("No saga found for timeout message {0}, ignoring since the saga has been marked as complete before the timeout fired", context.MessageId);
                     }
                     else
                     {
-                        context.Set("Sagas.InvokeSagaNotFound", true);
+                        context.Extensions.Get<SagaInvocationResult>().SagaNotFound();
                     }
                 }
             }
             else
             {
-                context.Set("Sagas.SagaWasInvoked", true);
-
+                context.Extensions.Get<SagaInvocationResult>().SagaFound();
                 sagaInstanceState.AttachExistingEntity(loadedEntity);
             }
 
-            if (IsTimeoutMessage(context.IncomingLogicalMessage))
-            {
-                context.MessageHandler.Invocation = MessageHandlerRegistry.InvokeTimeout;
-            }
-
-            next();
+            await next(context).ConfigureAwait(false);
 
             if (sagaInstanceState.NotFound)
             {
                 return;
             }
-            sagaInstanceState.ValidateIdHasNotChanged();
-            LogSaga(sagaInstanceState, context);
 
             if (saga.Completed)
             {
                 if (!sagaInstanceState.IsNew)
                 {
-                    SagaPersister.Complete(saga.Entity);
+                    await sagaPersister.Complete(saga.Entity, context.SynchronizedStorageSession, context.Extensions).ConfigureAwait(false);
                 }
 
                 if (saga.Entity.Id != Guid.Empty)
                 {
-                    NotifyTimeoutManagerThatSagaHasCompleted(saga);
+                    await timeoutCancellation.CancelDeferredMessages(saga.Entity.Id.ToString(), context).ConfigureAwait(false);
                 }
 
                 logger.DebugFormat("Saga: '{0}' with Id: '{1}' has completed.", sagaInstanceState.Metadata.Name, saga.Entity.Id);
+
+                sagaInstanceState.Completed();
             }
             else
             {
+                sagaInstanceState.ValidateChanges();
+
                 if (sagaInstanceState.IsNew)
                 {
-                    SagaPersister.Save(saga.Entity);
+                    ActiveSagaInstance.CorrelationPropertyInfo correlationProperty;
+                    var sagaCorrelationProperty = SagaCorrelationProperty.None;
+
+                    if (sagaInstanceState.TryGetCorrelationProperty(out correlationProperty))
+                    {
+                        sagaCorrelationProperty = new SagaCorrelationProperty(correlationProperty.PropertyInfo.Name, correlationProperty.Value);
+                    }
+
+                    await sagaPersister.Save(saga.Entity, sagaCorrelationProperty, context.SynchronizedStorageSession, context.Extensions).ConfigureAwait(false);
                 }
                 else
                 {
-                    SagaPersister.Update(saga.Entity);
+                    await sagaPersister.Update(saga.Entity, context.SynchronizedStorageSession, context.Extensions).ConfigureAwait(false);
+                }
+
+                sagaInstanceState.Updated();
+            }
+        }
+
+        static void RemoveSagaHeadersIfProcessingAEvent(IInvokeHandlerContext context)
+        {
+            // We need this for backwards compatibility because in v4.0.0 we still have this headers being sent as part of the message even if MessageIntent == MessageIntentEnum.Publish
+            string messageIntentString;
+            if (context.Headers.TryGetValue(Headers.MessageIntent, out messageIntentString))
+            {
+                MessageIntentEnum messageIntent;
+
+                if (Enum.TryParse(messageIntentString, true, out messageIntent) && messageIntent == MessageIntentEnum.Publish)
+                {
+                    context.Headers.Remove(Headers.SagaId);
+                    context.Headers.Remove(Headers.SagaType);
                 }
             }
         }
 
-        static bool IsMessageAllowedToStartTheSaga(LogicalMessage message, SagaMetadata sagaMetadata)
+        static bool IsMessageAllowedToStartTheSaga(IInvokeHandlerContext context, SagaMetadata sagaMetadata)
         {
             string sagaType;
 
-            if (message.Headers.ContainsKey(Headers.SagaId) &&
-                message.Headers.TryGetValue(Headers.SagaType, out sagaType))
+            if (context.Headers.ContainsKey(Headers.SagaId) &&
+                context.Headers.TryGetValue(Headers.SagaType, out sagaType))
             {
                 //we want to move away from the assembly fully qualified name since that will break if you move sagas
                 // between assemblies. We use the fullname instead which is enough to identify the saga
@@ -139,39 +160,21 @@
                 }
             }
 
-            return message.Metadata.MessageHierarchy.Any(messageType => sagaMetadata.IsMessageAllowedToStartTheSaga(messageType.FullName));
+            return context.MessageMetadata.MessageHierarchy.Any(messageType => sagaMetadata.IsMessageAllowedToStartTheSaga(messageType.FullName));
         }
 
-        [ObsoleteEx(RemoveInVersion = "6.0", TreatAsErrorFromVersion = "5.1", Message = "Enriching the headers for saga related information has been moved to the SagaAudit plugin in ServiceControl.  Add a reference to the Saga audit plugin in your endpoint to get more information.")]
-        void LogSaga(ActiveSagaInstance saga, IncomingContext context)
-        {
-
-            var audit = string.Format("{0}:{1}", saga.Metadata.Name, saga.SagaId);
-
-            string header;
-
-            if (context.IncomingLogicalMessage.Headers.TryGetValue(Headers.InvokedSagas, out header))
-            {
-                context.IncomingLogicalMessage.Headers[Headers.InvokedSagas] += string.Format(";{0}", audit);
-            }
-            else
-            {
-                context.IncomingLogicalMessage.Headers[Headers.InvokedSagas] = audit;
-            }
-        }
-
-        static bool IsTimeoutMessage(LogicalMessage message)
+        static bool IsTimeoutMessage(Dictionary<string, string> headers)
         {
             string isSagaTimeout;
 
-            if (message.Headers.TryGetValue(Headers.IsSagaTimeoutMessage, out isSagaTimeout))
+            if (headers.TryGetValue(Headers.IsSagaTimeoutMessage, out isSagaTimeout))
             {
                 return true;
             }
 
             string version;
 
-            if (!message.Headers.TryGetValue(Headers.NServiceBusVersion, out version))
+            if (!headers.TryGetValue(Headers.NServiceBusVersion, out version))
             {
                 return false;
             }
@@ -182,7 +185,7 @@
             }
 
             string sagaId;
-            if (message.Headers.TryGetValue(Headers.SagaId, out sagaId))
+            if (headers.TryGetValue(Headers.SagaId, out sagaId))
             {
                 if (string.IsNullOrEmpty(sagaId))
                 {
@@ -195,7 +198,7 @@
             }
 
             string expire;
-            if (message.Headers.TryGetValue(TimeoutManagerHeaders.Expire, out expire))
+            if (headers.TryGetValue(TimeoutManagerHeaders.Expire, out expire))
             {
                 if (string.IsNullOrEmpty(expire))
                 {
@@ -207,85 +210,92 @@
                 return false;
             }
 
-            message.Headers[Headers.IsSagaTimeoutMessage] = Boolean.TrueString;
+            headers[Headers.IsSagaTimeoutMessage] = bool.TrueString;
             return true;
         }
 
-        IContainSagaData TryLoadSagaEntity(SagaMetadata metadata, LogicalMessage message)
-        {         
+        Task<IContainSagaData> TryLoadSagaEntity(SagaMetadata metadata, IInvokeHandlerContext context)
+        {
             string sagaId;
 
-            if (message.Headers.TryGetValue(Headers.SagaId, out sagaId) && !string.IsNullOrEmpty(sagaId))
+            if (context.Headers.TryGetValue(Headers.SagaId, out sagaId) && !string.IsNullOrEmpty(sagaId))
             {
                 var sagaEntityType = metadata.SagaEntityType;
 
                 //since we have a saga id available we can now shortcut the finders and just load the saga
                 var loaderType = typeof(LoadSagaByIdWrapper<>).MakeGenericType(sagaEntityType);
 
-                var loader = (SagaLoader)Activator.CreateInstance(loaderType);
+                var loader = (SagaLoader) Activator.CreateInstance(loaderType);
 
-                return loader.Load(SagaPersister, sagaId);
+                return loader.Load(sagaPersister, sagaId, context.SynchronizedStorageSession, context.Extensions);
             }
 
-            SagaFinderDefinition finderDefinition = null;
-
-            foreach (var messageType in message.Metadata.MessageHierarchy)
-            {
-                if (metadata.TryGetFinder(messageType.FullName, out finderDefinition))
-                {
-                    break;
-                }
-            }
+            var finderDefinition = GetSagaFinder(metadata, context);
 
             //check if we could find a finder
             if (finderDefinition == null)
             {
-                return null;
+                return DefaultSagaDataCompletedTask;
             }
 
             var finderType = finderDefinition.Type;
+            var finder = (SagaFinder) currentContext.Builder.Build(finderType);
 
-            var finder = currentContext.Builder.Build(finderType);
-
-            return ((SagaFinder)finder).Find(currentContext.Builder, finderDefinition, message);
+            return finder.Find(currentContext.Builder, finderDefinition, context.SynchronizedStorageSession, context.Extensions, context.MessageBeingHandled);
         }
 
-        void NotifyTimeoutManagerThatSagaHasCompleted(Saga.Saga saga)
+        SagaFinderDefinition GetSagaFinder(SagaMetadata metadata, IInvokeHandlerContext context)
         {
-            MessageDeferrer.ClearDeferredMessages(Headers.SagaId, saga.Entity.Id.ToString());
+            foreach (var messageType in context.MessageMetadata.MessageHierarchy)
+            {
+                SagaFinderDefinition finderDefinition;
+                if (metadata.TryGetFinder(messageType.FullName, out finderDefinition))
+                {
+                    return finderDefinition;
+                }
+            }
+            return null;
         }
 
-        IContainSagaData CreateNewSagaEntity(SagaMetadata metadata,LogicalMessage message)
+        IContainSagaData CreateNewSagaEntity(SagaMetadata metadata, IInvokeHandlerContext context)
         {
             var sagaEntityType = metadata.SagaEntityType;
 
-            var sagaEntity = (IContainSagaData)Activator.CreateInstance(sagaEntityType);
+            var sagaEntity = (IContainSagaData) Activator.CreateInstance(sagaEntityType);
 
             sagaEntity.Id = CombGuid.Generate();
-            sagaEntity.OriginalMessageId = message.Headers[Headers.MessageId];
+            sagaEntity.OriginalMessageId = context.MessageId;
 
             string replyToAddress;
 
-            if (message.Headers.TryGetValue(Headers.ReplyToAddress, out replyToAddress))
+            if (context.Headers.TryGetValue(Headers.ReplyToAddress, out replyToAddress))
             {
                 sagaEntity.Originator = replyToAddress;
+            }
+
+            var lookupValues = context.Extensions.GetOrCreate<SagaLookupValues>();
+
+            SagaLookupValues.LookupValue value;
+            if (lookupValues.TryGet(sagaEntityType, out value))
+            {
+                var propertyInfo = sagaEntityType.GetProperty(value.PropertyName);
+
+                var convertedValue = TypeDescriptor.GetConverter(propertyInfo.PropertyType)
+                    .ConvertFromInvariantString(value.PropertyValue.ToString());
+
+                propertyInfo.SetValue(sagaEntity, convertedValue);
             }
 
             return sagaEntity;
         }
 
-        IncomingContext currentContext;
+        IInvokeHandlerContext currentContext;
+        SagaMetadataCollection sagaMetadataCollection;
 
+        ISagaPersister sagaPersister;
+        ICancelDeferredMessages timeoutCancellation;
+
+        static Task<IContainSagaData> DefaultSagaDataCompletedTask = Task.FromResult(default(IContainSagaData));
         static ILog logger = LogManager.GetLogger<SagaPersistenceBehavior>();
-
-        public class Registration : RegisterStep
-        {
-            public Registration()
-                : base(WellKnownStep.InvokeSaga, typeof(SagaPersistenceBehavior), "Invokes the saga logic")
-            {
-                InsertBefore(WellKnownStep.InvokeHandlers);
-                InsertAfter("SetCurrentMessageBeingHandled");
-            }
-        }
     }
 }

@@ -9,7 +9,7 @@
 
         public void Verify(ScenarioContext context)
         {
-            Should(((T)context));
+            Should((T)context);
         }
     }
 }

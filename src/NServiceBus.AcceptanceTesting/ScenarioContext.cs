@@ -1,102 +1,50 @@
 ﻿namespace NServiceBus.AcceptanceTesting
 {
     using System;
+    using System.Collections.Concurrent;
     using System.Collections.Generic;
-    using System.Linq;
-    using System.Runtime.Remoting.Activation;
-    using System.Runtime.Remoting.Contexts;
-    using System.Runtime.Remoting.Messaging;
+    using Faults;
+    using Logging;
 
-    [Intercept]
-    [Serializable]
-    public abstract class ScenarioContext : ContextBoundObject
+    public class ScenarioContext
     {
-        public event EventHandler ContextPropertyChanged;
-
-        [AttributeUsage(AttributeTargets.Class)]
-        sealed class InterceptAttribute : ContextAttribute, IContributeObjectSink
-        {
-            public InterceptAttribute()
-                : base("InterceptProperty")
-            {
-            }
-
-            public override void GetPropertiesForNewContext(IConstructionCallMessage message)
-            {
-                message.ContextProperties.Add(this);
-            }
-
-            public IMessageSink GetObjectSink(MarshalByRefObject obj, IMessageSink nextSink)
-            {
-                return new InterceptSink { Target = (ScenarioContext)obj, NextSink = nextSink };
-            }
-        }
-
-        class InterceptSink : IMessageSink
-        {
-            public IMessageSink NextSink { get; set; }
-
-            public ScenarioContext Target;
-
-            public IMessageCtrl AsyncProcessMessage(IMessage msg, IMessageSink sink)
-            {
-                throw new NotSupportedException("AsyncProcessMessage is not supported.");
-            }
-
-            public IMessage SyncProcessMessage(IMessage msg)
-            {
-                var call = msg as IMethodCallMessage;
-                if (call != null)
-                {
-                    var method = call.MethodName;
-
-
-                    if (Target.ContextPropertyChanged != null && method.StartsWith("set"))
-                    {
-                        Target.ContextPropertyChanged(Target, EventArgs.Empty);
-                    }
-                }
-
-                return NextSink.SyncProcessMessage(msg);
-            }
-        }
+        public Guid TestRunId { get; } = Guid.NewGuid();
 
         public bool EndpointsStarted { get; set; }
-        public string Exceptions { get; set; }
 
         public bool HasNativePubSubSupport { get; set; }
 
-        public string Trace { get; set; }
+        public string Trace => string.Join(Environment.NewLine, traceQueue.ToArray());
 
         public void AddTrace(string trace)
         {
-            Trace += DateTime.Now.ToString("HH:mm:ss.ffffff") + " - " + trace + Environment.NewLine;
+            traceQueue.Enqueue($"{DateTime.Now:HH:mm:ss.ffffff} - {trace}");
         }
 
-        public void RecordEndpointLog(string endpointName,string level ,string message)
+        public ConcurrentDictionary<string, IReadOnlyCollection<FailedMessage>> FailedMessages = new ConcurrentDictionary<string, IReadOnlyCollection<FailedMessage>>();
+
+        public ConcurrentQueue<LogItem> Logs = new ConcurrentQueue<LogItem>();
+
+        ConcurrentQueue<string> traceQueue = new ConcurrentQueue<string>();
+
+        internal LogLevel LogLevel { get; set; } = LogLevel.Info;
+
+        internal ConcurrentDictionary<string, bool> UnfinishedFailedMessages = new ConcurrentDictionary<string, bool>();
+
+        public void SetLogLevel(LogLevel level)
         {
-            endpointLogs.Add(new EndpointLogItem
-            {
-                Endpoint = endpointName,
-                Level = level,
-                Message = message
-            });
+            LogLevel = level;
         }
 
-
-        public List<EndpointLogItem> GetAllLogs()
+        public class LogItem
         {
-            return endpointLogs.ToList();
-        }
-
-
-        List<EndpointLogItem> endpointLogs = new List<EndpointLogItem>();
-
-        public class EndpointLogItem
-        {
-            public string Endpoint { get; set; }
             public string Message { get; set; }
-            public string Level { get; set; }
+            public LogLevel Level { get; set; }
+
+            public override string ToString()
+            {
+                return $"{Level}: {Message}";
+            }
         }
     }
 }

@@ -1,24 +1,26 @@
-﻿namespace NServiceBus.Transports
+﻿namespace NServiceBus.Transport
 {
     using System;
+    using System.Threading.Tasks;
+    using Extensibility;
 
     /// <summary>
-    /// Implemented by transports to provide pub/sub capabilities
+    /// Implemented by transports to provide pub/sub capabilities.
     /// </summary>
     public interface IManageSubscriptions
     {
         /// <summary>
-        /// Subscribes to the given event. For message driven transports like msmq and sqlserver the address of the publisher is needed as well
+        /// Subscribes to the given event.
         /// </summary>
-        /// <param name="eventType">The event type</param>
-        /// <param name="publisherAddress">The publisher address if needed</param>
-        void Subscribe(Type eventType, Address publisherAddress);
-        
+        /// <param name="eventType">The event type.</param>
+        /// <param name="context">The current context.</param>
+        Task Subscribe(Type eventType, ContextBag context);
+
         /// <summary>
-        /// Unsubscribes from the given event. For message driven transports like msmq and sqlserver the address of the publisher is needed as well
+        /// Unsubscribes from the given event.
         /// </summary>
-        /// <param name="eventType">The event type</param>
-        /// <param name="publisherAddress">The publisher address if needed</param>
-        void Unsubscribe(Type eventType, Address publisherAddress);
+        /// <param name="eventType">The event type.</param>
+        /// <param name="context">The current context.</param>
+        Task Unsubscribe(Type eventType, ContextBag context);
     }
 }

@@ -1,22 +1,21 @@
 ﻿namespace NServiceBus.AcceptanceTests.Mutators
 {
     using System;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
-    using NServiceBus.MessageMutator;
+    using System.Threading.Tasks;
+    using AcceptanceTesting;
+    using EndpointTemplates;
+    using MessageMutator;
     using NUnit.Framework;
 
     public class Issue_1980 : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Run()
+        public async Task Run()
         {
-            var context = new Context();
-
-            Scenario.Define(context)
-                    .WithEndpoint<Endpoint>(b => b.Given((bus, c) => bus.SendLocal(new V1Message())))
-                    .Done(c => c.V2MessageReceived)
-                    .Run();
+            var context = await Scenario.Define<Context>()
+                .WithEndpoint<Endpoint>(b => b.When((session, c) => session.SendLocal(new V1Message())))
+                .Done(c => c.V2MessageReceived || c.V1MessageReceived)
+                .Run();
 
             Assert.IsTrue(context.V2MessageReceived);
             Assert.IsFalse(context.V1MessageReceived);
@@ -38,35 +37,47 @@
 
             class MutateIncomingMessages : IMutateIncomingMessages
             {
-                public object MutateIncoming(object message)
+                public Task MutateIncoming(MutateIncomingMessageContext message)
                 {
-                    if (message is V1Message)
+                    if (message.Message is V1Message)
                     {
-                        return new V2Message();
+                        message.Message = new V2Message();
                     }
-
-                    return message;
+                    return Task.FromResult(0);
                 }
             }
 
             class V2MessageHandler : IHandleMessages<V2Message>
             {
-                public Context Context { get; set; }
-
-                public void Handle(V2Message message)
+                public V2MessageHandler(Context testContext)
                 {
-                    Context.V2MessageReceived = true;
+                    this.testContext = testContext;
                 }
+
+                public Task Handle(V2Message message, IMessageHandlerContext context)
+                {
+                    testContext.V2MessageReceived = true;
+                    return Task.FromResult(0);
+                }
+
+                Context testContext;
             }
 
             class V1MessageHandler : IHandleMessages<V1Message>
             {
-                public Context Context { get; set; }
-
-                public void Handle(V1Message message)
+                public V1MessageHandler(Context testContext)
                 {
-                    Context.V1MessageReceived = true;
+                    this.testContext = testContext;
                 }
+
+                public Task Handle(V1Message message, IMessageHandlerContext context)
+                {
+                    testContext.V1MessageReceived = true;
+
+                    return Task.FromResult(0);
+                }
+
+                Context testContext;
             }
         }
 

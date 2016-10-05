@@ -2,6 +2,7 @@
 {
     public interface IEndpointConfigurationFactory
     {
-        EndpointConfiguration Get();
+        EndpointCustomizationConfiguration Get();
+        ScenarioContext ScenarioContext { get; set; }
     }
 }

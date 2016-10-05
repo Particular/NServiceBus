@@ -8,10 +8,10 @@
 
     public class ScenarioConfigSource : IConfigurationSource
     {
-        readonly EndpointConfiguration configuration;
-        readonly IDictionary<Type, string> routingTable;
+        EndpointCustomizationConfiguration configuration;
+        IDictionary<Type, string> routingTable;
 
-        public ScenarioConfigSource(EndpointConfiguration configuration, IDictionary<Type, string> routingTable)
+        public ScenarioConfigSource(EndpointCustomizationConfiguration configuration, IDictionary<Type, string> routingTable)
         {
             this.configuration = configuration;
             this.routingTable = routingTable;
@@ -55,11 +55,16 @@
                 {
                     if (configuration.AddressOfAuditQueue != null)
                     {
-                        return new AuditConfig { QueueName = configuration.AddressOfAuditQueue.ToString() } as T;
+                        return new AuditConfig { QueueName = configuration.AddressOfAuditQueue } as T;
                     }
 
                     if (configuration.AuditEndpoint != null)
                     {
+                        if (!routingTable.ContainsKey(configuration.AuditEndpoint))
+                        {
+                            throw new ConfigurationErrorsException($"{configuration.AuditEndpoint} was not found in routingTable. Ensure that WithEndpoint<{configuration.AuditEndpoint}>() method is called in the test.");
+                        }
+
                         return new AuditConfig { QueueName = routingTable[configuration.AuditEndpoint] } as T;
                     }
                 }

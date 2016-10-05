@@ -2,33 +2,39 @@
 {
     using System;
     using System.Linq;
-    using EndpointTemplates;
+    using System.Threading.Tasks;
     using AcceptanceTesting;
+    using EndpointTemplates;
+    using Features;
     using MessageMutator;
-    using NServiceBus.Features;
     using NUnit.Framework;
 
     public class When_a_replymessage_is_audited : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Should_audit_the_message()
+        public async Task Should_audit_the_message()
         {
-            var context = new Context();
+            var context = await Scenario.Define<Context>()
+                .WithEndpoint<Server>()
+                .WithEndpoint<EndpointWithAuditOn>(b => b.When(session => session.Send(new Request())))
+                .WithEndpoint<AuditSpyEndpoint>()
+                .Done(c => c.MessageAudited)
+                .Run();
 
-            Scenario.Define(context)
-                    .WithEndpoint<Server>()
-                    .WithEndpoint<EndpointWithAuditOn>(b => b.Given(bus => bus.Send(new Request())))
-                    .WithEndpoint<AuditSpyEndpoint>()
-                    .Done(c => c.MessageAudited)
-                    .Run();
-
+            Assert.True(context.MessageProcessed);
             Assert.True(context.MessageAudited);
         }
 
+        public static byte Checksum(byte[] data)
+        {
+            var longSum = data.Sum(x => (long) x);
+            return unchecked((byte) longSum);
+        }
 
         public class Context : ScenarioContext
         {
             public bool MessageAudited { get; set; }
+            public bool MessageProcessed { get; set; }
         }
 
         public class Server : EndpointConfigurationBuilder
@@ -40,10 +46,13 @@
 
             class RequestHandler : IHandleMessages<Request>
             {
-                public IBus Bus { get; set; }
-                public void Handle(Request message)
+                public Task Handle(Request message, IMessageHandlerContext context)
                 {
-                    Bus.Reply(new ResponseToBeAudited());
+                    var replyOptions = new ReplyOptions();
+
+                    replyOptions.SetHeader("MyHeader", "SomeValue");
+
+                    return context.Reply(new ResponseToBeAudited(), replyOptions);
                 }
             }
         }
@@ -52,17 +61,20 @@
         {
             public EndpointWithAuditOn()
             {
-                EndpointSetup<DefaultServer>(c=>c.DisableFeature<Outbox>())
+                EndpointSetup<DefaultServer>(c => c.DisableFeature<Outbox>())
                     .AddMapping<Request>(typeof(Server))
                     .AuditTo<AuditSpyEndpoint>();
             }
 
-          
             public class MessageToBeAuditedHandler : IHandleMessages<ResponseToBeAudited>
             {
-                public void Handle(ResponseToBeAudited message)
-                {
+                public Context TestContext { get; set; }
 
+                public Task Handle(ResponseToBeAudited message, IMessageHandlerContext context)
+                {
+                    Assert.AreEqual(context.MessageHeaders["MyHeader"], "SomeValue");
+                    TestContext.MessageProcessed = true;
+                    return Task.FromResult(0);
                 }
             }
         }
@@ -78,12 +90,13 @@
             {
                 public Context Context { get; set; }
 
-                public void MutateIncoming(TransportMessage transportMessage)
+                public Task MutateIncoming(MutateIncomingTransportMessageContext transportMessage)
                 {
                     Context.MessageAudited = true;
+                    return Task.FromResult(0);
                 }
 
-                public void Customize(BusConfiguration configuration)
+                public void Customize(EndpointConfiguration configuration)
                 {
                     configuration.RegisterComponents(c => c.ConfigureComponent<BodySpy>(DependencyLifecycle.InstancePerCall));
                 }
@@ -91,16 +104,11 @@
 
             public class MessageToBeAuditedHandler : IHandleMessages<ResponseToBeAudited>
             {
-                public void Handle(ResponseToBeAudited message)
+                public Task Handle(ResponseToBeAudited message, IMessageHandlerContext context)
                 {
+                    return Task.FromResult(0);
                 }
             }
-        }
-
-        public static byte Checksum(byte[] data)
-        {
-            var longSum = data.Sum(x => (long)x);
-            return unchecked((byte)longSum);
         }
 
         [Serializable]
@@ -108,10 +116,8 @@
         {
         }
 
-
         class Request : IMessage
         {
         }
     }
-
 }

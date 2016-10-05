@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.Licensing
+﻿namespace NServiceBus
 {
     using System;
     using System.Threading;
@@ -9,10 +9,7 @@
         {
             var result = default(T);
 
-            var thread = new Thread(() =>
-            {
-                result = func();
-            });
+            var thread = new Thread(() => { result = func(); });
 
             thread.SetApartmentState(ApartmentState.STA);
             thread.Start();

@@ -1,18 +1,19 @@
 namespace NServiceBus.Pipeline
 {
     using System;
+    using ObjectBuilder;
 
     /// <summary>
     /// Manages the pipeline configuration.
     /// </summary>
-    public class PipelineSettings
+    public partial class PipelineSettings
     {
         /// <summary>
-        /// Creates an instance of <see cref="PipelineSettings"/>
+        /// Initializes a new instance of <see cref="PipelineSettings" />.
         /// </summary>
-        public PipelineSettings(BusConfiguration config)
+        internal PipelineSettings(PipelineModifications modifications)
         {
-            this.config = config;
+            this.modifications = modifications;
         }
 
         /// <summary>
@@ -22,113 +23,161 @@ namespace NServiceBus.Pipeline
         public void Remove(string stepId)
         {
             // I can only remove a behavior that is registered and other behaviors do not depend on, eg InsertBefore/After
-            if (string.IsNullOrEmpty(stepId))
-            {
-                throw new ArgumentNullException("stepId");
-            }
+            Guard.AgainstNullAndEmpty(nameof(stepId), stepId);
 
-            config.Settings.Get<PipelineModifications>().Removals.Add(new RemoveStep(stepId));
-        }
-
-        /// <summary>
-        /// Removes the specified step from the pipeline.
-        /// </summary>
-        /// <param name="wellKnownStep">The identifier of the well known step to remove.</param>
-        public void Remove(WellKnownStep wellKnownStep)
-        {
-            // I can only remove a behavior that is registered and other behaviors do not depend on, eg InsertBefore/After
-            if (wellKnownStep == null)
-            {
-                throw new ArgumentNullException("wellKnownStep");
-            }
-
-            Remove((string)wellKnownStep);
+            modifications.Removals.Add(new RemoveStep(stepId));
         }
 
         /// <summary>
         /// Replaces an existing step behavior with a new one.
         /// </summary>
         /// <param name="stepId">The identifier of the step to replace its implementation.</param>
-        /// <param name="newBehavior">The new <see cref="IBehavior{TContext}"/> to use.</param>
+        /// <param name="newBehavior">The new <see cref="Behavior{TContext}" /> to use.</param>
         /// <param name="description">The description of the new behavior.</param>
         public void Replace(string stepId, Type newBehavior, string description = null)
         {
-            BehaviorTypeChecker.ThrowIfInvalid(newBehavior, "newBehavior");
+            BehaviorTypeChecker.ThrowIfInvalid(newBehavior, nameof(newBehavior));
+            Guard.AgainstNullAndEmpty(nameof(stepId), stepId);
 
-            if (string.IsNullOrEmpty(stepId))
-            {
-                throw new ArgumentNullException("stepId");
-            }
-
-            config.Settings.Get<PipelineModifications>().Replacements.Add(new ReplaceBehavior(stepId, newBehavior, description));
+            modifications.Replacements.Add(new ReplaceStep(stepId, newBehavior, description));
         }
 
         /// <summary>
-        /// <see cref="Replace(string,System.Type,string)"/>
+        /// Replaces an existing step behavior with a new one.
         /// </summary>
-        /// <param name="wellKnownStep">The identifier of the well known step to replace.</param>
-        /// <param name="newBehavior">The new <see cref="IBehavior{TContext}"/> to use.</param>
+        /// <param name="stepId">The identifier of the step to replace its implementation.</param>
+        /// <param name="newBehavior">The new <see cref="Behavior{TContext}" /> to use.</param>
         /// <param name="description">The description of the new behavior.</param>
-        public void Replace(WellKnownStep wellKnownStep, Type newBehavior, string description = null)
+        public void Replace<T>(string stepId, T newBehavior, string description = null)
+            where T : IBehavior
         {
-            if (wellKnownStep == null)
-            {
-                throw new ArgumentNullException("wellKnownStep");
-            }
+            BehaviorTypeChecker.ThrowIfInvalid(typeof(T), nameof(newBehavior));
+            Guard.AgainstNullAndEmpty(nameof(stepId), stepId);
 
-            Replace((string)wellKnownStep, newBehavior, description);
+            modifications.Replacements.Add(new ReplaceStep(stepId, typeof(T), description, builder => newBehavior));
         }
-        
+
+        /// <summary>
+        /// Replaces an existing step behavior with a new one.
+        /// </summary>
+        /// <param name="stepId">The identifier of the step to replace its implementation.</param>
+        /// <param name="factoryMethod">The factory method to create new instances of the behavior.</param>
+        /// <param name="description">The description of the new behavior.</param>
+        public void Replace<T>(string stepId, Func<IBuilder, T> factoryMethod, string description = null)
+            where T : IBehavior
+        {
+            BehaviorTypeChecker.ThrowIfInvalid(typeof(T), "newBehavior");
+            Guard.AgainstNullAndEmpty(nameof(stepId), stepId);
+
+            modifications.Replacements.Add(new ReplaceStep(stepId, typeof(T), description, b => factoryMethod(b)));
+        }
+
+        /// <summary>
+        /// Register a new step into the pipeline.
+        /// </summary>
+        /// <param name="behavior">The <see cref="Behavior{TContext}" /> to execute.</param>
+        /// <param name="description">The description of the behavior.</param>
+        public void Register(Type behavior, string description)
+        {
+            BehaviorTypeChecker.ThrowIfInvalid(behavior, nameof(behavior));
+
+            Register(behavior.Name, behavior, description);
+        }
+
         /// <summary>
         /// Register a new step into the pipeline.
         /// </summary>
         /// <param name="stepId">The identifier of the new step to add.</param>
-        /// <param name="behavior">The <see cref="IBehavior{TContext}"/> to execute.</param>
+        /// <param name="behavior">The <see cref="Behavior{TContext}" /> to execute.</param>
         /// <param name="description">The description of the behavior.</param>
         public void Register(string stepId, Type behavior, string description)
         {
-            BehaviorTypeChecker.ThrowIfInvalid(behavior, "behavior");
+            BehaviorTypeChecker.ThrowIfInvalid(behavior, nameof(behavior));
 
-            if (string.IsNullOrEmpty(stepId))
-            {
-                throw new ArgumentNullException("stepId");
-            }
+            Guard.AgainstNullAndEmpty(nameof(stepId), stepId);
+            Guard.AgainstNullAndEmpty(nameof(description), description);
 
-            if (string.IsNullOrEmpty(description))
-            {
-                throw new ArgumentNullException("description");
-            }
-
-            config.Settings.Get<PipelineModifications>().Additions.Add(RegisterStep.Create(stepId, behavior, description));
+            modifications.Additions.Add(RegisterStep.Create(stepId, behavior, description));
         }
-
-
-        /// <summary>
-        /// <see cref="Register(string,System.Type,string)"/>
-        /// </summary>
-        /// <param name="wellKnownStep">The identifier of the step to add.</param>
-        /// <param name="behavior">The <see cref="IBehavior{TContext}"/> to execute.</param>
-        /// <param name="description">The description of the behavior.</param>
-        public void Register(WellKnownStep wellKnownStep, Type behavior, string description)
-        {
-            if (wellKnownStep == null)
-            {
-                throw new ArgumentNullException("wellKnownStep");
-            }
-
-            Register((string)wellKnownStep, behavior, description);
-        }
-
 
         /// <summary>
         /// Register a new step into the pipeline.
         /// </summary>
-        /// <typeparam name="T">The <see cref="RegisterStep"/> to use to perform the registration.</typeparam>
-        public void Register<T>() where T : RegisterStep, new()
+        /// <param name="factoryMethod">A callback that creates the behavior instance.</param>
+        /// <param name="description">The description of the behavior.</param>
+        public void Register<T>(Func<IBuilder, T> factoryMethod, string description)
+            where T : IBehavior
         {
-            config.Settings.Get<PipelineModifications>().Additions.Add(new T());
+            BehaviorTypeChecker.ThrowIfInvalid(typeof(T), "behavior");
+
+            Register(typeof(T).Name, factoryMethod, description);
         }
 
-        BusConfiguration config;
+        /// <summary>
+        /// Register a new step into the pipeline.
+        /// </summary>
+        /// <param name="stepId">The identifier of the new step to add.</param>
+        /// <param name="factoryMethod">A callback that creates the behavior instance.</param>
+        /// <param name="description">The description of the behavior.</param>
+        public void Register<T>(string stepId, Func<IBuilder, T> factoryMethod, string description)
+            where T : IBehavior
+        {
+            BehaviorTypeChecker.ThrowIfInvalid(typeof(T), "behavior");
+
+            Guard.AgainstNullAndEmpty(nameof(stepId), stepId);
+            Guard.AgainstNullAndEmpty(nameof(description), description);
+
+            modifications.Additions.Add(RegisterStep.Create(stepId, typeof(T), description, b => factoryMethod(b)));
+        }
+
+        /// <summary>
+        /// Register a new step into the pipeline.
+        /// </summary>
+        /// <param name="behavior">The behavior instance.</param>
+        /// <param name="description">The description of the behavior.</param>
+        public void Register<T>(T behavior, string description)
+            where T : IBehavior
+        {
+            BehaviorTypeChecker.ThrowIfInvalid(typeof(T), nameof(behavior));
+
+            Register(typeof(T).Name, behavior, description);
+        }
+
+        /// <summary>
+        /// Register a new step into the pipeline.
+        /// </summary>
+        /// <param name="stepId">The identifier of the new step to add.</param>
+        /// <param name="behavior">The behavior instance.</param>
+        /// <param name="description">The description of the behavior.</param>
+        public void Register<T>(string stepId, T behavior, string description)
+            where T : IBehavior
+        {
+            BehaviorTypeChecker.ThrowIfInvalid(typeof(T), nameof(behavior));
+
+            Guard.AgainstNullAndEmpty(nameof(stepId), stepId);
+            Guard.AgainstNullAndEmpty(nameof(description), description);
+
+            modifications.Additions.Add(RegisterStep.Create(stepId, typeof(T), description, _ => behavior));
+        }
+
+        /// <summary>
+        /// Register a new step into the pipeline.
+        /// </summary>
+        public void Register<TRegisterStep>() where TRegisterStep : RegisterStep, new()
+        {
+            modifications.Additions.Add(new TRegisterStep());
+        }
+
+        /// <summary>
+        /// Register a new step into the pipeline.
+        /// </summary>
+        /// <param name="registration">The step registration.</param>
+        public void Register(RegisterStep registration)
+        {
+            Guard.AgainstNull(nameof(registration), registration);
+            modifications.Additions.Add(registration);
+        }
+
+        PipelineModifications modifications;
     }
 }

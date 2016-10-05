@@ -12,21 +12,24 @@
         {
             get
             {
-                var specificPersistence = Environment.GetEnvironmentVariable("Persistence.UseSpecific");
+                var specificPersistence = EnvironmentHelper.GetEnvironmentVariable("Persistence.UseSpecific");
+                var runDescriptors = AllAvailable;
 
                 if (!string.IsNullOrEmpty(specificPersistence))
                 {
-                    return AllAvailable.Single(r => r.Key == specificPersistence);
+                    return runDescriptors.Single(r => r.Key == specificPersistence);
                 }
 
-                var nonCorePersister = AllAvailable.FirstOrDefault();
+                var nonCorePersister = runDescriptors.FirstOrDefault();
 
                 if (nonCorePersister != null)
                 {
                     return nonCorePersister;
                 }
 
-                return InMemoryPersistenceDescriptor;
+                var inMemory = new RunDescriptor(InMemoryPersistenceType.Name);
+                inMemory.Settings.Set("Persistence", InMemoryPersistenceType);
+                return inMemory;
             }
         }
 
@@ -34,52 +37,33 @@
         {
             get
             {
-                if (availablePersisters == null)
+                foreach (var definition in foundDefinitions.Value)
                 {
-                    availablePersisters = GetAllAvailable().ToList();
-                }
+                    var key = definition.Name;
 
-                return availablePersisters;
+                    var runDescriptor = new RunDescriptor(key);
+                    runDescriptor.Settings.Set("Persistence", definition);
+
+                    var connectionString = EnvironmentHelper.GetEnvironmentVariable(key + ".ConnectionString");
+
+                    if (!string.IsNullOrEmpty(connectionString))
+                    {
+                        runDescriptor.Settings.Set("Persistence.ConnectionString", connectionString);
+                    }
+
+                    yield return runDescriptor;
+                }
             }
         }
 
         static Type InMemoryPersistenceType = typeof(InMemoryPersistence);
 
-        static RunDescriptor InMemoryPersistenceDescriptor = new RunDescriptor
+        static Lazy<List<Type>> foundDefinitions = new Lazy<List<Type>>(() =>
         {
-            Key = InMemoryPersistenceType.Name,
-            Settings =
-                new Dictionary<string, string>
-                {
-                    {"Persistence", InMemoryPersistenceType.AssemblyQualifiedName}
-                }
-        };
-
-        static IEnumerable<RunDescriptor> GetAllAvailable()
-        {
-            var foundDefinitions = TypeScanner.GetAllTypesAssignableTo<PersistenceDefinition>()
+            return TypeScanner.GetAllTypesAssignableTo<PersistenceDefinition>()
                 .Where(t => t.Assembly != InMemoryPersistenceType.Assembly &&
-                t.Assembly != typeof(Persistence).Assembly);
-
-            foreach (var definition in foundDefinitions)
-            {
-                var key = definition.Name;
-
-                var runDescriptor = new RunDescriptor
-                {
-                    Key = key,
-                    Settings =
-                        new Dictionary<string, string>
-                                {
-                                    {"Persistence", definition.AssemblyQualifiedName}
-                                }
-                };
-
-                yield return runDescriptor;
-            }
-        }
-
-        static IList<RunDescriptor> availablePersisters;
-
+                            t.Assembly != typeof(Persistence).Assembly)
+                .ToList();
+        });
     }
 }

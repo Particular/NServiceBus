@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Core.Tests.Encryption
 {
+    using System.Linq;
     using NUnit.Framework;
 
     [TestFixture]
@@ -13,9 +14,9 @@
                 Name = "John"
             };
 
-            var result = (TestMessageWithSets)mutator.MutateOutgoing(message, null);
+            var result = inspector.ScanObject(message).ToList();
 
-            Assert.AreEqual("John", result.Name);
+            Assert.AreEqual(0, result.Count);
         }
 
         [Test]
@@ -26,12 +27,12 @@
                 Name = "John"
             };
 
-            var result = (TestMessageWithGets)mutator.MutateOutgoing(message, null);
+            var result = inspector.ScanObject(message).ToList();
 
-            Assert.AreEqual("John", result.Name);
+            Assert.AreEqual(0, result.Count);
         }
 
-        private class TestMessageWithSets
+        class TestMessageWithSets
         {
             public string Name { get; set; }
 
@@ -54,19 +55,13 @@
             }
         }
 
-        private class TestMessageWithGets
+        class TestMessageWithGets
         {
             public string Name { get; set; }
 
-            public string Options1
-            {
-                get { return "Testing"; }
-            }
+            public string Options1 => "Testing";
 
-            public int Options2
-            {
-                get { return 5; }
-            }
+            public int Options2 => 5;
         }
     }
 }

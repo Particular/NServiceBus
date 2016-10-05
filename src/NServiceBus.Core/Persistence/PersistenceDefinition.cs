@@ -3,65 +3,61 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using NServiceBus.Settings;
+    using Settings;
 
     /// <summary>
-    /// Base class for persistence definitions
+    /// Base class for persistence definitions.
     /// </summary>
     public abstract class PersistenceDefinition
     {
         /// <summary>
-        /// Used be the storage definitions to declare what they support
+        /// Used by the storage definitions to declare what they support.
         /// </summary>
-        /// <typeparam name="T"><see cref="StorageType"/></typeparam>
         protected void Supports<T>(Action<SettingsHolder> action) where T : StorageType
         {
+            Guard.AgainstNull(nameof(action), action);
             if (storageToActionMap.ContainsKey(typeof(T)))
             {
-                throw new Exception(string.Format("Action for {0} already defined.", typeof(T)));
+                throw new Exception($"Action for {typeof(T)} already defined.");
             }
             storageToActionMap[typeof(T)] = action;
         }
 
         /// <summary>
-        /// Used be the storage definitions to declare what they support
-        /// </summary>
-        [ObsoleteEx(
-           RemoveInVersion = "7.0",
-           TreatAsErrorFromVersion = "6.0",
-           Replacement = "Supports<T>()")]
-        protected void Supports(Storage storage, Action<SettingsHolder> action)
-        {
-            var storageType = StorageType.FromEnum(storage);
-            if (storageToActionMap.ContainsKey(storageType))
-            {
-                throw new Exception(string.Format("Action for {0} already defined.", storage));
-            }
-            storageToActionMap[storageType] = action;
-        }
-
-        /// <summary>
-        /// Used be the storage definitions to declare what they support
-        /// </summary>
-        protected void Defaults(Action<SettingsHolder> action)
-        {
-            defaults.Add(action);
-        }
-
-        /// <summary>
-        /// True if supplied storage is supported
+        /// Used by the storage definitions to declare what they support.
         /// </summary>
         [ObsoleteEx(
             RemoveInVersion = "7.0",
             TreatAsErrorFromVersion = "6.0",
-            Replacement = "HasSupportFor<T>()")]
-        public bool HasSupportFor(Storage storage)
+            ReplacementTypeOrMember = "Supports<T>()")]
+        protected void Supports(Storage storage, Action<SettingsHolder> action)
         {
-            return storageToActionMap.ContainsKey(StorageType.FromEnum(storage));
+            throw new NotImplementedException();
         }
 
         /// <summary>
-        /// True if supplied storage is supported
+        /// Used by the storage definitions to declare what they support.
+        /// </summary>
+        protected void Defaults(Action<SettingsHolder> action)
+        {
+            Guard.AgainstNull(nameof(action), action);
+            defaults.Add(action);
+        }
+
+        /// <summary>
+        /// True if supplied storage is supported.
+        /// </summary>
+        [ObsoleteEx(
+            RemoveInVersion = "7.0",
+            TreatAsErrorFromVersion = "6.0",
+            ReplacementTypeOrMember = "HasSupportFor<T>()")]
+        public bool HasSupportFor(Storage storage)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// True if supplied storage is supported.
         /// </summary>
         public bool HasSupportFor<T>() where T : StorageType
         {
@@ -69,10 +65,11 @@
         }
 
         /// <summary>
-        /// True if supplied storage is supported
+        /// True if supplied storage is supported.
         /// </summary>
-        public bool HasSupportFor(Type storageType) 
+        public bool HasSupportFor(Type storageType)
         {
+            Guard.AgainstNull(nameof(storageType), storageType);
             return storageToActionMap.ContainsKey(storageType);
         }
 
@@ -80,7 +77,7 @@
         {
             if (!storageType.IsSubclassOf(typeof(StorageType)))
             {
-                throw new ArgumentException(string.Format("Storage type '{0}' is not a sub-class of StorageType", storageType.FullName), "storageType");
+                throw new ArgumentException($"Storage type '{storageType.FullName}' is not a sub-class of StorageType", nameof(storageType));
             }
             var actionForStorage = storageToActionMap[storageType];
             actionForStorage(settings);

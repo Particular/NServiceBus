@@ -1,20 +1,22 @@
 ﻿namespace NServiceBus.AcceptanceTests.Sagas
 {
     using System;
-    using EndpointTemplates;
+    using System.Threading.Tasks;
     using AcceptanceTesting;
+    using EndpointTemplates;
+    using Features;
     using NUnit.Framework;
-    using Saga;
 
     public class When_using_ReplyToOriginator : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Should_set_Reply_as_messageintent()
+        public async Task Should_set_Reply_as_messageintent()
         {
-            var context = new Context();
-
-            Scenario.Define(context)
-                .WithEndpoint<Endpoint>(b => b.Given(bus => bus.SendLocal(new InitiateRequestingSaga())))
+            var context = await Scenario.Define<Context>()
+                .WithEndpoint<Endpoint>(b => b.When(session => session.SendLocal(new InitiateRequestingSaga
+                {
+                    SomeCorrelationId = Guid.NewGuid()
+                })))
                 .Done(c => c.Done)
                 .Run();
 
@@ -29,40 +31,39 @@
 
         public class Endpoint : EndpointConfigurationBuilder
         {
-
             public Endpoint()
             {
-                EndpointSetup<DefaultServer>();
+                EndpointSetup<DefaultServer>(config => config.EnableFeature<TimeoutManager>());
             }
 
             public class RequestingSaga : Saga<RequestingSaga.RequestingSagaData>,
                 IAmStartedByMessages<InitiateRequestingSaga>,
                 IHandleMessages<AnotherRequest>
             {
-                public Context Context { get; set; }
-
-                public void Handle(InitiateRequestingSaga message)
+                public Task Handle(InitiateRequestingSaga message, IMessageHandlerContext context)
                 {
-                    Data.CorrIdForResponse = Guid.NewGuid(); //wont be needed in the future
+                    Data.CorrIdForResponse = message.SomeCorrelationId; //wont be needed in the future
 
-                    Bus.SendLocal(new AnotherRequest
+                    return context.SendLocal(new AnotherRequest
                     {
                         SomeCorrelationId = Data.CorrIdForResponse //wont be needed in the future
                     });
                 }
 
-                public void Handle(AnotherRequest message)
+                public async Task Handle(AnotherRequest message, IMessageHandlerContext context)
                 {
-                    ReplyToOriginator(new MyReplyToOriginator());
+                    await ReplyToOriginator(context, new MyReplyToOriginator());
                     MarkAsComplete();
                 }
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<RequestingSagaData> mapper)
                 {
-                    //if this line is un-commented the timeout and secondary handler tests will start to fail
-                    // for more info and discussion see TBD
-                    mapper.ConfigureMapping<AnotherRequest>(m => m.SomeCorrelationId).ToSaga(s => s.CorrIdForResponse);
+                    mapper.ConfigureMapping<InitiateRequestingSaga>(m => m.SomeCorrelationId)
+                        .ToSaga(s => s.CorrIdForResponse);
+                    mapper.ConfigureMapping<AnotherRequest>(m => m.SomeCorrelationId)
+                        .ToSaga(s => s.CorrIdForResponse);
                 }
+
                 public class RequestingSagaData : ContainSagaData
                 {
                     public virtual Guid CorrIdForResponse { get; set; } //wont be needed in the future
@@ -71,18 +72,21 @@
 
             class MyReplyToOriginatorHandler : IHandleMessages<MyReplyToOriginator>
             {
-                public Context Context { get; set; }
-                public IBus Bus { get; set; }
+                public Context TestContext { get; set; }
 
-                public void Handle(MyReplyToOriginator message)
+                public Task Handle(MyReplyToOriginator message, IMessageHandlerContext context)
                 {
-                    Context.Intent = (MessageIntentEnum)Enum.Parse(typeof(MessageIntentEnum), Bus.CurrentMessageContext.Headers[Headers.MessageIntent]);
-                    Context.Done = true;
+                    TestContext.Intent = (MessageIntentEnum) Enum.Parse(typeof(MessageIntentEnum), context.MessageHeaders[Headers.MessageIntent]);
+                    TestContext.Done = true;
+                    return Task.FromResult(0);
                 }
             }
         }
 
-        public class InitiateRequestingSaga : ICommand { }
+        public class InitiateRequestingSaga : ICommand
+        {
+            public Guid SomeCorrelationId { get; set; }
+        }
 
         public class AnotherRequest : ICommand
         {

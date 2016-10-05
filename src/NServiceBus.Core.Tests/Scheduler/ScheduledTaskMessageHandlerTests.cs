@@ -1,13 +1,14 @@
 ﻿namespace NServiceBus.Scheduling.Tests
 {
     using System;
-    using Core.Tests.Fakes;
+    using System.Linq;
     using NUnit.Framework;
+    using Testing;
 
     [TestFixture]
     public class ScheduledTaskMessageHandlerTests
     {
-        FakeBus bus = new FakeBus();
+        TestableMessageHandlerContext handlingContext = new TestableMessageHandlerContext();
         DefaultScheduler scheduler;
         ScheduledTaskMessageHandler handler;
         Guid taskId;
@@ -15,10 +16,14 @@
         [SetUp]
         public void SetUp()
         {
-            scheduler = new DefaultScheduler(bus);
+            scheduler = new DefaultScheduler();
             handler = new ScheduledTaskMessageHandler(scheduler);
 
-            var task = new TaskDefinition{Task = () => { }};
+            var task = new TaskDefinition
+            {
+                Every = TimeSpan.FromSeconds(5),
+                Task = c => TaskEx.CompletedTask
+            };
             taskId = task.Id;
             scheduler.Schedule(task);
         }
@@ -26,8 +31,14 @@
         [Test]
         public void When_a_scheduledTask_message_is_handled_the_task_should_be_defer()
         {
-            handler.Handle(new Messages.ScheduledTask{TaskId = taskId});
-            Assert.That(((Messages.ScheduledTask)bus.DeferMessages[0]).TaskId, Is.EqualTo(taskId));
+            handler.Handle(new ScheduledTask
+            {
+                Every = TimeSpan.FromSeconds(5),
+                TaskId = taskId
+            }, handlingContext);
+
+            var deferredMessage = handlingContext.SentMessages.First(message => message.Options.GetDeliveryDelay().HasValue).Message<ScheduledTask>();
+            Assert.That(deferredMessage.TaskId, Is.EqualTo(taskId));
         }
     }
 }

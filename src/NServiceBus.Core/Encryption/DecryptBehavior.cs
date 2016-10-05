@@ -1,41 +1,61 @@
 namespace NServiceBus
 {
     using System;
-    using NServiceBus.Encryption;
-    using NServiceBus.Pipeline;
-    using NServiceBus.Pipeline.Contexts;
-    using NServiceBus.Unicast.Transport;
+    using System.Reflection;
+    using System.Threading.Tasks;
+    using Pipeline;
 
-    class DecryptBehavior : IBehavior<IncomingContext>
+    class DecryptBehavior : IBehavior<IIncomingLogicalMessageContext, IIncomingLogicalMessageContext>
     {
-        EncryptionMutator messageMutator;
+        public DecryptBehavior(EncryptionInspector messageInspector, IEncryptionService encryptionService)
+        {
+            this.messageInspector = messageInspector;
+            this.encryptionService = encryptionService;
+        }
 
-        public DecryptBehavior(EncryptionMutator messageMutator)
+        public Task Invoke(IIncomingLogicalMessageContext context, Func<IIncomingLogicalMessageContext, Task> next)
         {
-            this.messageMutator = messageMutator;
-        }
-        public void Invoke(IncomingContext context, Action next)
-        {
-            if (context.IncomingLogicalMessage.IsControlMessage())
+            var current = context.Message.Instance;
+
+            foreach (var item in messageInspector.ScanObject(current))
             {
-                next();
-                return;
+                DecryptMember(item.Item1, item.Item2, context);
             }
-            var current = context.IncomingLogicalMessage.Instance;
-            current = messageMutator.MutateIncoming(current, context);
-            context.IncomingLogicalMessage.UpdateMessageInstance(current);
-            next();
+
+            context.UpdateMessageInstance(current);
+
+            return next(context);
         }
+
+
+        void DecryptMember(object target, MemberInfo property, IIncomingLogicalMessageContext context)
+        {
+            var encryptedValue = property.GetValue(target);
+
+            var wireEncryptedString = encryptedValue as WireEncryptedString;
+            if (wireEncryptedString != null)
+            {
+                encryptionService.DecryptValue(wireEncryptedString, context);
+            }
+
+            var stringToDecrypt = encryptedValue as string;
+            if (stringToDecrypt != null)
+            {
+                encryptionService.DecryptValue(ref stringToDecrypt, context);
+                property.SetValue(target, stringToDecrypt);
+            }
+        }
+
+        IEncryptionService encryptionService;
+        EncryptionInspector messageInspector;
 
         public class DecryptRegistration : RegisterStep
         {
-            public DecryptRegistration()
-                : base("InvokeDecryption", typeof(DecryptBehavior), "Invokes the decryption logic")
+            public DecryptRegistration(EncryptionInspector inspector, IEncryptionService encryptionService)
+                : base("InvokeDecryption", typeof(DecryptBehavior), "Invokes the decryption logic", b => new DecryptBehavior(inspector, encryptionService))
             {
-                InsertAfter(WellKnownStep.ExecuteLogicalMessages);
-                InsertBefore(WellKnownStep.MutateIncomingMessages);
+                InsertBefore("MutateIncomingMessages");
             }
-
         }
     }
 }

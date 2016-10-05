@@ -1,70 +1,94 @@
-﻿namespace NServiceBus.InMemory.Outbox
+﻿namespace NServiceBus
 {
     using System;
     using System.Collections.Concurrent;
-    using System.Collections.Generic;
-    using System.Linq;
-    using NServiceBus.Outbox;
+    using System.Threading.Tasks;
+    using Extensibility;
+    using Outbox;
 
     class InMemoryOutboxStorage : IOutboxStorage
     {
-        public bool TryGet(string messageId, out OutboxMessage message)
+        public Task<OutboxMessage> Get(string messageId, ContextBag context)
         {
             StoredMessage storedMessage;
-            message = null;
+            if (!storage.TryGetValue(messageId, out storedMessage))
+            {
+                return NoOutboxMessageTask;
+            }
+
+            return Task.FromResult(new OutboxMessage(messageId, storedMessage.TransportOperations));
+        }
+
+        public Task<OutboxTransaction> BeginTransaction(ContextBag context)
+        {
+            return Task.FromResult<OutboxTransaction>(new InMemoryOutboxTransaction());
+        }
+
+        public Task Store(OutboxMessage message, OutboxTransaction transaction, ContextBag context)
+        {
+            var tx = (InMemoryOutboxTransaction) transaction;
+            tx.Enlist(() =>
+            {
+                if (!storage.TryAdd(message.MessageId, new StoredMessage(message.MessageId, message.TransportOperations)))
+                {
+                    throw new Exception($"Outbox message with id '{message.MessageId}' is already present in storage.");
+                }
+            });
+            return TaskEx.CompletedTask;
+        }
+
+        public Task SetAsDispatched(string messageId, ContextBag context)
+        {
+            StoredMessage storedMessage;
 
             if (!storage.TryGetValue(messageId, out storedMessage))
             {
-                return false;
+                return TaskEx.CompletedTask;
             }
 
-            message = new OutboxMessage(messageId);
-            message.TransportOperations.AddRange(storedMessage.TransportOperations);
-
-            return true;
+            storedMessage.MarkAsDispatched();
+            return TaskEx.CompletedTask;
         }
 
-        public void Store(string messageId, IEnumerable<TransportOperation> transportOperations)
+        public void RemoveEntriesOlderThan(DateTime dateTime)
         {
-            if (!storage.TryAdd(messageId, new StoredMessage(messageId, transportOperations.ToList())))
+            foreach (var entry in storage)
             {
-                throw new Exception(string.Format("Outbox message with id '{0}' is already present in storage.", messageId));
+                var storedMessage = entry.Value;
+                if (storedMessage.Dispatched && storedMessage.StoredAt < dateTime)
+                {
+                    StoredMessage toRemove;
+
+                    storage.TryRemove(entry.Key, out toRemove);
+                }
             }
         }
 
-        public void SetAsDispatched(string messageId)
-        {
-            StoredMessage storedMessage;
-
-            if (!storage.TryGetValue(messageId, out storedMessage))
-            {
-                return;
-            }
-
-            storedMessage.TransportOperations.Clear();
-            storedMessage.Dispatched = true;
-        }
 
         ConcurrentDictionary<string, StoredMessage> storage = new ConcurrentDictionary<string, StoredMessage>();
+        static Task<OutboxMessage> NoOutboxMessageTask = Task.FromResult(default(OutboxMessage));
 
         class StoredMessage
         {
-            public StoredMessage(string messageId, IList<TransportOperation> transportOperations)
+            public StoredMessage(string messageId, TransportOperation[] transportOperations)
             {
-                this.transportOperations = transportOperations;
+                TransportOperations = transportOperations;
                 Id = messageId;
                 StoredAt = DateTime.UtcNow;
             }
 
-            public string Id { get; private set; }
+            public string Id { get; }
 
-            public bool Dispatched { get; set; }
+            public bool Dispatched { get; private set; }
 
-            public DateTime StoredAt { get; set; }
+            public DateTime StoredAt { get; }
 
-            public IList<TransportOperation> TransportOperations
+            public TransportOperation[] TransportOperations { get; private set; }
+
+            public void MarkAsDispatched()
             {
-                get { return transportOperations; }
+                Dispatched = true;
+                TransportOperations = new TransportOperation[0];
             }
 
             protected bool Equals(StoredMessage other)
@@ -86,32 +110,15 @@
                 {
                     return false;
                 }
-                return Equals((StoredMessage)obj);
+                return Equals((StoredMessage) obj);
             }
 
             public override int GetHashCode()
             {
                 unchecked
                 {
-                    return ((Id != null ? Id.GetHashCode() : 0) * 397) ^ Dispatched.GetHashCode();
+                    return ((Id?.GetHashCode() ?? 0)*397) ^ Dispatched.GetHashCode();
                 }
-            }
-
-            readonly IList<TransportOperation> transportOperations;
-        }
-
-        public void RemoveEntriesOlderThan(DateTime dateTime)
-        {
-            var entriesToRemove = storage
-                .Where(e => e.Value.Dispatched && e.Value.StoredAt < dateTime)
-                .Select(e => e.Key)
-                .ToList();
-
-            foreach (var entry in entriesToRemove)
-            {
-                StoredMessage toRemove;
-
-                storage.TryRemove(entry, out toRemove);
             }
         }
     }

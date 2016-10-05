@@ -1,18 +1,21 @@
 namespace NServiceBus
 {
     using System.Linq;
-    using NServiceBus.Config;
+    using Config;
 
-    internal static class RijndaelEncryptionServiceConfigValidations
+    static class RijndaelEncryptionServiceConfigValidations
     {
         public static bool ConfigurationHasDuplicateKeyIdentifiers(RijndaelEncryptionServiceConfig section)
         {
-            // Combine all key identifier values, filter the empty ones, split them 
+            // Combine all key identifier values, filter the empty ones, split them
             return section
                 .ExpiredKeys
                 .Cast<RijndaelExpiredKey>()
                 .Select(x => x.KeyIdentifier)
-                .Union(new[] { section.KeyIdentifier })
+                .Union(new[]
+                {
+                    section.KeyIdentifier
+                })
                 .Where(x => !string.IsNullOrEmpty(x))
                 .Select(x => x.Split(';'))
                 .SelectMany(x => x)

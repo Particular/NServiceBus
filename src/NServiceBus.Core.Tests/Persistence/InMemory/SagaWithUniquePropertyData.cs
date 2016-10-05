@@ -1,24 +1,27 @@
 namespace NServiceBus.SagaPersisters.InMemory.Tests
 {
     using System;
-    using Saga;
+    using System.Threading.Tasks;
 
-    class SagaWithUniqueProperty : Saga<SagaWithUniquePropertyData>
+    class SagaWithUniqueProperty : Saga<SagaWithUniquePropertyData>, IAmStartedByMessages<M12>
     {
+        public Task Handle(M12 message, IMessageHandlerContext context)
+        {
+            throw new NotImplementedException();
+        }
+
         protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaWithUniquePropertyData> mapper)
         {
-            
+            mapper.ConfigureMapping<M12>(m => m.UniqueString).ToSaga(s => s.UniqueString);
         }
     }
-    public class SagaWithUniquePropertyData : IContainSagaData
+    public class SagaWithUniquePropertyData : ContainSagaData
     {
-        public Guid Id { get; set; }
+        public string UniqueString { get; set; }
+    }
 
-        public string Originator { get; set; }
-
-        public string OriginalMessageId { get; set; }
-
-        [Unique]
+    class M12
+    {
         public string UniqueString { get; set; }
     }
 }

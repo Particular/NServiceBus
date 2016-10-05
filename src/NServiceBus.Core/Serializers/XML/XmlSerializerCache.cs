@@ -1,20 +1,20 @@
-namespace NServiceBus.Serializers.XML
+namespace NServiceBus
 {
     using System;
     using System.Collections;
+    using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
     using System.Xml.Linq;
     using System.Xml.Serialization;
-    using NServiceBus.Logging;
-    using NServiceBus.Utils.Reflection;
+    using Logging;
 
     class XmlSerializerCache
     {
         public void InitType(Type t)
         {
-            logger.Debug("Initializing type: " + t.AssemblyQualifiedName);
+            logger.Debug($"Initializing type: {t.AssemblyQualifiedName}");
 
             if (t.IsSimpleType())
             {
@@ -90,7 +90,7 @@ namespace NServiceBus.Serializers.XML
             var args = t.GetGenericArguments();
             if (args.Length == 2)
             {
-                isKeyValuePair = (typeof(KeyValuePair<,>).MakeGenericType(args[0], args[1]) == t);
+                isKeyValuePair = typeof(KeyValuePair<,>).MakeGenericType(args[0], args[1]) == t;
             }
 
             if (args.Length == 1 && args[0].IsValueType)
@@ -121,32 +121,16 @@ namespace NServiceBus.Serializers.XML
 
             foreach (var p in props)
             {
-                logger.Debug("Handling property: " + p.Name);
-
-                DelegateFactory.CreateGet(p);
-                if (!isKeyValuePair)
-                {
-                    DelegateFactory.CreateSet(p);
-                }
-
                 InitType(p.PropertyType);
             }
 
             foreach (var f in fields)
             {
-                logger.Debug("Handling field: " + f.Name);
-
-                DelegateFactory.CreateGet(f);
-                if (!isKeyValuePair)
-                {
-                    DelegateFactory.CreateSet(f);
-                }
-
                 InitType(f.FieldType);
             }
         }
 
-        IEnumerable<PropertyInfo> GetAllPropertiesForType(Type t, bool isKeyValuePair)
+        PropertyInfo[] GetAllPropertiesForType(Type t, bool isKeyValuePair)
         {
             var result = new List<PropertyInfo>();
 
@@ -164,7 +148,7 @@ namespace NServiceBus.Serializers.XML
 
                 if (typeof(IList) == prop.PropertyType)
                 {
-                    throw new NotSupportedException("IList is not a supported property type for serialization, use List instead. Type: " + t.FullName + " Property: " + prop.Name);
+                    throw new NotSupportedException($"IList is not a supported property type for serialization, use List instead. Type: {t.FullName} Property: {prop.Name}");
                 }
 
                 var args = prop.PropertyType.GetGenericArguments();
@@ -173,11 +157,11 @@ namespace NServiceBus.Serializers.XML
                 {
                     if (typeof(IList<>).MakeGenericType(args) == prop.PropertyType)
                     {
-                        throw new NotSupportedException("IList<T> is not a supported property type for serialization, use List<T> instead. Type: " + t.FullName + " Property: " + prop.Name);
+                        throw new NotSupportedException($"IList<T> is not a supported property type for serialization, use List<T> instead. Type: {t.FullName} Property: {prop.Name}");
                     }
                     if (typeof(ISet<>).MakeGenericType(args) == prop.PropertyType)
                     {
-                        throw new NotSupportedException("ISet<T> is not a supported property type for serialization, use HashSet<T> instead. Type: " + t.FullName + " Property: " + prop.Name);
+                        throw new NotSupportedException($"ISet<T> is not a supported property type for serialization, use HashSet<T> instead. Type: {t.FullName} Property: {prop.Name}");
                     }
                 }
 
@@ -185,12 +169,12 @@ namespace NServiceBus.Serializers.XML
                 {
                     if (typeof(IDictionary<,>).MakeGenericType(args[0], args[1]) == prop.PropertyType)
                     {
-                        throw new NotSupportedException("IDictionary<T, K> is not a supported property type for serialization, use Dictionary<T,K> instead. Type: " + t.FullName + " Property: " + prop.Name + ". Consider using a concrete Dictionary<T, K> instead, where T and K cannot be of type 'System.Object'");
+                        throw new NotSupportedException($"IDictionary<T, K> is not a supported property type for serialization, use Dictionary<T,K> instead. Type: {t.FullName} Property: {prop.Name}. Consider using a concrete Dictionary<T, K> instead, where T and K cannot be of type 'System.Object'");
                     }
 
                     if (args[0].FullName == "System.Object" || args[1].FullName == "System.Object")
                     {
-                        throw new NotSupportedException("Dictionary<T, K> is not a supported when Key or Value is of Type System.Object. Type: " + t.FullName + " Property: " + prop.Name + ". Consider using a concrete Dictionary<T, K> where T and K are not of type 'System.Object'");
+                        throw new NotSupportedException($"Dictionary<T, K> is not a supported when Key or Value is of Type System.Object. Type: {t.FullName} Property: {prop.Name}. Consider using a concrete Dictionary<T, K> where T and K are not of type 'System.Object'");
                     }
                 }
 
@@ -205,19 +189,20 @@ namespace NServiceBus.Serializers.XML
                 }
             }
 
-            return result.Distinct();
+            return result.Distinct().ToArray();
         }
 
-        IEnumerable<FieldInfo> GetAllFieldsForType(Type t)
+        FieldInfo[] GetAllFieldsForType(Type t)
         {
             return t.GetFields(BindingFlags.FlattenHierarchy | BindingFlags.Instance | BindingFlags.Public);
         }
 
-        public readonly Dictionary<Type, IEnumerable<FieldInfo>> typeToFields = new Dictionary<Type, IEnumerable<FieldInfo>>();
-        public readonly Dictionary<Type, IEnumerable<PropertyInfo>> typeToProperties = new Dictionary<Type, IEnumerable<PropertyInfo>>();
-        readonly List<Type> typesBeingInitialized = new List<Type>();
-        public readonly Dictionary<Type, Type> typesToCreateForArrays = new Dictionary<Type, Type>();
-        public readonly Dictionary<Type, Type> typesToCreateForEnumerables = new Dictionary<Type, Type>();
+        List<Type> typesBeingInitialized = new List<Type>();
+        public ConcurrentDictionary<Type, Type> typesToCreateForArrays = new ConcurrentDictionary<Type, Type>();
+        public ConcurrentDictionary<Type, Type> typesToCreateForEnumerables = new ConcurrentDictionary<Type, Type>();
+
+        public ConcurrentDictionary<Type, IEnumerable<FieldInfo>> typeToFields = new ConcurrentDictionary<Type, IEnumerable<FieldInfo>>();
+        public ConcurrentDictionary<Type, IEnumerable<PropertyInfo>> typeToProperties = new ConcurrentDictionary<Type, IEnumerable<PropertyInfo>>();
 
         static ILog logger = LogManager.GetLogger<XmlSerializerCache>();
     }

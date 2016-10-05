@@ -8,9 +8,7 @@ namespace NServiceBus.Core.Tests.AssemblyScanner
     [TestFixture]
     public class When_scanning_for_dlls_only
     {
-        static readonly string BaseDirectoryToScan = Path.Combine(Path.GetTempPath(), "empty");
-
-        AssemblyScannerResults results;
+        static string BaseDirectoryToScan = Path.Combine(Path.GetTempPath(), "empty");
 
         [SetUp]
         public void Context()
@@ -19,13 +17,6 @@ namespace NServiceBus.Core.Tests.AssemblyScanner
 
             var dllFilePath = Path.Combine(BaseDirectoryToScan, "NotAProper.exe");
             File.WriteAllText(dllFilePath, "This is not a proper EXE");
-
-            results = new AssemblyScanner(BaseDirectoryToScan)
-                {
-                    IncludeAppDomainAssemblies = true,
-                    IncludeExesInScan = false,
-                }
-                .GetScannableAssemblies();
         }
 
         [TearDown]
@@ -38,6 +29,12 @@ namespace NServiceBus.Core.Tests.AssemblyScanner
         [Test]
         public void should_not_find_assembly_in_sub_directory()
         {
+            var results = new AssemblyScanner(BaseDirectoryToScan)
+            {
+                IncludeAppDomainAssemblies = true,
+                IncludeExesInScan = false,
+            }.GetScannableAssemblies();
+
             var allEncounteredFileNames =
                 results.Assemblies
                     .Where(x => !x.IsDynamic)
