@@ -26,33 +26,29 @@ namespace NServiceBus.Faults
 
         internal void InvokeMessageHasBeenSentToErrorQueue(IncomingMessage message, Exception exception, string errorQueue)
         {
-            var failedMessage = new FailedMessage(
+            MessageSentToErrorQueue?.Invoke(this, new FailedMessage(
                 message.MessageId,
                 new Dictionary<string, string>(message.Headers),
-                CopyOfBody(message.Body), exception, errorQueue);
-            MessageSentToErrorQueue?.Invoke(this, failedMessage);
+                CopyOfBody(message.Body), exception, errorQueue));
         }
 
         internal void InvokeMessageHasFailedAnImmediateRetryAttempt(int immediateRetryAttempt, IncomingMessage message, Exception exception)
         {
-            var retry = new ImmediateRetryMessage(
+            MessageHasFailedAnImmediateRetryAttempt?.Invoke(this, new ImmediateRetryMessage(
                 message.MessageId,
                 new Dictionary<string, string>(message.Headers),
                 CopyOfBody(message.Body),
                 exception,
-                immediateRetryAttempt);
-            MessageHasFailedAnImmediateRetryAttempt?.Invoke(this, retry);
+                immediateRetryAttempt));
         }
 
         internal void InvokeMessageHasBeenSentToDelayedRetries(int delayedRetryAttempt, IncomingMessage message, Exception exception)
         {
-            var retry = new DelayedRetryMessage(
+            MessageHasBeenSentToDelayedRetries?.Invoke(this, new DelayedRetryMessage(
                 new Dictionary<string, string>(message.Headers),
                 CopyOfBody(message.Body),
                 exception,
-                delayedRetryAttempt);
-
-            MessageHasBeenSentToDelayedRetries?.Invoke(this, retry);
+                delayedRetryAttempt));
         }
 
         static byte[] CopyOfBody(byte[] body)
