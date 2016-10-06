@@ -195,7 +195,7 @@ namespace NServiceBus
                 scannedTypes = scannedTypes.Union(GetAllowedCoreTypes()).ToList();
             }
 
-            Settings.SetDefault("TypesToScan", scannedTypes);
+            Settings.SetDefault("AvailableTypes", scannedTypes);
             ActivateAndInvoke<INeedInitialization>(scannedTypes, t => t.Customize(this));
 
             UseTransportExtensions.EnsureTransportConfigured(this);
