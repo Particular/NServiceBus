@@ -6,9 +6,9 @@ namespace NServiceBus
     using Transport;
 
     /// <summary>
-    /// This class provides implementers of persisters with an extension mechanism for custom settings via extension methods.
+    /// This class provides implementers of transports with an extension mechanism for custom settings via extension methods.
     /// </summary>
-    /// <typeparam name="T">The persister definition eg <see cref="InMemory" />, <see cref="MsmqTransport" />, etc.</typeparam>
+    /// <typeparam name="T">The transport definition eg <see cref="MsmqTransport" />, etc.</typeparam>
     public class TransportExtensions<T> : TransportExtensions where T : TransportDefinition
     {
         /// <summary>
