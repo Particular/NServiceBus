@@ -26,6 +26,9 @@ namespace NServiceBus.Faults
 
         internal void InvokeMessageHasBeenSentToErrorQueue(IncomingMessage message, Exception exception, string errorQueue)
         {
+            if (MessageSentToErrorQueue == null)
+                return;
+
             var failedMessage = new FailedMessage(
                 message.MessageId,
                 new Dictionary<string, string>(message.Headers),
@@ -35,6 +38,9 @@ namespace NServiceBus.Faults
 
         internal void InvokeMessageHasFailedAnImmediateRetryAttempt(int immediateRetryAttempt, IncomingMessage message, Exception exception)
         {
+            if (MessageHasFailedAnImmediateRetryAttempt == null)
+                return;
+
             var retry = new ImmediateRetryMessage(
                 message.MessageId,
                 new Dictionary<string, string>(message.Headers),
@@ -46,6 +52,9 @@ namespace NServiceBus.Faults
 
         internal void InvokeMessageHasBeenSentToDelayedRetries(int delayedRetryAttempt, IncomingMessage message, Exception exception)
         {
+            if (MessageHasBeenSentToDelayedRetries == null)
+                return;
+
             var retry = new DelayedRetryMessage(
                 new Dictionary<string, string>(message.Headers),
                 CopyOfBody(message.Body),
