@@ -18,6 +18,8 @@ namespace NServiceBus.Transports.Msmq
     /// </summary>
     public class MsmqDequeueStrategy : IDequeueMessages, IDisposable
     {
+        static ILog Logger = LogManager.GetLogger<MsmqDequeueStrategy>();
+
         /// <summary>
         ///     Creates an instance of <see cref="MsmqDequeueStrategy" />.
         /// </summary>
@@ -30,6 +32,11 @@ namespace NServiceBus.Transports.Msmq
             this.criticalError = criticalError;
             this.unitOfWork = unitOfWork;
         }
+
+        /// <summary>
+        ///     The address of the configured error queue.
+        /// </summary>
+        public Address ErrorQueue { get; set; }
 
         /// <summary>
         ///     Initializes the <see cref="IDequeueMessages" />.
@@ -65,7 +72,7 @@ namespace NServiceBus.Transports.Msmq
                 Timeout = transactionSettings.TransactionTimeout
             };
 
-            queue = new MessageQueue(NServiceBus.MsmqUtilities.GetFullPath(address), false, true, QueueAccessMode.Receive);
+            receiveQueue = new MessageQueue(NServiceBus.MsmqUtilities.GetFullPath(address), false, true, QueueAccessMode.Receive);
             errorQueue = new MessageQueue(NServiceBus.MsmqUtilities.GetFullPath(ErrorQueue), false, true, QueueAccessMode.Send);
 
             if (transactionSettings.IsTransactional && !QueueIsTransactional())
@@ -86,18 +93,13 @@ namespace NServiceBus.Transports.Msmq
                 AppSpecific = true
             };
 
-            queue.MessageReadPropertyFilter = messageReadPropertyFilter;
+            receiveQueue.MessageReadPropertyFilter = messageReadPropertyFilter;
 
             if (configure.PurgeOnStartup())
             {
-                queue.Purge();
+                receiveQueue.Purge();
             }
         }
-
-        /// <summary>
-        /// The address of the configured error queue. 
-        /// </summary>
-        public Address ErrorQueue { get; set; }
 
         /// <summary>
         ///     Starts the dequeuing of message using the specified <paramref name="maximumConcurrencyLevel" />.
@@ -110,9 +112,9 @@ namespace NServiceBus.Transports.Msmq
             this.maximumConcurrencyLevel = maximumConcurrencyLevel;
             throttlingSemaphore = new SemaphoreSlim(maximumConcurrencyLevel, maximumConcurrencyLevel);
 
-            queue.PeekCompleted += OnPeekCompleted;
+            receiveQueue.PeekCompleted += OnPeekCompleted;
 
-            CallPeekWithExceptionHandling(() => queue.BeginPeek());
+            CallPeekWithExceptionHandling((queue, _) => queue.BeginPeek(), receiveQueue, circuitBreaker, criticalError);
         }
 
         /// <summary>
@@ -120,11 +122,11 @@ namespace NServiceBus.Transports.Msmq
         /// </summary>
         public void Stop()
         {
-            queue.PeekCompleted -= OnPeekCompleted;
+            receiveQueue.PeekCompleted -= OnPeekCompleted;
 
             stopResetEvent.WaitOne();
             DrainStopSemaphore();
-            queue.Dispose();
+            receiveQueue.Dispose();
         }
 
         /// <summary>
@@ -141,7 +143,7 @@ namespace NServiceBus.Transports.Msmq
             Logger.Debug("Drain stopping 'Throttling Semaphore'.");
             for (var index = 0; index < maximumConcurrencyLevel; index++)
             {
-                Logger.Debug(string.Format("Claiming Semaphore thread {0}/{1}.", index + 1, maximumConcurrencyLevel));
+                Logger.Debug($"Claiming Semaphore thread {index + 1}/{maximumConcurrencyLevel}.");
                 throttlingSemaphore.Wait();
             }
             Logger.Debug("Releasing all claimed Semaphore threads.");
@@ -154,11 +156,11 @@ namespace NServiceBus.Transports.Msmq
         {
             try
             {
-                return queue.Transactional;
+                return receiveQueue.Transactional;
             }
             catch (Exception ex)
             {
-                var error = string.Format("There is a problem with the input queue: {0}. See the enclosed exception for details.", queue.Path);
+                var error = $"There is a problem with the input queue: {receiveQueue.Path}. See the enclosed exception for details.";
                 throw new InvalidOperationException(error, ex);
             }
         }
@@ -167,27 +169,26 @@ namespace NServiceBus.Transports.Msmq
         {
             stopResetEvent.Reset();
 
-            CallPeekWithExceptionHandling(() => queue.EndPeek(peekCompletedEventArgs.AsyncResult));
+            CallPeekWithExceptionHandling((queue, result) => queue.EndPeek(result), receiveQueue, circuitBreaker, criticalError, peekCompletedEventArgs.AsyncResult);
 
             throttlingSemaphore.Wait();
 
-            Task.Factory
-                .StartNew(Action, CancellationToken.None, TaskCreationOptions.LongRunning, TaskScheduler.Default)
+            Task.Run(() => Action(transactionSettings, transactionOptions, unitOfWork, receiveQueue, errorQueue, circuitBreaker, criticalError, peekResetEvent, receiveTimeout, throttlingSemaphore, tryProcessMessage, endProcessMessage))
                 .ContinueWith(task => task.Exception.Handle(ex =>
                 {
                     Logger.Error("Error processing message.", ex);
                     return true;
-                }), TaskContinuationOptions.OnlyOnFaulted);
+                }), TaskContinuationOptions.OnlyOnFaulted | TaskContinuationOptions.ExecuteSynchronously);
 
             //We using an AutoResetEvent here to make sure we do not call another BeginPeek before the Receive has been called
             peekResetEvent.WaitOne();
 
-            CallPeekWithExceptionHandling(() => queue.BeginPeek());
+            CallPeekWithExceptionHandling((queue, _) => queue.BeginPeek(), receiveQueue, circuitBreaker, criticalError, peekCompletedEventArgs.AsyncResult);
 
             stopResetEvent.Set();
         }
 
-        void Action()
+        static void Action(TransactionSettings transactionSettings, TransactionOptions transactionOptions, MsmqUnitOfWork unitOfWork, MessageQueue receiveQueue, MessageQueue errorQueue, CircuitBreaker circuitBreaker, CriticalError criticalError, AutoResetEvent peekResetEvent, TimeSpan receiveTimeout, SemaphoreSlim throttlingSemaphore, Func<TransportMessage, bool> tryProcessMessage, Action<TransportMessage, Exception> endProcessMessage)
         {
             TransportMessage transportMessage = null;
             try
@@ -196,21 +197,22 @@ namespace NServiceBus.Transports.Msmq
                 {
                     if (transactionSettings.SuppressDistributedTransactions)
                     {
-                        using (var msmqTransaction = new MessageQueueTransaction())
+                        using (var transaction = new MessageQueueTransaction())
                         {
-                            msmqTransaction.Begin();
-                            
                             Message message;
 
-                            if (!TryReceiveMessage(() => queue.Receive(receiveTimeout, msmqTransaction),out message))
+                            if (!TryReceiveMessage((queue, timeout, tx) =>
                             {
-                                msmqTransaction.Commit();
+                                tx.Begin();
+                                return queue.Receive(timeout, tx);
+                            }, receiveQueue, circuitBreaker, criticalError, peekResetEvent, receiveTimeout, out message, transaction))
+                            {
                                 return;
                             }
 
                             try
                             {
-                                unitOfWork.SetTransaction(msmqTransaction);
+                                unitOfWork.SetTransaction(transaction);
 
                                 try
                                 {
@@ -218,19 +220,19 @@ namespace NServiceBus.Transports.Msmq
                                 }
                                 catch (Exception exception)
                                 {
-                                    LogCorruptedMessage(message, exception);
-                                    errorQueue.Send(message, msmqTransaction);
-                                    msmqTransaction.Commit();
+                                    LogCorruptedMessage(message.Id, errorQueue.QueueName, exception);
+                                    errorQueue.Send(message, transaction);
+                                    transaction.Commit();
                                     return;
                                 }
 
                                 if (tryProcessMessage(transportMessage))
                                 {
-                                    msmqTransaction.Commit();
+                                    transaction.Commit();
                                 }
                                 else
                                 {
-                                    msmqTransaction.Abort();
+                                    transaction.Abort();
                                 }
                             }
                             finally
@@ -245,7 +247,7 @@ namespace NServiceBus.Transports.Msmq
                         {
                             Message message;
 
-                            if (!TryReceiveMessage(() => queue.Receive(receiveTimeout, MessageQueueTransactionType.Automatic),out message))
+                            if (!TryReceiveMessage((queue, timeout, _) => queue.Receive(timeout, MessageQueueTransactionType.Automatic), receiveQueue, circuitBreaker, criticalError, peekResetEvent, receiveTimeout, out message))
                             {
                                 scope.Complete();
                                 return;
@@ -255,9 +257,9 @@ namespace NServiceBus.Transports.Msmq
                             {
                                 transportMessage = NServiceBus.MsmqUtilities.Convert(message);
                             }
-                            catch (Exception ex)
+                            catch (Exception exception)
                             {
-                                LogCorruptedMessage(message, ex);
+                                LogCorruptedMessage(message.Id, errorQueue.QueueName, exception);
                                 errorQueue.Send(message, MessageQueueTransactionType.Automatic);
                                 scope.Complete();
                                 return;
@@ -274,7 +276,7 @@ namespace NServiceBus.Transports.Msmq
                 {
                     Message message;
 
-                    if (!TryReceiveMessage(() => queue.Receive(receiveTimeout, MessageQueueTransactionType.None),out message))
+                    if (!TryReceiveMessage((queue, timeout, _) => queue.Receive(timeout, MessageQueueTransactionType.None), receiveQueue, circuitBreaker, criticalError, peekResetEvent, receiveTimeout, out message))
                     {
                         return;
                     }
@@ -285,7 +287,7 @@ namespace NServiceBus.Transports.Msmq
                     }
                     catch (Exception exception)
                     {
-                        LogCorruptedMessage(message, exception);
+                        LogCorruptedMessage(message.Id, errorQueue.QueueName, exception);
                         errorQueue.Send(message, MessageQueueTransactionType.None);
                         return;
                     }
@@ -305,31 +307,32 @@ namespace NServiceBus.Transports.Msmq
             }
         }
 
-        void LogCorruptedMessage(Message message, Exception ex)
+        static void LogCorruptedMessage(string messageId, string queueName, Exception ex)
         {
-            var error = string.Format("Message '{0}' is corrupt and will be moved to '{1}'", message.Id, ErrorQueue.Queue);
+            var error = $"Message '{messageId}' is corrupt and will be moved to '{queueName}'";
             Logger.Error(error, ex);
         }
 
-        void CallPeekWithExceptionHandling(Action action)
+        static void CallPeekWithExceptionHandling(Action<MessageQueue, IAsyncResult> action, MessageQueue queue, CircuitBreaker circuitBreaker, CriticalError criticalError, IAsyncResult asyncResult = null)
         {
             try
             {
-                action();
+                action(queue, asyncResult);
             }
             catch (MessageQueueException messageQueueException)
             {
-                RaiseCriticalException(messageQueueException);
+                RaiseCriticalException(queue.FormatName, circuitBreaker, criticalError, messageQueueException);
             }
         }
+
         [DebuggerNonUserCode]
-        bool TryReceiveMessage(Func<Message> receive,out Message message)
+        static bool TryReceiveMessage(Func<MessageQueue, TimeSpan, MessageQueueTransaction, Message> receive, MessageQueue queue, CircuitBreaker circuitBreaker, CriticalError criticalError, AutoResetEvent peekResetEvent, TimeSpan receiveTimeout, out Message message, MessageQueueTransaction transaction = null)
         {
             message = null;
 
             try
             {
-                message = receive();
+                message = receive(queue, receiveTimeout, transaction);
                 return true;
             }
             catch (MessageQueueException messageQueueException)
@@ -340,7 +343,7 @@ namespace NServiceBus.Transports.Msmq
                     return false;
                 }
 
-                RaiseCriticalException(messageQueueException);
+                RaiseCriticalException(queue.FormatName, circuitBreaker, criticalError, messageQueueException);
             }
             catch (Exception ex)
             {
@@ -354,16 +357,14 @@ namespace NServiceBus.Transports.Msmq
             return false;
         }
 
-        void RaiseCriticalException(MessageQueueException messageQueueException)
+        static void RaiseCriticalException(string formatName, CircuitBreaker circuitBreaker, CriticalError criticalError, MessageQueueException messageQueueException)
         {
-            var errorException = string.Format("Failed to peek messages from [{0}].", queue.FormatName);
+            var errorException = $"Failed to peek messages from [{formatName}].";
 
             if (messageQueueException.MessageQueueErrorCode == MessageQueueErrorCode.AccessDenied)
             {
                 errorException =
-                    string.Format(
-                        "Do not have permission to access queue [{0}]. Make sure that the current user [{1}] has permission to Send, Receive, and Peek  from this queue.",
-                        queue.FormatName, GetUserName());
+                    $"Do not have permission to access queue [{formatName}]. Make sure that the current user [{GetUserName()}] has permission to Send, Receive, and Peek  from this receiveQueue.";
             }
 
             circuitBreaker.Execute(() => criticalError.Raise("Error in receiving messages.", new InvalidOperationException(errorException, messageQueueException)));
@@ -372,27 +373,24 @@ namespace NServiceBus.Transports.Msmq
         static string GetUserName()
         {
             var windowsIdentity = WindowsIdentity.GetCurrent();
-            return windowsIdentity != null
-                ? windowsIdentity.Name
-                : "Unknown User";
+            return windowsIdentity.Name;
         }
 
-        static ILog Logger = LogManager.GetLogger<MsmqDequeueStrategy>();
+        CircuitBreaker circuitBreaker = new CircuitBreaker(100, TimeSpan.FromSeconds(30));
         Configure configure;
         CriticalError criticalError;
-        TimeSpan receiveTimeout = TimeSpan.FromSeconds(1);
-        [SkipWeaving]
-        MsmqUnitOfWork unitOfWork;
-        CircuitBreaker circuitBreaker = new CircuitBreaker(100, TimeSpan.FromSeconds(30));
         Action<TransportMessage, Exception> endProcessMessage;
+        MessageQueue errorQueue;
         int maximumConcurrencyLevel;
         AutoResetEvent peekResetEvent = new AutoResetEvent(false);
-        MessageQueue queue;
-        MessageQueue errorQueue;
+        MessageQueue receiveQueue;
+        TimeSpan receiveTimeout = TimeSpan.FromSeconds(1);
         ManualResetEvent stopResetEvent = new ManualResetEvent(true);
         SemaphoreSlim throttlingSemaphore;
         TransactionOptions transactionOptions;
         TransactionSettings transactionSettings;
         Func<TransportMessage, bool> tryProcessMessage;
+
+        [SkipWeaving] MsmqUnitOfWork unitOfWork;
     }
 }
