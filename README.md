@@ -9,9 +9,6 @@ You'll find the built assemblies in /binaries.
 
 If you see the build failing, check that you haven't put the source of NServiceBus in a deep subdirectory since long path names (greater than 248 characters) aren't supported by MSBuild.
 
-## Running
-
-To run NServiceBus, please download and install the setup file from http://particular.net/downloads
 
 ## Licenses
 
