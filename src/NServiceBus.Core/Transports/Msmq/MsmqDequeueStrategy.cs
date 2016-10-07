@@ -188,8 +188,7 @@ namespace NServiceBus.Transports.Msmq
             stopResetEvent.Set();
         }
 
-        static void Action(TransactionSettings transactionSettings, TransactionOptions transactionOptions, MsmqUnitOfWork unitOfWork, MessageQueue receiveQueue, MessageQueue errorQueue, CircuitBreaker circuitBreaker, CriticalError criticalError, AutoResetEvent peekResetEvent, TimeSpan receiveTimeout, SemaphoreSlim throttlingSemaphore, Func<TransportMessage, bool> tryProcessMessage,
-            Action<TransportMessage, Exception> endProcessMessage)
+        static void Action(TransactionSettings transactionSettings, TransactionOptions transactionOptions, MsmqUnitOfWork unitOfWork, MessageQueue receiveQueue, MessageQueue errorQueue, CircuitBreaker circuitBreaker, CriticalError criticalError, AutoResetEvent peekResetEvent, TimeSpan receiveTimeout, SemaphoreSlim throttlingSemaphore, Func<TransportMessage, bool> tryProcessMessage, Action<TransportMessage, Exception> endProcessMessage)
         {
             TransportMessage transportMessage = null;
             try
