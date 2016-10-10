@@ -64,7 +64,7 @@ namespace NServiceBus.AcceptanceTests.Recoverability.Retries
             }
         }
 
-        class MessageToBeRetried : IMessage
+        public class MessageToBeRetried : IMessage
         {
         }
     }

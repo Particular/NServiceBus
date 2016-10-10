@@ -78,7 +78,7 @@
             }
         }
 
-        class SomeMessage : ICommand
+        public class SomeMessage : ICommand
         {
         }
     }

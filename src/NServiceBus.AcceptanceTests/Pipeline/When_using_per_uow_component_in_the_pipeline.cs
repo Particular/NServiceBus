@@ -111,7 +111,7 @@
             }
         }
 
-        class Message : IMessage
+        public class Message : IMessage
         {
             public string Value { get; set; }
         }

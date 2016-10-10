@@ -91,7 +91,7 @@
         {
         }
 
-        class SendOrderAcknowledgment : IMessage
+        public class SendOrderAcknowledgment : IMessage
         {
         }
     }

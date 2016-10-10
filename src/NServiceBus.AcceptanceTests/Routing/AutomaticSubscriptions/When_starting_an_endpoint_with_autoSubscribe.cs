@@ -98,23 +98,23 @@ namespace NServiceBus.AcceptanceTests.Routing.AutomaticSubscriptions
             }
         }
 
-        class MyMessage : IMessage
+        public class MyMessage : IMessage
         {
         }
 
-        class MyCommand : ICommand
+        public class MyCommand : ICommand
         {
         }
 
-        class MyEvent : IEvent
+        public class MyEvent : IEvent
         {
         }
 
-        class MyEventWithNoRouting : IEvent
+        public class MyEventWithNoRouting : IEvent
         {
         }
 
-        class MyEventWithNoHandler : IEvent
+        public class MyEventWithNoHandler : IEvent
         {
         }
     }

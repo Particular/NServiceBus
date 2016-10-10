@@ -69,7 +69,7 @@
             }
         }
 
-        class MessageToBeRetried : IMessage
+        public class MessageToBeRetried : IMessage
         {
         }
     }

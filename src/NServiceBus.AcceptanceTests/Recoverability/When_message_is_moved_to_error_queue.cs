@@ -167,12 +167,12 @@
             }
         }
 
-        class InitiatingMessage : IMessage
+        public class InitiatingMessage : IMessage
         {
             public Guid Id { get; set; }
         }
 
-        class SubsequentMessage : IMessage
+        public class SubsequentMessage : IMessage
         {
             public Guid Id { get; set; }
         }

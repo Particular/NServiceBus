@@ -80,7 +80,7 @@
             }
         }
 
-        class SimpleMessage : ICommand
+        public class SimpleMessage : ICommand
         {
             public string Value { get; set; }
         }

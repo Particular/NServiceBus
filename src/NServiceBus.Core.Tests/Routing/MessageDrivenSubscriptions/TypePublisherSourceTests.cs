@@ -22,14 +22,14 @@ namespace NServiceBus.Core.Tests.Routing
         }
 
         [Test]
-        public void Without_best_practivce_enforcement_it_throws_if_specified_type_is_not_a_message()
+        public void Without_best_practice_enforcement_it_throws_if_specified_type_is_not_a_message()
         {
             var source = new TypePublisherSource(typeof(NonMessage), PublisherAddress.CreateFromEndpointName("Destination"));
             Assert.That(() => source.GenerateWithoutBestPracticeEnforcement(new Conventions()).ToArray(), Throws.Exception.Message.Contains("it is not considered a message"));
         }
 
         [Test]
-        public void Without_best_practivce_enforcement_it_throws_if_specified_type_is_a_command()
+        public void Without_best_practice_enforcement_it_throws_if_specified_type_is_a_command()
         {
             var source = new TypePublisherSource(typeof(Command), PublisherAddress.CreateFromEndpointName("Destination"));
             Assert.That(() => source.GenerateWithoutBestPracticeEnforcement(new Conventions()).ToArray(), Throws.Exception.Message.Contains("because it is a command"));

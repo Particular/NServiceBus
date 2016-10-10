@@ -76,7 +76,7 @@
             }
         }
 
-        class SimpleMessage : ICommand
+        public class SimpleMessage : ICommand
         {
         }
     }
