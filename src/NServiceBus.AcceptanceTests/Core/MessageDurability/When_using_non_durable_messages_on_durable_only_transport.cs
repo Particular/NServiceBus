@@ -30,7 +30,7 @@
         }
 
         [Express]
-        class NonDurableMessage : ICommand
+        public class NonDurableMessage : ICommand
         {
         }
     }

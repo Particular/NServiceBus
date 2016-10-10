@@ -33,7 +33,7 @@
             }
         }
 
-        class RegularMessage : ICommand
+        public class RegularMessage : ICommand
         {
         }
     }

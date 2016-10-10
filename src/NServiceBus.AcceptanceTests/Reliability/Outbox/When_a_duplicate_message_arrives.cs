@@ -90,12 +90,12 @@
             }
         }
 
-        class PlaceOrder : ICommand
+        public class PlaceOrder : ICommand
         {
             public bool Terminator { get; set; }
         }
 
-        class SendOrderAcknowledgement : IMessage
+        public class SendOrderAcknowledgement : IMessage
         {
             public bool Terminator { get; set; }
         }

@@ -58,13 +58,11 @@
             }
         }
 
-        
-        class PlaceOrder : ICommand
+        public class PlaceOrder : ICommand
         {
         }
 
-        
-        class SendOrderAcknowledgement : IMessage
+        public class SendOrderAcknowledgement : IMessage
         {
         }
     }

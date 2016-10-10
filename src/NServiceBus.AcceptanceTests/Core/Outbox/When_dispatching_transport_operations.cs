@@ -71,7 +71,7 @@
 
         [TimeToBeReceived("00:01:00")]
         [Express]
-        class MessageToDispatch : IMessage
+        public class MessageToDispatch : IMessage
         {
         }
     }

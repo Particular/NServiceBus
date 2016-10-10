@@ -74,10 +74,9 @@ namespace NServiceBus.AcceptanceTests.Serialization
         }
 
         [Serializable]
-        class MyRequest : IMessage
+        public class MyRequest : IMessage
         {
         }
-
 
         public class MyCustomSerializer : SerializationDefinition
         {
@@ -89,8 +88,8 @@ namespace NServiceBus.AcceptanceTests.Serialization
 
         class MyCustomMessageSerializer : IMessageSerializer
         {
-            readonly string valueFromSettings;
-            readonly Context context;
+            string valueFromSettings;
+            Context context;
 
             public MyCustomMessageSerializer(string valueFromSettings, Context context)
             {

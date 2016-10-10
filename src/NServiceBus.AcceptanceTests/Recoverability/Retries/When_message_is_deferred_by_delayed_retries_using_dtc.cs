@@ -102,7 +102,7 @@
             }
         }
 
-        class MessageToFail : IMessage
+        public class MessageToFail : IMessage
         {
             public Guid Id { get; set; }
         }

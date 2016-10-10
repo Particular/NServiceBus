@@ -91,7 +91,7 @@
             }
         }
 
-        class Message : IMessage
+        public class Message : IMessage
         {
         }
     }

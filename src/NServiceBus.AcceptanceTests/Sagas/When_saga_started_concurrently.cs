@@ -131,17 +131,17 @@
             }
         }
 
-        class StartMessageOne : ICommand
+        public class StartMessageOne : ICommand
         {
             public string SomeId { get; set; }
         }
 
-        class StartMessageTwo : ICommand
+        public class StartMessageTwo : ICommand
         {
             public string SomeId { get; set; }
         }
 
-        class SuccessfulProcessing : ICommand
+        public class SuccessfulProcessing : ICommand
         {
             public string Type { get; set; }
             public Guid SagaId { get; set; }

@@ -110,12 +110,11 @@
             }
         }
 
-
         public class ResponseToBeAudited : IMessage
         {
         }
 
-        class Request : IMessage
+        public class Request : IMessage
         {
         }
     }

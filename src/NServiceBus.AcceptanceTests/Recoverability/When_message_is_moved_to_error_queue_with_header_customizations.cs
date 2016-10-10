@@ -91,7 +91,7 @@ namespace NServiceBus.AcceptanceTests.Recoverability
             }
         }
 
-        class InitiatingMessage : IMessage
+        public class InitiatingMessage : IMessage
         {
             public Guid Id { get; set; }
         }

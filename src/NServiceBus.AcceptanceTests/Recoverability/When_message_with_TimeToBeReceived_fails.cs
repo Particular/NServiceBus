@@ -97,9 +97,8 @@
             }
         }
 
-        
         [TimeToBeReceived("00:00:03")]
-        class MessageThatFails : IMessage
+        public class MessageThatFails : IMessage
         {
         }
     }

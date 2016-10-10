@@ -86,7 +86,7 @@
             }
         }
 
-        class MessageWithRawXml : ICommand
+        public class MessageWithRawXml : ICommand
         {
             public XDocument Document { get; set; }
         }
