@@ -195,13 +195,24 @@
 
                 var startTime = DateTime.UtcNow;
                 var maxTime = runDescriptor.Settings.TestExecutionTimeout ?? TimeSpan.FromSeconds(90);
-
                 while (!done() && !cts.Token.IsCancellationRequested)
                 {
                     if (DateTime.UtcNow - startTime > maxTime)
                     {
                         ThrowOnFailedMessages(runDescriptor, endpoints);
                         throw new ScenarioException(GenerateTestTimedOutMessage(maxTime));
+                    }
+
+                    await Task.Delay(1).ConfigureAwait(false);
+                }
+
+                startTime = DateTime.UtcNow;
+                var unfinishedFailedMessagesMaxWaitTime = TimeSpan.FromSeconds(30);
+                while (runDescriptor.ScenarioContext.UnfinishedFailedMessages.Values.Any(x => x))
+                {
+                    if (DateTime.UtcNow - startTime > unfinishedFailedMessagesMaxWaitTime)
+                    {
+                        throw new Exception("Some failed messages were not handled by the recoverability feature.");
                     }
 
                     await Task.Delay(1).ConfigureAwait(false);
@@ -300,20 +311,6 @@
 
         static async Task StopEndpoints(IEnumerable<EndpointRunner> endpoints, ScenarioContext scenarioContext)
         {
-            var failBecauseUnhandledFailedMessage = false;
-            var startTime = DateTime.UtcNow;
-            var maxTime = TimeSpan.FromSeconds(30);
-            while (scenarioContext.UnfinishedFailedMessages.Values.Any(x => x))
-            {
-                if (DateTime.UtcNow - startTime > maxTime)
-                {
-                    failBecauseUnhandledFailedMessage = true;
-                    break;
-                }
-
-                await Task.Delay(1).ConfigureAwait(false);
-            }
-
             var tasks = endpoints.Select(async endpoint =>
             {
                 Console.WriteLine("Stopping endpoint: {0}", endpoint.Name());
@@ -333,11 +330,6 @@
             var whenAll = Task.WhenAll(tasks);
             var timeoutTask = Task.Delay(TimeSpan.FromMinutes(2));
             var completedTask = await Task.WhenAny(whenAll, timeoutTask).ConfigureAwait(false);
-
-            if (failBecauseUnhandledFailedMessage)
-            {
-                throw new Exception("Some failed messages were not handled by the recoverability feature.");
-            }
 
             if (completedTask == timeoutTask)
             {
