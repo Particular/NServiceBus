@@ -6,6 +6,7 @@
     using System.Threading.Tasks;
     using Faults;
     using Features;
+    using Logging;
     using Pipeline;
 
     public class FailTestOnErrorMessageFeature : Feature
@@ -53,13 +54,17 @@
             public async Task Invoke(ITransportReceiveContext context, Func<ITransportReceiveContext, Task> next)
             {
                 failedMessages.AddOrUpdate(context.Message.MessageId, id => true, (id, value) => true);
+                log.Debug($"Procesing message {context.Message.MessageId}");
 
                 await next(context).ConfigureAwait(false);
 
                 failedMessages.AddOrUpdate(context.Message.MessageId, id => false, (id, value) => false);
+                log.Debug($"Finished message {context.Message.MessageId}");
             }
 
             ConcurrentDictionary<string, bool> failedMessages;
+
+            static ILog log = LogManager.GetLogger<FailTestOnErrorMessageFeature>();
         }
     }
 }
