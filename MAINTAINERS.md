@@ -23,6 +23,7 @@ https://github.com/orgs/Particular/teams/nservicebus-maintainers/repositories
  * Prefer renames as dedicated commits
  * Prefer formatting and whitespace cleanup as dedicated commits
 * Start PRs on downstream projects that are affected by the changes to facilitate knowledge transfer and conversations. Downstream PRs do not have to contain code modifications, could be used as a starting point to communicate changes and ensure knowledge is distributed.
+* Unit test names should follow the convention already applied in a given test fixture. If no existing test fixture is present it should be consistent to the test names used inside the same folder. 
 
 ## Other
 
