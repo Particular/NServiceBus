@@ -37,7 +37,12 @@ namespace NServiceBus.Transports.Msmq
         /// <returns><code>true</code> if a <see cref="MessageQueueTransaction"/> is currently in progress, otherwise <code>false</code>.</returns>
         public bool HasActiveTransaction()
         {
-            return currentTransaction.IsValueCreated;
+            if (!currentTransaction.IsValueCreated)
+            {
+                return false;
+            }
+
+            return currentTransaction.Value != null;
         }
 
         internal void ClearTransaction()
