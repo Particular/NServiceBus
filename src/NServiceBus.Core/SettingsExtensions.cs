@@ -20,15 +20,18 @@ namespace NServiceBus
             var typesToScan = settings.GetAvailableTypes();
             var configurationSource = settings.Get<IConfigurationSource>();
 
-            // ReSharper disable HeapView.SlowDelegateCreation
-            var sectionOverrideType = typesToScan.Where(t => !t.IsAbstract)
-                .FirstOrDefault(t => typeof(IProvideConfiguration<T>).IsAssignableFrom(t));
-            // ReSharper restore HeapView.SlowDelegateCreation
+            var sectionOverrideTypes = typesToScan.Where(t => !t.IsAbstract && typeof(IProvideConfiguration<T>).IsAssignableFrom(t)).ToArray();
+            if (sectionOverrideTypes.Length > 1)
+            {
+                throw new Exception($"Ambiguous configuration providers implementing IProvideConfiguration<{typeof(T).Name}> were found. Ensure that only one configuration provider per configuration section is found to resolve this error.");
+            }
 
-            if (sectionOverrideType == null)
+            if (sectionOverrideTypes.Length == 0)
             {
                 return configurationSource.GetConfiguration<T>();
             }
+
+            var sectionOverrideType = sectionOverrideTypes[0];
 
             IProvideConfiguration<T> sectionOverride;
 
