@@ -7,7 +7,7 @@
     using AcceptanceTesting.Support;
     using NUnit.Framework;
 
-    public class When_TimeToBeReceived_set_and_native_receivetransaction : NServiceBusAcceptanceTest
+    public class When_TimeToBeReceived_set_and_SendsAtomicWithReceive : NServiceBusAcceptanceTest
     {
         [Test]
         public void Should_throw_on_send()

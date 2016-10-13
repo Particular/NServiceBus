@@ -76,8 +76,9 @@
     <Compile Include="When_subscribing_with_address_containing_host_name.cs" />
     <Compile Include="When_subscribing_from_a_worker.cs" />
     <Compile Include="When_TimeToBeReceivedOnForwardedMessages_set_and_tx_scope_receives.cs" />
-    <Compile Include="When_timetobereceived_set_and_dtc.cs" />
-    <Compile Include="When_TimeToBeReceived_set_and_native_receivetransaction.cs" />
+    <Compile Include="When_TimeToBeReceived_set_and_dtc.cs" />
+    <Compile Include="When_TimeToBeReceived_set_and_SendsAtomicWithReceive.cs" />
+    <Compile Include="When_TimeToBeReceived_set_and_ReceiveOnly.cs" />
     <Compile Include="When_unsubscribing_with_authorizer.cs" />
     <Compile Include="When_using_empty_instance_mapping_file.cs" />
     <Compile Include="When_using_instance_mapping_file.cs" />
