@@ -30,7 +30,7 @@
 
             Assert.That(transactions.Item1, Is.Not.Null);
             Assert.That(transactions.Item2, Is.Not.Null);
-            Assert.AreEqual(transactions.Item1, transactions.Item2);
+            Assert.AreSame(transactions.Item1, transactions.Item2);
         }
     }
 }
