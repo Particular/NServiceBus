@@ -33,17 +33,19 @@ namespace NServiceBus
 
         ReceiveStrategy SelectReceiveStrategy(TransportTransactionMode minimumConsistencyGuarantee, TransactionOptions transactionOptions)
         {
-            if (minimumConsistencyGuarantee == TransportTransactionMode.TransactionScope)
+            switch (minimumConsistencyGuarantee)
             {
-                return new ReceiveWithTransactionScope(transactionOptions, new MsmqFailureInfoStorage(1000));
+                case TransportTransactionMode.TransactionScope:
+                    return new ReceiveWithTransactionScope(transactionOptions, new MsmqFailureInfoStorage(1000));
+                case TransportTransactionMode.SendsAtomicWithReceive:
+                    return new ReceiveAndSendWithNativeTransaction(new MsmqFailureInfoStorage(1000));
+                case TransportTransactionMode.ReceiveOnly:
+                    return new ReceiveOnlyWithNativeTransaction(new MsmqFailureInfoStorage(1000));
+                case TransportTransactionMode.None:
+                    return new ReceiveWithNoTransaction();
+                default:
+                    throw new NotSupportedException($"TransportTransactionMode {minimumConsistencyGuarantee} is not supported by the MSMQ transport");
             }
-
-            if (minimumConsistencyGuarantee == TransportTransactionMode.None)
-            {
-                return new ReceiveWithNoTransaction();
-            }
-
-            return new ReceiveWithNativeTransaction(new MsmqFailureInfoStorage(1000));
         }
 
         public override EndpointInstance BindToLocalEndpoint(EndpointInstance instance) => instance.AtMachine(RuntimeEnvironment.MachineName);

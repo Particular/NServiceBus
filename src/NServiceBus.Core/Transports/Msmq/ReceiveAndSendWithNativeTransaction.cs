@@ -6,9 +6,9 @@ namespace NServiceBus
     using System.Threading.Tasks;
     using Transport;
 
-    class ReceiveWithNativeTransaction : ReceiveStrategy
+    class ReceiveAndSendWithNativeTransaction : ReceiveStrategy
     {
-        public ReceiveWithNativeTransaction(MsmqFailureInfoStorage failureInfoStorage)
+        public ReceiveAndSendWithNativeTransaction(MsmqFailureInfoStorage failureInfoStorage)
         {
             this.failureInfoStorage = failureInfoStorage;
         }
