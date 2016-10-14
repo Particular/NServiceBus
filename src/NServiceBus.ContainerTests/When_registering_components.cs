@@ -85,7 +85,7 @@ namespace NServiceBus.ContainerTests
         {
             using (var builder = TestContainerBuilder.ConstructBuilder())
             {
-                builder.Configure(typeof(SomeClass), DependencyLifecycle.InstancePerCall);
+                builder.Configure(typeof(SomeClass), DependencyLifecycle.SingleInstance);
                 builder.Configure(typeof(ClassWithSetterDependencies), DependencyLifecycle.SingleInstance);
 
                 var component = (ClassWithSetterDependencies)builder.Build(typeof(IWithSetterDependencies));
@@ -101,7 +101,7 @@ namespace NServiceBus.ContainerTests
         {
             using (var builder = TestContainerBuilder.ConstructBuilder())
             {
-                builder.Configure(typeof(SomeClass), DependencyLifecycle.InstancePerCall);
+                builder.Configure(typeof(SomeClass), DependencyLifecycle.SingleInstance);
                 builder.Configure(typeof(ClassWithSetterDependencies), DependencyLifecycle.SingleInstance);
 
                 var component = (ClassWithSetterDependencies)builder.Build(typeof(ClassWithSetterDependencies));
