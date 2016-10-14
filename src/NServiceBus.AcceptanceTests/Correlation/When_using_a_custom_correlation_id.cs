@@ -1,4 +1,5 @@
-﻿namespace NServiceBus.AcceptanceTests.Correlation
+﻿#pragma warning disable 618
+namespace NServiceBus.AcceptanceTests.Correlation
 {
     using System.Threading.Tasks;
     using AcceptanceTesting;

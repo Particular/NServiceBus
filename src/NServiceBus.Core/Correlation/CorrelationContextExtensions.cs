@@ -10,6 +10,10 @@
         /// </summary>
         /// <param name="options">Options being extended.</param>
         /// <param name="correlationId">The custom correlation id.</param>
+        [ObsoleteEx(
+            Message = "Setting a custom correlation ID is discouraged and will be removed in the next major version.",
+            RemoveInVersion = "7",
+            TreatAsErrorFromVersion = "7")]
         public static void SetCorrelationId(this SendOptions options, string correlationId)
         {
             Guard.AgainstNull(nameof(options), options);
@@ -24,6 +28,10 @@
         /// </summary>
         /// <param name="options">Options being extended.</param>
         /// <param name="correlationId">The custom correlation id.</param>
+        [ObsoleteEx(
+            Message = "Setting a custom correlation ID is discouraged and will be removed in the next major version.",
+            RemoveInVersion = "7",
+            TreatAsErrorFromVersion = "7")]
         public static void SetCorrelationId(this ReplyOptions options, string correlationId)
         {
             Guard.AgainstNull(nameof(options), options);

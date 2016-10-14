@@ -223,7 +223,13 @@ namespace NServiceBus
     {
         public static string GetCorrelationId(this NServiceBus.SendOptions options) { }
         public static string GetCorrelationId(this NServiceBus.ReplyOptions options) { }
+        [System.ObsoleteAttribute("Setting a custom correlation ID is discouraged and will be removed in the next ma" +
+            "jor version. Will be treated as an error from version 7.0.0. Will be removed in " +
+            "version 7.0.0.", false)]
         public static void SetCorrelationId(this NServiceBus.SendOptions options, string correlationId) { }
+        [System.ObsoleteAttribute("Setting a custom correlation ID is discouraged and will be removed in the next ma" +
+            "jor version. Will be treated as an error from version 7.0.0. Will be removed in " +
+            "version 7.0.0.", false)]
         public static void SetCorrelationId(this NServiceBus.ReplyOptions options, string correlationId) { }
     }
     public class CriticalError
