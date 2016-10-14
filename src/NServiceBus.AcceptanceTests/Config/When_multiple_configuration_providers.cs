@@ -17,7 +17,7 @@
                 .Done(c => c.EndpointsStarted)
                 .Run());
 
-            Assert.That(exception?.InnerException?.InnerException?.Message, Does.Contain("Ambiguous configuration providers implementing IProvideConfiguration<CustomConfigSection> were found"));
+            Assert.That(exception?.InnerException?.InnerException?.Message, Does.Contain("2 configuration providers implementing IProvideConfiguration<CustomConfigSection> were found"));
         }
 
         class Endpoint : EndpointConfigurationBuilder

@@ -23,7 +23,7 @@ namespace NServiceBus
             var sectionOverrideTypes = typesToScan.Where(t => !t.IsAbstract && typeof(IProvideConfiguration<T>).IsAssignableFrom(t)).ToArray();
             if (sectionOverrideTypes.Length > 1)
             {
-                throw new Exception($"Ambiguous configuration providers implementing IProvideConfiguration<{typeof(T).Name}> were found. Ensure that only one configuration provider per configuration section is found to resolve this error.");
+                throw new Exception($"{sectionOverrideTypes.Length} configuration providers implementing IProvideConfiguration<{typeof(T).Name}> were found. Ensure that only one configuration provider per configuration section is found to resolve this error.");
             }
 
             if (sectionOverrideTypes.Length == 0)
