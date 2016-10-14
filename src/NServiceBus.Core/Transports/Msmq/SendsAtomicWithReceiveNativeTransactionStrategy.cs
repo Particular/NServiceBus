@@ -1,4 +1,4 @@
-﻿namespace NServiceBus
+namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
@@ -6,9 +6,9 @@
     using System.Threading.Tasks;
     using Transport;
 
-    class ReceiveOnlyWithNativeTransaction : ReceiveStrategy
+    class SendsAtomicWithReceiveNativeTransactionStrategy : ReceiveStrategy
     {
-        public ReceiveOnlyWithNativeTransaction(MsmqFailureInfoStorage failureInfoStorage)
+        public SendsAtomicWithReceiveNativeTransactionStrategy(MsmqFailureInfoStorage failureInfoStorage)
         {
             this.failureInfoStorage = failureInfoStorage;
         }
@@ -32,13 +32,13 @@
 
                     if (!TryExtractHeaders(message, out headers))
                     {
-                        MovePoisonMessageToErrorQueue(message, IsQueuesTransactional ? MessageQueueTransactionType.Single : MessageQueueTransactionType.None);
+                        MovePoisonMessageToErrorQueue(message, msmqTransaction);
 
                         msmqTransaction.Commit();
                         return;
                     }
 
-                    var shouldCommit = await ProcessMessage(message, headers).ConfigureAwait(false);
+                    var shouldCommit = await ProcessMessage(msmqTransaction, message, headers).ConfigureAwait(false);
 
                     if (shouldCommit)
                     {
@@ -63,8 +63,12 @@
             }
         }
 
-        async Task<bool> ProcessMessage(Message message, Dictionary<string, string> headers)
+        async Task<bool> ProcessMessage(MessageQueueTransaction msmqTransaction, Message message, Dictionary<string, string> headers)
         {
+            var transportTransaction = new TransportTransaction();
+
+            transportTransaction.Set(msmqTransaction);
+
             MsmqFailureInfoStorage.ProcessingFailureInfo failureInfo;
 
             var shouldTryProcessMessage = true;
@@ -104,6 +108,5 @@
         }
 
         MsmqFailureInfoStorage failureInfoStorage;
-        static TransportTransaction transportTransaction = new TransportTransaction();
     }
 }

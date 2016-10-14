@@ -173,7 +173,7 @@
     <Compile Include="Serialization\SerializationFeature.cs" />
     <Compile Include="Serialization\SerializationSettingsExtensions.cs" />
     <Compile Include="Serializers\XML\XmlSerialization.cs" />
-    <Compile Include="Transports\Msmq\ReceiveOnlyWithNativeTransaction.cs" />
+    <Compile Include="Transports\Msmq\ReceiveOnlyNativeTransactionStrategy.cs" />
     <Compile Include="Transports\ReceiveSettingsExtensions.cs" />
     <Compile Include="Transports\ErrorContext.cs" />
     <Compile Include="Transports\ErrorHandleResult.cs" />
@@ -454,8 +454,8 @@
     <Compile Include="Transports\Msmq\MsmqAddress.cs" />
     <Compile Include="Transports\Msmq\MsmqConfigurationExtensions.cs" />
     <Compile Include="Transports\Msmq\ReceiveStrategy.cs" />
-    <Compile Include="Transports\Msmq\ReceiveAndSendWithNativeTransaction.cs" />
-    <Compile Include="Transports\Msmq\ReceiveWithNoTransaction.cs" />
+    <Compile Include="Transports\Msmq\SendsAtomicWithReceiveNativeTransactionStrategy.cs" />
+    <Compile Include="Transports\Msmq\NoTransactionStrategy.cs" />
     <Compile Include="Transports\OutgoingMessage.cs" />
     <Compile Include="Transports\MessageContext.cs" />
     <Compile Include="Transports\QueueBindings.cs" />
@@ -543,7 +543,7 @@
     <Compile Include="Performance\MessageDurability\DurableMessagesConfig.cs" />
     <Compile Include="DelayedDelivery\TimeoutManager\ConfigurationTimeoutExtensions.cs" />
     <Compile Include="Sagas\InvokeSagaNotFoundBehavior.cs" />
-    <Compile Include="Transports\Msmq\ReceiveWithTransactionScope.cs" />
+    <Compile Include="Transports\Msmq\TransactionScopeStrategy.cs" />
     <Compile Include="Forwarding\ForwardReceivedMessages.cs" />
     <Compile Include="Unicast\Config\RegisterHandlersInOrder.cs" />
     <Compile Include="Performance\Statistics\SLA\SLAMonitoring.cs" />

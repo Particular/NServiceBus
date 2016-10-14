@@ -36,13 +36,13 @@ namespace NServiceBus
             switch (minimumConsistencyGuarantee)
             {
                 case TransportTransactionMode.TransactionScope:
-                    return new ReceiveWithTransactionScope(transactionOptions, new MsmqFailureInfoStorage(1000));
+                    return new TransactionScopeStrategy(transactionOptions, new MsmqFailureInfoStorage(1000));
                 case TransportTransactionMode.SendsAtomicWithReceive:
-                    return new ReceiveAndSendWithNativeTransaction(new MsmqFailureInfoStorage(1000));
+                    return new SendsAtomicWithReceiveNativeTransactionStrategy(new MsmqFailureInfoStorage(1000));
                 case TransportTransactionMode.ReceiveOnly:
-                    return new ReceiveOnlyWithNativeTransaction(new MsmqFailureInfoStorage(1000));
+                    return new ReceiveOnlyNativeTransactionStrategy(new MsmqFailureInfoStorage(1000));
                 case TransportTransactionMode.None:
-                    return new ReceiveWithNoTransaction();
+                    return new NoTransactionStrategy();
                 default:
                     throw new NotSupportedException($"TransportTransactionMode {minimumConsistencyGuarantee} is not supported by the MSMQ transport");
             }
