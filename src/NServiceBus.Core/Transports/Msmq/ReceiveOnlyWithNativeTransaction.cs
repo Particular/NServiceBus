@@ -65,8 +65,6 @@
 
         async Task<bool> ProcessMessage(Message message, Dictionary<string, string> headers)
         {
-            var transportTransaction = new TransportTransaction();
-
             MsmqFailureInfoStorage.ProcessingFailureInfo failureInfo;
 
             var shouldTryProcessMessage = true;
@@ -106,5 +104,6 @@
         }
 
         MsmqFailureInfoStorage failureInfoStorage;
+        static TransportTransaction transportTransaction = new TransportTransaction();
     }
 }
