@@ -36,7 +36,7 @@
 
             var settings = new SettingsHolder();
             config.Settings.SetMainSerializer(serializationDefinition, settings);
-            return CreateSerializationExtension<T>(settings);
+            return CreateSerializationExtension(settings, serializationDefinition);
         }
 
         /// <summary>
@@ -67,14 +67,14 @@
 
             var settings = new SettingsHolder();
             additionalSerializers.Add(Tuple.Create<SerializationDefinition, SettingsHolder>(serializationDefinition, settings));
-            return CreateSerializationExtension<T>(settings);
+            return CreateSerializationExtension(settings, serializationDefinition);
         }
 
-        static SerializationExtensions<T> CreateSerializationExtension<T>(SettingsHolder settings) where T : SerializationDefinition
+        static SerializationExtensions<T> CreateSerializationExtension<T>(SettingsHolder settings, T definition)
+            where T : SerializationDefinition
         {
             var type = typeof(SerializationExtensions<>).MakeGenericType(typeof(T));
-            var extension = (SerializationExtensions<T>) Activator.CreateInstance(type, settings);
-            return extension;
+            return (SerializationExtensions<T>) Activator.CreateInstance(type, settings);
         }
     }
 }
