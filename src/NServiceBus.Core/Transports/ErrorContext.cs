@@ -23,6 +23,20 @@
         }
 
         /// <summary>
+        /// Initializes the error context.
+        /// </summary>
+        public ErrorContext(Exception exception, Dictionary<string, string> headers, string transportMessageId, ArraySegment<byte> body, TransportTransaction transportTransaction, int immediateProcessingFailures)
+        {
+            Exception = exception;
+            TransportTransaction = transportTransaction;
+            ImmediateProcessingFailures = immediateProcessingFailures;
+
+            Message = new IncomingMessage(transportMessageId, headers, body);
+
+            DelayedDeliveriesPerformed = Message.GetDelayedDeliveriesPerformed();
+        }
+
+        /// <summary>
         /// Exception that caused the message processing to fail.
         /// </summary>
         public Exception Exception { get; }

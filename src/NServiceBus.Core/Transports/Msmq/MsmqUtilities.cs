@@ -101,7 +101,7 @@ namespace NServiceBus
             {
                 using (var reader = XmlReader.Create(stream, new XmlReaderSettings
                 {
-                    CheckCharacters = false
+                    CheckCharacters = false,
                 }))
                 {
                     o = headerSerializer.Deserialize(reader);
@@ -123,11 +123,16 @@ namespace NServiceBus
         {
             var result = new Message();
 
+            // not event necessary here
             if (message.Body != null)
             {
                 result.BodyStream = new MemoryStream(message.Body);
             }
-
+            else
+            {
+                var segment = message.BodySegment;
+                result.BodyStream = new MemoryStream(segment.Array, segment.Offset, segment.Count);
+            }
 
             AssignMsmqNativeCorrelationId(message, result);
             result.Recoverable = !deliveryConstraints.Any(c => c is NonDurableDelivery);

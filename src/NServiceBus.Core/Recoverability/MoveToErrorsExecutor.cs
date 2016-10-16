@@ -20,7 +20,15 @@
         {
             message.RevertToOriginalBodyIfNeeded();
 
-            var outgoingMessage = new OutgoingMessage(message.MessageId, new Dictionary<string, string>(message.Headers), message.Body);
+            OutgoingMessage outgoingMessage;
+            if (message.Body == null)
+            {
+                outgoingMessage = new OutgoingMessage(message.MessageId, new Dictionary<string, string>(message.Headers), message.BodySegment);
+            }
+            else
+            {
+                outgoingMessage = new OutgoingMessage(message.MessageId, new Dictionary<string, string>(message.Headers), message.Body);
+            }
 
             var headers = outgoingMessage.Headers;
             headers.Remove(Headers.DelayedRetries);

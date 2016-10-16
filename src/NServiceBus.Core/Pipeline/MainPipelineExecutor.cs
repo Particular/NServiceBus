@@ -24,7 +24,16 @@ namespace NServiceBus
             {
                 var rootContext = new RootContext(childBuilder, pipelineCache, eventAggregator);
 
-                var message = new IncomingMessage(messageContext.MessageId, messageContext.Headers, messageContext.Body);
+                IncomingMessage message;
+                if (messageContext.Body == null)
+                {
+                    message = new IncomingMessage(messageContext.MessageId, messageContext.Headers, messageContext.BodySegment);
+                }
+                else
+                {
+                    message = new IncomingMessage(messageContext.MessageId, messageContext.Headers, messageContext.Body);
+                }
+                
                 var context = new TransportReceiveContext(message, messageContext.TransportTransaction, messageContext.ReceiveCancellationTokenSource, rootContext);
 
                 context.Extensions.Merge(messageContext.Context);
