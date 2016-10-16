@@ -18,7 +18,15 @@
 
             context.Message.RevertToOriginalBodyIfNeeded();
 
-            var processedMessage = new OutgoingMessage(context.Message.MessageId, context.Message.Headers, context.Message.Body);
+            OutgoingMessage processedMessage;
+            if (context.Message.Body == null)
+            {
+                processedMessage = new OutgoingMessage(context.Message.MessageId, context.Message.Headers, context.Message.BodySegment);
+            }
+            else
+            {
+                processedMessage = new OutgoingMessage(context.Message.MessageId, context.Message.Headers, context.Message.Body);
+            }
 
             var forwardingContext = this.CreateForwardingContext(processedMessage, forwardingAddress, context);
 

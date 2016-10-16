@@ -66,6 +66,7 @@ namespace NServiceBus
             runningReceiveTasks = new ConcurrentDictionary<Task, Task>();
             concurrencyLimiter = new SemaphoreSlim(limitations.MaxConcurrency);
             cancellationTokenSource = new CancellationTokenSource();
+            receiveStrategy.MaxConcurrency = limitations.MaxConcurrency; // maybe there is a better way?
 
             cancellationToken = cancellationTokenSource.Token;
             // ReSharper disable once ConvertClosureToMethodGroup

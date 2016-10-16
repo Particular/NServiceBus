@@ -64,7 +64,15 @@ namespace NServiceBus
         {
             foreach (var operation in deduplicationEntry.TransportOperations)
             {
-                var message = new OutgoingMessage(operation.MessageId, operation.Headers, operation.Body);
+                OutgoingMessage message;
+                if (operation.Body == null)
+                {
+                    message = new OutgoingMessage(operation.MessageId, operation.Headers, operation.BodySegment);
+                }
+                else
+                {
+                    message = new OutgoingMessage(operation.MessageId, operation.Headers, operation.Body);
+                }
 
                 pendingTransportOperations.Add(
                     new Transport.TransportOperation(
@@ -90,7 +98,17 @@ namespace NServiceBus
 
                 SerializeRoutingStrategy(operation.AddressTag, options);
 
-                transportOperations[index] = new TransportOperation(operation.Message.MessageId, options, operation.Message.Body, operation.Message.Headers);
+                TransportOperation transportOperation;
+                if (operation.Message.Body == null)
+                {
+                    transportOperation = new TransportOperation(operation.Message.MessageId, options, operation.Message.BodySegment, operation.Message.Headers);
+                }
+                else
+                {
+                    transportOperation = new TransportOperation(operation.Message.MessageId, options, operation.Message.Body, operation.Message.Headers);
+                }
+
+                transportOperations[index] = transportOperation;
                 index++;
             }
             return transportOperations;

@@ -21,7 +21,15 @@
                 .Select(rs =>
                 {
                     var addressLabel = rs.Apply(context.Message.Headers);
-                    var message = new OutgoingMessage(context.Message.MessageId, context.Message.Headers, context.Message.Body);
+                    OutgoingMessage message;
+                    if (context.Message.Body == null)
+                    {
+                        message = new OutgoingMessage(context.Message.MessageId, context.Message.Headers, context.Message.BodySegment);
+                    }
+                    else
+                    {
+                        message = new OutgoingMessage(context.Message.MessageId, context.Message.Headers, context.Message.Body);
+                    }
                     return new TransportOperation(message, addressLabel, dispatchConsistency, context.Extensions.GetDeliveryConstraints());
                 }).ToArray();
 
