@@ -99,12 +99,12 @@ namespace NServiceBus
             errorQueue.Send(message, transactionType);
         }
 
-        protected async Task<bool> TryProcessMessage(Message message, Dictionary<string, string> headers, Stream bodyStream, TransportTransaction transaction)
+        protected async Task<bool> TryProcessMessage(string messageId, Dictionary<string, string> headers, Stream bodyStream, TransportTransaction transaction)
         {
             using (var tokenSource = new CancellationTokenSource())
             {
-                var body = await ReadStream(message.BodyStream).ConfigureAwait(false);
-                var messageContext = new MessageContext(message.Id, headers, body, transaction, tokenSource, new ContextBag());
+                var body = await ReadStream(bodyStream).ConfigureAwait(false);
+                var messageContext = new MessageContext(messageId, headers, body, transaction, tokenSource, new ContextBag());
 
                 await onMessage(messageContext).ConfigureAwait(false);
 
