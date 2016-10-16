@@ -55,7 +55,7 @@ namespace NServiceBus
                 {
                     Destination = destination,
                     SagaId = sagaId,
-                    State = context.Body,
+                    State = context.Body ?? context.BodySegment.Array, // better way would now write 0 bytes as well, maybe ok???
                     Time = DateTimeExtensions.ToUtcDateTime(expire),
                     Headers = context.Headers,
                     OwningTimeoutManager = owningTimeoutManager

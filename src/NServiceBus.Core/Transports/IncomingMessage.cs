@@ -40,6 +40,37 @@ namespace NServiceBus.Transport
         }
 
         /// <summary>
+        /// Creates a new message.
+        /// </summary>
+        /// <param name="messageId">Native message id.</param>
+        /// <param name="headers">The message headers.</param>
+        /// <param name="segment">The message body.</param>
+        public IncomingMessage(string messageId, Dictionary<string, string> headers, ArraySegment<byte> segment)
+        {
+            Guard.AgainstNullAndEmpty(nameof(messageId), messageId);
+            Guard.AgainstNull(nameof(segment), segment);
+            Guard.AgainstNull(nameof(headers), headers);
+
+            string originalMessageId;
+
+            if (headers.TryGetValue(NServiceBus.Headers.MessageId, out originalMessageId) && !string.IsNullOrEmpty(originalMessageId))
+            {
+                MessageId = originalMessageId;
+            }
+            else
+            {
+                MessageId = messageId;
+
+                headers[NServiceBus.Headers.MessageId] = messageId;
+            }
+
+
+            Headers = headers;
+
+            BodySegment = segment;
+        }
+
+        /// <summary>
         /// The id of the message.
         /// </summary>
         public string MessageId { get; private set; }
@@ -55,18 +86,25 @@ namespace NServiceBus.Transport
         public byte[] Body { get; private set; }
 
         /// <summary>
+        /// Gets/sets a byte array segment to the body content of the message.
+        /// </summary>
+        public ArraySegment<byte> BodySegment { get; private set; }
+
+        /// <summary>
         /// Use this method to update the body if this message.
         /// </summary>
         internal void UpdateBody(byte[] updatedBody)
         {
+            throw new NotSupportedException("Currently not supported to Update the body");
+            // Fix this???
             //preserve the original body if needed
-            if (Body != null && originalBody == null)
-            {
-                originalBody = new byte[Body.Length];
-                Buffer.BlockCopy(Body, 0, originalBody, 0, Body.Length);
-            }
+            //if (Body != null && originalBody == null)
+            //{
+            //    originalBody = new byte[Body.Length];
+            //    Buffer.BlockCopy(Body, 0, originalBody, 0, Body.Length);
+            //}
 
-            Body = updatedBody;
+            //Body = updatedBody;
         }
 
         /// <summary>
@@ -74,12 +112,17 @@ namespace NServiceBus.Transport
         /// </summary>
         internal void RevertToOriginalBodyIfNeeded()
         {
-            if (originalBody != null)
-            {
-                Body = originalBody;
-            }
+            //if (originalBody != null)
+            //{
+            //    Body = originalBody;
+            //}
         }
 
-        byte[] originalBody;
+        //byte[] originalBody;
+
+        internal OutgoingMessage ToOutgoingMessage()
+        {
+            return Body == null ? new OutgoingMessage(MessageId, new Dictionary<string, string>(Headers), BodySegment) : new OutgoingMessage(MessageId, new Dictionary<string, string>(Headers), Body);
+        }
     }
 }

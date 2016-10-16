@@ -202,7 +202,16 @@
                     //HINT: this header is added by v3 when doing SLR
                     outgoingHeaders.Remove("NServiceBus.OriginalId");
 
-                    var outgoingMessage = new OutgoingMessage(messageContext.MessageId, outgoingHeaders, messageContext.Body);
+                    OutgoingMessage outgoingMessage;
+                    if (messageContext.Body == null)
+                    {
+                        outgoingMessage = new OutgoingMessage(messageContext.MessageId, outgoingHeaders, messageContext.BodySegment);
+                    }
+                    else
+                    {
+                        outgoingMessage = new OutgoingMessage(messageContext.MessageId, outgoingHeaders, messageContext.Body);
+                    }
+
                     var outgoingOperation = new TransportOperation(outgoingMessage, new UnicastAddressTag(mainQueueTransportAddress));
 
                     return messageDispatcher.Dispatch(new TransportOperations(outgoingOperation), messageContext.TransportTransaction, messageContext.Context);

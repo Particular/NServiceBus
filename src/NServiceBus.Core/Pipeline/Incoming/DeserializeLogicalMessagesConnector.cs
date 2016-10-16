@@ -58,7 +58,8 @@ namespace NServiceBus
                 return NoMessagesFound;
             }
 
-            if (physicalMessage.Body == null || physicalMessage.Body.Length == 0)
+            if ((physicalMessage.Body == null || physicalMessage.Body.Length == 0) &&
+                (physicalMessage.BodySegment == default(ArraySegment<byte>) || physicalMessage.BodySegment.Count == 0))
             {
                 log.Debug("Received a message without body. Skipping deserialization.");
                 return NoMessagesFound;
@@ -110,7 +111,18 @@ namespace NServiceBus
             // add the default content type
             physicalMessage.Headers[Headers.ContentType] = messageSerializer.ContentType;
 
-            using (var stream = new MemoryStream(physicalMessage.Body))
+            MemoryStream stream;
+            if (physicalMessage.Body == null)
+            {
+                var segment = physicalMessage.BodySegment;
+                stream = new MemoryStream(segment.Array, segment.Offset, segment.Count);
+            }
+            else
+            {
+                stream = new MemoryStream(physicalMessage.Body);
+            }
+            
+            using (stream)
             {
                 var deserializedMessages = messageSerializer.Deserialize(stream, messageTypes);
                 var logicalMessages = new LogicalMessage[deserializedMessages.Length];

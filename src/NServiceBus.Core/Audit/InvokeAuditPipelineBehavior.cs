@@ -1,10 +1,8 @@
 ﻿namespace NServiceBus
 {
     using System;
-    using System.Collections.Generic;
     using System.Threading.Tasks;
     using Pipeline;
-    using Transport;
 
     class InvokeAuditPipelineBehavior : IForkConnector<IIncomingPhysicalMessageContext, IIncomingPhysicalMessageContext, IAuditContext>
     {
@@ -19,8 +17,8 @@
 
             context.Message.RevertToOriginalBodyIfNeeded();
 
-            var processedMessage = new OutgoingMessage(context.Message.MessageId, new Dictionary<string, string>(context.Message.Headers), context.Message.Body);
-
+            var processedMessage = context.Message.ToOutgoingMessage();
+            
             var auditContext = this.CreateAuditContext(processedMessage, auditAddress, context);
 
             await this.Fork(auditContext).ConfigureAwait(false);

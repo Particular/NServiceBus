@@ -3,7 +3,6 @@
     using System;
     using System.Threading.Tasks;
     using Pipeline;
-    using Transport;
 
     class InvokeForwardingPipelineBehavior : IForkConnector<IIncomingPhysicalMessageContext, IIncomingPhysicalMessageContext, IForwardingContext>
     {
@@ -18,8 +17,8 @@
 
             context.Message.RevertToOriginalBodyIfNeeded();
 
-            var processedMessage = new OutgoingMessage(context.Message.MessageId, context.Message.Headers, context.Message.Body);
-
+            var processedMessage = context.Message.ToOutgoingMessage();
+            
             var forwardingContext = this.CreateForwardingContext(processedMessage, forwardingAddress, context);
 
             await this.Fork(forwardingContext).ConfigureAwait(false);

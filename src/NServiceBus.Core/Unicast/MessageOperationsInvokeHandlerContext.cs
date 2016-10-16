@@ -21,10 +21,21 @@ namespace NServiceBus
             var cache = context.Extensions.Get<IPipelineCache>();
             var pipeline = cache.Pipeline<IRoutingContext>();
 
-            var outgoingMessage = new OutgoingMessage(
-                messageBeingProcessed.MessageId,
-                messageBeingProcessed.Headers,
-                messageBeingProcessed.Body);
+            OutgoingMessage outgoingMessage;
+            if (messageBeingProcessed.Body != null)
+            {
+                outgoingMessage = new OutgoingMessage(
+                    messageBeingProcessed.MessageId,
+                    messageBeingProcessed.Headers,
+                    messageBeingProcessed.Body);
+            }
+            else
+            {
+                outgoingMessage = new OutgoingMessage(
+                    messageBeingProcessed.MessageId,
+                    messageBeingProcessed.Headers,
+                    messageBeingProcessed.BodySegment);
+            }
 
             var routingContext = new RoutingContext(outgoingMessage, new UnicastRoutingStrategy(settings.LocalAddress()), context);
 
