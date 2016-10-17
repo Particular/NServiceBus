@@ -7,9 +7,9 @@ namespace NServiceBus
     using System.Transactions;
     using Transport;
 
-    class ReceiveWithTransactionScope : ReceiveStrategy
+    class TransactionScopeStrategy : ReceiveStrategy
     {
-        public ReceiveWithTransactionScope(TransactionOptions transactionOptions, MsmqFailureInfoStorage failureInfoStorage)
+        public TransactionScopeStrategy(TransactionOptions transactionOptions, MsmqFailureInfoStorage failureInfoStorage)
         {
             this.transactionOptions = transactionOptions;
             this.failureInfoStorage = failureInfoStorage;

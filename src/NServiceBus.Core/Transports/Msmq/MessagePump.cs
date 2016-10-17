@@ -225,7 +225,7 @@ namespace NServiceBus
         Func<TransportTransactionMode, ReceiveStrategy> receiveStrategyFactory;
         ConcurrentDictionary<Task, Task> runningReceiveTasks;
 
-        static ILog Logger = LogManager.GetLogger<ReceiveWithNativeTransaction>();
+        static ILog Logger = LogManager.GetLogger<MessagePump>();
 
         static MessagePropertyFilter DefaultReadPropertyFilter = new MessagePropertyFilter
         {

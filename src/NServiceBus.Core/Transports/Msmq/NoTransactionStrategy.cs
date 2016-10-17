@@ -6,7 +6,7 @@ namespace NServiceBus
     using System.Threading.Tasks;
     using Transport;
 
-    class ReceiveWithNoTransaction : ReceiveStrategy
+    class NoTransactionStrategy : ReceiveStrategy
     {
         public override async Task ReceiveMessage()
         {
