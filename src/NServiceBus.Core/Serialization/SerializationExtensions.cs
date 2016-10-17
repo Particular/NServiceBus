@@ -10,7 +10,7 @@
     public class SerializationExtensions<T> : ExposeSettings where T : SerializationDefinition
     {
         /// <summary>
-        /// The instance of <see cref="SerializationDefinition"/> that was created as part of <see cref="SerializationConfigExtensions.AddDeserializer{T}(EndpointConfiguration,T)"/>
+        /// The instance of <see cref="SerializationDefinition"/> that was created as part of <see cref="SerializationConfigExtensions.AddDeserializer{T}(EndpointConfiguration,T)"/>.
         /// </summary>
         public T Definition { get; }
 
