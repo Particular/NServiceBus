@@ -1,7 +1,6 @@
 namespace NServiceBus
 {
     using System;
-    using System.Buffers;
     using System.Collections.Generic;
     using System.IO;
     using System.Messaging;
@@ -13,8 +12,6 @@ namespace NServiceBus
 
     abstract class ReceiveStrategy
     {
-        ArrayPool<byte> arrayPool;
-
         public int MaxConcurrency { private get; set; }
 
         public abstract Task ReceiveMessage();
@@ -106,37 +103,22 @@ namespace NServiceBus
 
         protected async Task<bool> TryProcessMessage(Message message, Dictionary<string, string> headers, Stream bodyStream, TransportTransaction transaction)
         {
-            var pool = LazyInitializer.EnsureInitialized(ref arrayPool, () => ArrayPool<byte>.Create(4*1024*1024, 2*MaxConcurrency));
-            var bodyLength = (int) message.BodyStream.Length;
-            var body = pool.Rent(bodyLength);
-            try
+            using (var tokenSource = new CancellationTokenSource())
             {
-                using (var tokenSource = new CancellationTokenSource())
-                {
-                    await ReadStream(body, message.BodyStream).ConfigureAwait(false);
-                    var bodySegment = new ArraySegment<byte>(body, 0, bodyLength);
-                    var messageContext = new MessageContext(message.Id, headers, bodySegment, transaction, tokenSource, new ContextBag());
+                var bodySegment = MsmqUtilities.GetBodyAsArraySegment(message);
+                var messageContext = new MessageContext(message.Id, headers, bodySegment, transaction, tokenSource, new ContextBag());
 
-                    await onMessage(messageContext).ConfigureAwait(false);
+                await onMessage(messageContext).ConfigureAwait(false);
 
-                    return tokenSource.Token.IsCancellationRequested;
-                }
-            }
-            finally
-            {
-                pool.Return(body, clearArray: true);
+                return tokenSource.Token.IsCancellationRequested;
             }
         }
 
         protected async Task<ErrorHandleResult> HandleError(Message message, Dictionary<string, string> headers, Exception exception, TransportTransaction transportTransaction, int processingAttempts)
         {
-            var pool = LazyInitializer.EnsureInitialized(ref arrayPool, () => ArrayPool<byte>.Create(4 * 1024 * 1024, 2 * MaxConcurrency));
-            var bodyLength = (int)message.BodyStream.Length;
-            var body = pool.Rent(bodyLength);
             try
             {
-                await ReadStream(body, message.BodyStream).ConfigureAwait(false);
-                var bodySegment = new ArraySegment<byte>(body, 0, bodyLength);
+                var bodySegment = MsmqUtilities.GetBodyAsArraySegment(message);
                 var errorContext = new ErrorContext(exception, headers, message.Id, bodySegment, transportTransaction, processingAttempts);
 
                 return await onError(errorContext).ConfigureAwait(false);
@@ -148,17 +130,6 @@ namespace NServiceBus
                 //best thing we can do is roll the message back if possible
                 return ErrorHandleResult.RetryRequired;
             }
-            finally
-            {
-                pool.Return(body, clearArray: true);
-            }
-        }
-
-        static Task ReadStream(byte[] buffer, Stream bodyStream)
-        {
-            bodyStream.Seek(0, SeekOrigin.Begin);
-            var length = (int) bodyStream.Length;
-            return bodyStream.ReadAsync(buffer, 0, length);
         }
 
         protected bool IsQueuesTransactional => errorQueue.Transactional;
