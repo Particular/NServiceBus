@@ -5,6 +5,8 @@ namespace NServiceBus
     using System.IO;
     using System.Linq;
     using System.Messaging;
+    using System.Reflection;
+    using System.Reflection.Emit;
     using System.Text;
     using System.Xml;
     using DeliveryConstraints;
@@ -15,6 +17,29 @@ namespace NServiceBus
 
     class MsmqUtilities
     {
+        static MsmqUtilities()
+        {
+            var getRawBytesSegment = new DynamicMethod(nameof(GetAsArraySegment), typeof(ArraySegment<byte>), new[]{typeof(MemoryStream)}, true);
+
+            var il = getRawBytesSegment.GetILGenerator();
+            il.Emit(OpCodes.Ldarg_0);
+            il.Emit(OpCodes.Ldfld, typeof(MemoryStream).GetField("_buffer", BindingFlags.NonPublic|BindingFlags.Instance));
+            il.Emit(OpCodes.Ldc_I4_0);
+            il.Emit(OpCodes.Ldarg_0);
+            il.Emit(OpCodes.Ldfld, typeof(MemoryStream).GetField("_length", BindingFlags.NonPublic | BindingFlags.Instance));
+            il.Emit(OpCodes.Newobj, typeof(ArraySegment<byte>).GetConstructor(new [] { typeof(byte[]), typeof(int), typeof(int)}));
+            il.Emit(OpCodes.Ret);
+
+            GetAsArraySegment = (Func<MemoryStream, ArraySegment<byte>>) getRawBytesSegment.CreateDelegate(typeof(Func<MemoryStream, ArraySegment<byte>>));
+        }
+
+        public static readonly Func<MemoryStream, ArraySegment<byte>> GetAsArraySegment;
+
+        public static ArraySegment<byte> GetBodyAsArraySegment(Message m)
+        {
+            return GetAsArraySegment((MemoryStream) m.BodyStream);
+        }
+
         static MsmqAddress GetIndependentAddressForQueue(MessageQueue q)
         {
             var arr = q.FormatName.Split('\\');

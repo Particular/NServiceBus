@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.IO;
     using System.Messaging;
     using DeliveryConstraints;
     using NServiceBus.Performance.TimeToBeReceived;
@@ -85,6 +86,29 @@
 
             Assert.False(MsmqUtilities.Convert(new OutgoingMessage("message id", new Dictionary<string, string>(), new byte[0]), nonDurableDeliveryConstraint).Recoverable);
             Assert.True(MsmqUtilities.Convert(new OutgoingMessage("message id", new Dictionary<string, string>(), new byte[0]), durableDeliveryConstraint).Recoverable);
+        }
+
+        [Test]
+        public void Should_get_raw_array_segment_properly()
+        {
+            var bytes = new byte[]
+            {
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9
+            };
+
+            const int testedLength = 8;
+            var stream = new MemoryStream(bytes, 0, testedLength);
+            var expected = new ArraySegment<byte>(bytes, 0, testedLength);
+
+            CollectionAssert.AreEqual(expected, MsmqUtilities.GetAsArraySegment(stream));
         }
     }
 }
