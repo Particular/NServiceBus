@@ -4,10 +4,9 @@
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using NServiceBus.Pipeline;
-    using ObjectBuilder;
     using Transport;
 
-    class SubscriptionBehavior<TContext> : IBehavior<IIncomingPhysicalMessageContext, IIncomingPhysicalMessageContext> where TContext : ScenarioContext
+    class SubscriptionBehavior<TContext> : IBehavior<ITransportReceiveContext, ITransportReceiveContext> where TContext : ScenarioContext
     {
         public SubscriptionBehavior(Action<SubscriptionEventArgs, TContext> action, TContext scenarioContext, MessageIntentEnum intentToHandle)
         {
@@ -16,7 +15,7 @@
             this.intentToHandle = intentToHandle;
         }
 
-        public async Task Invoke(IIncomingPhysicalMessageContext context, Func<IIncomingPhysicalMessageContext, Task> next)
+        public async Task Invoke(ITransportReceiveContext context, Func<ITransportReceiveContext, Task> next)
         {
             await next(context).ConfigureAwait(false);
             var subscriptionMessageType = GetSubscriptionMessageTypeFrom(context.Message);
@@ -51,14 +50,5 @@
         Action<SubscriptionEventArgs, TContext> action;
         TContext scenarioContext;
         MessageIntentEnum intentToHandle;
-
-        internal class Registration : RegisterStep
-        {
-            public Registration(string id, Func<IBuilder, IBehavior> behaviorFactory)
-                : base(id, typeof(SubscriptionBehavior<TContext>), "notify subscription events", behaviorFactory)
-            {
-                InsertBeforeIfExists("ProcessSubscriptionRequests");
-            }
-        }
     }
 }

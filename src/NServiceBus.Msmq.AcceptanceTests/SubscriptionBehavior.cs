@@ -7,7 +7,7 @@
     using Pipeline;
     using Transport;
 
-    class SubscriptionBehavior<TContext> : IBehavior<IIncomingPhysicalMessageContext, IIncomingPhysicalMessageContext> where TContext : ScenarioContext
+    class SubscriptionBehavior<TContext> : IBehavior<ITransportReceiveContext, ITransportReceiveContext> where TContext : ScenarioContext
     {
         Action<SubscriptionEventArgs, TContext> action;
         TContext scenarioContext;
@@ -18,7 +18,7 @@
             this.scenarioContext = scenarioContext;
         }
 
-        public async Task Invoke(IIncomingPhysicalMessageContext context, Func<IIncomingPhysicalMessageContext, Task> next)
+        public async Task Invoke(ITransportReceiveContext context, Func<ITransportReceiveContext, Task> next)
         {
             await next(context).ConfigureAwait(false);
             var subscriptionMessageType = GetSubscriptionMessageTypeFrom(context.Message);
@@ -40,15 +40,6 @@
         static string GetSubscriptionMessageTypeFrom(IncomingMessage msg)
         {
             return (from header in msg.Headers where header.Key == Headers.SubscriptionMessageType select header.Value).FirstOrDefault();
-        }
-
-        internal class Registration : RegisterStep
-        {
-            public Registration()
-                : base("SubscriptionBehavior", typeof(SubscriptionBehavior<TContext>), "So we can get subscription events")
-            {
-                InsertBeforeIfExists("ProcessSubscriptionRequests");
-            }
         }
     }
 }

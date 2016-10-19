@@ -7,13 +7,11 @@ namespace NServiceBus.AcceptanceTests
     {
         public static void OnEndpointSubscribed<TContext>(this EndpointConfiguration b, Action<SubscriptionEventArgs, TContext> action) where TContext : ScenarioContext
         {
-            b.Pipeline.Register<SubscriptionBehavior<TContext>.Registration>();
-
-            b.RegisterComponents(c => c.ConfigureComponent(builder =>
+            b.Pipeline.Register(builder =>
             {
                 var context = builder.Build<TContext>();
                 return new SubscriptionBehavior<TContext>(action, context);
-            }, DependencyLifecycle.InstancePerCall));
+            }, "Provides notifications when endpoints subscribe");
         }
     }
 }
