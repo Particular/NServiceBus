@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.Core.Tests.AssemblyScanner
 {
     using System;
+    using System.Collections.Generic;
     using System.IO;
     using System.Reflection;
     using Hosting.Helpers;
@@ -41,28 +42,41 @@
         public void ReferencesNServiceBus_returns_true_for_indirect_reference()
         {
             var combine = Path.Combine(GetTestAssemblyDirectory(),"AssemblyWithNoDirectReference.dll");
-            Assert.IsTrue(AssemblyScanner.ReferencesNServiceBus(combine));
+            Assert.IsTrue(AssemblyScanner.ReferencesNServiceBus(combine, new Dictionary<AssemblyName, AssemblyName>()));
         }
 
         [Test]
         public void ReferencesNServiceBus_requires_binding_redirect()
         {
             var combine = Path.Combine(GetTestAssemblyDirectory(), "AssemblyWithRefToSN.dll");
-            Assert.IsTrue(AssemblyScanner.ReferencesNServiceBus(combine));
+            Assert.IsTrue(AssemblyScanner.ReferencesNServiceBus(combine, new Dictionary<AssemblyName, AssemblyName>()));
         }
 
         [Test]
         public void ReferencesNServiceBus_returns_true_for_direct_reference()
         {
             var combine = Path.Combine(GetTestAssemblyDirectory(), "AssemblyWithReference.dll");
-            Assert.IsTrue(AssemblyScanner.ReferencesNServiceBus(combine));
+            Assert.IsTrue(AssemblyScanner.ReferencesNServiceBus(combine, new Dictionary<AssemblyName, AssemblyName>()));
         }
 
         [Test]
         public void ReferencesNServiceBus_returns_false_for_no_reference()
         {
             var combine = Path.Combine(GetTestAssemblyDirectory(), "dotNet.dll");
-            Assert.IsFalse(AssemblyScanner.ReferencesNServiceBus(combine));
+            Assert.IsFalse(AssemblyScanner.ReferencesNServiceBus(combine, new Dictionary<AssemblyName, AssemblyName>()));
+        }
+        [Test]
+        public void ReferencesNServiceBus_tracks_already_processed_assemblies()
+        {
+            var mscorlib = typeof(string).Assembly.GetName();
+
+            var combine = Path.Combine(GetTestAssemblyDirectory(), "AssemblyWithReference.dll");
+            var assemblyNames = new Dictionary<AssemblyName, AssemblyName>(AssemblyScanner.Comparer);
+
+            AssemblyScanner.ReferencesNServiceBus(combine, assemblyNames);
+
+            Assert.AreEqual(1, assemblyNames.Count);
+            Assert.IsTrue(assemblyNames.ContainsKey(mscorlib));
         }
     }
 }

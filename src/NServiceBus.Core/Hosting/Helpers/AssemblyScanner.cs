@@ -52,16 +52,18 @@ namespace NServiceBus.Hosting.Helpers
         {
             var results = new AssemblyScannerResults();
 
+            var processed = new Dictionary<AssemblyName, AssemblyName>(Comparer);
+
             if (assemblyToScan != null)
             {
                 var assemblyPath = AssemblyPath(assemblyToScan);
-                ScanAssembly(assemblyPath, results);
+                ScanAssembly(assemblyPath, results, processed);
                 return results;
             }
 
             foreach (var assemblyFile in ScanDirectoryForAssemblyFiles(baseDirectoryToScan, ScanNestedDirectories))
             {
-                ScanAssembly(assemblyFile.FullName, results);
+                ScanAssembly(assemblyFile.FullName, results, processed);
             }
 
             // This extra step is to ensure unobtrusive message types are included in the Types list.
@@ -101,7 +103,7 @@ namespace NServiceBus.Hosting.Helpers
             return Uri.UnescapeDataString(uri.Path).Replace('/', '\\');
         }
 
-        void ScanAssembly(string assemblyPath, AssemblyScannerResults results)
+        void ScanAssembly(string assemblyPath, AssemblyScannerResults results, Dictionary<AssemblyName, AssemblyName> processed)
         {
             Assembly assembly;
 
@@ -129,7 +131,7 @@ namespace NServiceBus.Hosting.Helpers
 
             try
             {
-                if (!ReferencesNServiceBus(assemblyPath))
+                if (!ReferencesNServiceBus(assemblyPath, processed))
                 {
                     var skippedFile = new SkippedFile(assemblyPath, "Assembly does not reference at least one of the must referenced assemblies.");
                     results.SkippedFiles.Add(skippedFile);
@@ -321,7 +323,7 @@ namespace NServiceBus.Hosting.Helpers
             return fileInfo;
         }
 
-        internal static bool ReferencesNServiceBus(string assemblyPath)
+        internal static bool ReferencesNServiceBus(string assemblyPath, Dictionary<AssemblyName, AssemblyName> processed)
         {
             var assembly = Assembly.ReflectionOnlyLoadFrom(assemblyPath);
             //TODO: should we seed the results with NServiceBus.Core.dll?
@@ -329,10 +331,10 @@ namespace NServiceBus.Hosting.Helpers
             {
                 return true;
             }
-            return ReferencesNServiceBus(assembly, new List<AssemblyName>());
+            return ReferencesNServiceBus(assembly, processed);
         }
 
-        static bool ReferencesNServiceBus(Assembly assembly, List<AssemblyName> processed)
+        static bool ReferencesNServiceBus(Assembly assembly, Dictionary<AssemblyName, AssemblyName> processed)
         {
             foreach (var assemblyName in assembly.GetReferencedAssemblies())
             {
@@ -341,11 +343,12 @@ namespace NServiceBus.Hosting.Helpers
                     return true;
                 }
 
-                if (processed.Any(x => x.FullName == assemblyName.FullName))
+                if (processed.ContainsKey(assemblyName))
                 {
                     continue;
                 }
-                processed.Add(assemblyName);
+
+                processed.Add(assemblyName, assemblyName);
 
                 if (IsRuntimeAssembly(assemblyName))
                 {
@@ -449,6 +452,21 @@ namespace NServiceBus.Hosting.Helpers
             "Microsoft.WindowsAzure"
         };
 
+        internal static AssemblyNameComparer Comparer = new AssemblyNameComparer();
+
         static Type IHandleMessagesType = typeof(IHandleMessages<>);
+
+        internal class AssemblyNameComparer : IEqualityComparer<AssemblyName>
+        {
+            public bool Equals(AssemblyName x, AssemblyName y)
+            {
+                return x.FullName == y.FullName;
+            }
+
+            public int GetHashCode(AssemblyName obj)
+            {
+                return obj.FullName.GetHashCode();
+            }
+        }
     }
 }
