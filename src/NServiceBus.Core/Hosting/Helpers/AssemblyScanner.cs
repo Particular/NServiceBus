@@ -59,16 +59,6 @@ namespace NServiceBus.Hosting.Helpers
                 return results;
             }
 
-            if (IncludeAppDomainAssemblies)
-            {
-                var matchingAssembliesFromAppDomain = MatchingAssembliesFromAppDomain();
-
-                foreach (var assembly in matchingAssembliesFromAppDomain)
-                {
-                    ScanAssembly(AssemblyPath(assembly), results);
-                }
-            }
-
             foreach (var assemblyFile in ScanDirectoryForAssemblyFiles())
             {
                 ScanAssembly(assemblyFile.FullName, results);
@@ -432,7 +422,6 @@ namespace NServiceBus.Hosting.Helpers
         internal List<string> AssembliesToSkip = new List<string>();
         Assembly assemblyToScan;
         string baseDirectoryToScan;
-        internal bool IncludeAppDomainAssemblies;
         internal bool IncludeExesInScan = true;
         internal bool ScanNestedDirectories;
         internal List<Type> TypesToSkip = new List<Type>();

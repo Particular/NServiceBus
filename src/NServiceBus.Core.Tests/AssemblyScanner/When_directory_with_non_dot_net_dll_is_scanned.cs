@@ -10,10 +10,7 @@
         [Test]
         public void non_dotnet_files_are_skipped()
         {
-            var assemblyScanner = new AssemblyScanner(AssemblyScannerTests.GetTestAssemblyDirectory())
-            {
-                IncludeAppDomainAssemblies = false
-            };
+            var assemblyScanner = new AssemblyScanner(AssemblyScannerTests.GetTestAssemblyDirectory());
 
             var results = assemblyScanner
                 .GetScannableAssemblies();
