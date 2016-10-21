@@ -31,7 +31,6 @@ namespace NServiceBus.Core.Tests.AssemblyScanner
         {
             var results = new AssemblyScanner(BaseDirectoryToScan)
             {
-                IncludeAppDomainAssemblies = true,
                 IncludeExesInScan = false,
             }.GetScannableAssemblies();
 
