@@ -65,7 +65,7 @@ namespace NServiceBus.Hosting.Helpers
             }
 
             // This extra step is to ensure unobtrusive message types are included in the Types list.
-            var list = GetHandlerMessageTypes(results.Types).ToList();
+            var list = GetHandlerMessageTypes(results.Types);
             results.Types.AddRange(list);
 
             results.RemoveDuplicates();
@@ -73,28 +73,26 @@ namespace NServiceBus.Hosting.Helpers
             return results;
         }
 
-        static IEnumerable<Type> GetHandlerMessageTypes(IEnumerable<Type> list)
+        static List<Type> GetHandlerMessageTypes(List<Type> list)
         {
-            return list.SelectMany(type =>
+            var foundMessageTypes = new List<Type>();
+            foreach (var type in list)
             {
                 if (type.IsAbstract || type.IsGenericTypeDefinition)
                 {
-                    return Type.EmptyTypes;
+                    continue;
                 }
-                return type.GetInterfaces().Where(x => x.IsGenericType && x.GetGenericTypeDefinition() == IHandleMessagesType);
-            })
-                .Select(t =>
-                {
-                    var args = t.GetGenericArguments();
-                    return args[0];
-                });
-        }
 
-        List<Assembly> MatchingAssembliesFromAppDomain()
-        {
-            return AppDomain.CurrentDomain
-                .GetAssemblies()
-                .Where(assembly => !assembly.IsDynamic && IsIncluded(assembly.GetName().Name)).ToList();
+                foreach (var @interface in type.GetInterfaces())
+                {
+                    if (@interface.IsGenericType && @interface.GetGenericTypeDefinition() == IHandleMessagesType)
+                    {
+                        var messageType = @interface.GetGenericArguments()[0];
+                        foundMessageTypes.Add(messageType);
+                    }
+                }
+            }
+            return foundMessageTypes;
         }
 
         static string AssemblyPath(Assembly assembly)
