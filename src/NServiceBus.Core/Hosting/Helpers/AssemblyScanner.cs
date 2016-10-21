@@ -59,7 +59,7 @@ namespace NServiceBus.Hosting.Helpers
                 return results;
             }
 
-            foreach (var assemblyFile in ScanDirectoryForAssemblyFiles())
+            foreach (var assemblyFile in ScanDirectoryForAssemblyFiles(baseDirectoryToScan, ScanNestedDirectories))
             {
                 ScanAssembly(assemblyFile.FullName, results);
             }
@@ -308,22 +308,19 @@ namespace NServiceBus.Hosting.Helpers
             return sb.ToString();
         }
 
-        IEnumerable<FileInfo> ScanDirectoryForAssemblyFiles()
+        static List<FileInfo> ScanDirectoryForAssemblyFiles(string directoryToScan, bool scanNestedDirectories)
         {
-            var baseDir = new DirectoryInfo(baseDirectoryToScan);
-            var searchOption = ScanNestedDirectories ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
-            return GetFileSearchPatternsToUse()
-                .SelectMany(extension => baseDir.GetFiles(extension, searchOption));
-        }
-
-        IEnumerable<string> GetFileSearchPatternsToUse()
-        {
-            yield return "*.dll";
-
-            if (IncludeExesInScan)
+            var fileInfo = new List<FileInfo>();
+            var baseDir = new DirectoryInfo(directoryToScan);
+            var searchOption = scanNestedDirectories ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
+            foreach (var searchPatern in FileSearchPatternsToUse)
             {
-                yield return "*.exe";
+                foreach (var info in baseDir.GetFiles(searchPatern, searchOption))
+                {
+                    fileInfo.Add(info);
+                }
             }
+            return fileInfo;
         }
 
         internal static bool ReferencesNServiceBus(string assemblyPath)
@@ -420,11 +417,17 @@ namespace NServiceBus.Hosting.Helpers
         }
 
         internal List<string> AssembliesToSkip = new List<string>();
-        Assembly assemblyToScan;
-        string baseDirectoryToScan;
-        internal bool IncludeExesInScan = true;
         internal bool ScanNestedDirectories;
         internal List<Type> TypesToSkip = new List<Type>();
+        Assembly assemblyToScan;
+        string baseDirectoryToScan;
+
+        internal static string[] FileSearchPatternsToUse =
+        {
+            "*.dll",
+            "*.exe"
+        };
+
         //TODO: delete when we make message scanning lazy #1617
         static string[] DefaultAssemblyExclusions =
         {
