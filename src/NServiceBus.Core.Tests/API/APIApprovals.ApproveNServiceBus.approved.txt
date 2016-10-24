@@ -221,9 +221,21 @@ namespace NServiceBus
     }
     public class static CorrelationContextExtensions
     {
+        [System.ObsoleteAttribute("Using custom correlation IDs is discouraged and will be removed in the next major" +
+            " version. Will be treated as an error from version 7.0.0. Will be removed in ver" +
+            "sion 8.0.0.", false)]
         public static string GetCorrelationId(this NServiceBus.SendOptions options) { }
+        [System.ObsoleteAttribute("Using custom correlation IDs is discouraged and will be removed in the next major" +
+            " version. Will be treated as an error from version 7.0.0. Will be removed in ver" +
+            "sion 8.0.0.", false)]
         public static string GetCorrelationId(this NServiceBus.ReplyOptions options) { }
+        [System.ObsoleteAttribute("Setting a custom correlation ID is discouraged and will be removed in the next ma" +
+            "jor version. Will be treated as an error from version 7.0.0. Will be removed in " +
+            "version 8.0.0.", false)]
         public static void SetCorrelationId(this NServiceBus.SendOptions options, string correlationId) { }
+        [System.ObsoleteAttribute("Setting a custom correlation ID is discouraged and will be removed in the next ma" +
+            "jor version. Will be treated as an error from version 7.0.0. Will be removed in " +
+            "version 8.0.0.", false)]
         public static void SetCorrelationId(this NServiceBus.ReplyOptions options, string correlationId) { }
     }
     public class CriticalError
