@@ -1,4 +1,4 @@
-﻿#pragma warning disable 618
+﻿
 namespace NServiceBus.AcceptanceTests.Correlation
 {
     using System.Threading.Tasks;
@@ -16,7 +16,10 @@ namespace NServiceBus.AcceptanceTests.Correlation
                 {
                     var options = new SendOptions();
 
+#pragma warning disable 618
                     options.SetCorrelationId(CorrelationId);
+#pragma warning restore 618
+
                     options.RouteToThisEndpoint();
 
                     return session.Send(new MessageWithCustomCorrelationId(), options);
