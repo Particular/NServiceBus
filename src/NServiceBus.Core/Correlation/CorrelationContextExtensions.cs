@@ -12,7 +12,7 @@
         /// <param name="correlationId">The custom correlation id.</param>
         [ObsoleteEx(
             Message = "Setting a custom correlation ID is discouraged and will be removed in the next major version.",
-            RemoveInVersion = "7",
+            RemoveInVersion = "8",
             TreatAsErrorFromVersion = "7")]
         public static void SetCorrelationId(this SendOptions options, string correlationId)
         {
@@ -30,7 +30,7 @@
         /// <param name="correlationId">The custom correlation id.</param>
         [ObsoleteEx(
             Message = "Setting a custom correlation ID is discouraged and will be removed in the next major version.",
-            RemoveInVersion = "7",
+            RemoveInVersion = "8",
             TreatAsErrorFromVersion = "7")]
         public static void SetCorrelationId(this ReplyOptions options, string correlationId)
         {
