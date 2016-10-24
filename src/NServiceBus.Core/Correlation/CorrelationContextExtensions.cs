@@ -47,6 +47,10 @@
         /// </summary>
         /// <param name="options">Options being extended.</param>
         /// <returns>The configured correlation id or <c>null</c> when no correlation id was configured.</returns>
+        [ObsoleteEx(
+        Message = "Using custom correlation IDs is discouraged and will be removed in the next major version.",
+            RemoveInVersion = "8",
+            TreatAsErrorFromVersion = "7")]
         public static string GetCorrelationId(this SendOptions options)
         {
             Guard.AgainstNull(nameof(options), options);
@@ -63,6 +67,10 @@
         /// </summary>
         /// <param name="options">Options being extended.</param>
         /// <returns>The configured correlation id or <c>null</c> when no correlation id was configured.</returns>
+        [ObsoleteEx(
+        Message = "Using custom correlation IDs is discouraged and will be removed in the next major version.",
+            RemoveInVersion = "8",
+            TreatAsErrorFromVersion = "7")]
         public static string GetCorrelationId(this ReplyOptions options)
         {
             Guard.AgainstNull(nameof(options), options);
