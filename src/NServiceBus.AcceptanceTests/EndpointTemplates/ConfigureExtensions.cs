@@ -3,12 +3,13 @@
     using System;
     using System.Threading.Tasks;
     using AcceptanceTesting.Support;
+    using Configuration.AdvanceExtensibility;
     using ObjectBuilder;
     using ScenarioDescriptors;
 
     public static class ConfigureExtensions
     {
-        public static Task DefineTransport(this EndpointConfiguration config, RunSettings settings, string endpointName)
+        public static Task DefineTransport(this EndpointConfiguration config, RunSettings settings, EndpointCustomizationConfiguration endpointCustomizationConfiguration)
         {
             Type transportType;
             if (!settings.TryGet("Transport", out transportType))
@@ -16,7 +17,10 @@
                 settings.Merge(Transports.Default.Settings);
             }
 
-            return ConfigureTestExecution(TestDependencyType.Transport, config, settings, endpointName);
+            //hack: for now
+            config.GetSettings().Set<PublisherMetadata>(endpointCustomizationConfiguration.PublisherMetadata);
+
+            return ConfigureTestExecution(TestDependencyType.Transport, config, settings, endpointCustomizationConfiguration.EndpointName);
         }
 
         public static Task DefinePersistence(this EndpointConfiguration config, RunSettings settings, string endpointName)

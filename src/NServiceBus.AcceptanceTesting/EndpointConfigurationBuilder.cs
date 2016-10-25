@@ -51,17 +51,15 @@
             return configuration;
         }
 
-        public EndpointConfigurationBuilder EndpointSetup<T>() where T : IEndpointSetupTemplate, new()
-        {
-            return EndpointSetup<T>(c => { });
-        }
-
-        public EndpointConfigurationBuilder EndpointSetup<T>(Action<EndpointConfiguration> configurationBuilderCustomization) where T : IEndpointSetupTemplate, new()
+        public EndpointConfigurationBuilder EndpointSetup<T>(Action<EndpointConfiguration> configurationBuilderCustomization = null,
+            Action<PublisherMetadata> publisherMetadataAction = null) where T : IEndpointSetupTemplate, new()
         {
             if (configurationBuilderCustomization == null)
             {
                 configurationBuilderCustomization = b => { };
             }
+
+            publisherMetadataAction?.Invoke(configuration.PublisherMetadata);
 
             return EndpointSetup<T>((bc, esc) =>
             {

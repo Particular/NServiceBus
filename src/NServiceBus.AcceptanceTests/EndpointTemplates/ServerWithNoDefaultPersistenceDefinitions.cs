@@ -38,7 +38,7 @@
                 .Delayed(delayed => delayed.NumberOfRetries(0))
                 .Immediate(immediate => immediate.NumberOfRetries(0));
 
-            await builder.DefineTransport(settings, endpointConfiguration.EndpointName).ConfigureAwait(false);
+            await builder.DefineTransport(settings, endpointConfiguration).ConfigureAwait(false);
 
             builder.RegisterComponentsAndInheritanceHierarchy(runDescriptor);
 

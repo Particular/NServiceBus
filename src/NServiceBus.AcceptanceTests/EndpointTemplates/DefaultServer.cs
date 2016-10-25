@@ -42,7 +42,7 @@
             recoverability.Delayed(delayed => delayed.NumberOfRetries(0));
             recoverability.Immediate(immediate => immediate.NumberOfRetries(0));
 
-            await configuration.DefineTransport(settings, endpointConfiguration.EndpointName).ConfigureAwait(false);
+            await configuration.DefineTransport(settings, endpointConfiguration).ConfigureAwait(false);
 
             configuration.DefineBuilder(settings);
             configuration.RegisterComponentsAndInheritanceHierarchy(runDescriptor);
