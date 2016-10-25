@@ -8,15 +8,6 @@ namespace NServiceBus
 
     class UnicastSendRouterConnector : StageConnector<IOutgoingSendContext, IOutgoingLogicalMessageContext>
     {
-        public enum RouteOption
-        {
-            None,
-            ExplicitDestination,
-            RouteToThisInstance,
-            RouteToAnyInstanceOfThisEndpoint,
-            RouteToSpecificInstance
-        }
-
         public UnicastSendRouterConnector(
             string sharedQueue,
             string instanceSpecificQueue,
@@ -35,22 +26,22 @@ namespace NServiceBus
         {
             var messageType = context.Message.MessageType;
 
-            var state = context.Extensions.GetOrCreate<State>();
+            var state = context.Extensions.GetOrCreate<SendRouterConnectorArguments>();
 
-            if (state.Option == RouteOption.RouteToThisInstance && instanceSpecificQueue == null)
+            if (state.Option == SendRouteOption.RouteToThisInstance && instanceSpecificQueue == null)
             {
                 throw new InvalidOperationException("Cannot route to a specific instance because an endpoint instance discriminator was not configured for the destination endpoint. It can be specified via EndpointConfiguration.MakeInstanceUniquelyAddressable(string discriminator).");
             }
-            var thisEndpoint = state.Option == RouteOption.RouteToAnyInstanceOfThisEndpoint ? sharedQueue : null;
-            var thisInstance = state.Option == RouteOption.RouteToThisInstance ? instanceSpecificQueue : null;
-            var explicitDestination = state.Option == RouteOption.ExplicitDestination ? state.ExplicitDestination : null;
+            var thisEndpoint = state.Option == SendRouteOption.RouteToAnyInstanceOfThisEndpoint ? sharedQueue : null;
+            var thisInstance = state.Option == SendRouteOption.RouteToThisInstance ? instanceSpecificQueue : null;
+            var explicitDestination = state.Option == SendRouteOption.ExplicitDestination ? state.ExplicitDestination : null;
             var destination = explicitDestination ?? thisInstance ?? thisEndpoint;
 
-            var distributionPolicy = state.Option == RouteOption.RouteToSpecificInstance ? new SpecificInstanceDistributionPolicy(state.SpecificInstance, transportAddressTranslation) : defaultDistributionPolicy;
+            var distributionPolicy = state.Option == SendRouteOption.RouteToSpecificInstance ? new SpecificInstanceDistributionPolicy(state.SpecificInstance, transportAddressTranslation) : defaultDistributionPolicy;
 
             var routingStrategy = string.IsNullOrEmpty(destination)
                 ? unicastSendRouter.Route(messageType, distributionPolicy)
-                : RouteToDestination(destination);
+                : new UnicastRoutingStrategy(destination);
 
             if (routingStrategy == null)
             {
@@ -77,36 +68,10 @@ namespace NServiceBus
             }
         }
 
-        static UnicastRoutingStrategy RouteToDestination(string physicalAddress)
-        {
-            return new UnicastRoutingStrategy(physicalAddress);
-        }
-
         IDistributionPolicy defaultDistributionPolicy;
         Func<EndpointInstance, string> transportAddressTranslation;
         string instanceSpecificQueue;
         string sharedQueue;
         IUnicastSendRouter unicastSendRouter;
-
-        public class State
-        {
-            public string ExplicitDestination { get; set; }
-            public string SpecificInstance { get; set; }
-
-            public RouteOption Option
-            {
-                get { return option; }
-                set
-                {
-                    if (option != RouteOption.None)
-                    {
-                        throw new Exception("Already specified routing option for this message: " + option);
-                    }
-                    option = value;
-                }
-            }
-
-            RouteOption option;
-        }
     }
 }
