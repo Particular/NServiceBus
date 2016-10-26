@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus
 {
     using System;
+    using System.Diagnostics;
     using System.Threading.Tasks;
     using Pipeline;
 
@@ -20,13 +21,15 @@
 
             state.ProcessingStarted = DateTime.UtcNow;
             context.Extensions.Set(state);
+            var stopwatch = Stopwatch.StartNew();
             try
             {
                 await next(context).ConfigureAwait(false);
             }
             finally
             {
-                state.ProcessingEnded = DateTime.UtcNow;
+                stopwatch.Stop();
+                state.ProcessingEnded = state.ProcessingStarted.AddTicks(stopwatch.ElapsedTicks);
             }
         }
 
