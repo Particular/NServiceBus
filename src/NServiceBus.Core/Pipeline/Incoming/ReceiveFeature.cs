@@ -28,7 +28,9 @@
             var hasIncomingTransportMessageMutators = context.Container.HasComponent<IMutateIncomingTransportMessages>();
             context.Pipeline.Register("MutateIncomingTransportMessage", new MutateIncomingTransportMessageBehavior(hasIncomingTransportMessageMutators), "Executes IMutateIncomingTransportMessages");
 
-            context.Pipeline.Register("MutateIncomingMessages", new MutateIncomingMessageBehavior(), "Executes IMutateIncomingMessages");
+            var hasIncomingMessageMutators = context.Container.HasComponent<IMutateIncomingMessages>();
+            context.Pipeline.Register("MutateIncomingMessages", new MutateIncomingMessageBehavior(hasIncomingMessageMutators), "Executes IMutateIncomingMessages");
+
             context.Pipeline.Register("InvokeHandlers", new InvokeHandlerTerminator(), "Calls the IHandleMessages<T>.Handle(T)");
 
             context.Container.ConfigureComponent(b =>
