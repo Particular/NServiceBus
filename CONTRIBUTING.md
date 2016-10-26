@@ -29,6 +29,13 @@ top of things.
 * Run build.bat in the root to assure nothing else was accidentally broken.
 * We have a resharper layer that applies our coding standards so make sure that you're "all green in reshaper"
 
+## Guidelines
+
+Avoid allocations in hot paths:
+
+* Avoid LINQ.
+* Avoid using foreach over collections that do not have a struct enumerator.
+
 
 ## Submitting Changes
 
