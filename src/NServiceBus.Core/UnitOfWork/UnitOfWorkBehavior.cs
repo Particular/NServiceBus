@@ -9,7 +9,22 @@
 
     class UnitOfWorkBehavior : IBehavior<IIncomingPhysicalMessageContext, IIncomingPhysicalMessageContext>
     {
-        public async Task Invoke(IIncomingPhysicalMessageContext context, Func<IIncomingPhysicalMessageContext, Task> next)
+        public UnitOfWorkBehavior(bool hasUnitsOfWork)
+        {
+            this.hasUnitsOfWork = hasUnitsOfWork;
+        }
+
+        public Task Invoke(IIncomingPhysicalMessageContext context, Func<IIncomingPhysicalMessageContext, Task> next)
+        {
+            if (hasUnitsOfWork)
+            {
+                return InvokeUnitsOfWork(context, next);
+            }
+
+            return next(context);
+        }
+
+        async Task InvokeUnitsOfWork(IIncomingPhysicalMessageContext context, Func<IIncomingPhysicalMessageContext, Task> next)
         {
             var unitsOfWork = new Stack<IManageUnitsOfWork>();
 
@@ -68,5 +83,7 @@
             }
             return exceptionsToThrow;
         }
+
+        bool hasUnitsOfWork;
     }
 }

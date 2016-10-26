@@ -7,6 +7,7 @@
     using Persistence;
     using Transport;
     using Unicast;
+    using UnitOfWork;
 
     class ReceiveFeature : Feature
     {
@@ -20,7 +21,9 @@
             context.Pipeline.Register("TransportReceiveToPhysicalMessageProcessingConnector", b => b.Build<TransportReceiveToPhysicalMessageProcessingConnector>(), "Allows to abort processing the message");
             context.Pipeline.Register("LoadHandlersConnector", b => b.Build<LoadHandlersConnector>(), "Gets all the handlers to invoke from the MessageHandler registry based on the message type.");
 
-            context.Pipeline.Register("ExecuteUnitOfWork", new UnitOfWorkBehavior(), "Executes the UoW");
+            var hasUnitsOfWork = context.Container.HasComponent<IManageUnitsOfWork>();
+            context.Pipeline.Register("ExecuteUnitOfWork", new UnitOfWorkBehavior(hasUnitsOfWork), "Executes the UoW");
+
             context.Pipeline.Register("MutateIncomingTransportMessage", new MutateIncomingTransportMessageBehavior(), "Executes IMutateIncomingTransportMessages");
             context.Pipeline.Register("MutateIncomingMessages", new MutateIncomingMessageBehavior(), "Executes IMutateIncomingMessages");
             context.Pipeline.Register("InvokeHandlers", new InvokeHandlerTerminator(), "Calls the IHandleMessages<T>.Handle(T)");
