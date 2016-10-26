@@ -15,7 +15,8 @@
             var hasOutgoingMessageMutators = context.Container.HasComponent<IMutateOutgoingMessages>();
             context.Pipeline.Register("MutateOutgoingMessages", new MutateOutgoingMessageBehavior(hasOutgoingMessageMutators), "Executes IMutateOutgoingMessages");
 
-            context.Pipeline.Register("MutateOutgoingTransportMessage", new MutateOutgoingTransportMessageBehavior(), "Executes IMutateOutgoingTransportMessages");
+            var hasOutgoingTransportMessageMutators = context.Container.HasComponent<IMutateOutgoingTransportMessages>();
+            context.Pipeline.Register("MutateOutgoingTransportMessage", new MutateOutgoingTransportMessageBehavior(hasOutgoingTransportMessageMutators), "Executes IMutateOutgoingTransportMessages");
 
             context.Pipeline.Register(new AttachSenderRelatedInfoOnMessageBehavior(), "Makes sure that outgoing messages contains relevant info on the sending endpoint.");
 
