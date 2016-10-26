@@ -3,6 +3,7 @@
     using System.Threading.Tasks;
     using Extensibility;
     using Janitor;
+    using MessageMutator;
     using NServiceBus.Outbox;
     using Persistence;
     using Transport;
@@ -24,7 +25,9 @@
             var hasUnitsOfWork = context.Container.HasComponent<IManageUnitsOfWork>();
             context.Pipeline.Register("ExecuteUnitOfWork", new UnitOfWorkBehavior(hasUnitsOfWork), "Executes the UoW");
 
-            context.Pipeline.Register("MutateIncomingTransportMessage", new MutateIncomingTransportMessageBehavior(), "Executes IMutateIncomingTransportMessages");
+            var hasIncomingTransportMessageMutators = context.Container.HasComponent<IMutateIncomingTransportMessages>();
+            context.Pipeline.Register("MutateIncomingTransportMessage", new MutateIncomingTransportMessageBehavior(hasIncomingTransportMessageMutators), "Executes IMutateIncomingTransportMessages");
+
             context.Pipeline.Register("MutateIncomingMessages", new MutateIncomingMessageBehavior(), "Executes IMutateIncomingMessages");
             context.Pipeline.Register("InvokeHandlers", new InvokeHandlerTerminator(), "Calls the IHandleMessages<T>.Handle(T)");
 
