@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Features
 {
+    using MessageMutator;
     using Transport;
 
     class OutgoingPipelineFeature : Feature
@@ -11,7 +12,9 @@
 
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-            context.Pipeline.Register("MutateOutgoingMessages", new MutateOutgoingMessageBehavior(), "Executes IMutateOutgoingMessages");
+            var hasOutgoingMessageMutators = context.Container.HasComponent<IMutateOutgoingMessages>();
+            context.Pipeline.Register("MutateOutgoingMessages", new MutateOutgoingMessageBehavior(hasOutgoingMessageMutators), "Executes IMutateOutgoingMessages");
+
             context.Pipeline.Register("MutateOutgoingTransportMessage", new MutateOutgoingTransportMessageBehavior(), "Executes IMutateOutgoingTransportMessages");
 
             context.Pipeline.Register(new AttachSenderRelatedInfoOnMessageBehavior(), "Makes sure that outgoing messages contains relevant info on the sending endpoint.");
