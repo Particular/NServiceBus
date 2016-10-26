@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.AcceptanceTests.DelayedDelivery
+﻿namespace NServiceBus.AcceptanceTests.Core.DelayedDelivery.TimeoutManager
 {
     using System;
     using System.Threading.Tasks;
@@ -7,9 +7,9 @@
     using Extensibility;
     using Features;
     using NServiceBus;
+    using NServiceBus.Persistence;
     using NServiceBus.Pipeline;
     using NUnit.Framework;
-    using Persistence;
     using ScenarioDescriptors;
     using Timeout.Core;
     using Conventions = AcceptanceTesting.Customization.Conventions;

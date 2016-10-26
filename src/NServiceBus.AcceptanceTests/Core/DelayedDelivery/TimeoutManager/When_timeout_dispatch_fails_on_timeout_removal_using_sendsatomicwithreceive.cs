@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.AcceptanceTests.DelayedDelivery
+﻿namespace NServiceBus.AcceptanceTests.Core.DelayedDelivery.TimeoutManager
 {
     using System;
     using System.Threading.Tasks;
@@ -6,21 +6,22 @@
     using EndpointTemplates;
     using Extensibility;
     using Features;
-    using NServiceBus;
+    using NServiceBus.Persistence;
     using NServiceBus.Pipeline;
     using NUnit.Framework;
-    using Persistence;
-    using ScenarioDescriptors;
     using Timeout.Core;
-    using Conventions = AcceptanceTesting.Customization.Conventions;
 
-    public class When_timeout_dispatch_fails_on_timeout_data_removal : NServiceBusAcceptanceTest
+    class When_timeout_dispatch_fails_on_timeout_removal_using_sendsAtomicWithReceive : NServiceBusAcceptanceTest
     {
         [Test]
-        public Task Should_move_control_message_to_errors_and_not_dispatch_original_message_to_handler()
+        public async Task Should_move_control_message_to_errors_and_dispatch_original_message_to_handler()
         {
-            return Scenario.Define<Context>()
-                .WithEndpoint<Endpoint>(b => b.DoNotFailOnErrorMessages()
+            var context = await Scenario.Define<Context>()
+                .WithEndpoint<Endpoint>(b => b
+                    .DoNotFailOnErrorMessages()
+                    .CustomConfig(c => c
+                        .UseTransport<MsmqTransport>()
+                        .Transactions(TransportTransactionMode.SendsAtomicWithReceive))
                     .When((bus, c) =>
                     {
                         var options = new SendOptions();
@@ -33,10 +34,11 @@
                             Id = c.TestRunId
                         }, options);
                     }))
-                .Done(c => c.FailedTimeoutMovedToError)
-                .Repeat(r => r.For<AllTransportsWithoutNativeDeferralAndWithAtomicSendAndReceive>())
-                .Should(c => Assert.IsFalse(c.DelayedMessageDeliveredToHandler, "Message was unexpectedly delivered to the handler"))
+                .Done(c => c.FailedTimeoutMovedToError && c.DelayedMessageDeliveredToHandler)
                 .Run();
+
+            Assert.IsTrue(context.DelayedMessageDeliveredToHandler);
+            Assert.IsTrue(context.FailedTimeoutMovedToError);
         }
 
         public class Context : ScenarioContext
@@ -53,7 +55,7 @@
                 {
                     config.EnableFeature<TimeoutManager>();
                     config.UsePersistence<FakeTimeoutPersistence>();
-                    config.SendFailedMessagesTo(Conventions.EndpointNamingConvention(typeof(Endpoint)));
+                    config.SendFailedMessagesTo(AcceptanceTesting.Customization.Conventions.EndpointNamingConvention(typeof(Endpoint)));
                     config.RegisterComponents(c => c.ConfigureComponent<FakeTimeoutStorage>(DependencyLifecycle.SingleInstance));
                     config.Pipeline.Register<BehaviorThatLogsControlMessageDelivery.Registration>();
                     config.LimitMessageProcessingConcurrencyTo(1);
@@ -112,7 +114,7 @@
                         return Task.FromResult(timeoutData);
                     }
 
-                    return Task.FromResult((TimeoutData) null);
+                    return Task.FromResult((TimeoutData)null);
                 }
 
                 public Task RemoveTimeoutBy(Guid sagaId, ContextBag context)
