@@ -10,10 +10,7 @@
         [Test]
         public void dll_with_message_handlers_gets_loaded()
         {
-            var assemblyScanner = new AssemblyScanner(AssemblyLocation.CurrentDirectory)
-            {
-                IncludeAppDomainAssemblies = false
-            };
+            var assemblyScanner = new AssemblyScanner(AssemblyLocation.CurrentDirectory);
 
             var results = assemblyScanner
                 .GetScannableAssemblies();
