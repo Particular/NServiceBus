@@ -123,7 +123,7 @@ namespace NServiceBus
             var recoverabilityExecutor = recoverabilityExecutorFactory.CreateDefault(eventAggregator, localAddress);
             var pushSettings = new PushSettings(settings.LocalAddress(), errorQueue, purgeOnStartup, requiredTransactionSupport);
             var mainPipelineExecutor = new MainPipelineExecutor(builder, eventAggregator, pipelineCache, mainPipeline);
-            var dequeueLimitations = GeDequeueLimitationsForReceivePipeline();
+            var dequeueLimitations = GetDequeueLimitationsForReceivePipeline();
 
             var receivers = new List<TransportReceiver>();
 
@@ -143,7 +143,7 @@ namespace NServiceBus
 
         //note: this should be handled in a feature but we don't have a good
         // extension point to plugin atm
-        PushRuntimeSettings GeDequeueLimitationsForReceivePipeline()
+        PushRuntimeSettings GetDequeueLimitationsForReceivePipeline()
         {
             var transportConfig = settings.GetConfigSection<TransportConfig>();
 
