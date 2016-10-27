@@ -35,14 +35,14 @@
                 .Run();
         }
 
-        class Context : ScenarioContext
+        public class Context : ScenarioContext
         {
             public bool GotTheEvent { get; set; }
             public bool Subscribed { get; set; }
             public Type EventTypePassedToRouting { get; set; }
         }
 
-        internal class Publisher : EndpointConfigurationBuilder
+        public class Publisher : EndpointConfigurationBuilder
         {
             public Publisher()
             {
@@ -77,7 +77,7 @@
             }
         }
 
-        class Subscriber : EndpointConfigurationBuilder
+        public class Subscriber : EndpointConfigurationBuilder
         {
             public Subscriber()
             {
