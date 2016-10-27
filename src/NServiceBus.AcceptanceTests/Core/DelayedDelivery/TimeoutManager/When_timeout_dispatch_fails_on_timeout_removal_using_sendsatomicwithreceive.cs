@@ -19,9 +19,6 @@
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<Endpoint>(b => b
                     .DoNotFailOnErrorMessages()
-                    .CustomConfig(c => c
-                        .UseTransport<MsmqTransport>()
-                        .Transactions(TransportTransactionMode.SendsAtomicWithReceive))
                     .When((bus, c) =>
                     {
                         var options = new SendOptions();
@@ -51,7 +48,7 @@
         {
             public Endpoint()
             {
-                EndpointSetup<DefaultServer>(config =>
+                EndpointSetup<DefaultServer>((config, runDescriptor) =>
                 {
                     config.EnableFeature<TimeoutManager>();
                     config.UsePersistence<FakeTimeoutPersistence>();
@@ -59,6 +56,7 @@
                     config.RegisterComponents(c => c.ConfigureComponent<FakeTimeoutStorage>(DependencyLifecycle.SingleInstance));
                     config.Pipeline.Register<BehaviorThatLogsControlMessageDelivery.Registration>();
                     config.LimitMessageProcessingConcurrencyTo(1);
+                    config.UseTransport(runDescriptor.GetTransportType()).Transactions(TransportTransactionMode.SendsAtomicWithReceive);
                 });
             }
 
