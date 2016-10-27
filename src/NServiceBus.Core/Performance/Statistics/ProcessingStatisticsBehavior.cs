@@ -29,7 +29,7 @@
             finally
             {
                 stopwatch.Stop();
-                state.ProcessingEnded = state.ProcessingStarted.AddTicks(stopwatch.Elapsed.Ticks);
+                state.ProcessingEnded = state.ProcessingStarted + stopwatch.Elapsed;
             }
         }
 
