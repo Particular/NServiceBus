@@ -59,23 +59,13 @@ namespace NServiceBus.Hosting.Helpers
                 return results;
             }
 
-            if (IncludeAppDomainAssemblies)
-            {
-                var matchingAssembliesFromAppDomain = MatchingAssembliesFromAppDomain();
-
-                foreach (var assembly in matchingAssembliesFromAppDomain)
-                {
-                    ScanAssembly(AssemblyPath(assembly), results);
-                }
-            }
-
-            foreach (var assemblyFile in ScanDirectoryForAssemblyFiles())
+            foreach (var assemblyFile in ScanDirectoryForAssemblyFiles(baseDirectoryToScan, ScanNestedDirectories))
             {
                 ScanAssembly(assemblyFile.FullName, results);
             }
 
             // This extra step is to ensure unobtrusive message types are included in the Types list.
-            var list = GetHandlerMessageTypes(results.Types).ToList();
+            var list = GetHandlerMessageTypes(results.Types);
             results.Types.AddRange(list);
 
             results.RemoveDuplicates();
@@ -83,28 +73,26 @@ namespace NServiceBus.Hosting.Helpers
             return results;
         }
 
-        static IEnumerable<Type> GetHandlerMessageTypes(IEnumerable<Type> list)
+        static List<Type> GetHandlerMessageTypes(List<Type> list)
         {
-            return list.SelectMany(type =>
+            var foundMessageTypes = new List<Type>();
+            foreach (var type in list)
             {
                 if (type.IsAbstract || type.IsGenericTypeDefinition)
                 {
-                    return Type.EmptyTypes;
+                    continue;
                 }
-                return type.GetInterfaces().Where(x => x.IsGenericType && x.GetGenericTypeDefinition() == IHandleMessagesType);
-            })
-                .Select(t =>
-                {
-                    var args = t.GetGenericArguments();
-                    return args[0];
-                });
-        }
 
-        List<Assembly> MatchingAssembliesFromAppDomain()
-        {
-            return AppDomain.CurrentDomain
-                .GetAssemblies()
-                .Where(assembly => !assembly.IsDynamic && IsIncluded(assembly.GetName().Name)).ToList();
+                foreach (var @interface in type.GetInterfaces())
+                {
+                    if (@interface.IsGenericType && @interface.GetGenericTypeDefinition() == IHandleMessagesType)
+                    {
+                        var messageType = @interface.GetGenericArguments()[0];
+                        foundMessageTypes.Add(messageType);
+                    }
+                }
+            }
+            return foundMessageTypes;
         }
 
         static string AssemblyPath(Assembly assembly)
@@ -318,22 +306,19 @@ namespace NServiceBus.Hosting.Helpers
             return sb.ToString();
         }
 
-        IEnumerable<FileInfo> ScanDirectoryForAssemblyFiles()
+        static List<FileInfo> ScanDirectoryForAssemblyFiles(string directoryToScan, bool scanNestedDirectories)
         {
-            var baseDir = new DirectoryInfo(baseDirectoryToScan);
-            var searchOption = ScanNestedDirectories ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
-            return GetFileSearchPatternsToUse()
-                .SelectMany(extension => baseDir.GetFiles(extension, searchOption));
-        }
-
-        IEnumerable<string> GetFileSearchPatternsToUse()
-        {
-            yield return "*.dll";
-
-            if (IncludeExesInScan)
+            var fileInfo = new List<FileInfo>();
+            var baseDir = new DirectoryInfo(directoryToScan);
+            var searchOption = scanNestedDirectories ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
+            foreach (var searchPatern in FileSearchPatternsToUse)
             {
-                yield return "*.exe";
+                foreach (var info in baseDir.GetFiles(searchPatern, searchOption))
+                {
+                    fileInfo.Add(info);
+                }
             }
+            return fileInfo;
         }
 
         internal static bool ReferencesNServiceBus(string assemblyPath)
@@ -430,12 +415,17 @@ namespace NServiceBus.Hosting.Helpers
         }
 
         internal List<string> AssembliesToSkip = new List<string>();
-        Assembly assemblyToScan;
-        string baseDirectoryToScan;
-        internal bool IncludeAppDomainAssemblies;
-        internal bool IncludeExesInScan = true;
         internal bool ScanNestedDirectories;
         internal List<Type> TypesToSkip = new List<Type>();
+        Assembly assemblyToScan;
+        string baseDirectoryToScan;
+
+        internal static string[] FileSearchPatternsToUse =
+        {
+            "*.dll",
+            "*.exe"
+        };
+
         //TODO: delete when we make message scanning lazy #1617
         static string[] DefaultAssemblyExclusions =
         {
