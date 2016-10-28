@@ -52,7 +52,7 @@
             {
                 configuration.UseSerialization((SerializationDefinition)Activator.CreateInstance(serializerType));
             }
-            await configuration.DefinePersistence(settings, endpointConfiguration.EndpointName).ConfigureAwait(false);
+            await configuration.DefinePersistence(settings, endpointConfiguration).ConfigureAwait(false);
 
             configuration.GetSettings().SetDefault("ScaleOut.UseSingleBrokerQueue", true);
             configurationBuilderCustomization(configuration);

@@ -3,7 +3,6 @@
     using System;
     using System.Threading.Tasks;
     using AcceptanceTesting.Support;
-    using Configuration.AdvanceExtensibility;
     using ObjectBuilder;
     using ScenarioDescriptors;
 
@@ -17,13 +16,10 @@
                 settings.Merge(Transports.Default.Settings);
             }
 
-            //hack: for now
-            config.GetSettings().Set<PublisherMetadata>(endpointCustomizationConfiguration.PublisherMetadata);
-
-            return ConfigureTestExecution(TestDependencyType.Transport, config, settings, endpointCustomizationConfiguration.EndpointName);
+            return ConfigureTestExecution(TestDependencyType.Transport, config, settings, endpointCustomizationConfiguration.EndpointName, endpointCustomizationConfiguration.PublisherMetadata);
         }
 
-        public static Task DefinePersistence(this EndpointConfiguration config, RunSettings settings, string endpointName)
+        public static Task DefinePersistence(this EndpointConfiguration config, RunSettings settings, EndpointCustomizationConfiguration endpointCustomizationConfiguration)
         {
             Type persistenceType;
             if (!settings.TryGet("Persistence", out persistenceType))
@@ -31,7 +27,7 @@
                 settings.Merge(Persistence.Default.Settings);
             }
 
-            return ConfigureTestExecution(TestDependencyType.Persistence, config, settings, endpointName);
+            return ConfigureTestExecution(TestDependencyType.Persistence, config, settings, endpointCustomizationConfiguration.EndpointName, endpointCustomizationConfiguration.PublisherMetadata);
         }
 
         public static void DefineBuilder(this EndpointConfiguration config, RunSettings settings)
@@ -72,7 +68,7 @@
             builder.RegisterComponents(r => { RegisterInheritanceHierarchyOfContextOnContainer(runDescriptor, r); });
         }
 
-        static async Task ConfigureTestExecution(TestDependencyType type, EndpointConfiguration config, RunSettings settings, string endpointName)
+        static async Task ConfigureTestExecution(TestDependencyType type, EndpointConfiguration config, RunSettings settings, string endpointName, PublisherMetadata publisherMetadata)
         {
             var dependencyTypeString = type.ToString();
 
@@ -94,7 +90,7 @@
                 throw new InvalidOperationException($"{typeName} does not implement {typeof(IConfigureEndpointTestExecution).Name}.");
             }
 
-            await configurer.Configure(endpointName, config, settings).ConfigureAwait(false);
+            await configurer.Configure(endpointName, config, settings, publisherMetadata).ConfigureAwait(false);
 
             ActiveTestExecutionConfigurer cleaners;
             var cleanerKey = "ConfigureTestExecution." + endpointName;

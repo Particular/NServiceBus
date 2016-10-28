@@ -11,7 +11,7 @@ using Conventions = NServiceBus.AcceptanceTesting.Customization.Conventions;
 
 public class ConfigureEndpointMsmqTransport : IConfigureEndpointTestExecution
 {
-    public Task Configure(string endpointName, EndpointConfiguration configuration, RunSettings settings)
+    public Task Configure(string endpointName, EndpointConfiguration configuration, RunSettings settings, PublisherMetadata publisherMetadata)
     {
         queueBindings = configuration.GetSettings().Get<QueueBindings>();
         var connectionString = settings.Get<string>("Transport.ConnectionString");
@@ -19,8 +19,6 @@ public class ConfigureEndpointMsmqTransport : IConfigureEndpointTestExecution
         var transportConfig = configuration.UseTransport<MsmqTransport>();
 
         transportConfig.ConnectionString(connectionString);
-
-        var publisherMetadata = configuration.GetSettings().Get<PublisherMetadata>();
 
         foreach (var publisher in publisherMetadata.Publishers)
         {

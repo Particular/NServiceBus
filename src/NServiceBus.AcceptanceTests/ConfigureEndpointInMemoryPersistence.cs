@@ -4,7 +4,7 @@ using NServiceBus.AcceptanceTesting.Support;
 
 public class ConfigureEndpointInMemoryPersistence : IConfigureEndpointTestExecution
 {
-    public Task Configure(string endpointName, EndpointConfiguration configuration, RunSettings settings)
+    public Task Configure(string endpointName, EndpointConfiguration configuration, RunSettings settings, PublisherMetadata publisherMetadata)
     {
         configuration.UsePersistence<InMemoryPersistence>();
         return Task.FromResult(0);
