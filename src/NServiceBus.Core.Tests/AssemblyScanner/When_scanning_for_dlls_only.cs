@@ -6,37 +6,34 @@ namespace NServiceBus.Core.Tests.AssemblyScanner
     using NUnit.Framework;
 
     [TestFixture]
-    public class When_scanning_top_level_only
+    public class When_scanning_for_dlls_only
     {
-        static string baseDirectoryToScan = Path.Combine(Path.GetTempPath(), "empty");
-        static string someSubDirectory = Path.Combine(baseDirectoryToScan, "subDir");
+        static string BaseDirectoryToScan = Path.Combine(Path.GetTempPath(), "empty");
 
         [SetUp]
         public void Context()
         {
-            Directory.CreateDirectory(baseDirectoryToScan);
-            Directory.CreateDirectory(someSubDirectory);
+            Directory.CreateDirectory(BaseDirectoryToScan);
 
-            var dllFilePath = Path.Combine(someSubDirectory, "NotAProper.dll");
-            File.WriteAllText(dllFilePath, "This is not a proper DLL");
+            var dllFilePath = Path.Combine(BaseDirectoryToScan, "NotAProper.exe");
+            File.WriteAllText(dllFilePath, "This is not a proper EXE");
         }
 
         [TearDown]
         public void TearDown()
         {
-            if (Directory.Exists(baseDirectoryToScan))
-                Directory.Delete(baseDirectoryToScan, true);
+            if (Directory.Exists(BaseDirectoryToScan))
+                Directory.Delete(BaseDirectoryToScan, true);
         }
 
         [Test]
         public void should_not_find_assembly_in_sub_directory()
         {
-            var results = new AssemblyScanner(baseDirectoryToScan)
+            var results = new AssemblyScanner(BaseDirectoryToScan)
             {
                 IncludeAppDomainAssemblies = true,
-                ScanNestedDirectories = false
-            }
-            .GetScannableAssemblies();
+                IncludeExesInScan = false,
+            }.GetScannableAssemblies();
 
             var allEncounteredFileNames =
                 results.Assemblies
@@ -45,7 +42,7 @@ namespace NServiceBus.Core.Tests.AssemblyScanner
                     .Concat(results.SkippedFiles.Select(s => s.FilePath))
                     .ToList();
 
-            Assert.That(allEncounteredFileNames.Any(f => f.Contains("NotAProper.dll")),
+            Assert.That(allEncounteredFileNames.Any(f => f.Contains("NotAProper.exe")),
                 Is.False, "Did not expect to find NotAProper.dll among all encountered files because it resides in a sub directory");
         }
     }
