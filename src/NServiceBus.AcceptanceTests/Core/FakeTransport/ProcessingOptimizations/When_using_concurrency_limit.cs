@@ -47,9 +47,9 @@
 
             public void Start(PushRuntimeSettings limitations)
             {
+                // The LimitMessageProcessingConcurrencyTo setting only applies to the input queue
                 if (pushSettings.InputQueue == Conventions.EndpointNamingConvention(typeof(ThrottledEndpoint)))
-                {
-                    // The LimitMessageProcessingConcurrencyTo setting only applies to the input queue
+                {   
                     Assert.AreEqual(10, limitations.MaxConcurrency);
                 }
             }
