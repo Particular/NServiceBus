@@ -7,7 +7,22 @@
 
     class MutateIncomingMessageBehavior : IBehavior<IIncomingLogicalMessageContext, IIncomingLogicalMessageContext>
     {
-        public async Task Invoke(IIncomingLogicalMessageContext context, Func<IIncomingLogicalMessageContext, Task> next)
+        public MutateIncomingMessageBehavior(bool hasIncomingMessageMutators)
+        {
+            this.hasIncomingMessageMutators = hasIncomingMessageMutators;
+        }
+
+        public Task Invoke(IIncomingLogicalMessageContext context, Func<IIncomingLogicalMessageContext, Task> next)
+        {
+            if (hasIncomingMessageMutators)
+            {
+                return InvokeIncomingMessageMutators(context, next);
+            }
+
+            return next(context);
+        }
+
+        async Task InvokeIncomingMessageMutators(IIncomingLogicalMessageContext context, Func<IIncomingLogicalMessageContext, Task> next)
         {
             var logicalMessage = context.Message;
             var current = logicalMessage.Instance;
@@ -27,5 +42,7 @@
 
             await next(context).ConfigureAwait(false);
         }
+
+        bool hasIncomingMessageMutators;
     }
 }

@@ -8,7 +8,22 @@
 
     class MutateOutgoingMessageBehavior : IBehavior<IOutgoingLogicalMessageContext, IOutgoingLogicalMessageContext>
     {
-        public async Task Invoke(IOutgoingLogicalMessageContext context, Func<IOutgoingLogicalMessageContext, Task> next)
+        public MutateOutgoingMessageBehavior(bool hasOutgoingMessageMutators)
+        {
+            this.hasOutgoingMessageMutators = hasOutgoingMessageMutators;
+        }
+
+        public Task Invoke(IOutgoingLogicalMessageContext context, Func<IOutgoingLogicalMessageContext, Task> next)
+        {
+            if (hasOutgoingMessageMutators)
+            {
+                return InvokeOutgoingMessageMutators(context, next);
+            }
+
+            return next(context);
+        }
+
+        async Task InvokeOutgoingMessageMutators(IOutgoingLogicalMessageContext context, Func<IOutgoingLogicalMessageContext, Task> next)
         {
             LogicalMessage incomingLogicalMessage;
             context.Extensions.TryGet(out incomingLogicalMessage);
@@ -36,5 +51,7 @@
 
             await next(context).ConfigureAwait(false);
         }
+
+        bool hasOutgoingMessageMutators;
     }
 }

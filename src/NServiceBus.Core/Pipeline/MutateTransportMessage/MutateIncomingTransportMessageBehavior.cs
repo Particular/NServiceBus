@@ -7,7 +7,22 @@
 
     class MutateIncomingTransportMessageBehavior : IBehavior<IIncomingPhysicalMessageContext, IIncomingPhysicalMessageContext>
     {
-        public async Task Invoke(IIncomingPhysicalMessageContext context, Func<IIncomingPhysicalMessageContext, Task> next)
+        public MutateIncomingTransportMessageBehavior(bool hasIncomingTransportMessageMutators)
+        {
+            this.hasIncomingTransportMessageMutators = hasIncomingTransportMessageMutators;
+        }
+
+        public Task Invoke(IIncomingPhysicalMessageContext context, Func<IIncomingPhysicalMessageContext, Task> next)
+        {
+            if (hasIncomingTransportMessageMutators)
+            {
+                return InvokeIncomingTransportMessagesMutators(context, next);
+            }
+
+            return next(context);
+        }
+
+        async Task InvokeIncomingTransportMessagesMutators(IIncomingPhysicalMessageContext context, Func<IIncomingPhysicalMessageContext, Task> next)
         {
             var mutators = context.Builder.BuildAll<IMutateIncomingTransportMessages>();
             var transportMessage = context.Message;
@@ -26,5 +41,7 @@
 
             await next(context).ConfigureAwait(false);
         }
+
+        bool hasIncomingTransportMessageMutators;
     }
 }

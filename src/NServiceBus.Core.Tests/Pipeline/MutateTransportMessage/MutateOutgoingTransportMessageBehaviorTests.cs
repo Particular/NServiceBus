@@ -10,9 +10,24 @@
     class MutateOutgoingTransportMessageBehaviorTests
     {
         [Test]
+        public async Task Should_not_call_MutateOutgoing_when_hasOutgoingTransportMessageMutators_is_false()
+        {
+            var behavior = new MutateOutgoingTransportMessageBehavior(hasOutgoingTransportMessageMutators: false);
+
+            var context = new TestableOutgoingPhysicalMessageContext();
+
+            var mutator = new MutatorThatIndicatesIfItWasCalled();
+            context.Builder.Register<IMutateOutgoingTransportMessages>(() => mutator);
+
+            await behavior.Invoke(context, ctx => TaskEx.CompletedTask);
+
+            Assert.IsFalse(mutator.MutateOutgoingCalled);
+        }
+
+        [Test]
         public void Should_throw_friendly_exception_when_IMutateOutgoingTransportMessages_MutateOutgoing_returns_null()
         {
-            var behavior = new MutateOutgoingTransportMessageBehavior();
+            var behavior = new MutateOutgoingTransportMessageBehavior(hasOutgoingTransportMessageMutators: true);
 
             var physicalContext = new TestableOutgoingPhysicalMessageContext();
             physicalContext.Extensions.Set(new OutgoingLogicalMessage(typeof(FakeMessage), new FakeMessage()));
@@ -24,7 +39,7 @@
         [Test]
         public async Task When_no_mutator_updates_the_body_should_not_update_the_body()
         {
-            var behavior = new MutateOutgoingTransportMessageBehavior();
+            var behavior = new MutateOutgoingTransportMessageBehavior(hasOutgoingTransportMessageMutators: true);
 
             var context = new InterceptUpdateMessageOutgoingPhysicalMessageContext();
             context.Extensions.Set(new OutgoingLogicalMessage(typeof(FakeMessage), new FakeMessage()));
@@ -39,7 +54,7 @@
         [Test]
         public async Task When_no_mutator_available_should_not_update_the_body()
         {
-            var behavior = new MutateOutgoingTransportMessageBehavior();
+            var behavior = new MutateOutgoingTransportMessageBehavior(hasOutgoingTransportMessageMutators: true);
 
             var context = new InterceptUpdateMessageOutgoingPhysicalMessageContext();
             context.Extensions.Set(new OutgoingLogicalMessage(typeof(FakeMessage), new FakeMessage()));
@@ -54,7 +69,7 @@
         [Test]
         public async Task When_mutator_modifies_the_body_should_update_the_body()
         {
-            var behavior = new MutateOutgoingTransportMessageBehavior();
+            var behavior = new MutateOutgoingTransportMessageBehavior(hasOutgoingTransportMessageMutators: true);
 
             var context = new InterceptUpdateMessageOutgoingPhysicalMessageContext();
             context.Extensions.Set(new OutgoingLogicalMessage(typeof(FakeMessage), new FakeMessage()));
@@ -75,6 +90,18 @@
                 base.UpdateMessage(body);
 
                 UpdateMessageCalled = true;
+            }
+        }
+
+        class MutatorThatIndicatesIfItWasCalled : IMutateOutgoingTransportMessages
+        {
+            public bool MutateOutgoingCalled { get; set; }
+
+            public Task MutateOutgoing(MutateOutgoingTransportMessageContext context)
+            {
+                MutateOutgoingCalled = true;
+
+                return TaskEx.CompletedTask;
             }
         }
 

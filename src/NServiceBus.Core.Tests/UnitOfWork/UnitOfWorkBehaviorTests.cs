@@ -11,6 +11,21 @@
     public class UnitOfWorkBehaviorTests
     {
         [Test]
+        public async Task Should_not_call_Begin_or_End_when_hasUnitsOfWork_is_false()
+        {
+            var builder = new FakeBuilder();
+
+            var unitOfWork = new UnitOfWork();
+
+            builder.Register<IManageUnitsOfWork>(unitOfWork);
+
+            await InvokeBehavior(builder, hasUnitsOfWork: false);
+
+            Assert.IsFalse(unitOfWork.BeginCalled);
+            Assert.IsFalse(unitOfWork.EndCalled);
+        }
+
+        [Test]
         public void When_first_throw_second_is_cleaned_up()
         {
             var builder = new FakeBuilder();
@@ -144,9 +159,9 @@
                 Throws.Exception.With.Message.EqualTo("Return a Task or mark the method as async."));
         }
 
-        static Task InvokeBehavior(FakeBuilder builder, Exception toThrow = null)
+        static Task InvokeBehavior(FakeBuilder builder, Exception toThrow = null, bool hasUnitsOfWork = true)
         {
-            var runner = new UnitOfWorkBehavior();
+            var runner = new UnitOfWorkBehavior(hasUnitsOfWork);
 
             var context = new TestableIncomingPhysicalMessageContext();
             context.Builder = builder;
