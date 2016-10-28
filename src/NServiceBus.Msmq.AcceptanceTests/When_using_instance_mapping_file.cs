@@ -52,7 +52,7 @@
             Assert.That(context.MessagesForInstance2, Is.EqualTo(5));
         }
 
-        static string mappingFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, nameof(When_starting_with_invalid_instance_mapping_file) + ".xml");
+        static string mappingFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, nameof(When_using_instance_mapping_file) + ".xml");
         static string destination;
 
         public class Context : ScenarioContext
