@@ -52,14 +52,14 @@
         }
 
         public EndpointConfigurationBuilder EndpointSetup<T>(Action<EndpointConfiguration> configurationBuilderCustomization = null,
-            Action<PublisherMetadata> publisherMetadataAction = null) where T : IEndpointSetupTemplate, new()
+            Action<PublisherMetadata> publisherMetadata = null) where T : IEndpointSetupTemplate, new()
         {
             if (configurationBuilderCustomization == null)
             {
                 configurationBuilderCustomization = b => { };
             }
 
-            publisherMetadataAction?.Invoke(configuration.PublisherMetadata);
+            publisherMetadata?.Invoke(configuration.PublisherMetadata);
 
             return EndpointSetup<T>((bc, esc) =>
             {
@@ -67,12 +67,15 @@
             });
         }
 
-        public EndpointConfigurationBuilder EndpointSetup<T>(Action<EndpointConfiguration, RunDescriptor> configurationBuilderCustomization) where T : IEndpointSetupTemplate, new()
+        public EndpointConfigurationBuilder EndpointSetup<T>(Action<EndpointConfiguration, RunDescriptor> configurationBuilderCustomization, Action<PublisherMetadata> publisherMetadata = null) where T : IEndpointSetupTemplate, new()
         {
             if (configurationBuilderCustomization == null)
             {
                 configurationBuilderCustomization = (rd, b) => { };
             }
+
+            publisherMetadata?.Invoke(configuration.PublisherMetadata);
+
             configuration.GetConfiguration = async (runDescriptor, routingTable) =>
             {
                 var endpointSetupTemplate = new T();

@@ -28,9 +28,8 @@
         {
             public Endpoint()
             {
-                EndpointSetup<DefaultServer>()
-                    .AddMapping<MyCommand>(typeof(Endpoint))
-                    .AddMapping<MyEvent>(typeof(Endpoint));
+                EndpointSetup<DefaultServer>(publisherMetadata: metadata => metadata.RegisterPublisherFor<MyEvent>(typeof(Endpoint)))
+                    .AddMapping<MyCommand>(typeof(Endpoint));
             }
 
             public class Handler : IHandleMessages<MyEvent>, IHandleMessages<MyCommand>

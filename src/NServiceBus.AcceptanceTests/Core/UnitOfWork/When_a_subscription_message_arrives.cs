@@ -30,8 +30,8 @@
         {
             public UOWEndpoint()
             {
-                EndpointSetup<DefaultServer>(c => c.RegisterComponents(container => container.ConfigureComponent<MyUow>(DependencyLifecycle.InstancePerCall)))
-                    .AddMapping<MyMessage>(typeof(UOWEndpoint));
+                EndpointSetup<DefaultServer>(c => c.RegisterComponents(container => container.ConfigureComponent<MyUow>(DependencyLifecycle.InstancePerCall)),
+                    metadata => metadata.RegisterPublisherFor<MyMessage>(typeof(UOWEndpoint)));
             }
 
             class MyUow : IManageUnitsOfWork
