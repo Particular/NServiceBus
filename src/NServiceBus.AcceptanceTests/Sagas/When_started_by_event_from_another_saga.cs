@@ -105,8 +105,8 @@
                 {
                     c.EnableFeature<TimeoutManager>();
                     c.DisableFeature<AutoSubscribe>();
-                })
-                    .AddMapping<SomethingHappenedEvent>(typeof(SagaThatPublishesAnEvent));
+                },
+                metadata => metadata.RegisterPublisherFor<SomethingHappenedEvent>(typeof(SagaThatPublishesAnEvent)));
             }
 
             public class EventFromOtherSaga2 : Saga<EventFromOtherSaga2.EventFromOtherSaga2Data>,
@@ -145,7 +145,7 @@
             }
         }
 
-        
+
         public class StartSaga : ICommand
         {
             public Guid DataId { get; set; }

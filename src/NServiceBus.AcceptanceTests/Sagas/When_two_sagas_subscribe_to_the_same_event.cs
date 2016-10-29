@@ -72,9 +72,9 @@
         {
             public SagaEndpoint()
             {
-                EndpointSetup<DefaultServer>(c => c.EnableFeature<TimeoutManager>())
-                    .AddMapping<OpenGroupCommand>(typeof(Publisher))
-                    .AddMapping<GroupPendingEvent>(typeof(Publisher));
+                EndpointSetup<DefaultServer>(c => c.EnableFeature<TimeoutManager>(),
+                    metadata => metadata.RegisterPublisherFor<GroupPendingEvent>(typeof(Publisher)))
+                    .AddMapping<OpenGroupCommand>(typeof(Publisher));
             }
 
             public class Saga1 : Saga<Saga1.MySaga1Data>,
@@ -150,7 +150,7 @@
             }
         }
 
-        
+
         public class GroupPendingEvent : IEvent
         {
             public Guid DataId { get; set; }
@@ -161,7 +161,7 @@
             public Guid DataId { get; set; }
         }
 
-        
+
         public class StartSaga2 : ICommand
         {
             public Guid DataId { get; set; }
