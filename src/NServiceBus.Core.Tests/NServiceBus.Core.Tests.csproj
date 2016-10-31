@@ -349,12 +349,6 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="TestDlls\AssemblyWithNoDirectReference.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="TestDlls\AssemblyWithReference.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Include="TestDlls\dotNet.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

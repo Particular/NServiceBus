@@ -1,9 +1,16 @@
 ﻿namespace NServiceBus.Core.Tests.AssemblyScanner
 {
     using System;
+    using System.CodeDom.Compiler;
+    using System.Diagnostics;
     using System.IO;
+    using System.Linq;
     using System.Reflection;
+    using System.Text;
+    using System.Threading;
     using Hosting.Helpers;
+    using Microsoft.CSharp;
+    using Mono.Cecil;
     using NUnit.Framework;
 
     [TestFixture]
@@ -23,6 +30,12 @@
             return Path.GetDirectoryName(path);
         }
 
+        [SetUp]
+        public void SetUp()
+        {
+            Directory.Delete(DynamicAssembly.TestAssemblyDirectory, true);
+        }
+
         [Test]
         public void System_assemblies_should_be_excluded()
         {
@@ -37,12 +50,6 @@
             Assert.IsFalse(AssemblyScanner.IsRuntimeAssembly(GetType().Assembly.Location));
         }
 
-        [Test]
-        public void ReferencesNServiceBus_returns_true_for_indirect_reference()
-        {
-            var combine = Path.Combine(GetTestAssemblyDirectory(),"AssemblyWithNoDirectReference.dll");
-            Assert.IsTrue(AssemblyScanner.ReferencesNServiceBus(combine));
-        }
 
         [Test]
         public void ReferencesNServiceBus_requires_binding_redirect()
@@ -52,17 +59,276 @@
         }
 
         [Test]
-        public void ReferencesNServiceBus_returns_true_for_direct_reference()
-        {
-            var combine = Path.Combine(GetTestAssemblyDirectory(), "AssemblyWithReference.dll");
-            Assert.IsTrue(AssemblyScanner.ReferencesNServiceBus(combine));
-        }
-
-        [Test]
         public void ReferencesNServiceBus_returns_false_for_no_reference()
         {
             var combine = Path.Combine(GetTestAssemblyDirectory(), "dotNet.dll");
             Assert.IsFalse(AssemblyScanner.ReferencesNServiceBus(combine));
+        }
+
+        [Test]
+        public void Assemblies_with_direct_reference_are_included()
+        {
+            var busAssembly = new DynamicAssembly("Fake.NServiceBus.Core.dll");
+            var assemblyWithReference = new DynamicAssembly("AssemblyWithReference.dll", new[]
+            {
+                busAssembly
+            });
+
+            using (var dynamicDirectory = new DynamicAssemblyDirectory(busAssembly, assemblyWithReference))
+            {
+                var scanner = new AssemblyScanner(dynamicDirectory);
+                scanner.CoreAssemblyName = busAssembly.DynamicName;
+
+                var result = scanner.GetScannableAssemblies();
+
+                Assert.AreEqual(2, result.Assemblies.Count);
+                Assert.IsTrue(result.Assemblies.Contains(assemblyWithReference));
+                Assert.IsTrue(result.Assemblies.Contains(busAssembly));
+            }
+        }
+
+        [Test]
+        public void Assemblies_with_no_reference_are_excluded()
+        {
+            var busAssembly = new DynamicAssembly("Fake.NServiceBus.Core");
+            var assemblyWithReference = new DynamicAssembly("AssemblyWithReference", new[]
+            {
+                busAssembly
+            });
+            var assemblyWithoutReference = new DynamicAssembly("AssemblyWithoutReference");
+
+            using (var dynamicDirectory = new DynamicAssemblyDirectory(busAssembly, assemblyWithReference, assemblyWithoutReference))
+            {
+                var scanner = new AssemblyScanner(dynamicDirectory);
+                scanner.CoreAssemblyName = busAssembly.DynamicName;
+
+                var result = scanner.GetScannableAssemblies();
+
+                Assert.AreEqual(2, result.Assemblies.Count);
+                Assert.IsTrue(result.Assemblies.Contains(assemblyWithReference));
+                Assert.IsTrue(result.Assemblies.Contains(busAssembly));
+                Assert.IsFalse(result.Assemblies.Contains(assemblyWithoutReference));
+            }
+        }
+
+        [Test]
+        [Explicit]
+        public void Assemblies_which_reference_older_nsb_version_are_included()
+        {
+            var busAssemblyV1 = new DynamicAssembly("Fake.NServiceBus.Core", version: new Version(1, 0, 0), fakeIdentity: true);
+            var busAssemblyV2 = new DynamicAssembly("Fake.NServiceBus.Core", version: new Version(2, 0, 0), fakeIdentity: true);
+            var assemblyReferencesV1 = new DynamicAssembly("AssemblyWithReference1", new[]
+            {
+                busAssemblyV1
+            });
+            var assemblyReferencesV2 = new DynamicAssembly("AssemblyWithReference2", new[]
+            {
+                busAssemblyV2
+            });
+
+            using (var dynamicDirectory = new DynamicAssemblyDirectory(busAssemblyV1, busAssemblyV2, assemblyReferencesV1, assemblyReferencesV2))
+            {
+                var scanner = new AssemblyScanner(dynamicDirectory);
+                scanner.ThrowExceptions = false;
+                scanner.CoreAssemblyName = busAssemblyV2.Name;
+
+                var result = scanner.GetScannableAssemblies();
+
+                Assert.AreEqual(4, result.Assemblies.Count);
+                Assert.IsTrue(result.Assemblies.Contains(assemblyReferencesV1));
+                Assert.IsTrue(result.Assemblies.Contains(assemblyReferencesV2));
+            }
+        }
+
+        [Test]
+        public void Assemblies_with_transitive_reference_are_include()
+        {
+            var busAssembly = new DynamicAssembly("Fake.NServiceBus.Core");
+            var assemblyC = new DynamicAssembly("C", new[]
+            {
+                busAssembly
+            });
+            var assemblyB = new DynamicAssembly("B", new[]
+            {
+                assemblyC
+            });
+            var assemblyA = new DynamicAssembly("A", new[]
+            {
+                assemblyB
+            });
+            var assemblyD = new DynamicAssembly("D", new[]
+            {
+                assemblyB
+            });
+
+            using (var dynamicDirectory = new DynamicAssemblyDirectory(assemblyA, assemblyB, assemblyC, assemblyD, busAssembly))
+            {
+                var scanner = new AssemblyScanner(dynamicDirectory);
+                scanner.CoreAssemblyName = busAssembly.DynamicName;
+
+                var result = scanner.GetScannableAssemblies();
+
+                Assert.AreEqual(5, result.Assemblies.Count);
+                Assert.IsTrue(result.Assemblies.Contains(assemblyA));
+                Assert.IsTrue(result.Assemblies.Contains(assemblyB));
+                Assert.IsTrue(result.Assemblies.Contains(assemblyC));
+                Assert.IsTrue(result.Assemblies.Contains(assemblyD));
+            }
+        }
+
+        class DynamicAssemblyDirectory : IDisposable
+        {
+            public DynamicAssemblyDirectory(params DynamicAssembly[] assemblies)
+            {
+                dynamicAssemblies = assemblies;
+                Directory = assemblies.Select(a => Path.GetDirectoryName(a.FilePath)).Distinct().Single();
+            }
+
+            public string Directory { get; }
+
+            public void Dispose()
+            {
+                foreach (var dynamicAssembly in dynamicAssemblies)
+                {
+                    dynamicAssembly.Dispose();
+                }
+            }
+
+            public static implicit operator string(DynamicAssemblyDirectory directory)
+            {
+                return directory.Directory;
+            }
+
+            DynamicAssembly[] dynamicAssemblies;
+        }
+
+        [DebuggerDisplay("Name = {Name}, DynamicName = {DynamicName}, Namespace = {Namespace}, FileName = {FileName}")]
+        class DynamicAssembly : IDisposable
+        {
+            public DynamicAssembly(string nameWithoutExtension, DynamicAssembly[] references = null, Version version = null, bool fakeIdentity = false)
+            {
+                if (version == null)
+                {
+                    version = new Version(1, 0, 0, 0);
+                }
+
+                if (references == null)
+                {
+                    references = new DynamicAssembly[0];
+                }
+
+                Name = nameWithoutExtension;
+                Namespace = nameWithoutExtension;
+                FileName = $"{Namespace}{Path.GetFileNameWithoutExtension(Path.GetRandomFileName())}{Interlocked.Increment(ref dynamicAssemblyId)}.dll";
+                DynamicName = Path.GetFileNameWithoutExtension(FileName);
+
+                var builder = new StringBuilder();
+                builder.AppendLine("using System.Reflection;");
+                builder.AppendLine($"[assembly: AssemblyVersion(\"{version}\")]");
+                builder.AppendLine($"[assembly: AssemblyFileVersion(\"{version}\")]");
+
+                builder.AppendFormat("namespace {0} {{ ", Namespace);
+
+                var provider = new CSharpCodeProvider();
+                var param = new CompilerParameters(new string[]
+                {
+                }, FileName);
+                param.GenerateExecutable = false;
+                param.GenerateInMemory = false;
+                param.OutputAssembly = FilePath = Path.Combine(TestAssemblyDirectory, FileName);
+                param.TempFiles = new TempFileCollection(TestAssemblyDirectory, false);
+
+                foreach (var reference in references)
+                {
+                    builder.AppendLine($"using {reference.Namespace};");
+                    param.ReferencedAssemblies.Add(reference.FilePath);
+                }
+
+                builder.AppendLine("public class Foo { public Foo() {");
+                foreach (var reference in references)
+                {
+                    builder.AppendLine($"new {reference.Namespace}.Foo();");
+                }
+                builder.AppendLine("} } }");
+
+                var result = provider.CompileAssemblyFromSource(param, builder.ToString());
+                ThrowIfCompilationWasNotSuccessful(result);
+                Assembly = result.CompiledAssembly;
+                provider.Dispose();
+
+                if (fakeIdentity)
+                {
+                    var reader = AssemblyDefinition.ReadAssembly(FilePath);
+                    reader.Name.Name = nameWithoutExtension;
+                    reader.MainModule.Name = nameWithoutExtension;
+                    reader.Write(FilePath);
+                }
+            }
+
+            public string Namespace { get; }
+
+            public string Name { get; }
+
+            public string DynamicName { get; }
+
+            public string FileName { get; }
+            public string FilePath { get; }
+
+            public Assembly Assembly { get; }
+
+            public void Dispose()
+            {
+                try
+                {
+                    File.Delete(FilePath);
+                }
+                catch (Exception ex)
+                {
+                    Trace.Write(ex.Message);
+                }
+            }
+
+            public static string TestAssemblyDirectory => GetTestAssemblyDirectory();
+
+            static string GetTestAssemblyDirectory()
+            {
+                var directoryName = GetAssemblyDirectory();
+                var directory = Path.Combine(directoryName, "assemblyscannerfiles");
+                if (!Directory.Exists(directory))
+                {
+                    Directory.CreateDirectory(directory);
+                }
+                return directory;
+            }
+
+            static string GetAssemblyDirectory()
+            {
+                var codeBase = Assembly.GetExecutingAssembly().CodeBase;
+                var uri = new UriBuilder(codeBase);
+                var path = Uri.UnescapeDataString(uri.Path);
+                return Path.GetDirectoryName(path);
+            }
+
+            static void ThrowIfCompilationWasNotSuccessful(CompilerResults results)
+            {
+                if (results.Errors.HasErrors)
+                {
+                    var errors = new StringBuilder("Compiler Errors :\r\n");
+                    foreach (CompilerError error in results.Errors)
+                    {
+                        errors.AppendFormat("Line {0},{1}\t: {2}\n",
+                            error.Line, error.Column, error.ErrorText);
+                    }
+                    throw new Exception(errors.ToString());
+                }
+            }
+
+            public static implicit operator Assembly(DynamicAssembly dynamicAssembly)
+            {
+                return dynamicAssembly.Assembly;
+            }
+
+            static long dynamicAssemblyId;
         }
     }
 }
