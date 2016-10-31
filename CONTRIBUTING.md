@@ -34,7 +34,7 @@ top of things.
 Avoid allocations in hot paths:
 
 * Avoid LINQ.
-* Avoid using foreach over collections that do not have a struct enumerator.
+* Avoid using foreach over collections that do not have a struct enumerator. For public facing interfaces we favour readonly collections and enumerables. For internal types we favour speed and allocation reduction.
 
 
 ## Submitting Changes
