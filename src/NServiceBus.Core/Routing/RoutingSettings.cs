@@ -72,7 +72,7 @@
         /// </summary>
         public void DoNotEnforceBestPractices()
         {
-            Settings.Set(RoutingFeature.EnforceBestPracticesSettingsKey, false);
+            Settings.Set(BestPracticesFeature.EnforceBestPracticesSettingsKey, false);
         }
 
         static void ThrowOnAddress(string destination)
