@@ -49,8 +49,8 @@
         {
             public Subscriber()
             {
-                EndpointSetup<DefaultServer>(c => c.DisableFeature<AutoSubscribe>())
-                    .AddMapping<MyEvent>(typeof(SendOnlyPublisher));
+                EndpointSetup<DefaultServer>(c => c.DisableFeature<AutoSubscribe>(),
+                   metadata => metadata.RegisterPublisherFor<MyEvent>(typeof(SendOnlyPublisher)));
             }
 
             public class MyEventHandler : IHandleMessages<MyEvent>

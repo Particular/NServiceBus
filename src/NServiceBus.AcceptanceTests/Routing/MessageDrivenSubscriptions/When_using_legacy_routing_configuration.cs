@@ -39,7 +39,6 @@
             public Publisher()
             {
                 EndpointSetup<DefaultPublisher>(b => b.OnEndpointSubscribed<Context>((s, context) => { context.Subscribed = true; }))
-                    .AddMapping<MyEvent>(typeof(Subscriber))
                     .AddMapping<DoneCommand>(typeof(Subscriber));
             }
         }
@@ -52,8 +51,8 @@
                 {
                     c.DisableFeature<AutoSubscribe>();
                     c.LimitMessageProcessingConcurrencyTo(1);
-                })
-                    .AddMapping<MyEvent>(typeof(Publisher));
+                },
+                metadata => metadata.RegisterPublisherFor<MyEvent>(typeof(Publisher))); 
             }
 
             public class MyEventHandler : IHandleMessages<MyEvent>

@@ -54,8 +54,8 @@
                 EndpointSetup<DefaultServer>(c =>
                 {
                     c.DisableFeature<AutoSubscribe>();
-                })
-                    .AddMapping<IBaseEvent>(typeof(Publisher));
+                },
+                metadata => metadata.RegisterPublisherFor<IBaseEvent>(typeof(Publisher)));
             }
 
             public class MyEventHandler : IHandleMessages<IBaseEvent>
