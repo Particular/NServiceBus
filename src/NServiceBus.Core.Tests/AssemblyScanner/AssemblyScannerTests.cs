@@ -246,6 +246,7 @@
             public string DynamicName { get; }
 
             public string FileName { get; }
+
             public string FilePath { get; }
 
             public Assembly Assembly { get; }
@@ -285,10 +286,7 @@
                 }
             }
 
-            public static implicit operator Assembly(DynamicAssembly dynamicAssembly)
-            {
-                return dynamicAssembly.Assembly;
-            }
+            public static implicit operator Assembly(DynamicAssembly dynamicAssembly) => dynamicAssembly.Assembly;
 
             static long dynamicAssemblyId;
         }
