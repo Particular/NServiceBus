@@ -1,4 +1,4 @@
-namespace NServiceBus.Features
+namespace NServiceBus
 {
     using System.Collections.Generic;
     using System.Linq;
@@ -22,8 +22,8 @@ namespace NServiceBus.Features
 
         static IEnumerable<PublisherTableEntry> Generate(Conventions conventions, IPublisherSource source, bool enforceBestPractices)
         {
-            return enforceBestPractices 
-                ? source.GenerateWithBestPracticeEnforcement(conventions) 
+            return enforceBestPractices
+                ? source.GenerateWithBestPracticeEnforcement(conventions)
                 : source.GenerateWithoutBestPracticeEnforcement(conventions);
         }
     }
