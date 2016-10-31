@@ -6,7 +6,6 @@
     using System.Reflection;
     using EventNamespace;
     using MessageNameSpace;
-    using NServiceBus.Features;
     using NServiceBus.Routing;
     using NServiceBus.Routing.MessageDrivenSubscriptions;
     using NUnit.Framework;

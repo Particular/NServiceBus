@@ -2,7 +2,6 @@ namespace NServiceBus
 {
     using System;
     using System.Reflection;
-    using Features;
     using Pipeline;
     using Routing;
     using Routing.MessageDrivenSubscriptions;
