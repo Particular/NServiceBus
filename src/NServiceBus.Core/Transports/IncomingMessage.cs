@@ -95,16 +95,24 @@ namespace NServiceBus.Transport
         /// </summary>
         internal void UpdateBody(byte[] updatedBody)
         {
-            throw new NotSupportedException("Currently not supported to Update the body");
-            // Fix this???
             //preserve the original body if needed
-            //if (Body != null && originalBody == null)
-            //{
-            //    originalBody = new byte[Body.Length];
-            //    Buffer.BlockCopy(Body, 0, originalBody, 0, Body.Length);
-            //}
+            if (originalBody == null)
+            {
+                if (Body != null)
+                {
+                    originalBody = new byte[Body.Length];
+                    Buffer.BlockCopy(Body, 0, originalBody, 0, Body.Length);
+                }
 
-            //Body = updatedBody;
+                if (BodySegment.Array != null)
+                {
+                    originalBody = new byte[BodySegment.Count];
+                    Buffer.BlockCopy(BodySegment.Array, BodySegment.Offset, originalBody, 0, BodySegment.Count);
+                }
+            }
+
+            Body = updatedBody;
+            BodySegment = default(ArraySegment<byte>);
         }
 
         /// <summary>
@@ -112,13 +120,13 @@ namespace NServiceBus.Transport
         /// </summary>
         internal void RevertToOriginalBodyIfNeeded()
         {
-            //if (originalBody != null)
-            //{
-            //    Body = originalBody;
-            //}
+            if (originalBody != null)
+            {
+                Body = originalBody;
+            }
         }
 
-        //byte[] originalBody;
+        byte[] originalBody;
 
         internal OutgoingMessage ToOutgoingMessage()
         {

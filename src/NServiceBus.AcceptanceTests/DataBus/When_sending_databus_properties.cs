@@ -15,13 +15,13 @@
             var payloadToSend = new byte[PayloadSize];
 
             var context = await Scenario.Define<Context>()
-                .WithEndpoint<Sender>(b => b.When(session => session.Send(new MyMessageWithLargePayload
-                {
-                    Payload = new DataBusProperty<byte[]>(payloadToSend)
-                })))
-                .WithEndpoint<Receiver>()
-                .Done(c => c.ReceivedPayload != null)
-                .Run();
+                    .WithEndpoint<Sender>(b => b.When(session => session.Send(new MyMessageWithLargePayload
+                    {
+                        Payload = new DataBusProperty<byte[]>(payloadToSend)
+                    })))
+                    .WithEndpoint<Receiver>()
+                    .Done(c => c.ReceivedPayload != null)
+                    .Run();
 
             Assert.AreEqual(payloadToSend, context.ReceivedPayload, "The large payload should be marshalled correctly using the databus");
         }
@@ -83,7 +83,7 @@
             }
         }
 
-        
+
         public class MyMessageWithLargePayload : ICommand
         {
             public DataBusProperty<byte[]> Payload { get; set; }
