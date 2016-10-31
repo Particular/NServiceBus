@@ -117,7 +117,7 @@
         }
 
         [Test, RunInApplicationDomain]
-        [Explicit]
+        //[Explicit]
         public void Assemblies_which_reference_older_nsb_version_are_included()
         {
             var busAssemblyV1 = new DynamicAssembly("Fake.NServiceBus.Core", version: new Version(1, 0, 0), fakeIdentity: true);
