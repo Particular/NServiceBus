@@ -42,8 +42,9 @@
                 {
                     var routing = c.UseTransport(r.GetTransportType()).Routing();
                     routing.DoNotEnforceBestPractices();
-                }, metadata => metadata.RegisterPublisherFor<MyEvent>(typeof(Endpoint)))
-                    .AddMapping<MyCommand>(typeof(Endpoint));
+                })
+                .AddMapping<MyEvent>(typeof(Endpoint))
+                .AddMapping<MyCommand>(typeof(Endpoint));
             }
 
             public class Handler : IHandleMessages<MyEvent>, IHandleMessages<MyCommand>

@@ -29,7 +29,8 @@ namespace NServiceBus.AcceptanceTests.BestPractices
         {
             public Endpoint()
             {
-                EndpointSetup<DefaultServer>(publisherMetadata: metadata => metadata.RegisterPublisherFor<MyEvent>(typeof(Endpoint)))
+                EndpointSetup<DefaultServer>()
+                    .AddMapping<MyEvent>(typeof(Endpoint))
                     .AddMapping<MyCommand>(typeof(Endpoint));
             }
 
