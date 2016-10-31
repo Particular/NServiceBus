@@ -101,29 +101,29 @@ namespace NServiceBus
 
             var purgeOnStartup = settings.GetOrDefault<bool>("Transport.PurgeOnStartup");
             var errorQueue = settings.ErrorQueueAddress();
-            var dequeueLimitations = GeDequeueLimitationsForReceivePipeline();
             var requiredTransactionSupport = settings.GetRequiredTransactionModeForReceives();
             var recoverabilityExecutorFactory = builder.Build<RecoverabilityExecutorFactory>();
 
-            var receivers = BuildMainReceivers(errorQueue, purgeOnStartup, requiredTransactionSupport, dequeueLimitations, recoverabilityExecutorFactory, mainPipeline);
+            var receivers = BuildMainReceivers(errorQueue, purgeOnStartup, requiredTransactionSupport, recoverabilityExecutorFactory, mainPipeline);
 
             foreach (var satellitePipeline in settings.Get<SatelliteDefinitions>().Definitions)
             {
                 var satelliteRecoverabilityExecutor = recoverabilityExecutorFactory.Create(satellitePipeline.RecoverabilityPolicy, eventAggregator, satellitePipeline.ReceiveAddress);
                 var satellitePushSettings = new PushSettings(satellitePipeline.ReceiveAddress, errorQueue, purgeOnStartup, satellitePipeline.RequiredTransportTransactionMode);
 
-                receivers.Add(new TransportReceiver(satellitePipeline.Name, builder.Build<IPushMessages>(), satellitePushSettings, dequeueLimitations, new SatellitePipelineExecutor(builder, satellitePipeline), satelliteRecoverabilityExecutor, criticalError));
+                receivers.Add(new TransportReceiver(satellitePipeline.Name, builder.Build<IPushMessages>(), satellitePushSettings, satellitePipeline.RuntimeSettings, new SatellitePipelineExecutor(builder, satellitePipeline), satelliteRecoverabilityExecutor, criticalError));
             }
 
             return receivers;
         }
 
-        List<TransportReceiver> BuildMainReceivers(string errorQueue, bool purgeOnStartup, TransportTransactionMode requiredTransactionSupport, PushRuntimeSettings dequeueLimitations, RecoverabilityExecutorFactory recoverabilityExecutorFactory, IPipeline<ITransportReceiveContext> mainPipeline)
+        List<TransportReceiver> BuildMainReceivers(string errorQueue, bool purgeOnStartup, TransportTransactionMode requiredTransactionSupport, RecoverabilityExecutorFactory recoverabilityExecutorFactory, IPipeline<ITransportReceiveContext> mainPipeline)
         {
             var localAddress = settings.LocalAddress();
             var recoverabilityExecutor = recoverabilityExecutorFactory.CreateDefault(eventAggregator, localAddress);
             var pushSettings = new PushSettings(settings.LocalAddress(), errorQueue, purgeOnStartup, requiredTransactionSupport);
             var mainPipelineExecutor = new MainPipelineExecutor(builder, eventAggregator, pipelineCache, mainPipeline);
+            var dequeueLimitations = GetDequeueLimitationsForReceivePipeline();
 
             var receivers = new List<TransportReceiver>();
 
@@ -143,7 +143,7 @@ namespace NServiceBus
 
         //note: this should be handled in a feature but we don't have a good
         // extension point to plugin atm
-        PushRuntimeSettings GeDequeueLimitationsForReceivePipeline()
+        PushRuntimeSettings GetDequeueLimitationsForReceivePipeline()
         {
             var transportConfig = settings.GetConfigSection<TransportConfig>();
 

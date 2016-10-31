@@ -5,6 +5,7 @@
     using System.Linq;
     using System.Threading.Tasks;
     using AcceptanceTesting;
+    using AcceptanceTesting.Customization;
     using EndpointTemplates;
     using Extensibility;
     using NServiceBus.Routing;
@@ -36,14 +37,21 @@
 
         class FakeReceiver : IPushMessages
         {
+            PushSettings pushSettings;
+
             public Task Init(Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError, CriticalError criticalError, PushSettings settings)
             {
+                pushSettings = settings;
                 return Task.FromResult(0);
             }
 
             public void Start(PushRuntimeSettings limitations)
             {
-                Assert.AreEqual(10, limitations.MaxConcurrency);
+                // The LimitMessageProcessingConcurrencyTo setting only applies to the input queue
+                if (pushSettings.InputQueue == Conventions.EndpointNamingConvention(typeof(ThrottledEndpoint)))
+                {   
+                    Assert.AreEqual(10, limitations.MaxConcurrency);
+                }
             }
 
             public Task Stop()
