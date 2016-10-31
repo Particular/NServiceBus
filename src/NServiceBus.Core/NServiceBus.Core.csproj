@@ -100,6 +100,8 @@
     <Compile Include="Audit\AuditToDispatchConnector.cs" />
     <Compile Include="Audit\InvokeAuditPipelineBehavior.cs" />
     <Compile Include="DelayedDelivery\TimeoutManagerRoutingStrategy.cs" />
+    <Compile Include="DelayedDelivery\TimeoutManager\TimeoutManagerConfiguration.cs" />
+    <Compile Include="DelayedDelivery\TimeoutManager\TimeoutManagerConfigurationExtensions.cs" />
     <Compile Include="Features\SatelliteDefinitions.cs" />
     <Compile Include="Notifications.cs" />
     <Compile Include="Notifications\EventAggregator.cs" />
