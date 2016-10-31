@@ -16,7 +16,7 @@ namespace NServiceBus.Features
         internal MessageDrivenSubscriptions()
         {
             EnableByDefault();
-            DependsOn<RoutingFeature>(); // routing dependencies because of message driven pub/sub
+            DependsOn<RoutingFeature>();
             Defaults(s =>
             {
                 // s.SetDefault<Publishers>(new Publishers()); currently setup by RoutingFeature
