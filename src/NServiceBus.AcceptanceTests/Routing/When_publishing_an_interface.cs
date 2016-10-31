@@ -80,8 +80,8 @@
         {
             public Subscriber()
             {
-                EndpointSetup<DefaultServer>(c => c.DisableFeature<AutoSubscribe>())
-                    .AddMapping<MyEvent>(typeof(Publisher));
+                EndpointSetup<DefaultServer>(c => c.DisableFeature<AutoSubscribe>(),
+                           metadata => metadata.RegisterPublisherFor<MyEvent>(typeof(Publisher)));
             }
 
             public class MyEventHandler : IHandleMessages<MyEvent>

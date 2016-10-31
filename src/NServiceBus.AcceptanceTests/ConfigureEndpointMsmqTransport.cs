@@ -27,7 +27,7 @@ public class ConfigureEndpointMsmqTransport : IConfigureEndpointTestExecution
         var transportConfig = configuration.UseTransport<MsmqTransport>();
 
         transportConfig.ConnectionString(connectionString);
-        
+
         foreach (var publisher in publisherMetadata.Publishers)
         {
             foreach (var eventType in publisher.Events)

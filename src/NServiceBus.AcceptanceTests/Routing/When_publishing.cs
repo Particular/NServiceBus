@@ -137,8 +137,8 @@
         {
             public Subscriber3()
             {
-                EndpointSetup<DefaultServer>(c => c.DisableFeature<AutoSubscribe>())
-                    .AddMapping<IFoo>(typeof(Publisher3));
+                EndpointSetup<DefaultServer>(c => c.DisableFeature<AutoSubscribe>(),
+                    metadata => metadata.RegisterPublisherFor<IFoo>(typeof(Publisher3)));
             }
 
             public class MyEventHandler : IHandleMessages<IFoo>
@@ -157,8 +157,8 @@
         {
             public Subscriber1()
             {
-                EndpointSetup<DefaultServer>(c => c.DisableFeature<AutoSubscribe>())
-                    .AddMapping<MyEvent>(typeof(Publisher));
+                EndpointSetup<DefaultServer>(c => c.DisableFeature<AutoSubscribe>(),
+                     metadata => metadata.RegisterPublisherFor<MyEvent>(typeof(Publisher)));
             }
 
             public class MyEventHandler : IHandleMessages<MyEvent>
@@ -178,8 +178,8 @@
         {
             public Subscriber2()
             {
-                EndpointSetup<DefaultServer>(c => c.DisableFeature<AutoSubscribe>())
-                    .AddMapping<MyEvent>(typeof(Publisher));
+                EndpointSetup<DefaultServer>(c => c.DisableFeature<AutoSubscribe>(),
+                    metadata => metadata.RegisterPublisherFor<MyEvent>(typeof(Publisher)));
             }
 
             public class MyEventHandler : IHandleMessages<MyEvent>
@@ -198,7 +198,7 @@
         {
         }
 
-        
+
         public class MyEvent : IEvent
         {
         }

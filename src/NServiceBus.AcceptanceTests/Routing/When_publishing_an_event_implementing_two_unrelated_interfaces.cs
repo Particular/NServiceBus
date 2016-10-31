@@ -79,17 +79,20 @@
             public Subscriber()
             {
                 EndpointSetup<DefaultServer>(c =>
-                {
-                    c.Conventions().DefiningMessagesAs(t => t != typeof(CompositeEvent) && typeof(IMessage).IsAssignableFrom(t) &&
-                                                            typeof(IMessage) != t &&
-                                                            typeof(IEvent) != t &&
-                                                            typeof(ICommand) != t);
+                    {
+                        c.Conventions().DefiningMessagesAs(t => t != typeof(CompositeEvent) && typeof(IMessage).IsAssignableFrom(t) &&
+                                                                typeof(IMessage) != t &&
+                                                                typeof(IEvent) != t &&
+                                                                typeof(ICommand) != t);
 
-                    c.Conventions().DefiningEventsAs(t => t != typeof(CompositeEvent) && typeof(IEvent).IsAssignableFrom(t) && typeof(IEvent) != t);
-                    c.DisableFeature<AutoSubscribe>();
-                })
-                    .AddMapping<IEventA>(typeof(Publisher))
-                    .AddMapping<IEventB>(typeof(Publisher));
+                        c.Conventions().DefiningEventsAs(t => t != typeof(CompositeEvent) && typeof(IEvent).IsAssignableFrom(t) && typeof(IEvent) != t);
+                        c.DisableFeature<AutoSubscribe>();
+                    },
+                    metadata =>
+                    {
+                        metadata.RegisterPublisherFor<IEventA>(typeof(Publisher));
+                        metadata.RegisterPublisherFor<IEventB>(typeof(Publisher));
+                    });
             }
 
             public class EventAHandler : IHandleMessages<IEventA>

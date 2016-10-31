@@ -58,9 +58,8 @@
                 EndpointSetup<DefaultServer>(builder =>
                 {
                     builder.DisableFeature<AutoSubscribe>();
-                    //builder.OverrideLocalAddress("myInputQueue"); Fix in 133
-                })
-                    .AddMapping<MyEvent>(typeof(Publisher));
+                },
+                metadata => metadata.RegisterPublisherFor<MyEvent>(typeof(Publisher)));
             }
 
             public class MyEventHandler : IHandleMessages<MyEvent>
