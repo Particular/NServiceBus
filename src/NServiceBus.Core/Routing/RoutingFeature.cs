@@ -18,7 +18,7 @@
                 s.SetDefault<EndpointInstances>(new EndpointInstances());
                 s.SetDefault<DistributionPolicy>(new DistributionPolicy());
 
-                s.SetDefault<Publishers>(new Publishers()); // required to initialize MessageEndpointMappings. Also initialized in PublishSubscribeFeature.
+                s.SetDefault<Publishers>(new Publishers()); // required to initialize MessageEndpointMappings.
             });
         }
 

@@ -11,13 +11,11 @@ namespace NServiceBus.Features
         public PublishSubscribeFeature()
         {
             EnableByDefault();
+            DependsOn<RoutingFeature>(); // routing dependencies because of message driven pub/sub
             Defaults(s =>
             {
-                s.SetDefault<Publishers>(new Publishers());
+                // s.SetDefault<Publishers>(new Publishers()); currently setup by RoutingFeature
                 s.SetDefault<ConfiguredPublishers>(new ConfiguredPublishers());
-
-                s.SetDefault<EndpointInstances>(new EndpointInstances());
-                s.SetDefault<DistributionPolicy>(new DistributionPolicy());
             });
         }
 
