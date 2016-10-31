@@ -227,7 +227,7 @@
 
                 var result = provider.CompileAssemblyFromSource(param, builder.ToString());
                 ThrowIfCompilationWasNotSuccessful(result);
-                Assembly = result.CompiledAssembly;
+
                 provider.Dispose();
 
                 if (fakeIdentity)
@@ -237,6 +237,8 @@
                     reader.MainModule.Name = nameWithoutExtension;
                     reader.Write(FilePath);
                 }
+
+                Assembly = result.CompiledAssembly;
             }
 
             public string Namespace { get; }
