@@ -34,10 +34,7 @@ namespace NServiceBus
             {
                 throw new Exception($"Cannot configure publisher for type '{messageType.FullName}' because it is not considered a message. Message types have to either implement NServiceBus.IMessage interface or match a defined message convention.");
             }
-            if (conventions.IsCommandType(messageType))
-            {
-                throw new Exception($"Cannot configure publisher for type '{messageType.FullName}' because it is a command.");
-            }
+
             yield return new PublisherTableEntry(messageType, address);
         }
 

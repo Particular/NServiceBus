@@ -18,7 +18,7 @@
         /// Persistence must call configuration.UsePersistence&lt;T&gt;(). </param>
         /// <param name="publisherMetadata">Metadata about publishers and the events they own.</param>
         /// <returns>An async Task.</returns>
-        Task Configure(string endpointName, EndpointConfiguration configuration, RunSettings settings,PublisherMetadata publisherMetadata);
+        Task Configure(string endpointName, EndpointConfiguration configuration, RunSettings settings, PublisherMetadata publisherMetadata);
 
         /// <summary>
         /// Gives the transport/persistence a chance to clean up after the test is complete. Implementations of this class may store

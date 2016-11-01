@@ -30,12 +30,12 @@
             public Endpoint()
             {
                 EndpointSetup<DefaultServer>((c, r) =>
-                {
-                    var routing = c.UseTransport(r.GetTransportType()).Routing();
-                    routing.DoNotEnforceBestPractices();
-                })
-                .AddMapping<MyEvent>(typeof(Endpoint))
-                .AddMapping<MyCommand>(typeof(Endpoint));
+                        {
+                            var routing = c.UseTransport(r.GetTransportType()).Routing();
+                            routing.DoNotEnforceBestPractices();
+                        },
+                        metadata => metadata.RegisterPublisherFor<MyCommand>(typeof(Endpoint)))
+                    .AddMapping<MyEvent>(typeof(Endpoint));
             }
 
             public class Handler : IHandleMessages<MyEvent>, IHandleMessages<MyCommand>

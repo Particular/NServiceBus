@@ -28,18 +28,12 @@
         {
             public Endpoint()
             {
-                EndpointSetup<DefaultServer>(publisherMetadata: metadata => metadata.RegisterPublisherFor<MyEvent>(typeof(Endpoint)))
-                    .AddMapping<MyCommand>(typeof(Endpoint));
+                EndpointSetup<DefaultServer>(publisherMetadata: metadata => metadata.RegisterPublisherFor<MyCommand>(typeof(Endpoint)));
             }
 
-            public class Handler : IHandleMessages<MyEvent>, IHandleMessages<MyCommand>
+            public class Handler : IHandleMessages<MyCommand>
             {
                 public Task Handle(MyCommand message, IMessageHandlerContext context)
-                {
-                    return Task.FromResult(0);
-                }
-
-                public Task Handle(MyEvent message, IMessageHandlerContext context)
                 {
                     return Task.FromResult(0);
                 }
@@ -47,10 +41,6 @@
         }
 
         public class MyCommand : ICommand
-        {
-        }
-
-        public class MyEvent : IEvent
         {
         }
     }
