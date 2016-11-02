@@ -29,18 +29,22 @@ namespace NServiceBus.Hosting.Helpers
         {
             ThrowExceptions = true;
             this.baseDirectoryToScan = baseDirectoryToScan;
+            CoreAssemblyName = NServicebusCoreAssemblyName;
         }
 
         internal AssemblyScanner(Assembly assemblyToScan)
         {
             this.assemblyToScan = assemblyToScan;
             ThrowExceptions = true;
+            CoreAssemblyName = NServicebusCoreAssemblyName;
         }
 
         /// <summary>
         /// Determines if the scanner should throw exceptions or not.
         /// </summary>
         public bool ThrowExceptions { get; set; }
+
+        internal string CoreAssemblyName { get; set; }
 
         /// <summary>
         /// Traverses the specified base directory including all sub-directories, generating a list of assemblies that can be
@@ -129,7 +133,7 @@ namespace NServiceBus.Hosting.Helpers
 
             try
             {
-                if (!ReferencesNServiceBus(assemblyPath))
+                if (!ReferencesNServiceBus(assemblyPath, CoreAssemblyName))
                 {
                     var skippedFile = new SkippedFile(assemblyPath, "Assembly does not reference at least one of the must referenced assemblies.");
                     results.SkippedFiles.Add(skippedFile);
@@ -150,7 +154,7 @@ namespace NServiceBus.Hosting.Helpers
                     return;
                 }
             }
-            catch (BadImageFormatException ex)
+            catch (Exception ex) when (ex is BadImageFormatException || ex is FileLoadException)
             {
                 assembly = null;
                 results.ErrorsThrownDuringScanning = true;
@@ -321,22 +325,22 @@ namespace NServiceBus.Hosting.Helpers
             return fileInfo;
         }
 
-        internal static bool ReferencesNServiceBus(string assemblyPath)
+        internal static bool ReferencesNServiceBus(string assemblyPath, string coreAssemblyName = NServicebusCoreAssemblyName)
         {
             var assembly = Assembly.ReflectionOnlyLoadFrom(assemblyPath);
             //TODO: should we seed the results with NServiceBus.Core.dll?
-            if (assembly.GetName().Name == "NServiceBus.Core")
+            if (assembly.GetName().Name == coreAssemblyName)
             {
                 return true;
             }
-            return ReferencesNServiceBus(assembly, new List<AssemblyName>());
+            return ReferencesNServiceBus(assembly, coreAssemblyName, new List<AssemblyName>());
         }
 
-        static bool ReferencesNServiceBus(Assembly assembly, List<AssemblyName> processed)
+        static bool ReferencesNServiceBus(Assembly assembly, string coreAssemblyName, List<AssemblyName> processed)
         {
             foreach (var assemblyName in assembly.GetReferencedAssemblies())
             {
-                if (assemblyName.Name == "NServiceBus.Core")
+                if (assemblyName.Name == coreAssemblyName)
                 {
                     return true;
                 }
@@ -351,7 +355,7 @@ namespace NServiceBus.Hosting.Helpers
                 {
                     continue;
                 }
-                //We need to do a ApplyPolicy, and use the result, so as to respect the current binding redirects 
+                //We need to do a ApplyPolicy, and use the result, so as to respect the current binding redirects
                 var afterPolicyName = AppDomain.CurrentDomain.ApplyPolicy(assemblyName.FullName);
                 Assembly refAssembly;
                 try
@@ -366,7 +370,7 @@ namespace NServiceBus.Hosting.Helpers
                 {
                     continue;
                 }
-                if (ReferencesNServiceBus(refAssembly, processed))
+                if (ReferencesNServiceBus(refAssembly, coreAssemblyName, processed))
                 {
                     return true;
                 }
@@ -419,8 +423,9 @@ namespace NServiceBus.Hosting.Helpers
         internal List<Type> TypesToSkip = new List<Type>();
         Assembly assemblyToScan;
         string baseDirectoryToScan;
+        const string NServicebusCoreAssemblyName = "NServiceBus.Core";
 
-        internal static string[] FileSearchPatternsToUse =
+        static string[] FileSearchPatternsToUse =
         {
             "*.dll",
             "*.exe"
