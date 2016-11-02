@@ -1,0 +1,7 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<endpoints>
+  <endpoint name="endpointB">
+    <instance discriminator="1"/>
+    <instance discriminator="2"/>
+  </endpoint>
+</endpoints>
