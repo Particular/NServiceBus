@@ -5,7 +5,6 @@ namespace NServiceBus
     using System.Net.Http;
     using System.Text;
     using System.Threading;
-    using System.Threading.Tasks;
     using System.Windows.Forms;
     using Logging;
     using Microsoft.Win32;
@@ -28,9 +27,12 @@ namespace NServiceBus
 
             if (string.IsNullOrWhiteSpace(licenseText))
             {
-                if (FirstTimeUser() && (Debugger.IsAttached && SystemInformation.UserInteractive))
+                if (FirstTimeUser())
                 {
-                    TrackFirstTimeUsageEvent();
+                    if (Debugger.IsAttached && SystemInformation.UserInteractive)
+                    {
+                        TrackFirstTimeUsageEvent();
+                    }
                     SetupFirstTimeRegistryKeys();
                 }
                 license = GetTrialLicense();
@@ -97,7 +99,7 @@ namespace NServiceBus
             var version = FileVersionRetriever.GetFileVersion(GetType());
 
             // Report first time usage metric
-            Logger.InfoFormat("Reporting first time usage and version information to www.particular.net. For more information, see: http://particular.net/licenseagreement. The first time usage is a one time tracking event. This code will not be executed in production servers. It is executed only once for the first time when run in an interactive debugging mode.");
+            Logger.InfoFormat("Reporting first time usage and version information to www.particular.net.  Particular.net does not collect any personal information. For more details, see the License Agreement and the Privacy Policy available here: http://particular.net/licenseagreement.  This call will NOT be executed in production servers. It is executed only once for the first time, only when run in an interactive debugging mode.");
             const string webApiUrl = "https://particular.net/api/ReportFirstTimeUsage";
             var postData = $"version={version}";
             try
