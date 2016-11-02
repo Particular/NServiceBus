@@ -88,8 +88,10 @@ namespace NServiceBus
             return false;
         }
 
-
-        void TrackFirstTimeUsageEvent()
+        /// <summary>
+        /// Adding the async void to explicitly have a fire and forget model for invoking the web api.
+        /// </summary>
+        async void TrackFirstTimeUsageEvent()
         {
             // Get the current version of NServiceBus that's being used
             var version = FileVersionRetriever.GetFileVersion(GetType());
@@ -104,12 +106,14 @@ namespace NServiceBus
                 {
                     Content = new StringContent(postData, Encoding.UTF8, "application/x-www-form-urlencoded")
                 };
-                httpClient.SendAsync(request).ContinueWith(t => Logger.WarnFormat("Could not report first time usage statistics to www.particular.net"),
-                    TaskContinuationOptions.OnlyOnFaulted);
+
+                var response = await httpClient.SendAsync(request).ConfigureAwait(false);
+                response.EnsureSuccessStatusCode();
             }
             catch (Exception ex)
             {
-                Logger.Error("Could not report first time usage statistics to www.particular.net", ex);
+                // For the end-user, this is not really an error that affects them. 
+                Logger.InfoFormat("Could not report first time usage statistics to www.particular.net: {0}", ex);
             }
         }
 
