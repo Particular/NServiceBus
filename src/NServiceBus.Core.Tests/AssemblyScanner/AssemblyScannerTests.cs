@@ -2,6 +2,7 @@
 {
     using System;
     using System.CodeDom.Compiler;
+    using System.Collections.Generic;
     using System.Diagnostics;
     using System.IO;
     using System.Reflection;
@@ -58,14 +59,14 @@
         public void ReferencesNServiceBus_requires_binding_redirect()
         {
             var combine = Path.Combine(TestContext.CurrentContext.TestDirectory, "TestDlls", "AssemblyWithRefToSN.dll");
-            Assert.IsTrue(AssemblyScanner.ReferencesNServiceBus(combine));
+            Assert.IsTrue(AssemblyScanner.ReferencesNServiceBus(combine, new Dictionary<string, bool>()));
         }
 
         [Test]
         public void ReferencesNServiceBus_returns_false_for_no_reference()
         {
             var combine = Path.Combine(TestContext.CurrentContext.TestDirectory, "TestDlls", "dotNet.dll");
-            Assert.IsFalse(AssemblyScanner.ReferencesNServiceBus(combine));
+            Assert.IsFalse(AssemblyScanner.ReferencesNServiceBus(combine, new Dictionary<string, bool>()));
         }
 
         [Test, RunInApplicationDomain]

@@ -55,17 +55,18 @@ namespace NServiceBus.Hosting.Helpers
         public AssemblyScannerResults GetScannableAssemblies()
         {
             var results = new AssemblyScannerResults();
+            var processed = new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase);
 
             if (assemblyToScan != null)
             {
                 var assemblyPath = AssemblyPath(assemblyToScan);
-                ScanAssembly(assemblyPath, results);
+                ScanAssembly(assemblyPath, results, processed);
                 return results;
             }
 
             foreach (var assemblyFile in ScanDirectoryForAssemblyFiles(baseDirectoryToScan, ScanNestedDirectories))
             {
-                ScanAssembly(assemblyFile.FullName, results);
+                ScanAssembly(assemblyFile.FullName, results, processed);
             }
 
             // This extra step is to ensure unobtrusive message types are included in the Types list.
@@ -105,7 +106,7 @@ namespace NServiceBus.Hosting.Helpers
             return Uri.UnescapeDataString(uri.Path).Replace('/', '\\');
         }
 
-        void ScanAssembly(string assemblyPath, AssemblyScannerResults results)
+        void ScanAssembly(string assemblyPath, AssemblyScannerResults results, Dictionary<string, bool> processed)
         {
             Assembly assembly;
 
@@ -133,16 +134,9 @@ namespace NServiceBus.Hosting.Helpers
 
             try
             {
-                if (!ReferencesNServiceBus(assemblyPath, CoreAssemblyName))
+                if (!ReferencesNServiceBus(assemblyPath, processed, CoreAssemblyName))
                 {
                     var skippedFile = new SkippedFile(assemblyPath, "Assembly does not reference at least one of the must referenced assemblies.");
-                    results.SkippedFiles.Add(skippedFile);
-                    return;
-                }
-
-                if (IsRuntimeAssembly(assemblyPath))
-                {
-                    var skippedFile = new SkippedFile(assemblyPath, "Assembly .net runtime assembly.");
                     results.SkippedFiles.Add(skippedFile);
                     return;
                 }
@@ -325,38 +319,52 @@ namespace NServiceBus.Hosting.Helpers
             return fileInfo;
         }
 
-        internal static bool ReferencesNServiceBus(string assemblyPath, string coreAssemblyName = NServicebusCoreAssemblyName)
+        internal static bool ReferencesNServiceBus(string assemblyPath, Dictionary<string, bool> processed, string coreAssemblyName = NServicebusCoreAssemblyName)
         {
             var assembly = Assembly.ReflectionOnlyLoadFrom(assemblyPath);
-            //TODO: should we seed the results with NServiceBus.Core.dll?
             if (assembly.GetName().Name == coreAssemblyName)
             {
                 return true;
             }
-            return ReferencesNServiceBus(assembly, coreAssemblyName, new List<AssemblyName>());
+            return ReferencesNServiceBus(assembly, coreAssemblyName, processed);
         }
 
-        static bool ReferencesNServiceBus(Assembly assembly, string coreAssemblyName, List<AssemblyName> processed)
+        static bool ReferencesNServiceBus(Assembly assembly, string coreAssemblyName, Dictionary<string, bool> processed)
         {
+            var name = assembly.GetName().FullName;
+            if (processed.ContainsKey(name))
+            {
+                return processed[name];
+            }
+
             foreach (var assemblyName in assembly.GetReferencedAssemblies())
             {
+                bool referencesCore;
+                var assemblyNameFullName = assemblyName.FullName;
+                if (processed.TryGetValue(assemblyNameFullName, out referencesCore))
+                {
+                    if (referencesCore)
+                    {
+                        processed[name] = true;
+                        break;
+                    }
+
+                    continue;
+                }
+
                 if (assemblyName.Name == coreAssemblyName)
                 {
+                    processed[assemblyNameFullName] = true;
                     return true;
                 }
 
-                if (processed.Any(x => x.FullName == assemblyName.FullName))
-                {
-                    continue;
-                }
-                processed.Add(assemblyName);
-
                 if (IsRuntimeAssembly(assemblyName))
                 {
+                    processed[assemblyNameFullName] = false;
                     continue;
                 }
                 //We need to do a ApplyPolicy, and use the result, so as to respect the current binding redirects
-                var afterPolicyName = AppDomain.CurrentDomain.ApplyPolicy(assemblyName.FullName);
+                var afterPolicyName = AppDomain.CurrentDomain.ApplyPolicy(assemblyNameFullName);
                 Assembly refAssembly;
                 try
                 {
@@ -364,18 +372,21 @@ namespace NServiceBus.Hosting.Helpers
                 }
                 catch (FileNotFoundException)
                 {
+                    processed[assemblyNameFullName] = false;
                     continue;
                 }
                 catch (FileLoadException)
                 {
+                    processed[assemblyNameFullName] = false;
                     continue;
                 }
                 if (ReferencesNServiceBus(refAssembly, coreAssemblyName, processed))
                 {
+                    processed[assemblyNameFullName] = true;
                     return true;
                 }
             }
-            return false;
+            return processed.ContainsKey(name) && processed[name];
         }
 
         bool IsIncluded(string assemblyNameOrFileName)
