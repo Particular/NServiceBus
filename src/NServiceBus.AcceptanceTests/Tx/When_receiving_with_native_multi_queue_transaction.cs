@@ -75,12 +75,12 @@
             }
         }
 
-        
+
         public class MyMessage : ICommand
         {
         }
 
-        
+
         public class MessageHandledEvent : IMessage
         {
             public bool HasFailed { get; set; }

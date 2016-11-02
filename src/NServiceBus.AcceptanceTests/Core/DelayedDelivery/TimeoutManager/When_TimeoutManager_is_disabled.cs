@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.AcceptanceTests.DelayedDelivery
+﻿namespace NServiceBus.AcceptanceTests.Core.DelayedDelivery.TimeoutManager
 {
     using System;
     using System.Threading.Tasks;
