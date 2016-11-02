@@ -4,13 +4,14 @@
     using AcceptanceTesting;
     using EndpointTemplates;
     using NUnit.Framework;
+    using ScenarioDescriptors;
 
     public class When_publishing_command_bestpractices_disabled : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Should_allow_publishing_commands()
+        public Task Should_allow_publishing_commands()
         {
-            var context = await Scenario.Define<ScenarioContext>()
+            return Scenario.Define<ScenarioContext>()
                 .WithEndpoint<Endpoint>(b => b.When((session, c) =>
                 {
                     var publishOptions = new PublishOptions();
@@ -19,16 +20,22 @@
                     return session.Publish(new MyCommand(), publishOptions);
                 }))
                 .Done(c => c.EndpointsStarted)
+                // This test is only relevant for message driven transports since we need to use the mappings to
+                // configure the publisher. The code first API would blow up unless we turn of the checks for the entire endpoint.
+                // But if we do that turning of checks per message becomes pointless.
+                // We would need a new api to turn off startup checks only for this to be testable across the board.
+                .Repeat(r => r.For<AllTransportsWithMessageDrivenPubSub>())
+                .Should(c => Assert.True(c.EndpointsStarted))
                 .Run();
 
-            Assert.True(context.EndpointsStarted);
         }
 
         public class Endpoint : EndpointConfigurationBuilder
         {
             public Endpoint()
             {
-                EndpointSetup<DefaultServer>(publisherMetadata: metadata => metadata.RegisterPublisherFor<MyCommand>(typeof(Endpoint)));
+                EndpointSetup<DefaultServer>()
+                    .AddMapping<MyCommand>(typeof(Endpoint));
             }
 
             public class Handler : IHandleMessages<MyCommand>
