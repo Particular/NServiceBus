@@ -4,7 +4,6 @@
     using System.CodeDom.Compiler;
     using System.Diagnostics;
     using System.IO;
-    using System.Linq;
     using System.Reflection;
     using System.Text;
     using System.Threading;
@@ -33,7 +32,19 @@
         [SetUp]
         public void SetUp()
         {
-            Directory.Delete(DynamicAssembly.TestAssemblyDirectory, true);
+            if (!AppDomainRunner.IsInTestAppDomain)
+            {
+                Directory.Delete(DynamicAssembly.TestAssemblyDirectory, true);
+            }
+        }
+
+        [TearDown]
+        public void TearDown()
+        {
+            if (!AppDomainRunner.IsInTestAppDomain)
+            {
+                Directory.Delete(DynamicAssembly.TestAssemblyDirectory, true);
+            }
         }
 
         [Test]
@@ -65,7 +76,7 @@
             Assert.IsFalse(AssemblyScanner.ReferencesNServiceBus(combine));
         }
 
-        [Test]
+        [Test, RunInApplicationDomain]
         public void Assemblies_with_direct_reference_are_included()
         {
             var busAssembly = new DynamicAssembly("Fake.NServiceBus.Core.dll");
@@ -74,20 +85,17 @@
                 busAssembly
             });
 
-            using (var dynamicDirectory = new DynamicAssemblyDirectory(busAssembly, assemblyWithReference))
-            {
-                var scanner = new AssemblyScanner(dynamicDirectory);
-                scanner.CoreAssemblyName = busAssembly.DynamicName;
+            var scanner = new AssemblyScanner(DynamicAssembly.TestAssemblyDirectory);
+            scanner.CoreAssemblyName = busAssembly.DynamicName;
 
-                var result = scanner.GetScannableAssemblies();
+            var result = scanner.GetScannableAssemblies();
 
-                Assert.AreEqual(2, result.Assemblies.Count);
-                Assert.IsTrue(result.Assemblies.Contains(assemblyWithReference));
-                Assert.IsTrue(result.Assemblies.Contains(busAssembly));
-            }
+            Assert.AreEqual(2, result.Assemblies.Count);
+            Assert.IsTrue(result.Assemblies.Contains(assemblyWithReference));
+            Assert.IsTrue(result.Assemblies.Contains(busAssembly));
         }
 
-        [Test]
+        [Test, RunInApplicationDomain]
         public void Assemblies_with_no_reference_are_excluded()
         {
             var busAssembly = new DynamicAssembly("Fake.NServiceBus.Core");
@@ -97,22 +105,19 @@
             });
             var assemblyWithoutReference = new DynamicAssembly("AssemblyWithoutReference");
 
-            using (var dynamicDirectory = new DynamicAssemblyDirectory(busAssembly, assemblyWithReference, assemblyWithoutReference))
-            {
-                var scanner = new AssemblyScanner(dynamicDirectory);
-                scanner.CoreAssemblyName = busAssembly.DynamicName;
+            var scanner = new AssemblyScanner(DynamicAssembly.TestAssemblyDirectory);
+            scanner.CoreAssemblyName = busAssembly.DynamicName;
 
-                var result = scanner.GetScannableAssemblies();
+            var result = scanner.GetScannableAssemblies();
 
-                Assert.AreEqual(2, result.Assemblies.Count);
-                Assert.IsTrue(result.Assemblies.Contains(assemblyWithReference));
-                Assert.IsTrue(result.Assemblies.Contains(busAssembly));
-                Assert.IsFalse(result.Assemblies.Contains(assemblyWithoutReference));
-            }
+            Assert.AreEqual(2, result.Assemblies.Count);
+            Assert.IsTrue(result.Assemblies.Contains(assemblyWithReference));
+            Assert.IsTrue(result.Assemblies.Contains(busAssembly));
+            Assert.IsFalse(result.Assemblies.Contains(assemblyWithoutReference));
         }
 
-        [Test]
-        [Explicit]
+        [Test, RunInApplicationDomain]
+        //[Explicit]
         public void Assemblies_which_reference_older_nsb_version_are_included()
         {
             var busAssemblyV1 = new DynamicAssembly("Fake.NServiceBus.Core", version: new Version(1, 0, 0), fakeIdentity: true);
@@ -126,21 +131,18 @@
                 busAssemblyV2
             });
 
-            using (var dynamicDirectory = new DynamicAssemblyDirectory(busAssemblyV1, busAssemblyV2, assemblyReferencesV1, assemblyReferencesV2))
-            {
-                var scanner = new AssemblyScanner(dynamicDirectory);
-                scanner.ThrowExceptions = false;
-                scanner.CoreAssemblyName = busAssemblyV2.Name;
+            var scanner = new AssemblyScanner(DynamicAssembly.TestAssemblyDirectory);
+            scanner.ThrowExceptions = false;
+            scanner.CoreAssemblyName = busAssemblyV2.Name;
 
-                var result = scanner.GetScannableAssemblies();
+            var result = scanner.GetScannableAssemblies();
 
-                Assert.AreEqual(4, result.Assemblies.Count);
-                Assert.IsTrue(result.Assemblies.Contains(assemblyReferencesV1));
-                Assert.IsTrue(result.Assemblies.Contains(assemblyReferencesV2));
-            }
+            Assert.AreEqual(4, result.Assemblies.Count);
+            Assert.IsTrue(result.Assemblies.Contains(assemblyReferencesV1));
+            Assert.IsTrue(result.Assemblies.Contains(assemblyReferencesV2));
         }
 
-        [Test]
+        [Test, RunInApplicationDomain]
         public void Assemblies_with_transitive_reference_are_include()
         {
             var busAssembly = new DynamicAssembly("Fake.NServiceBus.Core");
@@ -161,49 +163,20 @@
                 assemblyB
             });
 
-            using (var dynamicDirectory = new DynamicAssemblyDirectory(assemblyA, assemblyB, assemblyC, assemblyD, busAssembly))
-            {
-                var scanner = new AssemblyScanner(dynamicDirectory);
-                scanner.CoreAssemblyName = busAssembly.DynamicName;
+            var scanner = new AssemblyScanner(DynamicAssembly.TestAssemblyDirectory);
+            scanner.CoreAssemblyName = busAssembly.DynamicName;
 
-                var result = scanner.GetScannableAssemblies();
+            var result = scanner.GetScannableAssemblies();
 
-                Assert.AreEqual(5, result.Assemblies.Count);
-                Assert.IsTrue(result.Assemblies.Contains(assemblyA));
-                Assert.IsTrue(result.Assemblies.Contains(assemblyB));
-                Assert.IsTrue(result.Assemblies.Contains(assemblyC));
-                Assert.IsTrue(result.Assemblies.Contains(assemblyD));
-            }
-        }
-
-        class DynamicAssemblyDirectory : IDisposable
-        {
-            public DynamicAssemblyDirectory(params DynamicAssembly[] assemblies)
-            {
-                dynamicAssemblies = assemblies;
-                Directory = assemblies.Select(a => Path.GetDirectoryName(a.FilePath)).Distinct().Single();
-            }
-
-            public string Directory { get; }
-
-            public void Dispose()
-            {
-                foreach (var dynamicAssembly in dynamicAssemblies)
-                {
-                    dynamicAssembly.Dispose();
-                }
-            }
-
-            public static implicit operator string(DynamicAssemblyDirectory directory)
-            {
-                return directory.Directory;
-            }
-
-            DynamicAssembly[] dynamicAssemblies;
+            Assert.AreEqual(5, result.Assemblies.Count);
+            Assert.IsTrue(result.Assemblies.Contains(assemblyA));
+            Assert.IsTrue(result.Assemblies.Contains(assemblyB));
+            Assert.IsTrue(result.Assemblies.Contains(assemblyC));
+            Assert.IsTrue(result.Assemblies.Contains(assemblyD));
         }
 
         [DebuggerDisplay("Name = {Name}, DynamicName = {DynamicName}, Namespace = {Namespace}, FileName = {FileName}")]
-        class DynamicAssembly : IDisposable
+        class DynamicAssembly
         {
             public DynamicAssembly(string nameWithoutExtension, DynamicAssembly[] references = null, Version version = null, bool fakeIdentity = false)
             {
@@ -253,7 +226,7 @@
 
                 var result = provider.CompileAssemblyFromSource(param, builder.ToString());
                 ThrowIfCompilationWasNotSuccessful(result);
-                Assembly = result.CompiledAssembly;
+
                 provider.Dispose();
 
                 if (fakeIdentity)
@@ -263,6 +236,8 @@
                     reader.MainModule.Name = nameWithoutExtension;
                     reader.Write(FilePath);
                 }
+
+                Assembly = result.CompiledAssembly;
             }
 
             public string Namespace { get; }
@@ -272,21 +247,10 @@
             public string DynamicName { get; }
 
             public string FileName { get; }
+
             public string FilePath { get; }
 
             public Assembly Assembly { get; }
-
-            public void Dispose()
-            {
-                try
-                {
-                    File.Delete(FilePath);
-                }
-                catch (Exception ex)
-                {
-                    Trace.Write(ex.Message);
-                }
-            }
 
             public static string TestAssemblyDirectory => GetTestAssemblyDirectory();
 
@@ -323,10 +287,7 @@
                 }
             }
 
-            public static implicit operator Assembly(DynamicAssembly dynamicAssembly)
-            {
-                return dynamicAssembly.Assembly;
-            }
+            public static implicit operator Assembly(DynamicAssembly dynamicAssembly) => dynamicAssembly.Assembly;
 
             static long dynamicAssemblyId;
         }
