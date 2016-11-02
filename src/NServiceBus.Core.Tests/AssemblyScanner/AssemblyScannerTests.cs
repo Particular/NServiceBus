@@ -41,7 +41,6 @@
             Assert.IsFalse(AssemblyScanner.IsRuntimeAssembly(GetType().Assembly.Location));
         }
 
-
         [Test]
         public void ReferencesNServiceBus_requires_binding_redirect()
         {
@@ -156,10 +155,17 @@
             Assert.AreEqual(5, result.Assemblies.Count);
         }
 
-        public static string GetTestAssemblyDirectory()
+        public static string GetTestAssemblyDirectory(string testPath = "TestDlls")
         {
             var directoryName = GetAssemblyDirectory();
-            return Path.Combine(directoryName, "TestDlls");
+            var directory = Path.Combine(directoryName, testPath);
+
+            if (!Directory.Exists(directory))
+            {
+                Directory.CreateDirectory(directory);
+            }
+
+            return directory;
         }
 
         static string GetAssemblyDirectory()
@@ -167,6 +173,7 @@
             var codeBase = Assembly.GetExecutingAssembly().CodeBase;
             var uri = new UriBuilder(codeBase);
             var path = Uri.UnescapeDataString(uri.Path);
+
             return Path.GetDirectoryName(path);
         }
 
@@ -255,26 +262,7 @@
 
             public Assembly Assembly { get; }
 
-            public static string TestAssemblyDirectory => GetTestAssemblyDirectory();
-
-            static string GetTestAssemblyDirectory()
-            {
-                var directoryName = GetAssemblyDirectory();
-                var directory = Path.Combine(directoryName, "assemblyscannerfiles");
-                if (!Directory.Exists(directory))
-                {
-                    Directory.CreateDirectory(directory);
-                }
-                return directory;
-            }
-
-            static string GetAssemblyDirectory()
-            {
-                var codeBase = Assembly.GetExecutingAssembly().CodeBase;
-                var uri = new UriBuilder(codeBase);
-                var path = Uri.UnescapeDataString(uri.Path);
-                return Path.GetDirectoryName(path);
-            }
+            public static string TestAssemblyDirectory => GetTestAssemblyDirectory("assemblyscannerfiles");
 
             static void ThrowIfCompilationWasNotSuccessful(CompilerResults results)
             {
