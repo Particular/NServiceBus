@@ -5,6 +5,6 @@ namespace NServiceBus
 
     interface IUnicastSendRouter
     {
-        UnicastRoutingStrategy Route(Type messageType, IDistributionPolicy distributionPolicy);
+        UnicastRoutingStrategy Route(Type messageType, Func<string, DistributionStrategyScope, DistributionStrategy> distributionPolicy);
     }
 }

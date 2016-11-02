@@ -7,7 +7,7 @@ namespace NServiceBus
     /// <summary>
     /// Configures distribution strategies.
     /// </summary>
-    public class DistributionPolicy : IDistributionPolicy
+    public class DistributionPolicy
     {
         /// <summary>
         /// Sets the distribution strategy for a given endpoint.
@@ -20,7 +20,12 @@ namespace NServiceBus
             configuredStrategies[Tuple.Create(distributionStrategy.Endpoint, distributionStrategy.Scope)] = distributionStrategy;
         }
 
-        DistributionStrategy IDistributionPolicy.GetDistributionStrategy(string endpointName, DistributionStrategyScope scope)
+        /// <summary>
+        /// Returns a distribution strategy for a given endpoint and scope.
+        /// </summary>
+        /// <param name="endpointName">Name of destination endpoint.</param>
+        /// <param name="scope">Scope of operation.</param>
+        public DistributionStrategy GetDistributionStrategy(string endpointName, DistributionStrategyScope scope)
         {
             return configuredStrategies.GetOrAdd(Tuple.Create(endpointName, scope), key => new SingleInstanceRoundRobinDistributionStrategy(key.Item1, key.Item2));
         }

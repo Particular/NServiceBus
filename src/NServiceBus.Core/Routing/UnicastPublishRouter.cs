@@ -18,7 +18,7 @@ namespace NServiceBus
             this.subscriptionStorage = subscriptionStorage;
         }
 
-        public async Task<IEnumerable<UnicastRoutingStrategy>> Route(Type messageType, IDistributionPolicy distributionPolicy, ContextBag contextBag)
+        public async Task<IEnumerable<UnicastRoutingStrategy>> Route(Type messageType, DistributionPolicy distributionPolicy, ContextBag contextBag)
         {
             var typesToRoute = messageMetadataRegistry.GetMessageMetadata(messageType).MessageHierarchy;
 
@@ -29,7 +29,7 @@ namespace NServiceBus
             return selectedDestinations.Select(destination => new UnicastRoutingStrategy(destination));
         }
 
-        HashSet<string> SelectDestinationsForEachEndpoint(IDistributionPolicy distributionPolicy, IEnumerable<Subscriber> subscribers)
+        HashSet<string> SelectDestinationsForEachEndpoint(DistributionPolicy distributionPolicy, IEnumerable<Subscriber> subscribers)
         {
             //Make sure we are sending only one to each transport destination. Might happen when there are multiple routing information sources.
             var addresses = new HashSet<string>();

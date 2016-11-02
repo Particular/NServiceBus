@@ -4,7 +4,7 @@ namespace NServiceBus
     using System.Linq;
     using Routing;
 
-    class SpecificInstanceDistributionPolicy : IDistributionPolicy
+    class SpecificInstanceDistributionPolicy
     {
         public SpecificInstanceDistributionPolicy(string discriminator, Func<EndpointInstance, string> transportAddressTranslation)
         {
