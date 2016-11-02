@@ -3,10 +3,9 @@ namespace NServiceBus
     using System;
     using System.Diagnostics;
     using System.Net.Http;
-    using System.Net.Http.Headers;
-    using System.Reflection;
     using System.Text;
     using System.Threading;
+    using System.Threading.Tasks;
     using System.Windows.Forms;
     using Logging;
     using Microsoft.Win32;
@@ -29,8 +28,7 @@ namespace NServiceBus
 
             if (string.IsNullOrWhiteSpace(licenseText))
             {
-                // Display the trial start dialog.
-                if (FirstTimeUser())
+                if (FirstTimeUser() && (Debugger.IsAttached && SystemInformation.UserInteractive))
                 {
                     TrackFirstTimeUsageEvent();
                     SetupFirstTimeRegistryKeys();
@@ -91,38 +89,31 @@ namespace NServiceBus
         }
 
 
-        private void TrackFirstTimeUsageEvent()
+        void TrackFirstTimeUsageEvent()
         {
             // Get the current version of NServiceBus that's being used
-            var assembly = Assembly.GetExecutingAssembly();
-            var version = assembly.GetName().Version.ToString();
+            var version = FileVersionRetriever.GetFileVersion(GetType());
 
-            if (assembly.Location != null)
-            {
-                version = FileVersionInfo.GetVersionInfo(assembly.Location).FileVersion;
-            }
-
+            // Report first time usage metric
+            Logger.InfoFormat("Reporting first time usage and version information to www.particular.net. For more information, see: http://particular.net/licenseagreement. The first time usage is a one time tracking event. This code will not be executed in production servers. It is executed only once for the first time when run in an interactive debugging mode.");
+            const string webApiUrl = "https://particular.net/api/ReportFirstTimeUsage";
+            var postData = $"version={version}";
             try
             {
-                var azureFuncUrl =
-                    "https://first-time-nuget-user.azurewebsites.net/api/TrackNewUser?code=1bkjzkbyeuf1ed46l87yom9529yu5ykzt81mjx65kgtmmv4pldiyxzvfprxf9s3xqxykf279cnmi";
-
-                var postData = $"{{\"version\":\"{version}\"}}";
-                var client = new HttpClient();
-                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-
-                var request = new HttpRequestMessage(HttpMethod.Post, azureFuncUrl);
-                request.Content = new StringContent(postData, Encoding.UTF8, "application/json");
-                var response = client.SendAsync(request).GetAwaiter().GetResult();
-                response.EnsureSuccessStatusCode();
+                var request = new HttpRequestMessage(HttpMethod.Post, webApiUrl)
+                {
+                    Content = new StringContent(postData, Encoding.UTF8, "application/x-www-form-urlencoded")
+                };
+                httpClient.SendAsync(request).ContinueWith(t => Logger.WarnFormat("Could not report first time usage statistics to www.particular.net"),
+                    TaskContinuationOptions.OnlyOnFaulted);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                Logger.WarnFormat("Could not report first time user stat to GoogleAnalytics.");
+                Logger.Error("Could not report first time usage statistics to www.particular.net", ex);
             }
         }
 
-        void SetupFirstTimeRegistryKeys()
+        static void SetupFirstTimeRegistryKeys()
         {
             var regRoot = Registry.CurrentUser.CreateSubKey(@"Software\ParticularSoftware");
             regRoot?.SetValue("NuGetUser", "true");
@@ -199,5 +190,6 @@ namespace NServiceBus
         License license;
 
         static ILog Logger = LogManager.GetLogger(typeof(LicenseManager));
+        static HttpClient httpClient = new HttpClient();
     }
 }
