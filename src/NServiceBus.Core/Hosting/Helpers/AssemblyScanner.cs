@@ -154,7 +154,7 @@ namespace NServiceBus.Hosting.Helpers
                     return;
                 }
             }
-            catch (Exception ex) when(ex is BadImageFormatException || ex is FileLoadException)
+            catch (Exception ex) when (ex is BadImageFormatException || ex is FileLoadException)
             {
                 assembly = null;
                 results.ErrorsThrownDuringScanning = true;
@@ -423,9 +423,9 @@ namespace NServiceBus.Hosting.Helpers
         internal List<Type> TypesToSkip = new List<Type>();
         Assembly assemblyToScan;
         string baseDirectoryToScan;
-        internal const string NServicebusCoreAssemblyName = "NServiceBus.Core";
+        const string NServicebusCoreAssemblyName = "NServiceBus.Core";
 
-        internal static string[] FileSearchPatternsToUse =
+        static string[] FileSearchPatternsToUse =
         {
             "*.dll",
             "*.exe"

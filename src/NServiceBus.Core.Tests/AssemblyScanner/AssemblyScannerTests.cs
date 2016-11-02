@@ -15,36 +15,16 @@
     [TestFixture]
     public class AssemblyScannerTests
     {
-        public static string GetTestAssemblyDirectory()
-        {
-            var directoryName = GetAssemblyDirectory();
-            return Path.Combine(directoryName, "TestDlls");
-        }
-
-        public static string GetAssemblyDirectory()
-        {
-            var codeBase = Assembly.GetExecutingAssembly().CodeBase;
-            var uri = new UriBuilder(codeBase);
-            var path = Uri.UnescapeDataString(uri.Path);
-            return Path.GetDirectoryName(path);
-        }
-
         [SetUp]
         public void SetUp()
         {
-            if (!AppDomainRunner.IsInTestAppDomain)
-            {
-                Directory.Delete(DynamicAssembly.TestAssemblyDirectory, true);
-            }
+            CleanupDynamicAssembliesIfNecessary();
         }
 
         [TearDown]
         public void TearDown()
         {
-            if (!AppDomainRunner.IsInTestAppDomain)
-            {
-                Directory.Delete(DynamicAssembly.TestAssemblyDirectory, true);
-            }
+            CleanupDynamicAssembliesIfNecessary();
         }
 
         [Test]
@@ -90,9 +70,9 @@
 
             var result = scanner.GetScannableAssemblies();
 
-            Assert.AreEqual(2, result.Assemblies.Count);
             Assert.IsTrue(result.Assemblies.Contains(assemblyWithReference));
             Assert.IsTrue(result.Assemblies.Contains(busAssembly));
+            Assert.AreEqual(2, result.Assemblies.Count);
         }
 
         [Test, RunInApplicationDomain]
@@ -110,25 +90,24 @@
 
             var result = scanner.GetScannableAssemblies();
 
-            Assert.AreEqual(2, result.Assemblies.Count);
             Assert.IsTrue(result.Assemblies.Contains(assemblyWithReference));
             Assert.IsTrue(result.Assemblies.Contains(busAssembly));
             Assert.IsFalse(result.Assemblies.Contains(assemblyWithoutReference));
+            Assert.AreEqual(2, result.Assemblies.Count);
         }
 
         [Test, RunInApplicationDomain]
-        //[Explicit]
         public void Assemblies_which_reference_older_nsb_version_are_included()
         {
-            var busAssemblyV1 = new DynamicAssembly("Fake.NServiceBus.Core", version: new Version(1, 0, 0), fakeIdentity: true);
             var busAssemblyV2 = new DynamicAssembly("Fake.NServiceBus.Core", version: new Version(2, 0, 0), fakeIdentity: true);
-            var assemblyReferencesV1 = new DynamicAssembly("AssemblyWithReference1", new[]
-            {
-                busAssemblyV1
-            });
             var assemblyReferencesV2 = new DynamicAssembly("AssemblyWithReference2", new[]
             {
                 busAssemblyV2
+            });
+            var busAssemblyV1 = new DynamicAssembly("Fake.NServiceBus.Core", version: new Version(1, 0, 0), fakeIdentity: true);
+            var assemblyReferencesV1 = new DynamicAssembly("AssemblyWithReference1", new[]
+            {
+                busAssemblyV1
             });
 
             var scanner = new AssemblyScanner(DynamicAssembly.TestAssemblyDirectory);
@@ -137,9 +116,10 @@
 
             var result = scanner.GetScannableAssemblies();
 
-            Assert.AreEqual(4, result.Assemblies.Count);
+            Assert.IsTrue(result.Assemblies.Contains(busAssemblyV2));
             Assert.IsTrue(result.Assemblies.Contains(assemblyReferencesV1));
             Assert.IsTrue(result.Assemblies.Contains(assemblyReferencesV2));
+            Assert.AreEqual(3, result.Assemblies.Count);
         }
 
         [Test, RunInApplicationDomain]
@@ -168,11 +148,34 @@
 
             var result = scanner.GetScannableAssemblies();
 
-            Assert.AreEqual(5, result.Assemblies.Count);
             Assert.IsTrue(result.Assemblies.Contains(assemblyA));
             Assert.IsTrue(result.Assemblies.Contains(assemblyB));
             Assert.IsTrue(result.Assemblies.Contains(assemblyC));
             Assert.IsTrue(result.Assemblies.Contains(assemblyD));
+            Assert.IsTrue(result.Assemblies.Contains(busAssembly));
+            Assert.AreEqual(5, result.Assemblies.Count);
+        }
+
+        public static string GetTestAssemblyDirectory()
+        {
+            var directoryName = GetAssemblyDirectory();
+            return Path.Combine(directoryName, "TestDlls");
+        }
+
+        static string GetAssemblyDirectory()
+        {
+            var codeBase = Assembly.GetExecutingAssembly().CodeBase;
+            var uri = new UriBuilder(codeBase);
+            var path = Uri.UnescapeDataString(uri.Path);
+            return Path.GetDirectoryName(path);
+        }
+
+        static void CleanupDynamicAssembliesIfNecessary()
+        {
+            if (!AppDomainRunner.IsInTestAppDomain)
+            {
+                Directory.Delete(DynamicAssembly.TestAssemblyDirectory, true);
+            }
         }
 
         [DebuggerDisplay("Name = {Name}, DynamicName = {DynamicName}, Namespace = {Namespace}, FileName = {FileName}")]
