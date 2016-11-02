@@ -38,7 +38,7 @@ namespace NServiceBus.Features
             var transportInfrastructure = context.Settings.Get<TransportInfrastructure>();
             var canReceive = !context.Settings.GetOrDefault<bool>("Endpoint.SendOnly");
             var conventions = context.Settings.Get<Conventions>();
-            var enforceBestPractices = context.Settings.Get<bool>(BestPracticesFeature.EnforceBestPracticesSettingsKey);
+            var enforceBestPractices = context.Settings.Get<bool>(RoutingFeature.EnforceBestPracticesSettingsKey);
 
             var distributionPolicy = context.Settings.Get<DistributionPolicy>();
             var endpointInstances = context.Settings.Get<EndpointInstances>();
