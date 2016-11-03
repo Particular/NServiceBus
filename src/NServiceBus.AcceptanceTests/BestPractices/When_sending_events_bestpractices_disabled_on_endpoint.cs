@@ -25,8 +25,7 @@
                         var routing = c.UseTransport(r.GetTransportType()).Routing();
                         routing.DoNotEnforceBestPractices();
                     })
-                    .AddMapping<MyEvent>(typeof(Endpoint))
-                    .AddMapping<MyCommand>(typeof(Endpoint));
+                    .AddMapping<MyEvent>(typeof(Endpoint));
             }
 
             public class Handler : IHandleMessages<MyEvent>
@@ -36,10 +35,6 @@
                     return Task.FromResult(0);
                 }
             }
-        }
-
-        public class MyCommand : ICommand
-        {
         }
 
         public class MyEvent : IEvent

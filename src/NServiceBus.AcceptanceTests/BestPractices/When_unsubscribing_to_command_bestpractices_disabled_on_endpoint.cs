@@ -24,24 +24,11 @@
                 {
                     var routing = c.UseTransport(r.GetTransportType()).Routing();
                     routing.DoNotEnforceBestPractices();
-                }, metadata => metadata.RegisterPublisherFor<MyEvent>(typeof(Endpoint)))
-                    .AddMapping<MyCommand>(typeof(Endpoint));
-            }
-
-            public class Handler : IHandleMessages<MyEvent>
-            {
-                public Task Handle(MyEvent message, IMessageHandlerContext context)
-                {
-                    return Task.FromResult(0);
-                }
+                }, metadata => metadata.RegisterPublisherFor<MyCommand>(typeof(Endpoint)));
             }
         }
 
         public class MyCommand : ICommand
-        {
-        }
-
-        public class MyEvent : IEvent
         {
         }
     }

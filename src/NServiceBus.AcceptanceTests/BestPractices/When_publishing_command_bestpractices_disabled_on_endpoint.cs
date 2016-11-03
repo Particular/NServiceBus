@@ -16,36 +16,22 @@
                 .Run();
         }
 
-        [Test]
-        public Task Should_allow_sending_events()
-        {
-            return Scenario.Define<ScenarioContext>()
-                .WithEndpoint<Endpoint>(b => b.When((session, c) => session.Send(new MyEvent())))
-                .Done(c => c.EndpointsStarted)
-                .Run();
-        }
 
         public class Endpoint : EndpointConfigurationBuilder
         {
             public Endpoint()
             {
                 EndpointSetup<DefaultServer>((c, r) =>
-                        {
-                            var routing = c.UseTransport(r.GetTransportType()).Routing();
-                            routing.DoNotEnforceBestPractices();
-                        },
-                        metadata => metadata.RegisterPublisherFor<MyCommand>(typeof(Endpoint)))
-                    .AddMapping<MyEvent>(typeof(Endpoint));
+                    {
+                        var routing = c.UseTransport(r.GetTransportType()).Routing();
+                        routing.DoNotEnforceBestPractices();
+                    },
+                    metadata => metadata.RegisterPublisherFor<MyCommand>(typeof(Endpoint)));
             }
 
-            public class Handler : IHandleMessages<MyEvent>, IHandleMessages<MyCommand>
+            public class Handler : IHandleMessages<MyCommand>
             {
                 public Task Handle(MyCommand message, IMessageHandlerContext context)
-                {
-                    return Task.FromResult(0);
-                }
-
-                public Task Handle(MyEvent message, IMessageHandlerContext context)
                 {
                     return Task.FromResult(0);
                 }
@@ -53,10 +39,6 @@
         }
 
         public class MyCommand : ICommand
-        {
-        }
-
-        public class MyEvent : IEvent
         {
         }
     }
