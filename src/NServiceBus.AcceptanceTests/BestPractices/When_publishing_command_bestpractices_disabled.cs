@@ -21,8 +21,8 @@
                 }))
                 .Done(c => c.EndpointsStarted)
                 // This test is only relevant for message driven transports since we need to use the mappings to
-                // configure the publisher. The code first API would blow up unless we turn of the checks for the entire endpoint.
-                // But if we do that turning of checks per message becomes pointless.
+                // configure the publisher. The code first API would blow up unless we turn off the checks for the entire endpoint.
+                // But if we do that turning off checks per message becomes pointless since they are already off.
                 // We would need a new api to turn off startup checks only for this to be testable across the board.
                 .Repeat(r => r.For<AllTransportsWithMessageDrivenPubSub>())
                 .Should(c => Assert.True(c.EndpointsStarted))
