@@ -118,9 +118,10 @@ namespace NServiceBus
 
         static void SetupFirstTimeRegistryKeys()
         {
-            var regRoot = Registry.CurrentUser.CreateSubKey(@"Software\ParticularSoftware");
-            regRoot?.SetValue("NuGetUser", "true");
-            regRoot?.Close();
+            using (var regRoot = Registry.CurrentUser.CreateSubKey(@"Software\ParticularSoftware"))
+            {
+                regRoot?.SetValue("NuGetUser", "true");
+            }
         }
 
         static License GetTrialLicense()
