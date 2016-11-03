@@ -10,29 +10,6 @@ namespace NServiceBus.AcceptanceTesting.Support
     {
         public IEnumerable<PublisherDetails> Publishers => publisherDetails.Values;
 
-        public class PublisherDetails
-        {
-            public PublisherDetails(Type publisherTypeType)
-            {
-                PublisherType = publisherTypeType;
-            }
-            public void RegisterOwnedEvent<T>()
-            {
-                var eventType = typeof(T);
-
-                if (Events.Contains(eventType))
-                {
-                    return;
-                }
-
-                Events.Add(eventType);
-            }
-
-            public List<Type> Events { get; } = new List<Type>();
-
-            public Type PublisherType { get; set; }
-        }
-
         public void RegisterPublisherFor<T>(Type endpoint)
         {
             PublisherDetails publisher;
@@ -48,5 +25,29 @@ namespace NServiceBus.AcceptanceTesting.Support
         }
 
         Dictionary<Type, PublisherDetails> publisherDetails = new Dictionary<Type, PublisherDetails>();
+
+        public class PublisherDetails
+        {
+            public PublisherDetails(Type publisherTypeType)
+            {
+                PublisherType = publisherTypeType;
+            }
+
+            public List<Type> Events { get; } = new List<Type>();
+
+            public Type PublisherType { get; set; }
+
+            public void RegisterOwnedEvent<T>()
+            {
+                var eventType = typeof(T);
+
+                if (Events.Contains(eventType))
+                {
+                    return;
+                }
+
+                Events.Add(eventType);
+            }
+        }
     }
 }
