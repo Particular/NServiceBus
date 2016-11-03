@@ -5,6 +5,7 @@ namespace NServiceBus
     using System.Net.Http;
     using System.Text;
     using System.Threading;
+    using System.Threading.Tasks;
     using System.Windows.Forms;
     using Logging;
     using Microsoft.Win32;
@@ -29,7 +30,8 @@ namespace NServiceBus
             {
                 if (Debugger.IsAttached && Environment.UserInteractive && FirstTimeUser())
                 {
-                    TrackFirstTimeUsageEvent();
+                    // Adding Ignore() explicitly to have a fire and forget model for invoking the web api.
+                    TrackFirstTimeUsageEvent().Ignore();
                     SetupFirstTimeRegistryKeys();
                 }
                 license = GetTrialLicense();
@@ -87,13 +89,10 @@ namespace NServiceBus
             return false;
         }
 
-        /// <summary>
-        /// Adding the async void to explicitly have a fire and forget model for invoking the web api.
-        /// </summary>
-        async void TrackFirstTimeUsageEvent()
+        static async Task TrackFirstTimeUsageEvent()
         {
             // Get the current version of NServiceBus that's being used
-            var version = FileVersionRetriever.GetFileVersion(GetType());
+            var version = GitFlowVersion.MajorMinorPatch;
 
             // Report first time usage metric
             Logger.InfoFormat("Reporting first time usage and version information to www.particular.net. This call does not collect any personal information. For more details, see the License Agreement and the Privacy Policy available here: http://particular.net/licenseagreement. This call will NOT be executed in production servers. It is invoked only once when run in an interactive debugging mode when the endpoint is executed for the very first time.");
@@ -101,13 +100,16 @@ namespace NServiceBus
             var postData = $"version={version}";
             try
             {
-                var request = new HttpRequestMessage(HttpMethod.Post, webApiUrl)
+                using (var httpClient = new HttpClient())
                 {
-                    Content = new StringContent(postData, Encoding.UTF8, "application/x-www-form-urlencoded")
-                };
+                    var request = new HttpRequestMessage(HttpMethod.Post, webApiUrl)
+                    {
+                        Content = new StringContent(postData, Encoding.UTF8, "application/x-www-form-urlencoded")
+                    };
 
-                var response = await httpClient.SendAsync(request).ConfigureAwait(false);
-                response.EnsureSuccessStatusCode();
+                    var response = await httpClient.SendAsync(request).ConfigureAwait(false);
+                    response.EnsureSuccessStatusCode();
+                }
             }
             catch (Exception ex)
             {
@@ -194,6 +196,5 @@ namespace NServiceBus
         License license;
 
         static ILog Logger = LogManager.GetLogger(typeof(LicenseManager));
-        static HttpClient httpClient = new HttpClient();
     }
 }
