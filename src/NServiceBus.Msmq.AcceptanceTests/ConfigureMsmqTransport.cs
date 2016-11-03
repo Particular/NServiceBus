@@ -20,13 +20,15 @@ public class ConfigureEndpointMsmqTransport : IConfigureEndpointTestExecution
 
         transportConfig.ConnectionString(connectionString);
 
+        var routingConfig = transportConfig.Routing();
+
         foreach (var publisher in publisherMetadata.Publishers)
         {
             foreach (var eventType in publisher.Events)
             {
                 var publisherName = Conventions.EndpointNamingConvention(publisher.PublisherType);
 
-                transportConfig.Routing().RegisterPublisher(eventType, publisherName);
+                routingConfig.RegisterPublisher(eventType, publisherName);
             }
         }
 
