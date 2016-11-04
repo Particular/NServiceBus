@@ -103,7 +103,7 @@ namespace NServiceBus
             var version = GitFlowVersion.MajorMinorPatch;
 
             // Report first time usage metric
-            Logger.InfoFormat("Reporting first time usage and version information to www.particular.net. This call does not collect any personal information. For more details, see the License Agreement and the Privacy Policy available here: http://particular.net/licenseagreement. This call will NOT be executed in production servers. It is invoked only once when run in an interactive debugging mode when the endpoint is executed for the very first time.");
+            Logger.InfoFormat("Reporting first time usage and version information to www.particular.net. This call does not collect any personal information. For more details, see the License Agreement and the Privacy Policy available here: http://particular.net/licenseagreement. This call will NOT be executed on production servers. It is invoked only once when run in an interactive debugging mode when the endpoint is executed for the very first time.");
             const string webApiUrl = "https://particular.net/api/ReportFirstTimeUsage";
             var postData = $"version={version}";
             try
