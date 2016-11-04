@@ -212,7 +212,10 @@ namespace ApiApprover
                 else
                     declaration.BaseTypes.Add(CreateCodeTypeReference(publicType.BaseType));
             }
-            foreach (var @interface in publicType.Interfaces.OrderBy(i => i.FullName))
+            foreach (var @interface in publicType.Interfaces.OrderBy(i => i.FullName)
+                .Select(t => new { Reference = t, Definition = t.Resolve() })
+                .Where(t => ShouldIncludeType(t.Definition))
+                .Select(t => t.Reference))
                 declaration.BaseTypes.Add(CreateCodeTypeReference(@interface));
 
             foreach (var memberInfo in publicType.GetMembers().Where(ShouldIncludeMember).OrderBy(m => m.Name))
