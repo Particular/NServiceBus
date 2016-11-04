@@ -14,7 +14,7 @@ namespace NServiceBus
             this.onMessage = onMessage;
         }
 
-        public Task<StartableRawEndpoint> Initialize()
+        public Task<IStartableRawEndpoint> Initialize()
         {
             CreateCriticalErrorHandler();
 
@@ -45,7 +45,7 @@ namespace NServiceBus
             }
 
             var startableEndpoint = new StartableRawEndpoint(settings, transportInfrastructure, CreateCriticalErrorHandler(), messagePump, dispatcher, onMessage, () => ExecutePreStartupChecks(sendInfrastructure, receiveInfrastructure));
-            return Task.FromResult(startableEndpoint);
+            return Task.FromResult<IStartableRawEndpoint>(startableEndpoint);
         }
 
         static async Task ExecutePreStartupChecks(TransportSendInfrastructure sendInfrastructure, TransportReceiveInfrastructure receiveInfrastructure)

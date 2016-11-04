@@ -1,15 +1,13 @@
 namespace NServiceBus
 {
-    using System;
     using System.Threading;
     using System.Threading.Tasks;
     using Extensibility;
     using Logging;
     using Settings;
     using Transport;
-    using UnicastBus = Unicast.UnicastBus;
 
-    class RunningRawEndpointInstance : IEndpointInstance
+    class RunningRawEndpointInstance : IRawEndpointInstance
     {
         public RunningRawEndpointInstance(SettingsHolder settings, RawTransportReceiver receiver, TransportInfrastructure transportInfrastructure, IDispatchMessages dispatcher)
         {
@@ -72,37 +70,5 @@ namespace NServiceBus
         SemaphoreSlim stopSemaphore = new SemaphoreSlim(1);
 
         static ILog Log = LogManager.GetLogger<RunningRawEndpointInstance>();
-
-        #region IEndpointInstance
-        Task IMessageSession.Send(object message, SendOptions options)
-        {
-            throw new NotImplementedException();
-        }
-
-        Task IMessageSession.Send<T>(Action<T> messageConstructor, SendOptions options)
-        {
-            throw new NotImplementedException();
-        }
-
-        Task IMessageSession.Publish(object message, PublishOptions options)
-        {
-            throw new NotImplementedException();
-        }
-
-        Task IMessageSession.Publish<T>(Action<T> messageConstructor, PublishOptions publishOptions)
-        {
-            throw new NotImplementedException();
-        }
-
-        Task IMessageSession.Subscribe(Type eventType, SubscribeOptions options)
-        {
-            throw new NotImplementedException();
-        }
-
-        Task IMessageSession.Unsubscribe(Type eventType, UnsubscribeOptions options)
-        {
-            throw new NotImplementedException();
-        }
-        #endregion
     }
 }

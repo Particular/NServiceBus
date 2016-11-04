@@ -29,6 +29,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.TransportTests"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NServiceBus.RawEndpoint", "NServiceBus.RawEndpoint\NServiceBus.RawEndpoint.csproj", "{B8BD18DA-717D-4E1F-BA41-80B43721B79E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RawEndpointTest", "RawEndpointTest\RawEndpointTest.csproj", "{77F8A0DC-D767-469F-BC5A-B43FDDE518A9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -149,6 +151,18 @@ Global
 		{B8BD18DA-717D-4E1F-BA41-80B43721B79E}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{B8BD18DA-717D-4E1F-BA41-80B43721B79E}.Release|x86.ActiveCfg = Release|Any CPU
 		{B8BD18DA-717D-4E1F-BA41-80B43721B79E}.Release|x86.Build.0 = Release|Any CPU
+		{77F8A0DC-D767-469F-BC5A-B43FDDE518A9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{77F8A0DC-D767-469F-BC5A-B43FDDE518A9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{77F8A0DC-D767-469F-BC5A-B43FDDE518A9}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{77F8A0DC-D767-469F-BC5A-B43FDDE518A9}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{77F8A0DC-D767-469F-BC5A-B43FDDE518A9}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{77F8A0DC-D767-469F-BC5A-B43FDDE518A9}.Debug|x86.Build.0 = Debug|Any CPU
+		{77F8A0DC-D767-469F-BC5A-B43FDDE518A9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{77F8A0DC-D767-469F-BC5A-B43FDDE518A9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{77F8A0DC-D767-469F-BC5A-B43FDDE518A9}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{77F8A0DC-D767-469F-BC5A-B43FDDE518A9}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{77F8A0DC-D767-469F-BC5A-B43FDDE518A9}.Release|x86.ActiveCfg = Release|Any CPU
+		{77F8A0DC-D767-469F-BC5A-B43FDDE518A9}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

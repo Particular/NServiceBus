@@ -42,6 +42,7 @@ namespace NServiceBus
             ValidateEndpointName(endpointName);
 
             Settings.Set("Endpoint.SendOnly", onMessage == null);
+            Settings.Set("TypesToScan", new Type[0]);
             Settings.Set("NServiceBus.Routing.EndpointName", endpointName);
 
             Settings.SetDefault<IConfigurationSource>(new DefaultConfigurationSource());

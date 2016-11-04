@@ -2,14 +2,12 @@ namespace NServiceBus
 {
     using System;
     using System.Threading.Tasks;
-    using Config;
     using ConsistencyGuarantees;
     using Logging;
     using Settings;
     using Transport;
-    using static MessageProcessingOptimizationExtensions;
 
-    class StartableRawEndpoint
+    class StartableRawEndpoint : IStartableRawEndpoint
     {
         public StartableRawEndpoint(SettingsHolder settings, TransportInfrastructure transportInfrastructure, CriticalError criticalError, IPushMessages messagePump, IDispatchMessages dispatcher, Func<MessageContext, IDispatchMessages, Task> onMessage, Func<Task> preStartupCallback)
         {
@@ -22,7 +20,7 @@ namespace NServiceBus
             this.transportInfrastructure = transportInfrastructure;
         }
 
-        public async Task<RunningRawEndpointInstance> Start()
+        public async Task<IRawEndpointInstance> Start()
         {
             await transportInfrastructure.Start().ConfigureAwait(false);
 
@@ -35,7 +33,7 @@ namespace NServiceBus
                 await InitializeReceiver(receiver).ConfigureAwait(false);
             }
 
-            var runningInstance = new RunningRawEndpointInstance(settings, receiver, transportInfrastructure, null);
+            var runningInstance = new RunningRawEndpointInstance(settings, receiver, transportInfrastructure, dispatcher);
             // set the started endpoint on CriticalError to pass the endpoint to the critical error action
             criticalError.SetStopCallback(runningInstance.Stop);
 
@@ -102,7 +100,7 @@ namespace NServiceBus
         // extension point to plugin atm
         PushRuntimeSettings GetDequeueLimitationsForReceivePipeline()
         {
-            ConcurrencyLimit concurrencyLimit;
+            MessageProcessingOptimizationExtensions.ConcurrencyLimit concurrencyLimit;
             if (settings.TryGet(out concurrencyLimit))
             {
                 return new PushRuntimeSettings(concurrencyLimit.MaxValue);

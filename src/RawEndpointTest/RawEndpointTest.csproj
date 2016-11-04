@@ -4,15 +4,17 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{B8BD18DA-717D-4E1F-BA41-80B43721B79E}</ProjectGuid>
-    <OutputType>Library</OutputType>
+    <ProjectGuid>{77F8A0DC-D767-469F-BC5A-B43FDDE518A9}</ProjectGuid>
+    <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>NServiceBus.RawEndpoint</RootNamespace>
-    <AssemblyName>NServiceBus.RawEndpoint</AssemblyName>
+    <RootNamespace>RawEndpointTest</RootNamespace>
+    <AssemblyName>RawEndpointTest</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -22,6 +24,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -32,7 +35,6 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Transactions" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -41,26 +43,20 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="RawEndpoint.cs" />
-    <Compile Include="ExceptionHeaderHelper.cs" />
-    <Compile Include="Guard.cs" />
-    <Compile Include="IRawEndpointInstance.cs" />
-    <Compile Include="InitializableRawEndpoint.cs" />
-    <Compile Include="IStartableRawEndpoint.cs" />
-    <Compile Include="MessageProcessingOptimizationExtensions.cs" />
+    <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RawEndpointConfiguration.cs" />
-    <Compile Include="RawEndpointErrorHandlingPolicy.cs" />
-    <Compile Include="RawTransportReceiver.cs" />
-    <Compile Include="Properties\Resharper.Annotations.g.cs" />
-    <Compile Include="RunningRawEndpointInstance.cs" />
-    <Compile Include="StartableRawEndpoint.cs" />
-    <Compile Include="UseTransportExtensions.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\NServiceBus.Core\NServiceBus.Core.csproj">
       <Project>{dd48b2d0-e996-412d-9157-821ed8b17a9d}</Project>
       <Name>NServiceBus.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\NServiceBus.RawEndpoint\NServiceBus.RawEndpoint.csproj">
+      <Project>{b8bd18da-717d-4e1f-ba41-80b43721b79e}</Project>
+      <Name>NServiceBus.RawEndpoint</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
