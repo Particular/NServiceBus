@@ -37,7 +37,7 @@ namespace NServiceBus
 
             var runningInstance = new RunningRawEndpointInstance(settings, receiver, transportInfrastructure, null);
             // set the started endpoint on CriticalError to pass the endpoint to the critical error action
-            criticalError.SetEndpoint(runningInstance);
+            criticalError.SetStopCallback(runningInstance.Stop);
 
             if (receiver != null)
             {

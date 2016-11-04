@@ -43,7 +43,6 @@ namespace NServiceBus
         Task MoveToErrorQueue(ErrorContext errorContext)
         {
             var message = errorContext.Message;
-            message.RevertToOriginalBodyIfNeeded();
 
             var outgoingMessage = new OutgoingMessage(message.MessageId, new Dictionary<string, string>(message.Headers), message.Body);
 
