@@ -28,11 +28,10 @@ namespace NServiceBus
 
             if (string.IsNullOrWhiteSpace(licenseText))
             {
-                if (Debugger.IsAttached && Environment.UserInteractive && FirstTimeUser())
+                if (Debugger.IsAttached && Environment.UserInteractive && NeedsReporting())
                 {
                     // Adding Ignore() explicitly to have a fire and forget model for invoking the web api.
                     TrackFirstTimeUsageEvent().Ignore();
-                    SetupFirstTimeRegistryKeys();
                 }
                 license = GetTrialLicense();
                 PromptUserForLicenseIfTrialHasExpired();
@@ -69,28 +68,37 @@ namespace NServiceBus
             license = foundLicense;
         }
 
-        static bool FirstTimeUser()
+        static bool NeedsReporting()
         {
             // Check for the presence of HKCU\Software\NServiceBus
-            using (var regNsbRoot = Registry.CurrentUser.OpenSubKey(@"Software\NServiceBus"))
+            using (var nsbRootRegKey = Registry.CurrentUser.OpenSubKey(@"Software\NServiceBus"))
             {
-                if (regNsbRoot == null)
-                {
-                    //Check for the presence of HKCU\Software\ParticularSoftware
-                    using (var regParticularRoot = Registry.CurrentUser.OpenSubKey(@"Software\ParticularSoftware"))
-                    {
-                        if (regParticularRoot == null)
-                        {
-                            return true;
-                        }
-                    }
-                }
+                if (nsbRootRegKey != null) return false;
             }
-            return false;
+
+            //Check for the presence of HKCU\Software\ParticularSoftware
+            using (var particularRegKey = Registry.CurrentUser.OpenSubKey(@"Software\ParticularSoftware"))
+            {
+                // Check for the presence of HKCU\Software\ParticularSoftware\PlatformInstaller
+                using (var platformInstallerRegKey = particularRegKey?.OpenSubKey(@"Software\ParticularSoftware"))
+                {
+                    if (platformInstallerRegKey != null) return false;
+                }
+
+                // Check if NuGetUser value is set. Previous versions of NServiceBus Nuget installs creates this value.
+                var isNsbPreviouslyInstalled = particularRegKey?.GetValue("NuGetUser");
+                if (isNsbPreviouslyInstalled != null) return false;
+            }
+            return true;
         }
 
         static async Task TrackFirstTimeUsageEvent()
         {
+            // Set the regisry key for NuGetUser and then call the web api. Web api does not need to succeed.
+            // We only attempt once. Future executions will check the presence of this value to 
+            // ensure that we don't call the web api more than once.
+            SetupFirstTimeRegistryKeys();
+
             // Get the current version of NServiceBus that's being used
             var version = GitFlowVersion.MajorMinorPatch;
 
@@ -100,6 +108,7 @@ namespace NServiceBus
             var postData = $"version={version}";
             try
             {
+                // Call the web api. 
                 using (var httpClient = new HttpClient())
                 {
                     var request = new HttpRequestMessage(HttpMethod.Post, webApiUrl)
