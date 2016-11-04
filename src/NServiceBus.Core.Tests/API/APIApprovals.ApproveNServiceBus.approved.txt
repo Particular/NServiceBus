@@ -1,5 +1,4 @@
-﻿[assembly: NServiceBus.ReleaseDateAttribute("2016-09-01", "2016-09-01")]
-[assembly: System.CLSCompliantAttribute(true)]
+﻿[assembly: System.CLSCompliantAttribute(true)]
 [assembly: System.Runtime.CompilerServices.InternalsVisibleToAttribute(@"NServiceBus.AcceptanceTesting, PublicKey=0024000004800000940000000602000000240000525341310004000001000100dde965e6172e019ac82c2639ffe494dd2e7dd16347c34762a05732b492e110f2e4e2e1b5ef2d85c848ccfb671ee20a47c8d1376276708dc30a90ff1121b647ba3b7259a6bc383b2034938ef0e275b58b920375ac605076178123693c6c4f1331661a62eba28c249386855637780e3ff5f23a6d854700eaa6803ef48907513b92")]
 [assembly: System.Runtime.CompilerServices.InternalsVisibleToAttribute(@"NServiceBus.Core.Tests, PublicKey=00240000048000009400000006020000002400005253413100040000010001007f16e21368ff041183fab592d9e8ed37e7be355e93323147a1d29983d6e591b04282e4da0c9e18bd901e112c0033925eb7d7872c2f1706655891c5c9d57297994f707d16ee9a8f40d978f064ee1ffc73c0db3f4712691b23bf596f75130f4ec978cf78757ec034625a5f27e6bb50c618931ea49f6f628fd74271c32959efb1c5")]
 [assembly: System.Runtime.CompilerServices.InternalsVisibleToAttribute(@"NServiceBus.Hosting.Tests, PublicKey=0024000004800000940000000602000000240000525341310004000001000100dde965e6172e019ac82c2639ffe494dd2e7dd16347c34762a05732b492e110f2e4e2e1b5ef2d85c848ccfb671ee20a47c8d1376276708dc30a90ff1121b647ba3b7259a6bc383b2034938ef0e275b58b920375ac605076178123693c6c4f1331661a62eba28c249386855637780e3ff5f23a6d854700eaa6803ef48907513b92")]
@@ -303,7 +302,7 @@ namespace NServiceBus
         InstancePerUnitOfWork = 1,
         InstancePerCall = 2,
     }
-    public class DistributionPolicy : NServiceBus.IDistributionPolicy
+    public class DistributionPolicy
     {
         public DistributionPolicy() { }
         public void SetDistributionStrategy(NServiceBus.Routing.DistributionStrategy distributionStrategy) { }
@@ -594,12 +593,10 @@ namespace NServiceBus
     public interface IEvent : NServiceBus.IMessage { }
     [System.ObsoleteAttribute("Will be removed in version 7.0.0.", true)]
     public interface IExcludesBuilder { }
-    [JetBrains.Annotations.UsedImplicitlyAttribute(JetBrains.Annotations.ImplicitUseTargetFlags.Default | JetBrains.Annotations.ImplicitUseTargetFlags.Itself | JetBrains.Annotations.ImplicitUseTargetFlags.Members | JetBrains.Annotations.ImplicitUseTargetFlags.WithMembers)]
     public interface IHandleMessages<T>
     {
         System.Threading.Tasks.Task Handle(T message, NServiceBus.IMessageHandlerContext context);
     }
-    [JetBrains.Annotations.UsedImplicitlyAttribute(JetBrains.Annotations.ImplicitUseTargetFlags.Default | JetBrains.Annotations.ImplicitUseTargetFlags.Itself | JetBrains.Annotations.ImplicitUseTargetFlags.Members | JetBrains.Annotations.ImplicitUseTargetFlags.WithMembers)]
     public interface IHandleTimeouts<T>
     {
         System.Threading.Tasks.Task Timeout(T state, NServiceBus.IMessageHandlerContext context);
@@ -608,7 +605,6 @@ namespace NServiceBus
     public interface IIncludesBuilder { }
     [System.ObsoleteAttribute("No longer used, can safely be removed. Will be removed in version 7.0.0.", true)]
     public interface IManageMessageHeaders { }
-    [JetBrains.Annotations.UsedImplicitlyAttribute(JetBrains.Annotations.ImplicitUseTargetFlags.Default | JetBrains.Annotations.ImplicitUseTargetFlags.Itself | JetBrains.Annotations.ImplicitUseTargetFlags.Members | JetBrains.Annotations.ImplicitUseTargetFlags.WithMembers)]
     public interface IMessage { }
     [System.ObsoleteAttribute("Use `IMessageHandlerContext` provided to message handlers instead. Will be remove" +
         "d in version 7.0.0.", true)]
@@ -679,7 +675,6 @@ namespace NServiceBus
         public void NumberOfRetries(int numberOfRetries) { }
     }
     public sealed class ImmediateRetry : NServiceBus.RecoverabilityAction { }
-    [JetBrains.Annotations.UsedImplicitlyAttribute(JetBrains.Annotations.ImplicitUseTargetFlags.Default | JetBrains.Annotations.ImplicitUseTargetFlags.Itself | JetBrains.Annotations.ImplicitUseTargetFlags.Members | JetBrains.Annotations.ImplicitUseTargetFlags.WithMembers)]
     public interface INeedInitialization
     {
         void Customize(NServiceBus.EndpointConfiguration configuration);
@@ -730,7 +725,6 @@ namespace NServiceBus
     {
         System.Threading.Tasks.Task<NServiceBus.IEndpointInstance> Start();
     }
-    [JetBrains.Annotations.UsedImplicitlyAttribute(JetBrains.Annotations.ImplicitUseTargetFlags.Default | JetBrains.Annotations.ImplicitUseTargetFlags.Itself | JetBrains.Annotations.ImplicitUseTargetFlags.Members | JetBrains.Annotations.ImplicitUseTargetFlags.WithMembers)]
     public interface IWantToRunBeforeConfigurationIsFinalized
     {
         void Run(NServiceBus.Settings.SettingsHolder settings);
@@ -1965,23 +1959,18 @@ namespace NServiceBus.Logging
         bool IsWarnEnabled { get; }
         void Debug(string message);
         void Debug(string message, System.Exception exception);
-        [JetBrains.Annotations.StringFormatMethodAttribute("format")]
         void DebugFormat(string format, params object[] args);
         void Error(string message);
         void Error(string message, System.Exception exception);
-        [JetBrains.Annotations.StringFormatMethodAttribute("format")]
         void ErrorFormat(string format, params object[] args);
         void Fatal(string message);
         void Fatal(string message, System.Exception exception);
-        [JetBrains.Annotations.StringFormatMethodAttribute("format")]
         void FatalFormat(string format, params object[] args);
         void Info(string message);
         void Info(string message, System.Exception exception);
-        [JetBrains.Annotations.StringFormatMethodAttribute("format")]
         void InfoFormat(string format, params object[] args);
         void Warn(string message);
         void Warn(string message, System.Exception exception);
-        [JetBrains.Annotations.StringFormatMethodAttribute("format")]
         void WarnFormat(string format, params object[] args);
     }
     public interface ILoggerFactory
@@ -2039,22 +2028,18 @@ namespace NServiceBus.MessageMutator
     [System.ObsoleteAttribute("Have the mutator implement both IMutateOutgoingMessages and IMutateIncomingMessag" +
         "es. Will be removed in version 7.0.0.", true)]
     public interface IMessageMutator { }
-    [JetBrains.Annotations.UsedImplicitlyAttribute(JetBrains.Annotations.ImplicitUseTargetFlags.Default | JetBrains.Annotations.ImplicitUseTargetFlags.Itself | JetBrains.Annotations.ImplicitUseTargetFlags.Members | JetBrains.Annotations.ImplicitUseTargetFlags.WithMembers)]
     public interface IMutateIncomingMessages
     {
         System.Threading.Tasks.Task MutateIncoming(NServiceBus.MessageMutator.MutateIncomingMessageContext context);
     }
-    [JetBrains.Annotations.UsedImplicitlyAttribute(JetBrains.Annotations.ImplicitUseTargetFlags.Default | JetBrains.Annotations.ImplicitUseTargetFlags.Itself | JetBrains.Annotations.ImplicitUseTargetFlags.Members | JetBrains.Annotations.ImplicitUseTargetFlags.WithMembers)]
     public interface IMutateIncomingTransportMessages
     {
         System.Threading.Tasks.Task MutateIncoming(NServiceBus.MessageMutator.MutateIncomingTransportMessageContext context);
     }
-    [JetBrains.Annotations.UsedImplicitlyAttribute(JetBrains.Annotations.ImplicitUseTargetFlags.Default | JetBrains.Annotations.ImplicitUseTargetFlags.Itself | JetBrains.Annotations.ImplicitUseTargetFlags.Members | JetBrains.Annotations.ImplicitUseTargetFlags.WithMembers)]
     public interface IMutateOutgoingMessages
     {
         System.Threading.Tasks.Task MutateOutgoing(NServiceBus.MessageMutator.MutateOutgoingMessageContext context);
     }
-    [JetBrains.Annotations.UsedImplicitlyAttribute(JetBrains.Annotations.ImplicitUseTargetFlags.Default | JetBrains.Annotations.ImplicitUseTargetFlags.Itself | JetBrains.Annotations.ImplicitUseTargetFlags.Members | JetBrains.Annotations.ImplicitUseTargetFlags.WithMembers)]
     public interface IMutateOutgoingTransportMessages
     {
         System.Threading.Tasks.Task MutateOutgoing(NServiceBus.MessageMutator.MutateOutgoingTransportMessageContext context);
@@ -2256,7 +2241,7 @@ namespace NServiceBus.Pipeline
         public System.Threading.Tasks.Task Invoke(TContext context, System.Func<TContext, System.Threading.Tasks.Task> next) { }
         public abstract System.Threading.Tasks.Task Invoke(TContext context, System.Func<System.Threading.Tasks.Task> next);
     }
-    public abstract class ForkConnector<TFromContext, TForkContext> : NServiceBus.Pipeline.Behavior<TFromContext>, NServiceBus.IForkConnector, NServiceBus.IForkConnector<TFromContext, TFromContext, TForkContext>, NServiceBus.Pipeline.IBehavior, NServiceBus.Pipeline.IBehavior<TFromContext, TFromContext>
+    public abstract class ForkConnector<TFromContext, TForkContext> : NServiceBus.Pipeline.Behavior<TFromContext>, NServiceBus.Pipeline.IBehavior, NServiceBus.Pipeline.IBehavior<TFromContext, TFromContext>
         where TFromContext : NServiceBus.Pipeline.IBehaviorContext
         where TForkContext : NServiceBus.Pipeline.IBehaviorContext
     {
@@ -2431,7 +2416,7 @@ namespace NServiceBus.Pipeline
             ".0.", true)]
         public void Replace(NServiceBus.Pipeline.WellKnownStep wellKnownStep, System.Type newBehavior, string description = null) { }
     }
-    public abstract class PipelineTerminator<T> : NServiceBus.Pipeline.StageConnector<T, NServiceBus.Pipeline.PipelineTerminator<T>.ITerminatingContext>, NServiceBus.IPipelineTerminator
+    public abstract class PipelineTerminator<T> : NServiceBus.Pipeline.StageConnector<T, NServiceBus.Pipeline.PipelineTerminator<T>.ITerminatingContext>
         where T : NServiceBus.Pipeline.IBehaviorContext
     {
         protected PipelineTerminator() { }
@@ -2469,14 +2454,14 @@ namespace NServiceBus.Pipeline
         public void InsertBeforeIfExists(NServiceBus.Pipeline.WellKnownStep step) { }
         public virtual bool IsEnabled(NServiceBus.Settings.ReadOnlySettings settings) { }
     }
-    public abstract class StageConnector<TFromContext, TToContext> : NServiceBus.IStageConnector, NServiceBus.IStageConnector<TFromContext, TToContext>, NServiceBus.Pipeline.IBehavior, NServiceBus.Pipeline.IBehavior<TFromContext, TToContext>
+    public abstract class StageConnector<TFromContext, TToContext> : NServiceBus.Pipeline.IBehavior, NServiceBus.Pipeline.IBehavior<TFromContext, TToContext>
         where TFromContext : NServiceBus.Pipeline.IBehaviorContext
         where TToContext : NServiceBus.Pipeline.IBehaviorContext
     {
         protected StageConnector() { }
         public abstract System.Threading.Tasks.Task Invoke(TFromContext context, System.Func<TToContext, System.Threading.Tasks.Task> stage);
     }
-    public abstract class StageForkConnector<TFromContext, TToContext, TForkContext> : NServiceBus.IForkConnector, NServiceBus.IForkConnector<TFromContext, TToContext, TForkContext>, NServiceBus.IStageConnector, NServiceBus.IStageForkConnector<TFromContext, TToContext, TForkContext>, NServiceBus.Pipeline.IBehavior, NServiceBus.Pipeline.IBehavior<TFromContext, TToContext>
+    public abstract class StageForkConnector<TFromContext, TToContext, TForkContext> : NServiceBus.Pipeline.IBehavior, NServiceBus.Pipeline.IBehavior<TFromContext, TToContext>
         where TFromContext : NServiceBus.Pipeline.IBehaviorContext
         where TToContext : NServiceBus.Pipeline.IBehaviorContext
         where TForkContext : NServiceBus.Pipeline.IBehaviorContext

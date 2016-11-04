@@ -1,13 +1,11 @@
 ﻿namespace NServiceBus.Core.Tests.API
 {
     using System;
-    using System.IO;
     using System.Linq;
     using System.Runtime.CompilerServices;
-    using ApiApprover;
     using ApprovalTests;
-    using Mono.Cecil;
     using NUnit.Framework;
+    using PublicApiGenerator;
 
     [TestFixture]
     public class APIApprovals
@@ -16,9 +14,7 @@
         [MethodImpl(MethodImplOptions.NoInlining)]
         public void ApproveNServiceBus()
         {
-            var assemblyPath = Path.GetFullPath(typeof(Endpoint).Assembly.Location);
-            var asm = AssemblyDefinition.ReadAssembly(assemblyPath);
-            var publicApi = Filter(PublicApiGenerator.CreatePublicApiForAssembly(asm));
+            var publicApi = Filter(ApiGenerator.GeneratePublicApi(typeof(Endpoint).Assembly));
             Approvals.Verify(publicApi);
         }
 
