@@ -33,7 +33,7 @@ namespace NServiceBus
 
             var transportDefinition = transportDefinitionType.Construct<TransportDefinition>();
             ConfigureTransport(endpointConfiguration, transportDefinition);
-            return new TransportExtensions(endpointConfiguration.Settings);
+            return new TransportExtensions(endpointConfiguration.Settings, transportDefinition);
         }
 
         static void ConfigureTransport(EndpointConfiguration endpointConfiguration, TransportDefinition transportDefinition)

@@ -14,8 +14,8 @@ namespace NServiceBus
         /// <summary>
         /// Initializes a new instance of <see cref="TransportExtensions{T}" />.
         /// </summary>
-        public TransportExtensions(SettingsHolder settings)
-            : base(settings)
+        public TransportExtensions(SettingsHolder settings, T transportDefinition)
+            : base(settings, transportDefinition)
         {
         }
 
@@ -61,13 +61,16 @@ namespace NServiceBus
     /// </summary>
     public class TransportExtensions : ExposeSettings
     {
+        TransportDefinition transportDefinition;
+
         /// <summary>
         /// Initializes a new instance of <see cref="TransportExtensions" />.
         /// </summary>
-        public TransportExtensions(SettingsHolder settings)
+        public TransportExtensions(SettingsHolder settings, TransportDefinition transportDefinition)
             : base(settings)
         {
-            settings.SetDefault<TransportConnectionString>(TransportConnectionString.Default);
+            this.transportDefinition = transportDefinition;
+            settings.SetDefault<TransportConnectionString>(new TransportConnectionString(transportDefinition));
         }
 
         /// <summary>
@@ -76,7 +79,7 @@ namespace NServiceBus
         public TransportExtensions ConnectionString(string connectionString)
         {
             Guard.AgainstNullAndEmpty(nameof(connectionString), connectionString);
-            Settings.Set<TransportConnectionString>(new TransportConnectionString(() => connectionString));
+            Settings.Set<TransportConnectionString>(new TransportConnectionString(() => connectionString, transportDefinition));
             return this;
         }
 
@@ -86,7 +89,7 @@ namespace NServiceBus
         public TransportExtensions ConnectionStringName(string name)
         {
             Guard.AgainstNullAndEmpty(nameof(name), name);
-            Settings.Set<TransportConnectionString>(new TransportConnectionString(name));
+            Settings.Set<TransportConnectionString>(new TransportConnectionString(name, transportDefinition));
             return this;
         }
 
@@ -96,7 +99,7 @@ namespace NServiceBus
         public TransportExtensions ConnectionString(Func<string> connectionString)
         {
             Guard.AgainstNull(nameof(connectionString), connectionString);
-            Settings.Set<TransportConnectionString>(new TransportConnectionString(connectionString));
+            Settings.Set<TransportConnectionString>(new TransportConnectionString(connectionString, transportDefinition));
             return this;
         }
 
