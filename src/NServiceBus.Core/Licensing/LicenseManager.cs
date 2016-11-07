@@ -1,7 +1,11 @@
 namespace NServiceBus
 {
+    using System;
     using System.Diagnostics;
+    using System.Net.Http;
+    using System.Text;
     using System.Threading;
+    using System.Threading.Tasks;
     using System.Windows.Forms;
     using Logging;
     using Microsoft.Win32;
@@ -24,6 +28,11 @@ namespace NServiceBus
 
             if (string.IsNullOrWhiteSpace(licenseText))
             {
+                if (Debugger.IsAttached && Environment.UserInteractive && NeedsReporting())
+                {
+                    // Adding Ignore() explicitly to have a fire and forget model for invoking the web api.
+                    TrackFirstTimeUsageEvent().Ignore();
+                }
                 license = GetTrialLicense();
                 PromptUserForLicenseIfTrialHasExpired();
                 return;
@@ -57,6 +66,73 @@ namespace NServiceBus
             }
 
             license = foundLicense;
+        }
+
+        static bool NeedsReporting()
+        {
+            // Check for the presence of HKCU\Software\NServiceBus
+            using (var nsbRootRegKey = Registry.CurrentUser.OpenSubKey(@"Software\NServiceBus"))
+            {
+                if (nsbRootRegKey != null) return false;
+            }
+
+            //Check for the presence of HKCU\Software\ParticularSoftware
+            using (var particularRegKey = Registry.CurrentUser.OpenSubKey(@"Software\ParticularSoftware"))
+            {
+                // Check for the presence of HKCU\Software\ParticularSoftware\PlatformInstaller
+                using (var platformInstallerRegKey = particularRegKey?.OpenSubKey(@"Software\ParticularSoftware"))
+                {
+                    if (platformInstallerRegKey != null) return false;
+                }
+
+                // Check if NuGetUser value is set. Previous versions of NServiceBus Nuget installs creates this value.
+                var isNsbPreviouslyInstalled = particularRegKey?.GetValue("NuGetUser");
+                if (isNsbPreviouslyInstalled != null) return false;
+            }
+            return true;
+        }
+
+        static async Task TrackFirstTimeUsageEvent()
+        {
+            // Set the regisry key for NuGetUser and then call the web api. Web api does not need to succeed.
+            // We only attempt once. Future executions will check the presence of this value to 
+            // ensure that we don't call the web api more than once.
+            SetupFirstTimeRegistryKeys();
+
+            // Get the current version of NServiceBus that's being used
+            var version = GitFlowVersion.MajorMinorPatch;
+
+            // Report first time usage metric
+            Logger.InfoFormat("Reporting first time usage and version information to www.particular.net. This call does not collect any personal information. For more details, see the License Agreement and the Privacy Policy available here: http://particular.net/licenseagreement. This call will NOT be executed on production servers. It is invoked only once when run in an interactive debugging mode when the endpoint is executed for the very first time.");
+            const string webApiUrl = "https://particular.net/api/ReportFirstTimeUsage";
+            var postData = $"version={version}";
+            try
+            {
+                // Call the web api. 
+                using (var httpClient = new HttpClient())
+                {
+                    var request = new HttpRequestMessage(HttpMethod.Post, webApiUrl)
+                    {
+                        Content = new StringContent(postData, Encoding.UTF8, "application/x-www-form-urlencoded")
+                    };
+
+                    var response = await httpClient.SendAsync(request).ConfigureAwait(false);
+                    response.EnsureSuccessStatusCode();
+                }
+            }
+            catch (Exception ex)
+            {
+                // For the end-user, this is not really an error that affects them. 
+                Logger.InfoFormat("Could not report first time usage statistics to www.particular.net: {0}", ex);
+            }
+        }
+
+        static void SetupFirstTimeRegistryKeys()
+        {
+            using (var regRoot = Registry.CurrentUser.CreateSubKey(@"Software\ParticularSoftware"))
+            {
+                regRoot?.SetValue("NuGetUser", "true");
+            }
         }
 
         static License GetTrialLicense()
