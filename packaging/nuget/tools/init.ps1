@@ -12,8 +12,6 @@ if($package){
 }
 
 #Figure out if this is a first time user
-
-#Figure out if this is a first time user
 try {
 
 	#Check for existing NServiceBus installations
@@ -35,7 +33,7 @@ try {
 
 	Set-ItemProperty -Path $platformKeyPath -Name "NuGetUser" -Value "true" | Out-Null
 
-	Write-Host `Reporting first time install and version information to www.particular.net. This call does not collect any personal information. For more details, see the License Agreement and the Privacy Policy available here: http://particular.net/licenseagreement. Subsequent NuGet installs or updates will not invoke this call.`
+	Write-Verbose 'Reporting first time install and version information to www.particular.net. This call does not collect any personal information. For more details, see the License Agreement and the Privacy Policy available here: http://particular.net/licenseagreement. Subsequent NuGet installs or updates will not invoke this call.' -verbose
 	$url = 'https://particular.net/api/ReportFirstTimeUsage'
 	$postData  = New-Object System.Collections.Specialized.NameValueCollection
 	$postData.Add("version", $packageversion)
@@ -47,5 +45,7 @@ Catch [Exception] {
 	Write-Warning $error[0]
 }
 finally {
+	if ($wc){
 	$wc.Dispose()
+	}
 }
