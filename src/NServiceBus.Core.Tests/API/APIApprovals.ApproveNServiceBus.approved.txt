@@ -1076,6 +1076,13 @@ namespace NServiceBus
     {
         public Schedule() { }
     }
+    public class ScheduledTask : NServiceBus.IMessage
+    {
+        public ScheduledTask() { }
+        public System.TimeSpan Every { get; set; }
+        public string Name { get; set; }
+        public System.Guid TaskId { get; set; }
+    }
     public class static ScheduleExtensions
     {
         [System.ObsoleteAttribute("Use `ScheduleEvery(this IMessageSession session, TimeSpan timeSpan, Func<IPipelin" +
