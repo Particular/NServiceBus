@@ -70,12 +70,13 @@ namespace NServiceBus
             Guard.AgainstNullAndEmpty(nameof(name), name);
             Guard.AgainstNegativeAndZero(nameof(timeSpan), timeSpan);
 
-            return Schedule(session, new TaskDefinition
+            var taskDefinition = new TaskDefinition
             {
                 Every = timeSpan,
                 Name = name,
                 Task = task
-            });
+            };
+            return Schedule(session, taskDefinition);
         }
 
         static Task Schedule(IMessageSession session, TaskDefinition taskDefinition)
@@ -87,12 +88,13 @@ namespace NServiceBus
             options.RouteToThisEndpoint();
             options.Context.GetOrCreate<ScheduleBehavior.State>().TaskDefinition = taskDefinition;
 
-            return session.Send(new ScheduledTask
+            var scheduledTask = new ScheduledTask
             {
                 TaskId = taskDefinition.Id,
                 Name = taskDefinition.Name,
                 Every = taskDefinition.Every
-            }, options);
+            };
+            return session.Send(scheduledTask, options);
         }
 
         static ILog logger = LogManager.GetLogger<DefaultScheduler>(); //Intentionally using different type.
