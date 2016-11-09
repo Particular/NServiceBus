@@ -2,8 +2,6 @@ namespace NServiceBus.Features
 {
     using System;
     using Persistence;
-    using Routing;
-    using Routing.MessageDrivenSubscriptions;
     using Transport;
     using Unicast.Messages;
     using Unicast.Subscriptions.MessageDrivenSubscriptions;
@@ -40,9 +38,9 @@ namespace NServiceBus.Features
             var conventions = context.Settings.Get<Conventions>();
             var enforceBestPractices = context.Settings.Get<bool>(RoutingFeature.EnforceBestPracticesSettingsKey);
 
-            var distributionPolicy = context.Settings.Get<DistributionPolicy>();
-            var endpointInstances = context.Settings.Get<EndpointInstances>();
-            var publishers = context.Settings.Get<Publishers>();
+            var distributionPolicy = context.Settings.Get<RoutingFeature>().DistributionPolicy;
+            var endpointInstances = context.Settings.Get<RoutingFeature>().Instances;
+            var publishers = context.Settings.Get<RoutingFeature>().Publishers;
             var configuredPublishers = context.Settings.Get<ConfiguredPublishers>();
 
             configuredPublishers.Apply(publishers, conventions, enforceBestPractices);

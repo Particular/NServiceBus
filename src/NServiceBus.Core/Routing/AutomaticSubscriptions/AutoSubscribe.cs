@@ -5,7 +5,6 @@
     using System.Linq;
     using System.Threading.Tasks;
     using Logging;
-    using Routing.MessageDrivenSubscriptions;
     using Transport;
     using Unicast;
 
@@ -17,6 +16,7 @@
         internal AutoSubscribe()
         {
             EnableByDefault();
+            DependsOn<RoutingFeature>();
             Prerequisite(context => !context.Settings.GetOrDefault<bool>("Endpoint.SendOnly"), "Send only endpoints can't autosubscribe.");
         }
 
@@ -35,7 +35,7 @@
             var conventions = context.Settings.Get<Conventions>();
             var transportInfrastructure = context.Settings.Get<TransportInfrastructure>();
             var requireExplicitRouting = transportInfrastructure.OutboundRoutingPolicy.Publishes == OutboundRoutingType.Unicast;
-            var publishers = context.Settings.Get<Publishers>();
+            var publishers = context.Settings.Get<RoutingFeature>().Publishers;
 
             context.RegisterStartupTask(b =>
             {
