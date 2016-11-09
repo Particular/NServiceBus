@@ -12,7 +12,6 @@ namespace NServiceBus
         /// <summary>
         /// Creates a new instance of <see cref="TimeoutManagerConfiguration"/>.
         /// </summary>
-        /// <param name="settings"></param>
         public TimeoutManagerConfiguration(SettingsHolder settings)
         {
             this.settings = settings;
