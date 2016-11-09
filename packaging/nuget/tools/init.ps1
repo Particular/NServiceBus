@@ -34,7 +34,7 @@ try {
 	Set-ItemProperty -Path $platformKeyPath -Name "NuGetUser" -Value "true" | Out-Null
 
 	Write-Verbose 'Reporting first time install and version information to www.particular.net. This call does not collect any personal information. For more details, see the License Agreement and the Privacy Policy available here: http://particular.net/licenseagreement. Subsequent NuGet installs or updates will not invoke this call.' -verbose
-	$url = 'https://particular.net/api/ReportFirstTimeUsage'
+	$url = 'https://particular.net/api/ReportFirstTimeInstall'
 	$postData  = New-Object System.Collections.Specialized.NameValueCollection
 	$postData.Add("version", $packageversion)
 	$wc = New-Object System.Net.WebClient
