@@ -125,6 +125,8 @@
     <Compile Include="Pipeline\SatellitePipelineExecutor.cs" />
     <Compile Include="Pipeline\StageForkConnector.cs" />
     <Compile Include="Pipeline\ConnectorContextExtensions.cs" />
+    <Compile Include="PublishSubscribe\NonNativePublishSubscribeTerminator.cs" />
+    <Compile Include="PublishSubscribe\NonNativePublishUnsubscribeTerminator.cs" />
     <Compile Include="Recoverability\DelayedConfig.cs" />
     <Compile Include="Recoverability\Settings\DelayedRetriesSettings.cs" />
     <Compile Include="Recoverability\FailedConfig.cs" />
@@ -154,9 +156,12 @@
     <Compile Include="Routing\AssemblyRouteSource.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\ConfiguredPublishers.cs" />
     <Compile Include="Routing\ConfiguredUnicastRoutes.cs" />
+    <Compile Include="PublishSubscribe\IImplementPublishSubscribe.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\IPublisherSource.cs" />
+    <Compile Include="Routing\MessageDrivenSubscriptions\MessageDrivenPublishSubscribe.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\NamespacePublisherSource.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\TypePublisherSource.cs" />
+    <Compile Include="PublishSubscribe\UnicastPublishSubscribe.cs" />
     <Compile Include="Routing\NativePublishSubscribeFeature.cs" />
     <Compile Include="Routing\TypeRouteSource.cs" />
     <Compile Include="Routing\IDistributionPolicy.cs" />
@@ -301,7 +306,7 @@
     <Compile Include="Routing\SingleInstanceRoundRobinDistributionStrategy.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\SubscriptionRouter.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\Publishers.cs" />
-    <Compile Include="Routing\Routers\UnicastPublishRouterConnector.cs" />
+    <Compile Include="PublishSubscribe\UnicastPublishRouterConnector.cs" />
     <Compile Include="Transports\Msmq\InstanceMapping\InstanceMappingFileSettings.cs" />
     <Compile Include="Routing\EndpointInstances.cs" />
     <Compile Include="Serialization\SerializationContextExtensions.cs" />
@@ -406,8 +411,6 @@
     <Compile Include="Routing\Routers\UnicastSendRouterConnector.cs" />
     <Compile Include="Routing\UnicastAddressTag.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\IInitializableSubscriptionStorage.cs" />
-    <Compile Include="Routing\MessageDrivenSubscriptions\MessageDrivenUnsubscribeTerminator.cs" />
-    <Compile Include="Routing\MessageDrivenSubscriptions\MessageDrivenSubscribeTerminator.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\MessageDrivenSubscriptions.cs" />
     <Compile Include="Routing\DistributionStrategy.cs" />
     <Compile Include="Routing\MessagingBestPractices\EnforceBestPracticesOptions.cs" />
