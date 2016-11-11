@@ -23,16 +23,6 @@
         }
 
         [Test]
-        public async Task Send_ShouldInvokeMessageInitializer()
-        {
-            var context = new TestableMessageHandlerContext();
-
-            await context.Send<ITestMessage>(m => m.Value = "initialized value");
-
-            Assert.AreEqual("initialized value", context.SentMessages[0].Message<ITestMessage>().Value);
-        }
-
-        [Test]
         public async Task Publish_ShouldContainMessageInPublishedMessages()
         {
             var context = new TestableMessageHandlerContext();
@@ -47,16 +37,6 @@
         }
 
         [Test]
-        public async Task Publish_ShouldInvokeMessageInitializer()
-        {
-            var context = new TestableMessageHandlerContext();
-
-            await context.Publish<ITestMessage>(m => m.Value = "initialized value");
-
-            Assert.AreEqual("initialized value", context.PublishedMessages[0].Message<ITestMessage>().Value);
-        }
-
-        [Test]
         public async Task Reply_ShouldContainMessageInRepliedMessages()
         {
             var context = new TestableMessageHandlerContext();
@@ -68,16 +48,6 @@
             Assert.AreEqual(1, context.RepliedMessages.Length);
             Assert.AreSame(messageInstance, context.RepliedMessages[0].Message);
             Assert.AreSame(publishOptions, context.RepliedMessages[0].Options);
-        }
-
-        [Test]
-        public async Task Reply_ShouldInvokeMessageInitializer()
-        {
-            var context = new TestableMessageHandlerContext();
-
-            await context.Reply<ITestMessage>(m => m.Value = "initialized value");
-
-            Assert.AreEqual("initialized value", context.RepliedMessages[0].Message<ITestMessage>().Value);
         }
 
         [Test]
@@ -142,11 +112,6 @@
 
         class TestMessage
         {
-        }
-
-        public interface ITestMessage
-        {
-            string Value { get; set; }
         }
     }
 }

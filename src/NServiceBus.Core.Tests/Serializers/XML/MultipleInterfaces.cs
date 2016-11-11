@@ -1,15 +1,15 @@
 ﻿namespace NServiceBus.Serializers.XML.Test
 {
-    public interface IFirst : IMessage
+    public class IFirst : IMessage
     {
-        string FirstName { get; set; }
+        public string FirstName { get; set; }
     }
-    
-    public interface ISecond : IFirst
+
+    public class ISecond : IFirst
     {
     }
-    
-    public interface IThird : ISecond
+
+    public class IThird : ISecond
     {
     }
 }

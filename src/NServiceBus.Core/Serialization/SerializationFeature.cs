@@ -5,9 +5,6 @@
     using System.Linq;
     using Features;
     using Logging;
-    using MessageInterfaces;
-    using MessageInterfaces.MessageMapper.Reflection;
-    using Pipeline;
     using Serialization;
     using Settings;
     using Unicast.Messages;
@@ -21,35 +18,30 @@
 
         protected internal sealed override void Setup(FeatureConfigurationContext context)
         {
-            var mapper = new MessageMapper();
             var settings = context.Settings;
             var messageMetadataRegistry = settings.Get<MessageMetadataRegistry>();
-            mapper.Initialize(messageMetadataRegistry.GetAllMessages().Select(m => m.MessageType));
 
             var defaultSerializerAndDefinition = settings.GetMainSerializer();
 
-            var defaultSerializer = CreateMessageSerializer(defaultSerializerAndDefinition, mapper, settings);
+            var defaultSerializer = CreateMessageSerializer(defaultSerializerAndDefinition, settings);
 
             var additionalDeserializers = new List<IMessageSerializer>();
             foreach (var definitionAndSettings in context.Settings.GetAdditionalSerializers())
             {
-                additionalDeserializers.Add(CreateMessageSerializer(definitionAndSettings, mapper, settings));
+                additionalDeserializers.Add(CreateMessageSerializer(definitionAndSettings, settings));
             }
 
             var resolver = new MessageDeserializerResolver(defaultSerializer, additionalDeserializers);
 
-            var logicalMessageFactory = new LogicalMessageFactory(messageMetadataRegistry, mapper);
-            context.Pipeline.Register(new DeserializeLogicalMessagesConnector(resolver, logicalMessageFactory, messageMetadataRegistry), "Deserializes the physical message body into logical messages");
+            context.Pipeline.Register(new DeserializeLogicalMessagesConnector(resolver, messageMetadataRegistry), "Deserializes the physical message body into logical messages");
             context.Pipeline.Register(new SerializeMessageConnector(defaultSerializer, messageMetadataRegistry), "Converts a logical message into a physical message");
 
-            context.Container.ConfigureComponent(_ => mapper, DependencyLifecycle.SingleInstance);
             context.Container.ConfigureComponent(_ => messageMetadataRegistry, DependencyLifecycle.SingleInstance);
-            context.Container.ConfigureComponent(_ => logicalMessageFactory, DependencyLifecycle.SingleInstance);
 
             LogFoundMessages(messageMetadataRegistry.GetAllMessages().ToList());
         }
 
-        static IMessageSerializer CreateMessageSerializer(Tuple<SerializationDefinition, SettingsHolder> definitionAndSettings, IMessageMapper mapper, ReadOnlySettings mainSettings)
+        static IMessageSerializer CreateMessageSerializer(Tuple<SerializationDefinition, SettingsHolder> definitionAndSettings, ReadOnlySettings mainSettings)
         {
             var definition = definitionAndSettings.Item1;
             var deserializerSettings = definitionAndSettings.Item2;
@@ -57,7 +49,7 @@
             deserializerSettings.PreventChanges();
 
             var serializerFactory = definition.Configure(deserializerSettings);
-            var serializer = serializerFactory(mapper);
+            var serializer = serializerFactory();
             return serializer;
         }
 

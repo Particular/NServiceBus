@@ -79,7 +79,7 @@
             {
                 public Task Handle(MyMessage message, IMessageHandlerContext context)
                 {
-                    return context.Reply<MyReply>(m => { });
+                    return context.Reply(new MyReply());
                 }
             }
         }
@@ -88,7 +88,7 @@
         {
         }
 
-        public interface MyReply
+        public class MyReply
         {
         }
     }

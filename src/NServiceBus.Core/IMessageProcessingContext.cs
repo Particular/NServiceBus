@@ -1,6 +1,5 @@
 namespace NServiceBus
 {
-    using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
 
@@ -30,14 +29,6 @@ namespace NServiceBus
         /// <param name="message">The message to send.</param>
         /// <param name="options">Options for this reply.</param>
         Task Reply(object message, ReplyOptions options);
-
-        /// <summary>
-        /// Instantiates a message of type T and performs a regular <see cref="Reply" />.
-        /// </summary>
-        /// <typeparam name="T">The type of message, usually an interface.</typeparam>
-        /// <param name="messageConstructor">An action which initializes properties of the message.</param>
-        /// <param name="options">Options for this reply.</param>
-        Task Reply<T>(Action<T> messageConstructor, ReplyOptions options);
 
         /// <summary>
         /// Forwards the current message being handled to the destination maintaining

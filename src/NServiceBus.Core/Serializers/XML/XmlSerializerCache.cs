@@ -28,6 +28,11 @@ namespace NServiceBus
                 return;
             }
 
+            var serializationFriendlyName = t.SerializationFriendlyName();
+
+            nameToType.TryAdd(t.FullName, t);
+
+            nameToType.TryAdd(serializationFriendlyName, t);
             if (typeof(IEnumerable).IsAssignableFrom(t))
             {
                 if (t.IsArray)
@@ -130,6 +135,25 @@ namespace NServiceBus
             }
         }
 
+        public Type GetMappedTypeFor(string typeName)
+        {
+            Guard.AgainstNullAndEmpty(nameof(typeName), typeName);
+            var name = typeName;
+            if (typeName.EndsWith(ConcreteProxyCreator.SUFFIX, StringComparison.Ordinal))
+            {
+                name = typeName.Substring(0, typeName.Length - ConcreteProxyCreator.SUFFIX.Length);
+            }
+
+            Type type;
+            if (nameToType.TryGetValue(name, out type))
+            {
+                return type;
+            }
+
+            return Type.GetType(name);
+        }
+
+
         PropertyInfo[] GetAllPropertiesForType(Type t, bool isKeyValuePair)
         {
             var result = new List<PropertyInfo>();
@@ -200,6 +224,7 @@ namespace NServiceBus
         List<Type> typesBeingInitialized = new List<Type>();
         public ConcurrentDictionary<Type, Type> typesToCreateForArrays = new ConcurrentDictionary<Type, Type>();
         public ConcurrentDictionary<Type, Type> typesToCreateForEnumerables = new ConcurrentDictionary<Type, Type>();
+        public ConcurrentDictionary<string, Type> nameToType = new ConcurrentDictionary<string, Type>();
 
         public ConcurrentDictionary<Type, IEnumerable<FieldInfo>> typeToFields = new ConcurrentDictionary<Type, IEnumerable<FieldInfo>>();
         public ConcurrentDictionary<Type, IEnumerable<PropertyInfo>> typeToProperties = new ConcurrentDictionary<Type, IEnumerable<PropertyInfo>>();

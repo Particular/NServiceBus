@@ -1,25 +1,15 @@
 ﻿// ReSharper disable PartialTypeWithSinglePart
 namespace NServiceBus.Testing
 {
-    using System;
     using System.Collections.Concurrent;
     using System.Threading.Tasks;
     using Extensibility;
-    using MessageInterfaces.MessageMapper.Reflection;
 
     /// <summary>
     /// A testable implementation of <see cref="IPipelineContext" />.
     /// </summary>
     public partial class TestablePipelineContext : IPipelineContext
     {
-        /// <summary>
-        /// Creates a new <see cref="TestableMessageHandlerContext" /> instance.
-        /// </summary>
-        public TestablePipelineContext(IMessageCreator messageCreator = null)
-        {
-            this.messageCreator = messageCreator ?? new MessageMapper();
-        }
-
         /// <summary>
         /// A list of all messages sent by <see cref="IPipelineContext.Send" />.
         /// </summary>
@@ -48,17 +38,6 @@ namespace NServiceBus.Testing
         }
 
         /// <summary>
-        /// Instantiates a message of type T and sends it.
-        /// </summary>
-        /// <typeparam name="T">The type of message, usually an interface.</typeparam>
-        /// <param name="messageConstructor">An action which initializes properties of the message.</param>
-        /// <param name="options">The options for the send.</param>
-        public virtual Task Send<T>(Action<T> messageConstructor, SendOptions options)
-        {
-            return Send(messageCreator.CreateInstance(messageConstructor), options);
-        }
-
-        /// <summary>
         /// Publish the message to subscribers.
         /// </summary>
         /// <param name="message">The message to publish.</param>
@@ -68,23 +47,7 @@ namespace NServiceBus.Testing
             publishedMessages.Enqueue(new PublishedMessage<object>(message, options));
             return Task.FromResult(0);
         }
-
-        /// <summary>
-        /// Instantiates a message of type T and publishes it.
-        /// </summary>
-        /// <typeparam name="T">The type of message, usually an interface.</typeparam>
-        /// <param name="messageConstructor">An action which initializes properties of the message.</param>
-        /// <param name="publishOptions">Specific options for this event.</param>
-        public virtual Task Publish<T>(Action<T> messageConstructor, PublishOptions publishOptions)
-        {
-            return Publish(messageCreator.CreateInstance(messageConstructor), publishOptions);
-        }
-
-        /// <summary>
-        /// the <see cref="IMessageCreator" /> instance used to create proxy implementation for message interfaces.
-        /// </summary>
-        protected IMessageCreator messageCreator;
-
+        
         ConcurrentQueue<PublishedMessage<object>> publishedMessages = new ConcurrentQueue<PublishedMessage<object>>();
 
         ConcurrentQueue<SentMessage<object>> sentMessages = new ConcurrentQueue<SentMessage<object>>();

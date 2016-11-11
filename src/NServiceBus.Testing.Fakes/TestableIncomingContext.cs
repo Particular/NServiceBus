@@ -10,13 +10,6 @@ namespace NServiceBus.Testing
     public abstract partial class TestableIncomingContext : TestableMessageProcessingContext, IIncomingContext
     {
         /// <summary>
-        /// Creates a new instance of <see cref="TestableIncomingContext" />.
-        /// </summary>
-        protected TestableIncomingContext(IMessageCreator messageCreator = null) : base(messageCreator)
-        {
-        }
-
-        /// <summary>
         /// A fake <see cref="IBuilder" /> implementation. If you want to provide your own <see cref="IBuilder" /> implementation
         /// override <see cref="GetBuilder" />.
         /// </summary>

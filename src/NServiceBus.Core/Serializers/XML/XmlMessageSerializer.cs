@@ -4,7 +4,6 @@ namespace NServiceBus
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
-    using MessageInterfaces;
     using Serialization;
 
     class XmlMessageSerializer : IMessageSerializer
@@ -12,13 +11,10 @@ namespace NServiceBus
         /// <summary>
         /// Initializes an instance of a <see cref="XmlMessageSerializer" />.
         /// </summary>
-        /// <param name="mapper">Message Mapper.</param>
         /// <param name="conventions">The endpoint conventions.</param>
-        public XmlMessageSerializer(IMessageMapper mapper, Conventions conventions)
+        public XmlMessageSerializer(Conventions conventions)
         {
-            Guard.AgainstNull(nameof(mapper), mapper);
             Guard.AgainstNull(nameof(conventions), conventions);
-            this.mapper = mapper;
             this.conventions = conventions;
         }
 
@@ -58,7 +54,7 @@ namespace NServiceBus
                 return null;
             }
 
-            var deserializer = new XmlDeserialization(mapper, cache, SkipWrappingRawXml, SanitizeInput);
+            var deserializer = new XmlDeserialization(cache, SkipWrappingRawXml, SanitizeInput);
             return deserializer.Deserialize(stream, messageTypesToDeserialize);
         }
 
@@ -72,7 +68,7 @@ namespace NServiceBus
         /// </summary>
         public void Serialize(object message, Stream stream)
         {
-            var messageType = mapper.GetMappedTypeFor(message.GetType());
+            var messageType = message.GetType();
             using (var serializer = new XmlSerialization(messageType, stream, message, conventions, cache, SkipWrappingRawXml, Namespace))
             {
                 serializer.Serialize();
@@ -111,10 +107,7 @@ namespace NServiceBus
         }
 
         XmlSerializerCache cache = new XmlSerializerCache();
-
         Conventions conventions;
-        IMessageMapper mapper;
-
         string nameSpace = "http://tempuri.net";
     }
 }

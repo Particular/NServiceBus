@@ -14,14 +14,11 @@
         {
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<V2Publisher>(b =>
-                    b.When(c => c.V1Subscribed && c.V2Subscribed, (session, c) =>
+                    b.When(c => c.V1Subscribed && c.V2Subscribed, (session, c) => session.Publish(new V2Event
                     {
-                        return session.Publish<V2Event>(e =>
-                        {
-                            e.SomeData = 1;
-                            e.MoreInfo = "dasd";
-                        });
-                    }))
+                        SomeData = 1,
+                        MoreInfo = "dasd"
+                    })))
                 .WithEndpoint<V1Subscriber>(b => b.When(async (session, c) =>
                 {
                     await session.Subscribe<V1Event>();

@@ -7,27 +7,21 @@ namespace NServiceBus.Serializers.XML.Test
     using System.Xml.Linq;
     using NUnit.Framework;
 
-    
+
     public class MessageWithArray
     {
         public Guid SagaId { get; set; }
         public int[] SomeInts { get; set; }
-
-        public MessageWithArray(Guid sagaId, int[] someInts)
-        {
-            SagaId = sagaId;
-            SomeInts = someInts;
-        }
     }
 
-    
+
     public class MessageWithArrayAndNoDefaultCtor
     {
         public Guid SagaId { get; set; }
         public string[] SomeWords { get; set; }
     }
 
-    
+
     public class MessageWithNullableArray
     {
         public Guid SagaId { get; set; }
@@ -70,7 +64,10 @@ namespace NServiceBus.Serializers.XML.Test
         [Test]
         public void CanSerializeAndBack()
         {
-            var message = new MessageWithArray(Guid.NewGuid(), new[] { 1234, 5323 });
+            var message = new MessageWithArray
+            {
+                SomeInts = new[] { 1234, 5323 }
+            };
 
             var result = ExecuteSerializer.ForMessage<MessageWithArray>(message);
 

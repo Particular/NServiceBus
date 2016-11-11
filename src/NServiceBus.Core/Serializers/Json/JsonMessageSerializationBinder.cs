@@ -4,19 +4,17 @@ namespace NServiceBus
     using System.Collections.Generic;
     using System.Linq;
     using System.Runtime.Serialization;
-    using MessageInterfaces;
 
     class JsonMessageSerializationBinder : SerializationBinder
     {
-        public JsonMessageSerializationBinder(IMessageMapper messageMapper, IList<Type> messageTypes = null)
+        public JsonMessageSerializationBinder(IList<Type> messageTypes = null)
         {
-            _messageMapper = messageMapper;
             this.messageTypes = messageTypes;
         }
 
         public override void BindToName(Type serializedType, out string assemblyName, out string typeName)
         {
-            var mappedType = _messageMapper.GetMappedTypeFor(serializedType) ?? serializedType;
+            var mappedType = serializedType;
 
             assemblyName = null;
             typeName = mappedType.AssemblyQualifiedName;
@@ -42,7 +40,6 @@ namespace NServiceBus
             return resolved;
         }
 
-        IMessageMapper _messageMapper;
         IList<Type> messageTypes;
     }
 }

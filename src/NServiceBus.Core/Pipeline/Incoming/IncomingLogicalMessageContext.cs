@@ -2,6 +2,7 @@
 {
     using System.Collections.Generic;
     using Pipeline;
+    using Unicast.Messages;
 
     class IncomingLogicalMessageContext : IncomingContext, IIncomingLogicalMessageContext
     {
@@ -36,8 +37,8 @@
                 return;
             }
 
-            var factory = Builder.Build<LogicalMessageFactory>();
-            var newLogicalMessage = factory.Create(newInstance);
+            var messageMetadataRegistry = Builder.Build<MessageMetadataRegistry>();
+            var newLogicalMessage = new LogicalMessage(messageMetadataRegistry.GetMessageMetadata(newInstance.GetType()), Message.Instance);
 
             Message.Metadata = newLogicalMessage.Metadata;
         }

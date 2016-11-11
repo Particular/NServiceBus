@@ -16,7 +16,7 @@
         {
             await Scenario.Define<Context>()
                 .WithEndpoint<Publisher>(b =>
-                    b.When(c => c.Subscribed, (session, ctx) => session.Publish<MyEvent>()))
+                    b.When(c => c.Subscribed, (session, ctx) => session.Publish(new MyEvent())))
                 .WithEndpoint<Subscriber>(b => b.When(async (session, context) =>
                 {
                     await session.Subscribe<MyEvent>();
@@ -96,7 +96,7 @@
             }
         }
 
-        public interface MyEvent : IEvent
+        public class MyEvent : IEvent
         {
         }
     }

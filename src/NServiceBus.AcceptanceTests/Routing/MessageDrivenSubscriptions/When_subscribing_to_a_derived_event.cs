@@ -15,7 +15,7 @@
             return Scenario.Define<Context>()
                 .WithEndpoint<Publisher>(b => b.When(c => c.SubscriberSubscribed, async session =>
                 {
-                    await session.Publish<IBaseEvent>();
+                    await session.Publish(new BaseEvent());
                     await session.Send(new Done());
                 }))
                 .WithEndpoint<Subscriber>(b => b.When(async (session, c) => await session.Subscribe<SpecificEvent>()))
@@ -81,11 +81,11 @@
             }
         }
 
-        public class SpecificEvent : IBaseEvent
+        public class SpecificEvent : BaseEvent
         {
         }
 
-        public interface IBaseEvent : IEvent
+        public class BaseEvent : IEvent
         {
         }
 

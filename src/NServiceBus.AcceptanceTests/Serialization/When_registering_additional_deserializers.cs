@@ -8,7 +8,6 @@
     using AcceptanceTesting;
     using Configuration.AdvanceExtensibility;
     using EndpointTemplates;
-    using MessageInterfaces;
     using NServiceBus.Serialization;
     using NUnit.Framework;
     using Settings;
@@ -83,10 +82,10 @@
 
         public class MyCustomSerializer : SerializationDefinition
         {
-            public override Func<IMessageMapper, IMessageSerializer> Configure(ReadOnlySettings settings)
+            public override Func<IMessageSerializer> Configure(ReadOnlySettings settings)
             {
                 var context = settings.Get<Context>();
-                return mapper => new MyCustomMessageSerializer(context, settings.Get<string>("MyCustomSerializer.Settings.Value"));
+                return () => new MyCustomMessageSerializer(context, settings.Get<string>("MyCustomSerializer.Settings.Value"));
             }
         }
 

@@ -7,7 +7,6 @@ namespace NServiceBus
     using System.Linq;
     using System.Runtime.Serialization.Formatters;
     using System.Text;
-    using MessageInterfaces;
     using Newtonsoft.Json;
     using Newtonsoft.Json.Converters;
     using Serialization;
@@ -17,19 +16,16 @@ namespace NServiceBus
         /// <summary>
         /// Initializes a new instance of <see cref="JsonMessageSerializer" />.
         /// </summary>
-        public JsonMessageSerializer(IMessageMapper messageMapper, Encoding encoding)
+        public JsonMessageSerializer(Encoding encoding)
         {
-            this.messageMapper = messageMapper;
             this.encoding = encoding;
-
-            messageContractResolver = new MessageContractResolver(messageMapper);
         }
 
         /// <summary>
         /// Initializes a new instance of <see cref="JsonMessageSerializer" />.
         /// </summary>
-        public JsonMessageSerializer(IMessageMapper messageMapper)
-            : this(messageMapper, Encoding.UTF8)
+        public JsonMessageSerializer()
+            : this(Encoding.UTF8)
         {
         }
 
@@ -57,7 +53,7 @@ namespace NServiceBus
             Guard.AgainstNull(nameof(stream), stream);
             Guard.AgainstNull(nameof(message), message);
             var jsonSerializer = Newtonsoft.Json.JsonSerializer.Create(serializerSettings);
-            jsonSerializer.Binder = new JsonMessageSerializationBinder(messageMapper);
+            jsonSerializer.Binder = new JsonMessageSerializationBinder();
 
             var jsonWriter = CreateJsonWriter(stream);
             jsonSerializer.Serialize(jsonWriter, message);
@@ -99,8 +95,7 @@ namespace NServiceBus
             }
 
             var jsonSerializer = Newtonsoft.Json.JsonSerializer.Create(settings);
-            jsonSerializer.ContractResolver = messageContractResolver;
-            jsonSerializer.Binder = new JsonMessageSerializationBinder(messageMapper, messageTypes);
+            jsonSerializer.Binder = new JsonMessageSerializationBinder(messageTypes);
 
             var reader = CreateJsonReader(stream);
             reader.Read();
@@ -199,10 +194,7 @@ namespace NServiceBus
         }
 
         Encoding encoding;
-
-        MessageContractResolver messageContractResolver;
-        IMessageMapper messageMapper;
-
+        
         JsonSerializerSettings serializerSettings = new JsonSerializerSettings
         {
             TypeNameAssemblyFormat = FormatterAssemblyStyle.Simple,

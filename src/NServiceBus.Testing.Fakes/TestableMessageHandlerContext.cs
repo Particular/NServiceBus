@@ -6,11 +6,5 @@ namespace NServiceBus.Testing
     /// </summary>
     public partial class TestableMessageHandlerContext : TestableInvokeHandlerContext
     {
-        /// <summary>
-        /// Creates a new instance of a <see cref="TestableMessageHandlerContext" />.
-        /// </summary>
-        public TestableMessageHandlerContext(IMessageCreator messageCreator = null) : base(messageCreator)
-        {
-        }
     }
 }

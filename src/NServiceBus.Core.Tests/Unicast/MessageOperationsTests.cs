@@ -3,8 +3,6 @@
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using MessageInterfaces;
-    using MessageInterfaces.MessageMapper.Reflection;
     using NUnit.Framework;
     using Pipeline;
     using Testing;
@@ -16,37 +14,16 @@
     public class MessageOperationsTests
     {
         [Test]
-        public void When_sending_message_interface_should_set_interface_as_message_type()
-        {
-            var sendPipeline = new FakePipeline<IOutgoingSendContext>();
-            var context = CreateContext(sendPipeline);
-
-            MessageOperations.Send<IMyMessage>(context, m => { }, new SendOptions());
-
-            Assert.That(sendPipeline.ReceivedContext.Message.MessageType, Is.EqualTo(typeof(IMyMessage)));
-        }
-
-        [Test]
         public void When_sending_message_class_should_set_class_as_message_type()
         {
             var sendPipeline = new FakePipeline<IOutgoingSendContext>();
             var context = CreateContext(sendPipeline);
 
-            MessageOperations.Send<MyMessage>(context, m => { }, new SendOptions());
+            MessageOperations.Send(context, new MyMessage(), new SendOptions());
 
             Assert.That(sendPipeline.ReceivedContext.Message.MessageType, Is.EqualTo(typeof(MyMessage)));
         }
 
-        [Test]
-        public void When_replying_message_interface_should_set_interface_as_message_type()
-        {
-            var replyPipeline = new FakePipeline<IOutgoingReplyContext>();
-            var context = CreateContext(replyPipeline);
-
-            MessageOperations.Reply<IMyMessage>(context, m => { }, new ReplyOptions());
-
-            Assert.That(replyPipeline.ReceivedContext.Message.MessageType, Is.EqualTo(typeof(IMyMessage)));
-        }
 
         [Test]
         public void When_replying_message_class_should_set_class_as_message_type()
@@ -54,21 +31,11 @@
             var replyPipeline = new FakePipeline<IOutgoingReplyContext>();
             var context = CreateContext(replyPipeline);
 
-            MessageOperations.Reply<MyMessage>(context, m => { }, new ReplyOptions());
+            MessageOperations.Reply(context,new MyMessage(), new ReplyOptions());
 
             Assert.That(replyPipeline.ReceivedContext.Message.MessageType, Is.EqualTo(typeof(MyMessage)));
         }
 
-        [Test]
-        public void When_publishing_event_interface_should_set_interface_as_message_type()
-        {
-            var publishPipeline = new FakePipeline<IOutgoingPublishContext>();
-            var context = CreateContext(publishPipeline);
-
-            MessageOperations.Publish<IMyMessage>(context, m => { }, new PublishOptions());
-
-            Assert.That(publishPipeline.ReceivedContext.Message.MessageType, Is.EqualTo(typeof(IMyMessage)));
-        }
 
         [Test]
         public void When_publishing_event_class_should_set_class_as_message_type()
@@ -76,7 +43,7 @@
             var publishPipeline = new FakePipeline<IOutgoingPublishContext>();
             var context = CreateContext(publishPipeline);
 
-            MessageOperations.Publish<MyMessage>(context, m => { }, new PublishOptions());
+            MessageOperations.Publish(context,new MyMessage(), new PublishOptions());
 
             Assert.That(publishPipeline.ReceivedContext.Message.MessageType, Is.EqualTo(typeof(MyMessage)));
         }
@@ -87,7 +54,6 @@
             pipelineCache.RegisterPipeline(pipeline);
 
             var context = new TestableMessageHandlerContext();
-            context.Builder.Register<IMessageMapper>(() => new MessageMapper());
             context.Extensions.Set<IPipelineCache>(pipelineCache);
 
             return context;

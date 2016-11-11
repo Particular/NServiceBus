@@ -13,13 +13,6 @@ namespace NServiceBus.Testing
     public partial class TestableMessageProcessingContext : TestablePipelineContext, IMessageProcessingContext
     {
         /// <summary>
-        /// Creates a new instance of <see cref="TestableMessageProcessingContext" />.
-        /// </summary>
-        public TestableMessageProcessingContext(IMessageCreator messageCreator = null) : base(messageCreator)
-        {
-        }
-
-        /// <summary>
         /// A list of all messages sent by <see cref="IMessageProcessingContext.Reply" />.
         /// </summary>
         public virtual RepliedMessage<object>[] RepliedMessages => repliedMessages.ToArray();
@@ -44,19 +37,7 @@ namespace NServiceBus.Testing
             repliedMessages.Enqueue(new RepliedMessage<object>(message, options));
             return Task.FromResult(0);
         }
-
-        /// <summary>
-        /// Instantiates a message of type T and performs a regular
-        /// <see cref="M:NServiceBus.IMessageProcessingContext.Reply(System.Object,NServiceBus.ReplyOptions)" />.
-        /// </summary>
-        /// <typeparam name="T">The type of message, usually an interface.</typeparam>
-        /// <param name="messageConstructor">An action which initializes properties of the message.</param>
-        /// <param name="options">Options for this reply.</param>
-        public virtual Task Reply<T>(Action<T> messageConstructor, ReplyOptions options)
-        {
-            return Reply(messageCreator.CreateInstance(messageConstructor), options);
-        }
-
+        
         /// <summary>
         /// Forwards the current message being handled to the destination maintaining
         /// all of its transport-level properties and headers.

@@ -613,12 +613,6 @@ namespace NServiceBus
     [System.ObsoleteAttribute("Use `IMessageHandlerContext` provided to message handlers instead. Will be remove" +
         "d in version 7.0.0.", true)]
     public interface IMessageContext { }
-    public interface IMessageCreator
-    {
-        T CreateInstance<T>();
-        T CreateInstance<T>(System.Action<T> action);
-        object CreateInstance(System.Type messageType);
-    }
     public interface IMessageHandlerContext : NServiceBus.Extensibility.IExtendable, NServiceBus.IMessageProcessingContext, NServiceBus.IPipelineContext
     {
         NServiceBus.Persistence.SynchronizedStorageSession SynchronizedStorageSession { get; }
@@ -632,33 +626,25 @@ namespace NServiceBus
         string ReplyToAddress { get; }
         System.Threading.Tasks.Task ForwardCurrentMessageTo(string destination);
         System.Threading.Tasks.Task Reply(object message, NServiceBus.ReplyOptions options);
-        System.Threading.Tasks.Task Reply<T>(System.Action<T> messageConstructor, NServiceBus.ReplyOptions options);
     }
     public class static IMessageProcessingContextExtensions
     {
         public static System.Threading.Tasks.Task Reply(this NServiceBus.IMessageProcessingContext context, object message) { }
-        public static System.Threading.Tasks.Task Reply<T>(this NServiceBus.IMessageProcessingContext context, System.Action<T> messageConstructor) { }
     }
     public interface IMessageSession
     {
         System.Threading.Tasks.Task Publish(object message, NServiceBus.PublishOptions options);
-        System.Threading.Tasks.Task Publish<T>(System.Action<T> messageConstructor, NServiceBus.PublishOptions publishOptions);
         System.Threading.Tasks.Task Send(object message, NServiceBus.SendOptions options);
-        System.Threading.Tasks.Task Send<T>(System.Action<T> messageConstructor, NServiceBus.SendOptions options);
         System.Threading.Tasks.Task Subscribe(System.Type eventType, NServiceBus.SubscribeOptions options);
         System.Threading.Tasks.Task Unsubscribe(System.Type eventType, NServiceBus.UnsubscribeOptions options);
     }
     public class static IMessageSessionExtensions
     {
         public static System.Threading.Tasks.Task Publish(this NServiceBus.IMessageSession session, object message) { }
-        public static System.Threading.Tasks.Task Publish<T>(this NServiceBus.IMessageSession session) { }
-        public static System.Threading.Tasks.Task Publish<T>(this NServiceBus.IMessageSession session, System.Action<T> messageConstructor) { }
         public static System.Threading.Tasks.Task Send(this NServiceBus.IMessageSession session, object message) { }
         public static System.Threading.Tasks.Task Send<T>(this NServiceBus.IMessageSession session, System.Action<T> messageConstructor) { }
         public static System.Threading.Tasks.Task Send(this NServiceBus.IMessageSession session, string destination, object message) { }
-        public static System.Threading.Tasks.Task Send<T>(this NServiceBus.IMessageSession session, string destination, System.Action<T> messageConstructor) { }
         public static System.Threading.Tasks.Task SendLocal(this NServiceBus.IMessageSession session, object message) { }
-        public static System.Threading.Tasks.Task SendLocal<T>(this NServiceBus.IMessageSession session, System.Action<T> messageConstructor) { }
         public static System.Threading.Tasks.Task Subscribe(this NServiceBus.IMessageSession session, System.Type messageType) { }
         public static System.Threading.Tasks.Task Subscribe<T>(this NServiceBus.IMessageSession session) { }
         public static System.Threading.Tasks.Task Unsubscribe(this NServiceBus.IMessageSession session, System.Type messageType) { }
@@ -698,21 +684,14 @@ namespace NServiceBus
     public interface IPipelineContext : NServiceBus.Extensibility.IExtendable
     {
         System.Threading.Tasks.Task Publish(object message, NServiceBus.PublishOptions options);
-        System.Threading.Tasks.Task Publish<T>(System.Action<T> messageConstructor, NServiceBus.PublishOptions publishOptions);
         System.Threading.Tasks.Task Send(object message, NServiceBus.SendOptions options);
-        System.Threading.Tasks.Task Send<T>(System.Action<T> messageConstructor, NServiceBus.SendOptions options);
     }
     public class static IPipelineContextExtensions
     {
         public static System.Threading.Tasks.Task Publish(this NServiceBus.IPipelineContext context, object message) { }
-        public static System.Threading.Tasks.Task Publish<T>(this NServiceBus.IPipelineContext context) { }
-        public static System.Threading.Tasks.Task Publish<T>(this NServiceBus.IPipelineContext context, System.Action<T> messageConstructor) { }
         public static System.Threading.Tasks.Task Send(this NServiceBus.IPipelineContext context, object message) { }
-        public static System.Threading.Tasks.Task Send<T>(this NServiceBus.IPipelineContext context, System.Action<T> messageConstructor) { }
         public static System.Threading.Tasks.Task Send(this NServiceBus.IPipelineContext context, string destination, object message) { }
-        public static System.Threading.Tasks.Task Send<T>(this NServiceBus.IPipelineContext context, string destination, System.Action<T> messageConstructor) { }
         public static System.Threading.Tasks.Task SendLocal(this NServiceBus.IPipelineContext context, object message) { }
-        public static System.Threading.Tasks.Task SendLocal<T>(this NServiceBus.IPipelineContext context, System.Action<T> messageConstructor) { }
     }
     [System.ObsoleteAttribute("Use IEndpointInstance to create sending session. Will be removed in version 7.0.0" +
         ".", true)]
@@ -740,7 +719,7 @@ namespace NServiceBus
     public class JsonSerializer : NServiceBus.Serialization.SerializationDefinition
     {
         public JsonSerializer() { }
-        public override System.Func<NServiceBus.MessageInterfaces.IMessageMapper, NServiceBus.Serialization.IMessageSerializer> Configure(NServiceBus.Settings.ReadOnlySettings settings) { }
+        public override System.Func<NServiceBus.Serialization.IMessageSerializer> Configure(NServiceBus.Settings.ReadOnlySettings settings) { }
     }
     public class static JsonSerializerConfigurationExtensions
     {
@@ -1297,7 +1276,7 @@ namespace NServiceBus
     public class XmlSerializer : NServiceBus.Serialization.SerializationDefinition
     {
         public XmlSerializer() { }
-        public override System.Func<NServiceBus.MessageInterfaces.IMessageMapper, NServiceBus.Serialization.IMessageSerializer> Configure(NServiceBus.Settings.ReadOnlySettings settings) { }
+        public override System.Func<NServiceBus.Serialization.IMessageSerializer> Configure(NServiceBus.Settings.ReadOnlySettings settings) { }
     }
 }
 namespace NServiceBus.AutomaticSubscriptions.Config
@@ -2003,28 +1982,6 @@ namespace NServiceBus.Logging
         public static void UseFactory(NServiceBus.Logging.ILoggerFactory loggerFactory) { }
     }
 }
-namespace NServiceBus.MessageInterfaces
-{
-    public interface IMessageMapper : NServiceBus.IMessageCreator
-    {
-        System.Type GetMappedTypeFor(System.Type t);
-        System.Type GetMappedTypeFor(string typeName);
-        void Initialize(System.Collections.Generic.IEnumerable<System.Type> types);
-    }
-}
-namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
-{
-    public class MessageMapper : NServiceBus.IMessageCreator, NServiceBus.MessageInterfaces.IMessageMapper
-    {
-        public MessageMapper() { }
-        public T CreateInstance<T>(System.Action<T> action) { }
-        public T CreateInstance<T>() { }
-        public object CreateInstance(System.Type t) { }
-        public System.Type GetMappedTypeFor(System.Type t) { }
-        public System.Type GetMappedTypeFor(string typeName) { }
-        public void Initialize(System.Collections.Generic.IEnumerable<System.Type> types) { }
-    }
-}
 namespace NServiceBus.MessageMutator
 {
     [System.ObsoleteAttribute("Have the mutator implement both IMutateOutgoingMessages and IMutateIncomingMessag" +
@@ -2366,12 +2323,6 @@ namespace NServiceBus.Pipeline
             "stead. The member currently throws a NotImplementedException. Will be removed in" +
             " version 7.0.0.", true)]
         public void UpdateMessageInstance(object newInstance) { }
-    }
-    public class LogicalMessageFactory
-    {
-        public LogicalMessageFactory(NServiceBus.Unicast.Messages.MessageMetadataRegistry messageMetadataRegistry, NServiceBus.MessageInterfaces.IMessageMapper messageMapper) { }
-        public NServiceBus.Pipeline.LogicalMessage Create(object message) { }
-        public NServiceBus.Pipeline.LogicalMessage Create(System.Type messageType, object message) { }
     }
     public class MessageHandler
     {
@@ -2838,7 +2789,7 @@ namespace NServiceBus.Serialization
     public abstract class SerializationDefinition
     {
         protected SerializationDefinition() { }
-        public abstract System.Func<NServiceBus.MessageInterfaces.IMessageMapper, NServiceBus.Serialization.IMessageSerializer> Configure(NServiceBus.Settings.ReadOnlySettings settings);
+        public abstract System.Func<NServiceBus.Serialization.IMessageSerializer> Configure(NServiceBus.Settings.ReadOnlySettings settings);
     }
     public class SerializationExtensions<T> : NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings
         where T : NServiceBus.Serialization.SerializationDefinition

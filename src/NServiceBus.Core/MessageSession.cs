@@ -15,19 +15,9 @@ namespace NServiceBus
             return MessageOperations.Send(context, message, options);
         }
 
-        public Task Send<T>(Action<T> messageConstructor, SendOptions options)
-        {
-            return MessageOperations.Send(context, messageConstructor, options);
-        }
-
         public Task Publish(object message, PublishOptions options)
         {
             return MessageOperations.Publish(context, message, options);
-        }
-
-        public Task Publish<T>(Action<T> messageConstructor, PublishOptions publishOptions)
-        {
-            return MessageOperations.Publish(context, messageConstructor, publishOptions);
         }
 
         public Task Subscribe(Type eventType, SubscribeOptions options)

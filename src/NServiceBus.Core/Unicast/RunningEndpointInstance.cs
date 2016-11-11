@@ -62,11 +62,6 @@ namespace NServiceBus
             return messageSession.Send(message, options);
         }
 
-        public Task Send<T>(Action<T> messageConstructor, SendOptions options)
-        {
-            return messageSession.Send(messageConstructor, options);
-        }
-
         public Task Publish(object message, PublishOptions options)
         {
             return messageSession.Publish(message, options);

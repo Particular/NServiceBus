@@ -16,9 +16,9 @@
                 .WithEndpoint<Publisher>(b => b.When(c => c.SubscriberSubscribed, async session =>
                 {
                     await session.Publish(new SpecificEvent());
-                    await session.Publish<IBaseEvent>();
+                    await session.Publish(new BaseEvent());
                 }))
-                .WithEndpoint<GeneralSubscriber>(b => b.When(async (session, c) => await session.Subscribe<IBaseEvent>()))
+                .WithEndpoint<GeneralSubscriber>(b => b.When(async (session, c) => await session.Subscribe<BaseEvent>()))
                 .Done(c => c.SubscriberGotBaseEvent && c.SubscriberGotSpecificEvent)
                 .Repeat(r => r.For<AllTransportsWithMessageDrivenPubSub>())
                 .Should(c =>
@@ -55,14 +55,14 @@
                 {
                     c.DisableFeature<AutoSubscribe>();
                 })
-                    .AddMapping<IBaseEvent>(typeof(Publisher));
+                    .AddMapping<BaseEvent>(typeof(Publisher));
             }
 
-            public class MyEventHandler : IHandleMessages<IBaseEvent>
+            public class MyEventHandler : IHandleMessages<BaseEvent>
             {
                 public Context Context { get; set; }
 
-                public Task Handle(IBaseEvent messageThatIsEnlisted, IMessageHandlerContext context)
+                public Task Handle(BaseEvent messageThatIsEnlisted, IMessageHandlerContext context)
                 {
                     if (messageThatIsEnlisted is SpecificEvent)
                     {
@@ -77,11 +77,11 @@
             }
         }
 
-        public class SpecificEvent : IBaseEvent
+        public class SpecificEvent : BaseEvent
         {
         }
 
-        public interface IBaseEvent : IEvent
+        public class BaseEvent : IEvent
         {
         }
     }

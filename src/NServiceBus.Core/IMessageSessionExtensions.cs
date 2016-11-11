@@ -56,27 +56,7 @@ namespace NServiceBus
 
             return session.Send(message, options);
         }
-
-        /// <summary>
-        /// Instantiates a message of type T and sends it to the given destination.
-        /// </summary>
-        /// <typeparam name="T">The type of message, usually an interface.</typeparam>
-        /// <param name="session">The instance of <see cref="IMessageSession" /> to use for the action.</param>
-        /// <param name="destination">The destination to which the message will be sent.</param>
-        /// <param name="messageConstructor">An action which initializes properties of the message.</param>
-        public static Task Send<T>(this IMessageSession session, string destination, Action<T> messageConstructor)
-        {
-            Guard.AgainstNull(nameof(session), session);
-            Guard.AgainstNullAndEmpty(nameof(destination), destination);
-            Guard.AgainstNull(nameof(messageConstructor), messageConstructor);
-
-            var options = new SendOptions();
-
-            options.SetDestination(destination);
-
-            return session.Send(messageConstructor, options);
-        }
-
+        
         /// <summary>
         /// Sends the message back to the current endpoint.
         /// </summary>
@@ -95,24 +75,6 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Instantiates a message of type T and sends it back to the current endpoint.
-        /// </summary>
-        /// <typeparam name="T">The type of message, usually an interface.</typeparam>
-        /// <param name="session">Object being extended.</param>
-        /// <param name="messageConstructor">An action which initializes properties of the message.</param>
-        public static Task SendLocal<T>(this IMessageSession session, Action<T> messageConstructor)
-        {
-            Guard.AgainstNull(nameof(session), session);
-            Guard.AgainstNull(nameof(messageConstructor), messageConstructor);
-
-            var options = new SendOptions();
-
-            options.RouteToThisEndpoint();
-
-            return session.Send(messageConstructor, options);
-        }
-
-        /// <summary>
         /// Publish the message to subscribers.
         /// </summary>
         /// <param name="session">The instance of <see cref="IMessageSession" /> to use for the action.</param>
@@ -125,31 +87,6 @@ namespace NServiceBus
             return session.Publish(message, new PublishOptions());
         }
 
-        /// <summary>
-        /// Publish the message to subscribers.
-        /// </summary>
-        /// <param name="session">The instance of <see cref="IMessageSession" /> to use for the action.</param>
-        /// <typeparam name="T">The message type.</typeparam>
-        public static Task Publish<T>(this IMessageSession session)
-        {
-            Guard.AgainstNull(nameof(session), session);
-
-            return session.Publish<T>(_ => { }, new PublishOptions());
-        }
-
-        /// <summary>
-        /// Instantiates a message of type T and publishes it.
-        /// </summary>
-        /// <typeparam name="T">The type of message, usually an interface.</typeparam>
-        /// <param name="session">The instance of <see cref="IMessageSession" /> to use for the action.</param>
-        /// <param name="messageConstructor">An action which initializes properties of the message.</param>
-        public static Task Publish<T>(this IMessageSession session, Action<T> messageConstructor)
-        {
-            Guard.AgainstNull(nameof(session), session);
-            Guard.AgainstNull(nameof(messageConstructor), messageConstructor);
-
-            return session.Publish(messageConstructor, new PublishOptions());
-        }
 
         /// <summary>
         /// Subscribes to receive published messages of the specified type.
