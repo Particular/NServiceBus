@@ -14,7 +14,7 @@ namespace NServiceBus
         /// </summary>
         protected internal override Type ProvidedByFeature()
         {
-            return typeof(DataBusFileBased);
+            return typeof(FileBasedDataBusStorage);
         }
     }
 }

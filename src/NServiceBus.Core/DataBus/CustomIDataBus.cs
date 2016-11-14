@@ -1,17 +1,17 @@
 ﻿namespace NServiceBus.Features
 {
     using System;
+    using NServiceBus.DataBus;
 
-    class CustomIDataBus : Feature
+    class CustomIDataBus : Feature, IProvideService<DataBusStorage>
     {
-        public CustomIDataBus()
-        {
-            DependsOn<DataBus>();
-        }
-
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-            context.Container.ConfigureComponent(context.Settings.Get<Type>("CustomDataBusType"), DependencyLifecycle.SingleInstance);
+            var customStorageType = context.Settings.Get<Type>("CustomDataBusType");
+
+            var customStorage = (IDataBus)Activator.CreateInstance(customStorageType);
+
+            context.RegisterService(new DataBusStorage(customStorage));
         }
     }
 }

@@ -1,18 +1,9 @@
 namespace NServiceBus.Features
 {
     using System;
-    using NServiceBus.DataBus;
 
-    class DataBusFileBased : Feature
+    class FileBasedDataBusStorage : Feature, IProvideService<DataBusStorage>
     {
-        public DataBusFileBased()
-        {
-            DependsOn<DataBus>();
-        }
-
-        /// <summary>
-        /// See <see cref="Feature.Setup" />
-        /// </summary>
         protected internal override void Setup(FeatureConfigurationContext context)
         {
             string basePath;
@@ -20,9 +11,9 @@ namespace NServiceBus.Features
             {
                 throw new InvalidOperationException("Specify the basepath for FileShareDataBus, eg endpointConfiguration.UseDataBus<FileShareDataBus>().BasePath(\"c:\\databus\")");
             }
-            var dataBus = new FileShareDataBusImplementation(basePath);
 
-            context.Container.RegisterSingleton<IDataBus>(dataBus);
+            var storage = new FileShareDataBusImplementation(basePath);
+            context.RegisterService(new DataBusStorage(storage));
         }
     }
 }

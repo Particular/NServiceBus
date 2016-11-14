@@ -22,9 +22,10 @@ namespace NServiceBus.Features
 
         public void Add(Feature feature)
         {
+            var featureType = feature.GetType();
             if (feature.IsEnabledByDefault)
             {
-                settings.EnableFeatureByDefault(feature.GetType());
+                settings.EnableFeatureByDefault(featureType);
             }
 
             features.Add(new FeatureInfo(feature, new FeatureDiagnosticData
@@ -64,6 +65,7 @@ namespace NServiceBus.Features
             return new FeaturesReport(features.Select(t => t.Diagnostics).ToList());
         }
 
+       
         public async Task StartFeatures(IBuilder builder, IMessageSession session)
         {
             foreach (var feature in features.Where(f => f.Feature.IsActive))

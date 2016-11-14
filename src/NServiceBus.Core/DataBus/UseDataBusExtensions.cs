@@ -16,13 +16,11 @@
         {
             Guard.AgainstNull(nameof(config), config);
             var type = typeof(DataBusExtensions<>).MakeGenericType(typeof(T));
-            var extension = (DataBusExtensions<T>) Activator.CreateInstance(type, config.Settings);
-            var definition = (DataBusDefinition) Activator.CreateInstance(typeof(T));
-
-            config.Settings.Set("SelectedDataBus", definition);
+            var extension = (DataBusExtensions<T>)Activator.CreateInstance(type, config.Settings);
+            var definition = (DataBusDefinition)Activator.CreateInstance(typeof(T));
 
             config.EnableFeature<Features.DataBus>();
-
+            config.EnableFeature(definition.ProvidedByFeature());
             return extension;
         }
 
@@ -40,11 +38,12 @@
             {
                 throw new ArgumentException("The type needs to implement IDataBus.", nameof(dataBusType));
             }
+            var definition = new CustomDataBus();
 
-            config.Settings.Set("SelectedDataBus", new CustomDataBus());
             config.Settings.Set("CustomDataBusType", dataBusType);
 
             config.EnableFeature<Features.DataBus>();
+            config.EnableFeature(definition.ProvidedByFeature());
 
             return new DataBusExtensions(config.Settings);
         }

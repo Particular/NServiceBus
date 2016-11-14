@@ -99,6 +99,10 @@
     <Compile Include="Audit\ConfigureAudit.cs" />
     <Compile Include="Audit\AuditToDispatchConnector.cs" />
     <Compile Include="Audit\InvokeAuditPipelineBehavior.cs" />
+    <Compile Include="DataBus\DataBusStorage.cs" />
+    <Compile Include="Features\IFeatureService.cs" />
+    <Compile Include="Features\IProvideService.cs" />
+    <Compile Include="Features\IRequireService.cs" />
     <Compile Include="DelayedDelivery\TimeoutManagerRoutingStrategy.cs" />
     <Compile Include="Features\SatelliteDefinitions.cs" />
     <Compile Include="Notifications.cs" />
@@ -676,7 +680,7 @@
     <Compile Include="Transports\Msmq\MsmqUtilities.cs" />
     <Compile Include="Encryption\RijndaelEncryptionServiceConfig.cs" />
     <Compile Include="Unicast\UnicastBusConfig.cs" />
-    <Compile Include="DataBus\DataBusFileBased.cs" />
+    <Compile Include="DataBus\FileBasedDataBusStorage.cs" />
     <Compile Include="DataBus\DefaultDatabusSerializer.cs" />
     <Compile Include="DataBus\FileShareDataBusImplementation.cs" />
     <Compile Include="DataBus\IDataBus.cs" />
