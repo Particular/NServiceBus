@@ -2,6 +2,7 @@ namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
+    using System.Reflection;
     using System.Runtime.CompilerServices;
     using System.Threading.Tasks;
     using Extensibility;
@@ -158,41 +159,41 @@ namespace NServiceBus
                     if (correlationProperty != SagaCorrelationProperty.None)
                     {
                         SagaPropertyValueIsUnique(sagaType, correlationProperty, sagaData.Id);
+                        if (!correlationProperties.ContainsKey(sagaType))
+                        {
+                            correlationProperties.Add(sagaType, correlationProperty.Name);
+                        }
+                        var correlationLockKey = CreateCorrelationLockKey(sagaType, correlationProperty.Value);
+
+                        if (!lockers.ContainsKey(correlationLockKey))
+                        {
+                            lockers.Add(correlationLockKey, lockToken);
+                        }
+
+                        if (!correlationValueIndex.ContainsKey(sagaType))
+                        {
+                            correlationValueIndex.Add(sagaType, new Dictionary<string, Guid>());
+                        }
+
+                        if (correlationValueIndex[sagaType].ContainsKey(correlationProperty.Value.ToString()))
+                        {
+                            correlationValueIndex[sagaType].Remove(correlationProperty.Value.ToString());
+                        }
+
+                        correlationValueIndex[sagaType].Add(correlationProperty.Value.ToString(), sagaData.Id);
                     }
 
-                    if (!correlationProperties.ContainsKey(sagaType))
-                    {
-                        correlationProperties.Add(sagaType, correlationProperty.Name);
-                    }
                     if (!lockers.ContainsKey(sagaData.Id.ToString()))
                     {
                         lockers.Add(sagaData.Id.ToString(), lockToken);
                     }
 
-                    var correlationLockKey = CreateCorrelationLockKey(sagaType, correlationProperty.Value);
-
-                    if (!lockers.ContainsKey(correlationLockKey))
-                    {
-                        lockers.Add(correlationLockKey, lockToken);
-                    }
                     if (!lockers.ContainsKey(sagaType.FullName))
                     {
                         lockers.Add(sagaType.FullName, new object());
                     }
 
                     sagaIdIndex.Add(sagaData.Id, new VersionedSagaEntity(sagaData));
-
-                    if (!correlationValueIndex.ContainsKey(sagaType))
-                    {
-                        correlationValueIndex.Add(sagaType, new Dictionary<string, Guid>());
-                    }
-
-                    if (correlationValueIndex[sagaType].ContainsKey(correlationProperty.Value.ToString()))
-                    {
-                        correlationValueIndex[sagaType].Remove(correlationProperty.Value.ToString());
-                    }
-
-                    correlationValueIndex[sagaType].Add(correlationProperty.Value.ToString(), sagaData.Id);
                 }
             }
 
@@ -219,22 +220,29 @@ namespace NServiceBus
             public void Update(IContainSagaData sagaData)
             {
                 var sagaType = sagaData.GetType();
-                var correlationProperty = sagaType.GetProperty(correlationProperties[sagaType]);
+                PropertyInfo correlationProperty = null;
+                if (correlationProperties.ContainsKey(sagaType))
+                {
+                    correlationProperty = sagaType.GetProperty(correlationProperties[sagaType]);
+                }
 
                 var lockToken = GetLocker(sagaData.Id, sagaData.GetType(), null);
 
                 lock (lockToken)
                 {
                     var oldSaga = sagaIdIndex[sagaData.Id];
-                    var oldCorrelationValue = correlationProperty.GetValue(oldSaga.SagaData);
-                    var newCorrelationValue = correlationProperty.GetValue(sagaData);
+                    if (correlationProperty != null)
+                    {
+                        var oldCorrelationValue = correlationProperty.GetValue(oldSaga.SagaData);
+                        var newCorrelationValue = correlationProperty.GetValue(sagaData);
+
+                        correlationValueIndex[sagaType].Remove(oldCorrelationValue.ToString());
+                        correlationValueIndex[sagaType].Add(newCorrelationValue.ToString(), sagaData.Id);
+                        lockers.Remove(CreateCorrelationLockKey(sagaType, oldCorrelationValue));
+                        lockers.Add(CreateCorrelationLockKey(sagaType, newCorrelationValue), lockToken);
+                    }
 
                     sagaIdIndex[sagaData.Id] = new VersionedSagaEntity(sagaData, oldSaga);
-
-                    correlationValueIndex[sagaType].Remove(oldCorrelationValue.ToString());
-                    correlationValueIndex[sagaType].Add(newCorrelationValue.ToString(), sagaData.Id);
-                    lockers.Remove(CreateCorrelationLockKey(sagaType, oldCorrelationValue));
-                    lockers.Add(CreateCorrelationLockKey(sagaType, newCorrelationValue), lockToken);
                 }
             }
 
@@ -284,8 +292,12 @@ namespace NServiceBus
             public void Remove(IContainSagaData sagaData)
             {
                 var sagaType = sagaData.GetType();
-                var correlationProperty = sagaType.GetProperty(correlationProperties[sagaType]);
-                var correlationValue = correlationProperty.GetValue(sagaData);
+                object correlationValue = null;
+                if (correlationProperties.ContainsKey(sagaType))
+                {
+                    var correlationProperty = sagaType.GetProperty(correlationProperties[sagaType]);
+                    correlationValue = correlationProperty.GetValue(sagaData);
+                }
 
                 var lockToken = GetLocker(sagaData.Id, sagaType, correlationValue);
 
@@ -295,12 +307,15 @@ namespace NServiceBus
                     {
                         sagaIdIndex.Remove(sagaData.Id);
                     }
-                    if (correlationValueIndex.ContainsKey(sagaType))
+                    if (correlationValueIndex.ContainsKey(sagaType) && correlationValue != null)
                     {
                         correlationValueIndex[sagaType].Remove(correlationValue.ToString());
                     }
+                    if (correlationValue != null)
+                    {
+                        lockers.Remove($"{sagaType.FullName}-{correlationValue}");
+                    }
                     lockers.Remove(sagaData.Id.ToString());
-                    lockers.Remove($"{sagaType.FullName}-{correlationValue}");
                 }
             }
 
