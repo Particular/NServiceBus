@@ -1170,6 +1170,15 @@ namespace NServiceBus
     {
         public SubscribeOptions() { }
     }
+    public class TimeoutManagerConfiguration
+    {
+        public TimeoutManagerConfiguration(NServiceBus.Settings.SettingsHolder settings) { }
+    }
+    public class static TimeoutManagerConfigurationExtensions
+    {
+        public static void LimitMessageProcessingConcurrencyTo(this NServiceBus.TimeoutManagerConfiguration timeoutManagerConfiguration, int maxConcurrency) { }
+        public static NServiceBus.TimeoutManagerConfiguration TimeoutManager(this NServiceBus.EndpointConfiguration endpointConfiguration) { }
+    }
     [System.AttributeUsageAttribute(System.AttributeTargets.Class | System.AttributeTargets.Interface | System.AttributeTargets.All)]
     public sealed class TimeToBeReceivedAttribute : System.Attribute
     {

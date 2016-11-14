@@ -35,10 +35,11 @@
             }
 
             var requiredTransactionSupport = context.Settings.GetRequiredTransactionModeForReceives();
+            var pushRuntimeSettings = context.Settings.GetTimeoutManagerMaxConcurrency();
 
-            SetupStorageSatellite(context, requiredTransactionSupport);
+            SetupStorageSatellite(context, requiredTransactionSupport, pushRuntimeSettings);
 
-            var dispatcherAddress = SetupDispatcherSatellite(context, requiredTransactionSupport);
+            var dispatcherAddress = SetupDispatcherSatellite(context, requiredTransactionSupport, pushRuntimeSettings);
 
             SetupTimeoutPoller(context, dispatcherAddress);
         }
@@ -61,12 +62,12 @@
             context.RegisterStartupTask(b => new TimeoutPollerRunner(b.Build<ExpiredTimeoutsPoller>()));
         }
 
-        static string SetupDispatcherSatellite(FeatureConfigurationContext context, TransportTransactionMode requiredTransactionSupport)
+        static string SetupDispatcherSatellite(FeatureConfigurationContext context, TransportTransactionMode requiredTransactionSupport, PushRuntimeSettings pushRuntimeSettings)
         {
             var satelliteLogicalAddress = context.Settings.LogicalAddress().CreateQualifiedAddress("TimeoutsDispatcher");
             var satelliteAddress = context.Settings.GetTransportAddress(satelliteLogicalAddress);
 
-            context.AddSatelliteReceiver("Timeout Dispatcher Processor", satelliteAddress, requiredTransactionSupport, PushRuntimeSettings.Default, RecoverabilityPolicy,
+            context.AddSatelliteReceiver("Timeout Dispatcher Processor", satelliteAddress, requiredTransactionSupport, pushRuntimeSettings, RecoverabilityPolicy,
                 (builder, pushContext) =>
                 {
                     var dispatchBehavior = new DispatchTimeoutBehavior(
@@ -80,12 +81,12 @@
             return satelliteAddress;
         }
 
-        static void SetupStorageSatellite(FeatureConfigurationContext context, TransportTransactionMode requiredTransactionSupport)
+        static void SetupStorageSatellite(FeatureConfigurationContext context, TransportTransactionMode requiredTransactionSupport, PushRuntimeSettings pushRuntimeSettings)
         {
             var satelliteLogicalAddress = context.Settings.LogicalAddress().CreateQualifiedAddress("Timeouts");
             var satelliteAddress = context.Settings.GetTransportAddress(satelliteLogicalAddress);
 
-            context.AddSatelliteReceiver("Timeout Message Processor", satelliteAddress, requiredTransactionSupport, PushRuntimeSettings.Default, RecoverabilityPolicy,
+            context.AddSatelliteReceiver("Timeout Message Processor", satelliteAddress, requiredTransactionSupport, pushRuntimeSettings, RecoverabilityPolicy,
                 (builder, pushContext) =>
                 {
                     var storeBehavior = new StoreTimeoutBehavior(
