@@ -79,9 +79,9 @@
         {
             public V1Subscriber()
             {
-                EndpointSetup<DefaultServer>(b => b.DisableFeature<AutoSubscribe>())
-                    .ExcludeType<V2Event>()
-                    .AddMapping<V1Event>(typeof(V2Publisher));
+                EndpointSetup<DefaultServer>(b => b.DisableFeature<AutoSubscribe>(),
+                    metadata => metadata.RegisterPublisherFor<V1Event>(typeof(V2Publisher)))
+                    .ExcludeType<V2Event>();
             }
 
             class V1Handler : IHandleMessages<V1Event>
@@ -100,8 +100,8 @@
         {
             public V2Subscriber()
             {
-                EndpointSetup<DefaultServer>(b => b.DisableFeature<AutoSubscribe>())
-                    .AddMapping<V2Event>(typeof(V2Publisher));
+                EndpointSetup<DefaultServer>(b => b.DisableFeature<AutoSubscribe>(),
+                     metadata => metadata.RegisterPublisherFor<V2Event>(typeof(V2Publisher)));
             }
 
             class V2Handler : IHandleMessages<V2Event>

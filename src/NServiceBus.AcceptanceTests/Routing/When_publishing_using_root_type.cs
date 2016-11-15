@@ -60,8 +60,7 @@
         {
             public Subscriber1()
             {
-                EndpointSetup<DefaultServer>(c => c.DisableFeature<AutoSubscribe>())
-                    .AddMapping<EventMessage>(typeof(Publisher));
+                EndpointSetup<DefaultServer>(c => c.DisableFeature<AutoSubscribe>(), p => p.RegisterPublisherFor<EventMessage>(typeof(Publisher)));
             }
 
             public class MyEventHandler : IHandleMessages<EventMessage>
@@ -75,6 +74,7 @@
                 }
             }
         }
+
 
         public class EventMessage : IMyEvent
         {

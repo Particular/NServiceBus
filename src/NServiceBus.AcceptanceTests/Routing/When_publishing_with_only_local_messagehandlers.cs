@@ -46,8 +46,8 @@
         {
             public MessageDrivenPublisher()
             {
-                EndpointSetup<DefaultPublisher>(b => b.OnEndpointSubscribed<Context>((s, context) => { context.LocalEndpointSubscribed = true; }))
-                    .AddMapping<EventHandledByLocalEndpoint>(typeof(MessageDrivenPublisher)); //an explicit mapping is needed
+                EndpointSetup<DefaultPublisher>(b => b.OnEndpointSubscribed<Context>((s, context) => { context.LocalEndpointSubscribed = true; }),
+                    metadata => metadata.RegisterPublisherFor<EventHandledByLocalEndpoint>(typeof(MessageDrivenPublisher)));
             }
 
             class CatchAllHandler : IHandleMessages<IEvent> //not enough for auto subscribe to work
@@ -75,8 +75,7 @@
         {
             public CentralizedStoragePublisher()
             {
-                EndpointSetup<DefaultServer>()
-                    .AddMapping<EventHandledByLocalEndpoint>(typeof(CentralizedStoragePublisher)); //an explicit mapping may be needed, depends on the technology underneath;
+                EndpointSetup<DefaultServer>(publisherMetadata: metadata => metadata.RegisterPublisherFor<EventHandledByLocalEndpoint>(typeof(CentralizedStoragePublisher)));
             }
 
             class CatchAllHandler : IHandleMessages<IEvent>

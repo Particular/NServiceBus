@@ -54,8 +54,8 @@
                 {
                     c.DisableFeature<AutoSubscribe>();
                     c.LimitMessageProcessingConcurrencyTo(1); //To ensure Done is processed after the event.
-                })
-                    .AddMapping<SpecificEvent>(typeof(Publisher));
+                },
+                metadata => metadata.RegisterPublisherFor<SpecificEvent>(typeof(Publisher)));
             }
 
             public class MyEventHandler : IHandleMessages<SpecificEvent>

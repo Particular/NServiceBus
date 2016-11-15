@@ -51,8 +51,7 @@
                             context.EventSubscribed = true;
                         }
                     });
-                })
-                .AddMapping<Event>(typeof(PublisherAndSubscriber));
+                }, metadata => metadata.RegisterPublisherFor<Event>(typeof(PublisherAndSubscriber)));
             }
 
             public class EventHandler : IHandleMessages<Event>

@@ -49,7 +49,7 @@
         {
             public SendingEndpoint()
             {
-                EndpointSetup<DefaultPublisher>().AddMapping<MyMessage>(typeof(ReplyingEndpoint));
+                EndpointSetup<DefaultServer>().AddMapping<MyMessage>(typeof(ReplyingEndpoint));
             }
 
             public class ResponseHandler : IHandleMessages<MyReply>

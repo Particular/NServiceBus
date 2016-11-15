@@ -11,6 +11,7 @@
             UserDefinedConfigSections = new Dictionary<Type, object>();
             TypesToExclude = new List<Type>();
             TypesToInclude = new List<Type>();
+            PublisherMetadata = new PublisherMetadata();
         }
 
         public IDictionary<Type, Type> EndpointMappings { get; set; }
@@ -20,6 +21,8 @@
         public IList<Type> TypesToInclude { get; set; }
 
         public Func<RunDescriptor, IDictionary<Type, string>, Task<EndpointConfiguration>> GetConfiguration { get; set; }
+
+        public PublisherMetadata PublisherMetadata { get; private set; }
 
         public string EndpointName
         {

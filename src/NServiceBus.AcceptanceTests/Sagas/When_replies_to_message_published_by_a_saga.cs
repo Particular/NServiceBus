@@ -45,11 +45,7 @@
         {
             public ReplyEndpoint()
             {
-                EndpointSetup<DefaultServer>(b =>
-                    {
-                        b.DisableFeature<AutoSubscribe>();
-                    })
-                    .AddMapping<DidSomething>(typeof(SagaEndpoint));
+                EndpointSetup<DefaultServer>(b => b.DisableFeature<AutoSubscribe>(), metadata => metadata.RegisterPublisherFor<DidSomething>(typeof(SagaEndpoint)));
             }
 
             class DidSomethingHandler : IHandleMessages<DidSomething>

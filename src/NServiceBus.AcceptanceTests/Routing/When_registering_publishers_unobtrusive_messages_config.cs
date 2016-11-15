@@ -47,9 +47,8 @@
         {
             public Subscriber()
             {
-                EndpointSetup<DefaultServer>(c => c
-                .Conventions().DefiningEventsAs(t => t == typeof(SomeEvent)))
-                .AddMapping<SomeEvent>(typeof(Publisher));
+                EndpointSetup<DefaultServer>(c => c.Conventions().DefiningEventsAs(t => t == typeof(SomeEvent)),
+                metadata => metadata.RegisterPublisherFor<SomeEvent>(typeof(Publisher)));
             }
 
             public class EventHandler : IHandleMessages<SomeEvent>

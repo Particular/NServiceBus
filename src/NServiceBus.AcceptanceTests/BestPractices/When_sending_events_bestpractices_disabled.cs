@@ -30,8 +30,8 @@ namespace NServiceBus.AcceptanceTests.BestPractices
             public Endpoint()
             {
                 EndpointSetup<DefaultServer>()
-                    .AddMapping<MyCommand>(typeof(Endpoint))
-                    .AddMapping<MyEvent>(typeof(Endpoint));
+                    .AddMapping<MyEvent>(typeof(Endpoint))
+                    .AddMapping<MyCommand>(typeof(Endpoint));
             }
 
             public class Handler : IHandleMessages<MyEvent>

@@ -62,8 +62,8 @@
                 {
                     c.EnableFeature<TimeoutManager>();
                     c.DisableFeature<AutoSubscribe>();
-                })
-                    .AddMapping<BaseEvent>(typeof(Publisher));
+                },
+                metdata => metdata.RegisterPublisherFor<BaseEvent>(typeof(Publisher)));
             }
 
             public class SagaStartedByBaseEvent : Saga<SagaStartedByBaseEvent.SagaStartedByBaseEventSagaData>, IAmStartedByMessages<BaseEvent>
@@ -90,7 +90,7 @@
             }
         }
 
-        
+
         public class StartSaga : ICommand
         {
             public Guid DataId { get; set; }

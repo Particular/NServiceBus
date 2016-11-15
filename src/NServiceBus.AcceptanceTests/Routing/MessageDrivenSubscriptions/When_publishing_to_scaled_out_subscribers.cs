@@ -3,16 +3,13 @@
     using System.Threading;
     using System.Threading.Tasks;
     using AcceptanceTesting;
-    using AcceptanceTesting.Customization;
     using EndpointTemplates;
     using NUnit.Framework;
     using ScenarioDescriptors;
 
     public class When_publishing_to_scaled_out_subscribers : NServiceBusAcceptanceTest
     {
-        static string PublisherEndpoint => Conventions.EndpointNamingConvention(typeof(Publisher));
-
-        [Test]
+       [Test]
         public async Task Each_event_should_be_delivered_to_single_instance_of_each_subscriber()
         {
             await Scenario.Define<Context>()
@@ -71,10 +68,7 @@
         {
             public SubscriberA()
             {
-                EndpointSetup<DefaultServer>(c =>
-                {
-                    c.MessageDrivenPubSubRouting().RegisterPublisher(typeof(MyEvent), PublisherEndpoint);
-                });
+                EndpointSetup<DefaultServer>(publisherMetadata: metadata => metadata.RegisterPublisherFor<MyEvent>(typeof(Publisher)));
             }
 
             public class MyEventHandler : IHandleMessages<MyEvent>
@@ -93,10 +87,7 @@
         {
             public SubscriberB()
             {
-                EndpointSetup<DefaultServer>(c =>
-                {                    
-                    c.MessageDrivenPubSubRouting().RegisterPublisher(typeof(MyEvent), PublisherEndpoint);
-                });
+                EndpointSetup<DefaultServer>(publisherMetadata: metadata => metadata.RegisterPublisherFor<MyEvent>(typeof(Publisher)));
             }
 
             public class MyEventHandler : IHandleMessages<MyEvent>

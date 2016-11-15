@@ -85,8 +85,8 @@
                 {
                     c.Conventions().DefiningEventsAs(t => t.Namespace != null && t.Name.EndsWith("Event"));
                     c.DisableFeature<AutoSubscribe>();
-                })
-                    .AddMapping<MyEvent>(typeof(Publisher));
+                },
+                metadata => metadata.RegisterPublisherFor<MyEvent>(typeof(Publisher)));
             }
 
             public class MyEventHandler : IHandleMessages<MyEvent>

@@ -21,11 +21,10 @@
             public Endpoint()
             {
                 EndpointSetup<DefaultServer>((c, r) =>
-                {
-                    var routing = c.UseTransport(r.GetTransportType()).Routing();
-                    routing.DoNotEnforceBestPractices();
-                })
-                    .AddMapping<MyCommand>(typeof(Endpoint))
+                    {
+                        var routing = c.UseTransport(r.GetTransportType()).Routing();
+                        routing.DoNotEnforceBestPractices();
+                    })
                     .AddMapping<MyEvent>(typeof(Endpoint));
             }
 
@@ -36,10 +35,6 @@
                     return Task.FromResult(0);
                 }
             }
-        }
-
-        public class MyCommand : ICommand
-        {
         }
 
         public class MyEvent : IEvent

@@ -75,6 +75,7 @@
     <Compile Include="Support\IScenarioWithEndpointBehavior.cs" />
     <Compile Include="Support\IWhenDefinition.cs" />
     <Compile Include="Support\MessagesFailedException.cs" />
+    <Compile Include="Support\PublisherMetadata.cs" />
     <Compile Include="Support\RunDescriptor.cs" />
     <Compile Include="Support\RunDescriptorsBuilder.cs" />
     <Compile Include="Scenario.cs" />
