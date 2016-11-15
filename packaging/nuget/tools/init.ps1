@@ -1,51 +1,55 @@
 param($installPath, $toolsPath, $package, $project)
 
-$nserviceBusKeyPath =  "HKCU:SOFTWARE\NServiceBus" 
+$packageVersion = 'Unknown'
 
-$platformKeyPath = "HKCU:SOFTWARE\ParticularSoftware"
-$isNewUser = $true
+$notice = @"
+For first time users this script collects install and version information. 
+    
+This call does not collect any personal information. For more details, see the 
+License Agreement and the Privacy Policy available here: http://particular.net/licenseagreement.
+"@
 
-$packageVersion = "Unknown"
-
-if($package){
-	$packageVersion = $package.Version
+if ($package) {
+    $packageVersion = $package.Version
 }
 
-#Figure out if this is a first time user
-try {
+# Define script to run in background job
+$jobScriptBlock = { 
+    param($packageVersion)
 
-	#Check for existing NServiceBus installations
-	if (Test-Path $nserviceBusKeyPath) {
-		$isNewUser = $false
-	}
-	
-	if (Test-Path $platformKeyPath){
-		$isNewUser = $false
-	}
+    # Set Tracing on with the Job
+    Set-PSDebug -Trace 2
 
-	if (!($isNewuser)) {
-		exit
-	}
-
-	if (!(Test-Path $platformKeyPath)){
-		New-Item -Path HKCU:SOFTWARE -Name ParticularSoftware | Out-Null
-	}
-
-	Set-ItemProperty -Path $platformKeyPath -Name "NuGetUser" -Value "true" | Out-Null
-
-	Write-Verbose 'Reporting first time install and version information to www.particular.net. This call does not collect any personal information. For more details, see the License Agreement and the Privacy Policy available here: http://particular.net/licenseagreement. Subsequent NuGet installs or updates will not invoke this call.' -verbose
-	$url = 'https://particular.net/api/ReportFirstTimeInstall'
-	$postData  = New-Object System.Collections.Specialized.NameValueCollection
-	$postData.Add("version", $packageversion)
-	$wc = New-Object System.Net.WebClient
-	$wc.UseDefaultCredentials = $true
-	$wc.UploadValuesAsync($url,"post", $postdata)
-} 
-Catch [Exception] { 
-	Write-Warning $error[0]
+    $nserviceBusKeyPath = 'HKCU:SOFTWARE\NServiceBus' 
+    $platformKeyPath = 'HKCU:SOFTWARE\ParticularSoftware'
+    
+    # Test for Existing reg keys and skip if either are found
+    if (-not ((Test-Path $nserviceBusKeyPath) -or (Test-Path $platformKeyPath))) {
+    
+        # Set Flag to bypass first time user feedback in Platform Installer
+        New-Item -Path $platformKeyPath -Force | Out-Null
+        Set-ItemProperty -Path $platformKeyPath -Name 'NuGetUser' -Value 'true' -Force
+    
+        # Post Version to particular.net
+        $wc = New-Object System.Net.WebClient 
+        try {
+            $url = 'https://particular.net/api/ReportFirstTimeInstall'
+            $postData  = New-Object System.Collections.Specialized.NameValueCollection
+            $postData.Add("version", $packageversion)
+            $wc.UseDefaultCredentials = $true
+            $wc.UploadValues($url, "post", $postdata)
+        } 
+        finally {
+            # Dispose
+            Remove-Variable -Name wc 
+        }
+    }
 }
-finally {
-	if ($wc){
-	$wc.Dispose()
-	}
+
+# If an existing instance of this job exists then we can skip running it, otherwise create and run 
+$jobName = 'particular.analytics'
+$job = Get-Job -Name  $jobName -ErrorAction SilentlyContinue
+if (-not $job) {
+    Write-Output $notice
+    $job = Start-Job -ScriptBlock $jobScriptBlock -Name $jobName -ArgumentList $packageVersion 
 }
