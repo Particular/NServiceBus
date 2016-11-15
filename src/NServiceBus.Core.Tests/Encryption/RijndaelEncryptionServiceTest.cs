@@ -50,6 +50,7 @@
             Assert.AreEqual("string to encrypt", decryptedValue);
         }
 
+        [Ignore("flaky: https://github.com/Particular/NServiceBus/issues/4295")]
         [Test]
         public void Should_throw_when_decrypt_with_wrong_key()
         {
