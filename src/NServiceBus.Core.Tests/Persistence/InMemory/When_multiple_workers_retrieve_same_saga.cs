@@ -41,13 +41,15 @@
             await persister.Save(saga, SagaMetadataHelper.GetMetadata<TestSaga>(saga), insertSession, new ContextBag());
             await insertSession.CompleteAsync();
 
-            var returnedSaga1 = await Task.Run(() => persister.Get<TestSagaData>(saga.Id, new InMemorySynchronizedStorageSession(), new ContextBag()));
-            var returnedSaga2 = await persister.Get<TestSagaData>("SomeId", sagaId.ToString(), new InMemorySynchronizedStorageSession(), new ContextBag());
+            var ctx1 = new ContextBag();
+            var ctx2 = new ContextBag();
+            var returnedSaga1 = await Task.Run(() => persister.Get<TestSagaData>(saga.Id, new InMemorySynchronizedStorageSession(), ctx1));
+            var returnedSaga2 = await persister.Get<TestSagaData>("SomeId", sagaId.ToString(), new InMemorySynchronizedStorageSession(), ctx2);
 
             var winningSaveSession = new InMemorySynchronizedStorageSession();
             var losingSaveSession = new InMemorySynchronizedStorageSession();
-            await persister.Update(returnedSaga1, winningSaveSession, new ContextBag());
-            await persister.Update(returnedSaga2, losingSaveSession, new ContextBag());
+            await persister.Update(returnedSaga1, winningSaveSession, ctx1);
+            await persister.Update(returnedSaga2, losingSaveSession, ctx2);
 
             await winningSaveSession.CompleteAsync();
 
@@ -68,14 +70,16 @@
             await persister.Save(saga, SagaMetadataHelper.GetMetadata<TestSaga>(saga), insertSession, new ContextBag());
             await insertSession.CompleteAsync();
 
-            var record = await persister.Get<TestSagaData>(saga.Id, new InMemorySynchronizedStorageSession(), new ContextBag());
-            var staleRecord = await persister.Get<TestSagaData>("SomeId", sagaId.ToString(), new InMemorySynchronizedStorageSession(), new ContextBag());
+            var ctx1 = new ContextBag();
+            var record = await persister.Get<TestSagaData>(saga.Id, new InMemorySynchronizedStorageSession(), ctx1);
+            var ctx2 = new ContextBag();
+            var staleRecord = await persister.Get<TestSagaData>("SomeId", sagaId.ToString(), new InMemorySynchronizedStorageSession(), ctx2);
 
             var winningSaveSession = new InMemorySynchronizedStorageSession();
             var losingSaveSession = new InMemorySynchronizedStorageSession();
 
-            await persister.Update(record, winningSaveSession, new ContextBag());
-            await persister.Update(staleRecord, losingSaveSession, new ContextBag());
+            await persister.Update(record, winningSaveSession, ctx1);
+            await persister.Update(staleRecord, losingSaveSession, ctx2);
 
             await winningSaveSession.CompleteAsync();
 
@@ -94,13 +98,14 @@
             await persister.Save(saga, SagaMetadataHelper.GetMetadata<TestSaga>(saga), insertSession, new ContextBag());
             await insertSession.CompleteAsync();
 
-            var returnedSaga1 = await persister.Get<TestSagaData>(saga.Id, new InMemorySynchronizedStorageSession(), new ContextBag());
+            var ctx = new ContextBag();
+            var returnedSaga1 = await persister.Get<TestSagaData>(saga.Id, new InMemorySynchronizedStorageSession(), ctx);
 
             var winningSaveSession = new InMemorySynchronizedStorageSession();
             var losingSaveSession = new InMemorySynchronizedStorageSession();
 
-            await persister.Update(returnedSaga1, winningSaveSession, new ContextBag());
-            await persister.Update(returnedSaga1, losingSaveSession, new ContextBag());
+            await persister.Update(returnedSaga1, winningSaveSession, ctx);
+            await persister.Update(returnedSaga1, losingSaveSession, ctx);
 
             await winningSaveSession.CompleteAsync();
 
@@ -121,26 +126,32 @@
             await persister.Save(saga, SagaMetadataHelper.GetMetadata<TestSaga>(saga), insertSession, new ContextBag());
             await insertSession.CompleteAsync();
 
-            var returnedSaga1 = await Task.Run(() => persister.Get<TestSagaData>(saga.Id, new InMemorySynchronizedStorageSession(), new ContextBag()));
-            var returnedSaga2 = await persister.Get<TestSagaData>("SomeId", sagaId.ToString(), new InMemorySynchronizedStorageSession(), new ContextBag());
+            var ctx1 = new ContextBag();
+            var returnedSaga1 = await Task.Run(() => persister.Get<TestSagaData>(saga.Id, new InMemorySynchronizedStorageSession(), ctx1));
+
+            var ctx2 = new ContextBag();
+            var returnedSaga2 = await persister.Get<TestSagaData>("SomeId", sagaId.ToString(), new InMemorySynchronizedStorageSession(), ctx2);
 
             var winningSaveSession = new InMemorySynchronizedStorageSession();
             var losingSaveSession = new InMemorySynchronizedStorageSession();
 
-            await persister.Update(returnedSaga1, winningSaveSession, new ContextBag());
-            await persister.Update(returnedSaga2, losingSaveSession, new ContextBag());
+            await persister.Update(returnedSaga1, winningSaveSession, ctx1);
+            await persister.Update(returnedSaga2, losingSaveSession, ctx2);
 
             await winningSaveSession.CompleteAsync();
             Assert.That(async () => await losingSaveSession.CompleteAsync(), Throws.InstanceOf<Exception>().And.Message.StartsWith($"InMemorySagaPersister concurrency violation: saga entity Id[{saga.Id}] already saved."));
 
-            var returnedSaga3 = await Task.Run(() => persister.Get<TestSagaData>("SomeId", sagaId.ToString(), new InMemorySynchronizedStorageSession(), new ContextBag()));
-            var returnedSaga4 = await persister.Get<TestSagaData>(saga.Id, new InMemorySynchronizedStorageSession(), new ContextBag());
+            var ctx3 = new ContextBag();
+            var returnedSaga3 = await Task.Run(() => persister.Get<TestSagaData>("SomeId", sagaId.ToString(), new InMemorySynchronizedStorageSession(), ctx3));
+
+            var ctx4 = new ContextBag();
+            var returnedSaga4 = await persister.Get<TestSagaData>(saga.Id, new InMemorySynchronizedStorageSession(), ctx4);
 
             winningSaveSession = new InMemorySynchronizedStorageSession();
             losingSaveSession = new InMemorySynchronizedStorageSession();
 
-            await persister.Update(returnedSaga4, winningSaveSession, new ContextBag());
-            await persister.Update(returnedSaga3, losingSaveSession, new ContextBag());
+            await persister.Update(returnedSaga4, winningSaveSession, ctx4);
+            await persister.Update(returnedSaga3, losingSaveSession, ctx3);
 
             await winningSaveSession.CompleteAsync();
 

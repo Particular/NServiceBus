@@ -249,7 +249,6 @@
     <Compile Include="Persistence\InMemory\When_completing_a_saga_with_unique_property_with_InMemory_persister.cs" />
     <Compile Include="Persistence\InMemory\When_multiple_workers_retrieve_same_saga.cs" />
     <Compile Include="Persistence\InMemory\When_persisting_a_saga_with_the_same_unique_property_as_another_saga.cs" />
-    <Compile Include="Persistence\InMemory\When_persisting_a_saga_with_the_same_unique_property_as_the_original_value_of_another_saga_before_updating.cs" />
     <Compile Include="Persistence\InMemory\When_persisting_different_sagas_with_unique_properties.cs" />
     <Compile Include="Persistence\InMemory\When_saga_not_found_return_default.cs" />
     <Compile Include="Persistence\InMemory\When_updating_a_saga_with_the_same_unique_property_as_another_saga.cs" />

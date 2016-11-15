@@ -22,10 +22,11 @@ namespace NServiceBus.SagaPersisters.InMemory.Tests
             await persister.Save(saga1, SagaMetadataHelper.GetMetadata<SagaWithUniqueProperty>(saga1), insertSession, new ContextBag());
             await insertSession.CompleteAsync();
 
-            saga1 = await persister.Get<SagaWithUniquePropertyData>(saga1.Id, new InMemorySynchronizedStorageSession(), new ContextBag());
+            var ctx = new ContextBag();
+            saga1 = await persister.Get<SagaWithUniquePropertyData>(saga1.Id, new InMemorySynchronizedStorageSession(), ctx);
 
             var updateSession = new InMemorySynchronizedStorageSession();
-            await persister.Update(saga1, updateSession, new ContextBag());
+            await persister.Update(saga1, updateSession, ctx);
             await updateSession.CompleteAsync();
         }
     }

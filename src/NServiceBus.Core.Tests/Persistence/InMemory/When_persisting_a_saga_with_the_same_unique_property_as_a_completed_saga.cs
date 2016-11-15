@@ -26,22 +26,25 @@
 
             using (var session1 = new InMemorySynchronizedStorageSession())
             {
-                await persister.Save(saga1, SagaMetadataHelper.GetMetadata<SagaWithUniqueProperty>(saga1), session1, new ContextBag());
-                await persister.Complete(saga1, session1, new ContextBag());
+                var ctx = new ContextBag();
+                await persister.Save(saga1, SagaMetadataHelper.GetMetadata<SagaWithUniqueProperty>(saga1), session1, ctx);
+                await persister.Complete(saga1, session1, ctx);
                 await session1.CompleteAsync();
             }
 
             using (var session2 = new InMemorySynchronizedStorageSession())
             {
-                await persister.Save(saga2, SagaMetadataHelper.GetMetadata<SagaWithUniqueProperty>(saga2), session2, new ContextBag());
-                await persister.Complete(saga2, session2, new ContextBag());
+                var ctx = new ContextBag();
+                await persister.Save(saga2, SagaMetadataHelper.GetMetadata<SagaWithUniqueProperty>(saga2), session2, ctx);
+                await persister.Complete(saga2, session2, ctx);
                 await session2.CompleteAsync();
             }
 
             using (var session3 = new InMemorySynchronizedStorageSession())
             {
-                await persister.Save(saga1, SagaMetadataHelper.GetMetadata<SagaWithUniqueProperty>(saga1), session3, new ContextBag());
-                await persister.Complete(saga1, session3, new ContextBag());
+                var ctx = new ContextBag();
+                await persister.Save(saga1, SagaMetadataHelper.GetMetadata<SagaWithUniqueProperty>(saga1), session3, ctx);
+                await persister.Complete(saga1, session3, ctx);
                 await session3.CompleteAsync();
             }
         }

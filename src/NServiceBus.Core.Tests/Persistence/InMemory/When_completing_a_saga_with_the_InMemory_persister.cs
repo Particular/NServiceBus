@@ -20,10 +20,11 @@
             await persister.Save(saga, SagaMetadataHelper.GetMetadata<TestSaga>(saga), insertSession, new ContextBag());
             await insertSession.CompleteAsync();
 
-            var sagaData = await persister.Get<TestSagaData>(saga.Id, new InMemorySynchronizedStorageSession(), new ContextBag());
+            var ctx = new ContextBag();
+            var sagaData = await persister.Get<TestSagaData>(saga.Id, new InMemorySynchronizedStorageSession(), ctx);
 
             var deleteSession = new InMemorySynchronizedStorageSession();
-            await persister.Complete(saga, deleteSession, new ContextBag());
+            await persister.Complete(saga, deleteSession, ctx);
             await deleteSession.CompleteAsync();
             var completedSaga = await persister.Get<TestSagaData>(saga.Id, new InMemorySynchronizedStorageSession(), new ContextBag());
 

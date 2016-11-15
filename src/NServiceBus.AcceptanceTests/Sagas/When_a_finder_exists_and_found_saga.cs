@@ -53,7 +53,7 @@
                         Id = Guid.NewGuid()
                     };
                     //Make sure saga exists in the store. Persisters expect it there when they save saga instance after processing a message.
-                    await SagaPersister.Save(sagaInstance, SagaCorrelationProperty.None, storageSession, new ContextBag()).ConfigureAwait(false);
+                    await SagaPersister.Save(sagaInstance, SagaCorrelationProperty.None, storageSession, (ContextBag)context).ConfigureAwait(false);
                     return sagaInstance;
                 }
             }

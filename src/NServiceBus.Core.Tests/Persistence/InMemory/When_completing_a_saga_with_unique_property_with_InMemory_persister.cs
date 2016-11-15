@@ -18,10 +18,11 @@
             await persister.Save(saga,SagaMetadataHelper.GetMetadata<SagaWithUniqueProperty>(saga), insertSession, new ContextBag());
             await insertSession.CompleteAsync();
 
-            var sagaData = await persister.Get<SagaWithUniquePropertyData>(saga.Id, new InMemorySynchronizedStorageSession(), new ContextBag());
+            var ctx = new ContextBag();
+            var sagaData = await persister.Get<SagaWithUniquePropertyData>(saga.Id, new InMemorySynchronizedStorageSession(), ctx);
 
             var completeSession = new InMemorySynchronizedStorageSession();
-            await persister.Complete(saga, completeSession, new ContextBag());
+            await persister.Complete(saga, completeSession, ctx);
             await completeSession.CompleteAsync();
 
             var completedSagaData = await persister.Get<SagaWithUniquePropertyData>(saga.Id, new InMemorySynchronizedStorageSession(), new ContextBag());
