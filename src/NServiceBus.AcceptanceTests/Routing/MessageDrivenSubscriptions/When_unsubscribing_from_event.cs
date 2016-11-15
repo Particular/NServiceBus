@@ -11,9 +11,9 @@
     public class When_unsubscribing_from_event : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task ShouldNoLongerReceiveEvent()
+        public Task ShouldNoLongerReceiveEvent()
         {
-            await Scenario.Define<Context>()
+            return Scenario.Define<Context>()
                 .WithEndpoint<Publisher>(c => c
                     .When(
                         ctx => ctx.Subscriber1Subscribed && ctx.Subscriber2Subscribed,
@@ -25,7 +25,6 @@
                             await s.Publish(new Event());
                             await s.Publish(new Event());
                             await s.Publish(new Event());
-
                         }))
                 .WithEndpoint<Subscriber1>(c => c
                     .When(s => s.Subscribe<Event>()))
@@ -87,17 +86,12 @@
         {
             public Subscriber1()
             {
-                EndpointSetup<DefaultServer>(c =>
-                {
-                    c.DisableFeature<AutoSubscribe>();
-                    c.MessageDrivenPubSubRouting().RegisterPublisher(typeof(Event), Conventions.EndpointNamingConvention(typeof(Publisher)));
-                });
+                EndpointSetup<DefaultServer>(c => c.DisableFeature<AutoSubscribe>(),
+                    metadata => metadata.RegisterPublisherFor<Event>(typeof(Publisher)));
             }
 
             public class EventHandler : IHandleMessages<Event>
             {
-                Context testContext;
-
                 public EventHandler(Context testContext)
                 {
                     this.testContext = testContext;
@@ -108,6 +102,8 @@
                     testContext.Subscriber1ReceivedMessages++;
                     return Task.FromResult(0);
                 }
+
+                Context testContext;
             }
         }
 
@@ -115,17 +111,12 @@
         {
             public Subscriber2()
             {
-                EndpointSetup<DefaultServer>(c =>
-                {
-                    c.DisableFeature<AutoSubscribe>();
-                    c.MessageDrivenPubSubRouting().RegisterPublisher(typeof(Event), Conventions.EndpointNamingConvention(typeof(Publisher)));
-                });
+                EndpointSetup<DefaultServer>(c => c.DisableFeature<AutoSubscribe>(),
+                    metadata => metadata.RegisterPublisherFor<Event>(typeof(Publisher)));
             }
 
             public class EventHandler : IHandleMessages<Event>
             {
-                Context testContext;
-
                 public EventHandler(Context testContext)
                 {
                     this.testContext = testContext;
@@ -136,6 +127,8 @@
                     testContext.Subscriber2ReceivedMessages++;
                     return Task.FromResult(0);
                 }
+
+                Context testContext;
             }
         }
 
