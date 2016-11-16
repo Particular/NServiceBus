@@ -2,6 +2,7 @@ namespace NServiceBus.AcceptanceTesting.Support
 {
     using System;
     using System.Collections.Generic;
+    using Customization;
 
     /// <summary>
     /// Metadata on events and their publishers.
@@ -10,32 +11,46 @@ namespace NServiceBus.AcceptanceTesting.Support
     {
         public IEnumerable<PublisherDetails> Publishers => publisherDetails.Values;
 
-        public void RegisterPublisherFor<T>(Type endpoint)
+        public void RegisterPublisherFor<T>(string endpointName)
         {
             PublisherDetails publisher;
-
-            if (!publisherDetails.TryGetValue(endpoint, out publisher))
+            if (!publisherDetails.TryGetValue(endpointName, out publisher))
             {
-                publisher = new PublisherDetails(endpoint);
+                publisher = new PublisherDetails(endpointName);
 
-                publisherDetails[endpoint] = publisher;
+                publisherDetails[endpointName] = publisher;
             }
 
             publisher.RegisterOwnedEvent<T>();
         }
 
-        Dictionary<Type, PublisherDetails> publisherDetails = new Dictionary<Type, PublisherDetails>();
+        public void RegisterPublisherFor<T>(Type endpointType)
+        {
+            var endpointName = Conventions.EndpointNamingConvention(endpointType);
+
+            PublisherDetails publisher;
+            if (!publisherDetails.TryGetValue(endpointName, out publisher))
+            {
+                publisher = new PublisherDetails(endpointName);
+
+                publisherDetails[endpointName] = publisher;
+            }
+
+            publisher.RegisterOwnedEvent<T>();
+        }
+
+        Dictionary<string, PublisherDetails> publisherDetails = new Dictionary<string, PublisherDetails>();
 
         public class PublisherDetails
         {
-            public PublisherDetails(Type publisherTypeType)
+            public PublisherDetails(string publisherName)
             {
-                PublisherType = publisherTypeType;
+                this.publisherName = publisherName;
             }
 
             public List<Type> Events { get; } = new List<Type>();
 
-            public Type PublisherType { get; set; }
+            public string publisherName { get; private set; }
 
             public void RegisterOwnedEvent<T>()
             {
