@@ -7,20 +7,20 @@ namespace NServiceBus
     using Extensibility;
     using Sagas;
     using Persistence;
-
+    
     class InMemorySagaPersister : ISagaPersister
     {
-        const string NoCorrelationId = "";
+        static readonly CorrelationId NoCorrelationId = new CorrelationId(typeof(object), "", new object());
         readonly ConcurrentDictionary<Guid, Entry> _sagas = new ConcurrentDictionary<Guid, Entry>();
-        readonly ConcurrentDictionary<string, Guid> _byCorrelationId = new ConcurrentDictionary<string, Guid>();
+        readonly ConcurrentDictionary<CorrelationId, Guid> _byCorrelationId = new ConcurrentDictionary<CorrelationId, Guid>();
         static readonly JsonMessageSerializer serializer = new JsonMessageSerializer(null);
 
         class Entry
         {
-            public string CorrelationId { get; private set; }
+            public CorrelationId CorrelationId { get; private set; }
             public IContainSagaData ContainSagaData { get; }
 
-            public Entry(IContainSagaData sagaData, string correlationId)
+            public Entry(IContainSagaData sagaData, CorrelationId correlationId)
             {
                 CorrelationId = correlationId;
                 ContainSagaData = DeepClone(sagaData);
@@ -51,7 +51,7 @@ namespace NServiceBus
 
                 // saga removed
                 // clean the index
-                if (entry.CorrelationId != NoCorrelationId)
+                if (Equals(entry.CorrelationId, NoCorrelationId) == false)
                 {
                     _byCorrelationId.TryRemoveConditionally(entry.CorrelationId, sagaData.Id);
                 }
@@ -80,7 +80,7 @@ namespace NServiceBus
 
         public Task<TSagaData> Get<TSagaData>(string propertyName, object propertyValue, SynchronizedStorageSession session, ContextBag context) where TSagaData : IContainSagaData
         {
-            var key = GetKey(typeof(TSagaData),new SagaCorrelationProperty(propertyName, propertyValue));
+            var key = GetKey(typeof(TSagaData), propertyName, propertyValue);
             Guid id;
 
             if (_byCorrelationId.TryGetValue(key, out id))
@@ -99,7 +99,7 @@ namespace NServiceBus
                 var correlationId = NoCorrelationId;
                 if (correlationProperty != SagaCorrelationProperty.None)
                 {
-                    correlationId = GetKey(sagaData.GetType(),correlationProperty);
+                    correlationId = GetKey(sagaData.GetType(), correlationProperty);
                     if (_byCorrelationId.TryAdd(correlationId, sagaData.Id) == false)
                     {
                         throw new InvalidOperationException($"The saga with the correlation id 'Name: {correlationProperty.Name} Value: {correlationProperty.Value}' already exists");
@@ -143,9 +143,58 @@ namespace NServiceBus
             return entry;
         }
 
-        static string GetKey(Type sagaType, SagaCorrelationProperty correlationProperty)
+        static CorrelationId GetKey(Type sagaType, SagaCorrelationProperty correlationProperty)
         {
-            return sagaType.FullName + "," +serializer.SerializeObject(correlationProperty);
+            var propertyName = correlationProperty.Name;
+            var propertyValue = correlationProperty.Value;
+            return GetKey(sagaType, propertyName, propertyValue);
+        }
+
+        static CorrelationId GetKey(Type sagaType, string propertyName, object propertyValue)
+        {
+            return new CorrelationId(sagaType, propertyName, propertyValue);
+        }
+
+        /// <summary>
+        /// This correlation id is cheap to create as type and the propertyName are not allocated (they are stored in the saga metadata).
+        /// The only thing that is allocated is the correlationId itselft and the propertyValue, which again, is allocated anyway by the saga behavior.
+        /// </summary>
+        class CorrelationId
+        {
+            readonly Type type;
+            readonly string propertyName;
+            readonly object propertyValue;
+
+            public CorrelationId(Type type, string propertyName, object propertyValue)
+            {
+                this.type = type;
+                this.propertyName = propertyName;
+                this.propertyValue = propertyValue;
+            }
+
+            bool Equals(CorrelationId other)
+            {
+                return type == other.type && string.Equals(propertyName, other.propertyName) && propertyValue.Equals(other.propertyValue);
+            }
+
+            public override bool Equals(object obj)
+            {
+                if (ReferenceEquals(null, obj)) return false;
+                if (ReferenceEquals(this, obj)) return true;
+                if (obj.GetType() != GetType()) return false;
+                return Equals((CorrelationId) obj);
+            }
+
+            public override int GetHashCode()
+            {
+                unchecked
+                {
+                    // propertyName isn't taken into consideration as there will be only one property per saga to correlate.
+                    var hashCode = type.GetHashCode();
+                    hashCode = (hashCode*397) ^ propertyValue.GetHashCode();
+                    return hashCode;
+                }
+            }
         }
     }
 
