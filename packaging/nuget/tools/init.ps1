@@ -50,6 +50,6 @@ $jobScriptBlock = {
 $jobName = 'particular.analytics'
 $job = Get-Job -Name  $jobName -ErrorAction SilentlyContinue
 if (-not $job) {
-    Write-Output $notice
+    Write-Host $notice
     $job = Start-Job -ScriptBlock $jobScriptBlock -Name $jobName -ArgumentList $packageVersion 
 }
