@@ -25,7 +25,7 @@ public class ConfigureEndpointMsmqTransport : IConfigureEndpointTestExecution
         {
             foreach (var eventType in publisher.Events)
             {
-                routingConfig.RegisterPublisher(eventType, publisher.publisherName);
+                routingConfig.RegisterPublisher(eventType, publisher.PublisherName);
             }
         }
 

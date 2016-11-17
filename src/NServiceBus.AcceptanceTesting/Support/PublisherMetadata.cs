@@ -26,17 +26,7 @@ namespace NServiceBus.AcceptanceTesting.Support
 
         public void RegisterPublisherFor<T>(Type endpointType)
         {
-            var endpointName = Conventions.EndpointNamingConvention(endpointType);
-
-            PublisherDetails publisher;
-            if (!publisherDetails.TryGetValue(endpointName, out publisher))
-            {
-                publisher = new PublisherDetails(endpointName);
-
-                publisherDetails[endpointName] = publisher;
-            }
-
-            publisher.RegisterOwnedEvent<T>();
+            RegisterPublisherFor<T>(Conventions.EndpointNamingConvention(endpointType));
         }
 
         Dictionary<string, PublisherDetails> publisherDetails = new Dictionary<string, PublisherDetails>();
@@ -45,12 +35,12 @@ namespace NServiceBus.AcceptanceTesting.Support
         {
             public PublisherDetails(string publisherName)
             {
-                this.publisherName = publisherName;
+                PublisherName = publisherName;
             }
 
             public List<Type> Events { get; } = new List<Type>();
 
-            public string publisherName { get; private set; }
+            public string PublisherName { get; private set; }
 
             public void RegisterOwnedEvent<T>()
             {
