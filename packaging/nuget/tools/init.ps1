@@ -1,46 +1,67 @@
 param($installPath, $toolsPath, $package, $project)
 
-$nserviceBusKeyPath =  "HKCU:SOFTWARE\NServiceBus" 
+$packageVersion = 'Unknown'
+$noticeEvent = 'noticeEvent'
+$jobName = 'analytics'
 
-$platformKeyPath = "HKCU:SOFTWARE\ParticularSoftware"
-$isNewUser = $true
-
-$packageVersion = "Unknown"
-
-if($package){
-	$packageVersion = $package.Version
+# cleanup previous runs
+Get-Job | ? { $_.Name  -eq $jobName } | Remove-Job -Force -ErrorAction SilentlyContinue    
+ 
+if ($package) {
+    $packageVersion = $package.Version
 }
 
-#Figure out if this is a first time user
-try {
+# Define script to run in background job
+$jobScriptBlock = { 
+    param($packageVersion, $noticeEvent)
 
-	#Check for existing NServiceBus installations
-	if (Test-Path $nserviceBusKeyPath) {
-		$isNewUser = $false
-	}
-	
-	if (Test-Path $platformKeyPath){
-		$isNewUser = $false
-	}
+    # Set Tracing on within the Job
+    Set-PSDebug -Trace 2
 
-	if (!($isNewuser)) {
-		exit
-	}
-
-	if (!(Test-Path $platformKeyPath)){
-		New-Item -Path HKCU:SOFTWARE -Name ParticularSoftware | Out-Null
-	}
-
-	Set-ItemProperty -Path $platformKeyPath -Name "NuGetUser" -Value "true" | Out-Null
-
-
-    $url = "http://particular.net/download-the-particular-service-platform?version=$packageVersion" 
-    $url = $url.ToLowerInvariant(); 
-
-    if($dte){
-	    $dte.ExecuteCommand("View.URL", $url)
+    # Setup event forwarding to foreground
+    Register-EngineEvent -SourceIdentifier $noticeEvent -Forward 
+    
+    $nserviceBusKeyPath = 'HKCU:SOFTWARE\NServiceBus' 
+    $platformKeyPath = 'HKCU:SOFTWARE\ParticularSoftware'
+    
+    if ((Test-Path $nserviceBusKeyPath) -or (Test-Path $platformKeyPath)) {
+        New-Event -SourceIdentifier $noticeEvent -Sender "analytics" -MessageData "existing"
     }
-} 
-Catch [Exception] { 
-	Write-Warning $error[0]
+    else {
+        New-Event -SourceIdentifier $noticeEvent -Sender "analytics" -MessageData "newuser"
+
+        # Set Flag to bypass first time user feedback in Platform Installer
+        New-Item -Path $platformKeyPath -Force | Out-Null
+        Set-ItemProperty -Path $platformKeyPath -Name 'NuGetUser' -Value 'true' -Force
+    
+        # Post Version to particular.net
+        $wc = New-Object System.Net.WebClient 
+        try {
+            $url = 'https://particular.net/api/ReportFirstTimeInstall'
+            $postData  = New-Object System.Collections.Specialized.NameValueCollection
+            $postData.Add("version", $packageversion)
+            $wc.UseDefaultCredentials = $true
+            $wc.UploadValues($url, "post", $postdata)
+        } 
+        finally {
+            # Dispose
+            Remove-Variable -Name wc 
+        } 
+    }
+}
+
+$notice = @" 
+Reporting first time usage and version information to www.particular.net. 
+This call does not collect any personal information. For more details, 
+see the License Agreement and the Privacy Policy available here: https://particular.net/licenseagreement.
+"@
+
+# Run JobScript
+$job = Start-Job -ScriptBlock $jobScriptBlock -Name $jobName -ArgumentList $packageVersion, $noticeEvent 
+
+# Wait for show notice event
+$event = Wait-Event -SourceIdentifier $noticeEvent -Timeout 5 
+Remove-Event -SourceIdentifier $noticeEvent -ErrorAction SilentlyContinue  
+if ($event.MessageData -eq "newuser") {
+    Write-Host $notice
 }
