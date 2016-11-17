@@ -11,25 +11,30 @@ namespace NServiceBus
     class InMemorySagaPersister : ISagaPersister
     {
         static readonly CorrelationId NoCorrelationId = new CorrelationId(typeof(object), "", new object());
-        readonly ConcurrentDictionary<Guid, Entry> _sagas = new ConcurrentDictionary<Guid, Entry>();
-        readonly ConcurrentDictionary<CorrelationId, Guid> _byCorrelationId = new ConcurrentDictionary<CorrelationId, Guid>();
+        readonly ConcurrentDictionary<Guid, Entry> sagas = new ConcurrentDictionary<Guid, Entry>();
+        readonly ConcurrentDictionary<CorrelationId, Guid> byCorrelationId = new ConcurrentDictionary<CorrelationId, Guid>();
         static readonly JsonMessageSerializer serializer = new JsonMessageSerializer(null);
 
         class Entry
         {
-            public CorrelationId CorrelationId { get; private set; }
-            public IContainSagaData ContainSagaData { get; }
+            public CorrelationId CorrelationId { get; }
+            readonly IContainSagaData data;
 
             public Entry(IContainSagaData sagaData, CorrelationId correlationId)
             {
                 CorrelationId = correlationId;
-                ContainSagaData = DeepClone(sagaData);
+                data = sagaData;
             }
 
             static IContainSagaData DeepClone(IContainSagaData source)
             {
                 var json = serializer.SerializeObject(source);
                 return (IContainSagaData)serializer.DeserializeObject(json, source.GetType());
+            }
+
+            public IContainSagaData GetSagaCopy()
+            {
+                return DeepClone(data);
             }
 
             public Entry UpdateTo(IContainSagaData sagaData)
@@ -44,7 +49,7 @@ namespace NServiceBus
             {
                 var entry = GetEntry(sagaData, context);
 
-                if (_sagas.TryRemoveConditionally(sagaData.Id, entry) == false)
+                if (sagas.TryRemoveConditionally(sagaData.Id, entry) == false)
                 {
                     throw new Exception("Saga can't be completed as it was updated by another process.");
                 }
@@ -53,7 +58,7 @@ namespace NServiceBus
                 // clean the index
                 if (Equals(entry.CorrelationId, NoCorrelationId) == false)
                 {
-                    _byCorrelationId.TryRemoveConditionally(entry.CorrelationId, sagaData.Id);
+                    byCorrelationId.TryRemoveConditionally(entry.CorrelationId, sagaData.Id);
                 }
             });
 
@@ -65,13 +70,15 @@ namespace NServiceBus
         {
             Entry value;
 
-            if (_sagas.TryGetValue(sagaId, out value))
+            if (sagas.TryGetValue(sagaId, out value))
             {
                 context.Set(sagaId.ToString(), value);
 
-                if (value.ContainSagaData is TSagaData)
+                var data = value.GetSagaCopy();
+
+                if (data is TSagaData)
                 {
-                    return Task.FromResult((TSagaData)value.ContainSagaData);
+                    return Task.FromResult((TSagaData)data);
                 }
             }
 
@@ -83,7 +90,7 @@ namespace NServiceBus
             var key = GetKey(typeof(TSagaData), propertyName, propertyValue);
             Guid id;
 
-            if (_byCorrelationId.TryGetValue(key, out id))
+            if (byCorrelationId.TryGetValue(key, out id))
             {
                 // this isn't updated atomically and may return null for an entry that has been indexed but not inserted yet
                 return Get<TSagaData>(id, session, context);
@@ -100,14 +107,14 @@ namespace NServiceBus
                 if (correlationProperty != SagaCorrelationProperty.None)
                 {
                     correlationId = GetKey(sagaData.GetType(), correlationProperty);
-                    if (_byCorrelationId.TryAdd(correlationId, sagaData.Id) == false)
+                    if (byCorrelationId.TryAdd(correlationId, sagaData.Id) == false)
                     {
                         throw new InvalidOperationException($"The saga with the correlation id 'Name: {correlationProperty.Name} Value: {correlationProperty.Value}' already exists");
                     }
                 }
 
                 var entry = new Entry(sagaData, correlationId);
-                if (_sagas.TryAdd(sagaData.Id, entry) == false)
+                if (sagas.TryAdd(sagaData.Id, entry) == false)
                 {
                     throw new Exception("FATAL: this should never happened as saga id should be unique");
                 }
@@ -124,7 +131,7 @@ namespace NServiceBus
             {
                 var entry = GetEntry(sagaData, context);
 
-                if (_sagas.TryUpdate(sagaData.Id, entry.UpdateTo(sagaData), entry) == false)
+                if (sagas.TryUpdate(sagaData.Id, entry.UpdateTo(sagaData), entry) == false)
                 {
                     throw new Exception($"InMemorySagaPersister concurrency violation: saga entity Id[{ sagaData.Id }] already saved.");
                 }
