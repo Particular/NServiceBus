@@ -65,6 +65,3 @@ Remove-Event -SourceIdentifier $noticeEvent -ErrorAction SilentlyContinue
 if ($event.MessageData -eq "newuser") {
     Write-Host $notice
 }
-
-
-
