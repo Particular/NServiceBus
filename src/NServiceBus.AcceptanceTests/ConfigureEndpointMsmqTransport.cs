@@ -8,7 +8,6 @@ using NServiceBus.AcceptanceTesting.Support;
 using NServiceBus.AcceptanceTests.ScenarioDescriptors;
 using NServiceBus.Configuration.AdvanceExtensibility;
 using NServiceBus.Transport;
-using Conventions = NServiceBus.AcceptanceTesting.Customization.Conventions;
 
 public class ConfigureScenariosForMsmqTransport : IConfigureSupportedScenariosForTestExecution
 {
@@ -34,9 +33,7 @@ public class ConfigureEndpointMsmqTransport : IConfigureEndpointTestExecution
         {
             foreach (var eventType in publisher.Events)
             {
-                var publisherName = Conventions.EndpointNamingConvention(publisher.PublisherType);
-
-                routingConfig.RegisterPublisher(eventType, publisherName);
+                routingConfig.RegisterPublisher(eventType, publisher.PublisherName);
             }
         }
 

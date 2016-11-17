@@ -50,9 +50,10 @@
                 EndpointSetup<DefaultServer>(c =>
                 {
                     c.DisableFeature<AutoSubscribe>();
-                    var routing = c.MessageDrivenPubSubRouting();
-                    routing.RegisterPublisher(typeof(SomeEvent).Assembly, "Publisher1");
-                    routing.RegisterPublisher(typeof(SomeEvent), "Publisher2");
+                }, metadata =>
+                {
+                    metadata.RegisterPublisherFor<SomeEvent>("Publisher1");
+                    metadata.RegisterPublisherFor<SomeEvent>("Publisher2");
                 });
             }
         }

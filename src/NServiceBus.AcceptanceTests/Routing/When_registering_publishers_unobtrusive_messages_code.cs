@@ -4,7 +4,6 @@
     using AcceptanceTesting;
     using EndpointTemplates;
     using NUnit.Framework;
-    using AcceptanceTesting.Customization;
     using ScenarioDescriptors;
 
     public class When_registering_publishers_unobtrusive_messages_code : NServiceBusAcceptanceTest
@@ -48,12 +47,9 @@
         {
             public Subscriber()
             {
-                EndpointSetup<DefaultServer>(c =>
-                {
-                    c.Conventions().DefiningEventsAs(t => t == typeof(SomeEvent));
-
-                    c.MessageDrivenPubSubRouting().RegisterPublisher(typeof(SomeEvent).Assembly, Conventions.EndpointNamingConvention(typeof(Publisher)));
-                });
+                EndpointSetup<DefaultServer>(
+                    c => c.Conventions().DefiningEventsAs(t => t == typeof(SomeEvent)),
+                    metadata => metadata.RegisterPublisherFor<SomeEvent>(typeof(Publisher)));
             }
 
             public class EventHandler : IHandleMessages<SomeEvent>
