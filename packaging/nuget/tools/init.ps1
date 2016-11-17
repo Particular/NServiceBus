@@ -43,7 +43,7 @@ $jobScriptBlock = {
             $wc.UseDefaultCredentials = $true
             $wc.UploadValues($url, "post", $postdata)
         } 
-        finally {$noticeEvent
+        finally {
             # Dispose
             Remove-Variable -Name wc 
         } 
@@ -53,7 +53,7 @@ $jobScriptBlock = {
 $notice = @" 
 Reporting first time usage and version information to www.particular.net. 
 This call does not collect any personal information. For more details, 
-see the License Agreement and the Privacy Policy available here: http://particular.net/licenseagreement.
+see the License Agreement and the Privacy Policy available here: https://particular.net/licenseagreement.
 "@
 
 # Run JobScript
