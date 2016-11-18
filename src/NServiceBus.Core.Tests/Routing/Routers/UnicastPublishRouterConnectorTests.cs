@@ -23,18 +23,8 @@
             Assert.AreEqual(MessageIntentEnum.Publish.ToString(), context.Headers[Headers.MessageIntent]);
         }
 
-        class FakeUnicastPubSub : IUnicastPublishSubscribe
+        class FakeUnicastPubSub : IUnicastPublish
         {
-            public Task Subscribe(ISubscribeContext context)
-            {
-                return TaskEx.CompletedTask;
-            }
-
-            public Task Unsubscribe(IUnsubscribeContext context)
-            {
-                return TaskEx.CompletedTask;
-            }
-
             public Task<List<UnicastRoutingStrategy>> GetRoutingStrategies(IOutgoingPublishContext context, Type eventType)
             {
                 return Task.FromResult(new List<UnicastRoutingStrategy>()

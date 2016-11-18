@@ -9,18 +9,8 @@ namespace NServiceBus
     /// <summary>
     /// bla.
     /// </summary>
-    public interface IUnicastPublishSubscribe
+    public interface IUnicastPublish
     {
-        /// <summary>
-        /// bla.
-        /// </summary>
-        Task Subscribe(ISubscribeContext context);
-
-        /// <summary>
-        /// bla.
-        /// </summary>
-        Task Unsubscribe(IUnsubscribeContext context);
-
         /// <summary>
         /// bla.
         /// </summary>

@@ -7,7 +7,7 @@ namespace NServiceBus
 
     class UnicastPublishRouterConnector : StageConnector<IOutgoingPublishContext, IOutgoingLogicalMessageContext>
     {
-        public UnicastPublishRouterConnector(IUnicastPublishSubscribe publishSubscribe)
+        public UnicastPublishRouterConnector(IUnicastPublish publishSubscribe)
         {
             this.publishSubscribe = publishSubscribe;
         }
@@ -34,6 +34,6 @@ namespace NServiceBus
             }
         }
 
-        IUnicastPublishSubscribe publishSubscribe;
+        IUnicastPublish publishSubscribe;
     }
 }

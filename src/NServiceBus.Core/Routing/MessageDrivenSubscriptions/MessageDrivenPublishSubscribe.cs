@@ -12,7 +12,7 @@ namespace NServiceBus
     using Unicast.Queuing;
     using Unicast.Transport;
 
-    class MessageDrivenPublishSubscribe : IUnicastPublishSubscribe
+    class MessageDrivenPublishSubscribe : IUnicastPublish
     {
         static ILog Logger = LogManager.GetLogger<MessageDrivenPublishSubscribe>();
 

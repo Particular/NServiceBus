@@ -17,7 +17,8 @@
         internal AutoSubscribe()
         {
             EnableByDefault();
-            Prerequisite(context => !context.Settings.GetOrDefault<bool>("Endpoint.SendOnly"), "Send only endpoints can't autosubscribe.");
+            Prerequisite(c => !c.Settings.GetOrDefault<bool>("Endpoint.SendOnly"), "Send only endpoints can't autosubscribe.");
+            Prerequisite(c => !c.Container.HasComponent<IUnicastPublishProvider> (), $"{nameof(AutoSubscribe)} is disabled because of the registered custom {nameof(IUnicastPublishProvider)}");
         }
 
         /// <summary>

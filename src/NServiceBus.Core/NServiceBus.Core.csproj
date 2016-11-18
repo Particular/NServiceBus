@@ -125,8 +125,7 @@
     <Compile Include="Pipeline\SatellitePipelineExecutor.cs" />
     <Compile Include="Pipeline\StageForkConnector.cs" />
     <Compile Include="Pipeline\ConnectorContextExtensions.cs" />
-    <Compile Include="PublishSubscribe\NonNativePublishSubscribeTerminator.cs" />
-    <Compile Include="PublishSubscribe\NonNativePublishUnsubscribeTerminator.cs" />
+    <Compile Include="PublishSubscribe\IUnicastPublishProvider.cs" />
     <Compile Include="Recoverability\DelayedConfig.cs" />
     <Compile Include="Recoverability\Settings\DelayedRetriesSettings.cs" />
     <Compile Include="Recoverability\FailedConfig.cs" />
@@ -152,11 +151,12 @@
     <Compile Include="Recoverability\Settings\RecoverabilitySettings.cs" />
     <Compile Include="ReleaseDateAttribute.cs" />
     <Compile Include="Routing\DistributionStrategyScope.cs" />
+    <Compile Include="Routing\ExternalSubscriptions\ExternalSubscribe.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\AssemblyPublisherSource.cs" />
     <Compile Include="Routing\AssemblyRouteSource.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\ConfiguredPublishers.cs" />
     <Compile Include="Routing\ConfiguredUnicastRoutes.cs" />
-    <Compile Include="PublishSubscribe\IImplementPublishSubscribe.cs" />
+    <Compile Include="PublishSubscribe\IUnicastPublish.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\IPublisherSource.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\MessageDrivenPublishSubscribe.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\NamespacePublisherSource.cs" />
