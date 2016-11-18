@@ -15,12 +15,8 @@ namespace NServiceBus.Features
         internal const string EnforceBestPracticesSettingsKey = "NServiceBus.Routing.EnforceBestPractices";
 
         /// <summary>
-        /// .
+        /// Creates a new <see cref="RoutingComponent"/> instance.
         /// </summary>
-        /// <param name="unicastRoutingTable"></param>
-        /// <param name="distributionPolicy"></param>
-        /// <param name="endpointInstances"></param>
-        /// <param name="publishers"></param>
         public RoutingComponent(UnicastRoutingTable unicastRoutingTable, DistributionPolicy distributionPolicy, EndpointInstances endpointInstances, Publishers publishers)
         {
             UnicastRoutingTable = unicastRoutingTable;
