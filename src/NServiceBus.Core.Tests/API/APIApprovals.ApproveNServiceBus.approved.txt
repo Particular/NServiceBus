@@ -1776,6 +1776,7 @@ namespace NServiceBus.Features
     {
         public NServiceBus.ObjectBuilder.IConfigureComponents Container { get; }
         public NServiceBus.Pipeline.PipelineSettings Pipeline { get; }
+        public NServiceBus.Features.RoutingComponent Routing { get; }
         public NServiceBus.Settings.ReadOnlySettings Settings { get; }
         [System.ObsoleteAttribute(@"The satellite's transaction mode needs to match the endpoint's transaction mode. As such the 'requiredTransportTransactionMode' parameter is redundant and should be removed. Use `AddSatelliteReceiver(string name, string transportAddress, PushRuntimeSettings runtimeSettings, Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> recoverabilityPolicy, Func<IBuilder, MessageContext, Task> onMessage)` instead. Will be treated as an error from version 7.0.0. Will be removed in version 8.0.0.", false)]
         public void AddSatelliteReceiver(string name, string transportAddress, NServiceBus.TransportTransactionMode requiredTransportTransactionMode, NServiceBus.Transport.PushRuntimeSettings runtimeSettings, System.Func<NServiceBus.RecoverabilityConfig, NServiceBus.Transport.ErrorContext, NServiceBus.RecoverabilityAction> recoverabilityPolicy, System.Func<NServiceBus.ObjectBuilder.IBuilder, NServiceBus.Transport.MessageContext, System.Threading.Tasks.Task> onMessage) { }
@@ -1842,6 +1843,14 @@ namespace NServiceBus.Features
     public class Outbox : NServiceBus.Features.Feature
     {
         protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
+    }
+    public class RoutingComponent
+    {
+        public RoutingComponent(NServiceBus.Routing.UnicastRoutingTable unicastRoutingTable, NServiceBus.DistributionPolicy distributionPolicy, NServiceBus.Routing.EndpointInstances endpointInstances, NServiceBus.Routing.MessageDrivenSubscriptions.Publishers publishers) { }
+        public NServiceBus.DistributionPolicy DistributionPolicy { get; }
+        public NServiceBus.Routing.EndpointInstances EndpointInstances { get; }
+        public NServiceBus.Routing.MessageDrivenSubscriptions.Publishers Publishers { get; }
+        public NServiceBus.Routing.UnicastRoutingTable UnicastRoutingTable { get; }
     }
     public class Sagas : NServiceBus.Features.Feature
     {
