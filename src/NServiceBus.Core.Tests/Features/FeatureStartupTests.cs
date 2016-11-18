@@ -32,7 +32,7 @@
 
             var builder = new FakeBuilder(typeof(FeatureWithStartupTask.Runner));
 
-            featureSettings.SetupFeatures(null, null);
+            featureSettings.SetupFeatures(null, null, null);
 
             await featureSettings.StartFeatures(builder, null);
             await featureSettings.StopFeatures(null);
@@ -50,7 +50,7 @@
 
             var builder = new FakeBuilder(typeof(FeatureWithStartupTaskWhichIsDisposable.Runner));
 
-            featureSettings.SetupFeatures(null, null);
+            featureSettings.SetupFeatures(null, null, null);
 
             await featureSettings.StartFeatures(builder, null);
             await featureSettings.StopFeatures(null);
