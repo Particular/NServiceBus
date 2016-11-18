@@ -27,7 +27,7 @@
 
             featureSettings.Add(feature);
 
-            featureSettings.SetupFeatures(null, null);
+            featureSettings.SetupFeatures(null, null, null);
 
             await featureSettings.StartFeatures(null, null);
             await featureSettings.StopFeatures(null);
@@ -43,7 +43,7 @@
 
             featureSettings.Add(feature);
 
-            featureSettings.SetupFeatures(null, null);
+            featureSettings.SetupFeatures(null, null, null);
 
             await featureSettings.StartFeatures(null, null);
             await featureSettings.StopFeatures(null);

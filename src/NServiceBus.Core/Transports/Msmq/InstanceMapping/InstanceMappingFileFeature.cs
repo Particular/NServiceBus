@@ -2,7 +2,6 @@ namespace NServiceBus.Features
 {
     using System;
     using System.IO;
-    using Routing;
 
     class InstanceMappingFileFeature : Feature
     {
@@ -14,7 +13,6 @@ namespace NServiceBus.Features
                 s.SetDefault(FilePathSettingsKey, DefaultInstanceMappingFileName);
             });
             Prerequisite(c => c.Settings.HasExplicitValue(FilePathSettingsKey) || File.Exists(GetRootedPath(DefaultInstanceMappingFileName)), "No explicit instance mapping file configuration and default file does not exist.");
-            DependsOn<RoutingFeature>();
         }
 
         protected internal override void Setup(FeatureConfigurationContext context)
@@ -27,7 +25,7 @@ namespace NServiceBus.Features
             }
 
             var checkInterval = context.Settings.Get<TimeSpan>(CheckIntervalSettingsKey);
-            var endpointInstances = context.Settings.Get<EndpointInstances>();
+            var endpointInstances = context.Routing.EndpointInstances;
 
             var instanceMappingTable = new InstanceMappingFileMonitor(filePath, checkInterval, new AsyncTimer(), new InstanceMappingFileAccess(), endpointInstances);
             instanceMappingTable.ReloadData();
