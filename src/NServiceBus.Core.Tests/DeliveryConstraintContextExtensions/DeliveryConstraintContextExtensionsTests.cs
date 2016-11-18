@@ -22,7 +22,7 @@
             settings.Set<TransportDefinition>(fakeTransportDefinition);
             settings.Set<TransportInfrastructure>(fakeTransportDefinition.Initialize(settings, null));
 
-            var context = new FeatureConfigurationContext(settings, null, null);
+            var context = new FeatureConfigurationContext(settings, null, null, null);
             var result = context.Settings.DoesTransportSupportConstraint<DeliveryConstraint>();
             Assert.IsTrue(result);
         }

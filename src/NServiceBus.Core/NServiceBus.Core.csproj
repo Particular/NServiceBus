@@ -160,6 +160,8 @@
     <Compile Include="Routing\MessageDrivenSubscriptions\NamespacePublisherSource.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\TypePublisherSource.cs" />
     <Compile Include="Routing\NativePublishSubscribeFeature.cs" />
+    <Compile Include="Routing\ReplyAddressFeature.cs" />
+    <Compile Include="Routing\RoutingComponent.cs" />
     <Compile Include="Routing\TypeRouteSource.cs" />
     <Compile Include="Routing\IDistributionPolicy.cs" />
     <Compile Include="Routing\IRouteSource.cs" />
@@ -439,7 +441,6 @@
     <Compile Include="Sagas\PopulateAutoCorrelationHeadersForRepliesBehavior.cs" />
     <Compile Include="Routing\Routers\UnicastReplyRouterConnector.cs" />
     <Compile Include="Routing\NonDurableDelivery.cs" />
-    <Compile Include="Routing\RoutingFeature.cs" />
     <Compile Include="Routing\RoutingOptionExtensions.cs" />
     <Compile Include="Routing\AddressTag.cs" />
     <Compile Include="Routing\MulticastAddressTag.cs" />

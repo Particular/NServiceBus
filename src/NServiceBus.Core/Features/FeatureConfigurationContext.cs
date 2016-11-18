@@ -14,11 +14,12 @@
     /// </summary>
     public class FeatureConfigurationContext
     {
-        internal FeatureConfigurationContext(ReadOnlySettings settings, IConfigureComponents container, PipelineSettings pipelineSettings)
+        internal FeatureConfigurationContext(ReadOnlySettings settings, IConfigureComponents container, PipelineSettings pipelineSettings, RoutingComponent routing)
         {
             Settings = settings;
             Container = container;
             Pipeline = pipelineSettings;
+            Routing = routing;
 
             TaskControllers = new List<FeatureStartupTaskController>();
         }
@@ -37,6 +38,11 @@
         /// Access to the pipeline in order to customize it.
         /// </summary>
         public PipelineSettings Pipeline { get; }
+
+        /// <summary>
+        /// Access to the routing infrastructure.
+        /// </summary>
+        public RoutingComponent Routing { get; }
 
         internal List<FeatureStartupTaskController> TaskControllers { get; }
 
