@@ -281,7 +281,7 @@
         {
             var tasks = endpoints.Select(endpoint => ExecuteWhens(endpoint, cts));
             var whenAll = Task.WhenAll(tasks);
-            var timeoutTask = Task.Delay(TimeSpan.FromSeconds(30));
+            var timeoutTask = Task.Delay(TimeSpan.FromSeconds(60));
             var completedTask = await Task.WhenAny(whenAll, timeoutTask).ConfigureAwait(false);
 
             if (completedTask.Equals(timeoutTask))
