@@ -45,14 +45,14 @@ namespace NServiceBus
                 return;
             }
 
+            var queuePath = msmqAddress.PathWithoutPrefix;
 
-            if (MessageQueue.Exists(msmqAddress.PathWithoutPrefix))
+            if (MessageQueue.Exists(queuePath))
             {
                 Logger.Debug($"'{address}' already exists");
                 return;
             }
 
-            var queuePath = msmqAddress.PathWithoutPrefix;
             try
             {
                 using (var messageQueue = MessageQueue.Create(queuePath, settings.UseTransactionalQueues))
