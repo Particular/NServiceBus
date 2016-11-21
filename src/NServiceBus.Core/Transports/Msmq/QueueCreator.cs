@@ -39,29 +39,38 @@ namespace NServiceBus
 
             Logger.Debug($"Creating '{address}' if needed.");
 
-            MessageQueue queue = null;
+            if (msmqAddress.IsRemote)
+            {
+                Logger.Info($"'{address}' is a remote queue and won't be created");
+                return;
+            }
+
+
+            if (MessageQueue.Exists(msmqAddress.PathWithoutPrefix))
+            {
+                Logger.Debug($"'{address}' already exists");
+                return;
+            }
+
+            var queuePath = msmqAddress.PathWithoutPrefix;
             try
             {
-                if (!MsmqUtilities.TryOpenQueue(msmqAddress, out queue) && MsmqUtilities.TryCreateQueue(msmqAddress, identity, settings.UseTransactionalQueues, out queue))
+                using (var messageQueue = MessageQueue.Create(queuePath, settings.UseTransactionalQueues))
                 {
-                    using (queue)
-                    {
-                        Logger.Debug("Setting queue permissions.");
+                    Logger.DebugFormat($"Created queue, path: [{queuePath}], identity: [{identity}], transactional: [{settings.UseTransactionalQueues}]");
 
-                        try
-                        {
-                            QueuePermissions.SetPermissionsForQueue(queue, identity);
-                        }
-                        catch (MessageQueueException ex)
-                        {
-                            Logger.Error($"Unable to set permissions for queue {queue.QueueName}", ex);
-                        }
-                    }
+                    QueuePermissions.SetPermissionsForQueue(messageQueue, identity);
                 }
             }
-            finally
+            catch (MessageQueueException ex)
             {
-                queue?.Dispose();
+                if (ex.MessageQueueErrorCode == MessageQueueErrorCode.QueueExists)
+                {
+                    //Solve the race condition problem when multiple endpoints try to create same queue (e.g. error queue).
+                    return;
+                }
+
+                throw;
             }
         }
 

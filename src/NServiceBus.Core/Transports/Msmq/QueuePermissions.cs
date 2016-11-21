@@ -11,17 +11,34 @@
         public static void CheckQueue(string address)
         {
             var msmqAddress = MsmqAddress.Parse(address);
+            var queuePath = msmqAddress.PathWithoutPrefix;
 
-            MessageQueue messageQueue;
-            if (!MsmqUtilities.TryOpenQueue(msmqAddress, out messageQueue))
+            Logger.Debug($"Checking if queue exists: {queuePath}.");
+
+            if (msmqAddress.IsRemote)
             {
-                Logger.Warn($"Unable to open the queue at address '{address}'. Make sure the queue exists, and the address is correct. Processing will still continue.");
-                return;
+                Logger.Debug("Queue is on remote machine.");
+                Logger.Debug("If this does not succeed (like if the remote machine is disconnected), processing will continue.");
             }
 
-            using (messageQueue)
+            var path = msmqAddress.PathWithoutPrefix;
+            try
             {
-                WarnIfPublicAccess(messageQueue);
+                if (MessageQueue.Exists(path))
+                {
+                    using (var messageQueue = new MessageQueue(path))
+                    {
+                        Logger.DebugFormat("Verified that the queue: [{0}] existed", queuePath);
+
+                        WarnIfPublicAccess(messageQueue);
+                    }
+                }
+            }
+            catch (MessageQueueException)
+            {
+                // Can happen because of an invalid queue path or trying to access a remote private queue.
+                // Either way, this results in a failed attempt, therefore returning false.
+                Logger.Warn($"Unable to open the queue at address '{queuePath}'. Make sure the queue exists, and the address is correct. Processing will still continue.");
             }
         }
 
@@ -57,7 +74,6 @@
 
         public static void SetPermissionsForQueue(MessageQueue queue, string account)
         {
-
             queue.SetPermissions(LocalAdministratorsGroupName, MessageQueueAccessRights.FullControl, AccessControlEntryType.Allow);
 
             queue.SetPermissions(account, MessageQueueAccessRights.WriteMessage, AccessControlEntryType.Allow);
