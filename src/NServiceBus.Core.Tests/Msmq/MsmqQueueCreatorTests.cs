@@ -11,9 +11,7 @@
         [Test]
         public void Should_create_all_queues()
         {
-            var settings = new MsmqSettings();
-
-            var creator = new QueueCreator(settings);
+            var creator = new QueueCreator(true);
             var bindings = new QueueBindings();
 
             DeleteQueueIfPresent("MsmqQueueCreatorTests.receiver");
@@ -35,9 +33,8 @@
         public void Should_setup_permissions()
         {
             var testQueueName = "MsmqQueueCreatorTests.permissions";
-            var settings = new MsmqSettings();
 
-            var creator = new QueueCreator(settings);
+            var creator = new QueueCreator(true);
             var bindings = new QueueBindings();
 
             DeleteQueueIfPresent(testQueueName);

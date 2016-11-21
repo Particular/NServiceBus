@@ -77,7 +77,7 @@ namespace NServiceBus
         {
             new CheckMachineNameForComplianceWithDtcLimitation().Check();
 
-            var builder = connectionString != null
+            var msmqSettings = connectionString != null
                 ? new MsmqConnectionStringBuilder(connectionString).RetrieveSettings()
                 : new MsmqSettings();
 
@@ -90,7 +90,7 @@ namespace NServiceBus
 
             return new TransportReceiveInfrastructure(
                 () => new MessagePump(guarantee => SelectReceiveStrategy(guarantee, scopeOptions.TransactionOptions)),
-                () => new QueueCreator(builder),
+                () => new QueueCreator(msmqSettings.UseTransactionalQueues),
                 () =>
                 {
                     var bindings = settings.Get<QueueBindings>();
