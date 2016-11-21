@@ -281,12 +281,13 @@
         {
             var tasks = endpoints.Select(endpoint => ExecuteWhens(endpoint, cts));
             var whenAll = Task.WhenAll(tasks);
-            var timeoutTask = Task.Delay(TimeSpan.FromSeconds(60));
+            var whenTimeout = TimeSpan.FromSeconds(60);
+            var timeoutTask = Task.Delay(whenTimeout);
             var completedTask = await Task.WhenAny(whenAll, timeoutTask).ConfigureAwait(false);
 
             if (completedTask.Equals(timeoutTask))
             {
-                throw new Exception("Executing given and whens took longer than 30 seconds.");
+                throw new Exception($"Executing given and whens took longer than {whenTimeout.TotalSeconds} seconds.");
             }
 
             if (completedTask.IsFaulted && completedTask.Exception != null)
