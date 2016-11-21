@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.AcceptanceTests.DataBus
 {
+    using System.IO;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
@@ -40,7 +41,9 @@
                     builder.Conventions()
                         .DefiningCommandsAs(t => t.Namespace != null && t.FullName == typeof(MyMessageWithLargePayload).FullName)
                         .DefiningDataBusPropertiesAs(t => t.Name.Contains("Payload"));
-                    builder.UseDataBus<FileShareDataBus>().BasePath(@".\databus\sender");
+
+                    var basePath = Path.Combine(TestContext.CurrentContext.TestDirectory, @"databus\sender");
+                    builder.UseDataBus<FileShareDataBus>().BasePath(basePath);
                     builder.UseSerialization<JsonSerializer>();
                 })
                     .AddMapping<MyMessageWithLargePayload>(typeof(Receiver))
@@ -58,7 +61,8 @@
                         .DefiningCommandsAs(t => t.Namespace != null && t.FullName == typeof(MyMessageWithLargePayload).FullName)
                         .DefiningDataBusPropertiesAs(t => t.Name.Contains("Payload"));
 
-                    builder.UseDataBus<FileShareDataBus>().BasePath(@".\databus\sender");
+                    var basePath = Path.Combine(TestContext.CurrentContext.TestDirectory, @"databus\sender");
+                    builder.UseDataBus<FileShareDataBus>().BasePath(basePath);
                     builder.UseSerialization<JsonSerializer>();
                 });
             }
