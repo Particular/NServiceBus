@@ -2619,6 +2619,8 @@ namespace NServiceBus.Routing
         public RouteTableEntry(System.Type messageType, NServiceBus.Routing.UnicastRoute route) { }
         public System.Type MessageType { get; }
         public NServiceBus.Routing.UnicastRoute Route { get; }
+        public override bool Equals(object obj) { }
+        public override int GetHashCode() { }
     }
     public abstract class RoutingStrategy
     {
@@ -2643,6 +2645,9 @@ namespace NServiceBus.Routing
         public static NServiceBus.Routing.UnicastRoute CreateFromEndpointInstance(NServiceBus.Routing.EndpointInstance instance) { }
         public static NServiceBus.Routing.UnicastRoute CreateFromEndpointName(string endpoint) { }
         public static NServiceBus.Routing.UnicastRoute CreateFromPhysicalAddress(string physicalAddress) { }
+        public static NServiceBus.Routing.UnicastRoute CreateFromPhysicalAddress(string physicalAddress, string endpoint) { }
+        public override bool Equals(object obj) { }
+        public override int GetHashCode() { }
         public override string ToString() { }
     }
     public class UnicastRoutingStrategy : NServiceBus.Routing.RoutingStrategy
@@ -2653,6 +2658,11 @@ namespace NServiceBus.Routing
     public class UnicastRoutingTable
     {
         public UnicastRoutingTable() { }
+        public void AddOrReplaceRoutes(string sourceKey, System.Collections.Generic.IList<NServiceBus.Routing.RouteTableEntry> entries) { }
+    }
+    public class UnicastSubscriberTable
+    {
+        public UnicastSubscriberTable() { }
         public void AddOrReplaceRoutes(string sourceKey, System.Collections.Generic.IList<NServiceBus.Routing.RouteTableEntry> entries) { }
     }
 }

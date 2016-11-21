@@ -40,18 +40,15 @@ namespace NServiceBus.Features
             var conventions = context.Settings.Get<Conventions>();
             var enforceBestPractices = context.Settings.Get<bool>(RoutingFeature.EnforceBestPracticesSettingsKey);
 
-            var distributionPolicy = context.Settings.Get<DistributionPolicy>();
             var endpointInstances = context.Settings.Get<EndpointInstances>();
             var publishers = context.Settings.Get<Publishers>();
             var configuredPublishers = context.Settings.Get<ConfiguredPublishers>();
+            var unicastSubscriberTable = context.Settings.Get<UnicastSubscriberTable>();
 
             configuredPublishers.Apply(publishers, conventions, enforceBestPractices);
 
-            context.Pipeline.Register(b =>
-            {
-                var unicastPublishRouter = new UnicastPublishRouter(b.Build<MessageMetadataRegistry>(), b.Build<ISubscriptionStorage>());
-                return new UnicastPublishRouterConnector(unicastPublishRouter, distributionPolicy);
-            }, "Determines how the published messages should be routed");
+            context.Pipeline.Register(b => new RefreshSubscribersBehavior(b.Build<ISubscriptionStorage>(), unicastSubscriberTable, b.Build<MessageMetadataRegistry>(), TimeSpan.FromSeconds(0)),
+                "Forces refreshing of subscriber table based on the subscription storage");
 
             if (canReceive)
             {

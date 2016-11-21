@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Features
 {
+    using System;
     using Config;
     using Routing;
     using Routing.MessageDrivenSubscriptions;
@@ -15,6 +16,7 @@
             Defaults(s =>
             {
                 s.SetDefault<UnicastRoutingTable>(new UnicastRoutingTable());
+                s.SetDefault<UnicastSubscriberTable>(new UnicastSubscriberTable());
                 s.SetDefault<ConfiguredUnicastRoutes>(new ConfiguredUnicastRoutes());
 
                 s.SetDefault<EndpointInstances>(new EndpointInstances());
@@ -34,6 +36,7 @@
             var unicastBusConfig = context.Settings.GetConfigSection<UnicastBusConfig>();
 
             var unicastRoutingTable = context.Settings.Get<UnicastRoutingTable>();
+            var unicastSubscriberTable = context.Settings.Get<UnicastSubscriberTable>();
             var endpointInstances = context.Settings.Get<EndpointInstances>();
             var publishers = context.Settings.Get<Publishers>();
             var distributionPolicy = context.Settings.Get<DistributionPolicy>();
@@ -46,12 +49,22 @@
 
             unicastBusConfig?.MessageEndpointMappings.Apply(publishers, unicastRoutingTable, transportInfrastructure.MakeCanonicalForm, conventions);
             configuredUnicastRoutes.Apply(unicastRoutingTable, conventions);
+            Func<EndpointInstance, string> addressTranslation = i => transportInfrastructure.ToTransportAddress(LogicalAddress.CreateRemoteAddress(i));
 
             context.Pipeline.Register(b =>
             {
-                var unicastSendRouter = new UnicastSendRouter(unicastRoutingTable, endpointInstances, i => transportInfrastructure.ToTransportAddress(LogicalAddress.CreateRemoteAddress(i)));
-                return new UnicastSendRouterConnector(context.Settings.LocalAddress(), context.Settings.InstanceSpecificQueue(), unicastSendRouter, distributionPolicy, i => transportInfrastructure.ToTransportAddress(LogicalAddress.CreateRemoteAddress(i)));
+                var unicastSendRouter = new UnicastSendRouter(unicastRoutingTable, endpointInstances, addressTranslation);
+                return new UnicastSendRouterConnector(context.Settings.LocalAddress(), context.Settings.InstanceSpecificQueue(), unicastSendRouter, distributionPolicy, addressTranslation);
             }, "Determines how the message being sent should be routed");
+
+            if (transportInfrastructure.OutboundRoutingPolicy.Publishes == OutboundRoutingType.Unicast)
+            {
+                context.Pipeline.Register(b =>
+                {
+                    var unicastPublishRouter = new UnicastPublishRouter(unicastSubscriberTable, endpointInstances, addressTranslation);
+                    return new UnicastPublishRouterConnector(unicastPublishRouter, distributionPolicy);
+                }, "Determines how the published messages should be routed");
+            }
 
             context.Pipeline.Register(new UnicastReplyRouterConnector(), "Determines how replies should be routed");
 
