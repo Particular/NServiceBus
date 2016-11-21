@@ -25,7 +25,7 @@ namespace NServiceBus.Features
                 s.SetDefault<ConfiguredPublishers>(new ConfiguredPublishers());
             });
             Prerequisite(c => c.Settings.Get<TransportInfrastructure>().OutboundRoutingPolicy.Publishes == OutboundRoutingType.Unicast, "The transport supports native pub sub");
-            Prerequisite(c => !c.Container.HasComponent<IUnicastPublishProvider>(), $"{nameof(MessageDrivenSubscriptions)} are disabled because of the registered custom {nameof(IUnicastPublishProvider)}");
+            Prerequisite(c => c.Settings.GetOrDefault<IUnicastPublishProvider>() == null, $"{nameof(MessageDrivenSubscriptions)} are disabled because of the registered custom {nameof(IUnicastPublishProvider)}");
         }
 
         /// <summary>
