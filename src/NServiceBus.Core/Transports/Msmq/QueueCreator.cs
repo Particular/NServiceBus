@@ -1,5 +1,6 @@
 namespace NServiceBus
 {
+    using System;
     using System.Messaging;
     using System.Security.Principal;
     using System.Threading.Tasks;
@@ -60,11 +61,11 @@ namespace NServiceBus
                 {
                     Logger.DebugFormat($"Created queue, path: [{queuePath}], identity: [{identity}], transactional: [{settings.UseTransactionalQueues}]");
 
-                    queue.SetPermissions(LocalAdministratorsGroupName, MessageQueueAccessRights.FullControl, AccessControlEntryType.Allow);
+                    SetPermissions(queue, LocalAdministratorsGroupName, MessageQueueAccessRights.FullControl);
 
-                    queue.SetPermissions(identity, MessageQueueAccessRights.WriteMessage, AccessControlEntryType.Allow);
-                    queue.SetPermissions(identity, MessageQueueAccessRights.ReceiveMessage, AccessControlEntryType.Allow);
-                    queue.SetPermissions(identity, MessageQueueAccessRights.PeekMessage, AccessControlEntryType.Allow);
+                    SetPermissions(queue, identity, MessageQueueAccessRights.WriteMessage);
+                    SetPermissions(queue, identity, MessageQueueAccessRights.ReceiveMessage);
+                    SetPermissions(queue, identity, MessageQueueAccessRights.PeekMessage);
                 }
             }
             catch (MessageQueueException ex)
@@ -76,6 +77,18 @@ namespace NServiceBus
                 }
 
                 throw;
+            }
+        }
+
+        static void SetPermissions(MessageQueue queue, string identity, MessageQueueAccessRights accessRights)
+        {
+            try
+            {
+                queue.SetPermissions(identity, accessRights, AccessControlEntryType.Allow);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Failed to give {identity} {accessRights} on queue {queue.QueueName}", ex);
             }
         }
 
