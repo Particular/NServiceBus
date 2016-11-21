@@ -39,7 +39,7 @@
             Assert.That(exception.InnerException.InnerException.InnerException, Is.TypeOf<XmlSchemaValidationException>());
         }
 
-        static string mappingFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, nameof(When_starting_with_invalid_instance_mapping_file) + ".xml");
+        static string mappingFilePath = Path.Combine(TestContext.CurrentContext.TestDirectory, nameof(When_starting_with_invalid_instance_mapping_file) + ".xml");
 
         public class SenderWithInvalidMappingFile : EndpointConfigurationBuilder
         {

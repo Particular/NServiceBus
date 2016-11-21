@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus.AcceptanceTests
 {
-    using System;
     using System.IO;
     using System.Threading;
     using System.Threading.Tasks;
@@ -48,7 +47,7 @@
             Assert.That(context.MessagesForInstance2, Is.GreaterThanOrEqualTo(1));
         }
 
-        static string mappingFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, nameof(When_using_empty_instance_mapping_file) + ".xml");
+        static string mappingFilePath = Path.Combine(TestContext.CurrentContext.TestDirectory, nameof(When_using_empty_instance_mapping_file) + ".xml");
         static string logicalEndpointName;
 
         public class Context : ScenarioContext

@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus.AcceptanceTests
 {
-    using System;
     using System.IO;
     using System.Threading.Tasks;
     using AcceptanceTesting;
@@ -12,7 +11,7 @@
         public static string ReceiverEndpointName => Conventions.EndpointNamingConvention(typeof(Receiver));
         public static string ReceiverQueueName => "q_" + ReceiverEndpointName;
 
-        static string mappingFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, nameof(When_overriding_local_address) + ".xml");
+        static string mappingFilePath = Path.Combine(TestContext.CurrentContext.TestDirectory, nameof(When_overriding_local_address) + ".xml");
 
         [SetUp]
         public void SetupMappingFile()
