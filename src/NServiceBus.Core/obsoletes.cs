@@ -2609,6 +2609,10 @@ namespace NServiceBus.Features
         TreatAsErrorFromVersion = "7")]
     public class MessageDrivenSubscriptions : Feature
     {
+        internal MessageDrivenSubscriptions()
+        {
+        }
+
         protected internal override void Setup(FeatureConfigurationContext context)
         {
             throw new System.NotImplementedException();
