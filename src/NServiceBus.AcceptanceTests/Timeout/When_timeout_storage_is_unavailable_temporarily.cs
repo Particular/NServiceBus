@@ -14,7 +14,7 @@
         public Task Endpoint_should_start()
         {
             return Scenario.Define<TimeoutTestContext>()
-                .WithEndpoint<EndpointWithFlakyTimeoutPersister>()
+                .WithEndpoint<Endpoint>()
                 .Done(c => c.EndpointsStarted)
                 .Repeat(r => r.For<AllTransportsWithoutNativeDeferral>())
                 .Should(c => Assert.IsTrue(c.EndpointsStarted))
@@ -28,7 +28,7 @@
 
             var testContext =
                 await Scenario.Define<TimeoutTestContext>(c => { c.SecondsToWait = 10; })
-                    .WithEndpoint<EndpointWithFlakyTimeoutPersister>(b =>
+                    .WithEndpoint<Endpoint>(b =>
                     {
                         b.CustomConfig((busConfig, context) =>
                         {
@@ -51,14 +51,13 @@
             public bool FatalErrorOccurred { get; set; }
         }
 
-        
         public class MyMessage : IMessage
         {
         }
 
-        public class EndpointWithFlakyTimeoutPersister : EndpointConfigurationBuilder
+        public class Endpoint : EndpointConfigurationBuilder
         {
-            public EndpointWithFlakyTimeoutPersister()
+            public Endpoint()
             {
                 EndpointSetup<DefaultServer>(config => { config.EnableFeature<TimeoutManager>(); });
             }
