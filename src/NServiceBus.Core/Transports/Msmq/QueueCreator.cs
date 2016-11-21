@@ -88,7 +88,7 @@ namespace NServiceBus
             }
             catch (Exception ex)
             {
-                throw new Exception($"Failed to give {identity} {accessRights} on queue {queue.QueueName}", ex);
+                throw new Exception($"Failed to give '{identity}' {accessRights} access to queue '{queue.FormatName}'", ex);
             }
         }
 
