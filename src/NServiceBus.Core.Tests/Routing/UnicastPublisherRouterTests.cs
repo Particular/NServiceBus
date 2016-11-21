@@ -1,31 +1,27 @@
 ﻿namespace NServiceBus.Core.Tests.Routing
 {
-    using System;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Threading.Tasks;
     using Extensibility;
     using NServiceBus.Routing;
     using NUnit.Framework;
-    using Unicast.Messages;
-    using Unicast.Subscriptions;
-    using Unicast.Subscriptions.MessageDrivenSubscriptions;
 
     [TestFixture]
     public class UnicastPublisherRouterTests
     {
         UnicastPublishRouter router;
-        MessageMetadataRegistry metadataRegistry;
         EndpointInstances endpointInstances;
-        FakeSubscriptionStorage subscriptionStorage;
+        UnicastSubscriberTable subscriberTable;
 
         [Test]
-        public async Task When_subscriber_does_not_define_logical_endpoint_should_send_event_to_each_address()
+        public void When_subscriber_does_not_define_logical_endpoint_should_send_event_to_each_address()
         {
-            subscriptionStorage.Subscribers.Add(new Subscriber("address1", null));
-            subscriptionStorage.Subscribers.Add(new Subscriber("address2", null));
+            AddRoutes(
+                UnicastRoute.CreateFromPhysicalAddress("address1"),
+                UnicastRoute.CreateFromPhysicalAddress("address2")
+                );
 
-            var routes = await router.Route(typeof(Event), new DistributionPolicy(), new ContextBag());
+            var routes = router.Route(typeof(Event), new DistributionPolicy(), new ContextBag());
 
             var destinations = routes.Select(ExtractDestination).ToList();
             Assert.AreEqual(2, destinations.Count);
@@ -33,17 +29,20 @@
             Assert.Contains("address2", destinations);
         }
 
+        
         [Test]
-        public async Task When_multiple_subscribers_for_logical_endpoints_should_route_event_to_a_single_instance_of_each_logical_endpoint()
+        public void When_multiple_subscribers_for_logical_endpoints_should_route_event_to_a_single_instance_of_each_logical_endpoint()
         {
             var sales = "Sales";
             var shipping = "Shipping";
-            subscriptionStorage.Subscribers.Add(new Subscriber("sales1", sales));
-            subscriptionStorage.Subscribers.Add(new Subscriber("sales2", sales));
-            subscriptionStorage.Subscribers.Add(new Subscriber("shipping1", shipping));
-            subscriptionStorage.Subscribers.Add(new Subscriber("shipping2", shipping));
 
-            var routes = (await router.Route(typeof(Event), new DistributionPolicy(), new ContextBag())).ToArray();
+            AddRoutes(
+                UnicastRoute.CreateFromPhysicalAddress("sales1", sales),
+                UnicastRoute.CreateFromPhysicalAddress("sales2", sales),
+                UnicastRoute.CreateFromPhysicalAddress("shipping1", shipping),
+                UnicastRoute.CreateFromPhysicalAddress("shipping2", shipping));
+
+            var routes = router.Route(typeof(Event), new DistributionPolicy(), new ContextBag()).ToArray();
 
             var destinations = routes.Select(ExtractDestination).ToList();
             Assert.AreEqual(2, destinations.Count);
@@ -52,41 +51,44 @@
         }
 
         [Test]
-        public async Task Should_not_route_multiple_copies_of_message_to_one_physical_destination()
+        public void Should_not_route_multiple_copies_of_message_to_one_physical_destination()
         {
-            subscriptionStorage.Subscribers.Add(new Subscriber("address", null));
-            subscriptionStorage.Subscribers.Add(new Subscriber("address", null));
-            subscriptionStorage.Subscribers.Add(new Subscriber("address", "sales"));
-            subscriptionStorage.Subscribers.Add(new Subscriber("address", "sales"));
-            subscriptionStorage.Subscribers.Add(new Subscriber("address", "shipping"));
+            AddRoutes(
+                UnicastRoute.CreateFromPhysicalAddress("address"),
+                UnicastRoute.CreateFromPhysicalAddress("address"),
+                UnicastRoute.CreateFromPhysicalAddress("address", "sales"),
+                UnicastRoute.CreateFromPhysicalAddress("address", "sales"),
+                UnicastRoute.CreateFromPhysicalAddress("address", "shipping"));
 
-            var routes = await router.Route(typeof(Event), new DistributionPolicy(), new ContextBag());
+            var routes = router.Route(typeof(Event), new DistributionPolicy(), new ContextBag());
 
             Assert.AreEqual(1, routes.Count());
             Assert.AreEqual("address", ExtractDestination(routes.Single()));
         }
 
         [Test]
-        public async Task Should_not_route_events_to_configured_endpoint_instances()
+        public void Should_not_route_events_to_configured_endpoint_instances()
         {
             var logicalEndpoint = "sales";
-            subscriptionStorage.Subscribers.Add(new Subscriber("address", logicalEndpoint));
+
+            AddRoutes(UnicastRoute.CreateFromPhysicalAddress("address", logicalEndpoint));
+
             endpointInstances.AddOrReplaceInstances("A", new List<EndpointInstance>
             {
                 new EndpointInstance(logicalEndpoint, "1"),
                 new EndpointInstance(logicalEndpoint, "2")
             });
 
-            var routes = await router.Route(typeof(Event), new DistributionPolicy(), new ContextBag());
+            var routes = router.Route(typeof(Event), new DistributionPolicy(), new ContextBag()).ToArray();
 
             Assert.AreEqual(1, routes.Count());
             Assert.AreEqual("address", ExtractDestination(routes.First()));
         }
 
         [Test]
-        public async Task Should_return_empty_list_when_no_routes_found()
+        public void Should_return_empty_list_when_no_routes_found()
         {
-            var routes = await router.Route(typeof(Event), new DistributionPolicy(), new ContextBag());
+           var routes = router.Route(typeof(Event), new DistributionPolicy(), new ContextBag());
 
             Assert.IsEmpty(routes);
         }
@@ -98,36 +100,19 @@
             return addressTag.Destination;
         }
 
+        void AddRoutes(params UnicastRoute[] routes)
+        {
+            subscriberTable.AddOrReplaceRoutes(typeof(Event).FullName, routes.Select(r => new RouteTableEntry(typeof(Event), r)).ToList());
+        }
+
         [SetUp]
         public void Setup()
         {
-            metadataRegistry = new MessageMetadataRegistry(new Conventions());
             endpointInstances = new EndpointInstances();
-            subscriptionStorage = new FakeSubscriptionStorage();
-            router = new UnicastPublishRouter(
-                metadataRegistry,
-                subscriptionStorage);
+            subscriberTable = new UnicastSubscriberTable();
+            router = new UnicastPublishRouter(subscriberTable, endpointInstances, i => i.ToString());
         }
-
-        class FakeSubscriptionStorage : ISubscriptionStorage
-        {
-            public List<Subscriber> Subscribers { get; }= new List<Subscriber>();
-            public Task Subscribe(Subscriber subscriber, MessageType messageType, ContextBag context)
-            {
-                throw new NotImplementedException();
-            }
-
-            public Task Unsubscribe(Subscriber subscriber, MessageType messageType, ContextBag context)
-            {
-                throw new NotImplementedException();
-            }
-
-            public Task<IEnumerable<Subscriber>> GetSubscriberAddressesForMessage(IEnumerable<MessageType> messageTypes, ContextBag context)
-            {
-                return Task.FromResult<IEnumerable<Subscriber>>(Subscribers);
-            }
-        }
-
+        
         class Event : IEvent
         {
         }

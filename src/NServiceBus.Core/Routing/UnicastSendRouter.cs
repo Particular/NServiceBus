@@ -1,6 +1,7 @@
 namespace NServiceBus
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq;
     using Routing;
 
@@ -15,26 +16,45 @@ namespace NServiceBus
 
         public UnicastRoutingStrategy Route(Type messageType, IDistributionPolicy distributionPolicy)
         {
-            var route = unicastRoutingTable.GetRouteFor(messageType);
-            if (route == null)
+            var routes = unicastRoutingTable.GetRoutesFor(messageType);
+            if (routes == null)
             {
                 return null;
             }
-
-            if (route.PhysicalAddress != null)
+            var candidates = routes.Routes.SelectMany(ResolveRoute).ToArray();
+            if (candidates.Length == 0)
             {
-                return new UnicastRoutingStrategy(route.PhysicalAddress);
+                return null;
             }
+            if (routes.EndpointName == null)
+            {
+                if (candidates.Length > 1)
+                {
+                    throw new Exception($"Cannot send a message to more than one destination: {messageType.FullName}");
+                }
+                return new UnicastRoutingStrategy(candidates[0]);
+            }
+            var selectedInstanceAddress = distributionPolicy.GetDistributionStrategy(routes.EndpointName, DistributionStrategyScope.Send).SelectReceiver(candidates);
+            return new UnicastRoutingStrategy(selectedInstanceAddress);
+        }
 
+        IEnumerable<string> ResolveRoute(UnicastRoute route)
+        {
             if (route.Instance != null)
             {
-                return new UnicastRoutingStrategy(transportAddressTranslation(route.Instance));
+                yield return transportAddressTranslation(route.Instance);
             }
-
-
-            var instances = endpointInstances.FindInstances(route.Endpoint).Select(e => transportAddressTranslation(e)).ToArray();
-            var selectedInstanceAddress = distributionPolicy.GetDistributionStrategy(route.Endpoint, DistributionStrategyScope.Send).SelectReceiver(instances);
-            return new UnicastRoutingStrategy(selectedInstanceAddress);
+            else if (route.PhysicalAddress != null)
+            {
+                yield return route.PhysicalAddress;
+            }
+            else
+            {
+                foreach (var instance in endpointInstances.FindInstances(route.Endpoint))
+                {
+                    yield return transportAddressTranslation(instance);
+                }
+            }
         }
 
         EndpointInstances endpointInstances;

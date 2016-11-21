@@ -1,8 +1,10 @@
 ﻿namespace NServiceBus.Features
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
     using Config;
     using Routing;
-    using Routing.MessageDrivenSubscriptions;
     using Transport;
 
     class RoutingFeature : Feature
@@ -15,6 +17,7 @@
             Defaults(s =>
             {
                 s.SetDefault<UnicastRoutingTable>(new UnicastRoutingTable());
+                s.SetDefault<UnicastSubscriberTable>(new UnicastSubscriberTable());
                 s.SetDefault<ConfiguredUnicastRoutes>(new ConfiguredUnicastRoutes());
 
                 s.SetDefault<EndpointInstances>(new EndpointInstances());
@@ -22,7 +25,9 @@
 
                 s.SetDefault(EnforceBestPracticesSettingsKey, true);
 
-                s.SetDefault<Publishers>(new Publishers()); // required to initialize MessageEndpointMappings.
+                var routingComponent = new RoutingComponent(s);
+                s.SetDefault<IRoutingComponent>(routingComponent);
+                s.SetDefault<RoutingComponent>(routingComponent);
             });
         }
 
@@ -32,10 +37,8 @@
             var transportInfrastructure = context.Settings.Get<TransportInfrastructure>();
             var conventions = context.Settings.Get<Conventions>();
             var unicastBusConfig = context.Settings.GetConfigSection<UnicastBusConfig>();
+            var routing = context.Settings.Get<RoutingComponent>();
 
-            var unicastRoutingTable = context.Settings.Get<UnicastRoutingTable>();
-            var endpointInstances = context.Settings.Get<EndpointInstances>();
-            var publishers = context.Settings.Get<Publishers>();
             var distributionPolicy = context.Settings.Get<DistributionPolicy>();
             var configuredUnicastRoutes = context.Settings.Get<ConfiguredUnicastRoutes>();
             var distributorAddress = context.Settings.GetOrDefault<string>("LegacyDistributor.Address");
@@ -45,21 +48,33 @@
                 EnableBestPracticeEnforcement(context);
             }
 
-            unicastBusConfig?.MessageEndpointMappings.Apply(publishers, unicastRoutingTable, transportInfrastructure.MakeCanonicalForm, conventions);
-            configuredUnicastRoutes.Apply(unicastRoutingTable, conventions);
+            ApplyLegacyConfiguration(unicastBusConfig?.MessageEndpointMappings, routing.Sending, transportInfrastructure.MakeCanonicalForm, conventions);
+            configuredUnicastRoutes.Apply(routing.Sending, conventions);
 
-            context.Pipeline.Register(b =>
+            Func<EndpointInstance, string> addressTranslation = i => transportInfrastructure.ToTransportAddress(LogicalAddress.CreateRemoteAddress(i));
+
+            var unicastSendRouter = new UnicastSendRouter(routing.Sending, routing.EndpointInstances, addressTranslation);
+            context.Pipeline.Register(new UnicastSendRouterConnector(context.Settings.LocalAddress(), context.Settings.InstanceSpecificQueue(), unicastSendRouter, distributionPolicy, addressTranslation),
+                "Determines how the message being sent should be routed");
+
+            if (transportInfrastructure.OutboundRoutingPolicy.Publishes == OutboundRoutingType.Unicast)
             {
-                var unicastSendRouter = new UnicastSendRouter(unicastRoutingTable, endpointInstances, i => transportInfrastructure.ToTransportAddress(LogicalAddress.CreateRemoteAddress(i)));
-                return new UnicastSendRouterConnector(context.Settings.LocalAddress(), context.Settings.InstanceSpecificQueue(), distributorAddress, unicastSendRouter, distributionPolicy, i => transportInfrastructure.ToTransportAddress(LogicalAddress.CreateRemoteAddress(i)));
-            }, "Determines how the message being sent should be routed");
+                var unicastPublishRouter = new UnicastPublishRouter(routing.Publishing, routing.EndpointInstances, addressTranslation);
+                context.Pipeline.Register(new UnicastPublishRouterConnector(unicastPublishRouter, distributionPolicy), 
+                    "Determines how the published messages should be routed");
+            }
 
             context.Pipeline.Register(new UnicastReplyRouterConnector(), "Determines how replies should be routed");
 
             if (canReceive)
             {
                 var publicReturnAddress = context.Settings.GetOrDefault<string>("PublicReturnAddress");
-                context.Pipeline.Register(new ApplyReplyToAddressBehavior(context.Settings.LocalAddress(), context.Settings.InstanceSpecificQueue(), publicReturnAddress, distributorAddress), "Applies the public reply to address to outgoing messages");
+                context.Pipeline.Register(new ApplyReplyToAddressBehavior(context.Settings.LocalAddress(), context.Settings.InstanceSpecificQueue(), publicReturnAddress, distributorAddress), 
+                    "Applies the public reply to address to outgoing messages");
+
+
+                context.Pipeline.Register(b => new SubscribeTerminator(routing, b), "Calls handlers for the subscribe requests.");
+                context.Pipeline.Register(b => new UnsubscribeTerminator(routing, b), "Calls handlers for the unsubscribe requests.");
             }
         }
 
@@ -91,6 +106,27 @@
                 "EnforceUnsubscribeBestPractices",
                 new EnforceUnsubscribeBestPracticesBehavior(validations),
                 "Enforces unsubscribe messaging best practices");
+        }
+
+        internal static void ApplyLegacyConfiguration(MessageEndpointMappingCollection mappings, UnicastRoutingTable unicastRoutingTable, Func<string, string> makeCanonicalAddress, Conventions conventions)
+        {
+            if (mappings == null)
+            {
+                return;
+            }
+            var routeTableEntries = new Dictionary<Type, RouteTableEntry>();
+
+            mappings.Apply(makeCanonicalAddress, (type, address, baseTypes) =>
+            {
+                var route = UnicastRoute.CreateFromPhysicalAddress(address);
+                foreach (var baseType in baseTypes)
+                {
+                    routeTableEntries[baseType] = new RouteTableEntry(baseType, route);
+                }
+                routeTableEntries[type] = new RouteTableEntry(type, route);
+            }, conventions);
+
+            unicastRoutingTable.AddOrReplaceRoutes("MessageEndpointMappings", routeTableEntries.Values.ToList());
         }
     }
 }

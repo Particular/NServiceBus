@@ -25,13 +25,13 @@
 
         class FakePublishRouter : IUnicastPublishRouter
         {
-            public Task<IEnumerable<UnicastRoutingStrategy>> Route(Type messageType, IDistributionPolicy distributionPolicy, ContextBag contextBag)
+            public IEnumerable<UnicastRoutingStrategy> Route(Type messageType, IDistributionPolicy distributionPolicy, ContextBag contextBag)
             {
-                IEnumerable<UnicastRoutingStrategy> unicastRoutingStrategies = new List<UnicastRoutingStrategy>
+                var unicastRoutingStrategies = new List<UnicastRoutingStrategy>
                 {
                     new UnicastRoutingStrategy("Fake")
                 };
-                return Task.FromResult(unicastRoutingStrategies);
+                return unicastRoutingStrategies;
             }
         }
     }
