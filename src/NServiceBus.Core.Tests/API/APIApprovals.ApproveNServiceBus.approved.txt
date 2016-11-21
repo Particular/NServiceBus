@@ -714,6 +714,15 @@ namespace NServiceBus
         public static System.Threading.Tasks.Task SendLocal(this NServiceBus.IPipelineContext context, object message) { }
         public static System.Threading.Tasks.Task SendLocal<T>(this NServiceBus.IPipelineContext context, System.Action<T> messageConstructor) { }
     }
+    public interface IPublishRouter
+    {
+        System.Threading.Tasks.Task<NServiceBus.Routing.RoutingStrategy[]> GetRoutingStrategies(NServiceBus.Pipeline.IOutgoingPublishContext context);
+    }
+    public interface IPublishSubscribeProvider
+    {
+        System.Func<NServiceBus.ObjectBuilder.IBuilder, NServiceBus.IPublishRouter> GetRouter(NServiceBus.Features.FeatureConfigurationContext context);
+        System.Func<NServiceBus.ObjectBuilder.IBuilder, NServiceBus.Transport.IManageSubscriptions> GetSubscriptionManager(NServiceBus.Features.FeatureConfigurationContext context);
+    }
     [System.ObsoleteAttribute("Use IEndpointInstance to create sending session. Will be removed in version 7.0.0" +
         ".", true)]
     public interface ISendOnlyBus : System.IDisposable { }
@@ -1832,8 +1841,11 @@ namespace NServiceBus.Features
     {
         protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
     }
+    [System.ObsoleteAttribute("Will be treated as an error from version 7.0.0. Will be removed in version 7.0.0." +
+        "", false)]
     public class MessageDrivenSubscriptions : NServiceBus.Features.Feature
     {
+        public MessageDrivenSubscriptions() { }
         protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
     }
     public class MsmqSubscriptionPersistence : NServiceBus.Features.Feature

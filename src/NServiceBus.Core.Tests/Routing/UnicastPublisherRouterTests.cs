@@ -5,8 +5,10 @@
     using System.Linq;
     using System.Threading.Tasks;
     using Extensibility;
+    using NServiceBus.Pipeline;
     using NServiceBus.Routing;
     using NUnit.Framework;
+    using Testing;
     using Unicast.Messages;
     using Unicast.Subscriptions;
     using Unicast.Subscriptions.MessageDrivenSubscriptions;
@@ -25,7 +27,11 @@
             subscriptionStorage.Subscribers.Add(new Subscriber("address1", null));
             subscriptionStorage.Subscribers.Add(new Subscriber("address2", null));
 
-            var routes = await router.Route(typeof(Event), new DistributionPolicy(), new ContextBag());
+            var context = new TestableOutgoingPublishContext
+            {
+                Message = new OutgoingLogicalMessage(typeof(Event), new Event())
+            };
+            var routes = await router.GetRoutingStrategies(context);
 
             var destinations = routes.Select(ExtractDestination).ToList();
             Assert.AreEqual(2, destinations.Count);
@@ -43,7 +49,11 @@
             subscriptionStorage.Subscribers.Add(new Subscriber("shipping1", shipping));
             subscriptionStorage.Subscribers.Add(new Subscriber("shipping2", shipping));
 
-            var routes = (await router.Route(typeof(Event), new DistributionPolicy(), new ContextBag())).ToArray();
+            var context = new TestableOutgoingPublishContext
+            {
+                Message = new OutgoingLogicalMessage(typeof(Event), new Event())
+            };
+            var routes = await router.GetRoutingStrategies(context);
 
             var destinations = routes.Select(ExtractDestination).ToList();
             Assert.AreEqual(2, destinations.Count);
@@ -60,7 +70,11 @@
             subscriptionStorage.Subscribers.Add(new Subscriber("address", "sales"));
             subscriptionStorage.Subscribers.Add(new Subscriber("address", "shipping"));
 
-            var routes = await router.Route(typeof(Event), new DistributionPolicy(), new ContextBag());
+            var context = new TestableOutgoingPublishContext
+            {
+                Message = new OutgoingLogicalMessage(typeof(Event), new Event())
+            };
+            var routes = await router.GetRoutingStrategies(context);
 
             Assert.AreEqual(1, routes.Count());
             Assert.AreEqual("address", ExtractDestination(routes.Single()));
@@ -77,7 +91,11 @@
                 new EndpointInstance(logicalEndpoint, "2")
             });
 
-            var routes = await router.Route(typeof(Event), new DistributionPolicy(), new ContextBag());
+            var context = new TestableOutgoingPublishContext
+            {
+                Message = new OutgoingLogicalMessage(typeof(Event), new Event())
+            };
+            var routes = await router.GetRoutingStrategies(context);
 
             Assert.AreEqual(1, routes.Count());
             Assert.AreEqual("address", ExtractDestination(routes.First()));
@@ -86,12 +104,16 @@
         [Test]
         public async Task Should_return_empty_list_when_no_routes_found()
         {
-            var routes = await router.Route(typeof(Event), new DistributionPolicy(), new ContextBag());
+            var context = new TestableOutgoingPublishContext
+            {
+                Message = new OutgoingLogicalMessage(typeof(Event), new Event())
+            };
+            var routes = await router.GetRoutingStrategies(context);
 
             Assert.IsEmpty(routes);
         }
 
-        static string ExtractDestination(UnicastRoutingStrategy route)
+        static string ExtractDestination(RoutingStrategy route)
         {
             var headers = new Dictionary<string, string>();
             var addressTag = (UnicastAddressTag)route.Apply(headers);
@@ -106,7 +128,8 @@
             subscriptionStorage = new FakeSubscriptionStorage();
             router = new UnicastPublishRouter(
                 metadataRegistry,
-                subscriptionStorage);
+                subscriptionStorage,
+                new DistributionPolicy());
         }
 
         class FakeSubscriptionStorage : ISubscriptionStorage
