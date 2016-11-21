@@ -1,6 +1,7 @@
 namespace NServiceBus
 {
     using System.Messaging;
+    using System.Security.Principal;
     using System.Threading.Tasks;
     using Features;
     using Logging;
@@ -55,11 +56,15 @@ namespace NServiceBus
 
             try
             {
-                using (var messageQueue = MessageQueue.Create(queuePath, settings.UseTransactionalQueues))
+                using (var queue = MessageQueue.Create(queuePath, settings.UseTransactionalQueues))
                 {
                     Logger.DebugFormat($"Created queue, path: [{queuePath}], identity: [{identity}], transactional: [{settings.UseTransactionalQueues}]");
 
-                    QueuePermissions.SetPermissionsForQueue(messageQueue, identity);
+                    queue.SetPermissions(LocalAdministratorsGroupName, MessageQueueAccessRights.FullControl, AccessControlEntryType.Allow);
+
+                    queue.SetPermissions(identity, MessageQueueAccessRights.WriteMessage, AccessControlEntryType.Allow);
+                    queue.SetPermissions(identity, MessageQueueAccessRights.ReceiveMessage, AccessControlEntryType.Allow);
+                    queue.SetPermissions(identity, MessageQueueAccessRights.PeekMessage, AccessControlEntryType.Allow);
                 }
             }
             catch (MessageQueueException ex)
@@ -76,6 +81,7 @@ namespace NServiceBus
 
         MsmqSettings settings;
 
+        static string LocalAdministratorsGroupName = new SecurityIdentifier(WellKnownSidType.BuiltinAdministratorsSid, null).Translate(typeof(NTAccount)).ToString();
         static ILog Logger = LogManager.GetLogger<QueueCreator>();
     }
 }
