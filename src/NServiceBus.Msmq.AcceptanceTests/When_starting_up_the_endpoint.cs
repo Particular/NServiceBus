@@ -19,9 +19,9 @@
             var everyone = new SecurityIdentifier(WellKnownSidType.WorldSid, null).Translate(typeof(NTAccount)).ToString();
             var anonymous = new SecurityIdentifier(WellKnownSidType.AnonymousSid, null).Translate(typeof(NTAccount)).ToString();
 
-            var logItem = context.Logs.FirstOrDefault(item => item.Message.Contains($"[{everyone}] and [{anonymous}]"));
+            var logItem = context.Logs.FirstOrDefault(item => item.Message.Contains($"[{everyone}] and/or [{anonymous}]"));
             Assert.IsNotNull(logItem);
-            StringAssert.Contains($"is running with [{everyone}] and [{anonymous}] permissions. Consider setting appropriate permissions, if required by the organization", logItem.Message);
+            StringAssert.Contains($"is running with [{everyone}] and/or [{anonymous}] permissions. Consider setting appropriate permissions, if required by the organization", logItem.Message);
         }
 
         class Context : ScenarioContext
