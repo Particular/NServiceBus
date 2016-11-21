@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Core.Tests.AssemblyScanner
 {
+    using System.IO;
     using System.Linq;
     using Hosting.Helpers;
     using NUnit.Framework;
@@ -10,7 +11,7 @@
         [Test]
         public void non_dotnet_files_are_skipped()
         {
-            var assemblyScanner = new AssemblyScanner(AssemblyScannerTests.GetTestAssemblyDirectory());
+            var assemblyScanner = new AssemblyScanner(Path.Combine(TestContext.CurrentContext.TestDirectory, "TestDlls"));
 
             var results = assemblyScanner
                 .GetScannableAssemblies();

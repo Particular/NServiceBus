@@ -103,7 +103,6 @@
     <Compile Include="API\APIApprovals.cs" />
     <Compile Include="ApprovalTestConfig.cs" />
     <Compile Include="App_Packages\PublicApiGenerator.5.0.0\ApiGenerator.cs" />
-    <Compile Include="AssemblyLocation.cs" />
     <Compile Include="AssemblyScanner\AssemblyScannerTests.cs" />
     <Compile Include="AssemblyScanner\When_checking_image_type.cs" />
     <Compile Include="AssemblyScanner\When_directory_with_no_reference_dlls_is_scanned.cs" />

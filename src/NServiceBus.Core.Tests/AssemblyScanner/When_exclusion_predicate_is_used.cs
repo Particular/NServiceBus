@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.Core.Tests.AssemblyScanner
 {
     using System.Collections.Generic;
+    using System.IO;
     using System.Linq;
     using Hosting.Helpers;
     using NUnit.Framework;
@@ -12,7 +13,7 @@
         [Test]
         public void no_files_explicitly_excluded_are_returned()
         {
-            var results = new AssemblyScanner(AssemblyScannerTests.GetTestAssemblyDirectory())
+            var results = new AssemblyScanner(Path.Combine(TestContext.CurrentContext.TestDirectory, "TestDlls"))
                           {
                               AssembliesToSkip = new List<string>
                                                  {

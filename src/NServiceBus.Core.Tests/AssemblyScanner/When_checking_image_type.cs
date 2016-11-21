@@ -9,7 +9,7 @@
         [Test]
         public void roslyn_x86_image_type_correctly_detected()
         {
-            var file = Path.Combine(AssemblyScannerTests.GetTestAssemblyDirectory(), "RoslynX86.dll");
+            var file = Path.Combine(TestContext.CurrentContext.TestDirectory, "TestDlls", "RoslynX86.dll");
 
             var compilationMode = Image.GetCompilationMode(file);
 
@@ -19,7 +19,7 @@
         [Test]
         public void roslyn_x64_image_type_correctly_detected()
         {
-            var file = Path.Combine(AssemblyScannerTests.GetTestAssemblyDirectory(), "RoslynX64.dll");
+            var file = Path.Combine(TestContext.CurrentContext.TestDirectory, "TestDlls", "RoslynX64.dll");
 
             var compilationMode = Image.GetCompilationMode(file);
 

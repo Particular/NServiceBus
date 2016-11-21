@@ -18,13 +18,26 @@
         [SetUp]
         public void SetUp()
         {
-            CleanupDynamicAssembliesIfNecessary();
+            if (!AppDomainRunner.IsInTestAppDomain)
+            {
+                AppDomainRunner.DataStore.Set("TestDirectory", TestContext.CurrentContext.TestDirectory);
+
+                if (Directory.Exists(DynamicAssembly.TestAssemblyDirectory))
+                {
+                    Directory.Delete(DynamicAssembly.TestAssemblyDirectory, true);
+                }
+
+                Directory.CreateDirectory(DynamicAssembly.TestAssemblyDirectory);
+            }
         }
 
         [TearDown]
         public void TearDown()
         {
-            CleanupDynamicAssembliesIfNecessary();
+            if (!AppDomainRunner.IsInTestAppDomain)
+            {
+                Directory.Delete(DynamicAssembly.TestAssemblyDirectory, true);
+            }
         }
 
         [Test]
@@ -44,14 +57,14 @@
         [Test]
         public void ReferencesNServiceBus_requires_binding_redirect()
         {
-            var combine = Path.Combine(GetTestAssemblyDirectory(), "AssemblyWithRefToSN.dll");
+            var combine = Path.Combine(TestContext.CurrentContext.TestDirectory, "TestDlls", "AssemblyWithRefToSN.dll");
             Assert.IsTrue(AssemblyScanner.ReferencesNServiceBus(combine));
         }
 
         [Test]
         public void ReferencesNServiceBus_returns_false_for_no_reference()
         {
-            var combine = Path.Combine(GetTestAssemblyDirectory(), "dotNet.dll");
+            var combine = Path.Combine(TestContext.CurrentContext.TestDirectory, "TestDlls", "dotNet.dll");
             Assert.IsFalse(AssemblyScanner.ReferencesNServiceBus(combine));
         }
 
@@ -155,36 +168,6 @@
             Assert.AreEqual(5, result.Assemblies.Count);
         }
 
-        public static string GetTestAssemblyDirectory(string testPath = "TestDlls")
-        {
-            var directoryName = GetAssemblyDirectory();
-            var directory = Path.Combine(directoryName, testPath);
-
-            if (!Directory.Exists(directory))
-            {
-                Directory.CreateDirectory(directory);
-            }
-
-            return directory;
-        }
-
-        static string GetAssemblyDirectory()
-        {
-            var codeBase = Assembly.GetExecutingAssembly().CodeBase;
-            var uri = new UriBuilder(codeBase);
-            var path = Uri.UnescapeDataString(uri.Path);
-
-            return Path.GetDirectoryName(path);
-        }
-
-        static void CleanupDynamicAssembliesIfNecessary()
-        {
-            if (!AppDomainRunner.IsInTestAppDomain)
-            {
-                Directory.Delete(DynamicAssembly.TestAssemblyDirectory, true);
-            }
-        }
-
         [DebuggerDisplay("Name = {Name}, DynamicName = {DynamicName}, Namespace = {Namespace}, FileName = {FileName}")]
         class DynamicAssembly
         {
@@ -262,7 +245,7 @@
 
             public Assembly Assembly { get; }
 
-            public static string TestAssemblyDirectory => GetTestAssemblyDirectory("assemblyscannerfiles");
+            public static string TestAssemblyDirectory { get; } = Path.Combine(AppDomainRunner.DataStore.Get<string>("TestDirectory"), "assemblyscannerfiles");
 
             static void ThrowIfCompilationWasNotSuccessful(CompilerResults results)
             {
