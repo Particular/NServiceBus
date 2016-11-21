@@ -4,23 +4,31 @@ namespace NServiceBus
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
+    using Extensibility;
     using Pipeline;
     using Routing;
+    using Unicast.Messages;
     using Unicast.Queuing;
+    using Unicast.Subscriptions;
+    using Unicast.Subscriptions.MessageDrivenSubscriptions;
 
-    class UnicastPublishRouterConnector : StageConnector<IOutgoingPublishContext, IOutgoingLogicalMessageContext>
+    class UnicastPublishRouterConnector : StageConnector<IOutgoingPublishContext, IOutgoingDistributionContext>
     {
-        public UnicastPublishRouterConnector(IUnicastPublishRouter unicastPublishRouter, DistributionPolicy distributionPolicy)
+        MessageMetadataRegistry messageMetadataRegistry;
+        ISubscriptionStorage subscriptionStorage;
+
+        public UnicastPublishRouterConnector(MessageMetadataRegistry messageMetadataRegistry, ISubscriptionStorage subscriptionStorage)
         {
-            this.unicastPublishRouter = unicastPublishRouter;
-            this.distributionPolicy = distributionPolicy;
+            this.messageMetadataRegistry = messageMetadataRegistry;
+            this.subscriptionStorage = subscriptionStorage;
         }
 
-        public override async Task Invoke(IOutgoingPublishContext context, Func<IOutgoingLogicalMessageContext, Task> stage)
+        public override async Task Invoke(IOutgoingPublishContext context, Func<IOutgoingDistributionContext, Task> stage)
         {
             var eventType = context.Message.MessageType;
-            var addressLabels = await GetRoutingStrategies(context, eventType).ConfigureAwait(false);
-            if (addressLabels.Count == 0)
+            var typesToRoute = messageMetadataRegistry.GetMessageMetadata(eventType).MessageHierarchy;
+            var routes = await GetSubscribers(typesToRoute, context.Extensions).ConfigureAwait(false);
+            if (routes.Count == 0)
             {
                 //No subscribers for this message.
                 return;
@@ -30,7 +38,7 @@ namespace NServiceBus
 
             try
             {
-                await stage(this.CreateOutgoingLogicalMessageContext(context.Message, addressLabels, context)).ConfigureAwait(false);
+                await stage(this.CreateDistributionContext(context.Message, routes, context)).ConfigureAwait(false);
             }
             catch (QueueNotFoundException ex)
             {
@@ -38,13 +46,19 @@ namespace NServiceBus
             }
         }
 
-        async Task<List<UnicastRoutingStrategy>> GetRoutingStrategies(IOutgoingPublishContext context, Type eventType)
+        async Task<IReadOnlyCollection<UnicastRoute>> GetSubscribers(Type[] typesToRoute, ContextBag contextBag)
         {
-            var addressLabels = await unicastPublishRouter.Route(eventType, distributionPolicy, context.Extensions).ConfigureAwait(false);
-            return addressLabels.ToList();
+            var messageTypes = typesToRoute.Select(t => new MessageType(t));
+            var subscribers = await subscriptionStorage.GetSubscriberAddressesForMessage(messageTypes, contextBag).ConfigureAwait(false);
+
+            return subscribers.Select(ToUnicastRoute).ToArray();
         }
 
-        DistributionPolicy distributionPolicy;
-        IUnicastPublishRouter unicastPublishRouter;
+        static UnicastRoute ToUnicastRoute(Subscriber s)
+        {
+            return s.Endpoint != null 
+                ? UnicastRoute.CreateFromPhysicalAddress(s.TransportAddress, s.Endpoint) 
+                : UnicastRoute.CreateFromPhysicalAddress(s.TransportAddress);
+        }
     }
 }

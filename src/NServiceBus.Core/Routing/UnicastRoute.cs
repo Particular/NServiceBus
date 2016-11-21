@@ -66,19 +66,36 @@ namespace NServiceBus.Routing
             };
         }
 
+        /// <summary>
+        /// Creates a destination based on the physical address.
+        /// </summary>
+        /// <param name="physicalAddress">Destination physical address.</param>
+        /// <param name="endpoint">Logical endpoint name associated with the address.</param>
+        /// <returns>The new destination route.</returns>
+        public static UnicastRoute CreateFromPhysicalAddress(string physicalAddress, string endpoint)
+        {
+            Guard.AgainstNullAndEmpty(nameof(physicalAddress), physicalAddress);
+            Guard.AgainstNullAndEmpty(nameof(endpoint), endpoint);
+            return new UnicastRoute
+            {
+                PhysicalAddress = physicalAddress,
+                Endpoint = endpoint
+            };
+        }
+
         /// <summary>Returns a string that represents the current object.</summary>
         /// <returns>A string that represents the current object.</returns>
         public override string ToString()
         {
-            if (Endpoint != null)
-            {
-                return Endpoint;
-            }
             if (Instance != null)
             {
                 return $"[{Instance}]";
             }
-            return $"<{PhysicalAddress}>";
+            if (PhysicalAddress != null)
+            {
+                return $"{Endpoint ?? ""}<{PhysicalAddress}>";
+            }
+            return Endpoint;
         }
     }
 }

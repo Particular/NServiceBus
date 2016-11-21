@@ -49,6 +49,7 @@
     <Compile Include="DefaultTestingLoggerFactory.cs" />
     <Compile Include="FakeBuilder.cs" />
     <Compile Include="NamedLogger.cs" />
+    <Compile Include="TestableOutgoingDistributionContext.cs" />
     <Compile Include="OutgoingMessage.cs" />
     <Compile Include="OutgoingMessageExtensions.cs" />
     <Compile Include="PublishedMessage.cs" />
@@ -75,6 +76,7 @@
     <Compile Include="TestableOutgoingReplyContext.cs" />
     <Compile Include="TestableOutgoingSendContext.cs" />
     <Compile Include="TestablePipelineContext.cs" />
+    <Compile Include="TestableUnicastRoutingContext.cs" />
     <Compile Include="TestableRoutingContext.cs" />
     <Compile Include="TestableSubscribeContext.cs" />
     <Compile Include="TestableTransportReceiveContext.cs" />

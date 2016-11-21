@@ -19,6 +19,8 @@ namespace NServiceBus
             FromMainPipeline<IOutgoingSendContext>(builder, settings);
             FromMainPipeline<IOutgoingReplyContext>(builder, settings);
             FromMainPipeline<IRoutingContext>(builder, settings);
+            FromMainPipeline<IUnicastRoutingContext>(builder, settings);
+            FromMainPipeline<IOutgoingDistributionContext>(builder, settings);
             FromMainPipeline<IBatchDispatchContext>(builder, settings);
             FromMainPipeline<IForwardingContext>(builder, settings);
         }

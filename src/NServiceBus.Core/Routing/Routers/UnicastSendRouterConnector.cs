@@ -6,70 +6,64 @@ namespace NServiceBus
     using Routing;
     using Unicast.Queuing;
 
-    class UnicastSendRouterConnector : StageConnector<IOutgoingSendContext, IOutgoingLogicalMessageContext>
+    enum UnicastRouteOption
     {
-        public enum RouteOption
-        {
-            None,
-            ExplicitDestination,
-            RouteToThisInstance,
-            RouteToAnyInstanceOfThisEndpoint,
-            RouteToSpecificInstance
-        }
+        None,
+        ExplicitDestination,
+        RouteToThisInstance,
+        RouteToAnyInstanceOfThisEndpoint,
+        RouteToSpecificInstance
+    }
 
+    class UnicastSendRouterConnector : StageConnector<IOutgoingSendContext, IOutgoingDistributionContext>
+    {
         public UnicastSendRouterConnector(
             string sharedQueue,
             string instanceSpecificQueue,
-            IUnicastSendRouter unicastSendRouter,
-            DistributionPolicy distributionPolicy,
-            Func<EndpointInstance, string> transportAddressTranslation)
+            UnicastRoutingTable unicastRoutingTable)
         {
             this.sharedQueue = sharedQueue;
             this.instanceSpecificQueue = instanceSpecificQueue;
-            this.unicastSendRouter = unicastSendRouter;
-            defaultDistributionPolicy = distributionPolicy;
-            this.transportAddressTranslation = transportAddressTranslation;
+            this.unicastRoutingTable = unicastRoutingTable;
         }
 
-        public override async Task Invoke(IOutgoingSendContext context, Func<IOutgoingLogicalMessageContext, Task> stage)
+        public override async Task Invoke(IOutgoingSendContext context, Func<IOutgoingDistributionContext, Task> stage)
         {
             var messageType = context.Message.MessageType;
 
             var state = context.Extensions.GetOrCreate<State>();
 
-            if (state.Option == RouteOption.RouteToThisInstance && instanceSpecificQueue == null)
+            if (state.Option == UnicastRouteOption.RouteToThisInstance && instanceSpecificQueue == null)
             {
                 throw new InvalidOperationException("Cannot route to a specific instance because an endpoint instance discriminator was not configured for the destination endpoint. It can be specified via EndpointConfiguration.MakeInstanceUniquelyAddressable(string discriminator).");
             }
-            var thisEndpoint = state.Option == RouteOption.RouteToAnyInstanceOfThisEndpoint ? sharedQueue : null;
-            var thisInstance = state.Option == RouteOption.RouteToThisInstance ? instanceSpecificQueue : null;
-            var explicitDestination = state.Option == RouteOption.ExplicitDestination ? state.ExplicitDestination : null;
+            var thisEndpoint = state.Option == UnicastRouteOption.RouteToAnyInstanceOfThisEndpoint ? sharedQueue : null;
+            var thisInstance = state.Option == UnicastRouteOption.RouteToThisInstance ? instanceSpecificQueue : null;
+            var explicitDestination = state.Option == UnicastRouteOption.ExplicitDestination ? state.ExplicitDestination : null;
             var destination = explicitDestination ?? thisInstance ?? thisEndpoint;
 
-            var distributionPolicy = state.Option == RouteOption.RouteToSpecificInstance ? new SpecificInstanceDistributionPolicy(state.SpecificInstance, transportAddressTranslation) : defaultDistributionPolicy;
+            var route = string.IsNullOrEmpty(destination)
+                ? unicastRoutingTable.GetRouteFor(messageType)
+                : UnicastRoute.CreateFromPhysicalAddress(destination);
 
-            var routingStrategy = string.IsNullOrEmpty(destination)
-                ? unicastSendRouter.Route(messageType, distributionPolicy)
-                : RouteToDestination(destination);
-
-            if (routingStrategy == null)
+            if (route == null)
             {
                 throw new Exception($"No destination specified for message: {messageType}");
             }
 
             context.Headers[Headers.MessageIntent] = MessageIntentEnum.Send.ToString();
 
-            var logicalMessageContext = this.CreateOutgoingLogicalMessageContext(
+            var downstreamContext = this.CreateDistributionContext(
                 context.Message,
                 new[]
                 {
-                    routingStrategy
+                    route
                 },
                 context);
 
             try
             {
-                await stage(logicalMessageContext).ConfigureAwait(false);
+                await stage(downstreamContext).ConfigureAwait(false);
             }
             catch (QueueNotFoundException ex)
             {
@@ -77,28 +71,21 @@ namespace NServiceBus
             }
         }
 
-        static UnicastRoutingStrategy RouteToDestination(string physicalAddress)
-        {
-            return new UnicastRoutingStrategy(physicalAddress);
-        }
-
-        IDistributionPolicy defaultDistributionPolicy;
-        Func<EndpointInstance, string> transportAddressTranslation;
         string instanceSpecificQueue;
+        UnicastRoutingTable unicastRoutingTable;
         string sharedQueue;
-        IUnicastSendRouter unicastSendRouter;
 
         public class State
         {
             public string ExplicitDestination { get; set; }
             public string SpecificInstance { get; set; }
 
-            public RouteOption Option
+            public UnicastRouteOption Option
             {
                 get { return option; }
                 set
                 {
-                    if (option != RouteOption.None)
+                    if (option != UnicastRouteOption.None)
                     {
                         throw new Exception("Already specified routing option for this message: " + option);
                     }
@@ -106,7 +93,7 @@ namespace NServiceBus
                 }
             }
 
-            RouteOption option;
+            UnicastRouteOption option;
         }
     }
 }

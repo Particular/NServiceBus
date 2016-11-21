@@ -1,5 +1,6 @@
 namespace NServiceBus
 {
+    using System;
     using System.Collections.Generic;
     using Persistence;
     using Pipeline;
@@ -57,6 +58,31 @@ namespace NServiceBus
             Guard.AgainstNull(nameof(sourceContext), sourceContext);
 
             return new RoutingContext(outgoingMessage, routingStrategies, sourceContext);
+        }
+
+        /// <summary>
+        /// Creates a <see cref="IRoutingContext" /> based on the current context.
+        /// </summary>
+        public static IRoutingContext CreateRoutingContext(this StageConnector<IUnicastRoutingContext, IRoutingContext> stageConnector, OutgoingMessage outgoingMessage, IReadOnlyCollection<RoutingStrategy> routingStrategies, IUnicastRoutingContext sourceContext)
+        {
+            Guard.AgainstNull(nameof(outgoingMessage), outgoingMessage);
+            Guard.AgainstNull(nameof(routingStrategies), routingStrategies);
+            Guard.AgainstNull(nameof(sourceContext), sourceContext);
+
+            return new RoutingContext(outgoingMessage, routingStrategies, sourceContext);
+        }
+
+        /// <summary>
+        /// Creates a <see cref="IUnicastRoutingContext"/> based on the current context.
+        /// </summary>
+        public static IUnicastRoutingContext CreateUnicastRoutingContext<T>(this ForkConnector<T, IUnicastRoutingContext> forkConnector, OutgoingMessage outgoingMessage, IReadOnlyCollection<UnicastRoute> routes, Func<string[], string[]> distributionFunction, T sourceContext)
+            where T : IBehaviorContext
+        {
+            Guard.AgainstNull(nameof(outgoingMessage), outgoingMessage);
+            Guard.AgainstNull(nameof(routes), routes);
+            Guard.AgainstNull(nameof(sourceContext), sourceContext);
+
+            return new UnicastRoutingContext(outgoingMessage, routes, distributionFunction, sourceContext);
         }
 
         /// <summary>
@@ -150,6 +176,59 @@ namespace NServiceBus
         /// <summary>
         /// Creates a <see cref="IOutgoingLogicalMessageContext" /> based on the current context.
         /// </summary>
+        public static IOutgoingDistributionContext CreateDistributionContext(this StageConnector<IOutgoingPublishContext, IOutgoingDistributionContext> stageConnector, OutgoingLogicalMessage outgoingMessage, IReadOnlyCollection<UnicastRoute> destinations, IOutgoingPublishContext sourceContext)
+        {
+            Guard.AgainstNull(nameof(outgoingMessage), outgoingMessage);
+            Guard.AgainstNull(nameof(destinations), destinations);
+            Guard.AgainstNull(nameof(sourceContext), sourceContext);
+
+            return new OutgoingDistributionContext(
+                sourceContext.MessageId,
+                sourceContext.Headers,
+                outgoingMessage,
+                destinations,
+                DistributionStrategyScope.Publish, 
+                sourceContext);
+        }
+        
+        /// <summary>
+        /// Creates a <see cref="IOutgoingLogicalMessageContext" /> based on the current context.
+        /// </summary>
+        public static IOutgoingDistributionContext CreateDistributionContext(this StageConnector<IOutgoingSendContext, IOutgoingDistributionContext> stageConnector, OutgoingLogicalMessage outgoingMessage, IReadOnlyCollection<UnicastRoute> destinations, IOutgoingSendContext sourceContext)
+        {
+            Guard.AgainstNull(nameof(outgoingMessage), outgoingMessage);
+            Guard.AgainstNull(nameof(destinations), destinations);
+            Guard.AgainstNull(nameof(sourceContext), sourceContext);
+
+            return new OutgoingDistributionContext(
+                sourceContext.MessageId,
+                sourceContext.Headers,
+                outgoingMessage,
+                destinations,
+                DistributionStrategyScope.Send,
+                sourceContext);
+        }
+
+        /// <summary>
+        /// Creates a <see cref="IOutgoingLogicalMessageContext" /> based on the current context.
+        /// </summary>
+        public static IOutgoingLogicalMessageContext CreateOutgoingLogicalMessageContext(this StageConnector<IOutgoingSendContext, IOutgoingLogicalMessageContext> stageConnector, OutgoingLogicalMessage outgoingMessage, IReadOnlyCollection<RoutingStrategy> routingStrategies, IOutgoingSendContext sourceContext)
+        {
+            Guard.AgainstNull(nameof(outgoingMessage), outgoingMessage);
+            Guard.AgainstNull(nameof(routingStrategies), routingStrategies);
+            Guard.AgainstNull(nameof(sourceContext), sourceContext);
+
+            return new OutgoingLogicalMessageContext(
+                sourceContext.MessageId,
+                sourceContext.Headers,
+                outgoingMessage,
+                routingStrategies,
+                sourceContext);
+        }
+
+        /// <summary>
+        /// Creates a <see cref="IOutgoingLogicalMessageContext" /> based on the current context.
+        /// </summary>
         public static IOutgoingLogicalMessageContext CreateOutgoingLogicalMessageContext(this StageConnector<IOutgoingPublishContext, IOutgoingLogicalMessageContext> stageConnector, OutgoingLogicalMessage outgoingMessage, IReadOnlyCollection<RoutingStrategy> routingStrategies, IOutgoingPublishContext sourceContext)
         {
             Guard.AgainstNull(nameof(outgoingMessage), outgoingMessage);
@@ -184,7 +263,7 @@ namespace NServiceBus
         /// <summary>
         /// Creates a <see cref="IOutgoingLogicalMessageContext" /> based on the current context.
         /// </summary>
-        public static IOutgoingLogicalMessageContext CreateOutgoingLogicalMessageContext(this StageConnector<IOutgoingSendContext, IOutgoingLogicalMessageContext> stageConnector, OutgoingLogicalMessage outgoingMessage, IReadOnlyCollection<RoutingStrategy> routingStrategies, IOutgoingSendContext sourceContext)
+        public static IOutgoingLogicalMessageContext CreateOutgoingLogicalMessageContext(this StageConnector<IOutgoingDistributionContext, IOutgoingLogicalMessageContext> stageConnector, OutgoingLogicalMessage outgoingMessage, IReadOnlyCollection<RoutingStrategy> routingStrategies, IOutgoingDistributionContext sourceContext)
         {
             Guard.AgainstNull(nameof(outgoingMessage), outgoingMessage);
             Guard.AgainstNull(nameof(routingStrategies), routingStrategies);
@@ -197,6 +276,7 @@ namespace NServiceBus
                 routingStrategies,
                 sourceContext);
         }
+
 
         /// <summary>
         /// Creates a <see cref="IOutgoingPhysicalMessageContext" /> based on the current context.
