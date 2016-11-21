@@ -4,15 +4,14 @@ namespace NServiceBus
     using System.Messaging;
     using System.Security.Principal;
     using System.Threading.Tasks;
-    using Features;
     using Logging;
     using Transport;
 
     class QueueCreator : ICreateQueues
     {
-        public QueueCreator(MsmqSettings settings)
+        public QueueCreator(bool useTransactionalQueues)
         {
-            this.settings = settings;
+            this.useTransactionalQueues = useTransactionalQueues;
         }
 
         public Task CreateQueueIfNecessary(QueueBindings queueBindings, string identity)
@@ -57,9 +56,9 @@ namespace NServiceBus
 
             try
             {
-                using (var queue = MessageQueue.Create(queuePath, settings.UseTransactionalQueues))
+                using (var queue = MessageQueue.Create(queuePath, useTransactionalQueues))
                 {
-                    Logger.DebugFormat($"Created queue, path: [{queuePath}], identity: [{identity}], transactional: [{settings.UseTransactionalQueues}]");
+                    Logger.DebugFormat($"Created queue, path: [{queuePath}], identity: [{identity}], transactional: [{useTransactionalQueues}]");
 
                     SetPermissions(queue, LocalAdministratorsGroupName, MessageQueueAccessRights.FullControl);
 
@@ -92,7 +91,7 @@ namespace NServiceBus
             }
         }
 
-        MsmqSettings settings;
+        bool useTransactionalQueues;
 
         static string LocalAdministratorsGroupName = new SecurityIdentifier(WellKnownSidType.BuiltinAdministratorsSid, null).Translate(typeof(NTAccount)).ToString();
         static ILog Logger = LogManager.GetLogger<QueueCreator>();
