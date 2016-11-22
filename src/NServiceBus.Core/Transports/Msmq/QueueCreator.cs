@@ -4,7 +4,6 @@ namespace NServiceBus
     using System.Messaging;
     using System.Security.Principal;
     using System.Threading.Tasks;
-    using Features;
     using Logging;
     using Transport;
     using Transports.Msmq;
@@ -33,11 +32,6 @@ namespace NServiceBus
 
         void CreateQueueIfNecessary(string address, string identity)
         {
-            if (address == null)
-            {
-                return;
-            }
-
             var msmqAddress = MsmqAddress.Parse(address);
 
             Logger.Debug($"Creating '{address}' if needed.");
