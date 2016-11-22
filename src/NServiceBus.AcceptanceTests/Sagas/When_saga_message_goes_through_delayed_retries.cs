@@ -15,7 +15,7 @@
         public Task Should_invoke_the_correct_handle_methods_on_the_saga()
         {
             return Scenario.Define<Context>()
-                .WithEndpoint<Endpoint>(b => b
+                .WithEndpoint<TestSaga09Endpt>(b => b
                     .When(session => session.SendLocal(new StartSagaMessage
                     {
                         SomeId = Guid.NewGuid()
@@ -31,9 +31,9 @@
             public int NumberOfTimesInvoked { get; set; }
         }
 
-        public class Endpoint : EndpointConfigurationBuilder
+        public class TestSaga09Endpt : EndpointConfigurationBuilder
         {
-            public Endpoint()
+            public TestSaga09Endpt()
             {
                 EndpointSetup<DefaultServer>(b =>
                 {
