@@ -20,6 +20,7 @@
             Pipeline = pipelineSettings;
 
             TaskControllers = new List<FeatureStartupTaskController>();
+
         }
 
         /// <summary>
@@ -84,5 +85,26 @@
         {
             TaskControllers.Add(new FeatureStartupTaskController(typeof(TTask).Name, startupTaskFactory));
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public T GetService<T>() where T : IFeatureService
+        {
+            return (T)featureServices[typeof(T)];
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="service"></param>
+        public void RegisterService(IFeatureService service)
+        {
+            featureServices[service.GetType()] = service;
+        }
+
+        Dictionary<Type, IFeatureService> featureServices = new Dictionary<Type, IFeatureService>();
     }
 }
