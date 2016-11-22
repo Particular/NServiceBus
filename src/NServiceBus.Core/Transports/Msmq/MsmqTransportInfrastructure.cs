@@ -11,7 +11,6 @@ namespace NServiceBus
     using Settings;
     using Support;
     using Transport;
-    using Transports.Msmq;
 
     class MsmqTransportInfrastructure : TransportInfrastructure
     {
