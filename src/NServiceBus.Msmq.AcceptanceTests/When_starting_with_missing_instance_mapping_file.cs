@@ -18,7 +18,7 @@
             Assert.That(exception.InnerException.InnerException.Message, Does.Contain($"The specified instance mapping file '{mappingFilePath}' does not exist."));
         }
 
-        static string mappingFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, nameof(When_starting_with_missing_instance_mapping_file) + ".xml");
+        static string mappingFilePath = Path.Combine(TestContext.CurrentContext.TestDirectory, nameof(When_starting_with_missing_instance_mapping_file) + ".xml");
 
         public class SenderWithMissingMappingFile : EndpointConfigurationBuilder
         {

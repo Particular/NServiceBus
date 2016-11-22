@@ -1,6 +1,5 @@
 namespace NServiceBus.Core.Tests.Config
 {
-    using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
@@ -15,7 +14,7 @@ namespace NServiceBus.Core.Tests.Config
         [SetUp]
         public void SetUp()
         {
-            foundAssemblies = GetAssembliesInDirectory(AppDomain.CurrentDomain.BaseDirectory)
+            foundAssemblies = GetAssembliesInDirectory(TestContext.CurrentContext.TestDirectory)
                 .ToList();
         }
 
