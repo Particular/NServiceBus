@@ -128,6 +128,37 @@
         }
 
 
+        [Test]
+        public void Should_not_add_everyone_and_anonymous_to_already_existing_queues()
+        {
+            var testQueueName = "MsmqQueueCreatorTests.NoChangesToExisting";
+
+            DeleteQueueIfPresent(testQueueName);
+
+            var path = MsmqAddress.Parse(testQueueName).PathWithoutPrefix;
+
+            using (var existingQueue = MessageQueue.Create(path))
+            {
+                existingQueue.SetPermissions(LocalEveryoneGroupName, MessageQueueAccessRights.GenericWrite, AccessControlEntryType.Revoke);
+                existingQueue.SetPermissions(LocalAnonymousLogonName, MessageQueueAccessRights.WriteMessage, AccessControlEntryType.Revoke);
+            }
+
+            var creator = new QueueCreator(true);
+            var bindings = new QueueBindings();
+
+            bindings.BindReceiving(testQueueName);
+
+            creator.CreateQueueIfNecessary(bindings, WindowsIdentity.GetCurrent().Name);
+
+
+            var queue = GetQueue(testQueueName);
+
+            MessageQueueAccessRights? everyoneAccessRights;
+
+            Assert.False(queue.TryGetPermissions(LocalEveryoneGroupName, out everyoneAccessRights));
+            Assert.False(queue.TryGetPermissions(LocalAnonymousLogonName, out everyoneAccessRights));
+        }
+
         MessageQueue GetQueue(string queueName)
         {
             var path = MsmqAddress.Parse(queueName).PathWithoutPrefix;
