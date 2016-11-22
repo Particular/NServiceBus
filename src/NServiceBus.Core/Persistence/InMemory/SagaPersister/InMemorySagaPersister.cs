@@ -10,11 +10,13 @@ namespace NServiceBus
 
     class InMemorySagaPersister : ISagaPersister
     {
+        const string ContextKey = "NServiceBus.InMemorySagaPersistence.Sagas";
+
         public Task Complete(IContainSagaData sagaData, SynchronizedStorageSession session, ContextBag context)
         {
             ((InMemorySynchronizedStorageSession)session).Enlist(() =>
            {
-               var entry = GetEntry(sagaData, context);
+               var entry = GetEntry(context, sagaData.Id);
 
                if (sagas.TryRemoveConditionally(sagaData.Id, entry) == false)
                {
@@ -39,7 +41,7 @@ namespace NServiceBus
 
             if (sagas.TryGetValue(sagaId, out value))
             {
-                context.Set(sagaId.ToString(), value);
+                SetEntry(context, sagaId, value);
 
                 var data = value.GetSagaCopy();
                 return Task.FromResult((TSagaData)data);
@@ -69,7 +71,7 @@ namespace NServiceBus
                var correlationId = NoCorrelationId;
                if (correlationProperty != SagaCorrelationProperty.None)
                {
-                   correlationId = GetKey(sagaData.GetType(), correlationProperty);
+                   correlationId = new CorrelationId(sagaData.GetType(), correlationProperty);
                    if (byCorrelationId.TryAdd(correlationId, sagaData.Id) == false)
                    {
                        throw new InvalidOperationException($"The saga with the correlation id 'Name: {correlationProperty.Name} Value: {correlationProperty.Value}' already exists");
@@ -90,7 +92,7 @@ namespace NServiceBus
         {
             ((InMemorySynchronizedStorageSession)session).Enlist(() =>
            {
-               var entry = GetEntry(sagaData, context);
+               var entry = GetEntry(context, sagaData.Id);
 
                if (sagas.TryUpdate(sagaData.Id, entry.UpdateTo(sagaData), entry) == false)
                {
@@ -101,21 +103,30 @@ namespace NServiceBus
             return TaskEx.CompletedTask;
         }
 
-        static Entry GetEntry(IContainSagaData sagaData, ContextBag context)
+        static void SetEntry(ContextBag context, Guid sagaId, Entry value)
         {
-            Entry entry;
-            if (context.TryGet(sagaData.Id.ToString(), out entry) == false)
+            Dictionary<Guid, Entry> entries;
+            if (context.TryGet(ContextKey, out entries) == false)
             {
-                throw new Exception("The saga should be retrieved with Get method before it's updated");
+                entries = new Dictionary<Guid, Entry>();
+                context.Set(ContextKey, entries);
             }
-            return entry;
+            entries[sagaId] = value;
         }
 
-        static CorrelationId GetKey(Type sagaType, SagaCorrelationProperty correlationProperty)
+        static Entry GetEntry(ReadOnlyContextBag context, Guid sagaDataId)
         {
-            var propertyName = correlationProperty.Name;
-            var propertyValue = correlationProperty.Value;
-            return new CorrelationId(sagaType, propertyName, propertyValue);
+            Dictionary<Guid, Entry> entries;
+            if (context.TryGet(ContextKey, out entries))
+            {
+                Entry entry;
+
+                if (entries.TryGetValue(sagaDataId, out entry))
+                {
+                    return entry;
+                }
+            }
+            throw new Exception("The saga should be retrieved with Get method before it's updated");
         }
 
         readonly ConcurrentDictionary<Guid, Entry> sagas = new ConcurrentDictionary<Guid, Entry>();
@@ -167,9 +178,14 @@ namespace NServiceBus
                 this.propertyValue = propertyValue;
             }
 
+            public CorrelationId(Type sagaType, SagaCorrelationProperty correlationProperty)
+                : this(sagaType, correlationProperty.Name, correlationProperty.Value)
+            {
+            }
+
             bool Equals(CorrelationId other)
             {
-                return type == other.type && string.Equals(propertyName, other.propertyName) && propertyValue.Equals(other.propertyValue);
+                return type == other.type && String.Equals(propertyName, other.propertyName) && propertyValue.Equals(other.propertyValue);
             }
 
             public override bool Equals(object obj)
