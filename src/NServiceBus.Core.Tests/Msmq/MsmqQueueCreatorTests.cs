@@ -59,6 +59,48 @@
             Assert.AreEqual(MessageQueueAccessRights.FullControl, localAdminAccessRights, "LocalAdmins should have full control");
         }
 
+        [Test]
+        public void Should_make_queues_transactional_if_requested()
+        {
+            const bool isTransactional = true;
+
+            var testQueueName = "MsmqQueueCreatorTests.txreceiver";
+
+            DeleteQueueIfPresent(testQueueName);
+
+            var creator = new QueueCreator(isTransactional);
+            var bindings = new QueueBindings();
+
+            bindings.BindReceiving(testQueueName);
+
+            creator.CreateQueueIfNecessary(bindings, WindowsIdentity.GetCurrent().Name);
+
+            var queue = GetQueue(testQueueName);
+
+            Assert.AreEqual(isTransactional, queue.Transactional);
+        }
+
+        [Test]
+        public void Should_make_queues_non_transactional_if_requested()
+        {
+            const bool isTransactional = false;
+
+            var testQueueName = "MsmqQueueCreatorTests.txreceiver";
+
+            DeleteQueueIfPresent(testQueueName);
+
+            var creator = new QueueCreator(isTransactional);
+            var bindings = new QueueBindings();
+
+            bindings.BindReceiving(testQueueName);
+
+            creator.CreateQueueIfNecessary(bindings, WindowsIdentity.GetCurrent().Name);
+
+            var queue = GetQueue(testQueueName);
+
+            Assert.AreEqual(isTransactional, queue.Transactional);
+        }
+
         MessageQueue GetQueue(string queueName)
         {
             var path = MsmqAddress.Parse(queueName).PathWithoutPrefix;
