@@ -53,7 +53,7 @@ namespace NServiceBus
             {
                 using (var queue = MessageQueue.Create(queuePath, useTransactionalQueues))
                 {
-                    Logger.DebugFormat($"Created queue, path: [{queuePath}], identity: [{identity}], transactional: [{useTransactionalQueues}]");
+                    Logger.Debug($"Created queue, path: [{queuePath}], identity: [{identity}], transactional: [{useTransactionalQueues}]");
 
                     SetPermissions(queue, LocalAdministratorsGroupName, MessageQueueAccessRights.FullControl);
 

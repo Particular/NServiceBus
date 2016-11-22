@@ -22,12 +22,14 @@
             bindings.BindReceiving("MsmqQueueCreatorTests.receiver");
             bindings.BindSending("MsmqQueueCreatorTests.target1");
             bindings.BindSending("MsmqQueueCreatorTests.target2");
+            bindings.BindSending("MsmqQueueCreatorTests.target3@remote");
 
             creator.CreateQueueIfNecessary(bindings, WindowsIdentity.GetCurrent().Name);
 
             Assert.True(QueueExists("MsmqQueueCreatorTests.receiver"));
             Assert.True(QueueExists("MsmqQueueCreatorTests.target1"));
-            Assert.True(QueueExists("MsmqQueueCreatorTests.target1"));
+            Assert.True(QueueExists("MsmqQueueCreatorTests.target2"));
+            Assert.False(QueueExists("MsmqQueueCreatorTests.target3"));
         }
 
         [Test]
