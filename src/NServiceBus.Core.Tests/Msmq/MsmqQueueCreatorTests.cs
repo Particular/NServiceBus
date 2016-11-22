@@ -103,7 +103,7 @@
         }
 
         [Test]
-        public void Msmq_will_add_everyone_and_anonymous_by_default()
+        public void Should_give_everyone_and_anonymous_access_rights_when_creating_queues()
         {
             var testQueueName = "MsmqQueueCreatorTests.MsmqDefaultPermissions";
 
@@ -169,6 +169,23 @@
             bindings.BindReceiving(null);
 
             Assert.Throws<ArgumentNullException>(() => creator.CreateQueueIfNecessary(bindings, WindowsIdentity.GetCurrent().Name));
+        }
+
+        [Test]
+        public void Verify_msmq_permissions_and_delete_has_lower_lenght_limit_compared_to_queue_name()
+        {
+            //increase to 50 and create will work but SetPermission and Delete will blow up
+            var testQueueName = "MsmqQueueCreatorTests." + Guid.NewGuid().ToString().Replace("-","") + new string('a', 49 - Environment.MachineName.Length);
+            var path = MsmqAddress.Parse(testQueueName).PathWithoutPrefix;
+
+            Console.Out.WriteLine("Length: " + path.Length);
+
+            using (var existingQueue = MessageQueue.Create(path))
+            {
+                existingQueue.SetPermissions(LocalEveryoneGroupName, MessageQueueAccessRights.GenericWrite, AccessControlEntryType.Revoke);
+            }
+
+            MessageQueue.Delete(path);
         }
 
         MessageQueue GetQueue(string queueName)
