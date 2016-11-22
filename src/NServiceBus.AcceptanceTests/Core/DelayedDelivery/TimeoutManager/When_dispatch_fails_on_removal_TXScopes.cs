@@ -13,7 +13,7 @@
     using Timeout.Core;
     using Conventions = AcceptanceTesting.Customization.Conventions;
 
-    public class When_timeout_dispatch_fails_on_timeout_removal_using_dtc : NServiceBusAcceptanceTest
+    public class When_dispatch_fails_on_removal_TXScopes : NServiceBusAcceptanceTest
     {
         [Test]
         public async Task Should_move_control_message_to_errors_and_not_dispatch_original_message_to_handler()

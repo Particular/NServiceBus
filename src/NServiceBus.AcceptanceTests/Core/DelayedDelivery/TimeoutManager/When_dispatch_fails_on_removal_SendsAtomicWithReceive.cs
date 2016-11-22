@@ -11,7 +11,7 @@
     using NUnit.Framework;
     using Timeout.Core;
 
-    class When_timeout_dispatch_fails_on_timeout_removal_using_sendsAtomicWithReceive : NServiceBusAcceptanceTest
+    class When_dispatch_fails_on_removal_SendsAtomicWithReceive : NServiceBusAcceptanceTest
     {
         [Test]
         public async Task Should_move_control_message_to_errors_and_dispatch_original_message_to_handler()

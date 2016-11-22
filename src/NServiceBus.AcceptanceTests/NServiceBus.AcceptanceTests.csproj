@@ -59,7 +59,7 @@
     <Compile Include="Basic\When_extending_behavior_context.cs" />
     <Compile Include="Basic\When_receiving_unobtrusive_message_without_handler.cs" />
     <Compile Include="Config\When_multiple_configuration_providers.cs" />
-    <Compile Include="Core\DelayedDelivery\TimeoutManager\When_timeout_dispatch_fails_on_timeout_removal_using_sendsAtomicWithReceive.cs" />
+    <Compile Include="Core\DelayedDelivery\TimeoutManager\When_dispatch_fails_on_removal_SendsAtomicWithReceive.cs" />
     <Compile Include="Core\Feature\When_feature_startup_task_fails.cs" />
     <Compile Include="Core\LegacyRetries\When_legacy_retries_left_in_retry_queue.cs" />
     <Compile Include="Core\MessageDurability\When_sending_a_non_durable_message_with_conventions.cs" />
@@ -111,7 +111,7 @@
     <Compile Include="Correlation\When_replying_to_received_message_without_correlationid.cs" />
     <Compile Include="DelayedDelivery\When_deferring_a_message_to_the_past.cs" />
     <Compile Include="Core\DelayedDelivery\TimeoutManager\When_timeout_dispatch_fails.cs" />
-    <Compile Include="Core\DelayedDelivery\TimeoutManager\When_timeout_dispatch_fails_on_timeout_removal_using_dtc.cs" />
+    <Compile Include="Core\DelayedDelivery\TimeoutManager\When_dispatch_fails_on_removal_TXScopes.cs" />
     <Compile Include="Core\DelayedDelivery\TimeoutManager\When_timeout_storage_fails.cs" />
     <Compile Include="EndpointTemplates\EndpointCustomizationConfigurationExtensions.cs" />
     <Compile Include="EndpointTemplates\ServerWithNoDefaultPersistenceDefinitions.cs" />
