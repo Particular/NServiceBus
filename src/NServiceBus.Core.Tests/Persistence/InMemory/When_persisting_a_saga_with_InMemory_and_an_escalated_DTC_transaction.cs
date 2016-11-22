@@ -38,13 +38,13 @@
 
                     var enlistedSession = await storageAdapter.TryAdapt(transportTransaction, new ContextBag());
 
-                    var ctx1 = new ContextBag();
-                    var unenlistedRecord = await persister.Get<TestSagaData>(saga.Id, unenlistedSession, ctx1);
-                    var ctx2 = new ContextBag();
-                    var enlistedRecord = await persister.Get<TestSagaData>("Id", saga.Id, enlistedSession, ctx2);
+                    var unenlistedSessionContext = new ContextBag();
+                    var unenlistedRecord = await persister.Get<TestSagaData>(saga.Id, unenlistedSession, unenlistedSessionContext);
+                    var enlistedSessionContext = new ContextBag();
+                    var enlistedRecord = await persister.Get<TestSagaData>("Id", saga.Id, enlistedSession, enlistedSessionContext);
 
-                    await persister.Update(unenlistedRecord, unenlistedSession, ctx1);
-                    await persister.Update(enlistedRecord, enlistedSession, ctx2);
+                    await persister.Update(unenlistedRecord, unenlistedSession, unenlistedSessionContext);
+                    await persister.Update(enlistedRecord, enlistedSession, enlistedSessionContext);
 
                     await unenlistedSession.CompleteAsync();
 

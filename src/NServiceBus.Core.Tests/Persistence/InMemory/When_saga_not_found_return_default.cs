@@ -24,6 +24,7 @@
             Assert.IsNull(simpleSageEntity);
         }
 
+        [Ignore("It should not return null when the type mismatches.")]
         [Test]
         public async Task Should_return_default_when_using_finding_saga_with_id_of_another_type()
         {

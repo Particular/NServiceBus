@@ -18,11 +18,17 @@
             };
 
             var persister = new InMemorySagaPersister();
-            var session = new InMemorySynchronizedStorageSession();
+            using (var session = new InMemorySynchronizedStorageSession())
+            {
+                await persister.Save(sagaData, null, session, new ContextBag());
+                await session.CompleteAsync();
+            }
 
-            await persister.Save(sagaData, null, session, new ContextBag());
-
-            await session.CompleteAsync();
+            using (var session = new InMemorySynchronizedStorageSession())
+            {
+                var retrieved = await persister.Get<SagaWithoutUniquePropertyData>(sagaData.Id, session, new ContextBag());
+                Assert.AreEqual(sagaData.NonUniqueString, retrieved.NonUniqueString);
+            }
         }
     }
 }
