@@ -14,10 +14,7 @@ namespace NServiceBus
             var cache = context.Extensions.Get<IPipelineCache>();
             var pipeline = cache.Pipeline<IRoutingContext>();
 
-            var outgoingMessage = new OutgoingMessage(
-                messageBeingProcessed.MessageId,
-                messageBeingProcessed.Headers,
-                messageBeingProcessed.Body);
+            var outgoingMessage = messageBeingProcessed.ToOutgoingMessage();
 
             var routingContext = new RoutingContext(outgoingMessage, new UnicastRoutingStrategy(destination), context);
 

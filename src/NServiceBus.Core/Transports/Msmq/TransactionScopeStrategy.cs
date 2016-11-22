@@ -82,7 +82,7 @@ namespace NServiceBus
             {
                 using (var bodyStream = message.BodyStream)
                 {
-                    var shouldAbortMessageProcessing = await TryProcessMessage(message.Id, headers, bodyStream, transportTransaction).ConfigureAwait(false);
+                    var shouldAbortMessageProcessing = await TryProcessMessage(message, headers, bodyStream, transportTransaction).ConfigureAwait(false);
 
                     if (shouldAbortMessageProcessing)
                     {

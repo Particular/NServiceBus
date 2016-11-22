@@ -21,7 +21,7 @@
                 .Select(rs =>
                 {
                     var addressLabel = rs.Apply(context.Message.Headers);
-                    var message = new OutgoingMessage(context.Message.MessageId, context.Message.Headers, context.Message.Body);
+                    var message = context.Message.Clone();
                     return new TransportOperation(message, addressLabel, dispatchConsistency, context.Extensions.GetDeliveryConstraints());
                 }).ToArray();
 

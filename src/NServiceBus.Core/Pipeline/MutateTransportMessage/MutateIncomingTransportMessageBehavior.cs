@@ -26,7 +26,18 @@
         {
             var mutators = context.Builder.BuildAll<IMutateIncomingTransportMessages>();
             var transportMessage = context.Message;
-            var mutatorContext = new MutateIncomingTransportMessageContext(transportMessage.Body, transportMessage.Headers);
+            // Now mutator contains also the zero byte stuff, change?
+            MutateIncomingTransportMessageContext mutatorContext;
+
+            if (transportMessage.Body != null)
+            {
+                mutatorContext = new MutateIncomingTransportMessageContext(transportMessage.Body, transportMessage.Headers);
+            }
+            else
+            {
+                mutatorContext = new MutateIncomingTransportMessageContext(transportMessage.BodySegment, transportMessage.Headers);    
+            }
+            
             foreach (var mutator in mutators)
             {
                 await mutator.MutateIncoming(mutatorContext)

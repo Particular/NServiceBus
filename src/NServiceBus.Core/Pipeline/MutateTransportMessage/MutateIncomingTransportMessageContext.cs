@@ -1,6 +1,8 @@
 namespace NServiceBus.MessageMutator
 {
+    using System;
     using System.Collections.Generic;
+    using System.Linq;
 
     /// <summary>
     /// Context class for <see cref="IMutateIncomingTransportMessages" />.
@@ -21,11 +23,36 @@ namespace NServiceBus.MessageMutator
         }
 
         /// <summary>
+        /// Initializes a new instance of <see cref="MutateOutgoingTransportMessageContext" />.
+        /// </summary>
+        public MutateIncomingTransportMessageContext(ArraySegment<byte> bodySegment, Dictionary<string, string> headers)
+        {
+            Guard.AgainstNull(nameof(headers), headers);
+            Headers = headers;
+
+            // Intentionally assign to field to not set the MessageBodyChanged flag.
+            this.bodySegment = bodySegment;
+        }
+
+        /// <summary>
         /// The body of the message.
         /// </summary>
         public byte[] Body
         {
-            get { return body; }
+            get
+            {
+                if (body != null)
+                {
+                    return body;
+                }
+
+                if (bodySegment.Array != null)
+                {
+                    body = bodySegment.ToArray();
+                }
+
+                return body;
+            }
             set
             {
                 Guard.AgainstNull(nameof(value), value);
@@ -40,6 +67,7 @@ namespace NServiceBus.MessageMutator
         public Dictionary<string, string> Headers { get; private set; }
 
         byte[] body;
+        ArraySegment<byte> bodySegment;
 
         internal bool MessageBodyChanged;
     }

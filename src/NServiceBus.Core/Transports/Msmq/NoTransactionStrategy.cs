@@ -31,7 +31,7 @@ namespace NServiceBus
             {
                 try
                 {
-                    await TryProcessMessage(message.Id, headers, bodyStream, transportTransaction).ConfigureAwait(false);
+                    await TryProcessMessage(message, headers, bodyStream, transportTransaction).ConfigureAwait(false);
                 }
                 catch (Exception exception)
                 {

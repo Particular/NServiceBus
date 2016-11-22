@@ -12,6 +12,8 @@ namespace NServiceBus
 
     abstract class ReceiveStrategy
     {
+        public int MaxConcurrency { private get; set; }
+
         public abstract Task ReceiveMessage();
 
         public void Init(MessageQueue inputQueue, MessageQueue errorQueue, Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError, CriticalError criticalError)
@@ -99,12 +101,12 @@ namespace NServiceBus
             errorQueue.Send(message, transactionType);
         }
 
-        protected async Task<bool> TryProcessMessage(string messageId, Dictionary<string, string> headers, Stream bodyStream, TransportTransaction transaction)
+        protected async Task<bool> TryProcessMessage(Message message, Dictionary<string, string> headers, Stream bodyStream, TransportTransaction transaction)
         {
             using (var tokenSource = new CancellationTokenSource())
             {
-                var body = await ReadStream(bodyStream).ConfigureAwait(false);
-                var messageContext = new MessageContext(messageId, headers, body, transaction, tokenSource, new ContextBag());
+                var bodySegment = MsmqUtilities.GetBodyAsArraySegment(message);
+                var messageContext = new MessageContext(message.Id, headers, bodySegment, transaction, tokenSource, new ContextBag());
 
                 await onMessage(messageContext).ConfigureAwait(false);
 
@@ -116,8 +118,8 @@ namespace NServiceBus
         {
             try
             {
-                var body = await ReadStream(message.BodyStream).ConfigureAwait(false);
-                var errorContext = new ErrorContext(exception, headers, message.Id, body, transportTransaction, processingAttempts);
+                var bodySegment = MsmqUtilities.GetBodyAsArraySegment(message);
+                var errorContext = new ErrorContext(exception, headers, message.Id, bodySegment, transportTransaction, processingAttempts);
 
                 return await onError(errorContext).ConfigureAwait(false);
             }
@@ -128,15 +130,6 @@ namespace NServiceBus
                 //best thing we can do is roll the message back if possible
                 return ErrorHandleResult.RetryRequired;
             }
-        }
-
-        static async Task<byte[]> ReadStream(Stream bodyStream)
-        {
-            bodyStream.Seek(0, SeekOrigin.Begin);
-            var length = (int) bodyStream.Length;
-            var body = new byte[length];
-            await bodyStream.ReadAsync(body, 0, length).ConfigureAwait(false);
-            return body;
         }
 
         protected bool IsQueuesTransactional => errorQueue.Transactional;
