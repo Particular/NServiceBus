@@ -8,6 +8,8 @@
     [TestFixture]
     class When_persisting_a_saga_with_the_same_unique_property_as_a_completed_saga
     {
+        InMemorySagaPersister persister = new InMemorySagaPersister();
+
         [Test]
         public async Task It_should_persist_successfully()
         {
@@ -22,30 +24,35 @@
                 UniqueString = "whatever"
             };
 
-            var persister = new InMemorySagaPersister();
+            await SaveSaga(saga1);
+            await CompleteSaga(saga1.Id);
+            
+            await SaveSaga(saga2);
+            await CompleteSaga(saga2.Id);
 
-            using (var session1 = new InMemorySynchronizedStorageSession())
+            await SaveSaga(saga1);
+            await CompleteSaga(saga1.Id);
+        }
+
+        async Task SaveSaga(SagaWithUniquePropertyData saga)
+        {
+            using (var session = new InMemorySynchronizedStorageSession())
             {
                 var ctx = new ContextBag();
-                await persister.Save(saga1, SagaMetadataHelper.GetMetadata<SagaWithUniqueProperty>(saga1), session1, ctx);
-                await persister.Complete(saga1, session1, ctx);
-                await session1.CompleteAsync();
+                await persister.Save(saga, SagaMetadataHelper.GetMetadata<SagaWithUniqueProperty>(saga), session, ctx);
+                await session.CompleteAsync();
             }
+        }
 
-            using (var session2 = new InMemorySynchronizedStorageSession())
+        async Task CompleteSaga(Guid sagaId)
+        {
+            using (var session = new InMemorySynchronizedStorageSession())
             {
                 var ctx = new ContextBag();
-                await persister.Save(saga2, SagaMetadataHelper.GetMetadata<SagaWithUniqueProperty>(saga2), session2, ctx);
-                await persister.Complete(saga2, session2, ctx);
-                await session2.CompleteAsync();
-            }
 
-            using (var session3 = new InMemorySynchronizedStorageSession())
-            {
-                var ctx = new ContextBag();
-                await persister.Save(saga1, SagaMetadataHelper.GetMetadata<SagaWithUniqueProperty>(saga1), session3, ctx);
-                await persister.Complete(saga1, session3, ctx);
-                await session3.CompleteAsync();
+                var saga = await persister.Get<SagaWithUniquePropertyData>(sagaId, session, ctx);
+                await persister.Complete(saga, session, ctx);
+                await session.CompleteAsync();
             }
         }
     }

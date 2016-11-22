@@ -118,8 +118,6 @@ namespace NServiceBus
                 {
                     throw new Exception("FATAL: this should never happened as saga id should be unique");
                 }
-
-                context.Set(sagaData.Id.ToString(), entry);
             });
 
             return TaskEx.CompletedTask;
