@@ -154,10 +154,10 @@
 
             var queue = GetQueue(testQueueName);
 
-            MessageQueueAccessRights? everyoneAccessRights;
+            MessageQueueAccessRights? nullBecauseRevoked;
 
-            Assert.False(queue.TryGetPermissions(LocalEveryoneGroupName, out everyoneAccessRights));
-            Assert.False(queue.TryGetPermissions(LocalAnonymousLogonName, out everyoneAccessRights));
+            Assert.False(queue.TryGetPermissions(LocalEveryoneGroupName, out nullBecauseRevoked));
+            Assert.False(queue.TryGetPermissions(LocalAnonymousLogonName, out nullBecauseRevoked));
         }
 
         [Test]
