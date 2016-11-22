@@ -6,16 +6,17 @@
     using EndpointTemplates;
     using NUnit.Framework;
 
-    public class When_a_existing_saga_instance_exists : NServiceBusAcceptanceTest
+    public class When_saga_exists_for_start_message : NServiceBusAcceptanceTest
     {
         [Test]
         public async Task Should_hydrate_and_invoke_the_existing_instance()
         {
             var context = await Scenario.Define<Context>()
-                .WithEndpoint<ExistingSagaInstanceEndpt>(b => b.When(session => session.SendLocal(new StartSagaMessage
-                {
-                    SomeId = Guid.NewGuid()
-                })))
+                .WithEndpoint<ExistingSagaInstanceEndpt>(b => b
+                    .When(session => session.SendLocal(new StartSagaMessage
+                    {
+                        SomeId = Guid.NewGuid()
+                    })))
                 .Done(c => c.SecondMessageReceived)
                 .Run();
 
@@ -43,8 +44,6 @@
 
                 public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
                 {
-                    Data.SomeId = message.SomeId;
-
                     if (message.SecondMessage)
                     {
                         TestContext.SecondSagaId = Data.Id;
@@ -79,7 +78,6 @@
             }
         }
 
-        
         public class StartSagaMessage : ICommand
         {
             public Guid SomeId { get; set; }
