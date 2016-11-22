@@ -101,6 +101,33 @@
             Assert.AreEqual(isTransactional, queue.Transactional);
         }
 
+        [Test]
+        public void Msmq_will_add_everyone_and_anonymous_by_default()
+        {
+            var testQueueName = "MsmqQueueCreatorTests.MsmqDefaultPermissions";
+
+            DeleteQueueIfPresent(testQueueName);
+
+            var path = MsmqAddress.Parse(testQueueName).PathWithoutPrefix;
+
+            using (var queue = MessageQueue.Create(path))
+            {
+                MessageQueueAccessRights? everyoneAccessRights;
+
+                Assert.True(queue.TryGetPermissions(LocalEveryoneGroupName, out everyoneAccessRights));
+                Assert.True(everyoneAccessRights.HasValue, "User should have access rights");
+                Assert.AreEqual(MessageQueueAccessRights.GenericWrite, everyoneAccessRights, "Msmq should give 'everyone' write access by default");
+
+
+                MessageQueueAccessRights? anonymousAccessRights;
+
+                Assert.True(queue.TryGetPermissions(LocalAnonymousLogonName, out anonymousAccessRights));
+                Assert.True(anonymousAccessRights.HasValue, "User should have access rights");
+                Assert.AreEqual(MessageQueueAccessRights.WriteMessage, anonymousAccessRights, "Msmq should give 'anonymous' write access by default");
+            }
+        }
+
+
         MessageQueue GetQueue(string queueName)
         {
             var path = MsmqAddress.Parse(queueName).PathWithoutPrefix;
@@ -127,6 +154,8 @@
             MessageQueue.Delete(path);
         }
 
+        static string LocalEveryoneGroupName = new SecurityIdentifier(WellKnownSidType.WorldSid, null).Translate(typeof(NTAccount)).ToString();
+        static string LocalAnonymousLogonName = new SecurityIdentifier(WellKnownSidType.AnonymousSid, null).Translate(typeof(NTAccount)).ToString();
         static string NetworkServiceAccountName = new SecurityIdentifier(WellKnownSidType.NetworkServiceSid, null).Translate(typeof(NTAccount)).ToString();
         static string LocalAdministratorsGroupName = new SecurityIdentifier(WellKnownSidType.BuiltinAdministratorsSid, null).Translate(typeof(NTAccount)).ToString();
     }
