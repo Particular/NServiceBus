@@ -175,6 +175,43 @@
         }
 
         [Test]
+        public void Should_allow_queue_names_above_the_limit_for_set_permission()
+        {
+            var testQueueName = "MsmqQueueCreatorTests.tolong." + Guid.NewGuid().ToString().Replace("-", "");
+
+            var maxQueueNameForSetPermissionToWork = 103 - Environment.MachineName.Length;
+
+            testQueueName += new string('a', maxQueueNameForSetPermissionToWork - testQueueName.Length + 1);
+
+            DeleteQueueIfPresent(testQueueName);
+
+            var creator = new QueueCreator(true);
+            var bindings = new QueueBindings();
+
+            bindings.BindReceiving(testQueueName);
+
+            Assert.DoesNotThrow(() => creator.CreateQueueIfNecessary(bindings, WindowsIdentity.GetCurrent().Name));
+        }
+
+
+        [Test]
+        public void Should_blow_up_for_invalid_accounts()
+        {
+            var testQueueName = "MsmqQueueCreatorTests.badidentity";
+
+            DeleteQueueIfPresent(testQueueName);
+
+            var creator = new QueueCreator(true);
+            var bindings = new QueueBindings();
+
+            bindings.BindReceiving(testQueueName);
+
+            var ex = Assert.Throws<InvalidOperationException>(() => creator.CreateQueueIfNecessary(bindings, "invalidaccount"));
+
+            StringAssert.Contains("invalidaccount", ex.Message);
+        }
+
+        [Test]
         public void Should_blow_up_if_name_is_null()
         {
             var creator = new QueueCreator(true);

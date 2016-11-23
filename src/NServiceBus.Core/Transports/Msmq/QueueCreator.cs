@@ -1,6 +1,5 @@
 namespace NServiceBus
 {
-    using System;
     using System.Messaging;
     using System.Security.Principal;
     using System.Threading.Tasks;
@@ -55,16 +54,30 @@ namespace NServiceBus
                 {
                     Logger.Debug($"Created queue, path: [{queuePath}], identity: [{identity}], transactional: [{useTransactionalQueues}]");
 
-                    SetPermissions(queue, LocalAdministratorsGroupName, MessageQueueAccessRights.FullControl);
+                    try
+                    {
+                        queue.SetPermissions(identity, MessageQueueAccessRights.WriteMessage);
+                        queue.SetPermissions(identity, MessageQueueAccessRights.ReceiveMessage);
+                        queue.SetPermissions(identity, MessageQueueAccessRights.PeekMessage);
 
-                    SetPermissions(queue, identity, MessageQueueAccessRights.WriteMessage);
-                    SetPermissions(queue, identity, MessageQueueAccessRights.ReceiveMessage);
-                    SetPermissions(queue, identity, MessageQueueAccessRights.PeekMessage);
+                        queue.SetPermissions(LocalAdministratorsGroupName, MessageQueueAccessRights.FullControl);
 
-                    // Everyone & Anonymous is granted write message permissions on all Windows / Windows Server versions after 2003.
-                    // But we keep this for now for backwards compatibility
-                    SetPermissions(queue, QueuePermissions.LocalEveryoneGroupName, MessageQueueAccessRights.WriteMessage);
-                    SetPermissions(queue, QueuePermissions.LocalAnonymousLogonName, MessageQueueAccessRights.WriteMessage);
+                        // Everyone & Anonymous is granted write message permissions on all Windows / Windows Server versions after 2003.
+                        // But we keep this for now for backwards compatibility
+                        queue.SetPermissions(QueuePermissions.LocalEveryoneGroupName, MessageQueueAccessRights.WriteMessage);
+                        queue.SetPermissions(QueuePermissions.LocalAnonymousLogonName, MessageQueueAccessRights.WriteMessage);
+                    }
+                    catch (MessageQueueException permissionException)
+                    {
+                        if (permissionException.MessageQueueErrorCode == MessageQueueErrorCode.FormatNameBufferTooSmall)
+                        {
+                            Logger.Warn($"Queue '{queue.FormatName}' has a to long name for permissions to be applied. Please consider a shorter endpoint name.", permissionException);
+                            return;
+                        }
+
+                        throw;
+                    }
+
                 }
             }
             catch (MessageQueueException ex)
@@ -76,18 +89,6 @@ namespace NServiceBus
                 }
 
                 throw;
-            }
-        }
-
-        static void SetPermissions(MessageQueue queue, string identity, MessageQueueAccessRights accessRights)
-        {
-            try
-            {
-                queue.SetPermissions(identity, accessRights, AccessControlEntryType.Allow);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"Failed to give '{identity}' {accessRights} access to queue '{queue.FormatName}'", ex);
             }
         }
 
