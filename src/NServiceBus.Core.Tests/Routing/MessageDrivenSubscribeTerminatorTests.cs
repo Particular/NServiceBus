@@ -21,16 +21,13 @@
             publishers.AddOrReplacePublishers("A", new List<PublisherTableEntry> {new PublisherTableEntry(typeof(object), PublisherAddress.CreateFromPhysicalAddresses("publisher1"))});
             router = new SubscriptionRouter(publishers, new EndpointInstances(), i => i.ToString());
             dispatcher = new FakeDispatcher();
-            subscribeTerminator = new MessageDrivenSubscribeTerminator(router, "replyToAddress", "Endpoint", dispatcher);
+            subscriptionManager = new MessageDrivenSubscriptionManager(router, "replyToAddress", "Endpoint", dispatcher);
         }
 
         [Test]
         public async Task Should_include_TimeSent_and_Version_headers()
         {
-            var unsubscribeTerminator = new MessageDrivenUnsubscribeTerminator(router, "replyToAddress", "Endpoint", dispatcher);
-
-            await subscribeTerminator.Invoke(new TestableSubscribeContext(), c => TaskEx.CompletedTask);
-            await unsubscribeTerminator.Invoke(new TestableUnsubscribeContext(), c => TaskEx.CompletedTask);
+            await subscriptionManager.Subscribe(typeof(object), new ContextBag());
 
             foreach (var dispatchedTransportOperation in dispatcher.DispatchedTransportOperations)
             {
@@ -45,7 +42,7 @@
         [Test]
         public async Task Should_Dispatch_for_all_publishers()
         {
-            await subscribeTerminator.Invoke(new TestableSubscribeContext(), c => TaskEx.CompletedTask);
+            await subscriptionManager.Subscribe(typeof(object), new ContextBag());
 
             Assert.AreEqual(1, dispatcher.DispatchedTransportOperations.Count);
         }
@@ -54,12 +51,12 @@
         public async Task Should_Dispatch_according_to_max_retries_when_dispatch_fails()
         {
             var context = new TestableSubscribeContext();
-            var state = context.Extensions.GetOrCreate<MessageDrivenSubscribeTerminator.Settings>();
+            var state = context.Extensions.GetOrCreate<MessageDrivenSubscriptionManager.Settings>();
             state.MaxRetries = 10;
             state.RetryDelay = TimeSpan.Zero;
             dispatcher.FailDispatch(10);
 
-            await subscribeTerminator.Invoke(context, c => TaskEx.CompletedTask);
+            await subscriptionManager.Subscribe(typeof(object), new ContextBag());
 
             Assert.AreEqual(1, dispatcher.DispatchedTransportOperations.Count);
             Assert.AreEqual(10, dispatcher.FailedNumberOfTimes);
@@ -69,14 +66,14 @@
         public void Should_Throw_when_max_retries_reached()
         {
             var context = new TestableSubscribeContext();
-            var state = context.Extensions.GetOrCreate<MessageDrivenSubscribeTerminator.Settings>();
+            var state = context.Extensions.GetOrCreate<MessageDrivenSubscriptionManager.Settings>();
             state.MaxRetries = 10;
             state.RetryDelay = TimeSpan.Zero;
             dispatcher.FailDispatch(11);
 
             Assert.That(async () =>
             {
-                await subscribeTerminator.Invoke(context, c => TaskEx.CompletedTask);
+                await subscriptionManager.Subscribe(typeof(object), new ContextBag());
             }, Throws.InstanceOf<QueueNotFoundException>());
 
             Assert.AreEqual(0, dispatcher.DispatchedTransportOperations.Count);
@@ -85,7 +82,7 @@
 
         FakeDispatcher dispatcher;
         SubscriptionRouter router;
-        MessageDrivenSubscribeTerminator subscribeTerminator;
+        MessageDrivenSubscriptionManager subscriptionManager;
 
         class FakeDispatcher : IDispatchMessages
         {

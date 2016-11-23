@@ -23,8 +23,11 @@
                 s.SetDefault<DistributionPolicy>(new DistributionPolicy());
 
                 s.SetDefault(EnforceBestPracticesSettingsKey, true);
+                s.SetDefault<Publishers>(new Publishers());
 
-                s.SetDefault<Publishers>(new Publishers()); // required to initialize MessageEndpointMappings.
+                var routingComponent = new RoutingComponent(s);
+                s.SetDefault<IRoutingComponent>(routingComponent);
+                s.SetDefault<RoutingComponent>(routingComponent);
             });
         }
 
@@ -34,10 +37,8 @@
             var transportInfrastructure = context.Settings.Get<TransportInfrastructure>();
             var conventions = context.Settings.Get<Conventions>();
             var unicastBusConfig = context.Settings.GetConfigSection<UnicastBusConfig>();
+            var routing = context.Settings.Get<RoutingComponent>();
 
-            var unicastRoutingTable = context.Settings.Get<UnicastRoutingTable>();
-            var unicastSubscriberTable = context.Settings.Get<UnicastSubscriberTable>();
-            var endpointInstances = context.Settings.Get<EndpointInstances>();
             var publishers = context.Settings.Get<Publishers>();
             var distributionPolicy = context.Settings.Get<DistributionPolicy>();
             var configuredUnicastRoutes = context.Settings.Get<ConfiguredUnicastRoutes>();
@@ -47,23 +48,19 @@
                 EnableBestPracticeEnforcement(context);
             }
 
-            unicastBusConfig?.MessageEndpointMappings.Apply(publishers, unicastRoutingTable, transportInfrastructure.MakeCanonicalForm, conventions);
-            configuredUnicastRoutes.Apply(unicastRoutingTable, conventions);
+            unicastBusConfig?.MessageEndpointMappings.Apply(publishers, routing.Sending, transportInfrastructure.MakeCanonicalForm, conventions);
+            configuredUnicastRoutes.Apply(routing.Sending, conventions);
             Func<EndpointInstance, string> addressTranslation = i => transportInfrastructure.ToTransportAddress(LogicalAddress.CreateRemoteAddress(i));
 
-            context.Pipeline.Register(b =>
-            {
-                var unicastSendRouter = new UnicastSendRouter(unicastRoutingTable, endpointInstances, addressTranslation);
-                return new UnicastSendRouterConnector(context.Settings.LocalAddress(), context.Settings.InstanceSpecificQueue(), unicastSendRouter, distributionPolicy, addressTranslation);
-            }, "Determines how the message being sent should be routed");
+            var unicastSendRouter = new UnicastSendRouter(routing.Sending, routing.EndpointInstances, addressTranslation);
+            context.Pipeline.Register(new UnicastSendRouterConnector(context.Settings.LocalAddress(), context.Settings.InstanceSpecificQueue(), unicastSendRouter, distributionPolicy, addressTranslation),
+                "Determines how the message being sent should be routed");
 
             if (transportInfrastructure.OutboundRoutingPolicy.Publishes == OutboundRoutingType.Unicast)
             {
-                context.Pipeline.Register(b =>
-                {
-                    var unicastPublishRouter = new UnicastPublishRouter(unicastSubscriberTable, endpointInstances, addressTranslation);
-                    return new UnicastPublishRouterConnector(unicastPublishRouter, distributionPolicy);
-                }, "Determines how the published messages should be routed");
+                var unicastPublishRouter = new UnicastPublishRouter(routing.Publishing, routing.EndpointInstances, addressTranslation);
+                context.Pipeline.Register(new UnicastPublishRouterConnector(unicastPublishRouter, distributionPolicy), 
+                    "Determines how the published messages should be routed");
             }
 
             context.Pipeline.Register(new UnicastReplyRouterConnector(), "Determines how replies should be routed");
@@ -72,7 +69,12 @@
             {
                 var publicReturnAddress = context.Settings.GetOrDefault<string>("PublicReturnAddress");
                 var distributorAddress = context.Settings.GetOrDefault<string>("LegacyDistributor.Address");
-                context.Pipeline.Register(new ApplyReplyToAddressBehavior(context.Settings.LocalAddress(), context.Settings.InstanceSpecificQueue(), publicReturnAddress, distributorAddress), "Applies the public reply to address to outgoing messages");
+                context.Pipeline.Register(new ApplyReplyToAddressBehavior(context.Settings.LocalAddress(), context.Settings.InstanceSpecificQueue(), publicReturnAddress, distributorAddress), 
+                    "Applies the public reply to address to outgoing messages");
+
+
+                context.Pipeline.Register(b => new SubscribeTerminator(routing, b), "Calls handlers for the subscribe requests.");
+                context.Pipeline.Register(b => new UnsubscribeTerminator(routing, b), "Calls handlers for the unsubscribe requests.");
             }
         }
 

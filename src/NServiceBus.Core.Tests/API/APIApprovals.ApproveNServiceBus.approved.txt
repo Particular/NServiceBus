@@ -1831,6 +1831,13 @@ namespace NServiceBus.Features
     {
         protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
     }
+    public interface IRoutingComponent
+    {
+        NServiceBus.Routing.EndpointInstances EndpointInstances { get; }
+        NServiceBus.Routing.UnicastSubscriberTable Publishing { get; }
+        NServiceBus.Routing.UnicastRoutingTable Sending { get; }
+        void RegisterSubscriptionHandler(System.Func<NServiceBus.ObjectBuilder.IBuilder, NServiceBus.Transport.IManageSubscriptions> handlerFactory);
+    }
     public class MessageDrivenSubscriptions : NServiceBus.Features.Feature
     {
         protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }

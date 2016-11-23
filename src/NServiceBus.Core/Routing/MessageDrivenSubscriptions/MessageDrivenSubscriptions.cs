@@ -2,7 +2,6 @@ namespace NServiceBus.Features
 {
     using System;
     using Persistence;
-    using Routing;
     using Routing.MessageDrivenSubscriptions;
     using Transport;
     using Unicast.Messages;
@@ -40,14 +39,13 @@ namespace NServiceBus.Features
             var conventions = context.Settings.Get<Conventions>();
             var enforceBestPractices = context.Settings.Get<bool>(RoutingFeature.EnforceBestPracticesSettingsKey);
 
-            var endpointInstances = context.Settings.Get<EndpointInstances>();
+            var routing = context.Settings.Get<IRoutingComponent>();
             var publishers = context.Settings.Get<Publishers>();
             var configuredPublishers = context.Settings.Get<ConfiguredPublishers>();
-            var unicastSubscriberTable = context.Settings.Get<UnicastSubscriberTable>();
 
             configuredPublishers.Apply(publishers, conventions, enforceBestPractices);
 
-            context.Pipeline.Register(b => new RefreshSubscribersBehavior(b.Build<ISubscriptionStorage>(), unicastSubscriberTable, b.Build<MessageMetadataRegistry>(), TimeSpan.FromSeconds(0)),
+            context.Pipeline.Register(b => new RefreshSubscribersBehavior(b.Build<ISubscriptionStorage>(), routing.Publishing, b.Build<MessageMetadataRegistry>(), TimeSpan.FromSeconds(0)),
                 "Forces refreshing of subscriber table based on the subscription storage");
 
             if (canReceive)
@@ -55,10 +53,9 @@ namespace NServiceBus.Features
                 var distributorAddress = context.Settings.GetOrDefault<string>("LegacyDistributor.Address");
 
                 var subscriberAddress = distributorAddress ?? context.Settings.LocalAddress();
-                var subscriptionRouter = new SubscriptionRouter(publishers, endpointInstances, i => transportInfrastructure.ToTransportAddress(LogicalAddress.CreateRemoteAddress(i)));
+                var subscriptionRouter = new SubscriptionRouter(publishers, routing.EndpointInstances, i => transportInfrastructure.ToTransportAddress(LogicalAddress.CreateRemoteAddress(i)));
 
-                context.Pipeline.Register(b => new MessageDrivenSubscribeTerminator(subscriptionRouter, subscriberAddress, context.Settings.EndpointName(), b.Build<IDispatchMessages>()), "Sends subscription requests when message driven subscriptions is in use");
-                context.Pipeline.Register(b => new MessageDrivenUnsubscribeTerminator(subscriptionRouter, subscriberAddress, context.Settings.EndpointName(), b.Build<IDispatchMessages>()), "Sends requests to unsubscribe when message driven subscriptions is in use");
+                routing.RegisterSubscriptionHandler(b => new MessageDrivenSubscriptionManager(subscriptionRouter, subscriberAddress, context.Settings.EndpointName(), b.Build<IDispatchMessages>()));
 
                 var authorizer = context.Settings.GetSubscriptionAuthorizer();
                 if (authorizer == null)
