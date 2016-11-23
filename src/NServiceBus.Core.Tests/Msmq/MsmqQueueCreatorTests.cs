@@ -22,15 +22,27 @@
             bindings.BindReceiving("MsmqQueueCreatorTests.receiver");
             bindings.BindSending("MsmqQueueCreatorTests.target1");
             bindings.BindSending("MsmqQueueCreatorTests.target2");
-            bindings.BindSending("MsmqQueueCreatorTests.target3@remote");
 
             creator.CreateQueueIfNecessary(bindings, WindowsIdentity.GetCurrent().Name);
 
             Assert.True(QueueExists("MsmqQueueCreatorTests.receiver"));
             Assert.True(QueueExists("MsmqQueueCreatorTests.target1"));
             Assert.True(QueueExists("MsmqQueueCreatorTests.target2"));
+        }
+
+        [Test]
+        public void Should_not_create_remote_queues()
+        {
+            var creator = new QueueCreator(true);
+            var bindings = new QueueBindings();
+
+            bindings.BindSending("MsmqQueueCreatorTests.target3@remote");
+
+            creator.CreateQueueIfNecessary(bindings, WindowsIdentity.GetCurrent().Name);
+
             Assert.False(QueueExists("MsmqQueueCreatorTests.target3"));
         }
+
 
         [Test]
         public void Should_setup_permissions()
@@ -177,7 +189,7 @@
         public void Verify_msmq_permissions_and_delete_has_lower_lenght_limit_compared_to_queue_name()
         {
             //increase to 50 and create will work but SetPermission and Delete will blow up
-            var testQueueName = "MsmqQueueCreatorTests." + Guid.NewGuid().ToString().Replace("-","") + new string('a', 49 - Environment.MachineName.Length);
+            var testQueueName = "MsmqQueueCreatorTests." + Guid.NewGuid().ToString().Replace("-", "") + new string('a', 49 - Environment.MachineName.Length);
             var path = MsmqAddress.Parse(testQueueName).PathWithoutPrefix;
 
             Console.Out.WriteLine("Length: " + path.Length);
