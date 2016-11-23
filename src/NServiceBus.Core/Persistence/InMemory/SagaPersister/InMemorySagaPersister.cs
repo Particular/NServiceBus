@@ -3,7 +3,6 @@ namespace NServiceBus
     using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
-    using System.Runtime.CompilerServices;
     using System.Threading.Tasks;
     using Extensibility;
     using Persistence;
@@ -11,195 +10,221 @@ namespace NServiceBus
 
     class InMemorySagaPersister : ISagaPersister
     {
+        public InMemorySagaPersister()
+        {
+            sagas = new ConcurrentDictionary<Guid, Entry>();
+            sagasCollection = sagas;
+            byCorrelationId = new ConcurrentDictionary<CorrelationId, Guid>();
+            byCorrelationIdCollection = byCorrelationId;
+        }
+
         public Task Complete(IContainSagaData sagaData, SynchronizedStorageSession session, ContextBag context)
         {
-            var inMemSession = (InMemorySynchronizedStorageSession) session;
-            inMemSession.Enlist(() =>
-            {
-                VersionedSagaEntity value;
-                if (data.TryRemove(sagaData.Id, out value))
-                {
-                    object lockToken;
-                    lockers.TryRemove(value.LockTokenKey, out lockToken);
-                }
-            });
+            ((InMemorySynchronizedStorageSession)session).Enlist(() =>
+           {
+               var entry = GetEntry(context, sagaData.Id);
+
+               if (sagasCollection.Remove(new KeyValuePair<Guid, Entry>(sagaData.Id, entry)) == false)
+               {
+                   throw new Exception("Saga can't be completed as it was updated by another process.");
+               }
+
+                // saga removed
+                // clean the index
+                if (Equals(entry.CorrelationId, NoCorrelationId) == false)
+               {
+                   byCorrelationIdCollection.Remove(new KeyValuePair<CorrelationId, Guid>(entry.CorrelationId, sagaData.Id));
+               }
+           });
+
             return TaskEx.CompletedTask;
+        }
+
+        public Task<TSagaData> Get<TSagaData>(Guid sagaId, SynchronizedStorageSession session, ContextBag context)
+            where TSagaData : IContainSagaData
+        {
+            Entry value;
+
+            if (sagas.TryGetValue(sagaId, out value))
+            {
+                SetEntry(context, sagaId, value);
+
+                var data = value.GetSagaCopy();
+                return Task.FromResult((TSagaData)data);
+            }
+
+            return DefaultSagaDataTask<TSagaData>.Default;
         }
 
         public Task<TSagaData> Get<TSagaData>(string propertyName, object propertyValue, SynchronizedStorageSession session, ContextBag context) where TSagaData : IContainSagaData
         {
-            Guard.AgainstNull(nameof(propertyValue), propertyValue);
+            var key = new CorrelationId(typeof(TSagaData), propertyName, propertyValue);
+            Guid id;
 
-            foreach (var entity in data.Values)
+            if (byCorrelationId.TryGetValue(key, out id))
             {
-                if (!(entity.SagaData is TSagaData))
-                {
-                    continue;
-                }
-
-                var prop = typeof(TSagaData).GetProperty(propertyName);
-                if (prop == null)
-                {
-                    continue;
-                }
-                var existingValue = prop.GetValue(entity.SagaData);
-
-                if (existingValue.ToString() != propertyValue.ToString())
-                {
-                    continue;
-                }
-                var sagaData = entity.Read<TSagaData>();
-                return Task.FromResult(sagaData);
+                // this isn't updated atomically and may return null for an entry that has been indexed but not inserted yet
+                return Get<TSagaData>(id, session, context);
             }
-            return Task.FromResult(default(TSagaData));
-        }
 
-        public Task<TSagaData> Get<TSagaData>(Guid sagaId, SynchronizedStorageSession session, ContextBag context) where TSagaData : IContainSagaData
-        {
-            VersionedSagaEntity result;
-            if (data.TryGetValue(sagaId, out result) && result?.SagaData is TSagaData)
-            {
-                var sagaData = result.Read<TSagaData>();
-                return Task.FromResult(sagaData);
-            }
-            return Task.FromResult(default(TSagaData));
+            return DefaultSagaDataTask<TSagaData>.Default;
         }
 
         public Task Save(IContainSagaData sagaData, SagaCorrelationProperty correlationProperty, SynchronizedStorageSession session, ContextBag context)
         {
-            var inMemSession = (InMemorySynchronizedStorageSession) session;
-            inMemSession.Enlist(() =>
-            {
-                var lockenTokenKey = $"{sagaData.GetType().FullName}.{correlationProperty?.Name ?? "None"}.{correlationProperty?.Value ?? "None"}";
-                var lockToken = lockers.GetOrAdd(lockenTokenKey, key => new object());
-                lock (lockToken)
-                {
-                    if (correlationProperty != SagaCorrelationProperty.None)
-                    {
-                        ValidateUniqueProperties(correlationProperty, sagaData);
-                    }
+            ((InMemorySynchronizedStorageSession)session).Enlist(() =>
+           {
+               var correlationId = NoCorrelationId;
+               if (correlationProperty != SagaCorrelationProperty.None)
+               {
+                   correlationId = new CorrelationId(sagaData.GetType(), correlationProperty);
+                   if (byCorrelationId.TryAdd(correlationId, sagaData.Id) == false)
+                   {
+                       throw new InvalidOperationException($"The saga with the correlation id 'Name: {correlationProperty.Name} Value: {correlationProperty.Value}' already exists");
+                   }
+               }
 
-                    data.AddOrUpdate(sagaData.Id,
-                        id => new VersionedSagaEntity(sagaData, lockenTokenKey),
-                        (id, original) => new VersionedSagaEntity(sagaData, lockenTokenKey, original)); // we can never end up here.
-                }
-            });
+               var entry = new Entry(sagaData, correlationId);
+               if (sagas.TryAdd(sagaData.Id, entry) == false)
+               {
+                   throw new Exception("A saga with this identifier already exists. This should never happened as saga identifier are meant to be unique.");
+               }
+           });
+
             return TaskEx.CompletedTask;
         }
 
         public Task Update(IContainSagaData sagaData, SynchronizedStorageSession session, ContextBag context)
         {
-            var inMemSession = (InMemorySynchronizedStorageSession) session;
-            inMemSession.Enlist(() =>
-            {
-                data.AddOrUpdate(sagaData.Id,
-                    id => new VersionedSagaEntity(sagaData, $"{sagaData.GetType().FullName}.None.None"), // we can never end up here.
-                    (id, original) => new VersionedSagaEntity(sagaData, original.LockTokenKey, original));
-            });
+            ((InMemorySynchronizedStorageSession)session).Enlist(() =>
+           {
+               var entry = GetEntry(context, sagaData.Id);
+
+               if (sagas.TryUpdate(sagaData.Id, entry.UpdateTo(sagaData), entry) == false)
+               {
+                   throw new Exception($"InMemorySagaPersister concurrency violation: saga entity Id[{sagaData.Id}] already saved.");
+               }
+           });
+
             return TaskEx.CompletedTask;
         }
 
-        void ValidateUniqueProperties(SagaCorrelationProperty correlationProperty, IContainSagaData saga)
+        static void SetEntry(ContextBag context, Guid sagaId, Entry value)
         {
-            var sagaType = saga.GetType();
-            var existingSagas = new List<VersionedSagaEntity>();
-            // ReSharper disable once LoopCanBeConvertedToQuery
-            foreach (var s in data)
+            Dictionary<Guid, Entry> entries;
+            if (context.TryGet(ContextKey, out entries) == false)
             {
-                if (s.Value.SagaData.GetType() == sagaType && (s.Key != saga.Id))
-                {
-                    existingSagas.Add(s.Value);
-                }
+                entries = new Dictionary<Guid, Entry>();
+                context.Set(ContextKey, entries);
             }
-            var uniqueProperty = sagaType.GetProperty(correlationProperty.Name);
-
-            if (correlationProperty.Value == null)
-            {
-                var message = $"Cannot store saga with id '{saga.Id}' since the unique property '{uniqueProperty.Name}' has a null value.";
-                throw new InvalidOperationException(message);
-            }
-
-            foreach (var storedSaga in existingSagas)
-            {
-                var storedSagaPropertyValue = uniqueProperty.GetValue(storedSaga.SagaData, null);
-                if (Equals(correlationProperty.Value, storedSagaPropertyValue))
-                {
-                    var message = $"Cannot store a saga. The saga with id '{storedSaga.SagaData.Id}' already has property '{uniqueProperty.Name}'.";
-                    throw new InvalidOperationException(message);
-                }
-            }
+            entries[sagaId] = value;
         }
 
-        ConcurrentDictionary<Guid, VersionedSagaEntity> data = new ConcurrentDictionary<Guid, VersionedSagaEntity>();
-        ConcurrentDictionary<string, object> lockers = new ConcurrentDictionary<string, object>();
-
-        class VersionedSagaEntity
+        static Entry GetEntry(ReadOnlyContextBag context, Guid sagaDataId)
         {
-            public VersionedSagaEntity(IContainSagaData sagaData, string lockTokenKey, VersionedSagaEntity original = null)
+            Dictionary<Guid, Entry> entries;
+            if (context.TryGet(ContextKey, out entries))
             {
-                LockTokenKey = lockTokenKey;
-                SagaData = DeepClone(sagaData);
-                if (original != null)
-                {
-                    original.ConcurrencyCheck(sagaData);
+                Entry entry;
 
-                    versionCache = original.versionCache;
-                    version = original.version;
-                    version++;
-                }
-                else
+                if (entries.TryGetValue(sagaDataId, out entry))
                 {
-                    versionCache = new ConditionalWeakTable<IContainSagaData, SagaVersion>();
-                    versionCache.Add(sagaData, new SagaVersion(version));
+                    return entry;
                 }
             }
+            throw new Exception("The saga should be retrieved with Get method before it's updated");
+        }
 
-            public TSagaData Read<TSagaData>()
-                where TSagaData : IContainSagaData
+        readonly ConcurrentDictionary<Guid, Entry> sagas;
+        readonly ConcurrentDictionary<CorrelationId, Guid> byCorrelationId;
+        readonly ICollection<KeyValuePair<Guid, Entry>> sagasCollection;
+        readonly ICollection<KeyValuePair<CorrelationId, Guid>> byCorrelationIdCollection;
+        const string ContextKey = "NServiceBus.InMemorySagaPersistence.Sagas";
+        static readonly CorrelationId NoCorrelationId = new CorrelationId(typeof(object), "", new object());
+
+        class Entry
+        {
+            public Entry(IContainSagaData sagaData, CorrelationId correlationId)
             {
-                var clone = DeepClone(SagaData);
-                versionCache.Add(clone, new SagaVersion(version));
-                return (TSagaData) clone;
+                CorrelationId = correlationId;
+                data = sagaData;
             }
 
-            void ConcurrencyCheck(IContainSagaData sagaEntity)
-            {
-                SagaVersion v;
-                if (!versionCache.TryGetValue(sagaEntity, out v))
-                {
-                    throw new Exception($"InMemorySagaPersister in an inconsistent state: entity Id[{sagaEntity.Id}] not read.");
-                }
-
-                if (v.Version != version)
-                {
-                    throw new Exception($"InMemorySagaPersister concurrency violation: saga entity Id[{sagaEntity.Id}] already saved.");
-                }
-            }
+            public CorrelationId CorrelationId { get; }
 
             static IContainSagaData DeepClone(IContainSagaData source)
             {
                 var json = serializer.SerializeObject(source);
-                return (IContainSagaData) serializer.DeserializeObject(json, source.GetType());
+                return (IContainSagaData)serializer.DeserializeObject(json, source.GetType());
             }
 
-            public IContainSagaData SagaData;
-            public string LockTokenKey;
-
-            ConditionalWeakTable<IContainSagaData, SagaVersion> versionCache;
-
-            int version;
-
-            static JsonMessageSerializer serializer = new JsonMessageSerializer(null);
-
-            class SagaVersion
+            public IContainSagaData GetSagaCopy()
             {
-                public SagaVersion(long version)
-                {
-                    Version = version;
-                }
-
-                public long Version;
+                return DeepClone(data);
             }
+
+            public Entry UpdateTo(IContainSagaData sagaData)
+            {
+                return new Entry(sagaData, CorrelationId);
+            }
+
+            readonly IContainSagaData data;
+            static JsonMessageSerializer serializer = new JsonMessageSerializer(null);
+        }
+
+        /// <summary>
+        /// This correlation id is cheap to create as type and the propertyName are not allocated (they are stored in the saga
+        /// metadata).
+        /// The only thing that is allocated is the correlationId itself and the propertyValue, which again, is allocated anyway
+        /// by the saga behavior.
+        /// </summary>
+        class CorrelationId
+        {
+            public CorrelationId(Type type, string propertyName, object propertyValue)
+            {
+                this.type = type;
+                this.propertyName = propertyName;
+                this.propertyValue = propertyValue;
+            }
+
+            public CorrelationId(Type sagaType, SagaCorrelationProperty correlationProperty)
+                : this(sagaType, correlationProperty.Name, correlationProperty.Value)
+            {
+            }
+
+            bool Equals(CorrelationId other)
+            {
+                return type == other.type && String.Equals(propertyName, other.propertyName) && propertyValue.Equals(other.propertyValue);
+            }
+
+            public override bool Equals(object obj)
+            {
+                if (ReferenceEquals(null, obj)) return false;
+                if (ReferenceEquals(this, obj)) return true;
+                if (obj.GetType() != GetType()) return false;
+                return Equals((CorrelationId)obj);
+            }
+
+            public override int GetHashCode()
+            {
+                unchecked
+                {
+                    // propertyName isn't taken into consideration as there will be only one property per saga to correlate.
+                    var hashCode = type.GetHashCode();
+                    hashCode = (hashCode * 397) ^ propertyValue.GetHashCode();
+                    return hashCode;
+                }
+            }
+
+            readonly Type type;
+            readonly string propertyName;
+            readonly object propertyValue;
+        }
+
+        static class DefaultSagaDataTask<TSagaData>
+            where TSagaData : IContainSagaData
+        {
+            public static Task<TSagaData> Default = Task.FromResult(default(TSagaData));
         }
     }
 }

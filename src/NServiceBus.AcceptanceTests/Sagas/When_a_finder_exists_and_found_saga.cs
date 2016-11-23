@@ -28,6 +28,7 @@
         {
             public bool FinderUsed { get; set; }
             public bool Completed { get; set; }
+            public Guid SagaId { get; set; }
         }
 
         public class SagaEndpoint : EndpointConfigurationBuilder
@@ -43,18 +44,34 @@
                 public Context Context { get; set; }
 
                 public ISagaPersister SagaPersister { get; set; }
-
+                
                 public async Task<TestSaga08.SagaData08> FindBy(SomeOtherMessage message, SynchronizedStorageSession storageSession, ReadOnlyContextBag context)
                 {
                     Context.FinderUsed = true;
+                    return await SagaPersister.Get<TestSaga08.SagaData08>(Context.SagaId, storageSession, (ContextBag)context).ConfigureAwait(false);
+                }
+            }
+
+            /// <summary>
+            /// A helper handler saving saga and thend sending <see cref="SomeOtherMessage"/> to use finder on the preexisting saga.
+            /// </summary>
+            public class SavingSaga : IHandleMessages<StartSagaMessageByHandler>
+            {
+                public ISagaPersister SagaPersister { get; set; }
+                public Context Context { get; set; }
+
+                public async Task Handle(StartSagaMessageByHandler message, IMessageHandlerContext context)
+                {
                     var sagaInstance = new TestSaga08.SagaData08
                     {
                         Property = Guid.NewGuid().ToString("N"),
                         Id = Guid.NewGuid()
                     };
-                    //Make sure saga exists in the store. Persisters expect it there when they save saga instance after processing a message.
-                    await SagaPersister.Save(sagaInstance, SagaCorrelationProperty.None, storageSession, new ContextBag()).ConfigureAwait(false);
-                    return sagaInstance;
+
+                    Context.SagaId = sagaInstance.Id;
+                    
+                    await SagaPersister.Save(sagaInstance, SagaCorrelationProperty.None, context.SynchronizedStorageSession, context.Extensions).ConfigureAwait(false);
+                    await context.SendLocal(new SomeOtherMessage());
                 }
             }
 
@@ -66,7 +83,7 @@
 
                 public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
                 {
-                    return context.SendLocal(new SomeOtherMessage());
+                    return context.SendLocal(new StartSagaMessageByHandler());
                 }
 
                 public Task Handle(SomeOtherMessage message, IMessageHandlerContext context)
@@ -89,6 +106,11 @@
         }
 
         public class StartSagaMessage : IMessage
+        {
+            public string Property { get; set; }
+        }
+
+        public class StartSagaMessageByHandler : IMessage
         {
             public string Property { get; set; }
         }
