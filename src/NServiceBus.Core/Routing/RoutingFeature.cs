@@ -1,9 +1,10 @@
 ﻿namespace NServiceBus.Features
 {
     using System;
+    using System.Collections.Generic;
+    using System.Linq;
     using Config;
     using Routing;
-    using Routing.MessageDrivenSubscriptions;
     using Transport;
 
     class RoutingFeature : Feature
@@ -23,7 +24,6 @@
                 s.SetDefault<DistributionPolicy>(new DistributionPolicy());
 
                 s.SetDefault(EnforceBestPracticesSettingsKey, true);
-                s.SetDefault<Publishers>(new Publishers());
 
                 var routingComponent = new RoutingComponent(s);
                 s.SetDefault<IRoutingComponent>(routingComponent);
@@ -39,7 +39,6 @@
             var unicastBusConfig = context.Settings.GetConfigSection<UnicastBusConfig>();
             var routing = context.Settings.Get<RoutingComponent>();
 
-            var publishers = context.Settings.Get<Publishers>();
             var distributionPolicy = context.Settings.Get<DistributionPolicy>();
             var configuredUnicastRoutes = context.Settings.Get<ConfiguredUnicastRoutes>();
 
@@ -48,8 +47,9 @@
                 EnableBestPracticeEnforcement(context);
             }
 
-            unicastBusConfig?.MessageEndpointMappings.Apply(publishers, routing.Sending, transportInfrastructure.MakeCanonicalForm, conventions);
+            ApplyLegacyConfiguration(unicastBusConfig?.MessageEndpointMappings, routing.Sending, transportInfrastructure.MakeCanonicalForm, conventions);
             configuredUnicastRoutes.Apply(routing.Sending, conventions);
+
             Func<EndpointInstance, string> addressTranslation = i => transportInfrastructure.ToTransportAddress(LogicalAddress.CreateRemoteAddress(i));
 
             var unicastSendRouter = new UnicastSendRouter(routing.Sending, routing.EndpointInstances, addressTranslation);
@@ -106,6 +106,27 @@
                 "EnforceUnsubscribeBestPractices",
                 new EnforceUnsubscribeBestPracticesBehavior(validations),
                 "Enforces unsubscribe messaging best practices");
+        }
+
+        internal static void ApplyLegacyConfiguration(MessageEndpointMappingCollection mappings, UnicastRoutingTable unicastRoutingTable, Func<string, string> makeCanonicalAddress, Conventions conventions)
+        {
+            if (mappings == null)
+            {
+                return;
+            }
+            var routeTableEntries = new Dictionary<Type, RouteTableEntry>();
+
+            mappings.Apply(makeCanonicalAddress, (type, address, baseTypes) =>
+            {
+                var route = UnicastRoute.CreateFromPhysicalAddress(address);
+                foreach (var baseType in baseTypes)
+                {
+                    routeTableEntries[baseType] = new RouteTableEntry(baseType, route);
+                }
+                routeTableEntries[type] = new RouteTableEntry(type, route);
+            }, conventions);
+
+            unicastRoutingTable.AddOrReplaceRoutes("MessageEndpointMappings", routeTableEntries.Values.ToList());
         }
     }
 }

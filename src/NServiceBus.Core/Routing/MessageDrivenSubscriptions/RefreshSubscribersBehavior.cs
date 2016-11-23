@@ -24,8 +24,13 @@ namespace NServiceBus
         public override async Task Invoke(IOutgoingPublishContext context, Func<Task> next)
         {
             var now = DateTime.UtcNow;
-            var lastRefresh = refreshTimes.GetOrAdd(context.Message.MessageType, t => now);
-            if (now - lastRefresh >= cachePeriod)
+            var previous = DateTime.MinValue;
+            refreshTimes.AddOrUpdate(context.Message.MessageType, t => now, (t, time) =>
+            {
+                previous = time;
+                return now;
+            });
+            if (now - previous >= cachePeriod)
             {
                 await RefreshSubscriberTable(context.Message.MessageType, context).ConfigureAwait(false);
             }

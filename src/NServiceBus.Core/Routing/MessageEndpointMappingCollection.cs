@@ -4,8 +4,6 @@ namespace NServiceBus.Config
     using System.Collections.Generic;
     using System.Configuration;
     using System.Linq;
-    using Routing;
-    using Routing.MessageDrivenSubscriptions;
 
     /// <summary>
     /// A configuration element collection of MessageEndpointMappings.
@@ -173,11 +171,8 @@ namespace NServiceBus.Config
             return false;
         }
 
-        internal void Apply(Publishers publishers, UnicastRoutingTable unicastRoutingTable, Func<string, string> makeCanonicalAddress, Conventions conventions)
+        internal void Apply(Func<string, string> makeCanonicalAddress, Action<Type, string, IEnumerable<Type>> registerRouteCallback, Conventions conventions)
         {
-            var routeTableEntries = new Dictionary<Type, RouteTableEntry>();
-            var publisherTableEntries = new List<PublisherTableEntry>();
-
             foreach (var m in this.Cast<MessageEndpointMapping>().OrderByDescending(m => m))
             {
                 m.Configure((type, endpointAddress) =>
@@ -189,30 +184,9 @@ namespace NServiceBus.Config
                     var canonicalForm = makeCanonicalAddress(endpointAddress);
                     var baseTypes = GetBaseTypes(type, conventions);
 
-                    RegisterMessageRoute(type, canonicalForm, routeTableEntries, baseTypes);
-                    RegisterEventRoute(type, canonicalForm, publisherTableEntries, baseTypes);
+                    registerRouteCallback(type, canonicalForm, baseTypes);
                 });
             }
-
-            publishers.AddOrReplacePublishers("MessageEndpointMappings", publisherTableEntries);
-            unicastRoutingTable.AddOrReplaceRoutes("MessageEndpointMappings", routeTableEntries.Values.ToList());
-        }
-
-        static void RegisterEventRoute(Type mappedType, string address, List<PublisherTableEntry> publisherTableEntries, IEnumerable<Type> baseTypes)
-        {
-            var publisherAddress = PublisherAddress.CreateFromPhysicalAddresses(address);
-            publisherTableEntries.AddRange(baseTypes.Select(type => new PublisherTableEntry(type, publisherAddress)));
-            publisherTableEntries.Add(new PublisherTableEntry(mappedType, publisherAddress));
-        }
-
-        static void RegisterMessageRoute(Type mappedType, string address, Dictionary<Type, RouteTableEntry> routeTableEntries, IEnumerable<Type> baseTypes)
-        {
-            var route = UnicastRoute.CreateFromPhysicalAddress(address);
-            foreach (var baseType in baseTypes)
-            {
-                routeTableEntries[baseType] = new RouteTableEntry(baseType, route);
-            }
-            routeTableEntries[mappedType] = new RouteTableEntry(mappedType, route);
         }
 
         static List<Type> GetBaseTypes(Type messageType, Conventions conventions)

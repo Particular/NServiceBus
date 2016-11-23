@@ -5,7 +5,6 @@
     using MessageNamespaceB;
     using NServiceBus.Config;
     using NServiceBus.Routing;
-    using NServiceBus.Routing.MessageDrivenSubscriptions;
     using NUnit.Framework;
 
     [TestFixture]
@@ -113,7 +112,7 @@
         static UnicastRoutingTable ApplyMappings(MessageEndpointMappingCollection mappings)
         {
             var routeTable = new UnicastRoutingTable();
-            mappings.Apply(new Publishers(), routeTable, x => x, new Conventions());
+            NServiceBus.Features.RoutingFeature.ApplyLegacyConfiguration(mappings, routeTable, x => x, new Conventions());
             return routeTable;
         }
     }
