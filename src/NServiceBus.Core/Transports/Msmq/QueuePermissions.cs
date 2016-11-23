@@ -15,13 +15,8 @@
 
             Logger.Debug($"Checking if queue exists: {queuePath}.");
 
-            if (msmqAddress.IsRemote)
-            {
-                Logger.Debug("Queue is on remote machine.");
-                Logger.Debug("If this does not succeed (like if the remote machine is disconnected), processing will continue.");
-            }
-
             var path = msmqAddress.PathWithoutPrefix;
+
             try
             {
                 if (MessageQueue.Exists(path))
@@ -34,11 +29,15 @@
                     }
                 }
             }
-            catch (MessageQueueException)
+            catch (MessageQueueException ex)
             {
-                // Can happen because of an invalid queue path or trying to access a remote private queue.
-                // Either way, this results in a failed attempt, therefore returning false.
-                Logger.Warn($"Unable to open the queue at address '{queuePath}'. Make sure the queue exists, and the address is correct. Processing will still continue.");
+                if (msmqAddress.IsRemote)
+                {
+                    Logger.Warn($"Unable to verify remote queue '{queuePath}'. Make sure the queue exists, and that the address is correct. Processing will still continue.", ex);
+                    return;
+                }
+
+                Logger.Warn($"Unable to verify queue at address '{queuePath}'. Make sure the queue exists, and that the address is correct. Processing will still continue.", ex);
             }
         }
 
