@@ -11,9 +11,11 @@
         [Test]
         public async Task Persister_returns_different_instance_of_saga_data()
         {
+            var sagaId = Guid.NewGuid();
             var saga = new TestSagaData
             {
-                Id = Guid.NewGuid()
+                Id = sagaId,
+                SomeId = sagaId.ToString()
             };
             var persister = new InMemorySagaPersister();
             var insertSession = new InMemorySynchronizedStorageSession();
@@ -21,7 +23,7 @@
             await insertSession.CompleteAsync();
 
             var returnedSaga1 = await persister.Get<TestSagaData>(saga.Id, new InMemorySynchronizedStorageSession(), new ContextBag());
-            var returnedSaga2 = await persister.Get<TestSagaData>("Id", saga.Id, new InMemorySynchronizedStorageSession(), new ContextBag());
+            var returnedSaga2 = await persister.Get<TestSagaData>("SomeId", sagaId.ToString(), new InMemorySynchronizedStorageSession(), new ContextBag());
             Assert.AreNotSame(returnedSaga2, returnedSaga1);
             Assert.AreNotSame(returnedSaga1, saga);
             Assert.AreNotSame(returnedSaga2, saga);
@@ -85,9 +87,11 @@
         [Test]
         public async Task Save_fails_when_writing_same_data_twice()
         {
+            var sagaId = Guid.NewGuid();
             var saga = new TestSagaData
             {
-                Id = Guid.NewGuid()
+                Id = sagaId,
+                SomeId = sagaId.ToString()
             };
             var persister = new InMemorySagaPersister();
             var insertSession = new InMemorySynchronizedStorageSession();

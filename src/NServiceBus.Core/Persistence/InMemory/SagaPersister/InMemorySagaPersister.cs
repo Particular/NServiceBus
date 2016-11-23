@@ -1,8 +1,8 @@
 namespace NServiceBus
 {
     using System;
-    using System.Collections.Concurrent;
     using System.Collections.Generic;
+    using System.Reflection;
     using System.Runtime.CompilerServices;
     using System.Threading.Tasks;
     using Extensibility;
@@ -16,12 +16,7 @@ namespace NServiceBus
             var inMemSession = (InMemorySynchronizedStorageSession) session;
             inMemSession.Enlist(() =>
             {
-                VersionedSagaEntity value;
-                if (data.TryRemove(sagaData.Id, out value))
-                {
-                    object lockToken;
-                    lockers.TryRemove(value.LockTokenKey, out lockToken);
-                }
+                this.sagaData.Remove(sagaData);
             });
             return TaskEx.CompletedTask;
         }
@@ -30,37 +25,28 @@ namespace NServiceBus
         {
             Guard.AgainstNull(nameof(propertyValue), propertyValue);
 
-            foreach (var entity in data.Values)
+            var prop = typeof(TSagaData).GetProperty(propertyName);
+            if (prop == null)
             {
-                if (!(entity.SagaData is TSagaData))
-                {
-                    continue;
-                }
-
-                var prop = typeof(TSagaData).GetProperty(propertyName);
-                if (prop == null)
-                {
-                    continue;
-                }
-                var existingValue = prop.GetValue(entity.SagaData);
-
-                if (existingValue.ToString() != propertyValue.ToString())
-                {
-                    continue;
-                }
-                var sagaData = entity.Read<TSagaData>();
-                return Task.FromResult(sagaData);
+                return Task.FromResult(default(TSagaData));
             }
-            return Task.FromResult(default(TSagaData));
+
+            var saga = sagaData.Get<TSagaData>(propertyValue);
+
+            if (saga == null)
+            {
+                return Task.FromResult(default(TSagaData));
+            }
+
+            return Task.FromResult(saga.Read<TSagaData>());
         }
 
         public Task<TSagaData> Get<TSagaData>(Guid sagaId, SynchronizedStorageSession session, ContextBag context) where TSagaData : IContainSagaData
         {
-            VersionedSagaEntity result;
-            if (data.TryGetValue(sagaId, out result) && result?.SagaData is TSagaData)
+            var saga = sagaData.Get(sagaId, typeof(TSagaData));
+            if (saga?.SagaData is TSagaData)
             {
-                var sagaData = result.Read<TSagaData>();
-                return Task.FromResult(sagaData);
+                return Task.FromResult(saga.Read<TSagaData>());
             }
             return Task.FromResult(default(TSagaData));
         }
@@ -70,19 +56,7 @@ namespace NServiceBus
             var inMemSession = (InMemorySynchronizedStorageSession) session;
             inMemSession.Enlist(() =>
             {
-                var lockenTokenKey = $"{sagaData.GetType().FullName}.{correlationProperty?.Name ?? "None"}.{correlationProperty?.Value ?? "None"}";
-                var lockToken = lockers.GetOrAdd(lockenTokenKey, key => new object());
-                lock (lockToken)
-                {
-                    if (correlationProperty != SagaCorrelationProperty.None)
-                    {
-                        ValidateUniqueProperties(correlationProperty, sagaData);
-                    }
-
-                    data.AddOrUpdate(sagaData.Id,
-                        id => new VersionedSagaEntity(sagaData, lockenTokenKey),
-                        (id, original) => new VersionedSagaEntity(sagaData, lockenTokenKey, original)); // we can never end up here.
-                }
+                this.sagaData.Save(sagaData, correlationProperty);
             });
             return TaskEx.CompletedTask;
         }
@@ -92,52 +66,17 @@ namespace NServiceBus
             var inMemSession = (InMemorySynchronizedStorageSession) session;
             inMemSession.Enlist(() =>
             {
-                data.AddOrUpdate(sagaData.Id,
-                    id => new VersionedSagaEntity(sagaData, $"{sagaData.GetType().FullName}.None.None"), // we can never end up here.
-                    (id, original) => new VersionedSagaEntity(sagaData, original.LockTokenKey, original));
+                this.sagaData.Update(sagaData);
             });
             return TaskEx.CompletedTask;
         }
 
-        void ValidateUniqueProperties(SagaCorrelationProperty correlationProperty, IContainSagaData saga)
-        {
-            var sagaType = saga.GetType();
-            var existingSagas = new List<VersionedSagaEntity>();
-            // ReSharper disable once LoopCanBeConvertedToQuery
-            foreach (var s in data)
-            {
-                if (s.Value.SagaData.GetType() == sagaType && (s.Key != saga.Id))
-                {
-                    existingSagas.Add(s.Value);
-                }
-            }
-            var uniqueProperty = sagaType.GetProperty(correlationProperty.Name);
-
-            if (correlationProperty.Value == null)
-            {
-                var message = $"Cannot store saga with id '{saga.Id}' since the unique property '{uniqueProperty.Name}' has a null value.";
-                throw new InvalidOperationException(message);
-            }
-
-            foreach (var storedSaga in existingSagas)
-            {
-                var storedSagaPropertyValue = uniqueProperty.GetValue(storedSaga.SagaData, null);
-                if (Equals(correlationProperty.Value, storedSagaPropertyValue))
-                {
-                    var message = $"Cannot store a saga. The saga with id '{storedSaga.SagaData.Id}' already has property '{uniqueProperty.Name}'.";
-                    throw new InvalidOperationException(message);
-                }
-            }
-        }
-
-        ConcurrentDictionary<Guid, VersionedSagaEntity> data = new ConcurrentDictionary<Guid, VersionedSagaEntity>();
-        ConcurrentDictionary<string, object> lockers = new ConcurrentDictionary<string, object>();
+        InMemorySagaPersisterCollection sagaData = new InMemorySagaPersisterCollection();
 
         class VersionedSagaEntity
         {
-            public VersionedSagaEntity(IContainSagaData sagaData, string lockTokenKey, VersionedSagaEntity original = null)
+            public VersionedSagaEntity(IContainSagaData sagaData, VersionedSagaEntity original = null)
             {
-                LockTokenKey = lockTokenKey;
                 SagaData = DeepClone(sagaData);
                 if (original != null)
                 {
@@ -183,7 +122,6 @@ namespace NServiceBus
             }
 
             public IContainSagaData SagaData;
-            public string LockTokenKey;
 
             ConditionalWeakTable<IContainSagaData, SagaVersion> versionCache;
 
@@ -199,6 +137,218 @@ namespace NServiceBus
                 }
 
                 public long Version;
+            }
+        }
+
+        class InMemorySagaPersisterCollection
+        {
+            Dictionary<Guid, VersionedSagaEntity> sagaIdIndex = new Dictionary<Guid, VersionedSagaEntity>();
+            Dictionary<Type, Dictionary<string, Guid>> correlationValueIndex = new Dictionary<Type, Dictionary<string, Guid>>();
+            Dictionary<Type, string> correlationProperties = new Dictionary<Type, string>();
+            Dictionary<string, object> lockers = new Dictionary<string, object>();
+
+            public void Save(IContainSagaData sagaData, SagaCorrelationProperty correlationProperty)
+            {
+                var sagaType = sagaData.GetType();
+
+                var lockToken = new object();
+
+                lock (lockToken)
+                {
+
+                    if (correlationProperty != SagaCorrelationProperty.None)
+                    {
+                        SagaPropertyValueIsUnique(sagaType, correlationProperty, sagaData.Id);
+                        if (!correlationProperties.ContainsKey(sagaType))
+                        {
+                            correlationProperties.Add(sagaType, correlationProperty.Name);
+                        }
+                        var correlationLockKey = CreateCorrelationLockKey(sagaType, correlationProperty.Value);
+
+                        if (!lockers.ContainsKey(correlationLockKey))
+                        {
+                            lockers.Add(correlationLockKey, lockToken);
+                        }
+
+                        if (!correlationValueIndex.ContainsKey(sagaType))
+                        {
+                            correlationValueIndex.Add(sagaType, new Dictionary<string, Guid>());
+                        }
+
+                        if (correlationValueIndex[sagaType].ContainsKey(correlationProperty.Value.ToString()))
+                        {
+                            correlationValueIndex[sagaType].Remove(correlationProperty.Value.ToString());
+                        }
+
+                        correlationValueIndex[sagaType].Add(correlationProperty.Value.ToString(), sagaData.Id);
+                    }
+
+                    if (!lockers.ContainsKey(sagaData.Id.ToString()))
+                    {
+                        lockers.Add(sagaData.Id.ToString(), lockToken);
+                    }
+
+                    if (!lockers.ContainsKey(sagaType.FullName))
+                    {
+                        lockers.Add(sagaType.FullName, new object());
+                    }
+
+                    sagaIdIndex.Add(sagaData.Id, new VersionedSagaEntity(sagaData));
+                }
+            }
+
+            object GetLocker(Guid? sagaId, Type sagaType, object correlationValue)
+            {
+                var correlationKey = correlationValue == null ? null : CreateCorrelationLockKey(sagaType, correlationValue);
+
+                if (sagaId !=null && lockers.ContainsKey(sagaId.ToString()))
+                {
+                    return lockers[sagaId.ToString()];
+                }
+                if (correlationKey != null && lockers.ContainsKey(correlationKey))
+                {
+                    return lockers[correlationKey];
+                }
+                if (lockers.ContainsKey(sagaType.FullName))
+                {
+                    return lockers[sagaType.FullName];
+                }
+
+                return new object();
+            }
+
+            public void Update(IContainSagaData sagaData)
+            {
+                var sagaType = sagaData.GetType();
+                PropertyInfo correlationProperty = null;
+                if (correlationProperties.ContainsKey(sagaType))
+                {
+                    correlationProperty = sagaType.GetProperty(correlationProperties[sagaType]);
+                }
+
+                var lockToken = GetLocker(sagaData.Id, sagaData.GetType(), null);
+
+                lock (lockToken)
+                {
+                    var oldSaga = sagaIdIndex[sagaData.Id];
+                    if (correlationProperty != null)
+                    {
+                        var oldCorrelationValue = correlationProperty.GetValue(oldSaga.SagaData);
+                        var newCorrelationValue = correlationProperty.GetValue(sagaData);
+
+                        correlationValueIndex[sagaType].Remove(oldCorrelationValue.ToString());
+                        correlationValueIndex[sagaType].Add(newCorrelationValue.ToString(), sagaData.Id);
+                        lockers.Remove(CreateCorrelationLockKey(sagaType, oldCorrelationValue));
+                        lockers.Add(CreateCorrelationLockKey(sagaType, newCorrelationValue), lockToken);
+                    }
+
+                    sagaIdIndex[sagaData.Id] = new VersionedSagaEntity(sagaData, oldSaga);
+                }
+            }
+
+            public VersionedSagaEntity Get(Guid sagaId, Type sagaType)
+            {
+                var lockToken = GetLocker(sagaId, sagaType, null);
+
+                lock (lockToken)
+                {
+                    VersionedSagaEntity saga;
+                    sagaIdIndex.TryGetValue(sagaId, out saga);
+                    return saga;
+                }
+            }
+
+            public VersionedSagaEntity Get<TSagaData>(object propertyValue)
+            {
+                var lockToken = GetLocker(null, typeof(TSagaData), propertyValue);
+
+                lock(lockToken)
+                {
+                    Dictionary<string, Guid> sagaTypeCollection;
+                    correlationValueIndex.TryGetValue(typeof(TSagaData), out sagaTypeCollection);
+
+                    if (sagaTypeCollection == null)
+                    {
+                        return null;
+                    }
+
+                    Guid sagaId;
+                    sagaTypeCollection.TryGetValue(propertyValue.ToString(), out sagaId);
+
+                    if (sagaId == Guid.Empty)
+                    {
+                        return null;
+                    }
+
+                    if (sagaIdIndex.ContainsKey(sagaId))
+                    {
+                        return sagaIdIndex[sagaId];
+                    }
+
+                    return null;
+                }
+            }
+
+            public void Remove(IContainSagaData sagaData)
+            {
+                var sagaType = sagaData.GetType();
+                object correlationValue = null;
+                if (correlationProperties.ContainsKey(sagaType))
+                {
+                    var correlationProperty = sagaType.GetProperty(correlationProperties[sagaType]);
+                    correlationValue = correlationProperty.GetValue(sagaData);
+                }
+
+                var lockToken = GetLocker(sagaData.Id, sagaType, correlationValue);
+
+                lock (lockToken)
+                {
+                    if (sagaIdIndex.ContainsKey(sagaData.Id))
+                    {
+                        sagaIdIndex.Remove(sagaData.Id);
+                    }
+                    if (correlationValueIndex.ContainsKey(sagaType) && correlationValue != null)
+                    {
+                        correlationValueIndex[sagaType].Remove(correlationValue.ToString());
+                    }
+                    if (correlationValue != null)
+                    {
+                        lockers.Remove($"{sagaType.FullName}-{correlationValue}");
+                    }
+                    lockers.Remove(sagaData.Id.ToString());
+                }
+            }
+
+            void SagaPropertyValueIsUnique(Type sagaType, SagaCorrelationProperty correlationProperty, Guid sagaId)
+            {
+                var uniqueProperty = sagaType.GetProperty(correlationProperty.Name);
+
+                if (correlationProperty.Value == null)
+                {
+                    var message = $"Cannot store saga with id '{sagaId}' since the unique property '{uniqueProperty.Name}' has a null value.";
+                    throw new InvalidOperationException(message);
+                }
+
+                if (!SagaValueIsUnique(sagaType, correlationProperty))
+                {
+                    var message = $"Cannot store a saga. The saga with id '{sagaId}' already has property '{uniqueProperty.Name}'.";
+                    throw new InvalidOperationException(message);
+                }
+            }
+
+            bool SagaValueIsUnique(Type sagaType, SagaCorrelationProperty correlationProperty)
+            {
+                if (!correlationValueIndex.ContainsKey(sagaType))
+                {
+                    return true;
+                }
+
+                return !correlationValueIndex[sagaType].ContainsKey(correlationProperty.Value.ToString());
+            }
+
+            string CreateCorrelationLockKey(Type sagaType, object correlationValue)
+            {
+                return $"{sagaType.FullName}-{correlationValue}";
             }
         }
     }

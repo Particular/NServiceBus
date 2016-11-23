@@ -141,7 +141,11 @@
     <Compile Include="Msmq\MsmqAddressTests.cs" />
     <Compile Include="Msmq\MsmqSubscriptionStorageQueueTests.cs" />
     <Compile Include="Persistence\InMemory\InMemorySubscriptionStorageTests.cs" />
+    <Compile Include="Persistence\InMemory\SagaWithoutUniquePropertyData.cs" />
     <Compile Include="Persistence\InMemory\When_persisting_a_saga_with_InMemory_and_an_escalated_DTC_transaction.cs" />
+    <Compile Include="Persistence\InMemory\When_persisting_a_saga_with_no_defined_unique_property.cs" />
+    <Compile Include="Persistence\InMemory\When_completing_a_saga_with_no_defined_unique_property.cs" />
+    <Compile Include="Persistence\InMemory\When_updating_a_saga_with_no_defined_unique_property.cs" />
     <Compile Include="Persistence\PersistenceStartupTests.cs" />
     <Compile Include="Pipeline\PipelineTests.cs" />
     <Compile Include="Pipeline\HeaderOptionExtensionsTests.cs" />

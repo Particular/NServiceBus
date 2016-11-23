@@ -13,9 +13,11 @@
         [Test]
         public async Task Save_fails_when_data_changes_between_concurrent_instances()
         {
+            var sagaId = Guid.NewGuid();
             var saga = new TestSagaData
             {
-                Id = Guid.NewGuid()
+                Id = sagaId,
+                SomeId = sagaId.ToString()
             };
 
             var persister = new InMemorySagaPersister();
@@ -39,10 +41,10 @@
                     var enlistedSession = await storageAdapter.TryAdapt(transportTransaction, new ContextBag());
 
                     var unenlistedRecord = await persister.Get<TestSagaData>(saga.Id, unenlistedSession, new ContextBag());
-                    var enlistedRecord = await persister.Get<TestSagaData>("Id", saga.Id, enlistedSession, new ContextBag());
+                    var enlistedRecord = await persister.Get<TestSagaData>("SomeId", sagaId.ToString(), enlistedSession, new ContextBag());
 
-                    await persister.Save(unenlistedRecord, SagaMetadataHelper.GetMetadata<TestSaga>(saga), unenlistedSession, new ContextBag());
-                    await persister.Save(enlistedRecord, SagaMetadataHelper.GetMetadata<TestSaga>(saga), enlistedSession, new ContextBag());
+                    await persister.Update(unenlistedRecord, unenlistedSession, new ContextBag());
+                    await persister.Update(enlistedRecord, enlistedSession, new ContextBag());
 
                     await unenlistedSession.CompleteAsync();
 
