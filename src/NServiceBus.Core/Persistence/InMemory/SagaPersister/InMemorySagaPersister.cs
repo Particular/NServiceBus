@@ -10,7 +10,13 @@ namespace NServiceBus
 
     class InMemorySagaPersister : ISagaPersister
     {
-        const string ContextKey = "NServiceBus.InMemorySagaPersistence.Sagas";
+        public InMemorySagaPersister()
+        {
+            sagas = new ConcurrentDictionary<Guid, Entry>();
+            sagasCollection = sagas;
+            byCorrelationId = new ConcurrentDictionary<CorrelationId, Guid>();
+            byCorrelationIdCollection = byCorrelationId;
+        }
 
         public Task Complete(IContainSagaData sagaData, SynchronizedStorageSession session, ContextBag context)
         {
@@ -18,16 +24,16 @@ namespace NServiceBus
            {
                var entry = GetEntry(context, sagaData.Id);
 
-               if (sagas.TryRemoveConditionally(sagaData.Id, entry) == false)
+               if (sagasCollection.Remove(new KeyValuePair<Guid, Entry>(sagaData.Id, entry)) == false)
                {
                    throw new Exception("Saga can't be completed as it was updated by another process.");
                }
 
-               // saga removed
-               // clean the index
-               if (Equals(entry.CorrelationId, NoCorrelationId) == false)
+                // saga removed
+                // clean the index
+                if (Equals(entry.CorrelationId, NoCorrelationId) == false)
                {
-                   byCorrelationId.TryRemoveConditionally(entry.CorrelationId, sagaData.Id);
+                   byCorrelationIdCollection.Remove(new KeyValuePair<CorrelationId, Guid>(entry.CorrelationId, sagaData.Id));
                }
            });
 
@@ -129,8 +135,11 @@ namespace NServiceBus
             throw new Exception("The saga should be retrieved with Get method before it's updated");
         }
 
-        readonly ConcurrentDictionary<Guid, Entry> sagas = new ConcurrentDictionary<Guid, Entry>();
-        readonly ConcurrentDictionary<CorrelationId, Guid> byCorrelationId = new ConcurrentDictionary<CorrelationId, Guid>();
+        readonly ConcurrentDictionary<Guid, Entry> sagas;
+        readonly ConcurrentDictionary<CorrelationId, Guid> byCorrelationId;
+        readonly ICollection<KeyValuePair<Guid, Entry>> sagasCollection;
+        readonly ICollection<KeyValuePair<CorrelationId, Guid>> byCorrelationIdCollection;
+        const string ContextKey = "NServiceBus.InMemorySagaPersistence.Sagas";
         static readonly CorrelationId NoCorrelationId = new CorrelationId(typeof(object), "", new object());
 
         class Entry
@@ -216,20 +225,6 @@ namespace NServiceBus
             where TSagaData : IContainSagaData
         {
             public static Task<TSagaData> Default = Task.FromResult(default(TSagaData));
-        }
-    }
-
-    static class ConcurrentDictionaryExtensions
-    {
-        /// <summary>
-        /// Conditionally removes a value from a concurrent dictionary if it exists and is equal to
-        /// <paramref name="previousValueToCompare" />.
-        /// </summary>
-        /// <returns>Whether the value was removed.</returns>
-        public static bool TryRemoveConditionally<TKey, TValue>(this ConcurrentDictionary<TKey, TValue> dictionary, TKey key, TValue previousValueToCompare)
-        {
-            // the only way to get the conditional removal working is to cast the dictionary down and use this ICollection method call.
-            return ((ICollection<KeyValuePair<TKey, TValue>>)dictionary).Remove(new KeyValuePair<TKey, TValue>(key, previousValueToCompare));
         }
     }
 }
