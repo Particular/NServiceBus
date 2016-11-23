@@ -179,7 +179,7 @@
         {
             var testQueueName = "MsmqQueueCreatorTests.tolong." + Guid.NewGuid().ToString().Replace("-", "");
 
-            var maxQueueNameForSetPermissionToWork = 103 - Environment.MachineName.Length;
+            var maxQueueNameForSetPermissionToWork = 102 - Environment.MachineName.Length;
 
             testQueueName += new string('a', maxQueueNameForSetPermissionToWork - testQueueName.Length + 1);
 

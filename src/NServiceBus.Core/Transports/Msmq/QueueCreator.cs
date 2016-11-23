@@ -67,28 +67,16 @@ namespace NServiceBus
                         queue.SetPermissions(QueuePermissions.LocalEveryoneGroupName, MessageQueueAccessRights.WriteMessage);
                         queue.SetPermissions(QueuePermissions.LocalAnonymousLogonName, MessageQueueAccessRights.WriteMessage);
                     }
-                    catch (MessageQueueException permissionException)
+                    catch (MessageQueueException permissionException) when (permissionException.MessageQueueErrorCode == MessageQueueErrorCode.FormatNameBufferTooSmall)
                     {
-                        if (permissionException.MessageQueueErrorCode == MessageQueueErrorCode.FormatNameBufferTooSmall)
-                        {
-                            Logger.Warn($"Queue '{queue.FormatName}' has a to long name for permissions to be applied. Please consider a shorter endpoint name.", permissionException);
-                            return;
-                        }
-
-                        throw;
+                        Logger.Warn($"Queue '{queue.FormatName}' has a to long name for permissions to be applied. Please consider a shorter endpoint name.", permissionException);
                     }
 
                 }
             }
-            catch (MessageQueueException ex)
+            catch (MessageQueueException ex) when (ex.MessageQueueErrorCode == MessageQueueErrorCode.QueueExists)
             {
-                if (ex.MessageQueueErrorCode == MessageQueueErrorCode.QueueExists)
-                {
-                    //Solve the race condition problem when multiple endpoints try to create same queue (e.g. error queue).
-                    return;
-                }
-
-                throw;
+                //Solves the race condition problem when multiple endpoints try to create same queue (e.g. error queue).
             }
         }
 
