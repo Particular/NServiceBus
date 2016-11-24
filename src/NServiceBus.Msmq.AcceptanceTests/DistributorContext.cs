@@ -1,4 +1,4 @@
-namespace NServiceBus.AcceptanceTests.ScaleOut
+namespace NServiceBus.AcceptanceTests
 {
     using AcceptanceTesting;
 
