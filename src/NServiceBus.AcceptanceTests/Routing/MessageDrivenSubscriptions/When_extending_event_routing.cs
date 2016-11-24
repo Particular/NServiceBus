@@ -4,7 +4,6 @@
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using AcceptanceTesting.Customization;
-    using Configuration.AdvanceExtensibility;
     using EndpointTemplates;
     using Features;
     using NServiceBus.Routing.MessageDrivenSubscriptions;
@@ -50,12 +49,19 @@
                 EndpointSetup<DefaultServer>(c =>
                 {
                     c.DisableFeature<AutoSubscribe>();
-                    c.GetSettings().GetOrCreate<Publishers>()
-                        .AddOrReplacePublishers("CustomRoutingFeature", new List<PublisherTableEntry>
-                        {
-                            new PublisherTableEntry(typeof(MyEvent), PublisherAddress.CreateFromEndpointName(PublisherEndpoint))
-                        });
+                    c.EnableFeature<CustomPublisherRoutes>();
                 });
+            }
+
+            class CustomPublisherRoutes : Feature
+            {
+                protected override void Setup(FeatureConfigurationContext context)
+                {
+                    context.Routing.Publishers.AddOrReplacePublishers("CustomRoutingFeature", new List<PublisherTableEntry>
+                    {
+                        new PublisherTableEntry(typeof(MyEvent), PublisherAddress.CreateFromEndpointName(PublisherEndpoint))
+                    });
+                }
             }
 
             public class MyEventHandler : IHandleMessages<MyEvent>

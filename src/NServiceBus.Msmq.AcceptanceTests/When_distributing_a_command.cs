@@ -1,11 +1,12 @@
 ﻿namespace NServiceBus.AcceptanceTests
 {
+    using System.Collections.Generic;
     using System.Threading.Tasks;
     using AcceptanceTesting.Customization;
     using AcceptanceTesting;
+    using Features;
     using NServiceBus.Routing;
     using NUnit.Framework;
-    using Routing;
     using Settings;
 
     public class When_distributing_a_command : NServiceBusAcceptanceTest
@@ -62,14 +63,22 @@
                     var routing = c.UseTransport<MsmqTransport>().Routing();
                     routing.RouteToEndpoint(typeof(RequestA), ReceiverAEndpoint);
                     routing.RouteToEndpoint(typeof(RequestB), ReceiverBEndpoint);
+                    c.EnableFeature<EndpointInstanceRegistration>();
+                });
+            }
 
-                    routing.RegisterEndpointInstances(
+            class EndpointInstanceRegistration : Feature
+            {
+                protected override void Setup(FeatureConfigurationContext context)
+                {
+                    context.Routing.EndpointInstances.AddOrReplaceInstances("test", new List<EndpointInstance>
+                    {
                         new EndpointInstance(ReceiverAEndpoint, "1"),
                         new EndpointInstance(ReceiverAEndpoint, "2"),
                         new EndpointInstance(ReceiverBEndpoint, "1"),
                         new EndpointInstance(ReceiverBEndpoint, "2")
-                        );
-                });
+                    });
+                }
             }
 
             public class ResponseHandler :
