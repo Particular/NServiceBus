@@ -3,6 +3,7 @@ namespace NServiceBus
     using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Threading.Tasks;
     using Extensibility;
     using Persistence;
@@ -107,6 +108,16 @@ namespace NServiceBus
            });
 
             return TaskEx.CompletedTask;
+        }
+
+        internal IEnumerable<IContainSagaData> Sagas(ContextBag context)
+        {
+            return sagas.Values.ToArray().Select(s =>
+            {
+                var sagaData = s.GetSagaCopy();
+                SetEntry(context, sagaData.Id, s);
+                return sagaData;
+            });
         }
 
         static void SetEntry(ContextBag context, Guid sagaId, Entry value)
