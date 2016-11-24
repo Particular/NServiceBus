@@ -8,7 +8,7 @@
     using NServiceBus.Sagas;
     using NUnit.Framework;
 
-    public class when_receiving_multiple_timeouts : NServiceBusAcceptanceTest
+    public class When_receiving_multiple_timeouts : NServiceBusAcceptanceTest
     {
         // realted to NSB issue #1819
         [Test]
@@ -104,7 +104,7 @@
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MultiTimeoutsSaga1Data> mapper)
                 {
                     mapper.ConfigureMapping<StartSaga1>(m => m.ContextId)
-                        .ToSaga(s => s.Id);
+                        .ToSaga(s => s.ContextId);
                 }
 
                 public class MultiTimeoutsSaga1Data : ContainSagaData
