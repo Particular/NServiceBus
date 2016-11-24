@@ -3,6 +3,7 @@ namespace NServiceBus
     using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Threading.Tasks;
     using Extensibility;
     using Persistence;
@@ -109,6 +110,31 @@ namespace NServiceBus
             return TaskEx.CompletedTask;
         }
 
+        internal TSagaData FirstOrDefault<TSagaData>(ReadOnlyContextBag context, Func<TSagaData, bool> predicate)
+            where TSagaData : IContainSagaData
+        {
+            var ctx = (ContextBag)context;
+            var entry = sagas.Values.FirstOrDefault(e => e.Satisfies(predicate));
+            if (entry != null)
+            {
+                var sagaData = (TSagaData)entry.GetSagaCopy();
+                SetEntry(ctx, sagaData.Id, entry);
+                return sagaData;
+            }
+
+            return default(TSagaData);
+        }
+
+        internal IEnumerable<IContainSagaData> Sagas(ContextBag context)
+        {
+            return sagas.Values.ToArray().Select(s =>
+            {
+                var sagaData = s.GetSagaCopy();
+                SetEntry(context, sagaData.Id, s);
+                return sagaData;
+            });
+        }
+
         static void SetEntry(ContextBag context, Guid sagaId, Entry value)
         {
             Dictionary<Guid, Entry> entries;
@@ -136,10 +162,15 @@ namespace NServiceBus
         }
 
         readonly ConcurrentDictionary<Guid, Entry> sagas;
+
         readonly ConcurrentDictionary<CorrelationId, Guid> byCorrelationId;
+
         readonly ICollection<KeyValuePair<Guid, Entry>> sagasCollection;
+
         readonly ICollection<KeyValuePair<CorrelationId, Guid>> byCorrelationIdCollection;
+
         const string ContextKey = "NServiceBus.InMemorySagaPersistence.Sagas";
+
         static readonly CorrelationId NoCorrelationId = new CorrelationId(typeof(object), "", new object());
 
         class Entry
@@ -148,6 +179,12 @@ namespace NServiceBus
             {
                 CorrelationId = correlationId;
                 data = sagaData;
+            }
+
+            public bool Satisfies<TSagaData>(Func<TSagaData, bool> predicate) 
+                where TSagaData : IContainSagaData
+            {
+                return data is TSagaData && predicate((TSagaData) data);
             }
 
             public CorrelationId CorrelationId { get; }

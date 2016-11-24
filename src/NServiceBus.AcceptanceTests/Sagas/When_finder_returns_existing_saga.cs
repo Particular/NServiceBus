@@ -46,13 +46,12 @@
                 // ReSharper disable once MemberCanBePrivate.Global
                 public Context Context { get; set; }
 
-                public ISagaPersister SagaPersister { get; set; }
-
-                public async Task<TestSaga08.SagaData08> FindBy(SomeOtherMessage message, SynchronizedStorageSession storageSession, ReadOnlyContextBag context)
+                public Task<TestSaga08.SagaData08> FindBy(SomeOtherMessage message, SynchronizedStorageSession storageSession, ReadOnlyContextBag context)
                 {
                     Context.FinderUsed = true;
-                    var sagaData = await SagaPersister.Get<TestSaga08.SagaData08>(message.SagaId, storageSession, (ContextBag)context).ConfigureAwait(false);
-                    return sagaData;
+                    var session = storageSession.Session();
+                    var sagaData = session.FirstOrDefault<TestSaga08.SagaData08>(context, s => s.Id == message.SagaId);
+                    return Task.FromResult(sagaData);
                 }
             }
 
