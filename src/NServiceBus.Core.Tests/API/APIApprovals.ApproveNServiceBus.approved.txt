@@ -1845,7 +1845,6 @@ namespace NServiceBus.Features
         "", false)]
     public class MessageDrivenSubscriptions : NServiceBus.Features.Feature
     {
-        public MessageDrivenSubscriptions() { }
         protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
     }
     public class MsmqSubscriptionPersistence : NServiceBus.Features.Feature
