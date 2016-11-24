@@ -5,31 +5,33 @@ namespace NServiceBus
     using System.Linq;
     using System.Threading.Tasks;
     using Extensibility;
+    using Pipeline;
     using Routing;
     using Unicast.Messages;
     using Unicast.Subscriptions;
     using Unicast.Subscriptions.MessageDrivenSubscriptions;
 
-    class UnicastPublishRouter : IUnicastPublishRouter
+    class UnicastPublishRouter : IPublishRouter
     {
-        public UnicastPublishRouter(MessageMetadataRegistry messageMetadataRegistry, ISubscriptionStorage subscriptionStorage)
+        public UnicastPublishRouter(MessageMetadataRegistry messageMetadataRegistry, ISubscriptionStorage subscriptionStorage, IDistributionPolicy distributionPolicy)
         {
             this.messageMetadataRegistry = messageMetadataRegistry;
             this.subscriptionStorage = subscriptionStorage;
+            this.distributionPolicy = distributionPolicy;
         }
 
-        public async Task<IEnumerable<UnicastRoutingStrategy>> Route(Type messageType, IDistributionPolicy distributionPolicy, ContextBag contextBag)
+        public async Task<RoutingStrategy[]> GetRoutingStrategies(IOutgoingPublishContext context)
         {
-            var typesToRoute = messageMetadataRegistry.GetMessageMetadata(messageType).MessageHierarchy;
+            var typesToRoute = messageMetadataRegistry.GetMessageMetadata(context.Message.MessageType).MessageHierarchy;
 
-            var subscribers = await GetSubscribers(contextBag, typesToRoute).ConfigureAwait(false);
+            var subscribers = await GetSubscribers(context.Extensions, typesToRoute).ConfigureAwait(false);
 
             var selectedDestinations = SelectDestinationsForEachEndpoint(distributionPolicy, subscribers);
 
-            return selectedDestinations.Select(destination => new UnicastRoutingStrategy(destination));
+            return selectedDestinations.Select(destination => new UnicastRoutingStrategy(destination)).ToArray();
         }
 
-        HashSet<string> SelectDestinationsForEachEndpoint(IDistributionPolicy distributionPolicy, IEnumerable<Subscriber> subscribers)
+        static HashSet<string> SelectDestinationsForEachEndpoint(IDistributionPolicy distributionPolicy, IEnumerable<Subscriber> subscribers)
         {
             //Make sure we are sending only one to each transport destination. Might happen when there are multiple routing information sources.
             var addresses = new HashSet<string>();
@@ -63,7 +65,10 @@ namespace NServiceBus
             return subscribers;
         }
 
+        readonly IDistributionPolicy distributionPolicy;
+
         MessageMetadataRegistry messageMetadataRegistry;
+
         ISubscriptionStorage subscriptionStorage;
     }
 }

@@ -47,6 +47,17 @@ namespace NServiceBus
             var transportInfrastructure = transportDefinition.Initialize(settings, connectionString);
             settings.Set<TransportInfrastructure>(transportInfrastructure);
 
+            if (transportInfrastructure.OutboundRoutingPolicy.Publishes == OutboundRoutingType.Multicast)
+            {
+                // use the transport's native publish subscribe capabilities
+                settings.SetDefault<IPublishSubscribeProvider>(new NativePublishSubscribeProvider(transportInfrastructure.ConfigureSubscriptionInfrastructure()));
+            }
+            else
+            {
+                // fallback to message driven publish subscribe
+                settings.SetDefault<IPublishSubscribeProvider>(new MessageDrivenPublishSubscribeProvider());
+            }
+
             // should we use GetOrDefault<T>() ?? new T() instead to prevent "leaking" into the settings?
             var routing = new RoutingComponent(settings.GetOrCreate<DistributionPolicy>());
             routing.Initialize(settings, transportInfrastructure, pipelineSettings);
