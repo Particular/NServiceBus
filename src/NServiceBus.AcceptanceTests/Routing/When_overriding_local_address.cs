@@ -1,12 +1,10 @@
-﻿namespace ServiceBus.AcceptanceTests.Routing
+﻿namespace NServiceBus.AcceptanceTests.Routing
 {
     using System.Threading.Tasks;
-    using NServiceBus;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.AcceptanceTests;
-    using NServiceBus.AcceptanceTests.EndpointTemplates;
+    using AcceptanceTesting;
+    using AcceptanceTesting.Customization;
+    using EndpointTemplates;
     using NUnit.Framework;
-    using Conventions = NServiceBus.AcceptanceTesting.Customization.Conventions;
 
     public class When_overriding_local_address : NServiceBusAcceptanceTest
     {
@@ -39,9 +37,7 @@
         {
             public Sender()
             {
-                EndpointSetup<DefaultServer>(c =>
-                {
-                });
+                EndpointSetup<DefaultServer>(c => { });
             }
         }
 
@@ -54,8 +50,6 @@
 
             public class MessageHandler : IHandleMessages<Message>
             {
-                Context testContext;
-
                 public MessageHandler(Context testContext)
                 {
                     this.testContext = testContext;
@@ -66,6 +60,8 @@
                     testContext.ReceivedMessage = true;
                     return Task.FromResult(0);
                 }
+
+                Context testContext;
             }
         }
 
