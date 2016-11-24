@@ -15,7 +15,7 @@ namespace NServiceBus.AcceptanceTests.Sagas
     public class When_adding_state_to_context : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Should_make_state_available_from_finder_context()
+        public async Task Should_make_state_available_to_finder_context()
         {
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<SagaEndpoint>(b => b

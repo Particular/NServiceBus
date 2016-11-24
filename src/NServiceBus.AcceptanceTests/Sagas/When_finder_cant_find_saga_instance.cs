@@ -10,7 +10,7 @@
     using Persistence;
 
     [TestFixture]
-    public class When_finder_returns_null_for_start_message : NServiceBusAcceptanceTest
+    public class When_finder_cant_find_saga_instance : NServiceBusAcceptanceTest
     {
         [Test]
         public async Task Should_start_new_saga()

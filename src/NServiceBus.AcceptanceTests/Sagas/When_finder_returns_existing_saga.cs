@@ -11,10 +11,10 @@
     using Persistence;
 
     [TestFixture]
-    public class When_finder_exists_and_found_saga : NServiceBusAcceptanceTest
+    public class When_finder_returns_existing_saga : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Should_find_saga()
+        public async Task Should_use_existing_saga()
         {
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<SagaEndpoint>(b => b

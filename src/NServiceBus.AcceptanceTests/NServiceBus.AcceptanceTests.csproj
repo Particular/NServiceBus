@@ -95,6 +95,8 @@
     <Compile Include="Routing\MessageDrivenSubscriptions\When_subscribing_to_scaled_out_publisher.cs" />
     <Compile Include="Sagas\When_a_base_class_mapped_is_handled_by_a_saga.cs" />
     <Compile Include="Sagas\When_a_base_class_message_starts_a_saga.cs" />
+    <Compile Include="Sagas\When_finder_cant_find_saga_instance.cs" />
+    <Compile Include="Sagas\When_finder_returns_existing_saga.cs" />
     <Compile Include="Sagas\When_saga_started_concurrently.cs" />
     <Compile Include="Serialization\When_configuring_custom_xml_namespace.cs" />
     <Compile Include="Serialization\When_registering_additional_deserializers.cs" />
@@ -226,7 +228,6 @@
     <Compile Include="Sagas\When_auto_correlated_property_is_changed.cs" />
     <Compile Include="Sagas\When_updating_existing_correlation_property.cs" />
     <Compile Include="Sagas\When_adding_state_to_context.cs" />
-    <Compile Include="Sagas\When_finder_exists_and_found_saga.cs" />
     <Compile Include="Recoverability\Retries\When_delayed_retries_with_regular_exception.cs" />
     <Compile Include="Recoverability\Retries\When_delayed_retries_with_serialization_exception.cs" />
     <Compile Include="Sagas\When_doing_request_response_between_sagas_first_handler_responding.cs" />
@@ -245,7 +246,6 @@
     <Compile Include="Recoverability\Retries\When_Subscribing_to_errors.cs" />
     <Compile Include="Sagas\When_timeout_hit_not_found_saga.cs" />
     <Compile Include="Sagas\When_saga_id_changed.cs" />
-    <Compile Include="Sagas\When_finder_returns_null_for_start_message.cs" />
     <Compile Include="ScenarioDescriptors\EnvironmentHelper.cs" />
     <Compile Include="SelfVerification\When_running_saga_tests.cs" />
     <Compile Include="Timeout\CyclingOutageTimeoutPersister.cs" />
