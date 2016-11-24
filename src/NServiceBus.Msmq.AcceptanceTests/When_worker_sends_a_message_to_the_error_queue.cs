@@ -15,7 +15,7 @@
         public async Task Should_also_send_a_ready_message()
         {
             var context = await Scenario.Define<DistributorContext>()
-                .WithEndpoint<Receiver>()
+                .WithEndpoint<Receiver>(b => b.DoNotFailOnErrorMessages())
                 .WithEndpoint<Sender>(b => b.When(c => c.WorkerSessionId != null, (s, c) =>
                 {
                     var sendOptions = new SendOptions();
