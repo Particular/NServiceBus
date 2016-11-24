@@ -5,7 +5,6 @@ namespace NServiceBus.AcceptanceTests.Sagas
     using AcceptanceTesting;
     using EndpointTemplates;
     using Extensibility;
-    using Features;
     using NServiceBus;
     using NServiceBus.Pipeline;
     using NServiceBus.Sagas;
@@ -13,13 +12,14 @@ namespace NServiceBus.AcceptanceTests.Sagas
     using Persistence;
 
     [TestFixture]
-    public class When_a_finder_exists_and_context_information_added : NServiceBusAcceptanceTest
+    public class When_adding_state_to_context : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Should_make_context_information_available()
+        public async Task Should_make_state_available_to_finder_context()
         {
             var context = await Scenario.Define<Context>()
-                .WithEndpoint<SagaEndpoint>(b => b.When(session => session.SendLocal(new StartSagaMessage())))
+                .WithEndpoint<SagaEndpoint>(b => b
+                    .When(session => session.SendLocal(new StartSagaMessage())))
                 .Done(c => c.FinderUsed)
                 .Run();
 
@@ -39,8 +39,7 @@ namespace NServiceBus.AcceptanceTests.Sagas
             {
                 EndpointSetup<DefaultServer>(c =>
                 {
-                    c.EnableFeature<TimeoutManager>();
-                    c.Pipeline.Register<BehaviorWhichAddsThingsToTheContext.Registration>();
+                    c.Pipeline.Register(new BehaviorWhichAddsThingsToTheContext(), "adds some data to the context");
                 });
             }
 
@@ -67,6 +66,7 @@ namespace NServiceBus.AcceptanceTests.Sagas
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData07> mapper)
                 {
+                    // custom finder used
                 }
 
                 public class SagaData07 : ContainSagaData
@@ -89,13 +89,6 @@ namespace NServiceBus.AcceptanceTests.Sagas
                 public class State
                 {
                     public string SomeData { get; set; }
-                }
-
-                public class Registration : RegisterStep
-                {
-                    public Registration() : base("BehaviorWhichAddsThingsToTheContext", typeof(BehaviorWhichAddsThingsToTheContext), "BehaviorWhichAddsThingsToTheContext")
-                    {
-                    }
                 }
             }
         }
