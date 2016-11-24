@@ -6,7 +6,6 @@
     using EndpointTemplates;
     using NServiceBus.Routing;
     using NUnit.Framework;
-    using Routing;
 
     public class When_replying_to_a_message_sent_to_specific_instance : NServiceBusAcceptanceTest
     {
@@ -37,7 +36,7 @@
                 {
                     var routing = c.UseTransport(r.GetTransportType()).Routing();
                     routing.RouteToEndpoint(typeof(MyRequest), ReceiverEndpoint);
-                    routing.RegisterEndpointInstances(new EndpointInstance(ReceiverEndpoint, "XYZ"));
+                    c.RegisterEndpointInstances(new EndpointInstance(ReceiverEndpoint, "XYZ"));
                 });
             }
 

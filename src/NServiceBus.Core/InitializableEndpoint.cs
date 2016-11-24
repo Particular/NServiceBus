@@ -12,8 +12,6 @@ namespace NServiceBus
     using ObjectBuilder;
     using ObjectBuilder.Common;
     using Pipeline;
-    using Routing;
-    using Routing.MessageDrivenSubscriptions;
     using Settings;
     using Transport;
 
@@ -50,11 +48,7 @@ namespace NServiceBus
             settings.Set<TransportInfrastructure>(transportInfrastructure);
 
             // should we use GetOrDefault<T>() ?? new T() instead to prevent "leaking" into the settings?
-            var routing = new RoutingComponent(
-                settings.GetOrCreate<UnicastRoutingTable>(),
-                settings.GetOrCreate<DistributionPolicy>(),
-                settings.GetOrCreate<EndpointInstances>(),
-                settings.GetOrCreate<Publishers>());
+            var routing = new RoutingComponent(settings.GetOrCreate<DistributionPolicy>());
             routing.Initialize(settings, transportInfrastructure, pipelineSettings);
 
             var featureStats = featureActivator.SetupFeatures(container, pipelineSettings, routing);

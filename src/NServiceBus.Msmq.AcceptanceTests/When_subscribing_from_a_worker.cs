@@ -67,13 +67,9 @@
         {
             public Worker()
             {
-                EndpointSetup<DefaultServer>(c =>
-                {
-                    c.EnlistWithLegacyMSMQDistributor(DistributorEndpoint, DistributorEndpoint, 1);
-                    c.UseTransport<MsmqTransport>()
-                        .Routing().RegisterPublisher(typeof(MyEvent), Conventions.EndpointNamingConvention(typeof(Publisher)));
-
-                });
+                EndpointSetup<DefaultServer>(
+                    c => c.EnlistWithLegacyMSMQDistributor(DistributorEndpoint, DistributorEndpoint, 1),
+                    metadata => metadata.RegisterPublisherFor<MyEvent>(typeof(Publisher)));
             }
 
             public class MyEventHandler : IHandleMessages<MyEvent>

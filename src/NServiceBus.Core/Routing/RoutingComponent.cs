@@ -18,18 +18,15 @@ namespace NServiceBus
         /// <summary>
         /// Creates a new <see cref="RoutingComponent"/> instance.
         /// </summary>
-        public RoutingComponent(UnicastRoutingTable unicastRoutingTable, DistributionPolicy distributionPolicy, EndpointInstances endpointInstances, Publishers publishers)
+        public RoutingComponent(DistributionPolicy distributionPolicy)
         {
-            UnicastRoutingTable = unicastRoutingTable;
             DistributionPolicy = distributionPolicy;
-            EndpointInstances = endpointInstances;
-            Publishers = publishers;
         }
 
         /// <summary>
         /// Contains routing data for unicast send operations.
         /// </summary>
-        public UnicastRoutingTable UnicastRoutingTable { get; }
+        public UnicastRoutingTable UnicastRoutingTable { get; } = new UnicastRoutingTable();
 
         /// <summary>
         /// Provides distribution strategies for sender-side distribution.
@@ -39,12 +36,12 @@ namespace NServiceBus
         /// <summary>
         /// Contains logical endpoint to physical instances mapping.
         /// </summary>
-        public EndpointInstances EndpointInstances { get; }
+        public EndpointInstances EndpointInstances { get; } = new EndpointInstances();
 
         /// <summary>
         /// Contains routing data for subscription messages.
         /// </summary>
-        public Publishers Publishers { get; }
+        public Publishers Publishers { get; } = new Publishers();
 
         internal bool EnforceBestPractices { get; private set; }
 

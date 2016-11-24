@@ -6,8 +6,8 @@
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using AcceptanceTesting.Customization;
-    using Configuration.AdvanceExtensibility;
     using EndpointTemplates;
+    using Features;
     using NServiceBus.Routing;
     using NUnit.Framework;
 
@@ -44,22 +44,27 @@
         {
             public Sender()
             {
-                EndpointSetup<DefaultServer>(c =>
+                EndpointSetup<DefaultServer>(c => c.EnableFeature<RoutingConfigurations>());
+            }
+
+            class RoutingConfigurations : Feature
+            {
+                protected override void Setup(FeatureConfigurationContext context)
                 {
-                    c.GetSettings().GetOrCreate<UnicastRoutingTable>()
+                    context.Routing.UnicastRoutingTable
                         .AddOrReplaceRoutes("CustomRoutingFeature", new List<RouteTableEntry>
                         {
                             new RouteTableEntry(typeof(MyCommand), UnicastRoute.CreateFromEndpointName(ReceiverEndpoint))
                         });
-                    c.GetSettings().GetOrCreate<EndpointInstances>()
+                    context.Routing.EndpointInstances
                         .AddOrReplaceInstances("CustomRoutingFeature", new List<EndpointInstance>
                         {
                             new EndpointInstance(ReceiverEndpoint, "XYZ"),
                             new EndpointInstance(ReceiverEndpoint, "ABC")
                         });
-                    c.GetSettings().GetOrCreate<DistributionPolicy>()
+                    context.Routing.DistributionPolicy
                         .SetDistributionStrategy(new XyzDistributionStrategy(ReceiverEndpoint));
-                });
+                }
             }
 
             class XyzDistributionStrategy : DistributionStrategy
