@@ -67,7 +67,7 @@
 
             if (raiseNotifications)
             {
-                await eventAggregator.Raise(new MessageToBeRetried(errorContext.ImmediateProcessingFailures - 1, TimeSpan.Zero, message, errorContext.Exception)).ConfigureAwait(false);
+                await eventAggregator.Raise(new MessageToBeRetried(errorContext.ImmediateProcessingFailures - 1, TimeSpan.Zero, errorContext)).ConfigureAwait(false);
             }
 
             return ErrorHandleResult.RetryRequired;
@@ -83,7 +83,7 @@
 
             if (raiseNotifications)
             {
-                await eventAggregator.Raise(new MessageFaulted(message, errorContext.Exception, errorQueue)).ConfigureAwait(false);
+                await eventAggregator.Raise(new MessageFaulted(errorContext, errorQueue)).ConfigureAwait(false);
             }
             return ErrorHandleResult.Handled;
         }
@@ -98,7 +98,7 @@
 
             if (raiseNotifications)
             {
-                await eventAggregator.Raise(new MessageToBeRetried(currentDelayedRetriesAttempts, action.Delay, message, errorContext.Exception)).ConfigureAwait(false);
+                await eventAggregator.Raise(new MessageToBeRetried(currentDelayedRetriesAttempts, action.Delay, errorContext)).ConfigureAwait(false);
             }
             return ErrorHandleResult.Handled;
         }
