@@ -1,6 +1,7 @@
-namespace NServiceBus.Features
+namespace NServiceBus
 {
     using Config;
+    using Features;
     using Pipeline;
     using Routing;
     using Routing.MessageDrivenSubscriptions;
