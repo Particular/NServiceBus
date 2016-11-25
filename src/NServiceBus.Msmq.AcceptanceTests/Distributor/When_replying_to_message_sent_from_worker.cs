@@ -2,7 +2,6 @@
 {
     using System.Threading.Tasks;
     using AcceptanceTesting;
-    using NServiceBus.Routing.Legacy;
     using NUnit.Framework;
 
     class When_replying_to_message_sent_from_worker : NServiceBusAcceptanceTest
@@ -47,13 +46,9 @@
         {
             public Worker()
             {
-                var distributorAddress = AcceptanceTesting.Customization.Conventions.EndpointNamingConvention(typeof(Distributor));
                 EndpointSetup<WorkerEndpointTemplate>(c =>
                 {
-                    c.EnlistWithLegacyMSMQDistributor(
-                        distributorAddress,
-                        "ReadyMessages",
-                        10);
+                    c.EnlistWithDistributor(typeof(Distributor));
                 })
                 .AddMapping<WorkerMessage>(typeof(ReplyingEndpoint));
             }

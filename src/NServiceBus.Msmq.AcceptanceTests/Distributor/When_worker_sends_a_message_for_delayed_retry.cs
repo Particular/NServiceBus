@@ -1,114 +1,50 @@
-﻿namespace NServiceBus.AcceptanceTests.Routing
+﻿namespace NServiceBus.AcceptanceTests.Distributor
 {
     using System.Threading.Tasks;
     using AcceptanceTesting;
-    using AcceptanceTesting.Customization;
-    using AcceptanceTesting.Support;
-    using Features;
-    using NServiceBus.Routing.Legacy;
     using NUnit.Framework;
-    using ObjectBuilder;
-    using Transport;
 
     public class When_worker_sends_a_message_for_delayed_retry : NServiceBusAcceptanceTest
     {
-        static string ReceiverEndpoint => Conventions.EndpointNamingConvention(typeof(Receiver));
-        static string DistributorEndpoint => Conventions.EndpointNamingConvention(typeof(Distributor));
-
         [Test]
-        public async Task Should_also_send_a_ready_message_and_the_timeout_should_be_addressed_to_the_distributor()
+        public async Task Should_also_send_a_ready_message()
         {
-            var context = await Scenario.Define<Context>()
-                .WithEndpoint<Receiver>(b => b.DoNotFailOnErrorMessages())
-                .WithEndpoint<Distributor>()
-                .WithEndpoint<Sender>(b => b.When(c => c.WorkerSessionId != null, (s, c) =>
-                {
-                    var sendOptions = new SendOptions();
-                    sendOptions.SetHeader("NServiceBus.Distributor.WorkerSessionId", c.WorkerSessionId);
-                    return s.Send(new MyRequest(), sendOptions);
-                }))
-                .Done(c => c.ReceivedReadyMessage && c.DelayedRetryScheduled)
+            var context = await Scenario.Define<DistributorEndpointTemplate.DistributorContext>()
+                .WithEndpoint<Worker>(b => b
+                    .DoNotFailOnErrorMessages())
+                .WithEndpoint<Distributor>(b => b
+                    .When(c => c.IsWorkerRegistered, (s, c) => s.Send(new MyRequest())))
+                .Done(c => c.ReceivedReadyMessage)
                 .Run();
 
             Assert.IsTrue(context.ReceivedReadyMessage);
-            Assert.IsTrue(context.DelayedRetryScheduled);
-            Assert.AreEqual(DistributorEndpoint, context.TimeoutDestination);
-        }
-
-        public class Context : DistributorContext
-        {
-            public bool DelayedRetryScheduled { get; set; }
-            public string TimeoutDestination { get; set; }
-        }
-
-        public class Sender : EndpointConfigurationBuilder
-        {
-            public Sender()
-            {
-                EndpointSetup<DefaultServer>(c =>
-                {
-                    var routing = c.UseTransport<MsmqTransport>().Routing();
-                    routing.RouteToEndpoint(typeof(MyRequest), ReceiverEndpoint);
-                });
-            }
         }
 
         public class Distributor : EndpointConfigurationBuilder
         {
             public Distributor()
             {
-                EndpointSetup<DefaultServer>(c =>
-                {
-                    c.DisableFeature<TimeoutManager>();
-                });
+                EndpointSetup<DistributorEndpointTemplate>().AddMapping<MyRequest>(typeof(Worker));
             }
 
-            public class Detector : ReadyMessageDetector
+            class MyRequestHandler : IHandleMessages<MyRequest>
             {
-                public Detector()
+                public Task Handle(MyRequest message, IMessageHandlerContext context)
                 {
-                    EnableByDefault();
-                }
-            }
-
-            public class TimeoutManagerFake : Feature
-            {
-                public TimeoutManagerFake()
-                {
-                    EnableByDefault();
-                }
-
-                protected override void Setup(FeatureConfigurationContext context)
-                {
-                    context.AddSatelliteReceiver("TimeoutManagerFake", context.Settings.EndpointName() + ".Timeouts", TransportTransactionMode.ReceiveOnly, PushRuntimeSettings.Default,
-                        OnError, OnMessage);
-                }
-
-                static Task OnMessage(IBuilder builder, MessageContext message)
-                {
-                    var context = builder.Build<Context>();
-                    context.DelayedRetryScheduled = true;
-                    context.TimeoutDestination = message.Headers["NServiceBus.Timeout.RouteExpiredTimeoutTo"];
                     return Task.CompletedTask;
-                }
-
-                static RecoverabilityAction OnError(RecoverabilityConfig arg1, ErrorContext arg2)
-                {
-                    return RecoverabilityAction.ImmediateRetry();
                 }
             }
         }
 
-        public class Receiver : EndpointConfigurationBuilder
+        public class Worker : EndpointConfigurationBuilder
         {
-            public Receiver()
+            public Worker()
             {
-                EndpointSetup<DefaultServer>(c =>
+                EndpointSetup<WorkerEndpointTemplate>(c =>
                 {
-                    c.EnlistWithLegacyMSMQDistributor(DistributorEndpoint, DistributorEndpoint + ".Control", 10);
+                    c.EnlistWithDistributor(typeof(Distributor));
                     c.Recoverability().Immediate(i => i.NumberOfRetries(0));
                     c.Recoverability().Delayed(d => d.NumberOfRetries(1));
-                    c.DisableFeature<FailTestOnErrorMessageFeature>();
                 });
             }
 

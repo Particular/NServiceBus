@@ -1,80 +1,51 @@
-﻿namespace NServiceBus.AcceptanceTests.Routing
+﻿namespace NServiceBus.AcceptanceTests.Distributor
 {
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using AcceptanceTesting.Customization;
-    using NServiceBus.Routing.Legacy;
     using NUnit.Framework;
 
     public class When_worker_processes_a_message : NServiceBusAcceptanceTest
     {
-        static string ReceiverEndpoint => Conventions.EndpointNamingConvention(typeof(Receiver));
-        static string DistributorEndpoint => Conventions.EndpointNamingConvention(typeof(Distributor));
-
         [Test]
         public async Task Should_also_send_a_ready_message()
         {
-            var context = await Scenario.Define<DistributorContext>()
-                .WithEndpoint<Receiver>()
-                .WithEndpoint<Distributor>()
-                .WithEndpoint<Sender>(b => b.When(c => c.WorkerSessionId != null, (s, c) =>
-                {
-                    var sendOptions = new SendOptions();
-                    sendOptions.SetHeader("NServiceBus.Distributor.WorkerSessionId", c.WorkerSessionId);
-                    return s.Send(new MyRequest(), sendOptions);
-                }))
+            var context = await Scenario.Define<DistributorEndpointTemplate.DistributorContext>()
+                .WithEndpoint<Worker>()
+                .WithEndpoint<Distributor>(e => e
+                    .When(c => c.IsWorkerRegistered, (s, c) => s.Send(new MyRequest())))
                 .Done(c => c.ReceivedReadyMessage)
                 .Run();
 
             Assert.IsTrue(context.ReceivedReadyMessage);
         }
 
-        public class Sender : EndpointConfigurationBuilder
+        class Sender : EndpointConfigurationBuilder
         {
             public Sender()
             {
                 EndpointSetup<DefaultServer>(c =>
                 {
+                    var receiverEndpoint = Conventions.EndpointNamingConvention(typeof(Worker));
                     var routing = c.UseTransport<MsmqTransport>().Routing();
-                    routing.RouteToEndpoint(typeof(MyRequest), ReceiverEndpoint);
+                    routing.RouteToEndpoint(typeof(MyRequest), receiverEndpoint);
                 });
             }
         }
 
-        public class Distributor : EndpointConfigurationBuilder
+        class Distributor : EndpointConfigurationBuilder
         {
             public Distributor()
             {
-                EndpointSetup<DefaultServer>(c =>
-                {
-                });
-            }
-
-            public class Detector : ReadyMessageDetector
-            {
-                public Detector()
-                {
-                    EnableByDefault();
-                }
+                EndpointSetup<DistributorEndpointTemplate>().AddMapping<MyRequest>(typeof(Worker));
             }
         }
 
-        public class Receiver : EndpointConfigurationBuilder
+        class Worker : EndpointConfigurationBuilder
         {
-            public Receiver()
+            public Worker()
             {
-                EndpointSetup<DefaultServer>(c =>
-                {
-                    c.EnlistWithLegacyMSMQDistributor(DistributorEndpoint, DistributorEndpoint + ".Control", 10);
-                });
-            }
-
-            public class Detector : ReadyMessageDetector
-            {
-                public Detector()
-                {
-                    EnableByDefault();
-                }
+                EndpointSetup<DefaultServer>(c => c.EnlistWithDistributor(typeof(Distributor)));
             }
 
             public class MyRequestHandler : IHandleMessages<MyRequest>

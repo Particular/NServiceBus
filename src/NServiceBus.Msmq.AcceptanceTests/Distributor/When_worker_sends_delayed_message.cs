@@ -3,7 +3,6 @@
     using System;
     using System.Threading.Tasks;
     using AcceptanceTesting;
-    using NServiceBus.Routing.Legacy;
     using NUnit.Framework;
 
     public class When_worker_sends_delayed_message : NServiceBusAcceptanceTest
@@ -32,14 +31,7 @@
         {
             public Worker()
             {
-                var distributorAddress = AcceptanceTesting.Customization.Conventions.EndpointNamingConvention(typeof(Distributor));
-                EndpointSetup<WorkerEndpointTemplate>(c =>
-                {
-                    c.EnlistWithLegacyMSMQDistributor(
-                        distributorAddress,
-                        "ReadyMessages",
-                        10);
-                });
+                EndpointSetup<WorkerEndpointTemplate>(c => c.EnlistWithDistributor(typeof(Distributor)));
             }
 
             class DelayedMessageHandler : IHandleMessages<DelayedMessage>

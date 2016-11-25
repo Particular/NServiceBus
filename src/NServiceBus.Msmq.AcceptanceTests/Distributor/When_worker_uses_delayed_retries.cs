@@ -3,7 +3,6 @@
     using System;
     using System.Threading.Tasks;
     using AcceptanceTesting;
-    using NServiceBus.Routing.Legacy;
     using NUnit.Framework;
 
     public class When_worker_uses_delayed_retries : NServiceBusAcceptanceTest
@@ -30,13 +29,9 @@
         {
             public Worker()
             {
-                var distributorAddress = AcceptanceTesting.Customization.Conventions.EndpointNamingConvention(typeof(Distributor));
                 EndpointSetup<WorkerEndpointTemplate>(c =>
                 {
-                    c.EnlistWithLegacyMSMQDistributor(
-                        distributorAddress,
-                        "ReadyMessages",
-                        10);
+                    c.EnlistWithDistributor(typeof(Distributor));
                     c.Recoverability()
                         .Immediate(s => s
                             .NumberOfRetries(0))

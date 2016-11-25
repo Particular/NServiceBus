@@ -52,14 +52,12 @@
     <Compile Include="DefaultPublisher.cs" />
     <Compile Include="DefaultServer.cs" />
     <Compile Include="Distributor\DistributorEndpointTemplate.cs" />
-    <Compile Include="Distributor\DistributorContext.cs" />
     <Compile Include="Distributor\When_replying_to_message_sent_from_worker.cs" />
     <Compile Include="Distributor\When_worker_sends_delayed_message.cs" />
     <Compile Include="Distributor\When_worker_uses_delayed_retries.cs" />
     <Compile Include="Distributor\WorkerEndpointTemplate.cs" />
     <Compile Include="FakePromotableResourceManager.cs" />
     <Compile Include="NServiceBusAcceptanceTest.cs" />
-    <Compile Include="Distributor\ReadyMessageDetector.cs" />
     <Compile Include="SubscriptionBehavior.cs" />
     <Compile Include="SubscriptionBehaviorExtensions.cs" />
     <Compile Include="SubscriptionEventArgs.cs" />
