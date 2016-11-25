@@ -8,19 +8,20 @@
     public class When_worker_uses_delayed_retries : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Should_use_distributor_timeout_manager()
+        public async Task Should_use_distributor_timeout_manager_and_also_send_a_ready_message()
         {
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<Worker>()
                 .WithEndpoint<Distributor>(e => e
-                    .When(s => s.Send(new DelayedMessage())))
-                .Done(c => c.DistributorReceivedRetry)
+                    .When(c => c.IsWorkerRegistered, s => s.Send(new FailingMessage())))
+                .Done(c => c.DistributorReceivedRetry && c.ReceivedReadyMessage)
                 .Run();
 
             Assert.IsTrue(context.DistributorReceivedRetry);
+            Assert.IsTrue(context.ReceivedReadyMessage);
         }
 
-        class Context : ScenarioContext
+        class Context : DistributorEndpointTemplate.DistributorContext
         {
             public bool DistributorReceivedRetry { get; set; }
         }
@@ -41,7 +42,7 @@
                 });
             }
 
-            class DelayedMessageHandler : IHandleMessages<DelayedMessage>
+            class DelayedMessageHandler : IHandleMessages<FailingMessage>
             {
                 Context testContext;
 
@@ -50,7 +51,7 @@
                     this.testContext = testContext;
                 }
 
-                public Task Handle(DelayedMessage message, IMessageHandlerContext context)
+                public Task Handle(FailingMessage message, IMessageHandlerContext context)
                 {
                     throw new SimulatedException();
                 }
@@ -61,10 +62,11 @@
         {
             public Distributor()
             {
-                EndpointSetup<DistributorEndpointTemplate>().AddMapping<DelayedMessage>(typeof(Worker));
+                EndpointSetup<DistributorEndpointTemplate>()
+                    .AddMapping<FailingMessage>(typeof(Worker));
             }
 
-            class DelayedMessageHandler : IHandleMessages<DelayedMessage>
+            class DelayedMessageHandler : IHandleMessages<FailingMessage>
             {
                 Context testContext;
 
@@ -73,7 +75,7 @@
                     this.testContext = testContext;
                 }
 
-                public Task Handle(DelayedMessage message, IMessageHandlerContext context)
+                public Task Handle(FailingMessage message, IMessageHandlerContext context)
                 {
                     testContext.DistributorReceivedRetry = true;
                     return Task.CompletedTask;
@@ -81,7 +83,7 @@
             }
         }
 
-        class DelayedMessage : ICommand
+        class FailingMessage : ICommand
         {
         }
     }

@@ -74,7 +74,6 @@
     <Compile Include="When_receiving_control_message_with_body.cs" />
     <Compile Include="When_receiving_with_dtc_disabled.cs" />
     <Compile Include="Distributor\When_worker_processes_a_message.cs" />
-    <Compile Include="Distributor\When_worker_sends_a_message_for_delayed_retry.cs" />
     <Compile Include="Distributor\When_worker_sends_a_message_to_the_error_queue.cs" />
     <Compile Include="When_setting_label_generator.cs" />
     <Compile Include="When_starting_up_the_endpoint.cs" />
