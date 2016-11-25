@@ -1,11 +1,9 @@
 ﻿namespace NServiceBus.AcceptanceTests.Routing
 {
-    using System;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using AcceptanceTesting.Customization;
     using AcceptanceTesting.Support;
-    using Config;
     using Features;
     using NServiceBus.Routing.Legacy;
     using NUnit.Framework;
@@ -15,12 +13,14 @@
     public class When_worker_sends_a_message_for_delayed_retry : NServiceBusAcceptanceTest
     {
         static string ReceiverEndpoint => Conventions.EndpointNamingConvention(typeof(Receiver));
+        static string DistributorEndpoint => Conventions.EndpointNamingConvention(typeof(Distributor));
 
         [Test]
-        public async Task Should_also_send_a_ready_message()
+        public async Task Should_also_send_a_ready_message_and_the_timeout_should_be_addressed_to_the_distributor()
         {
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<Receiver>(b => b.DoNotFailOnErrorMessages())
+                .WithEndpoint<Distributor>()
                 .WithEndpoint<Sender>(b => b.When(c => c.WorkerSessionId != null, (s, c) =>
                 {
                     var sendOptions = new SendOptions();
@@ -32,11 +32,13 @@
 
             Assert.IsTrue(context.ReceivedReadyMessage);
             Assert.IsTrue(context.DelayedRetryScheduled);
+            Assert.AreEqual(DistributorEndpoint, context.TimeoutDestination);
         }
 
         public class Context : DistributorContext
         {
             public bool DelayedRetryScheduled { get; set; }
+            public string TimeoutDestination { get; set; }
         }
 
         public class Sender : EndpointConfigurationBuilder
@@ -51,18 +53,14 @@
             }
         }
 
-        public class Receiver : EndpointConfigurationBuilder
+        public class Distributor : EndpointConfigurationBuilder
         {
-            public Receiver()
+            public Distributor()
             {
                 EndpointSetup<DefaultServer>(c =>
                 {
-                    c.EnlistWithLegacyMSMQDistributor("Distributor", ReceiverEndpoint + ".Distributor", 10);
-                    c.Recoverability().Immediate(i => i.NumberOfRetries(0));
-                    c.Recoverability().Delayed(d => d.NumberOfRetries(1));
                     c.DisableFeature<TimeoutManager>();
-                    c.DisableFeature<FailTestOnErrorMessageFeature>();
-                }).WithConfig<UnicastBusConfig>(c => { c.TimeoutManagerAddress = ReceiverEndpoint + ".Timeouts"; });
+                });
             }
 
             public class Detector : ReadyMessageDetector
@@ -82,7 +80,7 @@
 
                 protected override void Setup(FeatureConfigurationContext context)
                 {
-                    context.AddSatelliteReceiver("TimeoutManagerFake", ReceiverEndpoint + ".Timeouts", TransportTransactionMode.ReceiveOnly, PushRuntimeSettings.Default,
+                    context.AddSatelliteReceiver("TimeoutManagerFake", context.Settings.EndpointName() + ".Timeouts", TransportTransactionMode.ReceiveOnly, PushRuntimeSettings.Default,
                         OnError, OnMessage);
                 }
 
@@ -90,6 +88,7 @@
                 {
                     var context = builder.Build<Context>();
                     context.DelayedRetryScheduled = true;
+                    context.TimeoutDestination = message.Headers["NServiceBus.Timeout.RouteExpiredTimeoutTo"];
                     return Task.CompletedTask;
                 }
 
@@ -98,12 +97,26 @@
                     return RecoverabilityAction.ImmediateRetry();
                 }
             }
+        }
+
+        public class Receiver : EndpointConfigurationBuilder
+        {
+            public Receiver()
+            {
+                EndpointSetup<DefaultServer>(c =>
+                {
+                    c.EnlistWithLegacyMSMQDistributor(DistributorEndpoint, DistributorEndpoint + ".Control", 10);
+                    c.Recoverability().Immediate(i => i.NumberOfRetries(0));
+                    c.Recoverability().Delayed(d => d.NumberOfRetries(1));
+                    c.DisableFeature<FailTestOnErrorMessageFeature>();
+                });
+            }
 
             public class MyRequestHandler : IHandleMessages<MyRequest>
             {
                 public Task Handle(MyRequest message, IMessageHandlerContext context)
                 {
-                    throw new Exception("Simulated");
+                    throw new SimulatedException();
                 }
             }
         }

@@ -2,8 +2,10 @@ namespace NServiceBus
 {
     using System;
     using System.Threading.Tasks;
+    using Extensibility;
     using Pipeline;
     using Routing;
+    using Transport;
     using Unicast.Queuing;
 
     class UnicastSendRouterConnector : StageConnector<IOutgoingSendContext, IOutgoingLogicalMessageContext>
@@ -20,12 +22,14 @@ namespace NServiceBus
         public UnicastSendRouterConnector(
             string sharedQueue,
             string instanceSpecificQueue,
+            string distributorAddress,
             IUnicastSendRouter unicastSendRouter,
             DistributionPolicy distributionPolicy,
             Func<EndpointInstance, string> transportAddressTranslation)
         {
             this.sharedQueue = sharedQueue;
             this.instanceSpecificQueue = instanceSpecificQueue;
+            this.distributorAddress = distributorAddress;
             this.unicastSendRouter = unicastSendRouter;
             defaultDistributionPolicy = distributionPolicy;
             this.transportAddressTranslation = transportAddressTranslation;
@@ -41,7 +45,10 @@ namespace NServiceBus
             {
                 throw new InvalidOperationException("Cannot route to a specific instance because an endpoint instance discriminator was not configured for the destination endpoint. It can be specified via EndpointConfiguration.MakeInstanceUniquelyAddressable(string discriminator).");
             }
-            var thisEndpoint = state.Option == RouteOption.RouteToAnyInstanceOfThisEndpoint ? sharedQueue : null;
+
+            var effectiveSharedQueue = ApplyDistributorLogic(context);
+
+            var thisEndpoint = state.Option == RouteOption.RouteToAnyInstanceOfThisEndpoint ? effectiveSharedQueue : null;
             var thisInstance = state.Option == RouteOption.RouteToThisInstance ? instanceSpecificQueue : null;
             var explicitDestination = state.Option == RouteOption.ExplicitDestination ? state.ExplicitDestination : null;
             var destination = explicitDestination ?? thisInstance ?? thisEndpoint;
@@ -77,6 +84,14 @@ namespace NServiceBus
             }
         }
 
+        string ApplyDistributorLogic(IExtendable context)
+        {
+            IncomingMessage incomingMessage;
+            return context.Extensions.TryGet(out incomingMessage) && incomingMessage.Headers.ContainsKey(LegacyDistributorHeaders.WorkerSessionId) 
+                ? distributorAddress 
+                : sharedQueue;
+        }
+
         static UnicastRoutingStrategy RouteToDestination(string physicalAddress)
         {
             return new UnicastRoutingStrategy(physicalAddress);
@@ -85,6 +100,7 @@ namespace NServiceBus
         IDistributionPolicy defaultDistributionPolicy;
         Func<EndpointInstance, string> transportAddressTranslation;
         string instanceSpecificQueue;
+        string distributorAddress;
         string sharedQueue;
         IUnicastSendRouter unicastSendRouter;
 

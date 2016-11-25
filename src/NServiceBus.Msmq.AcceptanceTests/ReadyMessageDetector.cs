@@ -9,7 +9,7 @@
     {
         protected override void Setup(FeatureConfigurationContext context)
         {
-            context.AddSatelliteReceiver("ReadyMessageDetector", context.Settings.EndpointName() + ".Distributor", TransportTransactionMode.ReceiveOnly, PushRuntimeSettings.Default,
+            context.AddSatelliteReceiver("ReadyMessageDetector", context.Settings.EndpointName() + ".Control", TransportTransactionMode.ReceiveOnly, PushRuntimeSettings.Default,
                 OnError, OnMessage);
         }
 

@@ -2,6 +2,7 @@
 {
     using System;
     using Configuration.AdvanceExtensibility;
+    using Features;
 
     /// <summary>
     /// Extension methods to configure Distributor.
@@ -20,6 +21,7 @@
             config.GetSettings().Set("LegacyDistributor.Address", masterNodeAddress);
             config.GetSettings().Set("LegacyDistributor.ControlAddress", masterNodeControlAddress);
             config.GetSettings().Set("LegacyDistributor.Capacity", capacity);
+            config.DisableFeature<TimeoutManager>();
             config.EnableFeature<WorkerFeature>();
         }
     }

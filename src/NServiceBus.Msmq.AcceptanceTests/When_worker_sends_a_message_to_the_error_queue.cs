@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus.AcceptanceTests.Routing
 {
-    using System;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using AcceptanceTesting.Customization;
@@ -10,11 +9,13 @@
     public class When_worker_sends_a_message_to_the_error_queue : NServiceBusAcceptanceTest
     {
         static string ReceiverEndpoint => Conventions.EndpointNamingConvention(typeof(Receiver));
+        static string DistributorEndpoint => Conventions.EndpointNamingConvention(typeof(Distributor));
 
         [Test]
         public async Task Should_also_send_a_ready_message()
         {
             var context = await Scenario.Define<DistributorContext>()
+                .WithEndpoint<Distributor>()
                 .WithEndpoint<Receiver>(b => b.DoNotFailOnErrorMessages())
                 .WithEndpoint<Sender>(b => b.When(c => c.WorkerSessionId != null, (s, c) =>
                 {
@@ -40,13 +41,31 @@
             }
         }
 
+        public class Distributor : EndpointConfigurationBuilder
+        {
+            public Distributor()
+            {
+                EndpointSetup<DefaultServer>(c =>
+                {
+                });
+            }
+
+            public class Detector : ReadyMessageDetector
+            {
+                public Detector()
+                {
+                    EnableByDefault();
+                }
+            }
+        }
+
         public class Receiver : EndpointConfigurationBuilder
         {
             public Receiver()
             {
                 EndpointSetup<DefaultServer>(c =>
                 {
-                    c.EnlistWithLegacyMSMQDistributor("Distributor", ReceiverEndpoint + ".Distributor", 10);
+                    c.EnlistWithLegacyMSMQDistributor(DistributorEndpoint, DistributorEndpoint + ".Control", 10);
                     c.Recoverability().Immediate(i => i.NumberOfRetries(0));
                     c.Recoverability().Delayed(d => d.NumberOfRetries(0));
                 });
@@ -64,7 +83,7 @@
             {
                 public Task Handle(MyRequest message, IMessageHandlerContext context)
                 {
-                    throw new Exception("Simulated");
+                    throw new SimulatedException();
                 }
             }
         }

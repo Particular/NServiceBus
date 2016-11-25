@@ -9,12 +9,14 @@
     public class When_worker_processes_a_message : NServiceBusAcceptanceTest
     {
         static string ReceiverEndpoint => Conventions.EndpointNamingConvention(typeof(Receiver));
+        static string DistributorEndpoint => Conventions.EndpointNamingConvention(typeof(Distributor));
 
         [Test]
         public async Task Should_also_send_a_ready_message()
         {
             var context = await Scenario.Define<DistributorContext>()
                 .WithEndpoint<Receiver>()
+                .WithEndpoint<Distributor>()
                 .WithEndpoint<Sender>(b => b.When(c => c.WorkerSessionId != null, (s, c) =>
                 {
                     var sendOptions = new SendOptions();
@@ -39,13 +41,31 @@
             }
         }
 
+        public class Distributor : EndpointConfigurationBuilder
+        {
+            public Distributor()
+            {
+                EndpointSetup<DefaultServer>(c =>
+                {
+                });
+            }
+
+            public class Detector : ReadyMessageDetector
+            {
+                public Detector()
+                {
+                    EnableByDefault();
+                }
+            }
+        }
+
         public class Receiver : EndpointConfigurationBuilder
         {
             public Receiver()
             {
                 EndpointSetup<DefaultServer>(c =>
                 {
-                    c.EnlistWithLegacyMSMQDistributor("Distributor", ReceiverEndpoint + ".Distributor", 10);
+                    c.EnlistWithLegacyMSMQDistributor(DistributorEndpoint, DistributorEndpoint + ".Control", 10);
                 });
             }
 

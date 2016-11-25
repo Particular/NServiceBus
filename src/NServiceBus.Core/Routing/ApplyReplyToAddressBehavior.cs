@@ -2,6 +2,7 @@
 {
     using System;
     using System.Threading.Tasks;
+    using Extensibility;
     using Pipeline;
     using Transport;
 
@@ -30,15 +31,19 @@
             {
                 throw new InvalidOperationException("Cannot route a reply to a specific instance because an endpoint instance discriminator was not configured for the destination endpoint. It can be specified via EndpointConfiguration.MakeInstanceUniquelyAddressable(string discriminator).");
             }
-            context.Headers[Headers.ReplyToAddress] = ApplyUserOverride(publicReturnAddress ?? sharedQueue, state);
+            var replyTo = ApplyDistributorLogic(context, ApplyUserOverride(publicReturnAddress ?? sharedQueue, state));
 
-            //Legacy distributor logic
-            IncomingMessage incomingMessage;
-            if (context.TryGetIncomingPhysicalMessage(out incomingMessage) && incomingMessage.Headers.ContainsKey(LegacyDistributorHeaders.WorkerSessionId))
-            {
-                context.Headers[Headers.ReplyToAddress] = distributorAddress;
-            }
+            context.Headers[Headers.ReplyToAddress] = replyTo;
+            
             return next(context);
+        }
+
+        string ApplyDistributorLogic(IExtendable context, string replyTo)
+        {
+            IncomingMessage incomingMessage;
+            return context.Extensions.TryGet(out incomingMessage) && incomingMessage.Headers.ContainsKey(LegacyDistributorHeaders.WorkerSessionId) 
+                ? distributorAddress 
+                : replyTo;
         }
 
 
