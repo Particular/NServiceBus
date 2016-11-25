@@ -76,7 +76,6 @@
     <Compile Include="Distributor\When_worker_processes_a_message.cs" />
     <Compile Include="Distributor\When_worker_sends_a_message_for_delayed_retry.cs" />
     <Compile Include="Distributor\When_worker_sends_a_message_to_the_error_queue.cs" />
-    <Compile Include="When_replying_to_a_message_sent_via_a_distributor.cs" />
     <Compile Include="When_setting_label_generator.cs" />
     <Compile Include="When_starting_up_the_endpoint.cs" />
     <Compile Include="When_starting_with_missing_instance_mapping_file.cs" />
