@@ -2,7 +2,6 @@
 {
     using System.Threading.Tasks;
     using AcceptanceTesting;
-    using AcceptanceTesting.Customization;
     using NUnit.Framework;
 
     public class When_worker_processes_a_message : NServiceBusAcceptanceTest
@@ -20,19 +19,6 @@
             Assert.IsTrue(context.ReceivedReadyMessage);
         }
 
-        class Sender : EndpointConfigurationBuilder
-        {
-            public Sender()
-            {
-                EndpointSetup<DefaultServer>(c =>
-                {
-                    var receiverEndpoint = Conventions.EndpointNamingConvention(typeof(Worker));
-                    var routing = c.UseTransport<MsmqTransport>().Routing();
-                    routing.RouteToEndpoint(typeof(MyRequest), receiverEndpoint);
-                });
-            }
-        }
-
         class Distributor : EndpointConfigurationBuilder
         {
             public Distributor()
@@ -45,7 +31,7 @@
         {
             public Worker()
             {
-                EndpointSetup<DefaultServer>(c => c.EnlistWithDistributor(typeof(Distributor)));
+                EndpointSetup<WorkerEndpointTemplate>(c => c.EnlistWithDistributor(typeof(Distributor)));
             }
 
             public class MyRequestHandler : IHandleMessages<MyRequest>

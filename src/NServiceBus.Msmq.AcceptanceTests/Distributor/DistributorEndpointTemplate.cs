@@ -84,11 +84,18 @@
             {
                 public Task Invoke(IOutgoingLogicalMessageContext context, Func<IOutgoingLogicalMessageContext, Task> next)
                 {
+                    // use the session of a registered worker
                     var testContext = context.Builder.Build<ScenarioContext>() as DistributorContext;
-                    // use the session of a registered worker if available or a random ID otherwise
+
+                    if (testContext?.WorkerSessionId == null)
+                    {
+                        throw new Exception($"The distributor endpoint can only send messages after a worker has registered itself. Ensure to use the `DistributorContext.IsWorkerRegistered` check before sending messages from the distributor and enlist your worker with the this distributor endpoint using `{nameof(DistributorConfigurationExtensions.EnlistWithDistributor)}` extension.");
+                    }
+
                     context.Headers.Add(
                         "NServiceBus.Distributor.WorkerSessionId",
-                        testContext?.WorkerSessionId ?? Guid.NewGuid().ToString());
+                        testContext.WorkerSessionId);
+
                     return next(context);
                 }
             }

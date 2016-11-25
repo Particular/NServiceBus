@@ -13,7 +13,7 @@
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<Worker>()
                 .WithEndpoint<Distributor>(e => e
-                    .When(s => s.Send(new DispatchDelayedMessage())))
+                    .When(c => c.IsWorkerRegistered, s => s.Send(new DispatchDelayedMessage())))
                 .Done(c => c.DistributorReceivedDelayedMessage)
                 .Run();
 
@@ -21,7 +21,7 @@
             Assert.IsFalse(context.WorkerReceivedDelayedMessage);
         }
 
-        class Context : ScenarioContext
+        class Context : DistributorEndpointTemplate.DistributorContext
         {
             public bool DistributorReceivedDelayedMessage { get; set; }
             public bool WorkerReceivedDelayedMessage { get; set; }
@@ -55,7 +55,7 @@
                 public Task Handle(DispatchDelayedMessage message, IMessageHandlerContext context)
                 {
                     var sendOptions = new SendOptions();
-                    sendOptions.DelayDeliveryWith(TimeSpan.FromSeconds(5));
+                    sendOptions.DelayDeliveryWith(TimeSpan.FromSeconds(1));
                     sendOptions.RouteToThisEndpoint();
                     return context.Send(new DelayedMessage(), sendOptions);
                 }

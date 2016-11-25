@@ -11,8 +11,8 @@
         {
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<Worker>()
-                .WithEndpoint<Distributor>(c => c.When(s => s
-                    .Send(new DispatchWorkerMessage())))
+                .WithEndpoint<Distributor>(b => b
+                    .When(c => c.IsWorkerRegistered, s => s.Send(new DispatchWorkerMessage())))
                 .WithEndpoint<ReplyingEndpoint>()
                 .Done(c => c.DistributorReceivedReply)
                 .Run();
@@ -36,7 +36,7 @@
             Assert.IsTrue(context.WorkerReceivedReply);
         }
 
-        class Context : ScenarioContext
+        class Context : DistributorEndpointTemplate.DistributorContext
         {
             public bool DistributorReceivedReply { get; set; }
             public bool WorkerReceivedReply { get; set; }
