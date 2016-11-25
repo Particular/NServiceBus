@@ -67,7 +67,7 @@
 
             if (raiseNotifications)
             {
-                await eventAggregator.Raise(new MessageToBeRetried(errorContext.ImmediateProcessingFailures - 1, TimeSpan.Zero, errorContext)).ConfigureAwait(false);
+                await eventAggregator.Raise(new MessageToBeRetried(errorContext.ImmediateProcessingFailures - 1, TimeSpan.Zero, true, errorContext)).ConfigureAwait(false);
             }
 
             return ErrorHandleResult.RetryRequired;
@@ -98,7 +98,7 @@
 
             if (raiseNotifications)
             {
-                await eventAggregator.Raise(new MessageToBeRetried(currentDelayedRetriesAttempts, action.Delay, errorContext)).ConfigureAwait(false);
+                await eventAggregator.Raise(new MessageToBeRetried(currentDelayedRetriesAttempts, action.Delay, false, errorContext)).ConfigureAwait(false);
             }
             return ErrorHandleResult.Handled;
         }
