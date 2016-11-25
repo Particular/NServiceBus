@@ -122,12 +122,23 @@ namespace NServiceBus
             var localAddress = settings.LocalAddress();
             var recoverabilityExecutor = recoverabilityExecutorFactory.CreateDefault(eventAggregator, localAddress);
             var pushSettings = new PushSettings(settings.LocalAddress(), errorQueue, purgeOnStartup, requiredTransactionSupport);
-            var mainPipelineExecutor = new MainPipelineExecutor(builder, eventAggregator, pipelineCache, mainPipeline);
+
+            IPipelineExecutor pipelineExecutor;
+            Func<MessageContext, IDispatchMessages, Task> rawPipeline;
+            if (settings.TryGet("Endpoint.Raw", out rawPipeline))
+            {
+                pipelineExecutor = new RawPipelineExecutor(builder.Build<IDispatchMessages>(), rawPipeline);
+            }
+            else
+            {
+                pipelineExecutor = new MainPipelineExecutor(builder, eventAggregator, pipelineCache, mainPipeline);
+            }
+           
             var dequeueLimitations = GetDequeueLimitationsForReceivePipeline();
 
             var receivers = new List<TransportReceiver>();
 
-            receivers.Add(new TransportReceiver(MainReceiverId, builder.Build<IPushMessages>(), pushSettings, dequeueLimitations, mainPipelineExecutor, recoverabilityExecutor, criticalError));
+            receivers.Add(new TransportReceiver(MainReceiverId, builder.Build<IPushMessages>(), pushSettings, dequeueLimitations, pipelineExecutor, recoverabilityExecutor, criticalError));
 
             if (settings.InstanceSpecificQueue() != null)
             {
@@ -135,7 +146,7 @@ namespace NServiceBus
                 var instanceSpecificRecoverabilityExecutor = recoverabilityExecutorFactory.CreateDefault(eventAggregator, instanceSpecificQueue);
                 var sharedReceiverPushSettings = new PushSettings(settings.InstanceSpecificQueue(), errorQueue, purgeOnStartup, requiredTransactionSupport);
 
-                receivers.Add(new TransportReceiver(MainReceiverId, builder.Build<IPushMessages>(), sharedReceiverPushSettings, dequeueLimitations, mainPipelineExecutor, instanceSpecificRecoverabilityExecutor, criticalError));
+                receivers.Add(new TransportReceiver(MainReceiverId, builder.Build<IPushMessages>(), sharedReceiverPushSettings, dequeueLimitations, pipelineExecutor, instanceSpecificRecoverabilityExecutor, criticalError));
             }
 
             return receivers;
