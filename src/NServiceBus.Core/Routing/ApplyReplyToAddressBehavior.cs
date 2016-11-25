@@ -32,23 +32,25 @@
                 throw new InvalidOperationException("Cannot route a reply to a specific instance because an endpoint instance discriminator was not configured for the destination endpoint. It can be specified via EndpointConfiguration.MakeInstanceUniquelyAddressable(string discriminator).");
             }
 
-            var effectiveSharedQUeue = ApplyDistributorLogic(context);
+            var configuredReturnAddress = publicReturnAddress ?? sharedQueue;
+            if (distributorAddress != null && UseDistributorAddress(context))
+            {
+                configuredReturnAddress = distributorAddress;
+            }
 
-            var replyTo = ApplyUserOverride(publicReturnAddress ?? effectiveSharedQUeue, state);
+            var replyTo = ApplyUserOverride(configuredReturnAddress, state);
 
             context.Headers[Headers.ReplyToAddress] = replyTo;
-            
+
             return next(context);
         }
 
-        string ApplyDistributorLogic(IExtendable context)
+        bool UseDistributorAddress(IExtendable context)
         {
             IncomingMessage incomingMessage;
-            return context.Extensions.TryGet(out incomingMessage) && incomingMessage.Headers.ContainsKey(LegacyDistributorHeaders.WorkerSessionId) 
-                ? distributorAddress 
-                : sharedQueue;
+            return context.Extensions.TryGet(out incomingMessage)
+                && incomingMessage.Headers.ContainsKey(LegacyDistributorHeaders.WorkerSessionId);
         }
-
 
         string ApplyUserOverride(string replyTo, State state)
         {

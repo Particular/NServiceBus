@@ -100,12 +100,29 @@
                 {LegacyDistributorHeaders.WorkerSessionId, "SessionID"}
             }, new byte[0]));
 
+            await behavior.Invoke(context, ctx => TaskEx.CompletedTask);
+
+            Assert.AreEqual("MyDistributor", context.Headers[Headers.ReplyToAddress]);
+        }
+
+        [Test]
+        public async Task Should_set_the_reply_to_user_override_even_when_message_comes_from_a_distributor()
+        {
+            var behavior = new ApplyReplyToAddressBehavior("MyEndpoint", "MyInstance", "MyPublicAddress", "MyDistributor");
+            var options = new SendOptions();
+            var context = CreateContext(options);
+
+            context.Extensions.Set(new IncomingMessage("ID", new Dictionary<string, string>
+            {
+                {LegacyDistributorHeaders.WorkerSessionId, "SessionID"}
+            }, new byte[0]));
+
             var state = context.Extensions.GetOrCreate<ApplyReplyToAddressBehavior.State>();
             state.Option = ApplyReplyToAddressBehavior.RouteOption.RouteReplyToThisInstance;
 
             await behavior.Invoke(context, ctx => TaskEx.CompletedTask);
 
-            Assert.AreEqual("MyDistributor", context.Headers[Headers.ReplyToAddress]);
+            Assert.AreEqual("MyInstance", context.Headers[Headers.ReplyToAddress]);
         }
 
         [Test]
