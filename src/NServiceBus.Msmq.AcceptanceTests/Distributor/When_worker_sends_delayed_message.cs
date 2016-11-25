@@ -3,7 +3,6 @@
     using System;
     using System.Threading.Tasks;
     using AcceptanceTesting;
-    using Features;
     using NServiceBus.Routing.Legacy;
     using NUnit.Framework;
 
@@ -34,10 +33,8 @@
             public Worker()
             {
                 var distributorAddress = AcceptanceTesting.Customization.Conventions.EndpointNamingConvention(typeof(Distributor));
-                EndpointSetup<DefaultServer>(c =>
+                EndpointSetup<WorkerEndpointTemplate>(c =>
                 {
-                    c.EnableFeature<TimeoutManager>();
-                    c.EnableFeature<FakeReadyMessageProcessor>();
                     c.EnlistWithLegacyMSMQDistributor(
                         distributorAddress,
                         "ReadyMessages",
@@ -77,10 +74,8 @@
         {
             public Distributor()
             {
-                EndpointSetup<DefaultServer>(c =>
+                EndpointSetup<DistributorEndpointTemplate>(c =>
                 {
-                    c.EnableFeature<TimeoutManager>();
-                    c.AddHeaderToAllOutgoingMessages("NServiceBus.Distributor.WorkerSessionId", Guid.NewGuid().ToString());
                 }).AddMapping<DispatchDelayedMessage>(typeof(Worker));
             }
 

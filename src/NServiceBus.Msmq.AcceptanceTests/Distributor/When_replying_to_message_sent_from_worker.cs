@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus.AcceptanceTests.Distributor
 {
-    using System;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using NServiceBus.Routing.Legacy;
@@ -49,14 +48,12 @@
             public Worker()
             {
                 var distributorAddress = AcceptanceTesting.Customization.Conventions.EndpointNamingConvention(typeof(Distributor));
-                EndpointSetup<DefaultServer>(c =>
+                EndpointSetup<WorkerEndpointTemplate>(c =>
                 {
-                    c.EnableFeature<FakeReadyMessageProcessor>();
                     c.EnlistWithLegacyMSMQDistributor(
                         distributorAddress,
                         "ReadyMessages",
                         10);
-
                 })
                 .AddMapping<WorkerMessage>(typeof(ReplyingEndpoint));
             }
@@ -90,8 +87,7 @@
         {
             public Distributor()
             {
-                EndpointSetup<DefaultServer>(c => c
-                    .AddHeaderToAllOutgoingMessages("NServiceBus.Distributor.WorkerSessionId", Guid.NewGuid().ToString()))
+                EndpointSetup<DistributorEndpointTemplate>()
                     .AddMapping<DispatchWorkerMessage>(typeof(Worker));
             }
 
