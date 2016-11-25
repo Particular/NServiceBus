@@ -83,7 +83,6 @@
     <Compile Include="Support\RunSettings.cs" />
     <Compile Include="Support\ScenarioConfigSource.cs" />
     <Compile Include="Support\ScenarioDescriptor.cs" />
-    <Compile Include="Support\ScenarioException.cs" />
     <Compile Include="Support\ScenarioRunner.cs" />
     <Compile Include="Support\SimulatedException.cs" />
     <Compile Include="Support\WhenDefinition.cs" />

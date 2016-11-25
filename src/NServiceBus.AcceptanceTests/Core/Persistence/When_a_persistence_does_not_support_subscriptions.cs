@@ -17,7 +17,7 @@ namespace NServiceBus.AcceptanceTests.Core.Persistence
                     .WithEndpoint<Endpoint>(e => e.When(b => b.Subscribe<object>()))
                     .Repeat(r => r.For<AllTransportsWithMessageDrivenPubSub>())
                     .Run();
-            }, Throws.Exception.InnerException.InnerException.With.Message.Contains("DisableFeature<MessageDrivenSubscriptions>()"));
+            }, Throws.Exception.With.Message.Contains("DisableFeature<MessageDrivenSubscriptions>()"));
         }
 
         class Endpoint : EndpointConfigurationBuilder

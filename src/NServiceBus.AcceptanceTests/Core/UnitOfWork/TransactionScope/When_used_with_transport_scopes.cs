@@ -11,7 +11,7 @@
         [Test]
         public void Should_blow_up()
         {
-            var aex = Assert.ThrowsAsync<AggregateException>(async () =>
+            var exception = Assert.ThrowsAsync<Exception>(async () =>
             {
                 await Scenario.Define<ScenarioContext>()
                     .WithEndpoint<ScopeEndpoint>(b => b.CustomConfig(c =>
@@ -24,7 +24,7 @@
                     .Run();
             });
 
-            Assert.True(aex.InnerException.InnerException.Message.Contains("A Transaction scope unit of work can't be used when the transport already uses a scope"));
+            Assert.True(exception.Message.Contains("A Transaction scope unit of work can't be used when the transport already uses a scope"));
         }
 
         public class ScopeEndpoint : EndpointConfigurationBuilder

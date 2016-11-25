@@ -19,7 +19,7 @@
                     .WithEndpoint<Endpoint>(e => e.When(b => Task.FromResult(0)))
                     .Repeat(r => r.For<AllTransportsWithoutNativeDeferral>())
                     .Run();
-            }, Throws.Exception.InnerException.InnerException.With.Message.Contains("DisableFeature<TimeoutManager>()"));
+            }, Throws.Exception.With.Message.Contains("DisableFeature<TimeoutManager>()"));
         }
 
         class Endpoint : EndpointConfigurationBuilder

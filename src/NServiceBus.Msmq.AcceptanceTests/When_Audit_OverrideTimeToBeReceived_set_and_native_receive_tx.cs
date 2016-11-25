@@ -16,7 +16,7 @@
                     .WithEndpoint<Endpoint>()
                     .Done(c => c.EndpointsStarted)
                     .Run();
-            }, Throws.InnerException.InnerException.Message.Contains("Setting a custom OverrideTimeToBeReceived for audits is not supported on transactional MSMQ."));
+            }, Throws.Exception.Message.Contains("Setting a custom OverrideTimeToBeReceived for audits is not supported on transactional MSMQ."));
         }
 
         public class Context : ScenarioContext

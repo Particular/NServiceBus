@@ -18,7 +18,7 @@
                     .WithEndpoint<Endpoint>(e => e.When(b => b.SendLocal(new StartSaga())))
                     .Done(c => c.MessageReceived)
                     .Run();
-            }, Throws.Exception.InnerException.InnerException.With.Message.Contains("DisableFeature<Sagas>()"));
+            }, Throws.Exception.With.Message.Contains("DisableFeature<Sagas>()"));
         }
 
         class Endpoint : EndpointConfigurationBuilder

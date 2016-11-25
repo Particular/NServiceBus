@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Core.UnitOfWork.TransactionScope
 {
     using System;
+    using System.Configuration;
     using AcceptanceTesting;
     using EndpointTemplates;
     using NUnit.Framework;
@@ -10,14 +11,14 @@
         [Test]
         public void Should_blow_up()
         {
-            var aex = Assert.ThrowsAsync<AggregateException>(async () =>
+            var exception = Assert.ThrowsAsync<ConfigurationErrorsException>(async () =>
             {
                 await Scenario.Define<ScenarioContext>()
                     .WithEndpoint<ScopeEndpoint>()
                     .Run();
             });
 
-            Assert.True(aex.InnerException.InnerException.Message.Contains("Timeout requested is longer than the maximum value for this machine"));
+            Assert.True(exception.Message.Contains("Timeout requested is longer than the maximum value for this machine"));
         }
 
         public class ScopeEndpoint : EndpointConfigurationBuilder

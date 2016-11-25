@@ -11,7 +11,7 @@
         [Test]
         public void Should_throw_when_configuring_routing()
         {
-            var exception = Assert.ThrowsAsync<AggregateException>(async () => await Scenario.Define<Context>()
+            var exception = Assert.ThrowsAsync<Exception>(async () => await Scenario.Define<Context>()
                 .WithEndpoint<Endpoint>(c => c
                     .When(b => b.Send(new NonMessage())))
                 .Done(c => c.EndpointsStarted)
