@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.AcceptanceTests.Satellites
 {
+    using System;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
@@ -7,28 +8,22 @@
     using NUnit.Framework;
     using Transport;
 
-    public class When_a_message_is_available : NServiceBusAcceptanceTest
+    public class When_satellite_txmode_does_not_match_endpoints_txmode : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Should_receive_the_message()
+        public void Should_throw()
         {
-            var context = await Scenario.Define<Context>()
+            var exception = Assert.ThrowsAsync<AggregateException>(async () => await Scenario.Define<Context>()
                 .WithEndpoint<Endpoint>(b => b.When((session, c) => session.Send(Endpoint.MySatelliteFeature.Address, new MyMessage())))
                 .Done(c => c.MessageReceived)
-                .Run();
+                .Run());
 
-            Assert.True(context.MessageReceived);
-            // In the future we want the transport transaction to be an explicit
-            // concept in the persisters API as well. Adding transport transaction
-            // to the context will not be necessary at that point.
-            // See GitHub issue #4047 for more background information.
-            Assert.True(context.TransportTransactionAddedToContext);
+            Assert.That(exception.InnerException.InnerException.Message, Does.Contain("AddSatelliteReceiver").And.Contain($"{nameof(TransportTransactionMode.None)}"));
         }
 
         class Context : ScenarioContext
         {
             public bool MessageReceived { get; set; }
-            public bool TransportTransactionAddedToContext { get; set; }
         }
 
         class Endpoint : EndpointConfigurationBuilder
@@ -50,15 +45,16 @@
                     var satelliteLogicalAddress = context.Settings.LogicalAddress().CreateQualifiedAddress("MySatellite");
                     var satelliteAddress = context.Settings.GetTransportAddress(satelliteLogicalAddress);
 
-                    context.AddSatelliteReceiver("Test satellite", satelliteAddress, PushRuntimeSettings.Default,
+#pragma warning disable 612, 618
+                    context.AddSatelliteReceiver("Test satellite", satelliteAddress, TransportTransactionMode.None, PushRuntimeSettings.Default,
                         (c, ec) => RecoverabilityAction.MoveToError(c.Failed.ErrorQueue),
                         (builder, pushContext) =>
                         {
                             var testContext = builder.Build<Context>();
                             testContext.MessageReceived = true;
-                            testContext.TransportTransactionAddedToContext = ReferenceEquals(pushContext.Context.Get<TransportTransaction>(), pushContext.TransportTransaction);
                             return Task.FromResult(true);
                         });
+#pragma warning restore 612, 618
 
                     Address = satelliteAddress;
                 }
