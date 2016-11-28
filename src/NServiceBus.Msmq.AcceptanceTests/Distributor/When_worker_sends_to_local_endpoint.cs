@@ -10,15 +10,11 @@
         public async Task Should_send_messages_to_distributor()
         {
             var context = await Scenario.Define<Context>()
-                .WithEndpoint<Distributor>()
-                .WithEndpoint<Worker>(b => b
-                    .When(async s =>
-                    {
-                        await s.SendLocal(new SendLocalMessage());
-                        var sendOptions = new SendOptions();
-                        sendOptions.RouteToThisEndpoint();
-                        await s.Send(new RouteToThisEndpointMessage(), sendOptions);
-                    }))
+                .WithEndpoint<Distributor>(b => b
+                    .When(
+                        c => c.IsWorkerRegistered,
+                        s => s.Send(new DispatchMessages())))
+                .WithEndpoint<Worker>()
                 .Done(c => c.ReceivedRouteToThisEndpointMessage && c.ReceivedSendLocalMessage)
                 .Run();
 
@@ -36,7 +32,7 @@
         {
             public Distributor()
             {
-                EndpointSetup<DistributorEndpointTemplate>();
+                EndpointSetup<DistributorEndpointTemplate>().AddMapping<DispatchMessages>(typeof(Worker));
             }
 
             class SendLocalMessageHandler : IHandleMessages<SendLocalMessage>
@@ -78,6 +74,21 @@
             {
                 EndpointSetup<DefaultServer>(c => c.EnlistWithDistributor(typeof(Distributor)));
             }
+
+            class DispatchMessageHandler : IHandleMessages<DispatchMessages>
+            {
+                public async Task Handle(DispatchMessages message, IMessageHandlerContext context)
+                {
+                    await context.SendLocal(new SendLocalMessage());
+                    var sendOptions = new SendOptions();
+                    sendOptions.RouteToThisEndpoint();
+                    await context.Send(new RouteToThisEndpointMessage(), sendOptions);
+                }
+            }
+        }
+
+        class DispatchMessages : ICommand
+        {
         }
 
         class SendLocalMessage : ICommand

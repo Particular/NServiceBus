@@ -87,8 +87,8 @@ namespace NServiceBus
         string ApplyDistributorLogic(ContextBag context)
         {
             IncomingMessage incomingMessage;
-            return distributorAddress != null && context.TryGet(out incomingMessage) && incomingMessage.Headers.ContainsKey(LegacyDistributorHeaders.WorkerSessionId) 
-                ? distributorAddress 
+            return distributorAddress != null && context.TryGet(out incomingMessage) && incomingMessage.Headers.ContainsKey(LegacyDistributorHeaders.WorkerSessionId)
+                ? distributorAddress
                 : sharedQueue;
         }
 
