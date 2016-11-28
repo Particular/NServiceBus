@@ -35,7 +35,7 @@
             Assert.AreEqual(context.PlacedSagaId, context.BilledSagaId, "Both messages should have been handled by the same saga, but SagaIds don't match.");
         }
 
-        class Context : ScenarioContext
+        public class Context : ScenarioContext
         {
             public string SomeId { get; set; }
             public Guid PlacedSagaId { get; set; }
@@ -43,7 +43,7 @@
             public bool SagaCompleted { get; set; }
         }
 
-        class ConcurrentHandlerEndpoint : EndpointConfigurationBuilder
+        public class ConcurrentHandlerEndpoint : EndpointConfigurationBuilder
         {
             public ConcurrentHandlerEndpoint()
             {
@@ -54,7 +54,7 @@
                 });
             }
 
-            class ConcurrentlyStartedSaga : Saga<ConcurrentlyStartedSagaData>,
+            public class ConcurrentlyStartedSaga : Saga<ConcurrentlyStartedSagaData>,
                 IAmStartedByMessages<StartMessageTwo>,
                 IAmStartedByMessages<StartMessageOne>
             {
@@ -99,7 +99,7 @@
                 }
             }
 
-            class ConcurrentlyStartedSagaData : ContainSagaData
+            public class ConcurrentlyStartedSagaData : ContainSagaData
             {
                 public virtual string OrderId { get; set; }
                 public virtual bool Placed { get; set; }
