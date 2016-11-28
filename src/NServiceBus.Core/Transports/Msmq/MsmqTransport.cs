@@ -30,6 +30,11 @@ namespace NServiceBus
         {
             settings.EnableFeature(typeof(InstanceMappingFileFeature));
 
+            var msmqSettings = connectionString != null ? new MsmqConnectionStringBuilder(connectionString)
+                .RetrieveSettings() : new MsmqSettings();
+
+            settings.Set<MsmqSettings>(msmqSettings);
+
             return new MsmqTransportInfrastructure(settings, connectionString);
         }
     }

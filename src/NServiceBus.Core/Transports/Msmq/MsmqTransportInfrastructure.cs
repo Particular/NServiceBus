@@ -81,10 +81,6 @@ namespace NServiceBus
         {
             new CheckMachineNameForComplianceWithDtcLimitation().Check();
 
-            var builder = connectionString != null
-                ? new MsmqConnectionStringBuilder(connectionString).RetrieveSettings()
-                : new MsmqSettings();
-
             MsmqScopeOptions scopeOptions;
 
             if (!settings.TryGet(out scopeOptions))
@@ -92,9 +88,11 @@ namespace NServiceBus
                 scopeOptions = new MsmqScopeOptions();
             }
 
+            var msmqSettings = settings.Get<MsmqSettings>();
+
             return new TransportReceiveInfrastructure(
                 () => new MessagePump(guarantee => SelectReceiveStrategy(guarantee, scopeOptions.TransactionOptions)),
-                () => new QueueCreator(builder),
+                () => new QueueCreator(msmqSettings),
                 () =>
                 {
                     var bindings = settings.Get<QueueBindings>();

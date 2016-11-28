@@ -7,8 +7,9 @@ namespace NServiceBus
 
     class MsmqSubscriptionStorageQueue : IMsmqSubscriptionStorageQueue
     {
-        public MsmqSubscriptionStorageQueue(MsmqAddress queueAddress)
+        public MsmqSubscriptionStorageQueue(MsmqAddress queueAddress, bool useTransactionalQueue)
         {
+            transactionTypeToUse = useTransactionalQueue ? MessageQueueTransactionType.Single : MessageQueueTransactionType.None;
             q = new MessageQueue(queueAddress.FullPath);
 
             var messageReadPropertyFilter = new MessagePropertyFilter
@@ -34,7 +35,7 @@ namespace NServiceBus
 
         public string Send(string body, string label)
         {
-            var toSend = new Message()
+            var toSend = new Message
             {
                 Recoverable = true,
                 Formatter = q.Formatter,
@@ -42,7 +43,7 @@ namespace NServiceBus
                 Label = label
             };
 
-            q.Send(toSend, MessageQueueTransactionType.None);
+            q.Send(toSend, transactionTypeToUse);
 
             return toSend.Id;
         }
@@ -51,6 +52,7 @@ namespace NServiceBus
         {
             try
             {
+                //todo: add failing test before fixing this
                 q.ReceiveById(messageId, MessageQueueTransactionType.None);
             }
             catch (InvalidOperationException)
@@ -59,6 +61,7 @@ namespace NServiceBus
             }
         }
 
+        MessageQueueTransactionType transactionTypeToUse;
         MessageQueue q;
     }
 }
