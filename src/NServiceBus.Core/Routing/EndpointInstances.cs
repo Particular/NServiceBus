@@ -8,7 +8,12 @@ namespace NServiceBus.Routing
     /// </summary>
     public class EndpointInstances
     {
-        internal IEnumerable<EndpointInstance> FindInstances(string endpoint)
+        /// <summary>
+        /// Resolves all known instances of a logical endpoint.
+        /// </summary>
+        /// <param name="endpoint">The logical endpoint.</param>
+        /// <returns>All known instances registered for the logical endpoint. There is always at least one instance.</returns>
+        public IEnumerable<EndpointInstance> FindInstances(string endpoint)
         {
             HashSet<EndpointInstance> registeredInstances;
             return allInstances.TryGetValue(endpoint, out registeredInstances)

@@ -3,7 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using Extensibility;
+    using NServiceBus.Pipeline;
     using NServiceBus.Routing;
     using NUnit.Framework;
     using Testing;
@@ -14,7 +14,7 @@
         [Test]
         public async Task Should_set_messageintent_to_publish()
         {
-            var router = new UnicastPublishRouterConnector(new FakePublishRouter(), new DistributionPolicy());
+            var router = new UnicastPublishRouterConnector(new FakeUnicastPubSub());
             var context = new TestableOutgoingPublishContext();
 
             await router.Invoke(context, ctx => TaskEx.CompletedTask);
@@ -23,15 +23,24 @@
             Assert.AreEqual(MessageIntentEnum.Publish.ToString(), context.Headers[Headers.MessageIntent]);
         }
 
-        class FakePublishRouter : IUnicastPublishRouter
+        class FakeUnicastPubSub : IUnicastPublishSubscribe
         {
-            public Task<IEnumerable<UnicastRoutingStrategy>> Route(Type messageType, IDistributionPolicy distributionPolicy, ContextBag contextBag)
+            public Task Subscribe(ISubscribeContext context)
             {
-                IEnumerable<UnicastRoutingStrategy> unicastRoutingStrategies = new List<UnicastRoutingStrategy>
+                return TaskEx.CompletedTask;
+            }
+
+            public Task Unsubscribe(IUnsubscribeContext context)
+            {
+                return TaskEx.CompletedTask;
+            }
+
+            public Task<List<UnicastRoutingStrategy>> GetRoutingStrategies(IOutgoingPublishContext context, Type eventType)
+            {
+                return Task.FromResult(new List<UnicastRoutingStrategy>()
                 {
-                    new UnicastRoutingStrategy("Fake")
-                };
-                return Task.FromResult(unicastRoutingStrategies);
+                    new UnicastRoutingStrategy("somewhere")
+                });
             }
         }
     }
