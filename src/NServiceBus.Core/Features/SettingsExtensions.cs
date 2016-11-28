@@ -8,6 +8,7 @@
     /// </summary>
     public static class SettingsExtensions
     {
+        const string FeatureStateKey = "FeatureState:";
         /// <summary>
         /// Marks the given feature as enabled by default.
         /// </summary>
@@ -25,7 +26,7 @@
         {
             Guard.AgainstNull(nameof(settings), settings);
             Guard.AgainstNull(nameof(featureType), featureType);
-            settings.SetDefault(featureType.FullName, FeatureState.Enabled);
+            settings.SetDefault(FeatureStateKey + featureType.FullName, FeatureState.Enabled);
             return settings;
         }
 
@@ -34,7 +35,7 @@
         /// </summary>
         public static bool IsFeatureActive(this ReadOnlySettings settings, Type featureType)
         {
-            return settings.GetOrDefault<FeatureState>(featureType.FullName) == FeatureState.Active;
+            return settings.GetFeatureState(featureType) == FeatureState.Active;
         }
 
         /// <summary>
@@ -42,27 +43,37 @@
         /// </summary>
         public static bool IsFeatureEnabled(this ReadOnlySettings settings, Type featureType)
         {
-            return settings.GetOrDefault<FeatureState>(featureType.FullName) == FeatureState.Enabled;
+            return settings.GetFeatureState(featureType) == FeatureState.Enabled;
         }
 
         internal static void EnableFeature(this SettingsHolder settings, Type featureType)
         {
-            settings.Set(featureType.FullName, FeatureState.Enabled);
+            settings.SetFeatureState(featureType, FeatureState.Enabled);
         }
 
         internal static void DisableFeature(this SettingsHolder settings, Type featureType)
         {
-            settings.Set(featureType.FullName, FeatureState.Disabled);
+            settings.SetFeatureState(featureType, FeatureState.Disabled);
         }
 
         internal static void MarkFeatureAsActive(this SettingsHolder settings, Type featureType)
         {
-            settings.Set(featureType.FullName, FeatureState.Active);
+            settings.SetFeatureState(featureType, FeatureState.Active);
         }
 
         internal static void MarkFeatureAsDeactivated(this SettingsHolder settings, Type featureType)
         {
-            settings.Set(featureType.FullName, FeatureState.Deactivated);
+            settings.SetFeatureState(featureType, FeatureState.Deactivated);
+        }
+
+        static void SetFeatureState(this SettingsHolder settings, Type featureType, FeatureState state)
+        {
+            settings.Set(FeatureStateKey + featureType.FullName, state);
+        }
+
+        static FeatureState GetFeatureState(this ReadOnlySettings settings, Type featureType)
+        {
+            return settings.GetOrDefault<FeatureState>(FeatureStateKey + featureType.FullName);
         }
     }
 }

@@ -2,7 +2,6 @@ namespace NServiceBus.Features
 {
     using System;
     using System.IO;
-    using Routing;
 
     class InstanceMappingFileFeature : Feature
     {
@@ -27,7 +26,7 @@ namespace NServiceBus.Features
             }
 
             var checkInterval = context.Settings.Get<TimeSpan>(CheckIntervalSettingsKey);
-            var endpointInstances = context.Settings.Get<EndpointInstances>();
+            var endpointInstances = context.Settings.Get<RoutingFeature>().Instances;
 
             var instanceMappingTable = new InstanceMappingFileMonitor(filePath, checkInterval, new AsyncTimer(), new InstanceMappingFileAccess(), endpointInstances);
             instanceMappingTable.ReloadData();
