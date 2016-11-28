@@ -73,7 +73,7 @@
     <Compile Include="SubscriptionStorage\When_using_subscription_store_on_non_tx_endpoint.cs" />
     <Compile Include="SubscriptionStorage\When_subscription_exists_for_tx_endpoint.cs" />
     <Compile Include="SubscriptionStorage\When_using_subscription_store_on_tx_endpoint.cs" />
-    <Compile Include="SubscriptionStorage\When_publishing.cs" />
+    <Compile Include="SubscriptionStorage\When_using_subscription_store.cs" />
     <Compile Include="When_publishing_with_authorizer.cs" />
     <Compile Include="When_receiving_control_message_with_body.cs" />
     <Compile Include="When_receiving_with_dtc_disabled.cs" />
