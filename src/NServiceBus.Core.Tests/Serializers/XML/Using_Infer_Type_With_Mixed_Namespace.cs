@@ -11,14 +11,14 @@
         public void Execute()
         {
             var xml = @"<?xml version=""1.0"" ?>
-<Messages 
-    xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" 
-    xmlns:xsd=""http://www.w3.org/2001/XMLSchema"" 
-    xmlns=""http://tempuri.net/NameSpace2"" 
-    xmlns:q1=""http://tempuri.net/NameSpace1"" 
+<Messages
+    xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance""
+    xmlns:xsd=""http://www.w3.org/2001/XMLSchema""
+    xmlns=""http://tempuri.net/NameSpace2""
+    xmlns:q1=""http://tempuri.net/NameSpace1""
     xmlns:baseType=""NameSpace1.IMyBusMessage"">
-    <M1></M1>
-    <q1:M1></q1:M1>
+    <FirstMessage></FirstMessage>
+    <q1:FirstMessage></q1:FirstMessage>
 </Messages>
 ";
             using (Stream stream = new MemoryStream())
@@ -28,11 +28,11 @@
                 writer.Flush();
                 stream.Position = 0;
 
-                var serializer = SerializerFactory.Create(typeof(IMyBusMessage), typeof(NameSpace1.M1), typeof(NameSpace2.M1));
+                var serializer = SerializerFactory.Create(typeof(IMyBusMessage), typeof(NameSpace1.FirstMessage), typeof(NameSpace2.FirstMessage));
 
                 var messageDeserialized = serializer.Deserialize(stream);
-                Assert.IsInstanceOf<NameSpace2.M1>(messageDeserialized[0]);
-                Assert.IsInstanceOf<NameSpace1.M1>(messageDeserialized[1]);
+                Assert.IsInstanceOf<NameSpace2.FirstMessage>(messageDeserialized[0]);
+                Assert.IsInstanceOf<NameSpace1.FirstMessage>(messageDeserialized[1]);
             }
         }
     }
@@ -47,7 +47,7 @@ namespace NameSpace1
     {
     }
 
-    public class M1 : IMyBusMessage
+    public class FirstMessage : IMyBusMessage
     {
     }
 
@@ -57,7 +57,7 @@ namespace NameSpace2
 {
     using NameSpace1;
 
-    public class M1 : IMyBusMessage
+    public class FirstMessage : IMyBusMessage
     {
     }
 }

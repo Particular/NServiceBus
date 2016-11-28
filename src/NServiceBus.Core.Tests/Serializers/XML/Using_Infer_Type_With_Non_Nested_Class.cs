@@ -11,15 +11,15 @@
         public void Execute()
         {
             var xml = @"<?xml version=""1.0"" ?>
-<Messages 
+<Messages
     xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance""
-    xmlns:xsd=""http://www.w3.org/2001/XMLSchema"" 
+    xmlns:xsd=""http://www.w3.org/2001/XMLSchema""
     xmlns=""http://tempuri.net/NServiceBus.Core.Tests.Serializers.XML""
     xmlns:baseType=""NServiceBus.Core.Tests.Serializers.XML.IMyBusMessage"">
-    <M1></M1>
-    <M2></M2>
-    <M2></M2>
-    <M2></M2>
+    <FirstMessage></FirstMessage>
+    <SecondMessage></SecondMessage>
+    <SecondMessage></SecondMessage>
+    <SecondMessage></SecondMessage>
 </Messages>
 ";
 
@@ -30,12 +30,12 @@
                 writer.Flush();
                 stream.Position = 0;
 
-                var serializer = SerializerFactory.Create(typeof(IMyBusMessage), typeof(M1), typeof(M2));
+                var serializer = SerializerFactory.Create(typeof(IMyBusMessage), typeof(FirstMessage), typeof(SecondMessage));
                 var messageDeserialized = serializer.Deserialize(stream);
-                Assert.IsInstanceOf<M1>(messageDeserialized[0]);
-                Assert.IsInstanceOf<M2>(messageDeserialized[1]);
-                Assert.IsInstanceOf<M2>(messageDeserialized[2]);
-                Assert.IsInstanceOf<M2>(messageDeserialized[3]);
+                Assert.IsInstanceOf<FirstMessage>(messageDeserialized[0]);
+                Assert.IsInstanceOf<SecondMessage>(messageDeserialized[1]);
+                Assert.IsInstanceOf<SecondMessage>(messageDeserialized[2]);
+                Assert.IsInstanceOf<SecondMessage>(messageDeserialized[3]);
             }
         }
     }
@@ -44,11 +44,11 @@
     {
     }
 
-    public class M1 : IMyBusMessage
+    public class FirstMessage : IMyBusMessage
     {
     }
 
-    public class M2 : IMyBusMessage
+    public class SecondMessage : IMyBusMessage
     {
     }
 }

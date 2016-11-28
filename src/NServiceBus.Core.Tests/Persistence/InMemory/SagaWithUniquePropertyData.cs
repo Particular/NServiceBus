@@ -3,16 +3,16 @@ namespace NServiceBus.SagaPersisters.InMemory.Tests
     using System;
     using System.Threading.Tasks;
 
-    class SagaWithUniqueProperty : Saga<SagaWithUniquePropertyData>, IAmStartedByMessages<M12>
+    class SagaWithUniqueProperty : Saga<SagaWithUniquePropertyData>, IAmStartedByMessages<SagaUniquePropertyStartingMessage>
     {
-        public Task Handle(M12 message, IMessageHandlerContext context)
+        public Task Handle(SagaUniquePropertyStartingMessage message, IMessageHandlerContext context)
         {
             throw new NotImplementedException();
         }
 
         protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaWithUniquePropertyData> mapper)
         {
-            mapper.ConfigureMapping<M12>(m => m.UniqueString).ToSaga(s => s.UniqueString);
+            mapper.ConfigureMapping<SagaUniquePropertyStartingMessage>(m => m.UniqueString).ToSaga(s => s.UniqueString);
         }
     }
     public class SagaWithUniquePropertyData : ContainSagaData
@@ -20,7 +20,7 @@ namespace NServiceBus.SagaPersisters.InMemory.Tests
         public string UniqueString { get; set; }
     }
 
-    class M12
+    class SagaUniquePropertyStartingMessage
     {
         public string UniqueString { get; set; }
     }

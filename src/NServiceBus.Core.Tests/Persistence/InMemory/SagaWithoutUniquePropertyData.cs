@@ -3,9 +3,9 @@
     using System;
     using System.Threading.Tasks;
 
-    class SagaWithoutUniqueProperty : Saga<SagaWithoutUniquePropertyData>, IAmStartedByMessages<M13>
+    class SagaWithoutUniqueProperty : Saga<SagaWithoutUniquePropertyData>, IAmStartedByMessages<SagaWithoutUniquePropertyStartingMessage>
     {
-        public Task Handle(M13 message, IMessageHandlerContext context)
+        public Task Handle(SagaWithoutUniquePropertyStartingMessage message, IMessageHandlerContext context)
         {
             throw new NotImplementedException();
         }
@@ -20,7 +20,7 @@
         public string NonUniqueString { get; set; }
     }
 
-    class M13
+    class SagaWithoutUniquePropertyStartingMessage
     {
         public string NonUniqueString { get; set; }
     }

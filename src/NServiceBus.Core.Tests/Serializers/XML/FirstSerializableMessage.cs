@@ -4,7 +4,7 @@
     using System.Collections.Generic;
 
     
-    public class M1 : IM1
+    public class FirstSerializableMessage : IFirstSerializableMessage
     {
         public float Age { get; set; }
         public int Int { get; set; }

@@ -2,7 +2,7 @@
 {
     using System;
 
-    public interface IM1 : IMessage
+    public interface IFirstSerializableMessage : IMessage
     {
         float Age { get; set; }
         int Int { get; set; }

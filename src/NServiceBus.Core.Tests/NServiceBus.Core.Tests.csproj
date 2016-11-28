@@ -293,12 +293,12 @@
     <Compile Include="Serializers\XML\Command2.cs" />
     <Compile Include="Serializers\XML\ConcurrencySerializerTests.cs" />
     <Compile Include="Serializers\XML\DictionaryTests.cs" />
-    <Compile Include="Serializers\XML\IM1.cs" />
-    <Compile Include="Serializers\XML\IM2.cs" />
+    <Compile Include="Serializers\XML\IFirstSerializableMessage.cs" />
+    <Compile Include="Serializers\XML\ISecondSerializableMessage.cs" />
     <Compile Include="Serializers\XML\Issue_934.cs" />
     <Compile Include="Serializers\XML\ListTests.cs" />
-    <Compile Include="Serializers\XML\M1.cs" />
-    <Compile Include="Serializers\XML\M2.cs" />
+    <Compile Include="Serializers\XML\FirstSerializableMessage.cs" />
+    <Compile Include="Serializers\XML\SecondSerializableMessage.cs" />
     <Compile Include="Serializers\XML\MultipleInterfaces.cs" />
     <Compile Include="Serializers\XML\Pull_819.cs" />
     <Compile Include="Serializers\XML\Risk.cs" />

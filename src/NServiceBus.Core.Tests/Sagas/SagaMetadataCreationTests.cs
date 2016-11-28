@@ -241,16 +241,16 @@
             }
         }
 
-        class MySaga : Saga<MySaga.MyEntity>, IAmStartedByMessages<M1>
+        class MySaga : Saga<MySaga.MyEntity>, IAmStartedByMessages<StartingMessage>
         {
-            public Task Handle(M1 message, IMessageHandlerContext context)
+            public Task Handle(StartingMessage message, IMessageHandlerContext context)
             {
                 throw new NotImplementedException();
             }
 
             protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MyEntity> mapper)
             {
-                mapper.ConfigureMapping<M1>(m => m.UniqueProperty).ToSaga(s => s.UniqueProperty);
+                mapper.ConfigureMapping<StartingMessage>(m => m.UniqueProperty).ToSaga(s => s.UniqueProperty);
             }
 
             internal class MyEntity : ContainSagaData
@@ -260,7 +260,7 @@
         }
 
 
-        class M1
+        class StartingMessage
         {
             public int UniqueProperty { get; set; }
         }
