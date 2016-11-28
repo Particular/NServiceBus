@@ -1,5 +1,6 @@
 namespace NServiceBus
 {
+    using System.Collections.Generic;
     using Config;
     using Features;
     using Pipeline;
@@ -16,14 +17,6 @@ namespace NServiceBus
         internal const string EnforceBestPracticesSettingsKey = "NServiceBus.Routing.EnforceBestPractices";
 
         /// <summary>
-        /// Creates a new <see cref="RoutingComponent"/> instance.
-        /// </summary>
-        public RoutingComponent(DistributionPolicy distributionPolicy)
-        {
-            DistributionPolicy = distributionPolicy;
-        }
-
-        /// <summary>
         /// Contains routing data for unicast send operations.
         /// </summary>
         public UnicastRoutingTable UnicastRoutingTable { get; } = new UnicastRoutingTable();
@@ -31,7 +24,7 @@ namespace NServiceBus
         /// <summary>
         /// Provides distribution strategies for sender-side distribution.
         /// </summary>
-        public DistributionPolicy DistributionPolicy { get; }
+        public DistributionPolicy DistributionPolicy { get; } = new DistributionPolicy();
 
         /// <summary>
         /// Contains logical endpoint to physical instances mapping.
@@ -50,6 +43,15 @@ namespace NServiceBus
             var unicastBusConfig = settings.GetConfigSection<UnicastBusConfig>();
             var conventions = settings.Get<Conventions>();
             var configuredUnicastRoutes = settings.GetOrDefault<ConfiguredUnicastRoutes>();
+
+            List<DistributionStrategy> distributionStrategies;
+            if (settings.TryGet(out distributionStrategies))
+            {
+                foreach (var distributionStrategy in distributionStrategies)
+                {
+                    DistributionPolicy.SetDistributionStrategy(distributionStrategy);
+                }
+            }
 
             unicastBusConfig?.MessageEndpointMappings.Apply(Publishers, UnicastRoutingTable, transportInfrastructure.MakeCanonicalForm, conventions);
             configuredUnicastRoutes?.Apply(UnicastRoutingTable, conventions);

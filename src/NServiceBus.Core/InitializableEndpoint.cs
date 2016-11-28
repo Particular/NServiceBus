@@ -47,8 +47,7 @@ namespace NServiceBus
             var transportInfrastructure = transportDefinition.Initialize(settings, connectionString);
             settings.Set<TransportInfrastructure>(transportInfrastructure);
 
-            // should we use GetOrDefault<T>() ?? new T() instead to prevent "leaking" into the settings?
-            var routing = new RoutingComponent(settings.GetOrCreate<DistributionPolicy>());
+            var routing = new RoutingComponent();
             routing.Initialize(settings, transportInfrastructure, pipelineSettings);
 
             var featureStats = featureActivator.SetupFeatures(container, pipelineSettings, routing);
