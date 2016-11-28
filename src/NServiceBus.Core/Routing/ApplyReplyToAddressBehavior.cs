@@ -20,8 +20,8 @@
         {
             this.sharedQueue = sharedQueue;
             this.instanceSpecificQueue = instanceSpecificQueue;
-            this.publicReturnAddress = publicReturnAddress;
             this.distributorAddress = distributorAddress;
+            configuredReturnAddress = publicReturnAddress ?? sharedQueue;
         }
 
         public Task Invoke(IOutgoingLogicalMessageContext context, Func<IOutgoingLogicalMessageContext, Task> next)
@@ -32,24 +32,21 @@
                 throw new InvalidOperationException("Cannot route a reply to a specific instance because an endpoint instance discriminator was not configured for the destination endpoint. It can be specified via EndpointConfiguration.MakeInstanceUniquelyAddressable(string discriminator).");
             }
 
-            var configuredReturnAddress = publicReturnAddress ?? sharedQueue;
-            if (distributorAddress != null && UseDistributorAddress(context))
-            {
-                configuredReturnAddress = distributorAddress;
-            }
-
-            var replyTo = ApplyUserOverride(configuredReturnAddress, state);
+            var replyTo = ApplyUserOverride(ApplyDistributorLogic(context.Extensions), state);
 
             context.Headers[Headers.ReplyToAddress] = replyTo;
 
             return next(context);
         }
 
-        bool UseDistributorAddress(IExtendable context)
+        string ApplyDistributorLogic(ContextBag context)
         {
             IncomingMessage incomingMessage;
-            return context.Extensions.TryGet(out incomingMessage)
-                && incomingMessage.Headers.ContainsKey(LegacyDistributorHeaders.WorkerSessionId);
+            if (distributorAddress != null && context.TryGet(out incomingMessage) && incomingMessage.Headers.ContainsKey(LegacyDistributorHeaders.WorkerSessionId))
+            {
+                return distributorAddress;
+            }
+            return configuredReturnAddress;
         }
 
         string ApplyUserOverride(string replyTo, State state)
@@ -71,9 +68,9 @@
 
         string distributorAddress;
         string instanceSpecificQueue;
-        string publicReturnAddress;
 
         string sharedQueue;
+        string configuredReturnAddress;
 
         public class State
         {
