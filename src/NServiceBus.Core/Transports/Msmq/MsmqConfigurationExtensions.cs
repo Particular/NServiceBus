@@ -49,7 +49,8 @@ namespace NServiceBus
         /// <param name="distributionStrategy">The instance of a distribution strategy.</param>
         public static void SetMessageDistributionStrategy(this RoutingSettings<MsmqTransport> config, DistributionStrategy distributionStrategy)
         {
-            config.Settings.GetOrCreate<DistributionPolicy>().SetDistributionStrategy(distributionStrategy);
+            Guard.AgainstNull(nameof(distributionStrategy), distributionStrategy);
+            config.Settings.GetOrCreate<List<DistributionStrategy>>().Add(distributionStrategy);
         }
 
         /// <summary>
