@@ -31,7 +31,7 @@
         {
             public Worker()
             {
-                EndpointSetup<WorkerEndpointTemplate>(c => c.EnlistWithDistributor(typeof(Distributor)));
+                EndpointSetup<DefaultServer>(c => c.EnlistWithDistributor(typeof(Distributor)));
             }
 
             class DelayedMessageHandler : IHandleMessages<DelayedMessage>

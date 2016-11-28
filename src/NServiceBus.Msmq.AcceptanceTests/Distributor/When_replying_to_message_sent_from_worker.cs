@@ -46,7 +46,7 @@
         {
             public Worker()
             {
-                EndpointSetup<WorkerEndpointTemplate>(c =>
+                EndpointSetup<DefaultServer>(c =>
                 {
                     c.EnlistWithDistributor(typeof(Distributor));
                 })
