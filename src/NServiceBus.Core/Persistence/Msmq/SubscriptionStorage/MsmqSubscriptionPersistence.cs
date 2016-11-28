@@ -44,12 +44,10 @@
             var useTransactionalStorageQueue = true;
             MsmqSettings msmqSettings;
 
-
             if (context.Settings.TryGet(out msmqSettings))
             {
                 useTransactionalStorageQueue = msmqSettings.UseTransactionalQueues;
             }
-
 
             context.Container.ConfigureComponent(b =>
             {
