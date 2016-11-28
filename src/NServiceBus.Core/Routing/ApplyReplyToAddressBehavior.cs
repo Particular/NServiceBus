@@ -2,6 +2,7 @@
 {
     using System;
     using System.Threading.Tasks;
+    using Extensibility;
     using Pipeline;
     using Transport;
 
@@ -19,8 +20,8 @@
         {
             this.sharedQueue = sharedQueue;
             this.instanceSpecificQueue = instanceSpecificQueue;
-            this.publicReturnAddress = publicReturnAddress;
             this.distributorAddress = distributorAddress;
+            configuredReturnAddress = publicReturnAddress ?? sharedQueue;
         }
 
         public Task Invoke(IOutgoingLogicalMessageContext context, Func<IOutgoingLogicalMessageContext, Task> next)
@@ -30,17 +31,23 @@
             {
                 throw new InvalidOperationException("Cannot route a reply to a specific instance because an endpoint instance discriminator was not configured for the destination endpoint. It can be specified via EndpointConfiguration.MakeInstanceUniquelyAddressable(string discriminator).");
             }
-            context.Headers[Headers.ReplyToAddress] = ApplyUserOverride(publicReturnAddress ?? sharedQueue, state);
 
-            //Legacy distributor logic
-            IncomingMessage incomingMessage;
-            if (context.TryGetIncomingPhysicalMessage(out incomingMessage) && incomingMessage.Headers.ContainsKey(LegacyDistributorHeaders.WorkerSessionId))
-            {
-                context.Headers[Headers.ReplyToAddress] = distributorAddress;
-            }
+            var replyTo = ApplyUserOverride(ApplyDistributorLogic(context.Extensions), state);
+
+            context.Headers[Headers.ReplyToAddress] = replyTo;
+
             return next(context);
         }
 
+        string ApplyDistributorLogic(ContextBag context)
+        {
+            IncomingMessage incomingMessage;
+            if (distributorAddress != null && context.TryGet(out incomingMessage) && incomingMessage.Headers.ContainsKey(LegacyDistributorHeaders.WorkerSessionId))
+            {
+                return distributorAddress;
+            }
+            return configuredReturnAddress;
+        }
 
         string ApplyUserOverride(string replyTo, State state)
         {
@@ -61,9 +68,9 @@
 
         string distributorAddress;
         string instanceSpecificQueue;
-        string publicReturnAddress;
 
         string sharedQueue;
+        string configuredReturnAddress;
 
         public class State
         {

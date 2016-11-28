@@ -61,13 +61,17 @@
 
         async Task<ErrorHandleResult> RaiseImmediateRetryNotifications(ErrorContext errorContext)
         {
-            var message = errorContext.Message;
-
-            Logger.Info($"Immediate Retry is going to retry message '{message.MessageId}' because of an exception:", errorContext.Exception);
+            Logger.Info($"Immediate Retry is going to retry message '{errorContext.Message.MessageId}' because of an exception:", errorContext.Exception);
 
             if (raiseNotifications)
             {
-                await eventAggregator.Raise(new MessageToBeRetried(errorContext.ImmediateProcessingFailures - 1, TimeSpan.Zero, message, errorContext.Exception)).ConfigureAwait(false);
+                await eventAggregator.Raise(
+                    new MessageToBeRetried(
+                        attempt: errorContext.ImmediateProcessingFailures - 1,
+                        delay: TimeSpan.Zero,
+                        immediateRetry: true,
+                        errorContext: errorContext))
+                    .ConfigureAwait(false);
             }
 
             return ErrorHandleResult.RetryRequired;
@@ -83,7 +87,7 @@
 
             if (raiseNotifications)
             {
-                await eventAggregator.Raise(new MessageFaulted(message, errorContext.Exception, errorQueue)).ConfigureAwait(false);
+                await eventAggregator.Raise(new MessageFaulted(errorContext, errorQueue)).ConfigureAwait(false);
             }
             return ErrorHandleResult.Handled;
         }
@@ -98,7 +102,13 @@
 
             if (raiseNotifications)
             {
-                await eventAggregator.Raise(new MessageToBeRetried(currentDelayedRetriesAttempts, action.Delay, message, errorContext.Exception)).ConfigureAwait(false);
+                await eventAggregator.Raise(
+                    new MessageToBeRetried(
+                        attempt: currentDelayedRetriesAttempts,
+                        delay: action.Delay,
+                        immediateRetry: false,
+                        errorContext: errorContext))
+                    .ConfigureAwait(false);
             }
             return ErrorHandleResult.Handled;
         }
