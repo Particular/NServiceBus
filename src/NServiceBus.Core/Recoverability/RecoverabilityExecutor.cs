@@ -61,9 +61,7 @@
 
         async Task<ErrorHandleResult> RaiseImmediateRetryNotifications(ErrorContext errorContext)
         {
-            var message = errorContext.Message;
-
-            Logger.Info($"Immediate Retry is going to retry message '{message.MessageId}' because of an exception:", errorContext.Exception);
+            Logger.Info($"Immediate Retry is going to retry message '{errorContext.Message.MessageId}' because of an exception:", errorContext.Exception);
 
             if (raiseNotifications)
             {
