@@ -54,6 +54,7 @@
     <Compile Include="Distributor\DistributorEndpointTemplate.cs" />
     <Compile Include="Distributor\When_replying_to_message_sent_from_worker.cs" />
     <Compile Include="Distributor\When_worker_sends_delayed_message.cs" />
+    <Compile Include="Distributor\When_worker_sends_to_local_endpoint.cs" />
     <Compile Include="Distributor\When_worker_uses_delayed_retries.cs" />
     <Compile Include="FakePromotableResourceManager.cs" />
     <Compile Include="NServiceBusAcceptanceTest.cs" />
