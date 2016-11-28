@@ -7,11 +7,13 @@ namespace NServiceBus
     {
         public IncomingMessage Message { get; }
         public Exception Exception { get; }
+        public ErrorContext ErrorContext { get; }
 
-        protected MessageProcessingFailed(IncomingMessage message, Exception exception)
+        protected MessageProcessingFailed(ErrorContext errorContext)
         {
-            Message = message;
-            Exception = exception;
+            Message = errorContext.Message;
+            Exception = errorContext.Exception;
+            ErrorContext = errorContext;
         }
     }
 }

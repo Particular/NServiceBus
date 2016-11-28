@@ -24,7 +24,7 @@
         {
             Logger.DebugFormat("Sending ready startup message with WorkerSessionId {0} sent. ", workerSessionId);
 
-            return SendReadyMessage(initialCapacity, true);
+            return SendReadyMessage(initialCapacity, true, new TransportTransaction());
         }
 
         protected override Task OnStop(IMessageSession session)
@@ -32,7 +32,7 @@
             return TaskEx.CompletedTask;
         }
 
-        Task SendReadyMessage(int capacity, bool isStarting)
+        Task SendReadyMessage(int capacity, bool isStarting, TransportTransaction transaction)
         {
             //we use the actual address to make sure that the worker inside the master node will check in correctly
             var readyMessage = ControlMessageFactory.Create(MessageIntentEnum.Send);
@@ -47,10 +47,10 @@
             }
 
             var transportOperation = new TransportOperation(readyMessage, new UnicastAddressTag(distributorControlAddress));
-            return dispatcher.Dispatch(new TransportOperations(transportOperation), new TransportTransaction(), new ContextBag());
+            return dispatcher.Dispatch(new TransportOperations(transportOperation), transaction, new ContextBag());
         }
 
-        public Task MessageProcessed(Dictionary<string, string> headers)
+        public Task MessageProcessed(Dictionary<string, string> headers, TransportTransaction transaction)
         {
             //if there was a failure this "send" will be rolled back
             string messageSessionId;
@@ -67,7 +67,7 @@
                 return TaskEx.CompletedTask;
             }
 
-            return SendReadyMessage(1, false);
+            return SendReadyMessage(1, false, transaction);
         }
 
         readonly string receiveAddress;
