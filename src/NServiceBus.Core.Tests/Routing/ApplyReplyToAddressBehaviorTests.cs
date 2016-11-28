@@ -106,7 +106,27 @@
         }
 
         [Test]
-        public async Task Should_set_the_reply_to_user_override_even_when_message_comes_from_a_distributor()
+        public async Task Should_set_the_reply_to_user_overridden_local_endpoint_even_when_message_comes_from_a_distributor()
+        {
+            var behavior = new ApplyReplyToAddressBehavior("MyEndpoint", "MyInstance", "MyPublicAddress", "MyDistributor");
+            var options = new SendOptions();
+            var context = CreateContext(options);
+
+            context.Extensions.Set(new IncomingMessage("ID", new Dictionary<string, string>
+            {
+                {LegacyDistributorHeaders.WorkerSessionId, "SessionID"}
+            }, new byte[0]));
+
+            var state = context.Extensions.GetOrCreate<ApplyReplyToAddressBehavior.State>();
+            state.Option = ApplyReplyToAddressBehavior.RouteOption.RouteReplyToAnyInstanceOfThisEndpoint;
+
+            await behavior.Invoke(context, ctx => TaskEx.CompletedTask);
+
+            Assert.AreEqual("MyEndpoint", context.Headers[Headers.ReplyToAddress]);
+        }
+
+        [Test]
+        public async Task Should_set_the_reply_to_user_overridden_local_instance_even_when_message_comes_from_a_distributor()
         {
             var behavior = new ApplyReplyToAddressBehavior("MyEndpoint", "MyInstance", "MyPublicAddress", "MyDistributor");
             var options = new SendOptions();
