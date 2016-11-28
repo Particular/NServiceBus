@@ -549,10 +549,10 @@ namespace NServiceBus.Serializers.XML.Test
         public void TestInterfaces()
         {
             var mapper = new MessageMapper();
-            var serializer = SerializerFactory.Create<IM2>(mapper);
+            var serializer = SerializerFactory.Create<ISecondSerializableMessage>(mapper);
 
 
-            var o = mapper.CreateInstance<IM2>();
+            var o = mapper.CreateInstance<ISecondSerializableMessage>();
 
             o.Id = Guid.NewGuid();
             o.Age = 10;
@@ -652,7 +652,7 @@ namespace NServiceBus.Serializers.XML.Test
                 "Jonathan Oliver et al"
             });
 
-            o.Parent = mapper.CreateInstance<IM1>();
+            o.Parent = mapper.CreateInstance<IFirstSerializableMessage>();
             o.Parent.Name = "udi";
             o.Parent.Age = 10;
             o.Parent.Address = Guid.NewGuid().ToString();
@@ -665,16 +665,16 @@ namespace NServiceBus.Serializers.XML.Test
                 Accuracy = 0.314M
             };
 
-            o.Names = new List<IM1>();
+            o.Names = new List<IFirstSerializableMessage>();
             for (var i = 0; i < number; i++)
             {
-                var m1 = mapper.CreateInstance<IM1>();
-                o.Names.Add(m1);
-                m1.Age = 10;
-                m1.Address = Guid.NewGuid().ToString();
-                m1.Int = 7;
-                m1.Name = i.ToString();
-                m1.Risk = new Risk
+                var firstMessage = mapper.CreateInstance<IFirstSerializableMessage>();
+                o.Names.Add(firstMessage);
+                firstMessage.Age = 10;
+                firstMessage.Address = Guid.NewGuid().ToString();
+                firstMessage.Int = 7;
+                firstMessage.Name = i.ToString();
+                firstMessage.Risk = new Risk
                 {
                     Percent = 0.15D,
                     Annum = true,
@@ -690,7 +690,7 @@ namespace NServiceBus.Serializers.XML.Test
         [Test]
         public void TestDataContractSerializer()
         {
-            var o = CreateM2();
+            var o = CreateSecondSerializableMessage();
             var messages = new IMessage[]
             {
                 o
@@ -698,11 +698,11 @@ namespace NServiceBus.Serializers.XML.Test
 
             var dataContractSerializer = new DataContractSerializer(typeof(ArrayList), new[]
             {
-                typeof(M2),
+                typeof(SecondSerializableMessage),
                 typeof(SomeEnum),
-                typeof(M1),
+                typeof(FirstSerializableMessage),
                 typeof(Risk),
-                typeof(List<M1>)
+                typeof(List<FirstSerializableMessage>)
             });
 
             var sw = new Stopwatch();
@@ -912,9 +912,9 @@ namespace NServiceBus.Serializers.XML.Test
             }
         }
 
-        M2 CreateM2()
+        SecondSerializableMessage CreateSecondSerializableMessage()
         {
-            var o = new M2
+            var secondMessage = new SecondSerializableMessage
             {
                 Id = Guid.NewGuid(),
                 Age = 10,
@@ -931,7 +931,7 @@ namespace NServiceBus.Serializers.XML.Test
                 Start = DateTime.Now,
                 Duration = TimeSpan.Parse("-01:15:27.123"),
                 Offset = DateTimeOffset.Now,
-                Parent = new M1
+                Parent = new FirstSerializableMessage
                 {
                     Age = 10,
                     Address = Guid.NewGuid().ToString(),
@@ -944,18 +944,18 @@ namespace NServiceBus.Serializers.XML.Test
                         Accuracy = 0.314M
                     }
                 },
-                Names = new List<M1>()
+                Names = new List<FirstSerializableMessage>()
             };
 
             for (var i = 0; i < number; i++)
             {
-                var m1 = new M1();
-                o.Names.Add(m1);
-                m1.Age = 10;
-                m1.Address = Guid.NewGuid().ToString();
-                m1.Int = 7;
-                m1.Name = i.ToString();
-                m1.Risk = new Risk
+                var firstMessage = new FirstSerializableMessage();
+                secondMessage.Names.Add(firstMessage);
+                firstMessage.Age = 10;
+                firstMessage.Address = Guid.NewGuid().ToString();
+                firstMessage.Int = 7;
+                firstMessage.Name = i.ToString();
+                firstMessage.Risk = new Risk
                 {
                     Percent = 0.15D,
                     Annum = true,
@@ -963,9 +963,9 @@ namespace NServiceBus.Serializers.XML.Test
                 };
             }
 
-            o.MoreNames = o.Names.ToArray();
+            secondMessage.MoreNames = secondMessage.Names.ToArray();
 
-            return o;
+            return secondMessage;
         }
 
         void Time(object message, IMessageSerializer serializer)
@@ -1265,13 +1265,13 @@ namespace NServiceBus.Serializers.XML.Test
         public List<MessageWithListItem> Items { get; set; }
     }
 
-    
+
     public class MessageWithHashtable : IMessage
     {
         public Hashtable Hashtable { get; set; }
     }
 
-    
+
     public class MessageWithArrayList : IMessage
     {
         public ArrayList ArrayList { get; set; }
@@ -1297,13 +1297,13 @@ namespace NServiceBus.Serializers.XML.Test
         public ItemList Items { get; set; }
     }
 
-    
+
     public class MessageWithXDocument : IMessage
     {
         public XDocument Document { get; set; }
     }
 
-    
+
     public class MessageWithXElement : IMessage
     {
         public XElement Document { get; set; }

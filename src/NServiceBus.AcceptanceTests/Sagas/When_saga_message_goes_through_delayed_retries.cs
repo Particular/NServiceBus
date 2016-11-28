@@ -47,7 +47,7 @@
                 });
             }
 
-            public class TestSaga09 : Saga<TestSagaData09>,
+            public class DelayedRetryTestingSaga : Saga<DelayedRetryTestingSagaData>,
                 IAmStartedByMessages<StartSagaMessage>,
                 IHandleMessages<SecondSagaMessage>
             {
@@ -77,7 +77,7 @@
                     return Task.FromResult(0);
                 }
 
-                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData09> mapper)
+                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<DelayedRetryTestingSagaData> mapper)
                 {
                     mapper.ConfigureMapping<StartSagaMessage>(m => m.SomeId)
                         .ToSaga(s => s.SomeId);
@@ -86,7 +86,7 @@
                 }
             }
 
-            public class TestSagaData09 : IContainSagaData
+            public class DelayedRetryTestingSagaData : IContainSagaData
             {
                 public virtual Guid SomeId { get; set; }
                 public virtual Guid Id { get; set; }
@@ -95,7 +95,7 @@
             }
         }
 
-        
+
         public class StartSagaMessage : ICommand
         {
             public Guid SomeId { get; set; }
