@@ -1,19 +1,20 @@
-﻿namespace NServiceBus.AcceptanceTests
+﻿namespace NServiceBus.AcceptanceTests.SubscriptionStorage
 {
     using System;
     using System.Messaging;
     using System.Threading.Tasks;
     using AcceptanceTesting;
+    using AcceptanceTesting.Customization;
     using Config;
     using Config.ConfigurationSource;
     using Features;
     using NUnit.Framework;
     using Persistence.Legacy;
 
-    public class When_using_subscription_store_on_non_tx_endpoint : NServiceBusAcceptanceTest
+    public class When_subscription_exists_for_non_tx_endpoint : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Should_persist_subscriptions()
+        public async Task Should_use_subscription()
         {
             var queuePath = $".\\private$\\{StorageQueueName}";
 
@@ -22,11 +23,22 @@
                 MessageQueue.Delete(queuePath);
             }
 
+            MessageQueue.Create(queuePath, false);
+
+            using (var queue = new MessageQueue(queuePath))
+            {
+                queue.Send(new Message
+                {
+                    Label = Conventions.EndpointNamingConvention(typeof(Subscriber)),
+                    Body = typeof(MyEvent).AssemblyQualifiedName
+                }, MessageQueueTransactionType.None);
+            }
+
             var ctx = await Scenario.Define<Context>()
                 .WithEndpoint<Publisher>(b =>
-                            b.When(c => c.Subscribed, (session, c) => session.Publish(new MyEvent()))
+                            b.When(c => c.EndpointsStarted, (session, c) => session.Publish(new MyEvent()))
                 )
-                .WithEndpoint<Subscriber>(b => b.When(session => session.Subscribe<MyEvent>()))
+                .WithEndpoint<Subscriber>()
                 .Done(c => c.GotTheEvent)
                 .Run(TimeSpan.FromSeconds(10));
 
@@ -38,12 +50,11 @@
             }
         }
 
-        static string StorageQueueName = "msmq.acpt.nontxsubscriptions";
+        static string StorageQueueName = "msmq.acpt.nontxexistingsubscriptions";
 
         public class Context : ScenarioContext
         {
             public bool GotTheEvent { get; set; }
-            public bool Subscribed { get; set; }
         }
 
         public class Publisher : EndpointConfigurationBuilder
@@ -52,7 +63,6 @@
             {
                 EndpointSetup<DefaultPublisher>(b =>
                 {
-                    b.OnEndpointSubscribed<Context>((s, context) => { context.Subscribed = true; });
                     b.DisableFeature<AutoSubscribe>();
                     b.UsePersistence<MsmqPersistence>();
                     b.UseTransport<MsmqTransport>()

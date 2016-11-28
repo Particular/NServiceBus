@@ -1,44 +1,43 @@
-﻿namespace NServiceBus.AcceptanceTests
+﻿namespace NServiceBus.AcceptanceTests.SubscriptionStorage
 {
     using System;
-    using System.Messaging;
     using System.Threading.Tasks;
     using AcceptanceTesting;
-    using Config;
-    using Config.ConfigurationSource;
     using Features;
     using NUnit.Framework;
     using Persistence.Legacy;
 
-    public class When_using_subscription_store_on_tx_endpoint : NServiceBusAcceptanceTest
+    public class When_using_subscription_store : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Should_persist_subscriptions()
+        public async Task Should_be_delivered_to_all_subscribers()
         {
-            var queuePath = $".\\private$\\{StorageQueueName}";
-
-            if (MessageQueue.Exists(queuePath))
-            {
-                MessageQueue.Delete(queuePath);
-            }
-
             var ctx = await Scenario.Define<Context>()
                 .WithEndpoint<Publisher>(b =>
-                            b.When(c => c.Subscribed, (session, c) => session.Publish(new MyEvent()))
+                    b.When(c => c.Subscribed, (session, c) =>
+                    {
+                        c.AddTrace("Both subscribers is subscribed, going to publish MyEvent");
+                        return session.Publish(new MyEvent());
+                    })
                 )
-                .WithEndpoint<Subscriber>(b => b.When(session => session.Subscribe<MyEvent>()))
+                .WithEndpoint<Subscriber>(b => b.When(async (session, context) =>
+                {
+                    await session.Subscribe<MyEvent>();
+                    if (context.HasNativePubSubSupport)
+                    {
+                        context.Subscribed = true;
+                        context.AddTrace("Subscriber1 is now subscribed (at least we have asked the broker to be subscribed)");
+                    }
+                    else
+                    {
+                        context.AddTrace("Subscriber1 has now asked to be subscribed to MyEvent");
+                    }
+                }))
                 .Done(c => c.GotTheEvent)
                 .Run(TimeSpan.FromSeconds(10));
 
             Assert.IsTrue(ctx.GotTheEvent);
-
-            using (var queue = new MessageQueue(queuePath))
-            {
-                CollectionAssert.IsNotEmpty(queue.GetAllMessages());
-            }
         }
-
-        static string StorageQueueName = "msmq.acpt.txsubscriptions";
 
         public class Context : ScenarioContext
         {
@@ -52,21 +51,14 @@
             {
                 EndpointSetup<DefaultPublisher>(b =>
                 {
-                    b.OnEndpointSubscribed<Context>((s, context) => { context.Subscribed = true; });
+                    b.OnEndpointSubscribed<Context>((s, context) =>
+                    {
+                        context.Subscribed = true;
+                        context.AddTrace("Subscriber1 is now subscribed");
+                    });
                     b.DisableFeature<AutoSubscribe>();
                     b.UsePersistence<MsmqPersistence>();
                 });
-            }
-
-            class QueueNameOverride : IProvideConfiguration<MsmqSubscriptionStorageConfig>
-            {
-                public MsmqSubscriptionStorageConfig GetConfiguration()
-                {
-                    return new MsmqSubscriptionStorageConfig
-                    {
-                        Queue = StorageQueueName
-                    };
-                }
             }
         }
 
@@ -90,6 +82,7 @@
             }
         }
 
+        [Serializable]
         public class MyEvent : IEvent
         {
         }
