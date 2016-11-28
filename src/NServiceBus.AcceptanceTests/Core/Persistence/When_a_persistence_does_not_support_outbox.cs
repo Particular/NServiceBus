@@ -17,7 +17,7 @@ namespace NServiceBus.AcceptanceTests.Core.Persistence
                 await Scenario.Define<Context>()
                     .WithEndpoint<Endpoint>(e => e.When(b => Task.FromResult(0)))
                     .Run();
-            }, Throws.Exception.InnerException.InnerException.With.Message.Contains("DisableFeature<Outbox>()"));
+            }, Throws.Exception.With.Message.Contains("DisableFeature<Outbox>()"));
         }
 
         class Endpoint : EndpointConfigurationBuilder

@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus.AcceptanceTests
 {
-    using System;
     using System.Linq;
     using System.Threading.Tasks;
     using AcceptanceTesting;
@@ -12,12 +11,11 @@
         [Test]
         public void Should_throw_on_send()
         {
-            var exception = Assert.ThrowsAsync<AggregateException>(async () =>
+            var exception = Assert.ThrowsAsync<MessagesFailedException>(async () =>
                 await Scenario.Define<Context>()
                     .WithEndpoint<Endpoint>(b => b.When(async (session, c) => await session.SendLocal(new MyMessage())))
                     .Done(c => c.HandlerInvoked)
-                    .Run())
-                .ExpectFailedMessages();
+                    .Run());
 
             Assert.AreEqual(1, exception.FailedMessages.Count);
             StringAssert.EndsWith(

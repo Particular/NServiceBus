@@ -57,9 +57,14 @@
                 DisplayRunResult(runSummary, totalRuns);
             }
 
-            if (failedRuns.Any())
+            if (failedRuns.Count == 1)
             {
-                throw new AggregateException("Test run failed due to one or more exceptions", failedRuns.Select(f => f.Result.Exception)).Flatten();
+                throw failedRuns[0].Result.Exception;
+            }
+
+            if (failedRuns.Count > 1)
+            {
+                throw new AggregateException("Test run failed due to multiple exceptions", failedRuns.Select(f => f.Result.Exception)).Flatten();
             }
 
             foreach (var runSummary in results.Where(s => !s.Result.Failed))
@@ -200,7 +205,7 @@
                     if (DateTime.UtcNow - startTime > maxTime)
                     {
                         ThrowOnFailedMessages(runDescriptor, endpoints);
-                        throw new ScenarioException(GenerateTestTimedOutMessage(maxTime));
+                        throw new TimeoutException(GenerateTestTimedOutMessage(maxTime));
                     }
 
                     await Task.Delay(1).ConfigureAwait(false);
@@ -270,10 +275,11 @@
             {
                 await endpoint.Start(token).ConfigureAwait(false);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 cts.Cancel();
-                throw new ScenarioException("Endpoint failed to start", ex);
+                Console.WriteLine($"Endpoint {endpoint.Name()} failed to start.");
+                throw;
             }
         }
 
@@ -292,7 +298,7 @@
 
             if (completedTask.IsFaulted && completedTask.Exception != null)
             {
-                ExceptionDispatchInfo.Capture(completedTask.Exception).Throw();
+                ExceptionDispatchInfo.Capture(completedTask.Exception.InnerException).Throw();
             }
         }
 
@@ -303,10 +309,11 @@
             {
                 await endpoint.Whens(token).ConfigureAwait(false);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 cts.Cancel();
-                throw new ScenarioException("Whens failed to execute", ex);
+                Console.WriteLine($"Whens for endpoint {endpoint.Name()} failed to execute.");
+                throw;
             }
         }
 
@@ -322,9 +329,10 @@
                     stopwatch.Stop();
                     Console.WriteLine("Endpoint: {0} stopped ({1}s)", endpoint.Name(), stopwatch.Elapsed);
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
-                    throw new ScenarioException("Endpoint failed to stop", ex);
+                    Console.WriteLine($"Endpoint {endpoint.Name()} failed to stop.");
+                    throw;
                 }
             });
 
@@ -361,9 +369,10 @@
                 {
                     await runner.Instance.Initialize(runDescriptor, endpointBehavior, routingTable, endpointName).ConfigureAwait(false);
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
-                    throw new ScenarioException($"Endpoint {runner.Instance.Name()} failed to initialize", e);
+                    Console.WriteLine($"Endpoint {runner.Instance.Name()} failed to initialize");
+                    throw;
                 }
 
                 return runner;

@@ -14,7 +14,7 @@
         [Test]
         public void Should_throw()
         {
-            var exception = Assert.ThrowsAsync<AggregateException>(async () =>
+            var exception = Assert.ThrowsAsync<MessagesFailedException>(async () =>
                 await Scenario.Define<Context>()
                     .WithEndpoint<Endpoint>(
                         b => b.When(session => session.SendLocal(new StartSaga
@@ -22,8 +22,7 @@
                             DataId = Guid.NewGuid()
                         })))
                     .Done(c => c.FailedMessages.Any())
-                    .Run())
-                .ExpectFailedMessages();
+                    .Run());
 
             Assert.That(exception.FailedMessages, Has.Count.EqualTo(1));
             var failedMessage = exception.FailedMessages.Single();

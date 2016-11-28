@@ -11,7 +11,7 @@
         [Test]
         public void Should_throw_on_startup()
         {
-            var exception = Assert.ThrowsAsync<AggregateException>(async () => await Scenario.Define<ScenarioContext>()
+            var exception = Assert.ThrowsAsync<Exception>(async () => await Scenario.Define<ScenarioContext>()
                 .WithEndpoint<StartedEndpoint>()
                 .Done(c => c.EndpointsStarted)
                 .Run());

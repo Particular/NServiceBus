@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus.AcceptanceTests.Core.Feature
 {
-    using System;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
@@ -12,12 +11,10 @@
         [Test]
         public void Should_not_start_endpoint()
         {
-            var exception = Assert.ThrowsAsync<AggregateException>(() =>
+            Assert.ThrowsAsync<SimulatedException>(() =>
                 Scenario.Define<ScenarioContext>()
                     .WithEndpoint<EndpointWithStartupTask>()
                     .Run());
-
-            Assert.That(exception.InnerException.InnerException, Is.TypeOf<SimulatedException>());
         }
 
         class EndpointWithStartupTask : EndpointConfigurationBuilder

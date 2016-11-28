@@ -12,12 +12,12 @@
         [Test]
         public void Should_throw_at_startup()
         {
-            var exception = Assert.ThrowsAsync<AggregateException>(() => Scenario.Define<ScenarioContext>()
+            var exception = Assert.ThrowsAsync<Exception>(() => Scenario.Define<ScenarioContext>()
                 .WithEndpoint<Endpoint>()
                 .Done(c => c.EndpointsStarted)
                 .Run());
 
-            Assert.That(exception?.InnerException?.InnerException?.Message, Does.Contain("Multiple configuration providers implementing IProvideConfiguration<CustomConfigSection> were found"));
+            Assert.That(exception?.Message, Does.Contain("Multiple configuration providers implementing IProvideConfiguration<CustomConfigSection> were found"));
         }
 
         class Endpoint : EndpointConfigurationBuilder
