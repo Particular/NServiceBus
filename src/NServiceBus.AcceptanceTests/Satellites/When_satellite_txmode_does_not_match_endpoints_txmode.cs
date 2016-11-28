@@ -13,12 +13,12 @@
         [Test]
         public void Should_throw()
         {
-            var exception = Assert.ThrowsAsync<AggregateException>(async () => await Scenario.Define<Context>()
+            var exception = Assert.ThrowsAsync<Exception>(async () => await Scenario.Define<Context>()
                 .WithEndpoint<Endpoint>(b => b.When((session, c) => session.Send(Endpoint.MySatelliteFeature.Address, new MyMessage())))
                 .Done(c => c.MessageReceived)
                 .Run());
 
-            Assert.That(exception.InnerException.InnerException.Message, Does.Contain("AddSatelliteReceiver").And.Contain($"{nameof(TransportTransactionMode.None)}"));
+            Assert.That(exception.Message, Does.Contain("AddSatelliteReceiver").And.Contain($"{nameof(TransportTransactionMode.None)}"));
         }
 
         class Context : ScenarioContext
