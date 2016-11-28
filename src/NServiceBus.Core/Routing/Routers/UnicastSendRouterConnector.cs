@@ -46,9 +46,9 @@ namespace NServiceBus
                 throw new InvalidOperationException("Cannot route to a specific instance because an endpoint instance discriminator was not configured for the destination endpoint. It can be specified via EndpointConfiguration.MakeInstanceUniquelyAddressable(string discriminator).");
             }
 
-            var effectiveSharedQueue = ApplyDistributorLogic(context);
+            var sendToThisEndpointDestination = ApplyDistributorLogic(context.Extensions);
 
-            var thisEndpoint = state.Option == RouteOption.RouteToAnyInstanceOfThisEndpoint ? effectiveSharedQueue : null;
+            var thisEndpoint = state.Option == RouteOption.RouteToAnyInstanceOfThisEndpoint ? sendToThisEndpointDestination : null;
             var thisInstance = state.Option == RouteOption.RouteToThisInstance ? instanceSpecificQueue : null;
             var explicitDestination = state.Option == RouteOption.ExplicitDestination ? state.ExplicitDestination : null;
             var destination = explicitDestination ?? thisInstance ?? thisEndpoint;
@@ -84,10 +84,10 @@ namespace NServiceBus
             }
         }
 
-        string ApplyDistributorLogic(IExtendable context)
+        string ApplyDistributorLogic(ContextBag context)
         {
             IncomingMessage incomingMessage;
-            return context.Extensions.TryGet(out incomingMessage) && incomingMessage.Headers.ContainsKey(LegacyDistributorHeaders.WorkerSessionId) 
+            return distributorAddress != null && context.TryGet(out incomingMessage) && incomingMessage.Headers.ContainsKey(LegacyDistributorHeaders.WorkerSessionId) 
                 ? distributorAddress 
                 : sharedQueue;
         }
