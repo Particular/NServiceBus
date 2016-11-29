@@ -135,11 +135,12 @@
     <Compile Include="Handlers\MessageHandlerRegistryTests.cs" />
     <Compile Include="MessageMapper\MessageMapperTests.cs" />
     <Compile Include="Msmq\MsmqMessagePumpTests.cs" />
+    <Compile Include="Msmq\MsmqSubscriptionStorageIntegrationTests.cs" />
     <Compile Include="Msmq\TimeToBeReceivedOverrideCheckerTest.cs" />
     <Compile Include="Msmq\MsmqExtensionsTests.cs" />
     <Compile Include="Msmq\MsmqHelpers.cs" />
     <Compile Include="Msmq\MsmqAddressTests.cs" />
-    <Compile Include="Msmq\MsmqSubscriptionStorageQueueTests.cs" />
+    <Compile Include="Msmq\MsmqSubscriptionStorageTests.cs" />
     <Compile Include="Persistence\InMemory\InMemorySubscriptionStorageTests.cs" />
     <Compile Include="Persistence\InMemory\When_persisting_a_saga_with_InMemory_and_an_escalated_DTC_transaction.cs" />
     <Compile Include="Persistence\PersistenceStartupTests.cs" />

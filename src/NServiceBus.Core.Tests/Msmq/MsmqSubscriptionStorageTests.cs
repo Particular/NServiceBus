@@ -10,7 +10,7 @@
     using MessageType = Unicast.Subscriptions.MessageType;
 
     [TestFixture]
-    public class MsmqSubscriptionStorageQueueTests
+    public class MsmqSubscriptionStorageTests
     {
         [Test]
         public async Task Subscribe_is_persistent()

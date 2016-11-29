@@ -7,9 +7,10 @@ namespace NServiceBus
 
     class MsmqSubscriptionStorageQueue : IMsmqSubscriptionStorageQueue
     {
-        public MsmqSubscriptionStorageQueue(MsmqAddress queueAddress)
+        public MsmqSubscriptionStorageQueue(MsmqAddress queueAddress, bool useTransactionalQueue)
         {
-            q = new MessageQueue(queueAddress.FullPath);
+            transactionTypeToUseForSend = useTransactionalQueue ? MessageQueueTransactionType.Single : MessageQueueTransactionType.None;
+            queue = new MessageQueue(queueAddress.FullPath);
 
             var messageReadPropertyFilter = new MessagePropertyFilter
             {
@@ -19,30 +20,30 @@ namespace NServiceBus
                 ArrivedTime = true
             };
 
-            q.Formatter = new XmlMessageFormatter(new[]
+            queue.Formatter = new XmlMessageFormatter(new[]
             {
                 typeof(string)
             });
 
-            q.MessageReadPropertyFilter = messageReadPropertyFilter;
+            queue.MessageReadPropertyFilter = messageReadPropertyFilter;
         }
 
         public IEnumerable<MsmqSubscriptionMessage> GetAllMessages()
         {
-            return q.GetAllMessages().Select(m => new MsmqSubscriptionMessage(m));
+            return queue.GetAllMessages().Select(m => new MsmqSubscriptionMessage(m));
         }
 
         public string Send(string body, string label)
         {
-            var toSend = new Message()
+            var toSend = new Message
             {
                 Recoverable = true,
-                Formatter = q.Formatter,
+                Formatter = queue.Formatter,
                 Body = body,
                 Label = label
             };
 
-            q.Send(toSend, MessageQueueTransactionType.None);
+            queue.Send(toSend, transactionTypeToUseForSend);
 
             return toSend.Id;
         }
@@ -51,7 +52,9 @@ namespace NServiceBus
         {
             try
             {
-                q.ReceiveById(messageId, MessageQueueTransactionType.None);
+                //Use of `None` here is intentional since ReceiveById works properly with this mode
+                //for both transactional and non-transactional queues
+                queue.ReceiveById(messageId, MessageQueueTransactionType.None);
             }
             catch (InvalidOperationException)
             {
@@ -59,6 +62,7 @@ namespace NServiceBus
             }
         }
 
-        MessageQueue q;
+        MessageQueueTransactionType transactionTypeToUseForSend;
+        MessageQueue queue;
     }
 }
