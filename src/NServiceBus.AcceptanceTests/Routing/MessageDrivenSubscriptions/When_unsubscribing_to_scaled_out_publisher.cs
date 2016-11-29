@@ -1,11 +1,13 @@
 ﻿namespace NServiceBus.AcceptanceTests.Routing.MessageDrivenSubscriptions
 {
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using AcceptanceTesting.Customization;
     using Configuration.AdvanceExtensibility;
     using EndpointTemplates;
+    using Logging;
     using NServiceBus.Routing;
     using NUnit.Framework;
     using ScenarioDescriptors;
@@ -15,7 +17,9 @@
         [Test]
         public Task Should_send_unsubscribe_message_to_each_instance()
         {
-            return Scenario.Define<Context>()
+            Trace.Listeners.Add(new ConsoleTraceListener());
+
+            return Scenario.Define<Context>(c => c.SetLogLevel(LogLevel.Debug))
                 .WithEndpoint<ScaledOutPublisher>(b => b.CustomConfig(c => c.MakeInstanceUniquelyAddressable("1")))
                 .WithEndpoint<ScaledOutPublisher>(b => b.CustomConfig(c => c.MakeInstanceUniquelyAddressable("2")))
                 .WithEndpoint<Unsubscriber>(b => b.When(s => s.Unsubscribe<MyEvent>()))
