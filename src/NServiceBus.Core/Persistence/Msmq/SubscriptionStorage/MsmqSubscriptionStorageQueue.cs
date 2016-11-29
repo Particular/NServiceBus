@@ -52,6 +52,8 @@ namespace NServiceBus
         {
             try
             {
+                //Use of `None` here is intentional since ReceiveById works properly with this mode
+                //for both transactional and non-transactional queues
                 queue.ReceiveById(messageId, MessageQueueTransactionType.None);
             }
             catch (InvalidOperationException)

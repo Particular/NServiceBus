@@ -40,7 +40,7 @@
                 )
                 .WithEndpoint<Subscriber>()
                 .Done(c => c.GotTheEvent)
-                .Run(TimeSpan.FromSeconds(10));
+                .Run();
 
             Assert.IsTrue(ctx.GotTheEvent);
 

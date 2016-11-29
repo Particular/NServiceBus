@@ -35,12 +35,10 @@
             }
 
             var ctx = await Scenario.Define<Context>()
-                .WithEndpoint<Publisher>(b =>
-                            b.When(c => c.EndpointsStarted, (session, c) => session.Publish(new MyEvent()))
-                )
+                .WithEndpoint<Publisher>(b => b.When(c => c.EndpointsStarted, (session, c) => session.Publish(new MyEvent())))
                 .WithEndpoint<Subscriber>()
                 .Done(c => c.GotTheEvent)
-                .Run(TimeSpan.FromSeconds(10));
+                .Run();
 
             Assert.IsTrue(ctx.GotTheEvent);
 

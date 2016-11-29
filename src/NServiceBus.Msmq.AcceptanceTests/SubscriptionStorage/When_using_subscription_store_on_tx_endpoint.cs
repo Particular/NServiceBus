@@ -28,7 +28,7 @@
                 )
                 .WithEndpoint<Subscriber>(b => b.When(session => session.Subscribe<MyEvent>()))
                 .Done(c => c.GotTheEvent)
-                .Run(TimeSpan.FromSeconds(10));
+                .Run();
 
             Assert.IsTrue(ctx.GotTheEvent);
 
