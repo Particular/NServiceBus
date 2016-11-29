@@ -1,14 +1,12 @@
 ﻿namespace NServiceBus.AcceptanceTests.Routing.MessageDrivenSubscriptions
 {
     using System.Collections.Generic;
-    using System.Diagnostics;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using AcceptanceTesting.Customization;
     using Configuration.AdvanceExtensibility;
     using EndpointTemplates;
     using Features;
-    using Logging;
     using NServiceBus.Routing;
     using NUnit.Framework;
     using ScenarioDescriptors;
@@ -18,9 +16,7 @@
         [Test]
         public Task Should_send_subscription_message_to_each_instance()
         {
-            Trace.Listeners.Add(new ConsoleTraceListener());
-
-            return Scenario.Define<Context>(c => c.SetLogLevel(LogLevel.Debug))
+            return Scenario.Define<Context>()
                 .WithEndpoint<ScaledOutPublisher>(b => b.CustomConfig(c => c.MakeInstanceUniquelyAddressable("1")))
                 .WithEndpoint<ScaledOutPublisher>(b => b.CustomConfig(c => c.MakeInstanceUniquelyAddressable("2")))
                 .WithEndpoint<Subscriber>(b => b.When(s => s.Subscribe<MyEvent>()))
