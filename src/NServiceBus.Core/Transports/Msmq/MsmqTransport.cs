@@ -35,7 +35,7 @@ namespace NServiceBus
 
             settings.Set<MsmqSettings>(msmqSettings);
 
-            return new MsmqTransportInfrastructure(settings, connectionString);
+            return new MsmqTransportInfrastructure(settings);
         }
     }
 }
