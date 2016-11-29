@@ -38,6 +38,7 @@
             var publishers = context.Settings.Get<Publishers>();
             var distributionPolicy = context.Settings.Get<DistributionPolicy>();
             var configuredUnicastRoutes = context.Settings.Get<ConfiguredUnicastRoutes>();
+            var distributorAddress = context.Settings.GetOrDefault<string>("LegacyDistributor.Address");
 
             if (context.Settings.Get<bool>(EnforceBestPracticesSettingsKey))
             {
@@ -50,7 +51,7 @@
             context.Pipeline.Register(b =>
             {
                 var unicastSendRouter = new UnicastSendRouter(unicastRoutingTable, endpointInstances, i => transportInfrastructure.ToTransportAddress(LogicalAddress.CreateRemoteAddress(i)));
-                return new UnicastSendRouterConnector(context.Settings.LocalAddress(), context.Settings.InstanceSpecificQueue(), unicastSendRouter, distributionPolicy, i => transportInfrastructure.ToTransportAddress(LogicalAddress.CreateRemoteAddress(i)));
+                return new UnicastSendRouterConnector(context.Settings.LocalAddress(), context.Settings.InstanceSpecificQueue(), distributorAddress, unicastSendRouter, distributionPolicy, i => transportInfrastructure.ToTransportAddress(LogicalAddress.CreateRemoteAddress(i)));
             }, "Determines how the message being sent should be routed");
 
             context.Pipeline.Register(new UnicastReplyRouterConnector(), "Determines how replies should be routed");
@@ -58,7 +59,6 @@
             if (canReceive)
             {
                 var publicReturnAddress = context.Settings.GetOrDefault<string>("PublicReturnAddress");
-                var distributorAddress = context.Settings.GetOrDefault<string>("LegacyDistributor.Address");
                 context.Pipeline.Register(new ApplyReplyToAddressBehavior(context.Settings.LocalAddress(), context.Settings.InstanceSpecificQueue(), publicReturnAddress, distributorAddress), "Applies the public reply to address to outgoing messages");
             }
         }
