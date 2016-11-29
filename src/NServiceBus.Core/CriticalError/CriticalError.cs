@@ -73,7 +73,7 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Sets the callback that is executed when hendling critical action.
+        /// Sets the callback that is executed when handling critical action.
         /// </summary>
         public void SetStopCallback(Func<Task> callback)
         {
