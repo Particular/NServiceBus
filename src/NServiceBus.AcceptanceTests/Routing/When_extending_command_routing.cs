@@ -44,10 +44,10 @@
         {
             public Sender()
             {
-                EndpointSetup<DefaultServer>(c => c.EnableFeature<RoutingConfigurations>());
+                EndpointSetup<DefaultServer>(c => c.EnableFeature<CustomRoutingConfigurations>());
             }
 
-            class RoutingConfigurations : Feature
+            class CustomRoutingConfigurations : Feature
             {
                 protected override void Setup(FeatureConfigurationContext context)
                 {
