@@ -14,12 +14,11 @@ namespace NServiceBus
 
     class MsmqTransportInfrastructure : TransportInfrastructure
     {
-        public MsmqTransportInfrastructure(ReadOnlySettings settings, string connectionString)
+        public MsmqTransportInfrastructure(ReadOnlySettings settings)
         {
             RequireOutboxConsent = true;
 
             this.settings = settings;
-            this.connectionString = connectionString;
         }
 
         public override IEnumerable<Type> DeliveryConstraints { get; } = new[]
@@ -81,10 +80,6 @@ namespace NServiceBus
         {
             new CheckMachineNameForComplianceWithDtcLimitation().Check();
 
-            var builder = connectionString != null
-                ? new MsmqConnectionStringBuilder(connectionString).RetrieveSettings()
-                : new MsmqSettings();
-
             MsmqScopeOptions scopeOptions;
 
             if (!settings.TryGet(out scopeOptions))
@@ -92,9 +87,11 @@ namespace NServiceBus
                 scopeOptions = new MsmqScopeOptions();
             }
 
+            var msmqSettings = settings.Get<MsmqSettings>();
+
             return new TransportReceiveInfrastructure(
                 () => new MessagePump(guarantee => SelectReceiveStrategy(guarantee, scopeOptions.TransactionOptions)),
-                () => new QueueCreator(builder),
+                () => new QueueCreator(msmqSettings),
                 () =>
                 {
                     var bindings = settings.Get<QueueBindings>();
@@ -120,10 +117,10 @@ namespace NServiceBus
                 messageLabelGenerator = headers => string.Empty;
             }
 
-            var builder = new MsmqConnectionStringBuilder(connectionString).RetrieveSettings();
+            var msmqSettings = settings.Get<MsmqSettings>();
 
             return new TransportSendInfrastructure(
-                () => new MsmqMessageDispatcher(builder, messageLabelGenerator),
+                () => new MsmqMessageDispatcher(msmqSettings, messageLabelGenerator),
                 () =>
                 {
                     var bindings = settings.Get<QueueBindings>();
@@ -143,7 +140,6 @@ namespace NServiceBus
             throw new NotImplementedException("MSMQ does not support native pub/sub.");
         }
 
-        string connectionString;
         ReadOnlySettings settings;
     }
 }
