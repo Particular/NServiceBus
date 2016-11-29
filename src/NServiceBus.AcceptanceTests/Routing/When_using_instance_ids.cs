@@ -1,10 +1,12 @@
 ﻿namespace NServiceBus.AcceptanceTests.ScaleOut
 {
+    using System.Collections.Generic;
     using System.Threading;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using AcceptanceTesting.Customization;
     using EndpointTemplates;
+    using Features;
     using NServiceBus.Routing;
     using NUnit.Framework;
 
@@ -49,8 +51,19 @@
                 {
                     var routing = c.UseTransport(r.GetTransportType()).Routing();
                     routing.RouteToEndpoint(typeof(MyMessage), ReceiverEndpoint);
-                    c.RegisterEndpointInstances(new EndpointInstance(ReceiverEndpoint, "XYZ"));
+                    c.EnableFeature<EndpointInstancesConfigurationFeature>();
                 });
+            }
+
+            class EndpointInstancesConfigurationFeature : Feature
+            {
+                protected override void Setup(FeatureConfigurationContext context)
+                {
+                    context.Routing.EndpointInstances.AddOrReplaceInstances("testing", new List<EndpointInstance>
+                    {
+                        new EndpointInstance(ReceiverEndpoint, "XYZ")
+                    });
+                }
             }
         }
 

@@ -7,6 +7,7 @@
     using AcceptanceTesting.Customization;
     using Configuration.AdvanceExtensibility;
     using EndpointTemplates;
+    using Features;
     using Logging;
     using NServiceBus.Routing;
     using NUnit.Framework;
@@ -58,12 +59,20 @@
             public Unsubscriber()
             {
                 EndpointSetup<DefaultServer>(
-                    c =>
-                    {
-                        var publisherName = Conventions.EndpointNamingConvention(typeof(ScaledOutPublisher));
-                        c.RegisterEndpointInstances(new EndpointInstance(publisherName, "1"), new EndpointInstance(publisherName, "2"));
-                    },
+                    c => c.EnableFeature<EndpointInstancesConfigurationFeature>(),
                     metadata => metadata.RegisterPublisherFor<MyEvent>(typeof(ScaledOutPublisher)));
+            }
+
+            class EndpointInstancesConfigurationFeature : Feature
+            {
+                protected override void Setup(FeatureConfigurationContext context)
+                {
+                    var publisherName = Conventions.EndpointNamingConvention(typeof(ScaledOutPublisher));
+                    context.Routing.EndpointInstances.AddOrReplaceInstances("testing", new List<EndpointInstance>
+                    {
+                        new EndpointInstance(publisherName, "1"), new EndpointInstance(publisherName, "2")
+                    });
+                }
             }
         }
 
