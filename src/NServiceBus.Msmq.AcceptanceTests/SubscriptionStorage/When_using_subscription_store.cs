@@ -1,11 +1,10 @@
-﻿namespace NServiceBus.AcceptanceTests
+﻿namespace NServiceBus.AcceptanceTests.SubscriptionStorage
 {
-    using System;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using Features;
-    using Persistence.Legacy;
     using NUnit.Framework;
+    using Persistence.Legacy;
 
     public class When_using_subscription_store : NServiceBusAcceptanceTest
     {
@@ -34,7 +33,7 @@
                     }
                 }))
                 .Done(c => c.GotTheEvent)
-                .Run(TimeSpan.FromSeconds(10));
+                .Run();
 
             Assert.IsTrue(ctx.GotTheEvent);
         }
