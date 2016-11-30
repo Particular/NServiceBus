@@ -85,6 +85,7 @@
     <Compile Include="Support\ScenarioDescriptor.cs" />
     <Compile Include="Support\ScenarioRunner.cs" />
     <Compile Include="Support\SimulatedException.cs" />
+    <Compile Include="Support\TaskExtensions.cs" />
     <Compile Include="Support\WhenDefinition.cs" />
   </ItemGroup>
   <ItemGroup>
