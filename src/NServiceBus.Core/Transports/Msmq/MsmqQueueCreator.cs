@@ -61,11 +61,6 @@ namespace NServiceBus
                         queue.SetPermissions(identity, MessageQueueAccessRights.PeekMessage);
 
                         queue.SetPermissions(LocalAdministratorsGroupName, MessageQueueAccessRights.FullControl);
-
-                        // Everyone & Anonymous is granted write message permissions on all Windows / Windows Server versions after 2003.
-                        // But we keep this for now for backwards compatibility
-                        queue.SetPermissions(QueuePermissions.LocalEveryoneGroupName, MessageQueueAccessRights.WriteMessage);
-                        queue.SetPermissions(QueuePermissions.LocalAnonymousLogonName, MessageQueueAccessRights.WriteMessage);
                     }
                     catch (MessageQueueException permissionException) when (permissionException.MessageQueueErrorCode == MessageQueueErrorCode.FormatNameBufferTooSmall)
                     {
