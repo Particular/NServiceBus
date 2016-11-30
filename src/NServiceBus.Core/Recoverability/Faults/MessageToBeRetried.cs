@@ -7,12 +7,13 @@ namespace NServiceBus
     {
         public int Attempt { get; }
         public TimeSpan Delay { get; }
-        public bool IsImmediateRetry => Delay == TimeSpan.Zero;
+        public bool IsImmediateRetry { get; }
 
-        public MessageToBeRetried(int attempt, TimeSpan delay, IncomingMessage message, Exception exception) : base(message, exception)
+        public MessageToBeRetried(int attempt, TimeSpan delay, bool immediateRetry, ErrorContext errorContext) : base(errorContext)
         {
             Attempt = attempt;
             Delay = delay;
+            IsImmediateRetry = immediateRetry;
         }
     }
 }
