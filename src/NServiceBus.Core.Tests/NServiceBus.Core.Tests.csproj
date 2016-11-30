@@ -185,11 +185,10 @@
     <Compile Include="Routing\EndpointInstancesTests.cs" />
     <Compile Include="Transports\MSMQ\InstanceMapping\InstanceMappingFileParserTests.cs" />
     <Compile Include="Transports\MSMQ\InstanceMapping\InstanceMappingFileMonitorTests.cs" />
-    <Compile Include="Routing\MessageDrivenSubscribeTerminatorTests.cs" />
-    <Compile Include="Routing\MessageDrivenUnsubscribeTerminatorTests.cs" />
+    <Compile Include="Routing\MessageDrivenSubscribeConnectorTests.cs" />
+    <Compile Include="Routing\MessageDrivenUnsubscribeConnectorTests.cs" />
     <Compile Include="Routing\Routers\MulticastPublishRouterBehaviorTests.cs" />
     <Compile Include="Routing\Routers\UnicastReplyRouterConnectorTests.cs" />
-    <Compile Include="Routing\Routers\UnicastPublishRouterConnectorTests.cs" />
     <Compile Include="Routing\RoutingOptionExtensionsTests.cs" />
     <Compile Include="Routing\RoutingPolicyTests.cs" />
     <Compile Include="Routing\RoutingSettingsTests.cs" />

@@ -37,14 +37,14 @@
 
             var context = CreateContext(options);
 
-            UnicastAddressTag addressTag = null;
+            UnicastRoute route = null;
             await behavior.Invoke(context, c =>
             {
-                addressTag = (UnicastAddressTag)c.RoutingStrategies.Single().Apply(new Dictionary<string, string>());
+                route = c.Destinations.Single();
                 return TaskEx.CompletedTask;
             });
 
-            Assert.AreEqual("destination endpoint", addressTag.Destination);
+            Assert.AreEqual("destination endpoint", route.PhysicalAddress);
         }
 
         [Test]
@@ -57,14 +57,14 @@
 
             var context = CreateContext(options);
 
-            UnicastAddressTag addressTag = null;
+            UnicastRoute route = null;
             await behavior.Invoke(context, c =>
             {
-                addressTag = (UnicastAddressTag)c.RoutingStrategies.Single().Apply(new Dictionary<string, string>());
+                route = c.Destinations.Single();
                 return TaskEx.CompletedTask;
             });
 
-            Assert.AreEqual("MyLocalAddress", addressTag.Destination);
+            Assert.AreEqual("MyLocalAddress", route.PhysicalAddress);
         }
 
         [Test]
@@ -77,14 +77,14 @@
 
             var context = CreateContext(options);
 
-            UnicastAddressTag addressTag = null;
+            UnicastRoute route = null;
             await behavior.Invoke(context, c =>
             {
-                addressTag = (UnicastAddressTag)c.RoutingStrategies.Single().Apply(new Dictionary<string, string>());
+                route = c.Destinations.Single();
                 return TaskEx.CompletedTask;
             });
 
-            Assert.AreEqual("MyInstance", addressTag.Destination);
+            Assert.AreEqual("MyInstance", route.PhysicalAddress);
         }
 
         [Test]
@@ -165,48 +165,39 @@
         [Test]
         public async Task Should_route_using_the_mappings_if_no_destination_is_set()
         {
-            var router = new FakeSendRouter
+            var context = CreateContext(new SendOptions());
+
+            var routingTable = new UnicastRoutingTable();
+            routingTable.AddOrReplaceRoutes("key", new List<RouteTableEntry>()
             {
-                FixedDestination = new UnicastRoutingStrategy("MappedDestination")
-            };
-            var behavior = InitializeBehavior(router: router);
-            var options = new SendOptions();
+                new RouteTableEntry(context.Message.MessageType, UnicastRoute.CreateFromEndpointName("Destination"))
+            });
 
-            var context = CreateContext(options);
+            var behavior = InitializeBehavior(routingTable: routingTable);
 
-            UnicastAddressTag addressTag = null;
+            UnicastRoute route = null;
             await behavior.Invoke(context, c =>
             {
-                addressTag = (UnicastAddressTag)c.RoutingStrategies.Single().Apply(new Dictionary<string, string>());
+                route = c.Destinations.Single();
                 return TaskEx.CompletedTask;
             });
 
-            Assert.AreEqual("MappedDestination", addressTag.Destination);
+            Assert.AreEqual("Destination", route.Endpoint);
         }
 
         [Test]
         public void Should_throw_if_no_route_can_be_found()
         {
-            var router = new FakeSendRouter
-            {
-                FixedDestination = null
-            };
+            var behavior = InitializeBehavior();
 
-            var behavior = InitializeBehavior(router: router);
-            var options = new SendOptions();
-
-            var context = CreateContext(options, new MessageWithoutRouting());
+            var context = CreateContext(new SendOptions());
 
             Assert.That(async () => await behavior.Invoke(context, _ => TaskEx.CompletedTask), Throws.InstanceOf<Exception>().And.Message.Contains("No destination specified"));
         }
 
-        static IOutgoingSendContext CreateContext(SendOptions options, object message = null)
+        static IOutgoingSendContext CreateContext(SendOptions options)
         {
-            if (message == null)
-            {
-                message = new MyMessage();
-            }
-
+            var message = new MyMessage();
             var context = new TestableOutgoingSendContext
             {
                 Message = new OutgoingLogicalMessage(message.GetType(), message),
@@ -219,29 +210,15 @@
         static UnicastSendRouterConnector InitializeBehavior(
             string sharedQueue = null,
             string instanceSpecificQueue = null,
-            FakeSendRouter router = null)
+            UnicastRoutingTable routingTable = null)
         {
             var metadataRegistry = new MessageMetadataRegistry(new Conventions());
-            metadataRegistry.RegisterMessageTypesFoundIn(new List<Type> { typeof(MyMessage), typeof(MessageWithoutRouting) });
+            metadataRegistry.RegisterMessageTypesFoundIn(new List<Type> { typeof(MyMessage) });
 
-            return new UnicastSendRouterConnector(sharedQueue, instanceSpecificQueue, router ?? new FakeSendRouter(), new DistributionPolicy(), e => e.ToString());
-        }
-
-        class FakeSendRouter : IUnicastSendRouter
-        {
-            public UnicastRoutingStrategy FixedDestination { get; set; }
-
-            public UnicastRoutingStrategy Route(Type messageType, IDistributionPolicy distributionPolicy)
-            {
-                return FixedDestination;
-            }
+            return new UnicastSendRouterConnector(sharedQueue, instanceSpecificQueue, routingTable ?? new UnicastRoutingTable());
         }
 
         class MyMessage
-        {
-        }
-
-        class MessageWithoutRouting
         {
         }
     }

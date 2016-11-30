@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Threading.Tasks;
     using Extensibility;
+    using NServiceBus.Pipeline;
     using NServiceBus.Routing;
     using NServiceBus.Routing.MessageDrivenSubscriptions;
     using Transport;
@@ -12,25 +13,24 @@
     using Unicast.Queuing;
 
     [TestFixture]
-    public class MessageDrivenSubscribeTerminatorTests
+    public class MessageDrivenSubscribeConnectorTests
     {
         [SetUp]
         public void SetUp()
         {
-            var publishers = new Publishers();
+            publishers = new Publishers();
             publishers.AddOrReplacePublishers("A", new List<PublisherTableEntry> {new PublisherTableEntry(typeof(object), PublisherAddress.CreateFromPhysicalAddresses("publisher1"))});
-            router = new SubscriptionRouter(publishers, new EndpointInstances(), i => i.ToString());
             dispatcher = new FakeDispatcher();
-            subscribeTerminator = new MessageDrivenSubscribeTerminator(router, "replyToAddress", "Endpoint", dispatcher);
+            subscribeConnector = new MessageDrivenSubscribeConnector(publishers, "replyToAddress", "Endpoint");
         }
 
         [Test]
         public async Task Should_include_TimeSent_and_Version_headers()
         {
-            var unsubscribeTerminator = new MessageDrivenUnsubscribeTerminator(router, "replyToAddress", "Endpoint", dispatcher);
+            var unsubscribeTerminator = new MessageDrivenUnsubscribeConnector(publishers, "replyToAddress", "Endpoint");
 
-            await subscribeTerminator.Invoke(new TestableSubscribeContext(), c => TaskEx.CompletedTask);
-            await unsubscribeTerminator.Invoke(new TestableUnsubscribeContext(), c => TaskEx.CompletedTask);
+            await subscribeConnector.Invoke(new TestableSubscribeContext(), () => Task.FromResult(0), Dispatch);
+            await unsubscribeTerminator.Invoke(new TestableUnsubscribeContext(), () => Task.FromResult(0), Dispatch);
 
             foreach (var dispatchedTransportOperation in dispatcher.DispatchedTransportOperations)
             {
@@ -45,7 +45,7 @@
         [Test]
         public async Task Should_Dispatch_for_all_publishers()
         {
-            await subscribeTerminator.Invoke(new TestableSubscribeContext(), c => TaskEx.CompletedTask);
+            await subscribeConnector.Invoke(new TestableSubscribeContext(), () => Task.FromResult(0), Dispatch);
 
             Assert.AreEqual(1, dispatcher.DispatchedTransportOperations.Count);
         }
@@ -54,12 +54,12 @@
         public async Task Should_Dispatch_according_to_max_retries_when_dispatch_fails()
         {
             var context = new TestableSubscribeContext();
-            var state = context.Extensions.GetOrCreate<MessageDrivenSubscribeTerminator.Settings>();
+            var state = context.Extensions.GetOrCreate<MessageDrivenSubscribeConnector.Settings>();
             state.MaxRetries = 10;
             state.RetryDelay = TimeSpan.Zero;
             dispatcher.FailDispatch(10);
 
-            await subscribeTerminator.Invoke(context, c => TaskEx.CompletedTask);
+            await subscribeConnector.Invoke(context, () => Task.FromResult(0), Dispatch);
 
             Assert.AreEqual(1, dispatcher.DispatchedTransportOperations.Count);
             Assert.AreEqual(10, dispatcher.FailedNumberOfTimes);
@@ -69,23 +69,28 @@
         public void Should_Throw_when_max_retries_reached()
         {
             var context = new TestableSubscribeContext();
-            var state = context.Extensions.GetOrCreate<MessageDrivenSubscribeTerminator.Settings>();
+            var state = context.Extensions.GetOrCreate<MessageDrivenSubscribeConnector.Settings>();
             state.MaxRetries = 10;
             state.RetryDelay = TimeSpan.Zero;
             dispatcher.FailDispatch(11);
 
             Assert.That(async () =>
             {
-                await subscribeTerminator.Invoke(context, c => TaskEx.CompletedTask);
+                await subscribeConnector.Invoke(context, () => Task.FromResult(0), Dispatch);
             }, Throws.InstanceOf<QueueNotFoundException>());
 
             Assert.AreEqual(0, dispatcher.DispatchedTransportOperations.Count);
             Assert.AreEqual(11, dispatcher.FailedNumberOfTimes);
         }
 
+        Task Dispatch(IUnicastRoutingContext c)
+        {
+            return dispatcher.Dispatch(new TransportOperations(new TransportOperation(c.Message, new UnicastAddressTag("destination"))), new TransportTransaction(), c.Extensions);
+        }
+
         FakeDispatcher dispatcher;
-        SubscriptionRouter router;
-        MessageDrivenSubscribeTerminator subscribeTerminator;
+        MessageDrivenSubscribeConnector subscribeConnector;
+        Publishers publishers;
 
         class FakeDispatcher : IDispatchMessages
         {

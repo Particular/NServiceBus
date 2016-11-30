@@ -48,18 +48,26 @@ namespace NServiceBus.Routing.MessageDrivenSubscriptions
         {
         }
 
-        internal IEnumerable<string> Resolve(Func<string, IEnumerable<EndpointInstance>> instanceResolver, Func<EndpointInstance, string> addressResolver)
+        internal IEnumerable<UnicastRoute> CreateRoutes()
         {
             if (addresses != null)
             {
-                return addresses;
+                foreach (var address in addresses)
+                {
+                    yield return UnicastRoute.CreateFromPhysicalAddress(address);
+                }
             }
-            if (instances != null)
+            else if (instances != null)
             {
-                return instances.Select(addressResolver);
+                foreach (var instance in instances)
+                {
+                    yield return UnicastRoute.CreateFromEndpointInstance(instance);
+                }
             }
-            var result = instanceResolver(endpoint);
-            return result.Select(addressResolver);
+            else
+            {
+                yield return UnicastRoute.CreateFromEndpointName(endpoint);
+            }
         }
 
         /// <summary>Returns a string that represents the current object.</summary>

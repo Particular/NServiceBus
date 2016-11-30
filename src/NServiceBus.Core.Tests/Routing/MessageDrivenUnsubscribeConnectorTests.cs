@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Threading.Tasks;
     using Extensibility;
+    using NServiceBus.Pipeline;
     using NServiceBus.Routing;
     using NServiceBus.Routing.MessageDrivenSubscriptions;
     using Transport;
@@ -12,26 +13,25 @@
     using Testing;
 
     [TestFixture]
-    public class MessageDrivenUnsubscribeTerminatorTests
+    public class MessageDrivenUnsubscribeConnectorTests
     {
-        MessageDrivenUnsubscribeTerminator terminator;
-        SubscriptionRouter router;
+        MessageDrivenUnsubscribeConnector connector;
         FakeDispatcher dispatcher;
+        Publishers publishers;
 
         [SetUp]
         public void SetUp()
         {
-            var publishers = new Publishers();
+            publishers = new Publishers();
             publishers.AddOrReplacePublishers("A", new List<PublisherTableEntry> {new PublisherTableEntry(typeof(object), PublisherAddress.CreateFromPhysicalAddresses("publisher1"))});
-            router = new SubscriptionRouter(publishers, new EndpointInstances(), i => i.ToString());
             dispatcher = new FakeDispatcher();
-            terminator = new MessageDrivenUnsubscribeTerminator(router, "replyToAddress", "Endpoint", dispatcher);
+            connector = new MessageDrivenUnsubscribeConnector(publishers, "replyToAddress", "Endpoint");
         }
 
         [Test]
         public async Task Should_Dispatch_for_all_publishers()
         {
-            await terminator.Invoke(new TestableUnsubscribeContext(), c => TaskEx.CompletedTask);
+            await connector.Invoke(new TestableUnsubscribeContext(), () => Task.FromResult(0), Dispatch);
 
             Assert.AreEqual(1, dispatcher.DispatchedTransportOperations.Count);
         }
@@ -40,7 +40,7 @@
         public async Task Should_Dispatch_according_to_max_retries_when_dispatch_fails()
         {
             var options = new UnsubscribeOptions();
-            var state = options.GetExtensions().GetOrCreate<MessageDrivenUnsubscribeTerminator.Settings>();
+            var state = options.GetExtensions().GetOrCreate<MessageDrivenUnsubscribeConnector.Settings>();
             state.MaxRetries = 10;
             state.RetryDelay = TimeSpan.Zero;
             dispatcher.FailDispatch(10);
@@ -50,7 +50,7 @@
                 Extensions = options.Context
             };
 
-            await terminator.Invoke(context, c => TaskEx.CompletedTask);
+            await connector.Invoke(context, () => Task.FromResult(0), Dispatch);
 
             Assert.AreEqual(1, dispatcher.DispatchedTransportOperations.Count);
             Assert.AreEqual(10, dispatcher.FailedNumberOfTimes);
@@ -60,7 +60,7 @@
         public void Should_Throw_when_max_retries_reached()
         {
             var options = new UnsubscribeOptions();
-            var state = options.GetExtensions().GetOrCreate<MessageDrivenUnsubscribeTerminator.Settings>();
+            var state = options.GetExtensions().GetOrCreate<MessageDrivenUnsubscribeConnector.Settings>();
             state.MaxRetries = 10;
             state.RetryDelay = TimeSpan.Zero;
             dispatcher.FailDispatch(11);
@@ -70,10 +70,15 @@
                 Extensions = options.Context
             };
 
-            Assert.That(async () => await terminator.Invoke(context, c => TaskEx.CompletedTask), Throws.InstanceOf<QueueNotFoundException>());
+            Assert.That(async () => await connector.Invoke(context, () => Task.FromResult(0), Dispatch), Throws.InstanceOf<QueueNotFoundException>());
 
             Assert.AreEqual(0, dispatcher.DispatchedTransportOperations.Count);
             Assert.AreEqual(11, dispatcher.FailedNumberOfTimes);
+        }
+
+        Task Dispatch(IUnicastRoutingContext c)
+        {
+            return dispatcher.Dispatch(new TransportOperations(new TransportOperation(c.Message, new UnicastAddressTag("destination"))), new TransportTransaction(), c.Extensions);
         }
 
         class FakeDispatcher : IDispatchMessages

@@ -165,19 +165,25 @@ namespace NServiceBus
         public static NServiceBus.Pipeline.IBatchDispatchContext CreateBatchDispatchContext(this NServiceBus.Pipeline.StageForkConnector<NServiceBus.Pipeline.ITransportReceiveContext, NServiceBus.Pipeline.IIncomingPhysicalMessageContext, NServiceBus.Pipeline.IBatchDispatchContext> stageForkConnector, System.Collections.Generic.IReadOnlyCollection<NServiceBus.Transport.TransportOperation> transportOperations, NServiceBus.Pipeline.IIncomingPhysicalMessageContext sourceContext) { }
         public static NServiceBus.Pipeline.IDispatchContext CreateDispatchContext(this NServiceBus.Pipeline.StageConnector<NServiceBus.Pipeline.IBatchDispatchContext, NServiceBus.Pipeline.IDispatchContext> stageConnector, System.Collections.Generic.IReadOnlyCollection<NServiceBus.Transport.TransportOperation> transportOperations, NServiceBus.Pipeline.IBatchDispatchContext sourceContext) { }
         public static NServiceBus.Pipeline.IDispatchContext CreateDispatchContext(this NServiceBus.Pipeline.StageConnector<NServiceBus.Pipeline.IRoutingContext, NServiceBus.Pipeline.IDispatchContext> stageConnector, System.Collections.Generic.IReadOnlyCollection<NServiceBus.Transport.TransportOperation> transportOperations, NServiceBus.Pipeline.IRoutingContext sourceContext) { }
+        public static NServiceBus.Pipeline.IOutgoingUnicastRoutingContext CreateDistributionContext(this NServiceBus.Pipeline.StageConnector<NServiceBus.Pipeline.IOutgoingPublishContext, NServiceBus.Pipeline.IOutgoingUnicastRoutingContext> stageConnector, NServiceBus.Pipeline.OutgoingLogicalMessage outgoingMessage, System.Collections.Generic.IReadOnlyCollection<NServiceBus.Routing.UnicastRoute> destinations, NServiceBus.Pipeline.IOutgoingPublishContext sourceContext) { }
+        public static NServiceBus.Pipeline.IOutgoingUnicastRoutingContext CreateDistributionContext(this NServiceBus.Pipeline.StageConnector<NServiceBus.Pipeline.IOutgoingSendContext, NServiceBus.Pipeline.IOutgoingUnicastRoutingContext> stageConnector, NServiceBus.Pipeline.OutgoingLogicalMessage outgoingMessage, System.Collections.Generic.IReadOnlyCollection<NServiceBus.Routing.UnicastRoute> destinations, NServiceBus.Pipeline.IOutgoingSendContext sourceContext) { }
         public static NServiceBus.Pipeline.IForwardingContext CreateForwardingContext(this NServiceBus.Pipeline.ForkConnector<NServiceBus.Pipeline.IIncomingPhysicalMessageContext, NServiceBus.Pipeline.IForwardingContext> forwardingContext, NServiceBus.Transport.OutgoingMessage message, string forwardingAddress, NServiceBus.Pipeline.IIncomingPhysicalMessageContext sourceContext) { }
         public static NServiceBus.Pipeline.IIncomingLogicalMessageContext CreateIncomingLogicalMessageContext(this NServiceBus.Pipeline.StageConnector<NServiceBus.Pipeline.IIncomingPhysicalMessageContext, NServiceBus.Pipeline.IIncomingLogicalMessageContext> stageConnector, NServiceBus.Pipeline.LogicalMessage logicalMessage, NServiceBus.Pipeline.IIncomingPhysicalMessageContext sourceContext) { }
         public static NServiceBus.Pipeline.IIncomingPhysicalMessageContext CreateIncomingPhysicalMessageContext(this NServiceBus.Pipeline.StageForkConnector<NServiceBus.Pipeline.ITransportReceiveContext, NServiceBus.Pipeline.IIncomingPhysicalMessageContext, NServiceBus.Pipeline.IBatchDispatchContext> stageForkConnector, NServiceBus.Transport.IncomingMessage incomingMessage, NServiceBus.Pipeline.ITransportReceiveContext sourceContext) { }
         public static NServiceBus.Pipeline.IIncomingPhysicalMessageContext CreateIncomingPhysicalMessageContext(this NServiceBus.Pipeline.StageConnector<NServiceBus.Pipeline.ITransportReceiveContext, NServiceBus.Pipeline.IIncomingPhysicalMessageContext> stageConnector, NServiceBus.Transport.IncomingMessage incomingMessage, NServiceBus.Pipeline.ITransportReceiveContext sourceContext) { }
         public static NServiceBus.Pipeline.IInvokeHandlerContext CreateInvokeHandlerContext(this NServiceBus.Pipeline.StageConnector<NServiceBus.Pipeline.IIncomingLogicalMessageContext, NServiceBus.Pipeline.IInvokeHandlerContext> stageConnector, NServiceBus.Pipeline.MessageHandler messageHandler, NServiceBus.Persistence.CompletableSynchronizedStorageSession storageSession, NServiceBus.Pipeline.IIncomingLogicalMessageContext sourceContext) { }
+        public static NServiceBus.Pipeline.IOutgoingLogicalMessageContext CreateOutgoingLogicalMessageContext(this NServiceBus.Pipeline.StageConnector<NServiceBus.Pipeline.IOutgoingSendContext, NServiceBus.Pipeline.IOutgoingLogicalMessageContext> stageConnector, NServiceBus.Pipeline.OutgoingLogicalMessage outgoingMessage, System.Collections.Generic.IReadOnlyCollection<NServiceBus.Routing.RoutingStrategy> routingStrategies, NServiceBus.Pipeline.IOutgoingSendContext sourceContext) { }
         public static NServiceBus.Pipeline.IOutgoingLogicalMessageContext CreateOutgoingLogicalMessageContext(this NServiceBus.Pipeline.StageConnector<NServiceBus.Pipeline.IOutgoingPublishContext, NServiceBus.Pipeline.IOutgoingLogicalMessageContext> stageConnector, NServiceBus.Pipeline.OutgoingLogicalMessage outgoingMessage, System.Collections.Generic.IReadOnlyCollection<NServiceBus.Routing.RoutingStrategy> routingStrategies, NServiceBus.Pipeline.IOutgoingPublishContext sourceContext) { }
         public static NServiceBus.Pipeline.IOutgoingLogicalMessageContext CreateOutgoingLogicalMessageContext(this NServiceBus.Pipeline.StageConnector<NServiceBus.Pipeline.IOutgoingReplyContext, NServiceBus.Pipeline.IOutgoingLogicalMessageContext> stageConnector, NServiceBus.Pipeline.OutgoingLogicalMessage outgoingMessage, System.Collections.Generic.IReadOnlyCollection<NServiceBus.Routing.RoutingStrategy> routingStrategies, NServiceBus.Pipeline.IOutgoingReplyContext sourceContext) { }
-        public static NServiceBus.Pipeline.IOutgoingLogicalMessageContext CreateOutgoingLogicalMessageContext(this NServiceBus.Pipeline.StageConnector<NServiceBus.Pipeline.IOutgoingSendContext, NServiceBus.Pipeline.IOutgoingLogicalMessageContext> stageConnector, NServiceBus.Pipeline.OutgoingLogicalMessage outgoingMessage, System.Collections.Generic.IReadOnlyCollection<NServiceBus.Routing.RoutingStrategy> routingStrategies, NServiceBus.Pipeline.IOutgoingSendContext sourceContext) { }
+        public static NServiceBus.Pipeline.IOutgoingLogicalMessageContext CreateOutgoingLogicalMessageContext(this NServiceBus.Pipeline.StageConnector<NServiceBus.Pipeline.IOutgoingUnicastRoutingContext, NServiceBus.Pipeline.IOutgoingLogicalMessageContext> stageConnector, NServiceBus.Pipeline.OutgoingLogicalMessage outgoingMessage, System.Collections.Generic.IReadOnlyCollection<NServiceBus.Routing.RoutingStrategy> routingStrategies, NServiceBus.Pipeline.IOutgoingUnicastRoutingContext sourceContext) { }
         public static NServiceBus.Pipeline.IOutgoingPhysicalMessageContext CreateOutgoingPhysicalMessageContext(this NServiceBus.Pipeline.StageConnector<NServiceBus.Pipeline.IOutgoingLogicalMessageContext, NServiceBus.Pipeline.IOutgoingPhysicalMessageContext> stageConnector, byte[] messageBody, System.Collections.Generic.IReadOnlyCollection<NServiceBus.Routing.RoutingStrategy> routingStrategies, NServiceBus.Pipeline.IOutgoingLogicalMessageContext sourceContext) { }
         public static NServiceBus.Pipeline.IRoutingContext CreateRoutingContext(this NServiceBus.Pipeline.ForkConnector<NServiceBus.Pipeline.ITransportReceiveContext, NServiceBus.Pipeline.IRoutingContext> forkConnector, NServiceBus.Transport.OutgoingMessage outgoingMessage, string localAddress, NServiceBus.Pipeline.ITransportReceiveContext sourceContext) { }
         public static NServiceBus.Pipeline.IRoutingContext CreateRoutingContext(this NServiceBus.Pipeline.StageConnector<NServiceBus.Pipeline.IForwardingContext, NServiceBus.Pipeline.IRoutingContext> stageConnector, NServiceBus.Transport.OutgoingMessage outgoingMessage, NServiceBus.Routing.RoutingStrategy routingStrategy, NServiceBus.Pipeline.IForwardingContext sourceContext) { }
         public static NServiceBus.Pipeline.IRoutingContext CreateRoutingContext(this NServiceBus.Pipeline.StageConnector<NServiceBus.Pipeline.IAuditContext, NServiceBus.Pipeline.IRoutingContext> stageConnector, NServiceBus.Transport.OutgoingMessage outgoingMessage, NServiceBus.Routing.RoutingStrategy routingStrategy, NServiceBus.Pipeline.IAuditContext sourceContext) { }
         public static NServiceBus.Pipeline.IRoutingContext CreateRoutingContext(this NServiceBus.Pipeline.StageConnector<NServiceBus.Pipeline.IOutgoingPhysicalMessageContext, NServiceBus.Pipeline.IRoutingContext> stageConnector, NServiceBus.Transport.OutgoingMessage outgoingMessage, System.Collections.Generic.IReadOnlyCollection<NServiceBus.Routing.RoutingStrategy> routingStrategies, NServiceBus.Pipeline.IOutgoingPhysicalMessageContext sourceContext) { }
+        public static NServiceBus.Pipeline.IRoutingContext CreateRoutingContext(this NServiceBus.Pipeline.StageConnector<NServiceBus.Pipeline.IUnicastRoutingContext, NServiceBus.Pipeline.IRoutingContext> stageConnector, NServiceBus.Transport.OutgoingMessage outgoingMessage, System.Collections.Generic.IReadOnlyCollection<NServiceBus.Routing.RoutingStrategy> routingStrategies, NServiceBus.Pipeline.IUnicastRoutingContext sourceContext) { }
+        public static NServiceBus.Pipeline.IUnicastRoutingContext CreateUnicastRoutingContext<T>(this NServiceBus.Pipeline.StageConnector<T, NServiceBus.Pipeline.IUnicastRoutingContext> stageConnector, NServiceBus.Transport.OutgoingMessage outgoingMessage, System.Collections.Generic.IReadOnlyCollection<NServiceBus.Routing.UnicastRoute> routes, System.Func<string[], string[]> distributionFunction, T sourceContext)
+            where T : NServiceBus.Pipeline.IBehaviorContext { }
     }
     public abstract class ContainSagaData : NServiceBus.IContainSagaData
     {
@@ -2334,6 +2340,12 @@ namespace NServiceBus.Pipeline
     {
         NServiceBus.Pipeline.OutgoingLogicalMessage Message { get; }
     }
+    public interface IOutgoingUnicastRoutingContext : NServiceBus.Extensibility.IExtendable, NServiceBus.IPipelineContext, NServiceBus.Pipeline.IBehaviorContext, NServiceBus.Pipeline.IOutgoingContext
+    {
+        System.Collections.Generic.IReadOnlyCollection<NServiceBus.Routing.UnicastRoute> Destinations { get; }
+        NServiceBus.DistributionStrategyScope DistributionScope { get; }
+        NServiceBus.Pipeline.OutgoingLogicalMessage Message { get; }
+    }
     public interface IRoutingContext : NServiceBus.Extensibility.IExtendable, NServiceBus.Pipeline.IBehaviorContext
     {
         NServiceBus.Transport.OutgoingMessage Message { get; }
@@ -2347,6 +2359,12 @@ namespace NServiceBus.Pipeline
     {
         NServiceBus.Transport.IncomingMessage Message { get; }
         void AbortReceiveOperation();
+    }
+    public interface IUnicastRoutingContext : NServiceBus.Extensibility.IExtendable, NServiceBus.Pipeline.IBehaviorContext
+    {
+        System.Collections.Generic.IReadOnlyCollection<NServiceBus.Routing.UnicastRoute> Destinations { get; }
+        System.Func<string[], string[]> DistributionFunction { get; }
+        NServiceBus.Transport.OutgoingMessage Message { get; }
     }
     public interface IUnsubscribeContext : NServiceBus.Extensibility.IExtendable, NServiceBus.Pipeline.IBehaviorContext
     {
@@ -2630,6 +2648,7 @@ namespace NServiceBus.Routing
         public static NServiceBus.Routing.UnicastRoute CreateFromEndpointInstance(NServiceBus.Routing.EndpointInstance instance) { }
         public static NServiceBus.Routing.UnicastRoute CreateFromEndpointName(string endpoint) { }
         public static NServiceBus.Routing.UnicastRoute CreateFromPhysicalAddress(string physicalAddress) { }
+        public static NServiceBus.Routing.UnicastRoute CreateFromPhysicalAddress(string physicalAddress, string endpoint) { }
         public override string ToString() { }
     }
     public class UnicastRoutingStrategy : NServiceBus.Routing.RoutingStrategy
