@@ -6,9 +6,9 @@ namespace NServiceBus
     using Logging;
     using Transport;
 
-    class QueueCreator : ICreateQueues
+    class MsmqQueueCreator : ICreateQueues
     {
-        public QueueCreator(bool useTransactionalQueues)
+        public MsmqQueueCreator(bool useTransactionalQueues)
         {
             this.useTransactionalQueues = useTransactionalQueues;
         }
@@ -83,6 +83,6 @@ namespace NServiceBus
         bool useTransactionalQueues;
 
         static string LocalAdministratorsGroupName = new SecurityIdentifier(WellKnownSidType.BuiltinAdministratorsSid, null).Translate(typeof(NTAccount)).ToString();
-        static ILog Logger = LogManager.GetLogger<QueueCreator>();
+        static ILog Logger = LogManager.GetLogger<MsmqQueueCreator>();
     }
 }

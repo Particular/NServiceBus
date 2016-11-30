@@ -674,7 +674,7 @@
     <Compile Include="Transports\Msmq\HeaderInfo.cs" />
     <Compile Include="Transports\Msmq\MessagePump.cs" />
     <Compile Include="Transports\Msmq\MsmqMessageDispatcher.cs" />
-    <Compile Include="Transports\Msmq\QueueCreator.cs" />
+    <Compile Include="Transports\Msmq\MsmqQueueCreator.cs" />
     <Compile Include="Transports\Msmq\MsmqUtilities.cs" />
     <Compile Include="Encryption\RijndaelEncryptionServiceConfig.cs" />
     <Compile Include="Unicast\UnicastBusConfig.cs" />

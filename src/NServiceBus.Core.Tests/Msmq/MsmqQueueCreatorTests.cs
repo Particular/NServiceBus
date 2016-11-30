@@ -12,7 +12,7 @@
         [Test]
         public void Should_create_all_queues()
         {
-            var creator = new QueueCreator(true);
+            var creator = new MsmqQueueCreator(true);
             var bindings = new QueueBindings();
 
             DeleteQueueIfPresent("MsmqQueueCreatorTests.receiver");
@@ -33,7 +33,7 @@
         [Test]
         public void Should_not_create_remote_queues()
         {
-            var creator = new QueueCreator(true);
+            var creator = new MsmqQueueCreator(true);
             var bindings = new QueueBindings();
             var remoteQueueName = "MsmqQueueCreatorTests.remote";
 
@@ -50,7 +50,7 @@
         {
             var testQueueName = "MsmqQueueCreatorTests.permissions";
 
-            var creator = new QueueCreator(true);
+            var creator = new MsmqQueueCreator(true);
             var bindings = new QueueBindings();
 
             DeleteQueueIfPresent(testQueueName);
@@ -82,7 +82,7 @@
 
             DeleteQueueIfPresent(testQueueName);
 
-            var creator = new QueueCreator(useTransactionalQueues: true);
+            var creator = new MsmqQueueCreator(useTransactionalQueues: true);
             var bindings = new QueueBindings();
 
             bindings.BindReceiving(testQueueName);
@@ -101,7 +101,7 @@
 
             DeleteQueueIfPresent(testQueueName);
 
-            var creator = new QueueCreator(useTransactionalQueues: false);
+            var creator = new MsmqQueueCreator(useTransactionalQueues: false);
             var bindings = new QueueBindings();
 
             bindings.BindReceiving(testQueueName);
@@ -155,7 +155,7 @@
                 existingQueue.SetPermissions(LocalAnonymousLogonName, MessageQueueAccessRights.WriteMessage, AccessControlEntryType.Revoke);
             }
 
-            var creator = new QueueCreator(true);
+            var creator = new MsmqQueueCreator(true);
             var bindings = new QueueBindings();
 
             bindings.BindReceiving(testQueueName);
@@ -182,7 +182,7 @@
 
             DeleteQueueIfPresent(testQueueName);
 
-            var creator = new QueueCreator(true);
+            var creator = new MsmqQueueCreator(true);
             var bindings = new QueueBindings();
 
             bindings.BindReceiving(testQueueName);
@@ -197,7 +197,7 @@
 
             DeleteQueueIfPresent(testQueueName);
 
-            var creator = new QueueCreator(true);
+            var creator = new MsmqQueueCreator(true);
             var bindings = new QueueBindings();
 
             bindings.BindReceiving(testQueueName);
@@ -210,7 +210,7 @@
         [Test]
         public void Should_blow_up_if_name_is_null()
         {
-            var creator = new QueueCreator(true);
+            var creator = new MsmqQueueCreator(true);
             var bindings = new QueueBindings();
 
             bindings.BindReceiving(null);
