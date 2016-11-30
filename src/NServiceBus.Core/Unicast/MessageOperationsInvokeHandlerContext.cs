@@ -3,7 +3,6 @@ namespace NServiceBus
     using System.Threading.Tasks;
     using Pipeline;
     using Routing;
-    using Settings;
     using Transport;
 
     static class MessageOperationsInvokeHandlerContext
@@ -16,7 +15,7 @@ namespace NServiceBus
             }
 
             var messageBeingProcessed = context.Extensions.Get<IncomingMessage>();
-            var settings = context.Builder.Build<ReadOnlySettings>();
+            //var settings = context.Builder.Build<ReadOnlySettings>();
 
             var cache = context.Extensions.Get<IPipelineCache>();
             var pipeline = cache.Pipeline<IRoutingContext>();
@@ -26,7 +25,9 @@ namespace NServiceBus
                 messageBeingProcessed.Headers,
                 messageBeingProcessed.Body);
 
-            var routingContext = new RoutingContext(outgoingMessage, new UnicastRoutingStrategy(settings.LocalAddress()), context);
+            //TODO: woa, I don't know
+            //var routingContext = new RoutingContext(outgoingMessage, new UnicastRoutingStrategy(settings.LocalAddress()), context);
+            var routingContext = new RoutingContext(outgoingMessage, new UnicastRoutingStrategy("localaddress"), context);
 
             return pipeline.Invoke(routingContext);
         }

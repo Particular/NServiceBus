@@ -7,7 +7,6 @@
     using ConsistencyGuarantees;
     using Logging;
     using Persistence;
-    using Transport;
 
     /// <summary>
     /// Configure the Outbox.
@@ -18,11 +17,11 @@
         {
             Defaults(s => s.SetDefault(InMemoryOutboxPersistence.TimeToKeepDeduplicationEntries, TimeSpan.FromDays(5)));
 
-            Prerequisite(c => c.Settings.GetRequiredTransactionModeForReceives() != TransportTransactionMode.None, "Outbox isn't needed since the receive transactions has been turned off");
+            Prerequisite(c => c.GetRequiredTransactionModeForReceives() != TransportTransactionMode.None, "Outbox isn't needed since the receive transactions has been turned off");
 
             Prerequisite(c =>
             {
-                if (!c.Settings.Get<TransportInfrastructure>().RequireOutboxConsent)
+                if (!c.Transport.TransportInfrastructure.RequireOutboxConsent)
                 {
                     return true;
                 }

@@ -5,7 +5,6 @@ namespace NServiceBus
     using System.Security.Principal;
     using System.Threading.Tasks;
     using Config;
-    using ConsistencyGuarantees;
     using Features;
     using Logging;
     using ObjectBuilder;
@@ -101,7 +100,27 @@ namespace NServiceBus
 
             var purgeOnStartup = settings.GetOrDefault<bool>("Transport.PurgeOnStartup");
             var errorQueue = settings.ErrorQueueAddress();
-            var requiredTransactionSupport = settings.GetRequiredTransactionModeForReceives();
+
+            TransportTransactionMode requiredTransactionSupport;
+            var transportTransactionSupport = transportInfrastructure.TransactionMode;
+
+            TransportTransactionMode requestedTransportTransactionMode;
+
+            //if user haven't asked for a explicit level use what the transport supports
+            if (settings.TryGet(out requestedTransportTransactionMode))
+            {
+                if (requestedTransportTransactionMode > transportTransactionSupport)
+                {
+                    throw new Exception($"Requested transaction mode `{requestedTransportTransactionMode}` can't be satisfied since the transport only supports `{transportTransactionSupport}`");
+                }
+
+                requiredTransactionSupport = requestedTransportTransactionMode;
+            }
+            else
+            {
+                requiredTransactionSupport = transportTransactionSupport;
+            }
+
             var recoverabilityExecutorFactory = builder.Build<RecoverabilityExecutorFactory>();
 
             var receivers = BuildMainReceivers(errorQueue, purgeOnStartup, requiredTransactionSupport, recoverabilityExecutorFactory, mainPipeline);
@@ -119,9 +138,11 @@ namespace NServiceBus
 
         List<TransportReceiver> BuildMainReceivers(string errorQueue, bool purgeOnStartup, TransportTransactionMode requiredTransactionSupport, RecoverabilityExecutorFactory recoverabilityExecutorFactory, IPipeline<ITransportReceiveContext> mainPipeline)
         {
-            var localAddress = settings.LocalAddress();
+            //TODO: make transport component available here
+            //var localAddress = settings.LocalAddress();
+            var localAddress = "localAddress";
             var recoverabilityExecutor = recoverabilityExecutorFactory.CreateDefault(eventAggregator, localAddress);
-            var pushSettings = new PushSettings(settings.LocalAddress(), errorQueue, purgeOnStartup, requiredTransactionSupport);
+            var pushSettings = new PushSettings(localAddress, errorQueue, purgeOnStartup, requiredTransactionSupport);
             var mainPipelineExecutor = new MainPipelineExecutor(builder, eventAggregator, pipelineCache, mainPipeline);
             var dequeueLimitations = GetDequeueLimitationsForReceivePipeline();
 

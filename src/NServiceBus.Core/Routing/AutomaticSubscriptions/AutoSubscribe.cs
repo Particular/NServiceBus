@@ -32,8 +32,7 @@
             }
 
             var conventions = context.Settings.Get<Conventions>();
-            var transportInfrastructure = context.Settings.Get<TransportInfrastructure>();
-            var requireExplicitRouting = transportInfrastructure.OutboundRoutingPolicy.Publishes == OutboundRoutingType.Unicast;
+            var requireExplicitRouting = context.Transport.TransportInfrastructure.OutboundRoutingPolicy.Publishes == OutboundRoutingType.Unicast;
             var publishers = context.Routing.Publishers;
 
             context.RegisterStartupTask(b =>

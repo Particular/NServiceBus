@@ -19,7 +19,7 @@
                 durabilityConvention = t => t.GetCustomAttributes(typeof(ExpressAttribute), true).Length > 0;
             }
 
-            doesSupportNonDurableDelivery = context.Settings.DoesTransportSupportConstraint<NonDurableDelivery>();
+            doesSupportNonDurableDelivery = context.DoesTransportSupportConstraint<NonDurableDelivery>();
 
             if (!defaultToDurableMessages && !doesSupportNonDurableDelivery)
             {

@@ -12,7 +12,7 @@
 
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-            var logicalAddress = context.Settings.LogicalAddress();
+            var logicalAddress = context.Transport.LogicalAddress;
             var performanceDiagnosticsBehavior = new ReceivePerformanceDiagnosticsBehavior(logicalAddress.EndpointInstance.Endpoint);
 
             context.Pipeline.Register(performanceDiagnosticsBehavior, "Provides various performance counters for receive statistics");

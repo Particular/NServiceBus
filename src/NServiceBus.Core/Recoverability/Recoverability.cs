@@ -57,10 +57,10 @@
                     return new MoveToErrorsExecutor(context.Transport.Dispatcher, staticFaultMetadata, headerCustomizations);
                 };
 
-                var transactionsOn = context.Settings.GetRequiredTransactionModeForReceives() != TransportTransactionMode.None;
+                var transactionsOn = context.GetRequiredTransactionModeForReceives() != TransportTransactionMode.None;
                 var delayedRetryConfig = GetDelayedRetryConfig(context.Settings, transactionsOn);
                 var delayedRetriesAvailable = transactionsOn
-                                              && (context.Settings.DoesTransportSupportConstraint<DelayedDeliveryConstraint>() || context.Settings.Get<TimeoutManagerAddressConfiguration>().TransportAddress != null);
+                                              && (context.DoesTransportSupportConstraint<DelayedDeliveryConstraint>() || context.Settings.Get<TimeoutManagerAddressConfiguration>().TransportAddress != null);
 
                 Func<string, DelayedRetryExecutor> delayedRetryExecutorFactory = localAddress =>
                 {
@@ -69,7 +69,7 @@
                         return new DelayedRetryExecutor(
                             localAddress,
                             context.Transport.Dispatcher,
-                            context.Settings.DoesTransportSupportConstraint<DelayedDeliveryConstraint>()
+                            context.DoesTransportSupportConstraint<DelayedDeliveryConstraint>()
                                 ? null
                                 : context.Settings.Get<TimeoutManagerAddressConfiguration>().TransportAddress);
                     }
@@ -172,13 +172,13 @@
 
         void SetupLegacyRetriesSatellite(FeatureConfigurationContext context)
         {
-            var retriesQueueLogicalAddress = context.Settings.LogicalAddress().CreateQualifiedAddress("Retries");
-            var retriesQueueTransportAddress = context.Settings.GetTransportAddress(retriesQueueLogicalAddress);
+            var retriesQueueLogicalAddress = context.Transport.LogicalAddress.CreateQualifiedAddress("Retries");
+            var retriesQueueTransportAddress = context.Transport.TransportInfrastructure.ToTransportAddress(retriesQueueLogicalAddress);
 
-            var mainQueueLogicalAddress = context.Settings.LogicalAddress();
-            var mainQueueTransportAddress = context.Settings.GetTransportAddress(mainQueueLogicalAddress);
+            var mainQueueLogicalAddress = context.Transport.LogicalAddress;
+            var mainQueueTransportAddress = context.Transport.TransportInfrastructure.ToTransportAddress(mainQueueLogicalAddress);
 
-            var requiredTransactionMode = context.Settings.GetRequiredTransactionModeForReceives();
+            var requiredTransactionMode = context.GetRequiredTransactionModeForReceives();
 
             context.AddSatelliteReceiver("Legacy Retries Processor", retriesQueueTransportAddress, requiredTransactionMode, new PushRuntimeSettings(maxConcurrency: 1),
                 (config, errorContext) =>

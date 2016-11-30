@@ -7,7 +7,6 @@ namespace NServiceBus
     using Routing;
     using Routing.MessageDrivenSubscriptions;
     using Settings;
-    using Transport;
 
     /// <summary>
     /// Provides access to the core's routing infrastructure.
@@ -38,7 +37,7 @@ namespace NServiceBus
 
         internal bool EnforceBestPractices { get; private set; }
 
-        internal void Initialize(ReadOnlySettings settings, TransportInfrastructure transportInfrastructure, PipelineSettings pipelineSettings)
+        internal void Initialize(ReadOnlySettings settings, TransportComponent transportComponent, PipelineSettings pipelineSettings)
         {
             var unicastBusConfig = settings.GetConfigSection<UnicastBusConfig>();
             var conventions = settings.Get<Conventions>();
@@ -53,13 +52,13 @@ namespace NServiceBus
                 }
             }
 
-            unicastBusConfig?.MessageEndpointMappings.Apply(Publishers, UnicastRoutingTable, transportInfrastructure.MakeCanonicalForm, conventions);
+            unicastBusConfig?.MessageEndpointMappings.Apply(Publishers, UnicastRoutingTable, transportComponent.TransportInfrastructure.MakeCanonicalForm, conventions);
             configuredUnicastRoutes?.Apply(UnicastRoutingTable, conventions);
 
             pipelineSettings.Register(b =>
             {
-                var unicastSendRouter = new UnicastSendRouter(UnicastRoutingTable, EndpointInstances, i => transportInfrastructure.ToTransportAddress(LogicalAddress.CreateRemoteAddress(i)));
-                return new UnicastSendRouterConnector(settings.LocalAddress(), settings.InstanceSpecificQueue(), unicastSendRouter, DistributionPolicy, i => transportInfrastructure.ToTransportAddress(LogicalAddress.CreateRemoteAddress(i)));
+                var unicastSendRouter = new UnicastSendRouter(UnicastRoutingTable, EndpointInstances, i => transportComponent.TransportInfrastructure.ToTransportAddress(LogicalAddress.CreateRemoteAddress(i)));
+                return new UnicastSendRouterConnector(transportComponent.SharedQueue, settings.InstanceSpecificQueue(), unicastSendRouter, DistributionPolicy, i => transportComponent.TransportInfrastructure.ToTransportAddress(LogicalAddress.CreateRemoteAddress(i)));
             }, "Determines how the message being sent should be routed");
 
             pipelineSettings.Register(new UnicastReplyRouterConnector(), "Determines how replies should be routed");

@@ -21,7 +21,7 @@
 
             Prerequisite(context => !context.Settings.GetOrDefault<bool>("Endpoint.SendOnly"), "Send only endpoints can't use the timeoutmanager since it requires receive capabilities");
             Prerequisite(context => !HasAlternateTimeoutManagerBeenConfigured(context.Settings), "A user configured timeoutmanager address has been found and this endpoint will send timeouts to that endpoint");
-            Prerequisite(c => !c.Settings.DoesTransportSupportConstraint<DelayedDeliveryConstraint>(), "The selected transport supports delayed delivery natively");
+            Prerequisite(c => !c.DoesTransportSupportConstraint<DelayedDeliveryConstraint>(), "The selected transport supports delayed delivery natively");
         }
 
         /// <summary>
@@ -34,7 +34,7 @@
                 throw new Exception("The selected persistence doesn't have support for timeout storage. Select another persistence or disable the timeout manager feature using endpointConfiguration.DisableFeature<TimeoutManager>()");
             }
 
-            var requiredTransactionSupport = context.Settings.GetRequiredTransactionModeForReceives();
+            var requiredTransactionSupport = context.GetRequiredTransactionModeForReceives();
             var pushRuntimeSettings = context.Settings.GetTimeoutManagerMaxConcurrency();
 
             SetupStorageSatellite(context, requiredTransactionSupport, pushRuntimeSettings);
@@ -64,8 +64,8 @@
 
         static string SetupDispatcherSatellite(FeatureConfigurationContext context, TransportTransactionMode requiredTransactionSupport, PushRuntimeSettings pushRuntimeSettings)
         {
-            var satelliteLogicalAddress = context.Settings.LogicalAddress().CreateQualifiedAddress("TimeoutsDispatcher");
-            var satelliteAddress = context.Settings.GetTransportAddress(satelliteLogicalAddress);
+            var satelliteLogicalAddress = context.Transport.LogicalAddress.CreateQualifiedAddress("TimeoutsDispatcher");
+            var satelliteAddress = context.Transport.TransportInfrastructure.ToTransportAddress(satelliteLogicalAddress);
 
             context.AddSatelliteReceiver("Timeout Dispatcher Processor", satelliteAddress, requiredTransactionSupport, pushRuntimeSettings, RecoverabilityPolicy,
                 (builder, pushContext) =>
@@ -83,8 +83,8 @@
 
         static void SetupStorageSatellite(FeatureConfigurationContext context, TransportTransactionMode requiredTransactionSupport, PushRuntimeSettings pushRuntimeSettings)
         {
-            var satelliteLogicalAddress = context.Settings.LogicalAddress().CreateQualifiedAddress("Timeouts");
-            var satelliteAddress = context.Settings.GetTransportAddress(satelliteLogicalAddress);
+            var satelliteLogicalAddress = context.Transport.LogicalAddress.CreateQualifiedAddress("Timeouts");
+            var satelliteAddress = context.Transport.TransportInfrastructure.ToTransportAddress(satelliteLogicalAddress);
 
             context.AddSatelliteReceiver("Timeout Message Processor", satelliteAddress, requiredTransactionSupport, pushRuntimeSettings, RecoverabilityPolicy,
                 (builder, pushContext) =>
