@@ -35,12 +35,13 @@
         {
             var creator = new QueueCreator(true);
             var bindings = new QueueBindings();
+            var remoteQueueName = "MsmqQueueCreatorTests.remote";
 
-            bindings.BindSending("MsmqQueueCreatorTests.target3@remote");
+            bindings.BindSending($"{remoteQueueName}@some-machine");
 
             creator.CreateQueueIfNecessary(bindings, WindowsIdentity.GetCurrent().Name);
 
-            Assert.False(QueueExists("MsmqQueueCreatorTests.target3"));
+            Assert.False(QueueExists(remoteQueueName));
         }
 
 
@@ -77,13 +78,11 @@
         [Test]
         public void Should_make_queues_transactional_if_requested()
         {
-            const bool isTransactional = true;
-
             var testQueueName = "MsmqQueueCreatorTests.txreceiver";
 
             DeleteQueueIfPresent(testQueueName);
 
-            var creator = new QueueCreator(isTransactional);
+            var creator = new QueueCreator(useTransactionalQueues: true);
             var bindings = new QueueBindings();
 
             bindings.BindReceiving(testQueueName);
@@ -92,19 +91,17 @@
 
             var queue = GetQueue(testQueueName);
 
-            Assert.AreEqual(isTransactional, queue.Transactional);
+            Assert.True(queue.Transactional);
         }
 
         [Test]
         public void Should_make_queues_non_transactional_if_requested()
         {
-            const bool isTransactional = false;
-
             var testQueueName = "MsmqQueueCreatorTests.txreceiver";
 
             DeleteQueueIfPresent(testQueueName);
 
-            var creator = new QueueCreator(isTransactional);
+            var creator = new QueueCreator(useTransactionalQueues: false);
             var bindings = new QueueBindings();
 
             bindings.BindReceiving(testQueueName);
@@ -113,7 +110,7 @@
 
             var queue = GetQueue(testQueueName);
 
-            Assert.AreEqual(isTransactional, queue.Transactional);
+            Assert.False(queue.Transactional);
         }
 
         [Test]
@@ -177,11 +174,11 @@
         [Test]
         public void Should_allow_queue_names_above_the_limit_for_set_permission()
         {
-            var testQueueName = "MsmqQueueCreatorTests.tolong." + Guid.NewGuid().ToString().Replace("-", "");
+            var testQueueName = $"MsmqQueueCreatorTests.tolong.{Guid.NewGuid().ToString().Replace("-", "")}";
 
             var maxQueueNameForSetPermissionToWork = 102 - Environment.MachineName.Length;
 
-            testQueueName += new string('a', maxQueueNameForSetPermissionToWork - testQueueName.Length + 1);
+            testQueueName = $"{testQueueName}{new string('a', maxQueueNameForSetPermissionToWork - testQueueName.Length + 1)}";
 
             DeleteQueueIfPresent(testQueueName);
 
@@ -192,7 +189,6 @@
 
             Assert.DoesNotThrow(() => creator.CreateQueueIfNecessary(bindings, WindowsIdentity.GetCurrent().Name));
         }
-
 
         [Test]
         public void Should_blow_up_for_invalid_accounts()
