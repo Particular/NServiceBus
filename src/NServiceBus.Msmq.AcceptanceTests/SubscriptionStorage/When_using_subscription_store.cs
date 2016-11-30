@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus.AcceptanceTests.SubscriptionStorage
 {
-    using System;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using Features;
