@@ -38,6 +38,19 @@
             CollectionAssert.IsEmpty(missingBaseClass, string.Join(",", missingBaseClass));
         }
 
+        [Test]
+        public void Ensure_all_sagadatas_are_public()
+        {
+            var testTypes = Assembly.GetExecutingAssembly().GetTypes();
+
+            var sagaDatas = testTypes
+                .Where(t => !t.IsPublic && !t.IsNestedPublic)
+                .Where(t => typeof(IContainSagaData).IsAssignableFrom(t))
+                .ToList();
+
+            CollectionAssert.IsEmpty(sagaDatas, string.Join(",", sagaDatas));
+        }
+
         static bool HasTestMethod(Type t)
         {
             return t.GetMethods().Any(m => m.GetCustomAttributes<TestAttribute>().Any());

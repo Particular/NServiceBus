@@ -27,13 +27,13 @@ namespace NServiceBus.AcceptanceTests.Sagas
             Assert.AreEqual("SomeData", context.ContextBag.Get<SagaEndpoint.BehaviorWhichAddsThingsToTheContext.State>().SomeData);
         }
 
-        class Context : ScenarioContext
+        public class Context : ScenarioContext
         {
             public bool FinderUsed { get; set; }
             public ReadOnlyContextBag ContextBag { get; set; }
         }
 
-        class SagaEndpoint : EndpointConfigurationBuilder
+        public class SagaEndpoint : EndpointConfigurationBuilder
         {
             public SagaEndpoint()
             {
