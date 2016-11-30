@@ -14,12 +14,13 @@
     /// </summary>
     public class FeatureConfigurationContext
     {
-        internal FeatureConfigurationContext(ReadOnlySettings settings, IConfigureComponents container, PipelineSettings pipelineSettings, RoutingComponent routing)
+        internal FeatureConfigurationContext(ReadOnlySettings settings, IConfigureComponents container, PipelineSettings pipelineSettings, RoutingComponent routing, TransportComponent transport)
         {
             Settings = settings;
             Container = container;
             Pipeline = pipelineSettings;
             Routing = routing;
+            Transport = transport;
 
             TaskControllers = new List<FeatureStartupTaskController>();
         }
@@ -44,6 +45,11 @@
         /// </summary>
         public RoutingComponent Routing { get; }
 
+        /// <summary>
+        /// blabla.
+        /// </summary>
+        public TransportComponent Transport { get; }
+
         internal List<FeatureStartupTaskController> TaskControllers { get; }
 
         /// <summary>
@@ -58,7 +64,7 @@
         [ObsoleteEx(Message = "The satellite's transaction mode needs to match the endpoint's transaction mode.", RemoveInVersion = "8.0", TreatAsErrorFromVersion = "7.0", ReplacementTypeOrMember = AddSatelliteOverloadMemberDefinition)]
         public void AddSatelliteReceiver(string name, string transportAddress, TransportTransactionMode requiredTransportTransactionMode, PushRuntimeSettings runtimeSettings, Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> recoverabilityPolicy, Func<IBuilder, MessageContext, Task> onMessage)
         {
-            var requiredTransactionMode = Settings.GetRequiredTransactionModeForReceives();
+            var requiredTransactionMode = this.GetRequiredTransactionModeForReceives();
 
             if (requiredTransportTransactionMode != requiredTransactionMode)
             {
@@ -82,7 +88,7 @@
         /// <param name="recoverabilityPolicy">Recoverability policy to be if processing fails.</param>
         public void AddSatelliteReceiver(string name, string transportAddress, PushRuntimeSettings runtimeSettings, Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> recoverabilityPolicy, Func<IBuilder, MessageContext, Task> onMessage)
         {
-            var requiredTransactionMode = Settings.GetRequiredTransactionModeForReceives();
+            var requiredTransactionMode = this.GetRequiredTransactionModeForReceives();
 
             var satelliteDefinition = new SatelliteDefinition(name, transportAddress, requiredTransactionMode, runtimeSettings, recoverabilityPolicy, onMessage);
 

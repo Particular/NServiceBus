@@ -45,12 +45,16 @@ namespace NServiceBus
             var transportDefinition = settings.Get<TransportDefinition>();
             var connectionString = settings.Get<TransportConnectionString>().GetConnectionStringOrRaiseError(transportDefinition);
             var transportInfrastructure = transportDefinition.Initialize(settings, connectionString);
-            settings.Set<TransportInfrastructure>(transportInfrastructure);
+            //settings.Set<TransportInfrastructure>(transportInfrastructure);
 
+            var transport = new TransportComponent(transportInfrastructure);
+            transport.Initialize(settings, container);
+
+            //TODO: we should read the routing components from the settings to maintain backwards compatibility with samples/docs and external usages.
             var routing = new RoutingComponent();
-            routing.Initialize(settings, transportInfrastructure, pipelineSettings);
+            routing.Initialize(settings, transport, pipelineSettings);
 
-            var featureStats = featureActivator.SetupFeatures(container, pipelineSettings, routing);
+            var featureStats = featureActivator.SetupFeatures(container, pipelineSettings, routing, transport);
 
             pipelineConfiguration.RegisterBehaviorsInContainer(settings, container);
 

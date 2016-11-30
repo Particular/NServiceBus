@@ -7,12 +7,12 @@ namespace NServiceBus.Features
         public NativePublishSubscribeFeature()
         {
             EnableByDefault();
-            Prerequisite(c => c.Settings.Get<TransportInfrastructure>().OutboundRoutingPolicy.Publishes == OutboundRoutingType.Multicast, "The transport does not support native pub sub");
+            Prerequisite(c => c.Transport.TransportInfrastructure.OutboundRoutingPolicy.Publishes == OutboundRoutingType.Multicast, "The transport does not support native pub sub");
         }
 
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-            var transportInfrastructure = context.Settings.Get<TransportInfrastructure>();
+            var transportInfrastructure = context.Transport.TransportInfrastructure;
             var canReceive = !context.Settings.GetOrDefault<bool>("Endpoint.SendOnly");
 
             context.Pipeline.Register(new MulticastPublishRouterBehavior(), "Determines how the published messages should be routed");

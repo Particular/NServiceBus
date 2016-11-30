@@ -19,7 +19,7 @@ namespace NServiceBus.Features
                 // s.SetDefault<Publishers>(new Publishers()); currently setup by RoutingFeature
                 s.SetDefault<ConfiguredPublishers>(new ConfiguredPublishers());
             });
-            Prerequisite(c => c.Settings.Get<TransportInfrastructure>().OutboundRoutingPolicy.Publishes == OutboundRoutingType.Unicast, "The transport supports native pub sub");
+            Prerequisite(c => c.Transport.TransportInfrastructure.OutboundRoutingPolicy.Publishes == OutboundRoutingType.Unicast, "The transport supports native pub sub");
         }
 
         /// <summary>
@@ -32,7 +32,7 @@ namespace NServiceBus.Features
                 throw new Exception("The selected persistence doesn't have support for subscription storage. Select another persistence or disable the message-driven subscriptions feature using endpointConfiguration.DisableFeature<MessageDrivenSubscriptions>()");
             }
 
-            var transportInfrastructure = context.Settings.Get<TransportInfrastructure>();
+            var transportInfrastructure = context.Transport.TransportInfrastructure;
             var canReceive = !context.Settings.GetOrDefault<bool>("Endpoint.SendOnly");
             var conventions = context.Settings.Get<Conventions>();
             var enforceBestPractices = context.Routing.EnforceBestPractices;
@@ -54,11 +54,11 @@ namespace NServiceBus.Features
             {
                 var distributorAddress = context.Settings.GetOrDefault<string>("LegacyDistributor.Address");
 
-                var subscriberAddress = distributorAddress ?? context.Settings.LocalAddress();
+                var subscriberAddress = distributorAddress ?? context.Transport.SharedQueue;
                 var subscriptionRouter = new SubscriptionRouter(publishers, endpointInstances, i => transportInfrastructure.ToTransportAddress(LogicalAddress.CreateRemoteAddress(i)));
 
-                context.Pipeline.Register(b => new MessageDrivenSubscribeTerminator(subscriptionRouter, subscriberAddress, context.Settings.EndpointName(), b.Build<IDispatchMessages>()), "Sends subscription requests when message driven subscriptions is in use");
-                context.Pipeline.Register(b => new MessageDrivenUnsubscribeTerminator(subscriptionRouter, subscriberAddress, context.Settings.EndpointName(), b.Build<IDispatchMessages>()), "Sends requests to unsubscribe when message driven subscriptions is in use");
+                context.Pipeline.Register(new MessageDrivenSubscribeTerminator(subscriptionRouter, subscriberAddress, context.Settings.EndpointName(), context.Transport.Dispatcher), "Sends subscription requests when message driven subscriptions is in use");
+                context.Pipeline.Register(new MessageDrivenUnsubscribeTerminator(subscriptionRouter, subscriberAddress, context.Settings.EndpointName(), context.Transport.Dispatcher), "Sends requests to unsubscribe when message driven subscriptions is in use");
 
                 var authorizer = context.Settings.GetSubscriptionAuthorizer();
                 if (authorizer == null)

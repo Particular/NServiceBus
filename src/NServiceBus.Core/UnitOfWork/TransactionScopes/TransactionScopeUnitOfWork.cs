@@ -10,7 +10,7 @@
     {
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-            if (context.Settings.GetRequiredTransactionModeForReceives() == TransportTransactionMode.TransactionScope)
+            if (context.GetRequiredTransactionModeForReceives() == TransportTransactionMode.TransactionScope)
             {
                 throw new Exception("A Transaction scope unit of work can't be used when the transport already uses a scope for the receive operation. Remove the call to config.UnitOfWork().WrapHandlersInATransactionScope() or configure the transport to use a lower transaction mode");
             }

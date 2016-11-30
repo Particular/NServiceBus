@@ -2,7 +2,6 @@
 {
     using System;
     using Config;
-    using ConsistencyGuarantees;
     using Features;
     using Settings;
     using Transport;
@@ -17,7 +16,8 @@
         public StartupCheckResult CheckTimeToBeReceivedOverrides()
         {
             var usingMsmq = settings.Get<TransportDefinition>() is MsmqTransport;
-            var isTransactional = settings.GetRequiredTransactionModeForReceives() != TransportTransactionMode.None;
+            //TODO fix.
+            //var isTransactional = settings.GetRequiredTransactionModeForReceives() != TransportTransactionMode.None;
             var outBoxRunning = settings.IsFeatureActive(typeof(Features.Outbox));
 
             var messageAuditingConfig = settings.GetConfigSection<AuditConfig>();
@@ -26,7 +26,8 @@
             var unicastBusConfig = settings.GetConfigSection<UnicastBusConfig>();
             var forwardTTBROverridden = unicastBusConfig != null && unicastBusConfig.TimeToBeReceivedOnForwardedMessages > TimeSpan.Zero;
 
-            return TimeToBeReceivedOverrideChecker.Check(usingMsmq, isTransactional, outBoxRunning, auditTTBROverridden, forwardTTBROverridden);
+            //TODO use isTransactional
+            return TimeToBeReceivedOverrideChecker.Check(usingMsmq, true, outBoxRunning, auditTTBROverridden, forwardTTBROverridden);
         }
 
         ReadOnlySettings settings;

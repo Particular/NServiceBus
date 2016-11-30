@@ -4,8 +4,7 @@ namespace NServiceBus.DeliveryConstraints
     using System.Collections.Generic;
     using System.Linq;
     using Extensibility;
-    using Settings;
-    using Transport;
+    using Features;
 
     /// <summary>
     /// Gives access to <see cref="DeliveryConstraint" />s that exist in the various <see cref="ContextBag" />s.
@@ -106,9 +105,9 @@ namespace NServiceBus.DeliveryConstraints
             return constraint != null;
         }
 
-        internal static bool DoesTransportSupportConstraint<T>(this ReadOnlySettings settings) where T : DeliveryConstraint
+        internal static bool DoesTransportSupportConstraint<T>(this FeatureConfigurationContext context) where T : DeliveryConstraint
         {
-            return settings.Get<TransportInfrastructure>()
+            return context.Transport.TransportInfrastructure
                 .DeliveryConstraints.Any(t => typeof(T).IsAssignableFrom(t));
         }
     }

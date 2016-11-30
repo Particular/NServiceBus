@@ -14,7 +14,7 @@ namespace NServiceBus.Features
             var distributorAddress = context.Settings.GetOrDefault<string>("LegacyDistributor.Address");
             context.Pipeline.Register(
                 new ApplyReplyToAddressBehavior(
-                    context.Settings.LocalAddress(),
+                    context.Transport.SharedQueue,
                     context.Settings.InstanceSpecificQueue(),
                     publicReturnAddress,
                     distributorAddress),

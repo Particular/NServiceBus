@@ -3,7 +3,6 @@ namespace NServiceBus
     using System;
     using System.Threading.Tasks;
     using Features;
-    using Routing;
     using Transport;
 
     class Receiving : Feature
@@ -12,26 +11,6 @@ namespace NServiceBus
         {
             EnableByDefault();
             Prerequisite(c => !c.Settings.GetOrDefault<bool>("Endpoint.SendOnly"), "Endpoint is configured as send-only");
-            Defaults(s =>
-            {
-                var transportInfrastructure = s.Get<TransportInfrastructure>();
-                var discriminator = s.GetOrDefault<string>("EndpointInstanceDiscriminator");
-                var baseQueueName = s.GetOrDefault<string>("BaseInputQueueName") ?? s.EndpointName();
-
-                var mainInstance = transportInfrastructure.BindToLocalEndpoint(new EndpointInstance(s.EndpointName()));
-
-                var mainLogicalAddress = LogicalAddress.CreateLocalAddress(baseQueueName, mainInstance.Properties);
-                s.SetDefault<LogicalAddress>(mainLogicalAddress);
-
-                var mainAddress = transportInfrastructure.ToTransportAddress(mainLogicalAddress);
-                s.SetDefault("NServiceBus.SharedQueue", mainAddress);
-
-                if (discriminator != null)
-                {
-                    var instanceSpecificAddress = transportInfrastructure.ToTransportAddress(mainLogicalAddress.CreateIndividualizedAddress(discriminator));
-                    s.SetDefault("NServiceBus.EndpointSpecificQueue", instanceSpecificAddress);
-                }
-            });
         }
 
         /// <summary>
@@ -41,7 +20,7 @@ namespace NServiceBus
         {
             var inboundTransport = context.Settings.Get<InboundTransport>();
 
-            context.Settings.Get<QueueBindings>().BindReceiving(context.Settings.LocalAddress());
+            context.Settings.Get<QueueBindings>().BindReceiving(context.Transport.SharedQueue);
 
             var instanceSpecificQueue = context.Settings.InstanceSpecificQueue();
             if (instanceSpecificQueue != null)

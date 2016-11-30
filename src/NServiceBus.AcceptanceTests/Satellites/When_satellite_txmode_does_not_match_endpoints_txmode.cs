@@ -42,8 +42,8 @@
 
                 protected override void Setup(FeatureConfigurationContext context)
                 {
-                    var satelliteLogicalAddress = context.Settings.LogicalAddress().CreateQualifiedAddress("MySatellite");
-                    var satelliteAddress = context.Settings.GetTransportAddress(satelliteLogicalAddress);
+                    var satelliteLogicalAddress = context.Transport.LogicalAddress.CreateQualifiedAddress("MySatellite");
+                    var satelliteAddress = context.Transport.TransportInfrastructure.ToTransportAddress(satelliteLogicalAddress);
 
 #pragma warning disable 612, 618
                     context.AddSatelliteReceiver("Test satellite", satelliteAddress, TransportTransactionMode.None, PushRuntimeSettings.Default,

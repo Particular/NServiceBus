@@ -1,53 +1,60 @@
+#pragma warning disable 1591
 namespace NServiceBus
 {
-    using System;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using Features;
+    using ObjectBuilder;
+    using Routing;
+    using Settings;
     using Transport;
 
-    class Sending : Feature
+    public class TransportComponent
     {
-        public Sending()
+        public TransportComponent(TransportInfrastructure transportInfrastructure)
         {
-            EnableByDefault();
+            TransportInfrastructure = transportInfrastructure;
         }
 
-        protected internal override void Setup(FeatureConfigurationContext context)
+        public IDispatchMessages Dispatcher { get; set; }
+
+        public TransportInfrastructure TransportInfrastructure { get; set; }
+
+        public LogicalAddress LogicalAddress { get; private set; }
+
+        public string SharedQueue { get; private set; }
+
+        public string EndpointSpecificQueue { private set; get; }
+
+        public string EndpointName { get; private set; }
+
+        public void Initialize(ReadOnlySettings settings, IConfigureComponents confgire)
         {
-            var transport = context.Settings.Get<OutboundTransport>();
-            var lazySendingConfigResult = new Lazy<TransportSendInfrastructure>(() => transport.Configure(context.Settings), LazyThreadSafetyMode.ExecutionAndPublication);
-            context.Container.ConfigureComponent(c =>
-            {
-                var dispatcher = lazySendingConfigResult.Value.DispatcherFactory();
-                return dispatcher;
-            }, DependencyLifecycle.SingleInstance);
+            var transport = settings.Get<OutboundTransport>();
+            var sendInfrastructure = transport.Configure(settings);
+            sendInfrastructure.PreStartupCheck();
+            Dispatcher = sendInfrastructure.DispatcherFactory();
 
-            context.RegisterStartupTask(new PrepareForSending(lazySendingConfigResult));
-        }
+            EndpointName = settings.EndpointName();
 
-        class PrepareForSending : FeatureStartupTask
-        {
-            public PrepareForSending(Lazy<TransportSendInfrastructure> lazy)
+            confgire.ConfigureComponent(() => Dispatcher, DependencyLifecycle.SingleInstance);
+
+            var discriminator = settings.GetOrDefault<string>("EndpointInstanceDiscriminator");
+            var baseQueueName = settings.GetOrDefault<string>("BaseInputQueueName") ?? EndpointName;
+
+            var mainInstance = TransportInfrastructure.BindToLocalEndpoint(new EndpointInstance(EndpointName));
+
+            var mainLogicalAddress = LogicalAddress.CreateLocalAddress(baseQueueName, mainInstance.Properties);
+            LogicalAddress = mainLogicalAddress;
+            //s.SetDefault<LogicalAddress>(mainLogicalAddress);
+
+            var mainAddress = TransportInfrastructure.ToTransportAddress(mainLogicalAddress);
+            SharedQueue = mainAddress;
+            //s.SetDefault("NServiceBus.SharedQueue", mainAddress);
+
+            if (discriminator != null)
             {
-                this.lazy = lazy;
+                var instanceSpecificAddress = TransportInfrastructure.ToTransportAddress(mainLogicalAddress.CreateIndividualizedAddress(discriminator));
+                //s.SetDefault("NServiceBus.EndpointSpecificQueue", instanceSpecificAddress);
+                EndpointSpecificQueue = instanceSpecificAddress;
             }
-
-            protected override async Task OnStart(IMessageSession session)
-            {
-                var result = await lazy.Value.PreStartupCheck().ConfigureAwait(false);
-                if (!result.Succeeded)
-                {
-                    throw new Exception("Pre start-up check failed: " + result.ErrorMessage);
-                }
-            }
-
-            protected override Task OnStop(IMessageSession session)
-            {
-                return TaskEx.CompletedTask;
-            }
-
-            readonly Lazy<TransportSendInfrastructure> lazy;
         }
     }
 }

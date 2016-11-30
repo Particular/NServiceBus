@@ -32,7 +32,7 @@
                 convention = userDefinedConvention.GetTimeToBeReceivedForMessage;
             }
 
-            var doesTransportSupportDiscardIfNotReceivedBefore = context.Settings.DoesTransportSupportConstraint<DiscardIfNotReceivedBefore>();
+            var doesTransportSupportDiscardIfNotReceivedBefore = context.DoesTransportSupportConstraint<DiscardIfNotReceivedBefore>();
             return new TimeToBeReceivedMappings(knownMessages, convention, doesTransportSupportDiscardIfNotReceivedBefore);
         }
     }
