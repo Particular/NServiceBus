@@ -54,7 +54,7 @@
 
                     var headerCustomizations = context.Settings.Get<Action<Dictionary<string, string>>>(FaultHeaderCustomization);
 
-                    return new MoveToErrorsExecutor(b.Build<IDispatchMessages>(), staticFaultMetadata, headerCustomizations);
+                    return new MoveToErrorsExecutor(context.Transport.Dispatcher, staticFaultMetadata, headerCustomizations);
                 };
 
                 var transactionsOn = context.Settings.GetRequiredTransactionModeForReceives() != TransportTransactionMode.None;
@@ -68,7 +68,7 @@
                     {
                         return new DelayedRetryExecutor(
                             localAddress,
-                            b.Build<IDispatchMessages>(),
+                            context.Transport.Dispatcher,
                             context.Settings.DoesTransportSupportConstraint<DelayedDeliveryConstraint>()
                                 ? null
                                 : context.Settings.Get<TimeoutManagerAddressConfiguration>().TransportAddress);
@@ -187,8 +187,6 @@
                 },
                 (builder, messageContext) =>
                 {
-                    var messageDispatcher = builder.Build<IDispatchMessages>();
-
                     var outgoingHeaders = messageContext.Headers;
                     outgoingHeaders.Remove("NServiceBus.ExceptionInfo.Reason");
                     outgoingHeaders.Remove("NServiceBus.ExceptionInfo.ExceptionType");
@@ -205,7 +203,7 @@
                     var outgoingMessage = new OutgoingMessage(messageContext.MessageId, outgoingHeaders, messageContext.Body);
                     var outgoingOperation = new TransportOperation(outgoingMessage, new UnicastAddressTag(mainQueueTransportAddress));
 
-                    return messageDispatcher.Dispatch(new TransportOperations(outgoingOperation), messageContext.TransportTransaction, messageContext.Context);
+                    return context.Transport.Dispatcher.Dispatch(new TransportOperations(outgoingOperation), messageContext.TransportTransaction, messageContext.Context);
                 });
         }
 

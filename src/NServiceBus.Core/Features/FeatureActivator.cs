@@ -36,7 +36,7 @@ namespace NServiceBus.Features
             }));
         }
 
-        public FeaturesReport SetupFeatures(IConfigureComponents container, PipelineSettings pipelineSettings, RoutingComponent routing)
+        public FeaturesReport SetupFeatures(IConfigureComponents container, PipelineSettings pipelineSettings, RoutingComponent routing, TransportComponent transport)
         {
             // featuresToActivate is enumerated twice because after setting defaults some new features might got activated.
             var sourceFeatures = Sort(features);
@@ -56,7 +56,7 @@ namespace NServiceBus.Features
 
             foreach (var feature in enabledFeatures)
             {
-                ActivateFeature(feature, enabledFeatures, container, pipelineSettings, routing);
+                ActivateFeature(feature, enabledFeatures, container, pipelineSettings, routing, transport);
             }
 
             settings.PreventChanges();
@@ -161,7 +161,7 @@ namespace NServiceBus.Features
             return false;
         }
 
-        bool ActivateFeature(FeatureInfo featureInfo, List<FeatureInfo> featuresToActivate, IConfigureComponents container, PipelineSettings pipelineSettings, RoutingComponent routing)
+        bool ActivateFeature(FeatureInfo featureInfo, List<FeatureInfo> featuresToActivate, IConfigureComponents container, PipelineSettings pipelineSettings, RoutingComponent routing, TransportComponent transport)
         {
             if (featureInfo.Feature.IsActive)
             {
@@ -178,14 +178,14 @@ namespace NServiceBus.Features
                 {
                     dependantFeaturesToActivate.Add(dependency);
                 }
-                return dependantFeaturesToActivate.Aggregate(false, (current, f) => current | ActivateFeature(f, featuresToActivate, container, pipelineSettings, routing));
+                return dependantFeaturesToActivate.Aggregate(false, (current, f) => current | ActivateFeature(f, featuresToActivate, container, pipelineSettings, routing, transport));
             };
             var featureType = featureInfo.Feature.GetType();
             if (featureInfo.Feature.Dependencies.All(dependencyActivator))
             {
                 featureInfo.Diagnostics.DependenciesAreMet = true;
 
-                var context = new FeatureConfigurationContext(settings, container, pipelineSettings, routing);
+                var context = new FeatureConfigurationContext(settings, container, pipelineSettings, routing, transport);
                 if (!HasAllPrerequisitesSatisfied(featureInfo.Feature, featureInfo.Diagnostics, context))
                 {
                     settings.MarkFeatureAsDeactivated(featureType);

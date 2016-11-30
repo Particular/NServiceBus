@@ -47,10 +47,13 @@ namespace NServiceBus
             var transportInfrastructure = transportDefinition.Initialize(settings, connectionString);
             settings.Set<TransportInfrastructure>(transportInfrastructure);
 
+            var transport = new TransportComponent();
+            transport.Setup(settings, container);
+
             var routing = new RoutingComponent();
             routing.Initialize(settings, transportInfrastructure, pipelineSettings);
 
-            var featureStats = featureActivator.SetupFeatures(container, pipelineSettings, routing);
+            var featureStats = featureActivator.SetupFeatures(container, pipelineSettings, routing, transport);
 
             pipelineConfiguration.RegisterBehaviorsInContainer(settings, container);
 
