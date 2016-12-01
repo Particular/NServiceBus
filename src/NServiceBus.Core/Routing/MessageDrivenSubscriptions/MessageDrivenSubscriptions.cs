@@ -1,7 +1,9 @@
 namespace NServiceBus.Features
 {
     using System;
+    using System.Threading.Tasks;
     using Persistence;
+    using Pipeline;
     using Routing;
     using Routing.MessageDrivenSubscriptions;
     using Transport;
@@ -23,6 +25,7 @@ namespace NServiceBus.Features
                 s.SetDefault<ConfiguredPublishers>(new ConfiguredPublishers());
             });
             Prerequisite(c => c.Settings.Get<TransportInfrastructure>().OutboundRoutingPolicy.Publishes == OutboundRoutingType.Unicast, "The transport supports native pub sub");
+            Prerequisite(c => c.Settings.GetOrDefault<IUnicastPublishProvider>() == null, $"{nameof(MessageDrivenSubscriptions)} are disabled because of the registered custom {nameof(IUnicastPublishProvider)}");
         }
 
         /// <summary>
@@ -47,22 +50,23 @@ namespace NServiceBus.Features
 
             configuredPublishers.Apply(publishers, conventions, enforceBestPractices);
 
-            context.Pipeline.Register(b =>
+            var subscriptionRouter = new SubscriptionRouter(publishers, endpointInstances, i => transportInfrastructure.ToTransportAddress(LogicalAddress.CreateRemoteAddress(i)));
+            var distributorAddress = context.Settings.GetOrDefault<string>("LegacyDistributor.Address");
+            var subscriberAddress = distributorAddress ?? context.Settings.LocalAddress();
+
+            context.Container.ConfigureComponent(b =>
             {
                 var unicastPublishRouter = new UnicastPublishRouter(b.Build<MessageMetadataRegistry>(), b.Build<ISubscriptionStorage>());
-                return new UnicastPublishRouterConnector(unicastPublishRouter, distributionPolicy);
-            }, "Determines how the published messages should be routed");
+                return new MessageDrivenPublishSubscribe(subscriptionRouter, subscriberAddress, context.Settings.EndpointName(), b.Build<IDispatchMessages>(), unicastPublishRouter, distributionPolicy);
+            }, DependencyLifecycle.SingleInstance);
 
+            context.Container.ConfigureComponent<IUnicastPublish>(b => b.Build<MessageDrivenPublishSubscribe>(), DependencyLifecycle.SingleInstance);
+            
             if (canReceive)
             {
-                var distributorAddress = context.Settings.GetOrDefault<string>("LegacyDistributor.Address");
-
-                var subscriberAddress = distributorAddress ?? context.Settings.LocalAddress();
-                var subscriptionRouter = new SubscriptionRouter(publishers, endpointInstances, i => transportInfrastructure.ToTransportAddress(LogicalAddress.CreateRemoteAddress(i)));
-
-                context.Pipeline.Register(b => new MessageDrivenSubscribeTerminator(subscriptionRouter, subscriberAddress, context.Settings.EndpointName(), b.Build<IDispatchMessages>()), "Sends subscription requests when message driven subscriptions is in use");
-                context.Pipeline.Register(b => new MessageDrivenUnsubscribeTerminator(subscriptionRouter, subscriberAddress, context.Settings.EndpointName(), b.Build<IDispatchMessages>()), "Sends requests to unsubscribe when message driven subscriptions is in use");
-
+                context.Pipeline.Register(b => new PublishSubscribeTerminator(b.Build<MessageDrivenPublishSubscribe>()), "Handles subscribe requests for non-native publish subscribe.");
+                context.Pipeline.Register(b => new PublishUnsubscribeTerminator(b.Build<MessageDrivenPublishSubscribe>()), "Handles unsubscribe requests for non-native publish subscribe.");
+                
                 var authorizer = context.Settings.GetSubscriptionAuthorizer();
                 if (authorizer == null)
                 {
@@ -70,6 +74,36 @@ namespace NServiceBus.Features
                 }
                 context.Container.RegisterSingleton(authorizer);
                 context.Pipeline.Register<SubscriptionReceiverBehavior.Registration>();
+            }
+        }
+
+        class PublishUnsubscribeTerminator : PipelineTerminator<IUnsubscribeContext>
+        {
+            MessageDrivenPublishSubscribe publishSubscribe;
+
+            public PublishUnsubscribeTerminator(MessageDrivenPublishSubscribe publishSubscribe)
+            {
+                this.publishSubscribe = publishSubscribe;
+            }
+
+            protected override Task Terminate(IUnsubscribeContext context)
+            {
+                return publishSubscribe.Unsubscribe(context);
+            }
+        }
+
+        class PublishSubscribeTerminator : PipelineTerminator<ISubscribeContext>
+        {
+            MessageDrivenPublishSubscribe publishSubscribe;
+
+            public PublishSubscribeTerminator(MessageDrivenPublishSubscribe publishSubscribe)
+            {
+                this.publishSubscribe = publishSubscribe;
+            }
+
+            protected override Task Terminate(ISubscribeContext context)
+            {
+                return publishSubscribe.Subscribe(context);
             }
         }
     }
