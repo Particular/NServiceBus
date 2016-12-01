@@ -91,7 +91,7 @@ namespace NServiceBus
 
             return new TransportReceiveInfrastructure(
                 () => new MessagePump(guarantee => SelectReceiveStrategy(guarantee, scopeOptions.TransactionOptions)),
-                () => new QueueCreator(msmqSettings),
+                () => new QueueCreator(msmqSettings.UseTransactionalQueues),
                 () =>
                 {
                     var bindings = settings.Get<QueueBindings>();
