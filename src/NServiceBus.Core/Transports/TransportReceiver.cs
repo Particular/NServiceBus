@@ -54,9 +54,18 @@ namespace NServiceBus
                 return;
             }
 
-            await receiver.Stop().ConfigureAwait(false);
-
-            isStarted = false;
+            try
+            {
+                await receiver.Stop().ConfigureAwait(false);
+            }
+            catch (Exception exception)
+            {
+                Logger.Debug($"Receiver {Id} listening to queue {pushSettings.InputQueue} threw an exception on stopping.", exception);
+            }
+            finally
+            {
+                isStarted = false;
+            }
         }
 
         readonly CriticalError criticalError;
