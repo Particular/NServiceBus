@@ -34,15 +34,28 @@ namespace NServiceBus
 
             Logger.Debug($"Creating '{address}' if needed.");
 
-            MessageQueue queue;
-            if (MsmqUtilities.TryOpenQueue(msmqAddress, out queue) || MsmqUtilities.TryCreateQueue(msmqAddress, identity, useTransactionalQueues, out queue))
+            if (msmqAddress.IsRemote)
             {
-                using (queue)
-                {
-                    Logger.Debug("Setting queue permissions.");
+                Logger.Info($"'{address}' is a remote queue and won't be created");
+                return;
+            }
 
+            var queuePath = msmqAddress.PathWithoutPrefix;
+
+            if (MessageQueue.Exists(queuePath))
+            {
+                Logger.Debug($"'{address}' already exists");
+                return;
+            }
+
+            try
+            {
+                using (var queue = MessageQueue.Create(queuePath, useTransactionalQueues))
+                {
                     try
                     {
+                        Logger.Debug("Setting queue permissions.");
+
                         QueuePermissions.SetPermissionsForQueue(queue, identity);
                     }
                     catch (MessageQueueException ex)
@@ -50,6 +63,16 @@ namespace NServiceBus
                         Logger.Error($"Unable to set permissions for queue {queue.QueueName}", ex);
                     }
                 }
+            }
+            catch (MessageQueueException ex)
+            {
+                if (ex.MessageQueueErrorCode == MessageQueueErrorCode.QueueExists)
+                {
+                    //Solve the race condition problem when multiple endpoints try to create same queue (e.g. error queue).
+                    return;
+                }
+
+                Logger.Error($"Could not create queue {msmqAddress}. Processing will still continue.", ex);
             }
         }
 
