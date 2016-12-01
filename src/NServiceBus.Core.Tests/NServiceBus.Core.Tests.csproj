@@ -135,6 +135,7 @@
     <Compile Include="Handlers\MessageHandlerRegistryTests.cs" />
     <Compile Include="MessageMapper\MessageMapperTests.cs" />
     <Compile Include="Msmq\MsmqMessagePumpTests.cs" />
+    <Compile Include="Msmq\MsmqQueueCreatorTests.cs" />
     <Compile Include="Msmq\MsmqSubscriptionStorageIntegrationTests.cs" />
     <Compile Include="Msmq\TimeToBeReceivedOverrideCheckerTest.cs" />
     <Compile Include="Msmq\MsmqExtensionsTests.cs" />

@@ -8,9 +8,9 @@ namespace NServiceBus
 
     class QueueCreator : ICreateQueues
     {
-        public QueueCreator(MsmqSettings settings)
+        public QueueCreator(bool useTransactionalQueues)
         {
-            this.settings = settings;
+            this.useTransactionalQueues = useTransactionalQueues;
         }
 
         public Task CreateQueueIfNecessary(QueueBindings queueBindings, string identity)
@@ -30,17 +30,12 @@ namespace NServiceBus
 
         void CreateQueueIfNecessary(string address, string identity)
         {
-            if (address == null)
-            {
-                return;
-            }
-
             var msmqAddress = MsmqAddress.Parse(address);
 
             Logger.Debug($"Creating '{address}' if needed.");
 
             MessageQueue queue;
-            if (MsmqUtilities.TryOpenQueue(msmqAddress, out queue) || MsmqUtilities.TryCreateQueue(msmqAddress, identity, settings.UseTransactionalQueues, out queue))
+            if (MsmqUtilities.TryOpenQueue(msmqAddress, out queue) || MsmqUtilities.TryCreateQueue(msmqAddress, identity, useTransactionalQueues, out queue))
             {
                 using (queue)
                 {
@@ -58,7 +53,7 @@ namespace NServiceBus
             }
         }
 
-        MsmqSettings settings;
+        bool useTransactionalQueues;
 
         static ILog Logger = LogManager.GetLogger<QueueCreator>();
     }
