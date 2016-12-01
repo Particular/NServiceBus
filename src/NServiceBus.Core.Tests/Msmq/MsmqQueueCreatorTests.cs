@@ -82,7 +82,7 @@
 
             DeleteQueueIfPresent(testQueueName);
 
-            var creator = new MsmqQueueCreator(useTransactionalQueues: true);
+            var creator = new MsmqQueueCreator(true);
             var bindings = new QueueBindings();
 
             bindings.BindReceiving(testQueueName);
@@ -101,7 +101,7 @@
 
             DeleteQueueIfPresent(testQueueName);
 
-            var creator = new MsmqQueueCreator(useTransactionalQueues: false);
+            var creator = new MsmqQueueCreator(false);
             var bindings = new QueueBindings();
 
             bindings.BindReceiving(testQueueName);
