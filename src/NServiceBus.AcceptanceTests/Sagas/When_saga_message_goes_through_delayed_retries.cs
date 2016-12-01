@@ -15,7 +15,7 @@
         public Task Should_invoke_the_correct_handle_methods_on_the_saga()
         {
             return Scenario.Define<Context>()
-                .WithEndpoint<SagaMessageThroughDelayedRetryEndpoint>(b => b
+                .WithEndpoint<DelayedRetryEndpoint>(b => b
                     .When(session => session.SendLocal(new StartSagaMessage
                     {
                         SomeId = Guid.NewGuid()
@@ -31,9 +31,9 @@
             public int NumberOfTimesInvoked { get; set; }
         }
 
-        public class SagaMessageThroughDelayedRetryEndpoint : EndpointConfigurationBuilder
+        public class DelayedRetryEndpoint : EndpointConfigurationBuilder
         {
-            public SagaMessageThroughDelayedRetryEndpoint()
+            public DelayedRetryEndpoint()
             {
                 EndpointSetup<DefaultServer>(b =>
                 {

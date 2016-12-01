@@ -57,7 +57,7 @@ namespace NServiceBus
 
             if (Enum.IsDefined(typeof(MessageIntentEnum), msmqMessage.AppSpecific))
             {
-                headers[Headers.MessageIntent] = ((MessageIntentEnum) msmqMessage.AppSpecific).ToString();
+                headers[Headers.MessageIntent] = ((MessageIntentEnum)msmqMessage.AppSpecific).ToString();
             }
 
             headers[Headers.CorrelationId] = GetCorrelationId(msmqMessage, headers);
@@ -108,7 +108,7 @@ namespace NServiceBus
                 }
             }
 
-            foreach (var pair in (List<HeaderInfo>) o)
+            foreach (var pair in (List<HeaderInfo>)o)
             {
                 if (pair.Key != null)
                 {
@@ -171,7 +171,7 @@ namespace NServiceBus
                 Enum.TryParse(messageIntentString, true, out messageIntent);
             }
 
-            result.AppSpecific = (int) messageIntent;
+            result.AppSpecific = (int)messageIntent;
 
 
             return result;
@@ -219,77 +219,6 @@ namespace NServiceBus
             {
                 Logger.Warn($"Failed to assign a native correlation id for message: {message.MessageId}", ex);
             }
-        }
-
-        public static bool TryOpenQueue(MsmqAddress msmqAddress, out MessageQueue messageQueue)
-        {
-            messageQueue = null;
-
-            var queuePath = msmqAddress.PathWithoutPrefix;
-
-            Logger.Debug($"Checking if queue exists: {queuePath}.");
-
-            if (msmqAddress.IsRemote)
-            {
-                Logger.Debug("Queue is on remote machine.");
-                Logger.Debug("If this does not succeed (like if the remote machine is disconnected), processing will continue.");
-            }
-
-            var path = msmqAddress.PathWithoutPrefix;
-            try
-            {
-                if (MessageQueue.Exists(path))
-                {
-                    messageQueue = new MessageQueue(path);
-
-                    Logger.DebugFormat("Verified that the queue: [{0}] existed", queuePath);
-
-                    return true;
-                }
-            }
-            catch (MessageQueueException)
-            {
-                // Can happen because of an invalid queue path or trying to access a remote private queue.
-                // Either way, this results in a failed attempt, therefore returning false.
-
-                return false;
-            }
-
-            return false;
-        }
-
-        public static bool TryCreateQueue(MsmqAddress msmqAddress, string account, bool transactional, out MessageQueue messageQueue)
-        {
-            messageQueue = null;
-
-            var queuePath = msmqAddress.PathWithoutPrefix;
-            var created = false;
-
-            try
-            {
-                messageQueue = MessageQueue.Create(queuePath, transactional);
-
-                Logger.DebugFormat($"Created queue, path: [{queuePath}], identity: [{account}], transactional: [{transactional}]");
-
-                created = true;
-            }
-            catch (MessageQueueException ex)
-            {
-                var logError = !(msmqAddress.IsRemote && (ex.MessageQueueErrorCode == MessageQueueErrorCode.IllegalQueuePathName));
-
-                if (ex.MessageQueueErrorCode == MessageQueueErrorCode.QueueExists)
-                {
-                    //Solve the race condition problem when multiple endpoints try to create same queue (e.g. error queue).
-                    logError = false;
-                }
-
-                if (logError)
-                {
-                    Logger.Error($"Could not create queue {msmqAddress}. Processing will still continue.", ex);
-                }
-            }
-
-            return created;
         }
 
         const string DIRECTPREFIX = "DIRECT=OS:";

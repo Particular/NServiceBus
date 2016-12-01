@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.Features
+﻿namespace NServiceBus
 {
     using System.Diagnostics;
     using System.Messaging;
@@ -11,17 +11,33 @@
         public static void CheckQueue(string address)
         {
             var msmqAddress = MsmqAddress.Parse(address);
+            var queuePath = msmqAddress.PathWithoutPrefix;
 
-            MessageQueue messageQueue;
-            if (!MsmqUtilities.TryOpenQueue(msmqAddress, out messageQueue))
+            Logger.Debug($"Checking if queue exists: {queuePath}.");
+
+            var path = msmqAddress.PathWithoutPrefix;
+
+            try
             {
-                Logger.Warn($"Unable to open the queue at address '{address}'. Make sure the queue exists, and the address is correct. Processing will still continue.");
-                return;
+                if (MessageQueue.Exists(path))
+                {
+                    using (var messageQueue = new MessageQueue(path))
+                    {
+                        Logger.DebugFormat("Verified that the queue: [{0}] existed", queuePath);
+
+                        WarnIfPublicAccess(messageQueue);
+                    }
+                }
             }
-
-            using (messageQueue)
+            catch (MessageQueueException ex)
             {
-                WarnIfPublicAccess(messageQueue);
+                if (msmqAddress.IsRemote)
+                {
+                    Logger.Warn($"Unable to verify remote queue '{queuePath}'. Make sure the queue exists, and that the address is correct. Processing will still continue.", ex);
+                    return;
+                }
+
+                Logger.Warn($"Unable to verify queue at address '{queuePath}'. Make sure the queue exists, and that the address is correct. Processing will still continue.", ex);
             }
         }
 
@@ -40,9 +56,9 @@
                 return;
             }
 
-            if (anonymousRights.HasValue && everyoneRights.HasValue)
+            if (anonymousRights.HasValue || everyoneRights.HasValue)
             {
-                var logMessage = $"Queue [{queue.QueueName}] is running with [{LocalEveryoneGroupName}] and [{LocalAnonymousLogonName}] permissions. Consider setting appropriate permissions, if required by the organization. For more information, consult the documentation.";
+                var logMessage = $"Queue [{queue.QueueName}] is running with [{LocalEveryoneGroupName}] and/or [{LocalAnonymousLogonName}] permissions. Consider setting appropriate permissions, if required by the organization. For more information, consult the documentation.";
 
                 if (Debugger.IsAttached)
                 {
@@ -55,21 +71,8 @@
             }
         }
 
-        public static void SetPermissionsForQueue(MessageQueue queue, string account)
-        {
-
-            queue.SetPermissions(LocalAdministratorsGroupName, MessageQueueAccessRights.FullControl, AccessControlEntryType.Allow);
-            queue.SetPermissions(LocalEveryoneGroupName, MessageQueueAccessRights.WriteMessage, AccessControlEntryType.Allow);
-            queue.SetPermissions(LocalAnonymousLogonName, MessageQueueAccessRights.WriteMessage, AccessControlEntryType.Allow);
-
-            queue.SetPermissions(account, MessageQueueAccessRights.WriteMessage, AccessControlEntryType.Allow);
-            queue.SetPermissions(account, MessageQueueAccessRights.ReceiveMessage, AccessControlEntryType.Allow);
-            queue.SetPermissions(account, MessageQueueAccessRights.PeekMessage, AccessControlEntryType.Allow);
-        }
-
-        static string LocalAdministratorsGroupName = new SecurityIdentifier(WellKnownSidType.BuiltinAdministratorsSid, null).Translate(typeof(NTAccount)).ToString();
-        static string LocalEveryoneGroupName = new SecurityIdentifier(WellKnownSidType.WorldSid, null).Translate(typeof(NTAccount)).ToString();
-        static string LocalAnonymousLogonName = new SecurityIdentifier(WellKnownSidType.AnonymousSid, null).Translate(typeof(NTAccount)).ToString();
+        internal static string LocalEveryoneGroupName = new SecurityIdentifier(WellKnownSidType.WorldSid, null).Translate(typeof(NTAccount)).ToString();
+        internal static string LocalAnonymousLogonName = new SecurityIdentifier(WellKnownSidType.AnonymousSid, null).Translate(typeof(NTAccount)).ToString();
 
         static ILog Logger = LogManager.GetLogger(typeof(QueuePermissions));
     }
