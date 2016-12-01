@@ -302,7 +302,7 @@ namespace NServiceBus
         InstancePerUnitOfWork = 1,
         InstancePerCall = 2,
     }
-    public class DistributionPolicy
+    public class DistributionPolicy : NServiceBus.IDistributionPolicy
     {
         public DistributionPolicy() { }
         public void SetDistributionStrategy(NServiceBus.Routing.DistributionStrategy distributionStrategy) { }
@@ -580,6 +580,10 @@ namespace NServiceBus
         string Key { get; set; }
         object GetValue();
         void SetValue(object value);
+    }
+    public interface IDistributionPolicy
+    {
+        NServiceBus.Routing.DistributionStrategy GetDistributionStrategy(string endpointName, NServiceBus.DistributionStrategyScope scope);
     }
     public interface IEncryptionService
     {
@@ -2589,6 +2593,7 @@ namespace NServiceBus.Routing
     {
         public EndpointInstances() { }
         public void AddOrReplaceInstances(string sourceKey, System.Collections.Generic.IList<NServiceBus.Routing.EndpointInstance> endpointInstances) { }
+        public System.Collections.Generic.IEnumerable<NServiceBus.Routing.EndpointInstance> FindInstances(string endpoint) { }
     }
     public interface IMessageDrivenSubscriptionTransport { }
     public class MulticastAddressTag : NServiceBus.Routing.AddressTag
