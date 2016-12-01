@@ -7,14 +7,14 @@
 
     static class TaskExtensions
     {
-        public static Task ExecuteWithinTimeout(this IEnumerable<Task> tasks, TimeSpan timeoutAfter, Exception throwOnTimeout)
+        public static Task Timebox(this IEnumerable<Task> tasks, TimeSpan timeoutAfter, string messageWhenTimeboxReached)
         {
             var taskCompletionSource = new TaskCompletionSource<object>();
             var tokenSource = new CancellationTokenSource(timeoutAfter);
             var registration = tokenSource.Token.Register(s =>
             {
                 var tcs = (TaskCompletionSource<object>)s;
-                tcs.TrySetException(throwOnTimeout);
+                tcs.TrySetException(new Exception(messageWhenTimeboxReached));
             }, taskCompletionSource);
             {
                 Task.WhenAll(tasks)

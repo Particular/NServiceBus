@@ -259,7 +259,7 @@
         {
             var startTimeout = TimeSpan.FromMinutes(2);
             return endpoints.Select(endpoint => StartEndpoint(endpoint, cts))
-                .ExecuteWithinTimeout(startTimeout, new Exception($"Starting endpoints took longer than {startTimeout.TotalMinutes} minutes."));
+                .Timebox(startTimeout, $"Starting endpoints took longer than {startTimeout.TotalMinutes} minutes.");
         }
 
         static async Task StartEndpoint(EndpointRunner endpoint, CancellationTokenSource cts)
@@ -281,7 +281,7 @@
         {
             var whenTimeout = TimeSpan.FromSeconds(60);
             return endpoints.Select(endpoint => ExecuteWhens(endpoint, cts))
-                .ExecuteWithinTimeout(whenTimeout, new Exception($"Executing given and whens took longer than {whenTimeout.TotalSeconds} seconds."));
+                .Timebox(whenTimeout, $"Executing given and whens took longer than {whenTimeout.TotalSeconds} seconds.");
         }
 
         static async Task ExecuteWhens(EndpointRunner endpoint, CancellationTokenSource cts)
@@ -317,7 +317,7 @@
                     Console.WriteLine($"Endpoint {endpoint.Name()} failed to stop.");
                     throw;
                 }
-            }).ExecuteWithinTimeout(stopTimeout, new Exception($"Stopping endpoints took longer than {stopTimeout.TotalMinutes} minutes."));
+            }).Timebox(stopTimeout, $"Stopping endpoints took longer than {stopTimeout.TotalMinutes} minutes.");
         }
 
         static async Task<ActiveRunner[]> InitializeRunners(RunDescriptor runDescriptor, List<EndpointBehavior> endpointBehaviors)
