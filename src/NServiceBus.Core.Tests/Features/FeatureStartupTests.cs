@@ -4,17 +4,14 @@
     using System.Collections.Generic;
     using System.Threading.Tasks;
     using NServiceBus.Features;
-    using Transport;
     using NUnit.Framework;
     using ObjectBuilder;
     using Settings;
+    using Transport;
 
     [TestFixture]
     public class FeatureStartupTests
     {
-        private FeatureActivator featureSettings;
-        private SettingsHolder settings;
-
         [SetUp]
         public void Init()
         {
@@ -101,12 +98,18 @@
             Assert.True(feature.TaskDisposed);
         }
 
+        private FeatureActivator featureSettings;
+        private SettingsHolder settings;
+
         class FeatureWithStartupTask : TestFeature
         {
             public FeatureWithStartupTask()
             {
                 EnableByDefault();
             }
+
+            public bool TaskStarted { get; private set; }
+            public bool TaskStopped { get; private set; }
 
             protected internal override void Setup(FeatureConfigurationContext context)
             {
@@ -115,8 +118,6 @@
 
             public class Runner : FeatureStartupTask
             {
-                FeatureWithStartupTask parentFeature;
-
                 public Runner(FeatureWithStartupTask parentFeature)
                 {
                     this.parentFeature = parentFeature;
@@ -133,17 +134,13 @@
                     parentFeature.TaskStopped = true;
                     return TaskEx.CompletedTask;
                 }
-            }
 
-            public bool TaskStarted { get; private set; }
-            public bool TaskStopped { get; private set; }
+                FeatureWithStartupTask parentFeature;
+            }
         }
 
         class FeatureWithStartupTaskThatThrows : TestFeature
         {
-            bool throwOnStart;
-            bool throwOnStop;
-
             public FeatureWithStartupTaskThatThrows(bool throwOnStart = false, bool throwOnStop = false)
             {
                 this.throwOnStart = throwOnStart;
@@ -152,18 +149,28 @@
                 EnableByDefault();
             }
 
+            public bool TaskStarted { get; private set; }
+            public bool TaskStopped { get; private set; }
+            public bool TaskDisposed { get; private set; }
+
             protected internal override void Setup(FeatureConfigurationContext context)
             {
                 context.RegisterStartupTask(new Runner(this));
             }
 
+            bool throwOnStart;
+            bool throwOnStop;
+
             public class Runner : FeatureStartupTask, IDisposable
             {
-                FeatureWithStartupTaskThatThrows parentFeature;
-
                 public Runner(FeatureWithStartupTaskThatThrows parenFeature)
                 {
                     parentFeature = parenFeature;
+                }
+
+                public void Dispose()
+                {
+                    parentFeature.TaskDisposed = true;
                 }
 
                 protected override async Task OnStart(IMessageSession session)
@@ -186,15 +193,8 @@
                     parentFeature.TaskStopped = true;
                 }
 
-                public void Dispose()
-                {
-                    parentFeature.TaskDisposed = true;
-                }
+                FeatureWithStartupTaskThatThrows parentFeature;
             }
-
-            public bool TaskStarted { get; private set; }
-            public bool TaskStopped { get; private set; }
-            public bool TaskDisposed { get; private set; }
         }
 
         class FeatureWithStartupTaskWhichIsDisposable : TestFeature
@@ -204,6 +204,8 @@
                 EnableByDefault();
             }
 
+            public bool TaskDisposed { get; private set; }
+
             protected internal override void Setup(FeatureConfigurationContext context)
             {
                 context.RegisterStartupTask(new Runner(this));
@@ -211,11 +213,14 @@
 
             public class Runner : FeatureStartupTask, IDisposable
             {
-                FeatureWithStartupTaskWhichIsDisposable parentFeature;
-
                 public Runner(FeatureWithStartupTaskWhichIsDisposable parentFeature)
                 {
                     this.parentFeature = parentFeature;
+                }
+
+                public void Dispose()
+                {
+                    parentFeature.TaskDisposed = true;
                 }
 
                 protected override Task OnStart(IMessageSession session)
@@ -228,20 +233,13 @@
                     return TaskEx.CompletedTask;
                 }
 
-                public void Dispose()
-                {
-                    parentFeature.TaskDisposed = true;
-                }
+                FeatureWithStartupTaskWhichIsDisposable parentFeature;
             }
-
-            public bool TaskDisposed { get; private set; }
         }
     }
 
     public class FakeBuilder : IBuilder
     {
-        Type type;
-
         public FakeBuilder()
         {
         }
@@ -294,5 +292,7 @@
         {
             throw new NotImplementedException();
         }
+
+        Type type;
     }
 }
