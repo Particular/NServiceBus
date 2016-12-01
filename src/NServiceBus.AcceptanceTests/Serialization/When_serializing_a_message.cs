@@ -7,7 +7,7 @@
     using NUnit.Framework;
 
     [TestFixture]
-    public class When_serializing_a_message
+    public class When_serializing_a_message:NServiceBusAcceptanceTest
     {
         [Test]
         public async Task DateTime_properties_should_keep_their_original_timezone_information()
@@ -83,7 +83,7 @@
             }
         }
 
-        class DateTimeMessage:IMessage
+        public class DateTimeMessage:IMessage
         {
             public DateTime DateTime { get; set; }
             public DateTime DateTimeLocal { get; set; }
