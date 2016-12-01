@@ -161,7 +161,6 @@
     <Compile Include="Routing\MessageDrivenSubscriptions\TypePublisherSource.cs" />
     <Compile Include="Routing\NativePublishSubscribeFeature.cs" />
     <Compile Include="Routing\TypeRouteSource.cs" />
-    <Compile Include="Routing\IDistributionPolicy.cs" />
     <Compile Include="Routing\IRouteSource.cs" />
     <Compile Include="Routing\IUnicastSendRouter.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\IMessageDrivenSubscriptionTransport.cs" />

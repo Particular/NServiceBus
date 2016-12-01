@@ -13,7 +13,7 @@ namespace NServiceBus
             this.transportAddressTranslation = transportAddressTranslation;
         }
 
-        public UnicastRoutingStrategy Route(Type messageType, IDistributionPolicy distributionPolicy)
+        public UnicastRoutingStrategy Route(Type messageType, Func<string, DistributionStrategyScope, DistributionStrategy> distributionPolicy)
         {
             var route = unicastRoutingTable.GetRouteFor(messageType);
             if (route == null)
@@ -33,7 +33,7 @@ namespace NServiceBus
 
 
             var instances = endpointInstances.FindInstances(route.Endpoint).Select(e => transportAddressTranslation(e)).ToArray();
-            var selectedInstanceAddress = distributionPolicy.GetDistributionStrategy(route.Endpoint, DistributionStrategyScope.Send).SelectReceiver(instances);
+            var selectedInstanceAddress = distributionPolicy(route.Endpoint, DistributionStrategyScope.Send).SelectReceiver(instances);
             return new UnicastRoutingStrategy(selectedInstanceAddress);
         }
 

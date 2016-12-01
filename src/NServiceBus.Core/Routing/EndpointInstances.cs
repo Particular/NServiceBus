@@ -8,7 +8,10 @@ namespace NServiceBus.Routing
     /// </summary>
     public class EndpointInstances
     {
-        internal IEnumerable<EndpointInstance> FindInstances(string endpoint)
+        /// <summary>
+        /// Returns a collection of instances for a given endpoint. Returns a default instance if no specific instances are found.
+        /// </summary>
+        public IEnumerable<EndpointInstance> FindInstances(string endpoint)
         {
             HashSet<EndpointInstance> registeredInstances;
             return allInstances.TryGetValue(endpoint, out registeredInstances)

@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<endpoints>
+  <endpoint name="endpointA">
+    <handles>
+      <event type="Contracts.Events.DemoCommandReceived, Contracts" />
+    </handles>
+  </endpoint>
+  <endpoint name="endpointB">
+    <handles>
+      <command type="Contracts.Commands.DemoCommand, Contracts" />
+      <event type="Contracts.Events.DemoEvent, Contracts" />
+    </handles>
+  </endpoint>
+</endpoints>

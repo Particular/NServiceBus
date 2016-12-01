@@ -9,7 +9,10 @@ namespace NServiceBus.Routing
     /// </summary>
     public class UnicastRoutingTable
     {
-        internal UnicastRoute GetRouteFor(Type messageType)
+        /// <summary>
+        /// Returns a route for a given message type.
+        /// </summary>
+        public UnicastRoute GetRouteFor(Type messageType)
         {
             UnicastRoute unicastRoute;
             return routeTable.TryGetValue(messageType, out unicastRoute)

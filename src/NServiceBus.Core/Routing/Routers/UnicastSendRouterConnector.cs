@@ -53,7 +53,15 @@ namespace NServiceBus
             var explicitDestination = state.Option == RouteOption.ExplicitDestination ? state.ExplicitDestination : null;
             var destination = explicitDestination ?? thisInstance ?? thisEndpoint;
 
-            var distributionPolicy = state.Option == RouteOption.RouteToSpecificInstance ? new SpecificInstanceDistributionPolicy(state.SpecificInstance, transportAddressTranslation) : defaultDistributionPolicy;
+            Func<string, DistributionStrategyScope, DistributionStrategy> distributionPolicy;
+            if (state.Option == RouteOption.RouteToSpecificInstance)
+            {
+                distributionPolicy = new SpecificInstanceDistributionPolicy(state.SpecificInstance, transportAddressTranslation).GetDistributionStrategy;
+            }
+            else
+            {
+                distributionPolicy = defaultDistributionPolicy.GetDistributionStrategy;
+            }
 
             var routingStrategy = string.IsNullOrEmpty(destination)
                 ? unicastSendRouter.Route(messageType, distributionPolicy)
@@ -97,7 +105,7 @@ namespace NServiceBus
             return new UnicastRoutingStrategy(physicalAddress);
         }
 
-        IDistributionPolicy defaultDistributionPolicy;
+        DistributionPolicy defaultDistributionPolicy;
         Func<EndpointInstance, string> transportAddressTranslation;
         string instanceSpecificQueue;
         string distributorAddress;

@@ -37,7 +37,7 @@ namespace NServiceBus.Core.Tests.Routing
             Assert.That(result, Has.Exactly(1).EqualTo(endpointBInstances[1]));
         }
 
-        static string InvokeDistributionStrategy(IDistributionPolicy policy, string endpointName, string[] instanceAddress)
+        static string InvokeDistributionStrategy(DistributionPolicy policy, string endpointName, string[] instanceAddress)
         {
             return policy.GetDistributionStrategy(endpointName, DistributionStrategyScope.Send).SelectReceiver(instanceAddress);
         }
