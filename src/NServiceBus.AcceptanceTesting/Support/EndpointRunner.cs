@@ -155,7 +155,10 @@
         {
             try
             {
-                await endpointInstance.Stop().ConfigureAwait(false);
+                if (endpointInstance != null)
+                {
+                    await endpointInstance.Stop().ConfigureAwait(false);
+                }
             }
             catch (Exception ex)
             {
