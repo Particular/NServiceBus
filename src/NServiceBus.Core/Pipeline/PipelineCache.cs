@@ -32,7 +32,7 @@ namespace NServiceBus
             {
                 return (IPipeline<TContext>) lazyPipeline.Value;
             }
-            throw new InvalidOperationException("Registration of custom pipelines is not supported.");
+            throw new InvalidOperationException("Custom pipelines are not supported.");
         }
 
         void FromMainPipeline<TContext>(IBuilder builder, ReadOnlySettings settings)
