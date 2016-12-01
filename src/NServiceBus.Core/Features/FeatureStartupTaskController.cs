@@ -22,8 +22,19 @@
 
         public async Task Stop(IMessageSession messageSession)
         {
-            await instance.PerformStop(messageSession).ConfigureAwait(false);
-            DisposeIfNecessary(instance);
+            try
+            {
+                await instance.PerformStop(messageSession).ConfigureAwait(false);
+            }
+            catch
+            {
+                // TODO: Should we log here?
+            }
+            finally
+            {
+                DisposeIfNecessary(instance);
+            }
+
         }
 
         static void DisposeIfNecessary(FeatureStartupTask task)
