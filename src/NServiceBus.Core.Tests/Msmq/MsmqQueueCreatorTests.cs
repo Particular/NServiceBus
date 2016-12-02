@@ -30,18 +30,6 @@
         }
 
         [Test]
-        public void Should_not_create_remote_queues()
-        {
-            var creator = GetCreator(true);
-            var remoteQueueName = "MsmqQueueCreatorTests.remote";
-
-            creator.CreateQueueIfNecessary(Address.Parse($"{remoteQueueName}@some-machine"), WindowsIdentity.GetCurrent().Name);
-
-            Assert.False(QueueExists(remoteQueueName));
-        }
-
-
-        [Test]
         public void Should_setup_permissions()
         {
             var testQueueName = "MsmqQueueCreatorTests.permissions";
