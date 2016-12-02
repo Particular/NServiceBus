@@ -207,6 +207,7 @@
     <Compile Include="Persistence\Storage.cs" />
     <Compile Include="Persistence\StorageType.cs" />
     <Compile Include="Pipeline\PipelineModifications.cs" />
+    <Compile Include="ReleaseDateAttribute.cs" />
     <Compile Include="Sagas\CorrelationProperty.cs" />
     <Compile Include="Sagas\CustomFinderAdapter.cs" />
     <Compile Include="Sagas\LoadSagaByIdWrapper.cs" />
