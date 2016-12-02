@@ -2,6 +2,7 @@
 {
     using System;
     using System.Threading.Tasks;
+    using Logging;
     using ObjectBuilder;
 
     class FeatureStartupTaskController
@@ -22,8 +23,19 @@
 
         public async Task Stop(IMessageSession messageSession)
         {
-            await instance.PerformStop(messageSession).ConfigureAwait(false);
-            DisposeIfNecessary(instance);
+            try
+            {
+                await instance.PerformStop(messageSession).ConfigureAwait(false);
+            }
+            catch (Exception exception)
+            {
+                Log.Warn($"Exception occurred during stopping of feature startup task '{Name}'.", exception);
+            }
+            finally
+            {
+                DisposeIfNecessary(instance);
+            }
+
         }
 
         static void DisposeIfNecessary(FeatureStartupTask task)
@@ -34,5 +46,7 @@
 
         Func<IBuilder, FeatureStartupTask> factory;
         FeatureStartupTask instance;
+
+        static ILog Log = LogManager.GetLogger<FeatureStartupTaskController>();
     }
 }

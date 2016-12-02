@@ -31,10 +31,10 @@ namespace NServiceBus
                 return;
             }
 
-            await stopSemaphore.WaitAsync().ConfigureAwait(false);
-
             try
             {
+                await stopSemaphore.WaitAsync().ConfigureAwait(false);
+
                 if (stopped)
                 {
                     return;
@@ -42,17 +42,24 @@ namespace NServiceBus
 
                 Log.Info("Initiating shutdown.");
 
+                // Cannot throw by design
                 await StopReceivers().ConfigureAwait(false);
                 await featureRunner.Stop(messageSession).ConfigureAwait(false);
+                // Can throw
                 await transportInfrastructure.Stop().ConfigureAwait(false);
+            }
+            catch (Exception exception)
+            {
+                Log.Warn("Exception occurred during shutdown of the transport.", exception);
+            }
+            finally
+            {
                 settings.Clear();
                 builder.Dispose();
 
                 stopped = true;
                 Log.Info("Shutdown complete.");
-            }
-            finally
-            {
+
                 stopSemaphore.Release();
             }
         }

@@ -316,6 +316,7 @@
     <Compile Include="Timeout\When_fetching_timeouts_from_storage.cs" />
     <Compile Include="Transports\PushRuntimeSettingsTests.cs" />
     <Compile Include="Transports\TransportOperationsTests.cs" />
+    <Compile Include="Transports\TransportReceiverTests.cs" />
     <Compile Include="Unicast\ConfigurationSettings.cs" />
     <Compile Include="Unicast\ConfiguringMessageEndpointMapping.cs" />
     <Compile Include="Unicast\Config\ConfigurationSettings.cs" />

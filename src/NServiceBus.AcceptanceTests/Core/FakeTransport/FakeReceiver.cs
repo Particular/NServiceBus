@@ -6,9 +6,11 @@ namespace NServiceBus.AcceptanceTests.Core.FakeTransport
 
     class FakeReceiver : IPushMessages
     {
-        public FakeReceiver(Exception throwCritical)
+        public FakeReceiver(bool throwCritical, bool throwOnStop, Exception exceptionToThrow)
         {
             this.throwCritical = throwCritical;
+            this.throwOnStop = throwOnStop;
+            this.exceptionToThrow = exceptionToThrow;
         }
 
         public Task Init(Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError, NServiceBus.CriticalError criticalError, PushSettings settings)
@@ -19,18 +21,25 @@ namespace NServiceBus.AcceptanceTests.Core.FakeTransport
 
         public void Start(PushRuntimeSettings limitations)
         {
-            if (throwCritical != null)
+            if (throwCritical)
             {
-                criticalError.Raise(throwCritical.Message, throwCritical);
+                criticalError.Raise(exceptionToThrow.Message, exceptionToThrow);
             }
         }
 
-        public Task Stop()
+        public async Task Stop()
         {
-            return Task.FromResult(0);
+            await Task.Yield();
+
+            if (throwOnStop)
+            {
+                throw exceptionToThrow;
+            }
         }
 
         NServiceBus.CriticalError criticalError;
-        Exception throwCritical;
+        bool throwCritical;
+        readonly bool throwOnStop;
+        readonly Exception exceptionToThrow;
     }
 }
