@@ -60,7 +60,7 @@ namespace NServiceBus
             }
             catch (Exception exception)
             {
-                Logger.Debug($"Receiver {Id} listening to queue {pushSettings.InputQueue} threw an exception on stopping.", exception);
+                Logger.Warn($"Receiver {Id} listening to queue {pushSettings.InputQueue} threw an exception on stopping.", exception);
             }
             finally
             {
