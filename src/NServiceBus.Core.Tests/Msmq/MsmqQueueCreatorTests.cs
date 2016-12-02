@@ -3,6 +3,7 @@
     using System;
     using System.Messaging;
     using System.Security.Principal;
+    using NServiceBus.Core.Tests.Utils;
     using NServiceBus.Transports.Msmq.Config;
     using NUnit.Framework;
     using Transports.Msmq;

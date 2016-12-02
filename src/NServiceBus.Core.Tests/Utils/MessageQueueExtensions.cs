@@ -1,4 +1,4 @@
-﻿namespace NServiceBus
+﻿namespace NServiceBus.Core.Tests.Utils
 {
     using System;
     using System.ComponentModel;

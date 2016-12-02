@@ -278,6 +278,7 @@
     <Compile Include="Unicast\Timing.cs" />
     <Compile Include="Unicast\UnitOfWork.cs" />
     <Compile Include="Utils\ExceptionHeaderHelperTests.cs" />
+    <Compile Include="Utils\MessageQueueExtensions.cs" />
     <Compile Include="Utils\Reflection\ExtensionMethodsTests.cs" />
     <Compile Include="Utils\Reflection\ReflectTests.cs" />
   </ItemGroup>
