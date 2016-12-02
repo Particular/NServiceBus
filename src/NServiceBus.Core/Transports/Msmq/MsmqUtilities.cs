@@ -257,41 +257,7 @@ namespace NServiceBus
 
             return false;
         }
-
-        public static bool TryCreateQueue(MsmqAddress msmqAddress, string account, bool transactional, out MessageQueue messageQueue)
-        {
-            messageQueue = null;
-
-            var queuePath = msmqAddress.PathWithoutPrefix;
-            var created = false;
-
-            try
-            {
-                messageQueue = MessageQueue.Create(queuePath, transactional);
-
-                Logger.DebugFormat($"Created queue, path: [{queuePath}], identity: [{account}], transactional: [{transactional}]");
-
-                created = true;
-            }
-            catch (MessageQueueException ex)
-            {
-                var logError = !(msmqAddress.IsRemote && (ex.MessageQueueErrorCode == MessageQueueErrorCode.IllegalQueuePathName));
-
-                if (ex.MessageQueueErrorCode == MessageQueueErrorCode.QueueExists)
-                {
-                    //Solve the race condition problem when multiple endpoints try to create same queue (e.g. error queue).
-                    logError = false;
-                }
-
-                if (logError)
-                {
-                    Logger.Error($"Could not create queue {msmqAddress}. Processing will still continue.", ex);
-                }
-            }
-
-            return created;
-        }
-
+        
         const string DIRECTPREFIX = "DIRECT=OS:";
         const string DIRECTPREFIX_TCP = "DIRECT=TCP:";
         internal const string PRIVATE = "\\private$\\";
