@@ -71,16 +71,16 @@
                 }
             }
 
-            var chunk = new TimeoutsChunk(timeoutsDue.ToArray(), DateTime.Now.AddSeconds(5));
+            var chunk = new TimeoutsChunk(timeoutsDue.ToArray(), DateTime.UtcNow.AddSeconds(1));
 
             return Task.FromResult(chunk);
         }
 
         void ThrowExceptionUntilWaitTimeReached()
         {
-            if (NextChangeTime <= DateTime.Now)
+            if (NextChangeTime <= DateTime.UtcNow)
             {
-                NextChangeTime = DateTime.Now.AddSeconds(secondsToWait);
+                NextChangeTime = DateTime.UtcNow.AddSeconds(secondsToWait);
                 isAvailable = !isAvailable;
             }
 
@@ -93,7 +93,7 @@
         public IEnumerable<Tuple<string, DateTime>> GetNextChunk(DateTime startSlice, out DateTime nextTimeToRunQuery)
         {
             ThrowExceptionUntilWaitTimeReached();
-            nextTimeToRunQuery = DateTime.Now.AddSeconds(2);
+            nextTimeToRunQuery = DateTime.UtcNow.AddSeconds(1);
             return Enumerable.Empty<Tuple<string, DateTime>>().ToList();
         }
 

@@ -3,6 +3,7 @@
     using System;
     using System.Threading.Tasks;
     using AcceptanceTesting;
+    using Configuration.AdvanceExtensibility;
     using EndpointTemplates;
     using Features;
     using NUnit.Framework;
@@ -24,10 +25,10 @@
         [Test]
         public async Task Endpoint_should_not_shutdown()
         {
-            var stopTime = DateTime.Now.AddSeconds(45);
+            var stopTime = DateTime.UtcNow.AddSeconds(6);
 
             var testContext =
-                await Scenario.Define<TimeoutTestContext>(c => { c.SecondsToWait = 10; })
+                await Scenario.Define<TimeoutTestContext>(c => { c.SecondsToWait = 3; })
                     .WithEndpoint<Endpoint>(b =>
                     {
                         b.CustomConfig((busConfig, context) =>
@@ -39,7 +40,7 @@
                             });
                         });
                     })
-                    .Done(c => c.FatalErrorOccurred || stopTime <= DateTime.Now)
+                    .Done(c => c.FatalErrorOccurred || stopTime <= DateTime.UtcNow)
                     .Run();
 
             Assert.IsFalse(testContext.FatalErrorOccurred, "Circuit breaker was triggered too soon.");
@@ -59,7 +60,11 @@
         {
             public Endpoint()
             {
-                EndpointSetup<DefaultServer>(config => { config.EnableFeature<TimeoutManager>(); });
+                EndpointSetup<DefaultServer>(config =>
+                {
+                    config.GetSettings().Set("TimeToWaitBeforeTriggeringCriticalErrorForTimeoutPersisterReceiver", TimeSpan.FromSeconds(7));
+                    config.EnableFeature<TimeoutManager>();
+                });
             }
 
             public TestContext TestContext { get; set; }
