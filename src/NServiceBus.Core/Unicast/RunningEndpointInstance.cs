@@ -48,6 +48,10 @@ namespace NServiceBus
                 // Can throw
                 await transportInfrastructure.Stop().ConfigureAwait(false);
             }
+            catch (Exception exception)
+            {
+                Log.Warn("Exception occurred during shutdown of the transport.", exception);
+            }
             finally
             {
                 settings.Clear();

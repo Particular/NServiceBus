@@ -2,6 +2,7 @@
 {
     using System;
     using System.Threading.Tasks;
+    using Logging;
     using ObjectBuilder;
 
     class FeatureStartupTaskController
@@ -26,9 +27,9 @@
             {
                 await instance.PerformStop(messageSession).ConfigureAwait(false);
             }
-            catch
+            catch (Exception exception)
             {
-                // TODO: Should we log here?
+                Log.Warn($"Exception occurred during stopping of feature startup task '{Name}'.", exception);
             }
             finally
             {
@@ -45,5 +46,7 @@
 
         Func<IBuilder, FeatureStartupTask> factory;
         FeatureStartupTask instance;
+
+        static ILog Log = LogManager.GetLogger<FeatureStartupTaskController>();
     }
 }
