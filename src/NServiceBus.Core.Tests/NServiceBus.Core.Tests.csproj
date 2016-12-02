@@ -124,6 +124,7 @@
     <Compile Include="Faults\FaultManagerTests.cs" />
     <Compile Include="Features\FeatureDefaultsTests.cs" />
     <Compile Include="Logging\DefaultFactoryTests.cs" />
+    <Compile Include="Msmq\MsmqQueueCreatorTests.cs" />
     <Compile Include="Msmq\TimeToBeRceivedOverrideCheckerTest.cs" />
     <Compile Include="Msmq\ConnectionStringParserTests.cs" />
     <Compile Include="ObservableTests.cs" />

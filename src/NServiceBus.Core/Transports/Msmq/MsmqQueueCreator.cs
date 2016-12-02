@@ -33,7 +33,7 @@ namespace NServiceBus.Transports.Msmq
 
             var queuePath = GetFullPathWithoutPrefix(address);
             var isRemote = address.Machine.ToLower() != RuntimeEnvironment.MachineName.ToLower();
-            
+
             if (isRemote)
             {
                 Logger.Debug("Queue is on remote machine.");
@@ -47,7 +47,6 @@ namespace NServiceBus.Transports.Msmq
                 if (MessageQueue.Exists(queuePath))
                 {
                     Logger.Debug("Queue exists, going to set permissions.");
-                    SetPermissionsForQueue(queuePath, account);
                     return;
                 }
 
@@ -87,14 +86,6 @@ namespace NServiceBus.Transports.Msmq
             }
 
             Logger.DebugFormat("Created queue, path: [{0}], account: [{1}], transactional: [{2}]", queuePath, account, transactional);
-        }
-
-        static void SetPermissionsForQueue(string queuePath, string account)
-        {
-            using (var messageQueue = new MessageQueue(queuePath))
-            {
-                SetPermissionsForQueue(messageQueue, account);
-            }
         }
 
         /// <summary>
