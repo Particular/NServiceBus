@@ -7,7 +7,7 @@
     using NUnit.Framework;
 
     [TestFixture]
-    public class When_serializing_a_message:NServiceBusAcceptanceTest
+    public class When_serializing_a_message : NServiceBusAcceptanceTest
     {
         [Test]
         public async Task DateTime_properties_should_keep_their_original_timezone_information()
@@ -20,42 +20,25 @@
             var expectedDateTimeOffsetUtc = DateTimeOffset.UtcNow;
 
             var context = await Scenario.Define<Context>()
-                .WithEndpoint<DateTimeSender>(b => b.When(
-                    (session, c) =>
+                .WithEndpoint<DateTimeReceiver>(b => b.When(
+                    (session, c) => session.SendLocal(new DateTimeMessage
                     {
-                        return session.Send(new DateTimeMessage
-                        {
-                            DateTime = expectedDateTime,
-                            DateTimeLocal = expectedDateTimeLocal,
-                            DateTimeUtc = expectedDateTimeUtc,
-                            DateTimeOffset = expectedDateTimeOffset,
-                            DateTimeOffsetLocal = expectedDateTimeOffsetLocal,
-                            DateTimeOffsetUtc = expectedDateTimeOffsetUtc
-                        });
-                    }))
-                .WithEndpoint<DateTimeReceiver>()
-                .Done(c=>c.HandlerGotTheRequest = true)
+                        DateTime = expectedDateTime,
+                        DateTimeLocal = expectedDateTimeLocal,
+                        DateTimeUtc = expectedDateTimeUtc,
+                        DateTimeOffset = expectedDateTimeOffset,
+                        DateTimeOffsetLocal = expectedDateTimeOffsetLocal,
+                        DateTimeOffsetUtc = expectedDateTimeOffsetUtc
+                    })))
+                .Done(c => c.ReceivedMessage != null)
                 .Run();
 
-            Assert.True(context.HandlerGotTheRequest);
-            Assert.AreEqual(expectedDateTime,context.MessageDateTime);
-            Assert.AreEqual(expectedDateTimeLocal,context.MessageDateTimeLocal);
-            Assert.AreEqual(expectedDateTimeUtc,context.MessageDateTimeUtc);
-            Assert.AreEqual(expectedDateTimeOffset,context.MessageDateTimeOffset);
-            Assert.AreEqual(expectedDateTimeOffsetLocal,context.MessageDateTimeOffsetLocal);
-            Assert.AreEqual(expectedDateTimeOffsetUtc,context.MessageDateTimeOffsetUtc);
-
-        }
-        class DateTimeSender : EndpointConfigurationBuilder
-        {
-            public DateTimeSender()
-            {
-                EndpointSetup<DefaultServer>(c =>
-                    {
-                        c.UseSerialization<JsonSerializer>();
-                    })
-                    .AddMapping<DateTimeMessage>(typeof(DateTimeReceiver));
-            }
+            Assert.AreEqual(expectedDateTime, context.ReceivedMessage.DateTime);
+            Assert.AreEqual(expectedDateTimeLocal, context.ReceivedMessage.DateTimeLocal);
+            Assert.AreEqual(expectedDateTimeUtc, context.ReceivedMessage.DateTimeUtc);
+            Assert.AreEqual(expectedDateTimeOffset, context.ReceivedMessage.DateTimeOffset);
+            Assert.AreEqual(expectedDateTimeOffsetLocal, context.ReceivedMessage.DateTimeOffsetLocal);
+            Assert.AreEqual(expectedDateTimeOffsetUtc, context.ReceivedMessage.DateTimeOffsetUtc);
         }
 
         class DateTimeReceiver : EndpointConfigurationBuilder
@@ -69,21 +52,16 @@
             {
                 public Context Context { get; set; }
 
-                public Task Handle(DateTimeMessage request, IMessageHandlerContext context)
+                public Task Handle(DateTimeMessage message, IMessageHandlerContext context)
                 {
-                    Context.MessageDateTime = request.DateTime;
-                    Context.MessageDateTimeLocal = request.DateTimeLocal;
-                    Context.MessageDateTimeUtc = request.DateTimeUtc;
-                    Context.MessageDateTimeOffset = request.DateTimeOffset;
-                    Context.MessageDateTimeOffsetLocal = request.DateTimeOffsetLocal;
-                    Context.MessageDateTimeOffsetUtc = request.DateTimeOffsetUtc;
+                    Context.ReceivedMessage = message;
 
                     return Task.FromResult(0);
                 }
             }
         }
 
-        public class DateTimeMessage:IMessage
+        public class DateTimeMessage : IMessage
         {
             public DateTime DateTime { get; set; }
             public DateTime DateTimeLocal { get; set; }
@@ -95,13 +73,7 @@
 
         class Context : ScenarioContext
         {
-            public DateTime MessageDateTime  { get; set; }
-            public DateTime MessageDateTimeLocal  { get; set; }
-            public DateTime MessageDateTimeUtc  { get; set; }
-            public DateTimeOffset MessageDateTimeOffset { get; set; }
-            public DateTimeOffset MessageDateTimeOffsetLocal  { get; set; }
-            public DateTimeOffset MessageDateTimeOffsetUtc  { get; set; }
-            public bool HandlerGotTheRequest { get; set; }
+            public DateTimeMessage ReceivedMessage { get; set; }
         }
     }
 }
