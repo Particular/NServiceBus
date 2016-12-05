@@ -2,14 +2,12 @@ namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
-    using System.Globalization;
     using System.IO;
     using System.Linq;
     using System.Runtime.Serialization.Formatters;
     using System.Text;
     using MessageInterfaces;
     using Newtonsoft.Json;
-    using Newtonsoft.Json.Converters;
     using Serialization;
 
     class JsonMessageSerializer : IMessageSerializer
@@ -89,10 +87,6 @@ namespace NServiceBus
                     TypeNameHandling = TypeNameHandling.None,
                     Converters =
                     {
-                        new IsoDateTimeConverter
-                        {
-                            DateTimeStyles = DateTimeStyles.RoundtripKind
-                        },
                         new XContainerJsonConverter()
                     }
                 };
@@ -209,10 +203,6 @@ namespace NServiceBus
             TypeNameHandling = TypeNameHandling.Auto,
             Converters =
             {
-                new IsoDateTimeConverter
-                {
-                    DateTimeStyles = DateTimeStyles.RoundtripKind
-                },
                 new XContainerJsonConverter()
             }
         };
