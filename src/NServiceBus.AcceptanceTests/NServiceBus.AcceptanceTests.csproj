@@ -126,6 +126,7 @@
     <Compile Include="ScenarioDescriptors\AllTransactionSettings.cs" />
     <Compile Include="ScenarioDescriptors\TransactionSettings.cs" />
     <Compile Include="NonDTC\When_dispatching_deferred_message_fails_without_dtc.cs" />
+    <Compile Include="Serialization\When_serializing_a_message.cs" />
     <Compile Include="Timeouts\TemporarilyUnavailableTimeoutPersister.cs" />
     <Compile Include="Timeouts\OutdatedTimeoutPersister.cs" />
     <Compile Include="Timeouts\TransportWithFakeQueues.cs" />

@@ -9,7 +9,6 @@ namespace NServiceBus.Serializers.Json
     using Internal;
     using MessageInterfaces;
     using Newtonsoft.Json;
-    using Newtonsoft.Json.Converters;
     using Serialization;
 
     /// <summary>
@@ -23,7 +22,7 @@ namespace NServiceBus.Serializers.Json
         {
             TypeNameAssemblyFormat = FormatterAssemblyStyle.Simple,
             TypeNameHandling = TypeNameHandling.Auto,
-            Converters = { new IsoDateTimeConverter { DateTimeStyles = DateTimeStyles.RoundtripKind }, new XContainerConverter() }
+            Converters = { new XContainerConverter() }
         };
 
         /// <summary>
@@ -94,10 +93,6 @@ namespace NServiceBus.Serializers.Json
                     TypeNameHandling = TypeNameHandling.None,
                     Converters =
                     {
-                        new IsoDateTimeConverter
-                        {
-                            DateTimeStyles = DateTimeStyles.RoundtripKind
-                        },
                         new XContainerConverter()
                     }
                 };
