@@ -39,6 +39,10 @@
             Assert.AreEqual(expectedDateTimeOffset, context.ReceivedMessage.DateTimeOffset);
             Assert.AreEqual(expectedDateTimeOffsetLocal, context.ReceivedMessage.DateTimeOffsetLocal);
             Assert.AreEqual(expectedDateTimeOffsetUtc, context.ReceivedMessage.DateTimeOffsetUtc);
+            Assert.AreEqual(expectedDateTimeOffsetLocal, context.ReceivedMessage.DateTimeOffsetLocal);
+            Assert.AreEqual(expectedDateTimeOffsetLocal.Offset, context.ReceivedMessage.DateTimeOffsetLocal.Offset);
+            Assert.AreEqual(expectedDateTimeOffsetUtc, context.ReceivedMessage.DateTimeOffsetUtc);
+            Assert.AreEqual(expectedDateTimeOffsetUtc.Offset, context.ReceivedMessage.DateTimeOffsetUtc.Offset);
         }
 
         class DateTimeReceiver : EndpointConfigurationBuilder
