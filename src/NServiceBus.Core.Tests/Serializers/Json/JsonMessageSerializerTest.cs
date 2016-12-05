@@ -340,7 +340,6 @@ namespace NServiceBus.Serializers.Json.Tests
             }
         }
 
-
         [Test]
         public void When_Using_Property_WithXContainerAssignable_should_preserve_xml()
         {
@@ -394,11 +393,54 @@ namespace NServiceBus.Serializers.Json.Tests
         }
 
         [Test]
-        public void Test()
+        public void Should_preserve_timezones()
         {
-            var expectedDate = new DateTime(2010, 10, 13, 12, 32, 42, DateTimeKind.Unspecified);
-            var expectedDateLocal = new DateTime(2010, 10, 13, 12, 32, 42, DateTimeKind.Local);
-            var expectedDateUtc = new DateTime(2010, 10, 13, 12, 32, 42, DateTimeKind.Utc);
+            var expectedDateTime = new DateTime(2010, 10, 13, 12, 32, 42, DateTimeKind.Unspecified);
+            var expectedDateTimeLocal = new DateTime(2010, 10, 13, 12, 32, 42, DateTimeKind.Local);
+            var expectedDateTimeUtc = new DateTime(2010, 10, 13, 12, 32, 42, DateTimeKind.Utc);
+            var expectedDateTimeOffset = new DateTimeOffset(2012, 12, 12, 12, 12, 12, TimeSpan.FromHours(6));
+            var expectedDateTimeOffsetLocal = DateTimeOffset.Now;
+            var expectedDateTimeOffsetUtc = DateTimeOffset.UtcNow;
+
+            using (var stream = new MemoryStream())
+            {
+                var serializer = new JsonMessageSerializer(new MessageMapper());
+                serializer.Serialize(new DateTimeMessage
+                {
+                    DateTime = expectedDateTime,
+                    DateTimeLocal = expectedDateTimeLocal,
+                    DateTimeUtc = expectedDateTimeUtc,
+                    DateTimeOffset = expectedDateTimeOffset,
+                    DateTimeOffsetLocal = expectedDateTimeOffsetLocal,
+                    DateTimeOffsetUtc = expectedDateTimeOffsetUtc
+                }, stream);
+                stream.Position = 0;
+
+                var result = serializer.Deserialize(stream, new List<Type>
+                {
+                    typeof(DateTimeMessage)
+                }).Cast<DateTimeMessage>().Single();
+
+                Assert.AreEqual(expectedDateTime.Kind, result.DateTime.Kind);
+                Assert.AreEqual(expectedDateTime, result.DateTime);
+                Assert.AreEqual(expectedDateTimeLocal.Kind, result.DateTimeLocal.Kind);
+                Assert.AreEqual(expectedDateTimeLocal, result.DateTimeLocal);
+                Assert.AreEqual(expectedDateTimeUtc.Kind, result.DateTimeUtc.Kind);
+                Assert.AreEqual(expectedDateTimeUtc, result.DateTimeUtc);
+
+                Assert.AreEqual(expectedDateTimeOffset, result.DateTimeOffset);
+                Assert.AreEqual(expectedDateTimeOffset.Offset, result.DateTimeOffset.Offset);
+                Assert.AreEqual(expectedDateTimeOffsetLocal, result.DateTimeOffsetLocal);
+                Assert.AreEqual(expectedDateTimeOffsetLocal.Offset, result.DateTimeOffsetLocal.Offset);
+                Assert.AreEqual(expectedDateTimeOffsetUtc, result.DateTimeOffsetUtc);
+                Assert.AreEqual(expectedDateTimeOffsetUtc.Offset, result.DateTimeOffsetUtc.Offset);
+            }
+
+        }
+
+        [Test]
+        public void Should_handle_types_correctly()
+        {
             var expectedGuid = Guid.NewGuid();
 
             var obj = new A
@@ -431,10 +473,7 @@ namespace NServiceBus.Serializers.Json.Tests
                         },
                         BBString = "BBStr"
                     }
-                },
-                DateTime = expectedDate,
-                DateTimeLocal = expectedDateLocal,
-                DateTimeUtc = expectedDateUtc
+                }
             };
 
             new Random().NextBytes(obj.Data);
@@ -466,12 +505,6 @@ namespace NServiceBus.Serializers.Json.Tests
             Assert.AreEqual(obj.Data, a.Data);
             Assert.AreEqual(23, a.I);
             Assert.AreEqual("Foo", a.S);
-            Assert.AreEqual(expectedDate.Kind, a.DateTime.Kind);
-            Assert.AreEqual(expectedDate, a.DateTime);
-            Assert.AreEqual(expectedDateLocal.Kind, a.DateTimeLocal.Kind);
-            Assert.AreEqual(expectedDateLocal, a.DateTimeLocal);
-            Assert.AreEqual(expectedDateUtc.Kind, a.DateTimeUtc.Kind);
-            Assert.AreEqual(expectedDateUtc, a.DateTimeUtc);
             Assert.AreEqual("ccc", ((C) a.Bs[0].C).Cstr);
             Assert.AreEqual(expectedGuid, a.AGuid);
 
@@ -710,10 +743,6 @@ namespace NServiceBus.Serializers.Json.Tests
         public Guid AGuid { get; set; }
         public int I { get; set; }
 
-        public DateTime DateTime { get; set; }
-        public DateTime DateTimeLocal { get; set; }
-        public DateTime DateTimeUtc { get; set; }
-
         public List<int> Ints { get; set; }
         public List<B> Bs { get; set; }
         public byte[] Data;
@@ -772,5 +801,15 @@ namespace NServiceBus.Serializers.Json.Tests
     class InterfaceMessageWithInterfacePropertyImplementation : IMessageWithInterfaceProperty
     {
         public IInterfaceProperty InterfaceProperty { get; set; }
+    }
+
+    class DateTimeMessage
+    {
+        public DateTime DateTime { get; set; }
+        public DateTime DateTimeLocal { get; set; }
+        public DateTime DateTimeUtc { get; set; }
+        public DateTimeOffset DateTimeOffset { get; set; }
+        public DateTimeOffset DateTimeOffsetLocal { get; set; }
+        public DateTimeOffset DateTimeOffsetUtc { get; set; }
     }
 }

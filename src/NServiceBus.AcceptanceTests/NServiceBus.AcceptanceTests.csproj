@@ -202,6 +202,7 @@
     <Compile Include="Satellites\When_a_message_is_available.cs" />
     <Compile Include="Serialization\When_registering_deserializers_with_settings.cs" />
     <Compile Include="Serialization\When_sanitizing_xml_messages.cs" />
+    <Compile Include="Serialization\When_serializing_a_message.cs" />
     <Compile Include="Serialization\When_skip_wrapping_xml.cs" />
     <Compile Include="Serialization\When_wrapping_is_not_skipped.cs" />
     <Compile Include="Serialization\When_xml_serializer_used_with_unobtrusive_mode.cs" />
