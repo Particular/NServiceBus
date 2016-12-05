@@ -3,6 +3,7 @@
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using NUnit.Framework;
+    using EndpointTemplates;
 
     public class When_worker_sends_to_local_endpoint : NServiceBusAcceptanceTest
     {

@@ -5,6 +5,7 @@
     using AcceptanceTesting;
     using AcceptanceTesting.Support;
     using NUnit.Framework;
+    using EndpointTemplates;
 
     public class When_TimeToBeReceived_set_and_SendsAtomicWithReceive : NServiceBusAcceptanceTest
     {

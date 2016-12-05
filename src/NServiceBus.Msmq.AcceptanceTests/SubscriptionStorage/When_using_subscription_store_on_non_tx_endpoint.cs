@@ -4,10 +4,12 @@
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using Config;
-    using Config.ConfigurationSource;
     using Features;
     using NUnit.Framework;
     using Persistence.Legacy;
+    using EndpointTemplates;
+    using NServiceBus.Config.ConfigurationSource;
+    using NServiceBus.Config;
 
     public class When_using_subscription_store_on_non_tx_endpoint : NServiceBusAcceptanceTest
     {

@@ -4,6 +4,7 @@
     using System.Transactions;
     using AcceptanceTesting;
     using NUnit.Framework;
+    using EndpointTemplates;
 
     public class When_customizing_scope_isolation_level : NServiceBusAcceptanceTest
     {

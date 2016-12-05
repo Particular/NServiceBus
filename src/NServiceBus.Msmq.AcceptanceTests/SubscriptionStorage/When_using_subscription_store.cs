@@ -5,6 +5,7 @@
     using Features;
     using NUnit.Framework;
     using Persistence.Legacy;
+    using EndpointTemplates;
 
     public class When_using_subscription_store : NServiceBusAcceptanceTest
     {

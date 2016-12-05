@@ -4,6 +4,8 @@
     using AcceptanceTesting;
     using Config;
     using NUnit.Framework;
+    using NServiceBus.Config;
+    using EndpointTemplates;
 
     public class When_Audit_OverrideTimeToBeReceived_set_and_native_receive_tx : NServiceBusAcceptanceTest
     {

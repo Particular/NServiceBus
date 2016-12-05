@@ -6,6 +6,7 @@
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using NUnit.Framework;
+    using EndpointTemplates;
 
     public class When_starting_up_the_endpoint : NServiceBusAcceptanceTest
     {

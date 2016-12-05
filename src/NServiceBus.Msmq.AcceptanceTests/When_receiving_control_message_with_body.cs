@@ -12,6 +12,8 @@
     using NUnit.Framework;
     using Pipeline;
     using Transport;
+    using NServiceBus.Pipeline;
+    using EndpointTemplates;
 
     public class When_receiving_control_message_with_body : NServiceBusAcceptanceTest
     {

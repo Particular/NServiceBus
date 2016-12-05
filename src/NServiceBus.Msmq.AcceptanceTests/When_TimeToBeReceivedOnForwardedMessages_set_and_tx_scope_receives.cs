@@ -4,6 +4,8 @@
     using AcceptanceTesting;
     using Config;
     using NUnit.Framework;
+    using EndpointTemplates;
+    using NServiceBus.Config;
 
     public class When_TimeToBeReceivedOnForwardedMessages_set_and_tx_scope_receives : NServiceBusAcceptanceTest
     {

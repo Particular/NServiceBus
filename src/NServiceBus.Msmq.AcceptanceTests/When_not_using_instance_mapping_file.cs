@@ -4,6 +4,7 @@
     using AcceptanceTesting;
     using AcceptanceTesting.Customization;
     using NUnit.Framework;
+    using EndpointTemplates;
 
     public class When_not_using_instance_mapping_file : NServiceBusAcceptanceTest
     {

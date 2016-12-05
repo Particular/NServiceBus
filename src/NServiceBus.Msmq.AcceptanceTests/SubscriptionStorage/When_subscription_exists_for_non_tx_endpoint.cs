@@ -5,10 +5,12 @@
     using AcceptanceTesting;
     using AcceptanceTesting.Customization;
     using Config;
-    using Config.ConfigurationSource;
     using Features;
     using NUnit.Framework;
     using Persistence.Legacy;
+    using EndpointTemplates;
+    using NServiceBus.Config;
+    using NServiceBus.Config.ConfigurationSource;
 
     public class When_subscription_exists_for_non_tx_endpoint : NServiceBusAcceptanceTest
     {

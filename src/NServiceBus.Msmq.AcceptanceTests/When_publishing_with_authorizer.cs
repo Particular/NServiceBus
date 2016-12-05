@@ -6,6 +6,8 @@
     using Features;
     using Pipeline;
     using NUnit.Framework;
+    using NServiceBus.Pipeline;
+    using EndpointTemplates;
 
     public class When_publishing_with_authorizer : NServiceBusAcceptanceTest
     {

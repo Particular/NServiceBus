@@ -6,6 +6,7 @@
     using AcceptanceTesting;
     using Features;
     using NUnit.Framework;
+    using EndpointTemplates;
 
     public class When_distributing_an_event : NServiceBusAcceptanceTest
     {

@@ -7,6 +7,7 @@
     using AcceptanceTesting.Customization;
     using NUnit.Framework;
     using Settings;
+    using EndpointTemplates;
 
     public class When_using_empty_instance_mapping_file : NServiceBusAcceptanceTest
     {

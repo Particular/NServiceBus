@@ -7,6 +7,8 @@
     using Features;
     using NUnit.Framework;
     using Support;
+    using EndpointTemplates;
+    using NServiceBus.Config;
 
     public class When_subscribing_with_address_containing_host_name : NServiceBusAcceptanceTest
     {
@@ -41,7 +43,7 @@
         }
 
         static string PublisherEndpoint => Conventions.EndpointNamingConvention(typeof(Publisher));
-        
+
         public class Subscriber : EndpointConfigurationBuilder
         {
             public Subscriber()

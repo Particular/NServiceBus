@@ -5,6 +5,8 @@
     using AcceptanceTesting;
     using NUnit.Framework;
     using Pipeline;
+    using NServiceBus.Pipeline;
+    using EndpointTemplates;
 
     public class When_using_receive_only_transaction_level : NServiceBusAcceptanceTest
     {

@@ -5,6 +5,7 @@
     using AcceptanceTesting;
     using AcceptanceTesting.Customization;
     using NUnit.Framework;
+    using EndpointTemplates;
 
     public class When_overriding_local_address : NServiceBusAcceptanceTest
     {

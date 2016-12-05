@@ -4,6 +4,7 @@
     using System.Configuration;
     using AcceptanceTesting;
     using NUnit.Framework;
+    using EndpointTemplates;
 
     public class When_using_scope_timeout_greater_than_machine_max : NServiceBusAcceptanceTest
     {

@@ -5,12 +5,13 @@
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using AcceptanceTesting.Support;
-    using Config.ConfigurationSource;
     using Features;
     using NServiceBus.Routing.Legacy;
     using ObjectBuilder;
-    using Pipeline;
     using Transport;
+    using EndpointTemplates;
+    using NServiceBus.Config.ConfigurationSource;
+    using NServiceBus.Pipeline;
 
     public class DistributorEndpointTemplate : IEndpointSetupTemplate
     {

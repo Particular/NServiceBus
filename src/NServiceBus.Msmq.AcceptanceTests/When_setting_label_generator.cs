@@ -7,6 +7,7 @@
     using AcceptanceTesting;
     using NUnit.Framework;
     using Settings;
+    using EndpointTemplates;
 
     public class When_setting_label_generator : NServiceBusAcceptanceTest
     {

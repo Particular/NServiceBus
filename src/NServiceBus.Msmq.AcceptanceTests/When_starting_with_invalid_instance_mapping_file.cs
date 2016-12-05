@@ -5,6 +5,7 @@
     using System.Xml.Schema;
     using AcceptanceTesting;
     using NUnit.Framework;
+    using EndpointTemplates;
 
     public class When_starting_with_invalid_instance_mapping_file : NServiceBusAcceptanceTest
     {

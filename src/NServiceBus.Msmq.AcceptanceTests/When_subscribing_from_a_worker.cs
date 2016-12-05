@@ -6,6 +6,7 @@
     using Features;
     using NServiceBus.Routing.Legacy;
     using NUnit.Framework;
+    using EndpointTemplates;
 
     public class When_subscribing_from_a_worker : NServiceBusAcceptanceTest
     {

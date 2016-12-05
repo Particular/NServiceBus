@@ -4,6 +4,7 @@
     using System.IO;
     using AcceptanceTesting;
     using NUnit.Framework;
+    using EndpointTemplates;
 
     public class When_starting_with_missing_instance_mapping_file : NServiceBusAcceptanceTest
     {

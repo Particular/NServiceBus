@@ -5,6 +5,7 @@
     using System.Transactions;
     using AcceptanceTesting;
     using NUnit.Framework;
+    using EndpointTemplates;
 
     public class When_TimeToBeReceived_set_and_dtc : NServiceBusAcceptanceTest
     {

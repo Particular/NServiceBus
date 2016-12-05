@@ -7,6 +7,7 @@
     using NUnit.Framework;
     using Routing;
     using Settings;
+    using EndpointTemplates;
 
     public class When_distributing_a_command : NServiceBusAcceptanceTest
     {

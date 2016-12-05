@@ -3,6 +3,7 @@
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using NUnit.Framework;
+    using EndpointTemplates;
 
     class When_replying_to_message_sent_from_worker : NServiceBusAcceptanceTest
     {

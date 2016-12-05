@@ -4,6 +4,7 @@
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using NUnit.Framework;
+    using EndpointTemplates;
 
     public class When_worker_sends_delayed_message : NServiceBusAcceptanceTest
     {

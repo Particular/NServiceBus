@@ -6,6 +6,7 @@
     using AcceptanceTesting;
     using Pipeline;
     using Transport;
+    using NServiceBus.Pipeline;
 
     class SubscriptionBehavior<TContext> : IBehavior<ITransportReceiveContext, ITransportReceiveContext> where TContext : ScenarioContext
     {

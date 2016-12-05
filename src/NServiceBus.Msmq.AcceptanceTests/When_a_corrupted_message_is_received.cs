@@ -8,6 +8,7 @@
     using AcceptanceTesting;
     using Logging;
     using NUnit.Framework;
+    using EndpointTemplates;
 
     public class When_a_corrupted_message_is_received : NServiceBusAcceptanceTest
     {
