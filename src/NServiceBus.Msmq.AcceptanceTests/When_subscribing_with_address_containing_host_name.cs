@@ -1,14 +1,14 @@
-﻿namespace NServiceBus.AcceptanceTests.Routing
+﻿namespace NServiceBus.Transport.Msmq.AcceptanceTests
 {
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using AcceptanceTesting.Customization;
     using Config;
     using Features;
+    using NServiceBus.AcceptanceTests;
+    using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NUnit.Framework;
     using Support;
-    using EndpointTemplates;
-    using NServiceBus.Config;
 
     public class When_subscribing_with_address_containing_host_name : NServiceBusAcceptanceTest
     {

@@ -1,13 +1,14 @@
-﻿namespace NServiceBus.AcceptanceTests
+﻿namespace NServiceBus.Transport.Msmq.AcceptanceTests
 {
     using System;
     using System.Collections.Generic;
     using System.Messaging;
     using System.Threading.Tasks;
     using AcceptanceTesting;
+    using NServiceBus.AcceptanceTests;
+    using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NUnit.Framework;
     using Settings;
-    using EndpointTemplates;
 
     public class When_setting_label_generator : NServiceBusAcceptanceTest
     {

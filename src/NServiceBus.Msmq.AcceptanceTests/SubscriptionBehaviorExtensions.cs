@@ -1,4 +1,4 @@
-namespace NServiceBus.AcceptanceTests
+namespace NServiceBus.Transport.Msmq.AcceptanceTests
 {
     using System;
     using AcceptanceTesting;

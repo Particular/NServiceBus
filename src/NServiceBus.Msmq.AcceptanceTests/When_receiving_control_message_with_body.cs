@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.AcceptanceTests
+﻿namespace NServiceBus.Transport.Msmq.AcceptanceTests
 {
     using System;
     using System.Collections.Generic;
@@ -8,12 +8,12 @@
     using AcceptanceTesting.Customization;
     using Extensibility;
     using Features;
-    using NServiceBus.Routing;
+    using NServiceBus.AcceptanceTests;
+    using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NUnit.Framework;
     using Pipeline;
+    using Routing;
     using Transport;
-    using NServiceBus.Pipeline;
-    using EndpointTemplates;
 
     public class When_receiving_control_message_with_body : NServiceBusAcceptanceTest
     {

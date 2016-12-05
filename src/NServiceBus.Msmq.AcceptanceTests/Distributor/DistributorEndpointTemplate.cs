@@ -1,17 +1,17 @@
-﻿namespace NServiceBus.AcceptanceTests.Distributor
+﻿namespace NServiceBus.Transport.Msmq.AcceptanceTests.Distributor
 {
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using AcceptanceTesting.Support;
+    using Config.ConfigurationSource;
     using Features;
-    using NServiceBus.Routing.Legacy;
+    using NServiceBus.AcceptanceTests.EndpointTemplates;
     using ObjectBuilder;
+    using Pipeline;
+    using Routing.Legacy;
     using Transport;
-    using EndpointTemplates;
-    using NServiceBus.Config.ConfigurationSource;
-    using NServiceBus.Pipeline;
 
     public class DistributorEndpointTemplate : IEndpointSetupTemplate
     {

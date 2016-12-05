@@ -1,12 +1,13 @@
-﻿namespace NServiceBus.AcceptanceTests
+﻿namespace NServiceBus.Transport.Msmq.AcceptanceTests
 {
     using System.Threading;
     using System.Threading.Tasks;
     using AcceptanceTesting.Customization;
     using AcceptanceTesting;
     using Features;
+    using NServiceBus.AcceptanceTests;
+    using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NUnit.Framework;
-    using EndpointTemplates;
 
     public class When_distributing_an_event : NServiceBusAcceptanceTest
     {

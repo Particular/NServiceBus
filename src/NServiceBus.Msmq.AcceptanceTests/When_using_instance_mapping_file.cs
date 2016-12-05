@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.AcceptanceTests
+﻿namespace NServiceBus.Transport.Msmq.AcceptanceTests
 {
     using System.IO;
     using System.Threading;
@@ -6,8 +6,9 @@
     using AcceptanceTesting;
     using AcceptanceTesting.Customization;
     using NUnit.Framework;
+    using NServiceBus.AcceptanceTests;
+    using NServiceBus.AcceptanceTests.EndpointTemplates;
     using Settings;
-    using EndpointTemplates;
 
     public class When_using_instance_mapping_file : NServiceBusAcceptanceTest
     {

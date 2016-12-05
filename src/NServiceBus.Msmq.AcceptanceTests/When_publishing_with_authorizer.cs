@@ -1,13 +1,13 @@
-﻿namespace NServiceBus.AcceptanceTests
+﻿namespace NServiceBus.Transport.Msmq.AcceptanceTests
 {
     using System;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using Features;
     using Pipeline;
+    using NServiceBus.AcceptanceTests;
+    using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NUnit.Framework;
-    using NServiceBus.Pipeline;
-    using EndpointTemplates;
 
     public class When_publishing_with_authorizer : NServiceBusAcceptanceTest
     {

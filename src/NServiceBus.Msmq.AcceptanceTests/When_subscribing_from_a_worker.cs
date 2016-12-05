@@ -1,12 +1,13 @@
-﻿namespace NServiceBus.AcceptanceTests.Routing
+﻿namespace NServiceBus.Transport.Msmq.AcceptanceTests
 {
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using AcceptanceTesting.Customization;
     using Features;
-    using NServiceBus.Routing.Legacy;
+    using NServiceBus.AcceptanceTests;
+    using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NUnit.Framework;
-    using EndpointTemplates;
+    using Routing.Legacy;
 
     public class When_subscribing_from_a_worker : NServiceBusAcceptanceTest
     {

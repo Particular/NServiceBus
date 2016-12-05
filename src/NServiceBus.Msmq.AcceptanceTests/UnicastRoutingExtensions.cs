@@ -1,10 +1,10 @@
-namespace NServiceBus.AcceptanceTests.Routing
+namespace NServiceBus.Transport.Msmq.AcceptanceTests
 {
     using System;
     using System.Collections.Generic;
     using Configuration.AdvanceExtensibility;
-    using NServiceBus.Routing;
-    using NServiceBus.Routing.MessageDrivenSubscriptions;
+    using Routing;
+    using Routing.MessageDrivenSubscriptions;
 
     static class UnicastRoutingExtensions
     {

@@ -1,11 +1,12 @@
-﻿namespace NServiceBus.AcceptanceTests.SubscriptionStorage
+﻿namespace NServiceBus.Transport.Msmq.AcceptanceTests.SubscriptionStorage
 {
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using Features;
+    using NServiceBus.AcceptanceTests;
+    using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NUnit.Framework;
     using Persistence.Legacy;
-    using EndpointTemplates;
 
     public class When_using_subscription_store : NServiceBusAcceptanceTest
     {

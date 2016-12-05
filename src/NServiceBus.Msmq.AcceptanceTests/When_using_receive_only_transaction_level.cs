@@ -1,12 +1,12 @@
-﻿namespace NServiceBus.AcceptanceTests
+﻿namespace NServiceBus.Transport.Msmq.AcceptanceTests
 {
     using System;
     using System.Threading.Tasks;
     using AcceptanceTesting;
+    using NServiceBus.AcceptanceTests;
+    using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NUnit.Framework;
     using Pipeline;
-    using NServiceBus.Pipeline;
-    using EndpointTemplates;
 
     public class When_using_receive_only_transaction_level : NServiceBusAcceptanceTest
     {

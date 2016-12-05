@@ -7,7 +7,7 @@
     <ProjectGuid>{B83EB057-56C7-4296-B0C7-E41F4F70CB02}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>NServiceBus.AcceptanceTests</RootNamespace>
+    <RootNamespace>NServiceBus.Transport.Msmq.AcceptanceTests</RootNamespace>
     <AssemblyName>NServiceBus.Msmq.AcceptanceTests</AssemblyName>
     <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
