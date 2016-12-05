@@ -20,7 +20,7 @@
 
             var context = Scenario.Define<Context>()
                 .WithEndpoint<DateTimeReceiver>(b => b.When(
-                    (bus) => bus.SendLocal(new DateTimeMessage
+                    bus => bus.SendLocal(new DateTimeMessage
                     {
                         DateTime = expectedDateTime,
                         DateTimeLocal = expectedDateTimeLocal,
