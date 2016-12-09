@@ -7,7 +7,7 @@
     using NUnit.Framework;
     using ScenarioDescriptors;
 
-    public class When_subscribing_to_a_base_event_with_routes_to_base_and_specific_events : NServiceBusAcceptanceTest
+    public class When_subscribing_to_event_with_routes_to_base_and_specific_events : NServiceBusAcceptanceTest
     {
         [Test]
         public Task Event_from_both_publishers_should_be_delivered()

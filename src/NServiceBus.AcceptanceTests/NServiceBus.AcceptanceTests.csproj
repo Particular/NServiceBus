@@ -90,7 +90,7 @@
     <Compile Include="Routing\When_replying_to_message_with_interface_and_unobtrusive.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\When_subscribing_to_a_base_event.cs" />
     <Compile Include="Routing\When_sending_a_base_command.cs" />
-    <Compile Include="Routing\MessageDrivenSubscriptions\When_subscribing_to_a_base_event_with_routes_to_base_and_specific_events.cs" />
+    <Compile Include="Routing\MessageDrivenSubscriptions\When_subscribing_to_event_with_routes_to_base_and_specific_events.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\When_subscribing_to_a_base_event_with_a_route_for_a_derived_event.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\When_subscribing_to_a_derived_event.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\When_subscribing_to_multiple_publishers.cs" />
