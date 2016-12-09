@@ -1,10 +1,12 @@
-﻿namespace NServiceBus.AcceptanceTests.Routing
+﻿namespace NServiceBus.Transport.Msmq.AcceptanceTests
 {
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using AcceptanceTesting.Customization;
     using Config;
     using Features;
+    using NServiceBus.AcceptanceTests;
+    using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NUnit.Framework;
     using Support;
 
@@ -41,7 +43,7 @@
         }
 
         static string PublisherEndpoint => Conventions.EndpointNamingConvention(typeof(Publisher));
-        
+
         public class Subscriber : EndpointConfigurationBuilder
         {
             public Subscriber()
