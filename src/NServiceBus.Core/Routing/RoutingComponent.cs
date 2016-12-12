@@ -17,24 +17,35 @@ namespace NServiceBus
         internal const string EnforceBestPracticesSettingsKey = "NServiceBus.Routing.EnforceBestPractices";
 
         /// <summary>
+        /// Creates a new <see cref="RoutingComponent"/> instance.
+        /// </summary>
+        public RoutingComponent(UnicastRoutingTable unicastRoutingTable, DistributionPolicy distributionPolicy, EndpointInstances endpointInstances, Publishers publishers)
+        {
+            UnicastRoutingTable = unicastRoutingTable;
+            DistributionPolicy = distributionPolicy;
+            EndpointInstances = endpointInstances;
+            Publishers = publishers;
+        }
+
+        /// <summary>
         /// Contains routing data for unicast send operations.
         /// </summary>
-        public UnicastRoutingTable UnicastRoutingTable { get; } = new UnicastRoutingTable();
+        public UnicastRoutingTable UnicastRoutingTable { get; }
 
         /// <summary>
         /// Provides distribution strategies for sender-side distribution.
         /// </summary>
-        public DistributionPolicy DistributionPolicy { get; } = new DistributionPolicy();
+        public DistributionPolicy DistributionPolicy { get; }
 
         /// <summary>
         /// Contains logical endpoint to physical instances mapping.
         /// </summary>
-        public EndpointInstances EndpointInstances { get; } = new EndpointInstances();
+        public EndpointInstances EndpointInstances { get; }
 
         /// <summary>
         /// Contains routing data for subscription messages.
         /// </summary>
-        public Publishers Publishers { get; } = new Publishers();
+        public Publishers Publishers { get; }
 
         internal bool EnforceBestPractices { get; private set; }
 

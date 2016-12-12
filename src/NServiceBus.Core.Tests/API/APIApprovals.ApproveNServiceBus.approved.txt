@@ -953,7 +953,7 @@ namespace NServiceBus
     }
     public class RoutingComponent
     {
-        public RoutingComponent() { }
+        public RoutingComponent(NServiceBus.Routing.UnicastRoutingTable unicastRoutingTable, NServiceBus.DistributionPolicy distributionPolicy, NServiceBus.Routing.EndpointInstances endpointInstances, NServiceBus.Routing.MessageDrivenSubscriptions.Publishers publishers) { }
         public NServiceBus.DistributionPolicy DistributionPolicy { get; }
         public NServiceBus.Routing.EndpointInstances EndpointInstances { get; }
         public NServiceBus.Routing.MessageDrivenSubscriptions.Publishers Publishers { get; }
