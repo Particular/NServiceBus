@@ -43,6 +43,7 @@ namespace NServiceBus
             var unicastBusConfig = settings.GetConfigSection<UnicastBusConfig>();
             var conventions = settings.Get<Conventions>();
             var configuredUnicastRoutes = settings.GetOrDefault<ConfiguredUnicastRoutes>();
+            var distributorAddress = settings.GetOrDefault<string>("LegacyDistributor.Address");
 
             List<DistributionStrategy> distributionStrategies;
             if (settings.TryGet(out distributionStrategies))
@@ -59,7 +60,7 @@ namespace NServiceBus
             pipelineSettings.Register(b =>
             {
                 var unicastSendRouter = new UnicastSendRouter(UnicastRoutingTable, EndpointInstances, i => transportInfrastructure.ToTransportAddress(LogicalAddress.CreateRemoteAddress(i)));
-                return new UnicastSendRouterConnector(settings.LocalAddress(), settings.InstanceSpecificQueue(), unicastSendRouter, DistributionPolicy, i => transportInfrastructure.ToTransportAddress(LogicalAddress.CreateRemoteAddress(i)));
+                return new UnicastSendRouterConnector(settings.LocalAddress(), settings.InstanceSpecificQueue(), distributorAddress, unicastSendRouter, DistributionPolicy, i => transportInfrastructure.ToTransportAddress(LogicalAddress.CreateRemoteAddress(i)));
             }, "Determines how the message being sent should be routed");
 
             pipelineSettings.Register(new UnicastReplyRouterConnector(), "Determines how replies should be routed");
