@@ -8,14 +8,50 @@ namespace NServiceBus
     using Persistence;
     using Transport;
 
+    /// <summary>
+    /// session
+    /// </summary>
+    public interface IInMemoryStorageSession
+    {
+        /// <summary>
+        /// Finds a specified saga
+        /// </summary>
+        /// <returns></returns>
+        TSagaData FirstOrDefault<TSagaData>(ReadOnlyContextBag context, Func<TSagaData, bool> predicate)
+            where TSagaData : IContainSagaData;
+    }
+
+    /// <summary>
+    /// </summary>
+    public static class InMemorySynchronizedStorageSessionExtensions
+    {
+        /// <summary>
+        /// Gets the current context InMemory <see cref="IInMemoryStorageSession" />.
+        /// </summary>
+        public static IInMemoryStorageSession Session(this SynchronizedStorageSession session)
+        {
+            var inMemoryStorageSession = (IInMemoryStorageSession) session;
+            return inMemoryStorageSession;
+        }
+    }
+
     class InMemoryTransactionalSynchronizedStorageAdapter : ISynchronizedStorageAdapter
     {
+        public InMemoryTransactionalSynchronizedStorageAdapter() : this(null)
+        {
+        }
+
+        public InMemoryTransactionalSynchronizedStorageAdapter(InMemorySagaPersister sagaPersister)
+        {
+            inMemorySagaPersister = sagaPersister;
+        }
+
         public Task<CompletableSynchronizedStorageSession> TryAdapt(OutboxTransaction transaction, ContextBag context)
         {
             var inMemOutboxTransaction = transaction as InMemoryOutboxTransaction;
             if (inMemOutboxTransaction != null)
             {
-                CompletableSynchronizedStorageSession session = new InMemorySynchronizedStorageSession(inMemOutboxTransaction.Transaction);
+                CompletableSynchronizedStorageSession session = new InMemorySynchronizedStorageSession(inMemOutboxTransaction.Transaction, inMemorySagaPersister);
                 return Task.FromResult(session);
             }
             return EmptyTask;
@@ -28,12 +64,14 @@ namespace NServiceBus
             if (transportTransaction.TryGet(out ambientTransaction))
             {
                 var transaction = new InMemoryTransaction();
-                CompletableSynchronizedStorageSession session = new InMemorySynchronizedStorageSession(transaction);
+                CompletableSynchronizedStorageSession session = new InMemorySynchronizedStorageSession(transaction, inMemorySagaPersister);
                 ambientTransaction.EnlistVolatile(new EnlistmentNotification(transaction), EnlistmentOptions.None);
                 return Task.FromResult(session);
             }
             return EmptyTask;
         }
+
+        InMemorySagaPersister inMemorySagaPersister;
 
         static readonly Task<CompletableSynchronizedStorageSession> EmptyTask = Task.FromResult<CompletableSynchronizedStorageSession>(null);
 
