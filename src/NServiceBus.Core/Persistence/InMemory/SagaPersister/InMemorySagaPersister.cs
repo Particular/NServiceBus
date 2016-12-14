@@ -168,7 +168,7 @@ namespace NServiceBus
 
             public IContainSagaData GetSagaCopy()
             {
-                var canBeClonedShallowly = cloneMethods.GetOrAdd(data.GetType(), CanBeMemberwiselyCloned);
+                var canBeClonedShallowly = canBeClonedShallowlyCache.GetOrAdd(data.GetType(), CanBeMemberwiselyCloned);
                 return canBeClonedShallowly ? memberwiseClone(data) : DeepClone(data);
             }
 
@@ -212,7 +212,7 @@ namespace NServiceBus
 
             readonly IContainSagaData data;
             static JsonMessageSerializer serializer = new JsonMessageSerializer(null);
-            static ConcurrentDictionary<Type, bool> cloneMethods = new ConcurrentDictionary<Type, bool>();
+            static ConcurrentDictionary<Type, bool> canBeClonedShallowlyCache = new ConcurrentDictionary<Type, bool>();
             static Func<IContainSagaData, IContainSagaData> memberwiseClone;
         }
 
