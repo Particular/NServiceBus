@@ -484,8 +484,6 @@ namespace PublicApiGenerator
                 return;
 
             var returnType = CreateCodeTypeReference(member.ReturnType);
-            if (IsAsyncMethod(member))
-                returnType = MakeAsync(returnType);
 
             var method = new CodeMemberMethod
             {
@@ -499,11 +497,6 @@ namespace PublicApiGenerator
             PopulateMethodParameters(member, method.Parameters, IsExtensionMethod(member));
 
             typeDeclaration.Members.Add(method);
-        }
-
-        static bool IsAsyncMethod(ICustomAttributeProvider method)
-        {
-            return method.CustomAttributes.Any(a => a.AttributeType.FullName == "System.Runtime.CompilerServices.AsyncStateMachineAttribute");
         }
 
         static bool IsExtensionMethod(ICustomAttributeProvider method)
@@ -749,11 +742,6 @@ namespace PublicApiGenerator
         static CodeTypeReference MakeReadonly(CodeTypeReference typeReference)
         {
             return ModifyCodeTypeReference(typeReference, "readonly");
-        }
-
-        static CodeTypeReference MakeAsync(CodeTypeReference typeReference)
-        {
-            return ModifyCodeTypeReference(typeReference, "async");
         }
 
         static CodeTypeReference ModifyCodeTypeReference(CodeTypeReference typeReference, string modifier)
