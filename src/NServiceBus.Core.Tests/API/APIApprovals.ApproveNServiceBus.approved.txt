@@ -607,6 +607,10 @@ namespace NServiceBus
     }
     [System.ObsoleteAttribute("Will be removed in version 7.0.0.", true)]
     public interface IIncludesBuilder { }
+    public interface IInMemoryStorageSession
+    {
+        System.Collections.Generic.IEnumerable<NServiceBus.IContainSagaData> Sagas(NServiceBus.Extensibility.ReadOnlyContextBag context);
+    }
     [System.ObsoleteAttribute("No longer used, can safely be removed. Will be removed in version 7.0.0.", true)]
     public interface IManageMessageHeaders { }
     public interface IMessage { }
@@ -684,6 +688,10 @@ namespace NServiceBus
         void Customize(NServiceBus.EndpointConfiguration configuration);
     }
     public class InMemoryPersistence : NServiceBus.Persistence.PersistenceDefinition { }
+    public class static InMemorySynchronizedStorageSessionExtensions
+    {
+        public static NServiceBus.IInMemoryStorageSession Session(this NServiceBus.Persistence.SynchronizedStorageSession session) { }
+    }
     public class static InstallConfigExtensions
     {
         public static void EnableInstallers(this NServiceBus.EndpointConfiguration config, string username = null) { }

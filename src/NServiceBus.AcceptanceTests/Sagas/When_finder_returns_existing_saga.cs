@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Sagas
 {
     using System;
+    using System.Linq;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
@@ -46,13 +47,11 @@
                 // ReSharper disable once MemberCanBePrivate.Global
                 public Context Context { get; set; }
 
-                public ISagaPersister SagaPersister { get; set; }
-
-                public async Task<TestSaga08.SagaData08> FindBy(SomeOtherMessage message, SynchronizedStorageSession storageSession, ReadOnlyContextBag context)
+                public Task<TestSaga08.SagaData08> FindBy(SomeOtherMessage message, SynchronizedStorageSession storageSession, ReadOnlyContextBag context)
                 {
                     Context.FinderUsed = true;
-                    var sagaData = await SagaPersister.Get<TestSaga08.SagaData08>(message.SagaId, storageSession, (ContextBag)context).ConfigureAwait(false);
-                    return sagaData;
+                    var sagaData = storageSession.Session().Sagas(context).OfType<TestSaga08.SagaData08>().SingleOrDefault(s => s.Id == message.SagaId);
+                    return Task.FromResult(sagaData);
                 }
             }
 
