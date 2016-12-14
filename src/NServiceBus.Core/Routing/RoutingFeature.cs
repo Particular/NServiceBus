@@ -54,7 +54,7 @@
             Func<EndpointInstance, string> addressTranslation = i => transportInfrastructure.ToTransportAddress(LogicalAddress.CreateRemoteAddress(i));
 
             var unicastSendRouter = new UnicastSendRouter(routing.Sending, routing.EndpointInstances, addressTranslation);
-            context.Pipeline.Register(new UnicastSendRouterConnector(context.Settings.LocalAddress(), context.Settings.InstanceSpecificQueue(), unicastSendRouter, distributionPolicy, addressTranslation),
+            context.Pipeline.Register(new UnicastSendRouterConnector(context.Settings.LocalAddress(), context.Settings.InstanceSpecificQueue(), distributorAddress, unicastSendRouter, distributionPolicy, addressTranslation),
                 "Determines how the message being sent should be routed");
 
             if (transportInfrastructure.OutboundRoutingPolicy.Publishes == OutboundRoutingType.Unicast)
