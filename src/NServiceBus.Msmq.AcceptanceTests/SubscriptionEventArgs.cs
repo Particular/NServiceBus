@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.AcceptanceTests
+﻿namespace NServiceBus.Transport.Msmq.AcceptanceTests
 {
     public class SubscriptionEventArgs
     {

@@ -61,7 +61,6 @@
     <Compile Include="ScenarioContext.cs" />
     <Compile Include="ContextAppender.cs" />
     <Compile Include="Support\ActiveTestExecutionConfigurer.cs" />
-    <Compile Include="Support\AggregateExceptionTestExtensions.cs" />
     <Compile Include="Support\EndpointBehavior.cs" />
     <Compile Include="Support\BehaviourFactory.cs" />
     <Compile Include="Support\DefaultScenarioDescriptor.cs" />

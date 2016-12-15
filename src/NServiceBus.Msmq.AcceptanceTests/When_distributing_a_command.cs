@@ -1,9 +1,10 @@
-﻿namespace NServiceBus.AcceptanceTests
+﻿namespace NServiceBus.Transport.Msmq.AcceptanceTests
 {
     using System.Threading.Tasks;
-    using AcceptanceTesting.Customization;
     using AcceptanceTesting;
-    using NServiceBus.Routing;
+    using AcceptanceTesting.Customization;
+    using NServiceBus.AcceptanceTests;
+    using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NUnit.Framework;
     using Routing;
     using Settings;

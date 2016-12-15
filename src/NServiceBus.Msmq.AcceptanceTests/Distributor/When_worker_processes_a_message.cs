@@ -1,7 +1,9 @@
-﻿namespace NServiceBus.AcceptanceTests.Distributor
+﻿namespace NServiceBus.Transport.Msmq.AcceptanceTests.Distributor
 {
     using System.Threading.Tasks;
     using AcceptanceTesting;
+    using NServiceBus.AcceptanceTests;
+    using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NUnit.Framework;
 
     public class When_worker_processes_a_message : NServiceBusAcceptanceTest

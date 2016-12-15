@@ -1,10 +1,12 @@
-﻿namespace NServiceBus.AcceptanceTests
+﻿namespace NServiceBus.Transport.Msmq.AcceptanceTests
 {
     using System;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using Features;
     using Pipeline;
+    using NServiceBus.AcceptanceTests;
+    using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NUnit.Framework;
 
     public class When_unsubscribing_with_authorizer : NServiceBusAcceptanceTest

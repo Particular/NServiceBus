@@ -1,8 +1,10 @@
-﻿namespace NServiceBus.AcceptanceTests
+﻿namespace NServiceBus.Transport.Msmq.AcceptanceTests
 {
     using System;
     using System.Configuration;
     using AcceptanceTesting;
+    using NServiceBus.AcceptanceTests;
+    using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NUnit.Framework;
 
     public class When_using_scope_timeout_greater_than_machine_max : NServiceBusAcceptanceTest
