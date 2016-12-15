@@ -31,8 +31,8 @@
             Assert.NotNull(timeoutHandler, "Timeout handler should be marked as such");
 
             var timeoutInstance = new SagaWithTimeoutOfMessage();
-            timeoutHandler.Instance = timeoutInstance;
 
+            timeoutHandler.Instance = timeoutInstance;
             timeoutHandler.Invoke(null, null);
 
             Assert.True(timeoutInstance.TimeoutCalled);
@@ -43,8 +43,8 @@
             Assert.NotNull(regularHandler, "Regular handler should be marked as timeout handler");
 
             var regularInstance = new SagaWithTimeoutOfMessage();
-            regularHandler.Instance = regularInstance;
 
+            regularHandler.Instance = regularInstance;
             regularHandler.Invoke(null, null);
 
             Assert.False(regularInstance.TimeoutCalled);
