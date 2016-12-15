@@ -7,7 +7,7 @@
     using Features;
     using NUnit.Framework;
 
-    public class When_handling_a_message_with_both_handler_and_timeout_handler : NServiceBusAcceptanceTest
+    public class When_handling_message_with_handler_and_timeout_handler : NServiceBusAcceptanceTest
     {
         [Test]
         public async Task Should_not_invoke_timeout_handler()
@@ -17,9 +17,8 @@
                 {
                     SomeId = Guid.NewGuid()
                 })))
-                .Done(c => c.TestComplete)
+                .Done(c => c.HandlerInvoked || c.TimeoutHandlerInvoked)
                 .Run();
-
 
             Assert.True(context.HandlerInvoked, "Regular handler should be invoked");
             Assert.False(context.TimeoutHandlerInvoked, "Timeout handler should not be invoked");
@@ -29,7 +28,6 @@
         {
             public bool TimeoutHandlerInvoked { get; set; }
             public bool HandlerInvoked { get; set; }
-            public bool TestComplete { get; set; }
         }
 
         public class TimeoutSagaEndpoint : EndpointConfigurationBuilder
@@ -40,18 +38,14 @@
             }
 
             public class HandlerAndTimeoutSaga : Saga<HandlerAndTimeoutSagaData>, IAmStartedByMessages<StartSagaMessage>,
-                IHandleTimeouts<StartSagaMessage>,
-                IHandleMessages<CompleteTest>
+                IHandleTimeouts<StartSagaMessage>
             {
                 public Context TestContext { get; set; }
 
                 public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
                 {
                     TestContext.HandlerInvoked = true;
-                    return context.SendLocal(new CompleteTest
-                    {
-                        SomeId = Data.SomeId
-                    });
+                    return Task.FromResult(0);
                 }
 
                 public Task Timeout(StartSagaMessage message, IMessageHandlerContext context)
@@ -60,17 +54,9 @@
                     return Task.FromResult(0);
                 }
 
-                public Task Handle(CompleteTest message, IMessageHandlerContext context)
-                {
-                    TestContext.TestComplete = true;
-                    return Task.FromResult(0);
-                }
-
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<HandlerAndTimeoutSagaData> mapper)
                 {
                     mapper.ConfigureMapping<StartSagaMessage>(m => m.SomeId)
-                        .ToSaga(s => s.SomeId);
-                    mapper.ConfigureMapping<CompleteTest>(m => m.SomeId)
                         .ToSaga(s => s.SomeId);
                 }
             }
@@ -85,11 +71,6 @@
         }
 
         public class StartSagaMessage : IMessage
-        {
-            public Guid SomeId { get; set; }
-        }
-
-        public class CompleteTest : IMessage
         {
             public Guid SomeId { get; set; }
         }
