@@ -37,11 +37,14 @@
             {
                 var handlerType = handlersAndMessages.Key;
                 // ReSharper disable once LoopCanBeConvertedToQuery
-                foreach (var messagesBeingHandled in handlersAndMessages.Value)
+                foreach (var handlerDelegate in handlersAndMessages.Value)
                 {
-                    if (messagesBeingHandled.MessageType.IsAssignableFrom(messageType))
+                    if (handlerDelegate.MessageType.IsAssignableFrom(messageType))
                     {
-                        messageHandlers.Add(new MessageHandler(messagesBeingHandled.MethodDelegate, handlerType));
+                        messageHandlers.Add(new MessageHandler(handlerDelegate.MethodDelegate, handlerType)
+                        {
+                            IsTimeoutHandler = handlerDelegate.IsTimeoutHandler
+                        });
                     }
                 }
             }
@@ -55,10 +58,10 @@
         public IEnumerable<Type> GetMessageTypes()
         {
             return (from messagesBeingHandled in handlerAndMessagesHandledByHandlerCache.Values
-                from typeHandled in messagesBeingHandled
-                let messageType = typeHandled.MessageType
-                where conventions.IsMessageType(messageType)
-                select messageType).Distinct();
+                    from typeHandled in messagesBeingHandled
+                    let messageType = typeHandled.MessageType
+                    where conventions.IsMessageType(messageType)
+                    select messageType).Distinct();
         }
 
         /// <summary>
@@ -99,11 +102,11 @@
 
         static void CacheHandlerMethods(Type handler, Type messageType, ICollection<DelegateHolder> typeList)
         {
-            CacheMethod(handler, messageType, typeof(IHandleMessages<>), typeList);
-            CacheMethod(handler, messageType, typeof(IHandleTimeouts<>), typeList);
+            CacheMethod(handler, messageType, typeof(IHandleMessages<>), typeList, false);
+            CacheMethod(handler, messageType, typeof(IHandleTimeouts<>), typeList, true);
         }
 
-        static void CacheMethod(Type handler, Type messageType, Type interfaceGenericType, ICollection<DelegateHolder> methodList)
+        static void CacheMethod(Type handler, Type messageType, Type interfaceGenericType, ICollection<DelegateHolder> methodList, bool isTimeoutHandler)
         {
             var handleMethod = GetMethod(handler, messageType, interfaceGenericType);
             if (handleMethod == null)
@@ -115,7 +118,8 @@
             var delegateHolder = new DelegateHolder
             {
                 MessageType = messageType,
-                MethodDelegate = handleMethod
+                MethodDelegate = handleMethod,
+                IsTimeoutHandler = isTimeoutHandler
             };
             methodList.Add(delegateHolder);
         }
@@ -153,12 +157,12 @@
         static Type[] GetMessageTypesBeingHandledBy(Type type)
         {
             return (from t in type.GetInterfaces()
-                where t.IsGenericType
-                let potentialMessageType = t.GetGenericArguments()[0]
-                where
-                    typeof(IHandleMessages<>).MakeGenericType(potentialMessageType).IsAssignableFrom(t) ||
-                    typeof(IHandleTimeouts<>).MakeGenericType(potentialMessageType).IsAssignableFrom(t)
-                select potentialMessageType)
+                    where t.IsGenericType
+                    let potentialMessageType = t.GetGenericArguments()[0]
+                    where
+                        typeof(IHandleMessages<>).MakeGenericType(potentialMessageType).IsAssignableFrom(t) ||
+                        typeof(IHandleTimeouts<>).MakeGenericType(potentialMessageType).IsAssignableFrom(t)
+                    select potentialMessageType)
                 .Distinct()
                 .ToArray();
         }
@@ -187,6 +191,7 @@
         {
             public Type MessageType;
             public Func<object, object, IMessageHandlerContext, Task> MethodDelegate;
+            public bool IsTimeoutHandler { get; set; }
         }
     }
 }
