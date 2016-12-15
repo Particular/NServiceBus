@@ -7,10 +7,10 @@
     using NUnit.Framework;
 
     [TestFixture]
-    public class When_persisting_a_saga_with_complex_types_full_copy_is_created
+    public class When_persisting_a_saga_with_complex_types
     {
         [Test]
-        public async Task It_should_persist_deep_copy()
+        public async Task It_should_get_deep_copy()
         {
             var sagaData = new SagaWithComplexType
             {

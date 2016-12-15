@@ -149,7 +149,7 @@ namespace NServiceBus
             static Entry()
             {
                 var func = GenerateMemberwiseClone();
-                memberwiseClone = sagaData => (IContainSagaData)func(sagaData);
+                shallowCopy = sagaData => (IContainSagaData)func(sagaData);
             }
 
             public Entry(IContainSagaData sagaData, CorrelationId correlationId)
@@ -160,7 +160,7 @@ namespace NServiceBus
 
             public CorrelationId CorrelationId { get; }
 
-            static IContainSagaData DeepClone(IContainSagaData source)
+            static IContainSagaData DeepCopy(IContainSagaData source)
             {
                 var json = serializer.SerializeObject(source);
                 return (IContainSagaData)serializer.DeserializeObject(json, source.GetType());
@@ -168,11 +168,12 @@ namespace NServiceBus
 
             public IContainSagaData GetSagaCopy()
             {
-                var canBeClonedShallowly = canBeClonedShallowlyCache.GetOrAdd(data.GetType(), CanBeMemberwiselyCloned);
-                return canBeClonedShallowly ? memberwiseClone(data) : DeepClone(data);
+                // ReSharper disable once ConvertClosureToMethodGroup, no allocations are needed!
+                var canBeShallowCopied = canBeShallowCopiedCache.GetOrAdd(data.GetType(), type => CanBeShallowCopied(type));
+                return canBeShallowCopied ? shallowCopy(data) : DeepCopy(data);
             }
 
-            static bool CanBeMemberwiselyCloned(Type type)
+            static bool CanBeShallowCopied(Type type)
             {
                 foreach (var fi in type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.FlattenHierarchy))
                 {
@@ -212,8 +213,8 @@ namespace NServiceBus
 
             readonly IContainSagaData data;
             static JsonMessageSerializer serializer = new JsonMessageSerializer(null);
-            static ConcurrentDictionary<Type, bool> canBeClonedShallowlyCache = new ConcurrentDictionary<Type, bool>();
-            static Func<IContainSagaData, IContainSagaData> memberwiseClone;
+            static ConcurrentDictionary<Type, bool> canBeShallowCopiedCache = new ConcurrentDictionary<Type, bool>();
+            static Func<IContainSagaData, IContainSagaData> shallowCopy;
         }
 
         /// <summary>
