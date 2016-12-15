@@ -8,8 +8,8 @@
 
     public class When_failure_happens_after_isolated_send : NServiceBusTransportTest
     {
-        //[TestCase(TransportTransactionMode.None)] - not relevant
-        //[TestCase(TransportTransactionMode.ReceiveOnly)] - not relevant
+        [TestCase(TransportTransactionMode.None)]
+        [TestCase(TransportTransactionMode.ReceiveOnly)]
         [TestCase(TransportTransactionMode.SendsAtomicWithReceive)]
         [TestCase(TransportTransactionMode.TransactionScope)]
         public async Task Should_emit_messages(TransportTransactionMode transactionMode)
