@@ -22,13 +22,13 @@
                 {
                     if (context.Headers.ContainsKey("CompleteTest"))
                     {
-                        onMessageCalled.SetResult(true);
+                        onMessageCalled.SetResult(false);
                         return;
                     }
 
                     if (context.Headers.ContainsKey("IsolatedSend"))
                     {
-                        onMessageCalled.SetResult(false);
+                        onMessageCalled.SetResult(true);
                         return;
                     }
 
@@ -49,12 +49,9 @@
                     return ErrorHandleResult.Handled;
                 }, transactionMode);
 
-            await SendMessage(InputQueueName, new Dictionary<string, string>
-            {
-                {"MyHeader", "MyValue"}
-            });
+            await SendMessage(InputQueueName);
 
-            Assert.False(await onMessageCalled.Task, "Should emit isolated sends");
+            Assert.True(await onMessageCalled.Task, "Should emit isolated sends");
         }
     }
 }
