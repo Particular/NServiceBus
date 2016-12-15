@@ -26,7 +26,7 @@
                         return;
                     }
 
-                    if (context.Headers.ContainsKey("EnlistedSend"))
+                    if (context.Headers.ContainsKey("IsolatedSend"))
                     {
                         onMessageCalled.SetResult(false);
                         return;
@@ -34,7 +34,7 @@
 
                     await SendMessage(InputQueueName, new Dictionary<string, string>
                     {
-                        {"EnlistedSend", "true"}
+                        {"IsolatedSend", "true"}
                     }, context.TransportTransaction, null, DispatchConsistency.Isolated);
 
                     throw new Exception("Simulated exception");
@@ -54,7 +54,7 @@
                 {"MyHeader", "MyValue"}
             });
 
-            Assert.False(await onMessageCalled.Task, "Should emit enlisted sends");
+            Assert.False(await onMessageCalled.Task, "Should emit isolated sends");
         }
     }
 }
