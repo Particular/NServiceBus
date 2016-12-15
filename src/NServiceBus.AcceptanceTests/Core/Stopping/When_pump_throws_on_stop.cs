@@ -19,7 +19,7 @@ namespace NServiceBus.AcceptanceTests.Core.Stopping
                 .Done(c => c.EndpointsStarted)
                 .Run();
 
-            Assert.IsNotNull(context.Logs.Single(l =>
+            Assert.IsNotNull(context.Logs.SingleOrDefault(l =>
                 l.Level == LogLevel.Warn
                 && l.Message.Contains("Receiver Main listening to queue PumpThrowsOnStop.EndpointThatThrowsOnPumpStop threw an exception on stopping. System.InvalidOperationException: ExceptionInPumpStop")));
         }
