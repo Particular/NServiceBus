@@ -102,8 +102,8 @@
 
         static void CacheHandlerMethods(Type handler, Type messageType, ICollection<DelegateHolder> typeList)
         {
-            CacheMethod(handler, messageType, typeof(IHandleMessages<>), typeList, false);
-            CacheMethod(handler, messageType, typeof(IHandleTimeouts<>), typeList, true);
+            CacheMethod(handler, messageType, typeof(IHandleMessages<>), typeList, isTimeoutHandler: false);
+            CacheMethod(handler, messageType, typeof(IHandleTimeouts<>), typeList, isTimeoutHandler: true);
         }
 
         static void CacheMethod(Type handler, Type messageType, Type interfaceGenericType, ICollection<DelegateHolder> methodList, bool isTimeoutHandler)
