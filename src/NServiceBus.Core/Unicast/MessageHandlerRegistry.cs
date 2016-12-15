@@ -58,10 +58,10 @@
         public IEnumerable<Type> GetMessageTypes()
         {
             return (from messagesBeingHandled in handlerAndMessagesHandledByHandlerCache.Values
-                    from typeHandled in messagesBeingHandled
-                    let messageType = typeHandled.MessageType
-                    where conventions.IsMessageType(messageType)
-                    select messageType).Distinct();
+                from typeHandled in messagesBeingHandled
+                let messageType = typeHandled.MessageType
+                where conventions.IsMessageType(messageType)
+                select messageType).Distinct();
         }
 
         /// <summary>
@@ -160,8 +160,8 @@
                     where t.IsGenericType
                     let potentialMessageType = t.GetGenericArguments()[0]
                     where
-                        typeof(IHandleMessages<>).MakeGenericType(potentialMessageType).IsAssignableFrom(t) ||
-                        typeof(IHandleTimeouts<>).MakeGenericType(potentialMessageType).IsAssignableFrom(t)
+                    typeof(IHandleMessages<>).MakeGenericType(potentialMessageType).IsAssignableFrom(t) ||
+                    typeof(IHandleTimeouts<>).MakeGenericType(potentialMessageType).IsAssignableFrom(t)
                     select potentialMessageType)
                 .Distinct()
                 .ToArray();
@@ -189,9 +189,9 @@
 
         class DelegateHolder
         {
+            public bool IsTimeoutHandler { get; set; }
             public Type MessageType;
             public Func<object, object, IMessageHandlerContext, Task> MethodDelegate;
-            public bool IsTimeoutHandler { get; set; }
         }
     }
 }
