@@ -29,6 +29,8 @@
         /// </summary>
         public Type HandlerType { get; private set; }
 
+        internal bool IsTimeoutHandler { get; set; }
+
         /// <summary>
         /// Invokes the message handler.
         /// </summary>
