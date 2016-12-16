@@ -3,6 +3,8 @@ namespace NServiceBus
     using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
+    using System.Reflection;
+    using System.Reflection.Emit;
     using System.Threading.Tasks;
     using Extensibility;
     using Persistence;
@@ -29,9 +31,9 @@ namespace NServiceBus
                    throw new Exception("Saga can't be completed as it was updated by another process.");
                }
 
-                // saga removed
-                // clean the index
-                if (Equals(entry.CorrelationId, NoCorrelationId) == false)
+               // saga removed
+               // clean the index
+               if (Equals(entry.CorrelationId, NoCorrelationId) == false)
                {
                    byCorrelationIdCollection.Remove(new KeyValuePair<CorrelationId, Guid>(entry.CorrelationId, sagaData.Id));
                }
@@ -144,6 +146,12 @@ namespace NServiceBus
 
         class Entry
         {
+            static Entry()
+            {
+                var func = GenerateMemberwiseClone();
+                shallowCopy = sagaData => (IContainSagaData)func(sagaData);
+            }
+
             public Entry(IContainSagaData sagaData, CorrelationId correlationId)
             {
                 CorrelationId = correlationId;
@@ -152,7 +160,7 @@ namespace NServiceBus
 
             public CorrelationId CorrelationId { get; }
 
-            static IContainSagaData DeepClone(IContainSagaData source)
+            static IContainSagaData DeepCopy(IContainSagaData source)
             {
                 var json = serializer.SerializeObject(source);
                 return (IContainSagaData)serializer.DeserializeObject(json, source.GetType());
@@ -160,7 +168,42 @@ namespace NServiceBus
 
             public IContainSagaData GetSagaCopy()
             {
-                return DeepClone(data);
+                // ReSharper disable once ConvertClosureToMethodGroup, no allocations are needed!
+                var canBeShallowCopied = canBeShallowCopiedCache.GetOrAdd(data.GetType(), type => CanBeShallowCopied(type));
+                return canBeShallowCopied ? shallowCopy(data) : DeepCopy(data);
+            }
+
+            static bool CanBeShallowCopied(Type type)
+            {
+                foreach (var fi in type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.FlattenHierarchy))
+                {
+                    var fieldType = fi.FieldType;
+
+                    if (fieldType.IsPrimitive == false)
+                    {
+                        if (fieldType != typeof(string) && fieldType != typeof(Guid))
+                        {
+                            return false;
+                        }
+                    }
+                }
+
+                return true;
+            }
+
+            static Func<object, object> GenerateMemberwiseClone()
+            {
+                var method = new DynamicMethod("CloneMemberwise", typeof(object), new[]
+                {
+                    typeof(object)
+                }, typeof(object).Assembly.ManifestModule, true);
+                var ilGenerator = method.GetILGenerator();
+                ilGenerator.Emit(OpCodes.Ldarg_0);
+                var methodInfo = typeof(object).GetMethod("MemberwiseClone", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+                ilGenerator.EmitCall(OpCodes.Call, methodInfo, null);
+                ilGenerator.Emit(OpCodes.Ret);
+
+                return (Func<object, object>)method.CreateDelegate(typeof(Func<object, object>));
             }
 
             public Entry UpdateTo(IContainSagaData sagaData)
@@ -170,6 +213,8 @@ namespace NServiceBus
 
             readonly IContainSagaData data;
             static JsonMessageSerializer serializer = new JsonMessageSerializer(null);
+            static ConcurrentDictionary<Type, bool> canBeShallowCopiedCache = new ConcurrentDictionary<Type, bool>();
+            static Func<IContainSagaData, IContainSagaData> shallowCopy;
         }
 
         /// <summary>
