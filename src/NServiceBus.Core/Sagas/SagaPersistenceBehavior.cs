@@ -21,6 +21,19 @@
 
         public async Task Invoke(IInvokeHandlerContext context, Func<IInvokeHandlerContext, Task> next)
         {
+            var isTimeoutMessage = IsTimeoutMessage(context.Headers);
+            var isTimeoutHandler = context.MessageHandler.IsTimeoutHandler;
+
+            if (isTimeoutHandler && !isTimeoutMessage)
+            {
+                return;
+            }
+
+            if (!isTimeoutHandler && isTimeoutMessage)
+            {
+                return;
+            }
+
             currentContext = context;
 
             RemoveSagaHeadersIfProcessingAEvent(context);
@@ -63,7 +76,7 @@
                     sagaInstanceState.MarkAsNotFound();
 
                     //we don't invoke not found handlers for timeouts
-                    if (IsTimeoutMessage(context.Headers))
+                    if (isTimeoutMessage)
                     {
                         context.Extensions.Get<SagaInvocationResult>().SagaFound();
                         logger.InfoFormat("No saga found for timeout message {0}, ignoring since the saga has been marked as complete before the timeout fired", context.MessageId);
@@ -225,7 +238,7 @@
                 //since we have a saga id available we can now shortcut the finders and just load the saga
                 var loaderType = typeof(LoadSagaByIdWrapper<>).MakeGenericType(sagaEntityType);
 
-                var loader = (SagaLoader) Activator.CreateInstance(loaderType);
+                var loader = (SagaLoader)Activator.CreateInstance(loaderType);
 
                 return loader.Load(sagaPersister, sagaId, context.SynchronizedStorageSession, context.Extensions);
             }
@@ -239,7 +252,7 @@
             }
 
             var finderType = finderDefinition.Type;
-            var finder = (SagaFinder) currentContext.Builder.Build(finderType);
+            var finder = (SagaFinder)currentContext.Builder.Build(finderType);
 
             return finder.Find(currentContext.Builder, finderDefinition, context.SynchronizedStorageSession, context.Extensions, context.MessageBeingHandled);
         }
@@ -261,7 +274,7 @@
         {
             var sagaEntityType = metadata.SagaEntityType;
 
-            var sagaEntity = (IContainSagaData) Activator.CreateInstance(sagaEntityType);
+            var sagaEntity = (IContainSagaData)Activator.CreateInstance(sagaEntityType);
 
             sagaEntity.Id = CombGuid.Generate();
             sagaEntity.OriginalMessageId = context.MessageId;

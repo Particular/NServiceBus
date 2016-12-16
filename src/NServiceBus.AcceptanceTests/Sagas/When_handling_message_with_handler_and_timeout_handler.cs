@@ -7,61 +7,61 @@
     using Features;
     using NUnit.Framework;
 
-    public class When_using_a_received_message_for_timeout : NServiceBusAcceptanceTest
+    public class When_handling_message_with_handler_and_timeout_handler : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Timeout_should_be_received_after_expiration()
+        public async Task Should_not_invoke_timeout_handler()
         {
             var context = await Scenario.Define<Context>()
-                .WithEndpoint<ReceiveMessageForTimeoutEndpoint>(g => g.When(session => session.SendLocal(new StartSagaMessage
+                .WithEndpoint<TimeoutSagaEndpoint>(g => g.When(session => session.SendLocal(new StartSagaMessage
                 {
                     SomeId = Guid.NewGuid()
                 })))
-                .Done(c => c.TimeoutReceived)
+                .Done(c => c.HandlerInvoked || c.TimeoutHandlerInvoked)
                 .Run();
 
-            Assert.True(context.TimeoutReceived);
-            Assert.AreEqual(1, context.HandlerCalled);
+            Assert.True(context.HandlerInvoked, "Regular handler should be invoked");
+            Assert.False(context.TimeoutHandlerInvoked, "Timeout handler should not be invoked");
         }
 
         public class Context : ScenarioContext
         {
-            public bool TimeoutReceived { get; set; }
-            public int HandlerCalled { get; set; }
+            public bool TimeoutHandlerInvoked { get; set; }
+            public bool HandlerInvoked { get; set; }
         }
 
-        public class ReceiveMessageForTimeoutEndpoint : EndpointConfigurationBuilder
+        public class TimeoutSagaEndpoint : EndpointConfigurationBuilder
         {
-            public ReceiveMessageForTimeoutEndpoint()
+            public TimeoutSagaEndpoint()
             {
                 EndpointSetup<DefaultServer>(config => config.EnableFeature<TimeoutManager>());
             }
 
-            public class TestSaga01 : Saga<TestSagaData01>, IAmStartedByMessages<StartSagaMessage>, IHandleTimeouts<StartSagaMessage>
+            public class HandlerAndTimeoutSaga : Saga<HandlerAndTimeoutSagaData>, IAmStartedByMessages<StartSagaMessage>,
+                IHandleTimeouts<StartSagaMessage>
             {
                 public Context TestContext { get; set; }
 
                 public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
                 {
-                    TestContext.HandlerCalled++;
-                    return RequestTimeout(context, TimeSpan.FromMilliseconds(100), message);
+                    TestContext.HandlerInvoked = true;
+                    return Task.FromResult(0);
                 }
 
                 public Task Timeout(StartSagaMessage message, IMessageHandlerContext context)
                 {
-                    MarkAsComplete();
-                    TestContext.TimeoutReceived = true;
+                    TestContext.TimeoutHandlerInvoked = true;
                     return Task.FromResult(0);
                 }
 
-                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData01> mapper)
+                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<HandlerAndTimeoutSagaData> mapper)
                 {
                     mapper.ConfigureMapping<StartSagaMessage>(m => m.SomeId)
                         .ToSaga(s => s.SomeId);
                 }
             }
 
-            public class TestSagaData01 : IContainSagaData
+            public class HandlerAndTimeoutSagaData : IContainSagaData
             {
                 public virtual Guid SomeId { get; set; }
                 public virtual Guid Id { get; set; }
@@ -70,7 +70,7 @@
             }
         }
 
-        public class StartSagaMessage : ICommand
+        public class StartSagaMessage : IMessage
         {
             public Guid SomeId { get; set; }
         }
