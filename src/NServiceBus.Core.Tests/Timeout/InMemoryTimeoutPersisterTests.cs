@@ -26,9 +26,9 @@ namespace NServiceBus.Core.Tests.Timeout
             var persister = new InMemoryTimeoutPersister(() => DateTime.UtcNow);
             await persister.Add(new TimeoutData
                           {
-                              Time = DateTime.Now.AddDays(2)
+                              Time = DateTime.UtcNow.AddDays(2)
                           }, new ContextBag());
-            var expectedDate = DateTime.Now.AddDays(1);
+            var expectedDate = DateTime.UtcNow.AddDays(1);
             await persister.Add(new TimeoutData
                           {
                               Time = expectedDate
@@ -45,18 +45,18 @@ namespace NServiceBus.Core.Tests.Timeout
             var persister = new InMemoryTimeoutPersister(() => DateTime.UtcNow);
             await persister.Add(new TimeoutData
                           {
-                              Time = DateTime.Now.AddDays(-2)
+                              Time = DateTime.UtcNow.AddDays(-2)
                           }, new ContextBag());
             await persister.Add(new TimeoutData
                           {
-                              Time = DateTime.Now.AddDays(-4)
+                              Time = DateTime.UtcNow.AddDays(-4)
                           }, new ContextBag());
             await persister.Add(new TimeoutData
                           {
-                              Time = DateTime.Now.AddDays(-1)
+                              Time = DateTime.UtcNow.AddDays(-1)
                           }, new ContextBag());
 
-            var result = await persister.GetNextChunk(DateTime.Now.AddDays(-3));
+            var result = await persister.GetNextChunk(DateTime.UtcNow.AddDays(-3));
 
             Assert.AreEqual(2, result.DueTimeouts.Count());
         }
@@ -133,15 +133,15 @@ namespace NServiceBus.Core.Tests.Timeout
             var persister = new InMemoryTimeoutPersister(() => DateTime.UtcNow);
             await persister.Add(new TimeoutData
                           {
-                              Time = DateTime.Now.AddDays(-1)
+                              Time = DateTime.UtcNow.AddDays(-1)
                           }, new ContextBag());
             await persister.Add(new TimeoutData
                           {
-                              Time = DateTime.Now.AddDays(-3)
+                              Time = DateTime.UtcNow.AddDays(-3)
                           }, new ContextBag());
             await persister.Add(new TimeoutData
                           {
-                              Time = DateTime.Now.AddDays(-2)
+                              Time = DateTime.UtcNow.AddDays(-2)
                           }, new ContextBag());
 
             var result = await persister.GetNextChunk(now);
