@@ -144,6 +144,7 @@
     <Compile Include="Msmq\MsmqSubscriptionStorageTests.cs" />
     <Compile Include="Persistence\InMemory\InMemorySubscriptionStorageTests.cs" />
     <Compile Include="Persistence\InMemory\SagaWithoutUniquePropertyData.cs" />
+    <Compile Include="Persistence\InMemory\When_dtc_enlisted_saga_fails_to_commit.cs" />
     <Compile Include="Persistence\InMemory\When_persisting_a_saga_with_complex_types.cs" />
     <Compile Include="Persistence\InMemory\When_persisting_a_saga_with_InMemory_and_an_escalated_DTC_transaction.cs" />
     <Compile Include="Persistence\InMemory\When_persisting_a_saga_with_no_defined_unique_property.cs" />
