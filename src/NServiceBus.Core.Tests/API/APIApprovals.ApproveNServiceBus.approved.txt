@@ -2694,6 +2694,7 @@ namespace NServiceBus.Sagas
 {
     public class ActiveSagaInstance
     {
+        public ActiveSagaInstance(NServiceBus.Saga saga, NServiceBus.Sagas.SagaMetadata metadata, System.Func<System.DateTime> currentUtcDateTimeProvider) { }
         public System.DateTime Created { get; }
         public NServiceBus.Saga Instance { get; }
         public bool IsNew { get; }

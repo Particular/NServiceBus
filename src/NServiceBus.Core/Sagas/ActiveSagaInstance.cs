@@ -11,7 +11,10 @@ namespace NServiceBus.Sagas
     {
         readonly Func<DateTime> currentUtcDateTimeProvider;
 
-        internal ActiveSagaInstance(Saga saga, SagaMetadata metadata, Func<DateTime> currentUtcDateTimeProvider)
+        /// <summary>
+        /// Creates a new <see cref="ActiveSagaInstance"/> instance.
+        /// </summary>
+        public ActiveSagaInstance(Saga saga, SagaMetadata metadata, Func<DateTime> currentUtcDateTimeProvider)
         {
             this.currentUtcDateTimeProvider = currentUtcDateTimeProvider;
             Instance = saga;
