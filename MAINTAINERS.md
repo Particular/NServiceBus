@@ -4,6 +4,7 @@
 
 https://github.com/orgs/Particular/teams/nservicebus-maintainers/repositories
 
+
 ## General Rules
 
 * All changes to repositories managed by the maintainers must come in via Pull Request which are merged by a maintainer. Direct commits to master, develop or support branches are not allowed.
@@ -11,6 +12,7 @@ https://github.com/orgs/Particular/teams/nservicebus-maintainers/repositories
 * The Pull Request title needs to be self explanatory.
 * Maintainers are responsible to ensure Pull Requests are reviewed and merged in a timely manner
 * Spikes should be labeled with the **Spike** label and the title needs to be prefixed with [WIP]. Spikes do not require the same response time as regular Pull Requests.
+
 
 ## Review Guidelines
 
@@ -25,9 +27,15 @@ https://github.com/orgs/Particular/teams/nservicebus-maintainers/repositories
 * Start PRs on downstream projects that are affected by the changes to facilitate knowledge transfer and conversations. Downstream PRs do not have to contain code modifications, could be used as a starting point to communicate changes and ensure knowledge is distributed.
 * Unit test names should follow the convention already applied in a given test fixture. If no existing test fixture is present it should be consistent to the test names used inside the same folder. 
 
+
 ## Other
 
 * Maintainers are strongly encouraged to be subscribed to the repositories managed by the group
 * Changes to the Coding Standards and [design rules](https://github.com/Particular/PlatformDevelopment/tree/master/designprinciples/nservicebus) require group consensus
 * Weekly meeting with available maintainers to triage issues. Rotate time zones for the meeting.
 * Maintainers should frequently check the [NServiceBus Waffleboard](https://waffle.io/particular/nservicebus) to verify all Pull Requests have maintainers assigned.
+
+
+## Releasing new versions
+
+* Before releasing new versions of the NServiceBus package, potentially affected downstream repositories should be smoke tested against a pre-release (unstable/release-candidate) version. A downstream repository can be considered smoke tested when all test projects of the repository are updated to the pre-release and all tests succeed or the repositories maintainers confirm that failing tests are no blocker for the release.
