@@ -20,12 +20,6 @@
 
             await StartPump(async context =>
                 {
-                    if (context.Headers.ContainsKey("CompleteTest"))
-                    {
-                        onMessageCalled.SetResult(false);
-                        return;
-                    }
-
                     if (context.Headers.ContainsKey("IsolatedSend"))
                     {
                         onMessageCalled.SetResult(true);
@@ -39,15 +33,8 @@
 
                     throw new Exception("Simulated exception");
                 },
-                async context =>
-                {
-                    await SendMessage(InputQueueName, new Dictionary<string, string>
-                    {
-                        {"CompleteTest", "true"}
-                    }, context.TransportTransaction, null, DispatchConsistency.Isolated);
-
-                    return ErrorHandleResult.Handled;
-                }, transactionMode);
+                errorContext => Task.FromResult(ErrorHandleResult.Handled),
+                transactionMode);
 
             await SendMessage(InputQueueName);
 
