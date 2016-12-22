@@ -50,6 +50,7 @@ namespace NServiceBus
             if (settings.PurgeOnStartup)
             {
                 inputQueue.Purge();
+                Logger.Warn($"The {inputQueue.QueueName} queue was purged.");
             }
 
             receiveStrategy = receiveStrategyFactory(settings.RequiredTransactionMode);
