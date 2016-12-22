@@ -100,6 +100,11 @@ namespace NServiceBus
             }
 
             var purgeOnStartup = settings.GetOrDefault<bool>("Transport.PurgeOnStartup");
+            if (purgeOnStartup)
+            {
+                Logger.Warn($"All queues owned by the '{settings.EndpointName()}' endpoint will be purged on startup.");
+            }
+
             var errorQueue = settings.ErrorQueueAddress();
             var requiredTransactionSupport = settings.GetRequiredTransactionModeForReceives();
             var recoverabilityExecutorFactory = builder.Build<RecoverabilityExecutorFactory>();
