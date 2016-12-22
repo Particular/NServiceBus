@@ -145,7 +145,8 @@
         protected Task SendMessage(string address,
             Dictionary<string, string> headers = null,
             TransportTransaction transportTransaction = null,
-            List<DeliveryConstraint> deliveryConstraints = null)
+            List<DeliveryConstraint> deliveryConstraints = null,
+            DispatchConsistency dispatchConsistency = DispatchConsistency.Default)
         {
             var messageId = Guid.NewGuid().ToString();
             var message = new OutgoingMessage(messageId, headers ?? new Dictionary<string, string>(), new byte[0]);
@@ -161,7 +162,7 @@
             {
                 transportTransaction = new TransportTransaction();
             }
-            var transportOperation = new TransportOperation(message, new UnicastAddressTag(address), DispatchConsistency.Default, deliveryConstraints ?? new List<DeliveryConstraint>());
+            var transportOperation = new TransportOperation(message, new UnicastAddressTag(address), dispatchConsistency, deliveryConstraints ?? new List<DeliveryConstraint>());
 
             return dispatcher.Dispatch(new TransportOperations(transportOperation), transportTransaction, new ContextBag());
         }
