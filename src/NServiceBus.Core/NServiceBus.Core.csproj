@@ -180,6 +180,8 @@
     <Compile Include="Transports\ReceiveSettingsExtensions.cs" />
     <Compile Include="Transports\ErrorContext.cs" />
     <Compile Include="Transports\ErrorHandleResult.cs" />
+    <Compile Include="Transports\Development\DevelopmentTransportInfrastructure.cs" />
+    <Compile Include="Transports\Development\DevelopmentTransportSubscriptionManager.cs" />
     <Compile Include="Transports\IOutgoingTransportOperation.cs" />
     <Compile Include="Transports\LogicalAddressExtensions.cs" />
     <Compile Include="Transports\Msmq\MsmqScopeOptions.cs" />
@@ -309,6 +311,7 @@
     <Compile Include="Serialization\SerializationContextExtensions.cs" />
     <Compile Include="Transports\TransportTransaction.cs" />
     <Compile Include="Transports\TransportTransactionMode.cs" />
+    <Compile Include="Transports\Development\HeaderSerializer.cs" />
     <Compile Include="Transports\Sending.cs" />
     <Compile Include="Routing\UnicastRoutingTable.cs" />
     <Compile Include="Routing\RoutingSettings.cs" />
@@ -317,6 +320,11 @@
     <Compile Include="Pipeline\Outgoing\IDispatchContext.cs" />
     <Compile Include="Pipeline\Outgoing\ImmediateDispatchTerminator.cs" />
     <Compile Include="Transports\DispatchConsistency.cs" />
+    <Compile Include="Transports\Development\DirectoryBasedTransaction.cs" />
+    <Compile Include="Transports\Development\DevelopmentTransportDispatcher.cs" />
+    <Compile Include="Transports\Development\DevelopmentTransport.cs" />
+    <Compile Include="Transports\Development\DevelopmentTransportMessagePump.cs" />
+    <Compile Include="Transports\Development\DevelopmentTransportQueueCreator.cs" />
     <Compile Include="Transports\IncomingMessageExtensions.cs" />
     <Compile Include="Transports\Msmq\MsmqConnectionStringBuilder.cs" />
     <Compile Include="Container\ContainerCustomizations.cs" />
