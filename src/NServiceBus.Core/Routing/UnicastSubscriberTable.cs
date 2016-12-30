@@ -6,16 +6,20 @@ namespace NServiceBus.Routing
     using System.Threading;
 
     /// <summary>
-    /// The unicast routing table.
+    /// The unicast subscriber table.
     /// </summary>
-    public class UnicastRoutingTable
+    public class UnicastSubscriberTable
     {
-        internal UnicastRouteGroup GetRoutesFor(Type messageType)
+        static readonly UnicastRouteGroup[] emptyResult =
         {
-            UnicastRouteGroup unicastRoutes;
+        };
+
+        internal UnicastRouteGroup[] GetRoutesFor(Type messageType)
+        {
+            UnicastRouteGroup[] unicastRoutes;
             return routeTable.TryGetValue(messageType, out unicastRoutes)
                 ? unicastRoutes
-                : null;
+                : emptyResult;
         }
 
         /// <summary>
@@ -62,7 +66,7 @@ namespace NServiceBus.Routing
             return existing;
         }
 
-        Dictionary<Type, UnicastRouteGroup> CalculateNewRouteTable()
+        Dictionary<Type, UnicastRouteGroup[]> CalculateNewRouteTable()
         {
             var newRouteTable = new Dictionary<Type, List<UnicastRoute>>();
             foreach (var entry in routeGroups.Values.SelectMany(g => g))
@@ -73,16 +77,19 @@ namespace NServiceBus.Routing
                     typeRoutes = new List<UnicastRoute>();
                     newRouteTable[entry.MessageType] = typeRoutes;
                 }
-                if (typeRoutes.Any(x => x.Endpoint != entry.Route.Endpoint))
-                {
-                    throw new Exception($"Route for type {entry.MessageType.FullName} already exists to a different endpoint.");
-                }
                 typeRoutes.Add(entry.Route);
             }
-            return newRouteTable.ToDictionary(kvp => kvp.Key, kvp => new UnicastRouteGroup(kvp.Value.First().Endpoint, kvp.Value.ToArray()));
+            return newRouteTable.ToDictionary(kvp => kvp.Key, kvp => GroupByEndpoint(kvp.Value));
         }
 
-        volatile Dictionary<Type, UnicastRouteGroup> routeTable = new Dictionary<Type, UnicastRouteGroup>();
+        static UnicastRouteGroup[] GroupByEndpoint(List<UnicastRoute> routes)
+        {
+            return routes.GroupBy(r => r.Endpoint)
+                .Select(g => new UnicastRouteGroup(g.Key, g.ToArray()))
+                .ToArray();
+        }
+
+        volatile Dictionary<Type, UnicastRouteGroup[]> routeTable = new Dictionary<Type, UnicastRouteGroup[]>();
         Dictionary<string, IList<RouteTableEntry>> routeGroups = new Dictionary<string, IList<RouteTableEntry>>();
         ReaderWriterLockSlim readerWriterLock = new ReaderWriterLockSlim();
     }

@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.Core.Tests.Routing
 {
     using System.Collections.Generic;
+    using System.Linq;
     using NServiceBus.Routing;
     using NUnit.Framework;
 
@@ -17,7 +18,7 @@
                 new RouteTableEntry(typeof(Command), route),
             });
 
-            var retrievedRoute = routingTable.GetRouteFor(typeof(Command));
+            var retrievedRoute = routingTable.GetRoutesFor(typeof(Command))?.Routes.FirstOrDefault();
             Assert.AreSame(route, retrievedRoute);
         }
 
@@ -37,7 +38,7 @@
                 new RouteTableEntry(typeof(Command), newRoute),
             });
 
-            var retrievedRoute = routingTable.GetRouteFor(typeof(Command));
+            var retrievedRoute = routingTable.GetRoutesFor(typeof(Command))?.Routes.FirstOrDefault();
             Assert.AreSame(newRoute, retrievedRoute);
         }
 

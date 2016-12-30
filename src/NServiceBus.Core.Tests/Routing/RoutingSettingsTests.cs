@@ -2,6 +2,7 @@
 {
     using NServiceBus;
     using System;
+    using System.Linq;
     using System.Reflection;
     using MessageNamespaceA;
     using MessageNamespaceB;
@@ -50,7 +51,7 @@
             routingSettings.RouteToEndpoint(typeof(SomeMessageType), "destination");
 
             var routingTable = ApplyConfiguredRoutes(routingSettings);
-            var route = routingTable.GetRouteFor(typeof(SomeMessageType));
+            var route = routingTable.GetRoutesFor(typeof(SomeMessageType))?.Routes.FirstOrDefault();
 
             Assert.That(route, Is.Not.Null);
             Assert.That(route.Endpoint, Is.EqualTo("destination"));
@@ -64,9 +65,9 @@
 
             var routingTable = ApplyConfiguredRoutes(routingSettings);
 
-            var someMessageRoute = routingTable.GetRouteFor(typeof(SomeMessageType));
-            var otherMessageRoute = routingTable.GetRouteFor(typeof(OtherMessageType));
-            var messageWithoutNamespaceRoute = routingTable.GetRouteFor(typeof(MessageWithoutNamespace));
+            var someMessageRoute = routingTable.GetRoutesFor(typeof(SomeMessageType))?.Routes.FirstOrDefault();
+            var otherMessageRoute = routingTable.GetRoutesFor(typeof(OtherMessageType))?.Routes.FirstOrDefault();
+            var messageWithoutNamespaceRoute = routingTable.GetRoutesFor(typeof(MessageWithoutNamespace))?.Routes.FirstOrDefault();
 
             Assert.That(someMessageRoute, Is.Not.Null);
             Assert.That(otherMessageRoute, Is.Not.Null);
@@ -81,9 +82,9 @@
 
             var routingTable = ApplyConfiguredRoutes(routingSettings);
 
-            var someMessageRoute = routingTable.GetRouteFor(typeof(SomeMessageType));
-            var otherMessageRoute = routingTable.GetRouteFor(typeof(OtherMessageType));
-            var messageWithoutNamespaceRoute = routingTable.GetRouteFor(typeof(MessageWithoutNamespace));
+            var someMessageRoute = routingTable.GetRoutesFor(typeof(SomeMessageType))?.Routes.FirstOrDefault();
+            var otherMessageRoute = routingTable.GetRoutesFor(typeof(OtherMessageType))?.Routes.FirstOrDefault();
+            var messageWithoutNamespaceRoute = routingTable.GetRoutesFor(typeof(MessageWithoutNamespace))?.Routes.FirstOrDefault();
 
             Assert.That(someMessageRoute, Is.Not.Null, "because SomeMessageType is in the given namespace");
             Assert.That(otherMessageRoute, Is.Null, "because OtherMessageType is not in the given namespace");
@@ -100,9 +101,9 @@
 
             var routingTable = ApplyConfiguredRoutes(routingSettings);
 
-            var someMessageRoute = routingTable.GetRouteFor(typeof(SomeMessageType));
-            var otherMessageRoute = routingTable.GetRouteFor(typeof(OtherMessageType));
-            var messageWithoutNamespaceRoute = routingTable.GetRouteFor(typeof(MessageWithoutNamespace));
+            var someMessageRoute = routingTable.GetRoutesFor(typeof(SomeMessageType))?.Routes.FirstOrDefault();
+            var otherMessageRoute = routingTable.GetRoutesFor(typeof(OtherMessageType))?.Routes.FirstOrDefault();
+            var messageWithoutNamespaceRoute = routingTable.GetRoutesFor(typeof(MessageWithoutNamespace))?.Routes.FirstOrDefault();
 
             Assert.That(someMessageRoute, Is.Null);
             Assert.That(otherMessageRoute, Is.Null);

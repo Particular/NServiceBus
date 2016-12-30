@@ -76,17 +76,18 @@
                 return;
             }
             Logger.Info($"{intent} from {subscriberAddress} on message type {messageTypeString}");
+            var messageType = new MessageType(messageTypeString);
             var subscriber = new Subscriber(subscriberAddress, subscriberEndpoint);
             if (incomingMessage.GetMesssageIntent() == MessageIntentEnum.Subscribe)
             {
-                var messageType = new MessageType(messageTypeString);
                 await subscriptionStorage.Subscribe(subscriber, messageType, context.Extensions).ConfigureAwait(false);
-                return;
             }
-
-            await subscriptionStorage.Unsubscribe(subscriber, new MessageType(messageTypeString), context.Extensions).ConfigureAwait(false);
+            else
+            {
+                await subscriptionStorage.Unsubscribe(subscriber, messageType, context.Extensions).ConfigureAwait(false);
+            }
         }
-
+        
         static string GetSubscriptionMessageTypeFrom(IncomingMessage msg)
         {
             string value;
@@ -97,7 +98,6 @@
         Func<IIncomingPhysicalMessageContext, bool> authorizer;
 
         ISubscriptionStorage subscriptionStorage;
-
         static ILog Logger = LogManager.GetLogger<SubscriptionReceiverBehavior>();
 
         public class Registration : RegisterStep
