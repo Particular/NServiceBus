@@ -59,7 +59,7 @@
         }
 
         [Test]
-        public void ShouldBundlePolymorphicInvocationsForSagas()
+        public async Task ShouldBundlePolymorphicInvocationsForSagas()
         {
             var registry = new MessageHandlerRegistry(new Conventions());
 
@@ -69,29 +69,15 @@
 
             Assert.AreEqual(1, handlers.Count);
 
-            //var timeoutHandler = handlers.SingleOrDefault(h => h.IsTimeoutHandler);
+            var polymorphicInvocation = handlers.Single();
 
-            //Assert.NotNull(timeoutHandler, "Timeout handler should be marked as such");
+            var sagaInstance = new SagaWithHandlerForBaseAndSpecificMessage();
 
-            //var timeoutInstance = new SagaWithTimeoutOfMessage();
+            polymorphicInvocation.Instance = sagaInstance;
+            await polymorphicInvocation.Invoke(null, null);
 
-            //timeoutHandler.Instance = timeoutInstance;
-            //await timeoutHandler.Invoke(null, null);
-
-            //Assert.True(timeoutInstance.TimeoutCalled);
-            //Assert.False(timeoutInstance.HandlerCalled);
-
-            //var regularHandler = handlers.SingleOrDefault(h => !h.IsTimeoutHandler);
-
-            //Assert.NotNull(regularHandler, "Regular handler should be marked as timeout handler");
-
-            //var regularInstance = new SagaWithTimeoutOfMessage();
-
-            //regularHandler.Instance = regularInstance;
-            //await regularHandler.Invoke(null, null);
-
-            //Assert.False(regularInstance.TimeoutCalled);
-            //Assert.True(regularInstance.HandlerCalled);
+            Assert.True(sagaInstance.BaseHandlerCalled);
+            Assert.True(sagaInstance.SpecificHandlerCalled);
         }
 
 
@@ -243,11 +229,13 @@
 
             public Task Handle(MyBaseMessage message, IMessageHandlerContext context)
             {
+                BaseHandlerCalled = true;
                 return TaskEx.CompletedTask;
             }
 
             public Task Handle(MyMessageWithBase message, IMessageHandlerContext context)
             {
+                SpecificHandlerCalled = true;
                 return TaskEx.CompletedTask;
             }
 
@@ -259,6 +247,9 @@
             public class MySagaData : ContainSagaData
             {
             }
+
+            public bool BaseHandlerCalled { get; set; }
+            public bool SpecificHandlerCalled { get; set; }
         }
 
     }
