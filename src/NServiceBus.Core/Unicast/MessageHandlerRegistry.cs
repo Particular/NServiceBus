@@ -36,6 +36,24 @@
             foreach (var handlersAndMessages in handlerAndMessagesHandledByHandlerCache)
             {
                 var handlerType = handlersAndMessages.Key;
+
+                if (typeof(Saga).IsAssignableFrom(handlerType))
+                {
+                    var handlerDelegates = handlersAndMessages.Value.Where(hd => hd.MessageType.IsAssignableFrom(messageType))
+                        .ToList();
+
+                    if (handlerDelegates.Any())
+                    {
+                        messageHandlers.Add(new MessageHandler(handlerDelegates.Select(hd=>hd.MethodDelegate).ToArray(), handlerType)
+                        {
+                            IsTimeoutHandler = handlerDelegates.First().IsTimeoutHandler
+                        });
+
+                    }
+
+                    continue;
+                }
+
                 // ReSharper disable once LoopCanBeConvertedToQuery
                 foreach (var handlerDelegate in handlersAndMessages.Value)
                 {
