@@ -67,6 +67,11 @@ namespace NServiceBus
 
         public void ClearFailureInfoForMessage(string messageId)
         {
+            if (string.IsNullOrEmpty(messageId))
+            {
+                return;
+            }
+
             lock (lockObject)
             {
                 failureInfoPerMessage.Remove(messageId);

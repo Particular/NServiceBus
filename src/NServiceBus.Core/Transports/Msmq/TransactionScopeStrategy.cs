@@ -46,6 +46,8 @@ namespace NServiceBus
 
                     scope.Complete();
                 }
+
+                failureInfoStorage.ClearFailureInfoForMessage(message.Id);
             }
             // We'll only get here if Complete/Dispose throws which should be rare.
             // Note: If that happens the attempts counter will be inconsistent since the message might be picked up again before we can register the failure in the LRU cache.
@@ -73,7 +75,6 @@ namespace NServiceBus
 
                 if (errorHandleResult == ErrorHandleResult.Handled)
                 {
-                    failureInfoStorage.ClearFailureInfoForMessage(message.Id);
                     return true;
                 }
             }
@@ -90,7 +91,6 @@ namespace NServiceBus
                     }
                 }
 
-                failureInfoStorage.ClearFailureInfoForMessage(message.Id);
                 return true;
             }
             catch (Exception exception)
