@@ -19,7 +19,37 @@
             {
                 // handler enlists a failing transaction enlistment to the DTC transaction which will fail when commiting the transaction.
                 Transaction.Current.EnlistDurable(EnlistmentWhichFailesDuringPrepare.Id, new EnlistmentWhichFailesDuringPrepare(), EnlistmentOptions.None);
+                return Task.FromResult(0);
+            },
+            context =>
+            {
+                onErrorCalled.SetResult(context);
+                return Task.FromResult(ErrorHandleResult.Handled);
+            }
+            ,TransportTransactionMode.TransactionScope);
 
+            await SendMessage(InputQueueName);
+
+            var errorContext = await onErrorCalled.Task;
+
+            Assert.IsInstanceOf<TransactionAbortedException>(errorContext.Exception);
+
+            // since some transports doesn't have native retry counters we can't expect the attempts to be fully consistent since if
+            // dispose throws the message might be picked up before the counter is incremented
+            Assert.LessOrEqual(2, errorContext.ImmediateProcessingFailures);
+        }
+
+        [Test]
+        public async Task Should_properly_increment_immediate_processing_failures()
+        {
+            var onErrorCalled = new TaskCompletionSource<ErrorContext>();
+
+            OnTestTimeout(() => onErrorCalled.SetCanceled());
+
+            await StartPump(context =>
+            {
+                // handler enlists a failing transaction enlistment to the DTC transaction which will fail when commiting the transaction.
+                Transaction.Current.EnlistDurable(EnlistmentWhichFailesDuringPrepare.Id, new EnlistmentWhichFailesDuringPrepare(), EnlistmentOptions.None);
                 return Task.FromResult(0);
             },
             context =>
@@ -30,9 +60,10 @@
                     return Task.FromResult(ErrorHandleResult.RetryRequired);
                 }
                 onErrorCalled.SetResult(context);
+
                 return Task.FromResult(ErrorHandleResult.Handled);
             }
-            ,TransportTransactionMode.TransactionScope);
+            , TransportTransactionMode.TransactionScope);
 
             await SendMessage(InputQueueName);
 
@@ -53,8 +84,7 @@
         public void Prepare(PreparingEnlistment preparingEnlistment)
         {
             // fail during prepare, this will cause scope.Dispose to throw
-            //preparingEnlistment.ForceRollback();
-            throw new Exception("shit");
+            preparingEnlistment.ForceRollback();
         }
 
         public void Commit(Enlistment enlistment)

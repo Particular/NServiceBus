@@ -90,7 +90,6 @@ namespace NServiceBus
                         return false;
                     }
                 }
-
                 return true;
             }
             catch (Exception exception)
