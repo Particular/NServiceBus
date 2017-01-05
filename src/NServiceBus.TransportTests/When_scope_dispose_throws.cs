@@ -24,6 +24,11 @@
             },
             context =>
             {
+                //perform a immediate retry to make sure the transport increments the counter properly
+                if (context.ImmediateProcessingFailures < 2)
+                {
+                    return Task.FromResult(ErrorHandleResult.RetryRequired);
+                }
                 onErrorCalled.SetResult(context);
                 return Task.FromResult(ErrorHandleResult.Handled);
             }
@@ -37,7 +42,7 @@
 
             // since some transports doesn't have native retry counters we can't expect the attempts to be fully consistent since if
             // dispose throws the message might be picked up before the counter is incremented
-            Assert.LessOrEqual(1, errorContext.ImmediateProcessingFailures);
+            Assert.LessOrEqual(2, errorContext.ImmediateProcessingFailures);
         }
     }
 
@@ -48,7 +53,8 @@
         public void Prepare(PreparingEnlistment preparingEnlistment)
         {
             // fail during prepare, this will cause scope.Dispose to throw
-            preparingEnlistment.ForceRollback();
+            //preparingEnlistment.ForceRollback();
+            throw new Exception("shit");
         }
 
         public void Commit(Enlistment enlistment)
