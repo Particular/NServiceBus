@@ -43,13 +43,13 @@ namespace NServiceBus
                     if (shouldCommit)
                     {
                         msmqTransaction.Commit();
+                        failureInfoStorage.ClearFailureInfoForMessage(message.Id);
                     }
                     else
                     {
                         msmqTransaction.Abort();
                     }
                 }
-                failureInfoStorage.ClearFailureInfoForMessage(message.Id);
             }
             // We'll only get here if Commit/Abort/Dispose throws which should be rare.
             // Note: If that happens the attempts counter will be inconsistent since the message might be picked up again before we can register the failure in the LRU cache.

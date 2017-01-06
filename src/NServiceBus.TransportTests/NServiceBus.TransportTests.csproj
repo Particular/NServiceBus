@@ -58,6 +58,7 @@
     <Compile Include="When_message_is_available.cs" />
     <Compile Include="When_on_message_throws.cs" />
     <Compile Include="When_requesting_immediate_retry.cs" />
+    <Compile Include="When_scope_throws_after_successful_message_processing.cs" />
     <Compile Include="When_sending_from_on_error.cs" />
     <Compile Include="When_transaction_level_TransactionScope.cs" />
     <Compile Include="When_user_aborts_processing.cs" />
