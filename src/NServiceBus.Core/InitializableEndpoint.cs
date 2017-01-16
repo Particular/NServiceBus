@@ -49,6 +49,7 @@ namespace NServiceBus
             var transportInfrastructure = transportDefinition.Initialize(settings, connectionString);
             settings.Set<TransportInfrastructure>(transportInfrastructure);
 
+            // use GetOrCreate to use of instances already created during EndpointConfiguration.
             var routing = new RoutingComponent(
                 settings.GetOrCreate<UnicastRoutingTable>(),
                 settings.GetOrCreate<DistributionPolicy>(),
