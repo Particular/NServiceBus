@@ -9,16 +9,10 @@ namespace NServiceBus
     using Settings;
     using Transport;
 
-    /// <summary>
-    /// Provides access to the core's routing infrastructure.
-    /// </summary>
     class RoutingComponent
     {
-        internal const string EnforceBestPracticesSettingsKey = "NServiceBus.Routing.EnforceBestPractices";
+        public const string EnforceBestPracticesSettingsKey = "NServiceBus.Routing.EnforceBestPractices";
 
-        /// <summary>
-        /// Creates a new <see cref="RoutingComponent"/> instance.
-        /// </summary>
         public RoutingComponent(UnicastRoutingTable unicastRoutingTable, DistributionPolicy distributionPolicy, EndpointInstances endpointInstances, Publishers publishers)
         {
             UnicastRoutingTable = unicastRoutingTable;
@@ -27,29 +21,17 @@ namespace NServiceBus
             Publishers = publishers;
         }
 
-        /// <summary>
-        /// Contains routing data for unicast send operations.
-        /// </summary>
         public UnicastRoutingTable UnicastRoutingTable { get; }
 
-        /// <summary>
-        /// Provides distribution strategies for sender-side distribution.
-        /// </summary>
         public DistributionPolicy DistributionPolicy { get; }
 
-        /// <summary>
-        /// Contains logical endpoint to physical instances mapping.
-        /// </summary>
         public EndpointInstances EndpointInstances { get; }
 
-        /// <summary>
-        /// Contains routing data for subscription messages.
-        /// </summary>
         public Publishers Publishers { get; }
 
-        internal bool EnforceBestPractices { get; private set; }
+        public bool EnforceBestPractices { get; private set; }
 
-        internal void Initialize(ReadOnlySettings settings, TransportInfrastructure transportInfrastructure, PipelineSettings pipelineSettings)
+        public void Initialize(ReadOnlySettings settings, TransportInfrastructure transportInfrastructure, PipelineSettings pipelineSettings)
         {
             var unicastBusConfig = settings.GetConfigSection<UnicastBusConfig>();
             var conventions = settings.Get<Conventions>();
