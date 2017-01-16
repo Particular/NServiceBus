@@ -39,10 +39,7 @@
         /// </summary>
         public PipelineSettings Pipeline { get; }
 
-        /// <summary>
-        /// Access to the routing infrastructure.
-        /// </summary>
-        public RoutingComponent Routing { get; }
+        internal RoutingComponent Routing { get; }
 
         internal List<FeatureStartupTaskController> TaskControllers { get; }
 

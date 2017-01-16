@@ -12,7 +12,7 @@ namespace NServiceBus
     /// <summary>
     /// Provides access to the core's routing infrastructure.
     /// </summary>
-    public class RoutingComponent
+    class RoutingComponent
     {
         internal const string EnforceBestPracticesSettingsKey = "NServiceBus.Routing.EnforceBestPractices";
 

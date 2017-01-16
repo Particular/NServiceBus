@@ -5,8 +5,8 @@
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using AcceptanceTesting.Customization;
+    using Configuration.AdvanceExtensibility;
     using EndpointTemplates;
-    using Features;
     using NServiceBus.Routing;
     using NUnit.Framework;
 
@@ -51,19 +51,12 @@
                 {
                     var routing = c.UseTransport(r.GetTransportType()).Routing();
                     routing.RouteToEndpoint(typeof(MyMessage), ReceiverEndpoint);
-                    c.EnableFeature<EndpointInstancesConfigurationFeature>();
+                    c.GetSettings().GetOrCreate<EndpointInstances>()
+                        .AddOrReplaceInstances("testing", new List<EndpointInstance>
+                        {
+                            new EndpointInstance(ReceiverEndpoint, "XYZ")
+                        });
                 });
-            }
-
-            class EndpointInstancesConfigurationFeature : Feature
-            {
-                protected override void Setup(FeatureConfigurationContext context)
-                {
-                    context.Routing.EndpointInstances.AddOrReplaceInstances("testing", new List<EndpointInstance>
-                    {
-                        new EndpointInstance(ReceiverEndpoint, "XYZ")
-                    });
-                }
             }
         }
 
