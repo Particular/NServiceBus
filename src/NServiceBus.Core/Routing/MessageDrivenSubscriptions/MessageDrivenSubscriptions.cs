@@ -2,8 +2,6 @@ namespace NServiceBus.Features
 {
     using System;
     using Persistence;
-    using Routing;
-    using Routing.MessageDrivenSubscriptions;
     using Transport;
     using Unicast.Messages;
     using Unicast.Subscriptions.MessageDrivenSubscriptions;
@@ -16,7 +14,6 @@ namespace NServiceBus.Features
         internal MessageDrivenSubscriptions()
         {
             EnableByDefault();
-            DependsOn<RoutingFeature>();
             Defaults(s =>
             {
                 // s.SetDefault<Publishers>(new Publishers()); currently setup by RoutingFeature
@@ -38,11 +35,11 @@ namespace NServiceBus.Features
             var transportInfrastructure = context.Settings.Get<TransportInfrastructure>();
             var canReceive = !context.Settings.GetOrDefault<bool>("Endpoint.SendOnly");
             var conventions = context.Settings.Get<Conventions>();
-            var enforceBestPractices = context.Settings.Get<bool>(RoutingFeature.EnforceBestPracticesSettingsKey);
+            var enforceBestPractices = context.Routing.EnforceBestPractices;
 
-            var distributionPolicy = context.Settings.Get<DistributionPolicy>();
-            var endpointInstances = context.Settings.Get<EndpointInstances>();
-            var publishers = context.Settings.Get<Publishers>();
+            var distributionPolicy = context.Routing.DistributionPolicy;
+            var endpointInstances = context.Routing.EndpointInstances;
+            var publishers = context.Routing.Publishers;
             var configuredPublishers = context.Settings.Get<ConfiguredPublishers>();
 
             configuredPublishers.Apply(publishers, conventions, enforceBestPractices);

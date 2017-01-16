@@ -31,7 +31,7 @@
             }
 
             public bool DefaultCalled;
-            
+
             protected internal override void Setup(FeatureConfigurationContext context)
             {
             }
@@ -56,7 +56,7 @@
             featureSettings.Add(featureThatIsEnabledByAnother);
             featureSettings.Add(new FeatureThatEnablesAnother());
 
-            featureSettings.SetupFeatures(null, null);
+            featureSettings.SetupFeatures(null, null, null);
 
             Assert.True(featureThatIsEnabledByAnother.DefaultCalled, "FeatureThatIsEnabledByAnother wasn't activated");
         }
@@ -88,7 +88,7 @@
             featureSettings.Add(level2);
             featureSettings.Add(level1);
 
-            featureSettings.SetupFeatures(null, null);
+            featureSettings.SetupFeatures(null, null, null);
 
             Assert.True(level1.IsActive, "Activate1 wasn't activated");
             Assert.True(level2.IsActive, "Activate2 wasn't activated");
@@ -120,7 +120,7 @@
 
             settings.EnableFeatureByDefault<MyFeature1>();
 
-            featureSettings.SetupFeatures(null, null);
+            featureSettings.SetupFeatures(null, null, null);
 
             Assert.True(dependingFeature.IsActive);
 
@@ -158,7 +158,7 @@
             settings.EnableFeatureByDefault<MyFeature2>();
             settings.EnableFeatureByDefault<MyFeature3>();
 
-            featureSettings.SetupFeatures(null, null);
+            featureSettings.SetupFeatures(null, null, null);
 
             Assert.True(dependingFeature.IsActive);
 
@@ -171,7 +171,7 @@
         public void Should_activate_all_upstream_dependencies_when_chain_deep()
         {
             var defaultsOrder = new List<Feature>();
-           
+
             var level1 = new Level1
             {
                 OnDefaults = f => defaultsOrder.Add(f)
@@ -190,7 +190,7 @@
             featureSettings.Add(level2);
             featureSettings.Add(level1);
 
-            featureSettings.SetupFeatures(null, null);
+            featureSettings.SetupFeatures(null, null, null);
 
             Assert.True(level1.IsActive, "Level1 wasn't activated");
             Assert.True(level2.IsActive, "Level2 wasn't activated");

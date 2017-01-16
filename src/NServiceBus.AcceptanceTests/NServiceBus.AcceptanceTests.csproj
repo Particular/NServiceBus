@@ -216,7 +216,6 @@
     <Compile Include="Serialization\When_skip_wrapping_xml.cs" />
     <Compile Include="Serialization\When_wrapping_is_not_skipped.cs" />
     <Compile Include="Serialization\When_xml_serializer_used_with_unobtrusive_mode.cs" />
-    <Compile Include="UnicastRoutingExtensions.cs" />
     <Compile Include="Routing\NativePublishSubscribe\When_multi_subscribing_to_a_polymorphic_event.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\When_using_autosubscribe_with_missing_routing_information.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\When_publishing_to_scaled_out_subscribers.cs" />

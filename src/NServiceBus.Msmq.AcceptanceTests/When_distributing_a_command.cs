@@ -1,8 +1,10 @@
 ﻿namespace NServiceBus.Transport.Msmq.AcceptanceTests
 {
+    using System.Collections.Generic;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using AcceptanceTesting.Customization;
+    using Configuration.AdvanceExtensibility;
     using NServiceBus.AcceptanceTests;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NUnit.Framework;
@@ -64,12 +66,13 @@
                     routing.RouteToEndpoint(typeof(RequestA), ReceiverAEndpoint);
                     routing.RouteToEndpoint(typeof(RequestB), ReceiverBEndpoint);
 
-                    routing.RegisterEndpointInstances(
+                    c.GetSettings().GetOrCreate<EndpointInstances>().AddOrReplaceInstances("test", new List<EndpointInstance>
+                    {
                         new EndpointInstance(ReceiverAEndpoint, "1"),
                         new EndpointInstance(ReceiverAEndpoint, "2"),
                         new EndpointInstance(ReceiverBEndpoint, "1"),
                         new EndpointInstance(ReceiverBEndpoint, "2")
-                        );
+                    });
                 });
             }
 

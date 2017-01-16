@@ -12,6 +12,8 @@ namespace NServiceBus
     using ObjectBuilder;
     using ObjectBuilder.Common;
     using Pipeline;
+    using Routing;
+    using Routing.MessageDrivenSubscriptions;
     using Settings;
     using Transport;
 
@@ -47,7 +49,15 @@ namespace NServiceBus
             var transportInfrastructure = transportDefinition.Initialize(settings, connectionString);
             settings.Set<TransportInfrastructure>(transportInfrastructure);
 
-            var featureStats = featureActivator.SetupFeatures(container, pipelineSettings);
+            // use GetOrCreate to use of instances already created during EndpointConfiguration.
+            var routing = new RoutingComponent(
+                settings.GetOrCreate<UnicastRoutingTable>(),
+                settings.GetOrCreate<DistributionPolicy>(),
+                settings.GetOrCreate<EndpointInstances>(),
+                settings.GetOrCreate<Publishers>());
+            routing.Initialize(settings, transportInfrastructure, pipelineSettings);
+
+            var featureStats = featureActivator.SetupFeatures(container, pipelineSettings, routing);
 
             pipelineConfiguration.RegisterBehaviorsInContainer(settings, container);
 

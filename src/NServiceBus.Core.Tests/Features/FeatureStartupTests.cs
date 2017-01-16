@@ -27,7 +27,7 @@
 
             featureSettings.Add(feature);
 
-            featureSettings.SetupFeatures(null, null);
+            featureSettings.SetupFeatures(null, null, null);
 
             await featureSettings.StartFeatures(null, null);
             await featureSettings.StopFeatures(null);
@@ -43,7 +43,7 @@
 
             featureSettings.Add(feature);
 
-            featureSettings.SetupFeatures(null, null);
+            featureSettings.SetupFeatures(null, null, null);
 
             await featureSettings.StartFeatures(null, null);
             await featureSettings.StopFeatures(null);
@@ -59,7 +59,7 @@
             featureSettings.Add(feature1);
             featureSettings.Add(feature2);
 
-            featureSettings.SetupFeatures(null, null);
+            featureSettings.SetupFeatures(null, null, null);
 
             Assert.ThrowsAsync<InvalidOperationException>(async () => await featureSettings.StartFeatures(null, null));
 
@@ -75,7 +75,7 @@
             featureSettings.Add(feature1);
             featureSettings.Add(feature2);
 
-            featureSettings.SetupFeatures(null, null);
+            featureSettings.SetupFeatures(null, null, null);
 
             await featureSettings.StartFeatures(null, null);
 
@@ -90,7 +90,7 @@
             var feature = new FeatureWithStartupTaskThatThrows(throwOnStart: false, throwOnStop: true);
             featureSettings.Add(feature);
 
-            featureSettings.SetupFeatures(null, null);
+            featureSettings.SetupFeatures(null, null, null);
 
             await featureSettings.StartFeatures(null, null);
 

@@ -5,7 +5,6 @@
     using System.Linq;
     using System.Threading.Tasks;
     using Logging;
-    using Routing.MessageDrivenSubscriptions;
     using Transport;
     using Unicast;
 
@@ -35,7 +34,7 @@
             var conventions = context.Settings.Get<Conventions>();
             var transportInfrastructure = context.Settings.Get<TransportInfrastructure>();
             var requireExplicitRouting = transportInfrastructure.OutboundRoutingPolicy.Publishes == OutboundRoutingType.Unicast;
-            var publishers = context.Settings.Get<Publishers>();
+            var publishers = context.Routing.Publishers;
 
             context.RegisterStartupTask(b =>
             {

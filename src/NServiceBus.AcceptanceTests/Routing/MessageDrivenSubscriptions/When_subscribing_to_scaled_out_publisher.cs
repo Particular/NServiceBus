@@ -51,13 +51,17 @@
         {
             public Subscriber()
             {
-                EndpointSetup<DefaultServer>((c, r) =>
-                {
-                    // configure the scaled out publisher instances:
-                    var publisherName = Conventions.EndpointNamingConvention(typeof(ScaledOutPublisher));
-                    var routing = c.UseTransport(r.GetTransportType()).Routing();
-                    routing.RegisterEndpointInstances(new EndpointInstance(publisherName, "1"), new EndpointInstance(publisherName, "2"));
-                }, metadata => metadata.RegisterPublisherFor<MyEvent>(typeof(ScaledOutPublisher)));
+                EndpointSetup<DefaultServer>(
+                    c =>
+                    {
+                        var publisherName = Conventions.EndpointNamingConvention(typeof(ScaledOutPublisher));
+                        c.GetSettings().GetOrCreate<EndpointInstances>().AddOrReplaceInstances("test", new List<EndpointInstance>
+                        {
+                            new EndpointInstance(publisherName, "1"),
+                            new EndpointInstance(publisherName, "2")
+                        });
+                    },
+                    metadata => metadata.RegisterPublisherFor<MyEvent>(typeof(ScaledOutPublisher)));
             }
         }
 
