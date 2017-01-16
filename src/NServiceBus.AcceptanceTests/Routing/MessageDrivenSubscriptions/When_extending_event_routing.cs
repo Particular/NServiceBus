@@ -50,10 +50,11 @@
                 EndpointSetup<DefaultServer>(c =>
                 {
                     c.DisableFeature<AutoSubscribe>();
-                    c.GetSettings().GetOrCreate<Publishers>().AddOrReplacePublishers("CustomRoutingFeature", new List<PublisherTableEntry>
-                    {
-                        new PublisherTableEntry(typeof(MyEvent), PublisherAddress.CreateFromEndpointName(PublisherEndpoint))
-                    });
+                    c.GetSettings().GetOrCreate<Publishers>()
+                        .AddOrReplacePublishers("CustomRoutingFeature", new List<PublisherTableEntry>
+                        {
+                            new PublisherTableEntry(typeof(MyEvent), PublisherAddress.CreateFromEndpointName(PublisherEndpoint))
+                        });
                 });
             }
 
