@@ -17,7 +17,8 @@
             var onErrorCalled = new TaskCompletionSource<ErrorContext>();
             OnTestTimeout(() => onErrorCalled.SetResult(null));
 
-            await StartPump(context =>
+            await StartPump(
+                context =>
                 {
                     // handler enlists a failing transaction enlistment to the DTC transaction which will fail when commiting the transaction.
                     Transaction.Current.EnlistDurable(EnlistmentWhichFailesDuringPrepare.Id, new EnlistmentWhichFailesDuringPrepare(), EnlistmentOptions.None);
@@ -27,8 +28,7 @@
                 {
                     onErrorCalled.SetResult(context);
                     return Task.FromResult(ErrorHandleResult.Handled);
-                }
-                , transactionMode);
+                }, transactionMode);
 
             await SendMessage(InputQueueName);
 
@@ -38,7 +38,6 @@
 
             // since some transports doesn't have native retry counters we can't expect the attempts to be fully consistent since if
             // dispose throws the message might be picked up before the counter is incremented
-
             Assert.LessOrEqual(1, errorContext.ImmediateProcessingFailures);
         }
 
@@ -48,7 +47,7 @@
 
             public void Prepare(PreparingEnlistment preparingEnlistment)
             {
-                // fail during prepare, this will cause scope.Dispose to throw
+                // fail during prepare, this will cause scope.Complete to throw
                 preparingEnlistment.ForceRollback();
             }
 

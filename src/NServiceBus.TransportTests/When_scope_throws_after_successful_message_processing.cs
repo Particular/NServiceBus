@@ -12,38 +12,35 @@
         //[TestCase(TransportTransactionMode.ReceiveOnly)] -- unable to hook where required to throw after a message has been successfully processed but before transaction is successfully commited
         //[TestCase(TransportTransactionMode.SendsAtomicWithReceive)] -- unable to hook where required to throw after a message has been successfully processed but before transaction is successfully commited
         [TestCase(TransportTransactionMode.TransactionScope)]
-        public async Task Should_properly_increment_immediate_processing_failures(TransportTransactionMode transactionMode)
+        public async Task Throwing_during_Transaction_Prepare_should_properly_increment_immediate_processing_failures(TransportTransactionMode transactionMode)
         {
             var onErrorCalled = new TaskCompletionSource<ErrorContext>();
 
             OnTestTimeout(() => onErrorCalled.SetCanceled());
 
-            await StartPump(context =>
-            {
-                Transaction.Current.EnlistDurable(EnlistmentWhichFailesDuringPrepare.Id, new EnlistmentWhichFailesDuringPrepare(), EnlistmentOptions.None);
-                return Task.FromResult(0);
-            },
-            context =>
-            {
-                //perform an immediate retry to make sure the transport increments the counter properly
-                if (context.ImmediateProcessingFailures < 2)
+            await StartPump(
+                context =>
                 {
-                    return Task.FromResult(ErrorHandleResult.RetryRequired);
-                }
-                onErrorCalled.SetResult(context);
+                    Transaction.Current.EnlistDurable(EnlistmentWhichFailesDuringPrepare.Id, new EnlistmentWhichFailesDuringPrepare(), EnlistmentOptions.None);
+                    return Task.FromResult(0);
+                },
+                context =>
+                {
+                    //perform an immediate retry to make sure the transport increments the counter properly
+                    if (context.ImmediateProcessingFailures < 2)
+                    {
+                        return Task.FromResult(ErrorHandleResult.RetryRequired);
+                    }
+                    onErrorCalled.SetResult(context);
 
-                return Task.FromResult(ErrorHandleResult.Handled);
-            }
-            , transactionMode);
+                    return Task.FromResult(ErrorHandleResult.Handled);
+                }, transactionMode);
 
             await SendMessage(InputQueueName);
 
             var errorContext = await onErrorCalled.Task;
 
             Assert.IsInstanceOf<TransactionAbortedException>(errorContext.Exception);
-
-            // since some transports doesn't have native retry counters we can't expect the attempts to be fully consistent since if
-            // dispose throws the message might be picked up before the counter is incremented
             Assert.LessOrEqual(2, errorContext.ImmediateProcessingFailures);
         }
     }
@@ -54,7 +51,7 @@
 
         public void Prepare(PreparingEnlistment preparingEnlistment)
         {
-            // fail during prepare, this will cause scope.Dispose to throw
+            // fail during prepare, this will cause scope.Complete to throw
             preparingEnlistment.ForceRollback();
         }
 
