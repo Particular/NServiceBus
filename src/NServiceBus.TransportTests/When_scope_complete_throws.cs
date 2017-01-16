@@ -6,7 +6,7 @@
     using NUnit.Framework;
     using Transport;
 
-    public class When_scope_dispose_throws : NServiceBusTransportTest
+    public class When_scope_complete_throws : NServiceBusTransportTest
     {
         //[TestCase(TransportTransactionMode.None)] -- not relevant
         //[TestCase(TransportTransactionMode.ReceiveOnly)] -- unable to hook where required to throw after a message has been successfully processed but before transaction is successfully commited
@@ -21,7 +21,7 @@
                 context =>
                 {
                     // handler enlists a failing transaction enlistment to the DTC transaction which will fail when commiting the transaction.
-                    Transaction.Current.EnlistDurable(EnlistmentWhichFailesDuringPrepare.Id, new EnlistmentWhichFailesDuringPrepare(), EnlistmentOptions.None);
+                    Transaction.Current.EnlistDurable(EnlistmentWhichFailsDuringPrepare.Id, new EnlistmentWhichFailsDuringPrepare(), EnlistmentOptions.None);
                     return Task.FromResult(0);
                 },
                 context =>
@@ -41,7 +41,7 @@
             Assert.LessOrEqual(1, errorContext.ImmediateProcessingFailures);
         }
 
-        class EnlistmentWhichFailesDuringPrepare : IEnlistmentNotification
+        class EnlistmentWhichFailsDuringPrepare : IEnlistmentNotification
         {
             public static readonly Guid Id = Guid.NewGuid();
 

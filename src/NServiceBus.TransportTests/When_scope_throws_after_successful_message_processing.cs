@@ -21,7 +21,7 @@
             await StartPump(
                 context =>
                 {
-                    Transaction.Current.EnlistDurable(EnlistmentWhichFailesDuringPrepare.Id, new EnlistmentWhichFailesDuringPrepare(), EnlistmentOptions.None);
+                    Transaction.Current.EnlistDurable(EnlistmentWhichFailsDuringPrepare.Id, new EnlistmentWhichFailsDuringPrepare(), EnlistmentOptions.None);
                     return Task.FromResult(0);
                 },
                 context =>
@@ -45,7 +45,7 @@
         }
     }
 
-    class EnlistmentWhichFailesDuringPrepare : IEnlistmentNotification
+    class EnlistmentWhichFailsDuringPrepare : IEnlistmentNotification
     {
         public static readonly Guid Id = Guid.NewGuid();
 

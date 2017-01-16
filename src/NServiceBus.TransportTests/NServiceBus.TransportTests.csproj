@@ -54,7 +54,7 @@
     <Compile Include="When_on_error_throws.cs" />
     <Compile Include="When_on_message_throws_after_delayed_retry.cs" />
     <Compile Include="When_on_message_throws_after_immediate_retry.cs" />
-    <Compile Include="When_scope_dispose_throws.cs" />
+    <Compile Include="When_scope_complete_throws.cs" />
     <Compile Include="When_message_is_available.cs" />
     <Compile Include="When_on_message_throws.cs" />
     <Compile Include="When_requesting_immediate_retry.cs" />
