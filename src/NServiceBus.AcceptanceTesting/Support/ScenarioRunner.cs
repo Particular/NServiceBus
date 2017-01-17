@@ -140,7 +140,7 @@
             {
                 var endpoints = await InitializeRunners(runDescriptor, behaviorDescriptors).ConfigureAwait(false);
 
-                runResult.ActiveEndpoints = endpoints.Select(r => r.EndpointName).ToList();
+                runResult.ActiveEndpoints = endpoints.Select(r => r.Name());
 
                 await PerformScenarios(runDescriptor, endpoints, () => done(runDescriptor.ScenarioContext)).ConfigureAwait(false);
 
@@ -185,18 +185,17 @@
             Console.WriteLine();
         }
 
-        static async Task PerformScenarios(RunDescriptor runDescriptor, IEnumerable<ActiveRunner> runners, Func<bool> done)
+        static async Task PerformScenarios(RunDescriptor runDescriptor, EndpointRunner[] runners, Func<bool> done)
         {
             using (var cts = new CancellationTokenSource())
             {
-                var endpoints = runners.Select(r => r.Instance).ToList();
 
                 // ReSharper disable once LoopVariableIsNeverChangedInsideLoop
                 try
                 {
-                    await StartEndpoints(endpoints, cts).ConfigureAwait(false);
+                    await StartEndpoints(runners, cts).ConfigureAwait(false);
                     runDescriptor.ScenarioContext.EndpointsStarted = true;
-                    await ExecuteWhens(endpoints, cts).ConfigureAwait(false);
+                    await ExecuteWhens(runners, cts).ConfigureAwait(false);
 
                     var startTime = DateTime.UtcNow;
                     var maxTime = runDescriptor.Settings.TestExecutionTimeout ?? TimeSpan.FromSeconds(90);
@@ -204,7 +203,7 @@
                     {
                         if (DateTime.UtcNow - startTime > maxTime)
                         {
-                            ThrowOnFailedMessages(runDescriptor, endpoints);
+                            ThrowOnFailedMessages(runDescriptor, runners);
                             throw new TimeoutException(GenerateTestTimedOutMessage(maxTime));
                         }
 
@@ -225,14 +224,14 @@
                 }
                 finally
                 {
-                    await StopEndpoints(endpoints).ConfigureAwait(false);
+                    await StopEndpoints(runners).ConfigureAwait(false);
                 }
 
-                ThrowOnFailedMessages(runDescriptor, endpoints);
+                ThrowOnFailedMessages(runDescriptor, runners);
             }
         }
 
-        static void ThrowOnFailedMessages(RunDescriptor runDescriptor, List<EndpointRunner> endpoints)
+        static void ThrowOnFailedMessages(RunDescriptor runDescriptor, EndpointRunner[] endpoints)
         {
             var unexpectedFailedMessages = runDescriptor.ScenarioContext.FailedMessages
                 .Where(kvp => endpoints.Single(e => e.Name() == kvp.Key).FailOnErrorMessage)
@@ -320,7 +319,7 @@
             }).Timebox(stopTimeout, $"Stopping endpoints took longer than {stopTimeout.TotalMinutes} minutes.");
         }
 
-        static async Task<ActiveRunner[]> InitializeRunners(RunDescriptor runDescriptor, List<EndpointBehavior> endpointBehaviors)
+        static async Task<EndpointRunner[]> InitializeRunners(RunDescriptor runDescriptor, List<EndpointBehavior> endpointBehaviors)
         {
             var routingTable = CreateRoutingTable(endpointBehaviors);
 
@@ -333,19 +332,15 @@
                     throw new Exception($"Endpoint name '{endpointName}' is larger than 77 characters and will cause issues with MSMQ queue names. Rename the test class or endpoint.");
                 }
 
-                var runner = new ActiveRunner
-                {
-                    Instance = new EndpointRunner(),
-                    EndpointName = endpointName
-                };
+                var runner = new EndpointRunner();
 
                 try
                 {
-                    await runner.Instance.Initialize(runDescriptor, endpointBehavior, routingTable, endpointName).ConfigureAwait(false);
+                    await runner.Initialize(runDescriptor, endpointBehavior, routingTable, endpointName).ConfigureAwait(false);
                 }
                 catch (Exception)
                 {
-                    Console.WriteLine($"Endpoint {runner.Instance.Name()} failed to initialize");
+                    Console.WriteLine($"Endpoint {runner.Name()} failed to initialize");
                     throw;
                 }
 
