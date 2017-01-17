@@ -43,6 +43,7 @@ namespace NServiceBus
                     if (shouldCommit)
                     {
                         msmqTransaction.Commit();
+                        failureInfoStorage.ClearFailureInfoForMessage(message.Id);
                     }
                     else
                     {
@@ -71,40 +72,35 @@ namespace NServiceBus
 
             MsmqFailureInfoStorage.ProcessingFailureInfo failureInfo;
 
-            var shouldTryProcessMessage = true;
-
             if (failureInfoStorage.TryGetFailureInfoForMessage(message.Id, out failureInfo))
             {
                 var errorHandleResult = await HandleError(message, headers, failureInfo.Exception, transportTransaction, failureInfo.NumberOfProcessingAttempts).ConfigureAwait(false);
 
-                shouldTryProcessMessage = errorHandleResult != ErrorHandleResult.Handled;
+                if (errorHandleResult == ErrorHandleResult.Handled)
+                {
+                    return true;
+                }
             }
 
-            if (shouldTryProcessMessage)
+            try
             {
-                try
+                using (var bodyStream = message.BodyStream)
                 {
-                    using (var bodyStream = message.BodyStream)
-                    {
-                        var shouldAbortMessageProcessing = await TryProcessMessage(message, headers, bodyStream, transportTransaction).ConfigureAwait(false);
+                    var shouldAbortMessageProcessing = await TryProcessMessage(message, headers, bodyStream, transportTransaction).ConfigureAwait(false);
 
-                        if (shouldAbortMessageProcessing)
-                        {
-                            return false;
-                        }
+                    if (shouldAbortMessageProcessing)
+                    {
+                        return false;
                     }
                 }
-                catch (Exception exception)
-                {
-                    failureInfoStorage.RecordFailureInfoForMessage(message.Id, exception);
-
-                    return false;
-                }
+                return true;
             }
+            catch (Exception exception)
+            {
+                failureInfoStorage.RecordFailureInfoForMessage(message.Id, exception);
 
-            failureInfoStorage.ClearFailureInfoForMessage(message.Id);
-
-            return true;
+                return false;
+            }
         }
 
         MsmqFailureInfoStorage failureInfoStorage;
