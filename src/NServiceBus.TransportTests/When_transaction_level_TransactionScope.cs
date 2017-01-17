@@ -8,8 +8,11 @@
 
     public class When_transaction_level_TransactionScope : NServiceBusTransportTest
     {
-        [Test]
-        public async Task Should_have_active_transaction()
+        //[TestCase(TransportTransactionMode.None)] -- not relevant
+        //[TestCase(TransportTransactionMode.ReceiveOnly)] -- not relevant
+        //[TestCase(TransportTransactionMode.SendsAtomicWithReceive)] -- not relevant
+        [TestCase(TransportTransactionMode.TransactionScope)]
+        public async Task Should_have_active_transaction(TransportTransactionMode transactionMode)
         {
             var messageHandled = new TaskCompletionSource<Tuple<Transaction, Transaction>>();
 
@@ -23,7 +26,7 @@
                     return Task.FromResult(0);
                 },
                 errorContext => Task.FromResult(ErrorHandleResult.Handled),
-                TransportTransactionMode.TransactionScope);
+                transactionMode);
             await SendMessage(InputQueueName);
 
             var transactions = await messageHandled.Task;
