@@ -4,6 +4,7 @@ namespace NServiceBus
     using System.Threading;
     using System.Threading.Tasks;
     using Extensibility;
+    using Janitor;
     using Logging;
     using Routing;
     using Timeout.Core;
@@ -140,6 +141,7 @@ namespace NServiceBus
         string dispatcherAddress;
         object lockObject = new object();
         DateTime startSlice;
+        [SkipWeaving]
         Task timeoutPollerTask;
 
         IQueryTimeouts timeoutsFetcher;
