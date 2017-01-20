@@ -201,10 +201,13 @@
                     var maxTime = runDescriptor.Settings.TestExecutionTimeout ?? TimeSpan.FromSeconds(90);
                     while (!done() && !cts.Token.IsCancellationRequested)
                     {
-                        if (DateTime.UtcNow - startTime > maxTime)
+                        if (!Debugger.IsAttached)
                         {
-                            ThrowOnFailedMessages(runDescriptor, runners);
-                            throw new TimeoutException(GenerateTestTimedOutMessage(maxTime));
+                            if (DateTime.UtcNow - startTime > maxTime)
+                            {
+                                ThrowOnFailedMessages(runDescriptor, runners);
+                                throw new TimeoutException(GenerateTestTimedOutMessage(maxTime));
+                            }
                         }
 
                         await Task.Delay(1).ConfigureAwait(false);
