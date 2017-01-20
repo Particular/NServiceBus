@@ -240,6 +240,11 @@
 
             if (unexpectedFailedMessages.Any())
             {
+                foreach (var failedMessage in unexpectedFailedMessages)
+                {
+                    Console.WriteLine($"Message: {failedMessage.MessageId} failed to process and was moved to the error queue: {failedMessage.Exception}");
+                }
+
                 throw new MessagesFailedException(unexpectedFailedMessages, runDescriptor.ScenarioContext);
             }
         }
