@@ -1,10 +1,13 @@
 ﻿namespace NServiceBus.Core.Tests.Timeout.TimeoutManager
 {
     using System;
+    using System.Collections.Generic;
     using System.Threading;
     using System.Threading.Tasks;
+    using Extensibility;
     using NServiceBus.Timeout.Core;
     using NUnit.Framework;
+    using Transport;
 
     public class ExpiredTimeoutsPollerTests
     {
@@ -64,6 +67,30 @@
             Assert.AreEqual(currentTime + InMemoryTimeoutPersister.EmptyResultsNextTimeToRunQuerySpan, poller.NextRetrieval);
         }
 
+        [Test]
+        public async Task Polls_with_same_start_slice_when_dispatch_fails()
+        {
+            var failingDispatcher = new FailableDispatcher();
+            poller = new ExpiredTimeoutsPoller(timeouts, failingDispatcher, "test", breaker, () => currentTime);
+
+            RegisterNewTimeout(currentTime.Subtract(TimeSpan.FromMinutes(5)));
+
+            // fail first dispatch
+            failingDispatcher.DispatcherAction = _ => { throw new Exception("transport error"); };
+            Assert.ThrowsAsync<Exception>(() => poller.SpinOnce(CancellationToken.None));
+
+            // succeed second dispatch
+            var unicastTransportOperations = new List<UnicastTransportOperation>();
+            failingDispatcher.DispatcherAction = m =>
+            {
+                unicastTransportOperations = m.UnicastTransportOperations;
+                return TaskEx.CompletedTask;
+            };
+            await poller.SpinOnce(CancellationToken.None);
+
+            Assert.AreEqual(1, unicastTransportOperations.Count);
+        }
+
         void RegisterNewTimeout(DateTime newTimeout, bool withNotification = true)
         {
             timeouts.Add(new TimeoutData
@@ -93,6 +120,16 @@
             public Task Failure(Exception exception)
             {
                 return TaskEx.CompletedTask;
+            }
+        }
+
+        class FailableDispatcher : IDispatchMessages
+        {
+            public Func<TransportOperations, Task> DispatcherAction { get; set; }
+
+            public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transaction, ContextBag context)
+            {
+                return DispatcherAction(outgoingMessages);
             }
         }
     }
