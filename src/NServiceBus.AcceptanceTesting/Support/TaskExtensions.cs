@@ -27,7 +27,7 @@
 
                     if (t.IsFaulted && t.Exception != null)
                     {
-                        tcs.TrySetException(t.Exception.InnerException);
+                        tcs.TrySetException(t.Exception.GetBaseException());
                     }
 
                     if (t.IsCanceled)
