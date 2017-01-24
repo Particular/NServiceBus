@@ -108,7 +108,7 @@
                 {
                     await Task.Run(async () =>
                     {
-                        var executedWhens = new List<Guid>();
+                        var executedWhens = new HashSet<Guid>();
 
                         while (!token.IsCancellationRequested)
                         {
@@ -139,6 +139,8 @@
                                     executedWhens.Add(when.Id);
                                 }
                             }
+
+                            await Task.Yield(); // enforce yield current context, tight loop could introduce starvation
                         }
                     }, token).ConfigureAwait(false);
                 }
