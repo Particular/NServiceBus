@@ -68,24 +68,37 @@
         }
 
         [Test]
-        public async Task Polls_with_same_start_slice_when_dispatch_fails()
+        public async Task Poll_with_same_start_slice_from_last_failed_dispatch()
         {
             var failingDispatcher = new FailableDispatcher();
             poller = new ExpiredTimeoutsPoller(timeouts, failingDispatcher, "test", breaker, () => currentTime);
 
             RegisterNewTimeout(currentTime.Subtract(TimeSpan.FromMinutes(5)));
 
-            // fail first dispatch
-            failingDispatcher.DispatcherAction = _ => { throw new Exception("transport error"); };
-            Assert.ThrowsAsync<Exception>(() => poller.SpinOnce(CancellationToken.None));
-
-            // succeed second dispatch
+            var dispatchCalls = 0;
             var unicastTransportOperations = new List<UnicastTransportOperation>();
             failingDispatcher.DispatcherAction = m =>
             {
+                if (++dispatchCalls == 1)
+                {
+                    // fail first dispatch
+                    throw new Exception("transport error");
+                }
+
+                // succeed second dispatch
                 unicastTransportOperations = m.UnicastTransportOperations;
                 return TaskEx.CompletedTask;
             };
+
+            try
+            {
+                await poller.SpinOnce(CancellationToken.None);
+            }
+            catch (Exception )
+            {
+                // ignore. An exception will cause another polling attempt.
+            }
+
             await poller.SpinOnce(CancellationToken.None);
 
             Assert.AreEqual(1, unicastTransportOperations.Count);
