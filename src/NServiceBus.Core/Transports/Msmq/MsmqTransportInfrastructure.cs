@@ -16,8 +16,6 @@ namespace NServiceBus
     {
         public MsmqTransportInfrastructure(ReadOnlySettings settings)
         {
-            RequireOutboxConsent = true;
-
             this.settings = settings;
         }
 

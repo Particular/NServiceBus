@@ -3205,6 +3205,8 @@ namespace NServiceBus.Transport
         protected TransportInfrastructure() { }
         public abstract System.Collections.Generic.IEnumerable<System.Type> DeliveryConstraints { get; }
         public abstract NServiceBus.Transport.OutboundRoutingPolicy OutboundRoutingPolicy { get; }
+        [System.ObsoleteAttribute("The outbox consent is no longer required. It is safe to ignore this property. Wil" +
+            "l be treated as an error from version 7.0.0. Will be removed in version 8.0.0.", false)]
         public bool RequireOutboxConsent { get; set; }
         public abstract NServiceBus.TransportTransactionMode TransactionMode { get; }
         public abstract NServiceBus.Routing.EndpointInstance BindToLocalEndpoint(NServiceBus.Routing.EndpointInstance instance);

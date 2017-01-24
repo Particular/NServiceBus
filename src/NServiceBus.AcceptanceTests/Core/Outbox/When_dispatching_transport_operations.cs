@@ -4,7 +4,6 @@
     using System.Collections.Generic;
     using System.Threading.Tasks;
     using AcceptanceTesting;
-    using Configuration.AdvanceExtensibility;
     using EndpointTemplates;
     using NUnit.Framework;
     using ScenarioDescriptors;
@@ -39,7 +38,6 @@
                 EndpointSetup<DefaultServer>(
                     b =>
                     {
-                        b.GetSettings().Set("DisableOutboxTransportCheck", true);
                         b.EnableOutbox();
                     });
             }
