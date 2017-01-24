@@ -995,6 +995,18 @@ namespace NServiceBus.Transports
     }
 }
 
+namespace NServiceBus.Transport
+{
+    public partial class TransportInfrastructure
+    {
+        [ObsoleteEx(
+            RemoveInVersion = "8.0",
+            TreatAsErrorFromVersion = "7.0",
+            Message = "The outbox consent is no longer required. It is safe to ignore this property.")]
+        public bool RequireOutboxConsent { get; protected set; }
+    }
+}
+
 namespace NServiceBus.Unicast.Subscriptions
 {
     [ObsoleteEx(

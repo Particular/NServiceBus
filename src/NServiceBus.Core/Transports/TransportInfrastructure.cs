@@ -8,7 +8,7 @@ namespace NServiceBus.Transport
     /// <summary>
     /// Transport infrastructure definitions.
     /// </summary>
-    public abstract class TransportInfrastructure
+    public abstract partial class TransportInfrastructure
     {
         /// <summary>
         /// Returns the list of supported delivery constraints for this transport.
@@ -24,11 +24,6 @@ namespace NServiceBus.Transport
         /// Returns the outbound routing policy selected for the transport.
         /// </summary>
         public abstract OutboundRoutingPolicy OutboundRoutingPolicy { get; }
-
-        /// <summary>
-        /// True if the transport.
-        /// </summary>
-        public bool RequireOutboxConsent { get; protected set; }
 
         /// <summary>
         /// Gets the factories to receive message.
