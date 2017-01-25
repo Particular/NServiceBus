@@ -2,15 +2,17 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Threading;
     using System.Threading.Tasks;
 
     static class TaskExtensions
     {
+        //this method will not timeout a task if the debugger is attached.
         public static Task Timebox(this IEnumerable<Task> tasks, TimeSpan timeoutAfter, string messageWhenTimeboxReached)
         {
             var taskCompletionSource = new TaskCompletionSource<object>();
-            var tokenSource = new CancellationTokenSource(timeoutAfter);
+            var tokenSource = Debugger.IsAttached ? new CancellationTokenSource() : new CancellationTokenSource(timeoutAfter);
             var registration = tokenSource.Token.Register(s =>
             {
                 var tcs = (TaskCompletionSource<object>) s;
