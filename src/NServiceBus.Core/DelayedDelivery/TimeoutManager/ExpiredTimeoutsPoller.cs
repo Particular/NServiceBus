@@ -104,17 +104,17 @@ namespace NServiceBus
                     return;
                 }
 
-                if (startSlice < timeoutData.DueTime)
-                {
-                    startSlice = timeoutData.DueTime;
-                }
-
                 var dispatchRequest = ControlMessageFactory.Create(MessageIntentEnum.Send);
 
                 dispatchRequest.Headers["Timeout.Id"] = timeoutData.Id;
 
                 var transportOperation = new TransportOperation(dispatchRequest, new UnicastAddressTag(dispatcherAddress));
                 await dispatcher.Dispatch(new TransportOperations(transportOperation), new TransportTransaction(), new ContextBag()).ConfigureAwait(false);
+
+                if (startSlice < timeoutData.DueTime)
+                {
+                    startSlice = timeoutData.DueTime;
+                }
             }
 
             lock (lockObject)

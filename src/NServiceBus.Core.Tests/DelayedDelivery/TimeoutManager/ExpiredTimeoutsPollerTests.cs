@@ -1,10 +1,13 @@
 ﻿namespace NServiceBus.Core.Tests.Timeout.TimeoutManager
 {
     using System;
+    using System.Collections.Generic;
     using System.Threading;
     using System.Threading.Tasks;
+    using Extensibility;
     using NServiceBus.Timeout.Core;
     using NUnit.Framework;
+    using Transport;
 
     public class ExpiredTimeoutsPollerTests
     {
@@ -64,6 +67,43 @@
             Assert.AreEqual(currentTime + InMemoryTimeoutPersister.EmptyResultsNextTimeToRunQuerySpan, poller.NextRetrieval);
         }
 
+        [Test]
+        public async Task Poll_with_same_start_slice_from_last_failed_dispatch()
+        {
+            var failingDispatcher = new FailableDispatcher();
+            poller = new ExpiredTimeoutsPoller(timeouts, failingDispatcher, "test", breaker, () => currentTime);
+
+            RegisterNewTimeout(currentTime.Subtract(TimeSpan.FromMinutes(5)));
+
+            var dispatchCalls = 0;
+            var unicastTransportOperations = new List<UnicastTransportOperation>();
+            failingDispatcher.DispatcherAction = m =>
+            {
+                if (++dispatchCalls == 1)
+                {
+                    // fail first dispatch
+                    throw new Exception("transport error");
+                }
+
+                // succeed second dispatch
+                unicastTransportOperations = m.UnicastTransportOperations;
+                return TaskEx.CompletedTask;
+            };
+
+            try
+            {
+                await poller.SpinOnce(CancellationToken.None);
+            }
+            catch (Exception )
+            {
+                // ignore. An exception will cause another polling attempt.
+            }
+
+            await poller.SpinOnce(CancellationToken.None);
+
+            Assert.AreEqual(1, unicastTransportOperations.Count);
+        }
+
         void RegisterNewTimeout(DateTime newTimeout, bool withNotification = true)
         {
             timeouts.Add(new TimeoutData
@@ -93,6 +133,16 @@
             public Task Failure(Exception exception)
             {
                 return TaskEx.CompletedTask;
+            }
+        }
+
+        class FailableDispatcher : IDispatchMessages
+        {
+            public Func<TransportOperations, Task> DispatcherAction { get; set; }
+
+            public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transaction, ContextBag context)
+            {
+                return DispatcherAction(outgoingMessages);
             }
         }
     }
