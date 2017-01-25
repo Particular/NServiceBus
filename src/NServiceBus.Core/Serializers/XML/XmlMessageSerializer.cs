@@ -94,11 +94,6 @@ namespace NServiceBus
         {
             var messageTypes = types.ToList();
 
-            if (!messageTypes.Contains(typeof(EncryptedValue)))
-            {
-                messageTypes.Add(typeof(EncryptedValue));
-            }
-
             foreach (var t in messageTypes)
             {
                 cache.InitType(t);
