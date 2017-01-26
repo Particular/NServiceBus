@@ -5,6 +5,10 @@ namespace NServiceBus.Config
     /// <summary>
     /// Used to configure Rijndael encryption service.
     /// </summary>
+    [ObsoleteEx(
+        Message = "Message property encryption is released as a dedicated 'NServiceBus.Encryption.MessageProperty' package.",
+        RemoveInVersion = "8",
+        TreatAsErrorFromVersion = "7")]
     public class RijndaelEncryptionServiceConfig : ConfigurationSection
     {
         /// <summary>

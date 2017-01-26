@@ -7,11 +7,19 @@
     /// A string whose value will be encrypted when sent over the wire.
     /// </summary>
     [Serializable]
+    [ObsoleteEx(
+        Message = "Message property encryption is released as a dedicated 'NServiceBus.Encryption.MessageProperty' package.",
+        RemoveInVersion = "8",
+        TreatAsErrorFromVersion = "7")]
     public class WireEncryptedString : ISerializable
     {
         /// <summary>
         /// Initializes a new instance of <see cref="WireEncryptedString" />.
         /// </summary>
+        [ObsoleteEx(
+            Message = "Message property encryption is released as a dedicated 'NServiceBus.Encryption.MessageProperty' package.",
+            RemoveInVersion = "8",
+            TreatAsErrorFromVersion = "7")]
         public WireEncryptedString()
         {
         }
@@ -19,6 +27,10 @@
         /// <summary>
         /// Initializes a new instance of <see cref="WireEncryptedString" />.
         /// </summary>
+        [ObsoleteEx(
+            Message = "Message property encryption is released as a dedicated 'NServiceBus.Encryption.MessageProperty' package.",
+            RemoveInVersion = "8",
+            TreatAsErrorFromVersion = "7")]
         public WireEncryptedString(SerializationInfo info, StreamingContext context)
         {
             Guard.AgainstNull(nameof(info), info);
@@ -28,11 +40,19 @@
         /// <summary>
         /// The unencrypted string.
         /// </summary>
+        [ObsoleteEx(
+            Message = "Message property encryption is released as a dedicated 'NServiceBus.Encryption.MessageProperty' package.",
+            RemoveInVersion = "8",
+            TreatAsErrorFromVersion = "7")]
         public string Value { get; set; }
 
         /// <summary>
         /// The encrypted value of this string.
         /// </summary>
+        [ObsoleteEx(
+            Message = "Message property encryption is released as a dedicated 'NServiceBus.Encryption.MessageProperty' package.",
+            RemoveInVersion = "8",
+            TreatAsErrorFromVersion = "7")]
         public EncryptedValue EncryptedValue
         {
             get { return encryptedValue; }
