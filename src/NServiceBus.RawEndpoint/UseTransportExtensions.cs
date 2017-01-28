@@ -1,6 +1,7 @@
 namespace NServiceBus
 {
     using System;
+    using System.Reflection;
     using Transport;
 
     /// <summary>
@@ -11,7 +12,7 @@ namespace NServiceBus
         /// <summary>
         /// Configures NServiceBus to use the given transport.
         /// </summary>
-        public static TransportExtensions<T> UseTransport<T>(this EndpointConfiguration endpointConfiguration) where T : TransportDefinition, new()
+        public static TransportExtensions<T> UseTransport<T>(this RawEndpointConfiguration endpointConfiguration) where T : TransportDefinition, new()
         {
             Guard.AgainstNull(nameof(endpointConfiguration), endpointConfiguration);
             var type = typeof(TransportExtensions<>).MakeGenericType(typeof(T));
@@ -25,7 +26,7 @@ namespace NServiceBus
         /// <summary>
         /// Configures NServiceBus to use the given transport.
         /// </summary>
-        public static TransportExtensions UseTransport(this EndpointConfiguration endpointConfiguration, Type transportDefinitionType)
+        public static TransportExtensions UseTransport(this RawEndpointConfiguration endpointConfiguration, Type transportDefinitionType)
         {
             Guard.AgainstNull(nameof(endpointConfiguration), endpointConfiguration);
             Guard.AgainstNull(nameof(transportDefinitionType), transportDefinitionType);
@@ -36,19 +37,22 @@ namespace NServiceBus
             return new TransportExtensions(endpointConfiguration.Settings, transportDefinition);
         }
 
-        static void ConfigureTransport(EndpointConfiguration endpointConfiguration, TransportDefinition transportDefinition)
+        static void ConfigureTransport(RawEndpointConfiguration endpointConfiguration, TransportDefinition transportDefinition)
         {
-            endpointConfiguration.Settings.Set<InboundTransport>(new InboundTransport());
             endpointConfiguration.Settings.Set<TransportDefinition>(transportDefinition);
-            endpointConfiguration.Settings.Set<OutboundTransport>(new OutboundTransport());
         }
 
-        internal static void EnsureTransportConfigured(EndpointConfiguration endpointConfiguration)
+        static T Construct<T>(this Type type)
         {
-            if (!endpointConfiguration.Settings.HasExplicitValue<TransportDefinition>())
+            var defaultConstructor = type.GetConstructor(BindingFlags.Instance | BindingFlags.NonPublic, null, new Type[]
             {
-                endpointConfiguration.UseTransport<MsmqTransport>();
+            }, null);
+            if (defaultConstructor != null)
+            {
+                return (T)defaultConstructor.Invoke(null);
             }
+
+            return (T)Activator.CreateInstance(type);
         }
     }
 }

@@ -241,6 +241,7 @@ namespace NServiceBus
     {
         public CriticalError(System.Func<NServiceBus.ICriticalErrorContext, System.Threading.Tasks.Task> onCriticalErrorAction) { }
         public virtual void Raise(string errorMessage, System.Exception exception) { }
+        public void SetStopCallback(System.Func<System.Threading.Tasks.Task> callback) { }
     }
     public class CriticalErrorContext : NServiceBus.ICriticalErrorContext
     {
@@ -1193,9 +1194,13 @@ namespace NServiceBus
         public ToSagaExpression(NServiceBus.IConfigureHowToFindSagaWithMessage sagaMessageFindingConfiguration, System.Linq.Expressions.Expression<System.Func<TMessage, object>> messageProperty) { }
         public void ToSaga(System.Linq.Expressions.Expression<System.Func<TSagaData, object>> sagaEntityProperty) { }
     }
+    public sealed class TransportConnectionString
+    {
+        public string GetConnectionStringOrRaiseError() { }
+    }
     public class TransportExtensions : NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings
     {
-        public TransportExtensions(NServiceBus.Settings.SettingsHolder settings) { }
+        public TransportExtensions(NServiceBus.Settings.SettingsHolder settings, NServiceBus.Transport.TransportDefinition transportDefinition) { }
         public NServiceBus.TransportExtensions ConnectionString(string connectionString) { }
         public NServiceBus.TransportExtensions ConnectionString(System.Func<string> connectionString) { }
         public NServiceBus.TransportExtensions ConnectionStringName(string name) { }
@@ -1204,7 +1209,7 @@ namespace NServiceBus
     public class TransportExtensions<T> : NServiceBus.TransportExtensions
         where T : NServiceBus.Transport.TransportDefinition
     {
-        public TransportExtensions(NServiceBus.Settings.SettingsHolder settings) { }
+        public TransportExtensions(NServiceBus.Settings.SettingsHolder settings, T transportDefinition) { }
         public NServiceBus.TransportExtensions<T> ConnectionString(string connectionString) { }
         public NServiceBus.TransportExtensions<T> ConnectionString(System.Func<string> connectionString) { }
         public NServiceBus.TransportExtensions<T> ConnectionStringName(string name) { }
@@ -3236,12 +3241,14 @@ namespace NServiceBus.Transport
     {
         public TransportReceiveInfrastructure(System.Func<NServiceBus.Transport.IPushMessages> messagePumpFactory, System.Func<NServiceBus.Transport.ICreateQueues> queueCreatorFactory, System.Func<System.Threading.Tasks.Task<NServiceBus.Transport.StartupCheckResult>> preStartupCheck) { }
         public System.Func<NServiceBus.Transport.IPushMessages> MessagePumpFactory { get; }
+        public System.Func<System.Threading.Tasks.Task<NServiceBus.Transport.StartupCheckResult>> PreStartupCheck { get; }
         public System.Func<NServiceBus.Transport.ICreateQueues> QueueCreatorFactory { get; }
     }
     public class TransportSendInfrastructure
     {
         public TransportSendInfrastructure(System.Func<NServiceBus.Transport.IDispatchMessages> dispatcherFactory, System.Func<System.Threading.Tasks.Task<NServiceBus.Transport.StartupCheckResult>> preStartupCheck) { }
         public System.Func<NServiceBus.Transport.IDispatchMessages> DispatcherFactory { get; }
+        public System.Func<System.Threading.Tasks.Task<NServiceBus.Transport.StartupCheckResult>> PreStartupCheck { get; }
     }
     public class TransportSubscriptionInfrastructure
     {

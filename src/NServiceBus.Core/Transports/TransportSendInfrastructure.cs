@@ -24,6 +24,10 @@ namespace NServiceBus.Transport
         /// Factory to create the dispatcher.
         /// </summary>
         public Func<IDispatchMessages> DispatcherFactory { get; }
-        internal Func<Task<StartupCheckResult>> PreStartupCheck { get; }
+
+        /// <summary>
+        /// Gets the pre-startup check method.
+        /// </summary>
+        public Func<Task<StartupCheckResult>> PreStartupCheck { get; }
     }
 }
