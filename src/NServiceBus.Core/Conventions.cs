@@ -112,10 +112,13 @@
             }
         }
 
-
         /// <summary>
         /// Returns true if the given property should be encrypted.
         /// </summary>
+        [ObsoleteEx(
+            Message = "Message property encryption is released as a dedicated 'NServiceBus.Encryption.MessageProperty' package.",
+            RemoveInVersion = "8",
+            TreatAsErrorFromVersion = "7")]
         public bool IsEncryptedProperty(PropertyInfo property)
         {
             Guard.AgainstNull(nameof(property), property);

@@ -215,6 +215,9 @@ namespace NServiceBus
         public System.TimeSpan GetTimeToBeReceived(System.Type messageType) { }
         public bool IsCommandType(System.Type t) { }
         public bool IsDataBusProperty(System.Reflection.PropertyInfo property) { }
+        [System.ObsoleteAttribute("Message property encryption is released as a dedicated \'NServiceBus.Encryption.Me" +
+            "ssageProperty\' package. Will be treated as an error from version 7.0.0. Will be " +
+            "removed in version 8.0.0.", false)]
         public bool IsEncryptedProperty(System.Reflection.PropertyInfo property) { }
         public bool IsEventType(System.Type t) { }
         [System.ObsoleteAttribute("No longer an extension point. The member currently throws a NotImplementedExcepti" +
