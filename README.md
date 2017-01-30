@@ -10,7 +10,11 @@ You'll find the built assemblies in /binaries.
 If you see the build failing, check that you haven't put the source of NServiceBus in a deep subdirectory since long path names (greater than 248 characters) aren't supported by MSBuild.
 
 
-## Licenses
+## Licensing
+
+### NServiceBus
+
+NServiceBus is licensed under the RPL 1.5 license. More details can be found [here](LICENSE.md).
 
 ### [Autofac](http://code.google.com/p/autofac/) 
 
