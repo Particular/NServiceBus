@@ -14,7 +14,7 @@ If you see the build failing, check that you haven't put the source of NServiceB
 
 ### NServiceBus
 
-NServiceBus is licensed under the RPL 1.5 license. More details can be found [here](https://github.com/Particular/NServiceBus/blob/develop/LICENSE.md).
+NServiceBus is licensed under the RPL 1.5 license. More details can be found [here](LICENSE.md).
 
 ### [Autofac](http://code.google.com/p/autofac/) 
 
