@@ -14,12 +14,7 @@
 
             if (!settings.TryGet("PersistenceDefinitions", out definitions))
             {
-                if (settings.Get<bool>("Endpoint.SendOnly"))
-                {
-                    return;
-                }
-
-                throw new Exception(errorMessage);
+                return;
             }
 
             var enabledPersistences = PersistenceStorageMerger.Merge(definitions, settings);
