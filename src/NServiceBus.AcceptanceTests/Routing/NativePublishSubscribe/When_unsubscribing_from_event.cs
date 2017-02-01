@@ -80,7 +80,7 @@
                 EndpointSetup<DefaultServer>(c =>
                 {
                     c.DisableFeature<AutoSubscribe>();
-                });
+                }, metadata => metadata.RegisterPublisherFor<Event>(typeof(Publisher)));
             }
 
             public class EventHandler : IHandleMessages<Event>
@@ -107,7 +107,7 @@
                 EndpointSetup<DefaultServer>(c =>
                 {
                     c.DisableFeature<AutoSubscribe>();
-                });
+                }, metadata => metadata.RegisterPublisherFor<Event>(typeof(Publisher)));
             }
 
             public class EventHandler : IHandleMessages<Event>

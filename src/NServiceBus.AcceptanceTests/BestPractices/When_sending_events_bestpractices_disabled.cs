@@ -29,9 +29,8 @@ namespace NServiceBus.AcceptanceTests.BestPractices
         {
             public Endpoint()
             {
-                EndpointSetup<DefaultServer>()
-                    .AddMapping<MyEvent>(typeof(Endpoint))
-                    .AddMapping<MyCommand>(typeof(Endpoint));
+                EndpointSetup<DefaultServer>(publisherMetadata: metadata => metadata.RegisterPublisherFor<MyEvent>(typeof(Endpoint)))
+                    .AddMapping<MyEvent>(typeof(Endpoint));
             }
 
             public class Handler : IHandleMessages<MyEvent>
@@ -41,10 +40,6 @@ namespace NServiceBus.AcceptanceTests.BestPractices
                     return Task.FromResult(0);
                 }
             }
-        }
-
-        public class MyCommand : ICommand
-        {
         }
 
         public class MyEvent : IEvent

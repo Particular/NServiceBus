@@ -21,10 +21,11 @@
             public Endpoint()
             {
                 EndpointSetup<DefaultServer>((c, r) =>
-                    {
-                        var routing = c.UseTransport(r.GetTransportType()).Routing();
-                        routing.DoNotEnforceBestPractices();
-                    })
+                {
+                    var routing = c.UseTransport(r.GetTransportType()).Routing();
+                    routing.DoNotEnforceBestPractices();
+                },
+                    metadata => metadata.RegisterPublisherFor<MyEvent>(typeof(Endpoint)))
                     .AddMapping<MyEvent>(typeof(Endpoint));
             }
 

@@ -60,7 +60,7 @@
         {
             public SubscriberA()
             {
-                EndpointSetup<DefaultServer>();
+                EndpointSetup<DefaultServer>(publisherMetadata: metadata => metadata.RegisterPublisherFor<MyEvent>(typeof(Publisher)));
             }
 
             public class MyEventHandler : IHandleMessages<MyEvent>
@@ -79,7 +79,7 @@
         {
             public SubscriberB()
             {
-                EndpointSetup<DefaultServer>();
+                EndpointSetup<DefaultServer>(publisherMetadata: metadata => metadata.RegisterPublisherFor<MyEvent>(typeof(Publisher)));
             }
 
             public class MyEventHandler : IHandleMessages<MyEvent>
