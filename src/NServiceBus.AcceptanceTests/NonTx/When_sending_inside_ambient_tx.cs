@@ -7,21 +7,22 @@
     using EndpointTemplates;
     using NServiceBus.Pipeline;
     using NUnit.Framework;
-    using ScenarioDescriptors;
 
     public class When_sending_inside_ambient_tx : NServiceBusAcceptanceTest
     {
         [Test]
-        public Task Should_not_roll_the_message_back_to_the_queue_in_case_of_failure()
+        public async Task Should_not_roll_the_message_back_to_the_queue_in_case_of_failure()
         {
-            return Scenario.Define<Context>()
+            Requires.DtcSupport();
+
+            var context = await Scenario.Define<Context>()
                 .WithEndpoint<NonTransactionalEndpoint>(b => b
                     .When(session => session.SendLocal(new MyMessage()))
                     .DoNotFailOnErrorMessages())
                 .Done(c => c.TestComplete)
-                .Repeat(r => r.For<AllDtcTransports>())
-                .Should(c => Assert.False(c.MessageEnlistedInTheAmbientTxReceived, "The enlisted session.Send should not commit"))
                 .Run();
+
+            Assert.False(context.MessageEnlistedInTheAmbientTxReceived, "The enlisted session.Send should not commit");
         }
 
         public class Context : ScenarioContext
@@ -92,12 +93,12 @@
             }
         }
 
-        
+
         public class MyMessage : ICommand
         {
         }
 
-        
+
         public class CompleteTest : ICommand
         {
             public bool EnlistedInTheAmbientTx { get; set; }

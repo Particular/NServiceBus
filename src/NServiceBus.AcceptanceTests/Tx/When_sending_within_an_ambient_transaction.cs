@@ -5,15 +5,16 @@
     using AcceptanceTesting;
     using EndpointTemplates;
     using NUnit.Framework;
-    using ScenarioDescriptors;
 
     public class When_sending_within_an_ambient_transaction : NServiceBusAcceptanceTest
     {
         [Test]
         public async Task Should_not_deliver_them_until_the_commit_phase()
         {
-            await Scenario.Define<Context>()
-                .WithEndpoint<TransactionalEndpoint>(b => b.When(async (session, context) =>
+            Requires.DtcSupport();
+
+            var context = await Scenario.Define<Context>()
+                .WithEndpoint<TransactionalEndpoint>(b => b.When(async (session, ctx) =>
                 {
                     using (var tx = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
                     {
@@ -36,15 +37,17 @@
                     }
                 }))
                 .Done(c => c.MessageThatIsNotEnlistedHandlerWasCalled && c.TimesCalled >= 2)
-                .Repeat(r => r.For<AllDtcTransports>())
-                .Should(c => Assert.AreEqual(1, c.SequenceNumberOfFirstMessage, "The transport should preserve the order in which the transactional messages are delivered to the queuing system"))
                 .Run();
+
+            Assert.AreEqual(1, context.SequenceNumberOfFirstMessage, "The transport should preserve the order in which the transactional messages are delivered to the queuing system");
         }
 
         [Test]
         public async Task Should_not_deliver_them_on_rollback()
         {
-            await Scenario.Define<Context>()
+            Requires.DtcSupport();
+
+            var context = await Scenario.Define<Context>()
                 .WithEndpoint<TransactionalEndpoint>(b => b.When(async session =>
                 {
                     using (new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
@@ -56,9 +59,9 @@
                     await session.Send(new MessageThatIsNotEnlisted());
                 }))
                 .Done(c => c.MessageThatIsNotEnlistedHandlerWasCalled)
-                .Repeat(r => r.For<AllDtcTransports>())
-                .Should(c => Assert.False(c.MessageThatIsEnlistedHandlerWasCalled, "The transactional handler should not be called"))
                 .Run();
+
+            Assert.False(context.MessageThatIsEnlistedHandlerWasCalled, "The transactional handler should not be called");
         }
 
         public class Context : ScenarioContext
@@ -113,13 +116,11 @@
             }
         }
 
-        
         public class MessageThatIsEnlisted : ICommand
         {
             public int SequenceNumber { get; set; }
         }
 
-        
         public class MessageThatIsNotEnlisted : ICommand
         {
         }

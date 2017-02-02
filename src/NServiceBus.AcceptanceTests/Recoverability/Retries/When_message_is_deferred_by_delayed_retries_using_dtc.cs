@@ -8,26 +8,27 @@
     using EndpointTemplates;
     using Features;
     using NUnit.Framework;
-    using ScenarioDescriptors;
 
     public class When_message_is_deferred_by_delayed_retries_using_dtc : NServiceBusAcceptanceTest
     {
         [Test]
-        public Task Should_not_commit_distributed_transaction()
+        public async Task Should_not_commit_distributed_transaction()
         {
-            return Scenario.Define<Context>(c => c.Id = Guid.NewGuid())
+            Requires.DtcSupport();
+
+            var context = await Scenario.Define<Context>(c => c.Id = Guid.NewGuid())
                 .WithEndpoint<Endpoint>(b => b.DoNotFailOnErrorMessages()
-                    .When((session, context) => session.SendLocal(new MessageToFail
+                    .When((session, c) => session.SendLocal(new MessageToFail
                     {
-                        Id = context.Id
+                        Id = c.Id
                     }))
                  )
                 .WithEndpoint<ErrorSpy>()
                 .Done(c => c.MessageMovedToErrorQueue)
-                .Repeat(r => r.For<AllDtcTransports>())
-                .Should(c => Assert.Greater(c.NumberOfProcessingAttempts, 1, "Should retry at least once"))
-                .Should(c => Assert.That(c.TransactionStatuses, Is.All.Not.EqualTo(TransactionStatus.Committed)))
                 .Run();
+
+            Assert.Greater(context.NumberOfProcessingAttempts, 1, "Should retry at least once");
+            Assert.That(context.TransactionStatuses, Is.All.Not.EqualTo(TransactionStatus.Committed));
         }
 
         const string ErrorQueueName = "error_spy_queue";

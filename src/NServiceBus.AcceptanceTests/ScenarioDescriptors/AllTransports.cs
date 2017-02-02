@@ -20,14 +20,6 @@
         };
     }
 
-    public class AllDtcTransports : AllTransports
-    {
-        public AllDtcTransports()
-        {
-            ScenarioFilter.Run(this, Remove);
-        }
-    }
-
     public class AllNativeMultiQueueTransactionTransports : AllTransports
     {
         public AllNativeMultiQueueTransactionTransports()

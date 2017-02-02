@@ -5,19 +5,20 @@
     using AcceptanceTesting;
     using EndpointTemplates;
     using NUnit.Framework;
-    using ScenarioDescriptors;
 
     public class When_receiving_with_dtc_enabled : NServiceBusAcceptanceTest
     {
         [Test]
-        public Task Should_enlist_the_receive_in_the_dtc_tx()
+        public async Task Should_enlist_the_receive_in_the_dtc_tx()
         {
-            return Scenario.Define<Context>()
+            Requires.DtcSupport();
+
+            var context = await Scenario.Define<Context>()
                 .WithEndpoint<DTCEndpoint>(b => b.When(session => session.SendLocal(new MyMessage())))
                 .Done(c => c.HandlerInvoked)
-                .Repeat(r => r.For<AllDtcTransports>())
-                .Should(c => Assert.False(c.CanEnlistPromotable, "There should exists a DTC tx"))
                 .Run();
+
+            Assert.False(context.CanEnlistPromotable, "There should exists a DTC tx");
         }
 
         [Test]
@@ -72,7 +73,7 @@
             }
         }
 
-        
+
         public class MyMessage : ICommand
         {
         }
