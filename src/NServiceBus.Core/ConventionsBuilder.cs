@@ -51,6 +51,10 @@ namespace NServiceBus
         /// <summary>
         /// Sets the function to be used to evaluate whether a property should be encrypted or not.
         /// </summary>
+        [ObsoleteEx(
+            Message = "Message property encryption is released as a dedicated 'NServiceBus.Encryption.MessageProperty' package. This convention configuration does not work in combination with the NServiceBus.Encryption.MessageProperty package.",
+            RemoveInVersion = "8",
+            TreatAsErrorFromVersion = "7")]
         public ConventionsBuilder DefiningEncryptedPropertiesAs(Func<PropertyInfo, bool> definesEncryptedProperty)
         {
             Guard.AgainstNull(nameof(definesEncryptedProperty), definesEncryptedProperty);
