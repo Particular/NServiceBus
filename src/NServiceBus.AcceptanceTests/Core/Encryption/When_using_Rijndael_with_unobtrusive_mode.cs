@@ -1,4 +1,4 @@
-namespace NServiceBus.AcceptanceTests.Encryption
+namespace NServiceBus.AcceptanceTests.Core.Encryption
 {
     using System;
     using System.Collections.Generic;
