@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus
 {
-    using System;
     using System.Threading.Tasks;
     using Features;
 
@@ -11,17 +10,13 @@
             EnableByDefault();
         }
 
-        protected internal override void Setup(FeatureConfigurationContext context)
+        protected override void Setup(FeatureConfigurationContext context)
         {
-            Console.Out.WriteLine("Core is setup");
-
             var logicalAddress = context.Settings.LogicalAddress();
             var performanceDiagnosticsBehavior = new ReceivePerformanceDiagnosticsBehavior(logicalAddress.EndpointInstance.Endpoint);
 
-            context.Pipeline.Register(performanceDiagnosticsBehavior, "Provides various performance counters for receive statistics");
-            context.Pipeline.Register("ProcessingStatistics", new ProcessingStatisticsBehavior(), "Collects timing for ProcessingStarted and adds the state to determine ProcessingEnded");
-            context.Pipeline.Register("AuditProcessingStatistics", new AuditProcessingStatisticsBehavior(), "Add ProcessingStarted and ProcessingEnded headers");
-
+            context.Pipeline.Remove("ReceivePerformanceDiagnosticsBehavior");
+            context.Pipeline.Register("PerfCountersExternal",performanceDiagnosticsBehavior, "Provides various performance counters for receive statistics");
             context.RegisterStartupTask(new WarmupCooldownTask(performanceDiagnosticsBehavior));
         }
 
@@ -35,13 +30,13 @@
             protected override Task OnStart(IMessageSession session)
             {
                 behavior.Warmup();
-                return TaskEx.CompletedTask;
+                return Task.FromResult(0);
             }
 
             protected override Task OnStop(IMessageSession session)
             {
                 behavior.Cooldown();
-                return TaskEx.CompletedTask;
+                return Task.FromResult(0);
             }
 
             readonly ReceivePerformanceDiagnosticsBehavior behavior;

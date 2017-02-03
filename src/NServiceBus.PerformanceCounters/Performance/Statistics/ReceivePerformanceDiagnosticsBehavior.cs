@@ -2,10 +2,8 @@ namespace NServiceBus
 {
     using System;
     using System.Threading.Tasks;
-    using Janitor;
     using Pipeline;
 
-    [SkipWeaving]
     class ReceivePerformanceDiagnosticsBehavior : IBehavior<IIncomingPhysicalMessageContext, IIncomingPhysicalMessageContext>
     {
         public ReceivePerformanceDiagnosticsBehavior(string queueName)
@@ -28,7 +26,6 @@ namespace NServiceBus
 
         public async Task Invoke(IIncomingPhysicalMessageContext context, Func<IIncomingPhysicalMessageContext, Task> next)
         {
-            Console.Out.WriteLine("Core is pushing");
             messagesPulledFromQueueCounter.Increment();
 
             try
