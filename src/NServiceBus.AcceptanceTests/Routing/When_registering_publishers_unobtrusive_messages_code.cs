@@ -21,7 +21,6 @@
 
             Assert.That(context.Subscribed, Is.True);
             Assert.That(context.ReceivedMessage, Is.True);
-
         }
 
         public class Context : ScenarioContext

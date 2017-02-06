@@ -1,12 +1,9 @@
 ﻿namespace NServiceBus.AcceptanceTests
 {
-    using EndpointTemplates;
     using NUnit.Framework;
 
     static class Requires
     {
-        static readonly TestSuiteConstraints constraints = new TestSuiteConstraints();
-
         public static void DtcSupport()
         {
             if (!constraints.SupportDtc)
@@ -44,8 +41,9 @@
             if (constraints.SupportNativeDeferral)
             {
                 Assert.Ignore("Ignoring this test because it requires the timeout manager but this transport provides native deferral.");
-
             }
         }
+
+        static readonly TestSuiteConstraints constraints = new TestSuiteConstraints();
     }
 }

@@ -27,7 +27,6 @@
             Assert.That(context.PublisherReceivedUnsubscribeMessage, Does.Contain("1"));
             Assert.That(context.PublisherReceivedUnsubscribeMessage, Does.Contain("2"));
             Assert.That(context.PublisherReceivedUnsubscribeMessage.Count, Is.EqualTo(2));
-
         }
 
         class Context : ScenarioContext

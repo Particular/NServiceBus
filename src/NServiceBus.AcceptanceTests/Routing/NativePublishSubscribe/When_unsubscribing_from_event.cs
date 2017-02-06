@@ -25,7 +25,6 @@
                             await s.Publish(new Event());
                             await s.Publish(new Event());
                             await s.Publish(new Event());
-
                         }))
                 .WithEndpoint<Subscriber1>(c => c
                     .When(async (s, ctx) =>
@@ -54,7 +53,7 @@
             Assert.IsTrue(context.Subscriber2Unsubscribed);
         }
 
-    public class Context : ScenarioContext
+        public class Context : ScenarioContext
         {
             public bool Subscriber1Subscribed { get; set; }
             public bool Subscriber2Subscribed { get; set; }
@@ -75,16 +74,11 @@
         {
             public Subscriber1()
             {
-                EndpointSetup<DefaultServer>(c =>
-                {
-                    c.DisableFeature<AutoSubscribe>();
-                });
+                EndpointSetup<DefaultServer>(c => { c.DisableFeature<AutoSubscribe>(); });
             }
 
             public class EventHandler : IHandleMessages<Event>
             {
-                Context testContext;
-
                 public EventHandler(Context testContext)
                 {
                     this.testContext = testContext;
@@ -95,6 +89,8 @@
                     testContext.Subscriber1ReceivedMessages++;
                     return Task.FromResult(0);
                 }
+
+                Context testContext;
             }
         }
 
@@ -102,16 +98,11 @@
         {
             public Subscriber2()
             {
-                EndpointSetup<DefaultServer>(c =>
-                {
-                    c.DisableFeature<AutoSubscribe>();
-                });
+                EndpointSetup<DefaultServer>(c => { c.DisableFeature<AutoSubscribe>(); });
             }
 
             public class EventHandler : IHandleMessages<Event>
             {
-                Context testContext;
-
                 public EventHandler(Context testContext)
                 {
                     this.testContext = testContext;
@@ -122,6 +113,8 @@
                     testContext.Subscriber2ReceivedMessages++;
                     return Task.FromResult(0);
                 }
+
+                Context testContext;
             }
         }
 
