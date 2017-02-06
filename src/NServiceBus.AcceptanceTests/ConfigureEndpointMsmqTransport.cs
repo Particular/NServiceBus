@@ -8,11 +8,6 @@ using NServiceBus.AcceptanceTesting.Support;
 using NServiceBus.Configuration.AdvanceExtensibility;
 using NServiceBus.Transport;
 
-public class ConfigureScenariosForMsmqTransport : IConfigureSupportedScenariosForTestExecution
-{
-    public IEnumerable<Type> UnsupportedScenarioDescriptorTypes { get; } = new Type[0];
-}
-
 public class ConfigureEndpointMsmqTransport : IConfigureEndpointTestExecution
 {
     public Task Configure(string endpointName, EndpointConfiguration configuration, RunSettings settings, PublisherMetadata publisherMetadata)

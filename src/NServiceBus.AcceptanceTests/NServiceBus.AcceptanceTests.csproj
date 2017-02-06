@@ -107,6 +107,7 @@
     <Compile Include="Sagas\When_saga_started_concurrently.cs" />
     <Compile Include="Satellites\When_satellite_txmode_does_not_match_endpoints_txmode.cs" />
     <Compile Include="Sagas\When_using_a_received_message_for_timeout.cs" />
+    <Compile Include="ScenarioDescriptors\TypeScanner.cs" />
     <Compile Include="Serialization\When_configuring_custom_xml_namespace.cs" />
     <Compile Include="Serialization\When_registering_additional_deserializers.cs" />
     <Compile Include="Basic\When_no_content_type.cs" />
@@ -326,7 +327,6 @@
     <Compile Include="Sagas\When_saga_message_goes_through_delayed_retries.cs" />
     <Compile Include="Sagas\When_using_contain_saga_data.cs" />
     <Compile Include="ScenarioDescriptors\Builders.cs" />
-    <Compile Include="ScenarioDescriptors\AllTransports.cs" />
     <Compile Include="ScenarioDescriptors\Persistence.cs" />
     <Compile Include="Scheduling\When_scheduling_a_recurring_task.cs" />
     <Compile Include="Tx\FakePromotableResourceManager.cs" />
