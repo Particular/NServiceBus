@@ -5,14 +5,15 @@
     using EndpointTemplates;
     using Features;
     using NUnit.Framework;
-    using ScenarioDescriptors;
 
     public class When_using_legacy_routing_configuration : NServiceBusAcceptanceTest
     {
         [Test]
         public async Task Events_routes_and_command_routes_should_be_kept_separate()
         {
-            await Scenario.Define<Context>()
+            Requires.MessageDrivenPubSub();
+
+            var context = await Scenario.Define<Context>()
                 .WithEndpoint<Publisher>(b =>
                     b.When(c => c.Subscribed, async session =>
                     {
@@ -20,11 +21,11 @@
                         await session.Send(new DoneCommand());
                     })
                 )
-                .WithEndpoint<Subscriber>(b => b.When((session, context) => session.Subscribe<MyEvent>()))
+                .WithEndpoint<Subscriber>(b => b.When(session => session.Subscribe<MyEvent>()))
                 .Done(c => c.Done)
-                .Repeat(r => r.For<AllTransportsWithMessageDrivenPubSub>())
-                .Should(c => Assert.True(c.HandlerInvoked == 1))
                 .Run();
+
+            Assert.True(context.HandlerInvoked == 1);
         }
 
         public class Context : ScenarioContext
@@ -52,7 +53,7 @@
                     c.DisableFeature<AutoSubscribe>();
                     c.LimitMessageProcessingConcurrencyTo(1);
                 },
-                metadata => metadata.RegisterPublisherFor<MyEvent>(typeof(Publisher))); 
+                metadata => metadata.RegisterPublisherFor<MyEvent>(typeof(Publisher)));
             }
 
             public class MyEventHandler : IHandleMessages<MyEvent>

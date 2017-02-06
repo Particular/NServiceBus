@@ -10,22 +10,23 @@
     using NServiceBus;
     using NUnit.Framework;
     using Persistence;
-    using ScenarioDescriptors;
     using Unicast.Subscriptions;
     using Unicast.Subscriptions.MessageDrivenSubscriptions;
 
     public class When_publishing_from_sendonly : NServiceBusAcceptanceTest
     {
         [Test]
-        public Task Should_be_delivered_to_all_subscribers()
+        public async Task Should_be_delivered_to_all_subscribers()
         {
-            return Scenario.Define<Context>()
+            Requires.MessageDrivenPubSub();
+
+            var context = await Scenario.Define<Context>()
                 .WithEndpoint<SendOnlyPublisher>(b => b.When((session, c) => session.Publish(new MyEvent())))
                 .WithEndpoint<Subscriber>()
                 .Done(c => c.SubscriberGotTheEvent)
-                .Repeat(r => r.For<AllTransportsWithMessageDrivenPubSub>())
-                .Should(ctx => Assert.True(ctx.SubscriberGotTheEvent))
                 .Run();
+
+            Assert.True(context.SubscriberGotTheEvent);
         }
 
         public class Context : ScenarioContext

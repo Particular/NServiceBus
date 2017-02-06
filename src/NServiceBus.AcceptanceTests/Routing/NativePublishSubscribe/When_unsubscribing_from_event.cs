@@ -5,14 +5,15 @@
     using EndpointTemplates;
     using Features;
     using NUnit.Framework;
-    using ScenarioDescriptors;
 
     public class When_unsubscribing_from_event : NServiceBusAcceptanceTest
     {
         [Test]
         public async Task ShouldNoLongerReceiveEvent()
         {
-            await Scenario.Define<Context>()
+            Requires.NativePubSubSupport();
+
+            var context = await Scenario.Define<Context>()
                 .WithEndpoint<Publisher>(c => c
                     .When(
                         ctx => ctx.Subscriber1Subscribed && ctx.Subscriber2Subscribed,
@@ -46,17 +47,14 @@
                             ctx.Subscriber2Unsubscribed = true;
                         }))
                 .Done(c => c.Subscriber1ReceivedMessages >= 4)
-                .Repeat(r => r.For<AllTransportsWithCentralizedPubSubSupport>())
-                .Should(c =>
-                {
-                    Assert.AreEqual(4, c.Subscriber1ReceivedMessages);
-                    Assert.AreEqual(1, c.Subscriber2ReceivedMessages);
-                    Assert.IsTrue(c.Subscriber2Unsubscribed);
-                })
                 .Run();
+
+            Assert.AreEqual(4, context.Subscriber1ReceivedMessages);
+            Assert.AreEqual(1, context.Subscriber2ReceivedMessages);
+            Assert.IsTrue(context.Subscriber2Unsubscribed);
         }
 
-        public class Context : ScenarioContext
+    public class Context : ScenarioContext
         {
             public bool Subscriber1Subscribed { get; set; }
             public bool Subscriber2Subscribed { get; set; }

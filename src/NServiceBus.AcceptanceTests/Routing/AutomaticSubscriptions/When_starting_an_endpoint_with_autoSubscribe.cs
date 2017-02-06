@@ -7,24 +7,25 @@ namespace NServiceBus.AcceptanceTests.Routing.AutomaticSubscriptions
     using EndpointTemplates;
     using NServiceBus.Pipeline;
     using NUnit.Framework;
-    using ScenarioDescriptors;
 
     [TestFixture]
     public class When_starting_an_endpoint_with_autosubscribe : NServiceBusAcceptanceTest
     {
         [Test]
-        public Task Should_autosubscribe_to_relevant_messagetypes()
+        public async Task Should_autosubscribe_to_relevant_messagetypes()
         {
-            return Scenario.Define<Context>()
+            Requires.MessageDrivenPubSub();
+
+            var context = await Scenario.Define<Context>()
                 .WithEndpoint<Subscriber>()
                 .Done(c => c.EventsSubscribedTo.Count >= 1)
-                .Repeat(b => b.For<AllTransportsWithMessageDrivenPubSub>())
-                .Should(ctx => Assert.True(ctx.EventsSubscribedTo.Contains(typeof(MyEvent)), "Events should be auto subscribed"))
-                .Should(ctx => Assert.False(ctx.EventsSubscribedTo.Contains(typeof(MyEventWithNoRouting)), "Events without routing should not be auto subscribed"))
-                .Should(ctx => Assert.False(ctx.EventsSubscribedTo.Contains(typeof(MyEventWithNoHandler)), "Events without handlers should not be auto subscribed"))
-                .Should(ctx => Assert.False(ctx.EventsSubscribedTo.Contains(typeof(MyCommand)), "Commands should not be auto subscribed"))
-                .Should(ctx => Assert.False(ctx.EventsSubscribedTo.Contains(typeof(MyMessage)), "Plain messages should not be auto subscribed by default"))
                 .Run();
+
+            Assert.True(context.EventsSubscribedTo.Contains(typeof(MyEvent)), "Events should be auto subscribed");
+            Assert.False(context.EventsSubscribedTo.Contains(typeof(MyEventWithNoRouting)), "Events without routing should not be auto subscribed");
+            Assert.False(context.EventsSubscribedTo.Contains(typeof(MyEventWithNoHandler)), "Events without handlers should not be auto subscribed");
+            Assert.False(context.EventsSubscribedTo.Contains(typeof(MyCommand)), "Commands should not be auto subscribed");
+            Assert.False(context.EventsSubscribedTo.Contains(typeof(MyMessage)), "Plain messages should not be auto subscribed by default");
         }
 
         class Context : ScenarioContext

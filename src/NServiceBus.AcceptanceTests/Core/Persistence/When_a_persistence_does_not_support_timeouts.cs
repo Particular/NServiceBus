@@ -6,18 +6,18 @@
     using Features;
     using NServiceBus.Persistence;
     using NUnit.Framework;
-    using ScenarioDescriptors;
 
     public class When_a_persistence_does_not_support_timeouts : NServiceBusAcceptanceTest
     {
         [Test]
         public void should_throw_exception()
         {
+            Requires.TimeoutStorage();
+
             Assert.That(async () =>
             {
                 await Scenario.Define<Context>()
                     .WithEndpoint<Endpoint>(e => e.When(b => Task.FromResult(0)))
-                    .Repeat(r => r.For<AllTransportsWithoutNativeDeferral>())
                     .Run();
             }, Throws.Exception.With.Message.Contains("DisableFeature<TimeoutManager>()"));
         }

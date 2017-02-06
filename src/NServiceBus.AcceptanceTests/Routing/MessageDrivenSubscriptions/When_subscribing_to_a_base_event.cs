@@ -5,14 +5,15 @@
     using EndpointTemplates;
     using Features;
     using NUnit.Framework;
-    using ScenarioDescriptors;
 
     public class When_subscribing_to_a_base_event : NServiceBusAcceptanceTest
     {
         [Test]
-        public Task Both_base_and_specific_events_should_be_delivered()
+        public async Task Both_base_and_specific_events_should_be_delivered()
         {
-            return Scenario.Define<Context>()
+            Requires.MessageDrivenPubSub();
+
+            var context = await Scenario.Define<Context>()
                 .WithEndpoint<Publisher>(b => b.When(c => c.SubscriberSubscribed, async session =>
                 {
                     await session.Publish(new SpecificEvent());
@@ -20,13 +21,10 @@
                 }))
                 .WithEndpoint<GeneralSubscriber>(b => b.When(async (session, c) => await session.Subscribe<IBaseEvent>()))
                 .Done(c => c.SubscriberGotBaseEvent && c.SubscriberGotSpecificEvent)
-                .Repeat(r => r.For<AllTransportsWithMessageDrivenPubSub>())
-                .Should(c =>
-                {
-                    Assert.True(c.SubscriberGotBaseEvent);
-                    Assert.True(c.SubscriberGotSpecificEvent);
-                })
                 .Run();
+
+            Assert.True(context.SubscriberGotBaseEvent);
+            Assert.True(context.SubscriberGotSpecificEvent);
         }
 
         public class Context : ScenarioContext
@@ -40,10 +38,7 @@
         {
             public Publisher()
             {
-                EndpointSetup<DefaultPublisher>(b => b.OnEndpointSubscribed<Context>((args, context) =>
-                {
-                    context.SubscriberSubscribed = true;
-                }));
+                EndpointSetup<DefaultPublisher>(b => b.OnEndpointSubscribed<Context>((args, context) => { context.SubscriberSubscribed = true; }));
             }
         }
 
@@ -51,11 +46,8 @@
         {
             public GeneralSubscriber()
             {
-                EndpointSetup<DefaultServer>(c =>
-                {
-                    c.DisableFeature<AutoSubscribe>();
-                },
-                metadata => metadata.RegisterPublisherFor<IBaseEvent>(typeof(Publisher)));
+                EndpointSetup<DefaultServer>(c => { c.DisableFeature<AutoSubscribe>(); },
+                    metadata => metadata.RegisterPublisherFor<IBaseEvent>(typeof(Publisher)));
             }
 
             public class MyEventHandler : IHandleMessages<IBaseEvent>

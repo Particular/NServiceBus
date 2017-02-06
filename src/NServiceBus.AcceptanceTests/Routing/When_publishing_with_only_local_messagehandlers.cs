@@ -4,35 +4,38 @@
     using AcceptanceTesting;
     using EndpointTemplates;
     using NUnit.Framework;
-    using ScenarioDescriptors;
 
     public class When_publishing_with_only_local_messagehandlers : NServiceBusAcceptanceTest
     {
         [Test]
-        public Task Should_trigger_the_catch_all_handler_for_message_driven_subscriptions()
+        public async Task Should_trigger_the_catch_all_handler_for_message_driven_subscriptions()
         {
-            return Scenario.Define<Context>()
+            Requires.MessageDrivenPubSub();
+
+            var context = await Scenario.Define<Context>()
                 .WithEndpoint<MessageDrivenPublisher>(b =>
                     b.When(c => c.LocalEndpointSubscribed, session => session.Publish(new EventHandledByLocalEndpoint())))
                 .Done(c => c.CatchAllHandlerGotTheMessage)
-                .Repeat(r => r.For<AllTransportsWithMessageDrivenPubSub>())
-                .Should(c => Assert.True(c.CatchAllHandlerGotTheMessage))
                 .Run();
+
+            Assert.True(context.CatchAllHandlerGotTheMessage);
         }
 
         [Test]
-        public Task Should_trigger_the_catch_all_handler_for_publishers_with_centralized_pubsub()
+        public async Task Should_trigger_the_catch_all_handler_for_publishers_with_centralized_pubsub()
         {
-            return Scenario.Define<Context>()
+            Requires.NativePubSubSupport();
+
+            var context = await Scenario.Define<Context>()
                 .WithEndpoint<CentralizedStoragePublisher>(b =>
                 {
                     b.When(session => session.Subscribe<EventHandledByLocalEndpoint>());
-                    b.When(c => c.EndpointsStarted, (session, context) => session.Publish(new EventHandledByLocalEndpoint()));
+                    b.When(c => c.EndpointsStarted, session => session.Publish(new EventHandledByLocalEndpoint()));
                 })
                 .Done(c => c.CatchAllHandlerGotTheMessage)
-                .Repeat(r => r.For<AllTransportsWithCentralizedPubSubSupport>())
-                .Should(c => Assert.True(c.CatchAllHandlerGotTheMessage))
                 .Run();
+
+            Assert.True(context.CatchAllHandlerGotTheMessage);
         }
 
         public class Context : ScenarioContext
@@ -97,7 +100,6 @@
                 }
             }
         }
-
 
         public class EventHandledByLocalEndpoint : IEvent
         {

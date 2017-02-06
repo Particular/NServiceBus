@@ -4,25 +4,24 @@
     using AcceptanceTesting;
     using EndpointTemplates;
     using NUnit.Framework;
-    using ScenarioDescriptors;
 
     public class When_registering_publishers_unobtrusive_messages_config : NServiceBusAcceptanceTest
     {
         [Test]
-        public Task Should_deliver_event()
+        public async Task Should_deliver_event()
         {
-            return Scenario.Define<Context>()
+            Requires.MessageDrivenPubSub();
+
+            var context = await Scenario.Define<Context>()
                 .WithEndpoint<Publisher>(e => e
                     .When(c => c.Subscribed, s => s.Publish(new SomeEvent())))
                 .WithEndpoint<Subscriber>()
                 .Done(c => c.ReceivedMessage)
-                .Repeat(r => r.For<AllTransportsWithMessageDrivenPubSub>())
-                .Should(context =>
-                {
-                    Assert.That(context.Subscribed, Is.True);
-                    Assert.That(context.ReceivedMessage, Is.True);
-                })
                 .Run();
+
+            Assert.That(context.Subscribed, Is.True);
+            Assert.That(context.ReceivedMessage, Is.True);
+
         }
 
         public class Context : ScenarioContext

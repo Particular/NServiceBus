@@ -7,19 +7,20 @@
     using EndpointTemplates;
     using Features;
     using NUnit.Framework;
-    using ScenarioDescriptors;
 
     class When_timeout_storage_is_unavailable_temporarily : NServiceBusAcceptanceTest
     {
         [Test]
-        public Task Endpoint_should_start()
+        public async Task Endpoint_should_start()
         {
-            return Scenario.Define<TimeoutTestContext>()
+            Requires.TimeoutStorage();
+
+            var context = await Scenario.Define<TimeoutTestContext>()
                 .WithEndpoint<Endpoint>()
                 .Done(c => c.EndpointsStarted)
-                .Repeat(r => r.For<AllTransportsWithoutNativeDeferral>())
-                .Should(c => Assert.IsTrue(c.EndpointsStarted))
                 .Run();
+
+            Assert.IsTrue(context.EndpointsStarted);
         }
 
         [Test]

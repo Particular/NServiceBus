@@ -20,38 +20,6 @@
         };
     }
 
-    public class AllNativeMultiQueueTransactionTransports : AllTransports
-    {
-        public AllNativeMultiQueueTransactionTransports()
-        {
-            ScenarioFilter.Run(this, Remove);
-        }
-    }
-
-    public class AllTransportsWithCentralizedPubSubSupport : AllTransports
-    {
-        public AllTransportsWithCentralizedPubSubSupport()
-        {
-            ScenarioFilter.Run(this, Remove);
-        }
-    }
-
-    public class AllTransportsWithMessageDrivenPubSub : AllTransports
-    {
-        public AllTransportsWithMessageDrivenPubSub()
-        {
-            ScenarioFilter.Run(this, Remove);
-        }
-    }
-
-    public class AllTransportsWithoutNativeDeferral : AllTransports
-    {
-        public AllTransportsWithoutNativeDeferral()
-        {
-            ScenarioFilter.Run(this, Remove);
-        }
-    }
-
     public class TypeScanner
     {
         static IEnumerable<Assembly> AvailableAssemblies

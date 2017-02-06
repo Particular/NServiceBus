@@ -5,14 +5,15 @@
     using EndpointTemplates;
     using Features;
     using NUnit.Framework;
-    using ScenarioDescriptors;
 
     public class When_subscribing_to_multiple_publishers : NServiceBusAcceptanceTest
     {
         [Test]
-        public Task Should_subscribe_to_all_registered_publishers_of_same_type()
+        public async Task Should_subscribe_to_all_registered_publishers_of_same_type()
         {
-            return Scenario.Define<Context>()
+            Requires.MessageDrivenPubSub();
+
+            var context = await Scenario.Define<Context>()
                 .WithEndpoint<Subscriber>(e => e
                     .When(s => s.Subscribe<SomeEvent>()))
                 .WithEndpoint<Publisher>(e => e
@@ -28,13 +29,11 @@
                         cfg.OnEndpointSubscribed<Context>((args, ctx) => ctx.SubscribedToPublisher2 = true);
                     }))
                 .Done(c => c.SubscribedToPublisher1 && c.SubscribedToPublisher2)
-                .Repeat(r => r.For<AllTransportsWithMessageDrivenPubSub>())
-                .Should(c =>
-                {
-                    Assert.That(c.SubscribedToPublisher1, Is.True);
-                    Assert.That(c.SubscribedToPublisher2, Is.True);
-                })
                 .Run();
+
+            Assert.That(context.SubscribedToPublisher1, Is.True);
+            Assert.That(context.SubscribedToPublisher2, Is.True);
+
         }
 
         class Context : ScenarioContext

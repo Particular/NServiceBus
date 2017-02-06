@@ -4,14 +4,15 @@
     using AcceptanceTesting;
     using EndpointTemplates;
     using NUnit.Framework;
-    using ScenarioDescriptors;
 
     public class When_multi_subscribing_to_a_polymorphic_event : NServiceBusAcceptanceTest
     {
         [Test]
-        public Task Both_events_should_be_delivered()
+        public async Task Both_events_should_be_delivered()
         {
-            return Scenario.Define<Context>()
+            Requires.NativePubSubSupport();
+
+            var context = await Scenario.Define<Context>()
                 .WithEndpoint<Publisher1>(b => b.When(c => c.EndpointsStarted, (session, c) =>
                 {
                     c.AddTrace("Publishing MyEvent1");
@@ -24,13 +25,10 @@
                 }))
                 .WithEndpoint<Subscriber>()
                 .Done(c => c.SubscriberGotIMyEvent && c.SubscriberGotMyEvent2)
-                .Repeat(r => r.For<AllTransportsWithCentralizedPubSubSupport>())
-                .Should(c =>
-                {
-                    Assert.True(c.SubscriberGotIMyEvent);
-                    Assert.True(c.SubscriberGotMyEvent2);
-                })
                 .Run();
+
+            Assert.True(context.SubscriberGotIMyEvent);
+            Assert.True(context.SubscriberGotMyEvent2);
         }
 
         public class Context : ScenarioContext
