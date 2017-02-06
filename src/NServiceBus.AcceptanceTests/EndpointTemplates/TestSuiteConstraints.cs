@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.AcceptanceTests.EndpointTemplates
+﻿namespace NServiceBus.AcceptanceTests
 {
     public interface ITestSuiteConstraints
     {
@@ -10,6 +10,7 @@
 
         bool SupportNativeDeferral { get; }
     }
+
     // ReSharper disable once PartialTypeWithSinglePart
     public partial class TestSuiteConstraints : ITestSuiteConstraints
     {
