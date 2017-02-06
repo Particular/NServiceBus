@@ -7,19 +7,6 @@
     using AcceptanceTesting.Support;
     using NServiceBus.Hosting.Helpers;
 
-    public class AllTransports : ScenarioDescriptor
-    {
-        protected AllTransports()
-        {
-            AddRange(ActiveTransports);
-        }
-
-        static IEnumerable<RunDescriptor> ActiveTransports => new List<RunDescriptor>
-        {
-            Transports.Default
-        };
-    }
-
     public class TypeScanner
     {
         static IEnumerable<Assembly> AvailableAssemblies
