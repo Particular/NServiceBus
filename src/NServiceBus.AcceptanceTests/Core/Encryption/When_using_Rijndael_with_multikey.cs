@@ -8,6 +8,8 @@
     using NUnit.Framework;
     using ScenarioDescriptors;
 
+    // disable obsolete warnings. Tests will be removed in next major version
+    #pragma warning disable CS0618
     public class When_using_Rijndael_with_multikey : NServiceBusAcceptanceTest
     {
         [Test]
