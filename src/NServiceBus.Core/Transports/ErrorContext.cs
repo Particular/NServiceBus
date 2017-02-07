@@ -38,7 +38,7 @@
         public int ImmediateProcessingFailures { get; }
 
         /// <summary>
-        /// Number of delayed deliveries performed so fat.
+        /// Number of delayed deliveries performed so far.
         /// </summary>
         public int DelayedDeliveriesPerformed { get; }
 
