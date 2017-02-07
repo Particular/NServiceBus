@@ -107,6 +107,43 @@
         }
 
         [Test]
+        public void Should_allow_optin_for_dlq_on_ttbr_messages()
+        {
+            var queueName = "dlqOptInForTTBRTest";
+            var path = $@".\private$\{queueName}";
+            try
+            {
+                MsmqHelpers.DeleteQueue(path);
+                MsmqHelpers.CreateQueue(path);
+                var messageSender = new MsmqMessageDispatcher(new MsmqSettings
+                {
+                    UseDeadLetterQueueForMessagesWithTimeToReachQueue = true
+                }, pairs => string.Empty);
+
+                var bytes = new byte[]
+                {
+                    1
+                };
+                var headers = new Dictionary<string, string>();
+                var outgoingMessage = new OutgoingMessage("1", headers, bytes);
+                var transportOperation = new TransportOperation(outgoingMessage, new UnicastAddressTag(queueName), DispatchConsistency.Default, new List<DeliveryConstraint>
+                {
+                    new DiscardIfNotReceivedBefore(TimeSpan.FromMinutes(10))
+                });
+
+                messageSender.Dispatch(new TransportOperations(transportOperation), new TransportTransaction(), new ContextBag());
+                var message = ReadMessage(path);
+
+                Assert.True(message.UseDeadLetterQueue);
+
+            }
+            finally
+            {
+                MsmqHelpers.DeleteQueue(path);
+            }
+        }
+
+        [Test]
         public void Should_default_honor_dlq_setting()
         {
             var queueName = "dlqDefaultTest";

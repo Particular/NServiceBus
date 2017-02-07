@@ -22,5 +22,7 @@ namespace NServiceBus
         public bool UseTransactionalQueues { get; set; }
 
         public TimeSpan TimeToReachQueue { get; set; }
+
+        public bool UseDeadLetterQueueForMessagesWithTimeToReachQueue { get; set; }
     }
 }

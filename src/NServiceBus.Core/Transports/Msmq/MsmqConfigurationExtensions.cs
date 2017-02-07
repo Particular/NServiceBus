@@ -60,5 +60,14 @@ namespace NServiceBus
         {
             return new InstanceMappingFileSettings(config.Settings);
         }
+
+        /// <summary>
+        /// Makes sure that the DLQ flag is set on messages that have time to reach queue set.
+        /// NOTE: With this enabled expired messages will be moved to the local DLQ and count towards disk quota on the machine.
+        /// </summary>
+        public static void UseDeadLetterQueueForMessagesWithTimeToReachQueue(this RoutingSettings<MsmqTransport> config)
+        {
+            config.Settings.Set(MsmqTransport.UseDeadLetterQueueForMessagesWithTimeToReachQueue, true);
+        }
     }
 }
