@@ -83,13 +83,10 @@
                 MsmqHelpers.CreateQueue(path);
                 var messageSender = new MsmqMessageDispatcher(new MsmqSettings(), pairs => string.Empty);
 
-                var bytes = new byte[]
-                {
-                    1
-                };
+                var bytes = new byte[] { 1 };
                 var headers = new Dictionary<string, string>();
                 var outgoingMessage = new OutgoingMessage("1", headers, bytes);
-                var transportOperation = new TransportOperation(outgoingMessage, new UnicastAddressTag(queueName), DispatchConsistency.Default,new List<DeliveryConstraint>
+                var transportOperation = new TransportOperation(outgoingMessage, new UnicastAddressTag(queueName), DispatchConsistency.Default, new List<DeliveryConstraint>
                 {
                     new DiscardIfNotReceivedBefore(TimeSpan.FromMinutes(10))
                 });
@@ -120,10 +117,7 @@
                     UseDeadLetterQueueForMessagesWithTimeToReachQueue = true
                 }, pairs => string.Empty);
 
-                var bytes = new byte[]
-                {
-                    1
-                };
+                var bytes = new byte[] { 1 };
                 var headers = new Dictionary<string, string>();
                 var outgoingMessage = new OutgoingMessage("1", headers, bytes);
                 var transportOperation = new TransportOperation(outgoingMessage, new UnicastAddressTag(queueName), DispatchConsistency.Default, new List<DeliveryConstraint>
