@@ -12,8 +12,9 @@
 
     class SagaPersistenceBehavior : IBehavior<IInvokeHandlerContext, IInvokeHandlerContext>
     {
-        public SagaPersistenceBehavior(ISagaPersister persister, ICancelDeferredMessages timeoutCancellation, SagaMetadataCollection sagaMetadataCollection)
+        public SagaPersistenceBehavior(ISagaPersister persister, ISagaIdGenerator sagaIdGenerator, ICancelDeferredMessages timeoutCancellation, SagaMetadataCollection sagaMetadataCollection)
         {
+            this.sagaIdGenerator = sagaIdGenerator;
             sagaPersister = persister;
             this.timeoutCancellation = timeoutCancellation;
             this.sagaMetadataCollection = sagaMetadataCollection;
@@ -276,7 +277,6 @@
 
             var sagaEntity = (IContainSagaData)Activator.CreateInstance(sagaEntityType);
 
-            sagaEntity.Id = CombGuid.Generate();
             sagaEntity.OriginalMessageId = context.MessageId;
 
             string replyToAddress;
@@ -297,8 +297,14 @@
                     .ConvertFromInvariantString(value.PropertyValue.ToString());
 
                 propertyInfo.SetValue(sagaEntity, convertedValue);
-            }
 
+                sagaEntity.Id = sagaIdGenerator.Generate(value.PropertyName, value.PropertyValue, metadata, context.Extensions);
+            }
+            else
+            {
+                sagaEntity.Id = sagaIdGenerator.Generate(null, null, metadata, context.Extensions);
+            }
+            
             return sagaEntity;
         }
 
@@ -310,5 +316,6 @@
 
         static Task<IContainSagaData> DefaultSagaDataCompletedTask = Task.FromResult(default(IContainSagaData));
         static ILog logger = LogManager.GetLogger<SagaPersistenceBehavior>();
+        ISagaIdGenerator sagaIdGenerator;
     }
 }
