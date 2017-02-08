@@ -2842,6 +2842,10 @@ namespace NServiceBus.Sagas
     {
         System.Threading.Tasks.Task Handle(object message, NServiceBus.IMessageProcessingContext context);
     }
+    public interface ISagaIdGenerator
+    {
+        System.Guid Generate(string propertyName, object propertyValue, NServiceBus.Sagas.SagaMetadata metadata, NServiceBus.Extensibility.ContextBag context);
+    }
     public interface ISagaPersister
     {
         System.Threading.Tasks.Task Complete(NServiceBus.IContainSagaData sagaData, NServiceBus.Persistence.SynchronizedStorageSession session, NServiceBus.Extensibility.ContextBag context);
