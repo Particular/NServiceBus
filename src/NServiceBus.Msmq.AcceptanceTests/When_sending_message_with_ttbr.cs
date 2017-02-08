@@ -8,10 +8,10 @@
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NUnit.Framework;
 
-    public class When_requesting_dlq_for_ttbr_messages : NServiceBusAcceptanceTest
+    public class When_sending_message_with_ttbr : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Should_set_dlq_flag_on_message()
+        public async Task Should_not_set_dlq_flag_by_default()
         {
             DeleteSpyQueue();
             MessageQueue.Create(sendSpyQueue, true);
@@ -31,7 +31,7 @@
                 {
                     using (var message = queue.Receive(TimeSpan.FromSeconds(5)))
                     {
-                        Assert.True(message?.UseDeadLetterQueue);
+                        Assert.False(message?.UseDeadLetterQueue);
                     }
                 }
             }
@@ -49,7 +49,7 @@
             }
         }
 
-        static string sendSpyEndpoint = "dlqForTTBROptinSpy";
+        static string sendSpyEndpoint = "dlqForTTBRSpy";
         static string sendSpyQueue = $@".\private$\{sendSpyEndpoint}";
 
         public class Context : ScenarioContext
@@ -63,8 +63,7 @@
             {
                 EndpointSetup<DefaultServer>(c =>
                 {
-                    c.UseTransport<MsmqTransport>()
-                        .UseDeadLetterQueueForMessagesWithTimeToReachQueue();
+                    c.UseTransport<MsmqTransport>();
                 });
             }
         }

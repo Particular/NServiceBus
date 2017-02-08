@@ -74,6 +74,7 @@
     <Compile Include="When_receiving_with_dtc_disabled.cs" />
     <Compile Include="Distributor\When_worker_processes_a_message.cs" />
     <Compile Include="Distributor\When_worker_sends_a_message_to_the_error_queue.cs" />
+    <Compile Include="When_sending_message_with_ttbr.cs" />
     <Compile Include="When_requesting_dlq_for_ttbr_messages.cs" />
     <Compile Include="When_setting_label_generator.cs" />
     <Compile Include="When_starting_up_the_endpoint.cs" />
