@@ -16,7 +16,7 @@
         [Test]
         public void Should_set_label_when_convention_configured()
         {
-            var dispatchedMessage = DispatchMessage(new MsmqSettings(), messageLabelGenerator: _ => "mylabel");
+            var dispatchedMessage = DispatchMessage("labelTest", new MsmqSettings(), messageLabelGenerator: _ => "mylabel");
 
             Assert.AreEqual("mylabel", dispatchedMessage.Label);
         }
@@ -24,7 +24,7 @@
         [Test]
         public void Should_default_dlq_to_off_for_messages_with_ttbr()
         {
-            var dispatchedMessage = DispatchMessage(new MsmqSettings(), new DiscardIfNotReceivedBefore(TimeSpan.FromMinutes(10)));
+            var dispatchedMessage = DispatchMessage("dlqOffForTTBR", deliveryConstraint: new DiscardIfNotReceivedBefore(TimeSpan.FromMinutes(10)));
 
             Assert.False(dispatchedMessage.UseDeadLetterQueue);
         }
@@ -37,7 +37,7 @@
                 UseDeadLetterQueueForMessagesWithTimeToReachQueue = true
             };
 
-            var dispatchedMessage = DispatchMessage(settings, new DiscardIfNotReceivedBefore(TimeSpan.FromMinutes(10)));
+            var dispatchedMessage = DispatchMessage("dlqOnForTTBR", settings, new DiscardIfNotReceivedBefore(TimeSpan.FromMinutes(10)));
 
             Assert.True(dispatchedMessage.UseDeadLetterQueue);
         }
@@ -45,25 +45,29 @@
         [Test]
         public void Should_set_dlq_by_default_for_non_ttbr_messages()
         {
-            var dispatchedMessage = DispatchMessage(new MsmqSettings());
+            var dispatchedMessage = DispatchMessage("dlqOnByDefault");
 
             Assert.True(dispatchedMessage.UseDeadLetterQueue);
         }
 
-        static Message DispatchMessage(MsmqSettings settings, DeliveryConstraint deliveryConstraint = null, Func<IReadOnlyDictionary<string, string>, string> messageLabelGenerator = null)
+        static Message DispatchMessage(string queueName, MsmqSettings settings = null, DeliveryConstraint deliveryConstraint = null, Func<IReadOnlyDictionary<string, string>, string> messageLabelGenerator = null)
         {
-            var queueName = "messageDispatcherTests";
+            if (settings == null)
+            {
+                settings = new MsmqSettings();
+            }
+
+            if (messageLabelGenerator == null)
+            {
+                messageLabelGenerator = _ => string.Empty;
+            }
+
             var path = $@".\private$\{queueName}";
 
             try
             {
                 MsmqHelpers.DeleteQueue(path);
                 MsmqHelpers.CreateQueue(path);
-
-                if (messageLabelGenerator == null)
-                {
-                    messageLabelGenerator = _ => string.Empty;
-                }
 
                 var messageSender = new MsmqMessageDispatcher(settings, messageLabelGenerator);
 
