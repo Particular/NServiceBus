@@ -5,8 +5,8 @@
     using System.Text;
     using System.Threading.Tasks;
     using AcceptanceTesting;
-    using Configuration.AdvanceExtensibility;
     using EndpointTemplates;
+    using Extensibility;
     using Features;
     using NServiceBus.Sagas;
     using NUnit.Framework;
@@ -25,7 +25,7 @@
                 .Done(c => c.SagaId.HasValue)
                 .Run();
 
-            Assert.AreEqual(new Guid("595cce7c-15d6-1c2a-6319-1b75c04426b4"), context.SagaId);
+            Assert.AreEqual(new Guid("5ebef5b7-815e-653c-2ee7-37ed83d7d7b5"), context.SagaId);
         }
 
         public class Context : ScenarioContext
@@ -40,30 +40,11 @@
                 EndpointSetup<DefaultServer>(config =>
                 {
                     config.EnableFeature<TimeoutManager>();
-                    config.GetSettings().Set<ISagaIdGenerator>(new CustomSagaIdGenerator());
+                    config.RegisterComponents(c => c.RegisterSingleton<ISagaIdGenerator>(new CustomSagaIdGenerator()));
                 });
             }
 
-            class CustomSagaIdGenerator : ISagaIdGenerator
-            {
-                public Guid Generate(SagaIdGeneratorContext context)
-                {
-                    return ToGuid($"{context.SagaMetadata.SagaEntityType.FullName}_{context.CorrelationProperty.Name}_{context.CorrelationProperty.Value}");
-                }
-
-                static Guid ToGuid(string src)
-                {
-                    var stringbytes = Encoding.UTF8.GetBytes(src);
-                    using (var provider = new SHA1CryptoServiceProvider())
-                    {
-                        var hashedBytes = provider.ComputeHash(stringbytes);
-                        Array.Resize(ref hashedBytes, 16);
-                        return new Guid(hashedBytes);
-                    }
-                }
-            }
-
-            public class CustomSagaIdSaga : Saga<CustomSagaIdSaga.CustomSagaIdSagaData>,
+            public class MySaga : Saga<MySaga.MySagaData>,
                 IAmStartedByMessages<StartSaga>
             {
                 public Context TestContext { get; set; }
@@ -76,12 +57,12 @@
                     return Task.FromResult(0);
                 }
 
-                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<CustomSagaIdSagaData> mapper)
+                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MySagaData> mapper)
                 {
                     mapper.ConfigureMapping<StartSaga>(m => m.CustomerId).ToSaga(s => s.CustomerId);
                 }
 
-                public class CustomSagaIdSagaData : ContainSagaData
+                public class MySagaData : ContainSagaData
                 {
                     public virtual string CustomerId { get; set; }
                 }
@@ -95,6 +76,25 @@
         public class StartSaga : IMessage
         {
             public string CustomerId { get; set; }
+        }
+
+        class CustomSagaIdGenerator : ISagaIdGenerator
+        {
+            public Guid Generate(string propertyName, object propertyValue, SagaMetadata metadata, ContextBag context)
+            {
+                return ToGuid($"{metadata.SagaEntityType.FullName}_{propertyName}_{propertyValue}");
+            }
+
+            static Guid ToGuid(string src)
+            {
+                var stringbytes = Encoding.UTF8.GetBytes(src);
+                using (var provider = new SHA1CryptoServiceProvider())
+                {
+                    var hashedBytes = provider.ComputeHash(stringbytes);
+                    Array.Resize(ref hashedBytes, 16);
+                    return new Guid(hashedBytes);
+                }
+            }
         }
     }
 }
