@@ -1297,9 +1297,7 @@ namespace NServiceBus
             where T : NServiceBus.Transport.TransportDefinition, new () { }
         public static NServiceBus.TransportExtensions UseTransport(this NServiceBus.EndpointConfiguration endpointConfiguration, System.Type transportDefinitionType) { }
     }
-    [System.ObsoleteAttribute("Message property encryption is released as a dedicated \'NServiceBus.Encryption.Me" +
-        "ssageProperty\' package. Will be treated as an error from version 7.0.0. Will be " +
-        "removed in version 8.0.0.", false)]
+    [System.ObsoleteAttribute(@"Message property encryption is released as a dedicated 'NServiceBus.Encryption.MessageProperty' package. Use `NServiceBus.Encryption.MessageProperty.WireEncryptedString` instead. Will be treated as an error from version 7.0.0. Will be removed in version 8.0.0.", false)]
     public class WireEncryptedString : System.Runtime.Serialization.ISerializable
     {
         [System.ObsoleteAttribute("Message property encryption is released as a dedicated \'NServiceBus.Encryption.Me" +

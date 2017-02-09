@@ -9,6 +9,7 @@
     [Serializable]
     [ObsoleteEx(
         Message = "Message property encryption is released as a dedicated 'NServiceBus.Encryption.MessageProperty' package.",
+        ReplacementTypeOrMember = "NServiceBus.Encryption.MessageProperty.WireEncryptedString",
         RemoveInVersion = "8",
         TreatAsErrorFromVersion = "7")]
     public class WireEncryptedString : ISerializable
