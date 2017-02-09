@@ -2577,6 +2577,7 @@ namespace NServiceBus.Routing
         public string Endpoint { get; }
         public NServiceBus.DistributionStrategyScope Scope { get; }
         public abstract string SelectReceiver(string[] receiverAddresses);
+        public virtual string SelectReceiver(string[] receiverAddresses, NServiceBus.Pipeline.IOutgoingContext outgoingContext) { }
     }
     public sealed class EndpointInstance
     {

@@ -2,6 +2,7 @@ namespace NServiceBus
 {
     using System;
     using System.Linq;
+    using Pipeline;
     using Routing;
 
     class UnicastSendRouter : IUnicastSendRouter
@@ -13,7 +14,7 @@ namespace NServiceBus
             this.transportAddressTranslation = transportAddressTranslation;
         }
 
-        public UnicastRoutingStrategy Route(Type messageType, IDistributionPolicy distributionPolicy)
+        public UnicastRoutingStrategy Route(Type messageType, IDistributionPolicy distributionPolicy, IOutgoingSendContext sendContext)
         {
             var route = unicastRoutingTable.GetRouteFor(messageType);
             if (route == null)
@@ -33,7 +34,7 @@ namespace NServiceBus
 
 
             var instances = endpointInstances.FindInstances(route.Endpoint).Select(e => transportAddressTranslation(e)).ToArray();
-            var selectedInstanceAddress = distributionPolicy.GetDistributionStrategy(route.Endpoint, DistributionStrategyScope.Send).SelectReceiver(instances);
+            var selectedInstanceAddress = distributionPolicy.GetDistributionStrategy(route.Endpoint, DistributionStrategyScope.Send).SelectReceiver(instances, sendContext);
             return new UnicastRoutingStrategy(selectedInstanceAddress);
         }
 

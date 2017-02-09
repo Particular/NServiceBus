@@ -5,6 +5,7 @@ namespace NServiceBus
     using System.Linq;
     using System.Threading.Tasks;
     using Extensibility;
+    using Pipeline;
     using Routing;
     using Unicast.Messages;
     using Unicast.Subscriptions;
@@ -18,18 +19,18 @@ namespace NServiceBus
             this.subscriptionStorage = subscriptionStorage;
         }
 
-        public async Task<IEnumerable<UnicastRoutingStrategy>> Route(Type messageType, IDistributionPolicy distributionPolicy, ContextBag contextBag)
+        public async Task<IEnumerable<UnicastRoutingStrategy>> Route(Type messageType, IDistributionPolicy distributionPolicy, IOutgoingPublishContext publishContext)
         {
             var typesToRoute = messageMetadataRegistry.GetMessageMetadata(messageType).MessageHierarchy;
 
-            var subscribers = await GetSubscribers(contextBag, typesToRoute).ConfigureAwait(false);
+            var subscribers = await GetSubscribers(publishContext, typesToRoute).ConfigureAwait(false);
 
-            var selectedDestinations = SelectDestinationsForEachEndpoint(distributionPolicy, subscribers);
+            var selectedDestinations = SelectDestinationsForEachEndpoint(publishContext, distributionPolicy, subscribers);
 
             return selectedDestinations.Select(destination => new UnicastRoutingStrategy(destination));
         }
 
-        HashSet<string> SelectDestinationsForEachEndpoint(IDistributionPolicy distributionPolicy, IEnumerable<Subscriber> subscribers)
+        HashSet<string> SelectDestinationsForEachEndpoint(IOutgoingContext publishContext, IDistributionPolicy distributionPolicy, IEnumerable<Subscriber> subscribers)
         {
             //Make sure we are sending only one to each transport destination. Might happen when there are multiple routing information sources.
             var addresses = new HashSet<string>();
@@ -48,7 +49,7 @@ namespace NServiceBus
                 }
                 else
                 {
-                    var subscriber = distributionPolicy.GetDistributionStrategy(group.First().Endpoint, DistributionStrategyScope.Publish).SelectReceiver(group.Select(s => s.TransportAddress).ToArray());
+                    var subscriber = distributionPolicy.GetDistributionStrategy(group.First().Endpoint, DistributionStrategyScope.Publish).SelectReceiver(group.Select(s => s.TransportAddress).ToArray(), publishContext);
                     addresses.Add(subscriber);
                 }
             }
@@ -56,10 +57,10 @@ namespace NServiceBus
             return addresses;
         }
 
-        async Task<IEnumerable<Subscriber>> GetSubscribers(ContextBag contextBag, Type[] typesToRoute)
+        async Task<IEnumerable<Subscriber>> GetSubscribers(IExtendable publishContext, Type[] typesToRoute)
         {
             var messageTypes = typesToRoute.Select(t => new MessageType(t));
-            var subscribers = await subscriptionStorage.GetSubscriberAddressesForMessage(messageTypes, contextBag).ConfigureAwait(false);
+            var subscribers = await subscriptionStorage.GetSubscriberAddressesForMessage(messageTypes, publishContext.Extensions).ConfigureAwait(false);
             return subscribers;
         }
 

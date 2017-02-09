@@ -56,7 +56,7 @@ namespace NServiceBus
             var distributionPolicy = state.Option == RouteOption.RouteToSpecificInstance ? new SpecificInstanceDistributionPolicy(state.SpecificInstance, transportAddressTranslation) : defaultDistributionPolicy;
 
             var routingStrategy = string.IsNullOrEmpty(destination)
-                ? unicastSendRouter.Route(messageType, distributionPolicy)
+                ? unicastSendRouter.Route(messageType, distributionPolicy, context)
                 : RouteToDestination(destination);
 
             if (routingStrategy == null)

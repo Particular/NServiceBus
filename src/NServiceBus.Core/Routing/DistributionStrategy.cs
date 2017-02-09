@@ -1,5 +1,7 @@
 namespace NServiceBus.Routing
 {
+    using Pipeline;
+
     /// <summary>
     /// Determines which instance of a given endpoint a message is to be sent.
     /// </summary>
@@ -22,6 +24,14 @@ namespace NServiceBus.Routing
         /// Selects a destination instance for a message from all known addresses of a logical endpoint.
         /// </summary>
         public abstract string SelectReceiver(string[] receiverAddresses);
+
+        /// <summary>
+        /// Selects a destination instance for a message from all known addresses of a logical endpoint.
+        /// </summary>
+        public virtual string SelectReceiver(string[] receiverAddresses, IOutgoingContext outgoingContext)
+        {
+            return SelectReceiver(receiverAddresses);
+        }
 
         /// <summary>
         /// The name of the endpoint this distribution strategy resolves instances for.
