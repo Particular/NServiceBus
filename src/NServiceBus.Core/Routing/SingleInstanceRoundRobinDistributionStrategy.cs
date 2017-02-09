@@ -1,6 +1,7 @@
 namespace NServiceBus.Routing
 {
     using System.Threading;
+    using Pipeline;
 
     /// <summary>
     /// Selects a single instance based on a round-robin scheme.
@@ -20,7 +21,7 @@ namespace NServiceBus.Routing
         /// <summary>
         /// Selects a destination instance for a message from all known addresses of a logical endpoint.
         /// </summary>
-        public override string SelectReceiver(string[] receiverAddresses)
+        public override string SelectDestination(string[] receiverAddresses, IOutgoingContext outgoingContext)
         {
             if (receiverAddresses.Length == 0)
             {

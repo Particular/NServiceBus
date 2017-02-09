@@ -4,6 +4,7 @@
     using System.Linq;
     using NServiceBus.Routing;
     using NUnit.Framework;
+    using Testing;
 
     [TestFixture]
     public class SingleInstanceRoundRobinDistributionStrategyTests
@@ -21,9 +22,9 @@
             };
 
             var result = new List<string>();
-            result.Add(strategy.SelectReceiver(instances));
-            result.Add(strategy.SelectReceiver(instances));
-            result.Add(strategy.SelectReceiver(instances));
+            result.Add(strategy.SelectDestination(instances, new TestableOutgoingContext()));
+            result.Add(strategy.SelectDestination(instances, new TestableOutgoingContext()));
+            result.Add(strategy.SelectDestination(instances, new TestableOutgoingContext()));
 
             Assert.That(result.Count, Is.EqualTo(3));
             Assert.That(result, Has.Exactly(1).EqualTo(instances[0]));
@@ -44,10 +45,10 @@
             };
 
             var result = new List<string>();
-            result.Add(strategy.SelectReceiver(instances));
-            result.Add(strategy.SelectReceiver(instances));
-            result.Add(strategy.SelectReceiver(instances));
-            result.Add(strategy.SelectReceiver(instances));
+            result.Add(strategy.SelectDestination(instances, new TestableOutgoingContext()));
+            result.Add(strategy.SelectDestination(instances, new TestableOutgoingContext()));
+            result.Add(strategy.SelectDestination(instances, new TestableOutgoingContext()));
+            result.Add(strategy.SelectDestination(instances, new TestableOutgoingContext()));
 
             Assert.That(result.Last(), Is.EqualTo(result.First()));
         }
@@ -64,10 +65,10 @@
             };
 
             var result = new List<string>();
-            result.Add(strategy.SelectReceiver(instances));
-            result.Add(strategy.SelectReceiver(instances));
+            result.Add(strategy.SelectDestination(instances, new TestableOutgoingContext()));
+            result.Add(strategy.SelectDestination(instances, new TestableOutgoingContext()));
             instances = instances.Concat(new [] { "3" }).ToArray(); // add new instance
-            result.Add(strategy.SelectReceiver(instances));
+            result.Add(strategy.SelectDestination(instances, new TestableOutgoingContext()));
 
             Assert.That(result.Count, Is.EqualTo(3));
             Assert.That(result, Has.Exactly(1).EqualTo(instances[0]));
@@ -88,10 +89,10 @@
             };
 
             var result = new List<string>();
-            result.Add(strategy.SelectReceiver(instances));
-            result.Add(strategy.SelectReceiver(instances));
+            result.Add(strategy.SelectDestination(instances, new TestableOutgoingContext()));
+            result.Add(strategy.SelectDestination(instances, new TestableOutgoingContext()));
             instances = instances.Take(2).ToArray(); // remove last instance.
-            result.Add(strategy.SelectReceiver(instances));
+            result.Add(strategy.SelectDestination(instances, new TestableOutgoingContext()));
 
             Assert.That(result.Count, Is.EqualTo(3));
             Assert.That(result, Has.Exactly(2).EqualTo(instances[0]));

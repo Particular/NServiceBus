@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Core.Tests.Routing
 {
+    using NServiceBus.Pipeline;
     using NServiceBus.Routing;
     using NUnit.Framework;
 
@@ -50,7 +51,7 @@
             {
             }
 
-            public override string SelectReceiver(string[] receiverAddresses)
+            public override string SelectDestination(string[] receiverAddresses, IOutgoingContext outgoingContext)
             {
                 return null;
             }
