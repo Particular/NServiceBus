@@ -42,7 +42,6 @@
                 context.AddSatelliteReceiver(
                     "Ready Messages satellite",
                     context.Settings.EndpointName() + ".Control",
-                    TransportTransactionMode.TransactionScope,
                     PushRuntimeSettings.Default,
                     OnError,
                     OnMessage);
