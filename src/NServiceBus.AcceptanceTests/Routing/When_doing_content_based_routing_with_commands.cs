@@ -82,7 +82,7 @@
                     throw new NotImplementedException(); // should never be called
                 }
 
-                public override string SelectReceiver(string[] receiverAddresses, IOutgoingContext outgoingContext)
+                public override string SelectDestination(string[] receiverAddresses, IOutgoingContext outgoingContext)
                 {
                     var sendContext = outgoingContext as IOutgoingSendContext;
                     var message = sendContext?.Message.Instance as MyCommand;

@@ -28,7 +28,7 @@ namespace NServiceBus.Routing
         /// <summary>
         /// Selects a destination instance for a message from all known addresses of a logical endpoint.
         /// </summary>
-        public virtual string SelectReceiver(string[] receiverAddresses, IOutgoingContext outgoingContext)
+        public virtual string SelectDestination(string[] receiverAddresses, IOutgoingContext outgoingContext)
         {
             return SelectReceiver(receiverAddresses);
         }

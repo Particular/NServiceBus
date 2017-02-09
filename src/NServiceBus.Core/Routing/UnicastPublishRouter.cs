@@ -49,7 +49,7 @@ namespace NServiceBus
                 }
                 else
                 {
-                    var subscriber = distributionPolicy.GetDistributionStrategy(group.First().Endpoint, DistributionStrategyScope.Publish).SelectReceiver(group.Select(s => s.TransportAddress).ToArray(), publishContext);
+                    var subscriber = distributionPolicy.GetDistributionStrategy(group.First().Endpoint, DistributionStrategyScope.Publish).SelectDestination(group.Select(s => s.TransportAddress).ToArray(), publishContext);
                     addresses.Add(subscriber);
                 }
             }
