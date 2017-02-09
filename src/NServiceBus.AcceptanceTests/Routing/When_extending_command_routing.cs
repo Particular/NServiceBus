@@ -8,6 +8,7 @@
     using AcceptanceTesting.Customization;
     using Configuration.AdvanceExtensibility;
     using EndpointTemplates;
+    using NServiceBus.Pipeline;
     using NServiceBus.Routing;
     using NUnit.Framework;
 
@@ -68,7 +69,7 @@
                 {
                 }
 
-                public override string SelectReceiver(string[] receiverAddresses)
+                public override string SelectDestination(string[] receiverAddresses, IOutgoingContext outgoingContext)
                 {
                     return receiverAddresses.First(x => x.Contains("XYZ"));
                 }

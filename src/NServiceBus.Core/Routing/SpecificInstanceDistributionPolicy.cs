@@ -2,6 +2,7 @@ namespace NServiceBus
 {
     using System;
     using System.Linq;
+    using Pipeline;
     using Routing;
 
     class SpecificInstanceDistributionPolicy : IDistributionPolicy
@@ -30,7 +31,7 @@ namespace NServiceBus
                 this.transportAddressTranslation = transportAddressTranslation;
             }
 
-            public override string SelectReceiver(string[] receiverAddresses)
+            public override string SelectDestination(string[] receiverAddresses, IOutgoingContext outgoingContext)
             {
                 var instanceAddress = transportAddressTranslation(instance);
                 var target = receiverAddresses.FirstOrDefault(t => t == instanceAddress);
