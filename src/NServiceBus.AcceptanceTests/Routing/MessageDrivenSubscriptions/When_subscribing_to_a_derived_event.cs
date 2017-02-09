@@ -5,14 +5,15 @@
     using EndpointTemplates;
     using Features;
     using NUnit.Framework;
-    using ScenarioDescriptors;
 
     public class When_subscribing_to_a_derived_event : NServiceBusAcceptanceTest
     {
         [Test]
-        public Task Base_event_should_not_be_delivered()
+        public async Task Base_event_should_not_be_delivered()
         {
-            return Scenario.Define<Context>()
+            Requires.MessageDrivenPubSub();
+
+            var context = await Scenario.Define<Context>()
                 .WithEndpoint<Publisher>(b => b.When(c => c.SubscriberSubscribed, async session =>
                 {
                     await session.Publish<IBaseEvent>();
@@ -20,9 +21,9 @@
                 }))
                 .WithEndpoint<Subscriber>(b => b.When(async (session, c) => await session.Subscribe<SpecificEvent>()))
                 .Done(c => c.Done)
-                .Repeat(r => r.For<AllTransportsWithMessageDrivenPubSub>())
-                .Should(c => Assert.IsFalse(c.SubscriberGotEvent))
                 .Run();
+
+            Assert.IsFalse(context.SubscriberGotEvent);
         }
 
         public class Context : ScenarioContext

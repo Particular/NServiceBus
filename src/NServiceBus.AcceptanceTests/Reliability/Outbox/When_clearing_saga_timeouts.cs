@@ -11,22 +11,23 @@
     using NServiceBus;
     using NUnit.Framework;
     using Persistence;
-    using ScenarioDescriptors;
 
     public class When_clearing_saga_timeouts : NServiceBusAcceptanceTest
     {
         [Test]
-        public Task Should_record_the_request_to_clear_in_outbox()
+        public async Task Should_record_the_request_to_clear_in_outbox()
         {
-            return Scenario.Define<Context>()
+            Requires.TimeoutStorage();
+
+            var context = await Scenario.Define<Context>()
                 .WithEndpoint<NonDtcReceivingEndpoint>(b => b.When(session => session.SendLocal(new PlaceOrder
                 {
                     DataId = Guid.NewGuid()
                 })))
                 .Done(c => c.Done)
-                .Repeat(b => b.For<AllTransportsWithoutNativeDeferral>())
-                .Should(ctx => Assert.AreEqual(2, ctx.NumberOfOps, "Request to clear and a done signal should be in the outbox"))
                 .Run();
+
+            Assert.AreEqual(2, context.NumberOfOps, "Request to clear and a done signal should be in the outbox");
         }
 
         public class Context : ScenarioContext

@@ -10,16 +10,17 @@
     using NServiceBus.Persistence;
     using NServiceBus.Pipeline;
     using NUnit.Framework;
-    using ScenarioDescriptors;
     using Timeout.Core;
     using Conventions = AcceptanceTesting.Customization.Conventions;
 
     public class When_timeout_dispatch_fails : NServiceBusAcceptanceTest
     {
         [Test]
-        public Task Should_retry_and_move_to_error()
+        public async Task Should_retry_and_move_to_error()
         {
-            return Scenario.Define<Context>()
+            Requires.TimeoutStorage();
+
+            var context = await Scenario.Define<Context>()
                 .WithEndpoint<Endpoint>(b =>
                     b.DoNotFailOnErrorMessages()
                         .When((bus, c) =>
@@ -32,13 +33,10 @@
                             return bus.Send(new MyMessage(), options);
                         }))
                 .Done(c => c.FailedTimeoutMovedToError)
-                .Repeat(r => r.For<AllTransportsWithoutNativeDeferral>())
-                .Should(c =>
-                {
-                    Assert.IsFalse(c.DelayedMessageDeliveredToHandler, "Message was unexpectedly delivered to the handler");
-                    Assert.IsTrue(c.FailedTimeoutMovedToError, "Message should have been moved to the error queue");
-                })
                 .Run();
+
+            Assert.IsFalse(context.DelayedMessageDeliveredToHandler, "Message was unexpectedly delivered to the handler");
+            Assert.IsTrue(context.FailedTimeoutMovedToError, "Message should have been moved to the error queue");
         }
 
         static readonly TimeSpan VeryLongTimeSpan = TimeSpan.FromMinutes(10);

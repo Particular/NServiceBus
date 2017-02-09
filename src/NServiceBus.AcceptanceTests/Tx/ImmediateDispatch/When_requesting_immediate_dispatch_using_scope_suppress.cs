@@ -7,26 +7,24 @@
     using EndpointTemplates;
     using Logging;
     using NUnit.Framework;
-    using ScenarioDescriptors;
 
     //note: this test will no longer be relevant in v7
     public class When_requesting_immediate_dispatch_using_scope_suppress : NServiceBusAcceptanceTest
     {
         [Test]
-        public Task Should_dispatch_immediately()
+        public async Task Should_dispatch_immediately()
         {
-            return Scenario.Define<Context>()
+            Requires.DtcSupport();
+
+            var context = await Scenario.Define<Context>()
                 .WithEndpoint<SuppressEndpoint>(b => b
                     .When(session => session.SendLocal(new InitiatingMessage()))
                     .DoNotFailOnErrorMessages())
                 .Done(c => c.MessageDispatched)
-                .Repeat(r => r.For<AllDtcTransports>())
-                .Should(c =>
-                {
-                    Assert.True(c.MessageDispatched, "Should dispatch the message immediately");
-                    Assert.True(c.Logs.Any(l => l.Level == LogLevel.Warn && l.Message.Contains("Suppressed ambient transaction detected when requesting the outgoing operation")));
-                })
                 .Run();
+
+            Assert.True(context.MessageDispatched, "Should dispatch the message immediately");
+            Assert.True(context.Logs.Any(l => l.Level == LogLevel.Warn && l.Message.Contains("Suppressed ambient transaction detected when requesting the outgoing operation")));
         }
 
         public class Context : ScenarioContext

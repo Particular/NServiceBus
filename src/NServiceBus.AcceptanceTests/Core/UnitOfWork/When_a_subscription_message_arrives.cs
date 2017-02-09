@@ -6,19 +6,20 @@
     using EndpointTemplates;
     using NServiceBus.UnitOfWork;
     using NUnit.Framework;
-    using ScenarioDescriptors;
 
     public class When_a_subscription_message_arrives : NServiceBusAcceptanceTest
     {
         [Test]
-        public Task Should_invoke_uow()
+        public async Task Should_invoke_uow()
         {
-            return Scenario.Define<Context>()
+            Requires.MessageDrivenPubSub();
+
+            var context = await Scenario.Define<Context>()
                 .WithEndpoint<UOWEndpoint>()
                 .Done(c => c.UowWasCalled)
-                .Repeat(b => b.For<AllTransportsWithMessageDrivenPubSub>())
-                .Should(c => Assert.True(c.UowWasCalled))
                 .Run();
+
+            Assert.True(context.UowWasCalled);
         }
 
         public class Context : ScenarioContext

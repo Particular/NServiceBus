@@ -4,19 +4,20 @@
     using AcceptanceTesting;
     using EndpointTemplates;
     using NUnit.Framework;
-    using ScenarioDescriptors;
 
     public class When_using_autosubscribe_with_missing_routing_information : NServiceBusAcceptanceTest
     {
         [Test]
-        public Task Should_skip_events_with_missing_routes()
+        public async Task Should_skip_events_with_missing_routes()
         {
-            return Scenario.Define<ScenarioContext>()
+            Requires.MessageDrivenPubSub();
+
+            var context = await Scenario.Define<ScenarioContext>()
                 .WithEndpoint<Subscriber>()
                 .Done(c => c.EndpointsStarted)
-                .Repeat(r => r.For<AllTransportsWithMessageDrivenPubSub>())
-                .Should(c => { Assert.True(c.EndpointsStarted); })
                 .Run();
+
+            Assert.True(context.EndpointsStarted);
         }
 
         public class Subscriber : EndpointConfigurationBuilder

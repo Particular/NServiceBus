@@ -9,7 +9,6 @@
     using Features;
     using NServiceBus.Routing.MessageDrivenSubscriptions;
     using NUnit.Framework;
-    using ScenarioDescriptors;
 
     public class When_extending_event_routing : NServiceBusAcceptanceTest
     {
@@ -18,15 +17,17 @@
         [Test]
         public async Task Should_route_events_correctly()
         {
-            await Scenario.Define<Context>()
+            Requires.MessageDrivenPubSub();
+
+            var context = await Scenario.Define<Context>()
                 .WithEndpoint<Publisher>(b =>
                     b.When(c => c.Subscribed, session => session.Publish<MyEvent>())
                 )
-                .WithEndpoint<Subscriber>(b => b.When(async (session, context) => { await session.Subscribe<MyEvent>(); }))
+                .WithEndpoint<Subscriber>(b => b.When(async (session, c) => { await session.Subscribe<MyEvent>(); }))
                 .Done(c => c.MessageDelivered)
-                .Repeat(r => r.For<AllTransportsWithMessageDrivenPubSub>())
-                .Should(c => Assert.True(c.MessageDelivered))
                 .Run();
+
+            Assert.True(context.MessageDelivered);
         }
 
         public class Context : ScenarioContext

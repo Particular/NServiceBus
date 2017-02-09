@@ -7,7 +7,6 @@
     using Features;
     using NServiceBus.Config;
     using NUnit.Framework;
-    using ScenarioDescriptors;
 
     public class When_using_assembly_level_message_mapping_for_pub_sub : NServiceBusAcceptanceTest
     {
@@ -16,7 +15,9 @@
         [Test]
         public async Task The_mapping_should_not_cause_publishing_to_non_subscribers()
         {
-            await Scenario.Define<Context>()
+            Requires.MessageDrivenPubSub();
+
+            var context = await Scenario.Define<Context>()
                 .WithEndpoint<OtherEndpoint>()
                 .WithEndpoint<Publisher>(b =>
                     b.When(c => c.EndpointsStarted, async session =>
@@ -26,13 +27,11 @@
                     })
                 )
                 .Done(c => c.CommandReceived || c.EventReceived)
-                .Repeat(r => r.For<AllTransportsWithMessageDrivenPubSub>())
-                .Should(c =>
-                {
-                    Assert.IsFalse(c.EventReceived);
-                    Assert.IsTrue(c.CommandReceived);
-                })
                 .Run();
+
+            Assert.IsFalse(context.EventReceived);
+            Assert.IsTrue(context.CommandReceived);
+
         }
 
         public class Context : ScenarioContext

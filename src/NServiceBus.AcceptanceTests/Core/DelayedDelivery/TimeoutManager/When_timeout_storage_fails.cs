@@ -9,15 +9,16 @@
     using NServiceBus;
     using NServiceBus.Persistence;
     using NUnit.Framework;
-    using ScenarioDescriptors;
     using Timeout.Core;
 
     public class When_timeout_storage_fails : NServiceBusAcceptanceTest
     {
         [Test]
-        public Task Should_retry_and_move_to_error()
+        public async Task Should_retry_and_move_to_error()
         {
-            return Scenario.Define<Context>()
+            Requires.TimeoutStorage();
+
+            var context = await Scenario.Define<Context>()
                 .WithEndpoint<Endpoint>(b => b.DoNotFailOnErrorMessages()
                     .When((bus, c) =>
                     {
@@ -31,9 +32,9 @@
                     }))
                 .WithEndpoint<ErrorSpy>()
                 .Done(c => c.FailedTimeoutMovedToError)
-                .Repeat(r => r.For<AllTransportsWithoutNativeDeferral>())
-                .Should(c => Assert.AreEqual(5, c.NumTimesStorageCalled))
                 .Run();
+
+            Assert.AreEqual(5, context.NumTimesStorageCalled);
         }
 
         const string ErrorQueueForTimeoutErrors = "timeout_store_errors";

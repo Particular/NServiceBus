@@ -7,21 +7,23 @@
     using Features;
     using NUnit.Framework;
     using Routing;
-    using ScenarioDescriptors;
 
     // Repro for issue  https://github.com/NServiceBus/NServiceBus/issues/1277
     public class When_two_sagas_subscribe_to_the_same_event : NServiceBusAcceptanceTest
     {
         [Test]
-        public Task Should_invoke_all_handlers_on_all_sagas()
+        public async Task Should_invoke_all_handlers_on_all_sagas()
         {
-            return Scenario.Define<Context>()
-                .WithEndpoint<Publisher>(b => b.When((session, context) =>
+            // exclude the brokers since c.Subscribed won't get set for them
+            Requires.MessageDrivenPubSub();
+
+            var context = await Scenario.Define<Context>()
+                .WithEndpoint<Publisher>(b => b.When((session, ctx) =>
                 {
-                    if (context.HasNativePubSubSupport)
+                    if (ctx.HasNativePubSubSupport)
                     {
-                        context.Subscribed = true;
-                        context.AddTrace("EndpointThatHandlesAMessageAndPublishesEvent is now subscribed (at least we have asked the broker to be subscribed)");
+                        ctx.Subscribed = true;
+                        ctx.AddTrace("EndpointThatHandlesAMessageAndPublishesEvent is now subscribed (at least we have asked the broker to be subscribed)");
                     }
                     return Task.FromResult(0);
                 }))
@@ -32,9 +34,9 @@
                     }))
                 )
                 .Done(c => c.DidSaga1EventHandlerGetInvoked && c.DidSaga2EventHandlerGetInvoked)
-                .Repeat(r => r.For<AllTransportsWithMessageDrivenPubSub>()) // exclude the brokers since c.Subscribed won't get set for them
-                .Should(c => Assert.True(c.DidSaga1EventHandlerGetInvoked && c.DidSaga2EventHandlerGetInvoked))
                 .Run();
+
+            Assert.True(context.DidSaga1EventHandlerGetInvoked && context.DidSaga2EventHandlerGetInvoked);
         }
 
         public class Context : ScenarioContext

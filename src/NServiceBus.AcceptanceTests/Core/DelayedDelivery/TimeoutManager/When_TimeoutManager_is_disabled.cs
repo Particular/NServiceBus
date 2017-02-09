@@ -6,14 +6,15 @@
     using EndpointTemplates;
     using Features;
     using NUnit.Framework;
-    using ScenarioDescriptors;
 
     public class When_TimeoutManager_is_disabled : NServiceBusAcceptanceTest
     {
         [Test]
-        public Task Bus_Defer_should_throw()
+        public async Task Bus_Defer_should_throw()
         {
-            return Scenario.Define<Context>()
+            Requires.TimeoutStorage();
+
+            var context = await Scenario.Define<Context>()
                 .WithEndpoint<Endpoint>(b => b.When((session, c) =>
                 {
                     var options = new SendOptions();
@@ -23,13 +24,11 @@
                     return session.Send(new MyMessage(), options);
                 }))
                 .Done(c => c.ExceptionThrown || c.SecondMessageReceived)
-                .Repeat(r => r.For<AllTransportsWithoutNativeDeferral>())
-                .Should(c =>
-                {
-                    Assert.AreEqual(true, c.ExceptionThrown);
-                    Assert.AreEqual(false, c.SecondMessageReceived);
-                })
                 .Run();
+
+            Assert.AreEqual(true, context.ExceptionThrown);
+            Assert.AreEqual(false, context.SecondMessageReceived);
+
         }
 
         public class Context : ScenarioContext
@@ -76,12 +75,12 @@
             }
         }
 
-        
+
         public class MyMessage : IMessage
         {
         }
 
-        
+
         public class MyOtherMessage : IMessage
         {
         }

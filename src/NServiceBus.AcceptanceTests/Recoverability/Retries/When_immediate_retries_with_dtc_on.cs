@@ -6,30 +6,27 @@
     using AcceptanceTesting;
     using EndpointTemplates;
     using NUnit.Framework;
-    using ScenarioDescriptors;
 
     public class When_immediate_retries_with_dtc_on : NServiceBusAcceptanceTest
     {
         [Test]
-        public Task Should_do_the_configured_number_of_retries_with_dtc_on()
+        public async Task Should_do_the_configured_number_of_retries_with_dtc_on()
         {
-            return Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
+            Requires.DtcSupport();
+
+            var context = await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
                 .WithEndpoint<RetryEndpoint>(b => b
-                    .When((session, context) => session.SendLocal(new MessageToBeRetried
+                    .When((session, c) => session.SendLocal(new MessageToBeRetried
                     {
-                        Id = context.Id
+                        Id = c.Id
                     }))
                     .DoNotFailOnErrorMessages())
                 .Done(c => c.GaveUpOnRetries)
-                .Repeat(r => r.For<AllDtcTransports>())
-                .Should(c =>
-                {
-                    //we add 1 since first call + X retries totals to X+1
-                    Assert.AreEqual(maxretries + 1, c.NumberOfTimesInvoked, $"The Immediate Retries should retry {maxretries} times");
-                    Assert.AreEqual(maxretries, c.Logs.Count(l => l.Message
-                        .StartsWith($"Immediate Retry is going to retry message '{c.PhysicalMessageId}' because of an exception:")));
-                })
                 .Run();
+
+            Assert.AreEqual(maxretries + 1, context.NumberOfTimesInvoked, $"The Immediate Retries should retry {maxretries} times");
+            Assert.AreEqual(maxretries, context.Logs.Count(l => l.Message
+                .StartsWith($"Immediate Retry is going to retry message '{context.PhysicalMessageId}' because of an exception:")));
         }
 
         const int maxretries = 4;
@@ -78,7 +75,7 @@
             }
         }
 
-        
+
         public class MessageToBeRetried : IMessage
         {
             public Guid Id { get; set; }

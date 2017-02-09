@@ -4,18 +4,18 @@ namespace NServiceBus.AcceptanceTests.Core.Persistence
     using EndpointTemplates;
     using NServiceBus.Persistence;
     using NUnit.Framework;
-    using ScenarioDescriptors;
 
     public class When_a_persistence_does_not_support_subscriptions : NServiceBusAcceptanceTest
     {
         [Test]
         public void should_throw_exception()
         {
+            Requires.MessageDrivenPubSub();
+
             Assert.That(async () =>
             {
                 await Scenario.Define<Context>()
                     .WithEndpoint<Endpoint>(e => e.When(b => b.Subscribe<object>()))
-                    .Repeat(r => r.For<AllTransportsWithMessageDrivenPubSub>())
                     .Run();
             }, Throws.Exception.With.Message.Contains("DisableFeature<MessageDrivenSubscriptions>()"));
         }

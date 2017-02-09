@@ -5,27 +5,25 @@
     using AcceptanceTesting;
     using EndpointTemplates;
     using NUnit.Framework;
-    using ScenarioDescriptors;
 
     public class When_publishing_to_scaled_out_subscribers : NServiceBusAcceptanceTest
     {
         [Test]
         public async Task Each_event_should_be_delivered_to_single_instance_of_each_subscriber()
         {
-            await Scenario.Define<Context>()
+            Requires.NativePubSubSupport();
+
+            var context = await Scenario.Define<Context>()
                 .WithEndpoint<Publisher>(b => b.When(c => c.EndpointsStarted, async (session, c) => { await session.Publish(new MyEvent()); }))
                 .WithEndpoint<SubscriberA>(b => b.CustomConfig(c => c.MakeInstanceUniquelyAddressable("1")))
                 .WithEndpoint<SubscriberA>(b => b.CustomConfig(c => c.MakeInstanceUniquelyAddressable("2")))
                 .WithEndpoint<SubscriberB>(b => b.CustomConfig(c => c.MakeInstanceUniquelyAddressable("1")))
                 .WithEndpoint<SubscriberB>(b => b.CustomConfig(c => c.MakeInstanceUniquelyAddressable("2")))
                 .Done(c => c.SubscriberACounter > 0 && c.SubscriberBCounter > 0)
-                .Repeat(r => r.For<AllTransportsWithCentralizedPubSubSupport>())
-                .Should(c =>
-                {
-                    Assert.IsTrue(c.SubscriberACounter == 1);
-                    Assert.IsTrue(c.SubscriberBCounter == 1);
-                })
                 .Run();
+
+            Assert.IsTrue(context.SubscriberACounter == 1);
+            Assert.IsTrue(context.SubscriberBCounter == 1);
         }
 
         public class Context : ScenarioContext

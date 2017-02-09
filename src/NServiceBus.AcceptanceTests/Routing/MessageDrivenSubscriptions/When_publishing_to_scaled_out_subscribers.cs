@@ -5,27 +5,26 @@
     using AcceptanceTesting;
     using EndpointTemplates;
     using NUnit.Framework;
-    using ScenarioDescriptors;
 
     public class When_publishing_to_scaled_out_subscribers : NServiceBusAcceptanceTest
     {
        [Test]
         public async Task Each_event_should_be_delivered_to_single_instance_of_each_subscriber()
         {
-            await Scenario.Define<Context>()
+            Requires.MessageDrivenPubSub();
+
+            var context = await Scenario.Define<Context>()
                 .WithEndpoint<Publisher>(b => b.When(c => c.SubscribersCounter == 4, async (session, c) => { await session.Publish(new MyEvent()); }))
                 .WithEndpoint<SubscriberA>(b => b.CustomConfig(c => c.MakeInstanceUniquelyAddressable("1")))
                 .WithEndpoint<SubscriberA>(b => b.CustomConfig(c => c.MakeInstanceUniquelyAddressable("2")))
                 .WithEndpoint<SubscriberB>(b => b.CustomConfig(c => c.MakeInstanceUniquelyAddressable("1")))
                 .WithEndpoint<SubscriberB>(b => b.CustomConfig(c => c.MakeInstanceUniquelyAddressable("2")))
                 .Done(c => c.ProcessedByA > 0 && c.ProcessedByB > 0)
-                .Repeat(r => r.For<AllTransportsWithMessageDrivenPubSub>())
-                .Should(c =>
-                {
-                    Assert.AreEqual(1, c.ProcessedByA);
-                    Assert.AreEqual(1, c.ProcessedByB);
-                })
                 .Run();
+
+            Assert.AreEqual(1, context.ProcessedByA);
+            Assert.AreEqual(1, context.ProcessedByB);
+
         }
 
         public class Context : ScenarioContext

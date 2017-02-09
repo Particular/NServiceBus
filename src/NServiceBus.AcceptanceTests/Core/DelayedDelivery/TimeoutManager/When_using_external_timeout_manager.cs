@@ -8,14 +8,15 @@
     using Features;
     using NServiceBus.Config;
     using NUnit.Framework;
-    using ScenarioDescriptors;
 
     public class When_using_external_timeout_manager : NServiceBusAcceptanceTest
     {
         [Test]
         public async Task Should_delay_delivery()
         {
-            await Scenario.Define<Context>()
+            Requires.TimeoutStorage();
+
+            var context = await Scenario.Define<Context>()
                 .WithEndpoint<EndpointWithTimeoutManager>()
                 .WithEndpoint<Endpoint>(b => b.When((session, c) =>
                 {
@@ -27,9 +28,9 @@
                     return session.Send(new MyMessage(), options);
                 }))
                 .Done(c => c.WasCalled)
-                .Repeat(r => r.For<AllTransportsWithoutNativeDeferral>())
-                .Should(c => { Assert.IsTrue(c.TimeoutManagerHeaderDetected); })
                 .Run();
+
+            Assert.IsTrue(context.TimeoutManagerHeaderDetected);
         }
 
         public class Context : ScenarioContext

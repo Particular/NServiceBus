@@ -5,14 +5,15 @@
     using EndpointTemplates;
     using Features;
     using NUnit.Framework;
-    using ScenarioDescriptors;
 
     public class When_multi_subscribing_to_a_polymorphic_event : NServiceBusAcceptanceTest
     {
         [Test]
         public async Task Both_events_should_be_delivered()
         {
-            await Scenario.Define<Context>()
+            Requires.MessageDrivenPubSub();
+
+            var context = await Scenario.Define<Context>()
                 .WithEndpoint<Publisher1>(b => b.When(c => c.Publisher1HasASubscriberForIMyEvent, (session, c) =>
                 {
                     c.AddTrace("Publishing MyEvent1");
@@ -30,13 +31,11 @@
                     await session.Subscribe<MyEvent2>();
                 }))
                 .Done(c => c.SubscriberGotIMyEvent && c.SubscriberGotMyEvent2)
-                .Repeat(r => r.For<AllTransportsWithMessageDrivenPubSub>())
-                .Should(c =>
-                {
-                    Assert.True(c.SubscriberGotIMyEvent);
-                    Assert.True(c.SubscriberGotMyEvent2);
-                })
                 .Run();
+
+            Assert.True(context.SubscriberGotIMyEvent);
+            Assert.True(context.SubscriberGotMyEvent2);
+
         }
 
         public class Context : ScenarioContext

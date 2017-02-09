@@ -7,32 +7,35 @@
     using EndpointTemplates;
     using NServiceBus.Pipeline;
     using NUnit.Framework;
-    using ScenarioDescriptors;
 
     public class When_message_is_moved_to_error_queue : NServiceBusAcceptanceTest
     {
         [TestCase(TransportTransactionMode.SendsAtomicWithReceive)]
         [TestCase(TransportTransactionMode.TransactionScope)]
-        public Task Should_not_send_outgoing_messages(TransportTransactionMode transactionMode)
+        public async Task Should_not_send_outgoing_messages(TransportTransactionMode transactionMode)
         {
-            return Scenario.Define<Context>(c => { c.TransactionMode = transactionMode; })
+            Requires.DtcSupport();
+
+            var context = await Scenario.Define<Context>(c => { c.TransactionMode = transactionMode; })
                 .WithEndpoint<EndpointWithOutgoingMessages>(b => b.DoNotFailOnErrorMessages()
-                    .When((session, context) => session.SendLocal(new InitiatingMessage
+                    .When((session, c) => session.SendLocal(new InitiatingMessage
                     {
-                        Id = context.TestRunId
+                        Id = c.TestRunId
                     }))
                 )
                 .WithEndpoint<ErrorSpy>()
                 .Done(c => c.MessageMovedToErrorQueue)
-                .Repeat(r => r.For<AllDtcTransports>())
-                .Should(c => Assert.IsFalse(c.OutgoingMessageSent, "Outgoing messages should not be sent"))
                 .Run();
+
+            Assert.IsFalse(context.OutgoingMessageSent, "Outgoing messages should not be sent");
         }
 
         [TestCase(TransportTransactionMode.ReceiveOnly)]
         [TestCase(TransportTransactionMode.None)]
         public Task May_send_outgoing_messages(TransportTransactionMode transactionMode)
         {
+            Requires.DtcSupport();
+
             return Scenario.Define<Context>(c => { c.TransactionMode = transactionMode; })
                 .WithEndpoint<EndpointWithOutgoingMessages>(b => b.DoNotFailOnErrorMessages()
                     .When((session, context) => session.SendLocal(new InitiatingMessage
@@ -42,7 +45,6 @@
                 )
                 .WithEndpoint<ErrorSpy>()
                 .Done(c => c.MessageMovedToErrorQueue)
-                .Repeat(r => r.For<AllDtcTransports>())
                 .Run();
         }
 
