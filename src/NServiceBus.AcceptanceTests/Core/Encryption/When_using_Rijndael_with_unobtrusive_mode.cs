@@ -1,3 +1,5 @@
+// disable obsolete warnings. Tests will be removed in next major version
+#pragma warning disable CS0618
 namespace NServiceBus.AcceptanceTests.Core.Encryption
 {
     using System;
@@ -9,8 +11,6 @@ namespace NServiceBus.AcceptanceTests.Core.Encryption
     using EndpointTemplates;
     using NUnit.Framework;
 
-    // disable obsolete warnings. Tests will be removed in next major version
-    #pragma warning disable CS0618
     public class When_using_Rijndael_with_unobtrusive_mode : NServiceBusAcceptanceTest
     {
         [Test]
@@ -139,3 +139,4 @@ namespace NServiceBus.AcceptanceTests.Core.Encryption
         }
     }
 }
+#pragma warning restore CS0618

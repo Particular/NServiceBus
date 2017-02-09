@@ -1,4 +1,6 @@
-﻿namespace NServiceBus.AcceptanceTests.Core.Encryption
+﻿// disable obsolete warnings. Tests will be removed in next major version
+#pragma warning disable CS0618
+namespace NServiceBus.AcceptanceTests.Core.Encryption
 {
     using System.Collections.Generic;
     using System.Text;
@@ -9,8 +11,6 @@
     using NUnit.Framework;
     using ScenarioDescriptors;
 
-    // disable obsolete warnings. Tests will be removed in next major version
-    #pragma warning disable CS0618
     public class When_using_Rijndael_without_incoming_key_identifier : NServiceBusAcceptanceTest
     {
         [Test]
@@ -93,3 +93,4 @@
         }
     }
 }
+#pragma warning restore CS0618
