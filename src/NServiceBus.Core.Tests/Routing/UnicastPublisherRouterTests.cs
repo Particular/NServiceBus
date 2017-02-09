@@ -7,6 +7,7 @@
     using Extensibility;
     using NServiceBus.Routing;
     using NUnit.Framework;
+    using Testing;
     using Unicast.Messages;
     using Unicast.Subscriptions;
     using Unicast.Subscriptions.MessageDrivenSubscriptions;
@@ -25,7 +26,7 @@
             subscriptionStorage.Subscribers.Add(new Subscriber("address1", null));
             subscriptionStorage.Subscribers.Add(new Subscriber("address2", null));
 
-            var routes = await router.Route(typeof(Event), new DistributionPolicy(), new ContextBag());
+            var routes = await router.Route(typeof(Event), new DistributionPolicy(), new TestableOutgoingPublishContext());
 
             var destinations = routes.Select(ExtractDestination).ToList();
             Assert.AreEqual(2, destinations.Count);
@@ -43,7 +44,7 @@
             subscriptionStorage.Subscribers.Add(new Subscriber("shipping1", shipping));
             subscriptionStorage.Subscribers.Add(new Subscriber("shipping2", shipping));
 
-            var routes = (await router.Route(typeof(Event), new DistributionPolicy(), new ContextBag())).ToArray();
+            var routes = (await router.Route(typeof(Event), new DistributionPolicy(), new TestableOutgoingPublishContext())).ToArray();
 
             var destinations = routes.Select(ExtractDestination).ToList();
             Assert.AreEqual(2, destinations.Count);
@@ -60,7 +61,7 @@
             subscriptionStorage.Subscribers.Add(new Subscriber("address", "sales"));
             subscriptionStorage.Subscribers.Add(new Subscriber("address", "shipping"));
 
-            var routes = await router.Route(typeof(Event), new DistributionPolicy(), new ContextBag());
+            var routes = await router.Route(typeof(Event), new DistributionPolicy(), new TestableOutgoingPublishContext());
 
             Assert.AreEqual(1, routes.Count());
             Assert.AreEqual("address", ExtractDestination(routes.Single()));
@@ -77,7 +78,7 @@
                 new EndpointInstance(logicalEndpoint, "2")
             });
 
-            var routes = await router.Route(typeof(Event), new DistributionPolicy(), new ContextBag());
+            var routes = await router.Route(typeof(Event), new DistributionPolicy(), new TestableOutgoingPublishContext());
 
             Assert.AreEqual(1, routes.Count());
             Assert.AreEqual("address", ExtractDestination(routes.First()));
@@ -86,7 +87,7 @@
         [Test]
         public async Task Should_return_empty_list_when_no_routes_found()
         {
-            var routes = await router.Route(typeof(Event), new DistributionPolicy(), new ContextBag());
+            var routes = await router.Route(typeof(Event), new DistributionPolicy(), new TestableOutgoingPublishContext());
 
             Assert.IsEmpty(routes);
         }

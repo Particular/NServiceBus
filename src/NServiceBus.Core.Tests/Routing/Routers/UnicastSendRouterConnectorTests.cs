@@ -231,7 +231,7 @@
         {
             public UnicastRoutingStrategy FixedDestination { get; set; }
 
-            public UnicastRoutingStrategy Route(Type messageType, IDistributionPolicy distributionPolicy)
+            public UnicastRoutingStrategy Route(Type messageType, IDistributionPolicy distributionPolicy, IOutgoingSendContext outgoingContext)
             {
                 return FixedDestination;
             }
