@@ -9,11 +9,6 @@
 
     class UnitOfWorkBehavior : IBehavior<IIncomingPhysicalMessageContext, IIncomingPhysicalMessageContext>
     {
-        public UnitOfWorkBehavior(bool hasUnitsOfWork)
-        {
-            this.hasUnitsOfWork = hasUnitsOfWork;
-        }
-
         public Task Invoke(IIncomingPhysicalMessageContext context, Func<IIncomingPhysicalMessageContext, Task> next)
         {
             if (hasUnitsOfWork)
@@ -30,13 +25,17 @@
 
             try
             {
+                var hasUow = false;
                 foreach (var uow in context.Builder.BuildAll<IManageUnitsOfWork>())
                 {
+                    hasUow = true;
                     unitsOfWork.Push(uow);
                     await uow.Begin()
                         .ThrowIfNull()
                         .ConfigureAwait(false);
                 }
+
+                hasUnitsOfWork = hasUow;
 
                 await next(context).ConfigureAwait(false);
 
@@ -84,6 +83,6 @@
             return exceptionsToThrow;
         }
 
-        bool hasUnitsOfWork;
+        volatile bool hasUnitsOfWork = true;
     }
 }

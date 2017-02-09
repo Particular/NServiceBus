@@ -3,12 +3,10 @@
     using System.Threading.Tasks;
     using Extensibility;
     using Janitor;
-    using MessageMutator;
     using NServiceBus.Outbox;
     using Persistence;
     using Transport;
     using Unicast;
-    using UnitOfWork;
 
     class ReceiveFeature : Feature
     {
@@ -22,14 +20,11 @@
             context.Pipeline.Register("TransportReceiveToPhysicalMessageProcessingConnector", b => b.Build<TransportReceiveToPhysicalMessageProcessingConnector>(), "Allows to abort processing the message");
             context.Pipeline.Register("LoadHandlersConnector", b => b.Build<LoadHandlersConnector>(), "Gets all the handlers to invoke from the MessageHandler registry based on the message type.");
 
-            var hasUnitsOfWork = context.Container.HasComponent<IManageUnitsOfWork>();
-            context.Pipeline.Register("ExecuteUnitOfWork", new UnitOfWorkBehavior(hasUnitsOfWork), "Executes the UoW");
+            context.Pipeline.Register("ExecuteUnitOfWork", new UnitOfWorkBehavior(), "Executes the UoW");
 
-            var hasIncomingTransportMessageMutators = context.Container.HasComponent<IMutateIncomingTransportMessages>();
-            context.Pipeline.Register("MutateIncomingTransportMessage", new MutateIncomingTransportMessageBehavior(hasIncomingTransportMessageMutators), "Executes IMutateIncomingTransportMessages");
+            context.Pipeline.Register("MutateIncomingTransportMessage", new MutateIncomingTransportMessageBehavior(), "Executes IMutateIncomingTransportMessages");
 
-            var hasIncomingMessageMutators = context.Container.HasComponent<IMutateIncomingMessages>();
-            context.Pipeline.Register("MutateIncomingMessages", new MutateIncomingMessageBehavior(hasIncomingMessageMutators), "Executes IMutateIncomingMessages");
+            context.Pipeline.Register("MutateIncomingMessages", new MutateIncomingMessageBehavior(), "Executes IMutateIncomingMessages");
 
             context.Pipeline.Register("InvokeHandlers", new InvokeHandlerTerminator(), "Calls the IHandleMessages<T>.Handle(T)");
 

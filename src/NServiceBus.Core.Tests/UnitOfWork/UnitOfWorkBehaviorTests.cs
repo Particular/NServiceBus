@@ -15,11 +15,14 @@
         {
             var builder = new FakeBuilder();
 
-            var unitOfWork = new UnitOfWork();
+            var behavior = new UnitOfWorkBehavior();
 
+            await InvokeBehavior(builder, behavior: behavior);
+
+            var unitOfWork = new UnitOfWork();
             builder.Register<IManageUnitsOfWork>(unitOfWork);
 
-            await InvokeBehavior(builder, hasUnitsOfWork: false);
+            await InvokeBehavior(builder, behavior: behavior); 
 
             Assert.IsFalse(unitOfWork.BeginCalled);
             Assert.IsFalse(unitOfWork.EndCalled);
@@ -159,9 +162,9 @@
                 Throws.Exception.With.Message.EqualTo("Return a Task or mark the method as async."));
         }
 
-        static Task InvokeBehavior(FakeBuilder builder, Exception toThrow = null, bool hasUnitsOfWork = true)
+        static Task InvokeBehavior(FakeBuilder builder, Exception toThrow = null, UnitOfWorkBehavior behavior = null)
         {
-            var runner = new UnitOfWorkBehavior(hasUnitsOfWork);
+            var runner = behavior ?? new UnitOfWorkBehavior();
 
             var context = new TestableIncomingPhysicalMessageContext();
             context.Builder = builder;
