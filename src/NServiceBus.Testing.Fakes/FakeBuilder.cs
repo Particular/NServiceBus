@@ -79,7 +79,7 @@ namespace NServiceBus.Testing
                 return factories[type]().Cast<T>();
             }
 
-            throw new Exception($"Cannot build instance of type {type} because there was no instance of factory registered for it.");
+            return Enumerable.Empty<T>();
         }
 
         /// <summary>
