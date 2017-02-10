@@ -66,6 +66,7 @@
     <Compile Include="Core\MessageDurability\When_sending_a_non_durable_message_with_conventions.cs" />
     <Compile Include="Core\Outbox\When_outbox_double_optin_found.cs" />
     <Compile Include="Core\Recoverability\When_configuring_unrecoverable_exception.cs" />
+    <Compile Include="Core\Routing\When_extending_command_routing_with_thisinstance.cs" />
     <Compile Include="Core\Stopping\When_feature_startup_task_throws_on_stop.cs" />
     <Compile Include="Core\Stopping\When_pump_throws_on_stop.cs" />
     <Compile Include="Core\Stopping\When_transport_infrastructure_throws_on_stop.cs" />
@@ -91,7 +92,6 @@
     <Compile Include="Routing\When_using_custom_routing_strategy.cs" />
     <Compile Include="Routing\When_extending_command_routing.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\When_extending_event_routing.cs" />
-    <Compile Include="Routing\When_extending_command_routing_with_thisinstance.cs" />
     <Compile Include="Routing\When_registering_publishers_unobtrusive_messages_config.cs" />
     <Compile Include="Routing\When_sending_non_message_with_routing_configured_by_type.cs" />
     <Compile Include="Routing\When_sending_non_message_with_routing_configured_by_assembly.cs" />

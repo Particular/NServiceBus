@@ -1,6 +1,5 @@
-namespace NServiceBus.AcceptanceTests.Routing
+namespace NServiceBus.AcceptanceTests.Core.Routing
 {
-    using System;
     using System.Collections.Generic;
     using System.Threading;
     using System.Threading.Tasks;
@@ -16,21 +15,21 @@ namespace NServiceBus.AcceptanceTests.Routing
     {
         const string Descriminator2 = "2";
         const string Descriminator1 = "1";
-        static string ReceiverEndpoint => Conventions.EndpointNamingConvention(typeof(Receiver));
+        static string ReceiverEndpoint => Conventions.EndpointNamingConvention(typeof(Endpoint));
 
         [Test]
         public async Task Should_route_according_to_distribution_strategy()
         {
             var ctx = await Scenario.Define<Context>()
-                .WithEndpoint<Receiver>(b => b.When(c => c.EndpointsStarted, session =>
+                .WithEndpoint<Endpoint>(b => b.When(c => c.EndpointsStarted, session =>
                 {
                     var sendOptions = new SendOptions();
                     sendOptions.RouteToThisEndpoint();
                     return session.Send(new MyCommand(), sendOptions);
                 }).CustomConfig(c => c.MakeInstanceUniquelyAddressable(Descriminator1)))
-                .WithEndpoint<Receiver>(b => b.CustomConfig(c => c.MakeInstanceUniquelyAddressable(Descriminator2)))
+                .WithEndpoint<Endpoint>(b => b.CustomConfig(c => c.MakeInstanceUniquelyAddressable(Descriminator2)))
                 .Done(c => c.MessageDelivered >= 1)
-                .Run(TimeSpan.FromSeconds(10));
+                .Run();
 
             Assert.AreEqual(1, ctx.MessageDelivered);
             Assert.IsTrue(ctx.StrategyCalled);
@@ -42,9 +41,9 @@ namespace NServiceBus.AcceptanceTests.Routing
             public bool StrategyCalled;
         }
 
-        public class Receiver : EndpointConfigurationBuilder
+        public class Endpoint : EndpointConfigurationBuilder
         {
-            public Receiver()
+            public Endpoint()
             {
                 EndpointSetup<DefaultServer>(c =>
                 {

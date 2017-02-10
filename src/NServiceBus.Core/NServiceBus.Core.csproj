@@ -167,7 +167,6 @@
     <Compile Include="Routing\TypeRouteSource.cs" />
     <Compile Include="Routing\IDistributionPolicy.cs" />
     <Compile Include="Routing\IRouteSource.cs" />
-    <Compile Include="Routing\IUnicastSendRouter.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\IMessageDrivenSubscriptionTransport.cs" />
     <Compile Include="Routing\NamespaceRouteSource.cs" />
     <Compile Include="Routing\RouteSourcePriority.cs" />
@@ -176,7 +175,9 @@
     <Compile Include="Routing\RoutingFeatureSettingsExtensions.cs" />
     <Compile Include="Routing\SpecificInstanceDistributionPolicy.cs" />
     <Compile Include="Routing\UnicastPublishRouter.cs" />
-    <Compile Include="Routing\UnicastSendRouter.cs" />
+    <Compile Include="Routing\UnicastSendLogicalRouter.cs" />
+    <Compile Include="Routing\UnicastSendPhysicalRouter.cs" />
+    <Compile Include="Routing\UnicastSend.cs" />
     <Compile Include="Serialization\SerializationFeature.cs" />
     <Compile Include="Serialization\SerializationSettingsExtensions.cs" />
     <Compile Include="Serializers\XML\XmlSerialization.cs" />

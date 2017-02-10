@@ -6,9 +6,9 @@
     using System.Threading.Tasks;
     using NServiceBus.Pipeline;
     using NServiceBus.Routing;
-    using Unicast.Messages;
     using NUnit.Framework;
     using Testing;
+    using Unicast.Messages;
 
     [TestFixture]
     public class UnicastSendRouterConnectorTests
@@ -16,10 +16,11 @@
         [Test]
         public async Task Should_set_messageintent_to_send()
         {
-            var behavior = InitializeBehavior();
-            var options = new SendOptions();
-            options.SetDestination("destination endpoint");
-            var context = CreateContext(options);
+            var physicalRouter = new FakePhysicalRouter { FixedDestination = new UnicastRoutingStrategy("destination endpoint") };
+
+            var behavior = InitializeBehavior(physicalRouter);
+
+            var context = CreateContext();
 
             await behavior.Invoke(context, ctx => TaskEx.CompletedTask);
 
@@ -28,14 +29,13 @@
         }
 
         [Test]
-        public async Task Should_use_explicit_route_for_sends_if_present()
+        public async Task Should_route_physical_when_physical_router_returned_route()
         {
-            var behavior = InitializeBehavior();
-            var options = new SendOptions();
+            var physicalRouter = new FakePhysicalRouter { FixedDestination = new UnicastRoutingStrategy("PhysicalAddress") };
 
-            options.SetDestination("destination endpoint");
+            var behavior = InitializeBehavior(physicalRouter);
 
-            var context = CreateContext(options);
+            var context = CreateContext();
 
             UnicastAddressTag addressTag = null;
             await behavior.Invoke(context, c =>
@@ -44,18 +44,17 @@
                 return TaskEx.CompletedTask;
             });
 
-            Assert.AreEqual("destination endpoint", addressTag.Destination);
+            Assert.AreEqual("PhysicalAddress", addressTag.Destination);
         }
 
         [Test]
-        public async Task Should_route_to_local_endpoint_if_requested_so()
+        public async Task Should_route_logical_when_logical_router_returned_route()
         {
-            var behavior = InitializeBehavior(sharedQueue: "MyLocalAddress");
-            var options = new SendOptions();
+            var logicalRouter = new FakeLogicalRouter() { FixedDestination = new UnicastRoutingStrategy("LogicalAddress") };
 
-            options.RouteToThisEndpoint();
+            var behavior = InitializeBehavior(logicalRouter: logicalRouter);
 
-            var context = CreateContext(options);
+            var context = CreateContext();
 
             UnicastAddressTag addressTag = null;
             await behavior.Invoke(context, c =>
@@ -64,143 +63,31 @@
                 return TaskEx.CompletedTask;
             });
 
-            Assert.AreEqual("MyLocalAddress", addressTag.Destination);
+            Assert.AreEqual("LogicalAddress", addressTag.Destination);
         }
 
-        [Test]
-        public async Task Should_route_to_local_instance_if_requested_so()
-        {
-            var behavior = InitializeBehavior(sharedQueue: "MyLocalAddress", instanceSpecificQueue: "MyInstance");
-            var options = new SendOptions();
-
-            options.RouteToThisInstance();
-
-            var context = CreateContext(options);
-
-            UnicastAddressTag addressTag = null;
-            await behavior.Invoke(context, c =>
-            {
-                addressTag = (UnicastAddressTag)c.RoutingStrategies.Single().Apply(new Dictionary<string, string>());
-                return TaskEx.CompletedTask;
-            });
-
-            Assert.AreEqual("MyInstance", addressTag.Destination);
-        }
-
-        [Test]
-        public async Task Should_throw_if_requested_to_route_to_local_instance_and_instance_has_no_specific_queue()
-        {
-            var behavior = InitializeBehavior(sharedQueue: "MyLocalAddress", instanceSpecificQueue: null);
-
-            try
-            {
-                var options = new SendOptions();
-
-                options.RouteToThisInstance();
-
-                var context = CreateContext(options);
-                await behavior.Invoke(context, c => TaskEx.CompletedTask);
-                Assert.Fail("RouteToThisInstance");
-            }
-            catch (Exception)
-            {
-                // ignored
-            }
-        }
-
-        [Test]
-        public async Task Should_throw_if_invalid_route_combinations_are_used()
-        {
-            var behavior = InitializeBehavior(sharedQueue: "MyLocalAddress", instanceSpecificQueue: "MyInstance");
-
-            try
-            {
-                var options = new SendOptions();
-
-                options.RouteToThisInstance();
-                options.SetDestination("Destination");
-
-                var context = CreateContext(options);
-                await behavior.Invoke(context, c => TaskEx.CompletedTask);
-                Assert.Fail("RouteToThisInstance+SetDestination");
-            }
-            catch (Exception)
-            {
-                // ignored
-            }
-
-            try
-            {
-                var options = new SendOptions();
-
-                options.RouteToThisEndpoint();
-                options.SetDestination("Destination");
-
-                var context = CreateContext(options);
-                await behavior.Invoke(context, c => TaskEx.CompletedTask);
-                Assert.Fail("RouteToThisEndpoint+SetDestination");
-            }
-            catch (Exception)
-            {
-                // ignored
-            }
-
-            try
-            {
-                var options = new SendOptions();
-
-                options.RouteToThisEndpoint();
-                options.RouteToThisInstance();
-
-                var context = CreateContext(options);
-                await behavior.Invoke(context, c => TaskEx.CompletedTask);
-                Assert.Fail("RouteToThisEndpoint+RouteToThisInstance");
-            }
-            catch (Exception)
-            {
-                // ignored
-            }
-        }
-
-        [Test]
-        public async Task Should_route_using_the_mappings_if_no_destination_is_set()
-        {
-            var router = new FakeSendRouter
-            {
-                FixedDestination = new UnicastRoutingStrategy("MappedDestination")
-            };
-            var behavior = InitializeBehavior(router: router);
-            var options = new SendOptions();
-
-            var context = CreateContext(options);
-
-            UnicastAddressTag addressTag = null;
-            await behavior.Invoke(context, c =>
-            {
-                addressTag = (UnicastAddressTag)c.RoutingStrategies.Single().Apply(new Dictionary<string, string>());
-                return TaskEx.CompletedTask;
-            });
-
-            Assert.AreEqual("MappedDestination", addressTag.Destination);
-        }
 
         [Test]
         public void Should_throw_if_no_route_can_be_found()
         {
-            var router = new FakeSendRouter
+            var logicalRouter = new FakeLogicalRouter
             {
                 FixedDestination = null
             };
 
-            var behavior = InitializeBehavior(router: router);
-            var options = new SendOptions();
+            var physicalRouter = new FakePhysicalRouter
+            {
+                FixedDestination = null
+            };
 
-            var context = CreateContext(options, new MessageWithoutRouting());
+            var behavior = InitializeBehavior(physicalRouter: physicalRouter, logicalRouter: logicalRouter);
+
+            var context = CreateContext();
 
             Assert.That(async () => await behavior.Invoke(context, _ => TaskEx.CompletedTask), Throws.InstanceOf<Exception>().And.Message.Contains("No destination specified"));
         }
 
-        static IOutgoingSendContext CreateContext(SendOptions options, object message = null)
+        static IOutgoingSendContext CreateContext(SendOptions options = null, object message = null)
         {
             if (message == null)
             {
@@ -210,28 +97,49 @@
             var context = new TestableOutgoingSendContext
             {
                 Message = new OutgoingLogicalMessage(message.GetType(), message),
-                Extensions = options.Context
+                Extensions = options?.Context
             };
             return context;
         }
 
 
         static UnicastSendRouterConnector InitializeBehavior(
-            string sharedQueue = null,
-            string instanceSpecificQueue = null,
-            FakeSendRouter router = null)
+            FakePhysicalRouter physicalRouter = null,
+            FakeLogicalRouter logicalRouter = null)
         {
             var metadataRegistry = new MessageMetadataRegistry(new Conventions());
-            metadataRegistry.RegisterMessageTypesFoundIn(new List<Type> { typeof(MyMessage), typeof(MessageWithoutRouting) });
+            metadataRegistry.RegisterMessageTypesFoundIn(new List<Type>
+            {
+                typeof(MyMessage),
+                typeof(MessageWithoutRouting)
+            });
 
-            return new UnicastSendRouterConnector(sharedQueue, instanceSpecificQueue, null, router ?? new FakeSendRouter(), new DistributionPolicy(), e => e.ToString());
+            return new UnicastSendRouterConnector(physicalRouter ?? new FakePhysicalRouter(), logicalRouter ?? new FakeLogicalRouter());
         }
 
-        class FakeSendRouter : IUnicastSendRouter
+        class FakePhysicalRouter : UnicastSend.PhysicalRouter
         {
+            public FakePhysicalRouter() : base(null, null)
+            {
+            }
+
             public UnicastRoutingStrategy FixedDestination { get; set; }
 
-            public UnicastRoutingStrategy Route(Type messageType, IDistributionPolicy distributionPolicy, IOutgoingSendContext outgoingContext)
+            public override UnicastRoutingStrategy Route(IOutgoingSendContext context)
+            {
+                return FixedDestination;
+            }
+        }
+
+        class FakeLogicalRouter : UnicastSend.LogicalRouter
+        {
+            public FakeLogicalRouter() : base(null, null, null, null, null, null, null)
+            {
+            }
+
+            public UnicastRoutingStrategy FixedDestination { get; set; }
+
+            public override UnicastRoutingStrategy Route(IOutgoingSendContext context)
             {
                 return FixedDestination;
             }
