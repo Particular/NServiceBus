@@ -91,6 +91,7 @@
     <Compile Include="Routing\When_using_custom_routing_strategy.cs" />
     <Compile Include="Routing\When_extending_command_routing.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\When_extending_event_routing.cs" />
+    <Compile Include="Routing\When_extending_command_routing_with_thisinstance.cs" />
     <Compile Include="Routing\When_registering_publishers_unobtrusive_messages_config.cs" />
     <Compile Include="Routing\When_sending_non_message_with_routing_configured_by_type.cs" />
     <Compile Include="Routing\When_sending_non_message_with_routing_configured_by_assembly.cs" />
