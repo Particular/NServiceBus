@@ -34,7 +34,7 @@ namespace NServiceBus
 
 
             var instances = endpointInstances.FindInstances(route.Endpoint).Select(e => transportAddressTranslation(e)).ToArray();
-            var distributionContext = new DistributionContext(instances, sendContext.Message, sendContext.MessageId, sendContext.Headers, sendContext.Extensions);
+            var distributionContext = new DistributionContext(instances, sendContext.Message, sendContext.MessageId, sendContext.Headers, transportAddressTranslation, sendContext.Extensions);
             var selectedInstanceAddress = distributionPolicy.GetDistributionStrategy(route.Endpoint, DistributionStrategyScope.Send).SelectDestination(distributionContext);
             return new UnicastRoutingStrategy(selectedInstanceAddress);
         }

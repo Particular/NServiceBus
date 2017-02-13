@@ -2574,12 +2574,13 @@ namespace NServiceBus.Routing
     }
     public class DistributionContext
     {
-        public DistributionContext(string[] receiverAddresses, NServiceBus.Pipeline.OutgoingLogicalMessage message, string messageId, System.Collections.Generic.Dictionary<string, string> headers, NServiceBus.Extensibility.ContextBag context) { }
+        public DistributionContext(string[] receiverAddresses, NServiceBus.Pipeline.OutgoingLogicalMessage message, string messageId, System.Collections.Generic.Dictionary<string, string> headers, System.Func<NServiceBus.Routing.EndpointInstance, string> addressTranslation, NServiceBus.Extensibility.ContextBag context) { }
         public NServiceBus.Extensibility.ContextBag Context { get; }
         public System.Collections.Generic.Dictionary<string, string> Headers { get; }
         public NServiceBus.Pipeline.OutgoingLogicalMessage Message { get; }
         public string MessageId { get; }
         public string[] ReceiverAddresses { get; }
+        public string ToTransportAddress(NServiceBus.Routing.EndpointInstance endpointInstance) { }
     }
     public abstract class DistributionStrategy
     {

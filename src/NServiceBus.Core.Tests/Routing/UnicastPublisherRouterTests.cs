@@ -107,6 +107,7 @@
             subscriptionStorage = new FakeSubscriptionStorage();
             router = new UnicastPublishRouter(
                 metadataRegistry,
+                i => string.Empty,
                 subscriptionStorage);
         }
 

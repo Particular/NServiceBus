@@ -13,9 +13,10 @@ namespace NServiceBus
 
     class UnicastPublishRouter : IUnicastPublishRouter
     {
-        public UnicastPublishRouter(MessageMetadataRegistry messageMetadataRegistry, ISubscriptionStorage subscriptionStorage)
+        public UnicastPublishRouter(MessageMetadataRegistry messageMetadataRegistry, Func<EndpointInstance, string> transportAddressTranslation, ISubscriptionStorage subscriptionStorage)
         {
             this.messageMetadataRegistry = messageMetadataRegistry;
+            this.transportAddressTranslation = transportAddressTranslation;
             this.subscriptionStorage = subscriptionStorage;
         }
 
@@ -50,7 +51,7 @@ namespace NServiceBus
                 else
                 {
                     var instances = group.Select(s => s.TransportAddress).ToArray();
-                    var distributionContext = new DistributionContext(instances, publishContext.Message, publishContext.MessageId, publishContext.Headers, publishContext.Extensions);
+                    var distributionContext = new DistributionContext(instances, publishContext.Message, publishContext.MessageId, publishContext.Headers, transportAddressTranslation, publishContext.Extensions);
                     var subscriber = distributionPolicy.GetDistributionStrategy(group.First().Endpoint, DistributionStrategyScope.Publish).SelectDestination(distributionContext);
                     addresses.Add(subscriber);
                 }
@@ -67,6 +68,7 @@ namespace NServiceBus
         }
 
         MessageMetadataRegistry messageMetadataRegistry;
+        Func<EndpointInstance, string> transportAddressTranslation;
         ISubscriptionStorage subscriptionStorage;
     }
 }
