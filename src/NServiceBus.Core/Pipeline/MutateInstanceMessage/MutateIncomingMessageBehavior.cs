@@ -7,11 +7,6 @@
 
     class MutateIncomingMessageBehavior : IBehavior<IIncomingLogicalMessageContext, IIncomingLogicalMessageContext>
     {
-        public MutateIncomingMessageBehavior(bool hasIncomingMessageMutators)
-        {
-            this.hasIncomingMessageMutators = hasIncomingMessageMutators;
-        }
-
         public Task Invoke(IIncomingLogicalMessageContext context, Func<IIncomingLogicalMessageContext, Task> next)
         {
             if (hasIncomingMessageMutators)
@@ -28,12 +23,18 @@
             var current = logicalMessage.Instance;
 
             var mutatorContext = new MutateIncomingMessageContext(current, context.Headers);
+
+            var hasMutators = false;
             foreach (var mutator in context.Builder.BuildAll<IMutateIncomingMessages>())
             {
+                hasMutators = true;
+
                 await mutator.MutateIncoming(mutatorContext)
                     .ThrowIfNull()
                     .ConfigureAwait(false);
             }
+
+            hasIncomingMessageMutators = hasMutators;
 
             if (mutatorContext.MessageInstanceChanged)
             {
@@ -43,6 +44,6 @@
             await next(context).ConfigureAwait(false);
         }
 
-        bool hasIncomingMessageMutators;
+        volatile bool hasIncomingMessageMutators = true;
     }
 }

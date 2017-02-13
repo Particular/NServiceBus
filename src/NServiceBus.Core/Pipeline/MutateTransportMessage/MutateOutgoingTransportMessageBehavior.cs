@@ -8,11 +8,6 @@
 
     class MutateOutgoingTransportMessageBehavior : IBehavior<IOutgoingPhysicalMessageContext, IOutgoingPhysicalMessageContext>
     {
-        public MutateOutgoingTransportMessageBehavior(bool hasOutgoingTransportMessageMutators)
-        {
-            this.hasOutgoingTransportMessageMutators = hasOutgoingTransportMessageMutators;
-        }
-
         public Task Invoke(IOutgoingPhysicalMessageContext context, Func<IOutgoingPhysicalMessageContext, Task> next)
         {
             if (hasOutgoingTransportMessageMutators)
@@ -40,12 +35,17 @@
                 incomingLogicalMessage?.Instance,
                 incomingPhysicalMessage?.Headers);
 
+            var hasMutators = false;
             foreach (var mutator in context.Builder.BuildAll<IMutateOutgoingTransportMessages>())
             {
+                hasMutators = true;
+
                 await mutator.MutateOutgoing(mutatorContext)
                     .ThrowIfNull()
                     .ConfigureAwait(false);
             }
+
+            hasOutgoingTransportMessageMutators = hasMutators;
 
             if (mutatorContext.MessageBodyChanged)
             {
@@ -55,6 +55,6 @@
             await next(context).ConfigureAwait(false);
         }
 
-        bool hasOutgoingTransportMessageMutators;
+        volatile bool hasOutgoingTransportMessageMutators = true;
     }
 }

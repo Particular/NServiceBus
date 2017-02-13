@@ -13,9 +13,11 @@
         [Test]
         public async Task Should_not_call_MutateIncoming_when_hasIncomingMessageMutators_is_false()
         {
-            var behavior = new MutateIncomingMessageBehavior(hasIncomingMessageMutators: false);
+            var behavior = new MutateIncomingMessageBehavior();
 
             var context = new TestableIncomingLogicalMessageContext();
+
+            await behavior.Invoke(context, ctx => TaskEx.CompletedTask);
 
             var mutator = new MutatorThatIndicatesIfItWasCalled();
             context.Builder.Register<IMutateIncomingMessages>(() => mutator);
@@ -28,7 +30,7 @@
         [Test]
         public void Should_throw_friendly_exception_when_IMutateIncomingMessages_MutateIncoming_returns_null()
         {
-            var behavior = new MutateIncomingMessageBehavior(hasIncomingMessageMutators: true);
+            var behavior = new MutateIncomingMessageBehavior();
 
             var logicalMessage = new LogicalMessage(new MessageMetadata(typeof(TestMessage)), new TestMessage());
 
@@ -45,7 +47,7 @@
         [Test]
         public async Task When_no_mutator_updates_the_body_should_not_update_the_body()
         {
-            var behavior = new MutateIncomingMessageBehavior(hasIncomingMessageMutators: true);
+            var behavior = new MutateIncomingMessageBehavior();
 
             var context = new InterceptUpdateMessageIncomingLogicalMessageContext();
 
@@ -59,7 +61,7 @@
         [Test]
         public async Task When_no_mutator_available_should_not_update_the_body()
         {
-            var behavior = new MutateIncomingMessageBehavior(hasIncomingMessageMutators: true);
+            var behavior = new MutateIncomingMessageBehavior();
 
             var context = new InterceptUpdateMessageIncomingLogicalMessageContext();
 
@@ -73,7 +75,7 @@
         [Test]
         public async Task When_mutator_modifies_the_body_should_update_the_body()
         {
-            var behavior = new MutateIncomingMessageBehavior(hasIncomingMessageMutators: true);
+            var behavior = new MutateIncomingMessageBehavior();
 
             var context = new InterceptUpdateMessageIncomingLogicalMessageContext();
 
