@@ -40,8 +40,6 @@
         static string Discriminator1 = "553E9649";
         static string Discriminator2 = "F9D0022C";
 
-        static string ReceiverEndpoint = Conventions.EndpointNamingConvention(typeof(Receiver));
-
         public class Context : ScenarioContext
         {
             public int MessageDeliveredReceiver1;
@@ -52,21 +50,23 @@
         {
             public Sender()
             {
+                var receiverEndpoint = Conventions.EndpointNamingConvention(typeof(Receiver));
+
                 EndpointSetup<DefaultServer>(c =>
                 {
                     c.GetSettings().GetOrCreate<UnicastRoutingTable>()
                         .AddOrReplaceRoutes("CustomRoutingFeature", new List<RouteTableEntry>
                         {
-                            new RouteTableEntry(typeof(MyCommand), UnicastRoute.CreateFromEndpointName(ReceiverEndpoint))
+                            new RouteTableEntry(typeof(MyCommand), UnicastRoute.CreateFromEndpointName(receiverEndpoint))
                         });
                     c.GetSettings().GetOrCreate<EndpointInstances>()
                         .AddOrReplaceInstances("CustomRoutingFeature", new List<EndpointInstance>
                         {
-                            new EndpointInstance(ReceiverEndpoint, Discriminator1),
-                            new EndpointInstance(ReceiverEndpoint, Discriminator2)
+                            new EndpointInstance(receiverEndpoint, Discriminator1),
+                            new EndpointInstance(receiverEndpoint, Discriminator2)
                         });
                     c.GetSettings().GetOrCreate<DistributionPolicy>()
-                        .SetDistributionStrategy(new ContentBasedRoutingStrategy(ReceiverEndpoint));
+                        .SetDistributionStrategy(new ContentBasedRoutingStrategy(receiverEndpoint));
                 });
             }
 
