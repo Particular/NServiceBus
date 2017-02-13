@@ -5,6 +5,10 @@ namespace NServiceBus.Config
     /// <summary>
     /// A configuration element collection of <see cref="RijndaelExpiredKey" />s.
     /// </summary>
+    [ObsoleteEx(
+        Message = "Message property encryption is released as a dedicated 'NServiceBus.Encryption.MessageProperty' package.",
+        RemoveInVersion = "8",
+        TreatAsErrorFromVersion = "7")]
     public class RijndaelExpiredKeyCollection : ConfigurationElementCollection
     {
         /// <summary>

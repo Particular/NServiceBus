@@ -146,11 +146,15 @@ namespace NServiceBus
     }
     public class static ConfigureRijndaelEncryptionService
     {
+        [System.ObsoleteAttribute(@"Message property encryption is released as a dedicated 'NServiceBus.Encryption.MessageProperty' package. Use `NServiceBus.Encryption.MessageProperty.EncryptionConfigurationExtensions.EnableMessagePropertyEncryption` instead. Will be treated as an error from version 7.0.0. Will be removed in version 8.0.0.", false)]
         public static void RegisterEncryptionService(this NServiceBus.EndpointConfiguration config, System.Func<NServiceBus.IEncryptionService> func) { }
         [System.ObsoleteAttribute(@"It is no longer possible to access the builder to create an encryption service. If container access is required use the container directly in the factory. Use `RegisterEncryptionService(this EndpointConfiguration config, Func<IEncryptionService> func)` instead. The member currently throws a NotImplementedException. Will be removed in version 7.0.0.", true)]
         public static void RegisterEncryptionService(this NServiceBus.EndpointConfiguration config, System.Func<NServiceBus.ObjectBuilder.IBuilder, NServiceBus.IEncryptionService> func) { }
+        [System.ObsoleteAttribute(@"Message property encryption is released as a dedicated 'NServiceBus.Encryption.MessageProperty' package. Use `NServiceBus.Encryption.MessageProperty.EncryptionConfigurationExtensions.EnableMessagePropertyEncryption` instead. Will be treated as an error from version 7.0.0. Will be removed in version 8.0.0.", false)]
         public static void RijndaelEncryptionService(this NServiceBus.EndpointConfiguration config) { }
+        [System.ObsoleteAttribute(@"Message property encryption is released as a dedicated 'NServiceBus.Encryption.MessageProperty' package. Use `NServiceBus.Encryption.MessageProperty.EncryptionConfigurationExtensions.EnableMessagePropertyEncryption` instead. Will be treated as an error from version 7.0.0. Will be removed in version 8.0.0.", false)]
         public static void RijndaelEncryptionService(this NServiceBus.EndpointConfiguration config, string encryptionKeyIdentifier, byte[] encryptionKey, System.Collections.Generic.IList<byte[]> decryptionKeys = null) { }
+        [System.ObsoleteAttribute(@"Message property encryption is released as a dedicated 'NServiceBus.Encryption.MessageProperty' package. Use `NServiceBus.Encryption.MessageProperty.EncryptionConfigurationExtensions.EnableMessagePropertyEncryption` instead. Will be treated as an error from version 7.0.0. Will be removed in version 8.0.0.", false)]
         public static void RijndaelEncryptionService(this NServiceBus.EndpointConfiguration config, string encryptionKeyIdentifier, System.Collections.Generic.IDictionary<string, byte[]> keys, System.Collections.Generic.IList<byte[]> decryptionKeys = null) { }
     }
     public class static ConfigureTransportConnectionString
@@ -200,6 +204,9 @@ namespace NServiceBus
         public System.TimeSpan GetTimeToBeReceived(System.Type messageType) { }
         public bool IsCommandType(System.Type t) { }
         public bool IsDataBusProperty(System.Reflection.PropertyInfo property) { }
+        [System.ObsoleteAttribute("Message property encryption is released as a dedicated \'NServiceBus.Encryption.Me" +
+            "ssageProperty\' package. Will be treated as an error from version 7.0.0. Will be " +
+            "removed in version 8.0.0.", false)]
         public bool IsEncryptedProperty(System.Reflection.PropertyInfo property) { }
         public bool IsEventType(System.Type t) { }
         [System.ObsoleteAttribute("No longer an extension point. The member currently throws a NotImplementedExcepti" +
@@ -214,6 +221,7 @@ namespace NServiceBus
         public NServiceBus.Conventions Conventions { get; }
         public NServiceBus.ConventionsBuilder DefiningCommandsAs(System.Func<System.Type, bool> definesCommandType) { }
         public NServiceBus.ConventionsBuilder DefiningDataBusPropertiesAs(System.Func<System.Reflection.PropertyInfo, bool> definesDataBusProperty) { }
+        [System.ObsoleteAttribute(@"Message property encryption is released as a dedicated 'NServiceBus.Encryption.MessageProperty' package. This convention configuration does not work in combination with the NServiceBus.Encryption.MessageProperty package. Will be treated as an error from version 7.0.0. Will be removed in version 8.0.0.", false)]
         public NServiceBus.ConventionsBuilder DefiningEncryptedPropertiesAs(System.Func<System.Reflection.PropertyInfo, bool> definesEncryptedProperty) { }
         public NServiceBus.ConventionsBuilder DefiningEventsAs(System.Func<System.Type, bool> definesEventType) { }
         public NServiceBus.ConventionsBuilder DefiningMessagesAs(System.Func<System.Type, bool> definesMessageType) { }
@@ -325,10 +333,19 @@ namespace NServiceBus
     {
         public static NServiceBus.ConventionsBuilder DefiningExpressMessagesAs(this NServiceBus.ConventionsBuilder builder, System.Func<System.Type, bool> definesExpressMessageType) { }
     }
+    [System.ObsoleteAttribute("Message property encryption is released as a dedicated \'NServiceBus.Encryption.Me" +
+        "ssageProperty\' package. Will be treated as an error from version 7.0.0. Will be " +
+        "removed in version 8.0.0.", false)]
     public class EncryptedValue
     {
         public EncryptedValue() { }
+        [System.ObsoleteAttribute("Message property encryption is released as a dedicated \'NServiceBus.Encryption.Me" +
+            "ssageProperty\' package. Will be treated as an error from version 7.0.0. Will be " +
+            "removed in version 8.0.0.", false)]
         public string Base64Iv { get; set; }
+        [System.ObsoleteAttribute("Message property encryption is released as a dedicated \'NServiceBus.Encryption.Me" +
+            "ssageProperty\' package. Will be treated as an error from version 7.0.0. Will be " +
+            "removed in version 8.0.0.", false)]
         public string EncryptedBase64Value { get; set; }
     }
     public class static Endpoint
@@ -585,9 +602,18 @@ namespace NServiceBus
     {
         NServiceBus.Routing.DistributionStrategy GetDistributionStrategy(string endpointName, NServiceBus.DistributionStrategyScope scope);
     }
+    [System.ObsoleteAttribute("Message property encryption is released as a dedicated \'NServiceBus.Encryption.Me" +
+        "ssageProperty\' package. Will be treated as an error from version 7.0.0. Will be " +
+        "removed in version 8.0.0.", false)]
     public interface IEncryptionService
     {
+        [System.ObsoleteAttribute("Message property encryption is released as a dedicated \'NServiceBus.Encryption.Me" +
+            "ssageProperty\' package. Will be treated as an error from version 7.0.0. Will be " +
+            "removed in version 8.0.0.", false)]
         string Decrypt(NServiceBus.EncryptedValue encryptedValue, NServiceBus.Pipeline.IIncomingLogicalMessageContext context);
+        [System.ObsoleteAttribute("Message property encryption is released as a dedicated \'NServiceBus.Encryption.Me" +
+            "ssageProperty\' package. Will be treated as an error from version 7.0.0. Will be " +
+            "removed in version 8.0.0.", false)]
         NServiceBus.EncryptedValue Encrypt(string value, NServiceBus.Pipeline.IOutgoingLogicalMessageContext context);
     }
     public interface IEndpointInstance : NServiceBus.IMessageSession
@@ -1272,15 +1298,28 @@ namespace NServiceBus
             where T : NServiceBus.Transport.TransportDefinition, new () { }
         public static NServiceBus.TransportExtensions UseTransport(this NServiceBus.EndpointConfiguration endpointConfiguration, System.Type transportDefinitionType) { }
     }
+    [System.ObsoleteAttribute(@"Message property encryption is released as a dedicated 'NServiceBus.Encryption.MessageProperty' package. Use `NServiceBus.Encryption.MessageProperty.EncryptedString` instead. Will be treated as an error from version 7.0.0. Will be removed in version 8.0.0.", false)]
     public class WireEncryptedString : System.Runtime.Serialization.ISerializable
     {
+        [System.ObsoleteAttribute("Message property encryption is released as a dedicated \'NServiceBus.Encryption.Me" +
+            "ssageProperty\' package. Will be treated as an error from version 7.0.0. Will be " +
+            "removed in version 8.0.0.", false)]
         public WireEncryptedString() { }
+        [System.ObsoleteAttribute("Message property encryption is released as a dedicated \'NServiceBus.Encryption.Me" +
+            "ssageProperty\' package. Will be treated as an error from version 7.0.0. Will be " +
+            "removed in version 8.0.0.", false)]
         public WireEncryptedString(System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context) { }
         [System.ObsoleteAttribute("No longer required. Will be removed in version 7.0.0.", true)]
         public string Base64Iv { get; set; }
         [System.ObsoleteAttribute("No longer required. Will be removed in version 7.0.0.", true)]
         public string EncryptedBase64Value { get; set; }
+        [System.ObsoleteAttribute("Message property encryption is released as a dedicated \'NServiceBus.Encryption.Me" +
+            "ssageProperty\' package. Will be treated as an error from version 7.0.0. Will be " +
+            "removed in version 8.0.0.", false)]
         public NServiceBus.EncryptedValue EncryptedValue { get; set; }
+        [System.ObsoleteAttribute("Message property encryption is released as a dedicated \'NServiceBus.Encryption.Me" +
+            "ssageProperty\' package. Will be treated as an error from version 7.0.0. Will be " +
+            "removed in version 8.0.0.", false)]
         public string Value { get; set; }
         public void GetObjectData(System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context) { }
     }
@@ -1337,6 +1376,9 @@ namespace NServiceBus.Config
         "ures.Feature` and use `configuration.EnableFeature<YourClass>()`. Will be remove" +
         "d in version 7.0.0.", true)]
     public interface IWantToRunWhenConfigurationIsComplete { }
+    [System.ObsoleteAttribute("Message property encryption is released as a dedicated \'NServiceBus.Encryption.Me" +
+        "ssageProperty\' package. Will be treated as an error from version 7.0.0. Will be " +
+        "removed in version 8.0.0.", false)]
     public enum KeyFormat
     {
         Ascii = 0,
@@ -1408,6 +1450,9 @@ namespace NServiceBus.Config
         [System.Configuration.ConfigurationPropertyAttribute("Queue", IsRequired=true)]
         public string Queue { get; set; }
     }
+    [System.ObsoleteAttribute("Message property encryption is released as a dedicated \'NServiceBus.Encryption.Me" +
+        "ssageProperty\' package. Will be treated as an error from version 7.0.0. Will be " +
+        "removed in version 8.0.0.", false)]
     public class RijndaelEncryptionServiceConfig : System.Configuration.ConfigurationSection
     {
         public RijndaelEncryptionServiceConfig() { }
@@ -1420,6 +1465,9 @@ namespace NServiceBus.Config
         [System.Configuration.ConfigurationPropertyAttribute("KeyIdentifier", IsRequired=false)]
         public string KeyIdentifier { get; set; }
     }
+    [System.ObsoleteAttribute("Message property encryption is released as a dedicated \'NServiceBus.Encryption.Me" +
+        "ssageProperty\' package. Will be treated as an error from version 7.0.0. Will be " +
+        "removed in version 8.0.0.", false)]
     public class RijndaelExpiredKey : System.Configuration.ConfigurationElement
     {
         public RijndaelExpiredKey() { }
@@ -1430,6 +1478,9 @@ namespace NServiceBus.Config
         [System.Configuration.ConfigurationPropertyAttribute("KeyIdentifier", IsRequired=false)]
         public string KeyIdentifier { get; set; }
     }
+    [System.ObsoleteAttribute("Message property encryption is released as a dedicated \'NServiceBus.Encryption.Me" +
+        "ssageProperty\' package. Will be treated as an error from version 7.0.0. Will be " +
+        "removed in version 8.0.0.", false)]
     public class RijndaelExpiredKeyCollection : System.Configuration.ConfigurationElementCollection
     {
         public RijndaelExpiredKeyCollection() { }

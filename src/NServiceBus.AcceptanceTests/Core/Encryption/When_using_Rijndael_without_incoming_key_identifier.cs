@@ -1,4 +1,6 @@
-﻿namespace NServiceBus.AcceptanceTests.Core.Encryption
+﻿// disable obsolete warnings. Tests will be removed in next major version
+#pragma warning disable CS0618
+namespace NServiceBus.AcceptanceTests.Core.Encryption
 {
     using System.Collections.Generic;
     using System.Text;
@@ -91,3 +93,4 @@
         }
     }
 }
+#pragma warning restore CS0618
