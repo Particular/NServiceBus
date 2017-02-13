@@ -13,7 +13,7 @@
     using NUnit.Framework;
     using Settings;
 
-    public class When_doing_content_based_routing_with_commands : NServiceBusAcceptanceTest
+    public class When_using_custom_routing_strategy : NServiceBusAcceptanceTest
     {
         [Test]
         public async Task Should_route_commands_correctly()
@@ -86,7 +86,8 @@
                     var message = context.Message.Instance as MyCommand;
                     if (message != null)
                     {
-                        return context.ReceiverAddresses.Single(a => a.Contains(message.Instance));
+                        var address = context.ToTransportAddress(new EndpointInstance(Endpoint, message.Instance));
+                        return context.ReceiverAddresses.Single(a => a.Contains(address));
                     }
                     throw new InvalidOperationException("Unable to route!");
                 }
