@@ -62,7 +62,9 @@ namespace NServiceBus
                 {
                     using (var toSend = MsmqUtilities.Convert(message, transportOperation.DeliveryConstraints))
                     {
-                        toSend.UseDeadLetterQueue = settings.UseDeadLetterQueue;
+                        var ttbrRequested = toSend.TimeToBeReceived < MessageQueue.InfiniteTimeout;
+
+                        toSend.UseDeadLetterQueue = ttbrRequested ? settings.UseDeadLetterQueueForMessagesWithTimeToReachQueue : settings.UseDeadLetterQueue;
                         toSend.UseJournalQueue = settings.UseJournalQueue;
                         toSend.TimeToReachQueue = settings.TimeToReachQueue;
 

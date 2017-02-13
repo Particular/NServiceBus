@@ -60,5 +60,13 @@ namespace NServiceBus
         {
             return new InstanceMappingFileSettings(config.Settings);
         }
+
+        /// <summary>
+        /// Moves expired messages using the "time to reach queue" setting to the dead letter queue instead of discarding them.
+        /// </summary>
+        public static void UseDeadLetterQueueForMessagesWithTimeToReachQueue(this TransportExtensions<MsmqTransport> config)
+        {
+            config.Settings.Set(MsmqTransport.UseDeadLetterQueueForMessagesWithTimeToReachQueue, true);
+        }
     }
 }
