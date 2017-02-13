@@ -30,7 +30,7 @@ namespace NServiceBus
             return selectedDestinations.Select(destination => new UnicastRoutingStrategy(destination));
         }
 
-        HashSet<string> SelectDestinationsForEachEndpoint(IOutgoingContext publishContext, IDistributionPolicy distributionPolicy, IEnumerable<Subscriber> subscribers)
+        HashSet<string> SelectDestinationsForEachEndpoint(IOutgoingPublishContext publishContext, IDistributionPolicy distributionPolicy, IEnumerable<Subscriber> subscribers)
         {
             //Make sure we are sending only one to each transport destination. Might happen when there are multiple routing information sources.
             var addresses = new HashSet<string>();
@@ -49,7 +49,9 @@ namespace NServiceBus
                 }
                 else
                 {
-                    var subscriber = distributionPolicy.GetDistributionStrategy(group.First().Endpoint, DistributionStrategyScope.Publish).SelectDestination(group.Select(s => s.TransportAddress).ToArray(), publishContext);
+                    var instances = group.Select(s => s.TransportAddress).ToArray();
+                    var distributionContext = new DistributionContext(instances, publishContext.Message, publishContext.MessageId, publishContext.Headers, publishContext.Extensions);
+                    var subscriber = distributionPolicy.GetDistributionStrategy(group.First().Endpoint, DistributionStrategyScope.Publish).SelectDestination(distributionContext);
                     addresses.Add(subscriber);
                 }
             }

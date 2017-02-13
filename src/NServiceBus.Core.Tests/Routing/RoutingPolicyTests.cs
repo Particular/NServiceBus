@@ -1,8 +1,8 @@
 namespace NServiceBus.Core.Tests.Routing
 {
     using System.Collections.Generic;
+    using NServiceBus.Routing;
     using NUnit.Framework;
-    using Testing;
 
     [TestFixture]
     public class RoutingPolicyTests
@@ -40,7 +40,7 @@ namespace NServiceBus.Core.Tests.Routing
 
         static string InvokeDistributionStrategy(IDistributionPolicy policy, string endpointName, string[] instanceAddress)
         {
-            return policy.GetDistributionStrategy(endpointName, DistributionStrategyScope.Send).SelectDestination(instanceAddress, new TestableOutgoingContext());
+            return policy.GetDistributionStrategy(endpointName, DistributionStrategyScope.Send).SelectDestination(new DistributionContext(instanceAddress, null, null, null, null));
         }
     }
 }

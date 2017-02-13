@@ -9,7 +9,6 @@
     using AcceptanceTesting.Customization;
     using Configuration.AdvanceExtensibility;
     using EndpointTemplates;
-    using NServiceBus.Pipeline;
     using NServiceBus.Routing;
     using NUnit.Framework;
     using Settings;
@@ -82,13 +81,12 @@
                     throw new NotImplementedException(); // should never be called
                 }
 
-                public override string SelectDestination(string[] receiverAddresses, IOutgoingContext outgoingContext)
+                public override string SelectDestination(DistributionContext context)
                 {
-                    var sendContext = outgoingContext as IOutgoingSendContext;
-                    var message = sendContext?.Message.Instance as MyCommand;
+                    var message = context.Message.Instance as MyCommand;
                     if (message != null)
                     {
-                        return receiverAddresses.Single(a => a.Contains(message.Instance));
+                        return context.ReceiverAddresses.Single(a => a.Contains(message.Instance));
                     }
                     throw new InvalidOperationException("Unable to route!");
                 }
