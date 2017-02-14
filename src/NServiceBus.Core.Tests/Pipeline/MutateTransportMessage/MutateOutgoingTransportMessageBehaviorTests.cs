@@ -12,14 +12,17 @@
         [Test]
         public async Task Should_not_call_MutateOutgoing_when_hasOutgoingTransportMessageMutators_is_false()
         {
-            var behavior = new MutateOutgoingTransportMessageBehavior(hasOutgoingTransportMessageMutators: false);
+            var behavior = new MutateOutgoingTransportMessageBehavior();
 
-            var context = new TestableOutgoingPhysicalMessageContext();
+            var physicalContext = new TestableOutgoingPhysicalMessageContext();
+            physicalContext.Extensions.Set(new OutgoingLogicalMessage(typeof(FakeMessage), new FakeMessage()));
+
+            await behavior.Invoke(physicalContext, ctx => TaskEx.CompletedTask);
 
             var mutator = new MutatorThatIndicatesIfItWasCalled();
-            context.Builder.Register<IMutateOutgoingTransportMessages>(() => mutator);
+            physicalContext.Builder.Register<IMutateOutgoingTransportMessages>(() => mutator);
 
-            await behavior.Invoke(context, ctx => TaskEx.CompletedTask);
+            await behavior.Invoke(physicalContext, ctx => TaskEx.CompletedTask);
 
             Assert.IsFalse(mutator.MutateOutgoingCalled);
         }
@@ -27,7 +30,7 @@
         [Test]
         public void Should_throw_friendly_exception_when_IMutateOutgoingTransportMessages_MutateOutgoing_returns_null()
         {
-            var behavior = new MutateOutgoingTransportMessageBehavior(hasOutgoingTransportMessageMutators: true);
+            var behavior = new MutateOutgoingTransportMessageBehavior();
 
             var physicalContext = new TestableOutgoingPhysicalMessageContext();
             physicalContext.Extensions.Set(new OutgoingLogicalMessage(typeof(FakeMessage), new FakeMessage()));
@@ -39,7 +42,7 @@
         [Test]
         public async Task When_no_mutator_updates_the_body_should_not_update_the_body()
         {
-            var behavior = new MutateOutgoingTransportMessageBehavior(hasOutgoingTransportMessageMutators: true);
+            var behavior = new MutateOutgoingTransportMessageBehavior();
 
             var context = new InterceptUpdateMessageOutgoingPhysicalMessageContext();
             context.Extensions.Set(new OutgoingLogicalMessage(typeof(FakeMessage), new FakeMessage()));
@@ -54,7 +57,7 @@
         [Test]
         public async Task When_no_mutator_available_should_not_update_the_body()
         {
-            var behavior = new MutateOutgoingTransportMessageBehavior(hasOutgoingTransportMessageMutators: true);
+            var behavior = new MutateOutgoingTransportMessageBehavior();
 
             var context = new InterceptUpdateMessageOutgoingPhysicalMessageContext();
             context.Extensions.Set(new OutgoingLogicalMessage(typeof(FakeMessage), new FakeMessage()));
@@ -69,7 +72,7 @@
         [Test]
         public async Task When_mutator_modifies_the_body_should_update_the_body()
         {
-            var behavior = new MutateOutgoingTransportMessageBehavior(hasOutgoingTransportMessageMutators: true);
+            var behavior = new MutateOutgoingTransportMessageBehavior();
 
             var context = new InterceptUpdateMessageOutgoingPhysicalMessageContext();
             context.Extensions.Set(new OutgoingLogicalMessage(typeof(FakeMessage), new FakeMessage()));
