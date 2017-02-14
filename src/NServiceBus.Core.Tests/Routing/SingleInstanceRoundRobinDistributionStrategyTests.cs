@@ -20,10 +20,11 @@
                 "3"
             };
 
+            var distributionContext = new DistributionContext(instances, null, null, null, null, null);
             var result = new List<string>();
-            result.Add(strategy.SelectReceiver(instances));
-            result.Add(strategy.SelectReceiver(instances));
-            result.Add(strategy.SelectReceiver(instances));
+            result.Add(strategy.SelectDestination(distributionContext));
+            result.Add(strategy.SelectDestination(distributionContext));
+            result.Add(strategy.SelectDestination(distributionContext));
 
             Assert.That(result.Count, Is.EqualTo(3));
             Assert.That(result, Has.Exactly(1).EqualTo(instances[0]));
@@ -43,11 +44,12 @@
                 "3"
             };
 
+            var distributionContext = new DistributionContext(instances, null, null, null, null, null);
             var result = new List<string>();
-            result.Add(strategy.SelectReceiver(instances));
-            result.Add(strategy.SelectReceiver(instances));
-            result.Add(strategy.SelectReceiver(instances));
-            result.Add(strategy.SelectReceiver(instances));
+            result.Add(strategy.SelectDestination(distributionContext));
+            result.Add(strategy.SelectDestination(distributionContext));
+            result.Add(strategy.SelectDestination(distributionContext));
+            result.Add(strategy.SelectDestination(distributionContext));
 
             Assert.That(result.Last(), Is.EqualTo(result.First()));
         }
@@ -63,11 +65,13 @@
                 "2",
             };
 
+            var distributionContext = new DistributionContext(instances, null, null, null, null, null);
             var result = new List<string>();
-            result.Add(strategy.SelectReceiver(instances));
-            result.Add(strategy.SelectReceiver(instances));
+            result.Add(strategy.SelectDestination(distributionContext));
+            result.Add(strategy.SelectDestination(distributionContext));
             instances = instances.Concat(new [] { "3" }).ToArray(); // add new instance
-            result.Add(strategy.SelectReceiver(instances));
+            distributionContext = new DistributionContext(instances, null, null, null, null, null);
+            result.Add(strategy.SelectDestination(distributionContext));
 
             Assert.That(result.Count, Is.EqualTo(3));
             Assert.That(result, Has.Exactly(1).EqualTo(instances[0]));
@@ -87,11 +91,13 @@
                 "3"
             };
 
+            var distributionContext = new DistributionContext(instances, null, null, null, null, null);
             var result = new List<string>();
-            result.Add(strategy.SelectReceiver(instances));
-            result.Add(strategy.SelectReceiver(instances));
+            result.Add(strategy.SelectDestination(distributionContext));
+            result.Add(strategy.SelectDestination(distributionContext));
             instances = instances.Take(2).ToArray(); // remove last instance.
-            result.Add(strategy.SelectReceiver(instances));
+            distributionContext = new DistributionContext(instances, null, null, null, null, null);
+            result.Add(strategy.SelectDestination(distributionContext));
 
             Assert.That(result.Count, Is.EqualTo(3));
             Assert.That(result, Has.Exactly(2).EqualTo(instances[0]));
