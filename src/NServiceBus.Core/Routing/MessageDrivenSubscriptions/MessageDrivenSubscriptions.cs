@@ -46,7 +46,7 @@ namespace NServiceBus.Features
 
             context.Pipeline.Register(b =>
             {
-                var unicastPublishRouter = new UnicastPublishRouter(b.Build<MessageMetadataRegistry>(), b.Build<ISubscriptionStorage>());
+                var unicastPublishRouter = new UnicastPublishRouter(b.Build<MessageMetadataRegistry>(), i => transportInfrastructure.ToTransportAddress(LogicalAddress.CreateRemoteAddress(i)), b.Build<ISubscriptionStorage>());
                 return new UnicastPublishRouterConnector(unicastPublishRouter, distributionPolicy);
             }, "Determines how the published messages should be routed");
 

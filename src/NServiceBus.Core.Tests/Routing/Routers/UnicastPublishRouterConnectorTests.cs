@@ -3,7 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using Extensibility;
+    using NServiceBus.Pipeline;
     using NServiceBus.Routing;
     using NUnit.Framework;
     using Testing;
@@ -25,7 +25,7 @@
 
         class FakePublishRouter : IUnicastPublishRouter
         {
-            public Task<IEnumerable<UnicastRoutingStrategy>> Route(Type messageType, IDistributionPolicy distributionPolicy, ContextBag contextBag)
+            public Task<IEnumerable<UnicastRoutingStrategy>> Route(Type messageType, IDistributionPolicy distributionPolicy, IOutgoingPublishContext publishContext)
             {
                 IEnumerable<UnicastRoutingStrategy> unicastRoutingStrategies = new List<UnicastRoutingStrategy>
                 {

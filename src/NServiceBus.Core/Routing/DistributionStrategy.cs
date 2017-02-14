@@ -24,6 +24,15 @@ namespace NServiceBus.Routing
         public abstract string SelectReceiver(string[] receiverAddresses);
 
         /// <summary>
+        /// Selects a destination instance for a message from all known addresses of a logical endpoint.
+        /// </summary>
+        /// <remarks>When this method is overridden, do not call the base method. The base method implementation calls into <see cref="SelectReceiver"/> for backward compatibility reasons.</remarks>
+        public virtual string SelectDestination(DistributionContext context)
+        {
+            return SelectReceiver(context.ReceiverAddresses);
+        }
+
+        /// <summary>
         /// The name of the endpoint this distribution strategy resolves instances for.
         /// </summary>
         public string Endpoint { get; }

@@ -2623,11 +2623,22 @@ namespace NServiceBus.Routing
     {
         protected AddressTag() { }
     }
+    public class DistributionContext
+    {
+        public DistributionContext(string[] receiverAddresses, NServiceBus.Pipeline.OutgoingLogicalMessage message, string messageId, System.Collections.Generic.Dictionary<string, string> headers, System.Func<NServiceBus.Routing.EndpointInstance, string> addressTranslation, NServiceBus.Extensibility.ContextBag context) { }
+        public NServiceBus.Extensibility.ContextBag Context { get; }
+        public System.Collections.Generic.Dictionary<string, string> Headers { get; }
+        public NServiceBus.Pipeline.OutgoingLogicalMessage Message { get; }
+        public string MessageId { get; }
+        public string[] ReceiverAddresses { get; }
+        public string ToTransportAddress(NServiceBus.Routing.EndpointInstance endpointInstance) { }
+    }
     public abstract class DistributionStrategy
     {
         protected DistributionStrategy(string endpoint, NServiceBus.DistributionStrategyScope scope) { }
         public string Endpoint { get; }
         public NServiceBus.DistributionStrategyScope Scope { get; }
+        public virtual string SelectDestination(NServiceBus.Routing.DistributionContext context) { }
         public abstract string SelectReceiver(string[] receiverAddresses);
     }
     public sealed class EndpointInstance
