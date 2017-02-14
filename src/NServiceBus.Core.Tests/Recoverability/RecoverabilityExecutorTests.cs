@@ -157,7 +157,7 @@
                 immediateRetriesSupported,
                 delayedRetriesSupported,
                 policy,
-                new RecoverabilityConfig(new ImmediateConfig(0), new DelayedConfig(0, TimeSpan.Zero), new FailedConfig(ErrorQueueAddress)),
+                new RecoverabilityConfig(new ImmediateConfig(0), new DelayedConfig(0, TimeSpan.Zero), new FailedConfig(ErrorQueueAddress, new HashSet<Type>())),
                 eventAggregator,
                 delayedRetriesSupported ? new DelayedRetryExecutor(InputQueueAddress, dispatcher) : null,
                 new MoveToErrorsExecutor(dispatcher, new Dictionary<string, string>(), headers => { }));
