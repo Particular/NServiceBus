@@ -57,6 +57,16 @@ namespace NServiceBus
         /// <summary>
         /// Adds the specified exception type to be treated as an unrecoverable exception.
         /// </summary>
+        /// <typeparam name="T">The exception type.</typeparam>
+        public RecoverabilitySettings AddUnrecoverableException<T>() where T: Exception
+        {
+            Settings.AddUnrecoverableException(typeof(T));
+            return this;
+        }
+
+        /// <summary>
+        /// Adds the specified exception type to be treated as an unrecoverable exception.
+        /// </summary>
         /// <param name="exceptionType">The exception type.</param>
         public RecoverabilitySettings AddUnrecoverableException(Type exceptionType)
         {
