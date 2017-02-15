@@ -969,6 +969,8 @@ namespace NServiceBus
     }
     public class RecoverabilitySettings : NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings
     {
+        public NServiceBus.RecoverabilitySettings AddUnrecoverableException<T>()
+            where T : System.Exception { }
         public NServiceBus.RecoverabilitySettings AddUnrecoverableException(System.Type exceptionType) { }
         public NServiceBus.RecoverabilitySettings CustomPolicy(System.Func<NServiceBus.RecoverabilityConfig, NServiceBus.Transport.ErrorContext, NServiceBus.RecoverabilityAction> custom) { }
         public NServiceBus.RecoverabilitySettings Delayed(System.Action<NServiceBus.DelayedRetriesSettings> customizations) { }
