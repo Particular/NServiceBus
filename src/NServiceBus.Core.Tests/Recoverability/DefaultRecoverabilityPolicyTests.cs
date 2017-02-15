@@ -9,7 +9,7 @@
     public class DefaultRecoverabilityPolicyTests
     {
         [Test]
-        public void When_failure_is_assignableto_custom_exception_should_move_to_error()
+        public void When_failure_is_assignable_to_custom_exception_should_move_to_error()
         {
             var policy = CreatePolicy(maxImmediateRetries: 3, maxDelayedRetries: 3, unrecoverableExceptions: new HashSet<Type> { typeof(MyBaseCustomException) });
             var errorContext = CreateErrorContext(numberOfDeliveryAttempts: 1, exception: new MyCustomException());
