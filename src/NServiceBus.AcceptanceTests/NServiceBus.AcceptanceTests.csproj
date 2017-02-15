@@ -84,6 +84,9 @@
     <Compile Include="Routing\MessageDrivenSubscriptions\When_unsubscribing_to_scaled_out_publisher.cs" />
     <Compile Include="Routing\NativePublishSubscribe\When_unsubscribing_from_event.cs" />
     <Compile Include="Routing\When_configure_routes_for_unobtrusive_messages.cs" />
+    <Compile Include="Routing\When_routing_reply_to_any_instance.cs" />
+    <Compile Include="Routing\When_routing_reply_to_specific_address.cs" />
+    <Compile Include="Routing\When_routing_reply_to_specific_instance.cs" />
     <Compile Include="Routing\When_using_custom_routing_strategy.cs" />
     <Compile Include="Routing\When_extending_command_routing.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\When_extending_event_routing.cs" />
