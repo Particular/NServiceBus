@@ -128,6 +128,7 @@
     <Compile Include="Pipeline\StageForkConnector.cs" />
     <Compile Include="Pipeline\ConnectorContextExtensions.cs" />
     <Compile Include="Recoverability\DelayedConfig.cs" />
+    <Compile Include="Recoverability\RecoverabilitySettingsExtensions.cs" />
     <Compile Include="Recoverability\Settings\DelayedRetriesSettings.cs" />
     <Compile Include="Recoverability\FailedConfig.cs" />
     <Compile Include="Recoverability\ImmediateConfig.cs" />

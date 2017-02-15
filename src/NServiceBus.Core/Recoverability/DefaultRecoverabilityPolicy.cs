@@ -18,9 +18,13 @@ namespace NServiceBus
         /// <returns>The recoverability action.</returns>
         public static RecoverabilityAction Invoke(RecoverabilityConfig config, ErrorContext errorContext)
         {
-            if (errorContext.Exception is MessageDeserializationException)
+            // ReSharper disable once LoopCanBeConvertedToQuery
+            foreach (var unrecoverableExceptionType in config.Failed.UnrecoverableExceptionTypes)
             {
-                return RecoverabilityAction.MoveToError(config.Failed.ErrorQueue);
+                if (unrecoverableExceptionType.IsInstanceOfType(errorContext.Exception))
+                {
+                    return RecoverabilityAction.MoveToError(config.Failed.ErrorQueue);
+                }
             }
 
             if (errorContext.ImmediateProcessingFailures <= config.Immediate.MaxNumberOfRetries)

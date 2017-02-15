@@ -30,6 +30,7 @@
                 settings.SetDefault(DelayedRetriesTimeIncrease, DefaultTimeIncrease);
                 settings.SetDefault(NumberOfImmediateRetries, 5);
                 settings.SetDefault(FaultHeaderCustomization, new Action<Dictionary<string, string>>(headers => { }));
+                settings.AddUnrecoverableException(typeof(MessageDeserializationException));
             });
         }
 
@@ -86,9 +87,11 @@
                     policy = DefaultRecoverabilityPolicy.Invoke;
                 }
 
+                var failedConfig = new FailedConfig(errorQueue, context.Settings.UnrecoverableExceptions());
+
                 return new RecoverabilityExecutorFactory(
                     policy,
-                    new RecoverabilityConfig(immediateRetryConfig, delayedRetryConfig, new FailedConfig(errorQueue)),
+                    new RecoverabilityConfig(immediateRetryConfig, delayedRetryConfig, failedConfig),
                     delayedRetryExecutorFactory,
                     moveToErrorsExecutorFactory,
                     immediateRetriesAvailable,
@@ -215,6 +218,7 @@
         public const string FaultHeaderCustomization = "Recoverability.Failed.FaultHeaderCustomization";
         public const string PolicyOverride = "Recoverability.CustomPolicy";
         public const string DisableLegacyRetriesSatellite = "Recoverability.DisableLegacyRetriesSatellite";
+        public const string UnrecoverableExceptions = "Recoverability.UnrecoverableExceptions";
 
         static ILog Logger = LogManager.GetLogger<Recoverability>();
         internal static int DefaultNumberOfRetries = 3;

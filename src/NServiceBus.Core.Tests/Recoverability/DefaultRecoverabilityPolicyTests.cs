@@ -9,14 +9,22 @@
     public class DefaultRecoverabilityPolicyTests
     {
         [Test]
-        public void When_failure_is_caused_by_deserialization_exception_should_move_to_error()
+        public void When_failure_is_assignable_to_custom_exception_should_move_to_error()
         {
-            var policy = CreatePolicy(maxImmediateRetries: 3, maxDelayedRetries: 3);
-            var errorContext = CreateErrorContext(numberOfDeliveryAttempts: 1, exception: new MessageDeserializationException("failed"));
+            var policy = CreatePolicy(maxImmediateRetries: 3, maxDelayedRetries: 3, unrecoverableExceptions: new HashSet<Type> { typeof(MyBaseCustomException) });
+            var errorContext = CreateErrorContext(numberOfDeliveryAttempts: 1, exception: new MyCustomException());
 
             var recoverabilityAction = policy(errorContext);
 
-            Assert.IsInstanceOf<MoveToError>(recoverabilityAction, "Should move deserialization exception directly to error.");
+            Assert.IsInstanceOf<MoveToError>(recoverabilityAction, "Should move custom exception directly to error.");
+        }
+
+        class MyBaseCustomException : Exception
+        {            
+        }
+
+        class MyCustomException : MyBaseCustomException
+        {
         }
 
         [Test]
@@ -159,9 +167,10 @@
             } : headers ?? new Dictionary<string, string>(), "message-id", new byte[0], new TransportTransaction(), numberOfDeliveryAttempts);
         }
 
-        static Func<ErrorContext, RecoverabilityAction> CreatePolicy(int maxImmediateRetries = 2, int maxDelayedRetries = 2, TimeSpan? delayedRetryDelay = null)
+        static Func<ErrorContext, RecoverabilityAction> CreatePolicy(int maxImmediateRetries = 2, int maxDelayedRetries = 2, TimeSpan? delayedRetryDelay = null, HashSet<Type> unrecoverableExceptions = null)
         {
-            var config = new RecoverabilityConfig(new ImmediateConfig(maxImmediateRetries), new DelayedConfig(maxDelayedRetries, delayedRetryDelay.GetValueOrDefault(TimeSpan.FromSeconds(2))), new FailedConfig("errorQueue"));
+            var failedConfig = new FailedConfig("errorQueue", unrecoverableExceptions ?? new HashSet<Type>());
+            var config = new RecoverabilityConfig(new ImmediateConfig(maxImmediateRetries), new DelayedConfig(maxDelayedRetries, delayedRetryDelay.GetValueOrDefault(TimeSpan.FromSeconds(2))), failedConfig);
             return context => DefaultRecoverabilityPolicy.Invoke(config, context);
         }
     }

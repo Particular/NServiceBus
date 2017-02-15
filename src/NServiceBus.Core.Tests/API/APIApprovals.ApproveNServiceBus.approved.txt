@@ -433,8 +433,13 @@ namespace NServiceBus
     }
     public class FailedConfig
     {
+        [System.ObsoleteAttribute("Use `FailedConfig(string errorQueue, HashSet<Type> unrecoverableExceptionTypes)` " +
+            "instead. Will be treated as an error from version 7.0.0. Will be removed in vers" +
+            "ion 8.0.0.", false)]
         public FailedConfig(string errorQueue) { }
+        public FailedConfig(string errorQueue, System.Collections.Generic.HashSet<System.Type> unrecoverableExceptionTypes) { }
         public string ErrorQueue { get; }
+        public System.Collections.Generic.HashSet<System.Type> UnrecoverableExceptionTypes { get; }
     }
     public class FileShareDataBus : NServiceBus.DataBus.DataBusDefinition
     {
@@ -964,11 +969,18 @@ namespace NServiceBus
     }
     public class RecoverabilitySettings : NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings
     {
+        public NServiceBus.RecoverabilitySettings AddUnrecoverableException<T>()
+            where T : System.Exception { }
+        public NServiceBus.RecoverabilitySettings AddUnrecoverableException(System.Type exceptionType) { }
         public NServiceBus.RecoverabilitySettings CustomPolicy(System.Func<NServiceBus.RecoverabilityConfig, NServiceBus.Transport.ErrorContext, NServiceBus.RecoverabilityAction> custom) { }
         public NServiceBus.RecoverabilitySettings Delayed(System.Action<NServiceBus.DelayedRetriesSettings> customizations) { }
         public NServiceBus.RecoverabilitySettings DisableLegacyRetriesSatellite() { }
         public NServiceBus.RecoverabilitySettings Failed(System.Action<NServiceBus.RetryFailedSettings> customizations) { }
         public NServiceBus.RecoverabilitySettings Immediate(System.Action<NServiceBus.ImmediateRetriesSettings> customizations) { }
+    }
+    public class static RecoverabilitySettingsExtensions
+    {
+        public static void AddUnrecoverableException(this NServiceBus.Settings.SettingsHolder settings, System.Type exceptionType) { }
     }
     public class ReplyOptions : NServiceBus.Extensibility.ExtendableOptions
     {

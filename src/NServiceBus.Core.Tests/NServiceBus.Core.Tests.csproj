@@ -169,6 +169,7 @@
     <Compile Include="Recoverability\RecoverabilityExecutorTests.cs" />
     <Compile Include="Recoverability\DefaultRecoverabilityPolicyTests.cs" />
     <Compile Include="Recoverability\DelayedRetryExecutorTests.cs" />
+    <Compile Include="Recoverability\RecoverabilitySettingsExtensionsTests.cs" />
     <Compile Include="Routing\ApplyReplyToAddressBehaviorTests.cs" />
     <Compile Include="Routing\BestPracticesOptionExtensionsTests.cs" />
     <Compile Include="Routing\DetermineRouteForPublishBehaviorTests.cs" />
