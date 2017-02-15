@@ -16,7 +16,7 @@
 
             var recoverabilityAction = policy(errorContext);
 
-            Assert.IsInstanceOf<MoveToError>(recoverabilityAction, "Should move deserialization exception directly to error.");
+            Assert.IsInstanceOf<MoveToError>(recoverabilityAction, "Should move custom exception directly to error.");
         }
 
         class MyBaseCustomException : Exception

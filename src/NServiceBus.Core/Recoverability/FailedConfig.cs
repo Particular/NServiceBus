@@ -29,6 +29,7 @@ namespace NServiceBus
         public FailedConfig(string errorQueue, HashSet<Type> unrecoverableExceptionTypes)
         {
             Guard.AgainstNullAndEmpty(nameof(errorQueue), errorQueue);
+            Guard.AgainstNull(nameof(unrecoverableExceptionTypes), unrecoverableExceptionTypes);
 
             ErrorQueue = errorQueue;
             UnrecoverableExceptionTypes = unrecoverableExceptionTypes;

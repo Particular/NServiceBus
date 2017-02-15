@@ -16,6 +16,9 @@
         /// <param name="exceptionType">The exception type.</param>
         public static void AddUnrecoverableException(this SettingsHolder settings, Type exceptionType)
         {
+            Guard.AgainstNull(nameof(settings), settings);
+            Guard.AgainstNull(nameof(exceptionType), exceptionType);
+
             if (!typeof(Exception).IsAssignableFrom(exceptionType))
             {
                 throw new ArgumentException("Exception type must be an exception", nameof(exceptionType));
@@ -24,11 +27,16 @@
             HashSet<Type> unrecoverableExceptions;
             if (!settings.TryGet(Recoverability.UnrecoverableExceptions, out unrecoverableExceptions))
             {
-                unrecoverableExceptions = new HashSet<Type> { typeof(MessageDeserializationException) };
+                unrecoverableExceptions = new HashSet<Type>();
                 settings.Set(Recoverability.UnrecoverableExceptions, unrecoverableExceptions);
             }
 
             unrecoverableExceptions.Add(exceptionType);
+        }
+
+        internal static HashSet<Type> UnrecoverableExceptions(this ReadOnlySettings settings)
+        {
+            return settings.GetOrDefault<HashSet<Type>>(Recoverability.UnrecoverableExceptions) ?? new HashSet<Type>();
         }
     }
 }

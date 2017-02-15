@@ -87,7 +87,7 @@
                     policy = DefaultRecoverabilityPolicy.Invoke;
                 }
 
-                var failedConfig = new FailedConfig(errorQueue, context.Settings.Get<HashSet<Type>>(UnrecoverableExceptions));
+                var failedConfig = new FailedConfig(errorQueue, context.Settings.UnrecoverableExceptions());
 
                 return new RecoverabilityExecutorFactory(
                     policy,
