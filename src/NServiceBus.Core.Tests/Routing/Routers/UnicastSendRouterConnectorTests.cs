@@ -75,7 +75,7 @@
             return new UnicastSendRouterConnector(router ?? new FakeRouter());
         }
 
-        class FakeRouter : UnicastSend.UnicastSendRouter
+        class FakeRouter : UnicastSendRouter
         {
             public FakeRouter() : base(null, null, null, null, null, null, null, null)
             {

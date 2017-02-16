@@ -7,7 +7,7 @@ namespace NServiceBus
 
     class UnicastSendRouterConnector : StageConnector<IOutgoingSendContext, IOutgoingLogicalMessageContext>
     {
-        public UnicastSendRouterConnector(UnicastSend.UnicastSendRouter unicastSendRouter)
+        public UnicastSendRouterConnector(UnicastSendRouter unicastSendRouter)
         {
             this.unicastSendRouter = unicastSendRouter;
         }
@@ -16,7 +16,7 @@ namespace NServiceBus
         {
             var  routingStrategy = unicastSendRouter.Route(context);
             context.Headers[Headers.MessageIntent] = MessageIntentEnum.Send.ToString();
-            var logicalMessageContext = this.CreateOutgoingLogicalMessageContext(context.Message,new[]{ routingStrategy }, context);
+            var logicalMessageContext = this.CreateOutgoingLogicalMessageContext(context.Message, new[]{ routingStrategy }, context);
 
             try
             {
@@ -28,6 +28,6 @@ namespace NServiceBus
             }
         }
 
-        UnicastSend.UnicastSendRouter unicastSendRouter;
+        UnicastSendRouter unicastSendRouter;
     }
 }

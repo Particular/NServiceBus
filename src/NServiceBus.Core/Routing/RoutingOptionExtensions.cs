@@ -15,8 +15,8 @@
             Guard.AgainstNull(nameof(options), options);
             Guard.AgainstNullAndEmpty(nameof(destination), destination);
 
-            var state = options.Context.GetOrCreate<UnicastSend.State>();
-            state.Option = UnicastSend.RouteOption.ExplicitDestination;
+            var state = options.Context.GetOrCreate<UnicastSendRouter.State>();
+            state.Option = UnicastSendRouter.RouteOption.ExplicitDestination;
             state.ExplicitDestination = destination;
         }
 
@@ -58,7 +58,7 @@
         {
             Guard.AgainstNull(nameof(options), options);
 
-            UnicastSend.State state;
+            UnicastSendRouter.State state;
             options.Context.TryGet(out state);
             return state?.ExplicitDestination;
         }
@@ -71,8 +71,8 @@
         {
             Guard.AgainstNull(nameof(options), options);
 
-            options.Context.GetOrCreate<UnicastSend.State>()
-                .Option = UnicastSend.RouteOption.RouteToAnyInstanceOfThisEndpoint;
+            options.Context.GetOrCreate<UnicastSendRouter.State>()
+                .Option = UnicastSendRouter.RouteOption.RouteToAnyInstanceOfThisEndpoint;
         }
 
         /// <summary>
@@ -84,10 +84,10 @@
         {
             Guard.AgainstNull(nameof(options), options);
 
-            UnicastSend.State state;
+            UnicastSendRouter.State state;
             if (options.Context.TryGet(out state))
             {
-                return state.Option == UnicastSend.RouteOption.RouteToAnyInstanceOfThisEndpoint;
+                return state.Option == UnicastSendRouter.RouteOption.RouteToAnyInstanceOfThisEndpoint;
             }
 
             return false;
@@ -101,8 +101,8 @@
         {
             Guard.AgainstNull(nameof(options), options);
 
-            options.Context.GetOrCreate<UnicastSend.State>()
-                .Option = UnicastSend.RouteOption.RouteToThisInstance;
+            options.Context.GetOrCreate<UnicastSendRouter.State>()
+                .Option = UnicastSendRouter.RouteOption.RouteToThisInstance;
         }
 
         /// <summary>
@@ -114,10 +114,10 @@
         {
             Guard.AgainstNull(nameof(options), options);
 
-            UnicastSend.State state;
+            UnicastSendRouter.State state;
             if (options.Context.TryGet(out state))
             {
-                return state.Option == UnicastSend.RouteOption.RouteToThisInstance;
+                return state.Option == UnicastSendRouter.RouteOption.RouteToThisInstance;
             }
 
             return false;
@@ -133,8 +133,8 @@
             Guard.AgainstNull(nameof(options), options);
             Guard.AgainstNull(nameof(instanceId), instanceId);
 
-            var state = options.Context.GetOrCreate<UnicastSend.State>();
-            state.Option = UnicastSend.RouteOption.RouteToSpecificInstance;
+            var state = options.Context.GetOrCreate<UnicastSendRouter.State>();
+            state.Option = UnicastSendRouter.RouteOption.RouteToSpecificInstance;
             state.SpecificInstance = instanceId;
         }
 
@@ -147,8 +147,8 @@
         {
             Guard.AgainstNull(nameof(options), options);
 
-            UnicastSend.State state;
-            if (options.Context.TryGet(out state) && state.Option == UnicastSend.RouteOption.RouteToSpecificInstance)
+            UnicastSendRouter.State state;
+            if (options.Context.TryGet(out state) && state.Option == UnicastSendRouter.RouteOption.RouteToSpecificInstance)
             {
                 return state.SpecificInstance;
             }

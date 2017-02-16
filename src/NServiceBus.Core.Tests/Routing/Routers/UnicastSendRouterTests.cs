@@ -378,18 +378,18 @@ namespace NServiceBus.Core.Tests.Routing
             return addressTag.Destination;
         }
 
-        UnicastSend.UnicastSendRouter CreateRouter(string instanceSpecificQueue, string distributorAddress)
+        static UnicastSendRouter CreateRouter(string instanceSpecificQueue, string distributorAddress)
         {
-            return new UnicastSend.UnicastSendRouter(null, "Endpoint", instanceSpecificQueue, distributorAddress, new DistributionPolicy(), new UnicastRoutingTable(), new EndpointInstances(), i => i.ToString());
+            return new UnicastSendRouter(null, "Endpoint", instanceSpecificQueue, distributorAddress, new DistributionPolicy(), new UnicastRoutingTable(), new EndpointInstances(), i => i.ToString());
         }
 
-        static UnicastSend.UnicastSendRouter CreateRouter(UnicastRoutingTable routingTable = null, EndpointInstances instances = null, DistributionPolicy policy = null)
+        static UnicastSendRouter CreateRouter(UnicastRoutingTable routingTable = null, EndpointInstances instances = null, DistributionPolicy policy = null)
         {
             var table = routingTable ?? new UnicastRoutingTable();
             var inst = instances ?? new EndpointInstances();
             var pol = policy ?? new DistributionPolicy();
 
-            return new UnicastSend.UnicastSendRouter(null, "Endpoint", null, null, pol, table, inst, i => i.ToString());
+            return new UnicastSendRouter(null, "Endpoint", null, null, pol, table, inst, i => i.ToString());
         }
 
         class MyMessage : ICommand
