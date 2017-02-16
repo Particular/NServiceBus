@@ -103,6 +103,8 @@
     <Compile Include="DelayedDelivery\TimeoutManager\TimeoutManagerConfiguration.cs" />
     <Compile Include="DelayedDelivery\TimeoutManager\TimeoutManagerConfigurationExtensions.cs" />
     <Compile Include="Features\SatelliteDefinitions.cs" />
+    <Compile Include="Hosting\Helpers\AssemblyScannerConfiguration.cs" />
+    <Compile Include="Hosting\Helpers\AssemblyScannerConfigurationExtensions.cs" />
     <Compile Include="Notifications.cs" />
     <Compile Include="Notifications\EventAggregator.cs" />
     <Compile Include="Encryption\WireEncryptedStringConversions.cs" />
