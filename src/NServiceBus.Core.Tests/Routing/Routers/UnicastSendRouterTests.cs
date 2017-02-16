@@ -100,7 +100,7 @@ namespace NServiceBus.Core.Tests.Routing
             var context = CreateContext(options);
 
             var exception = Assert.Throws<Exception>(() => router.Route(context));
-            StringAssert.Contains("Routing to specific instance is only allowed if route is defined for a logical endpoint, not for an address or instance.", exception.Message);
+            StringAssert.Contains("Routing to a specific instance is only allowed if route is defined for a logical endpoint, not for an address or instance.", exception.Message);
         }
 
         [Test]

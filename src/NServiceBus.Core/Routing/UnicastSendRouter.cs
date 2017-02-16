@@ -76,7 +76,7 @@ namespace NServiceBus
             var route = RouteUsingTable(context);
             if (route.Endpoint == null)
             {
-                throw new Exception("Routing to specific instance is only allowed if route is defined for a logical endpoint, not for an address or instance.");
+                throw new Exception("Routing to a specific instance is only allowed if route is defined for a logical endpoint, not for an address or instance.");
             }
             return UnicastRoute.CreateFromEndpointInstance(new EndpointInstance(route.Endpoint, specificInstance));
         }
