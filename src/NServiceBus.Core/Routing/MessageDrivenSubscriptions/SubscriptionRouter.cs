@@ -18,8 +18,17 @@
         public IEnumerable<string> GetAddressesForEventType(Type messageType)
         {
             var publishersOfThisEvent = publishers.GetPublisherFor(messageType);
-            var publisherTransportAddresses = publishersOfThisEvent.SelectMany(p => p.Resolve(e => endpointInstances.FindInstances(e), i => transportAddressTranslation(i)));
-            return publisherTransportAddresses;
+
+            List<string> publisherTransportAddresses = null;
+            foreach (var publisherAddress in publishersOfThisEvent)
+            {
+                if(publisherTransportAddresses == null)
+                {
+                    publisherTransportAddresses = new List<string>();
+                }
+                publisherTransportAddresses.AddRange(publisherAddress.Resolve(e => endpointInstances.FindInstances(e), i => transportAddressTranslation(i)));
+            }
+            return publisherTransportAddresses ?? Enumerable.Empty<string>();
         }
 
         EndpointInstances endpointInstances;
