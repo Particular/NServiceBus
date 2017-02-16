@@ -16,7 +16,7 @@
         [Test]
         public async Task Should_set_messageintent_to_send()
         {
-            var physicalRouter = new FakePhysicalRouter { FixedDestination = new UnicastRoutingStrategy("destination endpoint") };
+            var physicalRouter = new FakeRouter { FixedDestination = new UnicastRoutingStrategy("destination endpoint") };
 
             var behavior = InitializeBehavior(physicalRouter);
 
@@ -29,30 +29,11 @@
         }
 
         [Test]
-        public async Task Should_route_physical_when_physical_router_returned_route()
+        public async Task Should_use_router_to_route()
         {
-            var physicalRouter = new FakePhysicalRouter { FixedDestination = new UnicastRoutingStrategy("PhysicalAddress") };
+            var logicalRouter = new FakeRouter { FixedDestination = new UnicastRoutingStrategy("LogicalAddress") };
 
-            var behavior = InitializeBehavior(physicalRouter);
-
-            var context = CreateContext();
-
-            UnicastAddressTag addressTag = null;
-            await behavior.Invoke(context, c =>
-            {
-                addressTag = (UnicastAddressTag)c.RoutingStrategies.Single().Apply(new Dictionary<string, string>());
-                return TaskEx.CompletedTask;
-            });
-
-            Assert.AreEqual("PhysicalAddress", addressTag.Destination);
-        }
-
-        [Test]
-        public async Task Should_route_logical_when_logical_router_returned_route()
-        {
-            var logicalRouter = new FakeLogicalRouter() { FixedDestination = new UnicastRoutingStrategy("LogicalAddress") };
-
-            var behavior = InitializeBehavior(logicalRouter: logicalRouter);
+            var behavior = InitializeBehavior(logicalRouter);
 
             var context = CreateContext();
 
@@ -64,27 +45,6 @@
             });
 
             Assert.AreEqual("LogicalAddress", addressTag.Destination);
-        }
-
-
-        [Test]
-        public void Should_throw_if_no_route_can_be_found()
-        {
-            var logicalRouter = new FakeLogicalRouter
-            {
-                FixedDestination = null
-            };
-
-            var physicalRouter = new FakePhysicalRouter
-            {
-                FixedDestination = null
-            };
-
-            var behavior = InitializeBehavior(physicalRouter: physicalRouter, logicalRouter: logicalRouter);
-
-            var context = CreateContext();
-
-            Assert.That(async () => await behavior.Invoke(context, _ => TaskEx.CompletedTask), Throws.InstanceOf<Exception>().And.Message.Contains("No destination specified"));
         }
 
         static IOutgoingSendContext CreateContext(SendOptions options = null, object message = null)
@@ -103,9 +63,7 @@
         }
 
 
-        static UnicastSendRouterConnector InitializeBehavior(
-            FakePhysicalRouter physicalRouter = null,
-            FakeLogicalRouter logicalRouter = null)
+        static UnicastSendRouterConnector InitializeBehavior(FakeRouter router = null)
         {
             var metadataRegistry = new MessageMetadataRegistry(new Conventions());
             metadataRegistry.RegisterMessageTypesFoundIn(new List<Type>
@@ -114,26 +72,12 @@
                 typeof(MessageWithoutRouting)
             });
 
-            return new UnicastSendRouterConnector(physicalRouter ?? new FakePhysicalRouter(), logicalRouter ?? new FakeLogicalRouter());
+            return new UnicastSendRouterConnector(router ?? new FakeRouter());
         }
 
-        class FakePhysicalRouter : UnicastSend.PhysicalRouter
+        class FakeRouter : UnicastSend.UnicastSendRouter
         {
-            public FakePhysicalRouter() : base(null, null)
-            {
-            }
-
-            public UnicastRoutingStrategy FixedDestination { get; set; }
-
-            public override UnicastRoutingStrategy Route(IOutgoingSendContext context)
-            {
-                return FixedDestination;
-            }
-        }
-
-        class FakeLogicalRouter : UnicastSend.LogicalRouter
-        {
-            public FakeLogicalRouter() : base(null, null, null, null, null, null, null)
+            public FakeRouter() : base(null, null, null, null, null, null, null, null)
             {
             }
 

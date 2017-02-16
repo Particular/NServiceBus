@@ -7,28 +7,15 @@ namespace NServiceBus
 
     class UnicastSendRouterConnector : StageConnector<IOutgoingSendContext, IOutgoingLogicalMessageContext>
     {
-        public UnicastSendRouterConnector(UnicastSend.PhysicalRouter physicalRouter, UnicastSend.LogicalRouter logicalRouter)
+        public UnicastSendRouterConnector(UnicastSend.UnicastSendRouter unicastSendRouter)
         {
-            this.physicalRouter = physicalRouter;
-            this.logicalRouter = logicalRouter;
+            this.unicastSendRouter = unicastSendRouter;
         }
 
         public override async Task Invoke(IOutgoingSendContext context, Func<IOutgoingLogicalMessageContext, Task> stage)
         {
-            var routingStrategy = physicalRouter.Route(context);
-
-            if (routingStrategy == null)
-            {
-                routingStrategy = logicalRouter.Route(context);
-
-                if (routingStrategy == null)
-                {
-                    throw new Exception($"No destination specified for message: {context.Message.MessageType}");
-                }
-            }
-            
+            var  routingStrategy = unicastSendRouter.Route(context);
             context.Headers[Headers.MessageIntent] = MessageIntentEnum.Send.ToString();
-
             var logicalMessageContext = this.CreateOutgoingLogicalMessageContext(context.Message,new[]{ routingStrategy }, context);
 
             try
@@ -41,7 +28,6 @@ namespace NServiceBus
             }
         }
 
-        UnicastSend.LogicalRouter logicalRouter;
-        UnicastSend.PhysicalRouter physicalRouter;
+        UnicastSend.UnicastSendRouter unicastSendRouter;
     }
 }

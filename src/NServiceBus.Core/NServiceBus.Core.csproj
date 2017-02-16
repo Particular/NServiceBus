@@ -175,8 +175,7 @@
     <Compile Include="Routing\RoutingFeatureSettingsExtensions.cs" />
     <Compile Include="Routing\SpecificInstanceDistributionPolicy.cs" />
     <Compile Include="Routing\UnicastPublishRouter.cs" />
-    <Compile Include="Routing\UnicastSendLogicalRouter.cs" />
-    <Compile Include="Routing\UnicastSendPhysicalRouter.cs" />
+    <Compile Include="Routing\UnicastSendRouter.cs" />
     <Compile Include="Routing\UnicastSend.cs" />
     <Compile Include="Serialization\SerializationFeature.cs" />
     <Compile Include="Serialization\SerializationSettingsExtensions.cs" />
