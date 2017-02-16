@@ -59,14 +59,18 @@
         public void ReferencesNServiceBus_requires_binding_redirect()
         {
             var combine = Path.Combine(TestContext.CurrentContext.TestDirectory, "TestDlls", "AssemblyWithRefToSN.dll");
-            Assert.IsTrue(AssemblyScanner.ReferencesNServiceBus(combine, new Dictionary<string, bool>()));
+            var scanner = new AssemblyScanner();
+
+            Assert.IsTrue(scanner.ReferencesNServiceBus(combine, new Dictionary<string, bool>()));
         }
 
         [Test]
         public void ReferencesNServiceBus_returns_false_for_no_reference()
         {
             var combine = Path.Combine(TestContext.CurrentContext.TestDirectory, "TestDlls", "dotNet.dll");
-            Assert.IsFalse(AssemblyScanner.ReferencesNServiceBus(combine, new Dictionary<string, bool>()));
+            var scanner = new AssemblyScanner();
+
+            Assert.IsFalse(scanner.ReferencesNServiceBus(combine, new Dictionary<string, bool>()));
         }
 
         [Test, RunInApplicationDomain]
@@ -167,6 +171,59 @@
             Assert.IsTrue(result.Assemblies.Contains(assemblyD));
             Assert.IsTrue(result.Assemblies.Contains(busAssembly));
             Assert.AreEqual(5, result.Assemblies.Count);
+        }
+
+        [Test, RunInApplicationDomain]
+        public void AppDomainAssemblies_are_included_when_enabling_ScanAppDomainAssemblies()
+        {
+            var busAssembly = new DynamicAssembly("Fake.NServiceBus.Core");
+            Assembly.LoadFrom(busAssembly.FilePath);
+
+            var scanner = new AssemblyScanner(); // don't scan the dynamic assembly folder
+            scanner.CoreAssemblyName = busAssembly.DynamicName;
+            scanner.ScanAppDomainAssemblies = true;
+
+            var result = scanner.GetScannableAssemblies();
+
+            Assert.IsTrue(result.Assemblies.Contains(busAssembly));
+        }
+
+        [Test, RunInApplicationDomain]
+        public void Throw_exception_on_assembly_loading_conflicts()
+        {
+            var busAssembly = new DynamicAssembly("Fake.NServiceBus.Core");
+
+            Directory.CreateDirectory(Path.Combine(DynamicAssembly.TestAssemblyDirectory, "subdir"));
+            var destFileName = Path.Combine(DynamicAssembly.TestAssemblyDirectory, "subdir", busAssembly.FileName);
+            File.Copy(busAssembly.FilePath, destFileName);
+            Assembly.LoadFrom(destFileName);
+
+            var scanner = new AssemblyScanner(DynamicAssembly.TestAssemblyDirectory);
+            scanner.ScanAppDomainAssemblies = true;
+            scanner.CoreAssemblyName = busAssembly.DynamicName;
+
+            var exception = Assert.Throws<Exception>(() => scanner.GetScannableAssemblies());
+            Assert.IsInstanceOf<FileLoadException>(exception.InnerException);
+        }
+
+        [Test, RunInApplicationDomain]
+        public void Ignore_assembly_loading_errors_when_disabling_ThrowExceptions()
+        {
+            var busAssembly = new DynamicAssembly("Fake.NServiceBus.Core");
+
+            Directory.CreateDirectory(Path.Combine(DynamicAssembly.TestAssemblyDirectory, "subdir"));
+            var destFileName = Path.Combine(DynamicAssembly.TestAssemblyDirectory, "subdir", busAssembly.FileName);
+            File.Copy(busAssembly.FilePath, destFileName);
+            Assembly.LoadFrom(destFileName);
+
+            var scanner = new AssemblyScanner(DynamicAssembly.TestAssemblyDirectory);
+            scanner.ScanAppDomainAssemblies = true;
+            scanner.CoreAssemblyName = busAssembly.DynamicName;
+            scanner.ThrowExceptions = false;
+
+            var result = scanner.GetScannableAssemblies();
+
+            Assert.IsTrue(result.Assemblies.Contains(busAssembly));
         }
 
         [DebuggerDisplay("Name = {Name}, DynamicName = {DynamicName}, Namespace = {Namespace}, FileName = {FileName}")]
