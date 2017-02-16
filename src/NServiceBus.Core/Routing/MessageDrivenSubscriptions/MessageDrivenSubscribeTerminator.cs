@@ -44,7 +44,7 @@
 
                 subscribeTasks.Add(SendSubscribeMessageWithRetries(publisherAddress, subscriptionMessage, eventType.AssemblyQualifiedName, context.Extensions));
             }
-            await Task.WhenAll(subscribeTasks.ToArray()).ConfigureAwait(false);
+            await Task.WhenAll(subscribeTasks).ConfigureAwait(false);
         }
 
         async Task SendSubscribeMessageWithRetries(string destination, OutgoingMessage subscriptionMessage, string messageType, ContextBag context, int retriesCount = 0)
