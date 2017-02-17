@@ -20,7 +20,6 @@
 
             Assert.True(context.InterceptingHandlerCalled, "The message handler should be called");
             Assert.True(context.SagaStarted, "The saga should have been started");
-
         }
     }
 }

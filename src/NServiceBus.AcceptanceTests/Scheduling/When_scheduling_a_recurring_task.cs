@@ -19,7 +19,6 @@
 
             Assert.True(context.InvokedAt.HasValue);
             Assert.Greater(context.InvokedAt.Value - context.RequestedAt, TimeSpan.FromMilliseconds(5));
-
         }
 
         class Context : ScenarioContext

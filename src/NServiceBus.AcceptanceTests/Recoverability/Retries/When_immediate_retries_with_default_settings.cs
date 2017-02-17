@@ -72,7 +72,6 @@
             }
         }
 
-
         public class MessageToBeRetried : IMessage
         {
             public Guid Id { get; set; }

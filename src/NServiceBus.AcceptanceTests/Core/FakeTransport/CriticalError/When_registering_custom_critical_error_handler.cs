@@ -60,7 +60,6 @@
             }
         }
 
-
         public class MyRequest : IMessage
         {
         }

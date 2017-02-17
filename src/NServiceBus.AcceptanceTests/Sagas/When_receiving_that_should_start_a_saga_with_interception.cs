@@ -20,7 +20,6 @@
 
             Assert.True(context.InterceptingHandlerCalled, "The intercepting handler should be called");
             Assert.False(context.SagaStarted, "The saga should not have been started since the intercepting handler stops the pipeline");
-
         }
     }
 }

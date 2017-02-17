@@ -91,12 +91,10 @@
             }
         }
 
-
         public class StartSaga1 : ICommand
         {
             public Guid DataId { get; set; }
         }
-
 
         public class StartSaga2 : ICommand
         {

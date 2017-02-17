@@ -63,7 +63,6 @@
 
             Assert.True(context.AnotherMessageReceived, "AnotherMessage should have been delivered to the handler outside the saga");
             Assert.False(context.SagaReceivedAnotherMessage, "AnotherMessage should not be delivered to the saga after completion");
-
         }
 
         public class Context : ScenarioContext
@@ -151,18 +150,15 @@
             }
         }
 
-
         public class StartSagaMessage : ICommand
         {
             public Guid SomeId { get; set; }
         }
 
-
         public class CompleteSagaMessage : ICommand
         {
             public Guid SomeId { get; set; }
         }
-
 
         public class AnotherMessage : ICommand
         {

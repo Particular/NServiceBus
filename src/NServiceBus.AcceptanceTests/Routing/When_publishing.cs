@@ -78,7 +78,6 @@
 
             Assert.True(context.Subscriber1GotTheEvent);
             Assert.True(context.Subscriber2GotTheEvent);
-
         }
 
         public class Context : ScenarioContext
