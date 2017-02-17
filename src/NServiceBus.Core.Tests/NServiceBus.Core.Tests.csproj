@@ -180,6 +180,8 @@
     <Compile Include="Routing\MessageDrivenSubscriptions\TypePublisherSourceTests.cs" />
     <Compile Include="Routing\AssemblyRouteSourceTests.cs" />
     <Compile Include="Routing\NamespaceRouteSourceTests.cs" />
+    <Compile Include="Routing\Routers\UnicastSendRouterTests.cs" />
+    <Compile Include="Routing\Routers\UnicastSendRouteOptionsTests.cs" />
     <Compile Include="Routing\TypeRouteSourceTests.cs" />
     <Compile Include="Transports\MSMQ\InstanceMapping\InstanceMappingFileFeatureTests.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\MessageDrivenSubscriptionsConfigExtensionsTests.cs" />
@@ -206,7 +208,6 @@
     <Compile Include="Sagas\When_saga_has_multiple_correlated_properties.cs" />
     <Compile Include="Sagas\When_saga_is_correlated_on_a_unsupported_property_type.cs" />
     <Compile Include="Sagas\When_saga_has_no_start_message.cs" />
-    <Compile Include="Routing\UnicastSendRouterTests.cs" />
     <Compile Include="Serializers\MessageDeserializerResolverTests.cs" />
     <Compile Include="Performance\TimeToBeReceived\TimeToBeReceivedAttributeTests.cs" />
     <Compile Include="Config\TestConfigurationSection.cs" />

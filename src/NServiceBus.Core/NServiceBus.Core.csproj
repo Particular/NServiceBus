@@ -167,14 +167,12 @@
     <Compile Include="Routing\TypeRouteSource.cs" />
     <Compile Include="Routing\IDistributionPolicy.cs" />
     <Compile Include="Routing\IRouteSource.cs" />
-    <Compile Include="Routing\IUnicastSendRouter.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\IMessageDrivenSubscriptionTransport.cs" />
     <Compile Include="Routing\NamespaceRouteSource.cs" />
     <Compile Include="Routing\RouteSourcePriority.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\PublisherTableEntry.cs" />
     <Compile Include="Routing\RouteTableEntry.cs" />
     <Compile Include="Routing\RoutingFeatureSettingsExtensions.cs" />
-    <Compile Include="Routing\SpecificInstanceDistributionPolicy.cs" />
     <Compile Include="Routing\UnicastPublishRouter.cs" />
     <Compile Include="Routing\UnicastSendRouter.cs" />
     <Compile Include="Serialization\SerializationFeature.cs" />
