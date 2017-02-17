@@ -6,7 +6,6 @@
     using EndpointTemplates;
     using Features;
     using NUnit.Framework;
-    using ScenarioDescriptors;
 
     //repro for issue: https://github.com/NServiceBus/NServiceBus/issues/1020
     public class When_saga_message_goes_through_delayed_retries : NServiceBusAcceptanceTest
@@ -21,7 +20,6 @@
                         SomeId = Guid.NewGuid()
                     })))
                 .Done(c => c.SecondMessageProcessed)
-                .Repeat(r => r.For(Transports.Default))
                 .Run();
         }
 

@@ -7,24 +7,20 @@
     using Configuration.AdvanceExtensibility;
     using EndpointTemplates;
     using NUnit.Framework;
-    using ScenarioDescriptors;
 
     public class When_registering_custom_critical_error_handler : NServiceBusAcceptanceTest
     {
         [Test]
-        public Task Critical_error_should_be_raised_inside_delegate()
+        public async Task Critical_error_should_be_raised_inside_delegate()
         {
-            return Scenario.Define<Context>()
+            var context = await Scenario.Define<Context>()
                 .WithEndpoint<EndpointWithLocalCallback>(b => b.When(
-                    (session, context) => session.SendLocal(new MyRequest())))
+                    session => session.SendLocal(new MyRequest())))
                 .Done(c => c.ExceptionReceived)
-                .Repeat(r => r.For(Transports.AllAvailable.SingleOrDefault(t => t.Key == "FakeTransport")))
-                .Should(c =>
-                {
-                    Assert.AreEqual("Startup task failed to complete.", c.Message);
-                    Assert.AreEqual("ExceptionInBusStarts", c.Exception.Message);
-                })
                 .Run();
+
+            Assert.AreEqual("Startup task failed to complete.", context.Message);
+            Assert.AreEqual("ExceptionInBusStarts", context.Exception.Message);
         }
 
         public class Context : ScenarioContext
@@ -64,7 +60,7 @@
             }
         }
 
-        
+
         public class MyRequest : IMessage
         {
         }

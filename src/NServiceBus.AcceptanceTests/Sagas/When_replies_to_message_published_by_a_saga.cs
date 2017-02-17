@@ -7,32 +7,31 @@
     using Features;
     using NUnit.Framework;
     using Routing;
-    using ScenarioDescriptors;
 
     public class When_replies_to_message_published_by_a_saga : NServiceBusAcceptanceTest
     {
         [Test]
         public async Task Should_reply_to_a_message_published_by_a_saga()
         {
-            await Scenario.Define<Context>()
+            var context = await Scenario.Define<Context>()
                 .WithEndpoint<SagaEndpoint>
                 (b => b.When(c => c.Subscribed, session => session.SendLocal(new StartSaga
                 {
                     DataId = Guid.NewGuid()
                 }))
                 )
-                .WithEndpoint<ReplyEndpoint>(b => b.When(async (session, context) =>
+                .WithEndpoint<ReplyEndpoint>(b => b.When(async (session, c) =>
                 {
                     await session.Subscribe<DidSomething>();
-                    if (context.HasNativePubSubSupport)
+                    if (c.HasNativePubSubSupport)
                     {
-                        context.Subscribed = true;
+                        c.Subscribed = true;
                     }
                 }))
                 .Done(c => c.DidSagaReplyMessageGetCorrelated)
-                .Repeat(r => r.For(Transports.Default))
-                .Should(c => Assert.True(c.DidSagaReplyMessageGetCorrelated))
                 .Run();
+
+            Assert.True(context.DidSagaReplyMessageGetCorrelated);
         }
 
         public class Context : ScenarioContext

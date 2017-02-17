@@ -7,7 +7,6 @@
     using Features;
     using NUnit.Framework;
     using Routing;
-    using ScenarioDescriptors;
 
     //Repro for #1323
     public class When_started_by_event_from_another_saga : NServiceBusAcceptanceTest
@@ -15,7 +14,7 @@
         [Test]
         public async Task Should_start_the_saga_and_request_a_timeout()
         {
-            await Scenario.Define<Context>()
+            var context = await Scenario.Define<Context>()
                 .WithEndpoint<SagaThatPublishesAnEvent>(b =>
                     b.When(c => c.IsEventSubscriptionReceived,
                         session => session.SendLocal(new StartSaga
@@ -24,19 +23,19 @@
                         }))
                 )
                 .WithEndpoint<SagaThatIsStartedByTheEvent>(
-                    b => b.When(async (session, context) =>
+                    b => b.When(async (session, c) =>
                     {
                         await session.Subscribe<SomethingHappenedEvent>();
 
-                        if (context.HasNativePubSubSupport)
+                        if (c.HasNativePubSubSupport)
                         {
-                            context.IsEventSubscriptionReceived = true;
+                            c.IsEventSubscriptionReceived = true;
                         }
                     }))
                 .Done(c => c.DidSaga1Complete && c.DidSaga2Complete)
-                .Repeat(r => r.For(Transports.Default))
-                .Should(c => Assert.True(c.DidSaga1Complete && c.DidSaga2Complete))
                 .Run();
+
+            Assert.True(context.DidSaga1Complete && context.DidSaga2Complete);
         }
 
         public class Context : ScenarioContext

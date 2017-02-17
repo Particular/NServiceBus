@@ -5,30 +5,29 @@
     using EndpointTemplates;
     using Features;
     using NUnit.Framework;
-    using ScenarioDescriptors;
 
     public class When_publishing_with_overridden_local_address : NServiceBusAcceptanceTest
     {
         [Test, Explicit("This test fails against RabbitMQ")]
         public async Task Should_be_delivered_to_all_subscribers()
         {
-            await Scenario.Define<Context>()
+            var context = await Scenario.Define<Context>()
                 .WithEndpoint<Publisher>(b =>
                     b.When(c => c.Subscriber1Subscribed, session => session.Publish(new MyEvent()))
                 )
-                .WithEndpoint<Subscriber1>(b => b.When(async (session, context) =>
+                .WithEndpoint<Subscriber1>(b => b.When(async (session, ctx) =>
                 {
                     await session.Subscribe<MyEvent>();
 
-                    if (context.HasNativePubSubSupport)
+                    if (ctx.HasNativePubSubSupport)
                     {
-                        context.Subscriber1Subscribed = true;
+                        ctx.Subscriber1Subscribed = true;
                     }
                 }))
                 .Done(c => c.Subscriber1GotTheEvent)
-                .Repeat(r => r.For(Transports.Default))
-                .Should(c => Assert.True(c.Subscriber1GotTheEvent))
                 .Run();
+
+            Assert.True(context.Subscriber1GotTheEvent);
         }
 
         public class Context : ScenarioContext

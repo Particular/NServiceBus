@@ -6,28 +6,25 @@
     using EndpointTemplates;
     using Features;
     using NUnit.Framework;
-    using ScenarioDescriptors;
 
     public class when_immediate_retries_fail : NServiceBusAcceptanceTest
     {
         [Test]
-        public Task Should_do_delayed_retries()
+        public async Task Should_do_delayed_retries()
         {
-            return Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
+            var context = await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
                 .WithEndpoint<DelayedRetryEndpoint>(b => b
-                    .When((session, context) => session.SendLocal(new MessageToBeRetried
+                    .When((session, ctx) => session.SendLocal(new MessageToBeRetried
                     {
-                        Id = context.Id
+                        Id = ctx.Id
                     }))
                     .DoNotFailOnErrorMessages())
                 .Done(c => c.NumberOfTimesInvoked >= 2)
-                .Repeat(r => r.For(Transports.Default))
-                .Should(context =>
-                {
-                    Assert.GreaterOrEqual(1, context.NumberOfDelayedRetriesPerformed, "Should only do one retry");
-                    Assert.GreaterOrEqual(context.TimeOfSecondAttempt - context.TimeOfFirstAttempt, Delay, "Should delay the retry");
-                })
+
                 .Run();
+
+            Assert.GreaterOrEqual(1, context.NumberOfDelayedRetriesPerformed, "Should only do one retry");
+            Assert.GreaterOrEqual(context.TimeOfSecondAttempt - context.TimeOfFirstAttempt, Delay, "Should delay the retry");
         }
 
         static TimeSpan Delay = TimeSpan.FromMilliseconds(1);
@@ -94,7 +91,7 @@
             }
         }
 
-        
+
         public class MessageToBeRetried : IMessage
         {
             public Guid Id { get; set; }

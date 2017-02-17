@@ -9,14 +9,13 @@
     using NServiceBus.Pipeline;
     using NUnit.Framework;
     using Routing;
-    using ScenarioDescriptors;
 
     public class When_extending_the_publish_api : NServiceBusAcceptanceTest
     {
         [Test]
         public async Task Should_make_the_context_available_to_behaviors()
         {
-            await Scenario.Define<Context>()
+            var context = await Scenario.Define<Context>()
                 .WithEndpoint<Publisher>(b =>
                     b.When(c => c.Subscriber1Subscribed, session =>
                     {
@@ -30,19 +29,19 @@
                         return session.Publish(new MyEvent(), options);
                     })
                 )
-                .WithEndpoint<Subscriber1>(b => b.When(async (session, context) =>
+                .WithEndpoint<Subscriber1>(b => b.When(async (session, ctx) =>
                 {
                     await session.Subscribe<MyEvent>();
 
-                    if (context.HasNativePubSubSupport)
+                    if (ctx.HasNativePubSubSupport)
                     {
-                        context.Subscriber1Subscribed = true;
+                        ctx.Subscriber1Subscribed = true;
                     }
                 }))
                 .Done(c => c.Subscriber1GotTheEvent)
-                .Repeat(r => r.For(Transports.Default))
-                .Should(c => Assert.True(c.Subscriber1GotTheEvent))
                 .Run();
+
+            Assert.True(context.Subscriber1GotTheEvent);
         }
 
         public class Context : ScenarioContext
