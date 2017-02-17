@@ -1,8 +1,6 @@
 namespace NServiceBus
 {
     using System;
-    using System.Collections.Generic;
-    using System.Linq;
     using System.Threading.Tasks;
     using Pipeline;
     using Routing;
@@ -24,7 +22,7 @@ namespace NServiceBus
 
             context.Headers[Headers.MessageIntent] = MessageIntentEnum.Reply.ToString();
 
-            var addressLabels = RouteToDestination(replyToAddress).EnsureNonEmpty(() => "No destination specified.").ToArray();
+            var addressLabels = new []{ new UnicastRoutingStrategy(replyToAddress) };
             var logicalMessageContext = this.CreateOutgoingLogicalMessageContext(context.Message, addressLabels, context);
 
             try
@@ -54,11 +52,6 @@ namespace NServiceBus
             }
 
             return replyToAddress;
-        }
-
-        static IEnumerable<UnicastRoutingStrategy> RouteToDestination(string physicalAddress)
-        {
-            yield return new UnicastRoutingStrategy(physicalAddress);
         }
 
         public class State
