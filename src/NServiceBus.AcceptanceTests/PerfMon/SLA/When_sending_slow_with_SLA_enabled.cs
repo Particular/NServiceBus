@@ -7,7 +7,6 @@
     using AcceptanceTesting;
     using EndpointTemplates;
     using NUnit.Framework;
-    using ScenarioDescriptors;
 
     public class When_sending_slow_with_SLA_enabled : NServiceBusAcceptanceTest
     {
@@ -19,12 +18,12 @@
             {
                 using (new Timer(state => CheckPerfCounter(counter), null, 0, 100))
                 {
-                    await Scenario.Define<Context>()
+                    var context = await Scenario.Define<Context>()
                         .WithEndpoint<Endpoint>(b => b.When((session, c) => session.SendLocal(new MyMessage())))
                         .Done(c => c.WasCalled)
-                        .Repeat(r => r.For(Transports.Default))
-                        .Should(c => Assert.True(c.WasCalled, "The message handler should be called"))
                         .Run();
+
+                    Assert.True(context.WasCalled, "The message handler should be called");
                 }
             }
             Assert.Greater(counterValue, 2);

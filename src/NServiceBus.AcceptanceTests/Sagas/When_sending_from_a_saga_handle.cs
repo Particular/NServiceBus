@@ -6,22 +6,21 @@
     using EndpointTemplates;
     using Features;
     using NUnit.Framework;
-    using ScenarioDescriptors;
 
     public class When_sending_from_a_saga_handle : NServiceBusAcceptanceTest
     {
         [Test]
-        public Task Should_match_different_saga()
+        public async Task Should_match_different_saga()
         {
-            return Scenario.Define<Context>()
+            var context = await Scenario.Define<Context>()
                 .WithEndpoint<Endpoint>(b => b.When(session => session.SendLocal(new StartSaga1
                 {
                     DataId = Guid.NewGuid()
                 })))
                 .Done(c => c.DidSaga2ReceiveMessage)
-                .Repeat(r => r.For(Transports.Default))
-                .Should(c => Assert.True(c.DidSaga2ReceiveMessage))
                 .Run();
+
+            Assert.True(context.DidSaga2ReceiveMessage);
         }
 
         public class Context : ScenarioContext
@@ -92,13 +91,11 @@
             }
         }
 
-        
         public class StartSaga1 : ICommand
         {
             public Guid DataId { get; set; }
         }
 
-        
         public class StartSaga2 : ICommand
         {
             public Guid DataId { get; set; }

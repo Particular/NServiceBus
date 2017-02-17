@@ -5,32 +5,31 @@
     using AcceptanceTesting;
     using EndpointTemplates;
     using NUnit.Framework;
-    using ScenarioDescriptors;
 
     public class When_immediate_retries_with_default_settings : NServiceBusAcceptanceTest
     {
         [Test]
         public async Task Should_not_do_any_retries_if_transactions_are_off()
         {
-            await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
+            var context = await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
                 .WithEndpoint<RetryEndpoint>(b => b
-                    .When(async (session, context) =>
+                    .When(async (session, ctx) =>
                     {
                         await session.SendLocal(new MessageToBeRetried
                         {
-                            Id = context.Id
+                            Id = ctx.Id
                         });
                         await session.SendLocal(new MessageToBeRetried
                         {
-                            Id = context.Id,
+                            Id = ctx.Id,
                             SecondMessage = true
                         });
                     })
                     .DoNotFailOnErrorMessages())
                 .Done(c => c.SecondMessageReceived || c.NumberOfTimesInvoked > 1)
-                .Repeat(r => r.For(Transports.Default))
-                .Should(c => Assert.AreEqual(1, c.NumberOfTimesInvoked, "No retries should be in use if transactions are off"))
                 .Run();
+
+            Assert.AreEqual(1, context.NumberOfTimesInvoked, "No retries should be in use if transactions are off");
         }
 
         public class Context : ScenarioContext
@@ -73,7 +72,6 @@
             }
         }
 
-        
         public class MessageToBeRetried : IMessage
         {
             public Guid Id { get; set; }

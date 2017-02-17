@@ -9,23 +9,22 @@ namespace NServiceBus.AcceptanceTests.Core.Encryption
     using EndpointTemplates;
     using MessageMutator;
     using NUnit.Framework;
-    using ScenarioDescriptors;
 
     public class When_using_Rijndael_without_incoming_key_identifier : NServiceBusAcceptanceTest
     {
         [Test]
-        public Task Should_process_decrypted_message_without_key_identifier()
+        public async Task Should_process_decrypted_message_without_key_identifier()
         {
-            return Scenario.Define<Context>()
-                .WithEndpoint<Sender>(b => b.When((bus, context) => bus.Send(new MessageWithSecretData
+            var context = await Scenario.Define<Context>()
+                .WithEndpoint<Sender>(b => b.When((bus, ctx) => bus.Send(new MessageWithSecretData
                 {
                     Secret = "betcha can't guess my secret"
                 })))
                 .WithEndpoint<Receiver>()
                 .Done(c => c.Done)
-                .Repeat(r => r.For(Transports.Default))
-                .Should(c => Assert.AreEqual("betcha can't guess my secret", c.Secret))
                 .Run();
+
+            Assert.AreEqual("betcha can't guess my secret", context.Secret);
         }
 
         public class Context : ScenarioContext

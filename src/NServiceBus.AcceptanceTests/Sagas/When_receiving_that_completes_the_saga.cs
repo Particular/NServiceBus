@@ -6,40 +6,39 @@
     using EndpointTemplates;
     using Features;
     using NUnit.Framework;
-    using ScenarioDescriptors;
 
     public class When_receiving_that_completes_the_saga : NServiceBusAcceptanceTest
     {
         [Test]
-        public Task Should_hydrate_and_complete_the_existing_instance()
+        public async Task Should_hydrate_and_complete_the_existing_instance()
         {
-            return Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
+            var context = await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
                 .WithEndpoint<ReceiveCompletesSagaEndpoint>(b =>
                 {
-                    b.When((session, context) => session.SendLocal(new StartSagaMessage
+                    b.When((session, ctx) => session.SendLocal(new StartSagaMessage
                     {
-                        SomeId = context.Id
+                        SomeId = ctx.Id
                     }));
-                    b.When(context => context.StartSagaMessageReceived, (session, context) =>
+                    b.When(ctx => ctx.StartSagaMessageReceived, (session, c) =>
                     {
-                        context.AddTrace("CompleteSagaMessage sent");
+                        c.AddTrace("CompleteSagaMessage sent");
 
                         return session.SendLocal(new CompleteSagaMessage
                         {
-                            SomeId = context.Id
+                            SomeId = c.Id
                         });
                     });
                 })
                 .Done(c => c.SagaCompleted)
-                .Repeat(r => r.For(Transports.Default))
-                .Should(c => Assert.True(c.SagaCompleted))
                 .Run();
+
+            Assert.True(context.SagaCompleted);
         }
 
         [Test]
-        public Task Should_ignore_messages_afterwards()
+        public async Task Should_ignore_messages_afterwards()
         {
-            return Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
+            var context = await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
                 .WithEndpoint<ReceiveCompletesSagaEndpoint>(b =>
                 {
                     b.When((session, c) => session.SendLocal(new StartSagaMessage
@@ -60,13 +59,10 @@
                     }));
                 })
                 .Done(c => c.AnotherMessageReceived)
-                .Repeat(r => r.For(Transports.Default))
-                .Should(c =>
-                {
-                    Assert.True(c.AnotherMessageReceived, "AnotherMessage should have been delivered to the handler outside the saga");
-                    Assert.False(c.SagaReceivedAnotherMessage, "AnotherMessage should not be delivered to the saga after completion");
-                })
                 .Run();
+
+            Assert.True(context.AnotherMessageReceived, "AnotherMessage should have been delivered to the handler outside the saga");
+            Assert.False(context.SagaReceivedAnotherMessage, "AnotherMessage should not be delivered to the saga after completion");
         }
 
         public class Context : ScenarioContext
@@ -154,19 +150,16 @@
             }
         }
 
-        
         public class StartSagaMessage : ICommand
         {
             public Guid SomeId { get; set; }
         }
 
-        
         public class CompleteSagaMessage : ICommand
         {
             public Guid SomeId { get; set; }
         }
 
-        
         public class AnotherMessage : ICommand
         {
             public Guid SomeId { get; set; }

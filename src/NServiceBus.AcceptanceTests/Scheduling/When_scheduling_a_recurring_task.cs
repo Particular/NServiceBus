@@ -6,23 +6,19 @@
     using EndpointTemplates;
     using Features;
     using NUnit.Framework;
-    using ScenarioDescriptors;
 
     public class When_scheduling_a_recurring_task : NServiceBusAcceptanceTest
     {
         [Test]
-        public Task Should_execute_the_task()
+        public async Task Should_execute_the_task()
         {
-            return Scenario.Define<Context>()
+            var context = await Scenario.Define<Context>()
                 .WithEndpoint<SchedulingEndpoint>()
                 .Done(c => c.InvokedAt.HasValue)
-                .Repeat(r => r.For(Transports.Default))
-                .Should(c =>
-                {
-                    Assert.True(c.InvokedAt.HasValue);
-                    Assert.Greater(c.InvokedAt.Value - c.RequestedAt, TimeSpan.FromMilliseconds(5));
-                })
                 .Run(TimeSpan.FromSeconds(60));
+
+            Assert.True(context.InvokedAt.HasValue);
+            Assert.Greater(context.InvokedAt.Value - context.RequestedAt, TimeSpan.FromMilliseconds(5));
         }
 
         class Context : ScenarioContext
