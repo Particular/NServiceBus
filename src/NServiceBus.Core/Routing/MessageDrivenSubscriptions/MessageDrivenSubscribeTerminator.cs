@@ -25,8 +25,11 @@
         {
             var eventType = context.EventType;
 
-            var publisherAddresses = subscriptionRouter.GetAddressesForEventType(eventType)
-                .EnsureNonEmpty(() => $"No publisher address could be found for message type {eventType}. Ensure the configured publisher endpoint has at least one known instance.");
+            var publisherAddresses = subscriptionRouter.GetAddressesForEventType(eventType);
+            if (publisherAddresses.Count == 0)
+            {
+                throw new Exception($"No publisher address could be found for message type {eventType}. Ensure the configured publisher endpoint has at least one known instance.");
+            }
 
             var subscribeTasks = new List<Task>();
             foreach (var publisherAddress in publisherAddresses)
