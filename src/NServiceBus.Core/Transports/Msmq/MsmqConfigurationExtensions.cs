@@ -62,7 +62,7 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Moves messages that have expired their TimeToBeReceived to the dead letter queue instead of discarding them.
+        /// Moves messages that have exceeded their TimeToBeReceived to the dead letter queue instead of discarding them.
         /// </summary>
         public static void UseDeadLetterQueueForMessagesWithTimeToBeReceived(this TransportExtensions<MsmqTransport> config)
         {
