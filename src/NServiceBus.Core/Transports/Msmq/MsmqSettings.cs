@@ -23,6 +23,6 @@ namespace NServiceBus
 
         public TimeSpan TimeToReachQueue { get; set; }
 
-        public bool UseDeadLetterQueueForMessagesWithTimeToReachQueue { get; set; }
+        public bool UseDeadLetterQueueForMessagesWithTimeToBeReceived { get; set; }
     }
 }

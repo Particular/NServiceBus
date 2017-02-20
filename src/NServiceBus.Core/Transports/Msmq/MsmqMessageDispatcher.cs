@@ -64,7 +64,7 @@ namespace NServiceBus
                     {
                         var ttbrRequested = toSend.TimeToBeReceived < MessageQueue.InfiniteTimeout;
 
-                        toSend.UseDeadLetterQueue = ttbrRequested ? settings.UseDeadLetterQueueForMessagesWithTimeToReachQueue : settings.UseDeadLetterQueue;
+                        toSend.UseDeadLetterQueue = ttbrRequested ? settings.UseDeadLetterQueueForMessagesWithTimeToBeReceived : settings.UseDeadLetterQueue;
                         toSend.UseJournalQueue = settings.UseJournalQueue;
                         toSend.TimeToReachQueue = settings.TimeToReachQueue;
 
