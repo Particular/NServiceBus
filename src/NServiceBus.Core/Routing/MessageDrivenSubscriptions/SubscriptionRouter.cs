@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
     using Routing;
     using Routing.MessageDrivenSubscriptions;
 
@@ -15,15 +14,25 @@
             this.transportAddressTranslation = transportAddressTranslation;
         }
 
-        public IEnumerable<string> GetAddressesForEventType(Type messageType)
+        public List<string> GetAddressesForEventType(Type messageType)
         {
             var publishersOfThisEvent = publishers.GetPublisherFor(messageType);
-            var publisherTransportAddresses = publishersOfThisEvent.SelectMany(p => p.Resolve(e => endpointInstances.FindInstances(e), i => transportAddressTranslation(i)));
-            return publisherTransportAddresses;
+
+            List<string> publisherTransportAddresses = null;
+            foreach (var publisherAddress in publishersOfThisEvent)
+            {
+                if(publisherTransportAddresses == null)
+                {
+                    publisherTransportAddresses = new List<string>();
+                }
+                publisherTransportAddresses.AddRange(publisherAddress.Resolve(e => endpointInstances.FindInstances(e), i => transportAddressTranslation(i)));
+            }
+            return publisherTransportAddresses ?? noAddresses;
         }
 
         EndpointInstances endpointInstances;
         Func<EndpointInstance, string> transportAddressTranslation;
+        static List<string> noAddresses = new List<string>(0);
 
         Publishers publishers;
     }

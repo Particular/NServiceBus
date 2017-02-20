@@ -21,14 +21,17 @@
             this.dispatcher = dispatcher;
         }
 
-        protected override async Task Terminate(IUnsubscribeContext context)
+        protected override Task Terminate(IUnsubscribeContext context)
         {
             var eventType = context.EventType;
 
-            var publisherAddresses = subscriptionRouter.GetAddressesForEventType(eventType)
-                .EnsureNonEmpty(() => $"No publisher address could be found for message type {eventType}. Ensure the configured publisher endpoint has at least one known instance.");
+            var publisherAddresses = subscriptionRouter.GetAddressesForEventType(eventType);
+            if (publisherAddresses.Count == 0)
+            {
+                throw new Exception( $"No publisher address could be found for message type {eventType}. Ensure the configured publisher endpoint has at least one known instance.");
+            }
 
-            var unsubscribeTasks = new List<Task>();
+            var unsubscribeTasks = new List<Task>(publisherAddresses.Count);
             foreach (var publisherAddress in publisherAddresses)
             {
                 Logger.Debug("Unsubscribing to " + eventType.AssemblyQualifiedName + " at publisher queue " + publisherAddress);
@@ -44,7 +47,7 @@
 
                 unsubscribeTasks.Add(SendUnsubscribeMessageWithRetries(publisherAddress, unsubscribeMessage, eventType.AssemblyQualifiedName, context.Extensions));
             }
-            await Task.WhenAll(unsubscribeTasks.ToArray()).ConfigureAwait(false);
+            return Task.WhenAll(unsubscribeTasks);
         }
 
         async Task SendUnsubscribeMessageWithRetries(string destination, OutgoingMessage unsubscribeMessage, string messageType, ContextBag context, int retriesCount = 0)
