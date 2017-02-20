@@ -33,13 +33,13 @@ namespace NServiceBus
             var msmqSettings = connectionString != null ? new MsmqConnectionStringBuilder(connectionString)
                 .RetrieveSettings() : new MsmqSettings();
 
-            msmqSettings.UseDeadLetterQueueForMessagesWithTimeToReachQueue = settings.GetOrDefault<bool>(UseDeadLetterQueueForMessagesWithTimeToReachQueue);
+            msmqSettings.UseDeadLetterQueueForMessagesWithTimeToBeReceived = settings.GetOrDefault<bool>(UseDeadLetterQueueForMessagesWithTimeToBeReceived);
 
             settings.Set<MsmqSettings>(msmqSettings);
 
             return new MsmqTransportInfrastructure(settings);
         }
 
-        internal const string UseDeadLetterQueueForMessagesWithTimeToReachQueue = "UseDeadLetterQueueForMessagesWithTimeToReachQueue";
+        internal const string UseDeadLetterQueueForMessagesWithTimeToBeReceived = "UseDeadLetterQueueForMessagesWithTimeToBeReceived";
     }
 }

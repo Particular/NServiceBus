@@ -34,7 +34,7 @@
         {
             var settings = new MsmqSettings
             {
-                UseDeadLetterQueueForMessagesWithTimeToReachQueue = true
+                UseDeadLetterQueueForMessagesWithTimeToBeReceived = true
             };
 
             var dispatchedMessage = DispatchMessage("dlqOnForTTBR", settings, new DiscardIfNotReceivedBefore(TimeSpan.FromMinutes(10)));
