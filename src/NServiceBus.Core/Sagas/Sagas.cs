@@ -43,10 +43,10 @@
                 throw new Exception("The selected persistence doesn't have support for saga storage. Select another persistence or disable the sagas feature using endpointConfiguration.DisableFeature<Sagas>()");
             }
 
-            if (!context.Container.HasComponent<ISagaIdGenerator>())
-            {
-                context.Container.RegisterSingleton<ISagaIdGenerator>(new DefaultSagaIdGenerator());
-            }
+            var sagaIdGenerator = context.Settings.GetOrDefault<ISagaIdGenerator>() ?? new DefaultSagaIdGenerator();
+
+            context.Container.RegisterSingleton(sagaIdGenerator);
+
 
             var sagaMetaModel = context.Settings.Get<SagaMetadataCollection>();
             sagaMetaModel.Initialize(context.Settings.GetAvailableTypes(), conventions);
@@ -77,7 +77,7 @@
 
                 if (finder.Properties.TryGetValue("custom-finder-clr-type", out customFinderType))
                 {
-                    container.ConfigureComponent((Type) customFinderType, DependencyLifecycle.InstancePerCall);
+                    container.ConfigureComponent((Type)customFinderType, DependencyLifecycle.InstancePerCall);
                 }
             }
         }
