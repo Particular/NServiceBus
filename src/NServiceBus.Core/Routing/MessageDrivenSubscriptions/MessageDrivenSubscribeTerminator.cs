@@ -21,7 +21,7 @@
             this.dispatcher = dispatcher;
         }
 
-        protected override async Task Terminate(ISubscribeContext context)
+        protected override Task Terminate(ISubscribeContext context)
         {
             var eventType = context.EventType;
 
@@ -31,7 +31,7 @@
                 throw new Exception($"No publisher address could be found for message type {eventType}. Ensure the configured publisher endpoint has at least one known instance.");
             }
 
-            var subscribeTasks = new List<Task>();
+            var subscribeTasks = new List<Task>(publisherAddresses.Count);
             foreach (var publisherAddress in publisherAddresses)
             {
                 Logger.Debug($"Subscribing to {eventType.AssemblyQualifiedName} at publisher queue {publisherAddress}");
@@ -47,7 +47,7 @@
 
                 subscribeTasks.Add(SendSubscribeMessageWithRetries(publisherAddress, subscriptionMessage, eventType.AssemblyQualifiedName, context.Extensions));
             }
-            await Task.WhenAll(subscribeTasks).ConfigureAwait(false);
+            return Task.WhenAll(subscribeTasks);
         }
 
         async Task SendSubscribeMessageWithRetries(string destination, OutgoingMessage subscriptionMessage, string messageType, ContextBag context, int retriesCount = 0)
