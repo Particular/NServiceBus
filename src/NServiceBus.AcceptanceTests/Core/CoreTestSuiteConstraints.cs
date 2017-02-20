@@ -6,5 +6,6 @@
         public bool SupportCrossQueueTransactions => true;
         public bool SupportNativePubSub => false;
         public bool SupportNativeDeferral => false;
+        public bool ProvideOutboxPersistence => true;
     }
 }

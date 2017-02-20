@@ -44,6 +44,14 @@
             }
         }
 
+        public static void OutboxPersistence()
+        {
+            if (!constraints.ProvideOutboxPersistence)
+            {
+                Assert.Ignore("Ignoring this tests because it requires a persistence providing an Outbox storage.");
+            }
+        }
+
         static readonly TestSuiteConstraints constraints = new TestSuiteConstraints();
     }
 }

@@ -6,14 +6,15 @@
     using Configuration.AdvanceExtensibility;
     using EndpointTemplates;
     using NUnit.Framework;
-    using ScenarioDescriptors;
 
     public class When_a_duplicate_message_arrives : NServiceBusAcceptanceTest
     {
         [Test]
         public async Task Should_not_dispatch_messages_already_dispatched()
         {
-            await Scenario.Define<Context>()
+            Requires.OutboxPersistence();
+
+            var context = await Scenario.Define<Context>()
                 .WithEndpoint<OutboxEndpoint>(b => b.When(async session =>
                 {
                     var duplicateMessageId = Guid.NewGuid().ToString();
@@ -32,9 +33,9 @@
                 }))
                 .WithEndpoint<DownstreamEndpoint>()
                 .Done(c => c.Done)
-                .Repeat(r => r.For<AllOutboxCapableStorages>())
-                .Should(context => Assert.AreEqual(2, context.MessagesReceivedByDownstreamEndpoint))
                 .Run();
+
+            Assert.AreEqual(2, context.MessagesReceivedByDownstreamEndpoint);
         }
 
         public class Context : ScenarioContext

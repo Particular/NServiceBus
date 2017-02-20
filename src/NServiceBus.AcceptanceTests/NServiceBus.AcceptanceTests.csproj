@@ -291,7 +291,6 @@
     <Compile Include="Recoverability\Retries\When_immediate_retries_with_native_transactions.cs" />
     <Compile Include="Sagas\When_replies_to_message_published_by_a_saga.cs" />
     <Compile Include="Sagas\When_started_by_base_event_from_other_saga.cs" />
-    <Compile Include="ScenarioDescriptors\AllOutboxCapableStorages.cs" />
     <Compile Include="Reliability\Outbox\When_blowing_up_just_after_dispatch.cs" />
     <Compile Include="Audit\When_auditing.cs" />
     <Compile Include="Audit\When_a_message_is_audited.cs" />

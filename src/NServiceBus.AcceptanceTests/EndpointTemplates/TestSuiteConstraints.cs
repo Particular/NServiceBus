@@ -9,6 +9,8 @@
         bool SupportNativePubSub { get; }
 
         bool SupportNativeDeferral { get; }
+
+        bool ProvideOutboxPersistence { get; }
     }
 
     // ReSharper disable once PartialTypeWithSinglePart

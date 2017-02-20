@@ -6,23 +6,21 @@
     using AcceptanceTesting;
     using EndpointTemplates;
     using NUnit.Framework;
-    using ScenarioDescriptors;
 
     public class When_dispatching_transport_operations : NServiceBusAcceptanceTest
     {
         [Test]
-        public Task Should_honor_all_delivery_options()
+        public async Task Should_honor_all_delivery_options()
         {
-            return Scenario.Define<Context>()
+            Requires.OutboxPersistence();
+
+            var context = await Scenario.Define<Context>()
                 .WithEndpoint<NonDtcReceivingEndpoint>(b => b.When(session => session.SendLocal(new PlaceOrder())))
                 .Done(c => c.DispatchedMessageReceived)
-                .Repeat(r => r.For<AllOutboxCapableStorages>())
-                .Should(context =>
-                {
-                    Assert.AreEqual(TimeSpan.FromMinutes(1), TimeSpan.Parse(context.HeadersOnDispatchedMessage[Headers.TimeToBeReceived]), "Should honor the TTBR");
-                    Assert.True(bool.Parse(context.HeadersOnDispatchedMessage[Headers.NonDurableMessage]), "Should honor the durability");
-                })
                 .Run(TimeSpan.FromSeconds(20));
+
+            Assert.AreEqual(TimeSpan.FromMinutes(1), TimeSpan.Parse(context.HeadersOnDispatchedMessage[Headers.TimeToBeReceived]), "Should honor the TTBR");
+            Assert.True(bool.Parse(context.HeadersOnDispatchedMessage[Headers.NonDurableMessage]), "Should honor the durability");
         }
 
         public class Context : ScenarioContext
