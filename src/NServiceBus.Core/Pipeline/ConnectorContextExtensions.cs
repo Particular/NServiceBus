@@ -98,6 +98,28 @@ namespace NServiceBus
         }
 
         /// <summary>
+        /// Creates a <see cref="IUnitOfWorkContext" /> based on the current context.
+        /// </summary>
+        public static IUnitOfWorkContext CreateUnitOfWorkContext(this StageConnector<IIncomingLogicalMessageContext, IUnitOfWorkContext> stageConnector, CompletableSynchronizedStorageSession storageSession, IIncomingLogicalMessageContext sourceContext)
+        {
+            Guard.AgainstNull(nameof(storageSession), storageSession);
+            Guard.AgainstNull(nameof(sourceContext), sourceContext);
+
+            return new UnitOfWorkContext(storageSession, sourceContext);
+        }
+
+        /// <summary>
+        /// Creates a <see cref="IInvokeHandlerContext" /> based on the current context.
+        /// </summary>
+        public static IInvokeHandlerContext CreateInvokeHandlerContext(this StageConnector<IUnitOfWorkContext, IInvokeHandlerContext> stageConnector, MessageHandler messageHandler, IUnitOfWorkContext sourceContext)
+        {
+            Guard.AgainstNull(nameof(messageHandler), messageHandler);
+            Guard.AgainstNull(nameof(sourceContext), sourceContext);
+
+            return new InvokeHandlerContext(messageHandler, sourceContext);
+        }
+
+        /// <summary>
         /// Creates a <see cref="IInvokeHandlerContext" /> based on the current context.
         /// </summary>
         public static IInvokeHandlerContext CreateInvokeHandlerContext(this StageConnector<IIncomingLogicalMessageContext, IInvokeHandlerContext> stageConnector, MessageHandler messageHandler, CompletableSynchronizedStorageSession storageSession, IIncomingLogicalMessageContext sourceContext)

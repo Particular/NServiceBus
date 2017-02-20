@@ -78,6 +78,7 @@
     <Compile Include="TestableRoutingContext.cs" />
     <Compile Include="TestableSubscribeContext.cs" />
     <Compile Include="TestableTransportReceiveContext.cs" />
+    <Compile Include="TestableUnitOfWorkContext.cs" />
     <Compile Include="TestableUnsubscribeContext.cs" />
     <Compile Include="TestingLoggerFactory.cs" />
     <Compile Include="TextWriterLogger.cs" />

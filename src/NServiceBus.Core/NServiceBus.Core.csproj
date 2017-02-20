@@ -115,6 +115,9 @@
     <Compile Include="Notifications\NotificationSubscriptions.cs" />
     <Compile Include="Notifications\EventAggregatorExtensions.cs" />
     <Compile Include="Persistence\Msmq\SubscriptionStorage\MsmqSubscriptionMessage.cs" />
+    <Compile Include="Pipeline\Incoming\IUnitOfWorkContext.cs" />
+    <Compile Include="Pipeline\Incoming\SynchronizedSessionConnector.cs" />
+    <Compile Include="Pipeline\Incoming\UnitOfWorkContext.cs" />
     <Compile Include="Pipeline\PipelineExecutionExtensions.cs" />
     <Compile Include="Pipeline\ForkConnector.cs" />
     <Compile Include="Pipeline\ForkExtensions.cs" />

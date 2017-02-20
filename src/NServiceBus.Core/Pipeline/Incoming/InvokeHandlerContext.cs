@@ -8,6 +8,11 @@ namespace NServiceBus
 
     class InvokeHandlerContext : IncomingContext, IInvokeHandlerContext
     {
+        internal InvokeHandlerContext(MessageHandler handler, IUnitOfWorkContext parentContext)
+            : this(handler, parentContext.MessageId, parentContext.ReplyToAddress, parentContext.Headers, parentContext.MessageMetadata, parentContext.MessageBeingHandled, parentContext.SynchronizedStorageSession, parentContext)
+        {
+        }
+
         internal InvokeHandlerContext(MessageHandler handler, SynchronizedStorageSession storageSession, IIncomingLogicalMessageContext parentContext)
             : this(handler, parentContext.MessageId, parentContext.ReplyToAddress, parentContext.Headers, parentContext.Message.Metadata, parentContext.Message.Instance, storageSession, parentContext)
         {
