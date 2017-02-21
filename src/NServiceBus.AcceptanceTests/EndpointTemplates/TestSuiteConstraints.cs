@@ -2,15 +2,15 @@
 {
     public interface ITestSuiteConstraints
     {
-        bool SupportDtc { get; }
+        bool SupportsDtc { get; }
 
-        bool SupportCrossQueueTransactions { get; }
+        bool SupportsCrossQueueTransactions { get; }
 
-        bool SupportNativePubSub { get; }
+        bool SupportsNativePubSub { get; }
 
-        bool SupportNativeDeferral { get; }
+        bool SupportsNativeDeferral { get; }
 
-        bool ProvideOutboxPersistence { get; }
+        bool SupportsOutbox { get; }
     }
 
     // ReSharper disable once PartialTypeWithSinglePart
