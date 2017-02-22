@@ -21,7 +21,7 @@ namespace NServiceBus
         {
             var manifest = sagaManifests[sagaData.GetType()];
 
-            var filePath = manifest.GetFilePath(sagaData.Id.ToString());
+            var filePath = manifest.GetFilePath(sagaData.Id);
 
             using (var sourceStream = new FileStream(filePath,
                 FileMode.CreateNew, FileAccess.Write, FileShare.None))
@@ -37,7 +37,7 @@ namespace NServiceBus
         {
             var manifest = sagaManifests[sagaData.GetType()];
 
-            var filePath = manifest.GetFilePath(sagaData.Id.ToString());
+            var filePath = manifest.GetFilePath(sagaData.Id);
 
             using (var sourceStream = new FileStream(filePath,
              FileMode.Truncate, FileAccess.Write, FileShare.None))
@@ -51,15 +51,15 @@ namespace NServiceBus
 
         public Task<TSagaData> Get<TSagaData>(Guid sagaId, SynchronizedStorageSession session, ContextBag context) where TSagaData : IContainSagaData
         {
-            return Get<TSagaData>(sagaId.ToString());
+            return Get<TSagaData>(sagaId);
         }
 
         public Task<TSagaData> Get<TSagaData>(string propertyName, object propertyValue, SynchronizedStorageSession session, ContextBag context) where TSagaData : IContainSagaData
         {
-            return Get<TSagaData>(propertyValue.ToString());
+            return Get<TSagaData>(DeterministicGuid.Create(propertyValue));
         }
 
-        Task<TSagaData> Get<TSagaData>(string sagaId) where TSagaData : IContainSagaData
+        Task<TSagaData> Get<TSagaData>(Guid sagaId) where TSagaData : IContainSagaData
         {
             var manifest = sagaManifests[typeof(TSagaData)];
             var filePath = manifest.GetFilePath(sagaId);
@@ -81,7 +81,7 @@ namespace NServiceBus
         {
             var manifest = sagaManifests[sagaData.GetType()];
 
-            var filePath = manifest.GetFilePath(sagaData.Id.ToString());
+            var filePath = manifest.GetFilePath(sagaData.Id);
 
             File.Delete(filePath);
 
