@@ -340,7 +340,6 @@
     <Compile Include="Tx\ImmediateDispatch\When_requesting_immediate_dispatch_with_at_most_once.cs" />
     <Compile Include="NonTx\When_sending_inside_ambient_tx.cs" />
     <Compile Include="Tx\When_sending_within_an_ambient_transaction.cs" />
-    <Compile Include="ScenarioDescriptors\Serializers.cs" />
     <Compile Include="ScenarioDescriptors\Transports.cs" />
     <Compile Include="Basic\When_sending_to_another_endpoint.cs" />
     <Compile Include="Versioning\When_multiple_versions_of_a_message_is_published.cs" />

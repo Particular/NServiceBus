@@ -6,23 +6,19 @@
     using EndpointTemplates;
     using MessageMutator;
     using NUnit.Framework;
-    using ScenarioDescriptors;
 
     public class When_using_outgoing_tm_mutator : NServiceBusAcceptanceTest
     {
         [Test]
-        public Task Should_be_able_to_update_message()
+        public async Task Should_be_able_to_update_message()
         {
-            return Scenario.Define<Context>()
+            var context = await Scenario.Define<Context>()
                 .WithEndpoint<Endpoint>(b => b.When(session => session.SendLocal(new MessageToBeMutated())))
                 .Done(c => c.MessageProcessed)
-                .Repeat(r => r.For(Serializers.Xml))
-                .Should(c =>
-                {
-                    Assert.True(c.CanAddHeaders);
-                    Assert.AreEqual("SomeValue", c.MutatedPropertyValue, "Mutator should be able to mutate body.");
-                })
                 .Run();
+
+            Assert.True(context.CanAddHeaders);
+            Assert.AreEqual("SomeValue", context.MutatedPropertyValue, "Mutator should be able to mutate body.");
         }
 
         public class Context : ScenarioContext
@@ -36,7 +32,7 @@
         {
             public Endpoint()
             {
-                EndpointSetup<DefaultServer>();
+                EndpointSetup<DefaultServer>(c => c.UseSerialization<XmlSerializer>());
             }
 
             class MyTransportMessageMutator : IMutateOutgoingTransportMessages, INeedInitialization
