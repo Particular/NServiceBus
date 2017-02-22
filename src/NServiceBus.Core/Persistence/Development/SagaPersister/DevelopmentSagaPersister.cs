@@ -1,40 +1,33 @@
 namespace NServiceBus
 {
     using System;
+    using System.Collections.Generic;
     using System.IO;
-    using System.Runtime.Serialization.Json;
     using System.Threading.Tasks;
     using Extensibility;
+    using Features;
     using Persistence;
     using Sagas;
 
     class DevelopmentSagaPersister : ISagaPersister
     {
-        readonly string basePath;
+        readonly Dictionary<Type, SagaManifest> sagaManifests;
 
-        public DevelopmentSagaPersister(string basePath)
+        public DevelopmentSagaPersister(Dictionary<Type, SagaManifest> sagaManifests)
         {
-            this.basePath = basePath;
+            this.sagaManifests = sagaManifests;
         }
         public Task Save(IContainSagaData sagaData, SagaCorrelationProperty correlationProperty, SynchronizedStorageSession session, ContextBag context)
         {
-            var sagaType = sagaData.GetType();
-            var serializer = new DataContractJsonSerializer(sagaData.GetType()); //todo: cache
+            var manifest = sagaManifests[sagaData.GetType()];
 
-            var dirPath = Path.Combine(basePath, sagaType.FullName.Replace("+", ""),".json");
-
-            if (!Directory.Exists(dirPath))
-            {
-                Directory.CreateDirectory(dirPath);
-            }
-
-            var filePath = Path.Combine(dirPath, sagaData.Id.ToString());
+            var filePath = manifest.GetFilePath(sagaData.Id.ToString());
 
             using (var sourceStream = new FileStream(filePath,
                 FileMode.CreateNew, FileAccess.Write, FileShare.None))
             {
                 //todo: make async
-                serializer.WriteObject(sourceStream, sagaData);
+                manifest.Serializer.WriteObject(sourceStream, sagaData);
             }
 
             return TaskEx.CompletedTask;
@@ -42,23 +35,51 @@ namespace NServiceBus
 
         public Task Update(IContainSagaData sagaData, SynchronizedStorageSession session, ContextBag context)
         {
+
             throw new NotImplementedException();
         }
 
         public Task<TSagaData> Get<TSagaData>(Guid sagaId, SynchronizedStorageSession session, ContextBag context) where TSagaData : IContainSagaData
         {
-            throw new NotImplementedException();
+            var manifest = sagaManifests[typeof(TSagaData)];
+
+            var filePath = manifest.GetFilePath(sagaId.ToString());
+
+            using (var sourceStream = new FileStream(filePath,
+                FileMode.Open, FileAccess.Read, FileShare.None))
+            {
+                //todo: make async
+                return Task.FromResult((TSagaData)manifest.Serializer.ReadObject(sourceStream));
+            }
         }
 
         public Task<TSagaData> Get<TSagaData>(string propertyName, object propertyValue, SynchronizedStorageSession session, ContextBag context) where TSagaData : IContainSagaData
         {
+            var manifest = sagaManifests[typeof(TSagaData)];
+            var filePath = manifest.GetFilePath(propertyValue.ToString());
 
-            return Task.FromResult(default(TSagaData));
+            if (!File.Exists(filePath))
+            {
+                return Task.FromResult(default(TSagaData));
+            }
+
+            using (var sourceStream = new FileStream(filePath,
+                FileMode.Open, FileAccess.Read, FileShare.None))
+            {
+                //todo: make async
+                return Task.FromResult((TSagaData)manifest.Serializer.ReadObject(sourceStream));
+            }
         }
 
         public Task Complete(IContainSagaData sagaData, SynchronizedStorageSession session, ContextBag context)
         {
-            throw new NotImplementedException();
+            var manifest = sagaManifests[sagaData.GetType()];
+
+            var filePath = manifest.GetFilePath(sagaData.Id.ToString());
+
+            File.Delete(filePath);
+
+            return TaskEx.CompletedTask;
         }
     }
 }

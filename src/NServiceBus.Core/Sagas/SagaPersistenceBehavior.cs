@@ -304,7 +304,7 @@
             {
                 sagaEntity.Id = sagaIdGenerator.Generate(null, null, metadata, context.Extensions);
             }
-            
+
             return sagaEntity;
         }
 
