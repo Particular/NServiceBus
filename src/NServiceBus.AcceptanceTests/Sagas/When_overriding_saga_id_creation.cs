@@ -44,7 +44,7 @@
                 });
             }
 
-            public class MySaga : Saga<MySaga.MySagaData>,
+            public class IdOverrideSaga : Saga<IdOverrideSaga.IdOverrideSagaData>,
                 IAmStartedByMessages<StartSaga>
             {
                 public Context TestContext { get; set; }
@@ -57,12 +57,12 @@
                     return Task.FromResult(0);
                 }
 
-                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MySagaData> mapper)
+                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<IdOverrideSagaData> mapper)
                 {
                     mapper.ConfigureMapping<StartSaga>(m => m.CustomerId).ToSaga(s => s.CustomerId);
                 }
 
-                public class MySagaData : ContainSagaData
+                public class IdOverrideSagaData : ContainSagaData
                 {
                     public virtual string CustomerId { get; set; }
                 }
