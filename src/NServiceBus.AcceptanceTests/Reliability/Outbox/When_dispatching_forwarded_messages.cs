@@ -8,22 +8,23 @@
     using EndpointTemplates;
     using NServiceBus.Pipeline;
     using NUnit.Framework;
-    using ScenarioDescriptors;
 
     public class When_dispatching_forwarded_messages : NServiceBusAcceptanceTest
     {
         [Test]
-        public Task Should_be_dispatched_immediately()
+        public async Task Should_be_dispatched_immediately()
         {
-            return Scenario.Define<Context>()
+            Requires.OutboxPersistence();
+
+            var context = await Scenario.Define<Context>()
                 .WithEndpoint<EndpointWithAuditOn>(b => b
                     .When(session => session.SendLocal(new MessageToBeForwarded()))
                     .DoNotFailOnErrorMessages())
                 .WithEndpoint<ForwardingSpyEndpoint>()
                 .Done(c => c.Done)
-                .Repeat(r => r.For<AllOutboxCapableStorages>())
-                .Should(c => Assert.IsTrue(c.Done))
                 .Run();
+
+            Assert.IsTrue(context.Done);
         }
 
         class Context : ScenarioContext
@@ -90,7 +91,7 @@
             }
         }
 
-        
+
         public class MessageToBeForwarded : IMessage
         {
             public string RunId { get; set; }

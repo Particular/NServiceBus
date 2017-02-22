@@ -6,19 +6,20 @@
     using Configuration.AdvanceExtensibility;
     using EndpointTemplates;
     using NUnit.Framework;
-    using ScenarioDescriptors;
 
     public class When_sending_from_a_non_dtc_endpoint : NServiceBusAcceptanceTest
     {
         [Test]
-        public Task Should_store_them_and_dispatch_them_from_the_outbox()
+        public async Task Should_store_them_and_dispatch_them_from_the_outbox()
         {
-            return Scenario.Define<Context>()
+            Requires.OutboxPersistence();
+
+            var context = await Scenario.Define<Context>()
                 .WithEndpoint<NonDtcSalesEndpoint>(b => b.When(session => session.SendLocal(new PlaceOrder())))
                 .Done(c => c.OrderAckReceived)
-                .Repeat(r => r.For<AllOutboxCapableStorages>())
-                .Should(context => Assert.IsTrue(context.OrderAckReceived))
                 .Run(TimeSpan.FromSeconds(20));
+
+            Assert.IsTrue(context.OrderAckReceived);
         }
 
         public class Context : ScenarioContext

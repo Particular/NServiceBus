@@ -6,17 +6,17 @@
     using Configuration.AdvanceExtensibility;
     using EndpointTemplates;
     using NUnit.Framework;
-    using ScenarioDescriptors;
 
     public class When_receiving_a_message_not_found_in_the_outbox : NServiceBusAcceptanceTest
     {
         [Test]
         public Task Should_handle_it()
         {
+            Requires.OutboxPersistence();
+
             return Scenario.Define<Context>()
                 .WithEndpoint<NonDtcReceivingEndpoint>(b => b.When(session => session.SendLocal(new PlaceOrder())))
                 .Done(c => c.OrderAckReceived == 1)
-                .Repeat(r => r.For<AllOutboxCapableStorages>())
                 .Run(TimeSpan.FromSeconds(20));
         }
 
