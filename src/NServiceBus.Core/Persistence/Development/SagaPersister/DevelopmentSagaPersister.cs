@@ -35,28 +35,34 @@ namespace NServiceBus
 
         public Task Update(IContainSagaData sagaData, SynchronizedStorageSession session, ContextBag context)
         {
+            var manifest = sagaManifests[sagaData.GetType()];
 
-            throw new NotImplementedException();
+            var filePath = manifest.GetFilePath(sagaData.Id.ToString());
+
+            using (var sourceStream = new FileStream(filePath,
+             FileMode.Truncate, FileAccess.Write, FileShare.None))
+            {
+                //todo: make async
+                manifest.Serializer.WriteObject(sourceStream, sagaData);
+            }
+
+            return TaskEx.CompletedTask;
         }
 
         public Task<TSagaData> Get<TSagaData>(Guid sagaId, SynchronizedStorageSession session, ContextBag context) where TSagaData : IContainSagaData
         {
-            var manifest = sagaManifests[typeof(TSagaData)];
-
-            var filePath = manifest.GetFilePath(sagaId.ToString());
-
-            using (var sourceStream = new FileStream(filePath,
-                FileMode.Open, FileAccess.Read, FileShare.None))
-            {
-                //todo: make async
-                return Task.FromResult((TSagaData)manifest.Serializer.ReadObject(sourceStream));
-            }
+            return Get<TSagaData>(sagaId.ToString());
         }
 
         public Task<TSagaData> Get<TSagaData>(string propertyName, object propertyValue, SynchronizedStorageSession session, ContextBag context) where TSagaData : IContainSagaData
         {
+            return Get<TSagaData>(propertyValue.ToString());
+        }
+
+        Task<TSagaData> Get<TSagaData>(string sagaId) where TSagaData : IContainSagaData
+        {
             var manifest = sagaManifests[typeof(TSagaData)];
-            var filePath = manifest.GetFilePath(propertyValue.ToString());
+            var filePath = manifest.GetFilePath(sagaId);
 
             if (!File.Exists(filePath))
             {
@@ -67,7 +73,7 @@ namespace NServiceBus
                 FileMode.Open, FileAccess.Read, FileShare.None))
             {
                 //todo: make async
-                return Task.FromResult((TSagaData)manifest.Serializer.ReadObject(sourceStream));
+                return Task.FromResult((TSagaData) manifest.Serializer.ReadObject(sourceStream));
             }
         }
 
