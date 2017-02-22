@@ -13,10 +13,11 @@
 
     class MessageDrivenUnsubscribeTerminator : PipelineTerminator<IUnsubscribeContext>
     {
-        public MessageDrivenUnsubscribeTerminator(SubscriptionRouter subscriptionRouter, string replyToAddress, string endpoint, IDispatchMessages dispatcher)
+        public MessageDrivenUnsubscribeTerminator(SubscriptionRouter subscriptionRouter, string localAddress, string subscriberAddress, string endpoint, IDispatchMessages dispatcher)
         {
+            this.localAddress = localAddress;
             this.subscriptionRouter = subscriptionRouter;
-            this.replyToAddress = replyToAddress;
+            this.subscriberAddress = subscriberAddress;
             this.endpoint = endpoint;
             this.dispatcher = dispatcher;
         }
@@ -36,8 +37,8 @@
                 var unsubscribeMessage = ControlMessageFactory.Create(MessageIntentEnum.Unsubscribe);
 
                 unsubscribeMessage.Headers[Headers.SubscriptionMessageType] = eventType.AssemblyQualifiedName;
-                unsubscribeMessage.Headers[Headers.ReplyToAddress] = replyToAddress;
-                unsubscribeMessage.Headers[Headers.SubscriberTransportAddress] = replyToAddress;
+                unsubscribeMessage.Headers[Headers.ReplyToAddress] = localAddress;
+                unsubscribeMessage.Headers[Headers.SubscriberTransportAddress] = subscriberAddress;
                 unsubscribeMessage.Headers[Headers.SubscriberEndpoint] = endpoint;
                 unsubscribeMessage.Headers[Headers.TimeSent] = DateTimeExtensions.ToWireFormattedString(DateTime.UtcNow);
                 unsubscribeMessage.Headers[Headers.NServiceBusVersion] = GitFlowVersion.MajorMinorPatch;
@@ -74,11 +75,12 @@
 
         readonly string endpoint;
         IDispatchMessages dispatcher;
-        string replyToAddress;
+        string subscriberAddress;
 
         SubscriptionRouter subscriptionRouter;
 
         static ILog Logger = LogManager.GetLogger<MessageDrivenUnsubscribeTerminator>();
+        string localAddress;
 
         public class Settings
         {

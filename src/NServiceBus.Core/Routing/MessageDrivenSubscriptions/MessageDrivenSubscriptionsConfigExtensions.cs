@@ -84,6 +84,15 @@ namespace NServiceBus
             routingSettings.Settings.GetOrCreate<ConfiguredPublishers>().Add(new NamespacePublisherSource(assembly, @namespace, PublisherAddress.CreateFromEndpointName(publisherEndpoint)));
         }
 
+        /// <summary>
+        /// Instructs message driven subscription infrastructure to subscribe with the instance specific queue instead of the shared queue.
+        /// </summary>
+        /// <param name="routingSettings">The <see cref="RoutingSettings&lt;T&gt;" /> to extend.</param>
+        public static void SubscribeWithInstanceSpecificQueue<T>(this RoutingSettings<T> routingSettings) where T : TransportDefinition, IMessageDrivenSubscriptionTransport
+        {
+            routingSettings.Settings.Set("SubscribeWithInstanceSpecificQueue", true);
+        }
+
         static void ThrowOnAddress(string publisherEndpoint)
         {
             if (publisherEndpoint.Contains("@"))

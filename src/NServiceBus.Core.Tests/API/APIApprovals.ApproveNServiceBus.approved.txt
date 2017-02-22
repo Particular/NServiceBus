@@ -818,6 +818,8 @@ namespace NServiceBus
             where T : NServiceBus.Transport.TransportDefinition, NServiceBus.Routing.IMessageDrivenSubscriptionTransport { }
         public static void RegisterPublisher<T>(this NServiceBus.RoutingSettings<T> routingSettings, System.Reflection.Assembly assembly, string @namespace, string publisherEndpoint)
             where T : NServiceBus.Transport.TransportDefinition, NServiceBus.Routing.IMessageDrivenSubscriptionTransport { }
+        public static void SubscribeWithInstanceSpecificQueue<T>(this NServiceBus.RoutingSettings<T> routingSettings)
+            where T : NServiceBus.Transport.TransportDefinition, NServiceBus.Routing.IMessageDrivenSubscriptionTransport { }
         public static void SubscriptionAuthorizer<T>(this NServiceBus.TransportExtensions<T> transportExtensions, System.Func<NServiceBus.Pipeline.IIncomingPhysicalMessageContext, bool> authorizer)
             where T : NServiceBus.Transport.TransportDefinition, NServiceBus.Routing.IMessageDrivenSubscriptionTransport { }
     }
