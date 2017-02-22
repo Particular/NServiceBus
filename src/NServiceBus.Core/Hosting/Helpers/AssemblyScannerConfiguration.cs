@@ -17,7 +17,7 @@
         public bool ScanAppDomainAssemblies { get; set; } = false;
 
         /// <summary>
-        /// Defines whether exceptions occurint during assembly scanning should be rethrown or ignored. Default value is <code>false</code>.
+        /// Defines whether exceptions occuring during assembly scanning should be rethrown or ignored. Default value is <code>false</code>.
         /// </summary>
         public bool ThrowExceptions { get; set; } = false;
 
