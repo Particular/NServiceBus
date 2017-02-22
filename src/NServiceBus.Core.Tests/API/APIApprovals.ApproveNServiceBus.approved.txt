@@ -326,6 +326,7 @@ namespace NServiceBus
         InstancePerUnitOfWork = 1,
         InstancePerCall = 2,
     }
+    public class DevelopmentPersistence : NServiceBus.Persistence.PersistenceDefinition { }
     public class DistributionPolicy : NServiceBus.IDistributionPolicy
     {
         public DistributionPolicy() { }
