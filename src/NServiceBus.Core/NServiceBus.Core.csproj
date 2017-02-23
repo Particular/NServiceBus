@@ -106,6 +106,7 @@
     <Compile Include="Features\SatelliteDefinitions.cs" />
     <Compile Include="Hosting\Helpers\AssemblyScannerConfiguration.cs" />
     <Compile Include="Hosting\Helpers\AssemblyScannerConfigurationExtensions.cs" />
+    <Compile Include="MessageMutators\MutatorRegistrationExtensions.cs" />
     <Compile Include="MessageMutators\Mutators.cs" />
     <Compile Include="Notifications.cs" />
     <Compile Include="Notifications\EventAggregator.cs" />

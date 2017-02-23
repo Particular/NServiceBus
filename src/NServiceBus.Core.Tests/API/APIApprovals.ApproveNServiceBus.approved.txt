@@ -2192,6 +2192,10 @@ namespace NServiceBus.MessageMutator
         public bool TryGetIncomingHeaders(out System.Collections.Generic.IReadOnlyDictionary<, > incomingHeaders) { }
         public bool TryGetIncomingMessage(out object incomingMessage) { }
     }
+    public class static MutatorRegistrationExtensions
+    {
+        public static void RegisterMessageMutator<TMessageMutator>(this NServiceBus.EndpointConfiguration endpointConfiguration) { }
+    }
 }
 namespace NServiceBus.ObjectBuilder.Common
 {
