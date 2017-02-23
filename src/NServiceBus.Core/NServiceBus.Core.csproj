@@ -99,6 +99,7 @@
     <Compile Include="Audit\ConfigureAudit.cs" />
     <Compile Include="Audit\AuditToDispatchConnector.cs" />
     <Compile Include="Audit\InvokeAuditPipelineBehavior.cs" />
+    <Compile Include="DelayedDelivery\ExternalTimeoutManagerConfigurationExtensions.cs" />
     <Compile Include="DelayedDelivery\TimeoutManagerRoutingStrategy.cs" />
     <Compile Include="DelayedDelivery\TimeoutManager\TimeoutManagerConfiguration.cs" />
     <Compile Include="DelayedDelivery\TimeoutManager\TimeoutManagerConfigurationExtensions.cs" />

@@ -12,7 +12,10 @@
             DependsOnOptionally<TimeoutManager>();
             Defaults(s =>
             {
-                var timeoutManagerAddressConfiguration = new TimeoutManagerAddressConfiguration(s.GetConfigSection<UnicastBusConfig>()?.TimeoutManagerAddress);
+                var timeoutManagerAddressConfiguration =
+                    new TimeoutManagerAddressConfiguration(
+                        s.GetConfigSection<UnicastBusConfig>()?.TimeoutManagerAddress
+                        ?? s.GetExternalTimeoutManagerAddress());
                 s.Set<TimeoutManagerAddressConfiguration>(timeoutManagerAddressConfiguration);
             });
         }

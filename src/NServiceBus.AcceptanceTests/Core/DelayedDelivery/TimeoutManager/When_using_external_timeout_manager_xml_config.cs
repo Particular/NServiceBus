@@ -9,7 +9,7 @@
     using NServiceBus.Config;
     using NUnit.Framework;
 
-    public class When_using_external_timeout_manager : NServiceBusAcceptanceTest
+    public class When_using_external_timeout_manager_xml_config : NServiceBusAcceptanceTest
     {
         [Test]
         public async Task Should_delay_delivery()

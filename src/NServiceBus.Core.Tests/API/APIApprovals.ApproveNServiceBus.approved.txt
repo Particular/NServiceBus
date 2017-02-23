@@ -1689,6 +1689,10 @@ namespace NServiceBus.DelayedDelivery
         public DoNotDeliverBefore(System.DateTime at) { }
         public System.DateTime At { get; }
     }
+    public class static ExternalTimeoutManagerConfigurationExtensions
+    {
+        public static void UseExternalTimeoutManager(this NServiceBus.EndpointConfiguration endpointConfiguration, string externalTimeoutManagerAddress) { }
+    }
 }
 namespace NServiceBus.DeliveryConstraints
 {
