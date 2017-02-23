@@ -32,10 +32,14 @@
         {
             public Endpoint()
             {
-                EndpointSetup<DefaultServer>(c => c.UseSerialization<XmlSerializer>());
+                EndpointSetup<DefaultServer>(c => 
+                {
+                    c.UseSerialization<XmlSerializer>();
+                    c.RegisterMessageMutator<MyTransportMessageMutator>()
+                });
             }
 
-            class MyTransportMessageMutator : IMutateOutgoingTransportMessages, INeedInitialization
+            class MyTransportMessageMutator : IMutateOutgoingTransportMessages
             {
                 public Task MutateOutgoing(MutateOutgoingTransportMessageContext context)
                 {
@@ -43,11 +47,6 @@
                     context.OutgoingHeaders[Headers.EnclosedMessageTypes] = typeof(MessageThatMutatorChangesTo).FullName;
                     context.OutgoingBody = Encoding.UTF8.GetBytes("<MessageThatMutatorChangesTo><SomeProperty>SomeValue</SomeProperty></MessageThatMutatorChangesTo>");
                     return Task.FromResult(0);
-                }
-
-                public void Customize(EndpointConfiguration configuration)
-                {
-                    configuration.RegisterComponents(c => c.ConfigureComponent<MyTransportMessageMutator>(DependencyLifecycle.InstancePerCall));
                 }
             }
 
