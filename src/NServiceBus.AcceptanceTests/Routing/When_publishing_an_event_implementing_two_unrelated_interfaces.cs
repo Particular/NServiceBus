@@ -6,14 +6,13 @@
     using EndpointTemplates;
     using Features;
     using NUnit.Framework;
-    using ScenarioDescriptors;
 
     public class When_publishing_an_event_implementing_two_unrelated_interfaces : NServiceBusAcceptanceTest
     {
         [Test]
         public async Task Event_should_be_published_using_instance_type()
         {
-            await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
+            var context = await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
                 .WithEndpoint<Publisher>(b =>
                     b.When(c => c.EventASubscribed && c.EventBSubscribed, (session, ctx) =>
                     {
@@ -23,25 +22,22 @@
                         };
                         return session.Publish(message);
                     }))
-                .WithEndpoint<Subscriber>(b => b.When(async (session, context) =>
+                .WithEndpoint<Subscriber>(b => b.When(async (session, ctx) =>
                 {
                     await session.Subscribe<IEventA>();
                     await session.Subscribe<IEventB>();
 
-                    if (context.HasNativePubSubSupport)
+                    if (ctx.HasNativePubSubSupport)
                     {
-                        context.EventASubscribed = true;
-                        context.EventBSubscribed = true;
+                        ctx.EventASubscribed = true;
+                        ctx.EventBSubscribed = true;
                     }
                 }))
                 .Done(c => c.GotEventA && c.GotEventB)
-                .Repeat(r => r.For(Serializers.Xml))
-                .Should(c =>
-                {
-                    Assert.True(c.GotEventA);
-                    Assert.True(c.GotEventB);
-                })
                 .Run(TimeSpan.FromSeconds(20));
+
+            Assert.True(context.GotEventA);
+            Assert.True(context.GotEventB);
         }
 
         public class Context : ScenarioContext
@@ -57,20 +53,24 @@
         {
             public Publisher()
             {
-                EndpointSetup<DefaultPublisher>(b => b.OnEndpointSubscribed<Context>((s, context) =>
+                EndpointSetup<DefaultPublisher>(b =>
                 {
-                    if (s.SubscriberReturnAddress.Contains("Subscriber"))
+                    b.UseSerialization<XmlSerializer>();
+                    b.OnEndpointSubscribed<Context>((s, context) =>
                     {
-                        if (s.MessageType == typeof(IEventA).AssemblyQualifiedName)
+                        if (s.SubscriberReturnAddress.Contains("Subscriber"))
                         {
-                            context.EventASubscribed = true;
+                            if (s.MessageType == typeof(IEventA).AssemblyQualifiedName)
+                            {
+                                context.EventASubscribed = true;
+                            }
+                            if (s.MessageType == typeof(IEventB).AssemblyQualifiedName)
+                            {
+                                context.EventBSubscribed = true;
+                            }
                         }
-                        if (s.MessageType == typeof(IEventB).AssemblyQualifiedName)
-                        {
-                            context.EventBSubscribed = true;
-                        }
-                    }
-                }));
+                    });
+                });
             }
         }
 
@@ -80,6 +80,7 @@
             {
                 EndpointSetup<DefaultServer>(c =>
                     {
+                        c.UseSerialization<XmlSerializer>();
                         c.Conventions().DefiningMessagesAs(t => t != typeof(CompositeEvent) && typeof(IMessage).IsAssignableFrom(t) &&
                                                                 typeof(IMessage) != t &&
                                                                 typeof(IEvent) != t &&

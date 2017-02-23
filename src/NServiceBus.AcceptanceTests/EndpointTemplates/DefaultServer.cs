@@ -8,7 +8,6 @@
     using Configuration.AdvanceExtensibility;
     using Features;
     using NServiceBus.Config.ConfigurationSource;
-    using NServiceBus.Serialization;
 
     public class DefaultServer : IEndpointSetupTemplate
     {
@@ -47,11 +46,6 @@
             configuration.DefineBuilder(settings);
             configuration.RegisterComponentsAndInheritanceHierarchy(runDescriptor);
 
-            Type serializerType;
-            if (settings.TryGet("Serializer", out serializerType))
-            {
-                configuration.UseSerialization((SerializationDefinition)Activator.CreateInstance(serializerType));
-            }
             await configuration.DefinePersistence(settings, endpointConfiguration).ConfigureAwait(false);
 
             configuration.GetSettings().SetDefault("ScaleOut.UseSingleBrokerQueue", true);

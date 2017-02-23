@@ -7,32 +7,28 @@
     using Features;
     using NServiceBus.Pipeline;
     using NUnit.Framework;
-    using ScenarioDescriptors;
 
     public class When_publishing_an_interface : NServiceBusAcceptanceTest
     {
         [Test]
         public async Task Should_receive_event_for_non_xml()
         {
-            await Scenario.Define<Context>()
+            var context = await Scenario.Define<Context>()
                 .WithEndpoint<Publisher>(b =>
                     b.When(c => c.Subscribed, (session, ctx) => session.Publish<MyEvent>()))
-                .WithEndpoint<Subscriber>(b => b.When(async (session, context) =>
+                .WithEndpoint<Subscriber>(b => b.When(async (session, ctx) =>
                 {
                     await session.Subscribe<MyEvent>();
-                    if (context.HasNativePubSubSupport)
+                    if (ctx.HasNativePubSubSupport)
                     {
-                        context.Subscribed = true;
+                        ctx.Subscribed = true;
                     }
                 }))
                 .Done(c => c.GotTheEvent)
-                .Repeat(r => r.For(Serializers.Json))
-                .Should(c =>
-                {
-                    Assert.True(c.GotTheEvent);
-                    Assert.AreEqual(typeof(MyEvent), c.EventTypePassedToRouting);
-                })
                 .Run();
+
+            Assert.True(context.GotTheEvent);
+            Assert.AreEqual(typeof(MyEvent), context.EventTypePassedToRouting);
         }
 
         public class Context : ScenarioContext
@@ -48,6 +44,7 @@
             {
                 EndpointSetup<DefaultPublisher>(c =>
                 {
+                    c.UseSerialization<JsonSerializer>();
                     c.Pipeline.Register("EventTypeSpy", new EventTypeSpy((Context)ScenarioContext), "EventTypeSpy");
                     c.OnEndpointSubscribed<Context>((s, context) =>
                     {
@@ -80,8 +77,12 @@
         {
             public Subscriber()
             {
-                EndpointSetup<DefaultServer>(c => c.DisableFeature<AutoSubscribe>(),
-                           metadata => metadata.RegisterPublisherFor<MyEvent>(typeof(Publisher)));
+                EndpointSetup<DefaultServer>(c =>
+                    {
+                        c.UseSerialization<JsonSerializer>();
+                        c.DisableFeature<AutoSubscribe>();
+                    },
+                    metadata => metadata.RegisterPublisherFor<MyEvent>(typeof(Publisher)));
             }
 
             public class MyEventHandler : IHandleMessages<MyEvent>
