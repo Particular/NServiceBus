@@ -155,10 +155,10 @@
     <Compile Include="Pipeline\HeaderOptionExtensionsTests.cs" />
     <Compile Include="Pipeline\Incoming\SerializeMessageConnectorTests.cs" />
     <Compile Include="Pipeline\Incoming\InvokeHandlerTerminatorTest.cs" />
-    <Compile Include="Pipeline\MutateInstanceMessage\MutateIncomingMessageBehaviorTests.cs" />
-    <Compile Include="Pipeline\MutateInstanceMessage\MutateOutgoingMessageBehaviorTests.cs" />
-    <Compile Include="Pipeline\MutateTransportMessage\MutateIncomingTransportMessageBehaviorTests.cs" />
-    <Compile Include="Pipeline\MutateTransportMessage\MutateOutgoingTransportMessageBehaviorTests.cs" />
+    <Compile Include="MessageMutators\MutateInstanceMessage\MutateIncomingMessageBehaviorTests.cs" />
+    <Compile Include="MessageMutators\MutateInstanceMessage\MutateOutgoingMessageBehaviorTests.cs" />
+    <Compile Include="MessageMutators\MutateTransportMessage\MutateIncomingTransportMessageBehaviorTests.cs" />
+    <Compile Include="MessageMutators\MutateTransportMessage\MutateOutgoingTransportMessageBehaviorTests.cs" />
     <Compile Include="Pipeline\Outgoing\ImmediateDispatchOptionExtensionsTests.cs" />
     <Compile Include="Pipeline\Outgoing\MessageIdExtensionsTests.cs" />
     <Compile Include="Pipeline\Outgoing\OutgoingPublishContextTests.cs" />
