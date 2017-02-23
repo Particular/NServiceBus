@@ -30,6 +30,19 @@ namespace NServiceBus
     {
         public AllAssemblies() { }
     }
+    public class AssemblyScannerConfiguration
+    {
+        public AssemblyScannerConfiguration() { }
+        public bool ScanAppDomainAssemblies { get; set; }
+        public bool ScanAssembliesInNestedDirectories { get; set; }
+        public bool ThrowExceptions { get; set; }
+        public void ExcludeAssemblies(params string[] assemblies) { }
+        public void ExcludeTypes(params System.Type[] types) { }
+    }
+    public class static AssemblyScannerConfigurationExtensions
+    {
+        public static void AssemblyScanner(this NServiceBus.EndpointConfiguration configuration, System.Action<NServiceBus.AssemblyScannerConfiguration> configure) { }
+    }
     public class static AuditConfigReader
     {
         public static bool TryGetAuditQueueAddress(this NServiceBus.Settings.ReadOnlySettings settings, out string address) { }
@@ -374,7 +387,13 @@ namespace NServiceBus
             "he member currently throws a NotImplementedException. Will be removed in version" +
             " 7.0.0.", true)]
         public void EndpointName(string name) { }
+        [System.ObsoleteAttribute("Use the AssemblyScanner configuration API. Use `AssemblyScannerConfigurationExten" +
+            "sions.AssemblyScanner` instead. Will be treated as an error from version 7.0.0. " +
+            "Will be removed in version 8.0.0.", false)]
         public void ExcludeAssemblies(params string[] assemblies) { }
+        [System.ObsoleteAttribute("Use the AssemblyScanner configuration API. Use `AssemblyScannerConfigurationExten" +
+            "sions.AssemblyScanner` instead. Will be treated as an error from version 7.0.0. " +
+            "Will be removed in version 8.0.0.", false)]
         public void ExcludeTypes(params System.Type[] types) { }
         [System.ObsoleteAttribute("Use `EndpointConfiguration.OverridePublicReturnAddress(string address)` instead. " +
             "The member currently throws a NotImplementedException. Will be removed in versio" +
@@ -384,6 +403,9 @@ namespace NServiceBus
         [System.ObsoleteAttribute("Use `EndpointConfiguration.ExcludeAssemblies` instead. The member currently throw" +
             "s a NotImplementedException. Will be removed in version 7.0.0.", true)]
         public void ScanAssembliesInDirectory(string probeDirectory) { }
+        [System.ObsoleteAttribute("Use the AssemblyScanner configuration API. Use `AssemblyScannerConfigurationExten" +
+            "sions.AssemblyScanner` instead. Will be treated as an error from version 7.0.0. " +
+            "Will be removed in version 8.0.0.", false)]
         public void ScanAssembliesInNestedDirectories() { }
         public void SendOnly() { }
         [System.ObsoleteAttribute("Use `EndpointConfiguration.ExcludeTypes` instead. The member currently throws a N" +
@@ -1969,6 +1991,7 @@ namespace NServiceBus.Hosting.Helpers
             "tect an NServiceBus reference. The member currently throws a NotImplementedExcep" +
             "tion. Will be removed in version 7.0.0.", true)]
         public System.Collections.Generic.List<System.Reflection.Assembly> MustReferenceAtLeastOneAssembly { get; }
+        public bool ScanAppDomainAssemblies { get; set; }
         public bool ThrowExceptions { get; set; }
         public NServiceBus.Hosting.Helpers.AssemblyScannerResults GetScannableAssemblies() { }
     }

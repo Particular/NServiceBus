@@ -76,37 +76,40 @@ namespace NServiceBus
         /// <summary>
         /// Append a list of <see cref="Assembly" />s to the ignored list. The string is the file name of the assembly.
         /// </summary>
+        [ObsoleteEx(
+            Message = "Use the AssemblyScanner configuration API.",
+            ReplacementTypeOrMember = "AssemblyScannerConfigurationExtensions.AssemblyScanner",
+            TreatAsErrorFromVersion = "7.0",
+            RemoveInVersion = "8.0")]
         public void ExcludeAssemblies(params string[] assemblies)
         {
-            Guard.AgainstNull(nameof(assemblies), assemblies);
-
-            if (assemblies.Any(string.IsNullOrWhiteSpace))
-            {
-                throw new ArgumentException("Passed in a null or empty assembly name.", nameof(assemblies));
-            }
-            excludedAssemblies = excludedAssemblies.Union(assemblies, StringComparer.OrdinalIgnoreCase).ToList();
+            Settings.GetOrCreate<AssemblyScannerConfiguration>().ExcludeAssemblies(assemblies);
         }
 
         /// <summary>
         /// Append a list of <see cref="Type" />s to the ignored list.
         /// </summary>
+        [ObsoleteEx(
+            Message = "Use the AssemblyScanner configuration API.",
+            ReplacementTypeOrMember = "AssemblyScannerConfigurationExtensions.AssemblyScanner",
+            TreatAsErrorFromVersion = "7.0",
+            RemoveInVersion = "8.0")]
         public void ExcludeTypes(params Type[] types)
         {
-            Guard.AgainstNull(nameof(types), types);
-            if (types.Any(x => x == null))
-            {
-                throw new ArgumentException("Passed in a null or empty type.", nameof(types));
-            }
-
-            excludedTypes = excludedTypes.Union(types).ToList();
+            Settings.GetOrCreate<AssemblyScannerConfiguration>().ExcludeTypes(types);
         }
 
         /// <summary>
         /// Specify to scan nested directories when performing assembly scanning.
         /// </summary>
+        [ObsoleteEx(
+            Message = "Use the AssemblyScanner configuration API.",
+            ReplacementTypeOrMember = "AssemblyScannerConfigurationExtensions.AssemblyScanner",
+            TreatAsErrorFromVersion = "7.0",
+            RemoveInVersion = "8.0")]
         public void ScanAssembliesInNestedDirectories()
         {
-            scanAssembliesInNestedDirectories = true;
+            Settings.GetOrCreate<AssemblyScannerConfiguration>().ScanAssembliesInNestedDirectories = true;
         }
 
         /// <summary>
@@ -252,11 +255,14 @@ namespace NServiceBus
 
         List<Type> GetAllowedTypes(string path)
         {
+            var assemblyScannerSettings = Settings.GetOrCreate<AssemblyScannerConfiguration>();
             var assemblyScanner = new AssemblyScanner(path)
             {
-                AssembliesToSkip = excludedAssemblies,
-                TypesToSkip = excludedTypes,
-                ScanNestedDirectories = scanAssembliesInNestedDirectories
+                AssembliesToSkip = assemblyScannerSettings.ExcludedAssemblies,
+                TypesToSkip = assemblyScannerSettings.ExcludedTypes,
+                ScanNestedDirectories = assemblyScannerSettings.ScanAssembliesInNestedDirectories,
+                ThrowExceptions = assemblyScannerSettings.ThrowExceptions,
+                ScanAppDomainAssemblies = assemblyScannerSettings.ScanAppDomainAssemblies
             };
             return assemblyScanner
                 .GetScannableAssemblies()
@@ -265,10 +271,14 @@ namespace NServiceBus
 
         List<Type> GetAllowedCoreTypes()
         {
+            var assemblyScannerSettings = Settings.GetOrCreate<AssemblyScannerConfiguration>();
             var assemblyScanner = new AssemblyScanner(Assembly.GetExecutingAssembly())
             {
-                TypesToSkip = excludedTypes,
-                ScanNestedDirectories = scanAssembliesInNestedDirectories
+                AssembliesToSkip = assemblyScannerSettings.ExcludedAssemblies,
+                TypesToSkip = assemblyScannerSettings.ExcludedTypes,
+                ScanNestedDirectories = assemblyScannerSettings.ScanAssembliesInNestedDirectories,
+                ThrowExceptions = assemblyScannerSettings.ThrowExceptions,
+                ScanAppDomainAssemblies = assemblyScannerSettings.ScanAppDomainAssemblies
             };
             return assemblyScanner
                 .GetScannableAssemblies()
@@ -277,11 +287,8 @@ namespace NServiceBus
 
         ConventionsBuilder conventionsBuilder;
         IContainer customBuilder;
-        List<string> excludedAssemblies = new List<string>();
-        List<Type> excludedTypes = new List<Type>();
         PipelineConfiguration pipelineCollection;
         List<Action<IConfigureComponents>> registrations = new List<Action<IConfigureComponents>>();
-        bool scanAssembliesInNestedDirectories;
         List<Type> scannedTypes;
     }
 }

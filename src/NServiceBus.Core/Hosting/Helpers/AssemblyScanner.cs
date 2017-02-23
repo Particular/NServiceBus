@@ -44,6 +44,11 @@ namespace NServiceBus.Hosting.Helpers
         /// </summary>
         public bool ThrowExceptions { get; set; }
 
+        /// <summary>
+        /// Determines if the scanner should scan assemblies loaded in the <see cref="AppDomain.CurrentDomain"/>.
+        /// </summary>
+        public bool ScanAppDomainAssemblies { get; set; }
+
         internal string CoreAssemblyName { get; set; }
 
         /// <summary>
@@ -62,6 +67,18 @@ namespace NServiceBus.Hosting.Helpers
                 var assemblyPath = AssemblyPath(assemblyToScan);
                 ScanAssembly(assemblyPath, results, processed);
                 return results;
+            }
+
+            if (ScanAppDomainAssemblies)
+            {
+                var appDomainAssemblies = AppDomain.CurrentDomain.GetAssemblies();
+                foreach (var assembly in appDomainAssemblies)
+                {
+                    if (!assembly.IsDynamic)
+                    {
+                        ScanAssembly(AssemblyPath(assembly), results, processed);
+                    }
+                }
             }
 
             foreach (var assemblyFile in ScanDirectoryForAssemblyFiles(baseDirectoryToScan, ScanNestedDirectories))
@@ -164,7 +181,6 @@ namespace NServiceBus.Hosting.Helpers
             {
                 return;
             }
-
             try
             {
                 //will throw if assembly cannot be loaded
@@ -319,14 +335,26 @@ namespace NServiceBus.Hosting.Helpers
             return fileInfo;
         }
 
-        internal static bool ReferencesNServiceBus(string assemblyPath, Dictionary<string, bool> processed, string coreAssemblyName = NServicebusCoreAssemblyName)
+        internal bool ReferencesNServiceBus(string assemblyPath, Dictionary<string, bool> processed, string coreAssemblyName = NServicebusCoreAssemblyName)
         {
-            var assembly = Assembly.ReflectionOnlyLoadFrom(assemblyPath);
-            if (assembly.GetName().Name == coreAssemblyName)
+            try
             {
-                return true;
+                var assembly = Assembly.ReflectionOnlyLoadFrom(assemblyPath);
+                if (assembly.GetName().Name == coreAssemblyName)
+                {
+                    return true;
+                }
+                return ReferencesNServiceBus(assembly, coreAssemblyName, processed);
             }
-            return ReferencesNServiceBus(assembly, coreAssemblyName, processed);
+            catch (Exception ex) when (ex is BadImageFormatException || ex is FileLoadException)
+            {
+                if (ThrowExceptions)
+                {
+                    throw;
+                }
+
+                return false;
+            }
         }
 
         static bool ReferencesNServiceBus(Assembly assembly, string coreAssemblyName, Dictionary<string, bool> processed)
