@@ -281,7 +281,6 @@
     <Compile Include="Core\Encryption\When_using_Rijndael_with_multikey.cs" />
     <Compile Include="Core\Encryption\When_using_Rijndael_with_custom.cs" />
     <Compile Include="Core\Encryption\When_using_Rijndael_with_config.cs" />
-    <Compile Include="Mutators\Issue_1980.cs" />
     <Compile Include="Mutators\When_outgoing_mutator_replaces_instance.cs" />
     <Compile Include="Mutators\When_defining_outgoing_message_mutators.cs" />
     <Compile Include="PerfMon\CriticalTime\When_slow_with_CriticalTime_enabled.cs" />
