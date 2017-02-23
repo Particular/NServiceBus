@@ -106,6 +106,7 @@
     <Compile Include="Features\SatelliteDefinitions.cs" />
     <Compile Include="Hosting\Helpers\AssemblyScannerConfiguration.cs" />
     <Compile Include="Hosting\Helpers\AssemblyScannerConfigurationExtensions.cs" />
+    <Compile Include="MessageMutators\Mutators.cs" />
     <Compile Include="Notifications.cs" />
     <Compile Include="Notifications\EventAggregator.cs" />
     <Compile Include="Encryption\WireEncryptedStringConversions.cs" />
@@ -371,8 +372,8 @@
     <Compile Include="Features\FeatureState.cs" />
     <Compile Include="Performance\MessageProcessingOptimizations\MessageProcessingOptimizationExtensions.cs" />
     <Compile Include="Pipeline\IBehavior.cs" />
-    <Compile Include="Pipeline\MutateInstanceMessage\MutateIncomingMessageContext.cs" />
-    <Compile Include="Pipeline\MutateTransportMessage\MutateIncomingTransportMessageContext.cs" />
+    <Compile Include="MessageMutators\MutateInstanceMessage\MutateIncomingMessageContext.cs" />
+    <Compile Include="MessageMutators\MutateTransportMessage\MutateIncomingTransportMessageContext.cs" />
     <Compile Include="Recoverability\ImmediateRetries\ImmediateRetryMessage.cs" />
     <Compile Include="Recoverability\Faults\ErrorQueueSettings.cs" />
     <Compile Include="Forwarding\IForwardingContext.cs" />
@@ -381,9 +382,9 @@
     <Compile Include="Hosting\AddHostInfoHeadersBehavior.cs" />
     <Compile Include="Hosting\HostInformationFeature.cs" />
     <Compile Include="DataBus\IDataBusProperty.cs" />
-    <Compile Include="Pipeline\MutateTransportMessage\IMutateOutgoingTransportMessages.cs" />
-    <Compile Include="Pipeline\MutateInstanceMessage\MutateOutgoingMessageContext.cs" />
-    <Compile Include="Pipeline\MutateTransportMessage\MutateOutgoingTransportMessageContext.cs" />
+    <Compile Include="MessageMutators\MutateTransportMessage\IMutateOutgoingTransportMessages.cs" />
+    <Compile Include="MessageMutators\MutateInstanceMessage\MutateOutgoingMessageContext.cs" />
+    <Compile Include="MessageMutators\MutateTransportMessage\MutateOutgoingTransportMessageContext.cs" />
     <Compile Include="Pipeline\Outgoing\OutgoingLogicalMessage.cs" />
     <Compile Include="Pipeline\Outgoing\OutgoingPipelineFeature.cs" />
     <Compile Include="Pipeline\Outgoing\IOutgoingSendContext.cs" />
@@ -583,9 +584,9 @@
     <Compile Include="Logging\RollingLogger.cs" />
     <Compile Include="Conventions.cs" />
     <Compile Include="MessageIntentEnum.cs" />
-    <Compile Include="Pipeline\MutateInstanceMessage\IMutateIncomingMessages.cs" />
-    <Compile Include="Pipeline\MutateTransportMessage\IMutateIncomingTransportMessages.cs" />
-    <Compile Include="Pipeline\MutateInstanceMessage\IMutateOutgoingMessages.cs" />
+    <Compile Include="MessageMutators\MutateInstanceMessage\IMutateIncomingMessages.cs" />
+    <Compile Include="MessageMutators\MutateTransportMessage\IMutateIncomingTransportMessages.cs" />
+    <Compile Include="MessageMutators\MutateInstanceMessage\IMutateOutgoingMessages.cs" />
     <Compile Include="Reliability\Outbox\IOutboxStorage.cs" />
     <Compile Include="Reliability\Outbox\Outbox.cs" />
     <Compile Include="Reliability\Outbox\OutboxConfigExtensions.cs" />
@@ -603,8 +604,8 @@
     <Compile Include="Persistence\PersistenceDefinition.cs" />
     <Compile Include="Persistence\PersistenceConfig.cs" />
     <Compile Include="Pipeline\IBehaviorContext.cs" />
-    <Compile Include="Pipeline\MutateInstanceMessage\MutateIncomingMessageBehavior.cs" />
-    <Compile Include="Pipeline\MutateTransportMessage\MutateIncomingTransportMessageBehavior.cs" />
+    <Compile Include="MessageMutators\MutateInstanceMessage\MutateIncomingMessageBehavior.cs" />
+    <Compile Include="MessageMutators\MutateTransportMessage\MutateIncomingTransportMessageBehavior.cs" />
     <Compile Include="Pipeline\StepRegistrationsCoordinator.cs" />
     <Compile Include="Pipeline\BehaviorTypeChecker.cs" />
     <Compile Include="Pipeline\Dependency.cs" />
@@ -638,8 +639,8 @@
     <Compile Include="Pipeline\Incoming\LogicalMessage.cs" />
     <Compile Include="Pipeline\Incoming\MessageHandler.cs" />
     <Compile Include="Pipeline\Outgoing\OutgoingPhysicalToRoutingConnector.cs" />
-    <Compile Include="Pipeline\MutateInstanceMessage\MutateOutgoingMessageBehavior.cs" />
-    <Compile Include="Pipeline\MutateTransportMessage\MutateOutgoingTransportMessageBehavior.cs" />
+    <Compile Include="MessageMutators\MutateInstanceMessage\MutateOutgoingMessageBehavior.cs" />
+    <Compile Include="MessageMutators\MutateTransportMessage\MutateOutgoingTransportMessageBehavior.cs" />
     <Compile Include="Pipeline\Pipeline.cs" />
     <Compile Include="Pipeline\RootContext.cs" />
     <Compile Include="Routing\MessagingBestPractices\EnforceSendBestPracticesBehavior.cs" />
