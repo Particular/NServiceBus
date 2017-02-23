@@ -26,45 +26,61 @@ namespace NServiceBus
 
             var subscribers = await GetSubscribers(publishContext, typesToRoute).ConfigureAwait(false);
 
-            var selectedDestinations = SelectDestinationsForEachEndpoint(publishContext, distributionPolicy, subscribers);
-
-            return selectedDestinations.Select(destination => new UnicastRoutingStrategy(destination));
+            return SelectDestinationsForEachEndpoint(publishContext, distributionPolicy, subscribers);
         }
 
-        HashSet<string> SelectDestinationsForEachEndpoint(IOutgoingPublishContext publishContext, IDistributionPolicy distributionPolicy, IEnumerable<Subscriber> subscribers)
+        Dictionary<string, UnicastRoutingStrategy>.ValueCollection SelectDestinationsForEachEndpoint(IOutgoingPublishContext publishContext, IDistributionPolicy distributionPolicy, IEnumerable<Subscriber> subscribers)
         {
             //Make sure we are sending only one to each transport destination. Might happen when there are multiple routing information sources.
-            var addresses = new HashSet<string>();
-            var destinationsByEndpoint = subscribers
-                .GroupBy(d => d.Endpoint, d => d);
-
-            foreach (var group in destinationsByEndpoint)
+            var addresses = new Dictionary<string, UnicastRoutingStrategy>();
+            Dictionary<string, List<string>> groups = null;
+            foreach (var subscriber in subscribers)
             {
-                if (group.Key == null) //Routing targets that do not specify endpoint name
+                if(subscriber.Endpoint == null)
                 {
-                    //Send a message to each target as we have no idea which endpoint they represent
-                    foreach (var subscriber in group)
+                    if (!addresses.ContainsKey(subscriber.TransportAddress))
                     {
-                        addresses.Add(subscriber.TransportAddress);
+                        addresses.Add(subscriber.TransportAddress, new UnicastRoutingStrategy(subscriber.TransportAddress));
                     }
+
+                    continue;
+                }
+
+                groups = groups ?? new Dictionary<string, List<string>>();
+
+                List<string> transportAddresses;
+                if (groups.TryGetValue(subscriber.Endpoint, out transportAddresses))
+                {
+                    transportAddresses.Add(subscriber.TransportAddress);
                 }
                 else
                 {
-                    var instances = group.Select(s => s.TransportAddress).ToArray();
-                    var distributionContext = new DistributionContext(instances, publishContext.Message, publishContext.MessageId, publishContext.Headers, transportAddressTranslation, publishContext.Extensions);
-                    var subscriber = distributionPolicy.GetDistributionStrategy(group.First().Endpoint, DistributionStrategyScope.Publish).SelectDestination(distributionContext);
-                    addresses.Add(subscriber);
+                    groups[subscriber.Endpoint] = new List<string> { subscriber.TransportAddress };
                 }
             }
 
-            return addresses;
+            if (groups != null)
+            {
+                foreach (var group in groups)
+                {
+                    var instances = group.Value.ToArray(); // could we avoid this?
+                    var distributionContext = new DistributionContext(instances, publishContext.Message, publishContext.MessageId, publishContext.Headers, transportAddressTranslation, publishContext.Extensions);
+                    var subscriber = distributionPolicy.GetDistributionStrategy(group.Key, DistributionStrategyScope.Publish).SelectDestination(distributionContext);
+
+                    if (!addresses.ContainsKey(subscriber))
+                    {
+                        addresses.Add(subscriber, new UnicastRoutingStrategy(subscriber));
+                    }
+                }
+            }
+
+            return addresses.Values;
         }
 
-        async Task<IEnumerable<Subscriber>> GetSubscribers(IExtendable publishContext, Type[] typesToRoute)
+        Task<IEnumerable<Subscriber>> GetSubscribers(IExtendable publishContext, Type[] typesToRoute)
         {
             var messageTypes = typesToRoute.Select(t => new MessageType(t));
-            var subscribers = await subscriptionStorage.GetSubscriberAddressesForMessage(messageTypes, publishContext.Extensions).ConfigureAwait(false);
-            return subscribers;
+            return subscriptionStorage.GetSubscriberAddressesForMessage(messageTypes, publishContext.Extensions);
         }
 
         MessageMetadataRegistry messageMetadataRegistry;
