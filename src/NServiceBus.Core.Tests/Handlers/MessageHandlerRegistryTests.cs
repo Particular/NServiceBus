@@ -22,7 +22,14 @@
             Assert.Throws<Exception>(() => registry.RegisterHandler(handlerType));
         }
 
-        [Test]        public void ShouldIndicateWhetherAHandlerIsATimeoutHandler()        {            var registry = new MessageHandlerRegistry(new Conventions());            registry.RegisterHandler(typeof(SagaWithTimeoutOfMessage));            var handlers = registry.GetHandlersFor(typeof(MyMessage));
+        [Test]
+        public async Task ShouldIndicateWhetherAHandlerIsATimeoutHandler()
+        {
+            var registry = new MessageHandlerRegistry(new Conventions());
+
+            registry.RegisterHandler(typeof(SagaWithTimeoutOfMessage));
+
+            var handlers = registry.GetHandlersFor(typeof(MyMessage));
 
             Assert.AreEqual(2, handlers.Count);
 
@@ -33,7 +40,7 @@
             var timeoutInstance = new SagaWithTimeoutOfMessage();
 
             timeoutHandler.Instance = timeoutInstance;
-            timeoutHandler.Invoke(null, null);
+            await timeoutHandler.Invoke(null, null);
 
             Assert.True(timeoutInstance.TimeoutCalled);
             Assert.False(timeoutInstance.HandlerCalled);
@@ -45,11 +52,34 @@
             var regularInstance = new SagaWithTimeoutOfMessage();
 
             regularHandler.Instance = regularInstance;
-            regularHandler.Invoke(null, null);
+            await regularHandler.Invoke(null, null);
 
             Assert.False(regularInstance.TimeoutCalled);
             Assert.True(regularInstance.HandlerCalled);
         }
+
+        [Test]
+        public async Task ShouldBundlePolymorphicInvocationsForSagas()
+        {
+            var registry = new MessageHandlerRegistry(new Conventions());
+
+            registry.RegisterHandler(typeof(SagaWithHandlerForBaseAndSpecificMessage));
+
+            var handlers = registry.GetHandlersFor(typeof(MyMessageWithBase));
+
+            Assert.AreEqual(1, handlers.Count);
+
+            var polymorphicInvocation = handlers.Single();
+
+            var sagaInstance = new SagaWithHandlerForBaseAndSpecificMessage();
+
+            polymorphicInvocation.Instance = sagaInstance;
+            await polymorphicInvocation.Invoke(null, null);
+
+            Assert.True(sagaInstance.BaseHandlerCalled);
+            Assert.True(sagaInstance.SpecificHandlerCalled);
+        }
+
 
         class HandlerWithIMessageSessionProperty : IHandleMessages<MyMessage>
         {
@@ -89,6 +119,19 @@
         class HandlerWithInheritedIMessageSessionPropertyDep : HandlerBaseWithIMessageSessionDep, IHandleMessages<MyMessage>
         {
             public Task Handle(MyMessage message, IMessageHandlerContext context)
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        class PolymorhicHandler : IHandleMessages<MyBaseMessage>, IHandleMessages<MyMessageWithBase>
+        {
+            public Task Handle(MyBaseMessage message, IMessageHandlerContext context)
+            {
+                throw new NotImplementedException();
+            }
+
+            public Task Handle(MyMessageWithBase message, IMessageHandlerContext context)
             {
                 throw new NotImplementedException();
             }
@@ -142,17 +185,72 @@
         {
         }
 
-        class SagaWithTimeoutOfMessage : Saga<SagaWithTimeoutOfMessage.MySagaData>, IAmStartedByMessages<MyMessage>, IHandleTimeouts<MyMessage>        {            public Task Handle(MyMessage message, IMessageHandlerContext context)            {
+        class MyBaseMessage : IMessage
+        {
+        }
+
+        class MyMessageWithBase : MyBaseMessage
+        {
+        }
+
+        class SagaWithTimeoutOfMessage : Saga<SagaWithTimeoutOfMessage.MySagaData>, IAmStartedByMessages<MyMessage>, IHandleTimeouts<MyMessage>
+        {
+
+            public Task Handle(MyMessage message, IMessageHandlerContext context)
+            {
                 HandlerCalled = true;
                 return TaskEx.CompletedTask;
-            }            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MySagaData> mapper)            {                throw new NotImplementedException();            }            public Task Timeout(MyMessage state, IMessageHandlerContext context)
+            }
+
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MySagaData> mapper)
+            {
+                throw new NotImplementedException();
+            }
+
+            public Task Timeout(MyMessage state, IMessageHandlerContext context)
             {
                 TimeoutCalled = true;
                 return TaskEx.CompletedTask;
             }
 
             public bool HandlerCalled { get; set; }
-            public bool TimeoutCalled { get; set; }            public class MySagaData : ContainSagaData            {            }        }
+            public bool TimeoutCalled { get; set; }
+
+            public class MySagaData : ContainSagaData
+            {
+            }
+        }
+
+        class SagaWithHandlerForBaseAndSpecificMessage : Saga<SagaWithHandlerForBaseAndSpecificMessage.MySagaData>,
+            IHandleMessages<MyBaseMessage>,
+            IHandleMessages<MyMessageWithBase>
+        {
+
+
+            public Task Handle(MyBaseMessage message, IMessageHandlerContext context)
+            {
+                BaseHandlerCalled = true;
+                return TaskEx.CompletedTask;
+            }
+
+            public Task Handle(MyMessageWithBase message, IMessageHandlerContext context)
+            {
+                SpecificHandlerCalled = true;
+                return TaskEx.CompletedTask;
+            }
+
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MySagaData> mapper)
+            {
+                throw new NotImplementedException();
+            }
+
+            public class MySagaData : ContainSagaData
+            {
+            }
+
+            public bool BaseHandlerCalled { get; set; }
+            public bool SpecificHandlerCalled { get; set; }
+        }
 
     }
 }

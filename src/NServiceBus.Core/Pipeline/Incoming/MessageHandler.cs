@@ -13,10 +13,19 @@
         /// </summary>
         /// <param name="invocation">The invocation with context delegate.</param>
         /// <param name="handlerType">The handler type.</param>
-        public MessageHandler(Func<object, object, IMessageHandlerContext, Task> invocation, Type handlerType)
+        public MessageHandler(Func<object, object, IMessageHandlerContext, Task> invocation, Type handlerType) : this(new[] { invocation }, handlerType)
+        {
+        }
+
+        /// <summary>
+        /// Creates a new instance of the message handler with predefined invocation delegate and handler type.
+        /// </summary>
+        /// <param name="invocations">The invocation with context delegate.</param>
+        /// <param name="handlerType">The handler type.</param>
+        public MessageHandler(Func<object, object, IMessageHandlerContext, Task>[] invocations, Type handlerType)
         {
             HandlerType = handlerType;
-            this.invocation = invocation;
+            this.invocations = invocations;
         }
 
         /// <summary>
@@ -32,15 +41,18 @@
         internal bool IsTimeoutHandler { get; set; }
 
         /// <summary>
-        /// Invokes the message handler.
+        /// Performs the invocations.
         /// </summary>
         /// <param name="message">the message to pass to the handler.</param>
         /// <param name="handlerContext">the context to pass to the handler.</param>
-        public Task Invoke(object message, IMessageHandlerContext handlerContext)
+        public async Task Invoke(object message, IMessageHandlerContext handlerContext)
         {
-            return invocation(Instance, message, handlerContext);
+            foreach (var invocation in invocations)
+            {
+                await invocation(Instance, message, handlerContext).ConfigureAwait(false);
+            }
         }
 
-        Func<object, object, IMessageHandlerContext, Task> invocation;
+        Func<object, object, IMessageHandlerContext, Task>[] invocations;
     }
 }
