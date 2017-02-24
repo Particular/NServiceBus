@@ -12,7 +12,7 @@
         [Test]
         public async Task Message_should_be_received()
         {
-            var delay = TimeSpan.FromSeconds(1);
+            var delay = TimeSpan.FromSeconds(2);
 
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<Endpoint>(b => b.When((session, c) =>
