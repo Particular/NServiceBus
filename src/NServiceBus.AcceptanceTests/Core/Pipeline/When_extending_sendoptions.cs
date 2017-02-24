@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.AcceptanceTests.ApiExtension
+﻿namespace NServiceBus.AcceptanceTests.Core.Pipeline
 {
     using System;
     using System.Threading.Tasks;
@@ -80,7 +80,6 @@
             }
         }
 
-        
         public class SendMessage : ICommand
         {
             public string Secret { get; set; }

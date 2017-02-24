@@ -1,14 +1,14 @@
-﻿namespace NServiceBus.AcceptanceTests.ApiExtension
+﻿namespace NServiceBus.AcceptanceTests.Core.Pipeline
 {
     using System;
     using System.Threading.Tasks;
     using AcceptanceTesting;
+    using AcceptanceTests.Routing;
     using EndpointTemplates;
     using Extensibility;
     using Features;
     using NServiceBus.Pipeline;
     using NUnit.Framework;
-    using Routing;
 
     public class When_extending_the_publish_api : NServiceBusAcceptanceTest
     {

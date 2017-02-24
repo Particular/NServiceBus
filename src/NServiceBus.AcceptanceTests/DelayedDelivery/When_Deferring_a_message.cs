@@ -12,7 +12,7 @@
         [Test]
         public async Task Should_delay_delivery()
         {
-            var delay = TimeSpan.FromMilliseconds(1);
+            var delay = TimeSpan.FromSeconds(1);
 
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<Endpoint>(b => b.When((session, c) =>
@@ -59,7 +59,6 @@
             }
         }
 
-        
         public class MyMessage : IMessage
         {
         }

@@ -1,4 +1,4 @@
-namespace NServiceBus.AcceptanceTests.Basic
+﻿namespace NServiceBus.AcceptanceTests.Core.Feature
 {
     using System.Threading.Tasks;
     using AcceptanceTesting;
@@ -6,41 +6,41 @@ namespace NServiceBus.AcceptanceTests.Basic
     using Features;
     using NUnit.Framework;
 
-    public class When_depending_on_untyped_feature : NServiceBusAcceptanceTest
+    public class When_depending_on_typed_feature : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Should_enable_when_untyped_dependency_enabled()
+        public async Task Should_enable_when_typed_dependency_enabled()
         {
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<EndpointWithFeatures>(b => b.CustomConfig(c =>
                 {
-                    c.EnableFeature<UntypedDependentFeature>();
+                    c.EnableFeature<TypedDependentFeature>();
                     c.EnableFeature<DependencyFeature>();
                 }))
                 .Done(c => c.EndpointsStarted)
                 .Run();
 
-            Assert.That(context.UntypedDependencyFeatureSetUp, Is.True);
+            Assert.That(context.TypedDependencyFeatureSetUp, Is.True);
         }
 
         [Test]
-        public async Task Should_disable_when_untyped_dependency_disabled()
+        public async Task Should_disable_when_typed_dependency_disabled()
         {
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<EndpointWithFeatures>(b => b.CustomConfig(c =>
                 {
-                    c.DisableFeature<UntypedDependentFeature>();
+                    c.DisableFeature<TypedDependentFeature>();
                     c.EnableFeature<DependencyFeature>();
                 }))
                 .Done(c => c.EndpointsStarted)
                 .Run();
 
-            Assert.That(context.UntypedDependencyFeatureSetUp, Is.False);
+            Assert.That(context.TypedDependencyFeatureSetUp, Is.False);
         }
 
         class Context : ScenarioContext
         {
-            public bool UntypedDependencyFeatureSetUp { get; set; }
+            public bool TypedDependencyFeatureSetUp { get; set; }
         }
 
         public class EndpointWithFeatures : EndpointConfigurationBuilder
@@ -51,18 +51,17 @@ namespace NServiceBus.AcceptanceTests.Basic
             }
         }
 
-        public class UntypedDependentFeature : Feature
+        public class TypedDependentFeature : Feature
         {
-            public UntypedDependentFeature()
+            public TypedDependentFeature()
             {
-                var featureTypeFullName = typeof(DependencyFeature).FullName;
-                DependsOn(featureTypeFullName);
+                DependsOn<DependencyFeature>();
             }
 
             protected override void Setup(FeatureConfigurationContext context)
             {
                 var testContext = (Context) context.Settings.Get<ScenarioContext>();
-                testContext.UntypedDependencyFeatureSetUp = true;
+                testContext.TypedDependencyFeatureSetUp = true;
             }
         }
 
