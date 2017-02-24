@@ -14,8 +14,8 @@
             {
                 var timeoutManagerAddressConfiguration =
                     new TimeoutManagerAddressConfiguration(
-                        s.GetConfigSection<UnicastBusConfig>()?.TimeoutManagerAddress
-                        ?? s.GetExternalTimeoutManagerAddress());
+                        s.GetExternalTimeoutManagerAddress()
+                        ?? s.GetConfigSection<UnicastBusConfig>()?.TimeoutManagerAddress);
                 s.Set<TimeoutManagerAddressConfiguration>(timeoutManagerAddressConfiguration);
             });
         }
