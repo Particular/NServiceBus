@@ -116,6 +116,7 @@
     <Compile Include="Notifications\IEventAggregator.cs" />
     <Compile Include="Notifications\NotificationSubscriptions.cs" />
     <Compile Include="Notifications\EventAggregatorExtensions.cs" />
+    <Compile Include="Performance\ReceiveStatisticsPerformanceCounterFeature.cs" />
     <Compile Include="Persistence\Msmq\SubscriptionStorage\MsmqSubscriptionMessage.cs" />
     <Compile Include="Pipeline\PipelineExecutionExtensions.cs" />
     <Compile Include="Pipeline\ForkConnector.cs" />
