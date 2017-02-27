@@ -5,7 +5,7 @@
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
-    using NServiceBus.Pipeline;
+    using Pipeline;
     using NUnit.Framework;
 
     public class When_message_has_no_id_header : NServiceBusAcceptanceTest
