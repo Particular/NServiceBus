@@ -971,10 +971,6 @@ namespace NServiceBus
         public static void MakeInstanceUniquelyAddressable(this NServiceBus.EndpointConfiguration config, string discriminator) { }
         public static void OverrideLocalAddress(this NServiceBus.EndpointConfiguration config, string baseInputQueueName) { }
     }
-    public class ReceiveStatisticsPerformanceCounterFeature : NServiceBus.Features.Feature
-    {
-        protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
-    }
     public abstract class RecoverabilityAction
     {
         protected internal RecoverabilityAction() { }
@@ -1930,6 +1926,10 @@ namespace NServiceBus.Features
         protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
     }
     public class Outbox : NServiceBus.Features.Feature
+    {
+        protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
+    }
+    public class ReceiveStatisticsPerformanceCounters : NServiceBus.Features.Feature
     {
         protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
     }

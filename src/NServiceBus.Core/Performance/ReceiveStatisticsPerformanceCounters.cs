@@ -1,14 +1,13 @@
-﻿namespace NServiceBus
+﻿namespace NServiceBus.Features
 {
     using System.Threading.Tasks;
-    using Features;
 
     /// <summary>
     /// Provides performance counters for receive operations.
     /// </summary>
-    public class ReceiveStatisticsPerformanceCounterFeature : Feature
+    public class ReceiveStatisticsPerformanceCounters : Feature
     {
-        internal ReceiveStatisticsPerformanceCounterFeature()
+        internal ReceiveStatisticsPerformanceCounters()
         {
             EnableByDefault();
         }
