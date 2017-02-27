@@ -101,7 +101,6 @@
             }
         }
 
-        
         public class SomeMessage : IMessage
         {
             public Guid Id { get; set; }

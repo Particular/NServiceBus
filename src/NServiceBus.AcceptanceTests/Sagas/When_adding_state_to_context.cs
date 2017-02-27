@@ -6,7 +6,7 @@ namespace NServiceBus.AcceptanceTests.Sagas
     using EndpointTemplates;
     using Extensibility;
     using NServiceBus;
-    using NServiceBus.Pipeline;
+    using Pipeline;
     using NServiceBus.Sagas;
     using NUnit.Framework;
     using Persistence;

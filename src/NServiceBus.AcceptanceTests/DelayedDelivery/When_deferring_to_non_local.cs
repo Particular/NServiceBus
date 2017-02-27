@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.AcceptanceTests.Basic
+﻿namespace NServiceBus.AcceptanceTests.DelayedDelivery
 {
     using System;
     using System.Threading.Tasks;
@@ -12,24 +12,31 @@
         [Test]
         public async Task Message_should_be_received()
         {
+            var delay = TimeSpan.FromSeconds(2);
+
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<Endpoint>(b => b.When((session, c) =>
                 {
                     var options = new SendOptions();
 
-                    options.DelayDeliveryWith(TimeSpan.FromMilliseconds(3));
+                    options.DelayDeliveryWith(delay);
+
+                    c.SentAt = DateTime.UtcNow;
+
                     return session.Send(new MyMessage(), options);
                 }))
                 .WithEndpoint<Receiver>()
                 .Done(c => c.WasCalled)
                 .Run();
 
-            Assert.IsTrue(context.WasCalled);
+            Assert.GreaterOrEqual(context.ReceivedAt - context.SentAt, delay);
         }
 
         public class Context : ScenarioContext
         {
             public bool WasCalled { get; set; }
+            public DateTime SentAt { get; set; }
+            public DateTime ReceivedAt { get; set; }
         }
 
         public class Endpoint : EndpointConfigurationBuilder
@@ -54,13 +61,13 @@
 
                 public Task Handle(MyMessage message, IMessageHandlerContext context)
                 {
+                    Context.ReceivedAt = DateTime.UtcNow;
                     Context.WasCalled = true;
                     return Task.FromResult(0);
                 }
             }
         }
 
-        
         public class MyMessage : ICommand
         {
         }

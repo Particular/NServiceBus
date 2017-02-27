@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.AcceptanceTests.Basic
+﻿namespace NServiceBus.AcceptanceTests.Core.Pipeline
 {
     using System;
     using System.Threading.Tasks;
@@ -39,7 +39,6 @@
             }
         }
 
-        
         public class MyMessage : IMessage
         {
             public Guid Id { get; set; }
