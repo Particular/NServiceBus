@@ -3,13 +3,19 @@
     using System.Threading.Tasks;
     using Features;
 
-    class ReceiveStatisticsPerformanceCounterFeature : Feature
+    /// <summary>
+    /// Provides performance counters for receive operations.
+    /// </summary>
+    public class ReceiveStatisticsPerformanceCounterFeature : Feature
     {
-        public ReceiveStatisticsPerformanceCounterFeature()
+        internal ReceiveStatisticsPerformanceCounterFeature()
         {
             EnableByDefault();
         }
 
+        /// <summary>
+        /// See <see cref="Feature.Setup" />.
+        /// </summary>
         protected internal override void Setup(FeatureConfigurationContext context)
         {
             var logicalAddress = context.Settings.LogicalAddress();
