@@ -180,6 +180,7 @@
     <Compile Include="Serialization\SerializationFeature.cs" />
     <Compile Include="Serialization\SerializationSettingsExtensions.cs" />
     <Compile Include="Serializers\XML\XmlSerialization.cs" />
+    <Compile Include="Transports\Msmq\MsmqRoutingExtensions.cs" />
     <Compile Include="Transports\Msmq\ReceiveOnlyNativeTransactionStrategy.cs" />
     <Compile Include="Transports\ReceiveSettingsExtensions.cs" />
     <Compile Include="Transports\ErrorContext.cs" />

@@ -4,6 +4,7 @@ namespace NServiceBus
     using Routing;
     using Settings;
     using Transport;
+    using Transports.Msmq;
 
     /// <summary>
     /// Transport definition for MSMQ.
@@ -36,6 +37,12 @@ namespace NServiceBus
             msmqSettings.UseDeadLetterQueueForMessagesWithTimeToBeReceived = settings.GetOrDefault<bool>(UseDeadLetterQueueForMessagesWithTimeToBeReceived);
 
             settings.Set<MsmqSettings>(msmqSettings);
+
+            var machineMappings = settings.GetMachineMappings();
+            if (machineMappings.Count > 0)
+            {
+                settings.GetOrCreate<EndpointInstances>().AddOrReplaceInstances("MsmqMachineMappings", machineMappings);
+            }
 
             return new MsmqTransportInfrastructure(settings);
         }

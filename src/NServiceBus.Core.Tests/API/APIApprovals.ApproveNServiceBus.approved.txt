@@ -3427,6 +3427,10 @@ namespace NServiceBus.Transports.Msmq
     {
         public MsmqMessageSender() { }
     }
+    public class static MsmqRoutingExtensions
+    {
+        public static void MapEndpointToMachine(this NServiceBus.RoutingSettings<NServiceBus.MsmqTransport> routingSettings, string logicalEndpoint, string machineName) { }
+    }
     [System.ObsoleteAttribute("The msmq transaction is now available via the pipeline context. Will be removed i" +
         "n version 7.0.0.", true)]
     public class MsmqUnitOfWork
