@@ -892,6 +892,11 @@ namespace NServiceBus
             "version 7.0.0.", true)]
         public NServiceBus.PipelineNotifications Pipeline { get; }
     }
+    public class NotificationSubscriptions
+    {
+        public NotificationSubscriptions() { }
+        public void Subscribe<T>(System.Func<T, System.Threading.Tasks.Task> subscription) { }
+    }
     [System.ObsoleteAttribute("Use `EndpointConfiguration.ExecuteTheseHandlersFirst` instead. Will be removed in" +
         " version 7.0.0.", true)]
     public class Order
