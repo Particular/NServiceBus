@@ -110,6 +110,7 @@
     <Compile Include="Sagas\When_a_base_class_message_starts_a_saga.cs" />
     <Compile Include="Sagas\When_finder_cant_find_saga_instance.cs" />
     <Compile Include="Sagas\When_finder_returns_existing_saga.cs" />
+    <Compile Include="Sagas\When_sagas_share_timeout_messages.cs" />
     <Compile Include="Sagas\When_saga_started_concurrently.cs" />
     <Compile Include="Satellites\When_satellite_txmode_does_not_match_endpoints_txmode.cs" />
     <Compile Include="Sagas\When_using_a_received_message_for_timeout.cs" />
