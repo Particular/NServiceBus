@@ -27,7 +27,7 @@
             {
                 EndpointSetup<DefaultServer>((c, r) =>
                 {
-                    c.UseTransport(r.GetTransportType())
+                    c.ConfigureTransport()
                         .Transactions(TransportTransactionMode.ReceiveOnly);
                     c.UnitOfWork()
                         .WrapHandlersInATransactionScope(TimeSpan.FromHours(1));

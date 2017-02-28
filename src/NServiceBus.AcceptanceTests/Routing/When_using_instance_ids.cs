@@ -38,7 +38,7 @@
             {
                 EndpointSetup<DefaultServer>((c, r) =>
                 {
-                    c.UseTransport(r.GetTransportType()).Routing().RouteToEndpoint(typeof(MyMessage), ReceiverEndpoint);
+                    c.ConfigureTransport().Routing().RouteToEndpoint(typeof(MyMessage), ReceiverEndpoint);
                 });
             }
         }
@@ -49,7 +49,7 @@
             {
                 EndpointSetup<DefaultServer>((c, r) =>
                 {
-                    var routing = c.UseTransport(r.GetTransportType()).Routing();
+                    var routing = c.ConfigureTransport().Routing();
                     routing.RouteToEndpoint(typeof(MyMessage), ReceiverEndpoint);
                     c.GetSettings().GetOrCreate<EndpointInstances>()
                         .AddOrReplaceInstances("testing", new List<EndpointInstance>

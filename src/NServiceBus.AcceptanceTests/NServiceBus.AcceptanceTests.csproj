@@ -74,6 +74,7 @@
     <Compile Include="Basic\When_sending_interface_message_with_conventions.cs" />
     <Compile Include="Core\DelayedDelivery\TimeoutManager\When_using_external_timeout_manager.cs" />
     <Compile Include="Core\Encryption\When_using_Rijndael_with_unobtrusive_mode.cs" />
+    <Compile Include="EndpointTemplates\EndpointConfigurationExtensions.cs" />
     <Compile Include="EndpointTemplates\Requires.cs" />
     <Compile Include="EndpointTemplates\TestSuiteConstraints.cs" />
     <Compile Include="Forwarding\When_requesting_message_to_be_forwarded.cs" />
@@ -239,7 +240,6 @@
     <Compile Include="Routing\When_publishing_an_event_implementing_two_unrelated_interfaces.cs" />
     <Compile Include="Core\Pipeline\When_extending_the_publish_api.cs" />
     <Compile Include="Routing\When_replying_to_message.cs" />
-    <Compile Include="RunDescriptorExtensions.cs" />
     <Compile Include="Sagas\When_forgetting_to_set_a_corr_property.cs" />
     <Compile Include="Sagas\When_auto_correlated_property_is_changed.cs" />
     <Compile Include="Sagas\When_updating_existing_correlation_property.cs" />
