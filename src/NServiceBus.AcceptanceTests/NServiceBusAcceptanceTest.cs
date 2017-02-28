@@ -4,7 +4,6 @@ namespace NServiceBus.AcceptanceTests
     using System.Threading;
     using AcceptanceTesting.Customization;
     using NUnit.Framework;
-    using ScenarioDescriptors;
 
     /// <summary>
     /// Base class for all the NSB test that sets up our conventions
@@ -32,8 +31,6 @@ namespace NServiceBus.AcceptanceTests
 
                 return testName + "." + endpointBuilder;
             };
-
-            Conventions.DefaultRunDescriptor = () => Transports.Default;
         }
     }
 }

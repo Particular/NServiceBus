@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.AcceptanceTesting.Support
 {
     using System;
-    using System.Collections.Generic;
     using System.Threading.Tasks;
 
     public interface IScenarioWithEndpointBehavior<TContext> where TContext : ScenarioContext
@@ -14,18 +13,5 @@
 
         Task<TContext> Run(TimeSpan? testExecutionTimeout = null);
         Task<TContext> Run(RunSettings settings);
-
-        IAdvancedScenarioWithEndpointBehavior<TContext> Repeat(Action<RunDescriptorsBuilder> runtimeDescriptor);
-    }
-
-    public interface IAdvancedScenarioWithEndpointBehavior<TContext> where TContext : ScenarioContext
-    {
-        IAdvancedScenarioWithEndpointBehavior<TContext> Should(Action<TContext> should);
-
-        IAdvancedScenarioWithEndpointBehavior<TContext> Report(Action<RunSummary> summaries);
-
-        Task<IEnumerable<TContext>> Run(TimeSpan? testExecutionTimeout = null);
-
-        Task<IEnumerable<TContext>> Run(RunSettings settings);
     }
 }

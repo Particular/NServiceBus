@@ -10,24 +10,12 @@
     {
         public static Task DefineTransport(this EndpointConfiguration config, RunSettings settings, EndpointCustomizationConfiguration endpointCustomizationConfiguration)
         {
-            Type transportType;
-            if (!settings.TryGet("Transport", out transportType))
-            {
-                settings.Merge(Transports.Default.Settings);
-            }
-
-            return ConfigureTestExecution(TestDependencyType.Transport, config, settings, endpointCustomizationConfiguration.EndpointName, endpointCustomizationConfiguration.PublisherMetadata);
+            return ConfigureTestExecution(TestSuiteConstraints.Current.TransportConfiguration, config, settings, endpointCustomizationConfiguration.EndpointName, endpointCustomizationConfiguration.PublisherMetadata);
         }
 
         public static Task DefinePersistence(this EndpointConfiguration config, RunSettings settings, EndpointCustomizationConfiguration endpointCustomizationConfiguration)
         {
-            Type persistenceType;
-            if (!settings.TryGet("Persistence", out persistenceType))
-            {
-                settings.Merge(Persistence.Default.Settings);
-            }
-
-            return ConfigureTestExecution(TestDependencyType.Persistence, config, settings, endpointCustomizationConfiguration.EndpointName, endpointCustomizationConfiguration.PublisherMetadata);
+            return ConfigureTestExecution(TestSuiteConstraints.Current.PersistenceConfiguration, config, settings, endpointCustomizationConfiguration.EndpointName, endpointCustomizationConfiguration.PublisherMetadata);
         }
 
         public static void DefineBuilder(this EndpointConfiguration config, RunSettings settings)
@@ -68,26 +56,12 @@
             builder.RegisterComponents(r => { RegisterInheritanceHierarchyOfContextOnContainer(runDescriptor, r); });
         }
 
-        static async Task ConfigureTestExecution(TestDependencyType type, EndpointConfiguration config, RunSettings settings, string endpointName, PublisherMetadata publisherMetadata)
+        static async Task ConfigureTestExecution(IConfigureEndpointTestExecution configurer, EndpointConfiguration config, RunSettings settings, string endpointName, PublisherMetadata publisherMetadata)
         {
-            var dependencyTypeString = type.ToString();
-
-            var dependencyType = settings.Get<Type>(dependencyTypeString);
-
-            var typeName = "ConfigureEndpoint" + dependencyType.Name;
-
-            var configurerType = Type.GetType(typeName, false);
-
-            if (configurerType == null)
-            {
-                throw new InvalidOperationException($"Acceptance Test project must include a non-namespaced class named '{typeName}' implementing {typeof(IConfigureEndpointTestExecution).Name}. See {typeof(ConfigureEndpointMsmqTransport).FullName} for an example.");
-            }
-
-            var configurer = Activator.CreateInstance(configurerType) as IConfigureEndpointTestExecution;
-
             if (configurer == null)
             {
-                throw new InvalidOperationException($"{typeName} does not implement {typeof(IConfigureEndpointTestExecution).Name}.");
+                //todo review text
+                //throw new InvalidOperationException($"Acceptance Test project must include a non-namespaced class named '{typeName}' implementing {typeof(IConfigureEndpointTestExecution).Name}. See {typeof(ConfigureEndpointMsmqTransport).FullName} for an example.");
             }
 
             await configurer.Configure(endpointName, config, settings, publisherMetadata).ConfigureAwait(false);

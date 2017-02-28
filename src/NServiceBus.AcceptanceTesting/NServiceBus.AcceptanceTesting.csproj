@@ -74,7 +74,6 @@
     <Compile Include="Support\MessagesFailedException.cs" />
     <Compile Include="Support\PublisherMetadata.cs" />
     <Compile Include="Support\RunDescriptor.cs" />
-    <Compile Include="Support\RunDescriptorsBuilder.cs" />
     <Compile Include="Scenario.cs" />
     <Compile Include="EndpointConfigurationBuilder.cs" />
     <Compile Include="Support\RunSettings.cs" />
