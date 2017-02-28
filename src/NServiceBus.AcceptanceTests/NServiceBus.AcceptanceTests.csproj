@@ -61,6 +61,7 @@
     <Compile Include="Config\When_multiple_configuration_providers.cs" />
     <Compile Include="Core\CoreTestSuiteConstraints.cs" />
     <Compile Include="Core\DelayedDelivery\TimeoutManager\When_dispatch_fails_on_removal_SendsAtomicWithReceive.cs" />
+    <Compile Include="Core\DelayedDelivery\TimeoutManager\When_using_external_timeout_manager_code_first.cs" />
     <Compile Include="Core\Feature\When_feature_startup_task_fails.cs" />
     <Compile Include="Core\LegacyRetries\When_legacy_retries_left_in_retry_queue.cs" />
     <Compile Include="Core\MessageDurability\When_sending_a_non_durable_message_with_conventions.cs" />
@@ -72,7 +73,7 @@
     <Compile Include="Core\Stopping\When_transport_infrastructure_throws_on_stop.cs" />
     <Compile Include="DataBus\When_sending_databus_properties_with_unobtrusive.cs" />
     <Compile Include="Basic\When_sending_interface_message_with_conventions.cs" />
-    <Compile Include="Core\DelayedDelivery\TimeoutManager\When_using_external_timeout_manager.cs" />
+    <Compile Include="Core\DelayedDelivery\TimeoutManager\When_using_external_timeout_manager_xml_config.cs" />
     <Compile Include="Core\Encryption\When_using_Rijndael_with_unobtrusive_mode.cs" />
     <Compile Include="EndpointTemplates\Requires.cs" />
     <Compile Include="EndpointTemplates\TestSuiteConstraints.cs" />
