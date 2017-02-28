@@ -40,13 +40,13 @@
                 });
             }
 
-            public class Saga1 : Saga<Saga1.SagaData1>,
+            public class TimeoutSharingSaga1 : Saga<TimeoutSharingSaga1.TimeoutSharingSagaData1>,
                 IAmStartedByMessages<StartSagaMessage>,
                 IHandleTimeouts<MySagaTimeout>
             {
                 public Context Context { get; set; }
 
-                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData1> mapper)
+                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TimeoutSharingSagaData1> mapper)
                 {
                     mapper.ConfigureMapping<StartSagaMessage>(m => m.Id).ToSaga(s => s.CorrelationProperty);
                 }
@@ -62,18 +62,18 @@
                     return Task.FromResult(0);
                 }
 
-                public class SagaData1 : ContainSagaData
+                public class TimeoutSharingSagaData1 : ContainSagaData
                 {
                     public string CorrelationProperty { get; set; }
                 }
 
             }
 
-            public class Saga2 : Saga<Saga2.SagaData2>, IAmStartedByMessages<StartSagaMessage>, IHandleTimeouts<MySagaTimeout>
+            public class TimeoutSharingSaga2 : Saga<TimeoutSharingSaga2.TimeoutSharingSagaData2>, IAmStartedByMessages<StartSagaMessage>, IHandleTimeouts<MySagaTimeout>
             {
                 public Context Context { get; set; }
 
-                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData2> mapper)
+                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TimeoutSharingSagaData2> mapper)
                 {
                     mapper.ConfigureMapping<StartSagaMessage>(m => m.Id).ToSaga(s => s.CorrelationProperty);
                 }
@@ -88,7 +88,7 @@
                     Context.Saga2ReceivedTimeout = true;
                     return Task.FromResult(0);
                 }
-                public class SagaData2 : ContainSagaData
+                public class TimeoutSharingSagaData2 : ContainSagaData
                 {
                     public string CorrelationProperty { get; set; }
                 }
@@ -97,7 +97,7 @@
 
         public class StartSagaMessage : ICommand
         {
-            public string Id { get; set; }
+            public virtual string Id { get; set; }
         }
 
         public class MySagaTimeout
