@@ -1929,6 +1929,10 @@ namespace NServiceBus.Features
     {
         protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
     }
+    public class ReceiveStatisticsPerformanceCounters : NServiceBus.Features.Feature
+    {
+        protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
+    }
     public class Sagas : NServiceBus.Features.Feature
     {
         protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
