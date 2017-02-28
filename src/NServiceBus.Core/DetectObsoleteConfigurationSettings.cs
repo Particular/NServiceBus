@@ -19,6 +19,7 @@
             DetectObsoleteConfiguration(context.Settings.GetConfigSection<SecondLevelRetriesConfig>());
             DetectObsoleteConfiguration(context.Settings.GetConfigSection<TransportConfig>());
             DetectObsoleteConfiguration(context.Settings.GetConfigSection<Config.Logging>());
+            DetectObsoleteConfiguration(context.Settings.GetConfigSection<AuditConfig>());
             DetectObsoleteConfiguration(context.Settings.GetConfigSection<MessageForwardingInCaseOfFaultConfig>());
         }
 
@@ -42,6 +43,19 @@
             if (unicastBusConfig?.TimeToBeReceivedOnForwardedMessages > TimeSpan.Zero)
             {
                 Logger.Warn($"The use of the {nameof(UnicastBusConfig.TimeToBeReceivedOnForwardedMessages)} attribute in the {nameof(UnicastBusConfig)} configuration section is discouraged and will be removed in the next major version.");
+            }
+        }
+
+        static void DetectObsoleteConfiguration(AuditConfig auditConfig)
+        {
+            if (!string.IsNullOrWhiteSpace(auditConfig?.QueueName))
+            {
+                Logger.Warn($"The use of the {nameof(AuditConfig.QueueName)} attribute in the {nameof(AuditConfig)} configuration section is discouraged and will be removed in the next major version. Switch to the code API by using `{nameof(EndpointConfiguration)}.AuditProcessedMessagesTo` instead.");
+            }
+
+            if (auditConfig?.OverrideTimeToBeReceived != null)
+            {
+                Logger.Warn($"The use of the {nameof(AuditConfig.OverrideTimeToBeReceived)} attribute in the {nameof(AuditConfig)} configuration section is discouraged and will be removed in the next major version. Switch to the code API by using `{nameof(EndpointConfiguration)}.AuditProcessedMessagesTo` instead.");
             }
         }
 

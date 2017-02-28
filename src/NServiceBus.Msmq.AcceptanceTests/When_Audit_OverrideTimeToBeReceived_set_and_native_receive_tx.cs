@@ -2,7 +2,6 @@
 {
     using System;
     using AcceptanceTesting;
-    using Config;
     using NServiceBus.AcceptanceTests;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NUnit.Framework;
@@ -33,8 +32,9 @@
                 {
                     config.UseTransport<MsmqTransport>()
                         .Transactions(TransportTransactionMode.ReceiveOnly);
-                })
-                    .WithConfig<AuditConfig>(c => c.OverrideTimeToBeReceived = TimeSpan.FromHours(1));
+
+                    config.AuditProcessedMessagesTo("audit", TimeSpan.FromHours(1));
+                });
             }
         }
     }

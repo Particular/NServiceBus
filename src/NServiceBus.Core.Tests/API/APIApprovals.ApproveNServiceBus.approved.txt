@@ -1402,8 +1402,14 @@ namespace NServiceBus.Config
     {
         public AuditConfig() { }
         [System.Configuration.ConfigurationPropertyAttribute("OverrideTimeToBeReceived", IsRequired=false)]
+        [System.ObsoleteAttribute("Use of the application configuration file to configure audit is discouraged. Use " +
+            "`EndpointConfiguration.AuditProcessedMessagesTo` instead. Will be removed in ver" +
+            "sion 7.0.0.", true)]
         public System.TimeSpan OverrideTimeToBeReceived { get; set; }
         [System.Configuration.ConfigurationPropertyAttribute("QueueName", IsRequired=false)]
+        [System.ObsoleteAttribute("Use of the application configuration file to configure audit is discouraged. Use " +
+            "`EndpointConfiguration.AuditProcessedMessagesTo` instead. Will be removed in ver" +
+            "sion 7.0.0.", true)]
         public string QueueName { get; set; }
     }
     [System.ObsoleteAttribute("Use the feature concept instead via A class which inherits from `NServiceBus.Feat" +

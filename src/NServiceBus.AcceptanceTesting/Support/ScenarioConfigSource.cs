@@ -37,26 +37,6 @@
 
             }
 
-            if (type == typeof(AuditConfig))
-            {
-                if (!configuration.SendOnly)
-                {
-                    if (configuration.AddressOfAuditQueue != null)
-                    {
-                        return new AuditConfig { QueueName = configuration.AddressOfAuditQueue } as T;
-                    }
-
-                    if (configuration.AuditEndpoint != null)
-                    {
-                        if (!routingTable.ContainsKey(configuration.AuditEndpoint))
-                        {
-                            throw new ConfigurationErrorsException($"{configuration.AuditEndpoint} was not found in routingTable. Ensure that WithEndpoint<{configuration.AuditEndpoint}>() method is called in the test.");
-                        }
-
-                        return new AuditConfig { QueueName = routingTable[configuration.AuditEndpoint] } as T;
-                    }
-                }
-            }
 
             return ConfigurationManager.GetSection(type.Name) as T;
         }

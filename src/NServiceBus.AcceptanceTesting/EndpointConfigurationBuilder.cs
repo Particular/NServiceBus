@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using Support;
+    using System.Configuration;
 
     public class EndpointConfigurationBuilder : IEndpointConfigurationFactory
     {
@@ -84,6 +85,23 @@
                 {
                     configurationBuilderCustomization(bc, runDescriptor);
                 }).ConfigureAwait(false);
+
+                if (!configuration.SendOnly)
+                {
+                    if (configuration.AddressOfAuditQueue != null)
+                    {
+                        endpointConfiguration.AuditProcessedMessagesTo(configuration.AddressOfAuditQueue);
+                    }
+                    else if (configuration.AuditEndpoint != null)
+                    {
+                        if (!routingTable.ContainsKey(configuration.AuditEndpoint))
+                        {
+                            throw new ConfigurationErrorsException($"{configuration.AuditEndpoint} was not found in routingTable. Ensure that WithEndpoint<{configuration.AuditEndpoint}>() method is called in the test.");
+                        }
+
+                        endpointConfiguration.AuditProcessedMessagesTo(routingTable[configuration.AuditEndpoint]);
+                    }
+                }
 
                 return endpointConfiguration;
             };

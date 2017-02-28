@@ -20,8 +20,9 @@
             var isTransactional = settings.GetRequiredTransactionModeForReceives() != TransportTransactionMode.None;
             var outBoxRunning = settings.IsFeatureActive(typeof(Features.Outbox));
 
-            var messageAuditingConfig = settings.GetConfigSection<AuditConfig>();
-            var auditTTBROverridden = messageAuditingConfig != null && messageAuditingConfig.OverrideTimeToBeReceived > TimeSpan.Zero;
+            AuditConfigReader.Result messageAuditingConfig;
+            AuditConfigReader.GetConfiguredAuditQueue(settings, out messageAuditingConfig);
+            var auditTTBROverridden = messageAuditingConfig?.TimeToBeReceived > TimeSpan.Zero;
 
             var unicastBusConfig = settings.GetConfigSection<UnicastBusConfig>();
             var forwardTTBROverridden = unicastBusConfig != null && unicastBusConfig.TimeToBeReceivedOnForwardedMessages > TimeSpan.Zero;
