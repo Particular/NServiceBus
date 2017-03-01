@@ -24,7 +24,7 @@
                 .Done(c => c.SagaId.HasValue)
                 .Run();
 
-            Assert.AreEqual(new Guid("5ebef5b7-815e-653c-2ee7-37ed83d7d7b5"), context.SagaId);
+            Assert.AreEqual(new Guid("595cce7c-15d6-1c2a-6319-1b75c04426b4"), context.SagaId);
         }
 
         public class Context : ScenarioContext
