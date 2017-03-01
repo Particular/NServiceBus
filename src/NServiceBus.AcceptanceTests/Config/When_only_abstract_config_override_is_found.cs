@@ -4,7 +4,6 @@
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
-    using NServiceBus.Config;
     using NServiceBus.Config.ConfigurationSource;
     using NUnit.Framework;
 
@@ -25,13 +24,15 @@
                 EndpointSetup<DefaultServer>();
             }
 
-            abstract class ConfigErrorQueue : IProvideConfiguration<MessageForwardingInCaseOfFaultConfig>
+            abstract class ConfigErrorQueue : IProvideConfiguration<SomeConfiguration>
             {
-                public MessageForwardingInCaseOfFaultConfig GetConfiguration()
+                public SomeConfiguration GetConfiguration()
                 {
                     throw new NotImplementedException();
                 }
             }
+
+            class SomeConfiguration { }
         }
     }
 }

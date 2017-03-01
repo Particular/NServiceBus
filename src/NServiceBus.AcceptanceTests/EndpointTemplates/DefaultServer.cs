@@ -40,6 +40,7 @@
             var recoverability = configuration.Recoverability();
             recoverability.Delayed(delayed => delayed.NumberOfRetries(0));
             recoverability.Immediate(immediate => immediate.NumberOfRetries(0));
+            configuration.SendFailedMessagesTo("error");
 
             await configuration.DefineTransport(settings, endpointConfiguration).ConfigureAwait(false);
 

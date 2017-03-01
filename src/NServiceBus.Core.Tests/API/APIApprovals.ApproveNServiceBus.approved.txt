@@ -1477,10 +1477,14 @@ namespace NServiceBus.Config
         public void Remove(string name) { }
         public void RemoveAt(int index) { }
     }
+    [System.ObsoleteAttribute("Error queue configuration via configuration section is discouraged. Use `Endpoint" +
+        "Configuration.SendFailedMessagesTo` instead. Will be removed in version 7.0.0.", true)]
     public class MessageForwardingInCaseOfFaultConfig : System.Configuration.ConfigurationSection
     {
         public MessageForwardingInCaseOfFaultConfig() { }
         [System.Configuration.ConfigurationPropertyAttribute("ErrorQueue", IsRequired=true)]
+        [System.ObsoleteAttribute("Error queue configuration via configuration section is discouraged. Use `Endpoint" +
+            "Configuration.SendFailedMessagesTo` instead. Will be removed in version 7.0.0.", true)]
         public string ErrorQueue { get; set; }
     }
     public class MsmqSubscriptionStorageConfig : System.Configuration.ConfigurationSection
