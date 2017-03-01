@@ -70,15 +70,6 @@
                 }
             }
 
-            if (type == typeof(Logging))
-            {
-                return new Logging
-                {
-                    Threshold = "WARN"
-                } as T;
-            }
-
-
             return ConfigurationManager.GetSection(type.Name) as T;
         }
 

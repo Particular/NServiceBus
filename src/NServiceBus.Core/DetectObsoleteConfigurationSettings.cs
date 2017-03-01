@@ -18,6 +18,7 @@
             DetectObsoleteConfiguration(context.Settings.GetConfigSection<MasterNodeConfig>());
             DetectObsoleteConfiguration(context.Settings.GetConfigSection<SecondLevelRetriesConfig>());
             DetectObsoleteConfiguration(context.Settings.GetConfigSection<TransportConfig>());
+            DetectObsoleteConfiguration(context.Settings.GetConfigSection<Config.Logging>());
         }
 
         static void DetectObsoleteConfiguration(UnicastBusConfig unicastBusConfig)
@@ -64,6 +65,14 @@
             if (transportConfig != null)
             {
                 throw new NotSupportedException($"The {nameof(TransportConfig)} configuration section is no longer supported. Remove this from this configuration section. Switch to the code API by using `endpointConfiguration.LimitMessageProcessingConcurrencyTo(1)` to change the concurrency level or `endpointConfiguration.Recoverability().Immediate(settings => settings.NumberOfRetries(5)` to change the number of immediate retries instead.");
+            }
+        }
+
+        static void DetectObsoleteConfiguration(Config.Logging loggingConfig)
+        {
+            if (loggingConfig != null)
+            {
+                Logger.Warn("Usage of the 'NServiceBus.Config.Logging' configuration section is discouraged and will be removed with the next major version. Use the LogManager.Use<DefaultFactory>() code configuration API instead.");
             }
         }
 
