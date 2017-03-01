@@ -3,16 +3,35 @@ namespace NServiceBus
     using System;
     using Transport;
 
-    class ReceivePipelineCompleted
+    /// <summary>
+    /// The ReceivePipeline completed event.
+    /// </summary>
+    public class ReceivePipelineCompleted
     {
+        readonly DateTime startedAt;
+
+        /// <summary>
+        /// IncomingMessage.
+        /// </summary>
         public IncomingMessage ProcessedMessage { get; }
-        public DateTime StartedAt { get; }
+
+        /// <summary>
+        /// The time the reciving pipline started.
+        /// </summary>
+        public DateTime StartedAt
+        {
+            get { return startedAt; }
+        }
+
+        /// <summary>
+        /// The time the reciving pipline completed.
+        /// </summary>
         public DateTime CompletedAt { get; }
 
-        public ReceivePipelineCompleted(IncomingMessage processedMessage, DateTime startedAt, DateTime completedAt)
+        internal ReceivePipelineCompleted(IncomingMessage processedMessage, DateTime startedAt, DateTime completedAt)
         {
             ProcessedMessage = processedMessage;
-            StartedAt = startedAt;
+            this.startedAt = startedAt;
             CompletedAt = completedAt;
         }
     }

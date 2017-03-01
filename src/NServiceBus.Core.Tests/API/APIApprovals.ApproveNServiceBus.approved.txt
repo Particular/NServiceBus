@@ -971,6 +971,12 @@ namespace NServiceBus
     {
         public PublishOptions() { }
     }
+    public class ReceivePipelineCompleted
+    {
+        public System.DateTime CompletedAt { get; }
+        public NServiceBus.Transport.IncomingMessage ProcessedMessage { get; }
+        public System.DateTime StartedAt { get; }
+    }
     public class static ReceiveSettingsExtensions
     {
         public static void MakeInstanceUniquelyAddressable(this NServiceBus.EndpointConfiguration config, string discriminator) { }
