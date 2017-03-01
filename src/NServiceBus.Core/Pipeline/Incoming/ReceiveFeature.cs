@@ -19,6 +19,7 @@
         {
             context.Pipeline.Register("TransportReceiveToPhysicalMessageProcessingConnector", b => b.Build<TransportReceiveToPhysicalMessageProcessingConnector>(), "Allows to abort processing the message");
             context.Pipeline.Register("LoadHandlersConnector", b => b.Build<LoadHandlersConnector>(), "Gets all the handlers to invoke from the MessageHandler registry based on the message type.");
+            context.Pipeline.Register("SynchronizedSessionConnector", b => b.Build<SynchronizedSessionConnector>(), "Manages SynchronizedStorageSession.");
 
             context.Pipeline.Register("ExecuteUnitOfWork", new UnitOfWorkBehavior(), "Executes the UoW");
 
@@ -35,12 +36,13 @@
                 return new TransportReceiveToPhysicalMessageProcessingConnector(storage);
             }, DependencyLifecycle.InstancePerCall);
 
+            context.Container.ConfigureComponent(b => new LoadHandlersConnector(b.Build<MessageHandlerRegistry>()), DependencyLifecycle.InstancePerCall);
             context.Container.ConfigureComponent(b =>
             {
                 var adapter = context.Container.HasComponent<ISynchronizedStorageAdapter>() ? b.Build<ISynchronizedStorageAdapter>() : new NoOpAdaper();
                 var syncStorage = context.Container.HasComponent<ISynchronizedStorage>() ? b.Build<ISynchronizedStorage>() : new NoOpSynchronizedStorage();
 
-                return new LoadHandlersConnector(b.Build<MessageHandlerRegistry>(), syncStorage, adapter);
+                return new SynchronizedSessionConnector(syncStorage, adapter);
             }, DependencyLifecycle.InstancePerCall);
         }
 

@@ -71,6 +71,7 @@
     <Compile Include="Core\Stopping\When_feature_startup_task_throws_on_stop.cs" />
     <Compile Include="Core\Stopping\When_pump_throws_on_stop.cs" />
     <Compile Include="Core\Stopping\When_transport_infrastructure_throws_on_stop.cs" />
+    <Compile Include="Core\UnitOfWork\When_using_custom_unit_of_work.cs" />
     <Compile Include="DataBus\When_sending_databus_properties_with_unobtrusive.cs" />
     <Compile Include="Basic\When_sending_interface_message_with_conventions.cs" />
     <Compile Include="Core\DelayedDelivery\TimeoutManager\When_using_external_timeout_manager_xml_config.cs" />
