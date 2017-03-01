@@ -27,18 +27,6 @@
                 return configurationSection as T;
             }
 
-
-            if (type == typeof(MessageForwardingInCaseOfFaultConfig))
-            {
-                if (!configuration.SendOnly)
-                {
-                    return new MessageForwardingInCaseOfFaultConfig
-                    {
-                        ErrorQueue = "error"
-                    } as T;
-                }
-            }
-
             if (type == typeof(UnicastBusConfig))
             {
 

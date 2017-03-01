@@ -19,6 +19,7 @@
             DetectObsoleteConfiguration(context.Settings.GetConfigSection<SecondLevelRetriesConfig>());
             DetectObsoleteConfiguration(context.Settings.GetConfigSection<TransportConfig>());
             DetectObsoleteConfiguration(context.Settings.GetConfigSection<Config.Logging>());
+            DetectObsoleteConfiguration(context.Settings.GetConfigSection<MessageForwardingInCaseOfFaultConfig>());
         }
 
         static void DetectObsoleteConfiguration(UnicastBusConfig unicastBusConfig)
@@ -73,6 +74,14 @@
             if (loggingConfig != null)
             {
                 Logger.Warn("Usage of the 'NServiceBus.Config.Logging' configuration section is discouraged and will be removed with the next major version. Use the LogManager.Use<DefaultFactory>() code configuration API instead.");
+            }
+        }
+
+        static void DetectObsoleteConfiguration(MessageForwardingInCaseOfFaultConfig faultConfig)
+        {
+            if (faultConfig != null)
+            {
+                Logger.Warn("Usage of the 'NServiceBus.Config.MessageForwardingInCaseOfFaultConfig' configuration section is discouraged and will be removed with the next major version. Use the `endpointConfiguration.SendFailedMessagesTo()` code configuration API instead.");
             }
         }
 
