@@ -37,7 +37,7 @@
                 throw new NotSupportedException($"The {nameof(UnicastBusConfig.DistributorDataAddress)} attribute in the {nameof(UnicastBusConfig)} configuration section is no longer supported. Remove this from the configuration section. Switch to the code API by using `{nameof(EndpointConfiguration)}.EnlistWithLegacyMSMQDistributor` instead.");
             }
 
-            if (unicastBusConfig?.TimeToBeReceivedOnForwardedMessages != null)
+            if (unicastBusConfig?.TimeToBeReceivedOnForwardedMessages > TimeSpan.Zero)
             {
                 Logger.Warn($"The use of the {nameof(UnicastBusConfig.TimeToBeReceivedOnForwardedMessages)} attribute in the {nameof(UnicastBusConfig)} configuration section is discouraged and will be removed in the next major version.");
             }
