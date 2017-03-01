@@ -35,7 +35,7 @@
                 EndpointSetup<DefaultServer>((config, context) =>
                 {
                     config.Recoverability().Immediate(immediate => immediate.NumberOfRetries(1));
-                    config.UseTransport(context.GetTransportType())
+                    config.ConfigureTransport()
                         .Transactions(TransportTransactionMode.ReceiveOnly);
                 });
             }

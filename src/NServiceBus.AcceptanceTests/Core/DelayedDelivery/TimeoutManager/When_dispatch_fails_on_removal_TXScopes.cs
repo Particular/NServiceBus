@@ -58,7 +58,7 @@
                     config.RegisterComponents(c => c.ConfigureComponent<FakeTimeoutStorage>(DependencyLifecycle.SingleInstance));
                     config.Pipeline.Register<BehaviorThatLogsControlMessageDelivery.Registration>();
                     config.LimitMessageProcessingConcurrencyTo(1);
-                    config.UseTransport(runDescriptor.GetTransportType()).Transactions(TransportTransactionMode.TransactionScope);
+                    config.ConfigureTransport().Transactions(TransportTransactionMode.TransactionScope);
                 });
             }
 

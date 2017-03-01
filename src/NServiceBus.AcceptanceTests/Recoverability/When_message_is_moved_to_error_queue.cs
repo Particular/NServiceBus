@@ -81,7 +81,7 @@
                 {
                     var testContext = context.ScenarioContext as Context;
 
-                    config.UseTransport(context.GetTransportType())
+                    config.ConfigureTransport()
                         .Transactions(testContext.TransactionMode);
                     config.Pipeline.Register(new ThrowingBehavior(), "Behavior that always throws");
                     config.SendFailedMessagesTo(Conventions.EndpointNamingConvention(typeof(ErrorSpy)));
