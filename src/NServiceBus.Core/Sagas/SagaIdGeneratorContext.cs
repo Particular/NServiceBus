@@ -7,13 +7,18 @@ namespace NServiceBus.Sagas
     /// </summary>
     public class SagaIdGeneratorContext : ContextBag
     {
+
         /// <summary>
         /// Constructs a new context.
         /// </summary>
-        public SagaIdGeneratorContext(string correlationPropertyName, object correlationPropertyValue, SagaMetadata sagaMetadata, ContextBag parentBag) : base(parentBag)
+        /// <param name="correlationPropertyName">Name of property used to correlate messages to this saga. Can be <code>null</code> if a custom saga finder is used for the given message.</param>
+        /// <param name="correlationPropertyValue">Value of the correlation property. Can be <code>null</code> if a custom saga finder is used for the given message.</param>
+        /// <param name="sagaMetadata">Metadata for the targeted saga.</param>
+        /// <param name="parentContext">Parent context.</param>
+        public SagaIdGeneratorContext(string correlationPropertyName, object correlationPropertyValue, SagaMetadata sagaMetadata, ContextBag parentContext) : base(parentContext)
         {
             Guard.AgainstNull(nameof(sagaMetadata),sagaMetadata);
-            Guard.AgainstNull(nameof(parentBag), parentBag);
+            Guard.AgainstNull(nameof(parentContext), parentContext);
 
             CorrelationPropertyName = correlationPropertyName;
             CorrelationPropertyValue = correlationPropertyValue;

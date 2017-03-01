@@ -1730,7 +1730,7 @@ namespace NServiceBus.Extensibility
 {
     public class ContextBag : NServiceBus.Extensibility.ReadOnlyContextBag
     {
-        public ContextBag(NServiceBus.Extensibility.ContextBag parentBag = null) { }
+        public ContextBag(NServiceBus.Extensibility.ContextBag parentContext = null) { }
         public T Get<T>() { }
         public T GetOrCreate<T>()
             where T :  class, new () { }
@@ -2872,7 +2872,7 @@ namespace NServiceBus.Sagas
     }
     public class SagaIdGeneratorContext : NServiceBus.Extensibility.ContextBag
     {
-        public SagaIdGeneratorContext(string correlationPropertyName, object correlationPropertyValue, NServiceBus.Sagas.SagaMetadata sagaMetadata, NServiceBus.Extensibility.ContextBag parentBag) { }
+        public SagaIdGeneratorContext(string correlationPropertyName, object correlationPropertyValue, NServiceBus.Sagas.SagaMetadata sagaMetadata, NServiceBus.Extensibility.ContextBag parentContext) { }
         public string CorrelationPropertyName { get; }
         public object CorrelationPropertyValue { get; }
         public NServiceBus.Sagas.SagaMetadata SagaMetadata { get; }
