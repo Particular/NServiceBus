@@ -72,7 +72,7 @@
                     {
                         if (targetSagaMetaData.SagaType != currentSagaMetadata.SagaType)
                         {
-                            logger.Warn($"Message was intended for {targetSagaType.FullName} so {currentSagaMetadata.SagaType.FullName} will not be invoked");
+                            //Message was intended for a different saga so no need to continue with this invocation
                             return;
                         }
                     }
