@@ -64,7 +64,7 @@
 
                 public class TimeoutSharingSagaData1 : ContainSagaData
                 {
-                    public string CorrelationProperty { get; set; }
+                    public virtual string CorrelationProperty { get; set; }
                 }
 
             }
@@ -90,14 +90,14 @@
                 }
                 public class TimeoutSharingSagaData2 : ContainSagaData
                 {
-                    public string CorrelationProperty { get; set; }
+                    public virtual string CorrelationProperty { get; set; }
                 }
             }
         }
 
         public class StartSagaMessage : ICommand
         {
-            public virtual string Id { get; set; }
+            public string Id { get; set; }
         }
 
         public class MySagaTimeout
