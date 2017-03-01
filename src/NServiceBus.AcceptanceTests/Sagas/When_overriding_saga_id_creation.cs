@@ -5,6 +5,7 @@
     using System.Text;
     using System.Threading.Tasks;
     using AcceptanceTesting;
+    using Configuration.AdvanceExtensibility;
     using EndpointTemplates;
     using Features;
     using NServiceBus.Sagas;
@@ -39,7 +40,7 @@
                 EndpointSetup<DefaultServer>(config =>
                 {
                     config.EnableFeature<TimeoutManager>();
-                    config.RegisterComponents(c => c.RegisterSingleton<ISagaIdGenerator>(new CustomSagaIdGenerator()));
+                    config.GetSettings().Set<ISagaIdGenerator>(new CustomSagaIdGenerator());
                 });
             }
 

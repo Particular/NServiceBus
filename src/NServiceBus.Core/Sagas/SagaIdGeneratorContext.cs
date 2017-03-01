@@ -12,6 +12,9 @@ namespace NServiceBus.Sagas
         /// </summary>
         public SagaIdGeneratorContext(string correlationPropertyName, object correlationPropertyValue, SagaMetadata sagaMetadata, ContextBag parentBag) : base(parentBag)
         {
+            Guard.AgainstNull(nameof(sagaMetadata),sagaMetadata);
+            Guard.AgainstNull(nameof(parentBag), parentBag);
+
             CorrelationPropertyName = correlationPropertyName;
             CorrelationPropertyValue = correlationPropertyValue;
             SagaMetadata = sagaMetadata;
