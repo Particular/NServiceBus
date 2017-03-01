@@ -2844,7 +2844,7 @@ namespace NServiceBus.Sagas
     }
     public interface ISagaIdGenerator
     {
-        System.Guid Generate(string propertyName, object propertyValue, NServiceBus.Sagas.SagaMetadata metadata, NServiceBus.Extensibility.ContextBag context);
+        System.Guid Generate(NServiceBus.Sagas.SagaIdGeneratorContext context);
     }
     public interface ISagaPersister
     {
@@ -2869,6 +2869,13 @@ namespace NServiceBus.Sagas
         public string MessageTypeName { get; }
         public System.Collections.Generic.Dictionary<string, object> Properties { get; }
         public System.Type Type { get; }
+    }
+    public class SagaIdGeneratorContext : NServiceBus.Extensibility.ContextBag
+    {
+        public SagaIdGeneratorContext(string correlationPropertyName, object correlationPropertyValue, NServiceBus.Sagas.SagaMetadata sagaMetadata, NServiceBus.Extensibility.ContextBag parentBag) { }
+        public string CorrelationPropertyName { get; }
+        public object CorrelationPropertyValue { get; }
+        public NServiceBus.Sagas.SagaMetadata SagaMetadata { get; }
     }
     public class SagaMessage
     {

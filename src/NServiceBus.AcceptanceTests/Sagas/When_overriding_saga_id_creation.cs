@@ -6,7 +6,6 @@
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
-    using Extensibility;
     using Features;
     using NServiceBus.Sagas;
     using NUnit.Framework;
@@ -80,9 +79,9 @@
 
         class CustomSagaIdGenerator : ISagaIdGenerator
         {
-            public Guid Generate(string propertyName, object propertyValue, SagaMetadata metadata, ContextBag context)
+            public Guid Generate(SagaIdGeneratorContext context)
             {
-                return ToGuid($"{metadata.SagaEntityType.FullName}_{propertyName}_{propertyValue}");
+                return ToGuid($"{context.SagaMetadata.SagaEntityType.FullName}_{context.CorrelationPropertyName}_{context.CorrelationPropertyValue}");
             }
 
             static Guid ToGuid(string src)
