@@ -5,7 +5,7 @@ namespace NServiceBus.Sagas
     /// <summary>
     /// Context provided to the saga id generator.
     /// </summary>
-    public class SagaIdGeneratorContext : ContextBag
+    public class SagaIdGeneratorContext : IExtendable
     {
 
         /// <summary>
@@ -14,15 +14,16 @@ namespace NServiceBus.Sagas
         /// <param name="correlationPropertyName">Name of property used to correlate messages to this saga. Can be <code>null</code> if a custom saga finder is used for the given message.</param>
         /// <param name="correlationPropertyValue">Value of the correlation property. Can be <code>null</code> if a custom saga finder is used for the given message.</param>
         /// <param name="sagaMetadata">Metadata for the targeted saga.</param>
-        /// <param name="parentContext">Parent context.</param>
-        public SagaIdGeneratorContext(string correlationPropertyName, object correlationPropertyValue, SagaMetadata sagaMetadata, ContextBag parentContext) : base(parentContext)
+        /// <param name="extensions">A <see cref="ContextBag" /> which can be used to extend the current object.</param>
+        public SagaIdGeneratorContext(string correlationPropertyName, object correlationPropertyValue, SagaMetadata sagaMetadata, ContextBag extensions)
         {
-            Guard.AgainstNull(nameof(sagaMetadata),sagaMetadata);
-            Guard.AgainstNull(nameof(parentContext), parentContext);
+            Guard.AgainstNull(nameof(sagaMetadata), sagaMetadata);
+            Guard.AgainstNull(nameof(extensions), extensions);
 
             CorrelationPropertyName = correlationPropertyName;
             CorrelationPropertyValue = correlationPropertyValue;
             SagaMetadata = sagaMetadata;
+            Extensions = extensions;
         }
 
         /// <summary>
@@ -39,5 +40,10 @@ namespace NServiceBus.Sagas
         /// Metadata for the targeted saga.
         /// </summary>
         public SagaMetadata SagaMetadata { get; private set; }
+
+        /// <summary>
+        /// A <see cref="ContextBag" /> which can be used to extend the current object.
+        /// </summary>
+        public ContextBag Extensions { get; }
     }
 }

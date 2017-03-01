@@ -2870,11 +2870,12 @@ namespace NServiceBus.Sagas
         public System.Collections.Generic.Dictionary<string, object> Properties { get; }
         public System.Type Type { get; }
     }
-    public class SagaIdGeneratorContext : NServiceBus.Extensibility.ContextBag
+    public class SagaIdGeneratorContext : NServiceBus.Extensibility.IExtendable
     {
-        public SagaIdGeneratorContext(string correlationPropertyName, object correlationPropertyValue, NServiceBus.Sagas.SagaMetadata sagaMetadata, NServiceBus.Extensibility.ContextBag parentContext) { }
+        public SagaIdGeneratorContext(string correlationPropertyName, object correlationPropertyValue, NServiceBus.Sagas.SagaMetadata sagaMetadata, NServiceBus.Extensibility.ContextBag extensions) { }
         public string CorrelationPropertyName { get; }
         public object CorrelationPropertyValue { get; }
+        public NServiceBus.Extensibility.ContextBag Extensions { get; }
         public NServiceBus.Sagas.SagaMetadata SagaMetadata { get; }
     }
     public class SagaMessage
