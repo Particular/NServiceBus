@@ -8,19 +8,19 @@ namespace NServiceBus.Routing
     /// <summary>
     /// The context for custom <see cref="DistributionStrategy" /> implementations.
     /// </summary>
-    public class DistributionContext
+    public class DistributionContext : IExtendable
     {
         /// <summary>
         /// Creates a new distribution context.
         /// </summary>
-        public DistributionContext(string[] receiverAddresses, OutgoingLogicalMessage message, string messageId, Dictionary<string, string> headers, Func<EndpointInstance, string> addressTranslation, ContextBag context)
+        public DistributionContext(string[] receiverAddresses, OutgoingLogicalMessage message, string messageId, Dictionary<string, string> headers, Func<EndpointInstance, string> addressTranslation, ContextBag extensions)
         {
             this.addressTranslation = addressTranslation;
             ReceiverAddresses = receiverAddresses;
             Message = message;
             MessageId = messageId;
             Headers = headers;
-            Context = context;
+            Extensions = extensions;
         }
 
         /// <summary>
@@ -31,7 +31,7 @@ namespace NServiceBus.Routing
         /// <summary>
         /// The id of the outgoing message.
         /// </summary>
-        public string MessageId { get; private set; }
+        public string MessageId { get; }
 
         /// <summary>
         /// The headers of the outgoing message.
@@ -44,9 +44,9 @@ namespace NServiceBus.Routing
         public OutgoingLogicalMessage Message { get; }
 
         /// <summary>
-        /// The context bag.
+        /// A <see cref="ContextBag" /> which can be used to extend the current object.
         /// </summary>
-        public ContextBag Context { get; }
+        public ContextBag Extensions { get; }
 
         /// <summary>
         /// Converts a given logical address to the transport address.
