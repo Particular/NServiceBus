@@ -10,7 +10,7 @@
     public static class ReceivePipelineConfigExtensions
     {
         /// <summary>
-        /// Registers a subscription for the given notification event type.
+        /// Subscribes to notifications for completed receive pipelines.
         /// </summary>
         public static void OnReceivePipelineCompleted(this PipelineSettings pipelineSettings, Func<ReceivePipelineCompleted, Task> subscription)
         {
@@ -19,7 +19,6 @@
 
             pipelineSettings.Settings.Get<NotificationSubscriptions>()
                 .Subscribe(subscription);
-
         }
     }
 }
