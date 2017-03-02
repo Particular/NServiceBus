@@ -18,12 +18,6 @@
             return this;
         }
 
-        public EndpointConfigurationBuilder AuditTo(string addressOfAuditQueue)
-        {
-            configuration.AddressOfAuditQueue = addressOfAuditQueue;
-            return this;
-        }
-
         public EndpointConfigurationBuilder CustomMachineName(string customMachineName)
         {
             configuration.CustomMachineName = customMachineName;
@@ -88,11 +82,7 @@
 
                 if (!configuration.SendOnly)
                 {
-                    if (configuration.AddressOfAuditQueue != null)
-                    {
-                        endpointConfiguration.AuditProcessedMessagesTo(configuration.AddressOfAuditQueue);
-                    }
-                    else if (configuration.AuditEndpoint != null)
+                    if (configuration.AuditEndpoint != null)
                     {
                         if (!routingTable.ContainsKey(configuration.AuditEndpoint))
                         {
