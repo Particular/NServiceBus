@@ -46,30 +46,62 @@
                 return;
             }
 
-            var sagaMetadata = sagaMetadataCollection.Find(context.MessageHandler.Instance.GetType());
-            var sagaInstanceState = new ActiveSagaInstance(saga, sagaMetadata, () => DateTime.UtcNow);
+
+            var currentSagaMetadata = sagaMetadataCollection.Find(context.MessageHandler.Instance.GetType());
+
+            string targetSagaTypeString;
+            string targetSagaId;
+
+            if (context.Headers.TryGetValue(Headers.SagaType, out targetSagaTypeString) && context.Headers.TryGetValue(Headers.SagaId, out targetSagaId))
+            {
+                var targetSagaType = Type.GetType(targetSagaTypeString, false);
+
+                if (targetSagaType == null)
+                {
+                    logger.Warn($"Saga headers indicated that the message was intended for {targetSagaTypeString} but that type isn't available. Will fallback to query persister for a saga instance of type {currentSagaMetadata.SagaType.FullName} and saga id {targetSagaId} instead");
+                }
+                else
+                {
+                    SagaMetadata targetSagaMetaData;
+
+                    if (!sagaMetadataCollection.TryFind(targetSagaType, out targetSagaMetaData))
+                    {
+                        logger.Warn($"Saga headers indicated that the message was intended for {targetSagaType.FullName} but no metadata was found for that saga type. Will fallback to query persister for a saga instance of type {currentSagaMetadata.SagaType.FullName} and saga id {targetSagaId} instead");
+                    }
+                    else
+                    {
+                        if (targetSagaMetaData.SagaType != currentSagaMetadata.SagaType)
+                        {
+                            //Message was intended for a different saga so no need to continue with this invocation
+                            return;
+                        }
+                    }
+                }
+            }
+
+            var sagaInstanceState = new ActiveSagaInstance(saga, currentSagaMetadata, () => DateTime.UtcNow);
 
             //so that other behaviors can access the saga
             context.Extensions.Set(sagaInstanceState);
 
-            var loadedEntity = await TryLoadSagaEntity(sagaMetadata, context).ConfigureAwait(false);
+            var loadedEntity = await TryLoadSagaEntity(currentSagaMetadata, context).ConfigureAwait(false);
 
             if (loadedEntity == null)
             {
                 //if this message are not allowed to start the saga
-                if (IsMessageAllowedToStartTheSaga(context, sagaMetadata))
+                if (IsMessageAllowedToStartTheSaga(context, currentSagaMetadata))
                 {
                     context.Extensions.Get<SagaInvocationResult>().SagaFound();
-                    sagaInstanceState.AttachNewEntity(CreateNewSagaEntity(sagaMetadata, context));
+                    sagaInstanceState.AttachNewEntity(CreateNewSagaEntity(currentSagaMetadata, context));
                 }
                 else
                 {
                     if (!context.Headers.ContainsKey(Headers.SagaId))
                     {
-                        var finderDefinition = GetSagaFinder(sagaMetadata, context);
+                        var finderDefinition = GetSagaFinder(currentSagaMetadata, context);
                         if (finderDefinition == null)
                         {
-                            throw new Exception($"Message type {context.MessageBeingHandled.GetType().Name} is handled by saga {sagaMetadata.SagaType.Name}, but the saga does not contain a property mapping or custom saga finder to map the message to saga data. Consider adding a mapping in the saga's {nameof(Saga.ConfigureHowToFindSaga)} method.");
+                            throw new Exception($"Message type {context.MessageBeingHandled.GetType().Name} is handled by saga {currentSagaMetadata.SagaType.Name}, but the saga does not contain a property mapping or custom saga finder to map the message to saga data. Consider adding a mapping in the saga's {nameof(Saga.ConfigureHowToFindSaga)} method.");
                         }
                     }
 
