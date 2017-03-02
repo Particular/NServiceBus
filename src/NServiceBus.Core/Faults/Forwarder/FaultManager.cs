@@ -86,7 +86,7 @@ namespace NServiceBus.Faults.Forwarder
                 SendToErrorQueue(message, e);
                 return;
             }
-
+            message.Headers[FaultsHeaderKeys.TemporatyFailedQueue] = message.Headers[FaultsHeaderKeys.FailedQ];
             SendToRetriesQueue(message, e, flrPart);
         }
 

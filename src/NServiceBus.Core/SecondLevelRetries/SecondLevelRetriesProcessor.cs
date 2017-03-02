@@ -2,6 +2,7 @@ namespace NServiceBus.SecondLevelRetries
 {
     using System;
     using System.Globalization;
+    using NServiceBus.Faults;
     using NServiceBus.Faults.Forwarder;
     using NServiceBus.Logging;
     using NServiceBus.Satellites;
@@ -84,6 +85,7 @@ namespace NServiceBus.SecondLevelRetries
                 DeliverAt = retryMessageAt
             };
 
+            message.Headers.Remove(FaultsHeaderKeys.TemporatyFailedQueue);
             MessageDeferrer.Defer(message, sendOptions);
         }
 
