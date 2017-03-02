@@ -5,12 +5,9 @@ namespace NServiceBus
     using System.Linq;
     using System.Threading.Tasks;
 
-    /// <summary>
-    /// Notification Subscriptions.
-    /// </summary>
-    public class NotificationSubscriptions
+    class NotificationSubscriptions
     {
-        internal IEnumerable<ISubscription> Get<T>()
+        public IEnumerable<ISubscription> Get<T>()
         {
             List<ISubscription> subscribers;
 
@@ -22,11 +19,6 @@ namespace NServiceBus
             return subscribers;
         }
 
-        /// <summary>
-        /// Adds a subscription for a given event type.
-        /// </summary>
-        /// <param name="subscription">The callback to be invoked when the event occurs.</param>
-        /// <typeparam name="T">Event type.</typeparam>
         public void Subscribe<T>(Func<T, Task> subscription)
         {
             var eventType = typeof(T);
@@ -44,6 +36,12 @@ namespace NServiceBus
 
         Dictionary<Type, List<ISubscription>> subscriptions = new Dictionary<Type, List<ISubscription>>();
 
+
+        public interface ISubscription
+        {
+            Task Invoke(object @event);
+        }
+
         class Subscription<T> : ISubscription
         {
             public Subscription(Func<T, Task> invocation)
@@ -53,15 +51,10 @@ namespace NServiceBus
 
             public Task Invoke(object @event)
             {
-                return invocation((T) @event);
+                return invocation((T)@event);
             }
 
             Func<T, Task> invocation;
-        }
-
-        internal interface ISubscription
-        {
-            Task Invoke(object @event);
         }
     }
 }

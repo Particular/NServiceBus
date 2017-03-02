@@ -3,28 +3,25 @@
     using System;
     using System.Threading.Tasks;
     using AcceptanceTesting;
+    using Configuration.AdvanceExtensibility;
     using EndpointTemplates;
     using Features;
     using NUnit.Framework;
-    
-    class When_Subscribing_To_Notifications
+
+    class When_subscribed_to_ReceivePipelineCompleted
     {
         [Test]
-        public async Task Can_Subscribe_To_ReceivePipelineCompleted()
+        public async Task Should_receive_then_notification()
         {
             var context = await Scenario.Define<Context>()
-                .WithEndpoint<TestEndpoint>(b => b.When(session => session.SendLocal(new MessageToSend())))               
+                .WithEndpoint<TestEndpoint>(b => b.When(session => session.SendLocal(new MessageToSend())))
                 .Done(c => c.ReceivePipelineCompletedFired)
                 .Run();
 
-            Assert.True(context.ReceivePipelineCompletedFired, "ReceivePipelineCompleted was not received");          
+            Assert.True(context.ReceivePipelineCompletedFired, "ReceivePipelineCompleted was not received");
             Assert.AreEqual(context.MessageId, context.ReceivePipelineCompletedMessage.ProcessedMessage.MessageId, "MessageId mismatch");
             Assert.AreNotEqual(DateTime.MinValue, context.ReceivePipelineCompletedMessage.StartedAt, "StartedAt was not set");
             Assert.AreNotEqual(DateTime.MinValue, context.ReceivePipelineCompletedMessage.CompletedAt, "CompletedAt was not set");
-        }
-
-        class MessageToSend : ICommand
-        {
         }
 
         class Context : ScenarioContext
@@ -38,28 +35,16 @@
         {
             public TestEndpoint()
             {
-                EndpointSetup<DefaultServer>();
-            }
-
-            class NotificationsSubscriptionFeature : Feature
-            {
-                public NotificationsSubscriptionFeature()
+                EndpointSetup<DefaultServer>(c =>
                 {
-                    EnableByDefault();
-                }
-
-                protected override void Setup(FeatureConfigurationContext context)
-                {
-                    var notifications = context.Settings.Get<NotificationSubscriptions>();
-
-                    notifications.Subscribe<ReceivePipelineCompleted>(e =>
+                    c.Pipeline.OnReceivePipelineCompleted(e =>
                     {
-                        var testContext = (Context)context.Settings.Get<ScenarioContext>();
-                        testContext.ReceivePipelineCompletedFired = true;
+                        var testContext = (Context) c.GetSettings().Get<ScenarioContext>();
                         testContext.ReceivePipelineCompletedMessage = e;
+                        testContext.ReceivePipelineCompletedFired = true;
                         return Task.FromResult(0);
                     });
-                }
+                });
             }
 
             class MessageToSendHandler : IHandleMessages<MessageToSend>
@@ -72,6 +57,10 @@
                     return Task.FromResult(0);
                 }
             }
+        }
+
+        public class MessageToSend : IMessage
+        {
         }
     }
 }

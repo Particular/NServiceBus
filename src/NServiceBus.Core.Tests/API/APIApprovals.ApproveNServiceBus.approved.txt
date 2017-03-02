@@ -892,11 +892,6 @@ namespace NServiceBus
             "version 7.0.0.", true)]
         public NServiceBus.PipelineNotifications Pipeline { get; }
     }
-    public class NotificationSubscriptions
-    {
-        public NotificationSubscriptions() { }
-        public void Subscribe<T>(System.Func<T, System.Threading.Tasks.Task> subscription) { }
-    }
     [System.ObsoleteAttribute("Use `EndpointConfiguration.ExecuteTheseHandlersFirst` instead. Will be removed in" +
         " version 7.0.0.", true)]
     public class Order
@@ -973,9 +968,14 @@ namespace NServiceBus
     }
     public class ReceivePipelineCompleted
     {
+        public ReceivePipelineCompleted(NServiceBus.Transport.IncomingMessage processedMessage, System.DateTime startedAt, System.DateTime completedAt) { }
         public System.DateTime CompletedAt { get; }
         public NServiceBus.Transport.IncomingMessage ProcessedMessage { get; }
         public System.DateTime StartedAt { get; }
+    }
+    public class static ReceivePipelineConfigExtensions
+    {
+        public static void OnReceivePipelineCompleted(this NServiceBus.Pipeline.PipelineSettings pipelineSettings, System.Func<NServiceBus.ReceivePipelineCompleted, System.Threading.Tasks.Task> subscription) { }
     }
     public class static ReceiveSettingsExtensions
     {
@@ -2491,7 +2491,7 @@ namespace NServiceBus.Pipeline
     {
         public PipelineExecutor() { }
     }
-    public class PipelineSettings
+    public class PipelineSettings : NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings
     {
         public void Register(System.Type behavior, string description) { }
         public void Register(string stepId, System.Type behavior, string description) { }
