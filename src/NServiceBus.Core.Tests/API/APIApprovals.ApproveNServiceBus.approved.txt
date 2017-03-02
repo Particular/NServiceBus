@@ -2194,7 +2194,7 @@ namespace NServiceBus.MessageMutator
     }
     public class static MutatorRegistrationExtensions
     {
-        public static void RegisterMessageMutator<TMessageMutator>(this NServiceBus.EndpointConfiguration endpointConfiguration) { }
+        public static void RegisterMessageMutator(this NServiceBus.EndpointConfiguration endpointConfiguration, object messageMutator) { }
     }
 }
 namespace NServiceBus.ObjectBuilder.Common

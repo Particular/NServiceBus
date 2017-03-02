@@ -30,7 +30,7 @@
         {
             public Endpoint()
             {
-                EndpointSetup<DefaultServer>(b => b.RegisterMessageMutator<MutateOutgoingMessages>());
+                EndpointSetup<DefaultServer>(b => b.RegisterMessageMutator(new MutateOutgoingMessages()));
             }
 
             class MutateOutgoingMessages : IMutateOutgoingMessages

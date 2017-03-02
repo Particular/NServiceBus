@@ -13,7 +13,7 @@
         {
             var endpointConfiguration = new EndpointConfiguration("test");
 
-            var exception = Assert.Throws<ArgumentException>(() => endpointConfiguration.RegisterMessageMutator<object>());
+            var exception = Assert.Throws<ArgumentException>(() => endpointConfiguration.RegisterMessageMutator(new object()));
             StringAssert.Contains(
                 "The specified type is no valid message mutator. Implement one of the following mutator interfaces: NServiceBus.MessageMutator.IMutateIncomingMessages, NServiceBus.MessageMutator.IMutateIncomingTransportMessages, NServiceBus.MessageMutator.IMutateOutgoingMessages, NServiceBus.MessageMutator.IMutateOutgoingTransportMessages",
                 exception.Message);
@@ -24,7 +24,7 @@
         {
             var endpointConfiguration = new EndpointConfiguration("test");
 
-            endpointConfiguration.RegisterMessageMutator<MyIncomingMessageMutator>();
+            endpointConfiguration.RegisterMessageMutator(new MyIncomingMessageMutator());
         }
 
         class MyIncomingMessageMutator : IMutateIncomingMessages

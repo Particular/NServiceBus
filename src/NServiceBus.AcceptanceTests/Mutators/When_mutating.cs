@@ -40,7 +40,7 @@
         {
             public Receiver()
             {
-                EndpointSetup<DefaultServer>(b => b.RegisterMessageMutator<Mutator>());
+                EndpointSetup<DefaultServer>(b => b.RegisterMessageMutator(new Mutator()));
             }
 
             public class StartMessageHandler : IHandleMessages<StartMessage>

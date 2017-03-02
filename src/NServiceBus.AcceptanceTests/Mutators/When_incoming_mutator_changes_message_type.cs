@@ -35,7 +35,7 @@
         {
             public MutatorEndpoint()
             {
-                EndpointSetup<DefaultServer>(e => e.RegisterMessageMutator<MessageMutator>());
+                EndpointSetup<DefaultServer>(e => e.RegisterMessageMutator(new MessageMutator()));
             }
 
             public class MessageMutator : IMutateIncomingMessages

@@ -35,7 +35,7 @@
                 EndpointSetup<DefaultServer>(c =>
                 {
                     c.UseSerialization<XmlSerializer>();
-                    c.RegisterMessageMutator<MyTransportMessageMutator>();
+                    c.RegisterMessageMutator(new MyTransportMessageMutator());
                 });
             }
 
