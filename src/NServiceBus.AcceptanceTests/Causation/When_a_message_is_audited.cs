@@ -2,6 +2,7 @@
 {
     using System.Threading.Tasks;
     using AcceptanceTesting;
+    using AcceptanceTesting.Customization;
     using EndpointTemplates;
     using NUnit.Framework;
 
@@ -33,7 +34,7 @@
         {
             public CausationEndpoint()
             {
-                EndpointSetup<DefaultServer>().AuditTo<AuditSpyEndpoint>();
+                EndpointSetup<DefaultServer>(c => c.AuditProcessedMessagesTo<AuditSpyEndpoint>());
             }
 
             public Context Context { get; set; }
