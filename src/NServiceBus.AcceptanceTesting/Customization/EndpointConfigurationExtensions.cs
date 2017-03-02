@@ -14,5 +14,11 @@ namespace NServiceBus.AcceptanceTesting.Customization
         {
             config.TypesToScanInternal(typesToScan);
         }
+
+        public static void AuditProcessedMessagesTo<TAuditEndoint>(this EndpointConfiguration config)
+        {
+            var auditEndpointAddress = Conventions.EndpointNamingConvention(typeof(TAuditEndoint));
+            config.AuditProcessedMessagesTo(auditEndpointAddress);
+        }
     }
 }

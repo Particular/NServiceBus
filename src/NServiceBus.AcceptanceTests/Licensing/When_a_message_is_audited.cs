@@ -4,6 +4,7 @@
     using System.Linq;
     using System.Threading.Tasks;
     using AcceptanceTesting;
+    using AcceptanceTesting.Customization;
     using EndpointTemplates;
     using Logging;
     using NUnit.Framework;
@@ -57,8 +58,11 @@
         {
             public EndpointWithAuditOn()
             {
-                EndpointSetup<DefaultServer>(c => c.License(ExpiredLicense))
-                    .AuditTo<AuditSpyEndpoint>();
+                EndpointSetup<DefaultServer>(c =>
+                {
+                    c.License(ExpiredLicense);
+                    c.AuditProcessedMessagesTo<AuditSpyEndpoint>();
+                });
             }
 
             public class MessageToBeAuditedHandler : IHandleMessages<MessageToBeAudited>

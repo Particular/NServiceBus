@@ -1,20 +1,17 @@
 ﻿namespace NServiceBus.AcceptanceTesting.Support
 {
-    using System;
-    using System.Collections.Generic;
     using System.Configuration;
     using Config;
     using Config.ConfigurationSource;
+    using Customization;
 
     public class ScenarioConfigSource : IConfigurationSource
     {
         EndpointCustomizationConfiguration configuration;
-        IDictionary<Type, string> routingTable;
 
-        public ScenarioConfigSource(EndpointCustomizationConfiguration configuration, IDictionary<Type, string> routingTable)
+        public ScenarioConfigSource(EndpointCustomizationConfiguration configuration)
         {
             this.configuration = configuration;
-            this.routingTable = routingTable;
         }
 
         public T GetConfiguration<T>() where T : class, new()
@@ -54,7 +51,7 @@
                      {
                          AssemblyName = messageType.Assembly.FullName,
                          TypeFullName = messageType.FullName,
-                         Endpoint = routingTable[endpoint]
+                         Endpoint = Conventions.EndpointNamingConvention(endpoint)
                      });
             }
 

@@ -3,25 +3,12 @@
     using System;
     using System.Collections.Generic;
     using Support;
-    using System.Configuration;
 
     public class EndpointConfigurationBuilder : IEndpointConfigurationFactory
     {
         public EndpointConfigurationBuilder()
         {
             configuration.EndpointMappings = new Dictionary<Type, Type>();
-        }
-
-        public EndpointConfigurationBuilder AuditTo<T>()
-        {
-            configuration.AuditEndpoint = typeof(T);
-            return this;
-        }
-
-        public EndpointConfigurationBuilder AuditTo(string addressOfAuditQueue)
-        {
-            configuration.AddressOfAuditQueue = addressOfAuditQueue;
-            return this;
         }
 
         public EndpointConfigurationBuilder CustomMachineName(string customMachineName)
@@ -77,31 +64,14 @@
 
             publisherMetadata?.Invoke(configuration.PublisherMetadata);
 
-            configuration.GetConfiguration = async (runDescriptor, routingTable) =>
+            configuration.GetConfiguration = async runDescriptor =>
             {
                 var endpointSetupTemplate = new T();
-                var scenarioConfigSource = new ScenarioConfigSource(configuration, routingTable);
+                var scenarioConfigSource = new ScenarioConfigSource(configuration);
                 var endpointConfiguration = await endpointSetupTemplate.GetConfiguration(runDescriptor, configuration, scenarioConfigSource, bc =>
                 {
                     configurationBuilderCustomization(bc, runDescriptor);
                 }).ConfigureAwait(false);
-
-                if (!configuration.SendOnly)
-                {
-                    if (configuration.AddressOfAuditQueue != null)
-                    {
-                        endpointConfiguration.AuditProcessedMessagesTo(configuration.AddressOfAuditQueue);
-                    }
-                    else if (configuration.AuditEndpoint != null)
-                    {
-                        if (!routingTable.ContainsKey(configuration.AuditEndpoint))
-                        {
-                            throw new ConfigurationErrorsException($"{configuration.AuditEndpoint} was not found in routingTable. Ensure that WithEndpoint<{configuration.AuditEndpoint}>() method is called in the test.");
-                        }
-
-                        endpointConfiguration.AuditProcessedMessagesTo(routingTable[configuration.AuditEndpoint]);
-                    }
-                }
 
                 return endpointConfiguration;
             };

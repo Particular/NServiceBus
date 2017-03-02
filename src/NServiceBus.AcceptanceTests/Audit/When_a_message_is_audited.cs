@@ -4,6 +4,7 @@
     using System.Linq;
     using System.Threading.Tasks;
     using AcceptanceTesting;
+    using AcceptanceTesting.Customization;
     using EndpointTemplates;
     using MessageMutator;
     using NUnit.Framework;
@@ -43,8 +44,8 @@
         {
             public EndpointWithAuditOn()
             {
-                EndpointSetup<DefaultServer>()
-                    .AuditTo<AuditSpyEndpoint>();
+                EndpointSetup<DefaultServer>(c => c
+                    .AuditProcessedMessagesTo<AuditSpyEndpoint>());
             }
 
             class BodyMutator : IMutateIncomingTransportMessages, INeedInitialization
@@ -124,7 +125,7 @@
             }
         }
 
-        
+
         public class MessageToBeAudited : IMessage
         {
             public Guid RunId { get; set; }
