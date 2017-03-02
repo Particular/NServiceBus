@@ -43,7 +43,7 @@
         {
             public EndpointWithAuditOff()
             {
-                // Although the AuditTo seems strange here, this test tries to fake the scenario where
+                // Although the AuditProcessedMessagesTo seems strange here, this test tries to fake the scenario where
                 // even though the user has specified audit config, because auditing is explicitly turned
                 // off, no messages should be audited.
                 EndpointSetup<DefaultServer>(c =>
