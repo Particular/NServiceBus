@@ -2681,10 +2681,10 @@ namespace NServiceBus.Routing
     {
         protected AddressTag() { }
     }
-    public class DistributionContext
+    public class DistributionContext : NServiceBus.Extensibility.IExtendable
     {
-        public DistributionContext(string[] receiverAddresses, NServiceBus.Pipeline.OutgoingLogicalMessage message, string messageId, System.Collections.Generic.Dictionary<string, string> headers, System.Func<NServiceBus.Routing.EndpointInstance, string> addressTranslation, NServiceBus.Extensibility.ContextBag context) { }
-        public NServiceBus.Extensibility.ContextBag Context { get; }
+        public DistributionContext(string[] receiverAddresses, NServiceBus.Pipeline.OutgoingLogicalMessage message, string messageId, System.Collections.Generic.Dictionary<string, string> headers, System.Func<NServiceBus.Routing.EndpointInstance, string> addressTranslation, NServiceBus.Extensibility.ContextBag extensions) { }
+        public NServiceBus.Extensibility.ContextBag Extensions { get; }
         public System.Collections.Generic.Dictionary<string, string> Headers { get; }
         public NServiceBus.Pipeline.OutgoingLogicalMessage Message { get; }
         public string MessageId { get; }
