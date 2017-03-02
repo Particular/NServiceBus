@@ -10,9 +10,9 @@ namespace NServiceBus.Extensibility
         /// <summary>
         /// Initialized a new instance of <see cref="ContextBag" />.
         /// </summary>
-        public ContextBag(ContextBag parentContext = null)
+        public ContextBag(ContextBag parent = null)
         {
-            this.parentContext = parentContext;
+            this.parent = parent;
         }
 
         /// <summary>
@@ -53,9 +53,9 @@ namespace NServiceBus.Extensibility
                 return true;
             }
 
-            if (parentContext != null)
+            if (parent != null)
             {
-                return parentContext.TryGet(key, out result);
+                return parent.TryGet(key, out result);
             }
 
             result = default(T);
@@ -146,7 +146,7 @@ namespace NServiceBus.Extensibility
             return result;
         }
 
-        ContextBag parentContext;
+        ContextBag parent;
 
         Dictionary<string, object> stash = new Dictionary<string, object>();
     }

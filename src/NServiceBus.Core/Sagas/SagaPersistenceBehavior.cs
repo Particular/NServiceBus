@@ -320,7 +320,7 @@
 
             var lookupValues = context.Extensions.GetOrCreate<SagaLookupValues>();
 
-            SagaIdGeneratorContext sagaIdGeneratorContext;
+            SagaCorrelationProperty correlationProperty;
             SagaLookupValues.LookupValue value;
 
             if (lookupValues.TryGet(sagaEntityType, out value))
@@ -332,12 +332,14 @@
 
                 propertyInfo.SetValue(sagaEntity, convertedValue);
 
-                sagaIdGeneratorContext = new SagaIdGeneratorContext(value.PropertyName, value.PropertyValue, metadata, context.Extensions);
+                correlationProperty = new SagaCorrelationProperty(value.PropertyName, value.PropertyValue);
             }
             else
             {
-                sagaIdGeneratorContext = new SagaIdGeneratorContext(null, null, metadata, context.Extensions);
+                correlationProperty = SagaCorrelationProperty.None;
             }
+
+            var sagaIdGeneratorContext = new SagaIdGeneratorContext(correlationProperty, metadata, context.Extensions);
 
             sagaEntity.Id = sagaIdGenerator.Generate(sagaIdGeneratorContext);
 

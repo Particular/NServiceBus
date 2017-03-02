@@ -48,7 +48,7 @@
             {
                 public Guid Generate(SagaIdGeneratorContext context)
                 {
-                    return ToGuid($"{context.SagaMetadata.SagaEntityType.FullName}_{context.CorrelationPropertyName}_{context.CorrelationPropertyValue}");
+                    return ToGuid($"{context.SagaMetadata.SagaEntityType.FullName}_{context.CorrelationProperty.Name}_{context.CorrelationProperty.Value}");
                 }
 
                 static Guid ToGuid(string src)
