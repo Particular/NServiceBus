@@ -4,25 +4,10 @@ namespace NServiceBus
     using Transport;
 
     /// <summary>
-    /// The ReceivePipeline completed event.
+    /// Event raised when a receive pipeline is completed.
     /// </summary>
     public class ReceivePipelineCompleted
     {
-        /// <summary>
-        /// The message that was processed.
-        /// </summary>
-        public IncomingMessage ProcessedMessage { get; }
-
-        /// <summary>
-        /// Time when the receive pipline started.
-        /// </summary>
-        public DateTime StartedAt { get; }
-
-        /// <summary>
-        /// Time when the receive pipline completed.
-        /// </summary>
-        public DateTime CompletedAt { get; }
-
         /// <summary>
         /// Constructs the event.
         /// </summary>
@@ -36,5 +21,20 @@ namespace NServiceBus
             StartedAt = startedAt;
             CompletedAt = completedAt;
         }
+
+        /// <summary>
+        /// The processed message.
+        /// </summary>
+        public IncomingMessage ProcessedMessage { get; }
+
+        /// <summary>
+        /// Time when the receive pipeline started.
+        /// </summary>
+        public DateTime StartedAt { get; }
+
+        /// <summary>
+        /// Time when the receive pipeline completed.
+        /// </summary>
+        public DateTime CompletedAt { get; }
     }
 }
