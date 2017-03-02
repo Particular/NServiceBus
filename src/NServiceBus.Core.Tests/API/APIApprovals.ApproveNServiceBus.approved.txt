@@ -1418,10 +1418,15 @@ namespace NServiceBus.Config
         Ascii = 0,
         Base64 = 1,
     }
+    [System.ObsoleteAttribute("Logging configuration via configuration section is discouraged. Use `LogManager.U" +
+        "se<DefaultFactory>()` instead. Will be removed in version 7.0.0.", true)]
     public class Logging : System.Configuration.ConfigurationSection
     {
         public Logging() { }
         [System.Configuration.ConfigurationPropertyAttribute("Threshold", DefaultValue="Info", IsRequired=true)]
+        [System.ObsoleteAttribute("Logging configuration via configuration section is discouraged. Use `LogManager.U" +
+            "se<DefaultFactory>().Level(LogLevel)` instead. Will be removed in version 7.0.0." +
+            "", true)]
         public string Threshold { get; set; }
     }
     [System.ObsoleteAttribute("Use `EndpointConfiguration.EnlistWithLegacyMSMQDistributor` instead. Will be remo" +
