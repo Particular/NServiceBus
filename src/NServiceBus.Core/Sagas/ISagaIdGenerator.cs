@@ -8,10 +8,10 @@ namespace NServiceBus.Sagas
     public interface ISagaIdGenerator
     {
         /// <summary>
-        /// Generates a saga id based on property name and property value.
+        /// Allows custom saga ID's to be generated.
         /// </summary>
         /// <param name="context">Context for the id generation.</param>
-        /// <returns>The saga id to use.</returns>
+        /// <returns>The saga id to use for the given saga.</returns>
         Guid Generate(SagaIdGeneratorContext context);
     }
 }
