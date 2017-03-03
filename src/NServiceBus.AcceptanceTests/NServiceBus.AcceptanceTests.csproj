@@ -79,6 +79,7 @@
     <Compile Include="EndpointTemplates\Requires.cs" />
     <Compile Include="EndpointTemplates\TestSuiteConstraints.cs" />
     <Compile Include="Forwarding\When_requesting_message_to_be_forwarded.cs" />
+    <Compile Include="Notifications\When_subscribed_to_ReceivePipelineCompleted.cs" />
     <Compile Include="Performance\TimeToBeReceived\When_TimeToBeReceived_used_with_unobtrusive_mode.cs" />
     <Compile Include="Recoverability\Retries\When_custom_policy_provided.cs" />
     <Compile Include="Recoverability\When_custom_policy_moves_to_overridden_error_queue.cs" />

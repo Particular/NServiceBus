@@ -966,6 +966,17 @@ namespace NServiceBus
     {
         public PublishOptions() { }
     }
+    public class ReceivePipelineCompleted
+    {
+        public ReceivePipelineCompleted(NServiceBus.Transport.IncomingMessage processedMessage, System.DateTime startedAt, System.DateTime completedAt) { }
+        public System.DateTime CompletedAt { get; }
+        public NServiceBus.Transport.IncomingMessage ProcessedMessage { get; }
+        public System.DateTime StartedAt { get; }
+    }
+    public class static ReceivePipelineConfigExtensions
+    {
+        public static void OnReceivePipelineCompleted(this NServiceBus.Pipeline.PipelineSettings pipelineSettings, System.Func<NServiceBus.ReceivePipelineCompleted, System.Threading.Tasks.Task> subscription) { }
+    }
     public class static ReceiveSettingsExtensions
     {
         public static void MakeInstanceUniquelyAddressable(this NServiceBus.EndpointConfiguration config, string discriminator) { }
@@ -2503,7 +2514,7 @@ namespace NServiceBus.Pipeline
     {
         public PipelineExecutor() { }
     }
-    public class PipelineSettings
+    public class PipelineSettings : NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings
     {
         public void Register(System.Type behavior, string description) { }
         public void Register(string stepId, System.Type behavior, string description) { }

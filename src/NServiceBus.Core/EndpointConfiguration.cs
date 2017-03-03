@@ -39,7 +39,7 @@ namespace NServiceBus
             Settings.Set<PipelineConfiguration>(pipelineCollection);
             Settings.Set<SatelliteDefinitions>(new SatelliteDefinitions());
 
-            Pipeline = new PipelineSettings(pipelineCollection.Modifications);
+            Pipeline = new PipelineSettings(pipelineCollection.Modifications, Settings);
 
             Settings.Set<QueueBindings>(new QueueBindings());
 
@@ -246,7 +246,7 @@ namespace NServiceBus
                     throw new Exception($"Unable to create the type '{t.Name}'. Types implementing '{typeof(T).Name}' must have a public parameterless (default) constructor.");
                 }
 
-                var instanceToInvoke = (T) Activator.CreateInstance(t);
+                var instanceToInvoke = (T)Activator.CreateInstance(t);
                 action(instanceToInvoke);
             });
         }

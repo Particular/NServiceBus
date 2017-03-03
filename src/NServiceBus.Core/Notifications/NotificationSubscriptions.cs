@@ -36,7 +36,13 @@ namespace NServiceBus
 
         Dictionary<Type, List<ISubscription>> subscriptions = new Dictionary<Type, List<ISubscription>>();
 
-        public class Subscription<T> : ISubscription
+
+        public interface ISubscription
+        {
+            Task Invoke(object @event);
+        }
+
+        class Subscription<T> : ISubscription
         {
             public Subscription(Func<T, Task> invocation)
             {
@@ -45,15 +51,10 @@ namespace NServiceBus
 
             public Task Invoke(object @event)
             {
-                return invocation((T) @event);
+                return invocation((T)@event);
             }
 
             Func<T, Task> invocation;
-        }
-
-        public interface ISubscription
-        {
-            Task Invoke(object @event);
         }
     }
 }
