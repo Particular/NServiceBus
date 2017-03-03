@@ -33,7 +33,7 @@
             {
                 EndpointSetup<DefaultServer>((c, r) =>
                 {
-                    var scenarioContext = r.ScenarioContext as Context;
+                    var scenarioContext = (Context)r.ScenarioContext;
                     c.RegisterMessageMutator(new TransportMutator(scenarioContext));
                     c.RegisterMessageMutator(new MessageMutator(scenarioContext));
                 });
