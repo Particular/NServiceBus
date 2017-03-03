@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.AcceptanceTests.Causation
+﻿namespace NServiceBus.AcceptanceTests.Pipeline
 {
     using System.Threading.Tasks;
     using AcceptanceTesting;

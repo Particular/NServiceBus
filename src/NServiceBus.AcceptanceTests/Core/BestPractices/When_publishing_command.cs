@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.AcceptanceTests.BestPractices
+﻿namespace NServiceBus.AcceptanceTests.Core.BestPractices
 {
     using System;
     using System.Threading.Tasks;
@@ -6,7 +6,7 @@
     using EndpointTemplates;
     using NUnit.Framework;
 
-    public class When_sending_event : NServiceBusAcceptanceTest
+    public class When_publishing_command : NServiceBusAcceptanceTest
     {
         [Test]
         public async Task Should_throw()
@@ -16,7 +16,7 @@
                 {
                     try
                     {
-                        await session.SendLocal(new MyEvent());
+                        await session.Publish(new MyCommand());
                     }
                     catch (Exception ex)
                     {
@@ -44,7 +44,7 @@
             }
         }
 
-        public class MyEvent : IEvent
+        public class MyCommand : ICommand
         {
         }
     }
