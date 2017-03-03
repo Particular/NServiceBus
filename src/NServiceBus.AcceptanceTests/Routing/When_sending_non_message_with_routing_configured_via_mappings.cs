@@ -3,6 +3,7 @@
     using System;
     using System.Threading.Tasks;
     using AcceptanceTesting;
+    using AcceptanceTesting.Customization;
     using EndpointTemplates;
     using NUnit.Framework;
 
@@ -41,8 +42,10 @@
         {
             public Sender()
             {
-                EndpointSetup<DefaultServer>()
-                    .AddMapping<NonMessage>(typeof(Receiver));
+                EndpointSetup<DefaultServer>(c =>
+                {
+                    c.ConfigureTransport().Routing().RouteToEndpoint(typeof(NonMessage), typeof(Receiver));
+                });
             }
         }
 

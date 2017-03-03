@@ -4,6 +4,7 @@
     using System.IO;
     using System.Threading.Tasks;
     using AcceptanceTesting;
+    using AcceptanceTesting.Customization;
     using EndpointTemplates;
     using NServiceBus.DataBus;
     using NUnit.Framework;
@@ -37,8 +38,11 @@
         {
             public SenderViaFluent()
             {
-                EndpointSetup<DefaultServer>(b => b.UseDataBus(typeof(MyDataBus)))
-                    .AddMapping<MyMessageWithLargePayload>(typeof(ReceiverViaFluent));
+                EndpointSetup<DefaultServer>(b =>
+                {
+                    b.UseDataBus(typeof(MyDataBus));
+                    b.ConfigureTransport().Routing().RouteToEndpoint(typeof(MyMessageWithLargePayload), typeof(ReceiverViaFluent));
+                });
             }
         }
 
@@ -87,7 +91,7 @@
             }
         }
 
-        
+
         public class MyMessageWithLargePayload : ICommand
         {
             public DataBusProperty<byte[]> Payload { get; set; }

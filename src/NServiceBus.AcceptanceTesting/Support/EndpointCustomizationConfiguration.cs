@@ -14,8 +14,6 @@
             PublisherMetadata = new PublisherMetadata();
         }
 
-        public IDictionary<Type, Type> EndpointMappings { get; set; }
-
         public IList<Type> TypesToExclude { get; set; }
 
         public IList<Type> TypesToInclude { get; set; }

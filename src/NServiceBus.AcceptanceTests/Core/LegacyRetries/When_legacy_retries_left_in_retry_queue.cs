@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Threading.Tasks;
     using AcceptanceTesting;
+    using AcceptanceTesting.Customization;
     using EndpointTemplates;
     using NUnit.Framework;
 
@@ -12,7 +13,7 @@
         [Test]
         public async Task they_are_moved_to_main_queue_and_processed()
         {
-            var endpointName = AcceptanceTesting.Customization.Conventions.EndpointNamingConvention(typeof(RetryEndpoint));
+            var endpointName = Conventions.EndpointNamingConvention(typeof(RetryEndpoint));
             var retryQueueAddress = $"{endpointName}.Retries";
 
             var sendOptions = new SendOptions();
@@ -48,7 +49,7 @@
         {
             public RetryEndpoint()
             {
-                EndpointSetup<DefaultServer>().AddMapping<LegacyRetryMessage>(typeof(RetryEndpoint));
+                EndpointSetup<DefaultServer>(c => c.ConfigureTransport().Routing().RouteToEndpoint(typeof(LegacyRetryMessage), typeof(RetryEndpoint)));
             }
 
             class LegacyRetriesMessages : IHandleMessages<LegacyRetryMessage>

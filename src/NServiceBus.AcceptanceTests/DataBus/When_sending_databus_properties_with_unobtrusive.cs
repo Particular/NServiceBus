@@ -3,6 +3,7 @@
     using System.IO;
     using System.Threading.Tasks;
     using AcceptanceTesting;
+    using AcceptanceTesting.Customization;
     using EndpointTemplates;
     using NUnit.Framework;
 
@@ -45,9 +46,9 @@
                     var basePath = Path.Combine(TestContext.CurrentContext.TestDirectory, @"databus\sender");
                     builder.UseDataBus<FileShareDataBus>().BasePath(basePath);
                     builder.UseSerialization<JsonSerializer>();
-                })
-                    .AddMapping<MyMessageWithLargePayload>(typeof(Receiver))
-                    .ExcludeType<MyMessageWithLargePayload>(); // remove that type from assembly scanning to simulate what would happen with true unobtrusive mode
+
+                    builder.ConfigureTransport().Routing().RouteToEndpoint(typeof(MyMessageWithLargePayload), typeof(Receiver));
+                }).ExcludeType<MyMessageWithLargePayload>(); // remove that type from assembly scanning to simulate what would happen with true unobtrusive mode
             }
         }
 

@@ -84,8 +84,7 @@
                         c.UseTransport<MsmqTransport>()
                             .Transactions(TransportTransactionMode.None)
                             .ConnectionString("useTransactionalQueues=false");
-                    })
-                    .AddMapping<MyEvent>(typeof(Publisher));
+                    }, metadata => metadata.RegisterPublisherFor<MyEvent>(typeof(Publisher)));
             }
 
             public class MyEventHandler : IHandleMessages<MyEvent>

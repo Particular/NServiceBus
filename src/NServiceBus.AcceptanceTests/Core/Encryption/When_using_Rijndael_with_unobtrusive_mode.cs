@@ -8,6 +8,7 @@ namespace NServiceBus.AcceptanceTests.Core.Encryption
     using System.Text;
     using System.Threading.Tasks;
     using AcceptanceTesting;
+    using AcceptanceTesting.Customization;
     using EndpointTemplates;
     using NUnit.Framework;
 
@@ -78,8 +79,9 @@ namespace NServiceBus.AcceptanceTests.Core.Encryption
                         .DefiningEncryptedPropertiesAs(t => t.Name.StartsWith("Encrypted"));
 
                     c.RijndaelEncryptionService("1st", Keys);
-                }).AddMapping<MessageWithSecretData>(typeof(Receiver))
-                    .ExcludeType<MessageWithSecretData>(); // remove that type from assembly scanning to simulate what would happen with true unobtrusive mode
+
+                    c.ConfigureTransport().Routing().RouteToEndpoint(typeof(MessageWithSecretData), typeof(Receiver));
+                }).ExcludeType<MessageWithSecretData>(); // remove that type from assembly scanning to simulate what would happen with true unobtrusive mode
             }
         }
 

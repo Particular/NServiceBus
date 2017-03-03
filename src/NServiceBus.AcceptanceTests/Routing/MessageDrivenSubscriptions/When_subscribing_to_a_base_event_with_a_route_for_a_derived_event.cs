@@ -14,14 +14,8 @@
             Requires.MessageDrivenPubSub();
 
             var context = await Scenario.Define<Context>()
-                .WithEndpoint<PublisherOne>(b => b.When(c => c.SubscriberSubscribedToOne, async session =>
-                {
-                    await session.Publish(new EventOne());
-                }))
-                .WithEndpoint<PublisherTwo>(b => b.When(c => c.SubscriberSubscribedToTwo, async session =>
-                {
-                    await session.Publish(new EventTwo());
-                }))
+                .WithEndpoint<PublisherOne>(b => b.When(c => c.SubscriberSubscribedToOne, async session => { await session.Publish(new EventOne()); }))
+                .WithEndpoint<PublisherTwo>(b => b.When(c => c.SubscriberSubscribedToTwo, async session => { await session.Publish(new EventTwo()); }))
                 .WithEndpoint<Subscriber>(b => b.When(async (session, c) => await session.Subscribe<IBaseEvent>()))
                 .Done(c => c.SubscriberGotEventOne)
                 .Run();
@@ -42,10 +36,7 @@
         {
             public PublisherOne()
             {
-                EndpointSetup<DefaultPublisher>(b => b.OnEndpointSubscribed<Context>((args, context) =>
-                {
-                    context.SubscriberSubscribedToOne = true;
-                }));
+                EndpointSetup<DefaultPublisher>(b => b.OnEndpointSubscribed<Context>((args, context) => { context.SubscriberSubscribedToOne = true; }));
             }
         }
 
@@ -53,10 +44,7 @@
         {
             public PublisherTwo()
             {
-                EndpointSetup<DefaultPublisher>(b => b.OnEndpointSubscribed<Context>((args, context) =>
-                {
-                    context.SubscriberSubscribedToTwo = true;
-                }));
+                EndpointSetup<DefaultPublisher>(b => b.OnEndpointSubscribed<Context>((args, context) => { context.SubscriberSubscribedToTwo = true; }));
             }
         }
 
@@ -67,9 +55,11 @@
                 EndpointSetup<DefaultServer>(c =>
                 {
                     c.DisableFeature<AutoSubscribe>();
-                })
-                    .AddMapping<EventOne>(typeof(PublisherOne))
-                    .AddMapping<EventTwo>(typeof(PublisherTwo));
+                }, metadata =>
+                {
+                    metadata.RegisterPublisherFor<EventOne>(typeof(PublisherOne));
+                    metadata.RegisterPublisherFor<EventTwo>(typeof(PublisherTwo));
+                });
             }
 
             public class MyEventHandler : IHandleMessages<IBaseEvent>

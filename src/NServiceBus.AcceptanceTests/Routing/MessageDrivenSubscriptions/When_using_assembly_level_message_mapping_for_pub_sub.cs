@@ -31,7 +31,6 @@
 
             Assert.IsFalse(context.EventReceived);
             Assert.IsTrue(context.CommandReceived);
-
         }
 
         public class Context : ScenarioContext
@@ -44,17 +43,18 @@
         {
             public Publisher()
             {
-                EndpointSetup<DefaultPublisher>()
-                    .WithConfig<UnicastBusConfig>(c =>
+                EndpointSetup<DefaultPublisher>(c =>
+                {
+                    c.ConfigureTransport().Routing().RouteToEndpoint(typeof(DoneCommand), typeof(OtherEndpoint));
+                }).WithConfig<UnicastBusConfig>(c =>
+                {
+                    c.MessageEndpointMappings = new MessageEndpointMappingCollection();
+                    c.MessageEndpointMappings.Add(new MessageEndpointMapping
                     {
-                        c.MessageEndpointMappings = new MessageEndpointMappingCollection();
-                        c.MessageEndpointMappings.Add(new MessageEndpointMapping
-                        {
-                            Endpoint = OtherEndpointName,
-                            AssemblyName = typeof(Publisher).Assembly.GetName().Name
-                        });
-                    })
-                    .AddMapping<DoneCommand>(typeof(OtherEndpoint));
+                        Endpoint = OtherEndpointName,
+                        AssemblyName = typeof(Publisher).Assembly.GetName().Name
+                    });
+                });
             }
         }
 
@@ -71,8 +71,6 @@
 
             public class EventHandler : IHandleMessages<MyEvent>
             {
-                Context testContext;
-
                 public EventHandler(Context testContext)
                 {
                     this.testContext = testContext;
@@ -83,12 +81,12 @@
                     testContext.EventReceived = true;
                     return Task.FromResult(0);
                 }
+
+                Context testContext;
             }
 
             public class DoneHandler : IHandleMessages<DoneCommand>
             {
-                Context testContext;
-
                 public DoneHandler(Context testContext)
                 {
                     this.testContext = testContext;
@@ -99,6 +97,8 @@
                     testContext.CommandReceived = true;
                     return Task.FromResult(0);
                 }
+
+                Context testContext;
             }
         }
 
@@ -108,7 +108,6 @@
 
         public class DoneCommand : ICommand
         {
-
         }
     }
 }

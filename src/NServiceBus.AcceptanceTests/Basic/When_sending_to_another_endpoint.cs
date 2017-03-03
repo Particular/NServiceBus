@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Threading.Tasks;
     using AcceptanceTesting;
+    using AcceptanceTesting.Customization;
     using EndpointTemplates;
     using NUnit.Framework;
 
@@ -52,7 +53,11 @@
         {
             public Sender()
             {
-                EndpointSetup<DefaultServer>(c => { c.AddHeaderToAllOutgoingMessages("MyStaticHeader", "StaticHeaderValue"); }).AddMapping<MyMessage>(typeof(Receiver));
+                EndpointSetup<DefaultServer>(c =>
+                {
+                    c.AddHeaderToAllOutgoingMessages("MyStaticHeader", "StaticHeaderValue");
+                    c.ConfigureTransport().Routing().RouteToEndpoint(typeof(MyMessage), typeof(Receiver));
+                });
             }
         }
 

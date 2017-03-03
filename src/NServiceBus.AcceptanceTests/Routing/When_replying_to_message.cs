@@ -2,6 +2,7 @@
 {
     using System.Threading.Tasks;
     using AcceptanceTesting;
+    using AcceptanceTesting.Customization;
     using EndpointTemplates;
     using NUnit.Framework;
     using Conventions = AcceptanceTesting.Customization.Conventions;
@@ -49,7 +50,10 @@
         {
             public SendingEndpoint()
             {
-                EndpointSetup<DefaultServer>().AddMapping<MyMessage>(typeof(ReplyingEndpoint));
+                EndpointSetup<DefaultServer>(c =>
+                {
+                    c.ConfigureTransport().Routing().RouteToEndpoint(typeof(MyMessage), typeof(ReplyingEndpoint));
+                });
             }
 
             public class ResponseHandler : IHandleMessages<MyReply>

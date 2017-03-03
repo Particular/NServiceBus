@@ -2,6 +2,7 @@
 {
     using System.Threading.Tasks;
     using AcceptanceTesting;
+    using AcceptanceTesting.Customization;
     using EndpointTemplates;
     using NUnit.Framework;
 
@@ -34,9 +35,11 @@
         {
             public Sender()
             {
-                EndpointSetup<DefaultServer>()
-                    .AddMapping<BaseCommand>(typeof(QueueSpy))
-                    .AddMapping<DerivedCommand>(typeof(Receiver));
+                EndpointSetup<DefaultServer>(c =>
+                {
+                    c.ConfigureTransport().Routing().RouteToEndpoint(typeof(BaseCommand), typeof(QueueSpy));
+                    c.ConfigureTransport().Routing().RouteToEndpoint(typeof(DerivedCommand), typeof(Receiver));
+                });
             }
         }
 

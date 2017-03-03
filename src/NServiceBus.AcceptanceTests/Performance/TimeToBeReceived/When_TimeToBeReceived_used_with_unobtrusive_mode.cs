@@ -3,6 +3,7 @@
     using System;
     using System.Threading.Tasks;
     using AcceptanceTesting;
+    using AcceptanceTesting.Customization;
     using EndpointTemplates;
     using Features;
     using NUnit.Framework;
@@ -63,8 +64,8 @@
                         return TimeSpan.MaxValue;
                     });
                     c.EnableFeature<SendMessageWhileStarting>();
-                }).AddMapping<MyCommand>(typeof(Receiver))
-                .ExcludeType<MyCommand>(); // remove that type from assembly scanning to simulate what would happen with true unobtrusive mode
+                    c.ConfigureTransport().Routing().RouteToEndpoint(typeof(MyCommand), typeof(Receiver));
+                }).ExcludeType<MyCommand>(); // remove that type from assembly scanning to simulate what would happen with true unobtrusive mode
             }
         }
 

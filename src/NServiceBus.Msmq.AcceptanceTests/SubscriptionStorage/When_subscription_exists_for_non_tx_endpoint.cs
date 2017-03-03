@@ -87,13 +87,12 @@
             public Subscriber()
             {
                 EndpointSetup<DefaultServer>(c =>
-                    {
-                        c.DisableFeature<AutoSubscribe>();
-                        c.UseTransport<MsmqTransport>()
-                            .Transactions(TransportTransactionMode.None)
-                            .ConnectionString("useTransactionalQueues=false");
-                    })
-                    .AddMapping<MyEvent>(typeof(Publisher));
+                {
+                    c.DisableFeature<AutoSubscribe>();
+                    c.UseTransport<MsmqTransport>()
+                        .Transactions(TransportTransactionMode.None)
+                        .ConnectionString("useTransactionalQueues=false");
+                }, metadata => metadata.RegisterPublisherFor<MyEvent>(typeof(Publisher)));
             }
 
             public class MyEventHandler : IHandleMessages<MyEvent>

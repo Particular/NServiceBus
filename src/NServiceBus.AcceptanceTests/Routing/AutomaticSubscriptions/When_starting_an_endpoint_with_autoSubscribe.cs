@@ -4,6 +4,7 @@ namespace NServiceBus.AcceptanceTests.Routing.AutomaticSubscriptions
     using System.Collections.Generic;
     using System.Threading.Tasks;
     using AcceptanceTesting;
+    using AcceptanceTesting.Customization;
     using EndpointTemplates;
     using Pipeline;
     using NUnit.Framework;
@@ -42,14 +43,17 @@ namespace NServiceBus.AcceptanceTests.Routing.AutomaticSubscriptions
         {
             public Subscriber()
             {
-                EndpointSetup<DefaultServer>(c => c.Pipeline.Register("SubscriptionSpy", new SubscriptionSpy((Context) ScenarioContext), "Spies on subscriptions made"),
-                        metadata =>
-                        {
-                            metadata.RegisterPublisherFor<MyEvent>(typeof(Subscriber));
-                            metadata.RegisterPublisherFor<MyEventWithNoHandler>(typeof(Subscriber));
-                        })
-                    .AddMapping<MyMessage>(typeof(Subscriber)) //just map to our self for this test
-                    .AddMapping<MyCommand>(typeof(Subscriber)); //just map to our self for this test
+                EndpointSetup<DefaultServer>(c =>
+                    {
+                        c.Pipeline.Register("SubscriptionSpy", new SubscriptionSpy((Context) ScenarioContext), "Spies on subscriptions made");
+                        c.ConfigureTransport().Routing().RouteToEndpoint(typeof(MyMessage), typeof(Subscriber)); //just map to our self for this test
+                        c.ConfigureTransport().Routing().RouteToEndpoint(typeof(MyCommand), typeof(Subscriber)); //just map to our self for this test
+                    },
+                    metadata =>
+                    {
+                        metadata.RegisterPublisherFor<MyEvent>(typeof(Subscriber));
+                        metadata.RegisterPublisherFor<MyEventWithNoHandler>(typeof(Subscriber));
+                    });
             }
 
             class SubscriptionSpy : IBehavior<ISubscribeContext, ISubscribeContext>

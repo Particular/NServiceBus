@@ -3,6 +3,7 @@
     using System;
     using System.Threading.Tasks;
     using AcceptanceTesting;
+    using AcceptanceTesting.Customization;
     using EndpointTemplates;
     using Features;
     using NServiceBus.Sagas;
@@ -32,8 +33,10 @@
         {
             public Sender()
             {
-                EndpointSetup<DefaultServer>()
-                    .AddMapping<MessageToSaga>(typeof(ReceiverWithSaga));
+                EndpointSetup<DefaultServer>(c =>
+                {
+                    c.ConfigureTransport().Routing().RouteToEndpoint(typeof(MessageToSaga), typeof(ReceiverWithSaga));
+                });
             }
 
             public class ReplyHandler : IHandleMessages<Reply>
@@ -92,19 +95,19 @@
             }
         }
 
-        
+
         public class StartSaga1 : ICommand
         {
             public Guid ContextId { get; set; }
         }
 
-        
+
         public class MessageToSaga : ICommand
         {
             public Guid ContextId { get; set; }
         }
 
-        
+
         public class Reply : IMessage
         {
         }

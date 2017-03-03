@@ -3,6 +3,7 @@
     using System;
     using System.Threading.Tasks;
     using AcceptanceTesting;
+    using AcceptanceTesting.Customization;
     using NServiceBus.AcceptanceTests;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NUnit.Framework;
@@ -70,7 +71,8 @@
             {
                 EndpointSetup<DistributorEndpointTemplate>(c =>
                 {
-                }).AddMapping<DispatchDelayedMessage>(typeof(Worker));
+                    c.ConfigureTransport().Routing().RouteToEndpoint(typeof(DispatchDelayedMessage), typeof(Worker));
+                });
             }
 
             class DelayedMessageHandler : IHandleMessages<DelayedMessage>

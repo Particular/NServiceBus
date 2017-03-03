@@ -1,11 +1,15 @@
 ﻿// disable obsolete warnings. Tests will be removed in next major version
+
+
 #pragma warning disable CS0618
+
 namespace NServiceBus.AcceptanceTests.Core.Encryption
 {
     using System.Collections.Generic;
     using System.Text;
     using System.Threading.Tasks;
     using AcceptanceTesting;
+    using AcceptanceTesting.Customization;
     using EndpointTemplates;
     using MessageMutator;
     using NUnit.Framework;
@@ -37,8 +41,11 @@ namespace NServiceBus.AcceptanceTests.Core.Encryption
         {
             public Sender()
             {
-                EndpointSetup<DefaultServer>(builder => builder.RijndaelEncryptionService("will-be-removed-by-transport-mutator", Encoding.ASCII.GetBytes("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")))
-                    .AddMapping<MessageWithSecretData>(typeof(Receiver));
+                EndpointSetup<DefaultServer>(builder =>
+                {
+                    builder.RijndaelEncryptionService("will-be-removed-by-transport-mutator", Encoding.ASCII.GetBytes("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"));
+                    builder.ConfigureTransport().Routing().RouteToEndpoint(typeof(MessageWithSecretData), typeof(Receiver));
+                });
             }
         }
 
@@ -71,7 +78,6 @@ namespace NServiceBus.AcceptanceTests.Core.Encryption
             }
         }
 
-
         public class MessageWithSecretData : IMessage
         {
             public WireEncryptedString Secret { get; set; }
@@ -92,4 +98,5 @@ namespace NServiceBus.AcceptanceTests.Core.Encryption
         }
     }
 }
+
 #pragma warning restore CS0618
