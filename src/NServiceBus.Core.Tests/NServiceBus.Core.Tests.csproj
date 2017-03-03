@@ -214,7 +214,6 @@
     <Compile Include="Config\TestConfigurationSection.cs" />
     <Compile Include="Config\When_no_custom_configuration_source_is_specified.cs" />
     <Compile Include="Config\When_scanning_assemblies.cs" />
-    <Compile Include="Config\When_users_override_the_configuration_source.cs" />
     <Compile Include="Config\When_using_convention_based_messages.cs" />
     <Compile Include="ArgumentExceptionTests.cs" />
     <Compile Include="DocumentationTests.cs" />

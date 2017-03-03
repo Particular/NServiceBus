@@ -10,6 +10,7 @@ namespace NServiceBus.AcceptanceTests.Core.Encryption
     using NServiceBus.Config;
     using NServiceBus.Config.ConfigurationSource;
     using NUnit.Framework;
+    using System.Text;
 
     public class When_using_Rijndael_with_config : NServiceBusAcceptanceTest
     {
@@ -65,7 +66,7 @@ namespace NServiceBus.AcceptanceTests.Core.Encryption
         {
             public Endpoint()
             {
-                EndpointSetup<DefaultServer>(builder => builder.RijndaelEncryptionService());
+                EndpointSetup<DefaultServer>(builder => builder.RijndaelEncryptionService("1st", Encoding.ASCII.GetBytes("gdDbqRpqdRbTs3mhdZh9qCaDaxJXl+e6")));
             }
 
             public class Handler : IHandleMessages<MessageWithSecretData>
@@ -110,18 +111,6 @@ namespace NServiceBus.AcceptanceTests.Core.Encryption
         public class MySecretSubProperty
         {
             public WireEncryptedString Secret { get; set; }
-        }
-
-        public class ConfigureEncryption : IProvideConfiguration<RijndaelEncryptionServiceConfig>
-        {
-            public RijndaelEncryptionServiceConfig GetConfiguration()
-            {
-                return new RijndaelEncryptionServiceConfig
-                {
-                    KeyIdentifier = "1st",
-                    Key = "gdDbqRpqdRbTs3mhdZh9qCaDaxJXl+e6"
-                };
-            }
         }
     }
 }

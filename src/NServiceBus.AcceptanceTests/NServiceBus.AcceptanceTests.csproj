@@ -60,7 +60,6 @@
     <Compile Include="Core\Feature\When_registering_a_startup_task.cs" />
     <Compile Include="Core\Pipeline\When_extending_behavior_context.cs" />
     <Compile Include="Core\Conventions\When_receiving_unobtrusive_message_without_handler.cs" />
-    <Compile Include="Core\Config\When_multiple_configuration_providers.cs" />
     <Compile Include="Core\CoreTestSuiteConstraints.cs" />
     <Compile Include="Core\DelayedDelivery\TimeoutManager\When_dispatch_fails_on_removal_SendsAtomicWithReceive.cs" />
     <Compile Include="Core\DelayedDelivery\TimeoutManager\When_using_external_timeout_manager_code_first.cs" />
@@ -304,7 +303,6 @@
     <Compile Include="Pipeline\When_handling_current_message_later.cs" />
     <Compile Include="Routing\When_multiple_mappings_exists.cs" />
     <Compile Include="Correlation\When_using_a_custom_correlation_id.cs" />
-    <Compile Include="Core\Config\When_only_abstract_config_override_is_found.cs" />
     <Compile Include="Core\Encryption\When_using_encryption_with_custom_service.cs" />
     <Compile Include="Reliability\Outbox\When_sending_from_a_non_dtc_endpoint.cs" />
     <Compile Include="Reliability\Outbox\When_receiving_a_message.cs" />
@@ -369,6 +367,7 @@
   <ItemGroup>
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>

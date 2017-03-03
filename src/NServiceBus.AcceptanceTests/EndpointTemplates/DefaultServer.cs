@@ -21,6 +21,8 @@
             this.typesToInclude = typesToInclude;
         }
 
+// Disable obsolete warning until MessageEndpointMappings has been removed from config and we can remove the parameter completetely
+#pragma warning disable CS0612, CS0619, CS0618
         public async Task<EndpointConfiguration> GetConfiguration(RunDescriptor runDescriptor, EndpointCustomizationConfiguration endpointConfiguration, IConfigurationSource configSource, Action<EndpointConfiguration> configurationBuilderCustomization)
         {
             var settings = runDescriptor.Settings;
@@ -54,6 +56,7 @@
 
             return configuration;
         }
+#pragma warning restore CS0612, CS0619, CS0618
 
         List<Type> typesToInclude;
     }

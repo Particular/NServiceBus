@@ -23,6 +23,8 @@
             public bool IsWorkerRegistered => WorkerSessionId != null;
         }
 
+// Disable obsolete warning until MessageEndpointMappings has been removed from config and we can remove the parameter completetely
+#pragma warning disable CS0612, CS0619, CS0618
         public async Task<EndpointConfiguration> GetConfiguration(RunDescriptor runDescriptor, EndpointCustomizationConfiguration endpointConfiguration, IConfigurationSource configSource, Action<EndpointConfiguration> configurationBuilderCustomization)
         {
             var config = await new DefaultServer(new List<Type>
@@ -34,6 +36,7 @@
             config.EnableFeature<FakeReadyMessageProcessor>();
             return config;
         }
+#pragma warning restore CS0612, CS0619, CS0618
 
         class FakeReadyMessageProcessor : Feature
         {
