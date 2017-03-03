@@ -2,12 +2,12 @@
 {
     using System.Threading.Tasks;
     using AcceptanceTesting;
-    using AcceptanceTesting.Customization;
     using EndpointTemplates;
     using NUnit.Framework;
 
     public class When_unsubscribing_to_command_bestpractices_disabled_on_endpoint : NServiceBusAcceptanceTest
     {
+        [Ignore("not supported via code first API")]
         [Test]
         public async Task Should_allow_unsubscribing_to_commands()
         {
@@ -33,8 +33,7 @@
                 {
                     var routing = c.ConfigureTransport().Routing();
                     routing.DoNotEnforceBestPractices();
-                    routing.RouteToEndpoint(typeof(MyCommand), typeof(Endpoint));
-                });
+                }, m => m.RegisterPublisherFor<MyCommand>(typeof(Endpoint)));
             }
         }
 

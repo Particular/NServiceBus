@@ -4,6 +4,7 @@
     using AcceptanceTesting;
     using AcceptanceTesting.Customization;
     using EndpointTemplates;
+    using NServiceBus.Config;
     using NUnit.Framework;
 
     public class When_sending_a_base_command : NServiceBusAcceptanceTest
@@ -35,11 +36,23 @@
         {
             public Sender()
             {
-                EndpointSetup<DefaultServer>(c =>
-                {
-                    c.ConfigureTransport().Routing().RouteToEndpoint(typeof(BaseCommand), typeof(QueueSpy));
-                    c.ConfigureTransport().Routing().RouteToEndpoint(typeof(DerivedCommand), typeof(Receiver));
-                });
+                EndpointSetup<DefaultServer>()
+                    .WithConfig<UnicastBusConfig>(c =>
+                    {
+                        // This scenario is only supported when using MessageEndpointMappings
+                        c.MessageEndpointMappings.Add(new MessageEndpointMapping
+                        {
+                            AssemblyName = typeof(BaseCommand).Assembly.FullName,
+                            TypeFullName = typeof(BaseCommand).FullName,
+                            Endpoint = Conventions.EndpointNamingConvention(typeof(QueueSpy))
+                        });
+                        c.MessageEndpointMappings.Add(new MessageEndpointMapping
+                        {
+                            AssemblyName = typeof(DerivedCommand).Assembly.FullName,
+                            TypeFullName = typeof(DerivedCommand).FullName,
+                            Endpoint = Conventions.EndpointNamingConvention(typeof(Receiver))
+                        });
+                    });
             }
         }
 

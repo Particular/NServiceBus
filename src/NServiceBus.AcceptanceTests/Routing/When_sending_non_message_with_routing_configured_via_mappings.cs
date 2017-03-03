@@ -5,6 +5,7 @@
     using AcceptanceTesting;
     using AcceptanceTesting.Customization;
     using EndpointTemplates;
+    using NServiceBus.Config;
     using NUnit.Framework;
 
     public class When_sending_non_message_with_routing_configured_via_mappings : NServiceBusAcceptanceTest
@@ -42,10 +43,16 @@
         {
             public Sender()
             {
-                EndpointSetup<DefaultServer>(c =>
-                {
-                    c.ConfigureTransport().Routing().RouteToEndpoint(typeof(NonMessage), typeof(Receiver));
-                });
+                EndpointSetup<DefaultServer>()
+                    .WithConfig<UnicastBusConfig>(c =>
+                    {
+                        c.MessageEndpointMappings.Add(new MessageEndpointMapping
+                        {
+                            AssemblyName = typeof(NonMessage).Assembly.FullName,
+                            TypeFullName = typeof(NonMessage).FullName,
+                            Endpoint = Conventions.EndpointNamingConvention(typeof(Receiver))
+                        });
+                    });
             }
         }
 

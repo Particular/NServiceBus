@@ -4,7 +4,9 @@
     using AcceptanceTesting;
     using EndpointTemplates;
     using Features;
+    using NServiceBus.Config;
     using NUnit.Framework;
+    using AcceptanceTesting.Customization;
 
     public class When_subscribing_to_event_with_routes_to_base_and_specific_events : NServiceBusAcceptanceTest
     {
@@ -69,6 +71,20 @@
                 {
                     metadata.RegisterPublisherFor<EventTwo>(typeof(PublisherTwo));
                     metadata.RegisterPublisherFor<IBaseEvent>(typeof(PublisherOne));
+                }).WithConfig<UnicastBusConfig>(u =>
+                {
+                    u.MessageEndpointMappings.Add(new MessageEndpointMapping
+                    {
+                        AssemblyName = typeof(EventTwo).Assembly.FullName,
+                        TypeFullName = typeof(EventTwo).FullName,
+                        Endpoint = Conventions.EndpointNamingConvention(typeof(PublisherTwo))
+                    });
+                    u.MessageEndpointMappings.Add(new MessageEndpointMapping
+                    {
+                        AssemblyName = typeof(IBaseEvent).Assembly.FullName,
+                        TypeFullName = typeof(IBaseEvent).FullName,
+                        Endpoint = Conventions.EndpointNamingConvention(typeof(PublisherOne))
+                    });
                 });
             }
 

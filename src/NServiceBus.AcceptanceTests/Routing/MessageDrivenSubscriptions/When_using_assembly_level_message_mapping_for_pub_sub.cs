@@ -10,8 +10,6 @@
 
     public class When_using_assembly_level_message_mapping_for_pub_sub : NServiceBusAcceptanceTest
     {
-        static string OtherEndpointName => Conventions.EndpointNamingConvention(typeof(OtherEndpoint));
-
         [Test]
         public async Task The_mapping_should_not_cause_publishing_to_non_subscribers()
         {
@@ -43,18 +41,16 @@
         {
             public Publisher()
             {
-                EndpointSetup<DefaultPublisher>(c =>
-                {
-                    c.ConfigureTransport().Routing().RouteToEndpoint(typeof(DoneCommand), typeof(OtherEndpoint));
-                }).WithConfig<UnicastBusConfig>(c =>
-                {
-                    c.MessageEndpointMappings = new MessageEndpointMappingCollection();
-                    c.MessageEndpointMappings.Add(new MessageEndpointMapping
+                EndpointSetup<DefaultPublisher>()
+                    .WithConfig<UnicastBusConfig>(c =>
                     {
-                        Endpoint = OtherEndpointName,
-                        AssemblyName = typeof(Publisher).Assembly.GetName().Name
+                        c.MessageEndpointMappings = new MessageEndpointMappingCollection();
+                        c.MessageEndpointMappings.Add(new MessageEndpointMapping
+                        {
+                            Endpoint = Conventions.EndpointNamingConvention(typeof(OtherEndpoint)),
+                            AssemblyName = typeof(Publisher).Assembly.GetName().Name
+                        });
                     });
-                });
             }
         }
 

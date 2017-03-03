@@ -2,8 +2,10 @@
 {
     using System.Threading.Tasks;
     using AcceptanceTesting;
+    using AcceptanceTesting.Customization;
     using EndpointTemplates;
     using Features;
+    using NServiceBus.Config;
     using NUnit.Framework;
 
     public class When_subscribing_to_a_base_event_with_a_route_for_a_derived_event : NServiceBusAcceptanceTest
@@ -55,10 +57,20 @@
                 EndpointSetup<DefaultServer>(c =>
                 {
                     c.DisableFeature<AutoSubscribe>();
-                }, metadata =>
+                }).WithConfig<UnicastBusConfig>(u =>
                 {
-                    metadata.RegisterPublisherFor<EventOne>(typeof(PublisherOne));
-                    metadata.RegisterPublisherFor<EventTwo>(typeof(PublisherTwo));
+                    u.MessageEndpointMappings.Add(new MessageEndpointMapping
+                    {
+                        AssemblyName = typeof(EventOne).Assembly.FullName,
+                        TypeFullName = typeof(EventOne).FullName,
+                        Endpoint = Conventions.EndpointNamingConvention(typeof(PublisherOne))
+                    });
+                    u.MessageEndpointMappings.Add(new MessageEndpointMapping
+                    {
+                        AssemblyName = typeof(EventTwo).Assembly.FullName,
+                        TypeFullName = typeof(EventTwo).FullName,
+                        Endpoint = Conventions.EndpointNamingConvention(typeof(PublisherTwo))
+                    });
                 });
             }
 
