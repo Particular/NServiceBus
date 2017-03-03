@@ -1741,7 +1741,7 @@ namespace NServiceBus.Extensibility
 {
     public class ContextBag : NServiceBus.Extensibility.ReadOnlyContextBag
     {
-        public ContextBag(NServiceBus.Extensibility.ContextBag parentBag = null) { }
+        public ContextBag(NServiceBus.Extensibility.ContextBag parent = null) { }
         public T Get<T>() { }
         public T GetOrCreate<T>()
             where T :  class, new () { }
@@ -2853,6 +2853,10 @@ namespace NServiceBus.Sagas
     {
         System.Threading.Tasks.Task Handle(object message, NServiceBus.IMessageProcessingContext context);
     }
+    public interface ISagaIdGenerator
+    {
+        System.Guid Generate(NServiceBus.Sagas.SagaIdGeneratorContext context);
+    }
     public interface ISagaPersister
     {
         System.Threading.Tasks.Task Complete(NServiceBus.IContainSagaData sagaData, NServiceBus.Persistence.SynchronizedStorageSession session, NServiceBus.Extensibility.ContextBag context);
@@ -2876,6 +2880,13 @@ namespace NServiceBus.Sagas
         public string MessageTypeName { get; }
         public System.Collections.Generic.Dictionary<string, object> Properties { get; }
         public System.Type Type { get; }
+    }
+    public class SagaIdGeneratorContext : NServiceBus.Extensibility.IExtendable
+    {
+        public SagaIdGeneratorContext(NServiceBus.Sagas.SagaCorrelationProperty correlationProperty, NServiceBus.Sagas.SagaMetadata sagaMetadata, NServiceBus.Extensibility.ContextBag extensions) { }
+        public NServiceBus.Sagas.SagaCorrelationProperty CorrelationProperty { get; }
+        public NServiceBus.Extensibility.ContextBag Extensions { get; }
+        public NServiceBus.Sagas.SagaMetadata SagaMetadata { get; }
     }
     public class SagaMessage
     {
