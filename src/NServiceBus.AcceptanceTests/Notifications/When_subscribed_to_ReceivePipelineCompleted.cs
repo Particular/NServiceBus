@@ -7,7 +7,7 @@
     using EndpointTemplates;
     using NUnit.Framework;
 
-    class When_subscribed_to_ReceivePipelineCompleted
+    class When_subscribed_to_ReceivePipelineCompleted : NServiceBusAcceptanceTest
     {
         [Test]
         public async Task Should_receive_notifications()
