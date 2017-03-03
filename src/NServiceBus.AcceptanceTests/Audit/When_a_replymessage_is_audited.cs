@@ -7,6 +7,7 @@
     using Features;
     using MessageMutator;
     using NUnit.Framework;
+    using AcceptanceTesting.Customization;
 
     public class When_a_replymessage_is_audited : NServiceBusAcceptanceTest
     {
@@ -60,9 +61,12 @@
         {
             public EndpointWithAuditOn()
             {
-                EndpointSetup<DefaultServer>(c => c.DisableFeature<Outbox>())
-                    .AddMapping<Request>(typeof(Server))
-                    .AuditTo<AuditSpyEndpoint>();
+                EndpointSetup<DefaultServer>(c =>
+                    {
+                        c.DisableFeature<Outbox>();
+                        c.AuditProcessedMessagesTo<AuditSpyEndpoint>();
+                    })
+                    .AddMapping<Request>(typeof(Server));
             }
 
             public class MessageToBeAuditedHandler : IHandleMessages<ResponseToBeAudited>

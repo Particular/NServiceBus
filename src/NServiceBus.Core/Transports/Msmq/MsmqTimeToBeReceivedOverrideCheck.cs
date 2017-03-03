@@ -21,7 +21,7 @@
             var outBoxRunning = settings.IsFeatureActive(typeof(Features.Outbox));
 
             var messageAuditingConfig = settings.GetOrDefault<AuditConfigReader.Result>();
-            var auditTTBROverridden = messageAuditingConfig != null && messageAuditingConfig.TimeToBeReceived > TimeSpan.Zero;
+            var auditTTBROverridden = messageAuditingConfig?.TimeToBeReceived > TimeSpan.Zero;
 
             var unicastBusConfig = settings.GetConfigSection<UnicastBusConfig>();
             var forwardTTBROverridden = unicastBusConfig != null && unicastBusConfig.TimeToBeReceivedOnForwardedMessages > TimeSpan.Zero;

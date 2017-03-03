@@ -34,7 +34,7 @@
             {
                 EndpointSetup<DefaultServer>((config, context) =>
                 {
-                    config.UseTransport(context.GetTransportType())
+                    config.ConfigureTransport()
                         .Transactions(TransportTransactionMode.TransactionScope);
                 });
             }

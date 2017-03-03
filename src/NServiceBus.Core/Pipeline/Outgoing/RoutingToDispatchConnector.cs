@@ -17,28 +17,19 @@
             var state = context.Extensions.GetOrCreate<State>();
             var dispatchConsistency = state.ImmediateDispatch ? DispatchConsistency.Isolated : DispatchConsistency.Default;
 
-            var operations = context.RoutingStrategies
-                .Select(rs =>
-                {
-                    var addressLabel = rs.Apply(context.Message.Headers);
-                    var message = new OutgoingMessage(context.Message.MessageId, context.Message.Headers, context.Message.Body);
-                    return new TransportOperation(message, addressLabel, dispatchConsistency, context.Extensions.GetDeliveryConstraints());
-                }).ToArray();
-
-            if (log.IsDebugEnabled)
+            var operations = new TransportOperation[context.RoutingStrategies.Count];
+            var index = 0;
+            foreach (var strategy in context.RoutingStrategies)
             {
-                var sb = new StringBuilder();
-                foreach (var operation in operations)
-                {
-                    var unicastAddressTag = operation.AddressTag as UnicastAddressTag;
-                    if (unicastAddressTag != null)
-                    {
-                        sb.AppendFormat("Destination: {0}\n", unicastAddressTag.Destination);
-                    }
+                var addressLabel = strategy.Apply(context.Message.Headers);
+                var message = new OutgoingMessage(context.Message.MessageId, context.Message.Headers, context.Message.Body);
+                operations[index] = new TransportOperation(message, addressLabel, dispatchConsistency, context.Extensions.GetDeliveryConstraints());
+                index++;
+            }
 
-                    sb.AppendFormat("Message headers:\n{0}", string.Join(", ", operation.Message.Headers.Select(h => h.Key + ":" + h.Value).ToArray()));
-                    log.Debug(sb.ToString());
-                }
+            if (isDebugEnabled)
+            {
+                LogOutoingOperations(operations);
             }
 
             PendingTransportOperations pendingOperations;
@@ -52,7 +43,24 @@
             return stage(this.CreateDispatchContext(operations, context));
         }
 
+        static void LogOutoingOperations(TransportOperation[] operations)
+        {
+            var sb = new StringBuilder();
+            foreach (var operation in operations)
+            {
+                var unicastAddressTag = operation.AddressTag as UnicastAddressTag;
+                if (unicastAddressTag != null)
+                {
+                    sb.AppendFormat("Destination: {0}\n", unicastAddressTag.Destination);
+                }
+
+                sb.AppendFormat("Message headers:\n{0}", string.Join(", ", operation.Message.Headers.Select(h => h.Key + ":" + h.Value).ToArray()));
+            }
+            log.Debug(sb.ToString());
+        }
+
         static ILog log = LogManager.GetLogger<RoutingToDispatchConnector>();
+        static readonly bool isDebugEnabled = log.IsDebugEnabled;
 
         public class State
         {

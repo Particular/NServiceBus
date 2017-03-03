@@ -12,6 +12,10 @@
         /// Gets/sets the address to which messages received will be forwarded.
         /// </summary>
         [ConfigurationProperty("QueueName", IsRequired = false)]
+        [ObsoleteEx(
+        Message = "Use of the application configuration file to configure audit is discouraged",
+        ReplacementTypeOrMember = "EndpointConfiguration.AuditProcessedMessagesTo",
+        RemoveInVersion = "7.0")]
         public string QueueName
         {
             get
@@ -31,6 +35,10 @@
         /// Gets/sets the time to be received set on forwarded messages.
         /// </summary>
         [ConfigurationProperty("OverrideTimeToBeReceived", IsRequired = false)]
+        [ObsoleteEx(
+        Message = "Use of the application configuration file to configure audit is discouraged",
+        ReplacementTypeOrMember = "EndpointConfiguration.AuditProcessedMessagesTo",
+        RemoveInVersion = "7.0")]
         public TimeSpan OverrideTimeToBeReceived
         {
             get { return (TimeSpan) this["OverrideTimeToBeReceived"]; }

@@ -22,14 +22,13 @@ namespace NServiceBus
 
             var sagaPropertyName = (string) finderDefinition.Properties["saga-property-name"];
 
+            var lookupValues = context.GetOrCreate<SagaLookupValues>();
+            lookupValues.Add<TSagaData>(sagaPropertyName, propertyValue);
+
             if (sagaPropertyName.ToLower() == "id")
             {
                 return await sagaPersister.Get<TSagaData>((Guid) propertyValue, storageSession, context).ConfigureAwait(false);
             }
-
-            var lookupValues = context.GetOrCreate<SagaLookupValues>();
-
-            lookupValues.Add<TSagaData>(sagaPropertyName, propertyValue);
 
             return await sagaPersister.Get<TSagaData>(sagaPropertyName, propertyValue, storageSession, context).ConfigureAwait(false);
         }

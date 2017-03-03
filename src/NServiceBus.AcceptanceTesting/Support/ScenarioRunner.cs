@@ -162,18 +162,6 @@
             return runResult;
         }
 
-        static IDictionary<Type, string> CreateRoutingTable(IEnumerable<EndpointBehavior> behaviorDescriptors)
-        {
-            var routingTable = new Dictionary<Type, string>();
-
-            foreach (var behaviorDescriptor in behaviorDescriptors)
-            {
-                routingTable[behaviorDescriptor.EndpointBuilderType] = GetEndpointNameForRun(behaviorDescriptor);
-            }
-
-            return routingTable;
-        }
-
         static void PrintSettings(IEnumerable<KeyValuePair<string, object>> settings)
         {
             Console.WriteLine();
@@ -329,11 +317,9 @@
 
         static async Task<EndpointRunner[]> InitializeRunners(RunDescriptor runDescriptor, List<EndpointBehavior> endpointBehaviors)
         {
-            var routingTable = CreateRoutingTable(endpointBehaviors);
-
             var runnerInitializations = endpointBehaviors.Select(async endpointBehavior =>
             {
-                var endpointName = GetEndpointNameForRun(endpointBehavior);
+                var endpointName = Conventions.EndpointNamingConvention(endpointBehavior.EndpointBuilderType);
 
                 if (endpointName.Length > 77)
                 {
@@ -344,7 +330,7 @@
 
                 try
                 {
-                    await runner.Initialize(runDescriptor, endpointBehavior, routingTable, endpointName).ConfigureAwait(false);
+                    await runner.Initialize(runDescriptor, endpointBehavior, endpointName).ConfigureAwait(false);
                 }
                 catch (Exception)
                 {
@@ -365,11 +351,6 @@
                 Console.WriteLine(e);
                 throw;
             }
-        }
-
-        static string GetEndpointNameForRun(EndpointBehavior endpointBehavior)
-        {
-            return Conventions.EndpointNamingConvention(endpointBehavior.EndpointBuilderType);
         }
     }
 

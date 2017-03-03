@@ -119,6 +119,7 @@
     <Compile Include="Notifications\EventAggregatorExtensions.cs" />
     <Compile Include="Performance\ReceiveStatisticsPerformanceCounters.cs" />
     <Compile Include="Persistence\Msmq\SubscriptionStorage\MsmqSubscriptionMessage.cs" />
+    <Compile Include="Pipeline\Incoming\ReceivePipelineConfigExtensions.cs" />
     <Compile Include="Pipeline\PipelineExecutionExtensions.cs" />
     <Compile Include="Pipeline\ForkConnector.cs" />
     <Compile Include="Pipeline\ForkExtensions.cs" />
@@ -179,6 +180,9 @@
     <Compile Include="Routing\RoutingFeatureSettingsExtensions.cs" />
     <Compile Include="Routing\UnicastPublishRouter.cs" />
     <Compile Include="Routing\UnicastSendRouter.cs" />
+    <Compile Include="Sagas\DefaultSagaIdGenerator.cs" />
+    <Compile Include="Sagas\ISagaIdGenerator.cs" />
+    <Compile Include="Sagas\SagaIdGeneratorContext.cs" />
     <Compile Include="Serialization\SerializationFeature.cs" />
     <Compile Include="Serialization\SerializationSettingsExtensions.cs" />
     <Compile Include="Serializers\XML\XmlSerialization.cs" />
@@ -192,7 +196,7 @@
     <Compile Include="Transports\Msmq\MsmqTransportInfrastructure.cs" />
     <Compile Include="Transports\Msmq\MsmqFailureInfoStorage.cs" />
     <Compile Include="Transports\MulticastTransportOperation.cs" />
-    <Compile Include="Transports\ReceivePipelineCompleted.cs" />
+    <Compile Include="Pipeline\Incoming\ReceivePipelineCompleted.cs" />
     <Compile Include="Transports\TransportInfrastructure.cs" />
     <Compile Include="Transports\TransportOperations.cs" />
     <Compile Include="Transports\TransportSubscriptionInfrastructure.cs" />

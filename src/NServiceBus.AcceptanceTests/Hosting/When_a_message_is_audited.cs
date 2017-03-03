@@ -2,6 +2,7 @@
 {
     using System.Threading.Tasks;
     using AcceptanceTesting;
+    using AcceptanceTesting.Customization;
     using EndpointTemplates;
     using NUnit.Framework;
 
@@ -35,8 +36,8 @@
         {
             public EndpointWithAuditOn()
             {
-                EndpointSetup<DefaultServer>()
-                    .AuditTo<AuditSpyEndpoint>();
+                EndpointSetup<DefaultServer>(c => c
+                    .AuditProcessedMessagesTo<AuditSpyEndpoint>());
             }
 
             public class MessageToBeAuditedHandler : IHandleMessages<MessageToBeAudited>

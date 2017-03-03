@@ -43,6 +43,8 @@
                 throw new Exception("The selected persistence doesn't have support for saga storage. Select another persistence or disable the sagas feature using endpointConfiguration.DisableFeature<Sagas>()");
             }
 
+            var sagaIdGenerator = context.Settings.GetOrDefault<ISagaIdGenerator>() ?? new DefaultSagaIdGenerator();
+
             var sagaMetaModel = context.Settings.Get<SagaMetadataCollection>();
             sagaMetaModel.Initialize(context.Settings.GetAvailableTypes(), conventions);
 
@@ -57,7 +59,7 @@
             }
 
             // Register the Saga related behaviors for incoming messages
-            context.Pipeline.Register("InvokeSaga", b => new SagaPersistenceBehavior(b.Build<ISagaPersister>(), b.Build<ICancelDeferredMessages>(), sagaMetaModel), "Invokes the saga logic");
+            context.Pipeline.Register("InvokeSaga", b => new SagaPersistenceBehavior(b.Build<ISagaPersister>(), sagaIdGenerator, b.Build<ICancelDeferredMessages>(), sagaMetaModel), "Invokes the saga logic");
             context.Pipeline.Register("InvokeSagaNotFound", new InvokeSagaNotFoundBehavior(), "Invokes saga not found logic");
             context.Pipeline.Register("AttachSagaDetailsToOutGoingMessage", new AttachSagaDetailsToOutGoingMessageBehavior(), "Makes sure that outgoing messages have saga info attached to them");
         }
@@ -72,7 +74,7 @@
 
                 if (finder.Properties.TryGetValue("custom-finder-clr-type", out customFinderType))
                 {
-                    container.ConfigureComponent((Type) customFinderType, DependencyLifecycle.InstancePerCall);
+                    container.ConfigureComponent((Type)customFinderType, DependencyLifecycle.InstancePerCall);
                 }
             }
         }

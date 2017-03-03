@@ -45,7 +45,7 @@
         {
             public RetryEndpoint()
             {
-                EndpointSetup<DefaultServer>((config, context) => { config.UseTransport(context.GetTransportType()).Transactions(TransportTransactionMode.None); });
+                EndpointSetup<DefaultServer>((config, context) => { config.ConfigureTransport().Transactions(TransportTransactionMode.None); });
             }
 
             class MessageToBeRetriedHandler : IHandleMessages<MessageToBeRetried>

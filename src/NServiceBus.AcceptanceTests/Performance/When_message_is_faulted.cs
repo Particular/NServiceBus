@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Threading.Tasks;
     using AcceptanceTesting;
+    using AcceptanceTesting.Customization;
     using EndpointTemplates;
     using NUnit.Framework;
 
@@ -51,7 +52,11 @@
         {
             public EndpointWithAuditOn()
             {
-                EndpointSetup<DefaultServer>((c, r) => { c.SendFailedMessagesTo("errorQueueForAcceptanceTest"); }).AuditTo<EndpointThatHandlesAuditMessages>();
+                EndpointSetup<DefaultServer>((c, r) =>
+                {
+                    c.SendFailedMessagesTo("errorQueueForAcceptanceTest");
+                    c.AuditProcessedMessagesTo<EndpointThatHandlesAuditMessages>();
+                });
             }
 
             class MessageToBeAuditedHandler : IHandleMessages<MessageToBeAudited>

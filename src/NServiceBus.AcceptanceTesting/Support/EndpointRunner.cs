@@ -23,8 +23,7 @@
 
         public bool FailOnErrorMessage => !behavior.DoNotFailOnErrorMessages;
 
-        public async Task Initialize(RunDescriptor run, EndpointBehavior endpointBehavior,
-            IDictionary<Type, string> routingTable, string endpointName)
+        public async Task Initialize(RunDescriptor run, EndpointBehavior endpointBehavior, string endpointName)
         {
             try
             {
@@ -46,7 +45,7 @@
                 {
                     throw new Exception($"Missing EndpointSetup<T> in the constructor of {endpointName} endpoint.");
                 }
-                endpointConfiguration = await configuration.GetConfiguration(run, routingTable).ConfigureAwait(false);
+                endpointConfiguration = await configuration.GetConfiguration(run).ConfigureAwait(false);
                 RegisterInheritanceHierarchyOfContextInSettings(scenarioContext);
 
                 endpointBehavior.CustomConfig.ForEach(customAction => customAction(endpointConfiguration, scenarioContext));

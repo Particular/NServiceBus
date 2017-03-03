@@ -11,18 +11,6 @@
             configuration.EndpointMappings = new Dictionary<Type, Type>();
         }
 
-        public EndpointConfigurationBuilder AuditTo<T>()
-        {
-            configuration.AuditEndpoint = typeof(T);
-            return this;
-        }
-
-        public EndpointConfigurationBuilder AuditTo(string addressOfAuditQueue)
-        {
-            configuration.AddressOfAuditQueue = addressOfAuditQueue;
-            return this;
-        }
-
         public EndpointConfigurationBuilder CustomMachineName(string customMachineName)
         {
             configuration.CustomMachineName = customMachineName;
@@ -76,10 +64,10 @@
 
             publisherMetadata?.Invoke(configuration.PublisherMetadata);
 
-            configuration.GetConfiguration = async (runDescriptor, routingTable) =>
+            configuration.GetConfiguration = async runDescriptor =>
             {
                 var endpointSetupTemplate = new T();
-                var scenarioConfigSource = new ScenarioConfigSource(configuration, routingTable);
+                var scenarioConfigSource = new ScenarioConfigSource(configuration);
                 var endpointConfiguration = await endpointSetupTemplate.GetConfiguration(runDescriptor, configuration, scenarioConfigSource, bc =>
                 {
                     configurationBuilderCustomization(bc, runDescriptor);

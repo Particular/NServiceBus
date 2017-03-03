@@ -6,6 +6,7 @@
     using AcceptanceTesting;
     using EndpointTemplates;
     using NUnit.Framework;
+    using AcceptanceTesting.Customization;
 
     public class When_message_is_audited : NServiceBusAcceptanceTest
     {
@@ -42,8 +43,8 @@
         {
             public EndpointWithAuditOn()
             {
-                EndpointSetup<DefaultServer>()
-                    .AuditTo<EndpointThatHandlesAuditMessages>();
+                EndpointSetup<DefaultServer>(c => c
+                    .AuditProcessedMessagesTo<EndpointThatHandlesAuditMessages>());
             }
 
             class MessageToBeAuditedHandler : IHandleMessages<MessageToBeAudited>
