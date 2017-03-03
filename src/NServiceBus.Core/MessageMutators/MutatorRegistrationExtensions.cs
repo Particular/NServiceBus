@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.MessageMutator
 {
     using System;
+    using System.Collections.Generic;
 
     /// <summary>
     /// Provides extension methods to register message mutators.
@@ -17,20 +18,41 @@
             Guard.AgainstNull(nameof(endpointConfiguration), endpointConfiguration);
             Guard.AgainstNull(nameof(messageMutator), messageMutator);
 
-            if (!IsMessageMutator(messageMutator))
+            var registeredMutator = false;
+            foreach (var mutatorInterface in GetImplementedMutatorInterfaces(messageMutator))
+            {
+                // register the mutator with it's specific mutator interface as it will be registered as object instead
+                endpointConfiguration.RegisterComponents(c => c.RegisterSingleton(mutatorInterface, messageMutator));
+                registeredMutator = true;
+            }
+
+            if (!registeredMutator)
             {
                 throw new ArgumentException($"The given instance is no valid message mutator. Implement one of the following mutator interfaces: {typeof(IMutateIncomingMessages).FullName}, {typeof(IMutateIncomingTransportMessages).FullName}, {typeof(IMutateOutgoingMessages).FullName}, {typeof(IMutateOutgoingTransportMessages).FullName}");
             }
-
-            endpointConfiguration.RegisterComponents(c => c.RegisterSingleton(messageMutator));
         }
 
-        static bool IsMessageMutator(object messageMutatorType)
+        static IEnumerable<Type> GetImplementedMutatorInterfaces(object messageMutatorType)
         {
-            return messageMutatorType is IMutateIncomingMessages
-                   || messageMutatorType is IMutateIncomingTransportMessages
-                   || messageMutatorType is IMutateOutgoingMessages
-                   || messageMutatorType is IMutateOutgoingTransportMessages;
+            if (messageMutatorType is IMutateIncomingMessages)
+            {
+                yield return typeof(IMutateIncomingMessages);
+            }
+
+            if (messageMutatorType is IMutateIncomingTransportMessages)
+            {
+                yield return typeof(IMutateIncomingTransportMessages);
+            }
+
+            if (messageMutatorType is IMutateOutgoingMessages)
+            {
+                yield return typeof(IMutateOutgoingMessages);
+            }
+
+            if (messageMutatorType is IMutateOutgoingTransportMessages)
+            {
+                yield return typeof(IMutateOutgoingTransportMessages);
+            }
         }
     }
 }
