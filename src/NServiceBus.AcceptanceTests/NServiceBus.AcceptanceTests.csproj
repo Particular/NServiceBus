@@ -57,7 +57,7 @@
   <ItemGroup>
     <Compile Include="Core\Feature\When_depending_on_untyped_feature.cs" />
     <Compile Include="Core\Pipeline\When_extending_behavior_context.cs" />
-    <Compile Include="Basic\When_receiving_unobtrusive_message_without_handler.cs" />
+    <Compile Include="Core\Conventions\When_receiving_unobtrusive_message_without_handler.cs" />
     <Compile Include="Config\When_multiple_configuration_providers.cs" />
     <Compile Include="Core\CoreTestSuiteConstraints.cs" />
     <Compile Include="Core\DelayedDelivery\TimeoutManager\When_dispatch_fails_on_removal_SendsAtomicWithReceive.cs" />
@@ -72,7 +72,7 @@
     <Compile Include="Core\Stopping\When_pump_throws_on_stop.cs" />
     <Compile Include="Core\Stopping\When_transport_infrastructure_throws_on_stop.cs" />
     <Compile Include="DataBus\When_sending_databus_properties_with_unobtrusive.cs" />
-    <Compile Include="Basic\When_sending_interface_message_with_conventions.cs" />
+    <Compile Include="Core\Conventions\When_sending_interface_message_with_conventions.cs" />
     <Compile Include="Core\DelayedDelivery\TimeoutManager\When_using_external_timeout_manager_xml_config.cs" />
     <Compile Include="Core\Encryption\When_using_Rijndael_with_unobtrusive_mode.cs" />
     <Compile Include="EndpointTemplates\EndpointConfigurationExtensions.cs" />
@@ -122,7 +122,7 @@
     <Compile Include="Serialization\When_configuring_custom_xml_namespace.cs" />
     <Compile Include="Serialization\When_registering_additional_deserializers.cs" />
     <Compile Include="Serialization\When_no_content_type.cs" />
-    <Compile Include="Basic\When_registering_handlers_explicitly.cs" />
+    <Compile Include="Core\Pipeline\When_registering_handlers_explicitly.cs" />
     <Compile Include="Causation\When_a_message_is_faulted.cs" />
     <Compile Include="Causation\When_a_message_is_audited.cs" />
     <Compile Include="ConfigureEndpointInMemoryPersistence.cs" />
@@ -194,13 +194,13 @@
     <Compile Include="Forwarding\When_forwarding_is_configured_for_endpoint.cs" />
     <Compile Include="Audit\When_a_replymessage_is_audited.cs" />
     <Compile Include="Performance\When_message_is_audited.cs" />
-    <Compile Include="Basic\When_receiving_with_catch_all_handlers_registered.cs" />
+    <Compile Include="Core\Pipeline\When_receiving_with_catch_all_handlers_registered.cs" />
     <Compile Include="Core\Pipeline\When_handling_message_with_several_messagehandlers.cs" />
     <Compile Include="Serialization\When_registering_custom_serializer.cs" />
     <Compile Include="Core\Pipeline\When_extending_sendoptions.cs" />
-    <Compile Include="Basic\When_sending_with_conventions.cs" />
-    <Compile Include="Basic\When_sending_from_a_send_only.cs" />
-    <Compile Include="Basic\When_using_a_greedy_convention.cs" />
+    <Compile Include="Core\Conventions\When_sending_with_conventions.cs" />
+    <Compile Include="Core\Pipeline\When_sending_from_a_send_only.cs" />
+    <Compile Include="Core\Conventions\When_using_a_greedy_convention.cs" />
     <Compile Include="Hosting\When_sending_ensure_proper_headers.cs" />
     <Compile Include="Core\MessageDurability\When_sending_a_non_durable_message.cs" />
     <Compile Include="Hosting\When_a_message_is_audited.cs" />
@@ -300,7 +300,7 @@
     <Compile Include="Audit\When_a_message_is_audited.cs" />
     <Compile Include="Correlation\When_sending_with_no_correlation_id.cs" />
     <Compile Include="Core\Pipeline\When_aborting_the_behavior_chain.cs" />
-    <Compile Include="Basic\When_handling_current_message_later.cs" />
+    <Compile Include="Pipeline\When_handling_current_message_later.cs" />
     <Compile Include="Routing\When_multiple_mappings_exists.cs" />
     <Compile Include="Correlation\When_using_a_custom_correlation_id.cs" />
     <Compile Include="Config\When_only_abstract_config_override_is_found.cs" />

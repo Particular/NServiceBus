@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.AcceptanceTests.Basic
+﻿namespace NServiceBus.AcceptanceTests.Core.Pipeline
 {
     using System;
     using System.Threading.Tasks;
@@ -10,7 +10,7 @@
     public class When_sending_from_a_send_only : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Should_receive_the_message()
+        public async Task Should_send_the_message()
         {
             var context = await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
                 .WithEndpoint<Sender>(b => b.When((session, c) => session.Send(new MyMessage
