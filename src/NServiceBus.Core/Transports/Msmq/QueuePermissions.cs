@@ -16,7 +16,7 @@
             Logger.Debug($"Checking if queue exists: {queuePath}.");
             if (msmqAddress.IsRemote)
             {
-                Logger.Info($"This endpoint cannot verify the existence of the remote queue '{queuePath}'. Make sure the queue exists, and that the address is correct. Messages can potentially end up in the dead letter queue if configured incorrectly.");
+                Logger.Info($"Since {address} is remote, we cannot verify if the queue exists. Make sure the queue exists and that the address and permissions are correct. Messages could end up in the dead letter queue if configured incorrectly.");
                 return;
             }
 
@@ -32,6 +32,10 @@
 
                         WarnIfPublicAccess(messageQueue);
                     }
+                }
+                else
+                {
+                    Logger.WarnFormat("Queue [{0}] does not exist", queuePath); 
                 }
             }
             catch (MessageQueueException ex)
