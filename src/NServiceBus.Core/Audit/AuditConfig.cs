@@ -6,6 +6,9 @@
     /// <summary>
     /// Config section for the auditing feature.
     /// </summary>
+    [ObsoleteEx(
+        Message = "Use of the application configuration file to configure audit is discouraged",
+        RemoveInVersion = "7.0")]
     public class AuditConfig : ConfigurationSection
     {
         /// <summary>
@@ -13,9 +16,9 @@
         /// </summary>
         [ConfigurationProperty("QueueName", IsRequired = false)]
         [ObsoleteEx(
-        Message = "Use of the application configuration file to configure audit is discouraged",
-        ReplacementTypeOrMember = "EndpointConfiguration.AuditProcessedMessagesTo",
-        RemoveInVersion = "7.0")]
+            Message = "Use of the application configuration file to configure audit is discouraged",
+            ReplacementTypeOrMember = "EndpointConfiguration.AuditProcessedMessagesTo",
+            RemoveInVersion = "7.0")]
         public string QueueName
         {
             get
@@ -36,9 +39,9 @@
         /// </summary>
         [ConfigurationProperty("OverrideTimeToBeReceived", IsRequired = false)]
         [ObsoleteEx(
-        Message = "Use of the application configuration file to configure audit is discouraged",
-        ReplacementTypeOrMember = "EndpointConfiguration.AuditProcessedMessagesTo",
-        RemoveInVersion = "7.0")]
+            Message = "Use of the application configuration file to configure audit is discouraged",
+            ReplacementTypeOrMember = "EndpointConfiguration.AuditProcessedMessagesTo",
+            RemoveInVersion = "7.0")]
         public TimeSpan OverrideTimeToBeReceived
         {
             get { return (TimeSpan) this["OverrideTimeToBeReceived"]; }
