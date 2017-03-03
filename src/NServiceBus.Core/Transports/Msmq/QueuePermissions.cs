@@ -28,7 +28,7 @@
                 {
                     using (var messageQueue = new MessageQueue(path))
                     {
-                        Logger.DebugFormat("Verified that the queue: [{0}] existed", queuePath);
+                        Logger.DebugFormat("Verified that the queue: [{0}] exists", queuePath);
 
                         WarnIfPublicAccess(messageQueue);
                     }
