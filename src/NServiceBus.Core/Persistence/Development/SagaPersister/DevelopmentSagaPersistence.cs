@@ -19,9 +19,9 @@
         /// </summary>
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-            var rootDir = @"c:\dev\storage";
+            var rootDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, ".sagas");
             var allSagas = context.Settings.Get<SagaMetadataCollection>();
-            var sagaManifests = new Dictionary<Type,SagaManifest>();
+            var sagaManifests = new Dictionary<Type, SagaManifest>();
 
             foreach (var metadata in allSagas)
             {
