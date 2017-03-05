@@ -10,6 +10,7 @@
     using Features;
     using NServiceBus.Sagas;
     using NUnit.Framework;
+    using Persistence;
 
     public class When_overriding_saga_id_creation : NServiceBusAcceptanceTest
     {
@@ -40,6 +41,7 @@
                 EndpointSetup<DefaultServer>(config =>
                 {
                     config.EnableFeature<TimeoutManager>();
+                    config.UsePersistence<InMemoryPersistence, StorageType.Sagas>();
                     config.GetSettings().Set<ISagaIdGenerator>(new CustomSagaIdGenerator());
                 });
             }
