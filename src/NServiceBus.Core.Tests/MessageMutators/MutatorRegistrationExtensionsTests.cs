@@ -19,7 +19,6 @@
                 exception.Message);
         }
 
-        [Theory]
         [TestCase(typeof(IncomingMessageMutator))]
         [TestCase(typeof(IncomingTransportMessageMutator))]
         [TestCase(typeof(OutgoingMessageMutator))]
