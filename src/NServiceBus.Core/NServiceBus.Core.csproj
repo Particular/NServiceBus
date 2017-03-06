@@ -132,6 +132,7 @@
     <Compile Include="Notifications\EventAggregatorExtensions.cs" />
     <Compile Include="Performance\ReceiveStatisticsPerformanceCounters.cs" />
     <Compile Include="Persistence\Development\DevelopmentPersistence.cs" />
+    <Compile Include="Persistence\Development\SagaPersister\DevelopmentSagaPersisterConfigExtensions.cs" />
     <Compile Include="Persistence\Development\SagaPersister\DevelopmentSagaIdGenerator.cs" />
     <Compile Include="Persistence\Development\SagaPersister\DevelopmentSagaPersistence.cs" />
     <Compile Include="Persistence\Development\SagaPersister\DevelopmentSagaPersister.cs" />

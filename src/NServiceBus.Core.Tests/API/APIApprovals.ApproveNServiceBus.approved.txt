@@ -327,6 +327,10 @@ namespace NServiceBus
         InstancePerCall = 2,
     }
     public class DevelopmentPersistence : NServiceBus.Persistence.PersistenceDefinition { }
+    public class static DevelopmentSagaPersisterConfigExtensions
+    {
+        public static void SagaStorageDirectory(this NServiceBus.PersistenceExtensions<NServiceBus.DevelopmentPersistence, NServiceBus.Persistence.StorageType.Sagas> config, string path) { }
+    }
     public class DistributionPolicy : NServiceBus.IDistributionPolicy
     {
         public DistributionPolicy() { }

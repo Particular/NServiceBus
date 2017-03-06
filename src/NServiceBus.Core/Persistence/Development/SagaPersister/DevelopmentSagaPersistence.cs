@@ -12,6 +12,7 @@
         {
             DependsOn<Sagas>();
             Defaults(s => s.Set<ISagaIdGenerator>(new DevelopmentSagaIdGenerator()));
+            Defaults(s => s.SetDefault(StorageLocationKey, Path.Combine(AppDomain.CurrentDomain.BaseDirectory, ".sagas")));
         }
 
         /// <summary>
@@ -19,22 +20,23 @@
         /// </summary>
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-            var rootDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, ".sagas");
+            var storageLocation = context.Settings.Get<string>(StorageLocationKey);
+
             var allSagas = context.Settings.Get<SagaMetadataCollection>();
             var sagaManifests = new Dictionary<Type, SagaManifest>();
 
             foreach (var metadata in allSagas)
             {
-                var storageDir = Path.Combine(rootDir, metadata.SagaType.FullName.Replace("+", ""));
+                var sagaStorageDir = Path.Combine(storageLocation, metadata.SagaType.FullName.Replace("+", ""));
 
-                if (!Directory.Exists(storageDir))
+                if (!Directory.Exists(sagaStorageDir))
                 {
-                    Directory.CreateDirectory(storageDir);
+                    Directory.CreateDirectory(sagaStorageDir);
                 }
 
                 var manifest = new SagaManifest
                 {
-                    StorageDirectory = storageDir,
+                    StorageDirectory = sagaStorageDir,
                     Serializer = new DataContractJsonSerializer(metadata.SagaEntityType)
                 };
 
@@ -43,5 +45,7 @@
 
             context.Container.ConfigureComponent(b => new DevelopmentSagaPersister(sagaManifests), DependencyLifecycle.SingleInstance);
         }
+
+        internal static string StorageLocationKey = "DevelopmentSagaPersistence.StorageLocation";
     }
 }

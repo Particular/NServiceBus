@@ -9,8 +9,8 @@ public class ConfigureEndpointInMemoryPersistence : IConfigureEndpointTestExecut
     {
         configuration.UsePersistence<InMemoryPersistence>();
 
-
-        configuration.UsePersistence<DevelopmentPersistence, StorageType.Sagas>();
+        configuration.UsePersistence<DevelopmentPersistence, StorageType.Sagas>()
+            .SagaStorageDirectory(@"c:\temp\sagas"); //todo: for now to avoid path to long on the build agents
         return Task.FromResult(0);
     }
 
