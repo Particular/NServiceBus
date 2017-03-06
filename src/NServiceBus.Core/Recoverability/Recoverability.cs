@@ -208,7 +208,7 @@
                     var outgoingMessage = new OutgoingMessage(messageContext.MessageId, outgoingHeaders, messageContext.Body);
                     var outgoingOperation = new TransportOperation(outgoingMessage, new UnicastAddressTag(mainQueueTransportAddress));
 
-                    return messageDispatcher.Dispatch(new TransportOperations(outgoingOperation), messageContext.TransportTransaction, messageContext.Context);
+                    return messageDispatcher.Dispatch(new TransportOperations(outgoingOperation), messageContext.TransportTransaction, messageContext.Extensions);
                 });
         }
 

@@ -3257,11 +3257,13 @@ namespace NServiceBus.Transport
     {
         public static string GetTransportAddress(this NServiceBus.Settings.ReadOnlySettings settings, NServiceBus.LogicalAddress logicalAddress) { }
     }
-    public class MessageContext
+    public class MessageContext : NServiceBus.Extensibility.IExtendable
     {
-        public MessageContext(string messageId, System.Collections.Generic.Dictionary<string, string> headers, byte[] body, NServiceBus.Transport.TransportTransaction transportTransaction, System.Threading.CancellationTokenSource receiveCancellationTokenSource, NServiceBus.Extensibility.ContextBag context) { }
+        public MessageContext(string messageId, System.Collections.Generic.Dictionary<string, string> headers, byte[] body, NServiceBus.Transport.TransportTransaction transportTransaction, System.Threading.CancellationTokenSource receiveCancellationTokenSource, NServiceBus.Extensibility.ContextBag extensions) { }
         public byte[] Body { get; }
+        [System.ObsoleteAttribute("Use `Extensions` instead. Will be removed in version 7.0.0.", true)]
         public NServiceBus.Extensibility.ContextBag Context { get; }
+        public NServiceBus.Extensibility.ContextBag Extensions { get; }
         public System.Collections.Generic.Dictionary<string, string> Headers { get; }
         public string MessageId { get; }
         public System.Threading.CancellationTokenSource ReceiveCancellationTokenSource { get; }

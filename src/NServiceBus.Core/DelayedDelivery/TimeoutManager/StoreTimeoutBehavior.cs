@@ -33,7 +33,7 @@ namespace NServiceBus
                     throw new InvalidOperationException("Invalid saga id specified, clear timeouts is only supported for saga instances");
                 }
 
-                await persister.RemoveTimeoutBy(sagaId, context.Context).ConfigureAwait(false);
+                await persister.RemoveTimeoutBy(sagaId, context.Extensions).ConfigureAwait(false);
             }
             else
             {
@@ -65,11 +65,11 @@ namespace NServiceBus
                 {
                     var outgoingMessage = new OutgoingMessage(context.MessageId, data.Headers, data.State);
                     var transportOperation = new TransportOperation(outgoingMessage, new UnicastAddressTag(data.Destination));
-                    await dispatcher.Dispatch(new TransportOperations(transportOperation), context.TransportTransaction, context.Context).ConfigureAwait(false);
+                    await dispatcher.Dispatch(new TransportOperations(transportOperation), context.TransportTransaction, context.Extensions).ConfigureAwait(false);
                     return;
                 }
 
-                await persister.Add(data, context.Context).ConfigureAwait(false);
+                await persister.Add(data, context.Extensions).ConfigureAwait(false);
 
                 poller.NewTimeoutRegistered(data.Time);
             }

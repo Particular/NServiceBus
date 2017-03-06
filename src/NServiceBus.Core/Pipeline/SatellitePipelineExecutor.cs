@@ -14,7 +14,7 @@
 
         public Task Invoke(MessageContext messageContext)
         {
-            messageContext.Context.Set(messageContext.TransportTransaction);
+            messageContext.Extensions.Set(messageContext.TransportTransaction);
 
             return satelliteDefinition.OnMessage(builder, messageContext);
         }
