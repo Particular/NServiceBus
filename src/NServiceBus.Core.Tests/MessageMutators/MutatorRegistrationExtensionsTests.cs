@@ -15,7 +15,7 @@
 
             var exception = Assert.Throws<ArgumentException>(() => endpointConfiguration.RegisterMessageMutator(new object()));
             StringAssert.Contains(
-                "The given instance is no valid message mutator. Implement one of the following mutator interfaces: NServiceBus.MessageMutator.IMutateIncomingMessages, NServiceBus.MessageMutator.IMutateIncomingTransportMessages, NServiceBus.MessageMutator.IMutateOutgoingMessages, NServiceBus.MessageMutator.IMutateOutgoingTransportMessages",
+                "The given instance is not a valid message mutator. Implement one of the following mutator interfaces: NServiceBus.MessageMutator.IMutateIncomingMessages, NServiceBus.MessageMutator.IMutateIncomingTransportMessages, NServiceBus.MessageMutator.IMutateOutgoingMessages or NServiceBus.MessageMutator.IMutateOutgoingTransportMessages",
                 exception.Message);
         }
 
