@@ -19,7 +19,7 @@ namespace NServiceBus
         {
             var timeoutId = context.Headers["Timeout.Id"];
 
-            var timeoutData = await persister.Peek(timeoutId, context.Context).ConfigureAwait(false);
+            var timeoutData = await persister.Peek(timeoutId, context.Extensions).ConfigureAwait(false);
 
             if (timeoutData == null)
             {
@@ -31,9 +31,9 @@ namespace NServiceBus
 
             var outgoingMessage = new OutgoingMessage(context.MessageId, timeoutData.Headers, timeoutData.State);
             var transportOperation = new TransportOperation(outgoingMessage, new UnicastAddressTag(timeoutData.Destination), dispatchConsistency);
-            await dispatcher.Dispatch(new TransportOperations(transportOperation), context.TransportTransaction, context.Context).ConfigureAwait(false);
+            await dispatcher.Dispatch(new TransportOperations(transportOperation), context.TransportTransaction, context.Extensions).ConfigureAwait(false);
 
-            var timeoutRemoved = await persister.TryRemove(timeoutId, context.Context).ConfigureAwait(false);
+            var timeoutRemoved = await persister.TryRemove(timeoutId, context.Extensions).ConfigureAwait(false);
             if (!timeoutRemoved)
             {
                 // timeout was concurrently removed between Peek and TryRemove. Throw an exception to rollback the dispatched message if possible.

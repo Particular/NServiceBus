@@ -52,11 +52,11 @@
 
                     context.AddSatelliteReceiver("Test satellite", satelliteAddress, PushRuntimeSettings.Default,
                         (c, ec) => RecoverabilityAction.MoveToError(c.Failed.ErrorQueue),
-                        (builder, pushContext) =>
+                        (builder, messageContext) =>
                         {
                             var testContext = builder.Build<Context>();
                             testContext.MessageReceived = true;
-                            testContext.TransportTransactionAddedToContext = ReferenceEquals(pushContext.Context.Get<TransportTransaction>(), pushContext.TransportTransaction);
+                            testContext.TransportTransactionAddedToContext = ReferenceEquals(messageContext.Extensions.Get<TransportTransaction>(), messageContext.TransportTransaction);
                             return Task.FromResult(true);
                         });
 

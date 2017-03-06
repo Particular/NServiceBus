@@ -27,7 +27,7 @@ namespace NServiceBus
                 var message = new IncomingMessage(messageContext.MessageId, messageContext.Headers, messageContext.Body);
                 var context = new TransportReceiveContext(message, messageContext.TransportTransaction, messageContext.ReceiveCancellationTokenSource, rootContext);
 
-                context.Extensions.Merge(messageContext.Context);
+                context.Extensions.Merge(messageContext.Extensions);
 
                 await mainPipeline.Invoke(context).ConfigureAwait(false);
 
