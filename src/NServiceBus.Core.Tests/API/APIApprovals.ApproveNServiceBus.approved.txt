@@ -1436,14 +1436,15 @@ namespace NServiceBus.Config
         Base64 = 1,
     }
     [System.ObsoleteAttribute("Logging configuration via configuration section is discouraged. Use `LogManager.U" +
-        "se<DefaultFactory>()` instead. Will be removed in version 7.0.0.", true)]
+        "se<DefaultFactory>()` instead. Will be treated as an error from version 7.0.0. W" +
+        "ill be removed in version 8.0.0.", false)]
     public class Logging : System.Configuration.ConfigurationSection
     {
         public Logging() { }
         [System.Configuration.ConfigurationPropertyAttribute("Threshold", DefaultValue="Info", IsRequired=true)]
         [System.ObsoleteAttribute("Logging configuration via configuration section is discouraged. Use `LogManager.U" +
-            "se<DefaultFactory>().Level(LogLevel)` instead. Will be removed in version 7.0.0." +
-            "", true)]
+            "se<DefaultFactory>().Level(LogLevel)` instead. Will be treated as an error from " +
+            "version 7.0.0. Will be removed in version 8.0.0.", false)]
         public string Threshold { get; set; }
     }
     [System.ObsoleteAttribute("Use `EndpointConfiguration.EnlistWithLegacyMSMQDistributor` instead. Will be remo" +
@@ -1495,13 +1496,15 @@ namespace NServiceBus.Config
         public void RemoveAt(int index) { }
     }
     [System.ObsoleteAttribute("Error queue configuration via configuration section is discouraged. Use `Endpoint" +
-        "Configuration.SendFailedMessagesTo` instead. Will be removed in version 7.0.0.", true)]
+        "Configuration.SendFailedMessagesTo` instead. Will be treated as an error from ve" +
+        "rsion 7.0.0. Will be removed in version 8.0.0.", false)]
     public class MessageForwardingInCaseOfFaultConfig : System.Configuration.ConfigurationSection
     {
         public MessageForwardingInCaseOfFaultConfig() { }
         [System.Configuration.ConfigurationPropertyAttribute("ErrorQueue", IsRequired=true)]
         [System.ObsoleteAttribute("Error queue configuration via configuration section is discouraged. Use `Endpoint" +
-            "Configuration.SendFailedMessagesTo` instead. Will be removed in version 7.0.0.", true)]
+            "Configuration.SendFailedMessagesTo` instead. Will be treated as an error from ve" +
+            "rsion 7.0.0. Will be removed in version 8.0.0.", false)]
         public string ErrorQueue { get; set; }
     }
     public class MsmqSubscriptionStorageConfig : System.Configuration.ConfigurationSection
