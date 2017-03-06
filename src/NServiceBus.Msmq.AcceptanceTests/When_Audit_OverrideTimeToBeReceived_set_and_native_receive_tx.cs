@@ -32,8 +32,7 @@
                 {
                     config.UseTransport<MsmqTransport>()
                         .Transactions(TransportTransactionMode.ReceiveOnly);
-
-                    config.AuditProcessedMessagesTo("audit", TimeSpan.FromHours(1));
+                    config.AuditProcessedMessagesTo("someAuditQueue", TimeSpan.FromHours(1));
                 });
             }
         }
