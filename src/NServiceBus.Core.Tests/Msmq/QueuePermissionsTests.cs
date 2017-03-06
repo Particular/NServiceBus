@@ -44,7 +44,7 @@
 
             QueuePermissions.CheckQueue(remoteQueue);
 
-            Assert.That(logOutput.ToString(), Does.Contain($"{remoteQueue} is remote, we cannot verify if the queue exists."));
+            Assert.That(logOutput.ToString(), Does.Contain($"{remoteQueue} is remote, the queue could not be verified."));
         }
 
         [Test]
