@@ -1409,18 +1409,20 @@ namespace NServiceBus.AutomaticSubscriptions.Config
 }
 namespace NServiceBus.Config
 {
+    [System.ObsoleteAttribute("Use of the application configuration file to configure audit is discouraged. Will" +
+        " be treated as an error from version 7.0.0. Will be removed in version 8.0.0.", false)]
     public class AuditConfig : System.Configuration.ConfigurationSection
     {
         public AuditConfig() { }
         [System.Configuration.ConfigurationPropertyAttribute("OverrideTimeToBeReceived", IsRequired=false)]
         [System.ObsoleteAttribute("Use of the application configuration file to configure audit is discouraged. Use " +
-            "`EndpointConfiguration.AuditProcessedMessagesTo` instead. Will be removed in ver" +
-            "sion 7.0.0.", true)]
+            "`EndpointConfiguration.AuditProcessedMessagesTo` instead. Will be treated as an " +
+            "error from version 7.0.0. Will be removed in version 8.0.0.", false)]
         public System.TimeSpan OverrideTimeToBeReceived { get; set; }
         [System.Configuration.ConfigurationPropertyAttribute("QueueName", IsRequired=false)]
         [System.ObsoleteAttribute("Use of the application configuration file to configure audit is discouraged. Use " +
-            "`EndpointConfiguration.AuditProcessedMessagesTo` instead. Will be removed in ver" +
-            "sion 7.0.0.", true)]
+            "`EndpointConfiguration.AuditProcessedMessagesTo` instead. Will be treated as an " +
+            "error from version 7.0.0. Will be removed in version 8.0.0.", false)]
         public string QueueName { get; set; }
     }
     [System.ObsoleteAttribute("Use the feature concept instead via A class which inherits from `NServiceBus.Feat" +
@@ -1592,6 +1594,9 @@ namespace NServiceBus.Config
             "s => settings.NumberOfRetries(5);. Will be removed in version 7.0.0.", true)]
         public int MaxRetries { get; set; }
     }
+    [System.ObsoleteAttribute("Use of the application configuration file to configure NServiceBus is discouraged" +
+        ". Use the code first API instead. Will be treated as an error from version 7.0.0" +
+        ". Will be removed in version 8.0.0.", false)]
     public class UnicastBusConfig : System.Configuration.ConfigurationSection
     {
         public UnicastBusConfig() { }
@@ -1608,10 +1613,20 @@ namespace NServiceBus.Config
             " address. Will be removed in version 7.0.0.", true)]
         public string ForwardReceivedMessagesTo { get; set; }
         [System.Configuration.ConfigurationPropertyAttribute("MessageEndpointMappings", IsRequired=false)]
+        [System.ObsoleteAttribute("Use of the application configuration file to configure routing is discouraged. Us" +
+            "e `EndpointConfiguration.UseTransport<T>.Routing()` instead. Will be treated as " +
+            "an error from version 7.0.0. Will be removed in version 8.0.0.", false)]
         public NServiceBus.Config.MessageEndpointMappingCollection MessageEndpointMappings { get; set; }
         [System.Configuration.ConfigurationPropertyAttribute("TimeoutManagerAddress", IsRequired=false)]
+        [System.ObsoleteAttribute("Use of the application configuration file to configure an external TimeoutManager" +
+            " address is discouraged. Use `EndpointConfiguration.UseExternalTimeoutManager` i" +
+            "nstead. Will be treated as an error from version 7.0.0. Will be removed in versi" +
+            "on 8.0.0.", false)]
         public string TimeoutManagerAddress { get; set; }
         [System.Configuration.ConfigurationPropertyAttribute("TimeToBeReceivedOnForwardedMessages", IsRequired=false)]
+        [System.ObsoleteAttribute("Use of the application configuration file to configure TimeToBeReceived in forwar" +
+            "ded messages is discouraged. Will be treated as an error from version 7.0.0. Wil" +
+            "l be removed in version 8.0.0.", false)]
         public System.TimeSpan TimeToBeReceivedOnForwardedMessages { get; set; }
     }
 }
