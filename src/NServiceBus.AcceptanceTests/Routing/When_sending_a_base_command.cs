@@ -1,4 +1,6 @@
-﻿namespace NServiceBus.AcceptanceTests.Routing
+﻿// disable obsolete warnings. Test will be removed in next major version
+#pragma warning disable CS0618
+namespace NServiceBus.AcceptanceTests.Routing
 {
     using System.Threading.Tasks;
     using AcceptanceTesting;
@@ -103,3 +105,4 @@
         }
     }
 }
+#pragma warning restore CS0618

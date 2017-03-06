@@ -8,7 +8,8 @@ namespace NServiceBus.Config
     /// </summary>
     [ObsoleteEx(
         Message = "Use of the application configuration file to configure NServiceBus is discouraged. Use the code first API instead.",
-        RemoveInVersion = "7.0")]
+        TreatAsErrorFromVersion = "7.0",
+        RemoveInVersion = "8.0")]
     public partial class UnicastBusConfig : ConfigurationSection
     {
         /// <summary>
@@ -17,7 +18,8 @@ namespace NServiceBus.Config
         [ConfigurationProperty("TimeToBeReceivedOnForwardedMessages", IsRequired = false)]
         [ObsoleteEx(
             Message = "Use of the application configuration file to configure TimeToBeReceived in forwarded messages is discouraged",
-            RemoveInVersion = "7.0")]
+            TreatAsErrorFromVersion = "7.0",
+            RemoveInVersion = "8.0")]
         public TimeSpan TimeToBeReceivedOnForwardedMessages
         {
             get { return (TimeSpan) this["TimeToBeReceivedOnForwardedMessages"]; }
@@ -31,7 +33,8 @@ namespace NServiceBus.Config
         [ObsoleteEx(
             Message = "Use of the application configuration file to configure an external TimeoutManager address is discouraged",
             ReplacementTypeOrMember = "EndpointConfiguration.UseExternalTimeoutManager",
-            RemoveInVersion = "7.0")]
+            TreatAsErrorFromVersion = "7.0",
+            RemoveInVersion = "8.0")]
         public string TimeoutManagerAddress
         {
             get
@@ -54,7 +57,8 @@ namespace NServiceBus.Config
         [ObsoleteEx(
             Message = "Use of the application configuration file to configure routing is discouraged",
             ReplacementTypeOrMember = "EndpointConfiguration.UseTransport<T>.Routing()",
-            RemoveInVersion = "7.0")]
+            TreatAsErrorFromVersion = "7.0",
+            RemoveInVersion = "8.0")]
         public MessageEndpointMappingCollection MessageEndpointMappings
         {
             get { return this["MessageEndpointMappings"] as MessageEndpointMappingCollection; }
