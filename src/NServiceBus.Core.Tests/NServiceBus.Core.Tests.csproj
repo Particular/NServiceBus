@@ -317,6 +317,7 @@
     <Compile Include="Timeout\FakeMessageDispatcher.cs" />
     <Compile Include="Timeout\InMemoryTimeoutPersisterTests.cs" />
     <Compile Include="Timeout\When_fetching_timeouts_from_storage.cs" />
+    <Compile Include="Msmq\QueuePermissionsTests.cs" />
     <Compile Include="Transports\PushRuntimeSettingsTests.cs" />
     <Compile Include="Transports\TransportOperationsTests.cs" />
     <Compile Include="Transports\TransportReceiverTests.cs" />
