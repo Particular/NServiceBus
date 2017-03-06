@@ -5,7 +5,7 @@
     using AcceptanceTesting;
     using EndpointTemplates;
     using Features;
-    using Pipeline;
+    using NServiceBus.Pipeline;
     using NUnit.Framework;
 
     public class When_publishing_an_interface : NServiceBusAcceptanceTest

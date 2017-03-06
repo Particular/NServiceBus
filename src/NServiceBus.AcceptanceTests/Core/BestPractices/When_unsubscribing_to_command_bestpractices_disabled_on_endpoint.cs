@@ -1,14 +1,14 @@
-﻿namespace NServiceBus.AcceptanceTests.BestPractices
+﻿namespace NServiceBus.AcceptanceTests.Core.BestPractices
 {
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
     using NUnit.Framework;
 
-    public class When_publishing_command_bestpractices_disabled : NServiceBusAcceptanceTest
+    public class When_unsubscribing_to_command_bestpractices_disabled_on_endpoint : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Should_allow_publishing_commands()
+        public async Task Should_allow_unsubscribing_to_commands()
         {
             // This test is only relevant for message driven transports since we need to use the mappings to
             // configure the publisher. The code first API would blow up unless we turn off the checks for the entire endpoint.
@@ -17,13 +17,7 @@
             Requires.MessageDrivenPubSub();
 
             var context = await Scenario.Define<ScenarioContext>()
-                .WithEndpoint<Endpoint>(b => b.When((session, c) =>
-                {
-                    var publishOptions = new PublishOptions();
-                    publishOptions.DoNotEnforceBestPractices();
-
-                    return session.Publish(new MyCommand(), publishOptions);
-                }))
+                .WithEndpoint<Endpoint>(b => b.When((session, c) => session.Unsubscribe<MyCommand>()))
                 .Done(c => c.EndpointsStarted)
                 .Run();
 
@@ -34,16 +28,12 @@
         {
             public Endpoint()
             {
-                EndpointSetup<DefaultServer>()
+                EndpointSetup<DefaultServer>((c, r) =>
+                    {
+                        var routing = c.ConfigureTransport().Routing();
+                        routing.DoNotEnforceBestPractices();
+                    })
                     .AddMapping<MyCommand>(typeof(Endpoint));
-            }
-
-            public class Handler : IHandleMessages<MyCommand>
-            {
-                public Task Handle(MyCommand message, IMessageHandlerContext context)
-                {
-                    return Task.FromResult(0);
-                }
             }
         }
 

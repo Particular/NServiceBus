@@ -5,7 +5,7 @@
     using System.Transactions;
     using AcceptanceTesting;
     using EndpointTemplates;
-    using Pipeline;
+    using NServiceBus.Pipeline;
     using NUnit.Framework;
 
     public class When_sending_inside_ambient_tx : NServiceBusAcceptanceTest

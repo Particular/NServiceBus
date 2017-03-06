@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.AcceptanceTests.Basic
+﻿namespace NServiceBus.AcceptanceTests.Pipeline
 {
     using System;
     using System.Collections.Generic;

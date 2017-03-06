@@ -3,7 +3,7 @@
     using System;
     using System.Threading.Tasks;
     using AcceptanceTesting;
-    using Pipeline;
+    using NServiceBus.Pipeline;
     using Transport;
 
     class SubscriptionBehavior<TContext> : IBehavior<ITransportReceiveContext, ITransportReceiveContext> where TContext : ScenarioContext

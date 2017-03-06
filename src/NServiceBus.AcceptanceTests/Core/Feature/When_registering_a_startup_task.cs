@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.AcceptanceTests.Basic
+﻿namespace NServiceBus.AcceptanceTests.Core.Feature
 {
     using System;
     using System.Threading.Tasks;
@@ -7,25 +7,10 @@
     using Features;
     using NUnit.Framework;
 
-    public class When_sending_from_a_send_only : NServiceBusAcceptanceTest
+    public class When_registering_a_startup_task : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Should_receive_the_message()
-        {
-            var context = await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
-                .WithEndpoint<Sender>(b => b.When((session, c) => session.Send(new MyMessage
-                {
-                    Id = c.Id
-                })))
-                .WithEndpoint<Receiver>()
-                .Done(c => c.WasCalled)
-                .Run();
-
-            Assert.True(context.WasCalled, "The message handler should be called");
-        }
-
-        [Test]
-        public async Task Should_not_need_audit_or_fault_forwarding_config_to_start()
+        public async Task The_endpoint_should_start()
         {
             var context = await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
                 .WithEndpoint<SendOnlyEndpoint>()
@@ -82,45 +67,6 @@
 
                     readonly Context scenarioContext;
                 }
-            }
-        }
-
-        public class Sender : EndpointConfigurationBuilder
-        {
-            public Sender()
-            {
-                EndpointSetup<DefaultServer>()
-                    .SendOnly()
-                    .AddMapping<MyMessage>(typeof(Receiver));
-            }
-        }
-
-        public class Receiver : EndpointConfigurationBuilder
-        {
-            public Receiver()
-            {
-                EndpointSetup<DefaultServer>();
-            }
-        }
-
-        public class MyMessage : ICommand
-        {
-            public Guid Id { get; set; }
-        }
-
-        public class MyMessageHandler : IHandleMessages<MyMessage>
-        {
-            public Context Context { get; set; }
-
-            public Task Handle(MyMessage message, IMessageHandlerContext context)
-            {
-                if (Context.Id != message.Id)
-                {
-                    return Task.FromResult(0);
-                }
-
-                Context.WasCalled = true;
-                return Task.FromResult(0);
             }
         }
     }

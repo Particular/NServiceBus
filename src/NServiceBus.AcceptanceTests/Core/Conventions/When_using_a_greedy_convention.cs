@@ -1,10 +1,11 @@
-﻿namespace NServiceBus.AcceptanceTests.Basic
+﻿namespace NServiceBus.AcceptanceTests.Core.Conventions
 {
     using System;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
     using NUnit.Framework;
+    using Conventions = NServiceBus.Conventions;
 
     public class When_using_a_greedy_convention : NServiceBusAcceptanceTest
     {
@@ -43,7 +44,6 @@
             }
         }
 
-        
         public class MyMessage
         {
             public Guid Id { get; set; }

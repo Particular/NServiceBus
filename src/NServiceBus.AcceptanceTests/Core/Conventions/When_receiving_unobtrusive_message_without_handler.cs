@@ -1,4 +1,4 @@
-namespace NServiceBus.AcceptanceTests.Basic
+namespace NServiceBus.AcceptanceTests.Core.Conventions
 {
     using System.Linq;
     using System.Threading.Tasks;
@@ -10,7 +10,7 @@ namespace NServiceBus.AcceptanceTests.Basic
     public class When_receiving_unobtrusive_message_without_handler : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Message_should_be_moved_to_error_cause_handler_not_found()
+        public async Task Message_should_be_moved_to_error_because_handler_not_found()
         {
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<Sender>(c => c.When(s => s.Send(new MyCommand())))
