@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.Core.Tests.Pipeline.MutateInstanceMessage
+﻿namespace NServiceBus.Core.Tests.MessageMutators.MutateInstanceMessage
 {
     using System.Collections.Generic;
     using System.Threading.Tasks;
