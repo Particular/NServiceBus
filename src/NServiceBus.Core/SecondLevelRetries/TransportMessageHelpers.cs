@@ -7,7 +7,7 @@ namespace NServiceBus.SecondLevelRetries.Helpers
     {
         public static Address GetAddressOfFaultingEndpoint(TransportMessage message)
         {
-            var failedQ = GetHeader(message, FaultsHeaderKeys.FailedQ) ?? GetHeader(message, FaultsHeaderKeys.TemporatyFailedQueue);
+            var failedQ = GetHeader(message, FaultsHeaderKeys.FailedQ);
             if (string.IsNullOrEmpty(failedQ))
             {
                 throw new Exception("Could not find address");
