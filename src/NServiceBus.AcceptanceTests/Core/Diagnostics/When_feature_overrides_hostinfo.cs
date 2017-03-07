@@ -1,4 +1,4 @@
-namespace NServiceBus.AcceptanceTests.Hosting
+namespace NServiceBus.AcceptanceTests.Core.Diagnostics
 {
     using System;
     using System.Collections.Generic;
@@ -70,7 +70,6 @@ namespace NServiceBus.AcceptanceTests.Hosting
             public Guid OriginatingHostId { get; set; }
         }
 
-        
         public class MyMessage : ICommand
         {
         }

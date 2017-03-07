@@ -4,7 +4,7 @@ namespace NServiceBus.AcceptanceTests.ScenarioDescriptors
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
-    using NServiceBus.Hosting.Helpers;
+    using Hosting.Helpers;
 
     public class TypeScanner
     {
