@@ -95,18 +95,15 @@
             }
         }
 
-
         public class StartSaga1 : ICommand
         {
             public Guid ContextId { get; set; }
         }
 
-
         public class MessageToSaga : ICommand
         {
             public Guid ContextId { get; set; }
         }
-
 
         public class Reply : IMessage
         {
