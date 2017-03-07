@@ -56,8 +56,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Core\Feature\When_depending_on_untyped_feature.cs" />
+    <Compile Include="Core\Feature\When_registering_a_startup_task.cs" />
     <Compile Include="Core\Pipeline\When_extending_behavior_context.cs" />
-    <Compile Include="Basic\When_receiving_unobtrusive_message_without_handler.cs" />
+    <Compile Include="Core\Conventions\When_receiving_unobtrusive_message_without_handler.cs" />
     <Compile Include="Config\When_multiple_configuration_providers.cs" />
     <Compile Include="Core\CoreTestSuiteConstraints.cs" />
     <Compile Include="Core\DelayedDelivery\TimeoutManager\When_dispatch_fails_on_removal_SendsAtomicWithReceive.cs" />
@@ -72,13 +73,14 @@
     <Compile Include="Core\Stopping\When_pump_throws_on_stop.cs" />
     <Compile Include="Core\Stopping\When_transport_infrastructure_throws_on_stop.cs" />
     <Compile Include="DataBus\When_sending_databus_properties_with_unobtrusive.cs" />
-    <Compile Include="Basic\When_sending_interface_message_with_conventions.cs" />
+    <Compile Include="Core\Conventions\When_sending_interface_message_with_conventions.cs" />
     <Compile Include="Core\DelayedDelivery\TimeoutManager\When_using_external_timeout_manager_xml_config.cs" />
     <Compile Include="Core\Encryption\When_using_Rijndael_with_unobtrusive_mode.cs" />
     <Compile Include="EndpointTemplates\EndpointConfigurationExtensions.cs" />
     <Compile Include="EndpointTemplates\Requires.cs" />
     <Compile Include="EndpointTemplates\TestSuiteConstraints.cs" />
     <Compile Include="Forwarding\When_requesting_message_to_be_forwarded.cs" />
+    <Compile Include="Notifications\When_subscribed_to_ReceivePipelineCompleted.cs" />
     <Compile Include="Performance\TimeToBeReceived\When_TimeToBeReceived_used_with_unobtrusive_mode.cs" />
     <Compile Include="Recoverability\Retries\When_custom_policy_provided.cs" />
     <Compile Include="Recoverability\When_custom_policy_moves_to_overridden_error_queue.cs" />
@@ -113,6 +115,7 @@
     <Compile Include="Sagas\When_finder_cant_find_saga_instance.cs" />
     <Compile Include="Sagas\When_finder_returns_existing_saga.cs" />
     <Compile Include="Sagas\When_sagas_share_timeout_messages.cs" />
+    <Compile Include="Sagas\When_overriding_saga_id_creation.cs" />
     <Compile Include="Sagas\When_saga_started_concurrently.cs" />
     <Compile Include="Satellites\When_satellite_txmode_does_not_match_endpoints_txmode.cs" />
     <Compile Include="Sagas\When_using_a_received_message_for_timeout.cs" />
@@ -120,9 +123,9 @@
     <Compile Include="Serialization\When_configuring_custom_xml_namespace.cs" />
     <Compile Include="Serialization\When_registering_additional_deserializers.cs" />
     <Compile Include="Serialization\When_no_content_type.cs" />
-    <Compile Include="Basic\When_registering_handlers_explicitly.cs" />
-    <Compile Include="Causation\When_a_message_is_faulted.cs" />
-    <Compile Include="Causation\When_a_message_is_audited.cs" />
+    <Compile Include="Core\Pipeline\When_registering_handlers_explicitly.cs" />
+    <Compile Include="Pipeline\When_a_message_is_faulted.cs" />
+    <Compile Include="Pipeline\When_a_message_is_audited.cs" />
     <Compile Include="ConfigureEndpointInMemoryPersistence.cs" />
     <Compile Include="Config\When_injecting_message_session_into_handlers.cs" />
     <Compile Include="ConventionEnforcementTests.cs" />
@@ -151,10 +154,10 @@
     <Compile Include="Core\DelayedDelivery\TimeoutManager\When_TimeoutManager_is_disabled.cs" />
     <Compile Include="Mutators\When_incoming_mutator_changes_message_type.cs" />
     <Compile Include="Mutators\When_mutating.cs" />
-    <Compile Include="BestPractices\When_publishing_command_bestpractices_disabled_on_endpoint.cs" />
-    <Compile Include="BestPractices\When_sending_events_bestpractices_disabled_on_endpoint.cs" />
-    <Compile Include="BestPractices\When_sending_events_bestpractices_disabled.cs" />
-    <Compile Include="BestPractices\When_subscribing_to_command_bestpractices_disabled_on_endpoint.cs" />
+    <Compile Include="Core\BestPractices\When_publishing_command_bestpractices_disabled_on_endpoint.cs" />
+    <Compile Include="Core\BestPractices\When_sending_events_bestpractices_disabled_on_endpoint.cs" />
+    <Compile Include="Core\BestPractices\When_sending_events_bestpractices_disabled.cs" />
+    <Compile Include="Core\BestPractices\When_subscribing_to_command_bestpractices_disabled_on_endpoint.cs" />
     <Compile Include="EndpointTemplates\ConfigureExtensions.cs" />
     <Compile Include="EndpointTemplates\DefaultPublisher.cs" />
     <Compile Include="EndpointTemplates\DefaultServer.cs" />
@@ -179,26 +182,26 @@
     <Compile Include="Recoverability\Retries\When_custom_policy_does_single_delayed_retry_before_move_to_error.cs" />
     <Compile Include="Recoverability\Retries\When_custom_policy_always_moves_to_error.cs" />
     <Compile Include="Recoverability\When_error_is_overridden_in_code.cs" />
-    <Compile Include="BestPractices\When_publishing_command_bestpractices_disabled.cs" />
-    <Compile Include="BestPractices\When_unsubscribing_to_command_bestpractices_disabled_on_endpoint.cs" />
-    <Compile Include="BestPractices\When_unsubscribing_to_command.cs" />
-    <Compile Include="BestPractices\When_subscribing_to_command.cs" />
-    <Compile Include="BestPractices\When_publishing_command.cs" />
-    <Compile Include="BestPractices\When_sending_event.cs" />
-    <Compile Include="Causation\When_a_message_is_sent.cs" />
+    <Compile Include="Core\BestPractices\When_publishing_command_bestpractices_disabled.cs" />
+    <Compile Include="Core\BestPractices\When_unsubscribing_to_command_bestpractices_disabled_on_endpoint.cs" />
+    <Compile Include="Core\BestPractices\When_unsubscribing_to_command.cs" />
+    <Compile Include="Core\BestPractices\When_subscribing_to_command.cs" />
+    <Compile Include="Core\BestPractices\When_publishing_command.cs" />
+    <Compile Include="Core\BestPractices\When_sending_event.cs" />
+    <Compile Include="Pipeline\When_a_message_is_sent.cs" />
     <Compile Include="Licensing\When_a_message_is_audited.cs" />
     <Compile Include="Recoverability\When_message_with_TimeToBeReceived_fails.cs" />
     <Compile Include="Audit\When_auditing_message_with_TimeToBeReceived.cs" />
     <Compile Include="Forwarding\When_forwarding_is_configured_for_endpoint.cs" />
     <Compile Include="Audit\When_a_replymessage_is_audited.cs" />
     <Compile Include="Performance\When_message_is_audited.cs" />
-    <Compile Include="Basic\When_receiving_with_catch_all_handlers_registered.cs" />
+    <Compile Include="Core\Pipeline\When_receiving_with_catch_all_handlers_registered.cs" />
     <Compile Include="Core\Pipeline\When_handling_message_with_several_messagehandlers.cs" />
     <Compile Include="Serialization\When_registering_custom_serializer.cs" />
     <Compile Include="Core\Pipeline\When_extending_sendoptions.cs" />
-    <Compile Include="Basic\When_sending_with_conventions.cs" />
-    <Compile Include="Basic\When_sending_from_a_send_only.cs" />
-    <Compile Include="Basic\When_using_a_greedy_convention.cs" />
+    <Compile Include="Core\Conventions\When_sending_with_conventions.cs" />
+    <Compile Include="Core\Pipeline\When_sending_from_a_send_only.cs" />
+    <Compile Include="Core\Conventions\When_using_a_greedy_convention.cs" />
     <Compile Include="Hosting\When_sending_ensure_proper_headers.cs" />
     <Compile Include="Core\MessageDurability\When_sending_a_non_durable_message.cs" />
     <Compile Include="Hosting\When_a_message_is_audited.cs" />
@@ -281,7 +284,6 @@
     <Compile Include="Core\Encryption\When_using_Rijndael_with_multikey.cs" />
     <Compile Include="Core\Encryption\When_using_Rijndael_with_custom.cs" />
     <Compile Include="Core\Encryption\When_using_Rijndael_with_config.cs" />
-    <Compile Include="Mutators\Issue_1980.cs" />
     <Compile Include="Mutators\When_outgoing_mutator_replaces_instance.cs" />
     <Compile Include="Mutators\When_defining_outgoing_message_mutators.cs" />
     <Compile Include="PerfMon\CriticalTime\When_slow_with_CriticalTime_enabled.cs" />
@@ -298,7 +300,7 @@
     <Compile Include="Audit\When_a_message_is_audited.cs" />
     <Compile Include="Correlation\When_sending_with_no_correlation_id.cs" />
     <Compile Include="Core\Pipeline\When_aborting_the_behavior_chain.cs" />
-    <Compile Include="Basic\When_handling_current_message_later.cs" />
+    <Compile Include="Pipeline\When_handling_current_message_later.cs" />
     <Compile Include="Routing\When_multiple_mappings_exists.cs" />
     <Compile Include="Correlation\When_using_a_custom_correlation_id.cs" />
     <Compile Include="Config\When_only_abstract_config_override_is_found.cs" />
@@ -343,7 +345,7 @@
     <Compile Include="NonTx\When_sending_inside_ambient_tx.cs" />
     <Compile Include="Tx\When_sending_within_an_ambient_transaction.cs" />
     <Compile Include="ScenarioDescriptors\Transports.cs" />
-    <Compile Include="Basic\When_sending_to_another_endpoint.cs" />
+    <Compile Include="Pipeline\When_sending_to_another_endpoint.cs" />
     <Compile Include="Versioning\When_multiple_versions_of_a_message_is_published.cs" />
     <Compile Include="Routing\When_overriding_local_address.cs" />
   </ItemGroup>

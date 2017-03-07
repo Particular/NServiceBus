@@ -24,8 +24,8 @@
         {
             Guard.AgainstNull(nameof(settings), settings);
 
-            Result result;
-            if (!GetConfiguredAuditQueue(settings, out result))
+            var result = GetConfiguredAuditQueue(settings);
+            if (result == null)
             {
                 address = null;
                 return false;
@@ -35,11 +35,12 @@
             return true;
         }
 
-        internal static bool GetConfiguredAuditQueue(ReadOnlySettings settings, out Result result)
+        internal static Result GetConfiguredAuditQueue(ReadOnlySettings settings)
         {
-            if (settings.TryGet(out result))
+            Result configResult;
+            if (settings.TryGet(out configResult))
             {
-                return true;
+                return configResult;
             }
 
             var auditConfig = settings.GetConfigSection<AuditConfig>();
@@ -68,15 +69,13 @@
             }
             if (address == null)
             {
-                result = null;
-                return false;
+                return null;
             }
-            result = new Result
+            return new Result
             {
                 Address = address,
                 TimeToBeReceived = timeToBeReceived
             };
-            return true;
         }
 
         static string ReadAuditQueueNameFromRegistry()

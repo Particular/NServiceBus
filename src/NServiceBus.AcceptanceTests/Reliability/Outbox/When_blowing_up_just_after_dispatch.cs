@@ -6,7 +6,7 @@
     using AcceptanceTesting;
     using Configuration.AdvanceExtensibility;
     using EndpointTemplates;
-    using Pipeline;
+    using NServiceBus.Pipeline;
     using NUnit.Framework;
 
     public class When_blowing_up_just_after_dispatch : NServiceBusAcceptanceTest

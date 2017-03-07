@@ -31,12 +31,12 @@
         {
             public Endpoint()
             {
-                EndpointSetup<DefaultServer>(c => c.RegisterComponents(
-                    components =>
-                    {
-                        components.ConfigureComponent<TransportMutator>(DependencyLifecycle.InstancePerCall);
-                        components.ConfigureComponent<MessageMutator>(DependencyLifecycle.InstancePerCall);
-                    }));
+                EndpointSetup<DefaultServer>((c, r) =>
+                {
+                    var scenarioContext = (Context)r.ScenarioContext;
+                    c.RegisterMessageMutator(new TransportMutator(scenarioContext));
+                    c.RegisterMessageMutator(new MessageMutator(scenarioContext));
+                });
             }
 
             class TransportMutator :

@@ -48,7 +48,7 @@
 #pragma warning disable 612, 618
                     context.AddSatelliteReceiver("Test satellite", satelliteAddress, TransportTransactionMode.None, PushRuntimeSettings.Default,
                         (c, ec) => RecoverabilityAction.MoveToError(c.Failed.ErrorQueue),
-                        (builder, pushContext) =>
+                        (builder, messageContext) =>
                         {
                             var testContext = builder.Build<Context>();
                             testContext.MessageReceived = true;

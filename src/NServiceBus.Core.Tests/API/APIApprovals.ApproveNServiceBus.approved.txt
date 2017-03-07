@@ -966,6 +966,17 @@ namespace NServiceBus
     {
         public PublishOptions() { }
     }
+    public class ReceivePipelineCompleted
+    {
+        public ReceivePipelineCompleted(NServiceBus.Transport.IncomingMessage processedMessage, System.DateTime startedAt, System.DateTime completedAt) { }
+        public System.DateTime CompletedAt { get; }
+        public NServiceBus.Transport.IncomingMessage ProcessedMessage { get; }
+        public System.DateTime StartedAt { get; }
+    }
+    public class static ReceivePipelineConfigExtensions
+    {
+        public static void OnReceivePipelineCompleted(this NServiceBus.Pipeline.PipelineSettings pipelineSettings, System.Func<NServiceBus.ReceivePipelineCompleted, System.Threading.Tasks.Task> subscription) { }
+    }
     public class static ReceiveSettingsExtensions
     {
         public static void MakeInstanceUniquelyAddressable(this NServiceBus.EndpointConfiguration config, string discriminator) { }
@@ -1730,7 +1741,7 @@ namespace NServiceBus.Extensibility
 {
     public class ContextBag : NServiceBus.Extensibility.ReadOnlyContextBag
     {
-        public ContextBag(NServiceBus.Extensibility.ContextBag parentBag = null) { }
+        public ContextBag(NServiceBus.Extensibility.ContextBag parent = null) { }
         public T Get<T>() { }
         public T GetOrCreate<T>()
             where T :  class, new () { }
@@ -2192,6 +2203,10 @@ namespace NServiceBus.MessageMutator
         public bool TryGetIncomingHeaders(out System.Collections.Generic.IReadOnlyDictionary<, > incomingHeaders) { }
         public bool TryGetIncomingMessage(out object incomingMessage) { }
     }
+    public class static MutatorRegistrationExtensions
+    {
+        public static void RegisterMessageMutator(this NServiceBus.EndpointConfiguration endpointConfiguration, object messageMutator) { }
+    }
 }
 namespace NServiceBus.ObjectBuilder.Common
 {
@@ -2503,7 +2518,7 @@ namespace NServiceBus.Pipeline
     {
         public PipelineExecutor() { }
     }
-    public class PipelineSettings
+    public class PipelineSettings : NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings
     {
         public void Register(System.Type behavior, string description) { }
         public void Register(string stepId, System.Type behavior, string description) { }
@@ -2842,6 +2857,10 @@ namespace NServiceBus.Sagas
     {
         System.Threading.Tasks.Task Handle(object message, NServiceBus.IMessageProcessingContext context);
     }
+    public interface ISagaIdGenerator
+    {
+        System.Guid Generate(NServiceBus.Sagas.SagaIdGeneratorContext context);
+    }
     public interface ISagaPersister
     {
         System.Threading.Tasks.Task Complete(NServiceBus.IContainSagaData sagaData, NServiceBus.Persistence.SynchronizedStorageSession session, NServiceBus.Extensibility.ContextBag context);
@@ -2865,6 +2884,13 @@ namespace NServiceBus.Sagas
         public string MessageTypeName { get; }
         public System.Collections.Generic.Dictionary<string, object> Properties { get; }
         public System.Type Type { get; }
+    }
+    public class SagaIdGeneratorContext : NServiceBus.Extensibility.IExtendable
+    {
+        public SagaIdGeneratorContext(NServiceBus.Sagas.SagaCorrelationProperty correlationProperty, NServiceBus.Sagas.SagaMetadata sagaMetadata, NServiceBus.Extensibility.ContextBag extensions) { }
+        public NServiceBus.Sagas.SagaCorrelationProperty CorrelationProperty { get; }
+        public NServiceBus.Extensibility.ContextBag Extensions { get; }
+        public NServiceBus.Sagas.SagaMetadata SagaMetadata { get; }
     }
     public class SagaMessage
     {
@@ -3231,11 +3257,13 @@ namespace NServiceBus.Transport
     {
         public static string GetTransportAddress(this NServiceBus.Settings.ReadOnlySettings settings, NServiceBus.LogicalAddress logicalAddress) { }
     }
-    public class MessageContext
+    public class MessageContext : NServiceBus.Extensibility.IExtendable
     {
-        public MessageContext(string messageId, System.Collections.Generic.Dictionary<string, string> headers, byte[] body, NServiceBus.Transport.TransportTransaction transportTransaction, System.Threading.CancellationTokenSource receiveCancellationTokenSource, NServiceBus.Extensibility.ContextBag context) { }
+        public MessageContext(string messageId, System.Collections.Generic.Dictionary<string, string> headers, byte[] body, NServiceBus.Transport.TransportTransaction transportTransaction, System.Threading.CancellationTokenSource receiveCancellationTokenSource, NServiceBus.Extensibility.ContextBag extensions) { }
         public byte[] Body { get; }
+        [System.ObsoleteAttribute("Use `Extensions` instead. Will be removed in version 7.0.0.", true)]
         public NServiceBus.Extensibility.ContextBag Context { get; }
+        public NServiceBus.Extensibility.ContextBag Extensions { get; }
         public System.Collections.Generic.Dictionary<string, string> Headers { get; }
         public string MessageId { get; }
         public System.Threading.CancellationTokenSource ReceiveCancellationTokenSource { get; }

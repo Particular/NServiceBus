@@ -68,14 +68,14 @@
             var satelliteAddress = context.Settings.GetTransportAddress(satelliteLogicalAddress);
 
             context.AddSatelliteReceiver("Timeout Dispatcher Processor", satelliteAddress, requiredTransactionSupport, pushRuntimeSettings, RecoverabilityPolicy,
-                (builder, pushContext) =>
+                (builder, messageContext) =>
                 {
                     var dispatchBehavior = new DispatchTimeoutBehavior(
                         builder.Build<IDispatchMessages>(),
                         builder.Build<IPersistTimeouts>(),
                         requiredTransactionSupport);
 
-                    return dispatchBehavior.Invoke(pushContext);
+                    return dispatchBehavior.Invoke(messageContext);
                 });
 
             return satelliteAddress;
@@ -87,7 +87,7 @@
             var satelliteAddress = context.Settings.GetTransportAddress(satelliteLogicalAddress);
 
             context.AddSatelliteReceiver("Timeout Message Processor", satelliteAddress, requiredTransactionSupport, pushRuntimeSettings, RecoverabilityPolicy,
-                (builder, pushContext) =>
+                (builder, messageContext) =>
                 {
                     var storeBehavior = new StoreTimeoutBehavior(
                         builder.Build<ExpiredTimeoutsPoller>(),
@@ -95,7 +95,7 @@
                         builder.Build<IPersistTimeouts>(),
                         context.Settings.EndpointName().ToString());
 
-                    return storeBehavior.Invoke(pushContext);
+                    return storeBehavior.Invoke(messageContext);
                 });
 
             context.Settings.Get<TimeoutManagerAddressConfiguration>().Set(satelliteAddress);

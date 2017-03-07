@@ -14,6 +14,11 @@
             var queuePath = msmqAddress.PathWithoutPrefix;
 
             Logger.Debug($"Checking if queue exists: {queuePath}.");
+            if (msmqAddress.IsRemote)
+            {
+                Logger.Info($"Since {address} is remote, the queue could not be verified. Make sure the queue exists and that the address and permissions are correct. Messages could end up in the dead letter queue if configured incorrectly.");
+                return;
+            }
 
             var path = msmqAddress.PathWithoutPrefix;
 
@@ -23,20 +28,18 @@
                 {
                     using (var messageQueue = new MessageQueue(path))
                     {
-                        Logger.DebugFormat("Verified that the queue: [{0}] existed", queuePath);
+                        Logger.DebugFormat("Verified that the queue: [{0}] exists", queuePath);
 
                         WarnIfPublicAccess(messageQueue);
                     }
                 }
+                else
+                {
+                    Logger.WarnFormat("Queue [{0}] does not exist", queuePath); 
+                }
             }
             catch (MessageQueueException ex)
             {
-                if (msmqAddress.IsRemote)
-                {
-                    Logger.Warn($"Unable to verify remote queue '{queuePath}'. Make sure the queue exists, and that the address is correct. Processing will still continue.", ex);
-                    return;
-                }
-
                 Logger.Warn($"Unable to verify queue at address '{queuePath}'. Make sure the queue exists, and that the address is correct. Processing will still continue.", ex);
             }
         }

@@ -1,17 +1,19 @@
 namespace NServiceBus.Pipeline
 {
     using System;
+    using Configuration.AdvanceExtensibility;
     using ObjectBuilder;
+    using Settings;
 
     /// <summary>
     /// Manages the pipeline configuration.
     /// </summary>
-    public partial class PipelineSettings
+    public partial class PipelineSettings : ExposeSettings
     {
         /// <summary>
         /// Initializes a new instance of <see cref="PipelineSettings" />.
         /// </summary>
-        internal PipelineSettings(PipelineModifications modifications)
+        internal PipelineSettings(PipelineModifications modifications, SettingsHolder settings) : base(settings)
         {
             this.modifications = modifications;
         }

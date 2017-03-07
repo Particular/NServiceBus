@@ -7,7 +7,7 @@
     /// <summary>
     /// Allows the transport to pass relevant info to the pipeline.
     /// </summary>
-    public class MessageContext
+    public class MessageContext : IExtendable
     {
         /// <summary>
         /// Initializes the context.
@@ -21,20 +21,20 @@
         /// It also allows the transport to communicate to the pipeline to abort if possible. Transports should check if the token
         /// has been aborted after invoking the pipeline and roll back the message accordingly.
         /// </param>
-        /// <param name="context">Any context that the transport wants to be available on the pipeline.</param>
-        public MessageContext(string messageId, Dictionary<string, string> headers, byte[] body, TransportTransaction transportTransaction, CancellationTokenSource receiveCancellationTokenSource, ContextBag context)
+        /// <param name="extensions">A <see cref="ContextBag" /> which can be used to extend the current object.</param>
+        public MessageContext(string messageId, Dictionary<string, string> headers, byte[] body, TransportTransaction transportTransaction, CancellationTokenSource receiveCancellationTokenSource, ContextBag extensions)
         {
             Guard.AgainstNullAndEmpty(nameof(messageId), messageId);
             Guard.AgainstNull(nameof(body), body);
             Guard.AgainstNull(nameof(headers), headers);
             Guard.AgainstNull(nameof(transportTransaction), transportTransaction);
             Guard.AgainstNull(nameof(receiveCancellationTokenSource), receiveCancellationTokenSource);
-            Guard.AgainstNull(nameof(context), context);
+            Guard.AgainstNull(nameof(extensions), extensions);
 
             Headers = headers;
             Body = body;
             MessageId = messageId;
-            Context = context;
+            Extensions = extensions;
             TransportTransaction = transportTransaction;
             ReceiveCancellationTokenSource = receiveCancellationTokenSource;
         }
@@ -68,6 +68,12 @@
         /// <summary>
         /// Context provided by the transport.
         /// </summary>
-        public ContextBag Context { get; }
+        [ObsoleteEx(ReplacementTypeOrMember = "Extensions", RemoveInVersion = "7")]
+        public ContextBag Context => Extensions;
+
+        /// <summary>
+        /// A <see cref="ContextBag" /> which can be used to extend the current object.
+        /// </summary>
+        public ContextBag Extensions { get; }
     }
 }

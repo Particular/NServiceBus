@@ -64,7 +64,7 @@ namespace NServiceBus
                     }
                     catch (MessageQueueException permissionException) when (permissionException.MessageQueueErrorCode == MessageQueueErrorCode.FormatNameBufferTooSmall)
                     {
-                        Logger.Warn($"Queue '{queue.FormatName}' has a to long name for permissions to be applied. Please consider a shorter endpoint name.", permissionException);
+                        Logger.Warn($"The name for queue '{queue.FormatName}' is too long for permissions to be applied. Please consider a shorter endpoint name.", permissionException);
                     }
 
                 }

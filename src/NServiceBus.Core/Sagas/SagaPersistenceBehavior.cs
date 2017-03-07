@@ -12,8 +12,9 @@
 
     class SagaPersistenceBehavior : IBehavior<IInvokeHandlerContext, IInvokeHandlerContext>
     {
-        public SagaPersistenceBehavior(ISagaPersister persister, ICancelDeferredMessages timeoutCancellation, SagaMetadataCollection sagaMetadataCollection)
+        public SagaPersistenceBehavior(ISagaPersister persister, ISagaIdGenerator sagaIdGenerator, ICancelDeferredMessages timeoutCancellation, SagaMetadataCollection sagaMetadataCollection)
         {
+            this.sagaIdGenerator = sagaIdGenerator;
             sagaPersister = persister;
             this.timeoutCancellation = timeoutCancellation;
             this.sagaMetadataCollection = sagaMetadataCollection;
@@ -308,7 +309,6 @@
 
             var sagaEntity = (IContainSagaData)Activator.CreateInstance(sagaEntityType);
 
-            sagaEntity.Id = CombGuid.Generate();
             sagaEntity.OriginalMessageId = context.MessageId;
 
             string replyToAddress;
@@ -320,7 +320,9 @@
 
             var lookupValues = context.Extensions.GetOrCreate<SagaLookupValues>();
 
+            SagaCorrelationProperty correlationProperty;
             SagaLookupValues.LookupValue value;
+
             if (lookupValues.TryGet(sagaEntityType, out value))
             {
                 var propertyInfo = sagaEntityType.GetProperty(value.PropertyName);
@@ -329,7 +331,17 @@
                     .ConvertFromInvariantString(value.PropertyValue.ToString());
 
                 propertyInfo.SetValue(sagaEntity, convertedValue);
+
+                correlationProperty = new SagaCorrelationProperty(value.PropertyName, value.PropertyValue);
             }
+            else
+            {
+                correlationProperty = SagaCorrelationProperty.None;
+            }
+
+            var sagaIdGeneratorContext = new SagaIdGeneratorContext(correlationProperty, metadata, context.Extensions);
+
+            sagaEntity.Id = sagaIdGenerator.Generate(sagaIdGeneratorContext);
 
             return sagaEntity;
         }
@@ -342,5 +354,6 @@
 
         static Task<IContainSagaData> DefaultSagaDataCompletedTask = Task.FromResult(default(IContainSagaData));
         static ILog logger = LogManager.GetLogger<SagaPersistenceBehavior>();
+        ISagaIdGenerator sagaIdGenerator;
     }
 }

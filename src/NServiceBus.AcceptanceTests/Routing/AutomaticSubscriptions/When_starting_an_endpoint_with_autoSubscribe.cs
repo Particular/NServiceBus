@@ -6,7 +6,7 @@ namespace NServiceBus.AcceptanceTests.Routing.AutomaticSubscriptions
     using AcceptanceTesting;
     using AcceptanceTesting.Customization;
     using EndpointTemplates;
-    using Pipeline;
+    using NServiceBus.Pipeline;
     using NUnit.Framework;
 
     [TestFixture]

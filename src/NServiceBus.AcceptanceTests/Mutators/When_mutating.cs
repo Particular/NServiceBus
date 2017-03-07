@@ -43,8 +43,7 @@
         {
             public Receiver()
             {
-                EndpointSetup<DefaultServer>(
-                    b => b.RegisterComponents(r => r.ConfigureComponent<Mutator>(DependencyLifecycle.InstancePerCall)));
+                EndpointSetup<DefaultServer>(b => b.RegisterMessageMutator(new Mutator()));
             }
 
             public class StartMessageHandler : IHandleMessages<StartMessage>

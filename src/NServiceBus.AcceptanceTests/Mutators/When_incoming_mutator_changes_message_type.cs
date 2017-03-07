@@ -35,9 +35,7 @@
         {
             public MutatorEndpoint()
             {
-                EndpointSetup<DefaultServer>(e => e
-                    .RegisterComponents(c => c
-                        .ConfigureComponent<MessageMutator>(DependencyLifecycle.SingleInstance)));
+                EndpointSetup<DefaultServer>(e => e.RegisterMessageMutator(new MessageMutator()));
             }
 
             public class MessageMutator : IMutateIncomingMessages
