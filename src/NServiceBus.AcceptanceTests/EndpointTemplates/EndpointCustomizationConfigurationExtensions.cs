@@ -5,7 +5,7 @@
     using System.Linq;
     using System.Reflection;
     using AcceptanceTesting.Support;
-    using NServiceBus.Hosting.Helpers;
+    using Hosting.Helpers;
 
     public static class EndpointCustomizationConfigurationExtensions
     {

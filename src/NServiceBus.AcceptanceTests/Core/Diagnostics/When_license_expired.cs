@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.AcceptanceTests.Licensing
+﻿namespace NServiceBus.AcceptanceTests.Core.Diagnostics
 {
     using System.Diagnostics;
     using System.Linq;
@@ -9,10 +9,10 @@
     using Logging;
     using NUnit.Framework;
 
-    public class When_a_message_is_audited : NServiceBusAcceptanceTest
+    public class When_license_expired : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Should_add_the_license_diagnostic_headers()
+        public async Task Should_add_the_license_diagnostic_headers_to_audited_messages()
         {
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<EndpointWithAuditOn>(b => b.When(session => session.SendLocal(new MessageToBeAudited())))
