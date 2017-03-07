@@ -2,6 +2,7 @@
 {
     using System.Threading.Tasks;
     using AcceptanceTesting;
+    using AcceptanceTesting.Customization;
     using EndpointTemplates;
     using NUnit.Framework;
 
@@ -21,11 +22,11 @@
             public Endpoint()
             {
                 EndpointSetup<DefaultServer>((c, r) =>
-                    {
-                        var routing = c.ConfigureTransport().Routing();
-                        routing.DoNotEnforceBestPractices();
-                    })
-                    .AddMapping<MyEvent>(typeof(Endpoint));
+                {
+                    var routing = c.ConfigureTransport().Routing();
+                    routing.DoNotEnforceBestPractices();
+                    routing.RouteToEndpoint(typeof(MyEvent), typeof(Endpoint));
+                });
             }
 
             public class Handler : IHandleMessages<MyEvent>

@@ -6,6 +6,7 @@
     using System.Runtime.Serialization.Formatters.Binary;
     using System.Threading.Tasks;
     using AcceptanceTesting;
+    using AcceptanceTesting.Customization;
     using Configuration.AdvanceExtensibility;
     using EndpointTemplates;
     using MessageInterfaces;
@@ -48,8 +49,11 @@
         {
             public CustomSerializationSender()
             {
-                EndpointSetup<DefaultServer>(c => c.UseSerialization<MyCustomSerializer>().Settings((Context) ScenarioContext, ""))
-                    .AddMapping<MyRequest>(typeof(XmlCustomSerializationReceiver));
+                EndpointSetup<DefaultServer>(c =>
+                {
+                    c.UseSerialization<MyCustomSerializer>().Settings((Context) ScenarioContext, "");
+                    c.ConfigureTransport().Routing().RouteToEndpoint(typeof(MyRequest), typeof(XmlCustomSerializationReceiver));
+                });
             }
         }
 

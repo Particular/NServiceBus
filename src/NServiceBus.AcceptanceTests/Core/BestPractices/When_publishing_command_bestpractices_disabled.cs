@@ -2,6 +2,7 @@
 {
     using System.Threading.Tasks;
     using AcceptanceTesting;
+    using AcceptanceTesting.Customization;
     using EndpointTemplates;
     using NUnit.Framework;
 
@@ -34,8 +35,7 @@
         {
             public Endpoint()
             {
-                EndpointSetup<DefaultServer>()
-                    .AddMapping<MyCommand>(typeof(Endpoint));
+                EndpointSetup<DefaultServer>(c => c.ConfigureTransport().Routing().RouteToEndpoint(typeof(MyCommand), typeof(Endpoint)));
             }
 
             public class Handler : IHandleMessages<MyCommand>

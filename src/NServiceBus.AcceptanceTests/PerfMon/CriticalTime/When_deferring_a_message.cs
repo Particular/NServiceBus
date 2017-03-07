@@ -5,6 +5,7 @@
     using System.Threading;
     using System.Threading.Tasks;
     using AcceptanceTesting;
+    using AcceptanceTesting.Customization;
     using EndpointTemplates;
     using Features;
     using NUnit.Framework;
@@ -63,8 +64,8 @@
                 {
                     builder.EnableCriticalTimePerformanceCounter();
                     builder.EnableFeature<TimeoutManager>();
-                })
-                    .AddMapping<MyMessage>(typeof(Endpoint));
+                    builder.ConfigureTransport().Routing().RouteToEndpoint(typeof(MyMessage), typeof(Endpoint));
+                });
             }
         }
 

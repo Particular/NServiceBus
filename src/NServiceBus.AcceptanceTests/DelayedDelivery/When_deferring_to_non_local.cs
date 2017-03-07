@@ -3,6 +3,7 @@
     using System;
     using System.Threading.Tasks;
     using AcceptanceTesting;
+    using AcceptanceTesting.Customization;
     using EndpointTemplates;
     using Features;
     using NUnit.Framework;
@@ -43,8 +44,11 @@
         {
             public Endpoint()
             {
-                EndpointSetup<DefaultServer>(config => config.EnableFeature<TimeoutManager>())
-                    .AddMapping<MyMessage>(typeof(Receiver));
+                EndpointSetup<DefaultServer>(config =>
+                {
+                    config.EnableFeature<TimeoutManager>();
+                    config.ConfigureTransport().Routing().RouteToEndpoint(typeof(MyMessage), typeof(Receiver));
+                });
             }
         }
 

@@ -2,6 +2,7 @@
 {
     using System.Threading.Tasks;
     using AcceptanceTesting;
+    using AcceptanceTesting.Customization;
     using NServiceBus.AcceptanceTests;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NUnit.Framework;
@@ -51,8 +52,8 @@
                 EndpointSetup<DefaultServer>(c =>
                 {
                     c.EnlistWithDistributor(typeof(Distributor));
-                })
-                .AddMapping<WorkerMessage>(typeof(ReplyingEndpoint));
+                    c.ConfigureTransport().Routing().RouteToEndpoint(typeof(WorkerMessage), typeof(ReplyingEndpoint));
+                });
             }
 
             class DispatchWorkerMessageHandler : IHandleMessages<DispatchWorkerMessage>
@@ -65,8 +66,6 @@
 
             class ReplyMessageHandler : IHandleMessages<ReplyMessage>
             {
-                Context testContext;
-
                 public ReplyMessageHandler(Context context)
                 {
                     testContext = context;
@@ -77,6 +76,8 @@
                     testContext.WorkerReceivedReply = true;
                     return Task.CompletedTask;
                 }
+
+                Context testContext;
             }
         }
 
@@ -84,14 +85,14 @@
         {
             public Distributor()
             {
-                EndpointSetup<DistributorEndpointTemplate>()
-                    .AddMapping<DispatchWorkerMessage>(typeof(Worker));
+                EndpointSetup<DistributorEndpointTemplate>(c =>
+                {
+                    c.ConfigureTransport().Routing().RouteToEndpoint(typeof(DispatchWorkerMessage), typeof(Worker));
+                });
             }
 
             class ReplyMessageHandler : IHandleMessages<ReplyMessage>
             {
-                Context testContext;
-
                 public ReplyMessageHandler(Context context)
                 {
                     testContext = context;
@@ -102,6 +103,8 @@
                     testContext.DistributorReceivedReply = true;
                     return Task.CompletedTask;
                 }
+
+                Context testContext;
             }
         }
 

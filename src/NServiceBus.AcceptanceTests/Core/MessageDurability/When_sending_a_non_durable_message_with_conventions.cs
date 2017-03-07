@@ -3,6 +3,7 @@ namespace NServiceBus.AcceptanceTests.Core.MessageDurability
     using System.Linq;
     using System.Threading.Tasks;
     using AcceptanceTesting;
+    using AcceptanceTesting.Customization;
     using EndpointTemplates;
     using NUnit.Framework;
 
@@ -35,8 +36,8 @@ namespace NServiceBus.AcceptanceTests.Core.MessageDurability
                     c.Conventions()
                         .DefiningCommandsAs(t => t.Namespace != null && t.FullName == typeof(MyExpressMessage).FullName)
                         .DefiningExpressMessagesAs(t => t.Name.Contains("Express"));
-                }).AddMapping<MyExpressMessage>(typeof(Receiver))
-                    .ExcludeType<MyExpressMessage>(); // remove that type from assembly scanning to simulate what would happen with true unobtrusive mode
+                    c.ConfigureTransport().Routing().RouteToEndpoint(typeof(MyExpressMessage), typeof(Receiver));
+                }).ExcludeType<MyExpressMessage>(); // remove that type from assembly scanning to simulate what would happen with true unobtrusive mode
             }
         }
 

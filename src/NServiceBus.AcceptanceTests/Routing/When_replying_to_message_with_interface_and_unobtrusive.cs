@@ -2,6 +2,7 @@
 {
     using System.Threading.Tasks;
     using AcceptanceTesting;
+    using AcceptanceTesting.Customization;
     using EndpointTemplates;
     using NUnit.Framework;
 
@@ -32,8 +33,11 @@
         {
             public SendingEndpoint()
             {
-                EndpointSetup<DefaultPublisher>(c => c.Conventions().DefiningMessagesAs(t => t.Namespace != null && t.Name.StartsWith("My")))
-                    .AddMapping<MyMessage>(typeof(ReplyingEndpoint));
+                EndpointSetup<DefaultPublisher>(c =>
+                {
+                    c.Conventions().DefiningMessagesAs(t => t.Namespace != null && t.Name.StartsWith("My"));
+                    c.ConfigureTransport().Routing().RouteToEndpoint(typeof(MyMessage), typeof(ReplyingEndpoint));
+                });
             }
 
             public class ResponseHandler : IHandleMessages<MyReply>

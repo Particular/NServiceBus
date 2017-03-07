@@ -3,6 +3,7 @@
     using System;
     using System.Threading.Tasks;
     using AcceptanceTesting;
+    using AcceptanceTesting.Customization;
     using EndpointTemplates;
     using Features;
     using NServiceBus.Sagas;
@@ -57,8 +58,11 @@
         {
             public EndpointThatHostsASaga()
             {
-                EndpointSetup<DefaultServer>(c => c.EnableFeature<TimeoutManager>())
-                    .AddMapping<DoSomething>(typeof(EndpointThatRepliesToSagaMessage));
+                EndpointSetup<DefaultServer>(c =>
+                {
+                    c.EnableFeature<TimeoutManager>();
+                    c.ConfigureTransport().Routing().RouteToEndpoint(typeof(DoSomething), typeof(EndpointThatRepliesToSagaMessage));
+                });
             }
 
             public class SagaNotFound : IHandleSagaNotFound

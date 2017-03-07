@@ -2,7 +2,9 @@
 {
     using System.Threading.Tasks;
     using AcceptanceTesting;
+    using AcceptanceTesting.Customization;
     using EndpointTemplates;
+    using NServiceBus.Config;
     using NUnit.Framework;
 
     public class When_sending_a_base_command : NServiceBusAcceptanceTest
@@ -35,8 +37,22 @@
             public Sender()
             {
                 EndpointSetup<DefaultServer>()
-                    .AddMapping<BaseCommand>(typeof(QueueSpy))
-                    .AddMapping<DerivedCommand>(typeof(Receiver));
+                    .WithConfig<UnicastBusConfig>(c =>
+                    {
+                        // This scenario is only supported when using MessageEndpointMappings
+                        c.MessageEndpointMappings.Add(new MessageEndpointMapping
+                        {
+                            AssemblyName = typeof(BaseCommand).Assembly.FullName,
+                            TypeFullName = typeof(BaseCommand).FullName,
+                            Endpoint = Conventions.EndpointNamingConvention(typeof(QueueSpy))
+                        });
+                        c.MessageEndpointMappings.Add(new MessageEndpointMapping
+                        {
+                            AssemblyName = typeof(DerivedCommand).Assembly.FullName,
+                            TypeFullName = typeof(DerivedCommand).FullName,
+                            Endpoint = Conventions.EndpointNamingConvention(typeof(Receiver))
+                        });
+                    });
             }
         }
 

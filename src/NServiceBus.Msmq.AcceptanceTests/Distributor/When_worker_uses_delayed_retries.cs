@@ -3,6 +3,7 @@
     using System;
     using System.Threading.Tasks;
     using AcceptanceTesting;
+    using AcceptanceTesting.Customization;
     using NServiceBus.AcceptanceTests;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NUnit.Framework;
@@ -64,8 +65,10 @@
         {
             public Distributor()
             {
-                EndpointSetup<DistributorEndpointTemplate>()
-                    .AddMapping<FailingMessage>(typeof(Worker));
+                EndpointSetup<DistributorEndpointTemplate>(c =>
+                {
+                    c.ConfigureTransport().Routing().RouteToEndpoint(typeof(FailingMessage), typeof(Worker));
+                });
             }
 
             class DelayedMessageHandler : IHandleMessages<FailingMessage>
