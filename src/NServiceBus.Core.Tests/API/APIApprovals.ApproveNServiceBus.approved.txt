@@ -1409,20 +1409,21 @@ namespace NServiceBus.AutomaticSubscriptions.Config
 }
 namespace NServiceBus.Config
 {
-    [System.ObsoleteAttribute("Use of the application configuration file to configure audit is discouraged. Will" +
-        " be treated as an error from version 7.0.0. Will be removed in version 8.0.0.", false)]
+    [System.ObsoleteAttribute("Use of the application configuration file to configure auditing is discouraged. W" +
+        "ill be treated as an error from version 7.0.0. Will be removed in version 8.0.0." +
+        "", false)]
     public class AuditConfig : System.Configuration.ConfigurationSection
     {
         public AuditConfig() { }
         [System.Configuration.ConfigurationPropertyAttribute("OverrideTimeToBeReceived", IsRequired=false)]
-        [System.ObsoleteAttribute("Use of the application configuration file to configure audit is discouraged. Use " +
-            "`EndpointConfiguration.AuditProcessedMessagesTo` instead. Will be treated as an " +
-            "error from version 7.0.0. Will be removed in version 8.0.0.", false)]
+        [System.ObsoleteAttribute("Use of the application configuration file to configure auditing is discouraged. U" +
+            "se `EndpointConfiguration.AuditProcessedMessagesTo` instead. Will be treated as " +
+            "an error from version 7.0.0. Will be removed in version 8.0.0.", false)]
         public System.TimeSpan OverrideTimeToBeReceived { get; set; }
         [System.Configuration.ConfigurationPropertyAttribute("QueueName", IsRequired=false)]
-        [System.ObsoleteAttribute("Use of the application configuration file to configure audit is discouraged. Use " +
-            "`EndpointConfiguration.AuditProcessedMessagesTo` instead. Will be treated as an " +
-            "error from version 7.0.0. Will be removed in version 8.0.0.", false)]
+        [System.ObsoleteAttribute("Use of the application configuration file to configure auditing is discouraged. U" +
+            "se `EndpointConfiguration.AuditProcessedMessagesTo` instead. Will be treated as " +
+            "an error from version 7.0.0. Will be removed in version 8.0.0.", false)]
         public string QueueName { get; set; }
     }
     [System.ObsoleteAttribute("Use the feature concept instead via A class which inherits from `NServiceBus.Feat" +
