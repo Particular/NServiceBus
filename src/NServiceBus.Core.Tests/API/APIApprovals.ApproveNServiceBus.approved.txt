@@ -1595,9 +1595,9 @@ namespace NServiceBus.Config
             "s => settings.NumberOfRetries(5);. Will be removed in version 7.0.0.", true)]
         public int MaxRetries { get; set; }
     }
-    [System.ObsoleteAttribute("Use of the application configuration file to configure NServiceBus is discouraged" +
-        ". Use the code first API instead. Will be treated as an error from version 7.0.0" +
-        ". Will be removed in version 8.0.0.", false)]
+    [System.ObsoleteAttribute("Use of the application configuration file to configure the endpoint is discourage" +
+        "d. Use the code first API instead. Will be treated as an error from version 7.0." +
+        "0. Will be removed in version 8.0.0.", false)]
     public class UnicastBusConfig : System.Configuration.ConfigurationSection
     {
         public UnicastBusConfig() { }

@@ -7,7 +7,7 @@ namespace NServiceBus.Config
     /// A configuration section for UnicastBus specific settings.
     /// </summary>
     [ObsoleteEx(
-        Message = "Use of the application configuration file to configure NServiceBus is discouraged. Use the code first API instead.",
+        Message = "Use of the application configuration file to configure the endpoint is discouraged. Use the code first API instead.",
         TreatAsErrorFromVersion = "7.0",
         RemoveInVersion = "8.0")]
     public partial class UnicastBusConfig : ConfigurationSection
