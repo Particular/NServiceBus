@@ -8,7 +8,8 @@ namespace NServiceBus.Config
     [ObsoleteEx(
         Message = "Logging configuration via configuration section is discouraged.",
         ReplacementTypeOrMember = "LogManager.Use<DefaultFactory>()",
-        RemoveInVersion = "7")]
+        TreatAsErrorFromVersion = "7",
+        RemoveInVersion = "8")]
     public class Logging : ConfigurationSection
     {
         /// <summary>
@@ -18,7 +19,8 @@ namespace NServiceBus.Config
         [ObsoleteEx(
             Message = "Logging configuration via configuration section is discouraged.",
             ReplacementTypeOrMember = "LogManager.Use<DefaultFactory>().Level(LogLevel)",
-            RemoveInVersion = "7")]
+            TreatAsErrorFromVersion = "7",
+            RemoveInVersion = "8")]
         public string Threshold
         {
             get { return this["Threshold"] as string; }
