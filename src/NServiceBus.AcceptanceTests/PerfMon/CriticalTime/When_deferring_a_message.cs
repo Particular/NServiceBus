@@ -1,4 +1,6 @@
-﻿namespace NServiceBus.AcceptanceTests.PerfMon.CriticalTime
+﻿// disable obsolete warnings. Tests will be removed in next major version
+#pragma warning disable CS0618
+namespace NServiceBus.AcceptanceTests.PerfMon.CriticalTime
 {
     using System;
     using System.Diagnostics;
@@ -85,3 +87,4 @@
         }
     }
 }
+#pragma warning restore CS0618
