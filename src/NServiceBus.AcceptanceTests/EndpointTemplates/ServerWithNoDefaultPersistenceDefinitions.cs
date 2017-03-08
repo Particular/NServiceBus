@@ -1,4 +1,5 @@
-﻿namespace NServiceBus.AcceptanceTests.EndpointTemplates
+﻿#pragma warning disable CS0618
+namespace NServiceBus.AcceptanceTests.EndpointTemplates
 {
     using System;
     using System.Collections.Generic;
@@ -51,3 +52,4 @@
         List<Type> typesToInclude;
     }
 }
+#pragma warning restore CS0618
