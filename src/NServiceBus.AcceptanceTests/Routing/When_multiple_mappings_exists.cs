@@ -2,6 +2,7 @@
 {
     using System.Threading.Tasks;
     using AcceptanceTesting;
+    using AcceptanceTesting.Customization;
     using EndpointTemplates;
     using NUnit.Framework;
 
@@ -31,9 +32,12 @@
         {
             public Sender()
             {
-                EndpointSetup<DefaultServer>()
-                    .AddMapping<MyCommand1>(typeof(Receiver1))
-                    .AddMapping<MyCommand2>(typeof(Receiver2));
+                EndpointSetup<DefaultServer>(c =>
+                {
+                    var routing = c.ConfigureTransport().Routing();
+                    routing.RouteToEndpoint(typeof(MyCommand1), typeof(Receiver1));
+                    routing.RouteToEndpoint(typeof(MyCommand2), typeof(Receiver2));
+                });
             }
         }
 

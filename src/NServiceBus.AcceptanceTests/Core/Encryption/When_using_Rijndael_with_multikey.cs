@@ -6,6 +6,7 @@ namespace NServiceBus.AcceptanceTests.Core.Encryption
     using System.Text;
     using System.Threading.Tasks;
     using AcceptanceTesting;
+    using AcceptanceTesting.Customization;
     using EndpointTemplates;
     using NUnit.Framework;
 
@@ -36,8 +37,11 @@ namespace NServiceBus.AcceptanceTests.Core.Encryption
         {
             public Sender()
             {
-                EndpointSetup<DefaultServer>(builder => builder.RijndaelEncryptionService("1st", Encoding.ASCII.GetBytes("gdDbqRpqdRbTs3mhdZh9qCaDaxJXl+e6")))
-                    .AddMapping<MessageWithSecretData>(typeof(Receiver));
+                EndpointSetup<DefaultServer>(builder =>
+                {
+                    builder.RijndaelEncryptionService("1st", Encoding.ASCII.GetBytes("gdDbqRpqdRbTs3mhdZh9qCaDaxJXl+e6"));
+                    builder.ConfigureTransport().Routing().RouteToEndpoint(typeof(MessageWithSecretData), typeof(Receiver));
+                });
             }
         }
 

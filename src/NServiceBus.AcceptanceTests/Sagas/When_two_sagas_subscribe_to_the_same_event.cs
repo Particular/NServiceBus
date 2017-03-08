@@ -3,6 +3,7 @@
     using System;
     using System.Threading.Tasks;
     using AcceptanceTesting;
+    using AcceptanceTesting.Customization;
     using EndpointTemplates;
     using Features;
     using NUnit.Framework;
@@ -74,9 +75,12 @@
         {
             public SagaEndpoint()
             {
-                EndpointSetup<DefaultServer>(c => c.EnableFeature<TimeoutManager>(),
-                    metadata => metadata.RegisterPublisherFor<GroupPendingEvent>(typeof(Publisher)))
-                    .AddMapping<OpenGroupCommand>(typeof(Publisher));
+                EndpointSetup<DefaultServer>(c =>
+                    {
+                        c.EnableFeature<TimeoutManager>();
+                        c.ConfigureTransport().Routing().RouteToEndpoint(typeof(OpenGroupCommand), typeof(Publisher));
+                    },
+                    metadata => metadata.RegisterPublisherFor<GroupPendingEvent>(typeof(Publisher)));
             }
 
             public class Saga1 : Saga<Saga1.MySaga1Data>,
@@ -152,7 +156,6 @@
             }
         }
 
-
         public class GroupPendingEvent : IEvent
         {
             public Guid DataId { get; set; }
@@ -162,7 +165,6 @@
         {
             public Guid DataId { get; set; }
         }
-
 
         public class StartSaga2 : ICommand
         {

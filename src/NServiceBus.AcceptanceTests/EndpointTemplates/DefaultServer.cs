@@ -21,7 +21,9 @@
             this.typesToInclude = typesToInclude;
         }
 
+#pragma warning disable CS0618
         public async Task<EndpointConfiguration> GetConfiguration(RunDescriptor runDescriptor, EndpointCustomizationConfiguration endpointConfiguration, IConfigurationSource configSource, Action<EndpointConfiguration> configurationBuilderCustomization)
+#pragma warning restore CS0618
         {
             var settings = runDescriptor.Settings;
 

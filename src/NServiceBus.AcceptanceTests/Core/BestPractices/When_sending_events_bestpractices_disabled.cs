@@ -2,6 +2,7 @@ namespace NServiceBus.AcceptanceTests.Core.BestPractices
 {
     using System.Threading.Tasks;
     using AcceptanceTesting;
+    using AcceptanceTesting.Customization;
     using EndpointTemplates;
     using NUnit.Framework;
 
@@ -29,9 +30,12 @@ namespace NServiceBus.AcceptanceTests.Core.BestPractices
         {
             public Endpoint()
             {
-                EndpointSetup<DefaultServer>()
-                    .AddMapping<MyEvent>(typeof(Endpoint))
-                    .AddMapping<MyCommand>(typeof(Endpoint));
+                EndpointSetup<DefaultServer>(c =>
+                {
+                    var routing = c.ConfigureTransport().Routing();
+                    routing.RouteToEndpoint(typeof(MyEvent), typeof(Endpoint));
+                    routing.RouteToEndpoint(typeof(MyCommand), typeof(Endpoint));
+                });
             }
 
             public class Handler : IHandleMessages<MyEvent>

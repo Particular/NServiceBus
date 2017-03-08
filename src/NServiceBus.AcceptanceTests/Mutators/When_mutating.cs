@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Threading.Tasks;
     using AcceptanceTesting;
+    using AcceptanceTesting.Customization;
     using EndpointTemplates;
     using MessageMutator;
     using NUnit.Framework;
@@ -31,8 +32,10 @@
         {
             public Sender()
             {
-                EndpointSetup<DefaultServer>()
-                    .AddMapping<StartMessage>(typeof(Receiver));
+                EndpointSetup<DefaultServer>(c =>
+                {
+                    c.ConfigureTransport().Routing().RouteToEndpoint(typeof(StartMessage), typeof(Receiver));
+                });
             }
         }
 

@@ -1,4 +1,6 @@
-﻿namespace NServiceBus.AcceptanceTests.Core.DelayedDelivery.TimeoutManager
+﻿// disable obsolete warnings. Tests will be removed in next major version
+#pragma warning disable CS0618
+namespace NServiceBus.AcceptanceTests.Core.DelayedDelivery.TimeoutManager
 {
     using System;
     using System.Threading.Tasks;
@@ -75,3 +77,4 @@
         }
     }
 }
+#pragma warning restore CS0618

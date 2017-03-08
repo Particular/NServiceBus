@@ -20,5 +20,11 @@ namespace NServiceBus.AcceptanceTesting.Customization
             var auditEndpointAddress = Conventions.EndpointNamingConvention(typeof(TAuditEndoint));
             config.AuditProcessedMessagesTo(auditEndpointAddress);
         }
+
+        public static void RouteToEndpoint(this RoutingSettings routingSettings, Type messageType, Type destinationEndpointType)
+        {
+            var destinationEndpointAddress = Conventions.EndpointNamingConvention(destinationEndpointType);
+            routingSettings.RouteToEndpoint(messageType, destinationEndpointAddress);
+        }
     }
 }

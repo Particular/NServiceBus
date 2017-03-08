@@ -4,6 +4,7 @@
     using System.IO;
     using System.Threading.Tasks;
     using AcceptanceTesting;
+    using AcceptanceTesting.Customization;
     using EndpointTemplates;
     using MessageMutator;
     using NUnit.Framework;
@@ -43,8 +44,9 @@
                     var basePath = Path.Combine(TestContext.CurrentContext.TestDirectory, @"databus\sender");
                     builder.UseDataBus<FileShareDataBus>().BasePath(basePath);
                     builder.UseSerialization<JsonSerializer>();
-                })
-                    .AddMapping<MyMessageWithLargePayload>(typeof(Receiver));
+
+                    builder.ConfigureTransport().Routing().RouteToEndpoint(typeof(MyMessageWithLargePayload), typeof(Receiver));
+                });
             }
         }
 

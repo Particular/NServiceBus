@@ -7,6 +7,7 @@
 
     public class When_subscribing_to_command_bestpractices_disabled_on_endpoint : NServiceBusAcceptanceTest
     {
+        [Ignore("not supported via code first API")]
         [Test]
         public async Task Should_allow_subscribing_to_commands()
         {
@@ -29,11 +30,10 @@
             public Endpoint()
             {
                 EndpointSetup<DefaultServer>((c, r) =>
-                    {
-                        var routing = c.ConfigureTransport().Routing();
-                        routing.DoNotEnforceBestPractices();
-                    })
-                    .AddMapping<MyCommand>(typeof(Endpoint));
+                {
+                    var routing = c.ConfigureTransport().Routing();
+                    routing.DoNotEnforceBestPractices();
+                }, m => m.RegisterPublisherFor<MyCommand>(typeof(Endpoint)));
             }
         }
 

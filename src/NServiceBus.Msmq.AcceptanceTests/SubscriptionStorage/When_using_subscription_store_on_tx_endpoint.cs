@@ -1,4 +1,6 @@
-﻿namespace NServiceBus.Transport.Msmq.AcceptanceTests.SubscriptionStorage
+﻿// Disable obsolete warning until MessageEndpointMappings has been removed
+#pragma warning disable CS0618
+namespace NServiceBus.Transport.Msmq.AcceptanceTests.SubscriptionStorage
 {
     using System.Messaging;
     using System.Threading.Tasks;
@@ -75,8 +77,9 @@
         {
             public Subscriber()
             {
-                EndpointSetup<DefaultServer>(c => c.DisableFeature<AutoSubscribe>())
-                    .AddMapping<MyEvent>(typeof(Publisher));
+                EndpointSetup<DefaultServer>(
+                    c => c.DisableFeature<AutoSubscribe>(),
+                    m => m.RegisterPublisherFor<MyEvent>(typeof(Publisher)));
             }
 
             public class MyEventHandler : IHandleMessages<MyEvent>
@@ -96,3 +99,4 @@
         }
     }
 }
+#pragma warning restore CS0618

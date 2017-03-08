@@ -3,6 +3,7 @@
     using System;
     using System.Threading.Tasks;
     using AcceptanceTesting;
+    using AcceptanceTesting.Customization;
     using EndpointTemplates;
     using NUnit.Framework;
 
@@ -33,9 +34,11 @@
         {
             public Sender()
             {
-                EndpointSetup<DefaultServer>(b => b.Conventions().DefiningMessagesAs(type => type.Name.EndsWith("Message")))
-                    .AddMapping<IMyInterfaceMessage>(typeof(Receiver))
-                    .ExcludeType<IMyInterfaceMessage>(); // remove that type from assembly scanning to simulate what would happen with true unobtrusive mode
+                EndpointSetup<DefaultServer>(b =>
+                {
+                    b.Conventions().DefiningMessagesAs(type => type.Name.EndsWith("Message"));
+                    b.ConfigureTransport().Routing().RouteToEndpoint(typeof(IMyInterfaceMessage), typeof(Receiver));
+                }).ExcludeType<IMyInterfaceMessage>(); // remove that type from assembly scanning to simulate what would happen with true unobtrusive mode
             }
         }
 

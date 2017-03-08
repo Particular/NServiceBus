@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.AcceptanceTests.CriticalError
+﻿namespace NServiceBus.AcceptanceTests.Core.CriticalError
 {
     using System;
     using System.Collections.Concurrent;
@@ -9,10 +9,10 @@
     using NUnit.Framework;
     using CriticalError = NServiceBus.CriticalError;
 
-    public class When_raising_critical_error : NServiceBusAcceptanceTest
+    public class When_raising_critical_error_from_a_handler : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Should_trigger_critical_error_action_when_raised_from_handler()
+        public async Task Should_trigger_critical_error_action()
         {
             var exceptions = new ConcurrentDictionary<string, Exception>();
 
@@ -40,26 +40,6 @@
                 .Run();
 
             Assert.AreEqual(1, exceptions.Keys.Count);
-        }
-
-        [Test]
-        public async Task Should_call_critical_error_action_for_every_error_that_occurred_before_startup()
-        {
-            var exceptions = new ConcurrentDictionary<string, Exception>();
-
-            Func<ICriticalErrorContext, Task> addCritical = criticalContext =>
-            {
-                exceptions.TryAdd(criticalContext.Error, criticalContext.Exception);
-                return Task.FromResult(0);
-            };
-
-            var context = await Scenario.Define<TestContext>()
-                .WithEndpoint<EndpointWithCriticalErrorStartup>(b => { b.CustomConfig(config => { config.DefineCriticalErrorAction(addCritical); }); })
-                .Done(c => c.EndpointsStarted)
-                .Run();
-
-            Assert.AreEqual(2, context.CriticalErrorsRaised);
-            Assert.AreEqual(exceptions.Keys.Count, context.CriticalErrorsRaised);
         }
 
         public class TestContext : ScenarioContext
@@ -144,7 +124,6 @@
             }
         }
 
-        
         public class Message : IMessage
         {
             public string ContextId { get; set; }

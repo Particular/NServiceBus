@@ -2,6 +2,7 @@
 {
     using System.Threading.Tasks;
     using AcceptanceTesting;
+    using AcceptanceTesting.Customization;
     using EndpointTemplates;
     using Features;
     using NUnit.Framework;
@@ -39,11 +40,14 @@
         {
             public Publisher()
             {
-                EndpointSetup<DefaultPublisher>(b => b.OnEndpointSubscribed<Context>((args, context) =>
+                EndpointSetup<DefaultPublisher>(b =>
                 {
-                    context.SubscriberSubscribed = true;
-                }))
-                    .AddMapping<Done>(typeof(Subscriber));
+                    b.OnEndpointSubscribed<Context>((args, context) =>
+                    {
+                        context.SubscriberSubscribed = true;
+                    });
+                    b.ConfigureTransport().Routing().RouteToEndpoint(typeof(Done), typeof(Subscriber));
+                });
             }
         }
 

@@ -61,9 +61,8 @@
                 EndpointSetup<DefaultServer>(c =>
                 {
                     c.Conventions().DefiningCommandsAs(t => t == typeof(SomeCommand));
-                })
-                .AddMapping<SomeCommand>(typeof(ReceivingEndpoint))
-                .ExcludeType<SomeCommand>(); //exclude type to simulate an unobtrusive message assembly which isn't automatically loaded.
+                    c.ConfigureTransport().Routing().RouteToEndpoint(typeof(SomeCommand), typeof(ReceivingEndpoint));
+                }).ExcludeType<SomeCommand>(); //exclude type to simulate an unobtrusive message assembly which isn't automatically loaded.
             }
         }
 

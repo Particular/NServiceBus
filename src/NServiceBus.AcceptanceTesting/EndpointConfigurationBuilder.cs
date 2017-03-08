@@ -1,16 +1,10 @@
 ﻿namespace NServiceBus.AcceptanceTesting
 {
     using System;
-    using System.Collections.Generic;
     using Support;
 
     public class EndpointConfigurationBuilder : IEndpointConfigurationFactory
     {
-        public EndpointConfigurationBuilder()
-        {
-            configuration.EndpointMappings = new Dictionary<Type, Type>();
-        }
-
         public EndpointConfigurationBuilder CustomMachineName(string customMachineName)
         {
             configuration.CustomMachineName = customMachineName;
@@ -21,13 +15,6 @@
         public EndpointConfigurationBuilder CustomEndpointName(string customEndpointName)
         {
             configuration.CustomEndpointName = customEndpointName;
-
-            return this;
-        }
-
-        public EndpointConfigurationBuilder AddMapping<T>(Type endpoint)
-        {
-            configuration.EndpointMappings.Add(typeof(T), endpoint);
 
             return this;
         }

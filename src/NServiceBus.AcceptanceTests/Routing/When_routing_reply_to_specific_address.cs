@@ -41,7 +41,10 @@
         {
             public Sender()
             {
-                EndpointSetup<DefaultServer>().AddMapping<RequestReplyMessage>(typeof(Replier));
+                EndpointSetup<DefaultServer>(c =>
+                {
+                    c.ConfigureTransport().Routing().RouteToEndpoint(typeof(RequestReplyMessage), typeof(Replier));
+                });
             }
         }
 

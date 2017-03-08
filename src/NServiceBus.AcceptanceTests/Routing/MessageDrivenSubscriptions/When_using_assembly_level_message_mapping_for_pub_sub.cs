@@ -1,4 +1,6 @@
-﻿namespace NServiceBus.AcceptanceTests.Routing.MessageDrivenSubscriptions
+﻿// disable obsolete warnings. Test will be removed in next major version
+#pragma warning disable CS0618
+namespace NServiceBus.AcceptanceTests.Routing.MessageDrivenSubscriptions
 {
     using System.Threading.Tasks;
     using AcceptanceTesting;
@@ -10,8 +12,6 @@
 
     public class When_using_assembly_level_message_mapping_for_pub_sub : NServiceBusAcceptanceTest
     {
-        static string OtherEndpointName => Conventions.EndpointNamingConvention(typeof(OtherEndpoint));
-
         [Test]
         public async Task The_mapping_should_not_cause_publishing_to_non_subscribers()
         {
@@ -31,7 +31,6 @@
 
             Assert.IsFalse(context.EventReceived);
             Assert.IsTrue(context.CommandReceived);
-
         }
 
         public class Context : ScenarioContext
@@ -50,11 +49,10 @@
                         c.MessageEndpointMappings = new MessageEndpointMappingCollection();
                         c.MessageEndpointMappings.Add(new MessageEndpointMapping
                         {
-                            Endpoint = OtherEndpointName,
+                            Endpoint = Conventions.EndpointNamingConvention(typeof(OtherEndpoint)),
                             AssemblyName = typeof(Publisher).Assembly.GetName().Name
                         });
-                    })
-                    .AddMapping<DoneCommand>(typeof(OtherEndpoint));
+                    });
             }
         }
 
@@ -71,8 +69,6 @@
 
             public class EventHandler : IHandleMessages<MyEvent>
             {
-                Context testContext;
-
                 public EventHandler(Context testContext)
                 {
                     this.testContext = testContext;
@@ -83,12 +79,12 @@
                     testContext.EventReceived = true;
                     return Task.FromResult(0);
                 }
+
+                Context testContext;
             }
 
             public class DoneHandler : IHandleMessages<DoneCommand>
             {
-                Context testContext;
-
                 public DoneHandler(Context testContext)
                 {
                     this.testContext = testContext;
@@ -99,6 +95,8 @@
                     testContext.CommandReceived = true;
                     return Task.FromResult(0);
                 }
+
+                Context testContext;
             }
         }
 
@@ -108,7 +106,7 @@
 
         public class DoneCommand : ICommand
         {
-
         }
     }
 }
+#pragma warning restore CS0618

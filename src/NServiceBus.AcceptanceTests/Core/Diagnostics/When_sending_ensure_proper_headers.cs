@@ -1,9 +1,10 @@
-﻿namespace NServiceBus.AcceptanceTests.Hosting
+﻿namespace NServiceBus.AcceptanceTests.Core.Diagnostics
 {
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
     using AcceptanceTesting;
+    using AcceptanceTesting.Customization;
     using EndpointTemplates;
     using NUnit.Framework;
 
@@ -36,8 +37,10 @@
             public Sender()
             {
                 CustomEndpointName("SenderForEnsureProperHeadersTest");
-                EndpointSetup<DefaultServer>()
-                    .AddMapping<MyMessage>(typeof(Receiver));
+                EndpointSetup<DefaultServer>(c =>
+                {
+                    c.ConfigureTransport().Routing().RouteToEndpoint(typeof(MyMessage), typeof(Receiver));
+                });
             }
         }
 
@@ -49,7 +52,6 @@
             }
         }
 
-        
         public class MyMessage : ICommand
         {
             public Guid Id { get; set; }

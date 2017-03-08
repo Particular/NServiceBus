@@ -1,4 +1,6 @@
-﻿namespace NServiceBus.AcceptanceTests.Config
+﻿// test will be removed in the next major version
+#pragma warning disable CS0618
+namespace NServiceBus.AcceptanceTests.Config
 {
     using System;
     using AcceptanceTesting;
@@ -58,3 +60,4 @@
         }
     }
 }
+#pragma warning restore CS0618

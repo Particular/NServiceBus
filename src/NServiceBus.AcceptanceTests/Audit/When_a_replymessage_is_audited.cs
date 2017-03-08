@@ -62,11 +62,11 @@
             public EndpointWithAuditOn()
             {
                 EndpointSetup<DefaultServer>(c =>
-                    {
-                        c.DisableFeature<Outbox>();
-                        c.AuditProcessedMessagesTo<AuditSpyEndpoint>();
-                    })
-                    .AddMapping<Request>(typeof(Server));
+                {
+                    c.DisableFeature<Outbox>();
+                    c.AuditProcessedMessagesTo<AuditSpyEndpoint>();
+                    c.ConfigureTransport().Routing().RouteToEndpoint(typeof(Request), typeof(Server));
+                });
             }
 
             public class MessageToBeAuditedHandler : IHandleMessages<ResponseToBeAudited>

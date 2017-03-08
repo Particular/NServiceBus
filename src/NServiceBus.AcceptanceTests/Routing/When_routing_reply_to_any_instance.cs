@@ -2,6 +2,7 @@
 {
     using System.Threading.Tasks;
     using AcceptanceTesting;
+    using AcceptanceTesting.Customization;
     using EndpointTemplates;
     using NUnit.Framework;
 
@@ -39,8 +40,11 @@
         {
             public Sender()
             {
-                EndpointSetup<DefaultServer>(c => c.MakeInstanceUniquelyAddressable(instanceDiscriminator))
-                    .AddMapping<RequestReplyMessage>(typeof(Replier));
+                EndpointSetup<DefaultServer>(c =>
+                {
+                    c.MakeInstanceUniquelyAddressable(instanceDiscriminator);
+                    c.ConfigureTransport().Routing().RouteToEndpoint(typeof(RequestReplyMessage), typeof(Replier));
+                });
             }
 
             class ReplyMessageHandler : IHandleMessages<ReplyMessage>

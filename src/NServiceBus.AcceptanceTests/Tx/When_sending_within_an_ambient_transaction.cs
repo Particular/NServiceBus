@@ -3,6 +3,7 @@
     using System.Threading.Tasks;
     using System.Transactions;
     using AcceptanceTesting;
+    using AcceptanceTesting.Customization;
     using EndpointTemplates;
     using NUnit.Framework;
 
@@ -80,9 +81,13 @@
         {
             public TransactionalEndpoint()
             {
-                EndpointSetup<DefaultServer>(c => c.LimitMessageProcessingConcurrencyTo(1))
-                    .AddMapping<MessageThatIsEnlisted>(typeof(TransactionalEndpoint))
-                    .AddMapping<MessageThatIsNotEnlisted>(typeof(TransactionalEndpoint));
+                EndpointSetup<DefaultServer>(c =>
+                {
+                    c.LimitMessageProcessingConcurrencyTo(1);
+                    var routing = c.ConfigureTransport().Routing();
+                    routing.RouteToEndpoint(typeof(MessageThatIsEnlisted), typeof(TransactionalEndpoint));
+                    routing.RouteToEndpoint(typeof(MessageThatIsNotEnlisted), typeof(TransactionalEndpoint));
+                });
             }
 
             public class MessageThatIsEnlistedHandler : IHandleMessages<MessageThatIsEnlisted>

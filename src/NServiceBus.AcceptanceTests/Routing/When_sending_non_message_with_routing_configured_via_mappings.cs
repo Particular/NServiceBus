@@ -1,9 +1,13 @@
-﻿namespace NServiceBus.AcceptanceTests.BestPractices
+﻿// disable obsolete warnings. Test will be removed in next major version
+#pragma warning disable CS0618
+namespace NServiceBus.AcceptanceTests.BestPractices
 {
     using System;
     using System.Threading.Tasks;
     using AcceptanceTesting;
+    using AcceptanceTesting.Customization;
     using EndpointTemplates;
+    using NServiceBus.Config;
     using NUnit.Framework;
 
     public class When_sending_non_message_with_routing_configured_via_mappings : NServiceBusAcceptanceTest
@@ -42,7 +46,15 @@
             public Sender()
             {
                 EndpointSetup<DefaultServer>()
-                    .AddMapping<NonMessage>(typeof(Receiver));
+                    .WithConfig<UnicastBusConfig>(c =>
+                    {
+                        c.MessageEndpointMappings.Add(new MessageEndpointMapping
+                        {
+                            AssemblyName = typeof(NonMessage).Assembly.FullName,
+                            TypeFullName = typeof(NonMessage).FullName,
+                            Endpoint = Conventions.EndpointNamingConvention(typeof(Receiver))
+                        });
+                    });
             }
         }
 
@@ -59,3 +71,4 @@
         }
     }
 }
+#pragma warning restore CS0618

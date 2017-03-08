@@ -2,6 +2,7 @@
 {
     using System.Threading.Tasks;
     using AcceptanceTesting;
+    using AcceptanceTesting.Customization;
     using EndpointTemplates;
     using Features;
     using NUnit.Framework;
@@ -39,8 +40,11 @@
         {
             public Publisher()
             {
-                EndpointSetup<DefaultPublisher>(b => b.OnEndpointSubscribed<Context>((s, context) => { context.Subscribed = true; }))
-                    .AddMapping<DoneCommand>(typeof(Subscriber));
+                EndpointSetup<DefaultPublisher>(b =>
+                {
+                    b.OnEndpointSubscribed<Context>((s, context) => { context.Subscribed = true; });
+                    b.ConfigureTransport().Routing().RouteToEndpoint(typeof(DoneCommand), typeof(Subscriber));
+                });
             }
         }
 
@@ -49,11 +53,11 @@
             public Subscriber()
             {
                 EndpointSetup<DefaultServer>(c =>
-                {
-                    c.DisableFeature<AutoSubscribe>();
-                    c.LimitMessageProcessingConcurrencyTo(1);
-                },
-                metadata => metadata.RegisterPublisherFor<MyEvent>(typeof(Publisher)));
+                    {
+                        c.DisableFeature<AutoSubscribe>();
+                        c.LimitMessageProcessingConcurrencyTo(1);
+                    },
+                    metadata => metadata.RegisterPublisherFor<MyEvent>(typeof(Publisher)));
             }
 
             public class MyEventHandler : IHandleMessages<MyEvent>
