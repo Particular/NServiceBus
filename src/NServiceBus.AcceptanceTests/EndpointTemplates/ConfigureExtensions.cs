@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.AcceptanceTests.EndpointTemplates
 {
+    using System;
     using System.Threading.Tasks;
     using AcceptanceTesting.Support;
     using ObjectBuilder;
@@ -8,11 +9,21 @@
     {
         public static Task DefineTransport(this EndpointConfiguration config, RunSettings settings, EndpointCustomizationConfiguration endpointCustomizationConfiguration)
         {
+            if (TestSuiteConstraints.Current.TransportConfiguration == null)
+            {
+                throw new Exception($"No valid transport configuration found. Configure a transport by assigning {nameof(TestSuiteConstraints)}.{nameof(TestSuiteConstraints.TransportConfiguration)}.");
+            }
+
             return ConfigureTestExecution(TestSuiteConstraints.Current.TransportConfiguration, config, settings, endpointCustomizationConfiguration.EndpointName, endpointCustomizationConfiguration.PublisherMetadata);
         }
 
         public static Task DefinePersistence(this EndpointConfiguration config, RunSettings settings, EndpointCustomizationConfiguration endpointCustomizationConfiguration)
         {
+            if (TestSuiteConstraints.Current.PersistenceConfiguration == null)
+            {
+                throw new Exception($"No valid persistence configuration found. Configure a persistence by assigning {nameof(TestSuiteConstraints)}.{nameof(TestSuiteConstraints.PersistenceConfiguration)}.");
+            }
+
             return ConfigureTestExecution(TestSuiteConstraints.Current.PersistenceConfiguration, config, settings, endpointCustomizationConfiguration.EndpointName, endpointCustomizationConfiguration.PublisherMetadata);
         }
 
@@ -23,12 +34,6 @@
 
         static async Task ConfigureTestExecution(IConfigureEndpointTestExecution configurer, EndpointConfiguration config, RunSettings settings, string endpointName, PublisherMetadata publisherMetadata)
         {
-            if (configurer == null)
-            {
-                //todo review text
-                //throw new InvalidOperationException($"Acceptance Test project must include a non-namespaced class named '{typeName}' implementing {typeof(IConfigureEndpointTestExecution).Name}. See {typeof(ConfigureEndpointMsmqTransport).FullName} for an example.");
-            }
-
             await configurer.Configure(endpointName, config, settings, publisherMetadata).ConfigureAwait(false);
 
             ActiveTestExecutionConfigurer cleaners;
