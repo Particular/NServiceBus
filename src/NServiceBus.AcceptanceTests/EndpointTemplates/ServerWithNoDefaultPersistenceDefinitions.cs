@@ -1,4 +1,4 @@
-﻿#pragma warning disable CS0618
+﻿
 namespace NServiceBus.AcceptanceTests.EndpointTemplates
 {
     using System;
@@ -21,7 +21,9 @@ namespace NServiceBus.AcceptanceTests.EndpointTemplates
             this.typesToInclude = typesToInclude;
         }
 
+#pragma warning disable CS0618
         public async Task<EndpointConfiguration> GetConfiguration(RunDescriptor runDescriptor, EndpointCustomizationConfiguration endpointConfiguration, IConfigurationSource configSource, Action<EndpointConfiguration> configurationBuilderCustomization)
+#pragma warning restore CS0618
         {
             var settings = runDescriptor.Settings;
 
@@ -52,4 +54,3 @@ namespace NServiceBus.AcceptanceTests.EndpointTemplates
         List<Type> typesToInclude;
     }
 }
-#pragma warning restore CS0618
