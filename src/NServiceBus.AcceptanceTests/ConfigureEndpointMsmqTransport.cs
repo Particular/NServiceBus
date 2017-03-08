@@ -17,7 +17,7 @@ public class ConfigureEndpointMsmqTransport : IConfigureEndpointTestExecution
     {
         queueBindings = configuration.GetSettings().Get<QueueBindings>();
         var connectionString =
-            EnvironmentHelper.GetEnvironmentVariable($"{nameof(ConfigureEndpointMsmqTransport)}.ConnectionString")
+            EnvironmentHelper.GetEnvironmentVariable($"{nameof(MsmqTransport)}.ConnectionString")
             ?? DefaultConnectionString;
         var transportConfig = configuration.UseTransport<MsmqTransport>();
 
