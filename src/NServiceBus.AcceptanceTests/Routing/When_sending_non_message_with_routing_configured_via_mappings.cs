@@ -1,4 +1,6 @@
-﻿namespace NServiceBus.AcceptanceTests.BestPractices
+﻿// disable obsolete warnings. Test will be removed in next major version
+#pragma warning disable CS0618
+namespace NServiceBus.AcceptanceTests.BestPractices
 {
     using System;
     using System.Threading.Tasks;
@@ -69,3 +71,4 @@
         }
     }
 }
+#pragma warning restore CS0618

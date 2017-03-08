@@ -44,6 +44,16 @@
             {
                 Logger.Warn($"The use of the {nameof(UnicastBusConfig.TimeToBeReceivedOnForwardedMessages)} attribute in the {nameof(UnicastBusConfig)} configuration section is discouraged and will be removed in the next major version.");
             }
+
+            if (!string.IsNullOrWhiteSpace(unicastBusConfig?.TimeoutManagerAddress))
+            {
+                Logger.Warn($"The use of the {nameof(UnicastBusConfig.TimeoutManagerAddress)} attribute in the {nameof(UnicastBusConfig)} configuration section is discouraged and will be removed in the next major version. Switch to the code API by using  `{nameof(EndpointConfiguration)}.UseExternalTimeoutManager` instead.");
+            }
+
+            if (unicastBusConfig?.MessageEndpointMappings != null)
+            {
+                Logger.Warn($"The use of the {nameof(UnicastBusConfig.MessageEndpointMappings)} in the {nameof(UnicastBusConfig)} configuration section is discouraged and will be removed in the next major version. Switch to the code API by using  `{nameof(EndpointConfiguration)}.UseTransport<T>().Routing()` instead.");
+            }
         }
 
         static void DetectObsoleteConfiguration(AuditConfig auditConfig)
