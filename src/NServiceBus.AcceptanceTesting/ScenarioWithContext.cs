@@ -30,7 +30,7 @@ namespace NServiceBus.AcceptanceTesting
             var scenarioContext = new TContext();
             contextInitializer(scenarioContext);
 
-            var runDescriptor = new RunDescriptor("wtf")
+            var runDescriptor = new RunDescriptor
             {
                 ScenarioContext = scenarioContext
             };

@@ -14,13 +14,13 @@
     {
         public static async Task Run(RunDescriptor runDescriptor, List<EndpointBehavior> behaviorDescriptors, Func<ScenarioContext, bool> done)
         {
-            Console.WriteLine("{0} - Started @ {1}", runDescriptor.Key, DateTime.Now.ToString(CultureInfo.InvariantCulture));
+            Console.WriteLine("Started test @ {0}", DateTime.Now.ToString(CultureInfo.InvariantCulture));
 
             ContextAppenderFactory.SetContext(runDescriptor.ScenarioContext);
             var runResult = await PerformTestRun(behaviorDescriptors, runDescriptor, done).ConfigureAwait(false);
             ContextAppenderFactory.SetContext(null);
 
-            Console.WriteLine("{0} - Finished @ {1}", runDescriptor.Key, DateTime.Now.ToString(CultureInfo.InvariantCulture));
+            Console.WriteLine("Finished test @ {0}", DateTime.Now.ToString(CultureInfo.InvariantCulture));
 
             var runSummary = new RunSummary
             {
@@ -43,7 +43,7 @@
             var runResult = summary.Result;
 
             Console.WriteLine("------------------------------------------------------");
-            Console.WriteLine("Test summary for: {0}", runDescriptor.Key);
+            Console.WriteLine("Test summary:");
             Console.WriteLine();
 
             PrintSettings(runDescriptor.Settings);

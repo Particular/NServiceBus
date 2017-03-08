@@ -1,10 +1,8 @@
 ﻿namespace NServiceBus.AcceptanceTests.EndpointTemplates
 {
-    using System;
     using System.Threading.Tasks;
     using AcceptanceTesting.Support;
     using ObjectBuilder;
-    using ScenarioDescriptors;
 
     public static class ConfigureExtensions
     {
@@ -16,39 +14,6 @@
         public static Task DefinePersistence(this EndpointConfiguration config, RunSettings settings, EndpointCustomizationConfiguration endpointCustomizationConfiguration)
         {
             return ConfigureTestExecution(TestSuiteConstraints.Current.PersistenceConfiguration, config, settings, endpointCustomizationConfiguration.EndpointName, endpointCustomizationConfiguration.PublisherMetadata);
-        }
-
-        public static void DefineBuilder(this EndpointConfiguration config, RunSettings settings)
-        {
-            Type builderType;
-            if (!settings.TryGet("Builder", out builderType))
-            {
-                var builderDescriptor = Builders.Default;
-
-                if (builderDescriptor == null)
-                {
-                    return; //go with the default builder
-                }
-
-                settings.Merge(builderDescriptor.Settings);
-            }
-
-            builderType = settings.Get<Type>("Builder");
-
-            var typeName = "Configure" + builderType.Name;
-
-            var configurerType = Type.GetType(typeName, false);
-
-            if (configurerType != null)
-            {
-                var configurer = Activator.CreateInstance(configurerType);
-
-                dynamic dc = configurer;
-
-                dc.Configure(config);
-            }
-
-            config.UseContainer(builderType);
         }
 
         public static void RegisterComponentsAndInheritanceHierarchy(this EndpointConfiguration builder, RunDescriptor runDescriptor)
