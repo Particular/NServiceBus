@@ -1,4 +1,6 @@
-﻿namespace NServiceBus.AcceptanceTests.EndpointTemplates
+﻿// Disable obsolete warning until MessageEndpointMappings has been removed from config and the IConfigurationSource parameter can be removed
+#pragma warning disable CS0612, CS0619, CS0618
+namespace NServiceBus.AcceptanceTests.EndpointTemplates
 {
     using System;
     using System.Collections.Generic;
@@ -51,3 +53,4 @@
         List<Type> typesToInclude;
     }
 }
+#pragma warning restore CS0612, CS0619, CS0618
