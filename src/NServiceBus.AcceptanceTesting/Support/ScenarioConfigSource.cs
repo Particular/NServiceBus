@@ -1,4 +1,5 @@
-﻿namespace NServiceBus.AcceptanceTesting.Support
+﻿#pragma warning disable CS0618
+namespace NServiceBus.AcceptanceTesting.Support
 {
     using System.Configuration;
     using Config.ConfigurationSource;
@@ -26,3 +27,4 @@
         }
     }
 }
+#pragma warning restore CS0618

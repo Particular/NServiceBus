@@ -1,4 +1,6 @@
-﻿namespace NServiceBus.Transport.Msmq.AcceptanceTests.SubscriptionStorage
+﻿// Disable obsolete warning until MessageEndpointMappings has been removed from config
+#pragma warning disable CS0618
+namespace NServiceBus.Transport.Msmq.AcceptanceTests.SubscriptionStorage
 {
     using System.Messaging;
     using System.Threading.Tasks;
@@ -112,3 +114,4 @@
         }
     }
 }
+#pragma warning restore CS0618

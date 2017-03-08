@@ -1640,11 +1640,17 @@ namespace NServiceBus.Config.ConfigurationSource
     {
         public DefaultConfigurationSource() { }
     }
+    [System.ObsoleteAttribute("The use of the IConfigurationSource is discouraged. Code configuration is prefere" +
+        "d over configuration sources. Will be treated as an error from version 7.0.0. Wi" +
+        "ll be removed in version 8.0.0.", false)]
     public interface IConfigurationSource
     {
         T GetConfiguration<T>()
             where T :  class, new ();
     }
+    [System.ObsoleteAttribute("The use of the IConfigurationSource is discouraged. Code configuration is prefere" +
+        "d over configuration sources. Will be treated as an error from version 7.0.0. Wi" +
+        "ll be removed in version 8.0.0.", false)]
     public interface IProvideConfiguration<T>
     {
         T GetConfiguration();

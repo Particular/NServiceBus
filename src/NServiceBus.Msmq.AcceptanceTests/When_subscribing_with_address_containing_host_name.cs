@@ -1,4 +1,5 @@
-﻿namespace NServiceBus.Transport.Msmq.AcceptanceTests
+﻿#pragma warning disable CS0618
+namespace NServiceBus.Transport.Msmq.AcceptanceTests
 {
     using System.Threading.Tasks;
     using AcceptanceTesting;
@@ -78,3 +79,4 @@
         }
     }
 }
+#pragma warning restore CS0618
