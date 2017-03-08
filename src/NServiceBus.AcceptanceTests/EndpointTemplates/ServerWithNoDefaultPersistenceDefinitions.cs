@@ -1,5 +1,4 @@
-﻿
-namespace NServiceBus.AcceptanceTests.EndpointTemplates
+﻿namespace NServiceBus.AcceptanceTests.EndpointTemplates
 {
     using System;
     using System.Collections.Generic;

@@ -38,7 +38,6 @@
             return config;
         }
 
-
         class FakeReadyMessageProcessor : Feature
         {
             protected override void Setup(FeatureConfigurationContext context)

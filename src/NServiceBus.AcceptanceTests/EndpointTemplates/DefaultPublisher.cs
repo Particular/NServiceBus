@@ -1,4 +1,3 @@
-
 namespace NServiceBus.AcceptanceTests.EndpointTemplates
 {
     using System;
