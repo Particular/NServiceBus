@@ -8,6 +8,10 @@ namespace NServiceBus.Features
     /// <summary>
     /// Used to configure CriticalTimeMonitoring.
     /// </summary>
+    [ObsoleteEx(
+        Message = "Performance counters have been released as a separate package: NServiceBus.WindowsPerformanceCounters",
+        RemoveInVersion = "8",
+        TreatAsErrorFromVersion = "7")]
     public class CriticalTimeMonitoring : Feature
     {
         internal CriticalTimeMonitoring()

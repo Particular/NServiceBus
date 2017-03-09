@@ -9,6 +9,10 @@ namespace NServiceBus.Features
     /// <summary>
     /// Used to configure SLAMonitoring.
     /// </summary>
+    [ObsoleteEx(
+        Message = "Performance counters have been released as a separate package: NServiceBus.WindowsPerformanceCounters",
+        RemoveInVersion = "8",
+        TreatAsErrorFromVersion = "7")]
     public class SLAMonitoring : Feature
     {
         internal SLAMonitoring()
