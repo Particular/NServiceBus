@@ -5,7 +5,6 @@
     using AcceptanceTesting;
     using EndpointTemplates;
     using NUnit.Framework;
-    using ScenarioDescriptors;
 
     public class When_saga_has_a_non_empty_constructor : NServiceBusAcceptanceTest
     {
@@ -18,7 +17,6 @@
                     SomeId = IdThatSagaIsCorrelatedOn
                 })))
                 .Done(c => c.SecondMessageReceived)
-                .Repeat(r => r.For(Persistence.Default))
                 .Run();
         }
 
@@ -80,13 +78,13 @@
             }
         }
 
-        
+
         public class StartSagaMessage : ICommand
         {
             public Guid SomeId { get; set; }
         }
 
-        
+
         public class OtherMessage : ICommand
         {
             public Guid SomeId { get; set; }

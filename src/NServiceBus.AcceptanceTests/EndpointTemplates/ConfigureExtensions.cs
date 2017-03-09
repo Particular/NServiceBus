@@ -4,63 +4,27 @@
     using System.Threading.Tasks;
     using AcceptanceTesting.Support;
     using ObjectBuilder;
-    using ScenarioDescriptors;
 
     public static class ConfigureExtensions
     {
         public static Task DefineTransport(this EndpointConfiguration config, RunSettings settings, EndpointCustomizationConfiguration endpointCustomizationConfiguration)
         {
-            Type transportType;
-            if (!settings.TryGet("Transport", out transportType))
+            if (TestSuiteConstraints.Current.TransportConfiguration == null)
             {
-                settings.Merge(Transports.Default.Settings);
+                throw new Exception($"No valid transport configuration found. Configure a transport by assigning {nameof(TestSuiteConstraints)}.{nameof(TestSuiteConstraints.TransportConfiguration)}.");
             }
 
-            return ConfigureTestExecution(TestDependencyType.Transport, config, settings, endpointCustomizationConfiguration.EndpointName, endpointCustomizationConfiguration.PublisherMetadata);
+            return ConfigureTestExecution(TestSuiteConstraints.Current.TransportConfiguration, config, settings, endpointCustomizationConfiguration.EndpointName, endpointCustomizationConfiguration.PublisherMetadata);
         }
 
         public static Task DefinePersistence(this EndpointConfiguration config, RunSettings settings, EndpointCustomizationConfiguration endpointCustomizationConfiguration)
         {
-            Type persistenceType;
-            if (!settings.TryGet("Persistence", out persistenceType))
+            if (TestSuiteConstraints.Current.PersistenceConfiguration == null)
             {
-                settings.Merge(Persistence.Default.Settings);
+                throw new Exception($"No valid persistence configuration found. Configure a persistence by assigning {nameof(TestSuiteConstraints)}.{nameof(TestSuiteConstraints.PersistenceConfiguration)}.");
             }
 
-            return ConfigureTestExecution(TestDependencyType.Persistence, config, settings, endpointCustomizationConfiguration.EndpointName, endpointCustomizationConfiguration.PublisherMetadata);
-        }
-
-        public static void DefineBuilder(this EndpointConfiguration config, RunSettings settings)
-        {
-            Type builderType;
-            if (!settings.TryGet("Builder", out builderType))
-            {
-                var builderDescriptor = Builders.Default;
-
-                if (builderDescriptor == null)
-                {
-                    return; //go with the default builder
-                }
-
-                settings.Merge(builderDescriptor.Settings);
-            }
-
-            builderType = settings.Get<Type>("Builder");
-
-            var typeName = "Configure" + builderType.Name;
-
-            var configurerType = Type.GetType(typeName, false);
-
-            if (configurerType != null)
-            {
-                var configurer = Activator.CreateInstance(configurerType);
-
-                dynamic dc = configurer;
-
-                dc.Configure(config);
-            }
-
-            config.UseContainer(builderType);
+            return ConfigureTestExecution(TestSuiteConstraints.Current.PersistenceConfiguration, config, settings, endpointCustomizationConfiguration.EndpointName, endpointCustomizationConfiguration.PublisherMetadata);
         }
 
         public static void RegisterComponentsAndInheritanceHierarchy(this EndpointConfiguration builder, RunDescriptor runDescriptor)
@@ -68,28 +32,8 @@
             builder.RegisterComponents(r => { RegisterInheritanceHierarchyOfContextOnContainer(runDescriptor, r); });
         }
 
-        static async Task ConfigureTestExecution(TestDependencyType type, EndpointConfiguration config, RunSettings settings, string endpointName, PublisherMetadata publisherMetadata)
+        static async Task ConfigureTestExecution(IConfigureEndpointTestExecution configurer, EndpointConfiguration config, RunSettings settings, string endpointName, PublisherMetadata publisherMetadata)
         {
-            var dependencyTypeString = type.ToString();
-
-            var dependencyType = settings.Get<Type>(dependencyTypeString);
-
-            var typeName = "ConfigureEndpoint" + dependencyType.Name;
-
-            var configurerType = Type.GetType(typeName, false);
-
-            if (configurerType == null)
-            {
-                throw new InvalidOperationException($"Acceptance Test project must include a non-namespaced class named '{typeName}' implementing {typeof(IConfigureEndpointTestExecution).Name}. See {typeof(ConfigureEndpointMsmqTransport).FullName} for an example.");
-            }
-
-            var configurer = Activator.CreateInstance(configurerType) as IConfigureEndpointTestExecution;
-
-            if (configurer == null)
-            {
-                throw new InvalidOperationException($"{typeName} does not implement {typeof(IConfigureEndpointTestExecution).Name}.");
-            }
-
             await configurer.Configure(endpointName, config, settings, publisherMetadata).ConfigureAwait(false);
 
             ActiveTestExecutionConfigurer cleaners;

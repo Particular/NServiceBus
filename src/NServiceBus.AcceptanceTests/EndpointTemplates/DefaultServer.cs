@@ -46,7 +46,6 @@
 
             await configuration.DefineTransport(settings, endpointConfiguration).ConfigureAwait(false);
 
-            configuration.DefineBuilder(settings);
             configuration.RegisterComponentsAndInheritanceHierarchy(runDescriptor);
 
             await configuration.DefinePersistence(settings, endpointConfiguration).ConfigureAwait(false);

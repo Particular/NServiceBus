@@ -336,8 +336,6 @@
     <Compile Include="Sagas\When_receiving_that_should_start_a_saga.cs" />
     <Compile Include="Sagas\When_saga_message_goes_through_delayed_retries.cs" />
     <Compile Include="Sagas\When_using_contain_saga_data.cs" />
-    <Compile Include="ScenarioDescriptors\Builders.cs" />
-    <Compile Include="ScenarioDescriptors\Persistence.cs" />
     <Compile Include="Scheduling\When_scheduling_a_recurring_task.cs" />
     <Compile Include="Tx\FakePromotableResourceManager.cs" />
     <Compile Include="Tx\When_receiving_with_dtc_enabled.cs" />
@@ -345,7 +343,6 @@
     <Compile Include="Tx\ImmediateDispatch\When_requesting_immediate_dispatch_with_at_most_once.cs" />
     <Compile Include="NonTx\When_sending_inside_ambient_tx.cs" />
     <Compile Include="Tx\When_sending_within_an_ambient_transaction.cs" />
-    <Compile Include="ScenarioDescriptors\Transports.cs" />
     <Compile Include="Pipeline\When_sending_to_another_endpoint.cs" />
     <Compile Include="Versioning\When_multiple_versions_of_a_message_is_published.cs" />
     <Compile Include="Routing\When_overriding_local_address.cs" />

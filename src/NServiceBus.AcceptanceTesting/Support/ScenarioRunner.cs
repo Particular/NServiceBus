@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.AcceptanceTesting.Support
 {
     using System;
-    using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Globalization;
@@ -13,78 +12,38 @@
 
     public class ScenarioRunner
     {
-        public static async Task Run(List<RunDescriptor> runDescriptors, List<EndpointBehavior> behaviorDescriptors, List<IScenarioVerification> shoulds, Func<ScenarioContext, bool> done, Action<RunSummary> reports)
+        public static async Task Run(RunDescriptor runDescriptor, List<EndpointBehavior> behaviorDescriptors, Func<ScenarioContext, bool> done)
         {
-            var totalRuns = runDescriptors.Count;
+            Console.WriteLine("Started test @ {0}", DateTime.Now.ToString(CultureInfo.InvariantCulture));
 
-            var results = new ConcurrentBag<RunSummary>();
+            ContextAppenderFactory.SetContext(runDescriptor.ScenarioContext);
+            var runResult = await PerformTestRun(behaviorDescriptors, runDescriptor, done).ConfigureAwait(false);
+            ContextAppenderFactory.SetContext(null);
 
-            try
+            Console.WriteLine("Finished test @ {0}", DateTime.Now.ToString(CultureInfo.InvariantCulture));
+
+            var runSummary = new RunSummary
             {
-                foreach (var runDescriptor in runDescriptors)
-                {
-                    Console.WriteLine("{0} - Started @ {1}", runDescriptor.Key, DateTime.Now.ToString(CultureInfo.InvariantCulture));
+                Result = runResult,
+                RunDescriptor = runDescriptor,
+                Endpoints = behaviorDescriptors
+            };
 
-                    ContextAppenderFactory.SetContext(runDescriptor.ScenarioContext);
-                    var runResult = await PerformTestRun(behaviorDescriptors, shoulds, runDescriptor, done).ConfigureAwait(false);
-                    ContextAppenderFactory.SetContext(null);
+            DisplayRunResult(runSummary);
 
-                    Console.WriteLine("{0} - Finished @ {1}", runDescriptor.Key, DateTime.Now.ToString(CultureInfo.InvariantCulture));
-
-                    results.Add(new RunSummary
-                    {
-                        Result = runResult,
-                        RunDescriptor = runDescriptor,
-                        Endpoints = behaviorDescriptors
-                    });
-
-                    if (runResult.Failed)
-                    {
-                        break;
-                    }
-                }
-            }
-            catch (OperationCanceledException)
+            if (runSummary.Result.Failed)
             {
-                Console.WriteLine("Test run aborted due to test failures");
-            }
-
-            var failedRuns = results.Where(s => s.Result.Failed).ToList();
-
-            foreach (var runSummary in failedRuns)
-            {
-                DisplayRunResult(runSummary, totalRuns);
-            }
-
-            if (failedRuns.Count == 1)
-            {
-                throw failedRuns[0].Result.Exception;
-            }
-
-            if (failedRuns.Count > 1)
-            {
-                throw new AggregateException("Test run failed due to multiple exceptions", failedRuns.Select(f => f.Result.Exception)).Flatten();
-            }
-
-            foreach (var runSummary in results.Where(s => !s.Result.Failed))
-            {
-                DisplayRunResult(runSummary, totalRuns);
-
-                reports?.Invoke(runSummary);
+                throw runSummary.Result.Exception;
             }
         }
 
-        static void DisplayRunResult(RunSummary summary, int totalRuns)
+        static void DisplayRunResult(RunSummary summary)
         {
             var runDescriptor = summary.RunDescriptor;
             var runResult = summary.Result;
 
             Console.WriteLine("------------------------------------------------------");
-            Console.WriteLine("Test summary for: {0}", runDescriptor.Key);
-            if (totalRuns > 1)
-            {
-                Console.WriteLine(" - Permutation: {0}({1})", runDescriptor.Permutation, totalRuns);
-            }
+            Console.WriteLine("Test summary:");
             Console.WriteLine();
 
             PrintSettings(runDescriptor.Settings);
@@ -126,7 +85,7 @@
             Console.WriteLine("------------------------------------------------------");
         }
 
-        static async Task<RunResult> PerformTestRun(List<EndpointBehavior> behaviorDescriptors, List<IScenarioVerification> shoulds, RunDescriptor runDescriptor, Func<ScenarioContext, bool> done)
+        static async Task<RunResult> PerformTestRun(List<EndpointBehavior> behaviorDescriptors, RunDescriptor runDescriptor, Func<ScenarioContext, bool> done)
         {
             var runResult = new RunResult
             {
@@ -145,11 +104,6 @@
                 await PerformScenarios(runDescriptor, endpoints, () => done(runDescriptor.ScenarioContext)).ConfigureAwait(false);
 
                 runTimer.Stop();
-
-                foreach (var v in shoulds.Where(s => s.ContextType == runDescriptor.ScenarioContext.GetType()))
-                {
-                    v.Verify(runDescriptor.ScenarioContext);
-                }
             }
             catch (Exception ex)
             {
@@ -177,7 +131,6 @@
         {
             using (var cts = new CancellationTokenSource())
             {
-
                 // ReSharper disable once LoopVariableIsNeverChangedInsideLoop
                 try
                 {
