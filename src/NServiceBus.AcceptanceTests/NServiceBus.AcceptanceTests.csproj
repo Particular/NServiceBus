@@ -158,7 +158,6 @@
     <Compile Include="Core\BestPractices\When_publishing_command_bestpractices_disabled_on_endpoint.cs" />
     <Compile Include="Core\BestPractices\When_sending_events_bestpractices_disabled_on_endpoint.cs" />
     <Compile Include="Core\BestPractices\When_sending_events_bestpractices_disabled.cs" />
-    <Compile Include="Core\BestPractices\When_subscribing_to_command_bestpractices_disabled_on_endpoint.cs" />
     <Compile Include="EndpointTemplates\ConfigureExtensions.cs" />
     <Compile Include="EndpointTemplates\DefaultPublisher.cs" />
     <Compile Include="EndpointTemplates\DefaultServer.cs" />
@@ -184,7 +183,6 @@
     <Compile Include="Recoverability\Retries\When_custom_policy_always_moves_to_error.cs" />
     <Compile Include="Recoverability\When_error_is_overridden_in_code.cs" />
     <Compile Include="Core\BestPractices\When_publishing_command_bestpractices_disabled.cs" />
-    <Compile Include="Core\BestPractices\When_unsubscribing_to_command_bestpractices_disabled_on_endpoint.cs" />
     <Compile Include="Core\BestPractices\When_unsubscribing_to_command.cs" />
     <Compile Include="Core\BestPractices\When_subscribing_to_command.cs" />
     <Compile Include="Core\BestPractices\When_publishing_command.cs" />
