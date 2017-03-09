@@ -40,9 +40,10 @@
             {
                 EndpointSetup<DefaultPublisher>(b =>
                 {
+                    b.SendOnly();
                     b.UsePersistence(typeof(HardCodedPersistence));
                     b.DisableFeature<AutoSubscribe>();
-                }).SendOnly();
+                });
             }
         }
 

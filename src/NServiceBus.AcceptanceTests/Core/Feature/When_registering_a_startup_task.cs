@@ -32,7 +32,11 @@
         {
             public SendOnlyEndpoint()
             {
-                EndpointSetup<DefaultServer>(c => { c.EnableFeature<Bootstrapper>(); }).SendOnly();
+                EndpointSetup<DefaultServer>(c =>
+                {
+                    c.SendOnly();
+                    c.EnableFeature<Bootstrapper>();
+                });
             }
 
             public class Bootstrapper : Feature

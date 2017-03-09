@@ -50,18 +50,10 @@
 
                 endpointBehavior.CustomConfig.ForEach(customAction => customAction(endpointConfiguration, scenarioContext));
 
-                if (configuration.SendOnly)
-                {
-                    endpointConfiguration.SendOnly();
-                }
-
                 startable = await Endpoint.Create(endpointConfiguration).ConfigureAwait(false);
 
-                if (!configuration.SendOnly)
-                {
-                    var transportInfrastructure = endpointConfiguration.GetSettings().Get<TransportInfrastructure>();
-                    scenarioContext.HasNativePubSubSupport = transportInfrastructure.OutboundRoutingPolicy.Publishes == OutboundRoutingType.Multicast;
-                }
+                var transportInfrastructure = endpointConfiguration.GetSettings().Get<TransportInfrastructure>();
+                scenarioContext.HasNativePubSubSupport = transportInfrastructure.OutboundRoutingPolicy.Publishes == OutboundRoutingType.Multicast;
             }
             catch (Exception ex)
             {

@@ -100,12 +100,5 @@
 
             return this;
         }
-
-        public EndpointConfigurationBuilder SendOnly()
-        {
-            configuration.SendOnly = true;
-
-            return this;
-        }
     }
 }
