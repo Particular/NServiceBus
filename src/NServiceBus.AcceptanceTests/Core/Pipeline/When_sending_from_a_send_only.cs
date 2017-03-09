@@ -36,7 +36,7 @@
         {
             public SendOnlyEndpoint()
             {
-                EndpointSetup<DefaultServer>().SendOnly();
+                EndpointSetup<DefaultServer>(c => c.SendOnly());
             }
         }
 
