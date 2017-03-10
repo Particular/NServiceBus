@@ -131,6 +131,7 @@
     <Compile Include="Pipeline\Outgoing\AttachSenderRelatedInfoOnMessageBehavior.cs" />
     <Compile Include="Pipeline\Outgoing\SerializeMessageConnector.cs" />
     <Compile Include="Pipeline\PipelineCache.cs" />
+    <Compile Include="Pipeline\RawPipelineExecutor.cs" />
     <Compile Include="Pipeline\SatellitePipelineExecutor.cs" />
     <Compile Include="Pipeline\StageForkConnector.cs" />
     <Compile Include="Pipeline\ConnectorContextExtensions.cs" />

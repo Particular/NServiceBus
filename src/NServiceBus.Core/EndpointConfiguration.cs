@@ -4,6 +4,7 @@ namespace NServiceBus
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
+    using System.Threading.Tasks;
     using System.Transactions;
     using System.Web;
     using Config.ConfigurationSource;
@@ -118,6 +119,14 @@ namespace NServiceBus
         public void SendOnly()
         {
             Settings.Set("Endpoint.SendOnly", true);
+        }
+
+        /// <summary>
+        /// Configures the endpoint to a raw endpoint.
+        /// </summary>
+        public void Raw(Func<MessageContext, IDispatchMessages, Task> onMessage)
+        {
+            Settings.Set("Endpoint.Raw", onMessage);
         }
 
         /// <summary>
