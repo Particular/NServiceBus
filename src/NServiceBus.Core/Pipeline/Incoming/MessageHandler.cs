@@ -38,7 +38,13 @@
         /// <param name="handlerContext">the context to pass to the handler.</param>
         public Task Invoke(object message, IMessageHandlerContext handlerContext)
         {
-            return invocation(Instance, message, handlerContext);
+            var task = invocation(Instance, message, handlerContext);
+            if (task == null)
+            {
+                // Should we warn the user somehow?
+                return Task.FromResult(0);
+            }
+            return task;
         }
 
         Func<object, object, IMessageHandlerContext, Task> invocation;
