@@ -104,7 +104,7 @@ namespace NServiceBus
                     CheckCharacters = false
                 }))
                 {
-                    o = headerSerializer.Deserialize(reader);
+                    o = GetHeaderSerializer().Deserialize(reader);
                 }
             }
 
@@ -158,7 +158,7 @@ namespace NServiceBus
                     });
                 }
 
-                headerSerializer.Serialize(stream, headers);
+                GetHeaderSerializer().Serialize(stream, headers);
                 result.Extension = stream.ToArray();
             }
 
@@ -225,7 +225,15 @@ namespace NServiceBus
         const string DIRECTPREFIX_TCP = "DIRECT=TCP:";
         internal const string PRIVATE = "\\private$\\";
 
-        static System.Xml.Serialization.XmlSerializer headerSerializer = new System.Xml.Serialization.XmlSerializer(typeof(List<HeaderInfo>));
+        static System.Xml.Serialization.XmlSerializer GetHeaderSerializer()
+        {
+            if (headerSerializer == null)
+                headerSerializer = new System.Xml.Serialization.XmlSerializer(typeof(List<HeaderInfo>));
+            return headerSerializer;
+        }
+
+        static System.Xml.Serialization.XmlSerializer headerSerializer;
         static ILog Logger = LogManager.GetLogger<MsmqUtilities>();
     }
+
 }
