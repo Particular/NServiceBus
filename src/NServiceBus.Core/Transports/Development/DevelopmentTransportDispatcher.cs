@@ -10,10 +10,9 @@ namespace NServiceBus
 
     class DevelopmentTransportDispatcher : IDispatchMessages
     {
-        public DevelopmentTransportDispatcher()
+        public DevelopmentTransportDispatcher(string basePath)
         {
-            // Path.Combine(AppDomain.CurrentDomain.BaseDirectory, ".sagas")
-            basePath = Path.Combine("c:\\bus");
+            this.basePath = basePath;
         }
 
         public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transaction, ContextBag context)

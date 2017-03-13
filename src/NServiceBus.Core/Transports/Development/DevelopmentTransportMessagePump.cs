@@ -13,14 +13,18 @@
 
     class DevelopmentTransportMessagePump : IPushMessages
     {
+        public DevelopmentTransportMessagePump(string basePath)
+        {
+            this.basePath = basePath;
+        }
+
         public Task Init(Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError, CriticalError criticalError, PushSettings settings)
         {
             this.onMessage = onMessage;
             this.onError = onError;
 
-            path = Path.Combine("c:\\bus", settings.InputQueue);
+            path = Path.Combine(basePath, settings.InputQueue);
 
-            Directory.CreateDirectory(path);
             Directory.CreateDirectory(Path.Combine(path, ".committed"));
 
             purgeOnStartup = settings.PurgeOnStartup;
@@ -224,7 +228,6 @@
 
         Task messagePumpTask;
 
-        string path;
         Func<MessageContext, Task> onMessage;
         bool purgeOnStartup;
         ConcurrentDictionary<Task, Task> runningReceiveTasks;
@@ -232,5 +235,7 @@
         Func<ErrorContext, Task<ErrorHandleResult>> onError;
 
         ConcurrentDictionary<string, int> retryCounts = new ConcurrentDictionary<string, int>();
+        string path;
+        string basePath;
     }
 }
