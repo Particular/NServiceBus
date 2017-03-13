@@ -17,7 +17,7 @@ namespace NServiceBus
             commitDir = Path.Combine(basePath, ".committed", transactionId);
         }
 
-        public string FileToProcess { get; set; }
+        public string FileToProcess { get; private set; }
 
         public void BeginTransaction(string incomingFilePath)
         {
@@ -41,6 +41,11 @@ namespace NServiceBus
             //rollback by moving the file back to the main dir
             File.Move(FileToProcess, Path.Combine(basePath, Path.GetFileName(FileToProcess)));
             Directory.Delete(transactionDir, true);
+        }
+
+        public void ClearPendingOutgoingOperations()
+        {
+            outgoingFiles.Clear();
         }
 
 
@@ -85,8 +90,8 @@ namespace NServiceBus
                 TargetPath = targetPath;
             }
 
-            public string TxPath { get; private set; }
-            public string TargetPath { get; private set; }
+            public string TxPath { get; }
+            public string TargetPath { get; }
         }
     }
 }
