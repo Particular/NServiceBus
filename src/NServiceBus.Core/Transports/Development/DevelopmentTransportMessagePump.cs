@@ -16,6 +16,8 @@
         public Task Init(Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError, CriticalError criticalError, PushSettings settings)
         {
             this.onMessage = onMessage;
+            this.onError = onError;
+
             path = Path.Combine("c:\\bus", settings.InputQueue);
             purgeOnStartup = settings.PurgeOnStartup;
 
@@ -168,7 +170,25 @@
                     transportTransaction.Set(transaction);
 
                     var messageContext = new MessageContext(messageId, headers, body, transportTransaction, tokenSource, new ContextBag());
-                    await onMessage(messageContext).ConfigureAwait(false);
+
+                    try
+                    {
+                        await onMessage(messageContext).ConfigureAwait(false);
+                    }
+                    catch (Exception ex)
+                    {
+
+                        var errorContext = new ErrorContext(ex, headers, messageId, body, transportTransaction, 1);
+                        var actionToTake = await onError(errorContext).ConfigureAwait(false);
+
+                        if (actionToTake == ErrorHandleResult.RetryRequired)
+                        {
+                            transaction.Rollback();
+                            return;
+                        }
+
+                    }
+
                 }
 
                 if (tokenSource.IsCancellationRequested)
@@ -205,5 +225,6 @@
         bool purgeOnStartup;
         ConcurrentDictionary<Task, Task> runningReceiveTasks;
         static ILog Logger = LogManager.GetLogger<DevelopmentTransportMessagePump>();
+        Func<ErrorContext, Task<ErrorHandleResult>> onError;
     }
 }
