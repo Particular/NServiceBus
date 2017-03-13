@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.IO;
+    using System.Linq;
     using System.Threading.Tasks;
     using Performance.TimeToBeReceived;
     using Routing;
@@ -14,6 +15,32 @@
         public DevelopmentTransportInfrastructure(SettingsHolder settings)
         {
             this.settings = settings;
+
+            var solutionRoot = FindSolutionRoot();
+            storagePath = Path.Combine(solutionRoot, ".devtransport");
+        }
+
+        string FindSolutionRoot()
+        {
+            var directory = AppDomain.CurrentDomain.BaseDirectory;
+
+            do
+            {
+                if (Directory.EnumerateFiles(directory).Any(f => f.EndsWith(".sln")))
+                {
+                    return directory;
+                }
+
+                var di = Directory.GetParent(directory);
+
+                if (!di.Exists)
+                {
+                    throw new Exception("Couldn't find your solution directory, please configure a storage path for the development transport using TBD(myPath)");
+                }
+
+                directory = di.FullName;
+
+            } while (true);
         }
 
         public override IEnumerable<Type> DeliveryConstraints { get; } = new[]
@@ -28,17 +55,17 @@
 
         public override TransportReceiveInfrastructure ConfigureReceiveInfrastructure()
         {
-            return new TransportReceiveInfrastructure(() => new DevelopmentTransportMessagePump(), () => new DevelopmentTransportQueueCreator(), () => Task.FromResult(StartupCheckResult.Success));
+            return new TransportReceiveInfrastructure(() => new DevelopmentTransportMessagePump(storagePath), () => new DevelopmentTransportQueueCreator(), () => Task.FromResult(StartupCheckResult.Success));
         }
 
         public override TransportSendInfrastructure ConfigureSendInfrastructure()
         {
-            return new TransportSendInfrastructure(() => new DevelopmentTransportDispatcher(), () => Task.FromResult(StartupCheckResult.Success));
+            return new TransportSendInfrastructure(() => new DevelopmentTransportDispatcher(storagePath), () => Task.FromResult(StartupCheckResult.Success));
         }
 
         public override TransportSubscriptionInfrastructure ConfigureSubscriptionInfrastructure()
         {
-            return new TransportSubscriptionInfrastructure(() => new DevelopmentTransportSubscriptionManager(settings.EndpointName(), settings.LocalAddress()));
+            return new TransportSubscriptionInfrastructure(() => new DevelopmentTransportSubscriptionManager(storagePath, settings.EndpointName(), settings.LocalAddress()));
         }
 
         public override EndpointInstance BindToLocalEndpoint(EndpointInstance instance)
@@ -52,6 +79,8 @@
                 logicalAddress.EndpointInstance.Discriminator ?? "",
                 logicalAddress.Qualifier ?? "");
         }
+
+        string storagePath;
 
         SettingsHolder settings;
     }

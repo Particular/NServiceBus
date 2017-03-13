@@ -8,11 +8,11 @@
 
     class DevelopmentTransportSubscriptionManager : IManageSubscriptions
     {
-        public DevelopmentTransportSubscriptionManager(string endpointName, string localAddress)
+        public DevelopmentTransportSubscriptionManager(string basePath, string endpointName, string localAddress)
         {
             this.endpointName = endpointName;
             this.localAddress = localAddress;
-            basePath = Path.Combine("c:\\bus", ".events");
+            this.basePath = Path.Combine(basePath, ".events");
         }
 
         public Task Subscribe(Type eventType, ContextBag context)
