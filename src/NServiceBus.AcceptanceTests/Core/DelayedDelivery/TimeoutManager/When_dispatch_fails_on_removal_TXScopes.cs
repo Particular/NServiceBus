@@ -18,6 +18,8 @@
         [Test]
         public async Task Should_move_control_message_to_errors_and_not_dispatch_original_message_to_handler()
         {
+            Requires.DtcSupport();
+
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<Endpoint>(b => b
                     .DoNotFailOnErrorMessages()

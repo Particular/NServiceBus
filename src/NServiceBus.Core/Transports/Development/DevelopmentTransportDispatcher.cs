@@ -50,7 +50,12 @@ namespace NServiceBus
         {
             var nativeMessageId = Guid.NewGuid().ToString();
             var destinationPath = Path.Combine(basePath, destination);
-            var bodyPath = Path.Combine(destinationPath, ".bodies", nativeMessageId) + ".xml"; //TODO: pick the correct ending based on the serialized type
+            var bodyDir = Path.Combine(destinationPath, ".bodies");
+
+            Directory.CreateDirectory(bodyDir);
+
+
+            var bodyPath = Path.Combine(bodyDir, nativeMessageId) + ".xml"; //TODO: pick the correct ending based on the serialized type
 
             File.WriteAllBytes(bodyPath, transportOperation.Message.Body);
 
