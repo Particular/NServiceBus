@@ -111,12 +111,8 @@ namespace NServiceBus
 
         static List<Type> GetPotentialEventTypes(Type messageType)
         {
-            var allEventTypes = new List<Type>
-            {
-                messageType
-            };
+            var allEventTypes = new List<Type>();
 
-            allEventTypes.AddRange(messageType.GetInterfaces().Where(i => !IsCoreMarkerInterface(i)));
 
             var currentType = messageType;
 
@@ -128,14 +124,18 @@ namespace NServiceBus
                     break;
                 }
 
+                allEventTypes.AddRange(messageType.GetInterfaces().Where(i => !IsCoreMarkerInterface(i)));
+                allEventTypes.Add(currentType);
+
                 currentType = currentType.BaseType;
             }
-            return allEventTypes;
+
+            return allEventTypes.Distinct().ToList();
         }
 
         static bool IsCoreMarkerInterface(Type type)
         {
-            return type.Assembly == typeof(IMessage).Assembly;
+            return type == typeof(IMessage) || type == typeof(IEvent) || type == typeof(ICommand);
         }
 
         string basePath;
