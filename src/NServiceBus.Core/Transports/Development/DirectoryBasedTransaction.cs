@@ -13,6 +13,7 @@ namespace NServiceBus
             var transactionId = Guid.NewGuid().ToString();
 
             transactionDir = Path.Combine(basePath, ".pending", transactionId);
+
             commitDir = Path.Combine(basePath, ".committed", transactionId);
         }
 

@@ -19,6 +19,10 @@
             this.onError = onError;
 
             path = Path.Combine("c:\\bus", settings.InputQueue);
+
+            Directory.CreateDirectory(path);
+            Directory.CreateDirectory(Path.Combine(path, ".committed"));
+
             purgeOnStartup = settings.PurgeOnStartup;
 
             return TaskEx.CompletedTask;
@@ -34,8 +38,7 @@
 
             if (purgeOnStartup)
             {
-                Directory.Delete(path, true);
-                Directory.CreateDirectory(path);
+                Array.ForEach(Directory.GetFiles(path), File.Delete);
             }
 
             messagePumpTask = Task.Factory.StartNew(() => ProcessMessages(), CancellationToken.None, TaskCreationOptions.LongRunning, TaskScheduler.Default).Unwrap();
@@ -177,8 +180,9 @@
                     }
                     catch (Exception ex)
                     {
+                        var immediateProcessinFailures = retryCounts.AddOrUpdate(messageId, id => 1, (id, currentCount) => currentCount + 1);
 
-                        var errorContext = new ErrorContext(ex, headers, messageId, body, transportTransaction, 1);
+                        var errorContext = new ErrorContext(ex, headers, messageId, body, transportTransaction, immediateProcessinFailures);
                         var actionToTake = await onError(errorContext).ConfigureAwait(false);
 
                         if (actionToTake == ErrorHandleResult.RetryRequired)
@@ -226,5 +230,7 @@
         ConcurrentDictionary<Task, Task> runningReceiveTasks;
         static ILog Logger = LogManager.GetLogger<DevelopmentTransportMessagePump>();
         Func<ErrorContext, Task<ErrorHandleResult>> onError;
+
+        ConcurrentDictionary<string, int> retryCounts = new ConcurrentDictionary<string, int>();
     }
 }
