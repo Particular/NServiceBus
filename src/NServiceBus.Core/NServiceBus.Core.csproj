@@ -199,6 +199,14 @@
     <Compile Include="Serialization\SerializationFeature.cs" />
     <Compile Include="Serialization\SerializationSettingsExtensions.cs" />
     <Compile Include="Serializers\XML\XmlSerialization.cs" />
+    <Compile Include="Transports\Development\DevelopmentTransport.cs" />
+    <Compile Include="Transports\Development\DevelopmentTransportDispatcher.cs" />
+    <Compile Include="Transports\Development\DevelopmentTransportInfrastructure.cs" />
+    <Compile Include="Transports\Development\DevelopmentTransportMessagePump.cs" />
+    <Compile Include="Transports\Development\DevelopmentTransportQueueCreator.cs" />
+    <Compile Include="Transports\Development\DevelopmentTransportSubscriptionManager.cs" />
+    <Compile Include="Transports\Development\DirectoryBasedTransaction.cs" />
+    <Compile Include="Transports\Development\HeaderSerializer.cs" />
     <Compile Include="Transports\Msmq\ReceiveOnlyNativeTransactionStrategy.cs" />
     <Compile Include="Transports\ReceiveSettingsExtensions.cs" />
     <Compile Include="Transports\ErrorContext.cs" />
