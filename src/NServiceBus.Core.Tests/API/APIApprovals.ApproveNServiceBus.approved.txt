@@ -1999,6 +1999,9 @@ namespace NServiceBus.Features
     {
         protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
     }
+    [System.ObsoleteAttribute("Performance counters have been released as a separate package: NServiceBus.Window" +
+        "sPerformanceCounters. Will be treated as an error from version 7.0.0. Will be re" +
+        "moved in version 8.0.0.", false)]
     public class ReceiveStatisticsPerformanceCounters : NServiceBus.Features.Feature
     {
         protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
