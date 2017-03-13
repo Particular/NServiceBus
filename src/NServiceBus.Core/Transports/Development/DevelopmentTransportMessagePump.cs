@@ -184,9 +184,13 @@
                     }
                     catch (Exception ex)
                     {
+                        transaction.ClearPendingOutgoingOperations();
                         var immediateProcessinFailures = retryCounts.AddOrUpdate(messageId, id => 1, (id, currentCount) => currentCount + 1);
 
                         var errorContext = new ErrorContext(ex, headers, messageId, body, transportTransaction, immediateProcessinFailures);
+
+
+
                         var actionToTake = await onError(errorContext).ConfigureAwait(false);
 
                         if (actionToTake == ErrorHandleResult.RetryRequired)
