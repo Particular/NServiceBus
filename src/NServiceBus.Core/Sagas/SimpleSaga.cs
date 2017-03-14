@@ -47,6 +47,9 @@ namespace NServiceBus
             }
         }
 
+        /// <summary>
+        /// <see cref="Saga.ConfigureHowToFindSaga"/>.
+        /// </summary>
         protected internal override void ConfigureHowToFindSaga(IConfigureHowToFindSagaWithMessage sagaMessageFindingConfiguration)
         {
             VerifyBaseIsSimpleSaga();
