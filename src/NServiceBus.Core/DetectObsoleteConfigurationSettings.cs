@@ -21,23 +21,24 @@
             DetectObsoleteConfiguration(context.Settings.GetConfigSection<Config.Logging>());
             DetectObsoleteConfiguration(context.Settings.GetConfigSection<AuditConfig>());
             DetectObsoleteConfiguration(context.Settings.GetConfigSection<MessageForwardingInCaseOfFaultConfig>());
+            DetectObsoleteConfiguration(context.Settings.GetConfigSection<MsmqSubscriptionStorageConfig>());
         }
 
         static void DetectObsoleteConfiguration(UnicastBusConfig unicastBusConfig)
         {
             if (!string.IsNullOrWhiteSpace(unicastBusConfig?.ForwardReceivedMessagesTo))
             {
-                throw new NotSupportedException($"The {nameof(UnicastBusConfig.ForwardReceivedMessagesTo)} attribute in the {nameof(UnicastBusConfig)} configuration section is no longer supported. Switch to the code API by using `{nameof(EndpointConfiguration)}.ForwardReceivedMessagesTo` instead.");
+                throw new NotSupportedException($"The {nameof(UnicastBusConfig.ForwardReceivedMessagesTo)} attribute in the {nameof(UnicastBusConfig)} configuration section is no longer supported. Switch to the code API by using '{nameof(EndpointConfiguration)}.ForwardReceivedMessagesTo' instead.");
             }
 
             if (!string.IsNullOrWhiteSpace(unicastBusConfig?.DistributorControlAddress))
             {
-                throw new NotSupportedException($"The {nameof(UnicastBusConfig.DistributorControlAddress)} attribute in the {nameof(UnicastBusConfig)} configuration section is no longer supported. Remove this from the configuration section. Switch to the code API by using `{nameof(EndpointConfiguration)}.EnlistWithLegacyMSMQDistributor` instead.");
+                throw new NotSupportedException($"The {nameof(UnicastBusConfig.DistributorControlAddress)} attribute in the {nameof(UnicastBusConfig)} configuration section is no longer supported. Remove this from the configuration section. Switch to the code API by using '{nameof(EndpointConfiguration)}.EnlistWithLegacyMSMQDistributor' instead.");
             }
 
             if (!string.IsNullOrWhiteSpace(unicastBusConfig?.DistributorDataAddress))
             {
-                throw new NotSupportedException($"The {nameof(UnicastBusConfig.DistributorDataAddress)} attribute in the {nameof(UnicastBusConfig)} configuration section is no longer supported. Remove this from the configuration section. Switch to the code API by using `{nameof(EndpointConfiguration)}.EnlistWithLegacyMSMQDistributor` instead.");
+                throw new NotSupportedException($"The {nameof(UnicastBusConfig.DistributorDataAddress)} attribute in the {nameof(UnicastBusConfig)} configuration section is no longer supported. Remove this from the configuration section. Switch to the code API by using '{nameof(EndpointConfiguration)}.EnlistWithLegacyMSMQDistributor' instead.");
             }
 
             if (unicastBusConfig?.TimeToBeReceivedOnForwardedMessages > TimeSpan.Zero)
@@ -47,12 +48,12 @@
 
             if (!string.IsNullOrWhiteSpace(unicastBusConfig?.TimeoutManagerAddress))
             {
-                Logger.Warn($"The use of the {nameof(UnicastBusConfig.TimeoutManagerAddress)} attribute in the {nameof(UnicastBusConfig)} configuration section is discouraged and will be removed in the next major version. Switch to the code API by using  `{nameof(EndpointConfiguration)}.UseExternalTimeoutManager` instead.");
+                Logger.Warn($"The use of the {nameof(UnicastBusConfig.TimeoutManagerAddress)} attribute in the {nameof(UnicastBusConfig)} configuration section is discouraged and will be removed in the next major version. Switch to the code API by using  '{nameof(EndpointConfiguration)}.UseExternalTimeoutManager' instead.");
             }
 
             if (unicastBusConfig?.MessageEndpointMappings != null)
             {
-                Logger.Warn($"The use of the {nameof(UnicastBusConfig.MessageEndpointMappings)} in the {nameof(UnicastBusConfig)} configuration section is discouraged and will be removed in the next major version. Switch to the code API by using  `{nameof(EndpointConfiguration)}.UseTransport<T>().Routing()` instead.");
+                Logger.Warn($"The use of the {nameof(UnicastBusConfig.MessageEndpointMappings)} in the {nameof(UnicastBusConfig)} configuration section is discouraged and will be removed in the next major version. Switch to the code API by using  '{nameof(EndpointConfiguration)}.UseTransport<T>().Routing()' instead.");
             }
         }
 
@@ -60,12 +61,12 @@
         {
             if (!string.IsNullOrWhiteSpace(auditConfig?.QueueName))
             {
-                Logger.Warn($"The use of the {nameof(AuditConfig.QueueName)} attribute in the {nameof(AuditConfig)} configuration section is discouraged and will be removed in the next major version. Switch to the code API by using `{nameof(EndpointConfiguration)}.AuditProcessedMessagesTo` instead.");
+                Logger.Warn($"The use of the {nameof(AuditConfig.QueueName)} attribute in the {nameof(AuditConfig)} configuration section is discouraged and will be removed in the next major version. Switch to the code API by using '{nameof(EndpointConfiguration)}.AuditProcessedMessagesTo' instead.");
             }
 
             if (auditConfig?.OverrideTimeToBeReceived != null)
             {
-                Logger.Warn($"The use of the {nameof(AuditConfig.OverrideTimeToBeReceived)} attribute in the {nameof(AuditConfig)} configuration section is discouraged and will be removed in the next major version. Switch to the code API by using `{nameof(EndpointConfiguration)}.AuditProcessedMessagesTo` instead.");
+                Logger.Warn($"The use of the {nameof(AuditConfig.OverrideTimeToBeReceived)} attribute in the {nameof(AuditConfig)} configuration section is discouraged and will be removed in the next major version. Switch to the code API by using '{nameof(EndpointConfiguration)}.AuditProcessedMessagesTo' instead.");
             }
         }
 
@@ -73,7 +74,7 @@
         {
             if (masterNodeConfig != null)
             {
-                throw new NotSupportedException($"The {nameof(MasterNodeConfig)} configuration section is no longer supported. Remove this from this configuration section. Switch to the code API by using `{nameof(EndpointConfiguration)}.EnlistWithLegacyMSMQDistributor` instead.");
+                throw new NotSupportedException($"The {nameof(MasterNodeConfig)} configuration section is no longer supported. Remove this from this configuration section. Switch to the code API by using '{nameof(EndpointConfiguration)}.EnlistWithLegacyMSMQDistributor' instead.");
             }
         }
 
@@ -81,7 +82,7 @@
         {
             if (secondLevelRetriesConfig != null)
             {
-                throw new NotSupportedException($"The {nameof(SecondLevelRetriesConfig)} configuration section is no longer supported. Remove this from this configuration section. Switch to the code API by using `endpointConfiguration.Recoverability().Delayed(settings => ...)` instead.");
+                throw new NotSupportedException($"The {nameof(SecondLevelRetriesConfig)} configuration section is no longer supported. Remove this from this configuration section. Switch to the code API by using 'endpointConfiguration.Recoverability().Delayed(settings => ...)' instead.");
             }
         }
 
@@ -89,7 +90,7 @@
         {
             if (transportConfig != null)
             {
-                throw new NotSupportedException($"The {nameof(TransportConfig)} configuration section is no longer supported. Remove this from this configuration section. Switch to the code API by using `endpointConfiguration.LimitMessageProcessingConcurrencyTo(1)` to change the concurrency level or `endpointConfiguration.Recoverability().Immediate(settings => settings.NumberOfRetries(5)` to change the number of immediate retries instead.");
+                throw new NotSupportedException($"The {nameof(TransportConfig)} configuration section is no longer supported. Remove this from this configuration section. Switch to the code API by using 'endpointConfiguration.LimitMessageProcessingConcurrencyTo(1)' to change the concurrency level or 'endpointConfiguration.Recoverability().Immediate(settings => settings.NumberOfRetries(5)' to change the number of immediate retries instead.");
             }
         }
 
@@ -105,7 +106,15 @@
         {
             if (faultConfig != null)
             {
-                Logger.Warn("Usage of the 'NServiceBus.Config.MessageForwardingInCaseOfFaultConfig' configuration section is discouraged and will be removed with the next major version. Use the `endpointConfiguration.SendFailedMessagesTo()` code configuration API instead.");
+                Logger.Warn("Usage of the 'NServiceBus.Config.MessageForwardingInCaseOfFaultConfig' configuration section is discouraged and will be removed with the next major version. Use the 'endpointConfiguration.SendFailedMessagesTo()' code configuration API instead.");
+            }
+        }
+
+        static void DetectObsoleteConfiguration(MsmqSubscriptionStorageConfig msmqSubscriptionStorageConfig)
+        {
+            if (msmqSubscriptionStorageConfig != null)
+            {
+                Logger.Warn("Usage of the 'NServiceBus.Config.MsmqSubscriptionStorageConfig' configuration section is discouraged and will be removed with the next major version. Use the 'endpointConfiguration.UsePersistence<MsmqPersistence>().SubscriptionQueue()' code configuration API instead.");
             }
         }
 

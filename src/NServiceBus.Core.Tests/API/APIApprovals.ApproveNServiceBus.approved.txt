@@ -1522,10 +1522,17 @@ namespace NServiceBus.Config
             "rsion 7.0.0. Will be removed in version 8.0.0.", false)]
         public string ErrorQueue { get; set; }
     }
+    [System.ObsoleteAttribute("MSMQ subscription storage configuration via configuration section is discouraged." +
+        " Use `EndpointConfiguration.UsePersistence<MsmqPersistence>()` instead. Will be " +
+        "treated as an error from version 7.0.0. Will be removed in version 8.0.0.", false)]
     public class MsmqSubscriptionStorageConfig : System.Configuration.ConfigurationSection
     {
         public MsmqSubscriptionStorageConfig() { }
         [System.Configuration.ConfigurationPropertyAttribute("Queue", IsRequired=true)]
+        [System.ObsoleteAttribute("MSMQ subscription storage configuration via configuration section is discouraged." +
+            " Use `EndpointConfiguration.UsePersistence<MsmqPersistence>().SubscriptionQueue`" +
+            " instead. Will be treated as an error from version 7.0.0. Will be removed in ver" +
+            "sion 8.0.0.", false)]
         public string Queue { get; set; }
     }
     [System.ObsoleteAttribute("Message property encryption is released as a dedicated \'NServiceBus.Encryption.Me" +
@@ -2405,6 +2412,14 @@ namespace NServiceBus.Persistence
 namespace NServiceBus.Persistence.Legacy
 {
     public class MsmqPersistence : NServiceBus.Persistence.PersistenceDefinition { }
+    public class static MsmqSubscriptionStorageConfigurationExtensions
+    {
+        public static void SubscriptionQueue<T>(this NServiceBus.PersistenceExtensions<T> persistenceExtensions, string queue)
+            where T : NServiceBus.Persistence.Legacy.MsmqPersistence { }
+        public static void SubscriptionQueue<T, S>(this NServiceBus.PersistenceExtensions<T, S> persistenceExtensions, string queue)
+            where T : NServiceBus.Persistence.Legacy.MsmqPersistence
+            where S : NServiceBus.Persistence.StorageType { }
+    }
 }
 namespace NServiceBus.Pipeline
 {

@@ -1,13 +1,9 @@
-﻿// Disable obsolete warning until MessageEndpointMappings has been removed from config
-#pragma warning disable CS0618
-namespace NServiceBus.Transport.Msmq.AcceptanceTests.SubscriptionStorage
+﻿namespace NServiceBus.Transport.Msmq.AcceptanceTests.SubscriptionStorage
 {
     using System.Messaging;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using AcceptanceTesting.Customization;
-    using Config;
-    using Config.ConfigurationSource;
     using Features;
     using NServiceBus.AcceptanceTests;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
@@ -65,22 +61,11 @@ namespace NServiceBus.Transport.Msmq.AcceptanceTests.SubscriptionStorage
                 EndpointSetup<DefaultPublisher>(b =>
                 {
                     b.DisableFeature<AutoSubscribe>();
-                    b.UsePersistence<MsmqPersistence>();
+                    b.UsePersistence<MsmqPersistence>().SubscriptionQueue(StorageQueueName);
                     b.UseTransport<MsmqTransport>()
                         .Transactions(TransportTransactionMode.None)
                         .ConnectionString("useTransactionalQueues=false");
                 });
-            }
-
-            class QueueNameOverride : IProvideConfiguration<MsmqSubscriptionStorageConfig>
-            {
-                public MsmqSubscriptionStorageConfig GetConfiguration()
-                {
-                    return new MsmqSubscriptionStorageConfig
-                    {
-                        Queue = StorageQueueName
-                    };
-                }
             }
         }
 
@@ -114,4 +99,3 @@ namespace NServiceBus.Transport.Msmq.AcceptanceTests.SubscriptionStorage
         }
     }
 }
-#pragma warning restore CS0618
