@@ -86,6 +86,6 @@
 
         SettingsHolder settings;
 
-        internal static string StorageLocationKey;
+        internal static string StorageLocationKey = "DevelopmentTransport.StoragePath";
     }
 }

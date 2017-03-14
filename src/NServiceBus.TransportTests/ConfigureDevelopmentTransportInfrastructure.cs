@@ -1,3 +1,5 @@
+using System;
+using System.IO;
 using System.Threading.Tasks;
 using NServiceBus;
 using NServiceBus.Settings;
@@ -7,20 +9,25 @@ class ConfigureDevelopmentTransportInfrastructure : IConfigureTransportInfrastru
 {
     public TransportConfigurationResult Configure(SettingsHolder settings, TransportTransactionMode transactionMode)
     {
-        var msmqTransportDefinition = new DevelopmentTransport();
-        settingsHolder = settings;
+        storageDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "transporttests");
+        settings.Set("DevelopmentTransport.StoragePath", storageDir);
+
+        var transportDefinition = new DevelopmentTransport();
         return new TransportConfigurationResult
         {
-            TransportInfrastructure = msmqTransportDefinition.Initialize(settingsHolder, ""),
+            TransportInfrastructure = transportDefinition.Initialize(settings, ""),
             PurgeInputQueueOnStartup = true
         };
     }
 
     public Task Cleanup()
     {
-        //todo
+        if (Directory.Exists(storageDir))
+        {
+            Directory.Delete(storageDir, true);
+        }
         return Task.FromResult(0);
     }
 
-    SettingsHolder settingsHolder;
+    string storageDir;
 }
