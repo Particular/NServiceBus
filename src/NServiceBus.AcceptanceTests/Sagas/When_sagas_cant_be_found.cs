@@ -51,31 +51,6 @@
                 EndpointSetup<DefaultServer>(config => config.EnableFeature<TimeoutManager>());
             }
 
-            public class MessageToSagaHandler : IHandleMessages<MessageToSaga>
-            {
-                public Task Handle(MessageToSaga message, IMessageHandlerContext context)
-                {
-                    var options = new SendOptions();
-
-                    options.DelayDeliveryWith(TimeSpan.FromMilliseconds(1));
-                    options.RouteToThisEndpoint();
-
-                    return context.Send(new FinishMessage(), options);
-                }
-            }
-
-            public class FinishHandler : IHandleMessages<FinishMessage>
-            {
-                public Context Context { get; set; }
-
-                public Task Handle(FinishMessage message, IMessageHandlerContext context)
-                {
-                    // This acts as a safe guard to abort the test earlier
-                    Context.Done = true;
-                    return Task.FromResult(0);
-                }
-            }
-
             public class CantBeFoundSaga1 : Saga<CantBeFoundSaga1.CantBeFoundSaga1Data>, IAmStartedByMessages<StartSaga>, IHandleMessages<MessageToSaga>
             {
                 public Task Handle(StartSaga message, IMessageHandlerContext context)
@@ -150,31 +125,6 @@
                 });
             }
 
-            public class MessageToSagaHandler : IHandleMessages<MessageToSaga>
-            {
-                public Task Handle(MessageToSaga message, IMessageHandlerContext context)
-                {
-                    var options = new SendOptions();
-
-                    options.DelayDeliveryWith(TimeSpan.FromMilliseconds(1));
-                    options.RouteToThisEndpoint();
-
-                    return context.Send(new FinishMessage(), options);
-                }
-            }
-
-            public class FinishHandler : IHandleMessages<FinishMessage>
-            {
-                public Context Context { get; set; }
-
-                public Task Handle(FinishMessage message, IMessageHandlerContext context)
-                {
-                    // This acts as a safe guard to abort the test earlier
-                    Context.Done = true;
-                    return Task.FromResult(0);
-                }
-            }
-
             public class ReceiverWithOrderedSagasSaga1 : Saga<ReceiverWithOrderedSagasSaga1.ReceiverWithOrderedSagasSaga1Data>, IAmStartedByMessages<StartSaga>, IHandleMessages<MessageToSaga>
             {
                 public Task Handle(StartSaga message, IMessageHandlerContext context)
@@ -241,18 +191,12 @@
             }
         }
 
-        
+
         public class StartSaga : ICommand
         {
             public Guid Id { get; set; }
         }
 
-        
-        public class FinishMessage : ICommand
-        {
-        }
-
-        
         public class MessageToSaga : ICommand
         {
             public Guid Id { get; set; }
