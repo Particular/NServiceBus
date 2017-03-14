@@ -59,7 +59,7 @@ namespace NServiceBus
         Expression<Func<TSagaData, object>> GetExpression()
         {
             var correlationProperty = GetCorrelationProperty();
-            var parameterExpression = Expression.Parameter(typeof(TSagaData), "s");
+            var parameterExpression = Expression.Parameter(typeof(TSagaData));
             var propertyExpression = Expression.Property(parameterExpression, correlationProperty);
             var convert = Expression.Convert(propertyExpression, typeof(object));
             return Expression.Lambda<Func<TSagaData, object>>(convert, parameterExpression);

@@ -16,11 +16,6 @@
                     .When(session => session.SendLocal(new StartSagaMessage
                     {
                         Key = "Part1_Part2"
-                    }))
-                    .When(c => c.FirstMessageReceived, session => session.SendLocal(new OtherMessage
-                    {
-                        Part1 = "Part1",
-                        Part2 = "Part2"
                     })))
                 .Done(c => c.SecondMessageReceived)
                 .Run();
@@ -39,14 +34,20 @@
         {
             public SagaEndpoint()
             {
-                //note: the concurrency checks for the InMemory persister doesn't seem to work so limiting to 1 for now
-                EndpointSetup<DefaultServer>(c => c.LimitMessageProcessingConcurrencyTo(1));
+                EndpointSetup<DefaultServer>();
             }
 
             public class ASimpleSaga : SimpleSaga<ASimpleSaga.SimpleSagaData>,
                 IAmStartedByMessages<StartSagaMessage>,
                 IAmStartedByMessages<OtherMessage>
             {
+
+                Context context;
+
+                public ASimpleSaga(Context context)
+                {
+                    this.context = context;
+                }
 
                 protected override string CorrelationPropertyName => nameof(SimpleSagaData.CorrelationId);
 
@@ -56,20 +57,24 @@
                     mapper.ConfigureMapping<OtherMessage>(m => $"{m.Part1}_{m.Part2}");
                 }
 
-                public Context Context { get; set; }
-
-                public Task Handle(OtherMessage message, IMessageHandlerContext context)
+                public Task Handle(OtherMessage message, IMessageHandlerContext handlerContext)
                 {
-                    Assert.AreEqual(Context.SagaId, Data.Id, "Existing instance should be found");
-                    Context.SecondMessageReceived = true;
+                    Assert.AreEqual(context.SagaId, Data.Id, "Existing instance should be found");
+                    context.SecondMessageReceived = true;
                     return Task.FromResult(0);
                 }
 
-                public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
+                public Task Handle(StartSagaMessage message, IMessageHandlerContext handlerContext)
                 {
-                    Context.FirstMessageReceived = true;
-                    Context.SagaId = Data.Id;
-                    return Task.FromResult(0);
+                    context.FirstMessageReceived = true;
+                    context.SagaId = Data.Id;
+
+                    var otherMessage = new OtherMessage
+                    {
+                        Part1 = "Part1",
+                        Part2 = "Part2"
+                    };
+                    return handlerContext.SendLocal(otherMessage);
                 }
 
                 public class SimpleSagaData : IContainSagaData
