@@ -54,6 +54,7 @@
     <Compile Include="Distributor\When_worker_sends_to_local_endpoint.cs" />
     <Compile Include="Distributor\When_worker_uses_delayed_retries.cs" />
     <Compile Include="FakePromotableResourceManager.cs" />
+    <Compile Include="LegacyRetries\When_legacy_retries_left_in_retry_queue.cs" />
     <Compile Include="SubscriptionBehavior.cs" />
     <Compile Include="SubscriptionBehaviorExtensions.cs" />
     <Compile Include="SubscriptionEventArgs.cs" />
