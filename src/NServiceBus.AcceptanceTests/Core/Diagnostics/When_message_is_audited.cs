@@ -1,12 +1,12 @@
-﻿namespace NServiceBus.AcceptanceTests.Performance
+﻿namespace NServiceBus.AcceptanceTests.Core.Diagnostics
 {
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
     using AcceptanceTesting;
+    using AcceptanceTesting.Customization;
     using EndpointTemplates;
     using NUnit.Framework;
-    using AcceptanceTesting.Customization;
 
     public class When_message_is_audited : NServiceBusAcceptanceTest
     {
