@@ -66,22 +66,33 @@ namespace NServiceBus
                 HeaderSerializer.ToXml(transportOperation.Message.Headers)
             };
 
+            DateTime? timeToDeliver = null;
             DelayDeliveryWith delayDeliveryWith;
 
             if (transportOperation.DeliveryConstraints.TryGet(out delayDeliveryWith))
             {
-                var timeToDeliver = DateTime.UtcNow + delayDeliveryWith.Delay;
+                timeToDeliver = DateTime.UtcNow + delayDeliveryWith.Delay;
+            }
 
-                if (timeToDeliver.Millisecond > 0)
+            DoNotDeliverBefore doNotDeliverBefore;
+
+            if (transportOperation.DeliveryConstraints.TryGet(out doNotDeliverBefore))
+            {
+                timeToDeliver = doNotDeliverBefore.At;
+            }
+
+
+            if (timeToDeliver.HasValue)
+            {
+                if (timeToDeliver.Value.Millisecond > 0)
                 {
                     timeToDeliver += TimeSpan.FromSeconds(1);
                 }
 
-                destinationPath = Path.Combine(destinationPath, ".delayed", timeToDeliver.ToString("yyyyMMddHHmmss"));
+                destinationPath = Path.Combine(destinationPath, ".delayed", timeToDeliver.Value.ToString("yyyyMMddHHmmss"));
 
                 Directory.CreateDirectory(destinationPath);
             }
-
 
             var messagePath = Path.Combine(destinationPath, nativeMessageId) + ".txt";
 
