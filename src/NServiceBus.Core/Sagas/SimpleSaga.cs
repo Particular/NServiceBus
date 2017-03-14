@@ -20,7 +20,7 @@ namespace NServiceBus
         /// </summary>
         protected SimpleSaga()
         {
-            VerifyBaseIsSimpleSage();
+            VerifyBaseIsSimpleSaga();
         }
 
         /// <summary>
@@ -28,7 +28,7 @@ namespace NServiceBus
         /// </summary>
         protected abstract Expression<Func<TSagaData, object>> CorrelationProperty { get; }
 
-        void VerifyBaseIsSimpleSage()
+        void VerifyBaseIsSimpleSaga()
         {
             if (simpleSagaTypeVerified)
             {
