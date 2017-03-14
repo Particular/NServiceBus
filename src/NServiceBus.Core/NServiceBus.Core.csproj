@@ -200,6 +200,7 @@
     <Compile Include="Serialization\SerializationSettingsExtensions.cs" />
     <Compile Include="Serializers\XML\XmlSerialization.cs" />
     <Compile Include="Transports\Development\DevelopmentTransport.cs" />
+    <Compile Include="Transports\Development\DevelopmentTransportConfigExtensions.cs" />
     <Compile Include="Transports\Development\DevelopmentTransportDispatcher.cs" />
     <Compile Include="Transports\Development\DevelopmentTransportInfrastructure.cs" />
     <Compile Include="Transports\Development\DevelopmentTransportMessagePump.cs" />
