@@ -14,16 +14,6 @@ namespace NServiceBus
     /// <typeparam name="TSagaData">A type that implements <see cref="IContainSagaData" />.</typeparam>
     public abstract class SimpleSaga<TSagaData> : Saga where TSagaData : IContainSagaData, new()
     {
-        static bool simpleSagaTypeVerified;
-
-        /// <summary>
-        /// Initialize a new instance of <see cref="SimpleSaga{TSagaData}"/>.
-        /// </summary>
-        /// <exception cref="Exception">If the current instance does not inherit directly from <see cref="SimpleSaga{TSagaData}"/>.</exception>
-        protected SimpleSaga()
-        {
-            VerifyBaseIsSimpleSaga();
-        }
 
         /// <summary>
         /// Gets the name of the correlation property for <typeparamref name="TSagaData"/>.
@@ -32,11 +22,6 @@ namespace NServiceBus
 
         void VerifyBaseIsSimpleSaga()
         {
-            if (simpleSagaTypeVerified)
-            {
-                return;
-            }
-            simpleSagaTypeVerified = true;
             if (!IsBaseSimpleSaga())
             {
                 throw new Exception("Implementations of SimpleSaga must inherit directly. Deep class hierarchies are not supported.");
@@ -67,6 +52,7 @@ namespace NServiceBus
         /// </summary>
         protected internal override void ConfigureHowToFindSaga(IConfigureHowToFindSagaWithMessage sagaMessageFindingConfiguration)
         {
+            VerifyBaseIsSimpleSaga();
             ConfigureMapping(new MessagePropertyMapper<TSagaData>(sagaMessageFindingConfiguration, GetExpression()));
         }
 
