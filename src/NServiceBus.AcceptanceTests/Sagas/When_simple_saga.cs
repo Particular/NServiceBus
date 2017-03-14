@@ -50,7 +50,7 @@
 
                 protected override string CorrelationPropertyName => nameof(SagaData.CorrelationId);
 
-                protected override void ConfigureHowToFindSaga(IMessagePropertyMapper mapper)
+                protected override void ConfigureMapping(IMessagePropertyMapper mapper)
                 {
                     mapper.ConfigureMapping<StartSagaMessage>(m => m.Key);
                     mapper.ConfigureMapping<OtherMessage>(m => $"{m.Part1}_{m.Part2}");

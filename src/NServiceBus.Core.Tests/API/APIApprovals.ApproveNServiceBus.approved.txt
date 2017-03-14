@@ -1241,7 +1241,7 @@ namespace NServiceBus
         protected abstract string CorrelationPropertyName { get; }
         public TSagaData Data { get; set; }
         protected internal override void ConfigureHowToFindSaga(NServiceBus.IConfigureHowToFindSagaWithMessage sagaMessageFindingConfiguration) { }
-        protected abstract void ConfigureHowToFindSaga(NServiceBus.IMessagePropertyMapper mapper);
+        protected abstract void ConfigureMapping(NServiceBus.IMessagePropertyMapper mapper);
     }
     [System.ObsoleteAttribute("Performance counters have been released as a separate package: NServiceBus.Window" +
         "sPerformanceCounters. Will be treated as an error from version 7.0.0. Will be re" +

@@ -66,7 +66,7 @@ namespace NServiceBus
         /// </summary>
         protected internal override void ConfigureHowToFindSaga(IConfigureHowToFindSagaWithMessage sagaMessageFindingConfiguration)
         {
-            ConfigureHowToFindSaga(new MessagePropertyMapper<TSagaData>(sagaMessageFindingConfiguration, GetExpression()));
+            ConfigureMapping(new MessagePropertyMapper<TSagaData>(sagaMessageFindingConfiguration, GetExpression()));
         }
 
         Expression<Func<TSagaData, object>> GetExpression()
@@ -95,6 +95,6 @@ namespace NServiceBus
         /// A version of <see cref="ConfigureHowToFindSaga(IConfigureHowToFindSagaWithMessage)" /> wraps
         /// <see cref="IConfigureHowToFindSagaWithMessage" />.
         /// </summary>
-        protected abstract void ConfigureHowToFindSaga(IMessagePropertyMapper mapper);
+        protected abstract void ConfigureMapping(IMessagePropertyMapper mapper);
     }
 }
