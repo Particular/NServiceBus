@@ -28,7 +28,7 @@
 
             if (string.IsNullOrWhiteSpace(transport))
             {
-                transport = transportDefinitions.Value.FirstOrDefault(t => t.Name != MsmqDescriptorKey)?.Name ?? MsmqDescriptorKey;
+                transport = transportDefinitions.Value.FirstOrDefault(t => t.Name != DefaultTransportDescriptorKey)?.Name ?? DefaultTransportDescriptorKey;
             }
 
             var typeName = $"Configure{transport}Infrastructure";
@@ -71,9 +71,9 @@
             queueBindings.BindReceiving(InputQueueName);
             queueBindings.BindSending(ErrorQueueName);
             transportSettings.Set<QueueBindings>(queueBindings);
-            
+
             transportSettings.Set<EndpointInstances>(new EndpointInstances());
-            
+
             Configurer = CreateConfigurer();
 
             var configuration = Configurer.Configure(transportSettings, transactionMode);
@@ -231,7 +231,7 @@
         CancellationTokenSource testCancellationTokenSource;
         IConfigureTransportInfrastructure Configurer;
 
-        static string MsmqDescriptorKey = "MsmqTransport";
+        static string DefaultTransportDescriptorKey = "MsmqTransport";
         static string TestIdHeaderName = "TransportTest.TestId";
 
         static Lazy<List<Type>> transportDefinitions = new Lazy<List<Type>>(() => TypeScanner.GetAllTypesAssignableTo<TransportDefinition>().ToList());
