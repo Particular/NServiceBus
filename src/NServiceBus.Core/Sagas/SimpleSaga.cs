@@ -58,28 +58,27 @@ namespace NServiceBus
 
         Expression<Func<TSagaData, object>> GetExpression()
         {
-            var sagaDataType = typeof(TSagaData);
-            
-            var correlationProperty = sagaDataType
-                .GetProperty(CorrelationPropertyName, BindingFlags.Instance | BindingFlags.GetProperty | BindingFlags.NonPublic | BindingFlags.Public);
-            if (correlationProperty == null)
-            {
-                var message = $"Expected to find a property named {CorrelationPropertyName} on  [{sagaDataType.FullName}].";
-                throw new Exception(message);
-            }
+            var correlationProperty = GetCorrelationProperty();
             var parameterExpression = Expression.Parameter(typeof(TSagaData), "s");
-
             var propertyExpression = Expression.Property(parameterExpression, correlationProperty);
-            if (correlationProperty.PropertyType == typeof(string))
-            {
-                return Expression.Lambda<Func<TSagaData, object>>(propertyExpression, parameterExpression);
-            }
             var convert = Expression.Convert(propertyExpression, typeof(object));
             return Expression.Lambda<Func<TSagaData, object>>(convert, parameterExpression);
         }
 
+        PropertyInfo GetCorrelationProperty()
+        {
+            var correlationProperty = typeof(TSagaData)
+                .GetProperty(CorrelationPropertyName, BindingFlags.Instance | BindingFlags.GetProperty | BindingFlags.NonPublic | BindingFlags.Public);
+            if (correlationProperty != null)
+            {
+                return correlationProperty;
+            }
+            var message = $"Expected to find a property named {CorrelationPropertyName} on [{typeof(TSagaData).FullName}].";
+            throw new Exception(message);
+        }
+
         /// <summary>
-        /// Override this method in order to configure how messages correlate to <see cref="CorrelationPropertyName"/>.
+        /// Override this method in order to configure how messages correlate to the property <see cref="CorrelationPropertyName"/> of <typeparamref name="TSagaData"/>.
         /// </summary>
         protected abstract void ConfigureMapping(IMessagePropertyMapper mapper);
     }
