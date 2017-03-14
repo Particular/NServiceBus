@@ -19,6 +19,7 @@ namespace NServiceBus
         /// <summary>
         /// Initialize a new instance of <see cref="SimpleSaga{TSagaData}"/>.
         /// </summary>
+        /// <exception cref="Exception">If the current instance does not inherit directly from <see cref="SimpleSaga{TSagaData}"/>.</exception>
         protected SimpleSaga()
         {
             VerifyBaseIsSimpleSaga();
@@ -36,7 +37,7 @@ namespace NServiceBus
                 return;
             }
             simpleSagaTypeVerified = true;
-            if ( !IsBaseSimpleSaga())
+            if (!IsBaseSimpleSaga())
             {
                 throw new Exception("Implementations of SimpleSaga must inherit directly. Deep class hierarchies are not supported.");
             }
@@ -62,7 +63,7 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Override this method in order to configure how this saga's data should be found.
+        /// Override this method in order to configure how messages correlate to <see cref="CorrelationPropertyName"/>.
         /// </summary>
         protected internal override void ConfigureHowToFindSaga(IConfigureHowToFindSagaWithMessage sagaMessageFindingConfiguration)
         {
