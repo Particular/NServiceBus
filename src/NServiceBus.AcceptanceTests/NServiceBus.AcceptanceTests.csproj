@@ -65,7 +65,6 @@
     <Compile Include="Core\DelayedDelivery\TimeoutManager\When_dispatch_fails_on_removal_SendsAtomicWithReceive.cs" />
     <Compile Include="Core\DelayedDelivery\TimeoutManager\When_using_external_timeout_manager_code_first.cs" />
     <Compile Include="Core\Feature\When_feature_startup_task_fails.cs" />
-    <Compile Include="Core\LegacyRetries\When_legacy_retries_left_in_retry_queue.cs" />
     <Compile Include="Core\MessageDurability\When_sending_a_non_durable_message_with_conventions.cs" />
     <Compile Include="Core\Outbox\When_outbox_double_optin_found.cs" />
     <Compile Include="Core\Recoverability\When_configuring_unrecoverable_exception.cs" />
