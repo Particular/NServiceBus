@@ -57,6 +57,7 @@
     <Compile Include="EndpointCustomizationConfigurationExtensions.cs" />
     <Compile Include="FakePromotableResourceManager.cs" />
     <Compile Include="NServiceBusAcceptanceTest.cs" />
+    <Compile Include="LegacyRetries\When_legacy_retries_left_in_retry_queue.cs" />
     <Compile Include="SubscriptionBehavior.cs" />
     <Compile Include="SubscriptionBehaviorExtensions.cs" />
     <Compile Include="SubscriptionEventArgs.cs" />
