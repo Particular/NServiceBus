@@ -16,9 +16,22 @@
         {
             this.settings = settings;
 
-            var solutionRoot = FindSolutionRoot();
-            storagePath = Path.Combine(solutionRoot, ".devtransport");
+            if (!settings.TryGet(StorageLocationKey, out storagePath))
+            {
+                var solutionRoot = FindSolutionRoot();
+                storagePath = Path.Combine(solutionRoot, ".devtransport");
+            }
         }
+
+        public override IEnumerable<Type> DeliveryConstraints { get; } = new[]
+        {
+            typeof(DiscardIfNotReceivedBefore),
+            typeof(NonDurableDelivery)
+        };
+
+        public override TransportTransactionMode TransactionMode => TransportTransactionMode.SendsAtomicWithReceive;
+
+        public override OutboundRoutingPolicy OutboundRoutingPolicy { get; } = new OutboundRoutingPolicy(OutboundRoutingType.Unicast, OutboundRoutingType.Multicast, OutboundRoutingType.Unicast);
 
         string FindSolutionRoot()
         {
@@ -39,19 +52,8 @@
                 }
 
                 directory = di.FullName;
-
             } while (true);
         }
-
-        public override IEnumerable<Type> DeliveryConstraints { get; } = new[]
-        {
-            typeof(DiscardIfNotReceivedBefore),
-            typeof(NonDurableDelivery)
-        };
-
-        public override TransportTransactionMode TransactionMode => TransportTransactionMode.SendsAtomicWithReceive;
-
-        public override OutboundRoutingPolicy OutboundRoutingPolicy { get; } = new OutboundRoutingPolicy(OutboundRoutingType.Unicast, OutboundRoutingType.Multicast, OutboundRoutingType.Unicast);
 
         public override TransportReceiveInfrastructure ConfigureReceiveInfrastructure()
         {
@@ -83,5 +85,7 @@
         string storagePath;
 
         SettingsHolder settings;
+
+        internal static string StorageLocationKey;
     }
 }

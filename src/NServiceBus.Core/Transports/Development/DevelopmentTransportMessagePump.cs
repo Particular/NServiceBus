@@ -29,6 +29,9 @@
 
             purgeOnStartup = settings.PurgeOnStartup;
 
+            receiveCircuitBreaker = new RepeatedFailuresOverTimeCircuitBreaker("DevelopmentTransportReceive", TimeSpan.FromSeconds(30), ex => criticalError.Raise("Failed to receive from " + settings.InputQueue, ex));
+
+
             return TaskEx.CompletedTask;
         }
 
@@ -117,6 +120,12 @@
                             await ProcessFile(transaction, nativeMessageId).ConfigureAwait(false);
 
                             transaction.Complete();
+
+                            receiveCircuitBreaker.Success();
+                        }
+                        catch (Exception ex)
+                        {
+                            await receiveCircuitBreaker.Failure(ex).ConfigureAwait(false);
                         }
                         finally
                         {
@@ -189,8 +198,6 @@
 
                         var errorContext = new ErrorContext(ex, headers, messageId, body, transportTransaction, immediateProcessinFailures);
 
-
-
                         var actionToTake = await onError(errorContext).ConfigureAwait(false);
 
                         if (actionToTake == ErrorHandleResult.RetryRequired)
@@ -198,7 +205,6 @@
                             transaction.Rollback();
                             return;
                         }
-
                     }
 
                 }
@@ -241,5 +247,6 @@
         ConcurrentDictionary<string, int> retryCounts = new ConcurrentDictionary<string, int>();
         string path;
         string basePath;
+        RepeatedFailuresOverTimeCircuitBreaker receiveCircuitBreaker;
     }
 }
