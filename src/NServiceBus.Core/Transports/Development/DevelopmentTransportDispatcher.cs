@@ -17,13 +17,13 @@ namespace NServiceBus
 
         public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transaction, ContextBag context)
         {
-            DispatchUnicast(outgoingMessages.UnicastTransportOperations, context);
-            DispatchMulticast(outgoingMessages.MulticastTransportOperations, context);
+            DispatchUnicast(outgoingMessages.UnicastTransportOperations, transaction);
+            DispatchMulticast(outgoingMessages.MulticastTransportOperations, transaction);
 
             return TaskEx.CompletedTask;
         }
 
-        void DispatchMulticast(IEnumerable<MulticastTransportOperation> transportOperations, ContextBag context)
+        void DispatchMulticast(IEnumerable<MulticastTransportOperation> transportOperations, TransportTransaction transaction)
         {
             foreach (var transportOperation in transportOperations)
             {
@@ -31,21 +31,21 @@ namespace NServiceBus
 
                 foreach (var subscriber in subscribers)
                 {
-                    WriteMessage(subscriber, transportOperation, context);
+                    WriteMessage(subscriber, transportOperation, transaction);
                 }
             }
         }
 
 
-        void DispatchUnicast(IEnumerable<UnicastTransportOperation> transportOperations, ContextBag context)
+        void DispatchUnicast(IEnumerable<UnicastTransportOperation> transportOperations, TransportTransaction transaction)
         {
             foreach (var transportOperation in transportOperations)
             {
-                WriteMessage(transportOperation.Destination, transportOperation, context);
+                WriteMessage(transportOperation.Destination, transportOperation, transaction);
             }
         }
 
-        void WriteMessage(string destination, IOutgoingTransportOperation transportOperation, ContextBag context)
+        void WriteMessage(string destination, IOutgoingTransportOperation transportOperation, TransportTransaction transaction)
         {
             var nativeMessageId = Guid.NewGuid().ToString();
             var destinationPath = Path.Combine(basePath, destination);
@@ -64,14 +64,14 @@ namespace NServiceBus
                 HeaderSerializer.ToXml(transportOperation.Message.Headers)
             };
 
-            DirectoryBasedTransaction transaction;
+            DirectoryBasedTransaction directoryBasedTransaction;
 
             var messagePath = Path.Combine(destinationPath, nativeMessageId) + ".txt";
 
             if (transportOperation.RequiredDispatchConsistency != DispatchConsistency.Isolated &&
-                context.TryGet(out transaction))
+                transaction.TryGet(out directoryBasedTransaction))
             {
-                transaction.Enlist(messagePath, messageContents);
+                directoryBasedTransaction.Enlist(messagePath, messageContents);
             }
             else
             {
