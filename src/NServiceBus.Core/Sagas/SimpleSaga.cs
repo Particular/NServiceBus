@@ -61,14 +61,9 @@ namespace NServiceBus
             }
         }
 
-
         /// <summary>
         /// Override this method in order to configure how this saga's data should be found.
         /// </summary>
-        /// <remarks>
-        /// Override <see cref="Saga.ConfigureHowToFindSaga" /> and forwards it to the generic version
-        /// <see cref="ConfigureHowToFindSaga(MessagePropertyMapper{TSagaData})" />.
-        /// </remarks>
         protected internal override void ConfigureHowToFindSaga(IConfigureHowToFindSagaWithMessage sagaMessageFindingConfiguration)
         {
             ConfigureHowToFindSaga(new MessagePropertyMapper<TSagaData>(sagaMessageFindingConfiguration, GetExpression()));
@@ -97,14 +92,9 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// A generic version of <see cref="ConfigureHowToFindSaga(IConfigureHowToFindSagaWithMessage)" /> wraps
-        /// <see cref="IConfigureHowToFindSagaWithMessage" /> in a generic helper class (
-        /// <see cref="MessagePropertyMapper{TSagaData}" />) to provide mappings specific to <typeparamref name="TSagaData" />.
-        /// </summary>
-        /// <param name="mapper">
-        /// The <see cref="MessagePropertyMapper{TSagaData}" /> that wraps the
+        /// A version of <see cref="ConfigureHowToFindSaga(IConfigureHowToFindSagaWithMessage)" /> wraps
         /// <see cref="IConfigureHowToFindSagaWithMessage" />.
-        /// </param>
-        protected abstract void ConfigureHowToFindSaga(MessagePropertyMapper<TSagaData> mapper);
+        /// </summary>
+        protected abstract void ConfigureHowToFindSaga(IMessagePropertyMapper mapper);
     }
 }

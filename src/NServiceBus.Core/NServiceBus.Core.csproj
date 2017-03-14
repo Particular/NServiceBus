@@ -183,6 +183,7 @@
     <Compile Include="Routing\UnicastPublishRouter.cs" />
     <Compile Include="Routing\UnicastSendRouter.cs" />
     <Compile Include="Sagas\DefaultSagaIdGenerator.cs" />
+    <Compile Include="Sagas\IMessagePropertyMapper.cs" />
     <Compile Include="Sagas\ISagaIdGenerator.cs" />
     <Compile Include="Sagas\SagaIdGeneratorContext.cs" />
     <Compile Include="Sagas\MessagePropertyMapper.cs" />

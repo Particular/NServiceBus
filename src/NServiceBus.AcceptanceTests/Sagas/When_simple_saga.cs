@@ -48,12 +48,9 @@
                 IAmStartedByMessages<OtherMessage>
             {
 
-                protected override string CorrelationPropertyName
-                {
-                    get { return nameof(SagaData.CorrelationId); }
-                }
+                protected override string CorrelationPropertyName => nameof(SagaData.CorrelationId);
 
-                protected override void ConfigureHowToFindSaga(MessagePropertyMapper<SagaData> mapper)
+                protected override void ConfigureHowToFindSaga(IMessagePropertyMapper mapper)
                 {
                     mapper.ConfigureMapping<StartSagaMessage>(m => m.Key);
                     mapper.ConfigureMapping<OtherMessage>(m => $"{m.Part1}_{m.Part2}");

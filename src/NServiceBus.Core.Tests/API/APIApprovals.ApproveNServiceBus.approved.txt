@@ -695,6 +695,10 @@ namespace NServiceBus
         public static System.Threading.Tasks.Task Reply(this NServiceBus.IMessageProcessingContext context, object message) { }
         public static System.Threading.Tasks.Task Reply<T>(this NServiceBus.IMessageProcessingContext context, System.Action<T> messageConstructor) { }
     }
+    public interface IMessagePropertyMapper
+    {
+        void ConfigureMapping<TMessage>(System.Linq.Expressions.Expression<System.Func<TMessage, object>> messageProperty);
+    }
     public interface IMessageSession
     {
         System.Threading.Tasks.Task Publish(object message, NServiceBus.PublishOptions options);
@@ -862,11 +866,6 @@ namespace NServiceBus
     public class static MessageProcessingOptimizationExtensions
     {
         public static void LimitMessageProcessingConcurrencyTo(this NServiceBus.EndpointConfiguration config, int maxConcurrency) { }
-    }
-    public class MessagePropertyMapper<TSagaData>
-        where TSagaData : NServiceBus.IContainSagaData
-    {
-        public void ConfigureMapping<TMessage>(System.Linq.Expressions.Expression<System.Func<TMessage, object>> messageProperty) { }
     }
     public sealed class MoveToError : NServiceBus.RecoverabilityAction
     {
@@ -1239,10 +1238,10 @@ namespace NServiceBus
         where TSagaData : NServiceBus.IContainSagaData, new ()
     {
         protected SimpleSaga() { }
-        protected abstract System.Linq.Expressions.Expression<System.Func<TSagaData, object>> CorrelationProperty { get; }
+        protected abstract string CorrelationPropertyName { get; }
         public TSagaData Data { get; set; }
         protected internal override void ConfigureHowToFindSaga(NServiceBus.IConfigureHowToFindSagaWithMessage sagaMessageFindingConfiguration) { }
-        protected abstract void ConfigureHowToFindSaga(NServiceBus.MessagePropertyMapper<TSagaData> mapper);
+        protected abstract void ConfigureHowToFindSaga(NServiceBus.IMessagePropertyMapper mapper);
     }
     [System.ObsoleteAttribute("Performance counters have been released as a separate package: NServiceBus.Window" +
         "sPerformanceCounters. Will be treated as an error from version 7.0.0. Will be re" +
