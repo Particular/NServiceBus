@@ -44,7 +44,7 @@
                 EndpointSetup<DefaultServer>(c => c.LimitMessageProcessingConcurrencyTo(1));
             }
 
-            public class Saga : SimpleSaga<Saga.SagaData>,
+            public class ASimpleSaga : SimpleSaga<ASimpleSaga.SagaData>,
                 IAmStartedByMessages<StartSagaMessage>,
                 IAmStartedByMessages<OtherMessage>
             {

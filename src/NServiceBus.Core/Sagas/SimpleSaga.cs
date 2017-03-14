@@ -16,7 +16,7 @@ namespace NServiceBus
         static bool simpleSagaTypeVerified;
 
         /// <summary>
-        /// Initialize a new instance of <see cref="SimpleSaga{TSagaData}"/>
+        /// Initialize a new instance of <see cref="SimpleSaga{TSagaData}"/>.
         /// </summary>
         protected SimpleSaga()
         {
