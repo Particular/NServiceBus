@@ -5,6 +5,7 @@
     using System.IO;
     using System.Linq;
     using System.Threading.Tasks;
+    using DelayedDelivery;
     using Performance.TimeToBeReceived;
     using Routing;
     using Settings;
@@ -26,7 +27,9 @@
         public override IEnumerable<Type> DeliveryConstraints { get; } = new[]
         {
             typeof(DiscardIfNotReceivedBefore),
-            typeof(NonDurableDelivery)
+            typeof(NonDurableDelivery),
+            typeof(DelayDeliveryWith),
+            typeof(DoNotDeliverBefore)
         };
 
         public override TransportTransactionMode TransactionMode => TransportTransactionMode.SendsAtomicWithReceive;

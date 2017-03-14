@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Concurrent;
     using System.Diagnostics;
+    using System.Globalization;
     using System.IO;
     using System.Linq;
     using System.Threading;
@@ -24,14 +25,18 @@
             this.onError = onError;
 
             path = Path.Combine(basePath, settings.InputQueue);
+            var delayedRootPath = Path.Combine(path, ".delayed");
 
             Directory.CreateDirectory(Path.Combine(path, ".committed"));
+            Directory.CreateDirectory(delayedRootPath);
+
+            delayedRootDirectory = new DirectoryInfo(delayedRootPath);
 
             purgeOnStartup = settings.PurgeOnStartup;
 
             receiveCircuitBreaker = new RepeatedFailuresOverTimeCircuitBreaker("DevelopmentTransportReceive", TimeSpan.FromSeconds(30), ex => criticalError.Raise("Failed to receive from " + settings.InputQueue, ex));
 
-
+            delayedMessagePoller = new Timer(MoveDelayedMessagesToMainDirectory);
             return TaskEx.CompletedTask;
         }
 
@@ -49,6 +54,8 @@
             }
 
             messagePumpTask = Task.Factory.StartNew(() => ProcessMessages(), CancellationToken.None, TaskCreationOptions.LongRunning, TaskScheduler.Default).Unwrap();
+
+            delayedMessagePoller.Change(TimeSpan.FromSeconds(1), TimeSpan.FromMilliseconds(-1));
         }
 
         public async Task Stop()
@@ -232,6 +239,42 @@
             return body;
         }
 
+        void MoveDelayedMessagesToMainDirectory(object state)
+        {
+            try
+            {
+                var delayedDirectories = delayedRootDirectory.EnumerateDirectories();
+
+                foreach (var delayDir in delayedDirectories)
+                {
+                    var timeToTrigger = DateTime.ParseExact(delayDir.Name, "yyyyMMddHHmmss", DateTimeFormatInfo.InvariantInfo);
+
+                    if (DateTime.UtcNow >= timeToTrigger)
+                    {
+                        foreach (var fileInfo in delayDir.EnumerateFiles())
+                        {
+                            File.Move(fileInfo.FullName, Path.Combine(path, fileInfo.Name));
+                        }
+                    }
+
+                    //wait a bit more so we can safely delete the dir
+                    if (DateTime.UtcNow >= timeToTrigger.AddSeconds(10))
+                    {
+                        Directory.Delete(delayDir.FullName);
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.Error("Failed to trigger delayed messages", e);
+            }
+            finally
+            {
+                delayedMessagePoller.Change(TimeSpan.FromSeconds(1), TimeSpan.FromMilliseconds(-1));
+            }
+        }
+
+        DirectoryInfo delayedRootDirectory;
         CancellationToken cancellationToken;
         CancellationTokenSource cancellationTokenSource;
         SemaphoreSlim concurrencyLimiter;
@@ -248,5 +291,8 @@
         string path;
         string basePath;
         RepeatedFailuresOverTimeCircuitBreaker receiveCircuitBreaker;
+        Timer delayedMessagePoller;
     }
+
+
 }

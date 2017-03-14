@@ -5,6 +5,8 @@ namespace NServiceBus
     using System.IO;
     using System.Linq;
     using System.Threading.Tasks;
+    using DelayedDelivery;
+    using DeliveryConstraints;
     using Extensibility;
     using Transport;
 
@@ -64,9 +66,26 @@ namespace NServiceBus
                 HeaderSerializer.ToXml(transportOperation.Message.Headers)
             };
 
-            DirectoryBasedTransaction directoryBasedTransaction;
+            DelayDeliveryWith delayDeliveryWith;
+
+            if (transportOperation.DeliveryConstraints.TryGet(out delayDeliveryWith))
+            {
+                var timeToDeliver = DateTime.UtcNow + delayDeliveryWith.Delay;
+
+                if (timeToDeliver.Millisecond > 0)
+                {
+                    timeToDeliver += TimeSpan.FromSeconds(1);
+                }
+
+                destinationPath = Path.Combine(destinationPath, ".delayed", timeToDeliver.ToString("yyyyMMddHHmmss"));
+
+                Directory.CreateDirectory(destinationPath);
+            }
+
 
             var messagePath = Path.Combine(destinationPath, nativeMessageId) + ".txt";
+
+            DirectoryBasedTransaction directoryBasedTransaction;
 
             if (transportOperation.RequiredDispatchConsistency != DispatchConsistency.Isolated &&
                 transaction.TryGet(out directoryBasedTransaction))
