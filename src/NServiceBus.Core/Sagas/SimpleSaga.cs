@@ -47,9 +47,6 @@ namespace NServiceBus
             }
         }
 
-        /// <summary>
-        /// Override this method in order to configure how messages correlate to <see cref="CorrelationPropertyName"/>.
-        /// </summary>
         protected internal override void ConfigureHowToFindSaga(IConfigureHowToFindSagaWithMessage sagaMessageFindingConfiguration)
         {
             VerifyBaseIsSimpleSaga();
@@ -79,8 +76,7 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// A version of <see cref="ConfigureHowToFindSaga(IConfigureHowToFindSagaWithMessage)" /> wraps
-        /// <see cref="IConfigureHowToFindSagaWithMessage" />.
+        /// Override this method in order to configure how messages correlate to <see cref="CorrelationPropertyName"/>.
         /// </summary>
         protected abstract void ConfigureMapping(IMessagePropertyMapper mapper);
     }
