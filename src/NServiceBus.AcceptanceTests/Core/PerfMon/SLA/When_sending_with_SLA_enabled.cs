@@ -1,7 +1,8 @@
 ﻿// disable obsolete warnings. Tests will be removed in next major version
 #pragma warning disable CS0618
-namespace NServiceBus.AcceptanceTests.PerfMon.CriticalTime
+namespace NServiceBus.AcceptanceTests.Core.PerfMon.SLA
 {
+    using System;
     using System.Diagnostics;
     using System.Threading;
     using System.Threading.Tasks;
@@ -9,13 +10,13 @@ namespace NServiceBus.AcceptanceTests.PerfMon.CriticalTime
     using EndpointTemplates;
     using NUnit.Framework;
 
-    public class When_slow_with_CriticalTime_enabled : NServiceBusAcceptanceTest
+    public class When_sending_with_SLA_enabled : NServiceBusAcceptanceTest
     {
         [Test]
         [Explicit("Since perf counters need to be enabled with powershell")]
         public async Task Should_have_perf_counter_set()
         {
-            using (var counter = new PerformanceCounter("NServiceBus", "Critical Time", "SlowWithCriticaltimeEnabled.Endpoint", true))
+            using (var counter = new PerformanceCounter("NServiceBus", "SLA violation countdown", "SendingWithSLAEnabled.Endpoint", false))
             {
                 using (new Timer(state => CheckPerfCounter(counter), null, 0, 100))
                 {
@@ -27,7 +28,7 @@ namespace NServiceBus.AcceptanceTests.PerfMon.CriticalTime
                     Assert.True(context.WasCalled, "The message handler should be called");
                 }
             }
-            Assert.Greater(counterValue, 2);
+            Assert.Greater(counterValue, 0);
         }
 
         void CheckPerfCounter(PerformanceCounter counter)
@@ -50,7 +51,7 @@ namespace NServiceBus.AcceptanceTests.PerfMon.CriticalTime
         {
             public Endpoint()
             {
-                EndpointSetup<DefaultServer>(builder => builder.EnableCriticalTimePerformanceCounter());
+                EndpointSetup<DefaultServer>(builder => builder.EnableSLAPerformanceCounter(TimeSpan.FromMinutes(10)));
             }
         }
 
@@ -62,10 +63,10 @@ namespace NServiceBus.AcceptanceTests.PerfMon.CriticalTime
         {
             public Context Context { get; set; }
 
-            public async Task Handle(MyMessage message, IMessageHandlerContext context)
+            public Task Handle(MyMessage message, IMessageHandlerContext context)
             {
-                await Task.Delay(2000);
                 Context.WasCalled = true;
+                return Task.FromResult(0);
             }
         }
     }

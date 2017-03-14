@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.AcceptanceTests.NonTx
+﻿namespace NServiceBus.AcceptanceTests.Tx.ImmediateDispatch
 {
     using System;
     using System.Threading.Tasks;
@@ -10,6 +10,8 @@
 
     public class When_sending_inside_ambient_tx : NServiceBusAcceptanceTest
     {
+        //This test is verifying the legacy behavior to immediately dispatch messages via suppressing the transaction scope
+        //This test should be removed when the ForceImmediateDispatchForOperationsInSuppressedScopeBehavior behavior is removed
         [Test]
         public async Task Should_not_roll_the_message_back_to_the_queue_in_case_of_failure()
         {
