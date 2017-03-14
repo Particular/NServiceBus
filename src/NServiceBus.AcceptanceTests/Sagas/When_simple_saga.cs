@@ -43,12 +43,12 @@
                 EndpointSetup<DefaultServer>(c => c.LimitMessageProcessingConcurrencyTo(1));
             }
 
-            public class ASimpleSaga : SimpleSaga<ASimpleSaga.SagaData>,
+            public class ASimpleSaga : SimpleSaga<ASimpleSaga.SimpleSagaData>,
                 IAmStartedByMessages<StartSagaMessage>,
                 IAmStartedByMessages<OtherMessage>
             {
 
-                protected override string CorrelationPropertyName => nameof(SagaData.CorrelationId);
+                protected override string CorrelationPropertyName => nameof(SimpleSagaData.CorrelationId);
 
                 protected override void ConfigureMapping(IMessagePropertyMapper mapper)
                 {
@@ -72,7 +72,7 @@
                     return Task.FromResult(0);
                 }
 
-                public class SagaData : IContainSagaData
+                public class SimpleSagaData : IContainSagaData
                 {
                     public virtual string CorrelationId { get; set; }
                     public virtual Guid Id { get; set; }
