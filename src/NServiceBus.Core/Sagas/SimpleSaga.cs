@@ -2,6 +2,7 @@ namespace NServiceBus
 {
     using System;
     using System.Linq.Expressions;
+    using System.Reflection;
 
     /// <summary>
     /// This class is used to define sagas containing data and handling a message.
@@ -24,9 +25,9 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Gets the correlation propert expression for <typeparamref name="TSagaData"/>.
+        /// Gets the name of the correlation property for <typeparamref name="TSagaData"/>.
         /// </summary>
-        protected abstract Expression<Func<TSagaData, object>> CorrelationProperty { get; }
+        protected abstract string CorrelationPropertyName { get; }
 
         void VerifyBaseIsSimpleSaga()
         {
@@ -70,7 +71,29 @@ namespace NServiceBus
         /// </remarks>
         protected internal override void ConfigureHowToFindSaga(IConfigureHowToFindSagaWithMessage sagaMessageFindingConfiguration)
         {
-            ConfigureHowToFindSaga(new MessagePropertyMapper<TSagaData>(sagaMessageFindingConfiguration, CorrelationProperty));
+            ConfigureHowToFindSaga(new MessagePropertyMapper<TSagaData>(sagaMessageFindingConfiguration, GetExpression()));
+        }
+
+        Expression<Func<TSagaData, object>> GetExpression()
+        {
+            var sagaDataType = typeof(TSagaData);
+            
+            var correlationProperty = sagaDataType
+                .GetProperty(CorrelationPropertyName, BindingFlags.Instance | BindingFlags.GetProperty | BindingFlags.NonPublic | BindingFlags.Public);
+            if (correlationProperty == null)
+            {
+                var message = $"Expected to find a property named {CorrelationPropertyName} on  [{sagaDataType.FullName}].";
+                throw new Exception(message);
+            }
+            var parameterExpression = Expression.Parameter(typeof(TSagaData), "s");
+
+            var propertyExpression = Expression.Property(parameterExpression, correlationProperty);
+            if (correlationProperty.PropertyType == typeof(string))
+            {
+                return Expression.Lambda<Func<TSagaData, object>>(propertyExpression, parameterExpression);
+            }
+            var convert = Expression.Convert(propertyExpression, typeof(object));
+            return Expression.Lambda<Func<TSagaData, object>>(convert, parameterExpression);
         }
 
         /// <summary>

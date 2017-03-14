@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.AcceptanceTests.Sagas
 {
     using System;
-    using System.Linq.Expressions;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
@@ -49,9 +48,9 @@
                 IAmStartedByMessages<OtherMessage>
             {
 
-                protected override Expression<Func<SagaData, object>> CorrelationProperty
+                protected override string CorrelationPropertyName
                 {
-                    get { return data => data.CorrelationId; }
+                    get { return nameof(SagaData.CorrelationId); }
                 }
 
                 protected override void ConfigureHowToFindSaga(MessagePropertyMapper<SagaData> mapper)
