@@ -53,7 +53,7 @@ namespace NServiceBus
         protected internal override void ConfigureHowToFindSaga(IConfigureHowToFindSagaWithMessage sagaMessageFindingConfiguration)
         {
             VerifyBaseIsSimpleSaga();
-            ConfigureMapping(new MessagePropertyMapper<TSagaData>(sagaMessageFindingConfiguration, GetExpression()));
+            ConfigureMapping(new MessagePropertyMapper<TSagaData>(sagaMessageFindingConfiguration, GetExpression(), GetType()));
         }
 
         Expression<Func<TSagaData, object>> GetExpression()
