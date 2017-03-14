@@ -863,6 +863,11 @@ namespace NServiceBus
     {
         public static void LimitMessageProcessingConcurrencyTo(this NServiceBus.EndpointConfiguration config, int maxConcurrency) { }
     }
+    public class MessagePropertyMapper<TSagaData>
+        where TSagaData : NServiceBus.IContainSagaData
+    {
+        public void ConfigureMapping<TMessage>(System.Linq.Expressions.Expression<System.Func<TMessage, object>> messageProperty) { }
+    }
     public sealed class MoveToError : NServiceBus.RecoverabilityAction
     {
         public string ErrorQueue { get; }
@@ -1230,6 +1235,15 @@ namespace NServiceBus
     }
     [System.ObsoleteAttribute("Use `SettingsExtensions` instead. Will be removed in version 7.0.0.", true)]
     public class static SettingsExtentions { }
+    public abstract class SimpleSaga<TSagaData> : NServiceBus.Saga
+        where TSagaData : NServiceBus.IContainSagaData, new ()
+    {
+        protected SimpleSaga() { }
+        protected abstract System.Linq.Expressions.Expression<System.Func<TSagaData, object>> CorrelationProperty { get; }
+        public TSagaData Data { get; set; }
+        protected internal override void ConfigureHowToFindSaga(NServiceBus.IConfigureHowToFindSagaWithMessage sagaMessageFindingConfiguration) { }
+        protected abstract void ConfigureHowToFindSaga(NServiceBus.MessagePropertyMapper<TSagaData> mapper);
+    }
     [System.ObsoleteAttribute("Performance counters have been released as a separate package: NServiceBus.Window" +
         "sPerformanceCounters. Will be treated as an error from version 7.0.0. Will be re" +
         "moved in version 8.0.0.", false)]

@@ -185,6 +185,8 @@
     <Compile Include="Sagas\DefaultSagaIdGenerator.cs" />
     <Compile Include="Sagas\ISagaIdGenerator.cs" />
     <Compile Include="Sagas\SagaIdGeneratorContext.cs" />
+    <Compile Include="Sagas\MessagePropertyMapper.cs" />
+    <Compile Include="Sagas\SimpleSaga.cs" />
     <Compile Include="Serialization\SerializationFeature.cs" />
     <Compile Include="Serialization\SerializationSettingsExtensions.cs" />
     <Compile Include="Serializers\XML\XmlSerialization.cs" />
