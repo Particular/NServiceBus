@@ -2,7 +2,7 @@
 
 All configuration API's should be code first since that allows us to best guide the users and allows us to evolve the API's using obsolete messages.
 
-Configuration API's should be variable based and not returning `this`.
+Configuration API's should be variable based and not returning `this` and therefore not chainable.
 
 Example:
 
