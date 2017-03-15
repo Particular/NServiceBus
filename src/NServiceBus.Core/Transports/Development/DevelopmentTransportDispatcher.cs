@@ -63,7 +63,7 @@ namespace NServiceBus
             var messageContents = new List<string>
             {
                 bodyPath,
-                HeaderSerializer.ToXml(transportOperation.Message.Headers)
+                HeaderSerializer.Serialize(transportOperation.Message.Headers)
             };
 
             DateTime? timeToDeliver = null;
