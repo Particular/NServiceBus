@@ -1,4 +1,4 @@
-## Designing configuration API's
+## Configuration API's
 
 All configuration API's should be code first since that allows us to best guide the users and allows us to evolve the API's using obsolete messages.
 
@@ -16,11 +16,11 @@ myConfig.SomeOtherOption(X);
 
 We prefer this over lambda based API's since:
 
-1. Allows us to use lambdas for config options where we do make use of delayed execution.
+1. Allows the use of lambdas for config options where delayed execution is used.
 2. Users are more comforable with this type of API
 3. Nested configuration options becomes harder to read with lambdas
-4. It can confuse users as to when the lambda actually gets executed. Variable scoping, can I call a DB? etc
-5. Most of our current apis (Transport, Persistence, etc) is variable based
+4. It confuses users as to when the lambda actually gets executed. Variable scoping, can I call a DB? etc
+5. Most of the current apis (Transport, Persistence, etc) is variable based
 
 ### Use lambdas where execution is delayed
 

@@ -1,4 +1,4 @@
-## Performance considerations
+## Performance related
 
 * Avoid allocations in hot paths:
 * Avoid LINQ.
