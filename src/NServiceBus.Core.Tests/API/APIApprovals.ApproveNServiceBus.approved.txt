@@ -695,6 +695,10 @@ namespace NServiceBus
         public static System.Threading.Tasks.Task Reply(this NServiceBus.IMessageProcessingContext context, object message) { }
         public static System.Threading.Tasks.Task Reply<T>(this NServiceBus.IMessageProcessingContext context, System.Action<T> messageConstructor) { }
     }
+    public interface IMessagePropertyMapper
+    {
+        void ConfigureMapping<TMessage>(System.Linq.Expressions.Expression<System.Func<TMessage, object>> messageProperty);
+    }
     public interface IMessageSession
     {
         System.Threading.Tasks.Task Publish(object message, NServiceBus.PublishOptions options);
@@ -1135,6 +1139,15 @@ namespace NServiceBus
         where TSagaData : NServiceBus.IContainSagaData
     {
         public NServiceBus.ToSagaExpression<TSagaData, TMessage> ConfigureMapping<TMessage>(System.Linq.Expressions.Expression<System.Func<TMessage, object>> messageProperty) { }
+    }
+    public abstract class SagaV2<TSagaData> : NServiceBus.Saga
+        where TSagaData : NServiceBus.IContainSagaData, new ()
+    {
+        protected SagaV2() { }
+        protected abstract string CorrelationPropertyName { get; }
+        public TSagaData Data { get; set; }
+        protected internal override void ConfigureHowToFindSaga(NServiceBus.IConfigureHowToFindSagaWithMessage sagaMessageFindingConfiguration) { }
+        protected abstract void ConfigureMapping(NServiceBus.IMessagePropertyMapper mapper);
     }
     [System.ObsoleteAttribute("Will be removed in version 7.0.0.", true)]
     public class static ScaleOutExtentions
