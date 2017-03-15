@@ -31,7 +31,7 @@ top of things.
 
 ## Guidelines
 
-Various guidelines can be found [here](/guidelines).
+Guidelines can be found [here](/guidelines).
 
 ## Submitting Changes
 
