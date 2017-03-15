@@ -31,6 +31,10 @@ top of things.
 
 ## Guidelines
 
+Desing guidelines can be found [here](/guidelines).
+
+TODO: Move this to a new guidelines/performance.md
+
 Avoid allocations in hot paths:
 
 * Avoid LINQ.
