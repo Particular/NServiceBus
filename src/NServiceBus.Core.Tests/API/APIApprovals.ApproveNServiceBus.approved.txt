@@ -337,12 +337,6 @@ namespace NServiceBus
     {
         public static void StorageDirectory(this NServiceBus.TransportExtensions<NServiceBus.DevelopmentTransport> config, string path) { }
     }
-    public class DevelopmentTransportHeader
-    {
-        public DevelopmentTransportHeader() { }
-        public string Key { get; set; }
-        public string Value { get; set; }
-    }
     public class DistributionPolicy : NServiceBus.IDistributionPolicy
     {
         public DistributionPolicy() { }

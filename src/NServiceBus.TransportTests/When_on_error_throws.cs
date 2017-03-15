@@ -43,8 +43,7 @@
 
             var errorContext = await onErrorCalled.Task;
 
-            Assert.AreEqual("Simulated exception", errorContext.Exception.Message);
-            Assert.IsNotNull(criticalError);
-        }
+            Assert.AreEqual("Simulated exception", errorContext.Exception.Message); 
+       }
     }
 }
