@@ -31,7 +31,7 @@ top of things.
 
 ## Guidelines
 
-Desing guidelines can be found [here](/guidelines).
+Various guidelines can be found [here](/guidelines).
 
 ## Submitting Changes
 
