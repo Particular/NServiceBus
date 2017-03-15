@@ -16,7 +16,7 @@ namespace NServiceBus
             serializer = new System.Xml.Serialization.XmlSerializer(typeof(List<DevelopmentTransportHeader>), new XmlRootAttribute("Headers"));
         }
 
-        public static string ToXml(Dictionary<string, string> dictionary)
+        public static string Serialize(Dictionary<string, string> dictionary)
         {
             var builder = new StringBuilder();
             using (var writer = new StringWriter(builder))
@@ -31,7 +31,7 @@ namespace NServiceBus
             return builder.ToString();
         }
 
-        public static Dictionary<string, string> FromString(string value)
+        public static Dictionary<string, string> Deserialize(string value)
         {
             using (var reader = new StringReader(value))
             {
