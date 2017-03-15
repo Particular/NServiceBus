@@ -2,61 +2,33 @@ namespace NServiceBus
 {
     using System.Collections.Generic;
     using System.IO;
-    using System.Linq;
+    using System.Runtime.Serialization.Json;
     using System.Text;
-    using System.Xml.Serialization;
 
-    //todo: switch to the json serializer
     static class HeaderSerializer
     {
         static HeaderSerializer()
         {
-            emptyNamespace = new XmlSerializerNamespaces();
-            emptyNamespace.Add("", "");
-            serializer = new System.Xml.Serialization.XmlSerializer(typeof(List<DevelopmentTransportHeader>), new XmlRootAttribute("Headers"));
+            serializer = new DataContractJsonSerializer(typeof(Dictionary<string, string>));
         }
 
         public static string Serialize(Dictionary<string, string> dictionary)
         {
-            var builder = new StringBuilder();
-            using (var writer = new StringWriter(builder))
+            using (var ms = new MemoryStream())
             {
-                var headers = dictionary.Select(x => new DevelopmentTransportHeader
-                {
-                    Key = x.Key,
-                    Value = x.Value
-                }).ToList();
-                serializer.Serialize(writer, headers, emptyNamespace);
+                serializer.WriteObject(ms, dictionary);
+                return Encoding.UTF8.GetString(ms.ToArray());
             }
-            return builder.ToString();
         }
 
         public static Dictionary<string, string> Deserialize(string value)
         {
-            using (var reader = new StringReader(value))
+            using (var ms = new MemoryStream(Encoding.UTF8.GetBytes(value)))
             {
-                var list = (List<DevelopmentTransportHeader>) serializer.Deserialize(reader);
-                return list.ToDictionary(header => header.Key, header => header.Value);
+                return (Dictionary<string, string>) serializer.ReadObject(ms);
             }
         }
 
-        static System.Xml.Serialization.XmlSerializer serializer;
-        static XmlSerializerNamespaces emptyNamespace;
-    }
-
-    /// <summary>
-    /// DTO for the serializing headers.
-    /// </summary>
-    public class DevelopmentTransportHeader
-    {
-        /// <summary>
-        /// The header key.
-        /// </summary>
-        public string Key { get; set; }
-
-        /// <summary>
-        /// The header value.
-        /// </summary>
-        public string Value { get; set; }
+        static DataContractJsonSerializer serializer;
     }
 }

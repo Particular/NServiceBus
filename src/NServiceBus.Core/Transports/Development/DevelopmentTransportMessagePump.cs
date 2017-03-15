@@ -123,7 +123,7 @@
                     }
                     else
                     {
-                        transaction = new DirectoryBasedTransaction(path);
+                        transaction = new NoTransaction();
                     }
 
                     transaction.BeginTransaction(filePath);
