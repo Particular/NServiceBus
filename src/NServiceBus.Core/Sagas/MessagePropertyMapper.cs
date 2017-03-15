@@ -4,7 +4,7 @@ namespace NServiceBus
     using System.Linq.Expressions;
     using Sagas;
 
-    class MessagePropertyMapper<TSagaData> : IMessagePropertyMapper 
+    class MessagePropertyMapper<TSagaData> : IMessagePropertyMapper
         where TSagaData : IContainSagaData
     {
         internal MessagePropertyMapper(IConfigureHowToFindSagaWithMessage sagaMessageFindingConfiguration, Expression<Func<TSagaData, object>> sagaEntityProperty, Type sagaType)
@@ -18,7 +18,7 @@ namespace NServiceBus
         {
             if (sagaEntityProperty == null)
             {
-                throw new Exception($"The saga '{sagaType.FullName}' has not defined a CorrelationPropertyName hence it is expected that a {nameof(IFindSagas<TSagaData>)} will be defined for all messages the saga handles.");
+                throw new Exception($"The saga '{sagaType.FullName}' has not defined a CorrelationPropertyName, so it is expected that a {nameof(IFindSagas<TSagaData>)} will be defined for all messages the saga handles.");
             }
             Guard.AgainstNull(nameof(messageProperty), messageProperty);
             sagaMessageFindingConfiguration.ConfigureMapping(sagaEntityProperty, messageProperty);

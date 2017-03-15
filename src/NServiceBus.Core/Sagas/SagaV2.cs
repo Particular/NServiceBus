@@ -14,12 +14,10 @@ namespace NServiceBus
     /// <typeparam name="TSagaData">A type that implements <see cref="IContainSagaData" />.</typeparam>
     public abstract class SagaV2<TSagaData> : Saga where TSagaData : IContainSagaData, new()
     {
-
         /// <summary>
         /// Gets the name of the correlation property for <typeparamref name="TSagaData"/>.
         /// </summary>
         protected abstract string CorrelationPropertyName { get; }
-
 
         /// <summary>
         /// The saga's strongly typed data. Wraps <see cref="Saga.Entity" />.
@@ -49,10 +47,9 @@ namespace NServiceBus
             var fullName = typeof(SagaV2<>).FullName;
             if (!baseTypeFullName.StartsWith(fullName))
             {
-                throw new Exception($"Implementations of {fullName} must inherit directly. Deep class hierarchies are not supported.");
+                throw new Exception($"Implementations of {fullName} must inherit from it directly. Deep class hierarchies are not supported.");
             }
         }
-
 
         Expression<Func<TSagaData, object>> GetExpression()
         {
@@ -71,7 +68,7 @@ namespace NServiceBus
             {
                 return correlationProperty;
             }
-            var message = $"Expected to find a property named {CorrelationPropertyName} on [{typeof(TSagaData).FullName}].";
+            var message = $"Expected to find a property named '{CorrelationPropertyName}' on [{typeof(TSagaData).FullName}].";
             throw new Exception(message);
         }
 
