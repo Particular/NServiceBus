@@ -53,6 +53,7 @@ namespace NServiceBus
         /// The header key.
         /// </summary>
         public string Key { get; set; }
+
         /// <summary>
         /// The header value.
         /// </summary>

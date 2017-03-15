@@ -6,6 +6,7 @@ namespace NServiceBus
     class NoTransaction : IDevelopmentTransportTransaction
     {
         public string FileToProcess { get; private set; }
+
         public void BeginTransaction(string incomingFilePath)
         {
             FileToProcess = incomingFilePath;
@@ -30,7 +31,6 @@ namespace NServiceBus
         {
             //no-op
         }
-
 
 
         public void Complete()
