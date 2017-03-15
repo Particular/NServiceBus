@@ -208,6 +208,7 @@
     <Compile Include="Transports\Development\DevelopmentTransportSubscriptionManager.cs" />
     <Compile Include="Transports\Development\DirectoryBasedTransaction.cs" />
     <Compile Include="Transports\Development\HeaderSerializer.cs" />
+    <Compile Include="Transports\Development\NoTransaction.cs" />
     <Compile Include="Transports\Msmq\ReceiveOnlyNativeTransactionStrategy.cs" />
     <Compile Include="Transports\ReceiveSettingsExtensions.cs" />
     <Compile Include="Transports\ErrorContext.cs" />

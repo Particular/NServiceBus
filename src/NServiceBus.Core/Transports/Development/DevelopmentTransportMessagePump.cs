@@ -23,6 +23,7 @@
         {
             this.onMessage = onMessage;
             this.onError = onError;
+            transactionMode = settings.RequiredTransactionMode;
 
             path = Path.Combine(basePath, settings.InputQueue);
             var delayedRootPath = Path.Combine(path, ".delayed");
@@ -114,7 +115,16 @@
 
                     var nativeMessageId = Path.GetFileNameWithoutExtension(filePath);
 
-                    var transaction = new DirectoryBasedTransaction(path);
+                    IDevelopmentTransportTransaction transaction;
+
+                    if (transactionMode != TransportTransactionMode.None)
+                    {
+                        transaction = new DirectoryBasedTransaction(path);
+                    }
+                    else
+                    {
+                        transaction = new DirectoryBasedTransaction(path);
+                    }
 
                     transaction.BeginTransaction(filePath);
 
@@ -141,10 +151,10 @@
                     }, cancellationToken);
 
                     task.ContinueWith(t =>
-                    {
-                        Task toBeRemoved;
-                        runningReceiveTasks.TryRemove(t, out toBeRemoved);
-                    }, TaskContinuationOptions.ExecuteSynchronously)
+                        {
+                            Task toBeRemoved;
+                            runningReceiveTasks.TryRemove(t, out toBeRemoved);
+                        }, TaskContinuationOptions.ExecuteSynchronously)
                         .Ignore();
 
                     runningReceiveTasks.AddOrUpdate(task, task, (k, v) => task)
@@ -158,7 +168,7 @@
             }
         }
 
-        async Task ProcessFile(DirectoryBasedTransaction transaction, string messageId)
+        async Task ProcessFile(IDevelopmentTransportTransaction transaction, string messageId)
         {
             try
             {
@@ -213,7 +223,6 @@
                             return;
                         }
                     }
-
                 }
 
                 if (tokenSource.IsCancellationRequested)
@@ -233,7 +242,7 @@
         static async Task<byte[]> ReadStream(Stream bodyStream)
         {
             bodyStream.Seek(0, SeekOrigin.Begin);
-            var length = (int)bodyStream.Length;
+            var length = (int) bodyStream.Length;
             var body = new byte[length];
             await bodyStream.ReadAsync(body, 0, length).ConfigureAwait(false);
             return body;
@@ -284,7 +293,6 @@
         Func<MessageContext, Task> onMessage;
         bool purgeOnStartup;
         ConcurrentDictionary<Task, Task> runningReceiveTasks;
-        static ILog Logger = LogManager.GetLogger<DevelopmentTransportMessagePump>();
         Func<ErrorContext, Task<ErrorHandleResult>> onError;
 
         ConcurrentDictionary<string, int> retryCounts = new ConcurrentDictionary<string, int>();
@@ -292,7 +300,7 @@
         string basePath;
         RepeatedFailuresOverTimeCircuitBreaker receiveCircuitBreaker;
         Timer delayedMessagePoller;
+        TransportTransactionMode transactionMode;
+        static ILog Logger = LogManager.GetLogger<DevelopmentTransportMessagePump>();
     }
-
-
 }
