@@ -96,7 +96,7 @@ namespace NServiceBus
 
             var messagePath = Path.Combine(destinationPath, nativeMessageId) + ".txt";
 
-            DirectoryBasedTransaction directoryBasedTransaction;
+            IDevelopmentTransportTransaction directoryBasedTransaction;
 
             if (transportOperation.RequiredDispatchConsistency != DispatchConsistency.Isolated &&
                 transaction.TryGet(out directoryBasedTransaction))
