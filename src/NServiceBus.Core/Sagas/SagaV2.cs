@@ -12,7 +12,7 @@ namespace NServiceBus
     /// implement <see cref="IAmStartedByMessages{T}" /> for the relevant message type.
     /// </summary>
     /// <typeparam name="TSagaData">A type that implements <see cref="IContainSagaData" />.</typeparam>
-    public abstract class SimpleSaga<TSagaData> : Saga where TSagaData : IContainSagaData, new()
+    public abstract class SagaV2<TSagaData> : Saga where TSagaData : IContainSagaData, new()
     {
 
         /// <summary>
@@ -20,19 +20,6 @@ namespace NServiceBus
         /// </summary>
         protected abstract string CorrelationPropertyName { get; }
 
-        void VerifyBaseIsSimpleSaga()
-        {
-            if (!IsBaseSimpleSaga())
-            {
-                throw new Exception("Implementations of SimpleSaga must inherit directly. Deep class hierarchies are not supported.");
-            }
-        }
-
-        bool IsBaseSimpleSaga()
-        {
-            return GetType().BaseType.FullName
-                .StartsWith("NServiceBus.SimpleSaga");
-        }
 
         /// <summary>
         /// The saga's strongly typed data. Wraps <see cref="Saga.Entity" />.
@@ -52,9 +39,20 @@ namespace NServiceBus
         /// </summary>
         protected internal override void ConfigureHowToFindSaga(IConfigureHowToFindSagaWithMessage sagaMessageFindingConfiguration)
         {
-            VerifyBaseIsSimpleSaga();
+            VerifyBase();
             ConfigureMapping(new MessagePropertyMapper<TSagaData>(sagaMessageFindingConfiguration, GetExpression(), GetType()));
         }
+
+        void VerifyBase()
+        {
+            var baseTypeFullName = GetType().BaseType.FullName;
+            var fullName = typeof(SagaV2<>).FullName;
+            if (!baseTypeFullName.StartsWith(fullName))
+            {
+                throw new Exception($"Implementations of {fullName} must inherit directly. Deep class hierarchies are not supported.");
+            }
+        }
+
 
         Expression<Func<TSagaData, object>> GetExpression()
         {

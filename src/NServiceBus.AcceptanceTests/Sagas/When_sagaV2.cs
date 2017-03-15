@@ -6,7 +6,7 @@
     using EndpointTemplates;
     using NUnit.Framework;
 
-    public class When_simple_saga : NServiceBusAcceptanceTest
+    public class When_sagaV2 : NServiceBusAcceptanceTest
     {
         [Test]
         public async Task Should_execute_saga()
@@ -37,19 +37,19 @@
                 EndpointSetup<DefaultServer>();
             }
 
-            public class ASimpleSaga : SimpleSaga<ASimpleSaga.SimpleSagaData>,
+            public class ASagaV2 : SagaV2<ASagaV2.SagaV2Data>,
                 IAmStartedByMessages<StartSagaMessage>,
                 IAmStartedByMessages<OtherMessage>
             {
 
                 Context context;
 
-                public ASimpleSaga(Context context)
+                public ASagaV2(Context context)
                 {
                     this.context = context;
                 }
 
-                protected override string CorrelationPropertyName => nameof(SimpleSagaData.CorrelationId);
+                protected override string CorrelationPropertyName => nameof(SagaV2Data.CorrelationId);
 
                 protected override void ConfigureMapping(IMessagePropertyMapper mapper)
                 {
@@ -77,7 +77,7 @@
                     return handlerContext.SendLocal(otherMessage);
                 }
 
-                public class SimpleSagaData : IContainSagaData
+                public class SagaV2Data : IContainSagaData
                 {
                     public virtual string CorrelationId { get; set; }
                     public virtual Guid Id { get; set; }
