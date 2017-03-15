@@ -6,7 +6,7 @@ namespace NServiceBus.Config
     /// Contains the properties representing the MsmqSubscriptionStorage configuration section.
     /// </summary>
     [ObsoleteEx(
-        Message = "MSMQ subscription storage configuration via configuration section is discouraged.",
+        Message = "Configuring MSMQ subscription storage via configuration section is discouraged.",
         ReplacementTypeOrMember = "EndpointConfiguration.UsePersistence<MsmqPersistence>()",
         TreatAsErrorFromVersion = "7",
         RemoveInVersion = "8")]
@@ -18,7 +18,7 @@ namespace NServiceBus.Config
         /// </summary>
         [ConfigurationProperty("Queue", IsRequired = true)]
         [ObsoleteEx(
-        Message = "MSMQ subscription storage configuration via configuration section is discouraged.",
+        Message = "Configuring MSMQ subscription storage via configuration section is discouraged.",
             ReplacementTypeOrMember = "EndpointConfiguration.UsePersistence<MsmqPersistence>().SubscriptionQueue",
             TreatAsErrorFromVersion = "7",
             RemoveInVersion = "8")]

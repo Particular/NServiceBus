@@ -8,12 +8,11 @@
     public static class MsmqSubscriptionStorageConfigurationExtensions
     {
         /// <summary>
-        /// Configures the queue to store subscriptions by <see cref="MsmqPersistence"/>.
+        /// Configures the queue used to store subscriptions.
         /// </summary>
         /// <param name="persistenceExtensions">The settings to extend.</param>
         /// <param name="queue">The queue name.</param>
-        public static void SubscriptionQueue<T>(this PersistenceExtensions<T> persistenceExtensions, string queue) 
-            where T : MsmqPersistence
+        public static void SubscriptionQueue(this PersistenceExtensions<MsmqPersistence> persistenceExtensions, string queue)
         {
             Guard.AgainstNull(nameof(persistenceExtensions), persistenceExtensions);
             Guard.AgainstNull(nameof(queue), queue);
@@ -22,12 +21,11 @@
         }
 
         /// <summary>
-        /// Configures the queue to store subscriptions by <see cref="MsmqPersistence"/>.
+        /// Configures the queue used to store subscriptions.
         /// </summary>
         /// <param name="persistenceExtensions">The settings to extend.</param>
         /// <param name="queue">The queue name.</param>
-        public static void SubscriptionQueue<T, S>(this PersistenceExtensions<T, S> persistenceExtensions, string queue) 
-            where T : MsmqPersistence 
+        public static void SubscriptionQueue<S>(this PersistenceExtensions<MsmqPersistence, S> persistenceExtensions, string queue)
             where S : StorageType
         {
             Guard.AgainstNull(nameof(persistenceExtensions), persistenceExtensions);

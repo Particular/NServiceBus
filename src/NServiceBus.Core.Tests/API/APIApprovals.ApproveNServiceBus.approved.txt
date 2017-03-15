@@ -1522,17 +1522,17 @@ namespace NServiceBus.Config
             "rsion 7.0.0. Will be removed in version 8.0.0.", false)]
         public string ErrorQueue { get; set; }
     }
-    [System.ObsoleteAttribute("MSMQ subscription storage configuration via configuration section is discouraged." +
-        " Use `EndpointConfiguration.UsePersistence<MsmqPersistence>()` instead. Will be " +
-        "treated as an error from version 7.0.0. Will be removed in version 8.0.0.", false)]
+    [System.ObsoleteAttribute("Configuring MSMQ subscription storage via configuration section is discouraged. U" +
+        "se `EndpointConfiguration.UsePersistence<MsmqPersistence>()` instead. Will be tr" +
+        "eated as an error from version 7.0.0. Will be removed in version 8.0.0.", false)]
     public class MsmqSubscriptionStorageConfig : System.Configuration.ConfigurationSection
     {
         public MsmqSubscriptionStorageConfig() { }
         [System.Configuration.ConfigurationPropertyAttribute("Queue", IsRequired=true)]
-        [System.ObsoleteAttribute("MSMQ subscription storage configuration via configuration section is discouraged." +
-            " Use `EndpointConfiguration.UsePersistence<MsmqPersistence>().SubscriptionQueue`" +
-            " instead. Will be treated as an error from version 7.0.0. Will be removed in ver" +
-            "sion 8.0.0.", false)]
+        [System.ObsoleteAttribute("Configuring MSMQ subscription storage via configuration section is discouraged. U" +
+            "se `EndpointConfiguration.UsePersistence<MsmqPersistence>().SubscriptionQueue` i" +
+            "nstead. Will be treated as an error from version 7.0.0. Will be removed in versi" +
+            "on 8.0.0.", false)]
         public string Queue { get; set; }
     }
     [System.ObsoleteAttribute("Message property encryption is released as a dedicated \'NServiceBus.Encryption.Me" +
@@ -2414,10 +2414,8 @@ namespace NServiceBus.Persistence.Legacy
     public class MsmqPersistence : NServiceBus.Persistence.PersistenceDefinition { }
     public class static MsmqSubscriptionStorageConfigurationExtensions
     {
-        public static void SubscriptionQueue<T>(this NServiceBus.PersistenceExtensions<T> persistenceExtensions, string queue)
-            where T : NServiceBus.Persistence.Legacy.MsmqPersistence { }
-        public static void SubscriptionQueue<T, S>(this NServiceBus.PersistenceExtensions<T, S> persistenceExtensions, string queue)
-            where T : NServiceBus.Persistence.Legacy.MsmqPersistence
+        public static void SubscriptionQueue(this NServiceBus.PersistenceExtensions<NServiceBus.Persistence.Legacy.MsmqPersistence> persistenceExtensions, string queue) { }
+        public static void SubscriptionQueue<S>(this NServiceBus.PersistenceExtensions<NServiceBus.Persistence.Legacy.MsmqPersistence, S> persistenceExtensions, string queue)
             where S : NServiceBus.Persistence.StorageType { }
     }
 }
