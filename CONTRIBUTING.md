@@ -33,14 +33,6 @@ top of things.
 
 Desing guidelines can be found [here](/guidelines).
 
-TODO: Move this to a new guidelines/performance.md
-
-Avoid allocations in hot paths:
-
-* Avoid LINQ.
-* Avoid using foreach over collections that do not have a struct enumerator. For public facing interfaces we favor readonly collections and enumerables. For internal types we favor speed and allocation reduction, therefore avoid using collection interfaces internally.
-
-
 ## Submitting Changes
 
 * Sign the [Contributor License Agreement](http://www.particular.net/contributors-license-agreement-consent).

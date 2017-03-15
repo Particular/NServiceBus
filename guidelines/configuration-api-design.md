@@ -7,19 +7,19 @@ Configuration API's should be variable based and not returning `this`.
 Example:
 
 ```
-var myFeatureConfig = endpointConfig.EnableMyFeature()
+var myConfig = endpointConfig.SomethingNeedingConfig()
 
-myFeatureConfig.SomeOption(X);
-myFeatureConfig.SomeOtherOption(X);
+myConfig.SomeOption(X);
+myConfig.SomeOtherOption(X);
 
 ```
 
 We prefer this over lambda based API's since:
 
-1. Users are more comforable with this type of API
-2. Nested configuration options becomes harder to read with lambdas
-3. It can confuse users as to when the lambda actually gets executed. Variable scoping, can I call a DB? etc
-4. Allows us to use lambdas for config options where we do make use of delayed execution.
+1. Allows us to use lambdas for config options where we do make use of delayed execution.
+2. Users are more comforable with this type of API
+3. Nested configuration options becomes harder to read with lambdas
+4. It can confuse users as to when the lambda actually gets executed. Variable scoping, can I call a DB? etc
 5. Most of our current apis (Transport, Persistence, etc) is variable based
 
 ### Use lambdas where execution is delayed
@@ -31,6 +31,6 @@ Example:
 ```
 var transportConfig = endpointConfig.UseTransport<MsmqTransport>();
 
-transportConfig.MsmqLabelGeneratonr(context => return $"{context.Headers['NServiceBus.EnclosedMessageTypes']}");
+transportConfig.MsmqLabelGenerator(context => return $"{context.Headers['NServiceBus.EnclosedMessageTypes']}");
 
 ```
