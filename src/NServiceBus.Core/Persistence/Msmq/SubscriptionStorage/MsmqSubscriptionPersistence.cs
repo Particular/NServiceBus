@@ -2,6 +2,7 @@
 {
     using Config;
     using Logging;
+    using Persistence.Legacy;
     using Transport;
 
     /// <summary>
@@ -19,7 +20,7 @@
         /// <param name="context">The feature context.</param>
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-            var queueName = context.Settings.GetOrDefault<string>("MsmqSubscriptionPersistence.QueueName");
+            var queueName = context.Settings.GetConfiguredMsmqPersistenceSubscriptionQueue();
 
             var cfg = context.Settings.GetConfigSection<MsmqSubscriptionStorageConfig>();
 
