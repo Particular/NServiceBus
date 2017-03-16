@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.AcceptanceTests.Sagas
+﻿namespace NServiceBus.AcceptanceTests.Core.Sagas
 {
     using System;
     using System.Security.Cryptography;
@@ -10,7 +10,6 @@
     using Features;
     using NServiceBus.Sagas;
     using NUnit.Framework;
-    using Persistence;
 
     public class When_overriding_saga_id_creation : NServiceBusAcceptanceTest
     {
@@ -41,7 +40,7 @@
                 EndpointSetup<DefaultServer>(config =>
                 {
                     config.EnableFeature<TimeoutManager>();
-                    config.UsePersistence<InMemoryPersistence, StorageType.Sagas>();
+                    config.UsePersistence<InMemoryPersistence>();
                     config.GetSettings().Set<ISagaIdGenerator>(new CustomSagaIdGenerator());
                 });
             }
