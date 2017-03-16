@@ -5,7 +5,6 @@ namespace NServiceBus
     using System.IO;
     using System.Threading.Tasks;
     using Extensibility;
-    using Features;
     using Persistence;
     using Sagas;
 
