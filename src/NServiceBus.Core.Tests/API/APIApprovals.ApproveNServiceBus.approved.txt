@@ -2415,8 +2415,6 @@ namespace NServiceBus.Persistence.Legacy
     public class static MsmqSubscriptionStorageConfigurationExtensions
     {
         public static void SubscriptionQueue(this NServiceBus.PersistenceExtensions<NServiceBus.Persistence.Legacy.MsmqPersistence> persistenceExtensions, string queue) { }
-        public static void SubscriptionQueue<S>(this NServiceBus.PersistenceExtensions<NServiceBus.Persistence.Legacy.MsmqPersistence, S> persistenceExtensions, string queue)
-            where S : NServiceBus.Persistence.StorageType { }
     }
 }
 namespace NServiceBus.Pipeline

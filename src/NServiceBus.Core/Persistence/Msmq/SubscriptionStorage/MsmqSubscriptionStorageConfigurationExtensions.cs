@@ -20,20 +20,6 @@
             persistenceExtensions.Settings.Set(msmqPersistenceQueueConfigurationKey, queue);
         }
 
-        /// <summary>
-        /// Configures the queue used to store subscriptions.
-        /// </summary>
-        /// <param name="persistenceExtensions">The settings to extend.</param>
-        /// <param name="queue">The queue name.</param>
-        public static void SubscriptionQueue<S>(this PersistenceExtensions<MsmqPersistence, S> persistenceExtensions, string queue)
-            where S : StorageType
-        {
-            Guard.AgainstNull(nameof(persistenceExtensions), persistenceExtensions);
-            Guard.AgainstNull(nameof(queue), queue);
-
-            persistenceExtensions.Settings.Set(msmqPersistenceQueueConfigurationKey, queue);
-        }
-
         internal static string GetConfiguredMsmqPersistenceSubscriptionQueue(this ReadOnlySettings settings)
         {
             return settings.GetOrDefault<string>(msmqPersistenceQueueConfigurationKey);
