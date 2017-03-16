@@ -10,6 +10,6 @@
         public bool SupportsNativeDeferral => true;
         public bool SupportsOutbox => true;
         public IConfigureEndpointTestExecution CreateTransportConfiguration() => new ConfigureEndpointLearningTransport();
-        public IConfigureEndpointTestExecution CreatePersistenceConfiguration() => new ConfigureEndpointInMemoryPersistence();
+        public IConfigureEndpointTestExecution CreatePersistenceConfiguration => new ConfigureEndpointDevelopmentPersistence();
     }
 }
