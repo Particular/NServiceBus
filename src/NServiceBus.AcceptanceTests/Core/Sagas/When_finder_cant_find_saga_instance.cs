@@ -1,18 +1,18 @@
-﻿namespace NServiceBus.AcceptanceTests.Sagas
+﻿namespace NServiceBus.AcceptanceTests.Core.Sagas
 {
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
     using Extensibility;
     using NServiceBus;
+    using NServiceBus.Persistence;
     using NServiceBus.Sagas;
     using NUnit.Framework;
-    using Persistence;
 
     [TestFixture]
     public class When_finder_cant_find_saga_instance : NServiceBusAcceptanceTest
     {
-        [Test, Ignore("Not sure what to do here, since the start message has no corr prop we can't generate the SagaId, perhaps custom finder isn't supported for the devstorage?")]
+        [Test]
         public async Task Should_start_new_saga()
         {
             var context = await Scenario.Define<Context>()
@@ -34,7 +34,7 @@
         {
             public SagaEndpoint()
             {
-                EndpointSetup<DefaultServer>();
+                EndpointSetup<DefaultServer>(c => c.UsePersistence<InMemoryPersistence>());
             }
 
             class CustomFinder : IFindSagas<TestSaga06.SagaData06>.Using<StartSagaMessage>

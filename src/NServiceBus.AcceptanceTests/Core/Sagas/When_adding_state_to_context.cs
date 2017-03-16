@@ -1,4 +1,4 @@
-namespace NServiceBus.AcceptanceTests.Sagas
+namespace NServiceBus.AcceptanceTests.Core.Sagas
 {
     using System;
     using System.Threading.Tasks;
@@ -6,15 +6,15 @@ namespace NServiceBus.AcceptanceTests.Sagas
     using EndpointTemplates;
     using Extensibility;
     using NServiceBus;
+    using NServiceBus.Persistence;
     using NServiceBus.Pipeline;
     using NServiceBus.Sagas;
     using NUnit.Framework;
-    using Persistence;
 
     [TestFixture]
     public class When_adding_state_to_context : NServiceBusAcceptanceTest
     {
-        [Test, Ignore("Not sure what to do here, since the start message has no corr prop we can't generate the SagaId, perhaps custom finder isn't supported for the devstorage?")]
+        [Test]
         public async Task Should_make_state_available_to_finder_context()
         {
             var context = await Scenario.Define<Context>()
@@ -39,6 +39,7 @@ namespace NServiceBus.AcceptanceTests.Sagas
             {
                 EndpointSetup<DefaultServer>(c =>
                 {
+                    c.UsePersistence<InMemoryPersistence>();
                     c.Pipeline.Register(new BehaviorWhichAddsThingsToTheContext(), "adds some data to the context");
                 });
             }
