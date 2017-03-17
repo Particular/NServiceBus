@@ -19,15 +19,7 @@
             Requires.MessageDrivenPubSub();
 
             var context = await Scenario.Define<Context>()
-                .WithEndpoint<Publisher>(b => b.When((session, ctx) =>
-                {
-                    if (ctx.HasNativePubSubSupport)
-                    {
-                        ctx.Subscribed = true;
-                        ctx.AddTrace("EndpointThatHandlesAMessageAndPublishesEvent is now subscribed (at least we have asked the broker to be subscribed)");
-                    }
-                    return Task.FromResult(0);
-                }))
+                .WithEndpoint<Publisher>()
                 .WithEndpoint<SagaEndpoint>(b =>
                     b.When(c => c.Subscribed, session => session.SendLocal(new StartSaga2
                     {
@@ -62,7 +54,6 @@
             {
                 public Task Handle(OpenGroupCommand message, IMessageHandlerContext context)
                 {
-                    Console.WriteLine("Received OpenGroupCommand for RunId:{0} ... and publishing GroupPendingEvent", message.DataId);
                     return context.Publish(new GroupPendingEvent
                     {
                         DataId = message.DataId
@@ -91,7 +82,6 @@
 
                 public Task Handle(GroupPendingEvent message, IMessageHandlerContext context)
                 {
-                    Console.Out.WriteLine("Saga1 received GroupPendingEvent for RunId: {0}", message.DataId);
                     return context.SendLocal(new CompleteSaga1Now
                     {
                         DataId = message.DataId
@@ -100,7 +90,6 @@
 
                 public Task Handle(CompleteSaga1Now message, IMessageHandlerContext context)
                 {
-                    Console.Out.WriteLine("Saga1 received CompleteSaga1Now for RunId:{0} and MarkAsComplete", message.DataId);
                     TestContext.DidSaga1EventHandlerGetInvoked = true;
 
                     MarkAsComplete();
@@ -128,7 +117,6 @@
 
                 public Task Handle(StartSaga2 message, IMessageHandlerContext context)
                 {
-                    Console.Out.WriteLine("Saga2 sending OpenGroupCommand for RunId: {0}", Data.DataId);
                     return context.Send(new OpenGroupCommand
                     {
                         DataId = Data.DataId
@@ -138,7 +126,6 @@
                 public Task Handle(GroupPendingEvent message, IMessageHandlerContext context)
                 {
                     TestContext.DidSaga2EventHandlerGetInvoked = true;
-                    Console.Out.WriteLine("Saga2 received GroupPendingEvent for RunId: {0} and MarkAsComplete", message.DataId);
                     MarkAsComplete();
                     return Task.FromResult(0);
                 }

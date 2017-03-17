@@ -4,7 +4,12 @@
     using System.Collections.Generic;
     using System.IO;
     using System.Runtime.Serialization.Json;
+    using System.Threading.Tasks;
+    using Extensibility;
+    using NServiceBus.Outbox;
     using NServiceBus.Sagas;
+    using Persistence;
+    using Transport;
 
     class DevelopmentSagaPersistence : Feature
     {
@@ -37,15 +42,33 @@
                 var manifest = new SagaManifest
                 {
                     StorageDirectory = sagaStorageDir,
-                    Serializer = new DataContractJsonSerializer(metadata.SagaEntityType)
+                    Serializer = new DataContractJsonSerializer(metadata.SagaEntityType),
+                    SagaEntityType = metadata.SagaEntityType
                 };
 
                 sagaManifests[metadata.SagaEntityType] = manifest;
             }
 
+            context.Container.ConfigureComponent<DevelopmentSyncronizedStorage>(DependencyLifecycle.SingleInstance);
+            context.Container.ConfigureComponent<DevelopmentStorageAdapter>(DependencyLifecycle.SingleInstance);
+
             context.Container.ConfigureComponent(b => new DevelopmentSagaPersister(sagaManifests), DependencyLifecycle.SingleInstance);
         }
 
         internal static string StorageLocationKey = "DevelopmentSagaPersistence.StorageLocation";
+    }
+
+    class DevelopmentStorageAdapter: ISynchronizedStorageAdapter
+    {
+        public Task<CompletableSynchronizedStorageSession> TryAdapt(OutboxTransaction transaction, ContextBag context)
+        {
+            return Task.FromResult<CompletableSynchronizedStorageSession>(null);
+        }
+
+        public Task<CompletableSynchronizedStorageSession> TryAdapt(TransportTransaction transportTransaction, ContextBag context)
+        {
+
+            return Task.FromResult<CompletableSynchronizedStorageSession>(null);
+        }
     }
 }

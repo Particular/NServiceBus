@@ -7,7 +7,8 @@ public class ConfigureEndpointDevelopmentPersistence : IConfigureEndpointTestExe
 {
     public Task Configure(string endpointName, EndpointConfiguration configuration, RunSettings settings, PublisherMetadata publisherMetadata)
     {
-        configuration.UsePersistence<InMemoryPersistence>();
+        configuration.UsePersistence<InMemoryPersistence,StorageType.Subscriptions>();
+        configuration.UsePersistence<InMemoryPersistence, StorageType.Timeouts>();
 
         configuration.UsePersistence<DevelopmentPersistence, StorageType.Sagas>()
             .SagaStorageDirectory(@"c:\temp\sagas"); //todo: for now to avoid path to long on the build agents

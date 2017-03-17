@@ -136,6 +136,8 @@
     <Compile Include="Persistence\Development\SagaPersister\DevelopmentSagaIdGenerator.cs" />
     <Compile Include="Persistence\Development\SagaPersister\DevelopmentSagaPersistence.cs" />
     <Compile Include="Persistence\Development\SagaPersister\DevelopmentSagaPersister.cs" />
+    <Compile Include="Persistence\Development\SagaPersister\DevelopmentSyncronizedStorage.cs" />
+    <Compile Include="Persistence\Development\SagaPersister\DevelopmentSyncronizedStorageSession.cs" />
     <Compile Include="Persistence\Development\SagaPersister\SagaManifest.cs" />
     <Compile Include="Persistence\Msmq\SubscriptionStorage\MsmqSubscriptionMessage.cs" />
     <Compile Include="Persistence\Msmq\SubscriptionStorage\MsmqSubscriptionStorageConfigurationExtensions.cs" />
