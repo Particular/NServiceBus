@@ -12,7 +12,7 @@
 
     public class ScenarioRunner
     {
-        public static async Task Run(RunDescriptor runDescriptor, List<EndpointBehavior> behaviorDescriptors, Func<ScenarioContext, bool> done)
+        public static async Task<RunSummary> Run(RunDescriptor runDescriptor, List<EndpointBehavior> behaviorDescriptors, Func<ScenarioContext, bool> done)
         {
             Console.WriteLine("Started test @ {0}", DateTime.Now.ToString(CultureInfo.InvariantCulture));
 
@@ -22,68 +22,16 @@
 
             Console.WriteLine("Finished test @ {0}", DateTime.Now.ToString(CultureInfo.InvariantCulture));
 
-            var runSummary = new RunSummary
+            return new RunSummary
             {
                 Result = runResult,
                 RunDescriptor = runDescriptor,
                 Endpoints = behaviorDescriptors
             };
 
-            DisplayRunResult(runSummary);
-
-            if (runSummary.Result.Failed)
-            {
-                throw runSummary.Result.Exception;
-            }
         }
 
-        static void DisplayRunResult(RunSummary summary)
-        {
-            var runDescriptor = summary.RunDescriptor;
-            var runResult = summary.Result;
 
-            Console.WriteLine("------------------------------------------------------");
-            Console.WriteLine("Test summary:");
-            Console.WriteLine();
-
-            PrintSettings(runDescriptor.Settings);
-
-            Console.WriteLine();
-            Console.WriteLine("Endpoints:");
-
-            foreach (var endpoint in runResult.ActiveEndpoints)
-            {
-                Console.WriteLine("     - {0}", endpoint);
-            }
-
-            if (runResult.Failed)
-            {
-                Console.WriteLine("Test failed: {0}", runResult.Exception);
-            }
-            else
-            {
-                Console.WriteLine("Result: Successful - Duration: {0}", runResult.TotalTime);
-            }
-
-            //dump trace and context regardless since asserts outside the should could still fail the test
-            Console.WriteLine();
-            Console.WriteLine("Context:");
-
-            foreach (var prop in runResult.ScenarioContext.GetType().GetProperties())
-            {
-                if (prop.Name == "Trace")
-                {
-                    continue;
-                }
-
-                Console.WriteLine("{0} = {1}", prop.Name, prop.GetValue(runResult.ScenarioContext, null));
-            }
-
-            Console.WriteLine();
-            Console.WriteLine("Trace:");
-            Console.WriteLine(runResult.ScenarioContext.Trace);
-            Console.WriteLine("------------------------------------------------------");
-        }
 
         static async Task<RunResult> PerformTestRun(List<EndpointBehavior> behaviorDescriptors, RunDescriptor runDescriptor, Func<ScenarioContext, bool> done)
         {
@@ -116,16 +64,6 @@
             return runResult;
         }
 
-        static void PrintSettings(IEnumerable<KeyValuePair<string, object>> settings)
-        {
-            Console.WriteLine();
-            Console.WriteLine("Using settings:");
-            foreach (var pair in settings)
-            {
-                Console.WriteLine("   {0}: {1}", pair.Key, pair.Value);
-            }
-            Console.WriteLine();
-        }
 
         static async Task PerformScenarios(RunDescriptor runDescriptor, EndpointRunner[] runners, Func<bool> done)
         {

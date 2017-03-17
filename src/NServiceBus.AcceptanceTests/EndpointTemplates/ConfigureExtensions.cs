@@ -6,33 +6,25 @@
 
     public static class ConfigureExtensions
     {
-        public static Task DefineTransport(this EndpointConfiguration config, RunSettings settings, EndpointCustomizationConfiguration endpointCustomizationConfiguration)
+        public static async Task DefineTransport(this EndpointConfiguration config, RunDescriptor runDescriptor, EndpointCustomizationConfiguration endpointCustomizationConfiguration)
         {
-            return ConfigureTestExecution(TestSuiteConstraints.Current.CreateTransportConfiguration(), config, settings, endpointCustomizationConfiguration.EndpointName, endpointCustomizationConfiguration.PublisherMetadata);
+            var transportConfiguration = TestSuiteConstraints.Current.TransportConfiguration;
+            if (transportConfiguration == null)
+            await transportConfiguration.Configure(endpointCustomizationConfiguration.EndpointName, config, runDescriptor.Settings, endpointCustomizationConfiguration.PublisherMetadata);
+            runDescriptor.OnTestCompleted(_ => transportConfiguration.Cleanup());
         }
 
-        public static Task DefinePersistence(this EndpointConfiguration config, RunSettings settings, EndpointCustomizationConfiguration endpointCustomizationConfiguration)
+        public static async Task DefinePersistence(this EndpointConfiguration config, RunDescriptor runDescriptor, EndpointCustomizationConfiguration endpointCustomizationConfiguration)
         {
-            return ConfigureTestExecution(TestSuiteConstraints.Current.CreatePersistenceConfiguration(), config, settings, endpointCustomizationConfiguration.EndpointName, endpointCustomizationConfiguration.PublisherMetadata);
+            var persistenceConfiguration = TestSuiteConstraints.Current.PersistenceConfiguration;
+            if (persistenceConfiguration == null)
+            await persistenceConfiguration.Configure(endpointCustomizationConfiguration.EndpointName, config, runDescriptor.Settings, endpointCustomizationConfiguration.PublisherMetadata);
+            runDescriptor.OnTestCompleted(_ => persistenceConfiguration.Cleanup());
         }
 
         public static void RegisterComponentsAndInheritanceHierarchy(this EndpointConfiguration builder, RunDescriptor runDescriptor)
         {
             builder.RegisterComponents(r => { RegisterInheritanceHierarchyOfContextOnContainer(runDescriptor, r); });
-        }
-
-        static async Task ConfigureTestExecution(IConfigureEndpointTestExecution configurer, EndpointConfiguration config, RunSettings settings, string endpointName, PublisherMetadata publisherMetadata)
-        {
-            await configurer.Configure(endpointName, config, settings, publisherMetadata).ConfigureAwait(false);
-
-            ActiveTestExecutionConfigurer cleaners;
-            var cleanerKey = "ConfigureTestExecution." + endpointName;
-            if (!settings.TryGet(cleanerKey, out cleaners))
-            {
-                cleaners = new ActiveTestExecutionConfigurer();
-                settings.Set(cleanerKey, cleaners);
-            }
-            cleaners.Add(configurer);
         }
 
         static void RegisterInheritanceHierarchyOfContextOnContainer(RunDescriptor runDescriptor, IConfigureComponents r)
@@ -43,12 +35,6 @@
                 r.RegisterSingleton(type, runDescriptor.ScenarioContext);
                 type = type.BaseType;
             }
-        }
-
-        enum TestDependencyType
-        {
-            Transport,
-            Persistence
         }
     }
 }

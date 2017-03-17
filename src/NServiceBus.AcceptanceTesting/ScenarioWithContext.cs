@@ -4,49 +4,14 @@ namespace NServiceBus.AcceptanceTesting
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Threading.Tasks;
-    using Support;
     using Logging;
+    using Support;
 
     public class ScenarioWithContext<TContext> : IScenarioWithEndpointBehavior<TContext> where TContext : ScenarioContext, new()
     {
         public ScenarioWithContext(Action<TContext> initializer)
         {
             contextInitializer = initializer;
-        }
-
-        public Task<TContext> Run(TimeSpan? testExecutionTimeout = null)
-        {
-            var settings = new RunSettings();
-            if (testExecutionTimeout.HasValue)
-            {
-                settings.TestExecutionTimeout = testExecutionTimeout.Value;
-            }
-
-            return Run(settings);
-        }
-
-        public async Task<TContext> Run(RunSettings settings)
-        {
-            var scenarioContext = new TContext();
-            contextInitializer(scenarioContext);
-
-            var runDescriptor = new RunDescriptor
-            {
-                ScenarioContext = scenarioContext
-            };
-            runDescriptor.Settings.Merge(settings);
-
-            LogManager.UseFactory(new ContextAppenderFactory());
-
-            var sw = new Stopwatch();
-
-            sw.Start();
-            await ScenarioRunner.Run(runDescriptor, behaviors, done).ConfigureAwait(false);
-            sw.Stop();
-
-            Console.WriteLine("Total time for testrun: {0}", sw.Elapsed);
-
-            return (TContext)runDescriptor.ScenarioContext;
         }
 
         public IScenarioWithEndpointBehavior<TContext> WithEndpoint<T>() where T : EndpointConfigurationBuilder
@@ -86,6 +51,104 @@ namespace NServiceBus.AcceptanceTesting
         Task<TContext> IScenarioWithEndpointBehavior<TContext>.Run(RunSettings settings)
         {
             return Run(settings);
+        }
+
+        public Task<TContext> Run(TimeSpan? testExecutionTimeout = null)
+        {
+            var settings = new RunSettings();
+            if (testExecutionTimeout.HasValue)
+            {
+                settings.TestExecutionTimeout = testExecutionTimeout.Value;
+            }
+
+            return Run(settings);
+        }
+
+        public async Task<TContext> Run(RunSettings settings)
+        {
+            var scenarioContext = new TContext();
+            contextInitializer(scenarioContext);
+
+            var runDescriptor = new RunDescriptor(settings, scenarioContext);
+
+            LogManager.UseFactory(new ContextAppenderFactory());
+
+            var sw = new Stopwatch();
+
+            sw.Start();
+            var result = await ScenarioRunner.Run(runDescriptor, behaviors, done).ConfigureAwait(false);
+            sw.Stop();
+
+            await runDescriptor.RaiseOnTestCompleted(result);
+
+            DisplayRunResult(result);
+            Console.WriteLine("Total time for testrun: {0}", sw.Elapsed);
+
+            if (result.Result.Failed)
+            {
+                throw result.Result.Exception;
+            }
+
+            return (TContext) runDescriptor.ScenarioContext;
+        }
+
+        static void DisplayRunResult(RunSummary summary)
+        {
+            var runDescriptor = summary.RunDescriptor;
+            var runResult = summary.Result;
+
+            Console.WriteLine("------------------------------------------------------");
+            Console.WriteLine("Test summary:");
+            Console.WriteLine();
+
+            PrintSettings(runDescriptor.Settings);
+
+            Console.WriteLine();
+            Console.WriteLine("Endpoints:");
+
+            foreach (var endpoint in runResult.ActiveEndpoints)
+            {
+                Console.WriteLine("     - {0}", endpoint);
+            }
+
+            if (runResult.Failed)
+            {
+                Console.WriteLine("Test failed: {0}", runResult.Exception);
+            }
+            else
+            {
+                Console.WriteLine("Result: Successful - Duration: {0}", runResult.TotalTime);
+            }
+
+            //dump trace and context regardless since asserts outside the should could still fail the test
+            Console.WriteLine();
+            Console.WriteLine("Context:");
+
+            foreach (var prop in runResult.ScenarioContext.GetType().GetProperties())
+            {
+                if (prop.Name == "Trace")
+                {
+                    continue;
+                }
+
+                Console.WriteLine("{0} = {1}", prop.Name, prop.GetValue(runResult.ScenarioContext, null));
+            }
+
+            Console.WriteLine();
+            Console.WriteLine("Trace:");
+            Console.WriteLine(runResult.ScenarioContext.Trace);
+            Console.WriteLine("------------------------------------------------------");
+        }
+
+        static void PrintSettings(IEnumerable<KeyValuePair<string, object>> settings)
+        {
+            Console.WriteLine();
+            Console.WriteLine("Using settings:");
+            foreach (var pair in settings)
+            {
+                Console.WriteLine("   {0}: {1}", pair.Key, pair.Value);
+            }
+            Console.WriteLine();
         }
 
         List<EndpointBehavior> behaviors = new List<EndpointBehavior>();
