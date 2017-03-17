@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.IO;
+using System.Threading.Tasks;
 using NServiceBus;
 using NServiceBus.AcceptanceTesting.Support;
 using NServiceBus.Persistence;
@@ -7,18 +8,25 @@ public class ConfigureEndpointDevelopmentPersistence : IConfigureEndpointTestExe
 {
     public Task Configure(string endpointName, EndpointConfiguration configuration, RunSettings settings, PublisherMetadata publisherMetadata)
     {
-        configuration.UsePersistence<InMemoryPersistence,StorageType.Subscriptions>();
+        storageDir = $@"c:\sagatmp-{endpointName}"; //can't use bindir since that will be to long on the build agents
+
+        configuration.UsePersistence<InMemoryPersistence, StorageType.Subscriptions>();
         configuration.UsePersistence<InMemoryPersistence, StorageType.Timeouts>();
 
         configuration.UsePersistence<DevelopmentPersistence, StorageType.Sagas>()
-            .SagaStorageDirectory(@"c:\temp\sagas"); //todo: for now to avoid path to long on the build agents
+            .SagaStorageDirectory(storageDir);
 
         return Task.FromResult(0);
     }
 
     public Task Cleanup()
     {
-        // Nothing required for in-memory persistence
+        if (Directory.Exists(storageDir))
+        {
+            Directory.Delete(storageDir, true);
+        }
         return Task.FromResult(0);
     }
+
+    string storageDir;
 }
