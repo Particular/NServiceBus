@@ -56,11 +56,7 @@
         public void SetValue(object valueToSet)
         {
             value = valueToSet as T;
-
-            if (value != null)
-            {
-                HasValue = true;
-            }
+            HasValue = value != null;
         }
 
         /// <summary>
