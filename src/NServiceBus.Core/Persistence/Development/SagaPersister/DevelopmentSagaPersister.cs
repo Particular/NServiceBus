@@ -16,7 +16,7 @@ namespace NServiceBus
 
         public Task Save(IContainSagaData sagaData, SagaCorrelationProperty correlationProperty, SynchronizedStorageSession session, ContextBag context)
         {
-            var developmentSyncronizedStorageSession = (DevelopmentSyncronizedStorageSession)session;
+            var developmentSyncronizedStorageSession = (DevelopmentSyncronizedStorageSession) session;
             var manifest = sagaManifests[sagaData.GetType()];
 
             var sagaFile = developmentSyncronizedStorageSession.CreateNew(sagaData.Id, manifest);
@@ -28,7 +28,7 @@ namespace NServiceBus
 
         public Task Update(IContainSagaData sagaData, SynchronizedStorageSession session, ContextBag context)
         {
-            var developmentSyncronizedStorageSession = (DevelopmentSyncronizedStorageSession)session;
+            var developmentSyncronizedStorageSession = (DevelopmentSyncronizedStorageSession) session;
             var sagaFile = developmentSyncronizedStorageSession.GetSagaFile(sagaData);
 
             sagaFile.Write(sagaData);
@@ -48,7 +48,7 @@ namespace NServiceBus
 
         public Task Complete(IContainSagaData sagaData, SynchronizedStorageSession session, ContextBag context)
         {
-            var developmentSyncronizedStorageSession = (DevelopmentSyncronizedStorageSession)session;
+            var developmentSyncronizedStorageSession = (DevelopmentSyncronizedStorageSession) session;
             var sagaFile = developmentSyncronizedStorageSession.GetSagaFile(sagaData);
 
             sagaFile.Delete();
@@ -59,16 +59,16 @@ namespace NServiceBus
         Task<TSagaData> Get<TSagaData>(Guid sagaId, SynchronizedStorageSession session) where TSagaData : IContainSagaData
         {
             var manifest = sagaManifests[typeof(TSagaData)];
-            var developmentSyncronizedStorageSession = (DevelopmentSyncronizedStorageSession)session;
+            var developmentSyncronizedStorageSession = (DevelopmentSyncronizedStorageSession) session;
 
-            DevelopmentSyncronizedStorageSession.SagaFile sagaFile;
+            SagaStorageFile sagaStorageFile;
 
-            if (!developmentSyncronizedStorageSession.TryOpenAndLockSaga(sagaId, manifest, out sagaFile))
+            if (!developmentSyncronizedStorageSession.TryOpenAndLockSaga(sagaId, manifest, out sagaStorageFile))
             {
                 return Task.FromResult(default(TSagaData));
             }
 
-            return Task.FromResult((TSagaData)sagaFile.Read());
+            return Task.FromResult((TSagaData) sagaStorageFile.Read());
         }
 
         readonly Dictionary<Type, SagaManifest> sagaManifests;

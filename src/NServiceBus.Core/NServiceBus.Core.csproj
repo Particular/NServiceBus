@@ -139,6 +139,7 @@
     <Compile Include="Persistence\Development\SagaPersister\DevelopmentSyncronizedStorage.cs" />
     <Compile Include="Persistence\Development\SagaPersister\DevelopmentSyncronizedStorageSession.cs" />
     <Compile Include="Persistence\Development\SagaPersister\SagaManifest.cs" />
+    <Compile Include="Persistence\Development\SagaPersister\SagaStorageFile.cs" />
     <Compile Include="Persistence\Msmq\SubscriptionStorage\MsmqSubscriptionMessage.cs" />
     <Compile Include="Persistence\Msmq\SubscriptionStorage\MsmqSubscriptionStorageConfigurationExtensions.cs" />
     <Compile Include="Pipeline\Incoming\ReceivePipelineConfigExtensions.cs" />

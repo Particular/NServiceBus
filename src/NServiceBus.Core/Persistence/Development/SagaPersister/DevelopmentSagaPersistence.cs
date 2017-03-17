@@ -58,7 +58,7 @@
         internal static string StorageLocationKey = "DevelopmentSagaPersistence.StorageLocation";
     }
 
-    class DevelopmentStorageAdapter: ISynchronizedStorageAdapter
+    class DevelopmentStorageAdapter : ISynchronizedStorageAdapter
     {
         public Task<CompletableSynchronizedStorageSession> TryAdapt(OutboxTransaction transaction, ContextBag context)
         {
@@ -67,7 +67,6 @@
 
         public Task<CompletableSynchronizedStorageSession> TryAdapt(TransportTransaction transportTransaction, ContextBag context)
         {
-
             return Task.FromResult<CompletableSynchronizedStorageSession>(null);
         }
     }
