@@ -8,17 +8,11 @@ namespace NServiceBus
 
     class DevelopmentSagaPersister : ISagaPersister
     {
-        public DevelopmentSagaPersister(SagaManifestCollection sagaManifests)
-        {
-            this.sagaManifests = sagaManifests;
-        }
-
         public Task Save(IContainSagaData sagaData, SagaCorrelationProperty correlationProperty, SynchronizedStorageSession session, ContextBag context)
         {
             var developmentSyncronizedStorageSession = (DevelopmentSyncronizedStorageSession)session;
-            var manifest = sagaManifests.GetForEntityType(sagaData.GetType());
 
-            var sagaFile = developmentSyncronizedStorageSession.CreateNew(sagaData.Id, manifest);
+            var sagaFile = developmentSyncronizedStorageSession.CreateNew(sagaData.Id, sagaData.GetType());
 
             sagaFile.Write(sagaData);
 
@@ -57,19 +51,16 @@ namespace NServiceBus
 
         Task<TSagaData> Get<TSagaData>(Guid sagaId, SynchronizedStorageSession session) where TSagaData : IContainSagaData
         {
-            var manifest = sagaManifests.GetForEntityType(typeof(TSagaData));
             var developmentSyncronizedStorageSession = (DevelopmentSyncronizedStorageSession)session;
 
             SagaStorageFile sagaStorageFile;
 
-            if (!developmentSyncronizedStorageSession.TryOpenAndLockSaga(sagaId, manifest, out sagaStorageFile))
+            if (!developmentSyncronizedStorageSession.TryOpenAndLockSaga(sagaId, typeof(TSagaData), out sagaStorageFile))
             {
                 return Task.FromResult(default(TSagaData));
             }
 
             return Task.FromResult((TSagaData)sagaStorageFile.Read());
         }
-
-        readonly SagaManifestCollection sagaManifests;
     }
 }

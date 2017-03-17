@@ -9,6 +9,11 @@ namespace NServiceBus
     [SkipWeaving]
     class DevelopmentSyncronizedStorageSession : CompletableSynchronizedStorageSession
     {
+        public DevelopmentSyncronizedStorageSession(SagaManifestCollection sagaManifests)
+        {
+            this.sagaManifests = sagaManifests;
+        }
+
         public void Dispose()
         {
             foreach (var sagaFile in sagaFiles.Values)
@@ -27,8 +32,10 @@ namespace NServiceBus
             return TaskEx.CompletedTask;
         }
 
-        public bool TryOpenAndLockSaga(Guid sagaId, SagaManifest sagaManifest, out SagaStorageFile sagaStorageFile)
+        public bool TryOpenAndLockSaga(Guid sagaId, Type entityType, out SagaStorageFile sagaStorageFile)
         {
+            var sagaManifest = sagaManifests.GetForEntityType(entityType);
+
             if (!SagaStorageFile.TryOpen(sagaId, sagaManifest, out sagaStorageFile))
             {
                 return false;
@@ -40,8 +47,10 @@ namespace NServiceBus
         }
 
 
-        public SagaStorageFile CreateNew(Guid sagaId, SagaManifest sagaManifest)
+        public SagaStorageFile CreateNew(Guid sagaId, Type entityType)
         {
+            var sagaManifest = sagaManifests.GetForEntityType(entityType);
+
             var sagaFile = SagaStorageFile.Create(sagaId, sagaManifest);
 
             RegisterSagaFile(sagaFile, sagaId, sagaManifest.SagaEntityType);
@@ -59,6 +68,7 @@ namespace NServiceBus
             sagaFiles[sagaDataType.FullName + sagaId] = sagaStorageFile;
         }
 
+        SagaManifestCollection sagaManifests;
         Dictionary<string, SagaStorageFile> sagaFiles = new Dictionary<string, SagaStorageFile>();
     }
 }

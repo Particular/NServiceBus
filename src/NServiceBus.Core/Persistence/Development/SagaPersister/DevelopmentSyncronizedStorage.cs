@@ -6,9 +6,16 @@ namespace NServiceBus
 
     class DevelopmentSyncronizedStorage : ISynchronizedStorage
     {
+        public DevelopmentSyncronizedStorage(SagaManifestCollection sagaManifests)
+        {
+            this.sagaManifests = sagaManifests;
+        }
+
         public Task<CompletableSynchronizedStorageSession> OpenSession(ContextBag contextBag)
         {
-            return Task.FromResult<CompletableSynchronizedStorageSession>(new DevelopmentSyncronizedStorageSession());
+            return Task.FromResult<CompletableSynchronizedStorageSession>(new DevelopmentSyncronizedStorageSession(sagaManifests));
         }
+
+        SagaManifestCollection sagaManifests;
     }
 }
