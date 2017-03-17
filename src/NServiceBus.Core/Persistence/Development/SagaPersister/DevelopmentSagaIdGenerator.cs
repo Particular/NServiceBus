@@ -1,7 +1,7 @@
-namespace NServiceBus.Features
+namespace NServiceBus
 {
     using System;
-    using NServiceBus.Sagas;
+    using Sagas;
 
     class DevelopmentSagaIdGenerator : ISagaIdGenerator
     {

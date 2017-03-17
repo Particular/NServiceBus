@@ -3,7 +3,6 @@
     using System;
     using System.Collections.Generic;
     using System.IO;
-    using System.Runtime.Serialization.Json;
     using System.Threading.Tasks;
     using Gateway.Deduplication;
     using Outbox;
@@ -15,7 +14,7 @@
     {
         public PersistenceTestsConfiguration()
         {
-            var storageLocation = Environment.CurrentDirectory;
+            var storageLocation = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "componenttests");
             var allSagas = new SagaMetadataCollection();
 
             allSagas.Initialize(new List<Type>
@@ -28,29 +27,13 @@
                 typeof(TestSaga)
             });
 
-            var sagaManifests = new Dictionary<Type, SagaManifest>();
-
-            foreach (var metadata in allSagas)
-            {
-                var sagaStorageDir = Path.Combine(storageLocation, metadata.SagaType.FullName.Replace("+", ""));
-
-                if (!Directory.Exists(sagaStorageDir))
-                {
-                    Directory.CreateDirectory(sagaStorageDir);
-                }
-
-                var manifest = new SagaManifest
-                {
-                    StorageDirectory = sagaStorageDir,
-                    Serializer = new DataContractJsonSerializer(metadata.SagaEntityType)
-                };
-
-                sagaManifests[metadata.SagaEntityType] = manifest;
-            }
+            var sagaManifests = new SagaManifestCollection(allSagas, storageLocation);
 
             SagaStorage = new DevelopmentSagaPersister(sagaManifests);
 
             SynchronizedStorage = new DevelopmentSyncronizedStorage();
+
+            SagaIdGenerator = new DevelopmentSagaIdGenerator();
         }
 
         public bool SupportsDtc { get; } = false;
@@ -62,6 +45,8 @@
         public IQueryTimeouts TimeoutQuery { get; }
         public IOutboxStorage OutboxStorage { get; }
         public IDeduplicateMessages GatewayStorage { get; }
+
+        public ISagaIdGenerator SagaIdGenerator { get; }
         public Task Configure()
         {
             return TaskEx.CompletedTask;

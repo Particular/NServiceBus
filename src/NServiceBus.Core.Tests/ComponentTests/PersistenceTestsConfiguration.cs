@@ -38,6 +38,8 @@
 
         IDeduplicateMessages GatewayStorage { get; }
 
+        ISagaIdGenerator SagaIdGenerator { get; }
+
         Task Configure();
 
         Task Cleanup();
