@@ -1,6 +1,7 @@
 namespace NServiceBus
 {
     using System;
+    using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
@@ -13,11 +14,12 @@ namespace NServiceBus
 
     class UnicastPublishRouter : IUnicastPublishRouter
     {
-        public UnicastPublishRouter(MessageMetadataRegistry messageMetadataRegistry, Func<EndpointInstance, string> transportAddressTranslation, ISubscriptionStorage subscriptionStorage)
+        public UnicastPublishRouter(MessageMetadataRegistry messageMetadataRegistry, Func<EndpointInstance, string> transportAddressTranslation, ISubscriptionStorage subscriptionStorage, TimeSpan? cacheFor)
         {
             this.messageMetadataRegistry = messageMetadataRegistry;
             this.transportAddressTranslation = transportAddressTranslation;
             this.subscriptionStorage = subscriptionStorage;
+            this.cacheFor = cacheFor;
         }
 
         public async Task<IEnumerable<UnicastRoutingStrategy>> Route(Type messageType, IDistributionPolicy distributionPolicy, IOutgoingPublishContext publishContext)
@@ -77,14 +79,57 @@ namespace NServiceBus
             return addresses.Values;
         }
 
-        Task<IEnumerable<Subscriber>> GetSubscribers(IExtendable publishContext, Type[] typesToRoute)
+        async Task<IEnumerable<Subscriber>> GetSubscribers(IExtendable publishContext, Type[] typesToRoute)
+        {
+            var context = publishContext.Extensions;
+
+            if (cacheFor == null)
+            {
+                return await GetSubscribers(context, typesToRoute)
+                    .ConfigureAwait(false);
+            }
+
+            var typeNames = typesToRoute.Select(_ => _.FullName);
+            var key = string.Join(",", typeNames);
+            CacheItem cacheItem;
+            if (cache.TryGetValue(key, out cacheItem))
+            {
+                if (DateTimeOffset.UtcNow - cacheItem.Stored < cacheFor)
+                {
+                    return cacheItem.Subscribers;
+                }
+            }
+
+            var baseSubscribers = await GetSubscribers(context, typesToRoute)
+                .ConfigureAwait(false);
+
+            cacheItem = new CacheItem
+            {
+                Stored = DateTimeOffset.UtcNow,
+                Subscribers = baseSubscribers.ToArray()
+            };
+
+            cache.AddOrUpdate(key, s => cacheItem, (s, tuple) => cacheItem);
+
+            return cacheItem.Subscribers;
+        }
+
+        Task<IEnumerable<Subscriber>> GetSubscribers(ContextBag context, Type[] typesToRoute)
         {
             var messageTypes = typesToRoute.Select(t => new MessageType(t));
-            return subscriptionStorage.GetSubscriberAddressesForMessage(messageTypes, publishContext.Extensions);
+            return subscriptionStorage.GetSubscriberAddressesForMessage(messageTypes, context);
         }
 
         MessageMetadataRegistry messageMetadataRegistry;
         Func<EndpointInstance, string> transportAddressTranslation;
         ISubscriptionStorage subscriptionStorage;
+        TimeSpan? cacheFor;
+        ConcurrentDictionary<string, CacheItem> cache = new ConcurrentDictionary<string, CacheItem>();
+
+        class CacheItem
+        {
+            public DateTimeOffset Stored;
+            public Subscriber[] Subscribers;
+        }
     }
 }
