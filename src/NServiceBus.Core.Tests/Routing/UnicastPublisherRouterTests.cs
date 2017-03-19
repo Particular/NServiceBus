@@ -108,8 +108,7 @@
             router = new UnicastPublishRouter(
                 metadataRegistry,
                 i => string.Empty,
-                subscriptionStorage,
-                TimeSpan.FromSeconds(10));
+                new SubscriptionStorage(subscriptionStorage, TimeSpan.FromSeconds(10)));
         }
 
         class FakeSubscriptionStorage : ISubscriptionStorage
