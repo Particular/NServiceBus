@@ -1,6 +1,6 @@
 ## Configuration API's
 
-All configuration API's should be code first since that allows us to best guide the users and allows us to evolve the API's using obsolete messages.
+All configuration API's should be code first since that allows us to best evolve them while guiding users with obsolete messages.
 
 Configuration API's should be non fluent and non delegate based. Not returning `this` means that they are not chainable.
 
