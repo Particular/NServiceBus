@@ -86,7 +86,7 @@ namespace NServiceBus.Logging
 
         public void Fatal(string message, Exception exception)
         {
-            defaultLoggerFactory.Write(name, LogLevel.Error, message + Environment.NewLine + exception);
+            defaultLoggerFactory.Write(name, LogLevel.Fatal, message + Environment.NewLine + exception);
         }
 
         public void FatalFormat(string format, params object[] args)
