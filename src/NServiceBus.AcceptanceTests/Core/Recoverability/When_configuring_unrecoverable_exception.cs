@@ -19,10 +19,10 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
             {
                 await Scenario.Define<Context>(ctx => context = ctx)
                     .WithEndpoint<EndpointWithFailingHandler>(b => b
-                        .When((session, ctx) => session.SendLocal(new InitiatingMessage
-                        {
-                            Id = ctx.TestRunId
-                        }))
+                            .When((session, ctx) => session.SendLocal(new InitiatingMessage
+                            {
+                                Id = ctx.TestRunId
+                            }))
                     )
                     .Done(c => c.FailedMessages.Any())
                     .Run();
@@ -44,7 +44,9 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
             {
                 EndpointSetup<DefaultServer>((config, context) =>
                 {
-                    config.Recoverability().AddUnrecoverableException(typeof(SimulatedException));
+                    config.Recoverability().AddUnrecoverableException(typeof(CustomException));
+                    config.Recoverability().Immediate(i => i.NumberOfRetries(2));
+                    config.Recoverability().Delayed(d => d.NumberOfRetries(2));
                 });
             }
 
@@ -58,7 +60,6 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
                     throw new CustomException();
                 }
             }
-
         }
 
         class CustomException : SimulatedException

@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.AcceptanceTests.Recoverability.Retries
+﻿namespace NServiceBus.AcceptanceTests.Recoverability
 {
     using System;
     using System.Threading.Tasks;
@@ -7,7 +7,7 @@
     using Features;
     using NUnit.Framework;
 
-    public class when_immediate_retries_fail : NServiceBusAcceptanceTest
+    public class When_immediate_retries_fail : NServiceBusAcceptanceTest
     {
         [Test]
         public async Task Should_do_delayed_retries()

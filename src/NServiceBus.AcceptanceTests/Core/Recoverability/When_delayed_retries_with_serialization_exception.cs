@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.AcceptanceTests.Recoverability.Retries
+﻿namespace NServiceBus.AcceptanceTests.Core.Recoverability
 {
     using System;
     using System.Linq;
@@ -18,17 +18,17 @@
                 .WithEndpoint<RetryEndpoint>(b => b
                     .When(session => session.SendLocal(new MessageToBeRetried()))
                     .DoNotFailOnErrorMessages())
-                .Done(c => c.DelayedRetryChecksum != default(byte))
+                .Done(c => c.FailedMessages.Any())
                 .Run();
 
-            Assert.AreEqual(context.OriginalBodyChecksum, context.DelayedRetryChecksum, "The body of the message sent to delayed retry should be the same as the original message coming off the queue");
+            var errorBody = context.FailedMessages.Single().Value.Single().Body;
+
+            CollectionAssert.AreEqual(context.OriginalBody, errorBody, "The body of the message sent to delayed retry should be the same as the original message coming off the queue");
         }
 
         class Context : ScenarioContext
         {
-            public byte OriginalBodyChecksum { get; set; }
-            public byte DelayedRetryChecksum { get; set; }
-            public bool ForwardedToErrorQueue { get; set; }
+            public byte[] OriginalBody { get; set; }
         }
 
         public class RetryEndpoint : EndpointConfigurationBuilder
@@ -37,22 +37,10 @@
             {
                 EndpointSetup<DefaultServer>((configure, context) =>
                 {
-                    var testContext = (Context) context.ScenarioContext;
                     configure.EnableFeature<TimeoutManager>();
                     configure.RegisterComponents(c => c.ConfigureComponent<BodyMutator>(DependencyLifecycle.InstancePerCall));
-                    configure.Notifications.Errors.MessageSentToErrorQueue += (sender, message) =>
-                    {
-                        testContext.ForwardedToErrorQueue = true;
-                        testContext.DelayedRetryChecksum = Checksum(message.Body);
-                    };
                     configure.Recoverability().Delayed(settings => settings.TimeIncrease(TimeSpan.FromMilliseconds(1)));
                 });
-            }
-
-            static byte Checksum(byte[] data)
-            {
-                var longSum = data.Sum(x => (long) x);
-                return unchecked((byte) longSum);
             }
 
             class BodyMutator : IMutateOutgoingTransportMessages, IMutateIncomingTransportMessages
@@ -65,7 +53,7 @@
                 public Task MutateIncoming(MutateIncomingTransportMessageContext transportMessage)
                 {
                     var originalBody = transportMessage.Body;
-                    testContext.OriginalBodyChecksum = Checksum(originalBody);
+                    testContext.OriginalBody = originalBody;
                     var newBody = new byte[originalBody.Length];
                     Buffer.BlockCopy(originalBody, 0, newBody, 0, originalBody.Length);
                     //corrupt
@@ -91,7 +79,6 @@
             }
         }
 
-        
         public class MessageToBeRetried : IMessage
         {
         }
