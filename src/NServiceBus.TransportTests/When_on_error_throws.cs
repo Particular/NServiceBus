@@ -46,8 +46,6 @@
             var errorContext = await onErrorCalled.Task;
 
             Assert.AreEqual("Simulated exception", errorContext.Exception.Message);
-            Assert.AreEqual(2, errorContext.ImmediateProcessingFailures);
-            Assert.IsNotNull(criticalError);
         }
     }
 }
