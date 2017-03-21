@@ -2,7 +2,7 @@
 
 All configuration API's should be code first since that allows us to best evolve them while guiding users with obsolete messages.
 
-Configuration API's should be non fluent and non delegate based. Not returning `this` means that they are not chainable.
+Configuration API's should be non fluent and non delegate based. Returning `void` means that they are not chainable.
 
 Example:
 
