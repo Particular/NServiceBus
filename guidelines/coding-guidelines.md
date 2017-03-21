@@ -1,6 +1,6 @@
 ## Performance related
 
-For public facing interfaces we favor readonly collections and enumerables. For internal types we favor speed and allocation reduction, therefore avoid using collection interfaces internally.
+For public facing interfaces we favor read-only collections and enumerables. For internal types we favor speed and allocation reduction. Avoid using collection interfaces internally.
 
 ### In hot paths
 
