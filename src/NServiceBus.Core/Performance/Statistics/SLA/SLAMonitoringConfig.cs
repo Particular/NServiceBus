@@ -7,7 +7,7 @@ namespace NServiceBus
     /// Provide configuration options for monitoring related settings.
     /// </summary>
     [ObsoleteEx(
-        Message = "Performance counters have been released as a separate package: NServiceBus.Metrics.WindowsPerformanceCounters",
+        Message = "Performance counters have been released as a separate package: NServiceBus.Metrics.PerformanceCounters",
         RemoveInVersion = "8",
         TreatAsErrorFromVersion = "7")]
     public static class SLAMonitoringConfig
@@ -18,7 +18,7 @@ namespace NServiceBus
         /// <param name="config">The <see cref="EndpointConfiguration" /> instance to apply the settings to.</param>
         /// <param name="sla">The <see cref="TimeSpan" /> to use oa the SLA. Must be greater than <see cref="TimeSpan.Zero" />.</param>
         [ObsoleteEx(
-            Message = "Performance counters have been released as a separate package: NServiceBus.Metrics.WindowsPerformanceCounters",
+            Message = "Performance counters have been released as a separate package: NServiceBus.Metrics.PerformanceCounters",
             RemoveInVersion = "8",
             TreatAsErrorFromVersion = "7")]
         public static void EnableSLAPerformanceCounter(this EndpointConfiguration config, TimeSpan sla)
@@ -34,7 +34,7 @@ namespace NServiceBus
         /// </summary>
         /// <param name="config">The <see cref="EndpointConfiguration" /> instance to apply the settings to.</param>
         [ObsoleteEx(
-            Message = "Performance counters have been released as a separate package: NServiceBus.Metrics.WindowsPerformanceCounters",
+            Message = "Performance counters have been released as a separate package: NServiceBus.Metrics.PerformanceCounters",
             RemoveInVersion = "8",
             TreatAsErrorFromVersion = "7")]
         public static void EnableSLAPerformanceCounter(this EndpointConfiguration config)
