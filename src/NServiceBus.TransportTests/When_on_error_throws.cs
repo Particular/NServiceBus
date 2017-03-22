@@ -14,7 +14,6 @@
         public async Task Should_reinvoke_on_error_with_original_exception(TransportTransactionMode transactionMode)
         {
             var onErrorCalled = new TaskCompletionSource<ErrorContext>();
-            Exception criticalError = null;
 
             OnTestTimeout(() => onErrorCalled.SetCanceled());
 
@@ -38,16 +37,13 @@
 
                     return Task.FromResult(ErrorHandleResult.Handled);
                 },
-                transactionMode,
-                (s, exception) => criticalError = exception);
+                transactionMode);
 
             await SendMessage(InputQueueName);
 
             var errorContext = await onErrorCalled.Task;
 
             Assert.AreEqual("Simulated exception", errorContext.Exception.Message);
-            Assert.AreEqual(2, errorContext.ImmediateProcessingFailures);
-            Assert.IsNotNull(criticalError);
         }
     }
 }
