@@ -41,7 +41,7 @@ namespace NServiceBus
     }
     public class static AssemblyScannerConfigurationExtensions
     {
-        public static void AssemblyScanner(this NServiceBus.EndpointConfiguration configuration, System.Action<NServiceBus.AssemblyScannerConfiguration> configure) { }
+        public static NServiceBus.AssemblyScannerConfiguration AssemblyScanner(this NServiceBus.EndpointConfiguration configuration) { }
     }
     public class static AuditConfigReader
     {
