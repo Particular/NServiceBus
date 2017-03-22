@@ -24,7 +24,7 @@
         /// <summary>
         /// Defines whether nested directories should be included in the assembly scanning process. Default value is <code>false</code>.
         /// </summary>
-        public bool ScanAssembliesInNestedDirectories { get; set; } = false;
+        public bool ScanAssembliesInNestedDirectories { get; set; }
 
         /// <summary>
         /// A list of <see cref="Assembly" />s to ignore in the assembly scanning.
