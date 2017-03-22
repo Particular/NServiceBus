@@ -273,8 +273,8 @@ namespace NServiceBus
     public class static CriticalTimeMonitoringConfig
     {
         [System.ObsoleteAttribute("Performance counters have been released as a separate package: NServiceBus.Metric" +
-            "s.Reporting.WindowsPerformanceCounters. Will be treated as an error from version" +
-            " 7.0.0. Will be removed in version 8.0.0.", false)]
+            "s.WindowsPerformanceCounters. Will be treated as an error from version 7.0.0. Wi" +
+            "ll be removed in version 8.0.0.", false)]
         public static void EnableCriticalTimePerformanceCounter(this NServiceBus.EndpointConfiguration config) { }
     }
     public class DataBusProperty<T> : NServiceBus.IDataBusProperty, System.Runtime.Serialization.ISerializable
@@ -1244,17 +1244,17 @@ namespace NServiceBus
     [System.ObsoleteAttribute("Use `SettingsExtensions` instead. Will be removed in version 7.0.0.", true)]
     public class static SettingsExtentions { }
     [System.ObsoleteAttribute("Performance counters have been released as a separate package: NServiceBus.Metric" +
-        "s.Reporting.WindowsPerformanceCounters. Will be treated as an error from version" +
-        " 7.0.0. Will be removed in version 8.0.0.", false)]
+        "s.WindowsPerformanceCounters. Will be treated as an error from version 7.0.0. Wi" +
+        "ll be removed in version 8.0.0.", false)]
     public class static SLAMonitoringConfig
     {
         [System.ObsoleteAttribute("Performance counters have been released as a separate package: NServiceBus.Metric" +
-            "s.Reporting.WindowsPerformanceCounters. Will be treated as an error from version" +
-            " 7.0.0. Will be removed in version 8.0.0.", false)]
+            "s.WindowsPerformanceCounters. Will be treated as an error from version 7.0.0. Wi" +
+            "ll be removed in version 8.0.0.", false)]
         public static void EnableSLAPerformanceCounter(this NServiceBus.EndpointConfiguration config, System.TimeSpan sla) { }
         [System.ObsoleteAttribute("Performance counters have been released as a separate package: NServiceBus.Metric" +
-            "s.Reporting.WindowsPerformanceCounters. Will be treated as an error from version" +
-            " 7.0.0. Will be removed in version 8.0.0.", false)]
+            "s.WindowsPerformanceCounters. Will be treated as an error from version 7.0.0. Wi" +
+            "ll be removed in version 8.0.0.", false)]
         public static void EnableSLAPerformanceCounter(this NServiceBus.EndpointConfiguration config) { }
     }
     public class static StaticHeadersConfigExtensions
@@ -1905,8 +1905,8 @@ namespace NServiceBus.Features
         public ConfigureTransport() { }
     }
     [System.ObsoleteAttribute("Performance counters have been released as a separate package: NServiceBus.Metric" +
-        "s.Reporting.WindowsPerformanceCounters. Will be treated as an error from version" +
-        " 7.0.0. Will be removed in version 8.0.0.", false)]
+        "s.WindowsPerformanceCounters. Will be treated as an error from version 7.0.0. Wi" +
+        "ll be removed in version 8.0.0.", false)]
     public class CriticalTimeMonitoring : NServiceBus.Features.Feature
     {
         protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
@@ -2020,8 +2020,8 @@ namespace NServiceBus.Features
         protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
     }
     [System.ObsoleteAttribute("Performance counters have been released as a separate package: NServiceBus.Metric" +
-        "s.Reporting.WindowsPerformanceCounters. Will be treated as an error from version" +
-        " 7.0.0. Will be removed in version 8.0.0.", false)]
+        "s.WindowsPerformanceCounters. Will be treated as an error from version 7.0.0. Wi" +
+        "ll be removed in version 8.0.0.", false)]
     public class ReceiveStatisticsPerformanceCounters : NServiceBus.Features.Feature
     {
         protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
@@ -2053,8 +2053,8 @@ namespace NServiceBus.Features
         public static bool IsFeatureEnabled(this NServiceBus.Settings.ReadOnlySettings settings, System.Type featureType) { }
     }
     [System.ObsoleteAttribute("Performance counters have been released as a separate package: NServiceBus.Metric" +
-        "s.Reporting.WindowsPerformanceCounters. Will be treated as an error from version" +
-        " 7.0.0. Will be removed in version 8.0.0.", false)]
+        "s.WindowsPerformanceCounters. Will be treated as an error from version 7.0.0. Wi" +
+        "ll be removed in version 8.0.0.", false)]
     public class SLAMonitoring : NServiceBus.Features.Feature
     {
         protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
