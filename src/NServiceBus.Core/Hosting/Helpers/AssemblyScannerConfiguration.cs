@@ -14,7 +14,7 @@
         /// <summary>
         /// Defines whether assemblies loaded into the current <see cref="AppDomain"/> should be scanned. Default value is <code>false</code>.
         /// </summary>
-        public bool ScanAppDomainAssemblies { get; set; } = false;
+        public bool ScanAppDomainAssemblies { get; set; }
 
         /// <summary>
         /// Defines whether exceptions occuring during assembly scanning should be rethrown or ignored. Default value is <code>true</code>.
@@ -24,7 +24,7 @@
         /// <summary>
         /// Defines whether nested directories should be included in the assembly scanning process. Default value is <code>false</code>.
         /// </summary>
-        public bool ScanAssembliesInNestedDirectories { get; set; } = false;
+        public bool ScanAssembliesInNestedDirectories { get; set; }
 
         /// <summary>
         /// A list of <see cref="Assembly" />s to ignore in the assembly scanning.
