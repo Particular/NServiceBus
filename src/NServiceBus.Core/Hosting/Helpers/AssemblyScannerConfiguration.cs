@@ -14,7 +14,7 @@
         /// <summary>
         /// Defines whether assemblies loaded into the current <see cref="AppDomain"/> should be scanned. Default value is <code>false</code>.
         /// </summary>
-        public bool ScanAppDomainAssemblies { get; set; } = false;
+        public bool ScanAppDomainAssemblies { get; set; }
 
         /// <summary>
         /// Defines whether exceptions occuring during assembly scanning should be rethrown or ignored. Default value is <code>true</code>.
