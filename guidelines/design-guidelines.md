@@ -34,6 +34,8 @@ We prefer this over delegate based API's because:
 4. It confuses users as to when the delegate actually gets executed. Variable scoping, can I call a DB? etc
 5. Most of the current API's (Transport, Persistence, etc) are not delegate based
 
+Common objections is that some config should not be hardcoded and that can be solved by providing additional packages outside NServiceBus to allow users to hook in configuration sections to support previous scenarios if necessary. Another approach is to provide samples showing how to load configuration by using `AppSettings`, `ConfigurationManager`, etc.
+
 ### Use delegates where execution is delayed
 
 If users need to provide customizations that will be invoked when the endpoint is running, prefer the use of a delegate.
@@ -45,12 +47,6 @@ var transportConfig = endpointConfig.UseTransport<MsmqTransport>();
 
 transportConfig.MsmqLabelGenerator(context => return $"{context.Headers['NServiceBus.EnclosedMessageTypes']}");
 ```
-
-### FAQ
-
-##### How do I apply changes without recompiling?
-
-Additional packages outside NServiceBus can be provided to allow users to hook in configuration sections to support previous scenarios if necessary. Another approach is to provide samples showing how to load configuration by using `AppSettings`, `ConfigurationManager`, etc.
 
 ## Startable and stoppable components
 
@@ -81,43 +77,6 @@ foreach(cmp in components)
 var stopTasks = components.Select(cmp => cmp.Stop());
 await Task.WhenAll(stopTasks);
 ```
-
-## Composition
-
-The public API of NServiceBus is a composition API consisting of multiple capabilities. The APIs in NServiceBus are extensible enough so that [capabilities](https://github.com/Particular/Vision/labels/Capability) can extend the composition API without needing to share the same release cycle as NServiceBus, reducing the coupling and allowing us to organize code in a more cohesive way.
-
-In order to achieve this goal a few key design decision have been made:
-
-### Folders to group capabilities
-
-Folders are used to group source files together to represent individual capabilities without affecting the namespaces of the components grouped together in these folders.
-
-For example, NServiceBus has a Recoverability capability folder, which is further divided into:
-
-* Faults
-* FirstLevelRetries
-* SecondLevelRetries
-
-### Extension points on public APIs
-
-Public APIs provide extension points, allowing capabilities to hook in their business logic and float required state over those APIs to various extensions.
-
-For example, `SendOptions`, `PublishOptions` and `ReplyOptions` inherit from `ExtendableOptions` which provides a `ContextBag` to float additional state into the option classes. This state is then made available on the outgoing pipeline.
-
-### State belongs to a specific capability
-
-Instead of directly attaching state to composition roots and thereby exposing that state to other capabilities, we instead use the extension APIs to keep state internal to the capability.
-
-For example, let's consider `SendOptions` and `SendLocal`. Instead of exposing a `RouteToThisEndpoint` property on `SendOptions`
-
-```
-class SendOptions
-  public bool RouteToThisInstance { get; set; }
-```
-
-an extension method called `RouteToThisInstance` is used to set the internal state. The internal state belongs to the routing capability. Therefore the state cannot be attached to `SendOptions`. Since CSharp/.NET doesn't support extension properties the only way to implement this is to use an extension method. The benefit of extension methods is that the getter and the setter of an option of a capability can be implemented with different names, as opposed to properties.
-
-An example where we failed in the past to apply this is the `Headers` static class. It contains everything and the kitchen sink when it comes to headers.
 
 
 ## Namespace rules
@@ -155,6 +114,42 @@ Unique components should be named appropriately. E.g. `NServiceBus.Gateway`,  `N
 
 Components belonging to a category should be named `NServiceBus.{Category}.*`. E.g. `NServiceBus.Persistence.AzureStorage`, `NServiceBus.Persistence.MongoDb`, etc.
 
+## Composition
+
+The public API of NServiceBus is a composition API consisting of multiple capabilities. The APIs in NServiceBus are extensible enough so that [capabilities](https://github.com/Particular/Vision/labels/Capability) can extend the composition API without needing to share the same release cycle as NServiceBus, reducing the coupling and allowing us to organize code in a more cohesive way.
+
+In order to achieve this goal a few key design decision have been made:
+
+### Folders to group capabilities
+
+Folders are used to group source files together to represent individual capabilities without affecting the namespaces of the components grouped together in these folders.
+
+For example, NServiceBus has a Recoverability capability folder, which is further divided into:
+
+* Faults
+* ImmediateRetries
+* DelayedRetries
+
+### Extension points on public APIs
+
+Public APIs provide extension points, allowing capabilities to hook in their business logic and float required state over those APIs to various extensions.
+
+For example, `SendOptions`, `PublishOptions` and `ReplyOptions` inherit from `ExtendableOptions` which provides a `ContextBag` to float additional state into the option classes. This state is then made available on the outgoing pipeline.
+
+### State belongs to a specific capability
+
+Instead of directly attaching state to composition roots and thereby exposing that state to other capabilities, we instead use the extension APIs to keep state internal to the capability.
+
+For example, let's consider `SendOptions` and `SendLocal`. Instead of exposing a `RouteToThisEndpoint` property on `SendOptions`
+
+```
+class SendOptions
+  public bool RouteToThisInstance { get; set; }
+```
+
+an extension method called `RouteToThisInstance` is used to set the internal state. The internal state belongs to the routing capability. Therefore the state cannot be attached to `SendOptions`. Since CSharp/.NET doesn't support extension properties the only way to implement this is to use an extension method. The benefit of extension methods is that the getter and the setter of an option of a capability can be implemented with different names, as opposed to properties.
+
+An example where we failed in the past to apply this is the `Headers` static class. It contains everything and the kitchen sink when it comes to headers.
 
 ### Current categories
 
