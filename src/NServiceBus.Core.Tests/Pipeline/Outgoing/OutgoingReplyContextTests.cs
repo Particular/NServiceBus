@@ -47,7 +47,6 @@
             Assert.AreEqual("anotherValue", anotherValue2);
         }
 
-
         [Test]
         public void ShouldNotMergeOptionsToParentContext()
         {
