@@ -46,5 +46,22 @@
             Assert.AreEqual("updatedValue", updatedValue);
             Assert.AreEqual("anotherValue", anotherValue2);
         }
+
+        [Test]
+        public void ShouldNotMergeOptionsToParentContext()
+        {
+            var message = new OutgoingLogicalMessage(typeof(object), new object());
+            var options = new ReplyOptions();
+            options.Context.Set("someKey", "someValue");
+
+            var parentContext = new RootContext(null, null, null);
+
+            new OutgoingReplyContext(message, options, parentContext);
+
+            string parentContextValue;
+            var valueFound = parentContext.TryGet("someKey", out parentContextValue);
+
+            Assert.IsFalse(valueFound);
+        }
     }
 }
