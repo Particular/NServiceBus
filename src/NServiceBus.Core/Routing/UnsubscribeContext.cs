@@ -12,7 +12,7 @@
             Guard.AgainstNull(nameof(eventType), eventType);
             Guard.AgainstNull(nameof(options), options);
 
-            parentContext.Extensions.Merge(options.Context);
+            Merge(options.Context);
 
             EventType = eventType;
         }
