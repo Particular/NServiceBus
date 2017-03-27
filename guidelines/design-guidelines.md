@@ -5,9 +5,9 @@ All configuration API's should be code-first to allow us to evolve them while gu
 Code first configuration has the following advantages:
 
 * More discoverable
-   * Via intellisense
-   * All config will be in a single place, no guessing if it's in the fluent api or in the "config sections"
-* Statically typed so no conversion from strings needed
+   * Intellisense
+   * All config will be in a single place. No guessing if it's in the fluent api or in the "config sections"
+* No conversion from strings needed
 * Easier to evolve using our normal deprecation strategies like `ObsoleteEx`
 * Easier to document
 * Easier to validate
@@ -34,7 +34,7 @@ We prefer this over delegate based API's because:
 4. It confuses users as to when the delegate actually gets executed. Variable scoping, can I call a DB? etc
 5. Most of the current API's (Transport, Persistence, etc) are not delegate based
 
-Common objections is that some config should not be hardcoded and that can be solved by providing additional packages outside NServiceBus to allow users to hook in configuration sections to support previous scenarios if necessary. Another approach is to provide samples showing how to load configuration by using `AppSettings`, `ConfigurationManager`, etc.
+A common objection is that some config should not be hardcoded. That can be addressed by providing additional packages outside NServiceBus to allow users to hook in configuration sections to support previous scenarios if necessary. Another approach is to provide samples showing how to load configuration by using `AppSettings`, `ConfigurationManager`, etc.
 
 ### Use delegates where execution is delayed
 
@@ -59,7 +59,7 @@ class Component
 ```
 
 * All components externally implemented but managed by NServiceBus (pipelines, satellites, etc) should attempt to stop gracefully. If they they are unable to do so, they should block the thread.
-* NServiceBus will **not** timebox any start or stop operations to allow proper debugging and analysis of misbehaving components.
+* NServiceBus will **not** timebox any start or stop operations. This allows proper debugging and analysis of misbehaving components.
 * Stop operations should be performed concurrently if possible/sensible to allow all components to initiate a graceful stop.
 * `CancellationToken` and `CancellationTokenSource` are an implementation detail of the component that needs to stop and are not managed by NServiceBus.
 
@@ -67,6 +67,7 @@ Translating these principles into code, here is how NServiceBus handles startabl
 
 ```
 var components = new List<Component>();
+
 // Start
 foreach(cmp in components)
 {
@@ -90,7 +91,7 @@ await Task.WhenAll(stopTasks);
 ### NServiceBus rules
 
 * For public types relevant to business developers, we use the `NServiceBus` namespace to make them more discoverable.
-* For internal types, we also use the `NServiceBus` namespace. This allows for unique identification of those types in logs and stack traces.
+* For internal types, we also use the `NServiceBus` namespace. This allows unique identification of those types in logs and stack traces.
 * For public types designed for extensibility, we use `NServiceBus.{ExtensibilityPoint}`. This hides types irrelevant to business developers while making them discoverable for developers extending NServiceBus. 
    - Examples of currently used extensibility namespaces:
       * `NServiceBus.Transport`
@@ -101,16 +102,16 @@ await Task.WhenAll(stopTasks);
 ### Downstream components rules
 
 * For public types relevant to business developers, we use the `NServiceBus` namespace to make them more discoverable and to avoid extra using statements
-* For internal types, we use the root [`{Component}`](#Naming rules) namespace. This allows for unique identification of those types in logs and stack traces.
+* For internal types, we use the root [`{Component}`](#Component naming rules) namespace. This allows for unique identification of those types in logs and stack traces.
    - Examples: `NServiceBus.Gateway`, `NServiceBus.Persistence.AzureStorage` etc.
-* For public types designed for extensibility, we use the root [`{Component}`](#Nnaming rules) namespace. This hides types irrelevant for business developers while making them discoverable for developers extending NServiceBus. 
+* For public types designed for extensibility, we use the root [`{Component}`](#Component naming rules) namespace. This hides types irrelevant for business developers while making them discoverable for developers extending NServiceBus. 
 
 
 ## Component naming rules
 
 Components can be split up into two types: those that are unique and those that belongs to a category.
 
-Unique components should be named appropriately. E.g. `NServiceBus.Gateway`,  `NServiceBus.Callbacks` etc
+Unique components should be named appropriately. E.g. `NServiceBus.Gateway`, `NServiceBus.Callbacks`, etc.
 
 Components belonging to a category should be named `NServiceBus.{Category}.*`. E.g. `NServiceBus.Persistence.AzureStorage`, `NServiceBus.Persistence.MongoDb`, etc.
 
@@ -118,7 +119,7 @@ Components belonging to a category should be named `NServiceBus.{Category}.*`. E
 
 The public API of NServiceBus is a composition API consisting of multiple capabilities. The APIs in NServiceBus are extensible enough so that [capabilities](https://github.com/Particular/Vision/labels/Capability) can extend the composition API without needing to share the same release cycle as NServiceBus, reducing the coupling and allowing us to organize code in a more cohesive way.
 
-In order to achieve this goal a few key design decision have been made:
+In order to achieve this goal, a few key design decision have been made:
 
 ### Folders to group capabilities
 
@@ -140,23 +141,23 @@ For example, `SendOptions`, `PublishOptions` and `ReplyOptions` inherit from `Ex
 
 Instead of directly attaching state to composition roots and thereby exposing that state to other capabilities, we instead use the extension APIs to keep state internal to the capability.
 
-For example, let's consider `SendOptions` and `SendLocal`. Instead of exposing a `RouteToThisEndpoint` property on `SendOptions`
+For example, let's consider `SendOptions` and `SendLocal`. We do not expose a `RouteToThisEndpoint` property on `SendOptions`:
 
 ```
 class SendOptions
   public bool RouteToThisInstance { get; set; }
 ```
 
-an extension method called `RouteToThisInstance` is used to set the internal state. The internal state belongs to the routing capability. Therefore the state cannot be attached to `SendOptions`. Since CSharp/.NET doesn't support extension properties the only way to implement this is to use an extension method. The benefit of extension methods is that the getter and the setter of an option of a capability can be implemented with different names, as opposed to properties.
+Instead, an extension method called `RouteToThisInstance` is used to set the internal state. The internal state belongs to the routing capability. Therefore the state cannot be attached to `SendOptions`. Since C#/.NET doesn't support extension properties, the only way to implement this is to use an extension method. The benefit of extension methods is that the reader and the writer of an option of a capability can be implemented with different names.
 
-An example where we failed in the past to apply this is the `Headers` static class. It contains everything and the kitchen sink when it comes to headers.
+An example of where we failed in the past to apply this is the `Headers` static class. It contains everything and the kitchen sink when it comes to headers.
 
 ### Current categories
 
-This is the current list and will be expanded as needed
+This is the current list and will be expanded as required:
 
 * `Persistence` - Adapters for persistence infrastructure 
-* `Transport` - Adapters for queuing infrastructure
+* `Transport` - Adapters for transport/queuing infrastructure
 * `Logging` - Adapters for logging frameworks
 * `Serialization` - Adapters for serializers
 * `Container` - Adapters for containers
@@ -164,7 +165,7 @@ This is the current list and will be expanded as needed
 * `Host` - Processes that host endpoints
 * `Encryption` - Adapters for encrypting messages/properties
 
-Note: This naming scheme may seen as redundant for "obvious" things like `NServiceBus.Logging.NLog` but not all intentions are obvious and we believe this redundancu is a price worth paying. This scheme also helps when searching the NuGet gallery (e.g. searching for containers using `NServiceBus.Container.*`).
+Note: This naming scheme may seem as redundant for "obvious" things like `NServiceBus.Logging.NLog`, but not all intentions are obvious, and we believe this redundancy is a price worth paying. This scheme also helps when searching the NuGet gallery (e.g. searching for containers using `NServiceBus.Container.*`).
 
 ### Usages
 
@@ -172,11 +173,11 @@ The following should have the same name as the component:
 
 * Repository name
 * TeamCity build
-* [Root namespace](#Namespace rules)
+* [Root namespace](#Component naming rules)
 * NuGet package
 * Deploy project
 * Visual Studio solution name
-* Visual studio "main" project name
+* Visual Studio "main" project name
 
 ## Connection string naming rules
 
