@@ -405,15 +405,11 @@ Sagas must have at least one message that is allowed to start the saga. Add at l
 
                 var propertyInfo = memberExpr.Member as PropertyInfo;
 
-                const string message = "When mapping a message to a saga, the member type on the message and the saga property must match. {0}.{1} is of type {2} and {3}.{4} is of type {5}.";
-
                 if (propertyInfo != null)
                 {
                     if (propertyInfo.PropertyType != sagaProp.PropertyType)
                     {
-                        throw new InvalidOperationException(string.Format(message,
-                            propertyInfo.DeclaringType.Name, propertyInfo.Name, propertyInfo.PropertyType,
-                            sagaProp.DeclaringType.Name, sagaProp.Name, sagaProp.PropertyType));
+                        throw new Exception($"When mapping a message to a saga, the member type on the message and the saga property must match. {propertyInfo.DeclaringType.FullName}.{propertyInfo.Name} is of type {propertyInfo.PropertyType.Name} and {sagaProp.DeclaringType.FullName}.{sagaProp.Name} is of type {sagaProp.PropertyType.Name}.");
                     }
 
                     return;
