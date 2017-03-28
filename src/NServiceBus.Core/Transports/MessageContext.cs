@@ -21,20 +21,20 @@
         /// It also allows the transport to communicate to the pipeline to abort if possible. Transports should check if the token
         /// has been aborted after invoking the pipeline and roll back the message accordingly.
         /// </param>
-        /// <param name="extensions">A <see cref="ContextBag" /> which can be used to extend the current object.</param>
-        public MessageContext(string messageId, Dictionary<string, string> headers, byte[] body, TransportTransaction transportTransaction, CancellationTokenSource receiveCancellationTokenSource, ContextBag extensions)
+        /// <param name="context">A <see cref="ContextBag" /> which can be used to extend the current object.</param>
+        public MessageContext(string messageId, Dictionary<string, string> headers, byte[] body, TransportTransaction transportTransaction, CancellationTokenSource receiveCancellationTokenSource, ContextBag context)
         {
             Guard.AgainstNullAndEmpty(nameof(messageId), messageId);
             Guard.AgainstNull(nameof(body), body);
             Guard.AgainstNull(nameof(headers), headers);
             Guard.AgainstNull(nameof(transportTransaction), transportTransaction);
             Guard.AgainstNull(nameof(receiveCancellationTokenSource), receiveCancellationTokenSource);
-            Guard.AgainstNull(nameof(extensions), extensions);
+            Guard.AgainstNull(nameof(context), context);
 
             Headers = headers;
             Body = body;
             MessageId = messageId;
-            Extensions = extensions;
+            Extensions = context;
             TransportTransaction = transportTransaction;
             ReceiveCancellationTokenSource = receiveCancellationTokenSource;
         }
@@ -68,7 +68,10 @@
         /// <summary>
         /// Context provided by the transport.
         /// </summary>
-        [ObsoleteEx(ReplacementTypeOrMember = "Extensions", RemoveInVersion = "7")]
+        [ObsoleteEx(
+            ReplacementTypeOrMember = "Extensions",
+            TreatAsErrorFromVersion = "7",
+            RemoveInVersion = "7")]
         public ContextBag Context => Extensions;
 
         /// <summary>
