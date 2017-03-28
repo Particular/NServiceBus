@@ -7,7 +7,7 @@ Code first configuration has the following advantages:
 * More discoverable
    * Intellisense
    * All config will be in a single place. No guessing if it's in the fluent api or in the "config sections"
-* No conversion from strings needed
+* No conversion from strings required
 * Easier to evolve using our normal deprecation strategies like `ObsoleteEx`
 * Easier to document
 * Easier to validate
@@ -102,9 +102,9 @@ await Task.WhenAll(stopTasks);
 ### Downstream components rules
 
 * For public types relevant to business developers, we use the `NServiceBus` namespace to make them more discoverable and to avoid extra using statements
-* For internal types, we use the root [`{Component}`](#Component naming rules) namespace. This allows for unique identification of those types in logs and stack traces.
+* For internal types, we use the root [`{Component}`](#component-naming-rules) namespace. This allows for unique identification of those types in logs and stack traces.
    - Examples: `NServiceBus.Gateway`, `NServiceBus.Persistence.AzureStorage` etc.
-* For public types designed for extensibility, we use the root [`{Component}`](#Component naming rules) namespace. This hides types irrelevant for business developers while making them discoverable for developers extending NServiceBus. 
+* For public types designed for extensibility, we use the root [`{Component}`](#component-naming-rules) namespace. This hides types irrelevant for business developers while making them discoverable for developers extending NServiceBus. 
 
 
 ## Component naming rules
@@ -148,7 +148,7 @@ class SendOptions
   public bool RouteToThisInstance { get; set; }
 ```
 
-Instead, an extension method called `RouteToThisInstance` is used to set the internal state. The internal state belongs to the routing capability. Therefore the state cannot be attached to `SendOptions`. Since C#/.NET doesn't support extension properties, the only way to implement this is to use an extension method. The benefit of extension methods is that the reader and the writer of an option of a capability can be implemented with different names.
+Instead, an extension method named `RouteToThisInstance` is used to set the internal state. The internal state belongs to the routing capability. Therefore the state cannot be attached to `SendOptions`. Since C#/.NET doesn't support extension properties, the only way to implement this is to use an extension method. The benefit over properties is that the reader and the writer of an option of a capability can be implemented with different names.
 
 An example of where we failed in the past to apply this is the `Headers` static class. It contains everything and the kitchen sink when it comes to headers.
 
@@ -173,7 +173,7 @@ The following should have the same name as the component:
 
 * Repository name
 * TeamCity build
-* [Root namespace](#Component naming rules)
+* [Root namespace](#component-naming-rules)
 * NuGet package
 * Deploy project
 * Visual Studio solution name
