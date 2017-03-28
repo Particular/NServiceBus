@@ -1785,7 +1785,7 @@ namespace NServiceBus.Extensibility
 {
     public class ContextBag : NServiceBus.Extensibility.ReadOnlyContextBag
     {
-        public ContextBag(NServiceBus.Extensibility.ContextBag parent = null) { }
+        public ContextBag(NServiceBus.Extensibility.ContextBag parentBag = null) { }
         public T Get<T>() { }
         public T GetOrCreate<T>()
             where T :  class, new () { }
