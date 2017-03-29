@@ -1,4 +1,4 @@
-﻿namespace Particular.Licensing.FindActiveLicense
+﻿namespace Particular.Licensing
 {
     using System.Configuration;
     using System.IO;

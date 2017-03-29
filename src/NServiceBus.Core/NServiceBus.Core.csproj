@@ -92,6 +92,7 @@
     <Compile Include="App_Packages\Particular.Licensing\FindActiveLicense\LicenseSourceHKCURegKey.cs" />
     <Compile Include="App_Packages\Particular.Licensing\FindActiveLicense\LicenseSourceHKLMRegKey.cs" />
     <Compile Include="App_Packages\Particular.Licensing\FindActiveLicense\LicenseSourceResult.cs" />
+    <Compile Include="App_Packages\Particular.Licensing\FindActiveLicense\LicenseSourceUserProvided.cs" />
     <Compile Include="App_Packages\Particular.Licensing\FindActiveLicense\NonBlockingReader.cs" />
     <Compile Include="App_Packages\Particular.Licensing\License.cs" />
     <Compile Include="App_Packages\Particular.Licensing\LicenseDeserializer.cs" />

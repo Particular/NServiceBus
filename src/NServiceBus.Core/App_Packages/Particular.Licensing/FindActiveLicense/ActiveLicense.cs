@@ -41,6 +41,13 @@ namespace Particular.Licensing
                 activeLicense.License = License.TrialLicense(TrialStartDateStore.GetTrialStartDate());
                 activeLicense.Location = "Trial License";
             }
+            else if (activeLicense.License.IsTrialLicense)
+            {
+                // If the found license is a trial license then it is actually a extended trial license not a locally generated trial.
+                // Set the property to indicate that it is an extended license as it's not set by the license generation
+                activeLicense.License.IsExtendedTrial = true;
+            }
+
             activeLicense.HasExpired = LicenseExpirationChecker.HasLicenseExpired(activeLicense.License);
             return activeLicense;
         }
