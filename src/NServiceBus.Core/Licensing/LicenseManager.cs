@@ -4,7 +4,6 @@ namespace NServiceBus
     using System.Threading;
     using System.Windows.Forms;
     using Logging;
-    using Microsoft.Win32;
     using Particular.Licensing;
 
     class LicenseManager
@@ -14,87 +13,41 @@ namespace NServiceBus
             return license == null || LicenseExpirationChecker.HasLicenseExpired(license);
         }
 
-        internal void InitializeLicense(string licenseText)
+        internal void InitializeLicense(string licenseText, string licenseFilePath)
         {
-            //only do this if not been configured by the fluent API
-            if (licenseText == null)
+            var licenseSources = LicenseLocationConventions.GetLicenseSources(licenseText, licenseFilePath);
+
+            var result = ActiveLicense.Find("NServiceBus", licenseSources);
+            license = result.License;
+
+            if (result.HasExpired)
             {
-                licenseText = GetExistingLicense();
-            }
-
-            if (string.IsNullOrWhiteSpace(licenseText))
-            {
-                license = GetTrialLicense();
-                PromptUserForLicenseIfTrialHasExpired();
-                return;
-            }
-
-            LicenseVerifier.Verify(licenseText);
-
-            var foundLicense = LicenseDeserializer.Deserialize(licenseText);
-
-            if (LicenseExpirationChecker.HasLicenseExpired(foundLicense))
-            {
-                // If the found license is a trial license then it is actually a extended trial license not a locally generated trial.
-                // Set the property to indicate that it is an extended license as it's not set by the license generation 
-                if (foundLicense.IsTrialLicense)
+                if (license.IsTrialLicense)
                 {
-                    foundLicense.IsExtendedTrial = true;
+                    Logger.WarnFormat("Trial for the Particular Service Platform has expired");
                     PromptUserForLicenseIfTrialHasExpired();
                     return;
                 }
+
                 Logger.Fatal("Your license has expired! You can renew it at https://particular.net/licensing.");
                 return;
             }
 
-            if (foundLicense.UpgradeProtectionExpiration != null)
+            if (license.IsTrialLicense)
             {
-                Logger.InfoFormat("License upgrade protection expires on: {0}", foundLicense.UpgradeProtectionExpiration);
-            }
-            else
-            {
-                Logger.InfoFormat("License expires on {0}", foundLicense.ExpirationDate);
-            }
-
-            license = foundLicense;
-        }
-
-        static License GetTrialLicense()
-        {
-            var trialStartDate = TrialStartDateStore.GetTrialStartDate();
-            var trialLicense = License.TrialLicense(trialStartDate);
-
-            //Check trial is still valid
-            if (LicenseExpirationChecker.HasLicenseExpired(trialLicense))
-            {
-                Logger.WarnFormat("Trial for the Particular Service Platform has expired");
-            }
-            else
-            {
+                var trialStartDate = TrialStartDateStore.GetTrialStartDate();
                 var message = $"Trial for the Particular Service Platform has been active since {trialStartDate.ToLocalTime().ToShortDateString()}.";
                 Logger.Info(message);
             }
 
-            return trialLicense;
-        }
-
-        static string GetExistingLicense()
-        {
-            string existingLicense;
-
-            //look in HKCU
-            if (UserSidChecker.IsNotSystemSid() && new RegistryLicenseStore().TryReadLicense(out existingLicense))
+            if (license.UpgradeProtectionExpiration != null)
             {
-                return existingLicense;
+                Logger.InfoFormat("License upgrade protection expires on: {0}", license.UpgradeProtectionExpiration);
             }
-
-            //look in HKLM
-            if (new RegistryLicenseStore(Registry.LocalMachine).TryReadLicense(out existingLicense))
+            else
             {
-                return existingLicense;
+                Logger.InfoFormat("License expires on {0}", license.ExpirationDate);
             }
-
-            return LicenseLocationConventions.TryFindLicenseText();
         }
 
         void PromptUserForLicenseIfTrialHasExpired()

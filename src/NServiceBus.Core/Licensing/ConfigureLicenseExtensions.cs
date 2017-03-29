@@ -1,6 +1,5 @@
 namespace NServiceBus
 {
-    using System.IO;
     using Features;
     using Logging;
 
@@ -32,14 +31,8 @@ namespace NServiceBus
         {
             Guard.AgainstNull(nameof(config), config);
             Guard.AgainstNullAndEmpty(nameof(licenseFile), licenseFile);
-            if (!File.Exists(licenseFile))
-            {
-                throw new FileNotFoundException("License file not found", licenseFile);
-            }
-
-            var licenseText = NonLockingFileReader.ReadAllTextWithoutLocking(licenseFile);
-
-            config.License(licenseText);
+            Logger.Info("Using license supplied via fluent API.");
+            config.Settings.Set(LicenseReminder.LicenseFilePathSettingsKey, licenseFile);
         }
 
         static ILog Logger = LogManager.GetLogger(typeof(LicenseManager));

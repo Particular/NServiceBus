@@ -11,6 +11,7 @@ namespace NServiceBus.Features
             EnableByDefault();
 
             Defaults(s => s.SetDefault(LicenseTextSettingsKey, null));
+            Defaults(s => s.SetDefault(LicenseFilePathSettingsKey, null));
         }
 
         protected internal override void Setup(FeatureConfigurationContext context)
@@ -18,11 +19,12 @@ namespace NServiceBus.Features
             try
             {
                 var licenseManager = new LicenseManager();
-                licenseManager.InitializeLicense(context.Settings.Get<string>(LicenseTextSettingsKey));
+                licenseManager.InitializeLicense(context.Settings.Get<string>(LicenseTextSettingsKey), context.Settings.Get<string>(LicenseFilePathSettingsKey));
 
                 context.Container.RegisterSingleton(licenseManager);
 
                 var licenseExpired = licenseManager.HasLicenseExpired();
+
                 if (!licenseExpired)
                 {
                     return;
@@ -43,6 +45,7 @@ namespace NServiceBus.Features
         }
 
         public const string LicenseTextSettingsKey = "LicenseText";
+        public const string LicenseFilePathSettingsKey = "LicenseFilePath";
 
         static ILog Logger = LogManager.GetLogger<LicenseReminder>();
     }
