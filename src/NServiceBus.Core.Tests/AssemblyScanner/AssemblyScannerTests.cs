@@ -261,7 +261,10 @@ class InterfaceMessageHandler : IHandleMessages<IBaseEvent>
             var handlerAsm = new DynamicAssembly("Fake.Handler", new[] { messagesAsm }, content: handler, referenceTheCore: true);
             Assembly.LoadFrom(handlerAsm.FilePath);
 
-            var scanner = new AssemblyScanner(DynamicAssembly.TestAssemblyDirectory);
+            var scanner = new AssemblyScanner(DynamicAssembly.TestAssemblyDirectory)
+            {
+                IncludeAssembliesNotReferencingCoreAsWell = true //core will set this if a custom convention is used
+            };
 
             var result = scanner.GetScannableAssemblies();
 
