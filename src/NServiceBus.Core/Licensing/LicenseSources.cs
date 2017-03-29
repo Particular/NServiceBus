@@ -5,7 +5,7 @@ namespace NServiceBus
     using System.IO;
     using Particular.Licensing;
 
-    static class LicenseLocationConventions
+    static class LicenseSources
     {
         public static LicenseSource[] GetLicenseSources(string licenseText, string licenseFilePath)
         {

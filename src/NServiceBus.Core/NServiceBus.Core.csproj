@@ -588,7 +588,7 @@
     <Compile Include="IStartableEndpoint.cs" />
     <Compile Include="Licensing\AuditInvalidLicenseBehavior.cs" />
     <Compile Include="Licensing\LicenseReminder.cs" />
-    <Compile Include="Licensing\LicenseLocationConventions.cs" />
+    <Compile Include="Licensing\LicenseSources.cs" />
     <Compile Include="Licensing\NonLockingFileReader.cs" />
     <Compile Include="Licensing\StaThreadRunner.cs" />
     <Compile Include="Licensing\LicenseExpiredFormDisplayer.cs" />

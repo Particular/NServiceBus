@@ -15,7 +15,7 @@ namespace NServiceBus
 
         internal void InitializeLicense(string licenseText, string licenseFilePath)
         {
-            var licenseSources = LicenseLocationConventions.GetLicenseSources(licenseText, licenseFilePath);
+            var licenseSources = LicenseSources.GetLicenseSources(licenseText, licenseFilePath);
 
             var result = ActiveLicense.Find("NServiceBus", licenseSources);
             license = result.License;
