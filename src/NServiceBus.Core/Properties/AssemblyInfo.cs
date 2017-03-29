@@ -11,4 +11,4 @@ using NServiceBus;
 [assembly: CLSCompliant(true)]
 
 // TODO: Introduce proper way to automatically generate these dates before first hotfix/next minor
-[assembly: ReleaseDate("2017-03-28", "2016-03-28")]
+[assembly: ReleaseDate("2017-03-28", "2017-03-28")]
