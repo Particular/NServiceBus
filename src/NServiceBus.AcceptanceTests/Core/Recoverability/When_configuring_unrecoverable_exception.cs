@@ -19,10 +19,10 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
             {
                 await Scenario.Define<Context>(ctx => context = ctx)
                     .WithEndpoint<EndpointWithFailingHandler>(b => b
-                            .When((session, ctx) => session.SendLocal(new InitiatingMessage
-                            {
-                                Id = ctx.TestRunId
-                            }))
+                        .When((session, ctx) => session.SendLocal(new InitiatingMessage
+                        {
+                            Id = ctx.TestRunId
+                        }))
                     )
                     .Done(c => c.FailedMessages.Any())
                     .Run();

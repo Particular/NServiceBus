@@ -21,13 +21,14 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
                 .Done(c => c.FailedMessages.Any())
                 .Run(TimeSpan.FromSeconds(120));
 
-            CollectionAssert.AreEqual(context.OriginalBody, context.DelayedRetryBody, "The body of the message sent to Delayed Retry should be the same as the original message coming off the queue");
+            var delayedRetryBody = context.FailedMessages.Single().Value.Single().Body;
+
+            CollectionAssert.AreEqual(context.OriginalBody, delayedRetryBody, "The body of the message sent to Delayed Retry should be the same as the original message coming off the queue");
         }
 
         class Context : ScenarioContext
         {
             public byte[] OriginalBody { get; set; }
-            public byte[] DelayedRetryBody { get; set; }
         }
 
         public class RetryEndpoint : EndpointConfigurationBuilder
@@ -36,9 +37,7 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
             {
                 EndpointSetup<DefaultServer>((configure, context) =>
                 {
-                    var scenarioContext = (Context) context.ScenarioContext;
                     configure.EnableFeature<TimeoutManager>();
-                    configure.Notifications.Errors.MessageSentToErrorQueue += (sender, message) => { scenarioContext.DelayedRetryBody = message.Body; };
                     configure.RegisterComponents(c => c.ConfigureComponent<BodyMutator>(DependencyLifecycle.InstancePerCall));
                     var recoverability = configure.Recoverability();
                     recoverability.Delayed(settings => settings.TimeIncrease(TimeSpan.FromMilliseconds(1)));

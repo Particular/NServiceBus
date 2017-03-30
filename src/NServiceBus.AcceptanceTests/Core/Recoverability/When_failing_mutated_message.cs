@@ -9,10 +9,10 @@
     using MessageMutator;
     using NUnit.Framework;
 
-    public class When_delayed_retries_with_serialization_exception : NServiceBusAcceptanceTest
+    public class When_failing_mutated_message : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Should_preserve_the_original_body_for_serialization_exceptions()
+        public async Task Should_preserve_the_original_body()
         {
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<RetryEndpoint>(b => b
@@ -40,6 +40,7 @@
                     configure.EnableFeature<TimeoutManager>();
                     configure.RegisterComponents(c => c.ConfigureComponent<BodyMutator>(DependencyLifecycle.InstancePerCall));
                     configure.Recoverability().Delayed(settings => settings.TimeIncrease(TimeSpan.FromMilliseconds(1)));
+                    configure.Recoverability().Immediate(settings => settings.NumberOfRetries(3));
                 });
             }
 

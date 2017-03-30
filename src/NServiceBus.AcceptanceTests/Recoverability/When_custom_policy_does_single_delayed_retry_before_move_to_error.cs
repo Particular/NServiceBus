@@ -12,7 +12,7 @@ namespace NServiceBus.AcceptanceTests.Recoverability
     public class When_custom_policy_does_single_delayed_retry_before_move_to_error : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Should_execute_twice_and_sent_to_error_queue()
+        public async Task Should_execute_twice_and_send_to_error_queue()
         {
             var messageId = Guid.NewGuid().ToString();
             var context = await Scenario.Define<Context>()
