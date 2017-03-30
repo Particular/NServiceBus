@@ -11,7 +11,7 @@ namespace NServiceBus.AcceptanceTests.Recoverability
     public class When_custom_policy_always_moves_to_error : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Should_executed_only_once_and_send_to_error_queue()
+        public async Task Should_execute_only_once_and_send_to_error_queue()
         {
             var messageId = Guid.NewGuid().ToString();
 
