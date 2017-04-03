@@ -147,35 +147,35 @@
         [Test]
         public void ValidateThatMappingOnSagaIdHasTypeGuidForMessageProps()
         {
-            var ex = Assert.Throws<Exception>(() => SagaMetadata.Create(typeof(SagaWithIdMappedToNonGuidMessageProperty)));
+            var ex = Assert.Throws<InvalidOperationException>(() => SagaMetadata.Create(typeof(SagaWithIdMappedToNonGuidMessageProperty)));
             StringAssert.Contains(typeof(SomeMessage).FullName, ex.Message);
         }
 
         [Test]
         public void ValidateThatMappingOnSagaIdFromStringToGuidForMessagePropsThrowsException()
         {
-            var ex = Assert.Throws<Exception>(() => SagaMetadata.Create(typeof(SagaWithIdMappedToStringMessageProperty)));
+            var ex = Assert.Throws<InvalidOperationException>(() => SagaMetadata.Create(typeof(SagaWithIdMappedToStringMessageProperty)));
             StringAssert.Contains(typeof(SomeMessage).FullName, ex.Message);
         }
 
         [Test]
         public void ValidateThatMappingOnNonSagaIdGuidPropertyFromStringToGuidForMessagePropsThrowsException()
         {
-            var ex = Assert.Throws<Exception>(() => SagaMetadata.Create(typeof(SagaWithNonIdPropertyMappedToStringMessageProperty)));
+            var ex = Assert.Throws<InvalidOperationException>(() => SagaMetadata.Create(typeof(SagaWithNonIdPropertyMappedToStringMessageProperty)));
             StringAssert.Contains(typeof(SomeMessage).FullName, ex.Message);
         }
 
         [Test]
         public void ValidateThatMappingOnSagaIdHasTypeGuidForMessageFields()
         {
-            var ex = Assert.Throws<Exception>(() => SagaMetadata.Create(typeof(SagaWithIdMappedToNonGuidMessageField)));
+            var ex = Assert.Throws<InvalidOperationException>(() => SagaMetadata.Create(typeof(SagaWithIdMappedToNonGuidMessageField)));
             StringAssert.Contains(typeof(SomeMessage).Name, ex.Message);
         }
 
         [Test]
         public void ValidateThatSagaPropertyIsNotAField()
         {
-            var ex = Assert.Throws<Exception>(() => SagaMetadata.Create(typeof(SagaWithSagaDataMemberAsFieldInsteadOfProperty)));
+            var ex = Assert.Throws<InvalidOperationException>(() => SagaMetadata.Create(typeof(SagaWithSagaDataMemberAsFieldInsteadOfProperty)));
             StringAssert.Contains(typeof(SagaWithSagaDataMemberAsFieldInsteadOfProperty.SagaData).FullName, ex.Message);
         }
 
