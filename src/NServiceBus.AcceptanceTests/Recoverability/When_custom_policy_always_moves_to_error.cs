@@ -1,31 +1,39 @@
-namespace NServiceBus.AcceptanceTests.Recoverability.Retries
+namespace NServiceBus.AcceptanceTests.Recoverability
 {
     using System;
+    using System.Linq;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
     using Features;
     using NUnit.Framework;
-    using Transport;
 
-    public class When_custom_policy_does_single_delayed_retry_before_move_to_error : NServiceBusAcceptanceTest
+    public class When_custom_policy_always_moves_to_error : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Should_execute_twice()
+        public async Task Should_execute_only_once_and_send_to_error_queue()
         {
+            var messageId = Guid.NewGuid().ToString();
+
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<RetryEndpoint>(b => b
-                    .When(bus => bus.SendLocal(new MessageToBeRetried()))
+                    .When(bus =>
+                    {
+                        var sendOptions = new SendOptions();
+                        sendOptions.RouteToThisEndpoint();
+                        sendOptions.SetMessageId(messageId);
+                        return bus.Send(new MessageToBeRetried(), sendOptions);
+                    })
                     .DoNotFailOnErrorMessages())
-                .Done(c => c.MessageSentToErrorQueue)
+                .Done(c => c.FailedMessages.Any())
                 .Run();
 
-            Assert.AreEqual(context.Count, 2);
+            Assert.AreEqual(1, context.Count);
+            Assert.AreEqual(messageId, context.FailedMessages.Single().Value.Single().MessageId);
         }
 
         class Context : ScenarioContext
         {
-            public bool MessageSentToErrorQueue { get; set; }
             public int Count { get; set; }
         }
 
@@ -35,22 +43,10 @@ namespace NServiceBus.AcceptanceTests.Recoverability.Retries
             {
                 EndpointSetup<DefaultServer>((configure, context) =>
                 {
-                    var scenarioContext = (Context) context.ScenarioContext;
                     configure.EnableFeature<TimeoutManager>();
                     configure.Recoverability()
-                        .CustomPolicy(RetryPolicy);
-                    configure.Notifications.Errors.MessageSentToErrorQueue += (sender, message) => { scenarioContext.MessageSentToErrorQueue = true; };
+                        .CustomPolicy((cfg, errorContext) => RecoverabilityAction.MoveToError(cfg.Failed.ErrorQueue));
                 });
-            }
-
-            RecoverabilityAction RetryPolicy(RecoverabilityConfig config, ErrorContext context)
-            {
-                if (context.DelayedDeliveriesPerformed == 0)
-                {
-                    return RecoverabilityAction.DelayedRetry(TimeSpan.FromMilliseconds(10));
-                }
-
-                return RecoverabilityAction.MoveToError(config.Failed.ErrorQueue);
             }
 
             class MessageToBeRetriedHandler : IHandleMessages<MessageToBeRetried>
@@ -70,7 +66,6 @@ namespace NServiceBus.AcceptanceTests.Recoverability.Retries
             }
         }
 
-        
         public class MessageToBeRetried : IMessage
         {
         }

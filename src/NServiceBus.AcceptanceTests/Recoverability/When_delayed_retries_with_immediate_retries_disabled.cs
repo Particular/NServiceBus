@@ -1,6 +1,7 @@
-﻿namespace NServiceBus.AcceptanceTests.Recoverability.Retries
+﻿namespace NServiceBus.AcceptanceTests.Recoverability
 {
     using System;
+    using System.Linq;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
@@ -16,7 +17,7 @@
                 .WithEndpoint<RetryEndpoint>(b => b
                     .When((session, ctx) => session.SendLocal(new MessageToBeRetried {Id = ctx.Id}))
                     .DoNotFailOnErrorMessages())
-                .Done(c => c.ReceiveCount >= ConfiguredNumberOfDelayedRetries + 1)
+                .Done(c => c.FailedMessages.Any())
                 .Run();
 
             Assert.AreEqual(ConfiguredNumberOfDelayedRetries + 1, context.ReceiveCount, "Message should be delivered 4 times. Once initially and retried 3 times by Delayed Retries");
@@ -66,7 +67,6 @@
             }
         }
 
-        
         public class MessageToBeRetried : IMessage
         {
             public Guid Id { get; set; }

@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.AcceptanceTests.Recoverability.Retries
+﻿namespace NServiceBus.AcceptanceTests.Recoverability
 {
     using System.Linq;
     using System.Threading.Tasks;
