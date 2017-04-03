@@ -421,9 +421,7 @@ Sagas must have at least one message that is allowed to start the saga. Add at l
                 {
                     if (fieldInfo.FieldType != sagaProp.PropertyType)
                     {
-                        throw new InvalidOperationException(string.Format(message,
-                            fieldInfo.DeclaringType.Name, fieldInfo.Name, fieldInfo.FieldType,
-                            sagaProp.DeclaringType.Name, sagaProp.Name, sagaProp.PropertyType));
+                        throw new Exception($"When mapping a message to a saga, the member type on the message and the saga property must match. {fieldInfo.DeclaringType.FullName}.{fieldInfo.Name} is of type {fieldInfo.FieldType.Name} and {sagaProp.DeclaringType.FullName}.{sagaProp.Name} is of type {sagaProp.PropertyType.Name}.");
                     }
                 }
             }
