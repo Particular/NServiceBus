@@ -371,7 +371,7 @@ Sagas must have at least one message that is allowed to start the saga. Add at l
                 var sagaProp = sagaMember as PropertyInfo;
                 if (sagaProp == null)
                 {
-                    throw new InvalidOperationException($"Mapping expressions for saga members must point to properties. Change member {sagaMember.Name} on {typeof(TSagaEntity).Name} to a property.");
+                    throw new InvalidOperationException($"Mapping expressions for saga members must point to properties. Change member {sagaMember.Name} on {typeof(TSagaEntity).FullName} to a property.");
                 }
 
                 ValidateMapping(messageExpression, sagaProp);
@@ -405,15 +405,11 @@ Sagas must have at least one message that is allowed to start the saga. Add at l
 
                 var propertyInfo = memberExpr.Member as PropertyInfo;
 
-                const string message = "When mapping a message to a saga, the member type on the message and the saga property must match. {0}.{1} is of type {2} and {3}.{4} is of type {5}.";
-
                 if (propertyInfo != null)
                 {
                     if (propertyInfo.PropertyType != sagaProp.PropertyType)
                     {
-                        throw new InvalidOperationException(string.Format(message,
-                            propertyInfo.DeclaringType.Name, propertyInfo.Name, propertyInfo.PropertyType,
-                            sagaProp.DeclaringType.Name, sagaProp.Name, sagaProp.PropertyType));
+                        throw new InvalidOperationException($"When mapping a message to a saga, the member type on the message and the saga property must match. {propertyInfo.DeclaringType.FullName}.{propertyInfo.Name} is of type {propertyInfo.PropertyType.Name} and {sagaProp.DeclaringType.FullName}.{sagaProp.Name} is of type {sagaProp.PropertyType.Name}.");
                     }
 
                     return;
@@ -425,9 +421,7 @@ Sagas must have at least one message that is allowed to start the saga. Add at l
                 {
                     if (fieldInfo.FieldType != sagaProp.PropertyType)
                     {
-                        throw new InvalidOperationException(string.Format(message,
-                            fieldInfo.DeclaringType.Name, fieldInfo.Name, fieldInfo.FieldType,
-                            sagaProp.DeclaringType.Name, sagaProp.Name, sagaProp.PropertyType));
+                        throw new InvalidOperationException($"When mapping a message to a saga, the member type on the message and the saga property must match. {fieldInfo.DeclaringType.FullName}.{fieldInfo.Name} is of type {fieldInfo.FieldType.Name} and {sagaProp.DeclaringType.FullName}.{sagaProp.Name} is of type {sagaProp.PropertyType.Name}.");
                     }
                 }
             }
