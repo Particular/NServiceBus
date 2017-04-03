@@ -371,7 +371,7 @@ Sagas must have at least one message that is allowed to start the saga. Add at l
                 var sagaProp = sagaMember as PropertyInfo;
                 if (sagaProp == null)
                 {
-                    throw new InvalidOperationException($"Mapping expressions for saga members must point to properties. Change member {sagaMember.Name} on {typeof(TSagaEntity).Name} to a property.");
+                    throw new Exception($"Mapping expressions for saga members must point to properties. Change member {sagaMember.Name} on {typeof(TSagaEntity).FullName} to a property.");
                 }
 
                 ValidateMapping(messageExpression, sagaProp);
