@@ -29,8 +29,8 @@
                     using (var messageQueue = new MessageQueue(path))
                     {
                         Logger.DebugFormat("Verified that the queue: [{0}] exists", queuePath);
-
-                        WarnIfPublicAccess(messageQueue);
+                        WarnIfPublicAccess(messageQueue, LocalEveryoneGroupName);
+                        WarnIfPublicAccess(messageQueue, LocalAnonymousLogonName);
                     }
                 }
                 else
@@ -43,15 +43,14 @@
                 Logger.Warn($"Unable to verify queue at address '{queuePath}'. Make sure the queue exists, and that the address is correct. Processing will still continue.", ex);
             }
         }
-
-        static void WarnIfPublicAccess(MessageQueue queue)
+        
+        static void WarnIfPublicAccess(MessageQueue queue, string userGroupName)
         {
-            MessageQueueAccessRights? everyoneRights, anonymousRights;
+            MessageQueueAccessRights? accessRights;
 
             try
             {
-                queue.TryGetPermissions(LocalAnonymousLogonName, out anonymousRights);
-                queue.TryGetPermissions(LocalEveryoneGroupName, out everyoneRights);
+                queue.TryGetPermissions(userGroupName, out accessRights);
             }
             catch (SecurityException se)
             {
@@ -59,10 +58,11 @@
                 return;
             }
 
-            if (anonymousRights.HasValue || everyoneRights.HasValue)
+            if (accessRights == MessageQueueAccessRights.FullControl ||
+                accessRights == MessageQueueAccessRights.GenericRead ||
+                accessRights == MessageQueueAccessRights.GenericWrite)
             {
-                var logMessage = $"Queue [{queue.QueueName}] is running with [{LocalEveryoneGroupName}] and/or [{LocalAnonymousLogonName}] permissions. Consider setting appropriate permissions, if required by the organization. For more information, consult the documentation.";
-
+                var logMessage = $"Queue [{queue.QueueName}] is running with [{userGroupName}] with AccessRights set to [{accessRights}]. Consider setting appropriate permissions, if required by the organization. For more information, consult the documentation.";
                 if (Debugger.IsAttached)
                 {
                     Logger.Info(logMessage);
@@ -73,7 +73,7 @@
                 }
             }
         }
-
+        
         internal static string LocalEveryoneGroupName = new SecurityIdentifier(WellKnownSidType.WorldSid, null).Translate(typeof(NTAccount)).ToString();
         internal static string LocalAnonymousLogonName = new SecurityIdentifier(WellKnownSidType.AnonymousSid, null).Translate(typeof(NTAccount)).ToString();
 
