@@ -10,9 +10,10 @@
     using NServiceBus.Support;
     using Transport;
 
-    public class EndpointRunner
+    public class EndpointRunner : ComponentRunner
     {
         static ILog Logger = LogManager.GetLogger<EndpointRunner>();
+        bool doNotFailOnErrorMessages;
         EndpointBehavior behavior;
         IStartableEndpoint startable;
         IEndpointInstance endpointInstance;
@@ -21,7 +22,10 @@
         RunSettings runSettings;
         EndpointConfiguration endpointConfiguration;
 
-        public bool FailOnErrorMessage => !behavior.DoNotFailOnErrorMessages;
+        public EndpointRunner(bool doNotFailOnErrorMessages)
+        {
+            this.doNotFailOnErrorMessages = doNotFailOnErrorMessages;
+        }
 
         public async Task Initialize(RunDescriptor run, EndpointBehavior endpointBehavior, string endpointName)
         {
@@ -72,7 +76,7 @@
             }
         }
 
-        public async Task Start(CancellationToken token)
+        public override async Task Start(CancellationToken token)
         {
             try
             {
@@ -91,7 +95,7 @@
             }
         }
 
-        public async Task Whens(CancellationToken token)
+        public override async Task ComponentsStarted(CancellationToken token)
         {
             try
             {
@@ -144,7 +148,7 @@
             }
         }
 
-        public async Task Stop()
+        public override async Task Stop()
         {
             try
             {
@@ -161,6 +165,19 @@
             finally
             {
                 await Cleanup().ConfigureAwait(false);
+
+                if (!doNotFailOnErrorMessages)
+                {
+                    ThrowOnFailedMessages();
+                }
+            }
+        }
+
+        void ThrowOnFailedMessages()
+        {
+            foreach (var failedMessage in scenarioContext.FailedMessages.Where(kvp => kvp.Key == Name))
+            {
+                throw new MessageFailedException(failedMessage.Value.First(), scenarioContext);
             }
         }
 
@@ -177,9 +194,9 @@
             return Task.FromResult(0);
         }
 
-        public string Name()
+        public override string Name
         {
-            return configuration.EndpointName;
+            get { return configuration.EndpointName; }
         }
     }
 }

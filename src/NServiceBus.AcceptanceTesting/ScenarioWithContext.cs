@@ -54,6 +54,12 @@ namespace NServiceBus.AcceptanceTesting
             return WithEndpoint<T>(b => { });
         }
 
+        public IScenarioWithEndpointBehavior<TContext> WithComponent(IComponentBehavior componentBehavior) 
+        {
+            behaviors.Add(componentBehavior);
+            return this;
+        }
+
         public IScenarioWithEndpointBehavior<TContext> WithEndpoint<T>(Action<EndpointBehaviorBuilder<TContext>> defineBehavior) where T : EndpointConfigurationBuilder
         {
             var builder = new EndpointBehaviorBuilder<TContext>(typeof(T));
@@ -88,7 +94,7 @@ namespace NServiceBus.AcceptanceTesting
             return Run(settings);
         }
 
-        List<EndpointBehavior> behaviors = new List<EndpointBehavior>();
+        List<IComponentBehavior> behaviors = new List<IComponentBehavior>();
         Action<TContext> contextInitializer;
         Func<ScenarioContext, bool> done = context => true;
     }

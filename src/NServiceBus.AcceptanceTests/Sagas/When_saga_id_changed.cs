@@ -14,7 +14,7 @@
         [Test]
         public void Should_throw()
         {
-            var exception = Assert.ThrowsAsync<MessagesFailedException>(async () =>
+            var exception = Assert.ThrowsAsync<MessageFailedException>(async () =>
                 await Scenario.Define<Context>()
                     .WithEndpoint<Endpoint>(
                         b => b.When(session => session.SendLocal(new StartSaga
@@ -24,10 +24,9 @@
                     .Done(c => c.FailedMessages.Any())
                     .Run());
 
-            Assert.That(exception.FailedMessages, Has.Count.EqualTo(1));
-            var failedMessage = exception.FailedMessages.Single();
-            Assert.That(((Context) exception.ScenarioContext).MessageId, Is.EqualTo(failedMessage.MessageId), "Message should be moved to errorqueue");
-            Assert.That(failedMessage.Exception.Message, Contains.Substring("A modification of IContainSagaData.Id has been detected. This property is for infrastructure purposes only and should not be modified. SagaType:"));
+            Assert.That(exception.ScenarioContext.FailedMessages, Has.Count.EqualTo(1));
+            Assert.That(((Context) exception.ScenarioContext).MessageId, Is.EqualTo(exception.FailedMessage.MessageId), "Message should be moved to errorqueue");
+            Assert.That(exception.FailedMessage.Exception.Message, Contains.Substring("A modification of IContainSagaData.Id has been detected. This property is for infrastructure purposes only and should not be modified. SagaType:"));
         }
 
         public class Context : ScenarioContext
