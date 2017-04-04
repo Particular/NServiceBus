@@ -8,11 +8,10 @@
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
-    using Customization;
 
     public class ScenarioRunner
     {
-        public static async Task Run(RunDescriptor runDescriptor, List<EndpointBehavior> behaviorDescriptors, Func<ScenarioContext, bool> done)
+        public static async Task Run(RunDescriptor runDescriptor, List<IEndpointBehavior> behaviorDescriptors, Func<ScenarioContext, bool> done)
         {
             Console.WriteLine("Started test @ {0}", DateTime.Now.ToString(CultureInfo.InvariantCulture));
 
@@ -85,7 +84,7 @@
             Console.WriteLine("------------------------------------------------------");
         }
 
-        static async Task<RunResult> PerformTestRun(List<EndpointBehavior> behaviorDescriptors, RunDescriptor runDescriptor, Func<ScenarioContext, bool> done)
+        static async Task<RunResult> PerformTestRun(List<IEndpointBehavior> behaviorDescriptors, RunDescriptor runDescriptor, Func<ScenarioContext, bool> done)
         {
             var runResult = new RunResult
             {
@@ -127,7 +126,7 @@
             Console.WriteLine();
         }
 
-        static async Task PerformScenarios(RunDescriptor runDescriptor, EndpointRunner[] runners, Func<bool> done)
+        static async Task PerformScenarios(RunDescriptor runDescriptor, IEndpointRunner[] runners, Func<bool> done)
         {
             using (var cts = new CancellationTokenSource())
             {
@@ -175,7 +174,7 @@
             }
         }
 
-        static void ThrowOnFailedMessages(RunDescriptor runDescriptor, EndpointRunner[] endpoints)
+        static void ThrowOnFailedMessages(RunDescriptor runDescriptor, IEndpointRunner[] endpoints)
         {
             var unexpectedFailedMessages = runDescriptor.ScenarioContext.FailedMessages
                 .Where(kvp => endpoints.Single(e => e.Name() == kvp.Key).FailOnErrorMessage)
@@ -203,14 +202,14 @@
             return sb.ToString();
         }
 
-        static Task StartEndpoints(IEnumerable<EndpointRunner> endpoints, CancellationTokenSource cts)
+        static Task StartEndpoints(IEnumerable<IEndpointRunner> endpoints, CancellationTokenSource cts)
         {
             var startTimeout = TimeSpan.FromMinutes(2);
             return endpoints.Select(endpoint => StartEndpoint(endpoint, cts))
                 .Timebox(startTimeout, $"Starting endpoints took longer than {startTimeout.TotalMinutes} minutes.");
         }
 
-        static async Task StartEndpoint(EndpointRunner endpoint, CancellationTokenSource cts)
+        static async Task StartEndpoint(IEndpointRunner endpoint, CancellationTokenSource cts)
         {
             var token = cts.Token;
             try
@@ -225,14 +224,14 @@
             }
         }
 
-        static Task ExecuteWhens(IEnumerable<EndpointRunner> endpoints, CancellationTokenSource cts)
+        static Task ExecuteWhens(IEnumerable<IEndpointRunner> endpoints, CancellationTokenSource cts)
         {
             var whenTimeout = TimeSpan.FromSeconds(60);
             return endpoints.Select(endpoint => ExecuteWhens(endpoint, cts))
                 .Timebox(whenTimeout, $"Executing given and whens took longer than {whenTimeout.TotalSeconds} seconds.");
         }
 
-        static async Task ExecuteWhens(EndpointRunner endpoint, CancellationTokenSource cts)
+        static async Task ExecuteWhens(IEndpointRunner endpoint, CancellationTokenSource cts)
         {
             var token = cts.Token;
             try
@@ -247,7 +246,7 @@
             }
         }
 
-        static Task StopEndpoints(IEnumerable<EndpointRunner> endpoints)
+        static Task StopEndpoints(IEnumerable<IEndpointRunner> endpoints)
         {
             var stopTimeout = TimeSpan.FromMinutes(2);
             return endpoints.Select(async endpoint =>
@@ -268,32 +267,9 @@
             }).Timebox(stopTimeout, $"Stopping endpoints took longer than {stopTimeout.TotalMinutes} minutes.");
         }
 
-        static async Task<EndpointRunner[]> InitializeRunners(RunDescriptor runDescriptor, List<EndpointBehavior> endpointBehaviors)
+        static async Task<IEndpointRunner[]> InitializeRunners(RunDescriptor runDescriptor, List<IEndpointBehavior> endpointBehaviors)
         {
-            var runnerInitializations = endpointBehaviors.Select(async endpointBehavior =>
-            {
-                var endpointName = Conventions.EndpointNamingConvention(endpointBehavior.EndpointBuilderType);
-
-                if (endpointName.Length > 77)
-                {
-                    throw new Exception($"Endpoint name '{endpointName}' is larger than 77 characters and will cause issues with MSMQ queue names. Rename the test class or endpoint.");
-                }
-
-                var runner = new EndpointRunner();
-
-                try
-                {
-                    await runner.Initialize(runDescriptor, endpointBehavior, endpointName).ConfigureAwait(false);
-                }
-                catch (Exception)
-                {
-                    Console.WriteLine($"Endpoint {runner.Name()} failed to initialize");
-                    throw;
-                }
-
-                return runner;
-            });
-
+            var runnerInitializations = endpointBehaviors.Select(endpointBehavior => endpointBehavior.CreateRunner(runDescriptor)).ToArray();
             try
             {
                 var x = await Task.WhenAll(runnerInitializations).ConfigureAwait(false);
@@ -340,6 +316,6 @@
 
         public RunDescriptor RunDescriptor { get; set; }
 
-        public IEnumerable<EndpointBehavior> Endpoints { get; set; }
+        public IEnumerable<IEndpointBehavior> Endpoints { get; set; }
     }
 }

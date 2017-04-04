@@ -10,7 +10,7 @@
     using NServiceBus.Support;
     using Transport;
 
-    public class EndpointRunner
+    public class EndpointRunner : IEndpointRunner
     {
         static ILog Logger = LogManager.GetLogger<EndpointRunner>();
         EndpointBehavior behavior;
