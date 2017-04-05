@@ -36,7 +36,7 @@
                 {
                     config.Recoverability().Immediate(immediate => immediate.NumberOfRetries(1));
                     config.ConfigureTransport()
-                        .Transactions(TransportTransactionMode.ReceiveOnly);
+                        .Transactions(TransportTransactionMode.SendsAtomicWithReceive);
                 });
             }
 
