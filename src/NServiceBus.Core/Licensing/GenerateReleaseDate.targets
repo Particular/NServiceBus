@@ -5,9 +5,7 @@
 
     <ParameterGroup>
       <IntermediateOutputPath Required="true" />
-      <CurrentMajor Required="true" />
-      <CurrentMinor Required="true" />
-      <CurrentPatch Required="true" />
+      <OriginalCommitDateAndTime Required="true" />
       <CurrentCommitDate Required="true" />
       <GeneratedFilePath Output="true" />
     </ParameterGroup>
@@ -15,9 +13,16 @@
     <Task>
       <Code Type="Fragment" Language="cs">
         <![CDATA[
+        var originalCommitDate = CurrentCommitDate;
+
+        if (!string.IsNullOrWhiteSpace(OriginalCommitDateAndTime))
+        {
+            originalCommitDate = DateTimeOffset.Parse(OriginalCommitDateAndTime).ToString("yyyy-MM-dd");
+        }
+
         GeneratedFilePath = Path.Combine(IntermediateOutputPath, "ReleaseDate.g.cs");
-        var contents = String.Format("[assembly: NServiceBus.ReleaseDate(\"{0}\", \"{1}\")]", CurrentCommitDate, CurrentCommitDate);
-        File.WriteAllText(GeneratedFilePath, contents);
+
+        File.WriteAllText(GeneratedFilePath, String.Format("[assembly: NServiceBus.ReleaseDate(\"{0}\", \"{1}\")]", originalCommitDate, CurrentCommitDate));
         ]]>
       </Code>
     </Task>
@@ -26,7 +31,11 @@
 
   <Target Name="GenerateReleaseDate" DependsOnTargets="GetVersion" BeforeTargets="CoreCompile">
 
-    <GenerateReleaseDate IntermediateOutputPath="$(IntermediateOutputPath)" CurrentMajor="$(GitVersion_Major)" CurrentMinor="$(GitVersion_Minor)" CurrentPatch="$(GitVersion_Patch)" CurrentCommitDate="$(GitVersion_CommitDate)">
+    <Exec Command="git.exe show --format=%%ci $(GitVersion_Major).$(GitVersion_Minor).0" WorkingDirectory="$(MSBuildProjectDirectory)" ConsoleToMSBuild="true" Condition="$(GitVersion_Patch) != '0'">
+      <Output TaskParameter="ConsoleOutput" PropertyName="OriginalCommitDateAndTime" />
+    </Exec>
+
+    <GenerateReleaseDate IntermediateOutputPath="$(IntermediateOutputPath)" OriginalCommitDateAndTime="$(OriginalCommitDateAndTime)" CurrentCommitDate="$(GitVersion_CommitDate)">
       <Output TaskParameter="GeneratedFilePath" PropertyName="GeneratedReleaseDateFilePath" />
     </GenerateReleaseDate>
 
