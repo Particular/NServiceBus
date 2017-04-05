@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus.AcceptanceTests.EndpointTemplates
 {
-    using System;
     using System.Threading.Tasks;
     using AcceptanceTesting.Support;
     using ObjectBuilder;
@@ -9,22 +8,12 @@
     {
         public static Task DefineTransport(this EndpointConfiguration config, RunSettings settings, EndpointCustomizationConfiguration endpointCustomizationConfiguration)
         {
-            if (TestSuiteConstraints.Current.TransportConfiguration == null)
-            {
-                throw new Exception($"No valid transport configuration found. Configure a transport by assigning {nameof(TestSuiteConstraints)}.{nameof(TestSuiteConstraints.TransportConfiguration)}.");
-            }
-
-            return ConfigureTestExecution(TestSuiteConstraints.Current.TransportConfiguration, config, settings, endpointCustomizationConfiguration.EndpointName, endpointCustomizationConfiguration.PublisherMetadata);
+            return ConfigureTestExecution(TestSuiteConstraints.Current.CreateEndpointConfiguration(), config, settings, endpointCustomizationConfiguration.EndpointName, endpointCustomizationConfiguration.PublisherMetadata);
         }
 
         public static Task DefinePersistence(this EndpointConfiguration config, RunSettings settings, EndpointCustomizationConfiguration endpointCustomizationConfiguration)
         {
-            if (TestSuiteConstraints.Current.PersistenceConfiguration == null)
-            {
-                throw new Exception($"No valid persistence configuration found. Configure a persistence by assigning {nameof(TestSuiteConstraints)}.{nameof(TestSuiteConstraints.PersistenceConfiguration)}.");
-            }
-
-            return ConfigureTestExecution(TestSuiteConstraints.Current.PersistenceConfiguration, config, settings, endpointCustomizationConfiguration.EndpointName, endpointCustomizationConfiguration.PublisherMetadata);
+            return ConfigureTestExecution(TestSuiteConstraints.Current.CreatePersistenceConfiguration(), config, settings, endpointCustomizationConfiguration.EndpointName, endpointCustomizationConfiguration.PublisherMetadata);
         }
 
         public static void RegisterComponentsAndInheritanceHierarchy(this EndpointConfiguration builder, RunDescriptor runDescriptor)
