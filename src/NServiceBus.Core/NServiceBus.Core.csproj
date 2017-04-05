@@ -159,7 +159,7 @@
     <Compile Include="Recoverability\DefaultRecoverabilityPolicy.cs" />
     <Compile Include="Recoverability\DelayedRetryExecutor.cs" />
     <Compile Include="Recoverability\Settings\RecoverabilitySettings.cs" />
-    <Compile Include="ReleaseDateAttribute.cs" />
+    <Compile Include="Licensing\ReleaseDateAttribute.cs" />
     <Compile Include="Routing\DistributionContext.cs" />
     <Compile Include="Routing\DistributionStrategyScope.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\AssemblyPublisherSource.cs" />
