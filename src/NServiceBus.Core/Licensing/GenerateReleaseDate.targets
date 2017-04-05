@@ -1,10 +1,39 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
+  <UsingTask TaskName="GenerateReleaseDate" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
+
+    <ParameterGroup>
+      <IntermediateOutputPath Required="true" />
+      <CurrentMajor Required="true" />
+      <CurrentMinor Required="true" />
+      <CurrentPatch Required="true" />
+      <CurrentCommitDate Required="true" />
+      <GeneratedFilePath Output="true" />
+    </ParameterGroup>
+
+    <Task>
+      <Code Type="Fragment" Language="cs">
+        <![CDATA[
+        GeneratedFilePath = Path.Combine(IntermediateOutputPath, "ReleaseDate.g.cs");
+        var contents = String.Format("[assembly: NServiceBus.ReleaseDate(\"{0}\", \"{1}\")]", CurrentCommitDate, CurrentCommitDate);
+        File.WriteAllText(GeneratedFilePath, contents);
+        ]]>
+      </Code>
+    </Task>
+
+  </UsingTask>
 
   <Target Name="GenerateReleaseDate" DependsOnTargets="GetVersion" BeforeTargets="CoreCompile">
-    <Message Text="The date is $(GitVersion_CommitDate)" />
-  </Target>
 
+    <GenerateReleaseDate IntermediateOutputPath="$(IntermediateOutputPath)" CurrentMajor="$(GitVersion_Major)" CurrentMinor="$(GitVersion_Minor)" CurrentPatch="$(GitVersion_Patch)" CurrentCommitDate="$(GitVersion_CommitDate)">
+      <Output TaskParameter="GeneratedFilePath" PropertyName="GeneratedReleaseDateFilePath" />
+    </GenerateReleaseDate>
+
+    <ItemGroup>
+      <Compile Include="$(GeneratedReleaseDateFilePath)" />
+    </ItemGroup>
+
+  </Target>
 
 </Project>
