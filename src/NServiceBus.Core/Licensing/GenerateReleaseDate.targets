@@ -5,7 +5,7 @@
 
     <ParameterGroup>
       <IntermediateOutputPath Required="true" />
-      <OriginalCommitDateAndTime Required="true" />
+      <OriginalCommitDateAndTime />
       <CurrentCommitDate Required="true" />
       <GeneratedFilePath Output="true" />
     </ParameterGroup>
@@ -31,7 +31,7 @@
 
   <Target Name="GenerateReleaseDate" DependsOnTargets="GetVersion" BeforeTargets="CoreCompile">
 
-    <Exec Command="git.exe show --format=%%ci $(GitVersion_Major).$(GitVersion_Minor).0" WorkingDirectory="$(MSBuildProjectDirectory)" ConsoleToMSBuild="true" Condition="$(GitVersion_Patch) != '0'">
+    <Exec Command="git.exe show --format=%%ci $(GitVersion_Major).$(GitVersion_Minor).0" WorkingDirectory="$(MSBuildProjectDirectory)" ConsoleToMSBuild="true" Condition="$(GitVersion_Patch) != 0">
       <Output TaskParameter="ConsoleOutput" PropertyName="OriginalCommitDateAndTime" />
     </Exec>
 
