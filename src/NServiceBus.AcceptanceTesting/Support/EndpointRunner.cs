@@ -155,10 +155,6 @@
                 Logger.Error("Failed to stop endpoint " + configuration.EndpointName, ex);
                 throw;
             }
-            //finally
-            //{
-            //    await Cleanup().ConfigureAwait(false);
-            //}
         }
 
         public string Name()
