@@ -64,8 +64,7 @@ namespace NServiceBus.Hosting.Helpers
 
             if (assemblyToScan != null)
             {
-                var assemblyPath = AssemblyPath(assemblyToScan);
-                ScanAssembly(assemblyPath, results, processed);
+                ScanAssembly(assemblyToScan, results, processed);
                 return results;
             }
 
@@ -76,14 +75,15 @@ namespace NServiceBus.Hosting.Helpers
                 {
                     if (!assembly.IsDynamic)
                     {
-                        ScanAssembly(AssemblyPath(assembly), results, processed);
+                        ScanAssembly(assembly, results, processed);
                     }
                 }
             }
 
             foreach (var assemblyFile in ScanDirectoryForAssemblyFiles(baseDirectoryToScan, ScanNestedDirectories))
             {
-                ScanAssembly(assemblyFile.FullName, results, processed);
+                var assembly = LoadAssembly(assemblyFile.FullName, results, processed);
+                ScanAssembly(assembly, results, processed);
             }
 
             // This extra step is to ensure unobtrusive message types are included in the Types list.
@@ -123,15 +123,13 @@ namespace NServiceBus.Hosting.Helpers
             return Uri.UnescapeDataString(uri.Path).Replace('/', '\\');
         }
 
-        void ScanAssembly(string assemblyPath, AssemblyScannerResults results, Dictionary<string, bool> processed)
+        Assembly LoadAssembly(string assemblyPath, AssemblyScannerResults results, Dictionary<string, bool> processed)
         {
-            Assembly assembly;
-
             if (!IsIncluded(Path.GetFileNameWithoutExtension(assemblyPath)))
             {
                 var skippedFile = new SkippedFile(assemblyPath, "File was explicitly excluded from scanning.");
                 results.SkippedFiles.Add(skippedFile);
-                return;
+                return null;
             }
 
             var compilationMode = Image.GetCompilationMode(assemblyPath);
@@ -139,14 +137,14 @@ namespace NServiceBus.Hosting.Helpers
             {
                 var skippedFile = new SkippedFile(assemblyPath, "File is not a .NET assembly.");
                 results.SkippedFiles.Add(skippedFile);
-                return;
+                return null;
             }
 
             if (!Environment.Is64BitProcess && compilationMode == Image.CompilationMode.CLRx64)
             {
                 var skippedFile = new SkippedFile(assemblyPath, "x64 .NET assembly can't be loaded by a 32Bit process.");
                 results.SkippedFiles.Add(skippedFile);
-                return;
+                return null;
             }
 
             try
@@ -155,19 +153,19 @@ namespace NServiceBus.Hosting.Helpers
                 {
                     var skippedFile = new SkippedFile(assemblyPath, "Assembly does not reference at least one of the must referenced assemblies.");
                     results.SkippedFiles.Add(skippedFile);
-                    return;
+                    return null;
                 }
 
-                assembly = Assembly.LoadFrom(assemblyPath);
+                var assembly = Assembly.LoadFrom(assemblyPath);
 
                 if (results.Assemblies.Contains(assembly))
                 {
-                    return;
+                    return null;
                 }
+                return assembly;
             }
             catch (Exception ex) when (ex is BadImageFormatException || ex is FileLoadException)
             {
-                assembly = null;
                 results.ErrorsThrownDuringScanning = true;
 
                 if (ThrowExceptions)
@@ -175,8 +173,12 @@ namespace NServiceBus.Hosting.Helpers
                     var errorMessage = $"Could not load '{assemblyPath}'. Consider excluding that assembly from the scanning.";
                     throw new Exception(errorMessage, ex);
                 }
+                return null;
             }
+        }
 
+        void ScanAssembly(Assembly assembly, AssemblyScannerResults results, Dictionary<string, bool> processed)
+        {
             if (assembly == null)
             {
                 return;
@@ -190,7 +192,7 @@ namespace NServiceBus.Hosting.Helpers
             {
                 results.ErrorsThrownDuringScanning = true;
 
-                var errorMessage = FormatReflectionTypeLoadException(assemblyPath, e);
+                var errorMessage = FormatReflectionTypeLoadException(assembly.FullName, e);
                 if (ThrowExceptions)
                 {
                     throw new Exception(errorMessage);
