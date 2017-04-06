@@ -28,6 +28,6 @@
             onCompletedCallbacks = null;
         }
 
-        internal List<Func<RunSummary, Task>> onCompletedCallbacks;
+        internal List<Func<RunSummary, Task>> onCompletedCallbacks = new List<Func<RunSummary, Task>>();
     }
 }
