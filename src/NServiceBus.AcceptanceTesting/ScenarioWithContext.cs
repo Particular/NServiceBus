@@ -14,22 +14,6 @@ namespace NServiceBus.AcceptanceTesting
             contextInitializer = initializer;
         }
 
-        public IScenarioWithEndpointBehavior<TContext> WithEndpoint<T>() where T : EndpointConfigurationBuilder
-        {
-            return WithEndpoint<T>(b => { });
-        }
-
-        public IScenarioWithEndpointBehavior<TContext> WithEndpoint<T>(Action<EndpointBehaviorBuilder<TContext>> defineBehavior) where T : EndpointConfigurationBuilder
-        {
-            var builder = new EndpointBehaviorBuilder<TContext>(typeof(T));
-
-            defineBehavior(builder);
-
-            behaviors.Add(builder.Build());
-
-            return this;
-        }
-
         public IScenarioWithEndpointBehavior<TContext> Done(Func<TContext, bool> func)
         {
             done = c => func((TContext) c);
@@ -90,6 +74,22 @@ namespace NServiceBus.AcceptanceTesting
             }
 
             return (TContext) runDescriptor.ScenarioContext;
+        }
+
+        public IScenarioWithEndpointBehavior<TContext> WithEndpoint<T>() where T : EndpointConfigurationBuilder
+        {
+            return WithEndpoint<T>(b => { });
+        }
+
+        public IScenarioWithEndpointBehavior<TContext> WithEndpoint<T>(Action<EndpointBehaviorBuilder<TContext>> defineBehavior) where T : EndpointConfigurationBuilder
+        {
+            var builder = new EndpointBehaviorBuilder<TContext>(typeof(T));
+
+            defineBehavior(builder);
+
+            behaviors.Add(builder.Build());
+
+            return this;
         }
 
         static void DisplayRunResult(RunSummary summary)
