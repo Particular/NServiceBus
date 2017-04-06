@@ -17,7 +17,7 @@
 
         if (!string.IsNullOrWhiteSpace(CurrentMinorCommitDateAndTime))
         {
-            currentMinorCommitDate = DateTimeOffset.Parse(CurrentMinorCommitDateAndTime).ToString("yyyy-MM-dd");
+            currentMinorCommitDate = DateTimeOffset.Parse(CurrentMinorCommitDateAndTime).UtcDateTime.ToString("yyyy-MM-dd");
         }
 
         GeneratedFilePath = Path.Combine(IntermediateOutputPath, "ReleaseDate.g.cs");
