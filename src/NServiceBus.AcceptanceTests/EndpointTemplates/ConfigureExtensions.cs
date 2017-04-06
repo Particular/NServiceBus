@@ -8,7 +8,7 @@
     {
         public static Task DefineTransport(this EndpointConfiguration config, RunSettings settings, EndpointCustomizationConfiguration endpointCustomizationConfiguration)
         {
-            return ConfigureTestExecution(TestSuiteConstraints.Current.CreateEndpointConfiguration(), config, settings, endpointCustomizationConfiguration.EndpointName, endpointCustomizationConfiguration.PublisherMetadata);
+            return ConfigureTestExecution(TestSuiteConstraints.Current.CreateTransportConfiguration(), config, settings, endpointCustomizationConfiguration.EndpointName, endpointCustomizationConfiguration.PublisherMetadata);
         }
 
         public static Task DefinePersistence(this EndpointConfiguration config, RunSettings settings, EndpointCustomizationConfiguration endpointCustomizationConfiguration)
