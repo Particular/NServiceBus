@@ -5,24 +5,24 @@
 
     <ParameterGroup>
       <IntermediateOutputPath Required="true" />
-      <OriginalCommitDateAndTime />
-      <CurrentCommitDate Required="true" />
+      <CurrentMinorCommitDateAndTime />
+      <LatestCommitDate Required="true" />
       <GeneratedFilePath Output="true" />
     </ParameterGroup>
 
     <Task>
       <Code Type="Fragment" Language="cs">
         <![CDATA[
-        var originalCommitDate = CurrentCommitDate;
+        var currentMinorCommitDate = LatestCommitDate;
 
-        if (!string.IsNullOrWhiteSpace(OriginalCommitDateAndTime))
+        if (!string.IsNullOrWhiteSpace(CurrentMinorCommitDateAndTime))
         {
-            originalCommitDate = DateTimeOffset.Parse(OriginalCommitDateAndTime).ToString("yyyy-MM-dd");
+            currentMinorCommitDate = DateTimeOffset.Parse(CurrentMinorCommitDateAndTime).ToString("yyyy-MM-dd");
         }
 
         GeneratedFilePath = Path.Combine(IntermediateOutputPath, "ReleaseDate.g.cs");
 
-        File.WriteAllText(GeneratedFilePath, String.Format("[assembly: NServiceBus.ReleaseDate(\"{0}\", \"{1}\")]", originalCommitDate, CurrentCommitDate));
+        File.WriteAllText(GeneratedFilePath, String.Format("[assembly: NServiceBus.ReleaseDate(\"{0}\", \"{1}\")]", currentMinorCommitDate, LatestCommitDate));
         ]]>
       </Code>
     </Task>
@@ -32,10 +32,10 @@
   <Target Name="GenerateReleaseDate" DependsOnTargets="GetVersion" BeforeTargets="CoreCompile">
 
     <Exec Command="git show --format=%%ci $(GitVersion_Major).$(GitVersion_Minor).0" WorkingDirectory="$(MSBuildProjectDirectory)" ConsoleToMSBuild="true" Condition="$(GitVersion_Patch) != 0">
-      <Output TaskParameter="ConsoleOutput" PropertyName="OriginalCommitDateAndTime" />
+      <Output TaskParameter="ConsoleOutput" PropertyName="CurrentMinorCommitDateAndTime" />
     </Exec>
 
-    <GenerateReleaseDate IntermediateOutputPath="$(IntermediateOutputPath)" OriginalCommitDateAndTime="$(OriginalCommitDateAndTime)" CurrentCommitDate="$(GitVersion_CommitDate)">
+    <GenerateReleaseDate IntermediateOutputPath="$(IntermediateOutputPath)" CurrentMinorCommitDateAndTime="$(CurrentMinorCommitDateAndTime)" LatestCommitDate="$(GitVersion_CommitDate)">
       <Output TaskParameter="GeneratedFilePath" PropertyName="GeneratedReleaseDateFilePath" />
     </GenerateReleaseDate>
 
