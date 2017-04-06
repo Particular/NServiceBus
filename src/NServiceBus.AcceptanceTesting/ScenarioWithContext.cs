@@ -14,30 +14,7 @@ namespace NServiceBus.AcceptanceTesting
             contextInitializer = initializer;
         }
 
-        public IScenarioWithEndpointBehavior<TContext> Done(Func<TContext, bool> func)
-        {
-            done = c => func((TContext) c);
-
-            return this;
-        }
-
-        Task<TContext> IScenarioWithEndpointBehavior<TContext>.Run(TimeSpan? testExecutionTimeout)
-        {
-            var settings = new RunSettings();
-            if (testExecutionTimeout.HasValue)
-            {
-                settings.TestExecutionTimeout = testExecutionTimeout.Value;
-            }
-
-            return Run(settings);
-        }
-
-        Task<TContext> IScenarioWithEndpointBehavior<TContext>.Run(RunSettings settings)
-        {
-            return Run(settings);
-        }
-
-        public Task<TContext> Run(TimeSpan? testExecutionTimeout = null)
+        public Task<TContext> Run(TimeSpan? testExecutionTimeout)
         {
             var settings = new RunSettings();
             if (testExecutionTimeout.HasValue)
@@ -75,7 +52,6 @@ namespace NServiceBus.AcceptanceTesting
 
             return (TContext) runDescriptor.ScenarioContext;
         }
-
         public IScenarioWithEndpointBehavior<TContext> WithEndpoint<T>() where T : EndpointConfigurationBuilder
         {
             return WithEndpoint<T>(b => { });
@@ -88,6 +64,13 @@ namespace NServiceBus.AcceptanceTesting
             defineBehavior(builder);
 
             behaviors.Add(builder.Build());
+
+            return this;
+        }
+
+        public IScenarioWithEndpointBehavior<TContext> Done(Func<TContext, bool> func)
+        {
+            done = c => func((TContext) c);
 
             return this;
         }
