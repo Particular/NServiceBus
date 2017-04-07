@@ -188,6 +188,16 @@ namespace NServiceBus.Hosting.Helpers
             {
                 return;
             }
+
+            if (IsRuntimeAssembly(assembly.GetName()))
+            {
+                return;
+            }
+            if (!IsIncluded(assembly.GetName().Name))
+            {
+                return;
+            }
+
             try
             {
                 //will throw if assembly cannot be loaded
@@ -482,6 +492,8 @@ namespace NServiceBus.Hosting.Helpers
         {
             // NSB Build-Dependencies
             "nunit",
+            "nunit.framework",
+            "nunit.applicationdomain",
 
             // NSB OSS Dependencies
             "nlog",
