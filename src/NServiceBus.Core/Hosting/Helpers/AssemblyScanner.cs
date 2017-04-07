@@ -82,8 +82,10 @@ namespace NServiceBus.Hosting.Helpers
 
             foreach (var assemblyFile in ScanDirectoryForAssemblyFiles(baseDirectoryToScan, ScanNestedDirectories))
             {
-                var assembly = LoadAssembly(assemblyFile.FullName, results, processed);
-                ScanAssembly(assembly, results, processed);
+                if (TryLoadScannableAssembly(assemblyFile.FullName, results, processed, out var assembly))
+                {
+                    ScanAssembly(assembly, results, processed);
+                }
             }
 
             // This extra step is to ensure unobtrusive message types are included in the Types list.
@@ -123,13 +125,14 @@ namespace NServiceBus.Hosting.Helpers
             return Uri.UnescapeDataString(uri.Path).Replace('/', '\\');
         }
 
-        Assembly LoadAssembly(string assemblyPath, AssemblyScannerResults results, Dictionary<string, bool> processed)
+        bool TryLoadScannableAssembly(string assemblyPath, AssemblyScannerResults results, Dictionary<string, bool> processed, out Assembly assembly)
         {
+            assembly = null;
             if (!IsIncluded(Path.GetFileNameWithoutExtension(assemblyPath)))
             {
                 var skippedFile = new SkippedFile(assemblyPath, "File was explicitly excluded from scanning.");
                 results.SkippedFiles.Add(skippedFile);
-                return null;
+                return false;
             }
 
             var compilationMode = Image.GetCompilationMode(assemblyPath);
@@ -137,14 +140,14 @@ namespace NServiceBus.Hosting.Helpers
             {
                 var skippedFile = new SkippedFile(assemblyPath, "File is not a .NET assembly.");
                 results.SkippedFiles.Add(skippedFile);
-                return null;
+                return false;
             }
 
             if (!Environment.Is64BitProcess && compilationMode == Image.CompilationMode.CLRx64)
             {
                 var skippedFile = new SkippedFile(assemblyPath, "x64 .NET assembly can't be loaded by a 32Bit process.");
                 results.SkippedFiles.Add(skippedFile);
-                return null;
+                return false;
             }
 
             try
@@ -153,16 +156,18 @@ namespace NServiceBus.Hosting.Helpers
                 {
                     var skippedFile = new SkippedFile(assemblyPath, "Assembly does not reference at least one of the must referenced assemblies.");
                     results.SkippedFiles.Add(skippedFile);
-                    return null;
+                    return false;
                 }
 
-                var assembly = Assembly.LoadFrom(assemblyPath);
+                var loadedAssembly = Assembly.LoadFrom(assemblyPath);
 
-                if (results.Assemblies.Contains(assembly))
+                if (results.Assemblies.Contains(loadedAssembly))
                 {
-                    return null;
+                    return false;
                 }
-                return assembly;
+
+                assembly = loadedAssembly;
+                return true;
             }
             catch (Exception ex) when (ex is BadImageFormatException || ex is FileLoadException)
             {
@@ -173,7 +178,7 @@ namespace NServiceBus.Hosting.Helpers
                     var errorMessage = $"Could not load '{assemblyPath}'. Consider excluding that assembly from the scanning.";
                     throw new Exception(errorMessage, ex);
                 }
-                return null;
+                return false;
             }
         }
 
