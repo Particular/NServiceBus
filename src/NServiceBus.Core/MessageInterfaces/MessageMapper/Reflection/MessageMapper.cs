@@ -44,29 +44,48 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
         public Type GetMappedTypeFor(Type t)
         {
             Guard.AgainstNull(nameof(t), t);
-            RuntimeTypeHandle typeHandle;
-            if (t.IsClass)
+
+            Type mappedType;
+            if (TryGetMappedType(t, out mappedType))
             {
-                if (t.IsGenericTypeDefinition)
-                {
-                    return null;
-                }
-
-                if (concreteToInterfaceTypeMapping.TryGetValue(t.TypeHandle, out typeHandle))
-                {
-                    return Type.GetTypeFromHandle(typeHandle);
-                }
-
-                return t;
+                return mappedType;
             }
-
-            if (interfaceToConcreteTypeMapping.TryGetValue(t.TypeHandle, out typeHandle))
-            {
-                return Type.GetTypeFromHandle(typeHandle);
-            }
-
+          
             InitType(t);
-            return GetMappedTypeFor(t);
+
+            return TryGetMappedType(t, out mappedType) ? mappedType : null;
+        }
+
+        bool TryGetMappedType(Type typeToMap,out Type mappedType)
+        {    
+            RuntimeTypeHandle typeHandle;
+            if (typeToMap.IsClass)
+            {
+                if (typeToMap.IsGenericTypeDefinition)
+                {
+                    mappedType = null;
+                    return false;
+                }
+
+                if (concreteToInterfaceTypeMapping.TryGetValue(typeToMap.TypeHandle, out typeHandle))
+                {
+                    mappedType = Type.GetTypeFromHandle(typeHandle);
+                    return true;
+                }
+
+                mappedType = typeToMap;
+                return true;
+            }
+
+            if (interfaceToConcreteTypeMapping.TryGetValue(typeToMap.TypeHandle, out typeHandle))
+            {
+                mappedType = Type.GetTypeFromHandle(typeHandle);
+                return true;
+            }
+
+            mappedType = null;
+
+            return false;
         }
 
         /// <summary>
