@@ -86,6 +86,7 @@
     <Compile Include="SelfVerification\When_using_custom_components.cs" />
     <Compile Include="EndpointTemplates\IConfigureEndpointTestExecution.cs" />
     <Compile Include="Serialization\When_receiving_interface_message_where_child_is_excluded.cs" />
+    <Compile Include="Recoverability\When_non_transactional_message_is_moved_to_error_queue.cs" />
     <Compile Include="TimeToBeReceived\When_TimeToBeReceived_used_with_unobtrusive_mode.cs" />
     <Compile Include="Core\Recoverability\When_custom_policy_provided.cs" />
     <Compile Include="Recoverability\When_custom_policy_moves_to_overridden_error_queue.cs" />
@@ -179,7 +180,7 @@
     <Compile Include="Recoverability\When_message_is_deferred_by_delayed_retries_using_dtc.cs" />
     <Compile Include="Recoverability\When_message_fails_retries.cs" />
     <Compile Include="Recoverability\When_delayed_retries_with_immediate_retries_disabled.cs" />
-    <Compile Include="Recoverability\When_message_is_moved_to_error_queue.cs" />
+    <Compile Include="Recoverability\When_transactional_message_is_moved_to_error_queue.cs" />
     <Compile Include="Recoverability\When_message_is_moved_to_error_queue_using_dtc.cs" />
     <Compile Include="Core\Recoverability\When_custom_policy_executed.cs" />
     <Compile Include="Recoverability\When_custom_policy_does_single_delayed_retry_before_move_to_error.cs" />
