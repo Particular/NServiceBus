@@ -82,7 +82,8 @@ namespace NServiceBus.Hosting.Helpers
             var processed = new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase);
             foreach (var assemblyFile in ScanDirectoryForAssemblyFiles(baseDirectoryToScan, ScanNestedDirectories))
             {
-                if (TryLoadScannableAssembly(assemblyFile.FullName, results, processed, out var assembly))
+                Assembly assembly;
+                if (TryLoadScannableAssembly(assemblyFile.FullName, results, processed, out assembly))
                 {
                     ScanAssembly(assembly, results);
                 }
