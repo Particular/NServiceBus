@@ -23,8 +23,7 @@
 
                 .Run();
 
-            Assert.GreaterOrEqual(1, context.NumberOfDelayedRetriesPerformed, "Should only do one retry");
-            Assert.GreaterOrEqual(context.TimeOfSecondAttempt - context.TimeOfFirstAttempt, Delay, "Should delay the retry");
+            Assert.GreaterOrEqual(2, context.NumberOfTimesInvoked, "Should only do one retry");
         }
 
         static TimeSpan Delay = TimeSpan.FromMilliseconds(1);
@@ -34,11 +33,6 @@
             public Guid Id { get; set; }
 
             public int NumberOfTimesInvoked { get; set; }
-
-            public DateTime TimeOfFirstAttempt { get; set; }
-            public DateTime TimeOfSecondAttempt { get; set; }
-
-            public int NumberOfDelayedRetriesPerformed { get; set; }
         }
 
         public class DelayedRetryEndpoint : EndpointConfigurationBuilder
@@ -68,23 +62,6 @@
                     }
 
                     TestContext.NumberOfTimesInvoked++;
-
-                    if (TestContext.NumberOfTimesInvoked == 1)
-                    {
-                        TestContext.TimeOfFirstAttempt = DateTime.UtcNow;
-                    }
-
-                    if (TestContext.NumberOfTimesInvoked == 2)
-                    {
-                        TestContext.TimeOfSecondAttempt = DateTime.UtcNow;
-                    }
-
-                    string retries;
-
-                    if (context.MessageHeaders.TryGetValue(Headers.DelayedRetries, out retries))
-                    {
-                        TestContext.NumberOfDelayedRetriesPerformed = int.Parse(retries);
-                    }
 
                     throw new SimulatedException();
                 }
