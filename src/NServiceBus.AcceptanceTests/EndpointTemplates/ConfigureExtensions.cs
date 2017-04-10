@@ -8,16 +8,14 @@
     {
         public static async Task DefineTransport(this EndpointConfiguration config, RunDescriptor runDescriptor, EndpointCustomizationConfiguration endpointCustomizationConfiguration)
         {
-            var transportConfiguration = TestSuiteConstraints.Current.TransportConfiguration;
-            if (transportConfiguration == null)
+            var transportConfiguration = TestSuiteConstraints.Current.CreateTransportConfiguration();
             await transportConfiguration.Configure(endpointCustomizationConfiguration.EndpointName, config, runDescriptor.Settings, endpointCustomizationConfiguration.PublisherMetadata);
             runDescriptor.OnTestCompleted(_ => transportConfiguration.Cleanup());
         }
 
         public static async Task DefinePersistence(this EndpointConfiguration config, RunDescriptor runDescriptor, EndpointCustomizationConfiguration endpointCustomizationConfiguration)
         {
-            var persistenceConfiguration = TestSuiteConstraints.Current.PersistenceConfiguration;
-            if (persistenceConfiguration == null)
+            var persistenceConfiguration = TestSuiteConstraints.Current.CreatePersistenceConfiguration();
             await persistenceConfiguration.Configure(endpointCustomizationConfiguration.EndpointName, config, runDescriptor.Settings, endpointCustomizationConfiguration.PublisherMetadata);
             runDescriptor.OnTestCompleted(_ => persistenceConfiguration.Cleanup());
         }
