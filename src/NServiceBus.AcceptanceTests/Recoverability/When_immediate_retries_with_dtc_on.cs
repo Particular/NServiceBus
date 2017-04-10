@@ -10,7 +10,7 @@
     public class When_immediate_retries_with_dtc_on : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Should_do_the_configured_number_of_retries_with_dtc_on()
+        public async Task Should_do_the_configured_number_of_retries()
         {
             Requires.DtcSupport();
 
