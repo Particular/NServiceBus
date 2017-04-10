@@ -2,12 +2,13 @@
 {
     using System.Threading.Tasks;
     using AcceptanceTesting;
+    using AcceptanceTesting.Customization;
     using EndpointTemplates;
     using NUnit.Framework;
 
     public class When_receiving_interface_message_where_child_is_excluded : NServiceBusAcceptanceTest
     {
-        static string ReceiverEndpoint => AcceptanceTesting.Customization.Conventions.EndpointNamingConvention(typeof(Receiver));
+        static string ReceiverEndpoint = Conventions.EndpointNamingConvention(typeof(Receiver));
 
         [Test]
         public async Task Should_process_base_message()
@@ -32,11 +33,9 @@
             {
                 EndpointSetup<DefaultServer>(c =>
                     {
-                        c.UseSerialization<JsonSerializer>();
-
+                        c.UseSerialization<JsonSerializer>(); //only reproduces on json
                         c.ConfigureTransport().Routing().RouteToEndpoint(typeof(ISomeMessage), ReceiverEndpoint);
-                    } //only reproduces on json
-
+                    }
                 );
             }
         }
