@@ -15,7 +15,7 @@
             var exception = Assert.ThrowsAsync<MessageFailedException>(async () => await Scenario.Define<Context>()
                     .WithEndpoint<RetryEndpoint>(b => b
                         .When((session, c) => session.SendLocal(new MessageWhichFailsRetries())))
-                    .Done(c => c.ForwardedToErrorQueue)
+                    .Done(c => c.FailedMessages.Any())
                     .Run());
 
             Assert.AreEqual(1, exception.ScenarioContext.FailedMessages.Count);
@@ -33,17 +33,7 @@
         {
             public RetryEndpoint()
             {
-                EndpointSetup<DefaultServer>((configure, context) =>
-                {
-                    var scenarioContext = (Context) context.ScenarioContext;
-                    configure.Notifications.Errors.MessageSentToErrorQueue += (sender, message) => scenarioContext.ForwardedToErrorQueue = true;
-                });
-            }
-
-            public static byte Checksum(byte[] data)
-            {
-                var longSum = data.Sum(x => (long) x);
-                return unchecked((byte) longSum);
+                EndpointSetup<DefaultServer>();
             }
 
             class MessageHandler : IHandleMessages<MessageWhichFailsRetries>
@@ -60,8 +50,6 @@
 
         class Context : ScenarioContext
         {
-            public bool ForwardedToErrorQueue { get; set; }
-
             public string PhysicalMessageId { get; set; }
         }
 
