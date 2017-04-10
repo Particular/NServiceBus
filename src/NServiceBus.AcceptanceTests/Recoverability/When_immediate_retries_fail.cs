@@ -42,6 +42,7 @@
                 EndpointSetup<DefaultServer>(config =>
                 {
                     config.EnableFeature<TimeoutManager>();
+                    config.Recoverability().Immediate(i => i.NumberOfRetries(0));
                     config.Recoverability().Delayed(settings =>
                     {
                         settings.NumberOfRetries(1);
