@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Threading.Tasks;
     using System.Transactions;
     using AcceptanceTesting;
@@ -23,8 +24,7 @@
                         Id = c.Id
                     }))
                  )
-                .WithEndpoint<ErrorSpy>()
-                .Done(c => c.MessageMovedToErrorQueue)
+                .Done(c => c.FailedMessages.Any())
                 .Run();
 
             Assert.Greater(context.NumberOfProcessingAttempts, 1, "Should retry at least once");
@@ -36,7 +36,6 @@
         class Context : ScenarioContext
         {
             public Guid Id { get; set; }
-            public bool MessageMovedToErrorQueue { get; set; }
             public List<TransactionStatus> TransactionStatuses { get; } = new List<TransactionStatus>();
             public int NumberOfProcessingAttempts { get; set; }
         }
@@ -77,28 +76,6 @@
                 void CaptureTransactionStatus(object sender, TransactionEventArgs args)
                 {
                     TestContext.TransactionStatuses.Add(args.Transaction.TransactionInformation.Status);
-                }
-            }
-        }
-
-        class ErrorSpy : EndpointConfigurationBuilder
-        {
-            public ErrorSpy()
-            {
-                EndpointSetup<DefaultServer>().CustomEndpointName(ErrorQueueName);
-            }
-
-            class Handler : IHandleMessages<MessageToFail>
-            {
-                public Context TestContext { get; set; }
-
-                public Task Handle(MessageToFail message, IMessageHandlerContext context)
-                {
-                    if (message.Id == TestContext.Id)
-                    {
-                        TestContext.MessageMovedToErrorQueue = true;
-                    }
-                    return Task.FromResult(0);
                 }
             }
         }
