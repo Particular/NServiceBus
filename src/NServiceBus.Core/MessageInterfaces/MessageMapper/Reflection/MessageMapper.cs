@@ -65,7 +65,8 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
                 return Type.GetTypeFromHandle(typeHandle);
             }
 
-            return null;
+            InitType(t);
+            return GetMappedTypeFor(t);
         }
 
         /// <summary>

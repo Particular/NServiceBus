@@ -32,7 +32,7 @@
             {
                 EndpointSetup<DefaultServer>(c =>
                     {
-                        //c.UseSerialization<JsonSerializer>();
+                        c.UseSerialization<JsonSerializer>();
 
                         c.ConfigureTransport().Routing().RouteToEndpoint(typeof(ISomeMessage), ReceiverEndpoint);
                     } //only reproduces on json
@@ -48,7 +48,7 @@
             {
                 EndpointSetup<DefaultServer>(c =>
                     {
-                        //c.UseSerialization<JsonSerializer>(); //only reproduces on json
+                        c.UseSerialization<JsonSerializer>(); //only reproduces on json
                     })
                     .ExcludeType<ISomeMessage>();
             }
