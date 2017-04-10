@@ -27,7 +27,7 @@
                 .Done(c => c.FailedMessages.Any())
                 .Run();
 
-            Assert.Greater(context.NumberOfProcessingAttempts, 1, "Should retry at least once");
+            Assert.Greater(context.NumberOfProcessingAttempts, 3, "Should retry at least once");
             Assert.That(context.TransactionStatuses, Is.All.Not.EqualTo(TransactionStatus.Committed));
         }
 
