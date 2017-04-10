@@ -42,6 +42,10 @@
 
             if (ContainsMultipleMessages(doc))
             {
+                ProcessChildNodes(messageTypesToDeserialize, doc, result);
+            }
+            else
+            {
                 if (ContainsAnyMessageTypesToDeserialize(messageTypesToDeserialize))
                 {
                     var rootTypes = FindRootTypes(messageTypesToDeserialize);
@@ -56,10 +60,6 @@
                     }
                     result.Add(m);
                 }
-            }
-            else
-            {
-                ProcessChildNodes(messageTypesToDeserialize, doc, result);
             }
 
             return result.ToArray();
@@ -173,7 +173,7 @@
 
         static bool ContainsMultipleMessages(XmlDocument doc)
         {
-            return doc.DocumentElement.Name.ToLower() != "messages";
+            return doc.DocumentElement.Name.ToLower() == "messages";
         }
 
         static IEnumerable<Type> FindRootTypes(IEnumerable<Type> messageTypesToDeserialize)
