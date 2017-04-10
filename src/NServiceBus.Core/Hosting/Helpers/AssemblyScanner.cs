@@ -60,11 +60,10 @@ namespace NServiceBus.Hosting.Helpers
         public AssemblyScannerResults GetScannableAssemblies()
         {
             var results = new AssemblyScannerResults();
-            var processed = new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase);
 
             if (assemblyToScan != null)
             {
-                ScanAssembly(assemblyToScan, results, processed);
+                ScanAssembly(assemblyToScan, results);
                 return results;
             }
 
@@ -75,16 +74,17 @@ namespace NServiceBus.Hosting.Helpers
                 {
                     if (!assembly.IsDynamic)
                     {
-                        ScanAssembly(assembly, results, processed);
+                        ScanAssembly(assembly, results);
                     }
                 }
             }
 
+            var processed = new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase);
             foreach (var assemblyFile in ScanDirectoryForAssemblyFiles(baseDirectoryToScan, ScanNestedDirectories))
             {
                 if (TryLoadScannableAssembly(assemblyFile.FullName, results, processed, out var assembly))
                 {
-                    ScanAssembly(assembly, results, processed);
+                    ScanAssembly(assembly, results);
                 }
             }
 
@@ -182,7 +182,7 @@ namespace NServiceBus.Hosting.Helpers
             }
         }
 
-        void ScanAssembly(Assembly assembly, AssemblyScannerResults results, Dictionary<string, bool> processed)
+        void ScanAssembly(Assembly assembly, AssemblyScannerResults results)
         {
             if (assembly == null)
             {
