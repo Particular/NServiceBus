@@ -50,14 +50,14 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
             {
                 return mappedType;
             }
-          
+
             InitType(t);
 
             return TryGetMappedType(t, out mappedType) ? mappedType : null;
         }
 
-        bool TryGetMappedType(Type typeToMap,out Type mappedType)
-        {    
+        bool TryGetMappedType(Type typeToMap, out Type mappedType)
+        {
             RuntimeTypeHandle typeHandle;
             if (typeToMap.IsClass)
             {
