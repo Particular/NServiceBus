@@ -25,7 +25,7 @@
             Exception validationFailure;
             if (!LicenseVerifier.TryVerify(licenseText, out validationFailure))
             {
-                result.Result = $"License found at '{location}' is not valid - {validationFailure.Message}";
+                result.Result = $"License found in {location} is not valid - {validationFailure.Message}";
                 return result;
             }
 
@@ -36,18 +36,18 @@
             }
             catch
             {
-                result.Result = $"License found at '{location}' could not be deserialized";
+                result.Result = $"License found in {location} could not be deserialized";
                 return result;
             }
 
             if (license.ValidForApplication(applicationName))
             {
                 result.License = license;
-                result.Result = $"License found at '{location}'";
+                result.Result = $"License found in {location}";
             }
             else
             {
-                result.Result = $"License found at '{location}' was not valid for '{applicationName}'. Valid apps: '{string.Join(",", license.ValidApplications)}'";
+                result.Result = $"License found in {location} was not valid for '{applicationName}'. Valid apps: '{string.Join(",", license.ValidApplications)}'";
             }
             return result;
         }
