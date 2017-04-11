@@ -1,6 +1,7 @@
 namespace NServiceBus
 {
     using System.Diagnostics;
+    using System.Text;
     using System.Threading;
     using System.Windows.Forms;
     using Logging;
@@ -18,35 +19,30 @@ namespace NServiceBus
             var licenseSources = LicenseSources.GetLicenseSources(licenseText, licenseFilePath);
 
             var result = ActiveLicense.Find("NServiceBus", licenseSources);
+
+            var report = new StringBuilder();
+            report.AppendLine("Looking for license in the following locations:");
+
+            foreach (var item in result.Report)
+            {
+                report.AppendLine(item);
+            }
+
+            Logger.Info(report.ToString());
+
             license = result.License;
 
             if (result.HasExpired)
             {
                 if (license.IsTrialLicense)
                 {
-                    Logger.WarnFormat("Trial for the Particular Service Platform has expired");
+                    Logger.WarnFormat("Trial for the Particular Service Platform has expired.");
                     PromptUserForLicenseIfTrialHasExpired();
                     return;
                 }
 
                 Logger.Fatal("Your license has expired! You can renew it at https://particular.net/licensing.");
                 return;
-            }
-
-            if (license.IsTrialLicense)
-            {
-                var trialStartDate = TrialStartDateStore.GetTrialStartDate();
-                var message = $"Trial for the Particular Service Platform has been active since {trialStartDate.ToLocalTime().ToShortDateString()}.";
-                Logger.Info(message);
-            }
-
-            if (license.UpgradeProtectionExpiration != null)
-            {
-                Logger.InfoFormat("License upgrade protection expires on: {0}", license.UpgradeProtectionExpiration);
-            }
-            else
-            {
-                Logger.InfoFormat("License expires on {0}", license.ExpirationDate);
             }
         }
 

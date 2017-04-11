@@ -1,7 +1,6 @@
 namespace NServiceBus
 {
     using Features;
-    using Logging;
 
     /// <summary>
     /// Contains extension methods to configure license.
@@ -17,10 +16,9 @@ namespace NServiceBus
         {
             Guard.AgainstNullAndEmpty(nameof(licenseText), licenseText);
             Guard.AgainstNull(nameof(config), config);
-            Logger.Info("Using license supplied via fluent API.");
+
             config.Settings.Set(LicenseReminder.LicenseTextSettingsKey, licenseText);
         }
-
 
         /// <summary>
         /// Allows user to specify the path for the license file.
@@ -31,10 +29,8 @@ namespace NServiceBus
         {
             Guard.AgainstNull(nameof(config), config);
             Guard.AgainstNullAndEmpty(nameof(licenseFile), licenseFile);
-            Logger.Info("Using license supplied via fluent API.");
+
             config.Settings.Set(LicenseReminder.LicenseFilePathSettingsKey, licenseFile);
         }
-
-        static ILog Logger = LogManager.GetLogger(typeof(LicenseManager));
     }
 }

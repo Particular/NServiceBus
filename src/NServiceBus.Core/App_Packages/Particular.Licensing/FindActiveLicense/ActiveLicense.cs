@@ -37,8 +37,9 @@ namespace Particular.Licensing
 
             if (activeLicense.License == null)
             {
-                activeLicense.Report.Add("No valid license could be found, falling back to trial license");
-                activeLicense.License = License.TrialLicense(TrialStartDateStore.GetTrialStartDate());
+                var trialStartDate = TrialStartDateStore.GetTrialStartDate();
+                activeLicense.Report.Add($"No valid license could be found, falling back to trial license with start date '{trialStartDate.ToLocalTime().ToShortDateString()}'");
+                activeLicense.License = License.TrialLicense(trialStartDate);
                 activeLicense.Location = "Trial License";
             }
             else if (activeLicense.License.IsTrialLicense)
