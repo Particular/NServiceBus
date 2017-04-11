@@ -7,30 +7,13 @@
     public class OutgoingSendContextTests
     {
         [Test]
-        public void ShouldShallowCloneHeaders()
-        {
-            var message = new OutgoingLogicalMessage(typeof(object), new object());
-            var options = new SendOptions();
-            options.SetHeader("someHeader", "someValue");
-
-            var testee = new OutgoingSendContext(message, options, new RootContext(null, null, null));
-            testee.Headers["someHeader"] = "updatedValue";
-            testee.Headers["anotherHeader"] = "anotherValue";
-
-            Assert.AreEqual("someValue", options.OutgoingHeaders["someHeader"]);
-            Assert.IsFalse(options.OutgoingHeaders.ContainsKey("anotherHeader"));
-            Assert.AreEqual("updatedValue", testee.Headers["someHeader"]);
-            Assert.AreEqual("anotherValue", testee.Headers["anotherHeader"]);
-        }
-
-        [Test]
         public void ShouldShallowCloneContext()
         {
             var message = new OutgoingLogicalMessage(typeof(object), new object());
             var options = new SendOptions();
             options.Context.Set("someKey", "someValue");
 
-            var testee = new OutgoingSendContext(message, options, new RootContext(null, null, null));
+            var testee = new OutgoingSendContext(message, "message-id", options.OutgoingHeaders, options.Context, new RootContext(null, null, null));
             testee.Extensions.Set("someKey", "updatedValue");
             testee.Extensions.Set("anotherKey", "anotherValue");
 
@@ -56,7 +39,7 @@
 
             var parentContext = new RootContext(null, null, null);
 
-            new OutgoingSendContext(message, options, parentContext);
+            new OutgoingSendContext(message, "message-id", options.OutgoingHeaders, options.Context, parentContext);
 
             string parentContextValue;
             var valueFound = parentContext.TryGet("someKey", out parentContextValue);
