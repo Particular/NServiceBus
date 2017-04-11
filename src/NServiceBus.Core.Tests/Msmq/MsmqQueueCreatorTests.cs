@@ -67,19 +67,18 @@
 
             Assert.True(createdQueue.TryGetPermissions(NetworkServiceAccountName, out accountAccessRights, out accessControlEntryType));
             Assert.True(accountAccessRights.HasValue);
-            Assert.True(accessControlEntryType == AccessControlEntryType.Allow,"User should have access");
-            Assert.True(accountAccessRights?.HasFlag(MessageQueueAccessRights.WriteMessage), "User should have write access");
-            Assert.True(accountAccessRights?.HasFlag(MessageQueueAccessRights.ReceiveMessage), "User should have receive messages access");
-         
+            Assert.True(accessControlEntryType == AccessControlEntryType.Allow, "User should have access");
+            Assert.True(accountAccessRights?.HasFlag(MessageQueueAccessRights.WriteMessage), $"{NetworkServiceAccountName} should have write access");
+            Assert.True(accountAccessRights?.HasFlag(MessageQueueAccessRights.ReceiveMessage), $"{NetworkServiceAccountName} should have receive messages access");
+
             MessageQueueAccessRights? localAdminAccessRights;
             AccessControlEntryType? accessControlEntryTypeForLocalAdmin;
 
-
             Assert.True(createdQueue.TryGetPermissions(LocalAdministratorsGroupName, out localAdminAccessRights, out accessControlEntryTypeForLocalAdmin));
             Assert.True(localAdminAccessRights.HasValue);
-            Assert.True(localAdminAccessRights?.HasFlag(MessageQueueAccessRights.FullControl), "LocalAdmins should have full control");
-            Assert.IsTrue(accessControlEntryTypeForLocalAdmin == AccessControlEntryType.Allow, "User should have access");
-          }
+            Assert.True(localAdminAccessRights?.HasFlag(MessageQueueAccessRights.FullControl), $"{LocalAdministratorsGroupName} should have full control");
+            Assert.IsTrue(accessControlEntryTypeForLocalAdmin == AccessControlEntryType.Allow, $"{LocalAdministratorsGroupName} should have access");
+        }
 
         [Test]
         public void Should_make_queues_transactional_if_requested()
@@ -134,16 +133,17 @@
                 AccessControlEntryType? accessControlEntryTypeForEveryone;
 
                 Assert.True(queue.TryGetPermissions(LocalEveryoneGroupName, out everyoneAccessRights, out accessControlEntryTypeForEveryone));
-                Assert.True(everyoneAccessRights.HasValue, "User should have access rights");
-                Assert.True(everyoneAccessRights?.HasFlag(MessageQueueAccessRights.GenericWrite), "Msmq should give 'everyone' write access by default");
+                Assert.True(everyoneAccessRights.HasValue, $"{LocalEveryoneGroupName} should have access rights");
+                Assert.True(everyoneAccessRights?.HasFlag(MessageQueueAccessRights.GenericWrite), $"{LocalEveryoneGroupName} should have GenericWrite access by default");
                 Assert.True(accessControlEntryTypeForEveryone == AccessControlEntryType.Allow);
-                
+
                 MessageQueueAccessRights? anonymousAccessRights;
                 AccessControlEntryType? accessControlEntryTypeForAnonymous;
 
+
                 Assert.True(queue.TryGetPermissions(LocalAnonymousLogonName, out anonymousAccessRights, out accessControlEntryTypeForAnonymous));
-                Assert.True(anonymousAccessRights.HasValue, "User should have access rights");
-                Assert.True(anonymousAccessRights?.HasFlag(MessageQueueAccessRights.WriteMessage), "Msmq should give 'anonymous' write access by default");
+                Assert.True(anonymousAccessRights.HasValue, $"{LocalAnonymousLogonName} should have access rights");
+                Assert.True(anonymousAccessRights?.HasFlag(MessageQueueAccessRights.WriteMessage), $"{LocalAnonymousLogonName} should have write access by default");
                 Assert.True(accessControlEntryTypeForAnonymous == AccessControlEntryType.Allow);
             }
         }
@@ -254,6 +254,7 @@
 
             MessageQueue.Delete(path);
         }
+
 
         static string LocalEveryoneGroupName = new SecurityIdentifier(WellKnownSidType.WorldSid, null).Translate(typeof(NTAccount)).ToString();
         static string LocalAnonymousLogonName = new SecurityIdentifier(WellKnownSidType.AnonymousSid, null).Translate(typeof(NTAccount)).ToString();

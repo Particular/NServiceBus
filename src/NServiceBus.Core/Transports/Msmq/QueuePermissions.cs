@@ -34,7 +34,7 @@
                 }
                 else
                 {
-                    Logger.WarnFormat("Queue [{0}] does not exist", queuePath); 
+                    Logger.WarnFormat("Queue [{0}] does not exist", queuePath);
                 }
             }
             catch (MessageQueueException ex)
@@ -42,7 +42,7 @@
                 Logger.Warn($"Unable to verify queue at address '{queuePath}'. Make sure the queue exists, and that the address is correct. Processing will still continue.", ex);
             }
         }
-        
+
         static void WarnIfPublicAccess(MessageQueue queue, string userGroupName)
         {
             MessageQueueAccessRights? accessRights;
@@ -58,11 +58,7 @@
                 return;
             }
 
-            if (accessType == AccessControlEntryType.Deny) return;
-
-            if (accessRights?.HasFlag(MessageQueueAccessRights.GenericRead) == true ||
-                accessRights?.HasFlag(MessageQueueAccessRights.GenericWrite) == true ||
-                accessRights?.HasFlag(MessageQueueAccessRights.FullControl) == true)
+            if (accessType == AccessControlEntryType.Allow)
             {
                 var logMessage = $"Queue [{queue.QueueName}] is running with [{userGroupName}] with AccessRights set to [{accessRights}]. Consider setting appropriate permissions, if required by the organization. For more information, consult the documentation.";
                 Logger.Warn(logMessage);

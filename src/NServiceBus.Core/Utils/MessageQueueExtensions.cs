@@ -75,14 +75,6 @@
             AclSizeInformation
         }
 
-        /// <summary>
-        /// Using interop, determines the access control rights for the specified user.
-        /// </summary>
-        /// <param name="queue">MSMQ</param>
-        /// <param name="user">user account name</param>
-        /// <param name="rights">determines the access rights defined for this queue</param>
-        /// <param name="accessType">determines if the access is granted or deny.</param>
-        /// <returns>true if successful, false otherwise</returns>
         public static bool TryGetPermissions(this MessageQueue queue, string user, out MessageQueueAccessRights? rights, out AccessControlEntryType? accessType)
         {
             if (!administerGranted)
@@ -158,7 +150,7 @@
                 // If the value is 0, then it equates to Allow. If the value is 1, then it equates to Deny. 
                 // However, you can't cast it directly to the AccessControlEntryType enumeration, as a value of 1 in the enumeration is 
                 // defined to be Allow!! Hence a translation is required. 
-                switch(allowedAce.Header.AceType)
+                switch (allowedAce.Header.AceType)
                 {
                     case 0:
                         aceType = AccessControlEntryType.Allow;

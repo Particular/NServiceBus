@@ -19,7 +19,7 @@
                 .Run();
 
             var everyone = new SecurityIdentifier(WellKnownSidType.WorldSid, null).Translate(typeof(NTAccount)).ToString();
-    
+
             var logItem = context.Logs.FirstOrDefault(item => item.Message.Contains($"[{everyone}]"));
             Assert.IsNotNull(logItem);
             StringAssert.Contains("Consider setting appropriate permissions", logItem.Message);
@@ -33,6 +33,7 @@
         class Endpoint : EndpointConfigurationBuilder
         {
             static bool initialized;
+
             public Endpoint()
             {
                 if (initialized)
@@ -40,10 +41,7 @@
                     return;
                 }
                 initialized = true;
-                EndpointSetup<DefaultServer>(c =>
-                {
-                    c.UseTransport<MsmqTransport>();
-                });
+                EndpointSetup<DefaultServer>(c => { c.UseTransport<MsmqTransport>(); });
             }
         }
     }

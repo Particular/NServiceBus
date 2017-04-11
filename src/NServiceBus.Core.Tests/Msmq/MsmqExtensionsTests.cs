@@ -31,7 +31,6 @@
             MsmqHelpers.DeleteQueue(path);
         }
 
-        [Test]
         [TestCase(AccessControlEntryType.Allow)]
         [TestCase(AccessControlEntryType.Deny)]
         public void GetPermissions_returns_queue_access_rights(AccessControlEntryType providedAccessType)
@@ -41,7 +40,7 @@
             AccessControlEntryType? accessType;
             if (!queue.TryGetPermissions(LocalEveryoneGroupName, out rights, out accessType))
             {
-                Assert.Fail("Unable to read permissions off a queue");
+                Assert.Fail($"Unable to read permissions for queue: {queue.QueueName}");
             }
 
             Assert.IsTrue(rights.HasValue);
