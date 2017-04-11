@@ -63,17 +63,23 @@
             var createdQueue = GetQueue(testQueueName);
 
             MessageQueueAccessRights? accountAccessRights;
+            AccessControlEntryType? accessControlEntryType;
 
-            Assert.True(createdQueue.TryGetPermissions(NetworkServiceAccountName, out accountAccessRights));
-            Assert.True(accountAccessRights.HasValue, "User should have access rights");
-            Assert.AreEqual(MessageQueueAccessRights.WriteMessage | MessageQueueAccessRights.ReceiveMessage, accountAccessRights, "User should have write/read access");
-
+            Assert.True(createdQueue.TryGetPermissions(NetworkServiceAccountName, out accountAccessRights, out accessControlEntryType));
+            Assert.True(accountAccessRights.HasValue);
+            Assert.True(accessControlEntryType == AccessControlEntryType.Allow,"User should have access");
+            Assert.True(accountAccessRights?.HasFlag(MessageQueueAccessRights.WriteMessage), "User should have write access");
+            Assert.True(accountAccessRights?.HasFlag(MessageQueueAccessRights.ReceiveMessage), "User should have receive messages access");
+         
             MessageQueueAccessRights? localAdminAccessRights;
+            AccessControlEntryType? accessControlEntryTypeForLocalAdmin;
 
-            Assert.True(createdQueue.TryGetPermissions(LocalAdministratorsGroupName, out localAdminAccessRights));
-            Assert.True(localAdminAccessRights.HasValue, "User should have access rights");
-            Assert.AreEqual(MessageQueueAccessRights.FullControl, localAdminAccessRights, "LocalAdmins should have full control");
-        }
+
+            Assert.True(createdQueue.TryGetPermissions(LocalAdministratorsGroupName, out localAdminAccessRights, out accessControlEntryTypeForLocalAdmin));
+            Assert.True(localAdminAccessRights.HasValue);
+            Assert.True(localAdminAccessRights?.HasFlag(MessageQueueAccessRights.FullControl), "LocalAdmins should have full control");
+            Assert.IsTrue(accessControlEntryTypeForLocalAdmin == AccessControlEntryType.Allow, "User should have access");
+          }
 
         [Test]
         public void Should_make_queues_transactional_if_requested()
@@ -125,17 +131,20 @@
             using (var queue = MessageQueue.Create(path))
             {
                 MessageQueueAccessRights? everyoneAccessRights;
+                AccessControlEntryType? accessControlEntryTypeForEveryone;
 
-                Assert.True(queue.TryGetPermissions(LocalEveryoneGroupName, out everyoneAccessRights));
+                Assert.True(queue.TryGetPermissions(LocalEveryoneGroupName, out everyoneAccessRights, out accessControlEntryTypeForEveryone));
                 Assert.True(everyoneAccessRights.HasValue, "User should have access rights");
-                Assert.AreEqual(MessageQueueAccessRights.GenericWrite, everyoneAccessRights, "Msmq should give 'everyone' write access by default");
-
-
+                Assert.True(everyoneAccessRights?.HasFlag(MessageQueueAccessRights.GenericWrite), "Msmq should give 'everyone' write access by default");
+                Assert.True(accessControlEntryTypeForEveryone == AccessControlEntryType.Allow);
+                
                 MessageQueueAccessRights? anonymousAccessRights;
+                AccessControlEntryType? accessControlEntryTypeForAnonymous;
 
-                Assert.True(queue.TryGetPermissions(LocalAnonymousLogonName, out anonymousAccessRights));
+                Assert.True(queue.TryGetPermissions(LocalAnonymousLogonName, out anonymousAccessRights, out accessControlEntryTypeForAnonymous));
                 Assert.True(anonymousAccessRights.HasValue, "User should have access rights");
-                Assert.AreEqual(MessageQueueAccessRights.WriteMessage, anonymousAccessRights, "Msmq should give 'anonymous' write access by default");
+                Assert.True(anonymousAccessRights?.HasFlag(MessageQueueAccessRights.WriteMessage), "Msmq should give 'anonymous' write access by default");
+                Assert.True(accessControlEntryTypeForAnonymous == AccessControlEntryType.Allow);
             }
         }
 
@@ -166,9 +175,11 @@
             var queue = GetQueue(testQueueName);
 
             MessageQueueAccessRights? nullBecauseRevoked;
+            AccessControlEntryType? accessControlEntryType;
 
-            Assert.False(queue.TryGetPermissions(LocalEveryoneGroupName, out nullBecauseRevoked));
-            Assert.False(queue.TryGetPermissions(LocalAnonymousLogonName, out nullBecauseRevoked));
+            Assert.False(queue.TryGetPermissions(LocalEveryoneGroupName, out nullBecauseRevoked, out accessControlEntryType));
+            Assert.False(queue.TryGetPermissions(LocalAnonymousLogonName, out nullBecauseRevoked, out accessControlEntryType));
+            Assert.IsNull(accessControlEntryType);
         }
 
         [Test]

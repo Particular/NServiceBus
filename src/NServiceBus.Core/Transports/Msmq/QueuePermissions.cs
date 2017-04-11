@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus
 {
-    using System.Diagnostics;
     using System.Messaging;
     using System.Security;
     using System.Security.Principal;
@@ -47,10 +46,11 @@
         static void WarnIfPublicAccess(MessageQueue queue, string userGroupName)
         {
             MessageQueueAccessRights? accessRights;
+            AccessControlEntryType? accessType;
 
             try
             {
-                queue.TryGetPermissions(userGroupName, out accessRights);
+                queue.TryGetPermissions(userGroupName, out accessRights, out accessType);
             }
             catch (SecurityException se)
             {
@@ -58,22 +58,17 @@
                 return;
             }
 
-            if (accessRights == MessageQueueAccessRights.FullControl ||
-                accessRights == MessageQueueAccessRights.GenericRead ||
-                accessRights == MessageQueueAccessRights.GenericWrite)
+            if (accessType == AccessControlEntryType.Deny) return;
+
+            if (accessRights?.HasFlag(MessageQueueAccessRights.GenericRead) == true ||
+                accessRights?.HasFlag(MessageQueueAccessRights.GenericWrite) == true ||
+                accessRights?.HasFlag(MessageQueueAccessRights.FullControl) == true)
             {
                 var logMessage = $"Queue [{queue.QueueName}] is running with [{userGroupName}] with AccessRights set to [{accessRights}]. Consider setting appropriate permissions, if required by the organization. For more information, consult the documentation.";
-                if (Debugger.IsAttached)
-                {
-                    Logger.Info(logMessage);
-                }
-                else
-                {
-                    Logger.Warn(logMessage);
-                }
+                Logger.Warn(logMessage);
             }
         }
-        
+
         internal static string LocalEveryoneGroupName = new SecurityIdentifier(WellKnownSidType.WorldSid, null).Translate(typeof(NTAccount)).ToString();
         internal static string LocalAnonymousLogonName = new SecurityIdentifier(WellKnownSidType.AnonymousSid, null).Translate(typeof(NTAccount)).ToString();
 

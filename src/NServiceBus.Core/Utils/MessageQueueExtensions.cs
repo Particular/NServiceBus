@@ -75,7 +75,15 @@
             AclSizeInformation
         }
 
-        public static bool TryGetPermissions(this MessageQueue queue, string user, out MessageQueueAccessRights? rights)
+        /// <summary>
+        /// Using interop, determines the access control rights for the specified user.
+        /// </summary>
+        /// <param name="queue">MSMQ</param>
+        /// <param name="user">user account name</param>
+        /// <param name="rights">determines the access rights defined for this queue</param>
+        /// <param name="accessType">determines if the access is granted or deny.</param>
+        /// <returns>true if successful, false otherwise</returns>
+        public static bool TryGetPermissions(this MessageQueue queue, string user, out MessageQueueAccessRights? rights, out AccessControlEntryType? accessType)
         {
             if (!administerGranted)
             {
@@ -89,17 +97,18 @@
 
             try
             {
-                rights = GetPermissions(queue.FormatName, sid);
+                rights = GetPermissions(queue.FormatName, sid, out accessType);
                 return true;
             }
             catch
             {
                 rights = null;
+                accessType = null;
                 return false;
             }
         }
 
-        static MessageQueueAccessRights GetPermissions(string formatName, string sid)
+        static MessageQueueAccessRights GetPermissions(string formatName, string sid, out AccessControlEntryType? aceType)
         {
             var SecurityDescriptor = new byte[100];
 
@@ -144,6 +153,23 @@
 
                 var allowedAce = GetAce(pDacl, sid);
 
+                // The ACE_HEADER information contains the access control information as to whether it is allowed or denied. 
+                // In Interop, this value is a byte and can be any of the values defined in here: https://msdn.microsoft.com/en-us/library/windows/desktop/aa374919(v=vs.85).aspx
+                // If the value is 0, then it equates to Allow. If the value is 1, then it equates to Deny. 
+                // However, you can't cast it directly to the AccessControlEntryType enumeration, as a value of 1 in the enumeration is 
+                // defined to be Allow!! Hence a translation is required. 
+                switch(allowedAce.Header.AceType)
+                {
+                    case 0:
+                        aceType = AccessControlEntryType.Allow;
+                        break;
+                    case 1:
+                        aceType = AccessControlEntryType.Deny;
+                        break;
+                    default:
+                        aceType = null;
+                        break;
+                }
                 return (MessageQueueAccessRights) allowedAce.Mask;
             }
             finally
@@ -173,7 +199,6 @@
                 IntPtr pAce;
                 GetAce(pDacl, i, out pAce);
                 var ace = (ACCESS_ALLOWED_ACE) Marshal.PtrToStructure(pAce, typeof(ACCESS_ALLOWED_ACE));
-
                 var iter = (IntPtr) ((long) pAce + (long) Marshal.OffsetOf(typeof(ACCESS_ALLOWED_ACE), "SidStart"));
                 var size = GetLengthSid(iter);
                 var bSID = new byte[size];

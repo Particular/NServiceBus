@@ -22,8 +22,10 @@
             logOutput = new StringBuilder();
             var stringWriter = new StringWriter(logOutput);
             loggerFactory.WriteTo(stringWriter);
+
         }
 
+  
         [TearDown]
         public void TearDown()
         {
@@ -32,9 +34,10 @@
             {
                 MessageQueue.Delete(path);
             }
+            logOutput.Clear();
         }
-
-        [Ignore("Test does not want to work when all the tests are executed at once")]       
+ 
+        [Test]
         public void Should_not_warn_if_queue_has_public_access_set_to_deny()
         {
             // Set up a queue with read/write access for everyone/anonymous explicitly set to DENY. 
@@ -47,11 +50,11 @@
                 queue.SetPermissions(anonymousGroupName, MessageQueueAccessRights.GenericRead, AccessControlEntryType.Deny);
                 queue.SetPermissions(anonymousGroupName, MessageQueueAccessRights.GenericWrite, AccessControlEntryType.Deny);
             }
-
+            
             QueuePermissions.CheckQueue(testQueueName);
             Assert.IsFalse(logOutput.ToString().Contains("Consider setting appropriate permissions"));
         }
-
+        
         [Test]
         public void Should_log_when_queue_is_remote()
         {

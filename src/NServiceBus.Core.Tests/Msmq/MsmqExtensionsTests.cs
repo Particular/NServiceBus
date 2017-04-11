@@ -9,7 +9,6 @@
     public class MsmqExtensionsTests
     {
         static string LocalEveryoneGroupName = new SecurityIdentifier(WellKnownSidType.WorldSid, null).Translate(typeof(NTAccount)).ToString();
-        static string LocalAnonymousLogonName = new SecurityIdentifier(WellKnownSidType.AnonymousSid, null).Translate(typeof(NTAccount)).ToString();
 
         string path;
         MessageQueue queue;
@@ -33,11 +32,14 @@
         }
 
         [Test]
-        public void GetPermissions_returns_queue_access_rights()
+        [TestCase(AccessControlEntryType.Allow)]
+        [TestCase(AccessControlEntryType.Deny)]
+        public void GetPermissions_returns_queue_access_rights(AccessControlEntryType providedAccessType)
         {
-            queue.SetPermissions(LocalEveryoneGroupName, MessageQueueAccessRights.WriteMessage | MessageQueueAccessRights.ReceiveMessage, AccessControlEntryType.Allow);
+            queue.SetPermissions(LocalEveryoneGroupName, MessageQueueAccessRights.WriteMessage | MessageQueueAccessRights.ReceiveMessage, providedAccessType);
             MessageQueueAccessRights? rights;
-            if (!queue.TryGetPermissions(LocalEveryoneGroupName, out rights))
+            AccessControlEntryType? accessType;
+            if (!queue.TryGetPermissions(LocalEveryoneGroupName, out rights, out accessType))
             {
                 Assert.Fail("Unable to read permissions off a queue");
             }
@@ -45,6 +47,7 @@
             Assert.IsTrue(rights.HasValue);
             Assert.True(rights.Value.HasFlag(MessageQueueAccessRights.WriteMessage));
             Assert.True(rights.Value.HasFlag(MessageQueueAccessRights.ReceiveMessage));
+            Assert.That(accessType == providedAccessType);
         }
     }
 }
