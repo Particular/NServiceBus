@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Core.Tests.Routing
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
@@ -83,7 +84,7 @@
         static IOutgoingSendContext CreateContext(SendOptions options, bool fromHandler)
         {
             var message = new MyMessage();
-            var context = new OutgoingSendContext(new OutgoingLogicalMessage(message.GetType(), message), options, new RootContext(null, null, null));
+            var context = new OutgoingSendContext(new OutgoingLogicalMessage(message.GetType(), message), options.UserDefinedMessageId ?? Guid.NewGuid().ToString(), options.OutgoingHeaders, options.Context, new RootContext(null, null, null));
             if (fromHandler)
             {
                 context.Extensions.Set(new PendingTransportOperations());
