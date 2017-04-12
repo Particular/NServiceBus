@@ -19,11 +19,10 @@
                         Id = ctx.Id
                     }))
                     .DoNotFailOnErrorMessages())
-                .Done(c => c.NumberOfTimesInvoked >= 2)
-
+                .Done(c => c.NumberOfRetriesAttempted >= 1)
                 .Run();
 
-            Assert.GreaterOrEqual(2, context.NumberOfTimesInvoked, "Should only do one retry");
+            Assert.GreaterOrEqual(1, context.NumberOfRetriesAttempted, "Should only do one retry");
         }
 
         static TimeSpan Delay = TimeSpan.FromMilliseconds(1);
@@ -33,6 +32,8 @@
             public Guid Id { get; set; }
 
             public int NumberOfTimesInvoked { get; set; }
+
+            public int NumberOfRetriesAttempted => NumberOfTimesInvoked-1 < 0 ? 0 : NumberOfTimesInvoked-1;
         }
 
         public class DelayedRetryEndpoint : EndpointConfigurationBuilder

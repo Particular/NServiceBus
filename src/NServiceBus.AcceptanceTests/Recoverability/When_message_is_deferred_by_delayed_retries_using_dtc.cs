@@ -27,7 +27,7 @@
                 .Done(c => c.FailedMessages.Any())
                 .Run();
 
-            Assert.Greater(context.NumberOfProcessingAttempts, 3, "Should retry at least once");
+            Assert.GreaterOrEqual(context.NumberOfRetriesAttempted, 3, "Should retry at least three time");
             Assert.That(context.TransactionStatuses, Is.All.Not.EqualTo(TransactionStatus.Committed));
         }
 
@@ -38,6 +38,7 @@
             public Guid Id { get; set; }
             public List<TransactionStatus> TransactionStatuses { get; } = new List<TransactionStatus>();
             public int NumberOfProcessingAttempts { get; set; }
+            public int NumberOfRetriesAttempted => NumberOfProcessingAttempts - 1 < 0 ? 0 : NumberOfProcessingAttempts - 1;
         }
 
         class Endpoint : EndpointConfigurationBuilder

@@ -27,7 +27,7 @@
                 .Done(c => c.MessageMovedToErrorQueue)
                 .Run();
 
-            Assert.IsTrue(context.OutgoingMessageSent, "Outgoing messages should not be sent");
+            Assert.IsTrue(context.OutgoingMessageSent, "Outgoing messages should be sent");
             Assert.That(context.Logs, Has.Some.Message.Match($"Moving message .+ to the error queue '{Conventions.EndpointNamingConvention(typeof(ErrorSpy))}' because processing failed due to an exception: NServiceBus.AcceptanceTesting.SimulatedException:"));
         }
 
