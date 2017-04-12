@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Core.Tests.Routing
 {
+    using Extensibility;
     using NUnit.Framework;
 
     [TestFixture]
@@ -8,18 +9,18 @@
         [Test]
         public void ShouldShallowCloneContext()
         {
-            var options = new UnsubscribeOptions();
-            options.Context.Set("someKey", "someValue");
+            var context = new ContextBag();
+            context.Set("someKey", "someValue");
             
-            var testee = new UnsubscribeContext(new RootContext(null, null, null), typeof(object), options);
+            var testee = new UnsubscribeContext(new RootContext(null, null, null), typeof(object), context);
             testee.Extensions.Set("someKey", "updatedValue");
             testee.Extensions.Set("anotherKey", "anotherValue");
 
             string value;
             string anotherValue;
-            options.Context.TryGet("someKey", out value);
+            context.TryGet("someKey", out value);
             Assert.AreEqual("someValue", value);
-            Assert.IsFalse(options.Context.TryGet("anotherKey", out anotherValue));
+            Assert.IsFalse(context.TryGet("anotherKey", out anotherValue));
             string updatedValue;
             string anotherValue2;
             testee.Extensions.TryGet("someKey", out updatedValue);
@@ -31,12 +32,12 @@
         [Test]
         public void ShouldNotMergeOptionsToParentContext()
         {
-            var options = new UnsubscribeOptions();
-            options.Context.Set("someKey", "someValue");
+            var context = new ContextBag();
+            context.Set("someKey", "someValue");
 
             var parentContext = new RootContext(null, null, null);
 
-            new UnsubscribeContext(parentContext, typeof(object), options);
+            new UnsubscribeContext(parentContext, typeof(object), context);
 
             string parentContextValue;
             var valueFound = parentContext.TryGet("someKey", out parentContextValue);

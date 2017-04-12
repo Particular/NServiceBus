@@ -14,16 +14,11 @@ namespace NServiceBus.Extensibility
         {
             Context = new ContextBag();
             OutgoingHeaders = new Dictionary<string, string>();
-            MessageId = CombGuid.Generate().ToString();
         }
 
         internal ContextBag Context { get; }
 
-        internal string MessageId
-        {
-            get { return OutgoingHeaders[Headers.MessageId]; }
-            set { OutgoingHeaders[Headers.MessageId] = value; }
-        }
+        internal string UserDefinedMessageId { get; set; }
 
         internal Dictionary<string, string> OutgoingHeaders { get; }
     }

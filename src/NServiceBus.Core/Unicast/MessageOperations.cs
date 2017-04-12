@@ -1,6 +1,7 @@
 namespace NServiceBus
 {
     using System;
+    using System.Collections.Generic;
     using System.Threading.Tasks;
     using MessageInterfaces;
     using Pipeline;
@@ -23,9 +24,17 @@ namespace NServiceBus
             var cache = context.Extensions.Get<IPipelineCache>();
             var pipeline = cache.Pipeline<IOutgoingPublishContext>();
 
+            var messageId = options.UserDefinedMessageId ?? CombGuid.Generate().ToString();
+            var headers = new Dictionary<string, string>(options.OutgoingHeaders)
+            {
+                [Headers.MessageId] = messageId
+            };
+
             var publishContext = new OutgoingPublishContext(
                 new OutgoingLogicalMessage(messageType, message),
-                options,
+                messageId,
+                headers,
+                options.Context,
                 context);
 
             return pipeline.Invoke(publishContext);
@@ -39,7 +48,7 @@ namespace NServiceBus
             var subscribeContext = new SubscribeContext(
                 context,
                 eventType,
-                options);
+                options.Context);
 
             return pipeline.Invoke(subscribeContext);
         }
@@ -52,7 +61,7 @@ namespace NServiceBus
             var subscribeContext = new UnsubscribeContext(
                 context,
                 eventType,
-                options);
+                options.Context);
 
             return pipeline.Invoke(subscribeContext);
         }
@@ -74,9 +83,17 @@ namespace NServiceBus
             var cache = context.Extensions.Get<IPipelineCache>();
             var pipeline = cache.Pipeline<IOutgoingSendContext>();
 
+            var messageId = options.UserDefinedMessageId ?? CombGuid.Generate().ToString();
+            var headers = new Dictionary<string, string>(options.OutgoingHeaders)
+            {
+                [Headers.MessageId] = messageId
+            };
+
             var outgoingContext = new OutgoingSendContext(
                 new OutgoingLogicalMessage(messageType, message),
-                options,
+                messageId,
+                headers,
+                options.Context,
                 context);
 
             return pipeline.Invoke(outgoingContext);
@@ -99,9 +116,17 @@ namespace NServiceBus
             var cache = context.Extensions.Get<IPipelineCache>();
             var pipeline = cache.Pipeline<IOutgoingReplyContext>();
 
+            var messageId = options.UserDefinedMessageId ?? CombGuid.Generate().ToString();
+            var headers = new Dictionary<string, string>(options.OutgoingHeaders)
+            {
+                [Headers.MessageId] = messageId
+            };
+
             var outgoingContext = new OutgoingReplyContext(
                 new OutgoingLogicalMessage(messageType, message),
-                options,
+                messageId,
+                headers,
+                options.Context,
                 context);
 
             return pipeline.Invoke(outgoingContext);
