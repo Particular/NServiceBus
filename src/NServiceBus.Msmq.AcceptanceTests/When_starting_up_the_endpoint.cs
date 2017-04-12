@@ -32,16 +32,9 @@
 
         class Endpoint : EndpointConfigurationBuilder
         {
-            static bool initialized;
-
             public Endpoint()
             {
-                if (initialized)
-                {
-                    return;
-                }
-                initialized = true;
-                EndpointSetup<DefaultServer>(c => { c.UseTransport<MsmqTransport>(); });
+                EndpointSetup<DefaultServer>();
             }
         }
     }
