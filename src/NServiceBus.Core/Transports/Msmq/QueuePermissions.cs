@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus
 {
-    using System.Diagnostics;
     using System.Messaging;
     using System.Security;
     using System.Security.Principal;
@@ -29,13 +28,13 @@
                     using (var messageQueue = new MessageQueue(path))
                     {
                         Logger.DebugFormat("Verified that the queue: [{0}] exists", queuePath);
-
-                        WarnIfPublicAccess(messageQueue);
+                        WarnIfPublicAccess(messageQueue, LocalEveryoneGroupName);
+                        WarnIfPublicAccess(messageQueue, LocalAnonymousLogonName);
                     }
                 }
                 else
                 {
-                    Logger.WarnFormat("Queue [{0}] does not exist", queuePath); 
+                    Logger.WarnFormat("Queue [{0}] does not exist", queuePath);
                 }
             }
             catch (MessageQueueException ex)
@@ -44,14 +43,14 @@
             }
         }
 
-        static void WarnIfPublicAccess(MessageQueue queue)
+        static void WarnIfPublicAccess(MessageQueue queue, string userGroupName)
         {
-            MessageQueueAccessRights? everyoneRights, anonymousRights;
+            MessageQueueAccessRights? accessRights;
+            AccessControlEntryType? accessType;
 
             try
             {
-                queue.TryGetPermissions(LocalAnonymousLogonName, out anonymousRights);
-                queue.TryGetPermissions(LocalEveryoneGroupName, out everyoneRights);
+                queue.TryGetPermissions(userGroupName, out accessRights, out accessType);
             }
             catch (SecurityException se)
             {
@@ -59,18 +58,10 @@
                 return;
             }
 
-            if (anonymousRights.HasValue || everyoneRights.HasValue)
+            if (accessType == AccessControlEntryType.Allow)
             {
-                var logMessage = $"Queue [{queue.QueueName}] is running with [{LocalEveryoneGroupName}] and/or [{LocalAnonymousLogonName}] permissions. Consider setting appropriate permissions, if required by the organization. For more information, consult the documentation.";
-
-                if (Debugger.IsAttached)
-                {
-                    Logger.Info(logMessage);
-                }
-                else
-                {
-                    Logger.Warn(logMessage);
-                }
+                var logMessage = $"Queue [{queue.QueueName}] is running with [{userGroupName}] with AccessRights set to [{accessRights}]. Consider setting appropriate permissions, if required by the organization. For more information, consult the documentation.";
+                Logger.Warn(logMessage);
             }
         }
 
