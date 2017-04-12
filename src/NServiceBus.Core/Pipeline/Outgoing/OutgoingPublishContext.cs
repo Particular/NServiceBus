@@ -1,20 +1,21 @@
 ﻿namespace NServiceBus
 {
     using System.Collections.Generic;
+    using Extensibility;
     using Pipeline;
 
     class OutgoingPublishContext : OutgoingContext, IOutgoingPublishContext
     {
-        public OutgoingPublishContext(OutgoingLogicalMessage message, PublishOptions options, IBehaviorContext parentContext)
-            : base(options.MessageId, new Dictionary<string, string>(options.OutgoingHeaders), parentContext)
+        public OutgoingPublishContext(OutgoingLogicalMessage message, string messageId, Dictionary<string,string> headers, ContextBag extensions, IBehaviorContext parentContext)
+            : base(messageId, headers, parentContext)
         {
             Guard.AgainstNull(nameof(parentContext), parentContext);
             Guard.AgainstNull(nameof(message), message);
-            Guard.AgainstNull(nameof(options), options);
+            Guard.AgainstNull(nameof(extensions), extensions);
 
             Message = message;
 
-            Merge(options.Context);
+            Merge(extensions);
         }
 
         public OutgoingLogicalMessage Message { get; }
