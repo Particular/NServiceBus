@@ -10,7 +10,7 @@
     using NServiceBus.Support;
     using Transport;
 
-    public class EndpointRunner : IEndpointRunner
+    public class EndpointRunner : ComponentRunner
     {
         static ILog Logger = LogManager.GetLogger<EndpointRunner>();
         EndpointBehavior behavior;
@@ -21,7 +21,7 @@
         RunSettings runSettings;
         EndpointConfiguration endpointConfiguration;
 
-        public bool FailOnErrorMessage => !behavior.DoNotFailOnErrorMessages;
+        public override bool FailOnErrorMessage => !behavior.DoNotFailOnErrorMessages;
 
         public async Task Initialize(RunDescriptor run, EndpointBehavior endpointBehavior, string endpointName)
         {
@@ -72,7 +72,7 @@
             }
         }
 
-        public async Task Start(CancellationToken token)
+        public override async Task Start(CancellationToken token)
         {
             try
             {
@@ -91,7 +91,7 @@
             }
         }
 
-        public async Task Whens(CancellationToken token)
+        public override async Task ComponentsStarted(CancellationToken token)
         {
             try
             {
@@ -144,7 +144,7 @@
             }
         }
 
-        public async Task Stop()
+        public override async Task Stop()
         {
             try
             {
@@ -177,9 +177,9 @@
             return Task.FromResult(0);
         }
 
-        public string Name()
+        public override string Name
         {
-            return configuration.EndpointName;
+            get { return configuration.EndpointName; }
         }
     }
 }

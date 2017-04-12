@@ -3,7 +3,6 @@ namespace NServiceBus.AcceptanceTesting
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
-    using System.Threading;
     using System.Threading.Tasks;
     using Support;
     using Logging;
@@ -55,14 +54,9 @@ namespace NServiceBus.AcceptanceTesting
             return WithEndpoint<T>(b => { });
         }
 
-        public IScenarioWithEndpointBehavior<TContext> WithCustomComponent(
-            string name,
-            Func<TContext, CancellationToken, Task> onStart, 
-            Func<TContext, Task> onStop, 
-            Func<TContext, CancellationToken, Task> onStarted = null) 
+        public IScenarioWithEndpointBehavior<TContext> WithComponent(IComponentBehavior componentBehavior) 
         {
-            var behavior = new CustomComponentBehavior<TContext>(name, onStart, onStop, onStarted);
-            behaviors.Add(behavior);
+            behaviors.Add(componentBehavior);
             return this;
         }
 
@@ -100,7 +94,7 @@ namespace NServiceBus.AcceptanceTesting
             return Run(settings);
         }
 
-        List<IEndpointBehavior> behaviors = new List<IEndpointBehavior>();
+        List<IComponentBehavior> behaviors = new List<IComponentBehavior>();
         Action<TContext> contextInitializer;
         Func<ScenarioContext, bool> done = context => true;
     }

@@ -11,7 +11,7 @@
 
     public class ScenarioRunner
     {
-        public static async Task Run(RunDescriptor runDescriptor, List<IEndpointBehavior> behaviorDescriptors, Func<ScenarioContext, bool> done)
+        public static async Task Run(RunDescriptor runDescriptor, List<IComponentBehavior> behaviorDescriptors, Func<ScenarioContext, bool> done)
         {
             Console.WriteLine("Started test @ {0}", DateTime.Now.ToString(CultureInfo.InvariantCulture));
 
@@ -84,7 +84,7 @@
             Console.WriteLine("------------------------------------------------------");
         }
 
-        static async Task<RunResult> PerformTestRun(List<IEndpointBehavior> behaviorDescriptors, RunDescriptor runDescriptor, Func<ScenarioContext, bool> done)
+        static async Task<RunResult> PerformTestRun(List<IComponentBehavior> behaviorDescriptors, RunDescriptor runDescriptor, Func<ScenarioContext, bool> done)
         {
             var runResult = new RunResult
             {
@@ -98,7 +98,7 @@
             {
                 var endpoints = await InitializeRunners(runDescriptor, behaviorDescriptors).ConfigureAwait(false);
 
-                runResult.ActiveEndpoints = endpoints.Select(r => r.Name());
+                runResult.ActiveEndpoints = endpoints.Select(r => r.Name);
 
                 await PerformScenarios(runDescriptor, endpoints, () => done(runDescriptor.ScenarioContext)).ConfigureAwait(false);
 
@@ -126,7 +126,7 @@
             Console.WriteLine();
         }
 
-        static async Task PerformScenarios(RunDescriptor runDescriptor, IEndpointRunner[] runners, Func<bool> done)
+        static async Task PerformScenarios(RunDescriptor runDescriptor, ComponentRunner[] runners, Func<bool> done)
         {
             using (var cts = new CancellationTokenSource())
             {
@@ -174,10 +174,10 @@
             }
         }
 
-        static void ThrowOnFailedMessages(RunDescriptor runDescriptor, IEndpointRunner[] endpoints)
+        static void ThrowOnFailedMessages(RunDescriptor runDescriptor, ComponentRunner[] components)
         {
             var unexpectedFailedMessages = runDescriptor.ScenarioContext.FailedMessages
-                .Where(kvp => endpoints.Single(e => e.Name() == kvp.Key).FailOnErrorMessage)
+                .Where(kvp => components.Single(e => e.Name == kvp.Key).FailOnErrorMessage)
                 .SelectMany(kvp => kvp.Value)
                 .ToList();
 
@@ -202,72 +202,72 @@
             return sb.ToString();
         }
 
-        static Task StartEndpoints(IEnumerable<IEndpointRunner> endpoints, CancellationTokenSource cts)
+        static Task StartEndpoints(IEnumerable<ComponentRunner> endpoints, CancellationTokenSource cts)
         {
             var startTimeout = TimeSpan.FromMinutes(2);
             return endpoints.Select(endpoint => StartEndpoint(endpoint, cts))
                 .Timebox(startTimeout, $"Starting endpoints took longer than {startTimeout.TotalMinutes} minutes.");
         }
 
-        static async Task StartEndpoint(IEndpointRunner endpoint, CancellationTokenSource cts)
+        static async Task StartEndpoint(ComponentRunner component, CancellationTokenSource cts)
         {
             var token = cts.Token;
             try
             {
-                await endpoint.Start(token).ConfigureAwait(false);
+                await component.Start(token).ConfigureAwait(false);
             }
             catch (Exception)
             {
                 cts.Cancel();
-                Console.WriteLine($"Endpoint {endpoint.Name()} failed to start.");
+                Console.WriteLine($"Endpoint {component.Name} failed to start.");
                 throw;
             }
         }
 
-        static Task ExecuteWhens(IEnumerable<IEndpointRunner> endpoints, CancellationTokenSource cts)
+        static Task ExecuteWhens(IEnumerable<ComponentRunner> endpoints, CancellationTokenSource cts)
         {
             var whenTimeout = TimeSpan.FromSeconds(60);
             return endpoints.Select(endpoint => ExecuteWhens(endpoint, cts))
                 .Timebox(whenTimeout, $"Executing given and whens took longer than {whenTimeout.TotalSeconds} seconds.");
         }
 
-        static async Task ExecuteWhens(IEndpointRunner endpoint, CancellationTokenSource cts)
+        static async Task ExecuteWhens(ComponentRunner component, CancellationTokenSource cts)
         {
             var token = cts.Token;
             try
             {
-                await endpoint.Whens(token).ConfigureAwait(false);
+                await component.ComponentsStarted(token).ConfigureAwait(false);
             }
             catch (Exception)
             {
                 cts.Cancel();
-                Console.WriteLine($"Whens for endpoint {endpoint.Name()} failed to execute.");
+                Console.WriteLine($"Whens for endpoint {component.Name} failed to execute.");
                 throw;
             }
         }
 
-        static Task StopEndpoints(IEnumerable<IEndpointRunner> endpoints)
+        static Task StopEndpoints(IEnumerable<ComponentRunner> endpoints)
         {
             var stopTimeout = TimeSpan.FromMinutes(2);
             return endpoints.Select(async endpoint =>
             {
-                Console.WriteLine("Stopping endpoint: {0}", endpoint.Name());
+                Console.WriteLine("Stopping endpoint: {0}", endpoint.Name);
                 var stopwatch = Stopwatch.StartNew();
                 try
                 {
                     await endpoint.Stop().ConfigureAwait(false);
                     stopwatch.Stop();
-                    Console.WriteLine("Endpoint: {0} stopped ({1}s)", endpoint.Name(), stopwatch.Elapsed);
+                    Console.WriteLine("Endpoint: {0} stopped ({1}s)", endpoint.Name, stopwatch.Elapsed);
                 }
                 catch (Exception)
                 {
-                    Console.WriteLine($"Endpoint {endpoint.Name()} failed to stop.");
+                    Console.WriteLine($"Endpoint {endpoint.Name} failed to stop.");
                     throw;
                 }
             }).Timebox(stopTimeout, $"Stopping endpoints took longer than {stopTimeout.TotalMinutes} minutes.");
         }
 
-        static async Task<IEndpointRunner[]> InitializeRunners(RunDescriptor runDescriptor, List<IEndpointBehavior> endpointBehaviors)
+        static async Task<ComponentRunner[]> InitializeRunners(RunDescriptor runDescriptor, List<IComponentBehavior> endpointBehaviors)
         {
             var runnerInitializations = endpointBehaviors.Select(endpointBehavior => endpointBehavior.CreateRunner(runDescriptor)).ToArray();
             try
@@ -316,6 +316,6 @@
 
         public RunDescriptor RunDescriptor { get; set; }
 
-        public IEnumerable<IEndpointBehavior> Endpoints { get; set; }
+        public IEnumerable<IComponentBehavior> Endpoints { get; set; }
     }
 }

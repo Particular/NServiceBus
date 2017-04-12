@@ -5,7 +5,7 @@
     using System.Threading.Tasks;
     using Customization;
 
-    public class EndpointBehavior : IEndpointBehavior
+    public class EndpointBehavior : IComponentBehavior
     {
         public EndpointBehavior(Type builderType)
         {
@@ -13,14 +13,14 @@
             CustomConfig = new List<Action<EndpointConfiguration, ScenarioContext>>();
         }
 
-        public Type EndpointBuilderType { get; private set; }
+        public Type EndpointBuilderType { get; }
 
         public List<IWhenDefinition> Whens { get; set; }
 
-        public List<Action<EndpointConfiguration, ScenarioContext>> CustomConfig { get; set; }
+        public List<Action<EndpointConfiguration, ScenarioContext>> CustomConfig { get; private set; }
 
         public bool DoNotFailOnErrorMessages { get; set; }
-        public async Task<IEndpointRunner> CreateRunner(RunDescriptor run)
+        public async Task<ComponentRunner> CreateRunner(RunDescriptor run)
         {
             var endpointName = Conventions.EndpointNamingConvention(EndpointBuilderType);
 
@@ -37,7 +37,7 @@
             }
             catch (Exception)
             {
-                Console.WriteLine($"Endpoint {runner.Name()} failed to initialize");
+                Console.WriteLine($"Endpoint {runner.Name} failed to initialize");
                 throw;
             }
             return runner;

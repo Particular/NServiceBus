@@ -3,12 +3,16 @@
     using System.Threading;
     using System.Threading.Tasks;
 
-    public interface IEndpointRunner
+    public abstract class ComponentRunner
     {
-        bool FailOnErrorMessage { get; }
-        Task Start(CancellationToken token);
-        Task Whens(CancellationToken token);
-        Task Stop();
-        string Name();
+        public abstract string Name { get; }
+
+        public virtual bool FailOnErrorMessage => false;
+
+        public virtual Task Start(CancellationToken token) => Task.FromResult(0);
+
+        public virtual Task ComponentsStarted(CancellationToken token) => Task.FromResult(0);
+
+        public virtual Task Stop() => Task.FromResult(0);
     }
 }

@@ -2,8 +2,8 @@
 {
     using System.Threading.Tasks;
 
-    public interface IEndpointBehavior
+    public interface IComponentBehavior
     {
-        Task<IEndpointRunner> CreateRunner(RunDescriptor run);
+        Task<ComponentRunner> CreateRunner(RunDescriptor run);
     }
 }
