@@ -109,7 +109,7 @@ namespace NServiceBus
             var messageTypes = messageMetadata.Select(metadata => metadata.MessageType).ToList();
             var messageSerializer = deserializerResolver.Resolve(physicalMessage.Headers);
 
-            mapper.EnsureTypesAreInitialized(messageTypes);
+            mapper.Initialize(messageTypes);
 
             // For nested behaviors who have an expectation ContentType existing
             // add the default content type
