@@ -145,7 +145,6 @@
                         {
                             if (DateTime.UtcNow - startTime > maxTime)
                             {
-                                ThrowOnFailedMessages(runDescriptor, runners);
                                 throw new TimeoutException(GenerateTestTimedOutMessage(maxTime));
                             }
                         }
@@ -169,26 +168,6 @@
                 {
                     await StopEndpoints(runners).ConfigureAwait(false);
                 }
-
-                ThrowOnFailedMessages(runDescriptor, runners);
-            }
-        }
-
-        static void ThrowOnFailedMessages(RunDescriptor runDescriptor, ComponentRunner[] components)
-        {
-            var unexpectedFailedMessages = runDescriptor.ScenarioContext.FailedMessages
-                .Where(kvp => components.Single(e => e.Name == kvp.Key).FailOnErrorMessage)
-                .SelectMany(kvp => kvp.Value)
-                .ToList();
-
-            if (unexpectedFailedMessages.Any())
-            {
-                foreach (var failedMessage in unexpectedFailedMessages)
-                {
-                    Console.WriteLine($"Message: {failedMessage.MessageId} failed to process and was moved to the error queue: {failedMessage.Exception}");
-                }
-
-                throw new MessagesFailedException(unexpectedFailedMessages, runDescriptor.ScenarioContext);
             }
         }
 
@@ -251,6 +230,7 @@
             var stopTimeout = TimeSpan.FromMinutes(2);
             return endpoints.Select(async endpoint =>
             {
+                await Task.Yield(); // ensure all endpoints are stopped even if a synchronous implementation throws
                 Console.WriteLine("Stopping endpoint: {0}", endpoint.Name);
                 var stopwatch = Stopwatch.StartNew();
                 try

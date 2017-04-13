@@ -12,19 +12,18 @@
         [Test]
         public void Should_forward_message_to_error_queue()
         {
-            var exception = Assert.ThrowsAsync<MessagesFailedException>(async () => await Scenario.Define<Context>()
+            var exception = Assert.ThrowsAsync<MessageFailedException>(async () => await Scenario.Define<Context>()
                     .WithEndpoint<RetryEndpoint>(b => b
                         .When((session, c) => session.SendLocal(new MessageWhichFailsRetries())))
                     .Done(c => c.ForwardedToErrorQueue)
                     .Run());
 
-            Assert.AreEqual(1, exception.FailedMessages.Count);
-            var failedMessage = exception.FailedMessages.Single();
+            Assert.AreEqual(1, exception.ScenarioContext.FailedMessages.Count);
 
             var testContext = (Context) exception.ScenarioContext;
-            Assert.AreEqual(typeof(MessageWhichFailsRetries).AssemblyQualifiedName, failedMessage.Headers[Headers.EnclosedMessageTypes]);
-            Assert.AreEqual(testContext.PhysicalMessageId, failedMessage.MessageId);
-            Assert.IsAssignableFrom(typeof(SimulatedException), failedMessage.Exception);
+            Assert.AreEqual(typeof(MessageWhichFailsRetries).AssemblyQualifiedName, exception.FailedMessage.Headers[Headers.EnclosedMessageTypes]);
+            Assert.AreEqual(testContext.PhysicalMessageId, exception.FailedMessage.MessageId);
+            Assert.IsAssignableFrom(typeof(SimulatedException), exception.FailedMessage.Exception);
 
             Assert.AreEqual(1, testContext.Logs.Count(l => l.Message
                 .StartsWith($"Moving message '{testContext.PhysicalMessageId}' to the error queue 'error' because processing failed due to an exception:")));

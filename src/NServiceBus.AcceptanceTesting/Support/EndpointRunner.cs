@@ -13,6 +13,7 @@
     public class EndpointRunner : ComponentRunner
     {
         static ILog Logger = LogManager.GetLogger<EndpointRunner>();
+        bool doNotFailOnErrorMessages;
         EndpointBehavior behavior;
         IStartableEndpoint startable;
         IEndpointInstance endpointInstance;
@@ -21,7 +22,10 @@
         RunSettings runSettings;
         EndpointConfiguration endpointConfiguration;
 
-        public override bool FailOnErrorMessage => !behavior.DoNotFailOnErrorMessages;
+        public EndpointRunner(bool doNotFailOnErrorMessages)
+        {
+            this.doNotFailOnErrorMessages = doNotFailOnErrorMessages;
+        }
 
         public async Task Initialize(RunDescriptor run, EndpointBehavior endpointBehavior, string endpointName)
         {
@@ -161,6 +165,19 @@
             finally
             {
                 await Cleanup().ConfigureAwait(false);
+
+                if (!doNotFailOnErrorMessages)
+                {
+                    ThrowOnFailedMessages();
+                }
+            }
+        }
+
+        void ThrowOnFailedMessages()
+        {
+            foreach (var failedMessage in scenarioContext.FailedMessages.Where(kvp => kvp.Key == Name))
+            {
+                throw new MessageFailedException(failedMessage.Value.First(), scenarioContext);
             }
         }
 

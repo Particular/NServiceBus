@@ -15,7 +15,7 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
         {
             Context context = null;
 
-            var exception = Assert.ThrowsAsync<MessagesFailedException>(async () =>
+            var exception = Assert.ThrowsAsync<MessageFailedException>(async () =>
             {
                 await Scenario.Define<Context>(ctx => context = ctx)
                     .WithEndpoint<EndpointWithFailingHandler>(b => b
@@ -28,8 +28,8 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
                     .Run();
             });
 
-            var failedMessage = exception.FailedMessages.Single();
-            Assert.That(failedMessage.Exception, Is.TypeOf<CustomException>());
+            Assert.That(exception.FailedMessage.Exception, Is.TypeOf<CustomException>());
+            Assert.That(exception.ScenarioContext.FailedMessages, Has.Count.EqualTo(1));
             Assert.AreEqual(1, context.HandlerInvoked);
         }
 

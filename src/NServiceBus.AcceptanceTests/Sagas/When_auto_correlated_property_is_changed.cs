@@ -14,7 +14,7 @@
         [Test]
         public void Should_throw()
         {
-            var exception = Assert.ThrowsAsync<MessagesFailedException>(async () =>
+            var exception = Assert.ThrowsAsync<MessageFailedException>(async () =>
                 await Scenario.Define<Context>()
                     .WithEndpoint<Endpoint>(
                         b => b.When(session => session.SendLocal(new StartSaga
@@ -25,10 +25,10 @@
                     .Run());
 
             Assert.IsTrue(((Context)exception.ScenarioContext).ModifiedCorrelationProperty);
-            Assert.AreEqual(1, exception.FailedMessages.Count);
+            Assert.AreEqual(1, exception.ScenarioContext.FailedMessages.Count);
             StringAssert.Contains(
                 "Changing the value of correlated properties at runtime is currently not supported",
-                exception.FailedMessages.Single().Exception.Message);
+                exception.FailedMessage.Exception.Message);
         }
 
         public class Context : ScenarioContext
