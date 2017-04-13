@@ -11,11 +11,6 @@
     /// </summary>
     public class MessageMetadataRegistry
     {
-        internal MessageMetadataRegistry(Conventions conventions)
-        {
-            this.conventions = conventions;
-        }
-
         /// <summary>
         /// Retrieves the <see cref="MessageMetadata" /> for the specified type.
         /// </summary>
@@ -101,9 +96,9 @@
             return new List<MessageMetadata>(messages.Values);
         }
 
-        internal void RegisterMessageTypesFoundIn(IList<Type> availableTypes)
+        internal void RegisterMessageTypes(IList<Type> messageTypes)
         {
-            foreach (var type in availableTypes)
+            foreach (var type in messageTypes)
             {
                 RegisterMessageType(type);
             }
@@ -111,23 +106,22 @@
 
         MessageMetadata RegisterMessageType(Type messageType)
         {
-            if (conventions.IsMessageType(messageType))
-            {
-                //get the parent types
-                var parentMessages = GetParentTypes(messageType)
-                    .Where(conventions.IsMessageType)
-                    .OrderByDescending(PlaceInMessageHierarchy);
 
-                var metadata = new MessageMetadata(messageType, new[]
-                {
+            //get the parent types
+            var parentMessages = GetParentTypes(messageType)
+                .Where(t => typeof(IMessage) != t &&
+                            typeof(IEvent) != t &&
+                            typeof(ICommand) != t)
+                .OrderByDescending(PlaceInMessageHierarchy);
+
+            var metadata = new MessageMetadata(messageType, new[]
+            {
                     messageType
                 }.Concat(parentMessages).ToArray());
 
-                messages[messageType.TypeHandle] = metadata;
+            messages[messageType.TypeHandle] = metadata;
 
-                return metadata;
-            }
-            return null;
+            return metadata;
         }
 
         static int PlaceInMessageHierarchy(Type type)
@@ -165,7 +159,6 @@
             }
         }
 
-        Conventions conventions;
         ConcurrentDictionary<RuntimeTypeHandle, MessageMetadata> messages = new ConcurrentDictionary<RuntimeTypeHandle, MessageMetadata>();
         ConcurrentDictionary<string, Type> cachedTypes = new ConcurrentDictionary<string, Type>();
 
