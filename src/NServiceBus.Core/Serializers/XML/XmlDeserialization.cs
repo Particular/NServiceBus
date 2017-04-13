@@ -374,7 +374,7 @@
                     var nullableType = typeof(Nullable<>).MakeGenericType(args);
                     if (type == nullableType)
                     {
-                        if (text.Trim().ToLower() == "null" || string.IsNullOrWhiteSpace(text))
+                        if (string.IsNullOrWhiteSpace(text) || text.Trim().ToLower() == "null")
                         {
                             return null;
                         }
