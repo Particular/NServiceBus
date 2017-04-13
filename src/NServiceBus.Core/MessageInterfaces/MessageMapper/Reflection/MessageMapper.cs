@@ -248,15 +248,6 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
             return t.FullName;
         }
 
-        internal void EnsureTypesAreInitialized(List<Type> messageTypes)
-        {
-            foreach (var messageType in messageTypes)
-            {
-                //todo: optimize
-                InitType(messageType);
-            }
-        }
-
         readonly object messageInitializationLock = new object();
 
         ConcreteProxyCreator concreteProxyCreator;
