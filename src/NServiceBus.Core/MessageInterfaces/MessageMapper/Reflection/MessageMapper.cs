@@ -44,28 +44,48 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
         public Type GetMappedTypeFor(Type t)
         {
             Guard.AgainstNull(nameof(t), t);
+
+            Type mappedType;
+            if (TryGetMappedType(t, out mappedType))
+            {
+                return mappedType;
+            }
+
+            InitType(t);
+
+            return TryGetMappedType(t, out mappedType) ? mappedType : null;
+        }
+
+        bool TryGetMappedType(Type typeToMap, out Type mappedType)
+        {
             RuntimeTypeHandle typeHandle;
-            if (t.IsClass)
+            if (typeToMap.IsClass)
             {
-                if (t.IsGenericTypeDefinition)
+                if (typeToMap.IsGenericTypeDefinition)
                 {
-                    return null;
+                    mappedType = null;
+                    return false;
                 }
 
-                if (concreteToInterfaceTypeMapping.TryGetValue(t.TypeHandle, out typeHandle))
+                if (concreteToInterfaceTypeMapping.TryGetValue(typeToMap.TypeHandle, out typeHandle))
                 {
-                    return Type.GetTypeFromHandle(typeHandle);
+                    mappedType = Type.GetTypeFromHandle(typeHandle);
+                    return true;
                 }
 
-                return t;
+                mappedType = typeToMap;
+                return true;
             }
 
-            if (interfaceToConcreteTypeMapping.TryGetValue(t.TypeHandle, out typeHandle))
+            if (interfaceToConcreteTypeMapping.TryGetValue(typeToMap.TypeHandle, out typeHandle))
             {
-                return Type.GetTypeFromHandle(typeHandle);
+                mappedType = Type.GetTypeFromHandle(typeHandle);
+                return true;
             }
 
-            return null;
+            mappedType = null;
+
+            return false;
         }
 
         /// <summary>
