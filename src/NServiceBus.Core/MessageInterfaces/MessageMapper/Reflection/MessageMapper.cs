@@ -106,7 +106,7 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
         /// </summary>
         public T CreateInstance<T>()
         {
-            return (T)CreateInstance(typeof(T));
+            return (T) CreateInstance(typeof(T));
         }
 
         /// <summary>
@@ -129,16 +129,25 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
             RuntimeMethodHandle constructor;
             if (typeToConstructor.TryGetValue(mapped.TypeHandle, out constructor))
             {
-                return ((ConstructorInfo)MethodBase.GetMethodFromHandle(constructor, mapped.TypeHandle)).Invoke(null);
+                return ((ConstructorInfo) MethodBase.GetMethodFromHandle(constructor, mapped.TypeHandle)).Invoke(null);
             }
 
             return FormatterServices.GetUninitializedObject(mapped);
         }
 
-        /// <summary>
-        /// Generates a concrete implementation of the given type if it is an interface.
-        /// </summary>
         void InitType(Type t)
+        {
+            if (initializedTypes.Contains(t))
+            {
+                return;
+            }
+
+            InnerInitialize(t);
+
+            initializedTypes.Add(t);
+        }
+
+        void InnerInitialize(Type t)
         {
             if (t == null)
             {
@@ -249,6 +258,8 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
         }
 
         readonly object messageInitializationLock = new object();
+
+        HashSet<Type> initializedTypes = new HashSet<Type>();
 
         ConcreteProxyCreator concreteProxyCreator;
         ConcurrentDictionary<RuntimeTypeHandle, RuntimeTypeHandle> concreteToInterfaceTypeMapping = new ConcurrentDictionary<RuntimeTypeHandle, RuntimeTypeHandle>();
