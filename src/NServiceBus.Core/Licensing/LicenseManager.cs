@@ -38,11 +38,11 @@ namespace NServiceBus
                 {
                     Logger.WarnFormat("Trial for the Particular Service Platform has expired.");
                     PromptUserForLicenseIfTrialHasExpired();
-                    return;
                 }
-
-                Logger.Fatal("Your license has expired! You can renew it at https://particular.net/licensing.");
-                return;
+                else
+                {
+                    Logger.Fatal("Your license has expired! You can renew it at https://particular.net/licensing.");
+                }
             }
         }
 
