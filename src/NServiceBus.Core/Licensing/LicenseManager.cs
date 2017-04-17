@@ -19,18 +19,9 @@ namespace NServiceBus
             var licenseSources = LicenseSources.GetLicenseSources(licenseText, licenseFilePath);
 
             var result = ActiveLicense.Find("NServiceBus", licenseSources);
-
-            var report = new StringBuilder();
-            report.AppendLine("Looking for license in the following locations:");
-
-            foreach (var item in result.Report)
-            {
-                report.AppendLine(item);
-            }
-
-            Logger.Info(report.ToString());
-
             license = result.License;
+
+            LogFindResults(result);
 
             if (result.HasExpired)
             {
@@ -44,6 +35,19 @@ namespace NServiceBus
                     Logger.Fatal("Your license has expired! You can renew it at https://particular.net/licensing.");
                 }
             }
+        }
+
+        static void LogFindResults(ActiveLicenseFindResult result)
+        {
+            var report = new StringBuilder();
+            report.AppendLine("Looking for license in the following locations:");
+
+            foreach (var item in result.Report)
+            {
+                report.AppendLine(item);
+            }
+
+            Logger.Info(report.ToString());
         }
 
         void PromptUserForLicenseIfTrialHasExpired()
