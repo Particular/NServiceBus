@@ -47,6 +47,15 @@ namespace NServiceBus
                 report.AppendLine(item);
             }
 
+            Logger.Debug(report.ToString());
+
+            report.Clear();
+
+            foreach (var item in result.SelectedLicenseReport)
+            {
+                report.AppendLine(item);
+            }
+
             Logger.Info(report.ToString());
         }
 

@@ -11,5 +11,7 @@
         internal string Location { get; set; }
 
         internal List<string> Report = new List<string>();
+
+        internal List<string> SelectedLicenseReport = new List<string>();
     }
 }

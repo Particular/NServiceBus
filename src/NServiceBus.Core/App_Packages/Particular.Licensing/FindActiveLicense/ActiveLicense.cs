@@ -20,15 +20,22 @@ namespace Particular.Licensing
             var licenseSourceResultToUse = LicenseSourceResult.DetermineBestLicenseSourceResult(results.ToArray());
             if (licenseSourceResultToUse != null)
             {
-                activeLicense.Report.Add($"Selected active license from {licenseSourceResultToUse.Location}");
+                var selectedLicenseReportItem = $"Selected active license from {licenseSourceResultToUse.Location}";
+                activeLicense.Report.Add(selectedLicenseReportItem);
+                activeLicense.SelectedLicenseReport.Add(selectedLicenseReportItem);
+
                 var details = licenseSourceResultToUse.License;
                 if (details.ExpirationDate.HasValue)
                 {
-                    activeLicense.Report.Add(string.Format(CultureInfo.InvariantCulture, "License Expiration: {0:dd MMMM yyyy}", details.ExpirationDate.Value));
+                    var licenseExpirationReportItem = string.Format(CultureInfo.InvariantCulture, "License Expiration: {0:dd MMMM yyyy}", details.ExpirationDate.Value);
+                    activeLicense.Report.Add(licenseExpirationReportItem);
+                    activeLicense.SelectedLicenseReport.Add(licenseExpirationReportItem);
 
                     if (details.UpgradeProtectionExpiration.HasValue)
                     {
-                        activeLicense.Report.Add(string.Format(CultureInfo.InvariantCulture, "Upgrade Protection Expiration: {0:dd MMMM yyyy}", details.UpgradeProtectionExpiration.Value));
+                        var upgradeProtectionReportItem = string.Format(CultureInfo.InvariantCulture, "Upgrade Protection Expiration: {0:dd MMMM yyyy}", details.UpgradeProtectionExpiration.Value);
+                        activeLicense.Report.Add(upgradeProtectionReportItem);
+                        activeLicense.SelectedLicenseReport.Add(upgradeProtectionReportItem);
                     }
                 }
                 activeLicense.License = details;
@@ -38,7 +45,11 @@ namespace Particular.Licensing
             if (activeLicense.License == null)
             {
                 var trialStartDate = TrialStartDateStore.GetTrialStartDate();
-                activeLicense.Report.Add($"No valid license could be found, falling back to trial license with start date '{trialStartDate.ToLocalTime().ToShortDateString()}'");
+
+                var trialLicenseReportItem = $"No valid license could be found, falling back to trial license with start date '{trialStartDate.ToLocalTime().ToShortDateString()}'";
+                activeLicense.Report.Add(trialLicenseReportItem);
+                activeLicense.SelectedLicenseReport.Add(trialLicenseReportItem);
+
                 activeLicense.License = License.TrialLicense(trialStartDate);
                 activeLicense.Location = "Trial License";
             }
