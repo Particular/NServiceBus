@@ -38,21 +38,22 @@ namespace NServiceBus.AcceptanceTesting
             var sw = new Stopwatch();
 
             sw.Start();
-            var result = await ScenarioRunner.Run(runDescriptor, behaviors, done).ConfigureAwait(false);
+            var runSummary = await ScenarioRunner.Run(runDescriptor, behaviors, done).ConfigureAwait(false);
             sw.Stop();
 
-            await runDescriptor.RaiseOnTestCompleted(result);
+            await runDescriptor.RaiseOnTestCompleted(runSummary);
 
-            DisplayRunResult(result);
+            DisplayRunResult(runSummary);
             Console.WriteLine("Total time for testrun: {0}", sw.Elapsed);
 
-            if (result.Result.Failed)
+            if (runSummary.Result.Failed)
             {
-                throw result.Result.Exception;
+                throw runSummary.Result.Exception;
             }
 
             return (TContext) runDescriptor.ScenarioContext;
         }
+
         public IScenarioWithEndpointBehavior<TContext> WithEndpoint<T>() where T : EndpointConfigurationBuilder
         {
             return WithEndpoint<T>(b => { });
