@@ -51,7 +51,7 @@ namespace NServiceBus.AcceptanceTesting
                 throw runSummary.Result.Exception;
             }
 
-            return (TContext) runDescriptor.ScenarioContext;
+            return (TContext)runDescriptor.ScenarioContext;
         }
 
         public IScenarioWithEndpointBehavior<TContext> WithEndpoint<T>() where T : EndpointConfigurationBuilder
