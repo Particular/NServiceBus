@@ -191,37 +191,34 @@
                 }
                 var tokenSource = new CancellationTokenSource();
 
-                using (var bodyStream = new FileStream(bodyPath, FileMode.Open))
+                var context = new ContextBag();
+                context.Set(transaction);
+
+                var body = File.ReadAllBytes(bodyPath);
+
+                var transportTransaction = new TransportTransaction();
+
+                transportTransaction.Set(transaction);
+
+                var messageContext = new MessageContext(messageId, headers, body, transportTransaction, tokenSource, new ContextBag());
+
+                try
                 {
-                    var context = new ContextBag();
-                    context.Set(transaction);
+                    await onMessage(messageContext).ConfigureAwait(false);
+                }
+                catch (Exception ex)
+                {
+                    transaction.ClearPendingOutgoingOperations();
+                    var immediateProcessinFailures = retryCounts.AddOrUpdate(messageId, id => 1, (id, currentCount) => currentCount + 1);
 
-                    var body = await ReadStream(bodyStream).ConfigureAwait(false);
+                    var errorContext = new ErrorContext(ex, headers, messageId, body, transportTransaction, immediateProcessinFailures);
 
-                    var transportTransaction = new TransportTransaction();
+                    var actionToTake = await onError(errorContext).ConfigureAwait(false);
 
-                    transportTransaction.Set(transaction);
-
-                    var messageContext = new MessageContext(messageId, headers, body, transportTransaction, tokenSource, new ContextBag());
-
-                    try
+                    if (actionToTake == ErrorHandleResult.RetryRequired)
                     {
-                        await onMessage(messageContext).ConfigureAwait(false);
-                    }
-                    catch (Exception ex)
-                    {
-                        transaction.ClearPendingOutgoingOperations();
-                        var immediateProcessinFailures = retryCounts.AddOrUpdate(messageId, id => 1, (id, currentCount) => currentCount + 1);
-
-                        var errorContext = new ErrorContext(ex, headers, messageId, body, transportTransaction, immediateProcessinFailures);
-
-                        var actionToTake = await onError(errorContext).ConfigureAwait(false);
-
-                        if (actionToTake == ErrorHandleResult.RetryRequired)
-                        {
-                            transaction.Rollback();
-                            return;
-                        }
+                        transaction.Rollback();
+                        return;
                     }
                 }
 
@@ -237,15 +234,6 @@
             {
                 transaction.Rollback();
             }
-        }
-
-        static async Task<byte[]> ReadStream(Stream bodyStream)
-        {
-            bodyStream.Seek(0, SeekOrigin.Begin);
-            var length = (int) bodyStream.Length;
-            var body = new byte[length];
-            await bodyStream.ReadAsync(body, 0, length).ConfigureAwait(false);
-            return body;
         }
 
         void MoveDelayedMessagesToMainDirectory(object state)
