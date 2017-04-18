@@ -4,9 +4,7 @@
     using System.Diagnostics;
     using Logging;
 
-    /// <summary>
-    /// This class is written under the assumption that acceptance tests are executed sequentially.
-    /// </summary>
+    // This class is written under the assumption that acceptance tests are executed sequentially.
     class ContextAppender : ILog
     {
         public ContextAppender(LogLevel level, Func<ScenarioContext> context)
@@ -29,7 +27,8 @@
 
         public void Debug(string message, Exception exception)
         {
-            Log(message, LogLevel.Debug);
+            var fullMessage = $"{message} {exception}";
+            Log(fullMessage, LogLevel.Debug);
         }
 
         public void DebugFormat(string format, params object[] args)
