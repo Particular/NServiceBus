@@ -40,23 +40,27 @@ namespace NServiceBus
         static void LogFindResults(ActiveLicenseFindResult result)
         {
             var report = new StringBuilder();
-            report.AppendLine("Looking for license in the following locations:");
 
-            foreach (var item in result.Report)
+            if (debugLoggingEnabled)
             {
-                report.AppendLine(item);
+                report.AppendLine("Looking for license in the following locations:");
+
+                foreach (var item in result.Report)
+                {
+                    report.AppendLine(item);
+                }
+
+                Logger.Debug(report.ToString());
             }
-
-            Logger.Debug(report.ToString());
-
-            report.Clear();
-
-            foreach (var item in result.SelectedLicenseReport)
+            else
             {
-                report.AppendLine(item);
-            }
+                foreach (var item in result.SelectedLicenseReport)
+                {
+                    report.AppendLine(item);
+                }
 
-            Logger.Info(report.ToString());
+                Logger.Info(report.ToString());
+            }
         }
 
         void PromptUserForLicenseIfTrialHasExpired()
@@ -91,5 +95,6 @@ namespace NServiceBus
         License license;
 
         static ILog Logger = LogManager.GetLogger(typeof(LicenseManager));
+        static readonly bool debugLoggingEnabled = Logger.IsDebugEnabled;
     }
 }
