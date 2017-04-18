@@ -30,7 +30,8 @@ namespace NServiceBus.AcceptanceTesting
             var scenarioContext = new TContext();
             contextInitializer(scenarioContext);
 
-            var runDescriptor = new RunDescriptor(settings, scenarioContext);
+            var runDescriptor = new RunDescriptor(scenarioContext);
+            runDescriptor.Settings.Merge(settings);
 
             LogManager.UseFactory(new ContextAppenderFactory());
 

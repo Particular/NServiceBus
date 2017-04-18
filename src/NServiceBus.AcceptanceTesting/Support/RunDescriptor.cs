@@ -7,9 +7,9 @@
 
     public class RunDescriptor
     {
-        public RunDescriptor(RunSettings settings, ScenarioContext context)
+        public RunDescriptor(ScenarioContext context)
         {
-            Settings = settings;
+            Settings = new RunSettings();
             ScenarioContext = context;
         }
 
