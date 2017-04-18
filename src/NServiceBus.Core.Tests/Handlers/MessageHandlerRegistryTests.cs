@@ -17,12 +17,19 @@
         [TestCase(typeof(SagaWithIllegalDep))]
         public void ShouldThrowIfUserTriesToBypassTheHandlerContext(Type handlerType)
         {
-            var registry = new MessageHandlerRegistry(new Conventions());
+            var registry = new MessageHandlerRegistry();
 
             Assert.Throws<Exception>(() => registry.RegisterHandler(handlerType));
         }
 
-        [Test]        public void ShouldIndicateWhetherAHandlerIsATimeoutHandler()        {            var registry = new MessageHandlerRegistry(new Conventions());            registry.RegisterHandler(typeof(SagaWithTimeoutOfMessage));            var handlers = registry.GetHandlersFor(typeof(MyMessage));
+        [Test]
+        public void ShouldIndicateWhetherAHandlerIsATimeoutHandler()
+        {
+            var registry = new MessageHandlerRegistry();
+
+            registry.RegisterHandler(typeof(SagaWithTimeoutOfMessage));
+
+            var handlers = registry.GetHandlersFor(typeof(MyMessage));
 
             Assert.AreEqual(2, handlers.Count);
 
@@ -142,17 +149,33 @@
         {
         }
 
-        class SagaWithTimeoutOfMessage : Saga<SagaWithTimeoutOfMessage.MySagaData>, IAmStartedByMessages<MyMessage>, IHandleTimeouts<MyMessage>        {            public Task Handle(MyMessage message, IMessageHandlerContext context)            {
+        class SagaWithTimeoutOfMessage : Saga<SagaWithTimeoutOfMessage.MySagaData>, IAmStartedByMessages<MyMessage>, IHandleTimeouts<MyMessage>
+        {
+
+            public Task Handle(MyMessage message, IMessageHandlerContext context)
+            {
                 HandlerCalled = true;
                 return TaskEx.CompletedTask;
-            }            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MySagaData> mapper)            {                throw new NotImplementedException();            }            public Task Timeout(MyMessage state, IMessageHandlerContext context)
+            }
+
+            protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MySagaData> mapper)
+            {
+                throw new NotImplementedException();
+            }
+
+            public Task Timeout(MyMessage state, IMessageHandlerContext context)
             {
                 TimeoutCalled = true;
                 return TaskEx.CompletedTask;
             }
 
             public bool HandlerCalled { get; set; }
-            public bool TimeoutCalled { get; set; }            public class MySagaData : ContainSagaData            {            }        }
+            public bool TimeoutCalled { get; set; }
+
+            public class MySagaData : ContainSagaData
+            {
+            }
+        }
 
     }
 }

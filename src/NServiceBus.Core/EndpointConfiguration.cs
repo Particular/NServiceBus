@@ -206,8 +206,8 @@ namespace NServiceBus
 
             var conventions = conventionsBuilder.Conventions;
             Settings.SetDefault<Conventions>(conventions);
-            var messageMetadataRegistry = new MessageMetadataRegistry(conventions);
-            messageMetadataRegistry.RegisterMessageTypesFoundIn(Settings.GetAvailableTypes());
+            var messageMetadataRegistry = new MessageMetadataRegistry();
+            messageMetadataRegistry.RegisterMessageTypes(Settings.GetAvailableTypes().Where(t=>conventions.IsMessageType(t)).ToList());
 
             Settings.SetDefault<MessageMetadataRegistry>(messageMetadataRegistry);
 

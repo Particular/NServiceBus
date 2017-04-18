@@ -102,7 +102,7 @@
         [SetUp]
         public void Setup()
         {
-            metadataRegistry = new MessageMetadataRegistry(new Conventions());
+            metadataRegistry = new MessageMetadataRegistry();
             endpointInstances = new EndpointInstances();
             subscriptionStorage = new FakeSubscriptionStorage();
             router = new UnicastPublishRouter(

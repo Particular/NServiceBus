@@ -46,7 +46,7 @@ namespace NServiceBus.Features
 
         static void ConfigureMessageHandlersIn(FeatureConfigurationContext context, IEnumerable<Type> types)
         {
-            var handlerRegistry = new MessageHandlerRegistry(context.Settings.Get<Conventions>());
+            var handlerRegistry = new MessageHandlerRegistry();
 
             foreach (var t in types.Where(IsMessageHandler))
             {

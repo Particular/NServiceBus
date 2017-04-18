@@ -16,9 +16,9 @@
         [Test]
         public async Task Should_set_content_type_header()
         {
-            var registry = new MessageMetadataRegistry(new Conventions());
+            var registry = new MessageMetadataRegistry();
 
-            registry.RegisterMessageTypesFoundIn(new List<Type>
+            registry.RegisterMessageTypes(new List<Type>
             {
                 typeof(MyMessage)
             });
