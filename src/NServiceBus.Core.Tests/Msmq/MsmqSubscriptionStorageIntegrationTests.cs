@@ -41,6 +41,7 @@
             {
                 CollectionAssert.IsEmpty(queue.GetAllMessages());
             }
+            MessageQueue.Delete(queuePath);
         }
 
         [Test]
@@ -75,6 +76,7 @@
             {
                 CollectionAssert.IsEmpty(queue.GetAllMessages());
             }
+            MessageQueue.Delete(queuePath);
         }
 
         class MyMessage

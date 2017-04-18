@@ -15,10 +15,6 @@
             var creator = new MsmqQueueCreator(true);
             var bindings = new QueueBindings();
 
-            DeleteQueueIfPresent("MsmqQueueCreatorTests.receiver");
-            DeleteQueueIfPresent("MsmqQueueCreatorTests.endpoint1");
-            DeleteQueueIfPresent("MsmqQueueCreatorTests.endpoint2");
-
             bindings.BindReceiving("MsmqQueueCreatorTests.receiver");
             bindings.BindSending("MsmqQueueCreatorTests.target1");
             bindings.BindSending("MsmqQueueCreatorTests.target2");
@@ -28,6 +24,10 @@
             Assert.True(QueueExists("MsmqQueueCreatorTests.receiver"));
             Assert.True(QueueExists("MsmqQueueCreatorTests.target1"));
             Assert.True(QueueExists("MsmqQueueCreatorTests.target2"));
+
+            DeleteQueueIfPresent("MsmqQueueCreatorTests.receiver");
+            DeleteQueueIfPresent("MsmqQueueCreatorTests.target1");
+            DeleteQueueIfPresent("MsmqQueueCreatorTests.target2");
         }
 
         [Test]
@@ -53,8 +53,6 @@
             var creator = new MsmqQueueCreator(true);
             var bindings = new QueueBindings();
 
-            DeleteQueueIfPresent(testQueueName);
-
             bindings.BindReceiving(testQueueName);
 
             // use the network service account since that one won't be in the local admin group
@@ -78,14 +76,14 @@
             Assert.True(localAdminAccessRights.HasValue);
             Assert.True(localAdminAccessRights?.HasFlag(MessageQueueAccessRights.FullControl), $"{LocalAdministratorsGroupName} should have full control");
             Assert.IsTrue(accessControlEntryTypeForLocalAdmin == AccessControlEntryType.Allow, $"{LocalAdministratorsGroupName} should have access");
+
+            DeleteQueueIfPresent(testQueueName);
         }
 
         [Test]
         public void Should_make_queues_transactional_if_requested()
         {
             var testQueueName = "MsmqQueueCreatorTests.txreceiver";
-
-            DeleteQueueIfPresent(testQueueName);
 
             var creator = new MsmqQueueCreator(true);
             var bindings = new QueueBindings();
@@ -97,14 +95,14 @@
             var queue = GetQueue(testQueueName);
 
             Assert.True(queue.Transactional);
+
+            DeleteQueueIfPresent(testQueueName);
         }
 
         [Test]
         public void Should_make_queues_non_transactional_if_requested()
         {
             var testQueueName = "MsmqQueueCreatorTests.txreceiver";
-
-            DeleteQueueIfPresent(testQueueName);
 
             var creator = new MsmqQueueCreator(false);
             var bindings = new QueueBindings();
@@ -116,14 +114,14 @@
             var queue = GetQueue(testQueueName);
 
             Assert.False(queue.Transactional);
+
+            DeleteQueueIfPresent(testQueueName);
         }
 
         [Test]
         public void Should_give_everyone_and_anonymous_access_rights_when_creating_queues()
         {
             var testQueueName = "MsmqQueueCreatorTests.MsmqDefaultPermissions";
-
-            DeleteQueueIfPresent(testQueueName);
 
             var path = MsmqAddress.Parse(testQueueName).PathWithoutPrefix;
 
@@ -146,6 +144,8 @@
                 Assert.True(anonymousAccessRights?.HasFlag(MessageQueueAccessRights.WriteMessage), $"{LocalAnonymousLogonName} should have write access by default");
                 Assert.True(accessControlEntryTypeForAnonymous == AccessControlEntryType.Allow);
             }
+
+            DeleteQueueIfPresent(testQueueName);
         }
 
 
@@ -153,8 +153,6 @@
         public void Should_not_add_everyone_and_anonymous_to_already_existing_queues()
         {
             var testQueueName = "MsmqQueueCreatorTests.NoChangesToExisting";
-
-            DeleteQueueIfPresent(testQueueName);
 
             var path = MsmqAddress.Parse(testQueueName).PathWithoutPrefix;
 
@@ -180,6 +178,8 @@
             Assert.False(queue.TryGetPermissions(LocalEveryoneGroupName, out nullBecauseRevoked, out accessControlEntryType));
             Assert.False(queue.TryGetPermissions(LocalAnonymousLogonName, out nullBecauseRevoked, out accessControlEntryType));
             Assert.IsNull(accessControlEntryType);
+
+            DeleteQueueIfPresent(testQueueName);
         }
 
         [Test]
@@ -191,22 +191,20 @@
 
             testQueueName = $"{testQueueName}{new string('a', maxQueueNameForSetPermissionToWork - testQueueName.Length + 1)}";
 
-            DeleteQueueIfPresent(testQueueName);
-
             var creator = new MsmqQueueCreator(true);
             var bindings = new QueueBindings();
 
             bindings.BindReceiving(testQueueName);
 
             Assert.DoesNotThrow(() => creator.CreateQueueIfNecessary(bindings, WindowsIdentity.GetCurrent().Name));
+
+            DeleteQueueIfPresent(testQueueName);
         }
 
         [Test]
         public void Should_blow_up_for_invalid_accounts()
         {
             var testQueueName = "MsmqQueueCreatorTests.badidentity";
-
-            DeleteQueueIfPresent(testQueueName);
 
             var creator = new MsmqQueueCreator(true);
             var bindings = new QueueBindings();
@@ -216,6 +214,8 @@
             var ex = Assert.Throws<InvalidOperationException>(() => creator.CreateQueueIfNecessary(bindings, "invalidaccount"));
 
             StringAssert.Contains("invalidaccount", ex.Message);
+
+            DeleteQueueIfPresent(testQueueName);
         }
 
         [Test]
