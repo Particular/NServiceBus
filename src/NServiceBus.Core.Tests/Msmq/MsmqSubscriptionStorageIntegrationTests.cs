@@ -9,23 +9,25 @@
 
     public class MsmqSubscriptionStorageIntegrationTests
     {
+        string testQueueName = "NServiceBus.Core.Tests.MsmqSubscriptionStorageIntegrationTests";
+
+        [SetUp]
+        public void Setup()
+        {
+            DeleteQueueIfPresent(testQueueName);
+        }
+
         [TearDown]
         public void TearDown()
         {
-            DeleteQueueIfPresent("MsmqSubscriptionStorageQueueTests.PersistTransactional");
-            DeleteQueueIfPresent("MsmqSubscriptionStorageQueueTests.PersistNonTransactional");
+            DeleteQueueIfPresent(testQueueName);
         }
 
         [Test]
         public async Task ShouldRemoveSubscriptionsInTransactionalMode()
         {
-            var address = MsmqAddress.Parse("MsmqSubscriptionStorageQueueTests.PersistTransactional");
+            var address = MsmqAddress.Parse(testQueueName);
             var queuePath = address.PathWithoutPrefix;
-
-            if (MessageQueue.Exists(queuePath))
-            {
-                MessageQueue.Delete(queuePath);
-            }
 
             MessageQueue.Create(queuePath, true);
 
@@ -53,13 +55,8 @@
         [Test]
         public async Task ShouldRemoveSubscriptionsInNonTransactionalMode()
         {
-            var address = MsmqAddress.Parse("MsmqSubscriptionStorageQueueTests.PersistNonTransactional");
+            var address = MsmqAddress.Parse(testQueueName);
             var queuePath = address.PathWithoutPrefix;
-
-            if (MessageQueue.Exists(queuePath))
-            {
-                MessageQueue.Delete(queuePath);
-            }
 
             MessageQueue.Create(queuePath, false);
 
