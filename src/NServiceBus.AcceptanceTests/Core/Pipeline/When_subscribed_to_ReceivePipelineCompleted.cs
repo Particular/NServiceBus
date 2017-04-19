@@ -23,6 +23,19 @@
             Assert.AreNotEqual(DateTime.MinValue, context.ReceivePipelineCompletedMessage.CompletedAt, "CompletedAt was not set");
         }
 
+        [Test]
+        public async Task Should_receive_notification_when_handler_fails()
+        {
+            await Scenario.Define<Context>()
+                .WithEndpoint<SubscribingEndpoint>(b =>
+                {
+                    b.When(session => session.SendLocal(new FailingMessage()));
+                    b.DoNotFailOnErrorMessages();
+                })
+                .Done(c => c.NotificationEventFired)
+                .Run();
+        }
+
         class Context : ScenarioContext
         {
             public bool NotificationEventFired { get; set; }
@@ -56,10 +69,23 @@
                     return Task.FromResult(0);
                 }
             }
+
+            class FalingMessageHandler : IHandleMessages<FailingMessage>
+            {
+                public Task Handle(FailingMessage message, IMessageHandlerContext context)
+                {
+                    throw new NotImplementedException();
+                }
+            }
         }
 
         public class SomeMessage : IMessage
         {
+        }
+
+        public class FailingMessage : IMessage
+        {
+
         }
     }
 }
