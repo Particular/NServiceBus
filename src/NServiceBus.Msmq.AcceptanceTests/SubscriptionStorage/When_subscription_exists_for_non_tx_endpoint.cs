@@ -58,7 +58,7 @@
         {
             public Publisher()
             {
-                EndpointSetup<DefaultPublisher>(b =>
+                EndpointSetup<DefaultServer>(b =>
                 {
                     b.DisableFeature<AutoSubscribe>();
                     b.UsePersistence<MsmqPersistence>().SubscriptionQueue(StorageQueueName);
