@@ -8,9 +8,9 @@
     using NServiceBus.Pipeline;
     using NUnit.Framework;
 
-    public class When_transactional_message_is_moved_to_error_queue : NServiceBusAcceptanceTest
+    public class When_cross_q_transactional_message_is_moved_to_error_queue : NServiceBusAcceptanceTest
     {
-        [TestCase(TransportTransactionMode.TransactionScope)]
+        [TestCase(TransportTransactionMode.SendsAtomicWithReceive)]
         public async Task Should_not_dispatch_outgoing_messages(TransportTransactionMode transactionMode)
         {
             Requires.DtcSupport();
