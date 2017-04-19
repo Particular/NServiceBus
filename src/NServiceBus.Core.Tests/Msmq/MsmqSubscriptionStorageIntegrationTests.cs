@@ -9,6 +9,13 @@
 
     public class MsmqSubscriptionStorageIntegrationTests
     {
+        [TearDown]
+        public void TearDown()
+        {
+            DeleteQueueIfPresent("MsmqSubscriptionStorageQueueTests.PersistTransactional");
+            DeleteQueueIfPresent("MsmqSubscriptionStorageQueueTests.PersistNonTransactional");
+        }
+
         [Test]
         public async Task ShouldRemoveSubscriptionsInTransactionalMode()
         {
@@ -41,7 +48,6 @@
             {
                 CollectionAssert.IsEmpty(queue.GetAllMessages());
             }
-            MessageQueue.Delete(queuePath);
         }
 
         [Test]
@@ -76,7 +82,16 @@
             {
                 CollectionAssert.IsEmpty(queue.GetAllMessages());
             }
-            MessageQueue.Delete(queuePath);
+        }
+
+        void DeleteQueueIfPresent(string queueName)
+        {
+            var path = MsmqAddress.Parse(queueName).PathWithoutPrefix;
+
+            if (MessageQueue.Exists(path))
+            {
+                MessageQueue.Delete(path);
+            }
         }
 
         class MyMessage

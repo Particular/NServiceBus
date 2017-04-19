@@ -9,6 +9,22 @@
     [TestFixture]
     public class MsmqQueueCreatorTests
     {
+
+        [TearDown]
+        public void TearDown()
+        {
+            DeleteQueueIfPresent("MsmqQueueCreatorTests.receiver");
+            DeleteQueueIfPresent("MsmqQueueCreatorTests.target1");
+            DeleteQueueIfPresent("MsmqQueueCreatorTests.target2");
+            DeleteQueueIfPresent("MsmqQueueCreatorTests.txreceiver");
+            DeleteQueueIfPresent("MsmqQueueCreatorTests.MsmqDefaultPermissions");
+            DeleteQueueIfPresent("MsmqQueueCreatorTests.NoChangesToExisting");
+            DeleteQueueIfPresent("MsmqQueueCreatorTests.permissions");
+            DeleteQueueIfPresent("MsmqQueueCreatorTests.too.long.B2568312E4BF424D8C875D0CD3F65A3E");
+            DeleteQueueIfPresent("MsmqQueueCreatorTests.badidentity");
+            DeleteQueueIfPresent(GetReallyLongQueueName());
+        }
+
         [Test]
         public void Should_create_all_queues()
         {
@@ -24,10 +40,7 @@
             Assert.True(QueueExists("MsmqQueueCreatorTests.receiver"));
             Assert.True(QueueExists("MsmqQueueCreatorTests.target1"));
             Assert.True(QueueExists("MsmqQueueCreatorTests.target2"));
-
-            DeleteQueueIfPresent("MsmqQueueCreatorTests.receiver");
-            DeleteQueueIfPresent("MsmqQueueCreatorTests.target1");
-            DeleteQueueIfPresent("MsmqQueueCreatorTests.target2");
+            
         }
 
         [Test]
@@ -77,7 +90,6 @@
             Assert.True(localAdminAccessRights?.HasFlag(MessageQueueAccessRights.FullControl), $"{LocalAdministratorsGroupName} should have full control");
             Assert.IsTrue(accessControlEntryTypeForLocalAdmin == AccessControlEntryType.Allow, $"{LocalAdministratorsGroupName} should have access");
 
-            DeleteQueueIfPresent(testQueueName);
         }
 
         [Test]
@@ -96,7 +108,6 @@
 
             Assert.True(queue.Transactional);
 
-            DeleteQueueIfPresent(testQueueName);
         }
 
         [Test]
@@ -114,8 +125,7 @@
             var queue = GetQueue(testQueueName);
 
             Assert.False(queue.Transactional);
-
-            DeleteQueueIfPresent(testQueueName);
+            
         }
 
         [Test]
@@ -144,8 +154,7 @@
                 Assert.True(anonymousAccessRights?.HasFlag(MessageQueueAccessRights.WriteMessage), $"{LocalAnonymousLogonName} should have write access by default");
                 Assert.True(accessControlEntryTypeForAnonymous == AccessControlEntryType.Allow);
             }
-
-            DeleteQueueIfPresent(testQueueName);
+            
         }
 
 
@@ -179,26 +188,19 @@
             Assert.False(queue.TryGetPermissions(LocalAnonymousLogonName, out nullBecauseRevoked, out accessControlEntryType));
             Assert.IsNull(accessControlEntryType);
 
-            DeleteQueueIfPresent(testQueueName);
         }
 
         [Test]
         public void Should_allow_queue_names_above_the_limit_for_set_permission()
         {
-            var testQueueName = $"MsmqQueueCreatorTests.tolong.{Guid.NewGuid().ToString().Replace("-", "")}";
-
-            var maxQueueNameForSetPermissionToWork = 102 - Environment.MachineName.Length;
-
-            testQueueName = $"{testQueueName}{new string('a', maxQueueNameForSetPermissionToWork - testQueueName.Length + 1)}";
-
+            var testQueueName = GetReallyLongQueueName();
             var creator = new MsmqQueueCreator(true);
             var bindings = new QueueBindings();
 
             bindings.BindReceiving(testQueueName);
 
             Assert.DoesNotThrow(() => creator.CreateQueueIfNecessary(bindings, WindowsIdentity.GetCurrent().Name));
-
-            DeleteQueueIfPresent(testQueueName);
+            
         }
 
         [Test]
@@ -214,8 +216,6 @@
             var ex = Assert.Throws<InvalidOperationException>(() => creator.CreateQueueIfNecessary(bindings, "invalidaccount"));
 
             StringAssert.Contains("invalidaccount", ex.Message);
-
-            DeleteQueueIfPresent(testQueueName);
         }
 
         [Test]
@@ -247,12 +247,18 @@
         {
             var path = MsmqAddress.Parse(queueName).PathWithoutPrefix;
 
-            if (!MessageQueue.Exists(path))
+            if (MessageQueue.Exists(path))
             {
-                return;
+                MessageQueue.Delete(path);
             }
+        }
 
-            MessageQueue.Delete(path);
+        string GetReallyLongQueueName()
+        {
+            var longQueueName = "MsmqQueueCreatorTests.too.long.B2568312E4BF424D8C875D0CD3F65A3E";
+            var maxQueueNameForSetPermissionToWork = 102 - Environment.MachineName.Length;
+            return $"{longQueueName}{new string('a', maxQueueNameForSetPermissionToWork - longQueueName.Length + 1)}";
+
         }
 
 
