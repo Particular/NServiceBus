@@ -22,7 +22,7 @@
                 .Done(c => c.NumberOfRetriesAttempted >= 1)
                 .Run();
 
-            Assert.GreaterOrEqual(1, context.NumberOfRetriesAttempted, "Should only do one retry");
+            Assert.GreaterOrEqual(1, context.NumberOfRetriesAttempted, "Should retry one or more times");
         }
 
         static TimeSpan Delay = TimeSpan.FromMilliseconds(1);
