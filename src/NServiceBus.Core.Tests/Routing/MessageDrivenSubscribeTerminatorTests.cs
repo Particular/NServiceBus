@@ -21,13 +21,13 @@
             publishers.AddOrReplacePublishers("A", new List<PublisherTableEntry> {new PublisherTableEntry(typeof(object), PublisherAddress.CreateFromPhysicalAddresses("publisher1"))});
             router = new SubscriptionRouter(publishers, new EndpointInstances(), i => i.ToString());
             dispatcher = new FakeDispatcher();
-            subscribeTerminator = new MessageDrivenSubscribeTerminator(router, "replyToAddress", "Endpoint", dispatcher);
+            subscribeTerminator = new MessageDrivenSubscribeTerminator(router, "localAddress", "subscriberAddress", "Endpoint", dispatcher);
         }
 
         [Test]
         public async Task Should_include_TimeSent_and_Version_headers()
         {
-            var unsubscribeTerminator = new MessageDrivenUnsubscribeTerminator(router, "replyToAddress", "Endpoint", dispatcher);
+            var unsubscribeTerminator = new MessageDrivenUnsubscribeTerminator(router, "localAddress", "replyToAddress", "Endpoint", dispatcher);
 
             await subscribeTerminator.Invoke(new TestableSubscribeContext(), c => TaskEx.CompletedTask);
             await unsubscribeTerminator.Invoke(new TestableUnsubscribeContext(), c => TaskEx.CompletedTask);

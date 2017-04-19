@@ -13,8 +13,9 @@
 
     class MessageDrivenSubscribeTerminator : PipelineTerminator<ISubscribeContext>
     {
-        public MessageDrivenSubscribeTerminator(SubscriptionRouter subscriptionRouter, string subscriberAddress, string subscriberEndpoint, IDispatchMessages dispatcher)
+        public MessageDrivenSubscribeTerminator(SubscriptionRouter subscriptionRouter, string localAddress, string subscriberAddress, string subscriberEndpoint, IDispatchMessages dispatcher)
         {
+            this.localAddress = localAddress;
             this.subscriptionRouter = subscriptionRouter;
             this.subscriberAddress = subscriberAddress;
             this.subscriberEndpoint = subscriberEndpoint;
@@ -39,8 +40,8 @@
                 var subscriptionMessage = ControlMessageFactory.Create(MessageIntentEnum.Subscribe);
 
                 subscriptionMessage.Headers[Headers.SubscriptionMessageType] = eventType.AssemblyQualifiedName;
-                subscriptionMessage.Headers[Headers.ReplyToAddress] = subscriberAddress;
-                subscriptionMessage.Headers[Headers.SubscriberTransportAddress] = subscriberAddress;
+                subscriptionMessage.Headers[Headers.ReplyToAddress] = localAddress; // shared queue, for v5 compliance
+                subscriptionMessage.Headers[Headers.SubscriberTransportAddress] = subscriberAddress; // instance specific queue or shared queue
                 subscriptionMessage.Headers[Headers.SubscriberEndpoint] = subscriberEndpoint;
                 subscriptionMessage.Headers[Headers.TimeSent] = DateTimeExtensions.ToWireFormattedString(DateTime.UtcNow);
                 subscriptionMessage.Headers[Headers.NServiceBusVersion] = GitFlowVersion.MajorMinorPatch;
@@ -82,6 +83,7 @@
         SubscriptionRouter subscriptionRouter;
 
         static ILog Logger = LogManager.GetLogger<MessageDrivenSubscribeTerminator>();
+        string localAddress;
 
         public class Settings
         {

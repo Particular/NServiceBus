@@ -54,11 +54,20 @@ namespace NServiceBus.Features
             {
                 var distributorAddress = context.Settings.GetOrDefault<string>("LegacyDistributor.Address");
 
-                var subscriberAddress = distributorAddress ?? context.Settings.LocalAddress();
+                var subscribeWithInstanceSpecificQueue = context.Settings.GetOrDefault<bool>("SubscribeWithInstanceSpecificQueue");
+                var instanceSpecificQueue = subscribeWithInstanceSpecificQueue ? context.Settings.InstanceSpecificQueue() : null;
+
+                if (subscribeWithInstanceSpecificQueue && instanceSpecificQueue == null)
+                {
+                    throw new Exception("SubscribeWithInstanceSpecificQueue requires a uniquely addressable instance. Define the instance as uniquely addressable by calling endpointConfiguration.MakeUniquelyAddressable(discriminator);");
+                }
+
+                var localAddress = context.Settings.LocalAddress();
+                var subscriberAddress = distributorAddress ?? instanceSpecificQueue ?? localAddress;
                 var subscriptionRouter = new SubscriptionRouter(publishers, endpointInstances, i => transportInfrastructure.ToTransportAddress(LogicalAddress.CreateRemoteAddress(i)));
 
-                context.Pipeline.Register(b => new MessageDrivenSubscribeTerminator(subscriptionRouter, subscriberAddress, context.Settings.EndpointName(), b.Build<IDispatchMessages>()), "Sends subscription requests when message driven subscriptions is in use");
-                context.Pipeline.Register(b => new MessageDrivenUnsubscribeTerminator(subscriptionRouter, subscriberAddress, context.Settings.EndpointName(), b.Build<IDispatchMessages>()), "Sends requests to unsubscribe when message driven subscriptions is in use");
+                context.Pipeline.Register(b => new MessageDrivenSubscribeTerminator(subscriptionRouter, localAddress, subscriberAddress, context.Settings.EndpointName(), b.Build<IDispatchMessages>()), "Sends subscription requests when message driven subscriptions is in use");
+                context.Pipeline.Register(b => new MessageDrivenUnsubscribeTerminator(subscriptionRouter, localAddress, subscriberAddress, context.Settings.EndpointName(), b.Build<IDispatchMessages>()), "Sends requests to unsubscribe when message driven subscriptions is in use");
 
                 var authorizer = context.Settings.GetSubscriptionAuthorizer();
                 if (authorizer == null)
