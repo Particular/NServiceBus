@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
     using Configuration.AdvanceExtensibility;
@@ -18,7 +17,6 @@
         IEndpointInstance endpointInstance;
         EndpointCustomizationConfiguration configuration;
         ScenarioContext scenarioContext;
-        RunSettings runSettings;
         EndpointConfiguration endpointConfiguration;
 
         public bool FailOnErrorMessage => !behavior.DoNotFailOnErrorMessages;
@@ -29,7 +27,6 @@
             {
                 behavior = endpointBehavior;
                 scenarioContext = run.ScenarioContext;
-                runSettings = run.Settings;
                 var endpointConfigurationFactory = (IEndpointConfigurationFactory)Activator.CreateInstance(endpointBehavior.EndpointBuilderType);
                 endpointConfigurationFactory.ScenarioContext = run.ScenarioContext;
                 configuration = endpointConfigurationFactory.Get();
@@ -158,23 +155,6 @@
                 Logger.Error("Failed to stop endpoint " + configuration.EndpointName, ex);
                 throw;
             }
-            finally
-            {
-                await Cleanup().ConfigureAwait(false);
-            }
-        }
-
-        Task Cleanup()
-        {
-            ActiveTestExecutionConfigurer cleaners;
-            var cleanersKey = "ConfigureTestExecution." + configuration.EndpointName;
-            if (runSettings.TryGet(cleanersKey, out cleaners))
-            {
-                var tasks = cleaners.Select(cleaner => cleaner.Cleanup());
-                return Task.WhenAll(tasks);
-            }
-
-            return Task.FromResult(0);
         }
 
         public string Name()
