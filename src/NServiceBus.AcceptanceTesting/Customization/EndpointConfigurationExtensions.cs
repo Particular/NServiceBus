@@ -2,7 +2,6 @@ namespace NServiceBus.AcceptanceTesting.Customization
 {
     using System;
     using System.Collections.Generic;
-    using Configuration.AdvanceExtensibility;
 
     public static class EndpointConfigurationExtensions
     {
@@ -26,11 +25,6 @@ namespace NServiceBus.AcceptanceTesting.Customization
         {
             var destinationEndpointAddress = Conventions.EndpointNamingConvention(destinationEndpointType);
             routingSettings.RouteToEndpoint(messageType, destinationEndpointAddress);
-        }
-
-        public static TransportExtensions ConfigureTransport(this EndpointConfiguration endpointConfiguration)
-        {
-            return new TransportExtensions(endpointConfiguration.GetSettings());
         }
     }
 }

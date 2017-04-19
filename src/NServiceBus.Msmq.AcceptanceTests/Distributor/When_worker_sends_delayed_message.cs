@@ -71,7 +71,7 @@
             {
                 EndpointSetup<DistributorEndpointTemplate>(c =>
                 {
-                    c.ConfigureTransport().Routing().RouteToEndpoint(typeof(DispatchDelayedMessage), typeof(Worker));
+                    c.UseTransport<MsmqTransport>().Routing().RouteToEndpoint(typeof(DispatchDelayedMessage), typeof(Worker));
                 });
             }
 

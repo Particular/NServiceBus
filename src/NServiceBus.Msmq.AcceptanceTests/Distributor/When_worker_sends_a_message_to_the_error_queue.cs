@@ -29,7 +29,7 @@
             {
                 EndpointSetup<DistributorEndpointTemplate>(c =>
                 {
-                    c.ConfigureTransport().Routing().RouteToEndpoint(typeof(MyRequest), typeof(Worker));
+                    c.UseTransport<MsmqTransport>().Routing().RouteToEndpoint(typeof(MyRequest), typeof(Worker));
                 });
             }
         }
