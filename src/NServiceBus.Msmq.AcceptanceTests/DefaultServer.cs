@@ -12,7 +12,6 @@
     using Config.ConfigurationSource;
     using Transport;
 
-    //TODO namespaces
     public class DefaultServer : IEndpointSetupTemplate
     {
         public DefaultServer()
