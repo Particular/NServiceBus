@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Recoverability
 {
     using System;
+    using System.Linq;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using AcceptanceTesting.Customization;
@@ -10,12 +11,10 @@
 
     public class When_cross_q_transactional_message_is_moved_to_error_queue : NServiceBusAcceptanceTest
     {
-        [TestCase(TransportTransactionMode.SendsAtomicWithReceive)]
-        public async Task Should_not_dispatch_outgoing_messages(TransportTransactionMode transactionMode)
+        [Test]
+        public async Task Should_not_dispatch_outgoing_messages()
         {
-            Requires.DtcSupport();
-
-            var context = await Scenario.Define<Context>(c => { c.TransactionMode = transactionMode; })
+            var context = await Scenario.Define<Context>(c => { c.TransactionMode = TransportTransactionMode.SendsAtomicWithReceive; })
                 .WithEndpoint<EndpointWithOutgoingMessages>(b => b.DoNotFailOnErrorMessages()
                     .When((session, c) => session.SendLocal(new InitiatingMessage
                     {
@@ -27,8 +26,7 @@
                 .Run();
 
             Assert.IsFalse(context.OutgoingMessageSent, "Outgoing messages should not be sent");
-            Assert.That(context.Logs, Has.Some.Message.Match($"Moving message .+ to the error queue '{Conventions.EndpointNamingConvention(typeof(ErrorSpy))}' because processing failed due to an exception: NServiceBus.AcceptanceTesting.SimulatedException:"));
-        }
+            Assert.IsTrue(context.FailedMessages.Any()); }
 
         class Context : ScenarioContext
         {

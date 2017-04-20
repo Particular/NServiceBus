@@ -27,7 +27,7 @@
                 .Done(c => c.FailedMessages.Any())
                 .Run();
 
-            Assert.GreaterOrEqual(context.NumberOfRetriesAttempted, 3, "Should retry at least three time");
+            Assert.GreaterOrEqual(context.NumberOfRetriesAttempted, 3, "Should retry at least three times");
             Assert.That(context.TransactionStatuses, Is.All.Not.EqualTo(TransactionStatus.Committed));
         }
 

@@ -8,14 +8,12 @@
     using NServiceBus.Pipeline;
     using NUnit.Framework;
 
-    public class When_non_transactional_message_is_moved_to_error_queue : NServiceBusAcceptanceTest
+    public class When_non_transactional_send_message_is_moved_to_error_queue : NServiceBusAcceptanceTest
     {
         [TestCase(TransportTransactionMode.ReceiveOnly)]
         [TestCase(TransportTransactionMode.None)]
         public async Task May_dispatch_outgoing_messages(TransportTransactionMode transactionMode)
         {
-            Requires.DtcSupport();
-
             var context = await Scenario.Define<Context>(c => { c.TransactionMode = transactionMode; })
                 .WithEndpoint<EndpointWithOutgoingMessages>(b => b.DoNotFailOnErrorMessages()
                     .When((session, c) => session.SendLocal(new InitiatingMessage
