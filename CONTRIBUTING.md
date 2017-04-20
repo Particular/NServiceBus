@@ -12,6 +12,9 @@ top of things.
   * If it is a bug make sure you tell us what version you have encountered this bug on.
 * Fork the repository on GitHub
 
+## Required Tooling
+* Visual Studio 2017 Community or higher
+
 ## Making Changes
 
 * Create a feature branch from where you want to base your work.
