@@ -7,7 +7,7 @@
     {
         public static DateTime Parse(string value)
         {
-            return DateTime.ParseExact(value, "yyyy-MM-dd", null, DateTimeStyles.AssumeUniversal).ToUniversalTime();
+            return DateTime.ParseExact(value, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal).ToUniversalTime();
         }
     }
 }

@@ -14,9 +14,9 @@
 
         bool SupportsOutbox { get; }
 
-        IConfigureEndpointTestExecution TransportConfiguration { get; }
+        IConfigureEndpointTestExecution CreateTransportConfiguration();
 
-        IConfigureEndpointTestExecution PersistenceConfiguration { get; }
+        IConfigureEndpointTestExecution CreatePersistenceConfiguration();
     }
 
     // ReSharper disable once PartialTypeWithSinglePart

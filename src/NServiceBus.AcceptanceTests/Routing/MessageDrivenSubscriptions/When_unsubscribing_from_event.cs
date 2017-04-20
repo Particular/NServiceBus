@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.AcceptanceTests.Routing.MessageDrivenSubscriptions
 {
+    using System.Threading;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using AcceptanceTesting.Customization;
@@ -47,8 +48,8 @@
             public bool Subscriber1Subscribed { get; set; }
             public bool Subscriber2Subscribed { get; set; }
             public bool Subscriber2Unsubscribed { get; set; }
-            public int Subscriber1ReceivedMessages { get; set; }
-            public int Subscriber2ReceivedMessages { get; set; }
+            public int Subscriber1ReceivedMessages;
+            public int Subscriber2ReceivedMessages;
         }
 
         public class Publisher : EndpointConfigurationBuilder
@@ -101,7 +102,7 @@
 
                 public Task Handle(Event message, IMessageHandlerContext context)
                 {
-                    testContext.Subscriber1ReceivedMessages++;
+                    Interlocked.Increment(ref testContext.Subscriber1ReceivedMessages);
                     return Task.FromResult(0);
                 }
 
@@ -130,7 +131,7 @@
 
                 public Task Handle(Event message, IMessageHandlerContext context)
                 {
-                    testContext.Subscriber2ReceivedMessages++;
+                    Interlocked.Increment(ref testContext.Subscriber2ReceivedMessages);
                     return Task.FromResult(0);
                 }
 

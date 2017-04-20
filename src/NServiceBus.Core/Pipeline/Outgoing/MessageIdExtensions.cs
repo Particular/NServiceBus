@@ -16,17 +16,17 @@
         {
             Guard.AgainstNullAndEmpty(messageId, messageId);
 
-            options.MessageId = messageId;
+            options.UserDefinedMessageId = messageId;
         }
 
         /// <summary>
-        /// Returns the message id.
+        /// Returns the configured message id.
         /// </summary>
         /// <param name="options">Options to extend.</param>
-        /// <returns>The message id.</returns>
+        /// <returns>The message id if configured or <c>null</c>.</returns>
         public static string GetMessageId(this ExtendableOptions options)
         {
-            return options.MessageId;
+            return options.UserDefinedMessageId;
         }
     }
 }

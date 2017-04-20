@@ -10,7 +10,7 @@ namespace NServiceBus
             Date = date;
         }
 
-        public string OriginalDate { get; private set; }
-        public string Date { get; private set; }
+        public string OriginalDate { get; }
+        public string Date { get; }
     }
 }

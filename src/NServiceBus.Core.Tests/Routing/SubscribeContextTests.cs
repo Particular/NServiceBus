@@ -1,25 +1,26 @@
 ﻿namespace NServiceBus.Core.Tests.Routing
 {
+    using Extensibility;
     using NUnit.Framework;
 
     [TestFixture]
     public class SubscribeContextTests
     {
         [Test]
-        public void ShouldShallowCloneContext()
+        public void ShouldShallowCloneContextBag()
         {
-            var options = new SubscribeOptions();
-            options.Context.Set("someKey", "someValue");
+            var context = new ContextBag();
+            context.Set("someKey", "someValue");
 
-            var testee = new SubscribeContext(new RootContext(null, null, null), typeof(object), options);
+            var testee = new SubscribeContext(new RootContext(null, null, null), typeof(object), context);
             testee.Extensions.Set("someKey", "updatedValue");
             testee.Extensions.Set("anotherKey", "anotherValue");
 
             string value;
             string anotherValue;
-            options.Context.TryGet("someKey", out value);
+            context.TryGet("someKey", out value);
             Assert.AreEqual("someValue", value);
-            Assert.IsFalse(options.Context.TryGet("anotherKey", out anotherValue));
+            Assert.IsFalse(context.TryGet("anotherKey", out anotherValue));
             string updatedValue;
             string anotherValue2;
             testee.Extensions.TryGet("someKey", out updatedValue);
@@ -31,12 +32,12 @@
         [Test]
         public void ShouldNotMergeOptionsToParentContext()
         {
-            var options = new SubscribeOptions();
-            options.Context.Set("someKey", "someValue");
+            var context = new ContextBag();
+            context.Set("someKey", "someValue");
 
             var parentContext = new RootContext(null, null, null);
 
-            new SubscribeContext(parentContext, typeof(object), options);
+            new SubscribeContext(parentContext, typeof(object), context);
 
             string parentContextValue;
             var valueFound = parentContext.TryGet("someKey", out parentContextValue);

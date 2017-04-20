@@ -25,8 +25,6 @@
         public async Task<EndpointConfiguration> GetConfiguration(RunDescriptor runDescriptor, EndpointCustomizationConfiguration endpointConfiguration, IConfigurationSource configSource, Action<EndpointConfiguration> configurationBuilderCustomization)
 #pragma warning restore CS0618
         {
-            var settings = runDescriptor.Settings;
-
             var types = endpointConfiguration.GetTypesScopedByTestClass();
 
             typesToInclude.AddRange(types);
@@ -44,11 +42,11 @@
             recoverability.Immediate(immediate => immediate.NumberOfRetries(0));
             configuration.SendFailedMessagesTo("error");
 
-            await configuration.DefineTransport(settings, endpointConfiguration).ConfigureAwait(false);
+            await configuration.DefineTransport(runDescriptor, endpointConfiguration).ConfigureAwait(false);
 
             configuration.RegisterComponentsAndInheritanceHierarchy(runDescriptor);
 
-            await configuration.DefinePersistence(settings, endpointConfiguration).ConfigureAwait(false);
+            await configuration.DefinePersistence(runDescriptor, endpointConfiguration).ConfigureAwait(false);
 
             configuration.GetSettings().SetDefault("ScaleOut.UseSingleBrokerQueue", true);
             configurationBuilderCustomization(configuration);

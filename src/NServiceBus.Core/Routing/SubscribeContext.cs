@@ -1,18 +1,19 @@
 ﻿namespace NServiceBus
 {
     using System;
+    using Extensibility;
     using Pipeline;
 
     class SubscribeContext : BehaviorContext, ISubscribeContext
     {
-        public SubscribeContext(IBehaviorContext parentContext, Type eventType, SubscribeOptions options)
+        public SubscribeContext(IBehaviorContext parentContext, Type eventType, ContextBag extensions)
             : base(parentContext)
         {
             Guard.AgainstNull(nameof(parentContext), parentContext);
             Guard.AgainstNull(nameof(eventType), eventType);
-            Guard.AgainstNull(nameof(options), options);
+            Guard.AgainstNull(nameof(extensions), extensions);
 
-            Merge(options.Context);
+            Merge(extensions);
 
             EventType = eventType;
         }

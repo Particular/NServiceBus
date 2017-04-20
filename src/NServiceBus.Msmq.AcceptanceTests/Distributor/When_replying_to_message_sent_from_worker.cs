@@ -52,7 +52,7 @@
                 EndpointSetup<DefaultServer>(c =>
                 {
                     c.EnlistWithDistributor(typeof(Distributor));
-                    c.ConfigureTransport().Routing().RouteToEndpoint(typeof(WorkerMessage), typeof(ReplyingEndpoint));
+                    c.UseTransport<MsmqTransport>().Routing().RouteToEndpoint(typeof(WorkerMessage), typeof(ReplyingEndpoint));
                 });
             }
 
@@ -87,7 +87,7 @@
             {
                 EndpointSetup<DistributorEndpointTemplate>(c =>
                 {
-                    c.ConfigureTransport().Routing().RouteToEndpoint(typeof(DispatchWorkerMessage), typeof(Worker));
+                    c.UseTransport<MsmqTransport>().Routing().RouteToEndpoint(typeof(DispatchWorkerMessage), typeof(Worker));
                 });
             }
 

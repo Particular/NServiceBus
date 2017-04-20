@@ -64,11 +64,6 @@
 *.bat text eol=crlf
 
 # Custom for Visual Studio
-*.csproj merge=union
-*.vbproj merge=union
-*.fsproj merge=union
-*.dbproj merge=union 
-*.sln text eol=crlf merge=union
 *.suo 	-text -diff
 *.snk 	-text -diff
 *.cub 	-text -diff

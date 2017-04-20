@@ -24,8 +24,6 @@
         public async Task<EndpointConfiguration> GetConfiguration(RunDescriptor runDescriptor, EndpointCustomizationConfiguration endpointConfiguration, IConfigurationSource configSource, Action<EndpointConfiguration> configurationBuilderCustomization)
 #pragma warning restore CS0618
         {
-            var settings = runDescriptor.Settings;
-
             var types = endpointConfiguration.GetTypesScopedByTestClass();
 
             typesToInclude.AddRange(types);
@@ -41,7 +39,7 @@
                 .Immediate(immediate => immediate.NumberOfRetries(0));
             builder.SendFailedMessagesTo("error");
 
-            await builder.DefineTransport(settings, endpointConfiguration).ConfigureAwait(false);
+            await builder.DefineTransport(runDescriptor, endpointConfiguration).ConfigureAwait(false);
 
             builder.RegisterComponentsAndInheritanceHierarchy(runDescriptor);
 

@@ -84,6 +84,16 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="App_Packages\Particular.Licensing\FindActiveLicense\ActiveLicense.cs" />
+    <Compile Include="App_Packages\Particular.Licensing\FindActiveLicense\ActiveLicenseFindResult.cs" />
+    <Compile Include="App_Packages\Particular.Licensing\FindActiveLicense\LicenseSource.cs" />
+    <Compile Include="App_Packages\Particular.Licensing\FindActiveLicense\LicenseSourceConfigFile.cs" />
+    <Compile Include="App_Packages\Particular.Licensing\FindActiveLicense\LicenseSourceFilePath.cs" />
+    <Compile Include="App_Packages\Particular.Licensing\FindActiveLicense\LicenseSourceHKCURegKey.cs" />
+    <Compile Include="App_Packages\Particular.Licensing\FindActiveLicense\LicenseSourceHKLMRegKey.cs" />
+    <Compile Include="App_Packages\Particular.Licensing\FindActiveLicense\LicenseSourceResult.cs" />
+    <Compile Include="App_Packages\Particular.Licensing\FindActiveLicense\LicenseSourceUserProvided.cs" />
+    <Compile Include="App_Packages\Particular.Licensing\FindActiveLicense\NonBlockingReader.cs" />
     <Compile Include="App_Packages\Particular.Licensing\License.cs" />
     <Compile Include="App_Packages\Particular.Licensing\LicenseDeserializer.cs" />
     <Compile Include="App_Packages\Particular.Licensing\LicenseExpirationChecker.cs" />
@@ -159,7 +169,7 @@
     <Compile Include="Recoverability\DefaultRecoverabilityPolicy.cs" />
     <Compile Include="Recoverability\DelayedRetryExecutor.cs" />
     <Compile Include="Recoverability\Settings\RecoverabilitySettings.cs" />
-    <Compile Include="ReleaseDateAttribute.cs" />
+    <Compile Include="Licensing\ReleaseDateAttribute.cs" />
     <Compile Include="Routing\DistributionContext.cs" />
     <Compile Include="Routing\DistributionStrategyScope.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\AssemblyPublisherSource.cs" />
@@ -578,8 +588,7 @@
     <Compile Include="IStartableEndpoint.cs" />
     <Compile Include="Licensing\AuditInvalidLicenseBehavior.cs" />
     <Compile Include="Licensing\LicenseReminder.cs" />
-    <Compile Include="Licensing\LicenseLocationConventions.cs" />
-    <Compile Include="Licensing\NonLockingFileReader.cs" />
+    <Compile Include="Licensing\LicenseSources.cs" />
     <Compile Include="Licensing\StaThreadRunner.cs" />
     <Compile Include="Licensing\LicenseExpiredFormDisplayer.cs" />
     <Compile Include="Logging\ColoredConsoleLogger.cs" />
@@ -779,6 +788,9 @@
     <Compile Include="obsoletes.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Licensing\GenerateReleaseDate.targets">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
@@ -829,4 +841,5 @@
   <Import Project="..\packages\Fody.1.29.4\build\dotnet\Fody.targets" Condition="Exists('..\packages\Fody.1.29.4\build\dotnet\Fody.targets')" />
   <Import Project="..\packages\NuGetPackager.0.6.1\build\NuGetPackager.targets" Condition="Exists('..\packages\NuGetPackager.0.6.1\build\NuGetPackager.targets')" />
   <Import Project="..\packages\GitVersionTask.3.6.5\build\dotnet\GitVersionTask.targets" Condition="Exists('..\packages\GitVersionTask.3.6.5\build\dotnet\GitVersionTask.targets')" />
+  <Import Project="Licensing\GenerateReleaseDate.targets" />
 </Project>

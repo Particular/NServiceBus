@@ -73,6 +73,7 @@
     <Compile Include="Core\Stopping\When_feature_startup_task_throws_on_stop.cs" />
     <Compile Include="Core\Stopping\When_pump_throws_on_stop.cs" />
     <Compile Include="Core\Stopping\When_transport_infrastructure_throws_on_stop.cs" />
+    <Compile Include="Core\Pipeline\When_reusing_sendoptions.cs" />
     <Compile Include="DataBus\When_sending_databus_properties_with_unobtrusive.cs" />
     <Compile Include="Core\Conventions\When_sending_interface_message_with_conventions.cs" />
     <Compile Include="Core\DelayedDelivery\TimeoutManager\When_using_external_timeout_manager_xml_config.cs" />
@@ -83,6 +84,7 @@
     <Compile Include="Forwarding\When_requesting_message_to_be_forwarded.cs" />
     <Compile Include="Core\Pipeline\When_subscribed_to_ReceivePipelineCompleted.cs" />
     <Compile Include="SelfVerification\When_using_custom_components.cs" />
+    <Compile Include="EndpointTemplates\IConfigureEndpointTestExecution.cs" />
     <Compile Include="TimeToBeReceived\When_TimeToBeReceived_used_with_unobtrusive_mode.cs" />
     <Compile Include="Core\Recoverability\When_custom_policy_provided.cs" />
     <Compile Include="Recoverability\When_custom_policy_moves_to_overridden_error_queue.cs" />

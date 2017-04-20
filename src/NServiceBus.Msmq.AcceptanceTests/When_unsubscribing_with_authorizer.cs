@@ -41,7 +41,7 @@
         {
             public Publisher()
             {
-                EndpointSetup<DefaultPublisher>(b =>
+                EndpointSetup<DefaultServer>(b =>
                 {
                     b.UseTransport<MsmqTransport>().SubscriptionAuthorizer(Authorizer);
                     b.OnEndpointSubscribed<TestContext>((s, context) =>

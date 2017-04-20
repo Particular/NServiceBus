@@ -14,21 +14,9 @@
 
             var result = options.GetHeaders();
 
-            Assert.AreEqual(3, result.Count);
+            Assert.AreEqual(2, result.Count);
             CollectionAssert.Contains(result.Values, "custom header value 1");
             CollectionAssert.Contains(result.Values, "custom header value 2");
-            CollectionAssert.Contains(result.Keys, Headers.MessageId);
-        }
-
-        [Test]
-        public void GetHeaders_Should_Return_Collection_With_MessageId_Header_Configured()
-        {
-            var options = new PublishOptions();
-
-            var result = options.GetHeaders();
-
-            Assert.AreEqual(1, result.Count);
-            CollectionAssert.Contains(result.Keys, Headers.MessageId);
         }
     }
 }

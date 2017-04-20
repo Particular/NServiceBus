@@ -60,7 +60,7 @@ When you receive your new license file, save it to disk and click the 'Browse' b
                 var dialogResult = StaThreadRunner.ShowDialogInSTA(openDialog.ShowDialog);
                 if (dialogResult == DialogResult.OK)
                 {
-                    var licenseText = NonLockingFileReader.ReadAllTextWithoutLocking(openDialog.FileName);
+                    var licenseText = NonBlockingReader.ReadAllTextWithoutLocking(openDialog.FileName);
                     try
                     {
                         LicenseVerifier.Verify(licenseText);

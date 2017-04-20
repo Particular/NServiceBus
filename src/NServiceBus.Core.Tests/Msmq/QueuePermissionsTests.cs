@@ -24,17 +24,49 @@
             loggerFactory.WriteTo(stringWriter);
         }
 
+
         [TearDown]
         public void TearDown()
         {
             var path = @".\private$\" + testQueueName;
-
-            if (!MessageQueue.Exists(path))
+            if (MessageQueue.Exists(path))
             {
-                return;
+                MessageQueue.Delete(path);
+            }
+            logOutput.Clear();
+        }
+
+
+        [TestCase(MessageQueueAccessRights.ChangeQueuePermissions)]
+        [TestCase(MessageQueueAccessRights.DeleteQueue)]
+        [TestCase(MessageQueueAccessRights.FullControl)]
+        [TestCase(MessageQueueAccessRights.GenericRead)]
+        [TestCase(MessageQueueAccessRights.GenericWrite)]
+        [TestCase(MessageQueueAccessRights.ReceiveJournalMessage)]
+        [TestCase(MessageQueueAccessRights.ReceiveMessage)]
+        [TestCase(MessageQueueAccessRights.SetQueueProperties)]
+        [TestCase(MessageQueueAccessRights.TakeQueueOwnership)]
+        public void Should_not_warn_if_queue_has_public_access_set_to_deny(MessageQueueAccessRights accessRights)
+        {
+            // Set up a queue with the specified access for everyone/anonymous explicitly set to DENY. 
+            var everyoneGroupName = new SecurityIdentifier(WellKnownSidType.WorldSid, null).Translate(typeof(NTAccount)).ToString();
+            var anonymousGroupName = new SecurityIdentifier(WellKnownSidType.AnonymousSid, null).Translate(typeof(NTAccount)).ToString();
+
+            using (var queue = MessageQueue.Create(@".\private$\" + testQueueName, false))
+            {
+                queue.SetPermissions(everyoneGroupName, accessRights, AccessControlEntryType.Deny);
+                queue.SetPermissions(anonymousGroupName, accessRights, AccessControlEntryType.Deny);
             }
 
-            MessageQueue.Delete(path);
+            QueuePermissions.CheckQueue(testQueueName);
+            Assert.IsFalse(logOutput.ToString().Contains("Consider setting appropriate permissions"));
+
+            // Resetting the queue permission to delete the queue to enable the cleanup of the unit test
+            var path = @".\private$\" + testQueueName;
+            using (var queueToModify = new MessageQueue(path))
+            {
+                queueToModify.SetPermissions(everyoneGroupName, MessageQueueAccessRights.DeleteQueue, AccessControlEntryType.Allow);
+            }
         }
 
         [Test]
@@ -60,23 +92,41 @@
         public void Should_log_if_queue_exists()
         {
             MessageQueue.Create(@".\private$\" + testQueueName, false);
-            
-            QueuePermissions.CheckQueue(testQueueName);    
+
+            QueuePermissions.CheckQueue(testQueueName);
 
             Assert.That(logOutput.ToString(), Does.Contain("Verified that the queue"));
         }
 
-        [Test]
-        public void Should_warn_if_queue_has_public_access()
+        // MSMQ Access Rights are defined here: https://msdn.microsoft.com/en-us/library/system.messaging.messagequeueaccessrights(v=vs.110).aspx
+        // FullControl, GenericWrite, GenericRead, ReceiveJournalMessage and ReceiveMessage are combination of rights. See above doco. 
+        [TestCase(MessageQueueAccessRights.ChangeQueuePermissions, WellKnownSidType.WorldSid)]
+        [TestCase(MessageQueueAccessRights.DeleteQueue, WellKnownSidType.WorldSid)]
+        [TestCase(MessageQueueAccessRights.FullControl, WellKnownSidType.WorldSid)]
+        [TestCase(MessageQueueAccessRights.GenericRead, WellKnownSidType.WorldSid)]
+        [TestCase(MessageQueueAccessRights.GenericWrite, WellKnownSidType.WorldSid)]
+        [TestCase(MessageQueueAccessRights.ReceiveJournalMessage, WellKnownSidType.WorldSid)]
+        [TestCase(MessageQueueAccessRights.ReceiveMessage, WellKnownSidType.WorldSid)]
+        [TestCase(MessageQueueAccessRights.SetQueueProperties, WellKnownSidType.WorldSid)]
+        [TestCase(MessageQueueAccessRights.TakeQueueOwnership, WellKnownSidType.WorldSid)]
+        [TestCase(MessageQueueAccessRights.ChangeQueuePermissions, WellKnownSidType.AnonymousSid)]
+        [TestCase(MessageQueueAccessRights.DeleteQueue, WellKnownSidType.AnonymousSid)]
+        [TestCase(MessageQueueAccessRights.FullControl, WellKnownSidType.AnonymousSid)]
+        [TestCase(MessageQueueAccessRights.GenericRead, WellKnownSidType.AnonymousSid)]
+        [TestCase(MessageQueueAccessRights.GenericWrite, WellKnownSidType.AnonymousSid)]
+        [TestCase(MessageQueueAccessRights.ReceiveJournalMessage, WellKnownSidType.AnonymousSid)]
+        [TestCase(MessageQueueAccessRights.ReceiveMessage, WellKnownSidType.AnonymousSid)]
+        [TestCase(MessageQueueAccessRights.SetQueueProperties, WellKnownSidType.AnonymousSid)]
+        [TestCase(MessageQueueAccessRights.TakeQueueOwnership, WellKnownSidType.AnonymousSid)]
+        public void Should_warn_if_queue_has_public_access(MessageQueueAccessRights rights, WellKnownSidType sidType)
         {
-            var everyoneGroupName = new SecurityIdentifier(WellKnownSidType.WorldSid, null).Translate(typeof(NTAccount)).ToString();
+            var groupName = new SecurityIdentifier(sidType, null).Translate(typeof(NTAccount)).ToString();
             using (var queue = MessageQueue.Create(@".\private$\" + testQueueName, false))
             {
-                queue.SetPermissions(everyoneGroupName, MessageQueueAccessRights.FullControl);
+                queue.SetPermissions(groupName, rights);
             }
 
             QueuePermissions.CheckQueue(testQueueName);
-
             Assert.That(logOutput.ToString(), Does.Contain("Consider setting appropriate permissions"));
         }
     }
