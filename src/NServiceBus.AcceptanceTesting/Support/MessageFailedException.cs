@@ -5,7 +5,8 @@ namespace NServiceBus.AcceptanceTesting.Support
 
     public class MessageFailedException : Exception
     {
-        public MessageFailedException(FailedMessage failedMessage, ScenarioContext scenarioContext) : base("A message has been moved to the error queue.")
+        public MessageFailedException(FailedMessage failedMessage, ScenarioContext scenarioContext)
+            : base("A message has been moved to the error queue.", failedMessage.Exception)
         {
             ScenarioContext = scenarioContext;
             FailedMessage = failedMessage;
