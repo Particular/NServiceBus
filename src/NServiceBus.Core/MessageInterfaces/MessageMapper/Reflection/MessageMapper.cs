@@ -137,14 +137,14 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
 
         void InitType(Type t)
         {
-            if (initializedTypes.Contains(t))
+            if (initializedTypes.ContainsKey(t))
             {
                 return;
             }
 
             InnerInitialize(t);
 
-            initializedTypes.Add(t);
+            initializedTypes.TryAdd(t, true);
         }
 
         void InnerInitialize(Type t)
@@ -259,7 +259,7 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
 
         readonly object messageInitializationLock = new object();
 
-        HashSet<Type> initializedTypes = new HashSet<Type>();
+        ConcurrentDictionary<Type, bool> initializedTypes = new ConcurrentDictionary<Type, bool>();
 
         ConcreteProxyCreator concreteProxyCreator;
         ConcurrentDictionary<RuntimeTypeHandle, RuntimeTypeHandle> concreteToInterfaceTypeMapping = new ConcurrentDictionary<RuntimeTypeHandle, RuntimeTypeHandle>();
