@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus.Transport.Msmq.AcceptanceTests
 {
-    using System.Linq;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using AcceptanceTesting.Support;
@@ -13,16 +12,16 @@
         [Test]
         public void Should_throw_on_send()
         {
-            var exception = Assert.ThrowsAsync<MessagesFailedException>(async () =>
+            var exception = Assert.ThrowsAsync<MessageFailedException>(async () =>
                 await Scenario.Define<Context>()
                     .WithEndpoint<Endpoint>(b => b.When(async (session, c) => await session.SendLocal(new MyMessage())))
                     .Done(c => c.HandlerInvoked)
                     .Run());
 
-            Assert.AreEqual(1, exception.FailedMessages.Count);
+            Assert.AreEqual(1, exception.ScenarioContext.FailedMessages.Count);
             StringAssert.EndsWith(
                 "Sending messages with a custom TimeToBeReceived is not supported on transactional MSMQ.",
-                exception.FailedMessages.Single().Exception.Message);
+                exception.FailedMessage.Exception.Message);
         }
 
         public class Context : ScenarioContext

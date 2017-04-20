@@ -65,10 +65,12 @@
     <Compile Include="Support\EndpointCustomizationConfiguration.cs" />
     <Compile Include="Support\EndpointRunner.cs" />
     <Compile Include="Support\FailTestOnErrorMessageFeature.cs" />
+    <Compile Include="Support\IComponentBehavior.cs" />
+    <Compile Include="Support\ComponentRunner.cs" />
     <Compile Include="Support\IEndpointSetupTemplate.cs" />
     <Compile Include="Support\IScenarioWithEndpointBehavior.cs" />
     <Compile Include="Support\IWhenDefinition.cs" />
-    <Compile Include="Support\MessagesFailedException.cs" />
+    <Compile Include="Support\MessageFailedException.cs" />
     <Compile Include="Support\PublisherMetadata.cs" />
     <Compile Include="Support\RunDescriptor.cs" />
     <Compile Include="Scenario.cs" />
