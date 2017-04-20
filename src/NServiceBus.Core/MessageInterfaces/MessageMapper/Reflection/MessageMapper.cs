@@ -137,7 +137,7 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
 
         void InitType(Type t)
         {
-            if (initializedTypes.ContainsKey(t))
+            if (t == null || initializedTypes.ContainsKey(t))
             {
                 return;
             }
