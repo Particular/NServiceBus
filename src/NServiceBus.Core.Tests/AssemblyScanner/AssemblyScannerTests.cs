@@ -196,10 +196,9 @@
             Directory.CreateDirectory(Path.Combine(DynamicAssembly.TestAssemblyDirectory, "subdir"));
             var destFileName = Path.Combine(DynamicAssembly.TestAssemblyDirectory, "subdir", busAssembly.FileName);
             File.Copy(busAssembly.FilePath, destFileName);
-            Assembly.LoadFrom(destFileName);
 
             var scanner = new AssemblyScanner(DynamicAssembly.TestAssemblyDirectory);
-            scanner.ScanAppDomainAssemblies = true;
+            scanner.ScanNestedDirectories = true;
             scanner.CoreAssemblyName = busAssembly.DynamicName;
 
             var exception = Assert.Throws<Exception>(() => scanner.GetScannableAssemblies());
