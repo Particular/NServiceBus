@@ -36,7 +36,7 @@ namespace NServiceBus
 
         public Task<TSagaData> Get<TSagaData>(string propertyName, object propertyValue, SynchronizedStorageSession session, ContextBag context) where TSagaData : IContainSagaData
         {
-            return Get<TSagaData>(DeterministicGuid.Create(propertyValue), session);
+            return Get<TSagaData>(DevelopmentSagaIdGenerator.Generate(typeof(TSagaData), propertyName, propertyValue), session);
         }
 
         public Task Complete(IContainSagaData sagaData, SynchronizedStorageSession session, ContextBag context)
