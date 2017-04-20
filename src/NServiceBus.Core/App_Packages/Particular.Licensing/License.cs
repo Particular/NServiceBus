@@ -12,7 +12,7 @@
                 LicenseType = "Trial",
                 ExpirationDate = trialStartDate.AddDays(14),
                 IsExtendedTrial = false,
-                ValidApplications = new List<string> { "All"}
+                ValidApplications = new List<string> { "All" }
             };
         }
 
@@ -23,25 +23,21 @@
 
         public DateTime? ExpirationDate { get; set; }
 
-        public bool IsTrialLicense
-        {
-            get { return !IsCommercialLicense; }
-        }
+        public bool IsTrialLicense => !IsCommercialLicense;
 
         public bool IsExtendedTrial { get; set; }
 
-        public bool IsCommercialLicense
-        {
-            get { return LicenseType.ToLower() != "trial"; }
-        }
+        public bool IsCommercialLicense => LicenseType.ToLower() != "trial";
 
         public string LicenseType { get; set; }
+
+        public string Edition { get; set; }
 
         public string RegisteredTo { get; set; }
 
         public DateTime? UpgradeProtectionExpiration { get; internal set; }
 
-        public List<string> ValidApplications{ get; internal set; }
+        public List<string> ValidApplications { get; internal set; }
 
         public bool ValidForApplication(string applicationName)
         {

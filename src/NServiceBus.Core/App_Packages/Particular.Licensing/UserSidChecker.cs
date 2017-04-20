@@ -1,3 +1,4 @@
+// ReSharper disable ConditionIsAlwaysTrueOrFalse
 namespace Particular.Licensing
 {
     using System.Security.Principal;
