@@ -31,8 +31,6 @@
             Assert.That(context.TransactionStatuses, Is.All.Not.EqualTo(TransactionStatus.Committed));
         }
 
-        const string ErrorQueueName = "error_spy_queue";
-
         class Context : ScenarioContext
         {
             public Guid Id { get; set; }
@@ -48,7 +46,6 @@
                 EndpointSetup<DefaultServer>(config =>
                 {
                     config.EnableFeature<TimeoutManager>();
-                    config.SendFailedMessagesTo(ErrorQueueName);
                     var recoverability = config.Recoverability();
                     recoverability.Delayed(settings =>
                     {

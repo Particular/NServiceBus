@@ -5,6 +5,7 @@
     using System.Threading.Tasks;
     using System.Transactions;
     using AcceptanceTesting;
+    using AcceptanceTesting.Customization;
     using EndpointTemplates;
     using NUnit.Framework;
 
@@ -29,8 +30,6 @@
             Assert.That(context.TransactionStatuses, Is.All.Not.EqualTo(TransactionStatus.Committed));
         }
 
-        const string ErrorQueueName = "error_spy_queue";
-
         class Context : ScenarioContext
         {
             public Guid Id { get; set; }
@@ -44,7 +43,7 @@
             {
                 EndpointSetup<DefaultServer>(config =>
                 {
-                    config.SendFailedMessagesTo(ErrorQueueName);
+                    config.SendFailedMessagesTo(Conventions.EndpointNamingConvention(typeof(ErrorSpy)));
                 });
             }
 
@@ -73,7 +72,7 @@
         {
             public ErrorSpy()
             {
-                EndpointSetup<DefaultServer>().CustomEndpointName(ErrorQueueName);
+                EndpointSetup<DefaultServer>();
             }
 
             class Handler : IHandleMessages<MessageToFail>
