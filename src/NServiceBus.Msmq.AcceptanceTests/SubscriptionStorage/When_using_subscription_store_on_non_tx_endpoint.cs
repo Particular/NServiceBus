@@ -49,7 +49,7 @@
         {
             public Publisher()
             {
-                EndpointSetup<DefaultPublisher>(b =>
+                EndpointSetup<DefaultServer>(b =>
                 {
                     b.OnEndpointSubscribed<Context>((s, context) => { context.Subscribed = true; });
                     b.DisableFeature<AutoSubscribe>();
