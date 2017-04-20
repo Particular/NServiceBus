@@ -137,8 +137,8 @@
     <Compile Include="Persistence\Development\SagaPersister\DevelopmentSagaPersistence.cs" />
     <Compile Include="Persistence\Development\SagaPersister\DevelopmentSagaPersister.cs" />
     <Compile Include="Persistence\Development\SagaPersister\DevelopmentStorageAdapter.cs" />
-    <Compile Include="Persistence\Development\SagaPersister\DevelopmentSyncronizedStorage.cs" />
-    <Compile Include="Persistence\Development\SagaPersister\DevelopmentSyncronizedStorageSession.cs" />
+    <Compile Include="Persistence\Development\SagaPersister\DevelopmentSynchronizedStorage.cs" />
+    <Compile Include="Persistence\Development\SagaPersister\DevelopmentSynchronizedStorageSession.cs" />
     <Compile Include="Persistence\Development\SagaPersister\SagaManifest.cs" />
     <Compile Include="Persistence\Development\SagaPersister\SagaManifestCollection.cs" />
     <Compile Include="Persistence\Development\SagaPersister\SagaStorageFile.cs" />

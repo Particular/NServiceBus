@@ -10,7 +10,7 @@ namespace NServiceBus
     {
         public Task Save(IContainSagaData sagaData, SagaCorrelationProperty correlationProperty, SynchronizedStorageSession session, ContextBag context)
         {
-            var developmentSyncronizedStorageSession = (DevelopmentSyncronizedStorageSession)session;
+            var developmentSyncronizedStorageSession = (DevelopmentSynchronizedStorageSession)session;
 
             var sagaFile = developmentSyncronizedStorageSession.CreateNew(sagaData.Id, sagaData.GetType());
 
@@ -21,7 +21,7 @@ namespace NServiceBus
 
         public Task Update(IContainSagaData sagaData, SynchronizedStorageSession session, ContextBag context)
         {
-            var developmentSyncronizedStorageSession = (DevelopmentSyncronizedStorageSession)session;
+            var developmentSyncronizedStorageSession = (DevelopmentSynchronizedStorageSession)session;
             var sagaFile = developmentSyncronizedStorageSession.GetSagaFile(sagaData);
 
             sagaFile.Write(sagaData);
@@ -41,7 +41,7 @@ namespace NServiceBus
 
         public Task Complete(IContainSagaData sagaData, SynchronizedStorageSession session, ContextBag context)
         {
-            var developmentSyncronizedStorageSession = (DevelopmentSyncronizedStorageSession)session;
+            var developmentSyncronizedStorageSession = (DevelopmentSynchronizedStorageSession)session;
             var sagaFile = developmentSyncronizedStorageSession.GetSagaFile(sagaData);
 
             sagaFile.Delete();
@@ -51,7 +51,7 @@ namespace NServiceBus
 
         Task<TSagaData> Get<TSagaData>(Guid sagaId, SynchronizedStorageSession session) where TSagaData : IContainSagaData
         {
-            var developmentSyncronizedStorageSession = (DevelopmentSyncronizedStorageSession)session;
+            var developmentSyncronizedStorageSession = (DevelopmentSynchronizedStorageSession)session;
 
             SagaStorageFile sagaStorageFile;
 

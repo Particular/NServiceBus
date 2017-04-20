@@ -22,9 +22,9 @@
 
             var allSagas = context.Settings.Get<SagaMetadataCollection>();
 
-            var sagaManifests = new SagaManifestCollection(allSagas,storageLocation);
+            var sagaManifests = new SagaManifestCollection(allSagas, storageLocation);
 
-            context.Container.ConfigureComponent(b=>new DevelopmentSyncronizedStorage(sagaManifests),  DependencyLifecycle.SingleInstance);
+            context.Container.ConfigureComponent(b => new DevelopmentSynchronizedStorage(sagaManifests), DependencyLifecycle.SingleInstance);
             context.Container.ConfigureComponent<DevelopmentStorageAdapter>(DependencyLifecycle.SingleInstance);
 
             context.Container.ConfigureComponent(b => new DevelopmentSagaPersister(), DependencyLifecycle.SingleInstance);

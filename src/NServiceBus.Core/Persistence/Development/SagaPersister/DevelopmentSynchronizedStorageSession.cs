@@ -7,9 +7,9 @@ namespace NServiceBus
     using Persistence;
 
     [SkipWeaving]
-    class DevelopmentSyncronizedStorageSession : CompletableSynchronizedStorageSession
+    class DevelopmentSynchronizedStorageSession : CompletableSynchronizedStorageSession
     {
-        public DevelopmentSyncronizedStorageSession(SagaManifestCollection sagaManifests)
+        public DevelopmentSynchronizedStorageSession(SagaManifestCollection sagaManifests)
         {
             this.sagaManifests = sagaManifests;
         }
