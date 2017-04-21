@@ -17,7 +17,6 @@
         {
             DeleteQueueIfPresent(testQueueNameForSending);
             DeleteQueueIfPresent(testQueueNameForReceiving);
-            DeleteQueueIfPresent(GetReallyLongQueueName());
         }
 
         [TearDown]
@@ -25,7 +24,6 @@
         {
             DeleteQueueIfPresent(testQueueNameForSending);
             DeleteQueueIfPresent(testQueueNameForReceiving);
-            DeleteQueueIfPresent(GetReallyLongQueueName());
         }
 
         [Test]
@@ -175,17 +173,6 @@
             Assert.IsNull(accessControlEntryType);
         }
 
-        [Test]
-        public void Should_allow_queue_names_above_the_limit_for_set_permission()
-        {
-            var testQueueName = GetReallyLongQueueName();
-            var creator = new MsmqQueueCreator(true);
-            var bindings = new QueueBindings();
-
-            bindings.BindReceiving(testQueueName);
-
-            Assert.DoesNotThrow(() => creator.CreateQueueIfNecessary(bindings, WindowsIdentity.GetCurrent().Name));
-        }
 
         [Test]
         public void Should_blow_up_for_invalid_accounts()
@@ -233,12 +220,6 @@
             {
                 MessageQueue.Delete(path);
             }
-        }
-
-        string GetReallyLongQueueName()
-        {
-            var maxQueueNameForSetPermissionToWork = 102 - Environment.MachineName.Length;
-            return testQueueNameForReceiving.PadRight(maxQueueNameForSetPermissionToWork - testQueueNameForReceiving.Length + 1, 'a');
         }
 
 
