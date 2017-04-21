@@ -149,11 +149,6 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
 
         void InnerInitialize(Type t)
         {
-            if (t == null)
-            {
-                return;
-            }
-
             if (t.IsSimpleType() || t.IsGenericTypeDefinition)
             {
                 return;
