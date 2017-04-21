@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Recoverability
 {
     using System;
+    using System.Linq;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using AcceptanceTesting.Customization;
@@ -8,13 +9,12 @@
     using NServiceBus.Pipeline;
     using NUnit.Framework;
 
-    public class When_non_transactional_send_message_is_moved_to_error_queue : NServiceBusAcceptanceTest
+    public class When_non_transactional_message_is_moved_to_error_queue : NServiceBusAcceptanceTest
     {
-        [TestCase(TransportTransactionMode.ReceiveOnly)]
-        [TestCase(TransportTransactionMode.None)]
-        public async Task May_dispatch_outgoing_messages(TransportTransactionMode transactionMode)
+        [Test]
+        public async Task May_dispatch_outgoing_messages()
         {
-            var context = await Scenario.Define<Context>(c => { c.TransactionMode = transactionMode; })
+            var context = await Scenario.Define<Context>(c => { c.TransactionMode = TransportTransactionMode.None; })
                 .WithEndpoint<EndpointWithOutgoingMessages>(b => b.DoNotFailOnErrorMessages()
                     .When((session, c) => session.SendLocal(new InitiatingMessage
                     {
@@ -26,7 +26,7 @@
                 .Run();
 
             Assert.IsTrue(context.OutgoingMessageSent, "Outgoing messages should be sent");
-            Assert.That(context.Logs, Has.Some.Message.Match($"Moving message .+ to the error queue '{Conventions.EndpointNamingConvention(typeof(ErrorSpy))}' because processing failed due to an exception: NServiceBus.AcceptanceTesting.SimulatedException:"));
+            Assert.IsTrue(context.FailedMessages.Any(), "Messages should have failed");
         }
 
         [Test]

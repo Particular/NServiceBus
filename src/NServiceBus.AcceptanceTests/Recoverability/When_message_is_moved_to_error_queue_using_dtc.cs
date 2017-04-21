@@ -23,7 +23,7 @@
                         Id = ctx.Id
                     }))
                 )
-                .WithEndpoint<ErrorSpy>(b=>b.DoNotFailOnErrorMessages())
+                .WithEndpoint<ErrorSpy>()
                 .Done(c => c.MessageMovedToErrorQueue)
                 .Run();
 

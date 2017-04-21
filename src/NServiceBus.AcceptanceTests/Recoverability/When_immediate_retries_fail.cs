@@ -33,7 +33,7 @@
 
             public int NumberOfTimesInvoked { get; set; }
 
-            public int NumberOfRetriesAttempted => NumberOfTimesInvoked-1 < 0 ? 0 : NumberOfTimesInvoked-1;
+            public int NumberOfRetriesAttempted => NumberOfTimesInvoked - 1 < 0 ? 0 : NumberOfTimesInvoked - 1;
         }
 
         public class DelayedRetryEndpoint : EndpointConfigurationBuilder
@@ -44,11 +44,12 @@
                 {
                     config.EnableFeature<TimeoutManager>();
                     config.Recoverability().Immediate(i => i.NumberOfRetries(0));
-                    config.Recoverability().Delayed(settings =>
-                    {
-                        settings.NumberOfRetries(1);
-                        settings.TimeIncrease(Delay);
-                    });
+                    config.Recoverability()
+                        .Delayed(settings =>
+                        {
+                            settings.NumberOfRetries(1);
+                            settings.TimeIncrease(Delay);
+                        });
                 });
             }
 

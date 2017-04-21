@@ -9,14 +9,12 @@
     using NServiceBus.Pipeline;
     using NUnit.Framework;
 
-    public class When_cross_q_transactional_message_is_moved_to_error_queue : NServiceBusAcceptanceTest
+    public class When_receiveonly_message_is_moved_to_error_queue : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Should_not_dispatch_outgoing_messages()
+        public async Task May_dispatch_outgoing_messages()
         {
-            Requires.CrossQueueTransactionSupport();
-
-            var context = await Scenario.Define<Context>(c => { c.TransactionMode = TransportTransactionMode.SendsAtomicWithReceive; })
+            var context = await Scenario.Define<Context>(c => { c.TransactionMode = TransportTransactionMode.ReceiveOnly; })
                 .WithEndpoint<EndpointWithOutgoingMessages>(b => b.DoNotFailOnErrorMessages()
                     .When((session, c) => session.SendLocal(new InitiatingMessage
                     {
@@ -27,8 +25,27 @@
                 .Done(c => c.MessageMovedToErrorQueue)
                 .Run();
 
-            Assert.IsFalse(context.OutgoingMessageSent, "Outgoing messages should not be sent");
-            Assert.IsTrue(context.FailedMessages.Any()); }
+            Assert.IsTrue(context.OutgoingMessageSent, "Outgoing messages should be sent");
+            Assert.IsTrue(context.FailedMessages.Any(), "Messages should have failed");
+        }
+
+        [Test]
+        public async Task Should_log_exception()
+        {
+            var context = await Scenario.Define<Context>()
+                .WithEndpoint<EndpointWithOutgoingMessages>(b => b
+                    .DoNotFailOnErrorMessages()
+                    .When((session, ctx) => session.SendLocal(new InitiatingMessage
+                    {
+                        Id = ctx.TestRunId
+                    }))
+                )
+                .WithEndpoint<ErrorSpy>()
+                .Done(c => c.MessageMovedToErrorQueue)
+                .Run();
+
+            Assert.That(context.Logs, Has.Some.Message.Match($"Moving message .+ to the error queue '{Conventions.EndpointNamingConvention(typeof(ErrorSpy))}' because processing failed due to an exception: NServiceBus.AcceptanceTesting.SimulatedException:"));
+        }
 
         class Context : ScenarioContext
         {
