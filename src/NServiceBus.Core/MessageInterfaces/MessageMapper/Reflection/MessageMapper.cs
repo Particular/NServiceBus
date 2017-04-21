@@ -106,7 +106,7 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
         /// </summary>
         public T CreateInstance<T>()
         {
-            return (T) CreateInstance(typeof(T));
+            return (T)CreateInstance(typeof(T));
         }
 
         /// <summary>
@@ -129,7 +129,7 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
             RuntimeMethodHandle constructor;
             if (typeToConstructor.TryGetValue(mapped.TypeHandle, out constructor))
             {
-                return ((ConstructorInfo) MethodBase.GetMethodFromHandle(constructor, mapped.TypeHandle)).Invoke(null);
+                return ((ConstructorInfo)MethodBase.GetMethodFromHandle(constructor, mapped.TypeHandle)).Invoke(null);
             }
 
             return FormatterServices.GetUninitializedObject(mapped);
