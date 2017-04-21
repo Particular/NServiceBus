@@ -9,7 +9,7 @@
 
     public class MsmqSubscriptionStorageIntegrationTests
     {
-        string testQueueName = "NServiceBus.Core.Tests.MsmqSubscriptionStorageIntegrationTests";
+        const string testQueueName = "NServiceBus.Core.Tests.MsmqSubscriptionStorageIntegrationTests";
 
         [SetUp]
         public void Setup()

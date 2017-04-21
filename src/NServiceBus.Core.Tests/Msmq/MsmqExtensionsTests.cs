@@ -8,7 +8,7 @@
     [TestFixture]
     public class MsmqExtensionsTests
     {
-        static string LocalEveryoneGroupName = new SecurityIdentifier(WellKnownSidType.WorldSid, null).Translate(typeof(NTAccount)).ToString();
+        static readonly string LocalEveryoneGroupName = new SecurityIdentifier(WellKnownSidType.WorldSid, null).Translate(typeof(NTAccount)).ToString();
 
         string path;
         MessageQueue queue;
