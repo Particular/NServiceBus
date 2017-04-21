@@ -7,17 +7,19 @@ namespace NServiceBus
     using System.Linq;
     using System.Threading.Tasks;
     using Logging;
+    using MessageInterfaces.MessageMapper.Reflection;
     using Pipeline;
     using Transport;
     using Unicast.Messages;
 
     class DeserializeLogicalMessagesConnector : StageConnector<IIncomingPhysicalMessageContext, IIncomingLogicalMessageContext>
     {
-        public DeserializeLogicalMessagesConnector(MessageDeserializerResolver deserializerResolver, LogicalMessageFactory logicalMessageFactory, MessageMetadataRegistry messageMetadataRegistry)
+        public DeserializeLogicalMessagesConnector(MessageDeserializerResolver deserializerResolver, LogicalMessageFactory logicalMessageFactory, MessageMetadataRegistry messageMetadataRegistry, MessageMapper mapper)
         {
             this.deserializerResolver = deserializerResolver;
             this.logicalMessageFactory = logicalMessageFactory;
             this.messageMetadataRegistry = messageMetadataRegistry;
+            this.mapper = mapper;
         }
 
         public override async Task Invoke(IIncomingPhysicalMessageContext context, Func<IIncomingLogicalMessageContext, Task> stage)
@@ -106,6 +108,8 @@ namespace NServiceBus
             var messageTypes = messageMetadata.Select(metadata => metadata.MessageType).ToList();
             var messageSerializer = deserializerResolver.Resolve(physicalMessage.Headers);
 
+            mapper.Initialize(messageTypes);
+
             // For nested behaviors who have an expectation ContentType existing
             // add the default content type
             physicalMessage.Headers[Headers.ContentType] = messageSerializer.ContentType;
@@ -136,6 +140,7 @@ namespace NServiceBus
         MessageDeserializerResolver deserializerResolver;
         LogicalMessageFactory logicalMessageFactory;
         MessageMetadataRegistry messageMetadataRegistry;
+        MessageMapper mapper;
 
         static LogicalMessage[] NoMessagesFound = new LogicalMessage[0];
 

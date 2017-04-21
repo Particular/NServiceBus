@@ -135,16 +135,20 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
             return FormatterServices.GetUninitializedObject(mapped);
         }
 
-        /// <summary>
-        /// Generates a concrete implementation of the given type if it is an interface.
-        /// </summary>
         void InitType(Type t)
         {
-            if (t == null)
+            if (t == null || initializedTypes.ContainsKey(t))
             {
                 return;
             }
 
+            InnerInitialize(t);
+
+            initializedTypes.TryAdd(t, true);
+        }
+
+        void InnerInitialize(Type t)
+        {
             if (t.IsSimpleType() || t.IsGenericTypeDefinition)
             {
                 return;
@@ -249,6 +253,8 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
         }
 
         readonly object messageInitializationLock = new object();
+
+        ConcurrentDictionary<Type, bool> initializedTypes = new ConcurrentDictionary<Type, bool>();
 
         ConcreteProxyCreator concreteProxyCreator;
         ConcurrentDictionary<RuntimeTypeHandle, RuntimeTypeHandle> concreteToInterfaceTypeMapping = new ConcurrentDictionary<RuntimeTypeHandle, RuntimeTypeHandle>();
