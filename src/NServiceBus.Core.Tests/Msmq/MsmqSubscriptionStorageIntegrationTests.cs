@@ -9,16 +9,25 @@
 
     public class MsmqSubscriptionStorageIntegrationTests
     {
+        const string testQueueName = "NServiceBus.Core.Tests.MsmqSubscriptionStorageIntegrationTests";
+
+        [SetUp]
+        public void Setup()
+        {
+            DeleteQueueIfPresent(testQueueName);
+        }
+
+        [TearDown]
+        public void TearDown()
+        {
+            DeleteQueueIfPresent(testQueueName);
+        }
+
         [Test]
         public async Task ShouldRemoveSubscriptionsInTransactionalMode()
         {
-            var address = MsmqAddress.Parse("MsmqSubscriptionStorageQueueTests.PersistTransactional");
+            var address = MsmqAddress.Parse(testQueueName);
             var queuePath = address.PathWithoutPrefix;
-
-            if (MessageQueue.Exists(queuePath))
-            {
-                MessageQueue.Delete(queuePath);
-            }
 
             MessageQueue.Create(queuePath, true);
 
@@ -46,13 +55,8 @@
         [Test]
         public async Task ShouldRemoveSubscriptionsInNonTransactionalMode()
         {
-            var address = MsmqAddress.Parse("MsmqSubscriptionStorageQueueTests.PersistNonTransactional");
+            var address = MsmqAddress.Parse(testQueueName);
             var queuePath = address.PathWithoutPrefix;
-
-            if (MessageQueue.Exists(queuePath))
-            {
-                MessageQueue.Delete(queuePath);
-            }
 
             MessageQueue.Create(queuePath, false);
 
@@ -74,6 +78,16 @@
             using (var queue = new MessageQueue(queuePath))
             {
                 CollectionAssert.IsEmpty(queue.GetAllMessages());
+            }
+        }
+
+        void DeleteQueueIfPresent(string queueName)
+        {
+            var path = MsmqAddress.Parse(queueName).PathWithoutPrefix;
+
+            if (MessageQueue.Exists(path))
+            {
+                MessageQueue.Delete(path);
             }
         }
 

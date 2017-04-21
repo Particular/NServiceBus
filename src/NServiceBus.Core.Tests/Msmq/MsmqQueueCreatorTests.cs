@@ -9,58 +9,65 @@
     [TestFixture]
     public class MsmqQueueCreatorTests
     {
+        const string testQueueNameForSending = "NServiceBus.Core.Tests.MsmqQueueCreatorTests.Sending";
+        const string testQueueNameForReceiving = "NServiceBus.Core.Tests.MsmqQueueCreatorTests.Receiving";
+
+        [SetUp]
+        public void Setup()
+        {
+            DeleteQueueIfPresent(testQueueNameForSending);
+            DeleteQueueIfPresent(testQueueNameForReceiving);
+        }
+
+        [TearDown]
+        public void TearDown()
+        {
+            DeleteQueueIfPresent(testQueueNameForSending);
+            DeleteQueueIfPresent(testQueueNameForReceiving);
+        }
+
         [Test]
         public void Should_create_all_queues()
         {
             var creator = new MsmqQueueCreator(true);
             var bindings = new QueueBindings();
 
-            DeleteQueueIfPresent("MsmqQueueCreatorTests.receiver");
-            DeleteQueueIfPresent("MsmqQueueCreatorTests.endpoint1");
-            DeleteQueueIfPresent("MsmqQueueCreatorTests.endpoint2");
-
-            bindings.BindReceiving("MsmqQueueCreatorTests.receiver");
-            bindings.BindSending("MsmqQueueCreatorTests.target1");
-            bindings.BindSending("MsmqQueueCreatorTests.target2");
+            bindings.BindReceiving(testQueueNameForReceiving);
+            bindings.BindSending(testQueueNameForSending);
 
             creator.CreateQueueIfNecessary(bindings, WindowsIdentity.GetCurrent().Name);
 
-            Assert.True(QueueExists("MsmqQueueCreatorTests.receiver"));
-            Assert.True(QueueExists("MsmqQueueCreatorTests.target1"));
-            Assert.True(QueueExists("MsmqQueueCreatorTests.target2"));
+            Assert.True(QueueExists(testQueueNameForSending));
+            Assert.True(QueueExists(testQueueNameForReceiving));
         }
 
         [Test]
-        public void Should_not_create_remote_queues()
+        public void Should_not_create_queue_when_a_remote_queue_is_provided()
         {
+            var remoteQueueName = $"{testQueueNameForReceiving}@some-machine";
             var creator = new MsmqQueueCreator(true);
             var bindings = new QueueBindings();
-            var remoteQueueName = "MsmqQueueCreatorTests.remote";
 
-            bindings.BindSending($"{remoteQueueName}@some-machine");
+            bindings.BindSending(remoteQueueName);
 
             creator.CreateQueueIfNecessary(bindings, WindowsIdentity.GetCurrent().Name);
 
-            Assert.False(QueueExists(remoteQueueName));
+            Assert.False(QueueExists(testQueueNameForReceiving));
         }
 
 
         [Test]
         public void Should_setup_permissions()
         {
-            var testQueueName = "MsmqQueueCreatorTests.permissions";
-
             var creator = new MsmqQueueCreator(true);
             var bindings = new QueueBindings();
 
-            DeleteQueueIfPresent(testQueueName);
-
-            bindings.BindReceiving(testQueueName);
+            bindings.BindReceiving(testQueueNameForReceiving);
 
             // use the network service account since that one won't be in the local admin group
             creator.CreateQueueIfNecessary(bindings, NetworkServiceAccountName);
 
-            var createdQueue = GetQueue(testQueueName);
+            var createdQueue = GetQueue(testQueueNameForReceiving);
 
             MessageQueueAccessRights? accountAccessRights;
             AccessControlEntryType? accessControlEntryType;
@@ -83,18 +90,14 @@
         [Test]
         public void Should_make_queues_transactional_if_requested()
         {
-            var testQueueName = "MsmqQueueCreatorTests.txreceiver";
-
-            DeleteQueueIfPresent(testQueueName);
-
             var creator = new MsmqQueueCreator(true);
             var bindings = new QueueBindings();
 
-            bindings.BindReceiving(testQueueName);
+            bindings.BindReceiving(testQueueNameForReceiving);
 
             creator.CreateQueueIfNecessary(bindings, WindowsIdentity.GetCurrent().Name);
 
-            var queue = GetQueue(testQueueName);
+            var queue = GetQueue(testQueueNameForReceiving);
 
             Assert.True(queue.Transactional);
         }
@@ -102,18 +105,14 @@
         [Test]
         public void Should_make_queues_non_transactional_if_requested()
         {
-            var testQueueName = "MsmqQueueCreatorTests.txreceiver";
-
-            DeleteQueueIfPresent(testQueueName);
-
             var creator = new MsmqQueueCreator(false);
             var bindings = new QueueBindings();
 
-            bindings.BindReceiving(testQueueName);
+            bindings.BindReceiving(testQueueNameForReceiving);
 
             creator.CreateQueueIfNecessary(bindings, WindowsIdentity.GetCurrent().Name);
 
-            var queue = GetQueue(testQueueName);
+            var queue = GetQueue(testQueueNameForReceiving);
 
             Assert.False(queue.Transactional);
         }
@@ -121,11 +120,7 @@
         [Test]
         public void Should_give_everyone_and_anonymous_access_rights_when_creating_queues()
         {
-            var testQueueName = "MsmqQueueCreatorTests.MsmqDefaultPermissions";
-
-            DeleteQueueIfPresent(testQueueName);
-
-            var path = MsmqAddress.Parse(testQueueName).PathWithoutPrefix;
+            var path = MsmqAddress.Parse(testQueueNameForReceiving).PathWithoutPrefix;
 
             using (var queue = MessageQueue.Create(path))
             {
@@ -152,66 +147,40 @@
         [Test]
         public void Should_not_add_everyone_and_anonymous_to_already_existing_queues()
         {
-            var testQueueName = "MsmqQueueCreatorTests.NoChangesToExisting";
+            var path = MsmqAddress.Parse(testQueueNameForReceiving).PathWithoutPrefix;
 
-            DeleteQueueIfPresent(testQueueName);
-
-            var path = MsmqAddress.Parse(testQueueName).PathWithoutPrefix;
-
-            using (var existingQueue = MessageQueue.Create(path))
+            using (var queue = MessageQueue.Create(path))
             {
-                existingQueue.SetPermissions(LocalEveryoneGroupName, MessageQueueAccessRights.GenericWrite, AccessControlEntryType.Revoke);
-                existingQueue.SetPermissions(LocalAnonymousLogonName, MessageQueueAccessRights.WriteMessage, AccessControlEntryType.Revoke);
+                queue.SetPermissions(LocalEveryoneGroupName, MessageQueueAccessRights.GenericWrite, AccessControlEntryType.Revoke);
+                queue.SetPermissions(LocalAnonymousLogonName, MessageQueueAccessRights.WriteMessage, AccessControlEntryType.Revoke);
             }
 
             var creator = new MsmqQueueCreator(true);
             var bindings = new QueueBindings();
 
-            bindings.BindReceiving(testQueueName);
+            bindings.BindReceiving(testQueueNameForReceiving);
 
             creator.CreateQueueIfNecessary(bindings, WindowsIdentity.GetCurrent().Name);
 
 
-            var queue = GetQueue(testQueueName);
+            var existingQueue = GetQueue(testQueueNameForReceiving);
 
             MessageQueueAccessRights? nullBecauseRevoked;
             AccessControlEntryType? accessControlEntryType;
 
-            Assert.False(queue.TryGetPermissions(LocalEveryoneGroupName, out nullBecauseRevoked, out accessControlEntryType));
-            Assert.False(queue.TryGetPermissions(LocalAnonymousLogonName, out nullBecauseRevoked, out accessControlEntryType));
+            Assert.False(existingQueue.TryGetPermissions(LocalEveryoneGroupName, out nullBecauseRevoked, out accessControlEntryType));
+            Assert.False(existingQueue.TryGetPermissions(LocalAnonymousLogonName, out nullBecauseRevoked, out accessControlEntryType));
             Assert.IsNull(accessControlEntryType);
         }
 
-        [Test]
-        public void Should_allow_queue_names_above_the_limit_for_set_permission()
-        {
-            var testQueueName = $"MsmqQueueCreatorTests.tolong.{Guid.NewGuid().ToString().Replace("-", "")}";
-
-            var maxQueueNameForSetPermissionToWork = 102 - Environment.MachineName.Length;
-
-            testQueueName = $"{testQueueName}{new string('a', maxQueueNameForSetPermissionToWork - testQueueName.Length + 1)}";
-
-            DeleteQueueIfPresent(testQueueName);
-
-            var creator = new MsmqQueueCreator(true);
-            var bindings = new QueueBindings();
-
-            bindings.BindReceiving(testQueueName);
-
-            Assert.DoesNotThrow(() => creator.CreateQueueIfNecessary(bindings, WindowsIdentity.GetCurrent().Name));
-        }
 
         [Test]
         public void Should_blow_up_for_invalid_accounts()
         {
-            var testQueueName = "MsmqQueueCreatorTests.badidentity";
-
-            DeleteQueueIfPresent(testQueueName);
-
             var creator = new MsmqQueueCreator(true);
             var bindings = new QueueBindings();
 
-            bindings.BindReceiving(testQueueName);
+            bindings.BindReceiving(testQueueNameForReceiving);
 
             var ex = Assert.Throws<InvalidOperationException>(() => creator.CreateQueueIfNecessary(bindings, "invalidaccount"));
 
@@ -247,18 +216,16 @@
         {
             var path = MsmqAddress.Parse(queueName).PathWithoutPrefix;
 
-            if (!MessageQueue.Exists(path))
+            if (MessageQueue.Exists(path))
             {
-                return;
+                MessageQueue.Delete(path);
             }
-
-            MessageQueue.Delete(path);
         }
 
 
-        static string LocalEveryoneGroupName = new SecurityIdentifier(WellKnownSidType.WorldSid, null).Translate(typeof(NTAccount)).ToString();
-        static string LocalAnonymousLogonName = new SecurityIdentifier(WellKnownSidType.AnonymousSid, null).Translate(typeof(NTAccount)).ToString();
-        static string NetworkServiceAccountName = new SecurityIdentifier(WellKnownSidType.NetworkServiceSid, null).Translate(typeof(NTAccount)).ToString();
-        static string LocalAdministratorsGroupName = new SecurityIdentifier(WellKnownSidType.BuiltinAdministratorsSid, null).Translate(typeof(NTAccount)).ToString();
+        static readonly string LocalEveryoneGroupName = new SecurityIdentifier(WellKnownSidType.WorldSid, null).Translate(typeof(NTAccount)).ToString();
+        static readonly string LocalAnonymousLogonName = new SecurityIdentifier(WellKnownSidType.AnonymousSid, null).Translate(typeof(NTAccount)).ToString();
+        static readonly string NetworkServiceAccountName = new SecurityIdentifier(WellKnownSidType.NetworkServiceSid, null).Translate(typeof(NTAccount)).ToString();
+        static readonly string LocalAdministratorsGroupName = new SecurityIdentifier(WellKnownSidType.BuiltinAdministratorsSid, null).Translate(typeof(NTAccount)).ToString();
     }
 }

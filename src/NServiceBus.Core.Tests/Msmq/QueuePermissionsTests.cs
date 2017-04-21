@@ -12,7 +12,7 @@
     public class QueuePermissionsTests
     {
         StringBuilder logOutput;
-        string testQueueName = "NServiceBus.Core.Tests.QueuePermissionsTests";
+        const string testQueueName = "NServiceBus.Core.Tests.QueuePermissionsTests";
 
         [OneTimeSetUp]
         public void TestFixtureSetup()
