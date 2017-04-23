@@ -183,6 +183,10 @@ namespace NServiceBus
         /// </summary>
         internal InitializableEndpoint Build()
         {
+            var conventions = conventionsBuilder.Conventions;
+
+            Settings.SetDefault<Conventions>(conventions);
+
             if (scannedTypes == null)
             {
                 var directoryToScan = AppDomain.CurrentDomain.BaseDirectory;
@@ -191,7 +195,7 @@ namespace NServiceBus
                     directoryToScan = HttpRuntime.BinDirectory;
                 }
 
-                scannedTypes = GetAllowedTypes(directoryToScan);
+                scannedTypes = GetAllowedTypes(directoryToScan, conventions.CustomMessageConventionsUsed);
             }
             else
             {
@@ -204,8 +208,6 @@ namespace NServiceBus
             UseTransportExtensions.EnsureTransportConfigured(this);
             var container = customBuilder ?? new AutofacObjectBuilder();
 
-            var conventions = conventionsBuilder.Conventions;
-            Settings.SetDefault<Conventions>(conventions);
             var messageMetadataRegistry = new MessageMetadataRegistry(conventions);
             messageMetadataRegistry.RegisterMessageTypesFoundIn(Settings.GetAvailableTypes());
 
@@ -253,7 +255,7 @@ namespace NServiceBus
 
         static bool HasDefaultConstructor(Type type) => type.GetConstructor(Type.EmptyTypes) != null;
 
-        List<Type> GetAllowedTypes(string path)
+        List<Type> GetAllowedTypes(string path, bool conventionsCustomMessageConventionsUsed)
         {
             var assemblyScannerSettings = Settings.GetOrCreate<AssemblyScannerConfiguration>();
             var assemblyScanner = new AssemblyScanner(path)
@@ -262,7 +264,8 @@ namespace NServiceBus
                 TypesToSkip = assemblyScannerSettings.ExcludedTypes,
                 ScanNestedDirectories = assemblyScannerSettings.ScanAssembliesInNestedDirectories,
                 ThrowExceptions = assemblyScannerSettings.ThrowExceptions,
-                ScanAppDomainAssemblies = assemblyScannerSettings.ScanAppDomainAssemblies
+                ScanAppDomainAssemblies = assemblyScannerSettings.ScanAppDomainAssemblies,
+                IncludeAssembliesNotReferencingCoreAsWell = conventionsCustomMessageConventionsUsed
             };
             return assemblyScanner
                 .GetScannableAssemblies()

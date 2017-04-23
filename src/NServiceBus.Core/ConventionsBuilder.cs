@@ -25,6 +25,10 @@ namespace NServiceBus
         {
             Guard.AgainstNull(nameof(definesMessageType), definesMessageType);
             Conventions.IsMessageTypeAction = definesMessageType;
+
+            //todo: move this to the Convetions class instead
+            Conventions.CustomMessageConventionsUsed = true;
+
             return this;
         }
 
@@ -35,6 +39,8 @@ namespace NServiceBus
         {
             Guard.AgainstNull(nameof(definesCommandType), definesCommandType);
             Conventions.IsCommandTypeAction = definesCommandType;
+            //todo: move this to the Convetions class instead
+            Conventions.CustomMessageConventionsUsed = true;
             return this;
         }
 
@@ -45,6 +51,8 @@ namespace NServiceBus
         {
             Guard.AgainstNull(nameof(definesEventType), definesEventType);
             Conventions.IsEventTypeAction = definesEventType;
+            //todo: move this to the Convetions class instead
+            Conventions.CustomMessageConventionsUsed = true;
             return this;
         }
 
