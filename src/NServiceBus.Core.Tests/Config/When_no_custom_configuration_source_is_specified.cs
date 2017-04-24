@@ -13,6 +13,7 @@ namespace NServiceBus.Core.Tests.Config
         {
             var config = new EndpointConfiguration("myendpoint");
 
+            config.SendFailedMessagesTo("error");
             config.SendOnly();
             config.TypesToScanInternal(new[] { typeof(ConfigSectionValidatorFeature) });
             config.DisableFeature<MessageDrivenSubscriptions>();

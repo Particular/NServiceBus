@@ -10,7 +10,10 @@ namespace NServiceBus
     /// </summary>
     public static class ErrorQueueSettings
     {
-        internal const string SettingsKey = "errorQueue";
+        /// <summary>
+        /// The settings key where the error queue address is stored.    
+        /// </summary>
+        public const string SettingsKey = "errorQueue";
         const string DefaultErrorQueueName = "error";
 
         /// <summary>

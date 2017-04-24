@@ -434,6 +434,7 @@ namespace NServiceBus
     }
     public class static ErrorQueueSettings
     {
+        public const string SettingsKey = "errorQueue";
         public static string ErrorQueueAddress(this NServiceBus.Settings.ReadOnlySettings settings) { }
     }
     [System.AttributeUsageAttribute(System.AttributeTargets.Class | System.AttributeTargets.Interface | System.AttributeTargets.All)]
