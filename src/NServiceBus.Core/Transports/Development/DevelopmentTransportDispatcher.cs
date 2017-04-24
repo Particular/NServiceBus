@@ -58,7 +58,7 @@ namespace NServiceBus
 
             var bodyPath = Path.Combine(bodyDir, nativeMessageId) + ".txt";
 
-            await WriteTextAsync(bodyPath, transportOperation.Message.Body).ConfigureAwait(false);
+            await AsyncFile.WriteBytes(bodyPath, transportOperation.Message.Body).ConfigureAwait(false);
 
             var messageContents = new List<string>
             {
@@ -111,17 +111,6 @@ namespace NServiceBus
                 //this avoids the file being locked when the receiver tries to process it
                 File.WriteAllLines(tempFile, messageContents);
                 File.Move(tempFile, messagePath);
-            }
-        }
-
-        //TODO: merge with dev persistence
-        static async Task WriteTextAsync(string filePath, byte[] bytes)
-        {
-            using (var sourceStream = new FileStream(filePath,
-                FileMode.CreateNew, FileAccess.Write, FileShare.None,
-                bufferSize: 4096, useAsync: true))
-            {
-                await sourceStream.WriteAsync(bytes, 0, bytes.Length).ConfigureAwait(false);
             }
         }
 
