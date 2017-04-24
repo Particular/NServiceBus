@@ -16,7 +16,7 @@
         {
             Requires.DtcSupport();
 
-            var context = await Scenario.Define<Context>(c => { c.TransactionMode = TransportTransactionMode.TransactionScope; })
+            var context = await Scenario.Define<Context>()
                 .WithEndpoint<EndpointWithOutgoingMessages>(b => b.DoNotFailOnErrorMessages()
                     .When((session, c) => session.SendLocal(new InitiatingMessage
                     {
@@ -35,7 +35,6 @@
         {
             public bool MessageMovedToErrorQueue { get; set; }
             public bool OutgoingMessageSent { get; set; }
-            public TransportTransactionMode TransactionMode { get; set; }
         }
 
         class EndpointWithOutgoingMessages : EndpointConfigurationBuilder
@@ -44,10 +43,8 @@
             {
                 EndpointSetup<DefaultServer>((config, context) =>
                 {
-                    var testContext = context.ScenarioContext as Context;
-
                     config.ConfigureTransport()
-                        .Transactions(testContext.TransactionMode);
+                        .Transactions(TransportTransactionMode.TransactionScope);
                     config.Pipeline.Register(new ThrowingBehavior(), "Behavior that always throws");
                     config.SendFailedMessagesTo(Conventions.EndpointNamingConvention(typeof(ErrorSpy)));
                 });
