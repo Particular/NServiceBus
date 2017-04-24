@@ -43,12 +43,22 @@ namespace NServiceBus.Features
             var configuredPublishers = context.Settings.Get<ConfiguredPublishers>();
 
             configuredPublishers.Apply(publishers, conventions, enforceBestPractices);
-
-            context.Pipeline.Register(b =>
-            {
-                var unicastPublishRouter = new UnicastPublishRouter(b.Build<MessageMetadataRegistry>(), i => transportInfrastructure.ToTransportAddress(LogicalAddress.CreateRemoteAddress(i)), b.Build<ISubscriptionStorage>());
-                return new UnicastPublishRouterConnector(unicastPublishRouter, distributionPolicy);
-            }, "Determines how the published messages should be routed");
+            
+            context.Container.ConfigureComponent(
+                componentFactory: builder =>
+                {
+                    var storage = builder.Build<ISubscriptionStorage>();
+                    return new SubscriptionStorage(storage, context.Routing.CacheSubscriptionsFor);
+                },
+                dependencyLifecycle: DependencyLifecycle.SingleInstance);
+            context.Pipeline.Register(
+                factoryMethod: b =>
+                {
+                    var subscriptionStorage = b.Build<SubscriptionStorage>();
+                    var unicastPublishRouter = new UnicastPublishRouter(b.Build<MessageMetadataRegistry>(), i => transportInfrastructure.ToTransportAddress(LogicalAddress.CreateRemoteAddress(i)), subscriptionStorage);
+                    return new UnicastPublishRouterConnector(unicastPublishRouter, distributionPolicy);
+                }, 
+                description: "Determines how the published messages should be routed");
 
             if (canReceive)
             {

@@ -178,6 +178,7 @@
     <Compile Include="Routing\ConfiguredUnicastRoutes.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\IPublisherSource.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\NamespacePublisherSource.cs" />
+    <Compile Include="Routing\MessageDrivenSubscriptions\SubscriptionStorage.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\TypePublisherSource.cs" />
     <Compile Include="Routing\NativePublishSubscribeFeature.cs" />
     <Compile Include="Routing\ReplyAddressFeature.cs" />

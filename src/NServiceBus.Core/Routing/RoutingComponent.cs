@@ -1,5 +1,6 @@
 namespace NServiceBus
 {
+    using System;
     using System.Collections.Generic;
     using Config;
     using Features;
@@ -12,6 +13,7 @@ namespace NServiceBus
     class RoutingComponent
     {
         public const string EnforceBestPracticesSettingsKey = "NServiceBus.Routing.EnforceBestPractices";
+        public const string CacheSubscriptionsFoSettingsKey = "NServiceBus.Routing.CacheSubscriptionsFo";
 
         public RoutingComponent(UnicastRoutingTable unicastRoutingTable, DistributionPolicy distributionPolicy, EndpointInstances endpointInstances, Publishers publishers)
         {
@@ -30,6 +32,7 @@ namespace NServiceBus
         public Publishers Publishers { get; }
 
         public bool EnforceBestPractices { get; private set; }
+        public TimeSpan? CacheSubscriptionsFor { get; private set; }
 
         public void Initialize(ReadOnlySettings settings, TransportInfrastructure transportInfrastructure, PipelineSettings pipelineSettings)
         {
@@ -59,6 +62,7 @@ namespace NServiceBus
             pipelineSettings.Register(new UnicastReplyRouterConnector(), "Determines how replies should be routed");
 
             EnforceBestPractices = ShouldEnforceBestPractices(settings);
+            CacheSubscriptionsFor = settings.GetOrDefault<TimeSpan?>(CacheSubscriptionsFoSettingsKey);
             if (EnforceBestPractices)
             {
                 EnableBestPracticeEnforcement(conventions, pipelineSettings);

@@ -1058,6 +1058,7 @@ namespace NServiceBus
     public class RoutingSettings : NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings
     {
         public RoutingSettings(NServiceBus.Settings.SettingsHolder settings) { }
+        public void CacheSubscriptionsFor(System.TimeSpan timeSpan) { }
         public void DoNotEnforceBestPractices() { }
         public void RouteToEndpoint(System.Type messageType, string destination) { }
         public void RouteToEndpoint(System.Reflection.Assembly assembly, string destination) { }

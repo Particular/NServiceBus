@@ -13,7 +13,7 @@ namespace NServiceBus
 
     class UnicastPublishRouter : IUnicastPublishRouter
     {
-        public UnicastPublishRouter(MessageMetadataRegistry messageMetadataRegistry, Func<EndpointInstance, string> transportAddressTranslation, ISubscriptionStorage subscriptionStorage)
+        public UnicastPublishRouter(MessageMetadataRegistry messageMetadataRegistry, Func<EndpointInstance, string> transportAddressTranslation, SubscriptionStorage subscriptionStorage)
         {
             this.messageMetadataRegistry = messageMetadataRegistry;
             this.transportAddressTranslation = transportAddressTranslation;
@@ -80,11 +80,15 @@ namespace NServiceBus
         Task<IEnumerable<Subscriber>> GetSubscribers(IExtendable publishContext, Type[] typesToRoute)
         {
             var messageTypes = typesToRoute.Select(t => new MessageType(t));
-            return subscriptionStorage.GetSubscriberAddressesForMessage(messageTypes, publishContext.Extensions);
+            var context = publishContext.Extensions;
+
+            return subscriptionStorage.GetSubscribers(messageTypes, context);
         }
+        
 
         MessageMetadataRegistry messageMetadataRegistry;
         Func<EndpointInstance, string> transportAddressTranslation;
-        ISubscriptionStorage subscriptionStorage;
+        SubscriptionStorage subscriptionStorage;
+
     }
 }
