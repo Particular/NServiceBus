@@ -53,8 +53,7 @@
             {
                 Array.ForEach(Directory.GetFiles(path), File.Delete);
             }
-
-            messagePumpTask = Task.Factory.StartNew(() => ProcessMessages(), CancellationToken.None, TaskCreationOptions.LongRunning, TaskScheduler.Default).Unwrap();
+            messagePumpTask = Task.Run(ProcessMessages, cancellationToken);
 
             delayedMessagePoller.Change(TimeSpan.FromSeconds(1), TimeSpan.FromMilliseconds(-1));
         }
