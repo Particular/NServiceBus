@@ -56,7 +56,7 @@ namespace NServiceBus
             Directory.CreateDirectory(bodyDir);
 
 
-            var bodyPath = Path.Combine(bodyDir, nativeMessageId) + ".xml"; //TODO: pick the correct ending based on the serialized type
+            var bodyPath = Path.Combine(bodyDir, nativeMessageId) + ".txt";
 
             File.WriteAllBytes(bodyPath, transportOperation.Message.Body);
 
