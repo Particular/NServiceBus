@@ -13,6 +13,7 @@
         public static void StorageDirectory(this TransportExtensions<DevelopmentTransport> config, string path)
         {
             Guard.AgainstNullAndEmpty(nameof(path), path);
+            Guard.AgainstNull(nameof(config), config);
 
             config.Settings.Set(DevelopmentTransportInfrastructure.StorageLocationKey, path);
         }
