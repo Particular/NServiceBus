@@ -84,15 +84,16 @@
                     await InnerProcessMessages()
                         .ConfigureAwait(false);
                 }
-                catch (OperationCanceledException)
-                {
-                    // For graceful shutdown purposes
-                }
-                catch (Exception ex)
+                catch (Exception ex) when (NotForGracefulShutdown(ex))
                 {
                     Logger.Error("File Message pump failed", ex);
                 }
             }
+        }
+
+        static bool NotForGracefulShutdown(Exception ex)
+        {
+            return !(ex is OperationCanceledException);
         }
 
         async Task InnerProcessMessages()
@@ -144,7 +145,7 @@
 
                 receiveCircuitBreaker.Success();
             }
-            catch (Exception exception)
+            catch (Exception ex) when (NotForGracefulShutdown(ex))
             {
                 await receiveCircuitBreaker.Failure(exception)
                     .ConfigureAwait(false);
