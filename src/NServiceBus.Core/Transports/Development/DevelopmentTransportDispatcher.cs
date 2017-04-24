@@ -124,7 +124,7 @@ namespace NServiceBus
 
         IEnumerable<string> GetSubscribersFor(Type messageType)
         {
-            var subscribers = new List<string>();
+            var subscribers = new HashSet<string>();
 
             var allEventTypes = GetPotentialEventTypes(messageType);
 
@@ -143,13 +143,12 @@ namespace NServiceBus
                 }
             }
 
-            return subscribers.Distinct();
+            return subscribers;
         }
 
-        static List<Type> GetPotentialEventTypes(Type messageType)
+        static IEnumerable<Type> GetPotentialEventTypes(Type messageType)
         {
-            var allEventTypes = new List<Type>();
-
+            var allEventTypes = new HashSet<Type>();
 
             var currentType = messageType;
             do
@@ -160,13 +159,16 @@ namespace NServiceBus
                     break;
                 }
 
-                allEventTypes.AddRange(messageType.GetInterfaces().Where(i => !IsCoreMarkerInterface(i)));
+                foreach (var type in messageType.GetInterfaces().Where(i => !IsCoreMarkerInterface(i)))
+                {
+                    allEventTypes.Add(type);
+                }
                 allEventTypes.Add(currentType);
 
                 currentType = currentType.BaseType;
             } while (currentType != null);
 
-            return allEventTypes.Distinct().ToList();
+            return allEventTypes;
         }
 
         static bool IsCoreMarkerInterface(Type type)
