@@ -44,8 +44,8 @@
 
         public void Start(PushRuntimeSettings limitations)
         {
-            runningReceiveTasks = new ConcurrentDictionary<Task, Task>();
-            concurrencyLimiter = new SemaphoreSlim(limitations.MaxConcurrency);
+            maxConcurrency = limitations.MaxConcurrency;
+            concurrencyLimiter = new SemaphoreSlim(maxConcurrency);
             cancellationTokenSource = new CancellationTokenSource();
 
             cancellationToken = cancellationTokenSource.Token;
@@ -63,22 +63,16 @@
         {
             cancellationTokenSource.Cancel();
 
-            // ReSharper disable once MethodSupportsCancellation
-            var timeoutTask = Task.Delay(TimeSpan.FromSeconds(30));
-            var allTasks = runningReceiveTasks.Values.Concat(new[]
-            {
-                messagePumpTask
-            });
-            var finishedTask = await Task.WhenAny(Task.WhenAll(allTasks), timeoutTask)
+            await messagePumpTask
                 .ConfigureAwait(false);
 
-            if (finishedTask.Equals(timeoutTask))
+            while (concurrencyLimiter.CurrentCount != maxConcurrency)
             {
-                Logger.Error("The message pump failed to stop with in the time allowed(30s)");
+                await Task.Delay(50, CancellationToken.None)
+                    .ConfigureAwait(false);
             }
 
             concurrencyLimiter.Dispose();
-            runningReceiveTasks.Clear();
         }
 
         [DebuggerNonUserCode]
@@ -134,7 +128,7 @@
                     await concurrencyLimiter.WaitAsync(cancellationToken)
                         .ConfigureAwait(false);
 
-                    var task = Task.Run(async () =>
+                    Task.Run(async () =>
                     {
                         try
                         {
@@ -154,17 +148,8 @@
                         {
                             concurrencyLimiter.Release();
                         }
-                    }, cancellationToken);
-
-                    task.ContinueWith(t =>
-                        {
-                            Task toBeRemoved;
-                            runningReceiveTasks.TryRemove(t, out toBeRemoved);
-                        }, TaskContinuationOptions.ExecuteSynchronously)
-                        .Ignore();
-
-                    runningReceiveTasks.AddOrUpdate(task, task, (k, v) => task)
-                        .Ignore();
+                    }, cancellationToken)
+                    .Ignore();
                 }
 
                 if (!filesFound)
@@ -298,7 +283,6 @@
         Task messagePumpTask;
         Func<MessageContext, Task> onMessage;
         bool purgeOnStartup;
-        ConcurrentDictionary<Task, Task> runningReceiveTasks;
         Func<ErrorContext, Task<ErrorHandleResult>> onError;
         ConcurrentDictionary<string, int> retryCounts = new ConcurrentDictionary<string, int>();
         string path;
@@ -306,6 +290,7 @@
         RepeatedFailuresOverTimeCircuitBreaker receiveCircuitBreaker;
         Timer delayedMessagePoller;
         TransportTransactionMode transactionMode;
+        int maxConcurrency;
         static ILog Logger = LogManager.GetLogger<DevelopmentTransportMessagePump>();
     }
 }
