@@ -6,7 +6,6 @@
     using System.Diagnostics;
     using System.Globalization;
     using System.IO;
-    using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
     using Extensibility;
@@ -78,31 +77,27 @@
         [DebuggerNonUserCode]
         async Task ProcessMessages()
         {
-            try
+            while (!cancellationToken.IsCancellationRequested)
             {
-                await InnerProcessMessages()
-                    .ConfigureAwait(false);
-            }
-            catch (OperationCanceledException)
-            {
-                // For graceful shutdown purposes
-            }
-            catch (Exception exception)
-            {
-                Logger.Error("File Message pump failed", exception);
-                //await peekCircuitBreaker.Failure(ex).ConfigureAwait(false);
-            }
-
-            if (!cancellationToken.IsCancellationRequested)
-            {
-                await ProcessMessages()
-                    .ConfigureAwait(false);
+                try
+                {
+                    await InnerProcessMessages()
+                        .ConfigureAwait(false);
+                }
+                catch (OperationCanceledException)
+                {
+                    // For graceful shutdown purposes
+                }
+                catch (Exception ex)
+                {
+                    Logger.Error("File Message pump failed", ex);
+                }
             }
         }
 
         async Task InnerProcessMessages()
         {
-            while (!cancellationTokenSource.IsCancellationRequested)
+            while (!cancellationToken.IsCancellationRequested)
             {
                 var filesFound = false;
 
