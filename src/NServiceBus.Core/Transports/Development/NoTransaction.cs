@@ -2,6 +2,7 @@ namespace NServiceBus
 {
     using System.Collections.Generic;
     using System.IO;
+    using System.Threading.Tasks;
 
     class NoTransaction : IDevelopmentTransportTransaction
     {
@@ -17,9 +18,10 @@ namespace NServiceBus
             File.WriteAllLines(messagePath, messageContents);
         }
 
-        public void Commit()
+        public Task Commit()
         {
             //no-op
+            return TaskEx.CompletedTask;
         }
 
         public void Rollback()

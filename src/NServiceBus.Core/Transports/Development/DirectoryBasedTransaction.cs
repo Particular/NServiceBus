@@ -4,6 +4,7 @@ namespace NServiceBus
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
+    using System.Threading.Tasks;
 
     class DirectoryBasedTransaction : IDevelopmentTransportTransaction
     {
@@ -26,10 +27,11 @@ namespace NServiceBus
             File.Move(incomingFilePath, FileToProcess);
         }
 
-        public void Commit()
+        public async Task Commit()
         {
             var dispatchFile = Path.Combine(transactionDir, "dispatch.txt");
-            File.WriteAllLines(dispatchFile, outgoingFiles.Select(file => $"{file.TxPath}=>{file.TargetPath}").ToArray());
+            await AsyncFile.WriteLines(dispatchFile, outgoingFiles.Select(file => $"{file.TxPath}=>{file.TargetPath}").ToArray())
+                .ConfigureAwait(false);
 
             Directory.Move(transactionDir, commitDir);
             committed = true;

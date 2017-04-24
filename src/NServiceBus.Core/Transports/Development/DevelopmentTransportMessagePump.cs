@@ -184,7 +184,7 @@
 
                     if (sentTime + ttbr < DateTime.UtcNow)
                     {
-                        transaction.Commit();
+                        await transaction.Commit().ConfigureAwait(false);
                         return;
                     }
                 }
@@ -227,7 +227,7 @@
                     return;
                 }
 
-                transaction.Commit();
+                await transaction.Commit().ConfigureAwait(false);
             }
             catch (Exception)
             {
