@@ -60,12 +60,18 @@ namespace NServiceBus
 
         public SagaStorageFile GetSagaFile(IContainSagaData sagaData)
         {
-            return sagaFiles[sagaData.GetType().FullName + sagaData.Id];
+            var sagaFileKey = $"{sagaData.GetType().FullName}{sagaData.Id}";
+            SagaStorageFile sagaStorageFile;
+            if (!sagaFiles.TryGetValue(sagaFileKey, out sagaStorageFile))
+            {
+                throw new Exception("The saga should be retrieved with Get method before it's updated or completed.");
+            }
+            return sagaStorageFile;
         }
 
         void RegisterSagaFile(SagaStorageFile sagaStorageFile, Guid sagaId, Type sagaDataType)
         {
-            sagaFiles[sagaDataType.FullName + sagaId] = sagaStorageFile;
+            sagaFiles[$"{sagaDataType.FullName}{sagaId}"] = sagaStorageFile;
         }
 
         SagaManifestCollection sagaManifests;
