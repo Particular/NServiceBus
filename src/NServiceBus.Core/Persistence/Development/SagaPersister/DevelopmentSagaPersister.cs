@@ -10,23 +10,14 @@ namespace NServiceBus
     {
         public Task Save(IContainSagaData sagaData, SagaCorrelationProperty correlationProperty, SynchronizedStorageSession session, ContextBag context)
         {
-            var developmentSyncronizedStorageSession = (DevelopmentSynchronizedStorageSession)session;
-
-            var sagaFile = developmentSyncronizedStorageSession.CreateNew(sagaData.Id, sagaData.GetType());
-
-            sagaFile.Write(sagaData);
-
-            return TaskEx.CompletedTask;
+            var storageSession = (DevelopmentSynchronizedStorageSession)session;
+            return storageSession.Save(correlationProperty, sagaData);
         }
 
         public Task Update(IContainSagaData sagaData, SynchronizedStorageSession session, ContextBag context)
         {
-            var developmentSyncronizedStorageSession = (DevelopmentSynchronizedStorageSession)session;
-            var sagaFile = developmentSyncronizedStorageSession.GetSagaFile(sagaData);
-
-            sagaFile.Write(sagaData);
-
-            return TaskEx.CompletedTask;
+            var storageSession = (DevelopmentSynchronizedStorageSession)session;
+            return storageSession.Update(sagaData);
         }
 
         public Task<TSagaData> Get<TSagaData>(Guid sagaId, SynchronizedStorageSession session, ContextBag context) where TSagaData : IContainSagaData
@@ -41,26 +32,14 @@ namespace NServiceBus
 
         public Task Complete(IContainSagaData sagaData, SynchronizedStorageSession session, ContextBag context)
         {
-            var developmentSyncronizedStorageSession = (DevelopmentSynchronizedStorageSession)session;
-            var sagaFile = developmentSyncronizedStorageSession.GetSagaFile(sagaData);
-
-            sagaFile.Delete();
-
-            return TaskEx.CompletedTask;
+            var storageSession = (DevelopmentSynchronizedStorageSession)session;
+            return storageSession.Complete(sagaData);
         }
 
-        Task<TSagaData> Get<TSagaData>(Guid sagaId, SynchronizedStorageSession session) where TSagaData : IContainSagaData
+        static Task<TSagaData> Get<TSagaData>(Guid sagaId, SynchronizedStorageSession session) where TSagaData : IContainSagaData
         {
-            var developmentSyncronizedStorageSession = (DevelopmentSynchronizedStorageSession)session;
-
-            SagaStorageFile sagaStorageFile;
-
-            if (!developmentSyncronizedStorageSession.TryOpenAndLockSaga(sagaId, typeof(TSagaData), out sagaStorageFile))
-            {
-                return Task.FromResult(default(TSagaData));
-            }
-
-            return Task.FromResult((TSagaData)sagaStorageFile.Read());
+            var storageSession = (DevelopmentSynchronizedStorageSession)session;
+            return storageSession.Read<TSagaData>(sagaId);
         }
     }
 }

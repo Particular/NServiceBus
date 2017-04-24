@@ -2,6 +2,7 @@ namespace NServiceBus
 {
     using System;
     using System.IO;
+    using System.Threading.Tasks;
     using Janitor;
 
     [SkipWeaving]
@@ -11,6 +12,8 @@ namespace NServiceBus
         {
             this.fileStream = fileStream;
             this.manifest = manifest;
+
+            lastModificationSeenAt = File.GetLastWriteTimeUtc(fileStream.Name);
         }
 
         public static bool TryOpen(Guid sagaId, SagaManifest manifest, out SagaStorageFile sagaStorageFile)
@@ -23,7 +26,7 @@ namespace NServiceBus
                 return false;
             }
 
-            sagaStorageFile = new SagaStorageFile(new FileStream(filePath, FileMode.Open, FileAccess.ReadWrite, FileShare.None), manifest);
+            sagaStorageFile = new SagaStorageFile(new FileStream(filePath, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite, DefaultBufferSize, FileOptions.Asynchronous), manifest);
 
             return true;
         }
@@ -32,7 +35,7 @@ namespace NServiceBus
         {
             var filePath = manifest.GetFilePath(sagaId);
 
-            return new SagaStorageFile(new FileStream(filePath, FileMode.CreateNew, FileAccess.Write, FileShare.None), manifest);
+            return new SagaStorageFile(new FileStream(filePath, FileMode.CreateNew, FileAccess.ReadWrite, FileShare.ReadWrite, DefaultBufferSize, FileOptions.Asynchronous), manifest);
         }
 
         public void Dispose()
@@ -48,14 +51,24 @@ namespace NServiceBus
             fileStream = null;
         }
 
-        public void Complete()
+        public Task Write(IContainSagaData sagaData)
         {
+            ThrowWhenModifiedSinceLastRead(lastModificationSeenAt, fileStream.Name);
+
             fileStream.Position = 0;
-            manifest.Serializer.WriteObject(fileStream, sagaToWrite);
+            manifest.Serializer.WriteObject(fileStream, sagaData);
+            return fileStream.FlushAsync();
         }
 
-        public void Delete()
+        public async Task MarkAsCompleted()
         {
+            ThrowWhenModifiedSinceLastRead(lastModificationSeenAt, fileStream.Name);
+
+            await fileStream.WriteAsync(new byte[0], 0, 0)
+                .ConfigureAwait(false);
+            await fileStream.FlushAsync()
+                .ConfigureAwait(false);
+
             isCompleted = true;
         }
 
@@ -64,14 +77,19 @@ namespace NServiceBus
             return manifest.Serializer.ReadObject(fileStream);
         }
 
-        public void Write(IContainSagaData sagaData)
+        static void ThrowWhenModifiedSinceLastRead(DateTime lastModificationSeenAt, string filePath)
         {
-            sagaToWrite = sagaData;
+            var lastWriteTime = File.GetLastWriteTimeUtc(filePath);
+            if (lastWriteTime != lastModificationSeenAt || !File.Exists(filePath))
+            {
+                throw new ConcurrencyException();
+            }
         }
 
         readonly SagaManifest manifest;
         FileStream fileStream;
+        DateTime lastModificationSeenAt;
         bool isCompleted;
-        object sagaToWrite;
+        const int DefaultBufferSize = 4096;
     }
 }

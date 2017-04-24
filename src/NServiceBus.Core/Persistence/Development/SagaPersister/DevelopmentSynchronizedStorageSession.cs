@@ -5,6 +5,7 @@ namespace NServiceBus
     using System.Threading.Tasks;
     using Janitor;
     using Persistence;
+    using Sagas;
 
     [SkipWeaving]
     class DevelopmentSynchronizedStorageSession : CompletableSynchronizedStorageSession
@@ -20,19 +21,53 @@ namespace NServiceBus
             {
                 sagaFile.Dispose();
             }
+
+            sagaFiles.Clear();
         }
 
-        public Task CompleteAsync()
+        public async Task CompleteAsync()
         {
-            foreach (var sagaFile in sagaFiles.Values)
+            foreach (var action in deferredActions)
             {
-                sagaFile.Complete();
+                await action.Execute().ConfigureAwait(false);
             }
+            deferredActions.Clear();
+        }
 
+        public Task<TSagaData> Read<TSagaData>(Guid sagaId) where TSagaData : IContainSagaData
+        {
+            return Task.Run(() =>
+            {
+                SagaStorageFile sagaStorageFile;
+
+                if (!TryOpen(sagaId, typeof(TSagaData), out sagaStorageFile))
+                {
+                    return default(TSagaData);
+                }
+
+                return (TSagaData)sagaStorageFile.Read();
+            });
+        }
+
+        public Task Update(IContainSagaData sagaData)
+        {
+            deferredActions.Add(new UpdateAction(sagaData, sagaFiles, sagaManifests));
             return TaskEx.CompletedTask;
         }
 
-        public bool TryOpenAndLockSaga(Guid sagaId, Type entityType, out SagaStorageFile sagaStorageFile)
+        public Task Save(SagaCorrelationProperty correlationProperty, IContainSagaData sagaData)
+        {
+            deferredActions.Add(new SaveAction(correlationProperty, sagaData, sagaFiles, sagaManifests));
+            return TaskEx.CompletedTask;
+        }
+
+        public Task Complete(IContainSagaData sagaData)
+        {
+            deferredActions.Add(new CompleteAction(sagaData, sagaFiles, sagaManifests));
+            return TaskEx.CompletedTask;
+        }
+
+        bool TryOpen(Guid sagaId, Type entityType, out SagaStorageFile sagaStorageFile)
         {
             var sagaManifest = sagaManifests.GetForEntityType(entityType);
 
@@ -41,40 +76,15 @@ namespace NServiceBus
                 return false;
             }
 
-            RegisterSagaFile(sagaStorageFile, sagaId, sagaManifest.SagaEntityType);
+            sagaFiles.RegisterSagaFile(sagaStorageFile, sagaId, sagaManifest.SagaEntityType);
 
             return true;
         }
 
-
-        public SagaStorageFile CreateNew(Guid sagaId, Type entityType)
-        {
-            var sagaManifest = sagaManifests.GetForEntityType(entityType);
-
-            var sagaFile = SagaStorageFile.Create(sagaId, sagaManifest);
-
-            RegisterSagaFile(sagaFile, sagaId, sagaManifest.SagaEntityType);
-
-            return sagaFile;
-        }
-
-        public SagaStorageFile GetSagaFile(IContainSagaData sagaData)
-        {
-            var sagaFileKey = $"{sagaData.GetType().FullName}{sagaData.Id}";
-            SagaStorageFile sagaStorageFile;
-            if (!sagaFiles.TryGetValue(sagaFileKey, out sagaStorageFile))
-            {
-                throw new Exception("The saga should be retrieved with Get method before it's updated or completed.");
-            }
-            return sagaStorageFile;
-        }
-
-        void RegisterSagaFile(SagaStorageFile sagaStorageFile, Guid sagaId, Type sagaDataType)
-        {
-            sagaFiles[$"{sagaDataType.FullName}{sagaId}"] = sagaStorageFile;
-        }
-
         SagaManifestCollection sagaManifests;
+
         Dictionary<string, SagaStorageFile> sagaFiles = new Dictionary<string, SagaStorageFile>();
+
+        List<StorageAction> deferredActions = new List<StorageAction>();
     }
 }
