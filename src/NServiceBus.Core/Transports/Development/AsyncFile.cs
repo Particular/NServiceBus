@@ -3,6 +3,7 @@ namespace NServiceBus
     using System.Collections.Generic;
     using System.IO;
     using System.Text;
+    using System.Threading;
     using System.Threading.Tasks;
 
     //TODO: merge with dev persistence
@@ -68,7 +69,7 @@ namespace NServiceBus
             return WriteBytes(filePath, bytes);
         }
 
-        public static async Task<string> ReadText(string filePath)
+        public static async Task<string> ReadText(string filePath, CancellationToken token = default(CancellationToken))
         {
             var utf8 = Encoding.UTF8;
             using (var stream = CreateReadStream(filePath))
@@ -77,7 +78,7 @@ namespace NServiceBus
 
                 var buffer = new byte[0x1000];
                 int numRead;
-                while ((numRead = await stream.ReadAsync(buffer, 0, buffer.Length).ConfigureAwait(false)) != 0)
+                while ((numRead = await stream.ReadAsync(buffer, 0, buffer.Length, token).ConfigureAwait(false)) != 0)
                 {
                     builder.Append(utf8.GetString(buffer, 0, numRead));
                 }
@@ -86,13 +87,13 @@ namespace NServiceBus
             }
         }
 
-        public static async Task<byte[]> ReadBytes(string filePath)
+        public static async Task<byte[]> ReadBytes(string filePath, CancellationToken token = default(CancellationToken))
         {
             using (var stream = CreateReadStream(filePath))
             {
                 var length = (int)stream.Length;
                 var body = new byte[length];
-                await stream.ReadAsync(body, 0, length).ConfigureAwait(false);
+                await stream.ReadAsync(body, 0, length, token).ConfigureAwait(false);
                 return body;
             }
         }

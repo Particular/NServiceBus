@@ -160,7 +160,7 @@
         {
             try
             {
-                var message = await AsyncFile.ReadText(transaction.FileToProcess)
+                var message = await AsyncFile.ReadText(transaction.FileToProcess, cancellationToken)
                     .ConfigureAwait(false);
                 string bodyPath;
                 Dictionary<string, string> headers;
@@ -186,7 +186,7 @@
                 var context = new ContextBag();
                 context.Set(transaction);
 
-                var body = await AsyncFile.ReadBytes(bodyPath)
+                var body = await AsyncFile.ReadBytes(bodyPath, cancellationToken)
                     .ConfigureAwait(false);
 
                 var transportTransaction = new TransportTransaction();
