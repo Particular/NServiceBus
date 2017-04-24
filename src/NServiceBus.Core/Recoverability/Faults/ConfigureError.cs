@@ -14,6 +14,7 @@ namespace NServiceBus
         {
             Guard.AgainstNull(nameof(config), config);
             Guard.AgainstNullAndEmpty(nameof(errorQueue), errorQueue);
+
             config.Settings.Set(ErrorQueueSettings.SettingsKey, errorQueue);
         }
     }

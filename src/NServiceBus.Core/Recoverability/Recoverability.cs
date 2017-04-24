@@ -221,6 +221,7 @@
         public const string UnrecoverableExceptions = "Recoverability.UnrecoverableExceptions";
 
         static ILog Logger = LogManager.GetLogger<Recoverability>();
+
         internal static int DefaultNumberOfRetries = 3;
         internal static TimeSpan DefaultTimeIncrease = TimeSpan.FromSeconds(10);
     }

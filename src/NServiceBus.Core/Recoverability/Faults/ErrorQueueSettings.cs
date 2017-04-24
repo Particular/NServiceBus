@@ -11,6 +11,7 @@ namespace NServiceBus
     public static class ErrorQueueSettings
     {
         internal const string SettingsKey = "errorQueue";
+        const string DefaultErrorQueueName = "error";
 
         /// <summary>
         /// Finds the configured error queue for an endpoint.
@@ -25,10 +26,21 @@ namespace NServiceBus
         {
             string errorQueue;
 
-            if (settings.TryGet(SettingsKey, out errorQueue))
+            if (TryGetErrorQueueAddress(settings, out errorQueue))
+            {
+                return errorQueue;
+            }
+
+            return DefaultErrorQueueName;
+        }
+
+        internal static bool TryGetErrorQueueAddress(this ReadOnlySettings settings, out string errorQueue)
+        {
+            if (settings.HasExplicitValue(SettingsKey))
             {
                 Logger.Debug("Error queue retrieved from code configuration via 'EndpointConfiguration.SendFailedMessagesTo().");
-                return errorQueue;
+                errorQueue = settings.Get<string>(SettingsKey);
+                return true;
             }
 
             var section = settings.GetConfigSection<MessageForwardingInCaseOfFaultConfig>();
@@ -37,7 +49,8 @@ namespace NServiceBus
                 if (!string.IsNullOrWhiteSpace(section.ErrorQueue))
                 {
                     Logger.Debug("Error queue retrieved from <MessageForwardingInCaseOfFaultConfig> element in config file.");
-                    return section.ErrorQueue;
+                    errorQueue = section.ErrorQueue;
+                    return true;
                 }
 
                 throw new Exception(
@@ -54,7 +67,8 @@ Take one of the following actions:
                 if (!string.IsNullOrWhiteSpace(registryErrorQueue))
                 {
                     Logger.Debug("Error queue retrieved from registry settings.");
-                    return registryErrorQueue;
+                    errorQueue = registryErrorQueue;
+                    return true;
                 }
                 throw new Exception(
                     @"'ErrorQueue' read from registry but the value is empty.
@@ -64,12 +78,8 @@ Take one of the following actions:
 - give 'HKEY_LOCAL_MACHINE\SOFTWARE\ParticularSoftware\ServiceBus\ErrorQueue' a valid value for the error queue");
             }
 
-            throw new Exception(
-                @"Faults forwarding requires an error queue to be specified.
-Take one of the following actions:
-- set the error queue at configuration time using 'EndpointConfiguration.SendFailedMessagesTo()'
-- add a 'MessageForwardingInCaseOfFaultConfig' section to the app.config
-- configure a global error queue in the registry using the powershell command: Set-NServiceBusLocalMachineSettings -ErrorQueue {address of error queue}");
+            errorQueue = null;
+            return false;
         }
 
         static ILog Logger = LogManager.GetLogger(typeof(ErrorQueueSettings));
