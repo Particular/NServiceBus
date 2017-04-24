@@ -66,8 +66,6 @@ namespace NServiceBus
 
         public void Write(IContainSagaData sagaData)
         {
-            Console.Out.WriteLine($"{fileStream.Name} - write");
-
             sagaToWrite = sagaData;
         }
 
