@@ -10,6 +10,8 @@ namespace NServiceBus
     /// </summary>
     public static class ErrorQueueSettings
     {
+        internal const string SettingsKey = "errorQueue";
+
         /// <summary>
         /// Finds the configured error queue for an endpoint.
         /// The error queue can be configured in code using 'EndpointConfiguration.SendFailedMessagesTo()',
@@ -23,7 +25,7 @@ namespace NServiceBus
         {
             string errorQueue;
 
-            if (settings.TryGet("errorQueue", out errorQueue))
+            if (settings.TryGet(SettingsKey, out errorQueue))
             {
                 Logger.Debug("Error queue retrieved from code configuration via 'EndpointConfiguration.SendFailedMessagesTo().");
                 return errorQueue;
