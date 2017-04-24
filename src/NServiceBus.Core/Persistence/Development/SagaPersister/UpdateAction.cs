@@ -2,6 +2,7 @@ namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
+    using System.IO;
     using System.Threading.Tasks;
 
     class UpdateAction : StorageAction
@@ -18,7 +19,7 @@ namespace NServiceBus
                 await sagaFile.Write(sagaData)
                     .ConfigureAwait(false);
             }
-            catch (ConcurrencyException)
+            catch (Exception ex) when (ex is ConcurrencyException || ex is IOException)
             {
                 throw new Exception($"{nameof(DevelopmentSagaPersister)} concurrency violation: saga entity Id[{sagaData.Id}] already saved.");
             }
