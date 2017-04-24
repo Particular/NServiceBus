@@ -51,12 +51,12 @@ namespace NServiceBus
         }
 
 
-        public void Enlist(string messagePath, List<string> messageContents)
+        public async Task Enlist(string messagePath, List<string> messageContents)
         {
             var txPath = Path.Combine(transactionDir, Path.GetFileName(messagePath));
             var committedPath = Path.Combine(commitDir, Path.GetFileName(messagePath));
 
-            File.WriteAllLines(txPath, messageContents);
+            await AsyncFile.WriteLines(txPath, messageContents).ConfigureAwait(false);
             outgoingFiles.Add(new OutgoingFile(committedPath, messagePath));
         }
 

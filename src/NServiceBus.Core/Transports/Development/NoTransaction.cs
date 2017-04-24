@@ -13,9 +13,9 @@ namespace NServiceBus
             FileToProcess = incomingFilePath;
         }
 
-        public void Enlist(string messagePath, List<string> messageContents)
+        public Task Enlist(string messagePath, List<string> messageContents)
         {
-            File.WriteAllLines(messagePath, messageContents);
+            return AsyncFile.WriteLines(messagePath, messageContents);
         }
 
         public Task Commit()

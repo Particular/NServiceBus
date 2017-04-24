@@ -11,7 +11,7 @@ namespace NServiceBus
         Task Commit();
         void Rollback();
         void ClearPendingOutgoingOperations();
-        void Enlist(string messagePath, List<string> messageContents);
+        Task Enlist(string messagePath, List<string> messageContents);
         void Complete();
     }
 }

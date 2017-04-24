@@ -100,7 +100,7 @@ namespace NServiceBus
             if (transportOperation.RequiredDispatchConsistency != DispatchConsistency.Isolated &&
                 transaction.TryGet(out directoryBasedTransaction))
             {
-                directoryBasedTransaction.Enlist(messagePath, messageContents);
+                await directoryBasedTransaction.Enlist(messagePath, messageContents).ConfigureAwait(false);
             }
             else
             {
