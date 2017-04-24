@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Concurrent;
+    using System.Collections.Generic;
     using System.Diagnostics;
     using System.Globalization;
     using System.IO;
@@ -171,16 +172,18 @@
         {
             try
             {
-                var message = await AsyncFile.ReadLines(transaction.FileToProcess).ConfigureAwait(false);
-                var bodyPath = message.First();
-                var headers = HeaderSerializer.Deserialize(string.Join("", message.Skip(1)));
+                var message = await AsyncFile.ReadText(transaction.FileToProcess).ConfigureAwait(false);
+                string bodyPath;
+                Dictionary<string, string> headers;
+                ExtractMessage(out bodyPath, message, out headers);
 
                 string ttbrString;
 
                 if (headers.TryGetValue(Headers.TimeToBeReceived, out ttbrString))
                 {
                     var ttbr = TimeSpan.Parse(ttbrString);
-                    var sentTime = File.GetCreationTimeUtc(transaction.FileToProcess); //file.move preserves create time
+                    //file.move preserves create time
+                    var sentTime = File.GetCreationTimeUtc(transaction.FileToProcess);
 
                     if (sentTime + ttbr < DateTime.UtcNow)
                     {
@@ -205,12 +208,12 @@
                 {
                     await onMessage(messageContext).ConfigureAwait(false);
                 }
-                catch (Exception ex)
+                catch (Exception exception)
                 {
                     transaction.ClearPendingOutgoingOperations();
-                    var immediateProcessingFailures = retryCounts.AddOrUpdate(messageId, id => 1, (id, currentCount) => currentCount + 1);
+                    var processingFailures = retryCounts.AddOrUpdate(messageId, id => 1, (id, currentCount) => currentCount + 1);
 
-                    var errorContext = new ErrorContext(ex, headers, messageId, body, transportTransaction, immediateProcessingFailures);
+                    var errorContext = new ErrorContext(exception, headers, messageId, body, transportTransaction, processingFailures);
 
                     var actionToTake = await onError(errorContext).ConfigureAwait(false);
 
@@ -235,13 +238,19 @@
             }
         }
 
+        static void ExtractMessage(out string bodyPath, string message, out Dictionary<string, string> headers)
+        {
+            var splitIndex = message.IndexOf(Environment.NewLine);
+            bodyPath = message.Substring(0, splitIndex);
+            var headerStartIndex = splitIndex + Environment.NewLine.Length;
+            headers = HeaderSerializer.Deserialize(message.Substring(headerStartIndex));
+        }
+
         void MoveDelayedMessagesToMainDirectory(object state)
         {
             try
             {
-                var delayedDirectories = delayedRootDirectory.EnumerateDirectories();
-
-                foreach (var delayDir in delayedDirectories)
+                foreach (var delayDir in delayedRootDirectory.EnumerateDirectories())
                 {
                     var timeToTrigger = DateTime.ParseExact(delayDir.Name, "yyyyMMddHHmmss", DateTimeFormatInfo.InvariantInfo);
 
@@ -274,14 +283,11 @@
         CancellationToken cancellationToken;
         CancellationTokenSource cancellationTokenSource;
         SemaphoreSlim concurrencyLimiter;
-
         Task messagePumpTask;
-
         Func<MessageContext, Task> onMessage;
         bool purgeOnStartup;
         ConcurrentDictionary<Task, Task> runningReceiveTasks;
         Func<ErrorContext, Task<ErrorHandleResult>> onError;
-
         ConcurrentDictionary<string, int> retryCounts = new ConcurrentDictionary<string, int>();
         string path;
         string basePath;

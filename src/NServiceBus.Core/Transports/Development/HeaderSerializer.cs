@@ -7,10 +7,6 @@ namespace NServiceBus
 
     static class HeaderSerializer
     {
-        static HeaderSerializer()
-        {
-            serializer = new DataContractJsonSerializer(typeof(Dictionary<string, string>));
-        }
 
         public static string Serialize(Dictionary<string, string> dictionary)
         {
@@ -29,6 +25,6 @@ namespace NServiceBus
             }
         }
 
-        static DataContractJsonSerializer serializer;
+        static DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(Dictionary<string, string>));
     }
 }

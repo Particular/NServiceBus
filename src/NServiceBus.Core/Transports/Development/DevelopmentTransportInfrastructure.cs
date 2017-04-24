@@ -42,19 +42,19 @@
 
             do
             {
-                if (Directory.EnumerateFiles(directory).Any(f => f.EndsWith(".sln")))
+                if (Directory.EnumerateFiles(directory).Any(_ => _.EndsWith(".sln")))
                 {
                     return directory;
                 }
 
-                var di = Directory.GetParent(directory);
+                var parent = Directory.GetParent(directory);
 
-                if (!di.Exists)
+                if (!parent.Exists)
                 {
                     throw new Exception("Couldn't find your solution directory, please configure a storage path for the development transport using TBD(myPath)");
                 }
 
-                directory = di.FullName;
+                directory = parent.FullName;
             } while (true);
         }
 
@@ -86,9 +86,7 @@
         }
 
         string storagePath;
-
         SettingsHolder settings;
-
         internal static string StorageLocationKey = "DevelopmentTransport.StoragePath";
     }
 }

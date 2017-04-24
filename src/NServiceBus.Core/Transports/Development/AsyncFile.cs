@@ -97,25 +97,6 @@ namespace NServiceBus
             }
         }
 
-        public static async Task<List<string>> ReadLines(string filePath)
-        {
-            using (var stream = GetReadStream(filePath))
-            using (var reader = new StreamReader(stream))
-            {
-                var lines = new List<string>();
-                while (true)
-                {
-                    var line = await reader.ReadLineAsync().ConfigureAwait(false);
-                    if (line == null)
-                    {
-                        break;
-                    }
-                    lines.Add(line);
-                }
-                return lines;
-            }
-        }
-
         static FileStream GetReadStream(string filePath)
         {
             return new FileStream(filePath,
