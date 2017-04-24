@@ -1,6 +1,5 @@
 namespace NServiceBus
 {
-    using System.Collections.Generic;
     using System.Threading.Tasks;
 
     interface IDevelopmentTransportTransaction
@@ -11,7 +10,7 @@ namespace NServiceBus
         Task Commit();
         void Rollback();
         void ClearPendingOutgoingOperations();
-        Task Enlist(string messagePath, List<string> messageContents);
+        Task Enlist(string messagePath, string messageContents);
         void Complete();
     }
 }

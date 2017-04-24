@@ -1,6 +1,5 @@
 namespace NServiceBus
 {
-    using System.Collections.Generic;
     using System.IO;
     using System.Threading.Tasks;
 
@@ -13,9 +12,9 @@ namespace NServiceBus
             FileToProcess = incomingFilePath;
         }
 
-        public Task Enlist(string messagePath, List<string> messageContents)
+        public Task Enlist(string messagePath, string messageContents)
         {
-            return AsyncFile.WriteLines(messagePath, messageContents);
+            return AsyncFile.WriteText(messagePath, messageContents);
         }
 
         public Task Commit()

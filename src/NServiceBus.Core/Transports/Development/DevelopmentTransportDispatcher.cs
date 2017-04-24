@@ -59,11 +59,7 @@ namespace NServiceBus
 
             await AsyncFile.WriteBytes(bodyPath, transportOperation.Message.Body).ConfigureAwait(false);
 
-            var messageContents = new List<string>
-            {
-                bodyPath,
-                HeaderSerializer.Serialize(transportOperation.Message.Headers)
-            };
+            var messageContents = $"{bodyPath}{Environment.NewLine}{HeaderSerializer.Serialize(transportOperation.Message.Headers)}";
 
             DateTime? timeToDeliver = null;
             DelayDeliveryWith delayDeliveryWith;
@@ -105,7 +101,7 @@ namespace NServiceBus
             else
             {
                 // atomic avoids the file being locked when the receiver tries to process it
-                await AsyncFile.WriteLinesAtomic(messagePath, messageContents).ConfigureAwait(false);
+                await AsyncFile.WriteTextAtomic(messagePath, messageContents).ConfigureAwait(false);
             }
         }
 

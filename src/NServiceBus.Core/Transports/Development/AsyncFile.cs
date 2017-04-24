@@ -26,14 +26,15 @@ namespace NServiceBus
         }
 
         //write to temp file first so we can do a atomic move
-        public static async Task WriteLinesAtomic(string targetPath, IEnumerable<string> lines)
+        public static async Task WriteTextAtomic(string targetPath, string text)
         {
             var tempFile = Path.GetTempFileName();
+            var bytes = Encoding.UTF8.GetBytes(text);
             try
             {
                 using (var stream = GetWriteStream(tempFile, FileMode.Open))
                 {
-                    await WriteLines(lines, stream).ConfigureAwait(false);
+                    await stream.WriteAsync(bytes, 0, bytes.Length).ConfigureAwait(false);
                 }
             }
             catch
