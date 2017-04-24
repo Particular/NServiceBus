@@ -21,7 +21,7 @@ namespace NServiceBus
         {
             using (var stream = GetWriteStream(filePath, FileMode.Create))
             {
-                await WriteLines(lines, stream).ConfigureAwait(false);
+                await WriteLines(stream, lines).ConfigureAwait(false);
             }
         }
 
@@ -45,7 +45,7 @@ namespace NServiceBus
             File.Move(tempFile, targetPath);
         }
 
-        static async Task WriteLines(IEnumerable<string> lines, FileStream stream)
+        static async Task WriteLines(FileStream stream, IEnumerable<string> lines)
         {
             using (var writer = new StreamWriter(stream))
             {

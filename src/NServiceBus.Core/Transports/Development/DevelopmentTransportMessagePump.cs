@@ -69,7 +69,8 @@
             {
                 messagePumpTask
             });
-            var finishedTask = await Task.WhenAny(Task.WhenAll(allTasks), timeoutTask).ConfigureAwait(false);
+            var finishedTask = await Task.WhenAny(Task.WhenAll(allTasks), timeoutTask)
+                .ConfigureAwait(false);
 
             if (finishedTask.Equals(timeoutTask))
             {
@@ -85,21 +86,23 @@
         {
             try
             {
-                await InnerProcessMessages().ConfigureAwait(false);
+                await InnerProcessMessages()
+                    .ConfigureAwait(false);
             }
             catch (OperationCanceledException)
             {
                 // For graceful shutdown purposes
             }
-            catch (Exception ex)
+            catch (Exception exception)
             {
-                Logger.Error("File Message pump failed", ex);
+                Logger.Error("File Message pump failed", exception);
                 //await peekCircuitBreaker.Failure(ex).ConfigureAwait(false);
             }
 
             if (!cancellationToken.IsCancellationRequested)
             {
-                await ProcessMessages().ConfigureAwait(false);
+                await ProcessMessages()
+                    .ConfigureAwait(false);
             }
         }
 
@@ -128,21 +131,24 @@
 
                     transaction.BeginTransaction(filePath);
 
-                    await concurrencyLimiter.WaitAsync(cancellationToken).ConfigureAwait(false);
+                    await concurrencyLimiter.WaitAsync(cancellationToken)
+                        .ConfigureAwait(false);
 
                     var task = Task.Run(async () =>
                     {
                         try
                         {
-                            await ProcessFile(transaction, nativeMessageId).ConfigureAwait(false);
+                            await ProcessFile(transaction, nativeMessageId)
+                                .ConfigureAwait(false);
 
                             transaction.Complete();
 
                             receiveCircuitBreaker.Success();
                         }
-                        catch (Exception ex)
+                        catch (Exception exception)
                         {
-                            await receiveCircuitBreaker.Failure(ex).ConfigureAwait(false);
+                            await receiveCircuitBreaker.Failure(exception)
+                                .ConfigureAwait(false);
                         }
                         finally
                         {
@@ -163,7 +169,8 @@
 
                 if (!filesFound)
                 {
-                    await Task.Delay(10, cancellationToken).ConfigureAwait(false);
+                    await Task.Delay(10, cancellationToken)
+                        .ConfigureAwait(false);
                 }
             }
         }
@@ -172,7 +179,8 @@
         {
             try
             {
-                var message = await AsyncFile.ReadText(transaction.FileToProcess).ConfigureAwait(false);
+                var message = await AsyncFile.ReadText(transaction.FileToProcess)
+                    .ConfigureAwait(false);
                 string bodyPath;
                 Dictionary<string, string> headers;
                 ExtractMessage(out bodyPath, message, out headers);
@@ -187,7 +195,8 @@
 
                     if (sentTime + ttbr < DateTime.UtcNow)
                     {
-                        await transaction.Commit().ConfigureAwait(false);
+                        await transaction.Commit()
+                            .ConfigureAwait(false);
                         return;
                     }
                 }
@@ -196,7 +205,8 @@
                 var context = new ContextBag();
                 context.Set(transaction);
 
-                var body = await AsyncFile.ReadBytes(bodyPath).ConfigureAwait(false);
+                var body = await AsyncFile.ReadBytes(bodyPath)
+                    .ConfigureAwait(false);
 
                 var transportTransaction = new TransportTransaction();
 
@@ -215,7 +225,8 @@
 
                     var errorContext = new ErrorContext(exception, headers, messageId, body, transportTransaction, processingFailures);
 
-                    var actionToTake = await onError(errorContext).ConfigureAwait(false);
+                    var actionToTake = await onError(errorContext)
+                        .ConfigureAwait(false);
 
                     if (actionToTake == ErrorHandleResult.RetryRequired)
                     {
@@ -230,7 +241,8 @@
                     return;
                 }
 
-                await transaction.Commit().ConfigureAwait(false);
+                await transaction.Commit()
+                    .ConfigureAwait(false);
             }
             catch (Exception)
             {

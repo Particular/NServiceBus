@@ -56,7 +56,8 @@ namespace NServiceBus
             var txPath = Path.Combine(transactionDir, Path.GetFileName(messagePath));
             var committedPath = Path.Combine(commitDir, Path.GetFileName(messagePath));
 
-            await AsyncFile.WriteText(txPath, messageContents).ConfigureAwait(false);
+            await AsyncFile.WriteText(txPath, messageContents)
+                .ConfigureAwait(false);
             outgoingFiles.Add(new OutgoingFile(committedPath, messagePath));
         }
 

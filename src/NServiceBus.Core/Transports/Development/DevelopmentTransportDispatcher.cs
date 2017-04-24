@@ -96,12 +96,14 @@ namespace NServiceBus
             if (transportOperation.RequiredDispatchConsistency != DispatchConsistency.Isolated &&
                 transaction.TryGet(out directoryBasedTransaction))
             {
-                await directoryBasedTransaction.Enlist(messagePath, messageContents).ConfigureAwait(false);
+                await directoryBasedTransaction.Enlist(messagePath, messageContents)
+                    .ConfigureAwait(false);
             }
             else
             {
                 // atomic avoids the file being locked when the receiver tries to process it
-                await AsyncFile.WriteTextAtomic(messagePath, messageContents).ConfigureAwait(false);
+                await AsyncFile.WriteTextAtomic(messagePath, messageContents)
+                    .ConfigureAwait(false);
             }
         }
 
@@ -122,7 +124,8 @@ namespace NServiceBus
 
                 foreach (var file in Directory.GetFiles(eventDir))
                 {
-                    var allText = await AsyncFile.ReadText(file).ConfigureAwait(false);
+                    var allText = await AsyncFile.ReadText(file)
+                        .ConfigureAwait(false);
                     subscribers.Add(allText);
                 }
             }
