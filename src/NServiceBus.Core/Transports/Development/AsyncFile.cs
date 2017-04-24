@@ -8,10 +8,9 @@ namespace NServiceBus
     //TODO: merge with dev persistence
     static class AsyncFile
     {
-
         public static async Task WriteBytes(string filePath, byte[] bytes)
         {
-            using (var stream = GetWriteStream(filePath, FileMode.Create))
+            using (var stream = CreateWriteStream(filePath, FileMode.Create))
             {
                 await stream.WriteAsync(bytes, 0, bytes.Length).ConfigureAwait(false);
             }
@@ -19,7 +18,7 @@ namespace NServiceBus
 
         public static async Task WriteLines(string filePath, IEnumerable<string> lines)
         {
-            using (var stream = GetWriteStream(filePath, FileMode.Create))
+            using (var stream = CreateWriteStream(filePath, FileMode.Create))
             {
                 await WriteLines(stream, lines).ConfigureAwait(false);
             }
@@ -32,7 +31,7 @@ namespace NServiceBus
             var bytes = Encoding.UTF8.GetBytes(text);
             try
             {
-                using (var stream = GetWriteStream(tempFile, FileMode.Open))
+                using (var stream = CreateWriteStream(tempFile, FileMode.Open))
                 {
                     await stream.WriteAsync(bytes, 0, bytes.Length).ConfigureAwait(false);
                 }
@@ -56,7 +55,7 @@ namespace NServiceBus
             }
         }
 
-        static FileStream GetWriteStream(string filePath, FileMode fileMode)
+        static FileStream CreateWriteStream(string filePath, FileMode fileMode)
         {
             return new FileStream(filePath,
                 fileMode, FileAccess.Write, FileShare.None,
@@ -72,7 +71,7 @@ namespace NServiceBus
         public static async Task<string> ReadText(string filePath)
         {
             var utf8 = Encoding.UTF8;
-            using (var stream = GetReadStream(filePath))
+            using (var stream = CreateReadStream(filePath))
             {
                 var builder = new StringBuilder();
 
@@ -86,9 +85,10 @@ namespace NServiceBus
                 return builder.ToString();
             }
         }
+
         public static async Task<byte[]> ReadBytes(string filePath)
         {
-            using (var stream = GetReadStream(filePath))
+            using (var stream = CreateReadStream(filePath))
             {
                 var length = (int)stream.Length;
                 var body = new byte[length];
@@ -97,7 +97,7 @@ namespace NServiceBus
             }
         }
 
-        static FileStream GetReadStream(string filePath)
+        static FileStream CreateReadStream(string filePath)
         {
             return new FileStream(filePath,
                 FileMode.Open, FileAccess.Read, FileShare.Read,
