@@ -114,10 +114,12 @@ namespace NServiceBus.Hosting.Helpers
                     {
                         var messageType = @interface.GetGenericArguments()[0];
                         foundMessageTypes.Add(messageType);
+
+                        foundMessageTypes.AddRange(messageType.Assembly.GetTypes().Where(t=> messageType.IsAssignableFrom(t)));
                     }
                 }
             }
-            return foundMessageTypes;
+            return foundMessageTypes.Distinct().ToList();
         }
 
         static string AssemblyPath(Assembly assembly)

@@ -5,6 +5,7 @@
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.IO;
+    using System.Linq;
     using System.Reflection;
     using System.Text;
     using System.Threading;
@@ -225,10 +226,51 @@
             Assert.IsTrue(result.Assemblies.Contains(busAssembly));
         }
 
+        [Test, RunInApplicationDomain]
+        public void Include_child_type_even_if_only_handler_for_base_exists()
+        {
+            var messages =
+@"
+public interface IBaseEvent
+{
+}
+
+public interface IInheritedEvent : IBaseEvent
+{
+}
+";
+
+            var handler =
+@"
+using NServiceBus;
+using System.Threading.Tasks;
+
+class InterfaceMessageHandler : IHandleMessages<IBaseEvent>
+{
+    public Task Handle(IBaseEvent message, IMessageHandlerContext context)
+    {
+        return Task.FromResult(0);
+    }
+}
+";
+
+            var messagesAsm = new DynamicAssembly("Fake.Messages", content: messages);
+            Assembly.LoadFrom(messagesAsm.FilePath);
+
+            var handlerAsm = new DynamicAssembly("Fake.Handler", new[] { messagesAsm }, content: handler, referenceTheCore: true);
+            Assembly.LoadFrom(handlerAsm.FilePath);
+
+            var scanner = new AssemblyScanner(DynamicAssembly.TestAssemblyDirectory);
+
+            var result = scanner.GetScannableAssemblies();
+
+            Assert.True(result.Types.Any(t => t.Name == "IInheritedEvent"));
+        }
+
         [DebuggerDisplay("Name = {Name}, DynamicName = {DynamicName}, Namespace = {Namespace}, FileName = {FileName}")]
         class DynamicAssembly
         {
-            public DynamicAssembly(string nameWithoutExtension, DynamicAssembly[] references = null, Version version = null, bool fakeIdentity = false)
+            public DynamicAssembly(string nameWithoutExtension, DynamicAssembly[] references = null, Version version = null, bool fakeIdentity = false, string content = null, bool referenceTheCore = false)
             {
                 if (version == null)
                 {
@@ -267,12 +309,30 @@
                     param.ReferencedAssemblies.Add(reference.FilePath);
                 }
 
-                builder.AppendLine("public class Foo { public Foo() {");
-                foreach (var reference in references)
+                if (referenceTheCore)
                 {
-                    builder.AppendLine($"new {reference.Namespace}.Foo();");
+                    var targetCorePath = Path.Combine(TestAssemblyDirectory, "NServiceBus.Core.dll");
+                    File.Copy(Path.Combine(TestDirectory, "NServiceBus.Core.dll"), Path.Combine(TestAssemblyDirectory, "NServiceBus.Core.dll"));
+
+                    param.ReferencedAssemblies.Add(targetCorePath);
                 }
-                builder.AppendLine("} } }");
+
+                if (content == null)
+                {
+                    builder.AppendLine("public class Foo { public Foo() {");
+                    foreach (var reference in references)
+                    {
+                        builder.AppendLine($"new {reference.Namespace}.Foo();");
+                    }
+                    builder.AppendLine("} }");
+                }
+                else
+                {
+                    builder.AppendLine(content);
+                }
+
+                builder.AppendLine(" }");
+
 
                 var result = provider.CompileAssemblyFromSource(param, builder.ToString());
                 ThrowIfCompilationWasNotSuccessful(result);
@@ -302,7 +362,9 @@
 
             public Assembly Assembly { get; }
 
-            public static string TestAssemblyDirectory { get; } = Path.Combine(AppDomainRunner.DataStore.Get<string>("TestDirectory"), "assemblyscannerfiles");
+            public static string TestDirectory { get; } = AppDomainRunner.DataStore.Get<string>("TestDirectory");
+
+            public static string TestAssemblyDirectory { get; } = Path.Combine(TestDirectory, "assemblyscannerfiles");
 
             static void ThrowIfCompilationWasNotSuccessful(CompilerResults results)
             {
