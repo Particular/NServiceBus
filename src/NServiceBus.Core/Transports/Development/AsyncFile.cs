@@ -11,7 +11,7 @@ namespace NServiceBus
 
         public static async Task WriteBytes(string filePath, byte[] bytes)
         {
-            using (var stream = GetWriteStream(filePath))
+            using (var stream = GetWriteStream(filePath, FileMode.Create))
             {
                 await stream.WriteAsync(bytes, 0, bytes.Length).ConfigureAwait(false);
             }
@@ -19,20 +19,46 @@ namespace NServiceBus
 
         public static async Task WriteLines(string filePath, IEnumerable<string> lines)
         {
-            using (var stream = GetWriteStream(filePath))
+            using (var stream = GetWriteStream(filePath, FileMode.Create))
+            {
+                await WriteLines(lines, stream).ConfigureAwait(false);
+            }
+        }
+
+        //write to temp file first so we can do a atomic move
+        public static async Task WriteLinesAtomic(string targetPath, IEnumerable<string> lines)
+        {
+            var tempFile = Path.GetTempFileName();
+            try
+            {
+                using (var stream = GetWriteStream(tempFile, FileMode.Open))
+                {
+                    await WriteLines(lines, stream).ConfigureAwait(false);
+                }
+            }
+            catch
+            {
+                File.Delete(tempFile);
+                throw;
+            }
+            File.Move(tempFile, targetPath);
+        }
+
+        static async Task WriteLines(IEnumerable<string> lines, FileStream stream)
+        {
+            using (var writer = new StreamWriter(stream))
             {
                 foreach (var line in lines)
                 {
-                    var bytes = Encoding.UTF8.GetBytes(line);
-                    await stream.WriteAsync(bytes, 0, bytes.Length).ConfigureAwait(false);
+                    await writer.WriteLineAsync(line).ConfigureAwait(false);
                 }
             }
         }
 
-        static FileStream GetWriteStream(string filePath)
+        static FileStream GetWriteStream(string filePath, FileMode fileMode)
         {
             return new FileStream(filePath,
-                FileMode.CreateNew, FileAccess.Write, FileShare.None,
+                fileMode, FileAccess.Write, FileShare.None,
                 bufferSize: 4096, useAsync: true);
         }
 
