@@ -53,20 +53,20 @@ namespace NServiceBus
 
         public Task Write(IContainSagaData sagaData)
         {
-            ThrowWhenModifiedSinceLastRead(lastModificationSeenAt, fileStream.Name);
-
             fileStream.Position = 0;
-            manifest.Serializer.WriteObject(fileStream, sagaData);
-            return fileStream.FlushAsync();
+
+            return WriteAtomic((stream, state) =>
+            {
+                var serializer = state.Manifest.Serializer;
+                var data = state.SagaData;
+                serializer.WriteObject(stream, data);
+                return TaskEx.CompletedTask;
+            }, fileStream, lastModificationSeenAt, new WriteState(sagaData, manifest));
         }
 
         public async Task MarkAsCompleted()
         {
-            ThrowWhenModifiedSinceLastRead(lastModificationSeenAt, fileStream.Name);
-
-            await fileStream.WriteAsync(new byte[0], 0, 0)
-                .ConfigureAwait(false);
-            await fileStream.FlushAsync()
+            await WriteAtomic((stream, state) => stream.WriteAsync(EmptyBytes, 0, 0), fileStream, lastModificationSeenAt)
                 .ConfigureAwait(false);
 
             isCompleted = true;
@@ -75,6 +75,27 @@ namespace NServiceBus
         public object Read()
         {
             return manifest.Serializer.ReadObject(fileStream);
+        }
+
+        static Task WriteAtomic(Func<FileStream, object, Task> action, FileStream stream, DateTime lastModificationSeenAt)
+        {
+            return WriteAtomic<object>(action, stream, lastModificationSeenAt);
+        }
+
+        static async Task WriteAtomic<TState>(Func<FileStream, TState, Task> action, FileStream stream, DateTime lastModificationSeenAt, TState state = default(TState))
+        {
+            var targetPath = stream.Name;
+            var lockFilePath = Path.ChangeExtension(targetPath, ".lock");
+            // will blow up in case of concurrency
+            using (new FileStream(lockFilePath, FileMode.CreateNew, FileAccess.Write, FileShare.None, DefaultBufferSize, FileOptions.Asynchronous | FileOptions.DeleteOnClose))
+            {
+                ThrowWhenModifiedSinceLastRead(lastModificationSeenAt, targetPath);
+
+                await action(stream, state)
+                    .ConfigureAwait(false);
+                await stream.FlushAsync()
+                    .ConfigureAwait(false);
+            }
         }
 
         static void ThrowWhenModifiedSinceLastRead(DateTime lastModificationSeenAt, string filePath)
@@ -91,5 +112,18 @@ namespace NServiceBus
         DateTime lastModificationSeenAt;
         bool isCompleted;
         const int DefaultBufferSize = 4096;
+        static byte[] EmptyBytes = new byte[0];
+
+        struct WriteState
+        {
+            public WriteState(IContainSagaData sagaData, SagaManifest manifest)
+            {
+                SagaData = sagaData;
+                Manifest = manifest;
+            }
+
+            public readonly IContainSagaData SagaData;
+            public readonly SagaManifest Manifest;
+        }
     }
 }
