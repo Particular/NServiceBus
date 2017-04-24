@@ -171,7 +171,7 @@
         {
             try
             {
-                var message = File.ReadAllLines(transaction.FileToProcess);
+                var message = await AsyncFile.ReadLines(transaction.FileToProcess).ConfigureAwait(false);
                 var bodyPath = message.First();
                 var headers = HeaderSerializer.Deserialize(string.Join("", message.Skip(1)));
 
