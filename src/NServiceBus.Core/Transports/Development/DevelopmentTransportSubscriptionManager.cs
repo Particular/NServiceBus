@@ -46,15 +46,13 @@
 
         string GetSubscriptionEntryPath(string eventDir)
         {
-            var subscriptionEntryPath = Path.Combine(eventDir, endpointName + ".subcription");
-            return subscriptionEntryPath;
+            return Path.Combine(eventDir, endpointName + ".subcription");
         }
 
         string GetEventDirectory(Type eventType)
         {
             var eventId = eventType.FullName;
-            var eventDir = Path.Combine(basePath, eventId);
-            return eventDir;
+            return Path.Combine(basePath, eventId);
         }
 
         string basePath;
