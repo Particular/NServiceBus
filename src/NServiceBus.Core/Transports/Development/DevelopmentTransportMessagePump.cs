@@ -128,35 +128,35 @@
                     await concurrencyLimiter.WaitAsync(cancellationToken)
                         .ConfigureAwait(false);
 
-                    Task.Run(async () =>
-                    {
-                        try
-                        {
-                            await ProcessFile(transaction, nativeMessageId)
-                                .ConfigureAwait(false);
-
-                            transaction.Complete();
-
-                            receiveCircuitBreaker.Success();
-                        }
-                        catch (Exception exception)
-                        {
-                            await receiveCircuitBreaker.Failure(exception)
-                                .ConfigureAwait(false);
-                        }
-                        finally
-                        {
-                            concurrencyLimiter.Release();
-                        }
-                    }, cancellationToken)
-                    .Ignore();
+                    InnerProcessFile(transaction, nativeMessageId).Ignore();
                 }
 
                 if (!filesFound)
                 {
-                    await Task.Delay(10, cancellationToken)
-                        .ConfigureAwait(false);
+                    await Task.Delay(10, cancellationToken).ConfigureAwait(false);
                 }
+            }
+        }
+
+        async Task InnerProcessFile(IDevelopmentTransportTransaction transaction, string nativeMessageId)
+        {
+            try
+            {
+                await ProcessFile(transaction, nativeMessageId)
+                    .ConfigureAwait(false);
+
+                transaction.Complete();
+
+                receiveCircuitBreaker.Success();
+            }
+            catch (Exception exception)
+            {
+                await receiveCircuitBreaker.Failure(exception)
+                    .ConfigureAwait(false);
+            }
+            finally
+            {
+                concurrencyLimiter.Release();
             }
         }
 
