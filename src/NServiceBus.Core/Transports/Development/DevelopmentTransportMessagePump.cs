@@ -147,7 +147,7 @@
             }
             catch (Exception ex) when (NotForGracefulShutdown(ex))
             {
-                await receiveCircuitBreaker.Failure(exception)
+                await receiveCircuitBreaker.Failure(ex)
                     .ConfigureAwait(false);
             }
             finally
@@ -233,7 +233,7 @@
 
         static void ExtractMessage(out string bodyPath, string message, out Dictionary<string, string> headers)
         {
-            var splitIndex = message.IndexOf(Environment.NewLine);
+            var splitIndex = message.IndexOf(Environment.NewLine, StringComparison.Ordinal);
             bodyPath = message.Substring(0, splitIndex);
             var headerStartIndex = splitIndex + Environment.NewLine.Length;
             headers = HeaderSerializer.Deserialize(message.Substring(headerStartIndex));
