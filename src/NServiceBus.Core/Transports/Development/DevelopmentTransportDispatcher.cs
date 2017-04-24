@@ -4,6 +4,7 @@ namespace NServiceBus
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
+    using System.Text;
     using System.Threading.Tasks;
     using DelayedDelivery;
     using DeliveryConstraints;
@@ -24,19 +25,21 @@ namespace NServiceBus
                 DispatchMulticast(outgoingMessages.MulticastTransportOperations, transaction));
         }
 
-        Task DispatchMulticast(IEnumerable<MulticastTransportOperation> transportOperations, TransportTransaction transaction)
+        async Task DispatchMulticast(IEnumerable<MulticastTransportOperation> transportOperations, TransportTransaction transaction)
         {
             var tasks = new List<Task>();
             foreach (var transportOperation in transportOperations)
             {
-                var subscribers = GetSubscribersFor(transportOperation.MessageType);
+                var subscribers = await GetSubscribersFor(transportOperation.MessageType)
+                    .ConfigureAwait(false);
 
                 foreach (var subscriber in subscribers)
                 {
                     tasks.Add(WriteMessage(subscriber, transportOperation, transaction));
                 }
             }
-            return Task.WhenAll(tasks);
+            await Task.WhenAll(tasks)
+                .ConfigureAwait(false);
         }
 
 
@@ -122,7 +125,7 @@ namespace NServiceBus
             }
         }
 
-        IEnumerable<string> GetSubscribersFor(Type messageType)
+        async Task<IEnumerable<string>> GetSubscribersFor(Type messageType)
         {
             var subscribers = new HashSet<string>();
 
@@ -139,13 +142,33 @@ namespace NServiceBus
 
                 foreach (var file in Directory.GetFiles(eventDir))
                 {
-                    subscribers.Add(File.ReadAllText(file));
+                    var allText = await ReadTextAsync(file).ConfigureAwait(false);
+                    subscribers.Add(allText);
                 }
             }
 
             return subscribers;
         }
 
+        //TODO: merge with dev persistence
+        static async Task<string> ReadTextAsync(string filePath)
+        {
+            using (var sourceStream = new FileStream(filePath,
+                FileMode.Open, FileAccess.Read, FileShare.Read,
+                bufferSize: 4096, useAsync: true))
+            {
+                var builder = new StringBuilder();
+
+                var buffer = new byte[0x1000];
+                int numRead;
+                while ((numRead = await sourceStream.ReadAsync(buffer, 0, buffer.Length).ConfigureAwait(false)) != 0)
+                {
+                    builder.Append(Encoding.UTF8.GetString(buffer, 0, numRead));
+                }
+
+                return builder.ToString();
+            }
+        }
         static IEnumerable<Type> GetPotentialEventTypes(Type messageType)
         {
             var allEventTypes = new HashSet<Type>();
