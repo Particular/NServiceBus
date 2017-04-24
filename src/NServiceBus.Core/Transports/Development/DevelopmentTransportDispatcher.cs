@@ -4,7 +4,6 @@ namespace NServiceBus
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
-    using System.Text;
     using System.Threading.Tasks;
     using DelayedDelivery;
     using DeliveryConstraints;
@@ -131,7 +130,7 @@ namespace NServiceBus
 
                 foreach (var file in Directory.GetFiles(eventDir))
                 {
-                    var allText = await ReadTextAsync(file).ConfigureAwait(false);
+                    var allText = await AsyncFile.ReadText(file).ConfigureAwait(false);
                     subscribers.Add(allText);
                 }
             }
@@ -139,25 +138,6 @@ namespace NServiceBus
             return subscribers;
         }
 
-        //TODO: merge with dev persistence
-        static async Task<string> ReadTextAsync(string filePath)
-        {
-            using (var sourceStream = new FileStream(filePath,
-                FileMode.Open, FileAccess.Read, FileShare.Read,
-                bufferSize: 4096, useAsync: true))
-            {
-                var builder = new StringBuilder();
-
-                var buffer = new byte[0x1000];
-                int numRead;
-                while ((numRead = await sourceStream.ReadAsync(buffer, 0, buffer.Length).ConfigureAwait(false)) != 0)
-                {
-                    builder.Append(Encoding.UTF8.GetString(buffer, 0, numRead));
-                }
-
-                return builder.ToString();
-            }
-        }
         static IEnumerable<Type> GetPotentialEventTypes(Type messageType)
         {
             var allEventTypes = new HashSet<Type>();

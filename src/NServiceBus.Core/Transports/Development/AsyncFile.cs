@@ -44,6 +44,7 @@ namespace NServiceBus
 
         public static async Task<string> ReadText(string filePath)
         {
+            var utf8 = Encoding.UTF8;
             using (var stream = GetReadStream(filePath))
             {
                 var builder = new StringBuilder();
@@ -52,7 +53,7 @@ namespace NServiceBus
                 int numRead;
                 while ((numRead = await stream.ReadAsync(buffer, 0, buffer.Length).ConfigureAwait(false)) != 0)
                 {
-                    builder.Append(Encoding.UTF8.GetString(buffer, 0, numRead));
+                    builder.Append(utf8.GetString(buffer, 0, numRead));
                 }
 
                 return builder.ToString();
