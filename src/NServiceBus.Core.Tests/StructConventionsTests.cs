@@ -2,6 +2,7 @@ namespace NServiceBus.Core.Tests
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Reflection;
     using System.Runtime.InteropServices;
     using System.Text;
@@ -29,7 +30,7 @@ In all other cases, you should define your types as classes.
 ");
 
             var assembly = typeof(Endpoint).Assembly;
-            foreach (var type in assembly.GetTypes())
+            foreach (var type in assembly.GetTypes().OrderBy(t => t.FullName))
             {
                 if (!type.IsValueType || type.IsEnum || type.IsSpecialName|| type.Namespace == null || !type.Namespace.StartsWith("NServiceBus") || type.FullName.Contains("__")) continue;
 
@@ -62,7 +63,7 @@ In all other cases, you should define your types as classes.
 
             var fields = type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
 
-            foreach (var fieldInfo in fields)
+            foreach (var fieldInfo in fields.OrderBy(f => f.Name))
             {
                 if (fieldInfo.FieldType == typeof(string) && (fieldInfo.IsInitOnly || fieldInfo.IsLiteral))
                 {
@@ -85,7 +86,7 @@ In all other cases, you should define your types as classes.
 
             var fields = type.GetFields();
 
-            foreach (var fieldInfo in fields)
+            foreach (var fieldInfo in fields.OrderBy(f => f.Name))
             {
                 if (!fieldInfo.IsInitOnly && !fieldInfo.IsLiteral)
                 {
@@ -103,7 +104,7 @@ In all other cases, you should define your types as classes.
 
             var properties = type.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
 
-            foreach (var property in properties)
+            foreach (var property in properties.OrderBy(p => p.Name))
             {
                 if (property.CanWrite)
                 {
