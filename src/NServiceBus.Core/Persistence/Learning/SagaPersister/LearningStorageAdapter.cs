@@ -6,7 +6,7 @@
     using Persistence;
     using Transport;
 
-    class DevelopmentStorageAdapter : ISynchronizedStorageAdapter
+    class LearningStorageAdapter : ISynchronizedStorageAdapter
     {
         public Task<CompletableSynchronizedStorageSession> TryAdapt(OutboxTransaction transaction, ContextBag context)
         {

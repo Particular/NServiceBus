@@ -326,11 +326,6 @@ namespace NServiceBus
         InstancePerUnitOfWork = 1,
         InstancePerCall = 2,
     }
-    public class DevelopmentPersistence : NServiceBus.Persistence.PersistenceDefinition { }
-    public class static DevelopmentSagaPersisterConfigExtensions
-    {
-        public static void SagaStorageDirectory(this NServiceBus.PersistenceExtensions<NServiceBus.DevelopmentPersistence, NServiceBus.Persistence.StorageType.Sagas> config, string path) { }
-    }
     public class DistributionPolicy : NServiceBus.IDistributionPolicy
     {
         public DistributionPolicy() { }
@@ -822,6 +817,11 @@ namespace NServiceBus
     {
         public static void StorageDirectory(this NServiceBus.TransportExtensions<NServiceBus.LearningTransport> config, string path) { }
     }
+    public class LearningPersistence : NServiceBus.Persistence.PersistenceDefinition { }
+    public class static LearningSagaPersisterConfigExtensions
+    {
+        public static void SagaStorageDirectory(this NServiceBus.PersistenceExtensions<NServiceBus.LearningPersistence, NServiceBus.Persistence.StorageType.Sagas> config, string path) { }
+    }    
     public class static LoadMessageHandlersExtensions
     {
         public static void ExecuteTheseHandlersFirst(this NServiceBus.EndpointConfiguration config, System.Collections.Generic.IEnumerable<System.Type> handlerTypes) { }

@@ -4,16 +4,16 @@ namespace NServiceBus
     using Extensibility;
     using Persistence;
 
-    class DevelopmentSynchronizedStorage : ISynchronizedStorage
+    class LearningSynchronizedStorage : ISynchronizedStorage
     {
-        public DevelopmentSynchronizedStorage(SagaManifestCollection sagaManifests)
+        public LearningSynchronizedStorage(SagaManifestCollection sagaManifests)
         {
             this.sagaManifests = sagaManifests;
         }
 
         public Task<CompletableSynchronizedStorageSession> OpenSession(ContextBag contextBag)
         {
-            return Task.FromResult<CompletableSynchronizedStorageSession>(new DevelopmentSynchronizedStorageSession(sagaManifests));
+            return Task.FromResult<CompletableSynchronizedStorageSession>(new LearningSynchronizedStorageSession(sagaManifests));
         }
 
         SagaManifestCollection sagaManifests;

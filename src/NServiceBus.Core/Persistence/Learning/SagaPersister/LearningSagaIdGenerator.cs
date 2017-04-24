@@ -3,7 +3,7 @@ namespace NServiceBus
     using System;
     using Sagas;
 
-    class DevelopmentSagaIdGenerator : ISagaIdGenerator
+    class LearningSagaIdGenerator : ISagaIdGenerator
     {
         public Guid Generate(SagaIdGeneratorContext context)
         {

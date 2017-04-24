@@ -8,9 +8,9 @@ namespace NServiceBus
     using Sagas;
 
     [SkipWeaving]
-    class DevelopmentSynchronizedStorageSession : CompletableSynchronizedStorageSession
+    class LearningSynchronizedStorageSession : CompletableSynchronizedStorageSession
     {
-        public DevelopmentSynchronizedStorageSession(SagaManifestCollection sagaManifests)
+        public LearningSynchronizedStorageSession(SagaManifestCollection sagaManifests)
         {
             this.sagaManifests = sagaManifests;
         }

@@ -21,7 +21,7 @@ namespace NServiceBus
             }
             catch (Exception ex) when (ex is ConcurrencyException || ex is IOException)
             {
-                throw new Exception($"{nameof(DevelopmentSagaPersister)} concurrency violation: saga entity Id[{sagaData.Id}] already saved.");
+                throw new Exception($"{nameof(LearningSagaPersister)} concurrency violation: saga entity Id[{sagaData.Id}] already saved.");
             }
         }
     }

@@ -4,12 +4,12 @@
     using System.IO;
     using NServiceBus.Sagas;
 
-    class DevelopmentSagaPersistence : Feature
+    class LearningSagaPersistence : Feature
     {
-        internal DevelopmentSagaPersistence()
+        internal LearningSagaPersistence()
         {
             DependsOn<Sagas>();
-            Defaults(s => s.Set<ISagaIdGenerator>(new DevelopmentSagaIdGenerator()));
+            Defaults(s => s.Set<ISagaIdGenerator>(new LearningSagaIdGenerator()));
             Defaults(s => s.SetDefault(StorageLocationKey, Path.Combine(AppDomain.CurrentDomain.BaseDirectory, ".sagas")));
         }
 
@@ -24,12 +24,12 @@
 
             var sagaManifests = new SagaManifestCollection(allSagas, storageLocation);
 
-            context.Container.ConfigureComponent(b => new DevelopmentSynchronizedStorage(sagaManifests), DependencyLifecycle.SingleInstance);
-            context.Container.ConfigureComponent<DevelopmentStorageAdapter>(DependencyLifecycle.SingleInstance);
+            context.Container.ConfigureComponent(b => new LearningSynchronizedStorage(sagaManifests), DependencyLifecycle.SingleInstance);
+            context.Container.ConfigureComponent<LearningStorageAdapter>(DependencyLifecycle.SingleInstance);
 
-            context.Container.ConfigureComponent(b => new DevelopmentSagaPersister(), DependencyLifecycle.SingleInstance);
+            context.Container.ConfigureComponent(b => new LearningSagaPersister(), DependencyLifecycle.SingleInstance);
         }
 
-        internal static string StorageLocationKey = "DevelopmentSagaPersistence.StorageLocation";
+        internal static string StorageLocationKey = "LearningSagaPersistence.StorageLocation";
     }
 }

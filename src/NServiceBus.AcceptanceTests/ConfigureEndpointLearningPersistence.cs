@@ -5,7 +5,7 @@ using NServiceBus;
 using NServiceBus.AcceptanceTesting.Support;
 using NServiceBus.Persistence;
 
-public class ConfigureEndpointDevelopmentPersistence : IConfigureEndpointTestExecution
+public class ConfigureEndpointLearningPersistence : IConfigureEndpointTestExecution
 {
     public Task Configure(string endpointName, EndpointConfiguration configuration, RunSettings settings, PublisherMetadata publisherMetadata)
     {
@@ -14,7 +14,7 @@ public class ConfigureEndpointDevelopmentPersistence : IConfigureEndpointTestExe
         configuration.UsePersistence<InMemoryPersistence, StorageType.Subscriptions>();
         configuration.UsePersistence<InMemoryPersistence, StorageType.Timeouts>();
 
-        configuration.UsePersistence<DevelopmentPersistence, StorageType.Sagas>()
+        configuration.UsePersistence<LearningPersistence, StorageType.Sagas>()
             .SagaStorageDirectory(storageDir);
 
         return Task.FromResult(0);

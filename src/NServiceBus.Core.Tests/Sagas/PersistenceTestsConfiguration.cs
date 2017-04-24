@@ -16,10 +16,10 @@
         {
             storageLocation = Path.Combine(TestContext.CurrentContext.TestDirectory, ".sagas");
             var sagaManifests = new SagaManifestCollection(SagaMetadataCollection, storageLocation);
-            SynchronizedStorage = new DevelopmentSynchronizedStorage(sagaManifests);
-            SynchronizedStorageAdapter = new DevelopmentStorageAdapter();
-            SagaStorage = new DevelopmentSagaPersister();
-            var sagaIdGenerator = new DevelopmentSagaIdGenerator();
+            SynchronizedStorage = new LearningSynchronizedStorage(sagaManifests);
+            SynchronizedStorageAdapter = new LearningStorageAdapter();
+            SagaStorage = new LearningSagaPersister();
+            var sagaIdGenerator = new LearningSagaIdGenerator();
             SagaIdGenerator = sagaIdGenerator;
         }
 
