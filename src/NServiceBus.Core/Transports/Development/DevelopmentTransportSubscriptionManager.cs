@@ -25,9 +25,7 @@
             var subscriptionEntryPath = GetSubscriptionEntryPath(eventDir);
 
             //add subscription
-            File.WriteAllText(subscriptionEntryPath, localAddress);
-
-            return TaskEx.CompletedTask;
+            return AsyncFile.WriteText(subscriptionEntryPath, localAddress);
         }
 
         public Task Unsubscribe(Type eventType, ContextBag context)
