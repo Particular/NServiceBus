@@ -820,7 +820,7 @@ namespace NServiceBus
     public class LearningPersistence : NServiceBus.Persistence.PersistenceDefinition { }
     public class static LearningSagaPersisterConfigExtensions
     {
-        public static void SagaStorageDirectory(this NServiceBus.PersistenceExtensions<NServiceBus.LearningPersistence, NServiceBus.Persistence.StorageType.Sagas> config, string path) { }
+        public static void SagaStorageDirectory(this NServiceBus.PersistenceExtensions<NServiceBus.LearningPersistence> config, string path) { }
     }    
     public class static LoadMessageHandlersExtensions
     {
