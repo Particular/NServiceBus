@@ -10,7 +10,7 @@ namespace NServiceBus.Persistence.ComponentTests
     public class When_persisting_a_saga_with_an_escalated_DTC_transaction : SagaPersisterTests
     {
         [Test]
-        public async Task Save_should_fails_when_data_changes_between_concurrent_instances()
+        public async Task Save_should_fail_when_data_changes_between_concurrent_instances()
         {
             configuration.RequiresDtcSupport();
 

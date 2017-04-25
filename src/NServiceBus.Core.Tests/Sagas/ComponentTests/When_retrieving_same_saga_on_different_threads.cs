@@ -9,7 +9,7 @@ namespace NServiceBus.Persistence.ComponentTests
     public class When_retrieving_same_saga_on_different_threads : SagaPersisterTests
     {
         [Test]
-        public async Task Save_should_fails_when_data_changes_between_read_and_update_on_same_thread()
+        public async Task Save_should_fail_when_data_changes_between_read_and_update_on_same_thread()
         {
             var correlationPropertyData = Guid.NewGuid().ToString();
 
