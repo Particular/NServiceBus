@@ -203,8 +203,6 @@
     <Compile Include="Sagas\ComponentTests\When_completing_a_saga_loaded_by_id.cs" />
     <Compile Include="Sagas\ComponentTests\When_completing_a_saga_with_correlation_property.cs" />
     <Compile Include="Sagas\ComponentTests\When_completing_a_saga_with_no_defined_correlation_property.cs" />
-    <Compile Include="Sagas\ComponentTests\When_multiple_workers_retrieve_same_saga_on_different_threads.cs" />
-    <Compile Include="Sagas\ComponentTests\When_multiple_workers_retrieve_same_saga_on_the_same_thread.cs" />
     <Compile Include="Sagas\ComponentTests\When_persisting_a_saga_with_an_escalated_DTC_transaction.cs" />
     <Compile Include="Sagas\ComponentTests\When_persisting_a_saga_with_complex_types.cs" />
     <Compile Include="Sagas\ComponentTests\When_persisting_a_saga_with_no_defined_unique_property.cs" />
@@ -213,6 +211,8 @@
     <Compile Include="Sagas\ComponentTests\When_persisting_different_sagas_with_no_defined_unique_properties.cs" />
     <Compile Include="Sagas\ComponentTests\When_persisting_different_sagas_with_unique_properties.cs" />
     <Compile Include="Sagas\ComponentTests\When_persisting_the_same_saga_twice_in_two_sessions_on_the_same_thread.cs" />
+    <Compile Include="Sagas\ComponentTests\When_retrieving_same_saga_on_different_threads.cs" />
+    <Compile Include="Sagas\ComponentTests\When_retrieving_same_saga_on_the_same_thread.cs" />
     <Compile Include="Sagas\ComponentTests\When_retrieving_the_same_saga_twice.cs" />
     <Compile Include="Sagas\ComponentTests\When_saga_not_found_return_default.cs" />
     <Compile Include="Sagas\ComponentTests\When_updating_a_saga_with_no_defined_unique_property.cs" />

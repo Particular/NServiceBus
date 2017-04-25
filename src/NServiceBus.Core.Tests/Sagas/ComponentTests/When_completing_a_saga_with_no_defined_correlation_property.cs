@@ -9,7 +9,7 @@
     {
         /// <summary>
         /// There can be a saga that is only started by a message and then is driven by timeouts only.
-        /// This kind of saga would not require to be correlated by any property. This test ensures that in-memory persistence covers this case and can handle this kind of sagas properly.
+        /// This kind of saga would not require to be correlated by any property.
         /// </summary>
         /// <returns></returns>
         [Test]

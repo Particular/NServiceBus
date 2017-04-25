@@ -10,46 +10,6 @@ namespace NServiceBus.Persistence.ComponentTests
     public class When_persisting_the_same_saga_twice_in_two_sessions_on_the_same_thread : SagaPersisterTests<TestSaga, TestSagaData>
     {
         [Test]
-        [Ignore("")]
-        public async Task Save_throws_concurrency_violation()
-        {
-            var correlationPropertyData = Guid.NewGuid().ToString();
-            var saga = new TestSagaData { SomeId = correlationPropertyData, DateTimeProperty = DateTime.UtcNow };
-
-            await SaveSaga(saga);
-            var persister = configuration.SagaStorage;
-            
-            TestSagaData returnedSaga1;
-            var readContextBag = configuration.GetContextBagForSagaStorage();
-            using (var readSession = await configuration.SynchronizedStorage.OpenSession(readContextBag))
-            {
-                SetActiveSagaInstanceForGet<TestSaga, TestSagaData>(readContextBag, new TestSagaData());
-
-                returnedSaga1 = await persister.Get<TestSagaData>(saga.Id, readSession, readContextBag);
-
-                await readSession.CompleteAsync();
-            }
-
-            var winningContext = configuration.GetContextBagForSagaStorage();
-            using (var winningSaveSession = await configuration.SynchronizedStorage.OpenSession(winningContext))
-            {
-                returnedSaga1.DateTimeProperty = DateTime.UtcNow;
-                SetActiveSagaInstanceForGet<TestSaga, TestSagaData>(winningContext, returnedSaga1);
-                await persister.Update(returnedSaga1, winningSaveSession, readContextBag);
-                await winningSaveSession.CompleteAsync();
-            }
-
-            var losingContext = configuration.GetContextBagForSagaStorage();
-            using (var losingSaveSession = await configuration.SynchronizedStorage.OpenSession(losingContext))
-            {
-                SetActiveSagaInstanceForGet<TestSaga, TestSagaData>(losingContext, returnedSaga1);
-                await persister.Update(returnedSaga1, losingSaveSession, readContextBag);
-
-                Assert.That(async () => await losingSaveSession.CompleteAsync(), Throws.InstanceOf<Exception>().And.Message.EndWith($"concurrency violation: saga entity Id[{saga.Id}] already saved."));
-            }
-        }
-
-        [Test]
         public async Task Save_process_is_repeatable()
         {
             var correlationPropertyData = Guid.NewGuid().ToString();

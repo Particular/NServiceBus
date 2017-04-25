@@ -3,7 +3,7 @@
     using Features;
 
     /// <summary>
-    /// Configuration options for the development saga persister.
+    /// Configuration options for the learning saga persister.
     /// </summary>
     public static class LearningSagaPersisterConfigExtensions
     {

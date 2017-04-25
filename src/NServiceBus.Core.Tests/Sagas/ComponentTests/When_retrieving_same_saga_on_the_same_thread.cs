@@ -7,10 +7,10 @@ namespace NServiceBus.Persistence.ComponentTests
     using NUnit.Framework;
 
     [TestFixture]
-    public class When_multiple_workers_retrieve_same_saga_on_the_same_thread : SagaPersisterTests
+    public class When_retrieving_same_saga_on_the_same_thread : SagaPersisterTests
     {
         [Test]
-        public async Task Save_fails_when_data_changes_between_read_and_update()
+        public async Task Save_should_fails_when_data_changes_between_read_and_update()
         {
             var correlationPropertyData = Guid.NewGuid().ToString();
 
