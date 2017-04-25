@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Threading.Tasks;
     using System.Transactions;
     using AcceptanceTesting;
@@ -23,22 +24,19 @@
                         Id = c.Id
                     }))
                  )
-                .WithEndpoint<ErrorSpy>()
-                .Done(c => c.MessageMovedToErrorQueue)
+                .Done(c => c.FailedMessages.Any())
                 .Run();
 
-            Assert.Greater(context.NumberOfProcessingAttempts, 1, "Should retry at least once");
+            Assert.GreaterOrEqual(context.NumberOfRetriesAttempted, 3, "Should retry at least three times");
             Assert.That(context.TransactionStatuses, Is.All.Not.EqualTo(TransactionStatus.Committed));
         }
-
-        const string ErrorQueueName = "error_spy_queue";
 
         class Context : ScenarioContext
         {
             public Guid Id { get; set; }
-            public bool MessageMovedToErrorQueue { get; set; }
             public List<TransactionStatus> TransactionStatuses { get; } = new List<TransactionStatus>();
             public int NumberOfProcessingAttempts { get; set; }
+            public int NumberOfRetriesAttempted => NumberOfProcessingAttempts - 1 < 0 ? 0 : NumberOfProcessingAttempts - 1;
         }
 
         class Endpoint : EndpointConfigurationBuilder
@@ -48,7 +46,6 @@
                 EndpointSetup<DefaultServer>(config =>
                 {
                     config.EnableFeature<TimeoutManager>();
-                    config.SendFailedMessagesTo(ErrorQueueName);
                     var recoverability = config.Recoverability();
                     recoverability.Delayed(settings =>
                     {
@@ -77,28 +74,6 @@
                 void CaptureTransactionStatus(object sender, TransactionEventArgs args)
                 {
                     TestContext.TransactionStatuses.Add(args.Transaction.TransactionInformation.Status);
-                }
-            }
-        }
-
-        class ErrorSpy : EndpointConfigurationBuilder
-        {
-            public ErrorSpy()
-            {
-                EndpointSetup<DefaultServer>().CustomEndpointName(ErrorQueueName);
-            }
-
-            class Handler : IHandleMessages<MessageToFail>
-            {
-                public Context TestContext { get; set; }
-
-                public Task Handle(MessageToFail message, IMessageHandlerContext context)
-                {
-                    if (message.Id == TestContext.Id)
-                    {
-                        TestContext.MessageMovedToErrorQueue = true;
-                    }
-                    return Task.FromResult(0);
                 }
             }
         }

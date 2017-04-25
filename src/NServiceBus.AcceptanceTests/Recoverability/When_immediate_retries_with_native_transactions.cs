@@ -20,10 +20,12 @@
                 .Run();
 
             Assert.True(context.ForwardedToErrorQueue);
-            Assert.AreEqual(5 + 1, context.NumberOfTimesInvoked, "Message should be retried 5 times immediately");
-            Assert.AreEqual(5, context.Logs.Count(l => l.Message
+            Assert.AreEqual(numberOfRetries + 1, context.NumberOfTimesInvoked, "Message should be retried 5 times immediately");
+            Assert.AreEqual(numberOfRetries, context.Logs.Count(l => l.Message
                 .StartsWith($"Immediate Retry is going to retry message '{context.MessageId}' because of an exception:")));
         }
+
+        const int numberOfRetries = 5;
 
         class Context : ScenarioContext
         {
@@ -44,7 +46,7 @@
                     config.Notifications.Errors.MessageSentToErrorQueue += (sender, message) => scenarioContext.ForwardedToErrorQueue = true;
 
                     var recoverability = config.Recoverability();
-                    recoverability.Immediate(immediate => immediate.NumberOfRetries(5));
+                    recoverability.Immediate(immediate => immediate.NumberOfRetries(numberOfRetries));
                     recoverability.Delayed(delayed => delayed.NumberOfRetries(0)); //disable the delayed retries
 
                     config.ConfigureTransport()

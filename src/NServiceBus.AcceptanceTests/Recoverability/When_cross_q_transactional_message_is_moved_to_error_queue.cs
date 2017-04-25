@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Recoverability
 {
     using System;
+    using System.Linq;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using AcceptanceTesting.Customization;
@@ -8,15 +9,14 @@
     using NServiceBus.Pipeline;
     using NUnit.Framework;
 
-    public class When_message_is_moved_to_error_queue : NServiceBusAcceptanceTest
+    public class When_cross_q_transactional_message_is_moved_to_error_queue : NServiceBusAcceptanceTest
     {
-        [TestCase(TransportTransactionMode.SendsAtomicWithReceive)]
-        [TestCase(TransportTransactionMode.TransactionScope)]
-        public async Task Should_not_send_outgoing_messages(TransportTransactionMode transactionMode)
+        [Test]
+        public async Task Should_not_dispatch_outgoing_messages()
         {
-            Requires.DtcSupport();
+            Requires.CrossQueueTransactionSupport();
 
-            var context = await Scenario.Define<Context>(c => { c.TransactionMode = transactionMode; })
+            var context = await Scenario.Define<Context>()
                 .WithEndpoint<EndpointWithOutgoingMessages>(b => b.DoNotFailOnErrorMessages()
                     .When((session, c) => session.SendLocal(new InitiatingMessage
                     {
@@ -28,49 +28,12 @@
                 .Run();
 
             Assert.IsFalse(context.OutgoingMessageSent, "Outgoing messages should not be sent");
-        }
-
-        [TestCase(TransportTransactionMode.ReceiveOnly)]
-        [TestCase(TransportTransactionMode.None)]
-        public Task May_send_outgoing_messages(TransportTransactionMode transactionMode)
-        {
-            Requires.DtcSupport();
-
-            return Scenario.Define<Context>(c => { c.TransactionMode = transactionMode; })
-                .WithEndpoint<EndpointWithOutgoingMessages>(b => b.DoNotFailOnErrorMessages()
-                    .When((session, context) => session.SendLocal(new InitiatingMessage
-                    {
-                        Id = context.TestRunId
-                    }))
-                )
-                .WithEndpoint<ErrorSpy>()
-                .Done(c => c.MessageMovedToErrorQueue)
-                .Run();
-        }
-
-        [Test]
-        public async Task Should_log_exception()
-        {
-            var context = await Scenario.Define<Context>()
-                .WithEndpoint<EndpointWithOutgoingMessages>(b => b
-                    .DoNotFailOnErrorMessages()
-                    .When((session, ctx) => session.SendLocal(new InitiatingMessage
-                    {
-                        Id = ctx.TestRunId
-                    }))
-                )
-                .WithEndpoint<ErrorSpy>()
-                .Done(c => c.MessageMovedToErrorQueue)
-                .Run();
-
-            Assert.That(context.Logs, Has.Some.Message.Match($"Moving message .+ to the error queue '{ Conventions.EndpointNamingConvention(typeof(ErrorSpy)) }' because processing failed due to an exception: NServiceBus.AcceptanceTesting.SimulatedException:"));
-        }
+            Assert.IsTrue(context.FailedMessages.Any()); }
 
         class Context : ScenarioContext
         {
             public bool MessageMovedToErrorQueue { get; set; }
             public bool OutgoingMessageSent { get; set; }
-            public TransportTransactionMode TransactionMode { get; set; }
         }
 
         class EndpointWithOutgoingMessages : EndpointConfigurationBuilder
@@ -79,10 +42,8 @@
             {
                 EndpointSetup<DefaultServer>((config, context) =>
                 {
-                    var testContext = context.ScenarioContext as Context;
-
                     config.ConfigureTransport()
-                        .Transactions(testContext.TransactionMode);
+                        .Transactions(TransportTransactionMode.SendsAtomicWithReceive);
                     config.Pipeline.Register(new ThrowingBehavior(), "Behavior that always throws");
                     config.SendFailedMessagesTo(Conventions.EndpointNamingConvention(typeof(ErrorSpy)));
                 });

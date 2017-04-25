@@ -19,12 +19,10 @@
                         Id = ctx.Id
                     }))
                     .DoNotFailOnErrorMessages())
-                .Done(c => c.NumberOfTimesInvoked >= 2)
-
+                .Done(c => c.NumberOfRetriesAttempted >= 1)
                 .Run();
 
-            Assert.GreaterOrEqual(1, context.NumberOfDelayedRetriesPerformed, "Should only do one retry");
-            Assert.GreaterOrEqual(context.TimeOfSecondAttempt - context.TimeOfFirstAttempt, Delay, "Should delay the retry");
+            Assert.GreaterOrEqual(1, context.NumberOfRetriesAttempted, "Should retry one or more times");
         }
 
         static TimeSpan Delay = TimeSpan.FromMilliseconds(1);
@@ -35,10 +33,7 @@
 
             public int NumberOfTimesInvoked { get; set; }
 
-            public DateTime TimeOfFirstAttempt { get; set; }
-            public DateTime TimeOfSecondAttempt { get; set; }
-
-            public int NumberOfDelayedRetriesPerformed { get; set; }
+            public int NumberOfRetriesAttempted => NumberOfTimesInvoked - 1 < 0 ? 0 : NumberOfTimesInvoked - 1;
         }
 
         public class DelayedRetryEndpoint : EndpointConfigurationBuilder
@@ -48,11 +43,13 @@
                 EndpointSetup<DefaultServer>(config =>
                 {
                     config.EnableFeature<TimeoutManager>();
-                    config.Recoverability().Delayed(settings =>
-                    {
-                        settings.NumberOfRetries(1);
-                        settings.TimeIncrease(Delay);
-                    });
+                    config.Recoverability().Immediate(i => i.NumberOfRetries(0));
+                    config.Recoverability()
+                        .Delayed(settings =>
+                        {
+                            settings.NumberOfRetries(1);
+                            settings.TimeIncrease(Delay);
+                        });
                 });
             }
 
@@ -68,23 +65,6 @@
                     }
 
                     TestContext.NumberOfTimesInvoked++;
-
-                    if (TestContext.NumberOfTimesInvoked == 1)
-                    {
-                        TestContext.TimeOfFirstAttempt = DateTime.UtcNow;
-                    }
-
-                    if (TestContext.NumberOfTimesInvoked == 2)
-                    {
-                        TestContext.TimeOfSecondAttempt = DateTime.UtcNow;
-                    }
-
-                    string retries;
-
-                    if (context.MessageHeaders.TryGetValue(Headers.DelayedRetries, out retries))
-                    {
-                        TestContext.NumberOfDelayedRetriesPerformed = int.Parse(retries);
-                    }
 
                     throw new SimulatedException();
                 }

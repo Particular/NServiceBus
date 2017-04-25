@@ -6,10 +6,10 @@
     using EndpointTemplates;
     using NUnit.Framework;
 
-    public class When_immediate_retries_with_default_settings : NServiceBusAcceptanceTest
+    public class When_transactions_off : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Should_not_do_any_retries_if_transactions_are_off()
+        public async Task Should_not_do_any_retries()
         {
             var context = await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
                 .WithEndpoint<RetryEndpoint>(b => b
@@ -45,7 +45,12 @@
         {
             public RetryEndpoint()
             {
-                EndpointSetup<DefaultServer>((config, context) => { config.ConfigureTransport().Transactions(TransportTransactionMode.None); });
+                EndpointSetup<DefaultServer>((config, context) =>
+                {
+                    config.ConfigureTransport().Transactions(TransportTransactionMode.None);
+                    config.Recoverability().Immediate(i => i.NumberOfRetries(3));
+                    config.Recoverability().Delayed(d=>d.NumberOfRetries(3));
+                });
             }
 
             class MessageToBeRetriedHandler : IHandleMessages<MessageToBeRetried>
