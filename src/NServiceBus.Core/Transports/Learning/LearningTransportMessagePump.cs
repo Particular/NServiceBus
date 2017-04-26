@@ -12,9 +12,9 @@
     using Logging;
     using Transport;
 
-    class DevelopmentTransportMessagePump : IPushMessages
+    class LearningTransportMessagePump : IPushMessages
     {
-        public DevelopmentTransportMessagePump(string basePath)
+        public LearningTransportMessagePump(string basePath)
         {
             this.basePath = basePath;
         }
@@ -35,7 +35,7 @@
 
             purgeOnStartup = settings.PurgeOnStartup;
 
-            receiveCircuitBreaker = new RepeatedFailuresOverTimeCircuitBreaker("DevelopmentTransportReceive", TimeSpan.FromSeconds(30), ex => criticalError.Raise("Failed to receive from " + settings.InputQueue, ex));
+            receiveCircuitBreaker = new RepeatedFailuresOverTimeCircuitBreaker("LearningTransportReceive", TimeSpan.FromSeconds(30), ex => criticalError.Raise("Failed to receive from " + settings.InputQueue, ex));
 
             delayedMessagePoller = new Timer(MoveDelayedMessagesToMainDirectory);
             return TaskEx.CompletedTask;
@@ -108,7 +108,7 @@
 
                     var nativeMessageId = Path.GetFileNameWithoutExtension(filePath);
 
-                    IDevelopmentTransportTransaction transaction;
+                    ILearningTransportTransaction transaction;
 
                     if (transactionMode != TransportTransactionMode.None)
                     {
@@ -134,7 +134,7 @@
             }
         }
 
-        async Task InnerProcessFile(IDevelopmentTransportTransaction transaction, string nativeMessageId)
+        async Task InnerProcessFile(ILearningTransportTransaction transaction, string nativeMessageId)
         {
             try
             {
@@ -156,7 +156,7 @@
             }
         }
 
-        async Task ProcessFile(IDevelopmentTransportTransaction transaction, string messageId)
+        async Task ProcessFile(ILearningTransportTransaction transaction, string messageId)
         {
             try
             {
@@ -287,6 +287,6 @@
         Timer delayedMessagePoller;
         TransportTransactionMode transactionMode;
         int maxConcurrency;
-        static ILog Logger = LogManager.GetLogger<DevelopmentTransportMessagePump>();
+        static ILog Logger = LogManager.GetLogger<LearningTransportMessagePump>();
     }
 }

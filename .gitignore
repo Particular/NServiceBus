@@ -4,7 +4,7 @@ build32
 binaries
 *.vshost.*
 .nu
-.devtransport
+.learningtransport
 _UpgradeReport.*
 *.cache
 *~

@@ -2,7 +2,7 @@ using System.Threading.Tasks;
 using NServiceBus;
 using NServiceBus.AcceptanceTesting.Support;
 
-public class ConfigureEndpointDevelopmentTransport : IConfigureEndpointTestExecution
+public class ConfigureEndpointLearningTransport : IConfigureEndpointTestExecution
 {
     public Task Cleanup()
     {
@@ -11,7 +11,7 @@ public class ConfigureEndpointDevelopmentTransport : IConfigureEndpointTestExecu
 
     public Task Configure(string endpointName, EndpointConfiguration configuration, RunSettings settings, PublisherMetadata publisherMetadata)
     {
-        configuration.UseTransport<DevelopmentTransport>();
+        configuration.UseTransport<LearningTransport>();
 
         return Task.FromResult(0);
     }

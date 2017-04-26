@@ -10,9 +10,9 @@ namespace NServiceBus
     using Extensibility;
     using Transport;
 
-    class DevelopmentTransportDispatcher : IDispatchMessages
+    class LearningTransportDispatcher : IDispatchMessages
     {
-        public DevelopmentTransportDispatcher(string basePath)
+        public LearningTransportDispatcher(string basePath)
         {
             this.basePath = basePath;
         }
@@ -91,7 +91,7 @@ namespace NServiceBus
 
             var messagePath = Path.Combine(destinationPath, nativeMessageId) + ".txt";
 
-            IDevelopmentTransportTransaction directoryBasedTransaction;
+            ILearningTransportTransaction directoryBasedTransaction;
 
             if (transportOperation.RequiredDispatchConsistency != DispatchConsistency.Isolated &&
                 transaction.TryGet(out directoryBasedTransaction))

@@ -6,7 +6,7 @@ namespace NServiceBus
     using System.Linq;
     using System.Threading.Tasks;
 
-    class DirectoryBasedTransaction : IDevelopmentTransportTransaction
+    class DirectoryBasedTransaction : ILearningTransportTransaction
     {
         public DirectoryBasedTransaction(string basePath)
         {

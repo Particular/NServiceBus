@@ -2,7 +2,7 @@ namespace NServiceBus
 {
     using System.Threading.Tasks;
 
-    interface IDevelopmentTransportTransaction
+    interface ILearningTransportTransaction
     {
         string FileToProcess { get; }
 

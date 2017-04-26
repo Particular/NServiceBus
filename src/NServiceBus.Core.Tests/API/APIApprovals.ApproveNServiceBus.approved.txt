@@ -326,17 +326,6 @@ namespace NServiceBus
         InstancePerUnitOfWork = 1,
         InstancePerCall = 2,
     }
-    public class DevelopmentTransport : NServiceBus.Transport.TransportDefinition
-    {
-        public DevelopmentTransport() { }
-        public override string ExampleConnectionStringForErrorMessage { get; }
-        public override bool RequiresConnectionString { get; }
-        public override NServiceBus.Transport.TransportInfrastructure Initialize(NServiceBus.Settings.SettingsHolder settings, string connectionString) { }
-    }
-    public class static DevelopmentTransportConfigExtensions
-    {
-        public static void StorageDirectory(this NServiceBus.TransportExtensions<NServiceBus.DevelopmentTransport> config, string path) { }
-    }
     public class DistributionPolicy : NServiceBus.IDistributionPolicy
     {
         public DistributionPolicy() { }
@@ -814,6 +803,17 @@ namespace NServiceBus
             "ing)` instead. The member currently throws a NotImplementedException. Will be re" +
             "moved in version 7.0.0.", true)]
         public static void Encoding(this NServiceBus.SerializationExtentions<NServiceBus.JsonSerializer> config, System.Text.Encoding encoding) { }
+    }
+    public class LearningTransport : NServiceBus.Transport.TransportDefinition
+    {
+        public LearningTransport() { }
+        public override string ExampleConnectionStringForErrorMessage { get; }
+        public override bool RequiresConnectionString { get; }
+        public override NServiceBus.Transport.TransportInfrastructure Initialize(NServiceBus.Settings.SettingsHolder settings, string connectionString) { }
+    }
+    public class static LearningTransportConfigExtensions
+    {
+        public static void StorageDirectory(this NServiceBus.TransportExtensions<NServiceBus.LearningTransport> config, string path) { }
     }
     public class static LoadMessageHandlersExtensions
     {

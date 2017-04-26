@@ -11,16 +11,16 @@
     using Settings;
     using Transport;
 
-    class DevelopmentTransportInfrastructure : TransportInfrastructure
+    class LearningTransportInfrastructure : TransportInfrastructure
     {
-        public DevelopmentTransportInfrastructure(SettingsHolder settings)
+        public LearningTransportInfrastructure(SettingsHolder settings)
         {
             this.settings = settings;
 
             if (!settings.TryGet(StorageLocationKey, out storagePath))
             {
                 var solutionRoot = FindSolutionRoot();
-                storagePath = Path.Combine(solutionRoot, ".devtransport");
+                storagePath = Path.Combine(solutionRoot, ".learningtransport");
             }
         }
 
@@ -60,17 +60,17 @@
 
         public override TransportReceiveInfrastructure ConfigureReceiveInfrastructure()
         {
-            return new TransportReceiveInfrastructure(() => new DevelopmentTransportMessagePump(storagePath), () => new DevelopmentTransportQueueCreator(), () => Task.FromResult(StartupCheckResult.Success));
+            return new TransportReceiveInfrastructure(() => new LearningTransportMessagePump(storagePath), () => new LearningTransportQueueCreator(), () => Task.FromResult(StartupCheckResult.Success));
         }
 
         public override TransportSendInfrastructure ConfigureSendInfrastructure()
         {
-            return new TransportSendInfrastructure(() => new DevelopmentTransportDispatcher(storagePath), () => Task.FromResult(StartupCheckResult.Success));
+            return new TransportSendInfrastructure(() => new LearningTransportDispatcher(storagePath), () => Task.FromResult(StartupCheckResult.Success));
         }
 
         public override TransportSubscriptionInfrastructure ConfigureSubscriptionInfrastructure()
         {
-            return new TransportSubscriptionInfrastructure(() => new DevelopmentTransportSubscriptionManager(storagePath, settings.EndpointName(), settings.LocalAddress()));
+            return new TransportSubscriptionInfrastructure(() => new LearningTransportSubscriptionManager(storagePath, settings.EndpointName(), settings.LocalAddress()));
         }
 
         public override EndpointInstance BindToLocalEndpoint(EndpointInstance instance)
@@ -87,6 +87,6 @@
 
         string storagePath;
         SettingsHolder settings;
-        internal static string StorageLocationKey = "DevelopmentTransport.StoragePath";
+        internal static string StorageLocationKey = "LearningTransport.StoragePath";
     }
 }

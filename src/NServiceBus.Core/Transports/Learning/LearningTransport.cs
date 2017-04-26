@@ -4,9 +4,9 @@
     using Transport;
 
     /// <summary>
-    /// A transport optimized for development use. DO NOT use in production.
+    /// A transport optimized for development and learning use. DO NOT use in production.
     /// </summary>
-    public class DevelopmentTransport : TransportDefinition
+    public class LearningTransport : TransportDefinition
     {
         /// <summary>
         /// Used by implementations to control if a connection string is necessary.
@@ -29,7 +29,7 @@
         /// <returns>The supported factories.</returns>
         public override TransportInfrastructure Initialize(SettingsHolder settings, string connectionString)
         {
-            return new DevelopmentTransportInfrastructure(settings);
+            return new LearningTransportInfrastructure(settings);
         }
     }
 }

@@ -6,9 +6,9 @@
     using Extensibility;
     using Transport;
 
-    class DevelopmentTransportSubscriptionManager : IManageSubscriptions
+    class LearningTransportSubscriptionManager : IManageSubscriptions
     {
-        public DevelopmentTransportSubscriptionManager(string basePath, string endpointName, string localAddress)
+        public LearningTransportSubscriptionManager(string basePath, string endpointName, string localAddress)
         {
             this.endpointName = endpointName;
             this.localAddress = localAddress;

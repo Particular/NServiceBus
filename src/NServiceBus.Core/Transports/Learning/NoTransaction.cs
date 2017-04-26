@@ -3,7 +3,7 @@ namespace NServiceBus
     using System.IO;
     using System.Threading.Tasks;
 
-    class NoTransaction : IDevelopmentTransportTransaction
+    class NoTransaction : ILearningTransportTransaction
     {
         public string FileToProcess { get; private set; }
 
