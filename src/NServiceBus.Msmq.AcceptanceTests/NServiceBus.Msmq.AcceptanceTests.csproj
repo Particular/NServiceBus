@@ -48,8 +48,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BasicServer.cs" />
     <Compile Include="DefaultServer.cs" />
-    <Compile Include="Distributor\DistributorEndpointTemplate.cs" />
+    <Compile Include="Distributor\DefaultDistributor.cs" />
     <Compile Include="Distributor\When_replying_to_message_sent_from_worker.cs" />
     <Compile Include="Distributor\When_worker_sends_delayed_message.cs" />
     <Compile Include="Distributor\When_worker_sends_to_local_endpoint.cs" />

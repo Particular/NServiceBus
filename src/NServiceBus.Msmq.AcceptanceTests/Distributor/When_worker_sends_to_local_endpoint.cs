@@ -25,7 +25,7 @@
             Assert.IsTrue(context.ReceivedSendLocalMessage);
         }
 
-        class Context : DistributorEndpointTemplate.DistributorContext
+        class Context : DefaultDistributor.DistributorContext
         {
             public bool ReceivedSendLocalMessage { get; set; }
             public bool ReceivedRouteToThisEndpointMessage { get; set; }
@@ -35,7 +35,7 @@
         {
             public Distributor()
             {
-                EndpointSetup<DistributorEndpointTemplate>(c =>
+                EndpointSetup<DefaultDistributor>(c =>
                 {
                     c.UseTransport<MsmqTransport>().Routing().RouteToEndpoint(typeof(DispatchMessages), typeof(Worker));
                 });

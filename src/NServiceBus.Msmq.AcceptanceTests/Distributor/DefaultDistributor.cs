@@ -4,38 +4,39 @@
     using System.Collections.Generic;
     using System.Threading.Tasks;
     using AcceptanceTesting;
-    using AcceptanceTesting.Support;
-    using Config.ConfigurationSource;
+    using AcceptanceTesting.Customization;
     using Features;
     using NServiceBus.AcceptanceTests.EndpointTemplates;
     using ObjectBuilder;
     using Pipeline;
     using Routing.Legacy;
-    using Transport;
 
-    public class DistributorEndpointTemplate : IEndpointSetupTemplate
+    public class DefaultDistributor : BasicServer
     {
+        protected override void ApplyConfig(EndpointConfiguration configuration)
+        {
+            var recoverability = configuration.Recoverability();
+            recoverability.Delayed(delayed => delayed.NumberOfRetries(0));
+            recoverability.Immediate(immediate => immediate.NumberOfRetries(0));
+
+            configuration.SendFailedMessagesTo("error");
+
+            configuration.EnableFeature<FakeReadyMessageProcessor>();
+        }
+
+        protected override IList<Type> ExtraTypesToInclude()
+        {
+            return new List<Type>
+            {
+                typeof(FakeReadyMessageProcessor)
+            };
+        }
+
         public class DistributorContext : ScenarioContext
         {
             public bool ReceivedReadyMessage { get; set; }
             public string WorkerSessionId { get; set; }
-
             public bool IsWorkerRegistered => WorkerSessionId != null;
-        }
-
-// Disable obsolete warning until MessageEndpointMappings has been removed from config and we can remove the parameter completetely
-#pragma warning disable CS0618
-        public async Task<EndpointConfiguration> GetConfiguration(RunDescriptor runDescriptor, EndpointCustomizationConfiguration endpointConfiguration, IConfigurationSource configSource, Action<EndpointConfiguration> configurationBuilderCustomization)
-#pragma warning restore CS0618
-        {
-            var config = await new DefaultServer(new List<Type>
-            {
-                typeof(FakeReadyMessageProcessor)
-            }).GetConfiguration(runDescriptor, endpointConfiguration, configSource, configurationBuilderCustomization);
-
-            config.EnableFeature<TimeoutManager>();
-            config.EnableFeature<FakeReadyMessageProcessor>();
-            return config;
         }
 
         class FakeReadyMessageProcessor : Feature
@@ -55,15 +56,11 @@
             {
                 var testContext = builder.Build<ScenarioContext>() as DistributorContext;
                 if (testContext == null)
-                {
                     return Task.CompletedTask;
-                }
 
                 string sessionId;
                 if (!message.Headers.TryGetValue("NServiceBus.Distributor.WorkerSessionId", out sessionId))
-                {
                     return Task.CompletedTask;
-                }
 
                 testContext.WorkerSessionId = sessionId;
                 string capacityString;
@@ -71,9 +68,7 @@
                 {
                     var cap = int.Parse(capacityString);
                     if (cap == 1) //If it is not 1 then we got the initial ready message.
-                    {
                         testContext.ReceivedReadyMessage = true;
-                    }
                 }
                 return Task.CompletedTask;
             }
@@ -91,9 +86,7 @@
                     var testContext = context.Builder.Build<ScenarioContext>() as DistributorContext;
 
                     if (testContext?.WorkerSessionId == null)
-                    {
                         throw new Exception($"The distributor endpoint can only send messages after a worker has registered itself. Ensure to use the `DistributorContext.IsWorkerRegistered` check before sending messages from the distributor and enlist your worker with the this distributor endpoint using `{nameof(DistributorConfigurationExtensions.EnlistWithDistributor)}` extension.");
-                    }
 
                     context.Headers.Add(
                         "NServiceBus.Distributor.WorkerSessionId",
@@ -109,7 +102,7 @@
     {
         public static void EnlistWithDistributor(this EndpointConfiguration config, Type distributorEndpoint)
         {
-            var distributorAddress = AcceptanceTesting.Customization.Conventions.EndpointNamingConvention(distributorEndpoint);
+            var distributorAddress = Conventions.EndpointNamingConvention(distributorEndpoint);
             config.EnlistWithLegacyMSMQDistributor(distributorAddress, distributorAddress + ".Control", 10);
         }
     }

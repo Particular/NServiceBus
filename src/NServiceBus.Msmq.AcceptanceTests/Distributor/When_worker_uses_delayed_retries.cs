@@ -24,7 +24,7 @@
             Assert.IsTrue(context.ReceivedReadyMessage);
         }
 
-        class Context : DistributorEndpointTemplate.DistributorContext
+        class Context : DefaultDistributor.DistributorContext
         {
             public bool DistributorReceivedRetry { get; set; }
         }
@@ -65,7 +65,7 @@
         {
             public Distributor()
             {
-                EndpointSetup<DistributorEndpointTemplate>(c =>
+                EndpointSetup<DefaultDistributor>(c =>
                 {
                     c.UseTransport<MsmqTransport>().Routing().RouteToEndpoint(typeof(FailingMessage), typeof(Worker));
                 });
