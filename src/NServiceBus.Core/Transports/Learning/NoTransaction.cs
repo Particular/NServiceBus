@@ -6,13 +6,12 @@ namespace NServiceBus
 
     class NoTransaction : ILearningTransportTransaction
     {
-        public string FileToProcess { get; private set; }
-        string processingDirectory;
-
         public NoTransaction(string basePath)
         {
             processingDirectory = Path.Combine(basePath, ".notxprocessing", Guid.NewGuid().ToString());
         }
+
+        public string FileToProcess { get; private set; }
 
         public void BeginTransaction(string incomingFilePath)
         {
@@ -47,5 +46,7 @@ namespace NServiceBus
         {
             Directory.Delete(processingDirectory, true);
         }
+
+        string processingDirectory;
     }
 }
