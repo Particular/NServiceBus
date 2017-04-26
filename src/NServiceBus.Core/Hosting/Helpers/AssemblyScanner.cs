@@ -468,7 +468,7 @@ namespace NServiceBus.Hosting.Helpers
         static string DistillLowerAssemblyName(string assemblyOrFileName)
         {
             var lowerAssemblyName = assemblyOrFileName.ToLowerInvariant();
-            if (lowerAssemblyName.EndsWith(".dll"))
+            if (lowerAssemblyName.EndsWith(".dll") || lowerAssemblyName.EndsWith(".exe"))
             {
                 lowerAssemblyName = lowerAssemblyName.Substring(0, lowerAssemblyName.Length - 4);
             }

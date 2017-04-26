@@ -5,6 +5,7 @@
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.IO;
+    using System.Linq;
     using System.Reflection;
     using System.Text;
     using System.Threading;
@@ -225,10 +226,66 @@
             Assert.IsTrue(result.Assemblies.Contains(busAssembly));
         }
 
+        [Test, RunInApplicationDomain]
+        public void Skipped_dlls_should_be_excluded()
+        {
+            var busAssembly = new DynamicAssembly("Fake.NServiceBus.Core");
+            var excludedAssembly1 = new DynamicAssembly("A", new[]
+            {
+                busAssembly
+            });
+            var excludedAssembly2 = new DynamicAssembly("A", new[]
+            {
+                busAssembly
+            });
+            var includedAssembly = new DynamicAssembly("B", new[]
+            {
+                busAssembly
+            });
+
+            var scanner = new AssemblyScanner(DynamicAssembly.TestAssemblyDirectory);
+            scanner.CoreAssemblyName = busAssembly.DynamicName;
+            scanner.AssembliesToSkip.Add(excludedAssembly1.DynamicName); // without file extension
+            scanner.AssembliesToSkip.Add(excludedAssembly2.FileName); // with file extension
+
+            var result = scanner.GetScannableAssemblies();
+            Assert.That(result.SkippedFiles.Any(s => s.FilePath == excludedAssembly1.FilePath));
+            Assert.That(result.SkippedFiles.Any(s => s.FilePath == excludedAssembly2.FilePath));
+            Assert.That(result.Assemblies.Contains(includedAssembly.Assembly));
+        }
+
+        [Test, RunInApplicationDomain]
+        public void Skipped_exes_should_be_excluded()
+        {
+            var busAssembly = new DynamicAssembly("Fake.NServiceBus.Core");
+            var excludedAssembly1 = new DynamicAssembly("A", new[]
+            {
+                busAssembly
+            }, executable: true);
+            var excludedAssembly2 = new DynamicAssembly("A", new[]
+            {
+                busAssembly
+            }, executable: true);
+            var includedAssembly = new DynamicAssembly("B", new[]
+            {
+                busAssembly
+            }, executable: true);
+
+            var scanner = new AssemblyScanner(DynamicAssembly.TestAssemblyDirectory);
+            scanner.CoreAssemblyName = busAssembly.DynamicName;
+            scanner.AssembliesToSkip.Add(excludedAssembly1.DynamicName); // without file extension
+            scanner.AssembliesToSkip.Add(excludedAssembly2.FileName); // with file extension
+
+            var result = scanner.GetScannableAssemblies();
+            Assert.That(result.SkippedFiles.Any(s => s.FilePath == excludedAssembly1.FilePath));
+            Assert.That(result.SkippedFiles.Any(s => s.FilePath == excludedAssembly2.FilePath));
+            Assert.That(result.Assemblies.Contains(includedAssembly.Assembly));
+        }
+
         [DebuggerDisplay("Name = {Name}, DynamicName = {DynamicName}, Namespace = {Namespace}, FileName = {FileName}")]
         class DynamicAssembly
         {
-            public DynamicAssembly(string nameWithoutExtension, DynamicAssembly[] references = null, Version version = null, bool fakeIdentity = false)
+            public DynamicAssembly(string nameWithoutExtension, DynamicAssembly[] references = null, Version version = null, bool fakeIdentity = false, bool executable = false)
             {
                 if (version == null)
                 {
@@ -242,7 +299,8 @@
 
                 Name = nameWithoutExtension;
                 Namespace = nameWithoutExtension;
-                FileName = $"{Namespace}{Path.GetFileNameWithoutExtension(Path.GetRandomFileName())}{Interlocked.Increment(ref dynamicAssemblyId)}.dll";
+                var fileExtension = executable ? "exe" : "dll";
+                FileName = $"{Namespace}{Path.GetFileNameWithoutExtension(Path.GetRandomFileName())}{Interlocked.Increment(ref dynamicAssemblyId)}.{fileExtension}";
                 DynamicName = Path.GetFileNameWithoutExtension(FileName);
 
                 var builder = new StringBuilder();
@@ -267,6 +325,12 @@
                     param.ReferencedAssemblies.Add(reference.FilePath);
                 }
 
+                if (executable)
+                {
+                    param.GenerateExecutable = true;
+                    builder.AppendLine("public static class Program { public static void Main(string[] args){} }");
+                }
+
                 builder.AppendLine("public class Foo { public Foo() {");
                 foreach (var reference in references)
                 {
@@ -276,7 +340,6 @@
 
                 var result = provider.CompileAssemblyFromSource(param, builder.ToString());
                 ThrowIfCompilationWasNotSuccessful(result);
-
                 provider.Dispose();
 
                 if (fakeIdentity)
