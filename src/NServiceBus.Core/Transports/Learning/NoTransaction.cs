@@ -1,15 +1,24 @@
 namespace NServiceBus
 {
+    using System;
     using System.IO;
     using System.Threading.Tasks;
 
     class NoTransaction : ILearningTransportTransaction
     {
         public string FileToProcess { get; private set; }
+        string processingDirectory;
+
+        public NoTransaction(string basePath)
+        {
+            processingDirectory = Path.Combine(basePath, ".notxprocessing", Guid.NewGuid().ToString());
+        }
 
         public void BeginTransaction(string incomingFilePath)
         {
-            FileToProcess = incomingFilePath;
+            Directory.CreateDirectory(processingDirectory);
+            FileToProcess = Path.Combine(processingDirectory, Path.GetFileName(incomingFilePath));
+            File.Move(incomingFilePath, FileToProcess);
         }
 
         public Task Enlist(string messagePath, string messageContents)
@@ -36,7 +45,7 @@ namespace NServiceBus
 
         public void Complete()
         {
-            File.Delete(FileToProcess);
+            Directory.Delete(processingDirectory, true);
         }
     }
 }

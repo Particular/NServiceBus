@@ -88,9 +88,9 @@
                 {
                     // graceful shutdown
                 }
-                catch (Exception ex)
+                catch (Exception exception)
                 {
-                    Logger.Error("File Message pump failed", ex);
+                    Logger.Error("File Message pump failed", exception);
                 }
             }
         }
@@ -107,16 +107,7 @@
 
                     var nativeMessageId = Path.GetFileNameWithoutExtension(filePath);
 
-                    ILearningTransportTransaction transaction;
-
-                    if (transactionMode != TransportTransactionMode.None)
-                    {
-                        transaction = new DirectoryBasedTransaction(path);
-                    }
-                    else
-                    {
-                        transaction = new NoTransaction();
-                    }
+                    var transaction = GetTransaction();
 
                     transaction.BeginTransaction(filePath);
 
@@ -131,6 +122,15 @@
                     await Task.Delay(10, cancellationToken).ConfigureAwait(false);
                 }
             }
+        }
+
+        ILearningTransportTransaction GetTransaction()
+        {
+            if (transactionMode == TransportTransactionMode.None)
+            {
+                return new NoTransaction(path);
+            }
+            return new DirectoryBasedTransaction(path);
         }
 
         async Task InnerProcessFile(ILearningTransportTransaction transaction, string nativeMessageId)
@@ -196,7 +196,8 @@
 
                 try
                 {
-                    await onMessage(messageContext).ConfigureAwait(false);
+                    await onMessage(messageContext)
+                        .ConfigureAwait(false);
                 }
                 catch (Exception exception)
                 {
