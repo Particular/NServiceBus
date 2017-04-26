@@ -27,7 +27,6 @@
         public override IEnumerable<Type> DeliveryConstraints { get; } = new[]
         {
             typeof(DiscardIfNotReceivedBefore),
-            typeof(NonDurableDelivery),
             typeof(DelayDeliveryWith),
             typeof(DoNotDeliverBefore)
         };
