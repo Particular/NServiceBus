@@ -11,12 +11,6 @@ namespace NServiceBus
     public static class ErrorQueueSettings
     {
         /// <summary>
-        /// The settings key where the error queue address is stored.    
-        /// </summary>
-        public const string SettingsKey = "errorQueue";
-        const string DefaultErrorQueueName = "error";
-
-        /// <summary>
         /// Finds the configured error queue for an endpoint.
         /// The error queue can be configured in code using 'EndpointConfiguration.SendFailedMessagesTo()',
         /// via the 'Error' attribute of the 'MessageForwardingInCaseOfFaultConfig' configuration section,
@@ -29,15 +23,23 @@ namespace NServiceBus
         {
             string errorQueue;
 
-            if (TryGetErrorQueueAddress(settings, out errorQueue))
-            {
+            if (TryGetExplicitErrorQueueAddress(settings, out errorQueue))
                 return errorQueue;
-            }
 
             return DefaultErrorQueueName;
         }
 
-        internal static bool TryGetErrorQueueAddress(this ReadOnlySettings settings, out string errorQueue)
+        /// <summary>
+        /// Get the explicitly configured error queue address if one is defined.
+        /// The error queue can be configured in code using 'EndpointConfiguration.SendFailedMessagesTo()',
+        /// via the 'Error' attribute of the 'MessageForwardingInCaseOfFaultConfig' configuration section,
+        /// or using the 'HKEY_LOCAL_MACHINE\SOFTWARE\ParticularSoftware\ServiceBus\ErrorQueue' registry key.
+        /// </summary>
+        /// <param name="settings">The configuration settings of this endpoint.</param>
+        /// <param name="errorQueue">The configured error queue.</param>
+        /// <returns>True if an explict error queue have been configured.</returns>
+        /// <exception cref="Exception">When the configuration for the endpoint is invalid.</exception>
+        public static bool TryGetExplicitErrorQueueAddress(this ReadOnlySettings settings, out string errorQueue)
         {
             if (settings.HasExplicitValue(SettingsKey))
             {
@@ -84,6 +86,13 @@ Take one of the following actions:
             errorQueue = null;
             return false;
         }
+
+        /// <summary>
+        /// The settings key where the error queue address is stored.
+        /// </summary>
+        public const string SettingsKey = "errorQueue";
+
+        const string DefaultErrorQueueName = "error";
 
         static ILog Logger = LogManager.GetLogger(typeof(ErrorQueueSettings));
     }
