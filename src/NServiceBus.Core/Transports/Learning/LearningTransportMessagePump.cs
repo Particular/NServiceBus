@@ -130,7 +130,8 @@
             {
                 return new NoTransaction(path);
             }
-            return new DirectoryBasedTransaction(path);
+            var immediateDispatch = transactionMode == TransportTransactionMode.ReceiveOnly;
+            return new DirectoryBasedTransaction(path, immediateDispatch);
         }
 
         async Task InnerProcessFile(ILearningTransportTransaction transaction, string nativeMessageId)

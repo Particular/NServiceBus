@@ -8,9 +8,10 @@ namespace NServiceBus
 
     class DirectoryBasedTransaction : ILearningTransportTransaction
     {
-        public DirectoryBasedTransaction(string basePath)
+        public DirectoryBasedTransaction(string basePath, bool immediateDispatch)
         {
             this.basePath = basePath;
+            this.immediateDispatch = immediateDispatch;
             var transactionId = Guid.NewGuid().ToString();
 
             transactionDir = Path.Combine(basePath, ".pending", transactionId);
@@ -30,7 +31,7 @@ namespace NServiceBus
         public async Task Commit()
         {
             var dispatchFile = Path.Combine(transactionDir, "dispatch.txt");
-            await AsyncFile.WriteLines(dispatchFile, outgoingFiles.Select(file => $"{file.TxPath}=>{file.TargetPath}").ToArray())
+            await AsyncFile.WriteLines(dispatchFile, outgoingFiles.Select(file => $"{file.TxPath}=>{file.TargetPath}"))
                 .ConfigureAwait(false);
 
             Directory.Move(transactionDir, commitDir);
@@ -51,14 +52,17 @@ namespace NServiceBus
         }
 
 
-        public async Task Enlist(string messagePath, string messageContents)
+        public Task Enlist(string messagePath, string messageContents)
         {
+            if (immediateDispatch)
+            {
+                return AsyncFile.WriteText(messagePath, messageContents);
+            }
             var txPath = Path.Combine(transactionDir, Path.GetFileName(messagePath));
             var committedPath = Path.Combine(commitDir, Path.GetFileName(messagePath));
 
-            await AsyncFile.WriteText(txPath, messageContents)
-                .ConfigureAwait(false);
             outgoingFiles.Add(new OutgoingFile(committedPath, messagePath));
+            return AsyncFile.WriteText(txPath, messageContents);
         }
 
 
@@ -68,7 +72,6 @@ namespace NServiceBus
             {
                 return;
             }
-
             foreach (var outgoingFile in outgoingFiles)
             {
                 File.Move(outgoingFile.TxPath, outgoingFile.TargetPath);
@@ -78,6 +81,7 @@ namespace NServiceBus
         }
 
         string basePath;
+        bool immediateDispatch;
         string commitDir;
 
         bool committed;
