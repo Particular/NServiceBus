@@ -79,6 +79,8 @@ namespace NServiceBus
 
             if (timeToDeliver.HasValue)
             {
+                // we need to "ceil" the seconds to guarantee that we delay with at least the requested value 
+                // since the folder name has only second resolution.
                 if (timeToDeliver.Value.Millisecond > 0)
                 {
                     timeToDeliver += TimeSpan.FromSeconds(1);
