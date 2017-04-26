@@ -12,7 +12,7 @@
     public class When_non_transactional_message_is_moved_to_error_queue : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task May_dispatch_outgoing_messages()
+        public async Task Should_dispatch_outgoing_messages()
         {
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<EndpointWithOutgoingMessages>(b => b.DoNotFailOnErrorMessages()
@@ -22,10 +22,9 @@
                     }))
                 )
                 .WithEndpoint<ErrorSpy>()
-                .Done(c => c.MessageMovedToErrorQueue)
+                .Done(c => c.MessageMovedToErrorQueue && c.OutgoingMessageSent)
                 .Run();
 
-            Assert.IsTrue(context.OutgoingMessageSent, "Outgoing messages should be sent");
             Assert.IsTrue(context.FailedMessages.Any(), "Messages should have failed");
         }
 
@@ -52,15 +51,18 @@
             {
                 public Context TestContext { get; set; }
 
-                public async Task Handle(InitiatingMessage initiatingMessage, IMessageHandlerContext context)
+                public Task Handle(InitiatingMessage initiatingMessage, IMessageHandlerContext context)
                 {
                     if (initiatingMessage.Id == TestContext.TestRunId)
                     {
-                        await context.Send(Conventions.EndpointNamingConvention(typeof(ErrorSpy)), new SubsequentMessage
+                        var namingConvention = Conventions.EndpointNamingConvention(typeof(ErrorSpy));
+                        var message = new SubsequentMessage
                         {
                             Id = initiatingMessage.Id
-                        });
+                        };
+                        return context.Send(namingConvention, message);
                     }
+                    return Task.FromResult(0);
                 }
             }
         }
