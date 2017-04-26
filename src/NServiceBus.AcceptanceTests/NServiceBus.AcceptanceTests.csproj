@@ -65,7 +65,6 @@
     <Compile Include="Core\DelayedDelivery\TimeoutManager\When_using_external_timeout_manager_code_first.cs" />
     <Compile Include="Core\Feature\When_feature_startup_task_fails.cs" />
     <Compile Include="Core\LegacyRetries\When_legacy_retries_left_in_retry_queue.cs" />
-    <Compile Include="Core\MessageDurability\When_sending_a_non_durable_message_with_conventions.cs" />
     <Compile Include="Core\Outbox\When_outbox_double_optin_found.cs" />
     <Compile Include="Core\Recoverability\When_configuring_unrecoverable_exception.cs" />
     <Compile Include="Core\Recoverability\When_failing_mutated_message.cs" />
@@ -208,7 +207,6 @@
     <Compile Include="Core\Pipeline\When_sending_from_a_send_only.cs" />
     <Compile Include="Core\Conventions\When_using_a_greedy_convention.cs" />
     <Compile Include="Core\Diagnostics\When_sending_ensure_proper_headers.cs" />
-    <Compile Include="Core\MessageDurability\When_sending_a_non_durable_message.cs" />
     <Compile Include="Core\Diagnostics\When_a_message_is_audited.cs" />
     <Compile Include="TimeToBeReceived\When_TimeToBeReceived_has_expired_convention.cs" />
     <Compile Include="TimeToBeReceived\When_TimeToBeReceived_has_not_expired.cs" />

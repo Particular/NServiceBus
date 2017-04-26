@@ -141,6 +141,7 @@
     <Compile Include="Msmq\MsmqHelpers.cs" />
     <Compile Include="Msmq\MsmqAddressTests.cs" />
     <Compile Include="Msmq\MsmqSubscriptionStorageTests.cs" />
+    <Compile Include="Performance\MessageDurability\DetermineMessageDurabilityBehaviorTests.cs" />
     <Compile Include="Persistence\InMemory\InMemorySubscriptionStorageTests.cs" />
     <Compile Include="Persistence\InMemory\SagaWithoutUniquePropertyData.cs" />
     <Compile Include="Persistence\InMemory\When_persisting_a_saga_with_complex_types.cs" />
