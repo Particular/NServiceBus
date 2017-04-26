@@ -3,7 +3,6 @@ namespace NServiceBus
     using System;
     using System.Collections.Generic;
     using System.IO;
-    using System.Linq;
     using System.Threading.Tasks;
 
     class DirectoryBasedTransaction : ILearningTransportTransaction
@@ -28,14 +27,12 @@ namespace NServiceBus
             File.Move(incomingFilePath, FileToProcess);
         }
 
-        public async Task Commit()
+        public Task Commit()
         {
-            var dispatchFile = Path.Combine(transactionDir, "dispatch.txt");
-            await AsyncFile.WriteLines(dispatchFile, outgoingFiles.Select(file => $"{file.TxPath}=>{file.TargetPath}"))
-                .ConfigureAwait(false);
-
             Directory.Move(transactionDir, commitDir);
             committed = true;
+
+            return TaskEx.CompletedTask;
         }
 
 
