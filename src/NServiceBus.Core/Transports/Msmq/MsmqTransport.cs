@@ -34,11 +34,7 @@ namespace NServiceBus
             if (!settings.TryGetExplicitErrorQueueAddress(out errorQueue))
             {
                 throw new Exception(
-                    @"Faults forwarding requires an error queue to be specified.
-            Take one of the following actions:
-            - set the error queue at configuration time using 'EndpointConfiguration.SendFailedMessagesTo()'
-            - add a 'MessageForwardingInCaseOfFaultConfig' section to the app.config
-            - configure a global error queue in the registry using the powershell command: Set-NServiceBusLocalMachineSettings -ErrorQueue {address of error queue}");
+                    @"Faults forwarding requires an error queue to be specified using 'endpointConfiguration.SendFailedMessagesTo({error queue address})'");
             }
 
             settings.EnableFeature(typeof(InstanceMappingFileFeature));
