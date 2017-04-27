@@ -24,8 +24,9 @@
 
             var context = await Scenario.Define<TestContext>()
                 .WithEndpoint<EndpointWithCriticalErrorStartup>(b => { b.CustomConfig(config => { config.DefineCriticalErrorAction(addCritical); }); })
-                .Done(c => c.CriticalErrorsRaised == 2)
+                .Done(c => c.CriticalErrorsRaised >= 2)
                 .Run();
+            Assert.AreEqual(2, context.CriticalErrorsRaised);
             Assert.AreEqual(exceptions.Keys.Count, context.CriticalErrorsRaised);
         }
 

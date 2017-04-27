@@ -50,7 +50,8 @@
 
                 if (!parent.Exists)
                 {
-                    throw new Exception("Couldn't find your solution directory, please configure a storage path for the development transport using TBD(myPath)");
+                    // throw for now. if we discover there is an edge then we can fix it in a patch.
+                    throw new Exception("Couldn't find the solution directory for the learning transport.");
                 }
 
                 directory = parent.FullName;

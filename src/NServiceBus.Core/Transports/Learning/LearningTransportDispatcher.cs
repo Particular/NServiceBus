@@ -57,7 +57,8 @@ namespace NServiceBus
 
             var bodyPath = Path.Combine(bodyDir, nativeMessageId) + ".txt";
 
-            await AsyncFile.WriteBytes(bodyPath, transportOperation.Message.Body).ConfigureAwait(false);
+            await AsyncFile.WriteBytes(bodyPath, transportOperation.Message.Body)
+                .ConfigureAwait(false);
 
             var messageContents = $"{bodyPath}{Environment.NewLine}{HeaderSerializer.Serialize(transportOperation.Message.Headers)}";
 
@@ -79,7 +80,7 @@ namespace NServiceBus
 
             if (timeToDeliver.HasValue)
             {
-                // we need to "ceil" the seconds to guarantee that we delay with at least the requested value 
+                // we need to "ceil" the seconds to guarantee that we delay with at least the requested value
                 // since the folder name has only second resolution.
                 if (timeToDeliver.Value.Millisecond > 0)
                 {
