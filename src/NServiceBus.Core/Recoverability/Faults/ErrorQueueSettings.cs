@@ -74,7 +74,7 @@ namespace NServiceBus
                     return true;
                 }
 
-                var message = $"'ErrorQueue' read from the registry, but the value is empty. Specify a value, or remove 'ErrorQueue' " +
+                var message = "'ErrorQueue' read from the registry, but the value is empty. Specify a value, or remove 'ErrorQueue' " +
                     $"from the registry so that the default error queue name, '{DefaultErrorQueueName}', will be used instead.";
 
                 throw new Exception(message);
