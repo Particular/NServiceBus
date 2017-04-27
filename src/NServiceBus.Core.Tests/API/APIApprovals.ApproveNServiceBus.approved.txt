@@ -436,7 +436,7 @@ namespace NServiceBus
     {
         public const string SettingsKey = "errorQueue";
         public static string ErrorQueueAddress(this NServiceBus.Settings.ReadOnlySettings settings) { }
-        public static bool TryGetExplicitErrorQueueAddress(this NServiceBus.Settings.ReadOnlySettings settings, out string errorQueue) { }
+        public static bool TryGetExplicitlyConfiguredErrorQueueAddress(this NServiceBus.Settings.ReadOnlySettings settings, out string errorQueue) { }
     }
     [System.AttributeUsageAttribute(System.AttributeTargets.Class | System.AttributeTargets.Interface | System.AttributeTargets.All)]
     public sealed class ExpressAttribute : System.Attribute
