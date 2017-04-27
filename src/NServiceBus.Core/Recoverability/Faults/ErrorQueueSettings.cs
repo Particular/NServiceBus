@@ -43,7 +43,7 @@ namespace NServiceBus
         {
             if (settings.HasExplicitValue(SettingsKey))
             {
-                Logger.Debug("Error queue retrieved from code configuration via 'EndpointConfiguration.SendFailedMessagesTo().");
+                Logger.Debug("Error queue retrieved from code configuration via 'EndpointConfiguration.SendFailedMessagesTo()'.");
                 errorQueue = settings.Get<string>(SettingsKey);
                 return true;
             }
@@ -58,9 +58,10 @@ namespace NServiceBus
                     return true;
                 }
 
-                throw new Exception(
-                    @"'MessageForwardingInCaseOfFaultConfig' configuration section is found but 'ErrorQueue' value is empty.
-Prefer to either remove the configutation section and go with the default error queue name (`error`) or specify the value explcitly using 'endpointConfiguration.SendFailedMessagesTo({my custom error queue})'");
+                var message = "'MessageForwardingInCaseOfFaultConfig' configuration section exists, but 'ErrorQueue' value is empty. " +
+                    $"Specify a value, or remove the configuration section so that the default error queue name, '{DefaultErrorQueueName}', will be used instead.";
+
+                throw new Exception(message);
             }
 
             var registryErrorQueue = RegistryReader.Read("ErrorQueue");
@@ -72,9 +73,11 @@ Prefer to either remove the configutation section and go with the default error 
                     errorQueue = registryErrorQueue;
                     return true;
                 }
-                throw new Exception(
-                    @"'ErrorQueue' read from registry but the value is empty.
-Prefer to either remove the configutation section and go with the default error queue name (`error`) or specify the value explcitly using 'endpointConfiguration.SendFailedMessagesTo({my custom error queue})'");
+
+                var message = $"'ErrorQueue' read from the registry, but the value is empty. Specify a value, or remove 'ErrorQueue' " +
+                    $"from the registry so that the default error queue name, '{DefaultErrorQueueName}', will be used instead.";
+
+                throw new Exception(message);
             }
 
             errorQueue = null;

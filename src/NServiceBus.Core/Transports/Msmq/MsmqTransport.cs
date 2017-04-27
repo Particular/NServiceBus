@@ -33,8 +33,7 @@ namespace NServiceBus
 
             if (!settings.TryGetExplicitlyConfiguredErrorQueueAddress(out errorQueue))
             {
-                throw new Exception(
-                    @"Faults forwarding requires an error queue to be specified using 'endpointConfiguration.SendFailedMessagesTo({error queue address})'");
+                throw new Exception("Faults forwarding requires an error queue to be specified using 'EndpointConfiguration.SendFailedMessagesTo()'");
             }
 
             settings.EnableFeature(typeof(InstanceMappingFileFeature));
