@@ -9,7 +9,7 @@ class ConfigureLearningTransportInfrastructure : IConfigureTransportInfrastructu
 {
     public TransportConfigurationResult Configure(SettingsHolder settings, TransportTransactionMode transactionMode)
     {
-        storageDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "transporttests");
+        storageDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, ".transporttests");
         settings.Set("LearningTransport.StoragePath", storageDir);
 
         var transportDefinition = new LearningTransport();
