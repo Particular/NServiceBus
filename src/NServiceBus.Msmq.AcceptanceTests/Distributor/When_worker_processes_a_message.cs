@@ -12,7 +12,7 @@
         [Test]
         public async Task Should_also_send_a_ready_message()
         {
-            var context = await Scenario.Define<DistributorEndpointTemplate.DistributorContext>()
+            var context = await Scenario.Define<DefaultDistributor.DistributorContext>()
                 .WithEndpoint<Worker>()
                 .WithEndpoint<Distributor>(e => e
                     .When(c => c.IsWorkerRegistered, (s, c) => s.Send(new MyRequest())))
@@ -26,7 +26,7 @@
         {
             public Distributor()
             {
-                EndpointSetup<DistributorEndpointTemplate>(c =>
+                EndpointSetup<DefaultDistributor>(c =>
                 {
                     c.UseTransport<MsmqTransport>().Routing().RouteToEndpoint(typeof(MyRequest), typeof(Worker));
                 });

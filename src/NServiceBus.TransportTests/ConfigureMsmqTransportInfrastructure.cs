@@ -14,6 +14,9 @@ class ConfigureMsmqTransportInfrastructure : IConfigureTransportInfrastructure
     {
         var msmqTransportDefinition = new MsmqTransport();
         settingsHolder = settings;
+
+        settingsHolder.Set(ErrorQueueSettings.SettingsKey, "error");
+
         return new TransportConfigurationResult
         {
             TransportInfrastructure = msmqTransportDefinition.Initialize(settingsHolder, ""),

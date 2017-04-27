@@ -24,7 +24,7 @@
             Assert.IsFalse(context.WorkerReceivedDelayedMessage);
         }
 
-        class Context : DistributorEndpointTemplate.DistributorContext
+        class Context : DefaultDistributor.DistributorContext
         {
             public bool DistributorReceivedDelayedMessage { get; set; }
             public bool WorkerReceivedDelayedMessage { get; set; }
@@ -69,7 +69,7 @@
         {
             public Distributor()
             {
-                EndpointSetup<DistributorEndpointTemplate>(c =>
+                EndpointSetup<DefaultDistributor>(c =>
                 {
                     c.UseTransport<MsmqTransport>().Routing().RouteToEndpoint(typeof(DispatchDelayedMessage), typeof(Worker));
                 });

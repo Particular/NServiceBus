@@ -39,7 +39,7 @@
             Assert.IsTrue(context.WorkerReceivedReply);
         }
 
-        class Context : DistributorEndpointTemplate.DistributorContext
+        class Context : DefaultDistributor.DistributorContext
         {
             public bool DistributorReceivedReply { get; set; }
             public bool WorkerReceivedReply { get; set; }
@@ -85,7 +85,7 @@
         {
             public Distributor()
             {
-                EndpointSetup<DistributorEndpointTemplate>(c =>
+                EndpointSetup<DefaultDistributor>(c =>
                 {
                     c.UseTransport<MsmqTransport>().Routing().RouteToEndpoint(typeof(DispatchWorkerMessage), typeof(Worker));
                 });

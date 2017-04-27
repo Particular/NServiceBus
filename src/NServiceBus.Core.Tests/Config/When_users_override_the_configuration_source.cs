@@ -12,15 +12,16 @@ namespace NServiceBus.Core.Tests.Config
         [Test]
         public async Task NService_bus_should_resolve_configuration_from_that_source()
         {
-            var builder = new EndpointConfiguration("myendpoint");
+            var endpointConfiguration = new EndpointConfiguration("myendpoint");
 
-            builder.SendOnly();
-            builder.TypesToScanInternal(new[] { typeof(ConfigSectionValidatorFeature) });
-            builder.DisableFeature<MessageDrivenSubscriptions>();
-            builder.EnableFeature<ConfigSectionValidatorFeature>();
-            builder.CustomConfigurationSource(new UserConfigurationSource());
+            endpointConfiguration.SendFailedMessagesTo("error");
+            endpointConfiguration.SendOnly();
+            endpointConfiguration.TypesToScanInternal(new[] { typeof(ConfigSectionValidatorFeature) });
+            endpointConfiguration.DisableFeature<MessageDrivenSubscriptions>();
+            endpointConfiguration.EnableFeature<ConfigSectionValidatorFeature>();
+            endpointConfiguration.CustomConfigurationSource(new UserConfigurationSource());
 
-            var endpoint = await Endpoint.Start(builder);
+            var endpoint = await Endpoint.Start(endpointConfiguration);
             await endpoint.Stop();
         }
 
@@ -59,7 +60,7 @@ namespace NServiceBus.Core.Tests.Config
     {
         T IConfigurationSource.GetConfiguration<T>()
         {
-            var section = new TestConfigurationSection {TestSetting = "TestValue"};
+            var section = new TestConfigurationSection { TestSetting = "TestValue" };
 
             return section as T;
         }

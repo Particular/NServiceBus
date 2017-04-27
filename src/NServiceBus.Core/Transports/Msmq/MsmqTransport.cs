@@ -1,5 +1,6 @@
 namespace NServiceBus
 {
+    using System;
     using Features;
     using Routing;
     using Settings;
@@ -28,6 +29,13 @@ namespace NServiceBus
         /// <returns>the transport infrastructure for msmq.</returns>
         public override TransportInfrastructure Initialize(SettingsHolder settings, string connectionString)
         {
+            string errorQueue;
+
+            if (!settings.TryGetExplicitlyConfiguredErrorQueueAddress(out errorQueue))
+            {
+                throw new Exception("Faults forwarding requires an error queue to be specified using 'EndpointConfiguration.SendFailedMessagesTo()'");
+            }
+
             settings.EnableFeature(typeof(InstanceMappingFileFeature));
 
             var msmqSettings = connectionString != null ? new MsmqConnectionStringBuilder(connectionString)
