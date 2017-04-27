@@ -31,7 +31,7 @@ namespace NServiceBus
         {
             string errorQueue;
 
-            if (!settings.TryGetExplicitErrorQueueAddress(out errorQueue))
+            if (!settings.TryGetExplicitlyConfiguredErrorQueueAddress(out errorQueue))
             {
                 throw new Exception(
                     @"Faults forwarding requires an error queue to be specified using 'endpointConfiguration.SendFailedMessagesTo({error queue address})'");
