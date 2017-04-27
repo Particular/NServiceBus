@@ -4,7 +4,6 @@
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Diagnostics;
-    using System.Globalization;
     using System.IO;
     using System.Threading;
     using System.Threading.Tasks;
@@ -26,18 +25,15 @@
             transactionMode = settings.RequiredTransactionMode;
 
             path = Path.Combine(basePath, settings.InputQueue);
-            var delayedRootPath = Path.Combine(path, ".delayed");
 
             Directory.CreateDirectory(Path.Combine(path, ".committed"));
-            Directory.CreateDirectory(delayedRootPath);
-
-            delayedRootDirectory = new DirectoryInfo(delayedRootPath);
 
             purgeOnStartup = settings.PurgeOnStartup;
 
             receiveCircuitBreaker = new RepeatedFailuresOverTimeCircuitBreaker("LearningTransportReceive", TimeSpan.FromSeconds(30), ex => criticalError.Raise("Failed to receive from " + settings.InputQueue, ex));
 
-            delayedMessagePoller = new Timer(MoveDelayedMessagesToMainDirectory);
+            delayedMessagePoller = new DelayedMessagePoller(path);
+
             return TaskEx.CompletedTask;
         }
 
@@ -50,12 +46,10 @@
             cancellationToken = cancellationTokenSource.Token;
 
             if (purgeOnStartup)
-            {
                 Array.ForEach(Directory.GetFiles(path), File.Delete);
-            }
             messagePumpTask = Task.Run(ProcessMessages, cancellationToken);
 
-            delayedMessagePoller.Change(TimeSpan.FromSeconds(1), TimeSpan.FromMilliseconds(-1));
+            delayedMessagePoller.Start();
         }
 
         public async Task Stop()
@@ -66,10 +60,8 @@
                 .ConfigureAwait(false);
 
             while (concurrencyLimiter.CurrentCount != maxConcurrency)
-            {
                 await Task.Delay(50, CancellationToken.None)
                     .ConfigureAwait(false);
-            }
 
             concurrencyLimiter.Dispose();
         }
@@ -78,7 +70,6 @@
         async Task ProcessMessages()
         {
             while (!cancellationToken.IsCancellationRequested)
-            {
                 try
                 {
                     await InnerProcessMessages()
@@ -92,7 +83,6 @@
                 {
                     Logger.Error("File Message pump failed", exception);
                 }
-            }
         }
 
         async Task InnerProcessMessages()
@@ -118,18 +108,14 @@
                 }
 
                 if (!filesFound)
-                {
                     await Task.Delay(10, cancellationToken).ConfigureAwait(false);
-                }
             }
         }
 
         ILearningTransportTransaction GetTransaction()
         {
             if (transactionMode == TransportTransactionMode.None)
-            {
                 return new NoTransaction(path);
-            }
             var immediateDispatch = transactionMode == TransportTransactionMode.ReceiveOnly;
             return new DirectoryBasedTransaction(path, immediateDispatch);
         }
@@ -240,40 +226,6 @@
             headers = HeaderSerializer.Deserialize(message.Substring(headerStartIndex));
         }
 
-        void MoveDelayedMessagesToMainDirectory(object state)
-        {
-            try
-            {
-                foreach (var delayDir in delayedRootDirectory.EnumerateDirectories())
-                {
-                    var timeToTrigger = DateTime.ParseExact(delayDir.Name, "yyyyMMddHHmmss", DateTimeFormatInfo.InvariantInfo);
-
-                    if (DateTime.UtcNow >= timeToTrigger)
-                    {
-                        foreach (var fileInfo in delayDir.EnumerateFiles())
-                        {
-                            File.Move(fileInfo.FullName, Path.Combine(path, fileInfo.Name));
-                        }
-                    }
-
-                    //wait a bit more so we can safely delete the dir
-                    if (DateTime.UtcNow >= timeToTrigger.AddSeconds(10))
-                    {
-                        Directory.Delete(delayDir.FullName);
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                Logger.Error("Failed to trigger delayed messages", e);
-            }
-            finally
-            {
-                delayedMessagePoller.Change(TimeSpan.FromSeconds(1), TimeSpan.FromMilliseconds(-1));
-            }
-        }
-
-        DirectoryInfo delayedRootDirectory;
         CancellationToken cancellationToken;
         CancellationTokenSource cancellationTokenSource;
         SemaphoreSlim concurrencyLimiter;
@@ -285,7 +237,7 @@
         string path;
         string basePath;
         RepeatedFailuresOverTimeCircuitBreaker receiveCircuitBreaker;
-        Timer delayedMessagePoller;
+        DelayedMessagePoller delayedMessagePoller;
         TransportTransactionMode transactionMode;
         int maxConcurrency;
         static ILog Logger = LogManager.GetLogger<LearningTransportMessagePump>();

@@ -201,6 +201,7 @@
     <Compile Include="Serialization\SerializationSettingsExtensions.cs" />
     <Compile Include="Serializers\XML\XmlSerialization.cs" />
     <Compile Include="Transports\Learning\AsyncFile.cs" />
+    <Compile Include="Transports\Learning\DelayedMessagePoller.cs" />
     <Compile Include="Transports\Learning\LearningTransport.cs" />
     <Compile Include="Transports\Learning\LearningTransportConfigExtensions.cs" />
     <Compile Include="Transports\Learning\LearningTransportDispatcher.cs" />
