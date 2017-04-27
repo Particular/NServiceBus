@@ -11,6 +11,8 @@
 
     public class When_receiveonly_message_is_moved_to_error_queue : NServiceBusAcceptanceTest
     {
+        static string ErrorSpyAddress => Conventions.EndpointNamingConvention(typeof(ErrorSpy));
+
         [Test]
         public async Task Should_dispatch_outgoing_messages()
         {
@@ -43,7 +45,7 @@
                     config.ConfigureTransport()
                         .Transactions(TransportTransactionMode.ReceiveOnly);
                     config.Pipeline.Register(new ThrowingBehavior(), "Behavior that always throws");
-                    config.SendFailedMessagesTo(Conventions.EndpointNamingConvention(typeof(ErrorSpy)));
+                    config.SendFailedMessagesTo(ErrorSpyAddress);
                 });
             }
 
@@ -55,12 +57,11 @@
                 {
                     if (initiatingMessage.Id == TestContext.TestRunId)
                     {
-                        var namingConvention = Conventions.EndpointNamingConvention(typeof(ErrorSpy));
                         var message = new SubsequentMessage
                         {
                             Id = initiatingMessage.Id
                         };
-                        return context.Send(namingConvention, message);
+                        return context.Send(ErrorSpyAddress, message);
                     }
 
                     return Task.FromResult(0);
@@ -98,9 +99,7 @@
                 public Task Handle(InitiatingMessage initiatingMessage, IMessageHandlerContext context)
                 {
                     if (initiatingMessage.Id == TestContext.TestRunId)
-                    {
                         TestContext.MessageMovedToErrorQueue = true;
-                    }
 
                     return Task.FromResult(0);
                 }
@@ -113,9 +112,7 @@
                 public Task Handle(SubsequentMessage message, IMessageHandlerContext context)
                 {
                     if (message.Id == TestContext.TestRunId)
-                    {
                         TestContext.OutgoingMessageSent = true;
-                    }
 
                     return Task.FromResult(0);
                 }
