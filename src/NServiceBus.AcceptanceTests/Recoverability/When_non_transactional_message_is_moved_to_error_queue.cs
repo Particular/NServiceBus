@@ -28,6 +28,8 @@
             Assert.IsTrue(context.FailedMessages.Any(), "Messages should have failed");
         }
 
+        static string ErrorSpyAddress => Conventions.EndpointNamingConvention(typeof(ErrorSpy));
+
         class Context : ScenarioContext
         {
             public bool MessageMovedToErrorQueue { get; set; }
@@ -43,7 +45,7 @@
                     config.ConfigureTransport()
                         .Transactions(TransportTransactionMode.None);
                     config.Pipeline.Register(new ThrowingBehavior(), "Behavior that always throws");
-                    config.SendFailedMessagesTo(Conventions.EndpointNamingConvention(typeof(ErrorSpy)));
+                    config.SendFailedMessagesTo(ErrorSpyAddress);
                 });
             }
 
@@ -55,12 +57,11 @@
                 {
                     if (initiatingMessage.Id == TestContext.TestRunId)
                     {
-                        var namingConvention = Conventions.EndpointNamingConvention(typeof(ErrorSpy));
                         var message = new SubsequentMessage
                         {
                             Id = initiatingMessage.Id
                         };
-                        return context.Send(namingConvention, message);
+                        return context.Send(ErrorSpyAddress, message);
                     }
                     return Task.FromResult(0);
                 }
@@ -97,9 +98,7 @@
                 public Task Handle(InitiatingMessage initiatingMessage, IMessageHandlerContext context)
                 {
                     if (initiatingMessage.Id == TestContext.TestRunId)
-                    {
                         TestContext.MessageMovedToErrorQueue = true;
-                    }
 
                     return Task.FromResult(0);
                 }
@@ -112,9 +111,7 @@
                 public Task Handle(SubsequentMessage message, IMessageHandlerContext context)
                 {
                     if (message.Id == TestContext.TestRunId)
-                    {
                         TestContext.OutgoingMessageSent = true;
-                    }
 
                     return Task.FromResult(0);
                 }
