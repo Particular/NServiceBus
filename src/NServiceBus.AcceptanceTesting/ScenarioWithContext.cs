@@ -48,7 +48,7 @@ namespace NServiceBus.AcceptanceTesting
 
             if (runSummary.Result.Failed)
             {
-                throw runSummary.Result.Exception;
+                runSummary.Result.Exception.Throw();
             }
 
             return (TContext)runDescriptor.ScenarioContext;

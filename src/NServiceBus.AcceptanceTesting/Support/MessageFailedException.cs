@@ -15,5 +15,8 @@ namespace NServiceBus.AcceptanceTesting.Support
         public ScenarioContext ScenarioContext { get; }
 
         public FailedMessage FailedMessage { get; }
+
+        // Show the stack trace of the exception which caused the message to fail
+        public override string StackTrace => FailedMessage.Exception.StackTrace;
     }
 }

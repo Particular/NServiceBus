@@ -5,6 +5,7 @@
     using System.Diagnostics;
     using System.Globalization;
     using System.Linq;
+    using System.Runtime.ExceptionServices;
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
@@ -55,7 +56,7 @@
             catch (Exception ex)
             {
                 runResult.Failed = true;
-                runResult.Exception = ex;
+                runResult.Exception = ExceptionDispatchInfo.Capture(ex);
             }
 
             runResult.TotalTime = runTimer.Elapsed;
@@ -205,7 +206,7 @@
     {
         public bool Failed { get; set; }
 
-        public Exception Exception { get; set; }
+        public ExceptionDispatchInfo Exception { get; set; }
 
         public TimeSpan TotalTime { get; set; }
 
