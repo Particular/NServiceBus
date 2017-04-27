@@ -41,7 +41,7 @@
 
             do
             {
-                if (Directory.EnumerateFiles(directory).Any(_ => _.EndsWith(".sln")))
+                if (Directory.EnumerateFiles(directory).Any(file => file.EndsWith(".sln")))
                 {
                     return directory;
                 }
