@@ -16,10 +16,11 @@
     <tags>nservicebus servicebus msmq cqrs publish subscribe</tags>
     <dependencies>
       <dependency id="NServiceBus" version="$version$" />
-  	  <dependency id="NUnit" version="[3.2.0, 4.0.0)" />
+  	  <dependency id="NUnit" version="[3.6.1, 4.0.0)" />
     </dependencies>
   </metadata>
   <files>
     <file src="..\..\src\NServiceBus.ContainerTests\**\*.cs" target="content\App_Packages\NSB.ContainerTests.$version$"  exclude="**\bin\**\*.*;**\obj\**\*.*"/>
+    <file src="..\..\src\NServiceBus.ContainerTests\**\*.cs" target="contentFiles\cs\any\NSB.ContainerTests"  exclude="**\bin\**\*.*;**\obj\**\*.*"/>
   </files>
 </package>

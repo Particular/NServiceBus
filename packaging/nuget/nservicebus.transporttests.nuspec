@@ -27,6 +27,10 @@
     <file
       src="..\..\src\NServiceBus.TransportTests\**\*.cs"
       target="content\App_Packages\NSB.TransportTests.$version$"
-      exclude="**\bin\**\*.*;**\obj\**\*.*;..\..\src\NServiceBus.TransportTests\ConfigureMsmqTransportInfrastructure.cs" />
+      exclude="**\bin\**\*.*;**\obj\**\*.*;..\..\src\NServiceBus.TransportTests\ConfigureLearningTransportInfrastructure.cs" />
+    <file
+      src="..\..\src\NServiceBus.TransportTests\**\*.cs"
+      target="contentFiles\cs\any\NSB.TransportTests"
+      exclude="**\bin\**\*.*;**\obj\**\*.*;..\..\src\NServiceBus.TransportTests\ConfigureLearningTransportInfrastructure.cs" />
   </files>
 </package>

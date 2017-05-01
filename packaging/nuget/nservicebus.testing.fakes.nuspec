@@ -22,5 +22,9 @@
       src="..\..\src\NServiceBus.Testing.Fakes\*.cs"
       target="content\App_Packages\NSB.Testing.Fakes.$version$"
       exclude="**\bin\**\*.*;**\obj\**\*.*;" />
+    <file
+      src="..\..\src\NServiceBus.Testing.Fakes\*.cs"
+      target="contentFiles\cs\any\NSB.Testing.Fakes"
+      exclude="**\bin\**\*.*;**\obj\**\*.*;" />
   </files>
 </package>
