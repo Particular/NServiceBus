@@ -146,7 +146,7 @@
         {
             try
             {
-                var message = await AsyncFile.ReadText(transaction.FileToProcess, cancellationToken)
+                var message = await AsyncFile.ReadText(transaction.FileToProcess)
                     .ConfigureAwait(false);
                 string bodyPath;
                 Dictionary<string, string> headers;
