@@ -11,6 +11,8 @@
 
     public class When_non_transactional_message_is_moved_to_error_queue : NServiceBusAcceptanceTest
     {
+        static string ErrorSpyAddress => Conventions.EndpointNamingConvention(typeof(ErrorSpy));
+
         [Test]
         public async Task Should_dispatch_outgoing_messages()
         {
@@ -27,8 +29,6 @@
 
             Assert.IsTrue(context.FailedMessages.Any(), "Messages should have failed");
         }
-
-        static string ErrorSpyAddress => Conventions.EndpointNamingConvention(typeof(ErrorSpy));
 
         class Context : ScenarioContext
         {
