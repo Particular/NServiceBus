@@ -11,6 +11,7 @@ namespace NServiceBus
     using Settings;
     using Support;
     using Transport;
+    using Transports.Msmq;
 
     class MsmqTransportInfrastructure : TransportInfrastructure
     {
@@ -80,6 +81,13 @@ namespace NServiceBus
         {
             new CheckMachineNameForComplianceWithDtcLimitation().Check();
 
+            // This step avoids creating some sub-queues, if the endpoint sub queue has the capability to exceed the max length limitation for queue format name. 
+            var bindings = settings.Get<QueueBindings>();
+            foreach (var queue in bindings.ReceivingAddresses)
+            {
+                new CheckEndpointNameComplianceForMsmq().Check(queue);
+            }
+
             MsmqScopeOptions scopeOptions;
 
             if (!settings.TryGet(out scopeOptions))
@@ -89,13 +97,12 @@ namespace NServiceBus
 
             var msmqSettings = settings.Get<MsmqSettings>();
 
+
             return new TransportReceiveInfrastructure(
                 () => new MessagePump(guarantee => SelectReceiveStrategy(guarantee, scopeOptions.TransactionOptions)),
                 () => new MsmqQueueCreator(msmqSettings.UseTransactionalQueues),
                 () =>
                 {
-                    var bindings = settings.Get<QueueBindings>();
-
                     foreach (var address in bindings.ReceivingAddresses)
                     {
                         QueuePermissions.CheckQueue(address);
