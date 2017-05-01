@@ -43,7 +43,7 @@
 
             if (unicastBusConfig?.TimeToBeReceivedOnForwardedMessages > TimeSpan.Zero)
             {
-                Logger.Warn($"The use of the {nameof(UnicastBusConfig.TimeToBeReceivedOnForwardedMessages)} attribute in the {nameof(UnicastBusConfig)} configuration section is discouraged and will be removed in the next major version.");
+                Logger.Error($"The use of the {nameof(UnicastBusConfig.TimeToBeReceivedOnForwardedMessages)} attribute in the {nameof(UnicastBusConfig)} configuration section is discouraged and will be removed in the next major version.");
             }
 
             if (!string.IsNullOrWhiteSpace(unicastBusConfig?.TimeoutManagerAddress))
