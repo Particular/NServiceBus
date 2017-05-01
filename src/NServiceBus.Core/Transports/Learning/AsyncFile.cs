@@ -69,21 +69,12 @@ namespace NServiceBus
             return WriteBytes(filePath, bytes);
         }
 
-        public static async Task<string> ReadText(string filePath, CancellationToken token = default(CancellationToken))
+        public static async Task<string> ReadText(string filePath)
         {
-            var utf8 = Encoding.UTF8;
-            using (var stream = CreateReadStream(filePath))
+            using (var stream = new StreamReader(CreateReadStream(filePath), Encoding.UTF8))
             {
-                var builder = new StringBuilder();
-
-                var buffer = new byte[0x1000];
-                int numRead;
-                while ((numRead = await stream.ReadAsync(buffer, 0, buffer.Length, token).ConfigureAwait(false)) != 0)
-                {
-                    builder.Append(utf8.GetString(buffer, 0, numRead));
-                }
-
-                return builder.ToString();
+                var result = await stream.ReadToEndAsync().ConfigureAwait(false);
+                return result;
             }
         }
 
