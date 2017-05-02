@@ -806,6 +806,11 @@ namespace NServiceBus
             "moved in version 7.0.0.", true)]
         public static void Encoding(this NServiceBus.SerializationExtentions<NServiceBus.JsonSerializer> config, System.Text.Encoding encoding) { }
     }
+    public class LearningPersistence : NServiceBus.Persistence.PersistenceDefinition { }
+    public class static LearningSagaPersisterConfigExtensions
+    {
+        public static void SagaStorageDirectory(this NServiceBus.PersistenceExtensions<NServiceBus.LearningPersistence> config, string path) { }
+    }
     public class LearningTransport : NServiceBus.Transport.TransportDefinition
     {
         public LearningTransport() { }
@@ -817,11 +822,6 @@ namespace NServiceBus
     {
         public static void StorageDirectory(this NServiceBus.TransportExtensions<NServiceBus.LearningTransport> config, string path) { }
     }
-    public class LearningPersistence : NServiceBus.Persistence.PersistenceDefinition { }
-    public class static LearningSagaPersisterConfigExtensions
-    {
-        public static void SagaStorageDirectory(this NServiceBus.PersistenceExtensions<NServiceBus.LearningPersistence> config, string path) { }
-    }    
     public class static LoadMessageHandlersExtensions
     {
         public static void ExecuteTheseHandlersFirst(this NServiceBus.EndpointConfiguration config, System.Collections.Generic.IEnumerable<System.Type> handlerTypes) { }
