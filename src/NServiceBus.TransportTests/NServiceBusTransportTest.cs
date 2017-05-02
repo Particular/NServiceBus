@@ -24,12 +24,18 @@
 
         static IConfigureTransportInfrastructure CreateConfigurer()
         {
-            var transport = EnvironmentHelper.GetEnvironmentVariable("Transport.UseSpecific");
+            var transportToUse = EnvironmentHelper.GetEnvironmentVariable("Transport.UseSpecific");
 
-            if (string.IsNullOrWhiteSpace(transport))
-                transport = transportDefinitions.Value.FirstOrDefault(t => t.Name != DefaultTransportDescriptorKey)?.Name ?? DefaultTransportDescriptorKey;
+            if (string.IsNullOrWhiteSpace(transportToUse))
+            {
+                var coreAssembly = typeof(IMessage).Assembly;
 
-            var typeName = $"Configure{transport}Infrastructure";
+                var nonCoreTransport = transportDefinitions.Value.FirstOrDefault(t => t.Assembly != coreAssembly);
+
+                transportToUse = nonCoreTransport?.Name ?? DefaultTransportDescriptorKey;
+            }
+
+            var typeName = $"Configure{transportToUse}Infrastructure";
 
             var configurerType = Type.GetType(typeName, false);
 
@@ -212,7 +218,7 @@
         CancellationTokenSource testCancellationTokenSource;
         IConfigureTransportInfrastructure Configurer;
 
-        static string DefaultTransportDescriptorKey = "MsmqTransport";
+        static string DefaultTransportDescriptorKey = "LearningTransport";
         static string TestIdHeaderName = "TransportTest.TestId";
 
         static Lazy<List<Type>> transportDefinitions = new Lazy<List<Type>>(() => TypeScanner.GetAllTypesAssignableTo<TransportDefinition>().ToList());
