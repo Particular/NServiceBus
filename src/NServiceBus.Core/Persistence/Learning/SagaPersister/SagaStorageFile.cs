@@ -55,7 +55,7 @@ namespace NServiceBus
         {
             fileStream.Position = 0;
 
-            return WriteAtomic((stream, state) =>
+            return WriteWithinLock((stream, state) =>
             {
                 var serializer = state.Manifest.Serializer;
                 var data = state.SagaData;
@@ -66,7 +66,7 @@ namespace NServiceBus
 
         public async Task MarkAsCompleted()
         {
-            await WriteAtomic((stream, state) => stream.WriteAsync(EmptyBytes, 0, 0), fileStream, lastModificationSeenAt)
+            await WriteWithinLock((stream, state) => stream.WriteAsync(EmptyBytes, 0, 0), fileStream, lastModificationSeenAt)
                 .ConfigureAwait(false);
 
             isCompleted = true;
@@ -77,17 +77,17 @@ namespace NServiceBus
             return manifest.Serializer.ReadObject(fileStream);
         }
 
-        static Task WriteAtomic(Func<FileStream, object, Task> action, FileStream stream, DateTime lastModificationSeenAt)
+        static Task WriteWithinLock(Func<FileStream, object, Task> action, FileStream stream, DateTime lastModificationSeenAt)
         {
-            return WriteAtomic<object>(action, stream, lastModificationSeenAt);
+            return WriteWithinLock<object>(action, stream, lastModificationSeenAt);
         }
 
-        static async Task WriteAtomic<TState>(Func<FileStream, TState, Task> action, FileStream stream, DateTime lastModificationSeenAt, TState state = default(TState))
+        static async Task WriteWithinLock<TState>(Func<FileStream, TState, Task> action, FileStream stream, DateTime lastModificationSeenAt, TState state = default(TState))
         {
             var targetPath = stream.Name;
             var lockFilePath = Path.ChangeExtension(targetPath, ".lock");
             // will blow up in case of concurrency
-            using (new FileStream(lockFilePath, FileMode.CreateNew, FileAccess.Write, FileShare.None, DefaultBufferSize, FileOptions.Asynchronous | FileOptions.DeleteOnClose))
+            using (new FileStream(lockFilePath, FileMode.CreateNew, FileAccess.Write, FileShare.None, 1, FileOptions.DeleteOnClose))
             {
                 ThrowWhenModifiedSinceLastRead(lastModificationSeenAt, targetPath);
 
