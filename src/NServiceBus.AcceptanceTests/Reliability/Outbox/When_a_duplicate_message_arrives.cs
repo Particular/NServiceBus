@@ -11,7 +11,7 @@
     public class When_a_duplicate_message_arrives : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Should_not_dispatch_messages_already_dispatched()
+        public async Task Should_not_invoke_handler_for_a_duplicate_message()
         {
             Requires.OutboxPersistence();
 
@@ -37,12 +37,14 @@
                 .Run();
 
             Assert.AreEqual(2, context.MessagesReceivedByDownstreamEndpoint);
+            Assert.AreEqual(2, context.MessagesReceivedByOutboxEndpoint);
         }
 
         public class Context : ScenarioContext
         {
             public int MessagesReceivedByDownstreamEndpoint { get; set; }
             public bool Done { get; set; }
+            public int MessagesReceivedByOutboxEndpoint { get; set; }
         }
 
         public class DownstreamEndpoint : EndpointConfigurationBuilder
@@ -83,8 +85,11 @@
 
             class PlaceOrderHandler : IHandleMessages<PlaceOrder>
             {
+                public Context Context { get; set; }
+
                 public Task Handle(PlaceOrder message, IMessageHandlerContext context)
                 {
+                    Context.MessagesReceivedByOutboxEndpoint++;
                     return context.Send(new SendOrderAcknowledgement
                     {
                         Terminator = message.Terminator
