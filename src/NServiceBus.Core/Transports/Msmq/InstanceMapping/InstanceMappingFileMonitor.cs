@@ -39,9 +39,9 @@ namespace NServiceBus
                 LogChanges(instances, filePath);
                 endpointInstances.AddOrReplaceInstances("InstanceMappingFile", instances);
             }
-            catch (Exception ex)
+            catch (Exception exception)
             {
-                throw new Exception($"An error occurred while reading the endpoint instance mapping file at {filePath}. See the inner exception for more details.", ex);
+                throw new Exception($"An error occurred while reading the endpoint instance mapping file at {filePath}. See the inner exception for more details.", exception);
             }
         }
 

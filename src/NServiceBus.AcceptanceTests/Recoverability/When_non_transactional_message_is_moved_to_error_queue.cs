@@ -11,8 +11,10 @@
 
     public class When_non_transactional_message_is_moved_to_error_queue : NServiceBusAcceptanceTest
     {
+        static string ErrorSpyAddress => Conventions.EndpointNamingConvention(typeof(ErrorSpy));
+
         [Test]
-        public async Task May_dispatch_outgoing_messages()
+        public async Task Should_dispatch_outgoing_messages()
         {
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<EndpointWithOutgoingMessages>(b => b.DoNotFailOnErrorMessages()
@@ -22,10 +24,9 @@
                     }))
                 )
                 .WithEndpoint<ErrorSpy>()
-                .Done(c => c.MessageMovedToErrorQueue)
+                .Done(c => c.MessageMovedToErrorQueue && c.OutgoingMessageSent)
                 .Run();
 
-            Assert.IsTrue(context.OutgoingMessageSent, "Outgoing messages should be sent");
             Assert.IsTrue(context.FailedMessages.Any(), "Messages should have failed");
         }
 
@@ -44,7 +45,7 @@
                     config.ConfigureTransport()
                         .Transactions(TransportTransactionMode.None);
                     config.Pipeline.Register(new ThrowingBehavior(), "Behavior that always throws");
-                    config.SendFailedMessagesTo(Conventions.EndpointNamingConvention(typeof(ErrorSpy)));
+                    config.SendFailedMessagesTo(ErrorSpyAddress);
                 });
             }
 
@@ -52,15 +53,17 @@
             {
                 public Context TestContext { get; set; }
 
-                public async Task Handle(InitiatingMessage initiatingMessage, IMessageHandlerContext context)
+                public Task Handle(InitiatingMessage initiatingMessage, IMessageHandlerContext context)
                 {
                     if (initiatingMessage.Id == TestContext.TestRunId)
                     {
-                        await context.Send(Conventions.EndpointNamingConvention(typeof(ErrorSpy)), new SubsequentMessage
+                        var message = new SubsequentMessage
                         {
                             Id = initiatingMessage.Id
-                        });
+                        };
+                        return context.Send(ErrorSpyAddress, message);
                     }
+                    return Task.FromResult(0);
                 }
             }
         }
@@ -95,9 +98,7 @@
                 public Task Handle(InitiatingMessage initiatingMessage, IMessageHandlerContext context)
                 {
                     if (initiatingMessage.Id == TestContext.TestRunId)
-                    {
                         TestContext.MessageMovedToErrorQueue = true;
-                    }
 
                     return Task.FromResult(0);
                 }
@@ -110,9 +111,7 @@
                 public Task Handle(SubsequentMessage message, IMessageHandlerContext context)
                 {
                     if (message.Id == TestContext.TestRunId)
-                    {
                         TestContext.OutgoingMessageSent = true;
-                    }
 
                     return Task.FromResult(0);
                 }

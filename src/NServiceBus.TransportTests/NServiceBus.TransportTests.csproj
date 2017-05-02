@@ -43,7 +43,7 @@
     <Reference Include="System.Transactions" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ConfigureMsmqTransportInfrastructure.cs" />
+    <Compile Include="ConfigureLearningTransportInfrastructure.cs" />
     <Compile Include="IConfigureTransportInfrastructure.cs" />
     <Compile Include="NServiceBusTransportTest.cs" />
     <Compile Include="TransportConfigurationResult.cs" />

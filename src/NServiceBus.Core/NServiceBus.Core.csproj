@@ -73,6 +73,7 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Messaging" />
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Security" />
     <Reference Include="System.ServiceModel" />
     <Reference Include="System.ServiceProcess" />
@@ -199,6 +200,19 @@
     <Compile Include="Serialization\SerializationFeature.cs" />
     <Compile Include="Serialization\SerializationSettingsExtensions.cs" />
     <Compile Include="Serializers\XML\XmlSerialization.cs" />
+    <Compile Include="Transports\Learning\AsyncFile.cs" />
+    <Compile Include="Transports\Learning\DelayedMessagePoller.cs" />
+    <Compile Include="Transports\Learning\LearningTransport.cs" />
+    <Compile Include="Transports\Learning\LearningTransportConfigExtensions.cs" />
+    <Compile Include="Transports\Learning\LearningTransportDispatcher.cs" />
+    <Compile Include="Transports\Learning\LearningTransportInfrastructure.cs" />
+    <Compile Include="Transports\Learning\LearningTransportMessagePump.cs" />
+    <Compile Include="Transports\Learning\LearningTransportQueueCreator.cs" />
+    <Compile Include="Transports\Learning\LearningTransportSubscriptionManager.cs" />
+    <Compile Include="Transports\Learning\DirectoryBasedTransaction.cs" />
+    <Compile Include="Transports\Learning\HeaderSerializer.cs" />
+    <Compile Include="Transports\Learning\ILearningTransportTransaction.cs" />
+    <Compile Include="Transports\Learning\NoTransaction.cs" />
     <Compile Include="Transports\Msmq\ReceiveOnlyNativeTransactionStrategy.cs" />
     <Compile Include="Transports\ReceiveSettingsExtensions.cs" />
     <Compile Include="Transports\ErrorContext.cs" />

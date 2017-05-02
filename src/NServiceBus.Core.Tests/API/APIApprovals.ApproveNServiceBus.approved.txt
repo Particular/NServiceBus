@@ -806,6 +806,17 @@ namespace NServiceBus
             "moved in version 7.0.0.", true)]
         public static void Encoding(this NServiceBus.SerializationExtentions<NServiceBus.JsonSerializer> config, System.Text.Encoding encoding) { }
     }
+    public class LearningTransport : NServiceBus.Transport.TransportDefinition
+    {
+        public LearningTransport() { }
+        public override string ExampleConnectionStringForErrorMessage { get; }
+        public override bool RequiresConnectionString { get; }
+        public override NServiceBus.Transport.TransportInfrastructure Initialize(NServiceBus.Settings.SettingsHolder settings, string connectionString) { }
+    }
+    public class static LearningTransportConfigExtensions
+    {
+        public static void StorageDirectory(this NServiceBus.TransportExtensions<NServiceBus.LearningTransport> config, string path) { }
+    }
     public class static LoadMessageHandlersExtensions
     {
         public static void ExecuteTheseHandlersFirst(this NServiceBus.EndpointConfiguration config, System.Collections.Generic.IEnumerable<System.Type> handlerTypes) { }

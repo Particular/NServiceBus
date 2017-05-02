@@ -49,7 +49,7 @@
         {
             public RetryEndpoint()
             {
-                EndpointSetup<DefaultServer>(c => c.ConfigureTransport().Routing().RouteToEndpoint(typeof(LegacyRetryMessage), typeof(RetryEndpoint)));
+                EndpointSetup<DefaultServer>(c => c.UseTransport<MsmqTransport>().Routing().RouteToEndpoint(typeof(LegacyRetryMessage), typeof(RetryEndpoint)));
             }
 
             class LegacyRetriesMessages : IHandleMessages<LegacyRetryMessage>
