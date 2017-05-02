@@ -1,4 +1,4 @@
-namespace NServiceBus.AcceptanceTests.Recoverability
+namespace NServiceBus.AcceptanceTests.Core.Recoverability
 {
     using System;
     using System.Collections.Generic;
@@ -26,9 +26,7 @@ namespace NServiceBus.AcceptanceTests.Recoverability
                 .Run();
 
             Assert.IsFalse(context.Headers.ContainsKey("NServiceBus.ExceptionInfo.ExceptionType"));
-            Assert.IsTrue(context.Headers.ContainsKey("NServiceBus.ExceptionInfo.Message"));
             Assert.AreEqual("this is a large message", context.Headers["NServiceBus.ExceptionInfo.Message"]);
-            Assert.IsTrue(context.Headers.ContainsKey("NServiceBus.ExceptionInfo.NotInventedHere"));
             Assert.AreEqual("NotInventedHere", context.Headers["NServiceBus.ExceptionInfo.NotInventedHere"]);
         }
 

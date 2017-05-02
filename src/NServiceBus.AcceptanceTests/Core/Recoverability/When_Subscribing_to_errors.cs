@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.AcceptanceTests.Recoverability
+﻿namespace NServiceBus.AcceptanceTests.Core.Recoverability
 {
     using System;
     using System.Linq;
@@ -29,9 +29,9 @@
             Assert.IsInstanceOf<SimulatedException>(context.MessageSentToErrorException);
             Assert.True(context.Logs.Any(l => l.Level == LogLevel.Error && l.Message.Contains("Simulated exception message")), "The last exception should be logged as `error` before sending it to the error queue");
 
-            // Immediate Retries max retries = 3 means we will be processing 4 times. Delayed Retries max retries = 2 means we will do 3*Immediate Retries
-            Assert.AreEqual(4*3, context.TotalNumberOfImmediateRetriesTimesInvokedInHandler);
-            Assert.AreEqual(3*3, context.TotalNumberOfImmediateRetriesEventInvocations);
+            // Immediate Retries max retries = 3 means we will be processing 4 times. Delayed Retries max retries = 2 means we will do 3 * Immediate Retries
+            Assert.AreEqual(4 * 3, context.TotalNumberOfHandlerInvocations);
+            Assert.AreEqual(3 * 3, context.TotalNumberOfImmediateRetriesEventInvocations);
             Assert.AreEqual(2, context.NumberOfDelayedRetriesPerformed);
         }
 
@@ -39,7 +39,7 @@
         {
             public Guid Id { get; set; }
             public int TotalNumberOfImmediateRetriesEventInvocations { get; set; }
-            public int TotalNumberOfImmediateRetriesTimesInvokedInHandler { get; set; }
+            public int TotalNumberOfHandlerInvocations { get; set; }
             public int NumberOfDelayedRetriesPerformed { get; set; }
             public bool MessageSentToError { get; set; }
             public Exception MessageSentToErrorException { get; set; }
@@ -51,7 +51,7 @@
             {
                 EndpointSetup<DefaultServer>((config, context) =>
                 {
-                    var testContext = (Context) context.ScenarioContext;
+                    var testContext = (Context)context.ScenarioContext;
                     var notifications = config.Notifications;
                     config.EnableFeature<TimeoutManager>();
                     var errors = notifications.Errors;
@@ -87,14 +87,14 @@
                         return Task.FromResult(0); // messages from previous test runs must be ignored
                     }
 
-                    Context.TotalNumberOfImmediateRetriesTimesInvokedInHandler++;
+                    Context.TotalNumberOfHandlerInvocations++;
 
                     throw new SimulatedException("Simulated exception message");
                 }
             }
         }
 
-        
+
         public class MessageToBeRetried : IMessage
         {
             public Guid Id { get; set; }

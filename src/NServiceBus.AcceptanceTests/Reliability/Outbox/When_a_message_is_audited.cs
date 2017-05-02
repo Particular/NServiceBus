@@ -13,7 +13,7 @@
     public class When_a_message_is_audited : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Should_be_dispatched_immediately()
+        public async Task Should_dispatch_audit_message_immediately()
         {
             Requires.OutboxPersistence();
 
