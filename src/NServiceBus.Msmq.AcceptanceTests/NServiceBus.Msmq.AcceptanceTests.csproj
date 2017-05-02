@@ -48,8 +48,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BasicServer.cs" />
     <Compile Include="DefaultServer.cs" />
-    <Compile Include="Distributor\DistributorEndpointTemplate.cs" />
+    <Compile Include="Distributor\DefaultDistributor.cs" />
     <Compile Include="Distributor\When_replying_to_message_sent_from_worker.cs" />
     <Compile Include="Distributor\When_worker_sends_delayed_message.cs" />
     <Compile Include="Distributor\When_worker_sends_to_local_endpoint.cs" />
@@ -66,6 +67,7 @@
     <Compile Include="When_customizing_scope_isolation_level.cs" />
     <Compile Include="When_distributing_an_event.cs" />
     <Compile Include="When_distributing_a_command.cs" />
+    <Compile Include="When_no_explicit_error_queue_is_configured.cs" />
     <Compile Include="When_overriding_local_address.cs" />
     <Compile Include="When_not_using_instance_mapping_file.cs" />
     <Compile Include="SubscriptionStorage\When_subscription_exists_for_non_tx_endpoint.cs" />
