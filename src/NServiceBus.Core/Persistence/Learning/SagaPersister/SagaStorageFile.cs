@@ -6,7 +6,7 @@ namespace NServiceBus
     using Janitor;
 
     [SkipWeaving]
-    class SagaStorageFile
+    class SagaStorageFile : IDisposable
     {
         SagaStorageFile(FileStream fileStream, SagaManifest manifest)
         {
