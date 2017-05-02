@@ -33,7 +33,7 @@ namespace NServiceBus.AcceptanceTests.Sagas
                 EndpointSetup<DefaultServer>(config => config.EnableFeature<TimeoutManager>());
             }
 
-            public class RequestResponseRequestingSaga : Saga<RequestResponseRequestingSaga.RequestResponseRequestingSagaData>,
+            public class RequestResponseRequestingSaga3 : Saga<RequestResponseRequestingSaga3.RequestResponseRequestingSagaData3>,
                 IAmStartedByMessages<InitiateRequestingSaga>,
                 IHandleMessages<ResponseFromOtherSaga>
             {
@@ -56,21 +56,21 @@ namespace NServiceBus.AcceptanceTests.Sagas
                     return Task.FromResult(0);
                 }
 
-                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<RequestResponseRequestingSagaData> mapper)
+                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<RequestResponseRequestingSagaData3> mapper)
                 {
                     mapper.ConfigureMapping<InitiateRequestingSaga>(m => m.Id).ToSaga(s => s.CorrIdForResponse);
                     mapper.ConfigureMapping<ResponseFromOtherSaga>(m => m.SomeCorrelationId).ToSaga(s => s.CorrIdForResponse);
                 }
 
-                public class RequestResponseRequestingSagaData : ContainSagaData
+                public class RequestResponseRequestingSagaData3 : ContainSagaData
                 {
                     public virtual Guid CorrIdForResponse { get; set; } //wont be needed in the future
                 }
             }
 
-            public class RequestResponseRespondingSaga : Saga<RequestResponseRespondingSaga.RequestResponseRespondingSagaData>,
+            public class RequestResponseRespondingSaga3 : Saga<RequestResponseRespondingSaga3.RequestResponseRespondingSagaData3>,
                 IAmStartedByMessages<RequestToRespondingSaga>,
-                IHandleTimeouts<RequestResponseRespondingSaga.DelayReply>
+                IHandleTimeouts<RequestResponseRespondingSaga3.DelayReply>
             {
                 public Context TestContext { get; set; }
 
@@ -78,7 +78,7 @@ namespace NServiceBus.AcceptanceTests.Sagas
                 {
                     return RequestTimeout<DelayReply>(context, TimeSpan.FromMilliseconds(1));
                 }
-                
+
                 public Task Timeout(DelayReply state, IMessageHandlerContext context)
                 {
                     //reply to originator must be used here since the sender of the incoming message the timeoutmanager and not the requesting saga
@@ -88,13 +88,13 @@ namespace NServiceBus.AcceptanceTests.Sagas
                     });
                 }
 
-                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<RequestResponseRespondingSagaData> mapper)
+                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<RequestResponseRespondingSagaData3> mapper)
                 {
                     mapper.ConfigureMapping<RequestToRespondingSaga>(m => m.SomeIdThatTheResponseSagaCanCorrelateBackToUs).ToSaga(s => s.CorrIdForRequest);
                 }
 
 
-                public class RequestResponseRespondingSagaData : ContainSagaData
+                public class RequestResponseRespondingSagaData3 : ContainSagaData
                 {
                     public virtual Guid CorrIdForRequest { get; set; }
                 }

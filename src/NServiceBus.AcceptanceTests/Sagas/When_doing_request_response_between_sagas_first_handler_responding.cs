@@ -33,7 +33,7 @@ namespace NServiceBus.AcceptanceTests.Sagas
                 EndpointSetup<DefaultServer>(config => config.EnableFeature<TimeoutManager>());
             }
 
-            public class RequestResponseRequestingSaga : Saga<RequestResponseRequestingSaga.RequestResponseRequestingSagaData>,
+            public class RequestResponseRequestingSaga1 : Saga<RequestResponseRequestingSaga1.RequestResponseRequestingSagaData1>,
                 IAmStartedByMessages<InitiateRequestingSaga>,
                 IHandleMessages<ResponseFromOtherSaga>
             {
@@ -56,38 +56,38 @@ namespace NServiceBus.AcceptanceTests.Sagas
                     return Task.FromResult(0);
                 }
 
-                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<RequestResponseRequestingSagaData> mapper)
+                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<RequestResponseRequestingSagaData1> mapper)
                 {
                     mapper.ConfigureMapping<InitiateRequestingSaga>(m => m.Id).ToSaga(s => s.CorrIdForResponse);
                     mapper.ConfigureMapping<ResponseFromOtherSaga>(m => m.SomeCorrelationId).ToSaga(s => s.CorrIdForResponse);
                 }
 
-                public class RequestResponseRequestingSagaData : ContainSagaData
+                public class RequestResponseRequestingSagaData1 : ContainSagaData
                 {
                     public virtual Guid CorrIdForResponse { get; set; } //wont be needed in the future
                 }
             }
 
-            public class RequestResponseRespondingSaga : Saga<RequestResponseRespondingSaga.RequestResponseRespondingSagaData>,
+            public class RequestResponseRespondingSaga1 : Saga<RequestResponseRespondingSaga1.RequestResponseRespondingSagaData1>,
                 IAmStartedByMessages<RequestToRespondingSaga>
             {
                 public Context TestContext { get; set; }
 
-                public async Task Handle(RequestToRespondingSaga message, IMessageHandlerContext context)
+                public Task Handle(RequestToRespondingSaga message, IMessageHandlerContext context)
                 {
                     // Both reply and reply to originator work here since the sender of the incoming message is the requesting saga
-                    // also note we don't set the correlation ID since auto correlation happens to work for this special case 
+                    // also note we don't set the correlation ID since auto correlation happens to work for this special case
                     // where we reply from the first handler
-                    await context.Reply(new ResponseFromOtherSaga());
+                    return context.Reply(new ResponseFromOtherSaga());
                 }
 
 
-                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<RequestResponseRespondingSagaData> mapper)
+                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<RequestResponseRespondingSagaData1> mapper)
                 {
                     mapper.ConfigureMapping<RequestToRespondingSaga>(m => m.SomeIdThatTheResponseSagaCanCorrelateBackToUs).ToSaga(s => s.CorrIdForRequest);
                 }
 
-                public class RequestResponseRespondingSagaData : ContainSagaData
+                public class RequestResponseRespondingSagaData1 : ContainSagaData
                 {
                     public virtual Guid CorrIdForRequest { get; set; }
                 }
