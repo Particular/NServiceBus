@@ -42,7 +42,7 @@
         {
             var directory = AppDomain.CurrentDomain.BaseDirectory;
 
-            do
+            while (true)
             {
                 if (Directory.EnumerateFiles(directory).Any(file => file.EndsWith(".sln")))
                 {
@@ -58,7 +58,7 @@
                 }
 
                 directory = parent.FullName;
-            } while (true);
+            }
         }
 
         public override TransportReceiveInfrastructure ConfigureReceiveInfrastructure()

@@ -27,7 +27,7 @@
             var attempts = 0;
 
             // since we have a design that can run into concurrency exceptions we perform a few retries
-            do
+            while (true)
             {
                 try
                 {
@@ -47,7 +47,7 @@
                     //allow the other task to complete
                     await Task.Delay(100).ConfigureAwait(false);
                 }
-            } while (true);
+            }
         }
 
         public async Task Unsubscribe(Type eventType, ContextBag context)
@@ -58,7 +58,7 @@
             var attempts = 0;
 
             // since we have a design that can run into concurrency exceptions we perform a few retries
-            do
+            while(true)
             {
                 try
                 {
@@ -83,7 +83,7 @@
                     //allow the other task to complete
                     await Task.Delay(100).ConfigureAwait(false);
                 }
-            } while (true);
+            }
         }
 
         string GetSubscriptionEntryPath(string eventDir) => Path.Combine(eventDir, endpointName + ".subcription");

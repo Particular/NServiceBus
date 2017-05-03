@@ -144,7 +144,7 @@ namespace NServiceBus
 
             var currentType = messageType;
 
-            do
+            while (currentType != null)
             {
                 //do not include the marker interfaces
                 if (IsCoreMarkerInterface(currentType))
@@ -160,7 +160,7 @@ namespace NServiceBus
                 allEventTypes.Add(currentType);
 
                 currentType = currentType.BaseType;
-            } while (currentType != null);
+            }
 
             return allEventTypes;
         }
