@@ -8,17 +8,15 @@
     public abstract class FeatureStartupTask
     {
         /// <summary>
-        /// Will be called after an endpoint has been started but before processing any messages, if the feature has been
+        /// Will be called after an endpoint has been started but before processing any messages. This method is only invoked if the feature has been
         /// activated.
         /// </summary>
-        /// <param name="session">Bus session.</param>
         protected abstract Task OnStart(IMessageSession session);
 
         /// <summary>
-        /// Will be called after an endpoint has been started but before processing any messages, if the feature has been
+        /// Will be called after an endpoint has been stopped and no longer processes new incoming messages. This method is only invoked if the feature has been
         /// activated.
         /// </summary>
-        /// <param name="session">Bus session.</param>
         protected abstract Task OnStop(IMessageSession session);
 
         internal Task PerformStartup(IMessageSession session)
