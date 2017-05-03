@@ -18,7 +18,7 @@ public class ConfigureEndpointLearningTransport : IConfigureEndpointTestExecutio
 
     public Task Configure(string endpointName, EndpointConfiguration configuration, RunSettings settings, PublisherMetadata publisherMetadata)
     {
-        storageDir = Path.Combine(TestContext.CurrentContext.TestDirectory, "att_tests"); //can't use bindir since that will be to long on the build agents
+        storageDir = Path.Combine(@"c:\temp", "att_tests"); //can't use bindir since that will be to long on the build agents
 
         configuration.UseTransport<LearningTransport>()
             .StorageDirectory(storageDir);
