@@ -8,6 +8,7 @@ namespace NServiceBus
     using DelayedDelivery;
     using DeliveryConstraints;
     using Extensibility;
+    using Performance.TimeToBeReceived;
     using Transport;
 
     class LearningTransportDispatcher : IDispatchMessages
@@ -69,18 +70,22 @@ namespace NServiceBus
 
             DateTime? timeToDeliver = null;
 
-            if (transportOperation.DeliveryConstraints.TryGet(out DelayDeliveryWith delayDeliveryWith))
-            {
-                timeToDeliver = DateTime.UtcNow + delayDeliveryWith.Delay;
-            }
-
             if (transportOperation.DeliveryConstraints.TryGet(out DoNotDeliverBefore doNotDeliverBefore))
             {
                 timeToDeliver = doNotDeliverBefore.At;
             }
+            else if (transportOperation.DeliveryConstraints.TryGet(out DelayDeliveryWith delayDeliveryWith))
+            {
+                timeToDeliver = DateTime.UtcNow + delayDeliveryWith.Delay;
+            }
 
             if (timeToDeliver.HasValue)
             {
+                if (transportOperation.DeliveryConstraints.TryGet(out DiscardIfNotReceivedBefore timeToBeReceived) && timeToBeReceived.MaxTime < TimeSpan.MaxValue)
+                {
+                    throw new Exception("Postponed delivery of messages with TimeToBeReceived set is not supported. Remove the TimeToBeReceived attribute to postpone messages of this type.");
+                }
+
                 // we need to "ceil" the seconds to guarantee that we delay with at least the requested value
                 // since the folder name has only second resolution.
                 if (timeToDeliver.Value.Millisecond > 0)
