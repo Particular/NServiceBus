@@ -15,7 +15,7 @@
             this.basePath = Path.Combine(basePath, ".events");
         }
 
-        public Task Subscribe(Type eventType, ContextBag context)
+        public async Task Subscribe(Type eventType, ContextBag context)
         {
             var eventDir = GetEventDirectory(eventType);
 
@@ -24,22 +24,66 @@
 
             var subscriptionEntryPath = GetSubscriptionEntryPath(eventDir);
 
-            //add subscription
-            return AsyncFile.WriteText(subscriptionEntryPath, localAddress);
+            var attempts = 0;
+
+            // since we have a design that can run into concurrency exceptions we perform a few retries
+            do
+            {
+                try
+                {
+                    await AsyncFile.WriteText(subscriptionEntryPath, localAddress).ConfigureAwait(false);
+                    return;
+                }
+                catch (IOException)
+                {
+                    attempts++;
+
+                    if (attempts > 5)
+                    {
+                        throw;
+                    }
+
+                    //allow the other task to complete
+                    await Task.Yield();
+                }
+            } while (true);
         }
 
-        public Task Unsubscribe(Type eventType, ContextBag context)
+        public async Task Unsubscribe(Type eventType, ContextBag context)
         {
             var eventDir = GetEventDirectory(eventType);
             var subscriptionEntryPath = GetSubscriptionEntryPath(eventDir);
 
-            if (!File.Exists(subscriptionEntryPath))
-            {
-                return TaskEx.CompletedTask;
-            }
 
-            File.Delete(subscriptionEntryPath);
-            return TaskEx.CompletedTask;
+            var attempts = 0;
+
+            // since we have a design that can run into concurrency exceptions we perform a few retries
+            do
+            {
+                try
+                {
+                    if (!File.Exists(subscriptionEntryPath))
+                    {
+                        return;
+                    }
+
+                    File.Delete(subscriptionEntryPath);
+
+                    return;
+                }
+                catch (IOException)
+                {
+                    attempts++;
+
+                    if (attempts > 5)
+                    {
+                        throw;
+                    }
+
+                    //allow the other task to complete
+                    await Task.Yield();
+                }
+            } while (true);
         }
 
         string GetSubscriptionEntryPath(string eventDir)
