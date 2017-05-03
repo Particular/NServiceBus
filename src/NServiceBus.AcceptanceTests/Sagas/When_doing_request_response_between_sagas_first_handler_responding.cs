@@ -25,7 +25,6 @@ namespace NServiceBus.AcceptanceTests.Sagas
             public bool DidRequestingSagaGetTheResponse { get; set; }
         }
 
-
         public class Endpoint : EndpointConfigurationBuilder
         {
             public Endpoint()
@@ -80,7 +79,6 @@ namespace NServiceBus.AcceptanceTests.Sagas
                     // where we reply from the first handler
                     return context.Reply(new ResponseFromOtherSaga());
                 }
-
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<RequestResponseRespondingSagaData1> mapper)
                 {
