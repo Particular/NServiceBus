@@ -152,14 +152,14 @@ namespace NServiceBus
                     break;
                 }
 
-                foreach (var type in messageType.GetInterfaces().Where(i => !IsCoreMarkerInterface(i)))
-                {
-                    allEventTypes.Add(type);
-                }
-
                 allEventTypes.Add(currentType);
 
                 currentType = currentType.BaseType;
+            }
+
+            foreach (var type in messageType.GetInterfaces().Where(i => !IsCoreMarkerInterface(i)))
+            {
+                allEventTypes.Add(type);
             }
 
             return allEventTypes;
