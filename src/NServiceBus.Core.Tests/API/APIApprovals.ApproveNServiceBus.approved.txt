@@ -813,9 +813,9 @@ namespace NServiceBus
         public override bool RequiresConnectionString { get; }
         public override NServiceBus.Transport.TransportInfrastructure Initialize(NServiceBus.Settings.SettingsHolder settings, string connectionString) { }
     }
-    public class static LearningTransportConfigExtensions
+    public class static LearningTransportConfigurationExtensions
     {
-        public static void StorageDirectory(this NServiceBus.TransportExtensions<NServiceBus.LearningTransport> config, string path) { }
+        public static void StorageDirectory(this NServiceBus.TransportExtensions<NServiceBus.LearningTransport> transportExtensions, string path) { }
     }
     public class static LoadMessageHandlersExtensions
     {
