@@ -9,10 +9,15 @@ namespace NServiceBus
     {
         public static string Serialize(Dictionary<string, string> dictionary)
         {
-            using (var ms = new MemoryStream())
+            using (var stream = new MemoryStream())
             {
-                serializer.WriteObject(ms, dictionary);
-                return Encoding.UTF8.GetString(ms.ToArray());
+                using (var writer = JsonReaderWriterFactory.CreateJsonWriter(
+                    stream, Encoding.UTF8, true, true, "  "))
+                {
+                    serializer.WriteObject(writer, dictionary);
+                    writer.Flush();
+                }
+                return Encoding.UTF8.GetString(stream.ToArray());
             }
         }
 
@@ -20,10 +25,15 @@ namespace NServiceBus
         {
             using (var ms = new MemoryStream(Encoding.UTF8.GetBytes(value)))
             {
-                return (Dictionary<string, string>) serializer.ReadObject(ms);
+                return (Dictionary<string, string>)serializer.ReadObject(ms);
             }
         }
 
-        static DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(Dictionary<string, string>));
+        static DataContractJsonSerializer serializer = new DataContractJsonSerializer(
+            type: typeof(Dictionary<string, string>),
+            settings: new DataContractJsonSerializerSettings
+            {
+                UseSimpleDictionaryFormat = true
+            });
     }
 }
