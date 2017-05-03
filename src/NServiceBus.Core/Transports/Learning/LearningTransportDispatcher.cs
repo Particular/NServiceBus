@@ -68,16 +68,13 @@ namespace NServiceBus
                 .ConfigureAwait(false);
 
             DateTime? timeToDeliver = null;
-            DelayDeliveryWith delayDeliveryWith;
 
-            if (transportOperation.DeliveryConstraints.TryGet(out delayDeliveryWith))
+            if (transportOperation.DeliveryConstraints.TryGet(out DelayDeliveryWith delayDeliveryWith))
             {
                 timeToDeliver = DateTime.UtcNow + delayDeliveryWith.Delay;
             }
 
-            DoNotDeliverBefore doNotDeliverBefore;
-
-            if (transportOperation.DeliveryConstraints.TryGet(out doNotDeliverBefore))
+            if (transportOperation.DeliveryConstraints.TryGet(out DoNotDeliverBefore doNotDeliverBefore))
             {
                 timeToDeliver = doNotDeliverBefore.At;
             }
@@ -98,11 +95,9 @@ namespace NServiceBus
 
             var messagePath = Path.Combine(destinationPath, nativeMessageId) + ".metadata.txt";
 
-            ILearningTransportTransaction directoryBasedTransaction;
-
             var messageContents = HeaderSerializer.Serialize(transportOperation.Message.Headers);
 
-            if (transportOperation.RequiredDispatchConsistency != DispatchConsistency.Isolated && transaction.TryGet(out directoryBasedTransaction))
+            if (transportOperation.RequiredDispatchConsistency != DispatchConsistency.Isolated && transaction.TryGet(out ILearningTransportTransaction directoryBasedTransaction))
             {
                 await directoryBasedTransaction.Enlist(messagePath, messageContents)
                     .ConfigureAwait(false);

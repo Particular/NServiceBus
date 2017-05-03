@@ -174,12 +174,11 @@
             {
                 var message = await AsyncFile.ReadText(transaction.FileToProcess)
                     .ConfigureAwait(false);
+
                 var bodyPath = Path.Combine(bodyDir, $"{messageId}{BodyFileSuffix}");
                 var headers = HeaderSerializer.Deserialize(message);
 
-                string ttbrString;
-
-                if (headers.TryGetValue(Headers.TimeToBeReceived, out ttbrString))
+                if (headers.TryGetValue(Headers.TimeToBeReceived, out var ttbrString))
                 {
                     var ttbr = TimeSpan.Parse(ttbrString);
                     //file.move preserves create time
