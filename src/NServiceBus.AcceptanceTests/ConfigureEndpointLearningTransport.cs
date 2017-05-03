@@ -2,7 +2,6 @@ using System.IO;
 using System.Threading.Tasks;
 using NServiceBus;
 using NServiceBus.AcceptanceTesting.Support;
-using NUnit.Framework;
 
 public class ConfigureEndpointLearningTransport : IConfigureEndpointTestExecution
 {
