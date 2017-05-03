@@ -11,8 +11,12 @@ namespace NServiceBus
             this.basePath = basePath;
             this.immediateDispatch = immediateDispatch;
 
+            var rootCommitDir = Path.Combine(basePath, CommittedDirName);
+
+            Directory.CreateDirectory(rootCommitDir);
+
             transactionDir = Path.Combine(basePath, PendingDirName, transactionId);
-            commitDir = Path.Combine(basePath, CommittedDirName, transactionId);
+            commitDir = Path.Combine(rootCommitDir, transactionId);
         }
 
         public string FileToProcess { get; private set; }
@@ -32,7 +36,6 @@ namespace NServiceBus
             return TaskEx.CompletedTask;
         }
 
-
         public void Rollback()
         {
             //rollback by moving the file back to the main dir
@@ -44,7 +47,6 @@ namespace NServiceBus
         {
             outgoingFiles.Clear();
         }
-
 
         public Task Enlist(string messagePath, string messageContents)
         {
@@ -60,13 +62,17 @@ namespace NServiceBus
             return AsyncFile.WriteText(txPath, messageContents);
         }
 
-
         public void Complete()
         {
             if (!committed)
+            {
                 return;
+            }
+
             foreach (var outgoingFile in outgoingFiles)
+            {
                 File.Move(outgoingFile.TxPath, outgoingFile.TargetPath);
+            }
 
             Directory.Delete(commitDir, true);
         }

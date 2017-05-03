@@ -24,9 +24,7 @@
             transactionMode = settings.RequiredTransactionMode;
 
             path = Path.Combine(basePath, settings.InputQueue);
-
-            Directory.CreateDirectory(Path.Combine(path, ".committed"));
-
+            
             purgeOnStartup = settings.PurgeOnStartup;
 
             receiveCircuitBreaker = new RepeatedFailuresOverTimeCircuitBreaker("LearningTransportReceive", TimeSpan.FromSeconds(30), ex => criticalError.Raise("Failed to receive from " + settings.InputQueue, ex));
