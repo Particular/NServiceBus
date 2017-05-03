@@ -86,7 +86,7 @@
             }
         }
 
-        string GetSubscriptionEntryPath(string eventDir) => Path.Combine(eventDir, endpointName + ".subcription");
+        string GetSubscriptionEntryPath(string eventDir) => Path.Combine(eventDir, endpointName + ".subscription");
 
         string GetEventDirectory(Type eventType) => Path.Combine(basePath, eventType.FullName);
 
