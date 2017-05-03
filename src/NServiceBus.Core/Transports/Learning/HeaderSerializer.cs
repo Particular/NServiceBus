@@ -11,12 +11,12 @@ namespace NServiceBus
         {
             using (var stream = new MemoryStream())
             {
-                using (var writer = JsonReaderWriterFactory.CreateJsonWriter(
-                    stream, Encoding.UTF8, true, true, "  "))
+                using (var writer = JsonReaderWriterFactory.CreateJsonWriter(stream, Encoding.UTF8, true, true, "  "))
                 {
                     serializer.WriteObject(writer, dictionary);
                     writer.Flush();
                 }
+
                 return Encoding.UTF8.GetString(stream.ToArray());
             }
         }

@@ -98,7 +98,9 @@
                 public Task Handle(InitiatingMessage initiatingMessage, IMessageHandlerContext context)
                 {
                     if (initiatingMessage.Id == TestContext.TestRunId)
+                    {
                         TestContext.MessageMovedToErrorQueue = true;
+                    }
 
                     return Task.FromResult(0);
                 }
@@ -111,7 +113,9 @@
                 public Task Handle(SubsequentMessage message, IMessageHandlerContext context)
                 {
                     if (message.Id == TestContext.TestRunId)
+                    {
                         TestContext.OutgoingMessageSent = true;
+                    }
 
                     return Task.FromResult(0);
                 }

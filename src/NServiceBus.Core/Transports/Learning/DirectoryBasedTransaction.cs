@@ -61,6 +61,7 @@ namespace NServiceBus
             var committedPath = Path.Combine(commitDir, inProgressFileName);
 
             outgoingFiles.Add(new OutgoingFile(committedPath, messagePath));
+
             return AsyncFile.WriteText(txPath, messageContents);
         }
 

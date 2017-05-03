@@ -22,6 +22,7 @@
                 var solutionRoot = FindSolutionRoot();
                 storagePath = Path.Combine(solutionRoot, ".learningtransport");
             }
+
             var errorQueueAddress = settings.ErrorQueueAddress();
             PathChecker.ThrowForBadPath(errorQueueAddress, "ErrorQueueAddress");
         }
@@ -76,25 +77,27 @@
             {
                 var endpointName = settings.EndpointName();
                 PathChecker.ThrowForBadPath(endpointName, "endpoint name");
+
                 var localAddress = settings.LocalAddress();
                 PathChecker.ThrowForBadPath(localAddress, "localAddress");
+
                 return new LearningTransportSubscriptionManager(storagePath, endpointName, localAddress);
             });
         }
 
-        public override EndpointInstance BindToLocalEndpoint(EndpointInstance instance)
-        {
-            return instance;
-        }
+        public override EndpointInstance BindToLocalEndpoint(EndpointInstance instance) => instance;
 
         public override string ToTransportAddress(LogicalAddress logicalAddress)
         {
             var endpoint = logicalAddress.EndpointInstance.Endpoint;
-            var discriminator = logicalAddress.EndpointInstance.Discriminator ?? "";
-            var qualifier = logicalAddress.Qualifier ?? "";
             PathChecker.ThrowForBadPath(endpoint, "endpoint name");
+
+            var discriminator = logicalAddress.EndpointInstance.Discriminator ?? "";
             PathChecker.ThrowForBadPath(discriminator, "endpoint discriminator");
+
+            var qualifier = logicalAddress.Qualifier ?? "";
             PathChecker.ThrowForBadPath(qualifier, "address qualifier");
+
             return Path.Combine(endpoint, discriminator, qualifier);
         }
 

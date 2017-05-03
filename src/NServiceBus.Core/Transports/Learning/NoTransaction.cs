@@ -20,32 +20,15 @@ namespace NServiceBus
             File.Move(incomingFilePath, FileToProcess);
         }
 
-        public Task Enlist(string messagePath, string messageContents)
-        {
-            return AsyncFile.WriteText(messagePath, messageContents);
-        }
+        public Task Enlist(string messagePath, string messageContents) => AsyncFile.WriteText(messagePath, messageContents);
 
-        public Task Commit()
-        {
-            //no-op
-            return TaskEx.CompletedTask;
-        }
+        public Task Commit() => TaskEx.CompletedTask;
 
-        public void Rollback()
-        {
-            //no-op
-        }
+        public void Rollback() { }
 
-        public void ClearPendingOutgoingOperations()
-        {
-            //no-op
-        }
+        public void ClearPendingOutgoingOperations() { }
 
-
-        public void Complete()
-        {
-            Directory.Delete(processingDirectory, true);
-        }
+        public void Complete() => Directory.Delete(processingDirectory, true);
 
         string processingDirectory;
     }

@@ -27,6 +27,7 @@ namespace NServiceBus
         async Task DispatchMulticast(IEnumerable<MulticastTransportOperation> transportOperations, TransportTransaction transaction)
         {
             var tasks = new List<Task>();
+
             foreach (var transportOperation in transportOperations)
             {
                 var subscribers = await GetSubscribersFor(transportOperation.MessageType)
@@ -37,16 +38,17 @@ namespace NServiceBus
                     tasks.Add(WriteMessage(subscriber, transportOperation, transaction));
                 }
             }
+
             await Task.WhenAll(tasks)
                 .ConfigureAwait(false);
         }
-
 
         Task DispatchUnicast(IEnumerable<UnicastTransportOperation> operations, TransportTransaction transaction)
         {
             return Task.WhenAll(operations.Select(operation =>
             {
                 PathChecker.ThrowForBadPath(operation.Destination, "message destination");
+
                 return WriteMessage(operation.Destination, operation, transaction);
             }));
         }
@@ -80,7 +82,6 @@ namespace NServiceBus
                 timeToDeliver = doNotDeliverBefore.At;
             }
 
-
             if (timeToDeliver.HasValue)
             {
                 // we need to "ceil" the seconds to guarantee that we delay with at least the requested value
@@ -100,8 +101,8 @@ namespace NServiceBus
             ILearningTransportTransaction directoryBasedTransaction;
 
             var messageContents = HeaderSerializer.Serialize(transportOperation.Message.Headers);
-            if (transportOperation.RequiredDispatchConsistency != DispatchConsistency.Isolated &&
-                transaction.TryGet(out directoryBasedTransaction))
+
+            if (transportOperation.RequiredDispatchConsistency != DispatchConsistency.Isolated && transaction.TryGet(out directoryBasedTransaction))
             {
                 await directoryBasedTransaction.Enlist(messagePath, messageContents)
                     .ConfigureAwait(false);
@@ -134,6 +135,7 @@ namespace NServiceBus
                 {
                     var allText = await AsyncFile.ReadText(file)
                         .ConfigureAwait(false);
+
                     subscribers.Add(allText);
                 }
             }
@@ -146,6 +148,7 @@ namespace NServiceBus
             var allEventTypes = new HashSet<Type>();
 
             var currentType = messageType;
+
             do
             {
                 //do not include the marker interfaces
@@ -158,6 +161,7 @@ namespace NServiceBus
                 {
                     allEventTypes.Add(type);
                 }
+
                 allEventTypes.Add(currentType);
 
                 currentType = currentType.BaseType;
@@ -166,10 +170,7 @@ namespace NServiceBus
             return allEventTypes;
         }
 
-        static bool IsCoreMarkerInterface(Type type)
-        {
-            return type == typeof(IMessage) || type == typeof(IEvent) || type == typeof(ICommand);
-        }
+        static bool IsCoreMarkerInterface(Type type) => type == typeof(IMessage) || type == typeof(IEvent) || type == typeof(ICommand);
 
         string basePath;
     }

@@ -24,6 +24,7 @@
             transactionMode = settings.RequiredTransactionMode;
 
             PathChecker.ThrowForBadPath(settings.InputQueue, "InputQueue");
+
             path = Path.Combine(basePath, settings.InputQueue);
             bodyDir = Path.Combine(path, BodyDirName);
 
@@ -136,6 +137,7 @@
             }
 
             var immediateDispatch = transactionMode == TransportTransactionMode.ReceiveOnly;
+
             return new DirectoryBasedTransaction(path, Guid.NewGuid().ToString(), immediateDispatch);
         }
 
@@ -187,9 +189,11 @@
                     {
                         await transaction.Commit()
                             .ConfigureAwait(false);
+
                         return true;
                     }
                 }
+
                 var tokenSource = new CancellationTokenSource();
 
                 var context = new ContextBag();
@@ -222,6 +226,7 @@
                     if (actionToTake == ErrorHandleResult.RetryRequired)
                     {
                         transaction.Rollback();
+
                         return false;
                     }
                 }
@@ -229,16 +234,19 @@
                 if (tokenSource.IsCancellationRequested)
                 {
                     transaction.Rollback();
+
                     return false;
                 }
 
                 await transaction.Commit()
                     .ConfigureAwait(false);
+
                 return true;
             }
             catch (Exception)
             {
                 transaction.Rollback();
+
                 return false;
             }
         }
@@ -260,7 +268,6 @@
         string bodyDir;
 
         public const string BodyFileSuffix = ".body.txt";
-
         public const string BodyDirName = ".bodies";
 
         static ILog Logger = LogManager.GetLogger<LearningTransportMessagePump>();

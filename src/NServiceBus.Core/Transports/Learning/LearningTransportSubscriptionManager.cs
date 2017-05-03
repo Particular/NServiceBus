@@ -32,6 +32,7 @@
                 try
                 {
                     await AsyncFile.WriteText(subscriptionEntryPath, localAddress).ConfigureAwait(false);
+
                     return;
                 }
                 catch (IOException)
@@ -53,7 +54,6 @@
         {
             var eventDir = GetEventDirectory(eventType);
             var subscriptionEntryPath = GetSubscriptionEntryPath(eventDir);
-
 
             var attempts = 0;
 
@@ -86,16 +86,9 @@
             } while (true);
         }
 
-        string GetSubscriptionEntryPath(string eventDir)
-        {
-            return Path.Combine(eventDir, endpointName + ".subcription");
-        }
+        string GetSubscriptionEntryPath(string eventDir) => Path.Combine(eventDir, endpointName + ".subcription");
 
-        string GetEventDirectory(Type eventType)
-        {
-            var eventId = eventType.FullName;
-            return Path.Combine(basePath, eventId);
-        }
+        string GetEventDirectory(Type eventType) => Path.Combine(basePath, eventType.FullName);
 
         string basePath;
         string endpointName;
