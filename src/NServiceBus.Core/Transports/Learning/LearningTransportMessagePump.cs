@@ -195,9 +195,6 @@
 
                 var tokenSource = new CancellationTokenSource();
 
-                var context = new ContextBag();
-                context.Set(transaction);
-
                 var body = await AsyncFile.ReadBytes(bodyPath, cancellationToken)
                     .ConfigureAwait(false);
 
