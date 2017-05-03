@@ -20,7 +20,6 @@ namespace NServiceBus.AcceptanceTests.Sagas
             Assert.True(context.DidRequestingSagaGetTheResponse);
         }
 
-
         public class Context : ScenarioContext
         {
             public bool DidRequestingSagaGetTheResponse { get; set; }
