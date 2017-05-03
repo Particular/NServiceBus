@@ -55,7 +55,7 @@ namespace NServiceBus
 
             Directory.CreateDirectory(bodyDir);
 
-            var bodyPath = Path.Combine(bodyDir, nativeMessageId) + ".txt";
+            var bodyPath = Path.Combine(bodyDir, nativeMessageId) + ".body.txt";
 
             await AsyncFile.WriteBytes(bodyPath, transportOperation.Message.Body)
                 .ConfigureAwait(false);
@@ -92,7 +92,7 @@ namespace NServiceBus
                 Directory.CreateDirectory(destinationPath);
             }
 
-            var messagePath = Path.Combine(destinationPath, nativeMessageId) + ".txt";
+            var messagePath = Path.Combine(destinationPath, nativeMessageId) + ".metadata.txt";
 
             ILearningTransportTransaction directoryBasedTransaction;
 
