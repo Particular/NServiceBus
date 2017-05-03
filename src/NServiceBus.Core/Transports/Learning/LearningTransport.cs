@@ -14,7 +14,7 @@
         public override bool RequiresConnectionString => false;
 
         /// <summary>
-        /// Gets an example connection string to use when reporting lack of configured connection string to the user.
+        /// Gets an example connection string to use when reporting the lack of a configured connection string to the user.
         /// </summary>
         public override string ExampleConnectionStringForErrorMessage { get; } = "";
 
