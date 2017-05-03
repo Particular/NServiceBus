@@ -103,6 +103,6 @@
 
         string storagePath;
         SettingsHolder settings;
-        internal static string StorageLocationKey = "LearningTransport.StoragePath";
+        public const string StorageLocationKey = "LearningTransport.StoragePath";
     }
 }
