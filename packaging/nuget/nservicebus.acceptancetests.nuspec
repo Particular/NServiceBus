@@ -20,6 +20,7 @@
       <dependency id="NUnit" version="[3.6.1, 4.0.0)" />
     </dependencies>
   <frameworkAssemblies>
+    <frameworkAssembly assemblyName="Microsoft.CSharp" targetFramework="net452" />
     <frameworkAssembly assemblyName="System.Messaging" targetFramework="net452" />
     <frameworkAssembly assemblyName="System.Transactions" targetFramework="net452" />
     <frameworkAssembly assemblyName="System.Configuration" targetFramework="net452" />
@@ -29,6 +30,10 @@
     <file
       src="..\..\src\NServiceBus.AcceptanceTests\**\*.cs"
       target="content\App_Packages\NSB.AcceptanceTests.$version$"
+      exclude="**\bin\**\*.*;**\obj\**\*.*;..\..\src\NServiceBus.AcceptanceTests\Core\**\*.cs" />
+    <file
+      src="..\..\src\NServiceBus.AcceptanceTests\**\*.cs"
+      target="contentFiles\cs\any\NSB.AcceptanceTests"
       exclude="**\bin\**\*.*;**\obj\**\*.*;..\..\src\NServiceBus.AcceptanceTests\Core\**\*.cs" />
   </files>
 </package>
