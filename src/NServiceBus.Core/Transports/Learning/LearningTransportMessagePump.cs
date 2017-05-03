@@ -95,7 +95,7 @@
                 }
                 catch (Exception exception)
                 {
-                    Logger.Error("File Message pump failed", exception);
+                    Logger.Error("Message pump failed.", exception);
                 }
             }
         }
