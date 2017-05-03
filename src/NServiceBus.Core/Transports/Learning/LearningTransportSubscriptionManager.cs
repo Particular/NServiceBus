@@ -40,10 +40,11 @@
 
                     if (attempts > 5)
                     {
-                        //allow the other task to complete
-                        await Task.Yield();
                         throw;
                     }
+
+                    //allow the other task to complete
+                    await Task.Yield();
                 }
             } while (true);
         }
@@ -76,10 +77,11 @@
 
                     if (attempts > 5)
                     {
-                        //allow the other task to complete
-                        await Task.Yield();
                         throw;
                     }
+
+                    //allow the other task to complete
+                    await Task.Yield();
                 }
             } while (true);
         }
