@@ -26,7 +26,7 @@
                         });
                     })
                     .DoNotFailOnErrorMessages())
-                .Done(c => c.SecondMessageReceived || c.NumberOfTimesInvoked > 1)
+                .Done(c => c.SecondMessageReceived && c.NumberOfTimesInvoked >= 1)
                 .Run();
 
             Assert.AreEqual(1, context.NumberOfTimesInvoked, "No retries should be in use if transactions are off");
