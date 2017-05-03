@@ -38,13 +38,13 @@
                 {
                     attempts++;
 
-                    if (attempts > 5)
+                    if (attempts > 10)
                     {
                         throw;
                     }
 
                     //allow the other task to complete
-                    await Task.Yield();
+                    await Task.Delay(100).ConfigureAwait(false);
                 }
             } while (true);
         }
@@ -75,13 +75,13 @@
                 {
                     attempts++;
 
-                    if (attempts > 5)
+                    if (attempts > 10)
                     {
                         throw;
                     }
 
                     //allow the other task to complete
-                    await Task.Yield();
+                    await Task.Delay(100).ConfigureAwait(false);
                 }
             } while (true);
         }
