@@ -33,7 +33,7 @@
                     });
                 }))
                 .WithEndpoint<DownstreamEndpoint>()
-                .Done(c => c.Done)
+                .Done(c => c.Done && c.MessagesReceivedByDownstreamEndpoint >= 2 && c.MessagesReceivedByOutboxEndpoint >= 2)
                 .Run();
 
             Assert.AreEqual(2, context.MessagesReceivedByDownstreamEndpoint);
