@@ -24,7 +24,6 @@
             transactionMode = settings.RequiredTransactionMode;
 
             path = Path.Combine(basePath, settings.InputQueue);
-
             Directory.CreateDirectory(Path.Combine(path, ".committed"));
 
             bodyDir = Path.Combine(path, BodyDirName);
@@ -47,7 +46,15 @@
             cancellationToken = cancellationTokenSource.Token;
 
             if (purgeOnStartup)
+            {
                 Array.ForEach(Directory.GetFiles(path), File.Delete);
+            }
+
+            if (transactionMode != TransportTransactionMode.None)
+            {
+                DirectoryBasedTransaction.RecoverPartiallyCompletedTransactions(path);
+            }
+
             messagePumpTask = Task.Run(ProcessMessages, cancellationToken);
 
             delayedMessagePoller.Start();
@@ -125,8 +132,9 @@
             {
                 return new NoTransaction(path);
             }
+
             var immediateDispatch = transactionMode == TransportTransactionMode.ReceiveOnly;
-            return new DirectoryBasedTransaction(path, immediateDispatch);
+            return new DirectoryBasedTransaction(path, Guid.NewGuid().ToString(), immediateDispatch);
         }
 
         async Task InnerProcessFile(ILearningTransportTransaction transaction, string nativeMessageId)

@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.AcceptanceTests.Reliability.Outbox
 {
     using System;
-    using System.Linq;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using Configuration.AdvanceExtensibility;
@@ -17,7 +16,9 @@
             Requires.OutboxPersistence();
 
             var context = await Scenario.Define<Context>()
-                .WithEndpoint<NonDtcReceivingEndpoint>(b => b.When(session => session.SendLocal(new PlaceOrder())))
+                .WithEndpoint<NonDtcReceivingEndpoint>(b => b
+                    .DoNotFailOnErrorMessages() // PlaceOrder should fail due to exception after dispatch
+                    .When(session => session.SendLocal(new PlaceOrder())))
                 .Done(c => c.OrderAckReceived == 1)
                 .Run(TimeSpan.FromSeconds(20));
 
@@ -46,26 +47,10 @@
             {
                 public async Task Invoke(IBatchDispatchContext context, Func<IBatchDispatchContext, Task> next)
                 {
-                    if (!context.Operations.Any(op => op.Message.Headers[Headers.EnclosedMessageTypes].Contains(typeof(PlaceOrder).Name)))
-                    {
-                        await next(context).ConfigureAwait(false);
-                        return;
-                    }
-
-                    if (called)
-                    {
-                        Console.WriteLine("Called once, skipping next");
-                        return;
-                    }
-
                     await next(context).ConfigureAwait(false);
-
-                    called = true;
 
                     throw new SimulatedException();
                 }
-
-                static bool called;
             }
 
             class PlaceOrderHandler : IHandleMessages<PlaceOrder>
