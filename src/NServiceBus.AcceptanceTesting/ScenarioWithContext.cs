@@ -104,7 +104,7 @@ namespace NServiceBus.AcceptanceTesting
 
             if (runResult.Failed)
             {
-                Console.WriteLine("Test failed: {0}", runResult.Exception);
+                Console.WriteLine("Test failed: {0}", runResult.Exception.SourceException);
             }
             else
             {
