@@ -51,7 +51,9 @@ namespace NServiceBus
         public Task Enlist(string messagePath, string messageContents)
         {
             if (immediateDispatch)
+            {
                 return AsyncFile.WriteText(messagePath, messageContents);
+            }
 
             var inProgressFileName = Path.GetFileNameWithoutExtension(messagePath) + ".out";
 
