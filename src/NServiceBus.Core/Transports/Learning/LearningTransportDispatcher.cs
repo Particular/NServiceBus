@@ -60,8 +60,6 @@ namespace NServiceBus
             await AsyncFile.WriteBytes(bodyPath, transportOperation.Message.Body)
                 .ConfigureAwait(false);
 
-            var messageContents = $"{bodyPath}{Environment.NewLine}{HeaderSerializer.Serialize(transportOperation.Message.Headers)}";
-
             DateTime? timeToDeliver = null;
             DelayDeliveryWith delayDeliveryWith;
 
@@ -96,6 +94,7 @@ namespace NServiceBus
 
             ILearningTransportTransaction directoryBasedTransaction;
 
+            var messageContents = HeaderSerializer.Serialize(transportOperation.Message.Headers);
             if (transportOperation.RequiredDispatchConsistency != DispatchConsistency.Isolated &&
                 transaction.TryGet(out directoryBasedTransaction))
             {

@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Concurrent;
-    using System.Collections.Generic;
     using System.Diagnostics;
     using System.IO;
     using System.Threading;
@@ -60,8 +59,10 @@
                 .ConfigureAwait(false);
 
             while (concurrencyLimiter.CurrentCount != maxConcurrency)
+            {
                 await Task.Delay(50, CancellationToken.None)
                     .ConfigureAwait(false);
+            }
 
             concurrencyLimiter.Dispose();
         }
@@ -70,6 +71,7 @@
         async Task ProcessMessages()
         {
             while (!cancellationToken.IsCancellationRequested)
+            {
                 try
                 {
                     await InnerProcessMessages()
@@ -83,6 +85,7 @@
                 {
                     Logger.Error("File Message pump failed", exception);
                 }
+            }
         }
 
         async Task InnerProcessMessages()
@@ -95,7 +98,7 @@
                 {
                     filesFound = true;
 
-                    var nativeMessageId = Path.GetFileNameWithoutExtension(filePath);
+                    var nativeMessageId = Path.GetFileNameWithoutExtension(filePath).Replace(".metadata","");
 
                     var transaction = GetTransaction();
 
@@ -108,14 +111,18 @@
                 }
 
                 if (!filesFound)
+                {
                     await Task.Delay(10, cancellationToken).ConfigureAwait(false);
+                }
             }
         }
 
         ILearningTransportTransaction GetTransaction()
         {
             if (transactionMode == TransportTransactionMode.None)
+            {
                 return new NoTransaction(path);
+            }
             var immediateDispatch = transactionMode == TransportTransactionMode.ReceiveOnly;
             return new DirectoryBasedTransaction(path, immediateDispatch);
         }
@@ -148,9 +155,8 @@
             {
                 var message = await AsyncFile.ReadText(transaction.FileToProcess)
                     .ConfigureAwait(false);
-                string bodyPath;
-                Dictionary<string, string> headers;
-                ExtractMessage(out bodyPath, message, out headers);
+                var bodyPath = Path.Combine(path,".bodies", $"{messageId}.body.txt");
+                var headers = HeaderSerializer.Deserialize(message);
 
                 string ttbrString;
 
@@ -216,14 +222,6 @@
             {
                 transaction.Rollback();
             }
-        }
-
-        static void ExtractMessage(out string bodyPath, string message, out Dictionary<string, string> headers)
-        {
-            var splitIndex = message.IndexOf(Environment.NewLine, StringComparison.Ordinal);
-            bodyPath = message.Substring(0, splitIndex);
-            var headerStartIndex = splitIndex + Environment.NewLine.Length;
-            headers = HeaderSerializer.Deserialize(message.Substring(headerStartIndex));
         }
 
         CancellationToken cancellationToken;
