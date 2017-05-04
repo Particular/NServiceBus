@@ -320,7 +320,7 @@ class InterfaceMessageHandler : IHandleMessages<IBaseEvent>
 
             var result = scanner.GetScannableAssemblies();
 
-            //Note this this is not the expected behavior. The assert will be changed to Assert.True as part of https://github.com/Particular/NServiceBus/issues/4634
+            //Note this this is not the expected behavior. The assert will be changed to Assert.True and the test renamed as part of https://github.com/Particular/NServiceBus/issues/4634
             Assert.False(result.Types.Any(t => t.Name == "IInheritedEvent"));
         }
 
