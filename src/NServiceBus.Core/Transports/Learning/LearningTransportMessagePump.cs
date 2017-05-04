@@ -141,7 +141,7 @@
         {
             try
             {
-                var wasCommitted =  await ProcessFile(transaction, nativeMessageId)
+                var wasCommitted = await ProcessFile(transaction, nativeMessageId)
                     .ConfigureAwait(false);
 
                 transaction.Complete();
@@ -170,7 +170,7 @@
             {
                 var message = await AsyncFile.ReadText(transaction.FileToProcess)
                     .ConfigureAwait(false);
-                var bodyPath = Path.Combine(path, ".bodies", $"{messageId}.body.txt");
+                var bodyPath = Path.Combine(bodyDir, $"{messageId}.body.txt");
                 var headers = HeaderSerializer.Deserialize(message);
 
                 string ttbrString;
