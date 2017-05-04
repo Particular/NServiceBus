@@ -109,7 +109,7 @@ namespace NServiceBus
             var pendingDir = new DirectoryInfo(transactionDir);
 
             //only need to move the incoming file
-            foreach (var file in pendingDir.EnumerateFiles("*.txt"))
+            foreach (var file in pendingDir.EnumerateFiles(TxtFileExtension))
             {
                 File.Move(file.FullName, Path.Combine(basePath, file.Name));
             }
@@ -123,7 +123,7 @@ namespace NServiceBus
 
             //for now just rollback the completed ones as well. We could consider making this smarter in the future
             // but its good enough for now since duplicates is a possibility anyway
-            foreach (var file in committedDir.EnumerateFiles("*.txt"))
+            foreach (var file in committedDir.EnumerateFiles(TxtFileExtension))
             {
                 File.Move(file.FullName, Path.Combine(basePath, file.Name));
             }
@@ -142,6 +142,7 @@ namespace NServiceBus
 
         const string CommittedDirName = ".committed";
         const string PendingDirName = ".pending";
+        const string TxtFileExtension = "*.txt";
 
         class OutgoingFile
         {
