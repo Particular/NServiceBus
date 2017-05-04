@@ -34,7 +34,11 @@
         {
             public SagaEndpoint()
             {
-                EndpointSetup<DefaultServer>(c => c.UsePersistence<InMemoryPersistence>());
+                EndpointSetup<DefaultServer>(c =>
+                {
+                    //use InMemoryPersistence as custom finder support is required
+                    c.UsePersistence<InMemoryPersistence>();
+                });
             }
 
             class CustomFinder : IFindSagas<TestSaga06.SagaData06>.Using<StartSagaMessage>
