@@ -49,10 +49,20 @@
             delayedMessagePoller.Change(TimeSpan.FromSeconds(1), TimeSpan.FromMilliseconds(-1));
         }
 
+        public void Stop()
+        {
+            using (var waitHandle = new ManualResetEvent(false))
+            {
+                delayedMessagePoller.Dispose(waitHandle);
+
+                waitHandle.WaitOne();
+            }
+        }
+
         string delayedRootDirectory;
         Timer delayedMessagePoller;
+        string basePath;
 
         static ILog Logger = LogManager.GetLogger<DelayedMessagePoller>();
-        string basePath;
     }
 }
