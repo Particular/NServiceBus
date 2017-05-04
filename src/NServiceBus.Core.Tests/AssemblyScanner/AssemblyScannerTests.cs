@@ -283,7 +283,7 @@
         }
 
         [Test, RunInApplicationDomain]
-        public void Include_child_type_even_if_only_handler_for_base_exists()
+        public void Should_not_include_child_type_if_only_handler_for_base_exists()
         {
             var messages =
 @"
