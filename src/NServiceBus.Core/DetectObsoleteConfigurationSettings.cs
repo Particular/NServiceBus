@@ -48,12 +48,12 @@
 
             if (!string.IsNullOrWhiteSpace(unicastBusConfig?.TimeoutManagerAddress))
             {
-                Logger.Warn($"The use of the {nameof(UnicastBusConfig.TimeoutManagerAddress)} attribute in the {nameof(UnicastBusConfig)} configuration section is discouraged and will be removed in the next major version. Switch to the code API by using  '{nameof(EndpointConfiguration)}.UseExternalTimeoutManager' instead.");
+                Logger.Error($"The use of the {nameof(UnicastBusConfig.TimeoutManagerAddress)} attribute in the {nameof(UnicastBusConfig)} configuration section is discouraged and will be removed in the next major version. Switch to the code API by using  '{nameof(EndpointConfiguration)}.UseExternalTimeoutManager' instead.");
             }
 
             if (unicastBusConfig?.MessageEndpointMappings != null)
             {
-                Logger.Warn($"The use of the {nameof(UnicastBusConfig.MessageEndpointMappings)} in the {nameof(UnicastBusConfig)} configuration section is discouraged and will be removed in the next major version. Switch to the code API by using  '{nameof(EndpointConfiguration)}.UseTransport<T>().Routing()' instead.");
+                Logger.Error($"The use of the {nameof(UnicastBusConfig.MessageEndpointMappings)} in the {nameof(UnicastBusConfig)} configuration section is discouraged and will be removed in the next major version. Switch to the code API by using  '{nameof(EndpointConfiguration)}.UseTransport<T>().Routing()' instead.");
             }
         }
 
@@ -61,12 +61,12 @@
         {
             if (!string.IsNullOrWhiteSpace(auditConfig?.QueueName))
             {
-                Logger.Warn($"The use of the {nameof(AuditConfig.QueueName)} attribute in the {nameof(AuditConfig)} configuration section is discouraged and will be removed in the next major version. Switch to the code API by using '{nameof(EndpointConfiguration)}.AuditProcessedMessagesTo' instead.");
+                Logger.Error($"The use of the {nameof(AuditConfig.QueueName)} attribute in the {nameof(AuditConfig)} configuration section is discouraged and will be removed in the next major version. Switch to the code API by using '{nameof(EndpointConfiguration)}.AuditProcessedMessagesTo' instead.");
             }
 
             if (auditConfig?.OverrideTimeToBeReceived != null)
             {
-                Logger.Warn($"The use of the {nameof(AuditConfig.OverrideTimeToBeReceived)} attribute in the {nameof(AuditConfig)} configuration section is discouraged and will be removed in the next major version. Switch to the code API by using '{nameof(EndpointConfiguration)}.AuditProcessedMessagesTo' instead.");
+                Logger.Error($"The use of the {nameof(AuditConfig.OverrideTimeToBeReceived)} attribute in the {nameof(AuditConfig)} configuration section is discouraged and will be removed in the next major version. Switch to the code API by using '{nameof(EndpointConfiguration)}.AuditProcessedMessagesTo' instead.");
             }
         }
 
@@ -98,7 +98,7 @@
         {
             if (loggingConfig != null)
             {
-                Logger.Warn("Usage of the 'NServiceBus.Config.Logging' configuration section is discouraged and will be removed with the next major version. Use the LogManager.Use<DefaultFactory>() code configuration API instead.");
+                Logger.Error("Usage of the 'NServiceBus.Config.Logging' configuration section is discouraged and will be removed with the next major version. Use the LogManager.Use<DefaultFactory>() code configuration API instead.");
             }
         }
 
@@ -106,7 +106,7 @@
         {
             if (faultConfig != null)
             {
-                Logger.Warn("Usage of the 'NServiceBus.Config.MessageForwardingInCaseOfFaultConfig' configuration section is discouraged and will be removed with the next major version. Use the 'endpointConfiguration.SendFailedMessagesTo()' code configuration API instead.");
+                Logger.Error("Usage of the 'NServiceBus.Config.MessageForwardingInCaseOfFaultConfig' configuration section is discouraged and will be removed with the next major version. Use the 'endpointConfiguration.SendFailedMessagesTo()' code configuration API instead.");
             }
         }
 
@@ -114,7 +114,7 @@
         {
             if (msmqSubscriptionStorageConfig != null)
             {
-                Logger.Warn("Usage of the 'NServiceBus.Config.MsmqSubscriptionStorageConfig' configuration section is discouraged and will be removed with the next major version. Use the 'endpointConfiguration.UsePersistence<MsmqPersistence>().SubscriptionQueue()' code configuration API instead.");
+                Logger.Error("Usage of the 'NServiceBus.Config.MsmqSubscriptionStorageConfig' configuration section is discouraged and will be removed with the next major version. Use the 'endpointConfiguration.UsePersistence<MsmqPersistence>().SubscriptionQueue()' code configuration API instead.");
             }
         }
 
