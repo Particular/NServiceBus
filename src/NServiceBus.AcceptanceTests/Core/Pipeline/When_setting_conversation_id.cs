@@ -98,11 +98,11 @@
             }
         }
 
-        class MessageWithCoversationId : ICommand
+        public class MessageWithCoversationId : ICommand
         {
         }
 
-        class IntermediateMessage : ICommand
+        public class IntermediateMessage : ICommand
         {
         }
     }
