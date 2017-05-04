@@ -136,9 +136,7 @@
                 return new NoTransaction(path);
             }
 
-            var immediateDispatch = transactionMode == TransportTransactionMode.ReceiveOnly;
-
-            return new DirectoryBasedTransaction(path, Guid.NewGuid().ToString(), immediateDispatch);
+            return new DirectoryBasedTransaction(path, Guid.NewGuid().ToString());
         }
 
         async Task InnerProcessFile(ILearningTransportTransaction transaction, string nativeMessageId)
@@ -200,7 +198,10 @@
 
                 var transportTransaction = new TransportTransaction();
 
-                transportTransaction.Set(transaction);
+                if (transactionMode == TransportTransactionMode.SendsAtomicWithReceive)
+                {
+                    transportTransaction.Set(transaction);
+                }
 
                 var messageContext = new MessageContext(messageId, headers, body, transportTransaction, tokenSource, new ContextBag());
 
