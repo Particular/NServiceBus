@@ -2,7 +2,7 @@ namespace NServiceBus
 {
     using System;
 
-    class ConcurrencyException : Exception
+    class LearningSagaPersisterConcurrencyException : Exception
     {
     }
 }

@@ -19,7 +19,7 @@ namespace NServiceBus
                 await sagaFile.MarkAsCompleted()
                     .ConfigureAwait(false);
             }
-            catch (ConcurrencyException)
+            catch (LearningSagaPersisterConcurrencyException)
             {
                 throw new Exception("Saga can't be completed as it was updated by another process.");
             }

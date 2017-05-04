@@ -19,7 +19,7 @@ namespace NServiceBus
                 await sagaFile.Write(sagaData)
                     .ConfigureAwait(false);
             }
-            catch (Exception ex) when (ex is ConcurrencyException || ex is IOException)
+            catch (Exception ex) when (ex is LearningSagaPersisterConcurrencyException || ex is IOException)
             {
                 throw new Exception($"{nameof(LearningSagaPersister)} concurrency violation: saga entity Id[{sagaData.Id}] already saved.");
             }

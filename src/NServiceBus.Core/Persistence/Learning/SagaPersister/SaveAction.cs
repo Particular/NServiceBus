@@ -28,7 +28,7 @@ namespace NServiceBus
                 await sagaFile.Write(sagaData)
                     .ConfigureAwait(false);
             }
-            catch (Exception ex) when(ex is ConcurrencyException || ex is IOException)
+            catch (Exception ex) when(ex is LearningSagaPersisterConcurrencyException || ex is IOException)
             {
                 if (correlationProperty == SagaCorrelationProperty.None)
                 {

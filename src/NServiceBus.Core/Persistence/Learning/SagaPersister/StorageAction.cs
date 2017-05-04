@@ -11,14 +11,13 @@ namespace NServiceBus
             this.sagaFiles = sagaFiles;
             this.sagaData = sagaData;
             this.sagaManifests = sagaManifests;
+            sagaFileKey = $"{sagaData.GetType().FullName}{sagaData.Id}";
         }
 
         public abstract Task Execute();
 
         protected SagaStorageFile GetSagaFile()
         {
-            var sagaFileKey = $"{sagaData.GetType().FullName}{sagaData.Id}";
-
             SagaStorageFile sagaFile;
             if (!sagaFiles.TryGetValue(sagaFileKey, out sagaFile))
             {
@@ -27,6 +26,7 @@ namespace NServiceBus
             return sagaFile;
         }
 
+        string sagaFileKey;
         protected IContainSagaData sagaData;
         protected Dictionary<string, SagaStorageFile> sagaFiles;
         protected SagaManifestCollection sagaManifests;

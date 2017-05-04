@@ -40,7 +40,6 @@ namespace NServiceBus
 
         public void Dispose()
         {
-            fileStream.Close();
             fileStream.Dispose();
 
             if (isCompleted)
@@ -103,11 +102,11 @@ namespace NServiceBus
             var lastWriteTime = File.GetLastWriteTimeUtc(filePath);
             if (lastWriteTime != lastModificationSeenAt || !File.Exists(filePath))
             {
-                throw new ConcurrencyException();
+                throw new LearningSagaPersisterConcurrencyException();
             }
         }
 
-        readonly SagaManifest manifest;
+        SagaManifest manifest;
         FileStream fileStream;
         DateTime lastModificationSeenAt;
         bool isCompleted;
