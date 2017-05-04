@@ -9,29 +9,42 @@ namespace NServiceBus
     {
         public Task Invoke(IOutgoingPhysicalMessageContext context, Func<IOutgoingPhysicalMessageContext, Task> next)
         {
-            ApplyHeaders(context);
+            IncomingMessage incomingMessage;
+            context.TryGetIncomingPhysicalMessage(out incomingMessage);
+
+            SetRelatedToHeader(context, incomingMessage);
+            SetConversationIdHeader(context, incomingMessage);
 
             return next(context);
         }
 
-        static void ApplyHeaders(IOutgoingPhysicalMessageContext context)
+        static void SetRelatedToHeader(IOutgoingPhysicalMessageContext context, IncomingMessage incomingMessage)
         {
-            var conversationId = CombGuid.Generate().ToString();
-
-            IncomingMessage incomingMessage;
-
-            if (context.TryGetIncomingPhysicalMessage(out incomingMessage))
+            if (incomingMessage == null)
             {
-                context.Headers[Headers.RelatedTo] = incomingMessage.MessageId;
-
-                string conversationIdFromCurrentMessageContext;
-                if (incomingMessage.Headers.TryGetValue(Headers.ConversationId, out conversationIdFromCurrentMessageContext))
-                {
-                    conversationId = conversationIdFromCurrentMessageContext;
-                }
+                return;
             }
 
-            context.Headers[Headers.ConversationId] = conversationId;
+            context.Headers[Headers.RelatedTo] = incomingMessage.MessageId;
+        }
+
+        static void SetConversationIdHeader(IOutgoingPhysicalMessageContext context, IncomingMessage incomingMessage)
+        {
+            string conversationIdFromCurrentMessageContext;
+            if (incomingMessage != null && incomingMessage.Headers.TryGetValue(Headers.ConversationId, out conversationIdFromCurrentMessageContext))
+            {
+                context.Headers[Headers.ConversationId] = conversationIdFromCurrentMessageContext;
+                return;
+            }
+
+            string userDefinedConversationId;
+            if (context.Headers.TryGetValue(Headers.ConversationId, out userDefinedConversationId))
+            {
+                // do not override user defined conversation id if no incoming message exists.
+                return;
+            }
+
+            context.Headers[Headers.ConversationId] = CombGuid.Generate().ToString();
         }
     }
 }
