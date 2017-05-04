@@ -17,6 +17,8 @@ https://github.com/orgs/Particular/teams/nservicebus-maintainers/repositories
 ## Review Guidelines
 
 * A Pull Request should be reviewed by at least two maintainers before merging it.
+* Merging should be done as either a `Rebase & Merge` or a `Squash & Merge`
+  * `Rebase & Merge` should only be used if there is value in retaining the commit history of the PR.
 * Maintainers are assigned to a PR by themselves or other maintainers by adding their label (`Maintainer: @<github-handle>`) to the PR.
 * Maintainer should pro-actively monitor PRs they are assigned to and ensure it moves forward as fast as possible.
 * Ensure the public API is covered by acceptance tests where feasible. We favour Component Tests over Acceptance Tests if components can be tested in isolation.
