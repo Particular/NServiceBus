@@ -51,11 +51,11 @@ namespace NServiceBus
         {
             var nativeMessageId = Guid.NewGuid().ToString();
             var destinationPath = Path.Combine(basePath, destination);
-            var bodyDir = Path.Combine(destinationPath, ".bodies");
+            var bodyDir = Path.Combine(destinationPath, LearningTransportMessagePump.BodyDirName);
 
             Directory.CreateDirectory(bodyDir);
 
-            var bodyPath = Path.Combine(bodyDir, nativeMessageId) + ".body.txt";
+            var bodyPath = Path.Combine(bodyDir, nativeMessageId) + LearningTransportMessagePump.BodyFileSuffix;
 
             await AsyncFile.WriteBytes(bodyPath, transportOperation.Message.Body)
                 .ConfigureAwait(false);
