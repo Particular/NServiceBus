@@ -63,7 +63,8 @@
         {
             cancellationTokenSource.Cancel();
 
-            delayedMessagePoller.Stop();
+            await delayedMessagePoller.Stop()
+                .ConfigureAwait(false);
 
             await messagePumpTask
                 .ConfigureAwait(false);
