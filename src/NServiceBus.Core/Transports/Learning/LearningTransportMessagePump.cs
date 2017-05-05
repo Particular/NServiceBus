@@ -24,8 +24,6 @@
             transactionMode = settings.RequiredTransactionMode;
 
             path = Path.Combine(basePath, settings.InputQueue);
-            Directory.CreateDirectory(Path.Combine(path, ".committed"));
-
             bodyDir = Path.Combine(path, BodyDirName);
 
             purgeOnStartup = settings.PurgeOnStartup;
