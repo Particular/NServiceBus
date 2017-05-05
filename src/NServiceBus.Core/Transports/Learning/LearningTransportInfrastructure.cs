@@ -51,7 +51,7 @@
 
                 var parent = Directory.GetParent(directory);
 
-                if (!parent.Exists)
+                if (parent == null)
                 {
                     // throw for now. if we discover there is an edge then we can fix it in a patch.
                     throw new Exception("Couldn't find the solution directory for the learning transport.");
