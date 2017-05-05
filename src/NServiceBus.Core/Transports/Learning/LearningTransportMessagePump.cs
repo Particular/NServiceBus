@@ -25,7 +25,8 @@
 
             PathChecker.ThrowForBadPath(settings.InputQueue, "InputQueue");
             path = Path.Combine(basePath, settings.InputQueue);
-            
+            bodyDir = Path.Combine(path, BodyDirName);
+
             purgeOnStartup = settings.PurgeOnStartup;
 
             receiveCircuitBreaker = new RepeatedFailuresOverTimeCircuitBreaker("LearningTransportReceive", TimeSpan.FromSeconds(30), ex => criticalError.Raise("Failed to receive from " + settings.InputQueue, ex));
@@ -105,7 +106,7 @@
                 {
                     filesFound = true;
 
-                    var nativeMessageId = Path.GetFileNameWithoutExtension(filePath).Replace(".metadata","");
+                    var nativeMessageId = Path.GetFileNameWithoutExtension(filePath).Replace(".metadata", "");
 
                     var transaction = GetTransaction();
 
@@ -139,10 +140,15 @@
         {
             try
             {
-                await ProcessFile(transaction, nativeMessageId)
+                var wasCommitted = await ProcessFile(transaction, nativeMessageId)
                     .ConfigureAwait(false);
 
                 transaction.Complete();
+
+                if (wasCommitted)
+                {
+                    File.Delete(Path.Combine(bodyDir, nativeMessageId + BodyFileSuffix));
+                }
 
                 receiveCircuitBreaker.Success();
             }
@@ -157,13 +163,13 @@
             }
         }
 
-        async Task ProcessFile(ILearningTransportTransaction transaction, string messageId)
+        async Task<bool> ProcessFile(ILearningTransportTransaction transaction, string messageId)
         {
             try
             {
                 var message = await AsyncFile.ReadText(transaction.FileToProcess)
                     .ConfigureAwait(false);
-                var bodyPath = Path.Combine(path,".bodies", $"{messageId}.body.txt");
+                var bodyPath = Path.Combine(bodyDir, $"{messageId}{BodyFileSuffix}");
                 var headers = HeaderSerializer.Deserialize(message);
 
                 string ttbrString;
@@ -178,7 +184,7 @@
                     {
                         await transaction.Commit()
                             .ConfigureAwait(false);
-                        return;
+                        return true;
                     }
                 }
                 var tokenSource = new CancellationTokenSource();
@@ -213,22 +219,24 @@
                     if (actionToTake == ErrorHandleResult.RetryRequired)
                     {
                         transaction.Rollback();
-                        return;
+                        return false;
                     }
                 }
 
                 if (tokenSource.IsCancellationRequested)
                 {
                     transaction.Rollback();
-                    return;
+                    return false;
                 }
 
                 await transaction.Commit()
                     .ConfigureAwait(false);
+                return true;
             }
             catch (Exception)
             {
                 transaction.Rollback();
+                return false;
             }
         }
 
@@ -246,6 +254,12 @@
         DelayedMessagePoller delayedMessagePoller;
         TransportTransactionMode transactionMode;
         int maxConcurrency;
+        string bodyDir;
+
+        public const string BodyFileSuffix = ".body.txt";
+
+        public const string BodyDirName = ".bodies";
+
         static ILog Logger = LogManager.GetLogger<LearningTransportMessagePump>();
     }
 }
