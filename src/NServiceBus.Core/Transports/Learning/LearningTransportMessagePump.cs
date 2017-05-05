@@ -23,6 +23,7 @@
             this.onError = onError;
             transactionMode = settings.RequiredTransactionMode;
 
+            PathChecker.ThrowForBadPath(settings.InputQueue, "InputQueue");
             path = Path.Combine(basePath, settings.InputQueue);
             
             purgeOnStartup = settings.PurgeOnStartup;
