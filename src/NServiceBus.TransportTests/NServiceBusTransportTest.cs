@@ -20,6 +20,9 @@
         public void SetUp()
         {
             testId = Guid.NewGuid().ToString();
+
+            //when using [TestCase] NUnit will reuse the same test instance so we need to make sure that the message pump is a fresh one
+            MessagePump = null;
         }
 
         static IConfigureTransportInfrastructure CreateConfigurer()
