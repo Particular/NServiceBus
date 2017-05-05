@@ -20,7 +20,7 @@ namespace NServiceBus
         public IEnumerable<RouteTableEntry> GenerateRoutes(Conventions conventions)
         {
             var routes = messageAssembly.GetTypes()
-                .Where(conventions.IsMessageType)
+                .Where(t => conventions.IsMessageType(t))
                 .Select(t => new RouteTableEntry(t, route))
                 .ToArray();
 

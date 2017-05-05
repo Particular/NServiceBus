@@ -165,7 +165,7 @@ namespace NServiceBus
         {
             if (Debugger.IsAttached || settings.GetOrDefault<bool>("Installers.Enable"))
             {
-                foreach (var installerType in concreteTypes.Where(IsINeedToInstallSomething))
+                foreach (var installerType in concreteTypes.Where(t => IsINeedToInstallSomething(t)))
                 {
                     container.ConfigureComponent(installerType, DependencyLifecycle.InstancePerCall);
                 }
