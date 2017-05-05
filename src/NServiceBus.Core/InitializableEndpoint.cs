@@ -93,7 +93,7 @@ namespace NServiceBus
         FeatureActivator BuildFeatureActivator(IEnumerable<Type> concreteTypes)
         {
             var featureActivator = new FeatureActivator(settings);
-            foreach (var type in concreteTypes.Where(IsFeature))
+            foreach (var type in concreteTypes.Where(t => IsFeature(t)))
             {
                 featureActivator.Add(type.Construct<Feature>());
             }

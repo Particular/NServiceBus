@@ -115,7 +115,7 @@
             {
                 //get the parent types
                 var parentMessages = GetParentTypes(messageType)
-                    .Where(conventions.IsMessageType)
+                    .Where(t => conventions.IsMessageType(t))
                     .OrderByDescending(PlaceInMessageHierarchy);
 
                 var metadata = new MessageMetadata(messageType, new[]
