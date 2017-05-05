@@ -44,8 +44,13 @@ namespace NServiceBus
 
         Task DispatchUnicast(IEnumerable<UnicastTransportOperation> operations, TransportTransaction transaction)
         {
-            return Task.WhenAll(operations.Select(operation => WriteMessage(operation.Destination, operation, transaction)));
+            return Task.WhenAll(operations.Select(operation =>
+            {
+                PathChecker.ThrowForBadPath(operation.Destination, "message destination");
+                return WriteMessage(operation.Destination, operation, transaction);
+            }));
         }
+
 
         async Task WriteMessage(string destination, IOutgoingTransportOperation transportOperation, TransportTransaction transaction)
         {
@@ -108,6 +113,7 @@ namespace NServiceBus
                     .ConfigureAwait(false);
             }
         }
+
 
         async Task<IEnumerable<string>> GetSubscribersFor(Type messageType)
         {

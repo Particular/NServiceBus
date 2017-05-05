@@ -213,6 +213,7 @@
     <Compile Include="Transports\Learning\HeaderSerializer.cs" />
     <Compile Include="Transports\Learning\ILearningTransportTransaction.cs" />
     <Compile Include="Transports\Learning\NoTransaction.cs" />
+    <Compile Include="Transports\Learning\PathChecker.cs" />
     <Compile Include="Transports\Msmq\ReceiveOnlyNativeTransactionStrategy.cs" />
     <Compile Include="Transports\ReceiveSettingsExtensions.cs" />
     <Compile Include="Transports\ErrorContext.cs" />

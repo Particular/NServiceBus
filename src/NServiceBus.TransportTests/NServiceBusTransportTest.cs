@@ -70,6 +70,7 @@
             var queueBindings = new QueueBindings();
             queueBindings.BindReceiving(InputQueueName);
             queueBindings.BindSending(ErrorQueueName);
+            transportSettings.Set(ErrorQueueSettings.SettingsKey, ErrorQueueName);
             transportSettings.Set<QueueBindings>(queueBindings);
 
             transportSettings.Set<EndpointInstances>(new EndpointInstances());

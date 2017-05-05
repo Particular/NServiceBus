@@ -22,6 +22,8 @@
                 var solutionRoot = FindSolutionRoot();
                 storagePath = Path.Combine(solutionRoot, ".learningtransport");
             }
+            var errorQueueAddress = settings.ErrorQueueAddress();
+            PathChecker.ThrowForBadPath(errorQueueAddress, "ErrorQueueAddress");
         }
 
         public override IEnumerable<Type> DeliveryConstraints { get; } = new[]
@@ -70,7 +72,14 @@
 
         public override TransportSubscriptionInfrastructure ConfigureSubscriptionInfrastructure()
         {
-            return new TransportSubscriptionInfrastructure(() => new LearningTransportSubscriptionManager(storagePath, settings.EndpointName(), settings.LocalAddress()));
+            return new TransportSubscriptionInfrastructure(() =>
+            {
+                var endpointName = settings.EndpointName();
+                PathChecker.ThrowForBadPath(endpointName, "endpoint name");
+                var localAddress = settings.LocalAddress();
+                PathChecker.ThrowForBadPath(localAddress, "localAddress");
+                return new LearningTransportSubscriptionManager(storagePath, endpointName, localAddress);
+            });
         }
 
         public override EndpointInstance BindToLocalEndpoint(EndpointInstance instance)
@@ -80,9 +89,13 @@
 
         public override string ToTransportAddress(LogicalAddress logicalAddress)
         {
-            return Path.Combine(logicalAddress.EndpointInstance.Endpoint,
-                logicalAddress.EndpointInstance.Discriminator ?? "",
-                logicalAddress.Qualifier ?? "");
+            var endpoint = logicalAddress.EndpointInstance.Endpoint;
+            var discriminator = logicalAddress.EndpointInstance.Discriminator ?? "";
+            var qualifier = logicalAddress.Qualifier ?? "";
+            PathChecker.ThrowForBadPath(endpoint, "endpoint name");
+            PathChecker.ThrowForBadPath(discriminator, "endpoint discriminator");
+            PathChecker.ThrowForBadPath(qualifier, "address qualifier");
+            return Path.Combine(endpoint, discriminator, qualifier);
         }
 
         string storagePath;

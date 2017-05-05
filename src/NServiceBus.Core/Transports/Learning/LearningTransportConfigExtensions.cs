@@ -14,7 +14,7 @@
         {
             Guard.AgainstNullAndEmpty(nameof(path), path);
             Guard.AgainstNull(nameof(config), config);
-
+            PathChecker.ThrowForBadPath(path, "StorageDirectory");
             config.Settings.Set(LearningTransportInfrastructure.StorageLocationKey, path);
         }
     }
