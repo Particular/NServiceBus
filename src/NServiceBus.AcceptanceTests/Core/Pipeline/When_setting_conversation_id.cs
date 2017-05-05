@@ -21,7 +21,7 @@
                         var options = new SendOptions();
                         options.RouteToThisEndpoint();
                         options.SetHeader(Headers.ConversationId, customConversationId);
-                        return s.Send(new MessageWithCoversationId(), options);
+                        return s.Send(new MessageWithConversationId(), options);
                     }))
                 .Done(c => !string.IsNullOrEmpty(c.ReceivedConversationId))
                 .Run();
@@ -62,7 +62,7 @@
                 EndpointSetup<DefaultServer>();
             }
 
-            public class ConversationIdMessageHandler : IHandleMessages<MessageWithCoversationId>
+            public class ConversationIdMessageHandler : IHandleMessages<MessageWithConversationId>
             {
                 Context testContext;
 
@@ -71,7 +71,7 @@
                     this.testContext = testContext;
                 }
 
-                public Task Handle(MessageWithCoversationId message, IMessageHandlerContext context)
+                public Task Handle(MessageWithConversationId message, IMessageHandlerContext context)
                 {
                     testContext.ReceivedConversationId = context.MessageHeaders[Headers.ConversationId];
                     return Task.FromResult(0);
@@ -84,7 +84,7 @@
             public IntermediateEndpoint()
             {
                 EndpointSetup<DefaultServer>(e => e.ConfigureTransport().Routing()
-                    .RouteToEndpoint(typeof(MessageWithCoversationId), typeof(ReceivingEndpoint)));
+                    .RouteToEndpoint(typeof(MessageWithConversationId), typeof(ReceivingEndpoint)));
             }
 
             public class IntermediateMessageHandler : IHandleMessages<IntermediateMessage>
@@ -93,12 +93,12 @@
                 {
                     var options = new SendOptions();
                     options.SetHeader(Headers.ConversationId, "intermediate message header");
-                    return context.Send(new MessageWithCoversationId(), options);
+                    return context.Send(new MessageWithConversationId(), options);
                 }
             }
         }
 
-        public class MessageWithCoversationId : ICommand
+        public class MessageWithConversationId : ICommand
         {
         }
 
