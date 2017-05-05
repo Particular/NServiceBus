@@ -11,7 +11,7 @@
         public DelayedMessagePoller(string basePath)
         {
             this.basePath = basePath;
-            delayedMessagePoller = new AsyncTimer();
+            timer = new AsyncTimer();
 
             delayedRootDirectory = Path.Combine(basePath, ".delayed");
             Directory.CreateDirectory(delayedRootDirectory);
@@ -41,7 +41,7 @@
 
         public void Start()
         {
-            delayedMessagePoller.Start(() =>
+            timer.Start(() =>
             {
                 MoveDelayedMessagesToMainDirectory();
                 return TaskEx.CompletedTask;
@@ -50,11 +50,11 @@
 
         public Task Stop()
         {
-            return delayedMessagePoller.Stop();
+            return timer.Stop();
         }
 
         string delayedRootDirectory;
-        IAsyncTimer delayedMessagePoller;
+        IAsyncTimer timer;
         string basePath;
 
         static ILog Logger = LogManager.GetLogger<DelayedMessagePoller>();
