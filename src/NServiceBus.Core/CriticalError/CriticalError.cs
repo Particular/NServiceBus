@@ -65,13 +65,11 @@ namespace NServiceBus
 
         void RaiseForEndpoint(string errorMessage, Exception exception)
         {
-#pragma warning disable PCR0002
             Task.Run(() =>
             {
                 var context = new CriticalErrorContext(endpoint.Stop, errorMessage, exception);
                 return criticalErrorAction(context);
-            });
-#pragma warning restore PCR0002
+            }).Ignore();
         }
 
         internal void SetEndpoint(IEndpointInstance endpointInstance)
