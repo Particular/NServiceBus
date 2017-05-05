@@ -21,8 +21,8 @@ namespace NServiceBus.Routing
         /// </summary>
         public RouteTableEntry(Type messageType, UnicastRoute route)
         {
-            this.MessageType = messageType;
-            this.Route = route;
+            MessageType = messageType;
+            Route = route;
         }
     }
 }
