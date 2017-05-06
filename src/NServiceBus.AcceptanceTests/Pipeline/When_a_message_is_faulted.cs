@@ -50,8 +50,7 @@
                     TestContext.OriginRelatedTo = context.MessageId;
                     TestContext.OriginConversationId = context.MessageHeaders.ContainsKey(Headers.ConversationId) ? context.MessageHeaders[Headers.ConversationId] : null;
 
-                    context.SendLocal(new MessageThatFails());
-                    return Task.FromResult(0);
+                    return context.SendLocal(new MessageThatFails());
                 }
             }
 

@@ -69,7 +69,7 @@ namespace NServiceBus
             {
                 var context = new CriticalErrorContext(endpoint.Stop, errorMessage, exception);
                 return criticalErrorAction(context);
-            });
+            }).Ignore();
         }
 
         internal void SetEndpoint(IEndpointInstance endpointInstance)
