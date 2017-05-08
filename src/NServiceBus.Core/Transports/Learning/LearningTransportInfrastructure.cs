@@ -68,7 +68,8 @@
 
         public override TransportSendInfrastructure ConfigureSendInfrastructure()
         {
-            return new TransportSendInfrastructure(() => new LearningTransportDispatcher(storagePath), () => Task.FromResult(StartupCheckResult.Success));
+            //todo: make size configurable
+            return new TransportSendInfrastructure(() => new LearningTransportDispatcher(storagePath, 64), () => Task.FromResult(StartupCheckResult.Success));
         }
 
         public override TransportSubscriptionInfrastructure ConfigureSubscriptionInfrastructure()
