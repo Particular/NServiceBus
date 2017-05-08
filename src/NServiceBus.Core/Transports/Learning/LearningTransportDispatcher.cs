@@ -8,6 +8,7 @@ namespace NServiceBus
     using DelayedDelivery;
     using DeliveryConstraints;
     using Extensibility;
+    using Performance.TimeToBeReceived;
     using Transport;
 
     class LearningTransportDispatcher : IDispatchMessages
@@ -27,6 +28,7 @@ namespace NServiceBus
         async Task DispatchMulticast(IEnumerable<MulticastTransportOperation> transportOperations, TransportTransaction transaction)
         {
             var tasks = new List<Task>();
+
             foreach (var transportOperation in transportOperations)
             {
                 var subscribers = await GetSubscribersFor(transportOperation.MessageType)
@@ -37,16 +39,17 @@ namespace NServiceBus
                     tasks.Add(WriteMessage(subscriber, transportOperation, transaction));
                 }
             }
+
             await Task.WhenAll(tasks)
                 .ConfigureAwait(false);
         }
-
 
         Task DispatchUnicast(IEnumerable<UnicastTransportOperation> operations, TransportTransaction transaction)
         {
             return Task.WhenAll(operations.Select(operation =>
             {
                 PathChecker.ThrowForBadPath(operation.Destination, "message destination");
+
                 return WriteMessage(operation.Destination, operation, transaction);
             }));
         }
@@ -66,23 +69,23 @@ namespace NServiceBus
                 .ConfigureAwait(false);
 
             DateTime? timeToDeliver = null;
-            DelayDeliveryWith delayDeliveryWith;
 
-            if (transportOperation.DeliveryConstraints.TryGet(out delayDeliveryWith))
+            if (transportOperation.DeliveryConstraints.TryGet(out DoNotDeliverBefore doNotDeliverBefore))
+            {
+                timeToDeliver = doNotDeliverBefore.At;
+            }
+            else if (transportOperation.DeliveryConstraints.TryGet(out DelayDeliveryWith delayDeliveryWith))
             {
                 timeToDeliver = DateTime.UtcNow + delayDeliveryWith.Delay;
             }
 
-            DoNotDeliverBefore doNotDeliverBefore;
-
-            if (transportOperation.DeliveryConstraints.TryGet(out doNotDeliverBefore))
-            {
-                timeToDeliver = doNotDeliverBefore.At;
-            }
-
-
             if (timeToDeliver.HasValue)
             {
+                if (transportOperation.DeliveryConstraints.TryGet(out DiscardIfNotReceivedBefore timeToBeReceived) && timeToBeReceived.MaxTime < TimeSpan.MaxValue)
+                {
+                    throw new Exception("Postponed delivery of messages with TimeToBeReceived set is not supported. Remove the TimeToBeReceived attribute to postpone messages of this type.");
+                }
+
                 // we need to "ceil" the seconds to guarantee that we delay with at least the requested value
                 // since the folder name has only second resolution.
                 if (timeToDeliver.Value.Millisecond > 0)
@@ -97,11 +100,9 @@ namespace NServiceBus
 
             var messagePath = Path.Combine(destinationPath, nativeMessageId) + ".metadata.txt";
 
-            ILearningTransportTransaction directoryBasedTransaction;
-
             var messageContents = HeaderSerializer.Serialize(transportOperation.Message.Headers);
-            if (transportOperation.RequiredDispatchConsistency != DispatchConsistency.Isolated &&
-                transaction.TryGet(out directoryBasedTransaction))
+
+            if (transportOperation.RequiredDispatchConsistency != DispatchConsistency.Isolated && transaction.TryGet(out ILearningTransportTransaction directoryBasedTransaction))
             {
                 await directoryBasedTransaction.Enlist(messagePath, messageContents)
                     .ConfigureAwait(false);
@@ -134,6 +135,7 @@ namespace NServiceBus
                 {
                     var allText = await AsyncFile.ReadText(file)
                         .ConfigureAwait(false);
+
                     subscribers.Add(allText);
                 }
             }
@@ -146,7 +148,8 @@ namespace NServiceBus
             var allEventTypes = new HashSet<Type>();
 
             var currentType = messageType;
-            do
+
+            while (currentType != null)
             {
                 //do not include the marker interfaces
                 if (IsCoreMarkerInterface(currentType))
@@ -154,22 +157,20 @@ namespace NServiceBus
                     break;
                 }
 
-                foreach (var type in messageType.GetInterfaces().Where(i => !IsCoreMarkerInterface(i)))
-                {
-                    allEventTypes.Add(type);
-                }
                 allEventTypes.Add(currentType);
 
                 currentType = currentType.BaseType;
-            } while (currentType != null);
+            }
+
+            foreach (var type in messageType.GetInterfaces().Where(i => !IsCoreMarkerInterface(i)))
+            {
+                allEventTypes.Add(type);
+            }
 
             return allEventTypes;
         }
 
-        static bool IsCoreMarkerInterface(Type type)
-        {
-            return type == typeof(IMessage) || type == typeof(IEvent) || type == typeof(ICommand);
-        }
+        static bool IsCoreMarkerInterface(Type type) => type == typeof(IMessage) || type == typeof(IEvent) || type == typeof(ICommand);
 
         string basePath;
     }

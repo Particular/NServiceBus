@@ -8,7 +8,7 @@ namespace NServiceBus.Transport
     public abstract partial class TransportDefinition
     {
         /// <summary>
-        /// Gets an example connection string to use when reporting lack of configured connection string to the user.
+        /// Gets an example connection string to use when reporting the lack of a configured connection string to the user.
         /// </summary>
         public abstract string ExampleConnectionStringForErrorMessage { get; }
 

@@ -6,10 +6,9 @@ namespace NServiceBus
 
     class DirectoryBasedTransaction : ILearningTransportTransaction
     {
-        public DirectoryBasedTransaction(string basePath, string transactionId, bool immediateDispatch)
+        public DirectoryBasedTransaction(string basePath, string transactionId)
         {
             this.basePath = basePath;
-            this.immediateDispatch = immediateDispatch;
 
             var rootCommitDir = Path.Combine(basePath, CommittedDirName);
 
@@ -50,17 +49,13 @@ namespace NServiceBus
 
         public Task Enlist(string messagePath, string messageContents)
         {
-            if (immediateDispatch)
-            {
-                return AsyncFile.WriteText(messagePath, messageContents);
-            }
-
             var inProgressFileName = Path.GetFileNameWithoutExtension(messagePath) + ".out";
 
             var txPath = Path.Combine(transactionDir, inProgressFileName);
             var committedPath = Path.Combine(commitDir, inProgressFileName);
 
             outgoingFiles.Add(new OutgoingFile(committedPath, messagePath));
+
             return AsyncFile.WriteText(txPath, messageContents);
         }
 
@@ -87,7 +82,7 @@ namespace NServiceBus
             {
                 foreach (var transactionDir in new DirectoryInfo(pendingRootDir).EnumerateDirectories())
                 {
-                    var transaction = new DirectoryBasedTransaction(basePath, transactionDir.Name, false);
+                    var transaction = new DirectoryBasedTransaction(basePath, transactionDir.Name);
 
                     transaction.RecoverPending();
                 }
@@ -99,7 +94,7 @@ namespace NServiceBus
             {
                 foreach (var transactionDir in new DirectoryInfo(comittedRootDir).EnumerateDirectories())
                 {
-                    var transaction = new DirectoryBasedTransaction(basePath, transactionDir.Name, false);
+                    var transaction = new DirectoryBasedTransaction(basePath, transactionDir.Name);
 
                     transaction.RecoverCommitted();
                 }
@@ -134,7 +129,6 @@ namespace NServiceBus
         }
 
         string basePath;
-        bool immediateDispatch;
         string commitDir;
 
         bool committed;

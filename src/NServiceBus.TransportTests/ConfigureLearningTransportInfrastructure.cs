@@ -13,6 +13,7 @@ class ConfigureLearningTransportInfrastructure : IConfigureTransportInfrastructu
         settings.Set("LearningTransport.StoragePath", storageDir);
 
         var transportDefinition = new LearningTransport();
+
         return new TransportConfigurationResult
         {
             TransportInfrastructure = transportDefinition.Initialize(settings, ""),
@@ -26,6 +27,7 @@ class ConfigureLearningTransportInfrastructure : IConfigureTransportInfrastructu
         {
             Directory.Delete(storageDir, true);
         }
+
         return Task.FromResult(0);
     }
 

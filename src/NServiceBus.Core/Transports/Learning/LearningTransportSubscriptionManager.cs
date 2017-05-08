@@ -27,11 +27,12 @@
             var attempts = 0;
 
             // since we have a design that can run into concurrency exceptions we perform a few retries
-            do
+            while (true)
             {
                 try
                 {
                     await AsyncFile.WriteText(subscriptionEntryPath, localAddress).ConfigureAwait(false);
+
                     return;
                 }
                 catch (IOException)
@@ -46,7 +47,7 @@
                     //allow the other task to complete
                     await Task.Delay(100).ConfigureAwait(false);
                 }
-            } while (true);
+            }
         }
 
         public async Task Unsubscribe(Type eventType, ContextBag context)
@@ -54,11 +55,10 @@
             var eventDir = GetEventDirectory(eventType);
             var subscriptionEntryPath = GetSubscriptionEntryPath(eventDir);
 
-
             var attempts = 0;
 
             // since we have a design that can run into concurrency exceptions we perform a few retries
-            do
+            while(true)
             {
                 try
                 {
@@ -83,19 +83,12 @@
                     //allow the other task to complete
                     await Task.Delay(100).ConfigureAwait(false);
                 }
-            } while (true);
+            }
         }
 
-        string GetSubscriptionEntryPath(string eventDir)
-        {
-            return Path.Combine(eventDir, endpointName + ".subcription");
-        }
+        string GetSubscriptionEntryPath(string eventDir) => Path.Combine(eventDir, endpointName + ".subscription");
 
-        string GetEventDirectory(Type eventType)
-        {
-            var eventId = eventType.FullName;
-            return Path.Combine(basePath, eventId);
-        }
+        string GetEventDirectory(Type eventType) => Path.Combine(basePath, eventType.FullName);
 
         string basePath;
         string endpointName;

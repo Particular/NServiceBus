@@ -43,12 +43,16 @@
             var configurerType = Type.GetType(typeName, false);
 
             if (configurerType == null)
+            {
                 throw new InvalidOperationException($"Transport Test project must include a non-namespaced class named '{typeName}' implementing {typeof(IConfigureTransportInfrastructure).Name}.");
+            }
 
             var configurer = Activator.CreateInstance(configurerType) as IConfigureTransportInfrastructure;
 
             if (configurer == null)
+            {
                 throw new InvalidOperationException($"{typeName} does not implement {typeof(IConfigureTransportInfrastructure).Name}.");
+            }
 
             return configurer;
         }
@@ -101,17 +105,19 @@
             await MessagePump.Init(
                 context =>
                 {
-                    if (context.Headers.ContainsKey(TestIdHeaderName) &&
-                        context.Headers[TestIdHeaderName] == testId)
+                    if (context.Headers.ContainsKey(TestIdHeaderName) && context.Headers[TestIdHeaderName] == testId)
+                    {
                         return onMessage(context);
+                    }
 
                     return Task.FromResult(0);
                 },
                 context =>
                 {
-                    if (context.Message.Headers.ContainsKey(TestIdHeaderName) &&
-                        context.Message.Headers[TestIdHeaderName] == testId)
+                    if (context.Message.Headers.ContainsKey(TestIdHeaderName) && context.Message.Headers[TestIdHeaderName] == testId)
+                    {
                         return onError(context);
+                    }
 
                     return Task.FromResult(ErrorHandleResult.Handled);
                 },
@@ -137,7 +143,9 @@
         void IgnoreUnsupportedTransactionModes(TransportTransactionMode requestedTransactionMode)
         {
             if (TransportInfrastructure.TransactionMode < requestedTransactionMode)
+            {
                 Assert.Ignore($"Only relevant for transports supporting {requestedTransactionMode} or higher");
+            }
         }
 
         protected Task SendMessage(string address,
@@ -150,12 +158,17 @@
             var message = new OutgoingMessage(messageId, headers ?? new Dictionary<string, string>(), new byte[0]);
 
             if (message.Headers.ContainsKey(TestIdHeaderName) == false)
+            {
                 message.Headers.Add(TestIdHeaderName, testId);
+            }
 
             var dispatcher = lazyDispatcher.Value;
 
             if (transportTransaction == null)
+            {
                 transportTransaction = new TransportTransaction();
+            }
+
             var transportOperation = new TransportOperation(message, new UnicastAddressTag(address), dispatchConsistency, deliveryConstraints ?? new List<DeliveryConstraint>());
 
             return dispatcher.Dispatch(new TransportOperations(transportOperation), transportTransaction, new ContextBag());
@@ -188,8 +201,11 @@
             while (true)
             {
                 type = frame.GetMethod().DeclaringType;
+
                 if (type != null && !type.IsAbstract && typeof(NServiceBusTransportTest).IsAssignableFrom(type))
+                {
                     break;
+                }
 
                 frame = new StackFrame(++index);
             }
@@ -222,8 +238,8 @@
         CancellationTokenSource testCancellationTokenSource;
         IConfigureTransportInfrastructure Configurer;
 
-        static string DefaultTransportDescriptorKey = "LearningTransport";
-        static string TestIdHeaderName = "TransportTest.TestId";
+        const string DefaultTransportDescriptorKey = "LearningTransport";
+        const string TestIdHeaderName = "TransportTest.TestId";
 
         static Lazy<List<Type>> transportDefinitions = new Lazy<List<Type>>(() => TypeScanner.GetAllTypesAssignableTo<TransportDefinition>().ToList());
 
@@ -249,7 +265,9 @@
                 var candidate = Environment.GetEnvironmentVariable(variable, EnvironmentVariableTarget.User);
 
                 if (string.IsNullOrWhiteSpace(candidate))
+                {
                     return Environment.GetEnvironmentVariable(variable);
+                }
 
                 return candidate;
             }

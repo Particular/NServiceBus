@@ -5,10 +5,6 @@
 
     class LearningTransportQueueCreator : ICreateQueues
     {
-        public Task CreateQueueIfNecessary(QueueBindings queueBindings, string identity)
-        {
-            //no-op
-            return TaskEx.CompletedTask;
-        }
+        public Task CreateQueueIfNecessary(QueueBindings queueBindings, string identity) => TaskEx.CompletedTask;
     }
 }

@@ -24,6 +24,7 @@
             transactionMode = settings.RequiredTransactionMode;
 
             PathChecker.ThrowForBadPath(settings.InputQueue, "InputQueue");
+
             path = Path.Combine(basePath, settings.InputQueue);
             bodyDir = Path.Combine(path, BodyDirName);
 
@@ -94,7 +95,7 @@
                 }
                 catch (Exception exception)
                 {
-                    Logger.Error("File Message pump failed", exception);
+                    Logger.Error("Message pump failed.", exception);
                 }
             }
         }
@@ -135,8 +136,7 @@
                 return new NoTransaction(path);
             }
 
-            var immediateDispatch = transactionMode == TransportTransactionMode.ReceiveOnly;
-            return new DirectoryBasedTransaction(path, Guid.NewGuid().ToString(), immediateDispatch);
+            return new DirectoryBasedTransaction(path, Guid.NewGuid().ToString());
         }
 
         async Task InnerProcessFile(ILearningTransportTransaction transaction, string nativeMessageId)
@@ -172,12 +172,11 @@
             {
                 var message = await AsyncFile.ReadText(transaction.FileToProcess)
                     .ConfigureAwait(false);
+
                 var bodyPath = Path.Combine(bodyDir, $"{messageId}{BodyFileSuffix}");
                 var headers = HeaderSerializer.Deserialize(message);
 
-                string ttbrString;
-
-                if (headers.TryGetValue(Headers.TimeToBeReceived, out ttbrString))
+                if (headers.TryGetValue(Headers.TimeToBeReceived, out var ttbrString))
                 {
                     var ttbr = TimeSpan.Parse(ttbrString);
                     //file.move preserves create time
@@ -187,20 +186,22 @@
                     {
                         await transaction.Commit()
                             .ConfigureAwait(false);
+
                         return true;
                     }
                 }
-                var tokenSource = new CancellationTokenSource();
 
-                var context = new ContextBag();
-                context.Set(transaction);
+                var tokenSource = new CancellationTokenSource();
 
                 var body = await AsyncFile.ReadBytes(bodyPath, cancellationToken)
                     .ConfigureAwait(false);
 
                 var transportTransaction = new TransportTransaction();
 
-                transportTransaction.Set(transaction);
+                if (transactionMode == TransportTransactionMode.SendsAtomicWithReceive)
+                {
+                    transportTransaction.Set(transaction);
+                }
 
                 var messageContext = new MessageContext(messageId, headers, body, transportTransaction, tokenSource, new ContextBag());
 
@@ -222,6 +223,7 @@
                     if (actionToTake == ErrorHandleResult.RetryRequired)
                     {
                         transaction.Rollback();
+
                         return false;
                     }
                 }
@@ -229,16 +231,19 @@
                 if (tokenSource.IsCancellationRequested)
                 {
                     transaction.Rollback();
+
                     return false;
                 }
 
                 await transaction.Commit()
                     .ConfigureAwait(false);
+
                 return true;
             }
             catch (Exception)
             {
                 transaction.Rollback();
+
                 return false;
             }
         }
@@ -260,7 +265,6 @@
         string bodyDir;
 
         public const string BodyFileSuffix = ".body.txt";
-
         public const string BodyDirName = ".bodies";
 
         static ILog Logger = LogManager.GetLogger<LearningTransportMessagePump>();

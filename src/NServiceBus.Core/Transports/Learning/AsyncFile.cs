@@ -30,6 +30,7 @@ namespace NServiceBus
         {
             var tempFile = Path.GetTempFileName();
             var bytes = Encoding.UTF8.GetBytes(text);
+
             try
             {
                 using (var stream = CreateWriteStream(tempFile, FileMode.Open))
@@ -42,6 +43,7 @@ namespace NServiceBus
                 File.Delete(tempFile);
                 throw;
             }
+
             File.Move(tempFile, targetPath);
         }
 
@@ -58,14 +60,13 @@ namespace NServiceBus
 
         static FileStream CreateWriteStream(string filePath, FileMode fileMode)
         {
-            return new FileStream(filePath,
-                fileMode, FileAccess.Write, FileShare.None,
-                bufferSize: 4096, useAsync: true);
+            return new FileStream(filePath, fileMode, FileAccess.Write, FileShare.None, bufferSize: 4096, useAsync: true);
         }
 
         public static Task WriteText(string filePath, string text)
         {
             var bytes = Encoding.UTF8.GetBytes(text);
+
             return WriteBytes(filePath, bytes);
         }
 
@@ -74,6 +75,7 @@ namespace NServiceBus
             using (var stream = new StreamReader(CreateReadStream(filePath), Encoding.UTF8))
             {
                 var result = await stream.ReadToEndAsync().ConfigureAwait(false);
+
                 return result;
             }
         }
@@ -85,15 +87,14 @@ namespace NServiceBus
                 var length = (int)stream.Length;
                 var body = new byte[length];
                 await stream.ReadAsync(body, 0, length, token).ConfigureAwait(false);
+
                 return body;
             }
         }
 
         static FileStream CreateReadStream(string filePath)
         {
-            return new FileStream(filePath,
-                FileMode.Open, FileAccess.Read, FileShare.Read,
-                bufferSize: 4096, useAsync: true);
+            return new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read, bufferSize: 4096, useAsync: true);
         }
     }
 }

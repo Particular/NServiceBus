@@ -191,7 +191,6 @@
             }
         }
 
-
         public class StartSaga : ICommand
         {
             public Guid Id { get; set; }
