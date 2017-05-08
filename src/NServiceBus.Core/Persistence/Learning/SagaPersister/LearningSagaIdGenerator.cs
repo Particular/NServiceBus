@@ -9,7 +9,7 @@ namespace NServiceBus
         {
             if (context.CorrelationProperty == SagaCorrelationProperty.None)
             {
-                throw new NotSupportedException("The development saga persister doesn't support custom saga finders.");
+                throw new NotSupportedException("The learning saga persister doesn't support custom saga finders.");
             }
 
             return Generate(context.SagaMetadata.SagaEntityType, context.CorrelationProperty.Name, context.CorrelationProperty.Value);

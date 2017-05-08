@@ -21,7 +21,7 @@ namespace NServiceBus
             SagaStorageFile sagaFile;
             if (!sagaFiles.TryGetValue(sagaFileKey, out sagaFile))
             {
-                throw new Exception("The saga should be retrieved with Get method before it's updated or completed.");
+                throw new Exception("The saga should be retrieved with the Get method before being updated or completed.");
             }
             return sagaFile;
         }

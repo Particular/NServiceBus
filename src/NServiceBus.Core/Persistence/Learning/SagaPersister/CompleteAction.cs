@@ -21,7 +21,7 @@ namespace NServiceBus
             }
             catch (LearningSagaPersisterConcurrencyException)
             {
-                throw new Exception("Saga can't be completed as it was updated by another process.");
+                throw new Exception("Saga can't be completed because it was updated by another process.");
             }
         }
     }

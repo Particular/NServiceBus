@@ -32,10 +32,10 @@ namespace NServiceBus
             {
                 if (correlationProperty == SagaCorrelationProperty.None)
                 {
-                    throw new Exception("A saga with this identifier already exists. This should never happened as saga identifier are meant to be unique.");
+                    throw new Exception("A saga with this identifier already exists. This should never happened because saga identifiers are meant to be unique.");
                 }
 
-                throw new Exception($"The saga with the correlation id 'Name: {correlationProperty.Name} Value: {correlationProperty.Value}' already exists.");
+                throw new Exception($"A saga with the correlation id 'Name: {correlationProperty.Name} Value: {correlationProperty.Value}' already exists.");
             }
         }
     }
