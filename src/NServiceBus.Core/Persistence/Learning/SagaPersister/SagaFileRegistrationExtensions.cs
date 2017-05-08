@@ -3,7 +3,7 @@ namespace NServiceBus
     using System;
     using System.Collections.Generic;
 
-    static class SagaFileRegistrationExtensions
+    static class SagaStorageFileExtensions
     {
         public static void RegisterSagaFile(this Dictionary<string, SagaStorageFile> sagaFiles, SagaStorageFile sagaStorageFile, Guid sagaId, Type sagaDataType)
         {
