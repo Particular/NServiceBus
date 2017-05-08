@@ -807,9 +807,9 @@ namespace NServiceBus
         public static void Encoding(this NServiceBus.SerializationExtentions<NServiceBus.JsonSerializer> config, System.Text.Encoding encoding) { }
     }
     public class LearningPersistence : NServiceBus.Persistence.PersistenceDefinition { }
-    public class static LearningSagaPersisterConfigExtensions
+    public class static LearningSagaPersisterConfigurationExtensions
     {
-        public static void SagaStorageDirectory(this NServiceBus.PersistenceExtensions<NServiceBus.LearningPersistence> config, string path) { }
+        public static void SagaStorageDirectory(this NServiceBus.PersistenceExtensions<NServiceBus.LearningPersistence> persistenceExtensions, string path) { }
     }
     public class LearningTransport : NServiceBus.Transport.TransportDefinition
     {
