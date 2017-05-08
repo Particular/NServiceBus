@@ -134,7 +134,7 @@
     <Compile Include="Persistence\Learning\LearningPersistence.cs" />
     <Compile Include="Persistence\Learning\SagaPersister\CompleteAction.cs" />
     <Compile Include="Persistence\Learning\SagaPersister\LearningSagaPersisterConcurrencyException.cs" />
-    <Compile Include="Persistence\Learning\SagaPersister\LearningSagaPersisterConfigExtensions.cs" />
+    <Compile Include="Persistence\Learning\SagaPersister\LearningSagaPersisterConfigurationExtensions.cs" />
     <Compile Include="Persistence\Learning\SagaPersister\LearningSagaIdGenerator.cs" />
     <Compile Include="Persistence\Learning\SagaPersister\LearningSagaPersistence.cs" />
     <Compile Include="Persistence\Learning\SagaPersister\LearningSagaPersister.cs" />
