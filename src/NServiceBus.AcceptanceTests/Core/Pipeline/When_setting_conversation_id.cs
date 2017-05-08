@@ -4,6 +4,7 @@
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using AcceptanceTesting.Customization;
+    using AcceptanceTesting.Support;
     using EndpointTemplates;
     using NUnit.Framework;
 
@@ -30,11 +31,11 @@
         }
 
         [Test]
-        public async Task Should_use_incoming_conversation_id_when_available()
+        public void Should_throw_when_incoming_conversation_id_available()
         {
             var initialConversationId = Guid.NewGuid().ToString();
 
-            var context = await Scenario.Define<Context>()
+            var exception = Assert.ThrowsAsync<MessageFailedException>(() => Scenario.Define<Context>()
                 .WithEndpoint<IntermediateEndpoint>(e => e
                     .When(s =>
                     {
@@ -45,9 +46,9 @@
                     }))
                 .WithEndpoint<ReceivingEndpoint>()
                 .Done(c => !string.IsNullOrEmpty(c.ReceivedConversationId))
-                .Run();
+                .Run());
 
-            Assert.AreEqual(initialConversationId, context.ReceivedConversationId);
+            StringAssert.Contains($"Cannot set the {Headers.ConversationId} header to 'intermediate message header' as it cannot override the incoming header value ('{initialConversationId}').", exception.InnerException.Message);
         }
 
         class Context : ScenarioContext

@@ -60,16 +60,17 @@
         }
 
         [Test]
-        public async Task When_incoming_message_should_override_a_conversation_id_specified_by_the_user()
+        public void When_user_defined_conversation_id_would_overwrite_incoming_conversation_id_should_throw()
         {
             var incomingConversationId = Guid.NewGuid().ToString();
+            var userDefinedConversationId = Guid.NewGuid().ToString();
 
             var behavior = new AttachCausationHeadersBehavior();
             var context = new TestableOutgoingPhysicalMessageContext
             {
                 Headers =
                 {
-                    [Headers.ConversationId] = Guid.NewGuid().ToString()
+                    [Headers.ConversationId] = userDefinedConversationId
                 }
             };
             var transportMessage = new IncomingMessage("xyz", new Dictionary<string, string>
@@ -78,9 +79,9 @@
             }, new byte[0]);
             context.Extensions.Set(transportMessage);
 
-            await behavior.Invoke(context, ctx => TaskEx.CompletedTask);
+            var exception = Assert.ThrowsAsync<Exception>(() => behavior.Invoke(context, ctx => TaskEx.CompletedTask));
 
-            Assert.AreEqual(incomingConversationId, context.Headers[Headers.ConversationId]);
+            Assert.AreEqual($"Cannot set the {Headers.ConversationId} header to '{userDefinedConversationId}' as it cannot override the incoming header value ('{incomingConversationId}').", exception.Message);
         }
 
         [Test]
