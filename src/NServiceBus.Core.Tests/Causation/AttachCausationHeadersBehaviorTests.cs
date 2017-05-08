@@ -3,7 +3,6 @@
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using NServiceBus.Pipeline;
     using NUnit.Framework;
     using Testing;
     using Transport;
@@ -15,7 +14,7 @@
         public async Task Should_set_the_conversation_id_to_new_guid_when_not_sent_from_handler()
         {
             var behavior = new AttachCausationHeadersBehavior();
-            var context = InitializeContext();
+            var context = new TestableOutgoingPhysicalMessageContext();
 
             await behavior.Invoke(context, ctx => TaskEx.CompletedTask);
 
@@ -28,7 +27,7 @@
             var incomingConversationId = Guid.NewGuid().ToString();
 
             var behavior = new AttachCausationHeadersBehavior();
-            var context = InitializeContext();
+            var context = new TestableOutgoingPhysicalMessageContext();
 
             var transportMessage = new IncomingMessage("xyz", new Dictionary<string, string>
             {
@@ -41,14 +40,19 @@
             Assert.AreEqual(incomingConversationId, context.Headers[Headers.ConversationId]);
         }
 
-        [Test, Ignore("Will be refactored to use a explicit override via options instead and not rely on the header being set")]
-        public async Task Should_not_override_a_conversation_id_specified_by_the_user()
+        [Test]
+        public async Task When_no_incoming_message_should_not_override_a_conversation_id_specified_by_the_user()
         {
             var userConversationId = Guid.NewGuid().ToString();
 
             var behavior = new AttachCausationHeadersBehavior();
-            var context = InitializeContext();
-
+            var context = new TestableOutgoingPhysicalMessageContext
+            {
+                Headers =
+                {
+                    [Headers.ConversationId] = userConversationId
+                }
+            };
 
             await behavior.Invoke(context, ctx => TaskEx.CompletedTask);
 
@@ -56,21 +60,41 @@
         }
 
         [Test]
+        public void When_user_defined_conversation_id_would_overwrite_incoming_conversation_id_should_throw()
+        {
+            var incomingConversationId = Guid.NewGuid().ToString();
+            var userDefinedConversationId = Guid.NewGuid().ToString();
+
+            var behavior = new AttachCausationHeadersBehavior();
+            var context = new TestableOutgoingPhysicalMessageContext
+            {
+                Headers =
+                {
+                    [Headers.ConversationId] = userDefinedConversationId
+                }
+            };
+            var transportMessage = new IncomingMessage("xyz", new Dictionary<string, string>
+            {
+                {Headers.ConversationId, incomingConversationId}
+            }, new byte[0]);
+            context.Extensions.Set(transportMessage);
+
+            var exception = Assert.ThrowsAsync<Exception>(() => behavior.Invoke(context, ctx => TaskEx.CompletedTask));
+
+            Assert.AreEqual($"Cannot set the {Headers.ConversationId} header to '{userDefinedConversationId}' as it cannot override the incoming header value ('{incomingConversationId}').", exception.Message);
+        }
+
+        [Test]
         public async Task Should_set_the_related_to_header_with_the_id_of_the_current_message()
         {
             var behavior = new AttachCausationHeadersBehavior();
-            var context = InitializeContext();
+            var context = new TestableOutgoingPhysicalMessageContext();
 
             context.Extensions.Set(new IncomingMessage("the message id", new Dictionary<string, string>(), new byte[0]));
 
             await behavior.Invoke(context, ctx => TaskEx.CompletedTask);
 
             Assert.AreEqual("the message id", context.Headers[Headers.RelatedTo]);
-        }
-
-        static IOutgoingPhysicalMessageContext InitializeContext()
-        {
-            return new TestableOutgoingPhysicalMessageContext();
         }
     }
 }
