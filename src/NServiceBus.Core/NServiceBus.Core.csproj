@@ -141,7 +141,7 @@
     <Compile Include="Persistence\Learning\SagaPersister\LearningStorageAdapter.cs" />
     <Compile Include="Persistence\Learning\SagaPersister\LearningSynchronizedStorage.cs" />
     <Compile Include="Persistence\Learning\SagaPersister\LearningSynchronizedStorageSession.cs" />
-    <Compile Include="Persistence\Learning\SagaPersister\SagaFileRegistrationExtensions.cs" />
+    <Compile Include="Persistence\Learning\SagaPersister\SagaStorageFileExtensions.cs" />
     <Compile Include="Persistence\Learning\SagaPersister\SagaManifest.cs" />
     <Compile Include="Persistence\Learning\SagaPersister\SagaManifestCollection.cs" />
     <Compile Include="Persistence\Learning\SagaPersister\SagaStorageFile.cs" />
