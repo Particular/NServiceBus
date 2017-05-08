@@ -133,7 +133,7 @@
     <Compile Include="Performance\ReceiveStatisticsPerformanceCounters.cs" />
     <Compile Include="Persistence\Learning\LearningPersistence.cs" />
     <Compile Include="Persistence\Learning\SagaPersister\CompleteAction.cs" />
-    <Compile Include="Persistence\Learning\SagaPersister\ConcurrencyException.cs" />
+    <Compile Include="Persistence\Learning\SagaPersister\LearningSagaPersisterConcurrencyException.cs" />
     <Compile Include="Persistence\Learning\SagaPersister\LearningSagaPersisterConfigExtensions.cs" />
     <Compile Include="Persistence\Learning\SagaPersister\LearningSagaIdGenerator.cs" />
     <Compile Include="Persistence\Learning\SagaPersister\LearningSagaPersistence.cs" />
