@@ -59,11 +59,11 @@ namespace NServiceBus
             return AsyncFile.WriteText(txPath, messageContents);
         }
 
-        public void Complete()
+        public Task<bool> Complete()
         {
             if (!committed)
             {
-                return;
+                return Task.FromResult(false);
             }
 
             foreach (var outgoingFile in outgoingFiles)
@@ -72,6 +72,8 @@ namespace NServiceBus
             }
 
             Directory.Delete(commitDir, true);
+
+            return Task.FromResult(true);
         }
 
         public static void RecoverPartiallyCompletedTransactions(string basePath)

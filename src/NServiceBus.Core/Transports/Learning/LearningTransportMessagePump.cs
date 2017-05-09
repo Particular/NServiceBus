@@ -143,10 +143,11 @@
         {
             try
             {
-                var wasCommitted = await ProcessFile(transaction, nativeMessageId)
+                await ProcessFile(transaction, nativeMessageId)
                     .ConfigureAwait(false);
 
-                transaction.Complete();
+                var wasCommitted = await transaction.Complete()
+                    .ConfigureAwait(false);
 
                 if (wasCommitted)
                 {
@@ -166,7 +167,7 @@
             }
         }
 
-        async Task<bool> ProcessFile(ILearningTransportTransaction transaction, string messageId)
+        async Task ProcessFile(ILearningTransportTransaction transaction, string messageId)
         {
             try
             {
@@ -187,7 +188,7 @@
                         await transaction.Commit()
                             .ConfigureAwait(false);
 
-                        return true;
+                        return;
                     }
                 }
 
@@ -224,7 +225,7 @@
                     {
                         transaction.Rollback();
 
-                        return false;
+                        return;
                     }
                 }
 
@@ -232,19 +233,16 @@
                 {
                     transaction.Rollback();
 
-                    return false;
+                    return;
                 }
 
                 await transaction.Commit()
                     .ConfigureAwait(false);
 
-                return true;
             }
             catch (Exception)
             {
                 transaction.Rollback();
-
-                return false;
             }
         }
 
