@@ -65,14 +65,7 @@ namespace NServiceBus
 
             if (headerSize + message.Body.Length > maxMessageSizeKB * 1024)
             {
-                string messageType;
-
-                if (!message.Headers.TryGetValue(Headers.EnclosedMessageTypes, out messageType))
-                {
-                    messageType = "Message body";
-                }
-
-                throw new Exception($"{messageType} including headers({headerSize} bytes) is larger than {maxMessageSizeKB}kB and will not be supported on some production transports. Consider using the NServiceBus Data Bus or the claim check pattern in general to avoid messages with a large payload. Use `.UseTransport<LearningTransport>().NoPayloadSizeRestriction()` to proceed with the current message size.");
+                throw new Exception($"The total size of the '{message.Headers[Headers.EnclosedMessageTypes]}' message body ({message.Body.Length} bytes) plus headers ({headerSize} bytes) is larger than {maxMessageSizeKB} KB and will not be supported on some production transports. Consider using the NServiceBus DataBus or the claim check pattern to avoid messages with a large payload. Use 'EndpointConfiguration.UseTransport<LearningTransport>().NoPayloadSizeRestriction()' to disable this check and proceed with the current message size.");
             }
 
             var nativeMessageId = Guid.NewGuid().ToString();

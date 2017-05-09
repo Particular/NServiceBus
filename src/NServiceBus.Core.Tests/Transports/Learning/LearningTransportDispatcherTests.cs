@@ -16,19 +16,17 @@
         {
             var path = Path.Combine(TestContext.CurrentContext.TestDirectory, "payload-too-big");
             var dispatcher = new LearningTransportDispatcher(path, 64);
-            var messageAtThreshold = new OutgoingMessage("id", new Dictionary<string, string>(), new byte[MessageSizeLimit]);
-            var messageAboveThreshold = new OutgoingMessage("id", new Dictionary<string, string>(), new byte[MessageSizeLimit + 1]);
-
+            var headers = new Dictionary<string, string> { { Headers.EnclosedMessageTypes, "TestMessage" } };
+            var messageAtThreshold = new OutgoingMessage("id", headers, new byte[MessageSizeLimit]);
+            var messageAboveThreshold = new OutgoingMessage("id", headers, new byte[MessageSizeLimit + 1]);
 
             await dispatcher.Dispatch(new TransportOperations(new TransportOperation(messageAtThreshold, new UnicastAddressTag("my-destination"))), new TransportTransaction(), new ContextBag());
-
-
             var ex = Assert.ThrowsAsync<Exception>(async () => await dispatcher.Dispatch(new TransportOperations(new TransportOperation(messageAboveThreshold, new UnicastAddressTag("my-destination"))), new TransportTransaction(), new ContextBag()));
 
-            StringAssert.Contains("Message body including headers", ex.Message);
+            StringAssert.Contains("The total size of the 'TestMessage' message", ex.Message);
         }
 
-        const int MessageSizeLimit = 64 * 1024 - emptyHeaderSize;
-        const int emptyHeaderSize = 3;
+        const int MessageSizeLimit = 64 * 1024 - headerSize;
+        const int headerSize = 57;
     }
 }
