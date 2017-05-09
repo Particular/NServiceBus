@@ -2,8 +2,10 @@ namespace NServiceBus
 {
     using System;
     using System.IO;
+    using System.Text;
     using System.Threading.Tasks;
     using Janitor;
+    using Newtonsoft.Json;
 
     [SkipWeaving]
     class SagaStorageFile : IDisposable
@@ -12,8 +14,34 @@ namespace NServiceBus
         {
             this.fileStream = fileStream;
             this.manifest = manifest;
+            textWriter = new StreamWriter(fileStream, Encoding.Unicode);
+            jsonWriter = new JsonTextWriter(textWriter)
+            {
+                CloseOutput = true
+            };
+            textReader = new StreamReader(fileStream, Encoding.Unicode);
+            jsonReader = new JsonTextReader(textReader)
+            {
+                CloseInput = true
+            };
 
             lastModificationSeenAt = File.GetLastWriteTimeUtc(fileStream.Name);
+        }
+
+        public void Dispose()
+        {
+            jsonWriter.Close();
+            textWriter.Dispose();
+            jsonReader.Close();
+            textReader.Dispose();
+            fileStream.Dispose();
+
+            if (isCompleted)
+            {
+                File.Delete(fileStream.Name);
+            }
+
+            fileStream = null;
         }
 
         public static bool TryOpen(Guid sagaId, SagaManifest manifest, out SagaStorageFile sagaStorageFile)
@@ -38,26 +66,13 @@ namespace NServiceBus
             return new SagaStorageFile(new FileStream(filePath, FileMode.CreateNew, FileAccess.ReadWrite, FileShare.ReadWrite, DefaultBufferSize, FileOptions.Asynchronous), manifest);
         }
 
-        public void Dispose()
-        {
-            fileStream.Dispose();
-
-            if (isCompleted)
-            {
-                File.Delete(fileStream.Name);
-            }
-
-            fileStream = null;
-        }
-
         public Task Write(IContainSagaData sagaData)
         {
             fileStream.Position = 0;
 
             return WriteWithinLock((stream, data, meta) =>
             {
-                var serializer = meta.Serializer;
-                serializer.WriteObject(stream, data);
+                serializer.Serialize(jsonWriter, data);
                 return TaskEx.CompletedTask;
             }, fileStream, lastModificationSeenAt, sagaData, manifest);
         }
@@ -72,7 +87,7 @@ namespace NServiceBus
 
         public object Read()
         {
-            return manifest.Serializer.ReadObject(fileStream);
+            return serializer.Deserialize(jsonReader, manifest.SagaEntityType);
         }
 
         static async Task WriteWithinLock(Func<FileStream, IContainSagaData, SagaManifest, Task> action, FileStream stream, DateTime lastModificationSeenAt, IContainSagaData sagaData = null, SagaManifest manifest = null)
@@ -104,6 +119,12 @@ namespace NServiceBus
         FileStream fileStream;
         DateTime lastModificationSeenAt;
         bool isCompleted;
+        Newtonsoft.Json.JsonSerializer serializer = new Newtonsoft.Json.JsonSerializer();
+        StreamWriter textWriter;
+        JsonTextWriter jsonWriter;
+        StreamReader textReader;
+        JsonTextReader jsonReader;
+
         const int DefaultBufferSize = 4096;
         static byte[] EmptyBytes = new byte[0];
     }

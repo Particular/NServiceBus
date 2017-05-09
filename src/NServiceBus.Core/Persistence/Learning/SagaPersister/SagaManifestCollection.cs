@@ -3,7 +3,6 @@
     using System;
     using System.Collections.Generic;
     using System.IO;
-    using System.Runtime.Serialization.Json;
     using Sagas;
 
     class SagaManifestCollection
@@ -22,7 +21,6 @@
                 var manifest = new SagaManifest
                 {
                     StorageDirectory = sagaStorageDir,
-                    Serializer = new DataContractJsonSerializer(metadata.SagaEntityType),
                     SagaEntityType = metadata.SagaEntityType
                 };
 
