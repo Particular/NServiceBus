@@ -71,7 +71,7 @@ namespace NServiceBus
                 {
                     messageType = "Message body";
                 }
-              
+
                 throw new Exception($"{messageType} including headers({headerSize} bytes) is larger than {maxMessageSizeKB}kB and will not be supported on some production transports. Consider using the NServiceBus Data Bus or the claim check pattern in general to avoid messages with a large payload. Use `.UseTransport<LearningTransport>().NoPayloadSizeRestriction()` to proceed with the current message size.");
             }
 
@@ -117,7 +117,6 @@ namespace NServiceBus
             }
 
             var messagePath = Path.Combine(destinationPath, nativeMessageId) + ".metadata.txt";
-
 
             if (transportOperation.RequiredDispatchConsistency != DispatchConsistency.Isolated && transaction.TryGet(out ILearningTransportTransaction directoryBasedTransaction))
             {
@@ -188,6 +187,7 @@ namespace NServiceBus
         }
 
         static bool IsCoreMarkerInterface(Type type) => type == typeof(IMessage) || type == typeof(IEvent) || type == typeof(ICommand);
+
         int maxMessageSizeKB;
         string basePath;
     }
