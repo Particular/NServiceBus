@@ -5,7 +5,6 @@
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using AcceptanceTesting.Customization;
-    using Configuration.AdvanceExtensibility;
     using EndpointTemplates;
     using NServiceBus.Pipeline;
     using NUnit.Framework;
@@ -40,7 +39,6 @@
                 EndpointSetup<DefaultServer>(
                     b =>
                     {
-                        b.GetSettings().Set("DisableOutboxTransportCheck", true);
                         b.EnableOutbox();
                         b.Pipeline.Register("BlowUpAfterDispatchBehavior", new BlowUpAfterDispatchBehavior(), "For testing");
                         b.ForwardReceivedMessagesTo(Conventions.EndpointNamingConvention(typeof(ForwardingSpyEndpoint)));

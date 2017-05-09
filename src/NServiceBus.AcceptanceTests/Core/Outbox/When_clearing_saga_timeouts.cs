@@ -3,7 +3,6 @@
     using System;
     using System.Threading.Tasks;
     using AcceptanceTesting;
-    using Configuration.AdvanceExtensibility;
     using EndpointTemplates;
     using Extensibility;
     using Features;
@@ -43,7 +42,6 @@
                 EndpointSetup<DefaultServer>(
                     b =>
                     {
-                        b.GetSettings().Set("DisableOutboxTransportCheck", true);
                         b.EnableFeature<TimeoutManager>();
                         b.UsePersistence<FakeOutboxPersistence>();
                         b.RegisterComponents(c => c.ConfigureComponent<FakeOutbox>(DependencyLifecycle.SingleInstance));
