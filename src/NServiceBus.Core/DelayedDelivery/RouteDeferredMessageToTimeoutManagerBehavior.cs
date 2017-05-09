@@ -29,7 +29,7 @@ namespace NServiceBus
             DiscardIfNotReceivedBefore discardIfNotReceivedBefore;
             if (context.Extensions.TryGetDeliveryConstraint(out discardIfNotReceivedBefore))
             {
-                throw new Exception("Postponed delivery of messages with TimeToBeReceived set is not supported. Remove the TimeToBeReceived attribute to postpone messages of this type.");
+                throw new Exception($"Postponed delivery of messages with TimeToBeReceived set is not supported. Remove the TimeToBeReceived attribute to postpone messages of type '{context.Message.Headers[Headers.EnclosedMessageTypes]}'.");
             }
 
             var newRoutingStrategies = context.RoutingStrategies.Select(s => RerouteToTimeoutManager(s, context, deliverAt));

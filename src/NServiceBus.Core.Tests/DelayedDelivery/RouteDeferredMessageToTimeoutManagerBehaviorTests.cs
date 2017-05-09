@@ -52,8 +52,9 @@
             var delay = TimeSpan.FromDays(1);
 
             var context = CreateContext(new UnicastRoutingStrategy("target"), new DelayDeliveryWith(delay), new DiscardIfNotReceivedBefore(TimeSpan.FromSeconds(30)));
+            context.Message.Headers[Headers.EnclosedMessageTypes] = "TestMessage";
 
-            Assert.That(async () => await behavior.Invoke(context, ctx => TaskEx.CompletedTask), Throws.InstanceOf<Exception>().And.Message.Contains("Postponed delivery of messages with TimeToBeReceived set is not supported. Remove the TimeToBeReceived attribute to postpone messages of this type."));
+            Assert.That(async () => await behavior.Invoke(context, ctx => TaskEx.CompletedTask), Throws.InstanceOf<Exception>().And.Message.Contains("Postponed delivery of messages with TimeToBeReceived set is not supported. Remove the TimeToBeReceived attribute to postpone messages of type 'TestMessage'."));
         }
 
         [Test]
