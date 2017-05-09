@@ -54,18 +54,17 @@ namespace NServiceBus
         {
             fileStream.Position = 0;
 
-            return WriteWithinLock((stream, state) =>
+            return WriteWithinLock((stream, data, meta) =>
             {
-                var serializer = state.Manifest.Serializer;
-                var data = state.SagaData;
+                var serializer = meta.Serializer;
                 serializer.WriteObject(stream, data);
                 return TaskEx.CompletedTask;
-            }, fileStream, lastModificationSeenAt, new WriteState(sagaData, manifest));
+            }, fileStream, lastModificationSeenAt, sagaData, manifest);
         }
 
         public async Task MarkAsCompleted()
         {
-            await WriteWithinLock((stream, state) => stream.WriteAsync(EmptyBytes, 0, 0), fileStream, lastModificationSeenAt)
+            await WriteWithinLock((stream, data, meta) => stream.WriteAsync(EmptyBytes, 0, 0), fileStream, lastModificationSeenAt)
                 .ConfigureAwait(false);
 
             isCompleted = true;
@@ -76,12 +75,7 @@ namespace NServiceBus
             return manifest.Serializer.ReadObject(fileStream);
         }
 
-        static Task WriteWithinLock(Func<FileStream, object, Task> action, FileStream stream, DateTime lastModificationSeenAt)
-        {
-            return WriteWithinLock<object>(action, stream, lastModificationSeenAt);
-        }
-
-        static async Task WriteWithinLock<TState>(Func<FileStream, TState, Task> action, FileStream stream, DateTime lastModificationSeenAt, TState state = default(TState))
+        static async Task WriteWithinLock(Func<FileStream, IContainSagaData, SagaManifest, Task> action, FileStream stream, DateTime lastModificationSeenAt, IContainSagaData sagaData = null, SagaManifest manifest = null)
         {
             var targetPath = stream.Name;
             var lockFilePath = Path.ChangeExtension(targetPath, ".lock");
@@ -90,7 +84,7 @@ namespace NServiceBus
             {
                 ThrowWhenModifiedSinceLastRead(lastModificationSeenAt, targetPath);
 
-                await action(stream, state)
+                await action(stream, sagaData, manifest)
                     .ConfigureAwait(false);
                 await stream.FlushAsync()
                     .ConfigureAwait(false);
@@ -112,17 +106,5 @@ namespace NServiceBus
         bool isCompleted;
         const int DefaultBufferSize = 4096;
         static byte[] EmptyBytes = new byte[0];
-
-        struct WriteState
-        {
-            public WriteState(IContainSagaData sagaData, SagaManifest manifest)
-            {
-                SagaData = sagaData;
-                Manifest = manifest;
-            }
-
-            public readonly IContainSagaData SagaData;
-            public readonly SagaManifest Manifest;
-        }
     }
 }
