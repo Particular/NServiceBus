@@ -17,6 +17,7 @@
                 .WithEndpoint<NonDtcReceivingEndpoint>(b => b.When(session => session.SendLocal(new PlaceOrder())))
                 .Done(c => c.OrderAckReceived == 1)
                 .Run(TimeSpan.FromSeconds(20));
+
             Assert.AreEqual(1, context.OrderAckReceived, "Order ack should have been received");
         }
 
