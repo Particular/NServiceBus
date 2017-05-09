@@ -14,7 +14,7 @@
         [Test]
         public async Task Should_throw_for_size_above_threshold()
         {
-            var path = Path.Combine(TestContext.CurrentContext.TestDirectory, "payload-to-big");
+            var path = Path.Combine(TestContext.CurrentContext.TestDirectory, "payload-too-big");
             var dispatcher = new LearningTransportDispatcher(path, 64);
             var messageAtThreshold = new OutgoingMessage("id", new Dictionary<string, string>(), new byte[MessageSizeLimit]);
             var messageAboveThreshold = new OutgoingMessage("id", new Dictionary<string, string>(), new byte[MessageSizeLimit + 1]);
