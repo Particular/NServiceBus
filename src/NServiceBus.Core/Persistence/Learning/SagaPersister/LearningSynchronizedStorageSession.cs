@@ -36,17 +36,14 @@ namespace NServiceBus
 
         public Task<TSagaData> Read<TSagaData>(Guid sagaId) where TSagaData : IContainSagaData
         {
-            return Task.Run(() =>
+            SagaStorageFile sagaStorageFile;
+
+            if (!TryOpen(sagaId, typeof(TSagaData), out sagaStorageFile))
             {
-                SagaStorageFile sagaStorageFile;
+                return DefaultSagaDataTask<TSagaData>.Default;
+            }
 
-                if (!TryOpen(sagaId, typeof(TSagaData), out sagaStorageFile))
-                {
-                    return default(TSagaData);
-                }
-
-                return (TSagaData)sagaStorageFile.Read();
-            });
+            return Task.FromResult((TSagaData)sagaStorageFile.Read());
         }
 
         public Task Update(IContainSagaData sagaData)
@@ -86,5 +83,11 @@ namespace NServiceBus
         Dictionary<string, SagaStorageFile> sagaFiles = new Dictionary<string, SagaStorageFile>();
 
         List<StorageAction> deferredActions = new List<StorageAction>();
+
+        static class DefaultSagaDataTask<TSagaData>
+            where TSagaData : IContainSagaData
+        {
+            public static Task<TSagaData> Default = Task.FromResult(default(TSagaData));
+        }
     }
 }
