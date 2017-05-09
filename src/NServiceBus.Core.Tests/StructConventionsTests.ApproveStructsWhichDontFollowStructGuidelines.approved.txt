@@ -35,8 +35,3 @@ NServiceBus.MessageQueueExtensions+ACL_SIZE_INFORMATION violates the following r
       - Field AclBytesFree of type System.UInt32 is public.
       - Field AclBytesInUse of type System.UInt32 is public.
 
-NServiceBus.SagaStorageFile+WriteState violates the following rules:
-   - The following fields are reference types, which are potentially mutable:
-      - Field Manifest of type NServiceBus.SagaManifest is a reference type.
-      - Field SagaData of type NServiceBus.IContainSagaData is a reference type.
-
