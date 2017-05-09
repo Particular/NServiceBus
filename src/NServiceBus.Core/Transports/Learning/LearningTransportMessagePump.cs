@@ -112,14 +112,56 @@
 
                     var nativeMessageId = Path.GetFileNameWithoutExtension(filePath).Replace(".metadata", "");
 
+                    await concurrencyLimiter.WaitAsync(cancellationToken)
+                        .ConfigureAwait(false);
+
                     var transaction = GetTransaction();
 
                     transaction.BeginTransaction(filePath);
 
-                    await concurrencyLimiter.WaitAsync(cancellationToken)
-                        .ConfigureAwait(false);
+                    ProcessFile(transaction, nativeMessageId)
+                        .ContinueWith(async t =>
+                        {
+                            try
+                            {
+                                if (t.Exception == null)
+                                {
+                                    receiveCircuitBreaker.Success();
+                                }
+                                else
+                                {
+                                    var baseEx = t.Exception.GetBaseException();
 
-                    InnerProcessFile(transaction, nativeMessageId).Ignore();
+                                    if (!(baseEx is OperationCanceledException))
+                                    {
+                                        await receiveCircuitBreaker.Failure(baseEx)
+                                            .ConfigureAwait(false);
+                                    }
+
+                                    transaction.Rollback();
+
+                                }
+
+                                var wasCommitted = await transaction.Complete()
+                                    .ConfigureAwait(false);
+
+                                if (wasCommitted)
+                                {
+                                    File.Delete(Path.Combine(bodyDir, nativeMessageId + BodyFileSuffix));
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                await receiveCircuitBreaker.Failure(ex)
+                                    .ConfigureAwait(false);
+                            }
+                            finally
+                            {
+                                concurrencyLimiter.Release();
+                            }
+                        }, CancellationToken.None)
+                        .Unwrap()
+                        .Ignore();
                 }
 
                 if (!filesFound)
@@ -139,111 +181,75 @@
             return new DirectoryBasedTransaction(path, Guid.NewGuid().ToString());
         }
 
-        async Task InnerProcessFile(ILearningTransportTransaction transaction, string nativeMessageId)
-        {
-            try
-            {
-                await ProcessFile(transaction, nativeMessageId)
-                    .ConfigureAwait(false);
-
-                var wasCommitted = await transaction.Complete()
-                    .ConfigureAwait(false);
-
-                if (wasCommitted)
-                {
-                    File.Delete(Path.Combine(bodyDir, nativeMessageId + BodyFileSuffix));
-                }
-
-                receiveCircuitBreaker.Success();
-            }
-            catch (Exception ex) when (!(ex is OperationCanceledException))
-            {
-                await receiveCircuitBreaker.Failure(ex)
-                    .ConfigureAwait(false);
-            }
-            finally
-            {
-                concurrencyLimiter.Release();
-            }
-        }
-
         async Task ProcessFile(ILearningTransportTransaction transaction, string messageId)
         {
+            var message = await AsyncFile.ReadText(transaction.FileToProcess)
+                .ConfigureAwait(false);
+
+            var bodyPath = Path.Combine(bodyDir, $"{messageId}{BodyFileSuffix}");
+            var headers = HeaderSerializer.Deserialize(message);
+
+            if (headers.TryGetValue(Headers.TimeToBeReceived, out var ttbrString))
+            {
+                var ttbr = TimeSpan.Parse(ttbrString);
+                //file.move preserves create time
+                var sentTime = File.GetCreationTimeUtc(transaction.FileToProcess);
+
+                if (sentTime + ttbr < DateTime.UtcNow)
+                {
+                    await transaction.Commit()
+                        .ConfigureAwait(false);
+
+                    return;
+                }
+            }
+
+            var tokenSource = new CancellationTokenSource();
+
+            var body = await AsyncFile.ReadBytes(bodyPath, cancellationToken)
+                .ConfigureAwait(false);
+
+            var transportTransaction = new TransportTransaction();
+
+            if (transactionMode == TransportTransactionMode.SendsAtomicWithReceive)
+            {
+                transportTransaction.Set(transaction);
+            }
+
+            var messageContext = new MessageContext(messageId, headers, body, transportTransaction, tokenSource, new ContextBag());
+
             try
             {
-                var message = await AsyncFile.ReadText(transaction.FileToProcess)
+                await onMessage(messageContext)
+                    .ConfigureAwait(false);
+            }
+            catch (Exception exception)
+            {
+                transaction.ClearPendingOutgoingOperations();
+                var processingFailures = retryCounts.AddOrUpdate(messageId, id => 1, (id, currentCount) => currentCount + 1);
+
+                var errorContext = new ErrorContext(exception, headers, messageId, body, transportTransaction, processingFailures);
+
+                var actionToTake = await onError(errorContext)
                     .ConfigureAwait(false);
 
-                var bodyPath = Path.Combine(bodyDir, $"{messageId}{BodyFileSuffix}");
-                var headers = HeaderSerializer.Deserialize(message);
-
-                if (headers.TryGetValue(Headers.TimeToBeReceived, out var ttbrString))
-                {
-                    var ttbr = TimeSpan.Parse(ttbrString);
-                    //file.move preserves create time
-                    var sentTime = File.GetCreationTimeUtc(transaction.FileToProcess);
-
-                    if (sentTime + ttbr < DateTime.UtcNow)
-                    {
-                        await transaction.Commit()
-                            .ConfigureAwait(false);
-
-                        return;
-                    }
-                }
-
-                var tokenSource = new CancellationTokenSource();
-
-                var body = await AsyncFile.ReadBytes(bodyPath, cancellationToken)
-                    .ConfigureAwait(false);
-
-                var transportTransaction = new TransportTransaction();
-
-                if (transactionMode == TransportTransactionMode.SendsAtomicWithReceive)
-                {
-                    transportTransaction.Set(transaction);
-                }
-
-                var messageContext = new MessageContext(messageId, headers, body, transportTransaction, tokenSource, new ContextBag());
-
-                try
-                {
-                    await onMessage(messageContext)
-                        .ConfigureAwait(false);
-                }
-                catch (Exception exception)
-                {
-                    transaction.ClearPendingOutgoingOperations();
-                    var processingFailures = retryCounts.AddOrUpdate(messageId, id => 1, (id, currentCount) => currentCount + 1);
-
-                    var errorContext = new ErrorContext(exception, headers, messageId, body, transportTransaction, processingFailures);
-
-                    var actionToTake = await onError(errorContext)
-                        .ConfigureAwait(false);
-
-                    if (actionToTake == ErrorHandleResult.RetryRequired)
-                    {
-                        transaction.Rollback();
-
-                        return;
-                    }
-                }
-
-                if (tokenSource.IsCancellationRequested)
+                if (actionToTake == ErrorHandleResult.RetryRequired)
                 {
                     transaction.Rollback();
 
                     return;
                 }
-
-                await transaction.Commit()
-                    .ConfigureAwait(false);
-
             }
-            catch (Exception)
+
+            if (tokenSource.IsCancellationRequested)
             {
                 transaction.Rollback();
+
+                return;
             }
+
+            await transaction.Commit()
+                .ConfigureAwait(false);
         }
 
         CancellationToken cancellationToken;
