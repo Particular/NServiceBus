@@ -9,14 +9,15 @@
     public class When_receiving_a_message_not_found_in_the_outbox : NServiceBusAcceptanceTest
     {
         [Test]
-        public Task Should_handle_it()
+        public async Task Should_handle_it()
         {
             Requires.OutboxPersistence();
 
-            return Scenario.Define<Context>()
+            var context = await Scenario.Define<Context>()
                 .WithEndpoint<NonDtcReceivingEndpoint>(b => b.When(session => session.SendLocal(new PlaceOrder())))
                 .Done(c => c.OrderAckReceived == 1)
                 .Run(TimeSpan.FromSeconds(20));
+            Assert.AreEqual(1, context.OrderAckReceived, "Order ack should have been received");
         }
 
         class Context : ScenarioContext
