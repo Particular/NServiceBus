@@ -13,7 +13,7 @@
             const string propertyValue = "ʕノ•ᴥ•ʔノ ︵ ┻━┻";
 
             var context = await Scenario.Define<Context>()
-                .WithEndpoint<SagaEndpoint>(e => e
+                .WithEndpoint<SpecialCharacterSagaEndpoint>(e => e
                     .When(s => s.SendLocal(new MessageWithSpecialPropertyValues
                     {
                         SpecialCharacterValues = propertyValue
@@ -29,16 +29,16 @@
             public string RehydratedValueForCorrelatedHandler { get; set; }
         }
 
-        public class SagaEndpoint : EndpointConfigurationBuilder
+        public class SpecialCharacterSagaEndpoint : EndpointConfigurationBuilder
         {
-            public SagaEndpoint()
+            public SpecialCharacterSagaEndpoint()
             {
                 EndpointSetup<DefaultServer>();
             }
 
             public class SagaDataWithSpecialPropertyValues : ContainSagaData
             {
-                public string SpecialCharacterValues { get; set; }
+                public virtual string SpecialCharacterValues { get; set; }
             }
 
             public class SagaHandlingSpecialPropertyValues : 
