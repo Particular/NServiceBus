@@ -8,7 +8,7 @@ namespace NServiceBus.Extensibility
         /// <summary>
         /// Retrieves the specified type from the context.
         /// </summary>
-        /// <typeparam name="T">The type to retrieve. The Fullname of will be used to look up the instance.</typeparam>
+        /// <typeparam name="T">The type to retrieve. The fully qualified name of the type will be used to look up the instance.</typeparam>
         /// <returns>The type instance.</returns>
         T Get<T>();
 
