@@ -4,6 +4,7 @@
     using System.Linq;
     using System.Threading.Tasks;
     using AcceptanceTesting;
+    using AcceptanceTesting.Customization;
     using Configuration.AdvanceExtensibility;
     using EndpointTemplates;
     using NServiceBus.Pipeline;
@@ -42,7 +43,7 @@
                         b.GetSettings().Set("DisableOutboxTransportCheck", true);
                         b.EnableOutbox();
                         b.Pipeline.Register("BlowUpAfterDispatchBehavior", new BlowUpAfterDispatchBehavior(), "For testing");
-                        b.ForwardReceivedMessagesTo("forward_receiver_outbox");
+                        b.ForwardReceivedMessagesTo(Conventions.EndpointNamingConvention(typeof(ForwardingSpyEndpoint)));
                     });
             }
 
@@ -75,8 +76,7 @@
         {
             public ForwardingSpyEndpoint()
             {
-                EndpointSetup<DefaultServer>()
-                    .CustomEndpointName("forward_receiver_outbox");
+                EndpointSetup<DefaultServer>();
             }
 
             public class MessageToBeAuditedHandler : IHandleMessages<MessageToBeForwarded>
@@ -90,7 +90,6 @@
                 }
             }
         }
-
 
         public class MessageToBeForwarded : IMessage
         {
