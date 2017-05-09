@@ -34,7 +34,11 @@
         {
             public ReceiveMessageForTimeoutEndpoint()
             {
-                EndpointSetup<DefaultServer>(config => config.EnableFeature<TimeoutManager>());
+                EndpointSetup<DefaultServer>((config, rd) =>
+                {
+                    config.EnableFeature<TimeoutManager>();
+                    config.UseTransport(rd.GetTransportType()).Transactions(TransportTransactionMode.ReceiveOnly);
+                });
             }
 
             public class TestSaga01 : Saga<TestSagaData01>, IAmStartedByMessages<StartSagaMessage>, IHandleTimeouts<StartSagaMessage>
