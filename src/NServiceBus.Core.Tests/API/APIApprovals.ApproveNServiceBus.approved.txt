@@ -815,6 +815,7 @@ namespace NServiceBus
     }
     public class static LearningTransportConfigurationExtensions
     {
+        public static void NoPayloadSizeRestriction(this NServiceBus.TransportExtensions<NServiceBus.LearningTransport> transportExtensions) { }
         public static void StorageDirectory(this NServiceBus.TransportExtensions<NServiceBus.LearningTransport> transportExtensions, string path) { }
     }
     public class static LoadMessageHandlersExtensions

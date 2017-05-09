@@ -68,8 +68,9 @@
 
         public override TransportSendInfrastructure ConfigureSendInfrastructure()
         {
-            //todo: make size configurable
-            return new TransportSendInfrastructure(() => new LearningTransportDispatcher(storagePath, 64), () => Task.FromResult(StartupCheckResult.Success));
+            var maxPayloadSize = settings.GetOrDefault<bool>(NoPayloadSizeRestrictionKey) ? int.MaxValue / 1024 : 64; //64 kB is the max size of the ASQ transport
+
+            return new TransportSendInfrastructure(() => new LearningTransportDispatcher(storagePath, maxPayloadSize), () => Task.FromResult(StartupCheckResult.Success));
         }
 
         public override TransportSubscriptionInfrastructure ConfigureSubscriptionInfrastructure()
@@ -104,6 +105,8 @@
 
         string storagePath;
         SettingsHolder settings;
+
         public const string StorageLocationKey = "LearningTransport.StoragePath";
+        public const string NoPayloadSizeRestrictionKey = "LearningTransport.NoPayloadSizeRestrictionKey";
     }
 }
