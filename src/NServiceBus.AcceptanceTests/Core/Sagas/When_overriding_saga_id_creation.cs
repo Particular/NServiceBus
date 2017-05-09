@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.AcceptanceTests.Sagas
+﻿namespace NServiceBus.AcceptanceTests.Core.Sagas
 {
     using System;
     using System.Security.Cryptography;
@@ -25,7 +25,7 @@
                 .Done(c => c.SagaId.HasValue)
                 .Run();
 
-            Assert.AreEqual(new Guid("595cce7c-15d6-1c2a-6319-1b75c04426b4"), context.SagaId);
+            Assert.AreEqual(new Guid("1d99288a-418d-9e4d-46e4-d49a27908fc8"), context.SagaId);
         }
 
         public class Context : ScenarioContext
@@ -40,6 +40,7 @@
                 EndpointSetup<DefaultServer>(config =>
                 {
                     config.EnableFeature<TimeoutManager>();
+                    config.UsePersistence<InMemoryPersistence>();
                     config.GetSettings().Set<ISagaIdGenerator>(new CustomSagaIdGenerator());
                 });
             }

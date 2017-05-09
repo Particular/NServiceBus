@@ -1,13 +1,13 @@
-﻿namespace NServiceBus.AcceptanceTests.Sagas
+﻿namespace NServiceBus.AcceptanceTests.Core.Sagas
 {
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
     using Extensibility;
     using NServiceBus;
+    using NServiceBus.Persistence;
     using NServiceBus.Sagas;
     using NUnit.Framework;
-    using Persistence;
 
     [TestFixture]
     public class When_finder_cant_find_saga_instance : NServiceBusAcceptanceTest
@@ -34,7 +34,11 @@
         {
             public SagaEndpoint()
             {
-                EndpointSetup<DefaultServer>();
+                EndpointSetup<DefaultServer>(c =>
+                {
+                    //use InMemoryPersistence as custom finder support is required
+                    c.UsePersistence<InMemoryPersistence>();
+                });
             }
 
             class CustomFinder : IFindSagas<TestSaga06.SagaData06>.Using<StartSagaMessage>

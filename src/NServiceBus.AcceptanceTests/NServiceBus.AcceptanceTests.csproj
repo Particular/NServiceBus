@@ -58,6 +58,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ConfigureEndpointLearningTransport.cs" />
+    <Compile Include="ConfigureEndpointLearningPersistence.cs" />
     <Compile Include="Core\CriticalError\When_raising_critical_error_at_startup.cs" />
     <Compile Include="Core\Feature\When_depending_on_untyped_feature.cs" />
     <Compile Include="Core\Feature\When_registering_a_startup_task.cs" />
@@ -123,10 +124,10 @@
     <Compile Include="Routing\MessageDrivenSubscriptions\When_subscribing_to_scaled_out_publisher.cs" />
     <Compile Include="Sagas\When_a_base_class_mapped_is_handled_by_a_saga.cs" />
     <Compile Include="Sagas\When_a_base_class_message_starts_a_saga.cs" />
-    <Compile Include="Sagas\When_finder_cant_find_saga_instance.cs" />
+    <Compile Include="Core\Sagas\When_finder_cant_find_saga_instance.cs" />
     <Compile Include="Sagas\When_finder_returns_existing_saga.cs" />
     <Compile Include="Sagas\When_sagas_share_timeout_messages.cs" />
-    <Compile Include="Sagas\When_overriding_saga_id_creation.cs" />
+    <Compile Include="Core\Sagas\When_overriding_saga_id_creation.cs" />
     <Compile Include="Sagas\When_saga_started_concurrently.cs" />
     <Compile Include="Satellites\When_satellite_txmode_does_not_match_endpoints_txmode.cs" />
     <Compile Include="Sagas\When_using_a_received_message_for_timeout.cs" />
@@ -254,7 +255,7 @@
     <Compile Include="Sagas\When_forgetting_to_set_a_corr_property.cs" />
     <Compile Include="Sagas\When_auto_correlated_property_is_changed.cs" />
     <Compile Include="Sagas\When_updating_existing_correlation_property.cs" />
-    <Compile Include="Sagas\When_adding_state_to_context.cs" />
+    <Compile Include="Core\Sagas\When_adding_state_to_context.cs" />
     <Compile Include="Core\Recoverability\When_delayed_retries_with_regular_exception.cs" />
     <Compile Include="Sagas\When_doing_request_response_between_sagas_first_handler_responding.cs" />
     <Compile Include="Sagas\When_doing_request_response_between_sagas_response_from_noninitiating.cs" />
