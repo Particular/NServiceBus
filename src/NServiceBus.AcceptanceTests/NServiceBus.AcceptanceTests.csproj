@@ -219,13 +219,13 @@
     <Compile Include="DelayedDelivery\When_deferring_a_message.cs" />
     <Compile Include="ConfigureEndpointMsmqTransport.cs" />
     <Compile Include="Core\Diagnostics\When_feature_overrides_hostid.cs" />
-    <Compile Include="Reliability\Outbox\When_dispatching_forwarded_messages.cs" />
-    <Compile Include="Reliability\Outbox\When_a_message_is_audited.cs" />
+    <Compile Include="Outbox\When_dispatching_forwarded_messages.cs" />
+    <Compile Include="Outbox\When_a_message_is_audited.cs" />
     <Compile Include="Core\Outbox\When_clearing_saga_timeouts.cs" />
     <Compile Include="Core\Encryption\When_using_Rijndael_without_incoming_key_identifier.cs" />
     <Compile Include="Core\PerfMon\CriticalTime\When_deferring_a_message.cs" />
     <Compile Include="Audit\When_audit_is_overridden_in_code.cs" />
-    <Compile Include="Reliability\Outbox\When_a_duplicate_message_arrives.cs" />
+    <Compile Include="Outbox\When_a_duplicate_message_arrives.cs" />
     <Compile Include="Routing\AutomaticSubscriptions\When_starting_an_endpoint_with_a_saga.cs" />
     <Compile Include="Routing\AutomaticSubscriptions\When_starting_an_endpoint_with_a_saga_autosubscribe_disabled.cs" />
     <Compile Include="Routing\AutomaticSubscriptions\When_starting_an_endpoint_with_autosubscribe.cs">
@@ -301,7 +301,7 @@
     <Compile Include="Recoverability\When_immediate_retries_with_native_transactions.cs" />
     <Compile Include="Sagas\When_replies_to_message_published_by_a_saga.cs" />
     <Compile Include="Sagas\When_started_by_base_event_from_other_saga.cs" />
-    <Compile Include="Reliability\Outbox\When_blowing_up_just_after_dispatch.cs" />
+    <Compile Include="Outbox\When_blowing_up_just_after_dispatch.cs" />
     <Compile Include="Audit\When_auditing.cs" />
     <Compile Include="Audit\When_a_message_is_audited.cs" />
     <Compile Include="Correlation\When_sending_with_no_correlation_id.cs" />
@@ -311,7 +311,7 @@
     <Compile Include="Correlation\When_using_a_custom_correlation_id.cs" />
     <Compile Include="Core\Config\When_only_abstract_config_override_is_found.cs" />
     <Compile Include="Core\Encryption\When_using_encryption_with_custom_service.cs" />
-    <Compile Include="Reliability\Outbox\When_receiving_a_message.cs" />
+    <Compile Include="Outbox\When_receiving_a_message.cs" />
     <Compile Include="NServiceBusAcceptanceTest.cs" />
     <Compile Include="DataBus\When_sending_databus_properties.cs" />
     <Compile Include="Routing\SubscriptionBehavior.cs" />

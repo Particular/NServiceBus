@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.AcceptanceTests.Reliability.Outbox
+﻿namespace NServiceBus.AcceptanceTests.Outbox
 {
     using System;
     using System.Linq;
@@ -9,27 +9,27 @@
     using NServiceBus.Pipeline;
     using NUnit.Framework;
 
-    public class When_dispatching_forwarded_messages : NServiceBusAcceptanceTest
+    public class When_a_message_is_audited : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Should_be_dispatched_immediately()
+        public async Task Should_dispatch_audit_message_immediately()
         {
             Requires.OutboxPersistence();
 
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<EndpointWithAuditOn>(b => b
-                    .When(session => session.SendLocal(new MessageToBeForwarded()))
+                    .When(session => session.SendLocal(new MessageToBeAudited()))
                     .DoNotFailOnErrorMessages())
-                .WithEndpoint<ForwardingSpyEndpoint>()
-                .Done(c => c.Done)
+                .WithEndpoint<AuditSpyEndpoint>()
+                .Done(c => c.MessageAudited)
                 .Run();
 
-            Assert.IsTrue(context.Done);
+            Assert.True(context.MessageAudited);
         }
 
-        class Context : ScenarioContext
+       class Context : ScenarioContext
         {
-            public bool Done { get; set; }
+            public bool MessageAudited { get; set; }
         }
 
         class EndpointWithAuditOn : EndpointConfigurationBuilder
@@ -41,7 +41,7 @@
                     {
                         b.EnableOutbox();
                         b.Pipeline.Register("BlowUpAfterDispatchBehavior", new BlowUpAfterDispatchBehavior(), "For testing");
-                        b.ForwardReceivedMessagesTo(Conventions.EndpointNamingConvention(typeof(ForwardingSpyEndpoint)));
+                        b.AuditProcessedMessagesTo<AuditSpyEndpoint>();
                     });
             }
 
@@ -49,7 +49,7 @@
             {
                 public async Task Invoke(IBatchDispatchContext context, Func<IBatchDispatchContext, Task> next)
                 {
-                    if (!context.Operations.Any(op => op.Message.Headers[Headers.EnclosedMessageTypes].Contains(typeof(MessageToBeForwarded).Name)))
+                    if (!context.Operations.Any(op => op.Message.Headers[Headers.EnclosedMessageTypes].Contains(typeof(MessageToBeAudited).Name)))
                     {
                         await next(context).ConfigureAwait(false);
                         return;
@@ -61,35 +61,36 @@
                 }
             }
 
-            public class MessageToBeForwardedHandler : IHandleMessages<MessageToBeForwarded>
+            public class MessageToBeAuditedHandler : IHandleMessages<MessageToBeAudited>
             {
-                public Task Handle(MessageToBeForwarded message, IMessageHandlerContext context)
+                public Task Handle(MessageToBeAudited message, IMessageHandlerContext context)
                 {
                     return Task.FromResult(0);
                 }
             }
         }
 
-        class ForwardingSpyEndpoint : EndpointConfigurationBuilder
+        class AuditSpyEndpoint : EndpointConfigurationBuilder
         {
-            public ForwardingSpyEndpoint()
+            public AuditSpyEndpoint()
             {
                 EndpointSetup<DefaultServer>();
             }
 
-            public class MessageToBeAuditedHandler : IHandleMessages<MessageToBeForwarded>
+            public class MessageToBeAuditedHandler : IHandleMessages<MessageToBeAudited>
             {
                 public Context Context { get; set; }
 
-                public Task Handle(MessageToBeForwarded message, IMessageHandlerContext context)
+                public Task Handle(MessageToBeAudited message, IMessageHandlerContext context)
                 {
-                    Context.Done = true;
+                    Context.MessageAudited = true;
                     return Task.FromResult(0);
                 }
             }
         }
 
-        public class MessageToBeForwarded : IMessage
+
+        public class MessageToBeAudited : IMessage
         {
             public string RunId { get; set; }
         }
