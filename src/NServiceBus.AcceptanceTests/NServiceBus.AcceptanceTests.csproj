@@ -88,6 +88,7 @@
     <Compile Include="EndpointTemplates\TestSuiteConstraints.cs" />
     <Compile Include="Forwarding\When_requesting_message_to_be_forwarded.cs" />
     <Compile Include="Core\Pipeline\When_subscribed_to_ReceivePipelineCompleted.cs" />
+    <Compile Include="Sagas\When_correlating_on_special_characters.cs" />
     <Compile Include="SelfVerification\When_using_custom_components.cs" />
     <Compile Include="EndpointTemplates\IConfigureEndpointTestExecution.cs" />
     <Compile Include="Serialization\When_receiving_interface_message_where_child_is_excluded.cs" />
