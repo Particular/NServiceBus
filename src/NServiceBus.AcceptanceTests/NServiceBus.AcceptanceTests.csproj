@@ -71,6 +71,7 @@
     <Compile Include="Core\DelayedDelivery\TimeoutManager\When_using_external_timeout_manager_code_first.cs" />
     <Compile Include="Core\Feature\When_feature_startup_task_fails.cs" />
     <Compile Include="Core\Outbox\When_outbox_double_optin_found.cs" />
+    <Compile Include="Core\Pipeline\When_overwriting_conversation_id.cs" />
     <Compile Include="Core\Pipeline\When_setting_conversation_id.cs" />
     <Compile Include="Core\Recoverability\When_configuring_unrecoverable_exception.cs" />
     <Compile Include="Core\Recoverability\When_failing_mutated_message.cs" />
