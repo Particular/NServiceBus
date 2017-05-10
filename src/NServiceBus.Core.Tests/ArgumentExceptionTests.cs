@@ -137,7 +137,12 @@
         static void WriteMethod(MethodDefinition method, TextWriter writer)
         {
             writer.WriteLine($"\r\n{method.DeclaringType.Name}.{method.Name}");
-            var instruction = method.Body.Instructions.FirstOrDefault(x => x.SequencePoint != null && x.SequencePoint.StartLine != 16707566);
+            var instruction = method.Body.Instructions.FirstOrDefault(x =>
+            {
+                return x.SequencePoint != null &&
+                       // ignore hidden sequence points
+                       x.SequencePoint.StartLine != 0xfeefee;
+            });
             if (instruction != null)
             {
                 var point = instruction.SequencePoint;
