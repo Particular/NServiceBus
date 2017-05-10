@@ -20,11 +20,23 @@ namespace NServiceBus
 
         public string FileToProcess { get; private set; }
 
-        public void BeginTransaction(string incomingFilePath)
+        public Task<bool> BeginTransaction(string incomingFilePath)
         {
             Directory.CreateDirectory(transactionDir);
             FileToProcess = Path.Combine(transactionDir, Path.GetFileName(incomingFilePath));
-            File.Move(incomingFilePath, FileToProcess);
+
+            try
+            {
+                File.Move(incomingFilePath, FileToProcess);
+            }
+            catch (FileNotFoundException)
+            {
+                return Task.FromResult(false);
+            }
+
+
+            //seem like File.Move is not atomic at least within the same process so we need this extra check
+            return Task.FromResult(File.Exists(FileToProcess));
         }
 
         public Task Commit()

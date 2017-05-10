@@ -117,7 +117,14 @@
 
                     var transaction = GetTransaction();
 
-                    transaction.BeginTransaction(filePath);
+                    var ableToLockFile = await transaction.BeginTransaction(filePath)
+                        .ConfigureAwait(false);
+
+                    if (!ableToLockFile)
+                    {
+                        Console.Out.WriteLine("Skipping " + transaction.FileToProcess);
+                        continue;
+                    }
 
                     ProcessFile(transaction, nativeMessageId)
                         .ContinueWith(async t =>
@@ -183,8 +190,18 @@
 
         async Task ProcessFile(ILearningTransportTransaction transaction, string messageId)
         {
-            var message = await AsyncFile.ReadText(transaction.FileToProcess)
-                .ConfigureAwait(false);
+            string message;
+            try
+            {
+                message = await AsyncFile.ReadText(transaction.FileToProcess)
+                    .ConfigureAwait(false);
+
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
 
             var bodyPath = Path.Combine(bodyDir, $"{messageId}{BodyFileSuffix}");
             var headers = HeaderSerializer.Deserialize(message);
