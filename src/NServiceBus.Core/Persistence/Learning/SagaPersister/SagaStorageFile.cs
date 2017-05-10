@@ -16,11 +16,12 @@ namespace NServiceBus
             this.manifest = manifest;
             jsonWriter = new JsonTextWriter(new StreamWriter(fileStream, Encoding.Unicode))
             {
-                CloseOutput = true
+                CloseOutput = true,
+                Formatting = Formatting.Indented,
             };
             jsonReader = new JsonTextReader(new StreamReader(fileStream, Encoding.Unicode))
             {
-                CloseInput = true
+                CloseInput = true,
             };
 
             lastModificationSeenAt = File.GetLastWriteTimeUtc(fileStream.Name);
