@@ -13,6 +13,7 @@ namespace NServiceBus
         /// <param name="configuration">The endpoint configuration.</param>
         public static RecoverabilitySettings Recoverability(this EndpointConfiguration configuration)
         {
+            Guard.AgainstNull(nameof(configuration), configuration);
             return new RecoverabilitySettings(configuration.GetSettings());
         }
     }

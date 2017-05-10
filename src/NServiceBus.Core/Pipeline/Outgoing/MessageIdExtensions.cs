@@ -26,6 +26,7 @@
         /// <returns>The message id if configured or <c>null</c>.</returns>
         public static string GetMessageId(this ExtendableOptions options)
         {
+            Guard.AgainstNull(nameof(options), options);
             return options.UserDefinedMessageId;
         }
     }

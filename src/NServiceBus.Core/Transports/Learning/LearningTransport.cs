@@ -29,6 +29,7 @@
         /// <returns>The supported factories.</returns>
         public override TransportInfrastructure Initialize(SettingsHolder settings, string connectionString)
         {
+            Guard.AgainstNull(nameof(settings), settings);
             return new LearningTransportInfrastructure(settings);
         }
     }

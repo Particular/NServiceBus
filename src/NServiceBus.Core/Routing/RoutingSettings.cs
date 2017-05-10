@@ -28,6 +28,8 @@
         /// <param name="destination">The destination endpoint.</param>
         public void RouteToEndpoint(Type messageType, string destination)
         {
+            Guard.AgainstNull(nameof(messageType), messageType);
+            Guard.AgainstNullAndEmpty(nameof(destination), destination);
             ThrowOnAddress(destination);
 
             Settings.GetOrCreate<ConfiguredUnicastRoutes>().Add(new TypeRouteSource(messageType, UnicastRoute.CreateFromEndpointName(destination)));

@@ -15,6 +15,7 @@ namespace NServiceBus.Routing
         /// <returns>Returns at least one <see cref="EndpointInstance"/>.</returns>
         public IEnumerable<EndpointInstance> FindInstances(string endpoint)
         {
+            Guard.AgainstNull(nameof(endpoint), endpoint);
             HashSet<EndpointInstance> registeredInstances;
             return allInstances.TryGetValue(endpoint, out registeredInstances)
                 ? registeredInstances

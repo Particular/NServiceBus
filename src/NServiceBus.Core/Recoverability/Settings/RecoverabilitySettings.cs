@@ -19,6 +19,7 @@ namespace NServiceBus
         /// </summary>
         public RecoverabilitySettings Failed(Action<RetryFailedSettings> customizations)
         {
+            Guard.AgainstNull(nameof(customizations), customizations);
             customizations(new RetryFailedSettings(Settings));
             return this;
         }
@@ -28,6 +29,7 @@ namespace NServiceBus
         /// </summary>
         public RecoverabilitySettings Immediate(Action<ImmediateRetriesSettings> customizations)
         {
+            Guard.AgainstNull(nameof(customizations), customizations);
             customizations(new ImmediateRetriesSettings(Settings));
             return this;
         }
@@ -37,6 +39,7 @@ namespace NServiceBus
         /// </summary>
         public RecoverabilitySettings Delayed(Action<DelayedRetriesSettings> customizations)
         {
+            Guard.AgainstNull(nameof(customizations), customizations);
             customizations(new DelayedRetriesSettings(Settings));
             return this;
         }
@@ -70,6 +73,7 @@ namespace NServiceBus
         /// <param name="exceptionType">The exception type.</param>
         public RecoverabilitySettings AddUnrecoverableException(Type exceptionType)
         {
+            Guard.AgainstNull(nameof(exceptionType), exceptionType);
             Settings.AddUnrecoverableException(exceptionType);
             return this;
         }

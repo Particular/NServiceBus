@@ -1,9 +1,7 @@
 namespace NServiceBus
 {
     using System;
-    using Logging;
     using Transport;
-
 
     /// <summary>
     /// The default recoverability policy.
@@ -18,6 +16,8 @@ namespace NServiceBus
         /// <returns>The recoverability action.</returns>
         public static RecoverabilityAction Invoke(RecoverabilityConfig config, ErrorContext errorContext)
         {
+            Guard.AgainstNull(nameof(errorContext), errorContext);
+            Guard.AgainstNull(nameof(config), config);
             // ReSharper disable once LoopCanBeConvertedToQuery
             foreach (var unrecoverableExceptionType in config.Failed.UnrecoverableExceptionTypes)
             {
@@ -100,6 +100,5 @@ namespace NServiceBus
             return false;
         }
 
-        static ILog Logger = LogManager.GetLogger(typeof(DefaultRecoverabilityPolicy));
     }
 }

@@ -29,6 +29,7 @@ namespace NServiceBus
         /// <returns>the transport infrastructure for msmq.</returns>
         public override TransportInfrastructure Initialize(SettingsHolder settings, string connectionString)
         {
+            Guard.AgainstNull(nameof(settings), settings);
             string errorQueue;
 
             if (!settings.TryGetExplicitlyConfiguredErrorQueueAddress(out errorQueue))

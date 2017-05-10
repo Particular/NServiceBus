@@ -42,6 +42,7 @@ namespace NServiceBus
         /// <returns>Move to error action.</returns>
         public static MoveToError MoveToError(string errorQueue)
         {
+            Guard.AgainstNullAndEmpty(nameof(errorQueue), errorQueue);
             return new MoveToError(errorQueue);
         }
 

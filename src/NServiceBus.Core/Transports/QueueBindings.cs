@@ -23,6 +23,7 @@
         /// <param name="address">The address of the queue.</param>
         public void BindReceiving(string address)
         {
+            Guard.AgainstNullAndEmpty(nameof(address), address);
             receiveAddresses.Add(address);
         }
 
@@ -32,6 +33,7 @@
         /// <param name="transportAddress">The address of the queue.</param>
         public void BindSending(string transportAddress)
         {
+            Guard.AgainstNullAndEmpty(nameof(transportAddress), transportAddress);
             sendingAddresses.Add(transportAddress);
         }
 

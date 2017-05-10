@@ -55,6 +55,7 @@ namespace NServiceBus.Routing
         /// <returns>The transport address.</returns>
         public string ToTransportAddress(EndpointInstance endpointInstance)
         {
+            Guard.AgainstNull(nameof(endpointInstance), endpointInstance);
             return addressTranslation(endpointInstance);
         }
 

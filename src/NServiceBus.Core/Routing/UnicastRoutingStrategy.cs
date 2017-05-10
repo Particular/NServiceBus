@@ -21,6 +21,7 @@
         /// <param name="headers">Message headers.</param>
         public override AddressTag Apply(Dictionary<string, string> headers)
         {
+            Guard.AgainstNull(nameof(headers), headers);
             return new UnicastAddressTag(destination);
         }
 

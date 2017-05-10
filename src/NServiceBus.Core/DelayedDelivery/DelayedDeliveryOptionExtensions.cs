@@ -30,6 +30,7 @@
         /// <returns>The configured <see cref="TimeSpan" /> or <c>null</c>.</returns>
         public static TimeSpan? GetDeliveryDelay(this SendOptions options)
         {
+            Guard.AgainstNull(nameof(options), options);
             DelayDeliveryWith delay;
             options.GetExtensions().TryGetDeliveryConstraint(out delay);
 
@@ -55,6 +56,7 @@
         /// <returns>The configured <see cref="DateTimeOffset" /> or <c>null</c>.</returns>
         public static DateTimeOffset? GetDeliveryDate(this SendOptions options)
         {
+            Guard.AgainstNull(nameof(options), options);
             DoNotDeliverBefore deliveryDate;
             options.GetExtensions().TryGetDeliveryConstraint(out deliveryDate);
 

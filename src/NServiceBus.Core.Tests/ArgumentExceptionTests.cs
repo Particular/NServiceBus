@@ -65,7 +65,7 @@
                     {
                         continue;
                     }
-                    if (method.Parameters.All(x => x.IsOut || x.IsReturnValue || x.HasDefault))
+                    if (method.Parameters.All(x => x.IsOut || x.IsReturnValue || x.HasDefault || x.ParameterType.IsValueType))
                     {
                         continue;
                     }
@@ -136,11 +136,12 @@
 
         static void WriteMethod(MethodDefinition method, TextWriter writer)
         {
-            writer.WriteLine("\r\n" + method.DeclaringType.Name + "." + method.Name);
-            var instruction = method.Body.Instructions.FirstOrDefault(x => x.SequencePoint != null);
+            writer.WriteLine($"\r\n{method.DeclaringType.Name}.{method.Name}");
+            var instruction = method.Body.Instructions.FirstOrDefault(x => x.SequencePoint != null && x.SequencePoint.StartLine != 16707566);
             if (instruction != null)
             {
-                writer.WriteLine("file://" + instruction.SequencePoint.Document.Url.Replace(@"\", "/"));
+                var point = instruction.SequencePoint;
+                writer.WriteLine($"{point.Document.Url.Replace(@"\", "/")}:{point.StartLine}");
             }
         }
 
@@ -151,8 +152,9 @@
                 .OfType<MethodReference>()
                 .Select(reference => reference.DeclaringType.Name)
                 .Any(name =>
-                    (name.Contains("Argument") &&
-                     name.Contains("Exception")) || name == "Guard");
+                    name.Contains("Argument") &&
+                    name.Contains("Exception") ||
+                    name == "Guard");
         }
 
         public bool ContainsObsoleteAttribute(ICustomAttributeProvider attributeProvider)

@@ -39,6 +39,8 @@ namespace NServiceBus.Sagas
         /// <param name="conventions">Custom conventions to be used while scanning types.</param>
         public void Initialize(IEnumerable<Type> availableTypes, Conventions conventions)
         {
+            Guard.AgainstNull(nameof(availableTypes), availableTypes);
+            Guard.AgainstNull(nameof(conventions), conventions);
             var availableTypesList = availableTypes.ToList();
 
             var foundSagas = availableTypesList.Where(SagaMetadata.IsSagaType)
@@ -59,6 +61,7 @@ namespace NServiceBus.Sagas
         /// <returns>An instance of <see cref="SagaMetadata" />.</returns>
         public SagaMetadata FindByEntity(Type entityType)
         {
+            Guard.AgainstNull(nameof(entityType), entityType);
             return byEntity[entityType];
         }
 
@@ -69,6 +72,7 @@ namespace NServiceBus.Sagas
         /// <returns>An instance of <see cref="SagaMetadata" />.</returns>
         public SagaMetadata Find(Type sagaType)
         {
+            Guard.AgainstNull(nameof(sagaType), sagaType);
             return byType[sagaType];
         }
 
