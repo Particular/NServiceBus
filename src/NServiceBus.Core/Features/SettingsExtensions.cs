@@ -34,6 +34,8 @@
         /// </summary>
         public static bool IsFeatureActive(this ReadOnlySettings settings, Type featureType)
         {
+            Guard.AgainstNull(nameof(settings), settings);
+            Guard.AgainstNull(nameof(featureType), featureType);
             return settings.GetOrDefault<FeatureState>(featureType.FullName) == FeatureState.Active;
         }
 
@@ -42,6 +44,8 @@
         /// </summary>
         public static bool IsFeatureEnabled(this ReadOnlySettings settings, Type featureType)
         {
+            Guard.AgainstNull(nameof(settings), settings);
+            Guard.AgainstNull(nameof(featureType), featureType);
             return settings.GetOrDefault<FeatureState>(featureType.FullName) == FeatureState.Enabled;
         }
 

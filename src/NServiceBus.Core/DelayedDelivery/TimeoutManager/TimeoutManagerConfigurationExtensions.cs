@@ -15,6 +15,7 @@
         /// </summary>
         public static TimeoutManagerConfiguration TimeoutManager(this EndpointConfiguration endpointConfiguration)
         {
+            Guard.AgainstNull(nameof(endpointConfiguration), endpointConfiguration);
             return new TimeoutManagerConfiguration(endpointConfiguration.Settings);
         }
 
@@ -25,6 +26,7 @@
         /// <param name="maxConcurrency">The maximum number of processed messages per satellite queue.</param>
         public static void LimitMessageProcessingConcurrencyTo(this TimeoutManagerConfiguration timeoutManagerConfiguration, int maxConcurrency)
         {
+            Guard.AgainstNull(nameof(timeoutManagerConfiguration), timeoutManagerConfiguration);
             timeoutManagerConfiguration.settings.Set(TimeoutManagerMaxConcurrencySettingsKey, new PushRuntimeSettings(maxConcurrency));
         }
 

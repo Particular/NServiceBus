@@ -22,6 +22,7 @@ namespace NServiceBus.Routing
         /// </summary>
         public override string SelectReceiver(string[] receiverAddresses)
         {
+            Guard.AgainstNull(nameof(receiverAddresses), receiverAddresses);
             if (receiverAddresses.Length == 0)
             {
                 return default(string);

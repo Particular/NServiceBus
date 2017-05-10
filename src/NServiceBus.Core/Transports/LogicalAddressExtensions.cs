@@ -13,6 +13,8 @@ namespace NServiceBus.Transport
         /// <returns>The native transport address.</returns>
         public static string GetTransportAddress(this ReadOnlySettings settings, LogicalAddress logicalAddress)
         {
+            Guard.AgainstNull(nameof(settings), settings);
+            Guard.AgainstNull(nameof(logicalAddress), logicalAddress);
             return settings.Get<TransportInfrastructure>().ToTransportAddress(logicalAddress);
         }
     }

@@ -64,6 +64,7 @@ namespace NServiceBus.Pipeline
         /// </summary>
         public virtual bool IsEnabled(ReadOnlySettings settings)
         {
+            Guard.AgainstNull(nameof(settings), settings);
             return true;
         }
 

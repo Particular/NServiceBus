@@ -115,6 +115,7 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
         /// </summary>
         public object CreateInstance(Type t)
         {
+            Guard.AgainstNull(nameof(t), t);
             var mapped = t;
             if (t.IsInterface || t.IsAbstract)
             {

@@ -190,12 +190,9 @@
         [Test]
         public void Should_blow_up_if_name_is_null()
         {
-            var creator = new MsmqQueueCreator(true);
             var bindings = new QueueBindings();
 
-            bindings.BindReceiving(null);
-
-            Assert.Throws<ArgumentNullException>(() => creator.CreateQueueIfNecessary(bindings, WindowsIdentity.GetCurrent().Name));
+            Assert.Throws<ArgumentNullException>(() => bindings.BindReceiving(null));
         }
 
         MessageQueue GetQueue(string queueName)

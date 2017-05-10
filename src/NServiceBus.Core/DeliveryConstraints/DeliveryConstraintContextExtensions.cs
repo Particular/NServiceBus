@@ -17,6 +17,8 @@ namespace NServiceBus.DeliveryConstraints
         /// </summary>
         public static void AddDeliveryConstraint(this ContextBag context, DeliveryConstraint constraint)
         {
+            Guard.AgainstNull(nameof(context), context);
+            Guard.AgainstNull(nameof(constraint), constraint);
             List<DeliveryConstraint> constraints;
 
             if (!context.TryGet(out constraints))
@@ -39,6 +41,7 @@ namespace NServiceBus.DeliveryConstraints
         /// </summary>
         public static bool TryGetDeliveryConstraint<T>(this ContextBag context, out T constraint) where T : DeliveryConstraint
         {
+            Guard.AgainstNull(nameof(context), context);
             List<DeliveryConstraint> constraints;
 
             if (context.TryGet(out constraints))
@@ -54,6 +57,7 @@ namespace NServiceBus.DeliveryConstraints
         /// </summary>
         public static bool TryRemoveDeliveryConstraint<T>(this ContextBag context, out T constraint) where T : DeliveryConstraint
         {
+            Guard.AgainstNull(nameof(context), context);
             List<DeliveryConstraint> constraints;
 
             if (context.TryGet(out constraints))
@@ -74,6 +78,7 @@ namespace NServiceBus.DeliveryConstraints
         /// </summary>
         public static List<DeliveryConstraint> GetDeliveryConstraints(this ContextBag context)
         {
+            Guard.AgainstNull(nameof(context), context);
             List<DeliveryConstraint> constraints;
 
             if (context.TryGet(out constraints))
@@ -89,6 +94,8 @@ namespace NServiceBus.DeliveryConstraints
         /// </summary>
         public static void RemoveDeliveryConstaint(this ContextBag context, DeliveryConstraint constraint)
         {
+            Guard.AgainstNull(nameof(constraint), constraint);
+            Guard.AgainstNull(nameof(context), context);
             List<DeliveryConstraint> constraints;
 
             if (!context.TryGet(out constraints))

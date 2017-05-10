@@ -83,6 +83,11 @@
         /// <param name="recoverabilityPolicy">Recoverability policy to be if processing fails.</param>
         public void AddSatelliteReceiver(string name, string transportAddress, PushRuntimeSettings runtimeSettings, Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> recoverabilityPolicy, Func<IBuilder, MessageContext, Task> onMessage)
         {
+            Guard.AgainstNullAndEmpty(nameof(name), name);
+            Guard.AgainstNullAndEmpty(nameof(transportAddress), transportAddress);
+            Guard.AgainstNull(nameof(runtimeSettings), runtimeSettings);
+            Guard.AgainstNull(nameof(recoverabilityPolicy), recoverabilityPolicy);
+            Guard.AgainstNull(nameof(onMessage), onMessage);
             var requiredTransactionMode = Settings.GetRequiredTransactionModeForReceives();
 
             var satelliteDefinition = new SatelliteDefinition(name, transportAddress, requiredTransactionMode, runtimeSettings, recoverabilityPolicy, onMessage);
@@ -98,6 +103,7 @@
         /// <param name="startupTask">A startup task.</param>
         public void RegisterStartupTask<TTask>(TTask startupTask) where TTask : FeatureStartupTask
         {
+            Guard.AgainstNull(nameof(startupTask), startupTask);
             RegisterStartupTask(() => startupTask);
         }
 
@@ -107,6 +113,7 @@
         /// <param name="startupTaskFactory">A startup task factory.</param>
         public void RegisterStartupTask<TTask>(Func<TTask> startupTaskFactory) where TTask : FeatureStartupTask
         {
+            Guard.AgainstNull(nameof(startupTaskFactory), startupTaskFactory);
             TaskControllers.Add(new FeatureStartupTaskController(typeof(TTask).Name, _ => startupTaskFactory()));
         }
 
@@ -117,6 +124,7 @@
         /// <remarks>Should only be used when really necessary. Usually a design smell.</remarks>
         public void RegisterStartupTask<TTask>(Func<IBuilder, TTask> startupTaskFactory) where TTask : FeatureStartupTask
         {
+            Guard.AgainstNull(nameof(startupTaskFactory), startupTaskFactory);
             TaskControllers.Add(new FeatureStartupTaskController(typeof(TTask).Name, startupTaskFactory));
         }
 

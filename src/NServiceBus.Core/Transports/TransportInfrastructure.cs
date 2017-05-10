@@ -59,6 +59,7 @@ namespace NServiceBus.Transport
         /// <param name="transportAddress">A transport address.</param>
         public virtual string MakeCanonicalForm(string transportAddress)
         {
+            Guard.AgainstNullAndEmpty(nameof(transportAddress), transportAddress);
             return transportAddress;
         }
 

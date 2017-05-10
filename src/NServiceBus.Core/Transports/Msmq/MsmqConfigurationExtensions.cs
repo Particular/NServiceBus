@@ -24,6 +24,7 @@ namespace NServiceBus
         /// </remarks>
         public static TransportExtensions<MsmqTransport> ApplyLabelToMessages(this TransportExtensions<MsmqTransport> transportExtensions, Func<IReadOnlyDictionary<string, string>, string> labelGenerator)
         {
+            Guard.AgainstNull(nameof(transportExtensions), transportExtensions);
             Guard.AgainstNull(nameof(labelGenerator), labelGenerator);
             transportExtensions.Settings.Set("msmqLabelGenerator", labelGenerator);
             return transportExtensions;
@@ -38,6 +39,8 @@ namespace NServiceBus
         /// </remarks>
         public static TransportExtensions<MsmqTransport> TransactionScopeOptions(this TransportExtensions<MsmqTransport> transportExtensions, TimeSpan? timeout = null, IsolationLevel? isolationLevel = null)
         {
+            Guard.AgainstNull(nameof(transportExtensions), transportExtensions);
+            Guard.AgainstNegativeAndZero(nameof(timeout), timeout);
             transportExtensions.Settings.Set<MsmqScopeOptions>(new MsmqScopeOptions(timeout, isolationLevel));
             return transportExtensions;
         }
@@ -49,6 +52,7 @@ namespace NServiceBus
         /// <param name="distributionStrategy">The instance of a distribution strategy.</param>
         public static void SetMessageDistributionStrategy(this RoutingSettings<MsmqTransport> config, DistributionStrategy distributionStrategy)
         {
+            Guard.AgainstNull(nameof(config), config);
             Guard.AgainstNull(nameof(distributionStrategy), distributionStrategy);
             config.Settings.GetOrCreate<List<DistributionStrategy>>().Add(distributionStrategy);
         }
@@ -58,6 +62,7 @@ namespace NServiceBus
         /// </summary>
         public static InstanceMappingFileSettings InstanceMappingFile(this RoutingSettings<MsmqTransport> config)
         {
+            Guard.AgainstNull(nameof(config), config);
             return new InstanceMappingFileSettings(config.Settings);
         }
 
@@ -66,6 +71,7 @@ namespace NServiceBus
         /// </summary>
         public static void UseDeadLetterQueueForMessagesWithTimeToBeReceived(this TransportExtensions<MsmqTransport> config)
         {
+            Guard.AgainstNull(nameof(config), config);
             config.Settings.Set(MsmqTransport.UseDeadLetterQueueForMessagesWithTimeToBeReceived, true);
         }
     }

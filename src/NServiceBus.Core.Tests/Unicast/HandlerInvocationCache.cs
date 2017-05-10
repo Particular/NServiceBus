@@ -71,7 +71,8 @@
             cache.RegisterHandler(typeof(StubHandler));
 
             var handler = cache.GetCachedHandlerForMessage<StubMessage>();
-            await handler.Invoke(new StubMessage(), null);
+            var handlerContext = new TestableMessageHandlerContext();
+            await handler.Invoke(new StubMessage(), handlerContext);
 
             Assert.IsTrue(((StubHandler)handler.Instance).HandleCalled);
         }
@@ -84,7 +85,8 @@
 
             var handler = cache.GetCachedHandlerForMessage<StubMessage>();
             var stubMessage = new StubMessage();
-            await handler.Invoke(stubMessage, null);
+            var handlerContext = new TestableMessageHandlerContext();
+            await handler.Invoke(stubMessage, handlerContext);
 
             Assert.AreEqual(stubMessage, ((StubHandler)handler.Instance).HandledMessage);
         }
@@ -132,7 +134,8 @@
             cache.RegisterHandler(typeof(StubHandler));
 
             var handler = cache.GetCachedHandlerForMessage<StubTimeoutState>();
-            await handler.Invoke(new StubTimeoutState(), null);
+            var handlerContext = new TestableMessageHandlerContext();
+            await handler.Invoke(new StubTimeoutState(), handlerContext);
 
             Assert.IsTrue(((StubHandler)handler.Instance).TimeoutCalled);
         }
@@ -145,7 +148,8 @@
 
             var stubState = new StubTimeoutState();
             var handler = cache.GetCachedHandlerForMessage<StubTimeoutState>();
-            await handler.Invoke(stubState, null);
+            var handlerContext = new TestableMessageHandlerContext();
+            await handler.Invoke(stubState, handlerContext);
 
             Assert.AreEqual(stubState, ((StubHandler)handler.Instance).HandledState);
         }

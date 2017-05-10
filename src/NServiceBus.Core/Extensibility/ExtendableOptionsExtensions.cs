@@ -12,6 +12,7 @@ namespace NServiceBus.Extensibility
         /// <returns>A big bucket.</returns>
         public static ContextBag GetExtensions(this ExtendableOptions options)
         {
+            Guard.AgainstNull(nameof(options), options);
             return options.Context;
         }
     }

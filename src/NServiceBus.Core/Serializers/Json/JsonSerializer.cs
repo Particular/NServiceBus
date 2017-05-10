@@ -16,6 +16,7 @@ namespace NServiceBus
         /// </summary>
         public override Func<IMessageMapper, IMessageSerializer> Configure(ReadOnlySettings settings)
         {
+            Guard.AgainstNull(nameof(settings), settings);
             var encoding = settings.GetOrDefault<Encoding>("Serialization.Json.Encoding") ?? Encoding.UTF8;
             return mapper => new JsonMessageSerializer(mapper, encoding);
         }

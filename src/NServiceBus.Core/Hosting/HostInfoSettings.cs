@@ -11,6 +11,7 @@ namespace NServiceBus
     {
         internal HostInfoSettings(EndpointConfiguration config)
         {
+            Guard.AgainstNull(nameof(config), config);
             this.config = config;
         }
 
@@ -38,6 +39,7 @@ namespace NServiceBus
         /// </remarks>
         public HostInfoSettings UsingCustomIdentifier(Guid id)
         {
+            Guard.AgainstNull(nameof(id), id);
             config.Settings.Set(HostInformationFeature.HostIdSettingsKey, id);
             return this;
         }
