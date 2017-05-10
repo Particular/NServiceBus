@@ -14,13 +14,11 @@ namespace NServiceBus
         {
             this.fileStream = fileStream;
             this.manifest = manifest;
-            textWriter = new StreamWriter(fileStream, Encoding.Unicode);
-            jsonWriter = new JsonTextWriter(textWriter)
+            jsonWriter = new JsonTextWriter(new StreamWriter(fileStream, Encoding.Unicode))
             {
                 CloseOutput = true
             };
-            textReader = new StreamReader(fileStream, Encoding.Unicode);
-            jsonReader = new JsonTextReader(textReader)
+            jsonReader = new JsonTextReader(new StreamReader(fileStream, Encoding.Unicode))
             {
                 CloseInput = true
             };
@@ -31,10 +29,7 @@ namespace NServiceBus
         public void Dispose()
         {
             jsonWriter.Close();
-            textWriter.Dispose();
             jsonReader.Close();
-            textReader.Dispose();
-            fileStream.Dispose();
 
             if (isCompleted)
             {
@@ -70,19 +65,16 @@ namespace NServiceBus
         {
             fileStream.Position = 0;
 
-            return WriteWithinLock((stream, data, meta) =>
-            {
-                serializer.Serialize(jsonWriter, data);
-                return TaskEx.CompletedTask;
-            }, fileStream, lastModificationSeenAt, sagaData, manifest);
+            WriteWithinLock((writer, data) => serializer.Serialize(writer, data), jsonWriter, fileStream.Name, lastModificationSeenAt, sagaData);
+            return TaskEx.CompletedTask;
         }
 
-        public async Task MarkAsCompleted()
+        public Task MarkAsCompleted()
         {
-            await WriteWithinLock((stream, data, meta) => stream.WriteAsync(EmptyBytes, 0, 0), fileStream, lastModificationSeenAt)
-                .ConfigureAwait(false);
+            WriteWithinLock((writer, data) => writer.WriteNull(), jsonWriter, fileStream.Name, lastModificationSeenAt);
 
             isCompleted = true;
+            return TaskEx.CompletedTask;
         }
 
         public object Read()
@@ -90,19 +82,16 @@ namespace NServiceBus
             return serializer.Deserialize(jsonReader, manifest.SagaEntityType);
         }
 
-        static async Task WriteWithinLock(Func<FileStream, IContainSagaData, SagaManifest, Task> action, FileStream stream, DateTime lastModificationSeenAt, IContainSagaData sagaData = null, SagaManifest manifest = null)
+        static void WriteWithinLock(Action<JsonWriter, IContainSagaData> action, JsonWriter writer, string targetPath, DateTime lastModificationSeenAt, IContainSagaData sagaData = null)
         {
-            var targetPath = stream.Name;
             var lockFilePath = Path.ChangeExtension(targetPath, ".lock");
             // will blow up in case of concurrency
             using (new FileStream(lockFilePath, FileMode.CreateNew, FileAccess.Write, FileShare.None, 1, FileOptions.DeleteOnClose))
             {
                 ThrowWhenModifiedSinceLastRead(lastModificationSeenAt, targetPath);
 
-                await action(stream, sagaData, manifest)
-                    .ConfigureAwait(false);
-                await stream.FlushAsync()
-                    .ConfigureAwait(false);
+                action(writer, sagaData);
+                writer.Flush();
             }
         }
 
@@ -119,13 +108,10 @@ namespace NServiceBus
         FileStream fileStream;
         DateTime lastModificationSeenAt;
         bool isCompleted;
-        Newtonsoft.Json.JsonSerializer serializer = new Newtonsoft.Json.JsonSerializer();
-        StreamWriter textWriter;
         JsonTextWriter jsonWriter;
-        StreamReader textReader;
         JsonTextReader jsonReader;
 
         const int DefaultBufferSize = 4096;
-        static byte[] EmptyBytes = new byte[0];
+        static Newtonsoft.Json.JsonSerializer serializer = new Newtonsoft.Json.JsonSerializer();
     }
 }
