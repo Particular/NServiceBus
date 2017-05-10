@@ -18,5 +18,16 @@
 
             transportExtensions.Settings.Set(LearningTransportInfrastructure.StorageLocationKey, path);
         }
+
+        /// <summary>
+        /// Allows messages of any size to be sent.
+        /// </summary>
+        /// <param name="transportExtensions">The transport extensions to extend.</param>
+        public static void NoPayloadSizeRestriction(this TransportExtensions<LearningTransport> transportExtensions)
+        {
+            Guard.AgainstNull(nameof(transportExtensions), transportExtensions);
+
+            transportExtensions.Settings.Set(LearningTransportInfrastructure.NoPayloadSizeRestrictionKey, true);
+        }
     }
 }

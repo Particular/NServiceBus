@@ -4,6 +4,7 @@ namespace NServiceBus
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
+    using System.Text;
     using System.Threading.Tasks;
     using DelayedDelivery;
     using DeliveryConstraints;
@@ -13,9 +14,10 @@ namespace NServiceBus
 
     class LearningTransportDispatcher : IDispatchMessages
     {
-        public LearningTransportDispatcher(string basePath)
+        public LearningTransportDispatcher(string basePath, int maxMessageSizeKB)
         {
             this.basePath = basePath;
+            this.maxMessageSizeKB = maxMessageSizeKB;
         }
 
         public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transaction, ContextBag context)
@@ -57,6 +59,15 @@ namespace NServiceBus
 
         async Task WriteMessage(string destination, IOutgoingTransportOperation transportOperation, TransportTransaction transaction)
         {
+            var message = transportOperation.Message;
+            var headerPayload = HeaderSerializer.Serialize(message.Headers);
+            var headerSize = Encoding.UTF8.GetByteCount(headerPayload);
+
+            if (headerSize + message.Body.Length > maxMessageSizeKB * 1024)
+            {
+                throw new Exception($"The total size of the '{message.Headers[Headers.EnclosedMessageTypes]}' message body ({message.Body.Length} bytes) plus headers ({headerSize} bytes) is larger than {maxMessageSizeKB} KB and will not be supported on some production transports. Consider using the NServiceBus DataBus or the claim check pattern to avoid messages with a large payload. Use 'EndpointConfiguration.UseTransport<LearningTransport>().NoPayloadSizeRestriction()' to disable this check and proceed with the current message size.");
+            }
+
             var nativeMessageId = Guid.NewGuid().ToString();
             var destinationPath = Path.Combine(basePath, destination);
             var bodyDir = Path.Combine(destinationPath, LearningTransportMessagePump.BodyDirName);
@@ -65,7 +76,7 @@ namespace NServiceBus
 
             var bodyPath = Path.Combine(bodyDir, nativeMessageId) + LearningTransportMessagePump.BodyFileSuffix;
 
-            await AsyncFile.WriteBytes(bodyPath, transportOperation.Message.Body)
+            await AsyncFile.WriteBytes(bodyPath, message.Body)
                 .ConfigureAwait(false);
 
             DateTime? timeToDeliver = null;
@@ -83,7 +94,7 @@ namespace NServiceBus
             {
                 if (transportOperation.DeliveryConstraints.TryGet(out DiscardIfNotReceivedBefore timeToBeReceived) && timeToBeReceived.MaxTime < TimeSpan.MaxValue)
                 {
-                    throw new Exception("Postponed delivery of messages with TimeToBeReceived set is not supported. Remove the TimeToBeReceived attribute to postpone messages of this type.");
+                    throw new Exception($"Postponed delivery of messages with TimeToBeReceived set is not supported. Remove the TimeToBeReceived attribute to postpone messages of type '{message.Headers[Headers.EnclosedMessageTypes]}'.");
                 }
 
                 // we need to "ceil" the seconds to guarantee that we delay with at least the requested value
@@ -100,17 +111,15 @@ namespace NServiceBus
 
             var messagePath = Path.Combine(destinationPath, nativeMessageId) + ".metadata.txt";
 
-            var messageContents = HeaderSerializer.Serialize(transportOperation.Message.Headers);
-
             if (transportOperation.RequiredDispatchConsistency != DispatchConsistency.Isolated && transaction.TryGet(out ILearningTransportTransaction directoryBasedTransaction))
             {
-                await directoryBasedTransaction.Enlist(messagePath, messageContents)
+                await directoryBasedTransaction.Enlist(messagePath, headerPayload)
                     .ConfigureAwait(false);
             }
             else
             {
                 // atomic avoids the file being locked when the receiver tries to process it
-                await AsyncFile.WriteTextAtomic(messagePath, messageContents)
+                await AsyncFile.WriteTextAtomic(messagePath, headerPayload)
                     .ConfigureAwait(false);
             }
         }
@@ -172,6 +181,7 @@ namespace NServiceBus
 
         static bool IsCoreMarkerInterface(Type type) => type == typeof(IMessage) || type == typeof(IEvent) || type == typeof(ICommand);
 
+        int maxMessageSizeKB;
         string basePath;
     }
 }
