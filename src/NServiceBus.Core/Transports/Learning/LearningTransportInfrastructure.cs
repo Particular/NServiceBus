@@ -91,16 +91,26 @@
 
         public override string ToTransportAddress(LogicalAddress logicalAddress)
         {
-            var endpoint = logicalAddress.EndpointInstance.Endpoint;
-            PathChecker.ThrowForBadPath(endpoint, "endpoint name");
+            var address = logicalAddress.EndpointInstance.Endpoint;
+            PathChecker.ThrowForBadPath(address, "endpoint name");
 
             var discriminator = logicalAddress.EndpointInstance.Discriminator ?? "";
             PathChecker.ThrowForBadPath(discriminator, "endpoint discriminator");
 
+            if (!string.IsNullOrEmpty(discriminator))
+            {
+                address += "-" + discriminator;
+            }
+
             var qualifier = logicalAddress.Qualifier ?? "";
             PathChecker.ThrowForBadPath(qualifier, "address qualifier");
 
-            return Path.Combine(endpoint, discriminator, qualifier);
+            if (!string.IsNullOrEmpty(qualifier))
+            {
+                address += "-" + qualifier;
+            }
+
+            return address;
         }
 
         string storagePath;
