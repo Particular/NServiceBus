@@ -50,7 +50,6 @@
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data" />
-    <Reference Include="System.Messaging" />
     <Reference Include="System.Transactions" />
     <Reference Include="System.Web" />
     <Reference Include="System.Xml" />
@@ -219,7 +218,6 @@
     <Compile Include="TimeToBeReceived\When_TimeToBeReceived_has_not_expired.cs" />
     <Compile Include="TimeToBeReceived\When_TimeToBeReceived_has_expired.cs" />
     <Compile Include="DelayedDelivery\When_deferring_a_message.cs" />
-    <Compile Include="ConfigureEndpointMsmqTransport.cs" />
     <Compile Include="Core\Diagnostics\When_feature_overrides_hostid.cs" />
     <Compile Include="Outbox\When_dispatching_forwarded_messages.cs" />
     <Compile Include="Outbox\When_a_message_is_audited.cs" />
