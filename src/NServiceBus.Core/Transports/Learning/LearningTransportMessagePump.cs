@@ -122,7 +122,7 @@
 
                     if (!ableToLockFile)
                     {
-                        Console.Out.WriteLine("Skipping " + transaction.FileToProcess);
+                        concurrencyLimiter.Release();
                         continue;
                     }
 
