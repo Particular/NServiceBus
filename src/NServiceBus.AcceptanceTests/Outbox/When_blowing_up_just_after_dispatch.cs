@@ -1,9 +1,8 @@
-﻿namespace NServiceBus.AcceptanceTests.Reliability.Outbox
+﻿namespace NServiceBus.AcceptanceTests.Outbox
 {
     using System;
     using System.Threading.Tasks;
     using AcceptanceTesting;
-    using Configuration.AdvanceExtensibility;
     using EndpointTemplates;
     using NServiceBus.Pipeline;
     using NUnit.Framework;
@@ -37,7 +36,6 @@
                 EndpointSetup<DefaultServer>(
                     b =>
                     {
-                        b.GetSettings().Set("DisableOutboxTransportCheck", true);
                         b.EnableOutbox();
                         b.Pipeline.Register("BlowUpAfterDispatchBehavior", new BlowUpAfterDispatchBehavior(), "For testing");
                     });

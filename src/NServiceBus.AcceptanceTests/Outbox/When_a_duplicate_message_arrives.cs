@@ -1,10 +1,9 @@
-﻿namespace NServiceBus.AcceptanceTests.Reliability.Outbox
+﻿namespace NServiceBus.AcceptanceTests.Outbox
 {
     using System;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using AcceptanceTesting.Customization;
-    using Configuration.AdvanceExtensibility;
     using EndpointTemplates;
     using NUnit.Framework;
 
@@ -77,7 +76,6 @@
                 EndpointSetup<DefaultServer>(b =>
                 {
                     b.LimitMessageProcessingConcurrencyTo(1); // We limit to one to avoid race conditions on dispatch and this allows us to reliable check whether deduplication happens properly
-                    b.GetSettings().Set("DisableOutboxTransportCheck", true);
                     b.EnableOutbox();
                     b.ConfigureTransport().Routing().RouteToEndpoint(typeof(SendOrderAcknowledgement), typeof(DownstreamEndpoint));
                 });

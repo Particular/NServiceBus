@@ -2,7 +2,6 @@ namespace NServiceBus.AcceptanceTests.Core.Persistence
 {
     using System.Threading.Tasks;
     using AcceptanceTesting;
-    using Configuration.AdvanceExtensibility;
     using EndpointTemplates;
     using NServiceBus.Persistence;
     using NUnit.Framework;
@@ -30,8 +29,7 @@ namespace NServiceBus.AcceptanceTests.Core.Persistence
                     c.UsePersistence<InMemoryPersistence, StorageType.GatewayDeduplication>();
                     c.UsePersistence<InMemoryPersistence, StorageType.Timeouts>();
                     c.UsePersistence<InMemoryPersistence, StorageType.Subscriptions>();
-
-                    c.GetSettings().Set("DisableOutboxTransportCheck", true);
+                    
                     c.EnableOutbox();
                 });
             }

@@ -1,42 +1,39 @@
-﻿namespace NServiceBus.AcceptanceTests.Reliability.Outbox
+﻿namespace NServiceBus.AcceptanceTests.Outbox
 {
     using System;
     using System.Threading.Tasks;
     using AcceptanceTesting;
-    using Configuration.AdvanceExtensibility;
     using EndpointTemplates;
     using NUnit.Framework;
 
-    public class When_sending_from_a_non_dtc_endpoint : NServiceBusAcceptanceTest
+    public class When_receiving_a_message_not_found_in_the_outbox : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Should_store_them_and_dispatch_them_from_the_outbox()
+        public async Task Should_handle_it()
         {
             Requires.OutboxPersistence();
 
             var context = await Scenario.Define<Context>()
-                .WithEndpoint<NonDtcSalesEndpoint>(b => b.When(session => session.SendLocal(new PlaceOrder())))
-                .Done(c => c.OrderAckReceived)
+                .WithEndpoint<NonDtcReceivingEndpoint>(b => b.When(session => session.SendLocal(new PlaceOrder())))
+                .Done(c => c.OrderAckReceived == 1)
                 .Run(TimeSpan.FromSeconds(20));
 
-            Assert.IsTrue(context.OrderAckReceived);
+            Assert.AreEqual(1, context.OrderAckReceived, "Order ack should have been received");
         }
 
-        public class Context : ScenarioContext
+        class Context : ScenarioContext
         {
-            public bool OrderAckReceived { get; set; }
+            public int OrderAckReceived { get; set; }
         }
 
-        public class NonDtcSalesEndpoint : EndpointConfigurationBuilder
+        public class NonDtcReceivingEndpoint : EndpointConfigurationBuilder
         {
-            public NonDtcSalesEndpoint()
+            public NonDtcReceivingEndpoint()
             {
-                EndpointSetup<DefaultServer>(
-                    b =>
-                    {
-                        b.GetSettings().Set("DisableOutboxTransportCheck", true);
-                        b.EnableOutbox();
-                    });
+                EndpointSetup<DefaultServer>(b =>
+                {
+                    b.EnableOutbox();
+                });
             }
 
             class PlaceOrderHandler : IHandleMessages<PlaceOrder>
@@ -53,7 +50,7 @@
 
                 public Task Handle(SendOrderAcknowledgement message, IMessageHandlerContext context)
                 {
-                    Context.OrderAckReceived = true;
+                    Context.OrderAckReceived++;
                     return Task.FromResult(0);
                 }
             }

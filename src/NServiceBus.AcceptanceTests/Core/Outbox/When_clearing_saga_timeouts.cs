@@ -1,16 +1,15 @@
-﻿namespace NServiceBus.AcceptanceTests.Reliability.Outbox
+﻿namespace NServiceBus.AcceptanceTests.Core.Outbox
 {
     using System;
     using System.Threading.Tasks;
     using AcceptanceTesting;
-    using Configuration.AdvanceExtensibility;
     using EndpointTemplates;
     using Extensibility;
     using Features;
-    using NServiceBus.Outbox;
     using NServiceBus;
+    using NServiceBus.Outbox;
+    using NServiceBus.Persistence;
     using NUnit.Framework;
-    using Persistence;
 
     public class When_clearing_saga_timeouts : NServiceBusAcceptanceTest
     {
@@ -43,7 +42,6 @@
                 EndpointSetup<DefaultServer>(
                     b =>
                     {
-                        b.GetSettings().Set("DisableOutboxTransportCheck", true);
                         b.EnableFeature<TimeoutManager>();
                         b.UsePersistence<FakeOutboxPersistence>();
                         b.RegisterComponents(c => c.ConfigureComponent<FakeOutbox>(DependencyLifecycle.SingleInstance));
