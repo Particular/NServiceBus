@@ -25,18 +25,18 @@
 
             PathChecker.ThrowForBadPath(settings.InputQueue, "InputQueue");
 
-            path = Path.Combine(basePath, settings.InputQueue);
-            bodyDir = Path.Combine(path, BodyDirName);
-            delayedDir = Path.Combine(path, DelayedDirName);
+            messagePumpBasePath = Path.Combine(basePath, settings.InputQueue);
+            bodyDir = Path.Combine(messagePumpBasePath, BodyDirName);
+            delayedDir = Path.Combine(messagePumpBasePath, DelayedDirName);
 
-            pendingTransactionDir = Path.Combine(path, PendingDirName);
-            committedTransactionDir = Path.Combine(path, CommittedDirName);
+            pendingTransactionDir = Path.Combine(messagePumpBasePath, PendingDirName);
+            committedTransactionDir = Path.Combine(messagePumpBasePath, CommittedDirName);
 
             purgeOnStartup = settings.PurgeOnStartup;
 
             receiveCircuitBreaker = new RepeatedFailuresOverTimeCircuitBreaker("LearningTransportReceive", TimeSpan.FromSeconds(30), ex => criticalError.Raise("Failed to receive from " + settings.InputQueue, ex));
 
-            delayedMessagePoller = new DelayedMessagePoller(path, delayedDir);
+            delayedMessagePoller = new DelayedMessagePoller(messagePumpBasePath, delayedDir);
 
             return TaskEx.CompletedTask;
         }
@@ -51,12 +51,15 @@
 
             if (purgeOnStartup)
             {
-                PurgeDirectories();
+                if (Directory.Exists(messagePumpBasePath))
+                {
+                    Directory.Delete(messagePumpBasePath, true);
+                }
             }
 
-            CreateDirectories();
-
             RecoverPendingTransactions();
+
+            EnsureDirectoriesExists();
 
             messagePumpTask = Task.Run(ProcessMessages, cancellationToken);
 
@@ -67,8 +70,7 @@
         {
             if (transactionMode != TransportTransactionMode.None)
             {
-                DirectoryBasedTransaction.RecoverPartiallyCompletedTransactions(path, PendingDirName, CommittedDirName);
-                Directory.CreateDirectory(committedTransactionDir);
+                DirectoryBasedTransaction.RecoverPartiallyCompletedTransactions(messagePumpBasePath, PendingDirName, CommittedDirName);
             }
             else
             {
@@ -79,24 +81,16 @@
             }
         }
 
-        void CreateDirectories()
+        void EnsureDirectoriesExists()
         {
-            Directory.CreateDirectory(path);
+            Directory.CreateDirectory(messagePumpBasePath);
             Directory.CreateDirectory(bodyDir);
             Directory.CreateDirectory(delayedDir);
-
             Directory.CreateDirectory(pendingTransactionDir);
+
             if (transactionMode != TransportTransactionMode.None)
             {
                 Directory.CreateDirectory(committedTransactionDir);
-            }
-        }
-
-        void PurgeDirectories()
-        {
-            if (Directory.Exists(path))
-            {
-                Array.ForEach(Directory.GetFiles(path, "*.*", SearchOption.AllDirectories), File.Delete);
             }
         }
 
@@ -146,7 +140,7 @@
             {
                 var filesFound = false;
 
-                foreach (var filePath in Directory.EnumerateFiles(path, "*.*"))
+                foreach (var filePath in Directory.EnumerateFiles(messagePumpBasePath, "*.*"))
                 {
                     filesFound = true;
 
@@ -173,10 +167,10 @@
         {
             if (transactionMode == TransportTransactionMode.None)
             {
-                return new NoTransaction(path, PendingDirName);
+                return new NoTransaction(messagePumpBasePath, PendingDirName);
             }
 
-            return new DirectoryBasedTransaction(path, PendingDirName, CommittedDirName, Guid.NewGuid().ToString());
+            return new DirectoryBasedTransaction(messagePumpBasePath, PendingDirName, CommittedDirName, Guid.NewGuid().ToString());
         }
 
         async Task InnerProcessFile(ILearningTransportTransaction transaction, string nativeMessageId)
@@ -296,7 +290,7 @@
         bool purgeOnStartup;
         Func<ErrorContext, Task<ErrorHandleResult>> onError;
         ConcurrentDictionary<string, int> retryCounts = new ConcurrentDictionary<string, int>();
-        string path;
+        string messagePumpBasePath;
         string basePath;
         RepeatedFailuresOverTimeCircuitBreaker receiveCircuitBreaker;
         DelayedMessagePoller delayedMessagePoller;
