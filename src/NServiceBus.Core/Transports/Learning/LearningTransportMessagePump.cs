@@ -117,8 +117,7 @@
 
                     var transaction = GetTransaction();
 
-                    var ableToLockFile = await transaction.BeginTransaction(filePath)
-                        .ConfigureAwait(false);
+                    var ableToLockFile = transaction.BeginTransaction(filePath);
 
                     if (!ableToLockFile)
                     {
@@ -149,8 +148,7 @@
 
                                 }
 
-                                var wasCommitted = await transaction.Complete()
-                                    .ConfigureAwait(false);
+                                var wasCommitted = transaction.Complete();
 
                                 if (wasCommitted)
                                 {

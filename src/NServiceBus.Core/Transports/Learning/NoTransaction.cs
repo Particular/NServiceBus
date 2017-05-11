@@ -13,7 +13,7 @@ namespace NServiceBus
 
         public string FileToProcess { get; private set; }
 
-        public Task<bool> BeginTransaction(string incomingFilePath)
+        public bool BeginTransaction(string incomingFilePath)
         {
             Directory.CreateDirectory(processingDirectory);
             FileToProcess = Path.Combine(processingDirectory, Path.GetFileName(incomingFilePath));
@@ -24,11 +24,11 @@ namespace NServiceBus
             }
             catch (FileNotFoundException)
             {
-                return Task.FromResult(false);
+                return false;
             }
             
             //seem like File.Move is not atomic at least within the same process so we need this extra check
-            return Task.FromResult(File.Exists(FileToProcess));
+            return File.Exists(FileToProcess);
         }
 
         public Task Enlist(string messagePath, string messageContents) => AsyncFile.WriteText(messagePath, messageContents);
@@ -39,11 +39,11 @@ namespace NServiceBus
 
         public void ClearPendingOutgoingOperations() { }
 
-        public Task<bool> Complete()
+        public bool Complete()
         {
             Directory.Delete(processingDirectory, true);
 
-            return Task.FromResult(true);
+            return true;
         }
 
         string processingDirectory;
