@@ -54,7 +54,7 @@
             {
                 EndpointSetup<DefaultServer>((c, r) =>
                 {
-                    c.SendFailedMessagesTo("errorQueueForAcceptanceTest");
+                    c.SendFailedMessagesTo<EndpointThatHandlesErrorMessages>();
                     c.AuditProcessedMessagesTo<EndpointThatHandlesAuditMessages>();
                 });
             }
@@ -107,8 +107,7 @@
         {
             public EndpointThatHandlesErrorMessages()
             {
-                EndpointSetup<DefaultServer>()
-                    .CustomEndpointName("errorQueueForAcceptanceTest");
+                EndpointSetup<DefaultServer>();
             }
 
             class ErrorMessageHandler : IHandleMessages<MessageThatFails>

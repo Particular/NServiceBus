@@ -2,6 +2,7 @@
 {
     using System.Threading.Tasks;
     using AcceptanceTesting;
+    using AcceptanceTesting.Customization;
     using EndpointTemplates;
     using NUnit.Framework;
 
@@ -37,7 +38,7 @@
             {
                 EndpointSetup<DefaultServer>(c =>
                 {
-                    c.SendFailedMessagesTo("errorQueueForAcceptanceTest");
+                    c.SendFailedMessagesTo<EndpointThatHandlesErrorMessages>();
                 });
             }
 
@@ -54,7 +55,7 @@
         {
             public EndpointThatHandlesErrorMessages()
             {
-                EndpointSetup<DefaultServer>().CustomEndpointName("errorQueueForAcceptanceTest");
+                EndpointSetup<DefaultServer>();
             }
 
             public class MessageToBeAuditedHandler : IHandleMessages<MessageThatFails>

@@ -2,6 +2,7 @@
 {
     using System.Threading.Tasks;
     using AcceptanceTesting;
+    using AcceptanceTesting.Customization;
     using EndpointTemplates;
     using NUnit.Framework;
 
@@ -33,10 +34,7 @@
         {
             public CausationEndpoint()
             {
-                EndpointSetup<DefaultServer>((c, r) =>
-                {
-                    c.SendFailedMessagesTo("errorQueueForAcceptanceTest");
-                });
+                EndpointSetup<DefaultServer>(c => c.SendFailedMessagesTo<EndpointThatHandlesErrorMessages>());
             }
 
             public Context Context { get; set; }
@@ -69,8 +67,7 @@
         {
             public EndpointThatHandlesErrorMessages()
             {
-                EndpointSetup<DefaultServer>()
-                    .CustomEndpointName("errorQueueForAcceptanceTest");
+                EndpointSetup<DefaultServer>();
             }
 
             class ErrorMessageHandler : IHandleMessages<MessageThatFails>
