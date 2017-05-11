@@ -25,6 +25,8 @@
 
             var errorQueueAddress = settings.ErrorQueueAddress();
             PathChecker.ThrowForBadPath(errorQueueAddress, "ErrorQueueAddress");
+
+            settings.Set(Recoverability.DisableLegacyRetriesSatellite, true);
         }
 
         public override IEnumerable<Type> DeliveryConstraints { get; } = new[]
