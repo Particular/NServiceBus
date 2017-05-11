@@ -21,6 +21,12 @@ namespace NServiceBus.AcceptanceTesting.Customization
             config.AuditProcessedMessagesTo(auditEndpointAddress);
         }
 
+        public static void SendFailedMessagesTo<TErrorEndpoint>(this EndpointConfiguration config)
+        {
+            var errorEndpointAddress = Conventions.EndpointNamingConvention(typeof(TErrorEndpoint));
+            config.SendFailedMessagesTo(errorEndpointAddress);
+        }
+
         public static void RouteToEndpoint(this RoutingSettings routingSettings, Type messageType, Type destinationEndpointType)
         {
             var destinationEndpointAddress = Conventions.EndpointNamingConvention(destinationEndpointType);

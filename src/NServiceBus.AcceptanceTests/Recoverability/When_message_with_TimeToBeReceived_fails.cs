@@ -3,6 +3,7 @@
     using System;
     using System.Threading.Tasks;
     using AcceptanceTesting;
+    using AcceptanceTesting.Customization;
     using EndpointTemplates;
     using NUnit.Framework;
 
@@ -34,7 +35,7 @@
         {
             public EndpointThatThrows()
             {
-                EndpointSetup<DefaultServer>(b => { b.SendFailedMessagesTo("errorQueueForAcceptanceTest"); });
+                EndpointSetup<DefaultServer>(c => c.SendFailedMessagesTo<EndpointThatHandlesErrorMessages>());
             }
 
             class ThrowingMessageHandler : IHandleMessages<MessageThatFails>
@@ -58,8 +59,7 @@
         {
             public EndpointThatHandlesErrorMessages()
             {
-                EndpointSetup<DefaultServer>()
-                    .CustomEndpointName("errorQueueForAcceptanceTest");
+                EndpointSetup<DefaultServer>();
             }
 
             class ErrorMessageHandler : IHandleMessages<MessageThatFails>
