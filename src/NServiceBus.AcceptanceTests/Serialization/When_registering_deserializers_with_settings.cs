@@ -29,7 +29,6 @@ namespace NServiceBus.AcceptanceTests.Serialization
                         sendOptions.SetHeader("ContentType", "MyCustomSerializer");
                         return session.SendLocal(new MyRequest());
                     }))
-                .WithEndpoint<XmlCustomSerializationReceiver>()
                 .Done(c => c.DeserializeCalled)
                 .Run();
 

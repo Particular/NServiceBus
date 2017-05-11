@@ -22,7 +22,7 @@ namespace NServiceBus
                     }
                     catch (OperationCanceledException)
                     {
-                        // nop
+                        // no-op
                     }
                     catch (Exception ex)
                     {

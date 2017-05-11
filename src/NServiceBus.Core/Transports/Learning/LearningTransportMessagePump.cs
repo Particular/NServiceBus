@@ -112,14 +112,60 @@
 
                     var nativeMessageId = Path.GetFileNameWithoutExtension(filePath).Replace(".metadata", "");
 
-                    var transaction = GetTransaction();
-
-                    transaction.BeginTransaction(filePath);
-
                     await concurrencyLimiter.WaitAsync(cancellationToken)
                         .ConfigureAwait(false);
 
-                    InnerProcessFile(transaction, nativeMessageId).Ignore();
+                    var transaction = GetTransaction();
+
+                    var ableToLockFile = transaction.BeginTransaction(filePath);
+
+                    if (!ableToLockFile)
+                    {
+                        concurrencyLimiter.Release();
+                        continue;
+                    }
+
+                    ProcessFile(transaction, nativeMessageId)
+                        .ContinueWith(async t =>
+                        {
+                            try
+                            {
+                                if (t.Exception == null)
+                                {
+                                    receiveCircuitBreaker.Success();
+                                }
+                                else
+                                {
+                                    var baseEx = t.Exception.GetBaseException();
+
+                                    if (!(baseEx is OperationCanceledException))
+                                    {
+                                        await receiveCircuitBreaker.Failure(baseEx)
+                                            .ConfigureAwait(false);
+                                    }
+
+                                    transaction.Rollback();
+                                }
+
+                                var wasCommitted = transaction.Complete();
+
+                                if (wasCommitted)
+                                {
+                                    File.Delete(Path.Combine(bodyDir, nativeMessageId + BodyFileSuffix));
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                await receiveCircuitBreaker.Failure(ex)
+                                    .ConfigureAwait(false);
+                            }
+                            finally
+                            {
+                                concurrencyLimiter.Release();
+                            }
+                        }, CancellationToken.None)
+                        .Unwrap()
+                        .Ignore();
                 }
 
                 if (!filesFound)
@@ -139,113 +185,86 @@
             return new DirectoryBasedTransaction(path, Guid.NewGuid().ToString());
         }
 
-        async Task InnerProcessFile(ILearningTransportTransaction transaction, string nativeMessageId)
+        async Task ProcessFile(ILearningTransportTransaction transaction, string messageId)
         {
+            string message;
             try
             {
-                var wasCommitted = await ProcessFile(transaction, nativeMessageId)
+                message = await AsyncFile.ReadText(transaction.FileToProcess)
                     .ConfigureAwait(false);
 
-                transaction.Complete();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
 
-                if (wasCommitted)
+            var bodyPath = Path.Combine(bodyDir, $"{messageId}{BodyFileSuffix}");
+            var headers = HeaderSerializer.Deserialize(message);
+
+            if (headers.TryGetValue(Headers.TimeToBeReceived, out var ttbrString))
+            {
+                var ttbr = TimeSpan.Parse(ttbrString);
+                
+                //file.move preserves create time
+                var sentTime = File.GetCreationTimeUtc(transaction.FileToProcess);
+
+                if (sentTime + ttbr < DateTime.UtcNow)
                 {
-                    File.Delete(Path.Combine(bodyDir, nativeMessageId + BodyFileSuffix));
+                    await transaction.Commit()
+                        .ConfigureAwait(false);
+
+                    return;
                 }
+            }
 
-                receiveCircuitBreaker.Success();
-            }
-            catch (Exception ex) when (!(ex is OperationCanceledException))
-            {
-                await receiveCircuitBreaker.Failure(ex)
-                    .ConfigureAwait(false);
-            }
-            finally
-            {
-                concurrencyLimiter.Release();
-            }
-        }
+            var tokenSource = new CancellationTokenSource();
 
-        async Task<bool> ProcessFile(ILearningTransportTransaction transaction, string messageId)
-        {
+            var body = await AsyncFile.ReadBytes(bodyPath, cancellationToken)
+                .ConfigureAwait(false);
+
+            var transportTransaction = new TransportTransaction();
+
+            if (transactionMode == TransportTransactionMode.SendsAtomicWithReceive)
+            {
+                transportTransaction.Set(transaction);
+            }
+
+            var messageContext = new MessageContext(messageId, headers, body, transportTransaction, tokenSource, new ContextBag());
+
             try
             {
-                var message = await AsyncFile.ReadText(transaction.FileToProcess)
+                await onMessage(messageContext)
+                    .ConfigureAwait(false);
+            }
+            catch (Exception exception)
+            {
+                transaction.ClearPendingOutgoingOperations();
+                var processingFailures = retryCounts.AddOrUpdate(messageId, id => 1, (id, currentCount) => currentCount + 1);
+
+                var errorContext = new ErrorContext(exception, headers, messageId, body, transportTransaction, processingFailures);
+
+                var actionToTake = await onError(errorContext)
                     .ConfigureAwait(false);
 
-                var bodyPath = Path.Combine(bodyDir, $"{messageId}{BodyFileSuffix}");
-                var headers = HeaderSerializer.Deserialize(message);
-
-                if (headers.TryGetValue(Headers.TimeToBeReceived, out var ttbrString))
-                {
-                    var ttbr = TimeSpan.Parse(ttbrString);
-                    //file.move preserves create time
-                    var sentTime = File.GetCreationTimeUtc(transaction.FileToProcess);
-
-                    if (sentTime + ttbr < DateTime.UtcNow)
-                    {
-                        await transaction.Commit()
-                            .ConfigureAwait(false);
-
-                        return true;
-                    }
-                }
-
-                var tokenSource = new CancellationTokenSource();
-
-                var body = await AsyncFile.ReadBytes(bodyPath, cancellationToken)
-                    .ConfigureAwait(false);
-
-                var transportTransaction = new TransportTransaction();
-
-                if (transactionMode == TransportTransactionMode.SendsAtomicWithReceive)
-                {
-                    transportTransaction.Set(transaction);
-                }
-
-                var messageContext = new MessageContext(messageId, headers, body, transportTransaction, tokenSource, new ContextBag());
-
-                try
-                {
-                    await onMessage(messageContext)
-                        .ConfigureAwait(false);
-                }
-                catch (Exception exception)
-                {
-                    transaction.ClearPendingOutgoingOperations();
-                    var processingFailures = retryCounts.AddOrUpdate(messageId, id => 1, (id, currentCount) => currentCount + 1);
-
-                    var errorContext = new ErrorContext(exception, headers, messageId, body, transportTransaction, processingFailures);
-
-                    var actionToTake = await onError(errorContext)
-                        .ConfigureAwait(false);
-
-                    if (actionToTake == ErrorHandleResult.RetryRequired)
-                    {
-                        transaction.Rollback();
-
-                        return false;
-                    }
-                }
-
-                if (tokenSource.IsCancellationRequested)
+                if (actionToTake == ErrorHandleResult.RetryRequired)
                 {
                     transaction.Rollback();
 
-                    return false;
+                    return;
                 }
-
-                await transaction.Commit()
-                    .ConfigureAwait(false);
-
-                return true;
             }
-            catch (Exception)
+
+            if (tokenSource.IsCancellationRequested)
             {
                 transaction.Rollback();
 
-                return false;
+                return;
             }
+
+            await transaction.Commit()
+                .ConfigureAwait(false);
         }
 
         CancellationToken cancellationToken;

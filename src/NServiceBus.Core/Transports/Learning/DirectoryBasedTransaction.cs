@@ -20,11 +20,22 @@ namespace NServiceBus
 
         public string FileToProcess { get; private set; }
 
-        public void BeginTransaction(string incomingFilePath)
+        public bool BeginTransaction(string incomingFilePath)
         {
             Directory.CreateDirectory(transactionDir);
             FileToProcess = Path.Combine(transactionDir, Path.GetFileName(incomingFilePath));
-            File.Move(incomingFilePath, FileToProcess);
+
+            try
+            {
+                File.Move(incomingFilePath, FileToProcess);
+            }
+            catch (FileNotFoundException)
+            {
+                return false;
+            }
+
+            //seem like File.Move is not atomic at least within the same process so we need this extra check
+            return File.Exists(FileToProcess);
         }
 
         public Task Commit()
@@ -59,11 +70,11 @@ namespace NServiceBus
             return AsyncFile.WriteText(txPath, messageContents);
         }
 
-        public void Complete()
+        public bool Complete()
         {
             if (!committed)
             {
-                return;
+                return false;
             }
 
             foreach (var outgoingFile in outgoingFiles)
@@ -72,6 +83,8 @@ namespace NServiceBus
             }
 
             Directory.Delete(commitDir, true);
+
+            return true;
         }
 
         public static void RecoverPartiallyCompletedTransactions(string basePath)

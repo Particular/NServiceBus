@@ -9,7 +9,7 @@
     public class When_publishing_to_scaled_out_subscribers : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Each_event_should_be_delivered_to_single_instance_of_each_subscriber()
+        public async Task Should_route_event_to_shared_queue()
         {
             Requires.NativePubSubSupport();
 
