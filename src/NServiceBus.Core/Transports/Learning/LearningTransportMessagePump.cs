@@ -25,14 +25,18 @@
 
             PathChecker.ThrowForBadPath(settings.InputQueue, "InputQueue");
 
-            path = Path.Combine(basePath, settings.InputQueue);
-            bodyDir = Path.Combine(path, BodyDirName);
+            messagePumpBasePath = Path.Combine(basePath, settings.InputQueue);
+            bodyDir = Path.Combine(messagePumpBasePath, BodyDirName);
+            delayedDir = Path.Combine(messagePumpBasePath, DelayedDirName);
+
+            pendingTransactionDir = Path.Combine(messagePumpBasePath, PendingDirName);
+            committedTransactionDir = Path.Combine(messagePumpBasePath, CommittedDirName);
 
             purgeOnStartup = settings.PurgeOnStartup;
 
             receiveCircuitBreaker = new RepeatedFailuresOverTimeCircuitBreaker("LearningTransportReceive", TimeSpan.FromSeconds(30), ex => criticalError.Raise("Failed to receive from " + settings.InputQueue, ex));
 
-            delayedMessagePoller = new DelayedMessagePoller(path);
+            delayedMessagePoller = new DelayedMessagePoller(messagePumpBasePath, delayedDir);
 
             return TaskEx.CompletedTask;
         }
@@ -47,17 +51,47 @@
 
             if (purgeOnStartup)
             {
-                Array.ForEach(Directory.GetFiles(path), File.Delete);
+                if (Directory.Exists(messagePumpBasePath))
+                {
+                    Directory.Delete(messagePumpBasePath, true);
+                }
             }
 
-            if (transactionMode != TransportTransactionMode.None)
-            {
-                DirectoryBasedTransaction.RecoverPartiallyCompletedTransactions(path);
-            }
+            RecoverPendingTransactions();
+
+            EnsureDirectoriesExists();
 
             messagePumpTask = Task.Run(ProcessMessages, cancellationToken);
 
             delayedMessagePoller.Start();
+        }
+
+        void RecoverPendingTransactions()
+        {
+            if (transactionMode != TransportTransactionMode.None)
+            {
+                DirectoryBasedTransaction.RecoverPartiallyCompletedTransactions(messagePumpBasePath, PendingDirName, CommittedDirName);
+            }
+            else
+            {
+                if (Directory.Exists(pendingTransactionDir))
+                {
+                    Directory.Delete(pendingTransactionDir, true);
+                }
+            }
+        }
+
+        void EnsureDirectoriesExists()
+        {
+            Directory.CreateDirectory(messagePumpBasePath);
+            Directory.CreateDirectory(bodyDir);
+            Directory.CreateDirectory(delayedDir);
+            Directory.CreateDirectory(pendingTransactionDir);
+
+            if (transactionMode != TransportTransactionMode.None)
+            {
+                Directory.CreateDirectory(committedTransactionDir);
+            }
         }
 
         public async Task Stop()
@@ -106,7 +140,7 @@
             {
                 var filesFound = false;
 
-                foreach (var filePath in Directory.EnumerateFiles(path, "*.*"))
+                foreach (var filePath in Directory.EnumerateFiles(messagePumpBasePath, "*.*"))
                 {
                     filesFound = true;
 
@@ -179,10 +213,10 @@
         {
             if (transactionMode == TransportTransactionMode.None)
             {
-                return new NoTransaction(path);
+                return new NoTransaction(messagePumpBasePath, PendingDirName);
             }
 
-            return new DirectoryBasedTransaction(path, Guid.NewGuid().ToString());
+            return new DirectoryBasedTransaction(messagePumpBasePath, PendingDirName, CommittedDirName, Guid.NewGuid().ToString());
         }
 
         async Task ProcessFile(ILearningTransportTransaction transaction, string messageId)
@@ -275,16 +309,23 @@
         bool purgeOnStartup;
         Func<ErrorContext, Task<ErrorHandleResult>> onError;
         ConcurrentDictionary<string, int> retryCounts = new ConcurrentDictionary<string, int>();
-        string path;
+        string messagePumpBasePath;
         string basePath;
         RepeatedFailuresOverTimeCircuitBreaker receiveCircuitBreaker;
         DelayedMessagePoller delayedMessagePoller;
         TransportTransactionMode transactionMode;
         int maxConcurrency;
         string bodyDir;
+        string pendingTransactionDir;
+        string committedTransactionDir;
+        string delayedDir;
 
         public const string BodyFileSuffix = ".body.txt";
         public const string BodyDirName = ".bodies";
+        public const string DelayedDirName = ".delayed";
+
+        const string CommittedDirName = ".committed";
+        const string PendingDirName = ".pending";
 
         static ILog Logger = LogManager.GetLogger<LearningTransportMessagePump>();
     }

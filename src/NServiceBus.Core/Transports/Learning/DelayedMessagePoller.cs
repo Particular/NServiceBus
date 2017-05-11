@@ -8,13 +8,12 @@
 
     class DelayedMessagePoller
     {
-        public DelayedMessagePoller(string basePath)
+        public DelayedMessagePoller(string basePath, string delayedDir)
         {
             this.basePath = basePath;
             timer = new AsyncTimer();
 
-            delayedRootDirectory = Path.Combine(basePath, ".delayed");
-            Directory.CreateDirectory(delayedRootDirectory);
+            delayedRootDirectory = delayedDir;
         }
 
         void MoveDelayedMessagesToMainDirectory()

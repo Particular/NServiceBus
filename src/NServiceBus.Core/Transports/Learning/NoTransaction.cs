@@ -6,9 +6,9 @@ namespace NServiceBus
 
     class NoTransaction : ILearningTransportTransaction
     {
-        public NoTransaction(string basePath)
+        public NoTransaction(string basePath, string pendingDirName)
         {
-            processingDirectory = Path.Combine(basePath, ".notxprocessing", Guid.NewGuid().ToString());
+            processingDirectory = Path.Combine(basePath, pendingDirName, Guid.NewGuid().ToString());
         }
 
         public string FileToProcess { get; private set; }
