@@ -145,7 +145,6 @@
                                     }
 
                                     transaction.Rollback();
-
                                 }
 
                                 var wasCommitted = transaction.Complete();
@@ -207,6 +206,7 @@
             if (headers.TryGetValue(Headers.TimeToBeReceived, out var ttbrString))
             {
                 var ttbr = TimeSpan.Parse(ttbrString);
+                
                 //file.move preserves create time
                 var sentTime = File.GetCreationTimeUtc(transaction.FileToProcess);
 

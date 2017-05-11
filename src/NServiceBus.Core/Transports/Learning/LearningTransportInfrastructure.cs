@@ -94,19 +94,21 @@
             var address = logicalAddress.EndpointInstance.Endpoint;
             PathChecker.ThrowForBadPath(address, "endpoint name");
 
-            var discriminator = logicalAddress.EndpointInstance.Discriminator ?? "";
-            PathChecker.ThrowForBadPath(discriminator, "endpoint discriminator");
-
+            var discriminator = logicalAddress.EndpointInstance.Discriminator;
+           
             if (!string.IsNullOrEmpty(discriminator))
             {
+                PathChecker.ThrowForBadPath(discriminator, "endpoint discriminator");
+
                 address += "-" + discriminator;
             }
 
-            var qualifier = logicalAddress.Qualifier ?? "";
-            PathChecker.ThrowForBadPath(qualifier, "address qualifier");
+            var qualifier = logicalAddress.Qualifier;
 
             if (!string.IsNullOrEmpty(qualifier))
             {
+                PathChecker.ThrowForBadPath(qualifier, "address qualifier");
+
                 address += "-" + qualifier;
             }
 
