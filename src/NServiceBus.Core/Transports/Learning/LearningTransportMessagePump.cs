@@ -27,12 +27,16 @@
 
             path = Path.Combine(basePath, settings.InputQueue);
             bodyDir = Path.Combine(path, BodyDirName);
+            delayedDir = Path.Combine(path, DelayedDirName);
+
+            pendingTransactionDir = Path.Combine(path, PendingDirName);
+            committedTransactionDir = Path.Combine(path, CommittedDirName);
 
             purgeOnStartup = settings.PurgeOnStartup;
 
             receiveCircuitBreaker = new RepeatedFailuresOverTimeCircuitBreaker("LearningTransportReceive", TimeSpan.FromSeconds(30), ex => criticalError.Raise("Failed to receive from " + settings.InputQueue, ex));
 
-            delayedMessagePoller = new DelayedMessagePoller(path);
+            delayedMessagePoller = new DelayedMessagePoller(path, delayedDir);
 
             return TaskEx.CompletedTask;
         }
@@ -47,17 +51,53 @@
 
             if (purgeOnStartup)
             {
-                Array.ForEach(Directory.GetFiles(path), File.Delete);
+                PurgeDirectories();
             }
 
-            if (transactionMode != TransportTransactionMode.None)
-            {
-                DirectoryBasedTransaction.RecoverPartiallyCompletedTransactions(path);
-            }
+            CreateDirectories();
+
+            RecoverPendingTransactions();
 
             messagePumpTask = Task.Run(ProcessMessages, cancellationToken);
 
             delayedMessagePoller.Start();
+        }
+
+        void RecoverPendingTransactions()
+        {
+            if (transactionMode != TransportTransactionMode.None)
+            {
+                DirectoryBasedTransaction.RecoverPartiallyCompletedTransactions(path, PendingDirName, CommittedDirName);
+                Directory.CreateDirectory(committedTransactionDir);
+            }
+            else
+            {
+                if (Directory.Exists(pendingTransactionDir))
+                {
+                    Directory.Delete(pendingTransactionDir, true);
+                }
+            }
+        }
+
+        void CreateDirectories()
+        {
+            Directory.CreateDirectory(path);
+            Directory.CreateDirectory(bodyDir);
+            Directory.CreateDirectory(delayedDir);
+
+            Directory.CreateDirectory(pendingTransactionDir);
+            if (transactionMode != TransportTransactionMode.None)
+            {
+                Directory.CreateDirectory(committedTransactionDir);
+            }
+        }
+
+        void PurgeDirectories()
+        {
+            if (Directory.Exists(path))
+            {
+                Array.ForEach(Directory.GetFiles(path, "*.*", SearchOption.AllDirectories), File.Delete);
+            }
         }
 
         public async Task Stop()
@@ -133,10 +173,10 @@
         {
             if (transactionMode == TransportTransactionMode.None)
             {
-                return new NoTransaction(path);
+                return new NoTransaction(path, PendingDirName);
             }
 
-            return new DirectoryBasedTransaction(path, Guid.NewGuid().ToString());
+            return new DirectoryBasedTransaction(path, PendingDirName, CommittedDirName, Guid.NewGuid().ToString());
         }
 
         async Task InnerProcessFile(ILearningTransportTransaction transaction, string nativeMessageId)
@@ -263,9 +303,16 @@
         TransportTransactionMode transactionMode;
         int maxConcurrency;
         string bodyDir;
+        string pendingTransactionDir;
+        string committedTransactionDir;
+        string delayedDir;
 
         public const string BodyFileSuffix = ".body.txt";
         public const string BodyDirName = ".bodies";
+        public const string DelayedDirName = ".delayed";
+
+        const string CommittedDirName = ".committed";
+        const string PendingDirName = ".pending";
 
         static ILog Logger = LogManager.GetLogger<LearningTransportMessagePump>();
     }

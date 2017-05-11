@@ -104,7 +104,7 @@ namespace NServiceBus
                     timeToDeliver += TimeSpan.FromSeconds(1);
                 }
 
-                destinationPath = Path.Combine(destinationPath, ".delayed", timeToDeliver.Value.ToString("yyyyMMddHHmmss"));
+                destinationPath = Path.Combine(destinationPath, LearningTransportMessagePump.DelayedDirName, timeToDeliver.Value.ToString("yyyyMMddHHmmss"));
 
                 Directory.CreateDirectory(destinationPath);
             }

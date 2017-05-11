@@ -6,16 +6,12 @@ namespace NServiceBus
 
     class DirectoryBasedTransaction : ILearningTransportTransaction
     {
-        public DirectoryBasedTransaction(string basePath, string transactionId)
+        public DirectoryBasedTransaction(string basePath, string pendingDirName, string committedDirName, string transactionId)
         {
             this.basePath = basePath;
 
-            var rootCommitDir = Path.Combine(basePath, CommittedDirName);
-
-            Directory.CreateDirectory(rootCommitDir);
-
-            transactionDir = Path.Combine(basePath, PendingDirName, transactionId);
-            commitDir = Path.Combine(rootCommitDir, transactionId);
+            transactionDir = Path.Combine(basePath, pendingDirName, transactionId);
+            commitDir = Path.Combine(basePath, committedDirName, transactionId);
         }
 
         public string FileToProcess { get; private set; }
@@ -74,29 +70,27 @@ namespace NServiceBus
             Directory.Delete(commitDir, true);
         }
 
-        public static void RecoverPartiallyCompletedTransactions(string basePath)
+        public static void RecoverPartiallyCompletedTransactions(string basePath, string pendingDirName, string committedDirName)
         {
-            var pendingRootDir = Path.Combine(basePath, PendingDirName);
+            var pendingRootDir = Path.Combine(basePath, pendingDirName);
 
             if (Directory.Exists(pendingRootDir))
             {
                 foreach (var transactionDir in new DirectoryInfo(pendingRootDir).EnumerateDirectories())
                 {
-                    var transaction = new DirectoryBasedTransaction(basePath, transactionDir.Name);
-
-                    transaction.RecoverPending();
+                    new DirectoryBasedTransaction(basePath, pendingDirName, committedDirName, transactionDir.Name)
+                        .RecoverPending();
                 }
             }
 
-            var comittedRootDir = Path.Combine(basePath, CommittedDirName);
+            var comittedRootDir = Path.Combine(basePath, committedDirName);
 
             if (Directory.Exists(comittedRootDir))
             {
                 foreach (var transactionDir in new DirectoryInfo(comittedRootDir).EnumerateDirectories())
                 {
-                    var transaction = new DirectoryBasedTransaction(basePath, transactionDir.Name);
-
-                    transaction.RecoverCommitted();
+                    new DirectoryBasedTransaction(basePath, pendingDirName, committedDirName, transactionDir.Name)
+                        .RecoverCommitted();
                 }
             }
         }
@@ -136,8 +130,6 @@ namespace NServiceBus
         List<OutgoingFile> outgoingFiles = new List<OutgoingFile>();
         string transactionDir;
 
-        const string CommittedDirName = ".committed";
-        const string PendingDirName = ".pending";
         const string TxtFileExtension = "*.txt";
 
         class OutgoingFile
