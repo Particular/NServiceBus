@@ -4,7 +4,6 @@ namespace NServiceBus
     using System.Collections.Generic;
     using System.Security.Principal;
     using System.Threading.Tasks;
-    using Config;
     using ConsistencyGuarantees;
     using Features;
     using Logging;
@@ -32,8 +31,6 @@ namespace NServiceBus
 
         public async Task<IEndpointInstance> Start()
         {
-            DetectThrottlingConfig();
-
             await transportInfrastructure.Start().ConfigureAwait(false);
 
             AppDomain.CurrentDomain.SetPrincipalPolicy(PrincipalPolicy.WindowsPrincipal);
@@ -152,13 +149,6 @@ namespace NServiceBus
         // extension point to plugin atm
         PushRuntimeSettings GetDequeueLimitationsForReceivePipeline()
         {
-            var transportConfig = settings.GetConfigSection<TransportConfig>();
-
-            if (transportConfig != null && transportConfig.MaximumConcurrencyLevel != 0)
-            {
-                throw new NotSupportedException($"The TransportConfig.MaximumConcurrencyLevel has been removed. Remove the '{nameof(TransportConfig.MaximumMessageThroughputPerSecond)}' attribute from the '{nameof(TransportConfig)}' configuration section and use 'EndpointConfiguration.LimitMessageProcessingConcurrencyTo' instead.");
-            }
-
             MessageProcessingOptimizationExtensions.ConcurrencyLimit concurrencyLimit;
 
             if (settings.TryGet(out concurrencyLimit))
@@ -167,16 +157,6 @@ namespace NServiceBus
             }
 
             return PushRuntimeSettings.Default;
-        }
-
-        [ObsoleteEx(Message = "Not needed anymore", RemoveInVersion = "7.0")]
-        void DetectThrottlingConfig()
-        {
-            var throughputConfiguration = settings.GetConfigSection<TransportConfig>()?.MaximumMessageThroughputPerSecond;
-            if (throughputConfiguration.HasValue && throughputConfiguration != -1)
-            {
-                throw new NotSupportedException($"Message throughput throttling has been removed. Remove the '{nameof(TransportConfig.MaximumMessageThroughputPerSecond)}' attribute from the '{nameof(TransportConfig)}' configuration section and consult the documentation for further information.");
-            }
         }
 
         IMessageSession messageSession;
