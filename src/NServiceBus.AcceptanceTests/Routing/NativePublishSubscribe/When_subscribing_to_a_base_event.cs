@@ -14,12 +14,16 @@
             Requires.NativePubSubSupport();
 
             var context = await Scenario.Define<Context>()
-                .WithEndpoint<Publisher>(b => b.When(async session =>
+                .WithEndpoint<Publisher>(b => b.When(c => c.SubscriberSubscribed, async session =>
                 {
                     await session.Publish(new SpecificEvent());
                     await session.Publish<IBaseEvent>();
                 }))
-                .WithEndpoint<GeneralSubscriber>(b => b.When(async (session, c) => await session.Subscribe<IBaseEvent>()))
+                .WithEndpoint<GeneralSubscriber>(b => b.When(async (session, c) =>
+                {
+                    await session.Subscribe<IBaseEvent>();
+                    c.SubscriberSubscribed = true;
+                }))
                 .Done(c => c.SubscriberGotBaseEvent && c.SubscriberGotSpecificEvent)
                 .Run();
 
@@ -31,6 +35,7 @@
         {
             public bool SubscriberGotBaseEvent { get; set; }
             public bool SubscriberGotSpecificEvent { get; set; }
+            public bool SubscriberSubscribed { get; set; }
         }
 
         public class Publisher : EndpointConfigurationBuilder

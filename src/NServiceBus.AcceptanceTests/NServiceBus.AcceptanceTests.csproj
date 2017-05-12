@@ -91,6 +91,7 @@
     <Compile Include="Core\Pipeline\When_subscribed_to_ReceivePipelineCompleted.cs" />
     <Compile Include="Routing\NativePublishSubscribe\When_publishing_from_sendonly.cs" />
     <Compile Include="Routing\NativePublishSubscribe\When_subscribing_to_a_base_event.cs" />
+    <Compile Include="Routing\NativePublishSubscribe\When_subscribing_to_a_derived_event.cs" />
     <Compile Include="Sagas\When_correlating_on_special_characters.cs" />
     <Compile Include="SelfVerification\When_using_custom_components.cs" />
     <Compile Include="EndpointTemplates\IConfigureEndpointTestExecution.cs" />
