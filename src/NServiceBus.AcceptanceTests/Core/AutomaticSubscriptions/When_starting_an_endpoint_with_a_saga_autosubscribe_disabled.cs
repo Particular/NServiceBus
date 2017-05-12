@@ -1,4 +1,4 @@
-namespace NServiceBus.AcceptanceTests.Routing.AutomaticSubscriptions
+namespace NServiceBus.AcceptanceTests.Core.AutomaticSubscriptions
 {
     using System;
     using System.Collections.Generic;
@@ -16,7 +16,7 @@ namespace NServiceBus.AcceptanceTests.Routing.AutomaticSubscriptions
         public async Task Should_not_autoSubscribe_messages_handled_by_sagas_if_asked_to()
         {
             var context = await Scenario.Define<Context>()
-                .WithEndpoint<Subscriber>(g => g.CustomConfig(c => c.AutoSubscribe().DoNotAutoSubscribeSagas()))
+                .WithEndpoint<Subscriber>()
                 .Done(c => c.EndpointsStarted)
                 .Run();
 
@@ -37,7 +37,11 @@ namespace NServiceBus.AcceptanceTests.Routing.AutomaticSubscriptions
         {
             public Subscriber()
             {
-                EndpointSetup<DefaultServer>(c => c.Pipeline.Register("SubscriptionSpy", new SubscriptionSpy((Context) ScenarioContext), "Spies on subscriptions made"),
+                EndpointSetup<DefaultServer>(c =>
+                    {
+                        c.Pipeline.Register("SubscriptionSpy", new SubscriptionSpy((Context)ScenarioContext), "Spies on subscriptions made");
+                        c.AutoSubscribe().DoNotAutoSubscribeSagas();
+                    },
                     metadata =>
                     {
                         metadata.RegisterPublisherFor<MyEventWithParent>(typeof(Subscriber));

@@ -229,9 +229,9 @@
     <Compile Include="Core\PerfMon\CriticalTime\When_deferring_a_message.cs" />
     <Compile Include="Audit\When_audit_is_overridden_in_code.cs" />
     <Compile Include="Outbox\When_a_duplicate_message_arrives.cs" />
-    <Compile Include="Routing\AutomaticSubscriptions\When_starting_an_endpoint_with_a_saga.cs" />
-    <Compile Include="Routing\AutomaticSubscriptions\When_starting_an_endpoint_with_a_saga_autosubscribe_disabled.cs" />
-    <Compile Include="Routing\AutomaticSubscriptions\When_starting_an_endpoint_with_autosubscribe.cs">
+    <Compile Include="Core\AutomaticSubscriptions\When_starting_an_endpoint_with_a_saga.cs" />
+    <Compile Include="Core\AutomaticSubscriptions\When_starting_an_endpoint_with_a_saga_autosubscribe_disabled.cs" />
+    <Compile Include="Core\AutomaticSubscriptions\When_starting_an_endpoint_with_autosubscribe.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Routing\SubscriptionBehaviorExtensions.cs" />
