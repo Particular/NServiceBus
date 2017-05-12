@@ -34,8 +34,6 @@
 
             purgeOnStartup = settings.PurgeOnStartup;
 
-            receiveCircuitBreaker = new RepeatedFailuresOverTimeCircuitBreaker("LearningTransportReceive", TimeSpan.FromSeconds(30), ex => criticalError.Raise("Failed to receive from " + settings.InputQueue, ex));
-
             delayedMessagePoller = new DelayedMessagePoller(messagePumpBasePath, delayedDir);
 
             return TaskEx.CompletedTask;
@@ -127,10 +125,6 @@
                 {
                     // graceful shutdown
                 }
-                catch (Exception exception)
-                {
-                    Logger.Error("Message pump failed.", exception);
-                }
             }
         }
 
@@ -160,24 +154,12 @@
                     }
 
                     ProcessFile(transaction, nativeMessageId)
-                        .ContinueWith(async t =>
+                        .ContinueWith(t =>
                         {
                             try
                             {
-                                if (t.Exception == null)
+                                if (t.Exception != null)
                                 {
-                                    receiveCircuitBreaker.Success();
-                                }
-                                else
-                                {
-                                    var baseEx = t.Exception.GetBaseException();
-
-                                    if (!(baseEx is OperationCanceledException))
-                                    {
-                                        await receiveCircuitBreaker.Failure(baseEx)
-                                            .ConfigureAwait(false);
-                                    }
-
                                     transaction.Rollback();
                                 }
 
@@ -187,18 +169,24 @@
                                 {
                                     File.Delete(Path.Combine(bodyDir, nativeMessageId + BodyFileSuffix));
                                 }
-                            }
-                            catch (Exception ex)
-                            {
-                                await receiveCircuitBreaker.Failure(ex)
-                                    .ConfigureAwait(false);
+
+                                if (t.Exception != null)
+                                {
+                                    var baseEx = t.Exception.GetBaseException();
+
+                                    if (!(baseEx is OperationCanceledException))
+                                    {
+                                        throw baseEx;
+                                    }
+
+                                }
+
                             }
                             finally
                             {
                                 concurrencyLimiter.Release();
                             }
                         }, CancellationToken.None)
-                        .Unwrap()
                         .Ignore();
                 }
 
@@ -240,7 +228,7 @@
             if (headers.TryGetValue(Headers.TimeToBeReceived, out var ttbrString))
             {
                 var ttbr = TimeSpan.Parse(ttbrString);
-                
+
                 //file.move preserves create time
                 var sentTime = File.GetCreationTimeUtc(transaction.FileToProcess);
 
@@ -311,7 +299,6 @@
         ConcurrentDictionary<string, int> retryCounts = new ConcurrentDictionary<string, int>();
         string messagePumpBasePath;
         string basePath;
-        RepeatedFailuresOverTimeCircuitBreaker receiveCircuitBreaker;
         DelayedMessagePoller delayedMessagePoller;
         TransportTransactionMode transactionMode;
         int maxConcurrency;
