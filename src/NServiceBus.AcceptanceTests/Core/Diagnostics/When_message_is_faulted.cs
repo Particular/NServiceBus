@@ -27,6 +27,8 @@
             var timeSent = DateTimeExtensions.ToUtcDateTime(context.Headers[Headers.TimeSent]);
             var timeSentWhenFailedMessageWasSentToTheErrorQueue = DateTimeExtensions.ToUtcDateTime(context.FaultHeaders[Headers.TimeSent]);
 
+            Assert.IsTrue(context.IsIntermediateMessageReceived);
+
             Assert.That(processingStarted, Is.EqualTo(now).Within(TimeSpan.FromSeconds(30)));
             Assert.That(processingEnded, Is.EqualTo(now).Within(TimeSpan.FromSeconds(30)));
             Assert.That(timeSent, Is.EqualTo(now).Within(TimeSpan.FromSeconds(30)));
@@ -41,6 +43,7 @@
 
         public class Context : ScenarioContext
         {
+            public bool IsIntermediateMessageReceived { get; set; }
             public bool IsMessageHandledByTheAuditEndpoint { get; set; }
             public bool IsMessageHandledByTheFaultEndpoint { get; set; }
             public IReadOnlyDictionary<string, string> Headers { get; set; }
@@ -61,8 +64,11 @@
 
             class MessageToBeAuditedHandler : IHandleMessages<MessageToBeAudited>
             {
+                public Context TestContext { get; set; }
+
                 public Task Handle(MessageToBeAudited message, IMessageHandlerContext context)
                 {
+                    TestContext.IsIntermediateMessageReceived = true;
                     return context.SendLocal(new MessageThatFails());
                 }
 

@@ -33,14 +33,14 @@
 
             configuration.TypesToIncludeInScan(typesToInclude);
             configuration.CustomConfigurationSource(configSource);
-            configuration.EnableInstallers();
+            //configuration.EnableInstallers();
 
-            configuration.DisableFeature<TimeoutManager>();
+            //configuration.DisableFeature<TimeoutManager>();
 
             var recoverability = configuration.Recoverability();
             recoverability.Delayed(delayed => delayed.NumberOfRetries(0));
             recoverability.Immediate(immediate => immediate.NumberOfRetries(0));
-            configuration.SendFailedMessagesTo("error");
+            //configuration.SendFailedMessagesTo("error");
 
             await configuration.DefineTransport(runDescriptor, endpointConfiguration).ConfigureAwait(false);
 
@@ -48,7 +48,7 @@
 
             await configuration.DefinePersistence(runDescriptor, endpointConfiguration).ConfigureAwait(false);
 
-            configuration.GetSettings().SetDefault("ScaleOut.UseSingleBrokerQueue", true);
+            //configuration.GetSettings().SetDefault("ScaleOut.UseSingleBrokerQueue", true);
             configurationBuilderCustomization(configuration);
 
             return configuration;
