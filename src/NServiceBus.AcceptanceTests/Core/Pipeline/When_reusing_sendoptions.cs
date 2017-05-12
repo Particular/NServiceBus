@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.AcceptanceTests.Core.Pipeline
 {
+    using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
@@ -31,7 +32,7 @@
 
         class Context : ScenarioContext
         {
-            public Queue<string> ReceivedMessageIds = new Queue<string>();
+            public ConcurrentQueue<string> ReceivedMessageIds = new ConcurrentQueue<string>();<string>();
         }
 
         class Endpoint : EndpointConfigurationBuilder
