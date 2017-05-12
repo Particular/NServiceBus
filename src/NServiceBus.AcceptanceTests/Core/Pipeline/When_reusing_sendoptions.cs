@@ -32,7 +32,7 @@
 
         class Context : ScenarioContext
         {
-            public ConcurrentQueue<string> ReceivedMessageIds = new ConcurrentQueue<string>();<string>();
+            public ConcurrentQueue<string> ReceivedMessageIds = new ConcurrentQueue<string>();
         }
 
         class Endpoint : EndpointConfigurationBuilder
