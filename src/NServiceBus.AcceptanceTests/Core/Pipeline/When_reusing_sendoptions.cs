@@ -31,7 +31,7 @@
 
         class Context : ScenarioContext
         {
-            public List<string> ReceivedMessageIds { get; } = new List<string>();
+            public Queue<string> ReceivedMessageIds = new Queue<string>();
         }
 
         class Endpoint : EndpointConfigurationBuilder
@@ -50,7 +50,7 @@
 
                 public Task Handle(SomeCommand message, IMessageHandlerContext context)
                 {
-                    testContext.ReceivedMessageIds.Add(context.MessageId);
+                    testContext.ReceivedMessageIds.Enqueue(context.MessageId);
                     return Task.FromResult(0);
                 }
 
