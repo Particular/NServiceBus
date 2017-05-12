@@ -48,6 +48,7 @@ namespace NServiceBus.AcceptanceTesting
 
             if (runSummary.Result.Failed)
             {
+                PrintLog(scenarioContext);
                 runSummary.Result.Exception.Throw();
             }
 
@@ -59,7 +60,7 @@ namespace NServiceBus.AcceptanceTesting
             return WithEndpoint<T>(b => { });
         }
 
-        public IScenarioWithEndpointBehavior<TContext> WithComponent(IComponentBehavior componentBehavior) 
+        public IScenarioWithEndpointBehavior<TContext> WithComponent(IComponentBehavior componentBehavior)
         {
             behaviors.Add(componentBehavior);
             return this;
@@ -78,9 +79,19 @@ namespace NServiceBus.AcceptanceTesting
 
         public IScenarioWithEndpointBehavior<TContext> Done(Func<TContext, bool> func)
         {
-            done = c => func((TContext) c);
+            done = c => func((TContext)c);
 
             return this;
+        }
+
+        void PrintLog(TContext scenarioContext)
+        {
+            Console.WriteLine($"Log entries (log level: {scenarioContext.LogLevel}):");
+            Console.WriteLine("------------------------------------------------------");
+            foreach (var logEntry in scenarioContext.Logs)
+            {
+                Console.WriteLine($"{logEntry.Level}: {logEntry.Message}");
+            }
         }
 
         static void DisplayRunResult(RunSummary summary)
@@ -117,18 +128,8 @@ namespace NServiceBus.AcceptanceTesting
 
             foreach (var prop in runResult.ScenarioContext.GetType().GetProperties())
             {
-                if (prop.Name == "Trace")
-                {
-                    continue;
-                }
-
                 Console.WriteLine("{0} = {1}", prop.Name, prop.GetValue(runResult.ScenarioContext, null));
             }
-
-            Console.WriteLine();
-            Console.WriteLine("Trace:");
-            Console.WriteLine(runResult.ScenarioContext.Trace);
-            Console.WriteLine("------------------------------------------------------");
         }
 
         static void PrintSettings(IEnumerable<KeyValuePair<string, object>> settings)

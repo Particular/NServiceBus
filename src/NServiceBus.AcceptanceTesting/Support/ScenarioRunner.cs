@@ -28,7 +28,6 @@
                 RunDescriptor = runDescriptor,
                 Endpoints = behaviorDescriptors
             };
-
         }
 
 
