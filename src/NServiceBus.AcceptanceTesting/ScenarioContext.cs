@@ -14,20 +14,20 @@
 
         public bool HasNativePubSubSupport { get; set; }
 
-        public string Trace => string.Join(Environment.NewLine, traceQueue.ToArray());
-
         public void AddTrace(string trace)
         {
-            traceQueue.Enqueue($"{DateTime.Now:HH:mm:ss.ffffff} - {trace}");
+            Logs.Enqueue(new LogItem
+            {
+                Level = LogLevel.Info,
+                Message = trace
+            });
         }
 
         public ConcurrentDictionary<string, IReadOnlyCollection<FailedMessage>> FailedMessages = new ConcurrentDictionary<string, IReadOnlyCollection<FailedMessage>>();
 
         public ConcurrentQueue<LogItem> Logs = new ConcurrentQueue<LogItem>();
 
-        ConcurrentQueue<string> traceQueue = new ConcurrentQueue<string>();
-
-        internal LogLevel LogLevel { get; set; } = LogLevel.Info;
+        internal LogLevel LogLevel { get; set; } = LogLevel.Debug;
 
         internal ConcurrentDictionary<string, bool> UnfinishedFailedMessages = new ConcurrentDictionary<string, bool>();
 
