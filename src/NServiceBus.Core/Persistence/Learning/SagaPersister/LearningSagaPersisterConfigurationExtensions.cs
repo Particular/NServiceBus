@@ -15,6 +15,7 @@
         public static void SagaStorageDirectory(this PersistenceExtensions<LearningPersistence> persistenceExtensions, string path)
         {
             Guard.AgainstNullAndEmpty(nameof(path), path);
+            Guard.AgainstNull(nameof(persistenceExtensions), persistenceExtensions);
 
             persistenceExtensions.Settings.Set(LearningSagaPersistence.StorageLocationKey, path);
         }

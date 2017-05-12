@@ -17,8 +17,8 @@ namespace NServiceBus
 
         public static Guid Generate(Type sagaEntityType, string correlationPropertyName, object correlationPropertyValue)
         {
-            // here we assume single correlated sagas since v6 doesn't allow more than one corr prop
-            // note that we still have to use a GUID since moving to a string id will have to wait since its a breaking change
+            // assume single correlated sagas since v6 doesn't allow more than one corr prop
+            // still have to use a GUID since moving to a string id will have to wait since its a breaking change
             return DeterministicGuid.Create($"{sagaEntityType}_{correlationPropertyName}_{correlationPropertyValue}");
         }
     }
