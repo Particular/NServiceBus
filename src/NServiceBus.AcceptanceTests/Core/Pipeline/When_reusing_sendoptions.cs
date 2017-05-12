@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.AcceptanceTests.Core.Pipeline
 {
     using System.Collections.Concurrent;
-    using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
     using AcceptanceTesting;
