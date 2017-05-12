@@ -17,11 +17,11 @@ namespace NServiceBus
             jsonWriter = new JsonTextWriter(new StreamWriter(fileStream, Encoding.Unicode))
             {
                 CloseOutput = true,
-                Formatting = Formatting.Indented,
+                Formatting = Formatting.Indented
             };
             jsonReader = new JsonTextReader(new StreamReader(fileStream, Encoding.Unicode))
             {
-                CloseInput = true,
+                CloseInput = true
             };
 
             lastModificationSeenAt = File.GetLastWriteTimeUtc(fileStream.Name);
