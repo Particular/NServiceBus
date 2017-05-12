@@ -6,7 +6,6 @@ namespace NServiceBus
     using System.Threading;
     using System.Threading.Tasks;
 
-    //TODO: merge with dev persistence
     static class AsyncFile
     {
         public static async Task WriteBytes(string filePath, byte[] bytes)
