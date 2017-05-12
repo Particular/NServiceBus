@@ -36,7 +36,7 @@ namespace NServiceBus
             {
                 File.Delete(fileStream.Name);
             }
-
+          
             fileStream = null;
         }
 
@@ -50,7 +50,7 @@ namespace NServiceBus
                 return false;
             }
 
-            sagaStorageFile = new SagaStorageFile(new FileStream(filePath, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite, DefaultBufferSize, FileOptions.Asynchronous), manifest);
+            sagaStorageFile = new SagaStorageFile(new FileStream(filePath, FileMode.Open, FileAccess.ReadWrite, FileShare.None, DefaultBufferSize, FileOptions.Asynchronous), manifest);
 
             return true;
         }
@@ -59,7 +59,7 @@ namespace NServiceBus
         {
             var filePath = manifest.GetFilePath(sagaId);
 
-            return new SagaStorageFile(new FileStream(filePath, FileMode.CreateNew, FileAccess.ReadWrite, FileShare.ReadWrite, DefaultBufferSize, FileOptions.Asynchronous), manifest);
+            return new SagaStorageFile(new FileStream(filePath, FileMode.CreateNew, FileAccess.ReadWrite, FileShare.None, DefaultBufferSize, FileOptions.Asynchronous), manifest);
         }
 
         public Task Write(IContainSagaData sagaData)
