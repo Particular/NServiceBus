@@ -12,10 +12,7 @@
             Defaults(s => s.Set<ISagaIdGenerator>(new LearningSagaIdGenerator()));
             Defaults(s => s.SetDefault(StorageLocationKey, Path.Combine(AppDomain.CurrentDomain.BaseDirectory, ".sagas")));
         }
-
-        /// <summary>
-        /// See <see cref="Feature.Setup" />.
-        /// </summary>
+        
         protected internal override void Setup(FeatureConfigurationContext context)
         {
             var storageLocation = context.Settings.Get<string>(StorageLocationKey);
