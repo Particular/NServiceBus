@@ -69,7 +69,7 @@ namespace NServiceBus
                 await Task.Delay(100)
                     .ConfigureAwait(false);
 
-                return new SagaStorageFile(new FileStream(filePath, fileAccess, FileAccess.ReadWrite, FileShare.None, DefaultBufferSize, FileOptions.Asynchronous), manifest);
+                throw;
             }
         }
 
