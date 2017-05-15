@@ -28,7 +28,7 @@
                     });
                 })
                 .Done(c => c.PlacedSagaId != Guid.Empty && c.BilledSagaId != Guid.Empty)
-                .Run(TimeSpan.FromSeconds(10));
+                .Run();
 
             Assert.AreNotEqual(Guid.Empty, context.PlacedSagaId);
             Assert.AreNotEqual(Guid.Empty, context.BilledSagaId);
