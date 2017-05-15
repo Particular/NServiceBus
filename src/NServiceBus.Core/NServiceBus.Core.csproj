@@ -136,7 +136,6 @@
     <Compile Include="Persistence\Learning\LearningSynchronizedStorage.cs" />
     <Compile Include="Persistence\Learning\LearningSynchronizedStorageSession.cs" />
     <Compile Include="Persistence\Learning\SagaPersister\CompleteAction.cs" />
-    <Compile Include="Persistence\Learning\SagaPersister\LearningSagaPersisterConcurrencyException.cs" />
     <Compile Include="Persistence\Learning\SagaPersister\LearningSagaPersisterConfigurationExtensions.cs" />
     <Compile Include="Persistence\Learning\SagaPersister\LearningSagaIdGenerator.cs" />
     <Compile Include="Persistence\Learning\SagaPersister\LearningSagaPersistence.cs" />
