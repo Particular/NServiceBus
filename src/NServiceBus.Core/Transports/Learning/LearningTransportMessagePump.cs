@@ -7,7 +7,6 @@
     using System.Threading;
     using System.Threading.Tasks;
     using Extensibility;
-    using Logging;
     using Transport;
 
     class LearningTransportMessagePump : IPushMessages
@@ -21,6 +20,8 @@
         {
             this.onMessage = onMessage;
             this.onError = onError;
+            this.criticalError = criticalError;
+
             transactionMode = settings.RequiredTransactionMode;
 
             PathChecker.ThrowForBadPath(settings.InputQueue, "InputQueue");
@@ -33,8 +34,6 @@
             committedTransactionDir = Path.Combine(messagePumpBasePath, CommittedDirName);
 
             purgeOnStartup = settings.PurgeOnStartup;
-
-            receiveCircuitBreaker = new RepeatedFailuresOverTimeCircuitBreaker("LearningTransportReceive", TimeSpan.FromSeconds(30), ex => criticalError.Raise("Failed to receive from " + settings.InputQueue, ex));
 
             delayedMessagePoller = new DelayedMessagePoller(messagePumpBasePath, delayedDir);
 
@@ -66,6 +65,25 @@
             delayedMessagePoller.Start();
         }
 
+        public async Task Stop()
+        {
+            cancellationTokenSource.Cancel();
+
+            await delayedMessagePoller.Stop()
+                .ConfigureAwait(false);
+
+            await messagePumpTask
+                .ConfigureAwait(false);
+
+            while (concurrencyLimiter.CurrentCount != maxConcurrency)
+            {
+                await Task.Delay(50, CancellationToken.None)
+                    .ConfigureAwait(false);
+            }
+
+            concurrencyLimiter.Dispose();
+        }
+
         void RecoverPendingTransactions()
         {
             if (transactionMode != TransportTransactionMode.None)
@@ -94,25 +112,6 @@
             }
         }
 
-        public async Task Stop()
-        {
-            cancellationTokenSource.Cancel();
-
-            await delayedMessagePoller.Stop()
-                .ConfigureAwait(false);
-
-            await messagePumpTask
-                .ConfigureAwait(false);
-
-            while (concurrencyLimiter.CurrentCount != maxConcurrency)
-            {
-                await Task.Delay(50, CancellationToken.None)
-                    .ConfigureAwait(false);
-            }
-
-            concurrencyLimiter.Dispose();
-        }
-
         [DebuggerNonUserCode]
         async Task ProcessMessages()
         {
@@ -126,10 +125,6 @@
                 catch (OperationCanceledException)
                 {
                     // graceful shutdown
-                }
-                catch (Exception exception)
-                {
-                    Logger.Error("Message pump failed.", exception);
                 }
             }
         }
@@ -160,45 +155,36 @@
                     }
 
                     ProcessFile(transaction, nativeMessageId)
-                        .ContinueWith(async t =>
+                        .ContinueWith(t =>
                         {
                             try
                             {
-                                if (t.Exception == null)
-                                {
-                                    receiveCircuitBreaker.Success();
-                                }
-                                else
-                                {
-                                    var baseEx = t.Exception.GetBaseException();
-
-                                    if (!(baseEx is OperationCanceledException))
-                                    {
-                                        await receiveCircuitBreaker.Failure(baseEx)
-                                            .ConfigureAwait(false);
-                                    }
-
-                                    transaction.Rollback();
-                                }
-
                                 var wasCommitted = transaction.Complete();
 
                                 if (wasCommitted)
                                 {
                                     File.Delete(Path.Combine(bodyDir, nativeMessageId + BodyFileSuffix));
                                 }
+
+                                if (t.Exception != null)
+                                {
+                                    var baseEx = t.Exception.GetBaseException();
+
+                                    if (!(baseEx is OperationCanceledException))
+                                    {
+                                        criticalError.Raise("Failure while trying to process " + filePath, baseEx);
+                                    }
+                                }
                             }
                             catch (Exception ex)
                             {
-                                await receiveCircuitBreaker.Failure(ex)
-                                    .ConfigureAwait(false);
+                                criticalError.Raise("Failure while trying to complete receive transaction for " + filePath, ex);
                             }
                             finally
                             {
                                 concurrencyLimiter.Release();
                             }
                         }, CancellationToken.None)
-                        .Unwrap()
                         .Ignore();
                 }
 
@@ -226,7 +212,6 @@
             {
                 message = await AsyncFile.ReadText(transaction.FileToProcess)
                     .ConfigureAwait(false);
-
             }
             catch (Exception e)
             {
@@ -240,7 +225,7 @@
             if (headers.TryGetValue(Headers.TimeToBeReceived, out var ttbrString))
             {
                 var ttbr = TimeSpan.Parse(ttbrString);
-                
+
                 //file.move preserves create time
                 var sentTime = File.GetCreationTimeUtc(transaction.FileToProcess);
 
@@ -279,8 +264,19 @@
 
                 var errorContext = new ErrorContext(exception, headers, messageId, body, transportTransaction, processingFailures);
 
-                var actionToTake = await onError(errorContext)
-                    .ConfigureAwait(false);
+                // the transport tests assume that all transports use a circuit breaker to be resillient against exceptions
+                // in onError. Since we don't need that robustness we just retry onError once should it fail.   
+                ErrorHandleResult actionToTake;
+                try
+                {
+                    actionToTake = await onError(errorContext)
+                        .ConfigureAwait(false);
+                }
+                catch (Exception)
+                {
+                    actionToTake = await onError(errorContext)
+                        .ConfigureAwait(false);
+                }
 
                 if (actionToTake == ErrorHandleResult.RetryRequired)
                 {
@@ -311,7 +307,6 @@
         ConcurrentDictionary<string, int> retryCounts = new ConcurrentDictionary<string, int>();
         string messagePumpBasePath;
         string basePath;
-        RepeatedFailuresOverTimeCircuitBreaker receiveCircuitBreaker;
         DelayedMessagePoller delayedMessagePoller;
         TransportTransactionMode transactionMode;
         int maxConcurrency;
@@ -320,13 +315,13 @@
         string committedTransactionDir;
         string delayedDir;
 
+        CriticalError criticalError;
+
         public const string BodyFileSuffix = ".body.txt";
         public const string BodyDirName = ".bodies";
         public const string DelayedDirName = ".delayed";
 
         const string CommittedDirName = ".committed";
         const string PendingDirName = ".pending";
-
-        static ILog Logger = LogManager.GetLogger<LearningTransportMessagePump>();
     }
 }
