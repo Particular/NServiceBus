@@ -26,9 +26,10 @@ namespace NServiceBus
             return sagaFile;
         }
 
-        string sagaFileKey;
         protected IContainSagaData sagaData;
         protected Dictionary<string, SagaStorageFile> sagaFiles;
         protected SagaManifestCollection sagaManifests;
+
+        string sagaFileKey;
     }
 }

@@ -11,7 +11,7 @@ namespace NServiceBus
         public Task Save(IContainSagaData sagaData, SagaCorrelationProperty correlationProperty, SynchronizedStorageSession session, ContextBag context)
         {
             var storageSession = (LearningSynchronizedStorageSession)session;
-            return storageSession.Save(correlationProperty, sagaData);
+            return storageSession.Save(sagaData);
         }
 
         public Task Update(IContainSagaData sagaData, SynchronizedStorageSession session, ContextBag context)
