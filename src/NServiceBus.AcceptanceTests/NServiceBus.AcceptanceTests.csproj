@@ -89,6 +89,9 @@
     <Compile Include="EndpointTemplates\TestSuiteConstraints.cs" />
     <Compile Include="Forwarding\When_requesting_message_to_be_forwarded.cs" />
     <Compile Include="Core\Pipeline\When_subscribed_to_ReceivePipelineCompleted.cs" />
+    <Compile Include="Routing\NativePublishSubscribe\When_publishing_from_sendonly.cs" />
+    <Compile Include="Routing\NativePublishSubscribe\When_subscribing_to_a_base_event.cs" />
+    <Compile Include="Routing\NativePublishSubscribe\When_subscribing_to_a_derived_event.cs" />
     <Compile Include="Sagas\When_correlating_on_special_characters.cs" />
     <Compile Include="SelfVerification\When_using_custom_components.cs" />
     <Compile Include="EndpointTemplates\IConfigureEndpointTestExecution.cs" />
@@ -229,9 +232,9 @@
     <Compile Include="Core\PerfMon\CriticalTime\When_deferring_a_message.cs" />
     <Compile Include="Audit\When_audit_is_overridden_in_code.cs" />
     <Compile Include="Outbox\When_a_duplicate_message_arrives.cs" />
-    <Compile Include="Routing\AutomaticSubscriptions\When_starting_an_endpoint_with_a_saga.cs" />
-    <Compile Include="Routing\AutomaticSubscriptions\When_starting_an_endpoint_with_a_saga_autosubscribe_disabled.cs" />
-    <Compile Include="Routing\AutomaticSubscriptions\When_starting_an_endpoint_with_autosubscribe.cs">
+    <Compile Include="Core\AutomaticSubscriptions\When_starting_an_endpoint_with_a_saga.cs" />
+    <Compile Include="Core\AutomaticSubscriptions\When_starting_an_endpoint_with_a_saga_autosubscribe_disabled.cs" />
+    <Compile Include="Core\AutomaticSubscriptions\When_starting_an_endpoint_with_autosubscribe.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Routing\SubscriptionBehaviorExtensions.cs" />
