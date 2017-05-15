@@ -65,6 +65,7 @@ namespace NServiceBus
             }
             catch (IOException)
             {
+                // give the other task some time to complete the saga to avoid retrying to much
                 await Task.Delay(100)
                     .ConfigureAwait(false);
 
