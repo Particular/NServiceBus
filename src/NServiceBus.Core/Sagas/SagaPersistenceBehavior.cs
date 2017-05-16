@@ -39,7 +39,7 @@
 
             RemoveSagaHeadersIfProcessingAEvent(context);
 
-            var saga = context.MessageHandler.Instance as Saga;
+            var saga = context.MessageHandler.Instance as SagaBase;
 
             if (saga == null)
             {

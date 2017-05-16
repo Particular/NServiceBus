@@ -11,7 +11,7 @@ namespace NServiceBus
     public abstract class Saga<TSagaData> : Saga where TSagaData : IContainSagaData, new()
     {
         /// <summary>
-        /// The saga's strongly typed data. Wraps <see cref="Saga.Entity" />.
+        /// The saga's strongly typed data. Wraps <see cref="SagaBase.Entity" />.
         /// </summary>
         public TSagaData Data
         {
@@ -28,10 +28,10 @@ namespace NServiceBus
         /// Override this method in order to configure how this saga's data should be found.
         /// </summary>
         /// <remarks>
-        /// Override <see cref="Saga.ConfigureHowToFindSaga" /> and forwards it to the generic version
+        /// Override <see cref="SagaBase.ConfigureHowToFindSaga" /> and forwards it to the generic version
         /// <see cref="ConfigureHowToFindSaga(SagaPropertyMapper{TSagaData})" />.
         /// </remarks>
-        internal protected override void ConfigureHowToFindSaga(IConfigureHowToFindSagaWithMessage sagaMessageFindingConfiguration)
+        protected internal override void ConfigureHowToFindSaga(IConfigureHowToFindSagaWithMessage sagaMessageFindingConfiguration)
         {
             ConfigureHowToFindSaga(new SagaPropertyMapper<TSagaData>(sagaMessageFindingConfiguration));
         }

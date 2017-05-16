@@ -14,7 +14,7 @@ namespace NServiceBus.Sagas
         /// <summary>
         /// Creates a new <see cref="ActiveSagaInstance"/> instance.
         /// </summary>
-        public ActiveSagaInstance(Saga saga, SagaMetadata metadata, Func<DateTime> currentUtcDateTimeProvider)
+        public ActiveSagaInstance(SagaBase saga, SagaMetadata metadata, Func<DateTime> currentUtcDateTimeProvider)
         {
             this.currentUtcDateTimeProvider = currentUtcDateTimeProvider;
             Instance = saga;
@@ -49,7 +49,7 @@ namespace NServiceBus.Sagas
         /// <summary>
         /// The actual saga instance.
         /// </summary>
-        public Saga Instance { get; }
+        public SagaBase Instance { get; }
 
         /// <summary>
         /// True if this saga was created by this incoming message.
