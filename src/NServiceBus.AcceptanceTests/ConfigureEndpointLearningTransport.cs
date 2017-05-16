@@ -20,7 +20,7 @@ public class ConfigureEndpointLearningTransport : IConfigureEndpointTestExecutio
     {
         storageDir = Path.Combine(@"c:\temp", "att_tests"); //can't use bindir since that will be to long on the build agents
 
-        //we want the tests to be exposed to concurreny
+        //we want the tests to be exposed to concurrency
         configuration.LimitMessageProcessingConcurrencyTo(PushRuntimeSettings.Default.MaxConcurrency);
 
         configuration.UseTransport<LearningTransport>()
