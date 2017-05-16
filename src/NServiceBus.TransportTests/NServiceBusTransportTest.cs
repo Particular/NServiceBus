@@ -124,7 +124,7 @@
                 new FakeCriticalError(onCriticalError),
                 pushSettings);
 
-            MessagePump.Start(PushRuntimeSettings.Default);
+            MessagePump.Start(configuration.PushRuntimeSettings);
         }
 
         void IgnoreUnsupportedDeliveryConstraints()
