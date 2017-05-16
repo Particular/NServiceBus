@@ -40,7 +40,7 @@ namespace NServiceBus
 
             if (sagaStorageFile == null)
             {
-                return default(TSagaData);
+                return DefaultSagaData<TSagaData>.Value;
             }
 
             return (TSagaData)sagaStorageFile.Read();
@@ -84,5 +84,11 @@ namespace NServiceBus
         Dictionary<string, SagaStorageFile> sagaFiles = new Dictionary<string, SagaStorageFile>();
 
         List<StorageAction> deferredActions = new List<StorageAction>();
+
+        static class DefaultSagaData<TSagaData>
+            where TSagaData : IContainSagaData
+        {
+            public static TSagaData Value = default(TSagaData);
+        }
     }
 }

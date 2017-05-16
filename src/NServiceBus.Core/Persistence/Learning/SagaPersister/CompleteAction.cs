@@ -9,12 +9,11 @@ namespace NServiceBus
         {
         }
 
-        public override async Task Execute()
+        public override Task Execute()
         {
             var sagaFile = GetSagaFile();
 
-            await sagaFile.MarkAsCompleted()
-                .ConfigureAwait(false);
+            return sagaFile.MarkAsCompleted();
         }
     }
 }
