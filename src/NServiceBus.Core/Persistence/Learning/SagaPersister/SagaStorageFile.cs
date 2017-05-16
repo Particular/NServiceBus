@@ -44,7 +44,7 @@ namespace NServiceBus
 
             if (!File.Exists(filePath))
             {
-                return Task.FromResult<SagaStorageFile>(null);
+                return noSagaFoundResult;
             }
 
             return OpenWithDelayOnConcurrency(manifest, filePath, FileMode.Open);
@@ -102,5 +102,6 @@ namespace NServiceBus
 
         const int DefaultBufferSize = 4096;
         static Newtonsoft.Json.JsonSerializer serializer = new Newtonsoft.Json.JsonSerializer();
+        static Task<SagaStorageFile> noSagaFoundResult = Task.FromResult<SagaStorageFile>(null);
     }
 }
