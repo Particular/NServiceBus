@@ -23,6 +23,11 @@
                 storagePath = Path.Combine(solutionRoot, ".learningtransport");
             }
 
+            settings.SetDefault<MessageProcessingOptimizationExtensions.ConcurrencyLimit>(new MessageProcessingOptimizationExtensions.ConcurrencyLimit
+            {
+                MaxValue = 1
+            });
+
             var errorQueueAddress = settings.ErrorQueueAddress();
             PathChecker.ThrowForBadPath(errorQueueAddress, "ErrorQueueAddress");
 
