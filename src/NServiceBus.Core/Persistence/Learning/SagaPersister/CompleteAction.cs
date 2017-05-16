@@ -1,6 +1,5 @@
 namespace NServiceBus
 {
-    using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
 
@@ -10,19 +9,11 @@ namespace NServiceBus
         {
         }
 
-        public override async Task Execute()
+        public override Task Execute()
         {
             var sagaFile = GetSagaFile();
 
-            try
-            {
-                await sagaFile.MarkAsCompleted()
-                    .ConfigureAwait(false);
-            }
-            catch (LearningSagaPersisterConcurrencyException)
-            {
-                throw new Exception("Saga can't be completed because it was updated by another process.");
-            }
+            return sagaFile.MarkAsCompleted();
         }
     }
 }

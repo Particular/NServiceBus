@@ -23,8 +23,6 @@ namespace NServiceBus
             {
                 CloseInput = true
             };
-
-            lastModificationSeenAt = File.GetLastWriteTimeUtc(fileStream.Name);
         }
 
         public void Dispose()
@@ -40,40 +38,52 @@ namespace NServiceBus
             fileStream = null;
         }
 
-        public static bool TryOpen(Guid sagaId, SagaManifest manifest, out SagaStorageFile sagaStorageFile)
+        public static Task<SagaStorageFile> Open(Guid sagaId, SagaManifest manifest)
         {
             var filePath = manifest.GetFilePath(sagaId);
 
             if (!File.Exists(filePath))
             {
-                sagaStorageFile = null;
-                return false;
+                return noSagaFoundResult;
             }
 
-            sagaStorageFile = new SagaStorageFile(new FileStream(filePath, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite, DefaultBufferSize, FileOptions.Asynchronous), manifest);
-
-            return true;
+            return OpenWithDelayOnConcurrency(manifest, filePath, FileMode.Open);
         }
 
-        public static SagaStorageFile Create(Guid sagaId, SagaManifest manifest)
+        public static Task<SagaStorageFile> Create(Guid sagaId, SagaManifest manifest)
         {
             var filePath = manifest.GetFilePath(sagaId);
 
-            return new SagaStorageFile(new FileStream(filePath, FileMode.CreateNew, FileAccess.ReadWrite, FileShare.ReadWrite, DefaultBufferSize, FileOptions.Asynchronous), manifest);
+            return OpenWithDelayOnConcurrency(manifest, filePath, FileMode.CreateNew);
         }
+
+        static async Task<SagaStorageFile> OpenWithDelayOnConcurrency(SagaManifest manifest, string filePath, FileMode fileAccess)
+        {
+            try
+            {
+                return new SagaStorageFile(new FileStream(filePath, fileAccess, FileAccess.ReadWrite, FileShare.None, DefaultBufferSize, FileOptions.Asynchronous), manifest);
+            }
+            catch (IOException)
+            {
+                // give the other task some time to complete the saga to avoid retrying to much
+                await Task.Delay(100)
+                    .ConfigureAwait(false);
+
+                throw;
+            }
+        }
+
 
         public Task Write(IContainSagaData sagaData)
         {
             fileStream.Position = 0;
+            serializer.Serialize(jsonWriter, sagaData);
 
-            WriteWithinLock((writer, data) => serializer.Serialize(writer, data), jsonWriter, fileStream.Name, lastModificationSeenAt, sagaData);
             return TaskEx.CompletedTask;
         }
 
         public Task MarkAsCompleted()
         {
-            WriteWithinLock((writer, data) => writer.WriteNull(), jsonWriter, fileStream.Name, lastModificationSeenAt);
-
             isCompleted = true;
             return TaskEx.CompletedTask;
         }
@@ -83,36 +93,15 @@ namespace NServiceBus
             return serializer.Deserialize(jsonReader, manifest.SagaEntityType);
         }
 
-        static void WriteWithinLock(Action<JsonWriter, IContainSagaData> action, JsonWriter writer, string targetPath, DateTime lastModificationSeenAt, IContainSagaData sagaData = null)
-        {
-            var lockFilePath = Path.ChangeExtension(targetPath, ".lock");
-            // will blow up in case of concurrency
-            using (new FileStream(lockFilePath, FileMode.CreateNew, FileAccess.Write, FileShare.None, 1, FileOptions.DeleteOnClose))
-            {
-                ThrowWhenModifiedSinceLastRead(lastModificationSeenAt, targetPath);
-
-                action(writer, sagaData);
-                writer.Flush();
-            }
-        }
-
-        static void ThrowWhenModifiedSinceLastRead(DateTime lastModificationSeenAt, string filePath)
-        {
-            var lastWriteTime = File.GetLastWriteTimeUtc(filePath);
-            if (lastWriteTime != lastModificationSeenAt || !File.Exists(filePath))
-            {
-                throw new LearningSagaPersisterConcurrencyException();
-            }
-        }
 
         SagaManifest manifest;
         FileStream fileStream;
-        DateTime lastModificationSeenAt;
         bool isCompleted;
         JsonTextWriter jsonWriter;
         JsonTextReader jsonReader;
 
         const int DefaultBufferSize = 4096;
         static Newtonsoft.Json.JsonSerializer serializer = new Newtonsoft.Json.JsonSerializer();
+        static Task<SagaStorageFile> noSagaFoundResult = Task.FromResult<SagaStorageFile>(null);
     }
 }
