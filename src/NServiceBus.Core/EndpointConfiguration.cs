@@ -74,45 +74,6 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Append a list of <see cref="Assembly" />s to the ignored list. The string is the file name of the assembly.
-        /// </summary>
-        [ObsoleteEx(
-            Message = "Use the AssemblyScanner configuration API.",
-            ReplacementTypeOrMember = "AssemblyScannerConfigurationExtensions.AssemblyScanner",
-            TreatAsErrorFromVersion = "7.0",
-            RemoveInVersion = "8.0")]
-        public void ExcludeAssemblies(params string[] assemblies)
-        {
-            Settings.GetOrCreate<AssemblyScannerConfiguration>().ExcludeAssemblies(assemblies);
-        }
-
-        /// <summary>
-        /// Append a list of <see cref="Type" />s to the ignored list.
-        /// </summary>
-        [ObsoleteEx(
-            Message = "Use the AssemblyScanner configuration API.",
-            ReplacementTypeOrMember = "AssemblyScannerConfigurationExtensions.AssemblyScanner",
-            TreatAsErrorFromVersion = "7.0",
-            RemoveInVersion = "8.0")]
-        public void ExcludeTypes(params Type[] types)
-        {
-            Settings.GetOrCreate<AssemblyScannerConfiguration>().ExcludeTypes(types);
-        }
-
-        /// <summary>
-        /// Specify to scan nested directories when performing assembly scanning.
-        /// </summary>
-        [ObsoleteEx(
-            Message = "Use the AssemblyScanner configuration API.",
-            ReplacementTypeOrMember = "AssemblyScannerConfigurationExtensions.AssemblyScanner",
-            TreatAsErrorFromVersion = "7.0",
-            RemoveInVersion = "8.0")]
-        public void ScanAssembliesInNestedDirectories()
-        {
-            Settings.GetOrCreate<AssemblyScannerConfiguration>().ScanAssembliesInNestedDirectories = true;
-        }
-
-        /// <summary>
         /// Configures the endpoint to be send-only.
         /// </summary>
         public void SendOnly()
