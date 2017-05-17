@@ -30,18 +30,6 @@ namespace NServiceBus.Sagas
         public string SagaId { get; private set; }
 
         /// <summary>
-        /// The type of the saga.
-        /// </summary>
-        [ObsoleteEx(
-            TreatAsErrorFromVersion = "6",
-            RemoveInVersion = "7",
-            ReplacementTypeOrMember = ".Metadata.SagaType")]
-        public Type SagaType
-        {
-            get { throw new NotImplementedException(); }
-        }
-
-        /// <summary>
         /// Metadata for this active saga.
         /// </summary>
         internal SagaMetadata Metadata { get; }

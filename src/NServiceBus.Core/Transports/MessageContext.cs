@@ -66,15 +66,6 @@
         public CancellationTokenSource ReceiveCancellationTokenSource { get; }
 
         /// <summary>
-        /// Context provided by the transport.
-        /// </summary>
-        [ObsoleteEx(
-            ReplacementTypeOrMember = "Extensions",
-            TreatAsErrorFromVersion = "7",
-            RemoveInVersion = "7")]
-        public ContextBag Context => Extensions;
-
-        /// <summary>
         /// A <see cref="ContextBag" /> which can be used to extend the current object.
         /// </summary>
         public ContextBag Extensions { get; }

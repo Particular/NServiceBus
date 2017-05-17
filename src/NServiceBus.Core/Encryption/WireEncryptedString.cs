@@ -60,26 +60,6 @@
             set { encryptedValue = value; }
         }
 
-        // we need to duplicate to make versions > 3.2.7 backwards compatible with 2.X
-
-        /// <summary>
-        /// Only kept for backwards compatibility reasons.
-        /// </summary>
-        [ObsoleteEx(
-            TreatAsErrorFromVersion = "6.0",
-            RemoveInVersion = "7.0",
-            Message = "No longer required")]
-        public string EncryptedBase64Value { get; set; }
-
-        /// <summary>
-        /// Only kept for backwards compatibility reasons.
-        /// </summary>
-        [ObsoleteEx(
-            TreatAsErrorFromVersion = "6.0",
-            RemoveInVersion = "7.0",
-            Message = "No longer required")]
-        public string Base64Iv { get; set; }
-
         /// <summary>
         /// Method for making default XML serialization work properly for this type.
         /// </summary>

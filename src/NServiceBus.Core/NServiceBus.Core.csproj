@@ -338,7 +338,6 @@
     <Compile Include="Pipeline\Outgoing\IBatchDispatchContext.cs" />
     <Compile Include="Pipeline\Outgoing\BatchToDispatchConnector.cs" />
     <Compile Include="Pipeline\Incoming\ReceiveFeature.cs" />
-    <Compile Include="Pipeline\Outgoing\ForceImmediateDispatchForOperationsInSupressedScopeBehavior.cs" />
     <Compile Include="Pipeline\Outgoing\ImmediateDispatchOptionExtensions.cs" />
     <Compile Include="Pipeline\Outgoing\IOutgoingPhysicalMessageContext.cs" />
     <Compile Include="Reliability\Outbox\ForceBatchDispatchToBeIsolatedBehavior.cs" />

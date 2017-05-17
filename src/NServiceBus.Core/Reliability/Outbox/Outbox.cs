@@ -30,25 +30,10 @@
                 throw new Exception("The selected persistence doesn't have support for outbox storage. Select another persistence or disable the outbox feature using endpointConfiguration.DisableFeature<Outbox>()");
             }
 
-            LogWarnIfDoubleOptInForOutboxFound();
-
             //note: in the future we should change the persister api to give us a "outbox factory" so that we can register it in DI here instead of relying on the persister to do it
 
             context.RegisterStartupTask(new DtcRunningWarning());
             context.Pipeline.Register("ForceBatchDispatchToBeIsolated", new ForceBatchDispatchToBeIsolatedBehavior(), "Makes sure that we dispatch straight to the transport so that we can safely set the outbox record to dispatched one the dispatch pipeline returns.");
-        }
-
-        [ObsoleteEx(RemoveInVersion = "7.0")]
-        static void LogWarnIfDoubleOptInForOutboxFound()
-        {
-            var configValue = ConfigurationManager.AppSettings.Get("NServiceBus/Outbox");
-
-            if (configValue != null)
-            {
-                log.Warn(@"The double opt-in to use the Outbox feature with MSMQ or SQLServer transport is no longer required. It is safe to remove the following line:
-    <add key=""NServiceBus/Outbox"" value=""true""/>
-from your <appSettings /> section in the application configuration file.");
-            }
         }
 
         static ILog log = LogManager.GetLogger<Outbox>();

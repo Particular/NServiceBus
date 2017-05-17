@@ -20,16 +20,5 @@ namespace NServiceBus
             Guard.AgainstNull(nameof(config), config);
             config.Settings.Set("Transport.PurgeOnStartup", value);
         }
-
-        /// <summary>
-        /// Retrieves whether to purge the queues at startup or not.
-        /// </summary>
-        [ObsoleteEx(
-            TreatAsErrorFromVersion = "6")]
-// ReSharper disable once UnusedParameter.Global
-        public static bool PurgeOnStartup(this Configure config)
-        {
-            throw new NotImplementedException();
-        }
     }
 }
