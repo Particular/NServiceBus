@@ -21,9 +21,7 @@
             this.typesToInclude = typesToInclude;
         }
 
-#pragma warning disable CS0618
-        public async Task<EndpointConfiguration> GetConfiguration(RunDescriptor runDescriptor, EndpointCustomizationConfiguration endpointConfiguration, IConfigurationSource configSource, Action<EndpointConfiguration> configurationBuilderCustomization)
-#pragma warning restore CS0618
+        public async Task<EndpointConfiguration> GetConfiguration(RunDescriptor runDescriptor, EndpointCustomizationConfiguration endpointConfiguration, Action<EndpointConfiguration> configurationBuilderCustomization)
         {
             var types = endpointConfiguration.GetTypesScopedByTestClass();
 
@@ -32,7 +30,6 @@
             var configuration = new EndpointConfiguration(endpointConfiguration.EndpointName);
 
             configuration.TypesToIncludeInScan(typesToInclude);
-            configuration.CustomConfigurationSource(configSource);
             configuration.EnableInstallers();
 
             configuration.DisableFeature<TimeoutManager>();
