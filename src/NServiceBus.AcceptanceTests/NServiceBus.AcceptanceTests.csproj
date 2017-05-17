@@ -296,7 +296,6 @@
     <Compile Include="Core\Pipeline\When_aborting_the_behavior_chain.cs" />
     <Compile Include="Pipeline\When_handling_current_message_later.cs" />
     <Compile Include="Routing\When_multiple_mappings_exists.cs" />
-    <Compile Include="Correlation\When_using_a_custom_correlation_id.cs" />
     <Compile Include="Outbox\When_receiving_a_message.cs" />
     <Compile Include="NServiceBusAcceptanceTest.cs" />
     <Compile Include="DataBus\When_sending_databus_properties.cs" />

@@ -113,7 +113,6 @@
     <Compile Include="Causation\AttachCausationHeadersBehaviorTests.cs" />
     <Compile Include="Config\When_using_initialization.cs" />
     <Compile Include="ContextBagTests.cs" />
-    <Compile Include="Correlation\CorrelationContextExtensionsTests.cs" />
     <Compile Include="DateTimeExtensionsTests.cs" />
     <Compile Include="DelayedDelivery\DelayedDeliveryOptionExtensionsTests.cs" />
     <Compile Include="DelayedDelivery\RouteDeferredMessageToTimeoutManagerBehaviorTests.cs" />
