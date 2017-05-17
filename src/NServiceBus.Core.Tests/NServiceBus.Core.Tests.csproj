@@ -117,8 +117,6 @@
     <Compile Include="DateTimeExtensionsTests.cs" />
     <Compile Include="DelayedDelivery\DelayedDeliveryOptionExtensionsTests.cs" />
     <Compile Include="DelayedDelivery\RouteDeferredMessageToTimeoutManagerBehaviorTests.cs" />
-    <Compile Include="Encryption\When_decrypting_a_member_that_is_missing_encryption_data.cs" />
-    <Compile Include="Encryption\When_sending_a_message_with_2x_compatibility_disabled.cs" />
     <Compile Include="DelayedDelivery\TimeoutManager\DispatchTimeoutBehaviorTest.cs" />
     <Compile Include="DelayedDelivery\TimeoutManager\ExpiredTimeoutsPollerTests.cs" />
     <Compile Include="DelayedDelivery\TimeoutManager\RecordingFakeDispatcher.cs" />
@@ -224,8 +222,6 @@
     <Compile Include="DocumentationTests.cs" />
     <Compile Include="MessageConventionSpecs.cs" />
     <Compile Include="DataBus\InMemoryDataBus.cs" />
-    <Compile Include="Encryption\ValidationTests.cs" />
-    <Compile Include="Encryption\When_message_contains_props_and_fields_that_cannot_be_set.cs" />
     <Compile Include="Features\FeatureDefaultsTests.cs" />
     <Compile Include="Hosting\HostInfoSettingsTests.cs" />
     <Compile Include="Logging\DefaultFactoryTests.cs" />
@@ -243,8 +239,6 @@
     <Compile Include="Serializers\XML\SerializingNullableTypesTests.cs" />
     <Compile Include="Settings\SettingsHolderTests.cs" />
     <Compile Include="StandardsTests.cs" />
-    <Compile Include="Encryption\ConfigureRijndaelEncryptionServiceTests.cs" />
-    <Compile Include="Encryption\RijndaelEncryptionServiceTest.cs" />
     <Compile Include="RedirectHelper.cs" />
     <Compile Include="Features\FeatureDependencyTests.cs" />
     <Compile Include="Features\FeatureSettingsTests.cs" />
@@ -281,12 +275,6 @@
     <Compile Include="DataBus\When_applying_the_databus_message_mutator_to_incoming_messages.cs" />
     <Compile Include="DataBus\When_applying_the_databus_message_mutator_to_null_properties.cs" />
     <Compile Include="DataBus\When_applying_the_databus_message_mutator_to_outgoing_messages.cs" />
-    <Compile Include="Encryption\ConventionBasedEncryptedStringSpecs.cs" />
-    <Compile Include="Encryption\FakeEncryptionService.cs" />
-    <Compile Include="Encryption\Issue_701.cs" />
-    <Compile Include="Encryption\Issue_949.cs" />
-    <Compile Include="Encryption\Mailing_list_complex_dto.cs" />
-    <Compile Include="Encryption\WireEncryptedStringSpecs.cs" />
     <Compile Include="ExceptionTests.cs" />
     <Compile Include="MessageMapper\When_mapping_ienumerable_implementations.cs" />
     <Compile Include="MessageMapper\When_mapping_interfaces.cs" />
