@@ -10,7 +10,6 @@ namespace NServiceBus
     using ObjectBuilder;
     using Settings;
     using Transport;
-    using UnicastBus = Unicast.UnicastBus;
 
     class RunningEndpointInstance : IEndpointInstance
     {
@@ -117,6 +116,6 @@ namespace NServiceBus
         volatile bool stopped;
         SemaphoreSlim stopSemaphore = new SemaphoreSlim(1);
 
-        static ILog Log = LogManager.GetLogger<UnicastBus>();
+        static ILog Log = LogManager.GetLogger<RunningEndpointInstance>();
     }
 }

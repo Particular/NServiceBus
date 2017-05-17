@@ -118,8 +118,7 @@
                 return new ImmediateConfig(0);
             }
 
-            var retriesConfig = settings.GetConfigSection<TransportConfig>();
-            var maxImmediateRetries = retriesConfig?.MaxRetries ?? settings.Get<int>(NumberOfImmediateRetries);
+            var maxImmediateRetries = settings.Get<int>(NumberOfImmediateRetries);
 
             return new ImmediateConfig(maxImmediateRetries);
         }
@@ -135,13 +134,6 @@
 
             var numberOfRetries = settings.Get<int>(NumberOfDelayedRetries);
             var timeIncrease = settings.Get<TimeSpan>(DelayedRetriesTimeIncrease);
-
-            var retriesConfig = settings.GetConfigSection<SecondLevelRetriesConfig>();
-            if (retriesConfig != null)
-            {
-                numberOfRetries = retriesConfig.Enabled ? retriesConfig.NumberOfRetries : 0;
-                timeIncrease = retriesConfig.TimeIncrease;
-            }
 
             return new DelayedConfig(numberOfRetries, timeIncrease);
         }

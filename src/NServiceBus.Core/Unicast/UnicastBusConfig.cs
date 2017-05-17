@@ -10,7 +10,7 @@ namespace NServiceBus.Config
         Message = "Use of the application configuration file to configure the endpoint is discouraged. Use the code first API instead.",
         TreatAsErrorFromVersion = "7.0",
         RemoveInVersion = "8.0")]
-    public partial class UnicastBusConfig : ConfigurationSection
+    public class UnicastBusConfig : ConfigurationSection
     {
         /// <summary>
         /// Gets/sets the time to be received set on forwarded messages.
