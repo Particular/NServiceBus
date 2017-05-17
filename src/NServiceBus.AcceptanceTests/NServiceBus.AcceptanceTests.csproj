@@ -227,7 +227,6 @@
     <Compile Include="Outbox\When_dispatching_forwarded_messages.cs" />
     <Compile Include="Outbox\When_a_message_is_audited.cs" />
     <Compile Include="Core\Outbox\When_clearing_saga_timeouts.cs" />
-    <Compile Include="Core\PerfMon\CriticalTime\When_deferring_a_message.cs" />
     <Compile Include="Audit\When_audit_is_overridden_in_code.cs" />
     <Compile Include="Outbox\When_a_duplicate_message_arrives.cs" />
     <Compile Include="Core\AutomaticSubscriptions\When_starting_an_endpoint_with_a_saga.cs" />
@@ -293,10 +292,6 @@
     <Compile Include="Core\UnitOfWork\When_a_subscription_message_arrives.cs" />
     <Compile Include="Core\Mutators\When_outgoing_mutator_replaces_instance.cs" />
     <Compile Include="Core\Mutators\When_defining_outgoing_message_mutators.cs" />
-    <Compile Include="Core\PerfMon\CriticalTime\When_slow_with_CriticalTime_enabled.cs" />
-    <Compile Include="Core\PerfMon\CriticalTime\When_CriticalTime_enabled.cs" />
-    <Compile Include="Core\PerfMon\SLA\When_sending_slow_with_SLA_enabled.cs" />
-    <Compile Include="Core\PerfMon\SLA\When_sending_with_SLA_enabled.cs" />
     <Compile Include="Routing\When_publishing_using_root_type.cs" />
     <Compile Include="Recoverability\When_immediate_retries_with_dtc_on.cs" />
     <Compile Include="Recoverability\When_immediate_retries_with_native_transactions.cs" />
