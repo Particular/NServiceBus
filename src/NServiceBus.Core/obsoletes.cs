@@ -41,10 +41,51 @@ namespace NServiceBus
         }
     }
 
+    [ObsoleteEx(
+        Message = "Performance counters have been released as a separate package: NServiceBus.Metrics.PerformanceCounters",
+        RemoveInVersion = "8",
+        TreatAsErrorFromVersion = "7")]
+    public static class CriticalTimeMonitoringConfig
+    {
+        [ObsoleteEx(
+            Message = "Performance counters have been released as a separate package: NServiceBus.Metrics.PerformanceCounters",
+            RemoveInVersion = "8",
+            TreatAsErrorFromVersion = "7")]
+        public static void EnableCriticalTimePerformanceCounter(this EndpointConfiguration config)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
     public partial class FailedConfig
     {
         [ObsoleteEx(ReplacementTypeOrMember = "FailedConfig(string errorQueue, HashSet<Type> unrecoverableExceptionTypes)", RemoveInVersion = "8.0", TreatAsErrorFromVersion = "7.0")]
         public FailedConfig(string errorQueue)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    [ObsoleteEx(
+        Message = "Performance counters have been released as a separate package: NServiceBus.Metrics.PerformanceCounters",
+        RemoveInVersion = "8",
+        TreatAsErrorFromVersion = "7")]
+    public static class SLAMonitoringConfig
+    {
+        [ObsoleteEx(
+            Message = "Performance counters have been released as a separate package: NServiceBus.Metrics.PerformanceCounters",
+            RemoveInVersion = "8",
+            TreatAsErrorFromVersion = "7")]
+        public static void EnableSLAPerformanceCounter(this EndpointConfiguration config, TimeSpan sla)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(
+            Message = "Performance counters have been released as a separate package: NServiceBus.Metrics.PerformanceCounters",
+            RemoveInVersion = "8",
+            TreatAsErrorFromVersion = "7")]
+        public static void EnableSLAPerformanceCounter(this EndpointConfiguration config)
         {
             throw new NotImplementedException();
         }
@@ -58,6 +99,20 @@ namespace NServiceBus.Features
     using NServiceBus.ObjectBuilder;
     using NServiceBus.Transport;
 
+    [ObsoleteEx(
+        Message = "Performance counters have been released as a separate package: NServiceBus.Metrics.PerformanceCounters",
+        RemoveInVersion = "8",
+        TreatAsErrorFromVersion = "7")]
+    public class CriticalTimeMonitoring : Feature
+    {
+        internal CriticalTimeMonitoring() { }
+
+        protected internal override void Setup(FeatureConfigurationContext context)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
     public partial class FeatureConfigurationContext
     {
         [ObsoleteEx(
@@ -66,6 +121,36 @@ namespace NServiceBus.Features
             TreatAsErrorFromVersion = "7.0",
             ReplacementTypeOrMember = AddSatelliteOverloadMemberDefinition)]
         public void AddSatelliteReceiver(string name, string transportAddress, TransportTransactionMode requiredTransportTransactionMode, PushRuntimeSettings runtimeSettings, Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> recoverabilityPolicy, Func<IBuilder, MessageContext, Task> onMessage)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    [ObsoleteEx(
+    Message = "Performance counters have been released as a separate package: NServiceBus.Metrics.PerformanceCounters",
+    RemoveInVersion = "8",
+    TreatAsErrorFromVersion = "7")]
+    public class ReceiveStatisticsPerformanceCounters : Feature
+    {
+        internal ReceiveStatisticsPerformanceCounters() { }
+
+        protected internal override void Setup(FeatureConfigurationContext context)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    [ObsoleteEx(
+        Message = "Performance counters have been released as a separate package: NServiceBus.Metrics.PerformanceCounters",
+        RemoveInVersion = "8",
+        TreatAsErrorFromVersion = "7")]
+    public class SLAMonitoring : Feature
+    {
+        internal SLAMonitoring()
+        {
+        }
+
+        protected internal override void Setup(FeatureConfigurationContext context)
         {
             throw new NotImplementedException();
         }

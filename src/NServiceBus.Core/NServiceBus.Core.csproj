@@ -130,7 +130,6 @@
     <Compile Include="Notifications\IEventAggregator.cs" />
     <Compile Include="Notifications\NotificationSubscriptions.cs" />
     <Compile Include="Notifications\EventAggregatorExtensions.cs" />
-    <Compile Include="Performance\ReceiveStatisticsPerformanceCounters.cs" />
     <Compile Include="Persistence\Learning\LearningPersistence.cs" />
     <Compile Include="Persistence\Learning\LearningStorageAdapter.cs" />
     <Compile Include="Persistence\Learning\LearningSynchronizedStorage.cs" />
@@ -264,10 +263,8 @@
     <Compile Include="IMessageProcessingContext.cs" />
     <Compile Include="IMessageProcessingContextExtensions.cs" />
     <Compile Include="Causation\MessageCausation.cs" />
-    <Compile Include="Performance\Counters\IPerformanceCounterInstance.cs" />
-    <Compile Include="Performance\Counters\NonFunctionalPerformanceCounterInstance.cs" />
     <Compile Include="Transports\TransactionModeSettingsExtensions.cs" />
-    <Compile Include="Performance\AuditProcessingStatisticsBehavior.cs" />
+    <Compile Include="Performance\Statistics\AuditProcessingStatisticsBehavior.cs" />
     <Compile Include="UnitOfWork\TransactionScopes\TransactionScopeUnitOfWork.cs" />
     <Compile Include="Persistence\CompletableSynchronizedStorageSession.cs" />
     <Compile Include="Persistence\InMemory\InMemorySynchronizedStorage.cs" />
@@ -435,9 +432,6 @@
     <Compile Include="Pipeline\Outgoing\OutgoingPipelineFeature.cs" />
     <Compile Include="Pipeline\Outgoing\IOutgoingSendContext.cs" />
     <Compile Include="Pipeline\Outgoing\IOutgoingReplyContext.cs" />
-    <Compile Include="Performance\Counters\PerformanceCounterHelper.cs" />
-    <Compile Include="Performance\Counters\PerformanceCounterInstance.cs" />
-    <Compile Include="Performance\Counters\PerformanceMonitorUsersInstaller.cs" />
     <Compile Include="Performance\MessageDurability\DetermineMessageDurabilityBehavior.cs" />
     <Compile Include="Performance\MessageDurability\DurableMessagesConventionExtensions.cs" />
     <Compile Include="Performance\MessageDurability\MessageDurabilityFeature.cs" />
@@ -445,7 +439,7 @@
     <Compile Include="Pipeline\Outgoing\IOutgoingPublishContext.cs" />
     <Compile Include="Pipeline\IPipelineTerminator.cs" />
     <Compile Include="Pipeline\IStageConnector.cs" />
-    <Compile Include="Performance\ReceiveStatisticsFeature.cs" />
+    <Compile Include="Performance\Statistics\ReceiveStatisticsFeature.cs" />
     <Compile Include="Performance\TimeToBeReceived\ApplyTimeToBeReceivedBehavior.cs" />
     <Compile Include="Performance\TimeToBeReceived\TimeToBeReceived.cs" />
     <Compile Include="Performance\TimeToBeReceived\TimeToBeReceivedConventionExtensions.cs" />
@@ -534,9 +528,6 @@
     <Compile Include="Logging\DefaultFactory.cs" />
     <Compile Include="Logging\LoggingDefinition.cs" />
     <Compile Include="MessageInterfaces\MessageMapper\Reflection\ConcreteProxyCreator.cs" />
-    <Compile Include="Performance\Statistics\CriticalTime\CriticalTimeMonitoringConfig.cs" />
-    <Compile Include="Performance\Statistics\CriticalTime\CriticalTimeMonitoring.cs" />
-    <Compile Include="Performance\Statistics\SLA\SLAMonitoringConfig.cs" />
     <Compile Include="AddressMode.cs" />
     <Compile Include="Audit\Audit.cs" />
     <Compile Include="Routing\AutomaticSubscriptions\AutoSubscribe.cs" />
@@ -600,7 +591,6 @@
     <Compile Include="Transports\Msmq\TransactionScopeStrategy.cs" />
     <Compile Include="Forwarding\ForwardReceivedMessages.cs" />
     <Compile Include="Unicast\Config\RegisterHandlersInOrder.cs" />
-    <Compile Include="Performance\Statistics\SLA\SLAMonitoring.cs" />
     <Compile Include="Performance\Statistics\ProcessingStatisticsBehavior.cs" />
     <Compile Include="MessageDeserializationException.cs" />
     <Compile Include="Hosting\AuditHostInformationBehavior.cs" />
@@ -611,7 +601,6 @@
     <Compile Include="Transports\Msmq\InstanceMapping\InstanceMappingFileMonitor.cs" />
     <Compile Include="Transports\Msmq\InstanceMapping\InstanceMappingFileFeature.cs" />
     <Compile Include="Unicast\Transport\Config\TransportExtensions.cs" />
-    <Compile Include="Performance\Statistics\ReceivePerformanceDiagnosticsBehavior.cs" />
     <Compile Include="Utils\Guard.cs" />
     <Compile Include="Utils\ExceptionHeaderHelper.cs" />
     <Compile Include="Utils\ElevateChecker.cs" />
