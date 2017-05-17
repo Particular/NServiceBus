@@ -121,7 +121,6 @@
     <Compile Include="MessageMutators\Mutators.cs" />
     <Compile Include="Notifications.cs" />
     <Compile Include="Notifications\EventAggregator.cs" />
-    <Compile Include="Encryption\WireEncryptedStringConversions.cs" />
     <Compile Include="CircuitBreakers\ICircuitBreaker.cs" />
     <Compile Include="CriticalError\ICriticalErrorContext.cs" />
     <Compile Include="DetectObsoleteConfigurationSettings.cs" />
@@ -248,7 +247,6 @@
     <Compile Include="UnitOfWork\TransactionScopes\TransactionScopeUnitOfWorkBehavior.cs" />
     <Compile Include="MessageSession.cs" />
     <Compile Include="CriticalError\CriticalErrorContext.cs" />
-    <Compile Include="Encryption\StringConversions.cs" />
     <Compile Include="EndpointConfiguration.cs" />
     <Compile Include="DelayedDelivery\TimeoutManager\TimeoutPollerRunner.cs" />
     <Compile Include="Extensibility\IExtendable.cs" />
@@ -394,15 +392,6 @@
     <Compile Include="DelayedDelivery\TimeoutManager\Persistence\TimeoutsChunk.cs" />
     <Compile Include="DelayedDelivery\TimeoutManagerAddressConfiguration.cs" />
     <Compile Include="DeliveryConstraints\DeliveryConstraintContextExtensions.cs" />
-    <Compile Include="Encryption\DecryptBehavior.cs" />
-    <Compile Include="Encryption\EncryptBehavior.cs" />
-    <Compile Include="Encryption\EncryptedValue.cs" />
-    <Compile Include="Encryption\Encryption.cs" />
-    <Compile Include="Encryption\KeyFormat.cs" />
-    <Compile Include="Encryption\RijndaelEncryptionServiceConfigValidations.cs" />
-    <Compile Include="Encryption\RijndaelExpiredKey.cs" />
-    <Compile Include="Encryption\RijndaelExpiredKeyCollection.cs" />
-    <Compile Include="Encryption\RijndaelEncryptionService.cs" />
     <Compile Include="Extensibility\ExtendableOptions.cs" />
     <Compile Include="Extensibility\ExtendableOptionsExtensions.cs" />
     <Compile Include="Extensibility\ReadOnlyContextBag.cs" />
@@ -538,7 +527,6 @@
     <Compile Include="DataBus\DataBusProperty.cs" />
     <Compile Include="DataBus\DataBusReceiveBehavior.cs" />
     <Compile Include="DataBus\DataBusSendBehavior.cs" />
-    <Compile Include="Encryption\MemberInfoExtensions.cs" />
     <Compile Include="ExceptionExtensions.cs" />
     <Compile Include="Performance\MessageDurability\ExpressAttribute.cs" />
     <Compile Include="Features\FeatureConfigurationContext.cs" />
@@ -693,7 +681,6 @@
     <Compile Include="ConfigureQueueCreation.cs" />
     <Compile Include="Transports\ConfigurePurging.cs" />
     <Compile Include="Features\Feature.cs" />
-    <Compile Include="Encryption\ConfigureRijndaelEncryptionService.cs" />
     <Compile Include="ConfigurationSource\DefaultConfigurationSource.cs" />
     <Compile Include="ConfigurationSource\IConfigurationSource.cs" />
     <Compile Include="Logging\Logging.cs" />
@@ -714,7 +701,6 @@
     <Compile Include="Transports\Msmq\MsmqMessageDispatcher.cs" />
     <Compile Include="Transports\Msmq\MsmqQueueCreator.cs" />
     <Compile Include="Transports\Msmq\MsmqUtilities.cs" />
-    <Compile Include="Encryption\RijndaelEncryptionServiceConfig.cs" />
     <Compile Include="Unicast\UnicastBusConfig.cs" />
     <Compile Include="DataBus\DataBusFileBased.cs" />
     <Compile Include="DataBus\DefaultDatabusSerializer.cs" />
@@ -723,8 +709,6 @@
     <Compile Include="DataBus\IDatabusSerializer.cs" />
     <Compile Include="DateTimeExtensions.cs" />
     <Compile Include="DependencyLifecycle.cs" />
-    <Compile Include="Encryption\EncryptionInspector.cs" />
-    <Compile Include="Encryption\IEncryptionService.cs" />
     <Compile Include="Recoverability\Faults\FaultsHeaderKeys.cs" />
     <Compile Include="Hosting\Helpers\AssemblyScanner.cs" />
     <Compile Include="Hosting\Helpers\AssemblyScannerResults.cs" />
@@ -802,7 +786,6 @@
     <Compile Include="Utils\Reflection\ExtensionMethods.cs" />
     <Compile Include="Utils\Reflection\Reflect.cs" />
     <Compile Include="Utils\RegistryReader.cs" />
-    <Compile Include="Encryption\WireEncryptedString.cs" />
     <Compile Include="obsoletes.cs" />
   </ItemGroup>
   <ItemGroup>

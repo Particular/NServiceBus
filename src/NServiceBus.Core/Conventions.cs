@@ -113,27 +113,6 @@
         }
 
         /// <summary>
-        /// Returns true if the given property should be encrypted.
-        /// </summary>
-        [ObsoleteEx(
-            Message = "Message property encryption is released as a dedicated 'NServiceBus.Encryption.MessageProperty' package.",
-            RemoveInVersion = "8",
-            TreatAsErrorFromVersion = "7")]
-        public bool IsEncryptedProperty(PropertyInfo property)
-        {
-            Guard.AgainstNull(nameof(property), property);
-            try
-            {
-                //the message mutator will cache the whole message so we don't need to cache here
-                return IsEncryptedPropertyAction(property);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception("Failed to evaluate Encrypted Property convention. See inner exception for details.", ex);
-            }
-        }
-
-        /// <summary>
         /// Returns true if the given property should be send via the DataBus.
         /// </summary>
         public bool IsDataBusProperty(PropertyInfo property)
@@ -181,8 +160,6 @@
         internal Func<Type, bool> IsCommandTypeAction = t => typeof(ICommand).IsAssignableFrom(t) && typeof(ICommand) != t;
 
         internal Func<PropertyInfo, bool> IsDataBusPropertyAction = p => typeof(IDataBusProperty).IsAssignableFrom(p.PropertyType) && typeof(IDataBusProperty) != p.PropertyType;
-
-        internal Func<PropertyInfo, bool> IsEncryptedPropertyAction = p => typeof(WireEncryptedString).IsAssignableFrom(p.PropertyType);
 
         internal Func<Type, bool> IsEventTypeAction = t => typeof(IEvent).IsAssignableFrom(t) && typeof(IEvent) != t;
 
