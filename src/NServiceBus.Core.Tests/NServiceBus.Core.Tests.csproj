@@ -216,7 +216,6 @@
     <Compile Include="Config\TestConfigurationSection.cs" />
     <Compile Include="Config\When_no_custom_configuration_source_is_specified.cs" />
     <Compile Include="Config\When_scanning_assemblies.cs" />
-    <Compile Include="Config\When_users_override_the_configuration_source.cs" />
     <Compile Include="Config\When_using_convention_based_messages.cs" />
     <Compile Include="ArgumentExceptionTests.cs" />
     <Compile Include="DocumentationTests.cs" />
@@ -314,7 +313,6 @@
     <Compile Include="Transports\PushRuntimeSettingsTests.cs" />
     <Compile Include="Transports\TransportOperationsTests.cs" />
     <Compile Include="Transports\TransportReceiverTests.cs" />
-    <Compile Include="Unicast\ConfigurationSettings.cs" />
     <Compile Include="Unicast\ConfiguringMessageEndpointMapping.cs" />
     <Compile Include="Unicast\Config\ConfigurationSettings.cs" />
     <Compile Include="Unicast\Contexts\CommandMessage.cs" />
