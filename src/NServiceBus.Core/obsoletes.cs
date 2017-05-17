@@ -42,6 +42,49 @@ namespace NServiceBus
     }
 
     [ObsoleteEx(
+         Message = "Setting a custom correlation ID is no longer supported.",
+         RemoveInVersion = "8",
+         TreatAsErrorFromVersion = "7")]
+    public static class CorrelationContextExtensions
+    {
+        [ObsoleteEx(
+            Message = "Setting a custom correlation ID is no longer supported.",
+            RemoveInVersion = "8",
+            TreatAsErrorFromVersion = "7")]
+        public static void SetCorrelationId(this SendOptions options, string correlationId)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(
+            Message = "Setting a custom correlation ID is no longer supported.",
+            RemoveInVersion = "8",
+            TreatAsErrorFromVersion = "7")]
+        public static void SetCorrelationId(this ReplyOptions options, string correlationId)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(
+        Message = "Using custom correlation IDs is no longer supported.",
+            RemoveInVersion = "8",
+            TreatAsErrorFromVersion = "7")]
+        public static string GetCorrelationId(this SendOptions options)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(
+        Message = "Using custom correlation IDs is no longer supported.",
+            RemoveInVersion = "8",
+            TreatAsErrorFromVersion = "7")]
+        public static string GetCorrelationId(this ReplyOptions options)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    [ObsoleteEx(
         Message = "Performance counters have been released as a separate package: NServiceBus.Metrics.PerformanceCounters",
         RemoveInVersion = "8",
         TreatAsErrorFromVersion = "7")]
