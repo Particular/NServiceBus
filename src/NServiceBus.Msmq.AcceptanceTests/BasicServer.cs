@@ -20,9 +20,7 @@ namespace NServiceBus.AcceptanceTests.EndpointTemplates
             return new List<Type>();
         }
 
-#pragma warning disable CS0618
-        public Task<EndpointConfiguration> GetConfiguration(RunDescriptor runDescriptor, EndpointCustomizationConfiguration endpointConfiguration, IConfigurationSource configSource, Action<EndpointConfiguration> configurationBuilderCustomization)
-#pragma warning restore CS0618
+        public Task<EndpointConfiguration> GetConfiguration(RunDescriptor runDescriptor, EndpointCustomizationConfiguration endpointConfiguration, Action<EndpointConfiguration> configurationBuilderCustomization)
         {
             var types = endpointConfiguration.GetTypesScopedByTestClass().ToList();
 
@@ -31,10 +29,8 @@ namespace NServiceBus.AcceptanceTests.EndpointTemplates
             var configuration = new EndpointConfiguration(endpointConfiguration.EndpointName);
 
             configuration.TypesToIncludeInScan(types);
-            configuration.CustomConfigurationSource(configSource);
             configuration.EnableInstallers();
 
-         
             var transportConfig = configuration.UseTransport<MsmqTransport>();
             var routingConfig = transportConfig.Routing();
 
