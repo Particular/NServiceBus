@@ -293,6 +293,7 @@ namespace NServiceBus
             TreatAsErrorFromVersion = "7")]
         public WireEncryptedString()
         {
+            throw new NotImplementedException();
         }
 
         [ObsoleteEx(
@@ -669,8 +670,8 @@ namespace NServiceBus.Features
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.ObjectBuilder;
-    using NServiceBus.Transport;
+    using ObjectBuilder;
+    using Transport;
 
     [ObsoleteEx(
         Message = "Performance counters have been released as a separate package: NServiceBus.Metrics.PerformanceCounters",
@@ -678,7 +679,14 @@ namespace NServiceBus.Features
         TreatAsErrorFromVersion = "7")]
     public class CriticalTimeMonitoring : Feature
     {
-        internal CriticalTimeMonitoring() { }
+        [ObsoleteEx(
+            Message = "Performance counters have been released as a separate package: NServiceBus.Metrics.PerformanceCounters",
+            RemoveInVersion = "8",
+            TreatAsErrorFromVersion = "7")]
+        internal CriticalTimeMonitoring()
+        {
+            throw new NotImplementedException();
+        }
 
         [ObsoleteEx(
             Message = "Performance counters have been released as a separate package: NServiceBus.Metrics.PerformanceCounters",
@@ -709,7 +717,14 @@ namespace NServiceBus.Features
         TreatAsErrorFromVersion = "7")]
     public class ReceiveStatisticsPerformanceCounters : Feature
     {
-        internal ReceiveStatisticsPerformanceCounters() { }
+        [ObsoleteEx(
+            Message = "Performance counters have been released as a separate package: NServiceBus.Metrics.PerformanceCounters",
+            RemoveInVersion = "8",
+            TreatAsErrorFromVersion = "7")]
+        internal ReceiveStatisticsPerformanceCounters()
+        {
+            throw new NotImplementedException();
+        }
 
         [ObsoleteEx(
             Message = "Performance counters have been released as a separate package: NServiceBus.Metrics.PerformanceCounters",
@@ -727,8 +742,13 @@ namespace NServiceBus.Features
         TreatAsErrorFromVersion = "7")]
     public class SLAMonitoring : Feature
     {
+        [ObsoleteEx(
+            Message = "Performance counters have been released as a separate package: NServiceBus.Metrics.PerformanceCounters",
+            RemoveInVersion = "8",
+            TreatAsErrorFromVersion = "7")]
         internal SLAMonitoring()
         {
+            throw new NotImplementedException();
         }
 
         [ObsoleteEx(
