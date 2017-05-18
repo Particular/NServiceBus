@@ -1,7 +1,6 @@
 namespace NServiceBus
 {
     using System.Collections.Generic;
-    using Config;
     using Features;
     using Pipeline;
     using Routing;

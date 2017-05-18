@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus.Features
 {
-    using Config;
     using Logging;
     using Persistence.Legacy;
     using Transport;

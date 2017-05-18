@@ -2,7 +2,6 @@
 {
     using System;
     using System.Diagnostics;
-    using Config;
     using Logging;
     using Settings;
 

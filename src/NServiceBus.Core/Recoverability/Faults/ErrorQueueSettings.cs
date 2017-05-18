@@ -1,7 +1,6 @@
 namespace NServiceBus
 {
     using System;
-    using Config;
     using Logging;
     using Settings;
 

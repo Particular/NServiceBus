@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus
 {
     using System;
-    using Config;
     using ConsistencyGuarantees;
     using Features;
     using Settings;

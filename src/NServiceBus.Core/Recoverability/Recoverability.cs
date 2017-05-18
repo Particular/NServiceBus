@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using Config;
     using ConsistencyGuarantees;
     using DelayedDelivery;
     using DeliveryConstraints;

@@ -2,8 +2,6 @@ namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
-    using Config.ConfigurationSource;
     using Settings;
 
     /// <summary>

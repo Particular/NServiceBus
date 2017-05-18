@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus.Features
 {
-    using Config;
     using DelayedDelivery;
     using DeliveryConstraints;
 

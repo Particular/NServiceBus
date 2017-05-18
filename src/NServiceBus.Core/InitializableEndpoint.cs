@@ -6,7 +6,6 @@ namespace NServiceBus
     using System.Linq;
     using System.Security.Principal;
     using System.Threading.Tasks;
-    using Config.ConfigurationSource;
     using Features;
     using Installation;
     using ObjectBuilder;
