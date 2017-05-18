@@ -870,26 +870,7 @@ namespace NServiceBus.Features
         Message = "Performance counters have been released as a separate package: NServiceBus.Metrics.PerformanceCounters",
         RemoveInVersion = "8",
         TreatAsErrorFromVersion = "7")]
-    public class CriticalTimeMonitoring : Feature
-    {
-        [ObsoleteEx(
-            Message = "Performance counters have been released as a separate package: NServiceBus.Metrics.PerformanceCounters",
-            RemoveInVersion = "8",
-            TreatAsErrorFromVersion = "7")]
-        internal CriticalTimeMonitoring()
-        {
-            throw new NotImplementedException();
-        }
-
-        [ObsoleteEx(
-            Message = "Performance counters have been released as a separate package: NServiceBus.Metrics.PerformanceCounters",
-            RemoveInVersion = "8",
-            TreatAsErrorFromVersion = "7")]
-        protected internal override void Setup(FeatureConfigurationContext context)
-        {
-            throw new NotImplementedException();
-        }
-    }
+    public class CriticalTimeMonitoring { }
 
     public partial class FeatureConfigurationContext
     {
@@ -908,62 +889,30 @@ namespace NServiceBus.Features
         Message = "Performance counters have been released as a separate package: NServiceBus.Metrics.PerformanceCounters",
         RemoveInVersion = "8",
         TreatAsErrorFromVersion = "7")]
-    public class ReceiveStatisticsPerformanceCounters : Feature
-    {
-        [ObsoleteEx(
-            Message = "Performance counters have been released as a separate package: NServiceBus.Metrics.PerformanceCounters",
-            RemoveInVersion = "8",
-            TreatAsErrorFromVersion = "7")]
-        internal ReceiveStatisticsPerformanceCounters()
-        {
-            throw new NotImplementedException();
-        }
-
-        [ObsoleteEx(
-            Message = "Performance counters have been released as a separate package: NServiceBus.Metrics.PerformanceCounters",
-            RemoveInVersion = "8",
-            TreatAsErrorFromVersion = "7")]
-        protected internal override void Setup(FeatureConfigurationContext context)
-        {
-            throw new NotImplementedException();
-        }
-    }
+    public class ReceiveStatisticsPerformanceCounters { }
 
     [ObsoleteEx(
         Message = "Performance counters have been released as a separate package: NServiceBus.Metrics.PerformanceCounters",
         RemoveInVersion = "8",
         TreatAsErrorFromVersion = "7")]
-    public class SLAMonitoring : Feature
-    {
-        [ObsoleteEx(
-            Message = "Performance counters have been released as a separate package: NServiceBus.Metrics.PerformanceCounters",
-            RemoveInVersion = "8",
-            TreatAsErrorFromVersion = "7")]
-        internal SLAMonitoring()
-        {
-            throw new NotImplementedException();
-        }
-
-        [ObsoleteEx(
-            Message = "Performance counters have been released as a separate package: NServiceBus.Metrics.PerformanceCounters",
-            RemoveInVersion = "8",
-            TreatAsErrorFromVersion = "7")]
-        protected internal override void Setup(FeatureConfigurationContext context)
-        {
-            throw new NotImplementedException();
-        }
-    }
+    public class SLAMonitoring { }
 }
 
 namespace NServiceBus.Transport
 {
+    using System;
+
     public partial class TransportInfrastructure
     {
         [ObsoleteEx(
             RemoveInVersion = "8.0",
             TreatAsErrorFromVersion = "7.0",
             Message = "The outbox consent is no longer required. It is safe to ignore this property.")]
-        public bool RequireOutboxConsent { get; protected set; }
+        public bool RequireOutboxConsent
+        {
+            get { throw new NotImplementedException(); }
+            set { throw new NotImplementedException(); }
+        }
     }
 }
 
