@@ -33,7 +33,6 @@ namespace NServiceBus
 
         public void Initialize(ReadOnlySettings settings, TransportInfrastructure transportInfrastructure, PipelineSettings pipelineSettings)
         {
-            var unicastBusConfig = settings.GetConfigSection<UnicastBusConfig>();
             var conventions = settings.Get<Conventions>();
             var configuredUnicastRoutes = settings.GetOrDefault<ConfiguredUnicastRoutes>();
             var distributorAddress = settings.GetOrDefault<string>("LegacyDistributor.Address");
@@ -47,7 +46,6 @@ namespace NServiceBus
                 }
             }
 
-            unicastBusConfig?.MessageEndpointMappings.Apply(Publishers, UnicastRoutingTable, transportInfrastructure.MakeCanonicalForm, conventions);
             configuredUnicastRoutes?.Apply(UnicastRoutingTable, conventions);
 
             pipelineSettings.Register(b =>
