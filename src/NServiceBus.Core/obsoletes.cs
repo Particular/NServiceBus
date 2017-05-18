@@ -306,7 +306,35 @@ namespace NServiceBus
 namespace NServiceBus.Config
 {
     using System;
-    using System.Configuration;
+
+    [ObsoleteEx(
+        Message = "Use of the application configuration file to configure auditing is discouraged",
+        TreatAsErrorFromVersion = "7.0",
+        RemoveInVersion = "8.0")]
+    public class AuditConfig
+    {
+        [ObsoleteEx(
+            Message = "Use of the application configuration file to configure auditing is discouraged",
+            ReplacementTypeOrMember = "EndpointConfiguration.AuditProcessedMessagesTo",
+            TreatAsErrorFromVersion = "7.0",
+            RemoveInVersion = "8.0")]
+        public string QueueName
+        {
+            get { throw new NotImplementedException(); }
+            set { throw new NotImplementedException(); }
+        }
+
+        [ObsoleteEx(
+            Message = "Use of the application configuration file to configure auditing is discouraged",
+            ReplacementTypeOrMember = "EndpointConfiguration.AuditProcessedMessagesTo",
+            TreatAsErrorFromVersion = "7.0",
+            RemoveInVersion = "8.0")]
+        public TimeSpan OverrideTimeToBeReceived
+        {
+            get { throw new NotImplementedException(); }
+            set { throw new NotImplementedException(); }
+        }
+    }
 
     [ObsoleteEx(
         Message = "Message property encryption is released as a dedicated 'NServiceBus.Encryption.MessageProperty' package.",
@@ -316,6 +344,63 @@ namespace NServiceBus.Config
     {
         Ascii = 0,
         Base64 = 1
+    }
+
+    [ObsoleteEx(
+        Message = "Logging configuration via configuration section is discouraged.",
+        ReplacementTypeOrMember = "LogManager.Use<DefaultFactory>()",
+        TreatAsErrorFromVersion = "7",
+        RemoveInVersion = "8")]
+    public class Logging
+    {
+        [ObsoleteEx(
+            Message = "Logging configuration via configuration section is discouraged.",
+            ReplacementTypeOrMember = "LogManager.Use<DefaultFactory>().Level(LogLevel)",
+            TreatAsErrorFromVersion = "7",
+            RemoveInVersion = "8")]
+        public string Threshold
+        {
+            get { throw new NotImplementedException(); }
+            set { throw new NotImplementedException(); }
+        }
+    }
+
+    [ObsoleteEx(
+        Message = "Error queue configuration via configuration section is discouraged.",
+        ReplacementTypeOrMember = "EndpointConfiguration.SendFailedMessagesTo",
+        TreatAsErrorFromVersion = "7",
+        RemoveInVersion = "8")]
+    public class MessageForwardingInCaseOfFaultConfig
+    {
+        [ObsoleteEx(
+            Message = "Error queue configuration via configuration section is discouraged.",
+            ReplacementTypeOrMember = "EndpointConfiguration.SendFailedMessagesTo",
+            TreatAsErrorFromVersion = "7",
+            RemoveInVersion = "8")]
+        public string ErrorQueue
+        {
+            get { throw new NotImplementedException(); }
+            set { throw new NotImplementedException(); }
+        }
+    }
+
+    [ObsoleteEx(
+        Message = "Configuring MSMQ subscription storage via configuration section is discouraged.",
+        ReplacementTypeOrMember = "EndpointConfiguration.UsePersistence<MsmqPersistence>()",
+        TreatAsErrorFromVersion = "7",
+        RemoveInVersion = "8")]
+    public class MsmqSubscriptionStorageConfig
+    {
+        [ObsoleteEx(
+            Message = "Configuring MSMQ subscription storage via configuration section is discouraged.",
+            ReplacementTypeOrMember = "EndpointConfiguration.UsePersistence<MsmqPersistence>().SubscriptionQueue",
+            TreatAsErrorFromVersion = "7",
+            RemoveInVersion = "8")]
+        public string Queue
+        {
+            get { throw new NotImplementedException(); }
+            set { throw new NotImplementedException(); }
+        }
     }
 
     [ObsoleteEx(
@@ -361,12 +446,6 @@ namespace NServiceBus.Config
         TreatAsErrorFromVersion = "7")]
     public class RijndaelExpiredKeyCollection
     {
-        [ObsoleteEx(
-            Message = "Message property encryption is released as a dedicated 'NServiceBus.Encryption.MessageProperty' package.",
-            RemoveInVersion = "8",
-            TreatAsErrorFromVersion = "7")]
-        public ConfigurationElementCollectionType CollectionType => ConfigurationElementCollectionType.AddRemoveClearMap;
-
         [ObsoleteEx(
             Message = "Message property encryption is released as a dedicated 'NServiceBus.Encryption.MessageProperty' package.",
             RemoveInVersion = "8",
@@ -492,6 +571,74 @@ namespace NServiceBus.Config
             get { throw new NotImplementedException(); }
             set { throw new NotImplementedException(); }
         }
+    }
+
+    [ObsoleteEx(
+        Message = "Use of the application configuration file to configure the endpoint is discouraged. Use the code first API instead.",
+        TreatAsErrorFromVersion = "7.0",
+        RemoveInVersion = "8.0")]
+    public class UnicastBusConfig
+    {
+        [ObsoleteEx(
+            Message = "Use of the application configuration file to configure TimeToBeReceived in forwarded messages is discouraged",
+            TreatAsErrorFromVersion = "7.0",
+            RemoveInVersion = "8.0")]
+        public TimeSpan TimeToBeReceivedOnForwardedMessages
+        {
+            get { throw new NotImplementedException(); }
+            set { throw new NotImplementedException(); }
+        }
+
+        [ObsoleteEx(
+            Message = "Use of the application configuration file to configure an external TimeoutManager address is discouraged",
+            ReplacementTypeOrMember = "EndpointConfiguration.UseExternalTimeoutManager",
+            TreatAsErrorFromVersion = "7.0",
+            RemoveInVersion = "8.0")]
+        public string TimeoutManagerAddress
+        {
+            get { throw new NotImplementedException(); }
+            set { throw new NotImplementedException(); }
+        }
+
+        [ObsoleteEx(
+            Message = "Use of the application configuration file to configure routing is discouraged",
+            ReplacementTypeOrMember = "EndpointConfiguration.UseTransport<T>.Routing()",
+            TreatAsErrorFromVersion = "7.0",
+            RemoveInVersion = "8.0")]
+        public MessageEndpointMappingCollection MessageEndpointMappings
+        {
+            get { throw new NotImplementedException(); }
+            set { throw new NotImplementedException(); }
+        }
+    }
+}
+
+namespace NServiceBus.Config.ConfigurationSource
+{
+    [ObsoleteEx(
+        Message = "The use of the IConfigurationSource is discouraged. Code configuration is prefered over configuration sources.",
+        RemoveInVersion = "8.0",
+        TreatAsErrorFromVersion = "7.0")]
+    public interface IConfigurationSource
+    {
+        [ObsoleteEx(
+            Message = "The use of the IConfigurationSource is discouraged. Code configuration is prefered over configuration sources.",
+            RemoveInVersion = "8.0",
+            TreatAsErrorFromVersion = "7.0")]
+        T GetConfiguration<T>() where T : class, new();
+    }
+
+    [ObsoleteEx(
+        Message = "The use of the IProvideConfiguration is discouraged. Code configuration is prefered over configuration sources.",
+        RemoveInVersion = "8.0",
+        TreatAsErrorFromVersion = "7.0")]
+    public interface IProvideConfiguration<T>
+    {
+        [ObsoleteEx(
+            Message = "The use of the IProvideConfiguration is discouraged. Code configuration is prefered over configuration sources.",
+            RemoveInVersion = "8.0",
+            TreatAsErrorFromVersion = "7.0")]
+        T GetConfiguration();
     }
 }
 

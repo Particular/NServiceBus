@@ -123,7 +123,6 @@
     <Compile Include="Notifications\EventAggregator.cs" />
     <Compile Include="CircuitBreakers\ICircuitBreaker.cs" />
     <Compile Include="CriticalError\ICriticalErrorContext.cs" />
-    <Compile Include="DetectObsoleteConfigurationSettings.cs" />
     <Compile Include="Endpoint.cs" />
     <Compile Include="Forwarding\ConfigureForwarding.cs" />
     <Compile Include="Notifications\IEventAggregator.cs" />
@@ -271,7 +270,6 @@
     <Compile Include="Persistence\Msmq\SubscriptionStorage\IMsmqSubscriptionStorageQueue.cs" />
     <Compile Include="Persistence\Msmq\SubscriptionStorage\MsmqSubscriptionPersistence.cs" />
     <Compile Include="Persistence\Msmq\SubscriptionStorage\MsmqSubscriptionStorage.cs" />
-    <Compile Include="Persistence\Msmq\SubscriptionStorage\MsmqSubscriptionStorageConfig.cs" />
     <Compile Include="Persistence\Msmq\SubscriptionStorage\MsmqSubscriptionStorageQueue.cs" />
     <Compile Include="Pipeline\BehaviorContext.cs" />
     <Compile Include="Pipeline\Incoming\IncomingContext.cs" />
@@ -522,7 +520,6 @@
     <Compile Include="Routing\AutomaticSubscriptions\AutoSubscribeSettingsExtensions.cs" />
     <Compile Include="Routing\AutomaticSubscriptions\AutoSubscribeSettings.cs" />
     <Compile Include="InitializableEndpoint.cs" />
-    <Compile Include="Audit\AuditConfig.cs" />
     <Compile Include="ContentTypes.cs" />
     <Compile Include="DataBus\DataBusProperty.cs" />
     <Compile Include="DataBus\DataBusReceiveBehavior.cs" />
@@ -682,11 +679,8 @@
     <Compile Include="Transports\ConfigurePurging.cs" />
     <Compile Include="Features\Feature.cs" />
     <Compile Include="ConfigurationSource\DefaultConfigurationSource.cs" />
-    <Compile Include="ConfigurationSource\IConfigurationSource.cs" />
-    <Compile Include="Logging\Logging.cs" />
     <Compile Include="Routing\MessageEndpointMapping.cs" />
     <Compile Include="Routing\MessageEndpointMappingCollection.cs" />
-    <Compile Include="Recoverability\Faults\MessageForwardingInCaseOfFaultConfig.cs" />
     <Compile Include="Sagas\Sagas.cs" />
     <Compile Include="Settings\SettingsHolder.cs" />
     <Compile Include="Transports\ICreateQueues.cs" />
@@ -701,7 +695,6 @@
     <Compile Include="Transports\Msmq\MsmqMessageDispatcher.cs" />
     <Compile Include="Transports\Msmq\MsmqQueueCreator.cs" />
     <Compile Include="Transports\Msmq\MsmqUtilities.cs" />
-    <Compile Include="Unicast\UnicastBusConfig.cs" />
     <Compile Include="DataBus\DataBusFileBased.cs" />
     <Compile Include="DataBus\DefaultDatabusSerializer.cs" />
     <Compile Include="DataBus\FileShareDataBusImplementation.cs" />
