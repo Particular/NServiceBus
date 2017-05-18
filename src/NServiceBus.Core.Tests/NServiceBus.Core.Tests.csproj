@@ -212,8 +212,6 @@
     <Compile Include="Sagas\When_saga_has_no_start_message.cs" />
     <Compile Include="Serializers\MessageDeserializerResolverTests.cs" />
     <Compile Include="Performance\TimeToBeReceived\TimeToBeReceivedAttributeTests.cs" />
-    <Compile Include="Config\TestConfigurationSection.cs" />
-    <Compile Include="Config\When_no_custom_configuration_source_is_specified.cs" />
     <Compile Include="Config\When_scanning_assemblies.cs" />
     <Compile Include="Config\When_using_convention_based_messages.cs" />
     <Compile Include="ArgumentExceptionTests.cs" />

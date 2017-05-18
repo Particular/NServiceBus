@@ -33,8 +33,6 @@ namespace NServiceBus
 
             Settings.Set("NServiceBus.Routing.EndpointName", endpointName);
 
-            Settings.SetDefault<IConfigurationSource>(new DefaultConfigurationSource());
-
             pipelineCollection = new PipelineConfiguration();
             Settings.Set<PipelineConfiguration>(pipelineCollection);
             Settings.Set<SatelliteDefinitions>(new SatelliteDefinitions());
@@ -79,15 +77,6 @@ namespace NServiceBus
         public void SendOnly()
         {
             Settings.Set("Endpoint.SendOnly", true);
-        }
-
-        /// <summary>
-        /// Overrides the default configuration source.
-        /// </summary>
-        public void CustomConfigurationSource(IConfigurationSource configurationSource)
-        {
-            Guard.AgainstNull(nameof(configurationSource), configurationSource);
-            Settings.Set<IConfigurationSource>(configurationSource);
         }
 
         /// <summary>

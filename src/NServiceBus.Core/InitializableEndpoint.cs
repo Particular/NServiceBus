@@ -35,10 +35,10 @@ namespace NServiceBus
         public async Task<IStartableEndpoint> Initialize()
         {
             RegisterCriticalErrorHandler();
+
             var concreteTypes = settings.GetAvailableTypes()
                 .Where(IsConcrete)
                 .ToList();
-            WireUpConfigSectionOverrides(concreteTypes);
 
             var featureActivator = BuildFeatureActivator(concreteTypes);
 
@@ -129,36 +129,6 @@ namespace NServiceBus
             container = b;
 
             container.ConfigureComponent<IBuilder>(_ => b, DependencyLifecycle.SingleInstance);
-        }
-
-        void WireUpConfigSectionOverrides(IEnumerable<Type> concreteTypes)
-        {
-            foreach (var type in concreteTypes.Where(ImplementsIProvideConfiguration))
-            {
-                container.ConfigureComponent(type, DependencyLifecycle.InstancePerCall);
-            }
-        }
-
-        static bool ImplementsIProvideConfiguration(Type type)
-        {
-            return type.GetInterfaces().Any(IsIProvideConfiguration);
-        }
-
-        static bool IsIProvideConfiguration(Type type)
-        {
-            if (!type.IsGenericType)
-            {
-                return false;
-            }
-
-            var args = type.GetGenericArguments();
-            if (args.Length != 1)
-            {
-                return false;
-            }
-
-            return typeof(IProvideConfiguration<>).MakeGenericType(args)
-                .IsAssignableFrom(type);
         }
 
         async Task RunInstallers(IEnumerable<Type> concreteTypes)

@@ -677,7 +677,6 @@
     <Compile Include="ConfigureQueueCreation.cs" />
     <Compile Include="Transports\ConfigurePurging.cs" />
     <Compile Include="Features\Feature.cs" />
-    <Compile Include="ConfigurationSource\DefaultConfigurationSource.cs" />
     <Compile Include="Routing\MessageEndpointMapping.cs" />
     <Compile Include="Routing\MessageEndpointMappingCollection.cs" />
     <Compile Include="Sagas\Sagas.cs" />

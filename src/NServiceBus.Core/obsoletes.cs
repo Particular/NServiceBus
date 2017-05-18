@@ -10,7 +10,9 @@ namespace NServiceBus
     using System.Collections.Generic;
     using System.Reflection;
     using System.Runtime.Serialization;
+    using Config.ConfigurationSource;
     using Pipeline;
+    using Settings;
 
     [ObsoleteEx(
            Message = "Message property encryption is released as a dedicated 'NServiceBus.Encryption.MessageProperty' package.",
@@ -174,6 +176,15 @@ namespace NServiceBus
     public partial class EndpointConfiguration
     {
         [ObsoleteEx(
+            Message = "Use code-based configuration instead.",
+            TreatAsErrorFromVersion = "7.0",
+            RemoveInVersion = "8.0")]
+        public void CustomConfigurationSource(IConfigurationSource configurationSource)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(
             Message = "Use the AssemblyScanner configuration API.",
             ReplacementTypeOrMember = "AssemblyScannerConfigurationExtensions.AssemblyScanner",
             TreatAsErrorFromVersion = "7.0",
@@ -230,6 +241,18 @@ namespace NServiceBus
             RemoveInVersion = "8",
             TreatAsErrorFromVersion = "7")]
         string Decrypt(EncryptedValue encryptedValue, IIncomingLogicalMessageContext context);
+    }
+
+    public static partial class SettingsExtensions
+    {
+        [ObsoleteEx(
+            Message = "Use code-based configuration instead.",
+            TreatAsErrorFromVersion = "7.0",
+            RemoveInVersion = "8.0")]
+        public static T GetConfigSection<T>(this ReadOnlySettings settings) where T : class, new()
+        {
+            throw new NotImplementedException();
+        }
     }
 
     [ObsoleteEx(
