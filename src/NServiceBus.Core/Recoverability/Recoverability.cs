@@ -173,9 +173,7 @@
             var mainQueueLogicalAddress = context.Settings.LogicalAddress();
             var mainQueueTransportAddress = context.Settings.GetTransportAddress(mainQueueLogicalAddress);
 
-            var requiredTransactionMode = context.Settings.GetRequiredTransactionModeForReceives();
-
-            context.AddSatelliteReceiver("Legacy Retries Processor", retriesQueueTransportAddress, requiredTransactionMode, new PushRuntimeSettings(maxConcurrency: 1),
+            context.AddSatelliteReceiver("Legacy Retries Processor", retriesQueueTransportAddress, new PushRuntimeSettings(maxConcurrency: 1),
                 (config, errorContext) =>
                 {
                     return RecoverabilityAction.MoveToError(config.Failed.ErrorQueue);

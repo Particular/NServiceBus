@@ -43,8 +43,6 @@
 
         internal List<FeatureStartupTaskController> TaskControllers { get; }
 
-       
-
         /// <summary>
         /// Adds a new satellite receiver.
         /// </summary>
