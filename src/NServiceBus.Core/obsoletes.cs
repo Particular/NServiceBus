@@ -390,6 +390,199 @@ namespace NServiceBus.Config
     }
 
     [ObsoleteEx(
+        Message = "Use code-based configuration instead.",
+        TreatAsErrorFromVersion = "7.0",
+        RemoveInVersion = "8.0")]
+    public class MessageEndpointMapping : IComparable<MessageEndpointMapping>
+    {
+        [ObsoleteEx(
+            Message = "Use code-based configuration instead.",
+            TreatAsErrorFromVersion = "7.0",
+            RemoveInVersion = "8.0")]
+        public string Messages
+        {
+            get { throw new NotImplementedException(); }
+            set { throw new NotImplementedException(); }
+        }
+
+        [ObsoleteEx(
+            Message = "Use code-based configuration instead.",
+            TreatAsErrorFromVersion = "7.0",
+            RemoveInVersion = "8.0")]
+        public string Endpoint
+        {
+            get { throw new NotImplementedException(); }
+            set { throw new NotImplementedException(); }
+        }
+
+        [ObsoleteEx(
+            Message = "Use code-based configuration instead.",
+            TreatAsErrorFromVersion = "7.0",
+            RemoveInVersion = "8.0")]
+        public string AssemblyName
+        {
+            get { throw new NotImplementedException(); }
+            set { throw new NotImplementedException(); }
+        }
+
+        [ObsoleteEx(
+            Message = "Use code-based configuration instead.",
+            TreatAsErrorFromVersion = "7.0",
+            RemoveInVersion = "8.0")]
+        public string TypeFullName
+        {
+            get { throw new NotImplementedException(); }
+            set { throw new NotImplementedException(); }
+        }
+
+        [ObsoleteEx(
+            Message = "Use code-based configuration instead.",
+            TreatAsErrorFromVersion = "7.0",
+            RemoveInVersion = "8.0")]
+        public string Namespace
+        {
+            get { throw new NotImplementedException(); }
+            set { throw new NotImplementedException(); }
+        }
+
+        [ObsoleteEx(
+            Message = "Use code-based configuration instead.",
+            TreatAsErrorFromVersion = "7.0",
+            RemoveInVersion = "8.0")]
+        public int CompareTo(MessageEndpointMapping other)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(
+            Message = "Use code-based configuration instead.",
+            TreatAsErrorFromVersion = "7.0",
+            RemoveInVersion = "8.0")]
+        public void Configure(Action<Type, string> mapTypeToEndpoint)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    [ObsoleteEx(
+        Message = "Use code-based configuration instead.",
+        TreatAsErrorFromVersion = "7.0",
+        RemoveInVersion = "8.0")]
+    public class MessageEndpointMappingCollection
+    {
+        [ObsoleteEx(
+            Message = "Use code-based configuration instead.",
+            TreatAsErrorFromVersion = "7.0",
+            RemoveInVersion = "8.0")]
+        public string AddElementName
+        {
+            get { throw new NotImplementedException(); }
+            set { throw new NotImplementedException(); }
+        }
+
+        [ObsoleteEx(
+            Message = "Use code-based configuration instead.",
+            TreatAsErrorFromVersion = "7.0",
+            RemoveInVersion = "8.0")]
+        public string ClearElementName
+        {
+            get { throw new NotImplementedException(); }
+            set { throw new NotImplementedException(); }
+        }
+
+        [ObsoleteEx(
+            Message = "Use code-based configuration instead.",
+            TreatAsErrorFromVersion = "7.0",
+            RemoveInVersion = "8.0")]
+        public string RemoveElementName => throw new NotImplementedException();
+
+        [ObsoleteEx(
+            Message = "Use code-based configuration instead.",
+            TreatAsErrorFromVersion = "7.0",
+            RemoveInVersion = "8.0")]
+        public int Count => throw new NotImplementedException();
+
+        [ObsoleteEx(
+            Message = "Use code-based configuration instead.",
+            TreatAsErrorFromVersion = "7.0",
+            RemoveInVersion = "8.0")]
+        public MessageEndpointMapping this[int index]
+        {
+            get { throw new NotImplementedException(); }
+            set { throw new NotImplementedException(); }
+        }
+
+        [ObsoleteEx(
+            Message = "Use code-based configuration instead.",
+            TreatAsErrorFromVersion = "7.0",
+            RemoveInVersion = "8.0")]
+        public MessageEndpointMapping this[string Name] => throw new NotImplementedException();
+
+        [ObsoleteEx(
+            Message = "Use code-based configuration instead.",
+            TreatAsErrorFromVersion = "7.0",
+            RemoveInVersion = "8.0")]
+        public int IndexOf(MessageEndpointMapping mapping)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(
+            Message = "Use code-based configuration instead.",
+            TreatAsErrorFromVersion = "7.0",
+            RemoveInVersion = "8.0")]
+        public void Add(MessageEndpointMapping mapping)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(
+            Message = "Use code-based configuration instead.",
+            TreatAsErrorFromVersion = "7.0",
+            RemoveInVersion = "8.0")]
+        public void Remove(MessageEndpointMapping mapping)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(
+            Message = "Use code-based configuration instead.",
+            TreatAsErrorFromVersion = "7.0",
+            RemoveInVersion = "8.0")]
+        public void RemoveAt(int index)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(
+            Message = "Use code-based configuration instead.",
+            TreatAsErrorFromVersion = "7.0",
+            RemoveInVersion = "8.0")]
+        public void Remove(string name)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(
+            Message = "Use code-based configuration instead.",
+            TreatAsErrorFromVersion = "7.0",
+            RemoveInVersion = "8.0")]
+        public void Clear()
+        {
+            throw new NotImplementedException();
+        }
+
+        [ObsoleteEx(
+            Message = "Use code-based configuration instead.",
+            TreatAsErrorFromVersion = "7.0",
+            RemoveInVersion = "8.0")]
+        public bool IsReadOnly()
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    [ObsoleteEx(
         Message = "Error queue configuration via configuration section is discouraged.",
         ReplacementTypeOrMember = "EndpointConfiguration.SendFailedMessagesTo",
         TreatAsErrorFromVersion = "7",

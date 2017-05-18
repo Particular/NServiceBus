@@ -174,7 +174,6 @@
     <Compile Include="Routing\DetermineRouteForPublishBehaviorTests.cs" />
     <Compile Include="Routing\DistributionPolicyTests.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\AssemblyPublisherSourceTests.cs" />
-    <Compile Include="Routing\MessageEndpointMappingTests.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\NamespacePublisherSourceTests.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\TypePublisherSourceTests.cs" />
     <Compile Include="Routing\AssemblyRouteSourceTests.cs" />
@@ -310,7 +309,6 @@
     <Compile Include="Transports\PushRuntimeSettingsTests.cs" />
     <Compile Include="Transports\TransportOperationsTests.cs" />
     <Compile Include="Transports\TransportReceiverTests.cs" />
-    <Compile Include="Unicast\ConfiguringMessageEndpointMapping.cs" />
     <Compile Include="Unicast\Config\ConfigurationSettings.cs" />
     <Compile Include="Unicast\Contexts\CommandMessage.cs" />
     <Compile Include="Unicast\Contexts\EventMessage.cs" />
