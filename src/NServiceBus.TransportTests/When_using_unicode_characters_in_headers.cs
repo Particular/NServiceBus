@@ -34,7 +34,7 @@
 
             var messageContext = await onMessageCalled.Task;
 
-            CollectionAssert.IsSubsetOf(sentHeaders, messageContext.Headers);
+            CollectionAssert.IsSupersetOf(messageContext.Headers, sentHeaders);
         }
     }
 }
