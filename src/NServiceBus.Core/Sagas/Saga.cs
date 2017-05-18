@@ -11,7 +11,7 @@ namespace NServiceBus
     /// To signify that the receipt of a message should start this saga,
     /// implement <see cref="IAmStartedByMessages{T}" /> for the relevant message type.
     /// </summary>
-    public abstract partial class Saga
+    public abstract class Saga
     {
         /// <summary>
         /// The saga's typed data.

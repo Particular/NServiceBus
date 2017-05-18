@@ -5,7 +5,7 @@
     /// <summary>
     /// Message metadata class.
     /// </summary>
-    public partial class MessageMetadata
+    public class MessageMetadata
     {
         static Type[] emptyHierarchy = new Type[0];
 

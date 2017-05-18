@@ -11,7 +11,7 @@
     /// <summary>
     /// Maintains the message handlers for this endpoint.
     /// </summary>
-    public partial class MessageHandlerRegistry
+    public class MessageHandlerRegistry
     {
         internal MessageHandlerRegistry(Conventions conventions)
         {

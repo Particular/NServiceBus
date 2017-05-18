@@ -4,11 +4,11 @@
     using System.Collections.Generic;
     using System.Threading.Tasks;
     using Features;
-    using NServiceBus.Routing;
-    using Settings;
-    using NUnit.Framework;
-    using Testing;
     using NServiceBus.Transport;
+    using NUnit.Framework;
+    using Routing;
+    using Settings;
+    using Testing;
 
     [TestFixture]
     public class RunningEndpointInstanceTest

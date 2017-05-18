@@ -10,7 +10,7 @@
     /// Used to control the various features supported by the framework.
     /// </summary>
     [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
-    public abstract partial class Feature
+    public abstract class Feature
     {
         /// <summary>
         /// Creates an instance of <see cref="Feature" />.

@@ -14,7 +14,7 @@ namespace NServiceBus.Serializers.Json.Tests
         {
             var settings = new SettingsHolder();
 
-            var serializer = (NServiceBus.JsonMessageSerializer)new JsonSerializer().Configure(settings)(new MessageMapper());
+            var serializer = (JsonMessageSerializer)new JsonSerializer().Configure(settings)(new MessageMapper());
 
             Assert.AreSame(Encoding.UTF8, serializer.Encoding);
         }

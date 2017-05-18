@@ -3,7 +3,7 @@
     /// <summary>
     /// Static class containing headers used by NServiceBus.
     /// </summary>
-    public static partial class Headers
+    public static class Headers
     {
         /// <summary>
         /// Header for retrieving from which Http endpoint the message arrived.

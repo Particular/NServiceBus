@@ -12,7 +12,7 @@ namespace NServiceBus.Hosting.Helpers
     /// <summary>
     /// Helpers for assembly scanning operations.
     /// </summary>
-    public partial class AssemblyScanner
+    public class AssemblyScanner
     {
         /// <summary>
         /// Creates a new scanner that will scan the base directory of the current appdomain.

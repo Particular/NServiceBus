@@ -8,7 +8,7 @@
     /// <summary>
     /// Provides configuration options for serialization.
     /// </summary>
-    public static partial class SerializationConfigExtensions
+    public static class SerializationConfigExtensions
     {
         /// <summary>
         /// Configures the given serializer to be used.

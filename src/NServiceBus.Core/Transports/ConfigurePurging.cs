@@ -1,7 +1,5 @@
 namespace NServiceBus
 {
-    using System;
-
     /// <summary>
     /// Configures purging.
     /// </summary>

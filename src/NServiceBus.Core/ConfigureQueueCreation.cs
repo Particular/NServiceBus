@@ -1,6 +1,5 @@
 namespace NServiceBus
 {
-    using System;
     using Settings;
 
     /// <summary>

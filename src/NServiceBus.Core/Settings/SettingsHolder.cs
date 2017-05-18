@@ -8,7 +8,7 @@ namespace NServiceBus.Settings
     /// <summary>
     /// Setting container.
     /// </summary>
-    public partial class SettingsHolder : ReadOnlySettings
+    public class SettingsHolder : ReadOnlySettings
     {
         /// <summary>
         /// Gets the given setting by key.

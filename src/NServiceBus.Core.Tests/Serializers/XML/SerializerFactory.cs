@@ -5,7 +5,6 @@ namespace NServiceBus.Serializers.XML.Test
     using System.IO;
     using System.Xml;
     using MessageInterfaces.MessageMapper.Reflection;
-    using XmlMessageSerializer = NServiceBus.XmlMessageSerializer;
 
     class SerializerFactory
     {

@@ -2,7 +2,6 @@
 {
     using System;
     using System.Threading.Tasks;
-    using Config.ConfigurationSource;
 
     public interface IEndpointSetupTemplate
     {

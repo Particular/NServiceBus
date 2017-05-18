@@ -721,7 +721,7 @@ namespace NServiceBus.Config
             TreatAsErrorFromVersion = "7")]
         public void Remove(string name)
         {
-            throw new NotImplementedException(); ;
+            throw new NotImplementedException();
         }
 
         [ObsoleteEx(

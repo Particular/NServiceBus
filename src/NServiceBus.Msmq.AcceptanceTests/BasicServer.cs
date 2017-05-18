@@ -7,7 +7,6 @@ namespace NServiceBus.AcceptanceTests.EndpointTemplates
     using System.Threading.Tasks;
     using AcceptanceTesting.Customization;
     using AcceptanceTesting.Support;
-    using Config.ConfigurationSource;
     using Configuration.AdvanceExtensibility;
     using Transport;
 

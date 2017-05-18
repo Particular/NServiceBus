@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.Features
 {
     using System;
-    using System.Configuration;
     using System.ServiceProcess;
     using System.Threading.Tasks;
     using ConsistencyGuarantees;

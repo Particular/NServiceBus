@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
     using Configuration.AdvanceExtensibility;
     using Persistence;
     using Settings;
@@ -66,12 +65,11 @@
                 Settings.Set("PersistenceDefinitions", definitions);
             }
 
-            enabledPersistence = new EnabledPersistence
+            var enabledPersistence = new EnabledPersistence
             {
                 DefinitionType = definitionType,
                 SelectedStorages = new List<Type>()
             };
-
 
             if (storageType != null)
             {
@@ -86,7 +84,5 @@
 
             definitions.Add(enabledPersistence);
         }
-
-        EnabledPersistence enabledPersistence;
     }
 }

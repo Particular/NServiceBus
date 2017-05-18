@@ -8,7 +8,7 @@ namespace NServiceBus.Pipeline
     /// <summary>
     /// Manages the pipeline configuration.
     /// </summary>
-    public partial class PipelineSettings : ExposeSettings
+    public class PipelineSettings : ExposeSettings
     {
         /// <summary>
         /// Initializes a new instance of <see cref="PipelineSettings" />.
