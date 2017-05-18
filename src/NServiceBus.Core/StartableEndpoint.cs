@@ -42,8 +42,8 @@ namespace NServiceBus
             var featureRunner = await StartFeatures(messageSession).ConfigureAwait(false);
 
             var runningInstance = new RunningEndpointInstance(settings, builder, receivers, featureRunner, messageSession, transportInfrastructure);
-            // set the started endpoint on CriticalError to pass the endpoint to the critical error action
-            criticalError.SetEndpoint(runningInstance);
+            // pass the endpoint Stop method to the critical error action
+            criticalError.SetStopCallback(runningInstance.Stop);
 
             StartReceivers(receivers);
 

@@ -45,7 +45,11 @@ namespace NServiceBus
             ConfigRunBeforeIsFinalized(concreteTypes);
 
             var transportDefinition = settings.Get<TransportDefinition>();
-            var connectionString = settings.Get<TransportConnectionString>().GetConnectionStringOrRaiseError(transportDefinition);
+            string connectionString;
+            if (!settings.Get<TransportConnectionString>().TryGetValue(out connectionString) && transportDefinition.RequiresConnectionString)
+            {
+                throw new InvalidOperationException(string.Format(ConnectionStringMissingMessage, transportDefinition.GetType().Name, transportDefinition.ExampleConnectionStringForErrorMessage));
+            }
             var transportInfrastructure = transportDefinition.Initialize(settings, connectionString);
             settings.Set<TransportInfrastructure>(transportInfrastructure);
 
@@ -194,5 +198,20 @@ namespace NServiceBus
         PipelineSettings pipelineSettings;
         SettingsHolder settings;
         CriticalError criticalError;
+
+        const string ConnectionStringMissingMessage =
+            @"Transport connection string has not been explicitly configured via ConnectionString method and no default connection has been was found in the app.config or web.config file for the {0} Transport.
+
+To run NServiceBus with {0} Transport you need to specify the database connectionstring.
+Here are examples of what is required:
+  
+  <connectionStrings>
+    <add name=""NServiceBus/Transport"" connectionString=""{1}"" />
+  </connectionStrings>
+
+or
+
+  busConfig.UseTransport<{0}>().ConnectionString(""{1}"");
+";
     }
 }

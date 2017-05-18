@@ -262,6 +262,7 @@ namespace NServiceBus
     {
         public CriticalError(System.Func<NServiceBus.ICriticalErrorContext, System.Threading.Tasks.Task> onCriticalErrorAction) { }
         public virtual void Raise(string errorMessage, System.Exception exception) { }
+        public void SetStopCallback(System.Func<System.Threading.Tasks.Task> callback) { }
     }
     public class CriticalErrorContext : NServiceBus.ICriticalErrorContext
     {
@@ -1295,6 +1296,11 @@ namespace NServiceBus
     {
         public ToSagaExpression(NServiceBus.IConfigureHowToFindSagaWithMessage sagaMessageFindingConfiguration, System.Linq.Expressions.Expression<System.Func<TMessage, object>> messageProperty) { }
         public void ToSaga(System.Linq.Expressions.Expression<System.Func<TSagaData, object>> sagaEntityProperty) { }
+    }
+    public sealed class TransportConnectionString
+    {
+        public TransportConnectionString(System.Func<string> func) { }
+        public bool TryGetValue(out string connectionString) { }
     }
     public class TransportExtensions : NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings
     {
