@@ -1,6 +1,6 @@
 namespace NServiceBus
 {
-    using System.Collections.Generic;
+    using System.Collections.Concurrent;
     using System.IO;
     using System.Threading.Tasks;
 
@@ -51,7 +51,7 @@ namespace NServiceBus
 
         public void ClearPendingOutgoingOperations()
         {
-            outgoingFiles.Clear();
+            outgoingFiles = new ConcurrentBag<OutgoingFile>();
         }
 
         public Task Enlist(string messagePath, string messageContents)
@@ -140,7 +140,7 @@ namespace NServiceBus
 
         bool committed;
 
-        List<OutgoingFile> outgoingFiles = new List<OutgoingFile>();
+        ConcurrentBag<OutgoingFile> outgoingFiles = new ConcurrentBag<OutgoingFile>();
         string transactionDir;
 
         const string TxtFileExtension = "*.txt";

@@ -7,6 +7,7 @@
     using System.Threading;
     using System.Threading.Tasks;
     using Extensibility;
+    using Logging;
     using Transport;
 
     class LearningTransportMessagePump : IPushMessages
@@ -159,6 +160,11 @@
                         {
                             try
                             {
+                                if (log.IsDebugEnabled)
+                                {
+                                    log.Debug($"Completing processing for {filePath}, exception (if any): {t.Exception?.ToString()}");
+                                }
+
                                 var wasCommitted = transaction.Complete();
 
                                 if (wasCommitted)
@@ -316,6 +322,9 @@
         string delayedDir;
 
         CriticalError criticalError;
+
+
+        static ILog log = LogManager.GetLogger<LearningTransport>();
 
         public const string BodyFileSuffix = ".body.txt";
         public const string BodyDirName = ".bodies";
