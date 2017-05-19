@@ -1,6 +1,6 @@
 namespace NServiceBus
 {
-    using System.Collections.Generic;
+    using System.Collections.Concurrent;
     using System.IO;
     using System.Threading.Tasks;
 
@@ -51,7 +51,7 @@ namespace NServiceBus
 
         public void ClearPendingOutgoingOperations()
         {
-            outgoingFiles.Clear();
+            while (outgoingFiles.TryDequeue(out _)) { }
         }
 
         public Task Enlist(string messagePath, string messageContents)
@@ -61,7 +61,7 @@ namespace NServiceBus
             var txPath = Path.Combine(transactionDir, inProgressFileName);
             var committedPath = Path.Combine(commitDir, inProgressFileName);
 
-            outgoingFiles.Add(new OutgoingFile(committedPath, messagePath));
+            outgoingFiles.Enqueue(new OutgoingFile(committedPath, messagePath));
 
             return AsyncFile.WriteText(txPath, messageContents);
         }
@@ -73,7 +73,7 @@ namespace NServiceBus
                 return false;
             }
 
-            foreach (var outgoingFile in outgoingFiles)
+            while(outgoingFiles.TryDequeue(out var outgoingFile))
             {
                 File.Move(outgoingFile.TxPath, outgoingFile.TargetPath);
             }
@@ -140,7 +140,7 @@ namespace NServiceBus
 
         bool committed;
 
-        List<OutgoingFile> outgoingFiles = new List<OutgoingFile>();
+        ConcurrentQueue<OutgoingFile> outgoingFiles = new ConcurrentQueue<OutgoingFile>();
         string transactionDir;
 
         const string TxtFileExtension = "*.txt";
