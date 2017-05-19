@@ -5,10 +5,13 @@
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
+    using NServiceBus.Pipeline;
     using NUnit.Framework;
 
     public class When_headers_contain_special_characters : NServiceBusAcceptanceTest
     {
+        static Guid messageId = Guid.NewGuid();
+        static bool SavedOutBoxRecord = false;
         static Dictionary<string, string> sentHeaders = new Dictionary<string, string>
         {
             { "a-B1", "a-B" },
@@ -30,7 +33,7 @@
 
             var context =
                 await Scenario.Define<Context>()
-                    .WithEndpoint<OutboxEndpoint>(b => b.When(session => session.SendLocal(new Pläceörder())))
+                    .WithEndpoint<OutboxEndpoint>(b => b.When(session => session.SendLocal(new PlaceOrder())))
                     .Done(c => c.MessageReceived)
                     .Run(TimeSpan.FromSeconds(20));
 
@@ -51,12 +54,27 @@
                 EndpointSetup<DefaultServer>(b =>
                 {
                     b.EnableOutbox();
+                    b.Pipeline.Register("BlowUpBeforeDispatchBehavior", new BlowUpBeforeDispatchBehavior(), "Force reading the message from Outbox storage.");
+                    b.Recoverability().Immediate(a => a.NumberOfRetries(1));
                 });
             }
-
-            class PlaceOrderHandler : IHandleMessages<Pläceörder>
+            class BlowUpBeforeDispatchBehavior : IBehavior<IBatchDispatchContext, IBatchDispatchContext>
             {
-                public Task Handle(Pläceörder message, IMessageHandlerContext context)
+                public async Task Invoke(IBatchDispatchContext context, Func<IBatchDispatchContext, Task> next)
+                {
+                    if (!SavedOutBoxRecord)
+                    {
+                        SavedOutBoxRecord = true;
+                        throw new Exception();
+                    }
+
+
+                    await next(context).ConfigureAwait(false);
+                }
+            }
+            class PlaceOrderHandler : IHandleMessages<PlaceOrder>
+            {
+                public Task Handle(PlaceOrder message, IMessageHandlerContext context)
                 {
                     var sendOrderAcknowledgement = new SendOrderAcknowledgement();
                     var sendOptions = new SendOptions();
@@ -65,6 +83,7 @@
                     {
                         sendOptions.SetHeader(header.Key, header.Value);
                     }
+                    sendOptions.SetMessageId(messageId.ToString());
                     return context.Send(sendOrderAcknowledgement, sendOptions);
                 }
             }
@@ -82,7 +101,7 @@
             }
         }
 
-        public class Pläceörder : ICommand
+        public class PlaceOrder : ICommand
         {
         }
 
