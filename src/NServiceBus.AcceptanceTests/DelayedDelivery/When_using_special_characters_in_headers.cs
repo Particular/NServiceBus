@@ -42,6 +42,7 @@
                 .Done(c => c.ReceivedMessageHeaders != null)
                 .Run();
 
+            Assert.IsNotEmpty(context.ReceivedMessageHeaders);
             CollectionAssert.IsSupersetOf(context.ReceivedMessageHeaders, specialHeaders);
         }
 
