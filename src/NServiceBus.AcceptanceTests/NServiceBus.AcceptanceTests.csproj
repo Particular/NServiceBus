@@ -87,6 +87,8 @@
     <Compile Include="Forwarding\When_requesting_message_to_be_forwarded.cs" />
     <Compile Include="Core\Pipeline\When_subscribed_to_ReceivePipelineCompleted.cs" />
     <Compile Include="Outbox\When_headers_contain_special_characters.cs" />
+    <Compile Include="DelayedDelivery\When_using_special_characters_in_headers.cs" />
+    <Compile Include="Recoverability\When_using_special_characters_in_headers.cs" />
     <Compile Include="Routing\NativePublishSubscribe\When_publishing_from_sendonly.cs" />
     <Compile Include="Routing\NativePublishSubscribe\When_subscribing_to_a_base_event.cs" />
     <Compile Include="Routing\NativePublishSubscribe\When_subscribing_to_a_derived_event.cs" />
