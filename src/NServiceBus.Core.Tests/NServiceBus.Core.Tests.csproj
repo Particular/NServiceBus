@@ -188,6 +188,7 @@
     <Compile Include="Transports\Learning\HeaderSerializerTests.cs" />
     <Compile Include="Transports\Learning\AsyncFileTests.cs" />
     <Compile Include="Transports\Learning\LearningTransportDispatcherTests.cs" />
+    <Compile Include="Sagas\Orchestrations\TestOrchestration.cs" />
     <Compile Include="Transports\MSMQ\InstanceMapping\InstanceMappingFileFeatureTests.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\MessageDrivenSubscriptionsConfigExtensionsTests.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\PublishersTests.cs" />

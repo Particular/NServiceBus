@@ -212,6 +212,11 @@
     <Compile Include="Routing\UnicastSendRouter.cs" />
     <Compile Include="Sagas\DefaultSagaIdGenerator.cs" />
     <Compile Include="Sagas\ISagaIdGenerator.cs" />
+    <Compile Include="Sagas\Orchestrations\IOrchestrationContext.cs" />
+    <Compile Include="Sagas\Orchestrations\IRequest.cs" />
+    <Compile Include="Sagas\Orchestrations\Orchestration.cs" />
+    <Compile Include="Sagas\Orchestrations\OrchestrationContextExtensions.cs" />
+    <Compile Include="Sagas\SagaBase.cs" />
     <Compile Include="Sagas\SagaIdGeneratorContext.cs" />
     <Compile Include="Serialization\SerializationFeature.cs" />
     <Compile Include="Serialization\SerializationSettingsExtensions.cs" />
