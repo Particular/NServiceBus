@@ -126,6 +126,10 @@
                 {
                     // graceful shutdown
                 }
+                catch (Exception ex)
+                {
+                    criticalError.Raise("Failure to process messages", ex);
+                }
             }
         }
 
@@ -144,14 +148,24 @@
                     await concurrencyLimiter.WaitAsync(cancellationToken)
                         .ConfigureAwait(false);
 
-                    var transaction = GetTransaction();
+                    ILearningTransportTransaction transaction;
 
-                    var ableToLockFile = transaction.BeginTransaction(filePath);
+                    try
+                    {
+                        transaction = GetTransaction();
 
-                    if (!ableToLockFile)
+                        var ableToLockFile = transaction.BeginTransaction(filePath);
+
+                        if (!ableToLockFile)
+                        {
+                            concurrencyLimiter.Release();
+                            continue;
+                        }
+                    }
+                    catch(Exception)
                     {
                         concurrencyLimiter.Release();
-                        continue;
+                        throw;
                     }
 
                     ProcessFile(transaction, nativeMessageId)

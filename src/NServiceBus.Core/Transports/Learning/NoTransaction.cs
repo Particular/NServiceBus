@@ -22,11 +22,11 @@ namespace NServiceBus
             {
                 File.Move(incomingFilePath, FileToProcess);
             }
-            catch (FileNotFoundException)
+            catch (IOException)
             {
                 return false;
             }
-            
+
             //seem like File.Move is not atomic at least within the same process so we need this extra check
             return File.Exists(FileToProcess);
         }

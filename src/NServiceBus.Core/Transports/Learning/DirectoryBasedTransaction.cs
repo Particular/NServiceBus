@@ -25,7 +25,7 @@ namespace NServiceBus
             {
                 File.Move(incomingFilePath, FileToProcess);
             }
-            catch (FileNotFoundException)
+            catch (IOException)
             {
                 return false;
             }
