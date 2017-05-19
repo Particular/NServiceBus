@@ -7,6 +7,7 @@
     using System.Threading;
     using System.Threading.Tasks;
     using Extensibility;
+    using Logging;
     using Transport;
 
     class LearningTransportMessagePump : IPushMessages
@@ -173,6 +174,11 @@
                         {
                             try
                             {
+                                if (log.IsDebugEnabled)
+                                {
+                                    log.Debug($"Completing processing for {filePath}, exception (if any): {t.Exception}");
+                                }
+
                                 var wasCommitted = transaction.Complete();
 
                                 if (wasCommitted)
@@ -279,7 +285,7 @@
                 var errorContext = new ErrorContext(exception, headers, messageId, body, transportTransaction, processingFailures);
 
                 // the transport tests assume that all transports use a circuit breaker to be resillient against exceptions
-                // in onError. Since we don't need that robustness we just retry onError once should it fail.   
+                // in onError. Since we don't need that robustness we just retry onError once should it fail.
                 ErrorHandleResult actionToTake;
                 try
                 {
@@ -330,6 +336,9 @@
         string delayedDir;
 
         CriticalError criticalError;
+
+
+        static ILog log = LogManager.GetLogger<LearningTransport>();
 
         public const string BodyFileSuffix = ".body.txt";
         public const string BodyDirName = ".bodies";
