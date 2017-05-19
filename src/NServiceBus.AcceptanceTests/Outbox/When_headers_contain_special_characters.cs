@@ -10,7 +10,6 @@
 
     public class When_headers_contain_special_characters : NServiceBusAcceptanceTest
     {
-        static Guid messageId = Guid.NewGuid();
         static bool SavedOutBoxRecord = false;
         static Dictionary<string, string> sentHeaders = new Dictionary<string, string>
         {
@@ -35,7 +34,7 @@
                 await Scenario.Define<Context>()
                     .WithEndpoint<OutboxEndpoint>(b => b.When(session => session.SendLocal(new PlaceOrder())))
                     .Done(c => c.MessageReceived)
-                    .Run(TimeSpan.FromSeconds(20));
+                    .Run();
 
             Assert.IsNotEmpty(context.UnicodeHeaders);
             CollectionAssert.IsSubsetOf(sentHeaders, context.UnicodeHeaders);
@@ -43,7 +42,7 @@
 
         class Context : ScenarioContext
         {
-            public Dictionary<string, string> UnicodeHeaders { get; set; }
+            public IReadOnlyDictionary<string, string> UnicodeHeaders { get; set; }
             public bool MessageReceived { get; set; }
         }
 
@@ -68,10 +67,10 @@
                         throw new Exception();
                     }
 
-
                     await next(context).ConfigureAwait(false);
                 }
             }
+
             class PlaceOrderHandler : IHandleMessages<PlaceOrder>
             {
                 public Task Handle(PlaceOrder message, IMessageHandlerContext context)
@@ -83,7 +82,6 @@
                     {
                         sendOptions.SetHeader(header.Key, header.Value);
                     }
-                    sendOptions.SetMessageId(messageId.ToString());
                     return context.Send(sendOrderAcknowledgement, sendOptions);
                 }
             }
@@ -95,7 +93,7 @@
                 public Task Handle(SendOrderAcknowledgement message, IMessageHandlerContext context)
                 {
                     Context.MessageReceived = true;
-                    Context.UnicodeHeaders = (Dictionary<string, string>)context.MessageHeaders;
+                    Context.UnicodeHeaders = context.MessageHeaders;
                     return Task.FromResult(0);
                 }
             }
