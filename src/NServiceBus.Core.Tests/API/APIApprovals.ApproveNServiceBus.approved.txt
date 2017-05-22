@@ -616,7 +616,7 @@ namespace NServiceBus
     public class MessageDeserializationException : System.Runtime.Serialization.SerializationException
     {
         public MessageDeserializationException(string message) { }
-        public MessageDeserializationException(string incomingPhysicalMessageId, System.Exception innerException) { }
+        public MessageDeserializationException(string messageId, System.Exception innerException) { }
         protected MessageDeserializationException(System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context) { }
     }
     public class static MessageDrivenSubscriptionsConfigExtensions
@@ -2466,7 +2466,7 @@ namespace NServiceBus.Transport
     }
     public class IncomingMessage
     {
-        public IncomingMessage(string messageId, System.Collections.Generic.Dictionary<string, string> headers, byte[] body) { }
+        public IncomingMessage(string nativeMessageId, System.Collections.Generic.Dictionary<string, string> headers, byte[] body) { }
         public byte[] Body { get; }
         public System.Collections.Generic.Dictionary<string, string> Headers { get; }
         public string MessageId { get; }
