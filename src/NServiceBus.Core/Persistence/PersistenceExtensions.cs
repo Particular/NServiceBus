@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
     using Configuration.AdvanceExtensibility;
     using Persistence;
     using Settings;
@@ -45,21 +44,6 @@
         protected PersistenceExtensions(SettingsHolder settings, Type storageType) : base(typeof(T), settings, storageType)
         {
         }
-
-        /// <summary>
-        /// Defines the list of specific storage needs this persistence should provide.
-        /// </summary>
-        /// <param name="specificStorages">The list of storage needs.</param>
-        [ObsoleteEx(
-            Message = "Example: config.UsePersistence<InMemoryPersistence>().For(TimeoutStorage) should be changed to config.UsePersistence<InMemoryPersistence, Timeouts>()",
-            RemoveInVersion = "7.0",
-            TreatAsErrorFromVersion = "6.0",
-            ReplacementTypeOrMember = "UsePersistence<T, S>()")]
-        public new PersistenceExtensions<T> For(params Storage[] specificStorages)
-        {
-            base.For(specificStorages);
-            return this;
-        }
     }
 
     /// <summary>
@@ -81,12 +65,11 @@
                 Settings.Set("PersistenceDefinitions", definitions);
             }
 
-            enabledPersistence = new EnabledPersistence
+            var enabledPersistence = new EnabledPersistence
             {
                 DefinitionType = definitionType,
                 SelectedStorages = new List<Type>()
             };
-
 
             if (storageType != null)
             {
@@ -101,30 +84,5 @@
 
             definitions.Add(enabledPersistence);
         }
-
-
-        /// <summary>
-        /// Defines the list of specific storage needs this persistence should provide.
-        /// </summary>
-        /// <param name="specificStorages">The list of storage needs.</param>
-        [ObsoleteEx(
-            Message = "Example: config.UsePersistence<InMemoryPersistence>().For(TimeoutStorage) should be changed to config.UsePersistence<InMemoryPersistence, Timeouts>()",
-            RemoveInVersion = "7.0",
-            TreatAsErrorFromVersion = "6.0",
-            ReplacementTypeOrMember = "UsePersistence<T, S>() where T : PersistenceExtension where S : StorageType")]
-        public PersistenceExtensions For(params Storage[] specificStorages)
-        {
-            if (specificStorages == null || specificStorages.Length == 0)
-            {
-                throw new ArgumentException("Ensure at least one Storage is specified.");
-            }
-
-            var list = specificStorages.Select(StorageType.FromEnum).ToArray();
-            enabledPersistence.SelectedStorages.AddRange(list);
-
-            return this;
-        }
-
-        EnabledPersistence enabledPersistence;
     }
 }

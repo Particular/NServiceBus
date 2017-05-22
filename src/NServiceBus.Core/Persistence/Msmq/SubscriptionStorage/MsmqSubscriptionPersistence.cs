@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus.Features
 {
-    using Config;
     using Logging;
     using Persistence.Legacy;
     using Transport;
@@ -22,25 +21,13 @@
         {
             var queueName = context.Settings.GetConfiguredMsmqPersistenceSubscriptionQueue();
 
-            var cfg = context.Settings.GetConfigSection<MsmqSubscriptionStorageConfig>();
-
             if (string.IsNullOrEmpty(queueName))
             {
-                if (cfg == null)
-                {
-                    Logger.Warn("Could not find configuration section for Msmq Subscription Storage and no name was specified for this endpoint. Going to default the subscription queue");
-                    queueName = "NServiceBus.Subscriptions";
-                }
-                else
-                {
-                    queueName = cfg.Queue;
-                }
+                queueName = "NServiceBus.Subscriptions";
+                Logger.Warn($"The queue used to store subscriptions has not been configured, so the default '{queueName}' will be used.");
             }
 
-            if (queueName != null)
-            {
-                context.Settings.Get<QueueBindings>().BindSending(queueName);
-            }
+            context.Settings.Get<QueueBindings>().BindSending(queueName);
 
             var useTransactionalStorageQueue = true;
             MsmqSettings msmqSettings;

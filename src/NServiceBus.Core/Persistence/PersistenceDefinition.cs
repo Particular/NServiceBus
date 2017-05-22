@@ -26,34 +26,10 @@
         /// <summary>
         /// Used by the storage definitions to declare what they support.
         /// </summary>
-        [ObsoleteEx(
-            RemoveInVersion = "7.0",
-            TreatAsErrorFromVersion = "6.0",
-            ReplacementTypeOrMember = "Supports<T>()")]
-        protected void Supports(Storage storage, Action<SettingsHolder> action)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// Used by the storage definitions to declare what they support.
-        /// </summary>
         protected void Defaults(Action<SettingsHolder> action)
         {
             Guard.AgainstNull(nameof(action), action);
             defaults.Add(action);
-        }
-
-        /// <summary>
-        /// True if supplied storage is supported.
-        /// </summary>
-        [ObsoleteEx(
-            RemoveInVersion = "7.0",
-            TreatAsErrorFromVersion = "6.0",
-            ReplacementTypeOrMember = "HasSupportFor<T>()")]
-        public bool HasSupportFor(Storage storage)
-        {
-            throw new NotImplementedException();
         }
 
         /// <summary>

@@ -86,9 +86,7 @@
     <Compile Include="When_starting_up_the_endpoint.cs" />
     <Compile Include="When_starting_with_missing_instance_mapping_file.cs" />
     <Compile Include="When_starting_with_invalid_instance_mapping_file.cs" />
-    <Compile Include="When_subscribing_with_address_containing_host_name.cs" />
     <Compile Include="When_subscribing_from_a_worker.cs" />
-    <Compile Include="When_TimeToBeReceivedOnForwardedMessages_set_and_tx_scope_receives.cs" />
     <Compile Include="When_TimeToBeReceived_set_and_dtc.cs" />
     <Compile Include="When_TimeToBeReceived_set_and_SendsAtomicWithReceive.cs" />
     <Compile Include="When_TimeToBeReceived_set_and_ReceiveOnly.cs" />

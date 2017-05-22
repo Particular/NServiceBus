@@ -6,7 +6,6 @@ namespace NServiceBus
     using System.Reflection;
     using System.Transactions;
     using System.Web;
-    using Config.ConfigurationSource;
     using Configuration.AdvanceExtensibility;
     using Container;
     using Hosting.Helpers;
@@ -32,8 +31,6 @@ namespace NServiceBus
             ValidateEndpointName(endpointName);
 
             Settings.Set("NServiceBus.Routing.EndpointName", endpointName);
-
-            Settings.SetDefault<IConfigurationSource>(new DefaultConfigurationSource());
 
             pipelineCollection = new PipelineConfiguration();
             Settings.Set<PipelineConfiguration>(pipelineCollection);
@@ -74,59 +71,11 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Append a list of <see cref="Assembly" />s to the ignored list. The string is the file name of the assembly.
-        /// </summary>
-        [ObsoleteEx(
-            Message = "Use the AssemblyScanner configuration API.",
-            ReplacementTypeOrMember = "AssemblyScannerConfigurationExtensions.AssemblyScanner",
-            TreatAsErrorFromVersion = "7.0",
-            RemoveInVersion = "8.0")]
-        public void ExcludeAssemblies(params string[] assemblies)
-        {
-            Settings.GetOrCreate<AssemblyScannerConfiguration>().ExcludeAssemblies(assemblies);
-        }
-
-        /// <summary>
-        /// Append a list of <see cref="Type" />s to the ignored list.
-        /// </summary>
-        [ObsoleteEx(
-            Message = "Use the AssemblyScanner configuration API.",
-            ReplacementTypeOrMember = "AssemblyScannerConfigurationExtensions.AssemblyScanner",
-            TreatAsErrorFromVersion = "7.0",
-            RemoveInVersion = "8.0")]
-        public void ExcludeTypes(params Type[] types)
-        {
-            Settings.GetOrCreate<AssemblyScannerConfiguration>().ExcludeTypes(types);
-        }
-
-        /// <summary>
-        /// Specify to scan nested directories when performing assembly scanning.
-        /// </summary>
-        [ObsoleteEx(
-            Message = "Use the AssemblyScanner configuration API.",
-            ReplacementTypeOrMember = "AssemblyScannerConfigurationExtensions.AssemblyScanner",
-            TreatAsErrorFromVersion = "7.0",
-            RemoveInVersion = "8.0")]
-        public void ScanAssembliesInNestedDirectories()
-        {
-            Settings.GetOrCreate<AssemblyScannerConfiguration>().ScanAssembliesInNestedDirectories = true;
-        }
-
-        /// <summary>
         /// Configures the endpoint to be send-only.
         /// </summary>
         public void SendOnly()
         {
             Settings.Set("Endpoint.SendOnly", true);
-        }
-
-        /// <summary>
-        /// Overrides the default configuration source.
-        /// </summary>
-        public void CustomConfigurationSource(IConfigurationSource configurationSource)
-        {
-            Guard.AgainstNull(nameof(configurationSource), configurationSource);
-            Settings.Set<IConfigurationSource>(configurationSource);
         }
 
         /// <summary>

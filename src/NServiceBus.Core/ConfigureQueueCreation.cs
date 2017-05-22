@@ -1,6 +1,5 @@
 namespace NServiceBus
 {
-    using System;
     using Settings;
 
     /// <summary>
@@ -16,18 +15,6 @@ namespace NServiceBus
         {
             Guard.AgainstNull(nameof(config), config);
             config.Settings.Set("Transport.CreateQueues", false);
-        }
-
-        /// <summary>
-        /// Gets whether or not queues should be created.
-        /// </summary>
-        [ObsoleteEx(
-            TreatAsErrorFromVersion = "6",
-            RemoveInVersion = "7",
-            ReplacementTypeOrMember = "CreateQueues")]
-        public static bool CreateQueues(this Configure config)
-        {
-            throw new NotImplementedException();
         }
 
         /// <summary>

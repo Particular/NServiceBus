@@ -5,7 +5,7 @@ namespace NServiceBus.AutomaticSubscriptions.Config
     /// <summary>
     /// Provides fine grained control over auto subscribe.
     /// </summary>
-    public partial class AutoSubscribeSettings
+    public class AutoSubscribeSettings
     {
         internal AutoSubscribeSettings(EndpointConfiguration config)
         {

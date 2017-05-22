@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using Config;
     using ConsistencyGuarantees;
     using DelayedDelivery;
     using DeliveryConstraints;
@@ -118,8 +117,7 @@
                 return new ImmediateConfig(0);
             }
 
-            var retriesConfig = settings.GetConfigSection<TransportConfig>();
-            var maxImmediateRetries = retriesConfig?.MaxRetries ?? settings.Get<int>(NumberOfImmediateRetries);
+            var maxImmediateRetries = settings.Get<int>(NumberOfImmediateRetries);
 
             return new ImmediateConfig(maxImmediateRetries);
         }
@@ -135,13 +133,6 @@
 
             var numberOfRetries = settings.Get<int>(NumberOfDelayedRetries);
             var timeIncrease = settings.Get<TimeSpan>(DelayedRetriesTimeIncrease);
-
-            var retriesConfig = settings.GetConfigSection<SecondLevelRetriesConfig>();
-            if (retriesConfig != null)
-            {
-                numberOfRetries = retriesConfig.Enabled ? retriesConfig.NumberOfRetries : 0;
-                timeIncrease = retriesConfig.TimeIncrease;
-            }
 
             return new DelayedConfig(numberOfRetries, timeIncrease);
         }
@@ -181,9 +172,7 @@
             var mainQueueLogicalAddress = context.Settings.LogicalAddress();
             var mainQueueTransportAddress = context.Settings.GetTransportAddress(mainQueueLogicalAddress);
 
-            var requiredTransactionMode = context.Settings.GetRequiredTransactionModeForReceives();
-
-            context.AddSatelliteReceiver("Legacy Retries Processor", retriesQueueTransportAddress, requiredTransactionMode, new PushRuntimeSettings(maxConcurrency: 1),
+            context.AddSatelliteReceiver("Legacy Retries Processor", retriesQueueTransportAddress, new PushRuntimeSettings(maxConcurrency: 1),
                 (config, errorContext) =>
                 {
                     return RecoverabilityAction.MoveToError(config.Failed.ErrorQueue);

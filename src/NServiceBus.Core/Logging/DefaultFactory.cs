@@ -17,7 +17,7 @@ namespace NServiceBus.Logging
         public DefaultFactory()
         {
             directory = new Lazy<string>(FindDefaultLoggingDirectory);
-            level = new Lazy<LogLevel>(() => LogLevelReader.GetDefaultLogLevel());
+            level = new Lazy<LogLevel>(() => LogLevel.Info);
         }
 
         /// <summary>

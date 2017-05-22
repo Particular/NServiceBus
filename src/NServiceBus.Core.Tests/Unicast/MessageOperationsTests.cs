@@ -8,9 +8,6 @@
     using NUnit.Framework;
     using Pipeline;
     using Testing;
-    using PublishOptions = NServiceBus.PublishOptions;
-    using ReplyOptions = NServiceBus.ReplyOptions;
-    using SendOptions = NServiceBus.SendOptions;
 
     [TestFixture]
     public class MessageOperationsTests

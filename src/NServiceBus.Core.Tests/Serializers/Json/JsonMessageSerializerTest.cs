@@ -8,7 +8,6 @@ namespace NServiceBus.Serializers.Json.Tests
     using System.Xml.Linq;
     using MessageInterfaces.MessageMapper.Reflection;
     using NUnit.Framework;
-    using JsonMessageSerializer = NServiceBus.JsonMessageSerializer;
 
     [TestFixture]
     public class JsonMessageSerializerTest

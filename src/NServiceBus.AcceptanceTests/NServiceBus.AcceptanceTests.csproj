@@ -65,7 +65,6 @@
     <Compile Include="Core\LearningTransport\When_disabling_payload_restrictions.cs" />
     <Compile Include="Core\Pipeline\When_extending_behavior_context.cs" />
     <Compile Include="Core\Conventions\When_receiving_unobtrusive_message_without_handler.cs" />
-    <Compile Include="Core\Config\When_multiple_configuration_providers.cs" />
     <Compile Include="Core\CoreTestSuiteConstraints.cs" />
     <Compile Include="Core\DelayedDelivery\TimeoutManager\When_dispatch_fails_on_removal_SendsAtomicWithReceive.cs" />
     <Compile Include="Core\DelayedDelivery\TimeoutManager\When_using_external_timeout_manager_code_first.cs" />
@@ -82,8 +81,6 @@
     <Compile Include="Core\Pipeline\When_reusing_sendoptions.cs" />
     <Compile Include="DataBus\When_sending_databus_properties_with_unobtrusive.cs" />
     <Compile Include="Core\Conventions\When_sending_interface_message_with_conventions.cs" />
-    <Compile Include="Core\DelayedDelivery\TimeoutManager\When_using_external_timeout_manager_xml_config.cs" />
-    <Compile Include="Core\Encryption\When_using_Rijndael_with_unobtrusive_mode.cs" />
     <Compile Include="EndpointTemplates\EndpointConfigurationExtensions.cs" />
     <Compile Include="EndpointTemplates\Requires.cs" />
     <Compile Include="EndpointTemplates\TestSuiteConstraints.cs" />
@@ -117,14 +114,10 @@
     <Compile Include="Routing\When_registering_publishers_unobtrusive_messages_config.cs" />
     <Compile Include="Routing\When_sending_non_message_with_routing_configured_by_type.cs" />
     <Compile Include="Routing\When_sending_non_message_with_routing_configured_by_assembly.cs" />
-    <Compile Include="Routing\When_sending_non_message_with_routing_configured_via_mappings.cs" />
     <Compile Include="Routing\When_registering_publishers_unobtrusive_messages_code.cs" />
     <Compile Include="Routing\When_publishing_an_interface_with_unobtrusive.cs" />
     <Compile Include="Routing\When_replying_to_message_with_interface_and_unobtrusive.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\When_subscribing_to_a_base_event.cs" />
-    <Compile Include="Routing\When_sending_a_base_command.cs" />
-    <Compile Include="Routing\MessageDrivenSubscriptions\When_subscribing_to_event_with_routes_to_base_and_specific_events.cs" />
-    <Compile Include="Routing\MessageDrivenSubscriptions\When_subscribing_to_a_base_event_with_a_route_for_a_derived_event.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\When_subscribing_to_a_derived_event.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\When_subscribing_to_multiple_publishers.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\When_subscribing_to_scaled_out_publisher.cs" />
@@ -135,7 +128,6 @@
     <Compile Include="Sagas\When_sagas_share_timeout_messages.cs" />
     <Compile Include="Core\Sagas\When_overriding_saga_id_creation.cs" />
     <Compile Include="Sagas\When_saga_started_concurrently.cs" />
-    <Compile Include="Satellites\When_satellite_txmode_does_not_match_endpoints_txmode.cs" />
     <Compile Include="Sagas\When_using_a_received_message_for_timeout.cs" />
     <Compile Include="ScenarioDescriptors\TypeScanner.cs" />
     <Compile Include="Serialization\When_configuring_custom_xml_namespace.cs" />
@@ -228,8 +220,6 @@
     <Compile Include="Outbox\When_dispatching_forwarded_messages.cs" />
     <Compile Include="Outbox\When_a_message_is_audited.cs" />
     <Compile Include="Core\Outbox\When_clearing_saga_timeouts.cs" />
-    <Compile Include="Core\Encryption\When_using_Rijndael_without_incoming_key_identifier.cs" />
-    <Compile Include="Core\PerfMon\CriticalTime\When_deferring_a_message.cs" />
     <Compile Include="Audit\When_audit_is_overridden_in_code.cs" />
     <Compile Include="Outbox\When_a_duplicate_message_arrives.cs" />
     <Compile Include="Core\AutomaticSubscriptions\When_starting_an_endpoint_with_a_saga.cs" />
@@ -251,7 +241,6 @@
     <Compile Include="Routing\MessageDrivenSubscriptions\When_publishing_to_scaled_out_subscribers.cs" />
     <Compile Include="Routing\NativePublishSubscribe\When_publishing_to_scaled_out_subscribers.cs" />
     <Compile Include="Routing\When_replying_to_a_message_sent_to_specific_instance.cs" />
-    <Compile Include="Routing\MessageDrivenSubscriptions\When_using_assembly_level_message_mapping_for_pub_sub.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\When_using_legacy_routing_configuration.cs" />
     <Compile Include="Routing\When_publishing_an_interface.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\When_publishing_from_sendonly.cs" />
@@ -293,15 +282,8 @@
     <Compile Include="Core\UnitOfWork\TransactionScope\When_using_timeout_greater_than_machine_max.cs" />
     <Compile Include="Core\UnitOfWork\TransactionScope\When_used_with_transport_scopes.cs" />
     <Compile Include="Core\UnitOfWork\When_a_subscription_message_arrives.cs" />
-    <Compile Include="Core\Encryption\When_using_Rijndael_with_multikey.cs" />
-    <Compile Include="Core\Encryption\When_using_Rijndael_with_custom.cs" />
-    <Compile Include="Core\Encryption\When_using_Rijndael_with_config.cs" />
     <Compile Include="Core\Mutators\When_outgoing_mutator_replaces_instance.cs" />
     <Compile Include="Core\Mutators\When_defining_outgoing_message_mutators.cs" />
-    <Compile Include="Core\PerfMon\CriticalTime\When_slow_with_CriticalTime_enabled.cs" />
-    <Compile Include="Core\PerfMon\CriticalTime\When_CriticalTime_enabled.cs" />
-    <Compile Include="Core\PerfMon\SLA\When_sending_slow_with_SLA_enabled.cs" />
-    <Compile Include="Core\PerfMon\SLA\When_sending_with_SLA_enabled.cs" />
     <Compile Include="Routing\When_publishing_using_root_type.cs" />
     <Compile Include="Recoverability\When_immediate_retries_with_dtc_on.cs" />
     <Compile Include="Recoverability\When_immediate_retries_with_native_transactions.cs" />
@@ -314,9 +296,6 @@
     <Compile Include="Core\Pipeline\When_aborting_the_behavior_chain.cs" />
     <Compile Include="Pipeline\When_handling_current_message_later.cs" />
     <Compile Include="Routing\When_multiple_mappings_exists.cs" />
-    <Compile Include="Correlation\When_using_a_custom_correlation_id.cs" />
-    <Compile Include="Core\Config\When_only_abstract_config_override_is_found.cs" />
-    <Compile Include="Core\Encryption\When_using_encryption_with_custom_service.cs" />
     <Compile Include="Outbox\When_receiving_a_message.cs" />
     <Compile Include="NServiceBusAcceptanceTest.cs" />
     <Compile Include="DataBus\When_sending_databus_properties.cs" />

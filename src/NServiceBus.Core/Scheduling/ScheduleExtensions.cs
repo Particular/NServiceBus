@@ -2,7 +2,6 @@ namespace NServiceBus
 {
     using System;
     using System.Linq;
-    using System.Threading;
     using System.Threading.Tasks;
     using Logging;
 
@@ -11,31 +10,6 @@ namespace NServiceBus
     /// </summary>
     public static class ScheduleExtensions
     {
-        /// <summary>
-        /// Schedules a task to be executed repeatedly in a given interval.
-        /// </summary>
-        /// <param name="session">The session which allows you to perform message operation.</param>
-        /// <param name="timeSpan">The interval to repeatedly execute the <paramref name="task" />.</param>
-        /// <param name="task">The <see cref="System.Action" /> to execute.</param>
-        [ObsoleteEx(ReplacementTypeOrMember = "ScheduleEvery(this IMessageSession session, TimeSpan timeSpan, Func<IPipelineContext, Task> task)", TreatAsErrorFromVersion = "6", RemoveInVersion = "7")]
-        public static void ScheduleEvery(this IMessageSession session, TimeSpan timeSpan, Action task)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// Schedules a task to be executed repeatedly in a given interval.
-        /// </summary>
-        /// <param name="session">The session which allows you to perform message operation.</param>
-        /// <param name="timeSpan">The interval to repeatedly execute the <paramref name="task" />.</param>
-        /// <param name="task">The <see cref="System.Action" /> to execute.</param>
-        /// <param name="name">The name to use used for logging inside the new <see cref="Thread" />.</param>
-        [ObsoleteEx(ReplacementTypeOrMember = "ScheduleEvery(this IMessageSession session, TimeSpan timeSpan, string name, Func<IPipelineContext, Task> task)", TreatAsErrorFromVersion = "6", RemoveInVersion = "7")]
-        public static void ScheduleEvery(this IMessageSession session, TimeSpan timeSpan, string name, Action task)
-        {
-            throw new NotImplementedException();
-        }
-
         /// <summary>
         /// Schedules a task to be executed repeatedly in a given interval.
         /// </summary>

@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus
 {
     using System;
-    using Config;
     using ConsistencyGuarantees;
     using Features;
     using Settings;
@@ -23,10 +22,7 @@
             var messageAuditingConfig = settings.GetOrDefault<AuditConfigReader.Result>();
             var auditTTBROverridden = messageAuditingConfig?.TimeToBeReceived > TimeSpan.Zero;
 
-            var unicastBusConfig = settings.GetConfigSection<UnicastBusConfig>();
-            var forwardTTBROverridden = unicastBusConfig != null && unicastBusConfig.TimeToBeReceivedOnForwardedMessages > TimeSpan.Zero;
-
-            return TimeToBeReceivedOverrideChecker.Check(usingMsmq, isTransactional, outBoxRunning, auditTTBROverridden, forwardTTBROverridden);
+            return TimeToBeReceivedOverrideChecker.Check(usingMsmq, isTransactional, outBoxRunning, auditTTBROverridden);
         }
 
         ReadOnlySettings settings;

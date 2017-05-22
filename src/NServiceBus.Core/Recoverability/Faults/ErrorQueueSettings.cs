@@ -1,7 +1,6 @@
 namespace NServiceBus
 {
     using System;
-    using Config;
     using Logging;
     using Settings;
 
@@ -32,9 +31,8 @@ namespace NServiceBus
 
         /// <summary>
         /// Gets the explicitly configured error queue address if one is defined.
-        /// The error queue can be configured in code using 'EndpointConfiguration.SendFailedMessagesTo()',
-        /// via the 'Error' attribute of the 'MessageForwardingInCaseOfFaultConfig' configuration section,
-        /// or using the 'HKEY_LOCAL_MACHINE\SOFTWARE\ParticularSoftware\ServiceBus\ErrorQueue' registry key.
+        /// The error queue can be configured in code by using 'EndpointConfiguration.SendFailedMessagesTo()'
+        /// or by using the 'HKEY_LOCAL_MACHINE\SOFTWARE\ParticularSoftware\ServiceBus\ErrorQueue' registry key.
         /// </summary>
         /// <param name="settings">The configuration settings of this endpoint.</param>
         /// <param name="errorQueue">The configured error queue.</param>
@@ -48,22 +46,6 @@ namespace NServiceBus
                 Logger.Debug("Error queue retrieved from code configuration via 'EndpointConfiguration.SendFailedMessagesTo()'.");
                 errorQueue = settings.Get<string>(SettingsKey);
                 return true;
-            }
-
-            var section = settings.GetConfigSection<MessageForwardingInCaseOfFaultConfig>();
-            if (section != null)
-            {
-                if (!string.IsNullOrWhiteSpace(section.ErrorQueue))
-                {
-                    Logger.Debug("Error queue retrieved from <MessageForwardingInCaseOfFaultConfig> element in config file.");
-                    errorQueue = section.ErrorQueue;
-                    return true;
-                }
-
-                var message = "'MessageForwardingInCaseOfFaultConfig' configuration section exists, but 'ErrorQueue' value is empty. " +
-                    $"Specify a value, or remove the configuration section so that the default error queue name, '{DefaultErrorQueueName}', will be used instead.";
-
-                throw new Exception(message);
             }
 
             var registryErrorQueue = RegistryReader.Read("ErrorQueue");

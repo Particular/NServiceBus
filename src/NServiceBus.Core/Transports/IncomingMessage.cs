@@ -11,12 +11,12 @@ namespace NServiceBus.Transport
         /// <summary>
         /// Creates a new message.
         /// </summary>
-        /// <param name="messageId">Native message id.</param>
+        /// <param name="nativeMessageId">Native message id.</param>
         /// <param name="headers">The message headers.</param>
         /// <param name="body">The message body.</param>
-        public IncomingMessage(string messageId, Dictionary<string, string> headers, byte[] body)
+        public IncomingMessage(string nativeMessageId, Dictionary<string, string> headers, byte[] body)
         {
-            Guard.AgainstNullAndEmpty(nameof(messageId), messageId);
+            Guard.AgainstNullAndEmpty(nameof(nativeMessageId), nativeMessageId);
             Guard.AgainstNull(nameof(body), body);
             Guard.AgainstNull(nameof(headers), headers);
 
@@ -28,9 +28,9 @@ namespace NServiceBus.Transport
             }
             else
             {
-                MessageId = messageId;
+                MessageId = nativeMessageId;
 
-                headers[NServiceBus.Headers.MessageId] = messageId;
+                headers[NServiceBus.Headers.MessageId] = nativeMessageId;
             }
 
 

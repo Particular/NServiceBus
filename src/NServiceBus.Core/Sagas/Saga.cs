@@ -11,7 +11,7 @@ namespace NServiceBus
     /// To signify that the receipt of a message should start this saga,
     /// implement <see cref="IAmStartedByMessages{T}" /> for the relevant message type.
     /// </summary>
-    public abstract partial class Saga
+    public abstract class Saga
     {
         /// <summary>
         /// The saga's typed data.
@@ -107,7 +107,7 @@ namespace NServiceBus
             var options = new ReplyOptions();
 
             options.SetDestination(Entity.Originator);
-            options.SetCorrelationId(Entity.OriginalMessageId);
+            context.Extensions.Set(new AttachCorrelationIdBehavior.State { CustomCorrelationId = Entity.OriginalMessageId });
 
             //until we have metadata we just set this to null to avoid our own saga id being set on outgoing messages since
             //that would cause the saga that started us (if it was a saga) to not be found. When we have metadata available in the future we'll set the correct id and type

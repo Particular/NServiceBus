@@ -54,8 +54,7 @@
             configuration.GetConfiguration = async runDescriptor =>
             {
                 var endpointSetupTemplate = new T();
-                var scenarioConfigSource = new ScenarioConfigSource(configuration);
-                var endpointConfiguration = await endpointSetupTemplate.GetConfiguration(runDescriptor, configuration, scenarioConfigSource, bc =>
+                var endpointConfiguration = await endpointSetupTemplate.GetConfiguration(runDescriptor, configuration, bc =>
                 {
                     configurationBuilderCustomization(bc, runDescriptor);
                 }).ConfigureAwait(false);

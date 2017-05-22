@@ -6,7 +6,7 @@ namespace NServiceBus
     using System.Text;
     using Serialization;
 
-    public static partial class JsonSerializerConfigurationExtensions
+    public static class JsonSerializerConfigurationExtensions
     {
         /// <summary>
         /// Configures the encoding of JSON stream.

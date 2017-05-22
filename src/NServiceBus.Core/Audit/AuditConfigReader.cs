@@ -2,7 +2,6 @@
 {
     using System;
     using System.Diagnostics;
-    using Config;
     using Logging;
     using Settings;
 
@@ -13,8 +12,7 @@
     {
         /// <summary>
         /// Finds the configured audit queue for an endpoint.
-        /// The audit queue can be configured using 'EndpointConfiguration.AuditProcessedMessagesTo()',
-        /// via the 'QueueName' attribute of the 'Audit' config section
+        /// The audit queue can be configured by using 'EndpointConfiguration.AuditProcessedMessagesTo()'
         /// or by using the 'HKEY_LOCAL_MACHINE\SOFTWARE\ParticularSoftware\ServiceBus\AuditQueue' registry key.
         /// </summary>
         /// <param name="settings">The configuration settings for the endpoint.</param>
@@ -37,44 +35,22 @@
 
         internal static Result GetConfiguredAuditQueue(ReadOnlySettings settings)
         {
-            Result configResult;
-            if (settings.TryGet(out configResult))
+            if (settings.TryGet(out Result configResult))
             {
                 return configResult;
             }
 
-            var auditConfig = settings.GetConfigSection<AuditConfig>();
-            string address;
-            TimeSpan? timeToBeReceived = null;
-            if (auditConfig == null)
-            {
-                address = ReadAuditQueueNameFromRegistry();
-            }
-            else
-            {
-                var ttbrOverride = auditConfig.OverrideTimeToBeReceived;
+            var address = ReadAuditQueueNameFromRegistry();
 
-                if (ttbrOverride > TimeSpan.Zero)
-                {
-                    timeToBeReceived = ttbrOverride;
-                }
-                if (string.IsNullOrWhiteSpace(auditConfig.QueueName))
-                {
-                    address = ReadAuditQueueNameFromRegistry();
-                }
-                else
-                {
-                    address = auditConfig.QueueName;
-                }
-            }
             if (address == null)
             {
                 return null;
             }
+
             return new Result
             {
                 Address = address,
-                TimeToBeReceived = timeToBeReceived
+                TimeToBeReceived = null
             };
         }
 

@@ -15,22 +15,6 @@ namespace NServiceBus.Faults
         /// <param name="headers">Message headers.</param>
         /// <param name="body">Message body.</param>
         /// <param name="exception">Exception thrown.</param>
-        [ObsoleteEx(
-         TreatAsErrorFromVersion = "6.0",
-         RemoveInVersion = "7.0",
-         ReplacementTypeOrMember = "FailedMessage(string messageId, Dictionary<string, string> headers, byte[] body, Exception exception, string errorQueue)")]
-        public FailedMessage(string messageId, Dictionary<string, string> headers, byte[] body, Exception exception)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// Creates a new instance of <see cref="FailedMessage" />.
-        /// </summary>
-        /// <param name="messageId">The id of the failed message.</param>
-        /// <param name="headers">Message headers.</param>
-        /// <param name="body">Message body.</param>
-        /// <param name="exception">Exception thrown.</param>
         /// <param name="errorQueue">Error queue address.</param>
         public FailedMessage(string messageId, Dictionary<string, string> headers, byte[] body, Exception exception, string errorQueue)
         {

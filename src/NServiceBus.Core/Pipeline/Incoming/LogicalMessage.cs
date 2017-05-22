@@ -32,18 +32,5 @@
         /// The message instance.
         /// </summary>
         public object Instance { get; internal set; }
-
-        /// <summary>
-        /// Updates the message instance.
-        /// </summary>
-        /// <param name="newInstance">The new instance.</param>
-        [ObsoleteEx(
-            RemoveInVersion = "7", 
-            TreatAsErrorFromVersion = "6", 
-            ReplacementTypeOrMember = "IIncomingLogicalMessageContext.UpdateMessageInstance(object newInstance)")]
-        public void UpdateMessageInstance(object newInstance)
-        {
-            throw new NotImplementedException();
-        }
     }
 }
