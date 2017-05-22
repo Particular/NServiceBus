@@ -1371,6 +1371,7 @@ namespace NServiceBus.Extensibility
     {
         public ContextBag(NServiceBus.Extensibility.ContextBag parentBag = null) { }
         public T Get<T>() { }
+        public T Get<T>(string key) { }
         public T GetOrCreate<T>()
             where T :  class, new () { }
         public void Remove<T>() { }
@@ -1395,6 +1396,7 @@ namespace NServiceBus.Extensibility
     public interface ReadOnlyContextBag
     {
         T Get<T>();
+        T Get<T>(string key);
         bool TryGet<T>(out T result);
         bool TryGet<T>(string key, out T result);
     }

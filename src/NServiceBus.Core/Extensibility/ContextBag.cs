@@ -49,7 +49,7 @@ namespace NServiceBus.Extensibility
             object value;
             if (stash.TryGetValue(key, out value))
             {
-                result = (T) value;
+                result = (T)value;
                 return true;
             }
 
@@ -60,6 +60,20 @@ namespace NServiceBus.Extensibility
 
             result = default(T);
             return false;
+        }
+
+        /// <inheritdoc />
+        public T Get<T>(string key)
+        {
+            Guard.AgainstNullAndEmpty(nameof(key), key);
+            T result;
+
+            if (!TryGet(key, out result))
+            {
+                throw new KeyNotFoundException("No item found in behavior context with key: " + key);
+            }
+
+            return result;
         }
 
         /// <summary>
@@ -131,19 +145,6 @@ namespace NServiceBus.Extensibility
             {
                 stash[kvp.Key] = kvp.Value;
             }
-        }
-
-        T Get<T>(string key)
-        {
-            Guard.AgainstNullAndEmpty(nameof(key), key);
-            T result;
-
-            if (!TryGet(key, out result))
-            {
-                throw new KeyNotFoundException("No item found in behavior context with key: " + key);
-            }
-
-            return result;
         }
 
         ContextBag parentBag;
