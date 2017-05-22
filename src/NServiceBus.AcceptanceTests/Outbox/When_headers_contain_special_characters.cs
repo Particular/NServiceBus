@@ -10,7 +10,6 @@
 
     public class When_headers_contain_special_characters : NServiceBusAcceptanceTest
     {
-        static bool SavedOutBoxRecord = false;
         static Dictionary<string, string> sentHeaders = new Dictionary<string, string>
         {
             { "a-B1", "a-B" },
@@ -44,6 +43,7 @@
         {
             public IReadOnlyDictionary<string, string> UnicodeHeaders { get; set; }
             public bool MessageReceived { get; set; }
+            public bool SavedOutBoxRecord { get; set; }
         }
 
         public class OutboxEndpoint : EndpointConfigurationBuilder
@@ -61,9 +61,11 @@
             {
                 public async Task Invoke(IBatchDispatchContext context, Func<IBatchDispatchContext, Task> next)
                 {
-                    if (!SavedOutBoxRecord)
+                    if (!context.Extensions.Get<Context>().SavedOutBoxRecord)
                     {
-                        SavedOutBoxRecord = true;
+                        var ctx = context.Extensions.Get<Context>();
+                        ctx.SavedOutBoxRecord = true;
+                        context.Extensions.Set(ctx);
                         throw new Exception();
                     }
 
