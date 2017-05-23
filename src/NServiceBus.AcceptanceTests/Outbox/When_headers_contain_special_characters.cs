@@ -53,19 +53,22 @@
                 EndpointSetup<DefaultServer>(b =>
                 {
                     b.EnableOutbox();
-                    b.Pipeline.Register("BlowUpBeforeDispatchBehavior", new BlowUpBeforeDispatchBehavior(), "Force reading the message from Outbox storage.");
+                    b.Pipeline.Register("BlowUpBeforeDispatchBehavior", new BlowUpBeforeDispatchBehavior((Context)ScenarioContext), "Force reading the message from Outbox storage.");
                     b.Recoverability().Immediate(a => a.NumberOfRetries(1));
                 });
             }
             class BlowUpBeforeDispatchBehavior : IBehavior<IBatchDispatchContext, IBatchDispatchContext>
             {
+                Context _context;
+                public BlowUpBeforeDispatchBehavior(Context context)
+                {
+                    _context = context;
+                }
                 public async Task Invoke(IBatchDispatchContext context, Func<IBatchDispatchContext, Task> next)
                 {
-                    if (!context.Extensions.Get<Context>().SavedOutBoxRecord)
+                    if (!_context.SavedOutBoxRecord)
                     {
-                        var ctx = context.Extensions.Get<Context>();
-                        ctx.SavedOutBoxRecord = true;
-                        context.Extensions.Set(ctx);
+                        _context.SavedOutBoxRecord = true;
                         throw new Exception();
                     }
 
