@@ -404,10 +404,12 @@ class InterfaceMessageHandler : IHandleMessages<IBaseEvent>
 
                 if (fakeIdentity)
                 {
-                    var reader = AssemblyDefinition.ReadAssembly(FilePath);
-                    reader.Name.Name = nameWithoutExtension;
-                    reader.MainModule.Name = nameWithoutExtension;
-                    reader.Write(FilePath);
+                    using (var assemblyDefinition = AssemblyDefinition.ReadAssembly(FilePath, new ReaderParameters { ReadWrite = true }))
+                    {
+                        assemblyDefinition.Name.Name = nameWithoutExtension;
+                        assemblyDefinition.MainModule.Name = nameWithoutExtension;
+                        assemblyDefinition.Write();
+                    }
                 }
 
                 Assembly = result.CompiledAssembly;
