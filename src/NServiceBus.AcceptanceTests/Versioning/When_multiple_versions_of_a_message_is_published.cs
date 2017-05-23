@@ -5,7 +5,6 @@
     using EndpointTemplates;
     using Features;
     using NUnit.Framework;
-    using Routing;
 
     public class When_multiple_versions_of_a_message_is_published : NServiceBusAcceptanceTest
     {

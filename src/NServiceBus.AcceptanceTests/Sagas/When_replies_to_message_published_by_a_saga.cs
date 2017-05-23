@@ -6,7 +6,6 @@
     using EndpointTemplates;
     using Features;
     using NUnit.Framework;
-    using Routing;
 
     public class When_replies_to_message_published_by_a_saga : NServiceBusAcceptanceTest
     {

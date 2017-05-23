@@ -1,9 +1,8 @@
-namespace NServiceBus.AcceptanceTests.Routing
+namespace NServiceBus.AcceptanceTesting
 {
     using System;
-    using AcceptanceTesting;
 
-    static class SubscriptionBehaviorExtensions
+    public static class SubscriptionBehaviorExtensions
     {
         public static void OnEndpointSubscribed<TContext>(this EndpointConfiguration configuration, Action<SubscriptionEventArgs, TContext> action) where TContext : ScenarioContext
         {
