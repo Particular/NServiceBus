@@ -1251,21 +1251,21 @@ namespace NServiceBus.Config
 }
 namespace NServiceBus.Config.ConfigurationSource
 {
-    [System.ObsoleteAttribute("The use of the IConfigurationSource is discouraged. Code configuration is prefere" +
-        "d over configuration sources. Will be removed in version 8.0.0.", true)]
+    [System.ObsoleteAttribute("The use of the IConfigurationSource is discouraged. Code configuration is preferr" +
+        "ed over configuration sources. Will be removed in version 8.0.0.", true)]
     public interface IConfigurationSource
     {
-        [System.ObsoleteAttribute("The use of the IConfigurationSource is discouraged. Code configuration is prefere" +
-            "d over configuration sources. Will be removed in version 8.0.0.", true)]
+        [System.ObsoleteAttribute("The use of the IConfigurationSource is discouraged. Code configuration is preferr" +
+            "ed over configuration sources. Will be removed in version 8.0.0.", true)]
         T GetConfiguration<T>()
             where T :  class, new ();
     }
     [System.ObsoleteAttribute("The use of the IProvideConfiguration is discouraged. Code configuration is prefer" +
-        "ed over configuration sources. Will be removed in version 8.0.0.", true)]
+        "red over configuration sources. Will be removed in version 8.0.0.", true)]
     public interface IProvideConfiguration<T>
     {
         [System.ObsoleteAttribute("The use of the IProvideConfiguration is discouraged. Code configuration is prefer" +
-            "ed over configuration sources. Will be removed in version 8.0.0.", true)]
+            "red over configuration sources. Will be removed in version 8.0.0.", true)]
         T GetConfiguration();
     }
 }
