@@ -12,43 +12,35 @@
         [Test]
         public async Task Should_preserve_correlation_context()
         {
-            var messageId = Guid.NewGuid().ToString();
-            var someId = Guid.NewGuid();
+            var sagaCorrelationId = Guid.NewGuid();
+
             var context = await Scenario.Define<Context>()
-                .WithEndpoint<Endpoint>(b => b.When(session =>
+                .WithEndpoint<Endpoint>(b => b.When(session => session.SendLocal(new InitiateRequestingSaga
                     {
-                        var option = new SendOptions();
-
-                        option.SetMessageId(messageId);
-                        option.RouteToThisEndpoint();
-
-                        return session.Send(new InitiateRequestingSaga
-                        {
-                            SomeId = someId
-                        }, option);
-                    })
+                        SagaCorrelationId = sagaCorrelationId
+                    }))
                     .When(c => c.GotFirstMessage, session =>
-                        //we're sending a new message here to make sure we get a new correlation id to make sure that the saga 
-                        //preserves the original one. If not the fact that we flow correlation ids from incoming messages to outgoing will
-                        // hide potential bugs
-                        session.SendLocal(new MessageThatWillCauseSagaToReplyToOriginator
-                        {
-                            SomeId = someId
-                        }))
+                        // we're sending a new message here to make sure we get a new correlation id to make sure that the saga 
+                        // preserves the original one. This message can't be sent from a message handler as it would float the received
+                        // correlation id into the outgoing message instead of assigning a new one.
+                            session.SendLocal(new MessageThatWillCauseSagaToReplyToOriginator
+                            {
+                                SagaCorrelationId = sagaCorrelationId
+                            }))
                 )
-                .Done(c => c.Done)
+                .Done(c => c.CorrelationIdOnReply != null)
                 .Run();
 
             Assert.AreEqual(MessageIntentEnum.Reply, context.Intent);
-            Assert.AreEqual(messageId, context.ReceivedCorrelationId, "Message id should be preserved and used as correlation id on reply so that things like callbacks work properly");
+            Assert.AreEqual(context.OriginalCorrelationId, context.CorrelationIdOnReply, "Correlation id should be preserved so that things like callbacks work properly");
         }
 
         public class Context : ScenarioContext
         {
             public MessageIntentEnum Intent { get; set; }
-            public string ReceivedCorrelationId { get; set; }
-            public bool Done { get; set; }
+            public string CorrelationIdOnReply { get; set; }
             public bool GotFirstMessage { get; set; }
+            public string OriginalCorrelationId { get; set; }
         }
 
         public class Endpoint : EndpointConfigurationBuilder
@@ -57,7 +49,7 @@
             {
                 EndpointSetup<DefaultServer>(config =>
                 {
-                    config.EnableFeature<TimeoutManager>();
+                    //config.EnableFeature<TimeoutManager>();
                     config.LimitMessageProcessingConcurrencyTo(1); //to avoid race conditions with the start and second message
                 });
             }
@@ -70,29 +62,30 @@
 
                 public Task Handle(InitiateRequestingSaga message, IMessageHandlerContext context)
                 {
-                    Data.CorrIdForResponse = message.SomeId; //wont be needed in the future
+                    Data.SagaCorrelationId = message.SagaCorrelationId; //wont be needed in the future
+
+                    TestContext.OriginalCorrelationId = context.MessageHeaders[Headers.CorrelationId];
                     TestContext.GotFirstMessage = true;
 
                     return Task.FromResult(0);
                 }
 
-                public async Task Handle(MessageThatWillCauseSagaToReplyToOriginator message, IMessageHandlerContext context)
+                public Task Handle(MessageThatWillCauseSagaToReplyToOriginator message, IMessageHandlerContext context)
                 {
-                    await ReplyToOriginator(context, new MyReplyToOriginator());
-                    MarkAsComplete();
+                    return ReplyToOriginator(context, new MyReplyToOriginator());
                 }
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<RequestingSagaData> mapper)
                 {
-                    mapper.ConfigureMapping<InitiateRequestingSaga>(m => m.SomeId)
-                        .ToSaga(s => s.CorrIdForResponse);
-                    mapper.ConfigureMapping<MessageThatWillCauseSagaToReplyToOriginator>(m => m.SomeId)
-                        .ToSaga(s => s.CorrIdForResponse);
+                    mapper.ConfigureMapping<InitiateRequestingSaga>(m => m.SagaCorrelationId)
+                        .ToSaga(s => s.SagaCorrelationId);
+                    mapper.ConfigureMapping<MessageThatWillCauseSagaToReplyToOriginator>(m => m.SagaCorrelationId)
+                        .ToSaga(s => s.SagaCorrelationId);
                 }
 
                 public class RequestingSagaData : ContainSagaData
                 {
-                    public virtual Guid CorrIdForResponse { get; set; } //wont be needed in the future
+                    public virtual Guid SagaCorrelationId { get; set; } //wont be needed in the future
                 }
             }
 
@@ -103,8 +96,7 @@
                 public Task Handle(MyReplyToOriginator message, IMessageHandlerContext context)
                 {
                     TestContext.Intent = (MessageIntentEnum)Enum.Parse(typeof(MessageIntentEnum), context.MessageHeaders[Headers.MessageIntent]);
-                    TestContext.ReceivedCorrelationId = context.MessageHeaders[Headers.CorrelationId];
-                    TestContext.Done = true;
+                    TestContext.CorrelationIdOnReply = context.MessageHeaders[Headers.CorrelationId];
                     return Task.FromResult(0);
                 }
             }
@@ -112,12 +104,12 @@
 
         public class InitiateRequestingSaga : ICommand
         {
-            public Guid SomeId { get; set; }
+            public Guid SagaCorrelationId { get; set; }
         }
 
         public class MessageThatWillCauseSagaToReplyToOriginator : IMessage
         {
-            public Guid SomeId { get; set; }
+            public Guid SagaCorrelationId { get; set; }
         }
 
         public class MyReplyToOriginator : IMessage
