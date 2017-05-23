@@ -62,6 +62,7 @@
     <Compile Include="When_transaction_level_TransactionScope.cs" />
     <Compile Include="When_user_aborts_processing.cs" />
     <Compile Include="When_using_non_durable_delivery.cs" />
+    <Compile Include="When_using_unicode_characters_in_headers.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\NServiceBus.Core\NServiceBus.Core.csproj">
