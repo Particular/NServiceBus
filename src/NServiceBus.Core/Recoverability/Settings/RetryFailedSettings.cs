@@ -2,7 +2,7 @@ namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
-    using Configuration.AdvanceExtensibility;
+    using Configuration.AdvancedExtensibility;
     using Settings;
 
     /// <summary>

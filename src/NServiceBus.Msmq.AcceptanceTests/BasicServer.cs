@@ -7,7 +7,7 @@ namespace NServiceBus.AcceptanceTests.EndpointTemplates
     using System.Threading.Tasks;
     using AcceptanceTesting.Customization;
     using AcceptanceTesting.Support;
-    using Configuration.AdvanceExtensibility;
+    using Configuration.AdvancedExtensibility;
     using Transport;
 
     public abstract class BasicServer : IEndpointSetupTemplate

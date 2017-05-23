@@ -1,7 +1,7 @@
 ﻿namespace NServiceBus.Routing.Legacy
 {
     using System;
-    using Configuration.AdvanceExtensibility;
+    using Configuration.AdvancedExtensibility;
     using Features;
 
     /// <summary>

@@ -500,7 +500,7 @@
     <Compile Include="Sagas\SagaInvocationResult.cs" />
     <Compile Include="Pipeline\Incoming\TransportReceiveToPhysicalMessageProcessingConnector.cs" />
     <Compile Include="Recoverability\DelayedRetries\DelayedRetryMessage.cs" />
-    <Compile Include="Features\AdvanceExtensibilityExtensions.cs" />
+    <Compile Include="Features\AdvancedExtensibilityExtensions.cs" />
     <Compile Include="Features\DisplayDiagnosticsForFeatures.cs" />
     <Compile Include="Features\ExposeSettings.cs" />
     <Compile Include="Features\PrerequisiteStatus.cs" />

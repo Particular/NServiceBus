@@ -3,7 +3,7 @@
     using System;
     using System.Threading.Tasks;
     using AcceptanceTesting;
-    using Configuration.AdvanceExtensibility;
+    using Configuration.AdvancedExtensibility;
     using EndpointTemplates;
     using NUnit.Framework;
 

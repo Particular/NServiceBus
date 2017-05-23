@@ -1,7 +1,7 @@
 namespace NServiceBus.Pipeline
 {
     using System;
-    using Configuration.AdvanceExtensibility;
+    using Configuration.AdvancedExtensibility;
     using ObjectBuilder;
     using Settings;
 

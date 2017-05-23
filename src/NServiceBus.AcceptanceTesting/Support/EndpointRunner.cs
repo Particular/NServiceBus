@@ -5,7 +5,7 @@
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
-    using Configuration.AdvanceExtensibility;
+    using Configuration.AdvancedExtensibility;
     using Logging;
     using NServiceBus.Support;
     using Transport;
