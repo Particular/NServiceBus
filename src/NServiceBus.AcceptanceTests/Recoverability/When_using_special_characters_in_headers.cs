@@ -79,8 +79,7 @@
 
                 public Task Handle(FailingMessage message, IMessageHandlerContext context)
                 {
-                    string delayedRetryAttempt;
-                    if (context.MessageHeaders.TryGetValue(Headers.DelayedRetries, out delayedRetryAttempt))
+                    if (context.MessageHeaders.TryGetValue(Headers.DelayedRetries, out _))
                     {
                         testContext.ReceivedMessageHeaders = context.MessageHeaders;
                         return Task.FromResult(0);
