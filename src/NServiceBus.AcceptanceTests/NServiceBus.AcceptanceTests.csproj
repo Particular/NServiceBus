@@ -228,7 +228,6 @@
     <Compile Include="Core\AutomaticSubscriptions\When_starting_an_endpoint_with_autosubscribe.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Routing\SubscriptionBehaviorExtensions.cs" />
     <Compile Include="Sagas\When_saga_handles_unmapped_message.cs" />
     <Compile Include="Satellites\When_a_message_is_available.cs" />
     <Compile Include="Serialization\When_registering_deserializers_with_settings.cs" />
@@ -238,11 +237,10 @@
     <Compile Include="Serialization\When_wrapping_is_not_skipped.cs" />
     <Compile Include="Serialization\When_xml_serializer_used_with_unobtrusive_mode.cs" />
     <Compile Include="Routing\NativePublishSubscribe\When_multi_subscribing_to_a_polymorphic_event.cs" />
-    <Compile Include="Routing\MessageDrivenSubscriptions\When_using_autosubscribe_with_missing_routing_information.cs" />
+    <Compile Include="Routing\MessageDrivenSubscriptions\When_using_autosubscribe_with_missing_publisher_information.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\When_publishing_to_scaled_out_subscribers.cs" />
     <Compile Include="Routing\NativePublishSubscribe\When_publishing_to_scaled_out_subscribers.cs" />
     <Compile Include="Routing\When_replying_to_a_message_sent_to_specific_instance.cs" />
-    <Compile Include="Routing\MessageDrivenSubscriptions\When_using_legacy_routing_configuration.cs" />
     <Compile Include="Routing\When_publishing_an_interface.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\When_publishing_from_sendonly.cs" />
     <Compile Include="Routing\When_publishing_an_event_implementing_two_unrelated_interfaces.cs" />
@@ -300,11 +298,9 @@
     <Compile Include="Outbox\When_receiving_a_message.cs" />
     <Compile Include="NServiceBusAcceptanceTest.cs" />
     <Compile Include="DataBus\When_sending_databus_properties.cs" />
-    <Compile Include="Routing\SubscriptionBehavior.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\When_multi_subscribing_to_a_polymorphic_event.cs" />
     <Compile Include="Routing\When_publishing_with_overridden_local_address.cs" />
     <Compile Include="Routing\When_publishing_with_only_local_messagehandlers.cs" />
-    <Compile Include="Routing\SubscriptionEventArgs.cs" />
     <Compile Include="Routing\When_base_event_from_2_publishers.cs" />
     <Compile Include="Routing\When_publishing.cs" />
     <Compile Include="Recoverability\When_immediate_retries_fail.cs" />

@@ -78,6 +78,9 @@
     <Compile Include="Support\RunSettings.cs" />
     <Compile Include="Support\ScenarioRunner.cs" />
     <Compile Include="Support\SimulatedException.cs" />
+    <Compile Include="Support\SubscriptionBehavior.cs" />
+    <Compile Include="Support\SubscriptionBehaviorExtensions.cs" />
+    <Compile Include="Support\SubscriptionEventArgs.cs" />
     <Compile Include="Support\TaskExtensions.cs" />
     <Compile Include="Support\WhenDefinition.cs" />
   </ItemGroup>

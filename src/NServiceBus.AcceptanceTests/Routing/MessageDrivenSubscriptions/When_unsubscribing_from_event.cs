@@ -11,7 +11,7 @@
     public class When_unsubscribing_from_event : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task ShouldNoLongerReceiveEvent()
+        public async Task Should_no_longer_receive_event()
         {
             Requires.MessageDrivenPubSub();
 

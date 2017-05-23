@@ -59,9 +59,6 @@
     <Compile Include="FakePromotableResourceManager.cs" />
     <Compile Include="NServiceBusAcceptanceTest.cs" />
     <Compile Include="LegacyRetries\When_legacy_retries_left_in_retry_queue.cs" />
-    <Compile Include="SubscriptionBehavior.cs" />
-    <Compile Include="SubscriptionBehaviorExtensions.cs" />
-    <Compile Include="SubscriptionEventArgs.cs" />
     <Compile Include="When_Audit_OverrideTimeToBeReceived_set_and_native_receive_tx.cs" />
     <Compile Include="When_a_corrupted_message_is_received.cs" />
     <Compile Include="When_customizing_scope_isolation_level.cs" />

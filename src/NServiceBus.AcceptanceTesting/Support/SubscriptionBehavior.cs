@@ -1,21 +1,17 @@
-﻿namespace NServiceBus.Transport.Msmq.AcceptanceTests
+﻿namespace NServiceBus.AcceptanceTesting
 {
     using System;
-    using System.Linq;
     using System.Threading.Tasks;
-    using AcceptanceTesting;
     using Pipeline;
     using Transport;
 
     class SubscriptionBehavior<TContext> : IBehavior<ITransportReceiveContext, ITransportReceiveContext> where TContext : ScenarioContext
     {
-        Action<SubscriptionEventArgs, TContext> action;
-        TContext scenarioContext;
-
-        public SubscriptionBehavior(Action<SubscriptionEventArgs, TContext> action, TContext scenarioContext)
+        public SubscriptionBehavior(Action<SubscriptionEventArgs, TContext> action, TContext scenarioContext, MessageIntentEnum intentToHandle)
         {
             this.action = action;
             this.scenarioContext = scenarioContext;
+            this.intentToHandle = intentToHandle;
         }
 
         public async Task Invoke(ITransportReceiveContext context, Func<ITransportReceiveContext, Task> next)
@@ -29,6 +25,13 @@
                 {
                     context.Message.Headers.TryGetValue(Headers.ReplyToAddress, out returnAddress);
                 }
+
+                var intent = (MessageIntentEnum)Enum.Parse(typeof(MessageIntentEnum), context.Message.Headers[Headers.MessageIntent], true);
+                if (intent != intentToHandle)
+                {
+                    return;
+                }
+
                 action(new SubscriptionEventArgs
                 {
                     MessageType = subscriptionMessageType,
@@ -39,7 +42,12 @@
 
         static string GetSubscriptionMessageTypeFrom(IncomingMessage msg)
         {
-            return (from header in msg.Headers where header.Key == Headers.SubscriptionMessageType select header.Value).FirstOrDefault();
+            string headerValue;
+            return msg.Headers.TryGetValue(Headers.SubscriptionMessageType, out headerValue) ? headerValue : null;
         }
+
+        Action<SubscriptionEventArgs, TContext> action;
+        TContext scenarioContext;
+        MessageIntentEnum intentToHandle;
     }
 }
