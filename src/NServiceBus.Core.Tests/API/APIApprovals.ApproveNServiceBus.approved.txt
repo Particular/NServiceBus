@@ -139,7 +139,7 @@ namespace NServiceBus
         public bool IsInSystemConventionList(System.Type t) { }
         public bool IsMessageType(System.Type t) { }
     }
-    public class ConventionsBuilder : NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings
+    public class ConventionsBuilder : NServiceBus.Configuration.AdvancedExtensibility.ExposeSettings
     {
         public ConventionsBuilder(NServiceBus.Settings.SettingsHolder settings) { }
         public NServiceBus.Conventions Conventions { get; }
@@ -222,7 +222,7 @@ namespace NServiceBus
         public static System.Nullable<System.DateTimeOffset> GetDeliveryDate(this NServiceBus.SendOptions options) { }
         public static System.Nullable<System.TimeSpan> GetDeliveryDelay(this NServiceBus.SendOptions options) { }
     }
-    public class DelayedRetriesSettings : NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings
+    public class DelayedRetriesSettings : NServiceBus.Configuration.AdvancedExtensibility.ExposeSettings
     {
         public NServiceBus.DelayedRetriesSettings NumberOfRetries(int numberOfRetries) { }
         public NServiceBus.DelayedRetriesSettings TimeIncrease(System.TimeSpan timeIncrease) { }
@@ -276,7 +276,7 @@ namespace NServiceBus
         public static System.Threading.Tasks.Task<NServiceBus.IStartableEndpoint> Create(NServiceBus.EndpointConfiguration configuration) { }
         public static System.Threading.Tasks.Task<NServiceBus.IEndpointInstance> Start(NServiceBus.EndpointConfiguration configuration) { }
     }
-    public class EndpointConfiguration : NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings
+    public class EndpointConfiguration : NServiceBus.Configuration.AdvancedExtensibility.ExposeSettings
     {
         public EndpointConfiguration(string endpointName) { }
         public NServiceBus.Notifications Notifications { get; }
@@ -523,7 +523,7 @@ namespace NServiceBus
         public static bool RequiredImmediateDispatch(this NServiceBus.Extensibility.ExtendableOptions options) { }
         public static void RequireImmediateDispatch(this NServiceBus.Extensibility.ExtendableOptions options) { }
     }
-    public class ImmediateRetriesSettings : NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings
+    public class ImmediateRetriesSettings : NServiceBus.Configuration.AdvancedExtensibility.ExposeSettings
     {
         public void NumberOfRetries(int numberOfRetries) { }
     }
@@ -537,7 +537,7 @@ namespace NServiceBus
     {
         public static void EnableInstallers(this NServiceBus.EndpointConfiguration config, string username = null) { }
     }
-    public class InstanceMappingFileSettings : NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings
+    public class InstanceMappingFileSettings : NServiceBus.Configuration.AdvancedExtensibility.ExposeSettings
     {
         public InstanceMappingFileSettings(NServiceBus.Settings.SettingsHolder settings) { }
         public NServiceBus.InstanceMappingFileSettings FilePath(string filePath) { }
@@ -696,7 +696,7 @@ namespace NServiceBus
             where S : NServiceBus.Persistence.StorageType { }
         public static NServiceBus.PersistenceExtensions UsePersistence(this NServiceBus.EndpointConfiguration config, System.Type definitionType) { }
     }
-    public class PersistenceExtensions : NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings
+    public class PersistenceExtensions : NServiceBus.Configuration.AdvancedExtensibility.ExposeSettings
     {
         public PersistenceExtensions(System.Type definitionType, NServiceBus.Settings.SettingsHolder settings, System.Type storageType) { }
     }
@@ -750,7 +750,7 @@ namespace NServiceBus
     {
         public static NServiceBus.RecoverabilitySettings Recoverability(this NServiceBus.EndpointConfiguration configuration) { }
     }
-    public class RecoverabilitySettings : NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings
+    public class RecoverabilitySettings : NServiceBus.Configuration.AdvancedExtensibility.ExposeSettings
     {
         public NServiceBus.RecoverabilitySettings AddUnrecoverableException<T>()
             where T : System.Exception { }
@@ -769,7 +769,7 @@ namespace NServiceBus
     {
         public ReplyOptions() { }
     }
-    public class RetryFailedSettings : NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings
+    public class RetryFailedSettings : NServiceBus.Configuration.AdvancedExtensibility.ExposeSettings
     {
         public NServiceBus.RetryFailedSettings HeaderCustomization(System.Action<System.Collections.Generic.Dictionary<string, string>> customization) { }
     }
@@ -802,7 +802,7 @@ namespace NServiceBus
         public static void SetDestination(this NServiceBus.SendOptions options, string destination) { }
         public static void SetDestination(this NServiceBus.ReplyOptions options, string destination) { }
     }
-    public class RoutingSettings : NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings
+    public class RoutingSettings : NServiceBus.Configuration.AdvancedExtensibility.ExposeSettings
     {
         public RoutingSettings(NServiceBus.Settings.SettingsHolder settings) { }
         public void DoNotEnforceBestPractices() { }
@@ -939,7 +939,7 @@ namespace NServiceBus
         public ToSagaExpression(NServiceBus.IConfigureHowToFindSagaWithMessage sagaMessageFindingConfiguration, System.Linq.Expressions.Expression<System.Func<TMessage, object>> messageProperty) { }
         public void ToSaga(System.Linq.Expressions.Expression<System.Func<TSagaData, object>> sagaEntityProperty) { }
     }
-    public class TransportExtensions : NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings
+    public class TransportExtensions : NServiceBus.Configuration.AdvancedExtensibility.ExposeSettings
     {
         public TransportExtensions(NServiceBus.Settings.SettingsHolder settings) { }
         public NServiceBus.TransportExtensions ConnectionString(string connectionString) { }
@@ -1269,11 +1269,11 @@ namespace NServiceBus.Config.ConfigurationSource
         T GetConfiguration();
     }
 }
-namespace NServiceBus.Configuration.AdvanceExtensibility
+namespace NServiceBus.Configuration.AdvancedExtensibility
 {
-    public class static AdvanceExtensibilityExtensions
+    public class static AdvancedExtensibilityExtensions
     {
-        public static NServiceBus.Settings.SettingsHolder GetSettings(this NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings config) { }
+        public static NServiceBus.Settings.SettingsHolder GetSettings(this NServiceBus.Configuration.AdvancedExtensibility.ExposeSettings config) { }
     }
     public abstract class ExposeSettings
     {
@@ -1306,7 +1306,7 @@ namespace NServiceBus.DataBus
         protected DataBusDefinition() { }
         protected internal abstract System.Type ProvidedByFeature();
     }
-    public class DataBusExtensions : NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings
+    public class DataBusExtensions : NServiceBus.Configuration.AdvancedExtensibility.ExposeSettings
     {
         public DataBusExtensions(NServiceBus.Settings.SettingsHolder settings) { }
     }
@@ -1823,7 +1823,7 @@ namespace NServiceBus.Outbox
         public string MessageId { get; }
         public NServiceBus.Outbox.TransportOperation[] TransportOperations { get; }
     }
-    public class OutboxSettings : NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings { }
+    public class OutboxSettings : NServiceBus.Configuration.AdvancedExtensibility.ExposeSettings { }
     public interface OutboxTransaction : System.IDisposable
     {
         System.Threading.Tasks.Task Commit();
@@ -2031,7 +2031,7 @@ namespace NServiceBus.Pipeline
         public object Instance { get; }
         public System.Type MessageType { get; }
     }
-    public class PipelineSettings : NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings
+    public class PipelineSettings : NServiceBus.Configuration.AdvancedExtensibility.ExposeSettings
     {
         public void Register(System.Type behavior, string description) { }
         public void Register(string stepId, System.Type behavior, string description) { }
@@ -2335,7 +2335,7 @@ namespace NServiceBus.Serialization
         protected SerializationDefinition() { }
         public abstract System.Func<NServiceBus.MessageInterfaces.IMessageMapper, NServiceBus.Serialization.IMessageSerializer> Configure(NServiceBus.Settings.ReadOnlySettings settings);
     }
-    public class SerializationExtensions<T> : NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings
+    public class SerializationExtensions<T> : NServiceBus.Configuration.AdvancedExtensibility.ExposeSettings
         where T : NServiceBus.Serialization.SerializationDefinition
     {
         public SerializationExtensions(NServiceBus.Settings.SettingsHolder settings) { }
