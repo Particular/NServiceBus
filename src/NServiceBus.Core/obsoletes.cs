@@ -833,26 +833,26 @@ namespace NServiceBus.Config
 namespace NServiceBus.Config.ConfigurationSource
 {
     [ObsoleteEx(
-        Message = "The use of the IConfigurationSource is discouraged. Code configuration is prefered over configuration sources.",
+        Message = "The use of the IConfigurationSource is discouraged. Code configuration is preferred over configuration sources.",
         RemoveInVersion = "8.0",
         TreatAsErrorFromVersion = "7.0")]
     public interface IConfigurationSource
     {
         [ObsoleteEx(
-            Message = "The use of the IConfigurationSource is discouraged. Code configuration is prefered over configuration sources.",
+            Message = "The use of the IConfigurationSource is discouraged. Code configuration is preferred over configuration sources.",
             RemoveInVersion = "8.0",
             TreatAsErrorFromVersion = "7.0")]
         T GetConfiguration<T>() where T : class, new();
     }
 
     [ObsoleteEx(
-        Message = "The use of the IProvideConfiguration is discouraged. Code configuration is prefered over configuration sources.",
+        Message = "The use of the IProvideConfiguration is discouraged. Code configuration is preferred over configuration sources.",
         RemoveInVersion = "8.0",
         TreatAsErrorFromVersion = "7.0")]
     public interface IProvideConfiguration<T>
     {
         [ObsoleteEx(
-            Message = "The use of the IProvideConfiguration is discouraged. Code configuration is prefered over configuration sources.",
+            Message = "The use of the IProvideConfiguration is discouraged. Code configuration is preferred over configuration sources.",
             RemoveInVersion = "8.0",
             TreatAsErrorFromVersion = "7.0")]
         T GetConfiguration();
