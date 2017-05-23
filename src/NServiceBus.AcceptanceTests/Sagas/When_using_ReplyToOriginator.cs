@@ -4,7 +4,6 @@
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
-    using Features;
     using NUnit.Framework;
 
     public class When_using_ReplyToOriginator : NServiceBusAcceptanceTest
@@ -16,13 +15,13 @@
 
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<Endpoint>(b => b.When(session => session.SendLocal(new InitiateRequestingSaga
-                    {
-                        SagaCorrelationId = sagaCorrelationId
-                    }))
-                    .When(c => c.GotFirstMessage, session =>
-                        // we're sending a new message here to make sure we get a new correlation id to make sure that the saga 
-                        // preserves the original one. This message can't be sent from a message handler as it would float the received
-                        // correlation id into the outgoing message instead of assigning a new one.
+                {
+                    SagaCorrelationId = sagaCorrelationId
+                }))
+                    .When(c => c.OriginalCorrelationId != null, session =>
+                            // we're sending a new message here to make sure we get a new correlation id to make sure that the saga 
+                            // preserves the original one. This message can't be sent from a message handler as it would float the received
+                            // correlation id into the outgoing message instead of assigning a new one.
                             session.SendLocal(new MessageThatWillCauseSagaToReplyToOriginator
                             {
                                 SagaCorrelationId = sagaCorrelationId
@@ -39,7 +38,6 @@
         {
             public MessageIntentEnum Intent { get; set; }
             public string CorrelationIdOnReply { get; set; }
-            public bool GotFirstMessage { get; set; }
             public string OriginalCorrelationId { get; set; }
         }
 
@@ -48,10 +46,8 @@
             public Endpoint()
             {
                 EndpointSetup<DefaultServer>(config =>
-                {
-                    //config.EnableFeature<TimeoutManager>();
-                    config.LimitMessageProcessingConcurrencyTo(1); //to avoid race conditions with the start and second message
-                });
+                        config.LimitMessageProcessingConcurrencyTo(1) //to avoid race conditions with the start and second message
+                );
             }
 
             public class RequestingSaga : Saga<RequestingSaga.RequestingSagaData>,
@@ -62,10 +58,7 @@
 
                 public Task Handle(InitiateRequestingSaga message, IMessageHandlerContext context)
                 {
-                    Data.SagaCorrelationId = message.SagaCorrelationId; //wont be needed in the future
-
                     TestContext.OriginalCorrelationId = context.MessageHeaders[Headers.CorrelationId];
-                    TestContext.GotFirstMessage = true;
 
                     return Task.FromResult(0);
                 }
@@ -85,7 +78,7 @@
 
                 public class RequestingSagaData : ContainSagaData
                 {
-                    public virtual Guid SagaCorrelationId { get; set; } //wont be needed in the future
+                    public virtual Guid SagaCorrelationId { get; set; }
                 }
             }
 
