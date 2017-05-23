@@ -29,11 +29,10 @@
         {
             Requires.OutboxPersistence();
 
-            var context =
-                await Scenario.Define<Context>()
-                    .WithEndpoint<OutboxEndpoint>(b => b.When(session => session.SendLocal(new PlaceOrder())))
-                    .Done(c => c.MessageReceived)
-                    .Run();
+            var context = await Scenario.Define<Context>()
+                .WithEndpoint<OutboxEndpoint>(b => b.When(session => session.SendLocal(new PlaceOrder())))
+                .Done(c => c.MessageReceived)
+                .Run();
 
             Assert.IsNotEmpty(context.UnicodeHeaders);
             CollectionAssert.IsSubsetOf(sentHeaders, context.UnicodeHeaders);
@@ -59,16 +58,18 @@
             }
             class BlowUpBeforeDispatchBehavior : IBehavior<IBatchDispatchContext, IBatchDispatchContext>
             {
-                Context _context;
-                public BlowUpBeforeDispatchBehavior(Context context)
+                Context testContext;
+
+                public BlowUpBeforeDispatchBehavior(Context testContext)
                 {
-                    _context = context;
+                    this.testContext = testContext;
                 }
+
                 public async Task Invoke(IBatchDispatchContext context, Func<IBatchDispatchContext, Task> next)
                 {
-                    if (!_context.SavedOutBoxRecord)
+                    if (!testContext.SavedOutBoxRecord)
                     {
-                        _context.SavedOutBoxRecord = true;
+                        testContext.SavedOutBoxRecord = true;
                         throw new Exception();
                     }
 
