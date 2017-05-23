@@ -6,7 +6,7 @@ namespace NServiceBus
     using System.Reflection;
     using System.Transactions;
     using System.Web;
-    using Configuration.AdvanceExtensibility;
+    using Configuration.AdvancedExtensibility;
     using Container;
     using Hosting.Helpers;
     using ObjectBuilder;

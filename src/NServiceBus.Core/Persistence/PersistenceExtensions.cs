@@ -2,7 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
-    using Configuration.AdvanceExtensibility;
+    using Configuration.AdvancedExtensibility;
     using Persistence;
     using Settings;
 

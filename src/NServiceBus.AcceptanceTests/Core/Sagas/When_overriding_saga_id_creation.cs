@@ -5,7 +5,7 @@
     using System.Text;
     using System.Threading.Tasks;
     using AcceptanceTesting;
-    using Configuration.AdvanceExtensibility;
+    using Configuration.AdvancedExtensibility;
     using EndpointTemplates;
     using Features;
     using NServiceBus.Sagas;

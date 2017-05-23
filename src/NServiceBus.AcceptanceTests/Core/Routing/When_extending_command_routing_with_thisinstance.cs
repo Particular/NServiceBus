@@ -5,7 +5,7 @@ namespace NServiceBus.AcceptanceTests.Core.Routing
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using AcceptanceTesting.Customization;
-    using Configuration.AdvanceExtensibility;
+    using Configuration.AdvancedExtensibility;
     using EndpointTemplates;
     using NServiceBus.Routing;
     using NUnit.Framework;

@@ -6,7 +6,7 @@
     using System.Runtime.Serialization.Formatters.Binary;
     using System.Threading.Tasks;
     using AcceptanceTesting;
-    using Configuration.AdvanceExtensibility;
+    using Configuration.AdvancedExtensibility;
     using EndpointTemplates;
     using MessageInterfaces;
     using NServiceBus.Serialization;

@@ -1,6 +1,6 @@
 ﻿namespace NServiceBus.Serialization
 {
-    using Configuration.AdvanceExtensibility;
+    using Configuration.AdvancedExtensibility;
     using Settings;
 
     /// <summary>
