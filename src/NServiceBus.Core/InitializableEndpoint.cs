@@ -162,7 +162,7 @@ namespace NServiceBus
         {
             if (!settings.HasExplicitValue<TransportDefinition>())
             {
-                throw new Exception("You need to configure a transport option. Use the 'endpointConfiguration.UseTransport<TTransportDefiniton>()' API to specify a transport.");
+                throw new Exception("A transport has not been configured. Use 'EndpointConfiguration.UseTransport()' to specify a transport.");
             }
         }
 
