@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus
 {
     using System;
-    using System.Diagnostics;
     using Logging;
     using Settings;
 
@@ -35,40 +34,7 @@
 
         internal static Result GetConfiguredAuditQueue(ReadOnlySettings settings)
         {
-            if (settings.TryGet(out Result configResult))
-            {
-                return configResult;
-            }
-
-            var address = ReadAuditQueueNameFromRegistry();
-
-            if (address == null)
-            {
-                return null;
-            }
-
-            return new Result
-            {
-                Address = address,
-                TimeToBeReceived = null
-            };
-        }
-
-        static string ReadAuditQueueNameFromRegistry()
-        {
-            var queue = RegistryReader.Read("AuditQueue");
-            if (string.IsNullOrWhiteSpace(queue))
-            {
-                return null;
-            }
-            // If Audit feature is enabled and the value not specified via config and instead specified in the registry:
-            // Log a warning when running in the debugger to remind user to make sure the
-            // production machine will need to have the required registry setting.
-            if (Debugger.IsAttached)
-            {
-                Logger.Warn("Endpoint auditing is configured using the registry on this machine, see Particular Documentation for details on how to address this with your version of NServiceBus.");
-            }
-            return queue;
+            return settings.TryGet(out Result configResult) ? configResult : null;
         }
 
         static ILog Logger = LogManager.GetLogger(typeof(AuditConfigReader));
