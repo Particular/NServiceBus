@@ -150,7 +150,6 @@ namespace NServiceBus
             Settings.SetDefault("TypesToScan", scannedTypes);
             ActivateAndInvoke<INeedInitialization>(scannedTypes, t => t.Customize(this));
 
-            UseTransportExtensions.EnsureTransportConfigured(this);
             var container = customBuilder ?? new AutofacObjectBuilder();
 
             var conventions = conventionsBuilder.Conventions;

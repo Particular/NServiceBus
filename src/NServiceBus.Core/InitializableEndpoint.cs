@@ -43,6 +43,7 @@ namespace NServiceBus
 
             ConfigRunBeforeIsFinalized(concreteTypes);
 
+            EnsureTransportConfigured();
             var transportDefinition = settings.Get<TransportDefinition>();
             var connectionString = settings.Get<TransportConnectionString>().GetConnectionStringOrRaiseError(transportDefinition);
             var transportInfrastructure = transportDefinition.Initialize(settings, connectionString);
@@ -155,6 +156,14 @@ namespace NServiceBus
             return settings.TryGet("Installers.UserName", out username)
                 ? username
                 : WindowsIdentity.GetCurrent().Name;
+        }
+
+        void EnsureTransportConfigured()
+        {
+            if (!settings.HasExplicitValue<TransportDefinition>())
+            {
+                throw new Exception("You need to configure a transport option. Use the 'endpointConfiguration.UseTransport<TTransportDefiniton>()' API to specify a transport.");
+            }
         }
 
         IBuilder builder;
