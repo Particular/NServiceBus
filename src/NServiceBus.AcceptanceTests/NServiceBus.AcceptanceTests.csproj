@@ -79,6 +79,7 @@
     <Compile Include="Core\Stopping\When_pump_throws_on_stop.cs" />
     <Compile Include="Core\Stopping\When_transport_infrastructure_throws_on_stop.cs" />
     <Compile Include="Core\Pipeline\When_reusing_sendoptions.cs" />
+    <Compile Include="Core\UnitOfWork\When_using_a_func_for_UOW_scope.cs" />
     <Compile Include="DataBus\When_sending_databus_properties_with_unobtrusive.cs" />
     <Compile Include="Core\Conventions\When_sending_interface_message_with_conventions.cs" />
     <Compile Include="EndpointTemplates\EndpointConfigurationExtensions.cs" />
