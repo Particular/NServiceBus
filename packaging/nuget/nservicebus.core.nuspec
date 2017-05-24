@@ -21,7 +21,7 @@
     <dependencies/>
   </metadata>
   <files>
-    <file src="..\..\binaries\NServiceBus.Core.???" target="lib\net452" />
+    <file src="..\..\binaries\net452\NServiceBus.Core.???" target="lib\net452" />
     <file src="..\..\packaging\nuget\tools\init.ps1" target="tools" />
   </files>
 </package>

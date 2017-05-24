@@ -330,11 +330,11 @@ namespace NServiceBus
     }
     public class FailedConfig
     {
-        public FailedConfig(string errorQueue, System.Collections.Generic.HashSet<System.Type> unrecoverableExceptionTypes) { }
         [System.ObsoleteAttribute("Use `FailedConfig(string errorQueue, HashSet<Type> unrecoverableExceptionTypes)` " +
             "instead. The member currently throws a NotImplementedException. Will be removed " +
             "in version 8.0.0.", true)]
         public FailedConfig(string errorQueue) { }
+        public FailedConfig(string errorQueue, System.Collections.Generic.HashSet<System.Type> unrecoverableExceptionTypes) { }
         public string ErrorQueue { get; }
         public System.Collections.Generic.HashSet<System.Type> UnrecoverableExceptionTypes { get; }
     }
