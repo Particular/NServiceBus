@@ -8,7 +8,7 @@ namespace NServiceBus
     /// <summary>
     /// This class provides implementers of transports with an extension mechanism for custom settings via extension methods.
     /// </summary>
-    /// <typeparam name="T">The transport definition eg <see cref="MsmqTransport" />, etc.</typeparam>
+    /// <typeparam name="T">The transport definition eg <see cref="LearningTransport" />, etc.</typeparam>
     public class TransportExtensions<T> : TransportExtensions where T : TransportDefinition
     {
         /// <summary>

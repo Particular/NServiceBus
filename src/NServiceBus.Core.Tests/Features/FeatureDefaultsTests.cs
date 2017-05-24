@@ -44,7 +44,6 @@
         public void Init()
         {
             settings = new SettingsHolder();
-            settings.Set<TransportDefinition>(new MsmqTransport());
             featureSettings = new FeatureActivator(settings);
         }
 

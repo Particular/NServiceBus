@@ -18,7 +18,6 @@
   <ItemGroup>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Configuration" />
-    <Reference Include="System.Messaging" />
     <Reference Include="System.Security" />
     <Reference Include="System.ServiceProcess" />
     <Reference Include="System.Transactions" />
@@ -35,11 +34,6 @@
     <PackageReference Include="Obsolete.Fody" Version="4.2.2" PrivateAssets="All" />
     <PackageReference Include="Particular.CodeRules" Version="0.2.0" PrivateAssets="All" />
     <PackageReference Include="Particular.Licensing.Sources" Version="0.1.61" PrivateAssets="All" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Remove="Transports\Msmq\InstanceMapping\endpoints.xsd" />
-    <EmbeddedResource Include="Transports\Msmq\InstanceMapping\endpoints.xsd" />
   </ItemGroup>
 
   <ItemGroup>
