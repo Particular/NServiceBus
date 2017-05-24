@@ -181,12 +181,6 @@
             testCancellationTokenSource.Token.Register(onTimeoutAction);
         }
 
-        protected virtual TransportInfrastructure CreateTransportInfrastructure()
-        {
-            var msmqTransportDefinition = new MsmqTransport();
-            return msmqTransportDefinition.Initialize(new SettingsHolder(), "");
-        }
-
         protected void RequireDeliveryConstraint<T>() where T : DeliveryConstraint
         {
             requiredDeliveryConstraints.Add(typeof(T));
