@@ -313,10 +313,6 @@ namespace NServiceBus
             where T : NServiceBus.Features.Feature { }
         public static void EnableFeature(this NServiceBus.EndpointConfiguration config, System.Type featureType) { }
     }
-    public class static EndpointInstanceExtensions
-    {
-        public static NServiceBus.Routing.EndpointInstance AtMachine(this NServiceBus.Routing.EndpointInstance instance, string machineName) { }
-    }
     public class static ErrorQueueSettings
     {
         public const string SettingsKey = "errorQueue";
@@ -537,12 +533,6 @@ namespace NServiceBus
     {
         public static void EnableInstallers(this NServiceBus.EndpointConfiguration config, string username = null) { }
     }
-    public class InstanceMappingFileSettings : NServiceBus.Configuration.AdvancedExtensibility.ExposeSettings
-    {
-        public InstanceMappingFileSettings(NServiceBus.Settings.SettingsHolder settings) { }
-        public NServiceBus.InstanceMappingFileSettings FilePath(string filePath) { }
-        public NServiceBus.InstanceMappingFileSettings RefreshInterval(System.TimeSpan refreshInterval) { }
-    }
     public interface IPipelineContext : NServiceBus.Extensibility.IExtendable
     {
         System.Threading.Tasks.Task Publish(object message, NServiceBus.PublishOptions options);
@@ -650,21 +640,6 @@ namespace NServiceBus
     public sealed class MoveToError : NServiceBus.RecoverabilityAction
     {
         public string ErrorQueue { get; }
-    }
-    public class static MsmqConfigurationExtensions
-    {
-        public static NServiceBus.TransportExtensions<NServiceBus.MsmqTransport> ApplyLabelToMessages(this NServiceBus.TransportExtensions<NServiceBus.MsmqTransport> transportExtensions, System.Func<System.Collections.Generic.IReadOnlyDictionary<string, string>, string> labelGenerator) { }
-        public static NServiceBus.InstanceMappingFileSettings InstanceMappingFile(this NServiceBus.RoutingSettings<NServiceBus.MsmqTransport> config) { }
-        public static void SetMessageDistributionStrategy(this NServiceBus.RoutingSettings<NServiceBus.MsmqTransport> config, NServiceBus.Routing.DistributionStrategy distributionStrategy) { }
-        public static NServiceBus.TransportExtensions<NServiceBus.MsmqTransport> TransactionScopeOptions(this NServiceBus.TransportExtensions<NServiceBus.MsmqTransport> transportExtensions, System.Nullable<System.TimeSpan> timeout = null, System.Nullable<System.Transactions.IsolationLevel> isolationLevel = null) { }
-        public static void UseDeadLetterQueueForMessagesWithTimeToBeReceived(this NServiceBus.TransportExtensions<NServiceBus.MsmqTransport> config) { }
-    }
-    public class MsmqTransport : NServiceBus.Transport.TransportDefinition, NServiceBus.Routing.IMessageDrivenSubscriptionTransport
-    {
-        public MsmqTransport() { }
-        public override string ExampleConnectionStringForErrorMessage { get; }
-        public override bool RequiresConnectionString { get; }
-        public override NServiceBus.Transport.TransportInfrastructure Initialize(NServiceBus.Settings.SettingsHolder settings, string connectionString) { }
     }
     public class NonDurableDelivery : NServiceBus.DeliveryConstraints.DeliveryConstraint
     {
@@ -1539,10 +1514,6 @@ namespace NServiceBus.Features
     {
         protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
     }
-    public class MsmqSubscriptionPersistence : NServiceBus.Features.Feature
-    {
-        protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
-    }
     public class Outbox : NServiceBus.Features.Feature
     {
         protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
@@ -1881,14 +1852,6 @@ namespace NServiceBus.Persistence
     }
     public interface SynchronizedStorageSession { }
 }
-namespace NServiceBus.Persistence.Legacy
-{
-    public class MsmqPersistence : NServiceBus.Persistence.PersistenceDefinition { }
-    public class static MsmqSubscriptionStorageConfigurationExtensions
-    {
-        public static void SubscriptionQueue(this NServiceBus.PersistenceExtensions<NServiceBus.Persistence.Legacy.MsmqPersistence> persistenceExtensions, string queue) { }
-    }
-}
 namespace NServiceBus.Pipeline
 {
     public abstract class Behavior<TContext> : NServiceBus.Pipeline.IBehavior, NServiceBus.Pipeline.IBehavior<TContext, TContext>
@@ -2194,8 +2157,11 @@ namespace NServiceBus.Routing
 }
 namespace NServiceBus.Routing.Legacy
 {
+    [System.ObsoleteAttribute("The distributor is no longer supported. Will be removed in version 8.0.0.", true)]
     public class static ConfigureMSMQDistributor
     {
+        [System.ObsoleteAttribute("The distributor is no longer supported. The member currently throws a NotImplemen" +
+            "tedException. Will be removed in version 8.0.0.", true)]
         public static void EnlistWithLegacyMSMQDistributor(this NServiceBus.EndpointConfiguration config, string masterNodeAddress, string masterNodeControlAddress, int capacity) { }
     }
 }
@@ -2627,15 +2593,6 @@ namespace NServiceBus.Transport
         public string Destination { get; }
         public NServiceBus.Transport.OutgoingMessage Message { get; }
         public NServiceBus.Transport.DispatchConsistency RequiredDispatchConsistency { get; }
-    }
-}
-namespace NServiceBus.Transport.Msmq
-{
-    public class HeaderInfo
-    {
-        public HeaderInfo() { }
-        public string Key { get; set; }
-        public string Value { get; set; }
     }
 }
 namespace NServiceBus.Unicast
