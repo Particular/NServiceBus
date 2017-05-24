@@ -39,8 +39,6 @@ namespace NServiceBus
         /// </summary>
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-            var inboundTransport = context.Settings.Get<InboundTransport>();
-
             context.Settings.Get<QueueBindings>().BindReceiving(context.Settings.LocalAddress());
 
             var instanceSpecificQueue = context.Settings.InstanceSpecificQueue();
@@ -49,7 +47,7 @@ namespace NServiceBus
                 context.Settings.Get<QueueBindings>().BindReceiving(instanceSpecificQueue);
             }
 
-            var lazyReceiveConfigResult = new Lazy<TransportReceiveInfrastructure>(() => inboundTransport.Configure(context.Settings));
+            var lazyReceiveConfigResult = new Lazy<TransportReceiveInfrastructure>(() => context.Settings.Get<TransportInfrastructure>().ConfigureReceiveInfrastructure());
             context.Container.ConfigureComponent(b => lazyReceiveConfigResult.Value.MessagePumpFactory(), DependencyLifecycle.InstancePerCall);
             context.Container.ConfigureComponent(b => lazyReceiveConfigResult.Value.QueueCreatorFactory(), DependencyLifecycle.SingleInstance);
 
