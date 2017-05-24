@@ -6,7 +6,6 @@ namespace NServiceBus.Core.Tests.Routing
     using NServiceBus.Routing;
     using NUnit.Framework;
     using Testing;
-    using Transport;
 
     [TestFixture]
     public class UnicastSendRouterTests

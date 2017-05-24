@@ -1,13 +1,11 @@
 ﻿namespace NServiceBus.Core.Tests.Routing
 {
     using System;
-    using System.Collections.Generic;
     using System.Threading.Tasks;
     using Extensibility;
     using NServiceBus.Pipeline;
     using NUnit.Framework;
     using Testing;
-    using Transport;
 
     [TestFixture]
     public class ApplyReplyToAddressBehaviorTests

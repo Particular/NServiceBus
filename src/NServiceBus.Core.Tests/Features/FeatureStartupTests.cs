@@ -7,7 +7,6 @@
     using NUnit.Framework;
     using ObjectBuilder;
     using Settings;
-    using Transport;
 
     [TestFixture]
     public class FeatureStartupTests

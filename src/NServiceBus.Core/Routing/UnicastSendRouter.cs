@@ -4,7 +4,6 @@ namespace NServiceBus
     using System.Linq;
     using Pipeline;
     using Routing;
-    using Transport;
 
     class UnicastSendRouter
     {

@@ -2,9 +2,7 @@
 {
     using System;
     using System.Threading.Tasks;
-    using Extensibility;
     using Pipeline;
-    using Transport;
 
     class ApplyReplyToAddressBehavior : IBehavior<IOutgoingLogicalMessageContext, IOutgoingLogicalMessageContext>
     {
