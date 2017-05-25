@@ -6,7 +6,7 @@ namespace NServiceBus.InMemory.Outbox
     using NServiceBus.Outbox;
 
     /// <summary>
-    /// Contains InMemoryOutbox related settings extensions.
+    /// Contains InMemoryOutbox-related settings extensions.
     /// </summary>
     public static class InMemoryOutboxSettingsExtensions
     {
@@ -16,7 +16,7 @@ namespace NServiceBus.InMemory.Outbox
         /// <param name="settings">The outbox settings.</param>
         /// <param name="time">
         /// Defines the <see cref="TimeSpan"/> which indicates how long the outbox deduplication entries should be kept.
-        /// i.e. if <code>TimeSpan.FromDays(1)</code> is used the deduplication entries are kept for no longer than one day.
+        /// For example, if <code>TimeSpan.FromDays(1)</code> is used, the deduplication entries are kept for no longer than one day.
         /// It is not possible to use a negative or zero TimeSpan value.
         /// </param>
         public static OutboxSettings TimeToKeepDeduplicationData(this OutboxSettings settings, TimeSpan time)

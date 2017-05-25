@@ -89,7 +89,6 @@
 
             if (loadedEntity == null)
             {
-                //if this message are not allowed to start the saga
                 if (IsMessageAllowedToStartTheSaga(context, currentSagaMetadata))
                 {
                     context.Extensions.Get<SagaInvocationResult>().SagaFound();
@@ -176,7 +175,7 @@
 
         static void RemoveSagaHeadersIfProcessingAEvent(IInvokeHandlerContext context)
         {
-            // We need this for backwards compatibility because in v4.0.0 we still have this headers being sent as part of the message even if MessageIntent == MessageIntentEnum.Publish
+            // We need this for backwards compatibility because in v4.0.0 we still have this header being sent as part of the message even if MessageIntent == MessageIntentEnum.Publish
             string messageIntentString;
             if (context.Headers.TryGetValue(Headers.MessageIntent, out messageIntentString))
             {
@@ -198,10 +197,10 @@
                 context.Headers.TryGetValue(Headers.SagaType, out sagaType))
             {
                 //we want to move away from the assembly fully qualified name since that will break if you move sagas
-                // between assemblies. We use the FullName instead which is enough to identify the saga
+                //between assemblies. We use the FullName instead, which is enough to identify the saga.
                 if (sagaType.StartsWith(sagaMetadata.Name))
                 {
-                    //so now we have a saga id for this saga and if we can't find it we shouldn't start a new one
+                    //so now we have a saga id for this saga, and if we can't find it, we shouldn't start a new one
                     return false;
                 }
             }

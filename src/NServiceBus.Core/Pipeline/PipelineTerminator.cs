@@ -28,7 +28,7 @@
         }
 
         /// <summary>
-        /// A well known context that terminates the pipeline.
+        /// A well-known context that terminates the pipeline.
         /// </summary>
         public interface ITerminatingContext : IBehaviorContext
         {

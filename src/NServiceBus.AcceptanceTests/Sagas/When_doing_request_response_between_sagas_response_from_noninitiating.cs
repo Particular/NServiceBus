@@ -83,7 +83,7 @@ namespace NServiceBus.AcceptanceTests.Sagas
 
                 public Task Handle(SendReplyFromNonInitiatingHandler message, IMessageHandlerContext context)
                 {
-                    //reply to originator must be used here since the sender of the incoming message the TimeoutManager and not the requesting saga
+                    //reply to originator must be used here since the sender of the incoming message is the TimeoutManager and not the requesting saga
                     return ReplyToOriginator(context, new ResponseFromOtherSaga //change this line to Bus.Reply(new ResponseFromOtherSaga  and see it fail
                     {
                         SomeCorrelationId = Data.CorrIdForRequest //wont be needed in the future
@@ -93,7 +93,7 @@ namespace NServiceBus.AcceptanceTests.Sagas
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<RequestResponseRespondingSagaData2> mapper)
                 {
                     mapper.ConfigureMapping<RequestToRespondingSaga>(m => m.SomeIdThatTheResponseSagaCanCorrelateBackToUs).ToSaga(s => s.CorrIdForRequest);
-                    //this line is just needed so we can test the non initiating handler case
+                    //this line is just needed so we can test the non-initiating handler case
                     mapper.ConfigureMapping<SendReplyFromNonInitiatingHandler>(m => m.SagaIdSoWeCanCorrelate).ToSaga(s => s.CorrIdForRequest);
                 }
 

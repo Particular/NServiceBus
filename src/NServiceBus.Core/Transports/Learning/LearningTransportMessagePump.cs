@@ -285,7 +285,7 @@
                 var errorContext = new ErrorContext(exception, headers, messageId, body, transportTransaction, processingFailures);
 
                 // the transport tests assume that all transports use a circuit breaker to be resilient against exceptions
-                // in onError. Since we don't need that robustness we just retry onError once should it fail.
+                // in onError. Since we don't need that robustness, we just retry onError once should it fail.
                 ErrorHandleResult actionToTake;
                 try
                 {

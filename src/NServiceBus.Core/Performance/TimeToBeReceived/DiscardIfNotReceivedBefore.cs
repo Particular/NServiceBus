@@ -4,7 +4,7 @@
     using DeliveryConstraints;
 
     /// <summary>
-    /// Instructs the transport to discard the message if it hasn't been received.
+    /// Instructs the transport to discard the message if it hasn't been received
     /// within the specified <see cref="TimeSpan"/>.
     /// </summary>
     public class DiscardIfNotReceivedBefore : DeliveryConstraint

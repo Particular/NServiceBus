@@ -3,12 +3,12 @@ namespace NServiceBus
     using Extensibility;
 
     /// <summary>
-    /// Provides ways for the end user to request immediate dispatch of their messages.
+    /// Provides ways to request immediate dispatch of messages.
     /// </summary>
     public static class ImmediateDispatchOptionExtensions
     {
         /// <summary>
-        /// Requests the message to be dispatched to the transport immediately.
+        /// Requests that the message be dispatched to the transport immediately.
         /// This means that the message is ACKed by the transport as soon as the call to send returns.
         /// The message will not be enlisted in any current receive transaction even if the transport support it.
         /// </summary>
@@ -24,7 +24,7 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Returns whether immediate dispatch has been request by <see cref="RequireImmediateDispatch" /> or not.
+        /// Returns whether immediate dispatch has been requested by <see cref="RequireImmediateDispatch" /> or not.
         /// </summary>
         /// <param name="options">The options being extended.</param>
         /// <returns><c>True</c> if immediate dispatch was requested, <c>False</c> otherwise.</returns>
