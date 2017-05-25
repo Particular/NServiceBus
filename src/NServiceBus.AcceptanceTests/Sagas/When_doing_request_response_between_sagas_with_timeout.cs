@@ -80,7 +80,7 @@ namespace NServiceBus.AcceptanceTests.Sagas
 
                 public Task Timeout(DelayReply state, IMessageHandlerContext context)
                 {
-                    //reply to originator must be used here since the sender of the incoming message the timeoutmanager and not the requesting saga
+                    //reply to originator must be used here since the sender of the incoming message the TimeoutManager and not the requesting saga
                     return ReplyToOriginator(context, new ResponseFromOtherSaga //change this line to Bus.Reply(new ResponseFromOtherSaga  and see it fail
                     {
                         SomeCorrelationId = Data.CorrIdForRequest //wont be needed in the future

@@ -23,7 +23,7 @@ namespace NServiceBus
 
             if (context.Extensions.TryGet(out state))
             {
-                //transfer audit values to the headers of the messag to audit
+                //transfer audit values to the headers of the message to audit
                 foreach (var kvp in state.AuditValues)
                 {
                     message.Headers[kvp.Key] = kvp.Value;

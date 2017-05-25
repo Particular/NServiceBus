@@ -198,7 +198,7 @@
                 context.Headers.TryGetValue(Headers.SagaType, out sagaType))
             {
                 //we want to move away from the assembly fully qualified name since that will break if you move sagas
-                // between assemblies. We use the fullname instead which is enough to identify the saga
+                // between assemblies. We use the FullName instead which is enough to identify the saga
                 if (sagaType.StartsWith(sagaMetadata.Name))
                 {
                     //so now we have a saga id for this saga and if we can't find it we shouldn't start a new one

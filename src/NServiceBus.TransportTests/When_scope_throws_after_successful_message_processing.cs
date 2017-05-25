@@ -9,8 +9,8 @@
     public class When_scope_throws_after_successful_message_processing : NServiceBusTransportTest
     {
         //[TestCase(TransportTransactionMode.None)] -- not relevant
-        //[TestCase(TransportTransactionMode.ReceiveOnly)] -- unable to hook where required to throw after a message has been successfully processed but before transaction is successfully commited
-        //[TestCase(TransportTransactionMode.SendsAtomicWithReceive)] -- unable to hook where required to throw after a message has been successfully processed but before transaction is successfully commited
+        //[TestCase(TransportTransactionMode.ReceiveOnly)] -- unable to hook where required to throw after a message has been successfully processed but before transaction is successfully committed
+        //[TestCase(TransportTransactionMode.SendsAtomicWithReceive)] -- unable to hook where required to throw after a message has been successfully processed but before transaction is successfully committed
         [TestCase(TransportTransactionMode.TransactionScope)]
         public async Task Throwing_during_Transaction_Prepare_should_properly_increment_immediate_processing_failures(TransportTransactionMode transactionMode)
         {

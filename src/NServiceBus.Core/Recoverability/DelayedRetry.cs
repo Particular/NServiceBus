@@ -3,7 +3,7 @@
     using System;
 
     /// <summary>
-    /// Inidicates recoverability is required to delay retry the current message.
+    /// Indicates recoverability is required to delay retry the current message.
     /// </summary>
     public sealed class DelayedRetry : RecoverabilityAction
     {

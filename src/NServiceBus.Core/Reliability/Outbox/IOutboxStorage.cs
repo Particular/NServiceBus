@@ -30,7 +30,7 @@
         /// <summary>
         /// Creates the <see cref="OutboxTransaction" />.
         /// </summary>
-        /// <param name="context">The current pipeline contex.</param>
+        /// <param name="context">The current pipeline context.</param>
         /// <returns>The created outbox transaction.</returns>
         Task<OutboxTransaction> BeginTransaction(ContextBag context);
     }

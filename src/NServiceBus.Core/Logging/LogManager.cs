@@ -32,7 +32,7 @@ namespace NServiceBus.Logging
         /// An instance of <see cref="ILoggerFactory" /> that will be used to construct <see cref="ILog" />s for static fields.
         /// </summary>
         /// <remarks>
-        /// Replace this instance at application statup to redirect log event to the custom logging library.
+        /// Replace this instance at application startup to redirect log event to the custom logging library.
         /// </remarks>
         public static void UseFactory(ILoggerFactory loggerFactory)
         {

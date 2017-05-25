@@ -87,7 +87,7 @@
 
         /// <summary>
         /// Registers this feature as depending on the given feature. This means that this feature won't be activated unless
-        /// the dependant feature is active.
+        /// the dependent feature is active.
         /// This also causes this feature to be activated after the other feature.
         /// </summary>
         /// <typeparam name="T">Feature that this feature depends on.</typeparam>
@@ -98,7 +98,7 @@
 
         /// <summary>
         /// Registers this feature as depending on the given feature. This means that this feature won't be activated unless
-        /// the dependant feature is active. This also causes this feature to be activated after the other feature.
+        /// the dependent feature is active. This also causes this feature to be activated after the other feature.
         /// </summary>
         /// <param name="featureTypeName">The <see cref="Type.FullName"/> of the feature that this feature depends on.</param>
         protected void DependsOn(string featureTypeName)

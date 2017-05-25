@@ -10,7 +10,7 @@
 
     public class When_receiving_multiple_timeouts : NServiceBusAcceptanceTest
     {
-        // realted to NSB issue #1819
+        // related to NSB issue #1819
         [Test]
         public async Task It_should_not_invoke_SagaNotFound_handler()
         {
@@ -139,7 +139,7 @@
             }
         }
 
-        
+
         public class StartSaga1 : ICommand
         {
             public Guid ContextId { get; set; }
