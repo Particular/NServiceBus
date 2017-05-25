@@ -145,11 +145,11 @@
 
                 var allowedAce = GetAce(pDacl, sid);
 
-                // The ACE_HEADER information contains the access control information as to whether it is allowed or denied. 
+                // The ACE_HEADER information contains the access control information as to whether it is allowed or denied.
                 // In Interop, this value is a byte and can be any of the values defined in here: https://msdn.microsoft.com/en-us/library/windows/desktop/aa374919(v=vs.85).aspx
-                // If the value is 0, then it equates to Allow. If the value is 1, then it equates to Deny. 
-                // However, you can't cast it directly to the AccessControlEntryType enumeration, as a value of 1 in the enumeration is 
-                // defined to be Allow!! Hence a translation is required. 
+                // If the value is 0, then it equates to Allow. If the value is 1, then it equates to Deny.
+                // However, you can't cast it directly to the AccessControlEntryType enumeration, as a value of 1 in the enumeration is
+                // defined to be Allow!! Hence a translation is required.
                 switch (allowedAce.Header.AceType)
                 {
                     case 0:

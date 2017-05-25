@@ -9,7 +9,7 @@ public class ConfigureEndpointLearningPersistence : IConfigureEndpointTestExecut
 {
     public Task Configure(string endpointName, EndpointConfiguration configuration, RunSettings settings, PublisherMetadata publisherMetadata)
     {
-        //can't use bindir since that will be to long on the build agents
+        //can't use bin dir since that will be to long on the build agents
         storageDir = Path.Combine(@"c:\temp", Guid.NewGuid().ToString("N"));
 
         configuration.UsePersistence<InMemoryPersistence, StorageType.Subscriptions>();

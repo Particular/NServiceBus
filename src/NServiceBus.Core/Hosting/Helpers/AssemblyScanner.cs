@@ -15,7 +15,7 @@ namespace NServiceBus.Hosting.Helpers
     public class AssemblyScanner
     {
         /// <summary>
-        /// Creates a new scanner that will scan the base directory of the current appdomain.
+        /// Creates a new scanner that will scan the base directory of the current <see cref="AppDomain"/>.
         /// </summary>
         public AssemblyScanner()
             : this(AppDomain.CurrentDomain.BaseDirectory)

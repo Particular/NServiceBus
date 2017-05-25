@@ -4,7 +4,7 @@ namespace NServiceBus.Outbox
     using System.Threading.Tasks;
 
     /// <summary>
-    /// Transaction in which storage operations must enlist to be consistent with the outbox operarations.
+    /// Transaction in which storage operations must enlist to be consistent with the outbox operations.
     /// </summary>
     public interface OutboxTransaction : IDisposable
     {
