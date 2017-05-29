@@ -116,24 +116,41 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
         public object CreateInstance(Type t)
         {
             Guard.AgainstNull(nameof(t), t);
-            var mapped = t;
+            
             if (t.IsInterface || t.IsAbstract)
             {
-                mapped = GetMappedTypeFor(t);
+                var mapped = GetMappedTypeFor(t);
                 if (mapped == null)
                 {
                     InitType(t);
                     mapped = GetMappedTypeFor(t);
                 }
+                return FormatterServices.GetUninitializedObject(mapped);
             }
 
-            RuntimeMethodHandle constructor;
-            if (typeToConstructor.TryGetValue(mapped.TypeHandle, out constructor))
+            var instance = InstantiateClass();
+            if (instance == null)
             {
-                return ((ConstructorInfo)MethodBase.GetMethodFromHandle(constructor, mapped.TypeHandle)).Invoke(null);
+                InitType(t);
+                instance = InstantiateClass();
+                if (instance == null)
+                {
+                    // handles generic types
+                    return FormatterServices.GetUninitializedObject(t);
+                }
             }
 
-            return FormatterServices.GetUninitializedObject(mapped);
+            return instance;
+
+            object InstantiateClass()
+            {
+                if (typeToConstructor.TryGetValue(t.TypeHandle, out var ctor))
+                {
+                    return ((ConstructorInfo)MethodBase.GetMethodFromHandle(ctor, t.TypeHandle)).Invoke(null);
+                }
+
+                return null;
+            }
         }
 
         void InitType(Type t)
