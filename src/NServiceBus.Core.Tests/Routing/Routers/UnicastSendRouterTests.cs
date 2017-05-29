@@ -6,7 +6,6 @@ namespace NServiceBus.Core.Tests.Routing
     using NServiceBus.Routing;
     using NUnit.Framework;
     using Testing;
-    using Transport;
 
     [TestFixture]
     public class UnicastSendRouterTests
@@ -14,7 +13,7 @@ namespace NServiceBus.Core.Tests.Routing
         [Test]
         public void Should_use_explicit_route_for_sends_if_present()
         {
-            var router = CreateRouter(null, null);
+            var router = CreateRouter(null);
             var options = new SendOptions();
 
             options.SetDestination("destination endpoint");
@@ -29,7 +28,7 @@ namespace NServiceBus.Core.Tests.Routing
         [Test]
         public void Should_route_to_local_instance_if_requested_so()
         {
-            var router = CreateRouter("MyInstance", null);
+            var router = CreateRouter("MyInstance");
             var options = new SendOptions();
 
             options.RouteToThisInstance();
@@ -44,7 +43,7 @@ namespace NServiceBus.Core.Tests.Routing
         [Test]
         public void Should_throw_if_requested_to_route_to_local_instance_and_instance_has_no_specific_queue()
         {
-            var router = CreateRouter(null, null);
+            var router = CreateRouter(null);
 
             var options = new SendOptions();
 
@@ -57,23 +56,9 @@ namespace NServiceBus.Core.Tests.Routing
         }
 
         [Test]
-        public void When_routing_to_any_instance_of_this_endpoint_should_route_back_to_distributor_if_message_being_processed_originates_from_distributor()
-        {
-            var router = CreateRouter(null, "MyDistributor");
-            var options = new SendOptions();
-            options.RouteToThisEndpoint();
-
-            var context = CreateContext(options);
-            context.Extensions.Set(new IncomingMessage("messageId", new Dictionary<string, string> { { LegacyDistributorHeaders.WorkerSessionId, string.Empty } }, new byte[0]));
-
-            var result = router.Route(context);
-            Assert.AreEqual("MyDistributor", ExtractDestination(result));
-        }
-
-        [Test]
         public void When_routing_to_specific_instance_should_throw_when_there_is_no_route_for_given_type()
         {
-            var router = CreateRouter(null, null);
+            var router = CreateRouter(null);
             var options = new SendOptions();
 
             options.RouteToSpecificInstance("instanceId");
@@ -378,9 +363,9 @@ namespace NServiceBus.Core.Tests.Routing
             return addressTag.Destination;
         }
 
-        static UnicastSendRouter CreateRouter(string instanceSpecificQueue, string distributorAddress)
+        static UnicastSendRouter CreateRouter(string instanceSpecificQueue)
         {
-            return new UnicastSendRouter(null, "Endpoint", instanceSpecificQueue, distributorAddress, new DistributionPolicy(), new UnicastRoutingTable(), new EndpointInstances(), i => i.ToString());
+            return new UnicastSendRouter(null, "Endpoint", instanceSpecificQueue, new DistributionPolicy(), new UnicastRoutingTable(), new EndpointInstances(), i => i.ToString());
         }
 
         static UnicastSendRouter CreateRouter(UnicastRoutingTable routingTable = null, EndpointInstances instances = null, DistributionPolicy policy = null)
@@ -389,7 +374,7 @@ namespace NServiceBus.Core.Tests.Routing
             var inst = instances ?? new EndpointInstances();
             var pol = policy ?? new DistributionPolicy();
 
-            return new UnicastSendRouter(null, "Endpoint", null, null, pol, table, inst, i => i.ToString());
+            return new UnicastSendRouter(null, "Endpoint", null, pol, table, inst, i => i.ToString());
         }
 
         class MyMessage : ICommand

@@ -898,6 +898,27 @@ namespace NServiceBus.Features
     public class SLAMonitoring { }
 }
 
+namespace NServiceBus.Routing.Legacy
+{
+    using System;
+
+    [ObsoleteEx(
+        Message = "The distributor is no longer supported.",
+        RemoveInVersion = "8",
+        TreatAsErrorFromVersion = "7")]
+    public static class ConfigureMSMQDistributor
+    {
+        [ObsoleteEx(
+            Message = "The distributor is no longer supported.",
+            RemoveInVersion = "8",
+            TreatAsErrorFromVersion = "7")]
+        public static void EnlistWithLegacyMSMQDistributor(this EndpointConfiguration config, string masterNodeAddress, string masterNodeControlAddress, int capacity)
+        {
+            throw new NotImplementedException();
+        }
+    }
+}
+
 namespace NServiceBus.Transport
 {
     using System;

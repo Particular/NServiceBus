@@ -2,9 +2,7 @@
 {
     using System;
     using System.Threading.Tasks;
-    using Extensibility;
     using Pipeline;
-    using Transport;
 
     class ApplyReplyToAddressBehavior : IBehavior<IOutgoingLogicalMessageContext, IOutgoingLogicalMessageContext>
     {
@@ -16,11 +14,10 @@
             RouteReplyToAnyInstanceOfThisEndpoint
         }
 
-        public ApplyReplyToAddressBehavior(string sharedQueue, string instanceSpecificQueue, string publicReturnAddress, string distributorAddress)
+        public ApplyReplyToAddressBehavior(string sharedQueue, string instanceSpecificQueue, string publicReturnAddress)
         {
             this.sharedQueue = sharedQueue;
             this.instanceSpecificQueue = instanceSpecificQueue;
-            this.distributorAddress = distributorAddress;
             configuredReturnAddress = publicReturnAddress ?? sharedQueue;
         }
 
@@ -32,21 +29,11 @@
                 throw new InvalidOperationException("Cannot route a reply to a specific instance because an endpoint instance discriminator was not configured for the destination endpoint. It can be specified via EndpointConfiguration.MakeInstanceUniquelyAddressable(string discriminator).");
             }
 
-            var replyTo = ApplyUserOverride(ApplyDistributorLogic(context.Extensions), state);
+            var replyTo = ApplyUserOverride(configuredReturnAddress, state);
 
             context.Headers[Headers.ReplyToAddress] = replyTo;
 
             return next(context);
-        }
-
-        string ApplyDistributorLogic(ContextBag context)
-        {
-            IncomingMessage incomingMessage;
-            if (distributorAddress != null && context.TryGet(out incomingMessage) && incomingMessage.Headers.ContainsKey(LegacyDistributorHeaders.WorkerSessionId))
-            {
-                return distributorAddress;
-            }
-            return configuredReturnAddress;
         }
 
         string ApplyUserOverride(string replyTo, State state)
@@ -66,7 +53,6 @@
             return replyTo;
         }
 
-        string distributorAddress;
         string instanceSpecificQueue;
 
         string sharedQueue;

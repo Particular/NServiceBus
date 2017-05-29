@@ -7,7 +7,6 @@
     using NUnit.Framework;
     using ObjectBuilder;
     using Settings;
-    using Transport;
 
     [TestFixture]
     public class FeatureStartupTests
@@ -16,7 +15,6 @@
         public void Init()
         {
             settings = new SettingsHolder();
-            settings.Set<TransportDefinition>(new MsmqTransport());
             featureSettings = new FeatureActivator(settings);
         }
 

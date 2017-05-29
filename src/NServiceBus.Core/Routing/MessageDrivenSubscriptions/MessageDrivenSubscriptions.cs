@@ -52,9 +52,7 @@ namespace NServiceBus.Features
 
             if (canReceive)
             {
-                var distributorAddress = context.Settings.GetOrDefault<string>("LegacyDistributor.Address");
-
-                var subscriberAddress = distributorAddress ?? context.Settings.LocalAddress();
+                var subscriberAddress = context.Settings.LocalAddress();
                 var subscriptionRouter = new SubscriptionRouter(publishers, endpointInstances, i => transportInfrastructure.ToTransportAddress(LogicalAddress.CreateRemoteAddress(i)));
 
                 context.Pipeline.Register(b => new MessageDrivenSubscribeTerminator(subscriptionRouter, subscriberAddress, context.Settings.EndpointName(), b.Build<IDispatchMessages>()), "Sends subscription requests when message driven subscriptions is in use");

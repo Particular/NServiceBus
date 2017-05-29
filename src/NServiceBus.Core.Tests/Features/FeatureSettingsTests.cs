@@ -3,7 +3,6 @@
     using System;
     using System.Linq;
     using NServiceBus.Features;
-    using Transport;
     using NUnit.Framework;
     using Settings;
 
@@ -17,7 +16,6 @@
         public void Init()
         {
             settings = new SettingsHolder();
-            settings.Set<TransportDefinition>(new MsmqTransport());
             featureSettings = new FeatureActivator(settings);
         }
 

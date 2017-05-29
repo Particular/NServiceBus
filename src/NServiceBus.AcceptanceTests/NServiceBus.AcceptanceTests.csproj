@@ -17,7 +17,6 @@
   <ItemGroup>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Configuration" />
-    <Reference Include="System.Messaging" />
     <Reference Include="System.Transactions" />
   </ItemGroup>
 

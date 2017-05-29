@@ -4,7 +4,6 @@ namespace NServiceBus
     using System.Linq;
     using Pipeline;
     using Routing;
-    using Transport;
 
     class UnicastSendRouter
     {
@@ -21,7 +20,6 @@ namespace NServiceBus
             string baseInputQueueName,
             string endpointName,
             string instanceSpecificQueue,
-            string distributorAddress,
             IDistributionPolicy defaultDistributionPolicy,
             UnicastRoutingTable unicastRoutingTable,
             EndpointInstances endpointInstances,
@@ -29,7 +27,6 @@ namespace NServiceBus
         {
             this.endpointName = baseInputQueueName ?? endpointName;
             this.instanceSpecificQueue = instanceSpecificQueue;
-            this.distributorAddress = distributorAddress;
             this.defaultDistributionPolicy = defaultDistributionPolicy;
             this.unicastRoutingTable = unicastRoutingTable;
             this.endpointInstances = endpointInstances;
@@ -52,7 +49,7 @@ namespace NServiceBus
                 case RouteOption.RouteToThisInstance:
                     return RouteToThisInstance();
                 case RouteOption.RouteToAnyInstanceOfThisEndpoint:
-                    return RouteToAnyInstanceOfThisEndpoint(context);
+                    return UnicastRoute.CreateFromEndpointName(endpointName);
                 case RouteOption.RouteToSpecificInstance:
                     return RouteToSpecificInstance(context, state.SpecificInstance);
                 case RouteOption.None:
@@ -81,13 +78,6 @@ namespace NServiceBus
             return UnicastRoute.CreateFromEndpointInstance(new EndpointInstance(route.Endpoint, specificInstance));
         }
 
-        UnicastRoute RouteToAnyInstanceOfThisEndpoint(IOutgoingSendContext context)
-        {
-            return IncomingMessageOriginatesFromDistributor(context)
-                ? UnicastRoute.CreateFromPhysicalAddress(distributorAddress)
-                : UnicastRoute.CreateFromEndpointName(endpointName);
-        }
-
         UnicastRoute RouteUsingTable(IOutgoingSendContext context)
         {
             var route = unicastRoutingTable.GetRouteFor(context.Message.MessageType);
@@ -96,12 +86,6 @@ namespace NServiceBus
                 throw new Exception($"No destination specified for message: {context.Message.MessageType}");
             }
             return route;
-        }
-
-        bool IncomingMessageOriginatesFromDistributor(IOutgoingSendContext context)
-        {
-            IncomingMessage incomingMessage;
-            return distributorAddress != null && context.Extensions.TryGet(out incomingMessage) && incomingMessage.Headers.ContainsKey(LegacyDistributorHeaders.WorkerSessionId);
         }
 
         UnicastRoutingStrategy ResolveRoute(UnicastRoute route, IOutgoingSendContext context)
@@ -121,7 +105,6 @@ namespace NServiceBus
         }
 
         string instanceSpecificQueue;
-        string distributorAddress;
 
         EndpointInstances endpointInstances;
         Func<EndpointInstance, string> transportAddressTranslation;
