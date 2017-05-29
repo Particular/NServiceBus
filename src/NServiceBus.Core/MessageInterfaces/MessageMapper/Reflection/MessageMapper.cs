@@ -128,29 +128,14 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
                 return FormatterServices.GetUninitializedObject(mapped);
             }
 
-            var instance = InstantiateClass();
-            if (instance == null)
+            InitType(t);
+
+            if (typeToConstructor.TryGetValue(t.TypeHandle, out var ctor))
             {
-                InitType(t);
-                instance = InstantiateClass();
-                if (instance == null)
-                {
-                    // handles generic types
-                    return FormatterServices.GetUninitializedObject(t);
-                }
+                return ((ConstructorInfo)MethodBase.GetMethodFromHandle(ctor, t.TypeHandle)).Invoke(null);
             }
 
-            return instance;
-
-            object InstantiateClass()
-            {
-                if (typeToConstructor.TryGetValue(t.TypeHandle, out var ctor))
-                {
-                    return ((ConstructorInfo)MethodBase.GetMethodFromHandle(ctor, t.TypeHandle)).Invoke(null);
-                }
-
-                return null;
-            }
+            return FormatterServices.GetUninitializedObject(t);
         }
 
         void InitType(Type t)
