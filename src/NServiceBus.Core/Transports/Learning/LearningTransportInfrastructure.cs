@@ -30,8 +30,6 @@
 
             var errorQueueAddress = settings.ErrorQueueAddress();
             PathChecker.ThrowForBadPath(errorQueueAddress, "ErrorQueueAddress");
-
-            settings.Set(Recoverability.DisableLegacyRetriesSatellite, true);
         }
 
         public override IEnumerable<Type> DeliveryConstraints { get; } = new[]
@@ -102,7 +100,7 @@
             PathChecker.ThrowForBadPath(address, "endpoint name");
 
             var discriminator = logicalAddress.EndpointInstance.Discriminator;
-           
+
             if (!string.IsNullOrEmpty(discriminator))
             {
                 PathChecker.ThrowForBadPath(discriminator, "endpoint discriminator");

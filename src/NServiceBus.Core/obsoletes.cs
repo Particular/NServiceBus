@@ -243,6 +243,18 @@ namespace NServiceBus
         string Decrypt(EncryptedValue encryptedValue, IIncomingLogicalMessageContext context);
     }
 
+    public partial class RecoverabilitySettings
+    {
+        [ObsoleteEx(
+            Message = "The legacy retries satellite was needed to migrate from V5 to V6, so it has been removed.",
+            RemoveInVersion = "8",
+            TreatAsErrorFromVersion = "7")]
+        public RecoverabilitySettings DisableLegacyRetriesSatellite()
+        {
+            throw new NotImplementedException();
+        }
+    }
+
     public static partial class SettingsExtensions
     {
         [ObsoleteEx(
