@@ -116,19 +116,14 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
         public object CreateInstance(Type t)
         {
             Guard.AgainstNull(nameof(t), t);
-            
+
+            InitType(t);
+
             if (t.IsInterface || t.IsAbstract)
             {
                 var mapped = GetMappedTypeFor(t);
-                if (mapped == null)
-                {
-                    InitType(t);
-                    mapped = GetMappedTypeFor(t);
-                }
                 return FormatterServices.GetUninitializedObject(mapped);
             }
-
-            InitType(t);
 
             if (typeToConstructor.TryGetValue(t.TypeHandle, out var ctor))
             {
