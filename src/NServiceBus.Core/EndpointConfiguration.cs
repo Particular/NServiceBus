@@ -5,7 +5,6 @@ namespace NServiceBus
     using System.Linq;
     using System.Reflection;
     using System.Transactions;
-    using System.Web;
     using Configuration.AdvancedExtensibility;
     using Container;
     using Hosting.Helpers;
@@ -134,11 +133,7 @@ namespace NServiceBus
         {
             if (scannedTypes == null)
             {
-                var directoryToScan = AppDomain.CurrentDomain.BaseDirectory;
-                if (HttpRuntime.AppDomainAppId != null)
-                {
-                    directoryToScan = HttpRuntime.BinDirectory;
-                }
+                var directoryToScan = AppDomain.CurrentDomain.RelativeSearchPath ?? AppDomain.CurrentDomain.BaseDirectory;
 
                 scannedTypes = GetAllowedTypes(directoryToScan);
             }
