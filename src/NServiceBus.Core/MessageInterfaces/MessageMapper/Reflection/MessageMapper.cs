@@ -115,36 +115,39 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
         /// </summary>
         public object CreateInstance(Type t)
         {
-            var mapped = t;
+            Guard.AgainstNull(nameof(t), t);
+
+            InitType(t);
+
             if (t.IsInterface || t.IsAbstract)
             {
-                mapped = GetMappedTypeFor(t);
-                if (mapped == null)
-                {
-                    InitType(t);
-                    mapped = GetMappedTypeFor(t);
-                }
+                var mapped = GetMappedTypeFor(t);
+                return FormatterServices.GetUninitializedObject(mapped);
             }
 
-            RuntimeMethodHandle constructor;
-            if (typeToConstructor.TryGetValue(mapped.TypeHandle, out constructor))
+            RuntimeMethodHandle ctor;
+            if (typeToConstructor.TryGetValue(t.TypeHandle, out ctor))
             {
-                return ((ConstructorInfo)MethodBase.GetMethodFromHandle(constructor, mapped.TypeHandle)).Invoke(null);
+                return ((ConstructorInfo)MethodBase.GetMethodFromHandle(ctor, t.TypeHandle)).Invoke(null);
             }
 
-            return FormatterServices.GetUninitializedObject(mapped);
+            return FormatterServices.GetUninitializedObject(t);
         }
 
-        /// <summary>
-        /// Generates a concrete implementation of the given type if it is an interface.
-        /// </summary>
         void InitType(Type t)
         {
-            if (t == null)
+            if (t == null || initializedTypes.ContainsKey(t))
             {
                 return;
             }
 
+            InnerInitialize(t);
+
+            initializedTypes.TryAdd(t, true);
+        }
+
+        void InnerInitialize(Type t)
+        {
             if (t.IsSimpleType() || t.IsGenericTypeDefinition)
             {
                 return;
@@ -249,6 +252,8 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
         }
 
         readonly object messageInitializationLock = new object();
+
+        ConcurrentDictionary<Type, bool> initializedTypes = new ConcurrentDictionary<Type, bool>();
 
         ConcreteProxyCreator concreteProxyCreator;
         ConcurrentDictionary<RuntimeTypeHandle, RuntimeTypeHandle> concreteToInterfaceTypeMapping = new ConcurrentDictionary<RuntimeTypeHandle, RuntimeTypeHandle>();
