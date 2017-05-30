@@ -55,7 +55,6 @@
             {
                 EndpointSetup<DefaultPublisher>(b =>
                 {
-                    b.UseSerialization<XmlSerializer>();
                     b.OnEndpointSubscribed<Context>((s, context) =>
                     {
                         if (s.SubscriberReturnAddress.Contains("Subscriber"))
@@ -80,13 +79,6 @@
             {
                 EndpointSetup<DefaultServer>(c =>
                     {
-                        c.UseSerialization<XmlSerializer>();
-                        c.Conventions().DefiningMessagesAs(t => t != typeof(CompositeEvent) && typeof(IMessage).IsAssignableFrom(t) &&
-                                                                typeof(IMessage) != t &&
-                                                                typeof(IEvent) != t &&
-                                                                typeof(ICommand) != t);
-
-                        c.Conventions().DefiningEventsAs(t => t != typeof(CompositeEvent) && typeof(IEvent).IsAssignableFrom(t) && typeof(IEvent) != t);
                         c.DisableFeature<AutoSubscribe>();
                     },
                     metadata =>
