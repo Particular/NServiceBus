@@ -65,7 +65,7 @@
                 }
                 else
                 {
-                    string message = $"Failed to unsubscribe for {messageType} at publisher queue {destination}, reason {ex.Message}";
+                    var message = $"Failed to unsubscribe for {messageType} at publisher queue {destination}, reason {ex.Message}";
                     Logger.Error(message, ex);
                     throw new QueueNotFoundException(destination, message, ex);
                 }
