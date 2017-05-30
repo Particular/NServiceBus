@@ -89,9 +89,49 @@
             Assert.Throws<Exception>(() => mapper.Initialize(new[] { typeof(InterfaceMessageWithIllegalInterfaceProperty) }));
         }
 
+        [Test]
+        public void CreateInstance_should_initialize_interface_message_type_on_demand()
+        {
+            var mapper = new MessageMapper();
+
+            var messageInstance = mapper.CreateInstance<ISampleMessageInterface>();
+
+            Assert.IsNotNull(messageInstance);
+            Assert.IsInstanceOf<ISampleMessageInterface>(messageInstance);
+        }
+
+        [Test]
+        public void CreateInstance_should_initialize_message_type_on_demand()
+        {
+            var mapper = new MessageMapper();
+
+            var messageInstance = mapper.CreateInstance<SampleMessageClass>();
+
+            Assert.IsNotNull(messageInstance);
+            Assert.AreEqual(typeof(SampleMessageClass), messageInstance.GetType());
+            Assert.IsTrue(messageInstance.CtorInvoked);
+        }
+
+        [Test]
+        // this is not desired behavior and just documents current behavior
+        public void CreateInstance_should_not_initialize_message_type_implementing_IEnumerable()
+        {
+            var mapper = new MessageMapper();
+
+            var messageInstance = mapper.CreateInstance<ClassImplementingIEnumerable<string>>();
+
+            Assert.IsNotNull(messageInstance);
+            Assert.IsFalse(messageInstance.CtorInvoked);
+        }
 
         public class SampleMessageClass
         {
+            public SampleMessageClass()
+            {
+                CtorInvoked = true;
+            }
+
+            public bool CtorInvoked { get; }
         }
 
         public interface ISampleMessageInterface
@@ -100,6 +140,13 @@
 
         public class ClassImplementingIEnumerable<TItem> : IEnumerable<TItem>
         {
+            public ClassImplementingIEnumerable()
+            {
+                CtorInvoked = true;
+            }
+
+            public bool CtorInvoked { get; }
+
             public IEnumerator<TItem> GetEnumerator()
             {
                 return new List<TItem>.Enumerator();
