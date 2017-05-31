@@ -22,7 +22,7 @@
             var incomingMessage = context.Message;
             var messageTypeString = GetSubscriptionMessageTypeFrom(incomingMessage);
 
-            var intent = incomingMessage.GetMesssageIntent();
+            var intent = incomingMessage.GetMessageIntent();
 
             if (string.IsNullOrEmpty(messageTypeString) && intent != MessageIntentEnum.Subscribe && intent != MessageIntentEnum.Unsubscribe)
             {
@@ -77,7 +77,7 @@
             }
             Logger.Info($"{intent} from {subscriberAddress} on message type {messageTypeString}");
             var subscriber = new Subscriber(subscriberAddress, subscriberEndpoint);
-            if (incomingMessage.GetMesssageIntent() == MessageIntentEnum.Subscribe)
+            if (incomingMessage.GetMessageIntent() == MessageIntentEnum.Subscribe)
             {
                 var messageType = new MessageType(messageTypeString);
                 await subscriptionStorage.Subscribe(subscriber, messageType, context.Extensions).ConfigureAwait(false);

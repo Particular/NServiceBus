@@ -2444,7 +2444,7 @@ namespace NServiceBus.Transport
     }
     public class static IncomingMessageExtensions
     {
-        public static NServiceBus.MessageIntentEnum GetMesssageIntent(this NServiceBus.Transport.IncomingMessage message) { }
+        public static NServiceBus.MessageIntentEnum GetMessageIntent(this NServiceBus.Transport.IncomingMessage message) { }
         public static string GetReplyToAddress(this NServiceBus.Transport.IncomingMessage message) { }
     }
     public interface IOutgoingTransportOperation
