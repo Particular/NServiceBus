@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus
 {
     using System;
-    using Logging;
     using Settings;
 
     /// <summary>
@@ -11,8 +10,7 @@
     {
         /// <summary>
         /// Finds the configured audit queue for an endpoint.
-        /// The audit queue can be configured by using 'EndpointConfiguration.AuditProcessedMessagesTo()'
-        /// or by using the 'HKEY_LOCAL_MACHINE\SOFTWARE\ParticularSoftware\ServiceBus\AuditQueue' registry key.
+        /// The audit queue can be configured by using 'EndpointConfiguration.AuditProcessedMessagesTo()'.
         /// </summary>
         /// <param name="settings">The configuration settings for the endpoint.</param>
         /// <param name="address">The configured audit queue address for the endpoint.</param>
@@ -32,13 +30,33 @@
             return true;
         }
 
+        /// <summary>
+        /// Returns the requested audit message expiration time if one is configured.
+        /// </summary>
+        /// <param name="settings">The configuration settings for the endpoint.</param>
+        /// <param name="auditMessageExpiration">The configured expiration time for audit messages.</param>
+        /// <returns>True if audit message expiration is configured, false otherwise.</returns>
+        public static bool TryGetAuditMessageExpiration(this ReadOnlySettings settings, out TimeSpan auditMessageExpiration)
+        {
+            Guard.AgainstNull(nameof(settings), settings);
+
+            var result = GetConfiguredAuditQueue(settings);
+            if (result?.TimeToBeReceived == null)
+            {
+                auditMessageExpiration = TimeSpan.Zero;
+                return false;
+            }
+
+            auditMessageExpiration = result.TimeToBeReceived.Value;
+            return true;
+        }
+
+
         internal static Result GetConfiguredAuditQueue(ReadOnlySettings settings)
         {
             return settings.TryGet(out Result configResult) ? configResult : null;
         }
-
-        static ILog Logger = LogManager.GetLogger(typeof(AuditConfigReader));
-
+        
         internal class Result
         {
             public string Address;
