@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus
 {
     using System;
-    using Logging;
     using Settings;
 
     /// <summary>
@@ -36,8 +35,6 @@
         {
             return settings.TryGet(out Result configResult) ? configResult : null;
         }
-
-        static ILog Logger = LogManager.GetLogger(typeof(AuditConfigReader));
 
         internal class Result
         {
