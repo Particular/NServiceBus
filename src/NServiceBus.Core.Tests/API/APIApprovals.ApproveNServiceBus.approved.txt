@@ -27,6 +27,7 @@ namespace NServiceBus
     }
     public class static AuditConfigReader
     {
+        public static bool TryGetAuditMessageExpiration(this NServiceBus.Settings.ReadOnlySettings settings, out System.TimeSpan auditMessageExpiration) { }
         public static bool TryGetAuditQueueAddress(this NServiceBus.Settings.ReadOnlySettings settings, out string address) { }
     }
     public class static AutoSubscribeSettingsExtensions
