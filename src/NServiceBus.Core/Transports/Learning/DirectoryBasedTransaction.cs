@@ -96,11 +96,11 @@ namespace NServiceBus
                 }
             }
 
-            var comittedRootDir = Path.Combine(basePath, committedDirName);
+            var committedRootDir = Path.Combine(basePath, committedDirName);
 
-            if (Directory.Exists(comittedRootDir))
+            if (Directory.Exists(committedRootDir))
             {
-                foreach (var transactionDir in new DirectoryInfo(comittedRootDir).EnumerateDirectories())
+                foreach (var transactionDir in new DirectoryInfo(committedRootDir).EnumerateDirectories())
                 {
                     new DirectoryBasedTransaction(basePath, pendingDirName, committedDirName, transactionDir.Name)
                         .RecoverCommitted();
