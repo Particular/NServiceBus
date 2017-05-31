@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus
 {
     using System;
-    using Logging;
     using Settings;
 
     /// <summary>
@@ -11,8 +10,7 @@
     {
         /// <summary>
         /// Finds the configured audit queue for an endpoint.
-        /// The audit queue can be configured by using 'EndpointConfiguration.AuditProcessedMessagesTo()'
-        /// or by using the 'HKEY_LOCAL_MACHINE\SOFTWARE\ParticularSoftware\ServiceBus\AuditQueue' registry key.
+        /// The audit queue is configured by using <see cref="ConfigureAudit.AuditProcessedMessagesTo"/>.
         /// </summary>
         /// <param name="settings">The configuration settings for the endpoint.</param>
         /// <param name="address">The configured audit queue address for the endpoint.</param>
@@ -36,8 +34,6 @@
         {
             return settings.TryGet(out Result configResult) ? configResult : null;
         }
-
-        static ILog Logger = LogManager.GetLogger(typeof(AuditConfigReader));
 
         internal class Result
         {
