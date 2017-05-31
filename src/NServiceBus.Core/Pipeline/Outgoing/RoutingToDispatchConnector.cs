@@ -29,7 +29,7 @@
 
             if (isDebugEnabled)
             {
-                LogOutoingOperations(operations);
+                LogOutgoingOperations(operations);
             }
 
             PendingTransportOperations pendingOperations;
@@ -43,7 +43,7 @@
             return stage(this.CreateDispatchContext(operations, context));
         }
 
-        static void LogOutoingOperations(TransportOperation[] operations)
+        static void LogOutgoingOperations(TransportOperation[] operations)
         {
             var sb = new StringBuilder();
             foreach (var operation in operations)
