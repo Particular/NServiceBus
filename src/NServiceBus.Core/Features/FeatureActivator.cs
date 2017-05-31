@@ -170,15 +170,15 @@ namespace NServiceBus.Features
 
             Func<List<string>, bool> dependencyActivator = dependencies =>
             {
-                var dependantFeaturesToActivate = new List<FeatureInfo>();
+                var dependentFeaturesToActivate = new List<FeatureInfo>();
 
                 foreach (var dependency in dependencies.Select(dependencyName => featuresToActivate
                     .SingleOrDefault(f => f.Feature.Name == dependencyName))
                     .Where(dependency => dependency != null))
                 {
-                    dependantFeaturesToActivate.Add(dependency);
+                    dependentFeaturesToActivate.Add(dependency);
                 }
-                return dependantFeaturesToActivate.Aggregate(false, (current, f) => current | ActivateFeature(f, featuresToActivate, container, pipelineSettings, routing));
+                return dependentFeaturesToActivate.Aggregate(false, (current, f) => current | ActivateFeature(f, featuresToActivate, container, pipelineSettings, routing));
             };
             var featureType = featureInfo.Feature.GetType();
             if (featureInfo.Feature.Dependencies.All(dependencyActivator))
