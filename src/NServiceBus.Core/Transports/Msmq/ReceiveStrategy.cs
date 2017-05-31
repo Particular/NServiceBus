@@ -83,7 +83,7 @@ namespace NServiceBus
 
         protected void MovePoisonMessageToErrorQueue(Message message, MessageQueueTransaction transaction)
         {
-            var error = $"Message '{message.Id}' is classfied as a poison message and will be moved to '{errorQueue.QueueName}'";
+            var error = $"Message '{message.Id}' is classified as a poison message and will be moved to '{errorQueue.QueueName}'";
 
             Logger.Error(error);
 
@@ -92,7 +92,7 @@ namespace NServiceBus
 
         protected void MovePoisonMessageToErrorQueue(Message message, MessageQueueTransactionType transactionType)
         {
-            var error = $"Message '{message.Id}' is classfied as a poison message and will be moved to '{errorQueue.QueueName}'";
+            var error = $"Message '{message.Id}' is classified as a poison message and will be moved to '{errorQueue.QueueName}'";
 
             Logger.Error(error);
 
