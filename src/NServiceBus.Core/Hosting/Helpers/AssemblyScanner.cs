@@ -343,9 +343,9 @@ namespace NServiceBus.Hosting.Helpers
             var fileInfo = new List<FileInfo>();
             var baseDir = new DirectoryInfo(directoryToScan);
             var searchOption = scanNestedDirectories ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
-            foreach (var searchPatern in FileSearchPatternsToUse)
+            foreach (var searchPattern in FileSearchPatternsToUse)
             {
-                foreach (var info in baseDir.GetFiles(searchPatern, searchOption))
+                foreach (var info in baseDir.GetFiles(searchPattern, searchOption))
                 {
                     fileInfo.Add(info);
                 }
