@@ -92,7 +92,7 @@ namespace NServiceBus.DeliveryConstraints
         /// <summary>
         /// Removes a <see cref="DeliveryConstraint" /> to a <see cref="ContextBag" />.
         /// </summary>
-        public static void RemoveDeliveryConstaint(this ContextBag context, DeliveryConstraint constraint)
+        public static void RemoveDeliveryConstraint(this ContextBag context, DeliveryConstraint constraint)
         {
             Guard.AgainstNull(nameof(constraint), constraint);
             Guard.AgainstNull(nameof(context), context);
