@@ -161,9 +161,9 @@
 
             public class Runner : FeatureStartupTask, IDisposable
             {
-                public Runner(FeatureWithStartupTaskThatThrows parenFeature)
+                public Runner(FeatureWithStartupTaskThatThrows parentFeature)
                 {
-                    parentFeature = parenFeature;
+                    this.parentFeature = parentFeature;
                 }
 
                 public void Dispose()
