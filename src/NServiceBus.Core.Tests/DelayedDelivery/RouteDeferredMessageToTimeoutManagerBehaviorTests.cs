@@ -102,9 +102,9 @@
                     routingStrategy
                 }
             };
-            foreach (var deliveryContraint in deliveryConstraints)
+            foreach (var deliveryConstraint in deliveryConstraints)
             {
-                context.Extensions.AddDeliveryConstraint(deliveryContraint);
+                context.Extensions.AddDeliveryConstraint(deliveryConstraint);
             }
 
             return context;
