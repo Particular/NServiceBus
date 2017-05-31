@@ -9,7 +9,7 @@
     using NServiceBus.Routing;
     using NServiceBus.Routing.MessageDrivenSubscriptions;
     using NUnit.Framework;
-    using OtherMesagenameSpace;
+    using OtherMessageNameSpace;
     using Settings;
     using Transport;
 
@@ -191,7 +191,7 @@ namespace MessageNameSpace
     }
 }
 
-namespace OtherMesagenameSpace
+namespace OtherMessageNameSpace
 {
     using MessageNameSpace;
 
