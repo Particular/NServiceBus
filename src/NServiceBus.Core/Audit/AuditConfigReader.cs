@@ -10,10 +10,10 @@
     {
         /// <summary>
         /// Finds the configured audit queue for an endpoint.
-        /// The audit queue can be configured by using 'EndpointConfiguration.AuditProcessedMessagesTo()'.
+        /// The audit queue can be configured using 'EndpointConfiguration.AuditProcessedMessagesTo()'.
         /// </summary>
         /// <param name="settings">The configuration settings for the endpoint.</param>
-        /// <param name="address">The configured audit queue address for the endpoint.</param>
+        /// <param name="address">When the method returns, this parameter will contain the configured audit queue address for the endpoint.</param>
         /// <returns>True if a configured audit address can be found, false otherwise.</returns>
         public static bool TryGetAuditQueueAddress(this ReadOnlySettings settings, out string address)
         {
@@ -34,7 +34,7 @@
         /// Returns the requested audit message expiration time if one is configured.
         /// </summary>
         /// <param name="settings">The configuration settings for the endpoint.</param>
-        /// <param name="auditMessageExpiration">The configured expiration time for audit messages.</param>
+        /// <param name="auditMessageExpiration">When the method returns, this parameter will contain the configured expiration time for audit messages.</param>
         /// <returns>True if audit message expiration is configured, false otherwise.</returns>
         public static bool TryGetAuditMessageExpiration(this ReadOnlySettings settings, out TimeSpan auditMessageExpiration)
         {
