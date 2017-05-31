@@ -4,22 +4,23 @@
     using Settings;
 
     /// <summary>
-    /// Utility class to find the configured audit queue for an endpoint.
+    /// A utility class to get the configured audit queue settings.
     /// </summary>
     public static class AuditConfigReader
     {
         /// <summary>
-        /// Finds the configured audit queue for an endpoint.
-        /// The audit queue can be configured using 'EndpointConfiguration.AuditProcessedMessagesTo()'.
+        /// Gets the audit queue address for the endpoint.
+        /// The audit queue address can be configured using 'EndpointConfiguration.AuditProcessedMessagesTo()'.
         /// </summary>
         /// <param name="settings">The configuration settings for the endpoint.</param>
-        /// <param name="address">When the method returns, this parameter will contain the configured audit queue address for the endpoint.</param>
-        /// <returns>True if a configured audit address can be found, false otherwise.</returns>
+        /// <param name="address">When this method returns, contains the audit queue address for the endpoint, if it has been configured, or null if it has not.</param>
+        /// <returns>True if an audit queue address is configured; otherwise, false.</returns>
         public static bool TryGetAuditQueueAddress(this ReadOnlySettings settings, out string address)
         {
             Guard.AgainstNull(nameof(settings), settings);
 
             var result = GetConfiguredAuditQueue(settings);
+
             if (result == null)
             {
                 address = null;
@@ -31,16 +32,18 @@
         }
 
         /// <summary>
-        /// Returns the requested audit message expiration time if one is configured.
+        /// Gets the audit message expiration time span for the endpoint.
+        /// The audit message expiration time span can be configured using 'EndpointConfiguration.AuditProcessedMessagesTo()'.
         /// </summary>
         /// <param name="settings">The configuration settings for the endpoint.</param>
-        /// <param name="auditMessageExpiration">When the method returns, this parameter will contain the configured expiration time for audit messages.</param>
-        /// <returns>True if audit message expiration is configured, false otherwise.</returns>
+        /// <param name="auditMessageExpiration">When this method returns, contains the audit message expiration time span, if it has been configured, or TimeSpan.Zero if has not.</param>
+        /// <returns>True if an audit message expiration time span is configured; otherwise, false.</returns>
         public static bool TryGetAuditMessageExpiration(this ReadOnlySettings settings, out TimeSpan auditMessageExpiration)
         {
             Guard.AgainstNull(nameof(settings), settings);
 
             var result = GetConfiguredAuditQueue(settings);
+
             if (result?.TimeToBeReceived == null)
             {
                 auditMessageExpiration = TimeSpan.Zero;
@@ -51,12 +54,11 @@
             return true;
         }
 
-
         internal static Result GetConfiguredAuditQueue(ReadOnlySettings settings)
         {
             return settings.TryGet(out Result configResult) ? configResult : null;
         }
-        
+
         internal class Result
         {
             public string Address;
