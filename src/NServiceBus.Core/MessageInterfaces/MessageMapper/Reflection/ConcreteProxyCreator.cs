@@ -11,11 +11,7 @@ namespace NServiceBus
     {
         public ConcreteProxyCreator()
         {
-            var assemblyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly(
-                new AssemblyName("NServiceBusMessageProxies"),
-                AssemblyBuilderAccess.Run
-                );
-
+            var assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(new AssemblyName("NServiceBusMessageProxies"), AssemblyBuilderAccess.Run);
             moduleBuilder = assemblyBuilder.DefineDynamicModule("NServiceBusMessageProxies");
         }
 
