@@ -26,8 +26,12 @@ namespace NServiceBus.Core.Tests.AssemblyScanner
         public void Should_scan_nested_directories_if_requested()
         {
             var endpointConfiguration = new EndpointConfiguration("myendpoint");
-            endpointConfiguration.AssemblyScanner().ScanAssembliesInNestedDirectories = true;
-            endpointConfiguration.AssemblyScanner().ExcludeTypes(typeof(When_using_initialization_with_non_default_ctor.FeatureWithInitialization));
+            var scannerConfiguration = endpointConfiguration.AssemblyScanner();
+
+            scannerConfiguration.ScanAssembliesInNestedDirectories = true;
+            scannerConfiguration.ExcludeTypes(typeof(When_using_initialization_with_non_default_ctor.FeatureWithInitialization));
+            scannerConfiguration.ExcludeAssemblies("ClassLibraryB");
+
             endpointConfiguration.Build();
 
             var scanedTypes = endpointConfiguration.Settings.Get<IList<Type>>("TypesToScan");
