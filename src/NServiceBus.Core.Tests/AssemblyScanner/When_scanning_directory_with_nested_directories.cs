@@ -28,6 +28,7 @@ namespace NServiceBus.Core.Tests.AssemblyScanner
             var endpointConfiguration = new EndpointConfiguration("myendpoint");
             endpointConfiguration.ScanAssembliesInNestedDirectories();
             endpointConfiguration.ExcludeTypes(typeof(When_using_initialization_with_non_default_ctor.FeatureWithInitialization));
+            endpointConfiguration.ExcludeAssemblies("ClassLibraryB");
             endpointConfiguration.Build();
 
             var scanedTypes = endpointConfiguration.Settings.Get<IList<Type>>("TypesToScan");
