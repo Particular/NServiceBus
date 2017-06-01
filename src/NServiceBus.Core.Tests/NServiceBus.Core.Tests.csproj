@@ -366,6 +366,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="TestDlls\circular\readme.md" />
     <None Include="TestDlls\dotNet.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -402,6 +403,12 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <None Include="TestDlls\circular\ClassLibraryA.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="TestDlls\circular\ClassLibraryB.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <Content Include="TestDlls\NServiceBus.NewCompilerBits.dll" />
     <Content Include="TestDlls\NServiceBus.OldCompilerBits.dll" />
   </ItemGroup>
