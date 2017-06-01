@@ -38,7 +38,7 @@
                 return result.ToArray();
             }
 
-            CacheDefaultNameSpaceMessageBaseTypesAndPrefixes(doc);
+            CacheDefaultNamespaceMessageBaseTypesAndPrefixes(doc);
 
             if (ContainsMultipleMessages(doc))
             {
@@ -139,13 +139,13 @@
             return nodeType;
         }
 
-        void CacheDefaultNameSpaceMessageBaseTypesAndPrefixes(XmlDocument doc)
+        void CacheDefaultNamespaceMessageBaseTypesAndPrefixes(XmlDocument doc)
         {
             foreach (XmlAttribute attr in doc.DocumentElement.Attributes)
             {
                 if (attr.Name == "xmlns")
                 {
-                    defaultNameSpace = attr.Value.Substring(attr.Value.LastIndexOf("/") + 1);
+                    defaultNamespace = attr.Value.Substring(attr.Value.LastIndexOf("/") + 1);
                 }
                 else
                 {
@@ -210,9 +210,9 @@
             var name = node.Name;
             var typeName = name;
 
-            if (!string.IsNullOrEmpty(defaultNameSpace))
+            if (!string.IsNullOrEmpty(defaultNamespace))
             {
-                typeName = $"{defaultNameSpace}.{typeName}";
+                typeName = $"{defaultNamespace}.{typeName}";
             }
 
             if (name.Contains(":"))
@@ -666,7 +666,7 @@
         }
 
         XmlSerializerCache cache;
-        string defaultNameSpace;
+        string defaultNamespace;
         IMessageMapper mapper;
         List<Type> messageBaseTypes = new List<Type>();
         IDictionary<string, string> prefixesToNamespaces = new Dictionary<string, string>();
