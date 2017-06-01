@@ -66,6 +66,26 @@
         }
 
         [Test]
+        public void ReferencesNServiceBus_circular()
+        {
+            var classLibB = Path.Combine(TestContext.CurrentContext.TestDirectory, @"TestDlls\circular\ClassLibraryB.dll");
+            // Put ClassLibraryB.dll in CurrentDomain.BaseDirectory so it resolves correctly
+            var tempClassLibB = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ClassLibraryB.dll");
+            File.Copy(classLibB, tempClassLibB, true);
+            try
+            {
+                var circularDirectory = Path.Combine(TestContext.CurrentContext.TestDirectory, @"TestDlls\circular");
+                var classLibA = Path.Combine(circularDirectory, "ClassLibraryA.dll");
+                var scanner = new AssemblyScanner(circularDirectory);
+                Assert.IsTrue(scanner.ReferencesNServiceBus(classLibA, new Dictionary<string, bool>()));
+            }
+            finally
+            {
+                File.Delete(tempClassLibB);
+            }
+        }
+
+        [Test]
         public void ReferencesNServiceBus_returns_false_for_no_reference()
         {
             var combine = Path.Combine(TestContext.CurrentContext.TestDirectory, "TestDlls", "dotNet.dll");
