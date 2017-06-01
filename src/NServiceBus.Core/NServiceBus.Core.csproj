@@ -1,4 +1,5 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net452</TargetFramework>
@@ -13,6 +14,9 @@
     <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
     <GenerateAssemblyInformationalVersionAttribute>false</GenerateAssemblyInformationalVersionAttribute>
     <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
+    <!--This is needed to have a windows PDB for MergeDependencies ILMerge target below to work properly-->
+    <DebugType>pdbonly</DebugType>
+    <DebugSymbols>True</DebugSymbols>
   </PropertyGroup>
 
   <ItemGroup>
@@ -29,11 +33,13 @@
     <PackageReference Include="Autofac" Version="3.5.2" PrivateAssets="All" />
     <PackageReference Include="GitVersionTask" Version="3.6.5" PrivateAssets="All" />
     <PackageReference Include="Janitor.Fody" Version="1.4.1" PrivateAssets="All" />
+    <PackageReference Include="Fody" Version="2.0.10" PrivateAssets="All" />
     <PackageReference Include="Newtonsoft.Json" Version="8.0.2" PrivateAssets="All" />
     <PackageReference Include="NuGetPackager" Version="0.6.1" PrivateAssets="All" />
     <PackageReference Include="Obsolete.Fody" Version="4.2.2" PrivateAssets="All" />
     <PackageReference Include="Particular.CodeRules" Version="0.2.0" PrivateAssets="All" />
     <PackageReference Include="Particular.Licensing.Sources" Version="0.1.61" PrivateAssets="All" />
+    <PackageReference Include="ILRepack" Version="2.0.13" PrivateAssets="All" />
   </ItemGroup>
 
   <ItemGroup>
@@ -45,15 +51,9 @@
     </Compile>
   </ItemGroup>
 
-  <!--This is needed to have a windows PDB for MergeDependencies ILMerge target below to work properly-->
-  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-    <DebugType>pdbonly</DebugType>
-    <DebugSymbols>True</DebugSymbols>
-  </PropertyGroup>
-
   <Target Name="MergeDependencies" Condition=" '$(Configuration)' == 'Release' " BeforeTargets="BuildPackages">
     <MakeDir Directories="$(TargetDir)temp\" />
-    <Exec Command="&quot;$(SolutionDir)..\tools\IlMerge\ilmerge.exe&quot; /keyfile:&quot;$(SolutionDir)NServiceBus.snk&quot; /internalize /out:&quot;$(TargetDir)temp\$(TargetFileName)&quot; &quot;$(TargetPath)&quot; &quot;$(TargetDir)AutoFac.dll&quot; &quot;$(TargetDir)Newtonsoft.Json.dll&quot; /target:library /targetplatform:&quot;v4,$(FrameworkPathOverride)&quot;" />
+    <Exec Command="$(ILRepack) /keyfile:&quot;$(SolutionDir)NServiceBus.snk&quot; /internalize /out:&quot;$(TargetDir)temp\$(TargetFileName)&quot; &quot;$(TargetPath)&quot; &quot;$(TargetDir)AutoFac.dll&quot; &quot;$(TargetDir)Newtonsoft.Json.dll&quot; /target:library /targetplatform:&quot;v4,$(FrameworkPathOverride)&quot;" />
     <ItemGroup>
       <TempFiles Include="$(TargetDir)temp\*.*" />
     </ItemGroup>
