@@ -72,17 +72,10 @@
             // Put ClassLibraryB.dll in CurrentDomain.BaseDirectory so it resolves correctly
             var tempClassLibB = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ClassLibraryB.dll");
             File.Copy(classLibB, tempClassLibB, true);
-            try
-            {
-                var circularDirectory = Path.Combine(TestContext.CurrentContext.TestDirectory, @"TestDlls\circular");
-                var classLibA = Path.Combine(circularDirectory, "ClassLibraryA.dll");
-                var scanner = new AssemblyScanner(circularDirectory);
-                Assert.IsTrue(scanner.ReferencesNServiceBus(classLibA, new Dictionary<string, bool>()));
-            }
-            finally
-            {
-                File.Delete(tempClassLibB);
-            }
+            var circularDirectory = Path.Combine(TestContext.CurrentContext.TestDirectory, @"TestDlls\circular");
+            var classLibA = Path.Combine(circularDirectory, "ClassLibraryA.dll");
+            var scanner = new AssemblyScanner(circularDirectory);
+            Assert.IsFalse(scanner.ReferencesNServiceBus(classLibA, new Dictionary<string, bool>()));
         }
 
         [Test]
