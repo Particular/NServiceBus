@@ -383,6 +383,7 @@ namespace NServiceBus.Hosting.Helpers
                 return processed[name];
             }
 
+            processed[name] = false;
             foreach (var assemblyName in assembly.GetReferencedAssemblies())
             {
                 bool referencesCore;
