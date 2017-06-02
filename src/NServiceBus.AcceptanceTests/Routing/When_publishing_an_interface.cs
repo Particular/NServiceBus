@@ -11,7 +11,7 @@
     public class When_publishing_an_interface : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Should_receive_event_for_non_xml()
+        public async Task Should_receive_event()
         {
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<Publisher>(b =>
@@ -44,7 +44,6 @@
             {
                 EndpointSetup<DefaultPublisher>(c =>
                 {
-                    c.UseSerialization<JsonSerializer>();
                     c.Pipeline.Register("EventTypeSpy", new EventTypeSpy((Context)ScenarioContext), "EventTypeSpy");
                     c.OnEndpointSubscribed<Context>((s, context) =>
                     {
@@ -79,7 +78,6 @@
             {
                 EndpointSetup<DefaultServer>(c =>
                     {
-                        c.UseSerialization<JsonSerializer>();
                         c.DisableFeature<AutoSubscribe>();
                     },
                     metadata => metadata.RegisterPublisherFor<MyEvent>(typeof(Publisher)));
