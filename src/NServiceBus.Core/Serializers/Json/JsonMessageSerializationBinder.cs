@@ -3,10 +3,10 @@ namespace NServiceBus
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Runtime.Serialization;
     using MessageInterfaces;
+    using Newtonsoft.Json.Serialization;
 
-    class JsonMessageSerializationBinder : SerializationBinder
+    class JsonMessageSerializationBinder : ISerializationBinder
     {
         public JsonMessageSerializationBinder(IMessageMapper messageMapper, IList<Type> messageTypes = null)
         {
@@ -14,7 +14,7 @@ namespace NServiceBus
             this.messageTypes = messageTypes;
         }
 
-        public override void BindToName(Type serializedType, out string assemblyName, out string typeName)
+        public void BindToName(Type serializedType, out string assemblyName, out string typeName)
         {
             var mappedType = _messageMapper.GetMappedTypeFor(serializedType) ?? serializedType;
 
@@ -22,7 +22,7 @@ namespace NServiceBus
             typeName = mappedType.AssemblyQualifiedName;
         }
 
-        public override Type BindToType(string assemblyName, string typeName)
+        public Type BindToType(string assemblyName, string typeName)
         {
             Type resolved = null;
             if (messageTypes != null) // usually the requested message types are provided, so this should be fast

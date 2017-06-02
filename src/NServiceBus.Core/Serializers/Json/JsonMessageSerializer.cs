@@ -4,7 +4,6 @@ namespace NServiceBus
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
-    using System.Runtime.Serialization.Formatters;
     using System.Text;
     using MessageInterfaces;
     using Newtonsoft.Json;
@@ -55,7 +54,7 @@ namespace NServiceBus
             Guard.AgainstNull(nameof(stream), stream);
             Guard.AgainstNull(nameof(message), message);
             var jsonSerializer = Newtonsoft.Json.JsonSerializer.Create(serializerSettings);
-            jsonSerializer.Binder = new JsonMessageSerializationBinder(messageMapper);
+            jsonSerializer.SerializationBinder = new JsonMessageSerializationBinder(messageMapper);
 
             var jsonWriter = CreateJsonWriter(stream);
             jsonSerializer.Serialize(jsonWriter, message);
@@ -83,7 +82,7 @@ namespace NServiceBus
             {
                 settings = new JsonSerializerSettings
                 {
-                    TypeNameAssemblyFormat = FormatterAssemblyStyle.Simple,
+                    TypeNameAssemblyFormatHandling = TypeNameAssemblyFormatHandling.Simple,
                     TypeNameHandling = TypeNameHandling.None,
                     Converters =
                     {
@@ -94,7 +93,7 @@ namespace NServiceBus
 
             var jsonSerializer = Newtonsoft.Json.JsonSerializer.Create(settings);
             jsonSerializer.ContractResolver = messageContractResolver;
-            jsonSerializer.Binder = new JsonMessageSerializationBinder(messageMapper, messageTypes);
+            jsonSerializer.SerializationBinder = new JsonMessageSerializationBinder(messageMapper, messageTypes);
 
             var reader = CreateJsonReader(stream);
             reader.Read();
@@ -199,7 +198,7 @@ namespace NServiceBus
 
         JsonSerializerSettings serializerSettings = new JsonSerializerSettings
         {
-            TypeNameAssemblyFormat = FormatterAssemblyStyle.Simple,
+            TypeNameAssemblyFormatHandling = TypeNameAssemblyFormatHandling.Simple,
             TypeNameHandling = TypeNameHandling.Auto,
             Converters =
             {
