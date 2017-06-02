@@ -29,7 +29,7 @@
     <PackageReference Include="Autofac" Version="3.5.2" PrivateAssets="All" />
     <PackageReference Include="GitVersionTask" Version="3.6.5" PrivateAssets="All" />
     <PackageReference Include="Janitor.Fody" Version="1.4.1" PrivateAssets="All" />
-    <PackageReference Include="Newtonsoft.Json" Version="8.0.2" PrivateAssets="All" />
+    <PackageReference Include="Newtonsoft.Json" Version="10.0.2" PrivateAssets="All" />
     <PackageReference Include="NuGetPackager" Version="0.6.1" PrivateAssets="All" />
     <PackageReference Include="Obsolete.Fody" Version="4.2.2" PrivateAssets="All" />
     <PackageReference Include="Particular.CodeRules" Version="0.2.0" PrivateAssets="All" />
