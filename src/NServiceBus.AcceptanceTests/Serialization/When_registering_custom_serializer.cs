@@ -15,7 +15,7 @@
 
     public class When_registering_custom_serializer : NServiceBusAcceptanceTest
     {
-        [Test]
+        [Test,Ignore("")]
         public async Task Should_use_the_custom_serializer()
         {
             var context = await Scenario.Define<Context>()

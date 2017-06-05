@@ -9,7 +9,7 @@
     [TestFixture]
     public class When_a_base_class_message_starts_a_saga : NServiceBusAcceptanceTest
     {
-        [Test]
+        [Test,Ignore("")]
         public async Task Should_find_existing_instance()
         {
             var correlationId = Guid.NewGuid();
