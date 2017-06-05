@@ -67,6 +67,7 @@
     <Compile Include="When_customizing_scope_isolation_level.cs" />
     <Compile Include="When_distributing_an_event.cs" />
     <Compile Include="When_distributing_a_command.cs" />
+    <Compile Include="When_no_explicit_error_queue_configured_for_sendonly_endpoint.cs" />
     <Compile Include="When_no_explicit_error_queue_is_configured.cs" />
     <Compile Include="When_overriding_local_address.cs" />
     <Compile Include="When_not_using_instance_mapping_file.cs" />

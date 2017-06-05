@@ -32,7 +32,7 @@ namespace NServiceBus
             Guard.AgainstNull(nameof(settings), settings);
             string errorQueue;
 
-            if (!settings.TryGetExplicitlyConfiguredErrorQueueAddress(out errorQueue))
+            if (!settings.GetOrDefault<bool>("Endpoint.SendOnly") && !settings.TryGetExplicitlyConfiguredErrorQueueAddress(out errorQueue))
             {
                 throw new Exception("Faults forwarding requires an error queue to be specified using 'EndpointConfiguration.SendFailedMessagesTo()'");
             }
