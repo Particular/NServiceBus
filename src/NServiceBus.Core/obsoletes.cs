@@ -871,6 +871,24 @@ namespace NServiceBus.Config.ConfigurationSource
     }
 }
 
+namespace NServiceBus.DeliveryConstraints
+{
+    using System;
+    using Extensibility;
+
+    public static partial class DeliveryConstraintContextExtensions
+    {
+        [ObsoleteEx(
+            ReplacementTypeOrMember = "DeliveryConstraintContextExtensions.RemoveDeliveryConstraint",
+            RemoveInVersion = "8",
+            TreatAsErrorFromVersion = "7")]
+        public static void RemoveDeliveryConstaint(this ContextBag context, DeliveryConstraint constraint)
+        {
+            throw new NotImplementedException();
+        }
+    }
+}
+
 namespace NServiceBus.Features
 {
     using System;
@@ -934,6 +952,18 @@ namespace NServiceBus.Routing.Legacy
 namespace NServiceBus.Transport
 {
     using System;
+
+    public static partial class IncomingMessageExtensions
+    {
+        [ObsoleteEx(
+            ReplacementTypeOrMember = "IncomingMessageExtensions.GetMessageIntent",
+            RemoveInVersion = "8",
+            TreatAsErrorFromVersion = "7")]
+        public static MessageIntentEnum GetMesssageIntent(this IncomingMessage message)
+        {
+            throw new NotImplementedException();
+        }
+    }
 
     public partial class TransportInfrastructure
     {
