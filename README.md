@@ -27,7 +27,3 @@ Autofac binaries are linked into the NServiceBus distribution allowed under the 
 Json.NET is licensed under the MIT license as described [here](https://github.com/JamesNK/Newtonsoft.Json/blob/master/LICENSE.md).
 
 Json.NET binaries are linked into the NServiceBus distribution allowed under the license terms found [here](https://github.com/JamesNK/Newtonsoft.Json/blob/master/LICENSE.md).
-
-### RijndaelEncryptionService
-
-Taken from [rhino-esb](https://github.com/hibernating-rhinos/rhino-esb/blob/master/Rhino.ServiceBus/Impl/RijndaelEncryptionService.cs) under [this license](https://github.com/hibernating-rhinos/rhino-esb/blob/master/license.txt)  
