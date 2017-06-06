@@ -3,7 +3,7 @@
     using System;
     using Configuration.AdvancedExtensibility;
 
-    public static class FakeTransportSetingsExtensions
+    public static class FakeTransportSettingsExtensions
     {
         public static TransportExtensions<FakeTransport> RaiseCriticalErrorDuringStartup(this TransportExtensions<FakeTransport> transportExtensions, Exception exception)
         {

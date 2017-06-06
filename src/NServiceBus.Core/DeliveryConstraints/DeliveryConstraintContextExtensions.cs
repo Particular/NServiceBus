@@ -10,7 +10,7 @@ namespace NServiceBus.DeliveryConstraints
     /// <summary>
     /// Gives access to <see cref="DeliveryConstraint" />s that exist in the various <see cref="ContextBag" />s.
     /// </summary>
-    public static class DeliveryConstraintContextExtensions
+    public static partial class DeliveryConstraintContextExtensions
     {
         /// <summary>
         /// Adds a <see cref="DeliveryConstraint" /> to a <see cref="ContextBag" />.
@@ -37,7 +37,7 @@ namespace NServiceBus.DeliveryConstraints
         }
 
         /// <summary>
-        /// Tries to retrieves an instance of <typeparamref name="T" /> from a <see cref="ContextBag" />.
+        /// Tries to retrieve an instance of <typeparamref name="T" /> from a <see cref="ContextBag" />.
         /// </summary>
         public static bool TryGetDeliveryConstraint<T>(this ContextBag context, out T constraint) where T : DeliveryConstraint
         {
@@ -74,7 +74,7 @@ namespace NServiceBus.DeliveryConstraints
         }
 
         /// <summary>
-        /// Removes a <see cref="DeliveryConstraint" /> to a <see cref="ContextBag" />.
+        /// Removes a <see cref="DeliveryConstraint" /> from a <see cref="ContextBag" />.
         /// </summary>
         public static List<DeliveryConstraint> GetDeliveryConstraints(this ContextBag context)
         {
@@ -90,9 +90,9 @@ namespace NServiceBus.DeliveryConstraints
         }
 
         /// <summary>
-        /// Removes a <see cref="DeliveryConstraint" /> to a <see cref="ContextBag" />.
+        /// Removes a <see cref="DeliveryConstraint" /> from a <see cref="ContextBag" />.
         /// </summary>
-        public static void RemoveDeliveryConstaint(this ContextBag context, DeliveryConstraint constraint)
+        public static void RemoveDeliveryConstraint(this ContextBag context, DeliveryConstraint constraint)
         {
             Guard.AgainstNull(nameof(constraint), constraint);
             Guard.AgainstNull(nameof(context), context);

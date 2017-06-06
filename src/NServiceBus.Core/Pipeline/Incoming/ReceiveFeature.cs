@@ -33,7 +33,7 @@
 
             context.Container.ConfigureComponent(b =>
             {
-                var adapter = context.Container.HasComponent<ISynchronizedStorageAdapter>() ? b.Build<ISynchronizedStorageAdapter>() : new NoOpAdaper();
+                var adapter = context.Container.HasComponent<ISynchronizedStorageAdapter>() ? b.Build<ISynchronizedStorageAdapter>() : new NoOpAdapter();
                 var syncStorage = context.Container.HasComponent<ISynchronizedStorage>() ? b.Build<ISynchronizedStorage>() : new NoOpSynchronizedStorage();
 
                 return new LoadHandlersConnector(b.Build<MessageHandlerRegistry>(), syncStorage, adapter);
@@ -44,11 +44,11 @@
         {
             public Task<CompletableSynchronizedStorageSession> OpenSession(ContextBag contextBag)
             {
-                return NoOpAdaper.EmptyResult;
+                return NoOpAdapter.EmptyResult;
             }
         }
 
-        class NoOpAdaper : ISynchronizedStorageAdapter
+        class NoOpAdapter : ISynchronizedStorageAdapter
         {
             public Task<CompletableSynchronizedStorageSession> TryAdapt(OutboxTransaction transaction, ContextBag context)
             {

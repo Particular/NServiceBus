@@ -5,14 +5,14 @@ namespace NServiceBus.Transport
     /// <summary>
     /// Helper methods for <see cref="IncomingMessage" />.
     /// </summary>
-    public static class IncomingMessageExtensions
+    public static partial class IncomingMessageExtensions
     {
         /// <summary>
         /// Gets the message intent from the headers.
         /// </summary>
         /// <param name="message">The message.</param>
         /// <returns>The message intent.</returns>
-        public static MessageIntentEnum GetMesssageIntent(this IncomingMessage message)
+        public static MessageIntentEnum GetMessageIntent(this IncomingMessage message)
         {
             Guard.AgainstNull(nameof(message), message);
             var messageIntent = default(MessageIntentEnum);

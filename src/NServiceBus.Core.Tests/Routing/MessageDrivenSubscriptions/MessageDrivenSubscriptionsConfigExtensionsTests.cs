@@ -5,11 +5,11 @@
     using System.Linq;
     using System.Reflection;
     using EventNamespace;
-    using MessageNameSpace;
+    using MessageNamespace;
     using NServiceBus.Routing;
     using NServiceBus.Routing.MessageDrivenSubscriptions;
     using NUnit.Framework;
-    using OtherMesagenameSpace;
+    using OtherMessageNamespace;
     using Settings;
     using Transport;
 
@@ -108,7 +108,7 @@
         public void Should_only_register_types_in_specified_namespace()
         {
             var routingSettings = new RoutingSettings<MessageDrivenTransportDefinition>(new SettingsHolder());
-            routingSettings.RegisterPublisher(Assembly.GetExecutingAssembly(), "MessageNameSpace", "someAddress");
+            routingSettings.RegisterPublisher(Assembly.GetExecutingAssembly(), "MessageNamespace", "someAddress");
 
             var publishers = ApplyPublisherRegistrations(routingSettings);
 
@@ -178,7 +178,7 @@ class Event : NServiceBus.IEvent
 {
 }
 
-namespace MessageNameSpace
+namespace MessageNamespace
 {
     using NServiceBus;
 
@@ -191,9 +191,9 @@ namespace MessageNameSpace
     }
 }
 
-namespace OtherMesagenameSpace
+namespace OtherMessageNamespace
 {
-    using MessageNameSpace;
+    using MessageNamespace;
 
     class SubMessage : BaseMessage
     {

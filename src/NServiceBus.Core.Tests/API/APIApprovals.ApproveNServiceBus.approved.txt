@@ -1337,7 +1337,11 @@ namespace NServiceBus.DeliveryConstraints
     {
         public static void AddDeliveryConstraint(this NServiceBus.Extensibility.ContextBag context, NServiceBus.DeliveryConstraints.DeliveryConstraint constraint) { }
         public static System.Collections.Generic.List<NServiceBus.DeliveryConstraints.DeliveryConstraint> GetDeliveryConstraints(this NServiceBus.Extensibility.ContextBag context) { }
+        [System.ObsoleteAttribute("Use `DeliveryConstraintContextExtensions.RemoveDeliveryConstraint` instead. The m" +
+            "ember currently throws a NotImplementedException. Will be removed in version 8.0" +
+            ".0.", true)]
         public static void RemoveDeliveryConstaint(this NServiceBus.Extensibility.ContextBag context, NServiceBus.DeliveryConstraints.DeliveryConstraint constraint) { }
+        public static void RemoveDeliveryConstraint(this NServiceBus.Extensibility.ContextBag context, NServiceBus.DeliveryConstraints.DeliveryConstraint constraint) { }
         public static bool TryGetDeliveryConstraint<T>(this NServiceBus.Extensibility.ContextBag context, out T constraint)
             where T : NServiceBus.DeliveryConstraints.DeliveryConstraint { }
         public static bool TryRemoveDeliveryConstraint<T>(this NServiceBus.Extensibility.ContextBag context, out T constraint)
@@ -2445,6 +2449,9 @@ namespace NServiceBus.Transport
     }
     public class static IncomingMessageExtensions
     {
+        public static NServiceBus.MessageIntentEnum GetMessageIntent(this NServiceBus.Transport.IncomingMessage message) { }
+        [System.ObsoleteAttribute("Use `IncomingMessageExtensions.GetMessageIntent` instead. The member currently th" +
+            "rows a NotImplementedException. Will be removed in version 8.0.0.", true)]
         public static NServiceBus.MessageIntentEnum GetMesssageIntent(this NServiceBus.Transport.IncomingMessage message) { }
         public static string GetReplyToAddress(this NServiceBus.Transport.IncomingMessage message) { }
     }

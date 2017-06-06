@@ -20,7 +20,7 @@
                 .Done(c => c.Done)
                 .Run();
 
-            Assert.True(context.UoWCommited);
+            Assert.True(context.UoWCommitted);
             Assert.That(context.FirstHandlerInvocationCount, Is.EqualTo(2));
             Assert.That(context.SecondHandlerInvocationCount, Is.EqualTo(1));
         }
@@ -31,7 +31,7 @@
             public bool Done { get; set; }
             public int FirstHandlerInvocationCount { get; set; }
             public int SecondHandlerInvocationCount { get; set; }
-            public bool UoWCommited { get; set; }
+            public bool UoWCommitted { get; set; }
         }
 
         public class MyEndpoint : EndpointConfigurationBuilder
@@ -56,7 +56,7 @@
 
                 public Task End(Exception ex = null)
                 {
-                    Context.UoWCommited = ex == null;
+                    Context.UoWCommitted = ex == null;
                     return Task.FromResult(0);
                 }
             }

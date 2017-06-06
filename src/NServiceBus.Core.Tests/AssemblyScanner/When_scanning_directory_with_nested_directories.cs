@@ -16,8 +16,8 @@ namespace NServiceBus.Core.Tests.AssemblyScanner
             endpointConfiguration.AssemblyScanner().ExcludeTypes(typeof(When_using_initialization_with_non_default_ctor.FeatureWithInitialization));
             endpointConfiguration.Build();
 
-            var scanedTypes = endpointConfiguration.Settings.Get<IList<Type>>("TypesToScan");
-            var foundTypeFromNestedAssembly = scanedTypes.Any(x => x.Name == "NestedClass");
+            var scannedTypes = endpointConfiguration.Settings.Get<IList<Type>>("TypesToScan");
+            var foundTypeFromNestedAssembly = scannedTypes.Any(x => x.Name == "NestedClass");
             Assert.False(foundTypeFromNestedAssembly, "Was expected not to scan nested assemblies, but nested assembly was scanned.");
         }
 
@@ -34,8 +34,8 @@ namespace NServiceBus.Core.Tests.AssemblyScanner
 
             endpointConfiguration.Build();
 
-            var scanedTypes = endpointConfiguration.Settings.Get<IList<Type>>("TypesToScan");
-            var foundTypeFromNestedAssembly = scanedTypes.Any(x => x.Name == "NestedClass");
+            var scannedTypes = endpointConfiguration.Settings.Get<IList<Type>>("TypesToScan");
+            var foundTypeFromNestedAssembly = scannedTypes.Any(x => x.Name == "NestedClass");
             Assert.True(foundTypeFromNestedAssembly, "Was expected to scan nested assemblies, but nested assembly were not scanned.");
         }
     }

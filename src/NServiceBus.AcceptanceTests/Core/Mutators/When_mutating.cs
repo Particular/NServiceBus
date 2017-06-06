@@ -96,10 +96,10 @@
                     Assert.IsNotNull(context.OutgoingMessage);
                     IReadOnlyDictionary<string, string> incomingHeaders;
                     context.TryGetIncomingHeaders(out incomingHeaders);
-                    object incomingmessage;
-                    context.TryGetIncomingMessage(out incomingmessage);
+                    object incomingMessage;
+                    context.TryGetIncomingMessage(out incomingMessage);
                     Assert.IsNotEmpty(incomingHeaders);
-                    Assert.IsNotNull(incomingmessage);
+                    Assert.IsNotNull(incomingMessage);
                     return Task.FromResult(0);
                 }
 
@@ -109,10 +109,10 @@
                     Assert.IsNotNull(context.OutgoingBody);
                     IReadOnlyDictionary<string, string> incomingHeaders;
                     context.TryGetIncomingHeaders(out incomingHeaders);
-                    object incomingmessage;
-                    context.TryGetIncomingMessage(out incomingmessage);
+                    object incomingMessage;
+                    context.TryGetIncomingMessage(out incomingMessage);
                     Assert.IsNotEmpty(incomingHeaders);
-                    Assert.IsNotNull(incomingmessage);
+                    Assert.IsNotNull(incomingMessage);
                     return Task.FromResult(0);
                 }
             }

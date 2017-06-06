@@ -61,9 +61,9 @@
         public void Should_default_to_single_instance_when_not_configured()
         {
             var instances = new EndpointInstances();
-            var salesInstancess = instances.FindInstances("Sales");
+            var salesInstances = instances.FindInstances("Sales");
 
-            var singleInstance = salesInstancess.Single();
+            var singleInstance = salesInstances.Single();
             Assert.IsNull(singleInstance.Discriminator);
             Assert.IsEmpty(singleInstance.Properties);
         }
