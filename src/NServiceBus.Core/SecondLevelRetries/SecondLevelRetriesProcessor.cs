@@ -6,10 +6,12 @@ namespace NServiceBus.SecondLevelRetries
     using NServiceBus.Logging;
     using NServiceBus.Satellites;
     using NServiceBus.SecondLevelRetries.Helpers;
+    using NServiceBus.Timeout.Hosting.Windows;
     using NServiceBus.Transports;
     using NServiceBus.Unicast;
+    using NServiceBus.Unicast.Transport;
 
-    class SecondLevelRetriesProcessor : ISatellite
+    class SecondLevelRetriesProcessor : IAdvancedSatellite
     {
         public SecondLevelRetriesProcessor()
         {
@@ -22,6 +24,7 @@ namespace NServiceBus.SecondLevelRetries
         public FaultManager FaultManager { get; set; }
         public Address InputAddress { get; set; }
         public bool Disabled { get; set; }
+        public Configure Configure { get; set; }
 
         public void Start()
         {
@@ -29,6 +32,14 @@ namespace NServiceBus.SecondLevelRetries
 
         public void Stop()
         {
+        }
+
+        public Action<TransportReceiver> GetReceiverCustomization()
+        {
+            return receiver =>
+            {
+                receiver.FailureManager = new ManageMessageFailuresWithoutSlr(receiver.FailureManager, MessageSender, Configure, Configure.LocalAddress);
+            };
         }
 
         public bool Handle(TransportMessage message)

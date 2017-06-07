@@ -11,15 +11,17 @@ namespace NServiceBus.Timeout.Hosting.Windows
     {
         ISendMessages messageSender;
         readonly Configure config;
+        readonly Address failedQueue;
         static ILog Logger = LogManager.GetLogger<ManageMessageFailuresWithoutSlr>();
 
         Address localAddress;
         Address errorQueue;
 
-        public ManageMessageFailuresWithoutSlr(IManageMessageFailures mainFailureManager, ISendMessages messageSender, Configure config)
+        public ManageMessageFailuresWithoutSlr(IManageMessageFailures mainFailureManager, ISendMessages messageSender, Configure config, Address failedQueue = null)
         {
             this.messageSender = messageSender;
             this.config = config;
+            this.failedQueue = failedQueue;
             var mainTransportFailureManager = mainFailureManager as Faults.Forwarder.FaultManager;
             if (mainTransportFailureManager != null)
             {
@@ -45,7 +47,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
                 return;
             }
 
-            message.SetExceptionHeaders(e, localAddress ?? config.LocalAddress,reason);
+            message.SetExceptionHeaders(e, failedQueue ?? localAddress ?? config.LocalAddress,reason);
 
             try
             {

@@ -135,6 +135,7 @@
     <Compile Include="Timeouts\When_endpoint_uses_outdated_timeout_persistence_without_dtc.cs" />
     <Compile Include="Timeouts\When_endpoint_uses_outdated_timeout_persistence_with_disabled_dtc.cs" />
     <Compile Include="Timeouts\When_endpoint_uses_outdated_timeout_persistence_with_dtc.cs" />
+    <Compile Include="Timeouts\When_second_level_retry_satellite_fails.cs" />
     <Compile Include="Timeouts\When_timeout_storage_is_unavailable_temporarily.cs" />
     <Compile Include="Timeouts\When_endpoint_uses_updated_timeout_persistence.cs" />
     <Compile Include="Tx\Issue_2481.cs" />
