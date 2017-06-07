@@ -144,13 +144,6 @@ namespace NServiceBus.Hosting.Helpers
                 return false;
             }
 
-            if (!Environment.Is64BitProcess && compilationMode == Image.CompilationMode.CLRx64)
-            {
-                var skippedFile = new SkippedFile(assemblyPath, "x64 .NET assembly can't be loaded by a 32Bit process.");
-                results.SkippedFiles.Add(skippedFile);
-                return false;
-            }
-
             try
             {
                 if (!ReferencesNServiceBus(assemblyPath, processed, CoreAssemblyName))
