@@ -220,7 +220,7 @@ namespace NServiceBus.Transports.Msmq
                                 }
                                 catch (Exception exception)
                                 {
-                                    LogCorruptedMessage(message.Id, errorQueue.QueueName, exception);
+                                    LogCorruptedMessage(message.Id, exception);
                                     errorQueue.Send(message, transaction);
                                     transaction.Commit();
                                     return;
@@ -259,7 +259,7 @@ namespace NServiceBus.Transports.Msmq
                             }
                             catch (Exception exception)
                             {
-                                LogCorruptedMessage(message.Id, errorQueue.QueueName, exception);
+                                LogCorruptedMessage(message.Id, exception);
                                 errorQueue.Send(message, MessageQueueTransactionType.Automatic);
                                 scope.Complete();
                                 return;
@@ -287,7 +287,7 @@ namespace NServiceBus.Transports.Msmq
                     }
                     catch (Exception exception)
                     {
-                        LogCorruptedMessage(message.Id, errorQueue.QueueName, exception);
+                        LogCorruptedMessage(message.Id, exception);
                         errorQueue.Send(message, MessageQueueTransactionType.None);
                         return;
                     }
@@ -307,9 +307,9 @@ namespace NServiceBus.Transports.Msmq
             }
         }
 
-        static void LogCorruptedMessage(string messageId, string queueName, Exception ex)
+        static void LogCorruptedMessage(string messageId, Exception ex)
         {
-            var error = $"Message '{messageId}' is corrupt and will be moved to '{queueName}'";
+            var error = $"Message '{messageId}' is corrupt and will be moved to the configured error queue.";
             Logger.Error(error, ex);
         }
 
