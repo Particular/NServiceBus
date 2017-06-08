@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
+    using System.Threading;
     using Faults;
     using Logging;
 
@@ -45,6 +46,18 @@
             {
                 return $"{Level}: {Message}";
             }
+        }
+
+        static readonly AsyncLocal<ScenarioContext> asyncContext = new AsyncLocal<ScenarioContext>();
+
+        internal static ScenarioContext GetContext()
+        {
+            return asyncContext.Value;
+        }
+
+        internal static void SetContext(ScenarioContext scenarioContext)
+        {
+            asyncContext.Value = scenarioContext;
         }
     }
 }
