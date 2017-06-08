@@ -9,6 +9,12 @@
 
     public class ScenarioContext
     {
+        internal static ScenarioContext Current
+        {
+            get => asyncContext.Value;
+            set => asyncContext.Value = value;
+        }
+
         public Guid TestRunId { get; } = Guid.NewGuid();
 
         public bool EndpointsStarted { get; set; }
@@ -37,6 +43,8 @@
             LogLevel = level;
         }
 
+        static readonly AsyncLocal<ScenarioContext> asyncContext = new AsyncLocal<ScenarioContext>();
+
         public class LogItem
         {
             public string Message { get; set; }
@@ -46,18 +54,6 @@
             {
                 return $"{Level}: {Message}";
             }
-        }
-
-        static readonly AsyncLocal<ScenarioContext> asyncContext = new AsyncLocal<ScenarioContext>();
-
-        internal static ScenarioContext GetContext()
-        {
-            return asyncContext.Value;
-        }
-
-        internal static void SetContext(ScenarioContext scenarioContext)
-        {
-            asyncContext.Value = scenarioContext;
         }
     }
 }

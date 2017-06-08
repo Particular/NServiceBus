@@ -4,14 +4,13 @@
     using System.Diagnostics;
     using Logging;
 
-    // This class is written under the assumption that acceptance tests are executed sequentially.
     class ContextAppender : ILog
     {
-        public bool IsDebugEnabled => ScenarioContext.GetContext().LogLevel <= LogLevel.Debug;
-        public bool IsInfoEnabled => ScenarioContext.GetContext().LogLevel <= LogLevel.Info;
-        public bool IsWarnEnabled => ScenarioContext.GetContext().LogLevel <= LogLevel.Warn;
-        public bool IsErrorEnabled => ScenarioContext.GetContext().LogLevel <= LogLevel.Error;
-        public bool IsFatalEnabled => ScenarioContext.GetContext().LogLevel <= LogLevel.Fatal;
+        public bool IsDebugEnabled => ScenarioContext.Current.LogLevel <= LogLevel.Debug;
+        public bool IsInfoEnabled => ScenarioContext.Current.LogLevel <= LogLevel.Info;
+        public bool IsWarnEnabled => ScenarioContext.Current.LogLevel <= LogLevel.Warn;
+        public bool IsErrorEnabled => ScenarioContext.Current.LogLevel <= LogLevel.Error;
+        public bool IsFatalEnabled => ScenarioContext.Current.LogLevel <= LogLevel.Fatal;
 
 
         public void Debug(string message)
@@ -102,7 +101,7 @@
 
         static void Log(string message, LogLevel messageSeverity)
         {
-            var context = ScenarioContext.GetContext();
+            var context = ScenarioContext.Current;
 
             if (context.LogLevel > messageSeverity)
             {

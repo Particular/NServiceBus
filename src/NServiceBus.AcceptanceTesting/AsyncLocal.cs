@@ -3,10 +3,7 @@ namespace System.Threading
 {
     using Runtime.Remoting.Messaging;
 
-    /// <summary>
-    /// Provides a polyfill of AsyncLocal in .NET 4.5.2
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
+    // Provides a polyfill of AsyncLocal in .NET 4.5.2
     sealed class AsyncLocal<T>
     {
         readonly string id;
