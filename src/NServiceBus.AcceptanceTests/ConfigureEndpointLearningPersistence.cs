@@ -25,7 +25,7 @@ public class ConfigureEndpointLearningPersistence : IConfigureEndpointTestExecut
     {
         if (Directory.Exists(storageDir))
         {
-            Directory.Delete(storageDir, true);
+            //Directory.Delete(storageDir, true);
         }
         return Task.FromResult(0);
     }

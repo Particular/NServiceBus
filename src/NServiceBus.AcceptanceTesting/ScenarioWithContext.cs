@@ -3,6 +3,7 @@ namespace NServiceBus.AcceptanceTesting
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
+    using System.Runtime.Remoting.Messaging;
     using System.Threading.Tasks;
     using Logging;
     using Support;
@@ -32,6 +33,8 @@ namespace NServiceBus.AcceptanceTesting
 
             var runDescriptor = new RunDescriptor(scenarioContext);
             runDescriptor.Settings.Merge(settings);
+
+            CallContext.LogicalSetData("ScenarioContext", scenarioContext);
 
             LogManager.UseFactory(new ContextAppenderFactory());
 

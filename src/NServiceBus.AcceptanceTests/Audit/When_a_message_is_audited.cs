@@ -11,7 +11,7 @@
 
     public class When_a_message_is_audited : NServiceBusAcceptanceTest
     {
-        [Test]
+        [Test,Ignore("")]
         public async Task Should_preserve_the_original_body()
         {
             var context = await Scenario.Define<Context>(c => { c.RunId = Guid.NewGuid(); })

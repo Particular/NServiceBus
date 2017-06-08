@@ -2,22 +2,17 @@
 {
     using System;
     using System.Diagnostics;
+    using System.Runtime.Remoting.Messaging;
     using Logging;
 
     // This class is written under the assumption that acceptance tests are executed sequentially.
     class ContextAppender : ILog
     {
-        public ContextAppender(LogLevel level, Func<ScenarioContext> context)
-        {
-            this.level = level;
-            this.context = context;
-        }
-
-        public bool IsDebugEnabled => level <= LogLevel.Debug;
-        public bool IsInfoEnabled => level <= LogLevel.Info;
-        public bool IsWarnEnabled => level <= LogLevel.Warn;
-        public bool IsErrorEnabled => level <= LogLevel.Error;
-        public bool IsFatalEnabled => level <= LogLevel.Fatal;
+        public bool IsDebugEnabled => ((ScenarioContext)CallContext.LogicalGetData("ScenarioContext")).LogLevel <= LogLevel.Debug;
+        public bool IsInfoEnabled => ((ScenarioContext)CallContext.LogicalGetData("ScenarioContext")).LogLevel <= LogLevel.Info;
+        public bool IsWarnEnabled => ((ScenarioContext)CallContext.LogicalGetData("ScenarioContext")).LogLevel <= LogLevel.Warn;
+        public bool IsErrorEnabled => ((ScenarioContext)CallContext.LogicalGetData("ScenarioContext")).LogLevel <= LogLevel.Error;
+        public bool IsFatalEnabled => ((ScenarioContext)CallContext.LogicalGetData("ScenarioContext")).LogLevel <= LogLevel.Fatal;
 
 
         public void Debug(string message)
@@ -106,20 +101,21 @@
             Log(fullMessage, LogLevel.Fatal);
         }
 
-        void Log(string message, LogLevel messageSeverity)
+        static void Log(string message, LogLevel messageSeverity)
         {
-            if (level <= messageSeverity)
-            {
-                Trace.WriteLine(message);
-                context().Logs.Enqueue(new ScenarioContext.LogItem
-                {
-                    Level = messageSeverity,
-                    Message = message
-                });
-            }
-        }
+            var context = (ScenarioContext) CallContext.LogicalGetData("ScenarioContext");
 
-        LogLevel level;
-        Func<ScenarioContext> context;
+            if (context.LogLevel > messageSeverity)
+            {
+                return;
+            }
+
+            Trace.WriteLine(message);
+            context.Logs.Enqueue(new ScenarioContext.LogItem
+            {
+                Level = messageSeverity,
+                Message = message
+            });
+        }
     }
 }
