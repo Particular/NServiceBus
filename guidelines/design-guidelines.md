@@ -1,6 +1,6 @@
 ## Production ready by default 
 
-TBD
+All design decisions we make around behavior and configuration defaults should be aligned with what would be safe for production use. If no safe default is available users should be asked to decide how NServiceBus should behave.
 
 ## Configuration API's
 
