@@ -5,6 +5,7 @@ namespace NServiceBus
     using System.Threading.Tasks;
     using DelayedDelivery;
     using DeliveryConstraints;
+    using Logging;
     using Outbox;
     using Performance.TimeToBeReceived;
     using Pipeline;
@@ -22,31 +23,42 @@ namespace NServiceBus
         public async Task Invoke(ITransportReceiveContext context, Func<IIncomingPhysicalMessageContext, Task> next)
         {
             var messageId = context.Message.MessageId;
+
+            log.Info($"Receiving Message {messageId}, outboxStorage is {outboxStorage.GetType().FullName}");
+
             var physicalMessageContext = this.CreateIncomingPhysicalMessageContext(context.Message, context);
 
             var deduplicationEntry = await outboxStorage.Get(messageId, context.Extensions).ConfigureAwait(false);
+
             var pendingTransportOperations = new PendingTransportOperations();
 
             if (deduplicationEntry == null)
             {
                 physicalMessageContext.Extensions.Set(pendingTransportOperations);
 
+                log.Info($"Msg {messageId} - no dedupe record found, starting Outbox transaction");
                 using (var outboxTransaction = await outboxStorage.BeginTransaction(context.Extensions).ConfigureAwait(false))
                 {
                     context.Extensions.Set(outboxTransaction);
+                    log.Info($"Msg {messageId} - Yielding physicalMessageContext to pipeline");
                     await next(physicalMessageContext).ConfigureAwait(false);
+                    log.Info($"Msg {messageId} - physicalMessageContext pipeline complete");
 
                     var outboxMessage = new OutboxMessage(messageId, ConvertToOutboxOperations(pendingTransportOperations.Operations));
+                    log.Info($"Msg {messageId} - Storing Outbox record w/ {outboxMessage.TransportOperations.Length} transport ops");
                     await outboxStorage.Store(outboxMessage, outboxTransaction, context.Extensions).ConfigureAwait(false);
 
                     context.Extensions.Remove<OutboxTransaction>();
+                    log.Info($"Msg {messageId} - Committing Outbox transaction");
                     await outboxTransaction.Commit().ConfigureAwait(false);
                 }
+                log.Info($"Msg {messageId} - Outbox transaction disposed");
 
                 physicalMessageContext.Extensions.Remove<PendingTransportOperations>();
             }
             else
             {
+                log.Info($"Msg {messageId}, dedupe record found - {deduplicationEntry.TransportOperations.Length} transport operations");
                 ConvertToPendingOperations(deduplicationEntry, pendingTransportOperations);
             }
 
@@ -54,10 +66,18 @@ namespace NServiceBus
             {
                 var batchDispatchContext = this.CreateBatchDispatchContext(pendingTransportOperations.Operations, physicalMessageContext);
 
+                log.Info($"Msg {messageId} - Forking pipeline for batch dispatch context");
                 await this.Fork(batchDispatchContext).ConfigureAwait(false);
+                log.Info($"Msg {messageId} - Batch Dispatch context complete");
+            }
+            else
+            {
+                log.Info($"Msg {messageId} - no transport operations to dispatch");
             }
 
+            log.Info($"Msg {messageId} - Outbox setting message as dispatched");
             await outboxStorage.SetAsDispatched(messageId, context.Extensions).ConfigureAwait(false);
+            log.Info($"Msg {messageId} - Outbox successfully set msg as dispatched");
         }
 
         static void ConvertToPendingOperations(OutboxMessage deduplicationEntry, PendingTransportOperations pendingTransportOperations)
@@ -197,5 +217,6 @@ namespace NServiceBus
         }
 
         IOutboxStorage outboxStorage;
+        static readonly ILog log = LogManager.GetLogger<TransportReceiveToPhysicalMessageProcessingConnector>();
     }
 }

@@ -9,6 +9,7 @@ namespace NServiceBus
     using System.Transactions;
     using DeliveryConstraints;
     using Extensibility;
+    using Logging;
     using Performance.TimeToBeReceived;
     using Transport;
     using Unicast.Queuing;
@@ -58,6 +59,7 @@ namespace NServiceBus
 
             try
             {
+                log.Info($"Using MessageQueue {destinationAddress.FullPath}, enableCache={settings.UseConnectionCache}, QueueAccessMode.Send to send {message.MessageId}");
                 using (var q = new MessageQueue(destinationAddress.FullPath, false, settings.UseConnectionCache, QueueAccessMode.Send))
                 {
                     using (var toSend = MsmqUtilities.Convert(message, transportOperation.DeliveryConstraints))
@@ -79,23 +81,31 @@ namespace NServiceBus
 
                         if (transportOperation.RequiredDispatchConsistency == DispatchConsistency.Isolated)
                         {
+                            log.Info($"Isolated Dispatch of message {message.MessageId} to {q.QueueName}@{q.MachineName}, TxLevel={GetIsolatedTransactionType()}");
                             q.Send(toSend, label, GetIsolatedTransactionType());
+                            log.Info($"Isolated Dispatch of {message.MessageId} complete");
                             return;
                         }
 
                         MessageQueueTransaction activeTransaction;
                         if (TryGetNativeTransaction(transaction, out activeTransaction))
                         {
+                            log.Info($"NativeTx Dispatch of message {message.MessageId} to {q.QueueName}@{q.MachineName}, activeTxStatus={activeTransaction?.Status.ToString() ?? "ActiveTxNull!"}");
                             q.Send(toSend, label, activeTransaction);
+                            log.Info($"NativeTx Dispatch of {message.MessageId} complete");
                             return;
                         }
 
+                        log.Info($"RegularSend Dispatch of message {message.MessageId} to {q.QueueName}@{q.MachineName}, activeTxStatus={activeTransaction?.Status.ToString() ?? "ActiveTxNull!"}");
                         q.Send(toSend, label, GetTransactionTypeForSend());
+                        log.Info($"RegularSend Dispatch of {message.MessageId} complete");
                     }
                 }
+                log.Info($"MessageQueue {destinationAddress.FullPath} disposed for sending {message.MessageId}");
             }
             catch (MessageQueueException ex)
             {
+                log.Info($"Dispatch Caught MessageQueueException ErrorCode={ex.MessageQueueErrorCode} while sending {message.MessageId}");
                 if (ex.MessageQueueErrorCode == MessageQueueErrorCode.QueueNotFound)
                 {
                     var msg = destination == null
@@ -109,6 +119,7 @@ namespace NServiceBus
             }
             catch (Exception ex)
             {
+                log.Info($"Dispatch Catch-all Exception {ex.GetType().FullName}: `{ex.Message}` while sending {message.MessageId}");
                 ThrowFailedToSendException(destination, ex);
             }
         }
@@ -192,5 +203,6 @@ namespace NServiceBus
         Func<IReadOnlyDictionary<string, string>, string> messageLabelGenerator;
 
         MsmqSettings settings;
+        static readonly ILog log = LogManager.GetLogger<MsmqMessageDispatcher>();
     }
 }

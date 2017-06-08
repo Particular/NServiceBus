@@ -17,8 +17,13 @@
 
         public Task Start(IBuilder builder, IMessageSession messageSession)
         {
+            Log.Info($"Building FeatureStartupTask instance for '{Name}");
             instance = factory(builder);
-            return instance.PerformStartup(messageSession);
+            var typename = instance.GetType().FullName;
+            Log.Info($"Starting FeatureStartupTask '{Name}': {typename}");
+            var task = instance.PerformStartup(messageSession);
+            Log.Info($"Completed FeatureStartupTask '{Name}': {typename}");
+            return task;
         }
 
         public async Task Stop(IMessageSession messageSession)

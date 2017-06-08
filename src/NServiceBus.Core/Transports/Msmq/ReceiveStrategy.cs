@@ -27,12 +27,15 @@ namespace NServiceBus
         {
             try
             {
+                Logger.Info($"InputQueue.Receive() w/ transactionType={transactionType}");
                 message = inputQueue.Receive(TimeSpan.FromMilliseconds(10), transactionType);
+                Logger.Info($"InputQueue.Receive() complete, GotMessage={message?.Id ?? "NULL"}");
 
                 return true;
             }
             catch (MessageQueueException ex)
             {
+                Logger.Info($"TryReceive by transactionType got MessageQueueException, Code = {ex.MessageQueueErrorCode}");
                 if (ex.MessageQueueErrorCode == MessageQueueErrorCode.IOTimeout)
                 {
                     //We should only get an IOTimeout exception here if another process removed the message between us peeking and now.
@@ -47,12 +50,15 @@ namespace NServiceBus
         {
             try
             {
+                Logger.Info($"InputQueue.Receive() w/ transaction, txStatus={transaction.Status}");
                 message = inputQueue.Receive(TimeSpan.FromMilliseconds(10), transaction);
+                Logger.Info($"InputQueue.Receive() complete, GotMessage={message?.Id ?? "NULL"}");
 
                 return true;
             }
             catch (MessageQueueException ex)
             {
+                Logger.Info($"TryReceive by transaction got MessageQueueException, Code = {ex.MessageQueueErrorCode}");
                 if (ex.MessageQueueErrorCode == MessageQueueErrorCode.IOTimeout)
                 {
                     //We should only get an IOTimeout exception here if another process removed the message between us peeking and now.
@@ -106,7 +112,9 @@ namespace NServiceBus
                 var body = await ReadStream(bodyStream).ConfigureAwait(false);
                 var messageContext = new MessageContext(messageId, headers, body, transaction, tokenSource, new ContextBag());
 
+                Logger.Info($"TryProcessMessage - calling onMessage(msgId {messageContext.MessageId})");
                 await onMessage(messageContext).ConfigureAwait(false);
+                Logger.Info($"TryProcessMessage - onMessage(msgId {messageContext.MessageId}) complete");
 
                 return tokenSource.Token.IsCancellationRequested;
             }
