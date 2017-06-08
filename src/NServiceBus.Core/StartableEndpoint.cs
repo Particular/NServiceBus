@@ -39,21 +39,27 @@ namespace NServiceBus
             var receivers = CreateReceivers(mainPipeline);
             await InitializeReceivers(receivers).ConfigureAwait(false);
 
+            Logger.Info("1-Begin StartFeatures");
             var featureRunner = await StartFeatures(messageSession).ConfigureAwait(false);
+            Logger.Info("2-End StartFeatures, Create RunningEndpointInstance");
 
             var runningInstance = new RunningEndpointInstance(settings, builder, receivers, featureRunner, messageSession, transportInfrastructure);
+            Logger.Info("3-Setting CriticalError Action");
             // set the started endpoint on CriticalError to pass the endpoint to the critical error action
             criticalError.SetEndpoint(runningInstance);
-
+            Logger.Info("4-StartReceivers");
             StartReceivers(receivers);
-
+            Logger.Info("5-Return runningInstance");
             return runningInstance;
         }
 
         async Task<FeatureRunner> StartFeatures(IMessageSession session)
         {
+            Logger.Info("Creating new FeatureRunner");
             var featureRunner = new FeatureRunner(featureActivator);
+            Logger.Info("Awaiting featureRunner.Start()");
             await featureRunner.Start(builder, session).ConfigureAwait(false);
+            Logger.Info("Returning featureRunner");
             return featureRunner;
         }
 
@@ -63,7 +69,9 @@ namespace NServiceBus
             {
                 try
                 {
+                    Logger.Info($"Initializing Receiver: {receiver.Id}");
                     await receiver.Init().ConfigureAwait(false);
+                    Logger.Info($"Receiver: {receiver.Id} initialized successfully");
                 }
                 catch (Exception ex)
                 {
@@ -79,7 +87,9 @@ namespace NServiceBus
             {
                 try
                 {
+                    Logger.Info($"Starting Receiver: {receiver.Id}");
                     receiver.Start();
+                    Logger.Info($"Receiver: {receiver.Id} started successfully");
                 }
                 catch (Exception ex)
                 {

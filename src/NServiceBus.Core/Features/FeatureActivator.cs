@@ -4,12 +4,15 @@ namespace NServiceBus.Features
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
+    using Logging;
     using ObjectBuilder;
     using Pipeline;
     using Settings;
 
     class FeatureActivator
     {
+        static readonly ILog Log = LogManager.GetLogger<FeatureActivator>();
+
         public FeatureActivator(SettingsHolder settings)
         {
             this.settings = settings;
@@ -66,6 +69,7 @@ namespace NServiceBus.Features
 
         public async Task StartFeatures(IBuilder builder, IMessageSession session)
         {
+            Log.Info("Starting FeatureStartupTasks");
             foreach (var feature in features.Where(f => f.Feature.IsActive))
             {
                 foreach (var taskController in feature.TaskControllers)
@@ -73,6 +77,7 @@ namespace NServiceBus.Features
                     await taskController.Start(builder, session).ConfigureAwait(false);
                 }
             }
+            Log.Info("Completed all FeatureStartupTasks");
         }
 
         public Task StopFeatures(IMessageSession session)
