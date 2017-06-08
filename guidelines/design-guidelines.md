@@ -2,7 +2,7 @@
 
 All design decisions we make around behavior and configuration defaults should be aligned with what would be safe for production use. If no safe default is available users should be asked to decide how NServiceBus should behave.
 
-Note: The exclusion to this rule is the `LearningX` components that are bundled into the core for easy of use. They are instead optimized for the best possible learning experience for the users.
+Note: The exclusion to this rule is the `LearningX` components that are bundled into the core for ease of use. They are instead optimized for the best possible learning experience for the users. (historically called the "F5 Experience")
 
 ## Configuration API's
 
