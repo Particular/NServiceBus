@@ -8,15 +8,16 @@ namespace System.Threading
     {
         readonly string id;
 
-        /// <summary>Gets or sets the value of the ambient data. </summary>
-        /// <returns>The value of the ambient data. </returns>
+        // Gets or sets the value of the ambient data. 
         public T Value
         {
             get
             {
                 var localValue = CallContext.LogicalGetData(id);
                 if (localValue != null)
+                {
                     return (T)localValue;
+                }
                 return default(T);
             }
             set
