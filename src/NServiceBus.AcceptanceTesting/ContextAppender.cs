@@ -4,20 +4,13 @@
     using System.Diagnostics;
     using Logging;
 
-    // This class is written under the assumption that acceptance tests are executed sequentially.
     class ContextAppender : ILog
     {
-        public ContextAppender(LogLevel level, Func<ScenarioContext> context)
-        {
-            this.level = level;
-            this.context = context;
-        }
-
-        public bool IsDebugEnabled => level <= LogLevel.Debug;
-        public bool IsInfoEnabled => level <= LogLevel.Info;
-        public bool IsWarnEnabled => level <= LogLevel.Warn;
-        public bool IsErrorEnabled => level <= LogLevel.Error;
-        public bool IsFatalEnabled => level <= LogLevel.Fatal;
+        public bool IsDebugEnabled => ScenarioContext.Current.LogLevel <= LogLevel.Debug;
+        public bool IsInfoEnabled => ScenarioContext.Current.LogLevel <= LogLevel.Info;
+        public bool IsWarnEnabled => ScenarioContext.Current.LogLevel <= LogLevel.Warn;
+        public bool IsErrorEnabled => ScenarioContext.Current.LogLevel <= LogLevel.Error;
+        public bool IsFatalEnabled => ScenarioContext.Current.LogLevel <= LogLevel.Fatal;
 
 
         public void Debug(string message)
@@ -106,20 +99,21 @@
             Log(fullMessage, LogLevel.Fatal);
         }
 
-        void Log(string message, LogLevel messageSeverity)
+        static void Log(string message, LogLevel messageSeverity)
         {
-            if (level <= messageSeverity)
-            {
-                Trace.WriteLine(message);
-                context().Logs.Enqueue(new ScenarioContext.LogItem
-                {
-                    Level = messageSeverity,
-                    Message = message
-                });
-            }
-        }
+            var context = ScenarioContext.Current;
 
-        LogLevel level;
-        Func<ScenarioContext> context;
+            if (context.LogLevel > messageSeverity)
+            {
+                return;
+            }
+
+            Trace.WriteLine(message);
+            context.Logs.Enqueue(new ScenarioContext.LogItem
+            {
+                Level = messageSeverity,
+                Message = message
+            });
+        }
     }
 }

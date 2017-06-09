@@ -16,9 +16,7 @@
         {
             Console.WriteLine("Started test @ {0}", DateTime.Now.ToString(CultureInfo.InvariantCulture));
 
-            ContextAppenderFactory.SetContext(runDescriptor.ScenarioContext);
             var runResult = await PerformTestRun(behaviorDescriptors, runDescriptor, done).ConfigureAwait(false);
-            ContextAppenderFactory.SetContext(null);
 
             Console.WriteLine("Finished test @ {0}", DateTime.Now.ToString(CultureInfo.InvariantCulture));
 

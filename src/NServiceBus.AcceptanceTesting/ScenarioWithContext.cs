@@ -33,6 +33,8 @@ namespace NServiceBus.AcceptanceTesting
             var runDescriptor = new RunDescriptor(scenarioContext);
             runDescriptor.Settings.Merge(settings);
 
+            ScenarioContext.Current = scenarioContext;
+
             LogManager.UseFactory(new ContextAppenderFactory());
 
             var sw = new Stopwatch();
