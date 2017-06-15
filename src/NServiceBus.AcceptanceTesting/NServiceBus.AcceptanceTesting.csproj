@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net452</TargetFramework>
+    <TargetFrameworks>net452;netcoreapp2.0</TargetFrameworks>
     <Copyright>Copyright NServiceBus Ltd. All rights reserved</Copyright>
     <Company>NServiceBus Ltd.</Company>
     <SignAssembly>true</SignAssembly>
