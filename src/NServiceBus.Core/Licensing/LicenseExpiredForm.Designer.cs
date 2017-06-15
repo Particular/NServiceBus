@@ -1,4 +1,5 @@
-﻿namespace NServiceBus.Licensing
+﻿#if NET452
+namespace NServiceBus.Licensing
 {
     partial class LicenseExpiredForm
     {
@@ -169,3 +170,4 @@
         private System.Windows.Forms.Button getTrialLicenseButton;
     }
 }
+#endif

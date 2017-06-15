@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.Features
 {
     using System;
-    using System.ServiceProcess;
     using System.Threading.Tasks;
     using ConsistencyGuarantees;
     using Logging;
@@ -42,15 +41,16 @@
     {
         protected override Task OnStart(IMessageSession session)
         {
+#if NET452
             try
             {
-                var sc = new ServiceController
+                var sc = new System.ServiceProcess.ServiceController
                 {
                     ServiceName = "MSDTC",
                     MachineName = "."
                 };
 
-                if (sc.Status == ServiceControllerStatus.Running)
+                if (sc.Status == System.ServiceProcess.ServiceControllerStatus.Running)
                 {
                     log.Warn(@"The MSDTC service is running on this machine.
 Because Outbox is enabled disabling MSDTC is recommended. This ensures that the Outbox behavior is working as expected and no other resources are enlisting in distributed transactions.");
@@ -61,6 +61,7 @@ Because Outbox is enabled disabling MSDTC is recommended. This ensures that the 
             {
                 // Ignore if we can't check it.
             }
+#endif
 
             return TaskEx.CompletedTask;
         }

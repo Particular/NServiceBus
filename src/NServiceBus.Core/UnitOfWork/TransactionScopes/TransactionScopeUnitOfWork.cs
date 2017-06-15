@@ -3,7 +3,6 @@
     using System;
     using System.Configuration;
     using System.Transactions;
-    using System.Transactions.Configuration;
     using ConsistencyGuarantees;
 
     class TransactionScopeUnitOfWork : Feature
@@ -56,16 +55,17 @@
             {
                 //default is always 10 minutes
                 var maxTimeout = TimeSpan.FromMinutes(10);
-
+#if NET452
                 var systemTransactionsGroup = ConfigurationManager.OpenMachineConfiguration()
                     .GetSectionGroup("system.transactions");
 
-                var machineSettings = systemTransactionsGroup?.Sections.Get("machineSettings") as MachineSettingsSection;
+                var machineSettings = systemTransactionsGroup?.Sections.Get("machineSettings") as System.Transactions.Configuration.MachineSettingsSection;
 
                 if (machineSettings != null)
                 {
                     maxTimeout = machineSettings.MaxTimeout;
                 }
+#endif
 
                 return maxTimeout;
             }

@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net452</TargetFramework>
+    <TargetFrameworks>net452;netcoreapp2.0</TargetFrameworks>
     <RootNamespace>NServiceBus</RootNamespace>
     <Copyright>Copyright NServiceBus Ltd. All rights reserved</Copyright>
     <Company>NServiceBus Ltd.</Company>
@@ -15,7 +15,7 @@
     <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
   </PropertyGroup>
 
-  <ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'net452'">
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Security" />
@@ -36,7 +36,7 @@
     <PackageReference Include="Particular.Licensing.Sources" Version="1.0.0-alpha0001" PrivateAssets="All" />
   </ItemGroup>
 
-  <ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'net452'">
     <Compile Update="Licensing\LicenseExpiredForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -45,6 +45,10 @@
     </Compile>
   </ItemGroup>
 
+  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp2.0'">
+    <EmbeddedResource Remove="**\*.resx" />
+  </ItemGroup>
+  
   <!--This is needed to have a windows PDB for MergeDependencies ILMerge target below to work properly-->
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <DebugType>pdbonly</DebugType>

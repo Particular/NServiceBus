@@ -1,4 +1,5 @@
-﻿//This namespace is required so the form can find its resource file at run time.
+﻿#if NET452
+//This namespace is required so the form can find its resource file at run time.
 namespace NServiceBus.Licensing
 {
     using System;
@@ -141,3 +142,4 @@ When you receive your new license file, save it to disk and click the 'Browse' b
         static ILog Logger = LogManager.GetLogger<LicenseExpiredForm>();
     }
 }
+#endif
