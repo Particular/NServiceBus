@@ -60,7 +60,7 @@
             {
                 Name = "myAssembly"
             };
-            var assemblyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.ReflectionOnly);
+            var assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.Run);
             var newModule = assemblyBuilder.DefineDynamicModule("myModule");
             var myType = newModule.DefineType("myType", TypeAttributes.Public);
             return myType.CreateType();

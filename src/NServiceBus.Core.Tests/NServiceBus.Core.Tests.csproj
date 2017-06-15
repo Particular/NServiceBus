@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net452</TargetFramework>
+    <TargetFrameworks>net452;netcoreapp2.0</TargetFrameworks>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\Test.snk</AssemblyOriginatorKeyFile>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
@@ -13,22 +13,30 @@
     <ProjectReference Include="..\NServiceBus.Testing.Fakes\NServiceBus.Testing.Fakes.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'net452'">
     <Reference Include="System.Configuration" />
     <Reference Include="System.Transactions" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="ApprovalTests" Version="3.0.13" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.0.0" />
-    <PackageReference Include="Mono.Cecil" Version="0.10.0-beta5" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.3.0-preview-20170601-03" />
+    <PackageReference Include="Mono.Cecil" Version="0.10.0-beta6" />
     <PackageReference Include="NuDoq" Version="1.2.5" />
-    <PackageReference Include="NUnit" Version="3.6.1" />
+    <PackageReference Include="NUnit" Version="3.7.1" />
+    <PackageReference Include="NUnit3TestAdapter" Version="3.8.0-alpha1" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net452'">
     <PackageReference Include="NUnit.ApplicationDomain" Version="10.2.0" />
-    <PackageReference Include="NUnit3TestAdapter" Version="3.7.0" />
     <PackageReference Include="PublicApiGenerator" Version="6.1.0-beta2" />
   </ItemGroup>
 
+  <!-- added for now to prevent version conflict warning -->
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="10.0.2" PrivateAssets="All" />
+  </ItemGroup>
+  
   <ItemGroup>
     <Service Include="{82a7f48d-3b50-4b1e-b82e-3ada8210c358}" />
   </ItemGroup>
