@@ -36,6 +36,12 @@
     <PackageReference Include="Particular.Licensing.Sources" Version="1.0.0-alpha0001" PrivateAssets="All" />
   </ItemGroup>
 
+  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp2.0'">
+    <PackageReference Include="Microsoft.Win32.Registry" Version="4.4.0-preview1-25305-02" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.4.0-preview1-25305-02" />
+    <PackageReference Include="System.Security.Cryptography.Xml" Version="4.4.0-preview1-25305-02" />
+  </ItemGroup>
+  
   <ItemGroup Condition="'$(TargetFramework)' == 'net452'">
     <Compile Update="Licensing\LicenseExpiredForm.cs">
       <SubType>Form</SubType>
