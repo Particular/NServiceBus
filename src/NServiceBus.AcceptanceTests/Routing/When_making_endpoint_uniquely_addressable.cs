@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.AcceptanceTests.ScaleOut
+﻿namespace NServiceBus.AcceptanceTests.Routing
 {
     using System.Collections.Generic;
     using System.Threading;

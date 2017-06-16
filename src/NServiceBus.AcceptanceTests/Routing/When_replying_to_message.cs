@@ -27,18 +27,18 @@
         [Test]
         public async Task Should_reply_to_shared_queue_by_default()
         {
-            const string endpointDiscriminator = "instance-55";
+            const string instanceDescriminator = "instance-55";
 
             var ctx = await Scenario.Define<Context>()
                 .WithEndpoint<SendingEndpoint>(c => c
-                    .CustomConfig(cfg => cfg.MakeInstanceUniquelyAddressable(endpointDiscriminator))
+                    .CustomConfig(cfg => cfg.MakeInstanceUniquelyAddressable(instanceDescriminator))
                     .When(b => b.Send(new MyMessage())))
                 .WithEndpoint<ReplyingEndpoint>()
                 .Done(c => c.SendingEndpointGotResponse)
                 .Run();
 
             Assert.IsTrue(ctx.SendingEndpointGotResponse);
-            StringAssert.DoesNotContain(endpointDiscriminator, ctx.ReplyToAddress);
+            StringAssert.DoesNotContain(instanceDescriminator, ctx.ReplyToAddress);
         }
 
         [Test]
