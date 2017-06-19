@@ -19,7 +19,7 @@
                 .Done(c => c.ExceptionReceived)
                 .Run();
 
-            Assert.AreEqual("Startup task failed to complete.", context.Message);
+            Assert.True(context.Message.StartsWith("Startup task failed to complete."));
             Assert.AreEqual("ExceptionInBusStarts", context.Exception.Message);
         }
 
