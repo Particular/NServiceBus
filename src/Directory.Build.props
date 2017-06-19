@@ -4,4 +4,8 @@
     <PackageReference Include="Terrajobst.PlatformCompat.Analyzers" Version="0.0.95-alpha" PrivateAssets="All" />
   </ItemGroup>
 
+  <PropertyGroup>
+    <PlatformCompatIgnore>Linux;MacOSX</PlatformCompatIgnore>
+  </PropertyGroup>
+
 </Project>
