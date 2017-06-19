@@ -1,4 +1,5 @@
-﻿namespace NServiceBus.SagaPersisters.InMemory.Tests
+﻿#if NET452
+namespace NServiceBus.SagaPersisters.InMemory.Tests
 {
     using System;
     using System.Threading.Tasks;
@@ -79,3 +80,4 @@
         }
     }
 }
+#endif
