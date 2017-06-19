@@ -146,12 +146,14 @@ namespace NServiceBus.Hosting.Helpers
 
             try
             {
+#if NET452
                 if (!ReferencesNServiceBus(assemblyPath, processed, CoreAssemblyName))
                 {
                     var skippedFile = new SkippedFile(assemblyPath, "Assembly does not reference at least one of the must referenced assemblies.");
                     results.SkippedFiles.Add(skippedFile);
                     return false;
                 }
+#endif
 
                 var loadedAssembly = Assembly.LoadFrom(assemblyPath);
 
@@ -346,6 +348,7 @@ namespace NServiceBus.Hosting.Helpers
             return fileInfo;
         }
 
+#if NET452
         internal bool ReferencesNServiceBus(string assemblyPath, Dictionary<string, bool> processed, string coreAssemblyName = NServicebusCoreAssemblyName)
         {
             try
@@ -428,6 +431,7 @@ namespace NServiceBus.Hosting.Helpers
             }
             return processed.ContainsKey(name) && processed[name];
         }
+#endif
 
         bool IsIncluded(string assemblyNameOrFileName)
         {
