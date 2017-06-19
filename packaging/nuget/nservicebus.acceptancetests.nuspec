@@ -30,10 +30,10 @@
     <file
       src="..\..\src\NServiceBus.AcceptanceTests\**\*.cs"
       target="content\App_Packages\NSB.AcceptanceTests.$version$"
-      exclude="**\bin\**\*.*;**\obj\**\*.*;..\..\src\NServiceBus.AcceptanceTests\Core\**\*.cs" />
+      exclude="**\bin\**\*.*;**\obj\**\*.*;..\..\src\NServiceBus.AcceptanceTests\Core\**\*.cs;..\..\src\NServiceBus.AcceptanceTests\SelfVerification\**\*.cs" />
     <file
       src="..\..\src\NServiceBus.AcceptanceTests\**\*.cs"
       target="contentFiles\cs\any\NSB.AcceptanceTests"
-      exclude="**\bin\**\*.*;**\obj\**\*.*;..\..\src\NServiceBus.AcceptanceTests\Core\**\*.cs" />
+      exclude="**\bin\**\*.*;**\obj\**\*.*;..\..\src\NServiceBus.AcceptanceTests\Core\**\*.cs;..\..\src\NServiceBus.AcceptanceTests\SelfVerification\**\*.cs" />
   </files>
 </package>

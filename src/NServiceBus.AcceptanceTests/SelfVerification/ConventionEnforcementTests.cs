@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.AcceptanceTests
+﻿namespace NServiceBus.AcceptanceTests.SelfVerification
 {
     using System;
     using System.Linq;
