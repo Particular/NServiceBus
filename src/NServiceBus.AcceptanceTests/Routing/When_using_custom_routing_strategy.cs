@@ -25,16 +25,16 @@
                         await session.Send(new MyCommand { Instance = Discriminator1 });
                         await session.Send(new MyCommand { Instance = Discriminator2 });
                         await session.Send(new MyCommand { Instance = Discriminator1 });
-                        await session.Send(new MyCommand { Instance = Discriminator2 });
+                        await session.Send(new MyCommand { Instance = Discriminator1 });
                     })
                 )
                 .WithEndpoint<Receiver>(b => b.CustomConfig(cfg => cfg.MakeInstanceUniquelyAddressable(Discriminator1)))
                 .WithEndpoint<Receiver>(b => b.CustomConfig(cfg => cfg.MakeInstanceUniquelyAddressable(Discriminator2)))
-                .Done(c => c.MessageDeliveredReceiver1 >= 2 && c.MessageDeliveredReceiver2 >=2)
+                .Done(c => c.MessageDeliveredReceiver1 >= 3 && c.MessageDeliveredReceiver2 >=1)
                 .Run();
 
-            Assert.AreEqual(2, ctx.MessageDeliveredReceiver1);
-            Assert.AreEqual(2, ctx.MessageDeliveredReceiver2);
+            Assert.AreEqual(3, ctx.MessageDeliveredReceiver1);
+            Assert.AreEqual(1, ctx.MessageDeliveredReceiver2);
         }
 
         static string Discriminator1 = "553E9649";

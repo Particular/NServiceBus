@@ -25,6 +25,23 @@
         }
 
         [Test]
+        public async Task Should_reply_to_shared_queue_by_default()
+        {
+            const string instanceDiscriminator = "instance-55";
+
+            var ctx = await Scenario.Define<Context>()
+                .WithEndpoint<SendingEndpoint>(c => c
+                    .CustomConfig(cfg => cfg.MakeInstanceUniquelyAddressable(instanceDiscriminator))
+                    .When(b => b.Send(new MyMessage())))
+                .WithEndpoint<ReplyingEndpoint>()
+                .Done(c => c.SendingEndpointGotResponse)
+                .Run();
+
+            Assert.IsTrue(ctx.SendingEndpointGotResponse);
+            StringAssert.DoesNotContain(instanceDiscriminator, ctx.ReplyToAddress);
+        }
+
+        [Test]
         public async Task Should_reply_to_configured_return_address()
         {
             var ctx = await Scenario.Define<Context>()
@@ -44,6 +61,7 @@
         {
             public bool SendingEndpointGotResponse { get; set; }
             public bool OtherEndpointGotResponse { get; set; }
+            public string ReplyToAddress { get; set; }
         }
 
         public class SendingEndpoint : EndpointConfigurationBuilder
@@ -96,8 +114,11 @@
 
             public class MessageHandler : IHandleMessages<MyMessage>
             {
+                public Context Context { get; set; }
+
                 public Task Handle(MyMessage message, IMessageHandlerContext context)
                 {
+                    Context.ReplyToAddress = context.ReplyToAddress;
                     return context.Reply(new MyReply());
                 }
             }
