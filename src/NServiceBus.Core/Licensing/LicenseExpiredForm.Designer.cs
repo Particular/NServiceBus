@@ -1,4 +1,4 @@
-﻿namespace NServiceBus
+﻿namespace NServiceBus.Licensing
 {
     partial class LicenseExpiredForm
     {
@@ -39,10 +39,10 @@
             this.headerPanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.logoPictureBox)).BeginInit();
             this.SuspendLayout();
-            // 
+            //
             // headerPanel
-            // 
-            this.headerPanel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            //
+            this.headerPanel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.headerPanel.BackColor = System.Drawing.Color.Black;
             this.headerPanel.Controls.Add(this.logoPictureBox);
@@ -50,9 +50,9 @@
             this.headerPanel.Name = "headerPanel";
             this.headerPanel.Size = new System.Drawing.Size(579, 90);
             this.headerPanel.TabIndex = 0;
-            // 
+            //
             // logoPictureBox
-            // 
+            //
             this.logoPictureBox.Image = global::NServiceBus.Properties.Resources.logo;
             this.logoPictureBox.InitialImage = null;
             this.logoPictureBox.Location = new System.Drawing.Point(43, 12);
@@ -61,9 +61,9 @@
             this.logoPictureBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
             this.logoPictureBox.TabIndex = 0;
             this.logoPictureBox.TabStop = false;
-            // 
+            //
             // browseButton
-            // 
+            //
             this.browseButton.Anchor = System.Windows.Forms.AnchorStyles.Top;
             this.browseButton.BackColor = System.Drawing.Color.Gainsboro;
             this.browseButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
@@ -75,9 +75,9 @@
             this.browseButton.Text = "Browse...";
             this.browseButton.UseVisualStyleBackColor = false;
             this.browseButton.Click += new System.EventHandler(this.browseButton_Click);
-            // 
+            //
             // purchaseButton
-            // 
+            //
             this.purchaseButton.Anchor = System.Windows.Forms.AnchorStyles.Top;
             this.purchaseButton.BackColor = System.Drawing.Color.Gainsboro;
             this.purchaseButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
@@ -89,9 +89,9 @@
             this.purchaseButton.Text = "Buy Now";
             this.purchaseButton.UseVisualStyleBackColor = false;
             this.purchaseButton.Click += new System.EventHandler(this.PurchaseButton_Click);
-            // 
+            //
             // warningText
-            // 
+            //
             this.warningText.BackColor = System.Drawing.Color.White;
             this.warningText.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.warningText.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -103,9 +103,9 @@
             this.warningText.Size = new System.Drawing.Size(520, 28);
             this.warningText.TabIndex = 17;
             this.warningText.Text = "It\'s time to extend your trial.";
-            // 
+            //
             // instructionsText
-            // 
+            //
             this.instructionsText.BackColor = System.Drawing.Color.White;
             this.instructionsText.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.instructionsText.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -117,9 +117,9 @@
             this.instructionsText.Size = new System.Drawing.Size(520, 112);
             this.instructionsText.TabIndex = 18;
             this.instructionsText.Text = "Instructions....";
-            // 
+            //
             // getTrialLicenseButton
-            // 
+            //
             this.getTrialLicenseButton.Anchor = System.Windows.Forms.AnchorStyles.Top;
             this.getTrialLicenseButton.BackColor = System.Drawing.Color.Gainsboro;
             this.getTrialLicenseButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
@@ -131,9 +131,9 @@
             this.getTrialLicenseButton.Text = "Get trial";
             this.getTrialLicenseButton.UseVisualStyleBackColor = false;
             this.getTrialLicenseButton.Click += new System.EventHandler(this.getTrialLicenseButton_Click);
-            // 
+            //
             // LicenseExpiredForm
-            // 
+            //
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;

@@ -1,4 +1,5 @@
-﻿namespace NServiceBus
+﻿//This namespace is required so the form can find its resource file at run time.
+namespace NServiceBus.Licensing
 {
     using System;
     using System.Diagnostics;
