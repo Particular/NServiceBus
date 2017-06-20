@@ -1,4 +1,5 @@
-﻿namespace NServiceBus.Core.Tests.AssemblyScanner
+﻿#if NET452
+namespace NServiceBus.Core.Tests.AssemblyScanner
 {
     using System.IO;
     using System.Linq;
@@ -30,3 +31,4 @@
 
     }
 }
+#endif

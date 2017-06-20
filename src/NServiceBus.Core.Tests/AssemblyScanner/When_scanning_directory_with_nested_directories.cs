@@ -21,7 +21,7 @@ namespace NServiceBus.Core.Tests.AssemblyScanner
             Assert.False(foundTypeFromNestedAssembly, "Was expected not to scan nested assemblies, but nested assembly was scanned.");
         }
 
-
+#if NET452
         [Test]
         public void Should_scan_nested_directories_if_requested()
         {
@@ -38,5 +38,6 @@ namespace NServiceBus.Core.Tests.AssemblyScanner
             var foundTypeFromNestedAssembly = scannedTypes.Any(x => x.Name == "NestedClass");
             Assert.True(foundTypeFromNestedAssembly, "Was expected to scan nested assemblies, but nested assembly were not scanned.");
         }
+#endif
     }
 }
