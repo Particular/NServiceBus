@@ -26,7 +26,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Autofac" Version="3.5.2" />
+    <PackageReference Include="Autofac" Version="4.6.0" />
     <PackageReference Include="GitVersionTask" Version="3.6.5" PrivateAssets="All" />
     <PackageReference Include="Janitor.Fody" Version="1.4.1" PrivateAssets="All" />
     <PackageReference Include="Newtonsoft.Json" Version="10.0.2" />
