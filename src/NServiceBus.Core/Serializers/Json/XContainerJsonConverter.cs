@@ -13,6 +13,7 @@ namespace NServiceBus
             if (value == null)
             {
                 writer.WriteNull();
+                return;
             }
 
             var container = (XContainer) value;
