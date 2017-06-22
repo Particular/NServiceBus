@@ -18,11 +18,10 @@ namespace NServiceBus.TransportTests
 
             OnTestTimeout(() => onMessageCalled.SetCanceled());
 
+            string body = null;
             await StartPump(context =>
             {
-                var body = Encoding.UTF8.GetString(context.Body);
-
-                Assert.AreEqual("", body, "Should pass the body");
+                body = Encoding.UTF8.GetString(context.Body);
 
                 onMessageCalled.SetResult(context);
                 return Task.FromResult(0);
@@ -38,6 +37,7 @@ namespace NServiceBus.TransportTests
 
             Assert.False(string.IsNullOrEmpty(messageContext.MessageId), "Should pass the native message id");
             Assert.AreEqual("MyValue", messageContext.Headers["MyHeader"], "Should pass the message headers");
+            Assert.AreEqual("", body, "Should pass the body");
         }
     }
 }

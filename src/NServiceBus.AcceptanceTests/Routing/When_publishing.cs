@@ -78,6 +78,7 @@
 
             Assert.True(context.Subscriber1GotTheEvent);
             Assert.True(context.Subscriber2GotTheEvent);
+            Assert.AreEqual("SomeValue", context.HeaderValue);
         }
 
         public class Context : ScenarioContext
@@ -88,6 +89,7 @@
             public bool Subscriber1Subscribed { get; set; }
             public bool Subscriber2Subscribed { get; set; }
             public bool Subscriber3Subscribed { get; set; }
+            public string HeaderValue { get; set; }
         }
 
         public class Publisher : EndpointConfigurationBuilder
@@ -163,7 +165,7 @@
 
                 public Task Handle(MyEvent message, IMessageHandlerContext context)
                 {
-                    Assert.AreEqual(context.MessageHeaders["MyHeader"], "SomeValue");
+                    TestContext.HeaderValue = context.MessageHeaders["MyHeader"];
                     TestContext.Subscriber1GotTheEvent = true;
                     return Task.FromResult(0);
                 }

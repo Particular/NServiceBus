@@ -23,6 +23,7 @@
 
             Assert.True(context.MessageProcessed);
             Assert.True(context.MessageAudited);
+            Assert.AreEqual("SomeValue", context.HeaderValue);
         }
 
         public static byte Checksum(byte[] data)
@@ -35,6 +36,7 @@
         {
             public bool MessageAudited { get; set; }
             public bool MessageProcessed { get; set; }
+            public string HeaderValue { get; set; }
         }
 
         public class Server : EndpointConfigurationBuilder
@@ -75,7 +77,7 @@
 
                 public Task Handle(ResponseToBeAudited message, IMessageHandlerContext context)
                 {
-                    Assert.AreEqual(context.MessageHeaders["MyHeader"], "SomeValue");
+                    TestContext.HeaderValue = context.MessageHeaders["MyHeader"];
                     TestContext.MessageProcessed = true;
                     return Task.FromResult(0);
                 }
