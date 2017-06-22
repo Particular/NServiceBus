@@ -1,18 +1,8 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26430.12
+VisualStudioVersion = 15.0.26608.5
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{2904B75F-8F07-4C07-BABC-BC42533B3E75}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{ACCDE2E1-3F56-47BA-8CFF-199931BAC6B0}"
-	ProjectSection(SolutionItems) = preProject
-		..\packaging\nuget\nservicebus.acceptancetesting.nuspec = ..\packaging\nuget\nservicebus.acceptancetesting.nuspec
-		..\packaging\nuget\nservicebus.acceptancetests.nuspec = ..\packaging\nuget\nservicebus.acceptancetests.nuspec
-		..\packaging\nuget\nservicebus.containertests.nuspec = ..\packaging\nuget\nservicebus.containertests.nuspec
-		..\packaging\nuget\nservicebus.core.nuspec = ..\packaging\nuget\nservicebus.core.nuspec
-		..\packaging\nuget\nservicebus.testing.fakes.nuspec = ..\packaging\nuget\nservicebus.testing.fakes.nuspec
-		..\packaging\nuget\nservicebus.transporttests.nuspec = ..\packaging\nuget\nservicebus.transporttests.nuspec
-	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Testing", "Testing", "{F2D3D789-78D6-42B1-AB4B-DE241C298943}"
 EndProject

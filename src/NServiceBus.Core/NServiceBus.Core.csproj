@@ -3,12 +3,10 @@
   <PropertyGroup>
     <TargetFrameworks>net452;netcoreapp2.0</TargetFrameworks>
     <RootNamespace>NServiceBus</RootNamespace>
-    <Copyright>Copyright NServiceBus Ltd. All rights reserved</Copyright>
-    <Company>NServiceBus Ltd.</Company>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\NServiceBus.snk</AssemblyOriginatorKeyFile>
     <OutputPath>..\..\binaries\</OutputPath>
-    <DocumentationFile>$(OutputPath)net452\NServiceBus.Core.xml</DocumentationFile>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
 
@@ -25,10 +23,8 @@
   <ItemGroup>
     <PackageReference Include="Autofac" Version="4.6.0" />
     <PackageReference Include="Fody" Version="2.1.0" PrivateAssets="All" />
-    <PackageReference Include="GitVersionTask" Version="4.0.0-beta0012" PrivateAssets="All" />
     <PackageReference Include="Janitor.Fody" Version="1.4.1" PrivateAssets="All" />
     <PackageReference Include="Newtonsoft.Json" Version="10.0.2" />
-    <PackageReference Include="NuGetPackager" Version="0.6.1" PrivateAssets="All" />
     <PackageReference Include="Obsolete.Fody" Version="4.2.2" PrivateAssets="All" />
     <PackageReference Include="Particular.CodeRules" Version="0.2.0" PrivateAssets="All" />
     <PackageReference Include="Particular.Licensing.Sources" Version="1.0.0-alpha0001" PrivateAssets="All" />
@@ -52,22 +48,24 @@
   <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp2.0'">
     <EmbeddedResource Remove="**\*.resx" />
   </ItemGroup>
-  
-  <!--This is needed to have a windows PDB for MergeDependencies ILMerge target below to work properly--><!--
-  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-    <DebugType>pdbonly</DebugType>
-    <DebugSymbols>True</DebugSymbols>
+
+  <PropertyGroup>
+    <PackageId>NServiceBus</PackageId>
+    <Description>The most popular open-source service bus for .NET</Description>
   </PropertyGroup>
 
-  <Target Name="MergeDependencies" Condition=" '$(Configuration)' == 'Release' " BeforeTargets="BuildPackages">
-    <MakeDir Directories="$(TargetDir)temp\" />
-    <Exec Command="&quot;$(SolutionDir)..\tools\IlMerge\ilmerge.exe&quot; /keyfile:&quot;$(SolutionDir)NServiceBus.snk&quot; /internalize /out:&quot;$(TargetDir)temp\$(TargetFileName)&quot; &quot;$(TargetPath)&quot; &quot;$(TargetDir)AutoFac.dll&quot; &quot;$(TargetDir)Newtonsoft.Json.dll&quot; /target:library /targetplatform:&quot;v4,$(FrameworkPathOverride)&quot;" />
-    <ItemGroup>
-      <TempFiles Include="$(TargetDir)temp\*.*" />
-    </ItemGroup>
-    <Copy SourceFiles="@(TempFiles)" DestinationFolder="$(TargetDir)" OverwriteReadOnlyFiles="true" />
-    <Delete Files="@(TempFiles)" />
-    <RemoveDir Directories="$(TargetDir)temp\" />
-  </Target>-->
+  <ItemGroup>
+    <Content Include="$(OutputPath)\**\$(AssemblyName).pdb">
+      <Pack>true</Pack>
+      <PackagePath>lib\</PackagePath>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="..\..\packaging\nuget\tools\init.ps1">
+      <Pack>true</Pack>
+      <PackagePath>tools</PackagePath>
+    </Content>
+  </ItemGroup>
 
 </Project>

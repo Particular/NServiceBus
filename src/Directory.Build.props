@@ -8,4 +8,37 @@
     <PlatformCompatIgnore>Linux;MacOSX</PlatformCompatIgnore>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <Authors>NServiceBus Ltd</Authors>
+    <Company>NServiceBus Ltd</Company>
+    <PackageLicenseUrl>http://particular.net/LicenseAgreement</PackageLicenseUrl>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <Copyright>Copyright 2010-$([System.DateTime]::UtcNow.ToString(yyyy)) NServiceBus. All rights reserved</Copyright>
+    <PackageTags>nservicebus servicebus msmq cqrs publish subscribe</PackageTags>
+    <PackageIconUrl>http://s3.amazonaws.com/nuget.images/NServiceBus_32.png</PackageIconUrl>
+    <PackageProjectUrl>http://particular.net/</PackageProjectUrl>
+    <PackageOutputPath>..\..\nugets</PackageOutputPath>
+    <!--<GeneratePackageOnBuild>true</GeneratePackageOnBuild>-->
+  </PropertyGroup>
+
+  <!-- Versioning workaround because of https://github.com/NuGet/Home/issues/4790 -->
+  <PropertyGroup>
+    <GitVersionTaskVersion>4.0.0-beta0012</GitVersionTaskVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="GitVersionTask" Version="$(GitVersionTaskVersion)" PrivateAssets="All" />
+  </ItemGroup>
+
+  <ImportGroup Condition="'$(ExcludeRestorePackageImports)' == 'true'">
+    <Import
+      Project="$(UserProfile)\.nuget\packages\gitversiontask\$(GitVersionTaskVersion)\buildMultiTargeting\GitVersionTask.targets"
+      Condition="Exists('$(UserProfile)\.nuget\packages\gitversiontask\$(GitVersionTaskVersion)\buildMultiTargeting\GitVersionTask.targets')" />
+  </ImportGroup>
+  <Target
+    Name="FixUpVersion"
+    BeforeTargets="_GenerateRestoreProjectSpec"
+    DependsOnTargets="GetVersion"
+    Condition="'$(GitVersion_Task_targets_Imported)' == 'True'" />
+
 </Project>

@@ -10,10 +10,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="GitVersionTask" Version="4.0.0-beta0012" PrivateAssets="All" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.3.0-preview-20170618-03" PrivateAssets="All" />
-    <PackageReference Include="NuGetPackager" Version="0.6.1" PrivateAssets="All" />
-    <PackageReference Include="NUnit" Version="3.7.1" />
+    <PackageReference Include="NUnit" Version="[3.7.1, 4.0.0)" />
     <PackageReference Include="NUnit3TestAdapter" Version="3.8.0-alpha1" PrivateAssets="All" />
   </ItemGroup>
 
@@ -24,6 +22,20 @@
   
   <ItemGroup>
     <Service Include="{82a7f48d-3b50-4b1e-b82e-3ada8210c358}" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <PackageId>NServiceBus.ContainerTests.Sources</PackageId>
+    <Description>Container tests for NServiceBus core functionality</Description>
+    <IsPackable>true</IsPackable>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="**\*.cs">
+      <PackagePath>content\App_Packages\NSB.ContainerTests\;contentFiles\cs\any\NSB.ContainerTests\</PackagePath>
+    </Content>
+    <Content Remove="**\obj\**\*.cs" />
   </ItemGroup>
 
 </Project>
