@@ -392,6 +392,48 @@ namespace NServiceBus.Serializers.Json.Tests
         }
 
         [Test]
+        public void When_Using_Property_WithNullXContainerAssignable()
+        {
+            var messageWithXDocument = new MessageWithXDocument
+            {
+                Document = null
+            };
+
+            var messageMapper = new MessageMapper();
+            var serializer = new JsonMessageSerializer(messageMapper);
+            using (var stream = new MemoryStream())
+            {
+                serializer.Serialize(messageWithXDocument, stream);
+
+                stream.Position = 0;
+
+                var result = serializer.Deserialize(stream, new[]
+                {
+                    typeof(MessageWithXDocument)
+                }).Cast<MessageWithXDocument>().Single();
+
+                Assert.IsNull(result.Document);
+            }
+
+            var messageWithXElement = new MessageWithXElement
+            {
+                Document = null
+            };
+            using (var stream = new MemoryStream())
+            {
+                serializer.Serialize(messageWithXElement, stream);
+                stream.Position = 0;
+
+                var result = serializer.Deserialize(stream, new[]
+                {
+                    typeof(MessageWithXElement)
+                }).Cast<MessageWithXElement>().Single();
+
+                Assert.IsNull(result.Document);
+            }
+        }
+
+        [Test]
         public void Should_preserve_timezones()
         {
             var expectedDateTime = new DateTime(2010, 10, 13, 12, 32, 42, DateTimeKind.Unspecified);

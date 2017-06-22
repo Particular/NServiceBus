@@ -10,13 +10,7 @@ namespace NServiceBus
     {
         public override void WriteJson(JsonWriter writer, object value, Newtonsoft.Json.JsonSerializer serializer)
         {
-            if (value == null)
-            {
-                writer.WriteNull();
-            }
-
             var container = (XContainer) value;
-
             writer.WriteValue(container.ToString(SaveOptions.DisableFormatting));
         }
 
