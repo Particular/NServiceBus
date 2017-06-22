@@ -1,6 +1,7 @@
 namespace NServiceBus
 {
     using System.Threading;
+    using Licensing;
     using Particular.Licensing;
 
     static class LicenseExpiredFormDisplayer
