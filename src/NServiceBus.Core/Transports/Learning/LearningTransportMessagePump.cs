@@ -242,8 +242,10 @@
             var bodyPath = Path.Combine(bodyDir, $"{messageId}{BodyFileSuffix}");
             var headers = HeaderSerializer.Deserialize(message);
 
-            if (headers.TryGetValue(Headers.TimeToBeReceived, out var ttbrString))
+            if (headers.TryGetValue(LearningTransportHeaders.TimeToBeReceived, out var ttbrString))
             {
+                headers.Remove(LearningTransportHeaders.TimeToBeReceived);
+
                 var ttbr = TimeSpan.Parse(ttbrString);
 
                 //file.move preserves create time
