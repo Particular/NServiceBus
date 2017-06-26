@@ -35,7 +35,7 @@
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.4.0-preview1-25305-02" />
     <PackageReference Include="System.Security.Cryptography.Xml" Version="4.4.0-preview1-25305-02" />
   </ItemGroup>
-  
+
   <ItemGroup Condition="'$(TargetFramework)' == 'net452'">
     <Compile Update="Licensing\LicenseExpiredForm.cs">
       <SubType>Form</SubType>
