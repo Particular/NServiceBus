@@ -94,7 +94,7 @@
             {
                 addressTask = Task.FromResult(new[]
                 {
-                    new Unicast.Subscriptions.MessageDrivenSubscriptions.Subscriber("publishingFromSendonly.subscriber", null)
+                    new Unicast.Subscriptions.MessageDrivenSubscriptions.Subscriber("PublishingFromSendonly.Subscriber", null)
                 }.AsEnumerable());
             }
 
