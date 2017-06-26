@@ -4,7 +4,7 @@
     <TargetFrameworks>net452;netcoreapp2.0</TargetFrameworks>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
-  
+
   <ItemGroup>
     <ProjectReference Include="..\NServiceBus.Core\NServiceBus.Core.csproj" />
   </ItemGroup>
@@ -19,7 +19,7 @@
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="10.0.2" PrivateAssets="All" />
   </ItemGroup>
-  
+
   <ItemGroup>
     <Service Include="{82a7f48d-3b50-4b1e-b82e-3ada8210c358}" />
   </ItemGroup>
