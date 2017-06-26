@@ -24,11 +24,6 @@
     <PackageReference Include="Particular.CodeRules" Version="0.2.0" PrivateAssets="All" />
   </ItemGroup>
 
-  <!-- added for now to prevent version conflict warning -->
-  <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="10.0.2" PrivateAssets="All" />
-  </ItemGroup>
-
   <ItemGroup>
     <Service Include="{82a7f48d-3b50-4b1e-b82e-3ada8210c358}" />
   </ItemGroup>
