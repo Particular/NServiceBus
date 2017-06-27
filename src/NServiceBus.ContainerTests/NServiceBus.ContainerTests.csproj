@@ -23,10 +23,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="**\*.cs">
+    <_PackageFiles Include="**\*.cs">
+      <BuildAction>Compile</BuildAction>
       <PackagePath>content\App_Packages\NSB.ContainerTests\;contentFiles\cs\any\NSB.ContainerTests\</PackagePath>
-    </Content>
-    <Content Remove="**\obj\**\*.cs" />
+    </_PackageFiles>
+    <_PackageFiles Remove="**\obj\**\*.cs" />
   </ItemGroup>
 
 </Project>

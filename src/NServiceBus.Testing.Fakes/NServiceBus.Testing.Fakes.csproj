@@ -19,10 +19,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="**\*.cs">
+    <_PackageFiles Include="**\*.cs">
+      <BuildAction>Compile</BuildAction>
       <PackagePath>content\App_Packages\NSB.Testing.Fakes\;contentFiles\cs\any\NSB.Testing.Fakes\</PackagePath>
-    </Content>
-    <Content Remove="**\obj\**\*.cs" />
+    </_PackageFiles>
+    <_PackageFiles Remove="**\obj\**\*.cs" />
   </ItemGroup>
 
 </Project>
