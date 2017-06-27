@@ -1,25 +1,26 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net452</TargetFramework>
-    <Copyright>Copyright NServiceBus Ltd. All rights reserved</Copyright>
-    <Company>NServiceBus Ltd.</Company>
+    <TargetFrameworks>net452;netcoreapp2.0</TargetFrameworks>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\NServiceBus.snk</AssemblyOriginatorKeyFile>
     <OutputPath>..\..\binaries\</OutputPath>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
-    <GenerateAssemblyInformationalVersionAttribute>false</GenerateAssemblyInformationalVersionAttribute>
-    <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
   </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\NServiceBus.Core\NServiceBus.Core.csproj" />
   </ItemGroup>
 
+  <PropertyGroup>
+    <Description>Acceptance testing framework for NServiceBus endpoints. This is an unsupported package.</Description>
+  </PropertyGroup>
+
   <ItemGroup>
-    <PackageReference Include="GitVersionTask" Version="3.6.5" PrivateAssets="All" />
-    <PackageReference Include="NuGetPackager" Version="0.6.1" PrivateAssets="All" />
+    <Content Include="$(OutputPath)\**\$(AssemblyName).pdb">
+      <Pack>true</Pack>
+      <PackagePath>lib\</PackagePath>
+    </Content>
   </ItemGroup>
 
 </Project>

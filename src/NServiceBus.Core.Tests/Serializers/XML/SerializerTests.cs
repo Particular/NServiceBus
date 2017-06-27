@@ -1,3 +1,4 @@
+#pragma warning disable DE0006
 namespace NServiceBus.Serializers.XML.Test
 {
     using System;
@@ -1476,3 +1477,4 @@ namespace NServiceBus.Serializers.XML.Test.AlternateNamespace
         public IInterfaceProperty InterfaceProperty { get; set; }
     }
 }
+#pragma warning restore DE0006

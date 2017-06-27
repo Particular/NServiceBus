@@ -1,4 +1,5 @@
-﻿namespace NServiceBus
+﻿#if NET452
+namespace NServiceBus
 {
     using System;
     using System.Threading;
@@ -19,3 +20,4 @@
         }
     }
 }
+#endif

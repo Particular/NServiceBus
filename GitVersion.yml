@@ -3,5 +3,5 @@ next-version: 7.0
 branches:
   develop:
     tag: alpha
-  releases?[/-]:
+  release:
     tag: rc

@@ -71,12 +71,18 @@ namespace NServiceBus.Serializers.XML.Test
                 var reader = new StreamReader(stream);
                 var xml = reader.ReadToEnd();
 
-                var expected = XDocument.Parse(@"<?xml version=""1.0""?>
+#if NET452
+                var birthDate = "1950-04-25T00:00:00";
+#else
+                var birthDate = "1950-04-25T00:00:00.0000000";
+#endif
+
+                var expected = XDocument.Parse($@"<?xml version=""1.0""?>
 <MessageWithNullable xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"" xmlns=""http://tempuri.net/NServiceBus.Serializers.XML.Test"">
    <FirstName>FirstName</FirstName>
    <LastName>LastName</LastName>
    <EmailAddress>EmailAddress</EmailAddress>
-   <BirthDate>1950-04-25T00:00:00</BirthDate>
+   <BirthDate>{birthDate}</BirthDate>
 </MessageWithNullable>
 ");
                 var actual = XDocument.Parse(xml);

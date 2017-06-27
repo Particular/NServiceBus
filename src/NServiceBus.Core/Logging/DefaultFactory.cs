@@ -2,8 +2,6 @@ namespace NServiceBus.Logging
 {
     using System;
     using System.IO;
-    using System.Web;
-    using System.Web.Hosting;
     using IODirectory = System.IO.Directory;
 
     /// <summary>
@@ -53,9 +51,10 @@ namespace NServiceBus.Logging
             this.directory = new Lazy<string>(() => directory);
         }
 
+#if NET452
         internal static string FindDefaultLoggingDirectory()
         {
-            if (HttpRuntime.AppDomainAppId == null)
+            if (System.Web.HttpRuntime.AppDomainAppId == null)
             {
                 return AppDomain.CurrentDomain.BaseDirectory;
             }
@@ -83,7 +82,7 @@ namespace NServiceBus.Logging
         {
             try
             {
-                return HostingEnvironment.MapPath("~/App_Data/");
+                return System.Web.Hosting.HostingEnvironment.MapPath("~/App_Data/");
             }
             catch (Exception exception)
             {
@@ -95,6 +94,9 @@ namespace NServiceBus.Logging
         {
             return $"Detected running in a website and attempted to use HostingEnvironment.MapPath(\"~/App_Data/\") to derive the logging path. {reason}. To avoid using HostingEnvironment.MapPath to derive the logging directory you can instead configure it to a specific path using LogManager.Use<DefaultFactory>().Directory(\"pathToLoggingDirectory\");";
         }
+#else
+        internal static string FindDefaultLoggingDirectory() => AppDomain.CurrentDomain.BaseDirectory;
+#endif
 
         Lazy<string> directory;
 

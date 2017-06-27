@@ -61,7 +61,10 @@ namespace NServiceBus
 
             SetLifetimeScope(dependencyLifecycle, registrationBuilder);
 
+#pragma warning disable CS0618
             builder.Update(container.ComponentRegistry);
+#pragma warning restore
+
         }
 
         void IContainer.Configure<T>(Func<T> componentFactory, DependencyLifecycle dependencyLifecycle)
@@ -81,7 +84,9 @@ namespace NServiceBus
 
             SetLifetimeScope(dependencyLifecycle, (IRegistrationBuilder<object, IConcreteActivatorData, SingleRegistrationStyle>) registrationBuilder);
 
+#pragma warning disable CS0618
             builder.Update(container.ComponentRegistry);
+#pragma warning restore
         }
 
         public void ConfigureProperty(Type component, string property, object value)
@@ -105,7 +110,9 @@ namespace NServiceBus
 
             var builder = new ContainerBuilder();
             builder.RegisterInstance(instance).As(lookupType).PropertiesAutowired();
+#pragma warning disable CS0618
             builder.Update(container.ComponentRegistry);
+#pragma warning restore
         }
 
         public bool HasComponent(Type componentType)

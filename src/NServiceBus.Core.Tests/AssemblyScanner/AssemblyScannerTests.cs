@@ -1,4 +1,5 @@
-﻿namespace NServiceBus.Core.Tests.AssemblyScanner
+﻿#if NET452
+namespace NServiceBus.Core.Tests.AssemblyScanner
 {
     using System;
     using System.CodeDom.Compiler;
@@ -468,3 +469,4 @@ class InterfaceMessageHandler : IHandleMessages<IBaseEvent>
         }
     }
 }
+#endif

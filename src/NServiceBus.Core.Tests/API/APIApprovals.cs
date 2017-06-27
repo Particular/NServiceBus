@@ -1,4 +1,5 @@
-﻿namespace NServiceBus.Core.Tests.API
+﻿#if NET452
+namespace NServiceBus.Core.Tests.API
 {
     using System;
     using System.Linq;
@@ -28,6 +29,6 @@
                 .Where(l => !string.IsNullOrWhiteSpace(l))
                 );
         }
-
     }
 }
+#endif

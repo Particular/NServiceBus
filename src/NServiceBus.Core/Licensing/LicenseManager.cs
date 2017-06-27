@@ -1,9 +1,9 @@
 namespace NServiceBus
 {
+    using System;
     using System.Diagnostics;
     using System.Text;
     using System.Threading;
-    using System.Windows.Forms;
     using Logging;
     using Particular.Licensing;
 
@@ -65,12 +65,13 @@ namespace NServiceBus
 
         void PromptUserForLicenseIfTrialHasExpired()
         {
-            if (!(Debugger.IsAttached && SystemInformation.UserInteractive))
+            if (!(Debugger.IsAttached && Environment.UserInteractive))
             {
                 //We only prompt user if user is in debugging mode and we are running in interactive mode
                 return;
             }
 
+#if NET452
             bool createdNew;
             using (new Mutex(true, $"NServiceBus-{GitFlowVersion.MajorMinor}", out createdNew))
             {
@@ -90,6 +91,7 @@ namespace NServiceBus
                     }
                 }
             }
+#endif
         }
 
         License license;
