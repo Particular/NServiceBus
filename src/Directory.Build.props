@@ -16,7 +16,7 @@
     <Copyright>Copyright 2010-$([System.DateTime]::UtcNow.ToString(yyyy)) NServiceBus. All rights reserved</Copyright>
     <PackageTags>nservicebus servicebus msmq cqrs publish subscribe</PackageTags>
     <PackageIconUrl>http://s3.amazonaws.com/nuget.images/NServiceBus_32.png</PackageIconUrl>
-    <PackageProjectUrl>http://particular.net/</PackageProjectUrl>
+    <PackageProjectUrl>https://docs.particular.net/nuget/$(PackageId)</PackageProjectUrl>
     <PackageOutputPath>..\..\nugets</PackageOutputPath>
     <!--<GeneratePackageOnBuild>true</GeneratePackageOnBuild>-->
   </PropertyGroup>
