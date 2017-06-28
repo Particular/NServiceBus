@@ -8,19 +8,6 @@
     <PlatformCompatIgnore>Linux;MacOSX</PlatformCompatIgnore>
   </PropertyGroup>
 
-  <PropertyGroup>
-    <Authors>NServiceBus Ltd</Authors>
-    <Company>NServiceBus Ltd</Company>
-    <PackageLicenseUrl>http://particular.net/LicenseAgreement</PackageLicenseUrl>
-    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-    <Copyright>Copyright 2010-$([System.DateTime]::UtcNow.ToString(yyyy)) NServiceBus. All rights reserved</Copyright>
-    <PackageTags>nservicebus servicebus msmq cqrs publish subscribe</PackageTags>
-    <PackageIconUrl>http://s3.amazonaws.com/nuget.images/NServiceBus_32.png</PackageIconUrl>
-    <PackageProjectUrl>http://particular.net/</PackageProjectUrl>
-    <PackageOutputPath>..\..\nugets</PackageOutputPath>
-    <!--<GeneratePackageOnBuild>true</GeneratePackageOnBuild>-->
-  </PropertyGroup>
-
   <!-- Workaround for GitVersion 4.0 not creating GitVersionInformation by default -->
   <PropertyGroup>
     <UpdateAssemblyInfo>true</UpdateAssemblyInfo>
