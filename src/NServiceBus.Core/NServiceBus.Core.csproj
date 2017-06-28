@@ -55,17 +55,19 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="$(OutputPath)\**\$(AssemblyName).pdb">
+    <None Include="$(OutputPath)\**\$(AssemblyName).pdb">
       <Pack>true</Pack>
       <PackagePath>lib\</PackagePath>
-    </Content>
+      <Visible>false</Visible>
+    </None>
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="..\..\packaging\nuget\tools\init.ps1">
+    <None Include="..\..\packaging\nuget\tools\init.ps1">
       <Pack>true</Pack>
       <PackagePath>tools</PackagePath>
-    </Content>
+      <Visible>false</Visible>
+    </None>
   </ItemGroup>
 
 </Project>

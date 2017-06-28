@@ -17,10 +17,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="$(OutputPath)\**\$(AssemblyName).pdb">
+    <None Include="$(OutputPath)\**\$(AssemblyName).pdb">
       <Pack>true</Pack>
       <PackagePath>lib\</PackagePath>
-    </Content>
+      <Visible>false</Visible>
+    </None>
   </ItemGroup>
 
 </Project>
