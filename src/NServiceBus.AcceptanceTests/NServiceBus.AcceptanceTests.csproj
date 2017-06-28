@@ -32,12 +32,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="**\*.cs">
+    <_PackageFiles Include="**\*.cs">
+      <BuildAction>Compile</BuildAction>
       <PackagePath>content\App_Packages\NSB.AcceptanceTests\;contentFiles\cs\any\NSB.AcceptanceTests\</PackagePath>
-    </Content>
-    <Content Remove="**\obj\**\*.cs" />
-    <Content Remove="Core\**\*.cs" />
-    <Content Remove="AssemblyInfo.cs" />
+    </_PackageFiles>
+    <_PackageFiles Remove="**\obj\**\*.cs" />
+    <_PackageFiles Remove="Core\**\*.cs" />
+    <_PackageFiles Remove="AssemblyInfo.cs" />
   </ItemGroup>
 
 </Project>

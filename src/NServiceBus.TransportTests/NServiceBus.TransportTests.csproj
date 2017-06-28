@@ -27,11 +27,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="**\*.cs">
+    <_PackageFiles Include="**\*.cs">
+      <BuildAction>Compile</BuildAction>
       <PackagePath>content\App_Packages\NSB.TransportTests\;contentFiles\cs\any\NSB.TransportTests\</PackagePath>
-    </Content>
-    <Content Remove="**\obj\**\*.cs" />
-    <Content Remove="ConfigureLearningTransportInfrastructure.cs" />
+    </_PackageFiles>
+    <_PackageFiles Remove="**\obj\**\*.cs" />
+    <_PackageFiles Remove="ConfigureLearningTransportInfrastructure.cs" />
   </ItemGroup>
 
 </Project>
