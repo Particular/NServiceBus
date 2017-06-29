@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFrameworks>net452;netcoreapp2.0</TargetFrameworks>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <NoWarn>1701;1702;1705;PCR0001</NoWarn>
+    <NoWarn>$(NoWarn);PCR0001</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
