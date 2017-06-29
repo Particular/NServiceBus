@@ -142,16 +142,14 @@ namespace NServiceBus.Hosting.Helpers
 
             try
             {
-#if NET452
-                if (!ReferencesNServiceBus(assemblyPath, processed, CoreAssemblyName))
+                var loadedAssembly = Assembly.LoadFrom(assemblyPath);
+
+                if (!ReferencesNServiceBus(loadedAssembly, CoreAssemblyName, processed))
                 {
                     var skippedFile = new SkippedFile(assemblyPath, "Assembly does not reference at least one of the must referenced assemblies.");
                     results.SkippedFiles.Add(skippedFile);
                     return false;
                 }
-#endif
-
-                var loadedAssembly = Assembly.LoadFrom(assemblyPath);
 
                 if (results.Assemblies.Contains(loadedAssembly))
                 {
@@ -344,42 +342,26 @@ namespace NServiceBus.Hosting.Helpers
             return fileInfo;
         }
 
-#if NET452
-        internal bool ReferencesNServiceBus(string assemblyPath, Dictionary<string, bool> processed, string coreAssemblyName = NServicebusCoreAssemblyName)
+        internal static bool ReferencesNServiceBus(Assembly assembly, string coreAssemblyName, Dictionary<string, bool> processed)
         {
-            try
+            var assemblyName = assembly.GetName();
+            if (assemblyName.Name == coreAssemblyName)
             {
-                var assembly = Assembly.ReflectionOnlyLoadFrom(assemblyPath);
-                if (assembly.GetName().Name == coreAssemblyName)
-                {
-                    return true;
-                }
-                return ReferencesNServiceBus(assembly, coreAssemblyName, processed);
+                processed[assembly.FullName] = true;
+                return true;
             }
-            catch (Exception ex) when (ex is BadImageFormatException || ex is FileLoadException)
-            {
-                if (ThrowExceptions)
-                {
-                    throw;
-                }
 
-                return false;
-            }
-        }
-
-        static bool ReferencesNServiceBus(Assembly assembly, string coreAssemblyName, Dictionary<string, bool> processed)
-        {
-            var name = assembly.GetName().FullName;
+            var name = assemblyName.FullName;
             if (processed.ContainsKey(name))
             {
                 return processed[name];
             }
 
             processed[name] = false;
-            foreach (var assemblyName in assembly.GetReferencedAssemblies())
+            foreach (var referencedAssemblyName in assembly.GetReferencedAssemblies())
             {
                 bool referencesCore;
-                var assemblyNameFullName = assemblyName.FullName;
+                var assemblyNameFullName = referencedAssemblyName.FullName;
                 if (processed.TryGetValue(assemblyNameFullName, out referencesCore))
                 {
                     if (referencesCore)
@@ -391,23 +373,21 @@ namespace NServiceBus.Hosting.Helpers
                     continue;
                 }
 
-                if (assemblyName.Name == coreAssemblyName)
+                if (referencedAssemblyName.Name == coreAssemblyName)
                 {
                     processed[assemblyNameFullName] = true;
                     return true;
                 }
 
-                if (IsRuntimeAssembly(assemblyName))
+                if (IsRuntimeAssembly(referencedAssemblyName))
                 {
                     processed[assemblyNameFullName] = false;
                     continue;
                 }
-                //We need to do a ApplyPolicy, and use the result, so as to respect the current binding redirects
-                var afterPolicyName = AppDomain.CurrentDomain.ApplyPolicy(assemblyNameFullName);
                 Assembly refAssembly;
                 try
                 {
-                    refAssembly = Assembly.ReflectionOnlyLoad(afterPolicyName);
+                    refAssembly = Assembly.Load(assemblyNameFullName);
                 }
                 catch (FileNotFoundException)
                 {
@@ -427,7 +407,6 @@ namespace NServiceBus.Hosting.Helpers
             }
             return processed.ContainsKey(name) && processed[name];
         }
-#endif
 
         bool IsIncluded(string assemblyNameOrFileName)
         {

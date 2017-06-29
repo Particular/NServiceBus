@@ -58,38 +58,27 @@ namespace NServiceBus.Core.Tests.AssemblyScanner
         }
 
         [Test]
-        public void ReferencesNServiceBus_requires_binding_redirect()
-        {
-            var combine = Path.Combine(TestContext.CurrentContext.TestDirectory, "TestDlls", "AssemblyWithRefToSN.dll");
-            var scanner = new AssemblyScanner();
-
-            Assert.IsTrue(scanner.ReferencesNServiceBus(combine, new Dictionary<string, bool>()));
-        }
-
-        [Test]
         public void ReferencesNServiceBus_circular()
         {
+            // Assemblies already exist in TestDlls/circular:
             var circularDirectory = Path.Combine(TestContext.CurrentContext.TestDirectory, @"TestDlls\circular");
             var classLibB = Path.Combine(circularDirectory, "ClassLibraryB.dll");
 
             // Put ClassLibraryB.dll in CurrentDomain.BaseDirectory so it resolves correctly
             var tempClassLibB = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ClassLibraryB.dll");
-
             File.Copy(classLibB, tempClassLibB, true);
 
-            var classLibA = Path.Combine(circularDirectory, "ClassLibraryA.dll");
-            var scanner = new AssemblyScanner(circularDirectory);
+            var classLibA = Assembly.LoadFrom(Path.Combine(circularDirectory, "ClassLibraryA.dll"));
 
-            Assert.IsFalse(scanner.ReferencesNServiceBus(classLibA, new Dictionary<string, bool>()));
+            Assert.IsFalse(AssemblyScanner.ReferencesNServiceBus(classLibA, "NServiceBus.Core", new Dictionary<string, bool>()));
         }
 
         [Test]
         public void ReferencesNServiceBus_returns_false_for_no_reference()
         {
-            var combine = Path.Combine(TestContext.CurrentContext.TestDirectory, "TestDlls", "dotNet.dll");
-            var scanner = new AssemblyScanner();
+            var noRefAssembly = Assembly.LoadFrom(Path.Combine(TestContext.CurrentContext.TestDirectory, "TestDlls", "dotNet.dll"));
 
-            Assert.IsFalse(scanner.ReferencesNServiceBus(combine, new Dictionary<string, bool>()));
+            Assert.IsFalse(AssemblyScanner.ReferencesNServiceBus(noRefAssembly, "NServiceBus.Core", new Dictionary<string, bool>()));
         }
 
         [Test, RunInApplicationDomain]
@@ -212,20 +201,20 @@ namespace NServiceBus.Core.Tests.AssemblyScanner
         }
 
         [Test, RunInApplicationDomain]
-        public void Throw_exception_on_assembly_loading_conflicts()
+        public void Does_not_throw_exception_when_scanning_duplicate_assemblies()
         {
             var busAssembly = new DynamicAssembly("Fake.NServiceBus.Core");
 
             Directory.CreateDirectory(Path.Combine(DynamicAssembly.TestAssemblyDirectory, "subdir"));
             var destFileName = Path.Combine(DynamicAssembly.TestAssemblyDirectory, "subdir", busAssembly.FileName);
+            // create a duplicate of the scanned assembly in a subfolder:
             File.Copy(busAssembly.FilePath, destFileName);
 
             var scanner = new AssemblyScanner(DynamicAssembly.TestAssemblyDirectory);
             scanner.ScanNestedDirectories = true;
             scanner.CoreAssemblyName = busAssembly.DynamicName;
 
-            var exception = Assert.Throws<Exception>(() => scanner.GetScannableAssemblies());
-            Assert.IsInstanceOf<FileLoadException>(exception.InnerException);
+            Assert.DoesNotThrow(() => scanner.GetScannableAssemblies());
         }
 
         [Test, RunInApplicationDomain]
@@ -308,7 +297,7 @@ namespace NServiceBus.Core.Tests.AssemblyScanner
         public void Should_not_include_child_type_if_only_handler_for_base_exists()
         {
             var messages =
-@"
+                @"
 public interface IBaseEvent
 {
 }
@@ -319,7 +308,7 @@ public interface IInheritedEvent : IBaseEvent
 ";
 
             var handler =
-@"
+                @"
 using NServiceBus;
 using System.Threading.Tasks;
 
@@ -335,7 +324,10 @@ class InterfaceMessageHandler : IHandleMessages<IBaseEvent>
             var messagesAsm = new DynamicAssembly("Fake.Messages", content: messages);
             Assembly.LoadFrom(messagesAsm.FilePath);
 
-            var handlerAsm = new DynamicAssembly("Fake.Handler", new[] { messagesAsm }, content: handler, referenceTheCore: true);
+            var handlerAsm = new DynamicAssembly("Fake.Handler", new[]
+            {
+                messagesAsm
+            }, content: handler, referenceTheCore: true);
             Assembly.LoadFrom(handlerAsm.FilePath);
 
             var scanner = new AssemblyScanner(DynamicAssembly.TestAssemblyDirectory);
@@ -427,7 +419,10 @@ class InterfaceMessageHandler : IHandleMessages<IBaseEvent>
 
                 if (fakeIdentity)
                 {
-                    using (var assemblyDefinition = AssemblyDefinition.ReadAssembly(FilePath, new ReaderParameters { ReadWrite = true }))
+                    using (var assemblyDefinition = AssemblyDefinition.ReadAssembly(FilePath, new ReaderParameters
+                    {
+                        ReadWrite = true
+                    }))
                     {
                         assemblyDefinition.Name.Name = nameWithoutExtension;
                         assemblyDefinition.MainModule.Name = nameWithoutExtension;
