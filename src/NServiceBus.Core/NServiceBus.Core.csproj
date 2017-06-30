@@ -37,12 +37,8 @@
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net452'">
-    <Compile Update="Licensing\LicenseExpiredForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Update="Licensing\LicenseExpiredForm.Designer.cs">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Update="Licensing\LicenseExpiredForm.cs" SubType="Form" />
+    <Compile Update="Licensing\LicenseExpiredForm.Designer.cs" SubType="Form" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp2.0'">
