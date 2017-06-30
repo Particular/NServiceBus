@@ -16,12 +16,4 @@
     <Description>Acceptance testing framework for NServiceBus endpoints. This is an unsupported package.</Description>
   </PropertyGroup>
 
-  <ItemGroup>
-    <None Include="$(OutputPath)\**\$(AssemblyName).pdb">
-      <Pack>true</Pack>
-      <PackagePath>lib\</PackagePath>
-      <Visible>false</Visible>
-    </None>
-  </ItemGroup>
-
 </Project>
