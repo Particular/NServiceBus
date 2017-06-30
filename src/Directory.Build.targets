@@ -13,4 +13,15 @@
     <!--<GeneratePackageOnBuild>true</GeneratePackageOnBuild>-->
   </PropertyGroup>
 
+  <!-- Target is needed until we can enable GeneratePackageOnBuild again -->
+  <Target Name="IncludePDBsInPackage" BeforeTargets="_GetPackageFiles" Condition="'$(IncludeBuildOutput)' != 'false'">
+    <ItemGroup>
+      <None Include="$(OutputPath)\**\$(AssemblyName).pdb">
+        <Pack>true</Pack>
+        <PackagePath>lib\</PackagePath>
+        <Visible>false</Visible>
+      </None>
+    </ItemGroup>
+  </Target>
+
 </Project>
