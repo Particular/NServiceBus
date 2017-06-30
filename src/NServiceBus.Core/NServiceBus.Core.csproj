@@ -24,6 +24,7 @@
     <PackageReference Include="Autofac" Version="4.6.0" />
     <PackageReference Include="Fody" Version="2.1.0" PrivateAssets="All" />
     <PackageReference Include="Janitor.Fody" Version="1.4.1" PrivateAssets="All" />
+    <PackageReference Include="LightInject.Source" Version="5.0.3" />
     <PackageReference Include="Newtonsoft.Json" Version="10.0.2" />
     <PackageReference Include="Obsolete.Fody" Version="4.2.2" PrivateAssets="All" />
     <PackageReference Include="Particular.CodeRules" Version="0.2.0" PrivateAssets="All" />
@@ -68,6 +69,7 @@
       <PackagePath>tools</PackagePath>
       <Visible>false</Visible>
     </None>
+    <None Include="ObjectBuilder\LightInject.cs" />
   </ItemGroup>
 
 </Project>
