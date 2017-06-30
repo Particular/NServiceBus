@@ -180,6 +180,13 @@ namespace NServiceBus.ContainerTests
 
         class ComponentThatDependsOfSingleton
         {
+            // ReSharper disable once NotAccessedField.Local
+            readonly ISingletonComponent dependency;
+
+            public ComponentThatDependsOfSingleton(ISingletonComponent dependency)
+            {
+                this.dependency = dependency;
+            }
         }
     }
 
