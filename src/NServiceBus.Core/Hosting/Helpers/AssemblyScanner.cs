@@ -27,29 +27,25 @@ namespace NServiceBus.Hosting.Helpers
         /// </summary>
         public AssemblyScanner(string baseDirectoryToScan)
         {
-            ThrowExceptions = true;
             this.baseDirectoryToScan = baseDirectoryToScan;
-            CoreAssemblyName = NServicebusCoreAssemblyName;
         }
 
         internal AssemblyScanner(Assembly assemblyToScan)
         {
             this.assemblyToScan = assemblyToScan;
-            ThrowExceptions = true;
-            CoreAssemblyName = NServicebusCoreAssemblyName;
         }
 
         /// <summary>
         /// Determines if the scanner should throw exceptions or not.
         /// </summary>
-        public bool ThrowExceptions { get; set; }
+        public bool ThrowExceptions { get; set; } = true;
 
         /// <summary>
         /// Determines if the scanner should scan assemblies loaded in the <see cref="AppDomain.CurrentDomain"/>.
         /// </summary>
         public bool ScanAppDomainAssemblies { get; set; }
 
-        internal string CoreAssemblyName { get; set; }
+        internal string CoreAssemblyName { get; set; } = NServicebusCoreAssemblyName;
 
         /// <summary>
         /// Traverses the specified base directory including all sub-directories, generating a list of assemblies that can be
