@@ -13,7 +13,10 @@ namespace NServiceBus.Core.Tests.AssemblyScanner
         public void Should_not_scan_nested_directories_by_default()
         {
             var endpointConfiguration = new EndpointConfiguration("myendpoint");
-            endpointConfiguration.AssemblyScanner().ExcludeTypes(typeof(When_using_initialization_with_non_default_ctor.FeatureWithInitialization));
+            var scannerConfiguration = endpointConfiguration.AssemblyScanner();
+
+            scannerConfiguration.ScanAppDomainAssemblies = false;
+            scannerConfiguration.ExcludeTypes(typeof(When_using_initialization_with_non_default_ctor.FeatureWithInitialization));
             endpointConfiguration.Build();
 
             var scannedTypes = endpointConfiguration.Settings.Get<IList<Type>>("TypesToScan");
