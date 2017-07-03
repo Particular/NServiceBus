@@ -12,9 +12,9 @@
     public class AssemblyScannerConfiguration
     {
         /// <summary>
-        /// Defines whether assemblies loaded into the current <see cref="AppDomain"/> should be scanned. Default value is <code>false</code>.
+        /// Defines whether assemblies loaded into the current <see cref="AppDomain"/> should be scanned. Default value is <code>true</code>.
         /// </summary>
-        public bool ScanAppDomainAssemblies { get; set; }
+        public bool ScanAppDomainAssemblies { get; set; } = true;
 
         /// <summary>
         /// Defines whether exceptions occurring during assembly scanning should be rethrown or ignored. Default value is <code>true</code>.

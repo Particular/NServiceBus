@@ -43,7 +43,7 @@ namespace NServiceBus.Hosting.Helpers
         /// <summary>
         /// Determines if the scanner should scan assemblies loaded in the <see cref="AppDomain.CurrentDomain"/>.
         /// </summary>
-        public bool ScanAppDomainAssemblies { get; set; }
+        public bool ScanAppDomainAssemblies { get; set; } = true;
 
         internal string CoreAssemblyName { get; set; } = NServicebusCoreAssemblyName;
 
