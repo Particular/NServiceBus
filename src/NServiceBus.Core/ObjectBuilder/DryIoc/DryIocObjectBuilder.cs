@@ -4,18 +4,24 @@
     using System.Collections.Generic;
     using System.Linq;
     using DryIoc;
+    using Janitor;
 
+    [SkipWeaving]
     class DryIocObjectBuilder : Common.IContainer
     {
         IContainer container;
+        // ReSharper disable once PrivateFieldCanBeConvertedToLocalVariable
+        Container rootContainer;
 
         public DryIocObjectBuilder()
         {
             //TODO scopeContext is called 'ThreadScopeContext', is this an issue?
-            container = new Container(rules => rules
-                .WithoutThrowOnRegisteringDisposableTransient()
-                .With(propertiesAndFields: PropertiesAndFields.Auto)
-                .WithImplicitRootOpenScope());
+            rootContainer = new Container(rules => rules
+                    .WithoutThrowOnRegisteringDisposableTransient()
+                    .With(propertiesAndFields: PropertiesAndFields.Auto)
+                //.WithImplicitRootOpenScope()
+                , scopeContext: new AsyncExecutionFlowScopeContext());
+            container = rootContainer.OpenScope(); // .WithImplicitRootOpenScope() doesn't work with custom scope context
         }
 
         DryIocObjectBuilder(IContainer openScope)
@@ -25,6 +31,8 @@
 
         public void Dispose()
         {
+            container?.Dispose();
+            rootContainer?.Dispose();
         }
 
         public object Build(Type typeToBuild)
