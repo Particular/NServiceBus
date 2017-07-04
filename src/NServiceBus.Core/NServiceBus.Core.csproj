@@ -68,7 +68,6 @@
       <PackagePath>tools</PackagePath>
       <Visible>false</Visible>
     </None>
-    <None Include="ObjectBuilder\LightInject.cs" />
   </ItemGroup>
 
 </Project>
