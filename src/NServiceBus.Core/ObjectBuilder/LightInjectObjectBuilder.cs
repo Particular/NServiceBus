@@ -1,11 +1,11 @@
-﻿namespace NServiceBus.ObjectBuilder
+﻿namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using Common;
     using Janitor;
     using LightInject;
+    using ObjectBuilder.Common;
 
     [SkipWeaving]
     class LightInjectObjectBuilder : IContainer
@@ -16,8 +16,7 @@
 
         public LightInjectObjectBuilder()
         {
-            container = new ServiceContainer();
-            container.ScopeManagerProvider = new PerLogicalCallContextScopeManagerProvider();
+            container = new ServiceContainer(new ContainerOptions { EnableVariance = false });
             scope = container.BeginScope();
             isRootScope = true;
         }
@@ -55,65 +54,43 @@
 
         public void Configure(Type component, DependencyLifecycle dependencyLifecycle)
         {
+            ThrowIfCalledOnChildContainer();
+
+            if (HasComponent(component))
+            {
+                return;
+            }
+
             container.Register(component, GetLifeTime(dependencyLifecycle));
             var interfaces = GetAllServices(component);
             foreach (var serviceType in interfaces)
             {
-                container.Register(serviceType, component, GetLifeTime(dependencyLifecycle));
+                container.Register(serviceType, s => s.GetInstance(component), GetLifeTime(dependencyLifecycle), component.FullName);
             }
-        }
-
-        //ILifetime GetLifeTime(DependencyLifecycle dependencyLifecycle)
-        //{
-        //    switch (dependencyLifecycle)
-        //    {
-        //        case DependencyLifecycle.InstancePerCall:
-        //            return new PerRequestLifeTime();
-        //        case DependencyLifecycle.InstancePerUnitOfWork:
-        //            return new PerScopeLifetime();
-        //        case DependencyLifecycle.SingleInstance:
-        //            return new PerContainerLifetime();
-        //        default:
-        //            throw new Exception();
-        //    }
-        //}
-
-        //TODO: taken from https://github.com/seesharper/LightInject.NServiceBus/blob/master/src/LightInject.NServiceBus/LightInject.NServiceBus.cs, they do use null instead perrequest??
-        private ILifetime GetLifeTime(DependencyLifecycle dependencyLifecycle)
-        {
-            if (dependencyLifecycle == DependencyLifecycle.SingleInstance)
-            {
-                return new PerContainerLifetime();
-            }
-            if (dependencyLifecycle == DependencyLifecycle.InstancePerUnitOfWork)
-            {
-                return new PerScopeLifetime();
-            }
-
-            // TODO: is there a difference between returning null or PerRequestLifeTime?
-            return null;
         }
 
         public void Configure<T>(Func<T> component, DependencyLifecycle dependencyLifecycle)
         {
-            container.Register(sf => component(), GetLifeTime(dependencyLifecycle));
-            var interfaces = GetAllServices(typeof(T));
-            foreach (var serviceType in interfaces)
-            {
-                //TODO are those instances shared across different request types? e.g singleton resolve<Impl> & resolve<Service>
-                //var serviceRegistration = new ServiceRegistration()
-                //{
-                //    ServiceType = serviceType,
-                //    ImplementingType = typeof(T)
-                //};
-                //container.Register(serviceRegistration);
-                container.Register(serviceType, typeof(T));
+            ThrowIfCalledOnChildContainer();
 
+            var componentType = typeof(T);
+            if (HasComponent(componentType))
+            {
+                return;
+            }
+
+            container.Register(sf => component(), GetLifeTime(dependencyLifecycle));
+            var interfaces = GetAllServices(componentType);
+            foreach (var servicesType in interfaces)
+            {
+                container.Register(servicesType, s => s.GetInstance<T>(), GetLifeTime(dependencyLifecycle), componentType.FullName);
             }
         }
 
         public void RegisterSingleton(Type lookupType, object instance)
         {
+            ThrowIfCalledOnChildContainer();
+            
             container.RegisterInstance(lookupType, instance);
         }
 
@@ -124,6 +101,21 @@
 
         public void Release(object instance)
         {
+        }
+
+        static ILifetime GetLifeTime(DependencyLifecycle dependencyLifecycle)
+        {
+            switch (dependencyLifecycle)
+            {
+                case DependencyLifecycle.InstancePerCall:
+                    return new PerRequestLifeTime();
+                case DependencyLifecycle.InstancePerUnitOfWork:
+                    return new PerScopeLifetime();
+                case DependencyLifecycle.SingleInstance:
+                    return new PerContainerLifetime();
+                default:
+                    throw new Exception();
+            }
         }
 
         static IEnumerable<Type> GetAllServices(Type type)
@@ -141,6 +133,14 @@
             }
 
             return result.Distinct();
+        }
+
+        void ThrowIfCalledOnChildContainer()
+        {
+            if (!isRootScope)
+            {
+                throw new InvalidOperationException("Reconfiguration of child containers is not allowed.");
+            }
         }
     }
 }
