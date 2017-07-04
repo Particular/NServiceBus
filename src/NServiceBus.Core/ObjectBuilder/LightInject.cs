@@ -77,7 +77,7 @@ namespace LightInject
     /// <summary>
     /// Describes the logging level/severity.
     /// </summary>
-    public enum LogLevel
+    internal enum LogLevel
     {
         /// <summary>
         /// Indicates the <see cref="LogEntry"/> represents an information message.
