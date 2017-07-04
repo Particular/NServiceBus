@@ -40,7 +40,8 @@
 
         public IEnumerable<object> BuildAll(Type typeToBuild)
         {
-            return container.ResolveMany(typeToBuild);
+            var resolveMany = container.ResolveMany(typeToBuild, behavior: ResolveManyBehavior.AsFixedArray);
+            return resolveMany;
         }
 
         public void Configure(Type component, DependencyLifecycle dependencyLifecycle)
@@ -49,10 +50,22 @@
             {
                 return;
             }
+
             var lifetime = MapLifetime(dependencyLifecycle);
-            container.RegisterMany(new[] { component }, lifetime
-                , nonPublicServiceTypes: true
-            );
+            //container.RegisterMany(new[] { component }, lifetime
+            //    , nonPublicServiceTypes: true
+            //);
+
+            container.Register(component, lifetime);
+
+            var interfaces = GetAllServices(component);
+            foreach (var @interface in interfaces)
+            {
+                
+                //container.Register(@interface, component, lifetime);
+                container.RegisterMapping(@interface, component, serviceKey: DefaultKey.Of(component.GetHashCode()));
+
+            }
         }
 
         IReuse MapLifetime(DependencyLifecycle dependencyLifecycle)
@@ -72,13 +85,18 @@
 
         public void Configure<T>(Func<T> component, DependencyLifecycle dependencyLifecycle)
         {
+            if (container.IsRegistered(typeof(T)))
+            {
+                return;
+            }
+
             var lifetime = MapLifetime(dependencyLifecycle);
             container.RegisterDelegate(r => component(), lifetime);
 
             var interfaces = GetAllServices(typeof(T));
             foreach (var @interface in interfaces)
             {
-                container.RegisterMapping(@interface, typeof(T));
+                container.RegisterMapping(@interface, typeof(T), serviceKey: DefaultKey.Of(typeof(T).GetHashCode()));
             }
         }
 
