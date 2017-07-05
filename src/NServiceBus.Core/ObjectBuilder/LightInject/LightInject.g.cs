@@ -32,7 +32,7 @@
 #endif
 
 #if NETCOREAPP2_0
-#define NETSTANDARD13
+#define NETSTANDARD16
 #endif
 
 [module: System.Diagnostics.CodeAnalysis.SuppressMessage("StyleCop.CSharp.ReadabilityRules", "SA1126:PrefixCallsCorrectly", Justification = "Reviewed")]
