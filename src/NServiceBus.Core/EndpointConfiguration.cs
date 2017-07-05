@@ -145,7 +145,7 @@ namespace NServiceBus
             Settings.SetDefault("TypesToScan", scannedTypes);
             ActivateAndInvoke<INeedInitialization>(scannedTypes, t => t.Customize(this));
 
-            var container = customBuilder ?? new AutofacObjectBuilder();
+            var container = customBuilder ?? new DryIocObjectBuilder();
 
             var conventions = conventionsBuilder.Conventions;
             Settings.SetDefault<Conventions>(conventions);
