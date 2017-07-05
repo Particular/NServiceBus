@@ -26,10 +26,11 @@
     http://twitter.com/bernhardrichter
 ******************************************************************************/
 
-// how are the conditional compilation symbols set?
+//Define the necessary compilation symbols
 #if NET452
 #define NET45
 #endif
+
 #if NETCOREAPP2_0
 #define NETSTANDARD13
 #endif
