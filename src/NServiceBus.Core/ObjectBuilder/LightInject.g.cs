@@ -28,10 +28,10 @@
 
 // how are the conditional compilation symbols set?
 #if NET452
-    #define NET45
+#define NET45
 #endif
 #if NETCOREAPP2_0
-    #define NETSTANDARD13
+#define NETSTANDARD13
 #endif
 
 [module: System.Diagnostics.CodeAnalysis.SuppressMessage("StyleCop.CSharp.ReadabilityRules", "SA1126:PrefixCallsCorrectly", Justification = "Reviewed")]
@@ -577,7 +577,7 @@ namespace LightInject
         /// </summary>
         /// <returns><see cref="Scope"/></returns>
         Scope BeginScope();
-       
+
         /// <summary>
         /// Gets an instance of the given <paramref name="serviceType"/>.
         /// </summary>
@@ -664,7 +664,7 @@ namespace LightInject
         /// </summary>
         /// <param name="instance">The target instance for which to inject its property dependencies.</param>
         /// <returns>The <paramref name="instance"/> with its property dependencies injected.</returns>
-        object InjectProperties(object instance);        
+        object InjectProperties(object instance);
     }
 
     /// <summary>
@@ -1017,7 +1017,7 @@ namespace LightInject
         /// <summary>
         /// Returns the <see cref="IScopeManager"/> that is responsible for managing scopes.
         /// </summary>
-        /// <param name="serviceFactory">The <see cref="IServiceFactory"/> to be associated with this <see cref="ScopeManager"/>.</param> 
+        /// <param name="serviceFactory">The <see cref="IServiceFactory"/> to be associated with this <see cref="ScopeManager"/>.</param>
         /// <returns>The <see cref="IScopeManager"/> that is responsible for managing scopes.</returns>
         IScopeManager GetScopeManager(IServiceFactory serviceFactory);
     }
@@ -1035,7 +1035,7 @@ namespace LightInject
         /// <param name="constants">A object array representing the dynamic method context.</param>
         /// <returns>An array containing the runtime arguments supplied when resolving the service.</returns>
         public static object[] Load(object[] constants)
-        {            
+        {
             object[] arguments = constants[constants.Length - 1] as object[];
             if (arguments == null)
             {
@@ -1077,8 +1077,8 @@ namespace LightInject
         /// <summary>
         /// Gets an instance of the given <typeparamref name="TService"/> type.
         /// </summary>
-        /// <typeparam name="TService">The type of the requested service.</typeparam>   
-        /// <param name="factory">The target <see cref="IServiceFactory"/>.</param>     
+        /// <typeparam name="TService">The type of the requested service.</typeparam>
+        /// <param name="factory">The target <see cref="IServiceFactory"/>.</param>
         /// <returns>The requested service instance.</returns>
         public static TService GetInstance<TService>(this IServiceFactory factory)
         {
@@ -1089,7 +1089,7 @@ namespace LightInject
         /// Gets a named instance of the given <typeparamref name="TService"/>.
         /// </summary>
         /// <typeparam name="TService">The type of the requested service.</typeparam>
-        /// <param name="factory">The target <see cref="IServiceFactory"/>.</param>     
+        /// <param name="factory">The target <see cref="IServiceFactory"/>.</param>
         /// <param name="serviceName">The name of the requested service.</param>
         /// <returns>The requested service instance.</returns>
         public static TService GetInstance<TService>(this IServiceFactory factory, string serviceName)
@@ -1102,7 +1102,7 @@ namespace LightInject
         /// </summary>
         /// <typeparam name="T">The type of the argument.</typeparam>
         /// <typeparam name="TService">The type of the requested service.</typeparam>
-        /// <param name="factory">The target <see cref="IServiceFactory"/>.</param>             
+        /// <param name="factory">The target <see cref="IServiceFactory"/>.</param>
         /// <param name="value">The argument value.</param>
         /// <returns>The requested service instance.</returns>
         public static TService GetInstance<T, TService>(this IServiceFactory factory, T value)
@@ -1115,7 +1115,7 @@ namespace LightInject
         /// </summary>
         /// <typeparam name="T">The type of the parameter.</typeparam>
         /// <typeparam name="TService">The type of the requested service.</typeparam>
-        /// <param name="factory">The target <see cref="IServiceFactory"/>.</param>     
+        /// <param name="factory">The target <see cref="IServiceFactory"/>.</param>
         /// <param name="value">The argument value.</param>
         /// <param name="serviceName">The name of the requested service.</param>
         /// <returns>The requested service instance.</returns>
@@ -1130,7 +1130,7 @@ namespace LightInject
         /// <typeparam name="T1">The type of the first parameter.</typeparam>
         /// <typeparam name="T2">The type of the second parameter.</typeparam>
         /// <typeparam name="TService">The type of the requested service.</typeparam>
-        /// <param name="factory">The target <see cref="IServiceFactory"/>.</param>     
+        /// <param name="factory">The target <see cref="IServiceFactory"/>.</param>
         /// <param name="arg1">The first argument value.</param>
         /// <param name="arg2">The second argument value.</param>
         /// <returns>The requested service instance.</returns>
@@ -1145,7 +1145,7 @@ namespace LightInject
         /// <typeparam name="T1">The type of the first parameter.</typeparam>
         /// <typeparam name="T2">The type of the second parameter.</typeparam>
         /// <typeparam name="TService">The type of the requested service.</typeparam>
-        /// <param name="factory">The target <see cref="IServiceFactory"/>.</param>     
+        /// <param name="factory">The target <see cref="IServiceFactory"/>.</param>
         /// <param name="arg1">The first argument value.</param>
         /// <param name="arg2">The second argument value.</param>
         /// <param name="serviceName">The name of the requested service.</param>
@@ -1162,7 +1162,7 @@ namespace LightInject
         /// <typeparam name="T2">The type of the second parameter.</typeparam>
         /// <typeparam name="T3">The type of the third parameter.</typeparam>
         /// <typeparam name="TService">The type of the requested service.</typeparam>
-        /// <param name="factory">The target <see cref="IServiceFactory"/>.</param>     
+        /// <param name="factory">The target <see cref="IServiceFactory"/>.</param>
         /// <param name="arg1">The first argument value.</param>
         /// <param name="arg2">The second argument value.</param>
         /// <param name="arg3">The third argument value.</param>
@@ -1179,7 +1179,7 @@ namespace LightInject
         /// <typeparam name="T2">The type of the second parameter.</typeparam>
         /// <typeparam name="T3">The type of the third parameter.</typeparam>
         /// <typeparam name="TService">The type of the requested service.</typeparam>
-        /// <param name="factory">The target <see cref="IServiceFactory"/>.</param>     
+        /// <param name="factory">The target <see cref="IServiceFactory"/>.</param>
         /// <param name="arg1">The first argument value.</param>
         /// <param name="arg2">The second argument value.</param>
         /// <param name="arg3">The third argument value.</param>
@@ -1198,7 +1198,7 @@ namespace LightInject
         /// <typeparam name="T3">The type of the third parameter.</typeparam>
         /// <typeparam name="T4">The type of the fourth parameter.</typeparam>
         /// <typeparam name="TService">The type of the requested service.</typeparam>
-        /// <param name="factory">The target <see cref="IServiceFactory"/>.</param>     
+        /// <param name="factory">The target <see cref="IServiceFactory"/>.</param>
         /// <param name="arg1">The first argument value.</param>
         /// <param name="arg2">The second argument value.</param>
         /// <param name="arg3">The third argument value.</param>
@@ -1217,7 +1217,7 @@ namespace LightInject
         /// <typeparam name="T3">The type of the third parameter.</typeparam>
         /// <typeparam name="T4">The type of the fourth parameter.</typeparam>
         /// <typeparam name="TService">The type of the requested service.</typeparam>
-        /// <param name="factory">The target <see cref="IServiceFactory"/>.</param>     
+        /// <param name="factory">The target <see cref="IServiceFactory"/>.</param>
         /// <param name="arg1">The first argument value.</param>
         /// <param name="arg2">The second argument value.</param>
         /// <param name="arg3">The third argument value.</param>
@@ -1233,7 +1233,7 @@ namespace LightInject
         /// Tries to get an instance of the given <typeparamref name="TService"/> type.
         /// </summary>
         /// <typeparam name="TService">The type of the requested service.</typeparam>
-        /// <param name="factory">The target <see cref="IServiceFactory"/>.</param>     
+        /// <param name="factory">The target <see cref="IServiceFactory"/>.</param>
         /// <returns>The requested service instance if available, otherwise default(T).</returns>
         public static TService TryGetInstance<TService>(this IServiceFactory factory)
         {
@@ -1244,7 +1244,7 @@ namespace LightInject
         /// Tries to get an instance of the given <typeparamref name="TService"/> type.
         /// </summary>
         /// <typeparam name="TService">The type of the requested service.</typeparam>
-        /// <param name="factory">The target <see cref="IServiceFactory"/>.</param>     
+        /// <param name="factory">The target <see cref="IServiceFactory"/>.</param>
         /// <param name="serviceName">The name of the requested service.</param>
         /// <returns>The requested service instance if available, otherwise default(T).</returns>
         public static TService TryGetInstance<TService>(this IServiceFactory factory, string serviceName)
@@ -1256,7 +1256,7 @@ namespace LightInject
         /// Gets all instances of type <typeparamref name="TService"/>.
         /// </summary>
         /// <typeparam name="TService">The type of services to resolve.</typeparam>
-        /// <param name="factory">The target <see cref="IServiceFactory"/>.</param>     
+        /// <param name="factory">The target <see cref="IServiceFactory"/>.</param>
         /// <returns>A list that contains all implementations of the <typeparamref name="TService"/> type.</returns>
         public static IEnumerable<TService> GetAllInstances<TService>(this IServiceFactory factory)
         {
@@ -1267,7 +1267,7 @@ namespace LightInject
         /// Creates an instance of a concrete class.
         /// </summary>
         /// <typeparam name="TService">The type of class for which to create an instance.</typeparam>
-        /// <param name="factory">The target <see cref="IServiceFactory"/>.</param>     
+        /// <param name="factory">The target <see cref="IServiceFactory"/>.</param>
         /// <returns>An instance of <typeparamref name="TService"/>.</returns>
         /// <remarks>The concrete type will be registered if not already registered with the container.</remarks>
         public static TService Create<TService>(this IServiceFactory factory)
@@ -1902,7 +1902,7 @@ namespace LightInject
             var concreteTypeExtractor = new CachedTypeExtractor(new ConcreteTypeExtractor());
             CompositionRootTypeExtractor = new CachedTypeExtractor(new CompositionRootTypeExtractor(new CompositionRootAttributeExtractor()));
             CompositionRootExecutor = new CompositionRootExecutor(this, type => (ICompositionRoot)Activator.CreateInstance(type));
-            PropertyDependencySelector = options.EnablePropertyInjection 
+            PropertyDependencySelector = options.EnablePropertyInjection
                 ? (IPropertyDependencySelector)new PropertyDependencySelector(new PropertySelector())
                 : new PropertyDependencyDisabler();
             GenericArgumentMapper = new GenericArgumentMapper();
@@ -2003,7 +2003,7 @@ namespace LightInject
         {
             return ScopeManagerProvider.GetScopeManager(this).BeginScope();
         }
-        
+
         /// <summary>
         /// Injects the property dependencies for a given <paramref name="instance"/>.
         /// </summary>
@@ -2178,7 +2178,7 @@ namespace LightInject
             {
                 var message =
                     $"Attempt to register a constructor dependency {typeof(TDependency)} after the first call to GetInstance." +
-                    $"This might lead to incorrect behaviour if a service with a {typeof(TDependency)} dependency has already been resolved";                              
+                    $"This might lead to incorrect behaviour if a service with a {typeof(TDependency)} dependency has already been resolved";
 
                 log.Warning(message);
             }
@@ -2189,7 +2189,7 @@ namespace LightInject
                 (s, e) => isLocked ? e : factory);
             return this;
         }
-      
+
         /// <summary>
         /// Registers a factory delegate to be used when resolving a constructor dependency for
         /// a implicitly registered service.
@@ -2214,7 +2214,7 @@ namespace LightInject
                 (s, e) => isLocked ? e : factory);
             return this;
         }
-       
+
         /// <summary>
         /// Registers a factory delegate to be used when resolving a constructor dependency for
         /// a implicitly registered service.
@@ -2333,10 +2333,10 @@ namespace LightInject
         public IServiceRegistry Override(Func<ServiceRegistration, bool> serviceSelector, Func<IServiceFactory, ServiceRegistration, ServiceRegistration> serviceRegistrationFactory)
         {
             var serviceOverride = new ServiceOverride
-                                      {
-                                          CanOverride = serviceSelector,
-                                          ServiceRegistrationFactory = serviceRegistrationFactory,
-                                      };
+            {
+                CanOverride = serviceSelector,
+                ServiceRegistrationFactory = serviceRegistrationFactory,
+            };
             overrides.Add(serviceOverride);
             return this;
         }
@@ -2883,8 +2883,8 @@ namespace LightInject
             {
                 disposableLifetimeInstance.Dispose();
             }
-        }    
-           
+        }
+
         private static void EmitNewArray(IList<Action<IEmitter>> emitMethods, Type elementType, IEmitter emitter)
         {
             LocalBuilder array = emitter.DeclareLocal(elementType.MakeArrayType());
@@ -3081,7 +3081,7 @@ namespace LightInject
             if (rule != null)
             {
                 emitMethod = CreateServiceEmitterBasedOnFactoryRule(rule, serviceType, serviceName);
-                
+
                 RegisterEmitMethod(serviceType, serviceName, emitMethod);
             }
 
@@ -3135,7 +3135,7 @@ namespace LightInject
         {
             var emitMethod = ResolveEmitMethod(serviceRegistration);
             RegisterEmitMethod(serviceRegistration.ServiceType, serviceRegistration.ServiceName, emitMethod);
-            
+
             return serviceRegistration;
         }
 
@@ -3149,7 +3149,7 @@ namespace LightInject
             if (isLocked)
             {
                 var message = $"Cannot overwrite existing serviceregistration {existingRegistration} after the first call to GetInstance.";
-                log.Warning(message);                                    
+                log.Warning(message);
                 return existingRegistration;
             }
 
@@ -3471,7 +3471,7 @@ namespace LightInject
 
                 if (parameter.ParameterType == typeof(object[]))
                 {
-                   actions.Add(e => PushRuntimeArguments(e));
+                    actions.Add(e => PushRuntimeArguments(e));
                 }
             }
 
@@ -3857,7 +3857,7 @@ namespace LightInject
                 emitter.Call(getInstanceMethod);
             }
         }
-      
+
         private int CreateScopeManagerIndex()
         {
             return constants.Add(ScopeManagerProvider.GetScopeManager(this));
@@ -4096,7 +4096,7 @@ namespace LightInject
         /// <summary>
         /// Returns the <see cref="IScopeManager"/> that is responsible for managing scopes.
         /// </summary>
-        /// <param name="serviceFactory">The <see cref="IServiceFactory"/> to be associated with this <see cref="ScopeManager"/>.</param> 
+        /// <param name="serviceFactory">The <see cref="IServiceFactory"/> to be associated with this <see cref="ScopeManager"/>.</param>
         /// <returns>The <see cref="IScopeManager"/> that is responsible for managing scopes.</returns>
         public IScopeManager GetScopeManager(IServiceFactory serviceFactory)
         {
@@ -4117,7 +4117,7 @@ namespace LightInject
         /// <summary>
         /// Creates a new <see cref="IScopeManager"/> instance.
         /// </summary>
-        /// <param name="serviceFactory">The <see cref="IServiceFactory"/> to be associated with the <see cref="IScopeManager"/>.</param> 
+        /// <param name="serviceFactory">The <see cref="IServiceFactory"/> to be associated with the <see cref="IScopeManager"/>.</param>
         /// <returns><see cref="IScopeManager"/>.</returns>
         protected abstract IScopeManager CreateScopeManager(IServiceFactory serviceFactory);
     }
@@ -4131,7 +4131,7 @@ namespace LightInject
         /// <summary>
         /// Creates a new <see cref="IScopeManager"/> instance.
         /// </summary>
-        /// <param name="serviceFactory">The <see cref="IServiceFactory"/> to be associated with the <see cref="IScopeManager"/>.</param> 
+        /// <param name="serviceFactory">The <see cref="IServiceFactory"/> to be associated with the <see cref="IScopeManager"/>.</param>
         /// <returns><see cref="IScopeManager"/>.</returns>
         protected override IScopeManager CreateScopeManager(IServiceFactory serviceFactory)
         {
@@ -4150,12 +4150,12 @@ namespace LightInject
         private readonly LogicalThreadStorage<Scope> currentScope = new LogicalThreadStorage<Scope>();
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="PerLogicalCallContextScopeManager"/> class.        
+        /// Initializes a new instance of the <see cref="PerLogicalCallContextScopeManager"/> class.
         /// </summary>
         /// <param name="serviceFactory">The <see cref="IServiceFactory"/> to be associated with this <see cref="ScopeManager"/>.</param>
-        public PerLogicalCallContextScopeManager(IServiceFactory serviceFactory) 
+        public PerLogicalCallContextScopeManager(IServiceFactory serviceFactory)
             : base(serviceFactory)
-        {            
+        {
         }
 
         /// <summary>
@@ -4165,7 +4165,7 @@ namespace LightInject
         {
             get { return GetThisScopeOrFirstValidAncestor(currentScope.Value); }
             set { currentScope.Value = value; }
-        }               
+        }
     }
 
     /// <summary>
@@ -4178,7 +4178,7 @@ namespace LightInject
         /// <summary>
         /// Creates a new <see cref="IScopeManager"/> instance.
         /// </summary>
-        /// <param name="serviceFactory">The <see cref="IServiceFactory"/> to be associated with the <see cref="IScopeManager"/>.</param> 
+        /// <param name="serviceFactory">The <see cref="IServiceFactory"/> to be associated with the <see cref="IScopeManager"/>.</param>
         /// <returns><see cref="IScopeManager"/>.</returns>
         protected override IScopeManager CreateScopeManager(IServiceFactory serviceFactory)
         {
@@ -4218,7 +4218,7 @@ namespace LightInject
     /// Represents the MSIL instructions.
     /// </summary>
     public enum OpCode
-	{
+    {
         /// <summary>
         /// Adds two values and pushes the result onto the evaluation stack.
         /// </summary>
@@ -4235,16 +4235,16 @@ namespace LightInject
         Unbox_Any,
 
         /// <summary>
-        /// Loads the element containing an object reference at a specified array index 
+        /// Loads the element containing an object reference at a specified array index
         /// onto the top of the evaluation stack as type O (object reference).
         /// </summary>
-		Ldelem_Ref,
+        Ldelem_Ref,
 
         /// <summary>
         /// Loads an argument (referenced by a specified index value) onto the stack.
         /// </summary>
         Ldarg,
-       
+
         /// <summary>
         /// Loads the argument at index 0 onto the evaluation stack.
         /// </summary>
@@ -4273,7 +4273,7 @@ namespace LightInject
         /// <summary>
         /// Pushes the number of elements of a zero-based, one-dimensional array onto the evaluation stack.
         /// </summary>
-		Ldlen,
+        Ldlen,
 
         /// <summary>
         /// Converts the value on top of the evaluation stack to int32.
@@ -4286,7 +4286,7 @@ namespace LightInject
         Sub,
 
         /// <summary>
-        /// Pops the current value from the top of the evaluation stack 
+        /// Pops the current value from the top of the evaluation stack
         /// and stores it in a the local variable list at a specified index.
         /// </summary>
         Stloc,
@@ -4294,12 +4294,12 @@ namespace LightInject
         /// <summary>
         /// Loads the local variable at a specific index onto the evaluation stack.
         /// </summary>
-		Ldloc,
+        Ldloc,
 
         /// <summary>
         /// Pushes a supplied value of type int32 onto the evaluation stack as an int32.
         /// </summary>
-		Ldc_I4,
+        Ldc_I4,
 
         /// <summary>
         /// Calls a late-bound method on an object, pushing the return value onto the evaluation stack.
@@ -4314,7 +4314,7 @@ namespace LightInject
         /// <summary>
         /// Loads the local variable at index 0 onto the evaluation stack.
         /// </summary>
-		Ldloc_0,
+        Ldloc_0,
 
         /// <summary>
         /// Loads the local variable at index 1 onto the evaluation stack.
@@ -4324,32 +4324,32 @@ namespace LightInject
         /// <summary>
         /// Loads the local variable at index 2 onto the evaluation stack.
         /// </summary>
-		Ldloc_2,
+        Ldloc_2,
 
         /// <summary>
         /// Loads the local variable at index 3 onto the evaluation stack.
         /// </summary>
-		Ldloc_3,
+        Ldloc_3,
 
         /// <summary>
         /// Loads the local variable at a specific index onto the evaluation stack, short form.
         /// </summary>
-		Ldloc_S,
+        Ldloc_S,
 
         /// <summary>
         /// Calls the method indicated by the passed method descriptor.
         /// </summary>
-		Call,
+        Call,
 
         /// <summary>
         /// Pops the current value from the top of the evaluation stack and stores it in a the local variable list at index 0.
         /// </summary>
-		Stloc_0,
+        Stloc_0,
 
         /// <summary>
         /// Pops the current value from the top of the evaluation stack and stores it in a the local variable list at index 1.
         /// </summary>
-		Stloc_1,
+        Stloc_1,
 
         /// <summary>
         /// Pops the current value from the top of the evaluation stack and stores it in a the local variable list at index 2.
@@ -4359,12 +4359,12 @@ namespace LightInject
         /// <summary>
         /// Pops the current value from the top of the evaluation stack and stores it in a the local variable list at index 3.
         /// </summary>
-		Stloc_3,
+        Stloc_3,
 
         /// <summary>
         /// Pops the current value from the top of the evaluation stack and stores it in a the local variable list at index (short form).
         /// </summary>
-		Stloc_S,
+        Stloc_S,
 
         /// <summary>
         /// Pushes the integer value of 0 onto the evaluation stack as an int32.
@@ -4374,12 +4374,12 @@ namespace LightInject
         /// <summary>
         /// Pushes the integer value of 1 onto the evaluation stack as an int32.
         /// </summary>
-		Ldc_I4_1,
+        Ldc_I4_1,
 
         /// <summary>
         /// Pushes the integer value of 2 onto the evaluation stack as an int32.
         /// </summary>
-		Ldc_I4_2,
+        Ldc_I4_2,
 
         /// <summary>
         /// Pushes the integer value of 3 onto the evaluation stack as an int32.
@@ -4389,7 +4389,7 @@ namespace LightInject
         /// <summary>
         /// Pushes the integer value of 4 onto the evaluation stack as an int32.
         /// </summary>
-		Ldc_I4_4,
+        Ldc_I4_4,
 
         /// <summary>
         /// Pushes the integer value of 5 onto the evaluation stack as an int32.
@@ -4399,7 +4399,7 @@ namespace LightInject
         /// <summary>
         /// Pushes the integer value of 6 onto the evaluation stack as an int32.
         /// </summary>
-		Ldc_I4_6,
+        Ldc_I4_6,
 
         /// <summary>
         /// Pushes the integer value of 7 onto the evaluation stack as an int32.
@@ -4409,7 +4409,7 @@ namespace LightInject
         /// <summary>
         /// Pushes the integer value of 8 onto the evaluation stack as an int32.
         /// </summary>
-		Ldc_I4_8,
+        Ldc_I4_8,
 
         /// <summary>
         /// Pushes the supplied int8 value onto the evaluation stack as an int32, short form.
@@ -4424,17 +4424,17 @@ namespace LightInject
         /// <summary>
         /// Pushes an object reference to a new zero-based, one-dimensional array whose elements are of a specific type onto the evaluation stack.
         /// </summary>
-		Newarr,
+        Newarr,
 
         /// <summary>
         /// Replaces the array element at a given index with the value on the evaluation stack, whose type is specified in the instruction.
         /// </summary>
-		Stelem,
+        Stelem,
 
         /// <summary>
         /// Converts a value type to an object reference (type O).
         /// </summary>
-		Box,
+        Box,
 
         /// <summary>
         /// Pushes a new object reference to a string literal stored in the metadata.
@@ -4447,12 +4447,12 @@ namespace LightInject
     /// </summary>
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     internal static class OpCodes
-	{
+    {
         /// <summary>
         /// Adds two values and pushes the result onto the evaluation stack.
         /// </summary>
         public static OpCode Add = OpCode.Add;
-        
+
         /// <summary>
         /// Attempts to cast an object passed by reference to the specified class.
         /// </summary>
@@ -4465,10 +4465,10 @@ namespace LightInject
         public static OpCode Unbox_Any = OpCode.Unbox_Any;
 
         /// <summary>
-        /// Loads the element containing an object reference at a specified array index 
+        /// Loads the element containing an object reference at a specified array index
         /// onto the top of the evaluation stack as type O (object reference).
         /// </summary>
-		public static OpCode Ldelem_Ref = OpCode.Ldelem_Ref;
+        public static OpCode Ldelem_Ref = OpCode.Ldelem_Ref;
 
         /// <summary>
         /// Loads an argument (referenced by a specified index value) onto the stack.
@@ -4483,48 +4483,48 @@ namespace LightInject
         /// <summary>
         /// Loads the argument at index 1 onto the evaluation stack.
         /// </summary>
-		public static OpCode Ldarg_1 = OpCode.Ldarg_1;
+        public static OpCode Ldarg_1 = OpCode.Ldarg_1;
 
         /// <summary>
         /// Loads the argument at index 2 onto the evaluation stack.
         /// </summary>
-		public static OpCode Ldarg_2 = OpCode.Ldarg_2;
+        public static OpCode Ldarg_2 = OpCode.Ldarg_2;
 
         /// <summary>
         /// Loads the argument at index 3 onto the evaluation stack.
         /// </summary>
-		public static OpCode Ldarg_3 = OpCode.Ldarg_3;
+        public static OpCode Ldarg_3 = OpCode.Ldarg_3;
 
         /// <summary>
         /// Loads the argument (referenced by a specified short form index) onto the evaluation stack.
         /// </summary>
-		public static OpCode Ldarg_S = OpCode.Ldarg_S;
+        public static OpCode Ldarg_S = OpCode.Ldarg_S;
 
         /// <summary>
         /// Pushes the number of elements of a zero-based, one-dimensional array onto the evaluation stack.
         /// </summary>
-		public static OpCode Ldlen = OpCode.Ldlen;
+        public static OpCode Ldlen = OpCode.Ldlen;
 
         /// <summary>
         /// Converts the value on top of the evaluation stack to int32.
         /// </summary>
-		public static OpCode Conv_I4 = OpCode.Conv_I4;
+        public static OpCode Conv_I4 = OpCode.Conv_I4;
 
         /// <summary>
         /// Subtracts one value from another and pushes the result onto the evaluation stack.
         /// </summary>
-		public static OpCode Sub = OpCode.Sub;
+        public static OpCode Sub = OpCode.Sub;
 
         /// <summary>
         /// Pushes a supplied value of type int32 onto the evaluation stack as an int32.
         /// </summary>
-		public static OpCode Ldc_I4 = OpCode.Ldc_I4;
+        public static OpCode Ldc_I4 = OpCode.Ldc_I4;
 
         /// <summary>
-        /// Pops the current value from the top of the evaluation stack 
+        /// Pops the current value from the top of the evaluation stack
         /// and stores it in a the local variable list at a specified index.
         /// </summary>
-		public static OpCode Stloc = OpCode.Stloc;
+        public static OpCode Stloc = OpCode.Stloc;
 
         /// <summary>
         /// Loads the local variable at a specific index onto the evaluation stack.
@@ -4534,7 +4534,7 @@ namespace LightInject
         /// <summary>
         /// Calls a late-bound method on an object, pushing the return value onto the evaluation stack.
         /// </summary>
-		public static OpCode Callvirt = OpCode.Callvirt;
+        public static OpCode Callvirt = OpCode.Callvirt;
 
         /// <summary>
         /// Creates a new object or a new instance of a value type, pushing an object reference (type O) onto the evaluation stack.
@@ -4544,7 +4544,7 @@ namespace LightInject
         /// <summary>
         /// Loads the local variable at index 0 onto the evaluation stack.
         /// </summary>
-		public static OpCode Ldloc_0 = OpCode.Ldloc_0;
+        public static OpCode Ldloc_0 = OpCode.Ldloc_0;
 
         /// <summary>
         /// Loads the local variable at index 1 onto the evaluation stack.
@@ -4554,7 +4554,7 @@ namespace LightInject
         /// <summary>
         /// Loads the local variable at index 2 onto the evaluation stack.
         /// </summary>
-		public static OpCode Ldloc_2 = OpCode.Ldloc_2;
+        public static OpCode Ldloc_2 = OpCode.Ldloc_2;
 
         /// <summary>
         /// Loads the local variable at index 3 onto the evaluation stack.
@@ -4564,17 +4564,17 @@ namespace LightInject
         /// <summary>
         /// Loads the local variable at a specific index onto the evaluation stack, short form.
         /// </summary>
-		public static OpCode Ldloc_S = OpCode.Ldloc_S;
+        public static OpCode Ldloc_S = OpCode.Ldloc_S;
 
         /// <summary>
         /// Calls the method indicated by the passed method descriptor.
         /// </summary>
-		public static OpCode Call = OpCode.Call;
+        public static OpCode Call = OpCode.Call;
 
         /// <summary>
         /// Pops the current value from the top of the evaluation stack and stores it in a the local variable list at index 0.
         /// </summary>
-		public static OpCode Stloc_0 = OpCode.Stloc_0;
+        public static OpCode Stloc_0 = OpCode.Stloc_0;
 
         /// <summary>
         /// Pops the current value from the top of the evaluation stack and stores it in a the local variable list at index 1.
@@ -4599,7 +4599,7 @@ namespace LightInject
         /// <summary>
         /// Pushes the integer value of 0 onto the evaluation stack as an int32.
         /// </summary>
-		public static OpCode Ldc_I4_0 = OpCode.Ldc_I4_0;
+        public static OpCode Ldc_I4_0 = OpCode.Ldc_I4_0;
 
         /// <summary>
         /// Pushes the integer value of 1 onto the evaluation stack as an int32.
@@ -4649,7 +4649,7 @@ namespace LightInject
         /// <summary>
         /// Pushes an object reference to a new zero-based, one-dimensional array whose elements are of a specific type onto the evaluation stack.
         /// </summary>
-		public static OpCode Newarr = OpCode.Newarr;
+        public static OpCode Newarr = OpCode.Newarr;
 
         /// <summary>
         /// Replaces the array element at a given index with the value on the evaluation stack, whose type is specified in the instruction.
@@ -4664,15 +4664,15 @@ namespace LightInject
         /// <summary>
         /// Returns from the current method, pushing a return value (if present) from the callee's evaluation stack onto the caller's evaluation stack.
         /// </summary>
-		public static OpCode Ret = OpCode.Ret;
+        public static OpCode Ret = OpCode.Ret;
 
         /// <summary>
         /// Pushes a new object reference to a string literal stored in the metadata.
         /// </summary>
-		public static OpCode Ldstr = OpCode.Ldstr;
+        public static OpCode Ldstr = OpCode.Ldstr;
 
-	}
-    
+    }
+
     /// <summary>
     /// Defines and represents a dynamic method that can be compiled and executed.
     /// </summary>
@@ -5268,12 +5268,12 @@ namespace LightInject
                            .Select(
                                p =>
                                new ConstructorDependency
-                                   {
-                                       ServiceName = string.Empty,
-                                       ServiceType = p.ParameterType,
-                                       Parameter = p,
-                                       IsRequired = true,
-                                   });
+                               {
+                                   ServiceName = string.Empty,
+                                   ServiceType = p.ParameterType,
+                                   Parameter = p,
+                                   IsRequired = true,
+                               });
         }
     }
 
@@ -5948,14 +5948,14 @@ namespace LightInject
     internal abstract class ScopeManager : IScopeManager
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="ScopeManager"/> class.        
+        /// Initializes a new instance of the <see cref="ScopeManager"/> class.
         /// </summary>
         /// <param name="serviceFactory">The <see cref="IServiceFactory"/> to be associated with this <see cref="ScopeManager"/>.</param>
         protected ScopeManager(IServiceFactory serviceFactory)
         {
             ServiceFactory = serviceFactory;
         }
-        
+
         /// <summary>
         /// Gets or sets the current <see cref="Scope"/>.
         /// </summary>
@@ -5973,7 +5973,7 @@ namespace LightInject
         public Scope BeginScope()
         {
             var currentScope = CurrentScope;
-           
+
             var scope = new Scope(this, currentScope);
             if (currentScope != null)
             {
@@ -5983,7 +5983,7 @@ namespace LightInject
             CurrentScope = scope;
             return scope;
         }
-    
+
         /// <summary>
         /// Ends the given <paramref name="scope"/>.
         /// </summary>
@@ -5997,8 +5997,8 @@ namespace LightInject
 
             Scope parentScope = scope.ParentScope;
 
-            // Only update the current scope if the scope being 
-            // ended is the current scope.         
+            // Only update the current scope if the scope being
+            // ended is the current scope.
             if (ReferenceEquals(CurrentScope, scope))
             {
                 CurrentScope = parentScope;
@@ -6025,7 +6025,7 @@ namespace LightInject
                 scope = scope.ParentScope;
             }
 
-            // Update the current scope so that the previous current 
+            // Update the current scope so that the previous current
             // scope can be garbage collected.
             CurrentScope = scope;
             return scope;
@@ -6041,7 +6041,7 @@ namespace LightInject
         private readonly ThreadLocal<Scope> threadLocalScope = new ThreadLocal<Scope>();
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="PerThreadScopeManager"/> class.        
+        /// Initializes a new instance of the <see cref="PerThreadScopeManager"/> class.
         /// </summary>
         /// <param name="serviceFactory">The <see cref="IServiceFactory"/> to be associated with this <see cref="ScopeManager"/>.</param>
         public PerThreadScopeManager(IServiceFactory serviceFactory)
@@ -6113,19 +6113,19 @@ namespace LightInject
         /// Disposes all instances tracked by this scope.
         /// </summary>
         public void Dispose()
-        {            
+        {
             DisposeTrackedInstances();
             OnCompleted();
             IsDisposed = true;
         }
-      
+
         /// <summary>
         /// Starts a new <see cref="Scope"/>.
         /// </summary>
         /// <returns><see cref="Scope"/></returns>
         public Scope BeginScope()
         {
-            return serviceFactory.BeginScope();            
+            return serviceFactory.BeginScope();
         }
 
         /// <summary>
@@ -6135,7 +6135,7 @@ namespace LightInject
         /// <returns>The requested service instance.</returns>
         public object GetInstance(Type serviceType)
         {
-            return WithThisScope(() => serviceFactory.GetInstance(serviceType));            
+            return WithThisScope(() => serviceFactory.GetInstance(serviceType));
         }
 
         /// <summary>
@@ -6157,7 +6157,7 @@ namespace LightInject
         /// <returns>The requested service instance.</returns>
         public object GetInstance(Type serviceType, object[] arguments)
         {
-            return WithThisScope(() => serviceFactory.GetInstance(serviceType, arguments));            
+            return WithThisScope(() => serviceFactory.GetInstance(serviceType, arguments));
         }
 
         /// <summary>
@@ -6525,7 +6525,7 @@ namespace LightInject
             var genericArgumentMap = new Dictionary<string, Type>(genericParameterNames.Length);
 
             var genericArguments = GetGenericArgumentsOrParameters(genericServiceType);
-           
+
             if (genericArguments.Length > 0)
             {
                 genericServiceType = genericServiceType.GetTypeInfo().GetGenericTypeDefinition();
@@ -6798,7 +6798,7 @@ namespace LightInject
             return propertyInfo.SetMethod == null || propertyInfo.SetMethod.IsStatic || propertyInfo.SetMethod.IsPrivate || propertyInfo.GetIndexParameters().Length > 0;
         }
     }
-#if NET45 || NET46 
+#if NET45 || NET46
 
     /// <summary>
     /// Loads all assemblies from the application base directory that matches the given search pattern.
@@ -7717,9 +7717,9 @@ namespace LightInject
     /// <typeparam name="T">The type of the value contained in this <see cref="LogicalThreadStorage{T}"/>.</typeparam>
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     internal class LogicalThreadStorage<T>
-    {        
+    {
         private readonly string key = Guid.NewGuid().ToString();
-               
+
         /// <summary>
         /// Gets the value for the current logical thread of execution.
         /// </summary>

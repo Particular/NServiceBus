@@ -13,6 +13,7 @@ namespace NServiceBus
             var castExpression = Expression.Convert(invokeExpression, serviceType);
             var lambdaExpression = Expression.Lambda(castExpression, parameterExpression);
             var lambda = lambdaExpression.Compile();
+
             var serviceRegistration = new ServiceRegistration
             {
                 ServiceType = serviceType,
@@ -20,6 +21,7 @@ namespace NServiceBus
                 FactoryExpression = lambda,
                 Lifetime = lifetime
             };
+
             registry.Register(serviceRegistration);
         }
     }

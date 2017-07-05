@@ -31,6 +31,7 @@
         public void Dispose()
         {
             scope.Dispose();
+
             if (isRootScope)
             {
                 container.Dispose();
@@ -62,7 +63,9 @@
             }
 
             container.Register(component, GetLifeTime(dependencyLifecycle));
+
             var interfaces = GetAllServices(component);
+
             foreach (var serviceType in interfaces)
             {
                 container.Register(serviceType, s => s.GetInstance(component), GetLifeTime(dependencyLifecycle), component.FullName);
@@ -74,13 +77,16 @@
             ThrowIfCalledOnChildContainer();
 
             var componentType = typeof(T);
+
             if (HasComponent(componentType))
             {
                 return;
             }
 
             container.Register(sf => component(), GetLifeTime(dependencyLifecycle));
+
             var interfaces = GetAllServices(componentType);
+
             foreach (var servicesType in interfaces)
             {
                 container.Register(servicesType, s => s.GetInstance<T>(), GetLifeTime(dependencyLifecycle), componentType.FullName);
@@ -90,7 +96,7 @@
         public void RegisterSingleton(Type lookupType, object instance)
         {
             ThrowIfCalledOnChildContainer();
-            
+
             container.RegisterInstance(lookupType, instance);
         }
 
