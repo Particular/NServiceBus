@@ -3,7 +3,6 @@ namespace NServiceBus.Features
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using ObjectBuilder;
     using Unicast;
 
     class RegisterHandlersInOrder : Feature
