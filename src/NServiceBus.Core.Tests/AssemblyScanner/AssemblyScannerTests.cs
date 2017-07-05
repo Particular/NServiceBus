@@ -71,7 +71,7 @@ namespace NServiceBus.Core.Tests.AssemblyScanner
         {
             var circularDirectory = Path.Combine(TestContext.CurrentContext.TestDirectory, @"TestDlls\circular");
             var classLibB = Path.Combine(circularDirectory, "ClassLibraryB.dll");
-          
+
             // Put ClassLibraryB.dll in CurrentDomain.BaseDirectory so it resolves correctly
             var tempClassLibB = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ClassLibraryB.dll");
 
@@ -102,6 +102,7 @@ namespace NServiceBus.Core.Tests.AssemblyScanner
             });
 
             var scanner = new AssemblyScanner(DynamicAssembly.TestAssemblyDirectory);
+            scanner.ScanAppDomainAssemblies = false;
             scanner.CoreAssemblyName = busAssembly.DynamicName;
 
             var result = scanner.GetScannableAssemblies();
@@ -122,6 +123,7 @@ namespace NServiceBus.Core.Tests.AssemblyScanner
             var assemblyWithoutReference = new DynamicAssembly("AssemblyWithoutReference");
 
             var scanner = new AssemblyScanner(DynamicAssembly.TestAssemblyDirectory);
+            scanner.ScanAppDomainAssemblies = false;
             scanner.CoreAssemblyName = busAssembly.DynamicName;
 
             var result = scanner.GetScannableAssemblies();
@@ -148,6 +150,7 @@ namespace NServiceBus.Core.Tests.AssemblyScanner
 
             var scanner = new AssemblyScanner(DynamicAssembly.TestAssemblyDirectory);
             scanner.ThrowExceptions = false;
+            scanner.ScanAppDomainAssemblies = false;
             scanner.CoreAssemblyName = busAssemblyV2.Name;
 
             var result = scanner.GetScannableAssemblies();
@@ -180,6 +183,7 @@ namespace NServiceBus.Core.Tests.AssemblyScanner
             });
 
             var scanner = new AssemblyScanner(DynamicAssembly.TestAssemblyDirectory);
+            scanner.ScanAppDomainAssemblies = false;
             scanner.CoreAssemblyName = busAssembly.DynamicName;
 
             var result = scanner.GetScannableAssemblies();
@@ -335,6 +339,7 @@ class InterfaceMessageHandler : IHandleMessages<IBaseEvent>
             Assembly.LoadFrom(handlerAsm.FilePath);
 
             var scanner = new AssemblyScanner(DynamicAssembly.TestAssemblyDirectory);
+            scanner.ScanAppDomainAssemblies = false;
 
             var result = scanner.GetScannableAssemblies();
 
