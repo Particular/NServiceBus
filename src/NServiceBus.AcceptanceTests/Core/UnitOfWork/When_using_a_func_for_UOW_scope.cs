@@ -57,8 +57,8 @@
 
             public class TestHandler : IHandleMessages<MyMessage>
             {
-                private ToBeInjected instance;
-                private Context testContext;
+                ToBeInjected instance;
+                Context testContext;
 
                 public TestHandler(ToBeInjected instance, Context testContext)
                 {
