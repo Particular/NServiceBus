@@ -68,17 +68,24 @@ namespace NServiceBus.Core.Tests.AssemblyScanner
             var tempClassLibB = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ClassLibraryB.dll");
             File.Copy(classLibB, tempClassLibB, true);
 
-            var classLibA = Assembly.LoadFrom(Path.Combine(circularDirectory, "ClassLibraryA.dll"));
+            var scanner = new AssemblyScanner(Path.Combine(TestContext.CurrentContext.TestDirectory, @"TestDlls\circular"));
+            scanner.ScanAppDomainAssemblies = false;
 
-            Assert.IsFalse(AssemblyScanner.ReferencesNServiceBus(classLibA, "NServiceBus.Core", new Dictionary<string, bool>()));
+            var result = scanner.GetScannableAssemblies();
+
+            Assert.That(result.Assemblies.Any(a => a.FullName.Contains("ClassLibraryA")), Is.False);
+            Assert.That(result.Assemblies.Any(a => a.FullName.Contains("ClassLibraryB")), Is.False);
         }
 
         [Test]
         public void ReferencesNServiceBus_returns_false_for_no_reference()
         {
-            var noRefAssembly = Assembly.LoadFrom(Path.Combine(TestContext.CurrentContext.TestDirectory, "TestDlls", "dotNet.dll"));
+            var assemblyToScan = Assembly.LoadFrom(Path.Combine(TestContext.CurrentContext.TestDirectory, "TestDlls", "dotNet.dll"));
+            var scanner = new AssemblyScanner(assemblyToScan);
 
-            Assert.IsFalse(AssemblyScanner.ReferencesNServiceBus(noRefAssembly, "NServiceBus.Core", new Dictionary<string, bool>()));
+            var result = scanner.GetScannableAssemblies();
+
+            Assert.That(result.Assemblies.Contains(assemblyToScan), Is.False);
         }
 
         [Test, RunInApplicationDomain]
