@@ -43,7 +43,7 @@
                     !x.FullName.Contains("JetBrains") &&
                     !x.FullName.Contains("LicenseExpiredForm") && //required to work around resource file location problem
                     !x.FullName.StartsWith("Newtonsoft.Json") &&
-                    !x.FullName.StartsWith("Autofac") &&
+                    !x.FullName.StartsWith("LightInject") &&
                     x.Name != "GitVersionInformation" &&
                     x.Namespace != "Particular.Licensing" &&
                     x.Namespace != "NServiceBus.Features" &&
@@ -122,6 +122,8 @@
                                !type.Namespace.Contains("Newtonsoft") &&
                                //Ignore Resharper annotations
                                !type.Namespace.Contains("JetBrains") &&
+                               //Ignore LightInject attributes
+                               !type.Namespace.Contains("LightInject") &&
                                //TODO: remove when gitversion is updated
                                !type.Name.EndsWith("ReleaseDateAttribute") &&
                                !type.Name.EndsWith("NugetVersionAttribute"));
