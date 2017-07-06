@@ -1,5 +1,4 @@
-﻿#if NET452
-namespace NServiceBus.Core.Tests.AssemblyScanner
+﻿namespace NServiceBus.Core.Tests.AssemblyScanner
 {
     using System.IO;
     using System.Linq;
@@ -13,6 +12,7 @@ namespace NServiceBus.Core.Tests.AssemblyScanner
         public void assemblies_without_nsb_reference_are_skipped()
         {
             var assemblyScanner = new AssemblyScanner(Path.Combine(TestContext.CurrentContext.TestDirectory, "TestDlls"));
+            assemblyScanner.ScanAppDomainAssemblies = false;
 
             var results = assemblyScanner
                 .GetScannableAssemblies();
@@ -31,4 +31,3 @@ namespace NServiceBus.Core.Tests.AssemblyScanner
 
     }
 }
-#endif
