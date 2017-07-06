@@ -129,7 +129,6 @@ namespace NServiceBus
             container = b;
 
             container.RegisterSingleton(typeof(IBuilder), b);
-            //container.ConfigureComponent<IBuilder>(() => b, DependencyLifecycle.SingleInstance);
         }
 
         async Task RunInstallers(IEnumerable<Type> concreteTypes)

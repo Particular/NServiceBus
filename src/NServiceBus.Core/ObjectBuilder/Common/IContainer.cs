@@ -46,11 +46,11 @@ namespace NServiceBus.ObjectBuilder.Common
         void Configure<T>(Func<T> component, DependencyLifecycle dependencyLifecycle);
 
         /// <summary>
-        /// 
+        /// Configures the creation of the specified type using a <see cref="Func{IResolve, T}" /> that provides a resolver
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="componentFactory"></param>
-        /// <param name="dependencyLifecycle"></param>
+        /// <typeparam name="T">Type to be configured</typeparam>
+        /// <param name="componentFactory"><see cref="Func{IResolve, T}" /> to use as the factory</param>
+        /// <param name="dependencyLifecycle">The desired lifecycle for this type</param>
         void Configure<T>(Func<IResolver, T> componentFactory, DependencyLifecycle dependencyLifecycle);
 
         /// <summary>

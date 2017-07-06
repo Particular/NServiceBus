@@ -3,7 +3,7 @@ namespace NServiceBus.ObjectBuilder
     using System;
 
     /// <summary>
-    /// 
+    /// Used to instantiate types that need a container instance to create
     /// </summary>
     public interface IResolver
     {
