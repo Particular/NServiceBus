@@ -57,9 +57,10 @@ namespace NServiceBus.Hosting.Helpers
         {
             var results = new AssemblyScannerResults();
 
+            var processed = new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase);
             if (assemblyToScan != null)
             {
-                ScanAssembly(assemblyToScan, results);
+                ScanAssembly(assemblyToScan, processed, results);
                 return results;
             }
 
@@ -70,18 +71,17 @@ namespace NServiceBus.Hosting.Helpers
                 {
                     if (!assembly.IsDynamic)
                     {
-                        ScanAssembly(assembly, results);
+                        ScanAssembly(assembly, processed, results);
                     }
                 }
             }
 
-            var processed = new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase);
             foreach (var assemblyFile in ScanDirectoryForAssemblyFiles(baseDirectoryToScan, ScanNestedDirectories))
             {
                 Assembly assembly;
-                if (TryLoadScannableAssembly(assemblyFile.FullName, results, processed, out assembly))
+                if (TryLoadScannableAssembly(assemblyFile.FullName, results, out assembly))
                 {
-                    ScanAssembly(assembly, results);
+                    ScanAssembly(assembly, processed, results);
                 }
             }
 
@@ -122,7 +122,7 @@ namespace NServiceBus.Hosting.Helpers
             return Uri.UnescapeDataString(uri.Path).Replace('/', '\\');
         }
 
-        bool TryLoadScannableAssembly(string assemblyPath, AssemblyScannerResults results, Dictionary<string, bool> processed, out Assembly assembly)
+        bool TryLoadScannableAssembly(string assemblyPath, AssemblyScannerResults results, out Assembly assembly)
         {
             assembly = null;
             if (!IsIncluded(Path.GetFileNameWithoutExtension(assemblyPath)))
@@ -144,18 +144,6 @@ namespace NServiceBus.Hosting.Helpers
             {
                 var loadedAssembly = Assembly.LoadFrom(assemblyPath);
 
-                if (!ReferencesNServiceBus(loadedAssembly, CoreAssemblyName, processed))
-                {
-                    var skippedFile = new SkippedFile(assemblyPath, "Assembly does not reference at least one of the must referenced assemblies.");
-                    results.SkippedFiles.Add(skippedFile);
-                    return false;
-                }
-
-                if (results.Assemblies.Contains(loadedAssembly))
-                {
-                    return false;
-                }
-
                 assembly = loadedAssembly;
                 return true;
             }
@@ -172,9 +160,14 @@ namespace NServiceBus.Hosting.Helpers
             }
         }
 
-        void ScanAssembly(Assembly assembly, AssemblyScannerResults results)
+        void ScanAssembly(Assembly assembly, Dictionary<string, bool> processed, AssemblyScannerResults results)
         {
             if (assembly == null)
+            {
+                return;
+            }
+
+            if (results.Assemblies.Contains(assembly))
             {
                 return;
             }
@@ -185,6 +178,14 @@ namespace NServiceBus.Hosting.Helpers
             }
             if (!IsIncluded(assembly.GetName().Name))
             {
+                return;
+            }
+
+            if (!ReferencesNServiceBus(assembly, CoreAssemblyName, processed))
+            {
+                var assemblyPath = AssemblyPath(assembly);
+                var skippedFile = new SkippedFile(assemblyPath, "Assembly does not reference at least one of the must referenced assemblies.");
+                results.SkippedFiles.Add(skippedFile);
                 return;
             }
 
