@@ -43,20 +43,6 @@ namespace NServiceBus.Core.Tests.AssemblyScanner
         }
 
         [Test]
-        public void System_assemblies_should_be_excluded()
-        {
-            Assert.IsTrue(AssemblyScanner.IsRuntimeAssembly(typeof(string).Assembly.Location));
-            Assert.IsTrue(AssemblyScanner.IsRuntimeAssembly(typeof(Uri).Assembly.Location));
-            Assert.IsTrue(AssemblyScanner.IsRuntimeAssembly(new AssemblyName("mscorlib, Version=2.0.5.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e, Retargetable=Yes")));
-        }
-
-        [Test]
-        public void Non_system_assemblies_should_be_included()
-        {
-            Assert.IsFalse(AssemblyScanner.IsRuntimeAssembly(GetType().Assembly.Location));
-        }
-
-        [Test]
         public void ReferencesNServiceBus_circular()
         {
             // Assemblies already exist in TestDlls/circular:

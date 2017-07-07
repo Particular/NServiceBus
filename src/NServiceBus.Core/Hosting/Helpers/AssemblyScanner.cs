@@ -154,12 +154,6 @@ namespace NServiceBus.Hosting.Helpers
             }
         }
 
-        internal static bool IsRuntimeAssembly(string assemblyPath)
-        {
-            var assemblyName = AssemblyName.GetAssemblyName(assemblyPath);
-            return IsRuntimeAssembly(assemblyName);
-        }
-
         internal static bool IsRuntimeAssembly(AssemblyName assemblyName)
         {
             var publicKeyToken = assemblyName.GetPublicKeyToken();
@@ -187,6 +181,13 @@ namespace NServiceBus.Hosting.Helpers
             {
                 return true;
             }
+
+#if NETCOREAPP2_0
+            if (lowerInvariant == "cc7b13ffcd2ddd51")
+            {
+                return true;
+            }
+#endif
 
             return false;
         }
