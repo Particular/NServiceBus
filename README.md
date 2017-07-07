@@ -2,8 +2,7 @@
 
 To build NServiceBus just open `NServiceBus.sln` in Visual Studio.
 
-Note that the debug build doesn't ilmerge and if you plan to use the binaries in test/production
-you need to do a release build.
+Note that the debug build doesn't ilmerge and if you plan to use the binaries in test/production you need to do a release build.
 
 You'll find the built assemblies in /binaries.
 
@@ -16,14 +15,14 @@ If you see the build failing, check that you haven't put the source of NServiceB
 
 NServiceBus is licensed under the RPL 1.5 license. More details can be found [here](LICENSE.md).
 
-### [Autofac](http://code.google.com/p/autofac/) 
+### [LightInject](http://www.lightinject.net/) 
 
-Autofac is licensed under the MIT license as described [here](https://github.com/autofac/Autofac/blob/master/LICENSE).
+LightInject is licensed under the MIT license as described [here](http://www.lightinject.net/licence/).
 
-Autofac binaries are linked into the NServiceBus distribution allowed under the license terms found [here](https://github.com/autofac/Autofac/blob/master/LICENSE).
+LightInject sources are compiled into the NServiceBus distribution as allowed under the license terms found [here](http://www.lightinject.net/licence/).
 
 ### [Json.NET](http://www.newtonsoft.com/json)
 
 Json.NET is licensed under the MIT license as described [here](https://github.com/JamesNK/Newtonsoft.Json/blob/master/LICENSE.md).
 
-Json.NET binaries are linked into the NServiceBus distribution allowed under the license terms found [here](https://github.com/JamesNK/Newtonsoft.Json/blob/master/LICENSE.md).
+Json.NET binaries are linked into the NServiceBus distribution as allowed under the license terms found [here](https://github.com/JamesNK/Newtonsoft.Json/blob/master/LICENSE.md).
