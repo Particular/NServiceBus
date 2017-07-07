@@ -154,6 +154,86 @@ namespace NServiceBus.Hosting.Helpers
             }
         }
 
+        void ScanAssemblyAndDependencies(Assembly assembly, Dictionary<string, bool> processed, AssemblyScannerResults results)
+        {
+            if (assembly == null)
+            {
+                return;
+            }
+
+            if (processed.ContainsKey(assembly.FullName))
+            {
+                return;
+            }
+
+            if (!ShouldScanAssembly(assembly))
+            {
+                processed[assembly.FullName] = false;
+            }
+
+            if (assembly.GetName().Name == CoreAssemblyName)
+            {
+                processed[assembly.FullName] = true;
+                AddTypesToResult(assembly, results);
+                return;
+            }
+
+            // set to false by default to avoid stack overflows when scanning cyclic dependencies
+            processed[assembly.FullName] = false;
+            foreach (var referencedAssemblyName in assembly.GetReferencedAssemblies())
+            {
+                var assemblyNameFullName = referencedAssemblyName.FullName;
+                if (processed.TryGetValue(assemblyNameFullName, out var referencesCore))
+                {
+                    if (referencesCore)
+                    {
+                        processed[assembly.FullName] = true;
+                        AddTypesToResult(assembly, results);
+
+                        return;
+                    }
+
+                    continue;
+                }
+
+                // handle edge case where an assembly references an older core version.
+                // In this case, an exception can be thrown when trying to load an assembly with a different version
+                if (referencedAssemblyName.Name == CoreAssemblyName)
+                {
+                    // do not set the referenced core assembly to processed to still allow it to be loaded and scanned
+                    //processed[referencedAssemblyName.FullName] = true;
+                    processed[assembly.FullName] = true;
+                    AddTypesToResult(assembly, results);
+                    return;
+                }
+
+                Assembly refAssembly;
+                try
+                {
+                    refAssembly = Assembly.Load(assemblyNameFullName);
+                }
+                catch (FileNotFoundException)
+                {
+                    processed[assemblyNameFullName] = false;
+                    continue;
+                }
+                catch (FileLoadException)
+                {
+                    processed[assemblyNameFullName] = false;
+                    continue;
+                }
+
+                ScanAssemblyAndDependencies(refAssembly, processed, results);
+                if (processed[refAssembly.FullName])
+                {
+                    // dependency has reference to NSB
+                    processed[assembly.FullName] = true;
+                    AddTypesToResult(assembly, results);
+                    return;
+                }
+            }
+        }
+
         internal static bool IsRuntimeAssembly(AssemblyName assemblyName)
         {
             var publicKeyToken = assemblyName.GetPublicKeyToken();
@@ -325,86 +405,6 @@ namespace NServiceBus.Hosting.Helpers
                 lowerAssemblyName = lowerAssemblyName.Substring(0, lowerAssemblyName.Length - 4);
             }
             return lowerAssemblyName;
-        }
-
-        void ScanAssemblyAndDependencies(Assembly assembly, Dictionary<string, bool> processed, AssemblyScannerResults results)
-        {
-            if (assembly == null)
-            {
-                return;
-            }
-
-            if (processed.ContainsKey(assembly.FullName))
-            {
-                return;
-            }
-
-            if (!ShouldScanAssembly(assembly))
-            {
-                processed[assembly.FullName] = false;
-            }
-
-            if (assembly.GetName().Name == CoreAssemblyName)
-            {
-                processed[assembly.FullName] = true;
-                AddTypesToResult(assembly, results);
-                return;
-            }
-
-            // set to false by default to avoid stack overflows when scanning cyclic dependencies
-            processed[assembly.FullName] = false;
-            foreach (var referencedAssemblyName in assembly.GetReferencedAssemblies())
-            {
-                var assemblyNameFullName = referencedAssemblyName.FullName;
-                if (processed.TryGetValue(assemblyNameFullName, out var referencesCore))
-                {
-                    if (referencesCore)
-                    {
-                        processed[assembly.FullName] = true;
-                        AddTypesToResult(assembly, results);
-
-                        return;
-                    }
-
-                    continue;
-                }
-
-                // handle edge case where an assembly references an older core version.
-                // In this case, an exception can be thrown when trying to load an assembly with a different version
-                if (referencedAssemblyName.Name == CoreAssemblyName)
-                {
-                    // do not set the referenced core assembly to processed to still allow it to be loaded and scanned
-                    //processed[referencedAssemblyName.FullName] = true;
-                    processed[assembly.FullName] = true;
-                    AddTypesToResult(assembly, results);
-                    return;
-                }
-
-                Assembly refAssembly;
-                try
-                {
-                    refAssembly = Assembly.Load(assemblyNameFullName);
-                }
-                catch (FileNotFoundException)
-                {
-                    processed[assemblyNameFullName] = false;
-                    continue;
-                }
-                catch (FileLoadException)
-                {
-                    processed[assemblyNameFullName] = false;
-                    continue;
-                }
-
-                ScanAssemblyAndDependencies(refAssembly, processed, results);
-                if (processed[refAssembly.FullName])
-                {
-                    // dependency has reference to NSB
-                    processed[assembly.FullName] = true;
-                    AddTypesToResult(assembly, results);
-                    return;
-                }
-            }
         }
 
         void AddTypesToResult(Assembly assembly, AssemblyScannerResults results)
