@@ -43,7 +43,8 @@ namespace NServiceBus
                 return DefaultSagaData<TSagaData>.Value;
             }
 
-            return (TSagaData)sagaStorageFile.Read();
+            return (TSagaData) await sagaStorageFile.Read()
+                .ConfigureAwait(false);
         }
 
         public Task Update(IContainSagaData sagaData)
