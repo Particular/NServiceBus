@@ -39,8 +39,8 @@ namespace NServiceBus.ContainerTests
 
         void InitializeBuilder(IContainer c)
         {
-            c.Configure(typeof(ExistingComponent), DependencyLifecycle.InstancePerCall);
-            c.Configure(typeof(ExistingComponentWithUnsatisfiedDependency), DependencyLifecycle.InstancePerCall);
+            c.ConfigureComponent(typeof(ExistingComponent), DependencyLifecycle.InstancePerCall);
+            c.ConfigureComponent(typeof(ExistingComponentWithUnsatisfiedDependency), DependencyLifecycle.InstancePerCall);
         }
 
         public class NonExistingComponent

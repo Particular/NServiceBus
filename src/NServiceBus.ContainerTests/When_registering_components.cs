@@ -15,8 +15,8 @@ namespace NServiceBus.ContainerTests
         {
             using (var builder = TestContainerBuilder.ConstructBuilder())
             {
-                builder.Configure(typeof(DuplicateClass), DependencyLifecycle.InstancePerCall);
-                builder.Configure(typeof(DuplicateClass), DependencyLifecycle.InstancePerCall);
+                builder.ConfigureComponent(typeof(DuplicateClass), DependencyLifecycle.InstancePerCall);
+                builder.ConfigureComponent(typeof(DuplicateClass), DependencyLifecycle.InstancePerCall);
 
                 Assert.AreEqual(1, builder.BuildAll(typeof(DuplicateClass)).Count());
             }
@@ -27,8 +27,8 @@ namespace NServiceBus.ContainerTests
         {
             using (var builder = TestContainerBuilder.ConstructBuilder())
             {
-                builder.Configure(() => ((StaticFactory)builder.Build(typeof(StaticFactory))).Create(), DependencyLifecycle.InstancePerCall);
-                builder.Configure(() => new StaticFactory(), DependencyLifecycle.SingleInstance);
+                builder.ConfigureComponent(() => ((StaticFactory)builder.Build(typeof(StaticFactory))).Create(), DependencyLifecycle.InstancePerCall);
+                builder.ConfigureComponent(() => new StaticFactory(), DependencyLifecycle.SingleInstance);
 
                 Assert.NotNull(builder.Build(typeof(ComponentCreatedByFactory)));
             }
@@ -68,7 +68,7 @@ namespace NServiceBus.ContainerTests
                 builder.RegisterSingleton(typeof(ISingleton1), singleton);
                 builder.RegisterSingleton(typeof(ISingleton2), singleton);
 
-                builder.Configure(typeof(ComponentThatDependsOnMultiSingletons), DependencyLifecycle.InstancePerCall);
+                builder.ConfigureComponent(typeof(ComponentThatDependsOnMultiSingletons), DependencyLifecycle.InstancePerCall);
 
                 var dependency = (ComponentThatDependsOnMultiSingletons)builder.Build(typeof(ComponentThatDependsOnMultiSingletons));
 
@@ -85,8 +85,8 @@ namespace NServiceBus.ContainerTests
         {
             using (var builder = TestContainerBuilder.ConstructBuilder())
             {
-                builder.Configure(typeof(SomeClass), DependencyLifecycle.SingleInstance);
-                builder.Configure(typeof(ClassWithSetterDependencies), DependencyLifecycle.SingleInstance);
+                builder.ConfigureComponent(typeof(SomeClass), DependencyLifecycle.SingleInstance);
+                builder.ConfigureComponent(typeof(ClassWithSetterDependencies), DependencyLifecycle.SingleInstance);
 
                 var component = (ClassWithSetterDependencies)builder.Build(typeof(IWithSetterDependencies));
                 Assert.NotNull(component.ConcreteDependency, "Concrete classed should be property injected");
@@ -101,8 +101,8 @@ namespace NServiceBus.ContainerTests
         {
             using (var builder = TestContainerBuilder.ConstructBuilder())
             {
-                builder.Configure(typeof(SomeClass), DependencyLifecycle.SingleInstance);
-                builder.Configure(typeof(ClassWithSetterDependencies), DependencyLifecycle.SingleInstance);
+                builder.ConfigureComponent(typeof(SomeClass), DependencyLifecycle.SingleInstance);
+                builder.ConfigureComponent(typeof(ClassWithSetterDependencies), DependencyLifecycle.SingleInstance);
 
                 var component = (ClassWithSetterDependencies)builder.Build(typeof(ClassWithSetterDependencies));
                 Assert.NotNull(component.ConcreteDependency, "Concrete classed should be property injected");
@@ -116,7 +116,7 @@ namespace NServiceBus.ContainerTests
         {
             using (var builder = TestContainerBuilder.ConstructBuilder())
             {
-                builder.Configure(typeof(SingletonComponent), DependencyLifecycle.SingleInstance);
+                builder.ConfigureComponent(typeof(SingletonComponent), DependencyLifecycle.SingleInstance);
 
                 Assert.AreSame(builder.Build(typeof(SingletonComponent)), builder.Build(typeof(ISingletonComponent)));
             }
@@ -127,7 +127,7 @@ namespace NServiceBus.ContainerTests
         {
             using (var builder = TestContainerBuilder.ConstructBuilder())
             {
-                builder.Configure(typeof(ComponentWithMultipleInterfaces),
+                builder.ConfigureComponent(typeof(ComponentWithMultipleInterfaces),
                     DependencyLifecycle.InstancePerCall);
 
                 Assert.True(builder.HasComponent(typeof(ISomeInterface)));
@@ -145,7 +145,7 @@ namespace NServiceBus.ContainerTests
         {
             using (var builder = TestContainerBuilder.ConstructBuilder())
             {
-                builder.Configure(() => new ComponentWithMultipleInterfaces(), DependencyLifecycle.InstancePerCall);
+                builder.ConfigureComponent(() => new ComponentWithMultipleInterfaces(), DependencyLifecycle.InstancePerCall);
 
                 Assert.True(builder.HasComponent(typeof(ISomeInterface)));
                 Assert.True(builder.HasComponent(typeof(ISomeOtherInterface)));
@@ -159,13 +159,13 @@ namespace NServiceBus.ContainerTests
         {
             using (var builder = TestContainerBuilder.ConstructBuilder())
             {
-                builder.Configure(typeof(SomeClass), DependencyLifecycle.InstancePerUnitOfWork);
-                builder.Configure(typeof(SomeOtherClass), DependencyLifecycle.InstancePerUnitOfWork);
+                builder.ConfigureComponent(typeof(SomeClass), DependencyLifecycle.InstancePerUnitOfWork);
+                builder.ConfigureComponent(typeof(SomeOtherClass), DependencyLifecycle.InstancePerUnitOfWork);
 
                 Assert.NotNull(builder.Build(typeof(SomeClass)));
                 Assert.AreEqual(2, builder.BuildAll(typeof(ISomeInterface)).Count());
 
-                using (var childBuilder = builder.BuildChildContainer())
+                using (var childBuilder = builder.CreateChildBuilder())
                 {
                     Assert.NotNull(childBuilder.Build(typeof(SomeClass)));
                     Assert.AreEqual(2, childBuilder.BuildAll(typeof(ISomeInterface)).Count());
@@ -184,7 +184,7 @@ namespace NServiceBus.ContainerTests
                 Assert.NotNull(builder.Build(typeof(SomeClass)));
                 Assert.AreEqual(expected, builder.Build(typeof(SomeClass)));
 
-                using (var childBuilder = builder.BuildChildContainer())
+                using (var childBuilder = builder.CreateChildBuilder())
                 {
                     Assert.NotNull(childBuilder.Build(typeof(SomeClass)));
                     Assert.AreEqual(expected, childBuilder.Build(typeof(SomeClass)));
@@ -197,7 +197,7 @@ namespace NServiceBus.ContainerTests
         {
             using (var builder = TestContainerBuilder.ConstructBuilder())
             {
-                builder.Configure(typeof(ComponentWithGenericInterface),
+                builder.ConfigureComponent(typeof(ComponentWithGenericInterface),
                     DependencyLifecycle.InstancePerCall);
 
                 Assert.True(builder.HasComponent(typeof(ISomeGenericInterface<string>)));
@@ -209,7 +209,7 @@ namespace NServiceBus.ContainerTests
         {
             using (var builder = TestContainerBuilder.ConstructBuilder())
             {
-                builder.Configure(typeof(ComponentWithSystemInterface),
+                builder.ConfigureComponent(typeof(ComponentWithSystemInterface),
                     DependencyLifecycle.InstancePerCall);
 
                 Assert.False(builder.HasComponent(typeof(IGrouping<string, string>)));

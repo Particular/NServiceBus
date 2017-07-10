@@ -11,9 +11,9 @@ namespace NServiceBus.ContainerTests
         {
             using (var builder = TestContainerBuilder.ConstructBuilder())
             {
-                builder.Configure(typeof(InstancePerUoWComponent), DependencyLifecycle.InstancePerUnitOfWork);
+                builder.ConfigureComponent(typeof(InstancePerUoWComponent), DependencyLifecycle.InstancePerUnitOfWork);
 
-                using (var nestedContainer = builder.BuildChildContainer())
+                using (var nestedContainer = builder.CreateChildBuilder())
                 {
                     nestedContainer.Build(typeof(InstancePerUoWComponent));
                 }
@@ -26,11 +26,11 @@ namespace NServiceBus.ContainerTests
         {
             using (var builder = TestContainerBuilder.ConstructBuilder())
             {
-                builder.Configure(typeof(InstancePerUoWComponent), DependencyLifecycle.InstancePerUnitOfWork);
+                builder.ConfigureComponent(typeof(InstancePerUoWComponent), DependencyLifecycle.InstancePerUnitOfWork);
 
                 var parentInstance = builder.Build(typeof(InstancePerUoWComponent));
 
-                using (var childContainer = builder.BuildChildContainer())
+                using (var childContainer = builder.CreateChildBuilder())
                 {
                     var childInstance = childContainer.Build(typeof(InstancePerUoWComponent));
 
@@ -44,16 +44,16 @@ namespace NServiceBus.ContainerTests
         {
             using (var builder = TestContainerBuilder.ConstructBuilder())
             {
-                builder.Configure(typeof(InstancePerUoWComponent), DependencyLifecycle.InstancePerUnitOfWork);
+                builder.ConfigureComponent(typeof(InstancePerUoWComponent), DependencyLifecycle.InstancePerUnitOfWork);
 
                 object instance1;
-                using (var nestedContainer = builder.BuildChildContainer())
+                using (var nestedContainer = builder.CreateChildBuilder())
                 {
                     instance1 = nestedContainer.Build(typeof(InstancePerUoWComponent));
                 }
 
                 object instance2;
-                using (var anotherNestedContainer = builder.BuildChildContainer())
+                using (var anotherNestedContainer = builder.CreateChildBuilder())
                 {
                     instance2 = anotherNestedContainer.Build(typeof(InstancePerUoWComponent));
                 }
@@ -66,16 +66,16 @@ namespace NServiceBus.ContainerTests
         {
             using (var builder = TestContainerBuilder.ConstructBuilder())
             {
-                builder.Configure(typeof(InstancePerCallComponent), DependencyLifecycle.InstancePerCall);
+                builder.ConfigureComponent(typeof(InstancePerCallComponent), DependencyLifecycle.InstancePerCall);
 
                 object instance1;
-                using (var nestedContainer = builder.BuildChildContainer())
+                using (var nestedContainer = builder.CreateChildBuilder())
                 {
                     instance1 = nestedContainer.Build(typeof(InstancePerCallComponent));
                 }
 
                 object instance2;
-                using (var anotherNestedContainer = builder.BuildChildContainer())
+                using (var anotherNestedContainer = builder.CreateChildBuilder())
                 {
                     instance2 = anotherNestedContainer.Build(typeof(InstancePerCallComponent));
                 }
@@ -88,9 +88,9 @@ namespace NServiceBus.ContainerTests
         {
             using (var builder = TestContainerBuilder.ConstructBuilder())
             {
-                builder.Configure(typeof(InstancePerUoWComponent), DependencyLifecycle.InstancePerUnitOfWork);
+                builder.ConfigureComponent(typeof(InstancePerUoWComponent), DependencyLifecycle.InstancePerUnitOfWork);
 
-                using (var nestedContainer = builder.BuildChildContainer())
+                using (var nestedContainer = builder.CreateChildBuilder())
                 {
                     var instance1 = nestedContainer.Build(typeof(InstancePerUoWComponent));
                     var instance2 = nestedContainer.Build(typeof(InstancePerUoWComponent));
@@ -105,9 +105,9 @@ namespace NServiceBus.ContainerTests
         {
             using (var builder = TestContainerBuilder.ConstructBuilder())
             {
-                builder.Configure(typeof(InstancePerUoWComponent), DependencyLifecycle.InstancePerUnitOfWork);
+                builder.ConfigureComponent(typeof(InstancePerUoWComponent), DependencyLifecycle.InstancePerUnitOfWork);
 
-                using (builder.BuildChildContainer())
+                using (builder.CreateChildBuilder())
                 {
                     //no-op
                 }
@@ -126,9 +126,9 @@ namespace NServiceBus.ContainerTests
                 var singletonInMainContainer = new SingletonComponent();
 
                 builder.RegisterSingleton(typeof(ISingletonComponent), singletonInMainContainer);
-                builder.Configure(typeof(ComponentThatDependsOfSingleton), DependencyLifecycle.InstancePerUnitOfWork);
+                builder.ConfigureComponent(typeof(ComponentThatDependsOfSingleton), DependencyLifecycle.InstancePerUnitOfWork);
 
-                using (var nestedContainer = builder.BuildChildContainer())
+                using (var nestedContainer = builder.CreateChildBuilder())
                 {
                     nestedContainer.Build(typeof(ComponentThatDependsOfSingleton));
                 }
@@ -145,9 +145,9 @@ namespace NServiceBus.ContainerTests
                 AnotherDisposableComponent.DisposeCalled = false;
 
                 main.RegisterSingleton(typeof(AnotherDisposableComponent), new AnotherDisposableComponent());
-                main.Configure(typeof(DisposableComponent), DependencyLifecycle.InstancePerUnitOfWork);
+                main.ConfigureComponent(typeof(DisposableComponent), DependencyLifecycle.InstancePerUnitOfWork);
 
-                using (var builder = main.BuildChildContainer())
+                using (var builder = main.CreateChildBuilder())
                 {
                     builder.Build(typeof(DisposableComponent));
                 }
