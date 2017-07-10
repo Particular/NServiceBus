@@ -123,12 +123,12 @@ namespace NServiceBus
 
         void RegisterContainerAdapter(IContainer containerToAdapt)
         {
-            var b = new CommonObjectBuilder(containerToAdapt);
+            builder = containerToAdapt;
+            container = containerToAdapt;
 
             builder = b;
             container = b;
-
-            container.ConfigureComponent<IBuilder>(_ => b, DependencyLifecycle.SingleInstance);
+            container.ConfigureComponent(b => b, DependencyLifecycle.InstancePerCall);
         }
 
         async Task RunInstallers(IEnumerable<Type> concreteTypes)
