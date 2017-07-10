@@ -66,11 +66,10 @@ namespace NServiceBus
             }
         }
 
-
         public Task Write(IContainSagaData sagaData)
         {
             fileStream.Position = 0;
-            var json = SimpleJson.SerializeObject(sagaData, SerializationStrategy);
+            var json = SimpleJson.SerializeObject(sagaData, serializationStrategy);
             return streamWriter.WriteAsync(json);
         }
 
@@ -83,9 +82,8 @@ namespace NServiceBus
         public async Task<object> Read()
         {
             var json = await streamReader.ReadToEndAsync().ConfigureAwait(false);
-            return SimpleJson.DeserializeObject(json, manifest.SagaEntityType, SerializationStrategy);
+            return SimpleJson.DeserializeObject(json, manifest.SagaEntityType, serializationStrategy);
         }
-
 
         SagaManifest manifest;
         FileStream fileStream;
@@ -95,6 +93,6 @@ namespace NServiceBus
 
         const int DefaultBufferSize = 4096;
         static Task<SagaStorageFile> noSagaFoundResult = Task.FromResult<SagaStorageFile>(null);
-        static readonly IJsonSerializerStrategy SerializationStrategy = new EnumAwareStrategy();
+        static readonly EnumAwareStrategy serializationStrategy = new EnumAwareStrategy();
     }
 }

@@ -163,8 +163,8 @@ namespace NServiceBus
 
             static IContainSagaData DeepCopy(IContainSagaData source)
             {
-                var json = SimpleJson.SerializeObject(source, SerializationStrategy);
-                return (IContainSagaData)SimpleJson.DeserializeObject(json, source.GetType(), SerializationStrategy);
+                var json = SimpleJson.SerializeObject(source, serializationStrategy);
+                return (IContainSagaData)SimpleJson.DeserializeObject(json, source.GetType(), serializationStrategy);
             }
 
             public IContainSagaData GetSagaCopy()
@@ -215,7 +215,7 @@ namespace NServiceBus
             readonly IContainSagaData data;
             static ConcurrentDictionary<Type, bool> canBeShallowCopiedCache = new ConcurrentDictionary<Type, bool>();
             static Func<IContainSagaData, IContainSagaData> shallowCopy;
-            static readonly IJsonSerializerStrategy SerializationStrategy = new EnumAwareStrategy();
+            static readonly EnumAwareStrategy serializationStrategy = new EnumAwareStrategy();
         }
 
         /// <summary>
