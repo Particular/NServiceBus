@@ -126,8 +126,6 @@ namespace NServiceBus
             builder = containerToAdapt;
             container = containerToAdapt;
 
-            builder = b;
-            container = b;
             container.ConfigureComponent(b => b, DependencyLifecycle.InstancePerCall);
         }
 
