@@ -9,6 +9,7 @@ namespace NServiceBus
     using Extensibility;
     using Persistence;
     using Sagas;
+    using SimpleJson;
 
     class InMemorySagaPersister : ISagaPersister
     {
@@ -162,8 +163,8 @@ namespace NServiceBus
 
             static IContainSagaData DeepCopy(IContainSagaData source)
             {
-                var json = serializer.SerializeObject(source);
-                return (IContainSagaData)serializer.DeserializeObject(json, source.GetType());
+                var json = SimpleJson.SerializeObject(source, serializationStrategy);
+                return (IContainSagaData)SimpleJson.DeserializeObject(json, source.GetType(), serializationStrategy);
             }
 
             public IContainSagaData GetSagaCopy()
@@ -212,9 +213,9 @@ namespace NServiceBus
             }
 
             readonly IContainSagaData data;
-            static JsonMessageSerializer serializer = new JsonMessageSerializer(null);
             static ConcurrentDictionary<Type, bool> canBeShallowCopiedCache = new ConcurrentDictionary<Type, bool>();
             static Func<IContainSagaData, IContainSagaData> shallowCopy;
+            static readonly EnumAwareStrategy serializationStrategy = new EnumAwareStrategy();
         }
 
         /// <summary>
