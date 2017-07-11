@@ -1,4 +1,5 @@
-﻿#if NET452
+﻿
+#if NET452
 namespace NServiceBus.Core.Tests.AssemblyScanner
 {
     using System;
@@ -269,7 +270,7 @@ namespace NServiceBus.Core.Tests.AssemblyScanner
         public void Should_not_include_child_type_if_only_handler_for_base_exists()
         {
             var messages =
-                @"
+@"
 public interface IBaseEvent
 {
 }
@@ -280,7 +281,7 @@ public interface IInheritedEvent : IBaseEvent
 ";
 
             var handler =
-                @"
+@"
 using NServiceBus;
 using System.Threading.Tasks;
 
@@ -383,7 +384,6 @@ class InterfaceMessageHandler : IHandleMessages<IBaseEvent>
                 }
 
                 builder.AppendLine(" }");
-
 
                 var result = provider.CompileAssemblyFromSource(param, builder.ToString());
                 ThrowIfCompilationWasNotSuccessful(result);
