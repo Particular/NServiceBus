@@ -1758,6 +1758,7 @@ namespace NServiceBus.ObjectBuilder.Common
         NServiceBus.ObjectBuilder.Common.IContainer BuildChildContainer();
         void Configure(System.Type component, NServiceBus.DependencyLifecycle dependencyLifecycle);
         void Configure<T>(System.Func<T> component, NServiceBus.DependencyLifecycle dependencyLifecycle);
+        void Configure<T>(System.Func<NServiceBus.ObjectBuilder.IResolver, T> componentFactory, NServiceBus.DependencyLifecycle dependencyLifecycle);
         bool HasComponent(System.Type componentType);
         void RegisterSingleton(System.Type lookupType, object instance);
         void Release(object instance);
@@ -1780,11 +1781,16 @@ namespace NServiceBus.ObjectBuilder
         void ConfigureComponent(System.Type concreteComponent, NServiceBus.DependencyLifecycle dependencyLifecycle);
         void ConfigureComponent<T>(NServiceBus.DependencyLifecycle dependencyLifecycle);
         void ConfigureComponent<T>(System.Func<T> componentFactory, NServiceBus.DependencyLifecycle dependencyLifecycle);
-        void ConfigureComponent<T>(System.Func<NServiceBus.ObjectBuilder.IBuilder, T> componentFactory, NServiceBus.DependencyLifecycle dependencyLifecycle);
+        void ConfigureComponent<T>(System.Func<NServiceBus.ObjectBuilder.IResolver, T> componentFactory, NServiceBus.DependencyLifecycle dependencyLifecycle);
         bool HasComponent<T>();
         bool HasComponent(System.Type componentType);
         void RegisterSingleton(System.Type lookupType, object instance);
         void RegisterSingleton<T>(T instance);
+    }
+    public interface IResolver
+    {
+        object Build(System.Type typeToBuild);
+        T Build<T>();
     }
 }
 namespace NServiceBus.Outbox

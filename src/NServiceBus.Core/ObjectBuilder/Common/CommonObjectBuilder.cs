@@ -69,9 +69,9 @@ namespace NServiceBus
             container.Configure(componentFactory, instanceLifecycle);
         }
 
-        public void ConfigureComponent<T>(Func<IBuilder, T> componentFactory, DependencyLifecycle instanceLifecycle)
+        public void ConfigureComponent<T>(Func<IResolver, T> componentFactory, DependencyLifecycle dependencyLifecycle)
         {
-            container.Configure(() => componentFactory(this), instanceLifecycle);
+            container.Configure(componentFactory, dependencyLifecycle);
         }
 
         void IConfigureComponents.RegisterSingleton(Type lookupType, object instance)

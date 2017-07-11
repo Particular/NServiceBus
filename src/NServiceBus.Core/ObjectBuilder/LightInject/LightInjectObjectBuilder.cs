@@ -5,6 +5,7 @@
     using System.Linq;
     using Janitor;
     using LightInject;
+    using NServiceBus.ObjectBuilder;
     using ObjectBuilder.Common;
 
     [SkipWeaving]
@@ -89,6 +90,27 @@
             }
 
             container.Register(sf => component(), GetLifeTime(dependencyLifecycle));
+
+            var interfaces = GetAllServices(componentType);
+
+            foreach (var servicesType in interfaces)
+            {
+                container.Register(servicesType, s => s.GetInstance<T>(), GetLifeTime(dependencyLifecycle), componentType.FullName);
+            }
+        }
+
+        public void Configure<T>(Func<IResolver, T> componentFactory, DependencyLifecycle dependencyLifecycle)
+        {
+            ThrowIfCalledOnChildContainer();
+
+            var componentType = typeof(T);
+
+            if (HasComponent(componentType))
+            {
+                return;
+            }
+
+            container.Register(sf => componentFactory(new LightInjectResolver(sf)), GetLifeTime(dependencyLifecycle));
 
             var interfaces = GetAllServices(componentType);
 
