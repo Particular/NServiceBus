@@ -246,6 +246,37 @@ namespace NServiceBus
         string Decrypt(EncryptedValue encryptedValue, IIncomingLogicalMessageContext context);
     }
 
+    [ObsoleteEx(
+       Message = "Json serialization is available as a dedicated 'NServiceBus.Newtonsoft.Json' package.",
+       ReplacementTypeOrMember = "NServiceBus.NewtonsoftSerializer",
+       RemoveInVersion = "8",
+       TreatAsErrorFromVersion = "7")]
+    public class JsonSerializer : SerializationDefinition
+    {
+        public override Func<IMessageMapper, IMessageSerializer> Configure(ReadOnlySettings settings)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    [ObsoleteEx(
+        Message = "Json serialization is available as a dedicated 'NServiceBus.Newtonsoft.Json' package.",
+        ReplacementTypeOrMember = "NServiceBus.NewtonsoftSerializer",
+        RemoveInVersion = "8",
+        TreatAsErrorFromVersion = "7")]
+    public static class JsonSerializerConfigurationExtensions
+    {
+        [ObsoleteEx(
+            Message = "Json serialization is available as a dedicated 'NServiceBus.Newtonsoft.Json' package.",
+            ReplacementTypeOrMember = "NServiceBus.NewtonsoftSerializer",
+            RemoveInVersion = "8",
+            TreatAsErrorFromVersion = "7")]
+        public static void Encoding(this SerializationExtensions<JsonSerializer> config, Encoding encoding)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
     public partial class RecoverabilitySettings
     {
         [ObsoleteEx(
@@ -338,37 +369,6 @@ namespace NServiceBus
         {
             get { throw new NotImplementedException(); }
             set { throw new NotImplementedException(); }
-        }
-    }
-
-    [ObsoleteEx(
-        Message = "JsonSerialization is available as a dedicated 'NServiceBus.Newtonsoft.Json ' package.",
-        ReplacementTypeOrMember = "NServiceBus.NewtonsoftSerializer",
-        RemoveInVersion = "8",
-        TreatAsErrorFromVersion = "7")]
-    public class JsonSerializer : SerializationDefinition
-    {
-        public override Func<IMessageMapper, IMessageSerializer> Configure(ReadOnlySettings settings)
-        {
-            throw new NotImplementedException();
-        }
-    }
-
-    [ObsoleteEx(
-        Message = "JsonSerialization is available as a dedicated 'NServiceBus.Newtonsoft.Json ' package.",
-        ReplacementTypeOrMember = "NServiceBus.NewtonsoftSerializer",
-        RemoveInVersion = "8",
-        TreatAsErrorFromVersion = "7")]
-    public static class JsonSerializerConfigurationExtensions
-    {
-        [ObsoleteEx(
-            Message = "JsonSerialization is available as a dedicated 'NServiceBus.Newtonsoft.Json ' package.",
-            ReplacementTypeOrMember = "NServiceBus.NewtonsoftSerializer",
-            RemoveInVersion = "8",
-            TreatAsErrorFromVersion = "7")]
-        public static void Encoding(this SerializationExtensions<JsonSerializer> config, Encoding encoding)
-        {
-            throw new NotImplementedException();
         }
     }
 }
