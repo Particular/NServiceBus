@@ -10,18 +10,23 @@
     [SkipWeaving]
     class LightInjectObjectBuilder : IContainer
     {
-        IServiceContainer container;
-        Scope scope;
-        bool isRootScope;
-
         public LightInjectObjectBuilder()
         {
-            container = new ServiceContainer(new ContainerOptions { EnableVariance = false });
+            container = new ServiceContainer(new ContainerOptions
+            {
+                EnableVariance = false
+            })
+            {
+                // Logical call context is necessary because the CurrentScope would be managed in a thread local 
+                // by default, if not specified otherwise, which leads to inproper scope 
+                // usage when executed with async code.
+                ScopeManagerProvider = new PerLogicalCallContextScopeManagerProvider()
+            };
             scope = container.BeginScope();
             isRootScope = true;
         }
 
-        public LightInjectObjectBuilder(IServiceContainer serviceContainer)
+        LightInjectObjectBuilder(IServiceContainer serviceContainer)
         {
             container = serviceContainer;
             scope = serviceContainer.BeginScope();
@@ -148,5 +153,9 @@
                 throw new InvalidOperationException("Reconfiguration of child containers is not allowed.");
             }
         }
+
+        IServiceContainer container;
+        Scope scope;
+        bool isRootScope;
     }
 }
