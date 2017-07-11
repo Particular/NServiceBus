@@ -43,7 +43,7 @@
                 {
                     var basePath = Path.Combine(TestContext.CurrentContext.TestDirectory, @"databus\sender");
                     builder.UseDataBus<FileShareDataBus>().BasePath(basePath);
-                    builder.UseSerialization<JsonSerializer>();
+                    builder.UseSerialization<XmlSerializer>();
 
                     builder.ConfigureTransport().Routing().RouteToEndpoint(typeof(MyMessageWithLargePayload), typeof(Receiver));
                 });
@@ -58,7 +58,7 @@
                 {
                     var basePath = Path.Combine(TestContext.CurrentContext.TestDirectory, @"databus\sender");
                     builder.UseDataBus<FileShareDataBus>().BasePath(basePath);
-                    builder.UseSerialization<JsonSerializer>();
+                    builder.UseSerialization<XmlSerializer>();
                     builder.RegisterComponents(c => c.ConfigureComponent<Mutator>(DependencyLifecycle.InstancePerCall));
                 });
             }
