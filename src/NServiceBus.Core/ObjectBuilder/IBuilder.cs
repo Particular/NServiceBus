@@ -45,19 +45,5 @@ namespace NServiceBus.ObjectBuilder
         /// <param name="typeToBuild">The <see cref="Type" /> to build.</param>
         /// <returns>The component instances.</returns>
         IEnumerable<object> BuildAll(Type typeToBuild);
-
-        /// <summary>
-        /// Releases a component instance.
-        /// </summary>
-        /// <param name="instance">The component instance to release.</param>
-        void Release(object instance);
-
-        /// <summary>
-        /// Builds an instance of the defined type injecting it with all defined dependencies
-        /// and invokes the given action on the instance.
-        /// </summary>
-        /// <param name="typeToBuild">The <see cref="Type" /> to build.</param>
-        /// <param name="action">The callback to call.</param>
-        void BuildAndDispatch(Type typeToBuild, Action<object> action);
     }
 }

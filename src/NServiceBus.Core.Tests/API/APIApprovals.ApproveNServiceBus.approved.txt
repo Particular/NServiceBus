@@ -1751,17 +1751,7 @@ namespace NServiceBus.MessageMutator
 }
 namespace NServiceBus.ObjectBuilder.Common
 {
-    public interface IContainer : System.IDisposable
-    {
-        object Build(System.Type typeToBuild);
-        System.Collections.Generic.IEnumerable<object> BuildAll(System.Type typeToBuild);
-        NServiceBus.ObjectBuilder.Common.IContainer BuildChildContainer();
-        void Configure(System.Type component, NServiceBus.DependencyLifecycle dependencyLifecycle);
-        void Configure<T>(System.Func<T> component, NServiceBus.DependencyLifecycle dependencyLifecycle);
-        bool HasComponent(System.Type componentType);
-        void RegisterSingleton(System.Type lookupType, object instance);
-        void Release(object instance);
-    }
+    public interface IContainer : NServiceBus.ObjectBuilder.IBuilder, NServiceBus.ObjectBuilder.IConfigureComponents, System.IDisposable { }
 }
 namespace NServiceBus.ObjectBuilder
 {
@@ -1771,9 +1761,7 @@ namespace NServiceBus.ObjectBuilder
         T Build<T>();
         System.Collections.Generic.IEnumerable<T> BuildAll<T>();
         System.Collections.Generic.IEnumerable<object> BuildAll(System.Type typeToBuild);
-        void BuildAndDispatch(System.Type typeToBuild, System.Action<object> action);
         NServiceBus.ObjectBuilder.IBuilder CreateChildBuilder();
-        void Release(object instance);
     }
     public interface IConfigureComponents
     {

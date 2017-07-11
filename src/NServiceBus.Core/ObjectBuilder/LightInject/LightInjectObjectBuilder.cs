@@ -5,77 +5,109 @@
     using System.Linq;
     using Janitor;
     using LightInject;
+    using ObjectBuilder;
     using ObjectBuilder.Common;
 
     [SkipWeaving]
     class LightInjectObjectBuilder : IContainer
     {
-        IServiceContainer container;
-        Scope scope;
-        bool isRootScope;
+        IServiceContainer rootContainer;
+        Scope currentScope;
+        bool isDisposed = false;
+
+        IServiceFactory serviceFactory;
 
         public LightInjectObjectBuilder()
         {
-            container = new ServiceContainer(new ContainerOptions { EnableVariance = false });
-            scope = container.BeginScope();
-            isRootScope = true;
+            rootContainer = new ServiceContainer(new ContainerOptions { EnableVariance = false });
+            serviceFactory = currentScope = rootContainer.BeginScope();
         }
 
-        public LightInjectObjectBuilder(IServiceContainer serviceContainer)
+        LightInjectObjectBuilder(Scope childContainer)
         {
-            container = serviceContainer;
-            scope = serviceContainer.BeginScope();
-            isRootScope = false;
+            serviceFactory = currentScope = childContainer;
+        }
+
+        LightInjectObjectBuilder(IServiceFactory serviceFactory)
+        {
+            this.serviceFactory = serviceFactory;
         }
 
         public void Dispose()
         {
-            scope.Dispose();
-
-            if (isRootScope)
+            // required as the container is registered itself and we need to prevent reentrancy
+            if (isDisposed)
             {
-                container.Dispose();
+                isDisposed = true;
             }
+
+            // do not use janitor to ensure proper order of disposal
+            currentScope?.Dispose();
+            rootContainer?.Dispose();
         }
 
         public object Build(Type typeToBuild)
         {
-            return scope?.GetInstance(typeToBuild);
+            return serviceFactory.GetInstance(typeToBuild);
         }
 
-        public IContainer BuildChildContainer()
+        public T Build<T>()
         {
-            return new LightInjectObjectBuilder(container);
+            return serviceFactory.GetInstance<T>();
+        }
+
+        public IEnumerable<T> BuildAll<T>()
+        {
+            return serviceFactory.GetAllInstances<T>();
         }
 
         public IEnumerable<object> BuildAll(Type typeToBuild)
         {
-            return scope?.GetAllInstances(typeToBuild);
+            return serviceFactory.GetAllInstances(typeToBuild);
         }
 
-        public void Configure(Type component, DependencyLifecycle dependencyLifecycle)
+        public IBuilder CreateChildBuilder()
         {
-            ThrowIfCalledOnChildContainer();
+            // todo: NRE when called on child container (shouldn't happen though)
+            return new LightInjectObjectBuilder(currentScope.BeginScope());
+        }
 
-            if (HasComponent(component))
+        public void ConfigureComponent(Type concreteComponent, DependencyLifecycle dependencyLifecycle)
+        {
+            if (HasComponent(concreteComponent))
             {
                 return;
             }
 
-            container.Register(component, GetLifeTime(dependencyLifecycle));
+            rootContainer.Register(concreteComponent, GetLifeTime(dependencyLifecycle));
 
-            var interfaces = GetAllServices(component);
+            var interfaces = GetAllServices(concreteComponent);
 
             foreach (var serviceType in interfaces)
             {
-                container.Register(serviceType, s => s.GetInstance(component), GetLifeTime(dependencyLifecycle), component.FullName);
+                rootContainer.Register(serviceType, s => s.GetInstance(concreteComponent), GetLifeTime(dependencyLifecycle), concreteComponent.FullName);
             }
         }
 
-        public void Configure<T>(Func<T> component, DependencyLifecycle dependencyLifecycle)
+        public void ConfigureComponent<T>(DependencyLifecycle dependencyLifecycle)
         {
-            ThrowIfCalledOnChildContainer();
+            if (HasComponent<T>())
+            {
+                return;
+            }
 
+            rootContainer.Register<T>(GetLifeTime(dependencyLifecycle));
+
+            var interfaces = GetAllServices(typeof(T));
+
+            foreach (var serviceType in interfaces)
+            {
+                rootContainer.Register(serviceType, s => s.GetInstance<T>(), GetLifeTime(dependencyLifecycle), typeof(T).FullName);
+            }
+        }
+
+        public void ConfigureComponent<T>(Func<T> componentFactory, DependencyLifecycle dependencyLifecycle)
+        {
             var componentType = typeof(T);
 
             if (HasComponent(componentType))
@@ -83,30 +115,53 @@
                 return;
             }
 
-            container.Register(sf => component(), GetLifeTime(dependencyLifecycle));
+            rootContainer.Register(sf => componentFactory(), GetLifeTime(dependencyLifecycle));
 
             var interfaces = GetAllServices(componentType);
 
             foreach (var servicesType in interfaces)
             {
-                container.Register(servicesType, s => s.GetInstance<T>(), GetLifeTime(dependencyLifecycle), componentType.FullName);
+                rootContainer.Register(servicesType, s => s.GetInstance<T>(), GetLifeTime(dependencyLifecycle), componentType.FullName);
+            }
+        }
+
+        public void ConfigureComponent<T>(Func<IBuilder, T> componentFactory, DependencyLifecycle dependencyLifecycle)
+        {
+            var componentType = typeof(T);
+
+            if (HasComponent(componentType))
+            {
+                return;
+            }
+
+            rootContainer.Register(sf => componentFactory(new LightInjectObjectBuilder(sf)), GetLifeTime(dependencyLifecycle));
+
+            var interfaces = GetAllServices(componentType);
+
+            foreach (var servicesType in interfaces)
+            {
+                rootContainer.Register(servicesType, s => s.GetInstance<T>(), GetLifeTime(dependencyLifecycle), componentType.FullName);
             }
         }
 
         public void RegisterSingleton(Type lookupType, object instance)
         {
-            ThrowIfCalledOnChildContainer();
+            rootContainer.RegisterInstance(lookupType, instance);
+        }
 
-            container.RegisterInstance(lookupType, instance);
+        public void RegisterSingleton<T>(T instance)
+        {
+            rootContainer.RegisterInstance(instance);
+        }
+
+        public bool HasComponent<T>()
+        {
+            return rootContainer.CanGetInstance(typeof(T), string.Empty);
         }
 
         public bool HasComponent(Type componentType)
         {
-            return container.CanGetInstance(componentType, string.Empty);
-        }
-
-        public void Release(object instance)
-        {
+            return rootContainer.CanGetInstance(componentType, string.Empty);
         }
 
         static ILifetime GetLifeTime(DependencyLifecycle dependencyLifecycle)
@@ -139,14 +194,6 @@
             }
 
             return result.Distinct();
-        }
-
-        void ThrowIfCalledOnChildContainer()
-        {
-            if (!isRootScope)
-            {
-                throw new InvalidOperationException("Reconfiguration of child containers is not allowed.");
-            }
         }
     }
 }
