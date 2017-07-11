@@ -28,7 +28,7 @@
             Assert.AreEqual(payloadToSend, context.ReceivedPayload, "The large payload should be marshalled correctly using the databus");
         }
 
-        const int PayloadSize = 100;
+        const int PayloadSize = 500;
 
         public class Context : ScenarioContext
         {
@@ -81,7 +81,7 @@
                 {
                     if (context.Body.Length > PayloadSize)
                     {
-                        throw new Exception();
+                        throw new Exception("The message body is too large, which means the DataBus was not used to transer the payload.");
                     }
                     return Task.FromResult(0);
                 }
