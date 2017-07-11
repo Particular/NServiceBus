@@ -48,10 +48,8 @@ namespace NServiceBus.Hosting.Helpers
         internal string CoreAssemblyName { get; set; } = NServicebusCoreAssemblyName;
 
         /// <summary>
-        /// Traverses the specified base directory including all sub-directories, generating a list of assemblies that can be
+        /// Traverses the specified base directory including all sub-directories, generating a list of assemblies that should be
         /// scanned for handlers, a list of skipped files, and a list of errors that occurred while scanning.
-        /// Scanned files may be skipped when they're either not a .NET assembly, or if a reflection-only load of the .NET
-        /// assembly reveals that it does not reference NServiceBus.
         /// </summary>
         public AssemblyScannerResults GetScannableAssemblies()
         {
