@@ -43,17 +43,6 @@ namespace NServiceBus.Core.Tests.AssemblyScanner
             }
         }
 
-        [Test]
-        public void ReferencesNServiceBus_returns_false_for_no_reference()
-        {
-            var assemblyToScan = Assembly.LoadFrom(Path.Combine(TestContext.CurrentContext.TestDirectory, "TestDlls", "dotNet.dll"));
-            var scanner = new AssemblyScanner(assemblyToScan);
-
-            var result = scanner.GetScannableAssemblies();
-
-            Assert.That(result.Assemblies.Contains(assemblyToScan), Is.False);
-        }
-
         [Test, RunInApplicationDomain]
         public void Assemblies_with_direct_reference_are_included()
         {

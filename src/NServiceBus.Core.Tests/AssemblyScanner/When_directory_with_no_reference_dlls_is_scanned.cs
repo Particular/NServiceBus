@@ -1,7 +1,7 @@
 ﻿namespace NServiceBus.Core.Tests.AssemblyScanner
 {
     using System.IO;
-    using System.Linq;
+    using System.Reflection;
     using Hosting.Helpers;
     using NUnit.Framework;
 
@@ -11,13 +11,12 @@
         [Test]
         public void assemblies_without_nsb_reference_are_skipped()
         {
-            var assemblyScanner = new AssemblyScanner(Path.Combine(TestContext.CurrentContext.TestDirectory, "TestDlls"));
-            assemblyScanner.ScanAppDomainAssemblies = false;
+            var assemblyToScan = Assembly.LoadFrom(Path.Combine(TestContext.CurrentContext.TestDirectory, "TestDlls", "dotNet.dll"));
+            var scanner = new AssemblyScanner(assemblyToScan);
 
-            var results = assemblyScanner
-                .GetScannableAssemblies();
+            var result = scanner.GetScannableAssemblies();
 
-            Assert.That(results.Assemblies.Any(a => a.FullName.Contains("dotNet.dll")), Is.False);
+            Assert.That(result.Assemblies.Contains(assemblyToScan), Is.False);
         }
 
     }
