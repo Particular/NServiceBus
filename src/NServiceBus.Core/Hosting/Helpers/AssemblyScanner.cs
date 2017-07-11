@@ -116,7 +116,7 @@ namespace NServiceBus.Hosting.Helpers
         bool TryLoadScannableAssembly(string assemblyPath, AssemblyScannerResults results, out Assembly assembly)
         {
             assembly = null;
-            if (!IsIncluded(Path.GetFileNameWithoutExtension(assemblyPath)))
+            if (IsExcluded(Path.GetFileNameWithoutExtension(assemblyPath)))
             {
                 var skippedFile = new SkippedFile(assemblyPath, "File was explicitly excluded from scanning.");
                 results.SkippedFiles.Add(skippedFile);
@@ -364,21 +364,21 @@ namespace NServiceBus.Hosting.Helpers
             return fileInfo;
         }
 
-        bool IsIncluded(string assemblyNameOrFileName)
+        bool IsExcluded(string assemblyNameOrFileName)
         {
             var isExplicitlyExcluded = AssembliesToSkip.Any(excluded => IsMatch(excluded, assemblyNameOrFileName));
             if (isExplicitlyExcluded)
             {
-                return false;
+                return true;
             }
 
             var isExcludedByDefault = DefaultAssemblyExclusions.Any(exclusion => IsMatch(exclusion, assemblyNameOrFileName));
             if (isExcludedByDefault)
             {
-                return false;
+                return true;
             }
 
-            return true;
+            return false;
         }
 
         static bool IsMatch(string expression1, string expression2)
@@ -439,7 +439,7 @@ namespace NServiceBus.Hosting.Helpers
                 return false;
             }
 
-            if (!IsIncluded(assembly.GetName().Name))
+            if (IsExcluded(assembly.GetName().Name))
             {
                 return false;
             }
