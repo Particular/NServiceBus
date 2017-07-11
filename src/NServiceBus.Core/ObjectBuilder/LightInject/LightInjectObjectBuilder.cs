@@ -45,7 +45,7 @@
 
         public object Build(Type typeToBuild)
         {
-            return scope?.GetInstance(typeToBuild);
+            return container.GetInstance(typeToBuild);
         }
 
         public IContainer BuildChildContainer()
@@ -55,7 +55,7 @@
 
         public IEnumerable<object> BuildAll(Type typeToBuild)
         {
-            return scope?.GetAllInstances(typeToBuild);
+            return container.GetAllInstances(typeToBuild);
         }
 
         public void Configure(Type component, DependencyLifecycle dependencyLifecycle)
