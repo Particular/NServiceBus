@@ -78,8 +78,7 @@ namespace NServiceBus.Hosting.Helpers
 
             foreach (var assemblyFile in ScanDirectoryForAssemblyFiles(baseDirectoryToScan, ScanNestedDirectories))
             {
-                Assembly assembly;
-                if (TryLoadScannableAssembly(assemblyFile.FullName, results, out assembly))
+                if (TryLoadScannableAssembly(assemblyFile.FullName, results, out var assembly))
                 {
                     ScanAssemblyAndDependencies(assembly, processed, results);
                 }
