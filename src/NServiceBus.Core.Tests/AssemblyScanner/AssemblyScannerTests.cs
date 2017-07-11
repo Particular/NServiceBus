@@ -43,26 +43,6 @@ namespace NServiceBus.Core.Tests.AssemblyScanner
         }
 
         [Test]
-        public void ReferencesNServiceBus_circular()
-        {
-            // Assemblies already exist in TestDlls/circular:
-            var circularDirectory = Path.Combine(TestContext.CurrentContext.TestDirectory, @"TestDlls\circular");
-            var classLibB = Path.Combine(circularDirectory, "ClassLibraryB.dll");
-
-            // Put ClassLibraryB.dll in CurrentDomain.BaseDirectory so it resolves correctly
-            var tempClassLibB = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ClassLibraryB.dll");
-            File.Copy(classLibB, tempClassLibB, true);
-
-            var scanner = new AssemblyScanner(Path.Combine(TestContext.CurrentContext.TestDirectory, @"TestDlls\circular"));
-            scanner.ScanAppDomainAssemblies = false;
-
-            var result = scanner.GetScannableAssemblies();
-
-            Assert.That(result.Assemblies.Any(a => a.FullName.Contains("ClassLibraryA")), Is.False);
-            Assert.That(result.Assemblies.Any(a => a.FullName.Contains("ClassLibraryB")), Is.False);
-        }
-
-        [Test]
         public void ReferencesNServiceBus_returns_false_for_no_reference()
         {
             var assemblyToScan = Assembly.LoadFrom(Path.Combine(TestContext.CurrentContext.TestDirectory, "TestDlls", "dotNet.dll"));
