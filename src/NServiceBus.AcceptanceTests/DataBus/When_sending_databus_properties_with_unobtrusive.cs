@@ -47,7 +47,6 @@
 
                     var basePath = Path.Combine(TestContext.CurrentContext.TestDirectory, @"databus\sender");
                     builder.UseDataBus<FileShareDataBus>().BasePath(basePath);
-                    builder.UseSerialization<XmlSerializer>();
 
                     builder.ConfigureTransport().Routing().RouteToEndpoint(typeof(MyMessageWithLargePayload), typeof(Receiver));
                 }).ExcludeType<MyMessageWithLargePayload>(); // remove that type from assembly scanning to simulate what would happen with true unobtrusive mode
@@ -66,7 +65,6 @@
 
                     var basePath = Path.Combine(TestContext.CurrentContext.TestDirectory, @"databus\sender");
                     builder.UseDataBus<FileShareDataBus>().BasePath(basePath);
-                    builder.UseSerialization<XmlSerializer>();
                     builder.RegisterComponents(c => c.ConfigureComponent<Mutator>(DependencyLifecycle.InstancePerCall));
                 });
             }
