@@ -54,22 +54,27 @@ namespace NServiceBus.Hosting.Helpers
         public AssemblyScannerResults GetScannableAssemblies()
         {
             var results = new AssemblyScannerResults();
-
             var processed = new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase);
+
             if (assemblyToScan != null)
             {
-                ScanAssemblyAndDependencies(assemblyToScan, processed, results);
+                if (ScanAssembly(assemblyToScan, processed))
+                {
+                    AddTypesToResult(assemblyToScan, results);
+                }
+
                 return results;
             }
 
             if (ScanAppDomainAssemblies)
             {
                 var appDomainAssemblies = AppDomain.CurrentDomain.GetAssemblies();
+
                 foreach (var assembly in appDomainAssemblies)
                 {
-                    if (!assembly.IsDynamic)
+                    if (ScanAssembly(assembly, processed))
                     {
-                        ScanAssemblyAndDependencies(assembly, processed, results);
+                        AddTypesToResult(assembly, results);
                     }
                 }
             }
@@ -86,7 +91,10 @@ namespace NServiceBus.Hosting.Helpers
 
             foreach (var assembly in assemblies)
             {
-                ScanAssemblyAndDependencies(assembly, processed, results);
+                if (ScanAssembly(assembly, processed))
+                {
+                    AddTypesToResult(assembly, results);
+                }
             }
 
             // This extra step is to ensure unobtrusive message types are included in the Types list.
@@ -158,7 +166,7 @@ namespace NServiceBus.Hosting.Helpers
             }
         }
 
-        bool ScanAssemblyAndDependencies(Assembly assembly, Dictionary<string, bool> processed, AssemblyScannerResults results)
+        bool ScanAssembly(Assembly assembly, Dictionary<string, bool> processed)
         {
             if (assembly == null)
             {
@@ -182,7 +190,7 @@ namespace NServiceBus.Hosting.Helpers
                 foreach (var referencedAssemblyName in assembly.GetReferencedAssemblies())
                 {
                     var referencedAssembly = GetReferencedAssembly(referencedAssemblyName);
-                    var referencesCore = ScanAssemblyAndDependencies(referencedAssembly, processed, results);
+                    var referencesCore = ScanAssembly(referencedAssembly, processed);
 
                     if (referencesCore)
                     {
@@ -190,11 +198,6 @@ namespace NServiceBus.Hosting.Helpers
                         break;
                     }
                 }
-            }
-
-            if (processed[assembly.FullName])
-            {
-                AddTypesToResult(assembly, results);
             }
 
             return processed[assembly.FullName];
