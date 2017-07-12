@@ -561,13 +561,22 @@ namespace NServiceBus
     {
         void Run(NServiceBus.Settings.SettingsHolder settings);
     }
+    [System.ObsoleteAttribute("Json serialization is available as a dedicated \'NServiceBus.Newtonsoft.Json\' pack" +
+        "age. Use `NServiceBus.NewtonsoftSerializer` instead. Will be removed in version " +
+        "8.0.0.", true)]
     public class JsonSerializer : NServiceBus.Serialization.SerializationDefinition
     {
         public JsonSerializer() { }
         public override System.Func<NServiceBus.MessageInterfaces.IMessageMapper, NServiceBus.Serialization.IMessageSerializer> Configure(NServiceBus.Settings.ReadOnlySettings settings) { }
     }
+    [System.ObsoleteAttribute("Json serialization is available as a dedicated \'NServiceBus.Newtonsoft.Json\' pack" +
+        "age. Use `NServiceBus.NewtonsoftSerializer` instead. Will be removed in version " +
+        "8.0.0.", true)]
     public class static JsonSerializerConfigurationExtensions
     {
+        [System.ObsoleteAttribute("Json serialization is available as a dedicated \'NServiceBus.Newtonsoft.Json\' pack" +
+            "age. Use `NServiceBus.NewtonsoftSerializer` instead. The member currently throws" +
+            " a NotImplementedException. Will be removed in version 8.0.0.", true)]
         public static void Encoding(this NServiceBus.Serialization.SerializationExtensions<NServiceBus.JsonSerializer> config, System.Text.Encoding encoding) { }
     }
     public class LearningPersistence : NServiceBus.Persistence.PersistenceDefinition { }

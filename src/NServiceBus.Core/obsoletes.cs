@@ -10,8 +10,11 @@ namespace NServiceBus
     using System.Collections.Generic;
     using System.Reflection;
     using System.Runtime.Serialization;
+    using System.Text;
     using Config.ConfigurationSource;
+    using MessageInterfaces;
     using Pipeline;
+    using Serialization;
     using Settings;
 
     [ObsoleteEx(
@@ -241,6 +244,37 @@ namespace NServiceBus
             RemoveInVersion = "8",
             TreatAsErrorFromVersion = "7")]
         string Decrypt(EncryptedValue encryptedValue, IIncomingLogicalMessageContext context);
+    }
+
+    [ObsoleteEx(
+       Message = "Json serialization is available as a dedicated 'NServiceBus.Newtonsoft.Json' package.",
+       ReplacementTypeOrMember = "NServiceBus.NewtonsoftSerializer",
+       RemoveInVersion = "8",
+       TreatAsErrorFromVersion = "7")]
+    public class JsonSerializer : SerializationDefinition
+    {
+        public override Func<IMessageMapper, IMessageSerializer> Configure(ReadOnlySettings settings)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    [ObsoleteEx(
+        Message = "Json serialization is available as a dedicated 'NServiceBus.Newtonsoft.Json' package.",
+        ReplacementTypeOrMember = "NServiceBus.NewtonsoftSerializer",
+        RemoveInVersion = "8",
+        TreatAsErrorFromVersion = "7")]
+    public static class JsonSerializerConfigurationExtensions
+    {
+        [ObsoleteEx(
+            Message = "Json serialization is available as a dedicated 'NServiceBus.Newtonsoft.Json' package.",
+            ReplacementTypeOrMember = "NServiceBus.NewtonsoftSerializer",
+            RemoveInVersion = "8",
+            TreatAsErrorFromVersion = "7")]
+        public static void Encoding(this SerializationExtensions<JsonSerializer> config, Encoding encoding)
+        {
+            throw new NotImplementedException();
+        }
     }
 
     public partial class RecoverabilitySettings
