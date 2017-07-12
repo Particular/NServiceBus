@@ -151,84 +151,57 @@ namespace NServiceBus.Hosting.Helpers
             }
         }
 
-        void ScanAssemblyAndDependencies(Assembly assembly, Dictionary<string, bool> processed, AssemblyScannerResults results)
+        bool ScanAssemblyAndDependencies(Assembly assembly, Dictionary<string, bool> processed, AssemblyScannerResults results)
         {
             if (assembly == null)
             {
-                return;
+                return false;
             }
 
-            if (processed.ContainsKey(assembly.FullName))
+            if (processed.TryGetValue(assembly.FullName, out var value))
             {
-                return;
+                return value;
             }
 
-            if (!ShouldScanAssembly(assembly))
-            {
-                processed[assembly.FullName] = false;
-            }
+            processed[assembly.FullName] = false;
 
             if (assembly.GetName().Name == CoreAssemblyName)
             {
                 processed[assembly.FullName] = true;
-                AddTypesToResult(assembly, results);
-                return;
             }
 
-            // set to false by default to avoid stack overflows when scanning cyclic dependencies
-            processed[assembly.FullName] = false;
             foreach (var referencedAssemblyName in assembly.GetReferencedAssemblies())
             {
-                var assemblyNameFullName = referencedAssemblyName.FullName;
-                if (processed.TryGetValue(assemblyNameFullName, out var referencesCore))
-                {
-                    if (referencesCore)
-                    {
-                        processed[assembly.FullName] = true;
-                        AddTypesToResult(assembly, results);
-
-                        return;
-                    }
-
-                    continue;
-                }
-
-                // handle edge case where an assembly references an older core version.
-                // In this case, an exception can be thrown when trying to load an assembly with a different version
                 if (referencedAssemblyName.Name == CoreAssemblyName)
                 {
-                    // do not set the referenced core assembly to processed to still allow it to be loaded and scanned
-                    //processed[referencedAssemblyName.FullName] = true;
                     processed[assembly.FullName] = true;
-                    AddTypesToResult(assembly, results);
-                    return;
+                    break;
                 }
 
-                Assembly refAssembly;
+                Assembly referencedAssembly = null;
+
                 try
                 {
-                    refAssembly = Assembly.Load(assemblyNameFullName);
+                    referencedAssembly = Assembly.Load(referencedAssemblyName);
                 }
-                catch (FileNotFoundException)
-                {
-                    processed[assemblyNameFullName] = false;
-                    continue;
-                }
-                catch (FileLoadException)
-                {
-                    processed[assemblyNameFullName] = false;
-                    continue;
-                }
+                catch (FileNotFoundException) { }
+                catch (FileLoadException) { }
+                catch (BadImageFormatException) { }
 
-                ScanAssemblyAndDependencies(refAssembly, processed, results);
-                if (processed[refAssembly.FullName])
+                var referencesCore = ScanAssemblyAndDependencies(referencedAssembly, processed, results);
+
+                if (referencesCore)
                 {
-                    // dependency has reference to NSB
                     processed[assembly.FullName] = true;
-                    AddTypesToResult(assembly, results);
-                    return;
                 }
             }
+
+            if (processed[assembly.FullName] && ShouldScanAssembly(assembly))
+            {
+                AddTypesToResult(assembly, results);
+            }
+
+            return processed[assembly.FullName];
         }
 
         internal static bool IsRuntimeAssembly(AssemblyName assemblyName)
