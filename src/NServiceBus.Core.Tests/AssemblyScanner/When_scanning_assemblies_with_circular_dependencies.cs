@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus.Core.Tests.AssemblyScanner
 {
-    using System;
     using System.IO;
     using System.Linq;
     using Hosting.Helpers;
@@ -14,10 +13,15 @@
         {
             // Assemblies already exist in TestDlls/circular:
             var circularDirectory = Path.Combine(TestContext.CurrentContext.TestDirectory, @"TestDlls\circular");
+
+            var classLibA = Path.Combine(circularDirectory, "ClassLibraryA.dll");
             var classLibB = Path.Combine(circularDirectory, "ClassLibraryB.dll");
 
-            // Put ClassLibraryB.dll in CurrentDomain.BaseDirectory so it resolves correctly
-            var tempClassLibB = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ClassLibraryB.dll");
+            // Put assemblies in TestContext.CurrentContext.TestDirectory so they resolve correctly
+            var tempClassLibA = Path.Combine(TestContext.CurrentContext.TestDirectory, "ClassLibraryA.dll");
+            var tempClassLibB = Path.Combine(TestContext.CurrentContext.TestDirectory, "ClassLibraryB.dll");
+
+            File.Copy(classLibA, tempClassLibA, true);
             File.Copy(classLibB, tempClassLibB, true);
 
             var scanner = new AssemblyScanner(Path.Combine(TestContext.CurrentContext.TestDirectory, @"TestDlls\circular"));
