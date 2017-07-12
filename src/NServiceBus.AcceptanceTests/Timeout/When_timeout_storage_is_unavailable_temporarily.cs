@@ -7,6 +7,7 @@
     using EndpointTemplates;
     using Features;
     using NUnit.Framework;
+    using Persistence;
 
     class When_timeout_storage_is_unavailable_temporarily : NServiceBusAcceptanceTest
     {
@@ -65,18 +66,20 @@
                 {
                     config.GetSettings().Set("TimeToWaitBeforeTriggeringCriticalErrorForTimeoutPersisterReceiver", TimeSpan.FromSeconds(7));
                     config.EnableFeature<TimeoutManager>();
+                    config.UsePersistence<CustomTimeoutPersister, StorageType.Timeouts>();
                 });
             }
+        }
 
-            public TestContext TestContext { get; set; }
-
-            class Initializer : Feature
+        public class CustomTimeoutPersister : PersistenceDefinition
+        {
+            public CustomTimeoutPersister()
             {
-                public Initializer()
-                {
-                    EnableByDefault();
-                }
+                Supports<StorageType.Timeouts>(s => s.EnableFeatureByDefault<CustomTimeoutPersisterFeature>());
+            }
 
+            public class CustomTimeoutPersisterFeature : Feature
+            {
                 protected override void Setup(FeatureConfigurationContext context)
                 {
                     var testContext = context.Settings.Get<TimeoutTestContext>();
