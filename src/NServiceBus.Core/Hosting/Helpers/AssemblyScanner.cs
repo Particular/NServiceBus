@@ -177,24 +177,22 @@ namespace NServiceBus.Hosting.Helpers
                 processed[assembly.FullName] = true;
             }
 
-            foreach (var referencedAssemblyName in assembly.GetReferencedAssemblies())
+            if (ShouldScanDependencies(assembly))
             {
-                if (referencedAssemblyName.Name == CoreAssemblyName)
+                foreach (var referencedAssemblyName in assembly.GetReferencedAssemblies())
                 {
-                    processed[assembly.FullName] = true;
-                    break;
-                }
+                    var referencedAssembly = GetReferencedAssembly(referencedAssemblyName);
+                    var referencesCore = ScanAssemblyAndDependencies(referencedAssembly, processed, results);
 
-                Assembly referencedAssembly = GetReferencedAssembly(referencedAssemblyName);
-                var referencesCore = ScanAssemblyAndDependencies(referencedAssembly, processed, results);
-
-                if (referencesCore)
-                {
-                    processed[assembly.FullName] = true;
+                    if (referencesCore)
+                    {
+                        processed[assembly.FullName] = true;
+                        break;
+                    }
                 }
             }
 
-            if (processed[assembly.FullName] && ShouldScanAssembly(assembly))
+            if (processed[assembly.FullName])
             {
                 AddTypesToResult(assembly, results);
             }
@@ -416,19 +414,26 @@ namespace NServiceBus.Hosting.Helpers
             results.Assemblies.Add(assembly);
         }
 
-        bool ShouldScanAssembly(Assembly assembly)
+        bool ShouldScanDependencies(Assembly assembly)
         {
             if (assembly.IsDynamic)
             {
                 return false;
             }
 
-            if (IsRuntimeAssembly(assembly.GetName()))
+            var assemblyName = assembly.GetName();
+
+            if (assemblyName.Name == CoreAssemblyName)
             {
                 return false;
             }
 
-            if (IsExcluded(assembly.GetName().Name))
+            if (IsRuntimeAssembly(assemblyName))
+            {
+                return false;
+            }
+
+            if (IsExcluded(assemblyName.Name))
             {
                 return false;
             }
