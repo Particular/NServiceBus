@@ -65,7 +65,7 @@
 
                     var basePath = Path.Combine(TestContext.CurrentContext.TestDirectory, @"databus\sender");
                     builder.UseDataBus<FileShareDataBus>().BasePath(basePath);
-                    builder.RegisterComponents(c => c.ConfigureComponent<Mutator>(DependencyLifecycle.InstancePerCall));
+                    builder.RegisterMessageMutator(new Mutator());
                 });
             }
 
