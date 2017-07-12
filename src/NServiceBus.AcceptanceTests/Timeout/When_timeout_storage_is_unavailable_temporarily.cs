@@ -7,6 +7,7 @@
     using EndpointTemplates;
     using Features;
     using NUnit.Framework;
+    using Persistence;
 
     class When_timeout_storage_is_unavailable_temporarily : NServiceBusAcceptanceTest
     {
