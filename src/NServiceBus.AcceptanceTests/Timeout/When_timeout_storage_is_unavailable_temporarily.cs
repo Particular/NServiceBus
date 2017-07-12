@@ -65,14 +65,15 @@
                 {
                     config.GetSettings().Set("TimeToWaitBeforeTriggeringCriticalErrorForTimeoutPersisterReceiver", TimeSpan.FromSeconds(7));
                     config.EnableFeature<TimeoutManager>();
+                    config.DisableFeature<InMemoryTimeoutPersistence>(); // we register our custom timeout persister
                 });
             }
 
             public TestContext TestContext { get; set; }
 
-            class Initializer : Feature
+            class CustomTimeoutPersister : Feature
             {
-                public Initializer()
+                public CustomTimeoutPersister()
                 {
                     EnableByDefault();
                 }
