@@ -65,9 +65,10 @@ namespace NServiceBus
 
             container.ConfigureComponent(b => settings.Get<Notifications>(), DependencyLifecycle.SingleInstance);
 
-            await RunInstallers(concreteTypes).ConfigureAwait(false);
+            var receiveInfrastructure = transportInfrastructure.ConfigureReceiveInfrastructure();
+            await RunInstallers(concreteTypes, receiveInfrastructure).ConfigureAwait(false);
 
-            var startableEndpoint = new StartableEndpoint(settings, builder, featureActivator, pipelineConfiguration, new EventAggregator(settings.Get<NotificationSubscriptions>()), transportInfrastructure, criticalError);
+            var startableEndpoint = new StartableEndpoint(settings, builder, featureActivator, pipelineConfiguration, new EventAggregator(settings.Get<NotificationSubscriptions>()), transportInfrastructure, receiveInfrastructure, criticalError);
             return startableEndpoint;
         }
 
@@ -131,7 +132,7 @@ namespace NServiceBus
             container.ConfigureComponent<IBuilder>(_ => b, DependencyLifecycle.SingleInstance);
         }
 
-        async Task RunInstallers(IEnumerable<Type> concreteTypes)
+        async Task RunInstallers(IEnumerable<Type> concreteTypes, TransportReceiveInfrastructure receiveInfrastructure)
         {
             if (Debugger.IsAttached || settings.GetOrDefault<bool>("Installers.Enable"))
             {
@@ -141,11 +142,30 @@ namespace NServiceBus
                 }
 
                 var username = GetInstallationUserName();
+                await CreateQueuesIfNecessary(receiveInfrastructure, username).ConfigureAwait(false);
+
                 foreach (var installer in builder.BuildAll<INeedToInstallSomething>())
                 {
                     await installer.Install(username).ConfigureAwait(false);
                 }
             }
+        }
+
+        Task CreateQueuesIfNecessary(TransportReceiveInfrastructure receiveInfrastructure, string username)
+        {
+            if (settings.Get<bool>("Endpoint.SendOnly"))
+            {
+                return TaskEx.CompletedTask;
+            }
+            if (!settings.CreateQueues())
+            {
+                return TaskEx.CompletedTask;
+            }
+
+            var queueCreator = receiveInfrastructure.QueueCreatorFactory();
+            var queueBindings = settings.Get<QueueBindings>();
+            
+            return queueCreator.CreateQueueIfNecessary(queueBindings, username);
         }
 
         static bool IsINeedToInstallSomething(Type t) => typeof(INeedToInstallSomething).IsAssignableFrom(t);

@@ -14,7 +14,7 @@ namespace NServiceBus
 
     class StartableEndpoint : IStartableEndpoint
     {
-        public StartableEndpoint(SettingsHolder settings, IBuilder builder, FeatureActivator featureActivator, PipelineConfiguration pipelineConfiguration, IEventAggregator eventAggregator, TransportInfrastructure transportInfrastructure, CriticalError criticalError)
+        public StartableEndpoint(SettingsHolder settings, IBuilder builder, FeatureActivator featureActivator, PipelineConfiguration pipelineConfiguration, IEventAggregator eventAggregator, TransportInfrastructure transportInfrastructure, TransportReceiveInfrastructure receiveInfrastructure, CriticalError criticalError)
         {
             this.criticalError = criticalError;
             this.settings = settings;
@@ -23,6 +23,7 @@ namespace NServiceBus
             this.pipelineConfiguration = pipelineConfiguration;
             this.eventAggregator = eventAggregator;
             this.transportInfrastructure = transportInfrastructure;
+            this.receiveInfrastructure = receiveInfrastructure;
 
             pipelineCache = new PipelineCache(builder, settings);
 
@@ -31,6 +32,12 @@ namespace NServiceBus
 
         public async Task<IEndpointInstance> Start()
         {
+            var result = await receiveInfrastructure.PreStartupCheck().ConfigureAwait(false);
+            if (!result.Succeeded)
+            {
+                throw new Exception($"Pre start-up check failed: {result.ErrorMessage}");
+            }
+
             await transportInfrastructure.Start().ConfigureAwait(false);
 
             AppDomain.CurrentDomain.SetPrincipalPolicy(PrincipalPolicy.WindowsPrincipal);
@@ -104,22 +111,24 @@ namespace NServiceBus
 
             var errorQueue = settings.ErrorQueueAddress();
             var requiredTransactionSupport = settings.GetRequiredTransactionModeForReceives();
+
             var recoverabilityExecutorFactory = builder.Build<RecoverabilityExecutorFactory>();
 
-            var receivers = BuildMainReceivers(errorQueue, purgeOnStartup, requiredTransactionSupport, recoverabilityExecutorFactory, mainPipeline);
+            var receivers = BuildMainReceivers(errorQueue, purgeOnStartup, requiredTransactionSupport, recoverabilityExecutorFactory, receiveInfrastructure, mainPipeline);
 
+            // ReSharper disable once LoopCanBeConvertedToQuery
             foreach (var satellitePipeline in settings.Get<SatelliteDefinitions>().Definitions)
             {
                 var satelliteRecoverabilityExecutor = recoverabilityExecutorFactory.Create(satellitePipeline.RecoverabilityPolicy, eventAggregator, satellitePipeline.ReceiveAddress);
                 var satellitePushSettings = new PushSettings(satellitePipeline.ReceiveAddress, errorQueue, purgeOnStartup, satellitePipeline.RequiredTransportTransactionMode);
 
-                receivers.Add(new TransportReceiver(satellitePipeline.Name, builder.Build<IPushMessages>(), satellitePushSettings, satellitePipeline.RuntimeSettings, new SatellitePipelineExecutor(builder, satellitePipeline), satelliteRecoverabilityExecutor, criticalError));
+                receivers.Add(new TransportReceiver(satellitePipeline.Name, receiveInfrastructure.MessagePumpFactory(), satellitePushSettings, satellitePipeline.RuntimeSettings, new SatellitePipelineExecutor(builder, satellitePipeline), satelliteRecoverabilityExecutor, criticalError));
             }
 
             return receivers;
         }
 
-        List<TransportReceiver> BuildMainReceivers(string errorQueue, bool purgeOnStartup, TransportTransactionMode requiredTransactionSupport, RecoverabilityExecutorFactory recoverabilityExecutorFactory, IPipeline<ITransportReceiveContext> mainPipeline)
+        List<TransportReceiver> BuildMainReceivers(string errorQueue, bool purgeOnStartup, TransportTransactionMode requiredTransactionSupport, RecoverabilityExecutorFactory recoverabilityExecutorFactory, TransportReceiveInfrastructure receiveInfrastructure, IPipeline<ITransportReceiveContext> mainPipeline)
         {
             var localAddress = settings.LocalAddress();
 
@@ -129,17 +138,18 @@ namespace NServiceBus
             var dequeueLimitations = GetDequeueLimitationsForReceivePipeline();
 
             var receivers = new List<TransportReceiver>();
+            receivers.Add(new TransportReceiver(MainReceiverId, receiveInfrastructure.MessagePumpFactory(), pushSettings, dequeueLimitations, mainPipelineExecutor, recoverabilityExecutor, criticalError));
 
-            receivers.Add(new TransportReceiver(MainReceiverId, builder.Build<IPushMessages>(), pushSettings, dequeueLimitations, mainPipelineExecutor, recoverabilityExecutor, criticalError));
-
-            if (settings.InstanceSpecificQueue() != null)
+            if (settings.InstanceSpecificQueue() == null)
             {
-                var instanceSpecificQueue = settings.InstanceSpecificQueue();
-                var instanceSpecificRecoverabilityExecutor = recoverabilityExecutorFactory.CreateDefault(eventAggregator, instanceSpecificQueue);
-                var sharedReceiverPushSettings = new PushSettings(settings.InstanceSpecificQueue(), errorQueue, purgeOnStartup, requiredTransactionSupport);
-
-                receivers.Add(new TransportReceiver(MainReceiverId, builder.Build<IPushMessages>(), sharedReceiverPushSettings, dequeueLimitations, mainPipelineExecutor, instanceSpecificRecoverabilityExecutor, criticalError));
+                return receivers;
             }
+            
+            var instanceSpecificQueue = settings.InstanceSpecificQueue();
+            var instanceSpecificRecoverabilityExecutor = recoverabilityExecutorFactory.CreateDefault(eventAggregator, instanceSpecificQueue);
+            var sharedReceiverPushSettings = new PushSettings(settings.InstanceSpecificQueue(), errorQueue, purgeOnStartup, requiredTransactionSupport);
+
+            receivers.Add(new TransportReceiver(MainReceiverId, receiveInfrastructure.MessagePumpFactory(), sharedReceiverPushSettings, dequeueLimitations, mainPipelineExecutor, instanceSpecificRecoverabilityExecutor, criticalError));
 
             return receivers;
         }
@@ -168,6 +178,7 @@ namespace NServiceBus
         SettingsHolder settings;
         IEventAggregator eventAggregator;
         TransportInfrastructure transportInfrastructure;
+        TransportReceiveInfrastructure receiveInfrastructure;
         CriticalError criticalError;
 
         const string MainReceiverId = "Main";
