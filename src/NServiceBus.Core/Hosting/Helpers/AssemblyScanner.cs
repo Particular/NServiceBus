@@ -74,12 +74,19 @@ namespace NServiceBus.Hosting.Helpers
                 }
             }
 
+            var assemblies = new List<Assembly>();
+
             foreach (var assemblyFile in ScanDirectoryForAssemblyFiles(baseDirectoryToScan, ScanNestedDirectories))
             {
                 if (TryLoadScannableAssembly(assemblyFile.FullName, results, out var assembly))
                 {
-                    ScanAssemblyAndDependencies(assembly, processed, results);
+                    assemblies.Add(assembly);
                 }
+            }
+
+            foreach (var assembly in assemblies)
+            {
+                ScanAssemblyAndDependencies(assembly, processed, results);
             }
 
             // This extra step is to ensure unobtrusive message types are included in the Types list.
@@ -178,16 +185,7 @@ namespace NServiceBus.Hosting.Helpers
                     break;
                 }
 
-                Assembly referencedAssembly = null;
-
-                try
-                {
-                    referencedAssembly = Assembly.Load(referencedAssemblyName);
-                }
-                catch (FileNotFoundException) { }
-                catch (FileLoadException) { }
-                catch (BadImageFormatException) { }
-
+                Assembly referencedAssembly = GetReferencedAssembly(referencedAssemblyName);
                 var referencesCore = ScanAssemblyAndDependencies(referencedAssembly, processed, results);
 
                 if (referencesCore)
@@ -202,6 +200,24 @@ namespace NServiceBus.Hosting.Helpers
             }
 
             return processed[assembly.FullName];
+        }
+
+        Assembly GetReferencedAssembly(AssemblyName assemblyName)
+        {
+            Assembly referencedAssembly = null;
+
+            try
+            {
+                referencedAssembly = Assembly.Load(assemblyName);
+            }
+            catch (Exception ex) when (ex is FileNotFoundException || ex is BadImageFormatException || ex is FileLoadException) { }
+
+            if (referencedAssembly == null)
+            {
+                referencedAssembly = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(a => a.GetName().Name == assemblyName.Name);
+            }
+
+            return referencedAssembly;
         }
 
         internal static bool IsRuntimeAssembly(AssemblyName assemblyName)
