@@ -20,9 +20,9 @@
         {
             var builder = new CommonObjectBuilder(new LightInjectObjectBuilder());
 
-            IBuilder iBuilder = builder;
-
-            builder.ConfigureComponent(b => iBuilder, DependencyLifecycle.SingleInstance);
+            //IBuilder iBuilder = builder;
+            //builder.ConfigureComponent(b => iBuilder, DependencyLifecycle.SingleInstance);
+            builder.ConfigureComponent(_ => builder.CurrentBuilder, DependencyLifecycle.InstancePerCall);
 
             builder.ConfigureComponent<ClassResolvingItsDependencies>(DependencyLifecycle.InstancePerCall);
             builder.ConfigureComponent<UowDependency>(DependencyLifecycle.InstancePerUnitOfWork);
@@ -52,9 +52,9 @@
         {
             var builder = new CommonObjectBuilder(new LightInjectObjectBuilder());
 
-            IBuilder iBuilder = builder;
-
-            builder.ConfigureComponent(b => iBuilder, DependencyLifecycle.SingleInstance);
+            //IBuilder iBuilder = builder;
+            //builder.ConfigureComponent(b => iBuilder, DependencyLifecycle.SingleInstance);
+            builder.ConfigureComponent(_ => builder.CurrentBuilder, DependencyLifecycle.InstancePerCall);
 
             builder.ConfigureComponent<ClassResolvingItsDependencies>(DependencyLifecycle.InstancePerCall);
             builder.ConfigureComponent<UowDependency>(DependencyLifecycle.InstancePerUnitOfWork);
