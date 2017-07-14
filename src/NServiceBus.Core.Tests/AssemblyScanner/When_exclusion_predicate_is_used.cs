@@ -1,5 +1,4 @@
-﻿#if NET452
-namespace NServiceBus.Core.Tests.AssemblyScanner
+﻿namespace NServiceBus.Core.Tests.AssemblyScanner
 {
     using System.Collections.Generic;
     using System.IO;
@@ -15,12 +14,13 @@ namespace NServiceBus.Core.Tests.AssemblyScanner
         public void no_files_explicitly_excluded_are_returned()
         {
             var results = new AssemblyScanner(Path.Combine(TestContext.CurrentContext.TestDirectory, "TestDlls"))
-                          {
-                              AssembliesToSkip = new List<string>
-                                                 {
-                                                     "dotNet.dll"
-                                                 }
-                          }
+                {
+                    AssembliesToSkip = new List<string>
+                    {
+                        "dotNet.dll"
+                    },
+                    ScanAppDomainAssemblies = false
+                }
                 .GetScannableAssemblies();
 
             var skippedFiles = results.SkippedFiles;
@@ -31,4 +31,3 @@ namespace NServiceBus.Core.Tests.AssemblyScanner
         }
     }
 }
-#endif

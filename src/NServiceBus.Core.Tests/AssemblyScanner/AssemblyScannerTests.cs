@@ -1,9 +1,9 @@
-﻿#if NET452
+﻿
+#if NET452
 namespace NServiceBus.Core.Tests.AssemblyScanner
 {
     using System;
     using System.CodeDom.Compiler;
-    using System.Collections.Generic;
     using System.Diagnostics;
     using System.IO;
     using System.Linq;
@@ -41,55 +41,6 @@ namespace NServiceBus.Core.Tests.AssemblyScanner
             {
                 Directory.Delete(DynamicAssembly.TestAssemblyDirectory, true);
             }
-        }
-
-        [Test]
-        public void System_assemblies_should_be_excluded()
-        {
-            Assert.IsTrue(AssemblyScanner.IsRuntimeAssembly(typeof(string).Assembly.Location));
-            Assert.IsTrue(AssemblyScanner.IsRuntimeAssembly(typeof(Uri).Assembly.Location));
-            Assert.IsTrue(AssemblyScanner.IsRuntimeAssembly(new AssemblyName("mscorlib, Version=2.0.5.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e, Retargetable=Yes")));
-        }
-
-        [Test]
-        public void Non_system_assemblies_should_be_included()
-        {
-            Assert.IsFalse(AssemblyScanner.IsRuntimeAssembly(GetType().Assembly.Location));
-        }
-
-        [Test]
-        public void ReferencesNServiceBus_requires_binding_redirect()
-        {
-            var combine = Path.Combine(TestContext.CurrentContext.TestDirectory, "TestDlls", "AssemblyWithRefToSN.dll");
-            var scanner = new AssemblyScanner();
-
-            Assert.IsTrue(scanner.ReferencesNServiceBus(combine, new Dictionary<string, bool>()));
-        }
-
-        [Test]
-        public void ReferencesNServiceBus_circular()
-        {
-            var circularDirectory = Path.Combine(TestContext.CurrentContext.TestDirectory, @"TestDlls\circular");
-            var classLibB = Path.Combine(circularDirectory, "ClassLibraryB.dll");
-
-            // Put ClassLibraryB.dll in CurrentDomain.BaseDirectory so it resolves correctly
-            var tempClassLibB = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ClassLibraryB.dll");
-
-            File.Copy(classLibB, tempClassLibB, true);
-
-            var classLibA = Path.Combine(circularDirectory, "ClassLibraryA.dll");
-            var scanner = new AssemblyScanner(circularDirectory);
-
-            Assert.IsFalse(scanner.ReferencesNServiceBus(classLibA, new Dictionary<string, bool>()));
-        }
-
-        [Test]
-        public void ReferencesNServiceBus_returns_false_for_no_reference()
-        {
-            var combine = Path.Combine(TestContext.CurrentContext.TestDirectory, "TestDlls", "dotNet.dll");
-            var scanner = new AssemblyScanner();
-
-            Assert.IsFalse(scanner.ReferencesNServiceBus(combine, new Dictionary<string, bool>()));
         }
 
         [Test, RunInApplicationDomain]
@@ -212,20 +163,20 @@ namespace NServiceBus.Core.Tests.AssemblyScanner
         }
 
         [Test, RunInApplicationDomain]
-        public void Throw_exception_on_assembly_loading_conflicts()
+        public void Does_not_throw_exception_when_scanning_duplicate_assemblies()
         {
             var busAssembly = new DynamicAssembly("Fake.NServiceBus.Core");
 
             Directory.CreateDirectory(Path.Combine(DynamicAssembly.TestAssemblyDirectory, "subdir"));
             var destFileName = Path.Combine(DynamicAssembly.TestAssemblyDirectory, "subdir", busAssembly.FileName);
+            // create a duplicate of the scanned assembly in a subfolder:
             File.Copy(busAssembly.FilePath, destFileName);
 
             var scanner = new AssemblyScanner(DynamicAssembly.TestAssemblyDirectory);
             scanner.ScanNestedDirectories = true;
             scanner.CoreAssemblyName = busAssembly.DynamicName;
 
-            var exception = Assert.Throws<Exception>(() => scanner.GetScannableAssemblies());
-            Assert.IsInstanceOf<FileLoadException>(exception.InnerException);
+            Assert.DoesNotThrow(() => scanner.GetScannableAssemblies());
         }
 
         [Test, RunInApplicationDomain]
@@ -335,7 +286,10 @@ class InterfaceMessageHandler : IHandleMessages<IBaseEvent>
             var messagesAsm = new DynamicAssembly("Fake.Messages", content: messages);
             Assembly.LoadFrom(messagesAsm.FilePath);
 
-            var handlerAsm = new DynamicAssembly("Fake.Handler", new[] { messagesAsm }, content: handler, referenceTheCore: true);
+            var handlerAsm = new DynamicAssembly("Fake.Handler", new[]
+            {
+                messagesAsm
+            }, content: handler, referenceTheCore: true);
             Assembly.LoadFrom(handlerAsm.FilePath);
 
             var scanner = new AssemblyScanner(DynamicAssembly.TestAssemblyDirectory);
@@ -420,14 +374,16 @@ class InterfaceMessageHandler : IHandleMessages<IBaseEvent>
 
                 builder.AppendLine(" }");
 
-
                 var result = provider.CompileAssemblyFromSource(param, builder.ToString());
                 ThrowIfCompilationWasNotSuccessful(result);
                 provider.Dispose();
 
                 if (fakeIdentity)
                 {
-                    using (var assemblyDefinition = AssemblyDefinition.ReadAssembly(FilePath, new ReaderParameters { ReadWrite = true }))
+                    using (var assemblyDefinition = AssemblyDefinition.ReadAssembly(FilePath, new ReaderParameters
+                    {
+                        ReadWrite = true
+                    }))
                     {
                         assemblyDefinition.Name.Name = nameWithoutExtension;
                         assemblyDefinition.MainModule.Name = nameWithoutExtension;

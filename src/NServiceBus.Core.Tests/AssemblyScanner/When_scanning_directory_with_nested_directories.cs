@@ -1,9 +1,8 @@
 namespace NServiceBus.Core.Tests.AssemblyScanner
 {
-    using System;
-    using System.Collections.Generic;
+    using System.IO;
     using System.Linq;
-    using Config;
+    using Hosting.Helpers;
     using NUnit.Framework;
 
     [TestFixture]
@@ -12,35 +11,34 @@ namespace NServiceBus.Core.Tests.AssemblyScanner
         [Test]
         public void Should_not_scan_nested_directories_by_default()
         {
-            var endpointConfiguration = new EndpointConfiguration("myendpoint");
-            var scannerConfiguration = endpointConfiguration.AssemblyScanner();
+            var scanner = new AssemblyScanner(Path.Combine(TestContext.CurrentContext.TestDirectory, "TestDlls", "Nested"));
+            scanner.ScanAppDomainAssemblies = false;
 
-            scannerConfiguration.ScanAppDomainAssemblies = false;
-            scannerConfiguration.ExcludeTypes(typeof(When_using_initialization_with_non_default_ctor.FeatureWithInitialization));
-            endpointConfiguration.Build();
+            var result = scanner.GetScannableAssemblies();
 
-            var scannedTypes = endpointConfiguration.Settings.Get<IList<Type>>("TypesToScan");
-            var foundTypeFromNestedAssembly = scannedTypes.Any(x => x.Name == "NestedClass");
-            Assert.False(foundTypeFromNestedAssembly, "Was expected not to scan nested assemblies, but nested assembly was scanned.");
+            var foundTypeFromNestedAssembly = result.Types.Any(x => x.Name == "NestedClass");
+            var foundTypeFromDerivedAssembly = result.Types.Any(x => x.Name == "DerivedClass");
+
+            Assert.False(foundTypeFromNestedAssembly, "Was expected not to scan nested assemblies, but 'nested.dll' was scanned.");
+            Assert.False(foundTypeFromDerivedAssembly, "Was expected not to scan nested assemblies, but 'Derived.dll' was scanned.");
         }
 
-#if NET452
         [Test]
         public void Should_scan_nested_directories_if_requested()
         {
-            var endpointConfiguration = new EndpointConfiguration("myendpoint");
-            var scannerConfiguration = endpointConfiguration.AssemblyScanner();
+            var scanner = new AssemblyScanner(Path.Combine(TestContext.CurrentContext.TestDirectory, "TestDlls", "Nested"))
+            {
+                ScanNestedDirectories = true,
+                ScanAppDomainAssemblies = false
+            };
 
-            scannerConfiguration.ScanAssembliesInNestedDirectories = true;
-            scannerConfiguration.ExcludeTypes(typeof(When_using_initialization_with_non_default_ctor.FeatureWithInitialization));
-            scannerConfiguration.ExcludeAssemblies("ClassLibraryB");
+            var result = scanner.GetScannableAssemblies();
 
-            endpointConfiguration.Build();
+            var foundTypeFromNestedAssembly = result.Types.Any(x => x.Name == "NestedClass");
+            var foundTypeFromDerivedAssembly = result.Types.Any(x => x.Name == "DerivedClass");
 
-            var scannedTypes = endpointConfiguration.Settings.Get<IList<Type>>("TypesToScan");
-            var foundTypeFromNestedAssembly = scannedTypes.Any(x => x.Name == "NestedClass");
-            Assert.True(foundTypeFromNestedAssembly, "Was expected to scan nested assemblies, but nested assembly were not scanned.");
+            Assert.True(foundTypeFromNestedAssembly, "Was expected to scan nested assemblies, but 'nested.dll' was not scanned.");
+            Assert.True(foundTypeFromDerivedAssembly, "Was expected to scan nested assemblies, but 'Derived.dll' was not scanned.");
         }
-#endif
     }
 }
