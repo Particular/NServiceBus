@@ -8,40 +8,47 @@
     public class LITests
     {
         [Test]
-        public async Task name2()
+        public async Task failing1()
         {
-            var container1 = new CommonObjectBuilder(new LightInjectObjectBuilder());
-            await Task.Yield();
-            var container2 = new CommonObjectBuilder(new LightInjectObjectBuilder());
+            CommonObjectBuilder container1 = null;
+
+            await Task.Run(() =>
+            {
+                container1 = new CommonObjectBuilder(new LightInjectObjectBuilder());
+            });
 
             var lazyPump1 = new Lazy<MyPump>(() => new MyPump());
-            var lazyPump2 = new Lazy<MyPump>(() => new MyPump());
+            container1.ConfigureComponent(sf => (IMessagePump)lazyPump1.Value, DependencyLifecycle.InstancePerCall);
 
-            await Task.Run(() =>
-            {
-                container1.ConfigureComponent(sf => (IMessagePump)lazyPump1.Value, DependencyLifecycle.InstancePerCall);
-            });
+            var x = container1.Build<IMessagePump>();
+        }
 
-            await Task.Run(() =>
-            {
-                container2.ConfigureComponent(sf => (IMessagePump)lazyPump2.Value, DependencyLifecycle.InstancePerCall);
-            });
+        [Test]
+        public async Task failing2()
+        {
+            var container1 = await CreateBuilder();
 
-            await Task.WhenAll(
-                Task.Run(() => container1.Build<IMessagePump>()),
-                Task.Run(() => container1.Build<IMessagePump>()),
-                Task.Run(() => container1.Build<IMessagePump>()));
+            var lazyPump1 = new Lazy<MyPump>(() => new MyPump());
+            container1.ConfigureComponent(sf => (IMessagePump)lazyPump1.Value, DependencyLifecycle.InstancePerCall);
 
-            await Task.Run(() =>
-            {
-                var pump1 = container1.Build<IMessagePump>();
-            });
+            var x = container1.Build<IMessagePump>();
+        }
 
-            await Task.Run(() =>
-            {
-                var pump2 = container2.Build<IMessagePump>();
-            });
+        [Test]
+        public async Task failing3()
+        {
+            var container1 = await CreateBuilder();
 
+            container1.ConfigureComponent<MyPump>(DependencyLifecycle.InstancePerCall);
+
+            var x = container1.Build<IMessagePump>();
+        }
+
+#pragma warning disable CS1998
+        async Task<CommonObjectBuilder> CreateBuilder()
+        {
+            //await Task.Yield();
+            return new CommonObjectBuilder(new LightInjectObjectBuilder());
         }
     }
 
