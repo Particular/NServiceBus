@@ -54,31 +54,46 @@ namespace NServiceBus.Hosting.Helpers
         public AssemblyScannerResults GetScannableAssemblies()
         {
             var results = new AssemblyScannerResults();
-
             var processed = new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase);
+
             if (assemblyToScan != null)
             {
-                ScanAssemblyAndDependencies(assemblyToScan, processed, results);
+                if (ScanAssembly(assemblyToScan, processed))
+                {
+                    AddTypesToResult(assemblyToScan, results);
+                }
+
                 return results;
             }
 
             if (ScanAppDomainAssemblies)
             {
                 var appDomainAssemblies = AppDomain.CurrentDomain.GetAssemblies();
+
                 foreach (var assembly in appDomainAssemblies)
                 {
-                    if (!assembly.IsDynamic)
+                    if (ScanAssembly(assembly, processed))
                     {
-                        ScanAssemblyAndDependencies(assembly, processed, results);
+                        AddTypesToResult(assembly, results);
                     }
                 }
             }
+
+            var assemblies = new List<Assembly>();
 
             foreach (var assemblyFile in ScanDirectoryForAssemblyFiles(baseDirectoryToScan, ScanNestedDirectories))
             {
                 if (TryLoadScannableAssembly(assemblyFile.FullName, results, out var assembly))
                 {
-                    ScanAssemblyAndDependencies(assembly, processed, results);
+                    assemblies.Add(assembly);
+                }
+            }
+
+            foreach (var assembly in assemblies)
+            {
+                if (ScanAssembly(assembly, processed))
+                {
+                    AddTypesToResult(assembly, results);
                 }
             }
 
@@ -116,7 +131,7 @@ namespace NServiceBus.Hosting.Helpers
         bool TryLoadScannableAssembly(string assemblyPath, AssemblyScannerResults results, out Assembly assembly)
         {
             assembly = null;
-            if (!IsIncluded(Path.GetFileNameWithoutExtension(assemblyPath)))
+            if (IsExcluded(Path.GetFileNameWithoutExtension(assemblyPath)))
             {
                 var skippedFile = new SkippedFile(assemblyPath, "File was explicitly excluded from scanning.");
                 results.SkippedFiles.Add(skippedFile);
@@ -151,84 +166,59 @@ namespace NServiceBus.Hosting.Helpers
             }
         }
 
-        void ScanAssemblyAndDependencies(Assembly assembly, Dictionary<string, bool> processed, AssemblyScannerResults results)
+        bool ScanAssembly(Assembly assembly, Dictionary<string, bool> processed)
         {
             if (assembly == null)
             {
-                return;
+                return false;
             }
 
-            if (processed.ContainsKey(assembly.FullName))
+            if (processed.TryGetValue(assembly.FullName, out var value))
             {
-                return;
+                return value;
             }
 
-            if (!ShouldScanAssembly(assembly))
-            {
-                processed[assembly.FullName] = false;
-            }
+            processed[assembly.FullName] = false;
 
             if (assembly.GetName().Name == CoreAssemblyName)
             {
                 processed[assembly.FullName] = true;
-                AddTypesToResult(assembly, results);
-                return;
             }
 
-            // set to false by default to avoid stack overflows when scanning cyclic dependencies
-            processed[assembly.FullName] = false;
-            foreach (var referencedAssemblyName in assembly.GetReferencedAssemblies())
+            if (ShouldScanDependencies(assembly))
             {
-                var assemblyNameFullName = referencedAssemblyName.FullName;
-                if (processed.TryGetValue(assemblyNameFullName, out var referencesCore))
+                foreach (var referencedAssemblyName in assembly.GetReferencedAssemblies())
                 {
+                    var referencedAssembly = GetReferencedAssembly(referencedAssemblyName);
+                    var referencesCore = ScanAssembly(referencedAssembly, processed);
+
                     if (referencesCore)
                     {
                         processed[assembly.FullName] = true;
-                        AddTypesToResult(assembly, results);
-
-                        return;
+                        break;
                     }
-
-                    continue;
-                }
-
-                // handle edge case where an assembly references an older core version.
-                // In this case, an exception can be thrown when trying to load an assembly with a different version
-                if (referencedAssemblyName.Name == CoreAssemblyName)
-                {
-                    // do not set the referenced core assembly to processed to still allow it to be loaded and scanned
-                    //processed[referencedAssemblyName.FullName] = true;
-                    processed[assembly.FullName] = true;
-                    AddTypesToResult(assembly, results);
-                    return;
-                }
-
-                Assembly refAssembly;
-                try
-                {
-                    refAssembly = Assembly.Load(assemblyNameFullName);
-                }
-                catch (FileNotFoundException)
-                {
-                    processed[assemblyNameFullName] = false;
-                    continue;
-                }
-                catch (FileLoadException)
-                {
-                    processed[assemblyNameFullName] = false;
-                    continue;
-                }
-
-                ScanAssemblyAndDependencies(refAssembly, processed, results);
-                if (processed[refAssembly.FullName])
-                {
-                    // dependency has reference to NSB
-                    processed[assembly.FullName] = true;
-                    AddTypesToResult(assembly, results);
-                    return;
                 }
             }
+
+            return processed[assembly.FullName];
+        }
+
+        Assembly GetReferencedAssembly(AssemblyName assemblyName)
+        {
+            Assembly referencedAssembly = null;
+
+            try
+            {
+                referencedAssembly = Assembly.Load(assemblyName);
+            }
+            catch (Exception ex) when (ex is FileNotFoundException || ex is BadImageFormatException || ex is FileLoadException) { }
+
+            if (referencedAssembly == null)
+            {
+                referencedAssembly = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(a => a.GetName().Name == assemblyName.Name);
+            }
+
+            return referencedAssembly;
         }
 
         internal static bool IsRuntimeAssembly(AssemblyName assemblyName)
@@ -364,21 +354,21 @@ namespace NServiceBus.Hosting.Helpers
             return fileInfo;
         }
 
-        bool IsIncluded(string assemblyNameOrFileName)
+        bool IsExcluded(string assemblyNameOrFileName)
         {
             var isExplicitlyExcluded = AssembliesToSkip.Any(excluded => IsMatch(excluded, assemblyNameOrFileName));
             if (isExplicitlyExcluded)
             {
-                return false;
+                return true;
             }
 
             var isExcludedByDefault = DefaultAssemblyExclusions.Any(exclusion => IsMatch(exclusion, assemblyNameOrFileName));
             if (isExcludedByDefault)
             {
-                return false;
+                return true;
             }
 
-            return true;
+            return false;
         }
 
         static bool IsMatch(string expression1, string expression2)
@@ -427,19 +417,26 @@ namespace NServiceBus.Hosting.Helpers
             results.Assemblies.Add(assembly);
         }
 
-        bool ShouldScanAssembly(Assembly assembly)
+        bool ShouldScanDependencies(Assembly assembly)
         {
             if (assembly.IsDynamic)
             {
                 return false;
             }
 
-            if (IsRuntimeAssembly(assembly.GetName()))
+            var assemblyName = assembly.GetName();
+
+            if (assemblyName.Name == CoreAssemblyName)
             {
                 return false;
             }
 
-            if (!IsIncluded(assembly.GetName().Name))
+            if (IsRuntimeAssembly(assemblyName))
+            {
+                return false;
+            }
+
+            if (IsExcluded(assemblyName.Name))
             {
                 return false;
             }

@@ -17,7 +17,10 @@ namespace NServiceBus.Core.Tests.AssemblyScanner
             var result = scanner.GetScannableAssemblies();
 
             var foundTypeFromNestedAssembly = result.Types.Any(x => x.Name == "NestedClass");
-            Assert.False(foundTypeFromNestedAssembly, "Was expected not to scan nested assemblies, but nested assembly was scanned.");
+            var foundTypeFromDerivedAssembly = result.Types.Any(x => x.Name == "DerivedClass");
+
+            Assert.False(foundTypeFromNestedAssembly, "Was expected not to scan nested assemblies, but 'nested.dll' was scanned.");
+            Assert.False(foundTypeFromDerivedAssembly, "Was expected not to scan nested assemblies, but 'Derived.dll' was scanned.");
         }
 
         [Test]
@@ -32,7 +35,10 @@ namespace NServiceBus.Core.Tests.AssemblyScanner
             var result = scanner.GetScannableAssemblies();
 
             var foundTypeFromNestedAssembly = result.Types.Any(x => x.Name == "NestedClass");
-            Assert.True(foundTypeFromNestedAssembly, "Was expected to scan nested assemblies, but nested assembly were not scanned.");
+            var foundTypeFromDerivedAssembly = result.Types.Any(x => x.Name == "DerivedClass");
+
+            Assert.True(foundTypeFromNestedAssembly, "Was expected to scan nested assemblies, but 'nested.dll' was not scanned.");
+            Assert.True(foundTypeFromDerivedAssembly, "Was expected to scan nested assemblies, but 'Derived.dll' was not scanned.");
         }
     }
 }
