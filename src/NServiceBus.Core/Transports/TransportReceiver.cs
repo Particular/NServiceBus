@@ -9,6 +9,7 @@ namespace NServiceBus
     {
         public TransportReceiver(
             string id,
+            IPipelineCache cache,
             IPushMessages pushMessages,
             PushSettings pushSettings,
             PushRuntimeSettings pushRuntimeSettings,
@@ -16,6 +17,7 @@ namespace NServiceBus
             RecoverabilityExecutor recoverabilityExecutor,
             CriticalError criticalError)
         {
+            pipelineCache = cache;
             this.criticalError = criticalError;
             Id = id;
             this.pushRuntimeSettings = pushRuntimeSettings;
@@ -30,7 +32,15 @@ namespace NServiceBus
 
         public Task Init()
         {
-            return receiver.Init(c => pipelineExecutor.Invoke(c), c => recoverabilityExecutor.Invoke(c), criticalError, pushSettings);
+            return receiver.Init(c =>
+            {
+                c.Extensions.Set(pipelineCache);
+                return pipelineExecutor.Invoke(c);
+            }, c =>
+            {
+                c.Extensions.Set(pipelineCache);
+                return recoverabilityExecutor.Invoke(c);
+            }, criticalError, pushSettings);
         }
 
         public void Start()
@@ -78,5 +88,6 @@ namespace NServiceBus
         IPushMessages receiver;
 
         static ILog Logger = LogManager.GetLogger<TransportReceiver>();
+        IPipelineCache pipelineCache;
     }
 }

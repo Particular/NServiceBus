@@ -5,13 +5,13 @@ namespace NServiceBus
     using Routing;
     using Timeout.Core;
     using Transport;
+    using Pipeline;
 
     class StoreTimeoutBehavior
     {
-        public StoreTimeoutBehavior(ExpiredTimeoutsPoller poller, IDispatchMessages dispatcher, IPersistTimeouts persister, string owningTimeoutManager)
+        public StoreTimeoutBehavior(ExpiredTimeoutsPoller poller, IPersistTimeouts persister, string owningTimeoutManager)
         {
             this.poller = poller;
-            this.dispatcher = dispatcher;
             this.persister = persister;
             this.owningTimeoutManager = owningTimeoutManager;
         }
@@ -65,7 +65,7 @@ namespace NServiceBus
                 {
                     var outgoingMessage = new OutgoingMessage(context.MessageId, data.Headers, data.State);
                     var transportOperation = new TransportOperation(outgoingMessage, new UnicastAddressTag(data.Destination));
-                    await dispatcher.Dispatch(new TransportOperations(transportOperation), context.TransportTransaction, context.Extensions).ConfigureAwait(false);
+                    await context.Dispatch(transportOperation).ConfigureAwait(false);
                     return;
                 }
 
@@ -81,7 +81,6 @@ namespace NServiceBus
             return context.Headers.TryGetValue(Headers.ReplyToAddress, out replyToAddress) ? replyToAddress : null;
         }
 
-        IDispatchMessages dispatcher;
         string owningTimeoutManager;
         IPersistTimeouts persister;
 

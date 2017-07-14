@@ -55,8 +55,8 @@ namespace NServiceBus.Features
                 var subscriberAddress = context.Settings.LocalAddress();
                 var subscriptionRouter = new SubscriptionRouter(publishers, endpointInstances, i => transportInfrastructure.ToTransportAddress(LogicalAddress.CreateRemoteAddress(i)));
 
-                context.Pipeline.Register(b => new MessageDrivenSubscribeTerminator(subscriptionRouter, subscriberAddress, context.Settings.EndpointName(), b.Build<IDispatchMessages>()), "Sends subscription requests when message driven subscriptions is in use");
-                context.Pipeline.Register(b => new MessageDrivenUnsubscribeTerminator(subscriptionRouter, subscriberAddress, context.Settings.EndpointName(), b.Build<IDispatchMessages>()), "Sends requests to unsubscribe when message driven subscriptions is in use");
+                context.Pipeline.Register(new MessageDrivenSubscribeConnector(subscriptionRouter, subscriberAddress, context.Settings.EndpointName()), "Sends subscription requests when message driven subscriptions is in use");
+                context.Pipeline.Register(new MessageDrivenUnsubscribeConnector(subscriptionRouter, subscriberAddress, context.Settings.EndpointName()), "Sends requests to unsubscribe when message driven subscriptions is in use");
 
                 var authorizer = context.Settings.GetSubscriptionAuthorizer();
                 if (authorizer == null)

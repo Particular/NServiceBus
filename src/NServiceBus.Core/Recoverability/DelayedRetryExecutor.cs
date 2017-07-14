@@ -5,20 +5,19 @@
     using System.Threading.Tasks;
     using DelayedDelivery;
     using DeliveryConstraints;
-    using Extensibility;
+    using Pipeline;
     using Routing;
     using Transport;
 
     class DelayedRetryExecutor
     {
-        public DelayedRetryExecutor(string endpointInputQueue, IDispatchMessages dispatcher, string timeoutManagerAddress = null)
+        public DelayedRetryExecutor(string endpointInputQueue, string timeoutManagerAddress = null)
         {
             this.timeoutManagerAddress = timeoutManagerAddress;
-            this.dispatcher = dispatcher;
             this.endpointInputQueue = endpointInputQueue;
         }
 
-        public async Task<int> Retry(IncomingMessage message, TimeSpan delay, TransportTransaction transportTransaction)
+        public async Task<int> Retry(IncomingMessage message, TimeSpan delay, ErrorContext context)
         {
             var outgoingMessage = new OutgoingMessage(message.MessageId, new Dictionary<string, string>(message.Headers), message.Body);
 
@@ -46,14 +45,11 @@
                 messageDestination = new UnicastAddressTag(timeoutManagerAddress);
             }
 
-            var transportOperations = new TransportOperations(new TransportOperation(outgoingMessage, messageDestination, deliveryConstraints: deliveryConstraints));
-
-            await dispatcher.Dispatch(transportOperations, transportTransaction, new ContextBag()).ConfigureAwait(false);
+            await context.Dispatch(new TransportOperation(outgoingMessage, messageDestination, deliveryConstraints: deliveryConstraints)).ConfigureAwait(false);
 
             return currentDelayedRetriesAttempt;
         }
-
-        IDispatchMessages dispatcher;
+        
         string endpointInputQueue;
         string timeoutManagerAddress;
     }

@@ -148,6 +148,28 @@ namespace NServiceBus
         }
 
         /// <summary>
+        /// Creates a <see cref="IDispatchContext" /> based on the current context.
+        /// </summary>
+        public static IDispatchContext CreateDispatchContext(this StageConnector<ISubscribeContext, IDispatchContext> stageConnector, IReadOnlyCollection<TransportOperation> transportOperations, ISubscribeContext sourceContext)
+        {
+            Guard.AgainstNull(nameof(transportOperations), transportOperations);
+            Guard.AgainstNull(nameof(sourceContext), sourceContext);
+
+            return new DispatchContext(transportOperations, sourceContext);
+        }
+
+        /// <summary>
+        /// Creates a <see cref="IDispatchContext" /> based on the current context.
+        /// </summary>
+        public static IDispatchContext CreateDispatchContext(this StageConnector<IUnsubscribeContext, IDispatchContext> stageConnector, IReadOnlyCollection<TransportOperation> transportOperations, IUnsubscribeContext sourceContext)
+        {
+            Guard.AgainstNull(nameof(transportOperations), transportOperations);
+            Guard.AgainstNull(nameof(sourceContext), sourceContext);
+
+            return new DispatchContext(transportOperations, sourceContext);
+        }
+
+        /// <summary>
         /// Creates a <see cref="IOutgoingLogicalMessageContext" /> based on the current context.
         /// </summary>
         public static IOutgoingLogicalMessageContext CreateOutgoingLogicalMessageContext(this StageConnector<IOutgoingPublishContext, IOutgoingLogicalMessageContext> stageConnector, OutgoingLogicalMessage outgoingMessage, IReadOnlyCollection<RoutingStrategy> routingStrategies, IOutgoingPublishContext sourceContext)

@@ -53,7 +53,7 @@
 
                     var headerCustomizations = context.Settings.Get<Action<Dictionary<string, string>>>(FaultHeaderCustomization);
 
-                    return new MoveToErrorsExecutor(b.Build<IDispatchMessages>(), staticFaultMetadata, headerCustomizations);
+                    return new MoveToErrorsExecutor(staticFaultMetadata, headerCustomizations);
                 };
 
                 var transactionsOn = context.Settings.GetRequiredTransactionModeForReceives() != TransportTransactionMode.None;
@@ -67,7 +67,6 @@
                     {
                         return new DelayedRetryExecutor(
                             localAddress,
-                            b.Build<IDispatchMessages>(),
                             context.Settings.DoesTransportSupportConstraint<DelayedDeliveryConstraint>()
                                 ? null
                                 : context.Settings.Get<TimeoutManagerAddressConfiguration>().TransportAddress);
