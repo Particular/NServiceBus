@@ -29,47 +29,7 @@
             }
 
             //note: in the future we should change the persister api to give us a "outbox factory" so that we can register it in DI here instead of relying on the persister to do it
-
-            context.RegisterStartupTask(new DtcRunningWarning());
             context.Pipeline.Register("ForceBatchDispatchToBeIsolated", new ForceBatchDispatchToBeIsolatedBehavior(), "Makes sure that we dispatch straight to the transport so that we can safely set the outbox record to dispatched one the dispatch pipeline returns.");
         }
-
-    }
-
-    class DtcRunningWarning : FeatureStartupTask
-    {
-        protected override Task OnStart(IMessageSession session)
-        {
-#if NET452
-            try
-            {
-                var sc = new System.ServiceProcess.ServiceController
-                {
-                    ServiceName = "MSDTC",
-                    MachineName = "."
-                };
-
-                if (sc.Status == System.ServiceProcess.ServiceControllerStatus.Running)
-                {
-                    log.Warn(@"The MSDTC service is running on this machine.
-Because Outbox is enabled disabling MSDTC is recommended. This ensures that the Outbox behavior is working as expected and no other resources are enlisting in distributed transactions.");
-                }
-            }
-            // ReSharper disable once EmptyGeneralCatchClause
-            catch (Exception)
-            {
-                // Ignore if we can't check it.
-            }
-#endif
-
-            return TaskEx.CompletedTask;
-        }
-
-        protected override Task OnStop(IMessageSession session)
-        {
-            return TaskEx.CompletedTask;
-        }
-
-        static ILog log = LogManager.GetLogger<DtcRunningWarning>();
     }
 }
