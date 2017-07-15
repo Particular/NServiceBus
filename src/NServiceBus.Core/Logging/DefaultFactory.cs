@@ -14,7 +14,7 @@ namespace NServiceBus.Logging
         /// </summary>
         public DefaultFactory()
         {
-            directory = new Lazy<string>(FindDefaultLoggingDirectory);
+            directory = new Lazy<string>(() => AppDomain.CurrentDomain.BaseDirectory);
             level = new Lazy<LogLevel>(() => LogLevel.Info);
         }
 
@@ -50,53 +50,6 @@ namespace NServiceBus.Logging
             }
             this.directory = new Lazy<string>(() => directory);
         }
-
-#if NET452
-        internal static string FindDefaultLoggingDirectory()
-        {
-            if (System.Web.HttpRuntime.AppDomainAppId == null)
-            {
-                return AppDomain.CurrentDomain.BaseDirectory;
-            }
-
-            return DeriveAppDataPath();
-        }
-
-        internal static string DeriveAppDataPath()
-        {
-            //we are in a website so attempt to MapPath
-            var appDataPath = TryMapPath();
-            if (appDataPath == null)
-            {
-                throw new Exception(GetMapPathError("Failed since MapPath returned null"));
-            }
-            if (IODirectory.Exists(appDataPath))
-            {
-                return appDataPath;
-            }
-
-            throw new Exception(GetMapPathError($"Failed since path returned ({appDataPath}) does not exist. Ensure this directory is created and restart the endpoint."));
-        }
-
-        static string TryMapPath()
-        {
-            try
-            {
-                return System.Web.Hosting.HostingEnvironment.MapPath("~/App_Data/");
-            }
-            catch (Exception exception)
-            {
-                throw new Exception(GetMapPathError("Failed since MapPath threw an exception"), exception);
-            }
-        }
-
-        static string GetMapPathError(string reason)
-        {
-            return $"Detected running in a website and attempted to use HostingEnvironment.MapPath(\"~/App_Data/\") to derive the logging path. {reason}. To avoid using HostingEnvironment.MapPath to derive the logging directory you can instead configure it to a specific path using LogManager.Use<DefaultFactory>().Directory(\"pathToLoggingDirectory\");";
-        }
-#else
-        internal static string FindDefaultLoggingDirectory() => AppDomain.CurrentDomain.BaseDirectory;
-#endif
 
         Lazy<string> directory;
 
