@@ -57,9 +57,7 @@
                 var storedMessage = entry.Value;
                 if (storedMessage.Dispatched && storedMessage.StoredAt < dateTime)
                 {
-                    StoredMessage toRemove;
-
-                    storage.TryRemove(entry.Key, out toRemove);
+                    storage.TryRemove(entry.Key, out _);
                 }
             }
         }

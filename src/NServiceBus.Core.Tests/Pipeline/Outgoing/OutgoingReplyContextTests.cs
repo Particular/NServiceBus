@@ -18,10 +18,9 @@
             testee.Extensions.Set("anotherKey", "anotherValue");
 
             string value;
-            string anotherValue;
             options.Context.TryGet("someKey", out value);
             Assert.AreEqual("someValue", value);
-            Assert.IsFalse(options.Context.TryGet("anotherKey", out anotherValue));
+            Assert.IsFalse(options.Context.TryGet("anotherKey", out string _));
             string updatedValue;
             string anotherValue2;
             testee.Extensions.TryGet("someKey", out updatedValue);
@@ -41,8 +40,7 @@
 
             new OutgoingReplyContext(message, "message-id", options.OutgoingHeaders, options.Context, parentContext);
 
-            string parentContextValue;
-            var valueFound = parentContext.TryGet("someKey", out parentContextValue);
+            var valueFound = parentContext.TryGet("someKey", out string _);
 
             Assert.IsFalse(valueFound);
         }

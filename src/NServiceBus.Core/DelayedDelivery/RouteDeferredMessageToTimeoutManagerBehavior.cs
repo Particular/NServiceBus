@@ -26,8 +26,7 @@ namespace NServiceBus
                 return next(context);
             }
 
-            DiscardIfNotReceivedBefore discardIfNotReceivedBefore;
-            if (context.Extensions.TryGetDeliveryConstraint(out discardIfNotReceivedBefore))
+            if (context.Extensions.TryGetDeliveryConstraint(out DiscardIfNotReceivedBefore _))
             {
                 throw new Exception($"Postponed delivery of messages with TimeToBeReceived set is not supported. Remove the TimeToBeReceived attribute to postpone messages of type '{context.Message.Headers[Headers.EnclosedMessageTypes]}'.");
             }
