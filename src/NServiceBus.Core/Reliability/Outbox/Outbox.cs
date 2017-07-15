@@ -34,7 +34,6 @@
             context.Pipeline.Register("ForceBatchDispatchToBeIsolated", new ForceBatchDispatchToBeIsolatedBehavior(), "Makes sure that we dispatch straight to the transport so that we can safely set the outbox record to dispatched one the dispatch pipeline returns.");
         }
 
-        static ILog log = LogManager.GetLogger<Outbox>();
     }
 
     class DtcRunningWarning : FeatureStartupTask
