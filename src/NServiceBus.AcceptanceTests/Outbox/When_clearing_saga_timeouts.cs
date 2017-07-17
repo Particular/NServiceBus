@@ -17,6 +17,7 @@
         public async Task Should_record_the_request_to_clear_in_outbox()
         {
             Requires.TimeoutStorage();
+            Requires.OutboxPersistence();
 
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<NonDtcReceivingEndpoint>(b => b.When(session => session.SendLocal(new PlaceOrder
