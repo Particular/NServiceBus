@@ -40,8 +40,7 @@ namespace NServiceBus.AcceptanceTests.Core.Diagnostics
                     // remove the override, we need to hack it via reflection!
                     var fieldInfo = s.GetType().GetField("Overrides", BindingFlags.Instance | BindingFlags.NonPublic);
                     var dictionary = (ConcurrentDictionary<string, object>) fieldInfo.GetValue(s);
-                    object s2;
-                    dictionary.TryRemove("NServiceBus.HostInformation.HostId", out s2);
+                    dictionary.TryRemove("NServiceBus.HostInformation.HostId", out _);
 
                     // Try to get value, setting should not exist
                     var context = s.Get<Context>();

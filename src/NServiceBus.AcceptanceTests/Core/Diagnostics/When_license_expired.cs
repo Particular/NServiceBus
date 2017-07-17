@@ -87,9 +87,7 @@
 
                 public Task Handle(MessageToBeAudited message, IMessageHandlerContext context)
                 {
-                    string licenseExpired;
-
-                    TestContext.HasDiagnosticLicensingHeaders = context.MessageHeaders.TryGetValue(Headers.HasLicenseExpired, out licenseExpired);
+                    TestContext.HasDiagnosticLicensingHeaders = context.MessageHeaders.TryGetValue(Headers.HasLicenseExpired, out _);
 
                     TestContext.Done = true;
 
