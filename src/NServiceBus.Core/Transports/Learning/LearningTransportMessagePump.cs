@@ -7,10 +7,12 @@
     using System.Threading;
     using System.Threading.Tasks;
     using Extensibility;
+    using Janitor;
     using Logging;
     using Transport;
 
-    class LearningTransportMessagePump : IPushMessages
+    [SkipWeaving]
+    class LearningTransportMessagePump : IPushMessages, IDisposable
     {
         public LearningTransportMessagePump(string basePath)
         {
@@ -348,5 +350,8 @@
 
         const string CommittedDirName = ".committed";
         const string PendingDirName = ".pending";
+        public void Dispose()
+        {
+        }
     }
 }
