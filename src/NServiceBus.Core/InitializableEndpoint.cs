@@ -65,8 +65,15 @@ namespace NServiceBus
 
             container.ConfigureComponent(b => settings.Get<Notifications>(), DependencyLifecycle.SingleInstance);
 
-            var receiveInfrastructure = transportInfrastructure.ConfigureReceiveInfrastructure();
-            await RunInstallers(concreteTypes, receiveInfrastructure).ConfigureAwait(false);
+            var username = GetInstallationUserName();
+            TransportReceiveInfrastructure receiveInfrastructure = null;
+            if (!settings.Get<bool>("Endpoint.SendOnly"))
+            {
+                receiveInfrastructure = transportInfrastructure.ConfigureReceiveInfrastructure();
+                await CreateQueuesIfNecessary(receiveInfrastructure, username).ConfigureAwait(false);
+            }
+
+            await RunInstallers(concreteTypes, username).ConfigureAwait(false);
 
             var startableEndpoint = new StartableEndpoint(settings, builder, featureActivator, pipelineConfiguration, new EventAggregator(settings.Get<NotificationSubscriptions>()), transportInfrastructure, receiveInfrastructure, criticalError);
             return startableEndpoint;
@@ -132,7 +139,7 @@ namespace NServiceBus
             container.ConfigureComponent<IBuilder>(_ => b, DependencyLifecycle.SingleInstance);
         }
 
-        async Task RunInstallers(IEnumerable<Type> concreteTypes, TransportReceiveInfrastructure receiveInfrastructure)
+        async Task RunInstallers(IEnumerable<Type> concreteTypes, string username)
         {
             if (Debugger.IsAttached || settings.GetOrDefault<bool>("Installers.Enable"))
             {
@@ -140,9 +147,6 @@ namespace NServiceBus
                 {
                     container.ConfigureComponent(installerType, DependencyLifecycle.InstancePerCall);
                 }
-
-                var username = GetInstallationUserName();
-                await CreateQueuesIfNecessary(receiveInfrastructure, username).ConfigureAwait(false);
 
                 foreach (var installer in builder.BuildAll<INeedToInstallSomething>())
                 {
@@ -153,10 +157,6 @@ namespace NServiceBus
 
         Task CreateQueuesIfNecessary(TransportReceiveInfrastructure receiveInfrastructure, string username)
         {
-            if (settings.Get<bool>("Endpoint.SendOnly"))
-            {
-                return TaskEx.CompletedTask;
-            }
             if (!settings.CreateQueues())
             {
                 return TaskEx.CompletedTask;
@@ -164,7 +164,7 @@ namespace NServiceBus
 
             var queueCreator = receiveInfrastructure.QueueCreatorFactory();
             var queueBindings = settings.Get<QueueBindings>();
-            
+
             return queueCreator.CreateQueueIfNecessary(queueBindings, username);
         }
 

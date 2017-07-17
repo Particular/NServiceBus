@@ -32,11 +32,7 @@ namespace NServiceBus
 
         public async Task<IEndpointInstance> Start()
         {
-            var result = await receiveInfrastructure.PreStartupCheck().ConfigureAwait(false);
-            if (!result.Succeeded)
-            {
-                throw new Exception($"Pre start-up check failed: {result.ErrorMessage}");
-            }
+            await ExecutePreStartupCheckIfNecessary().ConfigureAwait(false);
 
             await transportInfrastructure.Start().ConfigureAwait(false);
 
@@ -55,6 +51,20 @@ namespace NServiceBus
             StartReceivers(receivers);
 
             return runningInstance;
+        }
+
+        async Task ExecutePreStartupCheckIfNecessary()
+        {
+            if (receiveInfrastructure == null)
+            {
+                return;
+            }
+
+            var result = await receiveInfrastructure.PreStartupCheck().ConfigureAwait(false);
+            if (!result.Succeeded)
+            {
+                throw new Exception($"Pre start-up check failed: {result.ErrorMessage}");
+            }
         }
 
         async Task<FeatureRunner> StartFeatures(IMessageSession session)
