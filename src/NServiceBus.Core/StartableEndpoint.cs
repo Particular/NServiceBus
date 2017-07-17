@@ -61,6 +61,7 @@ namespace NServiceBus
             }
 
             var result = await receiveInfrastructure.PreStartupCheck().ConfigureAwait(false);
+
             if (!result.Succeeded)
             {
                 throw new Exception($"Pre start-up check failed: {result.ErrorMessage}");

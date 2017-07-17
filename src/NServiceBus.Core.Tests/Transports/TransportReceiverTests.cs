@@ -53,12 +53,12 @@
         }
 
         [Test]
-        public async Task Stop_should_dispose_pump() // for autofac backward compat reasons
+        public async Task Stop_should_dispose_pump() // for container backward compat reasons
         {
             receiver.Start();
 
             await receiver.Stop();
-            
+
             Assert.True(pump.Disposed);
         }
 

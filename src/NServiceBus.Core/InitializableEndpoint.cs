@@ -67,6 +67,7 @@ namespace NServiceBus
 
             var username = GetInstallationUserName();
             TransportReceiveInfrastructure receiveInfrastructure = null;
+
             if (!settings.Get<bool>("Endpoint.SendOnly"))
             {
                 receiveInfrastructure = transportInfrastructure.ConfigureReceiveInfrastructure();

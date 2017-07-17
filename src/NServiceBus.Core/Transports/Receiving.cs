@@ -40,6 +40,7 @@ namespace NServiceBus
             context.Settings.Get<QueueBindings>().BindReceiving(context.Settings.LocalAddress());
 
             var instanceSpecificQueue = context.Settings.InstanceSpecificQueue();
+
             if (instanceSpecificQueue != null)
             {
                 context.Settings.Get<QueueBindings>().BindReceiving(instanceSpecificQueue);
