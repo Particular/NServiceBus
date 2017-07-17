@@ -1,9 +1,7 @@
 ﻿namespace NServiceBus.Features
 {
     using System;
-    using System.Threading.Tasks;
     using ConsistencyGuarantees;
-    using Logging;
     using Persistence;
 
     /// <summary>
