@@ -30,4 +30,8 @@
     <_PackageFiles Remove="**\obj\**\*.cs" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Include="..\NServiceBus.Core\ObjectBuilder\Common\CommonObjectBuilder.cs" Link="CommonObjectBuilderTests\CommonObjectBuilder.cs" />
+  </ItemGroup>
+
 </Project>
