@@ -19,14 +19,13 @@
             Assert.Throws<ArgumentNullException>(() => defaultFactory.Directory(" "));
         }
 
-#if NET452
         [Test]
-        public void When_not_running_in_http_DeriveAppDataPath_should_throw()
+        public void When_not_running_ASP_NET_should_choose_BaseDirectory_as_logging_directory()
         {
-            var exception = Assert.Throws<Exception>(() => DefaultFactory.DeriveAppDataPath());
-            Assert.AreEqual("Detected running in a website and attempted to use HostingEnvironment.MapPath(\"~/App_Data/\") to derive the logging path. Failed since MapPath returned null. To avoid using HostingEnvironment.MapPath to derive the logging directory you can instead configure it to a specific path using LogManager.Use<DefaultFactory>().Directory(\"pathToLoggingDirectory\");", exception.Message);
+            var directory = DefaultFactory.FindDefaultLoggingDirectory();
+
+            Assert.AreEqual(AppDomain.CurrentDomain.BaseDirectory, directory);
         }
-#endif
     }
 
 
