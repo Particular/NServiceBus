@@ -25,7 +25,7 @@
     <PackageReference Include="GitVersionTask" Version="$(GitVersionTaskVersion)" PrivateAssets="All" />
   </ItemGroup>
 
-  <ImportGroup Condition="'$(ExcludeRestorePackageImports)' == 'true'">
+  <ImportGroup Condition="'$(ExcludeRestorePackageImports)' == 'true' And '$(MSBuildRuntimeType)' != 'Core'">
     <Import
       Project="$(UserProfile)\.nuget\packages\gitversiontask\$(GitVersionTaskVersion)\buildMultiTargeting\GitVersionTask.targets"
       Condition="Exists('$(UserProfile)\.nuget\packages\gitversiontask\$(GitVersionTaskVersion)\buildMultiTargeting\GitVersionTask.targets')" />
