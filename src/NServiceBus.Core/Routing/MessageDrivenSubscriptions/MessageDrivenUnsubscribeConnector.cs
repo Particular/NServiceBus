@@ -3,7 +3,6 @@
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using Extensibility;
     using Logging;
     using Pipeline;
     using Routing;
@@ -11,24 +10,23 @@
     using Unicast.Queuing;
     using Unicast.Transport;
 
-    class MessageDrivenUnsubscribeTerminator : PipelineTerminator<IUnsubscribeContext>
+    class MessageDrivenUnsubscribeConnector : StageConnector<IUnsubscribeContext, IDispatchContext>
     {
-        public MessageDrivenUnsubscribeTerminator(SubscriptionRouter subscriptionRouter, string replyToAddress, string endpoint, IDispatchMessages dispatcher)
+        public MessageDrivenUnsubscribeConnector(SubscriptionRouter subscriptionRouter, string replyToAddress, string endpoint)
         {
             this.subscriptionRouter = subscriptionRouter;
             this.replyToAddress = replyToAddress;
             this.endpoint = endpoint;
-            this.dispatcher = dispatcher;
         }
 
-        protected override Task Terminate(IUnsubscribeContext context)
+        public override Task Invoke(IUnsubscribeContext context, Func<IDispatchContext, Task> stage)
         {
             var eventType = context.EventType;
 
             var publisherAddresses = subscriptionRouter.GetAddressesForEventType(eventType);
             if (publisherAddresses.Count == 0)
             {
-                throw new Exception( $"No publisher address could be found for message type {eventType}. Ensure the configured publisher endpoint has at least one known instance.");
+                throw new Exception($"No publisher address could be found for message type {eventType}. Ensure the configured publisher endpoint has at least one known instance.");
             }
 
             var unsubscribeTasks = new List<Task>(publisherAddresses.Count);
@@ -45,26 +43,25 @@
                 unsubscribeMessage.Headers[Headers.TimeSent] = DateTimeExtensions.ToWireFormattedString(DateTime.UtcNow);
                 unsubscribeMessage.Headers[Headers.NServiceBusVersion] = GitFlowVersion.MajorMinorPatch;
 
-                unsubscribeTasks.Add(SendUnsubscribeMessageWithRetries(publisherAddress, unsubscribeMessage, eventType.AssemblyQualifiedName, context.Extensions));
+                unsubscribeTasks.Add(SendUnsubscribeMessageWithRetries(publisherAddress, unsubscribeMessage, eventType.AssemblyQualifiedName, context, stage));
             }
             return Task.WhenAll(unsubscribeTasks);
         }
 
-        async Task SendUnsubscribeMessageWithRetries(string destination, OutgoingMessage unsubscribeMessage, string messageType, ContextBag context, int retriesCount = 0)
+        async Task SendUnsubscribeMessageWithRetries(string destination, OutgoingMessage unsubscribeMessage, string messageType, IUnsubscribeContext context, Func<IDispatchContext, Task> stage, int retriesCount = 0)
         {
-            var state = context.GetOrCreate<Settings>();
+            var state = context.Extensions.GetOrCreate<Settings>();
             try
             {
                 var transportOperation = new TransportOperation(unsubscribeMessage, new UnicastAddressTag(destination));
-                var transportTransaction = context.GetOrCreate<TransportTransaction>();
-                await dispatcher.Dispatch(new TransportOperations(transportOperation), transportTransaction, context).ConfigureAwait(false);
+                await stage(this.CreateDispatchContext(new[] { transportOperation }, context)).ConfigureAwait(false);
             }
             catch (QueueNotFoundException ex)
             {
                 if (retriesCount < state.MaxRetries)
                 {
                     await Task.Delay(state.RetryDelay).ConfigureAwait(false);
-                    await SendUnsubscribeMessageWithRetries(destination, unsubscribeMessage, messageType, context, ++retriesCount).ConfigureAwait(false);
+                    await SendUnsubscribeMessageWithRetries(destination, unsubscribeMessage, messageType, context, stage, ++retriesCount).ConfigureAwait(false);
                 }
                 else
                 {
@@ -76,12 +73,12 @@
         }
 
         readonly string endpoint;
-        IDispatchMessages dispatcher;
+
         string replyToAddress;
 
         SubscriptionRouter subscriptionRouter;
 
-        static ILog Logger = LogManager.GetLogger<MessageDrivenUnsubscribeTerminator>();
+        static ILog Logger = LogManager.GetLogger<MessageDrivenUnsubscribeConnector>();
 
         public class Settings
         {

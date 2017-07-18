@@ -2,8 +2,10 @@ namespace NServiceBus
 {
     using System;
     using System.Threading.Tasks;
+    using Pipeline;
+    using Transport;
 
-    class MessageSession : IMessageSession
+    class MessageSession : IMessageSession, IMessageSessionRaw
     {
         public MessageSession(RootContext context)
         {
@@ -38,6 +40,13 @@ namespace NServiceBus
         public Task Unsubscribe(Type eventType, UnsubscribeOptions options)
         {
             return MessageOperations.Unsubscribe(context, eventType, options);
+        }
+
+        public Task Dispatch(params TransportOperation[] operations)
+        {
+            var cache = context.Extensions.Get<IPipelineCache>();
+            var pipeline = cache.Pipeline<IDispatchContext>();
+            return pipeline.Invoke(new DispatchContext(operations, context));
         }
 
         RootContext context;

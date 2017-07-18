@@ -2,15 +2,15 @@ namespace NServiceBus
 {
     using System;
     using System.Threading.Tasks;
+    using Pipeline;
     using Routing;
     using Timeout.Core;
     using Transport;
 
     class DispatchTimeoutBehavior
     {
-        public DispatchTimeoutBehavior(IDispatchMessages dispatcher, IPersistTimeouts persister, TransportTransactionMode transportTransactionMode)
+        public DispatchTimeoutBehavior(IPersistTimeouts persister, TransportTransactionMode transportTransactionMode)
         {
-            this.dispatcher = dispatcher;
             this.persister = persister;
             dispatchConsistency = GetDispatchConsistency(transportTransactionMode);
         }
@@ -31,7 +31,7 @@ namespace NServiceBus
 
             var outgoingMessage = new OutgoingMessage(context.MessageId, timeoutData.Headers, timeoutData.State);
             var transportOperation = new TransportOperation(outgoingMessage, new UnicastAddressTag(timeoutData.Destination), dispatchConsistency);
-            await dispatcher.Dispatch(new TransportOperations(transportOperation), context.TransportTransaction, context.Extensions).ConfigureAwait(false);
+            await context.Dispatch(transportOperation).ConfigureAwait(false);
 
             var timeoutRemoved = await persister.TryRemove(timeoutId, context.Extensions).ConfigureAwait(false);
             if (!timeoutRemoved)
@@ -51,7 +51,6 @@ namespace NServiceBus
 
         readonly DispatchConsistency dispatchConsistency;
 
-        IDispatchMessages dispatcher;
         IPersistTimeouts persister;
     }
 }

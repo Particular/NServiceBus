@@ -2,16 +2,26 @@
 {
     using System;
     using System.Collections.Generic;
+    using Extensibility;
 
     /// <summary>
     /// The context for messages that has failed processing.
     /// </summary>
-    public class ErrorContext
+    public class ErrorContext : IExtendable
     {
+
         /// <summary>
         /// Initializes the error context.
         /// </summary>
         public ErrorContext(Exception exception, Dictionary<string, string> headers, string transportMessageId, byte[] body, TransportTransaction transportTransaction, int immediateProcessingFailures)
+        : this(exception, headers, transportMessageId, body, transportTransaction, immediateProcessingFailures, new ContextBag())
+        {
+        }
+
+        /// <summary>
+        /// Initializes the error context.
+        /// </summary>
+        public ErrorContext(Exception exception, Dictionary<string, string> headers, string transportMessageId, byte[] body, TransportTransaction transportTransaction, int immediateProcessingFailures, ContextBag context)
         {
             Exception = exception;
             TransportTransaction = transportTransaction;
@@ -46,5 +56,10 @@
         /// Failed incoming message.
         /// </summary>
         public IncomingMessage Message { get; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public ContextBag Extensions { get; }
     }
 }

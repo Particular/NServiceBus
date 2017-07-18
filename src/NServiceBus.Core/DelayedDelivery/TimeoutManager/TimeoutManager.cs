@@ -71,7 +71,6 @@
                 (builder, messageContext) =>
                 {
                     var dispatchBehavior = new DispatchTimeoutBehavior(
-                        builder.Build<IDispatchMessages>(),
                         builder.Build<IPersistTimeouts>(),
                         requiredTransactionSupport);
 
@@ -91,7 +90,6 @@
                 {
                     var storeBehavior = new StoreTimeoutBehavior(
                         builder.Build<ExpiredTimeoutsPoller>(),
-                        builder.Build<IDispatchMessages>(),
                         builder.Build<IPersistTimeouts>(),
                         context.Settings.EndpointName().ToString());
 

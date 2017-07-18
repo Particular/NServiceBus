@@ -2,8 +2,9 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Threading.Tasks;
-    using Extensibility;
+    using NServiceBus.Pipeline;
     using NServiceBus.Routing;
     using NServiceBus.Routing.MessageDrivenSubscriptions;
     using Transport;
@@ -12,7 +13,7 @@
     using Unicast.Queuing;
 
     [TestFixture]
-    public class MessageDrivenSubscribeTerminatorTests
+    public class MessageDrivenSubscribeConnectorTests
     {
         [SetUp]
         public void SetUp()
@@ -20,19 +21,19 @@
             var publishers = new Publishers();
             publishers.AddOrReplacePublishers("A", new List<PublisherTableEntry> {new PublisherTableEntry(typeof(object), PublisherAddress.CreateFromPhysicalAddresses("publisher1"))});
             router = new SubscriptionRouter(publishers, new EndpointInstances(), i => i.ToString());
-            dispatcher = new FakeDispatcher();
-            subscribeTerminator = new MessageDrivenSubscribeTerminator(router, "replyToAddress", "Endpoint", dispatcher);
+            helper = new DispatchHelper();
+            subscribeConnector = new MessageDrivenSubscribeConnector(router, "replyToAddress", "Endpoint");
         }
 
         [Test]
         public async Task Should_include_TimeSent_and_Version_headers()
         {
-            var unsubscribeTerminator = new MessageDrivenUnsubscribeTerminator(router, "replyToAddress", "Endpoint", dispatcher);
+            var unsubscribeConnector = new MessageDrivenUnsubscribeConnector(router, "replyToAddress", "Endpoint");
 
-            await subscribeTerminator.Invoke(new TestableSubscribeContext(), c => TaskEx.CompletedTask);
-            await unsubscribeTerminator.Invoke(new TestableUnsubscribeContext(), c => TaskEx.CompletedTask);
+            await subscribeConnector.Invoke(new TestableSubscribeContext(), helper.Capture);
+            await unsubscribeConnector.Invoke(new TestableUnsubscribeContext(), c => TaskEx.CompletedTask);
 
-            foreach (var dispatchedTransportOperation in dispatcher.DispatchedTransportOperations)
+            foreach (var dispatchedTransportOperation in helper.DispatchedTransportOperations)
             {
                 var unicastTransportOperations = dispatchedTransportOperation.UnicastTransportOperations;
                 var operations = new List<UnicastTransportOperation>(unicastTransportOperations);
@@ -45,55 +46,55 @@
         [Test]
         public async Task Should_Dispatch_for_all_publishers()
         {
-            await subscribeTerminator.Invoke(new TestableSubscribeContext(), c => TaskEx.CompletedTask);
+            await subscribeConnector.Invoke(new TestableSubscribeContext(), c => TaskEx.CompletedTask);
 
-            Assert.AreEqual(1, dispatcher.DispatchedTransportOperations.Count);
+            Assert.AreEqual(1, helper.DispatchedTransportOperations.Count);
         }
 
         [Test]
         public async Task Should_Dispatch_according_to_max_retries_when_dispatch_fails()
         {
             var context = new TestableSubscribeContext();
-            var state = context.Extensions.GetOrCreate<MessageDrivenSubscribeTerminator.Settings>();
+            var state = context.Extensions.GetOrCreate<MessageDrivenSubscribeConnector.Settings>();
             state.MaxRetries = 10;
             state.RetryDelay = TimeSpan.Zero;
-            dispatcher.FailDispatch(10);
+            helper.FailDispatch(10);
 
-            await subscribeTerminator.Invoke(context, c => TaskEx.CompletedTask);
+            await subscribeConnector.Invoke(context, c => TaskEx.CompletedTask);
 
-            Assert.AreEqual(1, dispatcher.DispatchedTransportOperations.Count);
-            Assert.AreEqual(10, dispatcher.FailedNumberOfTimes);
+            Assert.AreEqual(1, helper.DispatchedTransportOperations.Count);
+            Assert.AreEqual(10, helper.FailedNumberOfTimes);
         }
 
         [Test]
         public void Should_Throw_when_max_retries_reached()
         {
             var context = new TestableSubscribeContext();
-            var state = context.Extensions.GetOrCreate<MessageDrivenSubscribeTerminator.Settings>();
+            var state = context.Extensions.GetOrCreate<MessageDrivenSubscribeConnector.Settings>();
             state.MaxRetries = 10;
             state.RetryDelay = TimeSpan.Zero;
-            dispatcher.FailDispatch(11);
+            helper.FailDispatch(11);
 
             Assert.That(async () =>
             {
-                await subscribeTerminator.Invoke(context, c => TaskEx.CompletedTask);
+                await subscribeConnector.Invoke(context, c => TaskEx.CompletedTask);
             }, Throws.InstanceOf<QueueNotFoundException>());
 
-            Assert.AreEqual(0, dispatcher.DispatchedTransportOperations.Count);
-            Assert.AreEqual(11, dispatcher.FailedNumberOfTimes);
+            Assert.AreEqual(0, helper.DispatchedTransportOperations.Count);
+            Assert.AreEqual(11, helper.FailedNumberOfTimes);
         }
 
-        FakeDispatcher dispatcher;
+        DispatchHelper helper;
         SubscriptionRouter router;
-        MessageDrivenSubscribeTerminator subscribeTerminator;
+        MessageDrivenSubscribeConnector subscribeConnector;
 
-        class FakeDispatcher : IDispatchMessages
+        class DispatchHelper
         {
             public int FailedNumberOfTimes { get; private set; }
 
             public List<TransportOperations> DispatchedTransportOperations { get; } = new List<TransportOperations>();
 
-            public Task Dispatch(TransportOperations outgoingMessages, TransportTransaction transaction, ContextBag context)
+            public Task Capture(IDispatchContext context)
             {
                 if (numberOfTimes.HasValue && FailedNumberOfTimes < numberOfTimes.Value)
                 {
@@ -101,7 +102,7 @@
                     throw new QueueNotFoundException();
                 }
 
-                DispatchedTransportOperations.Add(outgoingMessages);
+                DispatchedTransportOperations.Add(new TransportOperations(context.Operations.ToArray()));
                 return TaskEx.CompletedTask;
             }
 

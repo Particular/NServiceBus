@@ -57,6 +57,20 @@
             return messageTypesHandled;
         }
 
+        class SomeStartupTaskWhichDoesRawSends : FeatureStartupTask {
+            protected override Task OnStart(IMessageSession session)
+            {
+                var rawSession = session.Raw();
+                return rawSession.Dispatch();
+            }
+
+            protected override Task OnStop(IMessageSession session)
+            {
+                var rawSession = session.Raw();
+                return rawSession.Dispatch();
+            }
+        }
+        
         class ApplySubscriptions : FeatureStartupTask
         {
             public ApplySubscriptions(IEnumerable<Type> messagesHandledByThisEndpoint)
