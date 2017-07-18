@@ -5,9 +5,9 @@ namespace NServiceBus
     using Pipeline;
     using Transport;
 
-    class AttachCausationHeadersBehavior : IBehavior<IOutgoingPhysicalMessageContext, IOutgoingPhysicalMessageContext>
+    class AttachCausationHeadersBehavior : IBehavior<IOutgoingLogicalMessageContext, IOutgoingLogicalMessageContext>
     {
-        public Task Invoke(IOutgoingPhysicalMessageContext context, Func<IOutgoingPhysicalMessageContext, Task> next)
+        public Task Invoke(IOutgoingLogicalMessageContext context, Func<IOutgoingLogicalMessageContext, Task> next)
         {
             IncomingMessage incomingMessage;
             context.TryGetIncomingPhysicalMessage(out incomingMessage);
@@ -18,7 +18,7 @@ namespace NServiceBus
             return next(context);
         }
 
-        static void SetRelatedToHeader(IOutgoingPhysicalMessageContext context, IncomingMessage incomingMessage)
+        static void SetRelatedToHeader(IOutgoingLogicalMessageContext context, IncomingMessage incomingMessage)
         {
             if (incomingMessage == null)
             {
@@ -28,7 +28,7 @@ namespace NServiceBus
             context.Headers[Headers.RelatedTo] = incomingMessage.MessageId;
         }
 
-        static void SetConversationIdHeader(IOutgoingPhysicalMessageContext context, IncomingMessage incomingMessage)
+        static void SetConversationIdHeader(IOutgoingLogicalMessageContext context, IncomingMessage incomingMessage)
         {
             string conversationIdFromCurrentMessageContext;
             string userDefinedConversationId;
