@@ -26,23 +26,26 @@ namespace NServiceBus
             sources.Add(new LicenseSourceFilePath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"NServiceBus\License.xml")));
             sources.Add(new LicenseSourceFilePath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"License\License.xml")));
 
-            sources.Add(new LicenseSourceHKCURegKey(@"SOFTWARE\ParticularSoftware"));
-            sources.Add(new LicenseSourceHKLMRegKey(@"SOFTWARE\ParticularSoftware"));
+            if (Environment.OSVersion.Platform == PlatformID.Win32NT)
+            {
+                sources.Add(new LicenseSourceHKCURegKey(@"SOFTWARE\ParticularSoftware"));
+                sources.Add(new LicenseSourceHKLMRegKey(@"SOFTWARE\ParticularSoftware"));
 
-            sources.Add(new LicenseSourceHKCURegKey(@"SOFTWARE\ParticularSoftware\NServiceBus"));
-            sources.Add(new LicenseSourceHKLMRegKey(@"SOFTWARE\ParticularSoftware\NServiceBus"));
+                sources.Add(new LicenseSourceHKCURegKey(@"SOFTWARE\ParticularSoftware\NServiceBus"));
+                sources.Add(new LicenseSourceHKLMRegKey(@"SOFTWARE\ParticularSoftware\NServiceBus"));
 
-            sources.Add(new LicenseSourceHKCURegKey(@"SOFTWARE\NServiceBus\4.3"));
-            sources.Add(new LicenseSourceHKLMRegKey(@"SOFTWARE\NServiceBus\4.3"));
+                sources.Add(new LicenseSourceHKCURegKey(@"SOFTWARE\NServiceBus\4.3"));
+                sources.Add(new LicenseSourceHKLMRegKey(@"SOFTWARE\NServiceBus\4.3"));
 
-            sources.Add(new LicenseSourceHKCURegKey(@"SOFTWARE\NServiceBus\4.2"));
-            sources.Add(new LicenseSourceHKLMRegKey(@"SOFTWARE\NServiceBus\4.2"));
+                sources.Add(new LicenseSourceHKCURegKey(@"SOFTWARE\NServiceBus\4.2"));
+                sources.Add(new LicenseSourceHKLMRegKey(@"SOFTWARE\NServiceBus\4.2"));
 
-            sources.Add(new LicenseSourceHKCURegKey(@"SOFTWARE\NServiceBus\4.1"));
-            sources.Add(new LicenseSourceHKLMRegKey(@"SOFTWARE\NServiceBus\4.1"));
+                sources.Add(new LicenseSourceHKCURegKey(@"SOFTWARE\NServiceBus\4.1"));
+                sources.Add(new LicenseSourceHKLMRegKey(@"SOFTWARE\NServiceBus\4.1"));
 
-            sources.Add(new LicenseSourceHKCURegKey(@"SOFTWARE\NServiceBus\4.0"));
-            sources.Add(new LicenseSourceHKLMRegKey(@"SOFTWARE\NServiceBus\4.0"));
+                sources.Add(new LicenseSourceHKCURegKey(@"SOFTWARE\NServiceBus\4.0"));
+                sources.Add(new LicenseSourceHKLMRegKey(@"SOFTWARE\NServiceBus\4.0"));
+            }
 
             return sources.ToArray();
         }
