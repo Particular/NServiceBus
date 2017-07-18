@@ -11,16 +11,12 @@
     <PackageProjectUrl>https://docs.particular.net/nuget/$(PackageId)</PackageProjectUrl>
     <PackageOutputPath>..\..\nugets</PackageOutputPath>
     <!--<GeneratePackageOnBuild>true</GeneratePackageOnBuild>-->
+    <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);IncludePDBsInPackage</TargetsForTfmSpecificContentInPackage>
   </PropertyGroup>
 
-  <!-- Target is needed until we can enable GeneratePackageOnBuild again -->
-  <Target Name="IncludePDBsInPackage" BeforeTargets="_GetPackageFiles" Condition="'$(IncludeBuildOutput)' != 'false'">
+  <Target Name="IncludePDBsInPackage" Condition="'$(IncludeBuildOutput)' != 'false'">
     <ItemGroup>
-      <None Include="$(OutputPath)\**\$(AssemblyName).pdb">
-        <Pack>true</Pack>
-        <PackagePath>lib\</PackagePath>
-        <Visible>false</Visible>
-      </None>
+      <TfmSpecificPackageFile Include="$(OutputPath)\$(AssemblyName).pdb" PackagePath="lib/$(TargetFramework)" />
     </ItemGroup>
   </Target>
 
