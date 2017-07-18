@@ -57,6 +57,8 @@ namespace NServiceBus.Logging
 
         internal static string FindDefaultLoggingDirectory()
         {
+            Assembly systemWebAssembly = null;
+
             foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
             {
                 if (assembly.GetName().Name == "System.Web")
@@ -75,12 +77,12 @@ namespace NServiceBus.Logging
                 return AppDomain.CurrentDomain.BaseDirectory;
             }
 
-            return DeriveAppDataPath();
+            return DeriveAppDataPath(systemWebAssembly);
         }
 
-        static string DeriveAppDataPath()
+        static string DeriveAppDataPath(Assembly systemWebAssembly)
         {
-            var appDataPath = TryMapPath();
+            var appDataPath = TryMapPath(systemWebAssembly);
 
             if (appDataPath == null)
             {
@@ -95,7 +97,7 @@ namespace NServiceBus.Logging
             throw new Exception(GetMapPathError($"Failed since path returned ({appDataPath}) does not exist. Ensure this directory is created and restart the endpoint."));
         }
 
-        static string TryMapPath()
+        static string TryMapPath(Assembly systemWebAssembly)
         {
             try
             {
@@ -115,8 +117,6 @@ namespace NServiceBus.Logging
         {
             return $"Detected running in a website and attempted to use HostingEnvironment.MapPath(\"~/App_Data/\") to derive the logging path. {reason}. To avoid using HostingEnvironment.MapPath to derive the logging directory you can instead configure it to a specific path using LogManager.Use<DefaultFactory>().Directory(\"pathToLoggingDirectory\");";
         }
-
-        static Assembly systemWebAssembly;
 
         Lazy<string> directory;
 
