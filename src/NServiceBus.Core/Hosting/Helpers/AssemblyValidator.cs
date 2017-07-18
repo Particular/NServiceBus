@@ -90,7 +90,8 @@
 
             return publicKeyToken;
         }
-
+#pragma warning disable PC001
         SHA1CryptoServiceProvider provider = new SHA1CryptoServiceProvider();
+#pragma warning restore PC001
     }
 }

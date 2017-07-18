@@ -23,7 +23,9 @@
                 s.SetDefault("NServiceBus.HostInformation.Properties", new Dictionary<string, string>
                 {
                     {"Machine", RuntimeEnvironment.MachineName},
+#pragma warning disable PC001
                     {"ProcessID", Process.GetCurrentProcess().Id.ToString()},
+#pragma warning restore PC001
                     {"UserName", Environment.UserName},
                     {"PathToExecutable", fullPathToStartingExe}
                 });
