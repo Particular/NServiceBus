@@ -4,10 +4,6 @@
     <PackageReference Include="Terrajobst.PlatformCompat.Analyzers" Version="0.0.95-alpha" PrivateAssets="All" />
   </ItemGroup>
 
-  <PropertyGroup>
-    <PlatformCompatIgnore>Linux;MacOSX</PlatformCompatIgnore>
-  </PropertyGroup>
-
   <!-- Workaround for GitVersion 4.0 not creating GitVersionInformation by default -->
   <PropertyGroup>
     <UpdateAssemblyInfo>true</UpdateAssemblyInfo>
