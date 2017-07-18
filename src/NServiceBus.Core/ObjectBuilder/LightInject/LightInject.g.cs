@@ -6067,7 +6067,7 @@ namespace LightInject
     [Janitor.SkipWeaving]
     internal class Scope : IServiceFactory, IDisposable
     {
-        private readonly IList<IDisposable> disposableObjects = new List<IDisposable>();
+        private readonly HashSet<IDisposable> disposableObjects = new HashSet<IDisposable>(ReferenceEqualityComparer<IDisposable>.Default);
 
         private readonly IScopeManager scopeManager;
         private readonly IServiceFactory serviceFactory;
@@ -6241,6 +6241,21 @@ namespace LightInject
             scopeManager.EndScope(this);
             var completedHandler = Completed;
             completedHandler?.Invoke(this, new EventArgs());
+        }
+
+        private class ReferenceEqualityComparer<T> : IEqualityComparer<T>
+        {
+            public static readonly ReferenceEqualityComparer<T> Default = new ReferenceEqualityComparer<T>();
+
+            public bool Equals(T x, T y)
+            {
+                return ReferenceEquals(x, y);
+            }
+
+            public int GetHashCode(T obj)
+            {
+                return obj.GetHashCode();
+            }
         }
     }
 
