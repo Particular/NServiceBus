@@ -52,16 +52,27 @@
             Assert.DoesNotThrowAsync(async () => await receiver.Stop());
         }
 
+        [Test]
+        public async Task Stop_should_dispose_pump() // for container backward compat reasons
+        {
+            receiver.Start();
+
+            await receiver.Stop();
+
+            Assert.True(pump.Disposed);
+        }
+
         Pump pump;
         TransportReceiver receiver;
 
-        class Pump : IPushMessages
+        class Pump : IPushMessages, IDisposable
         {
             public bool ThrowOnStart { private get; set; }
             public bool ThrowOnStop { private get; set; }
 
             public bool Started { get; private set; }
             public bool Stopped { get; private set; }
+            public bool Disposed { get; private set; }
 
             public Task Init(Func<MessageContext, Task> onMessage, Func<ErrorContext, Task<ErrorHandleResult>> onError, CriticalError criticalError, PushSettings settings)
             {
@@ -88,6 +99,11 @@
                 Stopped = true;
 
                 return TaskEx.CompletedTask;
+            }
+
+            public void Dispose()
+            {
+                Disposed = true;
             }
         }
     }

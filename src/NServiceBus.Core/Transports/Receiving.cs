@@ -1,7 +1,5 @@
 namespace NServiceBus
 {
-    using System;
-    using System.Threading.Tasks;
     using Features;
     using Routing;
     using Transport;
@@ -42,40 +40,11 @@ namespace NServiceBus
             context.Settings.Get<QueueBindings>().BindReceiving(context.Settings.LocalAddress());
 
             var instanceSpecificQueue = context.Settings.InstanceSpecificQueue();
+
             if (instanceSpecificQueue != null)
             {
                 context.Settings.Get<QueueBindings>().BindReceiving(instanceSpecificQueue);
             }
-
-            var lazyReceiveConfigResult = new Lazy<TransportReceiveInfrastructure>(() => context.Settings.Get<TransportInfrastructure>().ConfigureReceiveInfrastructure());
-            context.Container.ConfigureComponent(b => lazyReceiveConfigResult.Value.MessagePumpFactory(), DependencyLifecycle.InstancePerCall);
-            context.Container.ConfigureComponent(b => lazyReceiveConfigResult.Value.QueueCreatorFactory(), DependencyLifecycle.SingleInstance);
-
-            context.RegisterStartupTask(new PrepareForReceiving(lazyReceiveConfigResult));
-        }
-
-        class PrepareForReceiving : FeatureStartupTask
-        {
-            public PrepareForReceiving(Lazy<TransportReceiveInfrastructure> lazy)
-            {
-                this.lazy = lazy;
-            }
-
-            protected override async Task OnStart(IMessageSession session)
-            {
-                var result = await lazy.Value.PreStartupCheck().ConfigureAwait(false);
-                if (!result.Succeeded)
-                {
-                    throw new Exception($"Pre start-up check failed: {result.ErrorMessage}");
-                }
-            }
-
-            protected override Task OnStop(IMessageSession session)
-            {
-                return TaskEx.CompletedTask;
-            }
-
-            readonly Lazy<TransportReceiveInfrastructure> lazy;
         }
     }
 }

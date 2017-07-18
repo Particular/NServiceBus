@@ -57,6 +57,7 @@ namespace NServiceBus
             try
             {
                 await receiver.Stop().ConfigureAwait(false);
+                (receiver as IDisposable)?.Dispose();
             }
             catch (Exception exception)
             {
