@@ -14,7 +14,7 @@
         public async Task Should_set_the_conversation_id_to_new_guid_when_not_sent_from_handler()
         {
             var behavior = new AttachCausationHeadersBehavior();
-            var context = new TestableOutgoingPhysicalMessageContext();
+            var context = new TestableOutgoingLogicalMessageContext();
 
             await behavior.Invoke(context, ctx => TaskEx.CompletedTask);
 
@@ -27,7 +27,7 @@
             var incomingConversationId = Guid.NewGuid().ToString();
 
             var behavior = new AttachCausationHeadersBehavior();
-            var context = new TestableOutgoingPhysicalMessageContext();
+            var context = new TestableOutgoingLogicalMessageContext();
 
             var transportMessage = new IncomingMessage("xyz", new Dictionary<string, string>
             {
@@ -46,7 +46,7 @@
             var userConversationId = Guid.NewGuid().ToString();
 
             var behavior = new AttachCausationHeadersBehavior();
-            var context = new TestableOutgoingPhysicalMessageContext
+            var context = new TestableOutgoingLogicalMessageContext
             {
                 Headers =
                 {
@@ -66,7 +66,7 @@
             var userDefinedConversationId = Guid.NewGuid().ToString();
 
             var behavior = new AttachCausationHeadersBehavior();
-            var context = new TestableOutgoingPhysicalMessageContext
+            var context = new TestableOutgoingLogicalMessageContext
             {
                 Headers =
                 {
@@ -88,7 +88,7 @@
         public async Task Should_set_the_related_to_header_with_the_id_of_the_current_message()
         {
             var behavior = new AttachCausationHeadersBehavior();
-            var context = new TestableOutgoingPhysicalMessageContext();
+            var context = new TestableOutgoingLogicalMessageContext();
 
             context.Extensions.Set(new IncomingMessage("the message id", new Dictionary<string, string>(), new byte[0]));
 
