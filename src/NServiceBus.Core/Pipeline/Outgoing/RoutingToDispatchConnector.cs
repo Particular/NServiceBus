@@ -51,10 +51,10 @@
                 var unicastAddressTag = operation.AddressTag as UnicastAddressTag;
                 if (unicastAddressTag != null)
                 {
-                    sb.AppendFormat("Destination: {0}\n", unicastAddressTag.Destination);
+                    sb.AppendFormat("Destination: {0}" + Environment.NewLine, unicastAddressTag.Destination);
                 }
 
-                sb.AppendFormat("Message headers:\n{0}", string.Join(", ", operation.Message.Headers.Select(h => h.Key + ":" + h.Value).ToArray()));
+                sb.AppendFormat("Message headers:" + Environment.NewLine + "{0}", string.Join(", ", operation.Message.Headers.Select(h => h.Key + ":" + h.Value).ToArray()));
             }
             log.Debug(sb.ToString());
         }

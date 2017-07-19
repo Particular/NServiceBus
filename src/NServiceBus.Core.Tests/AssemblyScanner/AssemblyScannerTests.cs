@@ -414,11 +414,10 @@ class InterfaceMessageHandler : IHandleMessages<IBaseEvent>
             {
                 if (results.Errors.HasErrors)
                 {
-                    var errors = new StringBuilder("Compiler Errors :\r\n");
+                    var errors = new StringBuilder($"Compiler Errors :{Environment.NewLine}");
                     foreach (CompilerError error in results.Errors)
                     {
-                        errors.AppendFormat("Line {0},{1}\t: {2}\n",
-                            error.Line, error.Column, error.ErrorText);
+                        errors.Append($"Line {error.Line},{error.Column}\t: {error.ErrorText}{Environment.NewLine}");
                     }
                     throw new Exception(errors.ToString());
                 }

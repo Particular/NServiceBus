@@ -28,8 +28,8 @@
 
             if (list.Any())
             {
-                var errors = string.Join("\r\n", list);
-                throw new Exception("Some members have empty documentation or have a sentence that does not end with a period:\r\n" + errors);
+                var errors = string.Join(Environment.NewLine, list);
+                throw new Exception($"Some members have empty documentation or have a sentence that does not end with a period:{Environment.NewLine}{errors}");
             }
         }
 
