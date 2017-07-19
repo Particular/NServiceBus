@@ -13,6 +13,11 @@ namespace NServiceBus.Core.Tests.Sagas.TypeBasedSagas
         [Test]
         public void Should_throw()
         {
+            if (Environment.OSVersion.Platform != PlatformID.Win32NT)
+            {
+                Assert.Ignore("ApprovalTests only works on Windows");
+            }
+
             var exception = Assert.Throws<Exception>(() => SagaMetadata.Create(typeof(SagaWithMultipleCorrelatedProperties), new List<Type>(), new Conventions()));
             Approvals.Verify(exception.Message);
         }

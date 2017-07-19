@@ -22,6 +22,11 @@
         [Test]
         public async Task ShouldExecutePipeline()
         {
+            if (Environment.OSVersion.Platform != PlatformID.Win32NT)
+            {
+                Assert.Ignore("ApprovalTests only works on Windows");
+            }
+
             var stringWriter = new StringWriter();
 
             var pipelineModifications = new PipelineModifications();
@@ -45,6 +50,11 @@
         [Test]
         public async Task ShouldNotCacheContext()
         {
+            if (Environment.OSVersion.Platform != PlatformID.Win32NT)
+            {
+                Assert.Ignore("ApprovalTests only works on Windows");
+            }
+
             var stringWriter = new StringWriter();
 
             var pipelineModifications = new PipelineModifications();
@@ -79,6 +89,11 @@
         [Test]
         public void ShouldCreateCachedExecutionPlan()
         {
+            if (Environment.OSVersion.Platform != PlatformID.Win32NT)
+            {
+                Assert.Ignore("ApprovalTests only works on Windows");
+            }
+
             var stringWriter = new StringWriter();
 
             var behaviors = new IBehavior[]
