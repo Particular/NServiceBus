@@ -9,8 +9,7 @@ namespace NServiceBus
     {
         public Task Invoke(IOutgoingLogicalMessageContext context, Func<IOutgoingLogicalMessageContext, Task> next)
         {
-            IncomingMessage incomingMessage;
-            context.TryGetIncomingPhysicalMessage(out incomingMessage);
+            context.TryGetIncomingPhysicalMessage(out var incomingMessage);
 
             SetRelatedToHeader(context, incomingMessage);
             SetConversationIdHeader(context, incomingMessage);
@@ -30,11 +29,9 @@ namespace NServiceBus
 
         static void SetConversationIdHeader(IOutgoingLogicalMessageContext context, IncomingMessage incomingMessage)
         {
-            string conversationIdFromCurrentMessageContext;
-            string userDefinedConversationId;
-            var hasUserDefinedConversationId = context.Headers.TryGetValue(Headers.ConversationId, out userDefinedConversationId);
+            var hasUserDefinedConversationId = context.Headers.TryGetValue(Headers.ConversationId, out var userDefinedConversationId);
 
-            if (incomingMessage != null && incomingMessage.Headers.TryGetValue(Headers.ConversationId, out conversationIdFromCurrentMessageContext))
+            if (incomingMessage != null && incomingMessage.Headers.TryGetValue(Headers.ConversationId, out var conversationIdFromCurrentMessageContext))
             {
                 if (hasUserDefinedConversationId)
                 {
