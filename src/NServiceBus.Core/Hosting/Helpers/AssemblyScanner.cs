@@ -131,26 +131,29 @@ namespace NServiceBus.Hosting.Helpers
         bool TryLoadScannableAssembly(string assemblyPath, AssemblyScannerResults results, out Assembly assembly)
         {
             assembly = null;
+
             if (IsExcluded(Path.GetFileNameWithoutExtension(assemblyPath)))
             {
                 var skippedFile = new SkippedFile(assemblyPath, "File was explicitly excluded from scanning.");
                 results.SkippedFiles.Add(skippedFile);
+
                 return false;
             }
 
-            var compilationMode = Image.GetCompilationMode(assemblyPath);
-            if (compilationMode == Image.CompilationMode.NativeOrInvalid)
+            var (shouldLoad, reason) = assemblyValidator.ValidateAssemblyFile(assemblyPath);
+
+            if (!shouldLoad)
             {
-                var skippedFile = new SkippedFile(assemblyPath, "File is not a .NET assembly.");
+                var skippedFile = new SkippedFile(assemblyPath, reason);
                 results.SkippedFiles.Add(skippedFile);
+
                 return false;
             }
 
             try
             {
-                var loadedAssembly = Assembly.LoadFrom(assemblyPath);
+                assembly = Assembly.LoadFrom(assemblyPath);
 
-                assembly = loadedAssembly;
                 return true;
             }
             catch (Exception ex) when (ex is BadImageFormatException || ex is FileLoadException)
@@ -162,6 +165,10 @@ namespace NServiceBus.Hosting.Helpers
                     var errorMessage = $"Could not load '{assemblyPath}'. Consider excluding that assembly from the scanning.";
                     throw new Exception(errorMessage, ex);
                 }
+
+                var skippedFile = new SkippedFile(assemblyPath, ex.Message);
+                results.SkippedFiles.Add(skippedFile);
+
                 return false;
             }
         }
@@ -219,44 +226,6 @@ namespace NServiceBus.Hosting.Helpers
             }
 
             return referencedAssembly;
-        }
-
-        internal static bool IsRuntimeAssembly(AssemblyName assemblyName)
-        {
-            var publicKeyToken = assemblyName.GetPublicKeyToken();
-            var lowerInvariant = BitConverter.ToString(publicKeyToken).Replace("-", string.Empty).ToLowerInvariant();
-            //System
-            if (lowerInvariant == "b77a5c561934e089")
-            {
-                return true;
-            }
-
-            //System.Core +  mscorelib
-            if (lowerInvariant == "7cec85d7bea7798e")
-            {
-                return true;
-            }
-
-            //Web
-            if (lowerInvariant == "b03f5f7f11d50a3a")
-            {
-                return true;
-            }
-
-            //patterns and practices
-            if (lowerInvariant == "31bf3856ad364e35")
-            {
-                return true;
-            }
-
-#if NETCOREAPP2_0
-            if (lowerInvariant == "cc7b13ffcd2ddd51")
-            {
-                return true;
-            }
-#endif
-
-            return false;
         }
 
         static string FormatReflectionTypeLoadException(string fileName, ReflectionTypeLoadException e)
@@ -431,7 +400,7 @@ namespace NServiceBus.Hosting.Helpers
                 return false;
             }
 
-            if (IsRuntimeAssembly(assemblyName))
+            if (AssemblyValidator.IsRuntimeAssembly(assemblyName.GetPublicKeyToken()))
             {
                 return false;
             }
@@ -444,6 +413,7 @@ namespace NServiceBus.Hosting.Helpers
             return true;
         }
 
+        AssemblyValidator assemblyValidator = new AssemblyValidator();
         internal List<string> AssembliesToSkip = new List<string>();
         internal bool ScanNestedDirectories;
         internal List<Type> TypesToSkip = new List<Type>();
