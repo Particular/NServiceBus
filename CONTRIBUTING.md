@@ -29,7 +29,6 @@ top of things.
 * Check for unnecessary whitespace with `git diff --check` before committing.
 * Make sure your commit messages are in the proper format.
 * Make sure you have added the necessary tests for your changes.
-* Run build.bat in the root to assure nothing else was accidentally broken.
 * We have a resharper layer that applies our coding standards so make sure that you're "all green in reshaper"
 
 ## Guidelines
