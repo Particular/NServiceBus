@@ -2,8 +2,6 @@
 
 To build NServiceBus just open `NServiceBus.sln` in Visual Studio.
 
-Note that the debug build doesn't ilmerge and if you plan to use the binaries in test/production you need to do a release build.
-
 You'll find the built assemblies in /binaries.
 
 If you see the build failing, check that you haven't put the source of NServiceBus in a deep subdirectory since long path names (greater than 248 characters) aren't supported by MSBuild.
