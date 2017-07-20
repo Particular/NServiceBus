@@ -24,9 +24,3 @@ LightInject sources are compiled into the NServiceBus distribution as allowed un
 SimpleJson is licensed under the MIT license as described [here](https://github.com/facebook-csharp-sdk/simple-json/blob/master/LICENSE.txt).
 
 SimpleJson sources are compiled into the NServiceBus distribution as allowed under the license terms found [here](https://github.com/facebook-csharp-sdk/simple-json/blob/master/LICENSE.txt).
-
-### [Json.NET](http://www.newtonsoft.com/json)
-
-Json.NET is licensed under the MIT license as described [here](https://github.com/JamesNK/Newtonsoft.Json/blob/master/LICENSE.md).
-
-Json.NET binaries are linked into the NServiceBus distribution as allowed under the license terms found [here](https://github.com/JamesNK/Newtonsoft.Json/blob/master/LICENSE.md).
