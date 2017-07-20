@@ -15,9 +15,9 @@ NServiceBus is licensed under the RPL 1.5 license. More details can be found [he
 
 ### [LightInject](http://www.lightinject.net/) 
 
-LightInject is licensed under the MIT license as described [here](http://www.lightinject.net/licence/).
+LightInject is licensed under the MIT license as described [here](https://github.com/seesharper/LightInject/blob/master/license.md).
 
-LightInject sources are compiled into the NServiceBus distribution as allowed under the license terms found [here](http://www.lightinject.net/licence/).
+LightInject sources are compiled into the NServiceBus distribution as allowed under the license terms found [here](https://github.com/seesharper/LightInject/blob/master/license.md).
 
 ### [SimpleJson](https://github.com/facebook-csharp-sdk/simple-json/) 
 
