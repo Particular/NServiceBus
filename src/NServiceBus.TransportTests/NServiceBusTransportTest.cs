@@ -4,7 +4,6 @@
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Linq;
-    using System.Security.Principal;
     using System.Threading;
     using System.Threading.Tasks;
     using DeliveryConstraints;
@@ -99,7 +98,8 @@
             MessagePump = ReceiveInfrastructure.MessagePumpFactory();
 
             var queueCreator = ReceiveInfrastructure.QueueCreatorFactory();
-            await queueCreator.CreateQueueIfNecessary(queueBindings, WindowsIdentity.GetCurrent().Name);
+            var userName = GetUserName();
+            await queueCreator.CreateQueueIfNecessary(queueBindings, userName);
 
             var pushSettings = new PushSettings(InputQueueName, ErrorQueueName, configuration.PurgeInputQueueOnStartup, transactionMode);
             await MessagePump.Init(
@@ -125,6 +125,16 @@
                 pushSettings);
 
             MessagePump.Start(configuration.PushRuntimeSettings);
+        }
+
+        string GetUserName()
+        {
+            if (Environment.OSVersion.Platform == PlatformID.Win32NT)
+            {
+                return $"{Environment.UserDomainName}\\{Environment.UserName}";
+            }
+
+            return Environment.UserName;
         }
 
         void IgnoreUnsupportedDeliveryConstraints()

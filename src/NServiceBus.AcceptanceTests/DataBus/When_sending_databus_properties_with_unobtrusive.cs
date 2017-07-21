@@ -45,7 +45,7 @@
                         .DefiningCommandsAs(t => t.Namespace != null && t.FullName == typeof(MyMessageWithLargePayload).FullName)
                         .DefiningDataBusPropertiesAs(t => t.Name.Contains("Payload"));
 
-                    var basePath = Path.Combine(TestContext.CurrentContext.TestDirectory, @"databus\sender");
+                    var basePath = Path.Combine(TestContext.CurrentContext.TestDirectory, "databus", "sender");
                     builder.UseDataBus<FileShareDataBus>().BasePath(basePath);
 
                     builder.ConfigureTransport().Routing().RouteToEndpoint(typeof(MyMessageWithLargePayload), typeof(Receiver));
@@ -63,7 +63,7 @@
                         .DefiningCommandsAs(t => t.Namespace != null && t.FullName == typeof(MyMessageWithLargePayload).FullName)
                         .DefiningDataBusPropertiesAs(t => t.Name.Contains("Payload"));
 
-                    var basePath = Path.Combine(TestContext.CurrentContext.TestDirectory, @"databus\sender");
+                    var basePath = Path.Combine(TestContext.CurrentContext.TestDirectory, "databus", "sender");
                     builder.UseDataBus<FileShareDataBus>().BasePath(basePath);
                     builder.RegisterMessageMutator(new Mutator());
                 });

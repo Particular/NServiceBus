@@ -52,7 +52,7 @@
                     x.Namespace != "NServiceBus").ToList();
             if (types.Count > 0)
             {
-                Assert.IsEmpty(types, "Non public types should have 'NServiceBus' namespace\r\n" + string.Join(Environment.NewLine, types.Select(x => x.FullName)));
+                Assert.IsEmpty(types, $"Non public types should have 'NServiceBus' namespace{Environment.NewLine}{string.Join(Environment.NewLine, types.Select(x => x.FullName))}");
             }
         }
 

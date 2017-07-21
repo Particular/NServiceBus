@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Core.Tests.Transports.Learning
 {
+    using System;
     using System.Collections.Generic;
     using ApprovalTests;
     using NUnit.Framework;
@@ -9,6 +10,11 @@
         [Test]
         public void Can_round_trip_headers()
         {
+            if (Environment.OSVersion.Platform != PlatformID.Win32NT)
+            {
+                Assert.Ignore("ApprovalTests only works on Windows");
+            }
+
             var input = new Dictionary<string, string>
             {
                 {

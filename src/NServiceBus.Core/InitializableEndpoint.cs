@@ -4,7 +4,6 @@ namespace NServiceBus
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Linq;
-    using System.Security.Principal;
     using System.Threading.Tasks;
     using Features;
     using Installation;
@@ -173,10 +172,19 @@ namespace NServiceBus
 
         string GetInstallationUserName()
         {
-            string username;
-            return settings.TryGet("Installers.UserName", out username)
-                ? username
-                : WindowsIdentity.GetCurrent().Name;
+            if (!settings.TryGet("Installers.UserName", out string userName))
+            {
+                if (Environment.OSVersion.Platform == PlatformID.Win32NT)
+                {
+                    userName = $"{Environment.UserDomainName}\\{Environment.UserName}";
+                }
+                else
+                {
+                    userName = Environment.UserName;
+                }
+            }
+
+            return userName;
         }
 
         void EnsureTransportConfigured()

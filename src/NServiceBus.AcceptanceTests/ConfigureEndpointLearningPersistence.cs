@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Threading.Tasks;
 using NServiceBus;
 using NServiceBus.AcceptanceTesting.Support;
@@ -11,8 +12,19 @@ public class ConfigureEndpointLearningPersistence : IConfigureEndpointTestExecut
     {
         var testRunId = TestContext.CurrentContext.Test.ID;
 
-        //can't use bin dir since that will be too long on the build agents
-        storageDir = Path.Combine(@"c:\temp", testRunId);
+        string tempDir;
+
+        if (Environment.OSVersion.Platform == PlatformID.Win32NT)
+        {
+            //can't use bin dir since that will be too long on the build agents
+            tempDir = @"c:\temp";
+        }
+        else
+        {
+            tempDir = Path.GetTempPath();
+        }
+
+        storageDir = Path.Combine(tempDir, testRunId);
 
         configuration.UsePersistence<InMemoryPersistence, StorageType.Subscriptions>();
         configuration.UsePersistence<InMemoryPersistence, StorageType.Timeouts>();

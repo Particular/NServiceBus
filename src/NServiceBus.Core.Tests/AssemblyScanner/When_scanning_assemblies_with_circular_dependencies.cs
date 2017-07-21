@@ -11,7 +11,7 @@
         [Test]
         public void ReferencesNServiceBus_circular()
         {
-            var scanner = new AssemblyScanner(Path.Combine(TestContext.CurrentContext.TestDirectory, @"TestDlls\circular"));
+            var scanner = new AssemblyScanner(Path.Combine(TestContext.CurrentContext.TestDirectory, "TestDlls", "circular"));
             scanner.ScanAppDomainAssemblies = false;
 
             var result = scanner.GetScannableAssemblies();

@@ -136,7 +136,7 @@
 
         static void WriteMethod(MethodDefinition method, TextWriter writer)
         {
-            writer.WriteLine($"\r\n{method.DeclaringType.Name}.{method.Name}");
+            writer.WriteLine($"{Environment.NewLine}{method.DeclaringType.Name}.{method.Name}");
 
             var mapping = method.DebugInformation.GetSequencePointMapping();
 

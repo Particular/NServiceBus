@@ -47,8 +47,10 @@
 
             protected override Task OnStop(IMessageSession session)
             {
+#pragma warning disable PC001
                 using (var waitHandle = new ManualResetEvent(false))
                 {
+#pragma warning restore PC001
                     cleanupTimer.Dispose(waitHandle);
 
                     // TODO: Use async synchronization primitive
