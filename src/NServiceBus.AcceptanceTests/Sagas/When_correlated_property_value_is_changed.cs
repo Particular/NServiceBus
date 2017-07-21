@@ -9,7 +9,7 @@
     using NUnit.Framework;
 
     [TestFixture]
-    public class When_auto_correlated_property_is_changed : NServiceBusAcceptanceTest
+    public class When_correlated_property_value_is_changed : NServiceBusAcceptanceTest
     {
         [Test]
         public void Should_throw()
@@ -21,10 +21,9 @@
                         {
                             DataId = Guid.NewGuid()
                         })))
-                    .Done(c => c.FailedMessages.Any())
+                    .Done(c => c.ModifiedCorrelationProperty)
                     .Run());
 
-            Assert.IsTrue(((Context)exception.ScenarioContext).ModifiedCorrelationProperty);
             Assert.AreEqual(1, exception.ScenarioContext.FailedMessages.Count);
             StringAssert.Contains(
                 "Changing the value of correlated properties at runtime is currently not supported",
