@@ -6,7 +6,6 @@
     using AcceptanceTesting.Customization;
     using EndpointTemplates;
     using Features;
-    using NServiceBus.Sagas;
     using NUnit.Framework;
 
     // Repro for issue  https://github.com/NServiceBus/NServiceBus/issues/1277 to test the fix
@@ -25,14 +24,14 @@
                 .Done(c => c.Done)
                 .Run();
 
-            Assert.IsTrue(context.DidSagaReplyMessageGetCorrelated);
+            Assert.AreEqual(context.RunId, context.ResponseRunId);
         }
 
         public class Context : ScenarioContext
         {
             public Guid RunId { get; set; }
+            public Guid ResponseRunId { get; set; }
             public bool Done { get; set; }
-            public bool DidSagaReplyMessageGetCorrelated { get; set; }
         }
 
         public class EndpointThatRepliesToSagaMessage : EndpointConfigurationBuilder
@@ -65,21 +64,6 @@
                 });
             }
 
-            public class SagaNotFound : IHandleSagaNotFound
-            {
-                public Context TestContext { get; set; }
-
-                public Task Handle(object message, IMessageProcessingContext context)
-                {
-                    var lostMessage = message as DoSomethingResponse;
-                    if (lostMessage != null && lostMessage.RunId == TestContext.RunId)
-                    {
-                        TestContext.Done = true;
-                    }
-                    return Task.FromResult(0);
-                }
-            }
-
             public class CorrelationTestSaga : Saga<CorrelationTestSaga.CorrelationTestSagaData>,
                 IAmStartedByMessages<StartSaga>,
                 IHandleMessages<DoSomethingResponse>
@@ -97,7 +81,7 @@
                 public Task Handle(DoSomethingResponse message, IMessageHandlerContext context)
                 {
                     TestContext.Done = true;
-                    TestContext.DidSagaReplyMessageGetCorrelated = message.RunId == Data.RunId;
+                    TestContext.ResponseRunId = message.RunId;
                     MarkAsComplete();
                     return Task.FromResult(0);
                 }
