@@ -7,10 +7,10 @@ namespace NServiceBus.AcceptanceTests.Sagas
     using Features;
     using NUnit.Framework;
 
-    public class When_doing_request_response_between_sagas_with_timeout : NServiceBusAcceptanceTest
+    public class When_replying_to_originator_from_a_timeout : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Should_autocorrelate_the_response_back_to_the_requesting_saga_from_timeouts()
+        public async Task Should_route_the_message_to_the_endpoint_starting_the_saga()
         {
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<Endpoint>(b => b.When(session => session.SendLocal(new InitiateRequestingSaga())))
@@ -42,7 +42,7 @@ namespace NServiceBus.AcceptanceTests.Sagas
                 {
                     return context.SendLocal(new RequestToRespondingSaga
                     {
-                        SomeIdThatTheResponseSagaCanCorrelateBackToUs = Data.CorrIdForResponse //wont be needed in the future
+                        SomeIdThatTheResponseSagaCanCorrelateBackToUs = Data.CorrIdForResponse 
                     });
                 }
 
@@ -63,7 +63,7 @@ namespace NServiceBus.AcceptanceTests.Sagas
 
                 public class RequestResponseRequestingSagaData3 : ContainSagaData
                 {
-                    public virtual Guid CorrIdForResponse { get; set; } //wont be needed in the future
+                    public virtual Guid CorrIdForResponse { get; set; }
                 }
             }
 
@@ -81,9 +81,9 @@ namespace NServiceBus.AcceptanceTests.Sagas
                 public Task Timeout(DelayReply state, IMessageHandlerContext context)
                 {
                     //reply to originator must be used here since the sender of the incoming message is the TimeoutManager and not the requesting saga
-                    return ReplyToOriginator(context, new ResponseFromOtherSaga //change this line to Bus.Reply(new ResponseFromOtherSaga and see it fail
+                    return ReplyToOriginator(context, new ResponseFromOtherSaga
                     {
-                        SomeCorrelationId = Data.CorrIdForRequest //wont be needed in the future
+                        SomeCorrelationId = Data.CorrIdForRequest
                     });
                 }
 

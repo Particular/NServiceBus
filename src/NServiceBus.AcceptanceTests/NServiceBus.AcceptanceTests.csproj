@@ -44,6 +44,7 @@
     <_PackageFiles Remove="Sagas\When_doing_request_response_between_sagas.cs" />
     <_PackageFiles Remove="Sagas\When_mapping_saga_messages_using_base_classes.cs" />
     <_PackageFiles Remove="Sagas\When_replying_to_originator.cs" />
+    <_PackageFiles Remove="Sagas\When_replying_to_originator_from_a_timeout.cs" />
   </ItemGroup>
 
 </Project>
