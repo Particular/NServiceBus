@@ -7,10 +7,10 @@ namespace NServiceBus.AcceptanceTests.Sagas
     using Features;
     using NUnit.Framework;
 
-    public class When_doing_request_response_between_sagas_first_handler_responding : NServiceBusAcceptanceTest
+    public class When_doing_request_response_between_sagas : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Should_autocorrelate_the_response_back_to_the_requesting_saga_from_the_first_handler()
+        public async Task Should_autocorrelate_the_response_back_to_the_requesting_saga()
         {
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<Endpoint>(b => b.When(session => session.SendLocal(new InitiateRequestingSaga())))
@@ -42,7 +42,7 @@ namespace NServiceBus.AcceptanceTests.Sagas
                 {
                     return context.SendLocal(new RequestToRespondingSaga
                     {
-                        SomeIdThatTheResponseSagaCanCorrelateBackToUs = Data.CorrIdForResponse //wont be needed in the future
+                        SomeId = Guid.NewGuid() 
                     });
                 }
 
@@ -63,7 +63,7 @@ namespace NServiceBus.AcceptanceTests.Sagas
 
                 public class RequestResponseRequestingSagaData1 : ContainSagaData
                 {
-                    public virtual Guid CorrIdForResponse { get; set; } //wont be needed in the future
+                    public virtual Guid CorrIdForResponse { get; set; } 
                 }
             }
 
@@ -75,14 +75,14 @@ namespace NServiceBus.AcceptanceTests.Sagas
                 public Task Handle(RequestToRespondingSaga message, IMessageHandlerContext context)
                 {
                     // Both reply and reply to originator work here since the sender of the incoming message is the requesting saga
-                    // also note we don't set the correlation ID since auto correlation happens to work for this special case
+                    // we explicitly set the correlation ID to a non-existent saga since auto correlation happens to work for this special case
                     // where we reply from the first handler
-                    return context.Reply(new ResponseFromOtherSaga());
+                    return context.Reply(new ResponseFromOtherSaga{SomeCorrelationId = Guid.NewGuid()});
                 }
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<RequestResponseRespondingSagaData1> mapper)
                 {
-                    mapper.ConfigureMapping<RequestToRespondingSaga>(m => m.SomeIdThatTheResponseSagaCanCorrelateBackToUs).ToSaga(s => s.CorrIdForRequest);
+                    mapper.ConfigureMapping<RequestToRespondingSaga>(m => m.SomeId).ToSaga(s => s.CorrIdForRequest);
                 }
 
                 public class RequestResponseRespondingSagaData1 : ContainSagaData
@@ -104,7 +104,7 @@ namespace NServiceBus.AcceptanceTests.Sagas
 
         public class RequestToRespondingSaga : ICommand
         {
-            public Guid SomeIdThatTheResponseSagaCanCorrelateBackToUs { get; set; }
+            public Guid SomeId { get; set; }
         }
 
         public class ResponseFromOtherSaga : IMessage
