@@ -7,10 +7,10 @@
     using NUnit.Framework;
 
     [TestFixture]
-    public class When_a_base_class_mapped_is_handled_by_a_saga : NServiceBusAcceptanceTest
+    public class When_mapping_saga_messages_using_base_classes : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Should_find_existing_instance()
+        public async Task Should_apply_base_class_mapping_to_sub_classes()
         {
             var correlationId = Guid.NewGuid();
             var context = await Scenario.Define<Context>()
