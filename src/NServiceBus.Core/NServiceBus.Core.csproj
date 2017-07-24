@@ -34,10 +34,6 @@
     <DotNetCliToolReference Include="dotnet-sourcelink-git" Version="2.1.2" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'net452'">
-    <PackageReference Include="System.ValueTuple" Version="4.4.0-preview2-25405-01" />
-  </ItemGroup>
-
   <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp2.0'">
     <PackageReference Include="Microsoft.Win32.Registry" Version="4.4.0-preview2-25405-01" />
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.4.0-preview2-25405-01" />
