@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
+    using System.IO;
     using System.Runtime.InteropServices;
     using Particular.Licensing;
 
@@ -15,6 +16,8 @@
             Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine(trialLicense.IsExtendedTrial ? "Your extended trial license has expired!" : "Your trial license has expired!");
             Console.ResetColor();
+
+            License license = null;
 
             var options = new List<(string, Func<bool>)>();
             if (trialLicense.IsExtendedTrial)
@@ -39,7 +42,40 @@
                 OpenBrowser("https://particular.net/licensing");
                 return false;
             }));
-            options.Add(("to import a license", () => false)); //to implement
+            options.Add(("to import a license", () =>
+            {
+                Console.WriteLine("Specify the path to your license file and press [Enter]:");
+                var input = Console.ReadLine();
+
+                if (File.Exists(input))
+                {
+                    Console.WriteLine("validating license file...");
+                    var licenseText = File.ReadAllText(input);
+                    Exception licenseVerifactionException;
+                    if (LicenseVerifier.TryVerify(input, out licenseVerifactionException))
+                    {
+                        Console.WriteLine("Importing license...");
+                        var providedLicense = LicenseDeserializer.Deserialize(licenseText);
+                        if (!LicenseExpirationChecker.HasLicenseExpired(providedLicense))
+                        {
+                            license = providedLicense;
+                            return true;
+                        }
+
+                        Console.WriteLine("Imported license has expired. Please provide a valid license.");
+                    }
+                    else
+                    {
+                        Console.WriteLine("Specified file does not contain a valid license: " + licenseVerifactionException.Message);
+                    }
+                }
+                else
+                {
+                    Console.WriteLine($"No file found at {input}");
+                }
+
+                return false;
+            }));
             options.Add(("to continue without a license", () =>
             {
                 Console.WriteLine();
@@ -58,6 +94,7 @@
             while (true)
             {
                 var input = Console.ReadKey();
+                Console.WriteLine();
                 int optionIndex;
                 if (int.TryParse(input.KeyChar.ToString(), out optionIndex))
                 {
@@ -66,7 +103,7 @@
                         var shouldContinue = options[optionIndex - 1].Item2();
                         if (shouldContinue)
                         {
-                            return null;
+                            return license;
                         }
                     }
                 }
