@@ -77,7 +77,7 @@ namespace NServiceBus
             var licenseProvidedByUser = RequestLicenseFromPopupDialog();
 #endif
 #if NETCOREAPP2_0
-            var licenseProvidedByUser = ConsoleLicensePrompt.RequestLicenseFromConsole();
+            var licenseProvidedByUser = ConsoleLicensePrompt.RequestLicenseFromConsole(license);
 #endif
 
             if (licenseProvidedByUser != null)

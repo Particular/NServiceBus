@@ -1,48 +1,74 @@
 ﻿namespace NServiceBus
 {
     using System;
+    using System.Collections.Generic;
     using System.Diagnostics;
     using System.Runtime.InteropServices;
     using Particular.Licensing;
 
     class ConsoleLicensePrompt
     {
-        public static License RequestLicenseFromConsole()
+        public static License RequestLicenseFromConsole(License trialLicense)
         {
             Console.Clear();
-            Console.WriteLine(@"
-#################################################
-        Thank you for using NServiceBus
-  ---------------------------------------------
-          Your trial license expired!
-  ---------------------------------------------
-    Press:
-    [1] to extend your trial license for FREE
-    [2] to purchase a license
-    [3] to import a license
-    [4] to continue without a license.
-#################################################
-");
+
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine(trialLicense.IsExtendedTrial ? "Your extended trial license has expired!" : "Your trial license has expired!");
+            Console.ResetColor();
+
+            var options = new List<(string, Func<bool>)>();
+            if (trialLicense.IsExtendedTrial)
+            {
+                options.Add(("to extend your trial further via our contact form", () =>
+                {
+                    OpenBrowser("https://particular.net/extend-your-trial-45");
+                    return false;
+                }));
+            }
+            else
+            {
+                options.Add(("to extend your trial license for FREE", () =>
+                {
+                    OpenBrowser("https://particular.net/extend-nservicebus-trial");
+                    return false;
+                }));
+            }
+
+            options.Add(("to purchase a license", () =>
+            {
+                OpenBrowser("https://particular.net/licensing");
+                return false;
+            }));
+            options.Add(("to import a license", () => false)); //to implement
+            options.Add(("to continue without a license", () =>
+            {
+                Console.WriteLine();
+                Console.WriteLine("Continuing without a license. NServiceBus will remain fully functional although continued use is in violation of our EULA.");
+                Console.WriteLine();
+                return true;
+            }
+            ));
+
+            Console.WriteLine("Press:");
+            for (var i = 0; i < options.Count; i++)
+            {
+                Console.WriteLine($"{i + 1}: {options[i].Item1}");
+            }
+
             while (true)
             {
                 var input = Console.ReadKey();
-                switch (input.KeyChar)
+                int optionIndex;
+                if (int.TryParse(input.KeyChar.ToString(), out optionIndex))
                 {
-                    case '1':
-                        OpenBrowser("https://particular.net/extend-nservicebus-trial");
-                        break;
-                    case '2':
-                        OpenBrowser("https://particular.net/licensing");
-                        break;
-                    case '3':
-                        throw new NotImplementedException();
-                    case '4':
-                        Console.WriteLine();
-                        Console.WriteLine("Continuing without a license. NServiceBus will remain fully functional although continued use is in violation of our EULA.");
-                        Console.WriteLine();
-                        return null;
-                    default:
-                        break;
+                    if (optionIndex > 0 && optionIndex <= options.Count)
+                    {
+                        var shouldContinue = options[optionIndex - 1].Item2();
+                        if (shouldContinue)
+                        {
+                            return null;
+                        }
+                    }
                 }
             }
         }
