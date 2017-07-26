@@ -77,44 +77,52 @@
             Console.WriteLine("Specify the path to your license file and press [Enter]:");
             var input = Console.ReadLine();
 
-            if (!Path.IsPathRooted(input))
+            try
             {
-                input = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, input);
-            }
+                if (!Path.IsPathRooted(input))
+                {
+                    input = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, input);
+                }
 
-            if (!File.Exists(input))
+                if (!File.Exists(input))
+                {
+                    Console.WriteLine($"No file found at '{input}'");
+                    return null;
+                }
+
+                Console.WriteLine("Validating license file...");
+                var licenseText = File.ReadAllText(input);
+                Exception licenseVerifactionException;
+                if (!LicenseVerifier.TryVerify(licenseText, out licenseVerifactionException))
+                {
+                    Console.WriteLine("Specified file does not contain a valid license: " + licenseVerifactionException.Message);
+                    return null;
+                }
+
+                Console.WriteLine("Importing license...");
+                var providedLicense = LicenseDeserializer.Deserialize(licenseText);
+                if (LicenseExpirationChecker.HasLicenseExpired(providedLicense))
+                {
+                    Console.WriteLine("Imported license has expired. Please provide a valid license.");
+                    return null;
+                }
+
+                // Store licenses locally in the License subfolder which will be probed as a license source
+                if (!Directory.Exists(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "License")))
+                {
+                    Directory.CreateDirectory(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "License"));
+                }
+
+                File.Copy(input, Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "License", "license.xml"), true);
+                Console.WriteLine("License successfully imported.");
+
+                return providedLicense;
+            }
+            catch (Exception e)
             {
-                Console.WriteLine($"No file found at '{input}'");
+                Console.WriteLine("Failed to import license: " + e);
                 return null;
             }
-
-            Console.WriteLine("Validating license file...");
-            var licenseText = File.ReadAllText(input);
-            Exception licenseVerifactionException;
-            if (!LicenseVerifier.TryVerify(licenseText, out licenseVerifactionException))
-            {
-                Console.WriteLine("Specified file does not contain a valid license: " + licenseVerifactionException.Message);
-                return null;
-            }
-
-            Console.WriteLine("Importing license...");
-            var providedLicense = LicenseDeserializer.Deserialize(licenseText);
-            if (LicenseExpirationChecker.HasLicenseExpired(providedLicense))
-            {
-                Console.WriteLine("Imported license has expired. Please provide a valid license.");
-                return null;
-            }
-
-            // Store licenses locally in the License subfolder which will be probed as a license source
-            if (!Directory.Exists(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "License")))
-            {
-                Directory.CreateDirectory(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "License"));
-            }
-
-            File.Copy(input, Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "License", "license.xml"), true);
-            Console.WriteLine("License successfully imported.");
-
-            return providedLicense;
         }
     }
 }
