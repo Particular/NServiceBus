@@ -8,7 +8,7 @@
 
     class AssemblyValidator
     {
-        public (bool shouldLoad, string reason) ValidateAssemblyFile(string assemblyPath)
+        public void ValidateAssemblyFile(string assemblyPath, out bool shouldLoad, out string reason)
         {
             using (var stream = File.OpenRead(assemblyPath))
             using (var file = new PEReader(stream))
@@ -23,7 +23,9 @@
 
                 if (!hasMetadata)
                 {
-                    return (false, "File is not a .NET assembly.");
+                    shouldLoad = false;
+                    reason = "File is not a .NET assembly.";
+                    return;
                 }
 
                 var reader = file.GetMetadataReader();
@@ -36,11 +38,14 @@
 
                     if (IsRuntimeAssembly(publicKeyToken))
                     {
-                        return (false, "File is a .NET runtime assembly.");
+                        shouldLoad = false;
+                        reason = "File is a .NET runtime assembly.";
+                        return;
                     }
                 }
 
-                return (true, "File is a .NET assembly.");
+                shouldLoad = true;
+                reason = "File is a .NET assembly.";
             }
         }
 

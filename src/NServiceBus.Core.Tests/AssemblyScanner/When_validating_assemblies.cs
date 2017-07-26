@@ -15,7 +15,7 @@
 
             foreach (var assembly in systemAssemblies)
             {
-                var (shouldLoad, reason) = validator.ValidateAssemblyFile(assembly.Location);
+                validator.ValidateAssemblyFile(assembly.Location, out var shouldLoad, out var reason);
 
                 Assert.IsFalse(shouldLoad, $"Should not validate {assembly.FullName}");
                 Assert.That(reason == "File is a .NET runtime assembly.");
@@ -27,7 +27,7 @@
         {
             var validator = new AssemblyValidator();
 
-            var (shouldLoad, reason) = validator.ValidateAssemblyFile(typeof(EndpointConfiguration).Assembly.Location);
+            validator.ValidateAssemblyFile(typeof(EndpointConfiguration).Assembly.Location, out var shouldLoad, out var reason);
 
             Assert.IsTrue(shouldLoad);
             Assert.That(reason == "File is a .NET assembly.");
@@ -38,7 +38,7 @@
         {
             var validator = new AssemblyValidator();
 
-            var (shouldLoad, reason) = validator.ValidateAssemblyFile(GetType().Assembly.Location);
+            validator.ValidateAssemblyFile(GetType().Assembly.Location, out var shouldLoad, out var reason);
 
             Assert.IsTrue(shouldLoad);
             Assert.That(reason == "File is a .NET assembly.");
