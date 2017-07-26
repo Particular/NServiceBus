@@ -15,7 +15,8 @@
             Console.WriteLine(trialLicense.IsExtendedTrial ? "Your extended trial license has expired!" : "Your trial license has expired!");
             Console.ResetColor();
 
-            var options = new List<(string, Func<License>)>();
+            var options = new List<(string optionText, Func<License> optionAction)>();
+
             if (trialLicense.IsExtendedTrial)
             {
                 options.Add(("extend your trial further via our contact form", () =>
@@ -38,7 +39,9 @@
                 Browser.OpenBrowser("https://particular.net/licensing");
                 return null;
             }));
+
             options.Add(("import a license", ImportLicense));
+
             options.Add(("continue without a license", () =>
             {
                 Console.WriteLine();
@@ -55,12 +58,12 @@
                 var input = Console.ReadKey();
                 Console.WriteLine();
 
-                int optionIndex;
-                if (int.TryParse(input.KeyChar.ToString(), out optionIndex))
+                if (int.TryParse(input.KeyChar.ToString(), out var optionIndex))
                 {
                     if (optionIndex > 0 && optionIndex <= options.Count)
                     {
-                        var license = options[optionIndex - 1].Item2();
+                        var license = options[optionIndex - 1].optionAction();
+
                         if (license != null)
                         {
                             return license;
@@ -73,6 +76,7 @@
         static void ListOptions(List<ValueTuple<string, Func<License>>> options)
         {
             Console.WriteLine("Press:");
+
             for (var i = 0; i < options.Count; i++)
             {
                 Console.WriteLine($"{i + 1}: {options[i].Item1}");
@@ -99,8 +103,8 @@
 
                 Console.WriteLine("Validating license file...");
                 var licenseText = File.ReadAllText(input);
-                Exception licenseVerifactionException;
-                if (!LicenseVerifier.TryVerify(licenseText, out licenseVerifactionException))
+
+                if (!LicenseVerifier.TryVerify(licenseText, out var licenseVerifactionException))
                 {
                     Console.WriteLine("Specified file does not contain a valid license: " + licenseVerifactionException.Message);
                     return null;
@@ -108,6 +112,7 @@
 
                 Console.WriteLine("Importing license...");
                 var providedLicense = LicenseDeserializer.Deserialize(licenseText);
+
                 if (LicenseExpirationChecker.HasLicenseExpired(providedLicense))
                 {
                     Console.WriteLine("Imported license has expired. Please provide a valid license.");
