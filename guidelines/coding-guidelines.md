@@ -18,12 +18,16 @@ By using string interpolation it is impossible for logging frameworks that suppo
 Wrong:
 
 ```c#
+// Concatenation
 logger.Info("File share data bus started. Location: " + basePath);"
+// Interpolation
+logger.Info("File share data bus started. Location: {basePath} ");"
 ```
 
 Right:
 
 ```c#
+// Arguments
 logger.InfoFormat("File share data bus started. Location: {0}", basePath);
 ```
 
