@@ -18,7 +18,7 @@
             var options = new List<(string, Func<License>)>();
             if (trialLicense.IsExtendedTrial)
             {
-                options.Add(("to extend your trial further via our contact form", () =>
+                options.Add(("extend your trial further via our contact form", () =>
                 {
                     Browser.OpenBrowser("https://particular.net/extend-your-trial-45");
                     return null;
@@ -26,20 +26,20 @@
             }
             else
             {
-                options.Add(("to extend your trial license for FREE", () =>
+                options.Add(("extend your trial license for FREE", () =>
                 {
                     Browser.OpenBrowser("https://particular.net/extend-nservicebus-trial");
                     return null;
                 }));
             }
 
-            options.Add(("to purchase a license", () =>
+            options.Add(("purchase a license", () =>
             {
                 Browser.OpenBrowser("https://particular.net/licensing");
                 return null;
             }));
-            options.Add(("to import a license", ImportLicense));
-            options.Add(("to continue without a license", () =>
+            options.Add(("import a license", ImportLicense));
+            options.Add(("continue without a license", () =>
             {
                 Console.WriteLine();
                 Console.WriteLine("Continuing without a license. NServiceBus will remain fully functional although continued use is in violation of our EULA.");
