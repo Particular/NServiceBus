@@ -15,15 +15,13 @@
             Console.WriteLine(trialLicense.IsExtendedTrial ? "Your extended trial license has expired!" : "Your trial license has expired!");
             Console.ResetColor();
 
-            License license = null;
-
-            var options = new List<(string, Func<bool>)>();
+            var options = new List<(string, Func<License>)>();
             if (trialLicense.IsExtendedTrial)
             {
                 options.Add(("to extend your trial further via our contact form", () =>
                 {
                     Browser.OpenBrowser("https://particular.net/extend-your-trial-45");
-                    return false;
+                    return null;
                 }));
             }
             else
@@ -31,14 +29,14 @@
                 options.Add(("to extend your trial license for FREE", () =>
                 {
                     Browser.OpenBrowser("https://particular.net/extend-nservicebus-trial");
-                    return false;
+                    return null;
                 }));
             }
 
             options.Add(("to purchase a license", () =>
             {
                 Browser.OpenBrowser("https://particular.net/licensing");
-                return false;
+                return null;
             }));
             options.Add(("to import a license", () =>
             {
@@ -51,7 +49,7 @@
 
                 if (File.Exists(input))
                 {
-                    Console.WriteLine("validating license file...");
+                    Console.WriteLine("Validating license file...");
                     var licenseText = File.ReadAllText(input);
                     Exception licenseVerifactionException;
                     if (LicenseVerifier.TryVerify(licenseText, out licenseVerifactionException))
@@ -67,8 +65,7 @@
                             }
 
                             File.Copy(input, Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "License", "license.xml"), true);
-                            license = providedLicense;
-                            return true;
+                            return providedLicense;
                         }
 
                         Console.WriteLine("Imported license has expired. Please provide a valid license.");
@@ -83,16 +80,15 @@
                     Console.WriteLine($"No file found at {input}");
                 }
 
-                return false;
+                return null;
             }));
             options.Add(("to continue without a license", () =>
             {
                 Console.WriteLine();
                 Console.WriteLine("Continuing without a license. NServiceBus will remain fully functional although continued use is in violation of our EULA.");
                 Console.WriteLine();
-                return true;
-            }
-            ));
+                return trialLicense;
+            }));
 
             Console.WriteLine("Press:");
             for (var i = 0; i < options.Count; i++)
@@ -109,8 +105,8 @@
                 {
                     if (optionIndex > 0 && optionIndex <= options.Count)
                     {
-                        var shouldContinue = options[optionIndex - 1].Item2();
-                        if (shouldContinue)
+                        var license = options[optionIndex - 1].Item2();
+                        if (license != null)
                         {
                             return license;
                         }
