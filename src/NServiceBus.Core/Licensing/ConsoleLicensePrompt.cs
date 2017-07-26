@@ -62,6 +62,13 @@
                         var providedLicense = LicenseDeserializer.Deserialize(licenseText);
                         if (!LicenseExpirationChecker.HasLicenseExpired(providedLicense))
                         {
+
+                            if (!Directory.Exists(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "License")))
+                            {
+                                Directory.CreateDirectory(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "License"));
+                            }
+
+                            File.Copy(input, Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "License", "license.xml"), true);
                             license = providedLicense;
                             return true;
                         }
