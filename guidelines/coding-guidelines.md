@@ -11,25 +11,45 @@ For public facing interfaces we favor read-only collections and enumerables. For
 * Avoid using `System.Linq`
 * Avoid using `foreach` over collections that do not have a struct enumerator
 
+
 ## Don't use string interpolation
 
-By using string interpolation it is impossible for logging frameworks that support structure logging to distinguish values within the string. We must use the normal argument based overload so logging frameworks like Serilog can capture structured data.
+By using string interpolation it is impossible for logging frameworks that support structured logging to distinguish values within the string. We must use the normal argument based overload so logging frameworks like Serilog can capture structured data.
 
 Wrong:
 
 ```c#
 // Concatenation
-logger.Info("File share data bus started. Location: " + basePath);"
+logger.Info("File share data bus started. Location: '" + basePath + "'");"
 // Interpolation
-logger.Info("File share data bus started. Location: {basePath} ");"
+logger.Info($"File share data bus started. Location: '{basePath}'");"
 ```
 
 Right:
 
 ```c#
 // Arguments
-logger.InfoFormat("File share data bus started. Location: {0}", basePath);
+logger.InfoFormat("File share data bus started. Location: '{0}'", basePath);
 ```
 
 This way Serilog stores the arguments seperately from the format string so that it is possible to filter/query on the argument values.
+
+
+
+## Wrap arguments log events in ticks / apostrophe characters
+
+In order for logging frameworks like Splunk to have an easy way to do field extraction try to wrap arguments between ticks / apostrophe characters.
+
+Wrong:
+
+```c#
+logger.InfoFormat("File share data bus started. Location: {0}", basePath);
+```
+
+Right:
+
+```c#
+logger.InfoFormat("File share data bus started. Location: '{0}'", basePath);
+```
+
 
