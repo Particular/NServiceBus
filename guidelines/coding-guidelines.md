@@ -12,7 +12,7 @@ For public facing interfaces we favor read-only collections and enumerables. For
 * Avoid using `foreach` over collections that do not have a struct enumerator
 
 
-## Don't use string interpolation
+## Don't use string interpolation for logging
 
 By using string interpolation it is impossible for logging frameworks that support structured logging to distinguish values within the string. We must use the normal argument based overload so logging frameworks like Serilog can capture structured data.
 
@@ -39,7 +39,7 @@ This way Serilog stores the arguments seperately from the format string so that 
 The first line is the usage of arguments, the second and third are the usage of string interpolation and concatenation.
 
 
-## Wrap arguments log events in ticks / apostrophe characters
+## Wrap arguments ticks / apostrophe characters in log events
 
 In order for logging frameworks like Splunk to have an easy way to do field extraction try to wrap arguments between ticks / apostrophe characters.
 
