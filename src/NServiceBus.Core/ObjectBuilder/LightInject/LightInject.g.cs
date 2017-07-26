@@ -1849,7 +1849,6 @@ namespace LightInject
     /// An ultra lightweight service container.
     /// </summary>
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    [Janitor.SkipWeaving]
     internal class ServiceContainer : IServiceContainer
     {
         private const string UnresolvedDependencyError = "Unresolved dependency {0}";
@@ -5808,7 +5807,6 @@ namespace LightInject
     /// Ensures that only one instance of a given service can exist within the current <see cref="IServiceContainer"/>.
     /// </summary>
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    [Janitor.SkipWeaving]
     internal class PerContainerLifetime : ILifetime, IDisposable
     {
         private readonly object syncRoot = new object();
@@ -6064,7 +6062,6 @@ namespace LightInject
     /// Represents a scope.
     /// </summary>
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    [Janitor.SkipWeaving]
     internal class Scope : IServiceFactory, IDisposable
     {
         private readonly HashSet<IDisposable> disposableObjects = new HashSet<IDisposable>(ReferenceEqualityComparer<IDisposable>.Default);
