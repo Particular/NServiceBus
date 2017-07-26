@@ -52,7 +52,7 @@
                     Console.WriteLine("validating license file...");
                     var licenseText = File.ReadAllText(input);
                     Exception licenseVerifactionException;
-                    if (LicenseVerifier.TryVerify(input, out licenseVerifactionException))
+                    if (LicenseVerifier.TryVerify(licenseText, out licenseVerifactionException))
                     {
                         Console.WriteLine("Importing license...");
                         var providedLicense = LicenseDeserializer.Deserialize(licenseText);
