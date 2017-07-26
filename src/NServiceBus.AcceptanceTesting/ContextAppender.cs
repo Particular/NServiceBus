@@ -24,6 +24,24 @@
             Log(fullMessage, LogLevel.Debug);
         }
 
+        public void DebugFormat(string format, object argument1)
+        {
+            var fullMessage = string.Format(format, argument1);
+            Log(fullMessage, LogLevel.Debug);
+        }
+
+        public void DebugFormat(string format, object argument1, object argument2)
+        {
+            var fullMessage = string.Format(format, argument1, argument2);
+            Log(fullMessage, LogLevel.Debug);
+        }
+
+        public void DebugFormat(string format, object argument1, object argument2, object argument3)
+        {
+            var fullMessage = string.Format(format, argument1, argument2, argument3);
+            Log(fullMessage, LogLevel.Debug);
+        }
+
         public void DebugFormat(string format, params object[] args)
         {
             var fullMessage = string.Format(format, args);
@@ -39,6 +57,24 @@
         public void Info(string message, Exception exception)
         {
             var fullMessage = $"{message} {exception}";
+            Log(fullMessage, LogLevel.Info);
+        }
+
+        public void InfoFormat(string format, object argument1)
+        {
+            var fullMessage = string.Format(format, argument1);
+            Log(fullMessage, LogLevel.Info);
+        }
+
+        public void InfoFormat(string format, object argument1, object argument2)
+        {
+            var fullMessage = string.Format(format, argument1, argument2);
+            Log(fullMessage, LogLevel.Info);
+        }
+
+        public void InfoFormat(string format, object argument1, object argument2, object argument3)
+        {
+            var fullMessage = string.Format(format, argument1, argument2, argument3);
             Log(fullMessage, LogLevel.Info);
         }
 
@@ -59,6 +95,24 @@
             Log(fullMessage, LogLevel.Warn);
         }
 
+        public void WarnFormat(string format, object argument1)
+        {
+            var fullMessage = string.Format(format, argument1);
+            Log(fullMessage, LogLevel.Warn);
+        }
+
+        public void WarnFormat(string format, object argument1, object argument2)
+        {
+            var fullMessage = string.Format(format, argument1, argument2);
+            Log(fullMessage, LogLevel.Warn);
+        }
+
+        public void WarnFormat(string format, object argument1, object argument2, object argument3)
+        {
+            var fullMessage = string.Format(format, argument1, argument2, argument3);
+            Log(fullMessage, LogLevel.Warn);
+        }
+
         public void WarnFormat(string format, params object[] args)
         {
             var fullMessage = string.Format(format, args);
@@ -76,6 +130,24 @@
             Log(fullMessage, LogLevel.Error);
         }
 
+        public void ErrorFormat(string format, object argument1)
+        {
+            var fullMessage = string.Format(format, argument1);
+            Log(fullMessage, LogLevel.Error);
+        }
+
+        public void ErrorFormat(string format, object argument1, object argument2)
+        {
+            var fullMessage = string.Format(format, argument1, argument2);
+            Log(fullMessage, LogLevel.Error);
+        }
+
+        public void ErrorFormat(string format, object argument1, object argument2, object argument3)
+        {
+            var fullMessage = string.Format(format, argument1, argument2, argument3);
+            Log(fullMessage, LogLevel.Error);
+        }
+
         public void ErrorFormat(string format, params object[] args)
         {
             var fullMessage = string.Format(format, args);
@@ -90,6 +162,24 @@
         public void Fatal(string message, Exception exception)
         {
             var fullMessage = $"{message} {exception}";
+            Log(fullMessage, LogLevel.Fatal);
+        }
+
+        public void FatalFormat(string format, object argument1)
+        {
+            var fullMessage = string.Format(format, argument1);
+            Log(fullMessage, LogLevel.Fatal);
+        }
+
+        public void FatalFormat(string format, object argument1, object argument2)
+        {
+            var fullMessage = string.Format(format, argument1, argument2);
+            Log(fullMessage, LogLevel.Fatal);
+        }
+
+        public void FatalFormat(string format, object argument1, object argument2, object argument3)
+        {
+            var fullMessage = string.Format(format, argument1, argument2, argument3);
             Log(fullMessage, LogLevel.Fatal);
         }
 

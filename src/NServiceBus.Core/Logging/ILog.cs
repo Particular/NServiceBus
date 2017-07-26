@@ -48,7 +48,37 @@ namespace NServiceBus.Logging
 
         /// <summary>
         /// Writes the message at the <see cref="LogLevel.Debug" /> level using the specified <paramref name="format" /> provider
-        /// and format <paramref name="args" />.
+        /// and arguments.
+        /// </summary>
+        /// <param name="format">A string containing format items.</param>
+        /// <param name="argument1">The first argument to format.</param>
+        [StringFormatMethod("format")]
+        void DebugFormat(string format, object argument1);
+
+        /// <summary>
+        /// Writes the message at the <see cref="LogLevel.Debug" /> level using the specified <paramref name="format" /> provider
+        /// and arguments.
+        /// </summary>
+        /// <param name="format">A string containing format items.</param>
+        /// <param name="argument1">The first argument to format.</param>
+        /// <param name="argument2">The second argument to format.</param>
+        [StringFormatMethod("format")]
+        void DebugFormat(string format, object argument1, object argument2);
+
+        /// <summary>
+        /// Writes the message at the <see cref="LogLevel.Debug" /> level using the specified <paramref name="format" /> provider
+        /// and arguments.
+        /// </summary>
+        /// <param name="format">A string containing format items.</param>
+        /// <param name="argument1">The first argument to format.</param>
+        /// <param name="argument2">The second argument to format.</param>
+        /// <param name="argument3">The third argument to format.</param>
+        [StringFormatMethod("format")]
+        void DebugFormat(string format, object argument1, object argument2, object argument3);
+
+        /// <summary>
+        /// Writes the message at the <see cref="LogLevel.Debug" /> level using the specified <paramref name="format" /> provider
+        /// and arguments.
         /// </summary>
         /// <param name="format">A string containing format items.</param>
         /// <param name="args">Arguments to format.</param>
@@ -70,7 +100,37 @@ namespace NServiceBus.Logging
 
         /// <summary>
         /// Writes the message at the <see cref="LogLevel.Info" /> level using the specified <paramref name="format" /> provider
-        /// and format <paramref name="args" />.
+        /// and arguments.
+        /// </summary>
+        /// <param name="format">A string containing format items.</param>
+        /// <param name="argument1">The first argument to format.</param>
+        [StringFormatMethod("format")]
+        void InfoFormat(string format, object argument1);
+
+        /// <summary>
+        /// Writes the message at the <see cref="LogLevel.Info" /> level using the specified <paramref name="format" /> provider
+        /// and arguments.
+        /// </summary>
+        /// <param name="format">A string containing format items.</param>
+        /// <param name="argument1">The first argument to format.</param>
+        /// <param name="argument2">The second argument to format.</param>
+        [StringFormatMethod("format")]
+        void InfoFormat(string format, object argument1, object argument2);
+
+        /// <summary>
+        /// Writes the message at the <see cref="LogLevel.Info" /> level using the specified <paramref name="format" /> provider
+        /// and arguments.
+        /// </summary>
+        /// <param name="format">A string containing format items.</param>
+        /// <param name="argument1">The first argument to format.</param>
+        /// <param name="argument2">The second argument to format.</param>
+        /// <param name="argument3">The third argument to format.</param>
+        [StringFormatMethod("format")]
+        void InfoFormat(string format, object argument1, object argument2, object argument3);
+
+        /// <summary>
+        /// Writes the message at the <see cref="LogLevel.Info" /> level using the specified <paramref name="format" /> provider
+        /// and arguments.
         /// </summary>
         /// <param name="format">A string containing format items.</param>
         /// <param name="args">Arguments to format.</param>
@@ -92,7 +152,37 @@ namespace NServiceBus.Logging
 
         /// <summary>
         /// Writes the message at the <see cref="LogLevel.Warn" /> level using the specified <paramref name="format" /> provider
-        /// and format <paramref name="args" />.
+        /// and arguments.
+        /// </summary>
+        /// <param name="format">A string containing format items.</param>
+        /// <param name="argument1">The first argument to format.</param>
+        [StringFormatMethod("format")]
+        void WarnFormat(string format, object argument1);
+
+        /// <summary>
+        /// Writes the message at the <see cref="LogLevel.Warn" /> level using the specified <paramref name="format" /> provider
+        /// and arguments.
+        /// </summary>
+        /// <param name="format">A string containing format items.</param>
+        /// <param name="argument1">The first argument to format.</param>
+        /// <param name="argument2">The second argument to format.</param>
+        [StringFormatMethod("format")]
+        void WarnFormat(string format, object argument1, object argument2);
+
+        /// <summary>
+        /// Writes the message at the <see cref="LogLevel.Warn" /> level using the specified <paramref name="format" /> provider
+        /// and arguments.
+        /// </summary>
+        /// <param name="format">A string containing format items.</param>
+        /// <param name="argument1">The first argument to format.</param>
+        /// <param name="argument2">The second argument to format.</param>
+        /// <param name="argument3">The third argument to format.</param>
+        [StringFormatMethod("format")]
+        void WarnFormat(string format, object argument1, object argument2, object argument3);
+
+        /// <summary>
+        /// Writes the message at the <see cref="LogLevel.Warn" /> level using the specified <paramref name="format" /> provider
+        /// and arguments.
         /// </summary>
         /// <param name="format">A string containing format items.</param>
         /// <param name="args">Arguments to format.</param>
@@ -114,7 +204,37 @@ namespace NServiceBus.Logging
 
         /// <summary>
         /// Writes the message at the <see cref="LogLevel.Error" /> level using the specified <paramref name="format" /> provider
-        /// and format <paramref name="args" />.
+        /// and arguments.
+        /// </summary>
+        /// <param name="format">A string containing format items.</param>
+        /// <param name="argument1">The first argument to format.</param>
+        [StringFormatMethod("format")]
+        void ErrorFormat(string format, object argument1);
+
+        /// <summary>
+        /// Writes the message at the <see cref="LogLevel.Error" /> level using the specified <paramref name="format" /> provider
+        /// and arguments.
+        /// </summary>
+        /// <param name="format">A string containing format items.</param>
+        /// <param name="argument1">The first argument to format.</param>
+        /// <param name="argument2">The second argument to format.</param>
+        [StringFormatMethod("format")]
+        void ErrorFormat(string format, object argument1, object argument2);
+
+        /// <summary>
+        /// Writes the message at the <see cref="LogLevel.Error" /> level using the specified <paramref name="format" /> provider
+        /// and arguments.
+        /// </summary>
+        /// <param name="format">A string containing format items.</param>
+        /// <param name="argument1">The first argument to format.</param>
+        /// <param name="argument2">The second argument to format.</param>
+        /// <param name="argument3">The third argument to format.</param>
+        [StringFormatMethod("format")]
+        void ErrorFormat(string format, object argument1, object argument2, object argument3);
+
+        /// <summary>
+        /// Writes the message at the <see cref="LogLevel.Error" /> level using the specified <paramref name="format" /> provider
+        /// and arguments.
         /// </summary>
         /// <param name="format">A string containing format items.</param>
         /// <param name="args">Arguments to format.</param>
@@ -136,7 +256,37 @@ namespace NServiceBus.Logging
 
         /// <summary>
         /// Writes the message at the <see cref="LogLevel.Fatal" /> level using the specified <paramref name="format" /> provider
-        /// and format <paramref name="args" />.
+        /// and arguments.
+        /// </summary>
+        /// <param name="format">A string containing format items.</param>
+        /// <param name="argument1">The first argument to format.</param>
+        [StringFormatMethod("format")]
+        void FatalFormat(string format, object argument1);
+
+        /// <summary>
+        /// Writes the message at the <see cref="LogLevel.Fatal" /> level using the specified <paramref name="format" /> provider
+        /// and arguments.
+        /// </summary>
+        /// <param name="format">A string containing format items.</param>
+        /// <param name="argument1">The first argument to format.</param>
+        /// <param name="argument2">The second argument to format.</param>
+        [StringFormatMethod("format")]
+        void FatalFormat(string format, object argument1, object argument2);
+
+        /// <summary>
+        /// Writes the message at the <see cref="LogLevel.Fatal" /> level using the specified <paramref name="format" /> provider
+        /// and arguments.
+        /// </summary>
+        /// <param name="format">A string containing format items.</param>
+        /// <param name="argument1">The first argument to format.</param>
+        /// <param name="argument2">The second argument to format.</param>
+        /// <param name="argument3">The third argument to format.</param>
+        [StringFormatMethod("format")]
+        void FatalFormat(string format, object argument1, object argument2, object argument3);
+
+        /// <summary>
+        /// Writes the message at the <see cref="LogLevel.Fatal" /> level using the specified <paramref name="format" /> provider
+        /// and arguments.
         /// </summary>
         /// <param name="format">A string containing format items.</param>
         /// <param name="args">Arguments to format.</param>

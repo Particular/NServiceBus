@@ -27,6 +27,21 @@ namespace NServiceBus.Testing
             defaultLoggerFactory.Write(name, LogLevel.Debug, message + Environment.NewLine + exception);
         }
 
+        public void DebugFormat(string format, object argument1)
+        {
+            defaultLoggerFactory.Write(name, LogLevel.Debug, string.Format(format, argument1));
+        }
+
+        public void DebugFormat(string format, object argument1, object argument2)
+        {
+            defaultLoggerFactory.Write(name, LogLevel.Debug, string.Format(format, argument1, argument2));
+        }
+
+        public void DebugFormat(string format, object argument1, object argument2, object argument3)
+        {
+            defaultLoggerFactory.Write(name, LogLevel.Debug, string.Format(format, argument1, argument2, argument3));
+        }
+
         public void DebugFormat(string format, params object[] args)
         {
             defaultLoggerFactory.Write(name, LogLevel.Debug, string.Format(format, args));
@@ -40,6 +55,21 @@ namespace NServiceBus.Testing
         public void Info(string message, Exception exception)
         {
             defaultLoggerFactory.Write(name, LogLevel.Info, message + Environment.NewLine + exception);
+        }
+
+        public void InfoFormat(string format, object argument1)
+        {
+            defaultLoggerFactory.Write(name, LogLevel.Info, string.Format(format, argument1));
+        }
+
+        public void InfoFormat(string format, object argument1, object argument2)
+        {
+            defaultLoggerFactory.Write(name, LogLevel.Info, string.Format(format, argument1, argument2));
+        }
+
+        public void InfoFormat(string format, object argument1, object argument2, object argument3)
+        {
+            defaultLoggerFactory.Write(name, LogLevel.Info, string.Format(format, argument1, argument2, argument3));
         }
 
         public void InfoFormat(string format, params object[] args)
@@ -57,6 +87,21 @@ namespace NServiceBus.Testing
             defaultLoggerFactory.Write(name, LogLevel.Warn, message + Environment.NewLine + exception);
         }
 
+        public void WarnFormat(string format, object argument1)
+        {
+            defaultLoggerFactory.Write(name, LogLevel.Warn, string.Format(format, argument1));
+        }
+
+        public void WarnFormat(string format, object argument1, object argument2)
+        {
+            defaultLoggerFactory.Write(name, LogLevel.Warn, string.Format(format, argument1, argument2));
+        }
+
+        public void WarnFormat(string format, object argument1, object argument2, object argument3)
+        {
+            defaultLoggerFactory.Write(name, LogLevel.Warn, string.Format(format, argument1, argument2, argument3));
+        }
+
         public void WarnFormat(string format, params object[] args)
         {
             defaultLoggerFactory.Write(name, LogLevel.Warn, string.Format(format, args));
@@ -72,6 +117,21 @@ namespace NServiceBus.Testing
             defaultLoggerFactory.Write(name, LogLevel.Error, message + Environment.NewLine + exception);
         }
 
+        public void ErrorFormat(string format, object argument1)
+        {
+            defaultLoggerFactory.Write(name, LogLevel.Error, string.Format(format, argument1));
+        }
+
+        public void ErrorFormat(string format, object argument1, object argument2)
+        {
+            defaultLoggerFactory.Write(name, LogLevel.Error, string.Format(format, argument1, argument2));
+        }
+
+        public void ErrorFormat(string format, object argument1, object argument2, object argument3)
+        {
+            defaultLoggerFactory.Write(name, LogLevel.Error, string.Format(format, argument1, argument2, argument3));
+        }
+
         public void ErrorFormat(string format, params object[] args)
         {
             defaultLoggerFactory.Write(name, LogLevel.Error, string.Format(format, args));
@@ -85,6 +145,21 @@ namespace NServiceBus.Testing
         public void Fatal(string message, Exception exception)
         {
             defaultLoggerFactory.Write(name, LogLevel.Error, message + Environment.NewLine + exception);
+        }
+
+        public void FatalFormat(string format, object argument1)
+        {
+            defaultLoggerFactory.Write(name, LogLevel.Fatal, string.Format(format, argument1));
+        }
+
+        public void FatalFormat(string format, object argument1, object argument2)
+        {
+            defaultLoggerFactory.Write(name, LogLevel.Fatal, string.Format(format, argument1, argument2));
+        }
+
+        public void FatalFormat(string format, object argument1, object argument2, object argument3)
+        {
+            defaultLoggerFactory.Write(name, LogLevel.Fatal, string.Format(format, argument1, argument2, argument3));
         }
 
         public void FatalFormat(string format, params object[] args)
