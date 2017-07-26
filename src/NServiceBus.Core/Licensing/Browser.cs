@@ -1,30 +1,26 @@
-﻿namespace NServiceBus
+﻿#if NETCOREAPP2_0
+namespace NServiceBus
 {
     using System;
-
-#if NETCOREAPP2_0
     using System.Diagnostics;
     using System.Runtime.InteropServices;
-#endif
 
     static class Browser
     {
-
-        // taken from: https://brockallen.com/2016/09/24/process-start-for-urls-on-net-core/
-        public static void OpenBrowser(string url)
+        public static void Open(string url)
         {
-#if NETCOREAPP2_0
             try
             {
-                Process.Start(url);
-            }
-            catch
-            {
-                // hack because of this: https://github.com/dotnet/corefx/issues/10361
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 {
-                    url = url.Replace("&", "^&");
-                    Process.Start(new ProcessStartInfo("cmd", $"/c start {url}") { CreateNoWindow = true });
+                    var info = new ProcessStartInfo(url)
+                    {
+#pragma warning disable PC001
+                        UseShellExecute = true
+#pragma warning restore PC001
+                    };
+
+                    Process.Start(info);
                 }
                 else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
                 {
@@ -34,15 +30,35 @@
                 {
                     Process.Start("open", url);
                 }
-                else
-                {
-                    Console.WriteLine($"Unable to open '{url}'. Please enter the url manually into your browser.");
-                }
+
+                throw new Exception("Unknown OSPlatform");
             }
-#endif
-#if NET452
-            throw new NotImplementedException();
-#endif
+            catch
+            {
+                Console.WriteLine($"Unable to open '{url}'. Please enter the url manually into your browser.");
+            }
         }
     }
 }
+#else
+namespace NServiceBus
+{
+    using System;
+    using System.Diagnostics;
+
+    static class Browser
+    {
+        public static void Open(string url)
+        {
+            try
+            {
+                Process.Start(url);
+            }
+            catch
+            {
+                Console.WriteLine($"Unable to open '{url}'. Please enter the url manually into your browser.");
+            }
+        }
+    }
+}
+#endif

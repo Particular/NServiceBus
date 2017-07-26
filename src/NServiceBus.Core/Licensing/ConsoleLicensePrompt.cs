@@ -21,7 +21,7 @@
             {
                 options.Add(("extend your trial further via our contact form", () =>
                 {
-                    Browser.OpenBrowser("https://particular.net/extend-your-trial-45");
+                    Browser.Open("https://particular.net/extend-your-trial-45");
                     return null;
                 }));
             }
@@ -29,14 +29,14 @@
             {
                 options.Add(("extend your trial license for FREE", () =>
                 {
-                    Browser.OpenBrowser("https://particular.net/extend-nservicebus-trial");
+                    Browser.Open("https://particular.net/extend-nservicebus-trial");
                     return null;
                 }));
             }
 
             options.Add(("purchase a license", () =>
             {
-                Browser.OpenBrowser("https://particular.net/licensing");
+                Browser.Open("https://particular.net/licensing");
                 return null;
             }));
 
