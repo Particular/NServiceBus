@@ -2,9 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics;
     using System.IO;
-    using System.Runtime.InteropServices;
     using Particular.Licensing;
 
     class ConsoleLicensePrompt
@@ -24,7 +22,7 @@
             {
                 options.Add(("to extend your trial further via our contact form", () =>
                 {
-                    OpenBrowser("https://particular.net/extend-your-trial-45");
+                    Browser.OpenBrowser("https://particular.net/extend-your-trial-45");
                     return false;
                 }));
             }
@@ -32,14 +30,14 @@
             {
                 options.Add(("to extend your trial license for FREE", () =>
                 {
-                    OpenBrowser("https://particular.net/extend-nservicebus-trial");
+                    Browser.OpenBrowser("https://particular.net/extend-nservicebus-trial");
                     return false;
                 }));
             }
 
             options.Add(("to purchase a license", () =>
             {
-                OpenBrowser("https://particular.net/licensing");
+                Browser.OpenBrowser("https://particular.net/licensing");
                 return false;
             }));
             options.Add(("to import a license", () =>
@@ -119,38 +117,6 @@
                     }
                 }
             }
-        }
-
-        // taken from: https://brockallen.com/2016/09/24/process-start-for-urls-on-net-core/
-        static void OpenBrowser(string url)
-        {
-#if NETCOREAPP2_0
-            try
-            {
-                Process.Start(url);
-            }
-            catch
-            {
-                // hack because of this: https://github.com/dotnet/corefx/issues/10361
-                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-                {
-                    url = url.Replace("&", "^&");
-                    Process.Start(new ProcessStartInfo("cmd", $"/c start {url}") { CreateNoWindow = true });
-                }
-                else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-                {
-                    Process.Start("xdg-open", url);
-                }
-                else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-                {
-                    Process.Start("open", url);
-                }
-                else
-                {
-                    Console.WriteLine($"Unable to open '{url}'. Please enter the url manually into your browser.");
-                }
-            }
-#endif
         }
     }
 }
