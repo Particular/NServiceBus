@@ -46,6 +46,10 @@
             {
                 Console.WriteLine("Specify the path to your license file and press [Enter]:");
                 var input = Console.ReadLine();
+                if (!Path.IsPathRooted(input))
+                {
+                    input = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, input);
+                }
 
                 if (File.Exists(input))
                 {
