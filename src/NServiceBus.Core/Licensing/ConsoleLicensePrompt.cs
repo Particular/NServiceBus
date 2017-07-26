@@ -47,16 +47,14 @@
                 return trialLicense;
             }));
 
-            Console.WriteLine("Press:");
-            for (var i = 0; i < options.Count; i++)
-            {
-                Console.WriteLine($"{i + 1}: {options[i].Item1}");
-            }
+            ListOptions(options);
 
             while (true)
             {
+                Console.Write("Select an option: ");
                 var input = Console.ReadKey();
                 Console.WriteLine();
+
                 int optionIndex;
                 if (int.TryParse(input.KeyChar.ToString(), out optionIndex))
                 {
@@ -69,6 +67,15 @@
                         }
                     }
                 }
+            }
+        }
+
+        static void ListOptions(List<ValueTuple<string, Func<License>>> options)
+        {
+            Console.WriteLine("Press:");
+            for (var i = 0; i < options.Count; i++)
+            {
+                Console.WriteLine($"{i + 1}: {options[i].Item1}");
             }
         }
 
