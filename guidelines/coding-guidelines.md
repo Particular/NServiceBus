@@ -34,6 +34,9 @@ logger.InfoFormat("File share data bus started. Location: '{0}'", basePath);
 
 This way Serilog stores the arguments seperately from the format string so that it is possible to filter/query on the argument values.
 
+![Serilog structured logging](coding-guidelines-serilog.png)
+
+The first line is the usage of arguments, the second and third are the usage of string interpolation and concatenation.
 
 
 ## Wrap arguments log events in ticks / apostrophe characters
