@@ -8,35 +8,34 @@ namespace NServiceBus
     {
         public static bool Open(string url)
         {
-            try
+            using (var process = new Process())
             {
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 {
-                    var info = new ProcessStartInfo(url)
-                    {
 #pragma warning disable PC001
-                        UseShellExecute = true
+                    process.StartInfo.UseShellExecute = true;
 #pragma warning restore PC001
-                    };
-
-                    Process.Start(info);
+                    process.StartInfo.FileName = url;
                 }
                 else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
                 {
-                    Process.Start("xdg-open", url);
+                    process.StartInfo.FileName = "xdg-open";
+                    process.StartInfo.Arguments = url;
                 }
                 else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
                 {
-                    Process.Start("open", url);
+                    process.StartInfo.FileName = "open";
+                    process.StartInfo.Arguments = url;
                 }
-                else
+
+                try
+                {
+                    process.Start();
+                }
+                catch
                 {
                     return false;
                 }
-            }
-            catch
-            {
-                return false;
             }
 
             return true;
@@ -52,13 +51,18 @@ namespace NServiceBus
     {
         public static bool Open(string url)
         {
-            try
+            using (var process = new Process())
             {
-                Process.Start(url);
-            }
-            catch
-            {
-                return false;
+                process.StartInfo.FileName = url;
+
+                try
+                {
+                    process.Start();
+                }
+                catch
+                {
+                    return false;
+                }
             }
 
             return true;
