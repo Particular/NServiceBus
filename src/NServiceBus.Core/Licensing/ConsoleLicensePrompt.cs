@@ -3,7 +3,6 @@
     using System;
     using System.Collections.Generic;
     using System.IO;
-    using System.Threading.Tasks;
     using Particular.Licensing;
 
     class ConsoleLicensePrompt
@@ -16,8 +15,8 @@
             {
                 options.Add(("extend your trial further via our contact form", () =>
                 {
-                    Browser.Open("https://particular.net/extend-your-trial-45");
-                    return (null, null);
+                    var result = Browser.Open("https://particular.net/extend-your-trial-45");
+                    return (result, null);
                 }
                 ));
             }
@@ -25,16 +24,16 @@
             {
                 options.Add(("extend your trial license for FREE", () =>
                 {
-                    Browser.Open("https://particular.net/extend-nservicebus-trial");
-                    return (null, null);
+                    var result = Browser.Open("https://particular.net/extend-nservicebus-trial");
+                    return (result, null);
                 }
                 ));
             }
 
             options.Add(("purchase a license", () =>
             {
-                Browser.Open("https://particular.net/licensing");
-                return (null, null);
+                var result = Browser.Open("https://particular.net/licensing");
+                return (result, null);
             }
             ));
 
@@ -64,7 +63,8 @@
                         if (!string.IsNullOrWhiteSpace(result))
                         {
                             Console.WriteLine(result);
-                            Task.Delay(TimeSpan.FromSeconds(2)).GetAwaiter().GetResult();
+                            Console.Write("[press any key to continue]");
+                            Console.ReadKey();
                         }
 
                         if (license != null)

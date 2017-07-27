@@ -7,7 +7,7 @@ namespace NServiceBus
 
     static class Browser
     {
-        public static void Open(string url)
+        public static string Open(string url)
         {
             try
             {
@@ -30,25 +30,28 @@ namespace NServiceBus
                 {
                     Process.Start("open", url);
                 }
-
-                throw new Exception("Unknown OSPlatform");
+                else
+                {
+                    throw new Exception("Unknown OSPlatform");
+                }
             }
             catch
             {
-                Console.WriteLine($"Unable to open '{url}'. Please enter the url manually into your browser.");
+                return $"Unable to open '{url}'. Please enter the url manually into your browser.";
             }
+
+            return null;
         }
     }
 }
 #else
 namespace NServiceBus
 {
-    using System;
     using System.Diagnostics;
 
     static class Browser
     {
-        public static void Open(string url)
+        public static string Open(string url)
         {
             try
             {
@@ -56,8 +59,10 @@ namespace NServiceBus
             }
             catch
             {
-                Console.WriteLine($"Unable to open '{url}'. Please enter the url manually into your browser.");
+                return $"Unable to open '{url}'. Please enter the url manually into your browser.";
             }
+
+            return null;
         }
     }
 }
