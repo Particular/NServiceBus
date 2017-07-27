@@ -94,8 +94,6 @@
 
         static (string result, License license) ImportLicense()
         {
-            Console.Clear();
-
             Console.WriteLine("Specify the path to your license file and press [Enter]:");
             var input = Console.ReadLine();
 
