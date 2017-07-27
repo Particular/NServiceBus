@@ -41,7 +41,6 @@
                     !x.IsNested &&
                     !IsCompilerGenerated(x) &&
                     !x.FullName.Contains("JetBrains") &&
-                    !x.FullName.Contains("LicenseExpiredForm") && //required to work around resource file location problem
                     !x.FullName.StartsWith("Newtonsoft.Json") &&
                     !x.FullName.StartsWith("LightInject") &&
                     !x.FullName.StartsWith("SimpleJson") &&

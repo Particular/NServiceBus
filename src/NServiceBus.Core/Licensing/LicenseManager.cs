@@ -3,9 +3,6 @@ namespace NServiceBus
     using System;
     using System.Diagnostics;
     using System.Text;
-#if NET452
-    using System.Threading;
-#endif
     using Logging;
     using Particular.Licensing;
 
@@ -73,40 +70,13 @@ namespace NServiceBus
                 return;
             }
 
-#if NET452
-            var licenseProvidedByUser = RequestLicenseFromPopupDialog();
-#endif
-#if NETCOREAPP2_0
             var licenseProvidedByUser = ConsoleLicensePrompt.RequestLicenseFromConsole(license);
-#endif
 
             if (licenseProvidedByUser != null)
             {
                 license = licenseProvidedByUser;
             }
         }
-
-#if NET452
-        License RequestLicenseFromPopupDialog()
-        {
-            bool createdNew;
-            using (new Mutex(true, $"NServiceBus-{GitFlowVersion.MajorMinor}", out createdNew))
-            {
-                if (!createdNew)
-                {
-                    //Dialog already displaying for this software version by another process, so we just use the already assigned license.
-                    return null;
-                }
-
-                if (license == null || LicenseExpirationChecker.HasLicenseExpired(license))
-                {
-                    return LicenseExpiredFormDisplayer.PromptUserForLicense(license);
-                }
-
-                return null;
-            }
-        }
-#endif
 
         License license;
 
