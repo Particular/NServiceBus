@@ -3,6 +3,8 @@ namespace NServiceBus
     using System;
     using System.Diagnostics;
     using System.Text;
+    using System.Threading;
+    using System.Threading.Tasks;
     using Logging;
     using Particular.Licensing;
 
@@ -22,8 +24,8 @@ namespace NServiceBus
             {
                 if (result.License.IsTrialLicense)
                 {
-                    Logger.WarnFormat("Trial for the Particular Service Platform has expired.");
-                    PromptUserForLicenseIfTrialHasExpired();
+                    Logger.Warn("Trial for the Particular Service Platform has expired.");
+                    OpenTrialExtensionPage();
                 }
                 else
                 {
@@ -58,15 +60,51 @@ namespace NServiceBus
             }
         }
 
-        void PromptUserForLicenseIfTrialHasExpired()
+        void OpenTrialExtensionPage()
         {
             if (!(Debugger.IsAttached && Environment.UserInteractive))
             {
-                //We only prompt user if user is in debugging mode and we are running in interactive mode
                 return;
             }
 
-            ConsoleLicensePrompt.RequestLicenseFromConsole(result.License);
+            using (var mutex = new Mutex(true, @"Global\NServiceBusLicensing", out var acquired))
+            {
+                if (acquired)
+                {
+                    try
+                    {
+                        string url;
+
+                        if (result.License.IsExtendedTrial)
+                        {
+                            url = "https://particular.net/extend-your-trial-45";
+                        }
+                        else
+                        {
+                            url = "https://particular.net/extend-nservicebus-trial";
+                        }
+
+                        Logger.WarnFormat("Opening browser to '{0}'", url);
+
+                        var opened = Browser.Open(url);
+
+                        if (!opened)
+                        {
+                            Logger.WarnFormat("Unable to open '{0}'. Please enter the url manually into your browser.", url);
+                        }
+
+                        Task.Delay(TimeSpan.FromSeconds(5)).GetAwaiter().GetResult();
+                    }
+                    finally
+                    {
+                        mutex.ReleaseMutex();
+                    }
+                }
+                else
+                {
+                    Task.Delay(TimeSpan.FromSeconds(5)).GetAwaiter().GetResult();
+                }
+            }
         }
 
         ActiveLicenseFindResult result;

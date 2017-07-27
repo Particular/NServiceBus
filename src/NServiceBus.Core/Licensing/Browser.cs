@@ -1,13 +1,12 @@
 ﻿#if NETCOREAPP2_0
 namespace NServiceBus
 {
-    using System;
     using System.Diagnostics;
     using System.Runtime.InteropServices;
 
     static class Browser
     {
-        public static string Open(string url)
+        public static bool Open(string url)
         {
             try
             {
@@ -32,15 +31,15 @@ namespace NServiceBus
                 }
                 else
                 {
-                    throw new Exception("Unknown OSPlatform");
+                    return false;
                 }
             }
             catch
             {
-                return $"Unable to open '{url}'. Please enter the url manually into your browser.";
+                return false;
             }
 
-            return null;
+            return true;
         }
     }
 }
@@ -51,7 +50,7 @@ namespace NServiceBus
 
     static class Browser
     {
-        public static string Open(string url)
+        public static bool Open(string url)
         {
             try
             {
@@ -59,10 +58,10 @@ namespace NServiceBus
             }
             catch
             {
-                return $"Unable to open '{url}'. Please enter the url manually into your browser.";
+                return false;
             }
 
-            return null;
+            return true;
         }
     }
 }
