@@ -8,23 +8,19 @@ namespace NServiceBus
 
     class LicenseManager
     {
-        internal bool HasLicenseExpired()
-        {
-            return license == null || LicenseExpirationChecker.HasLicenseExpired(license);
-        }
+        internal bool HasLicenseExpired => result?.HasExpired ?? true;
 
         internal void InitializeLicense(string licenseText, string licenseFilePath)
         {
             var licenseSources = LicenseSources.GetLicenseSources(licenseText, licenseFilePath);
 
-            var result = ActiveLicense.Find("NServiceBus", licenseSources);
-            license = result.License;
+            result = ActiveLicense.Find("NServiceBus", licenseSources);
 
             LogFindResults(result);
 
             if (result.HasExpired)
             {
-                if (license.IsTrialLicense)
+                if (result.License.IsTrialLicense)
                 {
                     Logger.WarnFormat("Trial for the Particular Service Platform has expired.");
                     PromptUserForLicenseIfTrialHasExpired();
@@ -70,15 +66,10 @@ namespace NServiceBus
                 return;
             }
 
-            var licenseProvidedByUser = ConsoleLicensePrompt.RequestLicenseFromConsole(license);
-
-            if (licenseProvidedByUser != null)
-            {
-                license = licenseProvidedByUser;
-            }
+            ConsoleLicensePrompt.RequestLicenseFromConsole(result.License);
         }
 
-        License license;
+        ActiveLicenseFindResult result;
 
         static ILog Logger = LogManager.GetLogger(typeof(LicenseManager));
         static readonly bool debugLoggingEnabled = Logger.IsDebugEnabled;

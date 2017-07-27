@@ -21,9 +21,7 @@ namespace NServiceBus.Features
                 var licenseManager = new LicenseManager();
                 licenseManager.InitializeLicense(context.Settings.Get<string>(LicenseTextSettingsKey), context.Settings.Get<string>(LicenseFilePathSettingsKey));
 
-                var licenseExpired = licenseManager.HasLicenseExpired();
-
-                if (!licenseExpired)
+                if (!licenseManager.HasLicenseExpired)
                 {
                     return;
                 }
