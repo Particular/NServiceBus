@@ -3,57 +3,54 @@
     using System;
     using System.Collections.Generic;
     using System.IO;
+    using System.Threading.Tasks;
     using Particular.Licensing;
 
     class ConsoleLicensePrompt
     {
         public static License RequestLicenseFromConsole(License trialLicense)
         {
-            Console.Clear();
-
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine(trialLicense.IsExtendedTrial ? "Your extended trial license has expired!" : "Your trial license has expired!");
-            Console.ResetColor();
-
-            var options = new List<(string optionText, Func<License> optionAction)>();
+            var options = new List<(string optionText, Func<(string result, License license)> optionAction)>();
 
             if (trialLicense.IsExtendedTrial)
             {
                 options.Add(("extend your trial further via our contact form", () =>
                 {
                     Browser.Open("https://particular.net/extend-your-trial-45");
-                    return null;
-                }));
+                    return (null, null);
+                }
+                ));
             }
             else
             {
                 options.Add(("extend your trial license for FREE", () =>
                 {
                     Browser.Open("https://particular.net/extend-nservicebus-trial");
-                    return null;
-                }));
+                    return (null, null);
+                }
+                ));
             }
 
             options.Add(("purchase a license", () =>
             {
                 Browser.Open("https://particular.net/licensing");
-                return null;
-            }));
+                return (null, null);
+            }
+            ));
 
             options.Add(("import a license", ImportLicense));
 
             options.Add(("continue without a license", () =>
             {
-                Console.WriteLine();
-                Console.WriteLine("Continuing without a license. NServiceBus will remain fully functional although continued use is in violation of our EULA.");
-                Console.WriteLine();
-                return trialLicense;
-            }));
-
-            ListOptions(options);
+                var result = Environment.NewLine + "Continuing without a license. NServiceBus will remain fully functional although continued use is in violation of our EULA." + Environment.NewLine;
+                return (result, trialLicense);
+            }
+            ));
 
             while (true)
             {
+                ListOptions(trialLicense, options);
+
                 Console.Write("Select an option: ");
                 var input = Console.ReadKey();
                 Console.WriteLine();
@@ -62,7 +59,13 @@
                 {
                     if (optionIndex > 0 && optionIndex <= options.Count)
                     {
-                        var license = options[optionIndex - 1].optionAction();
+                        var (result, license) = options[optionIndex - 1].optionAction();
+
+                        if (!string.IsNullOrWhiteSpace(result))
+                        {
+                            Console.WriteLine(result);
+                            Task.Delay(TimeSpan.FromSeconds(2)).GetAwaiter().GetResult();
+                        }
 
                         if (license != null)
                         {
@@ -73,18 +76,26 @@
             }
         }
 
-        static void ListOptions(List<ValueTuple<string, Func<License>>> options)
+        static void ListOptions(License trialLicense, List<(string optionText, Func<(string result, License license)> optionAction)> options)
         {
+            Console.Clear();
+
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine(trialLicense.IsExtendedTrial ? "Your extended trial license has expired!" : "Your trial license has expired!");
+            Console.ResetColor();
+
             Console.WriteLine("Press:");
 
             for (var i = 0; i < options.Count; i++)
             {
-                Console.WriteLine($"{i + 1}: {options[i].Item1}");
+                Console.WriteLine($"{i + 1}: {options[i].optionText}");
             }
         }
 
-        static License ImportLicense()
+        static (string result, License license) ImportLicense()
         {
+            Console.Clear();
+
             Console.WriteLine("Specify the path to your license file and press [Enter]:");
             var input = Console.ReadLine();
 
@@ -97,8 +108,7 @@
 
                 if (!File.Exists(input))
                 {
-                    Console.WriteLine($"No file found at '{input}'");
-                    return null;
+                    return ($"No file found at '{input}'", null);
                 }
 
                 Console.WriteLine("Validating license file...");
@@ -106,8 +116,7 @@
 
                 if (!LicenseVerifier.TryVerify(licenseText, out var licenseVerifactionException))
                 {
-                    Console.WriteLine("Specified file does not contain a valid license: " + licenseVerifactionException.Message);
-                    return null;
+                    return ("Specified file does not contain a valid license: " + licenseVerifactionException.Message, null);
                 }
 
                 Console.WriteLine("Importing license...");
@@ -115,8 +124,7 @@
 
                 if (LicenseExpirationChecker.HasLicenseExpired(providedLicense))
                 {
-                    Console.WriteLine("Imported license has expired. Please provide a valid license.");
-                    return null;
+                    return ("Imported license has expired. Please provide a valid license.", null);
                 }
 
                 // Store licenses locally in the License subfolder which will be probed as a license source
@@ -126,14 +134,12 @@
                 }
 
                 File.Copy(input, Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "License", "license.xml"), true);
-                Console.WriteLine("License successfully imported.");
 
-                return providedLicense;
+                return ("License successfully imported.", providedLicense);
             }
             catch (Exception e)
             {
-                Console.WriteLine("Failed to import license: " + e);
-                return null;
+                return ("Failed to import license: " + e, null);
             }
         }
     }
