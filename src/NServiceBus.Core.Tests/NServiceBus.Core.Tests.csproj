@@ -25,12 +25,12 @@
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.3.0-preview-20170628-02" />
     <PackageReference Include="Mono.Cecil" Version="0.10.0-beta6" />
     <PackageReference Include="NuDoq" Version="1.2.5" />
-    <PackageReference Include="NUnit" Version="3.6.1" />
+    <PackageReference Include="NUnit" Version="3.7.1" />
     <PackageReference Include="NUnit3TestAdapter" Version="3.8.0-alpha1" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net452'">
-    <PackageReference Include="NUnit.ApplicationDomain" Version="10.2.0" />
+    <PackageReference Include="NUnit.ApplicationDomain" Version="11.0.0" />
     <PackageReference Include="PublicApiGenerator" Version="6.1.0-beta2" />
   </ItemGroup>
 
