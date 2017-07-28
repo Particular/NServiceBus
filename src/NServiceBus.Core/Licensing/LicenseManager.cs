@@ -75,7 +75,7 @@ namespace NServiceBus
 
             if (!(Debugger.IsAttached && Environment.UserInteractive))
             {
-                Logger.WarnFormat("Go to '{0}' to extend your trial", url);
+                Logger.WarnFormat("Go to '{0}' to extend your trial license", url);
 
                 return;
             }
@@ -92,7 +92,7 @@ namespace NServiceBus
 
                         if (!opened)
                         {
-                            Logger.WarnFormat("Unable to open '{0}'. Please enter the url manually into your browser.", url);
+                            Logger.WarnFormat("Unable to open '{0}'. Please enter the url manually into a browser.", url);
                         }
 
                         Task.Delay(TimeSpan.FromSeconds(5)).GetAwaiter().GetResult();
