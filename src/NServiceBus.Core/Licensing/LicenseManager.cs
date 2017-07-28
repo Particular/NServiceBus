@@ -29,7 +29,7 @@ namespace NServiceBus
                 }
                 else
                 {
-                    Logger.Fatal("Your license has expired! You can renew it at https://particular.net/licensing.");
+                    Logger.Fatal("Your license has expired! To renew your license, visit: https://particular.net/licensing");
                 }
             }
         }
@@ -75,7 +75,7 @@ namespace NServiceBus
 
             if (!(Debugger.IsAttached && Environment.UserInteractive))
             {
-                Logger.WarnFormat("Go to '{0}' to extend your trial license", url);
+                Logger.WarnFormat("To extend your trial license, visit: {0}", url);
 
                 return;
             }
@@ -86,13 +86,13 @@ namespace NServiceBus
                 {
                     try
                     {
-                        Logger.WarnFormat("Opening browser to '{0}'", url);
+                        Logger.WarnFormat("Opening browser to: {0}", url);
 
                         var opened = Browser.Open(url);
 
                         if (!opened)
                         {
-                            Logger.WarnFormat("Unable to open '{0}'. Please enter the url manually into a browser.", url);
+                            Logger.WarnFormat("Unable to open browser. To extend your trial license, visit: {0}", url);
                         }
 
                         Task.Delay(TimeSpan.FromSeconds(5)).GetAwaiter().GetResult();
