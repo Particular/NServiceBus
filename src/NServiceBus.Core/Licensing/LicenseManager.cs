@@ -62,8 +62,21 @@ namespace NServiceBus
 
         void OpenTrialExtensionPage()
         {
+            string url;
+
+            if (result.License.IsExtendedTrial)
+            {
+                url = "https://particular.net/extend-your-trial-45";
+            }
+            else
+            {
+                url = "https://particular.net/extend-nservicebus-trial";
+            }
+
             if (!(Debugger.IsAttached && Environment.UserInteractive))
             {
+                Logger.WarnFormat("Go to '{0}' to extend your trial", url);
+
                 return;
             }
 
@@ -73,17 +86,6 @@ namespace NServiceBus
                 {
                     try
                     {
-                        string url;
-
-                        if (result.License.IsExtendedTrial)
-                        {
-                            url = "https://particular.net/extend-your-trial-45";
-                        }
-                        else
-                        {
-                            url = "https://particular.net/extend-nservicebus-trial";
-                        }
-
                         Logger.WarnFormat("Opening browser to '{0}'", url);
 
                         var opened = Browser.Open(url);
