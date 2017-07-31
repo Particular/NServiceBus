@@ -77,6 +77,8 @@ namespace NServiceBus
 
                         var label = GetLabel(message);
 
+                        Task.Yield(); // MessageQueue.Send is a blocking operation
+
                         if (transportOperation.RequiredDispatchConsistency == DispatchConsistency.Isolated)
                         {
                             q.Send(toSend, label, GetIsolatedTransactionType());
