@@ -88,7 +88,7 @@ namespace NServiceBus
                     {
                         Logger.WarnFormat("Opening browser to: {0}", url);
 
-                        var opened = Browser.Open(url);
+                        var opened = Browser.TryOpen(url);
 
                         if (!opened)
                         {

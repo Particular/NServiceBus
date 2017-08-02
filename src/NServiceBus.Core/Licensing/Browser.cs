@@ -6,7 +6,7 @@ namespace NServiceBus
 
     static class Browser
     {
-        public static bool Open(string url)
+        public static bool TryOpen(string url)
         {
             using (var process = new Process())
             {
@@ -49,7 +49,7 @@ namespace NServiceBus
 
     static class Browser
     {
-        public static bool Open(string url)
+        public static bool TryOpen(string url)
         {
             using (var process = new Process())
             {
