@@ -21,7 +21,8 @@ namespace NServiceBus
                 sources.Add(new LicenseSourceFilePath(licenseFilePath));
             }
 
-            sources.Add(new LicenseSourceConfigFile());
+            sources.Add(new LicenseSourceAppConfigLicenseSetting());
+            sources.Add(new LicenseSourceAppConfigLicensePathSetting());
 
             sources.Add(new LicenseSourceFilePath(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "ParticularSoftware", "license.xml")));
             sources.Add(new LicenseSourceFilePath(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "ParticularSoftware", "license.xml")));
