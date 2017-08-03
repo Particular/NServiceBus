@@ -15,6 +15,8 @@ namespace NServiceBus.AcceptanceTests
         [SetUp]
         public void SetUp()
         {
+            //Hack: prevents SerializationException ... Type 'x' in assembly 'y' is not marked as serializable.
+            System.Configuration.ConfigurationManager.GetSection("X");
             Conventions.EndpointNamingConvention = t =>
             {
                 var classAndEndpoint = t.FullName.Split('.').Last();
