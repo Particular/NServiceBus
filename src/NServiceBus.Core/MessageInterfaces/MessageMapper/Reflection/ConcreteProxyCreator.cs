@@ -55,7 +55,7 @@ namespace NServiceBus
                     Type.EmptyTypes);
 
                 var getIL = getMethodBuilder.GetILGenerator();
-                // For an instance property, argument zero is the instance. Load the 
+                // For an instance property, argument zero is the instance. Load the
                 // instance, then load the private field and return, leaving the
                 // field value on the stack.
                 getIL.Emit(OpCodes.Ldarg_0);
@@ -81,15 +81,15 @@ namespace NServiceBus
                 setIL.Emit(OpCodes.Stfld, fieldBuilder);
                 setIL.Emit(OpCodes.Ret);
 
-                // Last, map the "get" and "set" accessor methods to the 
-                // PropertyBuilder. The property is now complete. 
+                // Last, map the "get" and "set" accessor methods to the
+                // PropertyBuilder. The property is now complete.
                 propBuilder.SetGetMethod(getMethodBuilder);
                 propBuilder.SetSetMethod(setMethodBuilder);
             }
 
             typeBuilder.AddInterfaceImplementation(type);
 
-            return typeBuilder.CreateType();
+            return typeBuilder.CreateTypeInfo().AsType();
         }
 
         /// <summary>
