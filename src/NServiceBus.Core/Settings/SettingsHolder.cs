@@ -3,7 +3,6 @@ namespace NServiceBus.Settings
     using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
-    using System.Configuration;
 
     /// <summary>
     /// Setting container.

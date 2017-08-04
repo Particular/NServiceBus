@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.Settings
 {
     using System;
-    using System.Configuration;
     using System.Linq;
     using NUnit.Framework;
 
