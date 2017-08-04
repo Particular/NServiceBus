@@ -28,12 +28,6 @@ namespace NServiceBus
             sources.Add(new LicenseSourceFilePath(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "ParticularSoftware", "license.xml")));
             sources.Add(new LicenseSourceFilePath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "license.xml")));
 
-            if (Environment.OSVersion.Platform == PlatformID.Win32NT)
-            {
-                sources.Add(new LicenseSourceHKCURegKey(@"SOFTWARE\ParticularSoftware"));
-                sources.Add(new LicenseSourceHKLMRegKey(@"SOFTWARE\ParticularSoftware"));
-            }
-
             return sources.ToArray();
         }
     }
