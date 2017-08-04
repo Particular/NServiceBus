@@ -63,7 +63,7 @@
 
             settings.PreventChanges();
 
-            Assert.Throws<ConfigurationErrorsException>(() => settings.Merge(mergeFrom));
+            Assert.Throws<Exception>(() => settings.Merge(mergeFrom));
         }
 
         class SomeDisposable : IDisposable
