@@ -285,7 +285,7 @@ namespace NServiceBus.Settings
         {
             if (locked)
             {
-                throw new ConfigurationErrorsException("Unable to merge settings. The settings has been locked for modifications. Move any configuration code earlier in the configuration pipeline");
+                throw new Exception("Unable to merge settings. The settings has been locked for modifications. Move any configuration code earlier in the configuration pipeline");
             }
         }
 
@@ -293,7 +293,7 @@ namespace NServiceBus.Settings
         {
             if (locked)
             {
-                throw new ConfigurationErrorsException($"Unable to set the value for key: {key}. The settings has been locked for modifications. Move any configuration code earlier in the configuration pipeline");
+                throw new Exception($"Unable to set the value for key: {key}. The settings has been locked for modifications. Move any configuration code earlier in the configuration pipeline");
             }
         }
 
