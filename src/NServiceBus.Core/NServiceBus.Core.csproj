@@ -13,7 +13,6 @@
   <ItemGroup Condition="'$(TargetFramework)' == 'net452'">
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Configuration" />
-    <Reference Include="System.Security" />
     <Reference Include="System.Transactions" />
   </ItemGroup>
 
