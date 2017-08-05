@@ -12,6 +12,7 @@
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net452'">
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Security" />
     <Reference Include="System.Transactions" />
   </ItemGroup>
@@ -37,6 +38,8 @@
 
   <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp2.0'">
     <PackageReference Include="Microsoft.Win32.Registry" Version="4.4.0-preview2-25405-01" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.4.0-preview2-25405-01" />
+    <PackageReference Include="System.Security.Cryptography.Xml" Version="4.4.0-preview2-25405-01" />
   </ItemGroup>
 
   <PropertyGroup>
