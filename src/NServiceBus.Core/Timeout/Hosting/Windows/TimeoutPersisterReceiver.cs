@@ -92,7 +92,6 @@ namespace NServiceBus.Timeout.Hosting.Windows
         {
             if (NextRetrieval > CurrentTimeProvider())
             {
-                Thread.Sleep(SecondsToSleepBetweenPolls * 1000);
                 return startSlice;
             }
 
@@ -112,31 +111,16 @@ namespace NServiceBus.Timeout.Hosting.Windows
             }
 
             lock (lockObject)
-            {
-                //Check if nextRetrieval has been modified (This means that a push come in) and if it has check if it is earlier than nextExpiredTimeout time
-                if (!timeoutPushed)
-                {
-                    NextRetrieval = nextExpiredTimeout;
-                }
-                else if (nextExpiredTimeout < NextRetrieval)
-                {
-                    NextRetrieval = nextExpiredTimeout;
-                }
+            {            
+                // we cap the next retrieval to max 1 minute this will make sure that we trip the circuit breaker if we
+                // loose connectivity to our storage. This will also make sure that timeouts added (during migration) direct to storage
+                // will be picked up after at most 1 minute
+                var maxNextRetrieval = CurrentTimeProvider() + TimeSpan.FromMinutes(1);
 
-                timeoutPushed = false;
+                NextRetrieval = nextExpiredTimeout > maxNextRetrieval ? maxNextRetrieval : nextExpiredTimeout;
+
+                Logger.DebugFormat("Polling next retrieval is at {0}.", NextRetrieval.ToLocalTime());
             }
-
-            // we cap the next retrieval to max 1 minute this will make sure that we trip the circuit breaker if we
-            // loose connectivity to our storage. This will also make sure that timeouts added (during migration) direct to storage
-            // will be picked up after at most 1 minute
-            var maxNextRetrieval = CurrentTimeProvider() + TimeSpan.FromMinutes(1);
-
-            if (NextRetrieval > maxNextRetrieval)
-            {
-                NextRetrieval = maxNextRetrieval;
-            }
-
-            Logger.DebugFormat("Polling next retrieval is at {0}.", NextRetrieval.ToLocalTime());
             return startSlice;
         }
 
@@ -158,7 +142,6 @@ namespace NServiceBus.Timeout.Hosting.Windows
                 if (NextRetrieval > timeoutData.Time)
                 {
                     NextRetrieval = timeoutData.Time;
-                    timeoutPushed = true;
                 }
             }
         }
@@ -169,7 +152,6 @@ namespace NServiceBus.Timeout.Hosting.Windows
 
         readonly object lockObject = new object();
         ManualResetEvent resetEvent = new ManualResetEvent(true);        
-        volatile bool timeoutPushed;
         CancellationTokenSource tokenSource;
     }
 }
