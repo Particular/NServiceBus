@@ -80,7 +80,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
 
             while (!cancellationToken.IsCancellationRequested)
             {
-                startSlice = SpinOnce(startSlice);
+                startSlice = SpinOnce(startSlice, cancellationToken);
                 circuitBreaker.Success();
                 cancellationToken.WaitHandle.WaitOne(TimeSpan.FromSeconds(SecondsToSleepBetweenPolls));
             }
@@ -88,9 +88,9 @@ namespace NServiceBus.Timeout.Hosting.Windows
             resetEvent.Set();
         }
 
-        internal DateTime SpinOnce(DateTime startSlice)
+        internal DateTime SpinOnce(DateTime startSlice, CancellationToken cancellationToken)
         {
-            if (NextRetrieval > CurrentTimeProvider())
+            if (NextRetrieval > CurrentTimeProvider() || cancellationToken.IsCancellationRequested)
             {
                 return startSlice;
             }
@@ -102,6 +102,11 @@ namespace NServiceBus.Timeout.Hosting.Windows
 
             foreach (var timeoutData in timeoutDatas)
             {
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    return startSlice;
+                }
+
                 if (startSlice < timeoutData.Item2)
                 {
                     startSlice = timeoutData.Item2;

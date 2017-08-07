@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Threading;
     using NServiceBus.InMemory.TimeoutPersister;
     using NServiceBus.ObjectBuilder;
     using NServiceBus.Pipeline;
@@ -40,14 +41,14 @@
         [Test]
         public void Sends_no_messages_when_no_timeouts_registered()
         {
-            receiver.SpinOnce(startSlice);
+            receiver.SpinOnce(startSlice, CancellationToken.None);
             Assert.AreEqual(0, sender.MessagesSent, "Messages Sent");
         }
 
         [Test]
         public void Returns_to_normal_poll_cycle_after_dispatching_a_pushed_timeout()
         {
-            receiver.SpinOnce(startSlice);
+            receiver.SpinOnce(startSlice, CancellationToken.None);
 
             var nextRetrieval = receiver.NextRetrieval;
             
@@ -55,7 +56,7 @@
 
             currentTime = receiver.NextRetrieval;
 
-            receiver.SpinOnce(startSlice);
+            receiver.SpinOnce(startSlice, CancellationToken.None);
 
             Assert.AreEqual(1, sender.MessagesSent,"Messages Sent");
             Assert.AreEqual((currentTime + EmptyResultsNextTimeToRunQuerySpan), receiver.NextRetrieval, "Next Retrieval");
@@ -74,7 +75,7 @@
             RegisterNewTimeout(timeout2, false);
 
             currentTime = timeout2;
-            receiver.SpinOnce(startSlice);
+            receiver.SpinOnce(startSlice, CancellationToken.None);
 
             Assert.AreEqual(2, sender.MessagesSent, "Messages Sent");
             Assert.AreEqual(currentTime + EmptyResultsNextTimeToRunQuerySpan, receiver.NextRetrieval, "Next Retrieval");
@@ -102,14 +103,14 @@
 
             try
             {
-                receiver.SpinOnce(startSlice);
+                receiver.SpinOnce(startSlice, CancellationToken.None);
             }
             catch (Exception)
             {
                 // ignore. An exception will cause another polling attempt.
             }
 
-            receiver.SpinOnce(startSlice);
+            receiver.SpinOnce(startSlice, CancellationToken.None);
 
             Assert.AreEqual(1, transportOperations.Count);
         }
