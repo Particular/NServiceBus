@@ -20,6 +20,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
         public Address DispatcherAddress { get; set; }
         public TimeSpan TimeToWaitBeforeTriggeringCriticalError { get; set; }
         public Func<DateTime> CurrentTimeProvider { get; set; } = () => DateTime.UtcNow;
+        public DateTime NextRetrieval { get; set; } = DateTime.UtcNow;
 
         public void Dispose()
         {
@@ -88,7 +89,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
 
         internal DateTime SpinOnce(DateTime startSlice)
         {
-            if (nextRetrieval > CurrentTimeProvider())
+            if (NextRetrieval > CurrentTimeProvider())
             {
                 Thread.Sleep(SecondsToSleepBetweenPolls * 1000);
                 return startSlice;
@@ -114,11 +115,11 @@ namespace NServiceBus.Timeout.Hosting.Windows
                 //Check if nextRetrieval has been modified (This means that a push come in) and if it has check if it is earlier than nextExpiredTimeout time
                 if (!timeoutPushed)
                 {
-                    nextRetrieval = nextExpiredTimeout;
+                    NextRetrieval = nextExpiredTimeout;
                 }
-                else if (nextExpiredTimeout < nextRetrieval)
+                else if (nextExpiredTimeout < NextRetrieval)
                 {
-                    nextRetrieval = nextExpiredTimeout;
+                    NextRetrieval = nextExpiredTimeout;
                 }
 
                 timeoutPushed = false;
@@ -129,12 +130,12 @@ namespace NServiceBus.Timeout.Hosting.Windows
             // will be picked up after at most 1 minute
             var maxNextRetrieval = CurrentTimeProvider() + TimeSpan.FromMinutes(1);
 
-            if (nextRetrieval > maxNextRetrieval)
+            if (NextRetrieval > maxNextRetrieval)
             {
-                nextRetrieval = maxNextRetrieval;
+                NextRetrieval = maxNextRetrieval;
             }
 
-            Logger.DebugFormat("Polling next retrieval is at {0}.", nextRetrieval.ToLocalTime());
+            Logger.DebugFormat("Polling next retrieval is at {0}.", NextRetrieval.ToLocalTime());
             circuitBreaker.Success();
             return startSlice;
         }
@@ -154,9 +155,9 @@ namespace NServiceBus.Timeout.Hosting.Windows
         {
             lock (lockObject)
             {
-                if (nextRetrieval > timeoutData.Time)
+                if (NextRetrieval > timeoutData.Time)
                 {
-                    nextRetrieval = timeoutData.Time;
+                    NextRetrieval = timeoutData.Time;
                     timeoutPushed = true;
                 }
             }
@@ -167,8 +168,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
         RepeatedFailuresOverTimeCircuitBreaker circuitBreaker;
 
         readonly object lockObject = new object();
-        ManualResetEvent resetEvent = new ManualResetEvent(true);
-        DateTime nextRetrieval = DateTime.UtcNow;
+        ManualResetEvent resetEvent = new ManualResetEvent(true);        
         volatile bool timeoutPushed;
         CancellationTokenSource tokenSource;
     }
