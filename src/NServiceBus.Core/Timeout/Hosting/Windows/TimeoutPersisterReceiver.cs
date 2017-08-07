@@ -81,6 +81,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
             while (!cancellationToken.IsCancellationRequested)
             {
                 startSlice = SpinOnce(startSlice);
+                circuitBreaker.Success();
                 cancellationToken.WaitHandle.WaitOne(TimeSpan.FromSeconds(SecondsToSleepBetweenPolls));
             }
 
@@ -136,7 +137,6 @@ namespace NServiceBus.Timeout.Hosting.Windows
             }
 
             Logger.DebugFormat("Polling next retrieval is at {0}.", NextRetrieval.ToLocalTime());
-            circuitBreaker.Success();
             return startSlice;
         }
 
