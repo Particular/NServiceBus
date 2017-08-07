@@ -78,58 +78,64 @@ namespace NServiceBus.Timeout.Hosting.Windows
 
             while (!cancellationToken.IsCancellationRequested)
             {
-                if (nextRetrieval > DateTime.UtcNow)
-                {
-                    Thread.Sleep(SecondsToSleepBetweenPolls * 1000);
-                    continue;
-                }
-
-                Logger.DebugFormat("Polling for timeouts at {0}.", DateTime.Now);
-
-                DateTime nextExpiredTimeout;
-                var timeoutDatas = TimeoutsPersister.GetNextChunk(startSlice, out nextExpiredTimeout);
-
-                foreach (var timeoutData in timeoutDatas)
-                {
-                    if (startSlice < timeoutData.Item2)
-                    {
-                        startSlice = timeoutData.Item2;
-                    }
-
-                    MessageSender.Send(CreateTransportMessage(timeoutData.Item1), new SendOptions(DispatcherAddress));
-                }
-
-                lock (lockObject)
-                {
-                    //Check if nextRetrieval has been modified (This means that a push come in) and if it has check if it is earlier than nextExpiredTimeout time
-                    if (!timeoutPushed)
-                    {
-                        nextRetrieval = nextExpiredTimeout;
-                    }
-                    else if (nextExpiredTimeout < nextRetrieval)
-                    {
-                        nextRetrieval = nextExpiredTimeout;
-                    }
-
-                    timeoutPushed = false;
-                }
-
-                // we cap the next retrieval to max 1 minute this will make sure that we trip the circuit breaker if we
-                // loose connectivity to our storage. This will also make sure that timeouts added (during migration) direct to storage
-                // will be picked up after at most 1 minute
-                var maxNextRetrieval = DateTime.UtcNow + TimeSpan.FromMinutes(1);
-
-                if (nextRetrieval > maxNextRetrieval)
-                {
-                    nextRetrieval = maxNextRetrieval;
-                }
-
-                Logger.DebugFormat("Polling next retrieval is at {0}.", nextRetrieval.ToLocalTime());
-                circuitBreaker.Success();
+                startSlice = SpinOnce(startSlice);
                 cancellationToken.WaitHandle.WaitOne(TimeSpan.FromSeconds(SecondsToSleepBetweenPolls));
             }
 
             resetEvent.Set();
+        }
+
+        internal DateTime SpinOnce(DateTime startSlice)
+        {
+            if (nextRetrieval > DateTime.UtcNow)
+            {
+                Thread.Sleep(SecondsToSleepBetweenPolls * 1000);
+                return startSlice;
+            }
+
+            Logger.DebugFormat("Polling for timeouts at {0}.", DateTime.Now);
+
+            DateTime nextExpiredTimeout;
+            var timeoutDatas = TimeoutsPersister.GetNextChunk(startSlice, out nextExpiredTimeout);
+
+            foreach (var timeoutData in timeoutDatas)
+            {
+                if (startSlice < timeoutData.Item2)
+                {
+                    startSlice = timeoutData.Item2;
+                }
+
+                MessageSender.Send(CreateTransportMessage(timeoutData.Item1), new SendOptions(DispatcherAddress));
+            }
+
+            lock (lockObject)
+            {
+                //Check if nextRetrieval has been modified (This means that a push come in) and if it has check if it is earlier than nextExpiredTimeout time
+                if (!timeoutPushed)
+                {
+                    nextRetrieval = nextExpiredTimeout;
+                }
+                else if (nextExpiredTimeout < nextRetrieval)
+                {
+                    nextRetrieval = nextExpiredTimeout;
+                }
+
+                timeoutPushed = false;
+            }
+
+            // we cap the next retrieval to max 1 minute this will make sure that we trip the circuit breaker if we
+            // loose connectivity to our storage. This will also make sure that timeouts added (during migration) direct to storage
+            // will be picked up after at most 1 minute
+            var maxNextRetrieval = DateTime.UtcNow + TimeSpan.FromMinutes(1);
+
+            if (nextRetrieval > maxNextRetrieval)
+            {
+                nextRetrieval = maxNextRetrieval;
+            }
+
+            Logger.DebugFormat("Polling next retrieval is at {0}.", nextRetrieval.ToLocalTime());
+            circuitBreaker.Success();
+            return startSlice;
         }
 
         static TransportMessage CreateTransportMessage(string timeoutId)
