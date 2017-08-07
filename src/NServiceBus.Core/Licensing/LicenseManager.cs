@@ -58,6 +58,20 @@ namespace NServiceBus
 
                 Logger.Info(report.ToString());
             }
+
+#if REGISTRYLICENSESOURCE
+            if (result.Location.StartsWith("HKEY_"))
+            {
+                Logger.Warn("Reading license information from the registry has been deprecated and will be removed in version 8.0. See the documentation for more details.");
+            }
+#endif
+
+#if APPCONFIGLICENSESOURCE
+            if (result.Location.StartsWith("app config"))
+            {
+                Logger.Warn("Reading license information from the app config file has been deprecated and will be removed in version 8.0. See the documentation for more details.");
+            }
+#endif
         }
 
         void OpenTrialExtensionPage()
