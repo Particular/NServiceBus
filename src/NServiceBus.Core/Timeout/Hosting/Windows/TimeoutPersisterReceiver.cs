@@ -126,6 +126,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
 
                 Logger.DebugFormat("Polling next retrieval is at {0}.", nextRetrieval.ToLocalTime());
                 circuitBreaker.Success();
+                cancellationToken.WaitHandle.WaitOne(TimeSpan.FromSeconds(SecondsToSleepBetweenPolls));
             }
 
             resetEvent.Set();
