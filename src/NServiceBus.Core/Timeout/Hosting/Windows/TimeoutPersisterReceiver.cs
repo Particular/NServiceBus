@@ -151,7 +151,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
             return transportMessage;
         }
 
-        void TimeoutsManagerOnTimeoutPushed(TimeoutData timeoutData)
+        internal void TimeoutsManagerOnTimeoutPushed(TimeoutData timeoutData)
         {
             lock (lockObject)
             {
