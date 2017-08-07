@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.AcceptanceTests.Core.UnitOfWork.TransactionScope
 {
     using System;
-    using System.Configuration;
     using AcceptanceTesting;
     using EndpointTemplates;
     using NUnit.Framework;
@@ -11,7 +10,7 @@
         [Test]
         public void Should_blow_up()
         {
-            var exception = Assert.ThrowsAsync<ConfigurationErrorsException>(async () =>
+            var exception = Assert.ThrowsAsync<Exception>(async () =>
             {
                 await Scenario.Define<ScenarioContext>()
                     .WithEndpoint<ScopeEndpoint>()

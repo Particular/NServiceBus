@@ -25,6 +25,10 @@
     <PackageReference Include="Particular.CodeRules" Version="0.2.0" PrivateAssets="All" />
   </ItemGroup>
 
+  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp2.0'">
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.4.0-preview2-25405-01" />
+  </ItemGroup>
+
   <PropertyGroup>
     <PackageId>NServiceBus.AcceptanceTests.Sources</PackageId>
     <Description>Acceptance tests for NServiceBus core functionality</Description>

@@ -30,7 +30,7 @@
 
                     if (requestedTimeout.Value > maxTimeout)
                     {
-                        throw new ConfigurationErrorsException(
+                        throw new Exception(
                             "Timeout requested is longer than the maximum value for this machine. Override using the maxTimeout setting of the system.transactions section in machine.config");
                     }
 
