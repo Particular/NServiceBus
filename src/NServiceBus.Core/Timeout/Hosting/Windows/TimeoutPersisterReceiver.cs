@@ -19,6 +19,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
         public CriticalError CriticalError { get; set; }
         public Address DispatcherAddress { get; set; }
         public TimeSpan TimeToWaitBeforeTriggeringCriticalError { get; set; }
+        public Func<DateTime> CurrentTimeProvider { get; set; } = () => DateTime.UtcNow;
 
         public void Dispose()
         {
@@ -72,7 +73,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
         {
             var cancellationToken = (CancellationToken)obj;
 
-            var startSlice = DateTime.UtcNow.AddYears(-10);
+            var startSlice = CurrentTimeProvider().AddYears(-10);
 
             resetEvent.Reset();
 
@@ -87,7 +88,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
 
         internal DateTime SpinOnce(DateTime startSlice)
         {
-            if (nextRetrieval > DateTime.UtcNow)
+            if (nextRetrieval > CurrentTimeProvider())
             {
                 Thread.Sleep(SecondsToSleepBetweenPolls * 1000);
                 return startSlice;
@@ -126,7 +127,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
             // we cap the next retrieval to max 1 minute this will make sure that we trip the circuit breaker if we
             // loose connectivity to our storage. This will also make sure that timeouts added (during migration) direct to storage
             // will be picked up after at most 1 minute
-            var maxNextRetrieval = DateTime.UtcNow + TimeSpan.FromMinutes(1);
+            var maxNextRetrieval = CurrentTimeProvider() + TimeSpan.FromMinutes(1);
 
             if (nextRetrieval > maxNextRetrieval)
             {
