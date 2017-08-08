@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.AcceptanceTests.Sagas
+﻿namespace NServiceBus.AcceptanceTests.Core.Sagas
 {
     using System;
     using System.Threading.Tasks;
@@ -6,10 +6,10 @@
     using EndpointTemplates;
     using NUnit.Framework;
 
-    public class When_forgetting_to_set_a_corr_property : NServiceBusAcceptanceTest
+    public class When_starting_a_new_saga : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Should_not_matter()
+        public async Task Should_automatically_assign_correlation_property_value()
         {
             var id = Guid.NewGuid();
 
@@ -18,7 +18,7 @@
                 {
                     SomeId = id
                 })))
-                .Done(c => c.Done)
+                .Done(c => c.SomeId != Guid.Empty)
                 .Run();
 
             Assert.AreEqual(context.SomeId, id);
@@ -27,7 +27,6 @@
         public class Context : ScenarioContext
         {
             public Guid SomeId { get; set; }
-            public bool Done { get; set; }
         }
 
         public class NullPropertyEndpoint : EndpointConfigurationBuilder
@@ -43,19 +42,8 @@
 
                 public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
                 {
-                    //oops I forgot Data.SomeId = message.SomeId
-                    if (message.SecondMessage)
-                    {
-                        Context.SomeId = Data.SomeId;
-                        Context.Done = true;
-                        return Task.FromResult(0);
-                    }
-
-                    return context.SendLocal(new StartSagaMessage
-                    {
-                        SomeId = message.SomeId,
-                        SecondMessage = true
-                    });
+                    Context.SomeId = Data.SomeId;
+                    return Task.FromResult(0);
                 }
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<NullCorrPropertySagaData> mapper)
@@ -65,19 +53,15 @@
                 }
             }
 
-            public class NullCorrPropertySagaData : IContainSagaData
+            public class NullCorrPropertySagaData : ContainSagaData
             {
                 public virtual Guid SomeId { get; set; }
-                public virtual Guid Id { get; set; }
-                public virtual string Originator { get; set; }
-                public virtual string OriginalMessageId { get; set; }
             }
         }
 
         public class StartSagaMessage : ICommand
         {
             public Guid SomeId { get; set; }
-            public bool SecondMessage { get; set; }
         }
     }
 }
