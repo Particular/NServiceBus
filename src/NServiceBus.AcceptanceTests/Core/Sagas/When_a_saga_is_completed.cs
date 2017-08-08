@@ -13,7 +13,7 @@
         public async Task Saga_should_not_handle_subsequent_messages_for_that_sagadata()
         {
             var context = await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
-                .WithEndpoint<ReceiveCompletesSagaEndpoint>(b =>
+                .WithEndpoint<SagaIsCompletedEndpoint>(b =>
                 {
                     b.When((session, c) => session.SendLocal(new StartSagaMessage
                     {
@@ -44,19 +44,19 @@
             public bool SagaReceivedAnotherMessage { get; set; }
         }
 
-        public class ReceiveCompletesSagaEndpoint : EndpointConfigurationBuilder
+        public class SagaIsCompletedEndpoint : EndpointConfigurationBuilder
         {
-            public ReceiveCompletesSagaEndpoint()
+            public SagaIsCompletedEndpoint()
             {
                 EndpointSetup<DefaultServer>(b =>
                 {
                     b.EnableFeature<TimeoutManager>();
-                    b.ExecuteTheseHandlersFirst(typeof(TestSaga10));
+                    b.ExecuteTheseHandlersFirst(typeof(TestSaga12));
                     b.LimitMessageProcessingConcurrencyTo(1); // This test only works if the endpoints processes messages sequentially
                 });
             }
 
-            public class TestSaga10 : Saga<TestSagaData10>,
+            public class TestSaga12 : Saga<TestSagaData12>,
                 IAmStartedByMessages<StartSagaMessage>,
                 IHandleMessages<CompleteSagaMessage>,
                 IHandleMessages<AnotherMessage>
@@ -83,7 +83,7 @@
                     return Task.FromResult(0);
                 }
 
-                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData10> mapper)
+                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData12> mapper)
                 {
                     mapper.ConfigureMapping<StartSagaMessage>(m => m.SomeId)
                         .ToSaga(s => s.SomeId);
@@ -94,7 +94,7 @@
                 }
             }
 
-            public class TestSagaData10 : ContainSagaData
+            public class TestSagaData12 : ContainSagaData
             {
                 public virtual Guid SomeId { get; set; }
             }
