@@ -15,7 +15,6 @@
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net452'">
-    <Reference Include="System.Configuration" />
     <Reference Include="System.Transactions" />
   </ItemGroup>
 

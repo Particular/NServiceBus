@@ -28,6 +28,7 @@ namespace NServiceBus
             return this;
         }
 
+#if NET452
         /// <summary>
         /// Configures the transport to use the connection string with the given name.
         /// </summary>
@@ -36,6 +37,7 @@ namespace NServiceBus
             base.ConnectionStringName(name);
             return this;
         }
+#endif
 
         /// <summary>
         /// Configures the transport to use the given func as the connection string.
@@ -80,6 +82,7 @@ namespace NServiceBus
             return this;
         }
 
+#if NET452
         /// <summary>
         /// Configures the transport to use the connection string with the given name.
         /// </summary>
@@ -89,6 +92,7 @@ namespace NServiceBus
             Settings.Set<TransportConnectionString>(new TransportConnectionString(name));
             return this;
         }
+#endif
 
         /// <summary>
         /// Configures the transport to use the given func as the connection string.
