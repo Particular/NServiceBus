@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.AcceptanceTests.Sagas
+﻿namespace NServiceBus.AcceptanceTests.Core.Sagas
 {
     using System;
     using System.Threading.Tasks;
@@ -6,9 +6,9 @@
     using EndpointTemplates;
     using Extensibility;
     using NServiceBus;
+    using NServiceBus.Persistence;
     using NServiceBus.Sagas;
     using NUnit.Framework;
-    using Persistence;
 
     [TestFixture]
     public class When_finder_returns_existing_saga : NServiceBusAcceptanceTest
