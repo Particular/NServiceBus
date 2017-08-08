@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.Features
 {
     using System;
-    using System.Configuration;
     using System.Transactions;
     using ConsistencyGuarantees;
 
@@ -30,7 +29,7 @@
 
                     if (requestedTimeout.Value > maxTimeout)
                     {
-                        throw new ConfigurationErrorsException(
+                        throw new Exception(
                             "Timeout requested is longer than the maximum value for this machine. Override using the maxTimeout setting of the system.transactions section in machine.config");
                     }
 
@@ -56,7 +55,7 @@
                 //default is always 10 minutes
                 var maxTimeout = TimeSpan.FromMinutes(10);
 #if NET452
-                var systemTransactionsGroup = ConfigurationManager.OpenMachineConfiguration()
+                var systemTransactionsGroup = System.Configuration.ConfigurationManager.OpenMachineConfiguration()
                     .GetSectionGroup("system.transactions");
 
                 var machineSettings = systemTransactionsGroup?.Sections.Get("machineSettings") as System.Transactions.Configuration.MachineSettingsSection;
