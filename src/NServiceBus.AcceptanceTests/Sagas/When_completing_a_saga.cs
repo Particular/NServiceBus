@@ -4,7 +4,6 @@
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
-    using Features;
     using NUnit.Framework;
 
     public class When_completing_a_saga : NServiceBusAcceptanceTest
@@ -35,8 +34,6 @@
             public Guid Id { get; set; }
             public bool StartSagaMessageReceived { get; set; }
             public bool SagaCompleted { get; set; }
-            public bool AnotherMessageReceived { get; set; }
-            public bool SagaReceivedAnotherMessage { get; set; }
         }
 
         public class ReceiveCompletesSagaEndpoint : EndpointConfigurationBuilder
@@ -45,7 +42,6 @@
             {
                 EndpointSetup<DefaultServer>(b =>
                 {
-                    b.EnableFeature<TimeoutManager>();
                     b.ExecuteTheseHandlersFirst(typeof(TestSaga10));
                     b.LimitMessageProcessingConcurrencyTo(1); // This test only works if the endpoints processes messages sequentially
                 });
@@ -53,8 +49,7 @@
 
             public class TestSaga10 : Saga<TestSagaData10>,
                 IAmStartedByMessages<StartSagaMessage>,
-                IHandleMessages<CompleteSagaMessage>,
-                IHandleMessages<AnotherMessage>
+                IHandleMessages<CompleteSagaMessage>
             {
                 public Context Context { get; set; }
 
@@ -64,12 +59,6 @@
 
                     Context.StartSagaMessageReceived = true;
 
-                    return Task.FromResult(0);
-                }
-
-                public Task Handle(AnotherMessage message, IMessageHandlerContext context)
-                {
-                    Context.SagaReceivedAnotherMessage = true;
                     return Task.FromResult(0);
                 }
 
@@ -86,8 +75,6 @@
                         .ToSaga(s => s.SomeId);
                     mapper.ConfigureMapping<CompleteSagaMessage>(m => m.SomeId)
                         .ToSaga(s => s.SomeId);
-                    mapper.ConfigureMapping<AnotherMessage>(m => m.SomeId)
-                        .ToSaga(s => s.SomeId);
                 }
             }
 
@@ -97,28 +84,12 @@
             }
         }
 
-        public class CompletionHandler : IHandleMessages<AnotherMessage>
-        {
-            public Context Context { get; set; }
-
-            public Task Handle(AnotherMessage message, IMessageHandlerContext context)
-            {
-                Context.AnotherMessageReceived = true;
-                return Task.FromResult(0);
-            }
-        }
-
         public class StartSagaMessage : ICommand
         {
             public Guid SomeId { get; set; }
         }
 
         public class CompleteSagaMessage : ICommand
-        {
-            public Guid SomeId { get; set; }
-        }
-
-        public class AnotherMessage : ICommand
         {
             public Guid SomeId { get; set; }
         }
