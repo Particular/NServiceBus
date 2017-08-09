@@ -16,11 +16,11 @@ namespace NServiceBus.Timeout.Hosting.Windows
         public ISendMessages MessageSender { get; set; }
         public int SecondsToSleepBetweenPolls { get; set; }
         public DefaultTimeoutManager TimeoutManager { get; set; }
-        public CriticalError CriticalError { get; set; }
+        public CriticalError CriticalError { private get; set; }
         public Address DispatcherAddress { get; set; }
         public TimeSpan TimeToWaitBeforeTriggeringCriticalError { get; set; }
-        public Func<DateTime> CurrentTimeProvider { get; set; } = () => DateTime.UtcNow;
-        public DateTime NextRetrieval { get; set; } = DateTime.UtcNow;
+        public Func<DateTime> CurrentTimeProvider { private get; set; } = () => DateTime.UtcNow;
+        public DateTime NextRetrieval { get; private set; } = DateTime.UtcNow;
 
         public void Dispose()
         {
