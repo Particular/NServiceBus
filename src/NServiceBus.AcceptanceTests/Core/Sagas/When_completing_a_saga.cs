@@ -55,8 +55,6 @@
 
                 public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
                 {
-                    Data.SomeId = message.SomeId;
-
                     Context.StartSagaMessageReceived = true;
 
                     return Task.FromResult(0);
