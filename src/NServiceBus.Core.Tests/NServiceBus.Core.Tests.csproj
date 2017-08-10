@@ -149,6 +149,7 @@
     <Compile Include="Persistence\InMemory\When_completing_a_saga_with_no_defined_unique_property.cs" />
     <Compile Include="Persistence\InMemory\When_updating_a_saga_with_no_defined_unique_property.cs" />
     <Compile Include="Persistence\PersistenceStartupTests.cs" />
+    <Compile Include="Pipeline\Outgoing\OutgoingLogicalMessageContextTests.cs" />
     <Compile Include="Routing\SubscribeContextTests.cs" />
     <Compile Include="Routing\UnsubscribeContextTests.cs" />
     <Compile Include="Pipeline\PipelineTests.cs" />
