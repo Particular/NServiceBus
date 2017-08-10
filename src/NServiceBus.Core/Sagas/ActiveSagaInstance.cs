@@ -109,8 +109,16 @@ namespace NServiceBus.Sagas
             if (Metadata.TryGetCorrelationProperty(out correlatedPropertyMetadata))
             {
                 var propertyInfo = properties.Single(p => p.Name == correlatedPropertyMetadata.Name);
+                var propertyValue = propertyInfo.GetValue(sagaEntity);
+                var defaultValue = GetDefault(propertyInfo.PropertyType);
+                var hasValue = propertyValue != null && !propertyValue.Equals(defaultValue);
 
-                correlationProperty = new CorrelationPropertyInfo(propertyInfo, sagaEntity);
+                correlationProperty = new CorrelationPropertyInfo
+                {
+                    PropertyInfo = propertyInfo,
+                    InitialValue = propertyValue,
+                    HasInitialValue = hasValue
+                };
             }
         }
 
@@ -139,15 +147,17 @@ namespace NServiceBus.Sagas
         {
             ValidateSagaIdIsNotModified();
 
+            var currentCorrelationPropertyValue = correlationProperty.PropertyInfo.GetValue(Instance.Entity);
+
             if (IsNew)
             {
-                ValidateCorrelationPropertyHaveValue();
+                ValidateCorrelationPropertyHaveValue(currentCorrelationPropertyValue);
             }
 
-            ValidateCorrelationPropertyNotModified();
+            ValidateCorrelationPropertyNotModified(currentCorrelationPropertyValue);
         }
 
-        void ValidateCorrelationPropertyHaveValue()
+        void ValidateCorrelationPropertyHaveValue(object currentCorrelationPropertyValue)
         {
             if (correlationProperty == null)
             {
@@ -156,7 +166,7 @@ namespace NServiceBus.Sagas
 
             var defaultValue = GetDefault(correlationProperty.PropertyInfo.PropertyType);
 
-            if (!correlationProperty.CurrentValue.Equals(defaultValue))
+            if (!currentCorrelationPropertyValue.Equals(defaultValue))
             {
                 return;
             }
@@ -166,7 +176,7 @@ namespace NServiceBus.Sagas
 A correlated property must have a non default (i.e. non null and non-empty) value assigned when a new saga instance is created.");
         }
 
-        void ValidateCorrelationPropertyNotModified()
+        void ValidateCorrelationPropertyNotModified(object currentCorrelationPropertyValue)
         {
             if (correlationProperty == null)
             {
@@ -178,13 +188,13 @@ A correlated property must have a non default (i.e. non null and non-empty) valu
                 return;
             }
 
-            if (correlationProperty.InitialValue.ToString() == correlationProperty.CurrentValue.ToString())
+            if (correlationProperty.InitialValue.ToString() == currentCorrelationPropertyValue.ToString())
             {
                 return;
             }
 
             throw new Exception(
-                $@"The value of the correlated property '{correlationProperty.PropertyInfo.Name}' on saga '{Metadata.SagaType.Name}' has changed from '{correlationProperty.InitialValue}' to '{correlationProperty.CurrentValue}'.
+                $@"The value of the correlated property '{correlationProperty.PropertyInfo.Name}' on saga '{Metadata.SagaType.Name}' has changed from '{correlationProperty.InitialValue}' to '{currentCorrelationPropertyValue}'.
 Changing the value of correlated properties at runtime is currently not supported.");
         }
 
@@ -210,22 +220,9 @@ Changing the value of correlated properties at runtime is currently not supporte
 
         internal class CorrelationPropertyInfo
         {
-            public CorrelationPropertyInfo(PropertyInfo propertyInfo, IContainSagaData sagaData)
-            {
-                this.sagaData = sagaData;
-
-                PropertyInfo = propertyInfo;
-                InitialValue = propertyInfo.GetValue(sagaData);
-                var defaultValue = GetDefault(propertyInfo.PropertyType);
-                HasInitialValue = InitialValue != null && !InitialValue.Equals(defaultValue);
-            }
-
-            IContainSagaData sagaData;
-
-            public bool HasInitialValue { get; }
-            public PropertyInfo PropertyInfo { get; }
-            public object InitialValue { get; }
-            public object CurrentValue => PropertyInfo.GetValue(sagaData);
+            public bool HasInitialValue;
+            public PropertyInfo PropertyInfo;
+            public object InitialValue;
         }
     }
 }
