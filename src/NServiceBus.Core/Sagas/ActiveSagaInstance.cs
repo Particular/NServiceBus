@@ -109,18 +109,8 @@ namespace NServiceBus.Sagas
             if (Metadata.TryGetCorrelationProperty(out correlatedPropertyMetadata))
             {
                 var propertyInfo = properties.Single(p => p.Name == correlatedPropertyMetadata.Name);
-                var propertyValue = propertyInfo.GetValue(sagaEntity);
 
-                var defaultValue = GetDefault(propertyInfo.PropertyType);
-
-                var hasValue = propertyValue != null && !propertyValue.Equals(defaultValue);
-
-                correlationProperty = new CorrelationPropertyInfo
-                {
-                    PropertyInfo = propertyInfo,
-                    Value = propertyValue,
-                    HasExistingValue = hasValue
-                };
+                correlationProperty = new CorrelationPropertyInfo(propertyInfo, sagaEntity);
             }
         }
 
@@ -166,7 +156,7 @@ namespace NServiceBus.Sagas
 
             var defaultValue = GetDefault(correlationProperty.PropertyInfo.PropertyType);
 
-            if (!correlationProperty.Value.Equals(defaultValue))
+            if (!correlationProperty.CurrentValue.Equals(defaultValue))
             {
                 return;
             }
@@ -183,20 +173,18 @@ A correlated property must have a non default (i.e. non null and non-empty) valu
                 return;
             }
 
-            if (!correlationProperty.HasExistingValue)
+            if (!correlationProperty.HasInitialValue)
             {
                 return;
             }
 
-            var currentValue = correlationProperty.PropertyInfo.GetValue(Instance.Entity);
-
-            if (correlationProperty.Value.ToString() == currentValue.ToString())
+            if (correlationProperty.InitialValue.ToString() == correlationProperty.CurrentValue.ToString())
             {
                 return;
             }
 
             throw new Exception(
-                $@"The value of the correlated property '{correlationProperty.PropertyInfo.Name}' on saga '{Metadata.SagaType.Name}' has changed from '{correlationProperty.Value}' to '{currentValue}'.
+                $@"The value of the correlated property '{correlationProperty.PropertyInfo.Name}' on saga '{Metadata.SagaType.Name}' has changed from '{correlationProperty.InitialValue}' to '{correlationProperty.CurrentValue}'.
 Changing the value of correlated properties at runtime is currently not supported.");
         }
 
@@ -222,9 +210,22 @@ Changing the value of correlated properties at runtime is currently not supporte
 
         internal class CorrelationPropertyInfo
         {
-            public bool HasExistingValue;
-            public PropertyInfo PropertyInfo;
-            public object Value;
+            public CorrelationPropertyInfo(PropertyInfo propertyInfo, IContainSagaData sagaData)
+            {
+                this.sagaData = sagaData;
+
+                PropertyInfo = propertyInfo;
+                InitialValue = propertyInfo.GetValue(sagaData);
+                var defaultValue = GetDefault(propertyInfo.PropertyType);
+                HasInitialValue = InitialValue != null && !InitialValue.Equals(defaultValue);
+            }
+
+            IContainSagaData sagaData;
+
+            public bool HasInitialValue { get; }
+            public PropertyInfo PropertyInfo { get; }
+            public object InitialValue { get; }
+            public object CurrentValue => PropertyInfo.GetValue(sagaData);
         }
     }
 }
