@@ -147,6 +147,11 @@ namespace NServiceBus.Sagas
         {
             ValidateSagaIdIsNotModified();
 
+            if (correlationProperty == null)
+            {
+                return;
+            }
+
             var currentCorrelationPropertyValue = correlationProperty.PropertyInfo.GetValue(Instance.Entity);
 
             if (IsNew)
@@ -159,11 +164,6 @@ namespace NServiceBus.Sagas
 
         void ValidateCorrelationPropertyHaveValue(object currentCorrelationPropertyValue)
         {
-            if (correlationProperty == null)
-            {
-                return;
-            }
-
             var defaultValue = GetDefault(correlationProperty.PropertyInfo.PropertyType);
 
             if (!currentCorrelationPropertyValue.Equals(defaultValue))
@@ -178,11 +178,6 @@ A correlated property must have a non default (i.e. non null and non-empty) valu
 
         void ValidateCorrelationPropertyNotModified(object currentCorrelationPropertyValue)
         {
-            if (correlationProperty == null)
-            {
-                return;
-            }
-
             if (!correlationProperty.HasInitialValue)
             {
                 return;
