@@ -110,16 +110,14 @@ namespace NServiceBus.Sagas
             {
                 var propertyInfo = properties.Single(p => p.Name == correlatedPropertyMetadata.Name);
                 var propertyValue = propertyInfo.GetValue(sagaEntity);
-
                 var defaultValue = GetDefault(propertyInfo.PropertyType);
-
                 var hasValue = propertyValue != null && !propertyValue.Equals(defaultValue);
 
                 correlationProperty = new CorrelationPropertyInfo
                 {
                     PropertyInfo = propertyInfo,
-                    Value = propertyValue,
-                    HasExistingValue = hasValue
+                    InitialValue = propertyValue,
+                    HasInitialValue = hasValue
                 };
             }
         }
@@ -149,24 +147,26 @@ namespace NServiceBus.Sagas
         {
             ValidateSagaIdIsNotModified();
 
-            if (IsNew)
-            {
-                ValidateCorrelationPropertyHaveValue();
-            }
-
-            ValidateCorrelationPropertyNotModified();
-        }
-
-        void ValidateCorrelationPropertyHaveValue()
-        {
             if (correlationProperty == null)
             {
                 return;
             }
 
+            var currentCorrelationPropertyValue = correlationProperty.PropertyInfo.GetValue(Instance.Entity);
+
+            if (IsNew)
+            {
+                ValidateCorrelationPropertyHaveValue(currentCorrelationPropertyValue);
+            }
+
+            ValidateCorrelationPropertyNotModified(currentCorrelationPropertyValue);
+        }
+
+        void ValidateCorrelationPropertyHaveValue(object currentCorrelationPropertyValue)
+        {
             var defaultValue = GetDefault(correlationProperty.PropertyInfo.PropertyType);
 
-            if (!correlationProperty.Value.Equals(defaultValue))
+            if (!currentCorrelationPropertyValue.Equals(defaultValue))
             {
                 return;
             }
@@ -176,27 +176,20 @@ namespace NServiceBus.Sagas
 A correlated property must have a non default (i.e. non null and non-empty) value assigned when a new saga instance is created.");
         }
 
-        void ValidateCorrelationPropertyNotModified()
+        void ValidateCorrelationPropertyNotModified(object currentCorrelationPropertyValue)
         {
-            if (correlationProperty == null)
+            if (!correlationProperty.HasInitialValue)
             {
                 return;
             }
 
-            if (!correlationProperty.HasExistingValue)
-            {
-                return;
-            }
-
-            var currentValue = correlationProperty.PropertyInfo.GetValue(Instance.Entity);
-
-            if (correlationProperty.Value.ToString() == currentValue.ToString())
+            if (correlationProperty.InitialValue.ToString() == currentCorrelationPropertyValue.ToString())
             {
                 return;
             }
 
             throw new Exception(
-                $@"The value of the correlated property '{correlationProperty.PropertyInfo.Name}' on saga '{Metadata.SagaType.Name}' has changed from '{correlationProperty.Value}' to '{currentValue}'.
+                $@"The value of the correlated property '{correlationProperty.PropertyInfo.Name}' on saga '{Metadata.SagaType.Name}' has changed from '{correlationProperty.InitialValue}' to '{currentCorrelationPropertyValue}'.
 Changing the value of correlated properties at runtime is currently not supported.");
         }
 
@@ -222,9 +215,9 @@ Changing the value of correlated properties at runtime is currently not supporte
 
         internal class CorrelationPropertyInfo
         {
-            public bool HasExistingValue;
+            public bool HasInitialValue;
             public PropertyInfo PropertyInfo;
-            public object Value;
+            public object InitialValue;
         }
     }
 }
