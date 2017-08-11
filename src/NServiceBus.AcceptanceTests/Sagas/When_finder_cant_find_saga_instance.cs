@@ -48,29 +48,47 @@
                 }
             }
 
-            public class TestSaga06 : Saga<TestSaga06.SagaData06>, IAmStartedByMessages<StartSagaMessage>
+            public class TestSaga06 : Saga<TestSaga06.SagaData06>, 
+                IAmStartedByMessages<StartSagaMessage>,
+                IHandleMessages<SomeOtherMessage>
             {
                 public Context Context { get; set; }
 
                 public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
                 {
+                    // need to set the correlation property manually because the finder doesn't return an existing instance
+                    Data.CorrelationProperty = "some value";
+
                     Context.SagaStarted = true;
                     return Task.FromResult(0);
                 }
 
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaData06> mapper)
                 {
-                    // not required because of CustomFinder
+                    // no mapping for StartSagaMessage required because of CustomFinder
+                    mapper.ConfigureMapping<SomeOtherMessage>(m => m.CorrelationProperty).ToSaga(s => s.CorrelationProperty);
                 }
 
                 public class SagaData06 : ContainSagaData
                 {
+                    public virtual string CorrelationProperty { get; set; }
+                }
+
+                // This additional, unused, message is required to reprododuce https://github.com/Particular/NServiceBus/issues/4888
+                public Task Handle(SomeOtherMessage message, IMessageHandlerContext context)
+                {
+                    return Task.FromResult(0);
                 }
             }
         }
 
         public class StartSagaMessage : IMessage
         {
+        }
+
+        public class SomeOtherMessage : IMessage
+        {
+            public string CorrelationProperty { get; set; }
         }
     }
 }
