@@ -75,7 +75,7 @@
 
                 public class SagaData06 : ContainSagaData
                 {
-                    public string CorrelationProperty { get; set; }
+                    public virtual string CorrelationProperty { get; set; }
                 }
 
                 // This additional, unused, message is required to reprododuce https://github.com/Particular/NServiceBus/issues/4888
