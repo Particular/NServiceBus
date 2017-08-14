@@ -40,8 +40,6 @@
     <_PackageFiles Remove="**\obj\**\*.cs" />
     <_PackageFiles Remove="Core\**\*.cs" />
     <_PackageFiles Remove="AssemblyInfo.cs" />
-    <_PackageFiles Remove="Sagas\When_a_saga_is_completed.cs" />
-    <_PackageFiles Remove="Sagas\When_completing_a_saga.cs" />
   </ItemGroup>
 
 </Project>
