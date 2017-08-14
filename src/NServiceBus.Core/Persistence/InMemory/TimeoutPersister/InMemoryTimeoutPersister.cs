@@ -10,10 +10,20 @@ namespace NServiceBus.InMemory.TimeoutPersister
     {
         List<TimeoutData> storage = new List<TimeoutData>();
         ReaderWriterLockSlim readerWriterLock = new ReaderWriterLockSlim();
+        Func<DateTime> currentTime = () => DateTime.UtcNow;
+
+        public InMemoryTimeoutPersister()
+        {            
+        }
+
+        public InMemoryTimeoutPersister(Func<DateTime> currentTimeProvider)
+        {
+            currentTime = currentTimeProvider;
+        }
 
         public IEnumerable<Tuple<string, DateTime>> GetNextChunk(DateTime startSlice, out DateTime nextTimeToRunQuery)
         {
-            var now = DateTime.UtcNow;
+            var now = currentTime();
             nextTimeToRunQuery = DateTime.MaxValue;
 
             var tuples = new List<Tuple<string, DateTime>>();

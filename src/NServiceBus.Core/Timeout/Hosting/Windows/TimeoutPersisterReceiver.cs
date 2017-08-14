@@ -19,6 +19,16 @@ namespace NServiceBus.Timeout.Hosting.Windows
         public CriticalError CriticalError { get; set; }
         public Address DispatcherAddress { get; set; }
         public TimeSpan TimeToWaitBeforeTriggeringCriticalError { get; set; }
+        internal DateTime NextRetrieval { get; private set; } = DateTime.UtcNow;
+
+        public TimeoutPersisterReceiver()
+        {            
+        }
+
+        public TimeoutPersisterReceiver(Func<DateTime> currentTimeProvider)
+        {
+            currentTime = currentTimeProvider;
+        }
 
         public void Dispose()
         {
@@ -72,47 +82,53 @@ namespace NServiceBus.Timeout.Hosting.Windows
         {
             var cancellationToken = (CancellationToken)obj;
 
-            var startSlice = DateTime.UtcNow.AddYears(-10);
+            var startSlice = currentTime().AddYears(-10);
 
             resetEvent.Reset();
 
             while (!cancellationToken.IsCancellationRequested)
             {
-                if (nextRetrieval > DateTime.UtcNow)
-                {
-                    Thread.Sleep(SecondsToSleepBetweenPolls * 1000);
-                    continue;
-                }
-
-                Logger.DebugFormat("Polling for timeouts at {0}.", DateTime.Now);
-
-                DateTime nextExpiredTimeout;
-                var timeoutDatas = TimeoutsPersister.GetNextChunk(startSlice, out nextExpiredTimeout);
-
-                foreach (var timeoutData in timeoutDatas)
-                {
-                    if (startSlice < timeoutData.Item2)
-                    {
-                        startSlice = timeoutData.Item2;
-                    }
-
-                    MessageSender.Send(CreateTransportMessage(timeoutData.Item1), new SendOptions(DispatcherAddress));
-                }
-
-                lock (lockObject)
-                {
-                    // we cap the next retrieval to max 1 minute this will make sure that we trip the circuit breaker if we
-                    // loose connectivity to our storage. This will also make sure that timeouts added (during migration) direct to storage
-                    // will be picked up after at most 1 minute
-                    var maxNextRetrieval = DateTime.UtcNow + TimeSpan.FromMinutes(1);
-
-                    nextRetrieval = nextExpiredTimeout > maxNextRetrieval ? maxNextRetrieval : nextExpiredTimeout;
-                }
-                Logger.DebugFormat("Polling next retrieval is at {0}.", nextRetrieval.ToLocalTime());
+                startSlice = SpinOnce(startSlice);
                 circuitBreaker.Success();
             }
 
             resetEvent.Set();
+        }
+
+        internal DateTime SpinOnce(DateTime startSlice)
+        {
+            if (NextRetrieval > currentTime())
+            {
+                Thread.Sleep(SecondsToSleepBetweenPolls * 1000);
+                return startSlice;
+            }
+
+            Logger.DebugFormat("Polling for timeouts at {0}.", DateTime.Now);
+
+            DateTime nextExpiredTimeout;
+            var timeoutDatas = TimeoutsPersister.GetNextChunk(startSlice, out nextExpiredTimeout);
+
+            foreach (var timeoutData in timeoutDatas)
+            {
+                if (startSlice < timeoutData.Item2)
+                {
+                    startSlice = timeoutData.Item2;
+                }
+
+                MessageSender.Send(CreateTransportMessage(timeoutData.Item1), new SendOptions(DispatcherAddress));
+            }
+
+            lock (lockObject)
+            {
+                // we cap the next retrieval to max 1 minute this will make sure that we trip the circuit breaker if we
+                // loose connectivity to our storage. This will also make sure that timeouts added (during migration) direct to storage
+                // will be picked up after at most 1 minute
+                var maxNextRetrieval = currentTime() + TimeSpan.FromMinutes(1);
+
+                NextRetrieval = nextExpiredTimeout > maxNextRetrieval ? maxNextRetrieval : nextExpiredTimeout;
+            }
+            Logger.DebugFormat("Polling next retrieval is at {0}.", NextRetrieval.ToLocalTime());
+            return startSlice;
         }
 
         static TransportMessage CreateTransportMessage(string timeoutId)
@@ -126,13 +142,13 @@ namespace NServiceBus.Timeout.Hosting.Windows
             return transportMessage;
         }
 
-        void TimeoutsManagerOnTimeoutPushed(TimeoutData timeoutData)
+        internal void TimeoutsManagerOnTimeoutPushed(TimeoutData timeoutData)
         {
             lock (lockObject)
             {
-                if (nextRetrieval > timeoutData.Time)
+                if (NextRetrieval > timeoutData.Time)
                 {
-                    nextRetrieval = timeoutData.Time;
+                    NextRetrieval = timeoutData.Time;
                 }
             }
         }
@@ -142,8 +158,8 @@ namespace NServiceBus.Timeout.Hosting.Windows
         RepeatedFailuresOverTimeCircuitBreaker circuitBreaker;
 
         readonly object lockObject = new object();
-        ManualResetEvent resetEvent = new ManualResetEvent(true);
-        DateTime nextRetrieval = DateTime.UtcNow;
+        ManualResetEvent resetEvent = new ManualResetEvent(true);        
         CancellationTokenSource tokenSource;
+        private Func<DateTime> currentTime = () => DateTime.UtcNow;
     }
 }
