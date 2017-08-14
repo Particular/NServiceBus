@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.AcceptanceTests.Sagas
+﻿namespace NServiceBus.AcceptanceTests.Core.Sagas
 {
     using System;
     using System.Threading.Tasks;
@@ -61,12 +61,9 @@
                 }
             }
 
-            public class HandlerAndTimeoutSagaData : IContainSagaData
+            public class HandlerAndTimeoutSagaData : ContainSagaData
             {
                 public virtual Guid SomeId { get; set; }
-                public virtual Guid Id { get; set; }
-                public virtual string Originator { get; set; }
-                public virtual string OriginalMessageId { get; set; }
             }
         }
 

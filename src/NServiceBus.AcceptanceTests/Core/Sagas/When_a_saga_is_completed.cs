@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.AcceptanceTests.Sagas
+﻿namespace NServiceBus.AcceptanceTests.Core.Sagas
 {
     using System;
     using System.Threading.Tasks;
@@ -7,52 +7,22 @@
     using Features;
     using NUnit.Framework;
 
-    public class When_receiving_that_completes_the_saga : NServiceBusAcceptanceTest
+    public class When_a_saga_is_completed : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Should_hydrate_and_complete_the_existing_instance()
+        public async Task Saga_should_not_handle_subsequent_messages_for_that_sagadata()
         {
             var context = await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
-                .WithEndpoint<ReceiveCompletesSagaEndpoint>(b =>
-                {
-                    b.When((session, ctx) => session.SendLocal(new StartSagaMessage
-                    {
-                        SomeId = ctx.Id
-                    }));
-                    b.When(ctx => ctx.StartSagaMessageReceived, (session, c) =>
-                    {
-                        c.AddTrace("CompleteSagaMessage sent");
-
-                        return session.SendLocal(new CompleteSagaMessage
-                        {
-                            SomeId = c.Id
-                        });
-                    });
-                })
-                .Done(c => c.SagaCompleted)
-                .Run();
-
-            Assert.True(context.SagaCompleted);
-        }
-
-        [Test]
-        public async Task Should_ignore_messages_afterwards()
-        {
-            var context = await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
-                .WithEndpoint<ReceiveCompletesSagaEndpoint>(b =>
+                .WithEndpoint<SagaIsCompletedEndpoint>(b =>
                 {
                     b.When((session, c) => session.SendLocal(new StartSagaMessage
                     {
                         SomeId = c.Id
                     }));
-                    b.When(c => c.StartSagaMessageReceived, (session, c) =>
+                    b.When(c => c.StartSagaMessageReceived, (session, c) => session.SendLocal(new CompleteSagaMessage
                     {
-                        c.AddTrace("CompleteSagaMessage sent");
-                        return session.SendLocal(new CompleteSagaMessage
-                        {
-                            SomeId = c.Id
-                        });
-                    });
+                        SomeId = c.Id
+                    }));
                     b.When(c => c.SagaCompleted, (session, c) => session.SendLocal(new AnotherMessage
                     {
                         SomeId = c.Id
@@ -74,19 +44,19 @@
             public bool SagaReceivedAnotherMessage { get; set; }
         }
 
-        public class ReceiveCompletesSagaEndpoint : EndpointConfigurationBuilder
+        public class SagaIsCompletedEndpoint : EndpointConfigurationBuilder
         {
-            public ReceiveCompletesSagaEndpoint()
+            public SagaIsCompletedEndpoint()
             {
                 EndpointSetup<DefaultServer>(b =>
                 {
                     b.EnableFeature<TimeoutManager>();
-                    b.ExecuteTheseHandlersFirst(typeof(TestSaga10));
+                    b.ExecuteTheseHandlersFirst(typeof(TestSaga12));
                     b.LimitMessageProcessingConcurrencyTo(1); // This test only works if the endpoints processes messages sequentially
                 });
             }
 
-            public class TestSaga10 : Saga<TestSagaData10>,
+            public class TestSaga12 : Saga<TestSagaData12>,
                 IAmStartedByMessages<StartSagaMessage>,
                 IHandleMessages<CompleteSagaMessage>,
                 IHandleMessages<AnotherMessage>
@@ -95,31 +65,24 @@
 
                 public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
                 {
-                    Context.AddTrace("Saga started");
-
-                    Data.SomeId = message.SomeId;
-
                     Context.StartSagaMessageReceived = true;
-
                     return Task.FromResult(0);
                 }
 
                 public Task Handle(AnotherMessage message, IMessageHandlerContext context)
                 {
-                    Context.AddTrace("AnotherMessage received");
                     Context.SagaReceivedAnotherMessage = true;
                     return Task.FromResult(0);
                 }
 
                 public Task Handle(CompleteSagaMessage message, IMessageHandlerContext context)
                 {
-                    Context.AddTrace("CompleteSagaMessage received");
                     MarkAsComplete();
                     Context.SagaCompleted = true;
                     return Task.FromResult(0);
                 }
 
-                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData10> mapper)
+                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData12> mapper)
                 {
                     mapper.ConfigureMapping<StartSagaMessage>(m => m.SomeId)
                         .ToSaga(s => s.SomeId);
@@ -130,12 +93,9 @@
                 }
             }
 
-            public class TestSagaData10 : IContainSagaData
+            public class TestSagaData12 : ContainSagaData
             {
                 public virtual Guid SomeId { get; set; }
-                public virtual Guid Id { get; set; }
-                public virtual string Originator { get; set; }
-                public virtual string OriginalMessageId { get; set; }
             }
         }
 
