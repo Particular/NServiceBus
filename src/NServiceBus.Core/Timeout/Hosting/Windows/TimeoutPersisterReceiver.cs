@@ -112,18 +112,17 @@ namespace NServiceBus.Timeout.Hosting.Windows
                     }
 
                     timeoutPushed = false;
+
+                    // we cap the next retrieval to max 1 minute this will make sure that we trip the circuit breaker if we
+                    // loose connectivity to our storage. This will also make sure that timeouts added (during migration) direct to storage
+                    // will be picked up after at most 1 minute
+                    var maxNextRetrieval = DateTime.UtcNow + TimeSpan.FromMinutes(1);
+
+                    if (nextRetrieval > maxNextRetrieval)
+                    {
+                        nextRetrieval = maxNextRetrieval;
+                    }
                 }
-
-                // we cap the next retrieval to max 1 minute this will make sure that we trip the circuit breaker if we
-                // loose connectivity to our storage. This will also make sure that timeouts added (during migration) direct to storage
-                // will be picked up after at most 1 minute
-                var maxNextRetrieval = DateTime.UtcNow + TimeSpan.FromMinutes(1);
-
-                if (nextRetrieval > maxNextRetrieval)
-                {
-                    nextRetrieval = maxNextRetrieval;
-                }
-
                 Logger.DebugFormat("Polling next retrieval is at {0}.", nextRetrieval.ToLocalTime());
                 circuitBreaker.Success();
             }
