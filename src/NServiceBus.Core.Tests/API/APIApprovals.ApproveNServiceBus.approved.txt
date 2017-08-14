@@ -744,6 +744,7 @@ namespace NServiceBus
     public class InMemoryPersistence : NServiceBus.Persistence.PersistenceDefinition { }
     public class static InstallConfigExtensions
     {
+        public static void DisableInstallers(this NServiceBus.EndpointConfiguration config) { }
         public static void EnableInstallers(this NServiceBus.EndpointConfiguration config, string username = null) { }
     }
     public class InstanceMappingFileSettings : NServiceBus.Configuration.AdvanceExtensibility.ExposeSettings
