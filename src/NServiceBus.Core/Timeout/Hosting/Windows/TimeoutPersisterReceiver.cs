@@ -101,27 +101,12 @@ namespace NServiceBus.Timeout.Hosting.Windows
 
                 lock (lockObject)
                 {
-                    //Check if nextRetrieval has been modified (This means that a push come in) and if it has check if it is earlier than nextExpiredTimeout time
-                    if (!timeoutPushed)
-                    {
-                        nextRetrieval = nextExpiredTimeout;
-                    }
-                    else if (nextExpiredTimeout < nextRetrieval)
-                    {
-                        nextRetrieval = nextExpiredTimeout;
-                    }
-
-                    timeoutPushed = false;
-
                     // we cap the next retrieval to max 1 minute this will make sure that we trip the circuit breaker if we
                     // loose connectivity to our storage. This will also make sure that timeouts added (during migration) direct to storage
                     // will be picked up after at most 1 minute
                     var maxNextRetrieval = DateTime.UtcNow + TimeSpan.FromMinutes(1);
 
-                    if (nextRetrieval > maxNextRetrieval)
-                    {
-                        nextRetrieval = maxNextRetrieval;
-                    }
+                    nextRetrieval = nextExpiredTimeout > maxNextRetrieval ? maxNextRetrieval : nextExpiredTimeout;
                 }
                 Logger.DebugFormat("Polling next retrieval is at {0}.", nextRetrieval.ToLocalTime());
                 circuitBreaker.Success();
@@ -148,7 +133,6 @@ namespace NServiceBus.Timeout.Hosting.Windows
                 if (nextRetrieval > timeoutData.Time)
                 {
                     nextRetrieval = timeoutData.Time;
-                    timeoutPushed = true;
                 }
             }
         }
@@ -160,7 +144,6 @@ namespace NServiceBus.Timeout.Hosting.Windows
         readonly object lockObject = new object();
         ManualResetEvent resetEvent = new ManualResetEvent(true);
         DateTime nextRetrieval = DateTime.UtcNow;
-        volatile bool timeoutPushed;
         CancellationTokenSource tokenSource;
     }
 }
