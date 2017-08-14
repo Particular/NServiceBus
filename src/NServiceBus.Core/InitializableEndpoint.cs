@@ -160,22 +160,33 @@ namespace NServiceBus
             return typeof(IProvideConfiguration<>).MakeGenericType(args)
                 .IsAssignableFrom(type);
         }
-
+    
         async Task RunInstallers(IEnumerable<Type> concreteTypes)
         {
-            if (Debugger.IsAttached || settings.GetOrDefault<bool>("Installers.Enable"))
+            var shouldRunInstaller = settings.GetOrDefault<bool?>("Installers.Enable");
+            if (shouldRunInstaller.HasValue && !shouldRunInstaller.Value)
             {
-                foreach (var installerType in concreteTypes.Where(t => IsINeedToInstallSomething(t)))
-                {
-                    container.ConfigureComponent(installerType, DependencyLifecycle.InstancePerCall);
-                }
-
-                var username = GetInstallationUserName();
-                foreach (var installer in builder.BuildAll<INeedToInstallSomething>())
-                {
-                    await installer.Install(username).ConfigureAwait(false);
-                }
+                // do not run installers when the user explicitly disabled it.
+                return;
             }
+            if (!shouldRunInstaller.HasValue && !Debugger.IsAttached)
+            {
+                // do not run installers when user didn't specify a value and no debugger is attached.
+                return;
+            }
+
+            foreach (var installerType in concreteTypes.Where(t => IsINeedToInstallSomething(t)))
+            {
+                container.ConfigureComponent(installerType, DependencyLifecycle.InstancePerCall);
+            }
+
+            var username = GetInstallationUserName();
+            foreach (var installer in builder.BuildAll<INeedToInstallSomething>())
+            {
+                await installer.Install(username).ConfigureAwait(false);
+            }
+
+
         }
 
         static bool IsINeedToInstallSomething(Type t) => typeof(INeedToInstallSomething).IsAssignableFrom(t);
