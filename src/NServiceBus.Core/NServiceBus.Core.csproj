@@ -10,6 +10,11 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
 
+  <!--Workaround for https://github.com/dotnet/sdk/issues/1469 -->
+  <PropertyGroup>
+    <DisableLockFileFrameworks>true</DisableLockFileFrameworks>
+  </PropertyGroup>
+
   <PropertyGroup Condition="'$(TargetFramework)' == 'net452'">
     <DefineConstants>$(DefineConstants);REGISTRYLICENSESOURCE;APPCONFIGLICENSESOURCE</DefineConstants>
   </PropertyGroup>
@@ -36,14 +41,14 @@
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net452'">
-    <PackageReference Include="System.ValueTuple" Version="4.4.0-preview2-25405-01" />
+    <PackageReference Include="System.ValueTuple" Version="4.4.0" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
-    <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.4.0-preview2-25405-01" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.4.0" />
     <PackageReference Include="System.Reflection.Emit" Version="4.3.0" />
     <PackageReference Include="System.Reflection.Emit.Lightweight" Version="4.3.0" />
-    <PackageReference Include="System.Security.Cryptography.Xml" Version="4.4.0-preview2-25405-01" />
+    <PackageReference Include="System.Security.Cryptography.Xml" Version="4.4.0" />
   </ItemGroup>
 
   <PropertyGroup>
