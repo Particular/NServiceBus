@@ -23,6 +23,7 @@
     <PackageReference Include="NUnit" Version="[3.7.1, 4.0.0)" />
     <PackageReference Include="NUnit3TestAdapter" Version="3.8.0-alpha1" PrivateAssets="All" />
     <PackageReference Include="Particular.CodeRules" Version="0.2.0" PrivateAssets="All" />
+    <PackageReference Include="TeamCity.VSTest.TestAdapter" Version="1.0.3" />
   </ItemGroup>
 
   <PropertyGroup>
