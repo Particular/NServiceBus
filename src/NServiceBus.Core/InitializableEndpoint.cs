@@ -160,7 +160,7 @@ namespace NServiceBus
             return typeof(IProvideConfiguration<>).MakeGenericType(args)
                 .IsAssignableFrom(type);
         }
-    
+
         async Task RunInstallers(IEnumerable<Type> concreteTypes)
         {
             var shouldRunInstaller = settings.GetOrDefault<bool?>("Installers.Enable");
@@ -185,8 +185,6 @@ namespace NServiceBus
             {
                 await installer.Install(username).ConfigureAwait(false);
             }
-
-
         }
 
         static bool IsINeedToInstallSomething(Type t) => typeof(INeedToInstallSomething).IsAssignableFrom(t);
