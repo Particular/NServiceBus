@@ -11,7 +11,7 @@
         public async Task When_file_content_larger_than_buffer_size()
         {
             var originalContent = string.Join("", Enumerable.Repeat("a#~×ψؾࢯ‽%1", 2000));
-            const string filePath = "test.txt";
+            var filePath = Path.Combine(TestContext.CurrentContext.TestDirectory, "test.txt");
 
             try
             {
