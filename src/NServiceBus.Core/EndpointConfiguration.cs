@@ -186,6 +186,7 @@ namespace NServiceBus
             if (scannedTypes == null)
             {
                 var directoryToScan = AppDomain.CurrentDomain.BaseDirectory;
+                // ReSharper disable once ConditionIsAlwaysTrueOrFalse
                 if (HttpRuntime.AppDomainAppId != null)
                 {
                     directoryToScan = HttpRuntime.BinDirectory;
