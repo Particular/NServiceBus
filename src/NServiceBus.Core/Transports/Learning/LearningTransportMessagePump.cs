@@ -255,7 +255,7 @@
                 {
                     await transaction.Commit()
                         .ConfigureAwait(false);
-
+                    log.Debug($"Dropping message '{messageId}' as the specified TimeToBeReceived of '{ttbrString}' expired since sending the message at '{sentTime:O}'");
                     return;
                 }
             }
