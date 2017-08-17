@@ -22,5 +22,15 @@ namespace NServiceBus
 
             config.Settings.Set("Installers.Enable", true);
         }
+
+        /// <summary>
+        /// Prevents all <see cref="INeedToInstallSomething" /> from running.
+        /// </summary>
+        public static void DisableInstallers(this EndpointConfiguration config)
+        {
+            Guard.AgainstNull(nameof(config), config);
+
+            config.Settings.Set("Installers.Enable", false);
+        }
     }
 }

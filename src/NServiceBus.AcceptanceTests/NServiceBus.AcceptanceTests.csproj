@@ -62,6 +62,9 @@
     <Compile Include="Core\CriticalError\When_raising_critical_error_at_startup.cs" />
     <Compile Include="Core\Feature\When_depending_on_untyped_feature.cs" />
     <Compile Include="Core\Feature\When_registering_a_startup_task.cs" />
+    <Compile Include="Core\Installers\When_installers_disabled.cs" />
+    <Compile Include="Core\Installers\When_installers_enabled.cs" />
+    <Compile Include="Core\Installers\When_installer_behavior_not_specified.cs" />
     <Compile Include="Core\LearningTransport\When_disabling_payload_restrictions.cs" />
     <Compile Include="Core\Pipeline\When_extending_behavior_context.cs" />
     <Compile Include="Core\Conventions\When_receiving_unobtrusive_message_without_handler.cs" />

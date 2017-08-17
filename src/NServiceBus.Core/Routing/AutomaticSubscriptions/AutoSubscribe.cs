@@ -40,7 +40,7 @@
             {
                 var handlerRegistry = b.Build<MessageHandlerRegistry>();
                 var messageTypesHandled = GetMessageTypesHandledByThisEndpoint(handlerRegistry, conventions, settings);
-                var typesToSubscribe = messageTypesHandled.Where(eventType => !requireExplicitRouting || publishers.GetPublisherFor(eventType).Any());
+                var typesToSubscribe = messageTypesHandled.Where(eventType => !requireExplicitRouting || publishers.GetPublisherFor(eventType).Any()).ToList();
                 return new ApplySubscriptions(typesToSubscribe);
             });
         }
@@ -59,18 +59,19 @@
 
         class ApplySubscriptions : FeatureStartupTask
         {
-            public ApplySubscriptions(IEnumerable<Type> messagesHandledByThisEndpoint)
+            public ApplySubscriptions(List<Type> messagesHandledByThisEndpoint)
             {
                 this.messagesHandledByThisEndpoint = messagesHandledByThisEndpoint;
             }
 
-            protected override async Task OnStart(IMessageSession session)
+            protected override Task OnStart(IMessageSession session)
             {
-                foreach (var eventType in messagesHandledByThisEndpoint)
+                var tasks = new Task[messagesHandledByThisEndpoint.Count];
+                for (var i = 0; i < messagesHandledByThisEndpoint.Count; i++)
                 {
-                    await session.Subscribe(eventType).ConfigureAwait(false);
-                    Logger.DebugFormat("Auto subscribed to event {0}", eventType);
+                    tasks[i] = SubscribeToEvent(session, messagesHandledByThisEndpoint[i]);
                 }
+                return Task.WhenAll(tasks);
             }
 
             protected override Task OnStop(IMessageSession session)
@@ -78,7 +79,13 @@
                 return TaskEx.CompletedTask;
             }
 
-            IEnumerable<Type> messagesHandledByThisEndpoint;
+            static async Task SubscribeToEvent(IMessageSession session, Type eventType)
+            {
+                await session.Subscribe(eventType).ConfigureAwait(false);
+                Logger.DebugFormat("Auto subscribed to event {0}", eventType);
+            }
+
+            List<Type> messagesHandledByThisEndpoint;
             static ILog Logger = LogManager.GetLogger<ApplySubscriptions>();
         }
 
