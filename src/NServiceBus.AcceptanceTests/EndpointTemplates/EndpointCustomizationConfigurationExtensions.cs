@@ -13,14 +13,20 @@
         {
             var assemblies = new AssemblyScanner().GetScannableAssemblies();
 
-            var types = assemblies.Assemblies
+            var assembliesToScan = assemblies.Assemblies
                 //exclude all test types by default
                 .Where(a =>
                 {
+                    if (a.FullName.Contains("NServiceBus.AcceptanceTesting"))
+                    {
+                        return true;
+                    }
+
                     var references = a.GetReferencedAssemblies();
 
                     return references.All(an => an.Name != "nunit.framework");
-                })
+                });
+            var types = assembliesToScan
                 .SelectMany(a => a.GetTypes());
 
             types = types.Union(GetNestedTypeRecursive(endpointConfiguration.BuilderType.DeclaringType, endpointConfiguration.BuilderType));
