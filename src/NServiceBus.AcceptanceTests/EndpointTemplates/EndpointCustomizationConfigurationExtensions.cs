@@ -14,18 +14,8 @@
             var assemblies = new AssemblyScanner().GetScannableAssemblies();
 
             var assembliesToScan = assemblies.Assemblies
-                //exclude all test types by default
-                .Where(a =>
-                {
-                    if (a.FullName.Contains("NServiceBus.AcceptanceTesting"))
-                    {
-                        return true;
-                    }
-
-                    var references = a.GetReferencedAssemblies();
-
-                    return references.All(an => an.Name != "nunit.framework");
-                });
+                //exclude acceptance tests by default
+                .Where(a => !a.FullName.Contains("NServiceBus.AcceptanceTests"));
             var types = assembliesToScan
                 .SelectMany(a => a.GetTypes());
 
