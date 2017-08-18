@@ -24,10 +24,7 @@ namespace NServiceBus.AcceptanceTests.Core.Conventions
             Assert.False(context.Logs.Any(l => l.Level == LogLevel.Warn && l.Message.Contains($"Could not determine message type from message header '{ typeof(MyCommand).FullName}'")), "Message type could not be mapped.");
         }
 
-        public class Context : ScenarioContext
-        {
-            public bool WasCalled { get; set; }
-        }
+        public class Context : ScenarioContext { }
 
         public class Sender : EndpointConfigurationBuilder
         {
