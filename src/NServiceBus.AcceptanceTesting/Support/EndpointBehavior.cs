@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Threading.Tasks;
     using Customization;
+    using NUnit.Framework;
 
     public class EndpointBehavior : IComponentBehavior
     {
@@ -38,7 +39,7 @@
             }
             catch (Exception)
             {
-                Console.WriteLine($"Endpoint {runner.Name} failed to initialize");
+                TestContext.WriteLine($"Endpoint {runner.Name} failed to initialize");
                 throw;
             }
             return runner;
