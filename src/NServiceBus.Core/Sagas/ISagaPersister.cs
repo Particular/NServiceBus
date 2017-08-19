@@ -34,7 +34,8 @@ namespace NServiceBus.Sagas
         /// <param name="sagaId">The Id of the sagaData data to get.</param>
         /// <param name="session">The session.</param>
         /// <param name="context">The current pipeline context.</param>
-        Task<TSagaData> Get<TSagaData>(Guid sagaId, SynchronizedStorageSession session, ContextBag context) where TSagaData : IContainSagaData;
+        Task<TSagaData> Get<TSagaData>(Guid sagaId, SynchronizedStorageSession session, ContextBag context) 
+            where TSagaData : class, IContainSagaData;
 
         /// <summary>
         /// Looks up a sagaData entity by a given property.
@@ -43,7 +44,8 @@ namespace NServiceBus.Sagas
         /// <param name="propertyValue">From the data store, look for this value in the identified property.</param>
         /// <param name="session">The session.</param>
         /// <param name="context">The current pipeline context.</param>
-        Task<TSagaData> Get<TSagaData>(string propertyName, object propertyValue, SynchronizedStorageSession session, ContextBag context) where TSagaData : IContainSagaData;
+        Task<TSagaData> Get<TSagaData>(string propertyName, object propertyValue, SynchronizedStorageSession session, ContextBag context)
+            where TSagaData : class, IContainSagaData;
 
         /// <summary>
         /// Sets a sagaData as completed and removes it from the active sagaData list

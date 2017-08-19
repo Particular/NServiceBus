@@ -44,7 +44,7 @@ namespace NServiceBus
         }
 
         public Task<TSagaData> Get<TSagaData>(Guid sagaId, SynchronizedStorageSession session, ContextBag context)
-            where TSagaData : IContainSagaData
+            where TSagaData : class, IContainSagaData
         {
             if (sagas.TryGetValue(sagaId, out var value))
             {
@@ -57,7 +57,8 @@ namespace NServiceBus
             return DefaultSagaDataTask<TSagaData>.Default;
         }
 
-        public Task<TSagaData> Get<TSagaData>(string propertyName, object propertyValue, SynchronizedStorageSession session, ContextBag context) where TSagaData : IContainSagaData
+        public Task<TSagaData> Get<TSagaData>(string propertyName, object propertyValue, SynchronizedStorageSession session, ContextBag context) 
+            where TSagaData : class, IContainSagaData
         {
             var key = new CorrelationId(typeof(TSagaData), propertyName, propertyValue);
 
