@@ -2,6 +2,7 @@ namespace NServiceBus
 {
     using System;
     using Configuration.AdvancedExtensibility;
+    using Logging;
     using Settings;
     using Transport;
 
@@ -32,13 +33,33 @@ namespace NServiceBus
         /// <summary>
         /// Configures the transport to use the connection string with the given name.
         /// </summary>
+        [ObsoleteEx(
+        Message = "Directly using named connection strings is discouraged. Instead, load the connection string in your code and pass the value to TransportExtensions<T>.ConnectionString(connectionString)",
+            ReplacementTypeOrMember = "TransportExtensions<T>.ConnectionString(connectionString)",
+            TreatAsErrorFromVersion = "8.0",
+            RemoveInVersion = "9.0")]
         public new TransportExtensions<T> ConnectionStringName(string name)
         {
             base.ConnectionStringName(name);
+            Log.Info("Directly using named connection strings is discouraged. Instead, load the connection string in your code and pass the value to TransportExtensions<T>.ConnectionString(connectionString)");
             return this;
         }
 #endif
 
+#if NETSTANDARD2_0
+        /// <summary>
+        /// Configures the transport to use the connection string with the given name.
+        /// </summary>
+        [ObsoleteEx(
+            Message = "The ability to used named connection strings has been removed. Instead, load the connection string in your code and pass the value to TransportExtensions<T>.ConnectionString(connectionString)",
+            ReplacementTypeOrMember = "TransportExtensions<T>.ConnectionString(connectionString)",
+            TreatAsErrorFromVersion = "7.0",
+            RemoveInVersion = "8.0")]
+        public new TransportExtensions<T> ConnectionStringName(string name)
+        {
+            throw new NotImplementedException();
+        }
+#endif
         /// <summary>
         /// Configures the transport to use the given func as the connection string.
         /// </summary>
@@ -63,6 +84,8 @@ namespace NServiceBus
     /// </summary>
     public class TransportExtensions : ExposeSettings
     {
+        internal static ILog Log => LogManager.GetLogger<TransportExtensions>();
+
         /// <summary>
         /// Initializes a new instance of <see cref="TransportExtensions" />.
         /// </summary>
@@ -86,11 +109,32 @@ namespace NServiceBus
         /// <summary>
         /// Configures the transport to use the connection string with the given name.
         /// </summary>
+        [ObsoleteEx(
+            Message = "Directly using named connection strings is discouraged. Instead, load the connection string in your code and pass the value to TransportExtensions.ConnectionString(connectionString)",
+            ReplacementTypeOrMember = "TransportExtensions.ConnectionString(connectionString)",
+            TreatAsErrorFromVersion = "8.0",
+            RemoveInVersion = "9.0")]
         public TransportExtensions ConnectionStringName(string name)
         {
             Guard.AgainstNullAndEmpty(nameof(name), name);
             Settings.Set<TransportConnectionString>(new TransportConnectionString(name));
+            Log.Info("Directly using named connection strings is discouraged. Instead, load the connection string in your code and pass the value to TransportExtensions.ConnectionString(connectionString)");
             return this;
+        }
+#endif
+
+#if NETSTANDARD2_0
+        /// <summary>
+        /// Configures the transport to use the connection string with the given name.
+        /// </summary>
+        [ObsoleteEx(
+        Message = "The ability to used named connection strings has been removed. Instead, load the connection string in your code and pass the value to TransportExtensions.ConnectionString(connectionString)",
+        ReplacementTypeOrMember = "TransportExtensions.ConnectionString(connectionString)",
+        TreatAsErrorFromVersion = "7.0",
+        RemoveInVersion = "8.0")]
+        public TransportExtensions ConnectionStringName(string name)
+        {
+            throw new NotImplementedException();
         }
 #endif
 
