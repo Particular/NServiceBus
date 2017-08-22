@@ -3,6 +3,7 @@ namespace NServiceBus
     using System.Collections.Concurrent;
     using System.IO;
     using System.Threading.Tasks;
+    using Logging;
 
     class DirectoryBasedTransaction : ILearningTransportTransaction
     {
@@ -25,8 +26,9 @@ namespace NServiceBus
             {
                 File.Move(incomingFilePath, FileToProcess);
             }
-            catch (IOException)
+            catch (IOException ex)
             {
+                log.Debug($"Failed to move {incomingFilePath} to {FileToProcess}", ex);
                 return false;
             }
 
@@ -73,7 +75,7 @@ namespace NServiceBus
                 return false;
             }
 
-            while(outgoingFiles.TryDequeue(out var outgoingFile))
+            while (outgoingFiles.TryDequeue(out var outgoingFile))
             {
                 File.Move(outgoingFile.TxPath, outgoingFile.TargetPath);
             }
@@ -144,6 +146,8 @@ namespace NServiceBus
         string transactionDir;
 
         const string TxtFileExtension = "*.txt";
+
+        static ILog log = LogManager.GetLogger<DirectoryBasedTransaction>();
 
         class OutgoingFile
         {

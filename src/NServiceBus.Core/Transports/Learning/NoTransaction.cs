@@ -3,6 +3,7 @@ namespace NServiceBus
     using System;
     using System.IO;
     using System.Threading.Tasks;
+    using Logging;
 
     class NoTransaction : ILearningTransportTransaction
     {
@@ -22,8 +23,9 @@ namespace NServiceBus
             {
                 File.Move(incomingFilePath, FileToProcess);
             }
-            catch (IOException)
+            catch (IOException ex)
             {
+                log.Debug($"Failed to move {incomingFilePath} to {FileToProcess}", ex);
                 return false;
             }
 
@@ -47,5 +49,7 @@ namespace NServiceBus
         }
 
         string processingDirectory;
+
+        static ILog log = LogManager.GetLogger<NoTransaction>();
     }
 }
