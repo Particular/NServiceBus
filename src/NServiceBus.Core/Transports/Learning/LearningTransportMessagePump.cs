@@ -251,11 +251,12 @@
                 //file.move preserves create time
                 var sentTime = File.GetCreationTimeUtc(transaction.FileToProcess);
 
-                if (sentTime + ttbr < DateTime.UtcNow)
+                var utcNow = DateTime.UtcNow;
+                if (sentTime + ttbr < utcNow)
                 {
                     await transaction.Commit()
                         .ConfigureAwait(false);
-                    log.InfoFormat("Dropping message '{0}' as the specified TimeToBeReceived of '{1}' expired since sending the message at '{2:O}'", messageId, ttbrString, sentTime);
+                    log.InfoFormat("Dropping message '{0}' as the specified TimeToBeReceived of '{1}' expired since sending the message at '{2:O}'. Current UTC time is '{3:O}'", messageId, ttbrString, sentTime, utcNow);
                     return;
                 }
             }
