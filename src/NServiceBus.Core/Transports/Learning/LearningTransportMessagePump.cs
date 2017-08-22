@@ -159,12 +159,15 @@
 
                         if (!ableToLockFile)
                         {
+                            log.Debug($"Unable to lock file {filePath}({transaction.FileToProcess})");
                             concurrencyLimiter.Release();
                             continue;
                         }
                     }
-                    catch(Exception)
+                    catch (Exception ex)
                     {
+                        log.Debug($"Failed to begin transaction {filePath}", ex);
+
                         concurrencyLimiter.Release();
                         throw;
                     }
@@ -176,7 +179,7 @@
                             {
                                 if (log.IsDebugEnabled)
                                 {
-                                    log.Debug($"Completing processing for {filePath}, exception (if any): {t.Exception}");
+                                    log.Debug($"Completing processing for {filePath}({transaction.FileToProcess}), exception (if any): {t.Exception}");
                                 }
 
                                 var wasCommitted = transaction.Complete();
@@ -192,13 +195,13 @@
 
                                     if (!(baseEx is OperationCanceledException))
                                     {
-                                        criticalError.Raise("Failure while trying to process " + filePath, baseEx);
+                                        criticalError.Raise($"Failed to process {filePath}({transaction.FileToProcess})", baseEx);
                                     }
                                 }
                             }
                             catch (Exception ex)
                             {
-                                criticalError.Raise("Failure while trying to complete receive transaction for " + filePath, ex);
+                                criticalError.Raise($"Failure while trying to complete receive transaction for  {filePath}({transaction.FileToProcess})" + filePath, ex);
                             }
                             finally
                             {
@@ -227,17 +230,8 @@
 
         async Task ProcessFile(ILearningTransportTransaction transaction, string messageId)
         {
-            string message;
-            try
-            {
-                message = await AsyncFile.ReadText(transaction.FileToProcess)
+            var message = await AsyncFile.ReadText(transaction.FileToProcess)
                     .ConfigureAwait(false);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                throw;
-            }
 
             var bodyPath = Path.Combine(bodyDir, $"{messageId}{BodyFileSuffix}");
             var headers = HeaderSerializer.Deserialize(message);
@@ -341,7 +335,7 @@
         CriticalError criticalError;
 
 
-        static ILog log = LogManager.GetLogger<LearningTransport>();
+        static ILog log = LogManager.GetLogger<LearningTransportMessagePump>();
 
         public const string BodyFileSuffix = ".body.txt";
         public const string BodyDirName = ".bodies";
