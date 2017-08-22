@@ -159,7 +159,7 @@
 
                         if (!ableToLockFile)
                         {
-                            log.Debug($"Not able to lock file {filePath}({transaction.FileToProcess})");
+                            log.Debug($"Unable to lock file {filePath}({transaction.FileToProcess})");
                             concurrencyLimiter.Release();
                             continue;
                         }
