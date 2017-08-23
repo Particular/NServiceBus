@@ -75,17 +75,6 @@
 
         EndpointCustomizationConfiguration configuration = new EndpointCustomizationConfiguration();
 
-        public EndpointConfigurationBuilder WithConfig<T>(Action<T> action) where T : new()
-        {
-            var config = new T();
-
-            action(config);
-
-            configuration.UserDefinedConfigSections[typeof(T)] = config;
-
-            return this;
-        }
-
         public EndpointConfigurationBuilder ExcludeType<T>()
         {
             configuration.TypesToExclude.Add(typeof(T));

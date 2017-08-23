@@ -8,15 +8,14 @@
     {
         public EndpointCustomizationConfiguration()
         {
-            UserDefinedConfigSections = new Dictionary<Type, object>();
             TypesToExclude = new List<Type>();
             TypesToInclude = new List<Type>();
             PublisherMetadata = new PublisherMetadata();
         }
 
-        public IList<Type> TypesToExclude { get; set; }
+        public IList<Type> TypesToExclude { get; private set; }
 
-        public IList<Type> TypesToInclude { get; set; }
+        public IList<Type> TypesToInclude { get; private set; }
 
         public Func<RunDescriptor, Task<EndpointConfiguration>> GetConfiguration { get; set; }
 
@@ -24,18 +23,11 @@
 
         public string EndpointName
         {
-            get
-            {
-                if (!string.IsNullOrEmpty(CustomEndpointName))
-                    return CustomEndpointName;
-                return endpointName;
-            }
-            set { endpointName = value; }
+            get => !string.IsNullOrEmpty(CustomEndpointName) ? CustomEndpointName : endpointName;
+            set => endpointName = value;
         }
 
         public Type BuilderType { get; set; }
-
-        public IDictionary<Type, object> UserDefinedConfigSections { get; private set; }
 
         public string CustomMachineName { get; set; }
 
