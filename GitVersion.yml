@@ -4,4 +4,4 @@ branches:
   develop:
     tag: alpharelease
   release:
-    tag: rc
+    tag: beta
