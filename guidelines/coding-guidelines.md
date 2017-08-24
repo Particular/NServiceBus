@@ -13,7 +13,7 @@ For public facing interfaces we favor read-only collections and enumerables. For
 
 ## Dependencies
 
-### 3:d Party dependencies
+### 3rd party dependencies
 
 #### Package dependencies
 
