@@ -933,6 +933,7 @@ namespace NServiceBus
         public TransportExtensions(NServiceBus.Settings.SettingsHolder settings) { }
         public NServiceBus.TransportExtensions ConnectionString(string connectionString) { }
         public NServiceBus.TransportExtensions ConnectionString(System.Func<string> connectionString) { }
+        [System.ObsoleteAttribute(@"Using named connection strings is discouraged. Instead, load the connection string in your code and pass the value to EndpointConfiguration.UseTransport().ConnectionString(connectionString). Use `TransportExtensions.ConnectionString(connectionString)` instead. Will be treated as an error from version 8.0.0. Will be removed in version 9.0.0.", false)]
         public NServiceBus.TransportExtensions ConnectionStringName(string name) { }
         public NServiceBus.TransportExtensions Transactions(NServiceBus.TransportTransactionMode transportTransactionMode) { }
     }
@@ -942,6 +943,7 @@ namespace NServiceBus
         public TransportExtensions(NServiceBus.Settings.SettingsHolder settings) { }
         public NServiceBus.TransportExtensions<T> ConnectionString(string connectionString) { }
         public NServiceBus.TransportExtensions<T> ConnectionString(System.Func<string> connectionString) { }
+        [System.ObsoleteAttribute(@"Using named connection strings is discouraged. Instead, load the connection string in your code and pass the value to EndpointConfiguration.UseTransport().ConnectionString(connectionString). Use `TransportExtensions<T>.ConnectionString(connectionString)` instead. Will be treated as an error from version 8.0.0. Will be removed in version 9.0.0.", false)]
         public NServiceBus.TransportExtensions<T> ConnectionStringName(string name) { }
         public NServiceBus.TransportExtensions<T> Transactions(NServiceBus.TransportTransactionMode transportTransactionMode) { }
     }
