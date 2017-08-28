@@ -15,7 +15,7 @@
 
             var assembliesToScan = assemblies.Assemblies
                 //exclude acceptance tests by default
-                .Where(a => !a.FullName.Contains("NServiceBus.AcceptanceTests"));
+                .Where(a => a != Assembly.GetExecutingAssembly()).ToList();
             var types = assembliesToScan
                 .SelectMany(a => a.GetTypes());
 
