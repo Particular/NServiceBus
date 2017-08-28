@@ -17,9 +17,9 @@ For public facing interfaces we favor read-only collections and enumerables. For
 
 #### Package dependencies
 
-We want to compile against the lowest major to catch breaking changes
+We want to compile against the lowest compatible version to catch breaking changes.
 
-PackageReference: `[Major.0.0, Major+1)`
+PackageReference: `[Major.Minor.0, Major+1)`
 
 #### Tests
 
@@ -31,15 +31,15 @@ PackageReference: `[Major.*, Major+1)`
 
 #### Stable release of core
 
-We want to compile against the lowest major to catch breaking changes
+We want to compile against the lowest compatible version to catch breaking changes.
 
-PackageReference: `[Major.0.0, Major+1)`
+PackageReference: `[Major.Minor.0, Major+1)`
 
 #### During release preparation of core (most likely majors)
 
 We want downstreams to pick up the latest core alpha/beta/rc immediately to quickly catch problems.
 
-PackageReference: `[Major.0.0-*, Major+1)`
+PackageReference: `[Major.Minor.0-*, Major+1)`
 
 
 ### Upstream tests
@@ -56,7 +56,7 @@ PackageReference: `[Major.*, Major+1)`
 
 We want downstreams to pick up the latest core alpha/beta/rc immediately to quickly catch problems.
 
-PackageReference: `[Major.0.0-*, Major+1)`
+PackageReference: `[Major.Minor.0-*, Major+1)`
 
 ### Development dependencies
 
