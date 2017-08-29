@@ -5,7 +5,6 @@
     using System.Threading.Tasks;
     using AcceptanceTesting.Customization;
     using AcceptanceTesting.Support;
-    using Configuration.AdvancedExtensibility;
     using Features;
 
     public class DefaultServer : IEndpointSetupTemplate
@@ -44,7 +43,6 @@
 
             await configuration.DefinePersistence(runDescriptor, endpointConfiguration).ConfigureAwait(false);
 
-            configuration.GetSettings().SetDefault("ScaleOut.UseSingleBrokerQueue", true);
             configurationBuilderCustomization(configuration);
 
             return configuration;
