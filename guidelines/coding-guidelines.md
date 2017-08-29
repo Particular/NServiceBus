@@ -11,11 +11,11 @@ For public facing interfaces we favor read-only collections and enumerables. For
 * Avoid using `System.Linq`
 * Avoid using `foreach` over collections that do not have a struct enumerator
 
-## Dependencies
+## Runtime dependencies
 
-### 3rd party dependencies
+### 3rd party
 
-#### Package dependencies
+#### Package
 
 We want to compile against the lowest compatible version to catch breaking changes.
 
@@ -27,38 +27,39 @@ We want to compile against the latest version to catch breaking changes and bugs
 
 PackageReference: `[Major.*, Major+1)`
 
-### Upstream core dependency
+### Core
 
-#### Stable release of core
+#### Package
+
+##### Stable
 
 We want to compile against the lowest compatible version to catch breaking changes.
 
 PackageReference: `[Major.Minor.0, Major+1)`
 
-#### During release preparation of core (most likely majors)
+##### Unstable
 
 We want downstreams to pick up the latest core alpha/beta/rc immediately to quickly catch problems.
 
 PackageReference: `[Major.Minor.0-*, Major+1)`
 
-
-### Upstream tests
+#### Tests
 
 Examples are container tests, acceptance testing, acceptance tests, transport tests etc
 
-#### Stable release
+##### Stable
 
 We want to compile against the latest core to make sure to run the latest test suite.
 
 PackageReference: `[Major.*, Major+1)`
 
-#### During release preparation of core (most likely majors)
+##### Unstable
 
 We want downstreams to pick up the latest core alpha/beta/rc immediately to quickly catch problems.
 
 PackageReference: `[Major.Minor.0-*, Major+1)`
 
-### Development dependencies
+## Development dependencies
 
 Should have `PrivateAssets="All"` set. Examples are Fody, GitVersion, ApprovalTests etc.
 
