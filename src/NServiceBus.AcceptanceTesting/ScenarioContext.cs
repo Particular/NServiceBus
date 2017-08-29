@@ -34,14 +34,9 @@
 
         public ConcurrentQueue<LogItem> Logs = new ConcurrentQueue<LogItem>();
 
-        internal LogLevel LogLevel { get; set; } = LogLevel.Debug;
+        public LogLevel LogLevel { get; set; } = LogLevel.Debug;
 
         internal ConcurrentDictionary<string, bool> UnfinishedFailedMessages = new ConcurrentDictionary<string, bool>();
-
-        public void SetLogLevel(LogLevel level)
-        {
-            LogLevel = level;
-        }
 
         static readonly AsyncLocal<ScenarioContext> asyncContext = new AsyncLocal<ScenarioContext>();
 

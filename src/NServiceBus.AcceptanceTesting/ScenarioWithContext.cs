@@ -36,7 +36,7 @@ namespace NServiceBus.AcceptanceTesting
 
             ScenarioContext.Current = scenarioContext;
 
-            LogManager.UseFactory(new ContextAppenderFactory());
+            LogManager.UseFactory(Scenario.GetLoggerFactory(scenarioContext));
 
             var sw = new Stopwatch();
 
