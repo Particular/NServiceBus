@@ -36,7 +36,7 @@
                 EndpointSetup<DefaultServer>(b => b.ExecuteTheseHandlersFirst(typeof(InterceptingHandler)));
             }
 
-            public class TestSaga03 : Saga<TestSaga03.TestSagaData03>, IAmStartedByMessages<StartSagaMessage>
+            public class TestSaga13 : Saga<TestSaga13.TestSagaData13>, IAmStartedByMessages<StartSagaMessage>
             {
                 public SagaEndpointContext Context { get; set; }
 
@@ -50,13 +50,13 @@
                     return Task.FromResult(0);
                 }
 
-                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData03> mapper)
+                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData13> mapper)
                 {
                     mapper.ConfigureMapping<StartSagaMessage>(m => m.SomeId)
                         .ToSaga(s => s.SomeId);
                 }
 
-                public class TestSagaData03 : ContainSagaData
+                public class TestSagaData13 : ContainSagaData
                 {
                     public virtual string SomeId { get; set; }
                 }
