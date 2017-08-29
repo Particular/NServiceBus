@@ -1,18 +1,32 @@
-﻿namespace NServiceBus.AcceptanceTests.Sagas
+﻿namespace NServiceBus.AcceptanceTests.Core.Pipeline
 {
+    using System;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
+    using NUnit.Framework;
 
-    public class When_receiving_that_should_start_a_saga : NServiceBusAcceptanceTest
+    public class When_setting_handler_execution_order : NServiceBusAcceptanceTest
     {
+        [Test]
+        public async Task Should_call_designated_handler_first()
+        {
+            var context = await Scenario.Define<SagaEndpointContext>()
+                .WithEndpoint<SagaEndpoint>(b => b.When(session => session.SendLocal(new StartSagaMessage
+                {
+                    SomeId = Guid.NewGuid().ToString()
+                })))
+                .Done(c => c.InterceptingHandlerCalled && c.SagaStarted)
+                .Run();
+
+            Assert.True(context.InterceptingHandlerCalledFirst, "The intercepting message handler should be called first");
+        }
+
         public class SagaEndpointContext : ScenarioContext
         {
             public bool InterceptingHandlerCalled { get; set; }
-
+            public bool InterceptingHandlerCalledFirst { get; set; }
             public bool SagaStarted { get; set; }
-
-            public bool InterceptSaga { get; set; }
         }
 
         public class SagaEndpoint : EndpointConfigurationBuilder
@@ -28,8 +42,11 @@
 
                 public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
                 {
+                    if (Context.InterceptingHandlerCalled)
+                    {
+                        Context.InterceptingHandlerCalledFirst = true;
+                    }
                     Context.SagaStarted = true;
-                    Data.SomeId = message.SomeId;
                     return Task.FromResult(0);
                 }
 
@@ -52,11 +69,6 @@
                 public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
                 {
                     TestContext.InterceptingHandlerCalled = true;
-
-                    if (TestContext.InterceptSaga)
-                    {
-                        context.DoNotContinueDispatchingCurrentMessageToHandlers();
-                    }
 
                     return Task.FromResult(0);
                 }

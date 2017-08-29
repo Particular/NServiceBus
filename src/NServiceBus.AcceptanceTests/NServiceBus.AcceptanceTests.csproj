@@ -40,7 +40,9 @@
     <_PackageFiles Remove="**\obj\**\*.cs" />
     <_PackageFiles Remove="Core\**\*.cs" />
     <_PackageFiles Remove="AssemblyInfo.cs" />
+    <_PackageFiles Remove="Sagas\When_discontinuing_message_dispatch.cs" />
     <_PackageFiles Remove="Sagas\When_replying_to_saga_event.cs" />
+    <_PackageFiles Remove="Sagas\When_setting_handler_execution_order.cs" />
   </ItemGroup>
 
 </Project>
