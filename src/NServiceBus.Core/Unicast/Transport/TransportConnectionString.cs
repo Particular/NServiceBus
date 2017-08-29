@@ -1,10 +1,10 @@
 ﻿namespace NServiceBus
 {
     using System;
-    using Logging;
     using Transport;
 
 #if NET452
+    using Logging;
     sealed class TransportConnectionString
     {
         TransportConnectionString()
