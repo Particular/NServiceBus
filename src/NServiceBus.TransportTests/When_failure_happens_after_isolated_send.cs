@@ -47,7 +47,9 @@
 
             await SendMessage(InputQueueName);
 
-            Assert.True(await onMessageCalled.Task, "Should emit isolated sends");
+            var result = await onMessageCalled.Task;
+
+            Assert.True(result, "Should emit isolated sends");
         }
     }
 }
