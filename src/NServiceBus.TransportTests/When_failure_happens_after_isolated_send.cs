@@ -16,7 +16,11 @@
         {
             var onMessageCalled = new TaskCompletionSource<bool>();
 
-            OnTestTimeout(() => onMessageCalled.SetCanceled());
+            OnTestTimeout(() =>
+            {
+                TestContext.Out.WriteLine("OnTestTimeout Log Output");
+                onMessageCalled.SetCanceled();
+            });
 
             await StartPump(async context =>
                 {
