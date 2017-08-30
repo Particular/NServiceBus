@@ -33,7 +33,11 @@
 
                     throw new Exception("Simulated exception");
                 },
-                errorContext => Task.FromResult(ErrorHandleResult.Handled),
+                errorContext =>
+                {
+                    Console.WriteLine(errorContext.Exception.ToString());
+                    return Task.FromResult(ErrorHandleResult.Handled);
+                },
                 transactionMode);
 
             await SendMessage(InputQueueName);
