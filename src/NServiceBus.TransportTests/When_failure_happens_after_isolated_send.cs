@@ -24,12 +24,14 @@
 
             await StartPump(async context =>
                 {
+                    TestContext.Out.WriteLine($"Start Pump header: {context.Headers.ContainsKey("IsolatedSend")}");
                     if (context.Headers.ContainsKey("IsolatedSend"))
                     {
                         onMessageCalled.SetResult(true);
                         return;
                     }
 
+                    TestContext.Out.WriteLine("Sending Message");
                     await SendMessage(InputQueueName, new Dictionary<string, string>
                     {
                         {"IsolatedSend", "true"}
