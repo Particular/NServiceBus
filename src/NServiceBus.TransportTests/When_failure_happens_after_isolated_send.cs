@@ -35,7 +35,6 @@
                 },
                 errorContext =>
                 {
-                    Console.WriteLine(errorContext.Exception.ToString());
                     return Task.FromResult(ErrorHandleResult.Handled);
                 },
                 transactionMode);
