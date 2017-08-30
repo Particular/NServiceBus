@@ -12,7 +12,7 @@ namespace NServiceBus.AcceptanceTesting
 
         public ILog GetLogger(string name)
         {
-            return new ContextAppender();
+            return new ContextAppender(name);
         }
     }
 }

@@ -49,6 +49,7 @@ namespace NServiceBus.AcceptanceTesting
             DisplayRunResult(runSummary);
             TestContext.WriteLine("Total time for testrun: {0}", sw.Elapsed);
 
+            PrintLog(scenarioContext);
             if (runSummary.Result.Failed)
             {
                 PrintLog(scenarioContext);
@@ -93,7 +94,7 @@ namespace NServiceBus.AcceptanceTesting
             TestContext.WriteLine("------------------------------------------------------");
             foreach (var logEntry in scenarioContext.Logs)
             {
-                TestContext.WriteLine($"{logEntry.Level}: {logEntry.Message}");
+                TestContext.WriteLine($"{logEntry.Timestamp:T} {logEntry.Level} {logEntry.Endpoint}: {logEntry.Message}");
             }
         }
 

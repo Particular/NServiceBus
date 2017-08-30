@@ -78,6 +78,7 @@
         {
             try
             {
+                ScenarioContext.CurrentEndpoint = configuration.EndpointName;
                 endpointInstance = await startable.Start().ConfigureAwait(false);
 
                 if (token.IsCancellationRequested)

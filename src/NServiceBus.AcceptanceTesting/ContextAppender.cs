@@ -6,12 +6,16 @@
 
     class ContextAppender : ILog
     {
+        public ContextAppender(string logger)
+        {
+            this.logger = logger;
+        }
+
         public bool IsDebugEnabled => ScenarioContext.Current.LogLevel <= LogLevel.Debug;
         public bool IsInfoEnabled => ScenarioContext.Current.LogLevel <= LogLevel.Info;
         public bool IsWarnEnabled => ScenarioContext.Current.LogLevel <= LogLevel.Warn;
         public bool IsErrorEnabled => ScenarioContext.Current.LogLevel <= LogLevel.Error;
         public bool IsFatalEnabled => ScenarioContext.Current.LogLevel <= LogLevel.Fatal;
-
 
         public void Debug(string message)
         {
@@ -34,7 +38,6 @@
         {
             Log(message, LogLevel.Info);
         }
-
 
         public void Info(string message, Exception exception)
         {
@@ -99,21 +102,23 @@
             Log(fullMessage, LogLevel.Fatal);
         }
 
-        static void Log(string message, LogLevel messageSeverity)
+        void Log(string message, LogLevel messageSeverity)
         {
             var context = ScenarioContext.Current;
 
             if (context.LogLevel > messageSeverity)
-            {
                 return;
-            }
 
             Trace.WriteLine(message);
             context.Logs.Enqueue(new ScenarioContext.LogItem
             {
+                Endpoint = ScenarioContext.CurrentEndpoint,
+                LoggerName = logger,
                 Level = messageSeverity,
                 Message = message
             });
         }
+
+        string logger;
     }
 }
