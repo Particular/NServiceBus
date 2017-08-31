@@ -136,6 +136,8 @@
 
         async Task InnerProcessMessages()
         {
+            log.Debug($"Started polling for new messages in {messagePumpBasePath}");
+
             while (!cancellationToken.IsCancellationRequested)
             {
                 var filesFound = false;
