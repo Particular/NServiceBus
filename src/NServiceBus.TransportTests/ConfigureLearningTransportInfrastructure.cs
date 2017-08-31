@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using NServiceBus;
 using NServiceBus.Settings;
 using NServiceBus.TransportTests;
+using NUnit.Framework;
 
 class ConfigureLearningTransportInfrastructure : IConfigureTransportInfrastructure
 {
@@ -11,6 +12,8 @@ class ConfigureLearningTransportInfrastructure : IConfigureTransportInfrastructu
     {
         storageDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, ".transporttests");
         settings.Set("LearningTransport.StoragePath", storageDir);
+
+        TestContext.Out.WriteLine($"LearningTransport.StoragePath :: {storageDir}");
 
         var transportDefinition = new LearningTransport();
 
