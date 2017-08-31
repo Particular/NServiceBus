@@ -16,7 +16,11 @@
         {
             var onMessageCalled = new TaskCompletionSource<bool>();
 
-            OnTestTimeout(() => onMessageCalled.SetCanceled());
+            OnTestTimeout(() =>
+            {
+                TestContext.Out.WriteLine("OnTestTimeout Log Output");
+                onMessageCalled.SetCanceled();
+            });
 
             await StartPump(async context =>
                 {
@@ -25,7 +29,7 @@
                         onMessageCalled.SetResult(true);
                         return;
                     }
-
+                    
                     await SendMessage(InputQueueName, new Dictionary<string, string>
                     {
                         {"IsolatedSend", "true"}
@@ -33,12 +37,17 @@
 
                     throw new Exception("Simulated exception");
                 },
-                errorContext => Task.FromResult(ErrorHandleResult.Handled),
+                errorContext =>
+                {
+                    return Task.FromResult(ErrorHandleResult.Handled);
+                },
                 transactionMode);
 
             await SendMessage(InputQueueName);
 
-            Assert.True(await onMessageCalled.Task, "Should emit isolated sends");
+            var result = await onMessageCalled.Task;
+
+            Assert.True(result, "Should emit isolated sends");
         }
     }
 }
