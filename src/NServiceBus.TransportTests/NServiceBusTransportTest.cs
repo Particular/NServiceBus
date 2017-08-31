@@ -8,6 +8,7 @@
     using System.Threading.Tasks;
     using DeliveryConstraints;
     using Extensibility;
+    using Logging;
     using NUnit.Framework;
     using Routing;
     using Settings;
@@ -19,6 +20,8 @@
         public void SetUp()
         {
             testId = Guid.NewGuid().ToString();
+
+            LogManager.UseFactory(new TransportTestLoggerFactory());
 
             //when using [TestCase] NUnit will reuse the same test instance so we need to make sure that the message pump is a fresh one
             MessagePump = null;
