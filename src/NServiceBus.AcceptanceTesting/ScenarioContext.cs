@@ -9,15 +9,16 @@
 
     public class ScenarioContext
     {
-        public ScenarioContext()
-        {
-            CurrentEndpoint = "<Infrastructure>";
-        }
-
         internal static ScenarioContext Current
         {
             get => asyncContext.Value;
             set => asyncContext.Value = value;
+        }
+
+        internal static string CurrentEndpoint
+        {
+            get => asyncEndpointName.Value;
+            set => asyncEndpointName.Value = value;
         }
 
         public Guid TestRunId { get; } = Guid.NewGuid();
@@ -41,12 +42,6 @@
         public ConcurrentQueue<LogItem> Logs = new ConcurrentQueue<LogItem>();
 
         public LogLevel LogLevel { get; set; } = LogLevel.Debug;
-
-        internal static string CurrentEndpoint
-        {
-            get => asyncEndpointName.Value;
-            set => asyncEndpointName.Value = value;
-        }
 
         internal ConcurrentDictionary<string, bool> UnfinishedFailedMessages = new ConcurrentDictionary<string, bool>();
 
