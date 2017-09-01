@@ -49,7 +49,6 @@ namespace NServiceBus.AcceptanceTesting
             DisplayRunResult(runSummary);
             TestContext.WriteLine("Total time for testrun: {0}", sw.Elapsed);
 
-            PrintLog(scenarioContext);
             if (runSummary.Result.Failed)
             {
                 PrintLog(scenarioContext);
