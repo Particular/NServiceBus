@@ -28,6 +28,7 @@
 
         public async Task Initialize(RunDescriptor run, EndpointBehavior endpointBehavior, string endpointName)
         {
+            ScenarioContext.CurrentEndpoint = endpointName;
             try
             {
                 behavior = endpointBehavior;
@@ -76,6 +77,7 @@
 
         public override async Task Start(CancellationToken token)
         {
+            ScenarioContext.CurrentEndpoint = configuration.EndpointName;
             try
             {
                 endpointInstance = await startable.Start().ConfigureAwait(false);
@@ -95,6 +97,7 @@
 
         public override async Task ComponentsStarted(CancellationToken token)
         {
+            ScenarioContext.CurrentEndpoint = configuration.EndpointName;
             try
             {
                 if (behavior.Whens.Count != 0)
@@ -148,6 +151,7 @@
 
         public override async Task Stop()
         {
+            ScenarioContext.CurrentEndpoint = configuration.EndpointName;
             try
             {
                 if (endpointInstance != null)
@@ -175,9 +179,6 @@
             }
         }
 
-        public override string Name
-        {
-            get { return configuration.EndpointName; }
-        }
+        public override string Name => configuration.EndpointName;
     }
 }

@@ -93,7 +93,7 @@ namespace NServiceBus.AcceptanceTesting
             TestContext.WriteLine("------------------------------------------------------");
             foreach (var logEntry in scenarioContext.Logs)
             {
-                TestContext.WriteLine($"{logEntry.Level}: {logEntry.Message}");
+                TestContext.WriteLine($"{logEntry.Timestamp:T} {logEntry.Level} {logEntry.Endpoint ?? "<unknown>"}: {logEntry.Message}");
             }
         }
 

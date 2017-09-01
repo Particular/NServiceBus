@@ -15,6 +15,12 @@
             set => asyncContext.Value = value;
         }
 
+        internal static string CurrentEndpoint
+        {
+            get => asyncEndpointName.Value;
+            set => asyncEndpointName.Value = value;
+        }
+
         public Guid TestRunId { get; } = Guid.NewGuid();
 
         public bool EndpointsStarted { get; set; }
@@ -25,6 +31,7 @@
         {
             Logs.Enqueue(new LogItem
             {
+                LoggerName = "Trace",
                 Level = LogLevel.Info,
                 Message = trace
             });
@@ -39,16 +46,15 @@
         internal ConcurrentDictionary<string, bool> UnfinishedFailedMessages = new ConcurrentDictionary<string, bool>();
 
         static readonly AsyncLocal<ScenarioContext> asyncContext = new AsyncLocal<ScenarioContext>();
+        static readonly AsyncLocal<string> asyncEndpointName = new AsyncLocal<string>();
 
         public class LogItem
         {
+            public DateTime Timestamp { get; } = DateTime.Now;
+            public string Endpoint { get; set; }
+            public string LoggerName { get; set; }
             public string Message { get; set; }
             public LogLevel Level { get; set; }
-
-            public override string ToString()
-            {
-                return $"{Level}: {Message}";
-            }
         }
     }
 }
