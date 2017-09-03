@@ -9,6 +9,6 @@
             GetTimeToBeReceivedForMessage = retrieveTimeToBeReceived;
         }
 
-        public Func<Type, TimeSpan> GetTimeToBeReceivedForMessage { get; private set; }
+        public Func<Type, TimeSpan> GetTimeToBeReceivedForMessage { get; }
     }
 }

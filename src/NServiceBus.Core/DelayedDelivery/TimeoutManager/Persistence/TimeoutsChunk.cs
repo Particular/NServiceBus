@@ -21,12 +21,12 @@ namespace NServiceBus.Timeout.Core
         /// <summary>
         /// timeouts that are due.
         /// </summary>
-        public Timeout[] DueTimeouts { get; private set; }
+        public Timeout[] DueTimeouts { get; }
 
         /// <summary>
         /// the next time to query for due timeouts again.
         /// </summary>
-        public DateTime NextTimeToQuery { get; private set; }
+        public DateTime NextTimeToQuery { get; }
 
         /// <summary>
         /// Represents a timeout.

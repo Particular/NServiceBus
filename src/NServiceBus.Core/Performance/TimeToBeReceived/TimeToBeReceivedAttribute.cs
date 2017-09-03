@@ -32,6 +32,6 @@ namespace NServiceBus
         /// If the interval specified by the <see cref="TimeToBeReceived" /> property expires before the message
         /// is received by the destination of the message the message will automatically be canceled.
         /// </remarks>
-        public TimeSpan TimeToBeReceived { get; private set; }
+        public TimeSpan TimeToBeReceived { get; }
     }
 }

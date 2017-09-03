@@ -40,7 +40,7 @@ namespace NServiceBus.AcceptanceTesting.Support
 
             public List<Type> Events { get; } = new List<Type>();
 
-            public string PublisherName { get; private set; }
+            public string PublisherName { get; }
 
             public void RegisterOwnedEvent<T>()
             {

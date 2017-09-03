@@ -15,6 +15,6 @@ namespace NServiceBus.Container
         /// <summary>
         /// The settings instance to use to store an existing container instance.
         /// </summary>
-        public SettingsHolder Settings { get; private set; }
+        public SettingsHolder Settings { get; }
     }
 }

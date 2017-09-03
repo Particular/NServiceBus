@@ -7,6 +7,6 @@ namespace NServiceBus
             RemoveId = removeId;
         }
 
-        public string RemoveId { get; private set; }
+        public string RemoveId { get; }
     }
 }

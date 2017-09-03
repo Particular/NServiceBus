@@ -28,21 +28,21 @@
         /// <summary>
         /// Gets the identifier of the outgoing message.
         /// </summary>
-        public string MessageId { get; private set; }
+        public string MessageId { get; }
 
         /// <summary>
         /// Sending options.
         /// </summary>
-        public Dictionary<string, string> Options { get; private set; }
+        public Dictionary<string, string> Options { get; }
 
         /// <summary>
         /// Gets a byte array to the body content of the outgoing message.
         /// </summary>
-        public byte[] Body { get; private set; }
+        public byte[] Body { get; }
 
         /// <summary>
         /// Gets outgoing message headers.
         /// </summary>
-        public Dictionary<string, string> Headers { get; private set; }
+        public Dictionary<string, string> Headers { get; }
     }
 }

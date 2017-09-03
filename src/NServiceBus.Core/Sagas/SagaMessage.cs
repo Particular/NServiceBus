@@ -22,16 +22,16 @@ namespace NServiceBus.Sagas
         /// <summary>
         /// The type of the message.
         /// </summary>
-        public Type MessageType { get; private set; }
+        public Type MessageType { get; }
 
         /// <summary>
         /// The full name of the message type.
         /// </summary>
-        public string MessageTypeName { get; private set; }
+        public string MessageTypeName { get; }
 
         /// <summary>
         /// True if the message can start the saga.
         /// </summary>
-        public bool IsAllowedToStartSaga { get; private set; }
+        public bool IsAllowedToStartSaga { get; }
     }
 }

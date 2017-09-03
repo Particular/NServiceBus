@@ -35,7 +35,7 @@ namespace NServiceBus.MessageMutator
         /// <summary>
         /// The current incoming headers.
         /// </summary>
-        public Dictionary<string, string> Headers { get; private set; }
+        public Dictionary<string, string> Headers { get; }
 
         object message;
 

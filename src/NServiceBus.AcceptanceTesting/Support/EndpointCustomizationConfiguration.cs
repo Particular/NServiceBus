@@ -13,13 +13,13 @@
             PublisherMetadata = new PublisherMetadata();
         }
 
-        public IList<Type> TypesToExclude { get; private set; }
+        public IList<Type> TypesToExclude { get; }
 
-        public IList<Type> TypesToInclude { get; private set; }
+        public IList<Type> TypesToInclude { get; }
 
         public Func<RunDescriptor, Task<EndpointConfiguration>> GetConfiguration { get; set; }
 
-        public PublisherMetadata PublisherMetadata { get; private set; }
+        public PublisherMetadata PublisherMetadata { get; }
 
         public string EndpointName
         {

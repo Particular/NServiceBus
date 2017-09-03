@@ -76,22 +76,22 @@ Sagas must have at least one message that is allowed to start the saga. Add at l
         /// <summary>
         /// The name of the saga.
         /// </summary>
-        public string Name { get; private set; }
+        public string Name { get; }
 
         /// <summary>
         /// The name of the saga data entity.
         /// </summary>
-        public string EntityName { get; private set; }
+        public string EntityName { get; }
 
         /// <summary>
         /// The type of the related saga entity.
         /// </summary>
-        public Type SagaEntityType { get; private set; }
+        public Type SagaEntityType { get; }
 
         /// <summary>
         /// The type for this saga.
         /// </summary>
-        public Type SagaType { get; private set; }
+        public Type SagaType { get; }
 
         /// <summary>
         /// Property this saga is correlated on.

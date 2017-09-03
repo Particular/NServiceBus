@@ -25,21 +25,21 @@ namespace NServiceBus.Sagas
         /// <summary>
         /// The type of the finder.
         /// </summary>
-        public Type Type { get; private set; }
+        public Type Type { get; }
 
         /// <summary>
         /// The type of message this finder is associated with.
         /// </summary>
-        public Type MessageType { get; private set; }
+        public Type MessageType { get; }
 
         /// <summary>
         /// The full name of the message type.
         /// </summary>
-        public string MessageTypeName { get; private set; }
+        public string MessageTypeName { get; }
 
         /// <summary>
         /// Custom properties.
         /// </summary>
-        public Dictionary<string, object> Properties { get; private set; }
+        public Dictionary<string, object> Properties { get; }
     }
 }

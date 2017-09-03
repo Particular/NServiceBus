@@ -266,7 +266,7 @@ namespace NServiceBus
                 OutputContext = registerStep.GetOutputContext();
             }
 
-            public Type OutputContext { get; private set; }
+            public Type OutputContext { get; }
 
             internal void Visit(List<RegisterStep> output)
             {

@@ -31,12 +31,12 @@
         /// <summary>
         /// The <see cref="Type" /> of the message instance.
         /// </summary>
-        public Type MessageType { get; private set; }
+        public Type MessageType { get; }
 
 
         /// <summary>
         /// The message instance hierarchy.
         /// </summary>
-        public Type[] MessageHierarchy { get; private set; }
+        public Type[] MessageHierarchy { get; }
     }
 }

@@ -9,6 +9,6 @@ namespace NServiceBus.Features
             Features = data;
         }
 
-        public IReadOnlyList<FeatureDiagnosticData> Features { get; private set; }
+        public IReadOnlyList<FeatureDiagnosticData> Features { get; }
     }
 }

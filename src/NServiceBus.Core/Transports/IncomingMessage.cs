@@ -42,12 +42,12 @@ namespace NServiceBus.Transport
         /// <summary>
         /// The id of the message.
         /// </summary>
-        public string MessageId { get; private set; }
+        public string MessageId { get; }
 
         /// <summary>
         /// The message headers.
         /// </summary>
-        public Dictionary<string, string> Headers { get; private set; }
+        public Dictionary<string, string> Headers { get; }
 
         /// <summary>
         /// Gets/sets a byte array to the body content of the message.

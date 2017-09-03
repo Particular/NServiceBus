@@ -1236,7 +1236,7 @@ namespace NServiceBus.Serializers.XML.Test
             ReadOnlyBlob = value;
         }
 
-        public T ReadOnlyBlob { get; private set; }
+        public T ReadOnlyBlob { get; }
 
         public string WhatEver { get; set; }
     }

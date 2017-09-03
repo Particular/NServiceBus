@@ -10,7 +10,7 @@ namespace NServiceBus
             Id = Guid.NewGuid();
         }
 
-        public Guid Id { get; private set; }
+        public Guid Id { get; }
         public string Name { get; set; }
         public Func<IPipelineContext, Task> Task { get; set; }
         public TimeSpan Every { get; set; }

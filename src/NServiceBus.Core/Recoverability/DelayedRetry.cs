@@ -15,6 +15,6 @@
         /// <summary>
         /// The retry delay.
         /// </summary>
-        public TimeSpan Delay { get; private set; }
+        public TimeSpan Delay { get; }
     }
 }
