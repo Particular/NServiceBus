@@ -23,8 +23,7 @@ namespace NServiceBus
         public static bool CreateQueues(this ReadOnlySettings settings)
         {
             Guard.AgainstNull(nameof(settings), settings);
-            bool createQueues;
-            return !settings.TryGet("Transport.CreateQueues", out createQueues) || createQueues;
+            return !settings.TryGet("Transport.CreateQueues", out bool createQueues) || createQueues;
         }
     }
 }

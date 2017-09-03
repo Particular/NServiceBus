@@ -15,8 +15,7 @@ namespace NServiceBus.Features
         /// </summary>
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-            string basePath;
-            if (!context.Settings.TryGet("FileShareDataBusPath", out basePath))
+            if (!context.Settings.TryGet("FileShareDataBusPath", out string basePath))
             {
                 throw new InvalidOperationException("Specify the basepath for FileShareDataBus, eg endpointConfiguration.UseDataBus<FileShareDataBus>().BasePath(\"c:\\databus\")");
             }

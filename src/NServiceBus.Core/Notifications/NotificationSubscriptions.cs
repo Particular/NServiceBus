@@ -9,9 +9,7 @@ namespace NServiceBus
     {
         public IEnumerable<ISubscription> Get<T>()
         {
-            List<ISubscription> subscribers;
-
-            if (!subscriptions.TryGetValue(typeof(T), out subscribers))
+            if (!subscriptions.TryGetValue(typeof(T), out var subscribers))
             {
                 return Enumerable.Empty<ISubscription>();
             }
@@ -23,9 +21,7 @@ namespace NServiceBus
         {
             var eventType = typeof(T);
 
-            List<ISubscription> currentSubscriptions;
-
-            if (!subscriptions.TryGetValue(eventType, out currentSubscriptions))
+            if (!subscriptions.TryGetValue(eventType, out var currentSubscriptions))
             {
                 currentSubscriptions = new List<ISubscription>();
                 subscriptions[eventType] = currentSubscriptions;

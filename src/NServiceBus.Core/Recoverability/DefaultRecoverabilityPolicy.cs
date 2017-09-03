@@ -32,8 +32,7 @@ namespace NServiceBus
                 return RecoverabilityAction.ImmediateRetry();
             }
 
-            TimeSpan delay;
-            if (TryGetDelay(errorContext.Message, errorContext.DelayedDeliveriesPerformed, config.Delayed, out delay))
+            if (TryGetDelay(errorContext.Message, errorContext.DelayedDeliveriesPerformed, config.Delayed, out var delay))
             {
                 return RecoverabilityAction.DelayedRetry(delay);
             }
@@ -67,9 +66,7 @@ namespace NServiceBus
 
         static bool HasReachedMaxTime(IncomingMessage message)
         {
-            string timestampHeader;
-
-            if (!message.Headers.TryGetValue(Headers.DelayedRetriesTimestamp, out timestampHeader))
+            if (!message.Headers.TryGetValue(Headers.DelayedRetriesTimestamp, out var timestampHeader))
             {
                 return false;
             }

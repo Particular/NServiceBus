@@ -115,8 +115,7 @@ namespace NServiceBus
 
         void RegisterCriticalErrorHandler()
         {
-            Func<ICriticalErrorContext, Task> errorAction;
-            settings.TryGet("onCriticalErrorAction", out errorAction);
+            settings.TryGet("onCriticalErrorAction", out Func<ICriticalErrorContext, Task> errorAction);
             criticalError = new CriticalError(errorAction);
             container.RegisterSingleton(criticalError);
         }

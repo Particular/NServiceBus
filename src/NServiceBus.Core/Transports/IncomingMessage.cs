@@ -20,9 +20,7 @@ namespace NServiceBus.Transport
             Guard.AgainstNull(nameof(body), body);
             Guard.AgainstNull(nameof(headers), headers);
 
-            string originalMessageId;
-
-            if (headers.TryGetValue(NServiceBus.Headers.MessageId, out originalMessageId) && !string.IsNullOrEmpty(originalMessageId))
+            if (headers.TryGetValue(NServiceBus.Headers.MessageId, out var originalMessageId) && !string.IsNullOrEmpty(originalMessageId))
             {
                 MessageId = originalMessageId;
             }

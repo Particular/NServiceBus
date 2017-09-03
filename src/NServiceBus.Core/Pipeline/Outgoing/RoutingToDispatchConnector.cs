@@ -32,9 +32,7 @@
                 LogOutgoingOperations(operations);
             }
 
-            PendingTransportOperations pendingOperations;
-
-            if (!state.ImmediateDispatch && context.Extensions.TryGet(out pendingOperations))
+            if (!state.ImmediateDispatch && context.Extensions.TryGet(out PendingTransportOperations pendingOperations))
             {
                 pendingOperations.AddRange(operations);
                 return TaskEx.CompletedTask;

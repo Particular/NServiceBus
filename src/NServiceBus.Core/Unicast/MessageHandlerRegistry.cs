@@ -82,8 +82,7 @@
 
             foreach (var messageType in messageTypes)
             {
-                List<DelegateHolder> typeList;
-                if (!handlerAndMessagesHandledByHandlerCache.TryGetValue(handlerType, out typeList))
+                if (!handlerAndMessagesHandledByHandlerCache.TryGetValue(handlerType, out var typeList))
                 {
                     handlerAndMessagesHandledByHandlerCache[handlerType] = typeList = new List<DelegateHolder>();
                 }

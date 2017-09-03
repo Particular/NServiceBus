@@ -102,8 +102,7 @@ namespace NServiceBus
         {
             foreach (var file in Directory.EnumerateFiles(targetDirectory, "nsb_log_*.txt"))
             {
-                LogFile logFile;
-                if (TryDeriveLogInformationFromPath(file, out logFile))
+                if (TryDeriveLogInformationFromPath(file, out var logFile))
                 {
                     yield return logFile;
                 }
@@ -121,15 +120,13 @@ namespace NServiceBus
             }
             var datePart = split[2];
 
-            DateTime dateTime;
-            if (!TryParseDate(datePart, out dateTime))
+            if (!TryParseDate(datePart, out var dateTime))
             {
                 return false;
             }
 
             var sequencePart = split[3];
-            int sequenceNumber;
-            if (!int.TryParse(sequencePart, out sequenceNumber))
+            if (!int.TryParse(sequencePart, out var sequenceNumber))
             {
                 return false;
             }

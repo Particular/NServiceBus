@@ -23,9 +23,7 @@ namespace NServiceBus
 
         public Task<CompletableSynchronizedStorageSession> TryAdapt(TransportTransaction transportTransaction, ContextBag context)
         {
-            Transaction ambientTransaction;
-
-            if (transportTransaction.TryGet(out ambientTransaction))
+            if (transportTransaction.TryGet(out Transaction ambientTransaction))
             {
                 var transaction = new InMemoryTransaction();
                 CompletableSynchronizedStorageSession session = new InMemorySynchronizedStorageSession(transaction);

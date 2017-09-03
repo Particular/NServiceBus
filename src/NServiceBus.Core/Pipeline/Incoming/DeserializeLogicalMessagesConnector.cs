@@ -36,7 +36,7 @@ namespace NServiceBus
 
         static bool IsControlMessage(IncomingMessage incomingMessage)
         {
-            return incomingMessage.Headers.ContainsKey(Headers.ControlMessageHeader) && incomingMessage.Headers[Headers.ControlMessageHeader] == Boolean.TrueString;
+            return incomingMessage.Headers.ContainsKey(Headers.ControlMessageHeader) && incomingMessage.Headers[Headers.ControlMessageHeader] == bool.TrueString;
         }
 
         LogicalMessage[] ExtractWithExceptionHandling(IncomingMessage message)
@@ -66,10 +66,9 @@ namespace NServiceBus
                 return NoMessagesFound;
             }
 
-            string messageTypeIdentifier;
             var messageMetadata = new List<MessageMetadata>();
 
-            if (physicalMessage.Headers.TryGetValue(Headers.EnclosedMessageTypes, out messageTypeIdentifier))
+            if (physicalMessage.Headers.TryGetValue(Headers.EnclosedMessageTypes, out var messageTypeIdentifier))
             {
                 foreach (var messageTypeString in messageTypeIdentifier.Split(EnclosedMessageTypeSeparator))
                 {

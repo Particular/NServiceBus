@@ -19,9 +19,7 @@ namespace NServiceBus
         {
             var message = context.Message;
 
-            State state;
-
-            if (context.Extensions.TryGet(out state))
+            if (context.Extensions.TryGet(out State state))
             {
                 //transfer audit values to the headers of the message to audit
                 foreach (var kvp in state.AuditValues)

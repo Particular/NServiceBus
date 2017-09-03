@@ -106,8 +106,7 @@ namespace NServiceBus.Features
             {
                 foreach (var dependencyName in node.FeatureState.Feature.Dependencies.SelectMany(listOfDependencyNames => listOfDependencyNames))
                 {
-                    Node referencedNode;
-                    if (nameToNodeDict.TryGetValue(dependencyName, out referencedNode))
+                    if (nameToNodeDict.TryGetValue(dependencyName, out var referencedNode))
                     {
                         node.previous.Add(referencedNode);
                     }

@@ -19,9 +19,7 @@ namespace NServiceBus.Features
                 return;
             }
 
-            List<Type> order;
-
-            if (!context.Settings.TryGet("NServiceBus.ExecuteTheseHandlersFirst", out order))
+            if (!context.Settings.TryGet("NServiceBus.ExecuteTheseHandlersFirst", out List<Type> order))
             {
                 order = new List<Type>(0);
             }

@@ -50,10 +50,7 @@
 
             var currentSagaMetadata = sagaMetadataCollection.Find(context.MessageHandler.Instance.GetType());
 
-            string targetSagaTypeString;
-            string targetSagaId;
-
-            if (context.Headers.TryGetValue(Headers.SagaType, out targetSagaTypeString) && context.Headers.TryGetValue(Headers.SagaId, out targetSagaId))
+            if (context.Headers.TryGetValue(Headers.SagaType, out var targetSagaTypeString) && context.Headers.TryGetValue(Headers.SagaId, out var targetSagaId))
             {
                 var targetSagaType = Type.GetType(targetSagaTypeString, false);
 
@@ -63,9 +60,7 @@
                 }
                 else
                 {
-                    SagaMetadata targetSagaMetaData;
-
-                    if (!sagaMetadataCollection.TryFind(targetSagaType, out targetSagaMetaData))
+                    if (!sagaMetadataCollection.TryFind(targetSagaType, out var targetSagaMetaData))
                     {
                         logger.Warn($"Saga headers indicated that the message was intended for {targetSagaType.FullName} but no metadata was found for that saga type. Will fallback to query persister for a saga instance of type {currentSagaMetadata.SagaType.FullName} and saga id {targetSagaId} instead");
                     }
@@ -154,10 +149,9 @@
 
                 if (sagaInstanceState.IsNew)
                 {
-                    ActiveSagaInstance.CorrelationPropertyInfo correlationProperty;
                     var sagaCorrelationProperty = SagaCorrelationProperty.None;
 
-                    if (sagaInstanceState.TryGetCorrelationProperty(out correlationProperty))
+                    if (sagaInstanceState.TryGetCorrelationProperty(out var correlationProperty))
                     {
                         sagaCorrelationProperty = new SagaCorrelationProperty(correlationProperty.PropertyInfo.Name, correlationProperty.PropertyInfo.GetValue(sagaInstanceState.Instance.Entity));
                     }
@@ -176,12 +170,9 @@
         static void RemoveSagaHeadersIfProcessingAEvent(IInvokeHandlerContext context)
         {
             // We need this for backwards compatibility because in v4.0.0 we still have this header being sent as part of the message even if MessageIntent == MessageIntentEnum.Publish
-            string messageIntentString;
-            if (context.Headers.TryGetValue(Headers.MessageIntent, out messageIntentString))
+            if (context.Headers.TryGetValue(Headers.MessageIntent, out var messageIntentString))
             {
-                MessageIntentEnum messageIntent;
-
-                if (Enum.TryParse(messageIntentString, true, out messageIntent) && messageIntent == MessageIntentEnum.Publish)
+                if (Enum.TryParse(messageIntentString, true, out MessageIntentEnum messageIntent) && messageIntent == MessageIntentEnum.Publish)
                 {
                     context.Headers.Remove(Headers.SagaId);
                     context.Headers.Remove(Headers.SagaType);
@@ -191,10 +182,8 @@
 
         static bool IsMessageAllowedToStartTheSaga(IInvokeHandlerContext context, SagaMetadata sagaMetadata)
         {
-            string sagaType;
-
             if (context.Headers.ContainsKey(Headers.SagaId) &&
-                context.Headers.TryGetValue(Headers.SagaType, out sagaType))
+                context.Headers.TryGetValue(Headers.SagaType, out var sagaType))
             {
                 //we want to move away from the assembly fully qualified name since that will break if you move sagas
                 //between assemblies. We use the FullName instead, which is enough to identify the saga.
@@ -215,9 +204,7 @@
                 return true;
             }
 
-            string version;
-
-            if (!headers.TryGetValue(Headers.NServiceBusVersion, out version))
+            if (!headers.TryGetValue(Headers.NServiceBusVersion, out var version))
             {
                 return false;
             }
@@ -227,8 +214,7 @@
                 return false;
             }
 
-            string sagaId;
-            if (headers.TryGetValue(Headers.SagaId, out sagaId))
+            if (headers.TryGetValue(Headers.SagaId, out var sagaId))
             {
                 if (string.IsNullOrEmpty(sagaId))
                 {
@@ -240,8 +226,7 @@
                 return false;
             }
 
-            string expire;
-            if (headers.TryGetValue(TimeoutManagerHeaders.Expire, out expire))
+            if (headers.TryGetValue(TimeoutManagerHeaders.Expire, out var expire))
             {
                 if (string.IsNullOrEmpty(expire))
                 {
@@ -259,9 +244,7 @@
 
         Task<IContainSagaData> TryLoadSagaEntity(SagaMetadata metadata, IInvokeHandlerContext context)
         {
-            string sagaId;
-
-            if (context.Headers.TryGetValue(Headers.SagaId, out sagaId) && !string.IsNullOrEmpty(sagaId))
+            if (context.Headers.TryGetValue(Headers.SagaId, out var sagaId) && !string.IsNullOrEmpty(sagaId))
             {
                 var sagaEntityType = metadata.SagaEntityType;
 
@@ -291,8 +274,7 @@
         {
             foreach (var messageType in context.MessageMetadata.MessageHierarchy)
             {
-                SagaFinderDefinition finderDefinition;
-                if (metadata.TryGetFinder(messageType.FullName, out finderDefinition))
+                if (metadata.TryGetFinder(messageType.FullName, out var finderDefinition))
                 {
                     return finderDefinition;
                 }
@@ -308,9 +290,7 @@
 
             sagaEntity.OriginalMessageId = context.MessageId;
 
-            string replyToAddress;
-
-            if (context.Headers.TryGetValue(Headers.ReplyToAddress, out replyToAddress))
+            if (context.Headers.TryGetValue(Headers.ReplyToAddress, out var replyToAddress))
             {
                 sagaEntity.Originator = replyToAddress;
             }
@@ -318,9 +298,8 @@
             var lookupValues = context.Extensions.GetOrCreate<SagaLookupValues>();
 
             SagaCorrelationProperty correlationProperty;
-            SagaLookupValues.LookupValue value;
 
-            if (lookupValues.TryGet(sagaEntityType, out value))
+            if (lookupValues.TryGet(sagaEntityType, out var value))
             {
                 var propertyInfo = sagaEntityType.GetProperty(value.PropertyName);
 

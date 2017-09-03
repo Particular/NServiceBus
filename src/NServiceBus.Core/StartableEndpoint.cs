@@ -167,9 +167,7 @@ namespace NServiceBus
         // extension point to plugin atm
         PushRuntimeSettings GetDequeueLimitationsForReceivePipeline()
         {
-            MessageProcessingOptimizationExtensions.ConcurrencyLimit concurrencyLimit;
-
-            if (settings.TryGet(out concurrencyLimit))
+            if (settings.TryGet(out MessageProcessingOptimizationExtensions.ConcurrencyLimit concurrencyLimit))
             {
                 return new PushRuntimeSettings(concurrencyLimit.MaxValue);
             }

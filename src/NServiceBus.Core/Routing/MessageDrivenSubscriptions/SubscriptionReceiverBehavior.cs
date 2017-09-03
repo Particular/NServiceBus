@@ -40,10 +40,9 @@
                 throw new InvalidOperationException("Subscription messages need to have intent set to Subscribe/Unsubscribe.");
             }
 
-            string subscriberAddress;
             string subscriberEndpoint = null;
 
-            if (incomingMessage.Headers.TryGetValue(Headers.SubscriberTransportAddress, out subscriberAddress))
+            if (incomingMessage.Headers.TryGetValue(Headers.SubscriberTransportAddress, out var subscriberAddress))
             {
                 subscriberEndpoint = incomingMessage.Headers[Headers.SubscriberEndpoint];
             }
@@ -89,8 +88,7 @@
 
         static string GetSubscriptionMessageTypeFrom(IncomingMessage msg)
         {
-            string value;
-            msg.Headers.TryGetValue(Headers.SubscriptionMessageType, out value);
+            msg.Headers.TryGetValue(Headers.SubscriptionMessageType, out var value);
             return value;
         }
 

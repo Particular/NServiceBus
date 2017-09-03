@@ -24,8 +24,7 @@
                 throw new ArgumentException("Exception type must be an exception", nameof(exceptionType));
             }
 
-            HashSet<Type> unrecoverableExceptions;
-            if (!settings.TryGet(Recoverability.UnrecoverableExceptions, out unrecoverableExceptions))
+            if (!settings.TryGet(Recoverability.UnrecoverableExceptions, out HashSet<Type> unrecoverableExceptions))
             {
                 unrecoverableExceptions = new HashSet<Type>();
                 settings.Set(Recoverability.UnrecoverableExceptions, unrecoverableExceptions);

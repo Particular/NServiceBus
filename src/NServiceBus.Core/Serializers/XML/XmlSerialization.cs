@@ -151,8 +151,7 @@
                 return;
             }
 
-            IEnumerable<PropertyInfo> properties;
-            if (!cache.typeToProperties.TryGetValue(t, out properties))
+            if (!cache.typeToProperties.TryGetValue(t, out var properties))
             {
                 cache.InitType(t);
                 cache.typeToProperties.TryGetValue(t, out properties);

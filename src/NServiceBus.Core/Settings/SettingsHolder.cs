@@ -43,8 +43,7 @@ namespace NServiceBus.Settings
             Guard.AgainstNullAndEmpty(nameof(key), key);
             val = default(T);
 
-            object tmp;
-            if (!Overrides.TryGetValue(key, out tmp))
+            if (!Overrides.TryGetValue(key, out var tmp))
             {
                 if (!Defaults.TryGetValue(key, out tmp))
                 {
@@ -79,8 +78,7 @@ namespace NServiceBus.Settings
         public object Get(string key)
         {
             Guard.AgainstNullAndEmpty(nameof(key), key);
-            object result;
-            if (Overrides.TryGetValue(key, out result))
+            if (Overrides.TryGetValue(key, out var result))
             {
                 return result;
             }
@@ -112,8 +110,7 @@ namespace NServiceBus.Settings
         public T GetOrDefault<T>(string key)
         {
             Guard.AgainstNullAndEmpty(nameof(key), key);
-            object result;
-            if (Overrides.TryGetValue(key, out result))
+            if (Overrides.TryGetValue(key, out var result))
             {
                 return (T) result;
             }

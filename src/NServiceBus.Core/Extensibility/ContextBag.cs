@@ -46,8 +46,7 @@ namespace NServiceBus.Extensibility
         public bool TryGet<T>(string key, out T result)
         {
             Guard.AgainstNullAndEmpty(nameof(key), key);
-            object value;
-            if (stash.TryGetValue(key, out value))
+            if (stash.TryGetValue(key, out var value))
             {
                 result = (T)value;
                 return true;
@@ -66,9 +65,8 @@ namespace NServiceBus.Extensibility
         public T Get<T>(string key)
         {
             Guard.AgainstNullAndEmpty(nameof(key), key);
-            T result;
 
-            if (!TryGet(key, out result))
+            if (!TryGet(key, out T result))
             {
                 throw new KeyNotFoundException("No item found in behavior context with key: " + key);
             }
@@ -81,9 +79,7 @@ namespace NServiceBus.Extensibility
         /// </summary>
         public T GetOrCreate<T>() where T : class, new()
         {
-            T value;
-
-            if (TryGet(out value))
+            if (TryGet(out T value))
             {
                 return value;
             }

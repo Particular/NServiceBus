@@ -22,11 +22,8 @@
         {
             var outgoingMessage = context.Extensions.Get<OutgoingLogicalMessage>();
 
-            LogicalMessage incomingLogicalMessage;
-            context.Extensions.TryGet(out incomingLogicalMessage);
-
-            IncomingMessage incomingPhysicalMessage;
-            context.Extensions.TryGet(out incomingPhysicalMessage);
+            context.Extensions.TryGet(out LogicalMessage incomingLogicalMessage);
+            context.Extensions.TryGet(out IncomingMessage incomingPhysicalMessage);
 
             var mutatorContext = new MutateOutgoingTransportMessageContext(
                 context.Body,

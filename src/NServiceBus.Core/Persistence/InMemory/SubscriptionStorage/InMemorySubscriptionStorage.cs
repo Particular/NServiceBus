@@ -20,11 +20,9 @@ namespace NServiceBus
 
         public Task Unsubscribe(Subscriber subscriber, MessageType messageType, ContextBag context)
         {
-            ConcurrentDictionary<string, Subscriber> dict;
-            if (storage.TryGetValue(messageType, out dict))
+            if (storage.TryGetValue(messageType, out var dict))
             {
-                Subscriber _;
-                dict.TryRemove(subscriber.TransportAddress, out _);
+                dict.TryRemove(subscriber.TransportAddress, out var _);
             }
             return TaskEx.CompletedTask;
         }
@@ -34,8 +32,7 @@ namespace NServiceBus
             var result = new HashSet<Subscriber>();
             foreach (var m in messageTypes)
             {
-                ConcurrentDictionary<string, Subscriber> list;
-                if (storage.TryGetValue(m, out list))
+                if (storage.TryGetValue(m, out var list))
                 {
                     result.UnionWith(list.Values);
                 }

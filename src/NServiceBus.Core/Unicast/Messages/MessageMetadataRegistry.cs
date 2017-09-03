@@ -24,8 +24,7 @@
         public MessageMetadata GetMessageMetadata(Type messageType)
         {
             Guard.AgainstNull(nameof(messageType), messageType);
-            MessageMetadata metadata;
-            if (messages.TryGetValue(messageType.TypeHandle, out metadata))
+            if (messages.TryGetValue(messageType.TypeHandle, out var metadata))
             {
                 return metadata;
             }
@@ -67,8 +66,7 @@
                 return null;
             }
 
-            MessageMetadata metadata;
-            if (messages.TryGetValue(messageType.TypeHandle, out metadata))
+            if (messages.TryGetValue(messageType.TypeHandle, out var metadata))
             {
                 return metadata;
             }
@@ -85,9 +83,7 @@
 
         Type GetType(string messageTypeIdentifier)
         {
-            Type type;
-
-            if (!cachedTypes.TryGetValue(messageTypeIdentifier, out type))
+            if (!cachedTypes.TryGetValue(messageTypeIdentifier, out var type))
             {
                 type = Type.GetType(messageTypeIdentifier, false);
                 cachedTypes[messageTypeIdentifier] = type;

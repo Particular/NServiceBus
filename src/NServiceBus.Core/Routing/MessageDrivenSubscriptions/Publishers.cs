@@ -11,8 +11,7 @@ namespace NServiceBus.Routing.MessageDrivenSubscriptions
     {
         internal IEnumerable<PublisherAddress> GetPublisherFor(Type eventType)
         {
-            HashSet<PublisherAddress> addresses;
-            return publishers.TryGetValue(eventType, out addresses)
+            return publishers.TryGetValue(eventType, out var addresses)
                 ? addresses
                 : Enumerable.Empty<PublisherAddress>();
         }
@@ -34,8 +33,7 @@ namespace NServiceBus.Routing.MessageDrivenSubscriptions
                 var newRouteTable = new Dictionary<Type, HashSet<PublisherAddress>>();
                 foreach (var entry in publisherRegistrations.Values.SelectMany(g => g))
                 {
-                    HashSet<PublisherAddress> publishersOfThisEvent;
-                    if (!newRouteTable.TryGetValue(entry.EventType, out publishersOfThisEvent))
+                    if (!newRouteTable.TryGetValue(entry.EventType, out var publishersOfThisEvent))
                     {
                         publishersOfThisEvent = new HashSet<PublisherAddress>();
                         newRouteTable[entry.EventType] = publishersOfThisEvent;

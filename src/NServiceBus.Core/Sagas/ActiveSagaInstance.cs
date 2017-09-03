@@ -92,9 +92,8 @@ namespace NServiceBus.Sagas
             SagaId = sagaEntity.Id.ToString();
 
             var properties = sagaEntity.GetType().GetProperties();
-            SagaMetadata.CorrelationPropertyMetadata correlatedPropertyMetadata;
 
-            if (Metadata.TryGetCorrelationProperty(out correlatedPropertyMetadata))
+            if (Metadata.TryGetCorrelationProperty(out var correlatedPropertyMetadata))
             {
                 var propertyInfo = properties.Single(p => p.Name == correlatedPropertyMetadata.Name);
                 var propertyValue = propertyInfo.GetValue(sagaEntity);

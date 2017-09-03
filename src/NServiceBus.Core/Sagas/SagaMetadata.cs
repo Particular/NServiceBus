@@ -114,9 +114,7 @@ Sagas must have at least one message that is allowed to start the saga. Add at l
         public bool IsMessageAllowedToStartTheSaga(string messageType)
         {
             Guard.AgainstNull(nameof(messageType), messageType);
-            SagaMessage sagaMessage;
-
-            if (!associatedMessages.TryGetValue(messageType, out sagaMessage))
+            if (!associatedMessages.TryGetValue(messageType, out var sagaMessage))
             {
                 return false;
             }

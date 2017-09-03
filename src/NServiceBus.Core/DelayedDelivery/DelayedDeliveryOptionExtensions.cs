@@ -31,9 +31,7 @@
         public static TimeSpan? GetDeliveryDelay(this SendOptions options)
         {
             Guard.AgainstNull(nameof(options), options);
-            DelayDeliveryWith delay;
-            options.GetExtensions().TryGetDeliveryConstraint(out delay);
-
+            options.GetExtensions().TryGetDeliveryConstraint(out DelayDeliveryWith delay);
             return delay?.Delay;
         }
 
@@ -57,9 +55,7 @@
         public static DateTimeOffset? GetDeliveryDate(this SendOptions options)
         {
             Guard.AgainstNull(nameof(options), options);
-            DoNotDeliverBefore deliveryDate;
-            options.GetExtensions().TryGetDeliveryConstraint(out deliveryDate);
-
+            options.GetExtensions().TryGetDeliveryConstraint(out DoNotDeliverBefore deliveryDate);
             return deliveryDate?.At;
         }
     }

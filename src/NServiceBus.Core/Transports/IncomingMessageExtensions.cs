@@ -17,8 +17,7 @@ namespace NServiceBus.Transport
             Guard.AgainstNull(nameof(message), message);
             var messageIntent = default(MessageIntentEnum);
 
-            string messageIntentString;
-            if (message.Headers.TryGetValue(Headers.MessageIntent, out messageIntentString))
+            if (message.Headers.TryGetValue(Headers.MessageIntent, out var messageIntentString))
             {
                 Enum.TryParse(messageIntentString, true, out messageIntent);
             }
@@ -34,9 +33,7 @@ namespace NServiceBus.Transport
         public static string GetReplyToAddress(this IncomingMessage message)
         {
             Guard.AgainstNull(nameof(message), message);
-            string replyToAddress;
-
-            return message.Headers.TryGetValue(Headers.ReplyToAddress, out replyToAddress) ? replyToAddress : null;
+            return message.Headers.TryGetValue(Headers.ReplyToAddress, out var replyToAddress) ? replyToAddress : null;
         }
     }
 }

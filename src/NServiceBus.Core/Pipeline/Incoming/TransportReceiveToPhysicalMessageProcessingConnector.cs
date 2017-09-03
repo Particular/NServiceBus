@@ -155,22 +155,17 @@ namespace NServiceBus
                 constraints.Add(new NonDurableDelivery());
             }
 
-            string deliverAt;
-            if (options.TryGetValue("DeliverAt", out deliverAt))
+            if (options.TryGetValue("DeliverAt", out var deliverAt))
             {
                 constraints.Add(new DoNotDeliverBefore(DateTimeExtensions.ToUtcDateTime(deliverAt)));
             }
 
-
-            string delay;
-            if (options.TryGetValue("DelayDeliveryFor", out delay))
+            if (options.TryGetValue("DelayDeliveryFor", out var delay))
             {
                 constraints.Add(new DelayDeliveryWith(TimeSpan.Parse(delay)));
             }
 
-            string ttbr;
-
-            if (options.TryGetValue("TimeToBeReceived", out ttbr))
+            if (options.TryGetValue("TimeToBeReceived", out var ttbr))
             {
                 constraints.Add(new DiscardIfNotReceivedBefore(TimeSpan.Parse(ttbr)));
             }
@@ -179,16 +174,12 @@ namespace NServiceBus
 
         static AddressTag DeserializeRoutingStrategy(Dictionary<string, string> options)
         {
-            string destination;
-
-            if (options.TryGetValue("Destination", out destination))
+            if (options.TryGetValue("Destination", out var destination))
             {
                 return new UnicastAddressTag(destination);
             }
 
-            string eventType;
-
-            if (options.TryGetValue("EventType", out eventType))
+            if (options.TryGetValue("EventType", out var eventType))
             {
                 return new MulticastAddressTag(Type.GetType(eventType, true));
             }

@@ -15,9 +15,7 @@ namespace NServiceBus
 
         public async Task Start(Guid taskId, IPipelineContext context)
         {
-            TaskDefinition taskDefinition;
-
-            if (!scheduledTasks.TryGetValue(taskId, out taskDefinition))
+            if (!scheduledTasks.TryGetValue(taskId, out var taskDefinition))
             {
                 logger.InfoFormat("Could not find any scheduled task with id {0}. The DefaultScheduler does not persist tasks between restarts.", taskId);
                 return;

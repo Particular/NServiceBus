@@ -17,9 +17,7 @@ namespace NServiceBus.Features
 
         static Type GetSelectedFeatureForDataBus(SettingsHolder settings)
         {
-            DataBusDefinition dataBusDefinition;
-
-            if (!settings.TryGet("SelectedDataBus", out dataBusDefinition))
+            if (!settings.TryGet("SelectedDataBus", out DataBusDefinition dataBusDefinition))
             {
                 dataBusDefinition = new FileShareDataBus();
             }

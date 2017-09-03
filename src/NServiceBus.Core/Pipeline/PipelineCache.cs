@@ -25,10 +25,8 @@ namespace NServiceBus
 
         public IPipeline<TContext> Pipeline<TContext>()
             where TContext : IBehaviorContext
-
         {
-            Lazy<IPipeline> lazyPipeline;
-            if (pipelines.TryGetValue(typeof(TContext), out lazyPipeline))
+            if (pipelines.TryGetValue(typeof(TContext), out var lazyPipeline))
             {
                 return (IPipeline<TContext>) lazyPipeline.Value;
             }

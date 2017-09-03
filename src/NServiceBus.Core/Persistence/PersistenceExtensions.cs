@@ -58,8 +58,7 @@
         public PersistenceExtensions(Type definitionType, SettingsHolder settings, Type storageType)
             : base(settings)
         {
-            List<EnabledPersistence> definitions;
-            if (!Settings.TryGet("PersistenceDefinitions", out definitions))
+            if (!Settings.TryGet("PersistenceDefinitions", out List<EnabledPersistence> definitions))
             {
                 definitions = new List<EnabledPersistence>();
                 Settings.Set("PersistenceDefinitions", definitions);
