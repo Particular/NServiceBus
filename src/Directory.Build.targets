@@ -1,6 +1,7 @@
 <Project>
 
   <PropertyGroup>
+    <LangVersion>7.1</LangVersion>
     <Authors>NServiceBus Ltd</Authors>
     <Company>NServiceBus Ltd</Company>
     <PackageLicenseUrl>http://particular.net/LicenseAgreement</PackageLicenseUrl>
