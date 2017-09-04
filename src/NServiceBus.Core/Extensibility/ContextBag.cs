@@ -57,7 +57,7 @@ namespace NServiceBus.Extensibility
                 return parentBag.TryGet(key, out result);
             }
 
-            result = default(T);
+            result = default;
             return false;
         }
 

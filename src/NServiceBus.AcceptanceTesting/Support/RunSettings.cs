@@ -143,11 +143,11 @@ namespace NServiceBus.AcceptanceTesting.Support
 
             if (typeof(T).IsValueType)
             {
-                result = default(T);
+                result = default;
                 return false;
             }
 
-            result = default(T);
+            result = default;
             return false;
         }
 

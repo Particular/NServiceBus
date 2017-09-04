@@ -18,7 +18,7 @@ namespace System.Threading
                 {
                     return (T)localValue;
                 }
-                return default(T);
+                return default;
             }
             set
             {

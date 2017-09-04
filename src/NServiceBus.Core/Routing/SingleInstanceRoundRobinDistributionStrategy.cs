@@ -25,7 +25,7 @@ namespace NServiceBus.Routing
             Guard.AgainstNull(nameof(receiverAddresses), receiverAddresses);
             if (receiverAddresses.Length == 0)
             {
-                return default(string);
+                return default;
             }
             var i = Interlocked.Increment(ref index);
             var result = receiverAddresses[(int)(i % receiverAddresses.Length)];

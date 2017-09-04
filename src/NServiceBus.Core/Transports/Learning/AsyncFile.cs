@@ -79,7 +79,7 @@ namespace NServiceBus
             }
         }
 
-        public static async Task<byte[]> ReadBytes(string filePath, CancellationToken token = default(CancellationToken))
+        public static async Task<byte[]> ReadBytes(string filePath, CancellationToken token = default)
         {
             using (var stream = CreateReadStream(filePath))
             {

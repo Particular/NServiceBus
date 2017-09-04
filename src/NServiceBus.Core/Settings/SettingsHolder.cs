@@ -41,7 +41,7 @@ namespace NServiceBus.Settings
         public bool TryGet<T>(string key, out T val)
         {
             Guard.AgainstNullAndEmpty(nameof(key), key);
-            val = default(T);
+            val = default;
 
             if (!Overrides.TryGetValue(key, out var tmp))
             {
@@ -120,7 +120,7 @@ namespace NServiceBus.Settings
                 return (T) result;
             }
 
-            return default(T);
+            return default;
         }
 
         /// <summary>
