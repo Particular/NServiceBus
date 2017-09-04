@@ -43,14 +43,12 @@
                 return MoveToError(errorContext, configuration.Failed.ErrorQueue);
             }
 
-            var delayedRetryAction = recoveryAction as DelayedRetry;
-            if (delayedRetryAction != null)
+            if (recoveryAction is DelayedRetry delayedRetryAction)
             {
                 return DeferMessage(delayedRetryAction, errorContext);
             }
 
-            var moveToError = recoveryAction as MoveToError;
-            if (moveToError != null)
+            if (recoveryAction is MoveToError moveToError)
             {
                 return MoveToError(errorContext, moveToError.ErrorQueue);
             }

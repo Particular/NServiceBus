@@ -12,8 +12,7 @@ namespace NServiceBus
     {
         public Task<CompletableSynchronizedStorageSession> TryAdapt(OutboxTransaction transaction, ContextBag context)
         {
-            var inMemOutboxTransaction = transaction as InMemoryOutboxTransaction;
-            if (inMemOutboxTransaction != null)
+            if (transaction is InMemoryOutboxTransaction inMemOutboxTransaction)
             {
                 CompletableSynchronizedStorageSession session = new InMemorySynchronizedStorageSession(inMemOutboxTransaction.Transaction);
                 return Task.FromResult(session);

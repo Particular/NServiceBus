@@ -98,15 +98,13 @@ namespace NServiceBus
 
         static void SerializeRoutingStrategy(AddressTag addressTag, Dictionary<string, string> options)
         {
-            var indirect = addressTag as MulticastAddressTag;
-            if (indirect != null)
+            if (addressTag is MulticastAddressTag indirect)
             {
                 options["EventType"] = indirect.MessageType.AssemblyQualifiedName;
                 return;
             }
 
-            var direct = addressTag as UnicastAddressTag;
-            if (direct != null)
+            if (addressTag is UnicastAddressTag direct)
             {
                 options["Destination"] = direct.Destination;
                 return;
@@ -117,28 +115,24 @@ namespace NServiceBus
 
         static void SerializeDeliveryConstraint(DeliveryConstraint constraint, Dictionary<string, string> options)
         {
-            var nonDurable = constraint as NonDurableDelivery;
-            if (nonDurable != null)
+            if (constraint is NonDurableDelivery)
             {
                 options["NonDurable"] = true.ToString();
                 return;
             }
-            var doNotDeliverBefore = constraint as DoNotDeliverBefore;
-            if (doNotDeliverBefore != null)
+            if (constraint is DoNotDeliverBefore doNotDeliverBefore)
             {
                 options["DeliverAt"] = DateTimeExtensions.ToWireFormattedString(doNotDeliverBefore.At);
                 return;
             }
 
-            var delayDeliveryWith = constraint as DelayDeliveryWith;
-            if (delayDeliveryWith != null)
+            if (constraint is DelayDeliveryWith delayDeliveryWith)
             {
                 options["DelayDeliveryFor"] = delayDeliveryWith.Delay.ToString();
                 return;
             }
 
-            var discard = constraint as DiscardIfNotReceivedBefore;
-            if (discard != null)
+            if (constraint is DiscardIfNotReceivedBefore discard)
             {
                 options["TimeToBeReceived"] = discard.MaxTime.ToString();
                 return;

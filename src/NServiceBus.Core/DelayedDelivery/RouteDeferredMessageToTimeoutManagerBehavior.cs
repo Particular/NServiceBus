@@ -40,8 +40,7 @@ namespace NServiceBus
         {
             var headers = new Dictionary<string, string>(context.Message.Headers);
             var originalTag = routingStrategy.Apply(headers);
-            var unicastTag = originalTag as UnicastAddressTag;
-            if (unicastTag == null)
+            if (!(originalTag is UnicastAddressTag unicastTag))
             {
                 throw new Exception("Delayed delivery using the Timeout Manager is only supported for messages with unicast routing");
             }
