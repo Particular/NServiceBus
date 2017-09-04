@@ -58,9 +58,7 @@
                 var systemTransactionsGroup = System.Configuration.ConfigurationManager.OpenMachineConfiguration()
                     .GetSectionGroup("system.transactions");
 
-                var machineSettings = systemTransactionsGroup?.Sections.Get("machineSettings") as System.Transactions.Configuration.MachineSettingsSection;
-
-                if (machineSettings != null)
+                if (systemTransactionsGroup?.Sections.Get("machineSettings") is System.Transactions.Configuration.MachineSettingsSection machineSettings)
                 {
                     maxTimeout = machineSettings.MaxTimeout;
                 }
