@@ -73,7 +73,7 @@ namespace NServiceBus.Core.Tests.Routing
         public void When_routing_to_specific_instance_should_throw_when_route_for_given_type_points_to_physical_address()
         {
             var table = new UnicastRoutingTable();
-            table.AddOrReplaceRoutes("A", new List<RouteTableEntry>()
+            table.AddOrReplaceRoutes("A", new List<RouteTableEntry>
             {
                 new RouteTableEntry(typeof(MyMessage), UnicastRoute.CreateFromPhysicalAddress("PhysicalAddress"))
             });
@@ -93,11 +93,11 @@ namespace NServiceBus.Core.Tests.Routing
         {
             var table = new UnicastRoutingTable();
             var instances = new EndpointInstances();
-            table.AddOrReplaceRoutes("A", new List<RouteTableEntry>()
+            table.AddOrReplaceRoutes("A", new List<RouteTableEntry>
             {
                 new RouteTableEntry(typeof(MyMessage), UnicastRoute.CreateFromEndpointName("Endpoint"))
             });
-            instances.AddOrReplaceInstances("A", new List<EndpointInstance>()
+            instances.AddOrReplaceInstances("A", new List<EndpointInstance>
             {
                 new EndpointInstance("Endpoint", "1"),
                 new EndpointInstance("Endpoint", "2"),
