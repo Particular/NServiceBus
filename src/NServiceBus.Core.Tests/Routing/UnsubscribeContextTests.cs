@@ -15,15 +15,11 @@
             var testee = new UnsubscribeContext(new RootContext(null, null, null), typeof(object), context);
             testee.Extensions.Set("someKey", "updatedValue");
             testee.Extensions.Set("anotherKey", "anotherValue");
-
-            string value;
-            context.TryGet("someKey", out value);
+            context.TryGet("someKey", out string value);
             Assert.AreEqual("someValue", value);
             Assert.IsFalse(context.TryGet("anotherKey", out string _));
-            string updatedValue;
-            string anotherValue2;
-            testee.Extensions.TryGet("someKey", out updatedValue);
-            testee.Extensions.TryGet("anotherKey", out anotherValue2);
+            testee.Extensions.TryGet("someKey", out string updatedValue);
+            testee.Extensions.TryGet("anotherKey", out string anotherValue2);
             Assert.AreEqual("updatedValue", updatedValue);
             Assert.AreEqual("anotherValue", anotherValue2);
         }

@@ -91,9 +91,7 @@ namespace NServiceBus
 
         public static bool IsSystemType(this Type type)
         {
-            bool result;
-
-            if (!IsSystemTypeCache.TryGetValue(type.TypeHandle, out result))
+            if (!IsSystemTypeCache.TryGetValue(type.TypeHandle, out var result))
             {
                 var nameOfContainingAssembly = type.Assembly.GetName().GetPublicKeyToken();
                 IsSystemTypeCache[type.TypeHandle] = result = IsClrType(nameOfContainingAssembly);

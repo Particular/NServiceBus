@@ -8,7 +8,7 @@ namespace System.Threading
     {
         readonly string id;
 
-        // Gets or sets the value of the ambient data. 
+        // Gets or sets the value of the ambient data.
         public T Value
         {
             get

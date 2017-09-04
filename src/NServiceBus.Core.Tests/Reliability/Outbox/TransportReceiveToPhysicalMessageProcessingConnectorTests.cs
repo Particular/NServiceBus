@@ -44,19 +44,13 @@
 
             Assert.True(fakeBatchPipeline.TransportOperations.First().DeliveryConstraints.Any(c => c is NonDurableDelivery));
 
-            DelayDeliveryWith delayDeliveryWith;
-
-            Assert.True(fakeBatchPipeline.TransportOperations.First().DeliveryConstraints.TryGet(out delayDeliveryWith));
+            Assert.True(fakeBatchPipeline.TransportOperations.First().DeliveryConstraints.TryGet(out DelayDeliveryWith delayDeliveryWith));
             Assert.AreEqual(TimeSpan.FromSeconds(10), delayDeliveryWith.Delay);
 
-            DoNotDeliverBefore doNotDeliverBefore;
-
-            Assert.True(fakeBatchPipeline.TransportOperations.First().DeliveryConstraints.TryGet(out doNotDeliverBefore));
+            Assert.True(fakeBatchPipeline.TransportOperations.First().DeliveryConstraints.TryGet(out DoNotDeliverBefore doNotDeliverBefore));
             Assert.AreEqual(deliverTime.ToString(), doNotDeliverBefore.At.ToString());
 
-            DiscardIfNotReceivedBefore discard;
-
-            Assert.True(fakeBatchPipeline.TransportOperations.First().DeliveryConstraints.TryGet(out discard));
+            Assert.True(fakeBatchPipeline.TransportOperations.First().DeliveryConstraints.TryGet(out DiscardIfNotReceivedBefore discard));
             Assert.AreEqual(maxTime, discard.MaxTime);
 
             Assert.Null(fakeOutbox.StoredMessage);

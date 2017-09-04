@@ -8,8 +8,7 @@ namespace NServiceBus.SagaPersisters.InMemory.Tests
         {
             var metadata = SagaMetadata.Create(typeof(T));
 
-            SagaMetadata.CorrelationPropertyMetadata correlatedProp;
-            if (!metadata.TryGetCorrelationProperty(out correlatedProp))
+            if (!metadata.TryGetCorrelationProperty(out var correlatedProp))
             {
                 return SagaCorrelationProperty.None;
             }

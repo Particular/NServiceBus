@@ -15,8 +15,7 @@
 
             await behavior.Invoke(context, _ => TaskEx.CompletedTask);
 
-            NonDurableDelivery nonDurableDeliveryConstraint;
-            Assert.IsTrue(context.Extensions.TryGetDeliveryConstraint(out nonDurableDeliveryConstraint));
+            Assert.IsTrue(context.Extensions.TryGetDeliveryConstraint(out NonDurableDelivery nonDurableDeliveryConstraint));
             Assert.IsNotNull(nonDurableDeliveryConstraint);
         }
 
@@ -39,8 +38,7 @@
 
             await behavior.Invoke(context, _ => TaskEx.CompletedTask);
 
-            NonDurableDelivery nonDurableDeliveryConstraint;
-            Assert.IsFalse(context.Extensions.TryGetDeliveryConstraint(out nonDurableDeliveryConstraint));
+            Assert.IsFalse(context.Extensions.TryGetDeliveryConstraint(out NonDurableDelivery nonDurableDeliveryConstraint));
             Assert.IsNull(nonDurableDeliveryConstraint);
         }
 

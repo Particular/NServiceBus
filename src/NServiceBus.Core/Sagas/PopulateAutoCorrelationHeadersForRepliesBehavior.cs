@@ -3,7 +3,6 @@
     using System;
     using System.Threading.Tasks;
     using Pipeline;
-    using Transport;
 
     class PopulateAutoCorrelationHeadersForRepliesBehavior : IBehavior<IOutgoingReplyContext, IOutgoingReplyContext>
     {

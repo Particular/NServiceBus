@@ -21,9 +21,7 @@
         {
             get
             {
-                TransportTransactionMode supportedTransactionMode;
-
-                if (settings.TryGet("FakeTransport.SupportedTransactionMode", out supportedTransactionMode))
+                if (settings.TryGet("FakeTransport.SupportedTransactionMode", out TransportTransactionMode supportedTransactionMode))
                 {
                     return supportedTransactionMode;
                 }

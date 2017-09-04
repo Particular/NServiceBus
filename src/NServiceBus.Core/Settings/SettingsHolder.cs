@@ -175,8 +175,7 @@ namespace NServiceBus.Settings
         public T GetOrCreate<T>()
             where T : class, new()
         {
-            T value;
-            if (!TryGet(out value))
+            if (!TryGet(out T value))
             {
                 value = new T();
                 Set<T>(value);

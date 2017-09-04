@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.AcceptanceTests.Core.Mutators
 {
     using System;
-    using System.Collections.Generic;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using AcceptanceTesting.Customization;
@@ -94,10 +93,8 @@
                 {
                     Assert.IsNotEmpty(context.OutgoingHeaders);
                     Assert.IsNotNull(context.OutgoingMessage);
-                    IReadOnlyDictionary<string, string> incomingHeaders;
-                    context.TryGetIncomingHeaders(out incomingHeaders);
-                    object incomingMessage;
-                    context.TryGetIncomingMessage(out incomingMessage);
+                    context.TryGetIncomingHeaders(out var incomingHeaders);
+                    context.TryGetIncomingMessage(out var incomingMessage);
                     Assert.IsNotEmpty(incomingHeaders);
                     Assert.IsNotNull(incomingMessage);
                     return Task.FromResult(0);
@@ -107,10 +104,8 @@
                 {
                     Assert.IsNotEmpty(context.OutgoingHeaders);
                     Assert.IsNotNull(context.OutgoingBody);
-                    IReadOnlyDictionary<string, string> incomingHeaders;
-                    context.TryGetIncomingHeaders(out incomingHeaders);
-                    object incomingMessage;
-                    context.TryGetIncomingMessage(out incomingMessage);
+                    context.TryGetIncomingHeaders(out var incomingHeaders);
+                    context.TryGetIncomingMessage(out var incomingMessage);
                     Assert.IsNotEmpty(incomingHeaders);
                     Assert.IsNotNull(incomingMessage);
                     return Task.FromResult(0);

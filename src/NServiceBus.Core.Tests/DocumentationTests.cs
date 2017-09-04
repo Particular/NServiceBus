@@ -198,9 +198,8 @@
 
             FieldInfo GetLineInfoField(Type type)
             {
-                FieldInfo cachedField;
                 var handle = type.TypeHandle;
-                if (fieldCache.TryGetValue(handle, out cachedField))
+                if (fieldCache.TryGetValue(handle, out var cachedField))
                 {
                     return cachedField;
                 }

@@ -13,8 +13,7 @@ namespace NServiceBus.AcceptanceTesting.Support
 
         public void RegisterPublisherFor<T>(string endpointName)
         {
-            PublisherDetails publisher;
-            if (!publisherDetails.TryGetValue(endpointName, out publisher))
+            if (!publisherDetails.TryGetValue(endpointName, out var publisher))
             {
                 publisher = new PublisherDetails(endpointName);
 

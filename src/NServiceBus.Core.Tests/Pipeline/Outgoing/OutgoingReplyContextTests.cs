@@ -17,14 +17,11 @@
             testee.Extensions.Set("someKey", "updatedValue");
             testee.Extensions.Set("anotherKey", "anotherValue");
 
-            string value;
-            options.Context.TryGet("someKey", out value);
+            options.Context.TryGet("someKey", out string value);
             Assert.AreEqual("someValue", value);
             Assert.IsFalse(options.Context.TryGet("anotherKey", out string _));
-            string updatedValue;
-            string anotherValue2;
-            testee.Extensions.TryGet("someKey", out updatedValue);
-            testee.Extensions.TryGet("anotherKey", out anotherValue2);
+            testee.Extensions.TryGet("someKey", out string updatedValue);
+            testee.Extensions.TryGet("anotherKey", out string anotherValue2);
             Assert.AreEqual("updatedValue", updatedValue);
             Assert.AreEqual("anotherValue", anotherValue2);
         }

@@ -13,9 +13,7 @@
                 typeof(InheritedClassWithAttribute)
             }, TimeToBeReceivedMappings.DefaultConvention, true);
 
-            TimeSpan timeToBeReceived;
-
-            Assert.True(mappings.TryGetTimeToBeReceived(typeof(InheritedClassWithAttribute), out timeToBeReceived));
+            Assert.True(mappings.TryGetTimeToBeReceived(typeof(InheritedClassWithAttribute), out var timeToBeReceived));
             Assert.AreEqual(TimeSpan.FromSeconds(2), timeToBeReceived);
         }
 
@@ -27,9 +25,7 @@
                 typeof(InheritedClassWithNoAttribute)
             }, TimeToBeReceivedMappings.DefaultConvention, true);
 
-            TimeSpan timeToBeReceived;
-
-            Assert.True(mappings.TryGetTimeToBeReceived(typeof(InheritedClassWithNoAttribute), out timeToBeReceived));
+            Assert.True(mappings.TryGetTimeToBeReceived(typeof(InheritedClassWithNoAttribute), out var timeToBeReceived));
             Assert.AreEqual(TimeSpan.FromSeconds(1), timeToBeReceived);
         }
 
@@ -49,9 +45,7 @@
             {
             }, TimeToBeReceivedMappings.DefaultConvention, true);
 
-            TimeSpan timeToBeReceived;
-
-            Assert.True(mappings.TryGetTimeToBeReceived(typeof(InheritedClassWithAttribute), out timeToBeReceived));
+            Assert.True(mappings.TryGetTimeToBeReceived(typeof(InheritedClassWithAttribute), out var timeToBeReceived));
             Assert.AreEqual(TimeSpan.FromSeconds(2), timeToBeReceived);
         }
 
@@ -62,9 +56,7 @@
             {
             }, TimeToBeReceivedMappings.DefaultConvention, true);
 
-            TimeSpan timeToBeReceived;
-
-            Assert.True(mappings.TryGetTimeToBeReceived(typeof(InheritedClassWithNoAttribute), out timeToBeReceived));
+            Assert.True(mappings.TryGetTimeToBeReceived(typeof(InheritedClassWithNoAttribute), out var timeToBeReceived));
             Assert.AreEqual(TimeSpan.FromSeconds(1), timeToBeReceived);
         }
 

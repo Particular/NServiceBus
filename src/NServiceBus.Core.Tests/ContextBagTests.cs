@@ -13,9 +13,7 @@
 
             contextBag.Set("MonkeyPatch", "some string");
 
-            string theValue;
-
-            ((ReadOnlyContextBag) contextBag).TryGet("MonkeyPatch", out theValue);
+            ((ReadOnlyContextBag) contextBag).TryGet("MonkeyPatch", out string theValue);
             Assert.AreEqual("some string", theValue);
         }
     }
