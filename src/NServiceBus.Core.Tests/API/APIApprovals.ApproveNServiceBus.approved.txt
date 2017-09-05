@@ -314,6 +314,15 @@ namespace NServiceBus
             where T : NServiceBus.Features.Feature { }
         public static void EnableFeature(this NServiceBus.EndpointConfiguration config, System.Type featureType) { }
     }
+    [System.ObsoleteAttribute("Msmq support has been moved to a separate package: NServiceBus.Transport.Msmq. Wi" +
+        "ll be removed in version 8.0.0.", true)]
+    public class static EndpointInstanceExtensions
+    {
+        [System.ObsoleteAttribute("Msmq support has been moved to a separate package: NServiceBus.Transport.Msmq. Th" +
+            "e member currently throws a NotImplementedException. Will be removed in version " +
+            "8.0.0.", true)]
+        public static NServiceBus.Routing.EndpointInstance AtMachine(this NServiceBus.Routing.EndpointInstance instance, string machineName) { }
+    }
     public class static ErrorQueueSettings
     {
         public const string SettingsKey = "errorQueue";
@@ -535,6 +544,23 @@ namespace NServiceBus
         public static void DisableInstallers(this NServiceBus.EndpointConfiguration config) { }
         public static void EnableInstallers(this NServiceBus.EndpointConfiguration config, string username = null) { }
     }
+    [System.ObsoleteAttribute("Msmq support has been moved to a separate package: NServiceBus.Transport.Msmq. Wi" +
+        "ll be removed in version 8.0.0.", true)]
+    public class InstanceMappingFileSettings : NServiceBus.Configuration.AdvancedExtensibility.ExposeSettings
+    {
+        [System.ObsoleteAttribute("Msmq support has been moved to a separate package: NServiceBus.Transport.Msmq. Th" +
+            "e member currently throws a NotImplementedException. Will be removed in version " +
+            "8.0.0.", true)]
+        public InstanceMappingFileSettings(NServiceBus.Settings.SettingsHolder settings) { }
+        [System.ObsoleteAttribute("Msmq support has been moved to a separate package: NServiceBus.Transport.Msmq. Th" +
+            "e member currently throws a NotImplementedException. Will be removed in version " +
+            "8.0.0.", true)]
+        public NServiceBus.InstanceMappingFileSettings FilePath(string filePath) { }
+        [System.ObsoleteAttribute("Msmq support has been moved to a separate package: NServiceBus.Transport.Msmq. Th" +
+            "e member currently throws a NotImplementedException. Will be removed in version " +
+            "8.0.0.", true)]
+        public NServiceBus.InstanceMappingFileSettings RefreshInterval(System.TimeSpan refreshInterval) { }
+    }
     public interface IPipelineContext : NServiceBus.Extensibility.IExtendable
     {
         System.Threading.Tasks.Task Publish(object message, NServiceBus.PublishOptions options);
@@ -651,6 +677,49 @@ namespace NServiceBus
     public sealed class MoveToError : NServiceBus.RecoverabilityAction
     {
         public string ErrorQueue { get; }
+    }
+    [System.ObsoleteAttribute("Msmq support has been moved to a separate package: NServiceBus.Transport.Msmq. Wi" +
+        "ll be removed in version 8.0.0.", true)]
+    public class static MsmqConfigurationExtensions
+    {
+        [System.ObsoleteAttribute("Msmq support has been moved to a separate package: NServiceBus.Transport.Msmq. Th" +
+            "e member currently throws a NotImplementedException. Will be removed in version " +
+            "8.0.0.", true)]
+        public static NServiceBus.TransportExtensions<NServiceBus.MsmqTransport> ApplyLabelToMessages(this NServiceBus.TransportExtensions<NServiceBus.MsmqTransport> transportExtensions, System.Func<System.Collections.Generic.IReadOnlyDictionary<string, string>, string> labelGenerator) { }
+        [System.ObsoleteAttribute("Msmq support has been moved to a separate package: NServiceBus.Transport.Msmq. Th" +
+            "e member currently throws a NotImplementedException. Will be removed in version " +
+            "8.0.0.", true)]
+        public static NServiceBus.InstanceMappingFileSettings InstanceMappingFile(this NServiceBus.RoutingSettings<NServiceBus.MsmqTransport> config) { }
+        [System.ObsoleteAttribute("Msmq support has been moved to a separate package: NServiceBus.Transport.Msmq. Th" +
+            "e member currently throws a NotImplementedException. Will be removed in version " +
+            "8.0.0.", true)]
+        public static void SetMessageDistributionStrategy(this NServiceBus.RoutingSettings<NServiceBus.MsmqTransport> config, NServiceBus.Routing.DistributionStrategy distributionStrategy) { }
+        [System.ObsoleteAttribute("Msmq support has been moved to a separate package: NServiceBus.Transport.Msmq. Th" +
+            "e member currently throws a NotImplementedException. Will be removed in version " +
+            "8.0.0.", true)]
+        public static NServiceBus.TransportExtensions<NServiceBus.MsmqTransport> TransactionScopeOptions(this NServiceBus.TransportExtensions<NServiceBus.MsmqTransport> transportExtensions, System.Nullable<System.TimeSpan> timeout = null, System.Nullable<System.Transactions.IsolationLevel> isolationLevel = null) { }
+        [System.ObsoleteAttribute("Msmq support has been moved to a separate package: NServiceBus.Transport.Msmq. Th" +
+            "e member currently throws a NotImplementedException. Will be removed in version " +
+            "8.0.0.", true)]
+        public static void UseDeadLetterQueueForMessagesWithTimeToBeReceived(this NServiceBus.TransportExtensions<NServiceBus.MsmqTransport> config) { }
+    }
+    [System.ObsoleteAttribute("Msmq support has been moved to a separate package: NServiceBus.Transport.Msmq. Wi" +
+        "ll be removed in version 8.0.0.", true)]
+    public class MsmqTransport : NServiceBus.Transport.TransportDefinition, NServiceBus.Routing.IMessageDrivenSubscriptionTransport
+    {
+        public MsmqTransport() { }
+        [System.ObsoleteAttribute("Msmq support has been moved to a separate package: NServiceBus.Transport.Msmq. Th" +
+            "e member currently throws a NotImplementedException. Will be removed in version " +
+            "8.0.0.", true)]
+        public override string ExampleConnectionStringForErrorMessage { get; }
+        [System.ObsoleteAttribute("Msmq support has been moved to a separate package: NServiceBus.Transport.Msmq. Th" +
+            "e member currently throws a NotImplementedException. Will be removed in version " +
+            "8.0.0.", true)]
+        public override bool RequiresConnectionString { get; }
+        [System.ObsoleteAttribute("Msmq support has been moved to a separate package: NServiceBus.Transport.Msmq. Th" +
+            "e member currently throws a NotImplementedException. Will be removed in version " +
+            "8.0.0.", true)]
+        public override NServiceBus.Transport.TransportInfrastructure Initialize(NServiceBus.Settings.SettingsHolder settings, string connectionString) { }
     }
     public class NonDurableDelivery : NServiceBus.DeliveryConstraints.DeliveryConstraint
     {
@@ -1534,6 +1603,12 @@ namespace NServiceBus.Features
     {
         protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
     }
+    [System.ObsoleteAttribute("Msmq support has been moved to a separate package: NServiceBus.Transport.Msmq. Wi" +
+        "ll be removed in version 8.0.0.", true)]
+    public class MsmqSubscriptionPersistence
+    {
+        public MsmqSubscriptionPersistence() { }
+    }
     public class Outbox : NServiceBus.Features.Feature
     {
         protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
@@ -1871,6 +1946,24 @@ namespace NServiceBus.Persistence
         public sealed class Timeouts : NServiceBus.Persistence.StorageType { }
     }
     public interface SynchronizedStorageSession { }
+}
+namespace NServiceBus.Persistence.Legacy
+{
+    [System.ObsoleteAttribute("Msmq support has been moved to a separate package: NServiceBus.Transport.Msmq. Wi" +
+        "ll be removed in version 8.0.0.", true)]
+    public class MsmqPersistence : NServiceBus.Persistence.PersistenceDefinition
+    {
+        public MsmqPersistence() { }
+    }
+    [System.ObsoleteAttribute("Msmq support has been moved to a separate package: NServiceBus.Transport.Msmq. Wi" +
+        "ll be removed in version 8.0.0.", true)]
+    public class static MsmqSubscriptionStorageConfigurationExtensions
+    {
+        [System.ObsoleteAttribute("Msmq support has been moved to a separate package: NServiceBus.Transport.Msmq. Th" +
+            "e member currently throws a NotImplementedException. Will be removed in version " +
+            "8.0.0.", true)]
+        public static void SubscriptionQueue(this NServiceBus.PersistenceExtensions<NServiceBus.Persistence.Legacy.MsmqPersistence> persistenceExtensions, string queue) { }
+    }
 }
 namespace NServiceBus.Pipeline
 {
@@ -2616,6 +2709,17 @@ namespace NServiceBus.Transport
         public string Destination { get; }
         public NServiceBus.Transport.OutgoingMessage Message { get; }
         public NServiceBus.Transport.DispatchConsistency RequiredDispatchConsistency { get; }
+    }
+}
+namespace NServiceBus.Transport.Msmq
+{
+    [System.ObsoleteAttribute("Msmq support has been moved to a separate package: NServiceBus.Transport.Msmq. Wi" +
+        "ll be removed in version 8.0.0.", true)]
+    public class HeaderInfo
+    {
+        public HeaderInfo() { }
+        public string Key { get; set; }
+        public string Value { get; set; }
     }
 }
 namespace NServiceBus.Unicast
