@@ -29,8 +29,7 @@ namespace NServiceBus
 
         internal static Func<IIncomingPhysicalMessageContext, bool> GetSubscriptionAuthorizer(this ReadOnlySettings settings)
         {
-            Func<IIncomingPhysicalMessageContext, bool> authorizer;
-            settings.TryGet("SubscriptionAuthorizer", out authorizer);
+            settings.TryGet("SubscriptionAuthorizer", out Func<IIncomingPhysicalMessageContext, bool> authorizer);
             return authorizer;
         }
 

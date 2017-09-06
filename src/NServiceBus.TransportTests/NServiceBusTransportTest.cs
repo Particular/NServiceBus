@@ -49,9 +49,7 @@
                 throw new InvalidOperationException($"Transport Test project must include a non-namespaced class named '{typeName}' implementing {typeof(IConfigureTransportInfrastructure).Name}.");
             }
 
-            var configurer = Activator.CreateInstance(configurerType) as IConfigureTransportInfrastructure;
-
-            if (configurer == null)
+            if (!(Activator.CreateInstance(configurerType) is IConfigureTransportInfrastructure configurer))
             {
                 throw new InvalidOperationException($"{typeName} does not implement {typeof(IConfigureTransportInfrastructure).Name}.");
             }

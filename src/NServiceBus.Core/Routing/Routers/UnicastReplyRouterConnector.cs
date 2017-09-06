@@ -4,7 +4,6 @@ namespace NServiceBus
     using System.Threading.Tasks;
     using Pipeline;
     using Routing;
-    using Transport;
     using Unicast.Queuing;
 
     class UnicastReplyRouterConnector : StageConnector<IOutgoingReplyContext, IOutgoingLogicalMessageContext>
@@ -37,16 +36,12 @@ namespace NServiceBus
 
         static string GetReplyToAddressFromIncomingMessage(IOutgoingReplyContext context)
         {
-            IncomingMessage incomingMessage;
-
-            if (!context.TryGetIncomingPhysicalMessage(out incomingMessage))
+            if (!context.TryGetIncomingPhysicalMessage(out var incomingMessage))
             {
                 throw new Exception("No incoming message found, replies are only valid to call from a message handler");
             }
 
-            string replyToAddress;
-
-            if (!incomingMessage.Headers.TryGetValue(Headers.ReplyToAddress, out replyToAddress))
+            if (!incomingMessage.Headers.TryGetValue(Headers.ReplyToAddress, out var replyToAddress))
             {
                 throw new Exception($"No `ReplyToAddress` found on the {context.Message.MessageType.FullName} being processed");
             }

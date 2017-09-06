@@ -19,6 +19,6 @@ namespace NServiceBus.Routing
         /// <summary>
         /// The event being published.
         /// </summary>
-        public Type MessageType { get; private set; }
+        public Type MessageType { get; }
     }
 }

@@ -61,8 +61,7 @@
             {
                 public Task Invoke(IOutgoingLogicalMessageContext context, Func<IOutgoingLogicalMessageContext, Task> next)
                 {
-                    Context data;
-                    if (context.Extensions.TryGet(out data))
+                    if (context.Extensions.TryGet(out Context data))
                     {
                         context.UpdateMessage(new SendMessage
                         {

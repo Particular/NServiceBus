@@ -26,8 +26,7 @@
 
             var convention = TimeToBeReceivedMappings.DefaultConvention;
 
-            UserDefinedTimeToBeReceivedConvention userDefinedConvention;
-            if (context.Settings.TryGet(out userDefinedConvention))
+            if (context.Settings.TryGet(out UserDefinedTimeToBeReceivedConvention userDefinedConvention))
             {
                 convention = userDefinedConvention.GetTimeToBeReceivedForMessage;
             }

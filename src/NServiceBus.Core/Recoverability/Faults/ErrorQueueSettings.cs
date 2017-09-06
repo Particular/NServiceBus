@@ -19,10 +19,11 @@ namespace NServiceBus
         public static string ErrorQueueAddress(this ReadOnlySettings settings)
         {
             Guard.AgainstNull(nameof(settings), settings);
-            string errorQueue;
 
-            if (TryGetExplicitlyConfiguredErrorQueueAddress(settings, out errorQueue))
+            if (TryGetExplicitlyConfiguredErrorQueueAddress(settings, out var errorQueue))
+            {
                 return errorQueue;
+            }
 
             return DefaultErrorQueueName;
         }

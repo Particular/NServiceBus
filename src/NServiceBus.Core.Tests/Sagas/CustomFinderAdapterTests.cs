@@ -29,9 +29,7 @@
 
             var sagaMetadata = SagaMetadata.Create(typeof(TestSaga), availableTypes, messageConventions);
 
-            SagaFinderDefinition finderDefinition;
-
-            if (!sagaMetadata.TryGetFinder(messageType.FullName, out finderDefinition))
+            if (!sagaMetadata.TryGetFinder(messageType.FullName, out var finderDefinition))
             {
                 throw new Exception("Finder not found");
             }

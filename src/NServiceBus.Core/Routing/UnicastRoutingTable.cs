@@ -11,8 +11,7 @@ namespace NServiceBus.Routing
     {
         internal UnicastRoute GetRouteFor(Type messageType)
         {
-            UnicastRoute unicastRoute;
-            return routeTable.TryGetValue(messageType, out unicastRoute)
+            return routeTable.TryGetValue(messageType, out var unicastRoute)
                 ? unicastRoute
                 : null;
         }

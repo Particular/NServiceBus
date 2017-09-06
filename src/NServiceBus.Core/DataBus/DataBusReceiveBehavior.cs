@@ -35,9 +35,7 @@
                     headerKey = $"{message.GetType().FullName}.{property.Name}";
                 }
 
-                string dataBusKey;
-
-                if (!context.Headers.TryGetValue("NServiceBus.DataBus." + headerKey, out dataBusKey))
+                if (!context.Headers.TryGetValue("NServiceBus.DataBus." + headerKey, out var dataBusKey))
                 {
                     continue;
                 }

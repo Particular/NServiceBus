@@ -17,16 +17,16 @@
             OnMessage = onMessage;
         }
 
-        public string Name { get; private set; }
+        public string Name { get; }
 
-        public string ReceiveAddress { get; private set; }
+        public string ReceiveAddress { get; }
 
-        public TransportTransactionMode RequiredTransportTransactionMode { get; private set; }
+        public TransportTransactionMode RequiredTransportTransactionMode { get; }
 
-        public PushRuntimeSettings RuntimeSettings { get; private set; }
+        public PushRuntimeSettings RuntimeSettings { get; }
 
-        public Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> RecoverabilityPolicy { get; private set; }
+        public Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> RecoverabilityPolicy { get; }
 
-        public Func<IBuilder, MessageContext, Task> OnMessage { get; private set; }
+        public Func<IBuilder, MessageContext, Task> OnMessage { get; }
     }
 }

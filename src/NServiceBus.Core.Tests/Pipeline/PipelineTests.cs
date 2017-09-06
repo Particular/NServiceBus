@@ -360,8 +360,7 @@
 
         public static void PrintInstanceWithRunSpecificIfPossible(this IExtendable context, string instance, TextWriter writer)
         {
-            int runSpecific;
-            if (context.Extensions.TryGet(RunSpecificKey, out runSpecific))
+            if (context.Extensions.TryGet(RunSpecificKey, out int runSpecific))
             {
                 writer.WriteLine($"{instance}: {runSpecific}");
             }

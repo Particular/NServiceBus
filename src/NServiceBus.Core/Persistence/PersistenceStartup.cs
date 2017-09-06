@@ -10,9 +10,7 @@
     {
         public void Run(SettingsHolder settings)
         {
-            List<EnabledPersistence> definitions;
-
-            if (!settings.TryGet("PersistenceDefinitions", out definitions))
+            if (!settings.TryGet("PersistenceDefinitions", out List<EnabledPersistence> definitions))
             {
                 return;
             }
@@ -40,8 +38,7 @@
 
         internal static bool HasSupportFor<T>(ReadOnlySettings settings) where T : StorageType
         {
-            List<Type> supportedStorages;
-            settings.TryGet("ResultingSupportedStorages", out supportedStorages);
+            settings.TryGet("ResultingSupportedStorages", out List<Type> supportedStorages);
 
             return supportedStorages?.Contains(typeof(T)) ?? false;
         }

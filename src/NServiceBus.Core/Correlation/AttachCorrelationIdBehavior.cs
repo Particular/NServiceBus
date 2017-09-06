@@ -3,7 +3,6 @@
     using System;
     using System.Threading.Tasks;
     using Pipeline;
-    using Transport;
 
     class AttachCorrelationIdBehavior : IBehavior<IOutgoingLogicalMessageContext, IOutgoingLogicalMessageContext>
     {
@@ -14,14 +13,10 @@
             //if we don't have a explicit correlation id set
             if (string.IsNullOrEmpty(correlationId))
             {
-                IncomingMessage current;
-
                 //try to get it from the incoming message
-                if (context.TryGetIncomingPhysicalMessage(out current))
+                if (context.TryGetIncomingPhysicalMessage(out var current))
                 {
-                    string incomingCorrelationId;
-
-                    if (current.Headers.TryGetValue(Headers.CorrelationId, out incomingCorrelationId))
+                    if (current.Headers.TryGetValue(Headers.CorrelationId, out var incomingCorrelationId))
                     {
                         correlationId = incomingCorrelationId;
                     }

@@ -338,8 +338,7 @@
 
         FieldInfo GetField(Type t, string name)
         {
-            IEnumerable<FieldInfo> fields;
-            cache.typeToFields.TryGetValue(t, out fields);
+            cache.typeToFields.TryGetValue(t, out var fields);
 
             if (fields == null)
             {
@@ -578,8 +577,7 @@
                     typeToCreate = cache.typesToCreateForArrays[type];
                 }
 
-                Type typeToCreateForEnumerables;
-                if (cache.typesToCreateForEnumerables.TryGetValue(type, out typeToCreateForEnumerables)) //handle IEnumerable<Something>
+                if (cache.typesToCreateForEnumerables.TryGetValue(type, out var typeToCreateForEnumerables)) //handle IEnumerable<Something>
                 {
                     typeToCreate = typeToCreateForEnumerables;
                 }
@@ -631,8 +629,7 @@
 
         PropertyInfo GetProperty(Type t, string name)
         {
-            IEnumerable<PropertyInfo> properties;
-            if (!cache.typeToProperties.TryGetValue(t, out properties))
+            if (!cache.typeToProperties.TryGetValue(t, out var properties))
             {
                 cache.InitType(t);
                 cache.typeToProperties.TryGetValue(t, out properties);

@@ -20,9 +20,7 @@ namespace NServiceBus.Transport
             Guard.AgainstNull(nameof(body), body);
             Guard.AgainstNull(nameof(headers), headers);
 
-            string originalMessageId;
-
-            if (headers.TryGetValue(NServiceBus.Headers.MessageId, out originalMessageId) && !string.IsNullOrEmpty(originalMessageId))
+            if (headers.TryGetValue(NServiceBus.Headers.MessageId, out var originalMessageId) && !string.IsNullOrEmpty(originalMessageId))
             {
                 MessageId = originalMessageId;
             }
@@ -42,12 +40,12 @@ namespace NServiceBus.Transport
         /// <summary>
         /// The id of the message.
         /// </summary>
-        public string MessageId { get; private set; }
+        public string MessageId { get; }
 
         /// <summary>
         /// The message headers.
         /// </summary>
-        public Dictionary<string, string> Headers { get; private set; }
+        public Dictionary<string, string> Headers { get; }
 
         /// <summary>
         /// Gets/sets a byte array to the body content of the message.

@@ -43,16 +43,16 @@ namespace NServiceBus.Hosting
         /// <summary>
         /// The unique identifier for this host.
         /// </summary>
-        public Guid HostId { get; private set; }
+        public Guid HostId { get; }
 
         /// <summary>
         /// The display name of this host.
         /// </summary>
-        public string DisplayName { get; private set; }
+        public string DisplayName { get; }
 
         /// <summary>
         /// A set of properties for the host. This might vary from host to host.
         /// </summary>
-        public Dictionary<string, string> Properties { get; private set; }
+        public Dictionary<string, string> Properties { get; }
     }
 }

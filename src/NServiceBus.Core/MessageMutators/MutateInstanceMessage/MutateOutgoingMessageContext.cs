@@ -37,7 +37,7 @@ namespace NServiceBus.MessageMutator
         /// <summary>
         /// The current outgoing headers.
         /// </summary>
-        public Dictionary<string, string> OutgoingHeaders { get; private set; }
+        public Dictionary<string, string> OutgoingHeaders { get; }
 
         /// <summary>
         /// Gets the incoming message that initiated the current send if it exists.

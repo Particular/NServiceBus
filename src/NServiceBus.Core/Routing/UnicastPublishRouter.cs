@@ -48,8 +48,7 @@ namespace NServiceBus
 
                 groups = groups ?? new Dictionary<string, List<string>>();
 
-                List<string> transportAddresses;
-                if (groups.TryGetValue(subscriber.Endpoint, out transportAddresses))
+                if (groups.TryGetValue(subscriber.Endpoint, out var transportAddresses))
                 {
                     transportAddresses.Add(subscriber.TransportAddress);
                 }

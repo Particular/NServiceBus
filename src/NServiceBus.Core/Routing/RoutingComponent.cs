@@ -35,8 +35,7 @@ namespace NServiceBus
             var conventions = settings.Get<Conventions>();
             var configuredUnicastRoutes = settings.GetOrDefault<ConfiguredUnicastRoutes>();
 
-            List<DistributionStrategy> distributionStrategies;
-            if (settings.TryGet(out distributionStrategies))
+            if (settings.TryGet(out List<DistributionStrategy> distributionStrategies))
             {
                 foreach (var distributionStrategy in distributionStrategies)
                 {
@@ -63,8 +62,7 @@ namespace NServiceBus
 
         static bool ShouldEnforceBestPractices(ReadOnlySettings settings)
         {
-            bool enforceBestPractices;
-            if (settings.TryGet(EnforceBestPracticesSettingsKey, out enforceBestPractices))
+            if (settings.TryGet(EnforceBestPracticesSettingsKey, out bool enforceBestPractices))
             {
                 return enforceBestPractices;
             }

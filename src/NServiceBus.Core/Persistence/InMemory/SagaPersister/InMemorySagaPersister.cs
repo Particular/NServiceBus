@@ -46,9 +46,7 @@ namespace NServiceBus
         public Task<TSagaData> Get<TSagaData>(Guid sagaId, SynchronizedStorageSession session, ContextBag context)
             where TSagaData : IContainSagaData
         {
-            Entry value;
-
-            if (sagas.TryGetValue(sagaId, out value))
+            if (sagas.TryGetValue(sagaId, out var value))
             {
                 SetEntry(context, sagaId, value);
 
@@ -62,9 +60,8 @@ namespace NServiceBus
         public Task<TSagaData> Get<TSagaData>(string propertyName, object propertyValue, SynchronizedStorageSession session, ContextBag context) where TSagaData : IContainSagaData
         {
             var key = new CorrelationId(typeof(TSagaData), propertyName, propertyValue);
-            Guid id;
 
-            if (byCorrelationId.TryGetValue(key, out id))
+            if (byCorrelationId.TryGetValue(key, out var id))
             {
                 // this isn't updated atomically and may return null for an entry that has been indexed but not inserted yet
                 return Get<TSagaData>(id, session, context);
@@ -114,8 +111,7 @@ namespace NServiceBus
 
         static void SetEntry(ContextBag context, Guid sagaId, Entry value)
         {
-            Dictionary<Guid, Entry> entries;
-            if (context.TryGet(ContextKey, out entries) == false)
+            if (context.TryGet(ContextKey, out Dictionary<Guid, Entry> entries) == false)
             {
                 entries = new Dictionary<Guid, Entry>();
                 context.Set(ContextKey, entries);
@@ -125,12 +121,9 @@ namespace NServiceBus
 
         static Entry GetEntry(ReadOnlyContextBag context, Guid sagaDataId)
         {
-            Dictionary<Guid, Entry> entries;
-            if (context.TryGet(ContextKey, out entries))
+            if (context.TryGet(ContextKey, out Dictionary<Guid, Entry> entries))
             {
-                Entry entry;
-
-                if (entries.TryGetValue(sagaDataId, out entry))
+                if (entries.TryGetValue(sagaDataId, out var entry))
                 {
                     return entry;
                 }
@@ -240,7 +233,7 @@ namespace NServiceBus
 
             bool Equals(CorrelationId other)
             {
-                return type == other.type && String.Equals(propertyName, other.propertyName) && propertyValue.Equals(other.propertyValue);
+                return type == other.type && string.Equals(propertyName, other.propertyName) && propertyValue.Equals(other.propertyValue);
             }
 
             public override bool Equals(object obj)

@@ -16,10 +16,10 @@ namespace NServiceBus
             Enforce = enforce;
         }
 
-        public string DependentId { get; private set; }
-        public string DependsOnId { get; private set; }
-        public bool Enforce { get; private set; }
+        public string DependentId { get; }
+        public string DependsOnId { get; }
+        public bool Enforce { get; }
 
-        public DependencyDirection Direction { get; private set; }
+        public DependencyDirection Direction { get; }
     }
 }

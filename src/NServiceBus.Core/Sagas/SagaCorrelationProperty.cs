@@ -20,12 +20,12 @@ namespace NServiceBus.Sagas
         /// <summary>
         /// The name of the property.
         /// </summary>
-        public string Name { get; private set; }
+        public string Name { get; }
 
         /// <summary>
         /// The property value.
         /// </summary>
-        public object Value { get; private set; }
+        public object Value { get; }
 
         /// <summary>
         /// Represents a saga with no correlated property.

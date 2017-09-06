@@ -31,7 +31,7 @@
         /// by the user, b) not a .NET DLL, or c) not referencing NSB and thus not capable of implementing
         /// <see cref="IHandleMessages{T}" />.
         /// </summary>
-        public List<SkippedFile> SkippedFiles { get; private set; }
+        public List<SkippedFile> SkippedFiles { get; }
 
         /// <summary>
         /// True if errors where encountered during assembly scanning.

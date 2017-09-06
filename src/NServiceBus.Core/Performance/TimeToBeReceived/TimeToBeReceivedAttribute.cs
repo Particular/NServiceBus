@@ -15,8 +15,7 @@ namespace NServiceBus
         public TimeToBeReceivedAttribute(string timeSpan)
         {
             Guard.AgainstNullAndEmpty(nameof(timeSpan), timeSpan);
-            TimeSpan parsed;
-            if (!TimeSpan.TryParse(timeSpan, out parsed))
+            if (!TimeSpan.TryParse(timeSpan, out var parsed))
             {
                 var error = $"Could not parse '{timeSpan}' as a timespan.";
                 throw new ArgumentException(error);
@@ -32,6 +31,6 @@ namespace NServiceBus
         /// If the interval specified by the <see cref="TimeToBeReceived" /> property expires before the message
         /// is received by the destination of the message the message will automatically be canceled.
         /// </remarks>
-        public TimeSpan TimeToBeReceived { get; private set; }
+        public TimeSpan TimeToBeReceived { get; }
     }
 }

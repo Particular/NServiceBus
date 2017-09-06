@@ -89,7 +89,7 @@ namespace NServiceBus
         static class DefaultSagaData<TSagaData>
             where TSagaData : IContainSagaData
         {
-            public static TSagaData Value = default(TSagaData);
+            public static TSagaData Value = default;
         }
     }
 }

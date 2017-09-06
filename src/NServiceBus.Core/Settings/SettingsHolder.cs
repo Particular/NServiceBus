@@ -41,10 +41,9 @@ namespace NServiceBus.Settings
         public bool TryGet<T>(string key, out T val)
         {
             Guard.AgainstNullAndEmpty(nameof(key), key);
-            val = default(T);
+            val = default;
 
-            object tmp;
-            if (!Overrides.TryGetValue(key, out tmp))
+            if (!Overrides.TryGetValue(key, out var tmp))
             {
                 if (!Defaults.TryGetValue(key, out tmp))
                 {
@@ -79,8 +78,7 @@ namespace NServiceBus.Settings
         public object Get(string key)
         {
             Guard.AgainstNullAndEmpty(nameof(key), key);
-            object result;
-            if (Overrides.TryGetValue(key, out result))
+            if (Overrides.TryGetValue(key, out var result))
             {
                 return result;
             }
@@ -112,8 +110,7 @@ namespace NServiceBus.Settings
         public T GetOrDefault<T>(string key)
         {
             Guard.AgainstNullAndEmpty(nameof(key), key);
-            object result;
-            if (Overrides.TryGetValue(key, out result))
+            if (Overrides.TryGetValue(key, out var result))
             {
                 return (T) result;
             }
@@ -123,7 +120,7 @@ namespace NServiceBus.Settings
                 return (T) result;
             }
 
-            return default(T);
+            return default;
         }
 
         /// <summary>
@@ -178,8 +175,7 @@ namespace NServiceBus.Settings
         public T GetOrCreate<T>()
             where T : class, new()
         {
-            T value;
-            if (!TryGet(out value))
+            if (!TryGet(out T value))
             {
                 value = new T();
                 Set<T>(value);

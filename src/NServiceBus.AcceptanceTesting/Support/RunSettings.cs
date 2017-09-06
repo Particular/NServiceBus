@@ -11,8 +11,7 @@ namespace NServiceBus.AcceptanceTesting.Support
         {
             get
             {
-                TimeSpan? timeout;
-                TryGet("TestExecutionTimeout", out timeout);
+                TryGet("TestExecutionTimeout", out TimeSpan? timeout);
                 return timeout;
             }
             set
@@ -51,9 +50,8 @@ namespace NServiceBus.AcceptanceTesting.Support
         public T Get<T>(string key)
         {
             Guard.AgainstNullAndEmpty(nameof(key), key);
-            T result;
 
-            if (!TryGet(key, out result))
+            if (!TryGet(key, out T result))
             {
                 throw new KeyNotFoundException("No item found in behavior settings with key: " + key);
             }
@@ -66,9 +64,7 @@ namespace NServiceBus.AcceptanceTesting.Support
         /// </summary>
         public T GetOrCreate<T>() where T : class, new()
         {
-            T value;
-
-            if (TryGet(out value))
+            if (TryGet(out T value))
             {
                 return value;
             }
@@ -139,8 +135,7 @@ namespace NServiceBus.AcceptanceTesting.Support
         public bool TryGet<T>(string key, out T result)
         {
             Guard.AgainstNullAndEmpty(nameof(key), key);
-            object value;
-            if (stash.TryGetValue(key, out value))
+            if (stash.TryGetValue(key, out var value))
             {
                 result = (T) value;
                 return true;
@@ -148,11 +143,11 @@ namespace NServiceBus.AcceptanceTesting.Support
 
             if (typeof(T).IsValueType)
             {
-                result = default(T);
+                result = default;
                 return false;
             }
 
-            result = default(T);
+            result = default;
             return false;
         }
 

@@ -11,10 +11,8 @@
         {
             var state = new State();
 
-            string timeSentString;
             var headers = context.Message.Headers;
-
-            if (headers.TryGetValue(Headers.TimeSent, out timeSentString))
+            if (headers.TryGetValue(Headers.TimeSent, out var timeSentString))
             {
                 state.TimeSent = DateTimeExtensions.ToUtcDateTime(timeSentString);
             }

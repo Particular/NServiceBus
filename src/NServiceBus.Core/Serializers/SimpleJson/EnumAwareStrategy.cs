@@ -14,8 +14,7 @@
 
         public override object DeserializeObject(object value, Type type)
         {
-            var stringValue = value as string;
-            if (stringValue == null)
+            if (!(value is string stringValue))
             {
                 return base.DeserializeObject(value, type);
             }

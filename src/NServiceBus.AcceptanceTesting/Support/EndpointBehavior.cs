@@ -18,7 +18,7 @@
 
         public List<IWhenDefinition> Whens { get; set; }
 
-        public List<Action<EndpointConfiguration, ScenarioContext>> CustomConfig { get; private set; }
+        public List<Action<EndpointConfiguration, ScenarioContext>> CustomConfig { get; }
 
         public bool DoNotFailOnErrorMessages { get; set; }
 

@@ -15,9 +15,7 @@
 
         public Task Invoke(IOutgoingLogicalMessageContext context, Func<IOutgoingLogicalMessageContext, Task> next)
         {
-            TimeSpan timeToBeReceived;
-
-            if (timeToBeReceivedMappings.TryGetTimeToBeReceived(context.Message.MessageType, out timeToBeReceived))
+            if (timeToBeReceivedMappings.TryGetTimeToBeReceived(context.Message.MessageType, out var timeToBeReceived))
             {
                 context.Extensions.AddDeliveryConstraint(new DiscardIfNotReceivedBefore(timeToBeReceived));
                 context.Headers[Headers.TimeToBeReceived] = timeToBeReceived.ToString();

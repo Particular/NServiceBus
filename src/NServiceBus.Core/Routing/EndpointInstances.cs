@@ -16,8 +16,7 @@ namespace NServiceBus.Routing
         public IEnumerable<EndpointInstance> FindInstances(string endpoint)
         {
             Guard.AgainstNull(nameof(endpoint), endpoint);
-            HashSet<EndpointInstance> registeredInstances;
-            return allInstances.TryGetValue(endpoint, out registeredInstances)
+            return allInstances.TryGetValue(endpoint, out var registeredInstances)
                 ? registeredInstances
                 : DefaultInstance(endpoint);
         }
@@ -43,8 +42,7 @@ namespace NServiceBus.Routing
 
                 foreach (var instance in registrations.Values.SelectMany(x => x))
                 {
-                    HashSet<EndpointInstance> instanceSet;
-                    if (!newCache.TryGetValue(instance.Endpoint, out instanceSet))
+                    if (!newCache.TryGetValue(instance.Endpoint, out var instanceSet))
                     {
                         instanceSet = new HashSet<EndpointInstance>();
                         newCache[instance.Endpoint] = instanceSet;

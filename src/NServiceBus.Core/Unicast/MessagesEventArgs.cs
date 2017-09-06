@@ -18,6 +18,6 @@ namespace NServiceBus.Unicast
         /// <summary>
         /// The messages that were sent.
         /// </summary>
-        public object[] Messages { get; private set; }
+        public object[] Messages { get; }
     }
 }

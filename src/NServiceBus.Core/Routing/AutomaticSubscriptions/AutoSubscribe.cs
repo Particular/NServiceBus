@@ -24,9 +24,7 @@
         /// </summary>
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-            SubscribeSettings settings;
-
-            if (!context.Settings.TryGet(out settings))
+            if (!context.Settings.TryGet(out SubscribeSettings settings))
             {
                 settings = new SubscribeSettings();
             }

@@ -79,8 +79,7 @@
                 var immediateRetryConfig = GetImmediateRetryConfig(context.Settings, transactionsOn);
                 var immediateRetriesAvailable = transactionsOn;
 
-                Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> policy;
-                if (!context.Settings.TryGet(PolicyOverride, out policy))
+                if (!context.Settings.TryGet(PolicyOverride, out Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> policy))
                 {
                     policy = DefaultRecoverabilityPolicy.Invoke;
                 }

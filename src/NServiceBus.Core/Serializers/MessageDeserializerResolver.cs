@@ -23,11 +23,9 @@
 
         public IMessageSerializer Resolve(Dictionary<string, string> headers)
         {
-            string contentType;
-            if (headers.TryGetValue(Headers.ContentType, out contentType))
+            if (headers.TryGetValue(Headers.ContentType, out var contentType))
             {
-                IMessageSerializer serializer;
-                if (serializersMap.TryGetValue(contentType, out serializer))
+                if (serializersMap.TryGetValue(contentType, out var serializer))
                 {
                     return serializer;
                 }

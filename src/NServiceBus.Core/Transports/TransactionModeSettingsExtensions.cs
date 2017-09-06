@@ -17,10 +17,8 @@ namespace NServiceBus.ConsistencyGuarantees
             Guard.AgainstNull(nameof(settings), settings);
             var transportTransactionSupport = settings.Get<TransportInfrastructure>().TransactionMode;
 
-            TransportTransactionMode requestedTransportTransactionMode;
-
             //if user haven't asked for a explicit level use what the transport supports
-            if (!settings.TryGet(out requestedTransportTransactionMode))
+            if (!settings.TryGet(out TransportTransactionMode requestedTransportTransactionMode))
             {
                 return transportTransactionSupport;
             }

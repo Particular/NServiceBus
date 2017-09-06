@@ -8,9 +8,7 @@
     {
         public Task Invoke(IAuditContext context, Func<IAuditContext, Task> next)
         {
-            ProcessingStatisticsBehavior.State state;
-
-            if (context.Extensions.TryGet(out state))
+            if (context.Extensions.TryGet(out ProcessingStatisticsBehavior.State state))
             {
                 context.AddAuditData(Headers.ProcessingStarted, DateTimeExtensions.ToWireFormattedString(state.ProcessingStarted));
                 // We can't take the processing time from the state since we don't know it yet.

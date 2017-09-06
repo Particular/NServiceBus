@@ -27,21 +27,21 @@
         /// <summary>
         /// The native queue to consume messages from.
         /// </summary>
-        public string InputQueue { get; private set; }
+        public string InputQueue { get; }
 
         /// <summary>
         /// The native queue where to send corrupted messages to.
         /// </summary>
-        public string ErrorQueue { get; private set; }
+        public string ErrorQueue { get; }
 
         /// <summary>
         /// Instructs the message pump to purge the `InputQueue` before starting to push messages from it.
         /// </summary>
-        public bool PurgeOnStartup { get; private set; }
+        public bool PurgeOnStartup { get; }
 
         /// <summary>
         /// The transaction mode required for receive operations.
         /// </summary>
-        public TransportTransactionMode RequiredTransactionMode { get; private set; }
+        public TransportTransactionMode RequiredTransactionMode { get; }
     }
 }

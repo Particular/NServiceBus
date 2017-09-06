@@ -18,15 +18,13 @@
         }
 
         /// <summary>
-        /// Returns whether <see cref="DoNotEnforceBestPractices(NServiceBus.Extensibility.ExtendableOptions)" /> has ben called or
-        /// not.
+        /// Returns whether <see cref="DoNotEnforceBestPractices(ExtendableOptions)" /> has ben called or not.
         /// </summary>
         /// <returns><c>true</c> if best practice enforcement has ben disabled, <c>false</c> otherwise.</returns>
         public static bool IgnoredBestPractices(this ExtendableOptions options)
         {
             Guard.AgainstNull(nameof(options), options);
-            EnforceBestPracticesOptions bestPracticesOptions;
-            options.Context.TryGet(out bestPracticesOptions);
+            options.Context.TryGet(out EnforceBestPracticesOptions bestPracticesOptions);
             return !(bestPracticesOptions?.Enabled ?? true);
         }
 

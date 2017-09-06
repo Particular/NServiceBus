@@ -32,9 +32,7 @@
                 LogOutgoingOperations(operations);
             }
 
-            PendingTransportOperations pendingOperations;
-
-            if (!state.ImmediateDispatch && context.Extensions.TryGet(out pendingOperations))
+            if (!state.ImmediateDispatch && context.Extensions.TryGet(out PendingTransportOperations pendingOperations))
             {
                 pendingOperations.AddRange(operations);
                 return TaskEx.CompletedTask;
@@ -48,8 +46,7 @@
             var sb = new StringBuilder();
             foreach (var operation in operations)
             {
-                var unicastAddressTag = operation.AddressTag as UnicastAddressTag;
-                if (unicastAddressTag != null)
+                if (operation.AddressTag is UnicastAddressTag unicastAddressTag)
                 {
                     sb.AppendFormat("Destination: {0}" + Environment.NewLine, unicastAddressTag.Destination);
                 }

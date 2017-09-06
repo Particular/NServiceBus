@@ -15,11 +15,11 @@
         /// <summary>
         /// The full path to the file that was skipped.
         /// </summary>
-        public string FilePath { get; private set; }
+        public string FilePath { get; }
 
         /// <summary>
         /// Description of the reason why this file was skipped.
         /// </summary>
-        public string SkipReason { get; private set; }
+        public string SkipReason { get; }
     }
 }

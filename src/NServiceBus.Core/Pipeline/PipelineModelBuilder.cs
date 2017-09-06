@@ -193,8 +193,7 @@ namespace NServiceBus
             }
             foreach (var beforeReference in node.Befores)
             {
-                Node referencedNode;
-                if (nameToNode.TryGetValue(beforeReference.DependsOnId, out referencedNode))
+                if (nameToNode.TryGetValue(beforeReference.DependsOnId, out var referencedNode))
                 {
                     referencedNode.previous.Add(node);
                     continue;
@@ -221,8 +220,7 @@ namespace NServiceBus
             }
             foreach (var afterReference in node.Afters)
             {
-                Node referencedNode;
-                if (nameToNode.TryGetValue(afterReference.DependsOnId, out referencedNode))
+                if (nameToNode.TryGetValue(afterReference.DependsOnId, out var referencedNode))
                 {
                     node.previous.Add(referencedNode);
                     continue;
@@ -266,7 +264,7 @@ namespace NServiceBus
                 OutputContext = registerStep.GetOutputContext();
             }
 
-            public Type OutputContext { get; private set; }
+            public Type OutputContext { get; }
 
             internal void Visit(List<RegisterStep> output)
             {

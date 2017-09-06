@@ -33,8 +33,7 @@ namespace NServiceBus
         public static bool DurableMessagesEnabled(this ReadOnlySettings settings)
         {
             Guard.AgainstNull(nameof(settings), settings);
-            bool durableMessagesEnabled;
-            if (settings.TryGet("Endpoint.DurableMessages", out durableMessagesEnabled))
+            if (settings.TryGet("Endpoint.DurableMessages", out bool durableMessagesEnabled))
             {
                 return durableMessagesEnabled;
             }

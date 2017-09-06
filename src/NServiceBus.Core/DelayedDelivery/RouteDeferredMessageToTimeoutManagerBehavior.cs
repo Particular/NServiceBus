@@ -20,8 +20,7 @@ namespace NServiceBus
 
         public Task Invoke(IRoutingContext context, Func<IRoutingContext, Task> next)
         {
-            DateTime deliverAt;
-            if (!IsDeferred(context, out deliverAt))
+            if (!IsDeferred(context, out var deliverAt))
             {
                 return next(context);
             }
@@ -41,8 +40,7 @@ namespace NServiceBus
         {
             var headers = new Dictionary<string, string>(context.Message.Headers);
             var originalTag = routingStrategy.Apply(headers);
-            var unicastTag = originalTag as UnicastAddressTag;
-            if (unicastTag == null)
+            if (!(originalTag is UnicastAddressTag unicastTag))
             {
                 throw new Exception("Delayed delivery using the Timeout Manager is only supported for messages with unicast routing");
             }
@@ -52,14 +50,12 @@ namespace NServiceBus
         static bool IsDeferred(IExtendable context, out DateTime deliverAt)
         {
             deliverAt = DateTime.MinValue;
-            DoNotDeliverBefore doNotDeliverBefore;
-            DelayDeliveryWith delayDeliveryWith;
-            if (context.Extensions.TryRemoveDeliveryConstraint(out doNotDeliverBefore))
+            if (context.Extensions.TryRemoveDeliveryConstraint(out DoNotDeliverBefore doNotDeliverBefore))
             {
                 deliverAt = doNotDeliverBefore.At;
                 return true;
             }
-            if (context.Extensions.TryRemoveDeliveryConstraint(out delayDeliveryWith))
+            if (context.Extensions.TryRemoveDeliveryConstraint(out DelayDeliveryWith delayDeliveryWith))
             {
                 deliverAt = DateTime.UtcNow + delayDeliveryWith.Delay;
                 return true;

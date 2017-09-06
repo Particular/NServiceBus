@@ -28,8 +28,7 @@
             if (customAttributes.Length >= 1)
             {
                 var fileVersion = (AssemblyFileVersionAttribute) customAttributes[0];
-                Version version;
-                if (Version.TryParse(fileVersion.Version, out version))
+                if (Version.TryParse(fileVersion.Version, out var version))
                 {
                     return version.ToString(3);
                 }

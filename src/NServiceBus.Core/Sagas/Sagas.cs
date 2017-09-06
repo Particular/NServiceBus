@@ -70,9 +70,7 @@
             {
                 container.ConfigureComponent(finder.Type, DependencyLifecycle.InstancePerCall);
 
-                object customFinderType;
-
-                if (finder.Properties.TryGetValue("custom-finder-clr-type", out customFinderType))
+                if (finder.Properties.TryGetValue("custom-finder-clr-type", out var customFinderType))
                 {
                     container.ConfigureComponent((Type)customFinderType, DependencyLifecycle.InstancePerCall);
                 }

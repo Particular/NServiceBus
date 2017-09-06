@@ -21,8 +21,7 @@ namespace NServiceBus
             Guard.AgainstNull(nameof(config), config);
             Guard.AgainstNull(nameof(handlerTypes), handlerTypes);
 
-            List<Type> list;
-            if (!config.Settings.TryGet("NServiceBus.ExecuteTheseHandlersFirst", out list))
+            if (!config.Settings.TryGet("NServiceBus.ExecuteTheseHandlersFirst", out List<Type> list))
             {
                 list = new List<Type>();
                 config.Settings.Set("NServiceBus.ExecuteTheseHandlersFirst", list);

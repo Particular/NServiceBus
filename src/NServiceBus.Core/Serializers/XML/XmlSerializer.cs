@@ -23,20 +23,17 @@
                 var conventions = settings.Get<Conventions>();
                 var serializer = new XmlMessageSerializer(mapper, conventions);
 
-                string customNamespace;
-                if (settings.TryGet(CustomNamespaceConfigurationKey, out customNamespace))
+                if (settings.TryGet(CustomNamespaceConfigurationKey, out string customNamespace))
                 {
                     serializer.Namespace = customNamespace;
                 }
 
-                bool skipWrappingRawXml;
-                if (settings.TryGet(SkipWrappingRawXml, out skipWrappingRawXml))
+                if (settings.TryGet(SkipWrappingRawXml, out bool skipWrappingRawXml))
                 {
                     serializer.SkipWrappingRawXml = skipWrappingRawXml;
                 }
 
-                bool sanitizeInput;
-                if (settings.TryGet(SanitizeInput, out sanitizeInput))
+                if (settings.TryGet(SanitizeInput, out bool sanitizeInput))
                 {
                     serializer.SanitizeInput = sanitizeInput;
                 }

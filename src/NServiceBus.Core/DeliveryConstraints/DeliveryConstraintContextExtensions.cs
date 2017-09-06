@@ -19,9 +19,8 @@ namespace NServiceBus.DeliveryConstraints
         {
             Guard.AgainstNull(nameof(context), context);
             Guard.AgainstNull(nameof(constraint), constraint);
-            List<DeliveryConstraint> constraints;
 
-            if (!context.TryGet(out constraints))
+            if (!context.TryGet(out List<DeliveryConstraint> constraints))
             {
                 constraints = new List<DeliveryConstraint>();
 
@@ -42,9 +41,7 @@ namespace NServiceBus.DeliveryConstraints
         public static bool TryGetDeliveryConstraint<T>(this ContextBag context, out T constraint) where T : DeliveryConstraint
         {
             Guard.AgainstNull(nameof(context), context);
-            List<DeliveryConstraint> constraints;
-
-            if (context.TryGet(out constraints))
+            if (context.TryGet(out List<DeliveryConstraint> constraints))
             {
                 return constraints.TryGet(out constraint);
             }
@@ -58,9 +55,7 @@ namespace NServiceBus.DeliveryConstraints
         public static bool TryRemoveDeliveryConstraint<T>(this ContextBag context, out T constraint) where T : DeliveryConstraint
         {
             Guard.AgainstNull(nameof(context), context);
-            List<DeliveryConstraint> constraints;
-
-            if (context.TryGet(out constraints))
+            if (context.TryGet(out List<DeliveryConstraint> constraints))
             {
                 var result = constraints.TryGet(out constraint);
                 if (result)
@@ -79,9 +74,8 @@ namespace NServiceBus.DeliveryConstraints
         public static List<DeliveryConstraint> GetDeliveryConstraints(this ContextBag context)
         {
             Guard.AgainstNull(nameof(context), context);
-            List<DeliveryConstraint> constraints;
 
-            if (context.TryGet(out constraints))
+            if (context.TryGet(out List<DeliveryConstraint> constraints))
             {
                 return constraints;
             }
@@ -96,9 +90,8 @@ namespace NServiceBus.DeliveryConstraints
         {
             Guard.AgainstNull(nameof(constraint), constraint);
             Guard.AgainstNull(nameof(context), context);
-            List<DeliveryConstraint> constraints;
 
-            if (!context.TryGet(out constraints))
+            if (!context.TryGet(out List<DeliveryConstraint> constraints))
             {
                 return;
             }

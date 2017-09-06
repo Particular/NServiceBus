@@ -18,9 +18,7 @@ namespace NServiceBus
         {
             Guard.AgainstNullAndEmpty(nameof(key), key);
 
-            CurrentStaticHeaders headers;
-
-            if (!config.Settings.TryGet(out headers))
+            if (!config.Settings.TryGet(out CurrentStaticHeaders headers))
             {
                 headers = new CurrentStaticHeaders();
 

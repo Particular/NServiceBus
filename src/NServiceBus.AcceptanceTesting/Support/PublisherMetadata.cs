@@ -13,8 +13,7 @@ namespace NServiceBus.AcceptanceTesting.Support
 
         public void RegisterPublisherFor<T>(string endpointName)
         {
-            PublisherDetails publisher;
-            if (!publisherDetails.TryGetValue(endpointName, out publisher))
+            if (!publisherDetails.TryGetValue(endpointName, out var publisher))
             {
                 publisher = new PublisherDetails(endpointName);
 
@@ -40,7 +39,7 @@ namespace NServiceBus.AcceptanceTesting.Support
 
             public List<Type> Events { get; } = new List<Type>();
 
-            public string PublisherName { get; private set; }
+            public string PublisherName { get; }
 
             public void RegisterOwnedEvent<T>()
             {

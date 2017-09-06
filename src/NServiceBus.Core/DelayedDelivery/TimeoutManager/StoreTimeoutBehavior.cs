@@ -20,8 +20,7 @@ namespace NServiceBus
         {
             var sagaId = Guid.Empty;
 
-            string sagaIdString;
-            if (context.Headers.TryGetValue(Headers.SagaId, out sagaIdString))
+            if (context.Headers.TryGetValue(Headers.SagaId, out var sagaIdString))
             {
                 sagaId = Guid.Parse(sagaIdString);
             }
@@ -37,16 +36,14 @@ namespace NServiceBus
             }
             else
             {
-                string expire;
-                if (!context.Headers.TryGetValue(TimeoutManagerHeaders.Expire, out expire))
+                if (!context.Headers.TryGetValue(TimeoutManagerHeaders.Expire, out var expire))
                 {
                     throw new InvalidOperationException("Non timeout message arrived at the timeout manager, id:" + context.MessageId);
                 }
 
                 var destination = GetReplyToAddress(context);
 
-                string routeExpiredTimeoutTo;
-                if (context.Headers.TryGetValue(TimeoutManagerHeaders.RouteExpiredTimeoutTo, out routeExpiredTimeoutTo))
+                if (context.Headers.TryGetValue(TimeoutManagerHeaders.RouteExpiredTimeoutTo, out var routeExpiredTimeoutTo))
                 {
                     destination = routeExpiredTimeoutTo;
                 }
@@ -77,8 +74,7 @@ namespace NServiceBus
 
         static string GetReplyToAddress(MessageContext context)
         {
-            string replyToAddress;
-            return context.Headers.TryGetValue(Headers.ReplyToAddress, out replyToAddress) ? replyToAddress : null;
+            return context.Headers.TryGetValue(Headers.ReplyToAddress, out var replyToAddress) ? replyToAddress : null;
         }
 
         IDispatchMessages dispatcher;
