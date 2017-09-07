@@ -2,6 +2,6 @@ assembly-versioning-scheme: Major
 next-version: 7.0
 branches:
   develop:
-    tag: alpharelease
-  release:
     tag: beta
+  release:
+    tag: rc
