@@ -61,7 +61,7 @@
                     c.EnableFeature<TimeoutManager>();
                     c.DisableFeature<AutoSubscribe>();
                 },
-                metdata => metdata.RegisterPublisherFor<BaseEvent>(typeof(Publisher)));
+                metadata => metadata.RegisterPublisherFor<BaseEvent>(typeof(Publisher)));
             }
 
             public class SagaStartedByBaseEvent : Saga<SagaStartedByBaseEvent.SagaStartedByBaseEventSagaData>, IAmStartedByMessages<BaseEvent>

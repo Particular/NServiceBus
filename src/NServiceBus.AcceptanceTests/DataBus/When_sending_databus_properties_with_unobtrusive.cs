@@ -88,7 +88,7 @@
             {
                 if (context.Body.Length > PayloadSize)
                 {
-                    throw new Exception("The message body is too large, which means the DataBus was not used to transer the payload.");
+                    throw new Exception("The message body is too large, which means the DataBus was not used to transfer the payload.");
                 }
                 return Task.FromResult(0);
             }
