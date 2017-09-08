@@ -54,7 +54,7 @@
             public async Task Invoke(ITransportReceiveContext context, Func<ITransportReceiveContext, Task> next)
             {
                 failedMessages.AddOrUpdate(context.Message.MessageId, id => true, (id, value) => true);
-                log.Debug($"Procesing message {context.Message.MessageId}");
+                log.Debug($"Processing message {context.Message.MessageId}");
 
                 await next(context).ConfigureAwait(false);
 
