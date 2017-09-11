@@ -92,7 +92,7 @@ or
 
             if (connectionString == null)
             {
-                throw new InvalidOperationException(string.Format(Message, transportDefinition.GetType().Name, transportDefinition.ExampleConnectionStringForErrorMessage));
+                throw new InvalidOperationException(string.Format(message, transportDefinition.GetType().Name, transportDefinition.ExampleConnectionStringForErrorMessage));
             }
 
             return connectionString;
@@ -100,7 +100,7 @@ or
 
         Func<string> GetValue;
 
-        const string Message = "Transport connection string has not been explicitly configured via 'ConnectionString' method.";
+        const string message = "Transport connection string has not been explicitly configured via 'ConnectionString' method. Here is an example of what is required: endpointConfig.UseTransport<{0}>().ConnectionString(\"{1}\");";
     }
 #endif
 }
