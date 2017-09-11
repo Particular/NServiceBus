@@ -24,9 +24,12 @@
 
         static string ReadConnectionStringFromAppConfig(string connectionStringName)
         {
-            Log.Warn("Using named connection strings is discouraged. Instead, load the connection string in your code and pass the value to EndpointConfiguration.UseTransport().ConnectionString(connectionString).");
-
             var connectionStringSettings = System.Configuration.ConfigurationManager.ConnectionStrings[connectionStringName];
+
+            if (connectionStringSettings?.ConnectionString != null)
+            {
+                Log.WarnFormat("A connection string named '{0}' was found. Using named connection strings is discouraged. Instead, load the connection string in your code and pass the value to EndpointConfiguration.UseTransport().ConnectionString(connectionString).", connectionStringName);
+            }
 
             return connectionStringSettings?.ConnectionString;
         }
