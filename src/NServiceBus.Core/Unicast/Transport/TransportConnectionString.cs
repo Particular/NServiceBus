@@ -41,10 +41,12 @@
         public string GetConnectionStringOrRaiseError(TransportDefinition transportDefinition)
         {
             var connectionString = GetValue();
-            if (connectionString == null && transportDefinition.RequiresConnectionString)
+
+            if (connectionString == null)
             {
                 throw new InvalidOperationException(string.Format(Message, transportDefinition.GetType().Name, transportDefinition.ExampleConnectionStringForErrorMessage));
             }
+
             return connectionString;
         }
 
@@ -87,10 +89,12 @@ or
         public string GetConnectionStringOrRaiseError(TransportDefinition transportDefinition)
         {
             var connectionString = GetValue();
-            if (connectionString == null && transportDefinition.RequiresConnectionString)
+
+            if (connectionString == null)
             {
                 throw new InvalidOperationException(string.Format(Message, transportDefinition.GetType().Name, transportDefinition.ExampleConnectionStringForErrorMessage));
             }
+
             return connectionString;
         }
 
