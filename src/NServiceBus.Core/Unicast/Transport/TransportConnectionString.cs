@@ -4,7 +4,6 @@
     using Transport;
 
 #if NET452
-    using Logging;
     sealed class TransportConnectionString
     {
         TransportConnectionString()
@@ -28,7 +27,7 @@
 
             if (connectionStringSettings?.ConnectionString != null)
             {
-                Log.WarnFormat("A connection string named '{0}' was found. Using named connection strings is discouraged. Instead, load the connection string in your code and pass the value to EndpointConfiguration.UseTransport().ConnectionString(connectionString).", connectionStringName);
+                logger.WarnFormat("A connection string named '{0}' was found. Using named connection strings is discouraged. Instead, load the connection string in your code and pass the value to EndpointConfiguration.UseTransport().ConnectionString(connectionString).", connectionStringName);
             }
 
             return connectionStringSettings?.ConnectionString;
@@ -50,7 +49,7 @@
             return connectionString;
         }
 
-        static ILog Log => LogManager.GetLogger<TransportExtensions>();
+        static Logging.ILog logger = Logging.LogManager.GetLogger<TransportExtensions>();
 
         Func<string> GetValue;
 
