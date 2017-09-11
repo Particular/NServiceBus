@@ -44,7 +44,14 @@ namespace NServiceBus
 
             EnsureTransportConfigured();
             var transportDefinition = settings.Get<TransportDefinition>();
-            var connectionString = settings.Get<TransportConnectionString>().GetConnectionStringOrRaiseError(transportDefinition);
+
+            string connectionString = null;
+
+            if (transportDefinition.RequiresConnectionString)
+            {
+                connectionString = settings.Get<TransportConnectionString>().GetConnectionStringOrRaiseError(transportDefinition);
+            }
+
             var transportInfrastructure = transportDefinition.Initialize(settings, connectionString);
             settings.Set<TransportInfrastructure>(transportInfrastructure);
 
