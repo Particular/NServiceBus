@@ -21,7 +21,7 @@
             catch (BadImageFormatException)
             {
                 shouldLoad = false;
-                reason = "File is a .NET assembly.";
+                reason = "File is not a .NET assembly.";
                 return;
             }
 
