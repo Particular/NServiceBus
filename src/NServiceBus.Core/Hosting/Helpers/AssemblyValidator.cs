@@ -5,7 +5,7 @@
 
     class AssemblyValidator
     {
-        public (bool shouldLoad, string reason) ValidateAssemblyFile(string assemblyPath)
+        public void ValidateAssemblyFile(string assemblyPath, out bool shouldLoad, out string reason)
         {
             try
             {
@@ -13,15 +13,20 @@
 
                 if (IsRuntimeAssembly(token))
                 {
-                    return (false, "File is a .NET runtime assembly.");
+                    shouldLoad = false;
+                    reason = "File is a .NET runtime assembly.";
+                    return;
                 }
             }
             catch (BadImageFormatException)
             {
-                return (false, "File is not a .NET assembly.");
+                shouldLoad = false;
+                reason = "File is a .NET assembly.";
+                return;
             }
 
-            return (true, "File is a .NET assembly.");
+            shouldLoad = true;
+            reason = "File is a .NET assembly.";
         }
 
         public static bool IsRuntimeAssembly(byte[] publicKeyToken)
