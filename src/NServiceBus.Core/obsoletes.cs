@@ -18,6 +18,16 @@ namespace NServiceBus
     using Serialization;
     using Settings;
 
+    public static partial class InstallConfigExtensions
+    {
+        [ObsoleteEx(Message = "DisableInstallers() was a temporary API to work around the 'always run installers when debugging' behavior. Installers no longer run when a when debugging and as such the the API is redundant",
+            TreatAsErrorFromVersion = "7.0")]
+        public static void DisableInstallers(this EndpointConfiguration config)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
     [ObsoleteEx(
            Message = "Message property encryption is released as a dedicated 'NServiceBus.Encryption.MessageProperty' package.",
            ReplacementTypeOrMember = "NServiceBus.Encryption.MessageProperty.EncryptionConfigurationExtensions.EnableMessagePropertyEncryption",
@@ -393,7 +403,7 @@ namespace NServiceBus
         Message = "Msmq support has been moved to a separate package: NServiceBus.Transport.Msmq",
         RemoveInVersion = "8",
         TreatAsErrorFromVersion = "7")]
-    public class InstanceMappingFileSettings : Configuration.AdvancedExtensibility.ExposeSettings 
+    public class InstanceMappingFileSettings : Configuration.AdvancedExtensibility.ExposeSettings
     {
         [ObsoleteEx(
             Message = "Msmq support has been moved to a separate package: NServiceBus.Transport.Msmq",
@@ -1153,7 +1163,7 @@ namespace NServiceBus.Transport
 
 namespace NServiceBus.Transport.Msmq
 {
-    
+
     [ObsoleteEx(
         Message = "Msmq support has been moved to a separate package: NServiceBus.Transport.Msmq",
         RemoveInVersion = "8",

@@ -153,9 +153,9 @@ namespace NServiceBus
                 // do not run installers when the user explicitly disabled it.
                 return;
             }
-            if (!shouldRunInstaller.HasValue && !Debugger.IsAttached)
+            if (!shouldRunInstaller.HasValue)
             {
-                // do not run installers when user didn't specify a value and no debugger is attached.
+                // do not run installers when user didn't specify a value.
                 return;
             }
 
