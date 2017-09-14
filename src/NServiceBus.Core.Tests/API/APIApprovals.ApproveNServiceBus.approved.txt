@@ -541,6 +541,7 @@ namespace NServiceBus
     public class InMemoryPersistence : NServiceBus.Persistence.PersistenceDefinition { }
     public class static InstallConfigExtensions
     {
+        [System.ObsoleteAttribute(@"DisableInstallers() was a temporary API to work around the 'always run installers when debugging' behavior. Installers no longer run when a when debugging and as such the the API is redundant. The member currently throws a NotImplementedException. Will be removed in version 8.0.0.", true)]
         public static void DisableInstallers(this NServiceBus.EndpointConfiguration config) { }
         public static void EnableInstallers(this NServiceBus.EndpointConfiguration config, string username = null) { }
     }
