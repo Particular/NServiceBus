@@ -5,6 +5,7 @@
     using System.Reflection;
     using System.Threading.Tasks;
     using NServiceBus;
+    using NServiceBus.Unicast.Subscriptions;
 
     class Program
     {
@@ -20,10 +21,11 @@
             var endpointConfiguration = new EndpointConfiguration("MyEndpoint");
 
             endpointConfiguration.UseTransport<LearningTransport>();
-
+            
             var hostInstance = await Host.Start(hostConfiguration, endpointConfiguration);
 
-            await hostInstance.Endpoint.SendLocal(new MyMessage());
+            await hostInstance.EndpointInstance.SendLocal(new MyMessage());
+
             Console.ReadKey();
 
             await hostInstance.Stop();

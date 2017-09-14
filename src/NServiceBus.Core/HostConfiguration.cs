@@ -45,7 +45,7 @@ namespace NServiceBus
 
 
             //the host should use extension points as much as possible to enrich messages etc. Eg. the Audit and Error enrichers should be move here eventually
-            endpointConfiguration.Pipeline.Register(b => new AddOriginatingHostHeaders(hostId), "Add hostid on outgoing messages");
+            endpointConfiguration.Pipeline.Register(b => new AddOriginatingHostIdHeaders(hostId), "Add hostid on outgoing messages");
 
             endpoints.Add(endpointConfiguration);
          
@@ -58,11 +58,11 @@ namespace NServiceBus
         List<EndpointConfiguration> endpoints = new List<EndpointConfiguration>();
     }
 
-    class AddOriginatingHostHeaders : Behavior<IOutgoingPhysicalMessageContext>
+    class AddOriginatingHostIdHeaders : Behavior<IOutgoingPhysicalMessageContext>
     {
         string hostId;
 
-        public AddOriginatingHostHeaders(string hostId)
+        public AddOriginatingHostIdHeaders(string hostId)
         {
             this.hostId = hostId;
         }
@@ -115,24 +115,24 @@ namespace NServiceBus
     /// </summary>
     public class HostInstance
     {
-        internal HostInstance(IEndpointInstance endpoint)
+        internal HostInstance(IEndpointInstance endpointInstance)
         {
-            this.endpoint = endpoint;
+            this.endpointInstance = endpointInstance;
         }
 
         /// <summary>
         /// 
         /// </summary>
-        public IEndpointInstance Endpoint => endpoint;
+        public IEndpointInstance EndpointInstance => endpointInstance;
 
         /// <summary>
         /// </summary>
         /// <returns></returns>
         public Task Stop()
         {
-            return endpoint.Stop();
+            return endpointInstance.Stop();
         }
 
-        IEndpointInstance endpoint;
+        IEndpointInstance endpointInstance;
     }
 }
