@@ -20,12 +20,16 @@
         {
             startSlice = DateTime.UtcNow.AddYears(-10);
 
-            timeouts = new InMemoryTimeoutPersister(() => currentTime);
+            timeouts = new InMemoryTimeoutPersister
+            {
+                CurrentTime = () => currentTime
+            };
 
             sender = new TestableMessageSender();
 
-            receiver = new TimeoutPersisterReceiver(() => currentTime)
+            receiver = new TimeoutPersisterReceiver
             {
+                CurrentTime = () => currentTime,
                 MessageSender = sender,
                 TimeoutsPersister = timeouts,
                 DispatcherAddress = new Address("test", String.Empty),
@@ -46,14 +50,14 @@
             receiver.SpinOnce(startSlice);
 
             var nextRetrieval = receiver.NextRetrieval;
-            
+
             RegisterNewTimeout(nextRetrieval - HalfOfDefaultInMemoryPersisterSleep);
 
             currentTime = receiver.NextRetrieval;
 
             receiver.SpinOnce(startSlice);
 
-            Assert.AreEqual(1, sender.MessagesSent,"Messages Sent");
+            Assert.AreEqual(1, sender.MessagesSent, "Messages Sent");
             Assert.AreEqual((currentTime + EmptyResultsNextTimeToRunQuerySpan), receiver.NextRetrieval, "Next Retrieval");
         }
 
