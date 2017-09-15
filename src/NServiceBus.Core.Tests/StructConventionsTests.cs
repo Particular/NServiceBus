@@ -6,7 +6,6 @@ namespace NServiceBus.Core.Tests
     using System.Reflection;
     using System.Runtime.InteropServices;
     using System.Text;
-    using ApprovalTests;
     using NUnit.Framework;
 
     [TestFixture]
@@ -71,7 +70,7 @@ In all other cases, you should define your types as classes.
                 approvalBuilder.AppendLine();
             }
 
-            Approvals.Verify(approvalBuilder.ToString());
+            TestApprover.Verify(approvalBuilder.ToString());
         }
 
         static bool InspectWhetherStructContainsReferenceTypes(Type type, List<string> violatedRules)
