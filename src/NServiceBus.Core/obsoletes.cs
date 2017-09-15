@@ -11,7 +11,6 @@ namespace NServiceBus
     using System.Reflection;
     using System.Runtime.Serialization;
     using System.Text;
-    using System.Transactions;
     using Config.ConfigurationSource;
     using MessageInterfaces;
     using Pipeline;
@@ -372,137 +371,6 @@ namespace NServiceBus
             set { throw new NotImplementedException(); }
         }
     }
-
-    [ObsoleteEx(
-        Message = "Msmq support has been moved to a separate package: NServiceBus.Transport.Msmq",
-        RemoveInVersion = "8",
-        TreatAsErrorFromVersion = "7")]
-    public static class EndpointInstanceExtensions
-    {
-        [ObsoleteEx(
-            Message = "Msmq support has been moved to a separate package: NServiceBus.Transport.Msmq",
-            RemoveInVersion = "8",
-            TreatAsErrorFromVersion = "7")]
-        public static Routing.EndpointInstance AtMachine(this Routing.EndpointInstance instance, string machineName)
-        {
-            throw new NotImplementedException();
-        }
-    }
-
-    [ObsoleteEx(
-        Message = "Msmq support has been moved to a separate package: NServiceBus.Transport.Msmq",
-        RemoveInVersion = "8",
-        TreatAsErrorFromVersion = "7")]
-    public class InstanceMappingFileSettings : Configuration.AdvancedExtensibility.ExposeSettings 
-    {
-        [ObsoleteEx(
-            Message = "Msmq support has been moved to a separate package: NServiceBus.Transport.Msmq",
-            RemoveInVersion = "8",
-            TreatAsErrorFromVersion = "7")]
-        public InstanceMappingFileSettings(SettingsHolder settings) : base(settings)
-        {
-            throw new NotImplementedException();
-        }
-
-        [ObsoleteEx(
-            Message = "Msmq support has been moved to a separate package: NServiceBus.Transport.Msmq",
-            RemoveInVersion = "8",
-            TreatAsErrorFromVersion = "7")]
-        public InstanceMappingFileSettings FilePath(string filePath)
-        {
-            throw new NotImplementedException();
-        }
-
-        [ObsoleteEx(
-            Message = "Msmq support has been moved to a separate package: NServiceBus.Transport.Msmq",
-            RemoveInVersion = "8",
-            TreatAsErrorFromVersion = "7")]
-        public InstanceMappingFileSettings RefreshInterval(TimeSpan refreshInterval)
-        {
-            throw new NotImplementedException();
-        }
-    }
-
-    [ObsoleteEx(
-        Message = "Msmq support has been moved to a separate package: NServiceBus.Transport.Msmq",
-        RemoveInVersion = "8",
-        TreatAsErrorFromVersion = "7")]
-    public class MsmqTransport : Transport.TransportDefinition, Routing.IMessageDrivenSubscriptionTransport
-    {
-        [ObsoleteEx(
-            Message = "Msmq support has been moved to a separate package: NServiceBus.Transport.Msmq",
-            RemoveInVersion = "8",
-            TreatAsErrorFromVersion = "7")]
-        public override string ExampleConnectionStringForErrorMessage => throw new NotImplementedException();
-
-        [ObsoleteEx(
-            Message = "Msmq support has been moved to a separate package: NServiceBus.Transport.Msmq",
-            RemoveInVersion = "8",
-            TreatAsErrorFromVersion = "7")]
-        public override bool RequiresConnectionString => throw new NotImplementedException();
-
-        [ObsoleteEx(
-            Message = "Msmq support has been moved to a separate package: NServiceBus.Transport.Msmq",
-            RemoveInVersion = "8",
-            TreatAsErrorFromVersion = "7")]
-        public override Transport.TransportInfrastructure Initialize(SettingsHolder settings, string connectionString)
-        {
-            throw new NotImplementedException();
-        }
-    }
-
-    [ObsoleteEx(
-        Message = "Msmq support has been moved to a separate package: NServiceBus.Transport.Msmq",
-        RemoveInVersion = "8",
-        TreatAsErrorFromVersion = "7")]
-    public static class MsmqConfigurationExtensions
-    {
-        [ObsoleteEx(
-            Message = "Msmq support has been moved to a separate package: NServiceBus.Transport.Msmq",
-            RemoveInVersion = "8",
-            TreatAsErrorFromVersion = "7")]
-        public static TransportExtensions<MsmqTransport> ApplyLabelToMessages(this TransportExtensions<MsmqTransport> transportExtensions, Func<IReadOnlyDictionary<string, string>, string> labelGenerator)
-        {
-            throw new NotImplementedException();
-        }
-
-        [ObsoleteEx(
-            Message = "Msmq support has been moved to a separate package: NServiceBus.Transport.Msmq",
-            RemoveInVersion = "8",
-            TreatAsErrorFromVersion = "7")]
-        public static InstanceMappingFileSettings InstanceMappingFile(this RoutingSettings<MsmqTransport> config)
-        {
-            throw new NotImplementedException();
-        }
-
-        [ObsoleteEx(
-            Message = "Msmq support has been moved to a separate package: NServiceBus.Transport.Msmq",
-            RemoveInVersion = "8",
-            TreatAsErrorFromVersion = "7")]
-        public static void SetMessageDistributionStrategy(this RoutingSettings<MsmqTransport> config, Routing.DistributionStrategy distributionStrategy)
-        {
-            throw new NotImplementedException();
-        }
-
-        [ObsoleteEx(
-            Message = "Msmq support has been moved to a separate package: NServiceBus.Transport.Msmq",
-            RemoveInVersion = "8",
-            TreatAsErrorFromVersion = "7")]
-        public static TransportExtensions<MsmqTransport> TransactionScopeOptions(this TransportExtensions<MsmqTransport> transportExtensions, TimeSpan? timeout = null, IsolationLevel? isolationLevel = null)
-        {
-            throw new NotImplementedException();
-        }
-
-        [ObsoleteEx(
-            Message = "Msmq support has been moved to a separate package: NServiceBus.Transport.Msmq",
-            RemoveInVersion = "8",
-            TreatAsErrorFromVersion = "7")]
-        public static void UseDeadLetterQueueForMessagesWithTimeToBeReceived(this TransportExtensions<MsmqTransport> config)
-        {
-            throw new NotImplementedException();
-        }
-    }
-
 }
 
 namespace NServiceBus.Config
@@ -1093,11 +961,6 @@ namespace NServiceBus.Features
         TreatAsErrorFromVersion = "7")]
     public class SLAMonitoring { }
 
-    [ObsoleteEx(
-        Message = "Msmq support has been moved to a separate package: NServiceBus.Transport.Msmq",
-        RemoveInVersion = "8",
-        TreatAsErrorFromVersion = "7")]
-    public class MsmqSubscriptionPersistence {}
 }
 
 namespace NServiceBus.Routing.Legacy
@@ -1147,47 +1010,6 @@ namespace NServiceBus.Transport
         {
             get { throw new NotImplementedException(); }
             set { throw new NotImplementedException(); }
-        }
-    }
-}
-
-namespace NServiceBus.Transport.Msmq
-{
-    
-    [ObsoleteEx(
-        Message = "Msmq support has been moved to a separate package: NServiceBus.Transport.Msmq",
-        RemoveInVersion = "8",
-        TreatAsErrorFromVersion = "7")]
-    public class HeaderInfo
-    {
-        public string Key { get; set; }
-        public string Value { get; set; }
-    }
-}
-
-namespace NServiceBus.Persistence.Legacy
-{
-    using System;
-
-    [ObsoleteEx(
-        Message = "Msmq support has been moved to a separate package: NServiceBus.Transport.Msmq",
-        RemoveInVersion = "8",
-        TreatAsErrorFromVersion = "7")]
-    public class MsmqPersistence : PersistenceDefinition { }
-
-    [ObsoleteEx(
-        Message = "Msmq support has been moved to a separate package: NServiceBus.Transport.Msmq",
-        RemoveInVersion = "8",
-        TreatAsErrorFromVersion = "7")]
-    public static class MsmqSubscriptionStorageConfigurationExtensions
-    {
-        [ObsoleteEx(
-            Message = "Msmq support has been moved to a separate package: NServiceBus.Transport.Msmq",
-            RemoveInVersion = "8",
-            TreatAsErrorFromVersion = "7")]
-        public static void SubscriptionQueue(this PersistenceExtensions<MsmqPersistence> persistenceExtensions, string queue)
-        {
-            throw new NotImplementedException();
         }
     }
 }
