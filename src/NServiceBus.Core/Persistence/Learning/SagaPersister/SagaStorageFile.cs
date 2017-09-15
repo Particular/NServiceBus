@@ -10,10 +10,9 @@ namespace NServiceBus
     [SkipWeaving]
     class SagaStorageFile : IDisposable
     {
-        SagaStorageFile(FileStream fileStream, SagaManifest manifest)
+        SagaStorageFile(FileStream fileStream)
         {
             this.fileStream = fileStream;
-            this.manifest = manifest;
             streamWriter = new StreamWriter(fileStream, Encoding.Unicode);
             streamReader = new StreamReader(fileStream, Encoding.Unicode);
         }
@@ -40,21 +39,21 @@ namespace NServiceBus
                 return noSagaFoundResult;
             }
 
-            return OpenWithDelayOnConcurrency(manifest, filePath, FileMode.Open);
+            return OpenWithDelayOnConcurrency(filePath, FileMode.Open);
         }
 
         public static Task<SagaStorageFile> Create(Guid sagaId, SagaManifest manifest)
         {
             var filePath = manifest.GetFilePath(sagaId);
 
-            return OpenWithDelayOnConcurrency(manifest, filePath, FileMode.CreateNew);
+            return OpenWithDelayOnConcurrency(filePath, FileMode.CreateNew);
         }
 
-        static async Task<SagaStorageFile> OpenWithDelayOnConcurrency(SagaManifest manifest, string filePath, FileMode fileAccess)
+        static async Task<SagaStorageFile> OpenWithDelayOnConcurrency(string filePath, FileMode fileAccess)
         {
             try
             {
-                return new SagaStorageFile(new FileStream(filePath, fileAccess, FileAccess.ReadWrite, FileShare.None, DefaultBufferSize, FileOptions.Asynchronous), manifest);
+                return new SagaStorageFile(new FileStream(filePath, fileAccess, FileAccess.ReadWrite, FileShare.None, DefaultBufferSize, FileOptions.Asynchronous));
             }
             catch (IOException)
             {
@@ -79,13 +78,12 @@ namespace NServiceBus
             return TaskEx.CompletedTask;
         }
 
-        public async Task<object> Read()
+        public async Task<TSagaData> Read<TSagaData>() where TSagaData : class, IContainSagaData
         {
             var json = await streamReader.ReadToEndAsync().ConfigureAwait(false);
-            return SimpleJson.DeserializeObject(json, manifest.SagaEntityType, serializationStrategy);
+            return SimpleJson.DeserializeObject<TSagaData>(json, serializationStrategy);
         }
 
-        SagaManifest manifest;
         FileStream fileStream;
         bool isCompleted;
         StreamWriter streamWriter;

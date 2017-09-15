@@ -38,7 +38,7 @@ namespace NServiceBus
             return storageSession.Complete(sagaData);
         }
 
-        static Task<TSagaData> Get<TSagaData>(Guid sagaId, SynchronizedStorageSession session) where TSagaData : IContainSagaData
+        static Task<TSagaData> Get<TSagaData>(Guid sagaId, SynchronizedStorageSession session) where TSagaData : class, IContainSagaData
         {
             var storageSession = (LearningSynchronizedStorageSession)session;
             return storageSession.Read<TSagaData>(sagaId);
