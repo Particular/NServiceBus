@@ -140,7 +140,7 @@ namespace NServiceBus.Hosting.Helpers
                 return false;
             }
 
-            var (shouldLoad, reason) = assemblyValidator.ValidateAssemblyFile(assemblyPath);
+            assemblyValidator.ValidateAssemblyFile(assemblyPath, out var shouldLoad, out var reason);
 
             if (!shouldLoad)
             {
