@@ -961,6 +961,11 @@ namespace NServiceBus.Features
         TreatAsErrorFromVersion = "7")]
     public class SLAMonitoring { }
 
+    [ObsoleteEx(
+        Message = "No need to enable the MsmqSubscriptionPersistence explicitly. Reference the new NServiceBus.Transport.Msmq package and use NServiceBus.MsmqPersistence to enable this instead.",
+        RemoveInVersion = "8",
+        TreatAsErrorFromVersion = "7")]
+    public class MsmqSubscriptionPersistence { }
 }
 
 namespace NServiceBus.Routing.Legacy
@@ -1010,6 +1015,29 @@ namespace NServiceBus.Transport
         {
             get { throw new NotImplementedException(); }
             set { throw new NotImplementedException(); }
+        }
+    }
+}
+
+namespace NServiceBus.Persistence.Legacy
+{
+    using System;
+
+    [ObsoleteEx(
+        Message = "The classes under the NServiceBus.Persistence.Legacy namespace have been moved. Reference the new NServiceBus.Transport.Msmq package and use NServiceBus.MsmqPersistence instead.",
+        RemoveInVersion = "8",
+        TreatAsErrorFromVersion = "7")]
+    public class MsmqPersistence : PersistenceDefinition { }
+
+   public static class MsmqSubscriptionStorageConfigurationExtensions
+    {
+        [ObsoleteEx(
+            Message = "The classes under the NServiceBus.Persistence.Legacy namespace have been moved. Reference the new NServiceBus.Transport.Msmq package and use NServiceBus.MsmqPersistence.SubscriptionQueue() instead.",
+            RemoveInVersion = "8",
+            TreatAsErrorFromVersion = "7")]
+        public static void SubscriptionQueue(this PersistenceExtensions<MsmqPersistence> persistenceExtensions, string queue)
+        {
+            throw new NotImplementedException();
         }
     }
 }
