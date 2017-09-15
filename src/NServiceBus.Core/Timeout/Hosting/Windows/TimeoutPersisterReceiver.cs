@@ -21,15 +21,6 @@ namespace NServiceBus.Timeout.Hosting.Windows
         public TimeSpan TimeToWaitBeforeTriggeringCriticalError { get; set; }
         internal DateTime NextRetrieval { get; private set; } = DateTime.UtcNow;
 
-        public TimeoutPersisterReceiver()
-        {            
-        }
-
-        public TimeoutPersisterReceiver(Func<DateTime> currentTimeProvider)
-        {
-            currentTime = currentTimeProvider;
-        }
-
         public void Dispose()
         {
             //Injected
@@ -82,7 +73,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
         {
             var cancellationToken = (CancellationToken)obj;
 
-            var startSlice = currentTime().AddYears(-10);
+            var startSlice = CurrentTime().AddYears(-10);
 
             resetEvent.Reset();
 
@@ -97,7 +88,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
 
         internal DateTime SpinOnce(DateTime startSlice)
         {
-            if (NextRetrieval > currentTime())
+            if (NextRetrieval > CurrentTime())
             {
                 Thread.Sleep(SecondsToSleepBetweenPolls * 1000);
                 return startSlice;
@@ -123,7 +114,7 @@ namespace NServiceBus.Timeout.Hosting.Windows
                 // we cap the next retrieval to max 1 minute this will make sure that we trip the circuit breaker if we
                 // loose connectivity to our storage. This will also make sure that timeouts added (during migration) direct to storage
                 // will be picked up after at most 1 minute
-                var maxNextRetrieval = currentTime() + TimeSpan.FromMinutes(1);
+                var maxNextRetrieval = CurrentTime() + TimeSpan.FromMinutes(1);
 
                 NextRetrieval = nextExpiredTimeout > maxNextRetrieval ? maxNextRetrieval : nextExpiredTimeout;
             }
@@ -158,8 +149,8 @@ namespace NServiceBus.Timeout.Hosting.Windows
         RepeatedFailuresOverTimeCircuitBreaker circuitBreaker;
 
         readonly object lockObject = new object();
-        ManualResetEvent resetEvent = new ManualResetEvent(true);        
+        ManualResetEvent resetEvent = new ManualResetEvent(true);
         CancellationTokenSource tokenSource;
-        private Func<DateTime> currentTime = () => DateTime.UtcNow;
+        internal Func<DateTime> CurrentTime = () => DateTime.UtcNow;
     }
 }
