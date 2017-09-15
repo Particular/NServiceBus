@@ -6,6 +6,7 @@
     using EndpointTemplates;
     using Features;
     using NUnit.Framework;
+    using Conventions = AcceptanceTesting.Customization.Conventions;
 
     public class When_publishing_using_base_type : NServiceBusAcceptanceTest
     {
@@ -47,7 +48,7 @@
             {
                 EndpointSetup<DefaultPublisher>(b => b.OnEndpointSubscribed<Context>((s, context) =>
                 {
-                    if (s.SubscriberReturnAddress.Contains("Subscriber1"))
+                    if (s.SubscriberEndpoint.Contains(Conventions.EndpointNamingConvention(typeof(Subscriber1))))
                     {
                         context.Subscriber1Subscribed = true;
                     }

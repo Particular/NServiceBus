@@ -25,6 +25,11 @@
                     context.Message.Headers.TryGetValue(Headers.ReplyToAddress, out returnAddress);
                 }
 
+                if (!context.Message.Headers.TryGetValue(Headers.SubscriberEndpoint, out var endpointName))
+                {
+                    endpointName = string.Empty;
+                }
+
                 var intent = (MessageIntentEnum)Enum.Parse(typeof(MessageIntentEnum), context.Message.Headers[Headers.MessageIntent], true);
                 if (intent != intentToHandle)
                 {
@@ -34,7 +39,8 @@
                 action(new SubscriptionEventArgs
                 {
                     MessageType = subscriptionMessageType,
-                    SubscriberReturnAddress = returnAddress
+                    SubscriberReturnAddress = returnAddress,
+                    SubscriberEndpoint = endpointName
                 }, scenarioContext);
             }
         }
