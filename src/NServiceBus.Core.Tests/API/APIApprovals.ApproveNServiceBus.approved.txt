@@ -1534,6 +1534,13 @@ namespace NServiceBus.Features
     {
         protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
     }
+    [System.ObsoleteAttribute("No need to enable the MsmqSubscriptionPersistence explicitly. Reference the new N" +
+        "ServiceBus.Transport.Msmq package and use NServiceBus.MsmqPersistence to enable " +
+        "this instead. Will be removed in version 8.0.0.", true)]
+    public class MsmqSubscriptionPersistence
+    {
+        public MsmqSubscriptionPersistence() { }
+    }
     public class Outbox : NServiceBus.Features.Feature
     {
         protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
@@ -1871,6 +1878,21 @@ namespace NServiceBus.Persistence
         public sealed class Timeouts : NServiceBus.Persistence.StorageType { }
     }
     public interface SynchronizedStorageSession { }
+}
+namespace NServiceBus.Persistence.Legacy
+{
+    [System.ObsoleteAttribute("The classes under the NServiceBus.Persistence.Legacy namespace have been moved. R" +
+        "eference the new NServiceBus.Transport.Msmq package and use NServiceBus.MsmqPers" +
+        "istence instead. Will be removed in version 8.0.0.", true)]
+    public class MsmqPersistence : NServiceBus.Persistence.PersistenceDefinition
+    {
+        public MsmqPersistence() { }
+    }
+    public class static MsmqSubscriptionStorageConfigurationExtensions
+    {
+        [System.ObsoleteAttribute(@"The classes under the NServiceBus.Persistence.Legacy namespace have been moved. Reference the new NServiceBus.Transport.Msmq package and use NServiceBus.MsmqPersistence.SubscriptionQueue() instead. The member currently throws a NotImplementedException. Will be removed in version 8.0.0.", true)]
+        public static void SubscriptionQueue(this NServiceBus.PersistenceExtensions<NServiceBus.Persistence.Legacy.MsmqPersistence> persistenceExtensions, string queue) { }
+    }
 }
 namespace NServiceBus.Pipeline
 {
