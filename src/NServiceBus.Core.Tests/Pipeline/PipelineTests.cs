@@ -8,7 +8,6 @@
     using System.Linq.Expressions;
     using System.Text;
     using System.Threading.Tasks;
-    using ApprovalTests;
     using Extensibility;
     using NServiceBus.Pipeline;
     using NUnit.Framework;
@@ -44,7 +43,7 @@
 
             await pipeline.Invoke(context);
 
-            Approvals.Verify(stringWriter.ToString());
+            TestApprover.Verify(stringWriter.ToString());
         }
 
         [Test]
@@ -83,7 +82,7 @@
 
             await pipeline.Invoke(context);
 
-            Approvals.Verify(stringWriter.ToString());
+            TestApprover.Verify(stringWriter.ToString());
         }
 
         [Test]
@@ -109,7 +108,7 @@
             var expressions = new List<Expression>();
             behaviors.CreatePipelineExecutionExpression(expressions);
 
-            Approvals.Verify(expressions.PrettyPrint());
+            TestApprover.Verify(expressions.PrettyPrint());
         }
 
         [Test]

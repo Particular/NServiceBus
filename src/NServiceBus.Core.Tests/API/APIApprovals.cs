@@ -4,7 +4,6 @@ namespace NServiceBus.Core.Tests.API
     using System;
     using System.Linq;
     using System.Runtime.CompilerServices;
-    using ApprovalTests;
     using NUnit.Framework;
     using PublicApiGenerator;
 
@@ -16,7 +15,7 @@ namespace NServiceBus.Core.Tests.API
         public void ApproveNServiceBus()
         {
             var publicApi = Filter(ApiGenerator.GeneratePublicApi(typeof(Endpoint).Assembly));
-            Approvals.Verify(publicApi);
+            TestApprover.Verify(publicApi);
         }
 
         string Filter(string text)
