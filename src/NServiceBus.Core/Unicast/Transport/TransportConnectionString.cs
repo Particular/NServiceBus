@@ -41,7 +41,7 @@
         {
             var connectionString = GetValue();
 
-            if (connectionString == null)
+            if (connectionString == null && transportDefinition.RequiresConnectionString)
             {
                 throw new InvalidOperationException(string.Format(message, transportDefinition.GetType().Name, transportDefinition.ExampleConnectionStringForErrorMessage));
             }
@@ -88,7 +88,7 @@ or
         {
             var connectionString = GetValue();
 
-            if (connectionString == null)
+            if (connectionString == null && transportDefinition.RequiresConnectionString)
             {
                 throw new InvalidOperationException(string.Format(message, transportDefinition.GetType().Name, transportDefinition.ExampleConnectionStringForErrorMessage));
             }
