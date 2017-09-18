@@ -80,7 +80,7 @@
 
                 public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
                 {
-                    return RequestTimeout<MySagaTimeout>(context, TimeSpan.FromSeconds(10));
+                    return RequestTimeout<MySagaTimeout>(context, TimeSpan.FromMilliseconds(100));
                 }
 
                 public Task Timeout(MySagaTimeout state, IMessageHandlerContext context)
