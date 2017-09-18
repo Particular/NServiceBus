@@ -7,6 +7,7 @@
     using Features;
     using NServiceBus.Pipeline;
     using NUnit.Framework;
+    using Conventions = AcceptanceTesting.Customization.Conventions;
 
     public class When_publishing_an_interface : NServiceBusAcceptanceTest
     {
@@ -47,7 +48,7 @@
                     c.Pipeline.Register("EventTypeSpy", new EventTypeSpy((Context)ScenarioContext), "EventTypeSpy");
                     c.OnEndpointSubscribed<Context>((s, context) =>
                     {
-                        if (s.SubscriberReturnAddress.Contains("Subscriber"))
+                        if (s.SubscriberEndpoint.Contains(Conventions.EndpointNamingConvention(typeof(Subscriber))))
                         {
                             context.Subscribed = true;
                         }

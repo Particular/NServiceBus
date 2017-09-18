@@ -8,7 +8,7 @@
 
     public class When_publishing_with_overridden_local_address : NServiceBusAcceptanceTest
     {
-        [Test, Explicit("This test fails against RabbitMQ")]
+        [Test]
         public async Task Should_be_delivered_to_all_subscribers()
         {
             var context = await Scenario.Define<Context>()
@@ -57,6 +57,7 @@
                 EndpointSetup<DefaultServer>(builder =>
                 {
                     builder.DisableFeature<AutoSubscribe>();
+                    builder.OverrideLocalAddress("myinputqueue");
                 },
                 metadata => metadata.RegisterPublisherFor<MyEvent>(typeof(Publisher)));
             }

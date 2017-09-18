@@ -5,6 +5,7 @@
     using EndpointTemplates;
     using Features;
     using NUnit.Framework;
+    using Conventions = AcceptanceTesting.Customization.Conventions;
 
     public class When_base_event_from_2_publishers : NServiceBusAcceptanceTest
     {
@@ -50,8 +51,8 @@
             {
                 EndpointSetup<DefaultPublisher>(b => b.OnEndpointSubscribed<Context>((s, context) =>
                 {
-                    context.AddTrace("Publisher1 SubscriberReturnAddress=" + s.SubscriberReturnAddress);
-                    if (s.SubscriberReturnAddress.Contains("Subscriber1"))
+                    context.AddTrace($"{Conventions.EndpointNamingConvention(typeof(Publisher1))} SubscriberEndpoint={s.SubscriberEndpoint}");
+                    if (s.SubscriberEndpoint.Contains(Conventions.EndpointNamingConvention(typeof(Subscriber1))))
                     {
                         context.SubscribedToPublisher1 = true;
                     }
@@ -65,9 +66,9 @@
             {
                 EndpointSetup<DefaultPublisher>(b => b.OnEndpointSubscribed<Context>((s, context) =>
                 {
-                    context.AddTrace("Publisher2 SubscriberReturnAddress=" + s.SubscriberReturnAddress);
+                    context.AddTrace($"{Conventions.EndpointNamingConvention(typeof(Publisher2))} SubscriberEndpoint={s.SubscriberEndpoint}");
 
-                    if (s.SubscriberReturnAddress.Contains("Subscriber1"))
+                    if (s.SubscriberEndpoint.Contains(Conventions.EndpointNamingConvention(typeof(Subscriber1))))
                     {
                         context.SubscribedToPublisher2 = true;
                     }
@@ -93,11 +94,11 @@
 
                 public Task Handle(BaseEvent message, IMessageHandlerContext context)
                 {
-                    if (message.GetType().FullName.Contains("DerivedEvent1"))
+                    if (message.GetType().FullName.Contains(nameof(DerivedEvent1)))
                     {
                         Context.GotTheEventFromPublisher1 = true;
                     }
-                    if (message.GetType().FullName.Contains("DerivedEvent2"))
+                    if (message.GetType().FullName.Contains(nameof(DerivedEvent1)))
                     {
                         Context.GotTheEventFromPublisher2 = true;
                     }
