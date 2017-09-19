@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.AcceptanceTests.Timeouts
+﻿namespace NServiceBus.AcceptanceTests.Core.Timeout
 {
     using System;
     using System.Threading.Tasks;
@@ -6,8 +6,8 @@
     using Configuration.AdvancedExtensibility;
     using EndpointTemplates;
     using Features;
+    using NServiceBus.Persistence;
     using NUnit.Framework;
-    using Persistence;
 
     class When_timeout_storage_is_unavailable_temporarily : NServiceBusAcceptanceTest
     {
@@ -27,10 +27,10 @@
         [Test]
         public async Task Endpoint_should_not_shutdown()
         {
-            var stopTime = DateTime.UtcNow.AddSeconds(6);
+            var stopTime = DateTime.UtcNow.AddSeconds(2);
 
             var testContext =
-                await Scenario.Define<TimeoutTestContext>(c => { c.SecondsToWait = 3; })
+                await Scenario.Define<TimeoutTestContext>(c => { c.SecondsToWait = 1; })
                     .WithEndpoint<Endpoint>(b =>
                     {
                         b.CustomConfig((busConfig, context) =>
@@ -64,7 +64,7 @@
             {
                 EndpointSetup<DefaultServer>(config =>
                 {
-                    config.GetSettings().Set("TimeToWaitBeforeTriggeringCriticalErrorForTimeoutPersisterReceiver", TimeSpan.FromSeconds(7));
+                    config.GetSettings().Set("TimeToWaitBeforeTriggeringCriticalErrorForTimeoutPersisterReceiver", TimeSpan.FromSeconds(3));
                     config.EnableFeature<TimeoutManager>();
                     config.UsePersistence<CustomTimeoutPersister, StorageType.Timeouts>();
                 });

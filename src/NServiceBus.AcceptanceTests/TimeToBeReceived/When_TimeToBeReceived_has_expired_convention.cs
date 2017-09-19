@@ -37,7 +37,7 @@
             protected override async Task OnStart(IMessageSession session)
             {
                 await session.SendLocal(new MyMessage());
-                await Task.Delay(TimeSpan.FromSeconds(5));
+                await Task.Delay(TimeSpan.FromMilliseconds(500));
             }
 
             protected override Task OnStop(IMessageSession session)
@@ -57,7 +57,7 @@
                     {
                         if (messageType == typeof(MyMessage))
                         {
-                            return TimeSpan.FromSeconds(2);
+                            return TimeSpan.FromMilliseconds(100);
                         }
                         return TimeSpan.MaxValue;
                     });

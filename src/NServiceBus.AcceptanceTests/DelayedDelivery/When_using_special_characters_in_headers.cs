@@ -32,7 +32,7 @@
                     {
                         var options = new SendOptions();
                         options.RouteToThisEndpoint();
-                        options.DelayDeliveryWith(TimeSpan.FromSeconds(3));
+                        options.DelayDeliveryWith(TimeSpan.FromMilliseconds(100));
                         foreach (var specialHeader in specialHeaders)
                         {
                             options.SetHeader(specialHeader.Key, specialHeader.Value);

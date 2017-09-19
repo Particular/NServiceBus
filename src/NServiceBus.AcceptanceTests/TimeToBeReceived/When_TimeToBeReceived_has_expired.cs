@@ -37,7 +37,7 @@
             protected override async Task OnStart(IMessageSession session)
             {
                 await session.SendLocal(new MyMessage());
-                await Task.Delay(TimeSpan.FromSeconds(5));
+                await Task.Delay(TimeSpan.FromMilliseconds(300));
             }
 
             protected override Task OnStop(IMessageSession session)
@@ -65,7 +65,7 @@
             }
         }
 
-        [TimeToBeReceived("00:00:02")]
+        [TimeToBeReceived("00:00:0.200")]
         public class MyMessage : IMessage
         {
         }
