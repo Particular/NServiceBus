@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.AcceptanceTests.Timeouts
+﻿namespace NServiceBus.AcceptanceTests.Core.Timeout
 {
     using System;
     using System.Threading.Tasks;
@@ -6,8 +6,8 @@
     using Configuration.AdvancedExtensibility;
     using EndpointTemplates;
     using Features;
+    using NServiceBus.Persistence;
     using NUnit.Framework;
-    using Persistence;
 
     class When_timeout_storage_is_unavailable_temporarily : NServiceBusAcceptanceTest
     {

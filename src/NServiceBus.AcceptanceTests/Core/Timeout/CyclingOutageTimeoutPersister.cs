@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.AcceptanceTests.Timeouts
+﻿namespace NServiceBus.AcceptanceTests.Core.Timeout
 {
     using System;
     using System.Collections.Concurrent;
@@ -6,7 +6,7 @@
     using System.Linq;
     using System.Threading.Tasks;
     using Extensibility;
-    using Timeout.Core;
+    using NServiceBus.Timeout.Core;
 
     /// <summary>
     /// This class mocks outages for timeout storage.
