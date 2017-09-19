@@ -9,8 +9,8 @@
     using NServiceBus;
     using NServiceBus.Persistence;
     using NServiceBus.Pipeline;
+    using NServiceBus.Timeout.Core;
     using NUnit.Framework;
-    using Timeout.Core;
     using Conventions = AcceptanceTesting.Customization.Conventions;
 
     public class When_timeout_dispatch_fails : NServiceBusAcceptanceTest

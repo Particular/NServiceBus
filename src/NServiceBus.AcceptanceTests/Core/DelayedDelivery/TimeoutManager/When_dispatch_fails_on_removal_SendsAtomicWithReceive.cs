@@ -8,9 +8,9 @@
     using Features;
     using NServiceBus.Persistence;
     using NServiceBus.Pipeline;
+    using NServiceBus.Timeout.Core;
     using NUnit.Framework;
-    using Timeout.Core;
-
+    
     class When_dispatch_fails_on_removal_SendsAtomicWithReceive : NServiceBusAcceptanceTest
     {
         [Test]
