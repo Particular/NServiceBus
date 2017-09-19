@@ -371,6 +371,18 @@ namespace NServiceBus
             set { throw new NotImplementedException(); }
         }
     }
+
+    public static partial class InstallConfigExtensions
+    {
+        [ObsoleteEx(
+            Message = "Installers are now always disabled by default.",
+            RemoveInVersion = "8",
+            TreatAsErrorFromVersion = "7")]
+        public static void DisableInstallers(this EndpointConfiguration config)
+        {
+            throw new NotImplementedException();
+        }
+    }
 }
 
 namespace NServiceBus.Config
