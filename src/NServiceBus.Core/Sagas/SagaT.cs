@@ -8,7 +8,7 @@ namespace NServiceBus
     /// implement <see cref="IAmStartedByMessages{T}" /> for the relevant message type.
     /// </summary>
     /// <typeparam name="TSagaData">A type that implements <see cref="IContainSagaData" />.</typeparam>
-    public abstract class Saga<TSagaData> : Saga where TSagaData : IContainSagaData, new()
+    public abstract class Saga<TSagaData> : Saga where TSagaData : class, IContainSagaData, new()
     {
         /// <summary>
         /// The saga's strongly typed data. Wraps <see cref="Saga.Entity" />.

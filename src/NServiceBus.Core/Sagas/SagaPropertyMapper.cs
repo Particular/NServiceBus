@@ -7,7 +7,7 @@ namespace NServiceBus
     /// A helper class that proved syntactical sugar as part of <see cref="Saga.ConfigureHowToFindSaga" />.
     /// </summary>
     /// <typeparam name="TSagaData">A type that implements <see cref="IContainSagaData" />.</typeparam>
-    public class SagaPropertyMapper<TSagaData> where TSagaData : IContainSagaData
+    public class SagaPropertyMapper<TSagaData> where TSagaData : class, IContainSagaData
     {
         internal SagaPropertyMapper(IConfigureHowToFindSagaWithMessage sagaMessageFindingConfiguration)
         {

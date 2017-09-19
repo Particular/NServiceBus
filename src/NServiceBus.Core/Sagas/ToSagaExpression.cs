@@ -6,7 +6,7 @@ namespace NServiceBus
     /// <summary>
     /// Allows a more fluent way to map sagas.
     /// </summary>
-    public class ToSagaExpression<TSagaData, TMessage> where TSagaData : IContainSagaData
+    public class ToSagaExpression<TSagaData, TMessage> where TSagaData : class, IContainSagaData
     {
         /// <summary>
         /// Initializes a new instance of <see cref="ToSagaExpression{TSagaData,TMessage}" />.

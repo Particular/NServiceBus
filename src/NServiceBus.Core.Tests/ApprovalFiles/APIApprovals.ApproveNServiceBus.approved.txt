@@ -826,7 +826,7 @@ namespace NServiceBus
         protected System.Threading.Tasks.Task RequestTimeout<TTimeoutMessageType>(NServiceBus.IMessageHandlerContext context, System.TimeSpan within, TTimeoutMessageType timeoutMessage) { }
     }
     public abstract class Saga<TSagaData> : NServiceBus.Saga
-        where TSagaData : NServiceBus.IContainSagaData, new ()
+        where TSagaData :  class, NServiceBus.IContainSagaData, new ()
     {
         protected Saga() { }
         public TSagaData Data { get; set; }
@@ -834,7 +834,7 @@ namespace NServiceBus
         protected abstract void ConfigureHowToFindSaga(NServiceBus.SagaPropertyMapper<TSagaData> mapper);
     }
     public class SagaPropertyMapper<TSagaData>
-        where TSagaData : NServiceBus.IContainSagaData
+        where TSagaData :  class, NServiceBus.IContainSagaData
     {
         public NServiceBus.ToSagaExpression<TSagaData, TMessage> ConfigureMapping<TMessage>(System.Linq.Expressions.Expression<System.Func<TMessage, object>> messageProperty) { }
     }
@@ -923,7 +923,7 @@ namespace NServiceBus
         public static NServiceBus.ConventionsBuilder DefiningTimeToBeReceivedAs(this NServiceBus.ConventionsBuilder builder, System.Func<System.Type, System.TimeSpan> retrieveTimeToBeReceived) { }
     }
     public class ToSagaExpression<TSagaData, TMessage>
-        where TSagaData : NServiceBus.IContainSagaData
+        where TSagaData :  class, NServiceBus.IContainSagaData
     {
         public ToSagaExpression(NServiceBus.IConfigureHowToFindSagaWithMessage sagaMessageFindingConfiguration, System.Linq.Expressions.Expression<System.Func<TMessage, object>> messageProperty) { }
         public void ToSaga(System.Linq.Expressions.Expression<System.Func<TSagaData, object>> sagaEntityProperty) { }
@@ -2244,9 +2244,9 @@ namespace NServiceBus.Sagas
     {
         System.Threading.Tasks.Task Complete(NServiceBus.IContainSagaData sagaData, NServiceBus.Persistence.SynchronizedStorageSession session, NServiceBus.Extensibility.ContextBag context);
         System.Threading.Tasks.Task<TSagaData> Get<TSagaData>(System.Guid sagaId, NServiceBus.Persistence.SynchronizedStorageSession session, NServiceBus.Extensibility.ContextBag context)
-            where TSagaData : NServiceBus.IContainSagaData;
+            where TSagaData :  class, NServiceBus.IContainSagaData;
         System.Threading.Tasks.Task<TSagaData> Get<TSagaData>(string propertyName, object propertyValue, NServiceBus.Persistence.SynchronizedStorageSession session, NServiceBus.Extensibility.ContextBag context)
-            where TSagaData : NServiceBus.IContainSagaData;
+            where TSagaData :  class, NServiceBus.IContainSagaData;
         System.Threading.Tasks.Task Save(NServiceBus.IContainSagaData sagaData, NServiceBus.Sagas.SagaCorrelationProperty correlationProperty, NServiceBus.Persistence.SynchronizedStorageSession session, NServiceBus.Extensibility.ContextBag context);
         System.Threading.Tasks.Task Update(NServiceBus.IContainSagaData sagaData, NServiceBus.Persistence.SynchronizedStorageSession session, NServiceBus.Extensibility.ContextBag context);
     }

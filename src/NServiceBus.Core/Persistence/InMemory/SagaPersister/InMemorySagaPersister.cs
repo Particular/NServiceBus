@@ -44,7 +44,7 @@ namespace NServiceBus
         }
 
         public Task<TSagaData> Get<TSagaData>(Guid sagaId, SynchronizedStorageSession session, ContextBag context)
-            where TSagaData : IContainSagaData
+            where TSagaData : class, IContainSagaData
         {
             if (sagas.TryGetValue(sagaId, out var value))
             {
@@ -54,10 +54,11 @@ namespace NServiceBus
                 return Task.FromResult((TSagaData)data);
             }
 
-            return DefaultSagaDataTask<TSagaData>.Default;
+            return CachedSagaDataTask<TSagaData>.Default;
         }
 
-        public Task<TSagaData> Get<TSagaData>(string propertyName, object propertyValue, SynchronizedStorageSession session, ContextBag context) where TSagaData : IContainSagaData
+        public Task<TSagaData> Get<TSagaData>(string propertyName, object propertyValue, SynchronizedStorageSession session, ContextBag context)
+            where TSagaData : class, IContainSagaData
         {
             var key = new CorrelationId(typeof(TSagaData), propertyName, propertyValue);
 
@@ -67,7 +68,7 @@ namespace NServiceBus
                 return Get<TSagaData>(id, session, context);
             }
 
-            return DefaultSagaDataTask<TSagaData>.Default;
+            return CachedSagaDataTask<TSagaData>.Default;
         }
 
         public Task Save(IContainSagaData sagaData, SagaCorrelationProperty correlationProperty, SynchronizedStorageSession session, ContextBag context)
@@ -259,11 +260,11 @@ namespace NServiceBus
             readonly string propertyName;
             readonly object propertyValue;
         }
+    }
 
-        static class DefaultSagaDataTask<TSagaData>
-            where TSagaData : IContainSagaData
-        {
-            public static Task<TSagaData> Default = Task.FromResult(default(TSagaData));
-        }
+    static class CachedSagaDataTask<TSagaData>
+                    where TSagaData : IContainSagaData
+    {
+        public static Task<TSagaData> Default = Task.FromResult(default(TSagaData));
     }
 }
