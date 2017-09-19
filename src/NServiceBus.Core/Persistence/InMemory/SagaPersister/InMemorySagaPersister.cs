@@ -54,7 +54,7 @@ namespace NServiceBus
                 return Task.FromResult((TSagaData)data);
             }
 
-            return Task.FromResult<TSagaData>(null);
+            return CachedSagaDataTask<TSagaData>.Default;
         }
 
         public Task<TSagaData> Get<TSagaData>(string propertyName, object propertyValue, SynchronizedStorageSession session, ContextBag context)
@@ -68,7 +68,7 @@ namespace NServiceBus
                 return Get<TSagaData>(id, session, context);
             }
 
-            return Task.FromResult<TSagaData>(null);
+            return CachedSagaDataTask<TSagaData>.Default;
         }
 
         public Task Save(IContainSagaData sagaData, SagaCorrelationProperty correlationProperty, SynchronizedStorageSession session, ContextBag context)
@@ -260,5 +260,11 @@ namespace NServiceBus
             readonly string propertyName;
             readonly object propertyValue;
         }
+    }
+
+    static class CachedSagaDataTask<TSagaData>
+                    where TSagaData : IContainSagaData
+    {
+        public static Task<TSagaData> Default = Task.FromResult(default(TSagaData));
     }
 }
