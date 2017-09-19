@@ -37,7 +37,7 @@
             protected override async Task OnStart(IMessageSession session)
             {
                 await session.SendLocal(new MyMessage());
-                await Task.Delay(TimeSpan.FromMilliseconds(200));
+                await Task.Delay(TimeSpan.FromMilliseconds(300));
             }
 
             protected override Task OnStop(IMessageSession session)
