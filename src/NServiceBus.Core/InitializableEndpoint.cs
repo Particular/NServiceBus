@@ -2,7 +2,6 @@ namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics;
     using System.Linq;
     using System.Threading.Tasks;
     using Features;
@@ -140,15 +139,9 @@ namespace NServiceBus
 
         async Task RunInstallers(IEnumerable<Type> concreteTypes, string username)
         {
-            var shouldRunInstaller = settings.GetOrDefault<bool?>("Installers.Enable");
-            if (shouldRunInstaller.HasValue && !shouldRunInstaller.Value)
+            var shouldRunInstaller = settings.GetOrDefault<bool>("Installers.Enable");
+            if (!shouldRunInstaller)
             {
-                // do not run installers when the user explicitly disabled it.
-                return;
-            }
-            if (!shouldRunInstaller.HasValue && !Debugger.IsAttached)
-            {
-                // do not run installers when user didn't specify a value and no debugger is attached.
                 return;
             }
 

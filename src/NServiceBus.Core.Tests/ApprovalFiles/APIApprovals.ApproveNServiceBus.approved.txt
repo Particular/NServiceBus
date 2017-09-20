@@ -532,6 +532,8 @@ namespace NServiceBus
     public class InMemoryPersistence : NServiceBus.Persistence.PersistenceDefinition { }
     public class static InstallConfigExtensions
     {
+        [System.ObsoleteAttribute("Installers are now always disabled by default. The member currently throws a NotI" +
+            "mplementedException. Will be removed in version 8.0.0.", true)]
         public static void DisableInstallers(this NServiceBus.EndpointConfiguration config) { }
         public static void EnableInstallers(this NServiceBus.EndpointConfiguration config, string username = null) { }
     }
