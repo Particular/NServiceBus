@@ -50,7 +50,7 @@
                     recoverability.Delayed(settings =>
                     {
                         settings.NumberOfRetries(3);
-                        settings.TimeIncrease(TimeSpan.FromMilliseconds(10));
+                        settings.TimeIncrease(TimeSpan.FromSeconds(1));
                     });
                 });
             }
