@@ -59,7 +59,7 @@
                     {
                         if (messageType == typeof(MyCommand))
                         {
-                            return TimeSpan.FromMilliseconds(100);
+                            return TimeSpan.FromSeconds(2);
                         }
                         return TimeSpan.MaxValue;
                     });
@@ -81,7 +81,7 @@
         {
             protected override Task OnStart(IMessageSession session)
             {
-                return Task.Delay(TimeSpan.FromSeconds(1));
+                return Task.Delay(TimeSpan.FromSeconds(5));
             }
 
             protected override Task OnStop(IMessageSession session)
