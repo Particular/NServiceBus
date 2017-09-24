@@ -217,11 +217,6 @@
         public const string MessageIntent = "NServiceBus.MessageIntent";
 
         /// <summary>
-        /// The identifier to lookup the key to decrypt the encrypted data.
-        /// </summary>
-        public const string RijndaelKeyIdentifier = "NServiceBus.RijndaelKeyIdentifier";
-
-        /// <summary>
         /// The time to be received for this message when it was sent the first time.
         /// When moved to error and audit this header will be preserved to the original TTBR
         /// of the message can be known.
