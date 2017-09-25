@@ -35,8 +35,7 @@ namespace NServiceBus.Features
                 context.Container.ConfigureComponent<DefaultDataBusSerializer>(DependencyLifecycle.SingleInstance);
             }
 
-            context.RegisterStartupTask(b => b.Build<IDataBusInitializer>());
-            context.Container.ConfigureComponent<IDataBusInitializer>(DependencyLifecycle.SingleInstance);
+            context.RegisterStartupTask(b => new IDataBusInitializer(b.Build<IDataBus>()));
 
             var conventions = context.Settings.Get<Conventions>();
             context.Pipeline.Register(new DataBusReceiveBehavior.Registration(conventions));
@@ -45,11 +44,16 @@ namespace NServiceBus.Features
 
         class IDataBusInitializer : FeatureStartupTask
         {
-            public IDataBus DataBus { get; set; }
+            IDataBus dataBus;
+
+            public IDataBusInitializer(IDataBus dataBus)
+            {
+                this.dataBus = dataBus;
+            }
 
             protected override Task OnStart(IMessageSession session)
             {
-                return DataBus.Start();
+                return dataBus.Start();
             }
 
             protected override Task OnStop(IMessageSession session)
