@@ -2104,8 +2104,7 @@ namespace NServiceBus.Routing
         protected DistributionStrategy(string endpoint, NServiceBus.DistributionStrategyScope scope) { }
         public string Endpoint { get; }
         public NServiceBus.DistributionStrategyScope Scope { get; }
-        public virtual string SelectDestination(NServiceBus.Routing.DistributionContext context) { }
-        public abstract string SelectReceiver(string[] receiverAddresses);
+        public abstract string SelectDestination(NServiceBus.Routing.DistributionContext context);
     }
     public sealed class EndpointInstance
     {
@@ -2149,7 +2148,7 @@ namespace NServiceBus.Routing
     public class SingleInstanceRoundRobinDistributionStrategy : NServiceBus.Routing.DistributionStrategy
     {
         public SingleInstanceRoundRobinDistributionStrategy(string endpoint, NServiceBus.DistributionStrategyScope scope) { }
-        public override string SelectReceiver(string[] receiverAddresses) { }
+        public override string SelectDestination(NServiceBus.Routing.DistributionContext context) { }
     }
     public class UnicastAddressTag : NServiceBus.Routing.AddressTag
     {

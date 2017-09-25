@@ -76,11 +76,6 @@
                 {
                 }
 
-                public override string SelectReceiver(string[] receiverAddresses)
-                {
-                    throw new NotImplementedException(); // should never be called
-                }
-
                 public override string SelectDestination(DistributionContext context)
                 {
                     if (context.Message.Instance is MyCommand message)
