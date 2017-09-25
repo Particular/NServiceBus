@@ -29,7 +29,7 @@
 
         static IConfigureTransportInfrastructure CreateConfigurer()
         {
-            var transportToUse = EnvironmentHelper.GetEnvironmentVariable("Transport.UseSpecific");
+            var transportToUse = EnvironmentHelper.GetEnvironmentVariable("Transport_UseSpecific");
 
             if (string.IsNullOrWhiteSpace(transportToUse))
             {
