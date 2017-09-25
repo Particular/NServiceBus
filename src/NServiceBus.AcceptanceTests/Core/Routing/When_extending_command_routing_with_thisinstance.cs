@@ -85,17 +85,17 @@ namespace NServiceBus.AcceptanceTests.Core.Routing
 
             class SelectFirstDistributionStrategy : DistributionStrategy
             {
-                Context context;
+                Context testContext;
 
-                public SelectFirstDistributionStrategy(string endpoint, Context context) : base(endpoint, DistributionStrategyScope.Send)
+                public SelectFirstDistributionStrategy(string endpoint, Context testContext) : base(endpoint, DistributionStrategyScope.Send)
                 {
-                    this.context = context;
+                    this.testContext = testContext;
                 }
 
-                public override string SelectReceiver(string[] receiverAddresses)
+                public override string SelectDestination(DistributionContext context)
                 {
-                    context.StrategyCalled = true;
-                    return receiverAddresses[0];
+                    testContext.StrategyCalled = true;
+                    return context.ReceiverAddresses[0];
                 }
             }
         }
