@@ -114,7 +114,7 @@ namespace NServiceBus
                 typeof(IMutateIncomingTransportMessages).IsAssignableFrom(component) ||
                 typeof(IMutateOutgoingTransportMessages).IsAssignableFrom(component))
             {
-                throw new Exception("Registering message mutators in the container is no longer supported. Please us `EndpointConfiguration.RegisterMessageMutator(...)`");
+                throw new Exception("Registering message mutators in the container is no longer supported. Please use `EndpointConfiguration.RegisterMessageMutator(...)`");
             }
         }
 
