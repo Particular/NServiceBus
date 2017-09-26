@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.Persistence
+﻿namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
