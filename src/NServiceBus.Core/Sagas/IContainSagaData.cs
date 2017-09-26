@@ -1,6 +1,7 @@
 namespace NServiceBus
 {
     using System;
+    using System.ComponentModel;
 
     /// <summary>
     /// The saga data that will be persisted.
@@ -16,11 +17,13 @@ namespace NServiceBus
         /// The reason Guid is used for process Id is that messages containing this Id need
         /// to be sent by the process even before it is persisted.
         /// </remarks>
+        [EditorBrowsable(EditorBrowsableState.Never)]
         Guid Id { get; set; }
 
         /// <summary>
         /// Contains the return address of the endpoint that caused the process to run.
         /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
         string Originator { get; set; }
 
         /// <summary>
@@ -28,6 +31,7 @@ namespace NServiceBus
         /// This is needed so that when we reply to the Originator, any
         /// registered callbacks will be fired correctly.
         /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
         string OriginalMessageId { get; set; }
     }
 }
