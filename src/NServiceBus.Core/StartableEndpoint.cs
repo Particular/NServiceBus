@@ -38,7 +38,7 @@ namespace NServiceBus
 
             AppDomain.CurrentDomain.SetPrincipalPolicy(PrincipalPolicy.WindowsPrincipal);
 
-            var mainPipeline = new Pipeline<ITransportReceiveContext>(builder, settings, pipelineConfiguration.Modifications);
+            var mainPipeline = new Pipeline<ITransportReceiveContext>(builder, pipelineConfiguration.Modifications);
             var receivers = CreateReceivers(mainPipeline);
             await InitializeReceivers(receivers).ConfigureAwait(false);
 

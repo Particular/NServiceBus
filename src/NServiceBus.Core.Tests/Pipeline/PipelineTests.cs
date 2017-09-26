@@ -11,7 +11,6 @@
     using Extensibility;
     using NServiceBus.Pipeline;
     using NUnit.Framework;
-    using Settings;
     using Testing;
     using FakeBuilder = Testing.FakeBuilder;
 
@@ -36,7 +35,7 @@
             pipelineModifications.Additions.Add(new Stage2.Registration(stringWriter));
             pipelineModifications.Additions.Add(new Terminator.Registration(stringWriter));
 
-            var pipeline = new Pipeline<ITransportReceiveContext>(new FakeBuilder(), new SettingsHolder(), pipelineModifications);
+            var pipeline = new Pipeline<ITransportReceiveContext>(new FakeBuilder(), pipelineModifications);
 
             var context = new TestableTransportReceiveContext();
             context.Extensions.Set<IPipelineCache>(new FakePipelineCache());
@@ -64,7 +63,7 @@
             pipelineModifications.Additions.Add(new Stage2.Registration(stringWriter));
             pipelineModifications.Additions.Add(new Terminator.Registration(stringWriter));
 
-            var pipeline = new Pipeline<ITransportReceiveContext>(new FakeBuilder(), new SettingsHolder(), pipelineModifications);
+            var pipeline = new Pipeline<ITransportReceiveContext>(new FakeBuilder(), pipelineModifications);
 
             stringWriter.WriteLine("Run 1");
 
@@ -122,7 +121,7 @@
             pipelineModifications.Additions.Add(new Behavior2.Registration(stringWriter));
             pipelineModifications.Additions.Add(new StageFork.Registration(stringWriter));
 
-            var pipeline = new Pipeline<ITransportReceiveContext>(new FakeBuilder(), new SettingsHolder(), pipelineModifications);
+            var pipeline = new Pipeline<ITransportReceiveContext>(new FakeBuilder(), pipelineModifications);
 
             var context = new TestableTransportReceiveContext();
             context.Extensions.Set<IPipelineCache>(new FakePipelineCache());

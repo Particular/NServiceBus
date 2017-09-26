@@ -1,11 +1,10 @@
 ﻿namespace NServiceBus
 {
     using ObjectBuilder;
-    using Settings;
 
     class PipelineConfiguration
     {
-        public void RegisterBehaviorsInContainer(SettingsHolder settings, IConfigureComponents container)
+        public void RegisterBehaviorsInContainer(IConfigureComponents container)
         {
             foreach (var registeredBehavior in Modifications.Replacements)
             {
@@ -14,7 +13,7 @@
 
             foreach (var step in Modifications.Additions)
             {
-                step.ApplyContainerRegistration(settings, container);
+                step.ApplyContainerRegistration(container);
             }
         }
 
