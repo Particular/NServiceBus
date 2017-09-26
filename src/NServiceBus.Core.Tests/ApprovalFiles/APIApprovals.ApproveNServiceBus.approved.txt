@@ -2058,7 +2058,6 @@ namespace NServiceBus.Pipeline
         public void InsertAfterIfExists(string id) { }
         public void InsertBefore(string id) { }
         public void InsertBeforeIfExists(string id) { }
-        public virtual bool IsEnabled(NServiceBus.Settings.ReadOnlySettings settings) { }
     }
     public abstract class StageConnector<TFromContext, TToContext> : NServiceBus.Pipeline.IBehavior, NServiceBus.Pipeline.IBehavior<TFromContext, TToContext>
         where TFromContext : NServiceBus.Pipeline.IBehaviorContext

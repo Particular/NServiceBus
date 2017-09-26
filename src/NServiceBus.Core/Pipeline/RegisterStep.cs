@@ -4,7 +4,6 @@ namespace NServiceBus.Pipeline
     using System.Collections.Generic;
     using System.Diagnostics;
     using ObjectBuilder;
-    using Settings;
 
     /// <summary>
     /// Base class to do an advance registration of a step.
@@ -49,23 +48,14 @@ namespace NServiceBus.Pipeline
         /// </summary>
         public Type BehaviorType { get; private set; }
 
-        internal void ApplyContainerRegistration(ReadOnlySettings settings, IConfigureComponents container)
+        internal void ApplyContainerRegistration(IConfigureComponents container)
         {
-            if (!IsEnabled(settings) || factoryMethod != null)
+            if (factoryMethod != null)
             {
                 return;
             }
 
             container.ConfigureComponent(BehaviorType, DependencyLifecycle.InstancePerCall);
-        }
-
-        /// <summary>
-        /// Checks if this behavior is enabled.
-        /// </summary>
-        public virtual bool IsEnabled(ReadOnlySettings settings)
-        {
-            Guard.AgainstNull(nameof(settings), settings);
-            return true;
         }
 
         /// <summary>
@@ -152,7 +142,7 @@ namespace NServiceBus.Pipeline
         {
             var behavior = factoryMethod != null
                 ? factoryMethod(defaultBuilder)
-                : (IBehavior) defaultBuilder.Build(BehaviorType);
+                : (IBehavior)defaultBuilder.Build(BehaviorType);
 
             return behavior;
         }

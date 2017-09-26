@@ -57,7 +57,7 @@ namespace NServiceBus
 
             var featureStats = featureActivator.SetupFeatures(container, pipelineSettings, routing);
 
-            pipelineConfiguration.RegisterBehaviorsInContainer(settings, container);
+            pipelineConfiguration.RegisterBehaviorsInContainer(container);
 
             DisplayDiagnosticsForFeatures.Run(featureStats);
 
