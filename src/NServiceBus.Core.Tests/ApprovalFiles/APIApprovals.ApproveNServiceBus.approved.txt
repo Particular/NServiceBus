@@ -382,7 +382,6 @@ namespace NServiceBus
         public const string RelatedTo = "NServiceBus.RelatedTo";
         public const string ReplyToAddress = "NServiceBus.ReplyToAddress";
         public const string ReturnMessageErrorCodeHeader = "NServiceBus.ReturnMessage.ErrorCode";
-        public const string RijndaelKeyIdentifier = "NServiceBus.RijndaelKeyIdentifier";
         public const string RouteTo = "NServiceBus.Header.RouteTo";
         public const string SagaId = "NServiceBus.SagaId";
         public const string SagaType = "NServiceBus.SagaType";
