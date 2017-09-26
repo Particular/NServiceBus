@@ -3,7 +3,6 @@ using System.IO;
 using System.Threading.Tasks;
 using NServiceBus;
 using NServiceBus.AcceptanceTesting.Support;
-using NServiceBus.Persistence;
 using NUnit.Framework;
 
 public class ConfigureEndpointLearningPersistence : IConfigureEndpointTestExecution

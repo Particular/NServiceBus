@@ -5,7 +5,6 @@
     using System.Linq;
     using NServiceBus.Sagas;
     using ObjectBuilder;
-    using Persistence;
     using Transport;
 
     /// <summary>

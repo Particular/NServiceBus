@@ -1,7 +1,6 @@
 namespace NServiceBus.Features
 {
     using System;
-    using Persistence;
     using Transport;
     using Unicast.Messages;
     using Unicast.Subscriptions.MessageDrivenSubscriptions;
