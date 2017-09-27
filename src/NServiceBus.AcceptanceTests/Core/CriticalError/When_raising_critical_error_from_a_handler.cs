@@ -36,7 +36,7 @@
                         });
                     });
                 })
-                .Done(c => c.CriticalErrorsRaised > 0)
+                .Done(c => c.CriticalErrorsRaised > 0 && exceptions.Keys.Count > 0)
                 .Run();
 
             Assert.AreEqual(1, exceptions.Keys.Count);
