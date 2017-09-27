@@ -9,7 +9,7 @@ namespace NServiceBus.Pipeline
     /// Base class to do an advance registration of a step.
     /// </summary>
     [DebuggerDisplay("{StepId}({BehaviorType.FullName}) - {Description}")]
-    public abstract class RegisterStep
+    public abstract partial class RegisterStep
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="RegisterStep" /> class.
