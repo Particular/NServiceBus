@@ -4,7 +4,6 @@
     using ConsistencyGuarantees;
     using DelayedDelivery;
     using DeliveryConstraints;
-    using Persistence;
     using Settings;
     using Timeout.Core;
     using Transport;

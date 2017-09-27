@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus.Core.Tests.Persistence
 {
-    using NServiceBus.Persistence;
     using NUnit.Framework;
     using Settings;
 

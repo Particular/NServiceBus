@@ -2,7 +2,6 @@
 {
     using System;
     using ConsistencyGuarantees;
-    using Persistence;
 
     /// <summary>
     /// Configure the Outbox.

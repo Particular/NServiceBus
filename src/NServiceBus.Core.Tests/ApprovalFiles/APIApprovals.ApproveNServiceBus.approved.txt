@@ -680,7 +680,7 @@ namespace NServiceBus
             where T : NServiceBus.Persistence.PersistenceDefinition { }
         public static NServiceBus.PersistenceExtensions<T, S> UsePersistence<T, S>(this NServiceBus.EndpointConfiguration config)
             where T : NServiceBus.Persistence.PersistenceDefinition
-            where S : NServiceBus.Persistence.StorageType { }
+            where S : NServiceBus.StorageType { }
         public static NServiceBus.PersistenceExtensions UsePersistence(this NServiceBus.EndpointConfiguration config, System.Type definitionType) { }
     }
     public class PersistenceExtensions : NServiceBus.Configuration.AdvancedExtensibility.ExposeSettings
@@ -695,7 +695,7 @@ namespace NServiceBus
     }
     public class PersistenceExtensions<T, S> : NServiceBus.PersistenceExtensions<T>
         where T : NServiceBus.Persistence.PersistenceDefinition
-        where S : NServiceBus.Persistence.StorageType
+        where S : NServiceBus.StorageType
     {
         public PersistenceExtensions(NServiceBus.Settings.SettingsHolder settings) { }
     }
@@ -899,6 +899,15 @@ namespace NServiceBus
     public class static StaticHeadersConfigExtensions
     {
         public static void AddHeaderToAllOutgoingMessages(this NServiceBus.EndpointConfiguration config, string key, string value) { }
+    }
+    public abstract class StorageType
+    {
+        public override string ToString() { }
+        public sealed class GatewayDeduplication : NServiceBus.StorageType { }
+        public sealed class Outbox : NServiceBus.StorageType { }
+        public sealed class Sagas : NServiceBus.StorageType { }
+        public sealed class Subscriptions : NServiceBus.StorageType { }
+        public sealed class Timeouts : NServiceBus.StorageType { }
     }
     public class SubscribeOptions : NServiceBus.Extensibility.ExtendableOptions
     {
@@ -1857,19 +1866,10 @@ namespace NServiceBus.Persistence
         protected PersistenceDefinition() { }
         protected void Defaults(System.Action<NServiceBus.Settings.SettingsHolder> action) { }
         public bool HasSupportFor<T>()
-            where T : NServiceBus.Persistence.StorageType { }
+            where T : NServiceBus.StorageType { }
         public bool HasSupportFor(System.Type storageType) { }
         protected void Supports<T>(System.Action<NServiceBus.Settings.SettingsHolder> action)
-            where T : NServiceBus.Persistence.StorageType { }
-    }
-    public abstract class StorageType
-    {
-        public override string ToString() { }
-        public sealed class GatewayDeduplication : NServiceBus.Persistence.StorageType { }
-        public sealed class Outbox : NServiceBus.Persistence.StorageType { }
-        public sealed class Sagas : NServiceBus.Persistence.StorageType { }
-        public sealed class Subscriptions : NServiceBus.Persistence.StorageType { }
-        public sealed class Timeouts : NServiceBus.Persistence.StorageType { }
+            where T : NServiceBus.StorageType { }
     }
     public interface SynchronizedStorageSession { }
 }
