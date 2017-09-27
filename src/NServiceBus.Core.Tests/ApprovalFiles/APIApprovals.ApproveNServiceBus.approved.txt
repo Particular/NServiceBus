@@ -2057,6 +2057,10 @@ namespace NServiceBus.Pipeline
         public void InsertAfterIfExists(string id) { }
         public void InsertBefore(string id) { }
         public void InsertBeforeIfExists(string id) { }
+        [System.ObsoleteAttribute("The method is no longer used and can safely be removed. Previous implementations " +
+            "always returned `true`. The member currently throws a NotImplementedException. W" +
+            "ill be removed in version 8.0.0.", true)]
+        public virtual bool IsEnabled(NServiceBus.Settings.ReadOnlySettings settings) { }
     }
     public abstract class StageConnector<TFromContext, TToContext> : NServiceBus.Pipeline.IBehavior, NServiceBus.Pipeline.IBehavior<TFromContext, TToContext>
         where TFromContext : NServiceBus.Pipeline.IBehaviorContext

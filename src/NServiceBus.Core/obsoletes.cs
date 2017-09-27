@@ -1026,4 +1026,22 @@ namespace NServiceBus.Transport
     }
 }
 
+namespace NServiceBus.Pipeline
+{
+    using System;
+    using Settings;
+
+    public abstract partial class RegisterStep
+    {
+        [ObsoleteEx(
+            RemoveInVersion = "8.0",
+            TreatAsErrorFromVersion = "7.0",
+            Message = "The method is no longer used and can safely be removed. Previous implementations always returned `true`.")]
+        public virtual bool IsEnabled(ReadOnlySettings settings)
+        {
+            throw new NotImplementedException();
+        }
+    }
+}
+
 #pragma warning restore 1591
