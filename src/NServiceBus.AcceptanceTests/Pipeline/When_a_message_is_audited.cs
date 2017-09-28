@@ -11,7 +11,7 @@
         [Test]
         public async Task Should_flow_causation_headers()
         {
-            var context = await Scenario.Define<Context>()
+            var context = await new Scenario<Context>()
                 .WithEndpoint<CausationEndpoint>(b => b.When(session => session.SendLocal(new FirstMessage())))
                 .WithEndpoint<AuditSpyEndpoint>()
                 .Done(c => c.Done)
@@ -49,12 +49,11 @@
 
             public class FirstMessageHandler : IHandleMessages<FirstMessage>
             {
-                public Context TestContext { get; set; }
-
                 public Task Handle(FirstMessage message, IMessageHandlerContext context)
                 {
-                    TestContext.OriginRelatedTo = context.MessageId;
-                    TestContext.OriginConversationId = context.MessageHeaders.ContainsKey(Headers.ConversationId) ? context.MessageHeaders[Headers.ConversationId] : null;
+                    var testContext = Scenario<Context>.CurrentContext.Value;
+                    testContext.OriginRelatedTo = context.MessageId;
+                    testContext.OriginConversationId = context.MessageHeaders.ContainsKey(Headers.ConversationId) ? context.MessageHeaders[Headers.ConversationId] : null;
                     
                     return context.SendLocal(new MessageToBeAudited());
                 }
@@ -70,13 +69,13 @@
 
             public class MessageToBeAuditedHandler : IHandleMessages<MessageToBeAudited>
             {
-                public Context TestContext { get; set; }
-
                 public Task Handle(MessageToBeAudited message, IMessageHandlerContext context)
                 {
-                    TestContext.RelatedTo = context.MessageHeaders.ContainsKey(Headers.RelatedTo) ? context.MessageHeaders[Headers.RelatedTo] : null;
-                    TestContext.ConversationId = context.MessageHeaders.ContainsKey(Headers.ConversationId) ? context.MessageHeaders[Headers.ConversationId] : null;
-                    TestContext.Done = true;
+                    var testContext = Scenario<Context>.CurrentContext.Value;
+
+                    testContext.RelatedTo = context.MessageHeaders.ContainsKey(Headers.RelatedTo) ? context.MessageHeaders[Headers.RelatedTo] : null;
+                    testContext.ConversationId = context.MessageHeaders.ContainsKey(Headers.ConversationId) ? context.MessageHeaders[Headers.ConversationId] : null;
+                    testContext.Done = true;
 
                     return Task.FromResult(0);
                 }
@@ -84,8 +83,6 @@
 
             public class FirstMessageHandler : IHandleMessages<FirstMessage>
             {
-                public Context TestContext { get; set; }
-
                 public Task Handle(FirstMessage message, IMessageHandlerContext context)
                 {
                     return Task.FromResult(0);

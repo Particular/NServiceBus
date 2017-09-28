@@ -13,7 +13,7 @@
         [Test]
         public async Task Should_receive_the_message()
         {
-            var context = await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
+            var context = await new Scenario<Context>(c => { c.Id = Guid.NewGuid(); })
                 .WithEndpoint<Sender>(b => b.When((session, c) =>
                 {
                     var sendOptions = new SendOptions();
@@ -72,22 +72,22 @@
 
             public class MyMessageHandler : IHandleMessages<MyMessage>
             {
-                public Context TestContext { get; set; }
-
                 public Task Handle(MyMessage message, IMessageHandlerContext context)
                 {
-                    if (TestContext.Id != message.Id)
+                    var textCOntext = Scenario<Context>.CurrentContext.Value;
+
+                    if (textCOntext.Id != message.Id)
                     {
                         return Task.FromResult(0);
                     }
 
-                    TestContext.TimesCalled++;
-                    TestContext.MyMessageId = context.MessageId;
-                    TestContext.MyHeader = context.MessageHeaders["MyHeader"];
+                    textCOntext.TimesCalled++;
+                    textCOntext.MyMessageId = context.MessageId;
+                    textCOntext.MyHeader = context.MessageHeaders["MyHeader"];
 
-                    TestContext.ReceivedHeaders = context.MessageHeaders;
+                    textCOntext.ReceivedHeaders = context.MessageHeaders;
 
-                    TestContext.WasCalled = true;
+                    textCOntext.WasCalled = true;
 
                     return Task.FromResult(0);
                 }

@@ -11,7 +11,7 @@
         [Test]
         public async Task Should_flow_causation_headers()
         {
-            var context = await Scenario.Define<Context>()
+            var context = await new Scenario<Context>()
                 .WithEndpoint<CausationEndpoint>(b => b.When(session => session.SendLocal(new FirstMessage())).DoNotFailOnErrorMessages())
                 .WithEndpoint<EndpointThatHandlesErrorMessages>()
                 .Done(c => c.Done)
@@ -41,12 +41,12 @@
 
             public class FirstMessageHandler : IHandleMessages<FirstMessage>
             {
-                public Context TestContext { get; set; }
-
                 public Task Handle(FirstMessage message, IMessageHandlerContext context)
                 {
-                    TestContext.OriginRelatedTo = context.MessageId;
-                    TestContext.OriginConversationId = context.MessageHeaders.ContainsKey(Headers.ConversationId) ? context.MessageHeaders[Headers.ConversationId] : null;
+                    var testContext = Scenario<Context>.CurrentContext.Value;
+
+                    testContext.OriginRelatedTo = context.MessageId;
+                    testContext.OriginConversationId = context.MessageHeaders.ContainsKey(Headers.ConversationId) ? context.MessageHeaders[Headers.ConversationId] : null;
 
                     return context.SendLocal(new MessageThatFails());
                 }
@@ -72,21 +72,16 @@
 
             class ErrorMessageHandler : IHandleMessages<MessageThatFails>
             {
-                public ErrorMessageHandler(Context testContext)
-                {
-                    this.testContext = testContext;
-                }
-
                 public Task Handle(MessageThatFails message, IMessageHandlerContext context)
                 {
+                    var testContext = Scenario<Context>.CurrentContext.Value;
+
                     testContext.RelatedTo = context.MessageHeaders.ContainsKey(Headers.RelatedTo) ? context.MessageHeaders[Headers.RelatedTo] : null;
                     testContext.ConversationId = context.MessageHeaders.ContainsKey(Headers.ConversationId) ? context.MessageHeaders[Headers.ConversationId] : null;
                     testContext.Done = true;
 
                     return Task.FromResult(0);
                 }
-
-                Context testContext;
             }
         }
 
