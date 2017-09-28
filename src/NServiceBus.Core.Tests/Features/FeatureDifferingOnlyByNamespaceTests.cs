@@ -31,7 +31,8 @@
 
             settings.EnableFeatureByDefault<NamespaceA.MyFeature>();
 
-            featureSettings.SetupFeatures(null, null, null);
+            var features = featureSettings.ConfigureFeatures();
+            featureSettings.SetupFeatures(features, null, null, null);
 
             Assert.True(dependingFeature.IsActive);
 
