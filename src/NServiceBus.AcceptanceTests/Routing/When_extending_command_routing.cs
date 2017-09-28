@@ -70,7 +70,8 @@
 
                 public override string SelectDestination(DistributionContext context)
                 {
-                    return context.ReceiverAddresses.First(x => x.Contains("XYZ"));
+                    var address = context.ToTransportAddress(new EndpointInstance(ReceiverEndpoint, "XYZ"));
+                    return context.ReceiverAddresses.First(x => x == address);
                 }
             }
         }
