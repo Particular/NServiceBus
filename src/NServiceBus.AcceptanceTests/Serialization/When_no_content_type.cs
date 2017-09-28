@@ -30,7 +30,7 @@
         {
             public EndpointViaType()
             {
-                EndpointSetup<DefaultServer>();
+                EndpointSetup<DefaultServer>(config => config.RegisterMessageMutator(new ContentTypeMutator()));
             }
 
             public class Handler : IHandleMessages<Message>
@@ -44,20 +44,12 @@
                 }
             }
 
-            class ContentTypeMutator : IMutateIncomingTransportMessages, INeedInitialization
+            class ContentTypeMutator : IMutateIncomingTransportMessages
             {
-                public Context Context { get; set; }
-
                 public Task MutateIncoming(MutateIncomingTransportMessageContext context)
                 {
                     context.Headers.Remove(Headers.ContentType);
                     return Task.FromResult(0);
-                }
-
-                public void Customize(EndpointConfiguration configuration)
-                {
-                    configuration.RegisterComponents(c =>
-                        c.ConfigureComponent<ContentTypeMutator>(DependencyLifecycle.InstancePerCall));
                 }
             }
         }

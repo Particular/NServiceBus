@@ -28,8 +28,8 @@
 
         public static byte Checksum(byte[] data)
         {
-            var longSum = data.Sum(x => (long) x);
-            return unchecked((byte) longSum);
+            var longSum = data.Sum(x => (long)x);
+            return unchecked((byte)longSum);
         }
 
         public class Context : ScenarioContext
@@ -88,23 +88,22 @@
         {
             public AuditSpyEndpoint()
             {
-                EndpointSetup<DefaultServer>();
+                EndpointSetup<DefaultServer, Context>((config, context) => config.RegisterMessageMutator(new BodySpy(context)));
             }
 
-            class BodySpy : IMutateIncomingTransportMessages, INeedInitialization
+            class BodySpy : IMutateIncomingTransportMessages
             {
-                public Context Context { get; set; }
-
-                public Task MutateIncoming(MutateIncomingTransportMessageContext transportMessage)
+                public BodySpy(Context testContext)
                 {
-                    Context.MessageAudited = true;
+                    this.testContext = testContext;
+                }
+                public Task MutateIncoming(MutateIncomingTransportMessageContext context)
+                {
+                    testContext.MessageAudited = true;
                     return Task.FromResult(0);
                 }
 
-                public void Customize(EndpointConfiguration configuration)
-                {
-                    configuration.RegisterComponents(c => c.ConfigureComponent<BodySpy>(DependencyLifecycle.InstancePerCall));
-                }
+                Context testContext;
             }
 
             public class MessageToBeAuditedHandler : IHandleMessages<ResponseToBeAudited>

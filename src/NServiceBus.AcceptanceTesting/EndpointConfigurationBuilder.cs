@@ -65,6 +65,31 @@
             return this;
         }
 
+        public EndpointConfigurationBuilder EndpointSetup<T,TContext>(Action<EndpointConfiguration, TContext> configurationBuilderCustomization, Action<PublisherMetadata> publisherMetadata = null) 
+            where T : IEndpointSetupTemplate, new()
+            where TContext : ScenarioContext
+        {
+            if (configurationBuilderCustomization == null)
+            {
+                configurationBuilderCustomization = (rd, b) => { };
+            }
+
+            publisherMetadata?.Invoke(configuration.PublisherMetadata);
+
+            configuration.GetConfiguration = async runDescriptor =>
+            {
+                var endpointSetupTemplate = new T();
+                var endpointConfiguration = await endpointSetupTemplate.GetConfiguration(runDescriptor, configuration, bc =>
+                {
+                    configurationBuilderCustomization(bc, (TContext)runDescriptor.ScenarioContext);
+                }).ConfigureAwait(false);
+
+                return endpointConfiguration;
+            };
+
+            return this;
+        }
+
 
         EndpointCustomizationConfiguration IEndpointConfigurationFactory.Get()
         {
