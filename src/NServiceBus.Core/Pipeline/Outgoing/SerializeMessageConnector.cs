@@ -52,10 +52,16 @@ namespace NServiceBus
         {
             var metadata = messageMetadataRegistry.GetMessageMetadata(messageType);
 
-            var assemblyQualifiedNames = new HashSet<string>();
+            var assemblyQualifiedNames = new List<string>(metadata.MessageHierarchy.Length);
             foreach (var type in metadata.MessageHierarchy)
             {
-                assemblyQualifiedNames.Add(type.AssemblyQualifiedName);
+                var typeAssemblyQualifiedName = type.AssemblyQualifiedName;
+                if (assemblyQualifiedNames.Contains(typeAssemblyQualifiedName))
+                {
+                    continue;
+                }
+
+                assemblyQualifiedNames.Add(typeAssemblyQualifiedName);
             }
 
             return string.Join(";", assemblyQualifiedNames);
