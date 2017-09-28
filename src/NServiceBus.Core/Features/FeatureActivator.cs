@@ -36,7 +36,7 @@ namespace NServiceBus.Features
             }));
         }
 
-        public FeaturesReport SetupFeatures(IConfigureComponents container, PipelineSettings pipelineSettings, RoutingComponent routing)
+        public List<FeatureInfo> ConfigureFeatures()
         {
             // featuresToActivate is enumerated twice because after setting defaults some new features might got activated.
             var sourceFeatures = Sort(features);
@@ -53,13 +53,16 @@ namespace NServiceBus.Features
                 enabledFeatures.Add(featureToActivate);
                 featureToActivate.Feature.ConfigureDefaults(settings);
             }
-
-            foreach (var feature in enabledFeatures)
-            {
-                ActivateFeature(feature, enabledFeatures, container, pipelineSettings, routing);
-            }
-
             settings.PreventChanges();
+            return enabledFeatures;
+        }
+
+        public FeaturesReport SetupFeatures(List<FeatureInfo> enableFeatures, IConfigureComponents container, PipelineSettings pipelineSettings, RoutingComponent routing)
+        {
+            foreach (var feature in enableFeatures)
+            {
+                ActivateFeature(feature, enableFeatures, container, pipelineSettings, routing);
+            }
 
             return new FeaturesReport(features.Select(t => t.Diagnostics).ToList());
         }
@@ -212,7 +215,7 @@ namespace NServiceBus.Features
         List<FeatureInfo> features = new List<FeatureInfo>();
         SettingsHolder settings;
 
-        class FeatureInfo
+        internal class FeatureInfo
         {
             public FeatureInfo(Feature feature, FeatureDiagnosticData diagnostics)
             {

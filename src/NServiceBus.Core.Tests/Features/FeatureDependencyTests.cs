@@ -59,7 +59,8 @@
             featureSettings.Add(dependingFeature);
             Array.ForEach(setup.AvailableFeatures, featureSettings.Add);
 
-            featureSettings.SetupFeatures(null, null, null);
+            var features = featureSettings.ConfigureFeatures();
+            featureSettings.SetupFeatures(features, null, null, null);
 
             Assert.AreEqual(setup.ShouldBeActive, dependingFeature.IsActive);
         }
@@ -86,7 +87,8 @@
 
             settings.EnableFeatureByDefault<MyFeature1>();
 
-            featureSettings.SetupFeatures(null, null, null);
+            var features = featureSettings.ConfigureFeatures();
+            featureSettings.SetupFeatures(features, null, null, null);
 
             Assert.True(dependingFeature.IsActive);
 
@@ -115,7 +117,8 @@
 
             settings.EnableFeatureByDefault<MyFeature2>();
 
-            featureSettings.SetupFeatures(null, null, null);
+            var features = featureSettings.ConfigureFeatures();
+            featureSettings.SetupFeatures(features, null, null, null);
 
             Assert.True(dependingFeature.IsActive);
             Assert.IsInstanceOf<MyFeature2>(order.First(), "Upstream dependencies should be activated first");
@@ -141,7 +144,8 @@
             featureSettings.Add(dependingFeature);
             featureSettings.Add(feature);
 
-            featureSettings.SetupFeatures(null, null, null);
+            var features = featureSettings.ConfigureFeatures();
+            featureSettings.SetupFeatures(features, null, null, null);
 
             Assert.False(dependingFeature.IsActive);
             Assert.IsEmpty(order);
@@ -181,7 +185,8 @@
             settings.EnableFeatureByDefault<MyFeature2>();
             settings.EnableFeatureByDefault<MyFeature3>();
 
-            featureSettings.SetupFeatures(null, null, null);
+            var features = featureSettings.ConfigureFeatures();
+            featureSettings.SetupFeatures(features, null, null, null);
 
             Assert.True(dependingFeature.IsActive);
 
@@ -217,7 +222,8 @@
             featureSettings.Add(level2);
             featureSettings.Add(level1);
 
-            featureSettings.SetupFeatures(null, null, null);
+            var features = featureSettings.ConfigureFeatures();
+            featureSettings.SetupFeatures(features, null, null, null);
 
 
             Assert.True(level1.IsActive, "Level1 wasn't activated");
@@ -250,7 +256,11 @@
             featureSettings.Add(level1);
             featureSettings.Add(level2);
 
-            Assert.Throws<ArgumentException>(() => featureSettings.SetupFeatures(null, null, null));
+            Assert.Throws<ArgumentException>(() =>
+            {
+                var features = featureSettings.ConfigureFeatures();
+                featureSettings.SetupFeatures(features, null, null, null);
+            });
         }
 
         public class Level1 : TestFeature
