@@ -4,7 +4,7 @@ namespace System.Threading
     using Runtime.Remoting.Messaging;
 
     // Provides a polyfill of AsyncLocal in .NET 4.5.2
-    sealed class AsyncLocal<T>
+    public sealed class AsyncLocal<T>
     {
         readonly string id;
 

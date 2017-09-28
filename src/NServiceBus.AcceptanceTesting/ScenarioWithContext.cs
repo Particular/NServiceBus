@@ -3,14 +3,23 @@ namespace NServiceBus.AcceptanceTesting
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
+    using System.Threading;
     using System.Threading.Tasks;
     using Logging;
     using NUnit.Framework;
     using Support;
 
-    public class ScenarioWithContext<TContext> : IScenarioWithEndpointBehavior<TContext> where TContext : ScenarioContext, new()
+    public class Scenario<TContext> : IScenarioWithEndpointBehavior<TContext> where TContext : ScenarioContext, new()
     {
-        public ScenarioWithContext(Action<TContext> initializer)
+        public static Func<ScenarioContext, ILoggerFactory> GetLoggerFactory = _ => new ContextAppenderFactory();
+
+        public static AsyncLocal<TContext> CurrentContext = new AsyncLocal<TContext>();
+
+        public Scenario() : this(c => { })
+        {
+        }
+
+        public Scenario(Action<TContext> initializer)
         {
             contextInitializer = initializer;
         }
@@ -30,13 +39,14 @@ namespace NServiceBus.AcceptanceTesting
         {
             var scenarioContext = new TContext();
             contextInitializer(scenarioContext);
+            CurrentContext.Value = scenarioContext;
 
             var runDescriptor = new RunDescriptor(scenarioContext);
             runDescriptor.Settings.Merge(settings);
 
             ScenarioContext.Current = scenarioContext;
 
-            LogManager.UseFactory(Scenario.GetLoggerFactory(scenarioContext));
+            LogManager.UseFactory(GetLoggerFactory(scenarioContext));
 
             var sw = new Stopwatch();
 
