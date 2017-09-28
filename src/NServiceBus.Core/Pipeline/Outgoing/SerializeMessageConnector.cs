@@ -3,7 +3,6 @@ namespace NServiceBus
     using System;
     using System.Collections.Generic;
     using System.IO;
-    using System.Linq;
     using System.Threading.Tasks;
     using Logging;
     using Pipeline;
@@ -53,7 +52,7 @@ namespace NServiceBus
         {
             var metadata = messageMetadataRegistry.GetMessageMetadata(messageType);
 
-            var assemblyQualifiedNames = new List<string>();
+            var assemblyQualifiedNames = new List<string>(metadata.MessageHierarchy.Length);
             foreach (var type in metadata.MessageHierarchy)
             {
                 var typeAssemblyQualifiedName = type.AssemblyQualifiedName;
