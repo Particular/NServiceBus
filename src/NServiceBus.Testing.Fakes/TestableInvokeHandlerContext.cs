@@ -1,6 +1,7 @@
 ﻿// ReSharper disable PartialTypeWithSinglePart
 namespace NServiceBus.Testing
 {
+    using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
     using Persistence;
@@ -28,16 +29,12 @@ namespace NServiceBus.Testing
         /// Moves the message being handled to the back of the list of available
         /// messages so it can be handled later.
         /// </summary>
-        public virtual Task HandleCurrentMessageLater()
+        public Task HandleCurrentMessageLater()
         {
-            HandleCurrentMessageLaterWasCalled = true;
-            return Task.FromResult(0);
+            throw new NotSupportedException("HandleCurrentMessageLater has been deprecated and will be removed in NServiceBus.Core Version 8.");
         }
 
-        /// <summary>
-        /// Indicates if <see cref="IMessageHandlerContext.HandleCurrentMessageLater" /> has been called.
-        /// </summary>
-        public bool HandleCurrentMessageLaterWasCalled { get; set; }
+        public bool HandleCurrentMessageLaterWasCalled => throw new NotSupportedException("HandleCurrentMessageLater has been deprecated and will be removed in NServiceBus.Core Version 8.");
 
         /// <summary>
         /// Tells the endpoint to stop dispatching the current message to additional
@@ -71,10 +68,9 @@ namespace NServiceBus.Testing
 
         /// <summary>
         /// <code>true</code> if
-        /// <see cref="M:NServiceBus.IMessageHandlerContext.DoNotContinueDispatchingCurrentMessageToHandlers" /> or
-        /// <see cref="M:NServiceBus.IMessageHandlerContext.HandleCurrentMessageLater" /> has been called.
+        /// <see cref="M:NServiceBus.IMessageHandlerContext.DoNotContinueDispatchingCurrentMessageToHandlers" /> has been called.
         /// </summary>
-        public bool HandlerInvocationAborted => DoNotContinueDispatchingCurrentMessageToHandlersWasCalled || HandleCurrentMessageLaterWasCalled;
+        public bool HandlerInvocationAborted => DoNotContinueDispatchingCurrentMessageToHandlersWasCalled;
 
         /// <summary>
         /// Metadata for the incoming message.

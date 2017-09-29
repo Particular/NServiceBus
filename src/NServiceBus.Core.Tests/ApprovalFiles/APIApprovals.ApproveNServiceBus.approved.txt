@@ -468,6 +468,7 @@ namespace NServiceBus
     {
         NServiceBus.Persistence.SynchronizedStorageSession SynchronizedStorageSession { get; }
         void DoNotContinueDispatchingCurrentMessageToHandlers();
+        [System.ObsoleteAttribute("HandleCurrentMessageLater has been deprecated. Will be removed in version 8.0.0.", true)]
         System.Threading.Tasks.Task HandleCurrentMessageLater();
     }
     public interface IMessageProcessingContext : NServiceBus.Extensibility.IExtendable, NServiceBus.IPipelineContext
@@ -1935,6 +1936,7 @@ namespace NServiceBus.Pipeline
     }
     public interface IInvokeHandlerContext : NServiceBus.Extensibility.IExtendable, NServiceBus.IMessageHandlerContext, NServiceBus.IMessageProcessingContext, NServiceBus.IPipelineContext, NServiceBus.Pipeline.IBehaviorContext, NServiceBus.Pipeline.IIncomingContext
     {
+        [System.ObsoleteAttribute("HandleCurrentMessageLater has been deprecated. Will be removed in version 8.0.0.", true)]
         bool HandleCurrentMessageLaterWasCalled { get; }
         bool HandlerInvocationAborted { get; }
         System.Collections.Generic.Dictionary<string, string> Headers { get; }
