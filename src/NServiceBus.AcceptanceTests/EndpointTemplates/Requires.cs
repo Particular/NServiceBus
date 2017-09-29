@@ -2,7 +2,8 @@
 {
     using NUnit.Framework;
 
-    static class Requires
+    // ReSharper disable once PartialTypeWithSinglePart
+    static partial class Requires
     {
         public static void DtcSupport()
         {
