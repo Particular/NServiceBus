@@ -16,7 +16,7 @@
         [Test]
         public async Task Should_preserve_headers_generated_by_custom_routing_strategy()
         {
-            var behavior = new RoutingToDispatchConnector();
+            var behavior = new RoutingToDispatchConnector("localAddress");
             Dictionary<string, string> headers = null;
             await behavior.Invoke(new TestableRoutingContext { RoutingStrategies = new List<RoutingStrategy> { new CustomRoutingStrategy() } }, context =>
                 {
@@ -34,7 +34,7 @@
             options.RequireImmediateDispatch();
 
             var dispatched = false;
-            var behavior = new RoutingToDispatchConnector();
+            var behavior = new RoutingToDispatchConnector("localAddress");
             var message = new OutgoingMessage("ID", new Dictionary<string, string>(), new byte[0]);
 
             await behavior.Invoke(new RoutingContext(message,
@@ -51,7 +51,7 @@
         public async Task Should_dispatch_immediately_if_not_sending_from_a_handler()
         {
             var dispatched = false;
-            var behavior = new RoutingToDispatchConnector();
+            var behavior = new RoutingToDispatchConnector("localAddress");
             var message = new OutgoingMessage("ID", new Dictionary<string, string>(), new byte[0]);
 
             await behavior.Invoke(new RoutingContext(message,
@@ -68,7 +68,7 @@
         public async Task Should_not_dispatch_by_default()
         {
             var dispatched = false;
-            var behavior = new RoutingToDispatchConnector();
+            var behavior = new RoutingToDispatchConnector("localAddress");
             var message = new OutgoingMessage("ID", new Dictionary<string, string>(), new byte[0]);
 
             await behavior.Invoke(new RoutingContext(message,
@@ -79,6 +79,23 @@
                 });
 
             Assert.IsFalse(dispatched);
+        }
+
+        [Test]
+        public async Task Should_apply_local_address_when_route_to_this_endpoint()
+        {
+            UnicastAddressTag addressTag = null;
+            var behavior = new RoutingToDispatchConnector("localAddress");
+            var message = new OutgoingMessage("ID", new Dictionary<string, string>(), new byte[0]);
+
+            await behavior.Invoke(new RoutingContext(message,
+                RouteToThisEndpointStrategy.Instance, CreateContext(new SendOptions(), false)), c =>
+            {
+                addressTag = (UnicastAddressTag)c.Operations.Single().AddressTag;
+                return TaskEx.CompletedTask;
+            });
+
+            Assert.AreEqual("localAddress", addressTag.Destination);
         }
 
         static IOutgoingSendContext CreateContext(SendOptions options, bool fromHandler)

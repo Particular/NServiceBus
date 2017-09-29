@@ -12,6 +12,11 @@
 
     class RoutingToDispatchConnector : StageConnector<IRoutingContext, IDispatchContext>
     {
+        public RoutingToDispatchConnector(string localAddress)
+        {
+            this.localAddress = localAddress;
+        }
+        
         public override Task Invoke(IRoutingContext context, Func<IDispatchContext, Task> stage)
         {
             var state = context.Extensions.GetOrCreate<State>();
@@ -21,7 +26,14 @@
             var index = 0;
             foreach (var strategy in context.RoutingStrategies)
             {
-                var addressLabel = strategy.Apply(context.Message.Headers);
+                var appliedStrategy = strategy;
+                if (appliedStrategy is RouteToThisEndpointStrategy)
+                {
+                    // hack until we get rid of HandleCurrentMessageLater
+                    appliedStrategy = new UnicastRoutingStrategy(localAddress);
+                }
+                
+                var addressLabel = appliedStrategy.Apply(context.Message.Headers);
                 var message = new OutgoingMessage(context.Message.MessageId, context.Message.Headers, context.Message.Body);
                 operations[index] = new TransportOperation(message, addressLabel, dispatchConsistency, context.Extensions.GetDeliveryConstraints());
                 index++;
@@ -58,6 +70,7 @@
 
         static ILog log = LogManager.GetLogger<RoutingToDispatchConnector>();
         static readonly bool isDebugEnabled = log.IsDebugEnabled;
+        string localAddress;
 
         public class State
         {
