@@ -12,6 +12,13 @@
     public class DataBusProperty<T> : IDataBusProperty, ISerializable where T : class
     {
         /// <summary>
+        /// initializes a <see cref="DataBusProperty{T}" /> with no value set.
+        /// </summary>
+        public DataBusProperty() : this(null)
+        {
+        }
+
+        /// <summary>
         /// initializes a <see cref="DataBusProperty{T}" /> with the <paramref name="value" />.
         /// </summary>
         /// <param name="value">The value to initialize with.</param>
