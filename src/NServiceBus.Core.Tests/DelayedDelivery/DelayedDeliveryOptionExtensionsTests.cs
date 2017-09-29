@@ -7,7 +7,7 @@
     public class DelayedDeliveryOptionExtensionsTests
     {
         [Test]
-        public void GetDeliveryDelay_Should_Return_The_Configured_Delay_TimeSpan()
+        public void GetDeliveryDelayShouldReturnTheConfiguredDelayTimeSpan()
         {
             var options = new SendOptions();
             var delay = TimeSpan.FromMinutes(42);
@@ -17,7 +17,7 @@
         }
 
         [Test]
-        public void GetDeliveryDelay_Should_Return_Null_When_No_Delay_Configured()
+        public void GetDeliveryDelayShouldReturnNullWhenNoDelayConfigured()
         {
             var options = new SendOptions();
 
@@ -25,7 +25,7 @@
         }
 
         [Test]
-        public void GetDeliveryDate_Should_Return_The_Configured_Delivery_Date()
+        public void GetDeliveryDateShouldReturnTheConfiguredDeliveryDate()
         {
             var options = new SendOptions();
             DateTimeOffset deliveryDate = new DateTime(2012, 12, 12, 12, 12, 12);
@@ -35,11 +35,29 @@
         }
 
         [Test]
-        public void GetDeliveryDate_Should_Return_Null_When_No_Date_Configured()
+        public void GetDeliveryDateShouldReturnNullWhenNoDateConfigured()
         {
             var options = new SendOptions();
 
             Assert.IsNull(options.GetDeliveryDate());
+        }
+
+        [Test]
+        public void DelayDeliveryWithShouldThrowExceptionWhenDoNotDeliverBeforeAlreadyExists()
+        {
+            var options = new SendOptions();
+            options.DoNotDeliverBefore(DateTimeOffset.Now.AddDays(1));
+
+            Assert.Throws<InvalidOperationException>(() => options.DelayDeliveryWith(TimeSpan.FromDays(1)));
+        }
+
+        [Test]
+        public void DoNotDeliverBeforeShouldThrowExceptionWhenDelayDeliveryWithAlreadyExists()
+        {
+            var options = new SendOptions();
+            options.DelayDeliveryWith(TimeSpan.FromDays(1));
+
+            Assert.Throws<InvalidOperationException>(() => options.DoNotDeliverBefore(DateTimeOffset.Now.AddDays(1)));
         }
     }
 }
