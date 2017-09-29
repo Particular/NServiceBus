@@ -73,11 +73,20 @@ namespace NServiceBus
 
             DateTime? timeToDeliver = null;
 
-            if (transportOperation.DeliveryConstraints.TryGet(out DoNotDeliverBefore doNotDeliverBefore))
+            var hasDoNotDeliverBeforeConstraint = transportOperation.DeliveryConstraints.TryGet(out DoNotDeliverBefore doNotDeliverBefore);
+            var hasDelayDeliveryWithConstraint = transportOperation.DeliveryConstraints.TryGet(out DelayDeliveryWith delayDeliveryWith);
+
+            if (hasDoNotDeliverBeforeConstraint && hasDelayDeliveryWithConstraint)
+            {
+                throw new InvalidOperationException();
+            }
+
+            if (hasDoNotDeliverBeforeConstraint)
             {
                 timeToDeliver = doNotDeliverBefore.At;
             }
-            else if (transportOperation.DeliveryConstraints.TryGet(out DelayDeliveryWith delayDeliveryWith))
+
+            if (hasDelayDeliveryWithConstraint)
             {
                 timeToDeliver = DateTime.UtcNow + delayDeliveryWith.Delay;
             }
