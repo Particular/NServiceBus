@@ -12,7 +12,7 @@
         /// </summary>
         /// <param name="endpointConfiguration">The configuration object being extended.</param>
         /// <param name="customGenerator">The custom conversation id convention.</param>
-        public static void CustomConversationIdGenerator(this EndpointConfiguration endpointConfiguration, Func<string> customGenerator)
+        public static void CustomConversationIdGenerator(this EndpointConfiguration endpointConfiguration, Func<ConversationIdGeneratorContext, string> customGenerator)
         {
             endpointConfiguration.Settings.Set(CustomConversationIdGeneratorKey, customGenerator);
         }
