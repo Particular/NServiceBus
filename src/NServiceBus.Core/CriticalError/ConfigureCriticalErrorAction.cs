@@ -9,10 +9,10 @@ namespace NServiceBus
     public static class ConfigureCriticalErrorAction
     {
         /// <summary>
-        /// Sets the function to be used when critical error occurs.
+        /// Defines the endpoint behavior should a critical error occur.
         /// </summary>
         /// <param name="endpointConfiguration">The <see cref="EndpointConfiguration" /> to extend.</param>
-        /// <param name="onCriticalError">Assigns the action to perform on critical error.</param>
+        /// <param name="onCriticalError">Action to perform on critical error.</param>
         public static void DefineCriticalErrorAction(this EndpointConfiguration endpointConfiguration, Func<ICriticalErrorContext, Task> onCriticalError)
         {
             Guard.AgainstNull(nameof(endpointConfiguration), endpointConfiguration);
