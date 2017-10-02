@@ -1,5 +1,7 @@
 ﻿namespace NServiceBus.Features
 {
+    using System;
+
     class MessageCausation : Feature
     {
         public MessageCausation()
@@ -9,7 +11,12 @@
 
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-            context.Pipeline.Register("AttachCausationHeaders", new AttachCausationHeadersBehavior(), "Adds related to and conversation id headers to outgoing messages");
+            if (!context.Settings.TryGet<Func<ConversationIdGeneratorContext, string>>(MessageCausationConfigurationExtensions.CustomConversationIdGeneratorKey, out var idGenerator))
+            {
+                idGenerator = _ => CombGuid.Generate().ToString();
+            }
+
+            context.Pipeline.Register("AttachCausationHeaders", new AttachCausationHeadersBehavior(idGenerator), "Adds related to and conversation id headers to outgoing messages");
         }
     }
 }

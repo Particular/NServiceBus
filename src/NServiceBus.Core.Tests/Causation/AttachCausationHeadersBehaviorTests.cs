@@ -11,14 +11,15 @@
     public class AttachCausationHeadersBehaviorTests
     {
         [Test]
-        public async Task Should_set_the_conversation_id_to_new_guid_when_not_sent_from_handler()
+        public async Task Should_generate_new_conversation_id_when_sending_outside_of_handlers()
         {
-            var behavior = new AttachCausationHeadersBehavior();
+            var generatedId = "some id";
+            var behavior = new AttachCausationHeadersBehavior(_ => generatedId);
             var context = new TestableOutgoingLogicalMessageContext();
 
             await behavior.Invoke(context, ctx => TaskEx.CompletedTask);
 
-            Assert.AreNotEqual(Guid.Empty.ToString(), context.Headers[Headers.ConversationId]);
+            Assert.AreEqual(generatedId, context.Headers[Headers.ConversationId]);
         }
 
         [Test]
@@ -26,7 +27,7 @@
         {
             var incomingConversationId = Guid.NewGuid().ToString();
 
-            var behavior = new AttachCausationHeadersBehavior();
+            var behavior = new AttachCausationHeadersBehavior(_ => throw new Exception("Id generator should not be used"));
             var context = new TestableOutgoingLogicalMessageContext();
 
             var transportMessage = new IncomingMessage("xyz", new Dictionary<string, string>
@@ -45,7 +46,7 @@
         {
             var userConversationId = Guid.NewGuid().ToString();
 
-            var behavior = new AttachCausationHeadersBehavior();
+            var behavior = new AttachCausationHeadersBehavior(_ => throw new Exception("Id generator should not be used"));
             var context = new TestableOutgoingLogicalMessageContext
             {
                 Headers =
@@ -65,7 +66,7 @@
             var incomingConversationId = Guid.NewGuid().ToString();
             var userDefinedConversationId = Guid.NewGuid().ToString();
 
-            var behavior = new AttachCausationHeadersBehavior();
+            var behavior = new AttachCausationHeadersBehavior(_ => throw new Exception("Id generator should not be used"));
             var context = new TestableOutgoingLogicalMessageContext
             {
                 Headers =
@@ -87,7 +88,7 @@
         [Test]
         public async Task Should_set_the_related_to_header_with_the_id_of_the_current_message()
         {
-            var behavior = new AttachCausationHeadersBehavior();
+            var behavior = new AttachCausationHeadersBehavior(_ => "my conversation id");
             var context = new TestableOutgoingLogicalMessageContext();
 
             context.Extensions.Set(new IncomingMessage("the message id", new Dictionary<string, string>(), new byte[0]));
