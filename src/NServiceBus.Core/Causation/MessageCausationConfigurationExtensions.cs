@@ -14,6 +14,9 @@
         /// <param name="customGenerator">The custom conversation id convention.</param>
         public static void CustomConversationIdGenerator(this EndpointConfiguration endpointConfiguration, Func<ConversationIdGeneratorContext, string> customGenerator)
         {
+            Guard.AgainstNull(nameof(endpointConfiguration), endpointConfiguration);
+            Guard.AgainstNull(nameof(customGenerator), customGenerator);
+
             endpointConfiguration.Settings.Set(CustomConversationIdGeneratorKey, customGenerator);
         }
 
