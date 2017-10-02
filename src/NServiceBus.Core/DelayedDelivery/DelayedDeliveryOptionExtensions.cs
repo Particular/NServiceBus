@@ -20,6 +20,11 @@
             Guard.AgainstNull(nameof(options), options);
             Guard.AgainstNegative(nameof(delay), delay);
 
+            if (options.GetExtensions().TryGetDeliveryConstraint(out DoNotDeliverBefore _))
+            {
+                throw new InvalidOperationException($"The options are already configured for delayed delivery by the '{nameof(DoNotDeliverBefore)}' API.");
+            }
+
             options.GetExtensions().AddDeliveryConstraint(new DelayDeliveryWith(delay));
         }
 
@@ -43,6 +48,11 @@
         public static void DoNotDeliverBefore(this SendOptions options, DateTimeOffset at)
         {
             Guard.AgainstNull(nameof(options), options);
+
+            if (options.GetExtensions().TryGetDeliveryConstraint(out DelayDeliveryWith _))
+            {
+                throw new InvalidOperationException($"The options are already configured for delayed delivery by the '{nameof(DelayDeliveryWith)}' API.");
+            }
 
             options.GetExtensions().AddDeliveryConstraint(new DoNotDeliverBefore(at.UtcDateTime));
         }
