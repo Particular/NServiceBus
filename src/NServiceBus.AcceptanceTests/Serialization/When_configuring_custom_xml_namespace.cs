@@ -34,11 +34,11 @@
         {
             public EndpointUsingCustomNamespace()
             {
-                EndpointSetup<DefaultServer>(c =>
-                {
-                    c.UseSerialization<XmlSerializer>().Namespace(CustomXmlNamespace);
-                    c.RegisterComponents(r => r.ConfigureComponent<IncomingMutator>(DependencyLifecycle.SingleInstance));
-                });
+                EndpointSetup<DefaultServer, Context>((config, context) =>
+                 {
+                     config.UseSerialization<XmlSerializer>().Namespace(CustomXmlNamespace);
+                     config.RegisterMessageMutator(new IncomingMutator(context));
+                 });
             }
 
             class SimpleMessageHandler : IHandleMessages<SimpleMessage>

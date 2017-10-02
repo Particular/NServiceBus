@@ -35,12 +35,12 @@
         {
             public RetryEndpoint()
             {
-                EndpointSetup<DefaultServer>((configure, context) =>
+                EndpointSetup<DefaultServer,Context>((config, context) =>
                 {
-                    configure.EnableFeature<TimeoutManager>();
-                    configure.RegisterComponents(c => c.ConfigureComponent<BodyMutator>(DependencyLifecycle.InstancePerCall));
-                    configure.Recoverability().Delayed(settings => settings.TimeIncrease(TimeSpan.FromMilliseconds(1)));
-                    configure.Recoverability().Immediate(settings => settings.NumberOfRetries(3));
+                    config.EnableFeature<TimeoutManager>();
+                    config.RegisterMessageMutator(new BodyMutator(context));
+                    config.Recoverability().Delayed(settings => settings.TimeIncrease(TimeSpan.FromMilliseconds(1)));
+                    config.Recoverability().Immediate(settings => settings.NumberOfRetries(3));
                 });
             }
 

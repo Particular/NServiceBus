@@ -31,11 +31,10 @@
         {
             public Endpoint()
             {
-                EndpointSetup<DefaultServer>((c, r) =>
+                EndpointSetup<DefaultServer,Context>((config, context) =>
                 {
-                    var scenarioContext = (Context)r.ScenarioContext;
-                    c.RegisterMessageMutator(new TransportMutator(scenarioContext));
-                    c.RegisterMessageMutator(new MessageMutator(scenarioContext));
+                    config.RegisterMessageMutator(new TransportMutator(context));
+                    config.RegisterMessageMutator(new MessageMutator(context));
                 });
             }
 
