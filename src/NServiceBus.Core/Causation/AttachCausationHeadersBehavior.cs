@@ -25,7 +25,9 @@ namespace NServiceBus
         static void SetRelatedToHeader(IOutgoingLogicalMessageContext context, IncomingMessage incomingMessage)
         {
             if (incomingMessage == null)
+            {
                 return;
+            }
 
             context.Headers[Headers.RelatedTo] = incomingMessage.MessageId;
         }
@@ -37,16 +39,20 @@ namespace NServiceBus
             if (incomingMessage != null && incomingMessage.Headers.TryGetValue(Headers.ConversationId, out var conversationIdFromCurrentMessageContext))
             {
                 if (hasUserDefinedConversationId)
+                {
                     throw new Exception($"Cannot set the {Headers.ConversationId} header to '{userDefinedConversationId}' as it cannot override the incoming header value ('{conversationIdFromCurrentMessageContext}').");
+                }
 
                 context.Headers[Headers.ConversationId] = conversationIdFromCurrentMessageContext;
                 return;
             }
 
             if (hasUserDefinedConversationId)
+            {
                 return;
+            }
 
-            context.Headers[Headers.ConversationId] = idGenerator(new ConversationIdGeneratorContext());
+            context.Headers[Headers.ConversationId] = idGenerator(new ConversationIdGeneratorContext(context.Message));
         }
 
         Func<ConversationIdGeneratorContext, string> idGenerator;

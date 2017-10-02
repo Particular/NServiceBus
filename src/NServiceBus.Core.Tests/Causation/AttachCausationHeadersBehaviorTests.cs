@@ -13,7 +13,7 @@
         [Test]
         public async Task Should_generate_new_conversation_id_when_sending_outside_of_handlers()
         {
-            var generatedId = "some id";
+            var generatedId = "some generated conversation id";
             var behavior = new AttachCausationHeadersBehavior(_ => generatedId);
             var context = new TestableOutgoingLogicalMessageContext();
 
@@ -27,7 +27,7 @@
         {
             var incomingConversationId = Guid.NewGuid().ToString();
 
-            var behavior = new AttachCausationHeadersBehavior(_ => throw new Exception("Id generator should not be used"));
+            var behavior = new AttachCausationHeadersBehavior(_ => "will not be used");
             var context = new TestableOutgoingLogicalMessageContext();
 
             var transportMessage = new IncomingMessage("xyz", new Dictionary<string, string>
@@ -42,11 +42,30 @@
         }
 
         [Test]
+        public async Task Should_include_outgoing_message_in_generator_context()
+        {
+            ConversationIdGeneratorContext contextProvided = null;
+
+            var behavior = new AttachCausationHeadersBehavior(c =>
+            {
+                contextProvided = c;
+                return "some conversation id";
+            });
+
+            var context = new TestableOutgoingLogicalMessageContext();
+
+            await behavior.Invoke(context, ctx => TaskEx.CompletedTask);
+
+            Assert.NotNull(contextProvided);
+            Assert.AreSame(contextProvided.Message, context.Message);
+        }
+
+        [Test]
         public async Task When_no_incoming_message_should_not_override_a_conversation_id_specified_by_the_user()
         {
             var userConversationId = Guid.NewGuid().ToString();
 
-            var behavior = new AttachCausationHeadersBehavior(_ => throw new Exception("Id generator should not be used"));
+            var behavior = new AttachCausationHeadersBehavior(_ => "will not be used");
             var context = new TestableOutgoingLogicalMessageContext
             {
                 Headers =
@@ -66,7 +85,7 @@
             var incomingConversationId = Guid.NewGuid().ToString();
             var userDefinedConversationId = Guid.NewGuid().ToString();
 
-            var behavior = new AttachCausationHeadersBehavior(_ => throw new Exception("Id generator should not be used"));
+            var behavior = new AttachCausationHeadersBehavior(_ => "will not be used");
             var context = new TestableOutgoingLogicalMessageContext
             {
                 Headers =
@@ -88,7 +107,7 @@
         [Test]
         public async Task Should_set_the_related_to_header_with_the_id_of_the_current_message()
         {
-            var behavior = new AttachCausationHeadersBehavior(_ => "my conversation id");
+            var behavior = new AttachCausationHeadersBehavior(_ => "will not be used");
             var context = new TestableOutgoingLogicalMessageContext();
 
             context.Extensions.Set(new IncomingMessage("the message id", new Dictionary<string, string>(), new byte[0]));
