@@ -34,7 +34,6 @@
     </_PackageFiles>
     <_PackageFiles Remove="**\obj\**\*.cs" />
     <_PackageFiles Remove="ConfigureLearningTransportInfrastructure.cs" />
-    <_PackageFiles Remove="When_delivery_constraints_contain_multiple_delayed_constraints.cs" />
   </ItemGroup>
 
 </Project>
