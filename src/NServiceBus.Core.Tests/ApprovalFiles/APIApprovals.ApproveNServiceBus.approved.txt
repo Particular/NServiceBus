@@ -192,6 +192,7 @@ namespace NServiceBus
     public class DataBusProperty<T> : NServiceBus.IDataBusProperty, System.Runtime.Serialization.ISerializable
         where T :  class
     {
+        public DataBusProperty() { }
         public DataBusProperty(T value) { }
         protected DataBusProperty(System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context) { }
         public bool HasValue { get; set; }
