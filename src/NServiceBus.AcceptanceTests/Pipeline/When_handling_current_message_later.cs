@@ -12,7 +12,7 @@
         [Test]
         public async Task Should_commit_unit_of_work_and_execute_subsequent_handlers()
         {
-            var context = await Scenario.Define<Context>(c => { c.Id = Guid.NewGuid(); })
+            var context = await new Scenario<Context>(c => { c.Id = Guid.NewGuid(); })
                 .WithEndpoint<MyEndpoint>(b => b.When((session, c) => session.SendLocal(new SomeMessage
                 {
                     Id = c.Id
@@ -47,8 +47,6 @@
 
             class CheckUnitOfWorkOutcome : IManageUnitsOfWork
             {
-                public Context Context { get; set; }
-
                 public Task Begin()
                 {
                     return Task.FromResult(0);
@@ -56,24 +54,25 @@
 
                 public Task End(Exception ex = null)
                 {
-                    Context.UoWCommitted = ex == null;
+                    var context = Scenario<Context>.CurrentContext.Value;
+                    context.UoWCommitted = ex == null;
                     return Task.FromResult(0);
                 }
             }
 
             class FirstHandler : IHandleMessages<SomeMessage>
             {
-                public Context TestContext { get; set; }
-
                 public Task Handle(SomeMessage message, IMessageHandlerContext context)
                 {
-                    if (message.Id != TestContext.Id)
+                    var testContext = Scenario<Context>.CurrentContext.Value;
+
+                    if (message.Id != testContext.Id)
                     {
                         return Task.FromResult(0);
                     }
-                    TestContext.FirstHandlerInvocationCount++;
+                    testContext.FirstHandlerInvocationCount++;
 
-                    if (TestContext.FirstHandlerInvocationCount == 1)
+                    if (testContext.FirstHandlerInvocationCount == 1)
                     {
                         return context.HandleCurrentMessageLater();
                     }
@@ -84,17 +83,17 @@
 
             class SecondHandler : IHandleMessages<SomeMessage>
             {
-                public Context Context { get; set; }
-
                 public Task Handle(SomeMessage message, IMessageHandlerContext context)
                 {
-                    if (message.Id != Context.Id)
+                    var testContext = Scenario<Context>.CurrentContext.Value;
+
+                    if (message.Id != testContext.Id)
                     {
                         return Task.FromResult(0);
                     }
 
-                    Context.SecondHandlerInvocationCount++;
-                    Context.Done = true;
+                    testContext.SecondHandlerInvocationCount++;
+                    testContext.Done = true;
 
                     return Task.FromResult(0);
                 }

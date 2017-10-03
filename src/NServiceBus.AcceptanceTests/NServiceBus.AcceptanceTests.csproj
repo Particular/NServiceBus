@@ -37,9 +37,84 @@
       <BuildAction>Compile</BuildAction>
       <PackagePath>content\App_Packages\NSB.AcceptanceTests\;contentFiles\cs\any\NSB.AcceptanceTests\</PackagePath>
     </_PackageFiles>
+    <Compile Remove="Audit\**" />
+    <Compile Remove="Core\**" />
+    <Compile Remove="Correlation\**" />
+    <Compile Remove="DataBus\**" />
+    <Compile Remove="DelayedDelivery\**" />
+    <Compile Remove="Forwarding\**" />
+    <Compile Remove="MessageId\**" />
+    <Compile Remove="Outbox\**" />
+    <Compile Remove="Recoverability\**" />
+    <Compile Remove="Routing\**" />
+    <Compile Remove="Sagas\**" />
+    <Compile Remove="Satellites\**" />
+    <Compile Remove="Scheduling\**" />
+    <Compile Remove="SelfVerification\**" />
+    <Compile Remove="Serialization\**" />
+    <Compile Remove="TimeToBeReceived\**" />
+    <Compile Remove="Tx\**" />
+    <Compile Remove="Versioning\**" />
+    <EmbeddedResource Remove="Audit\**" />
+    <EmbeddedResource Remove="Core\**" />
+    <EmbeddedResource Remove="Correlation\**" />
+    <EmbeddedResource Remove="DataBus\**" />
+    <EmbeddedResource Remove="DelayedDelivery\**" />
+    <EmbeddedResource Remove="Forwarding\**" />
+    <EmbeddedResource Remove="MessageId\**" />
+    <EmbeddedResource Remove="Outbox\**" />
+    <EmbeddedResource Remove="Recoverability\**" />
+    <EmbeddedResource Remove="Routing\**" />
+    <EmbeddedResource Remove="Sagas\**" />
+    <EmbeddedResource Remove="Satellites\**" />
+    <EmbeddedResource Remove="Scheduling\**" />
+    <EmbeddedResource Remove="SelfVerification\**" />
+    <EmbeddedResource Remove="Serialization\**" />
+    <EmbeddedResource Remove="TimeToBeReceived\**" />
+    <EmbeddedResource Remove="Tx\**" />
+    <EmbeddedResource Remove="Versioning\**" />
+    <None Remove="Audit\**" />
+    <None Remove="Core\**" />
+    <None Remove="Correlation\**" />
+    <None Remove="DataBus\**" />
+    <None Remove="DelayedDelivery\**" />
+    <None Remove="Forwarding\**" />
+    <None Remove="MessageId\**" />
+    <None Remove="Outbox\**" />
+    <None Remove="Recoverability\**" />
+    <None Remove="Routing\**" />
+    <None Remove="Sagas\**" />
+    <None Remove="Satellites\**" />
+    <None Remove="Scheduling\**" />
+    <None Remove="SelfVerification\**" />
+    <None Remove="Serialization\**" />
+    <None Remove="TimeToBeReceived\**" />
+    <None Remove="Tx\**" />
+    <None Remove="Versioning\**" />
     <_PackageFiles Remove="**\obj\**\*.cs" />
-    <_PackageFiles Remove="Core\**\*.cs" />
+    <_PackageFiles Remove="Audit\**" />
+    <_PackageFiles Remove="Core\**" />
+    <_PackageFiles Remove="Correlation\**" />
+    <_PackageFiles Remove="DataBus\**" />
+    <_PackageFiles Remove="DelayedDelivery\**" />
+    <_PackageFiles Remove="Forwarding\**" />
+    <_PackageFiles Remove="MessageId\**" />
+    <_PackageFiles Remove="Outbox\**" />
+    <_PackageFiles Remove="Recoverability\**" />
+    <_PackageFiles Remove="Routing\**" />
+    <_PackageFiles Remove="Sagas\**" />
+    <_PackageFiles Remove="Satellites\**" />
+    <_PackageFiles Remove="Scheduling\**" />
+    <_PackageFiles Remove="SelfVerification\**" />
+    <_PackageFiles Remove="Serialization\**" />
+    <_PackageFiles Remove="TimeToBeReceived\**" />
+    <_PackageFiles Remove="Tx\**" />
+    <_PackageFiles Remove="Versioning\**" />
     <_PackageFiles Remove="AssemblyInfo.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="Core\CoreTestSuiteConstraints.cs" />
   </ItemGroup>
 
 </Project>

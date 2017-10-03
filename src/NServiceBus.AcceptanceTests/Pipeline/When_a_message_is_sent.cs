@@ -10,7 +10,7 @@
         [Test]
         public async Task Should_flow_causation_headers()
         {
-            var context = await Scenario.Define<Context>()
+            var context = await new Scenario<Context>()
                 .WithEndpoint<CausationEndpoint>(b => b.When(session => session.SendLocal(new MessageSentOutsideOfHandler())))
                 .Done(c => c.Done)
                 .Run();
@@ -39,12 +39,12 @@
 
             public class MessageSentOutsideHandlersHandler : IHandleMessages<MessageSentOutsideOfHandler>
             {
-                public Context TestContext { get; set; }
-
                 public Task Handle(MessageSentOutsideOfHandler message, IMessageHandlerContext context)
                 {
-                    TestContext.FirstConversationId = context.MessageHeaders[Headers.ConversationId];
-                    TestContext.MessageIdOfFirstMessage = context.MessageId;
+                    var testContext = Scenario<Context>.CurrentContext.Value;
+
+                    testContext.FirstConversationId = context.MessageHeaders[Headers.ConversationId];
+                    testContext.MessageIdOfFirstMessage = context.MessageId;
 
                     return context.SendLocal(new MessageSentInsideHandler());
                 }
@@ -52,15 +52,15 @@
 
             public class MessageSentInsideHandlersHandler : IHandleMessages<MessageSentInsideHandler>
             {
-                public Context TestContext { get; set; }
-
                 public Task Handle(MessageSentInsideHandler message, IMessageHandlerContext context)
                 {
-                    TestContext.ConversationIdReceived = context.MessageHeaders[Headers.ConversationId];
+                    var testContext = Scenario<Context>.CurrentContext.Value;
 
-                    TestContext.RelatedToReceived = context.MessageHeaders[Headers.RelatedTo];
+                    testContext.ConversationIdReceived = context.MessageHeaders[Headers.ConversationId];
 
-                    TestContext.Done = true;
+                    testContext.RelatedToReceived = context.MessageHeaders[Headers.RelatedTo];
+
+                    testContext.Done = true;
 
                     return Task.FromResult(0);
                 }
