@@ -58,6 +58,7 @@
     <Compile Include="Core\CriticalError\When_raising_critical_error_at_startup.cs" />
     <Compile Include="Core\Feature\When_depending_on_untyped_feature.cs" />
     <Compile Include="Core\Feature\When_registering_a_startup_task.cs" />
+    <Compile Include="Core\Pipeline\When_handling_current_message_later.cs" />
     <Compile Include="Core\Pipeline\When_extending_behavior_context.cs" />
     <Compile Include="Core\Conventions\When_receiving_unobtrusive_message_without_handler.cs" />
     <Compile Include="Core\Config\When_multiple_configuration_providers.cs" />
