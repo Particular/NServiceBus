@@ -1,6 +1,8 @@
 namespace NServiceBus
 {
+    using System;
     using System.Threading.Tasks;
+    using Features;
     using Pipeline;
     using Routing;
     using Settings;
@@ -17,6 +19,12 @@ namespace NServiceBus
 
             var messageBeingProcessed = context.Extensions.Get<IncomingMessage>();
             var settings = context.Builder.Build<ReadOnlySettings>();
+
+            if (settings.IsFeatureActive(typeof(Features.Outbox)))
+            {
+                // as HandleCurrentMessageLater reuses the incoming message's message id, this will cause the message to be deduplicated by the outbox causing a message loss.
+                throw new InvalidOperationException("HandleCurrentMessageLater cannot be used in conjunction with the Outbox. Use the recoverability mechanisms or delayed delivery instead.");
+            }
 
             var cache = context.Extensions.Get<IPipelineCache>();
             var pipeline = cache.Pipeline<IRoutingContext>();
