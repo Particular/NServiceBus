@@ -53,24 +53,27 @@ namespace NServiceBus
             }
 
             string conversationId;
+            bool userProvidedId;
 
             try
             {
-                if (customConversationIdDelegate(new CustomConversationIdContext(context.Message), out conversationId))
-                {
-                    if (string.IsNullOrEmpty(conversationId))
-                    {
-                        throw new Exception("Null or empty conversation ID's are not allowed.");
-                    }
-                }
-                else
-                {
-                    conversationId = CombGuid.Generate().ToString();
-                }
+                userProvidedId = customConversationIdDelegate(new CustomConversationIdContext(context.Message), out conversationId);
             }
             catch (Exception exception)
             {
                 throw new Exception($"Failed to execute CustomConversationId delegate. This configuration option was defined using {nameof(EndpointConfiguration)}.{nameof(MessageCausationConfigurationExtensions.CustomConversationId)}.", exception);
+            }
+
+            if (userProvidedId)
+            {
+                if (string.IsNullOrEmpty(conversationId))
+                {
+                    throw new Exception("Null or empty conversation ID's are not allowed.");
+                }
+            }
+            else
+            {
+                conversationId = CombGuid.Generate().ToString();
             }
 
             context.Headers[Headers.ConversationId] = conversationId;
