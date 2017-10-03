@@ -9,11 +9,6 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
 
-  <!--Workaround for https://github.com/dotnet/sdk/issues/1469 -->
-  <PropertyGroup>
-    <DisableLockFileFrameworks>true</DisableLockFileFrameworks>
-  </PropertyGroup>
-
   <PropertyGroup Condition="'$(TargetFramework)' == 'net452'">
     <DefineConstants>$(DefineConstants);REGISTRYLICENSESOURCE;APPCONFIGLICENSESOURCE</DefineConstants>
   </PropertyGroup>
@@ -58,6 +53,12 @@
       <Visible>false</Visible>
     </None>
   </ItemGroup>
+
+  <!--Workaround for https://github.com/dotnet/sdk/issues/1469 -->
+  <PropertyGroup>
+    <DisableLockFileFrameworks>true</DisableLockFileFrameworks>
+  </PropertyGroup>
+  <!-- End Workaround -->
 
   <!-- Workaround for GitVersion 4.0 not creating GitVersionInformation by default -->
   <PropertyGroup>
