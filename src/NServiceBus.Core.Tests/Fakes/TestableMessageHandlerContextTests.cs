@@ -111,24 +111,6 @@
         }
 
         [Test]
-        public void HandleCurrentMessageLater_WhenNotCalled_ShouldNotIndicateInvocation()
-        {
-            var context = new TestableMessageHandlerContext();
-
-            Assert.IsFalse(context.HandleCurrentMessageLaterWasCalled);
-        }
-
-        [Test]
-        public void HandleCurrentMessageLater_WhenCalled_ShouldIndicateInvocation()
-        {
-            var context = new TestableMessageHandlerContext();
-
-            context.HandleCurrentMessageLater();
-
-            Assert.IsTrue(context.HandleCurrentMessageLaterWasCalled);
-        }
-
-        [Test]
         public void ShouldAllowSettingMessageProperties()
         {
             var context = new TestableMessageHandlerContext();

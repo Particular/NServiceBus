@@ -6,7 +6,7 @@ namespace NServiceBus.Pipeline
     /// <summary>
     /// A context of handling a logical message by a handler.
     /// </summary>
-    public interface IInvokeHandlerContext : IIncomingContext, IMessageHandlerContext
+    public partial interface IInvokeHandlerContext : IIncomingContext, IMessageHandlerContext
     {
         /// <summary>
         /// The current <see cref="IHandleMessages{T}" /> being executed.
@@ -24,13 +24,7 @@ namespace NServiceBus.Pipeline
         object MessageBeingHandled { get; }
 
         /// <summary>
-        /// Indicates whether <see cref="IMessageHandlerContext.HandleCurrentMessageLater" /> has been called.
-        /// </summary>
-        bool HandleCurrentMessageLaterWasCalled { get; }
-
-        /// <summary>
-        /// <code>true</code> if <see cref="IMessageHandlerContext.DoNotContinueDispatchingCurrentMessageToHandlers" /> or
-        /// <see cref="IMessageHandlerContext.HandleCurrentMessageLater" /> has been called.
+        /// <code>true</code> if <see cref="IMessageHandlerContext.DoNotContinueDispatchingCurrentMessageToHandlers" /> has been called.
         /// </summary>
         bool HandlerInvocationAborted { get; }
 

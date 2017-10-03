@@ -11,11 +11,25 @@ namespace NServiceBus
     using System.Reflection;
     using System.Runtime.Serialization;
     using System.Text;
+    using System.Threading.Tasks;
     using Config.ConfigurationSource;
     using MessageInterfaces;
     using Pipeline;
     using Serialization;
     using Settings;
+
+    public partial interface IMessageHandlerContext
+    {
+        /// <summary>
+        /// Moves the message being handled to the back of the list of available
+        /// messages so it can be handled later.
+        /// </summary>
+        [ObsoleteEx(
+            Message = "HandleCurrentMessageLater has been deprecated.",
+            RemoveInVersion = "8",
+            TreatAsErrorFromVersion = "7")]
+        Task HandleCurrentMessageLater();
+    }
 
     [ObsoleteEx(
            Message = "Message property encryption is released as a dedicated 'NServiceBus.Encryption.MessageProperty' package.",
@@ -1023,6 +1037,21 @@ namespace NServiceBus.Transport
             get { throw new NotImplementedException(); }
             set { throw new NotImplementedException(); }
         }
+    }
+}
+
+namespace NServiceBus.Pipeline
+{
+    public partial interface IInvokeHandlerContext
+    {
+        /// <summary>
+        /// Indicates whether <see cref="IMessageHandlerContext.HandleCurrentMessageLater" /> has been called.
+        /// </summary>
+        [ObsoleteEx(
+            Message = "HandleCurrentMessageLater has been deprecated.",
+            RemoveInVersion = "8",
+            TreatAsErrorFromVersion = "7")]
+        bool HandleCurrentMessageLaterWasCalled { get; }
     }
 }
 
