@@ -14,7 +14,8 @@
             Requires.NativePubSubSupport();
 
             var context = await Scenario.Define<Context>()
-                .WithEndpoint<Publisher>(b => b.When(c => c.EndpointsStarted, async (session, c) => { await session.Publish(new MyEvent()); }))
+                .WithEndpoint<Publisher>(b => b
+                    .When(c => c.EndpointsStarted, (session, c) => session.Publish(new MyEvent())))
                 .WithEndpoint<SubscriberA>(b => b.CustomConfig(c => c.MakeInstanceUniquelyAddressable("1")))
                 .WithEndpoint<SubscriberA>(b => b.CustomConfig(c => c.MakeInstanceUniquelyAddressable("2")))
                 .WithEndpoint<SubscriberB>(b => b.CustomConfig(c => c.MakeInstanceUniquelyAddressable("1")))
@@ -22,8 +23,8 @@
                 .Done(c => c.SubscriberACounter > 0 && c.SubscriberBCounter > 0)
                 .Run();
 
-            Assert.IsTrue(context.SubscriberACounter == 1);
-            Assert.IsTrue(context.SubscriberBCounter == 1);
+            Assert.AreEqual(1, context.SubscriberACounter);
+            Assert.AreEqual(1, context.SubscriberBCounter);
         }
 
         public class Context : ScenarioContext
