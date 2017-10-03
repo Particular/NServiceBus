@@ -54,6 +54,19 @@ var transportConfig = endpointConfig.UseTransport<MsmqTransport>();
 transportConfig.MsmqLabelGenerator(context => return $"{context.Headers['NServiceBus.EnclosedMessageTypes']}");
 ```
 
+Consider wrapping the invocation of the user provided delegate to make debugging easier:
+
+```
+try
+{
+    return idGenerator(generatorContext);
+}
+catch (Exception exception)
+{
+    throw new Exception($"Failed to execute CustomConversationIdGenerator. This configuration option was defined using {nameof(EndpointConfiguration)}.{nameof(MessageCausationConfigurationExtensions.CustomConversationIdGenerator)}.", exception);
+}
+```
+
 ## Startable and stoppable components
 
 ```
