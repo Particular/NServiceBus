@@ -21,9 +21,9 @@
     <GitVersionTaskVersion>4.0.0-beta0012</GitVersionTaskVersion>
   </PropertyGroup>
 
-  <ItemGroup>
+  <!--<ItemGroup>
     <PackageReference Include="GitVersionTask" Version="$(GitVersionTaskVersion)" PrivateAssets="All" />
-  </ItemGroup>
+  </ItemGroup>-->
 
   <ImportGroup Condition="'$(ExcludeRestorePackageImports)' == 'true' And '$(MSBuildRuntimeType)' != 'Core'">
     <Import

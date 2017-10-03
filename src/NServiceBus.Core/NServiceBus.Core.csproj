@@ -6,7 +6,6 @@
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\NServiceBus.snk</AssemblyOriginatorKeyFile>
     <OutputPath>..\..\binaries\</OutputPath>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
 
@@ -33,6 +32,7 @@
     <PackageReference Include="Obsolete.Fody" Version="4.3.2" PrivateAssets="All" />
     <PackageReference Include="Particular.CodeRules" Version="0.2.0" PrivateAssets="All" />
     <PackageReference Include="Particular.Licensing.Sources" Version="1.0.0" PrivateAssets="All" />
+    <PackageReference Include="Particular.Packaging" Version="0.1.0" PrivateAssets="All" />
   </ItemGroup>
 
   <ItemGroup>

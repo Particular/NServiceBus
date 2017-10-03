@@ -6,6 +6,7 @@
     <AssemblyOriginatorKeyFile>..\NServiceBus.snk</AssemblyOriginatorKeyFile>
     <OutputPath>..\..\binaries\</OutputPath>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -14,6 +15,7 @@
 
   <ItemGroup>
     <PackageReference Include="NUnit" Version="3.7.1" />
+    <PackageReference Include="Particular.Packaging" Version="0.1.0" PrivateAssets="All" />
     <PackageReference Include="SourceLink.Create.GitHub" Version="2.3.0" PrivateAssets="All" />
     <DotNetCliToolReference Include="dotnet-sourcelink-git" Version="2.3.0" />
   </ItemGroup>
