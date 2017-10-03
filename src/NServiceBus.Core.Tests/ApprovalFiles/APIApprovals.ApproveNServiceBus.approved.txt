@@ -194,7 +194,6 @@ namespace NServiceBus
         public CustomConversationIdContext(NServiceBus.Pipeline.OutgoingLogicalMessage message) { }
         public NServiceBus.Pipeline.OutgoingLogicalMessage Message { get; }
     }
-    public delegate bool CustomConversationIdDelegate(NServiceBus.CustomConversationIdContext context, out string customConverationId);
     public class DataBusProperty<T> : NServiceBus.IDataBusProperty, System.Runtime.Serialization.ISerializable
         where T :  class
     {
@@ -623,7 +622,7 @@ namespace NServiceBus
     }
     public class static MessageCausationConfigurationExtensions
     {
-        public static void CustomConversationId(this NServiceBus.EndpointConfiguration endpointConfiguration, NServiceBus.CustomConversationIdDelegate customConversationIdDelegate) { }
+        public static void CustomConversationId(this NServiceBus.EndpointConfiguration endpointConfiguration, NServiceBus.TryGetConversationIdDelegate tryGetConversationIdDelegate) { }
     }
     public class MessageDeserializationException : System.Runtime.Serialization.SerializationException
     {
@@ -974,6 +973,7 @@ namespace NServiceBus
         SendsAtomicWithReceive = 2,
         TransactionScope = 3,
     }
+    public delegate bool TryGetConversationIdDelegate(NServiceBus.CustomConversationIdContext context, out string customConverationId);
     public class UnitOfWorkSettings
     {
         public NServiceBus.UnitOfWorkSettings WrapHandlersInATransactionScope(System.Nullable<System.TimeSpan> timeout = null, System.Nullable<System.Transactions.IsolationLevel> isolationLevel = null) { }

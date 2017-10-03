@@ -7,9 +7,9 @@ namespace NServiceBus
 
     class AttachCausationHeadersBehavior : IBehavior<IOutgoingLogicalMessageContext, IOutgoingLogicalMessageContext>
     {
-        public AttachCausationHeadersBehavior(CustomConversationIdDelegate customConversationIdDelegate)
+        public AttachCausationHeadersBehavior(TryGetConversationIdDelegate tryGetConversationIdDelegate)
         {
-            this.customConversationIdDelegate = customConversationIdDelegate;
+            this.tryGetConversationIdDelegate = tryGetConversationIdDelegate;
         }
 
         public Task Invoke(IOutgoingLogicalMessageContext context, Func<IOutgoingLogicalMessageContext, Task> next)
@@ -57,7 +57,7 @@ namespace NServiceBus
 
             try
             {
-                userProvidedId = customConversationIdDelegate(new CustomConversationIdContext(context.Message), out conversationId);
+                userProvidedId = tryGetConversationIdDelegate(new CustomConversationIdContext(context.Message), out conversationId);
             }
             catch (Exception exception)
             {
@@ -79,6 +79,6 @@ namespace NServiceBus
             context.Headers[Headers.ConversationId] = conversationId;
         }
 
-        CustomConversationIdDelegate customConversationIdDelegate;
+        TryGetConversationIdDelegate tryGetConversationIdDelegate;
     }
 }

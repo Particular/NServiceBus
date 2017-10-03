@@ -14,9 +14,9 @@
             context.Pipeline.Register("AttachCausationHeaders", new AttachCausationHeadersBehavior(newIdGenerator), "Adds related to and conversation id headers to outgoing messages");
         }
 
-        static CustomConversationIdDelegate GetIdGenerator(FeatureConfigurationContext context)
+        static TryGetConversationIdDelegate GetIdGenerator(FeatureConfigurationContext context)
         {
-            if (context.Settings.TryGet<CustomConversationIdDelegate>(out var idGenerator))
+            if (context.Settings.TryGet<TryGetConversationIdDelegate>(out var idGenerator))
             {
                 return idGenerator;
             }

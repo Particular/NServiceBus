@@ -11,17 +11,22 @@
         [Test]
         public async Task Should_use_custom_id()
         {
+            var myBusinessMessage = new MessageSentOutsideOfHandlerMatchingTheConvention
+            {
+                MyBusinessId = "some id"
+            };
+
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<CustomGeneratorEndpoint>(b => b.When(async session =>
                 {
-                    await session.SendLocal(new MessageSentOutsideOfHandlerMatchingTheConvention());
+                    await session.SendLocal(myBusinessMessage);
 
                     await session.SendLocal(new MessageSentOutsideOfHandlerNotMatchingTheConvention());
                 }))
                 .Done(c => c.MatchingMessageReceived && c.NonMatchingMessageReceived)
                 .Run();
 
-            Assert.AreEqual(context.MatchingConversationIdReceived, "custom id");
+            Assert.AreEqual(myBusinessMessage.MyBusinessId, context.MatchingConversationIdReceived);
             Assert.True(Guid.TryParse(context.NonMatchingConversationIdReceived, out var _));
         }
 
@@ -42,9 +47,9 @@
 
             bool MyCustomConversationIdStrategy(CustomConversationIdContext context, out string conversationId)
             {
-                if (context.Message.Instance is MessageSentOutsideOfHandlerMatchingTheConvention)
+                if (context.Message.Instance is MessageSentOutsideOfHandlerMatchingTheConvention message)
                 {
-                    conversationId = "custom id";
+                    conversationId = message.MyBusinessId;
                     return true;
                 }
 
@@ -81,6 +86,7 @@
 
         public class MessageSentOutsideOfHandlerMatchingTheConvention : IMessage
         {
+            public string MyBusinessId { get; set; }
         }
 
         public class MessageSentOutsideOfHandlerNotMatchingTheConvention : IMessage
