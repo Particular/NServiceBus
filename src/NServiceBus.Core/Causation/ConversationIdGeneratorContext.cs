@@ -12,6 +12,8 @@
         /// </summary>
         public ConversationIdGeneratorContext(OutgoingLogicalMessage message)
         {
+            Guard.AgainstNull(nameof(message), message);
+
             Message = message;
         }
 
