@@ -5,10 +5,10 @@
     using EndpointTemplates;
     using NUnit.Framework;
 
-    public class When_using_custom_conversation_id_generator : NServiceBusAcceptanceTest
+    public class When_overriding_conversation_id_generation : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Should_invoke_custom_generator()
+        public async Task Should_use_custom_id()
         {
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<CustomGeneratorEndpoint>(b => b.When(session => session.SendLocal(new MessageSentOutsideOfHandler())))
@@ -28,7 +28,17 @@
         {
             public CustomGeneratorEndpoint()
             {
-                EndpointSetup<DefaultServer>(c => c.CustomConversationIdGenerator(_ => "custom id"));
+                EndpointSetup<DefaultServer>(c => c.CustomConversationId(delegate(CustomConversationIdContext context, out string id)
+                {
+                    if (context.Message.Instance is MessageSentOutsideOfHandler)
+                    {
+                        id = "custom id";
+                        return true;
+                    }
+
+                    id = null;
+                    return false;
+                }));
             }
 
             public Context Context { get; set; }

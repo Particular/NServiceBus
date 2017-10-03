@@ -7,9 +7,9 @@ namespace NServiceBus
 
     class AttachCausationHeadersBehavior : IBehavior<IOutgoingLogicalMessageContext, IOutgoingLogicalMessageContext>
     {
-        public AttachCausationHeadersBehavior(Func<ConversationIdGeneratorContext, string> idGenerator)
+        public AttachCausationHeadersBehavior(CustomConversationIdDelegate customConversationIdDelegate)
         {
-            this.idGenerator = idGenerator;
+            this.customConversationIdDelegate = customConversationIdDelegate;
         }
 
         public Task Invoke(IOutgoingLogicalMessageContext context, Func<IOutgoingLogicalMessageContext, Task> next)
@@ -52,9 +52,30 @@ namespace NServiceBus
                 return;
             }
 
-            context.Headers[Headers.ConversationId] = idGenerator(new ConversationIdGeneratorContext(context.Message));
+            string conversationId;
+
+            try
+            {
+                if (customConversationIdDelegate(new CustomConversationIdContext(context.Message), out conversationId))
+                {
+                    if (string.IsNullOrEmpty(conversationId))
+                    {
+                        throw new Exception("Null or empty conversation ID's are not allowed.");
+                    }
+                }
+                else
+                {
+                    conversationId = CombGuid.Generate().ToString();
+                }
+            }
+            catch (Exception exception)
+            {
+                throw new Exception($"Failed to execute CustomConversationId delegate. This configuration option was defined using {nameof(EndpointConfiguration)}.{nameof(MessageCausationConfigurationExtensions.CustomConversationId)}.", exception);
+            }
+
+            context.Headers[Headers.ConversationId] = conversationId;
         }
 
-        Func<ConversationIdGeneratorContext, string> idGenerator;
+        CustomConversationIdDelegate customConversationIdDelegate;
     }
 }

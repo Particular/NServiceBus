@@ -151,11 +151,6 @@ namespace NServiceBus
         public NServiceBus.ConventionsBuilder DefiningEventsAs(System.Func<System.Type, bool> definesEventType) { }
         public NServiceBus.ConventionsBuilder DefiningMessagesAs(System.Func<System.Type, bool> definesMessageType) { }
     }
-    public class ConversationIdGeneratorContext
-    {
-        public ConversationIdGeneratorContext(NServiceBus.Pipeline.OutgoingLogicalMessage message) { }
-        public NServiceBus.Pipeline.OutgoingLogicalMessage Message { get; }
-    }
     [System.ObsoleteAttribute("Setting a custom correlation ID is no longer supported. Will be removed in versio" +
         "n 8.0.0.", true)]
     public class static CorrelationContextExtensions
@@ -194,6 +189,12 @@ namespace NServiceBus
             "ll be removed in version 8.0.0.", true)]
         public static void EnableCriticalTimePerformanceCounter(this NServiceBus.EndpointConfiguration config) { }
     }
+    public class CustomConversationIdContext
+    {
+        public CustomConversationIdContext(NServiceBus.Pipeline.OutgoingLogicalMessage message) { }
+        public NServiceBus.Pipeline.OutgoingLogicalMessage Message { get; }
+    }
+    public delegate bool CustomConversationIdDelegate(NServiceBus.CustomConversationIdContext context, out string customConverationId);
     public class DataBusProperty<T> : NServiceBus.IDataBusProperty, System.Runtime.Serialization.ISerializable
         where T :  class
     {
@@ -622,7 +623,7 @@ namespace NServiceBus
     }
     public class static MessageCausationConfigurationExtensions
     {
-        public static void CustomConversationIdGenerator(this NServiceBus.EndpointConfiguration endpointConfiguration, System.Func<NServiceBus.ConversationIdGeneratorContext, string> customGenerator) { }
+        public static void CustomConversationId(this NServiceBus.EndpointConfiguration endpointConfiguration, NServiceBus.CustomConversationIdDelegate customConversationIdDelegate) { }
     }
     public class MessageDeserializationException : System.Runtime.Serialization.SerializationException
     {
