@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.AcceptanceTests.Causation
 {
+    using System;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
@@ -11,52 +12,78 @@
         public async Task Should_use_custom_id()
         {
             var context = await Scenario.Define<Context>()
-                .WithEndpoint<CustomGeneratorEndpoint>(b => b.When(session => session.SendLocal(new MessageSentOutsideOfHandler())))
-                .Done(c => c.MessageReceived)
+                .WithEndpoint<CustomGeneratorEndpoint>(b => b.When(async session =>
+                {
+                    await session.SendLocal(new MessageSentOutsideOfHandlerMatchingTheConvention());
+
+                    await session.SendLocal(new MessageSentOutsideOfHandlerNotMatchingTheConvention());
+                }))
+                .Done(c => c.MatchingMessageReceived && c.NonMatchingMessageReceived)
                 .Run();
 
-            Assert.AreEqual(context.ConversationIdReceived, "custom id");
+            Assert.AreEqual(context.MatchingConversationIdReceived, "custom id");
+            Assert.True(Guid.TryParse(context.NonMatchingConversationIdReceived, out var _));
         }
 
         public class Context : ScenarioContext
         {
-            public string ConversationIdReceived { get; set; }
-            public bool MessageReceived { get; set; }
+            public string MatchingConversationIdReceived { get; set; }
+            public bool MatchingMessageReceived { get; set; }
+            public string NonMatchingConversationIdReceived { get; set; }
+            public bool NonMatchingMessageReceived { get; set; }
         }
 
         public class CustomGeneratorEndpoint : EndpointConfigurationBuilder
         {
             public CustomGeneratorEndpoint()
             {
-                EndpointSetup<DefaultServer>(c => c.CustomConversationId(delegate(CustomConversationIdContext context, out string id)
-                {
-                    if (context.Message.Instance is MessageSentOutsideOfHandler)
-                    {
-                        id = "custom id";
-                        return true;
-                    }
+                EndpointSetup<DefaultServer>(c => c.CustomConversationId(MyCustomConversationIdStrategy));
+            }
 
-                    id = null;
-                    return false;
-                }));
+            bool MyCustomConversationIdStrategy(CustomConversationIdContext context, out string conversationId)
+            {
+                if (context.Message.Instance is MessageSentOutsideOfHandlerMatchingTheConvention)
+                {
+                    conversationId = "custom id";
+                    return true;
+                }
+
+                conversationId = null;
+                return false;
             }
 
             public Context Context { get; set; }
 
-            public class MessageSentOutsideHandlersHandler : IHandleMessages<MessageSentOutsideOfHandler>
+            public class MessageSentOutsideOfHandlerMatchingTheConventionHandler : IHandleMessages<MessageSentOutsideOfHandlerMatchingTheConvention>
             {
                 public Context TestContext { get; set; }
 
-                public Task Handle(MessageSentOutsideOfHandler message, IMessageHandlerContext context)
+                public Task Handle(MessageSentOutsideOfHandlerMatchingTheConvention message, IMessageHandlerContext context)
                 {
-                    TestContext.ConversationIdReceived = context.MessageHeaders[Headers.ConversationId];
-                    TestContext.MessageReceived = true;
+                    TestContext.MatchingConversationIdReceived = context.MessageHeaders[Headers.ConversationId];
+                    TestContext.MatchingMessageReceived = true;
+                    return Task.FromResult(0);
+                }
+            }
+
+            public class MessageSentOutsideOfHandlerNotMatchingTheConventionHandler : IHandleMessages<MessageSentOutsideOfHandlerNotMatchingTheConvention>
+            {
+                public Context TestContext { get; set; }
+
+                public Task Handle(MessageSentOutsideOfHandlerNotMatchingTheConvention message, IMessageHandlerContext context)
+                {
+                    TestContext.NonMatchingConversationIdReceived = context.MessageHeaders[Headers.ConversationId];
+                    TestContext.NonMatchingMessageReceived = true;
                     return Task.FromResult(0);
                 }
             }
         }
 
-        public class MessageSentOutsideOfHandler : IMessage
+        public class MessageSentOutsideOfHandlerMatchingTheConvention : IMessage
+        {
+        }
+
+        public class MessageSentOutsideOfHandlerNotMatchingTheConvention : IMessage
         {
         }
     }
