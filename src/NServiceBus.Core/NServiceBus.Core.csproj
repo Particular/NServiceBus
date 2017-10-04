@@ -6,13 +6,6 @@
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\NServiceBus.snk</AssemblyOriginatorKeyFile>
     <OutputPath>..\..\binaries\</OutputPath>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-  </PropertyGroup>
-
-  <!--Workaround for https://github.com/dotnet/sdk/issues/1469 -->
-  <PropertyGroup>
-    <DisableLockFileFrameworks>true</DisableLockFileFrameworks>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'net452'">
@@ -33,6 +26,7 @@
     <PackageReference Include="Obsolete.Fody" Version="4.3.2" PrivateAssets="All" />
     <PackageReference Include="Particular.CodeRules" Version="0.2.0" PrivateAssets="All" />
     <PackageReference Include="Particular.Licensing.Sources" Version="1.0.0" PrivateAssets="All" />
+    <PackageReference Include="Particular.Packaging" Version="0.1.0" PrivateAssets="All" />
   </ItemGroup>
 
   <ItemGroup>
@@ -58,5 +52,22 @@
       <Visible>false</Visible>
     </None>
   </ItemGroup>
+
+  <!--Workaround for https://github.com/dotnet/sdk/issues/1469 -->
+  <PropertyGroup>
+    <DisableLockFileFrameworks>true</DisableLockFileFrameworks>
+  </PropertyGroup>
+  <!-- End Workaround -->
+
+  <!-- Workaround for GitVersion 4.0 not creating GitVersionInformation by default -->
+  <PropertyGroup>
+    <UpdateAssemblyInfo>true</UpdateAssemblyInfo>
+    <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
+    <GenerateAssemblyInformationalVersionAttribute>false</GenerateAssemblyInformationalVersionAttribute>
+    <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
+  </PropertyGroup>
+  <!-- End Workaround -->
+
+  <Import Project="../GitVersionWorkaround.targets" />
 
 </Project>

@@ -2,7 +2,6 @@
 
   <PropertyGroup>
     <TargetFrameworks>net452;netcoreapp2.0</TargetFrameworks>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
   </PropertyGroup>
 
@@ -14,6 +13,7 @@
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.3.0" PrivateAssets="All" />
     <PackageReference Include="NUnit" Version="[3.7.1, 4.0.0)" />
     <PackageReference Include="NUnit3TestAdapter" Version="3.8.0-alpha1" PrivateAssets="All" />
+    <PackageReference Include="Particular.Packaging" Version="0.1.0" PrivateAssets="All" />
   </ItemGroup>
 
   <PropertyGroup>
