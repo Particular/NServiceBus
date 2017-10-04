@@ -5,12 +5,12 @@
     /// <summary>
     /// Provides context when generating message conversation ID's.
     /// </summary>
-    public class CustomConversationIdContext
+    public class ConversationIdStrategyContext
     {
         /// <summary>
         /// Creates a new context.
         /// </summary>
-        public CustomConversationIdContext(OutgoingLogicalMessage message)
+        public ConversationIdStrategyContext(OutgoingLogicalMessage message)
         {
             Guard.AgainstNull(nameof(message), message);
 

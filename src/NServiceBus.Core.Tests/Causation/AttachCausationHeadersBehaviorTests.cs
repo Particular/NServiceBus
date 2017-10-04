@@ -14,7 +14,7 @@
         public async Task Should_generate_new_conversation_id_when_sending_outside_of_handlers()
         {
             var generatedId = "some generated conversation id";
-            var behavior = new AttachCausationHeadersBehavior((CustomConversationIdContext c, out string id) =>
+            var behavior = new AttachCausationHeadersBehavior((ConversationIdStrategyContext c, out string id) =>
             {
                 id = generatedId;
                 return true;
@@ -29,7 +29,7 @@
         [Test]
         public async Task Should_default_to_combguid_id()
         {
-            var behavior = new AttachCausationHeadersBehavior((CustomConversationIdContext c, out string id) =>
+            var behavior = new AttachCausationHeadersBehavior((ConversationIdStrategyContext c, out string id) =>
             {
                 id = null;
                 return false;
@@ -44,7 +44,7 @@
         [Test]
         public void Should_not_allow_null_or_empty_id()
         {
-            var behavior = new AttachCausationHeadersBehavior((CustomConversationIdContext c, out string id) =>
+            var behavior = new AttachCausationHeadersBehavior((ConversationIdStrategyContext c, out string id) =>
             {
                 id = "";
                 return true;
@@ -76,9 +76,9 @@
         [Test]
         public async Task Should_include_outgoing_message_in_context()
         {
-            CustomConversationIdContext contextProvided = null;
+            ConversationIdStrategyContext contextProvided = null;
 
-            var behavior = new AttachCausationHeadersBehavior((CustomConversationIdContext c, out string id) =>
+            var behavior = new AttachCausationHeadersBehavior((ConversationIdStrategyContext c, out string id) =>
             {
                 contextProvided = c;
                 id = null;
@@ -150,7 +150,7 @@
             Assert.AreEqual("the message id", context.Headers[Headers.RelatedTo]);
         }
 
-        bool NoOpStrategy(CustomConversationIdContext context, out string customId)
+        bool NoOpStrategy(ConversationIdStrategyContext context, out string customId)
         {
             customId = null;
             return false;

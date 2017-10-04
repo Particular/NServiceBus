@@ -151,6 +151,11 @@ namespace NServiceBus
         public NServiceBus.ConventionsBuilder DefiningEventsAs(System.Func<System.Type, bool> definesEventType) { }
         public NServiceBus.ConventionsBuilder DefiningMessagesAs(System.Func<System.Type, bool> definesMessageType) { }
     }
+    public class ConversationIdStrategyContext
+    {
+        public ConversationIdStrategyContext(NServiceBus.Pipeline.OutgoingLogicalMessage message) { }
+        public NServiceBus.Pipeline.OutgoingLogicalMessage Message { get; }
+    }
     [System.ObsoleteAttribute("Setting a custom correlation ID is no longer supported. Will be removed in versio" +
         "n 8.0.0.", true)]
     public class static CorrelationContextExtensions
@@ -188,11 +193,6 @@ namespace NServiceBus
             "s.PerformanceCounters. The member currently throws a NotImplementedException. Wi" +
             "ll be removed in version 8.0.0.", true)]
         public static void EnableCriticalTimePerformanceCounter(this NServiceBus.EndpointConfiguration config) { }
-    }
-    public class CustomConversationIdContext
-    {
-        public CustomConversationIdContext(NServiceBus.Pipeline.OutgoingLogicalMessage message) { }
-        public NServiceBus.Pipeline.OutgoingLogicalMessage Message { get; }
     }
     public class DataBusProperty<T> : NServiceBus.IDataBusProperty, System.Runtime.Serialization.ISerializable
         where T :  class
@@ -622,7 +622,7 @@ namespace NServiceBus
     }
     public class static MessageCausationConfigurationExtensions
     {
-        public static void CustomConversationId(this NServiceBus.EndpointConfiguration endpointConfiguration, NServiceBus.TryGetConversationIdDelegate tryGetConversationIdDelegate) { }
+        public static void CustomConversationIdStrategy(this NServiceBus.EndpointConfiguration endpointConfiguration, NServiceBus.TryGetConversationIdDelegate tryGetConversationIdDelegate) { }
     }
     public class MessageDeserializationException : System.Runtime.Serialization.SerializationException
     {
@@ -973,7 +973,7 @@ namespace NServiceBus
         SendsAtomicWithReceive = 2,
         TransactionScope = 3,
     }
-    public delegate bool TryGetConversationIdDelegate(NServiceBus.CustomConversationIdContext context, out string customConverationId);
+    public delegate bool TryGetConversationIdDelegate(NServiceBus.ConversationIdStrategyContext context, out string customConverationId);
     public class UnitOfWorkSettings
     {
         public NServiceBus.UnitOfWorkSettings WrapHandlersInATransactionScope(System.Nullable<System.TimeSpan> timeout = null, System.Nullable<System.Transactions.IsolationLevel> isolationLevel = null) { }

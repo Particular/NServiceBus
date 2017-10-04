@@ -42,10 +42,10 @@
         {
             public CustomGeneratorEndpoint()
             {
-                EndpointSetup<DefaultServer>(c => c.CustomConversationId(MyCustomConversationIdStrategy));
+                EndpointSetup<DefaultServer>(c => c.CustomConversationIdStrategy(MyCustomConversationIdStrategy));
             }
 
-            bool MyCustomConversationIdStrategy(CustomConversationIdContext context, out string conversationId)
+            bool MyCustomConversationIdStrategy(ConversationIdStrategyContext context, out string conversationId)
             {
                 if (context.Message.Instance is MessageSentOutsideOfHandlerMatchingTheConvention message)
                 {

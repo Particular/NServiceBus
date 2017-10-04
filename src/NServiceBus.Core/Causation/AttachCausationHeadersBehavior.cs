@@ -57,11 +57,11 @@ namespace NServiceBus
 
             try
             {
-                userProvidedId = tryGetConversationIdDelegate(new CustomConversationIdContext(context.Message), out conversationId);
+                userProvidedId = tryGetConversationIdDelegate(new ConversationIdStrategyContext(context.Message), out conversationId);
             }
             catch (Exception exception)
             {
-                throw new Exception($"Failed to execute CustomConversationId delegate. This configuration option was defined using {nameof(EndpointConfiguration)}.{nameof(MessageCausationConfigurationExtensions.CustomConversationId)}.", exception);
+                throw new Exception($"Failed to execute CustomConversationId delegate. This configuration option was defined using {nameof(EndpointConfiguration)}.{nameof(MessageCausationConfigurationExtensions.CustomConversationIdStrategy)}.", exception);
             }
 
             if (userProvidedId)

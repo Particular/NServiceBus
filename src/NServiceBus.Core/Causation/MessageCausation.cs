@@ -21,7 +21,7 @@
                 return idGenerator;
             }
 
-            return (CustomConversationIdContext _, out string id) =>
+            return (ConversationIdStrategyContext _, out string id) =>
             {
                 id = null;
                 return false;
