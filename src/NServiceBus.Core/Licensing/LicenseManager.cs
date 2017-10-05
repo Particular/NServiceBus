@@ -120,26 +120,29 @@ namespace NServiceBus
             }
         }
 
+#if NETSTANDARD2_0
         string GetPlatformCode()
         {
-#if NET452
-            return "windows";
-#elif NETSTANDARD2_0
-            if(RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
                 return "windows";
             }
+
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
                 return "linux";
             }
+
             if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
             {
                 return "macos";
             }
+
             return "unknown";
-#endif
         }
+#else
+        string GetPlatformCode() => "windows";
+#endif
 
         ActiveLicenseFindResult result;
 
