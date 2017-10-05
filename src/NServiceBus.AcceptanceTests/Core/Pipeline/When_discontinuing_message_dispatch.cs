@@ -11,7 +11,7 @@
         [Test]
         public async Task Should_not_continue_to_dispatch_the_message()
         {
-            var context = await Scenario.Define<SagaEndpointContext>(c => { c.InterceptSaga = true; })
+            var context = await Scenario.Define<SagaEndpointContext>()
                 .WithEndpoint<SagaEndpoint>(b => b.When(session => session.SendLocal(new StartSagaMessage
                 {
                     SomeId = Guid.NewGuid().ToString()
@@ -28,8 +28,6 @@
             public bool InterceptingHandlerCalled { get; set; }
 
             public bool SagaStarted { get; set; }
-
-            public bool InterceptSaga { get; set; }
         }
 
         public class SagaEndpoint : EndpointConfigurationBuilder
@@ -69,17 +67,12 @@
                 public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
                 {
                     TestContext.InterceptingHandlerCalled = true;
-
-                    if (TestContext.InterceptSaga)
-                    {
-                        context.DoNotContinueDispatchingCurrentMessageToHandlers();
-                    }
+                    context.DoNotContinueDispatchingCurrentMessageToHandlers();
 
                     return Task.FromResult(0);
                 }
             }
         }
-
 
         public class StartSagaMessage : ICommand
         {
