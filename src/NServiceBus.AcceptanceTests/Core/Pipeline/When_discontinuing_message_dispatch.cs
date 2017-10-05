@@ -1,18 +1,33 @@
-﻿namespace NServiceBus.AcceptanceTests.Sagas
+﻿namespace NServiceBus.AcceptanceTests.Core.Pipeline
 {
+    using System;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
+    using NUnit.Framework;
 
-    public class When_receiving_that_should_start_a_saga : NServiceBusAcceptanceTest
+    public class When_discontinuing_message_dispatch : NServiceBusAcceptanceTest
     {
+        [Test]
+        public async Task Should_not_continue_to_dispatch_the_message()
+        {
+            var context = await Scenario.Define<SagaEndpointContext>()
+                .WithEndpoint<SagaEndpoint>(b => b.When(session => session.SendLocal(new StartSagaMessage
+                {
+                    SomeId = Guid.NewGuid().ToString()
+                })))
+                .Done(c => c.InterceptingHandlerCalled)
+                .Run();
+
+            Assert.True(context.InterceptingHandlerCalled, "The intercepting handler should be called");
+            Assert.False(context.SagaStarted, "The saga should not have been started since the intercepting handler stops the pipeline");
+        }
+
         public class SagaEndpointContext : ScenarioContext
         {
             public bool InterceptingHandlerCalled { get; set; }
 
             public bool SagaStarted { get; set; }
-
-            public bool InterceptSaga { get; set; }
         }
 
         public class SagaEndpoint : EndpointConfigurationBuilder
@@ -52,17 +67,12 @@
                 public Task Handle(StartSagaMessage message, IMessageHandlerContext context)
                 {
                     TestContext.InterceptingHandlerCalled = true;
-
-                    if (TestContext.InterceptSaga)
-                    {
-                        context.DoNotContinueDispatchingCurrentMessageToHandlers();
-                    }
+                    context.DoNotContinueDispatchingCurrentMessageToHandlers();
 
                     return Task.FromResult(0);
                 }
             }
         }
-
 
         public class StartSagaMessage : ICommand
         {

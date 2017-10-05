@@ -9,7 +9,7 @@
     using NServiceBus.Sagas;
     using NUnit.Framework;
 
-    public class when_reply_from_saga_not_found_handler : NServiceBusAcceptanceTest
+    public class When_reply_from_saga_not_found_handler : NServiceBusAcceptanceTest
     {
         // related to NSB issue #2044
         [Test]
