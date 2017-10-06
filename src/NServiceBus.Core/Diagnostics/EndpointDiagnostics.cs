@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus
 {
+    using System;
     using System.IO;
     using System.Threading.Tasks;
     using Features;
@@ -62,11 +63,18 @@
                 this.diagnosticsWriter = diagnosticsWriter;
             }
 
-            protected override Task OnStart(IMessageSession session)
+            protected override async Task OnStart(IMessageSession session)
             {
                 var data = "tbd";
 
-                return diagnosticsWriter.Write(data);
+                try
+                {
+                    await diagnosticsWriter.Write(data).ConfigureAwait(false);
+                }
+                catch (Exception e)
+                {
+                    logger.Error("Failed to write startup diagnostics", e);
+                }
             }
 
             protected override Task OnStop(IMessageSession session)
@@ -75,6 +83,8 @@
             }
 
             DiagnosticsWriter diagnosticsWriter;
+
+            static ILog logger = LogManager.GetLogger<WriteStartupDiagnostics>();
         }
     }
 }
