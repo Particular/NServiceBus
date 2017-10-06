@@ -16,25 +16,22 @@
         /// <returns>SemVer compliant version.</returns>
         public static string GetFileVersion(Type type)
         {
-            if (!string.IsNullOrEmpty(type.Assembly.Location))
+            var assembly = type.Assembly;
+            if (!string.IsNullOrEmpty(assembly.Location))
             {
-                var fileVersion = FileVersionInfo.GetVersionInfo(type.Assembly.Location);
+                var fileVersion = FileVersionInfo.GetVersionInfo(assembly.Location);
 
                 return new Version(fileVersion.FileMajorPart, fileVersion.FileMinorPart, fileVersion.FileBuildPart).ToString(3);
             }
 
-            var customAttributes = type.Assembly.GetCustomAttributes(typeof(AssemblyFileVersionAttribute), false);
+            var fileVersionAttribute = assembly.GetCustomAttribute<AssemblyFileVersionAttribute>();
 
-            if (customAttributes.Length >= 1)
+            if (Version.TryParse(fileVersionAttribute.Version, out var version))
             {
-                var fileVersion = (AssemblyFileVersionAttribute) customAttributes[0];
-                if (Version.TryParse(fileVersion.Version, out var version))
-                {
-                    return version.ToString(3);
-                }
+                return version.ToString(3);
             }
 
-            return type.Assembly.GetName().Version.ToString(3);
+            return assembly.GetName().Version.ToString(3);
         }
     }
 }
