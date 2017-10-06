@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus
 {
-    using System;
     using System.IO;
     using System.Threading.Tasks;
     using Features;
@@ -23,24 +22,35 @@
 
         static DiagnosticsWriter GetDiagnosticsWriter(FeatureConfigurationContext context)
         {
-            if (context.Settings.TryGet<DiagnosticsWriter>(out var diagnosticsWriter))
+            var settings = context.Settings;
+
+            if (settings.TryGet<DiagnosticsWriter>(out var diagnosticsWriter))
             {
                 return diagnosticsWriter;
             }
 
-            if (!context.Settings.TryGet<string>(DiagnosticsConfigurationExtensions.DiagnosticsRootPathKey, out var diagnosticsRootPath))
+            if (!settings.TryGet<string>(DiagnosticsConfigurationExtensions.DiagnosticsRootPathKey, out var diagnosticsRootPath))
             {
-                diagnosticsRootPath = Path.Combine(DefaultFactory.FindDefaultLoggingDirectory(), ".diagnostics"); //for now
+                diagnosticsRootPath = Path.Combine(DefaultFactory.FindDefaultLoggingDirectory(), ".diagnostics");
             }
 
-            if (!Directory.Exists(diagnosticsRootPath))
+            if (Directory.Exists(diagnosticsRootPath))
             {
                 Directory.CreateDirectory(diagnosticsRootPath);
             }
 
-            var startupDiagnoticsFileName = $"{context.Settings.EndpointName()}-settings-{DateTime.UtcNow.Ticks}.txt"; //todo: figure out better name
+            if (settings.TryGet<string>("EndpointInstanceDiscriminator", out var discriminator))
+            {
+                discriminator = "-" + discriminator;
+            }
+
+            var startupDiagnoticsFileName = $"{settings.EndpointName()}{discriminator ?? ""}-config.txt";
             var startupDiagnoticsFilePath = Path.Combine(diagnosticsRootPath, startupDiagnoticsFileName);
 
+            if (File.Exists(startupDiagnoticsFilePath))
+            {
+                File.Delete(startupDiagnoticsFilePath);
+            }
 
             return new DiagnosticsWriter(data => AsyncFile.WriteText(startupDiagnoticsFilePath, data));
         }
