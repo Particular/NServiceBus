@@ -5,6 +5,8 @@
     using System.Threading.Tasks;
     using Features;
     using Logging;
+    using Settings;
+    using SimpleJson;
 
     class EndpointDiagnostics : Feature
     {
@@ -15,16 +17,16 @@
 
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-            var diagnosticsWriter = GetDiagnosticsWriter(context);
+            var settings = context.Settings;
 
-            context.RegisterStartupTask(new WriteStartupDiagnostics(diagnosticsWriter));
+            var diagnosticsWriter = GetDiagnosticsWriter(settings);
+
+            context.RegisterStartupTask(new WriteStartupDiagnostics(diagnosticsWriter, settings));
         }
 
 
-        static DiagnosticsWriter GetDiagnosticsWriter(FeatureConfigurationContext context)
+        static DiagnosticsWriter GetDiagnosticsWriter(ReadOnlySettings settings)
         {
-            var settings = context.Settings;
-
             if (settings.TryGet<DiagnosticsWriter>(out var diagnosticsWriter))
             {
                 return diagnosticsWriter;
@@ -58,18 +60,24 @@
 
         class WriteStartupDiagnostics : FeatureStartupTask
         {
-            public WriteStartupDiagnostics(DiagnosticsWriter diagnosticsWriter)
+            public WriteStartupDiagnostics(DiagnosticsWriter diagnosticsWriter, ReadOnlySettings settings)
             {
                 this.diagnosticsWriter = diagnosticsWriter;
+                this.settings = settings;
             }
 
             protected override async Task OnStart(IMessageSession session)
             {
-                var data = "tbd";
-
                 try
                 {
-                    await diagnosticsWriter.Write(data).ConfigureAwait(false);
+                    var startupDiagnostics = new StartupDiagnostics
+                    {
+                        EndpointName = settings.EndpointName()
+                    };
+
+                    var dataToWrite = SimpleJson.SerializeObject(startupDiagnostics);
+
+                    await diagnosticsWriter.Write(dataToWrite).ConfigureAwait(false);
                 }
                 catch (Exception e)
                 {
@@ -83,8 +91,14 @@
             }
 
             DiagnosticsWriter diagnosticsWriter;
+            ReadOnlySettings settings;
 
             static ILog logger = LogManager.GetLogger<WriteStartupDiagnostics>();
+
+            class StartupDiagnostics
+            {
+                public string EndpointName;
+            }
         }
     }
 }
