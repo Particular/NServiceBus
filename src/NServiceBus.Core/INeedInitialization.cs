@@ -1,11 +1,8 @@
 ﻿namespace NServiceBus
 {
-    using JetBrains.Annotations;
-
     /// <summary>
     /// Indicate that the implementing class will specify configuration.
     /// </summary>
-    [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
     public interface INeedInitialization
     {
         /// <summary>
