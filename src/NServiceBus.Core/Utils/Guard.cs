@@ -69,17 +69,6 @@
                 throw new ArgumentOutOfRangeException(argumentName);
             }
         }
-        public static void AgainstNegativeAndZero(string argumentName, TimeSpan? value)
-        {
-            if (value == null)
-            {
-                return;
-            }
-            if (value <= TimeSpan.Zero)
-            {
-                throw new ArgumentOutOfRangeException(argumentName);
-            }
-        }
 
         public static void AgainstNegative(string argumentName, TimeSpan value)
         {
