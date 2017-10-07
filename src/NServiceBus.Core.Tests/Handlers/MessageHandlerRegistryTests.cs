@@ -91,6 +91,7 @@
                 throw new NotImplementedException();
             }
 
+            // ReSharper disable once NotAccessedField.Local
             IMessageSession MessageSession;
         }
 
@@ -114,6 +115,7 @@
                 throw new NotImplementedException();
             }
 
+            // ReSharper disable once NotAccessedField.Local
             IEndpointInstance endpointInstance;
         }
 
@@ -134,6 +136,7 @@
                 throw new NotImplementedException();
             }
 
+            // ReSharper disable once NotAccessedField.Local
             IEndpointInstance endpointInstance;
 
             public class MySagaData : ContainSagaData
