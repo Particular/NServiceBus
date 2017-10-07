@@ -10,6 +10,7 @@ For public facing interfaces we favor read-only collections and enumerables. For
 * Avoid allocations
 * Avoid using `System.Linq`
 * Avoid using `foreach` over collections that do not have a struct enumerator
+* Favor local functions over lambdas and delegates
 
 ## Runtime dependencies
 
