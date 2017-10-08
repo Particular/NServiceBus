@@ -16,12 +16,14 @@
         [Test]
         public async Task ShouldAllowMultipleStops()
         {
+            var transportInfrastructure = new FakeTransportInfrastructure();
+
             var testee = new RunningEndpointInstance(
                 new SettingsHolder(),
                 new FakeBuilder(),
-                new List<TransportReceiver>(),
+                new ReceiveComponent("MyEndpoint", false, transportInfrastructure),
                 new FeatureRunner(new FeatureActivator(new SettingsHolder())),
-                new MessageSession(new RootContext(null, null, null)), new FakeTransportInfrastructure());
+                new MessageSession(new RootContext(null, null, null)), transportInfrastructure);
 
             await testee.Stop();
 
@@ -33,6 +35,7 @@
             public override IEnumerable<Type> DeliveryConstraints { get; }
             public override TransportTransactionMode TransactionMode { get; }
             public override OutboundRoutingPolicy OutboundRoutingPolicy { get; }
+
             public override TransportReceiveInfrastructure ConfigureReceiveInfrastructure()
             {
                 throw new NotImplementedException();

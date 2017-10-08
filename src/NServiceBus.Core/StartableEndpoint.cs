@@ -1,11 +1,9 @@
 namespace NServiceBus
 {
     using System;
-    using System.Collections.Generic;
     using System.Security.Principal;
     using System.Threading.Tasks;
     using Features;
-    using Logging;
     using ObjectBuilder;
     using Pipeline;
     using Settings;
@@ -40,16 +38,16 @@ namespace NServiceBus
             var mainPipeline = new Pipeline<ITransportReceiveContext>(builder, pipelineConfiguration.Modifications);
             var mainPipelineExecutor = new MainPipelineExecutor(builder, eventAggregator, pipelineCache, mainPipeline);
 
-            var receivers = receiving.CreateReceivers(mainPipelineExecutor, eventAggregator, builder, criticalError);
-            await InitializeReceivers(receivers).ConfigureAwait(false);
+            await receiving.InitializeReceivers(mainPipelineExecutor, eventAggregator, builder, criticalError).ConfigureAwait(false);
 
             var featureRunner = await StartFeatures(messageSession).ConfigureAwait(false);
 
-            var runningInstance = new RunningEndpointInstance(settings, builder, receivers, featureRunner, messageSession, transportInfrastructure);
+            var runningInstance = new RunningEndpointInstance(settings, builder, receiving, featureRunner, messageSession, transportInfrastructure);
+
             // set the started endpoint on CriticalError to pass the endpoint to the critical error action
             criticalError.SetEndpoint(runningInstance);
 
-            StartReceivers(receivers);
+            receiving.Start();
 
             return runningInstance;
         }
@@ -59,38 +57,6 @@ namespace NServiceBus
             var featureRunner = new FeatureRunner(featureActivator);
             await featureRunner.Start(builder, session).ConfigureAwait(false);
             return featureRunner;
-        }
-
-        static async Task InitializeReceivers(List<TransportReceiver> receivers)
-        {
-            foreach (var receiver in receivers)
-            {
-                try
-                {
-                    await receiver.Init().ConfigureAwait(false);
-                }
-                catch (Exception ex)
-                {
-                    Logger.Fatal($"Receiver {receiver.Id} failed to initialize.", ex);
-                    throw;
-                }
-            }
-        }
-
-        static void StartReceivers(List<TransportReceiver> receivers)
-        {
-            foreach (var receiver in receivers)
-            {
-                try
-                {
-                    receiver.Start();
-                }
-                catch (Exception ex)
-                {
-                    Logger.Fatal($"Receiver {receiver.Id} failed to start.", ex);
-                    throw;
-                }
-            }
         }
 
         IMessageSession messageSession;
@@ -105,7 +71,5 @@ namespace NServiceBus
         TransportInfrastructure transportInfrastructure;
         ReceiveComponent receiving;
         CriticalError criticalError;
-
-        static ILog Logger = LogManager.GetLogger<StartableEndpoint>();
     }
 }
