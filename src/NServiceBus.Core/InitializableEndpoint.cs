@@ -44,10 +44,13 @@ namespace NServiceBus
             var transportInfrastructure = InitializeTransport();
 
             var isSendOnlyEndpoint = settings.Get<bool>("Endpoint.SendOnly");
-            var receiving = new ReceiveComponent(isSendOnlyEndpoint, transportInfrastructure);
+            var receiving = new ReceiveComponent(settings.EndpointName(), isSendOnlyEndpoint, transportInfrastructure);
 
 
-            receiving.Initialize(settings);
+            receiving.Initialize(settings, settings.Get<QueueBindings>());
+
+            //todo: remove once settings.LogicalAddress() , .LocalAddress() and .InstanceSpecificQueue() has been obsoleted
+            settings.Set<ReceiveComponent>(receiving);
 
             // use GetOrCreate to use of instances already created during EndpointConfiguration.
             var routing = new RoutingComponent(

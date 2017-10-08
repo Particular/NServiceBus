@@ -33,7 +33,7 @@ namespace NServiceBus
         public static LogicalAddress LogicalAddress(this ReadOnlySettings settings)
         {
             Guard.AgainstNull(nameof(settings), settings);
-            return settings.Get<LogicalAddress>();
+            return settings.Get<ReceiveComponent>().LogicalAddress;
         }
 
         /// <summary>
@@ -42,7 +42,7 @@ namespace NServiceBus
         public static string LocalAddress(this ReadOnlySettings settings)
         {
             Guard.AgainstNull(nameof(settings), settings);
-            return settings.Get<string>("NServiceBus.SharedQueue");
+            return settings.Get<ReceiveComponent>().LocalAddress;
         }
 
         /// <summary>
@@ -51,15 +51,7 @@ namespace NServiceBus
         public static string InstanceSpecificQueue(this ReadOnlySettings settings)
         {
             Guard.AgainstNull(nameof(settings), settings);
-            return settings.GetOrDefault<string>("NServiceBus.EndpointSpecificQueue");
-        }
-
-        static bool HasConstructorThatAcceptsSettings(Type sectionOverrideType)
-        {
-            return sectionOverrideType.GetConstructor(new[]
-            {
-                typeof(ReadOnlySettings)
-            }) != null;
+            return settings.Get<ReceiveComponent>().InstanceSpecificQueue;
         }
     }
 }

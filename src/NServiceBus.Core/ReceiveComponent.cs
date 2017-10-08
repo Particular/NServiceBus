@@ -2,19 +2,26 @@ namespace NServiceBus
 {
     using System;
     using System.Threading.Tasks;
+    using Routing;
     using Settings;
     using Transport;
 
     class ReceiveComponent
     {
-        public ReceiveComponent(bool isSendOnlyEndpoint, TransportInfrastructure transportInfrastructure)
+        public ReceiveComponent(string endpointName, bool isSendOnlyEndpoint, TransportInfrastructure transportInfrastructure)
         {
+            this.endpointName = endpointName;
             this.isSendOnlyEndpoint = isSendOnlyEndpoint;
             this.transportInfrastructure = transportInfrastructure;
         }
 
+        public LogicalAddress LogicalAddress { get; private set; }
 
-        public void Initialize(ReadOnlySettings settings)
+        public string LocalAddress { get; private set; }
+
+        public string InstanceSpecificQueue { get; private set; }
+
+        public void Initialize(ReadOnlySettings settings, QueueBindings queueBindings)
         {
             this.settings = settings;
 
@@ -23,8 +30,27 @@ namespace NServiceBus
                 return;
             }
 
+            var discriminator = settings.GetOrDefault<string>("EndpointInstanceDiscriminator");
+            var baseQueueName = settings.GetOrDefault<string>("BaseInputQueueName") ?? endpointName;
+
+            var mainInstance = transportInfrastructure.BindToLocalEndpoint(new EndpointInstance(endpointName));
+
+            LogicalAddress = LogicalAddress.CreateLocalAddress(baseQueueName, mainInstance.Properties);
+
+            LocalAddress = transportInfrastructure.ToTransportAddress(LogicalAddress);
+
+            queueBindings.BindReceiving(LocalAddress);
+
+            if (discriminator != null)
+            {
+                InstanceSpecificQueue = transportInfrastructure.ToTransportAddress(LogicalAddress.CreateIndividualizedAddress(discriminator));
+
+                queueBindings.BindReceiving(InstanceSpecificQueue);
+            }
+
             receiveInfrastructure = transportInfrastructure.ConfigureReceiveInfrastructure();
         }
+
 
         public IPushMessages BuildMessagePump()
         {
@@ -66,6 +92,7 @@ namespace NServiceBus
 
         TransportReceiveInfrastructure receiveInfrastructure;
         TransportInfrastructure transportInfrastructure;
+        readonly string endpointName;
         bool isSendOnlyEndpoint;
         ReadOnlySettings settings;
     }
