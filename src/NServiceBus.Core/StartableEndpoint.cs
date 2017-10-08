@@ -126,10 +126,8 @@ namespace NServiceBus
 
         List<TransportReceiver> BuildMainReceivers(string errorQueue, bool purgeOnStartup, TransportTransactionMode requiredTransactionSupport, RecoverabilityExecutorFactory recoverabilityExecutorFactory, IPipeline<ITransportReceiveContext> mainPipeline)
         {
-            var localAddress = settings.LocalAddress();
-
-            var recoverabilityExecutor = recoverabilityExecutorFactory.CreateDefault(eventAggregator, localAddress);
-            var pushSettings = new PushSettings(settings.LocalAddress(), errorQueue, purgeOnStartup, requiredTransactionSupport);
+            var recoverabilityExecutor = recoverabilityExecutorFactory.CreateDefault(eventAggregator, receiving.LocalAddress);
+            var pushSettings = new PushSettings(receiving.LocalAddress, errorQueue, purgeOnStartup, requiredTransactionSupport);
             var mainPipelineExecutor = new MainPipelineExecutor(builder, eventAggregator, pipelineCache, mainPipeline);
             var dequeueLimitations = GetDequeueLimitationsForReceivePipeline();
 

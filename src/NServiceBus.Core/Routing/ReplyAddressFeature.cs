@@ -14,7 +14,7 @@ namespace NServiceBus.Features
 
             context.Pipeline.Register(
                 new ApplyReplyToAddressBehavior(
-                    context.Settings.LocalAddress(),
+                    context.Receiving.LocalAddress,
                     context.Settings.InstanceSpecificQueue(),
                     publicReturnAddress),
                 "Applies the public reply to address to outgoing messages");
