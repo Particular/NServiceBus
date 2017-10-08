@@ -17,15 +17,14 @@ namespace NServiceBus
         }
 
         public UnicastSendRouter(
-            string baseInputQueueName,
-            string endpointName,
+            string receiveQueueName,
             string instanceSpecificQueue,
             IDistributionPolicy defaultDistributionPolicy,
             UnicastRoutingTable unicastRoutingTable,
             EndpointInstances endpointInstances,
             Func<EndpointInstance, string> transportAddressTranslation)
         {
-            this.endpointName = baseInputQueueName ?? endpointName;
+            this.receiveQueueName = receiveQueueName;
             this.instanceSpecificQueue = instanceSpecificQueue;
             this.defaultDistributionPolicy = defaultDistributionPolicy;
             this.unicastRoutingTable = unicastRoutingTable;
@@ -49,7 +48,7 @@ namespace NServiceBus
                 case RouteOption.RouteToThisInstance:
                     return RouteToThisInstance();
                 case RouteOption.RouteToAnyInstanceOfThisEndpoint:
-                    return UnicastRoute.CreateFromEndpointName(endpointName);
+                    return UnicastRoute.CreateFromEndpointName(receiveQueueName);
                 case RouteOption.RouteToSpecificInstance:
                     return RouteToSpecificInstance(context, state.SpecificInstance);
                 case RouteOption.None:
@@ -110,7 +109,7 @@ namespace NServiceBus
         Func<EndpointInstance, string> transportAddressTranslation;
         UnicastRoutingTable unicastRoutingTable;
         IDistributionPolicy defaultDistributionPolicy;
-        string endpointName;
+        string receiveQueueName;
 
         public class State
         {

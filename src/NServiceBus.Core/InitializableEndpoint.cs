@@ -179,19 +179,6 @@ namespace NServiceBus
             }
         }
 
-        Task CreateQueuesIfNecessary(TransportReceiveInfrastructure receiveInfrastructure, string username)
-        {
-            if (!settings.CreateQueues())
-            {
-                return TaskEx.CompletedTask;
-            }
-
-            var queueCreator = receiveInfrastructure.QueueCreatorFactory();
-            var queueBindings = settings.Get<QueueBindings>();
-
-            return queueCreator.CreateQueueIfNecessary(queueBindings, username);
-        }
-
         static bool IsINeedToInstallSomething(Type t) => typeof(INeedToInstallSomething).IsAssignableFrom(t);
 
         string GetInstallationUserName()

@@ -365,7 +365,7 @@ namespace NServiceBus.Core.Tests.Routing
 
         static UnicastSendRouter CreateRouter(string instanceSpecificQueue)
         {
-            return new UnicastSendRouter(null, "Endpoint", instanceSpecificQueue, new DistributionPolicy(), new UnicastRoutingTable(), new EndpointInstances(), i => i.ToString());
+            return new UnicastSendRouter("Endpoint", instanceSpecificQueue, new DistributionPolicy(), new UnicastRoutingTable(), new EndpointInstances(), i => i.ToString());
         }
 
         static UnicastSendRouter CreateRouter(UnicastRoutingTable routingTable = null, EndpointInstances instances = null, DistributionPolicy policy = null)
@@ -374,7 +374,7 @@ namespace NServiceBus.Core.Tests.Routing
             var inst = instances ?? new EndpointInstances();
             var pol = policy ?? new DistributionPolicy();
 
-            return new UnicastSendRouter(null, "Endpoint", null, pol, table, inst, i => i.ToString());
+            return new UnicastSendRouter("Endpoint", null, pol, table, inst, i => i.ToString());
         }
 
         class MyMessage : ICommand

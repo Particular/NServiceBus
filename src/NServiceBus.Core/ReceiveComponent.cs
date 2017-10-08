@@ -21,6 +21,8 @@ namespace NServiceBus
 
         public string InstanceSpecificQueue { get; private set; }
 
+        public string ReceiveQueueName { get; private set; }
+
         public void Initialize(ReadOnlySettings settings, QueueBindings queueBindings)
         {
             this.settings = settings;
@@ -31,11 +33,11 @@ namespace NServiceBus
             }
 
             var discriminator = settings.GetOrDefault<string>("EndpointInstanceDiscriminator");
-            var baseQueueName = settings.GetOrDefault<string>("BaseInputQueueName") ?? endpointName;
+            ReceiveQueueName = settings.GetOrDefault<string>("BaseInputQueueName") ?? endpointName;
 
             var mainInstance = transportInfrastructure.BindToLocalEndpoint(new EndpointInstance(endpointName));
 
-            LogicalAddress = LogicalAddress.CreateLocalAddress(baseQueueName, mainInstance.Properties);
+            LogicalAddress = LogicalAddress.CreateLocalAddress(ReceiveQueueName, mainInstance.Properties);
 
             LocalAddress = transportInfrastructure.ToTransportAddress(LogicalAddress);
 
