@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.Features
 {
     using System;
-    using ConsistencyGuarantees;
     using DelayedDelivery;
     using DeliveryConstraints;
     using Settings;
@@ -64,7 +63,7 @@
         {
             var satelliteLogicalAddress = context.Receiving.LogicalAddress.CreateQualifiedAddress("TimeoutsDispatcher");
             var satelliteAddress = context.Settings.GetTransportAddress(satelliteLogicalAddress);
-            var requiredTransactionSupport = context.Settings.GetRequiredTransactionModeForReceives();
+            var requiredTransactionSupport = context.Receiving.TransactionMode;
 
             context.AddSatelliteReceiver("Timeout Dispatcher Processor", satelliteAddress, pushRuntimeSettings, RecoverabilityPolicy,
                 (builder, messageContext) =>

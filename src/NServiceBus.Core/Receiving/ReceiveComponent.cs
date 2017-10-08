@@ -1,5 +1,6 @@
 namespace NServiceBus
 {
+    using System;
     using System.Threading.Tasks;
     using ObjectBuilder;
     using Routing;
@@ -15,11 +16,11 @@ namespace NServiceBus
             this.transportInfrastructure = transportInfrastructure;
         }
 
-        public ReceiveConfiguration Configure(ReadOnlySettings settings, QueueBindings queueBindings)
+        public ReceiveConfiguration Configure(ReadOnlySettings settings)
         {
             if (isSendOnlyEndpoint)
             {
-                return new ReceiveConfiguration(new LogicalAddress(), null, null, null, false);
+                return new ReceiveConfiguration(new LogicalAddress(), null, null, null, TransportTransactionMode.None, false);
             }
 
             var discriminator = settings.GetOrDefault<string>("EndpointInstanceDiscriminator");
@@ -31,30 +32,47 @@ namespace NServiceBus
 
             var localAddress = transportInfrastructure.ToTransportAddress(logicalAddress);
 
-            queueBindings.BindReceiving(localAddress);
 
             string instanceSpecificQueue = null;
             if (discriminator != null)
             {
                 instanceSpecificQueue = transportInfrastructure.ToTransportAddress(logicalAddress.CreateIndividualizedAddress(discriminator));
-
-                queueBindings.BindReceiving(instanceSpecificQueue);
             }
 
-            return new ReceiveConfiguration(logicalAddress, receiveQueueName, localAddress, instanceSpecificQueue, true);
+            var transactionMode = GetRequiredTransactionMode(settings);
+
+
+            return new ReceiveConfiguration(logicalAddress, receiveQueueName, localAddress, instanceSpecificQueue, transactionMode, true);
         }
 
-        public async Task<ReceiveRuntime> Initialize(ReadOnlySettings settings, ReceiveConfiguration receiveConfiguration, TransportReceiveInfrastructure receiveInfrastructure, MainPipelineExecutor mainPipelineExecutor, IEventAggregator eventAggregator, IBuilder builder, CriticalError criticalError)
+        public async Task<ReceiveRuntime> InitializeRuntime(ReadOnlySettings settings, ReceiveConfiguration receiveConfiguration, QueueBindings queueBindings, TransportReceiveInfrastructure receiveInfrastructure, MainPipelineExecutor mainPipelineExecutor, IEventAggregator eventAggregator, IBuilder builder, CriticalError criticalError)
         {
-            var receiveRuntime = new ReceiveRuntime(settings, receiveConfiguration, receiveInfrastructure);
+            var receiveRuntime = new ReceiveRuntime(settings, receiveConfiguration, receiveInfrastructure, queueBindings);
 
             await receiveRuntime.Initialize(mainPipelineExecutor, eventAggregator, builder, criticalError).ConfigureAwait(false);
 
             return receiveRuntime;
         }
 
-        TransportInfrastructure transportInfrastructure;
+        TransportTransactionMode GetRequiredTransactionMode(ReadOnlySettings settings)
+        {
+            var transportTransactionSupport = settings.Get<TransportInfrastructure>().TransactionMode;
 
+            //if user haven't asked for a explicit level use what the transport supports
+            if (!settings.TryGet(out TransportTransactionMode requestedTransportTransactionMode))
+            {
+                return transportTransactionSupport;
+            }
+
+            if (requestedTransportTransactionMode > transportTransactionSupport)
+            {
+                throw new Exception($"Requested transaction mode `{requestedTransportTransactionMode}` can't be satisfied since the transport only supports `{transportTransactionSupport}`");
+            }
+
+            return requestedTransportTransactionMode;
+        }
+
+        TransportInfrastructure transportInfrastructure;
         string endpointName;
         bool isSendOnlyEndpoint;
     }

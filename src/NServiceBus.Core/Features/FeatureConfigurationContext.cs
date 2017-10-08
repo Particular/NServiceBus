@@ -3,7 +3,6 @@
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using ConsistencyGuarantees;
     using ObjectBuilder;
     using Pipeline;
     using Settings;
@@ -61,13 +60,8 @@
             Guard.AgainstNull(nameof(runtimeSettings), runtimeSettings);
             Guard.AgainstNull(nameof(recoverabilityPolicy), recoverabilityPolicy);
             Guard.AgainstNull(nameof(onMessage), onMessage);
-            var requiredTransactionMode = Settings.GetRequiredTransactionModeForReceives();
 
-            var satelliteDefinition = new SatelliteDefinition(name, transportAddress, requiredTransactionMode, runtimeSettings, recoverabilityPolicy, onMessage);
-
-            Settings.Get<SatelliteDefinitions>().Add(satelliteDefinition);
-
-            Settings.Get<QueueBindings>().BindReceiving(transportAddress);
+            Receiving.AddSatelliteReceiver(name, transportAddress, runtimeSettings, recoverabilityPolicy, onMessage);
         }
 
         /// <summary>

@@ -4,7 +4,6 @@ namespace NServiceBus
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
-    using ConsistencyGuarantees;
     using Logging;
     using ObjectBuilder;
     using Settings;
@@ -12,11 +11,12 @@ namespace NServiceBus
 
     class ReceiveRuntime
     {
-        public ReceiveRuntime(ReadOnlySettings settings, ReceiveConfiguration configuration, TransportReceiveInfrastructure receiveInfrastructure)
+        public ReceiveRuntime(ReadOnlySettings settings, ReceiveConfiguration configuration, TransportReceiveInfrastructure receiveInfrastructure, QueueBindings queueBindings)
         {
             this.settings = settings;
             this.configuration = configuration;
             this.receiveInfrastructure = receiveInfrastructure;
+            this.queueBindings = queueBindings;
         }
 
         public async Task Initialize(MainPipelineExecutor mainPipelineExecutor, IEventAggregator eventAggregator, IBuilder builder, CriticalError criticalError)
@@ -80,7 +80,6 @@ namespace NServiceBus
             }
 
             var queueCreator = receiveInfrastructure.QueueCreatorFactory();
-            var queueBindings = settings.Get<QueueBindings>();
 
             return queueCreator.CreateQueueIfNecessary(queueBindings, username);
         }
@@ -104,7 +103,7 @@ namespace NServiceBus
         void AddReceivers(MainPipelineExecutor mainPipelineExecutor, IEventAggregator eventAggregator, IBuilder builder, CriticalError criticalError, bool purgeOnStartup)
         {
             var errorQueue = settings.ErrorQueueAddress();
-            var requiredTransactionSupport = settings.GetRequiredTransactionModeForReceives();
+            var requiredTransactionSupport = configuration.TransactionMode;
             var recoverabilityExecutorFactory = builder.Build<RecoverabilityExecutorFactory>();
 
             var recoverabilityExecutor = recoverabilityExecutorFactory.CreateDefault(eventAggregator, configuration.LocalAddress);
@@ -112,6 +111,7 @@ namespace NServiceBus
             var dequeueLimitations = GetDequeueLimitationsForReceivePipeline();
 
             receivers.Add(new TransportReceiver(MainReceiverId, BuildMessagePump(), pushSettings, dequeueLimitations, mainPipelineExecutor, recoverabilityExecutor, criticalError));
+            queueBindings.BindReceiving(configuration.LocalAddress);
 
             if (configuration.InstanceSpecificQueue != null)
             {
@@ -120,14 +120,16 @@ namespace NServiceBus
                 var sharedReceiverPushSettings = new PushSettings(instanceSpecificQueue, errorQueue, purgeOnStartup, requiredTransactionSupport);
 
                 receivers.Add(new TransportReceiver(MainReceiverId, BuildMessagePump(), sharedReceiverPushSettings, dequeueLimitations, mainPipelineExecutor, instanceSpecificRecoverabilityExecutor, criticalError));
+                queueBindings.BindReceiving(instanceSpecificQueue);
             }
             // ReSharper disable once LoopCanBeConvertedToQuery
-            foreach (var satellitePipeline in settings.Get<SatelliteDefinitions>().Definitions)
+            foreach (var satellitePipeline in configuration.SatelliteDefinitions.Definitions)
             {
                 var satelliteRecoverabilityExecutor = recoverabilityExecutorFactory.Create(satellitePipeline.RecoverabilityPolicy, eventAggregator, satellitePipeline.ReceiveAddress);
                 var satellitePushSettings = new PushSettings(satellitePipeline.ReceiveAddress, errorQueue, purgeOnStartup, satellitePipeline.RequiredTransportTransactionMode);
 
                 receivers.Add(new TransportReceiver(satellitePipeline.Name, BuildMessagePump(), satellitePushSettings, satellitePipeline.RuntimeSettings, new SatellitePipelineExecutor(builder, satellitePipeline), satelliteRecoverabilityExecutor, criticalError));
+                queueBindings.BindReceiving(satellitePipeline.ReceiveAddress);
             }
         }
 
@@ -154,6 +156,7 @@ namespace NServiceBus
 
         List<TransportReceiver> receivers = new List<TransportReceiver>();
         TransportReceiveInfrastructure receiveInfrastructure;
+        readonly QueueBindings queueBindings;
 
 
         const string MainReceiverId = "Main";

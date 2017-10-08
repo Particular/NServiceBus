@@ -47,7 +47,7 @@ namespace NServiceBus
             var receiving = new ReceiveComponent(settings.EndpointName(), isSendOnlyEndpoint, transportInfrastructure);
 
 
-            var receiveConfiguration = receiving.Configure(settings, settings.Get<QueueBindings>());
+            var receiveConfiguration = receiving.Configure(settings);
 
             //note: remove once settings.LogicalAddress() , .LocalAddress() and .InstanceSpecificQueue() has been obsoleted
             settings.Set<ReceiveConfiguration>(receiveConfiguration);
@@ -72,8 +72,9 @@ namespace NServiceBus
             var pipelineCache = new PipelineCache(builder, settings);
             var mainPipelineExecutor = new MainPipelineExecutor(builder, eventAggregator, pipelineCache, mainPipeline);
 
-            var receiveRuntime = await receiving.Initialize(settings,
+            var receiveRuntime = await receiving.InitializeRuntime(settings,
                 receiveConfiguration,
+                settings.Get<QueueBindings>(),
                 transportInfrastructure.ConfigureReceiveInfrastructure(),
                 mainPipelineExecutor,
                 eventAggregator,

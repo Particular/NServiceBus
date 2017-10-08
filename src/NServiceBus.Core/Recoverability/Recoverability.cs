@@ -3,7 +3,6 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using ConsistencyGuarantees;
     using DelayedDelivery;
     using DeliveryConstraints;
     using Faults;
@@ -38,7 +37,7 @@
             var errorQueue = context.Settings.ErrorQueueAddress();
             context.Settings.Get<QueueBindings>().BindSending(errorQueue);
 
-            var transactionsOn = context.Settings.GetRequiredTransactionModeForReceives() != TransportTransactionMode.None;
+            var transactionsOn = context.Receiving.TransactionMode != TransportTransactionMode.None;
             var delayedRetryConfig = GetDelayedRetryConfig(context.Settings, transactionsOn);
             var delayedRetriesAvailable = transactionsOn
                                           && (context.Settings.DoesTransportSupportConstraint<DelayedDeliveryConstraint>() || context.Settings.Get<TimeoutManagerAddressConfiguration>().TransportAddress != null);

@@ -21,7 +21,7 @@
             var testee = new RunningEndpointInstance(
                 new SettingsHolder(),
                 new FakeBuilder(),
-                new ReceiveRuntime(settings, new ReceiveConfiguration(new LogicalAddress(), null, null, null, true), null),
+                new ReceiveRuntime(settings, new ReceiveConfiguration(new LogicalAddress(), null, null, null, TransportTransactionMode.None, true), null, null),
                 new FeatureRunner(new FeatureActivator(new SettingsHolder())),
                 new MessageSession(new RootContext(null, null, null)), new FakeTransportInfrastructure());
 
