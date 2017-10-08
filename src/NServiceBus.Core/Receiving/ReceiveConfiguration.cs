@@ -26,12 +26,18 @@
         public string LocalAddress { get; }
 
         public string InstanceSpecificQueue { get; }
+
         public TransportTransactionMode TransactionMode { get; }
+
         public PushRuntimeSettings PushRuntimeSettings { get; }
 
         public string MainQueueName { get; }
 
         public bool IsEnabled { get; }
+
+        public SatelliteDefinitions SatelliteDefinitions { get; }
+
+        public bool PurgeOnStartup { get; }
 
         public void AddSatelliteReceiver(string name, string transportAddress, PushRuntimeSettings runtimeSettings, Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> recoverabilityPolicy, Func<IBuilder, MessageContext, Task> onMessage)
         {
@@ -39,8 +45,5 @@
 
             SatelliteDefinitions.Add(satelliteDefinition);
         }
-
-        public SatelliteDefinitions SatelliteDefinitions { get; }
-        public bool PurgeOnStartup { get; }
     }
 }
