@@ -49,7 +49,7 @@ namespace NServiceBus
 
             receiving.Initialize(settings, settings.Get<QueueBindings>());
 
-            //todo: remove once settings.LogicalAddress() , .LocalAddress() and .InstanceSpecificQueue() has been obsoleted
+            //note: remove once settings.LogicalAddress() , .LocalAddress() and .InstanceSpecificQueue() has been obsoleted
             settings.Set<ReceiveComponent>(receiving);
 
             // use GetOrCreate to use of instances already created during EndpointConfiguration.
