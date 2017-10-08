@@ -36,8 +36,8 @@
             }
         }
 
-        private FeatureActivator featureSettings;
-        private SettingsHolder settings;
+        FeatureActivator featureSettings;
+        SettingsHolder settings;
 
         [SetUp]
         public void Init()
@@ -45,7 +45,7 @@
             settings = new SettingsHolder();
             featureSettings = new FeatureActivator(settings);
         }
-
+        
         [Test]
         public void Feature_enabled_by_later_feature_should_have_default_called()
         {
@@ -54,7 +54,7 @@
             featureSettings.Add(featureThatIsEnabledByAnother);
             featureSettings.Add(new FeatureThatEnablesAnother());
 
-            featureSettings.SetupFeatures(null, null, null);
+            featureSettings.SetupFeatures(null, null, null, null);
 
             Assert.True(featureThatIsEnabledByAnother.DefaultCalled, "FeatureThatIsEnabledByAnother wasn't activated");
         }
@@ -86,7 +86,7 @@
             featureSettings.Add(level2);
             featureSettings.Add(level1);
 
-            featureSettings.SetupFeatures(null, null, null);
+            featureSettings.SetupFeatures(null, null, null, null);
 
             Assert.True(level1.IsActive, "Activate1 wasn't activated");
             Assert.True(level2.IsActive, "Activate2 wasn't activated");
@@ -118,7 +118,7 @@
 
             settings.EnableFeatureByDefault<MyFeature1>();
 
-            featureSettings.SetupFeatures(null, null, null);
+            featureSettings.SetupFeatures(null, null, null, null);
 
             Assert.True(dependingFeature.IsActive);
 
@@ -156,7 +156,7 @@
             settings.EnableFeatureByDefault<MyFeature2>();
             settings.EnableFeatureByDefault<MyFeature3>();
 
-            featureSettings.SetupFeatures(null, null, null);
+            featureSettings.SetupFeatures(null, null, null, null);
 
             Assert.True(dependingFeature.IsActive);
 
@@ -188,7 +188,7 @@
             featureSettings.Add(level2);
             featureSettings.Add(level1);
 
-            featureSettings.SetupFeatures(null, null, null);
+            featureSettings.SetupFeatures(null, null, null, null);
 
             Assert.True(level1.IsActive, "Level1 wasn't activated");
             Assert.True(level2.IsActive, "Level2 wasn't activated");
