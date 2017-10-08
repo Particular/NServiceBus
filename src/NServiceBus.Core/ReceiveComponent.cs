@@ -153,11 +153,6 @@ namespace NServiceBus
                 return TaskEx.CompletedTask;
             }
 
-            if (!settings.CreateQueues())
-            {
-                return TaskEx.CompletedTask;
-            }
-
             var queueCreator = receiveInfrastructure.QueueCreatorFactory();
             var queueBindings = settings.Get<QueueBindings>();
 

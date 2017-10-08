@@ -72,7 +72,7 @@ namespace NServiceBus
             var shouldRunInstallers = settings.GetOrDefault<bool>("Installers.Enable");
                 if (shouldRunInstallers)
                 {
-                    await CreateQueuesIfNecessary(receiveInfrastructure, username).ConfigureAwait(false);
+                    await receiving.CreateQueuesIfNecessary(username).ConfigureAwait(false);
                 }
 
             if (shouldRunInstallers)
