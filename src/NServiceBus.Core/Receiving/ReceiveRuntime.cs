@@ -21,6 +21,11 @@ namespace NServiceBus
 
         public async Task Initialize(MainPipelineExecutor mainPipelineExecutor, IEventAggregator eventAggregator, IBuilder builder, CriticalError criticalError)
         {
+            if (!configuration.IsEnabled)
+            {
+                return;
+            }
+
             var purgeOnStartup = settings.GetOrDefault<bool>("Transport.PurgeOnStartup");
             if (purgeOnStartup)
             {
