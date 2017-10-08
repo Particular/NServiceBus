@@ -16,19 +16,21 @@
         [Test]
         public async Task ShouldAllowMultipleStops()
         {
-            var transportInfrastructure = new FakeTransportInfrastructure();
+            var settings = new SettingsHolder();
 
             var testee = new RunningEndpointInstance(
                 new SettingsHolder(),
                 new FakeBuilder(),
-                new ReceiveComponent("MyEndpoint", false, transportInfrastructure),
+                new ReceiveRuntime(settings, new ReceiveConfiguration(new LogicalAddress(), null, null, null, true), null),
                 new FeatureRunner(new FeatureActivator(new SettingsHolder())),
-                new MessageSession(new RootContext(null, null, null)), transportInfrastructure);
+                new MessageSession(new RootContext(null, null, null)), new FakeTransportInfrastructure());
 
             await testee.Stop();
 
             Assert.That(async () => await testee.Stop(), Throws.Nothing);
         }
+
+
 
         class FakeTransportInfrastructure : TransportInfrastructure
         {

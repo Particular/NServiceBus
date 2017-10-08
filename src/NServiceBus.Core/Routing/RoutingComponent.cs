@@ -30,7 +30,7 @@ namespace NServiceBus
 
         public bool EnforceBestPractices { get; private set; }
 
-        public void Initialize(ReadOnlySettings settings, TransportInfrastructure transportInfrastructure, PipelineSettings pipelineSettings, ReceiveComponent receiveComponent)
+        public void Initialize(ReadOnlySettings settings, TransportInfrastructure transportInfrastructure, PipelineSettings pipelineSettings, ReceiveConfiguration receiveConfiguration)
         {
             var conventions = settings.Get<Conventions>();
             var configuredUnicastRoutes = settings.GetOrDefault<ConfiguredUnicastRoutes>();
@@ -47,7 +47,7 @@ namespace NServiceBus
 
             pipelineSettings.Register(b =>
             {
-                var router = new UnicastSendRouter(receiveComponent.ReceiveQueueName, receiveComponent.InstanceSpecificQueue, DistributionPolicy, UnicastRoutingTable, EndpointInstances, i => transportInfrastructure.ToTransportAddress(LogicalAddress.CreateRemoteAddress(i)));
+                var router = new UnicastSendRouter(receiveConfiguration.MainQueueName, receiveConfiguration.InstanceSpecificQueue, DistributionPolicy, UnicastRoutingTable, EndpointInstances, i => transportInfrastructure.ToTransportAddress(LogicalAddress.CreateRemoteAddress(i)));
                 return new UnicastSendRouterConnector(router);
             }, "Determines how the message being sent should be routed");
 

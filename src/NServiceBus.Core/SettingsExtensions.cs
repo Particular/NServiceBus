@@ -33,7 +33,7 @@ namespace NServiceBus
         public static LogicalAddress LogicalAddress(this ReadOnlySettings settings)
         {
             Guard.AgainstNull(nameof(settings), settings);
-            return settings.Get<ReceiveComponent>().LogicalAddress;
+            return settings.Get<ReceiveConfiguration>().LogicalAddress;
         }
 
         /// <summary>
@@ -42,7 +42,7 @@ namespace NServiceBus
         public static string LocalAddress(this ReadOnlySettings settings)
         {
             Guard.AgainstNull(nameof(settings), settings);
-            return settings.Get<ReceiveComponent>().LocalAddress;
+            return settings.Get<ReceiveConfiguration>().LocalAddress;
         }
 
         /// <summary>
@@ -51,7 +51,7 @@ namespace NServiceBus
         public static string InstanceSpecificQueue(this ReadOnlySettings settings)
         {
             Guard.AgainstNull(nameof(settings), settings);
-            return settings.Get<ReceiveComponent>().InstanceSpecificQueue;
+            return settings.Get<ReceiveConfiguration>().InstanceSpecificQueue;
         }
     }
 }

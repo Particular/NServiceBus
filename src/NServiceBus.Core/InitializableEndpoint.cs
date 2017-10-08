@@ -47,10 +47,10 @@ namespace NServiceBus
             var receiving = new ReceiveComponent(settings.EndpointName(), isSendOnlyEndpoint, transportInfrastructure);
 
 
-            receiving.Initialize(settings, settings.Get<QueueBindings>());
+            var receiveConfiguration = receiving.Configure(settings, settings.Get<QueueBindings>());
 
             //note: remove once settings.LogicalAddress() , .LocalAddress() and .InstanceSpecificQueue() has been obsoleted
-            settings.Set<ReceiveComponent>(receiving);
+            settings.Set<ReceiveConfiguration>(receiveConfiguration);
 
             // use GetOrCreate to use of instances already created during EndpointConfiguration.
             var routing = new RoutingComponent(
@@ -58,14 +58,27 @@ namespace NServiceBus
                 settings.GetOrCreate<DistributionPolicy>(),
                 settings.GetOrCreate<EndpointInstances>(),
                 settings.GetOrCreate<Publishers>());
-            routing.Initialize(settings, transportInfrastructure, pipelineSettings, receiving);
+            routing.Initialize(settings, transportInfrastructure, pipelineSettings, receiveConfiguration);
 
-            var featureStats = featureActivator.SetupFeatures(container, pipelineSettings, routing, receiving);
+            var featureStats = featureActivator.SetupFeatures(container, pipelineSettings, routing, receiveConfiguration);
             settings.AddStartupDiagnosticsSection("Features", featureStats);
 
             pipelineConfiguration.RegisterBehaviorsInContainer(container);
 
             container.ConfigureComponent(b => settings.Get<Notifications>(), DependencyLifecycle.SingleInstance);
+
+            var eventAggregator = new EventAggregator(settings.Get<NotificationSubscriptions>());
+            var mainPipeline = new Pipeline<ITransportReceiveContext>(builder, pipelineConfiguration.Modifications);
+            var pipelineCache = new PipelineCache(builder, settings);
+            var mainPipelineExecutor = new MainPipelineExecutor(builder, eventAggregator, pipelineCache, mainPipeline);
+
+            var receiveRuntime = await receiving.Initialize(settings,
+                receiveConfiguration,
+                transportInfrastructure.ConfigureReceiveInfrastructure(),
+                mainPipelineExecutor,
+                eventAggregator,
+                builder,
+                criticalError).ConfigureAwait(false);
 
             var username = GetInstallationUserName();
 
@@ -77,11 +90,12 @@ namespace NServiceBus
 
             if (shouldRunInstallers)
             {
-                await RunInstallers(concreteTypes, username).ConfigureAwait(false);
+                await receiveRuntime.CreateQueuesIfNecessary(username).ConfigureAwait(false);
             }
 
-            var startableEndpoint = new StartableEndpoint(settings, builder, featureActivator, pipelineConfiguration, new EventAggregator(settings.Get<NotificationSubscriptions>()), transportInfrastructure, receiving, criticalError);
-            return startableEndpoint;
+            var messageSession = new MessageSession(new RootContext(builder, pipelineCache, eventAggregator));
+
+            return new StartableEndpoint(settings, builder, featureActivator, transportInfrastructure, receiveRuntime, criticalError, messageSession);
         }
 
         TransportInfrastructure InitializeTransport()

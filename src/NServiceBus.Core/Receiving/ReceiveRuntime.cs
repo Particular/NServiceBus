@@ -7,60 +7,27 @@ namespace NServiceBus
     using ConsistencyGuarantees;
     using Logging;
     using ObjectBuilder;
-    using Routing;
     using Settings;
     using Transport;
 
-    class ReceiveComponent
+    class ReceiveRuntime
     {
-        public ReceiveComponent(string endpointName, bool isSendOnlyEndpoint, TransportInfrastructure transportInfrastructure)
-        {
-            this.endpointName = endpointName;
-            this.isSendOnlyEndpoint = isSendOnlyEndpoint;
-            this.transportInfrastructure = transportInfrastructure;
-        }
-
-        public LogicalAddress LogicalAddress { get; private set; }
-
-        public string LocalAddress { get; private set; }
-
-        public string InstanceSpecificQueue { get; private set; }
-
-        public string ReceiveQueueName { get; private set; }
-
-        public void Initialize(ReadOnlySettings settings, QueueBindings queueBindings)
+        public ReceiveRuntime(ReadOnlySettings settings, ReceiveConfiguration configuration, TransportReceiveInfrastructure receiveInfrastructure)
         {
             this.settings = settings;
-
-            if (isSendOnlyEndpoint)
-            {
-                return;
-            }
-
-            var discriminator = settings.GetOrDefault<string>("EndpointInstanceDiscriminator");
-            ReceiveQueueName = settings.GetOrDefault<string>("BaseInputQueueName") ?? endpointName;
-
-            var mainInstance = transportInfrastructure.BindToLocalEndpoint(new EndpointInstance(endpointName));
-
-            LogicalAddress = LogicalAddress.CreateLocalAddress(ReceiveQueueName, mainInstance.Properties);
-
-            LocalAddress = transportInfrastructure.ToTransportAddress(LogicalAddress);
-
-            queueBindings.BindReceiving(LocalAddress);
-
-            if (discriminator != null)
-            {
-                InstanceSpecificQueue = transportInfrastructure.ToTransportAddress(LogicalAddress.CreateIndividualizedAddress(discriminator));
-
-                queueBindings.BindReceiving(InstanceSpecificQueue);
-            }
-
-            receiveInfrastructure = transportInfrastructure.ConfigureReceiveInfrastructure();
+            this.configuration = configuration;
+            this.receiveInfrastructure = receiveInfrastructure;
         }
 
-        public async Task InitializeReceivers(MainPipelineExecutor mainPipelineExecutor, IEventAggregator eventAggregator, IBuilder builder, CriticalError criticalError)
+        public async Task Initialize(MainPipelineExecutor mainPipelineExecutor, IEventAggregator eventAggregator, IBuilder builder, CriticalError criticalError)
         {
-            AddReceivers(mainPipelineExecutor, eventAggregator, builder, criticalError);
+            var purgeOnStartup = settings.GetOrDefault<bool>("Transport.PurgeOnStartup");
+            if (purgeOnStartup)
+            {
+                Logger.Warn("All queues owned by the endpoint will be purged on startup.");
+            }
+
+            AddReceivers(mainPipelineExecutor, eventAggregator, builder, criticalError, purgeOnStartup);
 
             foreach (var receiver in receivers)
             {
@@ -105,50 +72,9 @@ namespace NServiceBus
         }
 
 
-        void AddReceivers(MainPipelineExecutor mainPipelineExecutor, IEventAggregator eventAggregator, IBuilder builder, CriticalError criticalError)
-        {
-            if (isSendOnlyEndpoint)
-            {
-                return;
-            }
-
-            var purgeOnStartup = settings.GetOrDefault<bool>("Transport.PurgeOnStartup");
-            if (purgeOnStartup)
-            {
-                Logger.Warn($"All queues owned by the '{endpointName}' endpoint will be purged on startup.");
-            }
-
-            var errorQueue = settings.ErrorQueueAddress();
-            var requiredTransactionSupport = settings.GetRequiredTransactionModeForReceives();
-            var recoverabilityExecutorFactory = builder.Build<RecoverabilityExecutorFactory>();
-
-            var recoverabilityExecutor = recoverabilityExecutorFactory.CreateDefault(eventAggregator, LocalAddress);
-            var pushSettings = new PushSettings(LocalAddress, errorQueue, purgeOnStartup, requiredTransactionSupport);
-            var dequeueLimitations = GetDequeueLimitationsForReceivePipeline();
-
-            receivers.Add(new TransportReceiver(MainReceiverId, BuildMessagePump(), pushSettings, dequeueLimitations, mainPipelineExecutor, recoverabilityExecutor, criticalError));
-
-            if (InstanceSpecificQueue != null)
-            {
-                var instanceSpecificQueue = InstanceSpecificQueue;
-                var instanceSpecificRecoverabilityExecutor = recoverabilityExecutorFactory.CreateDefault(eventAggregator, instanceSpecificQueue);
-                var sharedReceiverPushSettings = new PushSettings(instanceSpecificQueue, errorQueue, purgeOnStartup, requiredTransactionSupport);
-
-                receivers.Add(new TransportReceiver(MainReceiverId, BuildMessagePump(), sharedReceiverPushSettings, dequeueLimitations, mainPipelineExecutor, instanceSpecificRecoverabilityExecutor, criticalError));
-            }
-            // ReSharper disable once LoopCanBeConvertedToQuery
-            foreach (var satellitePipeline in settings.Get<SatelliteDefinitions>().Definitions)
-            {
-                var satelliteRecoverabilityExecutor = recoverabilityExecutorFactory.Create(satellitePipeline.RecoverabilityPolicy, eventAggregator, satellitePipeline.ReceiveAddress);
-                var satellitePushSettings = new PushSettings(satellitePipeline.ReceiveAddress, errorQueue, purgeOnStartup, satellitePipeline.RequiredTransportTransactionMode);
-
-                receivers.Add(new TransportReceiver(satellitePipeline.Name, BuildMessagePump(), satellitePushSettings, satellitePipeline.RuntimeSettings, new SatellitePipelineExecutor(builder, satellitePipeline), satelliteRecoverabilityExecutor, criticalError));
-            }
-        }
-
         public Task CreateQueuesIfNecessary(string username)
         {
-            if (isSendOnlyEndpoint)
+            if (!configuration.IsEnabled)
             {
                 return TaskEx.CompletedTask;
             }
@@ -161,7 +87,7 @@ namespace NServiceBus
 
         public async Task PerformPreStartupChecks()
         {
-            if (isSendOnlyEndpoint)
+            if (!configuration.IsEnabled)
             {
                 return;
             }
@@ -171,6 +97,37 @@ namespace NServiceBus
             if (!result.Succeeded)
             {
                 throw new Exception($"Pre start-up check failed: {result.ErrorMessage}");
+            }
+        }
+
+
+        void AddReceivers(MainPipelineExecutor mainPipelineExecutor, IEventAggregator eventAggregator, IBuilder builder, CriticalError criticalError, bool purgeOnStartup)
+        {
+            var errorQueue = settings.ErrorQueueAddress();
+            var requiredTransactionSupport = settings.GetRequiredTransactionModeForReceives();
+            var recoverabilityExecutorFactory = builder.Build<RecoverabilityExecutorFactory>();
+
+            var recoverabilityExecutor = recoverabilityExecutorFactory.CreateDefault(eventAggregator, configuration.LocalAddress);
+            var pushSettings = new PushSettings(configuration.LocalAddress, errorQueue, purgeOnStartup, requiredTransactionSupport);
+            var dequeueLimitations = GetDequeueLimitationsForReceivePipeline();
+
+            receivers.Add(new TransportReceiver(MainReceiverId, BuildMessagePump(), pushSettings, dequeueLimitations, mainPipelineExecutor, recoverabilityExecutor, criticalError));
+
+            if (configuration.InstanceSpecificQueue != null)
+            {
+                var instanceSpecificQueue = configuration.InstanceSpecificQueue;
+                var instanceSpecificRecoverabilityExecutor = recoverabilityExecutorFactory.CreateDefault(eventAggregator, instanceSpecificQueue);
+                var sharedReceiverPushSettings = new PushSettings(instanceSpecificQueue, errorQueue, purgeOnStartup, requiredTransactionSupport);
+
+                receivers.Add(new TransportReceiver(MainReceiverId, BuildMessagePump(), sharedReceiverPushSettings, dequeueLimitations, mainPipelineExecutor, instanceSpecificRecoverabilityExecutor, criticalError));
+            }
+            // ReSharper disable once LoopCanBeConvertedToQuery
+            foreach (var satellitePipeline in settings.Get<SatelliteDefinitions>().Definitions)
+            {
+                var satelliteRecoverabilityExecutor = recoverabilityExecutorFactory.Create(satellitePipeline.RecoverabilityPolicy, eventAggregator, satellitePipeline.ReceiveAddress);
+                var satellitePushSettings = new PushSettings(satellitePipeline.ReceiveAddress, errorQueue, purgeOnStartup, satellitePipeline.RequiredTransportTransactionMode);
+
+                receivers.Add(new TransportReceiver(satellitePipeline.Name, BuildMessagePump(), satellitePushSettings, satellitePipeline.RuntimeSettings, new SatellitePipelineExecutor(builder, satellitePipeline), satelliteRecoverabilityExecutor, criticalError));
             }
         }
 
@@ -191,17 +148,16 @@ namespace NServiceBus
             return receiveInfrastructure.MessagePumpFactory();
         }
 
+        ReceiveConfiguration configuration;
+
+        ReadOnlySettings settings;
 
         List<TransportReceiver> receivers = new List<TransportReceiver>();
         TransportReceiveInfrastructure receiveInfrastructure;
-        TransportInfrastructure transportInfrastructure;
 
-        string endpointName;
-        bool isSendOnlyEndpoint;
-        ReadOnlySettings settings;
 
         const string MainReceiverId = "Main";
 
-        static ILog Logger = LogManager.GetLogger<ReceiveComponent>();
+        static ILog Logger = LogManager.GetLogger<ReceiveRuntime>();
     }
 }

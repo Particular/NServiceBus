@@ -14,7 +14,7 @@
     /// </summary>
     public partial class FeatureConfigurationContext
     {
-        internal FeatureConfigurationContext(ReadOnlySettings settings, IConfigureComponents container, PipelineSettings pipelineSettings, RoutingComponent routing, ReceiveComponent receiving)
+        internal FeatureConfigurationContext(ReadOnlySettings settings, IConfigureComponents container, PipelineSettings pipelineSettings, RoutingComponent routing, ReceiveConfiguration receiving)
         {
             Settings = settings;
             Container = container;
@@ -42,7 +42,7 @@
 
         internal RoutingComponent Routing { get; }
 
-        internal ReceiveComponent Receiving { get; }
+        internal ReceiveConfiguration Receiving { get; }
 
         internal List<FeatureStartupTaskController> TaskControllers { get; }
 

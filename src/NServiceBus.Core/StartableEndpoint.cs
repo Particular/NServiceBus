@@ -5,71 +5,55 @@ namespace NServiceBus
     using System.Threading.Tasks;
     using Features;
     using ObjectBuilder;
-    using Pipeline;
     using Settings;
     using Transport;
 
     class StartableEndpoint : IStartableEndpoint
     {
-        public StartableEndpoint(SettingsHolder settings, IBuilder builder, FeatureActivator featureActivator, PipelineConfiguration pipelineConfiguration, IEventAggregator eventAggregator, TransportInfrastructure transportInfrastructure, ReceiveComponent receiving, CriticalError criticalError)
+        public StartableEndpoint(SettingsHolder settings, IBuilder builder, FeatureActivator featureActivator, TransportInfrastructure transportInfrastructure, ReceiveRuntime receiveRuntime, CriticalError criticalError,IMessageSession messageSession)
         {
             this.criticalError = criticalError;
             this.settings = settings;
             this.builder = builder;
             this.featureActivator = featureActivator;
-            this.pipelineConfiguration = pipelineConfiguration;
-            this.eventAggregator = eventAggregator;
             this.transportInfrastructure = transportInfrastructure;
-            this.receiving = receiving;
-
-            pipelineCache = new PipelineCache(builder, settings);
-
-            messageSession = new MessageSession(new RootContext(builder, pipelineCache, eventAggregator));
+            this.receiveRuntime = receiveRuntime;
+            this.messageSession = messageSession;
         }
 
         public async Task<IEndpointInstance> Start()
         {
-            await receiving.PerformPreStartupChecks().ConfigureAwait(false);
+            await receiveRuntime.PerformPreStartupChecks().ConfigureAwait(false);
 
             await transportInfrastructure.Start().ConfigureAwait(false);
 
             AppDomain.CurrentDomain.SetPrincipalPolicy(PrincipalPolicy.WindowsPrincipal);
 
-            var mainPipeline = new Pipeline<ITransportReceiveContext>(builder, pipelineConfiguration.Modifications);
-            var mainPipelineExecutor = new MainPipelineExecutor(builder, eventAggregator, pipelineCache, mainPipeline);
+            var featureRunner = await StartFeatures().ConfigureAwait(false);
 
-            await receiving.InitializeReceivers(mainPipelineExecutor, eventAggregator, builder, criticalError).ConfigureAwait(false);
-
-            var featureRunner = await StartFeatures(messageSession).ConfigureAwait(false);
-
-            var runningInstance = new RunningEndpointInstance(settings, builder, receiving, featureRunner, messageSession, transportInfrastructure);
+            var runningInstance = new RunningEndpointInstance(settings, builder, receiveRuntime, featureRunner, messageSession, transportInfrastructure);
 
             // set the started endpoint on CriticalError to pass the endpoint to the critical error action
             criticalError.SetEndpoint(runningInstance);
 
-            receiving.Start();
+            receiveRuntime.Start();
 
             return runningInstance;
         }
 
-        async Task<FeatureRunner> StartFeatures(IMessageSession session)
+        async Task<FeatureRunner> StartFeatures()
         {
             var featureRunner = new FeatureRunner(featureActivator);
-            await featureRunner.Start(builder, session).ConfigureAwait(false);
+            await featureRunner.Start(builder, messageSession).ConfigureAwait(false);
             return featureRunner;
         }
 
         IMessageSession messageSession;
         IBuilder builder;
         FeatureActivator featureActivator;
-
-        IPipelineCache pipelineCache;
-        PipelineConfiguration pipelineConfiguration;
-
         SettingsHolder settings;
-        IEventAggregator eventAggregator;
         TransportInfrastructure transportInfrastructure;
-        ReceiveComponent receiving;
+        ReceiveRuntime receiveRuntime;
         CriticalError criticalError;
     }
 }

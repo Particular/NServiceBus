@@ -11,11 +11,11 @@ namespace NServiceBus
 
     class RunningEndpointInstance : IEndpointInstance
     {
-        public RunningEndpointInstance(SettingsHolder settings, IBuilder builder, ReceiveComponent receiving, FeatureRunner featureRunner, IMessageSession messageSession, TransportInfrastructure transportInfrastructure)
+        public RunningEndpointInstance(SettingsHolder settings, IBuilder builder, ReceiveRuntime receiveRuntime, FeatureRunner featureRunner, IMessageSession messageSession, TransportInfrastructure transportInfrastructure)
         {
             this.settings = settings;
             this.builder = builder;
-            this.receiving = receiving;
+            this.receiveRuntime = receiveRuntime;
             this.featureRunner = featureRunner;
             this.messageSession = messageSession;
             this.transportInfrastructure = transportInfrastructure;
@@ -40,7 +40,7 @@ namespace NServiceBus
                 Log.Info("Initiating shutdown.");
 
                 // Cannot throw by design
-                await receiving.Stop().ConfigureAwait(false);
+                await receiveRuntime.Stop().ConfigureAwait(false);
                 await featureRunner.Stop(messageSession).ConfigureAwait(false);
                 // Can throw
                 await transportInfrastructure.Stop().ConfigureAwait(false);
@@ -92,7 +92,7 @@ namespace NServiceBus
         }
 
         IBuilder builder;
-        ReceiveComponent receiving;
+        ReceiveRuntime receiveRuntime;
         FeatureRunner featureRunner;
         IMessageSession messageSession;
         TransportInfrastructure transportInfrastructure;
