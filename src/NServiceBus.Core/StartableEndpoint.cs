@@ -134,11 +134,11 @@ namespace NServiceBus
             var receivers = new List<TransportReceiver>();
             receivers.Add(new TransportReceiver(MainReceiverId, receiving.BuildMessagePump(), pushSettings, dequeueLimitations, mainPipelineExecutor, recoverabilityExecutor, criticalError));
 
-            if (settings.InstanceSpecificQueue() != null)
+            if (receiving.InstanceSpecificQueue != null)
             {
-                var instanceSpecificQueue = settings.InstanceSpecificQueue();
+                var instanceSpecificQueue = receiving.InstanceSpecificQueue;
                 var instanceSpecificRecoverabilityExecutor = recoverabilityExecutorFactory.CreateDefault(eventAggregator, instanceSpecificQueue);
-                var sharedReceiverPushSettings = new PushSettings(settings.InstanceSpecificQueue(), errorQueue, purgeOnStartup, requiredTransactionSupport);
+                var sharedReceiverPushSettings = new PushSettings(instanceSpecificQueue, errorQueue, purgeOnStartup, requiredTransactionSupport);
 
                 receivers.Add(new TransportReceiver(MainReceiverId, receiving.BuildMessagePump(), sharedReceiverPushSettings, dequeueLimitations, mainPipelineExecutor, instanceSpecificRecoverabilityExecutor, criticalError));
             }

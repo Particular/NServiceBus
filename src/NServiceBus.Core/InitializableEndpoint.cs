@@ -58,7 +58,7 @@ namespace NServiceBus
                 settings.GetOrCreate<DistributionPolicy>(),
                 settings.GetOrCreate<EndpointInstances>(),
                 settings.GetOrCreate<Publishers>());
-            routing.Initialize(settings, transportInfrastructure, pipelineSettings);
+            routing.Initialize(settings, transportInfrastructure, pipelineSettings, receiving);
 
             var featureStats = featureActivator.SetupFeatures(container, pipelineSettings, routing, receiving);
             settings.AddStartupDiagnosticsSection("Features", featureStats);
