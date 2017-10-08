@@ -94,7 +94,5 @@
             Guard.AgainstNull(nameof(startupTaskFactory), startupTaskFactory);
             TaskControllers.Add(new FeatureStartupTaskController(typeof(TTask).Name, startupTaskFactory));
         }
-
-        const string AddSatelliteOverloadMemberDefinition = "AddSatelliteReceiver(string name, string transportAddress, PushRuntimeSettings runtimeSettings, Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> recoverabilityPolicy, Func<IBuilder, MessageContext, Task> onMessage)";
     }
 }

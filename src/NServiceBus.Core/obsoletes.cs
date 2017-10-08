@@ -973,6 +973,8 @@ namespace NServiceBus.Features
         {
             throw new NotImplementedException();
         }
+
+        const string AddSatelliteOverloadMemberDefinition = "AddSatelliteReceiver(string name, string transportAddress, PushRuntimeSettings runtimeSettings, Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> recoverabilityPolicy, Func<IBuilder, MessageContext, Task> onMessage)";
     }
 
     [ObsoleteEx(

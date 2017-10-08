@@ -7,14 +7,16 @@
 
     class ReceiveConfiguration
     {
-        public ReceiveConfiguration(LogicalAddress logicalAddress, string mainQueueName, string localAddress, string instanceSpecificQueue, TransportTransactionMode transactionMode, bool isEnabled)
+        public ReceiveConfiguration(LogicalAddress logicalAddress, string mainQueueName, string localAddress, string instanceSpecificQueue, TransportTransactionMode transactionMode, PushRuntimeSettings pushRuntimeSettings, bool purgeOnStartup, bool isEnabled)
         {
             LogicalAddress = logicalAddress;
             MainQueueName = mainQueueName;
             LocalAddress = localAddress;
             InstanceSpecificQueue = instanceSpecificQueue;
             TransactionMode = transactionMode;
+            PushRuntimeSettings = pushRuntimeSettings;
             IsEnabled = isEnabled;
+            PurgeOnStartup = purgeOnStartup;
 
             SatelliteDefinitions = new SatelliteDefinitions();
         }
@@ -25,6 +27,7 @@
 
         public string InstanceSpecificQueue { get; }
         public TransportTransactionMode TransactionMode { get; }
+        public PushRuntimeSettings PushRuntimeSettings { get; }
 
         public string MainQueueName { get; }
 
@@ -37,7 +40,7 @@
             SatelliteDefinitions.Add(satelliteDefinition);
         }
 
-        public SatelliteDefinitions SatelliteDefinitions{ get; }
-
+        public SatelliteDefinitions SatelliteDefinitions { get; }
+        public bool PurgeOnStartup { get; }
     }
 }

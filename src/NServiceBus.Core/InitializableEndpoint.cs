@@ -71,15 +71,16 @@ namespace NServiceBus
             var mainPipeline = new Pipeline<ITransportReceiveContext>(builder, pipelineConfiguration.Modifications);
             var pipelineCache = new PipelineCache(builder, settings);
             var mainPipelineExecutor = new MainPipelineExecutor(builder, eventAggregator, pipelineCache, mainPipeline);
+            var errorQueue = settings.ErrorQueueAddress();
 
-            var receiveRuntime = await receiving.InitializeRuntime(settings,
-                receiveConfiguration,
+            var receiveRuntime = await receiving.InitializeRuntime(receiveConfiguration,
                 settings.Get<QueueBindings>(),
                 transportInfrastructure.ConfigureReceiveInfrastructure(),
                 mainPipelineExecutor,
                 eventAggregator,
                 builder,
-                criticalError).ConfigureAwait(false);
+                criticalError,
+                errorQueue).ConfigureAwait(false);
 
             var username = GetInstallationUserName();
 

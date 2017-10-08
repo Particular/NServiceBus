@@ -20,7 +20,7 @@ namespace NServiceBus
         {
             if (isSendOnlyEndpoint)
             {
-                return new ReceiveConfiguration(new LogicalAddress(), null, null, null, TransportTransactionMode.None, false);
+                return new ReceiveConfiguration(new LogicalAddress(), null, null, null, TransportTransactionMode.None, PushRuntimeSettings.Default, false, false);
             }
 
             var discriminator = settings.GetOrDefault<string>("EndpointInstanceDiscriminator");
@@ -41,18 +41,32 @@ namespace NServiceBus
 
             var transactionMode = GetRequiredTransactionMode(settings);
 
+            var pushRuntimeSettings = GetDequeueLimitations(settings);
 
-            return new ReceiveConfiguration(logicalAddress, receiveQueueName, localAddress, instanceSpecificQueue, transactionMode, true);
+            var purgeOnStartup = settings.GetOrDefault<bool>("Transport.PurgeOnStartup");
+
+            return new ReceiveConfiguration(logicalAddress, receiveQueueName, localAddress, instanceSpecificQueue, transactionMode, pushRuntimeSettings, purgeOnStartup, true);
         }
 
-        public async Task<ReceiveRuntime> InitializeRuntime(ReadOnlySettings settings, ReceiveConfiguration receiveConfiguration, QueueBindings queueBindings, TransportReceiveInfrastructure receiveInfrastructure, MainPipelineExecutor mainPipelineExecutor, IEventAggregator eventAggregator, IBuilder builder, CriticalError criticalError)
+        public async Task<ReceiveRuntime> InitializeRuntime(ReceiveConfiguration receiveConfiguration, QueueBindings queueBindings, TransportReceiveInfrastructure receiveInfrastructure, MainPipelineExecutor mainPipelineExecutor, IEventAggregator eventAggregator, IBuilder builder, CriticalError criticalError, string errorQueue)
         {
-            var receiveRuntime = new ReceiveRuntime(settings, receiveConfiguration, receiveInfrastructure, queueBindings);
+            var receiveRuntime = new ReceiveRuntime(receiveConfiguration, receiveInfrastructure, queueBindings);
 
-            await receiveRuntime.Initialize(mainPipelineExecutor, eventAggregator, builder, criticalError).ConfigureAwait(false);
+            await receiveRuntime.Initialize(mainPipelineExecutor, eventAggregator, builder, criticalError, errorQueue).ConfigureAwait(false);
 
             return receiveRuntime;
         }
+
+        PushRuntimeSettings GetDequeueLimitations(ReadOnlySettings settings)
+        {
+            if (settings.TryGet(out MessageProcessingOptimizationExtensions.ConcurrencyLimit concurrencyLimit))
+            {
+                return new PushRuntimeSettings(concurrencyLimit.MaxValue);
+            }
+
+            return PushRuntimeSettings.Default;
+        }
+
 
         TransportTransactionMode GetRequiredTransactionMode(ReadOnlySettings settings)
         {
