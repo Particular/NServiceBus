@@ -14,7 +14,7 @@ namespace NServiceBus
 
     class StartableEndpoint : IStartableEndpoint
     {
-        public StartableEndpoint(SettingsHolder settings, IBuilder builder, FeatureActivator featureActivator, PipelineConfiguration pipelineConfiguration, IEventAggregator eventAggregator, TransportInfrastructure transportInfrastructure, TransportReceiveInfrastructure receiveInfrastructure, CriticalError criticalError)
+        public StartableEndpoint(SettingsHolder settings, IBuilder builder, FeatureActivator featureActivator, PipelineConfiguration pipelineConfiguration, IEventAggregator eventAggregator, TransportInfrastructure transportInfrastructure, ReceiveComponent receiving, CriticalError criticalError)
         {
             this.criticalError = criticalError;
             this.settings = settings;
@@ -23,7 +23,7 @@ namespace NServiceBus
             this.pipelineConfiguration = pipelineConfiguration;
             this.eventAggregator = eventAggregator;
             this.transportInfrastructure = transportInfrastructure;
-            this.receiveInfrastructure = receiveInfrastructure;
+            this.receiving = receiving;
 
             pipelineCache = new PipelineCache(builder, settings);
 
@@ -32,7 +32,7 @@ namespace NServiceBus
 
         public async Task<IEndpointInstance> Start()
         {
-            await ExecutePreStartupCheckIfNecessary().ConfigureAwait(false);
+            await receiving.PerformPreStartupChecks().ConfigureAwait(false);
 
             await transportInfrastructure.Start().ConfigureAwait(false);
 
@@ -51,21 +51,6 @@ namespace NServiceBus
             StartReceivers(receivers);
 
             return runningInstance;
-        }
-
-        async Task ExecutePreStartupCheckIfNecessary()
-        {
-            if (receiveInfrastructure == null)
-            {
-                return;
-            }
-
-            var result = await receiveInfrastructure.PreStartupCheck().ConfigureAwait(false);
-
-            if (!result.Succeeded)
-            {
-                throw new Exception($"Pre start-up check failed: {result.ErrorMessage}");
-            }
         }
 
         async Task<FeatureRunner> StartFeatures(IMessageSession session)
@@ -125,7 +110,7 @@ namespace NServiceBus
 
             var recoverabilityExecutorFactory = builder.Build<RecoverabilityExecutorFactory>();
 
-            var receivers = BuildMainReceivers(errorQueue, purgeOnStartup, requiredTransactionSupport, recoverabilityExecutorFactory, receiveInfrastructure, mainPipeline);
+            var receivers = BuildMainReceivers(errorQueue, purgeOnStartup, requiredTransactionSupport, recoverabilityExecutorFactory, receiving.Infrastructure, mainPipeline);
 
             // ReSharper disable once LoopCanBeConvertedToQuery
             foreach (var satellitePipeline in settings.Get<SatelliteDefinitions>().Definitions)
@@ -133,7 +118,7 @@ namespace NServiceBus
                 var satelliteRecoverabilityExecutor = recoverabilityExecutorFactory.Create(satellitePipeline.RecoverabilityPolicy, eventAggregator, satellitePipeline.ReceiveAddress);
                 var satellitePushSettings = new PushSettings(satellitePipeline.ReceiveAddress, errorQueue, purgeOnStartup, satellitePipeline.RequiredTransportTransactionMode);
 
-                receivers.Add(new TransportReceiver(satellitePipeline.Name, receiveInfrastructure.MessagePumpFactory(), satellitePushSettings, satellitePipeline.RuntimeSettings, new SatellitePipelineExecutor(builder, satellitePipeline), satelliteRecoverabilityExecutor, criticalError));
+                receivers.Add(new TransportReceiver(satellitePipeline.Name, receiving.Infrastructure.MessagePumpFactory(), satellitePushSettings, satellitePipeline.RuntimeSettings, new SatellitePipelineExecutor(builder, satellitePipeline), satelliteRecoverabilityExecutor, criticalError));
             }
 
             return receivers;
@@ -185,7 +170,7 @@ namespace NServiceBus
         SettingsHolder settings;
         IEventAggregator eventAggregator;
         TransportInfrastructure transportInfrastructure;
-        TransportReceiveInfrastructure receiveInfrastructure;
+        ReceiveComponent receiving;
         CriticalError criticalError;
 
         const string MainReceiverId = "Main";
