@@ -57,7 +57,7 @@ namespace NServiceBus
             receiveInfrastructure = transportInfrastructure.ConfigureReceiveInfrastructure();
         }
 
-        public List<TransportReceiver> CreateReceivers(MainPipelineExecutor mainPipelineExecutor, RecoverabilityExecutorFactory recoverabilityExecutorFactory, IEventAggregator eventAggregator, IBuilder builder, CriticalError criticalError)
+        public List<TransportReceiver> CreateReceivers(MainPipelineExecutor mainPipelineExecutor, IEventAggregator eventAggregator, IBuilder builder, CriticalError criticalError)
         {
             if (isSendOnlyEndpoint)
             {
@@ -72,6 +72,7 @@ namespace NServiceBus
 
             var errorQueue = settings.ErrorQueueAddress();
             var requiredTransactionSupport = settings.GetRequiredTransactionModeForReceives();
+            var recoverabilityExecutorFactory = builder.Build<RecoverabilityExecutorFactory>();
 
             var recoverabilityExecutor = recoverabilityExecutorFactory.CreateDefault(eventAggregator, LocalAddress);
             var pushSettings = new PushSettings(LocalAddress, errorQueue, purgeOnStartup, requiredTransactionSupport);

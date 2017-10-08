@@ -40,7 +40,7 @@ namespace NServiceBus
             var mainPipeline = new Pipeline<ITransportReceiveContext>(builder, pipelineConfiguration.Modifications);
             var mainPipelineExecutor = new MainPipelineExecutor(builder, eventAggregator, pipelineCache, mainPipeline);
 
-            var receivers = receiving.CreateReceivers(mainPipelineExecutor, builder.Build<RecoverabilityExecutorFactory>(), eventAggregator, builder, criticalError);
+            var receivers = receiving.CreateReceivers(mainPipelineExecutor, eventAggregator, builder, criticalError);
             await InitializeReceivers(receivers).ConfigureAwait(false);
 
             var featureRunner = await StartFeatures(messageSession).ConfigureAwait(false);
