@@ -13,7 +13,6 @@ namespace NServiceBus
             this.transportInfrastructure = transportInfrastructure;
         }
 
-        public TransportReceiveInfrastructure Infrastructure { get; private set; }
 
         public void Initialize(ReadOnlySettings settings)
         {
@@ -24,7 +23,12 @@ namespace NServiceBus
                 return;
             }
 
-            Infrastructure = transportInfrastructure.ConfigureReceiveInfrastructure();
+            receiveInfrastructure = transportInfrastructure.ConfigureReceiveInfrastructure();
+        }
+
+        public IPushMessages BuildMessagePump()
+        {
+            return receiveInfrastructure.MessagePumpFactory();
         }
 
         public Task CreateQueuesIfNecessary(string username)
@@ -39,7 +43,7 @@ namespace NServiceBus
                 return TaskEx.CompletedTask;
             }
 
-            var queueCreator = Infrastructure.QueueCreatorFactory();
+            var queueCreator = receiveInfrastructure.QueueCreatorFactory();
             var queueBindings = settings.Get<QueueBindings>();
 
             return queueCreator.CreateQueueIfNecessary(queueBindings, username);
@@ -52,7 +56,7 @@ namespace NServiceBus
                 return;
             }
 
-            var result = await Infrastructure.PreStartupCheck().ConfigureAwait(false);
+            var result = await receiveInfrastructure.PreStartupCheck().ConfigureAwait(false);
 
             if (!result.Succeeded)
             {
@@ -60,6 +64,7 @@ namespace NServiceBus
             }
         }
 
+        TransportReceiveInfrastructure receiveInfrastructure;
         TransportInfrastructure transportInfrastructure;
         bool isSendOnlyEndpoint;
         ReadOnlySettings settings;
