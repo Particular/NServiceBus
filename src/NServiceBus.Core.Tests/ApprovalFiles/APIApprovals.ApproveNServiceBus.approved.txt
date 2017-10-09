@@ -395,7 +395,7 @@ namespace NServiceBus
     public class static HostDiagnosticsConfigurationExtensions
     {
         public static void CustomDiagnosticsWriter(this NServiceBus.EndpointConfiguration config, System.Func<string, System.Threading.Tasks.Task> customDiagnosticsWriter) { }
-        public static void SetDiagnosticsPath(this NServiceBus.EndpointConfiguration config, string path) { }
+        public static void SetDiagnosticsRootPath(this NServiceBus.EndpointConfiguration config, string path) { }
     }
     public class static HostInfoConfigurationExtensions
     {
