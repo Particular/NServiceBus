@@ -40,13 +40,5 @@
                 EndpointSetup<DefaultServerWithDiagnostics>(c => c.SetDiagnosticsRootPath(basePath));
             }
         }
-
-        class DefaultServerWithDiagnostics : DefaultServer
-        {
-            public DefaultServerWithDiagnostics()
-            {
-                EnableDiagnostics = true;
-            }
-        }
     }
 }
