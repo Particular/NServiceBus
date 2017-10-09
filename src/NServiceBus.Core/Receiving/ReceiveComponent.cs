@@ -17,7 +17,7 @@ namespace NServiceBus
             this.queueBindings = queueBindings;
         }
 
-        public async Task Initialize(MainPipelineExecutor mainPipelineExecutor, IEventAggregator eventAggregator, IBuilder builder, CriticalError criticalError, string errorQueue)
+        public async Task Initialize(IPipelineExecutor mainPipelineExecutor, IEventAggregator eventAggregator, IBuilder builder, CriticalError criticalError, string errorQueue)
         {
             if (!configuration.IsEnabled)
             {
@@ -102,7 +102,7 @@ namespace NServiceBus
         }
 
 
-        void AddReceivers(MainPipelineExecutor mainPipelineExecutor, IEventAggregator eventAggregator, IBuilder builder, CriticalError criticalError, string errorQueue)
+        void AddReceivers(IPipelineExecutor mainPipelineExecutor, IEventAggregator eventAggregator, IBuilder builder, CriticalError criticalError, string errorQueue)
         {
             var requiredTransactionSupport = configuration.TransactionMode;
             var recoverabilityExecutorFactory = builder.Build<RecoverabilityExecutorFactory>();

@@ -29,12 +29,12 @@ namespace NServiceBus
         {
             ValidateEndpointName(endpointName);
 
+            Settings.Set<StartupDiagnosticEntries>(new StartupDiagnosticEntries());
+
             Settings.Set("NServiceBus.Routing.EndpointName", endpointName);
 
             pipelineCollection = new PipelineConfiguration();
             Settings.Set<PipelineConfiguration>(pipelineCollection);
-    
-            Settings.Set<StartupDiagnosticEntries>(new StartupDiagnosticEntries());
             Pipeline = new PipelineSettings(pipelineCollection.Modifications, Settings);
 
             Settings.Set<QueueBindings>(new QueueBindings());
