@@ -5,6 +5,7 @@
     using System.Threading.Tasks;
     using AcceptanceTesting.Customization;
     using AcceptanceTesting.Support;
+    using Configuration.AdvancedExtensibility;
     using Features;
 
     public class DefaultServer : IEndpointSetupTemplate
@@ -50,7 +51,7 @@
             if (!EnableDiagnostics)
             {
                 //no-op diagnostics
-                configuration.CustomDiagnosticsWriter(d => Task.FromResult(0));
+                configuration.GetSettings().Set("NServiceBus.HostStartupDiagnostics", FeatureState.Disabled);
             }
 
             return configuration;
