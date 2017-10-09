@@ -233,14 +233,13 @@ namespace NServiceBus
 
             Settings.AddStartupDiagnosticsSection("AssemblyScanning", new
             {
-                Assemblies = results.Assemblies.Select(a=>a.FullName),
+                Assemblies = results.Assemblies.Select(a => a.FullName),
                 results.ErrorsThrownDuringScanning,
                 results.SkippedFiles
             });
 
             return results.Types;
         }
-
 
         ConventionsBuilder conventionsBuilder;
         IContainer customBuilder;

@@ -74,7 +74,6 @@ namespace NServiceBus.AcceptanceTests.Core.Hosting
             public bool Done { get; set; }
         }
 
-
         public class MyMessage : ICommand
         {
         }
