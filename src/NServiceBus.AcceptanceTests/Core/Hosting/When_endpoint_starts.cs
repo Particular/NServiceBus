@@ -17,10 +17,10 @@
                 .WithEndpoint<MyEndpoint>()
                 .Done(c => c.EndpointsStarted)
                 .Run();
-            var endpointName = Conventions.EndpointNamingConvention(typeof(MyEndpoint));
 
-            var filename = $"{endpointName}-config.txt";
-            var path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, ".diagnostics", filename);
+            var endpointName = Conventions.EndpointNamingConvention(typeof(MyEndpoint));
+            var filename = "startup-configuration.txt";
+            var path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, endpointName, TestContext.CurrentContext.Test.ID, filename);
 
             Assert.True(File.Exists(path));
 

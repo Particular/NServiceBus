@@ -3,18 +3,18 @@ namespace NServiceBus
     using System;
     using System.Threading.Tasks;
     using Configuration.AdvancedExtensibility;
-    
+
     /// <summary>
     /// Provides diagnostics configuration options.
     /// </summary>
     public static class HostDiagnosticsConfigurationExtensions
     {
         /// <summary>
-        /// Configures a custom path where endpoint diagnostics is write.
+        /// Configures a custom path where host diagnostics is written.
         /// </summary>
         /// <param name="config">Configuration object to extend.</param>
         /// <param name="path">The custom path to use.</param>
-        public static void SetDiagnosticsPath(this EndpointConfiguration config, string path)
+        public static void SetDiagnosticsRootPath(this EndpointConfiguration config, string path)
         {
             Guard.AgainstNull(nameof(config), config);
             Guard.AgainstNullAndEmpty(nameof(path), path);

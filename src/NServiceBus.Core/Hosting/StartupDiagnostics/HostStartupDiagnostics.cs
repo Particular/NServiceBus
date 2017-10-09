@@ -37,17 +37,12 @@
                 diagnosticsRootPath = Path.Combine(DefaultFactory.FindDefaultLoggingDirectory(), ".diagnostics");
             }
 
-            if (Directory.Exists(diagnosticsRootPath))
+            if (!Directory.Exists(diagnosticsRootPath))
             {
                 Directory.CreateDirectory(diagnosticsRootPath);
             }
 
-            if (settings.TryGet<string>("EndpointInstanceDiscriminator", out var discriminator))
-            {
-                discriminator = "-" + discriminator;
-            }
-
-            var startupDiagnoticsFileName = $"{settings.EndpointName()}{discriminator ?? ""}-config.txt";
+            var startupDiagnoticsFileName = "startup-configuration.txt";
             var startupDiagnoticsFilePath = Path.Combine(diagnosticsRootPath, startupDiagnoticsFileName);
 
             if (File.Exists(startupDiagnoticsFilePath))
