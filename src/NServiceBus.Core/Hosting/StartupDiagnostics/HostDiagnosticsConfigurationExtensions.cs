@@ -7,7 +7,7 @@ namespace NServiceBus
     /// <summary>
     /// Provides diagnostics configuration options.
     /// </summary>
-    public static class DiagnosticsConfigurationExtensions
+    public static class HostDiagnosticsConfigurationExtensions
     {
         /// <summary>
         /// Configures a custom path where endpoint diagnostics is write.
@@ -34,7 +34,7 @@ namespace NServiceBus
             Guard.AgainstNull(nameof(config), config);
             Guard.AgainstNull(nameof(customDiagnosticsWriter), customDiagnosticsWriter);
 
-            config.Settings.Set<DiagnosticsWriter>(new DiagnosticsWriter(customDiagnosticsWriter));
+            config.Settings.Set<HostDiagnosticsWriter>(new HostDiagnosticsWriter(customDiagnosticsWriter));
         }
 
         internal const string DiagnosticsRootPathKey = "Diagnostics.RootPath";

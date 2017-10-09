@@ -8,9 +8,9 @@
     using Settings;
     using SimpleJson;
 
-    class EndpointDiagnostics : Feature
+    class HostStartupDiagnostics : Feature
     {
-        public EndpointDiagnostics()
+        public HostStartupDiagnostics()
         {
             EnableByDefault();
         }
@@ -25,14 +25,14 @@
         }
 
 
-        static DiagnosticsWriter GetDiagnosticsWriter(ReadOnlySettings settings)
+        static HostDiagnosticsWriter GetDiagnosticsWriter(ReadOnlySettings settings)
         {
-            if (settings.TryGet<DiagnosticsWriter>(out var diagnosticsWriter))
+            if (settings.TryGet<HostDiagnosticsWriter>(out var diagnosticsWriter))
             {
                 return diagnosticsWriter;
             }
 
-            if (!settings.TryGet<string>(DiagnosticsConfigurationExtensions.DiagnosticsRootPathKey, out var diagnosticsRootPath))
+            if (!settings.TryGet<string>(HostDiagnosticsConfigurationExtensions.DiagnosticsRootPathKey, out var diagnosticsRootPath))
             {
                 diagnosticsRootPath = Path.Combine(DefaultFactory.FindDefaultLoggingDirectory(), ".diagnostics");
             }
@@ -55,12 +55,12 @@
                 File.Delete(startupDiagnoticsFilePath);
             }
 
-            return new DiagnosticsWriter(data => AsyncFile.WriteText(startupDiagnoticsFilePath, data));
+            return new HostDiagnosticsWriter(data => AsyncFile.WriteText(startupDiagnoticsFilePath, data));
         }
 
         class WriteStartupDiagnostics : FeatureStartupTask
         {
-            public WriteStartupDiagnostics(DiagnosticsWriter diagnosticsWriter, ReadOnlySettings settings)
+            public WriteStartupDiagnostics(HostDiagnosticsWriter diagnosticsWriter, ReadOnlySettings settings)
             {
                 this.diagnosticsWriter = diagnosticsWriter;
                 this.settings = settings;
@@ -90,7 +90,7 @@
                 return TaskEx.CompletedTask;
             }
 
-            DiagnosticsWriter diagnosticsWriter;
+            HostDiagnosticsWriter diagnosticsWriter;
             ReadOnlySettings settings;
 
             static ILog logger = LogManager.GetLogger<WriteStartupDiagnostics>();

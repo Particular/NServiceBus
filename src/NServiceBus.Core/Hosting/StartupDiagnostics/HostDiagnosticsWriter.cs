@@ -3,18 +3,18 @@ namespace NServiceBus
     using System;
     using System.Threading.Tasks;
 
-    class DiagnosticsWriter
+    class HostDiagnosticsWriter
     {
-        public DiagnosticsWriter(Func<string, Task> writeData)
+        public HostDiagnosticsWriter(Func<string, Task> writeData)
         {
             this.writeData = writeData;
         }
-
-        Func<string, Task> writeData;
 
         public Task Write(string data)
         {
             return writeData(data);
         }
+
+        Func<string, Task> writeData;
     }
 }

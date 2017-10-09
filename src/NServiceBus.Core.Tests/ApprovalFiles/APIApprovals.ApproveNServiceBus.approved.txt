@@ -392,6 +392,11 @@ namespace NServiceBus
         public const string TimeSent = "NServiceBus.TimeSent";
         public const string TimeToBeReceived = "NServiceBus.TimeToBeReceived";
     }
+    public class static HostDiagnosticsConfigurationExtensions
+    {
+        public static void CustomDiagnosticsWriter(this NServiceBus.EndpointConfiguration config, System.Func<string, System.Threading.Tasks.Task> customDiagnosticsWriter) { }
+        public static void SetDiagnosticsPath(this NServiceBus.EndpointConfiguration config, string path) { }
+    }
     public class static HostInfoConfigurationExtensions
     {
         public static NServiceBus.HostInfoSettings UniquelyIdentifyRunningInstance(this NServiceBus.EndpointConfiguration config) { }
