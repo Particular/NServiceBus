@@ -2,6 +2,9 @@ namespace NServiceBus
 {
     using System;
     using System.Diagnostics;
+#if NETSTANDARD2_0
+    using System.Runtime.InteropServices;
+#endif
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
@@ -76,16 +79,10 @@ namespace NServiceBus
 
         void OpenTrialExtensionPage()
         {
-            string url;
-
-            if (result.License.IsExtendedTrial)
-            {
-                url = "https://particular.net/extend-your-trial-45";
-            }
-            else
-            {
-                url = "https://particular.net/extend-nservicebus-trial";
-            }
+            var version = GitFlowVersion.MajorMinorPatch;
+            var extendedTrial = result.License.IsExtendedTrial ? "1" : "0";
+            var platform = GetPlatformCode();
+            var url = $"https://particular.net/license/nservicebus?v={version}&t={extendedTrial}&p={platform}";
 
             if (!(Debugger.IsAttached && Environment.UserInteractive))
             {
@@ -122,6 +119,30 @@ namespace NServiceBus
                 }
             }
         }
+
+#if NETSTANDARD2_0
+        string GetPlatformCode()
+        {
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                return "windows";
+            }
+
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                return "linux";
+            }
+
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            {
+                return "macos";
+            }
+
+            return "unknown";
+        }
+#else
+        string GetPlatformCode() => "windows";
+#endif
 
         ActiveLicenseFindResult result;
 
