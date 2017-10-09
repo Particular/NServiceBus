@@ -101,7 +101,7 @@ namespace NServiceBus.Hosting.Helpers
 
             return results;
         }
-        
+
         bool TryLoadScannableAssembly(string assemblyPath, AssemblyScannerResults results, out Assembly assembly)
         {
             assembly = null;
@@ -323,8 +323,13 @@ namespace NServiceBus.Hosting.Helpers
         {
             return type != null &&
                    !type.IsValueType &&
-                   !(type.GetCustomAttributes(typeof(CompilerGeneratedAttribute), false).Length > 0) &&
+                   !IsCompilerGenerated(type) &&
                    !TypesToSkip.Contains(type);
+        }
+
+        static bool IsCompilerGenerated(Type type)
+        {
+            return type.GetCustomAttribute<CompilerGeneratedAttribute>(false) != null;
         }
 
         static string DistillLowerAssemblyName(string assemblyOrFileName)

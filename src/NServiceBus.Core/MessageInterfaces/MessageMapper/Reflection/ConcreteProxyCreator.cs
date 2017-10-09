@@ -158,10 +158,10 @@ namespace NServiceBus
                     continue;
                 }
                 object defaultValue = null;
-                var defaultAttributes = attrPropInfo.GetCustomAttributes(typeof(DefaultValueAttribute), true);
-                if (defaultAttributes.Length > 0)
+                var defaultValueAttribute = attrPropInfo.GetCustomAttribute<DefaultValueAttribute>(true);
+                if (defaultValueAttribute != null)
                 {
-                    defaultValue = ((DefaultValueAttribute) defaultAttributes[0]).Value;
+                    defaultValue = defaultValueAttribute.Value;
                 }
                 var value = attrPropInfo.GetValue(customAttribute, null);
                 if (value == defaultValue)

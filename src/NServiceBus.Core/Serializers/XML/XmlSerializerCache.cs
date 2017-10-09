@@ -141,7 +141,7 @@ namespace NServiceBus
                     continue;
                 }
 
-                if (prop.GetCustomAttributes(typeof(XmlIgnoreAttribute), false).Length > 0)
+                if (prop.GetCustomAttribute<XmlIgnoreAttribute>(false) != null)
                 {
                     continue;
                 }
