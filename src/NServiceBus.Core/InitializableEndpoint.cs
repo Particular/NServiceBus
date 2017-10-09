@@ -44,10 +44,8 @@ namespace NServiceBus
             var transportInfrastructure = InitializeTransport();
 
             var isSendOnlyEndpoint = settings.Get<bool>("Endpoint.SendOnly");
-            var receiving = new ReceiveComponent(settings.EndpointName(), isSendOnlyEndpoint, transportInfrastructure);
 
-
-            var receiveConfiguration = receiving.Configure(settings);
+            var receiveConfiguration = ReceiveComponentFactory.Configure(settings.EndpointName(), isSendOnlyEndpoint, transportInfrastructure, settings);
 
             //note: remove once settings.LogicalAddress() , .LocalAddress() and .InstanceSpecificQueue() has been obsoleted
             settings.Set<ReceiveConfiguration>(receiveConfiguration);
@@ -58,6 +56,7 @@ namespace NServiceBus
                 settings.GetOrCreate<DistributionPolicy>(),
                 settings.GetOrCreate<EndpointInstances>(),
                 settings.GetOrCreate<Publishers>());
+
             routing.Initialize(settings, transportInfrastructure, pipelineSettings, receiveConfiguration);
 
             var featureStats = featureActivator.SetupFeatures(container, pipelineSettings, routing, receiveConfiguration);
@@ -73,7 +72,7 @@ namespace NServiceBus
             var mainPipelineExecutor = new MainPipelineExecutor(builder, eventAggregator, pipelineCache, mainPipeline);
             var errorQueue = settings.ErrorQueueAddress();
 
-            var receiveRuntime = await receiving.InitializeRuntime(receiveConfiguration,
+            var receiveRuntime = await ReceiveComponentFactory.Initialize(receiveConfiguration,
                 settings.Get<QueueBindings>(),
                 transportInfrastructure.ConfigureReceiveInfrastructure(),
                 mainPipelineExecutor,

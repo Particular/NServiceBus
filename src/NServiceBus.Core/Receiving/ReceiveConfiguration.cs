@@ -7,10 +7,10 @@
 
     class ReceiveConfiguration
     {
-        public ReceiveConfiguration(LogicalAddress logicalAddress, string mainQueueName, string localAddress, string instanceSpecificQueue, TransportTransactionMode transactionMode, PushRuntimeSettings pushRuntimeSettings, bool purgeOnStartup, bool isEnabled)
+        public ReceiveConfiguration(LogicalAddress logicalAddress, string queueNameBase, string localAddress, string instanceSpecificQueue, TransportTransactionMode transactionMode, PushRuntimeSettings pushRuntimeSettings, bool purgeOnStartup, bool isEnabled)
         {
             LogicalAddress = logicalAddress;
-            MainQueueName = mainQueueName;
+            QueueNameBase = queueNameBase;
             LocalAddress = localAddress;
             InstanceSpecificQueue = instanceSpecificQueue;
             TransactionMode = transactionMode;
@@ -31,7 +31,7 @@
 
         public PushRuntimeSettings PushRuntimeSettings { get; }
 
-        public string MainQueueName { get; }
+        public string QueueNameBase { get; }
 
         public bool IsEnabled { get; }
 

@@ -7,16 +7,9 @@ namespace NServiceBus
     using Settings;
     using Transport;
 
-    class ReceiveComponent
+    static class ReceiveComponentFactory
     {
-        public ReceiveComponent(string endpointName, bool isSendOnlyEndpoint, TransportInfrastructure transportInfrastructure)
-        {
-            this.endpointName = endpointName;
-            this.isSendOnlyEndpoint = isSendOnlyEndpoint;
-            this.transportInfrastructure = transportInfrastructure;
-        }
-
-        public ReceiveConfiguration Configure(ReadOnlySettings settings)
+        public static ReceiveConfiguration Configure(string endpointName, bool isSendOnlyEndpoint, TransportInfrastructure transportInfrastructure,ReadOnlySettings settings)
         {
             if (isSendOnlyEndpoint)
             {
@@ -47,7 +40,7 @@ namespace NServiceBus
             return new ReceiveConfiguration(logicalAddress, queueNameBase, localAddress, instanceSpecificQueue, transactionMode, pushRuntimeSettings, purgeOnStartup, true);
         }
 
-        public async Task<ReceiveRuntime> InitializeRuntime(ReceiveConfiguration receiveConfiguration, QueueBindings queueBindings, TransportReceiveInfrastructure receiveInfrastructure, MainPipelineExecutor mainPipelineExecutor, IEventAggregator eventAggregator, IBuilder builder, CriticalError criticalError, string errorQueue)
+        public static async Task<ReceiveRuntime> Initialize(ReceiveConfiguration receiveConfiguration, QueueBindings queueBindings, TransportReceiveInfrastructure receiveInfrastructure, MainPipelineExecutor mainPipelineExecutor, IEventAggregator eventAggregator, IBuilder builder, CriticalError criticalError, string errorQueue)
         {
             var receiveRuntime = new ReceiveRuntime(receiveConfiguration, receiveInfrastructure, queueBindings);
 
@@ -56,7 +49,7 @@ namespace NServiceBus
             return receiveRuntime;
         }
 
-        PushRuntimeSettings GetDequeueLimitations(ReadOnlySettings settings)
+        static PushRuntimeSettings GetDequeueLimitations(ReadOnlySettings settings)
         {
             if (settings.TryGet(out MessageProcessingOptimizationExtensions.ConcurrencyLimit concurrencyLimit))
             {
@@ -67,7 +60,7 @@ namespace NServiceBus
         }
 
 
-        TransportTransactionMode GetRequiredTransactionMode(ReadOnlySettings settings)
+        static TransportTransactionMode GetRequiredTransactionMode(ReadOnlySettings settings)
         {
             var transportTransactionSupport = settings.Get<TransportInfrastructure>().TransactionMode;
 
@@ -84,9 +77,5 @@ namespace NServiceBus
 
             return requestedTransportTransactionMode;
         }
-
-        TransportInfrastructure transportInfrastructure;
-        string endpointName;
-        bool isSendOnlyEndpoint;
     }
 }
