@@ -3,7 +3,7 @@
     using Settings;
 
     /// <summary>
-    /// Provides a API to add startup diagnostics.
+    /// Provides an API to add startup diagnostics.
     /// </summary>
     static class EndpointDiagnosticSettingsExtensions
     {
