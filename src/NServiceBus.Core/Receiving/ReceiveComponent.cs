@@ -8,9 +8,9 @@ namespace NServiceBus
     using ObjectBuilder;
     using Transport;
 
-    class ReceiveRuntime
+    class ReceiveComponent
     {
-        public ReceiveRuntime(ReceiveConfiguration configuration, TransportReceiveInfrastructure receiveInfrastructure, QueueBindings queueBindings)
+        public ReceiveComponent(ReceiveConfiguration configuration, TransportReceiveInfrastructure receiveInfrastructure, QueueBindings queueBindings)
         {
             this.configuration = configuration;
             this.receiveInfrastructure = receiveInfrastructure;
@@ -147,6 +147,6 @@ namespace NServiceBus
 
         const string MainReceiverId = "Main";
 
-        static ILog Logger = LogManager.GetLogger<ReceiveRuntime>();
+        static ILog Logger = LogManager.GetLogger<ReceiveComponent>();
     }
 }

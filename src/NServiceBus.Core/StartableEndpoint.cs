@@ -10,20 +10,20 @@ namespace NServiceBus
 
     class StartableEndpoint : IStartableEndpoint
     {
-        public StartableEndpoint(SettingsHolder settings, IBuilder builder, FeatureActivator featureActivator, TransportInfrastructure transportInfrastructure, ReceiveRuntime receiveRuntime, CriticalError criticalError,IMessageSession messageSession)
+        public StartableEndpoint(SettingsHolder settings, IBuilder builder, FeatureActivator featureActivator, TransportInfrastructure transportInfrastructure, ReceiveComponent receiveComponent, CriticalError criticalError,IMessageSession messageSession)
         {
             this.criticalError = criticalError;
             this.settings = settings;
             this.builder = builder;
             this.featureActivator = featureActivator;
             this.transportInfrastructure = transportInfrastructure;
-            this.receiveRuntime = receiveRuntime;
+            this.receiveComponent = receiveComponent;
             this.messageSession = messageSession;
         }
 
         public async Task<IEndpointInstance> Start()
         {
-            await receiveRuntime.PerformPreStartupChecks().ConfigureAwait(false);
+            await receiveComponent.PerformPreStartupChecks().ConfigureAwait(false);
 
             await transportInfrastructure.Start().ConfigureAwait(false);
 
@@ -31,12 +31,12 @@ namespace NServiceBus
 
             var featureRunner = await StartFeatures().ConfigureAwait(false);
 
-            var runningInstance = new RunningEndpointInstance(settings, builder, receiveRuntime, featureRunner, messageSession, transportInfrastructure);
+            var runningInstance = new RunningEndpointInstance(settings, builder, receiveComponent, featureRunner, messageSession, transportInfrastructure);
 
             // set the started endpoint on CriticalError to pass the endpoint to the critical error action
             criticalError.SetEndpoint(runningInstance);
 
-            receiveRuntime.Start();
+            receiveComponent.Start();
 
             return runningInstance;
         }
@@ -53,7 +53,7 @@ namespace NServiceBus
         FeatureActivator featureActivator;
         SettingsHolder settings;
         TransportInfrastructure transportInfrastructure;
-        ReceiveRuntime receiveRuntime;
+        ReceiveComponent receiveComponent;
         CriticalError criticalError;
     }
 }

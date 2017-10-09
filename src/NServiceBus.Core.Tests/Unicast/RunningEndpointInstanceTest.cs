@@ -19,7 +19,7 @@
             var testee = new RunningEndpointInstance(
                 new SettingsHolder(),
                 new FakeBuilder(),
-                new ReceiveRuntime(null, null, null),
+                new ReceiveComponent(null, null, null),
                 new FeatureRunner(new FeatureActivator(new SettingsHolder())),
                 new MessageSession(new RootContext(null, null, null)), new FakeTransportInfrastructure());
 

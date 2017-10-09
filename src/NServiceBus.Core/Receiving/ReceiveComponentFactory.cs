@@ -40,9 +40,9 @@ namespace NServiceBus
             return new ReceiveConfiguration(logicalAddress, queueNameBase, localAddress, instanceSpecificQueue, transactionMode, pushRuntimeSettings, purgeOnStartup, true);
         }
 
-        public static async Task<ReceiveRuntime> Initialize(ReceiveConfiguration receiveConfiguration, QueueBindings queueBindings, TransportReceiveInfrastructure receiveInfrastructure, MainPipelineExecutor mainPipelineExecutor, IEventAggregator eventAggregator, IBuilder builder, CriticalError criticalError, string errorQueue)
+        public static async Task<ReceiveComponent> Initialize(ReceiveConfiguration receiveConfiguration, QueueBindings queueBindings, TransportReceiveInfrastructure receiveInfrastructure, MainPipelineExecutor mainPipelineExecutor, IEventAggregator eventAggregator, IBuilder builder, CriticalError criticalError, string errorQueue)
         {
-            var receiveRuntime = new ReceiveRuntime(receiveConfiguration, receiveInfrastructure, queueBindings);
+            var receiveRuntime = new ReceiveComponent(receiveConfiguration, receiveInfrastructure, queueBindings);
 
             await receiveRuntime.Initialize(mainPipelineExecutor, eventAggregator, builder, criticalError, errorQueue).ConfigureAwait(false);
 
@@ -58,7 +58,6 @@ namespace NServiceBus
 
             return PushRuntimeSettings.Default;
         }
-
 
         static TransportTransactionMode GetRequiredTransactionMode(ReadOnlySettings settings)
         {
