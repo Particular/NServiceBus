@@ -24,14 +24,15 @@ namespace NServiceBus
             }
 
             var discriminator = settings.GetOrDefault<string>("EndpointInstanceDiscriminator");
-            var receiveQueueName = settings.GetOrDefault<string>("BaseInputQueueName") ?? endpointName;
+            var queueNameBase = settings.GetOrDefault<string>("BaseInputQueueName") ?? endpointName;
+            var purgeOnStartup = settings.GetOrDefault<bool>("Transport.PurgeOnStartup");
 
-            var mainInstance = transportInfrastructure.BindToLocalEndpoint(new EndpointInstance(endpointName));
+            //note: This is an old hack, we are passing the endpoint name to bind but we only care about the properties
+            var mainInstanceProperties = transportInfrastructure.BindToLocalEndpoint(new EndpointInstance(endpointName)).Properties;
 
-            var logicalAddress = LogicalAddress.CreateLocalAddress(receiveQueueName, mainInstance.Properties);
+            var logicalAddress = LogicalAddress.CreateLocalAddress(queueNameBase, mainInstanceProperties);
 
             var localAddress = transportInfrastructure.ToTransportAddress(logicalAddress);
-
 
             string instanceSpecificQueue = null;
             if (discriminator != null)
@@ -43,9 +44,7 @@ namespace NServiceBus
 
             var pushRuntimeSettings = GetDequeueLimitations(settings);
 
-            var purgeOnStartup = settings.GetOrDefault<bool>("Transport.PurgeOnStartup");
-
-            return new ReceiveConfiguration(logicalAddress, receiveQueueName, localAddress, instanceSpecificQueue, transactionMode, pushRuntimeSettings, purgeOnStartup, true);
+            return new ReceiveConfiguration(logicalAddress, queueNameBase, localAddress, instanceSpecificQueue, transactionMode, pushRuntimeSettings, purgeOnStartup, true);
         }
 
         public async Task<ReceiveRuntime> InitializeRuntime(ReceiveConfiguration receiveConfiguration, QueueBindings queueBindings, TransportReceiveInfrastructure receiveInfrastructure, MainPipelineExecutor mainPipelineExecutor, IEventAggregator eventAggregator, IBuilder builder, CriticalError criticalError, string errorQueue)
