@@ -10,7 +10,7 @@
 
     public class When_endpoint_starts : NServiceBusAcceptanceTest
     {
-        static string basePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, Conventions.EndpointNamingConvention(typeof(MyEndpoint)), TestContext.CurrentContext.Test.ID);
+        static string basePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, TestContext.CurrentContext.Test.ID);
 
         [Test]
         public async Task Should_emit_config_diagnostics()
@@ -20,7 +20,10 @@
                 .Done(c => c.EndpointsStarted)
                 .Run();
 
-            var pathToFile = Path.Combine(basePath, "startup-configuration.txt");
+            var endpointName = Conventions.EndpointNamingConvention(typeof(MyEndpoint));
+            var startupDiagnoticsFileName = $"{endpointName}-configuration.json";
+
+            var pathToFile = Path.Combine(basePath, startupDiagnoticsFileName);
             Assert.True(File.Exists(pathToFile));
 
             Console.Out.WriteLine(File.ReadAllText(pathToFile));

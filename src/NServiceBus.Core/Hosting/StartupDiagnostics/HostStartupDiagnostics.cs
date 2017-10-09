@@ -2,6 +2,7 @@
 {
     using System;
     using System.IO;
+    using System.Linq;
     using System.Threading.Tasks;
     using Features;
     using Logging;
@@ -34,7 +35,7 @@
 
             if (!settings.TryGet<string>(HostDiagnosticsConfigurationExtensions.DiagnosticsRootPathKey, out var diagnosticsRootPath))
             {
-                diagnosticsRootPath = Path.Combine(DefaultFactory.FindDefaultLoggingDirectory(), ".diagnostics");
+                diagnosticsRootPath = Path.Combine(Host.GetOutputDirectory(), ".diagnostics");
             }
 
             if (!Directory.Exists(diagnosticsRootPath))
@@ -42,13 +43,12 @@
                 Directory.CreateDirectory(diagnosticsRootPath);
             }
 
-            var startupDiagnoticsFileName = "startup-configuration.txt";
-            var startupDiagnoticsFilePath = Path.Combine(diagnosticsRootPath, startupDiagnoticsFileName);
+            var endpointName = settings.EndpointName();
 
-            if (File.Exists(startupDiagnoticsFilePath))
-            {
-                File.Delete(startupDiagnoticsFilePath);
-            }
+            // Once we have the proper hosting model in place we can skip the endpoint name since the host would
+            // know how to handle multi hosting but for now we do this so that multi-hosting users will get a file per endpoint
+            var startupDiagnoticsFileName = $"{endpointName}-configuration.json";
+            var startupDiagnoticsFilePath = Path.Combine(diagnosticsRootPath, startupDiagnoticsFileName);
 
             return new HostDiagnosticsWriter(data => AsyncFile.WriteText(startupDiagnoticsFilePath, data));
         }
@@ -65,20 +65,9 @@
             {
                 try
                 {
-                    var data = "";
+                    var data = SimpleJson.SerializeObject(settings.Get<StartupDiagnosticEntries>().Entries.ToDictionary(e => e.Name, e => e.Data));
 
-                    foreach (var section in settings.Get<StartupDiagnosticEntries>().Entries)
-                    {
-                        var sectionData = SimpleJson.SerializeObject(section.Data);
-
-                        if (!string.IsNullOrEmpty(data))
-                        {
-                            data += "," + Environment.NewLine;
-                        }
-                        data += $"{section.Name}: {sectionData}";
-                    }
-
-                    await diagnosticsWriter.Write("{" + Environment.NewLine + data + "}").ConfigureAwait(false);
+                    await diagnosticsWriter.Write(data).ConfigureAwait(false);
                 }
                 catch (Exception e)
                 {

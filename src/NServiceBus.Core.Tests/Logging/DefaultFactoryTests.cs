@@ -22,7 +22,7 @@
         [Test]
         public void When_not_running_ASP_NET_should_choose_BaseDirectory_as_logging_directory()
         {
-            var directory = DefaultFactory.FindDefaultLoggingDirectory();
+            var directory = Host.GetOutputDirectory();
 
             Assert.AreEqual(AppDomain.CurrentDomain.BaseDirectory, directory);
         }
