@@ -13,18 +13,18 @@
         [Test]
         public async Task Should_emit_config_diagnostics()
         {
+            var endpointName = Conventions.EndpointNamingConvention(typeof(MyEndpoint));
+            var basePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, endpointName, TestContext.CurrentContext.Test.ID);
+
             await Scenario.Define<Context>()
-                .WithEndpoint<MyEndpoint>()
+                .WithEndpoint<MyEndpoint>(e => e.CustomConfig(c => c.SetDiagnosticsRootPath(basePath)))
                 .Done(c => c.EndpointsStarted)
                 .Run();
 
-            var endpointName = Conventions.EndpointNamingConvention(typeof(MyEndpoint));
-            var filename = "startup-configuration.txt";
-            var path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, endpointName, TestContext.CurrentContext.Test.ID, filename);
+            var pathToFile = Path.Combine(basePath, "startup-configuration.txt");
+            Assert.True(File.Exists(pathToFile));
 
-            Assert.True(File.Exists(path));
-
-            Console.Out.WriteLine(File.ReadAllText(path));
+            Console.Out.WriteLine(File.ReadAllText(pathToFile));
         }
 
         class Context : ScenarioContext
