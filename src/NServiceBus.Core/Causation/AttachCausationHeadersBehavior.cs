@@ -7,9 +7,9 @@ namespace NServiceBus
 
     class AttachCausationHeadersBehavior : IBehavior<IOutgoingLogicalMessageContext, IOutgoingLogicalMessageContext>
     {
-        public AttachCausationHeadersBehavior(TryGetConversationIdDelegate tryGetConversationIdDelegate)
+        public AttachCausationHeadersBehavior(Func<ConversationIdStrategyContext, ConversationId> conversationIdStrategy)
         {
-            this.tryGetConversationIdDelegate = tryGetConversationIdDelegate;
+            this.conversationIdStrategy = conversationIdStrategy;
         }
 
         public Task Invoke(IOutgoingLogicalMessageContext context, Func<IOutgoingLogicalMessageContext, Task> next)
@@ -52,33 +52,9 @@ namespace NServiceBus
                 return;
             }
 
-            string conversationId;
-            bool userProvidedId;
-
-            try
-            {
-                userProvidedId = tryGetConversationIdDelegate(new ConversationIdStrategyContext(context.Message), out conversationId);
-            }
-            catch (Exception exception)
-            {
-                throw new Exception($"Failed to execute CustomConversationId delegate. This configuration option was defined using {nameof(EndpointConfiguration)}.{nameof(MessageCausationConfigurationExtensions.CustomConversationIdStrategy)}.", exception);
-            }
-
-            if (userProvidedId)
-            {
-                if (string.IsNullOrEmpty(conversationId))
-                {
-                    throw new Exception("Null or empty conversation ID's are not allowed.");
-                }
-            }
-            else
-            {
-                conversationId = CombGuid.Generate().ToString();
-            }
-
-            context.Headers[Headers.ConversationId] = conversationId;
+            context.Headers[Headers.ConversationId] = conversationIdStrategy(new ConversationIdStrategyContext(context.Message)).Value;
         }
 
-        TryGetConversationIdDelegate tryGetConversationIdDelegate;
+        Func<ConversationIdStrategyContext, ConversationId> conversationIdStrategy;
     }
 }

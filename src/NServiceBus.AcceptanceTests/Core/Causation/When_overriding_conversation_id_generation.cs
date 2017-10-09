@@ -45,16 +45,14 @@
                 EndpointSetup<DefaultServer>(c => c.CustomConversationIdStrategy(MyCustomConversationIdStrategy));
             }
 
-            bool MyCustomConversationIdStrategy(ConversationIdStrategyContext context, out string conversationId)
+            ConversationId MyCustomConversationIdStrategy(ConversationIdStrategyContext context)
             {
                 if (context.Message.Instance is MessageSentOutsideOfHandlerMatchingTheConvention message)
                 {
-                    conversationId = message.MyBusinessId;
-                    return true;
+                    return ConversationId.Custom(message.MyBusinessId);
                 }
 
-                conversationId = null;
-                return false;
+                return ConversationId.Default;
             }
 
             public Context Context { get; set; }

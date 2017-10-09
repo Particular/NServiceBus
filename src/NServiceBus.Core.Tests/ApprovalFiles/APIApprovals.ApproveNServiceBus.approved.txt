@@ -151,6 +151,11 @@ namespace NServiceBus
         public NServiceBus.ConventionsBuilder DefiningEventsAs(System.Func<System.Type, bool> definesEventType) { }
         public NServiceBus.ConventionsBuilder DefiningMessagesAs(System.Func<System.Type, bool> definesMessageType) { }
     }
+    public struct ConversationId
+    {
+        public static NServiceBus.ConversationId Default { get; }
+        public static NServiceBus.ConversationId Custom(string customValue) { }
+    }
     public class ConversationIdStrategyContext
     {
         public ConversationIdStrategyContext(NServiceBus.Pipeline.OutgoingLogicalMessage message) { }
@@ -622,7 +627,7 @@ namespace NServiceBus
     }
     public class static MessageCausationConfigurationExtensions
     {
-        public static void CustomConversationIdStrategy(this NServiceBus.EndpointConfiguration endpointConfiguration, NServiceBus.TryGetConversationIdDelegate tryGetConversationIdDelegate) { }
+        public static void CustomConversationIdStrategy(this NServiceBus.EndpointConfiguration endpointConfiguration, System.Func<NServiceBus.ConversationIdStrategyContext, NServiceBus.ConversationId> customStrategy) { }
     }
     public class MessageDeserializationException : System.Runtime.Serialization.SerializationException
     {
@@ -973,7 +978,6 @@ namespace NServiceBus
         SendsAtomicWithReceive = 2,
         TransactionScope = 3,
     }
-    public delegate bool TryGetConversationIdDelegate(NServiceBus.ConversationIdStrategyContext context, out string customConverationId);
     public class UnitOfWorkSettings
     {
         public NServiceBus.UnitOfWorkSettings WrapHandlersInATransactionScope(System.Nullable<System.TimeSpan> timeout = null, System.Nullable<System.Transactions.IsolationLevel> isolationLevel = null) { }
