@@ -37,7 +37,7 @@
                 diagnosticsRootPath = Path.Combine(DefaultFactory.FindDefaultLoggingDirectory(), ".diagnostics");
             }
 
-            if (Directory.Exists(diagnosticsRootPath))
+            if (!Directory.Exists(diagnosticsRootPath))
             {
                 Directory.CreateDirectory(diagnosticsRootPath);
             }

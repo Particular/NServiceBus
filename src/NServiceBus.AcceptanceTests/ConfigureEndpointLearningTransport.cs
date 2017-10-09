@@ -3,7 +3,6 @@ using System.IO;
 using System.Threading.Tasks;
 using NServiceBus;
 using NServiceBus.AcceptanceTesting.Support;
-using NServiceBus.Configuration.AdvancedExtensibility;
 using NServiceBus.Transport;
 using NUnit.Framework;
 
@@ -36,13 +35,6 @@ public class ConfigureEndpointLearningTransport : IConfigureEndpointTestExecutio
         }
 
         storageDir = Path.Combine(tempDir, testRunId);
-
-        //ugly but it works
-        if (!configuration.GetSettings().HasSetting("Diagnostics.RootPath"))
-        {
-            //no-op diagnostics
-            configuration.CustomDiagnosticsWriter(d => Task.FromResult(0));
-        }
 
         //we want the tests to be exposed to concurrency
         configuration.LimitMessageProcessingConcurrencyTo(PushRuntimeSettings.Default.MaxConcurrency);

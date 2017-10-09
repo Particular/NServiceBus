@@ -10,14 +10,13 @@
 
     public class When_endpoint_starts : NServiceBusAcceptanceTest
     {
+        static string basePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, Conventions.EndpointNamingConvention(typeof(MyEndpoint)), TestContext.CurrentContext.Test.ID);
+
         [Test]
         public async Task Should_emit_config_diagnostics()
         {
-            var endpointName = Conventions.EndpointNamingConvention(typeof(MyEndpoint));
-            var basePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, endpointName, TestContext.CurrentContext.Test.ID);
-
             await Scenario.Define<Context>()
-                .WithEndpoint<MyEndpoint>(e => e.CustomConfig(c => c.SetDiagnosticsRootPath(basePath)))
+                .WithEndpoint<MyEndpoint>()
                 .Done(c => c.EndpointsStarted)
                 .Run();
 
@@ -35,7 +34,15 @@
         {
             public MyEndpoint()
             {
-                EndpointSetup<DefaultServer>();
+                EndpointSetup<DefaultServerWithDiagnostics>(c => c.SetDiagnosticsRootPath(basePath));
+            }
+        }
+
+        class DefaultServerWithDiagnostics : DefaultServer
+        {
+            public DefaultServerWithDiagnostics()
+            {
+                EnableDiagnostics = true;
             }
         }
     }

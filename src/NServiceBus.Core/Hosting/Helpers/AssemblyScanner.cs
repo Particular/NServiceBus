@@ -101,7 +101,7 @@ namespace NServiceBus.Hosting.Helpers
 
             return results;
         }
-        
+
         bool TryLoadScannableAssembly(string assemblyPath, AssemblyScannerResults results, out Assembly assembly)
         {
             assembly = null;

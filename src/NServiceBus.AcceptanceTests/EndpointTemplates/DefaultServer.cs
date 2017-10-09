@@ -19,6 +19,8 @@
             this.typesToInclude = typesToInclude;
         }
 
+        protected bool EnableDiagnostics;
+
         public async Task<EndpointConfiguration> GetConfiguration(RunDescriptor runDescriptor, EndpointCustomizationConfiguration endpointConfiguration, Action<EndpointConfiguration> configurationBuilderCustomization)
         {
             var types = endpointConfiguration.GetTypesScopedByTestClass();
@@ -44,6 +46,12 @@
             await configuration.DefinePersistence(runDescriptor, endpointConfiguration).ConfigureAwait(false);
 
             configurationBuilderCustomization(configuration);
+
+            if (!EnableDiagnostics)
+            {
+                //no-op diagnostics
+                configuration.CustomDiagnosticsWriter(d => Task.FromResult(0));
+            }
 
             return configuration;
         }
