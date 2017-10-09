@@ -58,6 +58,8 @@ namespace NServiceBus
             {
                 EnableBestPracticeEnforcement(conventions, pipelineSettings);
             }
+
+            settings.AddStartupDiagnosticsSection("Routing", this);
         }
 
         static bool ShouldEnforceBestPractices(ReadOnlySettings settings)

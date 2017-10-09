@@ -38,6 +38,8 @@
                 context.Settings.Get<string>("NServiceBus.HostInformation.DisplayName"),
                 context.Settings.Get<Dictionary<string, string>>("NServiceBus.HostInformation.Properties"));
 
+            context.Settings.AddStartupDiagnosticsSection("HostInformation", hostInformation);
+
             context.Container.ConfigureComponent(() => hostInformation, DependencyLifecycle.SingleInstance);
 
             var endpointName = context.Settings.EndpointName();

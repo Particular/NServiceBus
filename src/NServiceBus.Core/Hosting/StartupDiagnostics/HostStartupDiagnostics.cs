@@ -70,14 +70,20 @@
             {
                 try
                 {
-                    var startupDiagnostics = new StartupDiagnostics
+                    var data = "";
+
+                    foreach (var section in settings.Get<StartupDiagnosticEntries>().Entries)
                     {
-                        EndpointName = settings.EndpointName()
-                    };
+                        var sectionData = SimpleJson.SerializeObject(section.Data);
 
-                    var dataToWrite = SimpleJson.SerializeObject(startupDiagnostics);
+                        if (!string.IsNullOrEmpty(data))
+                        {
+                            data += "," + Environment.NewLine;
+                        }
+                        data += $"{section.Name}: {sectionData}";
+                    }
 
-                    await diagnosticsWriter.Write(dataToWrite).ConfigureAwait(false);
+                    await diagnosticsWriter.Write("{" + Environment.NewLine + data + "}").ConfigureAwait(false);
                 }
                 catch (Exception e)
                 {
@@ -94,11 +100,6 @@
             ReadOnlySettings settings;
 
             static ILog logger = LogManager.GetLogger<WriteStartupDiagnostics>();
-
-            class StartupDiagnostics
-            {
-                public string EndpointName;
-            }
         }
     }
 }

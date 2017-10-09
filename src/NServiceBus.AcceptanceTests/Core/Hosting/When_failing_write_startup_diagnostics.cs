@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.AcceptanceTests.Core.Diagnostics
+﻿namespace NServiceBus.AcceptanceTests.Core.Hosting
 {
     using System;
     using System.Linq;

@@ -1,8 +1,7 @@
-﻿namespace NServiceBus.AcceptanceTests.Core.Diagnostics
+﻿namespace NServiceBus.AcceptanceTests.Core.Hosting
 {
     using System;
     using System.IO;
-    using System.Runtime.Serialization.Json;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using AcceptanceTesting.Customization;
@@ -23,20 +22,9 @@
             var filename = $"{endpointName}-config.txt";
             var path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, ".diagnostics", filename);
 
-            var serializer = new DataContractJsonSerializer(typeof(JSONDataStructureWrittenByDiagnostics));
+            Assert.True(File.Exists(path));
 
-            using (var file = new FileStream(path, FileMode.Open))
-            {
-                var writtenData = (JSONDataStructureWrittenByDiagnostics)serializer.ReadObject(file);
-                Assert.AreEqual(endpointName, writtenData.EndpointName);
-            }
-        }
-
-        public class JSONDataStructureWrittenByDiagnostics
-        {
-#pragma warning disable 649
-            public string EndpointName;
-#pragma warning restore 649
+            Console.Out.WriteLine(File.ReadAllText(path));
         }
 
         class Context : ScenarioContext

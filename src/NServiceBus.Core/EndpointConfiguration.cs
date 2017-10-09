@@ -34,6 +34,7 @@ namespace NServiceBus
             pipelineCollection = new PipelineConfiguration();
             Settings.Set<PipelineConfiguration>(pipelineCollection);
             Settings.Set<SatelliteDefinitions>(new SatelliteDefinitions());
+            Settings.Set<StartupDiagnosticEntries>(new StartupDiagnosticEntries());
 
             Pipeline = new PipelineSettings(pipelineCollection.Modifications, Settings);
 

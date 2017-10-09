@@ -3,7 +3,7 @@ namespace NServiceBus
     using System;
     using System.Threading.Tasks;
     using Configuration.AdvancedExtensibility;
-
+    
     /// <summary>
     /// Provides diagnostics configuration options.
     /// </summary>
