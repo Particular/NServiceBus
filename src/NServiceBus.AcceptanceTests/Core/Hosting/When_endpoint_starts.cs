@@ -26,7 +26,7 @@
             var pathToFile = Path.Combine(basePath, startupDiagnoticsFileName);
             Assert.True(File.Exists(pathToFile));
 
-            Console.Out.WriteLine(File.ReadAllText(pathToFile));
+            TestContext.WriteLine(File.ReadAllText(pathToFile));
         }
 
         class Context : ScenarioContext
