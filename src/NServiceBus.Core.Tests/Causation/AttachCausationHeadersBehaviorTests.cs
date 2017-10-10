@@ -60,26 +60,6 @@
         }
 
         [Test]
-        public async Task Should_include_outgoing_message_in_context()
-        {
-            ConversationIdStrategyContext contextProvided = null;
-
-            var behavior = new AttachCausationHeadersBehavior(c =>
-            {
-                contextProvided = c;
-                return ConversationId.Default;
-            });
-
-
-            var context = new TestableOutgoingLogicalMessageContext();
-
-            await behavior.Invoke(context, ctx => TaskEx.CompletedTask);
-
-            Assert.NotNull(contextProvided);
-            Assert.AreSame(contextProvided.Message, context.Message);
-        }
-
-        [Test]
         public async Task When_no_incoming_message_should_not_override_a_conversation_id_specified_by_the_user()
         {
             var userConversationId = Guid.NewGuid().ToString();

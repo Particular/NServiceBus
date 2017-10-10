@@ -1,6 +1,8 @@
 ﻿namespace NServiceBus.Features
 {
     using System;
+    using Pipeline;
+    using Settings;
 
     class MessageCausation : Feature
     {
@@ -11,20 +13,20 @@
 
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-            var newIdGenerator = GetIdStrategy(context);
+            var newIdGenerator = GetIdStrategy(context.Settings);
 
             context.Pipeline.Register("AttachCausationHeaders", new AttachCausationHeadersBehavior(newIdGenerator), "Adds related to and conversation id headers to outgoing messages");
         }
 
-        static Func<ConversationIdStrategyContext, ConversationId> GetIdStrategy(FeatureConfigurationContext context)
+        static Func<IOutgoingLogicalMessageContext, ConversationId> GetIdStrategy(ReadOnlySettings settings)
         {
-            if (context.Settings.TryGet("CustomConversationIdStrategy", out Func<ConversationIdStrategyContext, ConversationId> idGenerator))
+            if (settings.TryGet("CustomConversationIdStrategy", out Func<ConversationIdStrategyContext, ConversationId> idGenerator))
             {
-                return strategyContext =>
+                return context =>
                 {
                     try
                     {
-                        return idGenerator(strategyContext);
+                        return idGenerator(new ConversationIdStrategyContext(context.Message));
                     }
                     catch (Exception exception)
                     {

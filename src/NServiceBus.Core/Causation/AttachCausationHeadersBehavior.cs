@@ -7,7 +7,7 @@ namespace NServiceBus
 
     class AttachCausationHeadersBehavior : IBehavior<IOutgoingLogicalMessageContext, IOutgoingLogicalMessageContext>
     {
-        public AttachCausationHeadersBehavior(Func<ConversationIdStrategyContext, ConversationId> conversationIdStrategy)
+        public AttachCausationHeadersBehavior(Func<IOutgoingLogicalMessageContext, ConversationId> conversationIdStrategy)
         {
             this.conversationIdStrategy = conversationIdStrategy;
         }
@@ -52,9 +52,9 @@ namespace NServiceBus
                 return;
             }
 
-            context.Headers[Headers.ConversationId] = conversationIdStrategy(new ConversationIdStrategyContext(context.Message)).Value;
+            context.Headers[Headers.ConversationId] = conversationIdStrategy(context).Value;
         }
 
-        Func<ConversationIdStrategyContext, ConversationId> conversationIdStrategy;
+        Func<IOutgoingLogicalMessageContext, ConversationId> conversationIdStrategy;
     }
 }

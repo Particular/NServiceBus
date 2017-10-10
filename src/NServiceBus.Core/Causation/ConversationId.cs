@@ -17,7 +17,6 @@
         /// <summary>
         /// Uses the provided value as the conversation id.
         /// </summary>
-        /// <param name="customValue"></param>
         public static ConversationId Custom(string customValue)
         {
             if (string.IsNullOrEmpty(customValue))
