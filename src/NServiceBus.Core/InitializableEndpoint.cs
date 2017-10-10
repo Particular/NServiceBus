@@ -41,6 +41,11 @@ namespace NServiceBus
 
             ConfigRunBeforeIsFinalized(concreteTypes);
 
+            var endpointComponent = new EndpointComponent(settings);
+
+            settings.Set<EndpointComponent>(endpointComponent);
+            settings.AddStartupDiagnosticsSection("Endpoint", endpointComponent);
+
             EnsureTransportConfigured();
             var transportDefinition = settings.Get<TransportDefinition>();
             var connectionString = settings.Get<TransportConnectionString>().GetConnectionStringOrRaiseError(transportDefinition);
@@ -65,7 +70,7 @@ namespace NServiceBus
             var username = GetInstallationUserName();
             TransportReceiveInfrastructure receiveInfrastructure = null;
 
-            if (!settings.Get<bool>("Endpoint.SendOnly"))
+            if (!endpointComponent.IsSendOnly)
             {
                 receiveInfrastructure = transportInfrastructure.ConfigureReceiveInfrastructure();
                 await CreateQueuesIfNecessary(receiveInfrastructure, username).ConfigureAwait(false);
