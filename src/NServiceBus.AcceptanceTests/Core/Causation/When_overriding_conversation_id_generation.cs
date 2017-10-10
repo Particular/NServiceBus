@@ -8,6 +8,8 @@
 
     public class When_overriding_conversation_id_generation : NServiceBusAcceptanceTest
     {
+        const string TennantIdHeaderKey = "TennantId";
+
         [Test]
         public async Task Should_use_custom_id()
         {
@@ -16,17 +18,23 @@
                 MyBusinessId = "some id"
             };
 
+            var tennantId = "acme";
+
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<CustomGeneratorEndpoint>(b => b.When(async session =>
                 {
-                    await session.SendLocal(myBusinessMessage);
+                    var options = new SendOptions();
 
+                    options.RouteToThisEndpoint();
+                    options.SetHeader(TennantIdHeaderKey, tennantId);
+
+                    await session.Send(myBusinessMessage, options);
                     await session.SendLocal(new MessageSentOutsideOfHandlerNotMatchingTheConvention());
                 }))
                 .Done(c => c.MatchingMessageReceived && c.NonMatchingMessageReceived)
                 .Run();
 
-            Assert.AreEqual(myBusinessMessage.MyBusinessId, context.MatchingConversationIdReceived);
+            Assert.AreEqual($"{tennantId}-{myBusinessMessage.MyBusinessId}", context.MatchingConversationIdReceived);
             Assert.True(Guid.TryParse(context.NonMatchingConversationIdReceived, out var _));
         }
 
@@ -49,7 +57,7 @@
             {
                 if (context.Message.Instance is MessageSentOutsideOfHandlerMatchingTheConvention message)
                 {
-                    return ConversationId.Custom(message.MyBusinessId);
+                    return ConversationId.Custom($"{context.Headers[TennantIdHeaderKey]}-{message.MyBusinessId}");
                 }
 
                 return ConversationId.Default;

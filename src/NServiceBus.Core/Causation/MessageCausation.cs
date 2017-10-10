@@ -26,7 +26,7 @@
                 {
                     try
                     {
-                        return idGenerator(new ConversationIdStrategyContext(context.Message));
+                        return idGenerator(new ConversationIdStrategyContext(context.Message, context.Headers));
                     }
                     catch (Exception exception)
                     {

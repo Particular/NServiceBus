@@ -158,7 +158,8 @@ namespace NServiceBus
     }
     public class ConversationIdStrategyContext
     {
-        public ConversationIdStrategyContext(NServiceBus.Pipeline.OutgoingLogicalMessage message) { }
+        public ConversationIdStrategyContext(NServiceBus.Pipeline.OutgoingLogicalMessage message, System.Collections.Generic.IReadOnlyDictionary<string, string> headers) { }
+        public System.Collections.Generic.IReadOnlyDictionary<string, string> Headers { get; }
         public NServiceBus.Pipeline.OutgoingLogicalMessage Message { get; }
     }
     [System.ObsoleteAttribute("Setting a custom correlation ID is no longer supported. Will be removed in versio" +
