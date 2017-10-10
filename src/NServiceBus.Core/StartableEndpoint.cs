@@ -109,7 +109,7 @@ namespace NServiceBus
 
         List<TransportReceiver> CreateReceivers(IPipeline<ITransportReceiveContext> mainPipeline)
         {
-            if (settings.Get<EndpointComponent>().IsSendOnly)
+            if (settings.Get<EndpointInfo>().IsSendOnly)
             {
                 return new List<TransportReceiver>();
             }

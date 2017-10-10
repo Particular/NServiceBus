@@ -41,10 +41,10 @@ namespace NServiceBus
 
             ConfigRunBeforeIsFinalized(concreteTypes);
 
-            var endpointComponent = new EndpointComponent(settings);
+            var endpointInfo = new EndpointInfo(settings);
 
-            settings.Set<EndpointComponent>(endpointComponent);
-            settings.AddStartupDiagnosticsSection("Endpoint", endpointComponent);
+            settings.Set<EndpointInfo>(endpointInfo);
+            settings.AddStartupDiagnosticsSection("Endpoint", endpointInfo);
 
             EnsureTransportConfigured();
             var transportDefinition = settings.Get<TransportDefinition>();
@@ -60,7 +60,7 @@ namespace NServiceBus
                 settings.GetOrCreate<Publishers>());
             routing.Initialize(settings, transportInfrastructure, pipelineSettings);
 
-            var featureStats = featureActivator.SetupFeatures(container, pipelineSettings, routing);
+            var featureStats = featureActivator.SetupFeatures(container, pipelineSettings, routing, endpointInfo);
             settings.AddStartupDiagnosticsSection("Features", featureStats);
 
             pipelineConfiguration.RegisterBehaviorsInContainer(container);
@@ -70,7 +70,7 @@ namespace NServiceBus
             var username = GetInstallationUserName();
             TransportReceiveInfrastructure receiveInfrastructure = null;
 
-            if (!endpointComponent.IsSendOnly)
+            if (!endpointInfo.IsSendOnly)
             {
                 receiveInfrastructure = transportInfrastructure.ConfigureReceiveInfrastructure();
                 await CreateQueuesIfNecessary(receiveInfrastructure, username).ConfigureAwait(false);
