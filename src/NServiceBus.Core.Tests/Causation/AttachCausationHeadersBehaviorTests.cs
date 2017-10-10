@@ -14,11 +14,7 @@
         public async Task Should_generate_new_conversation_id_when_sending_outside_of_handlers()
         {
             var generatedId = "some generated conversation id";
-            var behavior = new AttachCausationHeadersBehavior((ConversationIdStrategyContext c, out string id) =>
-            {
-                id = generatedId;
-                return true;
-            });
+            var behavior = new AttachCausationHeadersBehavior(_ => ConversationId.Custom(generatedId));
             var context = new TestableOutgoingLogicalMessageContext();
 
             await behavior.Invoke(context, ctx => TaskEx.CompletedTask);
@@ -29,11 +25,7 @@
         [Test]
         public async Task Should_default_to_combguid_id()
         {
-            var behavior = new AttachCausationHeadersBehavior((ConversationIdStrategyContext c, out string id) =>
-            {
-                id = null;
-                return false;
-            });
+            var behavior = new AttachCausationHeadersBehavior(_ => ConversationId.Default);
             var context = new TestableOutgoingLogicalMessageContext();
 
             await behavior.Invoke(context, ctx => TaskEx.CompletedTask);
@@ -44,14 +36,8 @@
         [Test]
         public void Should_not_allow_null_or_empty_id()
         {
-            var behavior = new AttachCausationHeadersBehavior((ConversationIdStrategyContext c, out string id) =>
-            {
-                id = "";
-                return true;
-            });
-            var context = new TestableOutgoingLogicalMessageContext();
-
-            Assert.ThrowsAsync<Exception>(async () => await behavior.Invoke(context, ctx => TaskEx.CompletedTask));
+            Assert.Throws<ArgumentException>(() => ConversationId.Custom(null));
+            Assert.Throws<ArgumentException>(() => ConversationId.Custom(""));
         }
 
         [Test]
@@ -59,7 +45,7 @@
         {
             var incomingConversationId = Guid.NewGuid().ToString();
 
-            var behavior = new AttachCausationHeadersBehavior(NoOpStrategy);
+            var behavior = new AttachCausationHeadersBehavior(_ => ConversationId.Default);
             var context = new TestableOutgoingLogicalMessageContext();
 
             var transportMessage = new IncomingMessage("xyz", new Dictionary<string, string>
@@ -74,31 +60,11 @@
         }
 
         [Test]
-        public async Task Should_include_outgoing_message_in_context()
-        {
-            ConversationIdStrategyContext contextProvided = null;
-
-            var behavior = new AttachCausationHeadersBehavior((ConversationIdStrategyContext c, out string id) =>
-            {
-                contextProvided = c;
-                id = null;
-                return false;
-            });
-
-            var context = new TestableOutgoingLogicalMessageContext();
-
-            await behavior.Invoke(context, ctx => TaskEx.CompletedTask);
-
-            Assert.NotNull(contextProvided);
-            Assert.AreSame(contextProvided.Message, context.Message);
-        }
-
-        [Test]
         public async Task When_no_incoming_message_should_not_override_a_conversation_id_specified_by_the_user()
         {
             var userConversationId = Guid.NewGuid().ToString();
 
-            var behavior = new AttachCausationHeadersBehavior(NoOpStrategy);
+            var behavior = new AttachCausationHeadersBehavior(_ => ConversationId.Default);
             var context = new TestableOutgoingLogicalMessageContext
             {
                 Headers =
@@ -118,7 +84,7 @@
             var incomingConversationId = Guid.NewGuid().ToString();
             var userDefinedConversationId = Guid.NewGuid().ToString();
 
-            var behavior = new AttachCausationHeadersBehavior(NoOpStrategy);
+            var behavior = new AttachCausationHeadersBehavior(_ => ConversationId.Default);
             var context = new TestableOutgoingLogicalMessageContext
             {
                 Headers =
@@ -140,7 +106,7 @@
         [Test]
         public async Task Should_set_the_related_to_header_with_the_id_of_the_current_message()
         {
-            var behavior = new AttachCausationHeadersBehavior(NoOpStrategy);
+            var behavior = new AttachCausationHeadersBehavior(_ => ConversationId.Default);
             var context = new TestableOutgoingLogicalMessageContext();
 
             context.Extensions.Set(new IncomingMessage("the message id", new Dictionary<string, string>(), new byte[0]));
@@ -148,12 +114,6 @@
             await behavior.Invoke(context, ctx => TaskEx.CompletedTask);
 
             Assert.AreEqual("the message id", context.Headers[Headers.RelatedTo]);
-        }
-
-        bool NoOpStrategy(ConversationIdStrategyContext context, out string customId)
-        {
-            customId = null;
-            return false;
         }
     }
 }

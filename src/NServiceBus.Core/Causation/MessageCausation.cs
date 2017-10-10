@@ -1,5 +1,9 @@
 ﻿namespace NServiceBus.Features
 {
+    using System;
+    using Pipeline;
+    using Settings;
+
     class MessageCausation : Feature
     {
         public MessageCausation()
@@ -9,23 +13,29 @@
 
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-            var newIdGenerator = GetIdGenerator(context);
+            var newIdGenerator = GetIdStrategy(context.Settings);
 
             context.Pipeline.Register("AttachCausationHeaders", new AttachCausationHeadersBehavior(newIdGenerator), "Adds related to and conversation id headers to outgoing messages");
         }
 
-        static TryGetConversationIdDelegate GetIdGenerator(FeatureConfigurationContext context)
+        static Func<IOutgoingLogicalMessageContext, ConversationId> GetIdStrategy(ReadOnlySettings settings)
         {
-            if (context.Settings.TryGet<TryGetConversationIdDelegate>(out var idGenerator))
+            if (settings.TryGet("CustomConversationIdStrategy", out Func<ConversationIdStrategyContext, ConversationId> idGenerator))
             {
-                return idGenerator;
+                return context =>
+                {
+                    try
+                    {
+                        return idGenerator(new ConversationIdStrategyContext(context.Message));
+                    }
+                    catch (Exception exception)
+                    {
+                        throw new Exception($"Failed to execute CustomConversationIdStrategy. This configuration option was defined using {nameof(EndpointConfiguration)}.{nameof(MessageCausationConfigurationExtensions.CustomConversationIdStrategy)}.", exception);
+                    }
+                };
             }
 
-            return (ConversationIdStrategyContext _, out string id) =>
-            {
-                id = null;
-                return false;
-            };
+            return _ => ConversationId.Default;
         }
     }
 }
