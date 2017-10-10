@@ -61,7 +61,7 @@ namespace NServiceBus.Features
 
             settings.PreventChanges();
 
-            return new FeaturesReport(features.Select(t => t.Diagnostics).ToList());
+            return new FeaturesReport(features.Select(t => t.Diagnostics));
         }
 
         public async Task StartFeatures(IBuilder builder, IMessageSession session)

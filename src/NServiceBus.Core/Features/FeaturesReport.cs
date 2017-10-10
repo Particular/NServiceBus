@@ -2,13 +2,10 @@ namespace NServiceBus.Features
 {
     using System.Collections.Generic;
 
-    class FeaturesReport
+    class FeaturesReport : List<FeatureDiagnosticData>
     {
-        internal FeaturesReport(IReadOnlyList<FeatureDiagnosticData> data)
+        public FeaturesReport(IEnumerable<FeatureDiagnosticData> collection) : base(collection)
         {
-            Features = data;
         }
-
-        public IReadOnlyList<FeatureDiagnosticData> Features { get; }
     }
 }
