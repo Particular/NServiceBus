@@ -20,7 +20,7 @@
             this.typesToInclude = typesToInclude;
         }
 
-        protected bool EnableDiagnostics;
+        protected bool DisableDiagnostics = true;
 
         public async Task<EndpointConfiguration> GetConfiguration(RunDescriptor runDescriptor, EndpointCustomizationConfiguration endpointConfiguration, Action<EndpointConfiguration> configurationBuilderCustomization)
         {
@@ -48,7 +48,7 @@
 
             configurationBuilderCustomization(configuration);
 
-            if (!EnableDiagnostics)
+            if (DisableDiagnostics)
             {
                 //no-op diagnostics
                 configuration.GetSettings().Set("NServiceBus.HostStartupDiagnostics", FeatureState.Disabled);

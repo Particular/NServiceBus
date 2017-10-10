@@ -4,7 +4,7 @@
     {
         public DefaultServerWithDiagnostics()
         {
-            EnableDiagnostics = true;
+            DisableDiagnostics = false;
         }
     }
 }
