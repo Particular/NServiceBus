@@ -5,7 +5,7 @@
     /// <summary>
     /// Provides an API to add startup diagnostics.
     /// </summary>
-    static class EndpointDiagnosticSettingsExtensions
+    public static class EndpointDiagnosticSettingsExtensions
     {
         /// <summary>
         /// Adds a section to the startup diagnostics.

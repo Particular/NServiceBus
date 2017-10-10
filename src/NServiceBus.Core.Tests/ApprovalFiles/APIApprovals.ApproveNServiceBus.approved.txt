@@ -315,6 +315,10 @@ namespace NServiceBus
             where T : NServiceBus.Features.Feature { }
         public static void EnableFeature(this NServiceBus.EndpointConfiguration config, System.Type featureType) { }
     }
+    public class static EndpointDiagnosticSettingsExtensions
+    {
+        public static void AddStartupDiagnosticsSection(this NServiceBus.Settings.ReadOnlySettings settings, string sectionName, object section) { }
+    }
     public class static ErrorQueueSettings
     {
         public const string SettingsKey = "errorQueue";
