@@ -29,7 +29,7 @@
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net452'">
     <PackageReference Include="NUnit.ApplicationDomain" Version="11.0.0" />
-    <PackageReference Include="PublicApiGenerator" Version="6.1.0-beta2" />
+    <PackageReference Include="PublicApiGenerator" Version="6.4.0" />
   </ItemGroup>
 
   <ItemGroup>
