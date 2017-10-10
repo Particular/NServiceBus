@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.AcceptanceTests.Causation
+﻿namespace NServiceBus.AcceptanceTests.Core.Causation
 {
     using System;
     using System.Threading.Tasks;
