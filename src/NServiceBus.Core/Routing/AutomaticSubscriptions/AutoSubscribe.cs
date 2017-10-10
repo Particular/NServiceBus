@@ -16,7 +16,7 @@
         internal AutoSubscribe()
         {
             EnableByDefault();
-            Prerequisite(context => !context.Settings.Get<EndpointComponent>().IsSendOnly, "Send only endpoints can't autosubscribe.");
+            Prerequisite(context => !context.Endpoint.IsSendOnly, "Send only endpoints can't autosubscribe.");
         }
 
         /// <summary>

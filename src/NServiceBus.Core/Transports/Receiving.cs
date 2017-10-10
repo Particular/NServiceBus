@@ -9,11 +9,11 @@ namespace NServiceBus
         internal Receiving()
         {
             EnableByDefault();
-            Prerequisite(c => !c.Settings.Get<EndpointComponent>().IsSendOnly, "Endpoint is configured as send-only");
+            Prerequisite(c => !c.Endpoint.IsSendOnly, "Endpoint is configured as send-only");
             Defaults(s =>
             {
                 var transportInfrastructure = s.Get<TransportInfrastructure>();
-                var discriminator = s.Get<EndpointComponent>().InstanceDiscriminator;
+                var discriminator = s.Get<EndpointInfo>().InstanceDiscriminator;
                 var baseQueueName = s.GetOrDefault<string>("BaseInputQueueName") ?? s.EndpointName();
 
                 var mainInstance = transportInfrastructure.BindToLocalEndpoint(new EndpointInstance(s.EndpointName()));

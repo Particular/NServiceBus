@@ -32,7 +32,7 @@ namespace NServiceBus.Features
             }
 
             var transportInfrastructure = context.Settings.Get<TransportInfrastructure>();
-            var canReceive = !context.Settings.Get<EndpointComponent>().IsSendOnly;
+            var canReceive = !context.Endpoint.IsSendOnly;
             var conventions = context.Settings.Get<Conventions>();
             var enforceBestPractices = context.Routing.EnforceBestPractices;
 

@@ -5,7 +5,7 @@
     using Extensibility;
     using DelayedDelivery;
     using DeliveryConstraints;
-    using NServiceBus.Features;
+    using Features;
     using NServiceBus.Routing;
     using Settings;
     using Transport;
@@ -22,7 +22,7 @@
             settings.Set<TransportDefinition>(fakeTransportDefinition);
             settings.Set<TransportInfrastructure>(fakeTransportDefinition.Initialize(settings, null));
 
-            var context = new FeatureConfigurationContext(settings, null, null, null);
+            var context = new TestableFeatureConfigurationContext(settings);
             var result = context.Settings.DoesTransportSupportConstraint<DeliveryConstraint>();
             Assert.IsTrue(result);
         }

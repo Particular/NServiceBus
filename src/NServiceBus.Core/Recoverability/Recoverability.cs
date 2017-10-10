@@ -21,7 +21,7 @@
             EnableByDefault();
             DependsOnOptionally<DelayedDeliveryFeature>();
 
-            Prerequisite(context => !context.Settings.Get<EndpointComponent>().IsSendOnly,
+            Prerequisite(context => !context.Endpoint.IsSendOnly,
                 "Message recoverability is only relevant for endpoints receiving messages.");
             Defaults(settings =>
             {

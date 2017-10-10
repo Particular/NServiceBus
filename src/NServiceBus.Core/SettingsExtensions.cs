@@ -24,7 +24,7 @@ namespace NServiceBus
         public static string EndpointName(this ReadOnlySettings settings)
         {
             Guard.AgainstNull(nameof(settings), settings);
-            return settings.Get<EndpointComponent>().Name;
+            return settings.Get<EndpointInfo>().Name;
         }
 
         /// <summary>

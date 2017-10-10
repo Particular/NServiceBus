@@ -5,7 +5,7 @@ namespace NServiceBus.Features
         public ReplyAddressFeature()
         {
             EnableByDefault();
-            Prerequisite(c => !c.Settings.Get<EndpointComponent>().IsSendOnly, "Send-Only endpoints can't receive replies");
+            Prerequisite(c => !c.Endpoint.IsSendOnly, "Send-Only endpoints can't receive replies");
         }
 
         protected internal override void Setup(FeatureConfigurationContext context)

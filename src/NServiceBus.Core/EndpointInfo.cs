@@ -2,9 +2,9 @@ namespace NServiceBus
 {
     using Settings;
 
-    class EndpointComponent
+    class EndpointInfo
     {
-        public EndpointComponent(ReadOnlySettings settings)
+        public EndpointInfo(ReadOnlySettings settings)
         {
             Name = settings.Get<string>("NServiceBus.Routing.EndpointName");
             IsSendOnly = settings.GetOrDefault<bool>("Endpoint.SendOnly");
