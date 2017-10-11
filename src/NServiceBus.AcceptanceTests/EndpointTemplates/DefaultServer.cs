@@ -48,12 +48,6 @@
 
             configurationBuilderCustomization(configuration);
 
-            if (DisableDiagnostics)
-            {
-                //no-op diagnostics
-                configuration.GetSettings().Set("NServiceBus.HostStartupDiagnostics", FeatureState.Disabled);
-            }
-
             return configuration;
         }
 

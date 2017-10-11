@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus.AcceptanceTests.Core.Hosting
 {
-    using System;
     using System.IO;
     using System.Threading.Tasks;
     using AcceptanceTesting;
@@ -10,7 +9,7 @@
 
     public class When_endpoint_starts : NServiceBusAcceptanceTest
     {
-        static string basePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, TestContext.CurrentContext.Test.ID);
+        static string basePath = Path.Combine(TestContext.CurrentContext.TestDirectory, TestContext.CurrentContext.Test.ID);
 
         [Test]
         public async Task Should_emit_config_diagnostics()
@@ -37,7 +36,8 @@
         {
             public MyEndpoint()
             {
-                EndpointSetup<DefaultServerWithDiagnostics>(c => c.SetDiagnosticsPath(basePath));
+                EndpointSetup<DefaultServer>(c => c.SetDiagnosticsPath(basePath))
+                   .EnableStartupDiagnostics();
             }
         }
     }

@@ -25,7 +25,6 @@
             context.RegisterStartupTask(new WriteStartupDiagnostics(diagnosticsWriter, settings));
         }
 
-
         static HostDiagnosticsWriter GetDiagnosticsWriter(ReadOnlySettings settings)
         {
             if (settings.TryGet<HostDiagnosticsWriter>(out var diagnosticsWriter))
