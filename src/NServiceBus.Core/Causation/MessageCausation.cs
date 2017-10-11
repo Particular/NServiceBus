@@ -40,12 +40,12 @@
                 }
                 catch (Exception exception)
                 {
-                    throw new Exception($"Failed to execute CustomConversationIdStrategy. This configuration option was defined using {nameof(EndpointConfiguration)}.{nameof(MessageCausationConfigurationExtensions.CustomConversationIdStrategy)}.", exception);
+                    throw new Exception($"Failed to execute the custom conversation ID strategy defined using '{nameof(EndpointConfiguration)}.{nameof(MessageCausationConfigurationExtensions.CustomConversationIdStrategy)}'.", exception);
                 }
 
                 if (customConversationId == null)
                 {
-                    throw new Exception($"CustomConversationIdStrategy defined using {nameof(EndpointConfiguration)}.{nameof(MessageCausationConfigurationExtensions.CustomConversationIdStrategy)} returned null. Please return either new {nameof(ConversationId)}(myConversationId) or {nameof(ConversationId)}.Default");
+                    throw new Exception($"The custom conversation ID strategy defined using '{nameof(EndpointConfiguration)}.{nameof(MessageCausationConfigurationExtensions.CustomConversationIdStrategy)}' returned null. The custom strategy must return either '{nameof(ConversationId)}.{nameof(ConversationId.Custom)}(customValue)' or '{nameof(ConversationId)}.{nameof(ConversationId.Default)}'");
                 }
 
                 return customConversationId.Value;
