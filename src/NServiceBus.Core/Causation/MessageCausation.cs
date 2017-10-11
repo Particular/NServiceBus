@@ -22,20 +22,36 @@
         {
             if (settings.TryGet("CustomConversationIdStrategy", out Func<ConversationIdStrategyContext, ConversationId> idGenerator))
             {
-                return context =>
-                {
-                    try
-                    {
-                        return idGenerator(new ConversationIdStrategyContext(context.Message, context.Headers)).Value;
-                    }
-                    catch (Exception exception)
-                    {
-                        throw new Exception($"Failed to execute CustomConversationIdStrategy. This configuration option was defined using {nameof(EndpointConfiguration)}.{nameof(MessageCausationConfigurationExtensions.CustomConversationIdStrategy)}.", exception);
-                    }
-                };
+                return WrapUserDefinedInvocation(idGenerator);
             }
 
             return _ => CombGuid.Generate().ToString();
         }
+
+        internal static Func<IOutgoingLogicalMessageContext, string> WrapUserDefinedInvocation(Func<ConversationIdStrategyContext, ConversationId> userDefinedIdGenerator)
+        {
+            return context =>
+            {
+                ConversationId customConversationId;
+
+                try
+                {
+                    customConversationId = userDefinedIdGenerator(new ConversationIdStrategyContext(context.Message, context.Headers));
+                }
+                catch (Exception exception)
+                {
+                    throw new Exception($"Failed to execute CustomConversationIdStrategy. This configuration option was defined using {nameof(EndpointConfiguration)}.{nameof(MessageCausationConfigurationExtensions.CustomConversationIdStrategy)}.", exception);
+                }
+
+                if (customConversationId == null)
+                {
+                    throw new Exception($"CustomConversationIdStrategy defined using {nameof(EndpointConfiguration)}.{nameof(MessageCausationConfigurationExtensions.CustomConversationIdStrategy)} returned null. Please return either new {nameof(ConversationId)}(myConversationId) or {nameof(ConversationId)}.Default");
+                }
+
+                return customConversationId.Value;
+            };
+        }
+
+
     }
 }

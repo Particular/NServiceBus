@@ -1,7 +1,5 @@
 ﻿namespace NServiceBus
 {
-    using System;
-
     /// <summary>
     /// Holds the conversation ID to use for the outgoing message.
     /// </summary>
@@ -19,10 +17,7 @@
         /// </summary>
         public static ConversationId Custom(string customValue)
         {
-            if (string.IsNullOrEmpty(customValue))
-            {
-                throw new ArgumentException("Null or empty conversation IDs are not allowed.");
-            }
+            Guard.AgainstNullAndEmpty(nameof(customValue), customValue);
 
             return new ConversationId(customValue);
         }
