@@ -151,7 +151,7 @@ namespace NServiceBus
         public NServiceBus.ConventionsBuilder DefiningEventsAs(System.Func<System.Type, bool> definesEventType) { }
         public NServiceBus.ConventionsBuilder DefiningMessagesAs(System.Func<System.Type, bool> definesMessageType) { }
     }
-    public struct ConversationId
+    public class ConversationId
     {
         public static NServiceBus.ConversationId Default { get; }
         public static NServiceBus.ConversationId Custom(string customValue) { }

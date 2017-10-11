@@ -5,7 +5,7 @@
     /// <summary>
     /// Holds the conversation ID to use for the outgoing message.
     /// </summary>
-    public struct ConversationId
+    public class ConversationId
     {
         internal string Value { get; }
 

@@ -18,7 +18,7 @@
             context.Pipeline.Register("AttachCausationHeaders", new AttachCausationHeadersBehavior(newIdGenerator), "Adds related to and conversation id headers to outgoing messages");
         }
 
-        static Func<IOutgoingLogicalMessageContext, ConversationId> GetIdStrategy(ReadOnlySettings settings)
+        static Func<IOutgoingLogicalMessageContext, string> GetIdStrategy(ReadOnlySettings settings)
         {
             if (settings.TryGet("CustomConversationIdStrategy", out Func<ConversationIdStrategyContext, ConversationId> idGenerator))
             {
@@ -26,7 +26,7 @@
                 {
                     try
                     {
-                        return idGenerator(new ConversationIdStrategyContext(context.Message, context.Headers));
+                        return idGenerator(new ConversationIdStrategyContext(context.Message, context.Headers)).Value;
                     }
                     catch (Exception exception)
                     {
@@ -35,7 +35,7 @@
                 };
             }
 
-            return _ => ConversationId.Default;
+            return _ => CombGuid.Generate().ToString();
         }
     }
 }
