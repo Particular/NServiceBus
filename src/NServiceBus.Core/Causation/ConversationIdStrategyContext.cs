@@ -14,6 +14,7 @@
         public ConversationIdStrategyContext(OutgoingLogicalMessage message, IReadOnlyDictionary<string, string> headers)
         {
             Guard.AgainstNull(nameof(message), message);
+            Guard.AgainstNull(nameof(headers), headers);
 
             Message = message;
             Headers = headers;
