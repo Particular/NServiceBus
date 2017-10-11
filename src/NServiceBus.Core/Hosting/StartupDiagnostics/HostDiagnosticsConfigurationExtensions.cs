@@ -14,14 +14,14 @@ namespace NServiceBus
         /// </summary>
         /// <param name="config">Configuration object to extend.</param>
         /// <param name="path">The custom path to use.</param>
-        public static void SetDiagnosticsRootPath(this EndpointConfiguration config, string path)
+        public static void SetDiagnosticsPath(this EndpointConfiguration config, string path)
         {
             Guard.AgainstNull(nameof(config), config);
             Guard.AgainstNullAndEmpty(nameof(path), path);
 
             PathChecker.ThrowForBadPath(path, "Diagnostics root path");
 
-            config.GetSettings().Set(DiagnosticsRootPathKey, path);
+            config.GetSettings().Set(DiagnosticsPathKey, path);
         }
 
         /// <summary>
@@ -37,6 +37,6 @@ namespace NServiceBus
             config.Settings.Set<HostDiagnosticsWriter>(new HostDiagnosticsWriter(customDiagnosticsWriter));
         }
 
-        internal const string DiagnosticsRootPathKey = "Diagnostics.RootPath";
+        internal const string DiagnosticsPathKey = "Diagnostics.RootPath";
     }
 }

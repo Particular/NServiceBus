@@ -37,7 +37,7 @@
         {
             public MyEndpoint()
             {
-                EndpointSetup<DefaultServerWithDiagnostics>(c => c.SetDiagnosticsRootPath(basePath));
+                EndpointSetup<DefaultServerWithDiagnostics>(c => c.SetDiagnosticsPath(basePath));
             }
         }
     }
