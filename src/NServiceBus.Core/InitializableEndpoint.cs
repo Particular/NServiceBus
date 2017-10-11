@@ -56,10 +56,9 @@ namespace NServiceBus
             routing.Initialize(settings, transportInfrastructure, pipelineSettings);
 
             var featureStats = featureActivator.SetupFeatures(container, pipelineSettings, routing);
+            settings.AddStartupDiagnosticsSection("Features", featureStats);
 
             pipelineConfiguration.RegisterBehaviorsInContainer(container);
-
-            DisplayDiagnosticsForFeatures.Run(featureStats);
 
             container.ConfigureComponent(b => settings.Get<Notifications>(), DependencyLifecycle.SingleInstance);
 

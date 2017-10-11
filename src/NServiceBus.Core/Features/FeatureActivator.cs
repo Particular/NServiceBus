@@ -36,7 +36,7 @@ namespace NServiceBus.Features
             }));
         }
 
-        public FeaturesReport SetupFeatures(IConfigureComponents container, PipelineSettings pipelineSettings, RoutingComponent routing)
+        public FeatureDiagnosticData[] SetupFeatures(IConfigureComponents container, PipelineSettings pipelineSettings, RoutingComponent routing)
         {
             // featuresToActivate is enumerated twice because after setting defaults some new features might got activated.
             var sourceFeatures = Sort(features);
@@ -61,7 +61,7 @@ namespace NServiceBus.Features
 
             settings.PreventChanges();
 
-            return new FeaturesReport(features.Select(t => t.Diagnostics).ToList());
+            return features.Select(t => t.Diagnostics).ToArray();
         }
 
         public async Task StartFeatures(IBuilder builder, IMessageSession session)
