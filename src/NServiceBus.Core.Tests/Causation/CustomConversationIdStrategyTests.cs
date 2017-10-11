@@ -29,9 +29,15 @@
             StringAssert.Contains("Failed to execute CustomConversationIdStrategy", ex.Message);
         }
 
-        void Invoke(Func<ConversationIdStrategyContext, ConversationId> strategy)
+        [Test]
+        public void Should_default_to_combguid_id()
         {
-            MessageCausation.WrapUserDefinedInvocation(strategy)(new TestableOutgoingLogicalMessageContext());
+            Assert.True(Guid.TryParse(Invoke(_ => ConversationId.Default), out var _));
+        }
+
+        string Invoke(Func<ConversationIdStrategyContext, ConversationId> strategy)
+        {
+            return MessageCausation.WrapUserDefinedInvocation(strategy)(new TestableOutgoingLogicalMessageContext());
         }
     }
 }

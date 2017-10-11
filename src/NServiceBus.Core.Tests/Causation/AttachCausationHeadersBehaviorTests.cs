@@ -24,24 +24,6 @@
         }
 
         [Test]
-        public async Task Should_default_to_combguid_id()
-        {
-            var behavior = new AttachCausationHeadersBehavior(ReturnDefaultConversationId);
-            var context = new TestableOutgoingLogicalMessageContext();
-
-            await behavior.Invoke(context, ctx => TaskEx.CompletedTask);
-
-            Assert.True(Guid.TryParse(context.Headers[Headers.ConversationId], out var _));
-        }
-
-        [Test]
-        public void Should_not_allow_null_or_empty_id()
-        {
-            Assert.Throws<ArgumentException>(() => ConversationId.Custom(null));
-            Assert.Throws<ArgumentException>(() => ConversationId.Custom(""));
-        }
-
-        [Test]
         public async Task Should_set_the_conversation_id_to_conversation_id_of_incoming_message()
         {
             var incomingConversationId = Guid.NewGuid().ToString();
