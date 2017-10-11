@@ -63,7 +63,6 @@
         [Test]
         public void LoggersShouldBeStaticField()
         {
-            //Exclude types in the exceptions collection and their nested types
             foreach (var type in typeof(Endpoint).Assembly.GetTypes())
             {
                 foreach (var field in type.GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public))
