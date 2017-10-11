@@ -20,8 +20,6 @@
             this.typesToInclude = typesToInclude;
         }
 
-        protected bool DisableDiagnostics = true;
-
         public async Task<EndpointConfiguration> GetConfiguration(RunDescriptor runDescriptor, EndpointCustomizationConfiguration endpointConfiguration, Action<EndpointConfiguration> configurationBuilderCustomization)
         {
             var types = endpointConfiguration.GetTypesScopedByTestClass();
