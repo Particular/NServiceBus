@@ -98,6 +98,11 @@
                     configurationBuilderCustomization(bc, (TContext)runDescriptor.ScenarioContext);
                 }).ConfigureAwait(false);
 
+                if (configuration.DisableStartupDiagnostics)
+                {
+                    endpointConfiguration.GetSettings().Set("NServiceBus.HostStartupDiagnostics", FeatureState.Disabled);
+                }
+
                 return endpointConfiguration;
             };
 
