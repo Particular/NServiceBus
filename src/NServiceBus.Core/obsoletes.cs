@@ -443,14 +443,14 @@ namespace NServiceBus.Config
     }
 
     [ObsoleteEx(
-        Message = "Use code-based configuration instead of configuration sections.",
+        Message = "Use code-based configuration instead of a configuration file.",
         ReplacementTypeOrMember = "LogManager.Use<DefaultFactory>()",
         TreatAsErrorFromVersion = "7",
         RemoveInVersion = "8")]
     public class Logging
     {
         [ObsoleteEx(
-            Message = "Logging can not be configured using configuration sections.",
+            Message = "Logging can not be configured using a configuration file.",
             ReplacementTypeOrMember = "LogManager.Use<DefaultFactory>().Level(LogLevel)",
             TreatAsErrorFromVersion = "7",
             RemoveInVersion = "8")]
@@ -655,14 +655,14 @@ namespace NServiceBus.Config
     }
 
     [ObsoleteEx(
-        Message = "Use code-based configuration instead of configuration sections.",
+        Message = "Use code-based configuration instead of a configuration file.",
         ReplacementTypeOrMember = "EndpointConfiguration.SendFailedMessagesTo",
         TreatAsErrorFromVersion = "7",
         RemoveInVersion = "8")]
     public class MessageForwardingInCaseOfFaultConfig
     {
         [ObsoleteEx(
-            Message = "Endpoints can not be configured using configuration sections.",
+            Message = "Endpoints can not be configured using a configuration file.",
             ReplacementTypeOrMember = "EndpointConfiguration.SendFailedMessagesTo",
             TreatAsErrorFromVersion = "7",
             RemoveInVersion = "8")]
@@ -674,14 +674,14 @@ namespace NServiceBus.Config
     }
 
     [ObsoleteEx(
-        Message = "Use code-based configuration instead of configuration sections.",
+        Message = "Use code-based configuration instead of a configuration file.",
         ReplacementTypeOrMember = "EndpointConfiguration.UsePersistence<MsmqPersistence>()",
         TreatAsErrorFromVersion = "7",
         RemoveInVersion = "8")]
     public class MsmqSubscriptionStorageConfig
     {
         [ObsoleteEx(
-            Message = "Endpoints can not be configured using configuration sections.",
+            Message = "Endpoints can not be configured using a configuration file.",
             ReplacementTypeOrMember = "EndpointConfiguration.UsePersistence<MsmqPersistence>().SubscriptionQueue",
             TreatAsErrorFromVersion = "7",
             RemoveInVersion = "8")]
