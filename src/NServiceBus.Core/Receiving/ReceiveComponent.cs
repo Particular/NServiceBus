@@ -73,7 +73,6 @@ namespace NServiceBus
             return Task.WhenAll(receiverStopTasks);
         }
 
-
         public Task CreateQueuesIfNecessary(string username)
         {
             if (!configuration.IsEnabled)
@@ -100,7 +99,6 @@ namespace NServiceBus
                 throw new Exception($"Pre start-up check failed: {result.ErrorMessage}");
             }
         }
-
 
         void AddReceivers(IPipelineExecutor mainPipelineExecutor, IEventAggregator eventAggregator, IBuilder builder, CriticalError criticalError, string errorQueue)
         {
@@ -133,7 +131,6 @@ namespace NServiceBus
                 queueBindings.BindReceiving(satellitePipeline.ReceiveAddress);
             }
         }
-
 
         IPushMessages BuildMessagePump()
         {

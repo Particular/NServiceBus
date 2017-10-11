@@ -28,8 +28,6 @@
             Assert.That(async () => await testee.Stop(), Throws.Nothing);
         }
 
-
-
         class FakeTransportInfrastructure : TransportInfrastructure
         {
             public override IEnumerable<Type> DeliveryConstraints { get; }
