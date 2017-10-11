@@ -1,4 +1,4 @@
-namespace NServiceBus.AcceptanceTests.Core.Diagnostics
+namespace NServiceBus.AcceptanceTests.Core.Hosting
 {
     using System;
     using System.Collections.Concurrent;
@@ -74,7 +74,6 @@ namespace NServiceBus.AcceptanceTests.Core.Diagnostics
             public bool Done { get; set; }
         }
 
-        
         public class MyMessage : ICommand
         {
         }

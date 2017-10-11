@@ -315,6 +315,10 @@ namespace NServiceBus
             where T : NServiceBus.Features.Feature { }
         public static void EnableFeature(this NServiceBus.EndpointConfiguration config, System.Type featureType) { }
     }
+    public class static EndpointDiagnosticSettingsExtensions
+    {
+        public static void AddStartupDiagnosticsSection(this NServiceBus.Settings.ReadOnlySettings settings, string sectionName, object section) { }
+    }
     public class static ErrorQueueSettings
     {
         public const string SettingsKey = "errorQueue";
@@ -391,6 +395,11 @@ namespace NServiceBus
         public const string SubscriptionMessageType = "SubscriptionMessageType";
         public const string TimeSent = "NServiceBus.TimeSent";
         public const string TimeToBeReceived = "NServiceBus.TimeToBeReceived";
+    }
+    public class static HostDiagnosticsConfigurationExtensions
+    {
+        public static void CustomDiagnosticsWriter(this NServiceBus.EndpointConfiguration config, System.Func<string, System.Threading.Tasks.Task> customDiagnosticsWriter) { }
+        public static void SetDiagnosticsPath(this NServiceBus.EndpointConfiguration config, string path) { }
     }
     public class static HostInfoConfigurationExtensions
     {

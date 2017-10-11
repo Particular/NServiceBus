@@ -34,6 +34,7 @@ namespace NServiceBus
             pipelineCollection = new PipelineConfiguration();
             Settings.Set<PipelineConfiguration>(pipelineCollection);
             Settings.Set<SatelliteDefinitions>(new SatelliteDefinitions());
+            Settings.Set<StartupDiagnosticEntries>(new StartupDiagnosticEntries());
 
             Pipeline = new PipelineSettings(pipelineCollection.Modifications, Settings);
 
@@ -207,9 +208,8 @@ namespace NServiceBus
                 ThrowExceptions = assemblyScannerSettings.ThrowExceptions,
                 ScanAppDomainAssemblies = assemblyScannerSettings.ScanAppDomainAssemblies
             };
-            return assemblyScanner
-                .GetScannableAssemblies()
-                .Types;
+
+            return Scan(assemblyScanner);
         }
 
         List<Type> GetAllowedCoreTypes()
@@ -223,9 +223,22 @@ namespace NServiceBus
                 ThrowExceptions = assemblyScannerSettings.ThrowExceptions,
                 ScanAppDomainAssemblies = assemblyScannerSettings.ScanAppDomainAssemblies
             };
-            return assemblyScanner
-                .GetScannableAssemblies()
-                .Types;
+
+            return Scan(assemblyScanner);
+        }
+
+        List<Type> Scan(AssemblyScanner assemblyScanner)
+        {
+            var results = assemblyScanner.GetScannableAssemblies();
+
+            Settings.AddStartupDiagnosticsSection("AssemblyScanning", new
+            {
+                Assemblies = results.Assemblies.Select(a => a.FullName),
+                results.ErrorsThrownDuringScanning,
+                results.SkippedFiles
+            });
+
+            return results.Types;
         }
 
         ConventionsBuilder conventionsBuilder;

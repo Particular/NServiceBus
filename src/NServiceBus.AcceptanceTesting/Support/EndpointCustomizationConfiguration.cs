@@ -33,6 +33,8 @@
 
         public string CustomEndpointName { get; set; }
 
+        public bool DisableStartupDiagnostics { get; set; } = true;
+
         string endpointName;
     }
 }

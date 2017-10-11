@@ -1,6 +1,8 @@
 ﻿namespace NServiceBus.AcceptanceTesting
 {
     using System;
+    using Configuration.AdvancedExtensibility;
+    using Features;
     using Support;
 
     public class EndpointConfigurationBuilder : IEndpointConfigurationFactory
@@ -8,6 +10,13 @@
         public EndpointConfigurationBuilder CustomMachineName(string customMachineName)
         {
             configuration.CustomMachineName = customMachineName;
+
+            return this;
+        }
+
+        public EndpointConfigurationBuilder EnableStartupDiagnostics()
+        {
+            configuration.DisableStartupDiagnostics = false;
 
             return this;
         }
@@ -59,13 +68,18 @@
                     configurationBuilderCustomization(bc, runDescriptor);
                 }).ConfigureAwait(false);
 
+                if (configuration.DisableStartupDiagnostics)
+                {
+                    endpointConfiguration.GetSettings().Set("NServiceBus.HostStartupDiagnostics", FeatureState.Disabled);
+                }
+
                 return endpointConfiguration;
             };
 
             return this;
         }
 
-        public EndpointConfigurationBuilder EndpointSetup<T,TContext>(Action<EndpointConfiguration, TContext> configurationBuilderCustomization, Action<PublisherMetadata> publisherMetadata = null) 
+        public EndpointConfigurationBuilder EndpointSetup<T,TContext>(Action<EndpointConfiguration, TContext> configurationBuilderCustomization, Action<PublisherMetadata> publisherMetadata = null)
             where T : IEndpointSetupTemplate, new()
             where TContext : ScenarioContext
         {
@@ -83,6 +97,11 @@
                 {
                     configurationBuilderCustomization(bc, (TContext)runDescriptor.ScenarioContext);
                 }).ConfigureAwait(false);
+
+                if (configuration.DisableStartupDiagnostics)
+                {
+                    endpointConfiguration.GetSettings().Set("NServiceBus.HostStartupDiagnostics", FeatureState.Disabled);
+                }
 
                 return endpointConfiguration;
             };
