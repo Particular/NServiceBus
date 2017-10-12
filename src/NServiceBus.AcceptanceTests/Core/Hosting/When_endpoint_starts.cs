@@ -14,6 +14,10 @@
         [Test]
         public async Task Should_emit_config_diagnostics()
         {
+            // TestContext.CurrentContext.Test.ID is stable across test runs, 
+            // therefore we need to clear existing diagnostics file to avoid asserting on a stale file
+            Directory.Delete(basePath, true);
+
             await Scenario.Define<Context>()
                 .WithEndpoint<MyEndpoint>()
                 .Done(c => c.EndpointsStarted)
