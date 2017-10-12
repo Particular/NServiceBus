@@ -16,6 +16,7 @@ namespace NServiceBus.Transport
         {
             var multicastOperations = new List<MulticastTransportOperation>(transportOperations.Length);
             var unicastOperations = new List<UnicastTransportOperation>(transportOperations.Length);
+            var timeSent = DateTimeExtensions.ToWireFormattedString(DateTime.UtcNow);
 
             foreach (var transportOperation in transportOperations)
             {
@@ -24,7 +25,7 @@ namespace NServiceBus.Transport
                 {
                     multicastOperations.Add(new MulticastTransportOperation(
                         transportOperation.Message,
-                        ((MulticastAddressTag) transportOperation.AddressTag).MessageType,
+                        ((MulticastAddressTag)transportOperation.AddressTag).MessageType,
                         transportOperation.RequiredDispatchConsistency,
                         transportOperation.DeliveryConstraints));
                 }
@@ -32,7 +33,7 @@ namespace NServiceBus.Transport
                 {
                     unicastOperations.Add(new UnicastTransportOperation(
                         transportOperation.Message,
-                        ((UnicastAddressTag) transportOperation.AddressTag).Destination,
+                        ((UnicastAddressTag)transportOperation.AddressTag).Destination,
                         transportOperation.RequiredDispatchConsistency,
                         transportOperation.DeliveryConstraints));
                 }
@@ -41,6 +42,11 @@ namespace NServiceBus.Transport
                     throw new ArgumentException(
                         $"Transport operations contain an unsupported type of {typeof(AddressTag).Name}: {transportOperation.AddressTag.GetType().Name}. Supported types are {typeof(UnicastAddressTag).Name} and {typeof(MulticastAddressTag).Name}",
                         nameof(transportOperations));
+                }
+
+                if (!transportOperation.Message.Headers.ContainsKey(Headers.TimeSent))
+                {
+                    transportOperation.Message.Headers[Headers.TimeSent] = timeSent;
                 }
             }
 

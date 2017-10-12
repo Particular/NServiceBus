@@ -41,7 +41,7 @@ namespace NServiceBus
 
             ConfigRunBeforeIsFinalized(concreteTypes);
 
-            var endpointInfo = new EndpointInfo(settings);
+            var endpointInfo = EndpointInfo.FromSettings(settings);
 
             settings.Set<EndpointInfo>(endpointInfo);
             settings.AddStartupDiagnosticsSection("Endpoint", endpointInfo);

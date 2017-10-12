@@ -52,15 +52,37 @@
         {
             var transportOperation = new TransportOperation(
                 CreateUniqueMessage(),
-                new CustomAddressTag(), 
+                new CustomAddressTag(),
                 DispatchConsistency.Default);
 
             Assert.Throws<ArgumentException>(() => new TransportOperations(transportOperation));
         }
 
-        static OutgoingMessage CreateUniqueMessage()
+        [Test]
+        public void Should_set_the_time_sent_header()
         {
-            return new OutgoingMessage(Guid.NewGuid().ToString(), new Dictionary<string, string>(), new byte[0]);
+            var timeSent = DateTimeExtensions.ToWireFormattedString(DateTime.UtcNow.AddSeconds(-10));
+
+            var unicastOperation = new TransportOperation(CreateUniqueMessage(new Dictionary<string, string>
+            {
+                {Headers.TimeSent,timeSent}
+            }), new UnicastAddressTag("destination"), DispatchConsistency.Isolated);
+            var multicastOperation = new TransportOperation(CreateUniqueMessage(), new MulticastAddressTag(typeof(object)), DispatchConsistency.Default);
+            var operations = new[]
+            {
+                unicastOperation,
+                multicastOperation
+            };
+
+            var result = new TransportOperations(operations);
+
+            Assert.True(result.MulticastTransportOperations.First().Message.Headers.ContainsKey(Headers.TimeSent), "Should set the time sent header");
+            Assert.AreEqual(timeSent, result.UnicastTransportOperations.First().Message.Headers[Headers.TimeSent], "Should not override the time sent header");
+        }
+
+        static OutgoingMessage CreateUniqueMessage(Dictionary<string, string> headers = null)
+        {
+            return new OutgoingMessage(Guid.NewGuid().ToString(), headers ?? new Dictionary<string, string>(), new byte[0]);
         }
 
         class CustomAddressTag : AddressTag
