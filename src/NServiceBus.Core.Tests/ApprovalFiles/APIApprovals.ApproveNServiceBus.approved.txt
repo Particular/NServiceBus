@@ -1042,18 +1042,18 @@ namespace NServiceBus.AutomaticSubscriptions.Config
 }
 namespace NServiceBus.Config
 {
-    [System.ObsoleteAttribute("Use code-based configuration instead of a configuration file. Will be removed in " +
-        "version 8.0.0.", true)]
+    [System.ObsoleteAttribute("Auditing can not be configured using a configuration file. Will be removed in ver" +
+        "sion 8.0.0.", true)]
     public class AuditConfig
     {
         public AuditConfig() { }
-        [System.ObsoleteAttribute("Endpoints can not be configured using a configuration file. Use `EndpointConfigur" +
-            "ation.AuditProcessedMessagesTo` instead. The member currently throws a NotImplem" +
-            "entedException. Will be removed in version 8.0.0.", true)]
+        [System.ObsoleteAttribute("Auditing can not be configured using a configuration file. Use `EndpointConfigura" +
+            "tion.AuditProcessedMessagesTo` instead. The member currently throws a NotImpleme" +
+            "ntedException. Will be removed in version 8.0.0.", true)]
         public System.TimeSpan OverrideTimeToBeReceived { get; set; }
-        [System.ObsoleteAttribute("Endpoints can not be configured using a configuration file. Use `EndpointConfigur" +
-            "ation.AuditProcessedMessagesTo` instead. The member currently throws a NotImplem" +
-            "entedException. Will be removed in version 8.0.0.", true)]
+        [System.ObsoleteAttribute("Auditing can not be configured using a configuration file. Use `EndpointConfigura" +
+            "tion.AuditProcessedMessagesTo` instead. The member currently throws a NotImpleme" +
+            "ntedException. Will be removed in version 8.0.0.", true)]
         public string QueueName { get; set; }
     }
     [System.ObsoleteAttribute("Message property encryption is released as a dedicated \'NServiceBus.Encryption.Me" +
@@ -1063,8 +1063,8 @@ namespace NServiceBus.Config
         Ascii = 0,
         Base64 = 1,
     }
-    [System.ObsoleteAttribute("Use code-based configuration instead of a configuration file. Use `LogManager.Use" +
-        "<DefaultFactory>()` instead. Will be removed in version 8.0.0.", true)]
+    [System.ObsoleteAttribute("Logging can not be configured using a configuration file. Use `LogManager.Use<Def" +
+        "aultFactory>()` instead. Will be removed in version 8.0.0.", true)]
     public class Logging
     {
         public Logging() { }
@@ -1143,25 +1143,27 @@ namespace NServiceBus.Config
             "dException. Will be removed in version 8.0.0.", true)]
         public void RemoveAt(int index) { }
     }
-    [System.ObsoleteAttribute("Use code-based configuration instead of a configuration file. Use `EndpointConfig" +
-        "uration.SendFailedMessagesTo` instead. Will be removed in version 8.0.0.", true)]
+    [System.ObsoleteAttribute("Message forwarding for failed messages can not be configured using a configuratio" +
+        "n file. Use `EndpointConfiguration.SendFailedMessagesTo` instead. Will be remove" +
+        "d in version 8.0.0.", true)]
     public class MessageForwardingInCaseOfFaultConfig
     {
         public MessageForwardingInCaseOfFaultConfig() { }
-        [System.ObsoleteAttribute("Endpoints can not be configured using a configuration file. Use `EndpointConfigur" +
-            "ation.SendFailedMessagesTo` instead. The member currently throws a NotImplemente" +
-            "dException. Will be removed in version 8.0.0.", true)]
+        [System.ObsoleteAttribute("Message forwarding for failed messages can not be configured using a configuratio" +
+            "n file. Use `EndpointConfiguration.SendFailedMessagesTo` instead. The member cur" +
+            "rently throws a NotImplementedException. Will be removed in version 8.0.0.", true)]
         public string ErrorQueue { get; set; }
     }
-    [System.ObsoleteAttribute("Use code-based configuration instead of a configuration file. Use `EndpointConfig" +
-        "uration.UsePersistence<MsmqPersistence>()` instead. Will be removed in version 8" +
-        ".0.0.", true)]
+    [System.ObsoleteAttribute("MSMQ subscription storage can not be configured using a configuration file. Use `" +
+        "EndpointConfiguration.UsePersistence<MsmqPersistence>()` instead. Will be remove" +
+        "d in version 8.0.0.", true)]
     public class MsmqSubscriptionStorageConfig
     {
         public MsmqSubscriptionStorageConfig() { }
-        [System.ObsoleteAttribute("Endpoints can not be configured using a configuration file. Use `EndpointConfigur" +
-            "ation.UsePersistence<MsmqPersistence>().SubscriptionQueue` instead. The member c" +
-            "urrently throws a NotImplementedException. Will be removed in version 8.0.0.", true)]
+        [System.ObsoleteAttribute("MSMQ subscription storage can not be configured using a configuration file. Use `" +
+            "EndpointConfiguration.UsePersistence<MsmqPersistence>().SubscriptionQueue` inste" +
+            "ad. The member currently throws a NotImplementedException. Will be removed in ve" +
+            "rsion 8.0.0.", true)]
         public string Queue { get; set; }
     }
     [System.ObsoleteAttribute("Message property encryption is released as a dedicated \'NServiceBus.Encryption.Me" +
@@ -1246,21 +1248,22 @@ namespace NServiceBus.Config
             "ill be removed in version 8.0.0.", true)]
         public void RemoveAt(int index) { }
     }
-    [System.ObsoleteAttribute("Use code-based configuration instead of a configuration file. Will be removed in " +
-        "version 8.0.0.", true)]
+    [System.ObsoleteAttribute("The UnicastBus can not be configured using a configuration file. Will be removed " +
+        "in version 8.0.0.", true)]
     public class UnicastBusConfig
     {
         public UnicastBusConfig() { }
-        [System.ObsoleteAttribute("Endpoints can not be configured using a configuration file. Use `EndpointConfigur" +
-            "ation.UseTransport<T>.Routing()` instead. The member currently throws a NotImple" +
-            "mentedException. Will be removed in version 8.0.0.", true)]
+        [System.ObsoleteAttribute("UnicastBus message mapping can not be configured using a configuration file. Use " +
+            "`EndpointConfiguration.UseTransport<T>.Routing()` instead. The member currently " +
+            "throws a NotImplementedException. Will be removed in version 8.0.0.", true)]
         public NServiceBus.Config.MessageEndpointMappingCollection MessageEndpointMappings { get; set; }
-        [System.ObsoleteAttribute("The UnicastBus can not be configured using a configuration file. Use `EndpointCon" +
-            "figuration.UseExternalTimeoutManager` instead. The member currently throws a Not" +
-            "ImplementedException. Will be removed in version 8.0.0.", true)]
+        [System.ObsoleteAttribute("UnicastBus timeout manager can not be configured using a configuration file. Use " +
+            "`EndpointConfiguration.UseExternalTimeoutManager` instead. The member currently " +
+            "throws a NotImplementedException. Will be removed in version 8.0.0.", true)]
         public string TimeoutManagerAddress { get; set; }
-        [System.ObsoleteAttribute("The UnicastBus can not be configured using a configuration file. The member curre" +
-            "ntly throws a NotImplementedException. Will be removed in version 8.0.0.", true)]
+        [System.ObsoleteAttribute("UnicastBus time to be received for forwarded messages can not be configured using" +
+            " a configuration file. The member currently throws a NotImplementedException. Wi" +
+            "ll be removed in version 8.0.0.", true)]
         public System.TimeSpan TimeToBeReceivedOnForwardedMessages { get; set; }
     }
 }

@@ -404,13 +404,13 @@ namespace NServiceBus.Config
     using System;
 
     [ObsoleteEx(
-        Message = "Use code-based configuration instead of a configuration file.",
+        Message = "Auditing can not be configured using a configuration file.",
         TreatAsErrorFromVersion = "7.0",
         RemoveInVersion = "8.0")]
     public class AuditConfig
     {
         [ObsoleteEx(
-            Message = "Endpoints can not be configured using a configuration file.",
+            Message = "Auditing can not be configured using a configuration file.",
             ReplacementTypeOrMember = "EndpointConfiguration.AuditProcessedMessagesTo",
             TreatAsErrorFromVersion = "7.0",
             RemoveInVersion = "8.0")]
@@ -421,7 +421,7 @@ namespace NServiceBus.Config
         }
 
         [ObsoleteEx(
-            Message = "Endpoints can not be configured using a configuration file.",
+            Message = "Auditing can not be configured using a configuration file.",
             ReplacementTypeOrMember = "EndpointConfiguration.AuditProcessedMessagesTo",
             TreatAsErrorFromVersion = "7.0",
             RemoveInVersion = "8.0")]
@@ -443,7 +443,7 @@ namespace NServiceBus.Config
     }
 
     [ObsoleteEx(
-        Message = "Use code-based configuration instead of a configuration file.",
+        Message = "Logging can not be configured using a configuration file.",
         ReplacementTypeOrMember = "LogManager.Use<DefaultFactory>()",
         TreatAsErrorFromVersion = "7",
         RemoveInVersion = "8")]
@@ -655,14 +655,14 @@ namespace NServiceBus.Config
     }
 
     [ObsoleteEx(
-        Message = "Use code-based configuration instead of a configuration file.",
+        Message = "Message forwarding for failed messages can not be configured using a configuration file.",
         ReplacementTypeOrMember = "EndpointConfiguration.SendFailedMessagesTo",
         TreatAsErrorFromVersion = "7",
         RemoveInVersion = "8")]
     public class MessageForwardingInCaseOfFaultConfig
     {
         [ObsoleteEx(
-            Message = "Endpoints can not be configured using a configuration file.",
+            Message = "Message forwarding for failed messages can not be configured using a configuration file.",
             ReplacementTypeOrMember = "EndpointConfiguration.SendFailedMessagesTo",
             TreatAsErrorFromVersion = "7",
             RemoveInVersion = "8")]
@@ -674,14 +674,14 @@ namespace NServiceBus.Config
     }
 
     [ObsoleteEx(
-        Message = "Use code-based configuration instead of a configuration file.",
+        Message = "MSMQ subscription storage can not be configured using a configuration file.",
         ReplacementTypeOrMember = "EndpointConfiguration.UsePersistence<MsmqPersistence>()",
         TreatAsErrorFromVersion = "7",
         RemoveInVersion = "8")]
     public class MsmqSubscriptionStorageConfig
     {
         [ObsoleteEx(
-            Message = "Endpoints can not be configured using a configuration file.",
+            Message = "MSMQ subscription storage can not be configured using a configuration file.",
             ReplacementTypeOrMember = "EndpointConfiguration.UsePersistence<MsmqPersistence>().SubscriptionQueue",
             TreatAsErrorFromVersion = "7",
             RemoveInVersion = "8")]
@@ -863,13 +863,13 @@ namespace NServiceBus.Config
     }
 
     [ObsoleteEx(
-        Message = "Use code-based configuration instead of a configuration file.",
+        Message = "The UnicastBus can not be configured using a configuration file.",
         TreatAsErrorFromVersion = "7.0",
         RemoveInVersion = "8.0")]
     public class UnicastBusConfig
     {
         [ObsoleteEx(
-            Message = "The UnicastBus can not be configured using a configuration file.",
+            Message = "UnicastBus time to be received for forwarded messages can not be configured using a configuration file.",
             TreatAsErrorFromVersion = "7.0",
             RemoveInVersion = "8.0")]
         public TimeSpan TimeToBeReceivedOnForwardedMessages
@@ -879,7 +879,7 @@ namespace NServiceBus.Config
         }
 
         [ObsoleteEx(
-            Message = "The UnicastBus can not be configured using a configuration file.",
+            Message = "UnicastBus timeout manager can not be configured using a configuration file.",
             ReplacementTypeOrMember = "EndpointConfiguration.UseExternalTimeoutManager",
             TreatAsErrorFromVersion = "7.0",
             RemoveInVersion = "8.0")]
@@ -890,7 +890,7 @@ namespace NServiceBus.Config
         }
 
         [ObsoleteEx(
-            Message = "Endpoints can not be configured using a configuration file.",
+            Message = "UnicastBus message mapping can not be configured using a configuration file.",
             ReplacementTypeOrMember = "EndpointConfiguration.UseTransport<T>.Routing()",
             TreatAsErrorFromVersion = "7.0",
             RemoveInVersion = "8.0")]
