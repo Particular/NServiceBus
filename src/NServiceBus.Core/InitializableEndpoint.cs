@@ -87,9 +87,9 @@ namespace NServiceBus
 
             var transportType = transportDefinition.GetType();
 
-            settings.AddStartupDiagnosticsSection("Transport",new
+            settings.AddStartupDiagnosticsSection("Transport", new
             {
-                Type= transportType.FullName,
+                Type = transportType.FullName,
                 Version = FileVersionRetriever.GetFileVersion(transportType)
             });
 
