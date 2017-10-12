@@ -4,7 +4,7 @@ namespace NServiceBus
 
     class EndpointInfo
     {
-        //note: should be internal when this EndpointInfo is made public
+        //note: should be internal when EndpointInfo is made public
         public static EndpointInfo FromSettings(ReadOnlySettings settings)
         {
             var name = settings.Get<string>("NServiceBus.Routing.EndpointName");
