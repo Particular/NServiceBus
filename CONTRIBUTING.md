@@ -41,6 +41,13 @@ Guidelines can be found [here](/guidelines).
 * Push your changes to a feature branch in your fork of the repository.
 * Submit a pull request to the NServiceBus repository
 
+## Pull Request review process
+Because NServiceBus.Core sits at the heart of the NServiceBus ecosystem, pull requests are reviewed closely. Pull requests are checked to ensure comprehension by @nservicbus-maintainers and correctness of the code. 
+
+This approach has been implemented in an attempt to limit having to undo changes after the fact. Because of the number of downstreams that depend on NServiceBus.Core, a change-undo pattern can lead to increased work for those downstreams and the end users.
+
+As a pull request submitter, you can help speed up the review of your submission by providing as much context about your code as you can. In addition to providing technical context, consider answering questions like "Why is the change being submitted?" and "What problem does it solve?"
+
 # Additional Resources
 
 * [General GitHub documentation](http://help.github.com/)
