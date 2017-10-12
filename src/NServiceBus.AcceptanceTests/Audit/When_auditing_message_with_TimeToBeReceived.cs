@@ -10,6 +10,10 @@
 
     public class When_auditing_message_with_TimeToBeReceived : NServiceBusAcceptanceTest
     {
+        // This test has repeatedly failed because the message took longer than the TTBR value to be received.
+        // We assume this could be due to the parallel test execution.
+        // If this test fails your build with this attribute set, please ping the NServiceBus maintainers.
+        [NonParallelizable]
         [Test]
         public async Task Should_not_honor_TimeToBeReceived_for_audit_message()
         {
