@@ -151,6 +151,17 @@ namespace NServiceBus
         public NServiceBus.ConventionsBuilder DefiningEventsAs(System.Func<System.Type, bool> definesEventType) { }
         public NServiceBus.ConventionsBuilder DefiningMessagesAs(System.Func<System.Type, bool> definesMessageType) { }
     }
+    public class ConversationId
+    {
+        public static NServiceBus.ConversationId Default { get; }
+        public static NServiceBus.ConversationId Custom(string customValue) { }
+    }
+    public class ConversationIdStrategyContext
+    {
+        public ConversationIdStrategyContext(NServiceBus.Pipeline.OutgoingLogicalMessage message, System.Collections.Generic.IReadOnlyDictionary<string, string> headers) { }
+        public System.Collections.Generic.IReadOnlyDictionary<string, string> Headers { get; }
+        public NServiceBus.Pipeline.OutgoingLogicalMessage Message { get; }
+    }
     [System.ObsoleteAttribute("Setting a custom correlation ID is no longer supported. Will be removed in versio" +
         "n 8.0.0.", true)]
     public class static CorrelationContextExtensions
@@ -625,6 +636,10 @@ namespace NServiceBus
         public override bool Equals(object obj) { }
         public override int GetHashCode() { }
         public override string ToString() { }
+    }
+    public class static MessageCausationConfigurationExtensions
+    {
+        public static void CustomConversationIdStrategy(this NServiceBus.EndpointConfiguration endpointConfiguration, System.Func<NServiceBus.ConversationIdStrategyContext, NServiceBus.ConversationId> customStrategy) { }
     }
     public class MessageDeserializationException : System.Runtime.Serialization.SerializationException
     {

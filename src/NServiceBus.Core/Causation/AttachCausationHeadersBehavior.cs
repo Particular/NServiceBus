@@ -7,6 +7,11 @@ namespace NServiceBus
 
     class AttachCausationHeadersBehavior : IBehavior<IOutgoingLogicalMessageContext, IOutgoingLogicalMessageContext>
     {
+        public AttachCausationHeadersBehavior(Func<IOutgoingLogicalMessageContext, string> conversationIdStrategy)
+        {
+            this.conversationIdStrategy = conversationIdStrategy;
+        }
+
         public Task Invoke(IOutgoingLogicalMessageContext context, Func<IOutgoingLogicalMessageContext, Task> next)
         {
             context.TryGetIncomingPhysicalMessage(out var incomingMessage);
@@ -27,7 +32,7 @@ namespace NServiceBus
             context.Headers[Headers.RelatedTo] = incomingMessage.MessageId;
         }
 
-        static void SetConversationIdHeader(IOutgoingLogicalMessageContext context, IncomingMessage incomingMessage)
+        void SetConversationIdHeader(IOutgoingLogicalMessageContext context, IncomingMessage incomingMessage)
         {
             var hasUserDefinedConversationId = context.Headers.TryGetValue(Headers.ConversationId, out var userDefinedConversationId);
 
@@ -44,11 +49,12 @@ namespace NServiceBus
 
             if (hasUserDefinedConversationId)
             {
-                // do not override user defined conversation id if no incoming message exists.
                 return;
             }
 
-            context.Headers[Headers.ConversationId] = CombGuid.Generate().ToString();
+            context.Headers[Headers.ConversationId] = conversationIdStrategy(context);
         }
+
+        Func<IOutgoingLogicalMessageContext, string> conversationIdStrategy;
     }
 }
