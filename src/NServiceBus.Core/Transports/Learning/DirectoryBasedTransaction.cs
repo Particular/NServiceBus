@@ -57,7 +57,7 @@ namespace NServiceBus
             return AsyncFile.WriteText(txPath, messageContents);
         }
 
-        public async Task<bool> Complete()
+        public bool Complete()
         {
             if (!committed)
             {
@@ -66,7 +66,7 @@ namespace NServiceBus
 
             while (outgoingFiles.TryDequeue(out var outgoingFile))
             {
-                await AsyncFile.Move(outgoingFile.TxPath, outgoingFile.TargetPath).ConfigureAwait(false);
+                File.Move(outgoingFile.TxPath, outgoingFile.TargetPath);
             }
 
             Directory.Delete(commitDir, true);

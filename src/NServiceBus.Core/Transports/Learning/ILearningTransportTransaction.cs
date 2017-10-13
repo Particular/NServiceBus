@@ -16,6 +16,6 @@ namespace NServiceBus
 
         Task Enlist(string messagePath, string messageContents);
 
-        Task<bool> Complete();
+        bool Complete();
     }
 }

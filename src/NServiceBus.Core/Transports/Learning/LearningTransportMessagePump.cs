@@ -175,7 +175,7 @@
                     }
 
                     ProcessFile(transaction, nativeMessageId)
-                        .ContinueWith(async t =>
+                        .ContinueWith(t =>
                         {
                             try
                             {
@@ -184,7 +184,7 @@
                                     log.Debug($"Completing processing for {filePath}({transaction.FileToProcess}), exception (if any): {t.Exception}");
                                 }
 
-                                var wasCommitted = await transaction.Complete().ConfigureAwait(false);
+                                var wasCommitted = transaction.Complete();
 
                                 if (wasCommitted)
                                 {

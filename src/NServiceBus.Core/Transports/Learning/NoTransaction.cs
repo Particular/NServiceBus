@@ -29,11 +29,11 @@ namespace NServiceBus
 
         public void ClearPendingOutgoingOperations() { }
 
-        public Task<bool> Complete()
+        public bool Complete()
         {
             Directory.Delete(processingDirectory, true);
 
-            return Task.FromResult(true);
+            return true;
         }
 
         string processingDirectory;
