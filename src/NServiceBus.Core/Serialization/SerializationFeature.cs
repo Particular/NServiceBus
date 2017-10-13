@@ -30,10 +30,16 @@
 
             var defaultSerializer = CreateMessageSerializer(defaultSerializerAndDefinition, mapper, settings);
 
+            var additionalDeserializerDefinitions = context.Settings.GetAdditionalSerializers();
             var additionalDeserializers = new List<IMessageSerializer>();
-            foreach (var definitionAndSettings in context.Settings.GetAdditionalSerializers())
+
+            var additionalDeserializerDiagnostics = new List<Tuple<Type, IMessageSerializer>>();
+            foreach (var definitionAndSettings in additionalDeserializerDefinitions)
             {
-                additionalDeserializers.Add(CreateMessageSerializer(definitionAndSettings, mapper, settings));
+                var deserializer = CreateMessageSerializer(definitionAndSettings, mapper, settings);
+                additionalDeserializers.Add(deserializer);
+
+                additionalDeserializerDiagnostics.Add(new Tuple<Type, IMessageSerializer>(definitionAndSettings.Item1.GetType(), deserializer));
             }
 
             var resolver = new MessageDeserializerResolver(defaultSerializer, additionalDeserializers);
@@ -47,6 +53,22 @@
             context.Container.ConfigureComponent(_ => logicalMessageFactory, DependencyLifecycle.SingleInstance);
 
             LogFoundMessages(messageMetadataRegistry.GetAllMessages().ToList());
+
+            context.AddStartupDiagnosticsSection("Serialization", new
+            {
+                DefaultSerializer = new
+                {
+                    Type = defaultSerializerAndDefinition.Item1.GetType().FullName,
+                    Version = FileVersionRetriever.GetFileVersion(defaultSerializerAndDefinition.Item1.GetType()),
+                    defaultSerializer.ContentType
+                },
+                AdditionalDeserializers = additionalDeserializerDiagnostics.Select(d => new
+                {
+                    Type = d.Item1.FullName,
+                    Version = FileVersionRetriever.GetFileVersion(d.Item1),
+                    d.Item2.ContentType
+                })
+            });
         }
 
         static IMessageSerializer CreateMessageSerializer(Tuple<SerializationDefinition, SettingsHolder> definitionAndSettings, IMessageMapper mapper, ReadOnlySettings mainSettings)
