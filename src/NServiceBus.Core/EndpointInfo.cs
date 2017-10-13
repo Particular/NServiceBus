@@ -6,13 +6,15 @@ namespace NServiceBus
     {
         public EndpointInfo(ReadOnlySettings settings)
         {
-            Name = settings.Get<string>("NServiceBus.Routing.EndpointName");
-            IsSendOnly = settings.GetOrDefault<bool>("Endpoint.SendOnly");
-            InstanceDiscriminator = settings.GetOrDefault<string>("EndpointInstanceDiscriminator");
+            this.settings = settings;
         }
 
-        public string Name { get; }
-        public bool IsSendOnly { get; }
-        public string InstanceDiscriminator { get; }
+        public string Name => settings.Get<string>("NServiceBus.Routing.EndpointName");
+
+        public bool IsSendOnly => settings.GetOrDefault<bool>("Endpoint.SendOnly");
+
+        public string InstanceDiscriminator => settings.GetOrDefault<string>("EndpointInstanceDiscriminator");
+
+        ReadOnlySettings settings;
     }
 }
