@@ -27,8 +27,10 @@
             context.Container.ConfigureComponent(b =>
             {
                 var storage = context.Container.HasComponent<IOutboxStorage>() ? b.Build<IOutboxStorage>() : new NoOpOutbox();
+                ScopedSessionHolder holder;
+                context.Settings.TryGet(out holder);
 
-                return new TransportReceiveToPhysicalMessageProcessingConnector(storage);
+                return new TransportReceiveToPhysicalMessageProcessingConnector(storage, holder);
             }, DependencyLifecycle.InstancePerCall);
 
             context.Container.ConfigureComponent(b =>
