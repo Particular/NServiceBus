@@ -100,7 +100,7 @@ namespace NServiceBus
         {
             try
             {
-                new FileInfo(sourcePath).MoveTo(targetPath);
+                File.Move(sourcePath, targetPath);
             }
             catch (IOException)
             {
