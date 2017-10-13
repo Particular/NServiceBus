@@ -13,7 +13,7 @@ namespace NServiceBus
             scheduledTasks[taskDefinition.Id] = taskDefinition;
         }
 
-        public async Task Start(Guid taskId, IPipelineContext context)
+        public async Task Start(Guid taskId, IMessageSessionScoped context)
         {
             if (!scheduledTasks.TryGetValue(taskId, out var taskDefinition))
             {
@@ -25,7 +25,7 @@ namespace NServiceBus
             await ExecuteTask(taskDefinition, context).ConfigureAwait(false);
         }
 
-        static async Task ExecuteTask(TaskDefinition taskDefinition, IPipelineContext context)
+        static async Task ExecuteTask(TaskDefinition taskDefinition, IMessageSessionScoped context)
         {
             logger.InfoFormat("Start executing scheduled task named '{0}'.", taskDefinition.Name);
             var sw = new Stopwatch();
@@ -46,7 +46,7 @@ namespace NServiceBus
             }
         }
 
-        static Task DeferTask(TaskDefinition taskDefinition, IPipelineContext context)
+        static Task DeferTask(TaskDefinition taskDefinition, IMessageSessionScoped context)
         {
             var options = new SendOptions();
 

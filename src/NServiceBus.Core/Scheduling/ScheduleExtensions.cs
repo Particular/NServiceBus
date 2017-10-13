@@ -16,7 +16,7 @@ namespace NServiceBus
         /// <param name="session">The session which allows you to perform message operation.</param>
         /// <param name="timeSpan">The interval to repeatedly execute the <paramref name="task" />.</param>
         /// <param name="task">The async function to execute.</param>
-        public static Task ScheduleEvery(this IMessageSession session, TimeSpan timeSpan, Func<IPipelineContext, Task> task)
+        public static Task ScheduleEvery(this IMessageSession session, TimeSpan timeSpan, Func<IMessageSessionScoped, Task> task)
         {
             Guard.AgainstNull(nameof(task), task);
             Guard.AgainstNegativeAndZero(nameof(timeSpan), timeSpan);
@@ -38,7 +38,7 @@ namespace NServiceBus
         /// <param name="timeSpan">The interval to repeatedly execute the <paramref name="task" />.</param>
         /// <param name="task">The async function to execute.</param>
         /// <param name="name">The name to used for logging the task being executed.</param>
-        public static Task ScheduleEvery(this IMessageSession session, TimeSpan timeSpan, string name, Func<IPipelineContext, Task> task)
+        public static Task ScheduleEvery(this IMessageSession session, TimeSpan timeSpan, string name, Func<IMessageSessionScoped, Task> task)
         {
             Guard.AgainstNull(nameof(task), task);
             Guard.AgainstNullAndEmpty(nameof(name), name);
@@ -53,6 +53,7 @@ namespace NServiceBus
             return Schedule(session, taskDefinition);
         }
 
+        // ReSharper disable once SuggestBaseTypeForParameter
         static Task Schedule(IMessageSession session, TaskDefinition taskDefinition)
         {
             logger.DebugFormat("Task '{0}' (with id {1}) scheduled with timeSpan {2}", taskDefinition.Name, taskDefinition.Id, taskDefinition.Every);
