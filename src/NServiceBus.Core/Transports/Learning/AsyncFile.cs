@@ -95,5 +95,61 @@ namespace NServiceBus
         {
             return new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read, bufferSize: 4096, useAsync: true);
         }
+
+        public static async Task<bool> Move(string source, string target)
+        {
+            try
+            {
+                File.Move(source, target);
+            }
+            catch (IOException)
+            {
+                return false;
+            }
+
+            var count = 0;
+            while (IsFileLocked(new FileInfo(target)))
+            {
+                await Task.Delay(100).ConfigureAwait(false);
+
+                count++;
+
+                if (count > 10)
+                {
+                    break;
+                }
+            }
+
+            //seem like File.Move is not atomic at least within the same process so we need this extra check
+            return File.Exists(target);
+        }
+
+        static bool IsFileLocked(FileInfo file)
+        {
+            FileStream stream = null;
+
+            try
+            {
+                stream = file.Open(FileMode.Open, FileAccess.Read, FileShare.None);
+            }
+            catch (IOException)
+            {
+                //the file is unavailable because it is:
+                //still being written to
+                //or being processed by another thread
+                //or does not exist (has already been processed)
+                return true;
+            }
+            finally
+            {
+                if (stream != null)
+                    stream.Close();
+            }
+
+            //file is not locked
+            return false;
+        }
+
+
     }
 }

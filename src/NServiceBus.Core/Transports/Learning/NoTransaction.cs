@@ -3,7 +3,6 @@ namespace NServiceBus
     using System;
     using System.IO;
     using System.Threading.Tasks;
-    using Logging;
 
     class NoTransaction : ILearningTransportTransaction
     {
@@ -14,23 +13,12 @@ namespace NServiceBus
 
         public string FileToProcess { get; private set; }
 
-        public bool BeginTransaction(string incomingFilePath)
+        public Task<bool> BeginTransaction(string incomingFilePath)
         {
             Directory.CreateDirectory(processingDirectory);
             FileToProcess = Path.Combine(processingDirectory, Path.GetFileName(incomingFilePath));
 
-            try
-            {
-                File.Move(incomingFilePath, FileToProcess);
-            }
-            catch (IOException ex)
-            {
-                log.Debug($"Failed to move {incomingFilePath} to {FileToProcess}", ex);
-                return false;
-            }
-
-            //seem like File.Move is not atomic at least within the same process so we need this extra check
-            return File.Exists(FileToProcess);
+            return AsyncFile.Move(incomingFilePath, FileToProcess);
         }
 
         public Task Enlist(string messagePath, string messageContents) => AsyncFile.WriteText(messagePath, messageContents);
@@ -41,15 +29,13 @@ namespace NServiceBus
 
         public void ClearPendingOutgoingOperations() { }
 
-        public bool Complete()
+        public Task<bool> Complete()
         {
             Directory.Delete(processingDirectory, true);
 
-            return true;
+            return Task.FromResult(true);
         }
 
         string processingDirectory;
-
-        static ILog log = LogManager.GetLogger<NoTransaction>();
     }
 }

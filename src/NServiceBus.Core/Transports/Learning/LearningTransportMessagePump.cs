@@ -157,7 +157,7 @@
                     {
                         transaction = GetTransaction();
 
-                        var ableToLockFile = transaction.BeginTransaction(filePath);
+                        var ableToLockFile = await transaction.BeginTransaction(filePath).ConfigureAwait(false);
 
                         if (!ableToLockFile)
                         {
@@ -175,7 +175,7 @@
                     }
 
                     ProcessFile(transaction, nativeMessageId)
-                        .ContinueWith(t =>
+                        .ContinueWith(async t =>
                         {
                             try
                             {
@@ -184,7 +184,7 @@
                                     log.Debug($"Completing processing for {filePath}({transaction.FileToProcess}), exception (if any): {t.Exception}");
                                 }
 
-                                var wasCommitted = transaction.Complete();
+                                var wasCommitted = await transaction.Complete().ConfigureAwait(false);
 
                                 if (wasCommitted)
                                 {

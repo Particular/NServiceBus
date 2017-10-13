@@ -17,23 +17,12 @@ namespace NServiceBus
 
         public string FileToProcess { get; private set; }
 
-        public bool BeginTransaction(string incomingFilePath)
+        public Task<bool> BeginTransaction(string incomingFilePath)
         {
             Directory.CreateDirectory(transactionDir);
             FileToProcess = Path.Combine(transactionDir, Path.GetFileName(incomingFilePath));
 
-            try
-            {
-                File.Move(incomingFilePath, FileToProcess);
-            }
-            catch (IOException ex)
-            {
-                log.Debug($"Failed to move {incomingFilePath} to {FileToProcess}", ex);
-                return false;
-            }
-
-            //seem like File.Move is not atomic at least within the same process so we need this extra check
-            return File.Exists(FileToProcess);
+            return AsyncFile.Move(incomingFilePath, FileToProcess);
         }
 
         public Task Commit()
@@ -68,7 +57,7 @@ namespace NServiceBus
             return AsyncFile.WriteText(txPath, messageContents);
         }
 
-        public bool Complete()
+        public async Task<bool> Complete()
         {
             if (!committed)
             {
@@ -77,7 +66,7 @@ namespace NServiceBus
 
             while (outgoingFiles.TryDequeue(out var outgoingFile))
             {
-                File.Move(outgoingFile.TxPath, outgoingFile.TargetPath);
+                await AsyncFile.Move(outgoingFile.TxPath, outgoingFile.TargetPath).ConfigureAwait(false);
             }
 
             Directory.Delete(commitDir, true);
