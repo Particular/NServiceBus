@@ -27,7 +27,7 @@
 ******************************************************************************/
 
 //Define the necessary compilation symbols
-#if NET462
+#if NET461
 #define NET46
 #endif
 

@@ -25,7 +25,7 @@ namespace NServiceBus
             RegisterContainerAdapter(container);
             RunUserRegistrations(registrations);
 
-            if (settings.TryGet(out scopeSessionHolder))
+            if (settings.TryGet(out ScopedSessionHolder scopeSessionHolder))
             {
                 this.container.ConfigureComponent(() => scopeSessionHolder.Session.Value ?? messageSession, DependencyLifecycle.InstancePerCall);
             }
@@ -222,6 +222,5 @@ namespace NServiceBus
         SettingsHolder settings;
         CriticalError criticalError;
         IMessageSession messageSession;
-        ScopedSessionHolder scopeSessionHolder;
     }
 }

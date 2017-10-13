@@ -3,7 +3,7 @@
     using System;
     using Transport;
 
-#if NET462
+#if NET461
     sealed class TransportConnectionString
     {
         TransportConnectionString()
