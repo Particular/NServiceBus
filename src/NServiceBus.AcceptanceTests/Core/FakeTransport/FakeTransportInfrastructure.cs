@@ -44,7 +44,7 @@
 
         public override TransportReceiveInfrastructure ConfigureReceiveInfrastructure()
         {
-            return new TransportReceiveInfrastructure(() => new FakeReceiver(settings.GetOrDefault<bool>("FakeTransport.ThrowCritical"), settings.GetOrDefault<bool>("FakeTransport.ThrowOnPumpStop"), settings.GetOrDefault<Exception>()), () => new FakeQueueCreator(), () => Task.FromResult(StartupCheckResult.Success));
+            return new TransportReceiveInfrastructure(() => new FakeReceiver(settings.GetOrDefault<bool>("FakeTransport.ThrowCritical"), settings.GetOrDefault<bool>("FakeTransport.ThrowOnPumpStop"), settings.GetOrDefault<Exception>()), () => new FakeQueueCreator(settings.GetOrDefault<Action>("FakeTransport.QueueCreatorAction")), () => Task.FromResult(StartupCheckResult.Success));
         }
 
         public override async Task Stop()
