@@ -28,7 +28,7 @@ namespace NServiceBus
             return this;
         }
 
-#if NET452
+#if NET462
         /// <summary>
         /// Configures the transport to use the connection string with the given name.
         /// </summary>
@@ -101,7 +101,7 @@ namespace NServiceBus
             return this;
         }
 
-#if NET452
+#if NET462
         /// <summary>
         /// Configures the transport to use the connection string with the given name.
         /// </summary>

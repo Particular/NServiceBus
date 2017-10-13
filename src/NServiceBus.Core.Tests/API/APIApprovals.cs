@@ -1,4 +1,4 @@
-﻿#if NET452
+﻿#if NET462
 namespace NServiceBus.Core.Tests.API
 {
     using System;
