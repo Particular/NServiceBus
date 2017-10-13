@@ -41,11 +41,7 @@ namespace NServiceBus
 
             ConfigRunBeforeIsFinalized(concreteTypes);
 
-            EnsureTransportConfigured();
-            var transportDefinition = settings.Get<TransportDefinition>();
-            var connectionString = settings.Get<TransportConnectionString>().GetConnectionStringOrRaiseError(transportDefinition);
-            var transportInfrastructure = transportDefinition.Initialize(settings, connectionString);
-            settings.Set<TransportInfrastructure>(transportInfrastructure);
+            var transportInfrastructure = InitializeTransport();
 
             // use GetOrCreate to use of instances already created during EndpointConfiguration.
             var routing = new RoutingComponent(
@@ -75,6 +71,29 @@ namespace NServiceBus
 
             var startableEndpoint = new StartableEndpoint(settings, builder, featureActivator, pipelineConfiguration, new EventAggregator(settings.Get<NotificationSubscriptions>()), transportInfrastructure, receiveInfrastructure, criticalError);
             return startableEndpoint;
+        }
+
+        TransportInfrastructure InitializeTransport()
+        {
+            if (!settings.HasExplicitValue<TransportDefinition>())
+            {
+                throw new Exception("A transport has not been configured. Use 'EndpointConfiguration.UseTransport()' to specify a transport.");
+            }
+
+            var transportDefinition = settings.Get<TransportDefinition>();
+            var connectionString = settings.Get<TransportConnectionString>().GetConnectionStringOrRaiseError(transportDefinition);
+            var transportInfrastructure = transportDefinition.Initialize(settings, connectionString);
+            settings.Set<TransportInfrastructure>(transportInfrastructure);
+
+            var transportType = transportDefinition.GetType();
+
+            settings.AddStartupDiagnosticsSection("Transport", new
+            {
+                Type = transportType.FullName,
+                Version = FileVersionRetriever.GetFileVersion(transportType)
+            });
+
+            return transportInfrastructure;
         }
 
         static bool IsConcrete(Type x)
@@ -185,14 +204,6 @@ namespace NServiceBus
             }
 
             return userName;
-        }
-
-        void EnsureTransportConfigured()
-        {
-            if (!settings.HasExplicitValue<TransportDefinition>())
-            {
-                throw new Exception("A transport has not been configured. Use 'EndpointConfiguration.UseTransport()' to specify a transport.");
-            }
         }
 
         IBuilder builder;
