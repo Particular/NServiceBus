@@ -9,7 +9,7 @@ namespace NServiceBus
 
     static class ReceiveComponentFactory
     {
-        public static ReceiveConfiguration Configure(string endpointName, bool isSendOnlyEndpoint, TransportInfrastructure transportInfrastructure,ReadOnlySettings settings)
+        public static ReceiveConfiguration Configure(string endpointName, bool isSendOnlyEndpoint, TransportInfrastructure transportInfrastructure, ReadOnlySettings settings)
         {
             if (isSendOnlyEndpoint)
             {
@@ -37,7 +37,11 @@ namespace NServiceBus
 
             var pushRuntimeSettings = GetDequeueLimitations(settings);
 
-            return new ReceiveConfiguration(logicalAddress, queueNameBase, localAddress, instanceSpecificQueue, transactionMode, pushRuntimeSettings, purgeOnStartup, true);
+            var config = new ReceiveConfiguration(logicalAddress, queueNameBase, localAddress, instanceSpecificQueue, transactionMode, pushRuntimeSettings, purgeOnStartup, true);
+
+            settings.AddStartupDiagnosticsSection("Receiving", config);
+
+            return config;
         }
 
         public static async Task<ReceiveComponent> Initialize(ReceiveConfiguration receiveConfiguration, QueueBindings queueBindings, TransportReceiveInfrastructure receiveInfrastructure, IPipelineExecutor mainPipelineExecutor, IEventAggregator eventAggregator, IBuilder builder, CriticalError criticalError, string errorQueue)

@@ -36,7 +36,7 @@ namespace NServiceBus.Features
             }));
         }
 
-        public FeaturesReport SetupFeatures(IConfigureComponents container, PipelineSettings pipelineSettings, RoutingComponent routing, ReceiveConfiguration receiveConfiguration)
+        public FeatureDiagnosticData[] SetupFeatures(IConfigureComponents container, PipelineSettings pipelineSettings, RoutingComponent routing, ReceiveConfiguration receiveConfiguration)
         {
             // featuresToActivate is enumerated twice because after setting defaults some new features might got activated.
             var sourceFeatures = Sort(features);
