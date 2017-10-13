@@ -157,7 +157,7 @@
                     {
                         transaction = GetTransaction();
 
-                        var ableToLockFile = transaction.BeginTransaction(filePath);
+                        var ableToLockFile = await transaction.BeginTransaction(filePath).ConfigureAwait(false);
 
                         if (!ableToLockFile)
                         {
