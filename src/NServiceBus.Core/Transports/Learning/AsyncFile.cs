@@ -96,19 +96,21 @@ namespace NServiceBus
             return new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read, bufferSize: 4096, useAsync: true);
         }
 
-        public static async Task<bool> Move(string source, string target)
+        public static async Task<bool> Move(string sourcePath, string targetPath)
         {
             try
             {
-                File.Move(source, target);
+                File.Move(sourcePath, targetPath);
             }
             catch (IOException)
             {
                 return false;
             }
 
+            var targetFileInfo = new FileInfo(targetPath);
             var count = 0;
-            while (IsFileLocked(new FileInfo(target)))
+
+            while (IsFileLocked(targetFileInfo))
             {
                 await Task.Delay(100).ConfigureAwait(false);
 
@@ -120,8 +122,7 @@ namespace NServiceBus
                 }
             }
 
-            //seem like File.Move is not atomic at least within the same process so we need this extra check
-            return File.Exists(target);
+            return true;
         }
 
         static bool IsFileLocked(FileInfo file)
