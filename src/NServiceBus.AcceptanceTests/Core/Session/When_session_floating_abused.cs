@@ -28,7 +28,7 @@ namespace NServiceBus.AcceptanceTests.Session
 
         public class Context : ScenarioContext
         {
-            public TaskCompletionSource<bool> Synchronizer = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+            public TaskCompletionSource<bool> Synchronizer = new TaskCompletionSource<bool>();
             public Exception ExceptionCaught { get; set; }
         }
 
@@ -118,7 +118,7 @@ namespace NServiceBus.AcceptanceTests.Session
 
             public class MyOtherDependency
             {
-                public MyOtherDependency(IMessageSessionScoped session)
+                public MyOtherDependency(IScopedMessageSession session)
                 {
                     this.session = session;
                 }
@@ -128,7 +128,7 @@ namespace NServiceBus.AcceptanceTests.Session
                     return session.SendLocal(new PotentiallyEscapingMessage());
                 }
 
-                IMessageSessionScoped session;
+                IScopedMessageSession session;
             }
 
             public class MyDependency

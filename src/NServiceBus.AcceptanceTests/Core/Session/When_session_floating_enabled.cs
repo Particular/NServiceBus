@@ -91,7 +91,7 @@
 
             public class MyHandler : IHandleMessages<MyMessage>
             {
-                public MyHandler(IMessageSessionScoped session, Context testContext, MyDependency dependency)
+                public MyHandler(IScopedMessageSession session, Context testContext, MyDependency dependency)
                 {
                     this.testContext = testContext;
                     this.session = session;
@@ -110,7 +110,7 @@
                 }
 
                 Context testContext;
-                IMessageSessionScoped session;
+                IScopedMessageSession session;
                 MyDependency dependency;
             }
 
@@ -132,7 +132,7 @@
 
             public class MyOtherDependency
             {
-                public MyOtherDependency(IMessageSessionScoped session)
+                public MyOtherDependency(IScopedMessageSession session)
                 {
                     this.session = session;
                 }
@@ -142,7 +142,7 @@
                     return session.SendLocal(new PotentiallyEscapingMessage());
                 }
 
-                IMessageSessionScoped session;
+                IScopedMessageSession session;
             }
 
             public class MyDependency

@@ -6,7 +6,7 @@ namespace NServiceBus
     /// <summary>
     /// A session which provides basic message operations.
     /// </summary>
-    public interface IMessageSession : IMessageSessionScoped
+    public interface IMessageSession : IScopedMessageSession
     {
         /// <summary>
         /// Subscribes to receive published messages of the specified type.

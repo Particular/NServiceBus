@@ -108,7 +108,7 @@
         {
             var context = CreateContext(fakeBatchPipeline, "id");
 
-            IMessageSessionScoped s1 = null, s2 = null;
+            IScopedMessageSession s1 = null, s2 = null;
             await Task.WhenAll(Invoke(context, c =>
             {
                 s1 = scopedSessionHolder.Session.Value;

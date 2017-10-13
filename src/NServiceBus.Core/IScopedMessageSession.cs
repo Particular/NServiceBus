@@ -4,10 +4,10 @@ namespace NServiceBus
     using System.Threading.Tasks;
 
     /// <summary>
-    /// A session which is either scoped to the lifetime of the endpoint or the handler pipeline
+    /// A session which is either scoped to the lifetime of the endpoint or the handler pipeline.
     /// </summary>
     /// <remarks>Use with caution.</remarks>
-    public interface IMessageSessionScoped
+    public interface IScopedMessageSession
     {
         /// <summary>
         /// Sends the provided message.

@@ -5,7 +5,7 @@ namespace NServiceBus
     /// <summary>
     /// The context for the current message handling pipeline.
     /// </summary>
-    public interface IPipelineContext : IMessageSessionScoped, IExtendable
+    public interface IPipelineContext : IScopedMessageSession, IExtendable
     {
     }
 }
