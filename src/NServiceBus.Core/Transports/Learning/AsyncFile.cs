@@ -100,17 +100,16 @@ namespace NServiceBus
         {
             try
             {
-                File.Move(sourcePath, targetPath);
+                new FileInfo(sourcePath).MoveTo(targetPath);
             }
             catch (IOException)
             {
                 return false;
             }
 
-            var targetFileInfo = new FileInfo(targetPath);
             var count = 0;
 
-            while (IsFileLocked(targetFileInfo))
+            while (IsFileLocked(targetPath))
             {
                 await Task.Delay(100).ConfigureAwait(false);
 
@@ -125,13 +124,14 @@ namespace NServiceBus
             return true;
         }
 
-        static bool IsFileLocked(FileInfo file)
+        static bool IsFileLocked(string filePath)
         {
-            FileStream stream = null;
-
             try
             {
-                stream = file.Open(FileMode.Open, FileAccess.Read, FileShare.None);
+                using (File.Open(filePath, FileMode.Open, FileAccess.Read, FileShare.None))
+                {
+                    //no-op
+                }
             }
             catch (IOException)
             {
@@ -141,16 +141,9 @@ namespace NServiceBus
                 //or does not exist (has already been processed)
                 return true;
             }
-            finally
-            {
-                if (stream != null)
-                    stream.Close();
-            }
 
             //file is not locked
             return false;
         }
-
-
     }
 }
