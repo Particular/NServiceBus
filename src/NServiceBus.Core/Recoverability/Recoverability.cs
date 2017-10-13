@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using ConsistencyGuarantees;
     using DelayedDelivery;
     using DeliveryConstraints;
@@ -37,6 +38,28 @@
             var errorQueue = context.Settings.ErrorQueueAddress();
             context.Settings.Get<QueueBindings>().BindSending(errorQueue);
 
+            var transactionsOn = context.Settings.GetRequiredTransactionModeForReceives() != TransportTransactionMode.None;
+            var delayedRetryConfig = GetDelayedRetryConfig(context.Settings, transactionsOn);
+            var delayedRetriesAvailable = transactionsOn
+                                          && (context.Settings.DoesTransportSupportConstraint<DelayedDeliveryConstraint>() || context.Settings.Get<TimeoutManagerAddressConfiguration>().TransportAddress != null);
+
+
+            var immediateRetryConfig = GetImmediateRetryConfig(context.Settings, transactionsOn);
+            var immediateRetriesAvailable = transactionsOn;
+
+            var failedConfig = new FailedConfig(errorQueue, context.Settings.UnrecoverableExceptions());
+
+            var recoverabilityConfig = new RecoverabilityConfig(immediateRetryConfig, delayedRetryConfig, failedConfig);
+
+            context.Settings.AddStartupDiagnosticsSection("Recoverability", new
+            {
+                ImmediateRetries = recoverabilityConfig.Immediate.MaxNumberOfRetries,
+                DelayedRetries = recoverabilityConfig.Delayed.MaxNumberOfRetries,
+                DelayedRetriesTimeIncrease = recoverabilityConfig.Delayed.TimeIncrease.ToString("g"),
+                recoverabilityConfig.Failed.ErrorQueue,
+                UnrecoverableExceptions = recoverabilityConfig.Failed.UnrecoverableExceptionTypes.Select(t => t.FullName).ToArray()
+            });
+
             context.Container.ConfigureComponent(b =>
             {
                 Func<string, MoveToErrorsExecutor> moveToErrorsExecutorFactory = localAddress =>
@@ -56,11 +79,6 @@
                     return new MoveToErrorsExecutor(b.Build<IDispatchMessages>(), staticFaultMetadata, headerCustomizations);
                 };
 
-                var transactionsOn = context.Settings.GetRequiredTransactionModeForReceives() != TransportTransactionMode.None;
-                var delayedRetryConfig = GetDelayedRetryConfig(context.Settings, transactionsOn);
-                var delayedRetriesAvailable = transactionsOn
-                                              && (context.Settings.DoesTransportSupportConstraint<DelayedDeliveryConstraint>() || context.Settings.Get<TimeoutManagerAddressConfiguration>().TransportAddress != null);
-
                 Func<string, DelayedRetryExecutor> delayedRetryExecutorFactory = localAddress =>
                 {
                     if (delayedRetriesAvailable)
@@ -76,19 +94,14 @@
                     return null;
                 };
 
-                var immediateRetryConfig = GetImmediateRetryConfig(context.Settings, transactionsOn);
-                var immediateRetriesAvailable = transactionsOn;
-
                 if (!context.Settings.TryGet(PolicyOverride, out Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> policy))
                 {
                     policy = DefaultRecoverabilityPolicy.Invoke;
                 }
 
-                var failedConfig = new FailedConfig(errorQueue, context.Settings.UnrecoverableExceptions());
-
                 return new RecoverabilityExecutorFactory(
                     policy,
-                    new RecoverabilityConfig(immediateRetryConfig, delayedRetryConfig, failedConfig),
+                    recoverabilityConfig,
                     delayedRetryExecutorFactory,
                     moveToErrorsExecutorFactory,
                     immediateRetriesAvailable,
