@@ -8,7 +8,7 @@ namespace NServiceBus.Features
     {
         internal Scheduler()
         {
-            Prerequisite(c => !c.Settings.GetOrDefault<bool>("Endpoint.SendOnly"), "Scheduler cannot be used from a sendonly endpoint");
+            Prerequisite(c => !c.Endpoint.IsSendOnly, "Scheduler cannot be used from a sendonly endpoint");
 
             EnableByDefault();
         }

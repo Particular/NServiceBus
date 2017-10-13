@@ -13,7 +13,7 @@ namespace NServiceBus.Features
         protected internal override void Setup(FeatureConfigurationContext context)
         {
             var transportInfrastructure = context.Settings.Get<TransportInfrastructure>();
-            var canReceive = !context.Settings.GetOrDefault<bool>("Endpoint.SendOnly");
+            var canReceive = !context.Endpoint.IsSendOnly;
 
             context.Pipeline.Register(new MulticastPublishRouterBehavior(), "Determines how the published messages should be routed");
 
