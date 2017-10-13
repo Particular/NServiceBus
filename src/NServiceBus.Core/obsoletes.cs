@@ -404,13 +404,13 @@ namespace NServiceBus.Config
     using System;
 
     [ObsoleteEx(
-        Message = "Use of the application configuration file to configure auditing is discouraged",
+        Message = "Auditing can not be configured using a configuration file.",
         TreatAsErrorFromVersion = "7.0",
         RemoveInVersion = "8.0")]
     public class AuditConfig
     {
         [ObsoleteEx(
-            Message = "Use of the application configuration file to configure auditing is discouraged",
+            Message = "Auditing can not be configured using a configuration file.",
             ReplacementTypeOrMember = "EndpointConfiguration.AuditProcessedMessagesTo",
             TreatAsErrorFromVersion = "7.0",
             RemoveInVersion = "8.0")]
@@ -421,7 +421,7 @@ namespace NServiceBus.Config
         }
 
         [ObsoleteEx(
-            Message = "Use of the application configuration file to configure auditing is discouraged",
+            Message = "Auditing can not be configured using a configuration file.",
             ReplacementTypeOrMember = "EndpointConfiguration.AuditProcessedMessagesTo",
             TreatAsErrorFromVersion = "7.0",
             RemoveInVersion = "8.0")]
@@ -443,14 +443,14 @@ namespace NServiceBus.Config
     }
 
     [ObsoleteEx(
-        Message = "Logging configuration via configuration section is discouraged.",
+        Message = "Logging can not be configured using a configuration file.",
         ReplacementTypeOrMember = "LogManager.Use<DefaultFactory>()",
         TreatAsErrorFromVersion = "7",
         RemoveInVersion = "8")]
     public class Logging
     {
         [ObsoleteEx(
-            Message = "Logging configuration via configuration section is discouraged.",
+            Message = "Logging can not be configured using a configuration file.",
             ReplacementTypeOrMember = "LogManager.Use<DefaultFactory>().Level(LogLevel)",
             TreatAsErrorFromVersion = "7",
             RemoveInVersion = "8")]
@@ -655,14 +655,14 @@ namespace NServiceBus.Config
     }
 
     [ObsoleteEx(
-        Message = "Error queue configuration via configuration section is discouraged.",
+        Message = "Message forwarding for failed messages can not be configured using a configuration file.",
         ReplacementTypeOrMember = "EndpointConfiguration.SendFailedMessagesTo",
         TreatAsErrorFromVersion = "7",
         RemoveInVersion = "8")]
     public class MessageForwardingInCaseOfFaultConfig
     {
         [ObsoleteEx(
-            Message = "Error queue configuration via configuration section is discouraged.",
+            Message = "Message forwarding for failed messages can not be configured using a configuration file.",
             ReplacementTypeOrMember = "EndpointConfiguration.SendFailedMessagesTo",
             TreatAsErrorFromVersion = "7",
             RemoveInVersion = "8")]
@@ -674,14 +674,14 @@ namespace NServiceBus.Config
     }
 
     [ObsoleteEx(
-        Message = "Configuring MSMQ subscription storage via configuration section is discouraged.",
+        Message = "MSMQ subscription storage can not be configured using a configuration file.",
         ReplacementTypeOrMember = "EndpointConfiguration.UsePersistence<MsmqPersistence>()",
         TreatAsErrorFromVersion = "7",
         RemoveInVersion = "8")]
     public class MsmqSubscriptionStorageConfig
     {
         [ObsoleteEx(
-            Message = "Configuring MSMQ subscription storage via configuration section is discouraged.",
+            Message = "MSMQ subscription storage can not be configured using a configuration file.",
             ReplacementTypeOrMember = "EndpointConfiguration.UsePersistence<MsmqPersistence>().SubscriptionQueue",
             TreatAsErrorFromVersion = "7",
             RemoveInVersion = "8")]
@@ -863,13 +863,13 @@ namespace NServiceBus.Config
     }
 
     [ObsoleteEx(
-        Message = "Use of the application configuration file to configure the endpoint is discouraged. Use the code first API instead.",
+        Message = "The UnicastBus can not be configured using a configuration file.",
         TreatAsErrorFromVersion = "7.0",
         RemoveInVersion = "8.0")]
     public class UnicastBusConfig
     {
         [ObsoleteEx(
-            Message = "Use of the application configuration file to configure TimeToBeReceived in forwarded messages is discouraged",
+            Message = "UnicastBus time to be received for forwarded messages can not be configured using a configuration file.",
             TreatAsErrorFromVersion = "7.0",
             RemoveInVersion = "8.0")]
         public TimeSpan TimeToBeReceivedOnForwardedMessages
@@ -879,7 +879,7 @@ namespace NServiceBus.Config
         }
 
         [ObsoleteEx(
-            Message = "Use of the application configuration file to configure an external TimeoutManager address is discouraged",
+            Message = "UnicastBus timeout manager can not be configured using a configuration file.",
             ReplacementTypeOrMember = "EndpointConfiguration.UseExternalTimeoutManager",
             TreatAsErrorFromVersion = "7.0",
             RemoveInVersion = "8.0")]
@@ -890,7 +890,7 @@ namespace NServiceBus.Config
         }
 
         [ObsoleteEx(
-            Message = "Use of the application configuration file to configure routing is discouraged",
+            Message = "UnicastBus message mapping can not be configured using a configuration file.",
             ReplacementTypeOrMember = "EndpointConfiguration.UseTransport<T>.Routing()",
             TreatAsErrorFromVersion = "7.0",
             RemoveInVersion = "8.0")]
@@ -905,26 +905,26 @@ namespace NServiceBus.Config
 namespace NServiceBus.Config.ConfigurationSource
 {
     [ObsoleteEx(
-        Message = "The use of the IConfigurationSource is discouraged. Code configuration is preferred over configuration sources.",
+        Message = "Use code-based configuration instead of IConfigurationSource.",
         RemoveInVersion = "8.0",
         TreatAsErrorFromVersion = "7.0")]
     public interface IConfigurationSource
     {
         [ObsoleteEx(
-            Message = "The use of the IConfigurationSource is discouraged. Code configuration is preferred over configuration sources.",
+            Message = "Use code-based configuration instead of IConfigurationSource.",
             RemoveInVersion = "8.0",
             TreatAsErrorFromVersion = "7.0")]
         T GetConfiguration<T>() where T : class, new();
     }
 
     [ObsoleteEx(
-        Message = "The use of the IProvideConfiguration is discouraged. Code configuration is preferred over configuration sources.",
+        Message = "Use code-based configuration instead of IProvideConfiguration.",
         RemoveInVersion = "8.0",
         TreatAsErrorFromVersion = "7.0")]
     public interface IProvideConfiguration<T>
     {
         [ObsoleteEx(
-            Message = "The use of the IProvideConfiguration is discouraged. Code configuration is preferred over configuration sources.",
+            Message = "Use code-based configuration instead of IProvideConfiguration.",
             RemoveInVersion = "8.0",
             TreatAsErrorFromVersion = "7.0")]
         T GetConfiguration();
