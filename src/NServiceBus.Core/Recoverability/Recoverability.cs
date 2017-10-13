@@ -50,12 +50,13 @@
             var failedConfig = new FailedConfig(errorQueue, context.Settings.UnrecoverableExceptions());
 
             var recoverabilityConfig = new RecoverabilityConfig(immediateRetryConfig, delayedRetryConfig, failedConfig);
+
             context.Settings.AddStartupDiagnosticsSection("Recoverability", new
             {
                 ImmediateRetries = recoverabilityConfig.Immediate.MaxNumberOfRetries,
                 DelayedRetries = recoverabilityConfig.Delayed.MaxNumberOfRetries,
                 DelayedRetriesTimeIncrease = recoverabilityConfig.Delayed.TimeIncrease.ToString("g"),
-                ErrorQueue = recoverabilityConfig.Failed.ErrorQueue,
+                recoverabilityConfig.Failed.ErrorQueue,
                 UnrecoverableExceptions = recoverabilityConfig.Failed.UnrecoverableExceptionTypes.Select(t => t.FullName).ToArray()
             });
 
@@ -77,7 +78,7 @@
 
                     return new MoveToErrorsExecutor(b.Build<IDispatchMessages>(), staticFaultMetadata, headerCustomizations);
                 };
-                
+
                 Func<string, DelayedRetryExecutor> delayedRetryExecutorFactory = localAddress =>
                 {
                     if (delayedRetriesAvailable)
