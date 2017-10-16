@@ -49,14 +49,7 @@ namespace NServiceBus
 
             var receiveConfiguration = BuildReceiveConfiguration(transportInfrastructure);
 
-            // use GetOrCreate to use of instances already created during EndpointConfiguration.
-            var routing = new RoutingComponent(
-                settings.GetOrCreate<UnicastRoutingTable>(),
-                settings.GetOrCreate<DistributionPolicy>(),
-                settings.GetOrCreate<EndpointInstances>(),
-                settings.GetOrCreate<Publishers>());
-
-            routing.Initialize(settings, transportInfrastructure, pipelineSettings, receiveConfiguration);
+            var routing = InitializeRouting(transportInfrastructure, receiveConfiguration);
 
             var featureStats = featureActivator.SetupFeatures(container, pipelineSettings, routing, receiveConfiguration);
             settings.AddStartupDiagnosticsSection("Features", featureStats);
@@ -86,6 +79,20 @@ namespace NServiceBus
             var messageSession = new MessageSession(new RootContext(builder, pipelineCache, eventAggregator));
 
             return new StartableEndpoint(settings, builder, featureActivator, transportInfrastructure, receiveComponent, criticalError, messageSession);
+        }
+
+        RoutingComponent InitializeRouting(TransportInfrastructure transportInfrastructure, ReceiveConfiguration receiveConfiguration)
+        {
+            // use GetOrCreate to use of instances already created during EndpointConfiguration.
+            var routing = new RoutingComponent(
+                settings.GetOrCreate<UnicastRoutingTable>(),
+                settings.GetOrCreate<DistributionPolicy>(),
+                settings.GetOrCreate<EndpointInstances>(),
+                settings.GetOrCreate<Publishers>());
+
+            routing.Initialize(settings, transportInfrastructure, pipelineSettings, receiveConfiguration);
+
+            return routing;
         }
 
         TransportInfrastructure InitializeTransportComponent()
@@ -123,8 +130,6 @@ namespace NServiceBus
             //note: remove once settings.LogicalAddress() , .LocalAddress() and .InstanceSpecificQueue() has been obsoleted
             settings.Set<ReceiveConfiguration>(receiveConfiguration);
 
-            settings.AddStartupDiagnosticsSection("Receiving", receiveConfiguration);
-
             return receiveConfiguration;
         }
 
@@ -144,6 +149,11 @@ namespace NServiceBus
                 builder,
                 criticalError,
                 errorQueue);
+
+            if (receiveConfiguration != null)
+            {
+                settings.AddStartupDiagnosticsSection("Receiving", receiveConfiguration);
+            }
 
             return receiveComponent;
         }

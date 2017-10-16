@@ -22,13 +22,11 @@ namespace NServiceBus
             this.configuration = configuration;
             this.receiveInfrastructure = receiveInfrastructure;
             this.queueBindings = queueBindings;
-
-            if (!IsEnabled)
-            {
-                return;
-            }
-
-            AddReceivers(mainPipelineExecutor, eventAggregator, builder, criticalError, errorQueue);
+            this.mainPipelineExecutor = mainPipelineExecutor;
+            this.eventAggregator = eventAggregator;
+            this.builder = builder;
+            this.criticalError = criticalError;
+            this.errorQueue = errorQueue;
         }
 
         public async Task Initialize()
@@ -42,6 +40,8 @@ namespace NServiceBus
             {
                 Logger.Warn("All queues owned by the endpoint will be purged on startup.");
             }
+
+            AddReceivers();
 
             foreach (var receiver in receivers)
             {
@@ -114,7 +114,7 @@ namespace NServiceBus
 
         bool IsEnabled => configuration != null;
 
-        void AddReceivers(IPipelineExecutor mainPipelineExecutor, IEventAggregator eventAggregator, IBuilder builder, CriticalError criticalError, string errorQueue)
+        void AddReceivers()
         {
             var requiredTransactionSupport = configuration.TransactionMode;
             var recoverabilityExecutorFactory = builder.Build<RecoverabilityExecutorFactory>();
@@ -155,6 +155,11 @@ namespace NServiceBus
         List<TransportReceiver> receivers = new List<TransportReceiver>();
         TransportReceiveInfrastructure receiveInfrastructure;
         QueueBindings queueBindings;
+        IPipelineExecutor mainPipelineExecutor;
+        IEventAggregator eventAggregator;
+        IBuilder builder;
+        CriticalError criticalError;
+        string errorQueue;
 
         const string MainReceiverId = "Main";
 

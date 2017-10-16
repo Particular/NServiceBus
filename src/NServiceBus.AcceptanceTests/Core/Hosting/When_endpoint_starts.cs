@@ -22,7 +22,7 @@
             }
 
             await Scenario.Define<Context>()
-                .WithEndpoint<MyEndpoint>(c=>c.CustomConfig(cc=>cc.SendOnly()))
+                .WithEndpoint<MyEndpoint>()
                 .Done(c => c.EndpointsStarted)
                 .Run();
 
