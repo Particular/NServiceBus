@@ -63,17 +63,14 @@ namespace NServiceBus
 
             var receiveComponent = CreateReceiveComponent(receiveConfiguration, transportInfrastructure, pipelineCache, eventAggregator);
 
-            var username = GetInstallationUserName();
-
             var shouldRunInstallers = settings.GetOrDefault<bool>("Installers.Enable");
-                if (shouldRunInstallers)
-                {
-                    await receiving.CreateQueuesIfNecessary(username).ConfigureAwait(false);
-                }
 
             if (shouldRunInstallers)
             {
+                var username = GetInstallationUserName();
+
                 await receiveComponent.CreateQueuesIfNecessary(username).ConfigureAwait(false);
+                await RunInstallers(concreteTypes, username).ConfigureAwait(false);
             }
 
             var messageSession = new MessageSession(new RootContext(builder, pipelineCache, eventAggregator));
