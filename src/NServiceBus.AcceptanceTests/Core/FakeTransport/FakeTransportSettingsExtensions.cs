@@ -28,5 +28,12 @@
 
             return transportExtensions;
         }
+
+        public static TransportExtensions<FakeTransport> WhenQueuesCreated(this TransportExtensions<FakeTransport> transportExtensions, Action action)
+        {
+            transportExtensions.GetSettings().Set("FakeTransport.QueueCreatorAction", action);
+
+            return transportExtensions;
+        }
     }
 }

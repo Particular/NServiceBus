@@ -61,13 +61,22 @@ namespace NServiceBus
             var username = GetInstallationUserName();
             TransportReceiveInfrastructure receiveInfrastructure = null;
 
+            var shouldRunInstallers = settings.GetOrDefault<bool>("Installers.Enable");
+
             if (!settings.Get<bool>("Endpoint.SendOnly"))
             {
                 receiveInfrastructure = transportInfrastructure.ConfigureReceiveInfrastructure();
-                await CreateQueuesIfNecessary(receiveInfrastructure, username).ConfigureAwait(false);
+
+                if (shouldRunInstallers)
+                {
+                    await CreateQueuesIfNecessary(receiveInfrastructure, username).ConfigureAwait(false);
+                }
             }
 
-            await RunInstallers(concreteTypes, username).ConfigureAwait(false);
+            if (shouldRunInstallers)
+            {
+                await RunInstallers(concreteTypes, username).ConfigureAwait(false);
+            }
 
             var startableEndpoint = new StartableEndpoint(settings, builder, featureActivator, pipelineConfiguration, new EventAggregator(settings.Get<NotificationSubscriptions>()), transportInfrastructure, receiveInfrastructure, criticalError);
             return startableEndpoint;
@@ -157,12 +166,6 @@ namespace NServiceBus
 
         async Task RunInstallers(IEnumerable<Type> concreteTypes, string username)
         {
-            var shouldRunInstaller = settings.GetOrDefault<bool>("Installers.Enable");
-            if (!shouldRunInstaller)
-            {
-                return;
-            }
-
             foreach (var installerType in concreteTypes.Where(t => IsINeedToInstallSomething(t)))
             {
                 container.ConfigureComponent(installerType, DependencyLifecycle.InstancePerCall);

@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.AcceptanceTests.Installers
+﻿namespace NServiceBus.AcceptanceTests.Core.Installers
 {
     using System.Threading.Tasks;
     using AcceptanceTesting;
