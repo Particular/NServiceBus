@@ -8,7 +8,13 @@
 
     class ReceiveConfiguration
     {
-        public ReceiveConfiguration(LogicalAddress logicalAddress, string queueNameBase, string localAddress, string instanceSpecificQueue, TransportTransactionMode transactionMode, PushRuntimeSettings pushRuntimeSettings, bool purgeOnStartup)
+        public ReceiveConfiguration(LogicalAddress logicalAddress,
+            string queueNameBase,
+            string localAddress,
+            string instanceSpecificQueue,
+            TransportTransactionMode transactionMode,
+            PushRuntimeSettings pushRuntimeSettings,
+            bool purgeOnStartup)
         {
             LogicalAddress = logicalAddress;
             QueueNameBase = queueNameBase;
