@@ -47,9 +47,7 @@ namespace NServiceBus
 
             var transportInfrastructure = InitializeTransport();
 
-            var isSendOnlyEndpoint = settings.Get<bool>("Endpoint.SendOnly");
-
-            var receiveConfiguration = BuildReceiveConfiguration(isSendOnlyEndpoint, transportInfrastructure);
+            var receiveConfiguration = BuildReceiveConfiguration(transportInfrastructure);
 
             // use GetOrCreate to use of instances already created during EndpointConfiguration.
             var routing = new RoutingComponent(
@@ -113,14 +111,15 @@ namespace NServiceBus
             return transportInfrastructure;
         }
 
-        ReceiveConfiguration BuildReceiveConfiguration(bool isSendOnlyEndpoint, TransportInfrastructure transportInfrastructure)
+        ReceiveConfiguration BuildReceiveConfiguration(TransportInfrastructure transportInfrastructure)
         {
-            var receiveConfiguration = ReceiveConfigurationBuilder.Build(settings.EndpointName(), isSendOnlyEndpoint, transportInfrastructure, settings);
+            var receiveConfiguration = ReceiveConfigurationBuilder.Build(settings, transportInfrastructure);
 
             //note: remove once settings.LogicalAddress() , .LocalAddress() and .InstanceSpecificQueue() has been obsoleted
             settings.Set<ReceiveConfiguration>(receiveConfiguration);
 
             settings.AddStartupDiagnosticsSection("Receiving", receiveConfiguration);
+
             return receiveConfiguration;
         }
 

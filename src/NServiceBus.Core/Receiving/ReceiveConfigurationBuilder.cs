@@ -7,13 +7,16 @@ namespace NServiceBus
 
     static class ReceiveConfigurationBuilder
     {
-        public static ReceiveConfiguration Build(string endpointName, bool isSendOnlyEndpoint, TransportInfrastructure transportInfrastructure, ReadOnlySettings settings)
+        public static ReceiveConfiguration Build(ReadOnlySettings settings, TransportInfrastructure transportInfrastructure)
         {
+            var isSendOnlyEndpoint = settings.Get<bool>("Endpoint.SendOnly");
+
             if (isSendOnlyEndpoint)
             {
                 return new ReceiveConfiguration(new LogicalAddress(), null, null, null, TransportTransactionMode.None, PushRuntimeSettings.Default, false, false);
             }
 
+            var endpointName = settings.EndpointName();
             var discriminator = settings.GetOrDefault<string>("EndpointInstanceDiscriminator");
             var queueNameBase = settings.GetOrDefault<string>("BaseInputQueueName") ?? endpointName;
             var purgeOnStartup = settings.GetOrDefault<bool>("Transport.PurgeOnStartup");
