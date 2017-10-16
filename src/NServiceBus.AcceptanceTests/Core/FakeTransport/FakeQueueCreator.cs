@@ -6,17 +6,17 @@ namespace NServiceBus.AcceptanceTests.Core.FakeTransport
 
     class FakeQueueCreator : ICreateQueues
     {
-        public FakeQueueCreator(Action action = null)
+        public FakeQueueCreator(Action onQueueCreation = null)
         {
-            this.action = action;
+            this.onQueueCreation = onQueueCreation;
         }
 
         public Task CreateQueueIfNecessary(QueueBindings queueBindings, string identity)
         {
-            action?.Invoke();
+            onQueueCreation?.Invoke();
             return Task.FromResult(0);
         }
 
-        Action action;
+        Action onQueueCreation;
     }
 }
