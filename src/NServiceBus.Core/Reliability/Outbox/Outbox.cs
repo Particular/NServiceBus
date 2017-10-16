@@ -15,7 +15,7 @@
                 "Outbox is only relevant for endpoints receiving messages.");
             Prerequisite(c => !c.Settings.GetOrDefault<bool>("Endpoint.SendOnly")
                 && c.Settings.GetRequiredTransactionModeForReceives() != TransportTransactionMode.None,
-                "Outbox isn't needed since the receive transactions has been turned off");
+                "Outbox isn't needed since the receive transactions have been turned off");
         }
 
         /// <summary>

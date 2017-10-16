@@ -36,7 +36,7 @@ namespace NServiceBus
 
             if (!settings.TryGet<ReceiveConfiguration>(out var receiveConfiguration))
             {
-                throw new InvalidOperationException("LogicalAddress isn't available since this endpoint is configured to run in send only mode.");
+                throw new InvalidOperationException("LogicalAddress isn't available since this endpoint is configured to run in send-only mode.");
             }
 
             return receiveConfiguration.LogicalAddress;
@@ -51,7 +51,7 @@ namespace NServiceBus
 
             if (!settings.TryGet<ReceiveConfiguration>(out var receiveConfiguration))
             {
-                throw new InvalidOperationException("LocalAddress isn't available since this endpoint is configured to run in send only mode.");
+                throw new InvalidOperationException("LocalAddress isn't available since this endpoint is configured to run in send-only mode.");
             }
 
             return receiveConfiguration.LocalAddress;
@@ -66,7 +66,7 @@ namespace NServiceBus
 
             if (!settings.TryGet<ReceiveConfiguration>(out var receiveConfiguration))
             {
-                throw new InvalidOperationException("Instance specific queue name isn't available since this endpoint is configured to run in send only mode.");
+                throw new InvalidOperationException("Instance-specific queue name isn't available since this endpoint is configured to run in send-only mode.");
             }
 
             return receiveConfiguration.InstanceSpecificQueue;
