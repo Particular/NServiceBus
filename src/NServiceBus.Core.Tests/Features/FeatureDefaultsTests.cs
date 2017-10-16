@@ -45,7 +45,7 @@
             settings = new SettingsHolder();
             featureSettings = new FeatureActivator(settings);
         }
-        
+
         [Test]
         public void Feature_enabled_by_later_feature_should_have_default_called()
         {
@@ -230,7 +230,7 @@
             public Activate1()
             {
                 EnableByDefault();
-                Defaults(s=>s.EnableFeatureByDefault<Activate2>());
+                Defaults(s => s.EnableFeatureByDefault<Activate2>());
             }
         }
 

@@ -359,7 +359,7 @@ namespace NServiceBus.Core.Tests.Routing
         static string ExtractDestination(UnicastRoutingStrategy route)
         {
             var headers = new Dictionary<string, string>();
-            var addressTag = (UnicastAddressTag) route.Apply(headers);
+            var addressTag = (UnicastAddressTag)route.Apply(headers);
             return addressTag.Destination;
         }
 
