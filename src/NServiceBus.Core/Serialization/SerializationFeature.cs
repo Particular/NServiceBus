@@ -61,7 +61,7 @@
 
             LogFoundMessages(messageMetadataRegistry.GetAllMessages().ToList());
 
-            context.AddStartupDiagnosticsSection("Serialization", new
+            context.Settings.AddStartupDiagnosticsSection("Serialization", new
             {
                 DefaultSerializer = new
                 {

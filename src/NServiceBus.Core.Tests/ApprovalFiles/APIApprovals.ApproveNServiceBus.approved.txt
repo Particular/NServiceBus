@@ -329,7 +329,6 @@ namespace NServiceBus
     public class static EndpointDiagnosticSettingsExtensions
     {
         public static void AddStartupDiagnosticsSection(this NServiceBus.Settings.ReadOnlySettings settings, string sectionName, object section) { }
-        public static void AddStartupDiagnosticsSection(this NServiceBus.Features.FeatureConfigurationContext context, string sectionName, object section) { }
     }
     public class static ErrorQueueSettings
     {

@@ -30,7 +30,7 @@
 
             context.Settings.Get<QueueBindings>().BindSending(auditConfig.Address);
 
-            context.AddStartupDiagnosticsSection("Audit", new
+            context.Settings.AddStartupDiagnosticsSection("Audit", new
             {
                 AuditQueue = auditConfig.Address,
                 AuditTTBR = auditConfig.TimeToBeReceived?.ToString("g") ?? "-"

@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus
 {
-    using Features;
     using Settings;
 
     /// <summary>
@@ -18,18 +17,6 @@
             Guard.AgainstNull(nameof(section), section);
 
             settings.Get<StartupDiagnosticEntries>().Add(sectionName, section);
-        }
-
-        /// <summary>
-        /// Adds a section to the startup diagnostics.
-        /// </summary>
-        public static void AddStartupDiagnosticsSection(this FeatureConfigurationContext context, string sectionName, object section)
-        {
-            Guard.AgainstNull(nameof(context), context);
-            Guard.AgainstNullAndEmpty(nameof(sectionName), sectionName);
-            Guard.AgainstNull(nameof(section), section);
-
-            context.Settings.Get<StartupDiagnosticEntries>().Add(sectionName, section);
         }
     }
 }

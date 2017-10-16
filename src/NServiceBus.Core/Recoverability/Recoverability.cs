@@ -51,7 +51,7 @@
 
             var recoverabilityConfig = new RecoverabilityConfig(immediateRetryConfig, delayedRetryConfig, failedConfig);
 
-            context.AddStartupDiagnosticsSection("Recoverability", new
+            context.Settings.AddStartupDiagnosticsSection("Recoverability", new
             {
                 ImmediateRetries = recoverabilityConfig.Immediate.MaxNumberOfRetries,
                 DelayedRetries = recoverabilityConfig.Delayed.MaxNumberOfRetries,
