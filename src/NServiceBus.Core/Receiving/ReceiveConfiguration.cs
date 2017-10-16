@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus
 {
     using System;
+    using System.Collections.Generic;
     using System.Threading.Tasks;
     using ObjectBuilder;
     using Transport;
@@ -18,7 +19,7 @@
             IsEnabled = isEnabled;
             PurgeOnStartup = purgeOnStartup;
 
-            SatelliteDefinitions = new SatelliteDefinitions();
+            satelliteDefinitions = new List<SatelliteDefinition>();
         }
 
         public LogicalAddress LogicalAddress { get; }
@@ -35,7 +36,7 @@
 
         public bool IsEnabled { get; }
 
-        public SatelliteDefinitions SatelliteDefinitions { get; }
+        public IEnumerable<SatelliteDefinition> SatelliteDefinitions => satelliteDefinitions;
 
         public bool PurgeOnStartup { get; }
 
@@ -43,7 +44,9 @@
         {
             var satelliteDefinition = new SatelliteDefinition(name, transportAddress, TransactionMode, runtimeSettings, recoverabilityPolicy, onMessage);
 
-            SatelliteDefinitions.Add(satelliteDefinition);
+            satelliteDefinitions.Add(satelliteDefinition);
         }
+
+        List<SatelliteDefinition> satelliteDefinitions;
     }
 }

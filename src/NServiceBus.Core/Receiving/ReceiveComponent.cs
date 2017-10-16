@@ -133,8 +133,8 @@ namespace NServiceBus
                 receivers.Add(new TransportReceiver(MainReceiverId, BuildMessagePump(), sharedReceiverPushSettings, dequeueLimitations, mainPipelineExecutor, instanceSpecificRecoverabilityExecutor, criticalError));
                 queueBindings.BindReceiving(instanceSpecificQueue);
             }
-            // ReSharper disable once LoopCanBeConvertedToQuery
-            foreach (var satellitePipeline in configuration.SatelliteDefinitions.Definitions)
+
+            foreach (var satellitePipeline in configuration.SatelliteDefinitions)
             {
                 var satelliteRecoverabilityExecutor = recoverabilityExecutorFactory.Create(satellitePipeline.RecoverabilityPolicy, eventAggregator, satellitePipeline.ReceiveAddress);
                 var satellitePushSettings = new PushSettings(satellitePipeline.ReceiveAddress, errorQueue, configuration.PurgeOnStartup, satellitePipeline.RequiredTransportTransactionMode);
