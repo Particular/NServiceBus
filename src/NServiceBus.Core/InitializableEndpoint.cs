@@ -16,7 +16,11 @@ namespace NServiceBus
 
     class InitializableEndpoint
     {
-        public InitializableEndpoint(SettingsHolder settings, IContainer container, List<Action<IConfigureComponents>> registrations, PipelineSettings pipelineSettings, PipelineConfiguration pipelineConfiguration)
+        public InitializableEndpoint(SettingsHolder settings,
+            IContainer container,
+            List<Action<IConfigureComponents>> registrations,
+            PipelineSettings pipelineSettings,
+            PipelineConfiguration pipelineConfiguration)
         {
             this.settings = settings;
             this.pipelineSettings = pipelineSettings;
@@ -45,10 +49,7 @@ namespace NServiceBus
 
             var isSendOnlyEndpoint = settings.Get<bool>("Endpoint.SendOnly");
 
-            var receiveConfiguration = ReceiveComponentFactory.Configure(settings.EndpointName(), isSendOnlyEndpoint, transportInfrastructure, settings);
-
-            //note: remove once settings.LogicalAddress() , .LocalAddress() and .InstanceSpecificQueue() has been obsoleted
-            settings.Set<ReceiveConfiguration>(receiveConfiguration);
+            var receiveConfiguration = BuildReceiveConfiguration(isSendOnlyEndpoint, transportInfrastructure);
 
             // use GetOrCreate to use of instances already created during EndpointConfiguration.
             var routing = new RoutingComponent(
@@ -67,20 +68,9 @@ namespace NServiceBus
             container.ConfigureComponent(b => settings.Get<Notifications>(), DependencyLifecycle.SingleInstance);
 
             var eventAggregator = new EventAggregator(settings.Get<NotificationSubscriptions>());
-            var mainPipeline = new Pipeline<ITransportReceiveContext>(builder, pipelineConfiguration.Modifications);
             var pipelineCache = new PipelineCache(builder, settings);
-            var mainPipelineExecutor = new MainPipelineExecutor(builder, eventAggregator, pipelineCache, mainPipeline);
-            var errorQueue = settings.ErrorQueueAddress();
-            var receiveInfrastructure = transportInfrastructure.ConfigureReceiveInfrastructure();
 
-            var receiveComponent = await ReceiveComponentFactory.Initialize(receiveConfiguration,
-                settings.Get<QueueBindings>(),
-                receiveInfrastructure,
-                mainPipelineExecutor,
-                eventAggregator,
-                builder,
-                criticalError,
-                errorQueue).ConfigureAwait(false);
+            var receiveComponent = CreateReceiveComponent(receiveConfiguration, transportInfrastructure, pipelineCache, eventAggregator);
 
             var username = GetInstallationUserName();
 
@@ -121,6 +111,37 @@ namespace NServiceBus
             });
 
             return transportInfrastructure;
+        }
+
+        ReceiveConfiguration BuildReceiveConfiguration(bool isSendOnlyEndpoint, TransportInfrastructure transportInfrastructure)
+        {
+            var receiveConfiguration = ReceiveConfigurationBuilder.Build(settings.EndpointName(), isSendOnlyEndpoint, transportInfrastructure, settings);
+
+            //note: remove once settings.LogicalAddress() , .LocalAddress() and .InstanceSpecificQueue() has been obsoleted
+            settings.Set<ReceiveConfiguration>(receiveConfiguration);
+
+            settings.AddStartupDiagnosticsSection("Receiving", receiveConfiguration);
+            return receiveConfiguration;
+        }
+
+        ReceiveComponent CreateReceiveComponent(ReceiveConfiguration receiveConfiguration, TransportInfrastructure transportInfrastructure, IPipelineCache pipelineCache, EventAggregator eventAggregator)
+        {
+            var mainPipeline = new Pipeline<ITransportReceiveContext>(builder, pipelineConfiguration.Modifications);
+            var mainPipelineExecutor = new MainPipelineExecutor(builder, eventAggregator, pipelineCache, mainPipeline);
+            var errorQueue = settings.ErrorQueueAddress();
+            var queueBindings = settings.Get<QueueBindings>();
+            var receiveInfrastructure = transportInfrastructure.ConfigureReceiveInfrastructure();
+
+            var receiveComponent = new ReceiveComponent(receiveConfiguration,
+                receiveInfrastructure,
+                queueBindings,
+                mainPipelineExecutor,
+                eventAggregator,
+                builder,
+                criticalError,
+                errorQueue);
+
+            return receiveComponent;
         }
 
         static bool IsConcrete(Type x)

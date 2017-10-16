@@ -1,15 +1,13 @@
 namespace NServiceBus
 {
     using System;
-    using System.Threading.Tasks;
-    using ObjectBuilder;
     using Routing;
     using Settings;
     using Transport;
 
-    static class ReceiveComponentFactory
+    static class ReceiveConfigurationBuilder
     {
-        public static ReceiveConfiguration Configure(string endpointName, bool isSendOnlyEndpoint, TransportInfrastructure transportInfrastructure, ReadOnlySettings settings)
+        public static ReceiveConfiguration Build(string endpointName, bool isSendOnlyEndpoint, TransportInfrastructure transportInfrastructure, ReadOnlySettings settings)
         {
             if (isSendOnlyEndpoint)
             {
@@ -37,20 +35,7 @@ namespace NServiceBus
 
             var pushRuntimeSettings = GetDequeueLimitations(settings);
 
-            var config = new ReceiveConfiguration(logicalAddress, queueNameBase, localAddress, instanceSpecificQueue, transactionMode, pushRuntimeSettings, purgeOnStartup, true);
-
-            settings.AddStartupDiagnosticsSection("Receiving", config);
-
-            return config;
-        }
-
-        public static async Task<ReceiveComponent> Initialize(ReceiveConfiguration receiveConfiguration, QueueBindings queueBindings, TransportReceiveInfrastructure receiveInfrastructure, IPipelineExecutor mainPipelineExecutor, IEventAggregator eventAggregator, IBuilder builder, CriticalError criticalError, string errorQueue)
-        {
-            var component = new ReceiveComponent(receiveConfiguration, receiveInfrastructure, queueBindings);
-
-            await component.Initialize(mainPipelineExecutor, eventAggregator, builder, criticalError, errorQueue).ConfigureAwait(false);
-
-            return component;
+            return new ReceiveConfiguration(logicalAddress, queueNameBase, localAddress, instanceSpecificQueue, transactionMode, pushRuntimeSettings, purgeOnStartup, true);
         }
 
         static PushRuntimeSettings GetDequeueLimitations(ReadOnlySettings settings)

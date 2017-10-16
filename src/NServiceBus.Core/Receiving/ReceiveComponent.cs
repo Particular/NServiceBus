@@ -10,14 +10,28 @@ namespace NServiceBus
 
     class ReceiveComponent
     {
-        public ReceiveComponent(ReceiveConfiguration configuration, TransportReceiveInfrastructure receiveInfrastructure, QueueBindings queueBindings)
+        public ReceiveComponent(ReceiveConfiguration configuration,
+            TransportReceiveInfrastructure receiveInfrastructure,
+            QueueBindings queueBindings,
+            IPipelineExecutor mainPipelineExecutor,
+            IEventAggregator eventAggregator,
+            IBuilder builder,
+            CriticalError criticalError,
+            string errorQueue)
         {
             this.configuration = configuration;
             this.receiveInfrastructure = receiveInfrastructure;
             this.queueBindings = queueBindings;
+
+            if (!configuration.IsEnabled)
+            {
+                return;
+            }
+
+            AddReceivers(mainPipelineExecutor, eventAggregator, builder, criticalError, errorQueue);
         }
 
-        public async Task Initialize(IPipelineExecutor mainPipelineExecutor, IEventAggregator eventAggregator, IBuilder builder, CriticalError criticalError, string errorQueue)
+        public async Task Initialize()
         {
             if (!configuration.IsEnabled)
             {
@@ -28,8 +42,6 @@ namespace NServiceBus
             {
                 Logger.Warn("All queues owned by the endpoint will be purged on startup.");
             }
-
-            AddReceivers(mainPipelineExecutor, eventAggregator, builder, criticalError, errorQueue);
 
             foreach (var receiver in receivers)
             {

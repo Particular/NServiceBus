@@ -10,7 +10,7 @@ namespace NServiceBus
 
     class StartableEndpoint : IStartableEndpoint
     {
-        public StartableEndpoint(SettingsHolder settings, IBuilder builder, FeatureActivator featureActivator, TransportInfrastructure transportInfrastructure, ReceiveComponent receiveComponent, CriticalError criticalError,IMessageSession messageSession)
+        public StartableEndpoint(SettingsHolder settings, IBuilder builder, FeatureActivator featureActivator, TransportInfrastructure transportInfrastructure, ReceiveComponent receiveComponent, CriticalError criticalError, IMessageSession messageSession)
         {
             this.criticalError = criticalError;
             this.settings = settings;
@@ -28,6 +28,8 @@ namespace NServiceBus
             await transportInfrastructure.Start().ConfigureAwait(false);
 
             AppDomain.CurrentDomain.SetPrincipalPolicy(PrincipalPolicy.WindowsPrincipal);
+
+            await receiveComponent.Initialize().ConfigureAwait(false);
 
             var featureRunner = await StartFeatures().ConfigureAwait(false);
 
