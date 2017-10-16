@@ -13,7 +13,7 @@ namespace NServiceBus
 
             if (isSendOnlyEndpoint)
             {
-                return new ReceiveConfiguration(new LogicalAddress(), null, null, null, TransportTransactionMode.None, PushRuntimeSettings.Default, false, false);
+                return null;
             }
 
             var endpointName = settings.EndpointName();
@@ -38,7 +38,7 @@ namespace NServiceBus
 
             var pushRuntimeSettings = GetDequeueLimitations(settings);
 
-            return new ReceiveConfiguration(logicalAddress, queueNameBase, localAddress, instanceSpecificQueue, transactionMode, pushRuntimeSettings, purgeOnStartup, true);
+            return new ReceiveConfiguration(logicalAddress, queueNameBase, localAddress, instanceSpecificQueue, transactionMode, pushRuntimeSettings, purgeOnStartup);
         }
 
         static PushRuntimeSettings GetDequeueLimitations(ReadOnlySettings settings)

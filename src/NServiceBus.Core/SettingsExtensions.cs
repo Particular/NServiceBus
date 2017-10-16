@@ -33,7 +33,13 @@ namespace NServiceBus
         public static LogicalAddress LogicalAddress(this ReadOnlySettings settings)
         {
             Guard.AgainstNull(nameof(settings), settings);
-            return settings.Get<ReceiveConfiguration>().LogicalAddress;
+
+            if (!settings.TryGet<ReceiveConfiguration>(out var receiveConfiguration))
+            {
+                throw new InvalidOperationException("LogicalAddress isn't available since this endpoint is configured to run in send only mode.");
+            }
+
+            return receiveConfiguration.LogicalAddress;
         }
 
         /// <summary>
@@ -42,7 +48,13 @@ namespace NServiceBus
         public static string LocalAddress(this ReadOnlySettings settings)
         {
             Guard.AgainstNull(nameof(settings), settings);
-            return settings.Get<ReceiveConfiguration>().LocalAddress;
+
+            if (!settings.TryGet<ReceiveConfiguration>(out var receiveConfiguration))
+            {
+                throw new InvalidOperationException("LocalAddress isn't available since this endpoint is configured to run in send only mode.");
+            }
+
+            return receiveConfiguration.LocalAddress;
         }
 
         /// <summary>
@@ -51,7 +63,13 @@ namespace NServiceBus
         public static string InstanceSpecificQueue(this ReadOnlySettings settings)
         {
             Guard.AgainstNull(nameof(settings), settings);
-            return settings.Get<ReceiveConfiguration>().InstanceSpecificQueue;
+
+            if (!settings.TryGet<ReceiveConfiguration>(out var receiveConfiguration))
+            {
+                throw new InvalidOperationException("Instance specific queue name isn't available since this endpoint is configured to run in send only mode.");
+            }
+
+            return receiveConfiguration.InstanceSpecificQueue;
         }
     }
 }

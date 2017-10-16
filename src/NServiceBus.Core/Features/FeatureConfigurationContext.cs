@@ -19,7 +19,7 @@
             Container = container;
             Pipeline = pipelineSettings;
             Routing = routing;
-            Receiving = receiving;
+            this.receiving = receiving;
 
             TaskControllers = new List<FeatureStartupTaskController>();
         }
@@ -41,7 +41,17 @@
 
         internal RoutingComponent Routing { get; }
 
-        internal ReceiveConfiguration Receiving { get; }
+        internal ReceiveConfiguration Receiving
+        {
+            get
+            {
+                if (receiving == null)
+                {
+                    throw new InvalidOperationException("Receive component is not enabled since this endpoint is configured to run in send only mode.");
+                }
+                return receiving;
+            }
+        }
 
         internal List<FeatureStartupTaskController> TaskControllers { get; }
 
@@ -94,5 +104,7 @@
             Guard.AgainstNull(nameof(startupTaskFactory), startupTaskFactory);
             TaskControllers.Add(new FeatureStartupTaskController(typeof(TTask).Name, startupTaskFactory));
         }
+
+        ReceiveConfiguration receiving;
     }
 }

@@ -8,7 +8,7 @@
 
     class ReceiveConfiguration
     {
-        public ReceiveConfiguration(LogicalAddress logicalAddress, string queueNameBase, string localAddress, string instanceSpecificQueue, TransportTransactionMode transactionMode, PushRuntimeSettings pushRuntimeSettings, bool purgeOnStartup, bool isEnabled)
+        public ReceiveConfiguration(LogicalAddress logicalAddress, string queueNameBase, string localAddress, string instanceSpecificQueue, TransportTransactionMode transactionMode, PushRuntimeSettings pushRuntimeSettings, bool purgeOnStartup)
         {
             LogicalAddress = logicalAddress;
             QueueNameBase = queueNameBase;
@@ -16,7 +16,6 @@
             InstanceSpecificQueue = instanceSpecificQueue;
             TransactionMode = transactionMode;
             PushRuntimeSettings = pushRuntimeSettings;
-            IsEnabled = isEnabled;
             PurgeOnStartup = purgeOnStartup;
 
             satelliteDefinitions = new List<SatelliteDefinition>();
@@ -33,8 +32,6 @@
         public PushRuntimeSettings PushRuntimeSettings { get; }
 
         public string QueueNameBase { get; }
-
-        public bool IsEnabled { get; }
 
         public IEnumerable<SatelliteDefinition> SatelliteDefinitions => satelliteDefinitions;
 

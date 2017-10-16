@@ -45,7 +45,7 @@ namespace NServiceBus
 
             ConfigRunBeforeIsFinalized(concreteTypes);
 
-            var transportInfrastructure = InitializeTransport();
+            var transportInfrastructure = InitializeTransportComponent();
 
             var receiveConfiguration = BuildReceiveConfiguration(transportInfrastructure);
 
@@ -88,7 +88,7 @@ namespace NServiceBus
             return new StartableEndpoint(settings, builder, featureActivator, transportInfrastructure, receiveComponent, criticalError, messageSession);
         }
 
-        TransportInfrastructure InitializeTransport()
+        TransportInfrastructure InitializeTransportComponent()
         {
             if (!settings.HasExplicitValue<TransportDefinition>())
             {
@@ -114,6 +114,11 @@ namespace NServiceBus
         ReceiveConfiguration BuildReceiveConfiguration(TransportInfrastructure transportInfrastructure)
         {
             var receiveConfiguration = ReceiveConfigurationBuilder.Build(settings, transportInfrastructure);
+
+            if (receiveConfiguration == null)
+            {
+                return null;
+            }
 
             //note: remove once settings.LogicalAddress() , .LocalAddress() and .InstanceSpecificQueue() has been obsoleted
             settings.Set<ReceiveConfiguration>(receiveConfiguration);

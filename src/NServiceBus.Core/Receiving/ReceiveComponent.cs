@@ -23,7 +23,7 @@ namespace NServiceBus
             this.receiveInfrastructure = receiveInfrastructure;
             this.queueBindings = queueBindings;
 
-            if (!configuration.IsEnabled)
+            if (!IsEnabled)
             {
                 return;
             }
@@ -33,7 +33,7 @@ namespace NServiceBus
 
         public async Task Initialize()
         {
-            if (!configuration.IsEnabled)
+            if (!IsEnabled)
             {
                 return;
             }
@@ -87,7 +87,7 @@ namespace NServiceBus
 
         public Task CreateQueuesIfNecessary(string username)
         {
-            if (!configuration.IsEnabled)
+            if (!IsEnabled)
             {
                 return TaskEx.CompletedTask;
             }
@@ -99,7 +99,7 @@ namespace NServiceBus
 
         public async Task PerformPreStartupChecks()
         {
-            if (!configuration.IsEnabled)
+            if (!IsEnabled)
             {
                 return;
             }
@@ -111,6 +111,8 @@ namespace NServiceBus
                 throw new Exception($"Pre start-up check failed: {result.ErrorMessage}");
             }
         }
+
+        bool IsEnabled => configuration != null;
 
         void AddReceivers(IPipelineExecutor mainPipelineExecutor, IEventAggregator eventAggregator, IBuilder builder, CriticalError criticalError, string errorQueue)
         {
