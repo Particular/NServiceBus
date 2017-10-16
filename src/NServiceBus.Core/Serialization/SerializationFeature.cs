@@ -33,13 +33,20 @@
             var additionalDeserializerDefinitions = context.Settings.GetAdditionalSerializers();
             var additionalDeserializers = new List<IMessageSerializer>();
 
-            var additionalDeserializerDiagnostics = new List<Tuple<Type, IMessageSerializer>>();
+            var additionalDeserializerDiagnostics = new List<object>();
             foreach (var definitionAndSettings in additionalDeserializerDefinitions)
             {
                 var deserializer = CreateMessageSerializer(definitionAndSettings, mapper, settings);
                 additionalDeserializers.Add(deserializer);
 
-                additionalDeserializerDiagnostics.Add(new Tuple<Type, IMessageSerializer>(definitionAndSettings.Item1.GetType(), deserializer));
+                var deserializerType = definitionAndSettings.Item1.GetType();
+
+                additionalDeserializerDiagnostics.Add(new
+                {
+                    Type = deserializerType.FullName,
+                    Version = FileVersionRetriever.GetFileVersion(deserializerType),
+                    deserializer.ContentType
+                });
             }
 
             var resolver = new MessageDeserializerResolver(defaultSerializer, additionalDeserializers);
@@ -62,12 +69,7 @@
                     Version = FileVersionRetriever.GetFileVersion(defaultSerializerAndDefinition.Item1.GetType()),
                     defaultSerializer.ContentType
                 },
-                AdditionalDeserializers = additionalDeserializerDiagnostics.Select(d => new
-                {
-                    Type = d.Item1.FullName,
-                    Version = FileVersionRetriever.GetFileVersion(d.Item1),
-                    d.Item2.ContentType
-                })
+                AdditionalDeserializers = additionalDeserializerDiagnostics
             });
         }
 
