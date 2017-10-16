@@ -47,7 +47,7 @@ namespace NServiceBus
 
             pipelineSettings.Register(b =>
             {
-                var router = new UnicastSendRouter(receiveConfiguration.QueueNameBase, receiveConfiguration.InstanceSpecificQueue, DistributionPolicy, UnicastRoutingTable, EndpointInstances, i => transportInfrastructure.ToTransportAddress(LogicalAddress.CreateRemoteAddress(i)));
+                var router = new UnicastSendRouter(receiveConfiguration?.QueueNameBase, receiveConfiguration?.InstanceSpecificQueue, DistributionPolicy, UnicastRoutingTable, EndpointInstances, i => transportInfrastructure.ToTransportAddress(LogicalAddress.CreateRemoteAddress(i)));
                 return new UnicastSendRouterConnector(router);
             }, "Determines how the message being sent should be routed");
 
