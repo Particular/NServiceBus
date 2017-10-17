@@ -31,7 +31,7 @@ namespace NServiceBus
 
         public async Task Initialize()
         {
-            if (!IsEnabled)
+            if (!IsSendOnly)
             {
                 return;
             }
@@ -87,7 +87,7 @@ namespace NServiceBus
 
         public Task CreateQueuesIfNecessary(string username)
         {
-            if (!IsEnabled)
+            if (!IsSendOnly)
             {
                 return TaskEx.CompletedTask;
             }
@@ -99,7 +99,7 @@ namespace NServiceBus
 
         public async Task PerformPreStartupChecks()
         {
-            if (!IsEnabled)
+            if (!IsSendOnly)
             {
                 return;
             }
@@ -112,7 +112,7 @@ namespace NServiceBus
             }
         }
 
-        bool IsEnabled => configuration != null;
+        bool IsSendOnly => configuration != null;
 
         void AddReceivers()
         {
