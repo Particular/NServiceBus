@@ -64,7 +64,7 @@ namespace NServiceBus
         {
             if (isSendOnly)
             {
-                throw new InvalidOperationException("Cannot route to this instance since the endpoint is configured to be in send only mode.");
+                throw new InvalidOperationException("Cannot route to this instance since the endpoint is configured to be in send-only mode.");
             }
 
             if (instanceSpecificQueue == null)
@@ -79,7 +79,7 @@ namespace NServiceBus
         {
             if (isSendOnly)
             {
-                throw new InvalidOperationException("Cannot route to instances of this endpoint since it's configured to be in send only mode.");
+                throw new InvalidOperationException("Cannot route to instances of this endpoint since it's configured to be in send-only mode.");
             }
 
             return UnicastRoute.CreateFromEndpointName(receiveQueueName);

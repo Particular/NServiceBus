@@ -5,8 +5,8 @@
     using AcceptanceTesting;
     using EndpointTemplates;
     using FakeTransport;
-    using Transport;
     using NUnit.Framework;
+    using Transport;
 
     public class When_initializing_transport : NServiceBusAcceptanceTest
     {

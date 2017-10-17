@@ -69,7 +69,7 @@ namespace NServiceBus.Core.Tests.Routing
 
             var exception = Assert.Throws<InvalidOperationException>(() => router.Route(context));
 
-            StringAssert.Contains("send only mode", exception.Message);
+            StringAssert.Contains("send-only mode", exception.Message);
         }
 
         [Test]
@@ -85,7 +85,7 @@ namespace NServiceBus.Core.Tests.Routing
 
             var exception = Assert.Throws<InvalidOperationException>(() => router.Route(context));
 
-            StringAssert.Contains("send only mode", exception.Message);
+            StringAssert.Contains("send-only mode", exception.Message);
         }
 
         [Test]

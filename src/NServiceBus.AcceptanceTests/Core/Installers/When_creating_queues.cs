@@ -105,7 +105,7 @@
             CollectionAssert.AreEqual(new List<string>
             {
                 endpointName, //main input queue
-                $"{endpointName}-{instanceDiscriminator}", // instance specific queue
+                $"{endpointName}-{instanceDiscriminator}", // instance-specific queue
                 "MySatelliteAddress"
             }, context.ReceivingAddresses);
         }
