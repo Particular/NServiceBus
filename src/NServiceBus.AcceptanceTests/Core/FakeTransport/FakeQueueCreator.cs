@@ -10,18 +10,18 @@ namespace NServiceBus.AcceptanceTests.Core.FakeTransport
         public FakeQueueCreator(ReadOnlySettings settings)
         {
             this.settings = settings;
-            onQueueCreation = settings.GetOrDefault<Action>("FakeTransport.QueueCreatorAction");
+            onQueueCreation = settings.GetOrDefault<Action<QueueBindings>>("FakeTransport.onQueueCreation");
         }
 
         public Task CreateQueueIfNecessary(QueueBindings queueBindings, string identity)
         {
             settings.Get<FakeTransport.StartUpSequence>().Add($"{nameof(ICreateQueues)}.{nameof(CreateQueueIfNecessary)}");
 
-            onQueueCreation?.Invoke();
+            onQueueCreation?.Invoke(queueBindings);
             return Task.FromResult(0);
         }
 
         ReadOnlySettings settings;
-        Action onQueueCreation;
+        Action<QueueBindings> onQueueCreation;
     }
 }
