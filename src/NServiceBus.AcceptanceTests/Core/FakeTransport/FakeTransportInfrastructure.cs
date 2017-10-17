@@ -46,7 +46,13 @@
         {
             settings.Get<FakeTransport.StartUpSequence>().Add($"{nameof(TransportInfrastructure)}.{nameof(ConfigureReceiveInfrastructure)}");
 
-            return new TransportReceiveInfrastructure(() => new FakeReceiver(settings), () => new FakeQueueCreator(settings), () => Task.FromResult(StartupCheckResult.Success));
+            return new TransportReceiveInfrastructure(() => new FakeReceiver(settings),
+                () => new FakeQueueCreator(settings),
+                () =>
+                {
+                    settings.Get<FakeTransport.StartUpSequence>().Add($"{nameof(TransportReceiveInfrastructure)}.PreStartupCheck");
+                    return Task.FromResult(StartupCheckResult.Success);
+                });
         }
 
         public override Task Start()
