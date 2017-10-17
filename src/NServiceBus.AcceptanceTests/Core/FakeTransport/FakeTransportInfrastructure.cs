@@ -44,11 +44,22 @@
 
         public override TransportReceiveInfrastructure ConfigureReceiveInfrastructure()
         {
-            return new TransportReceiveInfrastructure(() => new FakeReceiver(settings.GetOrDefault<bool>("FakeTransport.ThrowCritical"), settings.GetOrDefault<bool>("FakeTransport.ThrowOnPumpStop"), settings.GetOrDefault<Exception>()), () => new FakeQueueCreator(settings.GetOrDefault<Action>("FakeTransport.QueueCreatorAction")), () => Task.FromResult(StartupCheckResult.Success));
+            settings.Get<FakeTransport.StartUpSequence>().Add($"{nameof(TransportInfrastructure)}.{nameof(ConfigureReceiveInfrastructure)}");
+
+            return new TransportReceiveInfrastructure(() => new FakeReceiver(settings), () => new FakeQueueCreator(settings), () => Task.FromResult(StartupCheckResult.Success));
         }
 
+        public override Task Start()
+        {
+            settings.Get<FakeTransport.StartUpSequence>().Add($"{nameof(TransportInfrastructure)}.{nameof(Start)}");
+
+            return Task.FromResult(0);
+
+        }
         public override async Task Stop()
         {
+            settings.Get<FakeTransport.StartUpSequence>().Add($"{nameof(TransportInfrastructure)}.{nameof(Stop)}");
+
             await Task.Yield();
 
             if (settings.GetOrDefault<bool>("FakeTransport.ThrowOnInfrastructureStop"))
@@ -60,6 +71,8 @@
 
         public override TransportSendInfrastructure ConfigureSendInfrastructure()
         {
+            settings.Get<FakeTransport.StartUpSequence>().Add($"{nameof(TransportInfrastructure)}.{nameof(ConfigureSendInfrastructure)}");
+
             return new TransportSendInfrastructure(() => new FakeDispatcher(), () => Task.FromResult(StartupCheckResult.Success));
         }
 

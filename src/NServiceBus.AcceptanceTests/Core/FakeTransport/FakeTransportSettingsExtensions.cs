@@ -35,5 +35,12 @@
 
             return transportExtensions;
         }
+
+        public static TransportExtensions<FakeTransport> CollectStartupSequence(this TransportExtensions<FakeTransport> transportExtensions, FakeTransport.StartUpSequence startUpSequence)
+        {
+            transportExtensions.GetSettings().Set<FakeTransport.StartUpSequence>(startUpSequence);
+
+            return transportExtensions;
+        }
     }
 }
