@@ -27,11 +27,16 @@ namespace NServiceBus
             this.builder = builder;
             this.criticalError = criticalError;
             this.errorQueue = errorQueue;
+
+            if (!IsSendOnly)
+            {
+                AddReceivers();
+            }
         }
 
         public async Task Initialize()
         {
-            if (!IsSendOnly)
+            if (IsSendOnly)
             {
                 return;
             }
@@ -40,8 +45,6 @@ namespace NServiceBus
             {
                 Logger.Warn("All queues owned by the endpoint will be purged on startup.");
             }
-
-            AddReceivers();
 
             foreach (var receiver in receivers)
             {
@@ -87,7 +90,7 @@ namespace NServiceBus
 
         public Task CreateQueuesIfNecessary(string username)
         {
-            if (!IsSendOnly)
+            if (IsSendOnly)
             {
                 return TaskEx.CompletedTask;
             }
@@ -99,7 +102,7 @@ namespace NServiceBus
 
         public async Task PerformPreStartupChecks()
         {
-            if (!IsSendOnly)
+            if (IsSendOnly)
             {
                 return;
             }
@@ -112,7 +115,7 @@ namespace NServiceBus
             }
         }
 
-        bool IsSendOnly => configuration != null;
+        bool IsSendOnly => configuration == null;
 
         void AddReceivers()
         {
