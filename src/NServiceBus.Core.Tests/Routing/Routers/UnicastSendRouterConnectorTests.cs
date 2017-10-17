@@ -77,7 +77,7 @@
 
         class FakeRouter : UnicastSendRouter
         {
-            public FakeRouter() : base(null, null, null, null, null, null)
+            public FakeRouter() : base(false, null, null, null, null, null, null)
             {
             }
 

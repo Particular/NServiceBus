@@ -17,6 +17,7 @@ namespace NServiceBus
         }
 
         public UnicastSendRouter(
+            bool isSendOnly,
             string receiveQueueName,
             string instanceSpecificQueue,
             IDistributionPolicy defaultDistributionPolicy,
@@ -24,6 +25,7 @@ namespace NServiceBus
             EndpointInstances endpointInstances,
             Func<EndpointInstance, string> transportAddressTranslation)
         {
+            this.isSendOnly = isSendOnly;
             this.receiveQueueName = receiveQueueName;
             this.instanceSpecificQueue = instanceSpecificQueue;
             this.defaultDistributionPolicy = defaultDistributionPolicy;
@@ -48,7 +50,7 @@ namespace NServiceBus
                 case RouteOption.RouteToThisInstance:
                     return RouteToThisInstance();
                 case RouteOption.RouteToAnyInstanceOfThisEndpoint:
-                    return UnicastRoute.CreateFromEndpointName(receiveQueueName);
+                    return RouteToAnyInstance();
                 case RouteOption.RouteToSpecificInstance:
                     return RouteToSpecificInstance(context, state.SpecificInstance);
                 case RouteOption.None:
@@ -60,11 +62,27 @@ namespace NServiceBus
 
         UnicastRoute RouteToThisInstance()
         {
+            if (isSendOnly)
+            {
+                throw new InvalidOperationException("Cannot route to this instance since the endpoint is configured to be in send only mode.");
+            }
+
             if (instanceSpecificQueue == null)
             {
                 throw new InvalidOperationException("Cannot route to a specific instance because an endpoint instance discriminator was not configured for the destination endpoint. It can be specified via EndpointConfiguration.MakeInstanceUniquelyAddressable(string discriminator).");
             }
+
             return UnicastRoute.CreateFromPhysicalAddress(instanceSpecificQueue);
+        }
+
+        UnicastRoute RouteToAnyInstance()
+        {
+            if (isSendOnly)
+            {
+                throw new InvalidOperationException("Cannot route to instances of this endpoint since it's configured to be in send only mode.");
+            }
+
+            return UnicastRoute.CreateFromEndpointName(receiveQueueName);
         }
 
         UnicastRoute RouteToSpecificInstance(IOutgoingSendContext context, string specificInstance)
@@ -109,6 +127,7 @@ namespace NServiceBus
         Func<EndpointInstance, string> transportAddressTranslation;
         UnicastRoutingTable unicastRoutingTable;
         IDistributionPolicy defaultDistributionPolicy;
+        readonly bool isSendOnly;
         string receiveQueueName;
 
         public class State
