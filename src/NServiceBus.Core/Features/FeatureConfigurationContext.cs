@@ -41,17 +41,7 @@
 
         internal RoutingComponent Routing { get; }
 
-        internal ReceiveConfiguration Receiving
-        {
-            get
-            {
-                if (receiving == null)
-                {
-                    throw new InvalidOperationException("Receive component is not enabled since this endpoint is configured to run in send-only mode.");
-                }
-                return receiving;
-            }
-        }
+        internal ReceiveConfiguration Receiving => receiving ?? throw new InvalidOperationException("Receive component is not enabled since this endpoint is configured to run in send-only mode.");
 
         internal List<FeatureStartupTaskController> TaskControllers { get; }
 
