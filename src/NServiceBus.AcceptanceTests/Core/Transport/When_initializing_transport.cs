@@ -22,10 +22,10 @@
             {
                 $"{nameof(TransportDefinition)}.{nameof(TransportDefinition.Initialize)}",
                 $"{nameof(TransportInfrastructure)}.{nameof(TransportInfrastructure.ConfigureReceiveInfrastructure)}",
+                $"{nameof(TransportInfrastructure)}.{nameof(TransportInfrastructure.ConfigureSendInfrastructure)}",
                 $"{nameof(ICreateQueues)}.{nameof(ICreateQueues.CreateQueueIfNecessary)}",
                 $"{nameof(TransportReceiveInfrastructure)}.PreStartupCheck",
                 $"{nameof(TransportInfrastructure)}.{nameof(TransportInfrastructure.Start)}",
-                $"{nameof(TransportInfrastructure)}.{nameof(TransportInfrastructure.ConfigureSendInfrastructure)}",
                 $"{nameof(IPushMessages)}.{nameof(IPushMessages.Init)}",
                 $"{nameof(IPushMessages)}.{nameof(IPushMessages.Start)}",
                 $"{nameof(IPushMessages)}.{nameof(IPushMessages.Stop)}",
