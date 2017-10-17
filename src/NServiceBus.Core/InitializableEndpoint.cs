@@ -140,10 +140,9 @@ namespace NServiceBus
             var mainPipelineExecutor = new MainPipelineExecutor(builder, eventAggregator, pipelineCache, mainPipeline);
             var errorQueue = settings.ErrorQueueAddress();
             var queueBindings = settings.Get<QueueBindings>();
-            var receiveInfrastructure = transportInfrastructure.ConfigureReceiveInfrastructure();
 
             var receiveComponent = new ReceiveComponent(receiveConfiguration,
-                receiveInfrastructure,
+                receiveConfiguration != null ? transportInfrastructure.ConfigureReceiveInfrastructure() : null, //don't create the receive infrastructure for send only endpoints
                 queueBindings,
                 mainPipelineExecutor,
                 eventAggregator,
