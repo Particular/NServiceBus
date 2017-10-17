@@ -23,6 +23,7 @@
                 $"{nameof(TransportDefinition)}.{nameof(TransportDefinition.Initialize)}",
                 $"{nameof(TransportInfrastructure)}.{nameof(TransportInfrastructure.ConfigureReceiveInfrastructure)}",
                 $"{nameof(ICreateQueues)}.{nameof(ICreateQueues.CreateQueueIfNecessary)}",
+                $"{nameof(TransportReceiveInfrastructure)}.PreStartupCheck",
                 $"{nameof(TransportInfrastructure)}.{nameof(TransportInfrastructure.Start)}",
                 $"{nameof(TransportInfrastructure)}.{nameof(TransportInfrastructure.ConfigureSendInfrastructure)}",
                 $"{nameof(IPushMessages)}.{nameof(IPushMessages.Init)}",
@@ -49,10 +50,9 @@
                 }, context.StartUpSequence);
         }
 
-
         class Context : ScenarioContext
         {
-            public FakeTransport.StartUpSequence StartUpSequence { get; set; } = new FakeTransport.StartUpSequence();
+            public FakeTransport.StartUpSequence StartUpSequence { get; } = new FakeTransport.StartUpSequence();
         }
 
         class Endpoint : EndpointConfigurationBuilder
