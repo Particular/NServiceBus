@@ -39,7 +39,7 @@
 
         public string QueueNameBase { get; }
 
-        public IEnumerable<SatelliteDefinition> SatelliteDefinitions => satelliteDefinitions;
+        public IReadOnlyList<SatelliteDefinition> SatelliteDefinitions => satelliteDefinitions;
 
         public bool PurgeOnStartup { get; }
 
