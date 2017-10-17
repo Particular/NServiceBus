@@ -12,7 +12,6 @@ namespace NServiceBus
     {
         public ReceiveComponent(ReceiveConfiguration configuration,
             TransportReceiveInfrastructure receiveInfrastructure,
-            QueueBindings queueBindings,
             IPipelineExecutor mainPipelineExecutor,
             IEventAggregator eventAggregator,
             IBuilder builder,
@@ -21,16 +20,30 @@ namespace NServiceBus
         {
             this.configuration = configuration;
             this.receiveInfrastructure = receiveInfrastructure;
-            this.queueBindings = queueBindings;
             this.mainPipelineExecutor = mainPipelineExecutor;
             this.eventAggregator = eventAggregator;
             this.builder = builder;
             this.criticalError = criticalError;
             this.errorQueue = errorQueue;
+        }
 
-            if (!IsSendOnly)
+        public void BindQueues(QueueBindings queueBindings)
+        {
+            if (IsSendOnly)
             {
-                AddReceivers();
+                return;
+            }
+
+            queueBindings.BindReceiving(configuration.LocalAddress);
+
+            if (configuration.InstanceSpecificQueue != null)
+            {
+                queueBindings.BindReceiving(configuration.InstanceSpecificQueue);
+            }
+
+            foreach (var satellitePipeline in configuration.SatelliteDefinitions)
+            {
+                queueBindings.BindReceiving(satellitePipeline.ReceiveAddress);
             }
         }
 
@@ -45,6 +58,8 @@ namespace NServiceBus
             {
                 Logger.Warn("All queues owned by the endpoint will be purged on startup.");
             }
+
+            AddReceivers();
 
             foreach (var receiver in receivers)
             {
@@ -88,7 +103,7 @@ namespace NServiceBus
             return Task.WhenAll(receiverStopTasks);
         }
 
-        public Task CreateQueuesIfNecessary(string username)
+        public Task CreateQueuesIfNecessary(QueueBindings queueBindings, string username)
         {
             if (IsSendOnly)
             {
@@ -127,7 +142,6 @@ namespace NServiceBus
             var dequeueLimitations = configuration.PushRuntimeSettings;
 
             receivers.Add(new TransportReceiver(MainReceiverId, BuildMessagePump(), pushSettings, dequeueLimitations, mainPipelineExecutor, recoverabilityExecutor, criticalError));
-            queueBindings.BindReceiving(configuration.LocalAddress);
 
             if (configuration.InstanceSpecificQueue != null)
             {
@@ -136,7 +150,6 @@ namespace NServiceBus
                 var sharedReceiverPushSettings = new PushSettings(instanceSpecificQueue, errorQueue, configuration.PurgeOnStartup, requiredTransactionSupport);
 
                 receivers.Add(new TransportReceiver(MainReceiverId, BuildMessagePump(), sharedReceiverPushSettings, dequeueLimitations, mainPipelineExecutor, instanceSpecificRecoverabilityExecutor, criticalError));
-                queueBindings.BindReceiving(instanceSpecificQueue);
             }
 
             foreach (var satellitePipeline in configuration.SatelliteDefinitions)
@@ -145,7 +158,6 @@ namespace NServiceBus
                 var satellitePushSettings = new PushSettings(satellitePipeline.ReceiveAddress, errorQueue, configuration.PurgeOnStartup, satellitePipeline.RequiredTransportTransactionMode);
 
                 receivers.Add(new TransportReceiver(satellitePipeline.Name, BuildMessagePump(), satellitePushSettings, satellitePipeline.RuntimeSettings, new SatellitePipelineExecutor(builder, satellitePipeline), satelliteRecoverabilityExecutor, criticalError));
-                queueBindings.BindReceiving(satellitePipeline.ReceiveAddress);
             }
         }
 
@@ -157,7 +169,6 @@ namespace NServiceBus
         ReceiveConfiguration configuration;
         List<TransportReceiver> receivers = new List<TransportReceiver>();
         TransportReceiveInfrastructure receiveInfrastructure;
-        QueueBindings queueBindings;
         IPipelineExecutor mainPipelineExecutor;
         IEventAggregator eventAggregator;
         IBuilder builder;

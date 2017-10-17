@@ -5,8 +5,8 @@
     using AcceptanceTesting;
     using EndpointTemplates;
     using FakeTransport;
-    using NUnit.Framework;
     using Transport;
+    using NUnit.Framework;
 
     public class When_initializing_transport : NServiceBusAcceptanceTest
     {
@@ -30,7 +30,7 @@
                 $"{nameof(TransportSendInfrastructure)}.PreStartupCheck",
                 $"{nameof(IPushMessages)}.{nameof(IPushMessages.Start)}",
                 $"{nameof(IPushMessages)}.{nameof(IPushMessages.Stop)}",
-                $"{nameof(TransportInfrastructure)}.{nameof(TransportInfrastructure.Stop)}",
+                $"{nameof(TransportInfrastructure)}.{nameof(TransportInfrastructure.Stop)}"
             }, context.StartUpSequence);
         }
 
@@ -48,7 +48,7 @@
                 $"{nameof(TransportInfrastructure)}.{nameof(TransportInfrastructure.Start)}",
                 $"{nameof(TransportInfrastructure)}.{nameof(TransportInfrastructure.ConfigureSendInfrastructure)}",
                 $"{nameof(TransportSendInfrastructure)}.PreStartupCheck",
-                $"{nameof(TransportInfrastructure)}.{nameof(TransportInfrastructure.Stop)}",
+                $"{nameof(TransportInfrastructure)}.{nameof(TransportInfrastructure.Stop)}"
             }, context.StartUpSequence);
         }
 

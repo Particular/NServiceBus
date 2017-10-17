@@ -60,8 +60,9 @@ namespace NServiceBus
 
             var eventAggregator = new EventAggregator(settings.Get<NotificationSubscriptions>());
             var pipelineCache = new PipelineCache(builder, settings);
+            var queueBindings = settings.Get<QueueBindings>();
 
-            var receiveComponent = CreateReceiveComponent(receiveConfiguration, transportInfrastructure, pipelineCache, eventAggregator);
+            var receiveComponent = CreateReceiveComponent(receiveConfiguration, transportInfrastructure, queueBindings, pipelineCache, eventAggregator);
 
             var shouldRunInstallers = settings.GetOrDefault<bool>("Installers.Enable");
 
@@ -71,7 +72,7 @@ namespace NServiceBus
 
                 if (settings.CreateQueues())
                 {
-                    await receiveComponent.CreateQueuesIfNecessary(username).ConfigureAwait(false);
+                    await receiveComponent.CreateQueuesIfNecessary(queueBindings, username).ConfigureAwait(false);
                 }
 
                 await RunInstallers(concreteTypes, username).ConfigureAwait(false);
@@ -134,21 +135,25 @@ namespace NServiceBus
             return receiveConfiguration;
         }
 
-        ReceiveComponent CreateReceiveComponent(ReceiveConfiguration receiveConfiguration, TransportInfrastructure transportInfrastructure, IPipelineCache pipelineCache, EventAggregator eventAggregator)
+        ReceiveComponent CreateReceiveComponent(ReceiveConfiguration receiveConfiguration,
+            TransportInfrastructure transportInfrastructure,
+            QueueBindings queueBindings,
+            IPipelineCache pipelineCache,
+            EventAggregator eventAggregator)
         {
             var mainPipeline = new Pipeline<ITransportReceiveContext>(builder, pipelineConfiguration.Modifications);
             var mainPipelineExecutor = new MainPipelineExecutor(builder, eventAggregator, pipelineCache, mainPipeline);
             var errorQueue = settings.ErrorQueueAddress();
-            var queueBindings = settings.Get<QueueBindings>();
 
             var receiveComponent = new ReceiveComponent(receiveConfiguration,
                 receiveConfiguration != null ? transportInfrastructure.ConfigureReceiveInfrastructure() : null, //don't create the receive infrastructure for send only endpoints
-                queueBindings,
                 mainPipelineExecutor,
                 eventAggregator,
                 builder,
                 criticalError,
                 errorQueue);
+
+            receiveComponent.BindQueues(queueBindings);
 
             if (receiveConfiguration != null)
             {
