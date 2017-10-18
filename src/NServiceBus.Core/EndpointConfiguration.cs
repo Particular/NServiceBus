@@ -146,16 +146,32 @@ namespace NServiceBus
             Settings.SetDefault("TypesToScan", scannedTypes);
             ActivateAndInvoke<INeedInitialization>(scannedTypes, t => t.Customize(this));
 
-            var container = customBuilder ?? new LightInjectObjectBuilder();
-
             var conventions = conventionsBuilder.Conventions;
             Settings.SetDefault<Conventions>(conventions);
-            var messageMetadataRegistry = new MessageMetadataRegistry(conventions);
-            messageMetadataRegistry.RegisterMessageTypesFoundIn(Settings.GetAvailableTypes());
 
-            Settings.SetDefault<MessageMetadataRegistry>(messageMetadataRegistry);
+            ConfigureMessageTypes(conventions);
+
+            var container = customBuilder ?? new LightInjectObjectBuilder();
 
             return new InitializableEndpoint(Settings, container, registrations, Pipeline, pipelineCollection);
+        }
+
+        void ConfigureMessageTypes(Conventions conventions)
+        {
+            var messageMetadataRegistry = new MessageMetadataRegistry(conventions.IsMessageType);
+
+            messageMetadataRegistry.RegisterMessageTypesFoundIn(Settings.GetAvailableTypes());
+
+            Settings.Set<MessageMetadataRegistry>(messageMetadataRegistry);
+
+            var foundMessages = messageMetadataRegistry.GetAllMessages().ToList();
+
+            Settings.AddStartupDiagnosticsSection("Messages",new
+            {
+                CustomConventionUsed = conventions.CustomMessageTypeConventionUsed,
+                NumberOfMessagesFoundAtStartup = foundMessages.Count,
+                Messages = foundMessages.Select(m=>m.MessageType.FullName)
+            });
         }
 
         static void ValidateEndpointName(string endpointName)

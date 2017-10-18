@@ -11,9 +11,9 @@
     /// </summary>
     public class MessageMetadataRegistry
     {
-        internal MessageMetadataRegistry(Conventions conventions)
+        internal MessageMetadataRegistry(Func<Type, bool> isMessageType)
         {
-            this.conventions = conventions;
+            this.isMessageType = isMessageType;
         }
 
         /// <summary>
@@ -107,11 +107,11 @@
 
         MessageMetadata RegisterMessageType(Type messageType)
         {
-            if (conventions.IsMessageType(messageType))
+            if (isMessageType(messageType))
             {
                 //get the parent types
                 var parentMessages = GetParentTypes(messageType)
-                    .Where(t => conventions.IsMessageType(t))
+                    .Where(t => isMessageType(t))
                     .OrderByDescending(PlaceInMessageHierarchy);
 
                 var metadata = new MessageMetadata(messageType, new[]
@@ -161,7 +161,7 @@
             }
         }
 
-        Conventions conventions;
+        Func<Type, bool> isMessageType;
         ConcurrentDictionary<RuntimeTypeHandle, MessageMetadata> messages = new ConcurrentDictionary<RuntimeTypeHandle, MessageMetadata>();
         ConcurrentDictionary<string, Type> cachedTypes = new ConcurrentDictionary<string, Type>();
 

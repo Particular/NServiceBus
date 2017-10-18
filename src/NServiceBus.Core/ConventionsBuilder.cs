@@ -24,7 +24,7 @@ namespace NServiceBus
         public ConventionsBuilder DefiningMessagesAs(Func<Type, bool> definesMessageType)
         {
             Guard.AgainstNull(nameof(definesMessageType), definesMessageType);
-            Conventions.IsMessageTypeAction = definesMessageType;
+            Conventions.DefineMessageTypeConvention(definesMessageType);
             return this;
         }
 

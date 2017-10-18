@@ -9,15 +9,13 @@
         public void Should_cache_the_message_convention()
         {
             var timesCalled = 0;
-            conventions = new Conventions
-            {
-                IsMessageTypeAction = t =>
-                {
-                    timesCalled++;
-                    return false;
-                }
-            };
+            conventions = new Conventions();
 
+            conventions.DefineMessageTypeConvention(t =>
+            {
+                timesCalled++;
+                return false;
+            });
             conventions.IsMessageType(GetType());
             Assert.AreEqual(1, timesCalled);
 

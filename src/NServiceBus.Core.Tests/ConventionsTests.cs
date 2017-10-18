@@ -5,7 +5,7 @@
     [TestFixture]
     public class ConventionsTests
     {
-      
+
         [Test]
         public void IsMessageType_should_return_false_for_unknown_type()
         {
@@ -81,14 +81,13 @@
                 Assert.IsFalse(conventions.IsCommandType(typeof(Conventions)));
             }
 
-        
+
             [Test]
             public void IsMessageType_should_return_false_for_NServiceBus_types()
             {
-                var conventions = new Conventions
-                {
-                    IsMessageTypeAction = t => t.Assembly == typeof(Conventions).Assembly
-                };
+                var conventions = new Conventions();
+
+                conventions.DefineMessageTypeConvention(t => t.Assembly == typeof(Conventions).Assembly);
                 Assert.IsFalse(conventions.IsMessageType(typeof(Conventions)));
             }
 
@@ -124,11 +123,9 @@
             [Test]
             public void IsMessageType_should_return_true_for_matching_type()
             {
-                var conventions = new Conventions
-                {
-                    IsMessageTypeAction = t => t.Assembly == typeof(Conventions).Assembly ||
-                                               t == typeof(MyConventionMessage)
-                };
+                var conventions = new Conventions();
+
+                conventions.DefineMessageTypeConvention(t => t.Assembly == typeof(Conventions).Assembly || t == typeof(MyConventionMessage));
                 Assert.IsTrue(conventions.IsMessageType(typeof(MyConventionMessage)));
             }
 

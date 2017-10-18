@@ -47,5 +47,10 @@
                    .EnableStartupDiagnostics();
             }
         }
+
+        class MyMessage : IMessage
+        {
+
+        }
     }
 }
