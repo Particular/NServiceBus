@@ -27,6 +27,7 @@
                 $"{nameof(TransportInfrastructure)}.{nameof(TransportInfrastructure.Start)}",
                 $"{nameof(TransportInfrastructure)}.{nameof(TransportInfrastructure.ConfigureSendInfrastructure)}",
                 $"{nameof(IPushMessages)}.{nameof(IPushMessages.Init)}",
+                $"{nameof(TransportSendInfrastructure)}.PreStartupCheck",
                 $"{nameof(IPushMessages)}.{nameof(IPushMessages.Start)}",
                 $"{nameof(IPushMessages)}.{nameof(IPushMessages.Stop)}",
                 $"{nameof(TransportInfrastructure)}.{nameof(TransportInfrastructure.Stop)}",
@@ -42,12 +43,13 @@
                 .Run();
 
             CollectionAssert.AreEqual(new List<string>
-                {
-                    $"{nameof(TransportDefinition)}.{nameof(TransportDefinition.Initialize)}",
-                    $"{nameof(TransportInfrastructure)}.{nameof(TransportInfrastructure.Start)}",
-                    $"{nameof(TransportInfrastructure)}.{nameof(TransportInfrastructure.ConfigureSendInfrastructure)}",
-                    $"{nameof(TransportInfrastructure)}.{nameof(TransportInfrastructure.Stop)}",
-                }, context.StartUpSequence);
+            {
+                $"{nameof(TransportDefinition)}.{nameof(TransportDefinition.Initialize)}",
+                $"{nameof(TransportInfrastructure)}.{nameof(TransportInfrastructure.Start)}",
+                $"{nameof(TransportInfrastructure)}.{nameof(TransportInfrastructure.ConfigureSendInfrastructure)}",
+                $"{nameof(TransportSendInfrastructure)}.PreStartupCheck",
+                $"{nameof(TransportInfrastructure)}.{nameof(TransportInfrastructure.Stop)}",
+            }, context.StartUpSequence);
         }
 
         class Context : ScenarioContext

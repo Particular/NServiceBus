@@ -79,7 +79,12 @@
         {
             settings.Get<FakeTransport.StartUpSequence>().Add($"{nameof(TransportInfrastructure)}.{nameof(ConfigureSendInfrastructure)}");
 
-            return new TransportSendInfrastructure(() => new FakeDispatcher(), () => Task.FromResult(StartupCheckResult.Success));
+            return new TransportSendInfrastructure(() => new FakeDispatcher(),
+                () =>
+                {
+                    settings.Get<FakeTransport.StartUpSequence>().Add($"{nameof(TransportSendInfrastructure)}.PreStartupCheck");
+                    return Task.FromResult(StartupCheckResult.Success);
+                });
         }
 
         public override TransportSubscriptionInfrastructure ConfigureSubscriptionInfrastructure()
