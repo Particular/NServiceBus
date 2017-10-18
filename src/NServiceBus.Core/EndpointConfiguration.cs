@@ -166,11 +166,11 @@ namespace NServiceBus
 
             var foundMessages = messageMetadataRegistry.GetAllMessages().ToList();
 
-            Settings.AddStartupDiagnosticsSection("Messages",new
+            Settings.AddStartupDiagnosticsSection("Messages", new
             {
                 CustomConventionUsed = conventions.CustomMessageTypeConventionUsed,
                 NumberOfMessagesFoundAtStartup = foundMessages.Count,
-                Messages = foundMessages.Select(m=>m.MessageType.FullName)
+                Messages = foundMessages.Select(m => m.MessageType.FullName)
             });
         }
 

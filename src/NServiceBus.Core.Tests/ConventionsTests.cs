@@ -5,7 +5,6 @@
     [TestFixture]
     public class ConventionsTests
     {
-
         [Test]
         public void IsMessageType_should_return_false_for_unknown_type()
         {
@@ -67,7 +66,6 @@
 
         }
 
-
         [TestFixture]
         public class When_using_a_greedy_convention_that_overlaps_with_NServiceBus
         {
@@ -80,7 +78,6 @@
                 };
                 Assert.IsFalse(conventions.IsCommandType(typeof(Conventions)));
             }
-
 
             [Test]
             public void IsMessageType_should_return_false_for_NServiceBus_types()
