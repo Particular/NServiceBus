@@ -64,7 +64,9 @@
             {
                 try
                 {
-                    var data = SimpleJson.SerializeObject(settings.Get<StartupDiagnosticEntries>().Entries.ToDictionary(e => e.Name, e => e.Data));
+                    var data = SimpleJson.SerializeObject(settings.Get<StartupDiagnosticEntries>().Entries
+                        .OrderBy(e=>e.Name)
+                        .ToDictionary(e => e.Name, e => e.Data));
 
                     await diagnosticsWriter.Write(data).ConfigureAwait(false);
                 }
