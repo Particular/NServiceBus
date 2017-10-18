@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.AcceptanceTests.Core.Installers
+﻿namespace NServiceBus.AcceptanceTests.Core.TransportSeam
 {
     using System.Collections.Generic;
     using System.Threading.Tasks;
