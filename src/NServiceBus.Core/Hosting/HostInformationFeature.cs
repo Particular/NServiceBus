@@ -61,7 +61,7 @@
                 GCLatencyMode = GCSettings.LatencyMode,
                 Environment.ProcessorCount,
                 Environment.Is64BitProcess,
-                Environment.Version,
+                CLRVersion = Environment.Version,
                 Environment.WorkingSet,
                 Environment.SystemPageSize,
                 HostName = Dns.GetHostName(),
