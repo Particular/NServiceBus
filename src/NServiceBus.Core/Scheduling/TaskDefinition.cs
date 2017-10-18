@@ -12,7 +12,7 @@ namespace NServiceBus
 
         public Guid Id { get; }
         public string Name { get; set; }
-        public Func<IPipelineContext, Task> Task { get; set; }
+        public Func<IScopedMessageSession, Task> Task { get; set; }
         public TimeSpan Every { get; set; }
     }
 }

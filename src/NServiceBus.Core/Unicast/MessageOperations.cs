@@ -3,6 +3,7 @@ namespace NServiceBus
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
+    using Extensibility;
     using MessageInterfaces;
     using Pipeline;
 
@@ -21,6 +22,8 @@ namespace NServiceBus
 
         static Task Publish(IBehaviorContext context, Type messageType, object message, PublishOptions options)
         {
+            ThrowIfArmed(context);
+
             var cache = context.Extensions.Get<IPipelineCache>();
             var pipeline = cache.Pipeline<IOutgoingPublishContext>();
 
@@ -42,6 +45,8 @@ namespace NServiceBus
 
         public static Task Subscribe(IBehaviorContext context, Type eventType, SubscribeOptions options)
         {
+            ThrowIfArmed(context);
+
             var cache = context.Extensions.Get<IPipelineCache>();
             var pipeline = cache.Pipeline<ISubscribeContext>();
 
@@ -55,6 +60,8 @@ namespace NServiceBus
 
         public static Task Unsubscribe(IBehaviorContext context, Type eventType, UnsubscribeOptions options)
         {
+            ThrowIfArmed(context);
+
             var cache = context.Extensions.Get<IPipelineCache>();
             var pipeline = cache.Pipeline<IUnsubscribeContext>();
 
@@ -80,6 +87,8 @@ namespace NServiceBus
 
         static Task SendMessage(this IBehaviorContext context, Type messageType, object message, SendOptions options)
         {
+            ThrowIfArmed(context);
+
             var cache = context.Extensions.Get<IPipelineCache>();
             var pipeline = cache.Pipeline<IOutgoingSendContext>();
 
@@ -113,6 +122,8 @@ namespace NServiceBus
 
         static Task ReplyMessage(this IBehaviorContext context, Type messageType, object message, ReplyOptions options)
         {
+            ThrowIfArmed(context);
+
             var cache = context.Extensions.Get<IPipelineCache>();
             var pipeline = cache.Pipeline<IOutgoingReplyContext>();
 
@@ -132,5 +143,15 @@ namespace NServiceBus
             return pipeline.Invoke(outgoingContext);
 
         }
+
+        static void ThrowIfArmed(IExtendable context)
+        {
+            if (context.Extensions.TryGet<bool>("Context.Armed", out var armed) && armed)
+            {
+                throw new Exception(Message);
+            }
+        }
+
+        const string Message = "The scoped session has probably been injected into an object that has a longer lifetime than the handler (i.ex. Singleton) and that object is used inside the handler and outside the handler. Consider revisiting your container bindings.";
     }
 }

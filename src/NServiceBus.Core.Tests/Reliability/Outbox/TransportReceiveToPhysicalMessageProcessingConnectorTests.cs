@@ -103,6 +103,27 @@
             Assert.Null(fakeOutbox.StoredMessage);
         }
 
+        [Test]
+        public async Task Should_set_scoped_session()
+        {
+            var context = CreateContext(fakeBatchPipeline, "id");
+
+            IScopedMessageSession s1 = null, s2 = null;
+            await Task.WhenAll(Invoke(context, c =>
+            {
+                s1 = scopedSessionHolder.Session.Value;
+                return Task.CompletedTask;
+            }), Invoke(context, c =>
+            {
+                s2 = scopedSessionHolder.Session.Value;
+                return Task.CompletedTask;
+            }));
+
+            Assert.NotNull(s1);
+            Assert.NotNull(s2);
+            Assert.AreNotSame(s1, s2);
+        }
+
         static ITransportReceiveContext CreateContext(FakeBatchPipeline pipeline, string messageId)
         {
             var context = new TestableTransportReceiveContext
@@ -120,19 +141,22 @@
         {
             fakeOutbox = new FakeOutboxStorage();
             fakeBatchPipeline = new FakeBatchPipeline();
+            scopedSessionHolder = new ScopedSessionHolder();
 
-            behavior = new TransportReceiveToPhysicalMessageProcessingConnector(fakeOutbox);
+            behavior = new TransportReceiveToPhysicalMessageProcessingConnector(fakeOutbox, scopedSessionHolder);
         }
 
-        Task Invoke(ITransportReceiveContext context)
+        Task Invoke(ITransportReceiveContext context, Func<IIncomingPhysicalMessageContext, Task> next = null)
         {
-            return behavior.Invoke(context, c => TaskEx.CompletedTask);
+            next = next ?? (c => TaskEx.CompletedTask);
+            return behavior.Invoke(context, next);
         }
 
         TransportReceiveToPhysicalMessageProcessingConnector behavior;
 
         FakeBatchPipeline fakeBatchPipeline;
         FakeOutboxStorage fakeOutbox;
+        ScopedSessionHolder scopedSessionHolder;
 
         class MyEvent
         {

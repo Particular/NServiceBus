@@ -4,7 +4,7 @@
 [assembly: System.Runtime.CompilerServices.InternalsVisibleToAttribute(@"NServiceBus.Hosting.Tests, PublicKey=0024000004800000940000000602000000240000525341310004000001000100dde965e6172e019ac82c2639ffe494dd2e7dd16347c34762a05732b492e110f2e4e2e1b5ef2d85c848ccfb671ee20a47c8d1376276708dc30a90ff1121b647ba3b7259a6bc383b2034938ef0e275b58b920375ac605076178123693c6c4f1331661a62eba28c249386855637780e3ff5f23a6d854700eaa6803ef48907513b92")]
 [assembly: System.Runtime.CompilerServices.InternalsVisibleToAttribute(@"NServiceBus.PerformanceTests, PublicKey=00240000048000009400000006020000002400005253413100040000010001007f16e21368ff041183fab592d9e8ed37e7be355e93323147a1d29983d6e591b04282e4da0c9e18bd901e112c0033925eb7d7872c2f1706655891c5c9d57297994f707d16ee9a8f40d978f064ee1ffc73c0db3f4712691b23bf596f75130f4ec978cf78757ec034625a5f27e6bb50c618931ea49f6f628fd74271c32959efb1c5")]
 [assembly: System.Runtime.InteropServices.ComVisibleAttribute(false)]
-[assembly: System.Runtime.Versioning.TargetFrameworkAttribute(".NETFramework,Version=v4.5.2", FrameworkDisplayName=".NET Framework 4.5.2")]
+[assembly: System.Runtime.Versioning.TargetFrameworkAttribute(".NETFramework,Version=v4.6.1", FrameworkDisplayName=".NET Framework 4.6.1")]
 namespace NServiceBus
 {
     public enum AddressMode
@@ -465,7 +465,7 @@ namespace NServiceBus
             "ssageProperty\' package. Will be removed in version 8.0.0.", true)]
         NServiceBus.EncryptedValue Encrypt(string value, NServiceBus.Pipeline.IOutgoingLogicalMessageContext context);
     }
-    public interface IEndpointInstance : NServiceBus.IMessageSession
+    public interface IEndpointInstance : NServiceBus.IMessageSession, NServiceBus.IScopedMessageSession
     {
         System.Threading.Tasks.Task Stop();
     }
@@ -485,14 +485,14 @@ namespace NServiceBus
         T CreateInstance<T>(System.Action<T> action);
         object CreateInstance(System.Type messageType);
     }
-    public interface IMessageHandlerContext : NServiceBus.Extensibility.IExtendable, NServiceBus.IMessageProcessingContext, NServiceBus.IPipelineContext
+    public interface IMessageHandlerContext : NServiceBus.Extensibility.IExtendable, NServiceBus.IMessageProcessingContext, NServiceBus.IPipelineContext, NServiceBus.IScopedMessageSession
     {
         NServiceBus.Persistence.SynchronizedStorageSession SynchronizedStorageSession { get; }
         void DoNotContinueDispatchingCurrentMessageToHandlers();
         [System.ObsoleteAttribute("HandleCurrentMessageLater has been deprecated. Will be removed in version 8.0.0.", true)]
         System.Threading.Tasks.Task HandleCurrentMessageLater();
     }
-    public interface IMessageProcessingContext : NServiceBus.Extensibility.IExtendable, NServiceBus.IPipelineContext
+    public interface IMessageProcessingContext : NServiceBus.Extensibility.IExtendable, NServiceBus.IPipelineContext, NServiceBus.IScopedMessageSession
     {
         System.Collections.Generic.IReadOnlyDictionary<string, string> MessageHeaders { get; }
         string MessageId { get; }
@@ -506,26 +506,13 @@ namespace NServiceBus
         public static System.Threading.Tasks.Task Reply(this NServiceBus.IMessageProcessingContext context, object message) { }
         public static System.Threading.Tasks.Task Reply<T>(this NServiceBus.IMessageProcessingContext context, System.Action<T> messageConstructor) { }
     }
-    public interface IMessageSession
+    public interface IMessageSession : NServiceBus.IScopedMessageSession
     {
-        System.Threading.Tasks.Task Publish(object message, NServiceBus.PublishOptions options);
-        System.Threading.Tasks.Task Publish<T>(System.Action<T> messageConstructor, NServiceBus.PublishOptions publishOptions);
-        System.Threading.Tasks.Task Send(object message, NServiceBus.SendOptions options);
-        System.Threading.Tasks.Task Send<T>(System.Action<T> messageConstructor, NServiceBus.SendOptions options);
         System.Threading.Tasks.Task Subscribe(System.Type eventType, NServiceBus.SubscribeOptions options);
         System.Threading.Tasks.Task Unsubscribe(System.Type eventType, NServiceBus.UnsubscribeOptions options);
     }
     public class static IMessageSessionExtensions
     {
-        public static System.Threading.Tasks.Task Publish(this NServiceBus.IMessageSession session, object message) { }
-        public static System.Threading.Tasks.Task Publish<T>(this NServiceBus.IMessageSession session) { }
-        public static System.Threading.Tasks.Task Publish<T>(this NServiceBus.IMessageSession session, System.Action<T> messageConstructor) { }
-        public static System.Threading.Tasks.Task Send(this NServiceBus.IMessageSession session, object message) { }
-        public static System.Threading.Tasks.Task Send<T>(this NServiceBus.IMessageSession session, System.Action<T> messageConstructor) { }
-        public static System.Threading.Tasks.Task Send(this NServiceBus.IMessageSession session, string destination, object message) { }
-        public static System.Threading.Tasks.Task Send<T>(this NServiceBus.IMessageSession session, string destination, System.Action<T> messageConstructor) { }
-        public static System.Threading.Tasks.Task SendLocal(this NServiceBus.IMessageSession session, object message) { }
-        public static System.Threading.Tasks.Task SendLocal<T>(this NServiceBus.IMessageSession session, System.Action<T> messageConstructor) { }
         public static System.Threading.Tasks.Task Subscribe(this NServiceBus.IMessageSession session, System.Type messageType) { }
         public static System.Threading.Tasks.Task Subscribe<T>(this NServiceBus.IMessageSession session) { }
         public static System.Threading.Tasks.Task Unsubscribe(this NServiceBus.IMessageSession session, System.Type messageType) { }
@@ -558,24 +545,25 @@ namespace NServiceBus
         public static void DisableInstallers(this NServiceBus.EndpointConfiguration config) { }
         public static void EnableInstallers(this NServiceBus.EndpointConfiguration config, string username = null) { }
     }
-    public interface IPipelineContext : NServiceBus.Extensibility.IExtendable
+    public interface IPipelineContext : NServiceBus.Extensibility.IExtendable, NServiceBus.IScopedMessageSession { }
+    public interface IScopedMessageSession
     {
         System.Threading.Tasks.Task Publish(object message, NServiceBus.PublishOptions options);
         System.Threading.Tasks.Task Publish<T>(System.Action<T> messageConstructor, NServiceBus.PublishOptions publishOptions);
         System.Threading.Tasks.Task Send(object message, NServiceBus.SendOptions options);
         System.Threading.Tasks.Task Send<T>(System.Action<T> messageConstructor, NServiceBus.SendOptions options);
     }
-    public class static IPipelineContextExtensions
+    public class static IScopedMessageSessionExtensions
     {
-        public static System.Threading.Tasks.Task Publish(this NServiceBus.IPipelineContext context, object message) { }
-        public static System.Threading.Tasks.Task Publish<T>(this NServiceBus.IPipelineContext context) { }
-        public static System.Threading.Tasks.Task Publish<T>(this NServiceBus.IPipelineContext context, System.Action<T> messageConstructor) { }
-        public static System.Threading.Tasks.Task Send(this NServiceBus.IPipelineContext context, object message) { }
-        public static System.Threading.Tasks.Task Send<T>(this NServiceBus.IPipelineContext context, System.Action<T> messageConstructor) { }
-        public static System.Threading.Tasks.Task Send(this NServiceBus.IPipelineContext context, string destination, object message) { }
-        public static System.Threading.Tasks.Task Send<T>(this NServiceBus.IPipelineContext context, string destination, System.Action<T> messageConstructor) { }
-        public static System.Threading.Tasks.Task SendLocal(this NServiceBus.IPipelineContext context, object message) { }
-        public static System.Threading.Tasks.Task SendLocal<T>(this NServiceBus.IPipelineContext context, System.Action<T> messageConstructor) { }
+        public static System.Threading.Tasks.Task Publish(this NServiceBus.IScopedMessageSession context, object message) { }
+        public static System.Threading.Tasks.Task Publish<T>(this NServiceBus.IScopedMessageSession context) { }
+        public static System.Threading.Tasks.Task Publish<T>(this NServiceBus.IScopedMessageSession context, System.Action<T> messageConstructor) { }
+        public static System.Threading.Tasks.Task Send(this NServiceBus.IScopedMessageSession context, object message) { }
+        public static System.Threading.Tasks.Task Send<T>(this NServiceBus.IScopedMessageSession context, System.Action<T> messageConstructor) { }
+        public static System.Threading.Tasks.Task Send(this NServiceBus.IScopedMessageSession context, string destination, object message) { }
+        public static System.Threading.Tasks.Task Send<T>(this NServiceBus.IScopedMessageSession context, string destination, System.Action<T> messageConstructor) { }
+        public static System.Threading.Tasks.Task SendLocal(this NServiceBus.IScopedMessageSession context, object message) { }
+        public static System.Threading.Tasks.Task SendLocal<T>(this NServiceBus.IScopedMessageSession context, System.Action<T> messageConstructor) { }
     }
     public interface IStartableEndpoint
     {
@@ -874,8 +862,12 @@ namespace NServiceBus
     }
     public class static ScheduleExtensions
     {
-        public static System.Threading.Tasks.Task ScheduleEvery(this NServiceBus.IMessageSession session, System.TimeSpan timeSpan, System.Func<NServiceBus.IPipelineContext, System.Threading.Tasks.Task> task) { }
-        public static System.Threading.Tasks.Task ScheduleEvery(this NServiceBus.IMessageSession session, System.TimeSpan timeSpan, string name, System.Func<NServiceBus.IPipelineContext, System.Threading.Tasks.Task> task) { }
+        public static System.Threading.Tasks.Task ScheduleEvery(this NServiceBus.IMessageSession session, System.TimeSpan timeSpan, System.Func<NServiceBus.IScopedMessageSession, System.Threading.Tasks.Task> task) { }
+        public static System.Threading.Tasks.Task ScheduleEvery(this NServiceBus.IMessageSession session, System.TimeSpan timeSpan, string name, System.Func<NServiceBus.IScopedMessageSession, System.Threading.Tasks.Task> task) { }
+    }
+    public class static ScopeSessionExtensions
+    {
+        public static void FloatScopedSession(this NServiceBus.EndpointConfiguration endpointConfiguration) { }
     }
     public class SendOptions : NServiceBus.Extensibility.ExtendableOptions
     {
@@ -1952,20 +1944,20 @@ namespace NServiceBus.Pipeline
         string Address { get; }
         NServiceBus.Transport.OutgoingMessage Message { get; }
     }
-    public interface IIncomingContext : NServiceBus.Extensibility.IExtendable, NServiceBus.IMessageProcessingContext, NServiceBus.IPipelineContext, NServiceBus.Pipeline.IBehaviorContext { }
-    public interface IIncomingLogicalMessageContext : NServiceBus.Extensibility.IExtendable, NServiceBus.IMessageProcessingContext, NServiceBus.IPipelineContext, NServiceBus.Pipeline.IBehaviorContext, NServiceBus.Pipeline.IIncomingContext
+    public interface IIncomingContext : NServiceBus.Extensibility.IExtendable, NServiceBus.IMessageProcessingContext, NServiceBus.IPipelineContext, NServiceBus.IScopedMessageSession, NServiceBus.Pipeline.IBehaviorContext { }
+    public interface IIncomingLogicalMessageContext : NServiceBus.Extensibility.IExtendable, NServiceBus.IMessageProcessingContext, NServiceBus.IPipelineContext, NServiceBus.IScopedMessageSession, NServiceBus.Pipeline.IBehaviorContext, NServiceBus.Pipeline.IIncomingContext
     {
         System.Collections.Generic.Dictionary<string, string> Headers { get; }
         NServiceBus.Pipeline.LogicalMessage Message { get; }
         bool MessageHandled { get; set; }
         void UpdateMessageInstance(object newInstance);
     }
-    public interface IIncomingPhysicalMessageContext : NServiceBus.Extensibility.IExtendable, NServiceBus.IMessageProcessingContext, NServiceBus.IPipelineContext, NServiceBus.Pipeline.IBehaviorContext, NServiceBus.Pipeline.IIncomingContext
+    public interface IIncomingPhysicalMessageContext : NServiceBus.Extensibility.IExtendable, NServiceBus.IMessageProcessingContext, NServiceBus.IPipelineContext, NServiceBus.IScopedMessageSession, NServiceBus.Pipeline.IBehaviorContext, NServiceBus.Pipeline.IIncomingContext
     {
         NServiceBus.Transport.IncomingMessage Message { get; }
         void UpdateMessage(byte[] body);
     }
-    public interface IInvokeHandlerContext : NServiceBus.Extensibility.IExtendable, NServiceBus.IMessageHandlerContext, NServiceBus.IMessageProcessingContext, NServiceBus.IPipelineContext, NServiceBus.Pipeline.IBehaviorContext, NServiceBus.Pipeline.IIncomingContext
+    public interface IInvokeHandlerContext : NServiceBus.Extensibility.IExtendable, NServiceBus.IMessageHandlerContext, NServiceBus.IMessageProcessingContext, NServiceBus.IPipelineContext, NServiceBus.IScopedMessageSession, NServiceBus.Pipeline.IBehaviorContext, NServiceBus.Pipeline.IIncomingContext
     {
         [System.ObsoleteAttribute("HandleCurrentMessageLater has been deprecated. Will be removed in version 8.0.0.", true)]
         bool HandleCurrentMessageLaterWasCalled { get; }
@@ -1975,32 +1967,32 @@ namespace NServiceBus.Pipeline
         NServiceBus.Pipeline.MessageHandler MessageHandler { get; }
         NServiceBus.Unicast.Messages.MessageMetadata MessageMetadata { get; }
     }
-    public interface IOutgoingContext : NServiceBus.Extensibility.IExtendable, NServiceBus.IPipelineContext, NServiceBus.Pipeline.IBehaviorContext
+    public interface IOutgoingContext : NServiceBus.Extensibility.IExtendable, NServiceBus.IPipelineContext, NServiceBus.IScopedMessageSession, NServiceBus.Pipeline.IBehaviorContext
     {
         System.Collections.Generic.Dictionary<string, string> Headers { get; }
         string MessageId { get; }
     }
-    public interface IOutgoingLogicalMessageContext : NServiceBus.Extensibility.IExtendable, NServiceBus.IPipelineContext, NServiceBus.Pipeline.IBehaviorContext, NServiceBus.Pipeline.IOutgoingContext
+    public interface IOutgoingLogicalMessageContext : NServiceBus.Extensibility.IExtendable, NServiceBus.IPipelineContext, NServiceBus.IScopedMessageSession, NServiceBus.Pipeline.IBehaviorContext, NServiceBus.Pipeline.IOutgoingContext
     {
         NServiceBus.Pipeline.OutgoingLogicalMessage Message { get; }
         System.Collections.Generic.IReadOnlyCollection<NServiceBus.Routing.RoutingStrategy> RoutingStrategies { get; }
         void UpdateMessage(object newInstance);
     }
-    public interface IOutgoingPhysicalMessageContext : NServiceBus.Extensibility.IExtendable, NServiceBus.IPipelineContext, NServiceBus.Pipeline.IBehaviorContext, NServiceBus.Pipeline.IOutgoingContext
+    public interface IOutgoingPhysicalMessageContext : NServiceBus.Extensibility.IExtendable, NServiceBus.IPipelineContext, NServiceBus.IScopedMessageSession, NServiceBus.Pipeline.IBehaviorContext, NServiceBus.Pipeline.IOutgoingContext
     {
         byte[] Body { get; }
         System.Collections.Generic.IReadOnlyCollection<NServiceBus.Routing.RoutingStrategy> RoutingStrategies { get; }
         void UpdateMessage(byte[] body);
     }
-    public interface IOutgoingPublishContext : NServiceBus.Extensibility.IExtendable, NServiceBus.IPipelineContext, NServiceBus.Pipeline.IBehaviorContext, NServiceBus.Pipeline.IOutgoingContext
+    public interface IOutgoingPublishContext : NServiceBus.Extensibility.IExtendable, NServiceBus.IPipelineContext, NServiceBus.IScopedMessageSession, NServiceBus.Pipeline.IBehaviorContext, NServiceBus.Pipeline.IOutgoingContext
     {
         NServiceBus.Pipeline.OutgoingLogicalMessage Message { get; }
     }
-    public interface IOutgoingReplyContext : NServiceBus.Extensibility.IExtendable, NServiceBus.IPipelineContext, NServiceBus.Pipeline.IBehaviorContext, NServiceBus.Pipeline.IOutgoingContext
+    public interface IOutgoingReplyContext : NServiceBus.Extensibility.IExtendable, NServiceBus.IPipelineContext, NServiceBus.IScopedMessageSession, NServiceBus.Pipeline.IBehaviorContext, NServiceBus.Pipeline.IOutgoingContext
     {
         NServiceBus.Pipeline.OutgoingLogicalMessage Message { get; }
     }
-    public interface IOutgoingSendContext : NServiceBus.Extensibility.IExtendable, NServiceBus.IPipelineContext, NServiceBus.Pipeline.IBehaviorContext, NServiceBus.Pipeline.IOutgoingContext
+    public interface IOutgoingSendContext : NServiceBus.Extensibility.IExtendable, NServiceBus.IPipelineContext, NServiceBus.IScopedMessageSession, NServiceBus.Pipeline.IBehaviorContext, NServiceBus.Pipeline.IOutgoingContext
     {
         NServiceBus.Pipeline.OutgoingLogicalMessage Message { get; }
     }

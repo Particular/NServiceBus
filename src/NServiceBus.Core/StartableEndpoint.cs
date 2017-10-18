@@ -14,7 +14,7 @@ namespace NServiceBus
 
     class StartableEndpoint : IStartableEndpoint
     {
-        public StartableEndpoint(SettingsHolder settings, IBuilder builder, FeatureActivator featureActivator, PipelineConfiguration pipelineConfiguration, IEventAggregator eventAggregator, TransportInfrastructure transportInfrastructure, TransportReceiveInfrastructure receiveInfrastructure, CriticalError criticalError)
+        public StartableEndpoint(SettingsHolder settings, IBuilder builder, FeatureActivator featureActivator, PipelineConfiguration pipelineConfiguration, IEventAggregator eventAggregator, IPipelineCache pipelineCache, IMessageSession messageSession, TransportInfrastructure transportInfrastructure, TransportReceiveInfrastructure receiveInfrastructure, CriticalError criticalError)
         {
             this.criticalError = criticalError;
             this.settings = settings;
@@ -24,10 +24,8 @@ namespace NServiceBus
             this.eventAggregator = eventAggregator;
             this.transportInfrastructure = transportInfrastructure;
             this.receiveInfrastructure = receiveInfrastructure;
-
-            pipelineCache = new PipelineCache(builder, settings);
-
-            messageSession = new MessageSession(new RootContext(builder, pipelineCache, eventAggregator));
+            this.pipelineCache = pipelineCache;
+            this.messageSession = messageSession;
         }
 
         public async Task<IEndpointInstance> Start()
@@ -190,5 +188,8 @@ namespace NServiceBus
 
         const string MainReceiverId = "Main";
         static ILog Logger = LogManager.GetLogger<StartableEndpoint>();
+#pragma warning disable 169
+        ScopedSessionHolder scopedSessionHolder; // keep a reference
+#pragma warning restore 169
     }
 }

@@ -15,7 +15,7 @@ namespace NServiceBus.AcceptanceTests
         [SetUp]
         public void SetUp()
         {
-#if NET452
+#if NET461
             // Hack: prevents SerializationException ... Type 'x' in assembly 'y' is not marked as serializable.
             // https://docs.microsoft.com/en-us/dotnet/framework/migration-guide/mitigation-deserialization-of-objects-across-app-domains
             System.Configuration.ConfigurationManager.GetSection("X");

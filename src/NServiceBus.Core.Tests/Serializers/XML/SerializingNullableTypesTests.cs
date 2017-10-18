@@ -71,7 +71,7 @@ namespace NServiceBus.Serializers.XML.Test
                 var reader = new StreamReader(stream);
                 var xml = reader.ReadToEnd();
 
-#if NET452
+#if NET461
                 var birthDate = "1950-04-25T00:00:00";
 #else
                 var birthDate = "1950-04-25T00:00:00.0000000";

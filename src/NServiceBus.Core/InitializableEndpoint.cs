@@ -25,6 +25,11 @@ namespace NServiceBus
             RegisterContainerAdapter(container);
             RunUserRegistrations(registrations);
 
+            if (settings.TryGet(out ScopedSessionHolder scopeSessionHolder))
+            {
+                this.container.ConfigureComponent(() => scopeSessionHolder.Session.Value ?? messageSession, DependencyLifecycle.InstancePerCall);
+            }
+
             this.container.RegisterSingleton(this);
             this.container.RegisterSingleton<ReadOnlySettings>(settings);
         }
@@ -78,7 +83,11 @@ namespace NServiceBus
                 await RunInstallers(concreteTypes, username).ConfigureAwait(false);
             }
 
-            var startableEndpoint = new StartableEndpoint(settings, builder, featureActivator, pipelineConfiguration, new EventAggregator(settings.Get<NotificationSubscriptions>()), transportInfrastructure, receiveInfrastructure, criticalError);
+            var eventAggregator = new EventAggregator(settings.Get<NotificationSubscriptions>());
+            var pipelineCache = new PipelineCache(builder, settings);
+            messageSession = new MessageSession(new RootContext(builder, pipelineCache, eventAggregator));
+
+            var startableEndpoint = new StartableEndpoint(settings, builder, featureActivator, pipelineConfiguration, eventAggregator, pipelineCache, messageSession, transportInfrastructure, receiveInfrastructure, criticalError);
             return startableEndpoint;
         }
 
@@ -215,5 +224,6 @@ namespace NServiceBus
         PipelineSettings pipelineSettings;
         SettingsHolder settings;
         CriticalError criticalError;
+        IMessageSession messageSession;
     }
 }

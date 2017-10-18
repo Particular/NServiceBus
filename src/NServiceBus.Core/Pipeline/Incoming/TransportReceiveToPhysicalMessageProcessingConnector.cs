@@ -14,8 +14,9 @@ namespace NServiceBus
 
     class TransportReceiveToPhysicalMessageProcessingConnector : IStageForkConnector<ITransportReceiveContext, IIncomingPhysicalMessageContext, IBatchDispatchContext>
     {
-        public TransportReceiveToPhysicalMessageProcessingConnector(IOutboxStorage outboxStorage)
+        public TransportReceiveToPhysicalMessageProcessingConnector(IOutboxStorage outboxStorage, ScopedSessionHolder scopedSessionHolder)
         {
+            this.scopedSessionHolder = scopedSessionHolder;
             this.outboxStorage = outboxStorage;
         }
 
@@ -23,41 +24,58 @@ namespace NServiceBus
         {
             var messageId = context.Message.MessageId;
             var physicalMessageContext = this.CreateIncomingPhysicalMessageContext(context.Message, context);
-
-            var deduplicationEntry = await outboxStorage.Get(messageId, context.Extensions).ConfigureAwait(false);
-            var pendingTransportOperations = new PendingTransportOperations();
-
-            if (deduplicationEntry == null)
+            // TODO see if this can be optimized away?
+            if (scopedSessionHolder != null)
             {
-                physicalMessageContext.Extensions.Set(pendingTransportOperations);
+                scopedSessionHolder.Session.Value = physicalMessageContext;
+            }
 
-                using (var outboxTransaction = await outboxStorage.BeginTransaction(context.Extensions).ConfigureAwait(false))
+            try
+            {
+                var deduplicationEntry = await outboxStorage.Get(messageId, context.Extensions).ConfigureAwait(false);
+                var pendingTransportOperations = new PendingTransportOperations();
+
+                if (deduplicationEntry == null)
                 {
-                    context.Extensions.Set(outboxTransaction);
-                    await next(physicalMessageContext).ConfigureAwait(false);
+                    physicalMessageContext.Extensions.Set(pendingTransportOperations);
 
-                    var outboxMessage = new OutboxMessage(messageId, ConvertToOutboxOperations(pendingTransportOperations.Operations));
-                    await outboxStorage.Store(outboxMessage, outboxTransaction, context.Extensions).ConfigureAwait(false);
+                    using (var outboxTransaction = await outboxStorage.BeginTransaction(context.Extensions).ConfigureAwait(false))
+                    {
+                        context.Extensions.Set(outboxTransaction);
+                        await next(physicalMessageContext).ConfigureAwait(false);
 
-                    context.Extensions.Remove<OutboxTransaction>();
-                    await outboxTransaction.Commit().ConfigureAwait(false);
+                        var outboxMessage = new OutboxMessage(messageId, ConvertToOutboxOperations(pendingTransportOperations.Operations));
+                        await outboxStorage.Store(outboxMessage, outboxTransaction, context.Extensions).ConfigureAwait(false);
+
+                        context.Extensions.Remove<OutboxTransaction>();
+                        await outboxTransaction.Commit().ConfigureAwait(false);
+                    }
+
+                    physicalMessageContext.Extensions.Remove<PendingTransportOperations>();
+                }
+                else
+                {
+                    ConvertToPendingOperations(deduplicationEntry, pendingTransportOperations);
                 }
 
-                physicalMessageContext.Extensions.Remove<PendingTransportOperations>();
+                if (pendingTransportOperations.HasOperations)
+                {
+                    var batchDispatchContext = this.CreateBatchDispatchContext(pendingTransportOperations.Operations, physicalMessageContext);
+
+                    await this.Fork(batchDispatchContext).ConfigureAwait(false);
+                }
+
+                await outboxStorage.SetAsDispatched(messageId, context.Extensions).ConfigureAwait(false);
             }
-            else
+            finally
             {
-                ConvertToPendingOperations(deduplicationEntry, pendingTransportOperations);
+                // TODO see if this can be optimized away?
+                if (scopedSessionHolder != null)
+                {
+                    physicalMessageContext.Extensions.Set("Context.Armed", true);
+                    scopedSessionHolder.Session.Value = null;
+                }
             }
-
-            if (pendingTransportOperations.HasOperations)
-            {
-                var batchDispatchContext = this.CreateBatchDispatchContext(pendingTransportOperations.Operations, physicalMessageContext);
-
-                await this.Fork(batchDispatchContext).ConfigureAwait(false);
-            }
-
-            await outboxStorage.SetAsDispatched(messageId, context.Extensions).ConfigureAwait(false);
         }
 
         static void ConvertToPendingOperations(OutboxMessage deduplicationEntry, PendingTransportOperations pendingTransportOperations)
@@ -182,5 +200,6 @@ namespace NServiceBus
         }
 
         IOutboxStorage outboxStorage;
+        ScopedSessionHolder scopedSessionHolder;
     }
 }

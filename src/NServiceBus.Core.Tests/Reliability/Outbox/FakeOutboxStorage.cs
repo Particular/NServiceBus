@@ -35,7 +35,19 @@
 
         public Task<OutboxTransaction> BeginTransaction(ContextBag context)
         {
-            throw new System.NotImplementedException();
+            return Task.FromResult<OutboxTransaction>(new Transaction());
+        }
+
+        class Transaction : OutboxTransaction
+        {
+            public void Dispose()
+            {
+            }
+
+            public Task Commit()
+            {
+                return Task.CompletedTask;
+            }
         }
     }
 }
