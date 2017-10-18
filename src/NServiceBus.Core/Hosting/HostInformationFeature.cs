@@ -4,7 +4,6 @@
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Net;
-    using System.Reflection;
     using System.Runtime;
     using Hosting;
     using Settings;
