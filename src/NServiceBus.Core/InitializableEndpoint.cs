@@ -16,7 +16,11 @@ namespace NServiceBus
 
     class InitializableEndpoint
     {
-        public InitializableEndpoint(SettingsHolder settings, IContainer container, List<Action<IConfigureComponents>> registrations, PipelineSettings pipelineSettings, PipelineConfiguration pipelineConfiguration)
+        public InitializableEndpoint(SettingsHolder settings,
+            IContainer container,
+            List<Action<IConfigureComponents>> registrations,
+            PipelineSettings pipelineSettings,
+            PipelineConfiguration pipelineConfiguration)
         {
             this.settings = settings;
             this.pipelineSettings = pipelineSettings;
@@ -41,48 +45,59 @@ namespace NServiceBus
 
             ConfigRunBeforeIsFinalized(concreteTypes);
 
-            var transportInfrastructure = InitializeTransport();
+            var transportInfrastructure = InitializeTransportComponent();
 
-            // use GetOrCreate to use of instances already created during EndpointConfiguration.
-            var routing = new RoutingComponent(
-                settings.GetOrCreate<UnicastRoutingTable>(),
-                settings.GetOrCreate<DistributionPolicy>(),
-                settings.GetOrCreate<EndpointInstances>(),
-                settings.GetOrCreate<Publishers>());
-            routing.Initialize(settings, transportInfrastructure, pipelineSettings);
+            var receiveConfiguration = BuildReceiveConfiguration(transportInfrastructure);
 
-            var featureStats = featureActivator.SetupFeatures(container, pipelineSettings, routing);
+            var routing = InitializeRouting(transportInfrastructure, receiveConfiguration);
+
+            var featureStats = featureActivator.SetupFeatures(container, pipelineSettings, routing, receiveConfiguration);
             settings.AddStartupDiagnosticsSection("Features", featureStats);
 
             pipelineConfiguration.RegisterBehaviorsInContainer(container);
 
             container.ConfigureComponent(b => settings.Get<Notifications>(), DependencyLifecycle.SingleInstance);
 
-            var username = GetInstallationUserName();
-            TransportReceiveInfrastructure receiveInfrastructure = null;
+            var eventAggregator = new EventAggregator(settings.Get<NotificationSubscriptions>());
+            var pipelineCache = new PipelineCache(builder, settings);
+            var queueBindings = settings.Get<QueueBindings>();
+
+            var receiveComponent = CreateReceiveComponent(receiveConfiguration, transportInfrastructure, queueBindings, pipelineCache, eventAggregator);
 
             var shouldRunInstallers = settings.GetOrDefault<bool>("Installers.Enable");
 
-            if (!settings.Get<bool>("Endpoint.SendOnly"))
-            {
-                receiveInfrastructure = transportInfrastructure.ConfigureReceiveInfrastructure();
-
-                if (shouldRunInstallers)
-                {
-                    await CreateQueuesIfNecessary(receiveInfrastructure, username).ConfigureAwait(false);
-                }
-            }
-
             if (shouldRunInstallers)
             {
+                var username = GetInstallationUserName();
+
+                if (settings.CreateQueues())
+                {
+                    await receiveComponent.CreateQueuesIfNecessary(queueBindings, username).ConfigureAwait(false);
+                }
+
                 await RunInstallers(concreteTypes, username).ConfigureAwait(false);
             }
 
-            var startableEndpoint = new StartableEndpoint(settings, builder, featureActivator, pipelineConfiguration, new EventAggregator(settings.Get<NotificationSubscriptions>()), transportInfrastructure, receiveInfrastructure, criticalError);
-            return startableEndpoint;
+            var messageSession = new MessageSession(new RootContext(builder, pipelineCache, eventAggregator));
+
+            return new StartableEndpoint(settings, builder, featureActivator, transportInfrastructure, receiveComponent, criticalError, messageSession);
         }
 
-        TransportInfrastructure InitializeTransport()
+        RoutingComponent InitializeRouting(TransportInfrastructure transportInfrastructure, ReceiveConfiguration receiveConfiguration)
+        {
+            // use GetOrCreate to use of instances already created during EndpointConfiguration.
+            var routing = new RoutingComponent(
+                settings.GetOrCreate<UnicastRoutingTable>(),
+                settings.GetOrCreate<DistributionPolicy>(),
+                settings.GetOrCreate<EndpointInstances>(),
+                settings.GetOrCreate<Publishers>());
+
+            routing.Initialize(settings, transportInfrastructure, pipelineSettings, receiveConfiguration);
+
+            return routing;
+        }
+
+        TransportInfrastructure InitializeTransportComponent()
         {
             if (!settings.HasExplicitValue<TransportDefinition>())
             {
@@ -103,6 +118,49 @@ namespace NServiceBus
             });
 
             return transportInfrastructure;
+        }
+
+        ReceiveConfiguration BuildReceiveConfiguration(TransportInfrastructure transportInfrastructure)
+        {
+            var receiveConfiguration = ReceiveConfigurationBuilder.Build(settings, transportInfrastructure);
+
+            if (receiveConfiguration == null)
+            {
+                return null;
+            }
+
+            //note: remove once settings.LogicalAddress() , .LocalAddress() and .InstanceSpecificQueue() has been obsoleted
+            settings.Set<ReceiveConfiguration>(receiveConfiguration);
+
+            return receiveConfiguration;
+        }
+
+        ReceiveComponent CreateReceiveComponent(ReceiveConfiguration receiveConfiguration,
+            TransportInfrastructure transportInfrastructure,
+            QueueBindings queueBindings,
+            IPipelineCache pipelineCache,
+            EventAggregator eventAggregator)
+        {
+            var mainPipeline = new Pipeline<ITransportReceiveContext>(builder, pipelineConfiguration.Modifications);
+            var mainPipelineExecutor = new MainPipelineExecutor(builder, eventAggregator, pipelineCache, mainPipeline);
+            var errorQueue = settings.ErrorQueueAddress();
+
+            var receiveComponent = new ReceiveComponent(receiveConfiguration,
+                receiveConfiguration != null ? transportInfrastructure.ConfigureReceiveInfrastructure() : null, //don't create the receive infrastructure for send-only endpoints
+                mainPipelineExecutor,
+                eventAggregator,
+                builder,
+                criticalError,
+                errorQueue);
+
+            receiveComponent.BindQueues(queueBindings);
+
+            if (receiveConfiguration != null)
+            {
+                settings.AddStartupDiagnosticsSection("Receiving", receiveConfiguration);
+            }
+
+            return receiveComponent;
         }
 
         static bool IsConcrete(Type x)
@@ -175,19 +233,6 @@ namespace NServiceBus
             {
                 await installer.Install(username).ConfigureAwait(false);
             }
-        }
-
-        Task CreateQueuesIfNecessary(TransportReceiveInfrastructure receiveInfrastructure, string username)
-        {
-            if (!settings.CreateQueues())
-            {
-                return TaskEx.CompletedTask;
-            }
-
-            var queueCreator = receiveInfrastructure.QueueCreatorFactory();
-            var queueBindings = settings.Get<QueueBindings>();
-
-            return queueCreator.CreateQueueIfNecessary(queueBindings, username);
         }
 
         static bool IsINeedToInstallSomething(Type t) => typeof(INeedToInstallSomething).IsAssignableFrom(t);

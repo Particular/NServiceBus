@@ -3,7 +3,6 @@
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using ConsistencyGuarantees;
     using ObjectBuilder;
     using Pipeline;
     using Settings;
@@ -14,12 +13,13 @@
     /// </summary>
     public partial class FeatureConfigurationContext
     {
-        internal FeatureConfigurationContext(ReadOnlySettings settings, IConfigureComponents container, PipelineSettings pipelineSettings, RoutingComponent routing)
+        internal FeatureConfigurationContext(ReadOnlySettings settings, IConfigureComponents container, PipelineSettings pipelineSettings, RoutingComponent routing, ReceiveConfiguration receiving)
         {
             Settings = settings;
             Container = container;
             Pipeline = pipelineSettings;
             Routing = routing;
+            this.receiving = receiving;
 
             TaskControllers = new List<FeatureStartupTaskController>();
         }
@@ -41,6 +41,8 @@
 
         internal RoutingComponent Routing { get; }
 
+        internal ReceiveConfiguration Receiving => receiving ?? throw new InvalidOperationException("Receive component is not enabled since this endpoint is configured to run in send-only mode.");
+
         internal List<FeatureStartupTaskController> TaskControllers { get; }
 
         /// <summary>
@@ -58,13 +60,8 @@
             Guard.AgainstNull(nameof(runtimeSettings), runtimeSettings);
             Guard.AgainstNull(nameof(recoverabilityPolicy), recoverabilityPolicy);
             Guard.AgainstNull(nameof(onMessage), onMessage);
-            var requiredTransactionMode = Settings.GetRequiredTransactionModeForReceives();
 
-            var satelliteDefinition = new SatelliteDefinition(name, transportAddress, requiredTransactionMode, runtimeSettings, recoverabilityPolicy, onMessage);
-
-            Settings.Get<SatelliteDefinitions>().Add(satelliteDefinition);
-
-            Settings.Get<QueueBindings>().BindReceiving(transportAddress);
+            Receiving.AddSatelliteReceiver(name, transportAddress, runtimeSettings, recoverabilityPolicy, onMessage);
         }
 
         /// <summary>
@@ -98,6 +95,6 @@
             TaskControllers.Add(new FeatureStartupTaskController(typeof(TTask).Name, startupTaskFactory));
         }
 
-        const string AddSatelliteOverloadMemberDefinition = "AddSatelliteReceiver(string name, string transportAddress, PushRuntimeSettings runtimeSettings, Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> recoverabilityPolicy, Func<IBuilder, MessageContext, Task> onMessage)";
+        ReceiveConfiguration receiving;
     }
 }

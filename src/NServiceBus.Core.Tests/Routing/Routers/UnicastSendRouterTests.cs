@@ -13,7 +13,7 @@ namespace NServiceBus.Core.Tests.Routing
         [Test]
         public void Should_use_explicit_route_for_sends_if_present()
         {
-            var router = CreateRouter(null);
+            var router = CreateRouter();
             var options = new SendOptions();
 
             options.SetDestination("destination endpoint");
@@ -43,7 +43,7 @@ namespace NServiceBus.Core.Tests.Routing
         [Test]
         public void Should_throw_if_requested_to_route_to_local_instance_and_instance_has_no_specific_queue()
         {
-            var router = CreateRouter(null);
+            var router = CreateRouter();
 
             var options = new SendOptions();
 
@@ -55,10 +55,44 @@ namespace NServiceBus.Core.Tests.Routing
             Assert.AreEqual(exception.Message, "Cannot route to a specific instance because an endpoint instance discriminator was not configured for the destination endpoint. It can be specified via EndpointConfiguration.MakeInstanceUniquelyAddressable(string discriminator).");
         }
 
+
+        [Test]
+        public void Should_throw_if_routing_to_local_instance_when_send_only()
+        {
+            var router = CreateRouter(isSendOnly: true);
+
+            var options = new SendOptions();
+
+            options.RouteToThisInstance();
+
+            var context = CreateContext(options);
+
+            var exception = Assert.Throws<InvalidOperationException>(() => router.Route(context));
+
+            StringAssert.Contains("send-only mode", exception.Message);
+        }
+
+        [Test]
+        public void Should_throw_if_routing_to_local_endpoint_when_send_only()
+        {
+            var router = CreateRouter(isSendOnly: true);
+
+            var options = new SendOptions();
+
+            options.RouteToThisEndpoint();
+
+            var context = CreateContext(options);
+
+            var exception = Assert.Throws<InvalidOperationException>(() => router.Route(context));
+
+            StringAssert.Contains("send-only mode", exception.Message);
+        }
+
         [Test]
         public void When_routing_to_specific_instance_should_throw_when_there_is_no_route_for_given_type()
         {
-            var router = CreateRouter(null);
+            var router = CreateRouter();
+
             var options = new SendOptions();
 
             options.RouteToSpecificInstance("instanceId");
@@ -77,7 +111,7 @@ namespace NServiceBus.Core.Tests.Routing
             {
                 new RouteTableEntry(typeof(MyMessage), UnicastRoute.CreateFromPhysicalAddress("PhysicalAddress"))
             });
-            var router = CreateRouter(table);
+            var router = CreateRouter(routingTable: table);
             var options = new SendOptions();
 
             options.RouteToSpecificInstance("instanceId");
@@ -103,7 +137,7 @@ namespace NServiceBus.Core.Tests.Routing
                 new EndpointInstance("Endpoint", "2"),
                 new EndpointInstance("Endpoint", "3")
             });
-            var router = CreateRouter(table, instances);
+            var router = CreateRouter(routingTable: table, instances: instances);
             var options = new SendOptions();
 
             options.RouteToSpecificInstance("2");
@@ -127,7 +161,7 @@ namespace NServiceBus.Core.Tests.Routing
 
             var context = CreateContext(new SendOptions(), new MyMessage());
 
-            var router = CreateRouter(routingTable);
+            var router = CreateRouter(routingTable: routingTable);
             var route = router.Route(context);
 
             Assert.AreEqual(logicalEndpointName, ExtractDestination(route));
@@ -152,7 +186,7 @@ namespace NServiceBus.Core.Tests.Routing
 
             var context = CreateContext(new SendOptions(), new MyMessage());
 
-            var router = CreateRouter(routingTable, endpointInstances);
+            var router = CreateRouter(routingTable: routingTable, instances: endpointInstances);
             var route = router.Route(context);
 
             Assert.AreEqual("Sales-1", ExtractDestination(route));
@@ -177,7 +211,7 @@ namespace NServiceBus.Core.Tests.Routing
 
             var context = CreateContext(new SendOptions(), new MyMessage());
 
-            var router = CreateRouter(routingTable, endpointInstances);
+            var router = CreateRouter(routingTable: routingTable, instances: endpointInstances);
             var route1 = router.Route(context);
             var route2 = router.Route(context);
             var route3 = router.Route(context);
@@ -257,7 +291,7 @@ namespace NServiceBus.Core.Tests.Routing
 
             var context = CreateContext(options, new MyMessage());
 
-            var router = CreateRouter(routingTable, endpointInstances);
+            var router = CreateRouter(routingTable: routingTable, instances: endpointInstances);
             var route = router.Route(context);
 
             Assert.AreEqual("Endpoint-2", ExtractDestination(route));
@@ -285,7 +319,7 @@ namespace NServiceBus.Core.Tests.Routing
 
             var context = CreateContext(options, new MyMessage());
 
-            var router = CreateRouter(routingTable, endpointInstances);
+            var router = CreateRouter(routingTable: routingTable, instances: endpointInstances);
             var route1 = router.Route(context);
             var route2 = router.Route(context);
             var route3 = router.Route(context);
@@ -333,7 +367,7 @@ namespace NServiceBus.Core.Tests.Routing
 
             var context = CreateContext(new SendOptions(), new MyMessage());
 
-            var router = CreateRouter(routingTable);
+            var router = CreateRouter(routingTable: routingTable);
             var route = router.Route(context);
 
             Assert.AreEqual("Physical", ExtractDestination(route));
@@ -350,7 +384,7 @@ namespace NServiceBus.Core.Tests.Routing
 
             var context = CreateContext(new SendOptions(), new MyMessage());
 
-            var router = CreateRouter(routingTable);
+            var router = CreateRouter(routingTable: routingTable);
             var route = router.Route(context);
 
             Assert.AreEqual("Endpoint-2", ExtractDestination(route));
@@ -359,22 +393,17 @@ namespace NServiceBus.Core.Tests.Routing
         static string ExtractDestination(UnicastRoutingStrategy route)
         {
             var headers = new Dictionary<string, string>();
-            var addressTag = (UnicastAddressTag) route.Apply(headers);
+            var addressTag = (UnicastAddressTag)route.Apply(headers);
             return addressTag.Destination;
         }
 
-        static UnicastSendRouter CreateRouter(string instanceSpecificQueue)
-        {
-            return new UnicastSendRouter(null, "Endpoint", instanceSpecificQueue, new DistributionPolicy(), new UnicastRoutingTable(), new EndpointInstances(), i => i.ToString());
-        }
-
-        static UnicastSendRouter CreateRouter(UnicastRoutingTable routingTable = null, EndpointInstances instances = null, DistributionPolicy policy = null)
+        static UnicastSendRouter CreateRouter(string instanceSpecificQueue = null, bool isSendOnly = false, UnicastRoutingTable routingTable = null, EndpointInstances instances = null, DistributionPolicy policy = null)
         {
             var table = routingTable ?? new UnicastRoutingTable();
             var inst = instances ?? new EndpointInstances();
             var pol = policy ?? new DistributionPolicy();
 
-            return new UnicastSendRouter(null, "Endpoint", null, pol, table, inst, i => i.ToString());
+            return new UnicastSendRouter(isSendOnly, "Endpoint", instanceSpecificQueue, pol, table, inst, i => i.ToString());
         }
 
         class MyMessage : ICommand

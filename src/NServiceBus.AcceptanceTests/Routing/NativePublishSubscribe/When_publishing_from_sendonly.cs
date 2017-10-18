@@ -57,7 +57,7 @@
                 }
             }
         }
-        
+
         public class MyEvent : IEvent
         {
         }

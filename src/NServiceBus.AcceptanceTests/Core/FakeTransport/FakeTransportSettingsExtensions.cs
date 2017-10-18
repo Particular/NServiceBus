@@ -2,6 +2,7 @@
 {
     using System;
     using Configuration.AdvancedExtensibility;
+    using Transport;
 
     public static class FakeTransportSettingsExtensions
     {
@@ -29,9 +30,9 @@
             return transportExtensions;
         }
 
-        public static TransportExtensions<FakeTransport> WhenQueuesCreated(this TransportExtensions<FakeTransport> transportExtensions, Action action)
+        public static TransportExtensions<FakeTransport> WhenQueuesCreated(this TransportExtensions<FakeTransport> transportExtensions, Action<QueueBindings> onQueueCreation)
         {
-            transportExtensions.GetSettings().Set("FakeTransport.QueueCreatorAction", action);
+            transportExtensions.GetSettings().Set("FakeTransport.onQueueCreation", onQueueCreation);
 
             return transportExtensions;
         }

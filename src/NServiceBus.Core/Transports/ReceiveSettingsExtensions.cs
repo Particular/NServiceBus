@@ -26,7 +26,7 @@
         public static void OverrideLocalAddress(this EndpointConfiguration config, string baseInputQueueName)
         {
             Guard.AgainstNullAndEmpty(nameof(baseInputQueueName), baseInputQueueName);
-            config.Settings.SetDefault("BaseInputQueueName", baseInputQueueName);
+            config.Settings.Set("BaseInputQueueName", baseInputQueueName);
         }
     }
 }
