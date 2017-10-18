@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.AcceptanceTests.Core.FakeTransport
 {
+    using System.Collections.Generic;
     using Settings;
     using Transport;
 
@@ -11,7 +12,11 @@
 
         public override TransportInfrastructure Initialize(SettingsHolder settings, string connectionString)
         {
+            settings.GetOrCreate<StartUpSequence>().Add($"{nameof(TransportDefinition)}.{nameof(Initialize)}");
+
             return new FakeTransportInfrastructure(settings);
         }
+
+        public class StartUpSequence : List<string> { }
     }
 }
