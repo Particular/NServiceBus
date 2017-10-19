@@ -57,6 +57,8 @@
                 hostInformation.HostId,
                 HostDisplayName = hostInformation.DisplayName,
                 RuntimeEnvironment.MachineName,
+                Environment.OSVersion.Platform,
+                Environment.OSVersion.VersionString,
                 GCSettings.IsServerGC,
                 GCLatencyMode = GCSettings.LatencyMode,
                 Environment.ProcessorCount,
