@@ -1,14 +1,28 @@
-namespace NServiceBus
+﻿namespace NServiceBus
 {
     using System;
     using System.Threading.Tasks;
     using Configuration.AdvancedExtensibility;
+    using Settings;
 
     /// <summary>
-    /// Provides diagnostics configuration options.
+    /// Provides an API to add startup diagnostics.
     /// </summary>
-    public static class HostDiagnosticsConfigurationExtensions
+    public static class DiagnosticSettingsExtensions
     {
+        /// <summary>
+        /// Adds a section to the startup diagnostics.
+        /// </summary>
+        public static void AddStartupDiagnosticsSection(this ReadOnlySettings settings, string sectionName, object section)
+        {
+            Guard.AgainstNull(nameof(settings), settings);
+            Guard.AgainstNullAndEmpty(nameof(sectionName), sectionName);
+            Guard.AgainstNull(nameof(section), section);
+
+            settings.Get<StartupDiagnosticEntries>().Add(sectionName, section);
+        }
+
+
         /// <summary>
         /// Configures a custom path where host diagnostics is written.
         /// </summary>

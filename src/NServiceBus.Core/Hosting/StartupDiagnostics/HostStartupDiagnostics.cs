@@ -32,7 +32,7 @@
                 return diagnosticsWriter;
             }
 
-            if (!settings.TryGet<string>(HostDiagnosticsConfigurationExtensions.DiagnosticsPathKey, out var diagnosticsRootPath))
+            if (!settings.TryGet<string>(DiagnosticSettingsExtensions.DiagnosticsPathKey, out var diagnosticsRootPath))
             {
                 diagnosticsRootPath = Path.Combine(Host.GetOutputDirectory(), ".diagnostics");
             }
