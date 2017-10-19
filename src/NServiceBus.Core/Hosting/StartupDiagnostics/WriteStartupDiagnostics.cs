@@ -10,25 +10,42 @@
 
     class WriteStartupDiagnostics : FeatureStartupTask
     {
-        public WriteStartupDiagnostics(Func<string, Task> diagnosticsWriter, ReadOnlySettings settings)
+        public WriteStartupDiagnostics(Func<string, Task> diagnosticsWriter, ReadOnlySettings settings, bool isCustomWriter)
         {
             this.diagnosticsWriter = diagnosticsWriter;
             this.settings = settings;
+            this.isCustomWriter = isCustomWriter;
         }
 
         protected override async Task OnStart(IMessageSession session)
         {
+            var entries = settings.Get<StartupDiagnosticEntries>().Entries
+                .OrderBy(e => e.Name)
+                .ToDictionary(e => e.Name, e => e.Data);
+            string data;
+
             try
             {
-                var data = SimpleJson.SerializeObject(settings.Get<StartupDiagnosticEntries>().Entries
-                    .OrderBy(e => e.Name)
-                    .ToDictionary(e => e.Name, e => e.Data));
-
-                await diagnosticsWriter(data).ConfigureAwait(false);
+                data = SimpleJson.SerializeObject(entries);
             }
-            catch (Exception e)
+            catch (Exception exception)
             {
-                logger.Error("Failed to write startup diagnostics", e);
+                logger.Error("Failed to serialize startup diagnostics", exception);
+                return;
+            }
+            try
+            {
+                await diagnosticsWriter(data)
+                    .ConfigureAwait(false);
+            }
+            catch (Exception exception)
+            {
+                if (isCustomWriter)
+                {
+                    logger.Error($"Failed to write startup diagnostics using the custom delegate defined by {nameof(DiagnosticSettingsExtensions.CustomDiagnosticsWriter)}", exception);
+                    return;
+                }
+                logger.Error("Failed to write startup diagnostics", exception);
             }
         }
 
@@ -39,6 +56,7 @@
 
         Func<string, Task> diagnosticsWriter;
         ReadOnlySettings settings;
+        bool isCustomWriter;
 
         static ILog logger = LogManager.GetLogger<WriteStartupDiagnostics>();
     }

@@ -19,16 +19,22 @@
 
             var diagnosticsWriter = GetDiagnosticsWriter(settings);
 
-            context.RegisterStartupTask(new WriteStartupDiagnostics(diagnosticsWriter, settings));
+            context.RegisterStartupTask(diagnosticsWriter);
         }
 
-        static Func<string, Task> GetDiagnosticsWriter(ReadOnlySettings settings)
+        static WriteStartupDiagnostics GetDiagnosticsWriter(ReadOnlySettings settings)
         {
             if (settings.TryGetCustomDiagnosticsWriter(out var diagnosticsWriter))
             {
-                return diagnosticsWriter;
+                return new WriteStartupDiagnostics(diagnosticsWriter, settings, true);
             }
 
+            var defaultDiagnosticsWriter = BuildDefaultDiagnosticsWriter(settings);
+            return new WriteStartupDiagnostics(defaultDiagnosticsWriter, settings, false);
+        }
+
+        static Func<string, Task> BuildDefaultDiagnosticsWriter(ReadOnlySettings settings)
+        {
             if (!settings.TryGet<string>(DiagnosticSettingsExtensions.DiagnosticsPathKey, out var diagnosticsRootPath))
             {
                 diagnosticsRootPath = Path.Combine(Host.GetOutputDirectory(), ".diagnostics");
