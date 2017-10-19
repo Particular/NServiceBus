@@ -150,9 +150,31 @@ namespace NServiceBus
 
             ConfigureMessageTypes(conventions);
 
-            var container = customBuilder ?? new LightInjectObjectBuilder();
+            var container = ConfigureContainer();
 
             return new InitializableEndpoint(Settings, container, registrations, Pipeline, pipelineCollection);
+        }
+
+        IContainer ConfigureContainer()
+        {
+            if (customBuilder == null)
+            {
+                Settings.AddStartupDiagnosticsSection("Container", new
+                {
+                    Type = "internal"
+                });
+                return new LightInjectObjectBuilder();
+            }
+
+            var containerType = customBuilder.GetType();
+
+            Settings.AddStartupDiagnosticsSection("Container", new
+            {
+                Type = containerType.FullName,
+                Version = FileVersionRetriever.GetFileVersion(containerType)
+            });
+
+            return customBuilder;
         }
 
         void ConfigureMessageTypes(Conventions conventions)
