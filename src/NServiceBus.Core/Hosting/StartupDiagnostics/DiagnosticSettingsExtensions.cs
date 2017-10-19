@@ -22,7 +22,6 @@
             settings.Get<StartupDiagnosticEntries>().Add(sectionName, section);
         }
 
-
         /// <summary>
         /// Configures a custom path where host diagnostics is written.
         /// </summary>
@@ -37,7 +36,6 @@
 
             config.GetSettings().Set(DiagnosticsPathKey, path);
         }
-        internal const string DiagnosticsPathKey = "Diagnostics.RootPath";
 
         /// <summary>
         /// Allows full control over how diagnostics data is persisted.
@@ -56,5 +54,7 @@
         {
             return settings.TryGet("HostDiagnosticsWriter", out customDiagnosticsWriter);
         }
+
+        internal const string DiagnosticsPathKey = "Diagnostics.RootPath";
     }
 }
