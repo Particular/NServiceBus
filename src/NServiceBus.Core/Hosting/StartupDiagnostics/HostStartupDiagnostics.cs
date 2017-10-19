@@ -25,9 +25,9 @@
             context.RegisterStartupTask(new WriteStartupDiagnostics(diagnosticsWriter, settings));
         }
 
-        static HostDiagnosticsWriter GetDiagnosticsWriter(ReadOnlySettings settings)
+        static Func<string, Task> GetDiagnosticsWriter(ReadOnlySettings settings)
         {
-            if (settings.TryGet<HostDiagnosticsWriter>(out var diagnosticsWriter))
+            if (settings.TryGetCustomDiagnosticsWriter(out var diagnosticsWriter))
             {
                 return diagnosticsWriter;
             }
@@ -49,12 +49,12 @@
             var startupDiagnosticsFileName = $"{endpointName}-configuration.json";
             var startupDiagnosticsFilePath = Path.Combine(diagnosticsRootPath, startupDiagnosticsFileName);
 
-            return new HostDiagnosticsWriter(data => AsyncFile.WriteText(startupDiagnosticsFilePath, data));
+            return data => AsyncFile.WriteText(startupDiagnosticsFilePath, data);
         }
 
         class WriteStartupDiagnostics : FeatureStartupTask
         {
-            public WriteStartupDiagnostics(HostDiagnosticsWriter diagnosticsWriter, ReadOnlySettings settings)
+            public WriteStartupDiagnostics(Func<string, Task> diagnosticsWriter, ReadOnlySettings settings)
             {
                 this.diagnosticsWriter = diagnosticsWriter;
                 this.settings = settings;
@@ -68,7 +68,7 @@
                         .OrderBy(e => e.Name)
                         .ToDictionary(e => e.Name, e => e.Data));
 
-                    await diagnosticsWriter.Write(data).ConfigureAwait(false);
+                    await diagnosticsWriter(data).ConfigureAwait(false);
                 }
                 catch (Exception e)
                 {
@@ -81,7 +81,7 @@
                 return TaskEx.CompletedTask;
             }
 
-            HostDiagnosticsWriter diagnosticsWriter;
+            Func<string, Task> diagnosticsWriter;
             ReadOnlySettings settings;
 
             static ILog logger = LogManager.GetLogger<WriteStartupDiagnostics>();

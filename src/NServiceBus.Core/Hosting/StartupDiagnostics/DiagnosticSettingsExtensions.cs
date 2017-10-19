@@ -37,6 +37,7 @@
 
             config.GetSettings().Set(DiagnosticsPathKey, path);
         }
+        internal const string DiagnosticsPathKey = "Diagnostics.RootPath";
 
         /// <summary>
         /// Allows full control over how diagnostics data is persisted.
@@ -48,9 +49,12 @@
             Guard.AgainstNull(nameof(config), config);
             Guard.AgainstNull(nameof(customDiagnosticsWriter), customDiagnosticsWriter);
 
-            config.Settings.Set<HostDiagnosticsWriter>(new HostDiagnosticsWriter(customDiagnosticsWriter));
+            config.Settings.Set("HostDiagnosticsWriter", customDiagnosticsWriter);
         }
 
-        internal const string DiagnosticsPathKey = "Diagnostics.RootPath";
+        internal static bool TryGetCustomDiagnosticsWriter(this ReadOnlySettings settings, out Func<string, Task> customDiagnosticsWriter)
+        {
+            return settings.TryGet("HostDiagnosticsWriter", out customDiagnosticsWriter);
+        }
     }
 }
