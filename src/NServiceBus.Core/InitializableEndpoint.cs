@@ -78,6 +78,15 @@ namespace NServiceBus
                 await RunInstallers(concreteTypes, username).ConfigureAwait(false);
             }
 
+            settings.AddStartupDiagnosticsSection("Endpoint",
+                new
+                {
+                    Name = settings.EndpointName(),
+                    SendOnly = settings.Get<bool>("Endpoint.SendOnly"),
+                    NServiceBusVersion = GitFlowVersion.MajorMinorPatch
+                }
+            );
+
             var messageSession = new MessageSession(new RootContext(builder, pipelineCache, eventAggregator));
 
             return new StartableEndpoint(settings, builder, featureActivator, transportInfrastructure, receiveComponent, criticalError, messageSession);
