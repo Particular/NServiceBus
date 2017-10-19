@@ -11,28 +11,6 @@
     /// </summary>
     public partial class Conventions
     {
-        internal List<DataBusPropertyInfo> GetDataBusProperties(object message)
-        {
-            return cache.GetOrAdd(message.GetType(), messageType =>
-            {
-                var properties = new List<DataBusPropertyInfo>();
-                // ReSharper disable once LoopCanBeConvertedToQuery
-                foreach (var propertyInfo in messageType.GetProperties())
-                {
-                    if (IsDataBusProperty(propertyInfo))
-                    {
-                        properties.Add(new DataBusPropertyInfo
-                        {
-                            Name = propertyInfo.Name,
-                            Getter = DelegateFactory.CreateGet(propertyInfo),
-                            Setter = DelegateFactory.CreateSet(propertyInfo)
-                        });
-                    }
-                }
-                return properties;
-            });
-        }
-
         /// <summary>
         /// Returns true if the given type is a message type.
         /// </summary>
@@ -152,10 +130,35 @@
             }
         }
 
-        ConcurrentDictionary<Type, List<DataBusPropertyInfo>> cache = new ConcurrentDictionary<Type, List<DataBusPropertyInfo>>();
+        internal bool CustomMessageTypeConventionUsed { get; private set; }
 
-        ConventionCache CommandsConventionCache = new ConventionCache();
-        ConventionCache EventsConventionCache = new ConventionCache();
+        internal List<DataBusPropertyInfo> GetDataBusProperties(object message)
+        {
+            return cache.GetOrAdd(message.GetType(), messageType =>
+            {
+                var properties = new List<DataBusPropertyInfo>();
+                // ReSharper disable once LoopCanBeConvertedToQuery
+                foreach (var propertyInfo in messageType.GetProperties())
+                {
+                    if (IsDataBusProperty(propertyInfo))
+                    {
+                        properties.Add(new DataBusPropertyInfo
+                        {
+                            Name = propertyInfo.Name,
+                            Getter = DelegateFactory.CreateGet(propertyInfo),
+                            Setter = DelegateFactory.CreateSet(propertyInfo)
+                        });
+                    }
+                }
+                return properties;
+            });
+        }
+
+        internal void DefineMessageTypeConvention(Func<Type, bool> definesMessageType)
+        {
+            IsMessageTypeAction = definesMessageType;
+            CustomMessageTypeConventionUsed = true;
+        }
 
         internal Func<Type, bool> IsCommandTypeAction = t => typeof(ICommand).IsAssignableFrom(t) && typeof(ICommand) != t;
 
@@ -163,15 +166,18 @@
 
         internal Func<Type, bool> IsEventTypeAction = t => typeof(IEvent).IsAssignableFrom(t) && typeof(IEvent) != t;
 
+        ConcurrentDictionary<Type, List<DataBusPropertyInfo>> cache = new ConcurrentDictionary<Type, List<DataBusPropertyInfo>>();
 
-        internal Func<Type, bool> IsMessageTypeAction = t => typeof(IMessage).IsAssignableFrom(t) &&
-                                                             typeof(IMessage) != t &&
-                                                             typeof(IEvent) != t &&
-                                                             typeof(ICommand) != t;
+        ConventionCache CommandsConventionCache = new ConventionCache();
+        ConventionCache EventsConventionCache = new ConventionCache();
+
+        Func<Type, bool> IsMessageTypeAction = t => typeof(IMessage).IsAssignableFrom(t) &&
+                                                    typeof(IMessage) != t &&
+                                                    typeof(IEvent) != t &&
+                                                    typeof(ICommand) != t;
 
         List<Func<Type, bool>> IsSystemMessageActions = new List<Func<Type, bool>>();
         ConventionCache MessagesConventionCache = new ConventionCache();
-
 
         class ConventionCache
         {

@@ -102,7 +102,7 @@
         [SetUp]
         public void Setup()
         {
-            metadataRegistry = new MessageMetadataRegistry(new Conventions());
+            metadataRegistry = new MessageMetadataRegistry(_ => true);
             endpointInstances = new EndpointInstances();
             subscriptionStorage = new FakeSubscriptionStorage();
             router = new UnicastPublishRouter(
@@ -113,7 +113,7 @@
 
         class FakeSubscriptionStorage : ISubscriptionStorage
         {
-            public List<Subscriber> Subscribers { get; }= new List<Subscriber>();
+            public List<Subscriber> Subscribers { get; } = new List<Subscriber>();
             public Task Subscribe(Subscriber subscriber, MessageType messageType, ContextBag context)
             {
                 throw new NotImplementedException();
