@@ -19,14 +19,25 @@
 
         protected override async Task OnStart(IMessageSession session)
         {
-            var entries = settings.Get<StartupDiagnosticEntries>().Entries
+            var entries = settings.Get<StartupDiagnosticEntries>().Entries;
+
+            var duplicateNames = entries.GroupBy(item => item.Name)
+                .Where(group => group.Count() > 1)
+                .ToList();
+            if (duplicateNames.Any())
+            {
+                logger.Error("Diagnostics entries contains duplicates. Duplicates: " + string.Join(", ", duplicateNames));
+                return;
+            }
+
+            var dictionary = entries
                 .OrderBy(e => e.Name)
                 .ToDictionary(e => e.Name, e => e.Data);
             string data;
 
             try
             {
-                data = SimpleJson.SerializeObject(entries);
+                data = SimpleJson.SerializeObject(dictionary);
             }
             catch (Exception exception)
             {
