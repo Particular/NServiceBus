@@ -13,12 +13,16 @@ namespace NServiceBus
 
             if (isSendOnlyEndpoint)
             {
+                if (settings.HasExplicitValue(ReceiveSettingsExtensions.CustomLocalAddressKey))
+                {
+                    throw new Exception($"Overriding local address using `{nameof(ReceiveSettingsExtensions.OverrideLocalAddress)}(myCustomAddress)` is not supported for send only endpoints.");
+                }
                 return null;
             }
 
             var endpointName = settings.EndpointName();
             var discriminator = settings.GetOrDefault<string>("EndpointInstanceDiscriminator");
-            var queueNameBase = settings.GetOrDefault<string>("BaseInputQueueName") ?? endpointName;
+            var queueNameBase = settings.GetOrDefault<string>(ReceiveSettingsExtensions.CustomLocalAddressKey) ?? endpointName;
             var purgeOnStartup = settings.GetOrDefault<bool>("Transport.PurgeOnStartup");
 
             //note: This is an old hack, we are passing the endpoint name to bind but we only care about the properties
