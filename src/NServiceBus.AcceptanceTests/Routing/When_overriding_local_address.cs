@@ -32,11 +32,13 @@
         [Test]
         public void Should_not_be_allowed_when_send_only()
         {
-             Assert.ThrowsAsync<Exception>(async ()=>await Scenario.Define<Context>()
-                .WithEndpoint<Sender>(e => e.CustomConfig(c=>c.SendOnly()))
-                .WithEndpoint<Receiver>()
-                .Done(c => c.EndpointsStarted)
-                .Run());
+            var ex = Assert.ThrowsAsync<Exception>(async () => await Scenario.Define<Context>()
+               .WithEndpoint<Sender>()
+               .WithEndpoint<Receiver>(e => e.CustomConfig(c => c.SendOnly()))
+               .Done(c => c.EndpointsStarted)
+               .Run());
+
+            StringAssert.Contains("send only", ex.Message);
         }
 
         public class Context : ScenarioContext
