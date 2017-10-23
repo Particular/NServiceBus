@@ -19,7 +19,7 @@
 
         protected override async Task OnStart(IMessageSession session)
         {
-            var entries = settings.Get<StartupDiagnosticEntries>().Entries;
+            var entries = settings.Get<StartupDiagnosticEntries>().entries;
 
             var duplicateNames = entries.GroupBy(item => item.Name)
                 .Where(group => group.Count() > 1)
