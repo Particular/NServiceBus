@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.AcceptanceTests.Routing
 {
+    using System;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using AcceptanceTesting.Customization;
@@ -26,6 +27,16 @@
                 .Run();
 
             Assert.That(context.ReceivedMessage, Is.True);
+        }
+
+        [Test]
+        public void Should_not_be_allowed_when_send_only()
+        {
+             Assert.ThrowsAsync<Exception>(async ()=>await Scenario.Define<Context>()
+                .WithEndpoint<Sender>(e => e.CustomConfig(c=>c.SendOnly()))
+                .WithEndpoint<Receiver>()
+                .Done(c => c.EndpointsStarted)
+                .Run());
         }
 
         public class Context : ScenarioContext
