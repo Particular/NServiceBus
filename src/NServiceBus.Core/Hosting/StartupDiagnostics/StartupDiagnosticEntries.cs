@@ -6,14 +6,14 @@
     {
         public void Add(string sectionName, object section)
         {
-            Entries.Add(new StartupDiagnosticEntry
+            entries.Add(new StartupDiagnosticEntry
             {
                 Name = sectionName,
                 Data = section
             });
         }
 
-        internal List<StartupDiagnosticEntry> Entries = new List<StartupDiagnosticEntry>();
+        internal List<StartupDiagnosticEntry> entries = new List<StartupDiagnosticEntry>();
 
         public class StartupDiagnosticEntry
         {
