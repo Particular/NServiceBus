@@ -2,12 +2,9 @@
 {
     using System;
     using System.IO;
-    using System.Linq;
     using System.Threading.Tasks;
     using Features;
-    using Logging;
     using Settings;
-    using SimpleJson;
 
     class HostStartupDiagnostics : Feature
     {
@@ -22,17 +19,23 @@
 
             var diagnosticsWriter = GetDiagnosticsWriter(settings);
 
-            context.RegisterStartupTask(new WriteStartupDiagnostics(diagnosticsWriter, settings));
+            context.RegisterStartupTask(diagnosticsWriter);
         }
 
-        static HostDiagnosticsWriter GetDiagnosticsWriter(ReadOnlySettings settings)
+        static WriteStartupDiagnostics GetDiagnosticsWriter(ReadOnlySettings settings)
         {
-            if (settings.TryGet<HostDiagnosticsWriter>(out var diagnosticsWriter))
+            if (settings.TryGetCustomDiagnosticsWriter(out var diagnosticsWriter))
             {
-                return diagnosticsWriter;
+                return new WriteStartupDiagnostics(diagnosticsWriter, settings, true);
             }
 
-            if (!settings.TryGet<string>(HostDiagnosticsConfigurationExtensions.DiagnosticsPathKey, out var diagnosticsRootPath))
+            var defaultDiagnosticsWriter = BuildDefaultDiagnosticsWriter(settings);
+            return new WriteStartupDiagnostics(defaultDiagnosticsWriter, settings, false);
+        }
+
+        static Func<string, Task> BuildDefaultDiagnosticsWriter(ReadOnlySettings settings)
+        {
+            if (!settings.TryGet<string>(DiagnosticSettingsExtensions.DiagnosticsPathKey, out var diagnosticsRootPath))
             {
                 diagnosticsRootPath = Path.Combine(Host.GetOutputDirectory(), ".diagnostics");
             }
@@ -49,42 +52,7 @@
             var startupDiagnosticsFileName = $"{endpointName}-configuration.json";
             var startupDiagnosticsFilePath = Path.Combine(diagnosticsRootPath, startupDiagnosticsFileName);
 
-            return new HostDiagnosticsWriter(data => AsyncFile.WriteText(startupDiagnosticsFilePath, data));
-        }
-
-        class WriteStartupDiagnostics : FeatureStartupTask
-        {
-            public WriteStartupDiagnostics(HostDiagnosticsWriter diagnosticsWriter, ReadOnlySettings settings)
-            {
-                this.diagnosticsWriter = diagnosticsWriter;
-                this.settings = settings;
-            }
-
-            protected override async Task OnStart(IMessageSession session)
-            {
-                try
-                {
-                    var data = SimpleJson.SerializeObject(settings.Get<StartupDiagnosticEntries>().Entries
-                        .OrderBy(e => e.Name)
-                        .ToDictionary(e => e.Name, e => e.Data));
-
-                    await diagnosticsWriter.Write(data).ConfigureAwait(false);
-                }
-                catch (Exception e)
-                {
-                    logger.Error("Failed to write startup diagnostics", e);
-                }
-            }
-
-            protected override Task OnStop(IMessageSession session)
-            {
-                return TaskEx.CompletedTask;
-            }
-
-            HostDiagnosticsWriter diagnosticsWriter;
-            ReadOnlySettings settings;
-
-            static ILog logger = LogManager.GetLogger<WriteStartupDiagnostics>();
+            return data => AsyncFile.WriteText(startupDiagnosticsFilePath, data);
         }
     }
 }

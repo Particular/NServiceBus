@@ -13,9 +13,7 @@
             });
         }
 
-        public IEnumerable<StartupDiagnosticEntry> Entries => entries;
-
-        List<StartupDiagnosticEntry> entries = new List<StartupDiagnosticEntry>();
+        internal List<StartupDiagnosticEntry> entries = new List<StartupDiagnosticEntry>();
 
         public class StartupDiagnosticEntry
         {
