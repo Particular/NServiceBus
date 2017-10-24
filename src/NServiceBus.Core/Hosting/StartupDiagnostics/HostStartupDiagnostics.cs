@@ -49,7 +49,7 @@
 
             // Once we have the proper hosting model in place we can skip the endpoint name since the host would
             // know how to handle multi hosting but for now we do this so that multi-hosting users will get a file per endpoint
-            var startupDiagnosticsFileName = $"{endpointName}-configuration.json";
+            var startupDiagnosticsFileName = $"{endpointName}-configuration.txt";
             var startupDiagnosticsFilePath = Path.Combine(diagnosticsRootPath, startupDiagnosticsFileName);
 
             return data => AsyncFile.WriteText(startupDiagnosticsFilePath, data);

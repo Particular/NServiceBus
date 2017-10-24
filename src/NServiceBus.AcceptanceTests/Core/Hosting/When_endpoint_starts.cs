@@ -27,7 +27,7 @@
                 .Run();
 
             var endpointName = Conventions.EndpointNamingConvention(typeof(MyEndpoint));
-            var startupDiagnoticsFileName = $"{endpointName}-configuration.json";
+            var startupDiagnoticsFileName = $"{endpointName}-configuration.txt";
 
             var pathToFile = Path.Combine(basePath, startupDiagnoticsFileName);
             Assert.True(File.Exists(pathToFile));
