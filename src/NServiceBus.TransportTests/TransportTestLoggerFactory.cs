@@ -41,6 +41,21 @@
                 Log(LogLevel.Debug, $"{message} {exception}");
             }
 
+            public void DebugFormat(string format, object argument1)
+            {
+                Log(LogLevel.Debug, string.Format(format, argument1));
+            }
+
+            public void DebugFormat(string format, object argument1, object argument2)
+            {
+                Log(LogLevel.Debug, string.Format(format, argument1, argument2));
+            }
+
+            public void DebugFormat(string format, object argument1, object argument2, object argument3)
+            {
+                Log(LogLevel.Debug, string.Format(format, argument1, argument2, argument3));
+            }
+
             public void DebugFormat(string format, params object[] args)
             {
                 Log(LogLevel.Debug, string.Format(format, args));
@@ -54,6 +69,21 @@
             public void Info(string message, Exception exception)
             {
                 Log(LogLevel.Info, $"{message} {exception}");
+            }
+
+            public void InfoFormat(string format, object argument1)
+            {
+                Log(LogLevel.Info, string.Format(format, argument1));
+            }
+
+            public void InfoFormat(string format, object argument1, object argument2)
+            {
+                Log(LogLevel.Info, string.Format(format, argument1, argument2));
+            }
+
+            public void InfoFormat(string format, object argument1, object argument2, object argument3)
+            {
+                Log(LogLevel.Info, string.Format(format, argument1, argument2, argument3));
             }
 
             public void InfoFormat(string format, params object[] args)
@@ -71,6 +101,21 @@
                 Log(LogLevel.Warn, $"{message} {exception}");
             }
 
+            public void WarnFormat(string format, object argument1)
+            {
+                Log(LogLevel.Warn, string.Format(format, argument1));
+            }
+
+            public void WarnFormat(string format, object argument1, object argument2)
+            {
+                Log(LogLevel.Warn, string.Format(format, argument1, argument2));
+            }
+
+            public void WarnFormat(string format, object argument1, object argument2, object argument3)
+            {
+                Log(LogLevel.Warn, string.Format(format, argument1, argument2, argument3));
+            }
+
             public void WarnFormat(string format, params object[] args)
             {
                 Log(LogLevel.Warn, string.Format(format, args));
@@ -86,6 +131,21 @@
                 Log(LogLevel.Error, $"{message} {exception}");
             }
 
+            public void ErrorFormat(string format, object argument1)
+            {
+                Log(LogLevel.Error, string.Format(format, argument1));
+            }
+
+            public void ErrorFormat(string format, object argument1, object argument2)
+            {
+                Log(LogLevel.Error, string.Format(format, argument1, argument2));
+            }
+
+            public void ErrorFormat(string format, object argument1, object argument2, object argument3)
+            {
+                Log(LogLevel.Error, string.Format(format, argument1, argument2, argument3));
+            }
+
             public void ErrorFormat(string format, params object[] args)
             {
                 Log(LogLevel.Error, string.Format(format, args));
@@ -99,6 +159,21 @@
             public void Fatal(string message, Exception exception)
             {
                 Log(LogLevel.Fatal, $"{message} {exception}");
+            }
+
+            public void FatalFormat(string format, object argument1)
+            {
+                Log(LogLevel.Fatal, string.Format(format, argument1));
+            }
+
+            public void FatalFormat(string format, object argument1, object argument2)
+            {
+                Log(LogLevel.Fatal, string.Format(format, argument1, argument2));
+            }
+
+            public void FatalFormat(string format, object argument1, object argument2, object argument3)
+            {
+                Log(LogLevel.Fatal, string.Format(format, argument1, argument2, argument3));
             }
 
             public void FatalFormat(string format, params object[] args)
