@@ -15,7 +15,7 @@ namespace NServiceBus
             {
                 if (settings.HasExplicitValue(ReceiveSettingsExtensions.CustomLocalAddressKey))
                 {
-                    throw new Exception($"Overriding local address using `{nameof(ReceiveSettingsExtensions.OverrideLocalAddress)}(myCustomAddress)` is not supported for send only endpoints.");
+                    throw new Exception($"Specifying a base name for the input queue using `{nameof(ReceiveSettingsExtensions.OverrideLocalAddress)}(baseInputQueueName)` is not supported for send-only endpoints.");
                 }
                 return null;
             }

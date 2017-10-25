@@ -38,7 +38,7 @@
                .Done(c => c.EndpointsStarted)
                .Run());
 
-            StringAssert.Contains("send only", ex.Message);
+            StringAssert.Contains("send-only", ex.Message);
         }
 
         public class Context : ScenarioContext
