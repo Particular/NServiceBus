@@ -3,7 +3,6 @@ namespace NServiceBus.Core.Tests.Sagas.TypeBasedSagas
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using ApprovalTests;
     using NServiceBus.Sagas;
     using NUnit.Framework;
 
@@ -14,7 +13,7 @@ namespace NServiceBus.Core.Tests.Sagas.TypeBasedSagas
         public void Should_throw()
         {
             var exception = Assert.Throws<Exception>(() => SagaMetadata.Create(typeof(SagaWithMultipleCorrelatedProperties), new List<Type>(), new Conventions()));
-            Approvals.Verify(exception.Message);
+            TestApprover.Verify(exception.Message);
         }
 
         class SagaWithMultipleCorrelatedProperties : Saga<SagaWithMultipleCorrelatedProperties.MyEntity>,
