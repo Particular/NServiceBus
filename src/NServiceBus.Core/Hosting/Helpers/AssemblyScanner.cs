@@ -255,6 +255,11 @@ namespace NServiceBus.Hosting.Helpers
                 return true;
             }
 
+            if (lowerInvariant == "cc7b13ffcd2ddd51")
+            {
+                return true;
+            }
+
             return false;
         }
 
