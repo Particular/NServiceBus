@@ -187,6 +187,7 @@
     <Compile Include="Routing\Routers\UnicastSendRouterTests.cs" />
     <Compile Include="Routing\Routers\UnicastSendRouteOptionsTests.cs" />
     <Compile Include="Routing\TypeRouteSourceTests.cs" />
+    <Compile Include="TestApprover.cs" />
     <Compile Include="Transports\MSMQ\InstanceMapping\InstanceMappingFileFeatureTests.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\MessageDrivenSubscriptionsConfigExtensionsTests.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\PublishersTests.cs" />
