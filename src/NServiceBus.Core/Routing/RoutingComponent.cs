@@ -30,7 +30,7 @@ namespace NServiceBus
 
         public bool EnforceBestPractices { get; private set; }
 
-        public void Initialize(ReadOnlySettings settings, Func<LogicalAddress,string> toTransportAddress, PipelineSettings pipelineSettings, ReceiveConfiguration receiveConfiguration)
+        public void Initialize(ReadOnlySettings settings, Func<LogicalAddress, string> toTransportAddress, PipelineSettings pipelineSettings, ReceiveConfiguration receiveConfiguration)
         {
             var conventions = settings.Get<Conventions>();
             var configuredUnicastRoutes = settings.GetOrDefault<ConfiguredUnicastRoutes>();
