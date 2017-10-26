@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.Core.Tests.Transports.Learning
 {
     using System.Collections.Generic;
-    using ApprovalTests;
     using NUnit.Framework;
 
     public class HeaderSerializerTests
@@ -22,7 +21,7 @@
             };
             var serialized = HeaderSerializer.Serialize(input);
 
-            Approvals.Verify(serialized);
+            TestApprover.Verify(serialized);
             var deserialize = HeaderSerializer.Deserialize(serialized);
             CollectionAssert.AreEquivalent(input, deserialize);
         }
