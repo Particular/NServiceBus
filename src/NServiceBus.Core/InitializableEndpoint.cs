@@ -101,7 +101,7 @@ namespace NServiceBus
                 settings.GetOrCreate<EndpointInstances>(),
                 settings.GetOrCreate<Publishers>());
 
-            routing.Initialize(settings, transportInfrastructure, pipelineSettings, receiveConfiguration);
+            routing.Initialize(settings, transportInfrastructure.ToTransportAddress, pipelineSettings, receiveConfiguration);
 
             return routing;
         }
