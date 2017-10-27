@@ -151,13 +151,14 @@
                 return;
             }
 
+            var tx = obj.GetType();
             if (!cache.typeToProperties.TryGetValue(t, out var properties))
             {
                 cache.InitType(t);
                 cache.typeToProperties.TryGetValue(t, out properties);
             }
 
-            foreach (var prop in properties)
+            foreach (var prop in tx.GetProperties())
             {
                 if (IsIndexedProperty(prop))
                 {

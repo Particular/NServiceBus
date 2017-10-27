@@ -1164,7 +1164,7 @@ namespace NServiceBus.Serializers.XML.Test
             var serializer = SerializerFactory.Create<MesssageImplementingMessageWithGetterOnlyProperty>();
             using (var stream = new MemoryStream())
             {
-                serializer.Serialize(new MesssageImplementingMessageWithGetterOnlyProperty(){Property = new Blabla(){Property = "Hello World"}}, stream);
+                serializer.Serialize(new MesssageImplementingMessageWithGetterOnlyProperty(){Property = new ConcretePropertyType(){Property = "Hello World"}}, stream);
                 stream.Position = 0;
                 var reader = new StreamReader(stream);
                 // ReSharper disable once UnusedVariable
@@ -1185,22 +1185,22 @@ namespace NServiceBus.Serializers.XML.Test
 
     public interface IMessageWithGetterOnlyProperty
     {
-        InterfacePropertyType Property { get; set; }
+        IInterfacePropertyType Property { get; set; }
     }
 
-    public interface InterfacePropertyType
+    public interface IInterfacePropertyType
     {
         string Property { get; }
     }
 
-    public class Blabla : InterfacePropertyType
+    public class ConcretePropertyType : IInterfacePropertyType
     {
         public string Property { get; set; }
     }
 
     public class MesssageImplementingMessageWithGetterOnlyProperty : IMessageWithGetterOnlyProperty
     {
-        public InterfacePropertyType Property { get; set; }
+        public IInterfacePropertyType Property { get; set; }
     }
 
     public class SerializedPair
