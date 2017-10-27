@@ -1158,8 +1158,49 @@ namespace NServiceBus.Serializers.XML.Test
             Assert.AreEqual(message.Value, ((SerializedPair)messageDeserialized[0]).Value);
         }
 
+        [Test]
+        public void Interface_Message_with_no_setter()
+        {
+            var serializer = SerializerFactory.Create<MesssageImplementingMessageWithGetterOnlyProperty>();
+            using (var stream = new MemoryStream())
+            {
+                serializer.Serialize(new MesssageImplementingMessageWithGetterOnlyProperty(){Property = new Blabla(){Property = "Hello World"}}, stream);
+                stream.Position = 0;
+                var reader = new StreamReader(stream);
+                // ReSharper disable once UnusedVariable
+                var xml = reader.ReadToEnd();
+                stream.Position = 0;
+                var result = serializer.Deserialize(stream, new[]
+                {
+                    typeof(IMessageWithGetterOnlyProperty)
+                }).Single() as IMessageWithGetterOnlyProperty;
+
+                Assert.IsNull(result.Property.Property);
+            }
+        }
+
         int number = 1;
         int numberOfIterations = 100;
+    }
+
+    public interface IMessageWithGetterOnlyProperty
+    {
+        InterfacePropertyType Property { get; set; }
+    }
+
+    public interface InterfacePropertyType
+    {
+        string Property { get; }
+    }
+
+    public class Blabla : InterfacePropertyType
+    {
+        public string Property { get; set; }
+    }
+
+    public class MesssageImplementingMessageWithGetterOnlyProperty : IMessageWithGetterOnlyProperty
+    {
+        public InterfacePropertyType Property { get; set; }
     }
 
     public class SerializedPair
