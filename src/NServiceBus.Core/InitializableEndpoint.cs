@@ -166,7 +166,23 @@ namespace NServiceBus
 
             if (receiveConfiguration != null)
             {
-                settings.AddStartupDiagnosticsSection("Receiving", receiveConfiguration);
+                settings.AddStartupDiagnosticsSection("Receiving", new
+                {
+                    receiveConfiguration.LocalAddress,
+                    receiveConfiguration.InstanceSpecificQueue,
+                    receiveConfiguration.LogicalAddress,
+                    receiveConfiguration.PurgeOnStartup,
+                    receiveConfiguration.QueueNameBase,
+                    TransactionMode = receiveConfiguration.TransactionMode.ToString("G"),
+                    receiveConfiguration.PushRuntimeSettings.MaxConcurrency,
+                    Satellites = receiveConfiguration.SatelliteDefinitions.Select(s => new
+                    {
+                        s.Name,
+                        s.ReceiveAddress,
+                        TransactionMode = s.RequiredTransportTransactionMode.ToString("G"),
+                        s.RuntimeSettings.MaxConcurrency
+                    }).ToArray()
+                });
             }
 
             return receiveComponent;
