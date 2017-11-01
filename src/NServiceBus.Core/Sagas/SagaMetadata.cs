@@ -262,7 +262,7 @@ Sagas must have at least one message that is allowed to start the saga. Add at l
                     var existingMapping = mapper.Mappings.SingleOrDefault(m => m.MessageType == messageType);
                     if (existingMapping != null)
                     {
-                        var bothMappingAndFinder = $"A custom IFindSagas and an existing mapping where found for message '{messageType.FullName}'. Either remove the message mapping for remove the finder. Finder name '{finderType.FullName}'.";
+                        var bothMappingAndFinder = $"A custom IFindSagas and an existing mapping where found for message '{messageType.FullName}'. Either remove the message mapping or remove the finder. Finder name '{finderType.FullName}'.";
                         throw new Exception(bothMappingAndFinder);
                     }
                     mapper.ConfigureCustomFinder(finderType, messageType);
