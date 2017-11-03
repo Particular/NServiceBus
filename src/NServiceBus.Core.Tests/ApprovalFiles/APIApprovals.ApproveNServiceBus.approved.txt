@@ -919,6 +919,17 @@ namespace NServiceBus
             "ll be removed in version 8.0.0.", true)]
         public static void EnableSLAPerformanceCounter(this NServiceBus.EndpointConfiguration config) { }
     }
+    public class StartupDiagnosticEntries
+    {
+        public StartupDiagnosticEntries() { }
+        public void Add(string sectionName, object section) { }
+        public class StartupDiagnosticEntry
+        {
+            public StartupDiagnosticEntry() { }
+            public object Data { get; set; }
+            public string Name { get; set; }
+        }
+    }
     public class static StaticHeadersConfigExtensions
     {
         public static void AddHeaderToAllOutgoingMessages(this NServiceBus.EndpointConfiguration config, string key, string value) { }

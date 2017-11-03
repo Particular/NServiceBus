@@ -2,8 +2,14 @@
 {
     using System.Collections.Generic;
 
-    class StartupDiagnosticEntries
+    /// <summary>
+    /// Holds diagnostics entries to be written at startup.
+    /// </summary>
+    public class StartupDiagnosticEntries
     {
+        /// <summary>
+        /// Adds a new section to the diagnostics.
+        /// </summary>
         public void Add(string sectionName, object section)
         {
             entries.Add(new StartupDiagnosticEntry
@@ -15,10 +21,20 @@
 
         internal List<StartupDiagnosticEntry> entries = new List<StartupDiagnosticEntry>();
 
+        /// <summary>
+        /// A diagnostics section.
+        /// </summary>
         public class StartupDiagnosticEntry
         {
-            public string Name;
-            public object Data;
+            /// <summary>
+            /// The section name.
+            /// </summary>
+            public string Name { get; set; }
+
+            /// <summary>
+            /// The actual diagnostics data.
+            /// </summary>
+            public object Data { get; set; }
         }
     }
 }
