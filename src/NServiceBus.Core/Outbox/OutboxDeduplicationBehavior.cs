@@ -62,7 +62,8 @@
 
                 var message = new TransportMessage(transportOperation.MessageId, transportOperation.Headers)
                 {
-                    Body = transportOperation.Body
+                    Body = transportOperation.Body,
+                    Recoverable = !transportOperation.Options.ContainsKey("NonDurable")
                 };
 
                 string ttbr;

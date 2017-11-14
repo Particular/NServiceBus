@@ -92,6 +92,7 @@
     <Compile Include="Basic\When_using_callback_to_get_message.cs" />
     <Compile Include="Encryption\When_using_Rijndael_without_incoming_key_identifier.cs" />
     <Compile Include="HostInformation\When_feature_overrides_hostid.cs" />
+    <Compile Include="NonDTC\When_sending_a_durable_message.cs" />
     <Compile Include="NonDTC\When_sending_a_message_with_a_ttbr.cs" />
     <Compile Include="PerfMon\CriticalTime\When_deferring_a_message.cs" />
     <Compile Include="PubSub\When_publishing_from_sendonly.cs" />
