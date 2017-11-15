@@ -23,6 +23,11 @@ namespace NServiceBus
                     options["TimeToBeReceived"] = context.OutgoingMessage.TimeToBeReceived.ToString();
                 }
 
+                if (!context.OutgoingMessage.Recoverable)
+                {
+                    options["NonDurable"] = bool.TrueString;
+                }
+
                 currentOutboxMessage.TransportOperations.Add(transportOperation);
             }
             else
