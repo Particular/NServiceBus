@@ -65,7 +65,7 @@
                     this.testContext = testContext;
                 }
 
-                public async Task Invoke(IBatchDispatchContext context, Func<IBatchDispatchContext, Task> next)
+                public Task Invoke(IBatchDispatchContext context, Func<IBatchDispatchContext, Task> next)
                 {
                     if (!testContext.SavedOutBoxRecord)
                     {
@@ -73,7 +73,7 @@
                         throw new Exception();
                     }
 
-                    await next(context).ConfigureAwait(false);
+                    return next(context);
                 }
             }
 
