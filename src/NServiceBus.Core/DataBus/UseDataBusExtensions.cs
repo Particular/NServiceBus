@@ -16,11 +16,8 @@
         {
             Guard.AgainstNull(nameof(config), config);
             var type = typeof(DataBusExtensions<>).MakeGenericType(typeof(T));
-#pragma warning disable PC001
             var extension = (DataBusExtensions<T>) Activator.CreateInstance(type, config.Settings);
             var definition = (DataBusDefinition) Activator.CreateInstance(typeof(T));
-#pragma warning restore PC001
-
             config.Settings.Set("SelectedDataBus", definition);
 
             config.EnableFeature<Features.DataBus>();

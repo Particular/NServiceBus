@@ -29,10 +29,10 @@
         {
         }
 
+        #pragma warning disable PC001
         /// <summary>
         /// <see cref="SerializationException(SerializationInfo, StreamingContext)" />.
         /// </summary>
-        #pragma warning disable PC001
         protected MessageDeserializationException(SerializationInfo info, StreamingContext context) : base(info, context)
         {
         }

@@ -12,9 +12,7 @@ namespace NServiceBus
             {
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 {
-#pragma warning disable PC001
                     process.StartInfo.UseShellExecute = true;
-#pragma warning restore PC001
                     process.StartInfo.FileName = url;
                 }
                 else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
