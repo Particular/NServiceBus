@@ -21,15 +21,15 @@
     <PackageReference Include="ApprovalTests" Version="3.0.13" NoWarn="NU1701" />
     <PackageReference Include="ApprovalUtilities" Version="3.0.13" NoWarn="NU1701" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.3.0" />
-    <PackageReference Include="Mono.Cecil" Version="0.10.0-beta6" />
+    <PackageReference Include="Mono.Cecil" Version="0.10.0-beta7" />
     <PackageReference Include="NuDoq" Version="1.2.5" NoWarn="NU1701" />
     <PackageReference Include="NUnit" Version="3.7.1" />
     <PackageReference Include="NUnit3TestAdapter" Version="3.8.0-alpha1" />
+    <PackageReference Include="PublicApiGenerator" Version="6.5.0" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net452'">
     <PackageReference Include="NUnit.ApplicationDomain" Version="11.0.0" />
-    <PackageReference Include="PublicApiGenerator" Version="6.4.0" />
   </ItemGroup>
 
   <ItemGroup>

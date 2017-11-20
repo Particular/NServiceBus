@@ -1,5 +1,4 @@
-﻿#if NET452
-namespace NServiceBus.Core.Tests.API
+﻿namespace NServiceBus.Core.Tests.API
 {
     using System;
     using System.Linq;
@@ -25,9 +24,9 @@ namespace NServiceBus.Core.Tests.API
                 Environment.NewLine
             }, StringSplitOptions.RemoveEmptyEntries)
                 .Where(l => !l.StartsWith("[assembly: ReleaseDateAttribute("))
+                .Where(l => !l.StartsWith(@"[assembly: System.Runtime.Versioning.TargetFrameworkAttribute("))
                 .Where(l => !string.IsNullOrWhiteSpace(l))
                 );
         }
     }
 }
-#endif
