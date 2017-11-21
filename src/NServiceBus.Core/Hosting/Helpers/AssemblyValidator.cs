@@ -60,6 +60,11 @@
                 return true;
             }
 
+            if (tokenString == "adb9793829ddae60")
+            {
+                return true;
+            }
+
             return false;
         }
     }
