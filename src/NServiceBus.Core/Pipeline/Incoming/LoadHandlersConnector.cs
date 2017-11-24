@@ -59,8 +59,6 @@
 
         readonly ISynchronizedStorageAdapter adapter;
         readonly ISynchronizedStorage synchronizedStorage;
-
-
-        MessageHandlerRegistry messageHandlerRegistry;
+        readonly MessageHandlerRegistry messageHandlerRegistry;
     }
 }

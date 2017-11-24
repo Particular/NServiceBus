@@ -14,6 +14,6 @@ namespace NServiceBus
             return next(context);
         }
 
-        static ILog Log = LogManager.GetLogger<LogErrorOnInvalidLicenseBehavior>();
+        static readonly ILog Log = LogManager.GetLogger<LogErrorOnInvalidLicenseBehavior>();
     }
 }

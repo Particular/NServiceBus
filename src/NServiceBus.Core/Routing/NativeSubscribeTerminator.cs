@@ -16,6 +16,6 @@ namespace NServiceBus
             return subscriptionManager.Subscribe(context.EventType, context.Extensions);
         }
 
-        IManageSubscriptions subscriptionManager;
+        readonly IManageSubscriptions subscriptionManager;
     }
 }

@@ -25,8 +25,7 @@
             return next(context);
         }
 
-        string endpoint;
-
-        HostInformation hostInfo;
+        readonly string endpoint;
+        readonly HostInformation hostInfo;
     }
 }

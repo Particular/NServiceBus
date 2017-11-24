@@ -19,6 +19,6 @@
             return dispatcher.Dispatch(new TransportOperations(operations), transaction, context.Extensions);
         }
 
-        IDispatchMessages dispatcher;
+        readonly IDispatchMessages dispatcher;
     }
 }

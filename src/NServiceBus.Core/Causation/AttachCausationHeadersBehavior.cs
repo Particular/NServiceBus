@@ -55,6 +55,6 @@ namespace NServiceBus
             context.Headers[Headers.ConversationId] = conversationIdStrategy(context);
         }
 
-        Func<IOutgoingLogicalMessageContext, string> conversationIdStrategy;
+        readonly Func<IOutgoingLogicalMessageContext, string> conversationIdStrategy;
     }
 }

@@ -21,6 +21,6 @@
             return next(context);
         }
 
-        Validations validations;
+        readonly Validations validations;
     }
 }

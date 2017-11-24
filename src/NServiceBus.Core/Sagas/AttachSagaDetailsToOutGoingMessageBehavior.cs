@@ -19,7 +19,6 @@
             return next(context);
         }
 
-
         static bool HasBeenFound(ActiveSagaInstance saga)
         {
             return !saga.NotFound;

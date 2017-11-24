@@ -26,8 +26,7 @@ namespace NServiceBus
             return next(context);
         }
 
-        Func<Type, bool> convention;
-
-        ConcurrentDictionary<Type, bool> durabilityCache;
+        readonly Func<Type, bool> convention;
+        readonly ConcurrentDictionary<Type, bool> durabilityCache;
     }
 }

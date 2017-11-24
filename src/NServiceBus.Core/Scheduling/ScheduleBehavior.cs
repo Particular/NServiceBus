@@ -20,7 +20,7 @@ namespace NServiceBus
             return next(context);
         }
 
-        DefaultScheduler scheduler;
+        readonly DefaultScheduler scheduler;
 
         public class State
         {

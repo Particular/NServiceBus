@@ -56,7 +56,7 @@
             log.Debug(sb.ToString());
         }
 
-        static ILog log = LogManager.GetLogger<RoutingToDispatchConnector>();
+        static readonly ILog log = LogManager.GetLogger<RoutingToDispatchConnector>();
         static readonly bool isDebugEnabled = log.IsDebugEnabled;
 
         public class State

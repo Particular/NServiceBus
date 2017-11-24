@@ -44,7 +44,7 @@ namespace NServiceBus
             return addressLabels.ToList();
         }
 
-        DistributionPolicy distributionPolicy;
-        IUnicastPublishRouter unicastPublishRouter;
+        readonly DistributionPolicy distributionPolicy;
+        readonly IUnicastPublishRouter unicastPublishRouter;
     }
 }

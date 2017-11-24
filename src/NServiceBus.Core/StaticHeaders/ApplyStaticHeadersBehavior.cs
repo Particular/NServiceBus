@@ -21,6 +21,6 @@ namespace NServiceBus
             return next(context);
         }
 
-        CurrentStaticHeaders currentStaticHeaders;
+        readonly CurrentStaticHeaders currentStaticHeaders;
     }
 }

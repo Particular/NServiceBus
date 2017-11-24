@@ -92,11 +92,10 @@
             return value;
         }
 
-        Func<IIncomingPhysicalMessageContext, bool> authorizer;
+        readonly Func<IIncomingPhysicalMessageContext, bool> authorizer;
+        readonly ISubscriptionStorage subscriptionStorage;
 
-        ISubscriptionStorage subscriptionStorage;
-
-        static ILog Logger = LogManager.GetLogger<SubscriptionReceiverBehavior>();
+        static readonly ILog Logger = LogManager.GetLogger<SubscriptionReceiverBehavior>();
 
         public class Registration : RegisterStep
         {
