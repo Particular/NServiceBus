@@ -30,7 +30,7 @@
         }
 
         /// <summary>
-        /// <see cref="SerializationException(SerializationInfo, StreamingContext)" />.
+        /// Initializes a new instance of <see cref="MessageDeserializationException" />.
         /// </summary>
         protected MessageDeserializationException(SerializationInfo info, StreamingContext context) : base(info, context)
         {

@@ -73,9 +73,7 @@
         static SerializationExtensions<T> CreateSerializationExtension<T>(SettingsHolder settings) where T : SerializationDefinition
         {
             var type = typeof(SerializationExtensions<>).MakeGenericType(typeof(T));
-#pragma warning disable PC001
             var extension = (SerializationExtensions<T>) Activator.CreateInstance(type, settings);
-#pragma warning restore PC001
             return extension;
         }
     }
