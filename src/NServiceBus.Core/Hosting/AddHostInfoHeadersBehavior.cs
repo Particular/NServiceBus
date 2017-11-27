@@ -23,7 +23,7 @@
             return next(context);
         }
 
-        string endpoint;
-        HostInformation hostInformation;
+        readonly string endpoint;
+        readonly HostInformation hostInformation;
     }
 }

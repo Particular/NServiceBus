@@ -25,6 +25,6 @@
             await this.Fork(forwardingContext).ConfigureAwait(false);
         }
 
-        string forwardingAddress;
+        readonly string forwardingAddress;
     }
 }

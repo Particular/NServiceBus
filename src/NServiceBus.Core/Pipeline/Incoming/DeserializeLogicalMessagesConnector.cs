@@ -136,18 +136,18 @@ namespace NServiceBus
             return existingTypeString.StartsWith("NServiceBus.Scheduling.Messages.ScheduledTask, NServiceBus.Core");
         }
 
-        MessageDeserializerResolver deserializerResolver;
-        LogicalMessageFactory logicalMessageFactory;
-        MessageMetadataRegistry messageMetadataRegistry;
-        MessageMapper mapper;
+        readonly MessageDeserializerResolver deserializerResolver;
+        readonly LogicalMessageFactory logicalMessageFactory;
+        readonly MessageMetadataRegistry messageMetadataRegistry;
+        readonly MessageMapper mapper;
 
-        static LogicalMessage[] NoMessagesFound = new LogicalMessage[0];
+        static readonly LogicalMessage[] NoMessagesFound = new LogicalMessage[0];
 
-        static char[] EnclosedMessageTypeSeparator =
+        static readonly char[] EnclosedMessageTypeSeparator =
         {
             ';'
         };
 
-        static ILog log = LogManager.GetLogger<DeserializeLogicalMessagesConnector>();
+        static readonly ILog log = LogManager.GetLogger<DeserializeLogicalMessagesConnector>();
     }
 }

@@ -33,6 +33,6 @@ namespace NServiceBus
             }
         }
 
-        static ILog logger = LogManager.GetLogger<InvokeSagaNotFoundBehavior>();
+        static readonly ILog logger = LogManager.GetLogger<InvokeSagaNotFoundBehavior>();
     }
 }

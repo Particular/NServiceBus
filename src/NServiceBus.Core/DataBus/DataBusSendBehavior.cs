@@ -79,9 +79,9 @@
             await next(context).ConfigureAwait(false);
         }
 
-        Conventions conventions;
-        IDataBus dataBus;
-        IDataBusSerializer dataBusSerializer;
+        readonly Conventions conventions;
+        readonly IDataBus dataBus;
+        readonly IDataBusSerializer dataBusSerializer;
 
         public class Registration : RegisterStep
         {

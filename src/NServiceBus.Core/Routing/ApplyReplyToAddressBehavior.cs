@@ -53,10 +53,9 @@
             return replyTo;
         }
 
-        string instanceSpecificQueue;
-
-        string sharedQueue;
-        string configuredReturnAddress;
+        readonly string instanceSpecificQueue;
+        readonly string sharedQueue;
+        readonly string configuredReturnAddress;
 
         public class State
         {

@@ -45,7 +45,6 @@
                 return;
             }
 
-
             var currentSagaMetadata = sagaMetadataCollection.Find(context.MessageHandler.Instance.GetType());
 
             if (context.Headers.TryGetValue(Headers.SagaType, out var targetSagaTypeString) && context.Headers.TryGetValue(Headers.SagaId, out var targetSagaId))
@@ -321,13 +320,12 @@
         }
 
         IInvokeHandlerContext currentContext;
-        SagaMetadataCollection sagaMetadataCollection;
+        readonly SagaMetadataCollection sagaMetadataCollection;
+        readonly ISagaPersister sagaPersister;
+        readonly ICancelDeferredMessages timeoutCancellation;
+        readonly ISagaIdGenerator sagaIdGenerator;
 
-        ISagaPersister sagaPersister;
-        ICancelDeferredMessages timeoutCancellation;
-
-        static Task<IContainSagaData> DefaultSagaDataCompletedTask = Task.FromResult(default(IContainSagaData));
-        static ILog logger = LogManager.GetLogger<SagaPersistenceBehavior>();
-        ISagaIdGenerator sagaIdGenerator;
+        static readonly Task<IContainSagaData> DefaultSagaDataCompletedTask = Task.FromResult(default(IContainSagaData));
+        static readonly ILog logger = LogManager.GetLogger<SagaPersistenceBehavior>();
     }
 }

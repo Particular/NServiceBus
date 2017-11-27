@@ -67,9 +67,9 @@ namespace NServiceBus
             return string.Join(";", assemblyQualifiedNames);
         }
 
-        MessageMetadataRegistry messageMetadataRegistry;
-        IMessageSerializer messageSerializer;
+        readonly MessageMetadataRegistry messageMetadataRegistry;
+        readonly IMessageSerializer messageSerializer;
 
-        static ILog log = LogManager.GetLogger<SerializeMessageConnector>();
+        static readonly ILog log = LogManager.GetLogger<SerializeMessageConnector>();
     }
 }
