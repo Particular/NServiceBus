@@ -14,11 +14,6 @@ namespace NServiceBus.Core.Tests
         [Test]
         public void ApproveStructsWhichDontFollowStructGuidelines()
         {
-            if (Environment.OSVersion.Platform != PlatformID.Win32NT)
-            {
-                Assert.Ignore("ApprovalTests only works on Windows");
-            }
-
             var approvalBuilder = new StringBuilder();
             approvalBuilder.AppendLine(@"-------------------------------------------------- REMEMBER --------------------------------------------------
 CONSIDER defining a struct instead of a class if instances of the type are small and commonly short-lived or are commonly embedded in other objects.

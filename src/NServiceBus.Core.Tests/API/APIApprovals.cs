@@ -1,5 +1,4 @@
-﻿#if NET452
-namespace NServiceBus.Core.Tests.API
+﻿namespace NServiceBus.Core.Tests.API
 {
     using System;
     using System.Linq;
@@ -10,13 +9,25 @@ namespace NServiceBus.Core.Tests.API
     [TestFixture]
     public class APIApprovals
     {
+#if NET452
         [Test]
         [MethodImpl(MethodImplOptions.NoInlining)]
-        public void ApproveNServiceBus()
+        public void ApproveNServiceBus__NET452()
         {
             var publicApi = Filter(ApiGenerator.GeneratePublicApi(typeof(Endpoint).Assembly));
             TestApprover.Verify(publicApi);
         }
+#endif
+
+#if NETCOREAPP2_0
+        [Test]
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        public void ApproveNServiceBus__NETSTANDARD2_0()
+        {
+            var publicApi = Filter(ApiGenerator.GeneratePublicApi(typeof(Endpoint).Assembly));
+            TestApprover.Verify(publicApi);
+        }
+#endif
 
         string Filter(string text)
         {
@@ -30,4 +41,3 @@ namespace NServiceBus.Core.Tests.API
         }
     }
 }
-#endif
