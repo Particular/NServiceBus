@@ -37,6 +37,7 @@
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
     <PackageReference Include="System.Reflection.Emit" Version="4.3.0" />
     <PackageReference Include="System.Reflection.Emit.Lightweight" Version="4.3.0" />
+    <PackageReference Include="System.Reflection.Metadata" Version="1.5.0" />
     <PackageReference Include="System.Security.Cryptography.Xml" Version="4.4.0" />
   </ItemGroup>
 
