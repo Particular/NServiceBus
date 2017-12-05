@@ -89,6 +89,21 @@ namespace NServiceBus.Hosting.Helpers
                 }
             }
 
+            var platformAssembliesString = (string)AppDomain.CurrentDomain.GetData("TRUSTED_PLATFORM_ASSEMBLIES");
+
+            if (platformAssembliesString != null)
+            {
+                var platformAssemblies = platformAssembliesString.Split(Path.PathSeparator);
+
+                foreach (var platformAssembly in platformAssemblies)
+                {
+                    if (TryLoadScannableAssembly(platformAssembly, results, out var assembly))
+                    {
+                        assemblies.Add(assembly);
+                    }
+                }
+            }
+
             foreach (var assembly in assemblies)
             {
                 if (ScanAssembly(assembly, processed))
