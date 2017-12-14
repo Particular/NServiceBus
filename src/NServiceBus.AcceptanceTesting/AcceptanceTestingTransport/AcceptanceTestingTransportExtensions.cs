@@ -2,13 +2,13 @@
 {
     public static class AcceptanceTestingTransportExtensions
     {
-        public static TransportExtensions<AcceptanceTestingTransport> UseNativeDelayedDelivery(this TransportExtensions<AcceptanceTestingTransport> config, bool useNativeDelayedDelivery = true)
+        public static TransportExtensions<AcceptanceTestingTransport> UseNativeDelayedDelivery(this TransportExtensions<AcceptanceTestingTransport> config, bool useNativeDelayedDelivery)
         {
             config.Settings.Set("AcceptanceTestingTransport.UseNativeDelayedDelivery", useNativeDelayedDelivery);
             return config;
         }
 
-        public static TransportExtensions<AcceptanceTestingTransport> UseNativePubSub(this TransportExtensions<AcceptanceTestingTransport> config, bool useNativePubSub = true)
+        public static TransportExtensions<AcceptanceTestingTransport> UseNativePubSub(this TransportExtensions<AcceptanceTestingTransport> config, bool useNativePubSub)
         {
             config.Settings.Set("AcceptanceTestingTransport.UseNativePubSub", useNativePubSub);
             return config;
