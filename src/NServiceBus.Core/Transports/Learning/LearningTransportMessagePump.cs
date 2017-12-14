@@ -35,6 +35,13 @@
             committedTransactionDir = Path.Combine(messagePumpBasePath, CommittedDirName);
 
             purgeOnStartup = settings.PurgeOnStartup;
+            if (purgeOnStartup)
+            {
+                if (Directory.Exists(messagePumpBasePath))
+                {
+                    Directory.Delete(messagePumpBasePath, true);
+                }
+            }
 
             delayedMessagePoller = new DelayedMessagePoller(messagePumpBasePath, delayedDir);
 
@@ -48,14 +55,6 @@
             cancellationTokenSource = new CancellationTokenSource();
 
             cancellationToken = cancellationTokenSource.Token;
-
-            if (purgeOnStartup)
-            {
-                if (Directory.Exists(messagePumpBasePath))
-                {
-                    Directory.Delete(messagePumpBasePath, true);
-                }
-            }
 
             RecoverPendingTransactions();
 
