@@ -39,20 +39,8 @@ public class ConfigureEndpointLearningTransport : IConfigureEndpointTestExecutio
         //we want the tests to be exposed to concurrency
         configuration.LimitMessageProcessingConcurrencyTo(PushRuntimeSettings.Default.MaxConcurrency);
 
-        var transportConfig = configuration.UseTransport<AcceptanceTestingTransport>()
-            .StorageDirectory(storageDir)
-            .UseNativePubSub(false)
-            .UseNativeDelayedDelivery(false);
-
-        var routingConfig = transportConfig.Routing();
-
-        foreach (var publisherMetadataPublisher in publisherMetadata.Publishers)
-        {
-            foreach (var @event in publisherMetadataPublisher.Events)
-            {
-                routingConfig.RegisterPublisher(@event, publisherMetadataPublisher.PublisherName);
-            }
-        }
+        configuration.UseTransport<LearningTransport>()
+            .StorageDirectory(storageDir);
 
         return Task.FromResult(0);
     }
