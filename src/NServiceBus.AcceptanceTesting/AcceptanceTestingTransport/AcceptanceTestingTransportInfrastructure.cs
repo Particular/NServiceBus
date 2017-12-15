@@ -22,7 +22,7 @@
             if (!settings.TryGet(StorageLocationKey, out storagePath))
             {
                 var solutionRoot = FindSolutionRoot();
-                storagePath = Path.Combine(solutionRoot, ".learningtransport");
+                storagePath = Path.Combine(solutionRoot, ".attransport");
             }
 
             settings.SetDefault<MessageProcessingOptimizationExtensions.ConcurrencyLimit>(new MessageProcessingOptimizationExtensions.ConcurrencyLimit
