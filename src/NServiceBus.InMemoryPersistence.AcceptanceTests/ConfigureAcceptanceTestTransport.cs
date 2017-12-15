@@ -4,7 +4,6 @@ using System.IO;
 using System.Threading.Tasks;
 using NServiceBus;
 using NServiceBus.AcceptanceTesting.Support;
-using NServiceBus.Transport;
 using NUnit.Framework;
 
 public class ConfigureAcceptanceTestingTransport : IConfigureEndpointTestExecution
@@ -37,16 +36,12 @@ public class ConfigureAcceptanceTestingTransport : IConfigureEndpointTestExecuti
 
         storageDir = Path.Combine(tempDir, testRunId);
 
-        //we want the tests to be exposed to concurrency
-        configuration.LimitMessageProcessingConcurrencyTo(PushRuntimeSettings.Default.MaxConcurrency);
-
         var transportConfig = configuration.UseTransport<AcceptanceTestingTransport>()
             .StorageDirectory(storageDir)
             .UseNativePubSub(false)
             .UseNativeDelayedDelivery(false);
 
         var routingConfig = transportConfig.Routing();
-
         foreach (var publisherMetadataPublisher in publisherMetadata.Publishers)
         {
             foreach (var @event in publisherMetadataPublisher.Events)
