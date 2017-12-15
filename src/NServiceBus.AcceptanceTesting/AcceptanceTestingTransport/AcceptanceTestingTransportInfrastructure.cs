@@ -78,9 +78,7 @@
 
         public override TransportSendInfrastructure ConfigureSendInfrastructure()
         {
-            var maxPayloadSize = settings.GetOrDefault<bool>(NoPayloadSizeRestrictionKey) ? int.MaxValue / 1024 : 64; //64 kB is the max size of the ASQ transport
-
-            return new TransportSendInfrastructure(() => new LearningTransportDispatcher(storagePath, maxPayloadSize), () => Task.FromResult(StartupCheckResult.Success));
+            return new TransportSendInfrastructure(() => new LearningTransportDispatcher(storagePath, int.MaxValue), () => Task.FromResult(StartupCheckResult.Success));
         }
 
         public override TransportSubscriptionInfrastructure ConfigureSubscriptionInfrastructure()
@@ -136,6 +134,5 @@
         readonly bool nativeDelayedDelivery;
 
         public const string StorageLocationKey = "LearningTransport.StoragePath";
-        public const string NoPayloadSizeRestrictionKey = "LearningTransport.NoPayloadSizeRestrictionKey";
     }
 }
