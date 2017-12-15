@@ -1,5 +1,4 @@
-﻿
-using System;
+﻿using System;
 using System.IO;
 using System.Threading.Tasks;
 using NServiceBus;
@@ -8,6 +7,12 @@ using NUnit.Framework;
 
 public class ConfigureAcceptanceTestingTransport : IConfigureEndpointTestExecution
 {
+    public ConfigureAcceptanceTestingTransport(bool useNativePubSub, bool useNativeDelayedDelivery)
+    {
+        this.useNativePubSub = useNativePubSub;
+        this.useNativeDelayedDelivery = useNativeDelayedDelivery;
+    }
+
     public Task Cleanup()
     {
         if (Directory.Exists(storageDir))
@@ -38,20 +43,27 @@ public class ConfigureAcceptanceTestingTransport : IConfigureEndpointTestExecuti
 
         var transportConfig = configuration.UseTransport<AcceptanceTestingTransport>()
             .StorageDirectory(storageDir)
-            .UseNativePubSub(false)
-            .UseNativeDelayedDelivery(false);
+            .UseNativePubSub(useNativePubSub)
+            .UseNativeDelayedDelivery(useNativeDelayedDelivery);
 
-        var routingConfig = transportConfig.Routing();
-        foreach (var publisherMetadataPublisher in publisherMetadata.Publishers)
+        if (!useNativePubSub)
         {
-            foreach (var @event in publisherMetadataPublisher.Events)
+            //apply publisher registrations required for message driven pub/sub
+            var routingConfig = transportConfig.Routing();
+            foreach (var publisherMetadataPublisher in publisherMetadata.Publishers)
             {
-                routingConfig.RegisterPublisher(@event, publisherMetadataPublisher.PublisherName);
+                foreach (var @event in publisherMetadataPublisher.Events)
+                {
+                    routingConfig.RegisterPublisher(@event, publisherMetadataPublisher.PublisherName);
+                }
             }
         }
 
         return Task.FromResult(0);
     }
+
+    readonly bool useNativePubSub;
+    readonly bool useNativeDelayedDelivery;
 
     string storageDir;
 }
