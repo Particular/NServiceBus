@@ -25,11 +25,6 @@
                 storagePath = Path.Combine(solutionRoot, ".attransport");
             }
 
-            settings.SetDefault<MessageProcessingOptimizationExtensions.ConcurrencyLimit>(new MessageProcessingOptimizationExtensions.ConcurrencyLimit
-            {
-                MaxValue = 1
-            });
-
             var errorQueueAddress = settings.ErrorQueueAddress();
             PathChecker.ThrowForBadPath(errorQueueAddress, "ErrorQueueAddress");
         }
