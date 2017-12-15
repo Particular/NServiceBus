@@ -1,5 +1,7 @@
 ﻿namespace NServiceBus
 {
+    using AcceptanceTesting;
+
     public static class AcceptanceTestingTransportExtensions
     {
         public static TransportExtensions<AcceptanceTestingTransport> UseNativeDelayedDelivery(this TransportExtensions<AcceptanceTestingTransport> config, bool useNativeDelayedDelivery)
@@ -20,7 +22,7 @@
             Guard.AgainstNull(nameof(transportExtensions), transportExtensions);
             PathChecker.ThrowForBadPath(path, "StorageDirectory");
 
-            transportExtensions.Settings.Set(LearningTransportInfrastructure.StorageLocationKey, path);
+            transportExtensions.Settings.Set(AcceptanceTestingTransportInfrastructure.StorageLocationKey, path);
             return transportExtensions;
         }
     }

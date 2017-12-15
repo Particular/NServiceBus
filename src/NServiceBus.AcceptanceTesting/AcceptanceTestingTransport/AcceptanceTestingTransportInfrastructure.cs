@@ -133,6 +133,6 @@
         bool nativePubSub;
         readonly bool nativeDelayedDelivery;
 
-        public const string StorageLocationKey = "LearningTransport.StoragePath";
+        public const string StorageLocationKey = "AcceptanceTestingTransport.StoragePath";
     }
 }
