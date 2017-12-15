@@ -1,4 +1,4 @@
-﻿namespace NServiceBus
+﻿namespace NServiceBus.AcceptanceTesting
 {
     using System;
     using System.Collections.Generic;

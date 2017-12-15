@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus
 {
+    using AcceptanceTesting;
     using Routing;
     using Settings;
     using Transport;
