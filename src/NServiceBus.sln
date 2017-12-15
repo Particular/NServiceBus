@@ -26,7 +26,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		GitVersionWorkaround.targets = GitVersionWorkaround.targets
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NServiceBus.Persistence.InMemory.AcceptanceTests", ""NServiceBus.Persistence.InMemory.AcceptanceTests\NServiceBus.Persistence.InMemory.AcceptanceTests.csproj", "{F853BBB7-27D0-4750-95B5-67542DC482BF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NServiceBus.Persistence.InMemory.AcceptanceTests", "NServiceBus.Persistence.InMemory.AcceptanceTests\NServiceBus.Persistence.InMemory.AcceptanceTests.csproj", "{F853BBB7-27D0-4750-95B5-67542DC482BF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
