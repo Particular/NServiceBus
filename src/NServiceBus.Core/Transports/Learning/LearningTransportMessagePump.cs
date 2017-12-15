@@ -34,8 +34,7 @@
             pendingTransactionDir = Path.Combine(messagePumpBasePath, PendingDirName);
             committedTransactionDir = Path.Combine(messagePumpBasePath, CommittedDirName);
 
-            purgeOnStartup = settings.PurgeOnStartup;
-            if (purgeOnStartup)
+            if (settings.PurgeOnStartup)
             {
                 if (Directory.Exists(messagePumpBasePath))
                 {
@@ -320,7 +319,6 @@
         SemaphoreSlim concurrencyLimiter;
         Task messagePumpTask;
         Func<MessageContext, Task> onMessage;
-        bool purgeOnStartup;
         Func<ErrorContext, Task<ErrorHandleResult>> onError;
         ConcurrentDictionary<string, int> retryCounts = new ConcurrentDictionary<string, int>();
         string messagePumpBasePath;
