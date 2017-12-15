@@ -78,7 +78,7 @@
 
         public override TransportSendInfrastructure ConfigureSendInfrastructure()
         {
-            return new TransportSendInfrastructure(() => new LearningTransportDispatcher(storagePath, int.MaxValue), () => Task.FromResult(StartupCheckResult.Success));
+            return new TransportSendInfrastructure(() => new LearningTransportDispatcher(storagePath, int.MaxValue / 1024), () => Task.FromResult(StartupCheckResult.Success));
         }
 
         public override TransportSubscriptionInfrastructure ConfigureSubscriptionInfrastructure()
