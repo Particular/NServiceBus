@@ -14,8 +14,15 @@
         {
             Guard.AgainstNull(nameof(settings), settings);
 
-            var useNativePubSub = settings.GetOrDefault<bool>("AcceptanceTestingTransport.UseNativePubSub");
-            var useNativeDelayedDelivery = settings.GetOrDefault<bool>("AcceptanceTestingTransport.UseNativeDelayedDelivery");
+            if (!settings.TryGet<bool>("AcceptanceTestingTransport.UseNativePubSub", out var useNativePubSub))
+            {
+                useNativePubSub = true;
+            }
+
+            if (!settings.TryGet<bool>("AcceptanceTestingTransport.UseNativeDelayedDelivery", out var useNativeDelayedDelivery))
+            {
+                useNativeDelayedDelivery = true;
+            }
 
             return new AcceptanceTestingTransportInfrastructure(settings, useNativePubSub, useNativeDelayedDelivery);
         }
