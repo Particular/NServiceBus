@@ -6,13 +6,13 @@
     {
         public static TransportExtensions<AcceptanceTestingTransport> UseNativeDelayedDelivery(this TransportExtensions<AcceptanceTestingTransport> config, bool useNativeDelayedDelivery)
         {
-            config.Settings.Set("AcceptanceTestingTransport.UseNativeDelayedDelivery", useNativeDelayedDelivery);
+            config.Settings.Set(AcceptanceTestingTransportInfrastructure.UseNativeDelayedDeliveryKey, useNativeDelayedDelivery);
             return config;
         }
 
         public static TransportExtensions<AcceptanceTestingTransport> UseNativePubSub(this TransportExtensions<AcceptanceTestingTransport> config, bool useNativePubSub)
         {
-            config.Settings.Set("AcceptanceTestingTransport.UseNativePubSub", useNativePubSub);
+            config.Settings.Set(AcceptanceTestingTransportInfrastructure.UseNativePubSubKey, useNativePubSub);
             return config;
         }
 

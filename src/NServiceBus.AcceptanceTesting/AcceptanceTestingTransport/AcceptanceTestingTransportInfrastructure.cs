@@ -134,5 +134,7 @@
         readonly bool nativeDelayedDelivery;
 
         public const string StorageLocationKey = "AcceptanceTestingTransport.StoragePath";
+        public const string UseNativePubSubKey = "AcceptanceTestingTransport.UseNativePubSub";
+        public const string UseNativeDelayedDeliveryKey = "AcceptanceTestingTransport.UseNativeDelayedDelivery";
     }
 }
