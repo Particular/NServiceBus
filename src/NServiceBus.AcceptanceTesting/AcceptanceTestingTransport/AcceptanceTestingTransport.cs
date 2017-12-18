@@ -15,17 +15,7 @@
         {
             Guard.AgainstNull(nameof(settings), settings);
 
-            if (!settings.TryGet<bool>(AcceptanceTestingTransportInfrastructure.UseNativePubSubKey, out var useNativePubSub))
-            {
-                useNativePubSub = true;
-            }
-
-            if (!settings.TryGet<bool>(AcceptanceTestingTransportInfrastructure.UseNativeDelayedDeliveryKey, out var useNativeDelayedDelivery))
-            {
-                useNativeDelayedDelivery = true;
-            }
-
-            return new AcceptanceTestingTransportInfrastructure(settings, useNativePubSub, useNativeDelayedDelivery);
+            return new AcceptanceTestingTransportInfrastructure(settings);
         }
     }
 }

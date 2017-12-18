@@ -13,11 +13,19 @@
 
     class AcceptanceTestingTransportInfrastructure : TransportInfrastructure
     {
-        public AcceptanceTestingTransportInfrastructure(SettingsHolder settings, bool nativePubSub, bool nativeDelayedDelivery)
+        public AcceptanceTestingTransportInfrastructure(SettingsHolder settings)
         {
-            this.nativePubSub = nativePubSub;
-            this.nativeDelayedDelivery = nativeDelayedDelivery;
             this.settings = settings;
+
+            if (!settings.TryGet(UseNativeDelayedDeliveryKey, out nativeDelayedDelivery))
+            {
+                nativeDelayedDelivery = true;
+            }
+
+            if (!settings.TryGet(UseNativePubSubKey, out nativePubSub))
+            {
+                nativePubSub = true;
+            }
 
             if (!settings.TryGet(StorageLocationKey, out storagePath))
             {
@@ -128,9 +136,9 @@
             return address;
         }
 
-        string storagePath;
-        SettingsHolder settings;
-        bool nativePubSub;
+        readonly string storagePath;
+        readonly SettingsHolder settings;
+        readonly bool nativePubSub;
         readonly bool nativeDelayedDelivery;
 
         public const string StorageLocationKey = "AcceptanceTestingTransport.StoragePath";
