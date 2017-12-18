@@ -5,9 +5,9 @@ using NServiceBus;
 using NServiceBus.AcceptanceTesting.Support;
 using NUnit.Framework;
 
-public class ConfigureAcceptanceTestingTransport : IConfigureEndpointTestExecution
+public class ConfigureEndpointAcceptanceTestingTransport : IConfigureEndpointTestExecution
 {
-    public ConfigureAcceptanceTestingTransport(bool useNativePubSub, bool useNativeDelayedDelivery)
+    public ConfigureEndpointAcceptanceTestingTransport(bool useNativePubSub, bool useNativeDelayedDelivery)
     {
         this.useNativePubSub = useNativePubSub;
         this.useNativeDelayedDelivery = useNativeDelayedDelivery;
