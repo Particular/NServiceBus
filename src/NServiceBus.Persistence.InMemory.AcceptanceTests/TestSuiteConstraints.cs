@@ -8,7 +8,7 @@
         public bool SupportsCrossQueueTransactions => true;
         public bool SupportsNativePubSub => false;
         public bool SupportsNativeDeferral => false;
-        public bool SupportsOutbox => false;
+        public bool SupportsOutbox => true;
         public IConfigureEndpointTestExecution CreateTransportConfiguration() => new ConfigureEndpointAcceptanceTestingTransport(false, false);
         public IConfigureEndpointTestExecution CreatePersistenceConfiguration() => new ConfigureEndpointInMemoryPersistence();
     }
