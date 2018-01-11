@@ -491,6 +491,7 @@
                 {
                     if (n.ChildNodes[0] is XmlWhitespace)
                     {
+                        // this is where the deserialization fails when trying to deserialize a interface property wihtout values
                         return Activator.CreateInstance(type);
                     }
 

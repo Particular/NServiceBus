@@ -136,6 +136,7 @@ namespace NServiceBus
 
             foreach (var prop in t.GetProperties())
             {
+                // this prevents the property to be listed in the cache
                 if (!prop.CanWrite && !isKeyValuePair)
                 {
                     continue;
