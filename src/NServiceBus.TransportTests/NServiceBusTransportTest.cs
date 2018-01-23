@@ -62,6 +62,7 @@
         {
             testCancellationTokenSource?.Dispose();
             MessagePump?.Stop().GetAwaiter().GetResult();
+            TransportInfrastructure.Stop().GetAwaiter().GetResult();
             Configurer?.Cleanup().GetAwaiter().GetResult();
 
             transportSettings.Clear();
@@ -101,6 +102,8 @@
             var queueCreator = ReceiveInfrastructure.QueueCreatorFactory();
             var userName = GetUserName();
             await queueCreator.CreateQueueIfNecessary(queueBindings, userName);
+
+            await TransportInfrastructure.Start();
 
             var pushSettings = new PushSettings(InputQueueName, ErrorQueueName, configuration.PurgeInputQueueOnStartup, transactionMode);
             await MessagePump.Init(
