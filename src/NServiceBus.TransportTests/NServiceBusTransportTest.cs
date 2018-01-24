@@ -62,7 +62,7 @@
         {
             testCancellationTokenSource?.Dispose();
             MessagePump?.Stop().GetAwaiter().GetResult();
-            TransportInfrastructure.Stop().GetAwaiter().GetResult();
+            TransportInfrastructure?.Stop().GetAwaiter().GetResult();
             Configurer?.Cleanup().GetAwaiter().GetResult();
 
             transportSettings.Clear();
