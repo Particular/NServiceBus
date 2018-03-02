@@ -23,8 +23,6 @@ namespace NServiceBus
 
             if (typeof(XContainer).IsAssignableFrom(t))
             {
-                typesBeingInitialized.Add(t);
-
                 return;
             }
 
