@@ -104,6 +104,11 @@ namespace NServiceBus
                 }
             }
 
+            if (typeMembers.ContainsKey(t))
+            {
+                return;
+            }
+
             typesBeingInitialized.Add(t);
 
             var props = GetAllPropertiesForType(t, isKeyValuePair);
