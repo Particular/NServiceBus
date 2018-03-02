@@ -1,6 +1,5 @@
 ﻿namespace NServiceBus.Core.Tests.Serializers.XML
 {
-    using System;
     using System.Linq;
     using System.Threading.Tasks;
     using NUnit.Framework;
@@ -15,11 +14,9 @@
 
             cache.InitType(typeof(RecursiveType));
 
-            var fields = cache.typeToFields[typeof(RecursiveType)];
-            Assert.AreEqual(typeof(RecursiveType), fields.Single().FieldType);
-
-            var properties = cache.typeToProperties[typeof(RecursiveType)];
-            Assert.AreEqual(typeof(RecursiveType), properties.Single().PropertyType);
+            var members = cache.typeMembers[typeof(RecursiveType)];
+            Assert.AreEqual(typeof(RecursiveType), members.Item1.Single().FieldType);
+            Assert.AreEqual(typeof(RecursiveType), members.Item2.Single().PropertyType);
         }
 
         [Test]
@@ -31,14 +28,10 @@
             {
                 cache.InitType(typeof(SimpleType));
 
-                var fields = cache.typeToFields[typeof(SimpleType)];
-                var properties = cache.typeToProperties[typeof(SimpleType)];
-
-                Assert.NotNull(fields);
-                Assert.NotNull(properties);
-                Assert.AreEqual(nameof(SimpleType.SimpleField), fields.Single().Name);
-                Assert.AreEqual(nameof(SimpleType.SimpleProperty), properties.Single().Name);
-
+                var members = cache.typeMembers[typeof(SimpleType)];
+                Assert.NotNull(members);
+                Assert.AreEqual(nameof(SimpleType.SimpleField), members.Item1.Single().Name);
+                Assert.AreEqual(nameof(SimpleType.SimpleProperty), members.Item2.Single().Name);
             });
         }
     }

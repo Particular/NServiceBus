@@ -115,7 +115,6 @@ namespace NServiceBus
                     InitType(p.PropertyType);
                 }
             }
-            typeToProperties[t] = props;
 
             var fields = GetAllFieldsForType(t);
             foreach (var f in fields)
@@ -126,7 +125,8 @@ namespace NServiceBus
                     InitType(f.FieldType);
                 }
             }
-            typeToFields[t] = fields;
+
+            typeMembers[t] = new Tuple<IEnumerable<FieldInfo>, IEnumerable<PropertyInfo>>(fields, props);
         }
 
         PropertyInfo[] GetAllPropertiesForType(Type t, bool isKeyValuePair)
@@ -201,8 +201,7 @@ namespace NServiceBus
         public ConcurrentDictionary<Type, Type> typesToCreateForArrays = new ConcurrentDictionary<Type, Type>();
         public ConcurrentDictionary<Type, Type> typesToCreateForEnumerables = new ConcurrentDictionary<Type, Type>();
 
-        public ConcurrentDictionary<Type, IEnumerable<FieldInfo>> typeToFields = new ConcurrentDictionary<Type, IEnumerable<FieldInfo>>();
-        public ConcurrentDictionary<Type, IEnumerable<PropertyInfo>> typeToProperties = new ConcurrentDictionary<Type, IEnumerable<PropertyInfo>>();
+        public ConcurrentDictionary<Type, Tuple<IEnumerable<FieldInfo>, IEnumerable<PropertyInfo>>> typeMembers = new ConcurrentDictionary<Type, Tuple<IEnumerable<FieldInfo>, IEnumerable<PropertyInfo>>>();
 
         static ILog logger = LogManager.GetLogger<XmlSerializerCache>();
     }
