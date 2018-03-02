@@ -104,28 +104,29 @@ namespace NServiceBus
                 }
             }
 
-            //already in the process of initializing this type (prevents infinite recursion).
-            if (typesBeingInitialized.Contains(t))
-            {
-                return;
-            }
-
             typesBeingInitialized.Add(t);
 
             var props = GetAllPropertiesForType(t, isKeyValuePair);
-            typeToProperties[t] = props;
-            var fields = GetAllFieldsForType(t);
-            typeToFields[t] = fields;
-
             foreach (var p in props)
             {
-                InitType(p.PropertyType);
+                // check if already in the process of initializing this type (prevents infinite recursion).
+                if (!typesBeingInitialized.Contains(p.PropertyType))
+                {
+                    InitType(p.PropertyType);
+                }
             }
+            typeToProperties[t] = props;
 
+            var fields = GetAllFieldsForType(t);
             foreach (var f in fields)
             {
-                InitType(f.FieldType);
+                // check if already in the process of initializing this type (prevents infinite recursion).
+                if (!typesBeingInitialized.Contains(f.FieldType))
+                {
+                    InitType(f.FieldType);
+                }
             }
+            typeToFields[t] = fields;
         }
 
         PropertyInfo[] GetAllPropertiesForType(Type t, bool isKeyValuePair)
@@ -195,7 +196,8 @@ namespace NServiceBus
             return t.GetFields(BindingFlags.FlattenHierarchy | BindingFlags.Instance | BindingFlags.Public);
         }
 
-        List<Type> typesBeingInitialized = new List<Type>();
+        ConcurrentBag<Type> typesBeingInitialized = new ConcurrentBag<Type>();
+
         public ConcurrentDictionary<Type, Type> typesToCreateForArrays = new ConcurrentDictionary<Type, Type>();
         public ConcurrentDictionary<Type, Type> typesToCreateForEnumerables = new ConcurrentDictionary<Type, Type>();
 
