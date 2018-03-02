@@ -126,7 +126,7 @@ namespace NServiceBus
                 }
             }
 
-            typeMembers[t] = new Tuple<IEnumerable<FieldInfo>, IEnumerable<PropertyInfo>>(fields, props);
+            typeMembers[t] = new Tuple<FieldInfo[], PropertyInfo[]>(fields, props);
         }
 
         PropertyInfo[] GetAllPropertiesForType(Type t, bool isKeyValuePair)
@@ -201,7 +201,7 @@ namespace NServiceBus
         public ConcurrentDictionary<Type, Type> typesToCreateForArrays = new ConcurrentDictionary<Type, Type>();
         public ConcurrentDictionary<Type, Type> typesToCreateForEnumerables = new ConcurrentDictionary<Type, Type>();
 
-        public ConcurrentDictionary<Type, Tuple<IEnumerable<FieldInfo>, IEnumerable<PropertyInfo>>> typeMembers = new ConcurrentDictionary<Type, Tuple<IEnumerable<FieldInfo>, IEnumerable<PropertyInfo>>>();
+        public ConcurrentDictionary<Type, Tuple<FieldInfo[], PropertyInfo[]>> typeMembers = new ConcurrentDictionary<Type, Tuple<FieldInfo[], PropertyInfo[]>>();
 
         static ILog logger = LogManager.GetLogger<XmlSerializerCache>();
     }

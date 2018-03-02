@@ -342,7 +342,7 @@
             return result;
         }
 
-        FieldInfo GetField(IEnumerable<FieldInfo> fields, string name)
+        FieldInfo GetField(FieldInfo[] fields, string name)
         {
             if (fields == null)
             {
@@ -631,7 +631,7 @@
             return GetObjectOfTypeFromNode(type, n);
         }
 
-        PropertyInfo GetProperty(IEnumerable<PropertyInfo> properties, string name)
+        PropertyInfo GetProperty(PropertyInfo[] properties, string name)
         {
             if (properties == null)
             {
