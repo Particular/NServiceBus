@@ -2,7 +2,8 @@
 {
     using System.IO;
     using ApprovalTests;
-    using ApprovalTests.Namers;
+    using ApprovalTests.Core;
+    using ApprovalTests.Namers.StackTraceParsers;
     using NUnit.Framework;
 
     static class TestApprover
@@ -14,9 +15,20 @@
             Approvals.Verify(writer, namer, Approvals.GetReporter());
         }
 
-        class ApprovalNamer : UnitTestFrameworkNamer
+        class ApprovalNamer : IApprovalNamer
         {
-            public override string SourcePath { get; } = Path.Combine(TestContext.CurrentContext.TestDirectory, "..", "..", "..", "ApprovalFiles");
+            public ApprovalNamer()
+            {
+                Approvals.SetCaller();
+                stackTraceParser = new StackTraceParser();
+                stackTraceParser.Parse(Approvals.CurrentCaller.StackTrace);
+            }
+
+            public string Name => stackTraceParser.ApprovalName;
+
+            public string SourcePath { get; } = Path.Combine(TestContext.CurrentContext.TestDirectory, "..", "..", "..", "ApprovalFiles");
+
+            readonly StackTraceParser stackTraceParser;
         }
     }
 }
