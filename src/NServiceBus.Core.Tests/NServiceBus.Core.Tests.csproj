@@ -25,7 +25,7 @@
     <PackageReference Include="NuDoq" Version="1.2.5" NoWarn="NU1701" />
     <PackageReference Include="NUnit" Version="3.7.1" />
     <PackageReference Include="NUnit3TestAdapter" Version="3.8.0-alpha1" />
-    <PackageReference Include="PublicApiGenerator" Version="6.5.0" />
+    <PackageReference Include="PublicApiGenerator" Version="7.0.0" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net452'">
