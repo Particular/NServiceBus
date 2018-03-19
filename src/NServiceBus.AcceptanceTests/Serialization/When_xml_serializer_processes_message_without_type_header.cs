@@ -7,7 +7,7 @@
     using NServiceBus.Pipeline;
     using NUnit.Framework;
 
-    public class When_xml_serializer_process_message_without_type_header : NServiceBusAcceptanceTest
+    public class When_xml_serializer_processes_message_without_type_header : NServiceBusAcceptanceTest
     {
         [Test]
         public async Task Should_work_in_unobtrusive()
