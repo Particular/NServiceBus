@@ -12,24 +12,17 @@
         [Test]
         public async Task Should_work_in_unobtrusive()
         {
-            var expectedData = 1;
-
             var context = await Scenario.Define<Context>()
-                .WithEndpoint<Sender>(c => c.When(s => s.SendLocal(new MyMessage
-                {
-                    Data = expectedData
-                })))
+                .WithEndpoint<Sender>(c => c.When(s => s.SendLocal(new MessageToBeDetectedByRootNodeName())))
                 .Done(c => c.WasCalled)
                 .Run();
 
-            Assert.AreEqual(expectedData, context.Data);
+            Assert.True(context.WasCalled);
         }
-
 
         public class Context : ScenarioContext
         {
             public bool WasCalled { get; set; }
-            public int Data { get; set; }
         }
 
         public class Sender : EndpointConfigurationBuilder
@@ -38,19 +31,20 @@
             {
                 EndpointSetup<DefaultServer>(c =>
                 {
-                    c.Conventions().DefiningMessagesAs(t => t == typeof(MyMessage));
+                    c.Conventions().DefiningMessagesAs(t => t == typeof(MessageToBeDetectedByRootNodeName));
                     c.Pipeline.Register(typeof(RemoveTheTypeHeader), "Removes the message type header to simulate receiving a native message");
                     c.UseSerialization<XmlSerializer>();
-                });
+                })
+                //Need to include the message since it can't be nested inside the test class, see below
+                .IncludeType<MessageToBeDetectedByRootNodeName>();
             }
 
-            public class MyMessageHandler : IHandleMessages<MyMessage>
+            public class MyMessageHandler : IHandleMessages<MessageToBeDetectedByRootNodeName>
             {
                 public Context Context { get; set; }
 
-                public Task Handle(MyMessage message, IMessageHandlerContext context)
+                public Task Handle(MessageToBeDetectedByRootNodeName message, IMessageHandlerContext context)
                 {
-                    Context.Data = message.Data;
                     Context.WasCalled = true;
                     return Task.FromResult(0);
                 }
@@ -64,14 +58,16 @@
                     {
                         op.Message.Headers.Remove(Headers.EnclosedMessageTypes);
                     }
+
                     return next();
                 }
             }
         }
-
-        public class MyMessage
-        {
-            public int Data { get; set; }
-        }
     }
+}
+
+//Can't be nested inside the test class since the xml serializer can't deal with nested types
+public class MessageToBeDetectedByRootNodeName
+{
+    public int Data { get; set; }
 }
