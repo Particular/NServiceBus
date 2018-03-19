@@ -198,7 +198,7 @@ namespace NServiceBus.Serializers.XML.Test
         }
 
         [Test]
-        public void Should_deserialize_a_single_message_where_root_element_is_the_typeName()
+        public void Should_infer_message_type_from_root_node_if_type_is_known()
         {
             using (var stream = new MemoryStream())
             {
@@ -273,7 +273,7 @@ namespace NServiceBus.Serializers.XML.Test
         }
 
         [Test]
-        public void Should_be_able_to_deserialize_messages_which_xml_raw_data_root_element_matches_property_name()
+        public void Should_deserialize_messages_where_xml_raw_data_root_element_matches_property_name()
         {
             const string XmlElement = "<Document xmlns=\"http://nservicebus.com\"><SomeProperty value=\"Bar\" /></Document>";
             const string XmlDocument = "<?xml version=\"1.0\" encoding=\"utf-8\" ?>" + XmlElement;
