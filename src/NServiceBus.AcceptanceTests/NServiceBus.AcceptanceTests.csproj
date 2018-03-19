@@ -39,7 +39,6 @@
     <_PackageFiles Remove="**\obj\**\*.cs" />
     <_PackageFiles Remove="Core\**\*.cs" />
     <_PackageFiles Remove="AssemblyInfo.cs" />
-    <_PackageFiles Remove="Serialization\When_xml_serializer_process_message_without_type_header.cs" />
   </ItemGroup>
 
 </Project>
