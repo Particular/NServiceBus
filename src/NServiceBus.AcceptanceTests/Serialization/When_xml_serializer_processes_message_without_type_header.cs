@@ -64,10 +64,10 @@
             }
         }
     }
-}
 
-//Can't be nested inside the test class since the xml serializer can't deal with nested types
-public class MessageToBeDetectedByRootNodeName
-{
-    public int Data { get; set; }
+    //Can't be nested inside the test class since the xml serializer can't deal with nested types
+    public class MessageToBeDetectedByRootNodeName
+    {
+        public int Data { get; set; }
+    }
 }
