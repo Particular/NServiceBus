@@ -103,16 +103,17 @@
                 if (isMessageType(type))
                 {
                     RegisterMessageType(type);
+                    continue;
                 }
 
-                foreach (var messageType in GetHandledTypes(type))
+                foreach (var messageType in GetHandledMessageTypes(type))
                 {
                     RegisterMessageType(messageType);
                 }
             }
         }
 
-        IEnumerable<Type> GetHandledTypes(Type messageHandlerType)
+        IEnumerable<Type> GetHandledMessageTypes(Type messageHandlerType)
         {
             if (messageHandlerType.IsAbstract || messageHandlerType.IsGenericTypeDefinition)
             {
