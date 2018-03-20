@@ -1068,7 +1068,6 @@ namespace SimpleJson
                     SerializeString(stringKey, builder);
                 else
                     SerializeString(key.ToString(), builder);
-//                    if (!SerializeValue(jsonSerializerStrategy, key, builder)) return false;
                 builder.Append(":");
                 if (!SerializeValue(jsonSerializerStrategy, value, builder))
                     return false;
@@ -1414,7 +1413,6 @@ namespace SimpleJson
 
                         foreach (KeyValuePair<string, object> kvp in jsonObject)
                             dict.Add(DeserializeObject(kvp.Key, keyType), DeserializeObject(kvp.Value, valueType));
-                            //dict.Add(kvp.Key, DeserializeObject(kvp.Value, valueType));
 
                         obj = dict;
                     }
