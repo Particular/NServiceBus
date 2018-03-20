@@ -158,6 +158,7 @@
             var result = SimpleJson.DeserializeObject<DateTime>(json);
 
             Assert.AreEqual(input, result);
+            Assert.AreEqual(input.Kind, result.Kind);
         }
 
         [Test]
@@ -169,6 +170,8 @@
             var result = SimpleJson.DeserializeObject<DateTimeOffset>(json);
 
             Assert.AreEqual(input, result);
+            Assert.AreEqual(input.Offset, result.Offset);
+            Assert.AreEqual(input.LocalDateTime, result.LocalDateTime);
         }
 
         [Test]

@@ -1254,13 +1254,6 @@ namespace SimpleJson
         internal static readonly Type[] EmptyTypes = new Type[0];
         internal static readonly Type[] ArrayConstructorParameterTypes = new Type[] { typeof(int) };
 
-        private static readonly string[] Iso8601Format = new string[]
-                                                             {
-                                                                 @"yyyy-MM-dd\THH:mm:ss.FFFFFFF\Z",
-                                                                 @"yyyy-MM-dd\THH:mm:ss\Z",
-                                                                 @"yyyy-MM-dd\THH:mm:ssK"
-                                                             };
-
         public PocoJsonSerializerStrategy()
         {
             ConstructorCache = new ReflectionUtils.ThreadSafeDictionary<Type, ReflectionUtils.ConstructorDelegate>(ContructorDelegateFactory);
@@ -1346,9 +1339,9 @@ namespace SimpleJson
                 if (str.Length != 0) // We know it can't be null now.
                 {
                     if (type == typeof(DateTime) || (ReflectionUtils.IsNullableType(type) && Nullable.GetUnderlyingType(type) == typeof(DateTime)))
-                        return DateTime.ParseExact(str, Iso8601Format, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal);
+                        return DateTime.ParseExact(str, "O", CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind);
                     if (type == typeof(DateTimeOffset) || (ReflectionUtils.IsNullableType(type) && Nullable.GetUnderlyingType(type) == typeof(DateTimeOffset)))
-                        return DateTimeOffset.ParseExact(str, Iso8601Format, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal);
+                        return DateTimeOffset.ParseExact(str, "O", CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind);
                     if (type == typeof(Guid) || (ReflectionUtils.IsNullableType(type) && Nullable.GetUnderlyingType(type) == typeof(Guid)))
                         return new Guid(str);
                     if (type == typeof(Uri))
@@ -1477,9 +1470,9 @@ namespace SimpleJson
         {
             bool returnValue = true;
             if (input is DateTime)
-                output = ((DateTime)input).ToString(Iso8601Format[0], CultureInfo.InvariantCulture);
+                output = ((DateTime)input).ToString("O", CultureInfo.InvariantCulture);
             else if (input is DateTimeOffset)
-                output = ((DateTimeOffset)input).ToUniversalTime().ToString(Iso8601Format[0], CultureInfo.InvariantCulture);
+                output = ((DateTimeOffset)input).ToString("O", CultureInfo.InvariantCulture);
             else if (input is Guid)
                 output = ((Guid)input).ToString("D");
             else if (input is Uri)
