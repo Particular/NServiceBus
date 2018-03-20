@@ -1026,6 +1026,15 @@ namespace SimpleJson
                     }
                     else
                     {
+                        //TODO: check interfaces for IDictionary instead
+                        var t = value.GetType();
+                        if (t.IsGenericType && t.GetGenericTypeDefinition() == typeof(Dictionary<,>))
+                        {
+                            var dic = value as IDictionary;
+                            success = SerializeObject(jsonSerializerStrategy, dic.Keys, dic.Values, builder);
+                            return success;
+                        }
+
                         IEnumerable enumerableValue = value as IEnumerable;
                         if (enumerableValue != null)
                             success = SerializeArray(jsonSerializerStrategy, enumerableValue, builder);
@@ -1064,7 +1073,8 @@ namespace SimpleJson
                 if (stringKey != null)
                     SerializeString(stringKey, builder);
                 else
-                    if (!SerializeValue(jsonSerializerStrategy, value, builder)) return false;
+                    SerializeString(key.ToString(), builder);
+//                    if (!SerializeValue(jsonSerializerStrategy, key, builder)) return false;
                 builder.Append(":");
                 if (!SerializeValue(jsonSerializerStrategy, value, builder))
                     return false;
@@ -1409,7 +1419,8 @@ namespace SimpleJson
                         IDictionary dict = (IDictionary)ConstructorCache[genericType]();
 
                         foreach (KeyValuePair<string, object> kvp in jsonObject)
-                            dict.Add(kvp.Key, DeserializeObject(kvp.Value, valueType));
+                            dict.Add(DeserializeObject(kvp.Key, keyType), DeserializeObject(kvp.Value, valueType));
+                            //dict.Add(kvp.Key, DeserializeObject(kvp.Value, valueType));
 
                         obj = dict;
                     }
