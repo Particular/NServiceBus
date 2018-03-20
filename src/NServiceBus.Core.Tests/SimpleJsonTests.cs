@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using NUnit.Framework;
     using SimpleJson;
 
@@ -76,7 +77,7 @@
         }
 
         [Test]
-        public void TestIntStringIDictionary()
+        public void TestIntStringDictionaryToIDictionary()
         {
             var input = new Dictionary<int, string>()
             {
@@ -89,6 +90,38 @@
             Assert.AreEqual(2, result.Count);
             Assert.AreEqual("hello", result[1]);
             Assert.AreEqual("world", result[2]);
+        }
+
+        [Test]
+        public void TestCustomDictionary()
+        {
+            var input = new CustomDictionary
+            {
+                { 2, 4 },
+                { 3, 9 }
+            };
+            var json = SimpleJson.SerializeObject(input);
+            var result = SimpleJson.DeserializeObject<CustomDictionary>(json);
+
+            Assert.AreEqual(2, result.Count);
+            Assert.AreEqual(4, result[2]);
+            Assert.AreEqual(9, result[3]);
+        }
+
+        [Test]
+        public void TestCustomDictionaryToIDictionary()
+        {
+            var input = new CustomDictionary
+            {
+                { 2, 4 },
+                { 3, 9 }
+            };
+            var json = SimpleJson.SerializeObject(input);
+            var result = SimpleJson.DeserializeObject<IDictionary<int, int>>(json);
+
+            Assert.AreEqual(2, result.Count);
+            Assert.AreEqual(4, result[2]);
+            Assert.AreEqual(9, result[3]);
         }
 
         [Test]
@@ -105,6 +138,39 @@
             Assert.AreEqual(2, result.Count);
             Assert.AreEqual("hello", result["1"]);
             Assert.AreEqual("world", result["2"]);
+        }
+
+        [Test]
+        [Ignore("not supported")]
+        public void TestDictionaryToIEnumerableKVP()
+        {
+            var input = new Dictionary<string, string>()
+            {
+                {"1", "hello"},
+                {"2", "world"}
+            };
+            var json = SimpleJson.SerializeObject(input);
+            var result = SimpleJson.DeserializeObject<IEnumerable<KeyValuePair<string, string>>>(json);
+
+            Assert.AreEqual(2, result.Count());
+            Assert.AreEqual("hello", result.Single(kvp => kvp.Key == "1"));
+            Assert.AreEqual("world", result.Single(kvp => kvp.Key == "2"));
+        }
+
+        [Test]
+        public void TestKVPEnumerable()
+        {
+            var input = new []
+            {
+                new KeyValuePair<string, string>("1", "hello"),
+                new KeyValuePair<string, string>("2", "world"),
+            };
+            var json = SimpleJson.SerializeObject(input);
+            var result = SimpleJson.DeserializeObject<IEnumerable<KeyValuePair<string, string>>>(json);
+
+            Assert.AreEqual(2, result.Count());
+            Assert.AreEqual("hello", result.Single(kvp => kvp.Key == "1"));
+            Assert.AreEqual("world", result.Single(kvp => kvp.Key == "2"));
         }
 
         [Test]
@@ -147,6 +213,7 @@
 
         //TODO: ReadOnlyCollections
         //TODO: Enumerable<KeyValuePair>
+        //TODO: non-generic dictionaries
     }
 
     class SamplePoco
@@ -154,5 +221,9 @@
         public int Int { get; set; }
         public string String { get; set; }
         public Guid Guid { get; set; }
+    }
+
+    class CustomDictionary : Dictionary<int, int>
+    {
     }
 }

@@ -486,6 +486,8 @@ namespace SimpleJson
 
 namespace SimpleJson
 {
+    using System.Linq;
+
     /// <summary>
     /// This class encodes and decodes JSON strings.
     /// Spec. details, see http://www.json.org/
@@ -1012,29 +1014,21 @@ namespace SimpleJson
                 success = SerializeString(stringValue, builder);
             else
             {
-                IDictionary<string, object> dict = value as IDictionary<string, object>;
-                if (dict != null)
+                var dic = value as IDictionary;
+                if (dic != null)
                 {
-                    success = SerializeObject(jsonSerializerStrategy, dict.Keys, dict.Values, builder);
+                    success = SerializeObject(jsonSerializerStrategy, dic.Keys, dic.Values, builder);
                 }
                 else
                 {
-                    IDictionary<string, string> stringDictionary = value as IDictionary<string, string>;
-                    if (stringDictionary != null)
+                    // still needed as JsonObject implements IDictionary<string, string> directly without using the Dictionary class.
+                    var objectDictionary = value as IDictionary<string, object>;
+                    if (objectDictionary != null)
                     {
-                        success = SerializeObject(jsonSerializerStrategy, stringDictionary.Keys, stringDictionary.Values, builder);
+                        success = SerializeObject(jsonSerializerStrategy, objectDictionary.Keys, objectDictionary.Values, builder);
                     }
                     else
                     {
-                        //TODO: check interfaces for IDictionary instead
-                        var t = value.GetType();
-                        if (t.IsGenericType && t.GetGenericTypeDefinition() == typeof(Dictionary<,>))
-                        {
-                            var dic = value as IDictionary;
-                            success = SerializeObject(jsonSerializerStrategy, dic.Keys, dic.Values, builder);
-                            return success;
-                        }
-
                         IEnumerable enumerableValue = value as IEnumerable;
                         if (enumerableValue != null)
                             success = SerializeArray(jsonSerializerStrategy, enumerableValue, builder);
