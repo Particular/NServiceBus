@@ -147,6 +147,31 @@
         }
 
         [Test]
+        [TestCase(DateTimeKind.Local)]
+        [TestCase(DateTimeKind.Unspecified)]
+        [TestCase(DateTimeKind.Utc)]
+        public void TestDateTime(DateTimeKind dateTimeKind)
+        {
+            var input = new DateTime(2010, 10, 10, 10, 10, 10, dateTimeKind);
+            var json = SimpleJson.SerializeObject(input);
+
+            var result = SimpleJson.DeserializeObject<DateTime>(json);
+
+            Assert.AreEqual(input, result);
+        }
+
+        [Test]
+        public void TestDateTimeOffset()
+        {
+            var input = new DateTimeOffset(2010, 10, 10, 10, 10, 10, TimeSpan.FromHours(10));
+            var json = SimpleJson.SerializeObject(input);
+
+            var result = SimpleJson.DeserializeObject<DateTimeOffset>(json);
+
+            Assert.AreEqual(input, result);
+        }
+
+        [Test]
         [Ignore("not supported")]
         public void TestHashSet()
         {
