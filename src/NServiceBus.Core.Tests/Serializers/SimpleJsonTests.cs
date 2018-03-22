@@ -146,6 +146,21 @@
         }
 
         [Test]
+        public void TestReadOnlyCollection()
+        {
+            var input = new ReadOnlyDictionary<string, int>(new Dictionary<string, int>
+            {
+                {"hello", 11},
+                {"world", 22}
+            });
+            var json = SimpleJson.SerializeObject(input);
+            var result = SimpleJson.DeserializeObject<IReadOnlyDictionary<string, int>>(json);
+
+            Assert.AreEqual(11, result["hello"]);
+            Assert.AreEqual(22, result["world"]);
+        }
+
+        [Test]
         [TestCase(DateTimeKind.Local)]
         [TestCase(DateTimeKind.Unspecified)]
         [TestCase(DateTimeKind.Utc)]
@@ -222,21 +237,6 @@
             Assert.AreEqual(2, result.Count());
             Assert.AreEqual("hello", result.Single(kvp => kvp.Key == "1"));
             Assert.AreEqual("world", result.Single(kvp => kvp.Key == "2"));
-        }
-
-        [Test]
-        public void TestReadOnlyCollection()
-        {
-            var input = new ReadOnlyDictionary<string, int>(new Dictionary<string, int>
-            {
-                {"hello", 11},
-                {"world", 22}
-            });
-            var json = SimpleJson.SerializeObject(input);
-            var result = SimpleJson.DeserializeObject<IReadOnlyDictionary<string, int>>(json);
-
-            Assert.AreEqual(11, result["hello"]);
-            Assert.AreEqual(22, result["world"]);
         }
     }
 
