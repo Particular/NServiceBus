@@ -227,6 +227,23 @@
 
         [Test]
         [Ignore("not supported")]
+        public void TestKVPEnumerableToDictionary()
+        {
+            var input = new[]
+            {
+                new KeyValuePair<string, string>("1", "hello"),
+                new KeyValuePair<string, string>("2", "world"),
+            };
+            var json = SimpleJson.SerializeObject(input);
+            var result = SimpleJson.DeserializeObject<IDictionary<string, string>>(json);
+
+            Assert.AreEqual(2, result.Count());
+            Assert.AreEqual("hello", result["1"]);
+            Assert.AreEqual("world", result["2"]);
+        }
+
+        [Test]
+        [Ignore("not supported")]
         public void TestKVPEnumerable()
         {
             var input = new []
@@ -260,7 +277,6 @@
         }
 
         [Test]
-        [Ignore("not supported")]
         public void TestReadOnlyCollection()
         {
             var input = new ReadOnlyDictionary<string, int>(new Dictionary<string, int>
