@@ -131,6 +131,7 @@ namespace NServiceBus
                 }
             }
 
+            // make the type only available once all properties & fields have been initialzed
             typeMembers[t] = new Tuple<FieldInfo[], PropertyInfo[]>(fields, props);
         }
 

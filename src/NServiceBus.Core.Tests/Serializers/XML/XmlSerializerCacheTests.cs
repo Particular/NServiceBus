@@ -2,11 +2,22 @@
 {
     using System.Linq;
     using System.Threading.Tasks;
+    using System.Xml.Linq;
     using NUnit.Framework;
 
     [TestFixture]
     public class XmlSerializerCacheTests
     {
+        [Test]
+        public void InitType_ShouldNotInitializeXContainerTypes()
+        {
+            var cache = new XmlSerializerCache();
+
+            cache.InitType(typeof(XElement));
+
+            Assert.IsFalse(cache.typeMembers.ContainsKey(typeof(XElement)));
+        }
+
         [Test]
         public void InitType_ShouldNotInfinitelyInitializeRecursiveTypes()
         {
