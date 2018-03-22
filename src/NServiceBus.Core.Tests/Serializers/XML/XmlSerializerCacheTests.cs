@@ -54,7 +54,6 @@
 #pragma warning restore 649, 169
 
         public string SimpleProperty { get; set; }
-
     }
 
     class RecursiveType
