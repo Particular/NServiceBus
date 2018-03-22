@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.Core.Tests.Serializers
 {
     using System;
-    using System.Collections;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Linq;
@@ -210,40 +209,6 @@
 
         [Test]
         [Ignore("not supported")]
-        public void TestDictionaryToIEnumerableKVP()
-        {
-            var input = new Dictionary<string, string>()
-            {
-                {"1", "hello"},
-                {"2", "world"}
-            };
-            var json = SimpleJson.SerializeObject(input);
-            var result = SimpleJson.DeserializeObject<IEnumerable<KeyValuePair<string, string>>>(json);
-
-            Assert.AreEqual(2, result.Count());
-            Assert.AreEqual("hello", result.Single(kvp => kvp.Key == "1"));
-            Assert.AreEqual("world", result.Single(kvp => kvp.Key == "2"));
-        }
-
-        [Test]
-        [Ignore("not supported")]
-        public void TestKVPEnumerableToDictionary()
-        {
-            var input = new[]
-            {
-                new KeyValuePair<string, string>("1", "hello"),
-                new KeyValuePair<string, string>("2", "world"),
-            };
-            var json = SimpleJson.SerializeObject(input);
-            var result = SimpleJson.DeserializeObject<IDictionary<string, string>>(json);
-
-            Assert.AreEqual(2, result.Count());
-            Assert.AreEqual("hello", result["1"]);
-            Assert.AreEqual("world", result["2"]);
-        }
-
-        [Test]
-        [Ignore("not supported")]
         public void TestKVPEnumerable()
         {
             var input = new []
@@ -257,23 +222,6 @@
             Assert.AreEqual(2, result.Count());
             Assert.AreEqual("hello", result.Single(kvp => kvp.Key == "1"));
             Assert.AreEqual("world", result.Single(kvp => kvp.Key == "2"));
-        }
-
-
-        [Test]
-        [Ignore("not supported")]
-        public void TestNonGenericDictionary()
-        {
-            IDictionary input = new Dictionary<int, int>
-            {
-                {1, 2},
-                {3, 4}
-            };
-            var json = SimpleJson.SerializeObject(input);
-            var result = SimpleJson.DeserializeObject<IDictionary>(json);
-
-            Assert.AreEqual(2, result[1]);
-            Assert.AreEqual(4, result[3]);
         }
 
         [Test]
