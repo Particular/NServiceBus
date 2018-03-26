@@ -151,13 +151,13 @@
                 return;
             }
 
-            if (!cache.typeToProperties.TryGetValue(t, out var properties))
+            if (!cache.typeMembers.TryGetValue(t, out var members))
             {
                 cache.InitType(t);
-                cache.typeToProperties.TryGetValue(t, out properties);
+                members = cache.typeMembers[t];
             }
 
-            foreach (var prop in properties)
+            foreach (var prop in members.Item2)
             {
                 if (IsIndexedProperty(prop))
                 {
@@ -166,7 +166,7 @@
                 WriteEntry(elem, prop.Name, prop.PropertyType, DelegateFactory.CreateGet(prop).Invoke(obj));
             }
 
-            foreach (var field in cache.typeToFields[t])
+            foreach (var field in members.Item1)
             {
                 WriteEntry(elem, field.Name, field.FieldType, DelegateFactory.CreateGet(field).Invoke(obj));
             }
