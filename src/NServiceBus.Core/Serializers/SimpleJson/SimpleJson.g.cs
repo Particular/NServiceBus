@@ -486,6 +486,8 @@ namespace SimpleJson
 
 namespace SimpleJson
 {
+    using System.Linq;
+
     /// <summary>
     /// This class encodes and decodes JSON strings.
     /// Spec. details, see http://www.json.org/
@@ -1012,17 +1014,18 @@ namespace SimpleJson
                 success = SerializeString(stringValue, builder);
             else
             {
-                IDictionary<string, object> dict = value as IDictionary<string, object>;
-                if (dict != null)
+                var dic = value as IDictionary;
+                if (dic != null)
                 {
-                    success = SerializeObject(jsonSerializerStrategy, dict.Keys, dict.Values, builder);
+                    success = SerializeObject(jsonSerializerStrategy, dic.Keys, dic.Values, builder);
                 }
                 else
                 {
-                    IDictionary<string, string> stringDictionary = value as IDictionary<string, string>;
-                    if (stringDictionary != null)
+                    // still needed as JsonObject implements IDictionary<string, string> directly without using the Dictionary class.
+                    var objectDictionary = value as IDictionary<string, object>;
+                    if (objectDictionary != null)
                     {
-                        success = SerializeObject(jsonSerializerStrategy, stringDictionary.Keys, stringDictionary.Values, builder);
+                        success = SerializeObject(jsonSerializerStrategy, objectDictionary.Keys, objectDictionary.Values, builder);
                     }
                     else
                     {
@@ -1064,7 +1067,7 @@ namespace SimpleJson
                 if (stringKey != null)
                     SerializeString(stringKey, builder);
                 else
-                    if (!SerializeValue(jsonSerializerStrategy, value, builder)) return false;
+                    SerializeString(key.ToString(), builder);
                 builder.Append(":");
                 if (!SerializeValue(jsonSerializerStrategy, value, builder))
                     return false;
@@ -1251,13 +1254,6 @@ namespace SimpleJson
         internal static readonly Type[] EmptyTypes = new Type[0];
         internal static readonly Type[] ArrayConstructorParameterTypes = new Type[] { typeof(int) };
 
-        private static readonly string[] Iso8601Format = new string[]
-                                                             {
-                                                                 @"yyyy-MM-dd\THH:mm:ss.FFFFFFF\Z",
-                                                                 @"yyyy-MM-dd\THH:mm:ss\Z",
-                                                                 @"yyyy-MM-dd\THH:mm:ssK"
-                                                             };
-
         public PocoJsonSerializerStrategy()
         {
             ConstructorCache = new ReflectionUtils.ThreadSafeDictionary<Type, ReflectionUtils.ConstructorDelegate>(ContructorDelegateFactory);
@@ -1343,9 +1339,9 @@ namespace SimpleJson
                 if (str.Length != 0) // We know it can't be null now.
                 {
                     if (type == typeof(DateTime) || (ReflectionUtils.IsNullableType(type) && Nullable.GetUnderlyingType(type) == typeof(DateTime)))
-                        return DateTime.ParseExact(str, Iso8601Format, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal);
+                        return DateTime.ParseExact(str, "O", CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind);
                     if (type == typeof(DateTimeOffset) || (ReflectionUtils.IsNullableType(type) && Nullable.GetUnderlyingType(type) == typeof(DateTimeOffset)))
-                        return DateTimeOffset.ParseExact(str, Iso8601Format, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal);
+                        return DateTimeOffset.ParseExact(str, "O", CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind);
                     if (type == typeof(Guid) || (ReflectionUtils.IsNullableType(type) && Nullable.GetUnderlyingType(type) == typeof(Guid)))
                         return new Guid(str);
                     if (type == typeof(Uri))
@@ -1409,7 +1405,7 @@ namespace SimpleJson
                         IDictionary dict = (IDictionary)ConstructorCache[genericType]();
 
                         foreach (KeyValuePair<string, object> kvp in jsonObject)
-                            dict.Add(kvp.Key, DeserializeObject(kvp.Value, valueType));
+                            dict.Add(DeserializeObject(kvp.Key, keyType), DeserializeObject(kvp.Value, valueType));
 
                         obj = dict;
                     }
@@ -1474,9 +1470,9 @@ namespace SimpleJson
         {
             bool returnValue = true;
             if (input is DateTime)
-                output = ((DateTime)input).ToUniversalTime().ToString(Iso8601Format[0], CultureInfo.InvariantCulture);
+                output = ((DateTime)input).ToString("O", CultureInfo.InvariantCulture);
             else if (input is DateTimeOffset)
-                output = ((DateTimeOffset)input).ToUniversalTime().ToString(Iso8601Format[0], CultureInfo.InvariantCulture);
+                output = ((DateTimeOffset)input).ToString("O", CultureInfo.InvariantCulture);
             else if (input is Guid)
                 output = ((Guid)input).ToString("D");
             else if (input is Uri)
@@ -1720,7 +1716,8 @@ namespace SimpleJson
                     return false;
 
                 Type genericDefinition = type.GetGenericTypeDefinition();
-                return genericDefinition == typeof(IDictionary<,>);
+                return genericDefinition == typeof(IDictionary<,>) 
+                       || genericDefinition == typeof(IReadOnlyDictionary<,>);
             }
 
             public static bool IsNullableType(Type type)
