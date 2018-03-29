@@ -145,7 +145,7 @@
 
         public class Context : ScenarioContext
         {
-            public MySagaData LoadedSagaData { get; set; }
+            public SupportedFieldTypesSagaData LoadedSagaData { get; set; }
             public bool SagaDataLoaded { get; set; }
         }
 
@@ -156,7 +156,7 @@
                 EndpointSetup<DefaultServer>();
             }
 
-            public class MySaga : Saga<MySagaData>,
+            public class SupportedFieldTypesSaga : Saga<SupportedFieldTypesSagaData>,
                 IAmStartedByMessages<StartSaga>,
                 IHandleMessages<LoadTheSagaAgain>
             {
@@ -191,7 +191,7 @@
                     return Task.FromResult(0);
                 }
 
-                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<MySagaData> mapper)
+                protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SupportedFieldTypesSagaData> mapper)
                 {
                     mapper.ConfigureMapping<StartSaga>(m => m.CorrelationId).ToSaga(s => s.CorrelationId);
                     mapper.ConfigureMapping<LoadTheSagaAgain>(m => m.DataId).ToSaga(s => s.CorrelationId);
@@ -199,7 +199,7 @@
             }
         }
 
-        public class MySagaData : ContainSagaData
+        public class SupportedFieldTypesSagaData : ContainSagaData
         {
             public Guid CorrelationId { get; set; }
             public string[] StringArray { get; set; }
