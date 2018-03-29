@@ -1,11 +1,12 @@
-﻿namespace NServiceBus.AcceptanceTests.Sagas
+﻿namespace NServiceBus.Persistence.InMemory.AcceptanceTests
 {
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Threading.Tasks;
     using AcceptanceTesting;
-    using EndpointTemplates;
+    using NServiceBus.AcceptanceTests;
+    using NServiceBus.AcceptanceTests.EndpointTemplates;
     using NUnit.Framework;
 
     public class When_persisting_saga_data : NServiceBusAcceptanceTest
@@ -25,6 +26,10 @@
             Assert.NotNull(context.LoadedSagaData);
 
             CollectionAssert.AreEquivalent(StringArray, context.LoadedSagaData.StringArray);
+
+            CollectionAssert.AreEquivalent(Collection, context.LoadedSagaData.Collection);
+
+            CollectionAssert.AreEquivalent(List, context.LoadedSagaData.List);
 
             Assert.AreEqual(2, context.LoadedSagaData.IntStringDictionary.Count);
             Assert.AreEqual(IntStringDictionary[1], context.LoadedSagaData.IntStringDictionary[1]);
@@ -107,6 +112,18 @@
             }
         };
 
+        static ICollection<string> Collection = new HashSet<string>
+        {
+            "1",
+            "2"
+        };
+
+        static IList<string> List = new List<string>
+        {
+            "1",
+            "2"
+        };
+
         static IReadOnlyDictionary<string,int> ReadOnlyDictionary = new ReadOnlyDictionary<string, int>(new Dictionary<string, int>
         {
             {"hello", 11},
@@ -148,6 +165,8 @@
                 public Task Handle(StartSaga message, IMessageHandlerContext context)
                 {
                     Data.StringArray = StringArray;
+                    Data.Collection = Collection;
+                    Data.List = List;
                     Data.IntStringDictionary = IntStringDictionary;
                     Data.IntStringIDictionary = IntStringIDictionary;
                     Data.StringStringDictionary = StringStringDictionary;
@@ -193,6 +212,8 @@
             public DateTime DateTimeUnspecified { get; set; }
             public DateTime DateTimeUtc { get; set; }
             public DateTimeOffset DateTimeOffset { get; set; }
+            public ICollection<string> Collection { get; set; }
+            public IList<string> List { get; set; }
         }
 
         public class StartSaga : IMessage
