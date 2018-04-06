@@ -1,18 +1,9 @@
 <Project>
 
-  <!-- Workaround because of https://github.com/NuGet/Home/issues/4790 -->
+  <!-- Workaround because https://github.com/GitTools/GitVersion/pull/1351 hasn't been released yet -->
   <PropertyGroup>
-    <GitVersionTaskVersion>4.0.0-beta0012</GitVersionTaskVersion>
+    <GetPackageVersionDependsOn>$(GetPackageVersionDependsOn);GetVersion</GetPackageVersionDependsOn>
   </PropertyGroup>
-
-  <ItemGroup>
-    <PackageReference Include="GitVersionTask" Version="$(GitVersionTaskVersion)" PrivateAssets="All" />
-  </ItemGroup>
-
-  <ImportGroup Condition="'$(ExcludeRestorePackageImports)' == 'true' And '$(MSBuildRuntimeType)' != 'Core'">
-    <Import Project="$(UserProfile)\.nuget\packages\gitversiontask\$(GitVersionTaskVersion)\buildMultiTargeting\GitVersionTask.targets" Condition="Exists('$(UserProfile)\.nuget\packages\gitversiontask\$(GitVersionTaskVersion)\buildMultiTargeting\GitVersionTask.targets')" />
-  </ImportGroup>
-  <Target Name="FixUpVersion" BeforeTargets="_GenerateRestoreProjectSpec" DependsOnTargets="GetVersion" Condition="'$(GitVersion_Task_targets_Imported)' == 'True'" />
   <!-- End Workaround -->
 
 </Project>
