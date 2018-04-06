@@ -129,6 +129,25 @@
         }
 
         [Test]
+        public void TestDateTimeIntDictionary()
+        {
+            var date1 = new DateTime(2018, 1, 1);
+            var date2 = new DateTime(2017, 1, 1);
+
+            var input = new Dictionary<DateTime, int>()
+            {
+                {date1, 1},
+                {date2, 2}
+            };
+            var json = SimpleJson.SerializeObject(input);
+            var result = SimpleJson.DeserializeObject<Dictionary<DateTime, int>>(json);
+
+            Assert.AreEqual(2, result.Count);
+            Assert.AreEqual(1, result[date1]);
+            Assert.AreEqual(2, result[date2]);
+        }
+
+        [Test]
         public void TestPocoClass()
         {
             var input = new SamplePoco
