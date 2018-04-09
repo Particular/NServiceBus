@@ -95,6 +95,7 @@
     <Compile Include="When_TimeToBeReceived_set_and_ReceiveOnly.cs" />
     <Compile Include="When_unsubscribing_with_authorizer.cs" />
     <Compile Include="When_using_empty_instance_mapping_file.cs" />
+    <Compile Include="When_using_instance_mapping_file_with_conventions.cs" />
     <Compile Include="When_using_instance_mapping_file.cs" />
     <Compile Include="When_using_receive_only_transaction_level.cs" />
     <Compile Include="When_using_scope_timeout_greater_than_machine_max.cs" />
