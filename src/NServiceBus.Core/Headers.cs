@@ -54,6 +54,10 @@
         /// <summary>
         /// Prefix included on the wire when sending applicative headers.
         /// </summary>
+        [ObsoleteEx(
+            RemoveInVersion = "8.0", 
+            TreatAsErrorFromVersion = "8.0",
+            Message = "Not intended for public usage.")]
         public const string HeaderName = "Header";
 
         /// <summary>
