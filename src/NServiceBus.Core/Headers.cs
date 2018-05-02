@@ -22,7 +22,7 @@
 
         /// <summary>
         /// Header for specifying to which sites the gateway should send the message. For multiple
-        /// sites a comma separated list can be used.
+        /// sites, a comma separated list can be used.
         /// </summary>
         public const string DestinationSites = "NServiceBus.DestinationSites";
 
