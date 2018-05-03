@@ -152,10 +152,17 @@
             }
 
             IEnumerable<PropertyInfo> properties;
+
             if (!cache.typeToProperties.TryGetValue(t, out properties))
             {
-                cache.InitType(t);
-                cache.typeToProperties.TryGetValue(t, out properties);
+                lock (cache)
+                {
+                    if (!cache.typeToProperties.TryGetValue(t, out properties))
+                    {
+                        cache.InitType(t);
+                        cache.typeToProperties.TryGetValue(t, out properties);
+                    }
+                }
             }
 
             foreach (var prop in properties)

@@ -2396,13 +2396,13 @@ namespace NServiceBus.Serializers.Json
 
 namespace NServiceBus.Serializers.XML
 {
-    [ObsoleteEx(
-        RemoveInVersion = "7.0",
-        TreatAsErrorFromVersion = "6.0",
-        Message = "Built-in serializers are internal. Switch to an  alternative (e.g. XmlSerializer) or copy the serializer code.")]
-    public class XmlMessageSerializer
-    {
-    }
+    //[ObsoleteEx(
+    //    RemoveInVersion = "7.0",
+    //    TreatAsErrorFromVersion = "6.0",
+    //    Message = "Built-in serializers are internal. Switch to an  alternative (e.g. XmlSerializer) or copy the serializer code.")]
+    //public class XmlMessageSerializer
+    //{
+    //}
 }
 
 namespace NServiceBus.Transports.Msmq
