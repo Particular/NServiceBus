@@ -4,6 +4,8 @@ namespace NServiceBus.Serializers.XML.Test
     using System.IO;
     using System.Threading.Tasks;
     using NUnit.Framework;
+    using MessageInterfaces.MessageMapper.Reflection;
+    using Serialization;
 
     [TestFixture]
     public class ConcurrencySerializerTests
@@ -35,6 +37,33 @@ namespace NServiceBus.Serializers.XML.Test
                                           Assert.AreEqual(expected.String, result.String);
                                     });
         }
+
+        [Test]
+        public void Should_serializer_without_NRE()
+        {
+            var mapper = new MessageMapper();
+            mapper.Initialize(new[] { typeof(MyCommand) });
+
+            var conventions = new Conventions();
+            conventions.IsCommandTypeAction = t => t == typeof(MyCommand);
+
+            IMessageSerializer s = new XmlMessageSerializer(mapper, conventions);
+
+            var m = new MyCommand();
+
+            var po = new ParallelOptions();
+            po.MaxDegreeOfParallelism = 10;
+
+            Parallel.For(0, 10, po, i =>
+             {
+                 using (var ms = new MemoryStream())
+                 {
+                     s.Serialize(m, ms);
+                 }
+             });
+        }
+
+        class MyCommand {}
     }
 
     public class RequestDataMessage : IMessage
