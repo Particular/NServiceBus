@@ -47,7 +47,7 @@ namespace NServiceBus.Serializers.XML.Test
             var conventions = new Conventions();
             conventions.IsCommandTypeAction = t => t == typeof(MyCommand);
 
-            IMessageSerializer s = new XmlMessageSerializer(mapper, conventions);
+            var s = new XmlMessageSerializer(mapper, conventions);
 
             var m = new MyCommand();
 
