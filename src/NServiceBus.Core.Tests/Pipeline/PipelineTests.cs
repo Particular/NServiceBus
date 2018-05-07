@@ -11,7 +11,6 @@
     using Extensibility;
     using NServiceBus.Pipeline;
     using NUnit.Framework;
-    using Settings;
     using Testing;
     using FakeBuilder = Testing.FakeBuilder;
 
@@ -21,6 +20,11 @@
         [Test]
         public async Task ShouldExecutePipeline()
         {
+            if (Environment.OSVersion.Platform != PlatformID.Win32NT)
+            {
+                Assert.Ignore("ApprovalTests only works on Windows");
+            }
+
             var stringWriter = new StringWriter();
 
             var pipelineModifications = new PipelineModifications();
@@ -31,7 +35,7 @@
             pipelineModifications.Additions.Add(new Stage2.Registration(stringWriter));
             pipelineModifications.Additions.Add(new Terminator.Registration(stringWriter));
 
-            var pipeline = new Pipeline<ITransportReceiveContext>(new FakeBuilder(), new SettingsHolder(), pipelineModifications);
+            var pipeline = new Pipeline<ITransportReceiveContext>(new FakeBuilder(), pipelineModifications);
 
             var context = new TestableTransportReceiveContext();
             context.Extensions.Set<IPipelineCache>(new FakePipelineCache());
@@ -44,6 +48,11 @@
         [Test]
         public async Task ShouldNotCacheContext()
         {
+            if (Environment.OSVersion.Platform != PlatformID.Win32NT)
+            {
+                Assert.Ignore("ApprovalTests only works on Windows");
+            }
+
             var stringWriter = new StringWriter();
 
             var pipelineModifications = new PipelineModifications();
@@ -54,7 +63,7 @@
             pipelineModifications.Additions.Add(new Stage2.Registration(stringWriter));
             pipelineModifications.Additions.Add(new Terminator.Registration(stringWriter));
 
-            var pipeline = new Pipeline<ITransportReceiveContext>(new FakeBuilder(), new SettingsHolder(), pipelineModifications);
+            var pipeline = new Pipeline<ITransportReceiveContext>(new FakeBuilder(), pipelineModifications);
 
             stringWriter.WriteLine("Run 1");
 
@@ -78,6 +87,11 @@
         [Test]
         public void ShouldCreateCachedExecutionPlan()
         {
+            if (Environment.OSVersion.Platform != PlatformID.Win32NT)
+            {
+                Assert.Ignore("ApprovalTests only works on Windows");
+            }
+
             var stringWriter = new StringWriter();
 
             var behaviors = new IBehavior[]
@@ -107,7 +121,7 @@
             pipelineModifications.Additions.Add(new Behavior2.Registration(stringWriter));
             pipelineModifications.Additions.Add(new StageFork.Registration(stringWriter));
 
-            var pipeline = new Pipeline<ITransportReceiveContext>(new FakeBuilder(), new SettingsHolder(), pipelineModifications);
+            var pipeline = new Pipeline<ITransportReceiveContext>(new FakeBuilder(), pipelineModifications);
 
             var context = new TestableTransportReceiveContext();
             context.Extensions.Set<IPipelineCache>(new FakePipelineCache());
@@ -344,8 +358,7 @@
 
         public static void PrintInstanceWithRunSpecificIfPossible(this IExtendable context, string instance, TextWriter writer)
         {
-            int runSpecific;
-            if (context.Extensions.TryGet(RunSpecificKey, out runSpecific))
+            if (context.Extensions.TryGet(RunSpecificKey, out int runSpecific))
             {
                 writer.WriteLine($"{instance}: {runSpecific}");
             }

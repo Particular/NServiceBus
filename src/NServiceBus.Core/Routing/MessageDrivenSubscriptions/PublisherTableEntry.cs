@@ -22,7 +22,7 @@ namespace NServiceBus.Routing.MessageDrivenSubscriptions
         public Type EventType { get; }
 
         /// <summary>
-        /// Addres.
+        /// Address.
         /// </summary>
         public PublisherAddress Address { get; }
     }

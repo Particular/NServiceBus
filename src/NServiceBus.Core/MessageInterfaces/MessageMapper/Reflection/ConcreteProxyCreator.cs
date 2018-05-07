@@ -11,11 +11,7 @@ namespace NServiceBus
     {
         public ConcreteProxyCreator()
         {
-            var assemblyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly(
-                new AssemblyName("NServiceBusMessageProxies"),
-                AssemblyBuilderAccess.Run
-                );
-
+            var assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(new AssemblyName("NServiceBusMessageProxies"), AssemblyBuilderAccess.Run);
             moduleBuilder = assemblyBuilder.DefineDynamicModule("NServiceBusMessageProxies");
         }
 
@@ -59,7 +55,7 @@ namespace NServiceBus
                     Type.EmptyTypes);
 
                 var getIL = getMethodBuilder.GetILGenerator();
-                // For an instance property, argument zero is the instance. Load the 
+                // For an instance property, argument zero is the instance. Load the
                 // instance, then load the private field and return, leaving the
                 // field value on the stack.
                 getIL.Emit(OpCodes.Ldarg_0);
@@ -85,15 +81,15 @@ namespace NServiceBus
                 setIL.Emit(OpCodes.Stfld, fieldBuilder);
                 setIL.Emit(OpCodes.Ret);
 
-                // Last, map the "get" and "set" accessor methods to the 
-                // PropertyBuilder. The property is now complete. 
+                // Last, map the "get" and "set" accessor methods to the
+                // PropertyBuilder. The property is now complete.
                 propBuilder.SetGetMethod(getMethodBuilder);
                 propBuilder.SetSetMethod(setMethodBuilder);
             }
 
             typeBuilder.AddInterfaceImplementation(type);
 
-            return typeBuilder.CreateType();
+            return typeBuilder.CreateTypeInfo().AsType();
         }
 
         /// <summary>
@@ -162,10 +158,10 @@ namespace NServiceBus
                     continue;
                 }
                 object defaultValue = null;
-                var defaultAttributes = attrPropInfo.GetCustomAttributes(typeof(DefaultValueAttribute), true);
-                if (defaultAttributes.Length > 0)
+                var defaultValueAttribute = attrPropInfo.GetCustomAttribute<DefaultValueAttribute>(true);
+                if (defaultValueAttribute != null)
                 {
-                    defaultValue = ((DefaultValueAttribute) defaultAttributes[0]).Value;
+                    defaultValue = defaultValueAttribute.Value;
                 }
                 var value = attrPropInfo.GetValue(customAttribute, null);
                 if (value == defaultValue)

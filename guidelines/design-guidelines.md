@@ -1,3 +1,9 @@
+## Production ready by default 
+
+All design decisions we make around behavior and configuration defaults should be aligned with what would be safe for production use. If no safe default is available, users should be asked to decide how NServiceBus should behave.
+
+Note: The exclusion to this rule is the `LearningX` components that are bundled into the Core for ease of use. These are, instead, optimized for the best possible learning experience for the users (historically called the "F5 Experience").
+
 ## Configuration API's
 
 All configuration API's should be code-first to allow us to evolve them while guiding users with deprecation messages.
@@ -46,6 +52,19 @@ Example:
 var transportConfig = endpointConfig.UseTransport<MsmqTransport>();
 
 transportConfig.MsmqLabelGenerator(context => return $"{context.Headers['NServiceBus.EnclosedMessageTypes']}");
+```
+
+Consider wrapping the invocation of the user provided delegate to make debugging easier:
+
+```
+try
+{
+    return idGenerator(generatorContext);
+}
+catch (Exception exception)
+{
+    throw new Exception($"Failed to execute CustomConversationIdGenerator. This configuration option was defined using {nameof(EndpointConfiguration)}.{nameof(MessageCausationConfigurationExtensions.CustomConversationIdGenerator)}.", exception);
+}
 ```
 
 ## Startable and stoppable components

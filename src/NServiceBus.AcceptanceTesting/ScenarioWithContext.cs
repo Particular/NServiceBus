@@ -5,6 +5,7 @@ namespace NServiceBus.AcceptanceTesting
     using System.Diagnostics;
     using System.Threading.Tasks;
     using Logging;
+    using NUnit.Framework;
     using Support;
 
     public class ScenarioWithContext<TContext> : IScenarioWithEndpointBehavior<TContext> where TContext : ScenarioContext, new()
@@ -33,7 +34,9 @@ namespace NServiceBus.AcceptanceTesting
             var runDescriptor = new RunDescriptor(scenarioContext);
             runDescriptor.Settings.Merge(settings);
 
-            LogManager.UseFactory(new ContextAppenderFactory());
+            ScenarioContext.Current = scenarioContext;
+
+            LogManager.UseFactory(Scenario.GetLoggerFactory(scenarioContext));
 
             var sw = new Stopwatch();
 
@@ -44,7 +47,7 @@ namespace NServiceBus.AcceptanceTesting
             await runDescriptor.RaiseOnTestCompleted(runSummary);
 
             DisplayRunResult(runSummary);
-            Console.WriteLine("Total time for testrun: {0}", sw.Elapsed);
+            TestContext.WriteLine("Total time for testrun: {0}", sw.Elapsed);
 
             if (runSummary.Result.Failed)
             {
@@ -86,11 +89,11 @@ namespace NServiceBus.AcceptanceTesting
 
         void PrintLog(TContext scenarioContext)
         {
-            Console.WriteLine($"Log entries (log level: {scenarioContext.LogLevel}):");
-            Console.WriteLine("------------------------------------------------------");
+            TestContext.WriteLine($"Log entries (log level: {scenarioContext.LogLevel}):");
+            TestContext.WriteLine("------------------------------------------------------");
             foreach (var logEntry in scenarioContext.Logs)
             {
-                Console.WriteLine($"{logEntry.Level}: {logEntry.Message}");
+                TestContext.WriteLine($"{logEntry.Timestamp:T} {logEntry.Level} {logEntry.Endpoint ?? "<unknown>"}: {logEntry.Message}");
             }
         }
 
@@ -99,48 +102,48 @@ namespace NServiceBus.AcceptanceTesting
             var runDescriptor = summary.RunDescriptor;
             var runResult = summary.Result;
 
-            Console.WriteLine("------------------------------------------------------");
-            Console.WriteLine("Test summary:");
-            Console.WriteLine();
+            TestContext.WriteLine("------------------------------------------------------");
+            TestContext.WriteLine("Test summary:");
+            TestContext.WriteLine();
 
             PrintSettings(runDescriptor.Settings);
 
-            Console.WriteLine();
-            Console.WriteLine("Endpoints:");
+            TestContext.WriteLine();
+            TestContext.WriteLine("Endpoints:");
 
             foreach (var endpoint in runResult.ActiveEndpoints)
             {
-                Console.WriteLine("     - {0}", endpoint);
+                TestContext.WriteLine("     - {0}", endpoint);
             }
 
             if (runResult.Failed)
             {
-                Console.WriteLine("Test failed: {0}", runResult.Exception.SourceException);
+                TestContext.WriteLine("Test failed: {0}", runResult.Exception.SourceException);
             }
             else
             {
-                Console.WriteLine("Result: Successful - Duration: {0}", runResult.TotalTime);
+                TestContext.WriteLine("Result: Successful - Duration: {0}", runResult.TotalTime);
             }
 
             //dump trace and context regardless since asserts outside the should could still fail the test
-            Console.WriteLine();
-            Console.WriteLine("Context:");
+            TestContext.WriteLine();
+            TestContext.WriteLine("Context:");
 
             foreach (var prop in runResult.ScenarioContext.GetType().GetProperties())
             {
-                Console.WriteLine("{0} = {1}", prop.Name, prop.GetValue(runResult.ScenarioContext, null));
+                TestContext.WriteLine("{0} = {1}", prop.Name, prop.GetValue(runResult.ScenarioContext, null));
             }
         }
 
         static void PrintSettings(IEnumerable<KeyValuePair<string, object>> settings)
         {
-            Console.WriteLine();
-            Console.WriteLine("Using settings:");
+            TestContext.WriteLine();
+            TestContext.WriteLine("Using settings:");
             foreach (var pair in settings)
             {
-                Console.WriteLine("   {0}: {1}", pair.Key, pair.Value);
+                TestContext.WriteLine("   {0}: {1}", pair.Key, pair.Value);
             }
-            Console.WriteLine();
+            TestContext.WriteLine();
         }
 
         List<IComponentBehavior> behaviors = new List<IComponentBehavior>();

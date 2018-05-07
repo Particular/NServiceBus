@@ -65,7 +65,7 @@
 
         static UnicastSendRouterConnector InitializeBehavior(FakeRouter router = null)
         {
-            var metadataRegistry = new MessageMetadataRegistry(new Conventions());
+            var metadataRegistry = new MessageMetadataRegistry(new Conventions().IsMessageType);
             metadataRegistry.RegisterMessageTypesFoundIn(new List<Type>
             {
                 typeof(MyMessage),
@@ -77,7 +77,7 @@
 
         class FakeRouter : UnicastSendRouter
         {
-            public FakeRouter() : base(null, null, null, null, null, null, null, null)
+            public FakeRouter() : base(false, null, null, null, null, null, null)
             {
             }
 

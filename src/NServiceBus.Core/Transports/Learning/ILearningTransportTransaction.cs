@@ -6,7 +6,7 @@ namespace NServiceBus
     {
         string FileToProcess { get; }
 
-        bool BeginTransaction(string incomingFilePath);
+        Task<bool> BeginTransaction(string incomingFilePath);
 
         Task Commit();
 

@@ -36,7 +36,7 @@ namespace NServiceBus.Features
             }));
         }
 
-        public FeaturesReport SetupFeatures(IConfigureComponents container, PipelineSettings pipelineSettings, RoutingComponent routing)
+        public FeatureDiagnosticData[] SetupFeatures(IConfigureComponents container, PipelineSettings pipelineSettings, RoutingComponent routing, ReceiveConfiguration receiveConfiguration)
         {
             // featuresToActivate is enumerated twice because after setting defaults some new features might got activated.
             var sourceFeatures = Sort(features);
@@ -56,12 +56,12 @@ namespace NServiceBus.Features
 
             foreach (var feature in enabledFeatures)
             {
-                ActivateFeature(feature, enabledFeatures, container, pipelineSettings, routing);
+                ActivateFeature(feature, enabledFeatures, container, pipelineSettings, routing, receiveConfiguration);
             }
 
             settings.PreventChanges();
 
-            return new FeaturesReport(features.Select(t => t.Diagnostics).ToList());
+            return features.Select(t => t.Diagnostics).ToArray();
         }
 
         public async Task StartFeatures(IBuilder builder, IMessageSession session)
@@ -106,8 +106,7 @@ namespace NServiceBus.Features
             {
                 foreach (var dependencyName in node.FeatureState.Feature.Dependencies.SelectMany(listOfDependencyNames => listOfDependencyNames))
                 {
-                    Node referencedNode;
-                    if (nameToNodeDict.TryGetValue(dependencyName, out referencedNode))
+                    if (nameToNodeDict.TryGetValue(dependencyName, out var referencedNode))
                     {
                         node.previous.Add(referencedNode);
                     }
@@ -161,7 +160,7 @@ namespace NServiceBus.Features
             return false;
         }
 
-        bool ActivateFeature(FeatureInfo featureInfo, List<FeatureInfo> featuresToActivate, IConfigureComponents container, PipelineSettings pipelineSettings, RoutingComponent routing)
+        bool ActivateFeature(FeatureInfo featureInfo, List<FeatureInfo> featuresToActivate, IConfigureComponents container, PipelineSettings pipelineSettings, RoutingComponent routing, ReceiveConfiguration receiveConfiguration)
         {
             if (featureInfo.Feature.IsActive)
             {
@@ -170,22 +169,22 @@ namespace NServiceBus.Features
 
             Func<List<string>, bool> dependencyActivator = dependencies =>
             {
-                var dependantFeaturesToActivate = new List<FeatureInfo>();
+                var dependentFeaturesToActivate = new List<FeatureInfo>();
 
                 foreach (var dependency in dependencies.Select(dependencyName => featuresToActivate
                     .SingleOrDefault(f => f.Feature.Name == dependencyName))
                     .Where(dependency => dependency != null))
                 {
-                    dependantFeaturesToActivate.Add(dependency);
+                    dependentFeaturesToActivate.Add(dependency);
                 }
-                return dependantFeaturesToActivate.Aggregate(false, (current, f) => current | ActivateFeature(f, featuresToActivate, container, pipelineSettings, routing));
+                return dependentFeaturesToActivate.Aggregate(false, (current, f) => current | ActivateFeature(f, featuresToActivate, container, pipelineSettings, routing, receiveConfiguration));
             };
             var featureType = featureInfo.Feature.GetType();
             if (featureInfo.Feature.Dependencies.All(dependencyActivator))
             {
                 featureInfo.Diagnostics.DependenciesAreMet = true;
 
-                var context = new FeatureConfigurationContext(settings, container, pipelineSettings, routing);
+                var context = new FeatureConfigurationContext(settings, container, pipelineSettings, routing, receiveConfiguration);
                 if (!HasAllPrerequisitesSatisfied(featureInfo.Feature, featureInfo.Diagnostics, context))
                 {
                     settings.MarkFeatureAsDeactivated(featureType);

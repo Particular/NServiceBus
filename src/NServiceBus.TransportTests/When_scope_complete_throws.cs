@@ -9,8 +9,8 @@
     public class When_scope_complete_throws : NServiceBusTransportTest
     {
         //[TestCase(TransportTransactionMode.None)] -- not relevant
-        //[TestCase(TransportTransactionMode.ReceiveOnly)] -- unable to hook where required to throw after a message has been successfully processed but before transaction is successfully commited
-        //[TestCase(TransportTransactionMode.SendsAtomicWithReceive)] -- unable to hook where required to throw after a message has been successfully processed but before transaction is successfully commited
+        //[TestCase(TransportTransactionMode.ReceiveOnly)] -- unable to hook where required to throw after a message has been successfully processed but before transaction is successfully committed
+        //[TestCase(TransportTransactionMode.SendsAtomicWithReceive)] -- unable to hook where required to throw after a message has been successfully processed but before transaction is successfully committed
         [TestCase(TransportTransactionMode.TransactionScope)]
         public async Task Should_call_on_error(TransportTransactionMode transactionMode)
         {
@@ -20,7 +20,7 @@
             await StartPump(
                 context =>
                 {
-                    // handler enlists a failing transaction enlistment to the DTC transaction which will fail when commiting the transaction.
+                    // handler enlists a failing transaction enlistment to the DTC transaction which will fail when committing the transaction.
                     Transaction.Current.EnlistDurable(EnlistmentWhichFailsDuringPrepare.Id, new EnlistmentWhichFailsDuringPrepare(), EnlistmentOptions.None);
                     return Task.FromResult(0);
                 },

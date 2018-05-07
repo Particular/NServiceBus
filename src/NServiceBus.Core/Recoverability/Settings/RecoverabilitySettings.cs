@@ -1,14 +1,14 @@
 namespace NServiceBus
 {
     using System;
-    using Configuration.AdvanceExtensibility;
+    using Configuration.AdvancedExtensibility;
     using Settings;
     using Transport;
 
     /// <summary>
     /// Configuration settings for recoverability.
     /// </summary>
-    public class RecoverabilitySettings : ExposeSettings
+    public partial class RecoverabilitySettings : ExposeSettings
     {
         internal RecoverabilitySettings(SettingsHolder settings) : base(settings)
         {
@@ -75,17 +75,6 @@ namespace NServiceBus
         {
             Guard.AgainstNull(nameof(exceptionType), exceptionType);
             Settings.AddUnrecoverableException(exceptionType);
-            return this;
-        }
-
-        /// <summary>
-        /// Disables the legacy retries satellite. The retries satellite is enabled by default to prevent in-flight retry messages from being left
-        /// in the .Retries queue when migrating from previous versions of NServiceBus. Further details can be found in the V5 to V6 Upgrade Guide.
-        /// </summary>
-        public RecoverabilitySettings DisableLegacyRetriesSatellite()
-        {
-            Settings.Set(Recoverability.DisableLegacyRetriesSatellite, true);
-
             return this;
         }
     }

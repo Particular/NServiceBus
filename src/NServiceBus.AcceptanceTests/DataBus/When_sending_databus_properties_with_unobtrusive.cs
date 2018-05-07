@@ -1,10 +1,12 @@
 ﻿namespace NServiceBus.AcceptanceTests.DataBus
 {
+    using System;
     using System.IO;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using AcceptanceTesting.Customization;
     using EndpointTemplates;
+    using MessageMutator;
     using NUnit.Framework;
 
     public class When_sending_databus_properties_with_unobtrusive : NServiceBusAcceptanceTest
@@ -26,7 +28,7 @@
             Assert.AreEqual(payloadToSend, context.ReceivedPayload, "The large payload should be marshalled correctly using the databus");
         }
 
-        const int PayloadSize = 100;
+        const int PayloadSize = 500;
 
         public class Context : ScenarioContext
         {
@@ -43,9 +45,8 @@
                         .DefiningCommandsAs(t => t.Namespace != null && t.FullName == typeof(MyMessageWithLargePayload).FullName)
                         .DefiningDataBusPropertiesAs(t => t.Name.Contains("Payload"));
 
-                    var basePath = Path.Combine(TestContext.CurrentContext.TestDirectory, @"databus\sender");
+                    var basePath = Path.Combine(TestContext.CurrentContext.TestDirectory, "databus", "sender");
                     builder.UseDataBus<FileShareDataBus>().BasePath(basePath);
-                    builder.UseSerialization<JsonSerializer>();
 
                     builder.ConfigureTransport().Routing().RouteToEndpoint(typeof(MyMessageWithLargePayload), typeof(Receiver));
                 }).ExcludeType<MyMessageWithLargePayload>(); // remove that type from assembly scanning to simulate what would happen with true unobtrusive mode
@@ -62,9 +63,9 @@
                         .DefiningCommandsAs(t => t.Namespace != null && t.FullName == typeof(MyMessageWithLargePayload).FullName)
                         .DefiningDataBusPropertiesAs(t => t.Name.Contains("Payload"));
 
-                    var basePath = Path.Combine(TestContext.CurrentContext.TestDirectory, @"databus\sender");
+                    var basePath = Path.Combine(TestContext.CurrentContext.TestDirectory, "databus", "sender");
                     builder.UseDataBus<FileShareDataBus>().BasePath(basePath);
-                    builder.UseSerialization<JsonSerializer>();
+                    builder.RegisterMessageMutator(new Mutator());
                 });
             }
 
@@ -78,6 +79,18 @@
 
                     return Task.FromResult(0);
                 }
+            }
+        }
+
+        public class Mutator : IMutateIncomingTransportMessages
+        {
+            public Task MutateIncoming(MutateIncomingTransportMessageContext context)
+            {
+                if (context.Body.Length > PayloadSize)
+                {
+                    throw new Exception("The message body is too large, which means the DataBus was not used to transfer the payload.");
+                }
+                return Task.FromResult(0);
             }
         }
 

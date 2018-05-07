@@ -5,9 +5,7 @@ namespace NServiceBus
     using System.Linq;
     using System.Reflection;
     using System.Transactions;
-    using System.Web;
-    using Config.ConfigurationSource;
-    using Configuration.AdvanceExtensibility;
+    using Configuration.AdvancedExtensibility;
     using Container;
     using Hosting.Helpers;
     using ObjectBuilder;
@@ -31,14 +29,12 @@ namespace NServiceBus
         {
             ValidateEndpointName(endpointName);
 
-            Settings.Set("NServiceBus.Routing.EndpointName", endpointName);
+            Settings.Set<StartupDiagnosticEntries>(new StartupDiagnosticEntries());
 
-            Settings.SetDefault<IConfigurationSource>(new DefaultConfigurationSource());
+            Settings.Set("NServiceBus.Routing.EndpointName", endpointName);
 
             pipelineCollection = new PipelineConfiguration();
             Settings.Set<PipelineConfiguration>(pipelineCollection);
-            Settings.Set<SatelliteDefinitions>(new SatelliteDefinitions());
-
             Pipeline = new PipelineSettings(pipelineCollection.Modifications, Settings);
 
             Settings.Set<QueueBindings>(new QueueBindings());
@@ -74,59 +70,11 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// Append a list of <see cref="Assembly" />s to the ignored list. The string is the file name of the assembly.
-        /// </summary>
-        [ObsoleteEx(
-            Message = "Use the AssemblyScanner configuration API.",
-            ReplacementTypeOrMember = "AssemblyScannerConfigurationExtensions.AssemblyScanner",
-            TreatAsErrorFromVersion = "7.0",
-            RemoveInVersion = "8.0")]
-        public void ExcludeAssemblies(params string[] assemblies)
-        {
-            Settings.GetOrCreate<AssemblyScannerConfiguration>().ExcludeAssemblies(assemblies);
-        }
-
-        /// <summary>
-        /// Append a list of <see cref="Type" />s to the ignored list.
-        /// </summary>
-        [ObsoleteEx(
-            Message = "Use the AssemblyScanner configuration API.",
-            ReplacementTypeOrMember = "AssemblyScannerConfigurationExtensions.AssemblyScanner",
-            TreatAsErrorFromVersion = "7.0",
-            RemoveInVersion = "8.0")]
-        public void ExcludeTypes(params Type[] types)
-        {
-            Settings.GetOrCreate<AssemblyScannerConfiguration>().ExcludeTypes(types);
-        }
-
-        /// <summary>
-        /// Specify to scan nested directories when performing assembly scanning.
-        /// </summary>
-        [ObsoleteEx(
-            Message = "Use the AssemblyScanner configuration API.",
-            ReplacementTypeOrMember = "AssemblyScannerConfigurationExtensions.AssemblyScanner",
-            TreatAsErrorFromVersion = "7.0",
-            RemoveInVersion = "8.0")]
-        public void ScanAssembliesInNestedDirectories()
-        {
-            Settings.GetOrCreate<AssemblyScannerConfiguration>().ScanAssembliesInNestedDirectories = true;
-        }
-
-        /// <summary>
         /// Configures the endpoint to be send-only.
         /// </summary>
         public void SendOnly()
         {
             Settings.Set("Endpoint.SendOnly", true);
-        }
-
-        /// <summary>
-        /// Overrides the default configuration source.
-        /// </summary>
-        public void CustomConfigurationSource(IConfigurationSource configurationSource)
-        {
-            Guard.AgainstNull(nameof(configurationSource), configurationSource);
-            Settings.Set<IConfigurationSource>(configurationSource);
         }
 
         /// <summary>
@@ -185,11 +133,7 @@ namespace NServiceBus
         {
             if (scannedTypes == null)
             {
-                var directoryToScan = AppDomain.CurrentDomain.BaseDirectory;
-                if (HttpRuntime.AppDomainAppId != null)
-                {
-                    directoryToScan = HttpRuntime.BinDirectory;
-                }
+                var directoryToScan = AppDomain.CurrentDomain.RelativeSearchPath ?? AppDomain.CurrentDomain.BaseDirectory;
 
                 scannedTypes = GetAllowedTypes(directoryToScan);
             }
@@ -201,17 +145,54 @@ namespace NServiceBus
             Settings.SetDefault("TypesToScan", scannedTypes);
             ActivateAndInvoke<INeedInitialization>(scannedTypes, t => t.Customize(this));
 
-            UseTransportExtensions.EnsureTransportConfigured(this);
-            var container = customBuilder ?? new AutofacObjectBuilder();
-
             var conventions = conventionsBuilder.Conventions;
             Settings.SetDefault<Conventions>(conventions);
-            var messageMetadataRegistry = new MessageMetadataRegistry(conventions);
-            messageMetadataRegistry.RegisterMessageTypesFoundIn(Settings.GetAvailableTypes());
 
-            Settings.SetDefault<MessageMetadataRegistry>(messageMetadataRegistry);
+            ConfigureMessageTypes(conventions);
+
+            var container = ConfigureContainer();
 
             return new InitializableEndpoint(Settings, container, registrations, Pipeline, pipelineCollection);
+        }
+
+        IContainer ConfigureContainer()
+        {
+            if (customBuilder == null)
+            {
+                Settings.AddStartupDiagnosticsSection("Container", new
+                {
+                    Type = "internal"
+                });
+                return new LightInjectObjectBuilder();
+            }
+
+            var containerType = customBuilder.GetType();
+
+            Settings.AddStartupDiagnosticsSection("Container", new
+            {
+                Type = containerType.FullName,
+                Version = FileVersionRetriever.GetFileVersion(containerType)
+            });
+
+            return customBuilder;
+        }
+
+        void ConfigureMessageTypes(Conventions conventions)
+        {
+            var messageMetadataRegistry = new MessageMetadataRegistry(conventions.IsMessageType);
+
+            messageMetadataRegistry.RegisterMessageTypesFoundIn(Settings.GetAvailableTypes());
+
+            Settings.Set<MessageMetadataRegistry>(messageMetadataRegistry);
+
+            var foundMessages = messageMetadataRegistry.GetAllMessages().ToList();
+
+            Settings.AddStartupDiagnosticsSection("Messages", new
+            {
+                CustomConventionUsed = conventions.CustomMessageTypeConventionUsed,
+                NumberOfMessagesFoundAtStartup = foundMessages.Count,
+                Messages = foundMessages.Select(m => m.MessageType.FullName)
+            });
         }
 
         static void ValidateEndpointName(string endpointName)
@@ -264,9 +245,8 @@ namespace NServiceBus
                 ThrowExceptions = assemblyScannerSettings.ThrowExceptions,
                 ScanAppDomainAssemblies = assemblyScannerSettings.ScanAppDomainAssemblies
             };
-            return assemblyScanner
-                .GetScannableAssemblies()
-                .Types;
+
+            return Scan(assemblyScanner);
         }
 
         List<Type> GetAllowedCoreTypes()
@@ -280,9 +260,22 @@ namespace NServiceBus
                 ThrowExceptions = assemblyScannerSettings.ThrowExceptions,
                 ScanAppDomainAssemblies = assemblyScannerSettings.ScanAppDomainAssemblies
             };
-            return assemblyScanner
-                .GetScannableAssemblies()
-                .Types;
+
+            return Scan(assemblyScanner);
+        }
+
+        List<Type> Scan(AssemblyScanner assemblyScanner)
+        {
+            var results = assemblyScanner.GetScannableAssemblies();
+
+            Settings.AddStartupDiagnosticsSection("AssemblyScanning", new
+            {
+                Assemblies = results.Assemblies.Select(a => a.FullName),
+                results.ErrorsThrownDuringScanning,
+                results.SkippedFiles
+            });
+
+            return results.Types;
         }
 
         ConventionsBuilder conventionsBuilder;

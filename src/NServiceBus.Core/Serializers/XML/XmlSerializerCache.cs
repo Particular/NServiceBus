@@ -23,8 +23,6 @@ namespace NServiceBus
 
             if (typeof(XContainer).IsAssignableFrom(t))
             {
-                typesBeingInitialized.Add(t);
-
                 return;
             }
 
@@ -106,8 +104,7 @@ namespace NServiceBus
                 }
             }
 
-            //already in the process of initializing this type (prevents infinite recursion).
-            if (typesBeingInitialized.Contains(t))
+            if (typeMembers.ContainsKey(t))
             {
                 return;
             }
@@ -115,19 +112,27 @@ namespace NServiceBus
             typesBeingInitialized.Add(t);
 
             var props = GetAllPropertiesForType(t, isKeyValuePair);
-            typeToProperties[t] = props;
-            var fields = GetAllFieldsForType(t);
-            typeToFields[t] = fields;
-
             foreach (var p in props)
             {
-                InitType(p.PropertyType);
+                // check if already in the process of initializing this type (prevents infinite recursion).
+                if (!typesBeingInitialized.Contains(p.PropertyType))
+                {
+                    InitType(p.PropertyType);
+                }
             }
 
+            var fields = GetAllFieldsForType(t);
             foreach (var f in fields)
             {
-                InitType(f.FieldType);
+                // check if already in the process of initializing this type (prevents infinite recursion).
+                if (!typesBeingInitialized.Contains(f.FieldType))
+                {
+                    InitType(f.FieldType);
+                }
             }
+
+            // make the type only available once all properties & fields have been initialzed
+            typeMembers[t] = new Tuple<FieldInfo[], PropertyInfo[]>(fields, props);
         }
 
         PropertyInfo[] GetAllPropertiesForType(Type t, bool isKeyValuePair)
@@ -141,7 +146,7 @@ namespace NServiceBus
                     continue;
                 }
 
-                if (prop.GetCustomAttributes(typeof(XmlIgnoreAttribute), false).Length > 0)
+                if (prop.GetCustomAttribute<XmlIgnoreAttribute>(false) != null)
                 {
                     continue;
                 }
@@ -197,12 +202,12 @@ namespace NServiceBus
             return t.GetFields(BindingFlags.FlattenHierarchy | BindingFlags.Instance | BindingFlags.Public);
         }
 
-        List<Type> typesBeingInitialized = new List<Type>();
+        ConcurrentBag<Type> typesBeingInitialized = new ConcurrentBag<Type>();
+
         public ConcurrentDictionary<Type, Type> typesToCreateForArrays = new ConcurrentDictionary<Type, Type>();
         public ConcurrentDictionary<Type, Type> typesToCreateForEnumerables = new ConcurrentDictionary<Type, Type>();
 
-        public ConcurrentDictionary<Type, IEnumerable<FieldInfo>> typeToFields = new ConcurrentDictionary<Type, IEnumerable<FieldInfo>>();
-        public ConcurrentDictionary<Type, IEnumerable<PropertyInfo>> typeToProperties = new ConcurrentDictionary<Type, IEnumerable<PropertyInfo>>();
+        public ConcurrentDictionary<Type, Tuple<FieldInfo[], PropertyInfo[]>> typeMembers = new ConcurrentDictionary<Type, Tuple<FieldInfo[], PropertyInfo[]>>();
 
         static ILog logger = LogManager.GetLogger<XmlSerializerCache>();
     }

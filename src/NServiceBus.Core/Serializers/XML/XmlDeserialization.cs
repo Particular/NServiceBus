@@ -38,7 +38,7 @@
                 return result.ToArray();
             }
 
-            CacheDefaultNameSpaceMessageBaseTypesAndPrefixes(doc);
+            CacheDefaultNamespaceMessageBaseTypesAndPrefixes(doc);
 
             if (ContainsMultipleMessages(doc))
             {
@@ -139,13 +139,13 @@
             return nodeType;
         }
 
-        void CacheDefaultNameSpaceMessageBaseTypesAndPrefixes(XmlDocument doc)
+        void CacheDefaultNamespaceMessageBaseTypesAndPrefixes(XmlDocument doc)
         {
             foreach (XmlAttribute attr in doc.DocumentElement.Attributes)
             {
                 if (attr.Name == "xmlns")
                 {
-                    defaultNameSpace = attr.Value.Substring(attr.Value.LastIndexOf("/") + 1);
+                    defaultNamespace = attr.Value.Substring(attr.Value.LastIndexOf("/") + 1);
                 }
                 else
                 {
@@ -210,9 +210,9 @@
             var name = node.Name;
             var typeName = name;
 
-            if (!string.IsNullOrEmpty(defaultNameSpace))
+            if (!string.IsNullOrEmpty(defaultNamespace))
             {
-                typeName = $"{defaultNameSpace}.{typeName}";
+                typeName = $"{defaultNamespace}.{typeName}";
             }
 
             if (name.Contains(":"))
@@ -309,7 +309,13 @@
                     type = Type.GetType($"System.{n.Name.Substring(0, n.Name.IndexOf(":"))}", false, true);
                 }
 
-                var prop = GetProperty(t, n.Name);
+                if (!cache.typeMembers.TryGetValue(t, out var typeMembers))
+                {
+                    cache.InitType(t);
+                    cache.typeMembers.TryGetValue(t, out typeMembers);
+                }
+
+                var prop = GetProperty(typeMembers?.Item2, n.Name);
                 if (prop != null)
                 {
                     var val = GetPropertyValue(type ?? prop.PropertyType, n);
@@ -321,7 +327,7 @@
                     }
                 }
 
-                var field = GetField(t, n.Name);
+                var field = GetField(typeMembers?.Item1, n.Name);
                 if (field != null)
                 {
                     var val = GetPropertyValue(type ?? field.FieldType, n);
@@ -336,11 +342,8 @@
             return result;
         }
 
-        FieldInfo GetField(Type t, string name)
+        FieldInfo GetField(FieldInfo[] fields, string name)
         {
-            IEnumerable<FieldInfo> fields;
-            cache.typeToFields.TryGetValue(t, out fields);
-
             if (fields == null)
             {
                 return null;
@@ -578,8 +581,7 @@
                     typeToCreate = cache.typesToCreateForArrays[type];
                 }
 
-                Type typeToCreateForEnumerables;
-                if (cache.typesToCreateForEnumerables.TryGetValue(type, out typeToCreateForEnumerables)) //handle IEnumerable<Something>
+                if (cache.typesToCreateForEnumerables.TryGetValue(type, out var typeToCreateForEnumerables)) //handle IEnumerable<Something>
                 {
                     typeToCreate = typeToCreateForEnumerables;
                 }
@@ -607,7 +609,9 @@
 
                         if (isISet)
                         {
+#pragma warning disable PC001
                             return Activator.CreateInstance(type, typeToCreate.GetMethod("ToArray").Invoke(list, null));
+#pragma warning restore PC001
                         }
                     }
 
@@ -627,15 +631,8 @@
             return GetObjectOfTypeFromNode(type, n);
         }
 
-        PropertyInfo GetProperty(Type t, string name)
+        PropertyInfo GetProperty(PropertyInfo[] properties, string name)
         {
-            IEnumerable<PropertyInfo> properties;
-            if (!cache.typeToProperties.TryGetValue(t, out properties))
-            {
-                cache.InitType(t);
-                cache.typeToProperties.TryGetValue(t, out properties);
-            }
-
             if (properties == null)
             {
                 return null;
@@ -666,7 +663,7 @@
         }
 
         XmlSerializerCache cache;
-        string defaultNameSpace;
+        string defaultNamespace;
         IMessageMapper mapper;
         List<Type> messageBaseTypes = new List<Type>();
         IDictionary<string, string> prefixesToNamespaces = new Dictionary<string, string>();

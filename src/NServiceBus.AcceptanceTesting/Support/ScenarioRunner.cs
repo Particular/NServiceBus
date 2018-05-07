@@ -9,18 +9,18 @@
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
+    using NUnit.Framework;
 
     public class ScenarioRunner
     {
         public static async Task<RunSummary> Run(RunDescriptor runDescriptor, List<IComponentBehavior> behaviorDescriptors, Func<ScenarioContext, bool> done)
         {
-            Console.WriteLine("Started test @ {0}", DateTime.Now.ToString(CultureInfo.InvariantCulture));
+            TestContext.WriteLine("current context: " + runDescriptor.ScenarioContext.GetType().FullName);
+            TestContext.WriteLine("Started test @ {0}", DateTime.Now.ToString(CultureInfo.InvariantCulture));
 
-            ContextAppenderFactory.SetContext(runDescriptor.ScenarioContext);
             var runResult = await PerformTestRun(behaviorDescriptors, runDescriptor, done).ConfigureAwait(false);
-            ContextAppenderFactory.SetContext(null);
 
-            Console.WriteLine("Finished test @ {0}", DateTime.Now.ToString(CultureInfo.InvariantCulture));
+            TestContext.WriteLine("Finished test @ {0}", DateTime.Now.ToString(CultureInfo.InvariantCulture));
 
             return new RunSummary
             {
@@ -29,8 +29,6 @@
                 Endpoints = behaviorDescriptors
             };
         }
-
-
 
         static async Task<RunResult> PerformTestRun(List<IComponentBehavior> behaviorDescriptors, RunDescriptor runDescriptor, Func<ScenarioContext, bool> done)
         {
@@ -136,7 +134,7 @@
             catch (Exception)
             {
                 cts.Cancel();
-                Console.WriteLine($"Endpoint {component.Name} failed to start.");
+                TestContext.WriteLine($"Endpoint {component.Name} failed to start.");
                 throw;
             }
         }
@@ -158,7 +156,7 @@
             catch (Exception)
             {
                 cts.Cancel();
-                Console.WriteLine($"Whens for endpoint {component.Name} failed to execute.");
+                TestContext.WriteLine($"Whens for endpoint {component.Name} failed to execute.");
                 throw;
             }
         }
@@ -169,17 +167,17 @@
             return endpoints.Select(async endpoint =>
             {
                 await Task.Yield(); // ensure all endpoints are stopped even if a synchronous implementation throws
-                Console.WriteLine("Stopping endpoint: {0}", endpoint.Name);
+                TestContext.WriteLine("Stopping endpoint: {0}", endpoint.Name);
                 var stopwatch = Stopwatch.StartNew();
                 try
                 {
                     await endpoint.Stop().ConfigureAwait(false);
                     stopwatch.Stop();
-                    Console.WriteLine("Endpoint: {0} stopped ({1}s)", endpoint.Name, stopwatch.Elapsed);
+                    TestContext.WriteLine("Endpoint: {0} stopped ({1}s)", endpoint.Name, stopwatch.Elapsed);
                 }
                 catch (Exception)
                 {
-                    Console.WriteLine($"Endpoint {endpoint.Name} failed to stop.");
+                    TestContext.WriteLine($"Endpoint {endpoint.Name} failed to stop.");
                     throw;
                 }
             }).Timebox(stopTimeout, $"Stopping endpoints took longer than {stopTimeout.TotalMinutes} minutes.");
@@ -195,7 +193,7 @@
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                TestContext.WriteLine(e);
                 throw;
             }
         }

@@ -10,7 +10,7 @@
     public abstract class PipelineTerminator<T> : StageConnector<T, PipelineTerminator<T>.ITerminatingContext>, IPipelineTerminator where T : IBehaviorContext
     {
         /// <summary>
-        /// This method will be the final one to be called before the pipeline starts to travers back up the "stack".
+        /// This method will be the final one to be called before the pipeline starts to traverse back up the "stack".
         /// </summary>
         /// <param name="context">The current context.</param>
         protected abstract Task Terminate(T context);
@@ -28,7 +28,7 @@
         }
 
         /// <summary>
-        /// A wellknow context that terminates the pipeline.
+        /// A well-known context that terminates the pipeline.
         /// </summary>
         public interface ITerminatingContext : IBehaviorContext
         {

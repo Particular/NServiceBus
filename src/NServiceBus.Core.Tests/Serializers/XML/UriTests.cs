@@ -9,7 +9,7 @@
         [Test]
         public void Should_support()
         {
-            var expected = new Uri(@"http://docs.google.com/uc?authuser=1&id=0BzGD5JpB16DVTWNoemYyNkY3ZEk&ex");
+            var expected = new Uri("http://docs.google.com/uc?authuser=1&id=0BzGD5JpB16DVTWNoemYyNkY3ZEk&ex");
 
             var result = ExecuteSerializer.ForMessage<MessageWithUri>(m3 =>
             {

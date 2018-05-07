@@ -1,27 +1,24 @@
 ﻿namespace NServiceBus.AcceptanceTests.Serialization
 {
-    using System;
     using System.Threading.Tasks;
     using AcceptanceTesting;
-    using AcceptanceTesting.Customization;
     using EndpointTemplates;
     using NUnit.Framework;
 
     public class When_xml_serializer_used_with_unobtrusive_mode : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Message_should_be_received_with_deserialized_payload()
+        public async Task Should_deserialize_message()
         {
             var expectedData = 1;
 
             var context = await Scenario.Define<Context>()
-                .WithEndpoint<Sender>(c => c.When(s => s.Send(new MyCommand
+                .WithEndpoint<Sender>(c => c.When(s => s.SendLocal(new MyMessage
                 {
                     Data = expectedData
                 })))
-                .WithEndpoint<Receiver>()
                 .Done(c => c.WasCalled)
-                .Run(TimeSpan.FromSeconds(10));
+                .Run();
 
             Assert.AreEqual(expectedData, context.Data);
         }
@@ -38,43 +35,25 @@
             {
                 EndpointSetup<DefaultServer>(c =>
                 {
-                    c.Conventions().DefiningCommandsAs(t => t.Namespace != null && t.FullName.EndsWith("Command"));
+                    c.Conventions().DefiningMessagesAs(t => t == typeof(MyMessage));
                     c.UseSerialization<XmlSerializer>();
-                    c.ConfigureTransport().Routing().RouteToEndpoint(typeof(MyCommand), typeof(Receiver));
-                }).ExcludeType<MyCommand>(); // remove that type from assembly scanning to simulate what would happen with true unobtrusive mode
-            }
-        }
-
-        public class Receiver : EndpointConfigurationBuilder
-        {
-            public Receiver()
-            {
-                EndpointSetup<DefaultServer>(c =>
-                    {
-                        c.Conventions().DefiningCommandsAs(t => t.Namespace != null && t.FullName.EndsWith("Command"));
-                        c.UseSerialization<XmlSerializer>();
-                    })
-                    .ExcludeType<MyCommand>(); // remove that type from assembly scanning to simulate what would happen with true unobtrusive mode
+                });
             }
 
-            public class MyMessageHandler : IHandleMessages<ICommand>
+            public class MyMessageHandler : IHandleMessages<MyMessage>
             {
                 public Context Context { get; set; }
 
-                public Task Handle(ICommand message, IMessageHandlerContext context)
+                public Task Handle(MyMessage message, IMessageHandlerContext context)
                 {
-                    Context.Data = ((MyCommand) message).Data;
+                    Context.Data = message.Data;
                     Context.WasCalled = true;
                     return Task.FromResult(0);
                 }
             }
         }
 
-        public interface ICommand
-        {
-        }
-
-        public class MyCommand : ICommand
+        public class MyMessage
         {
             public int Data { get; set; }
         }

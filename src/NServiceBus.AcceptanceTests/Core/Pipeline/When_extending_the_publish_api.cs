@@ -3,7 +3,6 @@
     using System;
     using System.Threading.Tasks;
     using AcceptanceTesting;
-    using AcceptanceTests.Routing;
     using EndpointTemplates;
     using Extensibility;
     using Features;
@@ -66,9 +65,7 @@
             {
                 public Task Invoke(IOutgoingLogicalMessageContext context, Func<IOutgoingLogicalMessageContext, Task> next)
                 {
-                    Context data;
-
-                    if (context.Extensions.TryGet(out data))
+                    if (context.Extensions.TryGet(out Context data))
                     {
                         Assert.AreEqual("ItWorks", data.SomeProperty);
                     }

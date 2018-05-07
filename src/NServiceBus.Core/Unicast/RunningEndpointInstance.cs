@@ -1,8 +1,6 @@
 namespace NServiceBus
 {
     using System;
-    using System.Collections.Generic;
-    using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
     using Features;
@@ -10,15 +8,14 @@ namespace NServiceBus
     using ObjectBuilder;
     using Settings;
     using Transport;
-    using UnicastBus = Unicast.UnicastBus;
 
     class RunningEndpointInstance : IEndpointInstance
     {
-        public RunningEndpointInstance(SettingsHolder settings, IBuilder builder, List<TransportReceiver> receivers, FeatureRunner featureRunner, IMessageSession messageSession, TransportInfrastructure transportInfrastructure)
+        public RunningEndpointInstance(SettingsHolder settings, IBuilder builder, ReceiveComponent receiveComponent, FeatureRunner featureRunner, IMessageSession messageSession, TransportInfrastructure transportInfrastructure)
         {
             this.settings = settings;
             this.builder = builder;
-            this.receivers = receivers;
+            this.receiveComponent = receiveComponent;
             this.featureRunner = featureRunner;
             this.messageSession = messageSession;
             this.transportInfrastructure = transportInfrastructure;
@@ -43,7 +40,7 @@ namespace NServiceBus
                 Log.Info("Initiating shutdown.");
 
                 // Cannot throw by design
-                await StopReceivers().ConfigureAwait(false);
+                await receiveComponent.Stop().ConfigureAwait(false);
                 await featureRunner.Stop(messageSession).ConfigureAwait(false);
                 // Can throw
                 await transportInfrastructure.Stop().ConfigureAwait(false);
@@ -94,20 +91,8 @@ namespace NServiceBus
             return messageSession.Unsubscribe(eventType, options);
         }
 
-        Task StopReceivers()
-        {
-            var receiverStopTasks = receivers.Select(async receiver =>
-            {
-                Log.DebugFormat("Stopping {0} receiver", receiver.Id);
-                await receiver.Stop().ConfigureAwait(false);
-                Log.DebugFormat("Stopped {0} receiver", receiver.Id);
-            });
-
-            return Task.WhenAll(receiverStopTasks);
-        }
-
         IBuilder builder;
-        List<TransportReceiver> receivers;
+        ReceiveComponent receiveComponent;
         FeatureRunner featureRunner;
         IMessageSession messageSession;
         TransportInfrastructure transportInfrastructure;
@@ -117,6 +102,6 @@ namespace NServiceBus
         volatile bool stopped;
         SemaphoreSlim stopSemaphore = new SemaphoreSlim(1);
 
-        static ILog Log = LogManager.GetLogger<UnicastBus>();
+        static ILog Log = LogManager.GetLogger<RunningEndpointInstance>();
     }
 }

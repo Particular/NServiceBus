@@ -3,6 +3,7 @@ namespace NServiceBus
     using System.Collections.Concurrent;
     using System.IO;
     using System.Threading.Tasks;
+    using Logging;
 
     class DirectoryBasedTransaction : ILearningTransportTransaction
     {
@@ -16,22 +17,12 @@ namespace NServiceBus
 
         public string FileToProcess { get; private set; }
 
-        public bool BeginTransaction(string incomingFilePath)
+        public Task<bool> BeginTransaction(string incomingFilePath)
         {
             Directory.CreateDirectory(transactionDir);
             FileToProcess = Path.Combine(transactionDir, Path.GetFileName(incomingFilePath));
 
-            try
-            {
-                File.Move(incomingFilePath, FileToProcess);
-            }
-            catch (IOException)
-            {
-                return false;
-            }
-
-            //seem like File.Move is not atomic at least within the same process so we need this extra check
-            return File.Exists(FileToProcess);
+            return AsyncFile.Move(incomingFilePath, FileToProcess);
         }
 
         public Task Commit()
@@ -73,7 +64,7 @@ namespace NServiceBus
                 return false;
             }
 
-            while(outgoingFiles.TryDequeue(out var outgoingFile))
+            while (outgoingFiles.TryDequeue(out var outgoingFile))
             {
                 File.Move(outgoingFile.TxPath, outgoingFile.TargetPath);
             }
@@ -96,11 +87,11 @@ namespace NServiceBus
                 }
             }
 
-            var comittedRootDir = Path.Combine(basePath, committedDirName);
+            var committedRootDir = Path.Combine(basePath, committedDirName);
 
-            if (Directory.Exists(comittedRootDir))
+            if (Directory.Exists(committedRootDir))
             {
-                foreach (var transactionDir in new DirectoryInfo(comittedRootDir).EnumerateDirectories())
+                foreach (var transactionDir in new DirectoryInfo(committedRootDir).EnumerateDirectories())
                 {
                     new DirectoryBasedTransaction(basePath, pendingDirName, committedDirName, transactionDir.Name)
                         .RecoverCommitted();
@@ -144,6 +135,8 @@ namespace NServiceBus
         string transactionDir;
 
         const string TxtFileExtension = "*.txt";
+
+        static ILog log = LogManager.GetLogger<DirectoryBasedTransaction>();
 
         class OutgoingFile
         {

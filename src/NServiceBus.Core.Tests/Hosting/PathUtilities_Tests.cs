@@ -1,4 +1,4 @@
-namespace NServiceBus.Hosting.Tests
+namespace NServiceBus.Core.Tests.Host
 {
     using NUnit.Framework;
 

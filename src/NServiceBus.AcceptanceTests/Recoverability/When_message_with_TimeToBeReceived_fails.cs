@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Recoverability
 {
     using System;
+    using System.Threading;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using AcceptanceTesting.Customization;
@@ -9,6 +10,10 @@
 
     public class When_message_with_TimeToBeReceived_fails : NServiceBusAcceptanceTest
     {
+        // This test has repeatedly failed because the message took longer than the TTBR value to be received.
+        // We assume this could be due to the parallel test execution.
+        // If this test fails your build with this attribute set, please ping the NServiceBus maintainers.
+        [NonParallelizable]
         [Test]
         public async Task Should_not_honor_TimeToBeReceived_for_error_message()
         {
@@ -16,7 +21,8 @@
                 .WithEndpoint<EndpointThatThrows>(b => b
                     .When(session => session.SendLocal(new MessageThatFails()))
                     .DoNotFailOnErrorMessages())
-                .WithEndpoint<EndpointThatHandlesErrorMessages>()
+                .WithEndpoint<EndpointThatHandlesErrorMessages>(b => b
+                    .DoNotFailOnErrorMessages())
                 .Done(c => c.MessageFailed && c.TTBRHasExpiredAndMessageIsStillInErrorQueue)
                 .Run();
 
@@ -26,8 +32,8 @@
 
         class Context : ScenarioContext
         {
+            public int ErrorQueueRetries;
             public bool MessageFailed { get; set; }
-            public DateTime? FirstTimeProcessedByErrorHandler { get; set; }
             public bool TTBRHasExpiredAndMessageIsStillInErrorQueue { get; set; }
         }
 
@@ -35,7 +41,8 @@
         {
             public EndpointThatThrows()
             {
-                EndpointSetup<DefaultServer>(c => c.SendFailedMessagesTo<EndpointThatHandlesErrorMessages>());
+                EndpointSetup<DefaultServer>(c => c
+                    .SendFailedMessagesTo<EndpointThatHandlesErrorMessages>());
             }
 
             class ThrowingMessageHandler : IHandleMessages<MessageThatFails>
@@ -59,7 +66,7 @@
         {
             public EndpointThatHandlesErrorMessages()
             {
-                EndpointSetup<DefaultServer>();
+                EndpointSetup<DefaultServer>(c => c.Recoverability().Immediate(s => s.NumberOfRetries(10)));
             }
 
             class ErrorMessageHandler : IHandleMessages<MessageThatFails>
@@ -69,28 +76,21 @@
                     this.testContext = testContext;
                 }
 
-                public Task Handle(MessageThatFails message, IMessageHandlerContext context)
+                public async Task Handle(MessageThatFails message, IMessageHandlerContext context)
                 {
-                    var errorProcessingStarted = DateTime.Now;
-                    if (testContext.FirstTimeProcessedByErrorHandler == null)
+                    if (testContext.ErrorQueueRetries > 0)
                     {
-                        testContext.FirstTimeProcessedByErrorHandler = errorProcessingStarted;
+                        testContext.TTBRHasExpiredAndMessageIsStillInErrorQueue = true;
+                        return;
                     }
 
                     var ttbr = TimeSpan.Parse(context.MessageHeaders[Headers.TimeToBeReceived]);
-                    var ttbrExpired = errorProcessingStarted > testContext.FirstTimeProcessedByErrorHandler.Value + ttbr;
-                    if (ttbrExpired)
-                    {
-                        testContext.TTBRHasExpiredAndMessageIsStillInErrorQueue = true;
-                        var timeElapsedSinceFirstHandlingOfErrorMessage = errorProcessingStarted - testContext.FirstTimeProcessedByErrorHandler.Value;
-                        Console.WriteLine("Error message not removed because of TTBR({0}) after {1}. Succeeded.", ttbr, timeElapsedSinceFirstHandlingOfErrorMessage);
-                    }
-                    else
-                    {
-                        return context.HandleCurrentMessageLater();
-                    }
+                    // wait longer than configured TTBR
+                    await Task.Delay(ttbr.Add(TimeSpan.FromSeconds(1)));
 
-                    return Task.FromResult(0); // ignore messages from previous test runs
+                    // enforce message retry
+                    Interlocked.Increment(ref testContext.ErrorQueueRetries);
+                    throw new Exception("retry message");
                 }
 
                 Context testContext;

@@ -29,12 +29,10 @@
 
             if (isDebugEnabled)
             {
-                LogOutoingOperations(operations);
+                LogOutgoingOperations(operations);
             }
 
-            PendingTransportOperations pendingOperations;
-
-            if (!state.ImmediateDispatch && context.Extensions.TryGet(out pendingOperations))
+            if (!state.ImmediateDispatch && context.Extensions.TryGet(out PendingTransportOperations pendingOperations))
             {
                 pendingOperations.AddRange(operations);
                 return TaskEx.CompletedTask;
@@ -43,18 +41,17 @@
             return stage(this.CreateDispatchContext(operations, context));
         }
 
-        static void LogOutoingOperations(TransportOperation[] operations)
+        static void LogOutgoingOperations(TransportOperation[] operations)
         {
             var sb = new StringBuilder();
             foreach (var operation in operations)
             {
-                var unicastAddressTag = operation.AddressTag as UnicastAddressTag;
-                if (unicastAddressTag != null)
+                if (operation.AddressTag is UnicastAddressTag unicastAddressTag)
                 {
-                    sb.AppendFormat("Destination: {0}\n", unicastAddressTag.Destination);
+                    sb.AppendFormat("Destination: {0}" + Environment.NewLine, unicastAddressTag.Destination);
                 }
 
-                sb.AppendFormat("Message headers:\n{0}", string.Join(", ", operation.Message.Headers.Select(h => h.Key + ":" + h.Value).ToArray()));
+                sb.AppendFormat("Message headers:" + Environment.NewLine + "{0}", string.Join(", ", operation.Message.Headers.Select(h => h.Key + ":" + h.Value).ToArray()));
             }
             log.Debug(sb.ToString());
         }

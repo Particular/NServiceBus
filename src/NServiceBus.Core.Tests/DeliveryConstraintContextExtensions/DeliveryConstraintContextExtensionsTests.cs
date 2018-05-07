@@ -22,7 +22,7 @@
             settings.Set<TransportDefinition>(fakeTransportDefinition);
             settings.Set<TransportInfrastructure>(fakeTransportDefinition.Initialize(settings, null));
 
-            var context = new FeatureConfigurationContext(settings, null, null, null);
+            var context = new FeatureConfigurationContext(settings, null, null, null, null);
             var result = context.Settings.DoesTransportSupportConstraint<DeliveryConstraint>();
             Assert.IsTrue(result);
         }
@@ -32,11 +32,10 @@
         {
             var context = new ContextBag();
 
-            DelayDeliveryWith with;
-            var resultBeforeAdd = context.TryRemoveDeliveryConstraint(out with);
+            var resultBeforeAdd = context.TryRemoveDeliveryConstraint(out DelayDeliveryWith _);
 
             context.AddDeliveryConstraint(new DelayDeliveryWith(TimeSpan.FromHours(1)));
-            var resultAfterAdd = context.TryRemoveDeliveryConstraint(out with);
+            var resultAfterAdd = context.TryRemoveDeliveryConstraint(out DelayDeliveryWith _);
 
             Assert.IsFalse(resultBeforeAdd);
             Assert.IsTrue(resultAfterAdd);

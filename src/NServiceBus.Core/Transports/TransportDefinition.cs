@@ -5,7 +5,7 @@ namespace NServiceBus.Transport
     /// <summary>
     /// Defines a transport.
     /// </summary>
-    public abstract partial class TransportDefinition
+    public abstract class TransportDefinition
     {
         /// <summary>
         /// Gets an example connection string to use when reporting the lack of a configured connection string to the user.

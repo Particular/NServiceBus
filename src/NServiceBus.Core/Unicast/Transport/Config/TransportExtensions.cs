@@ -1,14 +1,14 @@
 namespace NServiceBus
 {
     using System;
-    using Configuration.AdvanceExtensibility;
+    using Configuration.AdvancedExtensibility;
     using Settings;
     using Transport;
 
     /// <summary>
     /// This class provides implementers of transports with an extension mechanism for custom settings via extension methods.
     /// </summary>
-    /// <typeparam name="T">The transport definition eg <see cref="MsmqTransport" />, etc.</typeparam>
+    /// <typeparam name="T">The transport definition eg <see cref="LearningTransport" />, etc.</typeparam>
     public class TransportExtensions<T> : TransportExtensions where T : TransportDefinition
     {
         /// <summary>
@@ -28,15 +28,36 @@ namespace NServiceBus
             return this;
         }
 
+#if NET452
         /// <summary>
         /// Configures the transport to use the connection string with the given name.
         /// </summary>
+        [ObsoleteEx(
+        Message = "Using named connection strings is discouraged. Instead, load the connection string in your code and pass the value to EndpointConfiguration.UseTransport().ConnectionString(connectionString).",
+            ReplacementTypeOrMember = "TransportExtensions<T>.ConnectionString(connectionString)",
+            TreatAsErrorFromVersion = "8.0",
+            RemoveInVersion = "9.0")]
         public new TransportExtensions<T> ConnectionStringName(string name)
         {
             base.ConnectionStringName(name);
             return this;
         }
+#endif
 
+#if NETSTANDARD2_0
+        /// <summary>
+        /// Configures the transport to use the connection string with the given name.
+        /// </summary>
+        [ObsoleteEx(
+            Message = "Loading named connection strings is no longer supported",
+            ReplacementTypeOrMember = "TransportExtensions<T>.ConnectionString(connectionString)",
+            TreatAsErrorFromVersion = "7.0",
+            RemoveInVersion = "8.0")]
+        public new TransportExtensions<T> ConnectionStringName(string name)
+        {
+            throw new NotImplementedException();
+        }
+#endif
         /// <summary>
         /// Configures the transport to use the given func as the connection string.
         /// </summary>
@@ -80,15 +101,37 @@ namespace NServiceBus
             return this;
         }
 
+#if NET452
         /// <summary>
         /// Configures the transport to use the connection string with the given name.
         /// </summary>
+        [ObsoleteEx(
+            Message = "Using named connection strings is discouraged. Instead, load the connection string in your code and pass the value to EndpointConfiguration.UseTransport().ConnectionString(connectionString).",
+            ReplacementTypeOrMember = "TransportExtensions.ConnectionString(connectionString)",
+            TreatAsErrorFromVersion = "8.0",
+            RemoveInVersion = "9.0")]
         public TransportExtensions ConnectionStringName(string name)
         {
             Guard.AgainstNullAndEmpty(nameof(name), name);
             Settings.Set<TransportConnectionString>(new TransportConnectionString(name));
             return this;
         }
+#endif
+
+#if NETSTANDARD2_0
+        /// <summary>
+        /// Configures the transport to use the connection string with the given name.
+        /// </summary>
+        [ObsoleteEx(
+        Message = "The ability to used named connection strings has been removed. Instead, load the connection string in your code and pass the value to TransportExtensions.ConnectionString(connectionString)",
+        ReplacementTypeOrMember = "TransportExtensions.ConnectionString(connectionString)",
+        TreatAsErrorFromVersion = "7.0",
+        RemoveInVersion = "8.0")]
+        public TransportExtensions ConnectionStringName(string name)
+        {
+            throw new NotImplementedException();
+        }
+#endif
 
         /// <summary>
         /// Configures the transport to use the given func as the connection string.
@@ -108,24 +151,6 @@ namespace NServiceBus
         {
             Settings.Set<TransportTransactionMode>(transportTransactionMode);
             return this;
-        }
-    }
-
-    /// <summary>
-    /// Allows you to read which transport connectionstring has been set.
-    /// </summary>
-    public static class ConfigureTransportConnectionString
-    {
-        /// <summary>
-        /// Gets the transport connectionstring.
-        /// </summary>
-        [ObsoleteEx(
-            TreatAsErrorFromVersion = "6",
-            RemoveInVersion = "7",
-            Message = "Not available any more.")]
-        public static string TransportConnectionString(this Configure config)
-        {
-            throw new NotImplementedException();
         }
     }
 }

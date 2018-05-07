@@ -86,8 +86,7 @@
         {
             foreach (var p in left)
             {
-                string equivalent;
-                if (!right.TryGetValue(p.Key, out equivalent))
+                if (!right.TryGetValue(p.Key, out var equivalent))
                 {
                     return false;
                 }

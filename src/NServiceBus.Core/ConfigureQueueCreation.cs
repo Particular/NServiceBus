@@ -1,6 +1,5 @@
 namespace NServiceBus
 {
-    using System;
     using Settings;
 
     /// <summary>
@@ -21,23 +20,10 @@ namespace NServiceBus
         /// <summary>
         /// Gets whether or not queues should be created.
         /// </summary>
-        [ObsoleteEx(
-            TreatAsErrorFromVersion = "6",
-            RemoveInVersion = "7",
-            ReplacementTypeOrMember = "CreateQueues")]
-        public static bool CreateQueues(this Configure config)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// Gets whether or not queues should be created.
-        /// </summary>
         public static bool CreateQueues(this ReadOnlySettings settings)
         {
             Guard.AgainstNull(nameof(settings), settings);
-            bool createQueues;
-            return !settings.TryGet("Transport.CreateQueues", out createQueues) || createQueues;
+            return !settings.TryGet("Transport.CreateQueues", out bool createQueues) || createQueues;
         }
     }
 }

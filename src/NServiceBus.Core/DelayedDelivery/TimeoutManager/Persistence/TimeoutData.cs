@@ -6,7 +6,7 @@ namespace NServiceBus.Timeout.Core
     /// <summary>
     /// Holds timeout information.
     /// </summary>
-    public partial class TimeoutData
+    public class TimeoutData
     {
         /// <summary>
         /// Id of this timeout.

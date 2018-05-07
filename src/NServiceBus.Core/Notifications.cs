@@ -8,7 +8,7 @@ namespace NServiceBus
     /// <summary>
     /// Notifications.
     /// </summary>
-    public partial class Notifications
+    public class Notifications
     {
         /// <summary>
         /// Push-based error notifications.

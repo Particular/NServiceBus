@@ -15,8 +15,7 @@ namespace NServiceBus
 
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-            var transport = context.Settings.Get<OutboundTransport>();
-            var lazySendingConfigResult = new Lazy<TransportSendInfrastructure>(() => transport.Configure(context.Settings), LazyThreadSafetyMode.ExecutionAndPublication);
+            var lazySendingConfigResult = new Lazy<TransportSendInfrastructure>(() => context.Settings.Get<TransportInfrastructure>().ConfigureSendInfrastructure(), LazyThreadSafetyMode.ExecutionAndPublication);
             context.Container.ConfigureComponent(c =>
             {
                 var dispatcher = lazySendingConfigResult.Value.DispatcherFactory();

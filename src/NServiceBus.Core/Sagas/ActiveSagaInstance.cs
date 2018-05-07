@@ -30,18 +30,6 @@ namespace NServiceBus.Sagas
         public string SagaId { get; private set; }
 
         /// <summary>
-        /// The type of the saga.
-        /// </summary>
-        [ObsoleteEx(
-            TreatAsErrorFromVersion = "6",
-            RemoveInVersion = "7",
-            ReplacementTypeOrMember = ".Metadata.SagaType")]
-        public Type SagaType
-        {
-            get { throw new NotImplementedException(); }
-        }
-
-        /// <summary>
         /// Metadata for this active saga.
         /// </summary>
         internal SagaMetadata Metadata { get; }
@@ -104,9 +92,8 @@ namespace NServiceBus.Sagas
             SagaId = sagaEntity.Id.ToString();
 
             var properties = sagaEntity.GetType().GetProperties();
-            SagaMetadata.CorrelationPropertyMetadata correlatedPropertyMetadata;
 
-            if (Metadata.TryGetCorrelationProperty(out correlatedPropertyMetadata))
+            if (Metadata.TryGetCorrelationProperty(out var correlatedPropertyMetadata))
             {
                 var propertyInfo = properties.Single(p => p.Name == correlatedPropertyMetadata.Name);
                 var propertyValue = propertyInfo.GetValue(sagaEntity);

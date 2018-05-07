@@ -6,17 +6,16 @@
     using Janitor;
     using ObjectBuilder;
     using Pipeline;
-    using Settings;
 
     [SkipWeaving]
     class Pipeline<TContext> : IPipeline<TContext>
         where TContext : IBehaviorContext
     {
-        public Pipeline(IBuilder builder, ReadOnlySettings settings, PipelineModifications pipelineModifications)
+        public Pipeline(IBuilder builder, PipelineModifications pipelineModifications)
         {
             var coordinator = new StepRegistrationsCoordinator(pipelineModifications.Removals, pipelineModifications.Replacements);
 
-            foreach (var rego in pipelineModifications.Additions.Where(x => x.IsEnabled(settings)))
+            foreach (var rego in pipelineModifications.Additions)
             {
                 coordinator.Register(rego);
             }

@@ -5,7 +5,7 @@ namespace NServiceBus.AcceptanceTests.Core.Routing
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using AcceptanceTesting.Customization;
-    using Configuration.AdvanceExtensibility;
+    using Configuration.AdvancedExtensibility;
     using EndpointTemplates;
     using NServiceBus.Routing;
     using NUnit.Framework;
@@ -13,8 +13,8 @@ namespace NServiceBus.AcceptanceTests.Core.Routing
 
     public class When_extending_command_routing_with_thisinstance : NServiceBusAcceptanceTest
     {
-        const string Descriminator2 = "2";
-        const string Descriminator1 = "1";
+        const string Discriminator2 = "2";
+        const string Discriminator1 = "1";
         static string ReceiverEndpoint => Conventions.EndpointNamingConvention(typeof(Endpoint));
 
         [Test]
@@ -26,8 +26,8 @@ namespace NServiceBus.AcceptanceTests.Core.Routing
                     var sendOptions = new SendOptions();
                     sendOptions.RouteToThisEndpoint();
                     return session.Send(new MyCommand(), sendOptions);
-                }).CustomConfig(c => c.MakeInstanceUniquelyAddressable(Descriminator1)))
-                .WithEndpoint<Endpoint>(b => b.CustomConfig(c => c.MakeInstanceUniquelyAddressable(Descriminator2)))
+                }).CustomConfig(c => c.MakeInstanceUniquelyAddressable(Discriminator1)))
+                .WithEndpoint<Endpoint>(b => b.CustomConfig(c => c.MakeInstanceUniquelyAddressable(Discriminator2)))
                 .Done(c => c.MessageDelivered >= 1)
                 .Run();
 
@@ -55,7 +55,7 @@ namespace NServiceBus.AcceptanceTests.Core.Routing
                     c.GetSettings().GetOrCreate<EndpointInstances>()
                         .AddOrReplaceInstances("CustomRoutingFeature", new List<EndpointInstance>
                         {
-                            new EndpointInstance(ReceiverEndpoint, Descriminator2)
+                            new EndpointInstance(ReceiverEndpoint, Discriminator2)
                         });
                     c.GetSettings().GetOrCreate<DistributionPolicy>()
                         .SetDistributionStrategy(new SelectFirstDistributionStrategy(ReceiverEndpoint, (Context)ScenarioContext));
@@ -75,7 +75,7 @@ namespace NServiceBus.AcceptanceTests.Core.Routing
 
                 public Task Handle(MyCommand message, IMessageHandlerContext context)
                 {
-                    if (settings.Get<string>("EndpointInstanceDiscriminator") == Descriminator2)
+                    if (settings.Get<string>("EndpointInstanceDiscriminator") == Discriminator2)
                     {
                         Interlocked.Increment(ref testContext.MessageDelivered);
                     }
@@ -85,17 +85,17 @@ namespace NServiceBus.AcceptanceTests.Core.Routing
 
             class SelectFirstDistributionStrategy : DistributionStrategy
             {
-                Context context;
+                Context testContext;
 
-                public SelectFirstDistributionStrategy(string endpoint, Context context) : base(endpoint, DistributionStrategyScope.Send)
+                public SelectFirstDistributionStrategy(string endpoint, Context testContext) : base(endpoint, DistributionStrategyScope.Send)
                 {
-                    this.context = context;
+                    this.testContext = testContext;
                 }
 
-                public override string SelectReceiver(string[] receiverAddresses)
+                public override string SelectDestination(DistributionContext context)
                 {
-                    context.StrategyCalled = true;
-                    return receiverAddresses[0];
+                    testContext.StrategyCalled = true;
+                    return context.ReceiverAddresses[0];
                 }
             }
         }

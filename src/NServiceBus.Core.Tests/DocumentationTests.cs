@@ -28,8 +28,8 @@
 
             if (list.Any())
             {
-                var errors = string.Join("\r\n", list);
-                throw new Exception("Some members have empty documentation or have a sentence that does not end with a period:\r\n" + errors);
+                var errors = string.Join(Environment.NewLine, list);
+                throw new Exception($"Some members have empty documentation or have a sentence that does not end with a period:{Environment.NewLine}{errors}");
             }
         }
 
@@ -198,9 +198,8 @@
 
             FieldInfo GetLineInfoField(Type type)
             {
-                FieldInfo cachedField;
                 var handle = type.TypeHandle;
-                if (fieldCache.TryGetValue(handle, out cachedField))
+                if (fieldCache.TryGetValue(handle, out var cachedField))
                 {
                     return cachedField;
                 }

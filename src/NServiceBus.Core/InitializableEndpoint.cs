@@ -2,11 +2,8 @@ namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics;
     using System.Linq;
-    using System.Security.Principal;
     using System.Threading.Tasks;
-    using Config.ConfigurationSource;
     using Features;
     using Installation;
     using ObjectBuilder;
@@ -19,7 +16,11 @@ namespace NServiceBus
 
     class InitializableEndpoint
     {
-        public InitializableEndpoint(SettingsHolder settings, IContainer container, List<Action<IConfigureComponents>> registrations, PipelineSettings pipelineSettings, PipelineConfiguration pipelineConfiguration)
+        public InitializableEndpoint(SettingsHolder settings,
+            IContainer container,
+            List<Action<IConfigureComponents>> registrations,
+            PipelineSettings pipelineSettings,
+            PipelineConfiguration pipelineConfiguration)
         {
             this.settings = settings;
             this.pipelineSettings = pipelineSettings;
@@ -35,40 +36,156 @@ namespace NServiceBus
         public async Task<IStartableEndpoint> Initialize()
         {
             RegisterCriticalErrorHandler();
+
             var concreteTypes = settings.GetAvailableTypes()
                 .Where(IsConcrete)
                 .ToList();
-            WireUpConfigSectionOverrides(concreteTypes);
 
             var featureActivator = BuildFeatureActivator(concreteTypes);
 
             ConfigRunBeforeIsFinalized(concreteTypes);
 
-            var transportDefinition = settings.Get<TransportDefinition>();
-            var connectionString = settings.Get<TransportConnectionString>().GetConnectionStringOrRaiseError(transportDefinition);
-            var transportInfrastructure = transportDefinition.Initialize(settings, connectionString);
-            settings.Set<TransportInfrastructure>(transportInfrastructure);
+            var transportInfrastructure = InitializeTransportComponent();
 
+            var receiveConfiguration = BuildReceiveConfiguration(transportInfrastructure);
+
+            var routing = InitializeRouting(transportInfrastructure, receiveConfiguration);
+
+            var featureStats = featureActivator.SetupFeatures(container, pipelineSettings, routing, receiveConfiguration);
+            settings.AddStartupDiagnosticsSection("Features", featureStats);
+
+            pipelineConfiguration.RegisterBehaviorsInContainer(container);
+
+            container.ConfigureComponent(b => settings.Get<Notifications>(), DependencyLifecycle.SingleInstance);
+
+            var eventAggregator = new EventAggregator(settings.Get<NotificationSubscriptions>());
+            var pipelineCache = new PipelineCache(builder, settings);
+            var queueBindings = settings.Get<QueueBindings>();
+
+            var receiveComponent = CreateReceiveComponent(receiveConfiguration, transportInfrastructure, queueBindings, pipelineCache, eventAggregator);
+
+            var shouldRunInstallers = settings.GetOrDefault<bool>("Installers.Enable");
+
+            if (shouldRunInstallers)
+            {
+                var username = GetInstallationUserName();
+
+                if (settings.CreateQueues())
+                {
+                    await receiveComponent.CreateQueuesIfNecessary(queueBindings, username).ConfigureAwait(false);
+                }
+
+                await RunInstallers(concreteTypes, username).ConfigureAwait(false);
+            }
+
+            settings.AddStartupDiagnosticsSection("Endpoint",
+                new
+                {
+                    Name = settings.EndpointName(),
+                    SendOnly = settings.Get<bool>("Endpoint.SendOnly"),
+                    NServiceBusVersion = GitFlowVersion.MajorMinorPatch
+                }
+            );
+
+            var messageSession = new MessageSession(new RootContext(builder, pipelineCache, eventAggregator));
+
+            return new StartableEndpoint(settings, builder, featureActivator, transportInfrastructure, receiveComponent, criticalError, messageSession);
+        }
+
+        RoutingComponent InitializeRouting(TransportInfrastructure transportInfrastructure, ReceiveConfiguration receiveConfiguration)
+        {
             // use GetOrCreate to use of instances already created during EndpointConfiguration.
             var routing = new RoutingComponent(
                 settings.GetOrCreate<UnicastRoutingTable>(),
                 settings.GetOrCreate<DistributionPolicy>(),
                 settings.GetOrCreate<EndpointInstances>(),
                 settings.GetOrCreate<Publishers>());
-            routing.Initialize(settings, transportInfrastructure, pipelineSettings);
 
-            var featureStats = featureActivator.SetupFeatures(container, pipelineSettings, routing);
+            routing.Initialize(settings, transportInfrastructure.ToTransportAddress, pipelineSettings, receiveConfiguration);
 
-            pipelineConfiguration.RegisterBehaviorsInContainer(settings, container);
+            return routing;
+        }
 
-            DisplayDiagnosticsForFeatures.Run(featureStats);
+        TransportInfrastructure InitializeTransportComponent()
+        {
+            if (!settings.HasExplicitValue<TransportDefinition>())
+            {
+                throw new Exception("A transport has not been configured. Use 'EndpointConfiguration.UseTransport()' to specify a transport.");
+            }
 
-            container.ConfigureComponent(b => settings.Get<Notifications>(), DependencyLifecycle.SingleInstance);
+            var transportDefinition = settings.Get<TransportDefinition>();
+            var connectionString = settings.Get<TransportConnectionString>().GetConnectionStringOrRaiseError(transportDefinition);
+            var transportInfrastructure = transportDefinition.Initialize(settings, connectionString);
+            settings.Set<TransportInfrastructure>(transportInfrastructure);
 
-            await RunInstallers(concreteTypes).ConfigureAwait(false);
+            var transportType = transportDefinition.GetType();
 
-            var startableEndpoint = new StartableEndpoint(settings, builder, featureActivator, pipelineConfiguration, new EventAggregator(settings.Get<NotificationSubscriptions>()), transportInfrastructure, criticalError);
-            return startableEndpoint;
+            settings.AddStartupDiagnosticsSection("Transport", new
+            {
+                Type = transportType.FullName,
+                Version = FileVersionRetriever.GetFileVersion(transportType)
+            });
+
+            return transportInfrastructure;
+        }
+
+        ReceiveConfiguration BuildReceiveConfiguration(TransportInfrastructure transportInfrastructure)
+        {
+            var receiveConfiguration = ReceiveConfigurationBuilder.Build(settings, transportInfrastructure);
+
+            if (receiveConfiguration == null)
+            {
+                return null;
+            }
+
+            //note: remove once settings.LogicalAddress() , .LocalAddress() and .InstanceSpecificQueue() has been obsoleted
+            settings.Set<ReceiveConfiguration>(receiveConfiguration);
+
+            return receiveConfiguration;
+        }
+
+        ReceiveComponent CreateReceiveComponent(ReceiveConfiguration receiveConfiguration,
+            TransportInfrastructure transportInfrastructure,
+            QueueBindings queueBindings,
+            IPipelineCache pipelineCache,
+            EventAggregator eventAggregator)
+        {
+            var mainPipeline = new Pipeline<ITransportReceiveContext>(builder, pipelineConfiguration.Modifications);
+            var mainPipelineExecutor = new MainPipelineExecutor(builder, eventAggregator, pipelineCache, mainPipeline);
+            var errorQueue = settings.ErrorQueueAddress();
+
+            var receiveComponent = new ReceiveComponent(receiveConfiguration,
+                receiveConfiguration != null ? transportInfrastructure.ConfigureReceiveInfrastructure() : null, //don't create the receive infrastructure for send-only endpoints
+                mainPipelineExecutor,
+                eventAggregator,
+                builder,
+                criticalError,
+                errorQueue);
+
+            receiveComponent.BindQueues(queueBindings);
+
+            if (receiveConfiguration != null)
+            {
+                settings.AddStartupDiagnosticsSection("Receiving", new
+                {
+                    receiveConfiguration.LocalAddress,
+                    receiveConfiguration.InstanceSpecificQueue,
+                    receiveConfiguration.LogicalAddress,
+                    receiveConfiguration.PurgeOnStartup,
+                    receiveConfiguration.QueueNameBase,
+                    TransactionMode = receiveConfiguration.TransactionMode.ToString("G"),
+                    receiveConfiguration.PushRuntimeSettings.MaxConcurrency,
+                    Satellites = receiveConfiguration.SatelliteDefinitions.Select(s => new
+                    {
+                        s.Name,
+                        s.ReceiveAddress,
+                        TransactionMode = s.RequiredTransportTransactionMode.ToString("G"),
+                        s.RuntimeSettings.MaxConcurrency
+                    }).ToArray()
+                });
+            }
+
+            return receiveComponent;
         }
 
         static bool IsConcrete(Type x)
@@ -107,8 +224,7 @@ namespace NServiceBus
 
         void RegisterCriticalErrorHandler()
         {
-            Func<ICriticalErrorContext, Task> errorAction;
-            settings.TryGet("onCriticalErrorAction", out errorAction);
+            settings.TryGet("onCriticalErrorAction", out Func<ICriticalErrorContext, Task> errorAction);
             criticalError = new CriticalError(errorAction);
             container.RegisterSingleton(criticalError);
         }
@@ -131,56 +247,13 @@ namespace NServiceBus
             container.ConfigureComponent<IBuilder>(_ => b, DependencyLifecycle.SingleInstance);
         }
 
-        void WireUpConfigSectionOverrides(IEnumerable<Type> concreteTypes)
+        async Task RunInstallers(IEnumerable<Type> concreteTypes, string username)
         {
-            foreach (var type in concreteTypes.Where(ImplementsIProvideConfiguration))
-            {
-                container.ConfigureComponent(type, DependencyLifecycle.InstancePerCall);
-            }
-        }
-
-        static bool ImplementsIProvideConfiguration(Type type)
-        {
-            return type.GetInterfaces().Any(IsIProvideConfiguration);
-        }
-
-        static bool IsIProvideConfiguration(Type type)
-        {
-            if (!type.IsGenericType)
-            {
-                return false;
-            }
-
-            var args = type.GetGenericArguments();
-            if (args.Length != 1)
-            {
-                return false;
-            }
-
-            return typeof(IProvideConfiguration<>).MakeGenericType(args)
-                .IsAssignableFrom(type);
-        }
-
-        async Task RunInstallers(IEnumerable<Type> concreteTypes)
-        {
-            var shouldRunInstaller = settings.GetOrDefault<bool?>("Installers.Enable");
-            if (shouldRunInstaller.HasValue && !shouldRunInstaller.Value)
-            {
-                // do not run installers when the user explicitly disabled it.
-                return;
-            }
-            if (!shouldRunInstaller.HasValue && !Debugger.IsAttached)
-            {
-                // do not run installers when user didn't specify a value and no debugger is attached.
-                return;
-            }
-
             foreach (var installerType in concreteTypes.Where(t => IsINeedToInstallSomething(t)))
             {
                 container.ConfigureComponent(installerType, DependencyLifecycle.InstancePerCall);
             }
 
-            var username = GetInstallationUserName();
             foreach (var installer in builder.BuildAll<INeedToInstallSomething>())
             {
                 await installer.Install(username).ConfigureAwait(false);
@@ -191,10 +264,19 @@ namespace NServiceBus
 
         string GetInstallationUserName()
         {
-            string username;
-            return settings.TryGet("Installers.UserName", out username)
-                ? username
-                : WindowsIdentity.GetCurrent().Name;
+            if (!settings.TryGet("Installers.UserName", out string userName))
+            {
+                if (Environment.OSVersion.Platform == PlatformID.Win32NT)
+                {
+                    userName = $"{Environment.UserDomainName}\\{Environment.UserName}";
+                }
+                else
+                {
+                    userName = Environment.UserName;
+                }
+            }
+
+            return userName;
         }
 
         IBuilder builder;

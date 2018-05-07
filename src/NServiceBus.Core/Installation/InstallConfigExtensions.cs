@@ -5,7 +5,7 @@ namespace NServiceBus
     /// <summary>
     /// Convenience methods for configuring how instances of  <see cref="INeedToInstallSomething" />s are run.
     /// </summary>
-    public static class InstallConfigExtensions
+    public static partial class InstallConfigExtensions
     {
         /// <summary>
         /// Enable all <see cref="INeedToInstallSomething" /> to run when the configuration is complete.
@@ -21,16 +21,6 @@ namespace NServiceBus
             }
 
             config.Settings.Set("Installers.Enable", true);
-        }
-
-        /// <summary>
-        /// Prevents all <see cref="INeedToInstallSomething" /> from running.
-        /// </summary>
-        public static void DisableInstallers(this EndpointConfiguration config)
-        {
-            Guard.AgainstNull(nameof(config), config);
-
-            config.Settings.Set("Installers.Enable", false);
         }
     }
 }

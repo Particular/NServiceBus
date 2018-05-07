@@ -18,7 +18,7 @@ namespace NServiceBus
         /// <see cref="MessageIntentEnum.Unsubscribe" /> message.
         /// </summary>
         /// <param name="transportExtensions">The <see cref="TransportExtensions&lt;T&gt;" /> to extend.</param>
-        /// <param name="authorizer">The authorization callback to execute. If the callback returns <code>true</code> for a message, it is authorized to subscribe/unsubscribe, otherwhise it is not authorized.</param>
+        /// <param name="authorizer">The authorization callback to execute. If the callback returns <code>true</code> for a message, it is authorized to subscribe/unsubscribe, otherwise it is not authorized.</param>
         public static void SubscriptionAuthorizer<T>(this TransportExtensions<T> transportExtensions, Func<IIncomingPhysicalMessageContext, bool> authorizer) where T : TransportDefinition, IMessageDrivenSubscriptionTransport
         {
             Guard.AgainstNull(nameof(authorizer), authorizer);
@@ -29,8 +29,7 @@ namespace NServiceBus
 
         internal static Func<IIncomingPhysicalMessageContext, bool> GetSubscriptionAuthorizer(this ReadOnlySettings settings)
         {
-            Func<IIncomingPhysicalMessageContext, bool> authorizer;
-            settings.TryGet("SubscriptionAuthorizer", out authorizer);
+            settings.TryGet("SubscriptionAuthorizer", out Func<IIncomingPhysicalMessageContext, bool> authorizer);
             return authorizer;
         }
 

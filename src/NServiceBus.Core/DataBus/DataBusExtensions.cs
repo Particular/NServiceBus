@@ -1,6 +1,6 @@
 ﻿namespace NServiceBus.DataBus
 {
-    using Configuration.AdvanceExtensibility;
+    using Configuration.AdvancedExtensibility;
     using Settings;
 
     /// <summary>

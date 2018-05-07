@@ -3,7 +3,7 @@
     /// <summary>
     /// Static class containing headers used by NServiceBus.
     /// </summary>
-    public static partial class Headers
+    public static class Headers
     {
         /// <summary>
         /// Header for retrieving from which Http endpoint the message arrived.
@@ -95,43 +95,15 @@
         /// </summary>
         public const string DelayedRetries = "NServiceBus.Retries";
 
-        [ObsoleteEx(
-            TreatAsErrorFromVersion = "6.0",
-            RemoveInVersion = "7.0",
-            ReplacementTypeOrMember = nameof(DelayedRetries)
-            )]
-#pragma warning disable 1591
-        public const string Retries = DelayedRetries;
-#pragma warning restore 1591
-
         /// <summary>
         /// The time the last Delayed Retry has been performed for this message.
         /// </summary>
         public const string DelayedRetriesTimestamp = "NServiceBus.Retries.Timestamp";
 
-
-        [ObsoleteEx(
-            TreatAsErrorFromVersion = "6.0",
-            RemoveInVersion = "7.0",
-            ReplacementTypeOrMember = nameof(DelayedRetriesTimestamp)
-            )]
-#pragma warning disable 1591
-        public const string RetriesTimestamp = DelayedRetriesTimestamp;
-#pragma warning restore 1591
-
         /// <summary>
         /// The number of Immediate Retries that have been performed for this message.
         /// </summary>
         public const string ImmediateRetries = "NServiceBus.FLRetries";
-
-        [ObsoleteEx(
-            TreatAsErrorFromVersion = "6.0",
-            RemoveInVersion = "7.0",
-            ReplacementTypeOrMember = nameof(ImmediateRetries)
-            )]
-#pragma warning disable 1591
-        public const string FLRetries = ImmediateRetries;
-#pragma warning restore 1591
 
         /// <summary>
         /// The time processing of this message started.
@@ -243,11 +215,6 @@
         /// The intent of the current message.
         /// </summary>
         public const string MessageIntent = "NServiceBus.MessageIntent";
-
-        /// <summary>
-        /// The identifier to lookup the key to decrypt the encrypted data.
-        /// </summary>
-        public const string RijndaelKeyIdentifier = "NServiceBus.RijndaelKeyIdentifier";
 
         /// <summary>
         /// The time to be received for this message when it was sent the first time.

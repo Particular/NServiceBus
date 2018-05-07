@@ -1,0 +1,2 @@
+
+[assembly: Janitor.SkipWeavingNamespace("LightInject")]

@@ -18,6 +18,6 @@ namespace NServiceBus.Unicast
         /// <summary>
         /// The message.
         /// </summary>
-        public object Message { get; private set; }
+        public object Message { get; }
     }
 }

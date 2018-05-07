@@ -80,8 +80,7 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
                 name = typeName.Substring(0, typeName.Length - ConcreteProxyCreator.SUFFIX.Length);
             }
 
-            RuntimeTypeHandle typeHandle;
-            if (nameToType.TryGetValue(name, out typeHandle))
+            if (nameToType.TryGetValue(name, out var typeHandle))
             {
                 return Type.GetTypeFromHandle(typeHandle);
             }

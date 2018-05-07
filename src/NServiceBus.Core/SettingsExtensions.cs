@@ -2,51 +2,13 @@ namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
-    using Config.ConfigurationSource;
     using Settings;
 
     /// <summary>
     /// Provides extensions to the settings holder.
     /// </summary>
-    public static class SettingsExtensions
+    public static partial class SettingsExtensions
     {
-        /// <summary>
-        /// Returns the requested config section using the current configuration source.
-        /// </summary>
-        public static T GetConfigSection<T>(this ReadOnlySettings settings) where T : class, new()
-        {
-            Guard.AgainstNull(nameof(settings), settings);
-            var typesToScan = settings.GetAvailableTypes();
-            var configurationSource = settings.Get<IConfigurationSource>();
-
-            var sectionOverrideTypes = typesToScan.Where(t => !t.IsAbstract && typeof(IProvideConfiguration<T>).IsAssignableFrom(t)).ToArray();
-            if (sectionOverrideTypes.Length > 1)
-            {
-                throw new Exception($"Multiple configuration providers implementing IProvideConfiguration<{typeof(T).Name}> were found: {string.Join(", ", sectionOverrideTypes.Select(s => s.FullName))}. Ensure that only one configuration provider per configuration section is found to resolve this error.");
-            }
-
-            if (sectionOverrideTypes.Length == 0)
-            {
-                return configurationSource.GetConfiguration<T>();
-            }
-
-            var sectionOverrideType = sectionOverrideTypes[0];
-
-            IProvideConfiguration<T> sectionOverride;
-
-            if (HasConstructorThatAcceptsSettings(sectionOverrideType))
-            {
-                sectionOverride = (IProvideConfiguration<T>) Activator.CreateInstance(sectionOverrideType, settings);
-            }
-            else
-            {
-                sectionOverride = (IProvideConfiguration<T>) Activator.CreateInstance(sectionOverrideType);
-            }
-
-            return sectionOverride.GetConfiguration();
-        }
-
         /// <summary>
         /// Gets the list of types available to this endpoint.
         /// </summary>
@@ -71,7 +33,13 @@ namespace NServiceBus
         public static LogicalAddress LogicalAddress(this ReadOnlySettings settings)
         {
             Guard.AgainstNull(nameof(settings), settings);
-            return settings.Get<LogicalAddress>();
+
+            if (!settings.TryGet<ReceiveConfiguration>(out var receiveConfiguration))
+            {
+                throw new InvalidOperationException("LogicalAddress isn't available since this endpoint is configured to run in send-only mode.");
+            }
+
+            return receiveConfiguration.LogicalAddress;
         }
 
         /// <summary>
@@ -80,7 +48,13 @@ namespace NServiceBus
         public static string LocalAddress(this ReadOnlySettings settings)
         {
             Guard.AgainstNull(nameof(settings), settings);
-            return settings.Get<string>("NServiceBus.SharedQueue");
+
+            if (!settings.TryGet<ReceiveConfiguration>(out var receiveConfiguration))
+            {
+                throw new InvalidOperationException("LocalAddress isn't available since this endpoint is configured to run in send-only mode.");
+            }
+
+            return receiveConfiguration.LocalAddress;
         }
 
         /// <summary>
@@ -89,15 +63,13 @@ namespace NServiceBus
         public static string InstanceSpecificQueue(this ReadOnlySettings settings)
         {
             Guard.AgainstNull(nameof(settings), settings);
-            return settings.GetOrDefault<string>("NServiceBus.EndpointSpecificQueue");
-        }
 
-        static bool HasConstructorThatAcceptsSettings(Type sectionOverrideType)
-        {
-            return sectionOverrideType.GetConstructor(new[]
+            if (!settings.TryGet<ReceiveConfiguration>(out var receiveConfiguration))
             {
-                typeof(ReadOnlySettings)
-            }) != null;
+                throw new InvalidOperationException("Instance-specific queue name isn't available since this endpoint is configured to run in send-only mode.");
+            }
+
+            return receiveConfiguration.InstanceSpecificQueue;
         }
     }
 }

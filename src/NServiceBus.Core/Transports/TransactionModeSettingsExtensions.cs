@@ -2,7 +2,6 @@ namespace NServiceBus.ConsistencyGuarantees
 {
     using System;
     using Settings;
-    using Transport;
 
     /// <summary>
     /// Extension methods to provide access to various consistency related convenience methods.
@@ -15,22 +14,13 @@ namespace NServiceBus.ConsistencyGuarantees
         public static TransportTransactionMode GetRequiredTransactionModeForReceives(this ReadOnlySettings settings)
         {
             Guard.AgainstNull(nameof(settings), settings);
-            var transportTransactionSupport = settings.Get<TransportInfrastructure>().TransactionMode;
 
-            TransportTransactionMode requestedTransportTransactionMode;
-
-            //if user haven't asked for a explicit level use what the transport supports
-            if (!settings.TryGet(out requestedTransportTransactionMode))
+            if (!settings.TryGet<ReceiveConfiguration>(out var receiveConfiguration))
             {
-                return transportTransactionSupport;
+                throw new InvalidOperationException("Receive transaction mode isn't available since this endpoint is configured to run in send-only mode.");
             }
 
-            if (requestedTransportTransactionMode > transportTransactionSupport)
-            {
-                throw new Exception($"Requested transaction mode `{requestedTransportTransactionMode}` can't be satisfied since the transport only supports `{transportTransactionSupport}`");
-            }
-
-            return requestedTransportTransactionMode;
+            return receiveConfiguration.TransactionMode;
         }
     }
 }

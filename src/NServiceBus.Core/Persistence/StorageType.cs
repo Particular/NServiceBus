@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.Persistence
+﻿namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
@@ -9,7 +9,7 @@
     /// </summary>
     public abstract class StorageType
     {
-        StorageType(Storage storage)
+        StorageType(string storage)
         {
             this.storage = storage;
         }
@@ -17,26 +17,7 @@
         /// <inheritdoc />
         public override string ToString()
         {
-            return storage.ToString();
-        }
-
-        internal static Type FromEnum(Storage storageEnum)
-        {
-            switch (storageEnum)
-            {
-                case Storage.Timeouts:
-                    return typeof(Timeouts);
-                case Storage.Subscriptions:
-                    return typeof(Subscriptions);
-                case Storage.Sagas:
-                    return typeof(Sagas);
-                case Storage.GatewayDeduplication:
-                    return typeof(GatewayDeduplication);
-                case Storage.Outbox:
-                    return typeof(Outbox);
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(storageEnum), "Unknown storage that has no equivalent StorageType");
-            }
+            return storage;
         }
 
         internal static List<Type> GetAvailableStorageTypes()
@@ -44,14 +25,14 @@
             return typeof(StorageType).GetNestedTypes().ToList();
         }
 
-        Storage storage;
+        string storage;
 
         /// <summary>
         /// Storage for timeouts.
         /// </summary>
         public sealed class Timeouts : StorageType
         {
-            internal Timeouts() : base(Storage.Timeouts)
+            internal Timeouts() : base("Timeouts")
             {
             }
         }
@@ -61,7 +42,7 @@
         /// </summary>
         public sealed class Subscriptions : StorageType
         {
-            internal Subscriptions() : base(Storage.Subscriptions)
+            internal Subscriptions() : base("Subscriptions")
             {
             }
         }
@@ -71,7 +52,7 @@
         /// </summary>
         public sealed class Sagas : StorageType
         {
-            internal Sagas() : base(Storage.Sagas)
+            internal Sagas() : base("Sagas")
             {
             }
         }
@@ -81,7 +62,7 @@
         /// </summary>
         public sealed class GatewayDeduplication : StorageType
         {
-            internal GatewayDeduplication() : base(Storage.GatewayDeduplication)
+            internal GatewayDeduplication() : base("GatewayDeduplication")
             {
             }
         }
@@ -91,7 +72,7 @@
         /// </summary>
         public sealed class Outbox : StorageType
         {
-            internal Outbox() : base(Storage.Outbox)
+            internal Outbox() : base("Outbox")
             {
             }
         }

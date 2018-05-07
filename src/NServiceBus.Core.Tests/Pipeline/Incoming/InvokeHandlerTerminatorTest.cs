@@ -3,7 +3,6 @@
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using System.Transactions;
     using NServiceBus.Pipeline;
     using NServiceBus.Sagas;
     using NUnit.Framework;
@@ -86,36 +85,6 @@
             await terminator.Invoke(behaviorContext, _ => TaskEx.CompletedTask);
 
             Assert.AreSame(behaviorContext.MessageBeingHandled, receivedMessage);
-        }
-
-        [Test]
-        public async Task Should_indicate_when_no_transaction_scope_is_present()
-        {
-            var terminator = new InvokeHandlerTerminator();
-
-            var messageHandler = CreateMessageHandler((i, m, ctx) => { }, new FakeMessageHandler());
-            var behaviorContext = CreateBehaviorContext(messageHandler);
-
-            await terminator.Invoke(behaviorContext, _ => TaskEx.CompletedTask);
-
-            Assert.IsFalse(behaviorContext.Extensions.Get<InvokeHandlerTerminator.State>().ScopeWasPresent);
-        }
-
-        [Test]
-        public async Task Should_indicate_when_transaction_scope_is_present()
-        {
-            var terminator = new InvokeHandlerTerminator();
-
-            var messageHandler = CreateMessageHandler((i, m, ctx) => { }, new FakeMessageHandler());
-            var behaviorContext = CreateBehaviorContext(messageHandler);
-
-            using (var scope = new TransactionScope())
-            {
-                await terminator.Invoke(behaviorContext, _ => TaskEx.CompletedTask);
-                scope.Complete();
-            }
-
-            Assert.IsTrue(behaviorContext.Extensions.Get<InvokeHandlerTerminator.State>().ScopeWasPresent);
         }
 
         [Test]

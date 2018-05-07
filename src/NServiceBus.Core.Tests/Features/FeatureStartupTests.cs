@@ -7,7 +7,6 @@
     using NUnit.Framework;
     using ObjectBuilder;
     using Settings;
-    using Transport;
 
     [TestFixture]
     public class FeatureStartupTests
@@ -16,7 +15,6 @@
         public void Init()
         {
             settings = new SettingsHolder();
-            settings.Set<TransportDefinition>(new MsmqTransport());
             featureSettings = new FeatureActivator(settings);
         }
 
@@ -27,7 +25,7 @@
 
             featureSettings.Add(feature);
 
-            featureSettings.SetupFeatures(null, null, null);
+            featureSettings.SetupFeatures(null, null, null, null);
 
             await featureSettings.StartFeatures(null, null);
             await featureSettings.StopFeatures(null);
@@ -43,7 +41,7 @@
 
             featureSettings.Add(feature);
 
-            featureSettings.SetupFeatures(null, null, null);
+            featureSettings.SetupFeatures(null, null, null, null);
 
             await featureSettings.StartFeatures(null, null);
             await featureSettings.StopFeatures(null);
@@ -59,7 +57,7 @@
             featureSettings.Add(feature1);
             featureSettings.Add(feature2);
 
-            featureSettings.SetupFeatures(null, null, null);
+            featureSettings.SetupFeatures(null, null, null, null);
 
             Assert.ThrowsAsync<InvalidOperationException>(async () => await featureSettings.StartFeatures(null, null));
 
@@ -75,7 +73,7 @@
             featureSettings.Add(feature1);
             featureSettings.Add(feature2);
 
-            featureSettings.SetupFeatures(null, null, null);
+            featureSettings.SetupFeatures(null, null, null, null);
 
             await featureSettings.StartFeatures(null, null);
 
@@ -90,7 +88,7 @@
             var feature = new FeatureWithStartupTaskThatThrows(throwOnStart: false, throwOnStop: true);
             featureSettings.Add(feature);
 
-            featureSettings.SetupFeatures(null, null, null);
+            featureSettings.SetupFeatures(null, null, null, null);
 
             await featureSettings.StartFeatures(null, null);
 
@@ -163,9 +161,9 @@
 
             public class Runner : FeatureStartupTask, IDisposable
             {
-                public Runner(FeatureWithStartupTaskThatThrows parenFeature)
+                public Runner(FeatureWithStartupTaskThatThrows parentFeature)
                 {
-                    parentFeature = parenFeature;
+                    this.parentFeature = parentFeature;
                 }
 
                 public void Dispose()

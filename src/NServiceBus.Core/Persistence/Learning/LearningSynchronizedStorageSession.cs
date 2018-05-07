@@ -33,17 +33,18 @@ namespace NServiceBus
             deferredActions.Clear();
         }
 
-        public async Task<TSagaData> Read<TSagaData>(Guid sagaId) where TSagaData : IContainSagaData
+        public async Task<TSagaData> Read<TSagaData>(Guid sagaId) where TSagaData : class, IContainSagaData
         {
             var sagaStorageFile = await Open(sagaId, typeof(TSagaData))
                 .ConfigureAwait(false);
 
             if (sagaStorageFile == null)
             {
-                return DefaultSagaData<TSagaData>.Value;
+                return null;
             }
 
-            return (TSagaData)sagaStorageFile.Read();
+            return await sagaStorageFile.Read<TSagaData>()
+                .ConfigureAwait(false);
         }
 
         public Task Update(IContainSagaData sagaData)
@@ -84,11 +85,5 @@ namespace NServiceBus
         Dictionary<string, SagaStorageFile> sagaFiles = new Dictionary<string, SagaStorageFile>();
 
         List<StorageAction> deferredActions = new List<StorageAction>();
-
-        static class DefaultSagaData<TSagaData>
-            where TSagaData : IContainSagaData
-        {
-            public static TSagaData Value = default(TSagaData);
-        }
     }
 }

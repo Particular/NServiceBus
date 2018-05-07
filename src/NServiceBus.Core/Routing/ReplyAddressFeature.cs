@@ -11,13 +11,12 @@ namespace NServiceBus.Features
         protected internal override void Setup(FeatureConfigurationContext context)
         {
             var publicReturnAddress = context.Settings.GetOrDefault<string>("PublicReturnAddress");
-            var distributorAddress = context.Settings.GetOrDefault<string>("LegacyDistributor.Address");
+
             context.Pipeline.Register(
                 new ApplyReplyToAddressBehavior(
-                    context.Settings.LocalAddress(),
-                    context.Settings.InstanceSpecificQueue(),
-                    publicReturnAddress,
-                    distributorAddress),
+                    context.Receiving.LocalAddress,
+                    context.Receiving.InstanceSpecificQueue,
+                    publicReturnAddress),
                 "Applies the public reply to address to outgoing messages");
         }
     }

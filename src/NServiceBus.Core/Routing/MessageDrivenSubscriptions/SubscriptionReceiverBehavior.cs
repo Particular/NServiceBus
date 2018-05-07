@@ -22,7 +22,7 @@
             var incomingMessage = context.Message;
             var messageTypeString = GetSubscriptionMessageTypeFrom(incomingMessage);
 
-            var intent = incomingMessage.GetMesssageIntent();
+            var intent = incomingMessage.GetMessageIntent();
 
             if (string.IsNullOrEmpty(messageTypeString) && intent != MessageIntentEnum.Subscribe && intent != MessageIntentEnum.Unsubscribe)
             {
@@ -40,10 +40,9 @@
                 throw new InvalidOperationException("Subscription messages need to have intent set to Subscribe/Unsubscribe.");
             }
 
-            string subscriberAddress;
             string subscriberEndpoint = null;
 
-            if (incomingMessage.Headers.TryGetValue(Headers.SubscriberTransportAddress, out subscriberAddress))
+            if (incomingMessage.Headers.TryGetValue(Headers.SubscriberTransportAddress, out var subscriberAddress))
             {
                 subscriberEndpoint = incomingMessage.Headers[Headers.SubscriberEndpoint];
             }
@@ -77,7 +76,7 @@
             }
             Logger.Info($"{intent} from {subscriberAddress} on message type {messageTypeString}");
             var subscriber = new Subscriber(subscriberAddress, subscriberEndpoint);
-            if (incomingMessage.GetMesssageIntent() == MessageIntentEnum.Subscribe)
+            if (incomingMessage.GetMessageIntent() == MessageIntentEnum.Subscribe)
             {
                 var messageType = new MessageType(messageTypeString);
                 await subscriptionStorage.Subscribe(subscriber, messageType, context.Extensions).ConfigureAwait(false);
@@ -89,8 +88,7 @@
 
         static string GetSubscriptionMessageTypeFrom(IncomingMessage msg)
         {
-            string value;
-            msg.Headers.TryGetValue(Headers.SubscriptionMessageType, out value);
+            msg.Headers.TryGetValue(Headers.SubscriptionMessageType, out var value);
             return value;
         }
 

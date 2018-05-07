@@ -27,7 +27,7 @@
         /// <summary>
         /// The handler type, can be a saga, a timeout or just a plain handler.
         /// </summary>
-        public Type HandlerType { get; private set; }
+        public Type HandlerType { get; }
 
         internal bool IsTimeoutHandler { get; set; }
 

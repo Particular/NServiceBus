@@ -5,7 +5,7 @@ namespace NServiceBus.AutomaticSubscriptions.Config
     /// <summary>
     /// Provides fine grained control over auto subscribe.
     /// </summary>
-    public partial class AutoSubscribeSettings
+    public class AutoSubscribeSettings
     {
         internal AutoSubscribeSettings(EndpointConfiguration config)
         {
@@ -22,9 +22,7 @@ namespace NServiceBus.AutomaticSubscriptions.Config
 
         AutoSubscribe.SubscribeSettings GetSettings()
         {
-            AutoSubscribe.SubscribeSettings settings;
-
-            if (!config.Settings.TryGet(out settings))
+            if (!config.Settings.TryGet(out AutoSubscribe.SubscribeSettings settings))
             {
                 settings = new AutoSubscribe.SubscribeSettings();
                 config.Settings.Set<AutoSubscribe.SubscribeSettings>(settings);

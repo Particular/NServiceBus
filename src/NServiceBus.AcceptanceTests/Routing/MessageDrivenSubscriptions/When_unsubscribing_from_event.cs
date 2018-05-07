@@ -11,7 +11,7 @@
     public class When_unsubscribing_from_event : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task ShouldNoLongerReceiveEvent()
+        public async Task Should_no_longer_receive_event()
         {
             Requires.MessageDrivenPubSub();
 
@@ -60,19 +60,19 @@
                 {
                     c.OnEndpointSubscribed<Context>((args, ctx) =>
                     {
-                        if (args.SubscriberReturnAddress.Contains(Conventions.EndpointNamingConvention(typeof(Subscriber1))))
+                        if (args.SubscriberEndpoint.Contains(Conventions.EndpointNamingConvention(typeof(Subscriber1))))
                         {
                             ctx.Subscriber1Subscribed = true;
                         }
 
-                        if (args.SubscriberReturnAddress.Contains(Conventions.EndpointNamingConvention(typeof(Subscriber2))))
+                        if (args.SubscriberEndpoint.Contains(Conventions.EndpointNamingConvention(typeof(Subscriber2))))
                         {
                             ctx.Subscriber2Subscribed = true;
                         }
                     });
                     c.OnEndpointUnsubscribed<Context>((args, ctx) =>
                     {
-                        if (args.SubscriberReturnAddress.Contains(Conventions.EndpointNamingConvention(typeof(Subscriber2))))
+                        if (args.SubscriberEndpoint.Contains(Conventions.EndpointNamingConvention(typeof(Subscriber2))))
                         {
                             ctx.Subscriber2Unsubscribed = true;
                         }

@@ -7,7 +7,7 @@ namespace NServiceBus.Faults
     /// <summary>
     /// Errors notifications.
     /// </summary>
-    public partial class ErrorsNotifications
+    public class ErrorsNotifications
     {
         /// <summary>
         /// Notification when a message is moved to the error queue.

@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Threading.Tasks;
     using Customization;
+    using NUnit.Framework;
 
     public class EndpointBehavior : IComponentBehavior
     {
@@ -17,7 +18,7 @@
 
         public List<IWhenDefinition> Whens { get; set; }
 
-        public List<Action<EndpointConfiguration, ScenarioContext>> CustomConfig { get; private set; }
+        public List<Action<EndpointConfiguration, ScenarioContext>> CustomConfig { get; }
 
         public bool DoNotFailOnErrorMessages { get; set; }
 
@@ -38,7 +39,7 @@
             }
             catch (Exception)
             {
-                Console.WriteLine($"Endpoint {runner.Name} failed to initialize");
+                TestContext.WriteLine($"Endpoint {runner.Name} failed to initialize");
                 throw;
             }
             return runner;

@@ -22,9 +22,7 @@
         {
             var timeToBeReceived = TimeSpan.MaxValue;
 
-            DiscardIfNotReceivedBefore constraint;
-
-            if (context.Extensions.TryGetDeliveryConstraint(out constraint))
+            if (context.Extensions.TryGetDeliveryConstraint(out DiscardIfNotReceivedBefore constraint))
             {
                 timeToBeReceived = constraint.MaxTime;
             }

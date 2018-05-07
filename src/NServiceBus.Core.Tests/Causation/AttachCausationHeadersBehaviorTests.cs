@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
+    using NServiceBus.Pipeline;
     using NUnit.Framework;
     using Testing;
     using Transport;
@@ -11,14 +12,15 @@
     public class AttachCausationHeadersBehaviorTests
     {
         [Test]
-        public async Task Should_set_the_conversation_id_to_new_guid_when_not_sent_from_handler()
+        public async Task Should_generate_new_conversation_id_when_sending_outside_of_handlers()
         {
-            var behavior = new AttachCausationHeadersBehavior();
-            var context = new TestableOutgoingPhysicalMessageContext();
+            var generatedId = "some generated conversation id";
+            var behavior = new AttachCausationHeadersBehavior(_ => generatedId);
+            var context = new TestableOutgoingLogicalMessageContext();
 
             await behavior.Invoke(context, ctx => TaskEx.CompletedTask);
 
-            Assert.AreNotEqual(Guid.Empty.ToString(), context.Headers[Headers.ConversationId]);
+            Assert.AreEqual(generatedId, context.Headers[Headers.ConversationId]);
         }
 
         [Test]
@@ -26,8 +28,8 @@
         {
             var incomingConversationId = Guid.NewGuid().ToString();
 
-            var behavior = new AttachCausationHeadersBehavior();
-            var context = new TestableOutgoingPhysicalMessageContext();
+            var behavior = new AttachCausationHeadersBehavior(ReturnDefaultConversationId);
+            var context = new TestableOutgoingLogicalMessageContext();
 
             var transportMessage = new IncomingMessage("xyz", new Dictionary<string, string>
             {
@@ -45,8 +47,8 @@
         {
             var userConversationId = Guid.NewGuid().ToString();
 
-            var behavior = new AttachCausationHeadersBehavior();
-            var context = new TestableOutgoingPhysicalMessageContext
+            var behavior = new AttachCausationHeadersBehavior(ReturnDefaultConversationId);
+            var context = new TestableOutgoingLogicalMessageContext
             {
                 Headers =
                 {
@@ -65,8 +67,8 @@
             var incomingConversationId = Guid.NewGuid().ToString();
             var userDefinedConversationId = Guid.NewGuid().ToString();
 
-            var behavior = new AttachCausationHeadersBehavior();
-            var context = new TestableOutgoingPhysicalMessageContext
+            var behavior = new AttachCausationHeadersBehavior(ReturnDefaultConversationId);
+            var context = new TestableOutgoingLogicalMessageContext
             {
                 Headers =
                 {
@@ -87,14 +89,19 @@
         [Test]
         public async Task Should_set_the_related_to_header_with_the_id_of_the_current_message()
         {
-            var behavior = new AttachCausationHeadersBehavior();
-            var context = new TestableOutgoingPhysicalMessageContext();
+            var behavior = new AttachCausationHeadersBehavior(ReturnDefaultConversationId);
+            var context = new TestableOutgoingLogicalMessageContext();
 
             context.Extensions.Set(new IncomingMessage("the message id", new Dictionary<string, string>(), new byte[0]));
 
             await behavior.Invoke(context, ctx => TaskEx.CompletedTask);
 
             Assert.AreEqual("the message id", context.Headers[Headers.RelatedTo]);
+        }
+
+        string ReturnDefaultConversationId(IOutgoingLogicalMessageContext context)
+        {
+            return ConversationId.Default.Value;
         }
     }
 }

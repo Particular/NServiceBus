@@ -21,6 +21,11 @@ namespace NServiceBus.Testing
         }
 
         /// <summary>
+        /// A list of all messages sent with a saga timeout header.
+        /// </summary>
+        public TimeoutMessage<object>[] TimeoutMessages => timeoutMessages.ToArray();
+
+        /// <summary>
         /// A list of all messages sent by <see cref="IPipelineContext.Send" />.
         /// </summary>
         public virtual SentMessage<object>[] SentMessages => sentMessages.ToArray();
@@ -42,8 +47,14 @@ namespace NServiceBus.Testing
         /// <param name="options">The options for the send.</param>
         public virtual Task Send(object message, SendOptions options)
         {
-            sentMessages.Enqueue(new SentMessage<object>(message, options));
+            var headers = options.GetHeaders();
 
+            if (headers.ContainsKey(Headers.IsSagaTimeoutMessage))
+            {
+                timeoutMessages.Enqueue(GetTimeoutMessage(message, options));
+            }
+
+            sentMessages.Enqueue(new SentMessage<object>(message, options));
             return Task.FromResult(0);
         }
 
@@ -80,6 +91,18 @@ namespace NServiceBus.Testing
             return Publish(messageCreator.CreateInstance(messageConstructor), publishOptions);
         }
 
+        static TimeoutMessage<object> GetTimeoutMessage(object message, SendOptions options)
+        {
+            var within = options.GetDeliveryDelay();
+            if (within.HasValue)
+            {
+                return new TimeoutMessage<object>(message, options, within.Value);
+            }
+
+            var dateTimeOffset = options.GetDeliveryDate();
+            return new TimeoutMessage<object>(message, options, dateTimeOffset.Value);
+        }
+
         /// <summary>
         /// the <see cref="IMessageCreator" /> instance used to create proxy implementation for message interfaces.
         /// </summary>
@@ -88,5 +111,6 @@ namespace NServiceBus.Testing
         ConcurrentQueue<PublishedMessage<object>> publishedMessages = new ConcurrentQueue<PublishedMessage<object>>();
 
         ConcurrentQueue<SentMessage<object>> sentMessages = new ConcurrentQueue<SentMessage<object>>();
+        ConcurrentQueue<TimeoutMessage<object>> timeoutMessages = new ConcurrentQueue<TimeoutMessage<object>>();
     }
 }

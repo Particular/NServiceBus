@@ -3,7 +3,6 @@ namespace NServiceBus.Features
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using ObjectBuilder;
     using Unicast;
 
     class RegisterHandlersInOrder : Feature
@@ -20,9 +19,7 @@ namespace NServiceBus.Features
                 return;
             }
 
-            List<Type> order;
-
-            if (!context.Settings.TryGet("NServiceBus.ExecuteTheseHandlersFirst", out order))
+            if (!context.Settings.TryGet("NServiceBus.ExecuteTheseHandlersFirst", out List<Type> order))
             {
                 order = new List<Type>(0);
             }
@@ -52,15 +49,6 @@ namespace NServiceBus.Features
             {
                 context.Container.ConfigureComponent(t, DependencyLifecycle.InstancePerUnitOfWork);
                 handlerRegistry.RegisterHandler(t);
-            }
-
-            List<Action<IConfigureComponents>> propertiesToInject;
-            if (context.Settings.TryGet("NServiceBus.HandlerProperties", out propertiesToInject))
-            {
-                foreach (var action in propertiesToInject)
-                {
-                    action(context.Container);
-                }
             }
 
             context.Container.RegisterSingleton(handlerRegistry);

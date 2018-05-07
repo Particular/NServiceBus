@@ -20,6 +20,11 @@
             Guard.AgainstNull(nameof(options), options);
             Guard.AgainstNegative(nameof(delay), delay);
 
+            if (options.GetExtensions().TryGetDeliveryConstraint(out DoNotDeliverBefore _))
+            {
+                throw new InvalidOperationException($"The options are already configured for delayed delivery by the '{nameof(DoNotDeliverBefore)}' API.");
+            }
+
             options.GetExtensions().AddDeliveryConstraint(new DelayDeliveryWith(delay));
         }
 
@@ -31,9 +36,7 @@
         public static TimeSpan? GetDeliveryDelay(this SendOptions options)
         {
             Guard.AgainstNull(nameof(options), options);
-            DelayDeliveryWith delay;
-            options.GetExtensions().TryGetDeliveryConstraint(out delay);
-
+            options.GetExtensions().TryGetDeliveryConstraint(out DelayDeliveryWith delay);
             return delay?.Delay;
         }
 
@@ -46,6 +49,11 @@
         {
             Guard.AgainstNull(nameof(options), options);
 
+            if (options.GetExtensions().TryGetDeliveryConstraint(out DelayDeliveryWith _))
+            {
+                throw new InvalidOperationException($"The options are already configured for delayed delivery by the '{nameof(DelayDeliveryWith)}' API.");
+            }
+
             options.GetExtensions().AddDeliveryConstraint(new DoNotDeliverBefore(at.UtcDateTime));
         }
 
@@ -57,9 +65,7 @@
         public static DateTimeOffset? GetDeliveryDate(this SendOptions options)
         {
             Guard.AgainstNull(nameof(options), options);
-            DoNotDeliverBefore deliveryDate;
-            options.GetExtensions().TryGetDeliveryConstraint(out deliveryDate);
-
+            options.GetExtensions().TryGetDeliveryConstraint(out DoNotDeliverBefore deliveryDate);
             return deliveryDate?.At;
         }
     }

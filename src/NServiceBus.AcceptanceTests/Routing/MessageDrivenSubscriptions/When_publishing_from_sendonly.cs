@@ -12,6 +12,7 @@
     using Persistence;
     using Unicast.Subscriptions;
     using Unicast.Subscriptions.MessageDrivenSubscriptions;
+    using Conventions = AcceptanceTesting.Customization.Conventions;
 
     public class When_publishing_from_sendonly : NServiceBusAcceptanceTest
     {
@@ -94,7 +95,7 @@
             {
                 addressTask = Task.FromResult(new[]
                 {
-                    new Unicast.Subscriptions.MessageDrivenSubscriptions.Subscriber("publishingFromSendonly.subscriber", null)
+                    new Unicast.Subscriptions.MessageDrivenSubscriptions.Subscriber(Conventions.EndpointNamingConvention(typeof(Subscriber)), null)
                 }.AsEnumerable());
             }
 

@@ -1,7 +1,6 @@
 namespace NServiceBus.Logging
 {
     using System;
-    using JetBrains.Annotations;
 
     /// <summary>
     /// Provides logging methods and utility functions.
@@ -52,7 +51,6 @@ namespace NServiceBus.Logging
         /// </summary>
         /// <param name="format">A string containing format items.</param>
         /// <param name="args">Arguments to format.</param>
-        [StringFormatMethod("format")]
         void DebugFormat(string format, params object[] args);
 
         /// <summary>
@@ -74,7 +72,6 @@ namespace NServiceBus.Logging
         /// </summary>
         /// <param name="format">A string containing format items.</param>
         /// <param name="args">Arguments to format.</param>
-        [StringFormatMethod("format")]
         void InfoFormat(string format, params object[] args);
 
         /// <summary>
@@ -96,7 +93,6 @@ namespace NServiceBus.Logging
         /// </summary>
         /// <param name="format">A string containing format items.</param>
         /// <param name="args">Arguments to format.</param>
-        [StringFormatMethod("format")]
         void WarnFormat(string format, params object[] args);
 
         /// <summary>
@@ -118,7 +114,6 @@ namespace NServiceBus.Logging
         /// </summary>
         /// <param name="format">A string containing format items.</param>
         /// <param name="args">Arguments to format.</param>
-        [StringFormatMethod("format")]
         void ErrorFormat(string format, params object[] args);
 
         /// <summary>
@@ -140,7 +135,6 @@ namespace NServiceBus.Logging
         /// </summary>
         /// <param name="format">A string containing format items.</param>
         /// <param name="args">Arguments to format.</param>
-        [StringFormatMethod("format")]
         void FatalFormat(string format, params object[] args);
     }
 }

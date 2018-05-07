@@ -34,7 +34,13 @@
             pendingTransactionDir = Path.Combine(messagePumpBasePath, PendingDirName);
             committedTransactionDir = Path.Combine(messagePumpBasePath, CommittedDirName);
 
-            purgeOnStartup = settings.PurgeOnStartup;
+            if (settings.PurgeOnStartup)
+            {
+                if (Directory.Exists(messagePumpBasePath))
+                {
+                    Directory.Delete(messagePumpBasePath, true);
+                }
+            }
 
             delayedMessagePoller = new DelayedMessagePoller(messagePumpBasePath, delayedDir);
 
@@ -48,14 +54,6 @@
             cancellationTokenSource = new CancellationTokenSource();
 
             cancellationToken = cancellationTokenSource.Token;
-
-            if (purgeOnStartup)
-            {
-                if (Directory.Exists(messagePumpBasePath))
-                {
-                    Directory.Delete(messagePumpBasePath, true);
-                }
-            }
 
             RecoverPendingTransactions();
 
@@ -136,6 +134,8 @@
 
         async Task InnerProcessMessages()
         {
+            log.Debug($"Started polling for new messages in {messagePumpBasePath}");
+
             while (!cancellationToken.IsCancellationRequested)
             {
                 var filesFound = false;
@@ -155,16 +155,19 @@
                     {
                         transaction = GetTransaction();
 
-                        var ableToLockFile = transaction.BeginTransaction(filePath);
+                        var ableToLockFile = await transaction.BeginTransaction(filePath).ConfigureAwait(false);
 
                         if (!ableToLockFile)
                         {
+                            log.Debug($"Unable to lock file {filePath}({transaction.FileToProcess})");
                             concurrencyLimiter.Release();
                             continue;
                         }
                     }
-                    catch(Exception)
+                    catch (Exception ex)
                     {
+                        log.Debug($"Failed to begin transaction {filePath}", ex);
+
                         concurrencyLimiter.Release();
                         throw;
                     }
@@ -176,7 +179,7 @@
                             {
                                 if (log.IsDebugEnabled)
                                 {
-                                    log.Debug($"Completing processing for {filePath}, exception (if any): {t.Exception}");
+                                    log.Debug($"Completing processing for {filePath}({transaction.FileToProcess}), exception (if any): {t.Exception}");
                                 }
 
                                 var wasCommitted = transaction.Complete();
@@ -192,13 +195,13 @@
 
                                     if (!(baseEx is OperationCanceledException))
                                     {
-                                        criticalError.Raise("Failure while trying to process " + filePath, baseEx);
+                                        criticalError.Raise($"Failed to process {filePath}({transaction.FileToProcess})", baseEx);
                                     }
                                 }
                             }
                             catch (Exception ex)
                             {
-                                criticalError.Raise("Failure while trying to complete receive transaction for " + filePath, ex);
+                                criticalError.Raise($"Failure while trying to complete receive transaction for  {filePath}({transaction.FileToProcess})" + filePath, ex);
                             }
                             finally
                             {
@@ -227,33 +230,27 @@
 
         async Task ProcessFile(ILearningTransportTransaction transaction, string messageId)
         {
-            string message;
-            try
-            {
-                message = await AsyncFile.ReadText(transaction.FileToProcess)
+            var message = await AsyncFile.ReadText(transaction.FileToProcess)
                     .ConfigureAwait(false);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                throw;
-            }
 
             var bodyPath = Path.Combine(bodyDir, $"{messageId}{BodyFileSuffix}");
             var headers = HeaderSerializer.Deserialize(message);
 
-            if (headers.TryGetValue(Headers.TimeToBeReceived, out var ttbrString))
+            if (headers.TryGetValue(LearningTransportHeaders.TimeToBeReceived, out var ttbrString))
             {
+                headers.Remove(LearningTransportHeaders.TimeToBeReceived);
+
                 var ttbr = TimeSpan.Parse(ttbrString);
 
                 //file.move preserves create time
                 var sentTime = File.GetCreationTimeUtc(transaction.FileToProcess);
 
-                if (sentTime + ttbr < DateTime.UtcNow)
+                var utcNow = DateTime.UtcNow;
+                if (sentTime + ttbr < utcNow)
                 {
                     await transaction.Commit()
                         .ConfigureAwait(false);
-
+                    log.InfoFormat("Dropping message '{0}' as the specified TimeToBeReceived of '{1}' expired since sending the message at '{2:O}'. Current UTC time is '{3:O}'", messageId, ttbrString, sentTime, utcNow);
                     return;
                 }
             }
@@ -284,8 +281,8 @@
 
                 var errorContext = new ErrorContext(exception, headers, messageId, body, transportTransaction, processingFailures);
 
-                // the transport tests assume that all transports use a circuit breaker to be resillient against exceptions
-                // in onError. Since we don't need that robustness we just retry onError once should it fail.
+                // the transport tests assume that all transports use a circuit breaker to be resilient against exceptions
+                // in onError. Since we don't need that robustness, we just retry onError once should it fail.
                 ErrorHandleResult actionToTake;
                 try
                 {
@@ -322,7 +319,6 @@
         SemaphoreSlim concurrencyLimiter;
         Task messagePumpTask;
         Func<MessageContext, Task> onMessage;
-        bool purgeOnStartup;
         Func<ErrorContext, Task<ErrorHandleResult>> onError;
         ConcurrentDictionary<string, int> retryCounts = new ConcurrentDictionary<string, int>();
         string messagePumpBasePath;
@@ -338,7 +334,7 @@
         CriticalError criticalError;
 
 
-        static ILog log = LogManager.GetLogger<LearningTransport>();
+        static ILog log = LogManager.GetLogger<LearningTransportMessagePump>();
 
         public const string BodyFileSuffix = ".body.txt";
         public const string BodyDirName = ".bodies";

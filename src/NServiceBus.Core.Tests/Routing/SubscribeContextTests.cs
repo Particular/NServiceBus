@@ -15,16 +15,11 @@
             var testee = new SubscribeContext(new RootContext(null, null, null), typeof(object), context);
             testee.Extensions.Set("someKey", "updatedValue");
             testee.Extensions.Set("anotherKey", "anotherValue");
-
-            string value;
-            string anotherValue;
-            context.TryGet("someKey", out value);
+            context.TryGet("someKey", out string value);
             Assert.AreEqual("someValue", value);
-            Assert.IsFalse(context.TryGet("anotherKey", out anotherValue));
-            string updatedValue;
-            string anotherValue2;
-            testee.Extensions.TryGet("someKey", out updatedValue);
-            testee.Extensions.TryGet("anotherKey", out anotherValue2);
+            Assert.IsFalse(context.TryGet("anotherKey", out string _));
+            testee.Extensions.TryGet("someKey", out string updatedValue);
+            testee.Extensions.TryGet("anotherKey", out string anotherValue2);
             Assert.AreEqual("updatedValue", updatedValue);
             Assert.AreEqual("anotherValue", anotherValue2);
         }
@@ -39,8 +34,7 @@
 
             new SubscribeContext(parentContext, typeof(object), context);
 
-            string parentContextValue;
-            var valueFound = parentContext.TryGet("someKey", out parentContextValue);
+            var valueFound = parentContext.TryGet("someKey", out string _);
 
             Assert.IsFalse(valueFound);
         }

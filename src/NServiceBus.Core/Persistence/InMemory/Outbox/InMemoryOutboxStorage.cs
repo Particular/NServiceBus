@@ -10,8 +10,7 @@
     {
         public Task<OutboxMessage> Get(string messageId, ContextBag context)
         {
-            StoredMessage storedMessage;
-            if (!storage.TryGetValue(messageId, out storedMessage))
+            if (!storage.TryGetValue(messageId, out var storedMessage))
             {
                 return NoOutboxMessageTask;
             }
@@ -39,9 +38,7 @@
 
         public Task SetAsDispatched(string messageId, ContextBag context)
         {
-            StoredMessage storedMessage;
-
-            if (!storage.TryGetValue(messageId, out storedMessage))
+            if (!storage.TryGetValue(messageId, out var storedMessage))
             {
                 return TaskEx.CompletedTask;
             }
@@ -57,9 +54,7 @@
                 var storedMessage = entry.Value;
                 if (storedMessage.Dispatched && storedMessage.StoredAt < dateTime)
                 {
-                    StoredMessage toRemove;
-
-                    storage.TryRemove(entry.Key, out toRemove);
+                    storage.TryRemove(entry.Key, out _);
                 }
             }
         }

@@ -4,11 +4,11 @@
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Linq;
-    using System.Security.Principal;
     using System.Threading;
     using System.Threading.Tasks;
     using DeliveryConstraints;
     using Extensibility;
+    using Logging;
     using NUnit.Framework;
     using Routing;
     using Settings;
@@ -21,13 +21,15 @@
         {
             testId = Guid.NewGuid().ToString();
 
+            LogManager.UseFactory(new TransportTestLoggerFactory());
+
             //when using [TestCase] NUnit will reuse the same test instance so we need to make sure that the message pump is a fresh one
             MessagePump = null;
         }
 
         static IConfigureTransportInfrastructure CreateConfigurer()
         {
-            var transportToUse = EnvironmentHelper.GetEnvironmentVariable("Transport.UseSpecific");
+            var transportToUse = EnvironmentHelper.GetEnvironmentVariable("Transport_UseSpecific");
 
             if (string.IsNullOrWhiteSpace(transportToUse))
             {
@@ -47,9 +49,7 @@
                 throw new InvalidOperationException($"Transport Test project must include a non-namespaced class named '{typeName}' implementing {typeof(IConfigureTransportInfrastructure).Name}.");
             }
 
-            var configurer = Activator.CreateInstance(configurerType) as IConfigureTransportInfrastructure;
-
-            if (configurer == null)
+            if (!(Activator.CreateInstance(configurerType) is IConfigureTransportInfrastructure configurer))
             {
                 throw new InvalidOperationException($"{typeName} does not implement {typeof(IConfigureTransportInfrastructure).Name}.");
             }
@@ -99,7 +99,8 @@
             MessagePump = ReceiveInfrastructure.MessagePumpFactory();
 
             var queueCreator = ReceiveInfrastructure.QueueCreatorFactory();
-            await queueCreator.CreateQueueIfNecessary(queueBindings, WindowsIdentity.GetCurrent().Name);
+            var userName = GetUserName();
+            await queueCreator.CreateQueueIfNecessary(queueBindings, userName);
 
             var pushSettings = new PushSettings(InputQueueName, ErrorQueueName, configuration.PurgeInputQueueOnStartup, transactionMode);
             await MessagePump.Init(
@@ -125,6 +126,16 @@
                 pushSettings);
 
             MessagePump.Start(configuration.PushRuntimeSettings);
+        }
+
+        string GetUserName()
+        {
+            if (Environment.OSVersion.Platform == PlatformID.Win32NT)
+            {
+                return $"{Environment.UserDomainName}\\{Environment.UserName}";
+            }
+
+            return Environment.UserName;
         }
 
         void IgnoreUnsupportedDeliveryConstraints()
@@ -179,12 +190,6 @@
             testCancellationTokenSource = Debugger.IsAttached ? new CancellationTokenSource() : new CancellationTokenSource(TimeSpan.FromSeconds(30));
 
             testCancellationTokenSource.Token.Register(onTimeoutAction);
-        }
-
-        protected virtual TransportInfrastructure CreateTransportInfrastructure()
-        {
-            var msmqTransportDefinition = new MsmqTransport();
-            return msmqTransportDefinition.Initialize(new SettingsHolder(), "");
         }
 
         protected void RequireDeliveryConstraint<T>() where T : DeliveryConstraint

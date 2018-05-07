@@ -6,21 +6,8 @@ namespace NServiceBus
     /// <summary>
     /// Provides information about the fault configuration.
     /// </summary>
-    public class FailedConfig
+    public partial class FailedConfig
     {
-        /// <summary>
-        /// Creates a new fault configuration.
-        /// </summary>
-        /// <param name="errorQueue">The address of the error queue.</param>
-        [ObsoleteEx(ReplacementTypeOrMember = "FailedConfig(string errorQueue, HashSet<Type> unrecoverableExceptionTypes)", RemoveInVersion = "8.0", TreatAsErrorFromVersion = "7.0")]
-        public FailedConfig(string errorQueue)
-        {
-            Guard.AgainstNullAndEmpty(nameof(errorQueue), errorQueue);
-
-            ErrorQueue = errorQueue;
-            UnrecoverableExceptionTypes = new HashSet<Type>();
-        }
-
         /// <summary>
         /// Creates a new fault configuration.
         /// </summary>

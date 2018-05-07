@@ -13,7 +13,7 @@
         public async Task Should_invoke_instance_that_requested_the_timeout()
         {
             var context = await Scenario.Define<Context>()
-                .WithEndpoint<Endpoint>(e => e.When(s => s.SendLocal(new StartSagaMessage()
+                .WithEndpoint<Endpoint>(e => e.When(s => s.SendLocal(new StartSagaMessage
                 {
                     Id = Guid.NewGuid().ToString()
                 })))

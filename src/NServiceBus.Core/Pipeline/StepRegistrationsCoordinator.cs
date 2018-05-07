@@ -28,9 +28,9 @@ namespace NServiceBus
             var relevantRemovals = removals.Where(removal => additions.Any(a => a.StepId == removal.RemoveId)).ToList();
             var relevantReplacements = replacements.Where(removal => additions.Any(a => a.StepId == removal.ReplaceId)).ToList();
 
-            var piplineModelBuilder = new PipelineModelBuilder(typeof(TRootContext), additions, relevantRemovals, relevantReplacements);
+            var pipelineModelBuilder = new PipelineModelBuilder(typeof(TRootContext), additions, relevantRemovals, relevantReplacements);
 
-            return piplineModelBuilder.Build();
+            return pipelineModelBuilder.Build();
         }
 
         List<RegisterStep> additions = new List<RegisterStep>();

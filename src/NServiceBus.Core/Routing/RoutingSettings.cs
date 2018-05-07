@@ -2,7 +2,7 @@
 {
     using System;
     using System.Reflection;
-    using Configuration.AdvanceExtensibility;
+    using Configuration.AdvancedExtensibility;
     using Features;
     using Routing;
     using Settings;

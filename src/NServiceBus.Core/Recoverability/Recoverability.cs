@@ -2,15 +2,13 @@
 {
     using System;
     using System.Collections.Generic;
-    using Config;
-    using ConsistencyGuarantees;
+    using System.Linq;
     using DelayedDelivery;
     using DeliveryConstraints;
     using Faults;
     using Features;
     using Hosting;
     using Logging;
-    using Routing;
     using Settings;
     using Support;
     using Transport;
@@ -39,6 +37,28 @@
             var errorQueue = context.Settings.ErrorQueueAddress();
             context.Settings.Get<QueueBindings>().BindSending(errorQueue);
 
+            var transactionsOn = context.Receiving.TransactionMode != TransportTransactionMode.None;
+            var delayedRetryConfig = GetDelayedRetryConfig(context.Settings, transactionsOn);
+            var delayedRetriesAvailable = transactionsOn
+                                          && (context.Settings.DoesTransportSupportConstraint<DelayedDeliveryConstraint>() || context.Settings.Get<TimeoutManagerAddressConfiguration>().TransportAddress != null);
+
+
+            var immediateRetryConfig = GetImmediateRetryConfig(context.Settings, transactionsOn);
+            var immediateRetriesAvailable = transactionsOn;
+
+            var failedConfig = new FailedConfig(errorQueue, context.Settings.UnrecoverableExceptions());
+
+            var recoverabilityConfig = new RecoverabilityConfig(immediateRetryConfig, delayedRetryConfig, failedConfig);
+
+            context.Settings.AddStartupDiagnosticsSection("Recoverability", new
+            {
+                ImmediateRetries = recoverabilityConfig.Immediate.MaxNumberOfRetries,
+                DelayedRetries = recoverabilityConfig.Delayed.MaxNumberOfRetries,
+                DelayedRetriesTimeIncrease = recoverabilityConfig.Delayed.TimeIncrease.ToString("g"),
+                recoverabilityConfig.Failed.ErrorQueue,
+                UnrecoverableExceptions = recoverabilityConfig.Failed.UnrecoverableExceptionTypes.Select(t => t.FullName).ToArray()
+            });
+
             context.Container.ConfigureComponent(b =>
             {
                 Func<string, MoveToErrorsExecutor> moveToErrorsExecutorFactory = localAddress =>
@@ -58,11 +78,6 @@
                     return new MoveToErrorsExecutor(b.Build<IDispatchMessages>(), staticFaultMetadata, headerCustomizations);
                 };
 
-                var transactionsOn = context.Settings.GetRequiredTransactionModeForReceives() != TransportTransactionMode.None;
-                var delayedRetryConfig = GetDelayedRetryConfig(context.Settings, transactionsOn);
-                var delayedRetriesAvailable = transactionsOn
-                                              && (context.Settings.DoesTransportSupportConstraint<DelayedDeliveryConstraint>() || context.Settings.Get<TimeoutManagerAddressConfiguration>().TransportAddress != null);
-
                 Func<string, DelayedRetryExecutor> delayedRetryExecutorFactory = localAddress =>
                 {
                     if (delayedRetriesAvailable)
@@ -78,20 +93,14 @@
                     return null;
                 };
 
-                var immediateRetryConfig = GetImmediateRetryConfig(context.Settings, transactionsOn);
-                var immediateRetriesAvailable = transactionsOn;
-
-                Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> policy;
-                if (!context.Settings.TryGet(PolicyOverride, out policy))
+                if (!context.Settings.TryGet(PolicyOverride, out Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> policy))
                 {
                     policy = DefaultRecoverabilityPolicy.Invoke;
                 }
 
-                var failedConfig = new FailedConfig(errorQueue, context.Settings.UnrecoverableExceptions());
-
                 return new RecoverabilityExecutorFactory(
                     policy,
-                    new RecoverabilityConfig(immediateRetryConfig, delayedRetryConfig, failedConfig),
+                    recoverabilityConfig,
                     delayedRetryExecutorFactory,
                     moveToErrorsExecutorFactory,
                     immediateRetriesAvailable,
@@ -100,13 +109,6 @@
             }, DependencyLifecycle.SingleInstance);
 
             RaiseLegacyNotifications(context);
-
-            //HINT: we turn off the legacy retries satellite only when explicitly configured by the user
-            bool disableLegacyRetriesSatellite;
-            if (context.Settings.TryGet(DisableLegacyRetriesSatellite, out disableLegacyRetriesSatellite) == false)
-            {
-                SetupLegacyRetriesSatellite(context);
-            }
         }
 
         static ImmediateConfig GetImmediateRetryConfig(ReadOnlySettings settings, bool transactionsOn)
@@ -118,8 +120,7 @@
                 return new ImmediateConfig(0);
             }
 
-            var retriesConfig = settings.GetConfigSection<TransportConfig>();
-            var maxImmediateRetries = retriesConfig?.MaxRetries ?? settings.Get<int>(NumberOfImmediateRetries);
+            var maxImmediateRetries = settings.Get<int>(NumberOfImmediateRetries);
 
             return new ImmediateConfig(maxImmediateRetries);
         }
@@ -135,13 +136,6 @@
 
             var numberOfRetries = settings.Get<int>(NumberOfDelayedRetries);
             var timeIncrease = settings.Get<TimeSpan>(DelayedRetriesTimeIncrease);
-
-            var retriesConfig = settings.GetConfigSection<SecondLevelRetriesConfig>();
-            if (retriesConfig != null)
-            {
-                numberOfRetries = retriesConfig.Enabled ? retriesConfig.NumberOfRetries : 0;
-                timeIncrease = retriesConfig.TimeIncrease;
-            }
 
             return new DelayedConfig(numberOfRetries, timeIncrease);
         }
@@ -173,51 +167,11 @@
             });
         }
 
-        void SetupLegacyRetriesSatellite(FeatureConfigurationContext context)
-        {
-            var retriesQueueLogicalAddress = context.Settings.LogicalAddress().CreateQualifiedAddress("Retries");
-            var retriesQueueTransportAddress = context.Settings.GetTransportAddress(retriesQueueLogicalAddress);
-
-            var mainQueueLogicalAddress = context.Settings.LogicalAddress();
-            var mainQueueTransportAddress = context.Settings.GetTransportAddress(mainQueueLogicalAddress);
-
-            var requiredTransactionMode = context.Settings.GetRequiredTransactionModeForReceives();
-
-            context.AddSatelliteReceiver("Legacy Retries Processor", retriesQueueTransportAddress, requiredTransactionMode, new PushRuntimeSettings(maxConcurrency: 1),
-                (config, errorContext) =>
-                {
-                    return RecoverabilityAction.MoveToError(config.Failed.ErrorQueue);
-                },
-                (builder, messageContext) =>
-                {
-                    var messageDispatcher = builder.Build<IDispatchMessages>();
-
-                    var outgoingHeaders = messageContext.Headers;
-                    outgoingHeaders.Remove("NServiceBus.ExceptionInfo.Reason");
-                    outgoingHeaders.Remove("NServiceBus.ExceptionInfo.ExceptionType");
-                    outgoingHeaders.Remove("NServiceBus.ExceptionInfo.InnerExceptionType");
-                    outgoingHeaders.Remove("NServiceBus.ExceptionInfo.HelpLink");
-                    outgoingHeaders.Remove("NServiceBus.ExceptionInfo.Message");
-                    outgoingHeaders.Remove("NServiceBus.ExceptionInfo.Source");
-                    outgoingHeaders.Remove("NServiceBus.FailedQ");
-                    outgoingHeaders.Remove("NServiceBus.TimeOfFailure");
-
-                    //HINT: this header is added by v3 when doing SLR
-                    outgoingHeaders.Remove("NServiceBus.OriginalId");
-
-                    var outgoingMessage = new OutgoingMessage(messageContext.MessageId, outgoingHeaders, messageContext.Body);
-                    var outgoingOperation = new TransportOperation(outgoingMessage, new UnicastAddressTag(mainQueueTransportAddress));
-
-                    return messageDispatcher.Dispatch(new TransportOperations(outgoingOperation), messageContext.TransportTransaction, messageContext.Extensions);
-                });
-        }
-
         public const string NumberOfDelayedRetries = "Recoverability.Delayed.DefaultPolicy.Retries";
         public const string DelayedRetriesTimeIncrease = "Recoverability.Delayed.DefaultPolicy.Timespan";
         public const string NumberOfImmediateRetries = "Recoverability.Immediate.Retries";
         public const string FaultHeaderCustomization = "Recoverability.Failed.FaultHeaderCustomization";
         public const string PolicyOverride = "Recoverability.CustomPolicy";
-        public const string DisableLegacyRetriesSatellite = "Recoverability.DisableLegacyRetriesSatellite";
         public const string UnrecoverableExceptions = "Recoverability.UnrecoverableExceptions";
 
         static ILog Logger = LogManager.GetLogger<Recoverability>();

@@ -30,8 +30,6 @@
 
             var errorQueueAddress = settings.ErrorQueueAddress();
             PathChecker.ThrowForBadPath(errorQueueAddress, "ErrorQueueAddress");
-
-            settings.Set(Recoverability.DisableLegacyRetriesSatellite, true);
         }
 
         public override IEnumerable<Type> DeliveryConstraints { get; } = new[]
@@ -61,7 +59,7 @@
                 if (parent == null)
                 {
                     // throw for now. if we discover there is an edge then we can fix it in a patch.
-                    throw new Exception("Couldn't find the solution directory for the learning transport.");
+                    throw new Exception("Couldn't find the solution directory for the learning transport. If the endpoint is outside the solution folder structure, make sure to specify a storage directory using the 'EndpointConfiguration.UseTransport<LearningTransport>().StorageDirectory()' API.");
                 }
 
                 directory = parent.FullName;
@@ -102,7 +100,7 @@
             PathChecker.ThrowForBadPath(address, "endpoint name");
 
             var discriminator = logicalAddress.EndpointInstance.Discriminator;
-           
+
             if (!string.IsNullOrEmpty(discriminator))
             {
                 PathChecker.ThrowForBadPath(discriminator, "endpoint discriminator");

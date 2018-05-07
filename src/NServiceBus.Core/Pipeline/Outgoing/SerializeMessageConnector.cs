@@ -21,7 +21,7 @@ namespace NServiceBus
         {
             if (log.IsDebugEnabled)
             {
-                log.DebugFormat("Serializing message '{0}' with id '{1}', ToString() of the message yields: {2} \n",
+                log.DebugFormat("Serializing message '{0}' with id '{1}', ToString() of the message yields: {2} " + Environment.NewLine,
                     context.Message.MessageType != null ? context.Message.MessageType.AssemblyQualifiedName : "unknown",
                     context.MessageId, context.Message.Instance);
             }
@@ -52,10 +52,16 @@ namespace NServiceBus
         {
             var metadata = messageMetadataRegistry.GetMessageMetadata(messageType);
 
-            var assemblyQualifiedNames = new HashSet<string>();
+            var assemblyQualifiedNames = new List<string>(metadata.MessageHierarchy.Length);
             foreach (var type in metadata.MessageHierarchy)
             {
-                assemblyQualifiedNames.Add(type.AssemblyQualifiedName);
+                var typeAssemblyQualifiedName = type.AssemblyQualifiedName;
+                if (assemblyQualifiedNames.Contains(typeAssemblyQualifiedName))
+                {
+                    continue;
+                }
+
+                assemblyQualifiedNames.Add(typeAssemblyQualifiedName);
             }
 
             return string.Join(";", assemblyQualifiedNames);

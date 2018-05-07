@@ -50,7 +50,7 @@
             {
             }
 
-            public override string SelectReceiver(string[] receiverAddresses)
+            public override string SelectDestination(DistributionContext context)
             {
                 return null;
             }

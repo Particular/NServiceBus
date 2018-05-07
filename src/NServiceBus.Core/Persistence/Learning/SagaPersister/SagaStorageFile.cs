@@ -5,30 +5,22 @@ namespace NServiceBus
     using System.Text;
     using System.Threading.Tasks;
     using Janitor;
-    using Newtonsoft.Json;
+    using SimpleJson;
 
     [SkipWeaving]
     class SagaStorageFile : IDisposable
     {
-        SagaStorageFile(FileStream fileStream, SagaManifest manifest)
+        SagaStorageFile(FileStream fileStream)
         {
             this.fileStream = fileStream;
-            this.manifest = manifest;
-            jsonWriter = new JsonTextWriter(new StreamWriter(fileStream, Encoding.Unicode))
-            {
-                CloseOutput = true,
-                Formatting = Formatting.Indented
-            };
-            jsonReader = new JsonTextReader(new StreamReader(fileStream, Encoding.Unicode))
-            {
-                CloseInput = true
-            };
+            streamWriter = new StreamWriter(fileStream, Encoding.Unicode);
+            streamReader = new StreamReader(fileStream, Encoding.Unicode);
         }
 
         public void Dispose()
         {
-            jsonWriter.Close();
-            jsonReader.Close();
+            streamWriter.Close();
+            streamReader.Close();
 
             if (isCompleted)
             {
@@ -47,21 +39,21 @@ namespace NServiceBus
                 return noSagaFoundResult;
             }
 
-            return OpenWithDelayOnConcurrency(manifest, filePath, FileMode.Open);
+            return OpenWithDelayOnConcurrency(filePath, FileMode.Open);
         }
 
         public static Task<SagaStorageFile> Create(Guid sagaId, SagaManifest manifest)
         {
             var filePath = manifest.GetFilePath(sagaId);
 
-            return OpenWithDelayOnConcurrency(manifest, filePath, FileMode.CreateNew);
+            return OpenWithDelayOnConcurrency(filePath, FileMode.CreateNew);
         }
 
-        static async Task<SagaStorageFile> OpenWithDelayOnConcurrency(SagaManifest manifest, string filePath, FileMode fileAccess)
+        static async Task<SagaStorageFile> OpenWithDelayOnConcurrency(string filePath, FileMode fileAccess)
         {
             try
             {
-                return new SagaStorageFile(new FileStream(filePath, fileAccess, FileAccess.ReadWrite, FileShare.None, DefaultBufferSize, FileOptions.Asynchronous), manifest);
+                return new SagaStorageFile(new FileStream(filePath, fileAccess, FileAccess.ReadWrite, FileShare.None, DefaultBufferSize, FileOptions.Asynchronous));
             }
             catch (IOException)
             {
@@ -73,13 +65,11 @@ namespace NServiceBus
             }
         }
 
-
         public Task Write(IContainSagaData sagaData)
         {
             fileStream.Position = 0;
-            serializer.Serialize(jsonWriter, sagaData);
-
-            return TaskEx.CompletedTask;
+            var json = SimpleJson.SerializeObject(sagaData, serializationStrategy);
+            return streamWriter.WriteAsync(json);
         }
 
         public Task MarkAsCompleted()
@@ -88,20 +78,19 @@ namespace NServiceBus
             return TaskEx.CompletedTask;
         }
 
-        public object Read()
+        public async Task<TSagaData> Read<TSagaData>() where TSagaData : class, IContainSagaData
         {
-            return serializer.Deserialize(jsonReader, manifest.SagaEntityType);
+            var json = await streamReader.ReadToEndAsync().ConfigureAwait(false);
+            return SimpleJson.DeserializeObject<TSagaData>(json, serializationStrategy);
         }
 
-
-        SagaManifest manifest;
         FileStream fileStream;
         bool isCompleted;
-        JsonTextWriter jsonWriter;
-        JsonTextReader jsonReader;
+        StreamWriter streamWriter;
+        StreamReader streamReader;
 
         const int DefaultBufferSize = 4096;
-        static Newtonsoft.Json.JsonSerializer serializer = new Newtonsoft.Json.JsonSerializer();
         static Task<SagaStorageFile> noSagaFoundResult = Task.FromResult<SagaStorageFile>(null);
+        static readonly EnumAwareStrategy serializationStrategy = new EnumAwareStrategy();
     }
 }

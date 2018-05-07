@@ -11,36 +11,6 @@ namespace NServiceBus
     {
         /// <summary>
         /// Loads all message handler assemblies in the runtime directory
-        /// and specifies that handlers in the given assembly should run
-        /// before all others.
-        /// Use First{T} to indicate the type to load from.
-        /// </summary>
-        /// <param name="config">The <see cref="EndpointConfiguration" /> instance to apply the settings to.</param>
-        [ObsoleteEx(
-            RemoveInVersion = "7.0",
-            TreatAsErrorFromVersion = "6.0",
-            ReplacementTypeOrMember = "ExecuteTheseHandlersFirst")]
-        public static void LoadMessageHandlers<TFirst>(this EndpointConfiguration config)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// Loads all message handler assemblies in the runtime directory
-        /// and specifies that the handlers in the given 'order' are to
-        /// run before all others and in the order specified.
-        /// </summary>
-        [ObsoleteEx(
-            RemoveInVersion = "7.0",
-            TreatAsErrorFromVersion = "6.0",
-            ReplacementTypeOrMember = "ExecuteTheseHandlersFirst")]
-        public static void LoadMessageHandlers<T>(this EndpointConfiguration config, First<T> order)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// Loads all message handler assemblies in the runtime directory
         /// and specifies that the handlers in the given 'order' are to
         /// run before all others and in the order specified.
         /// </summary>
@@ -51,8 +21,7 @@ namespace NServiceBus
             Guard.AgainstNull(nameof(config), config);
             Guard.AgainstNull(nameof(handlerTypes), handlerTypes);
 
-            List<Type> list;
-            if (!config.Settings.TryGet("NServiceBus.ExecuteTheseHandlersFirst", out list))
+            if (!config.Settings.TryGet("NServiceBus.ExecuteTheseHandlersFirst", out List<Type> list))
             {
                 list = new List<Type>();
                 config.Settings.Set("NServiceBus.ExecuteTheseHandlersFirst", list);

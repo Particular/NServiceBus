@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.Configuration.AdvanceExtensibility
+﻿namespace NServiceBus.Configuration.AdvancedExtensibility
 {
     using Settings;
 
@@ -19,6 +19,6 @@
         /// <summary>
         /// Get the current <see cref="SettingsHolder" /> this <see cref="ExposeSettings" /> wraps.
         /// </summary>
-        internal SettingsHolder Settings { get; private set; }
+        internal SettingsHolder Settings { get; }
     }
 }

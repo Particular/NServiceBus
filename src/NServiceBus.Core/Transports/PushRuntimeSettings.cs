@@ -29,7 +29,7 @@ namespace NServiceBus.Transport
         /// <summary>
         /// The maximum number of messages that should be in flight at any given time.
         /// </summary>
-        public int MaxConcurrency { get; private set; }
+        public int MaxConcurrency { get; }
 
         /// <summary>
         /// Use default settings.

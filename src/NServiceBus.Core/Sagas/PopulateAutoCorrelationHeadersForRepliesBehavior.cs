@@ -3,7 +3,6 @@
     using System;
     using System.Threading.Tasks;
     using Pipeline;
-    using Transport;
 
     class PopulateAutoCorrelationHeadersForRepliesBehavior : IBehavior<IOutgoingReplyContext, IOutgoingReplyContext>
     {
@@ -16,21 +15,12 @@
 
         static void FlowDetailsForRequestingSagaToOutgoingMessage(IOutgoingReplyContext context)
         {
-            IncomingMessage incomingMessage;
-
-            if (context.TryGetIncomingPhysicalMessage(out incomingMessage))
+            if (context.TryGetIncomingPhysicalMessage(out var incomingMessage))
             {
-                string sagaId;
+                incomingMessage.Headers.TryGetValue(Headers.OriginatingSagaId, out var sagaId);
+                incomingMessage.Headers.TryGetValue(Headers.OriginatingSagaType, out var sagaType);
 
-                incomingMessage.Headers.TryGetValue(Headers.OriginatingSagaId, out sagaId);
-
-                string sagaType;
-
-                incomingMessage.Headers.TryGetValue(Headers.OriginatingSagaType, out sagaType);
-
-                State state;
-
-                if (context.Extensions.TryGet(out state))
+                if (context.Extensions.TryGet(out State state))
                 {
                     sagaId = state.SagaIdToUse;
                     sagaType = state.SagaTypeToUse;

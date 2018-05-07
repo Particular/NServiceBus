@@ -1,13 +1,12 @@
 namespace NServiceBus
 {
+    using System;
     using System.Collections.Generic;
-    using Config;
     using Features;
     using Pipeline;
     using Routing;
     using Routing.MessageDrivenSubscriptions;
     using Settings;
-    using Transport;
 
     class RoutingComponent
     {
@@ -31,15 +30,12 @@ namespace NServiceBus
 
         public bool EnforceBestPractices { get; private set; }
 
-        public void Initialize(ReadOnlySettings settings, TransportInfrastructure transportInfrastructure, PipelineSettings pipelineSettings)
+        public void Initialize(ReadOnlySettings settings, Func<LogicalAddress, string> toTransportAddress, PipelineSettings pipelineSettings, ReceiveConfiguration receiveConfiguration)
         {
-            var unicastBusConfig = settings.GetConfigSection<UnicastBusConfig>();
             var conventions = settings.Get<Conventions>();
             var configuredUnicastRoutes = settings.GetOrDefault<ConfiguredUnicastRoutes>();
-            var distributorAddress = settings.GetOrDefault<string>("LegacyDistributor.Address");
 
-            List<DistributionStrategy> distributionStrategies;
-            if (settings.TryGet(out distributionStrategies))
+            if (settings.TryGet(out List<DistributionStrategy> distributionStrategies))
             {
                 foreach (var distributionStrategy in distributionStrategies)
                 {
@@ -47,12 +43,11 @@ namespace NServiceBus
                 }
             }
 
-            unicastBusConfig?.MessageEndpointMappings.Apply(Publishers, UnicastRoutingTable, transportInfrastructure.MakeCanonicalForm, conventions);
             configuredUnicastRoutes?.Apply(UnicastRoutingTable, conventions);
 
             pipelineSettings.Register(b =>
             {
-                var router = new UnicastSendRouter(settings.GetOrDefault<string>("BaseInputQueueName"), settings.EndpointName(), settings.InstanceSpecificQueue(), distributorAddress, DistributionPolicy, UnicastRoutingTable, EndpointInstances, i => transportInfrastructure.ToTransportAddress(LogicalAddress.CreateRemoteAddress(i)));
+                var router = new UnicastSendRouter(receiveConfiguration == null, receiveConfiguration?.QueueNameBase, receiveConfiguration?.InstanceSpecificQueue, DistributionPolicy, UnicastRoutingTable, EndpointInstances, i => toTransportAddress(LogicalAddress.CreateRemoteAddress(i)));
                 return new UnicastSendRouterConnector(router);
             }, "Determines how the message being sent should be routed");
 
@@ -67,8 +62,7 @@ namespace NServiceBus
 
         static bool ShouldEnforceBestPractices(ReadOnlySettings settings)
         {
-            bool enforceBestPractices;
-            if (settings.TryGet(EnforceBestPracticesSettingsKey, out enforceBestPractices))
+            if (settings.TryGet(EnforceBestPracticesSettingsKey, out bool enforceBestPractices))
             {
                 return enforceBestPractices;
             }

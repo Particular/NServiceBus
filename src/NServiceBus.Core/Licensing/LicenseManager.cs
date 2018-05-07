@@ -1,38 +1,38 @@
 namespace NServiceBus
 {
+    using System;
     using System.Diagnostics;
+#if NETSTANDARD2_0
+    using System.Runtime.InteropServices;
+#endif
     using System.Text;
     using System.Threading;
-    using System.Windows.Forms;
+    using System.Threading.Tasks;
     using Logging;
     using Particular.Licensing;
 
     class LicenseManager
     {
-        internal bool HasLicenseExpired()
-        {
-            return license == null || LicenseExpirationChecker.HasLicenseExpired(license);
-        }
+        internal bool HasLicenseExpired => result?.HasExpired ?? true;
 
         internal void InitializeLicense(string licenseText, string licenseFilePath)
         {
             var licenseSources = LicenseSources.GetLicenseSources(licenseText, licenseFilePath);
 
-            var result = ActiveLicense.Find("NServiceBus", licenseSources);
-            license = result.License;
+            result = ActiveLicense.Find("NServiceBus", licenseSources);
 
             LogFindResults(result);
 
             if (result.HasExpired)
             {
-                if (license.IsTrialLicense)
+                if (result.License.IsTrialLicense)
                 {
-                    Logger.WarnFormat("Trial for the Particular Service Platform has expired.");
-                    PromptUserForLicenseIfTrialHasExpired();
+                    Logger.Warn("Trial for the Particular Service Platform has expired.");
+                    OpenTrialExtensionPage();
                 }
                 else
                 {
-                    Logger.Fatal("Your license has expired! You can renew it at https://particular.net/licensing.");
+                    Logger.Fatal("Your license has expired! To renew your license, visit: https://particular.net/licensing");
                 }
             }
         }
@@ -61,38 +61,90 @@ namespace NServiceBus
 
                 Logger.Info(report.ToString());
             }
+
+#if REGISTRYLICENSESOURCE
+            if (result.Location.StartsWith("HKEY_"))
+            {
+                Logger.Warn("Reading license information from the registry has been deprecated and will be removed in version 8.0. See the documentation for more details.");
+            }
+#endif
+
+#if APPCONFIGLICENSESOURCE
+            if (result.Location.StartsWith("app config"))
+            {
+                Logger.Warn("Reading license information from the app config file has been deprecated and will be removed in version 8.0. See the documentation for more details.");
+            }
+#endif
         }
 
-        void PromptUserForLicenseIfTrialHasExpired()
+        void OpenTrialExtensionPage()
         {
-            if (!(Debugger.IsAttached && SystemInformation.UserInteractive))
+            var version = GitFlowVersion.MajorMinorPatch;
+            var extendedTrial = result.License.IsExtendedTrial ? "1" : "0";
+            var platform = GetPlatformCode();
+            var url = $"https://particular.net/license/nservicebus?v={version}&t={extendedTrial}&p={platform}";
+
+            if (!(Debugger.IsAttached && Environment.UserInteractive))
             {
-                //We only prompt user if user is in debugging mode and we are running in interactive mode
+                Logger.WarnFormat("To extend your trial license, visit: {0}", url);
+
                 return;
             }
 
-            bool createdNew;
-            using (new Mutex(true, $"NServiceBus-{GitFlowVersion.MajorMinor}", out createdNew))
+            using (var mutex = new Mutex(true, @"Global\NServiceBusLicensing", out var acquired))
             {
-                if (!createdNew)
+                if (acquired)
                 {
-                    //Dialog already displaying for this software version by another process, so we just use the already assigned license.
-                    return;
-                }
-
-                if (license == null || LicenseExpirationChecker.HasLicenseExpired(license))
-                {
-                    var licenseProvidedByUser = LicenseExpiredFormDisplayer.PromptUserForLicense(license);
-
-                    if (licenseProvidedByUser != null)
+                    try
                     {
-                        license = licenseProvidedByUser;
+                        Logger.WarnFormat("Opening browser to: {0}", url);
+
+                        var opened = Browser.TryOpen(url);
+
+                        if (!opened)
+                        {
+                            Logger.WarnFormat("Unable to open browser. To extend your trial license, visit: {0}", url);
+                        }
+
+                        Task.Delay(TimeSpan.FromSeconds(5)).GetAwaiter().GetResult();
                     }
+                    finally
+                    {
+                        mutex.ReleaseMutex();
+                    }
+                }
+                else
+                {
+                    Task.Delay(TimeSpan.FromSeconds(5)).GetAwaiter().GetResult();
                 }
             }
         }
 
-        License license;
+#if NETSTANDARD2_0
+        string GetPlatformCode()
+        {
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                return "windows";
+            }
+
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                return "linux";
+            }
+
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            {
+                return "macos";
+            }
+
+            return "unknown";
+        }
+#else
+        string GetPlatformCode() => "windows";
+#endif
+
+        ActiveLicenseFindResult result;
 
         static ILog Logger = LogManager.GetLogger(typeof(LicenseManager));
         static readonly bool debugLoggingEnabled = Logger.IsDebugEnabled;

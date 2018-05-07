@@ -1,30 +1,26 @@
 ﻿namespace NServiceBus
 {
     using System;
-    using System.Diagnostics;
-    using Config;
-    using Logging;
     using Settings;
 
     /// <summary>
-    /// Utility class to find the configured audit queue for an endpoint.
+    /// A utility class to get the configured audit queue settings.
     /// </summary>
     public static class AuditConfigReader
     {
         /// <summary>
-        /// Finds the configured audit queue for an endpoint.
-        /// The audit queue can be configured using 'EndpointConfiguration.AuditProcessedMessagesTo()',
-        /// via the 'QueueName' attribute of the 'Audit' config section
-        /// or by using the 'HKEY_LOCAL_MACHINE\SOFTWARE\ParticularSoftware\ServiceBus\AuditQueue' registry key.
+        /// Gets the audit queue address for the endpoint.
+        /// The audit queue address can be configured using 'EndpointConfiguration.AuditProcessedMessagesTo()'.
         /// </summary>
         /// <param name="settings">The configuration settings for the endpoint.</param>
-        /// <param name="address">The configured audit queue address for the endpoint.</param>
-        /// <returns>True if a configured audit address can be found, false otherwise.</returns>
+        /// <param name="address">When this method returns, contains the audit queue address for the endpoint, if it has been configured, or null if it has not.</param>
+        /// <returns>True if an audit queue address is configured; otherwise, false.</returns>
         public static bool TryGetAuditQueueAddress(this ReadOnlySettings settings, out string address)
         {
             Guard.AgainstNull(nameof(settings), settings);
 
             var result = GetConfiguredAuditQueue(settings);
+
             if (result == null)
             {
                 address = null;
@@ -35,67 +31,33 @@
             return true;
         }
 
+        /// <summary>
+        /// Gets the audit message expiration time span for the endpoint.
+        /// The audit message expiration time span can be configured using 'EndpointConfiguration.AuditProcessedMessagesTo()'.
+        /// </summary>
+        /// <param name="settings">The configuration settings for the endpoint.</param>
+        /// <param name="auditMessageExpiration">When this method returns, contains the audit message expiration time span, if it has been configured, or TimeSpan.Zero if has not.</param>
+        /// <returns>True if an audit message expiration time span is configured; otherwise, false.</returns>
+        public static bool TryGetAuditMessageExpiration(this ReadOnlySettings settings, out TimeSpan auditMessageExpiration)
+        {
+            Guard.AgainstNull(nameof(settings), settings);
+
+            var result = GetConfiguredAuditQueue(settings);
+
+            if (result?.TimeToBeReceived == null)
+            {
+                auditMessageExpiration = TimeSpan.Zero;
+                return false;
+            }
+
+            auditMessageExpiration = result.TimeToBeReceived.Value;
+            return true;
+        }
+
         internal static Result GetConfiguredAuditQueue(ReadOnlySettings settings)
         {
-            Result configResult;
-            if (settings.TryGet(out configResult))
-            {
-                return configResult;
-            }
-
-            var auditConfig = settings.GetConfigSection<AuditConfig>();
-            string address;
-            TimeSpan? timeToBeReceived = null;
-            if (auditConfig == null)
-            {
-                address = ReadAuditQueueNameFromRegistry();
-            }
-            else
-            {
-                var ttbrOverride = auditConfig.OverrideTimeToBeReceived;
-
-                if (ttbrOverride > TimeSpan.Zero)
-                {
-                    timeToBeReceived = ttbrOverride;
-                }
-                if (string.IsNullOrWhiteSpace(auditConfig.QueueName))
-                {
-                    address = ReadAuditQueueNameFromRegistry();
-                }
-                else
-                {
-                    address = auditConfig.QueueName;
-                }
-            }
-            if (address == null)
-            {
-                return null;
-            }
-            return new Result
-            {
-                Address = address,
-                TimeToBeReceived = timeToBeReceived
-            };
+            return settings.TryGet(out Result configResult) ? configResult : null;
         }
-
-        static string ReadAuditQueueNameFromRegistry()
-        {
-            var queue = RegistryReader.Read("AuditQueue");
-            if (string.IsNullOrWhiteSpace(queue))
-            {
-                return null;
-            }
-            // If Audit feature is enabled and the value not specified via config and instead specified in the registry:
-            // Log a warning when running in the debugger to remind user to make sure the
-            // production machine will need to have the required registry setting.
-            if (Debugger.IsAttached)
-            {
-                Logger.Warn("Endpoint auditing is configured using the registry on this machine, see Particular Documentation for details on how to address this with your version of NServiceBus.");
-            }
-            return queue;
-        }
-
-        static ILog Logger = LogManager.GetLogger(typeof(AuditConfigReader));
 
         internal class Result
         {

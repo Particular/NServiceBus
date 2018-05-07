@@ -10,9 +10,7 @@ namespace NServiceBus
     {
         public static Func<object, object> CreateGet(PropertyInfo property)
         {
-            Func<object, object> lateBoundPropertyGet;
-
-            if (!PropertyInfoToLateBoundProperty.TryGetValue(property, out lateBoundPropertyGet))
+            if (!PropertyInfoToLateBoundProperty.TryGetValue(property, out var lateBoundPropertyGet))
             {
                 var instanceParameter = Expression.Parameter(typeof(object), "target");
 
@@ -32,9 +30,7 @@ namespace NServiceBus
 
         public static Func<object, object> CreateGet(FieldInfo field)
         {
-            Func<object, object> lateBoundFieldGet;
-
-            if (!FieldInfoToLateBoundField.TryGetValue(field, out lateBoundFieldGet))
+            if (!FieldInfoToLateBoundField.TryGetValue(field, out var lateBoundFieldGet))
             {
                 var instanceParameter = Expression.Parameter(typeof(object), "target");
 
@@ -54,9 +50,7 @@ namespace NServiceBus
 
         public static Action<object, object> CreateSet(FieldInfo field)
         {
-            Action<object, object> callback;
-
-            if (!FieldInfoToLateBoundFieldSet.TryGetValue(field, out callback))
+            if (!FieldInfoToLateBoundFieldSet.TryGetValue(field, out var callback))
             {
                 var sourceType = field.DeclaringType;
                 var method = new DynamicMethod("Set" + field.Name, null, new[]
@@ -82,9 +76,7 @@ namespace NServiceBus
 
         public static Action<object, object> CreateSet(PropertyInfo property)
         {
-            Action<object, object> result;
-
-            if (!PropertyInfoToLateBoundPropertySet.TryGetValue(property, out result))
+            if (!PropertyInfoToLateBoundPropertySet.TryGetValue(property, out var result))
             {
                 var method = new DynamicMethod("Set" + property.Name, null, new[]
                 {

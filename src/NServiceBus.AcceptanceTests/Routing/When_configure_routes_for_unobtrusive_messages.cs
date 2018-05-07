@@ -3,7 +3,7 @@
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using AcceptanceTesting.Customization;
-    using Configuration.AdvanceExtensibility;
+    using Configuration.AdvancedExtensibility;
     using EndpointTemplates;
     using NUnit.Framework;
 
@@ -14,19 +14,6 @@
         {
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<SendingEndpointUsingRoutingApi>(e => e
-                    .When(s => s.Send(new SomeCommand())))
-                .WithEndpoint<ReceivingEndpoint>()
-                .Done(c => c.ReceivedMessage)
-                .Run();
-
-            Assert.That(context.ReceivedMessage, Is.True);
-        }
-
-        [Test]
-        public async Task Should_use_routes_from_endpoint_mapping()
-        {
-            var context = await Scenario.Define<Context>()
-                .WithEndpoint<SendingEndpointUsingEndpointMapping>(e => e
                     .When(s => s.Send(new SomeCommand())))
                 .WithEndpoint<ReceivingEndpoint>()
                 .Done(c => c.ReceivedMessage)
@@ -50,18 +37,6 @@
 
                     var routing = new RoutingSettings(c.GetSettings());
                     routing.RouteToEndpoint(typeof(SomeCommand).Assembly, Conventions.EndpointNamingConvention(typeof(ReceivingEndpoint)));
-                }).ExcludeType<SomeCommand>(); //exclude type to simulate an unobtrusive message assembly which isn't automatically loaded.
-            }
-        }
-
-        public class SendingEndpointUsingEndpointMapping : EndpointConfigurationBuilder
-        {
-            public SendingEndpointUsingEndpointMapping()
-            {
-                EndpointSetup<DefaultServer>(c =>
-                {
-                    c.Conventions().DefiningCommandsAs(t => t == typeof(SomeCommand));
-                    c.ConfigureTransport().Routing().RouteToEndpoint(typeof(SomeCommand), typeof(ReceivingEndpoint));
                 }).ExcludeType<SomeCommand>(); //exclude type to simulate an unobtrusive message assembly which isn't automatically loaded.
             }
         }

@@ -6,6 +6,7 @@
     using EndpointTemplates;
     using Features;
     using NUnit.Framework;
+    using Conventions = AcceptanceTesting.Customization.Conventions;
 
     public class When_publishing : NServiceBusAcceptanceTest
     {
@@ -78,6 +79,7 @@
 
             Assert.True(context.Subscriber1GotTheEvent);
             Assert.True(context.Subscriber2GotTheEvent);
+            Assert.AreEqual("SomeValue", context.HeaderValue);
         }
 
         public class Context : ScenarioContext
@@ -88,6 +90,7 @@
             public bool Subscriber1Subscribed { get; set; }
             public bool Subscriber2Subscribed { get; set; }
             public bool Subscriber3Subscribed { get; set; }
+            public string HeaderValue { get; set; }
         }
 
         public class Publisher : EndpointConfigurationBuilder
@@ -98,15 +101,17 @@
                 {
                     b.OnEndpointSubscribed<Context>((s, context) =>
                     {
-                        if (s.SubscriberReturnAddress.Contains("Subscriber1"))
+                        var subscriber1 = Conventions.EndpointNamingConvention(typeof(Subscriber1));
+                        if (s.SubscriberEndpoint.Contains(subscriber1))
                         {
                             context.Subscriber1Subscribed = true;
-                            context.AddTrace("Subscriber1 is now subscribed");
+                            context.AddTrace($"{subscriber1} is now subscribed");
                         }
 
-                        if (s.SubscriberReturnAddress.Contains("Subscriber2"))
+                        var subscriber2 = Conventions.EndpointNamingConvention(typeof(Subscriber2));
+                        if (s.SubscriberEndpoint.Contains(subscriber2))
                         {
-                            context.AddTrace("Subscriber2 is now subscribed");
+                            context.AddTrace($"{subscriber2} is now subscribed");
                             context.Subscriber2Subscribed = true;
                         }
                     });
@@ -121,8 +126,10 @@
             {
                 EndpointSetup<DefaultPublisher>(b => b.OnEndpointSubscribed<Context>((s, context) =>
                 {
-                    if (s.SubscriberReturnAddress.Contains("Subscriber3"))
+                    var subscriber3 = Conventions.EndpointNamingConvention(typeof(Subscriber3));
+                    if (s.SubscriberEndpoint.Contains(subscriber3))
                     {
+                        context.AddTrace($"{subscriber3} is now subscribed");
                         context.Subscriber3Subscribed = true;
                     }
                 }));
@@ -163,7 +170,7 @@
 
                 public Task Handle(MyEvent message, IMessageHandlerContext context)
                 {
-                    Assert.AreEqual(context.MessageHeaders["MyHeader"], "SomeValue");
+                    TestContext.HeaderValue = context.MessageHeaders["MyHeader"];
                     TestContext.Subscriber1GotTheEvent = true;
                     return Task.FromResult(0);
                 }

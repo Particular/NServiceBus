@@ -15,7 +15,9 @@ namespace NServiceBus
         {
             Guard.AgainstNull(nameof(endpointConfiguration), endpointConfiguration);
             var type = typeof(TransportExtensions<>).MakeGenericType(typeof(T));
+#pragma warning disable PC001
             var extension = (TransportExtensions<T>) Activator.CreateInstance(type, endpointConfiguration.Settings);
+#pragma warning restore PC001
 
             var transportDefinition = new T();
             ConfigureTransport(endpointConfiguration, transportDefinition);
@@ -38,17 +40,7 @@ namespace NServiceBus
 
         static void ConfigureTransport(EndpointConfiguration endpointConfiguration, TransportDefinition transportDefinition)
         {
-            endpointConfiguration.Settings.Set<InboundTransport>(new InboundTransport());
             endpointConfiguration.Settings.Set<TransportDefinition>(transportDefinition);
-            endpointConfiguration.Settings.Set<OutboundTransport>(new OutboundTransport());
-        }
-
-        internal static void EnsureTransportConfigured(EndpointConfiguration endpointConfiguration)
-        {
-            if (!endpointConfiguration.Settings.HasExplicitValue<TransportDefinition>())
-            {
-                endpointConfiguration.UseTransport<MsmqTransport>();
-            }
         }
     }
 }

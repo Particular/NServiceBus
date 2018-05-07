@@ -20,15 +20,15 @@ namespace NServiceBus.Routing
         /// <summary>
         /// Selects a destination instance for a message from all known addresses of a logical endpoint.
         /// </summary>
-        public override string SelectReceiver(string[] receiverAddresses)
+        public override string SelectDestination(DistributionContext context)
         {
-            Guard.AgainstNull(nameof(receiverAddresses), receiverAddresses);
-            if (receiverAddresses.Length == 0)
+            Guard.AgainstNull(nameof(context), context);
+            if (context.ReceiverAddresses.Length == 0)
             {
-                return default(string);
+                return default;
             }
             var i = Interlocked.Increment(ref index);
-            var result = receiverAddresses[(int)(i % receiverAddresses.Length)];
+            var result = context.ReceiverAddresses[(int)(i % context.ReceiverAddresses.Length)];
             return result;
         }
 

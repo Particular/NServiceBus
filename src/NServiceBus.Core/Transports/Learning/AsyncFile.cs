@@ -79,7 +79,7 @@ namespace NServiceBus
             }
         }
 
-        public static async Task<byte[]> ReadBytes(string filePath, CancellationToken token = default(CancellationToken))
+        public static async Task<byte[]> ReadBytes(string filePath, CancellationToken token = default)
         {
             using (var stream = CreateReadStream(filePath))
             {
@@ -94,6 +94,56 @@ namespace NServiceBus
         static FileStream CreateReadStream(string filePath)
         {
             return new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read, bufferSize: 4096, useAsync: true);
+        }
+
+        public static async Task<bool> Move(string sourcePath, string targetPath)
+        {
+            try
+            {
+                File.Move(sourcePath, targetPath);
+            }
+            catch (IOException)
+            {
+                return false;
+            }
+
+            var count = 0;
+
+            while (IsFileLocked(targetPath))
+            {
+                await Task.Delay(100).ConfigureAwait(false);
+
+                count++;
+
+                if (count > 10)
+                {
+                    break;
+                }
+            }
+
+            return true;
+        }
+
+        static bool IsFileLocked(string filePath)
+        {
+            try
+            {
+                using (File.Open(filePath, FileMode.Open, FileAccess.Read, FileShare.None))
+                {
+                    //no-op
+                }
+            }
+            catch (IOException)
+            {
+                //the file is unavailable because it is:
+                //still being written to
+                //or being processed by another thread
+                //or does not exist (has already been processed)
+                return true;
+            }
+
+            //file is not locked
+            return false;
         }
     }
 }

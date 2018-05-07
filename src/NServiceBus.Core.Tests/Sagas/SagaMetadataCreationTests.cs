@@ -29,7 +29,6 @@
         public void GetSagaClrType()
         {
             var metadata = SagaMetadata.Create(typeof(MySaga));
-
             Assert.AreEqual(typeof(MySaga), metadata.SagaType);
         }
 
@@ -37,10 +36,7 @@
         public void DetectUniquePropertiesByAttribute()
         {
             var metadata = SagaMetadata.Create(typeof(MySaga));
-
-            SagaMetadata.CorrelationPropertyMetadata correlatedProperty;
-
-            Assert.True(metadata.TryGetCorrelationProperty(out correlatedProperty));
+            Assert.True(metadata.TryGetCorrelationProperty(out var correlatedProperty));
             Assert.AreEqual("UniqueProperty", correlatedProperty.Name);
         }
 
@@ -82,10 +78,7 @@
         public void HandleBothUniqueAttributeAndMapping()
         {
             var metadata = SagaMetadata.Create(typeof(MySagaWithMappedAndUniqueProperty));
-
-            SagaMetadata.CorrelationPropertyMetadata correlatedProperty;
-
-            Assert.True(metadata.TryGetCorrelationProperty(out correlatedProperty));
+            Assert.True(metadata.TryGetCorrelationProperty(out var correlatedProperty));
             Assert.AreEqual("UniqueProperty", correlatedProperty.Name);
         }
 
@@ -93,9 +86,7 @@
         public void AutomaticallyAddUniqueForMappedProperties()
         {
             var metadata = SagaMetadata.Create(typeof(MySagaWithMappedProperty));
-            SagaMetadata.CorrelationPropertyMetadata correlatedProperty;
-
-            Assert.True(metadata.TryGetCorrelationProperty(out correlatedProperty));
+            Assert.True(metadata.TryGetCorrelationProperty(out var correlatedProperty));
             Assert.AreEqual("UniqueProperty", correlatedProperty.Name);
         }
 
@@ -224,9 +215,7 @@
 
         SagaFinderDefinition GetFinder(SagaMetadata metadata, string messageType)
         {
-            SagaFinderDefinition finder;
-
-            if (!metadata.TryGetFinder(messageType, out finder))
+            if (!metadata.TryGetFinder(messageType, out var finder))
             {
                 throw new Exception("Finder not found");
             }
@@ -701,7 +690,7 @@
         }
 
         class SagaWithInheritanceChainBase<T, O> : Saga<T>
-            where T : IContainSagaData, new()
+            where T : class, IContainSagaData, new()
             where O : class
         {
             protected override void ConfigureHowToFindSaga(SagaPropertyMapper<T> mapper)

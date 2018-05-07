@@ -4,21 +4,18 @@
     using System.Diagnostics;
     using Logging;
 
-    // This class is written under the assumption that acceptance tests are executed sequentially.
     class ContextAppender : ILog
     {
-        public ContextAppender(LogLevel level, Func<ScenarioContext> context)
+        public ContextAppender(string logger)
         {
-            this.level = level;
-            this.context = context;
+            this.logger = logger;
         }
 
-        public bool IsDebugEnabled => level <= LogLevel.Debug;
-        public bool IsInfoEnabled => level <= LogLevel.Info;
-        public bool IsWarnEnabled => level <= LogLevel.Warn;
-        public bool IsErrorEnabled => level <= LogLevel.Error;
-        public bool IsFatalEnabled => level <= LogLevel.Fatal;
-
+        public bool IsDebugEnabled => ScenarioContext.Current.LogLevel <= LogLevel.Debug;
+        public bool IsInfoEnabled => ScenarioContext.Current.LogLevel <= LogLevel.Info;
+        public bool IsWarnEnabled => ScenarioContext.Current.LogLevel <= LogLevel.Warn;
+        public bool IsErrorEnabled => ScenarioContext.Current.LogLevel <= LogLevel.Error;
+        public bool IsFatalEnabled => ScenarioContext.Current.LogLevel <= LogLevel.Fatal;
 
         public void Debug(string message)
         {
@@ -41,7 +38,6 @@
         {
             Log(message, LogLevel.Info);
         }
-
 
         public void Info(string message, Exception exception)
         {
@@ -108,18 +104,21 @@
 
         void Log(string message, LogLevel messageSeverity)
         {
-            if (level <= messageSeverity)
+            var context = ScenarioContext.Current;
+
+            if (context.LogLevel > messageSeverity)
+                return;
+
+            Trace.WriteLine(message);
+            context.Logs.Enqueue(new ScenarioContext.LogItem
             {
-                Trace.WriteLine(message);
-                context().Logs.Enqueue(new ScenarioContext.LogItem
-                {
-                    Level = messageSeverity,
-                    Message = message
-                });
-            }
+                Endpoint = ScenarioContext.CurrentEndpoint,
+                LoggerName = logger,
+                Level = messageSeverity,
+                Message = message
+            });
         }
 
-        LogLevel level;
-        Func<ScenarioContext> context;
+        string logger;
     }
 }

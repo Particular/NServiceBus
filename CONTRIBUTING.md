@@ -29,7 +29,6 @@ top of things.
 * Check for unnecessary whitespace with `git diff --check` before committing.
 * Make sure your commit messages are in the proper format.
 * Make sure you have added the necessary tests for your changes.
-* Run build.bat in the root to assure nothing else was accidentally broken.
 * We have a resharper layer that applies our coding standards so make sure that you're "all green in reshaper"
 
 ## Guidelines
@@ -41,6 +40,13 @@ Guidelines can be found [here](/guidelines).
 * Sign the [Contributor License Agreement](http://www.particular.net/contributors-license-agreement-consent).
 * Push your changes to a feature branch in your fork of the repository.
 * Submit a pull request to the NServiceBus repository
+
+## Pull Request review process
+Because NServiceBus.Core sits at the heart of the NServiceBus ecosystem, pull requests are reviewed closely. Pull requests are checked to ensure comprehension by @nservicbus-maintainers and correctness of the code. 
+
+This approach has been implemented in an attempt to limit having to undo changes after the fact. Because of the number of downstreams that depend on NServiceBus.Core, a change-undo pattern can lead to increased work for those downstreams and the end users.
+
+As a pull request submitter, you can help speed up the review of your submission by providing as much context about your code as you can. In addition to providing technical context, consider answering questions like "Why is the change being submitted?" and "What problem does it solve?"
 
 # Additional Resources
 

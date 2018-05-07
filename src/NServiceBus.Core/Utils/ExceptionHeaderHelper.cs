@@ -28,8 +28,9 @@
                 return;
             }
             // ReSharper restore HeuristicUnreachableCode
-
+#pragma warning disable DE0006
             foreach (DictionaryEntry entry in e.Data)
+#pragma warning restore DE0006
             {
                 if (entry.Value == null)
                 {

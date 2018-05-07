@@ -1,0 +1,9 @@
+<Project>
+
+  <!-- Workaround because https://github.com/GitTools/GitVersion/pull/1351 hasn't been released yet -->
+  <PropertyGroup>
+    <GetPackageVersionDependsOn>$(GetPackageVersionDependsOn);GetVersion</GetPackageVersionDependsOn>
+  </PropertyGroup>
+  <!-- End Workaround -->
+
+</Project>

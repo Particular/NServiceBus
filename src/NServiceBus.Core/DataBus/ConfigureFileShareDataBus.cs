@@ -5,7 +5,7 @@ namespace NServiceBus
     /// <summary>
     /// Contains extension methods to <see cref="EndpointConfiguration" /> for the file share data bus.
     /// </summary>
-    public static partial class ConfigureFileShareDataBus
+    public static class ConfigureFileShareDataBus
     {
         /// <summary>
         /// The location to which to write/read serialized properties for the databus.

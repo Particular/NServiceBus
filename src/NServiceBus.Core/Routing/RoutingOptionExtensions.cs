@@ -44,8 +44,7 @@
         {
             Guard.AgainstNull(nameof(options), options);
 
-            UnicastReplyRouterConnector.State state;
-            options.Context.TryGet(out state);
+            options.Context.TryGet(out UnicastReplyRouterConnector.State state);
             return state?.ExplicitDestination;
         }
 
@@ -58,8 +57,7 @@
         {
             Guard.AgainstNull(nameof(options), options);
 
-            UnicastSendRouter.State state;
-            options.Context.TryGet(out state);
+            options.Context.TryGet(out UnicastSendRouter.State state);
             return state?.ExplicitDestination;
         }
 
@@ -84,8 +82,7 @@
         {
             Guard.AgainstNull(nameof(options), options);
 
-            UnicastSendRouter.State state;
-            if (options.Context.TryGet(out state))
+            if (options.Context.TryGet(out UnicastSendRouter.State state))
             {
                 return state.Option == UnicastSendRouter.RouteOption.RouteToAnyInstanceOfThisEndpoint;
             }
@@ -114,8 +111,7 @@
         {
             Guard.AgainstNull(nameof(options), options);
 
-            UnicastSendRouter.State state;
-            if (options.Context.TryGet(out state))
+            if (options.Context.TryGet(out UnicastSendRouter.State state))
             {
                 return state.Option == UnicastSendRouter.RouteOption.RouteToThisInstance;
             }
@@ -147,8 +143,7 @@
         {
             Guard.AgainstNull(nameof(options), options);
 
-            UnicastSendRouter.State state;
-            if (options.Context.TryGet(out state) && state.Option == UnicastSendRouter.RouteOption.RouteToSpecificInstance)
+            if (options.Context.TryGet(out UnicastSendRouter.State state) && state.Option == UnicastSendRouter.RouteOption.RouteToSpecificInstance)
             {
                 return state.SpecificInstance;
             }
@@ -176,8 +171,7 @@
         {
             Guard.AgainstNull(nameof(options), options);
 
-            ApplyReplyToAddressBehavior.State state;
-            if (options.Context.TryGet(out state))
+            if (options.Context.TryGet(out ApplyReplyToAddressBehavior.State state))
             {
                 return state.Option == ApplyReplyToAddressBehavior.RouteOption.RouteReplyToThisInstance;
             }
@@ -205,8 +199,7 @@
         {
             Guard.AgainstNull(nameof(options), options);
 
-            ApplyReplyToAddressBehavior.State state;
-            if (options.Context.TryGet(out state))
+            if (options.Context.TryGet(out ApplyReplyToAddressBehavior.State state))
             {
                 return state.Option == ApplyReplyToAddressBehavior.RouteOption.RouteReplyToAnyInstanceOfThisEndpoint;
             }
@@ -234,8 +227,7 @@
         {
             Guard.AgainstNull(nameof(options), options);
 
-            ApplyReplyToAddressBehavior.State state;
-            if (options.Context.TryGet(out state))
+            if (options.Context.TryGet(out ApplyReplyToAddressBehavior.State state))
             {
                 return state.Option == ApplyReplyToAddressBehavior.RouteOption.RouteReplyToThisInstance;
             }
@@ -263,8 +255,7 @@
         {
             Guard.AgainstNull(nameof(options), options);
 
-            ApplyReplyToAddressBehavior.State state;
-            if (options.Context.TryGet(out state))
+            if (options.Context.TryGet(out ApplyReplyToAddressBehavior.State state))
             {
                 return state.Option == ApplyReplyToAddressBehavior.RouteOption.RouteReplyToAnyInstanceOfThisEndpoint;
             }
@@ -296,8 +287,7 @@
         {
             Guard.AgainstNull(nameof(options), options);
 
-            ApplyReplyToAddressBehavior.State state;
-            if (options.Context.TryGet(out state) && state.Option == ApplyReplyToAddressBehavior.RouteOption.ExplicitReplyDestination)
+            if (options.Context.TryGet(out ApplyReplyToAddressBehavior.State state) && state.Option == ApplyReplyToAddressBehavior.RouteOption.ExplicitReplyDestination)
             {
                 return state.ExplicitDestination;
             }
@@ -329,8 +319,7 @@
         {
             Guard.AgainstNull(nameof(options), options);
 
-            ApplyReplyToAddressBehavior.State state;
-            if (options.Context.TryGet(out state) && state.Option == ApplyReplyToAddressBehavior.RouteOption.ExplicitReplyDestination)
+            if (options.Context.TryGet(out ApplyReplyToAddressBehavior.State state) && state.Option == ApplyReplyToAddressBehavior.RouteOption.ExplicitReplyDestination)
             {
                 return state.ExplicitDestination;
             }

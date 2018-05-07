@@ -1,19 +1,18 @@
 ﻿namespace NServiceBus
 {
     using System;
-    using System.Runtime.InteropServices;
+    using System.IO;
     using Logging;
 
     static class ColoredConsoleLogger
     {
         static ColoredConsoleLogger()
         {
-            const int STD_OUTPUT_HANDLE = -11;
-            logToConsole = GetStdHandle(STD_OUTPUT_HANDLE) != IntPtr.Zero;
+            using (var stream = Console.OpenStandardOutput())
+            {
+                logToConsole = stream != Stream.Null;
+            }
         }
-
-        [DllImport("kernel32.dll", SetLastError = true)]
-        static extern IntPtr GetStdHandle(int nStdHandle);
 
         public static void Write(string message, LogLevel logLevel)
         {
@@ -21,14 +20,16 @@
             {
                 return;
             }
+
             try
             {
                 Console.ForegroundColor = GetColor(logLevel);
                 Console.WriteLine(message);
-            }
-            finally
-            {
                 Console.ResetColor();
+            }
+            catch (IOException)
+            {
+                logToConsole = false;
             }
         }
 
@@ -38,6 +39,7 @@
             {
                 return ConsoleColor.Red;
             }
+
             if (logLevel == LogLevel.Warn)
             {
                 return ConsoleColor.DarkYellow;

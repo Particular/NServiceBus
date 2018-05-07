@@ -6,7 +6,6 @@
     using EndpointTemplates;
     using Features;
     using NUnit.Framework;
-    using Routing;
 
     //Repro for #1323
     public class When_started_by_event_from_another_saga : NServiceBusAcceptanceTest

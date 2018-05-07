@@ -1,10 +1,13 @@
 ﻿namespace NServiceBus.AcceptanceTesting
 {
     using System;
+    using Logging;
     using Support;
 
     public class Scenario
     {
+        public static Func<ScenarioContext, ILoggerFactory> GetLoggerFactory = _ => new ContextAppenderFactory();
+
         public static IScenarioWithEndpointBehavior<T> Define<T>() where T : ScenarioContext, new()
         {
             return new ScenarioWithContext<T>(c => { });

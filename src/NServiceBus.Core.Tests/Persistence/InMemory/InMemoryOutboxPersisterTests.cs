@@ -88,7 +88,7 @@
         }
 
         [Test]
-        public async Task Should_not_store_when_transaction_not_commited()
+        public async Task Should_not_store_when_transaction_not_committed()
         {
             var storage = new InMemoryOutboxStorage();
 
@@ -108,7 +108,7 @@
         }
 
         [Test]
-        public async Task Should_store_when_transaction_commited()
+        public async Task Should_store_when_transaction_committed()
         {
             var storage = new InMemoryOutboxStorage();
 

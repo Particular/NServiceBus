@@ -11,7 +11,7 @@
     /// <summary>
     /// Maintains the message handlers for this endpoint.
     /// </summary>
-    public partial class MessageHandlerRegistry
+    public class MessageHandlerRegistry
     {
         internal MessageHandlerRegistry(Conventions conventions)
         {
@@ -82,8 +82,7 @@
 
             foreach (var messageType in messageTypes)
             {
-                List<DelegateHolder> typeList;
-                if (!handlerAndMessagesHandledByHandlerCache.TryGetValue(handlerType, out typeList))
+                if (!handlerAndMessagesHandledByHandlerCache.TryGetValue(handlerType, out var typeList))
                 {
                     handlerAndMessagesHandledByHandlerCache[handlerType] = typeList = new List<DelegateHolder>();
                 }

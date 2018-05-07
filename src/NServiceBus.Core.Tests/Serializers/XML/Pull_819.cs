@@ -15,7 +15,9 @@
             {
                 m3.FirstName = "John";
                 m3.LastName = "Smith";
+#pragma warning disable DE0006
                 m3.List = new ArrayList();
+#pragma warning restore DE0006
                 m3.GenericList = new List<string>();
             });
 

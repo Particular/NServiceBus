@@ -14,6 +14,11 @@ namespace NServiceBus.Core.Tests
         [Test]
         public void ApproveStructsWhichDontFollowStructGuidelines()
         {
+            if (Environment.OSVersion.Platform != PlatformID.Win32NT)
+            {
+                Assert.Ignore("ApprovalTests only works on Windows");
+            }
+
             var approvalBuilder = new StringBuilder();
             approvalBuilder.AppendLine(@"-------------------------------------------------- REMEMBER --------------------------------------------------
 CONSIDER defining a struct instead of a class if instances of the type are small and commonly short-lived or are commonly embedded in other objects.
@@ -29,34 +34,46 @@ In all other cases, you should define your types as classes.
 ");
 
             var assembly = typeof(Endpoint).Assembly;
+
             foreach (var type in assembly.GetTypes().OrderBy(t => t.FullName))
             {
-                if (!type.IsValueType || type.IsEnum || type.IsSpecialName|| type.Namespace == null || !type.Namespace.StartsWith("NServiceBus") || type.FullName.Contains("__")) continue;
+                if (!type.IsValueType || type.IsEnum || type.IsSpecialName || type.Namespace == null || !type.Namespace.StartsWith("NServiceBus") || type.FullName.Contains("__"))
+                {
+                    continue;
+                }
 
                 var violatedRules = new List<string> { $"{type.FullName} violates the following rules:" };
 
-                InspectSizeOfStruct(type, violatedRules);
-                InspectWhetherStructViolatesMutabilityRules(type, violatedRules);
+                InspectWhetherStructContainsPublicFields(type, violatedRules);
+                InspectWhetherStructContainsWritableProperties(type, violatedRules);
+                var containsRefereneceTypes = InspectWhetherStructContainsReferenceTypes(type, violatedRules);
 
-                if (violatedRules.Count <= 1) continue;
+                if (containsRefereneceTypes)
+                {
+                    violatedRules.Add("   - The size cannot be determined because there are fields that are reference types.");
+                }
+                else
+                {
+                    InspectSizeOfStruct(type, violatedRules);
+                }
+
+                if (violatedRules.Count <= 1)
+                {
+                    continue;
+                }
+
                 foreach (var violatedRule in violatedRules)
                 {
                     approvalBuilder.AppendLine(violatedRule);
                 }
+
                 approvalBuilder.AppendLine();
             }
 
             TestApprover.Verify(approvalBuilder.ToString());
         }
 
-        static void InspectWhetherStructViolatesMutabilityRules(Type type, List<string> violatedRules)
-        {
-            InspectWhetherStructContainsReferenceTypes(type, violatedRules);
-            InspectWhetherStructContainsPublicFields(type, violatedRules);
-            InspectWhetherStructContainsWritableProperties(type, violatedRules);
-        }
-
-        static void InspectWhetherStructContainsReferenceTypes(Type type, List<string> violatedRules)
+        static bool InspectWhetherStructContainsReferenceTypes(Type type, List<string> violatedRules)
         {
             var mutabilityRules = new List<string> { "   - The following fields are reference types, which are potentially mutable:" };
 
@@ -75,11 +92,17 @@ In all other cases, you should define your types as classes.
                 }
             }
 
-            if(mutabilityRules.Count > 1)
+            if (mutabilityRules.Count > 1)
+            {
                 violatedRules.AddRange(mutabilityRules);
+
+                return true;
+            }
+
+            return false;
         }
 
-        static void InspectWhetherStructContainsPublicFields(Type type, List<string> violatedRules)
+        static bool InspectWhetherStructContainsPublicFields(Type type, List<string> violatedRules)
         {
             var mutabilityRules = new List<string> { "   - The following fields are public, so the type is not immutable:" };
 
@@ -94,10 +117,16 @@ In all other cases, you should define your types as classes.
             }
 
             if (mutabilityRules.Count > 1)
+            {
                 violatedRules.AddRange(mutabilityRules);
+
+                return true;
+            }
+
+            return false;
         }
 
-        static void InspectWhetherStructContainsWritableProperties(Type type, List<string> violatedRules)
+        static bool InspectWhetherStructContainsWritableProperties(Type type, List<string> violatedRules)
         {
             var mutabilityRules = new List<string> { "   - The following properties can be written to, so the type is not immutable:" };
 
@@ -112,17 +141,24 @@ In all other cases, you should define your types as classes.
             }
 
             if (mutabilityRules.Count > 1)
+            {
                 violatedRules.AddRange(mutabilityRules);
+
+                return true;
+            }
+
+            return false;
         }
 
         static void InspectSizeOfStruct(Type type, List<string> violatedRules)
         {
             try
             {
-                var sizeOf = Marshal.SizeOf(type);
-                if (IsLargerThanSixteenBytes(sizeOf))
+                var size = Marshal.SizeOf(type);
+
+                if (IsLargerThanSixteenBytes(size))
                 {
-                    violatedRules.Add($"   - The size is {sizeOf} bytes, which exceeds the recommended maximum of 16 bytes.");
+                    violatedRules.Add($"   - The size is {size} bytes, which exceeds the recommended maximum of 16 bytes.");
                 }
             }
             catch (Exception)
@@ -131,9 +167,6 @@ In all other cases, you should define your types as classes.
             }
         }
 
-        static bool IsLargerThanSixteenBytes(int sizeOf)
-        {
-            return sizeOf > 16;
-        }
+        static bool IsLargerThanSixteenBytes(int size) => size > 16;
     }
 }

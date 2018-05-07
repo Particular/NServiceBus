@@ -7,11 +7,9 @@
     {
         public static int GetDelayedDeliveriesPerformed(this IncomingMessage message)
         {
-            string value;
-            if (message.Headers.TryGetValue(Headers.DelayedRetries, out value))
+            if (message.Headers.TryGetValue(Headers.DelayedRetries, out var value))
             {
-                int i;
-                if (int.TryParse(value, out i))
+                if (int.TryParse(value, out var i))
                 {
                     return i;
                 }

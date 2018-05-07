@@ -84,7 +84,7 @@ namespace NServiceBus.AcceptanceTests.Core.AutomaticSubscriptions
                 }
             }
 
-            public class NotAutoSubsubscribedSagaThatReactsOnASuperClassEvent : Saga<NotAutoSubsubscribedSagaThatReactsOnASuperClassEvent.NotAutosubscribeSuperClassEventSagaData>,
+            public class NotAutoSubscribedSagaThatReactsOnASuperClassEvent : Saga<NotAutoSubscribedSagaThatReactsOnASuperClassEvent.NotAutosubscribeSuperClassEventSagaData>,
                 IAmStartedByMessages<MyEventBase>
             {
                 public Task Handle(MyEventBase message, IMessageHandlerContext context)

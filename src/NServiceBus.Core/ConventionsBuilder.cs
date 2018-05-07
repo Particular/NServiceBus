@@ -2,13 +2,13 @@ namespace NServiceBus
 {
     using System;
     using System.Reflection;
-    using Configuration.AdvanceExtensibility;
+    using Configuration.AdvancedExtensibility;
     using Settings;
 
     /// <summary>
     /// Defines custom message conventions instead of using the <see cref="IMessage"/>, <see cref="IEvent"/> or <see cref="ICommand"/> interfaces, and other conventions.
     /// </summary>
-    public class ConventionsBuilder : ExposeSettings
+    public partial class ConventionsBuilder : ExposeSettings
     {
         /// <summary>
         /// Creates a new instance of ConventionsBuilder class.
@@ -24,7 +24,7 @@ namespace NServiceBus
         public ConventionsBuilder DefiningMessagesAs(Func<Type, bool> definesMessageType)
         {
             Guard.AgainstNull(nameof(definesMessageType), definesMessageType);
-            Conventions.IsMessageTypeAction = definesMessageType;
+            Conventions.DefineMessageTypeConvention(definesMessageType);
             return this;
         }
 
@@ -45,20 +45,6 @@ namespace NServiceBus
         {
             Guard.AgainstNull(nameof(definesEventType), definesEventType);
             Conventions.IsEventTypeAction = definesEventType;
-            return this;
-        }
-
-        /// <summary>
-        /// Sets the function to be used to evaluate whether a property should be encrypted or not.
-        /// </summary>
-        [ObsoleteEx(
-            Message = "Message property encryption is released as a dedicated 'NServiceBus.Encryption.MessageProperty' package. This convention configuration does not work in combination with the NServiceBus.Encryption.MessageProperty package.",
-            RemoveInVersion = "8",
-            TreatAsErrorFromVersion = "7")]
-        public ConventionsBuilder DefiningEncryptedPropertiesAs(Func<PropertyInfo, bool> definesEncryptedProperty)
-        {
-            Guard.AgainstNull(nameof(definesEncryptedProperty), definesEncryptedProperty);
-            Conventions.IsEncryptedPropertyAction = definesEncryptedProperty;
             return this;
         }
 

@@ -85,6 +85,16 @@ namespace NServiceBus.ContainerTests
             }
         }
 
+        [Test]
+        public void Resolving_all_components_of_unregistered_types_should_give_empty_list()
+        {
+            using (var builder = TestContainerBuilder.ConstructBuilder())
+            {
+                InitializeBuilder(builder);
+                Assert.IsEmpty(builder.BuildAll(typeof(UnregisteredComponent)));
+            }
+        }
+
         void InitializeBuilder(IContainer container)
         {
             container.Configure(typeof(SingletonComponent), DependencyLifecycle.SingleInstance);

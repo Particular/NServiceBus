@@ -1,5 +1,6 @@
 namespace NServiceBus
 {
+    using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
     using Persistence;
@@ -35,13 +36,13 @@ namespace NServiceBus
 
         public MessageMetadata MessageMetadata { get; }
 
-        public bool HandleCurrentMessageLaterWasCalled { get; private set; }
+        // remove in v8
+        public bool HandleCurrentMessageLaterWasCalled => throw new NotSupportedException();
 
-        public async Task HandleCurrentMessageLater()
+        // remove in v8
+        public Task HandleCurrentMessageLater()
         {
-            await MessageOperationsInvokeHandlerContext.HandleCurrentMessageLater(this).ConfigureAwait(false);
-            HandleCurrentMessageLaterWasCalled = true;
-            DoNotContinueDispatchingCurrentMessageToHandlers();
+            throw new NotImplementedException();
         }
 
         public void DoNotContinueDispatchingCurrentMessageToHandlers()

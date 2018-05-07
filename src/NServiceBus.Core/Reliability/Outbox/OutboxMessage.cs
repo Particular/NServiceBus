@@ -22,11 +22,11 @@
         /// <summary>
         /// Gets the message identifier of the incoming message.
         /// </summary>
-        public string MessageId { get; private set; }
+        public string MessageId { get; }
 
         /// <summary>
         /// The list of operations performed during the processing of the incoming message.
         /// </summary>
-        public TransportOperation[] TransportOperations { get; private set; }
+        public TransportOperation[] TransportOperations { get; }
     }
 }

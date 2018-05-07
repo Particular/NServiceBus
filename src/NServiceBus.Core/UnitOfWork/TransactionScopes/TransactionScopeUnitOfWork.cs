@@ -1,16 +1,13 @@
 ﻿namespace NServiceBus.Features
 {
     using System;
-    using System.Configuration;
     using System.Transactions;
-    using System.Transactions.Configuration;
-    using ConsistencyGuarantees;
 
     class TransactionScopeUnitOfWork : Feature
     {
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-            if (context.Settings.GetRequiredTransactionModeForReceives() == TransportTransactionMode.TransactionScope)
+            if (context.Receiving.TransactionMode == TransportTransactionMode.TransactionScope)
             {
                 throw new Exception("A Transaction scope unit of work can't be used when the transport already uses a scope for the receive operation. Remove the call to config.UnitOfWork().WrapHandlersInATransactionScope() or configure the transport to use a lower transaction mode");
             }
@@ -31,7 +28,7 @@
 
                     if (requestedTimeout.Value > maxTimeout)
                     {
-                        throw new ConfigurationErrorsException(
+                        throw new Exception(
                             "Timeout requested is longer than the maximum value for this machine. Override using the maxTimeout setting of the system.transactions section in machine.config");
                     }
 
@@ -56,16 +53,15 @@
             {
                 //default is always 10 minutes
                 var maxTimeout = TimeSpan.FromMinutes(10);
-
-                var systemTransactionsGroup = ConfigurationManager.OpenMachineConfiguration()
+#if NET452
+                var systemTransactionsGroup = System.Configuration.ConfigurationManager.OpenMachineConfiguration()
                     .GetSectionGroup("system.transactions");
 
-                var machineSettings = systemTransactionsGroup?.Sections.Get("machineSettings") as MachineSettingsSection;
-
-                if (machineSettings != null)
+                if (systemTransactionsGroup?.Sections.Get("machineSettings") is System.Transactions.Configuration.MachineSettingsSection machineSettings)
                 {
                     maxTimeout = machineSettings.MaxTimeout;
                 }
+#endif
 
                 return maxTimeout;
             }

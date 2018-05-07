@@ -5,12 +5,16 @@ namespace NServiceBus
     using Pipeline;
     using Transport;
 
-    class AttachCausationHeadersBehavior : IBehavior<IOutgoingPhysicalMessageContext, IOutgoingPhysicalMessageContext>
+    class AttachCausationHeadersBehavior : IBehavior<IOutgoingLogicalMessageContext, IOutgoingLogicalMessageContext>
     {
-        public Task Invoke(IOutgoingPhysicalMessageContext context, Func<IOutgoingPhysicalMessageContext, Task> next)
+        public AttachCausationHeadersBehavior(Func<IOutgoingLogicalMessageContext, string> conversationIdStrategy)
         {
-            IncomingMessage incomingMessage;
-            context.TryGetIncomingPhysicalMessage(out incomingMessage);
+            this.conversationIdStrategy = conversationIdStrategy;
+        }
+
+        public Task Invoke(IOutgoingLogicalMessageContext context, Func<IOutgoingLogicalMessageContext, Task> next)
+        {
+            context.TryGetIncomingPhysicalMessage(out var incomingMessage);
 
             SetRelatedToHeader(context, incomingMessage);
             SetConversationIdHeader(context, incomingMessage);
@@ -18,7 +22,7 @@ namespace NServiceBus
             return next(context);
         }
 
-        static void SetRelatedToHeader(IOutgoingPhysicalMessageContext context, IncomingMessage incomingMessage)
+        static void SetRelatedToHeader(IOutgoingLogicalMessageContext context, IncomingMessage incomingMessage)
         {
             if (incomingMessage == null)
             {
@@ -28,13 +32,11 @@ namespace NServiceBus
             context.Headers[Headers.RelatedTo] = incomingMessage.MessageId;
         }
 
-        static void SetConversationIdHeader(IOutgoingPhysicalMessageContext context, IncomingMessage incomingMessage)
+        void SetConversationIdHeader(IOutgoingLogicalMessageContext context, IncomingMessage incomingMessage)
         {
-            string conversationIdFromCurrentMessageContext;
-            string userDefinedConversationId;
-            var hasUserDefinedConversationId = context.Headers.TryGetValue(Headers.ConversationId, out userDefinedConversationId);
+            var hasUserDefinedConversationId = context.Headers.TryGetValue(Headers.ConversationId, out var userDefinedConversationId);
 
-            if (incomingMessage != null && incomingMessage.Headers.TryGetValue(Headers.ConversationId, out conversationIdFromCurrentMessageContext))
+            if (incomingMessage != null && incomingMessage.Headers.TryGetValue(Headers.ConversationId, out var conversationIdFromCurrentMessageContext))
             {
                 if (hasUserDefinedConversationId)
                 {
@@ -47,11 +49,12 @@ namespace NServiceBus
 
             if (hasUserDefinedConversationId)
             {
-                // do not override user defined conversation id if no incoming message exists.
                 return;
             }
 
-            context.Headers[Headers.ConversationId] = CombGuid.Generate().ToString();
+            context.Headers[Headers.ConversationId] = conversationIdStrategy(context);
         }
+
+        Func<IOutgoingLogicalMessageContext, string> conversationIdStrategy;
     }
 }

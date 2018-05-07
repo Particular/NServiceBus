@@ -13,22 +13,12 @@ namespace NServiceBus
 
         public string FileToProcess { get; private set; }
 
-        public bool BeginTransaction(string incomingFilePath)
+        public Task<bool> BeginTransaction(string incomingFilePath)
         {
             Directory.CreateDirectory(processingDirectory);
             FileToProcess = Path.Combine(processingDirectory, Path.GetFileName(incomingFilePath));
 
-            try
-            {
-                File.Move(incomingFilePath, FileToProcess);
-            }
-            catch (IOException)
-            {
-                return false;
-            }
-
-            //seem like File.Move is not atomic at least within the same process so we need this extra check
-            return File.Exists(FileToProcess);
+            return AsyncFile.Move(incomingFilePath, FileToProcess);
         }
 
         public Task Enlist(string messagePath, string messageContents) => AsyncFile.WriteText(messagePath, messageContents);

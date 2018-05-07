@@ -24,10 +24,7 @@ namespace NServiceBus.AcceptanceTests.Core.Conventions
             Assert.False(context.Logs.Any(l => l.Level == LogLevel.Warn && l.Message.Contains($"Could not determine message type from message header '{ typeof(MyCommand).FullName}'")), "Message type could not be mapped.");
         }
 
-        public class Context : ScenarioContext
-        {
-            public bool WasCalled { get; set; }
-        }
+        public class Context : ScenarioContext { }
 
         public class Sender : EndpointConfigurationBuilder
         {
@@ -37,7 +34,6 @@ namespace NServiceBus.AcceptanceTests.Core.Conventions
                 {
                     c.Conventions()
                         .DefiningCommandsAs(t => t.Namespace != null && t.FullName == typeof(MyCommand).FullName);
-                    c.UseSerialization<JsonSerializer>();
                     c.ConfigureTransport().Routing().RouteToEndpoint(typeof(MyCommand), typeof(Receiver));
                 }).ExcludeType<MyCommand>(); // remove that type from assembly scanning to simulate what would happen with true unobtrusive mode
             }
@@ -51,8 +47,6 @@ namespace NServiceBus.AcceptanceTests.Core.Conventions
                 EndpointSetup<DefaultServer>(c =>
                 {
                     c.Conventions().DefiningCommandsAs(t => t.Namespace != null && t.FullName == typeof(MyCommand).FullName);
-
-                    c.UseSerialization<JsonSerializer>();
                 })
                     .ExcludeType<MyCommand>(); // remove that type from assembly scanning to simulate what would happen with true unobtrusive mode
             }

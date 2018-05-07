@@ -13,8 +13,7 @@ namespace NServiceBus
 
         public Task Invoke(IOutgoingLogicalMessageContext context, Func<IOutgoingLogicalMessageContext, Task> next)
         {
-            State state;
-            if (context.Extensions.TryGet(out state))
+            if (context.Extensions.TryGet(out State state))
             {
                 scheduler.Schedule(state.TaskDefinition);
             }

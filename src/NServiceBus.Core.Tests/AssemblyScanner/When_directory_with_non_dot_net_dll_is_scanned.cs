@@ -12,6 +12,7 @@
         public void non_dotnet_files_are_skipped()
         {
             var assemblyScanner = new AssemblyScanner(Path.Combine(TestContext.CurrentContext.TestDirectory, "TestDlls"));
+            assemblyScanner.ScanAppDomainAssemblies = false;
 
             var results = assemblyScanner
                 .GetScannableAssemblies();

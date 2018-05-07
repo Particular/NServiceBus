@@ -15,7 +15,8 @@
         protected override Task Terminate(IDispatchContext context)
         {
             var transaction = context.Extensions.GetOrCreate<TransportTransaction>();
-            return dispatcher.Dispatch(new TransportOperations(context.Operations.ToArray()), transaction, context.Extensions);
+            var operations = context.Operations as TransportOperation[] ?? context.Operations.ToArray();
+            return dispatcher.Dispatch(new TransportOperations(operations), transaction, context.Extensions);
         }
 
         IDispatchMessages dispatcher;

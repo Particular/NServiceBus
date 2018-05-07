@@ -1,7 +1,7 @@
 ﻿namespace NServiceBus.Core.Tests.AssemblyScanner
 {
     using System.IO;
-    using System.Linq;
+    using System.Reflection;
     using Hosting.Helpers;
     using NUnit.Framework;
 
@@ -11,21 +11,12 @@
         [Test]
         public void assemblies_without_nsb_reference_are_skipped()
         {
-            var assemblyScanner = new AssemblyScanner(Path.Combine(TestContext.CurrentContext.TestDirectory, "TestDlls"));
+            var assemblyToScan = Assembly.LoadFrom(Path.Combine(TestContext.CurrentContext.TestDirectory, "TestDlls", "dotNet.dll"));
+            var scanner = new AssemblyScanner(assemblyToScan);
 
-            var results = assemblyScanner
-                .GetScannableAssemblies();
+            var result = scanner.GetScannableAssemblies();
 
-            var skippedFiles = results.SkippedFiles;
-
-            var skippedFile = skippedFiles.FirstOrDefault(f => f.FilePath.Contains("dotNet.dll"));
-
-            if (skippedFile == null)
-            {
-                throw new AssertionException($"Could not find skipped file matching {"dotNet.dll"}");
-            }
-            Assert.That(skippedFile.SkipReason,
-                Contains.Substring("Assembly does not reference at least one of the must referenced assemblies"));
+            Assert.That(result.Assemblies.Contains(assemblyToScan), Is.False);
         }
 
     }

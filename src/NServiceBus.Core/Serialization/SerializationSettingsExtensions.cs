@@ -12,8 +12,7 @@ namespace NServiceBus
 
         public static List<Tuple<SerializationDefinition, SettingsHolder>> GetAdditionalSerializers(this SettingsHolder settings)
         {
-            List<Tuple<SerializationDefinition, SettingsHolder>> deserializers;
-            if (!settings.TryGet(AdditionalSerializersSettingsKey, out deserializers))
+            if (!settings.TryGet(AdditionalSerializersSettingsKey, out List<Tuple<SerializationDefinition, SettingsHolder>> deserializers))
             {
                 deserializers = new List<Tuple<SerializationDefinition, SettingsHolder>>();
                 settings.Set(AdditionalSerializersSettingsKey, deserializers);
@@ -23,8 +22,7 @@ namespace NServiceBus
 
         public static List<Tuple<SerializationDefinition, SettingsHolder>> GetAdditionalSerializers(this ReadOnlySettings settings)
         {
-            List<Tuple<SerializationDefinition, SettingsHolder>> deserializers;
-            if (settings.TryGet(AdditionalSerializersSettingsKey, out deserializers))
+            if (settings.TryGet(AdditionalSerializersSettingsKey, out List<Tuple<SerializationDefinition, SettingsHolder>> deserializers))
             {
                 return deserializers;
             }
@@ -38,8 +36,7 @@ namespace NServiceBus
 
         public static Tuple<SerializationDefinition, SettingsHolder> GetMainSerializer(this ReadOnlySettings settings)
         {
-            Tuple<SerializationDefinition, SettingsHolder> defaultSerializerAndSettings;
-            if (!settings.TryGet(MainSerializerSettingsKey, out defaultSerializerAndSettings))
+            if (!settings.TryGet(MainSerializerSettingsKey, out Tuple<SerializationDefinition, SettingsHolder> defaultSerializerAndSettings))
             {
                 defaultSerializerAndSettings = Tuple.Create<SerializationDefinition, SettingsHolder>(new XmlSerializer(), new SettingsHolder());
             }

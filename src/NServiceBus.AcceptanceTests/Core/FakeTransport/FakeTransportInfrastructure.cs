@@ -21,9 +21,7 @@
         {
             get
             {
-                TransportTransactionMode supportedTransactionMode;
-
-                if (settings.TryGet("FakeTransport.SupportedTransactionMode", out supportedTransactionMode))
+                if (settings.TryGet("FakeTransport.SupportedTransactionMode", out TransportTransactionMode supportedTransactionMode))
                 {
                     return supportedTransactionMode;
                 }
@@ -46,11 +44,28 @@
 
         public override TransportReceiveInfrastructure ConfigureReceiveInfrastructure()
         {
-            return new TransportReceiveInfrastructure(() => new FakeReceiver(settings.GetOrDefault<bool>("FakeTransport.ThrowCritical"), settings.GetOrDefault<bool>("FakeTransport.ThrowOnPumpStop"), settings.GetOrDefault<Exception>()), () => new FakeQueueCreator(), () => Task.FromResult(StartupCheckResult.Success));
+            settings.Get<FakeTransport.StartUpSequence>().Add($"{nameof(TransportInfrastructure)}.{nameof(ConfigureReceiveInfrastructure)}");
+
+            return new TransportReceiveInfrastructure(() => new FakeReceiver(settings),
+                () => new FakeQueueCreator(settings),
+                () =>
+                {
+                    settings.Get<FakeTransport.StartUpSequence>().Add($"{nameof(TransportReceiveInfrastructure)}.PreStartupCheck");
+                    return Task.FromResult(StartupCheckResult.Success);
+                });
         }
 
+        public override Task Start()
+        {
+            settings.Get<FakeTransport.StartUpSequence>().Add($"{nameof(TransportInfrastructure)}.{nameof(Start)}");
+
+            return Task.FromResult(0);
+
+        }
         public override async Task Stop()
         {
+            settings.Get<FakeTransport.StartUpSequence>().Add($"{nameof(TransportInfrastructure)}.{nameof(Stop)}");
+
             await Task.Yield();
 
             if (settings.GetOrDefault<bool>("FakeTransport.ThrowOnInfrastructureStop"))
@@ -62,7 +77,14 @@
 
         public override TransportSendInfrastructure ConfigureSendInfrastructure()
         {
-            return new TransportSendInfrastructure(() => new FakeDispatcher(), () => Task.FromResult(StartupCheckResult.Success));
+            settings.Get<FakeTransport.StartUpSequence>().Add($"{nameof(TransportInfrastructure)}.{nameof(ConfigureSendInfrastructure)}");
+
+            return new TransportSendInfrastructure(() => new FakeDispatcher(),
+                () =>
+                {
+                    settings.Get<FakeTransport.StartUpSequence>().Add($"{nameof(TransportSendInfrastructure)}.PreStartupCheck");
+                    return Task.FromResult(StartupCheckResult.Success);
+                });
         }
 
         public override TransportSubscriptionInfrastructure ConfigureSubscriptionInfrastructure()

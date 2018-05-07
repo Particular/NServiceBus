@@ -13,14 +13,10 @@
         {
             var assemblies = new AssemblyScanner().GetScannableAssemblies();
 
-            var types = assemblies.Assemblies
-                //exclude all test types by default
-                .Where(a =>
-                {
-                    var references = a.GetReferencedAssemblies();
-
-                    return references.All(an => an.Name != "nunit.framework");
-                })
+            var assembliesToScan = assemblies.Assemblies
+                //exclude acceptance tests by default
+                .Where(a => a != Assembly.GetExecutingAssembly()).ToList();
+            var types = assembliesToScan
                 .SelectMany(a => a.GetTypes());
 
             types = types.Union(GetNestedTypeRecursive(endpointConfiguration.BuilderType.DeclaringType, endpointConfiguration.BuilderType));

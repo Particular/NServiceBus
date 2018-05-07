@@ -5,9 +5,7 @@
     using System.Threading.Tasks;
     using AcceptanceTesting.Customization;
     using AcceptanceTesting.Support;
-    using Configuration.AdvanceExtensibility;
     using Features;
-    using NServiceBus.Config.ConfigurationSource;
 
     public class DefaultServer : IEndpointSetupTemplate
     {
@@ -21,9 +19,7 @@
             this.typesToInclude = typesToInclude;
         }
 
-#pragma warning disable CS0618
-        public async Task<EndpointConfiguration> GetConfiguration(RunDescriptor runDescriptor, EndpointCustomizationConfiguration endpointConfiguration, IConfigurationSource configSource, Action<EndpointConfiguration> configurationBuilderCustomization)
-#pragma warning restore CS0618
+        public async Task<EndpointConfiguration> GetConfiguration(RunDescriptor runDescriptor, EndpointCustomizationConfiguration endpointConfiguration, Action<EndpointConfiguration> configurationBuilderCustomization)
         {
             var types = endpointConfiguration.GetTypesScopedByTestClass();
 
@@ -32,7 +28,6 @@
             var configuration = new EndpointConfiguration(endpointConfiguration.EndpointName);
 
             configuration.TypesToIncludeInScan(typesToInclude);
-            configuration.CustomConfigurationSource(configSource);
             configuration.EnableInstallers();
 
             configuration.DisableFeature<TimeoutManager>();
@@ -48,7 +43,6 @@
 
             await configuration.DefinePersistence(runDescriptor, endpointConfiguration).ConfigureAwait(false);
 
-            configuration.GetSettings().SetDefault("ScaleOut.UseSingleBrokerQueue", true);
             configurationBuilderCustomization(configuration);
 
             return configuration;

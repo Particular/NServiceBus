@@ -1,6 +1,6 @@
 namespace NServiceBus
 {
-    using Configuration.AdvanceExtensibility;
+    using Configuration.AdvancedExtensibility;
 
     /// <summary>
     /// Extension methods for recoverability which extend <see cref="EndpointConfiguration" />.

@@ -13,9 +13,7 @@
                 typeof(InheritedClassWithAttribute)
             }, TimeToBeReceivedMappings.DefaultConvention, true);
 
-            TimeSpan timeToBeReceived;
-
-            Assert.True(mappings.TryGetTimeToBeReceived(typeof(InheritedClassWithAttribute), out timeToBeReceived));
+            Assert.True(mappings.TryGetTimeToBeReceived(typeof(InheritedClassWithAttribute), out var timeToBeReceived));
             Assert.AreEqual(TimeSpan.FromSeconds(2), timeToBeReceived);
         }
 
@@ -27,9 +25,7 @@
                 typeof(InheritedClassWithNoAttribute)
             }, TimeToBeReceivedMappings.DefaultConvention, true);
 
-            TimeSpan timeToBeReceived;
-
-            Assert.True(mappings.TryGetTimeToBeReceived(typeof(InheritedClassWithNoAttribute), out timeToBeReceived));
+            Assert.True(mappings.TryGetTimeToBeReceived(typeof(InheritedClassWithNoAttribute), out var timeToBeReceived));
             Assert.AreEqual(TimeSpan.FromSeconds(1), timeToBeReceived);
         }
 
@@ -49,9 +45,7 @@
             {
             }, TimeToBeReceivedMappings.DefaultConvention, true);
 
-            TimeSpan timeToBeReceived;
-
-            Assert.True(mappings.TryGetTimeToBeReceived(typeof(InheritedClassWithAttribute), out timeToBeReceived));
+            Assert.True(mappings.TryGetTimeToBeReceived(typeof(InheritedClassWithAttribute), out var timeToBeReceived));
             Assert.AreEqual(TimeSpan.FromSeconds(2), timeToBeReceived);
         }
 
@@ -62,9 +56,7 @@
             {
             }, TimeToBeReceivedMappings.DefaultConvention, true);
 
-            TimeSpan timeToBeReceived;
-
-            Assert.True(mappings.TryGetTimeToBeReceived(typeof(InheritedClassWithNoAttribute), out timeToBeReceived));
+            Assert.True(mappings.TryGetTimeToBeReceived(typeof(InheritedClassWithNoAttribute), out var timeToBeReceived));
             Assert.AreEqual(TimeSpan.FromSeconds(1), timeToBeReceived);
         }
 
@@ -77,8 +69,7 @@
 
             Assert.That(() =>
             {
-                TimeSpan ttbr;
-                return mappings.TryGetTimeToBeReceived(typeof(InheritedClassWithNoAttribute), out ttbr);
+                return mappings.TryGetTimeToBeReceived(typeof(InheritedClassWithNoAttribute), out _);
             }, Throws.Exception.Message.StartWith("Messages with TimeToBeReceived found but the selected transport does not support this type of restriction"));
         }
 

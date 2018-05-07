@@ -16,6 +16,11 @@ namespace NServiceBus
     {
         public LearningTransportDispatcher(string basePath, int maxMessageSizeKB)
         {
+            if (maxMessageSizeKB > int.MaxValue / 1024)
+            {
+                throw new ArgumentException("The message size cannot be larger than int.MaxValue / 1024.", nameof(maxMessageSizeKB));
+            }
+
             this.basePath = basePath;
             this.maxMessageSizeKB = maxMessageSizeKB;
         }
@@ -56,17 +61,9 @@ namespace NServiceBus
             }));
         }
 
-
         async Task WriteMessage(string destination, IOutgoingTransportOperation transportOperation, TransportTransaction transaction)
         {
             var message = transportOperation.Message;
-            var headerPayload = HeaderSerializer.Serialize(message.Headers);
-            var headerSize = Encoding.UTF8.GetByteCount(headerPayload);
-
-            if (headerSize + message.Body.Length > maxMessageSizeKB * 1024)
-            {
-                throw new Exception($"The total size of the '{message.Headers[Headers.EnclosedMessageTypes]}' message body ({message.Body.Length} bytes) plus headers ({headerSize} bytes) is larger than {maxMessageSizeKB} KB and will not be supported on some production transports. Consider using the NServiceBus DataBus or the claim check pattern to avoid messages with a large payload. Use 'EndpointConfiguration.UseTransport<LearningTransport>().NoPayloadSizeRestriction()' to disable this check and proceed with the current message size.");
-            }
 
             var nativeMessageId = Guid.NewGuid().ToString();
             var destinationPath = Path.Combine(basePath, destination);
@@ -92,11 +89,6 @@ namespace NServiceBus
 
             if (timeToDeliver.HasValue)
             {
-                if (transportOperation.DeliveryConstraints.TryGet(out DiscardIfNotReceivedBefore timeToBeReceived) && timeToBeReceived.MaxTime < TimeSpan.MaxValue)
-                {
-                    throw new Exception($"Postponed delivery of messages with TimeToBeReceived set is not supported. Remove the TimeToBeReceived attribute to postpone messages of type '{message.Headers[Headers.EnclosedMessageTypes]}'.");
-                }
-
                 // we need to "ceil" the seconds to guarantee that we delay with at least the requested value
                 // since the folder name has only second resolution.
                 if (timeToDeliver.Value.Millisecond > 0)
@@ -109,7 +101,25 @@ namespace NServiceBus
                 Directory.CreateDirectory(destinationPath);
             }
 
+            if (transportOperation.DeliveryConstraints.TryGet(out DiscardIfNotReceivedBefore timeToBeReceived) && timeToBeReceived.MaxTime < TimeSpan.MaxValue)
+            {
+                if (timeToDeliver.HasValue)
+                {
+                    throw new Exception($"Postponed delivery of messages with TimeToBeReceived set is not supported. Remove the TimeToBeReceived attribute to postpone messages of type '{message.Headers[Headers.EnclosedMessageTypes]}'.");
+                }
+
+                message.Headers[LearningTransportHeaders.TimeToBeReceived] = timeToBeReceived.MaxTime.ToString();
+            }
+
             var messagePath = Path.Combine(destinationPath, nativeMessageId) + ".metadata.txt";
+
+            var headerPayload = HeaderSerializer.Serialize(message.Headers);
+            var headerSize = Encoding.UTF8.GetByteCount(headerPayload);
+
+            if (headerSize + message.Body.Length > maxMessageSizeKB * 1024)
+            {
+                throw new Exception($"The total size of the '{message.Headers[Headers.EnclosedMessageTypes]}' message body ({message.Body.Length} bytes) plus headers ({headerSize} bytes) is larger than {maxMessageSizeKB} KB and will not be supported on some production transports. Consider using the NServiceBus DataBus or the claim check pattern to avoid messages with a large payload. Use 'EndpointConfiguration.UseTransport<LearningTransport>().NoPayloadSizeRestriction()' to disable this check and proceed with the current message size.");
+            }
 
             if (transportOperation.RequiredDispatchConsistency != DispatchConsistency.Isolated && transaction.TryGet(out ILearningTransportTransaction directoryBasedTransaction))
             {
@@ -123,7 +133,6 @@ namespace NServiceBus
                     .ConfigureAwait(false);
             }
         }
-
 
         async Task<IEnumerable<string>> GetSubscribersFor(Type messageType)
         {

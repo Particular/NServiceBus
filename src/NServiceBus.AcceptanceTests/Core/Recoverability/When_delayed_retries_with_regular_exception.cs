@@ -35,11 +35,11 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
         {
             public RetryEndpoint()
             {
-                EndpointSetup<DefaultServer>((configure, context) =>
+                EndpointSetup<DefaultServer,Context>((config, context) =>
                 {
-                    configure.EnableFeature<TimeoutManager>();
-                    configure.RegisterComponents(c => c.ConfigureComponent<BodyMutator>(DependencyLifecycle.InstancePerCall));
-                    var recoverability = configure.Recoverability();
+                    config.EnableFeature<TimeoutManager>();
+                    config.RegisterMessageMutator(new BodyMutator(context));
+                    var recoverability = config.Recoverability();
                     recoverability.Delayed(settings => settings.TimeIncrease(TimeSpan.FromMilliseconds(1)));
                 });
             }
