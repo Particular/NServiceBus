@@ -16,6 +16,11 @@ namespace NServiceBus
     {
         public LearningTransportDispatcher(string basePath, int maxMessageSizeKB)
         {
+            if (maxMessageSizeKB > int.MaxValue / 1024)
+            {
+                throw new ArgumentException("The message size cannot be larger than int.MaxValue / 1024.", nameof(maxMessageSizeKB));
+            }
+
             this.basePath = basePath;
             this.maxMessageSizeKB = maxMessageSizeKB;
         }

@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.AcceptanceTests.SelfVerification
+﻿namespace NServiceBus.AcceptanceTests.Core.SelfVerification
 {
     using System.Threading;
     using System.Threading.Tasks;

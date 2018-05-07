@@ -34,7 +34,13 @@
             pendingTransactionDir = Path.Combine(messagePumpBasePath, PendingDirName);
             committedTransactionDir = Path.Combine(messagePumpBasePath, CommittedDirName);
 
-            purgeOnStartup = settings.PurgeOnStartup;
+            if (settings.PurgeOnStartup)
+            {
+                if (Directory.Exists(messagePumpBasePath))
+                {
+                    Directory.Delete(messagePumpBasePath, true);
+                }
+            }
 
             delayedMessagePoller = new DelayedMessagePoller(messagePumpBasePath, delayedDir);
 
@@ -48,14 +54,6 @@
             cancellationTokenSource = new CancellationTokenSource();
 
             cancellationToken = cancellationTokenSource.Token;
-
-            if (purgeOnStartup)
-            {
-                if (Directory.Exists(messagePumpBasePath))
-                {
-                    Directory.Delete(messagePumpBasePath, true);
-                }
-            }
 
             RecoverPendingTransactions();
 
@@ -321,7 +319,6 @@
         SemaphoreSlim concurrencyLimiter;
         Task messagePumpTask;
         Func<MessageContext, Task> onMessage;
-        bool purgeOnStartup;
         Func<ErrorContext, Task<ErrorHandleResult>> onError;
         ConcurrentDictionary<string, int> retryCounts = new ConcurrentDictionary<string, int>();
         string messagePumpBasePath;

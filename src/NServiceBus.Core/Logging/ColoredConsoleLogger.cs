@@ -25,10 +25,11 @@
             {
                 Console.ForegroundColor = GetColor(logLevel);
                 Console.WriteLine(message);
-            }
-            finally
-            {
                 Console.ResetColor();
+            }
+            catch (IOException)
+            {
+                logToConsole = false;
             }
         }
 

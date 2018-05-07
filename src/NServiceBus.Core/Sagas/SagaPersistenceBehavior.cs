@@ -35,8 +35,6 @@
                 return;
             }
 
-            currentContext = context;
-
             RemoveSagaHeadersIfProcessingAEvent(context);
 
             if (!(context.MessageHandler.Instance is Saga saga))
@@ -262,9 +260,9 @@
             }
 
             var finderType = finderDefinition.Type;
-            var finder = (SagaFinder)currentContext.Builder.Build(finderType);
+            var finder = (SagaFinder)context.Builder.Build(finderType);
 
-            return finder.Find(currentContext.Builder, finderDefinition, context.SynchronizedStorageSession, context.Extensions, context.MessageBeingHandled);
+            return finder.Find(context.Builder, finderDefinition, context.SynchronizedStorageSession, context.Extensions, context.MessageBeingHandled);
         }
 
         SagaFinderDefinition GetSagaFinder(SagaMetadata metadata, IInvokeHandlerContext context)
@@ -319,7 +317,6 @@
             return sagaEntity;
         }
 
-        IInvokeHandlerContext currentContext;
         readonly SagaMetadataCollection sagaMetadataCollection;
         readonly ISagaPersister sagaPersister;
         readonly ICancelDeferredMessages timeoutCancellation;

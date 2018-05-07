@@ -40,6 +40,7 @@
                     !x.IsPublic &&
                     !x.IsNested &&
                     !IsCompilerGenerated(x) &&
+                    !x.FullName.Contains("System") &&
                     !x.FullName.Contains("JetBrains") &&
                     !x.FullName.StartsWith("Newtonsoft.Json") &&
                     !x.FullName.StartsWith("LightInject") &&
