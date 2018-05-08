@@ -47,8 +47,8 @@ namespace NServiceBus.Core.Analyzer.Tests.Helpers
 
             var actualResults = await GetSortedDiagnostics(sources, analyzer);
 
-            int expectedCount = expectedResults.Count();
-            int actualCount = actualResults.Count();
+            var expectedCount = expectedResults.Length;
+            var actualCount = actualResults.Length;
 
             if (expectedCount != actualCount)
             {
@@ -57,7 +57,7 @@ namespace NServiceBus.Core.Analyzer.Tests.Helpers
                 Assert.Fail($"Mismatch between number of diagnostics returned, expected \"{expectedCount}\" actual \"{actualCount}\"\r\n\r\nDiagnostics:\r\n{diagnosticsOutput}\r\n");
             }
 
-            for (int expectedResultIndex = 0; expectedResultIndex < expectedResults.Length; expectedResultIndex++)
+            for (var expectedResultIndex = 0; expectedResultIndex < expectedResults.Length; expectedResultIndex++)
             {
                 var actual = actualResults.ElementAt(expectedResultIndex);
                 var expected = expectedResults[expectedResultIndex];
@@ -80,7 +80,7 @@ namespace NServiceBus.Core.Analyzer.Tests.Helpers
                         Assert.Fail($"Expected {expected.Locations.Length - 1} additional locations but got {additionalLocations.Length} for Diagnostic:\r\n    {FormatDiagnostics(analyzer, actual)}\r\n");
                     }
 
-                    for (int additionalLocationIndex = 0; additionalLocationIndex < additionalLocations.Length; ++additionalLocationIndex)
+                    for (var additionalLocationIndex = 0; additionalLocationIndex < additionalLocations.Length; ++additionalLocationIndex)
                     {
                         VerifyDiagnosticLocation(analyzer, actual, additionalLocations[additionalLocationIndex], expected.Locations[additionalLocationIndex + 1]);
                     }
@@ -104,7 +104,7 @@ namespace NServiceBus.Core.Analyzer.Tests.Helpers
             }
         }
 
-        private static void VerifyDiagnosticLocation(DiagnosticAnalyzer analyzer, Diagnostic diagnostic, Location actual, DiagnosticResultLocation expected)
+        static void VerifyDiagnosticLocation(DiagnosticAnalyzer analyzer, Diagnostic diagnostic, Location actual, DiagnosticResultLocation expected)
         {
             var actualSpan = actual.GetLineSpan();
 
@@ -133,7 +133,7 @@ namespace NServiceBus.Core.Analyzer.Tests.Helpers
             }
         }
 
-        private static async Task<Diagnostic[]> GetSortedDiagnostics(string[] sources, DiagnosticAnalyzer analyzer)
+        static async Task<Diagnostic[]> GetSortedDiagnostics(string[] sources, DiagnosticAnalyzer analyzer)
         {
             var projectId = ProjectId.CreateNewId("TestProject");
 
@@ -145,7 +145,7 @@ namespace NServiceBus.Core.Analyzer.Tests.Helpers
                 .AddMetadataReference(projectId, CSharpSymbolsReference)
                 .AddMetadataReference(projectId, CodeAnalysisReference);
 
-            int documentIndex = 0;
+            var documentIndex = 0;
             foreach (var source in sources)
             {
                 var fileName = "Test" + documentIndex + ".cs";
@@ -187,12 +187,12 @@ namespace NServiceBus.Core.Analyzer.Tests.Helpers
             return diagnostics.OrderBy(diagnostic => diagnostic.Location.SourceSpan.Start).ToArray();
         }
 
-        private static string FormatDiagnostics(DiagnosticAnalyzer analyzer, params Diagnostic[] diagnostics)
+        static string FormatDiagnostics(DiagnosticAnalyzer analyzer, params Diagnostic[] diagnostics)
         {
             var builder = new StringBuilder();
-            for (int diagnosticIndex = 0; diagnosticIndex < diagnostics.Length; ++diagnosticIndex)
+            for (var diagnosticIndex = 0; diagnosticIndex < diagnostics.Length; ++diagnosticIndex)
             {
-                builder.AppendLine("// " + diagnostics[diagnosticIndex].ToString());
+                builder.AppendLine("// " + diagnostics[diagnosticIndex]);
 
                 var analyzerType = analyzer.GetType();
                 var descriptors = analyzer.SupportedDiagnostics;
