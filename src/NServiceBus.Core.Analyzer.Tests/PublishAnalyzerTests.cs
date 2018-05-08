@@ -1,11 +1,11 @@
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.Diagnostics;
-using NServiceBus.Core.Analyzer.Tests.Helpers;
-using NUnit.Framework;
-using System.Threading.Tasks;
-
 namespace NServiceBus.Core.Analyzer.Tests
 {
+    using System.Threading.Tasks;
+    using Microsoft.CodeAnalysis;
+    using Microsoft.CodeAnalysis.Diagnostics;
+    using NServiceBus.Core.Analyzer.Tests.Helpers;
+    using NUnit.Framework;
+
     [TestFixture]
     public class PublishAnalyzerTests : DiagnosticVerifier
     {
@@ -15,7 +15,8 @@ namespace NServiceBus.Core.Analyzer.Tests
         [Test]
         public async Task Publish()
         {
-            var source = @"using NServiceBus;
+            var source =
+@"using NServiceBus;
 using System.Threading.Tasks;
 public class TestMessage { }
 public class TestEvent { }
