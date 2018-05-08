@@ -50,8 +50,6 @@ public class TestHandler : IHandleMessages<TestMessage>
         return Task.FromResult(0);
     }
 }")]
-        [TestCase("context.Publish(new object(), new PublishOptions());")]
-        [TestCase("context.Publish<object>(_ => { }, new PublishOptions());")]
         public async Task NoDiagnosticIsReported(string source) => await Verify(source);
 
         protected override DiagnosticAnalyzer GetAnalyzer() => new AwaitOrCaptureTasksAnalyzer ();
