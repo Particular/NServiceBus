@@ -374,6 +374,8 @@ namespace NServiceBus
         public const string DestinationSites = "NServiceBus.DestinationSites";
         public const string EnclosedMessageTypes = "NServiceBus.EnclosedMessageTypes";
         public const string HasLicenseExpired = "$.diagnostics.license.expired";
+        [System.ObsoleteAttribute("Not intended for public usage. Will be treated as an error from version 8.0.0. Wi" +
+            "ll be removed in version 9.0.0.", false)]
         public const string HeaderName = "Header";
         public const string HostDisplayName = "$.diagnostics.hostdisplayname";
         public const string HostId = "$.diagnostics.hostid";

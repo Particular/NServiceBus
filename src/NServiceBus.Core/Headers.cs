@@ -17,26 +17,22 @@
 
         /// <summary>
         /// Header for specifying to which queue behind the http gateway should the message be delivered.
-        /// This header is considered an applicative header.
         /// </summary>
         public const string RouteTo = "NServiceBus.Header.RouteTo";
 
         /// <summary>
         /// Header for specifying to which sites the gateway should send the message. For multiple
-        /// sites a comma separated list can be used
-        /// This header is considered an applicative header.
+        /// sites, a comma separated list can be used.
         /// </summary>
         public const string DestinationSites = "NServiceBus.DestinationSites";
 
         /// <summary>
         /// Header for specifying the key for the site where this message originated.
-        /// This header is considered an applicative header.
         /// </summary>
         public const string OriginatingSite = "NServiceBus.OriginatingSite";
 
         /// <summary>
-        /// Header containing the id of the saga instance the sent the message
-        /// This header is considered an applicative header.
+        /// Header containing the id of the saga instance the sent the message.
         /// </summary>
         public const string SagaId = "NServiceBus.SagaId";
 
@@ -58,6 +54,10 @@
         /// <summary>
         /// Prefix included on the wire when sending applicative headers.
         /// </summary>
+        [ObsoleteEx(
+            RemoveInVersion = "9.0", 
+            TreatAsErrorFromVersion = "8.0",
+            Message = "Not intended for public usage.")]
         public const string HeaderName = "Header";
 
         /// <summary>
