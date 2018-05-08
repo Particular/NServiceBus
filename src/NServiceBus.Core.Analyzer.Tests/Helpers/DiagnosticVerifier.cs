@@ -23,7 +23,6 @@ namespace NServiceBus.Core.Analyzer.Tests.Helpers
         static readonly MetadataReference CodeAnalysisReference = MetadataReference.CreateFromFile(typeof(Compilation).Assembly.Location);
         static readonly MetadataReference NServiceBusReference = MetadataReference.CreateFromFile(typeof(EndpointConfiguration).Assembly.Location);
 
-
         /// <summary>
         /// Get the analyzer being tested.
         /// </summary>
@@ -147,7 +146,6 @@ namespace NServiceBus.Core.Analyzer.Tests.Helpers
                 .AddMetadataReference(projectId, CSharpSymbolsReference)
                 .AddMetadataReference(projectId, CodeAnalysisReference)
                 .AddMetadataReference(projectId, NServiceBusReference);
-
 
             var documentIndex = 0;
             foreach (var source in sources)
