@@ -116,21 +116,15 @@ namespace NServiceBus.Core.Analyzer.Tests.Helpers
             var actualPosition = actualSpan.StartLinePosition;
 
             // Only check line position if there is an actual line in the real diagnostic
-            if (actualPosition.Line > 0)
+            if (actualPosition.Line > 0 && actualPosition.Line + 1 != expected.Line)
             {
-                if (actualPosition.Line + 1 != expected.Line)
-                {
-                    Assert.Fail($"Expected diagnostic to be on line \"{expected.Line}\" was actually on line \"{actualPosition.Line + 1}\"\r\n\r\nDiagnostic:\r\n    {FormatDiagnostics(analyzer, diagnostic)}\r\n");
-                }
+                Assert.Fail($"Expected diagnostic to be on line \"{expected.Line}\" was actually on line \"{actualPosition.Line + 1}\"\r\n\r\nDiagnostic:\r\n    {FormatDiagnostics(analyzer, diagnostic)}\r\n");
             }
 
             // Only check character position if there is an actual character position in the real diagnostic
-            if (actualPosition.Character > 0)
+            if (actualPosition.Character > 0 && actualPosition.Character + 1 != expected.Character)
             {
-                if (actualPosition.Character + 1 != expected.Character)
-                {
-                    Assert.Fail($"Expected diagnostic to start at character \"{expected.Character}\" was actually at character \"{actualPosition.Character + 1}\"\r\n\r\nDiagnostic:\r\n    {FormatDiagnostics(analyzer, diagnostic)}\r\n");
-                }
+                Assert.Fail($"Expected diagnostic to start at character \"{expected.Character}\" was actually at character \"{actualPosition.Character + 1}\"\r\n\r\nDiagnostic:\r\n    {FormatDiagnostics(analyzer, diagnostic)}\r\n");
             }
         }
 
@@ -199,39 +193,37 @@ namespace NServiceBus.Core.Analyzer.Tests.Helpers
                 var analyzerType = analyzer.GetType();
                 var descriptors = analyzer.SupportedDiagnostics;
 
-                foreach (var descriptor in descriptors)
+                foreach (var descriptor in descriptors
+                    .Where(descriptor => descriptor?.Id == diagnostics[diagnosticIndex].Id))
                 {
-                    if (descriptor != null && descriptor.Id == diagnostics[diagnosticIndex].Id)
+                    var location = diagnostics[diagnosticIndex].Location;
+                    if (location == Location.None)
                     {
-                        var location = diagnostics[diagnosticIndex].Location;
-                        if (location == Location.None)
-                        {
-                            builder.AppendFormat("GetGlobalResult({0}.{1})", analyzerType.Name, descriptor.Id);
-                        }
-                        else
-                        {
-                            Assert.IsTrue(
-                                location.IsInSource,
-                                $"Test base does not currently handle diagnostics in metadata locations. Diagnostic in metadata: {diagnostics[diagnosticIndex]}\r\n");
-
-                            var position = diagnostics[diagnosticIndex].Location.GetLineSpan().StartLinePosition;
-
-                            builder.AppendFormat("{0}({1}, {2}, {3}.{4})",
-                                "GetResultAt",
-                                position.Line + 1,
-                                position.Character + 1,
-                                analyzerType.Name,
-                                descriptor.Id);
-                        }
-
-                        if (diagnosticIndex != diagnostics.Length - 1)
-                        {
-                            builder.Append(',');
-                        }
-
-                        builder.AppendLine();
-                        break;
+                        builder.AppendFormat("GetGlobalResult({0}.{1})", analyzerType.Name, descriptor.Id);
                     }
+                    else
+                    {
+                        Assert.IsTrue(
+                            location.IsInSource,
+                            $"Test base does not currently handle diagnostics in metadata locations. Diagnostic in metadata: {diagnostics[diagnosticIndex]}\r\n");
+
+                        var position = diagnostics[diagnosticIndex].Location.GetLineSpan().StartLinePosition;
+
+                        builder.AppendFormat("{0}({1}, {2}, {3}.{4})",
+                            "GetResultAt",
+                            position.Line + 1,
+                            position.Character + 1,
+                            analyzerType.Name,
+                            descriptor.Id);
+                    }
+
+                    if (diagnosticIndex != diagnostics.Length - 1)
+                    {
+                        builder.Append(',');
+                    }
+
+                    builder.AppendLine();
+                    break;
                 }
             }
 
