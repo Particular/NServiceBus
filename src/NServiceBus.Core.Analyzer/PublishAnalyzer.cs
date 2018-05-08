@@ -8,7 +8,7 @@ namespace NServiceBus.Core.Analyzer
     public class PublishAnalyzer : DiagnosticAnalyzer
     {
         private static readonly DiagnosticDescriptor diagnostic = new DiagnosticDescriptor(
-            "NServiceBus.Core.001",
+            "NSB001",
             "TBD",
             "TBD",
             "TBD",

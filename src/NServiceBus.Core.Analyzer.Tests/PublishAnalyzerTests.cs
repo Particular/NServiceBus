@@ -30,7 +30,7 @@ public class TestHandler : IHandleMessages<TestMessage>
 
             var expected = new DiagnosticResult
             {
-                Id = "NServiceBus.Core.001",
+                Id = "NSB001",
                 Message = "TBD",
                 Severity = DiagnosticSeverity.Error,
                 Locations = new[] { new DiagnosticResultLocation("Test0.cs", 9, 9) },
