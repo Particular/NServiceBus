@@ -4,13 +4,14 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using System.Linq;
 
 namespace NServiceBus.Core.Analyzer
 {
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public class AwaitOrCaptureTasksAnalyzer : DiagnosticAnalyzer
     {
-        private static readonly DiagnosticDescriptor diagnostic = new DiagnosticDescriptor(
+        static readonly DiagnosticDescriptor diagnostic = new DiagnosticDescriptor(
             "NSB0001",
             "Await or capture tasks",
             "Expression calling an NServiceBus method creates a Task that is not awaited or assigned to a variable.",
@@ -19,7 +20,7 @@ namespace NServiceBus.Core.Analyzer
             true,
             "NServiceBus methods returning a Task should either be awaited or stored in a variable so that the Task is not dropped.");
 
-        private static readonly ImmutableHashSet<string> methods = ImmutableHashSet.Create(
+        static readonly ImmutableHashSet<string> methods = ImmutableHashSet.Create(
             StringComparer.Ordinal,
             "NServiceBus.IPipelineContext.Send",
             "NServiceBus.IPipelineContext.Send`1",
@@ -43,12 +44,31 @@ namespace NServiceBus.Core.Analyzer
                 return;
             }
 
-            // TODO: return if containing method is marked async
+            if (CalledFromAsyncMethod(call))
+            {
+                return;
+            }
 
             if (call.Parent is ExpressionStatementSyntax)
             {
                 context.ReportDiagnostic(Diagnostic.Create(diagnostic, call.GetLocation(), call.ToString()));
             }
+        }
+
+        static bool CalledFromAsyncMethod(SyntaxNode node)
+        {
+            var parent = node.Parent;
+            if (parent == null)
+            {
+                return false;
+            }
+
+            if (parent is MethodDeclarationSyntax methodDeclaration)
+            {
+                return methodDeclaration.ChildTokens().Any(t => t.IsKind(SyntaxKind.AsyncKeyword));
+            }
+
+            return CalledFromAsyncMethod(parent);
         }
     }
 }
