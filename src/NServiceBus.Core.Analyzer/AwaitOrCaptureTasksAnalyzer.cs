@@ -39,7 +39,7 @@ namespace NServiceBus.Core.Analyzer
                 return;
             }
 
-            if (!methods.Contains((context.SemanticModel.GetSymbolInfo(call).Symbol as IMethodSymbol)?.GetFullNameWithArity()))
+            if (!(call.Parent is ExpressionStatementSyntax))
             {
                 return;
             }
@@ -49,7 +49,7 @@ namespace NServiceBus.Core.Analyzer
                 return;
             }
 
-            if (call.Parent is ExpressionStatementSyntax)
+            if (methods.Contains((context.SemanticModel.GetSymbolInfo(call).Symbol as IMethodSymbol)?.GetFullNameWithArity()))
             {
                 context.ReportDiagnostic(Diagnostic.Create(diagnostic, call.GetLocation(), call.ToString()));
             }
