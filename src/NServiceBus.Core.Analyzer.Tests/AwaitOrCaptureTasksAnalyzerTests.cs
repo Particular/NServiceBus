@@ -3,7 +3,7 @@ namespace NServiceBus.Core.Analyzer.Tests
     using System.Threading.Tasks;
     using Microsoft.CodeAnalysis;
     using Microsoft.CodeAnalysis.Diagnostics;
-    using NServiceBus.Core.Analyzer.Tests.Helpers;
+    using Helpers;
     using NUnit.Framework;
 
     [TestFixture]
