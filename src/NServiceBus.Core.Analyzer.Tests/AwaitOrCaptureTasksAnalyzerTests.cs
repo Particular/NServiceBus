@@ -51,7 +51,7 @@ public class TestHandler : IHandleMessages<TestMessage>
     }
 }")]
         [TestCase(
-            @"using NServiceBus;
+@"using NServiceBus;
 using System.Threading.Tasks;
 public class TestHandler : IHandleMessages<TestMessage>
 {
@@ -60,8 +60,16 @@ public class TestHandler : IHandleMessages<TestMessage>
         await context.Send(new object(), new SendOptions());
     }
 }")]
+        [TestCase(
+@"using NServiceBus;
+using System.Threading.Tasks;
+public class TestHandler : IHandleMessages<TestMessage>
+{
+    public Task Handle(object message, IMessageHandlerContext context) =>
+        context.Send(new object(), new SendOptions());
+}")]
         public async Task NoDiagnosticIsReported(string source) => await Verify(source);
 
-        protected override DiagnosticAnalyzer GetAnalyzer() => new AwaitOrCaptureTasksAnalyzer ();
+        protected override DiagnosticAnalyzer GetAnalyzer() => new AwaitOrCaptureTasksAnalyzer();
     }
 }
