@@ -9,9 +9,18 @@ namespace NServiceBus.Core.Analyzer.Tests
     [TestFixture]
     public class AwaitOrCaptureTasksAnalyzerTests : DiagnosticVerifier
     {
+        [TestCase("context.Send(new object());")]
         [TestCase("context.Send(new object(), new SendOptions());")]
         [TestCase("context.Send<object>(_ => { }, new SendOptions());")]
+        [TestCase("context.Send<object>(_ => { });")]
+        [TestCase("context.Send(\"destination\", new object());")]
+        [TestCase("context.Send<object>(\"destination\", _ => { });")]
+        [TestCase("context.SendLocal(new object());")]
+        [TestCase("context.SendLocal<object>(_ => { });")]
+        [TestCase("context.Publish(new object());")]
         [TestCase("context.Publish(new object(), new PublishOptions());")]
+        [TestCase("context.Publish<object>();")]
+        [TestCase("context.Publish<object>(_ => { });")]
         [TestCase("context.Publish<object>(_ => { }, new PublishOptions());")]
         public async Task DiagnosticIsReported(string call)
         {
