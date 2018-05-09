@@ -24,8 +24,14 @@ namespace NServiceBus.Core.Analyzer
             StringComparer.Ordinal,
             "NServiceBus.IPipelineContext.Send",
             "NServiceBus.IPipelineContext.Send`1",
+            "NServiceBus.IPipelineContextExtensions.Send",
+            "NServiceBus.IPipelineContextExtensions.Send`1",
+            "NServiceBus.IPipelineContextExtensions.SendLocal",
+            "NServiceBus.IPipelineContextExtensions.SendLocal`1",
             "NServiceBus.IPipelineContext.Publish",
-            "NServiceBus.IPipelineContext.Publish`1");
+            "NServiceBus.IPipelineContext.Publish`1",
+            "NServiceBus.IPipelineContextExtensions.Publish",
+            "NServiceBus.IPipelineContextExtensions.Publish`1");
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } = ImmutableArray.Create(diagnostic);
 
