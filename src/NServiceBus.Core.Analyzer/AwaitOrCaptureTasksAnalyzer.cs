@@ -59,9 +59,9 @@ namespace NServiceBus.Core.Analyzer
             => HasAsyncContext(node.Parent);
 
         static bool HasAsyncContext(SyntaxNode node) =>
-            node == null ? false : IsAsyncMethod(node) || HasAsyncContext(node.Parent);
+            node == null ? false : IsAsync(node as MethodDeclarationSyntax) || HasAsyncContext(node.Parent);
 
-        static bool IsAsyncMethod(SyntaxNode node) =>
-            (node as MethodDeclarationSyntax)?.ChildTokens().Any(token => token.IsKind(SyntaxKind.AsyncKeyword)) ?? false;
+        static bool IsAsync(MethodDeclarationSyntax method) =>
+            method?.ChildTokens().Any(token => token.IsKind(SyntaxKind.AsyncKeyword)) ?? false;
     }
 }
