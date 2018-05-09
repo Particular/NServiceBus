@@ -50,6 +50,16 @@ public class TestHandler : IHandleMessages<TestMessage>
         return Task.FromResult(0);
     }
 }")]
+        [TestCase(
+            @"using NServiceBus;
+using System.Threading.Tasks;
+public class TestHandler : IHandleMessages<TestMessage>
+{
+    public async Task Handle(object message, IMessageHandlerContext context)
+    {
+        await context.Send(new object(), new SendOptions());
+    }
+}")]
         public async Task NoDiagnosticIsReported(string source) => await Verify(source);
 
         protected override DiagnosticAnalyzer GetAnalyzer() => new AwaitOrCaptureTasksAnalyzer ();
