@@ -44,7 +44,7 @@ namespace NServiceBus.Core.Analyzer
                 return;
             }
 
-            if (CalledFromAsyncMethod(call))
+            if (IsInAsyncMethod(call))
             {
                 return;
             }
@@ -55,20 +55,13 @@ namespace NServiceBus.Core.Analyzer
             }
         }
 
-        static bool CalledFromAsyncMethod(SyntaxNode node)
-        {
-            var parent = node.Parent;
-            if (parent == null)
-            {
-                return false;
-            }
+        static bool IsInAsyncMethod(SyntaxNode node)
+            => HasAsyncContext(node.Parent);
 
-            if (parent is MethodDeclarationSyntax methodDeclaration)
-            {
-                return methodDeclaration.ChildTokens().Any(t => t.IsKind(SyntaxKind.AsyncKeyword));
-            }
+        static bool HasAsyncContext(SyntaxNode node) =>
+            node == null ? false : IsAsyncMethod(node) || HasAsyncContext(node.Parent);
 
-            return CalledFromAsyncMethod(parent);
-        }
+        static bool IsAsyncMethod(SyntaxNode node) =>
+            (node as MethodDeclarationSyntax)?.ChildTokens().Any(token => token.IsKind(SyntaxKind.AsyncKeyword)) ?? false;
     }
 }
