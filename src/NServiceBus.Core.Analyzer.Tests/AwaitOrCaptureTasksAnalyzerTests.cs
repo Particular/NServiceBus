@@ -52,13 +52,11 @@ namespace NServiceBus.Core.Analyzer.Tests
         {
             var source =
 $@"using NServiceBus;
-using System.Threading.Tasks;
 public class Foo
 {{
-    public Task Bar({type} obj)
+    public void Bar({type} obj)
     {{
         {call}
-        return Task.FromResult(0);
     }}
 }}";
 
@@ -67,7 +65,7 @@ public class Foo
                 Id = "NSB0001",
                 Message = "Expression calling an NServiceBus method creates a Task that is not awaited or assigned to a variable.",
                 Severity = DiagnosticSeverity.Error,
-                Locations = new[] { new DiagnosticResultLocation("Test0.cs", 7, 9) },
+                Locations = new[] { new DiagnosticResultLocation("Test0.cs", 6, 9) },
             };
 
             await Verify(source, expected);
