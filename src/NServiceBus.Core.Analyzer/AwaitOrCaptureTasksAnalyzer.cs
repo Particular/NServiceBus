@@ -24,14 +24,33 @@ namespace NServiceBus.Core.Analyzer
             StringComparer.Ordinal,
             "NServiceBus.IPipelineContext.Send",
             "NServiceBus.IPipelineContext.Send`1",
+            "NServiceBus.IPipelineContext.Publish",
+            "NServiceBus.IPipelineContext.Publish`1",
+
             "NServiceBus.IPipelineContextExtensions.Send",
             "NServiceBus.IPipelineContextExtensions.Send`1",
             "NServiceBus.IPipelineContextExtensions.SendLocal",
             "NServiceBus.IPipelineContextExtensions.SendLocal`1",
-            "NServiceBus.IPipelineContext.Publish",
-            "NServiceBus.IPipelineContext.Publish`1",
             "NServiceBus.IPipelineContextExtensions.Publish",
-            "NServiceBus.IPipelineContextExtensions.Publish`1");
+            "NServiceBus.IPipelineContextExtensions.Publish`1",
+
+            "NServiceBus.IMessageSession.Send",
+            "NServiceBus.IMessageSession.Send`1",
+            "NServiceBus.IMessageSession.Publish",
+            "NServiceBus.IMessageSession.Publish`1",
+            "NServiceBus.IMessageSession.Subscribe",
+            "NServiceBus.IMessageSession.Unsubscribe",
+
+            "NServiceBus.IMessageSessionExtensions.Send",
+            "NServiceBus.IMessageSessionExtensions.Send`1",
+            "NServiceBus.IMessageSessionExtensions.SendLocal",
+            "NServiceBus.IMessageSessionExtensions.SendLocal`1",
+            "NServiceBus.IMessageSessionExtensions.Publish",
+            "NServiceBus.IMessageSessionExtensions.Publish`1",
+            "NServiceBus.IMessageSessionExtensions.Subscribe",
+            "NServiceBus.IMessageSessionExtensions.Subscribe`1",
+            "NServiceBus.IMessageSessionExtensions.Unsubscribe",
+            "NServiceBus.IMessageSessionExtensions.Unsubscribe`1");
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } = ImmutableArray.Create(diagnostic);
 

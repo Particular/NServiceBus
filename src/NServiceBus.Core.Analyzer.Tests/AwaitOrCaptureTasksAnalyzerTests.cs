@@ -9,27 +9,53 @@ namespace NServiceBus.Core.Analyzer.Tests
     [TestFixture]
     public class AwaitOrCaptureTasksAnalyzerTests : DiagnosticVerifier
     {
-        [TestCase("context.Send(new object());")]
-        [TestCase("context.Send(new object(), new SendOptions());")]
-        [TestCase("context.Send<object>(_ => { }, new SendOptions());")]
-        [TestCase("context.Send<object>(_ => { });")]
-        [TestCase("context.Send(\"destination\", new object());")]
-        [TestCase("context.Send<object>(\"destination\", _ => { });")]
-        [TestCase("context.SendLocal(new object());")]
-        [TestCase("context.SendLocal<object>(_ => { });")]
-        [TestCase("context.Publish(new object());")]
-        [TestCase("context.Publish(new object(), new PublishOptions());")]
-        [TestCase("context.Publish<object>();")]
-        [TestCase("context.Publish<object>(_ => { });")]
-        [TestCase("context.Publish<object>(_ => { }, new PublishOptions());")]
-        public async Task DiagnosticIsReported(string call)
+        // IPipelineContext
+        [TestCase("IPipelineContext", "obj.Send(new object(), new SendOptions());")]
+        [TestCase("IPipelineContext", "obj.Send<object>(_ => { }, new SendOptions());")]
+        [TestCase("IPipelineContext", "obj.Publish(new object(), new PublishOptions());")]
+        [TestCase("IPipelineContext", "obj.Publish<object>(_ => { }, new PublishOptions());")]
+
+        // IPipelineContextExtensions
+        [TestCase("IPipelineContext", "obj.Send(new object());")]
+        [TestCase("IPipelineContext", "obj.Send<object>(_ => { });")]
+        [TestCase("IPipelineContext", "obj.Send(\"destination\", new object());")]
+        [TestCase("IPipelineContext", "obj.Send<object>(\"destination\", _ => { });")]
+        [TestCase("IPipelineContext", "obj.SendLocal(new object());")]
+        [TestCase("IPipelineContext", "obj.SendLocal<object>(_ => { });")]
+        [TestCase("IPipelineContext", "obj.Publish(new object());")]
+        [TestCase("IPipelineContext", "obj.Publish<object>();")]
+        [TestCase("IPipelineContext", "obj.Publish<object>(_ => { });")]
+
+        // IMessageSession
+        [TestCase("IMessageSession", "obj.Send(new object(), new SendOptions());")]
+        [TestCase("IMessageSession", "obj.Send<object>(_ => { }, new SendOptions());")]
+        [TestCase("IMessageSession", "obj.Publish(new object(), new PublishOptions());")]
+        [TestCase("IMessageSession", "obj.Publish<object>(_ => { }, new PublishOptions());")]
+        [TestCase("IMessageSession", "obj.Subscribe(typeof(object), new SubscribeOptions());")]
+        [TestCase("IMessageSession", "obj.Unsubscribe(typeof(object), new UnsubscribeOptions());")]
+
+        // IMessageSessionExtensions
+        [TestCase("IMessageSession", "obj.Send(new object());")]
+        [TestCase("IMessageSession", "obj.Send<object>(_ => { });")]
+        [TestCase("IMessageSession", "obj.Send(\"destination\", new object());")]
+        [TestCase("IMessageSession", "obj.Send<object>(\"destination\", _ => { });")]
+        [TestCase("IMessageSession", "obj.SendLocal(new object());")]
+        [TestCase("IMessageSession", "obj.SendLocal<object>(_ => { });")]
+        [TestCase("IMessageSession", "obj.Publish(new object());")]
+        [TestCase("IMessageSession", "obj.Publish<object>();")]
+        [TestCase("IMessageSession", "obj.Publish<object>(_ => { });")]
+        [TestCase("IMessageSession", "obj.Subscribe(typeof(object));")]
+        [TestCase("IMessageSession", "obj.Subscribe<object>();")]
+        [TestCase("IMessageSession", "obj.Unsubscribe(typeof(object));")]
+        [TestCase("IMessageSession", "obj.Unsubscribe<object>();")]
+        public async Task DiagnosticIsReported(string type, string call)
         {
             var source =
 $@"using NServiceBus;
 using System.Threading.Tasks;
-public class TestHandler : IHandleMessages<TestMessage>
+public class Foo
 {{
-    public Task Handle(object message, IMessageHandlerContext context)
+    public Task Bar({type} obj)
     {{
         {call}
         return Task.FromResult(0);
