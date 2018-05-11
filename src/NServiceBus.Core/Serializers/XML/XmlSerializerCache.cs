@@ -14,14 +14,22 @@ namespace NServiceBus
     {
         public void InitType(Type t)
         {
+            logger.Debug($"Initializing type: {t.AssemblyQualifiedName}");
+
+            lock (lockObject)
+            {
+                InitTypeInternal(t);
+            }
+        }
+
+        void InitTypeInternal(Type t)
+        {
             if (typesBeingInitialized.Contains(t))
             {
                 return;
             }
 
             typesBeingInitialized.Add(t);
-
-            logger.Debug($"Initializing type: {t.AssemblyQualifiedName}");
 
             if (t.IsSimpleType())
             {
@@ -42,7 +50,7 @@ namespace NServiceBus
 
                 foreach (var g in t.GetGenericArguments())
                 {
-                    InitType(g);
+                    InitTypeInternal(g);
                 }
 
                 //Handle dictionaries - initialize relevant KeyValuePair<T,K> types.
@@ -56,7 +64,7 @@ namespace NServiceBus
 
                     if (typeof(IEnumerable<>).MakeGenericType(arr[0]).IsAssignableFrom(t))
                     {
-                        InitType(arr[0]);
+                        InitTypeInternal(arr[0]);
                     }
                 }
 
@@ -102,7 +110,7 @@ namespace NServiceBus
             {
                 if (args[0].GetGenericArguments().Any() || typeof(Nullable<>).MakeGenericType(args[0]) == t)
                 {
-                    InitType(args[0]);
+                    InitTypeInternal(args[0]);
 
                     if (!args[0].GetGenericArguments().Any())
                     {
@@ -119,13 +127,13 @@ namespace NServiceBus
             var props = GetAllPropertiesForType(t, isKeyValuePair);
             foreach (var p in props)
             {
-                InitType(p.PropertyType);
+                InitTypeInternal(p.PropertyType);
             }
 
             var fields = GetAllFieldsForType(t);
             foreach (var f in fields)
             {
-                InitType(f.FieldType);
+                InitTypeInternal(f.FieldType);
             }
 
             // make the type only available once all properties & fields have been initialzed
@@ -198,6 +206,8 @@ namespace NServiceBus
         {
             return t.GetFields(BindingFlags.FlattenHierarchy | BindingFlags.Instance | BindingFlags.Public);
         }
+
+        readonly object lockObject = new object();
 
         ConcurrentBag<Type> typesBeingInitialized = new ConcurrentBag<Type>();
 
