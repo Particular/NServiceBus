@@ -14,6 +14,13 @@ namespace NServiceBus
     {
         public void InitType(Type t)
         {
+            if (typesBeingInitialized.Contains(t))
+            {
+                return;
+            }
+
+            typesBeingInitialized.Add(t);
+
             logger.Debug($"Initializing type: {t.AssemblyQualifiedName}");
 
             if (t.IsSimpleType())
@@ -109,26 +116,16 @@ namespace NServiceBus
                 return;
             }
 
-            typesBeingInitialized.Add(t);
-
             var props = GetAllPropertiesForType(t, isKeyValuePair);
             foreach (var p in props)
             {
-                // check if already in the process of initializing this type (prevents infinite recursion).
-                if (!typesBeingInitialized.Contains(p.PropertyType))
-                {
-                    InitType(p.PropertyType);
-                }
+                InitType(p.PropertyType);
             }
 
             var fields = GetAllFieldsForType(t);
             foreach (var f in fields)
             {
-                // check if already in the process of initializing this type (prevents infinite recursion).
-                if (!typesBeingInitialized.Contains(f.FieldType))
-                {
-                    InitType(f.FieldType);
-                }
+                InitType(f.FieldType);
             }
 
             // make the type only available once all properties & fields have been initialzed
