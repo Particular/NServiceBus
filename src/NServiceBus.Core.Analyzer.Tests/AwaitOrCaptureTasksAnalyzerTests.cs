@@ -71,6 +71,41 @@ public class Foo
             await Verify(source, expected);
         }
 
+        [TestCase("RequestTimeout<TimeoutMessage>(context, DateTime.Now);")]
+        [TestCase("RequestTimeout<TimeoutMessage>(context, DateTime.Now, new TimeoutMessage());")]
+        [TestCase("RequestTimeout<TimeoutMessage>(context, TimeSpan.Zero);")]
+        [TestCase("RequestTimeout<TimeoutMessage>(context, TimeSpan.Zero, new TimeoutMessage());")]
+        public async Task DiagnosticsIsReportedForSagaAPIs(string api)
+        {
+            var source =
+                $@"using System;
+using System.Threading.Tasks;
+using NServiceBus;
+class TestSaga : Saga<TestSagaData>, IHandleMessages<TestMessage>
+{{
+    public Task Handle(TestMessage message, IMessageHandlerContext context)
+    {{
+        {api}
+        return Task.FromResult(0);
+    }}
+
+    protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData> mapper)
+    {{
+    }}
+}}
+";
+            var expected = new DiagnosticResult
+            {
+                Id = "NSB0001",
+                Message = "Expression calling an NServiceBus method creates a Task that is not awaited or assigned to a variable.",
+                Severity = DiagnosticSeverity.Error,
+                Locations = new[] { new DiagnosticResultLocation("Test0.cs", 8, 9) },
+            };
+
+            await Verify(source, expected);
+
+        }
+
         [TestCase("")]
         [TestCase(
 @"using NServiceBus;
