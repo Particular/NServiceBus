@@ -76,7 +76,8 @@ namespace NServiceBus.Core.Analyzer
                 return;
             }
 
-            if (methods.Contains((context.SemanticModel.GetSymbolInfo(call).Symbol as IMethodSymbol)?.GetFullNameWithArity()))
+            var methodSymbol = context.SemanticModel.GetSymbolInfo(call).Symbol as IMethodSymbol;
+            if (methodSymbol != null && methods.Contains(methodSymbol.GetFullNameWithArity()))
             {
                 context.ReportDiagnostic(Diagnostic.Create(diagnostic, call.GetLocation(), call.ToString()));
             }
