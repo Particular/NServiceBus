@@ -75,6 +75,7 @@ public class Foo
         [TestCase("RequestTimeout<TimeoutMessage>(context, DateTime.Now, new TimeoutMessage());")]
         [TestCase("RequestTimeout<TimeoutMessage>(context, TimeSpan.Zero);")]
         [TestCase("RequestTimeout<TimeoutMessage>(context, TimeSpan.Zero, new TimeoutMessage());")]
+        [TestCase("ReplyToOriginator(context, new object());")]
         public async Task DiagnosticsIsReportedForSagaAPIs(string api)
         {
             var source =
@@ -92,8 +93,7 @@ class TestSaga : Saga<TestSagaData>, IHandleMessages<TestMessage>
     protected override void ConfigureHowToFindSaga(SagaPropertyMapper<TestSagaData> mapper)
     {{
     }}
-}}
-";
+}}";
             var expected = new DiagnosticResult
             {
                 Id = "NSB0001",
