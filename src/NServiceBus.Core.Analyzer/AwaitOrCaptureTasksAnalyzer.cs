@@ -4,7 +4,6 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using System.Linq;
 
 namespace NServiceBus.Core.Analyzer
 {
@@ -72,7 +71,7 @@ namespace NServiceBus.Core.Analyzer
                 return;
             }
 
-            if (IsInAsyncMethod(call))
+            if (HasAsyncContext(call.Parent))
             {
                 return;
             }
@@ -84,13 +83,32 @@ namespace NServiceBus.Core.Analyzer
             }
         }
 
-        static bool IsInAsyncMethod(SyntaxNode node)
-            => HasAsyncContext(node.Parent);
+        static bool HasAsyncContext(SyntaxNode node)
+        {
+            while (node != null)
+            {
+                if (node is MethodDeclarationSyntax)
+                {
+                    return IsAsync(node);
+                }
 
-        static bool HasAsyncContext(SyntaxNode node) =>
-            node != null && (IsAsync(node as MethodDeclarationSyntax) || HasAsyncContext(node.Parent));
+                node = node.Parent;
+            }
 
-        static bool IsAsync(MethodDeclarationSyntax method) =>
-            method?.ChildTokens().Any(token => token.IsKind(SyntaxKind.AsyncKeyword)) ?? false;
+            return false;
+        }
+
+        static bool IsAsync(SyntaxNode method)
+        {
+            foreach (var token in method.ChildTokens())
+            {
+                if (token.IsKind(SyntaxKind.AsyncKeyword))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
     }
 }
