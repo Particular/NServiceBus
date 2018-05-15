@@ -101,7 +101,6 @@ class TestSaga : Saga<TestSagaData>, IHandleMessages<TestMessage>
                 Severity = DiagnosticSeverity.Error,
                 Locations = new[] { new DiagnosticResultLocation("Test0.cs", 8, 9) },
             };
-
             await Verify(source, expected);
 
         }
@@ -135,6 +134,16 @@ public class TestHandler : IHandleMessages<TestMessage>
 {
     public Task Handle(object message, IMessageHandlerContext context) =>
         context.Send(new object(), new SendOptions());
+}")]
+        [TestCase(
+            @"using NServiceBus;
+using System.Threading.Tasks;
+public class Program
+{
+    public void SendSync(object message, IMessageSession session)
+    {
+        session.Send(message).GetAwaiter().GetResult();
+    }
 }")]
         public async Task NoDiagnosticIsReported(string source) => await Verify(source);
 
