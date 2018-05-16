@@ -27,7 +27,8 @@
 
             var members = cache.typeMembers[typeof(RecursiveType)];
             Assert.AreEqual(typeof(RecursiveType), members.Item1.Single().FieldType);
-            Assert.AreEqual(typeof(RecursiveType), members.Item2.Single().PropertyType);
+            Assert.AreEqual(typeof(RecursiveType), members.Item2[0].PropertyType);
+            Assert.AreEqual(typeof(RecursiveType[]), members.Item2[1].PropertyType);
         }
 
         [Test]
@@ -63,5 +64,7 @@
 #pragma warning restore 649, 169
 
         public RecursiveType RecursiveProperty { get; set; }
+
+        public RecursiveType[] RecursiveArrayProperty { get; set; }
     }
 }
