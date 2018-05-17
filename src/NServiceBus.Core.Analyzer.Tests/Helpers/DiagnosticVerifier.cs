@@ -4,7 +4,6 @@ namespace NServiceBus.Core.Analyzer.Tests.Helpers
     using System.Collections.Generic;
     using System.Collections.Immutable;
     using System.Linq;
-    using System.Reflection;
     using System.Text;
     using System.Threading.Tasks;
     using Microsoft.CodeAnalysis;
@@ -143,9 +142,9 @@ namespace NServiceBus.Core.Analyzer.Tests.Helpers
                 .AddMetadataReference(projectId, NServiceBusReference);
 
 #if NETCOREAPP2_0
-            var netstandard = MetadataReference.CreateFromFile(Assembly.Load("netstandard").Location);
-            var systemTasks = MetadataReference.CreateFromFile(Assembly.Load("System.Threading.Tasks").Location);
-            var systemRuntime = MetadataReference.CreateFromFile(Assembly.Load("System.Runtime").Location);
+            var netstandard = MetadataReference.CreateFromFile(System.Reflection.Assembly.Load("netstandard").Location);
+            var systemTasks = MetadataReference.CreateFromFile(System.Reflection.Assembly.Load("System.Threading.Tasks").Location);
+            var systemRuntime = MetadataReference.CreateFromFile(System.Reflection.Assembly.Load("System.Runtime").Location);
             solution = solution.AddMetadataReferences(projectId, new[]
             {
                 netstandard,
