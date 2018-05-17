@@ -16,6 +16,21 @@ namespace NServiceBus
         {
             logger.Debug($"Initializing type: {t.AssemblyQualifiedName}");
 
+            lock (lockObject)
+            {
+                InitTypeInternal(t);
+            }
+        }
+
+        void InitTypeInternal(Type t)
+        {
+            if (typesBeingInitialized.Contains(t))
+            {
+                return;
+            }
+
+            typesBeingInitialized.Add(t);
+
             if (t.IsSimpleType())
             {
                 return;
@@ -23,8 +38,6 @@ namespace NServiceBus
 
             if (typeof(XContainer).IsAssignableFrom(t))
             {
-                typesBeingInitialized.Add(t);
-
                 return;
             }
 
@@ -37,7 +50,7 @@ namespace NServiceBus
 
                 foreach (var g in t.GetGenericArguments())
                 {
-                    InitType(g);
+                    InitTypeInternal(g);
                 }
 
                 //Handle dictionaries - initialize relevant KeyValuePair<T,K> types.
@@ -51,7 +64,7 @@ namespace NServiceBus
 
                     if (typeof(IEnumerable<>).MakeGenericType(arr[0]).IsAssignableFrom(t))
                     {
-                        InitType(arr[0]);
+                        InitTypeInternal(arr[0]);
                     }
                 }
 
@@ -97,7 +110,7 @@ namespace NServiceBus
             {
                 if (args[0].GetGenericArguments().Any() || typeof(Nullable<>).MakeGenericType(args[0]) == t)
                 {
-                    InitType(args[0]);
+                    InitTypeInternal(args[0]);
 
                     if (!args[0].GetGenericArguments().Any())
                     {
@@ -106,28 +119,25 @@ namespace NServiceBus
                 }
             }
 
-            //already in the process of initializing this type (prevents infinite recursion).
-            if (typesBeingInitialized.Contains(t))
+            if (typeMembers.ContainsKey(t))
             {
                 return;
             }
 
-            typesBeingInitialized.Add(t);
-
             var props = GetAllPropertiesForType(t, isKeyValuePair);
-            typeToProperties[t] = props;
-            var fields = GetAllFieldsForType(t);
-            typeToFields[t] = fields;
-
             foreach (var p in props)
             {
-                InitType(p.PropertyType);
+                InitTypeInternal(p.PropertyType);
             }
 
+            var fields = GetAllFieldsForType(t);
             foreach (var f in fields)
             {
-                InitType(f.FieldType);
+                InitTypeInternal(f.FieldType);
             }
+
+            // make the type only available once all properties & fields have been initialzed
+            typeMembers[t] = new Tuple<FieldInfo[], PropertyInfo[]>(fields, props);
         }
 
         PropertyInfo[] GetAllPropertiesForType(Type t, bool isKeyValuePair)
@@ -197,12 +207,14 @@ namespace NServiceBus
             return t.GetFields(BindingFlags.FlattenHierarchy | BindingFlags.Instance | BindingFlags.Public);
         }
 
-        List<Type> typesBeingInitialized = new List<Type>();
+        readonly object lockObject = new object();
+
+        ConcurrentBag<Type> typesBeingInitialized = new ConcurrentBag<Type>();
+
         public ConcurrentDictionary<Type, Type> typesToCreateForArrays = new ConcurrentDictionary<Type, Type>();
         public ConcurrentDictionary<Type, Type> typesToCreateForEnumerables = new ConcurrentDictionary<Type, Type>();
 
-        public ConcurrentDictionary<Type, IEnumerable<FieldInfo>> typeToFields = new ConcurrentDictionary<Type, IEnumerable<FieldInfo>>();
-        public ConcurrentDictionary<Type, IEnumerable<PropertyInfo>> typeToProperties = new ConcurrentDictionary<Type, IEnumerable<PropertyInfo>>();
+        public ConcurrentDictionary<Type, Tuple<FieldInfo[], PropertyInfo[]>> typeMembers = new ConcurrentDictionary<Type, Tuple<FieldInfo[], PropertyInfo[]>>();
 
         static ILog logger = LogManager.GetLogger<XmlSerializerCache>();
     }
