@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard1.3</TargetFramework>
@@ -7,7 +7,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="2.4.0" PrivateAssets="all" />
-    <PackageReference Update="NetStandard.Library" Version="$(NetStandardImplicitPackageVersion)" PrivateAssets="all" />
+    <PackageReference Update="NetStandard.Library" PrivateAssets="all" />
   </ItemGroup>
 
   <ItemGroup>
