@@ -54,6 +54,14 @@
     </None>
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\NServiceBus.Core.Analyzer\NServiceBus.Core.Analyzer.csproj" SkipGetTargetFrameworkProperties="true">
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <None Include="..\NServiceBus.Core.Analyzer\bin\$(Configuration)\netstandard1.3\NServiceBus.Core.Analyzer.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+    <None Include="..\NServiceBus.Core.Analyzer\bin\$(Configuration)\netstandard1.3\tools\*.ps1" Pack="true" PackagePath="tools" Visible="false" />
+  </ItemGroup>
+
   <!--Workaround for https://github.com/dotnet/sdk/issues/1469 -->
   <PropertyGroup>
     <DisableLockFileFrameworks>true</DisableLockFileFrameworks>
