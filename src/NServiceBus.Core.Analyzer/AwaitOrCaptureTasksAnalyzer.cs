@@ -53,7 +53,11 @@ namespace NServiceBus.Core.Analyzer
             "NServiceBus.IMessageSessionExtensions.Unsubscribe`1",
             
             "NServiceBus.Saga.RequestTimeout`1",
-            "NServiceBus.Saga.ReplyToOriginator");
+            "NServiceBus.Saga.ReplyToOriginator",
+            
+            "NServiceBus.Endpoint.Create",
+            "NServiceBus.IStartableEndpoint.Start",
+            "NServiceBus.IEndpointInstance.Stop");
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } = ImmutableArray.Create(diagnostic);
 

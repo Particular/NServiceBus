@@ -48,6 +48,15 @@ namespace NServiceBus.Core.Analyzer.Tests
         [TestCase("IMessageSession", "obj.Subscribe<object>();")]
         [TestCase("IMessageSession", "obj.Unsubscribe(typeof(object));")]
         [TestCase("IMessageSession", "obj.Unsubscribe<object>();")]
+
+        // Endpoint
+        [TestCase("EndpointConfiguration", "Endpoint.Create(obj);")]
+        
+        // IStartableEndpoint
+        [TestCase("IStartableEndpoint", "obj.Start();")]
+
+        // IEndpointInstance
+        [TestCase("IEndpointInstance", "obj.Stop();")]
         public async Task DiagnosticIsReported(string type, string call)
         {
             var source =
