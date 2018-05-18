@@ -126,7 +126,7 @@ public class TestHandler : IHandleMessages<TestMessage>
     {
         await context.Send(new object(), new SendOptions());
     }
-}")]
+}", Description = "Covered by CS4014")]
         [TestCase(
 @"using NServiceBus;
 using System.Threading.Tasks;
@@ -145,6 +145,26 @@ public class Program
         session.Send(message).GetAwaiter().GetResult();
     }
 }")]
+        [TestCase(
+            @"using NServiceBus;
+using System.Threading.Tasks;
+public class Program
+{
+    public void SendSync(object message, IMessageSession session)
+    {
+        session.Send(message).ConfigureAwait(false);
+    }
+}")]
+        [TestCase(
+            @"using NServiceBus;
+using System.Threading.Tasks;
+public class Program
+{
+    public void StartEndpoint(EndpointConfiguration configuration)
+    {
+        Endpoint.Start(configuration);
+    }
+}", Description ="Covered by CS4014")]
         public async Task NoDiagnosticIsReported(string source) => await Verify(source);
 
         protected override DiagnosticAnalyzer GetAnalyzer() => new AwaitOrCaptureTasksAnalyzer();
