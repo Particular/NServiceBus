@@ -141,18 +141,6 @@ namespace NServiceBus.Core.Analyzer.Tests.Helpers
                 .AddMetadataReference(projectId, CodeAnalysisReference)
                 .AddMetadataReference(projectId, NServiceBusReference);
 
-#if NETCOREAPP2_0
-            var netstandard = MetadataReference.CreateFromFile(System.Reflection.Assembly.Load("netstandard").Location);
-            var systemTasks = MetadataReference.CreateFromFile(System.Reflection.Assembly.Load("System.Threading.Tasks").Location);
-            var systemRuntime = MetadataReference.CreateFromFile(System.Reflection.Assembly.Load("System.Runtime").Location);
-            solution = solution.AddMetadataReferences(projectId, new[]
-            {
-                netstandard,
-                systemRuntime,
-                systemTasks
-            });
-#endif
-
             var documentIndex = 0;
             foreach (var source in sources)
             {
