@@ -22,36 +22,24 @@ namespace NServiceBus.Core.Analyzer
         static readonly ImmutableHashSet<string> methods = ImmutableHashSet.Create(
             StringComparer.Ordinal,
             "NServiceBus.IPipelineContext.Send",
-            "NServiceBus.IPipelineContext.Send`1",
             "NServiceBus.IPipelineContext.Publish",
-            "NServiceBus.IPipelineContext.Publish`1",
 
             "NServiceBus.IPipelineContextExtensions.Send",
-            "NServiceBus.IPipelineContextExtensions.Send`1",
             "NServiceBus.IPipelineContextExtensions.SendLocal",
-            "NServiceBus.IPipelineContextExtensions.SendLocal`1",
             "NServiceBus.IPipelineContextExtensions.Publish",
-            "NServiceBus.IPipelineContextExtensions.Publish`1",
 
             "NServiceBus.IMessageSession.Send",
-            "NServiceBus.IMessageSession.Send`1",
             "NServiceBus.IMessageSession.Publish",
-            "NServiceBus.IMessageSession.Publish`1",
             "NServiceBus.IMessageSession.Subscribe",
             "NServiceBus.IMessageSession.Unsubscribe",
 
             "NServiceBus.IMessageSessionExtensions.Send",
-            "NServiceBus.IMessageSessionExtensions.Send`1",
             "NServiceBus.IMessageSessionExtensions.SendLocal",
-            "NServiceBus.IMessageSessionExtensions.SendLocal`1",
             "NServiceBus.IMessageSessionExtensions.Publish",
-            "NServiceBus.IMessageSessionExtensions.Publish`1",
             "NServiceBus.IMessageSessionExtensions.Subscribe",
-            "NServiceBus.IMessageSessionExtensions.Subscribe`1",
             "NServiceBus.IMessageSessionExtensions.Unsubscribe",
-            "NServiceBus.IMessageSessionExtensions.Unsubscribe`1",
             
-            "NServiceBus.Saga.RequestTimeout`1",
+            "NServiceBus.Saga.RequestTimeout",
             "NServiceBus.Saga.ReplyToOriginator",
             
             "NServiceBus.Endpoint.Create",
@@ -77,7 +65,7 @@ namespace NServiceBus.Core.Analyzer
             }
 
             var methodSymbol = context.SemanticModel.GetSymbolInfo(call).Symbol as IMethodSymbol;
-            if (methodSymbol != null && methods.Contains(methodSymbol.GetFullNameWithArity()))
+            if (methodSymbol != null && methods.Contains(methodSymbol.GetFullName()))
             {
                 context.ReportDiagnostic(Diagnostic.Create(diagnostic, call.GetLocation(), call.ToString()));
             }
