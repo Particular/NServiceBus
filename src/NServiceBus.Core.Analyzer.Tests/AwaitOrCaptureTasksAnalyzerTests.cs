@@ -88,7 +88,7 @@ public class Foo
         public async Task DiagnosticsIsReportedForSagaAPIs(string api)
         {
             var source =
-                $@"using System;
+$@"using System;
 using System.Threading.Tasks;
 using NServiceBus;
 class TestSaga : Saga<TestSagaData>, IHandleMessages<TestMessage>
@@ -111,7 +111,30 @@ class TestSaga : Saga<TestSagaData>, IHandleMessages<TestMessage>
                 Locations = new[] { new DiagnosticResultLocation("Test0.cs", 8, 9) },
             };
             await Verify(source, expected);
+        }
 
+        [Test]
+        public async Task DiagnosticsIsReportedForAsyncMethods()
+        {
+            var source =
+@"using NServiceBus;
+public class Foo
+{
+    public async Task Bar(IPipelineContext ctx)
+    {
+        ctx.Send(new object(), new SendOptions());
+    }
+}";
+
+            var expected = new DiagnosticResult
+            {
+                Id = "NSB0001",
+                Message = "Expression calling an NServiceBus method creates a Task that is not awaited or assigned to a variable.",
+                Severity = DiagnosticSeverity.Error,
+                Locations = new[] { new DiagnosticResultLocation("Test0.cs", 6, 9) },
+            };
+
+            await Verify(source, expected);
         }
 
         [TestCase("")]
@@ -122,20 +145,9 @@ public class TestHandler : IHandleMessages<TestMessage>
 {
     public async Task Handle(object message, IMessageHandlerContext context)
     {
-        context.Send(new object(), new SendOptions());
-        return Task.FromResult(0);
-    }
-}")]
-        [TestCase(
-@"using NServiceBus;
-using System.Threading.Tasks;
-public class TestHandler : IHandleMessages<TestMessage>
-{
-    public async Task Handle(object message, IMessageHandlerContext context)
-    {
         await context.Send(new object(), new SendOptions());
     }
-}", Description = "Covered by CS4014")]
+}")]
         [TestCase(
 @"using NServiceBus;
 using System.Threading.Tasks;
@@ -156,6 +168,15 @@ public class Program
 }")]
         [TestCase(
             @"using NServiceBus;
+public class Program
+{
+    public void SendSync(object message, IMessageSession session)
+    {
+        session.Send(message).Wait();
+    }
+}")]
+        [TestCase(
+            @"using NServiceBus;
 using System.Threading.Tasks;
 public class Program
 {
@@ -164,16 +185,6 @@ public class Program
         session.Send(message).ConfigureAwait(false);
     }
 }")]
-        [TestCase(
-            @"using NServiceBus;
-using System.Threading.Tasks;
-public class Program
-{
-    public void StartEndpoint(EndpointConfiguration configuration)
-    {
-        Endpoint.Start(configuration);
-    }
-}", Description ="Covered by CS4014")]
         public async Task NoDiagnosticIsReported(string source) => await Verify(source);
 
         protected override DiagnosticAnalyzer GetAnalyzer() => new AwaitOrCaptureTasksAnalyzer();

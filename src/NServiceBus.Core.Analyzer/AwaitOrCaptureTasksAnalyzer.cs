@@ -75,44 +75,11 @@ namespace NServiceBus.Core.Analyzer
                 return;
             }
 
-            if (HasAsyncContext(call.Parent))
-            {
-                return;
-            }
-
             var methodSymbol = context.SemanticModel.GetSymbolInfo(call).Symbol as IMethodSymbol;
             if (methodSymbol != null && methods.Contains(methodSymbol.GetFullNameWithArity()))
             {
                 context.ReportDiagnostic(Diagnostic.Create(diagnostic, call.GetLocation(), call.ToString()));
             }
-        }
-
-        static bool HasAsyncContext(SyntaxNode node)
-        {
-            while (node != null)
-            {
-                if (node is MethodDeclarationSyntax)
-                {
-                    return IsAsync(node);
-                }
-
-                node = node.Parent;
-            }
-
-            return false;
-        }
-
-        static bool IsAsync(SyntaxNode method)
-        {
-            foreach (var token in method.ChildTokens())
-            {
-                if (token.IsKind(SyntaxKind.AsyncKeyword))
-                {
-                    return true;
-                }
-            }
-
-            return false;
         }
     }
 }
