@@ -55,6 +55,7 @@ namespace NServiceBus.Core.Analyzer
             "NServiceBus.Saga.ReplyToOriginator",
             
             "NServiceBus.Endpoint.Create",
+            "NServiceBus.Endpoint.Start",
             "NServiceBus.IStartableEndpoint.Start",
             "NServiceBus.IEndpointInstance.Stop");
 
