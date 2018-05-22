@@ -275,11 +275,7 @@
                 }
 
                 Tuple<FieldInfo[], PropertyInfo[]> typeMembers;
-                if (!cache.typeMembers.TryGetValue(t, out typeMembers))
-                {
-                    cache.InitType(t);
-                    cache.typeMembers.TryGetValue(t, out typeMembers);
-                }
+                cache.typeMembers.TryGetValue(t, out typeMembers);
 
                 var prop = GetProperty(typeMembers?.Item2, n.Name);
                 if (prop != null)

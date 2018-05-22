@@ -375,8 +375,7 @@
             Tuple<FieldInfo[], PropertyInfo[]> members;
             if (!cache.typeMembers.TryGetValue(t, out members))
             {
-                cache.InitType(t);
-                members = cache.typeMembers[t];
+                throw new InvalidOperationException(string.Format("Type {0} was not registered in the serializer. Check that it appears in the list of configured assemblies/types to scan.", t.FullName));
             }
 
             foreach (var prop in members.Item2)

@@ -3,6 +3,7 @@
     using System.Linq;
     using System.Threading.Tasks;
     using System.Xml.Linq;
+    using NServiceBus.Serializers.XML;
     using NUnit.Framework;
 
     [TestFixture]

@@ -1,4 +1,4 @@
-namespace NServiceBus
+namespace NServiceBus.Serializers.XML
 {
     using System;
     using System.Collections;
