@@ -274,7 +274,10 @@
                     type = Type.GetType("System." + n.Name.Substring(0, n.Name.IndexOf(":")), false, true);
                 }
 
-                var prop = GetProperty(t, n.Name);
+                Tuple<FieldInfo[], PropertyInfo[]> typeMembers;
+                cache.typeMembers.TryGetValue(t, out typeMembers);
+
+                var prop = GetProperty(typeMembers?.Item2, n.Name);
                 if (prop != null)
                 {
                     var val = GetPropertyValue(type ?? prop.PropertyType, n);
@@ -286,7 +289,7 @@
                     }
                 }
 
-                var field = GetField(t, n.Name);
+                var field = GetField(typeMembers?.Item1, n.Name);
                 if (field != null)
                 {
                     var val = GetPropertyValue(type ?? field.FieldType, n);
@@ -301,11 +304,8 @@
             return result;
         }
 
-        FieldInfo GetField(Type t, string name)
+        FieldInfo GetField(FieldInfo[] fields, string name)
         {
-            IEnumerable<FieldInfo> fields;
-            cache.typeToFields.TryGetValue(t, out fields);
-
             if (fields == null)
             {
                 return null;
@@ -592,11 +592,8 @@
             return GetObjectOfTypeFromNode(type, n);
         }
 
-        PropertyInfo GetProperty(Type t, string name)
+        PropertyInfo GetProperty(PropertyInfo[] props, string name)
         {
-            IEnumerable<PropertyInfo> props;
-            cache.typeToProperties.TryGetValue(t, out props);
-
             if (props == null)
             {
                 return null;

@@ -372,13 +372,13 @@
                 return;
             }
 
-            IEnumerable<PropertyInfo> properties;
-            if (!cache.typeToProperties.TryGetValue(t, out properties))
+            Tuple<FieldInfo[], PropertyInfo[]> members;
+            if (!cache.typeMembers.TryGetValue(t, out members))
             {
                 throw new InvalidOperationException(string.Format("Type {0} was not registered in the serializer. Check that it appears in the list of configured assemblies/types to scan.", t.FullName));
             }
 
-            foreach (var prop in properties)
+            foreach (var prop in members.Item2)
             {
                 if (IsIndexedProperty(prop))
                 {
@@ -387,7 +387,7 @@
                 WriteEntry(prop.Name, prop.PropertyType, DelegateFactory.CreateGet(prop).Invoke(obj), builder);
             }
 
-            foreach (var field in cache.typeToFields[t])
+            foreach (var field in members.Item1)
             {
                 WriteEntry(field.Name, field.FieldType, DelegateFactory.CreateGet(field).Invoke(obj), builder);
             }

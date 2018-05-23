@@ -136,6 +136,7 @@
     <Compile Include="Sagas\SagaModelTests.cs" />
     <Compile Include="Sagas\TypeBasedSagaMetaModelTests.cs" />
     <Compile Include="Serializers\XML\Issue_2796.cs" />
+    <Compile Include="Serializers\XML\XmlSerializerCacheTests.cs" />
     <Compile Include="StandardsTests.cs" />
     <Compile Include="Encryption\ConfigureRijndaelEncryptionServiceTests.cs" />
     <Compile Include="Encryption\RijndaelEncryptionServiceTest.cs" />
