@@ -7,6 +7,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace NServiceBus.Core.Analyzer
 {
+    /// Roslyn analyzer which is raising errors for missing await statments on asynchronous NServiceBus APIs.
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public class AwaitOrCaptureTasksAnalyzer : DiagnosticAnalyzer
     {
@@ -45,10 +46,14 @@ namespace NServiceBus.Core.Analyzer
             "NServiceBus.Endpoint.Create",
             "NServiceBus.Endpoint.Start",
             "NServiceBus.IStartableEndpoint.Start",
-            "NServiceBus.IEndpointInstance.Stop");
+            "NServiceBus.IEndpointInstance.Stop",
 
+            "NServiceBus.RequestResponseExtensions.Request");
+
+        /// <inheritdoc />
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } = ImmutableArray.Create(diagnostic);
 
+        /// <inheritdoc />
         public override void Initialize(AnalysisContext context) => context.RegisterSyntaxNodeAction(Analyze, SyntaxKind.InvocationExpression);
 
         void Analyze(SyntaxNodeAnalysisContext context)

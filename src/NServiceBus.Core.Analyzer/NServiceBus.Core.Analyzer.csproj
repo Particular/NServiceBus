@@ -7,6 +7,12 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="1.2.2" />
+    <PackageReference Include="Particular.Packaging" Version="0.1.0" PrivateAssets="All" />
   </ItemGroup>
+
+  <PropertyGroup>
+    <PackageId>NServiceBus.Testing.Analyzer</PackageId>
+    <Description>Contains the NServiceBus.Core.Analyzer for testing purposes.</Description>
+  </PropertyGroup>
 
 </Project>
