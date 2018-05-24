@@ -5,16 +5,15 @@
 
     internal static class SymbolExtensions
     {
-        public static string GetFullNameWithArity(this IMethodSymbol method)
+        public static string GetFullName(this IMethodSymbol method)
         {
             var tokens = new Stack<string>();
-
-            tokens.Push((method.Arity == 0 ? method.Name : method.Name + "`" + method.Arity));
+            tokens.Push(method.Name);
 
             var type = method.ContainingType;
             while (type != null)
             {
-                tokens.Push(type.Arity == 0 ? type.Name : type.Name + "`" + type.Arity);
+                tokens.Push(type.Name);
                 type = type.ContainingType;
             }
 
