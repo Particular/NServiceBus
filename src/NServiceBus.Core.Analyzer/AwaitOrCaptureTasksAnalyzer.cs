@@ -45,7 +45,9 @@ namespace NServiceBus.Core.Analyzer
             "NServiceBus.Endpoint.Create",
             "NServiceBus.Endpoint.Start",
             "NServiceBus.IStartableEndpoint.Start",
-            "NServiceBus.IEndpointInstance.Stop");
+            "NServiceBus.IEndpointInstance.Stop",
+
+            "NServiceBus.RequestResponseExtensions.Request`1");
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } = ImmutableArray.Create(diagnostic);
 
