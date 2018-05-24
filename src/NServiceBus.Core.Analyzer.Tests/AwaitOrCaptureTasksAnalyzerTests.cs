@@ -186,6 +186,16 @@ public class Program
         session.Send(message).ConfigureAwait(false);
     }
 }")]
+        [TestCase(
+            @"using NServiceBus;
+using System.Threading.Tasks;
+public class Program
+{
+    public void Handle(object message, IMessageSession session)
+    {
+        Task.Run(() => {});
+    }
+}")]
         public async Task NoDiagnosticIsReported(string source) => await Verify(source);
 
         protected override DiagnosticAnalyzer GetAnalyzer() => new AwaitOrCaptureTasksAnalyzer();
