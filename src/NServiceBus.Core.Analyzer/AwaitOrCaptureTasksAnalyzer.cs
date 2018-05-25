@@ -1,55 +1,16 @@
-using System;
-using System.Linq;
-using System.Collections.Immutable;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.Diagnostics;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-
 namespace NServiceBus.Core.Analyzer
 {
+    using System;
+    using System.Collections.Immutable;
+    using System.Linq;
+    using Microsoft.CodeAnalysis;
+    using Microsoft.CodeAnalysis.CSharp;
+    using Microsoft.CodeAnalysis.CSharp.Syntax;
+    using Microsoft.CodeAnalysis.Diagnostics;
+
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public class AwaitOrCaptureTasksAnalyzer : DiagnosticAnalyzer
     {
-        static readonly DiagnosticDescriptor diagnostic = new DiagnosticDescriptor(
-            "NSB0001",
-            "Await or capture tasks",
-            "Expression calling an NServiceBus method creates a Task that is not awaited or assigned to a variable.",
-            "NServiceBus.Code",
-            DiagnosticSeverity.Error,
-            true,
-            "NServiceBus methods returning a Task should either be awaited or stored in a variable so that the Task is not dropped.");
-
-        static readonly ImmutableHashSet<string> methods = ImmutableHashSet.Create(
-            StringComparer.Ordinal,
-            "NServiceBus.IPipelineContext.Send",
-            "NServiceBus.IPipelineContext.Publish",
-
-            "NServiceBus.IPipelineContextExtensions.Send",
-            "NServiceBus.IPipelineContextExtensions.SendLocal",
-            "NServiceBus.IPipelineContextExtensions.Publish",
-
-            "NServiceBus.IMessageSession.Send",
-            "NServiceBus.IMessageSession.Publish",
-            "NServiceBus.IMessageSession.Subscribe",
-            "NServiceBus.IMessageSession.Unsubscribe",
-
-            "NServiceBus.IMessageSessionExtensions.Send",
-            "NServiceBus.IMessageSessionExtensions.SendLocal",
-            "NServiceBus.IMessageSessionExtensions.Publish",
-            "NServiceBus.IMessageSessionExtensions.Subscribe",
-            "NServiceBus.IMessageSessionExtensions.Unsubscribe",
-
-            "NServiceBus.Saga.RequestTimeout",
-            "NServiceBus.Saga.ReplyToOriginator",
-
-            "NServiceBus.Endpoint.Create",
-            "NServiceBus.Endpoint.Start",
-            "NServiceBus.IStartableEndpoint.Start",
-            "NServiceBus.IEndpointInstance.Stop");
-
-        static readonly ImmutableHashSet<string> methodNames = methods.Select(m => m.Split('.').Last()).ToImmutableHashSet();
-
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } = ImmutableArray.Create(diagnostic);
 
         public override void Initialize(AnalysisContext context) => context.RegisterSyntaxNodeAction(Analyze, SyntaxKind.InvocationExpression);
@@ -89,5 +50,39 @@ namespace NServiceBus.Core.Analyzer
                 return false;
             }
         }
+
+        static readonly DiagnosticDescriptor diagnostic = new DiagnosticDescriptor(
+            "NSB0001",
+            "Await or capture tasks",
+            "Expression calling an NServiceBus method creates a Task that is not awaited or assigned to a variable.",
+            "NServiceBus.Code",
+            DiagnosticSeverity.Error,
+            true,
+            "NServiceBus methods returning a Task should either be awaited or stored in a variable so that the Task is not dropped.");
+
+        static readonly ImmutableHashSet<string> methods = ImmutableHashSet.Create(
+            StringComparer.Ordinal,
+            "NServiceBus.IPipelineContext.Send",
+            "NServiceBus.IPipelineContext.Publish",
+            "NServiceBus.IPipelineContextExtensions.Send",
+            "NServiceBus.IPipelineContextExtensions.SendLocal",
+            "NServiceBus.IPipelineContextExtensions.Publish",
+            "NServiceBus.IMessageSession.Send",
+            "NServiceBus.IMessageSession.Publish",
+            "NServiceBus.IMessageSession.Subscribe",
+            "NServiceBus.IMessageSession.Unsubscribe",
+            "NServiceBus.IMessageSessionExtensions.Send",
+            "NServiceBus.IMessageSessionExtensions.SendLocal",
+            "NServiceBus.IMessageSessionExtensions.Publish",
+            "NServiceBus.IMessageSessionExtensions.Subscribe",
+            "NServiceBus.IMessageSessionExtensions.Unsubscribe",
+            "NServiceBus.Saga.RequestTimeout",
+            "NServiceBus.Saga.ReplyToOriginator",
+            "NServiceBus.Endpoint.Create",
+            "NServiceBus.Endpoint.Start",
+            "NServiceBus.IStartableEndpoint.Start",
+            "NServiceBus.IEndpointInstance.Stop");
+
+        static readonly ImmutableHashSet<string> methodNames = methods.Select(m => m.Split('.').Last()).ToImmutableHashSet();
     }
 }
