@@ -39,10 +39,10 @@ namespace NServiceBus.Core.Analyzer
             "NServiceBus.IMessageSessionExtensions.Publish",
             "NServiceBus.IMessageSessionExtensions.Subscribe",
             "NServiceBus.IMessageSessionExtensions.Unsubscribe",
-            
+
             "NServiceBus.Saga.RequestTimeout",
             "NServiceBus.Saga.ReplyToOriginator",
-            
+
             "NServiceBus.Endpoint.Create",
             "NServiceBus.Endpoint.Start",
             "NServiceBus.IStartableEndpoint.Start",
@@ -69,8 +69,8 @@ namespace NServiceBus.Core.Analyzer
 
             foreach (var syntaxToken in call.Expression?.DescendantTokens() ?? Enumerable.Empty<SyntaxToken>())
             {
-                if (syntaxToken.Kind() == SyntaxKind.IdentifierToken 
-                    && methodNames.Contains(syntaxToken.Text) 
+                if (syntaxToken.Kind() == SyntaxKind.IdentifierToken
+                    && methodNames.Contains(syntaxToken.Text)
                     && IsNServiceBusApi())
                 {
                     context.ReportDiagnostic(Diagnostic.Create(diagnostic, call.GetLocation(), call.ToString()));

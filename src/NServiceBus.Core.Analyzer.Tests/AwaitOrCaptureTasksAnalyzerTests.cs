@@ -52,7 +52,7 @@ namespace NServiceBus.Core.Analyzer.Tests
         // Endpoint
         [TestCase("EndpointConfiguration", "Endpoint.Create(obj);")]
         [TestCase("EndpointConfiguration", "Endpoint.Start(obj);")]
-        
+
         // IStartableEndpoint
         [TestCase("IStartableEndpoint", "obj.Start();")]
 
