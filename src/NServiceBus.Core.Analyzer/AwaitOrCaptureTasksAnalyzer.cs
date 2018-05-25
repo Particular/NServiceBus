@@ -17,8 +17,7 @@ namespace NServiceBus.Core.Analyzer
 
         void Analyze(SyntaxNodeAnalysisContext context)
         {
-            var call = context.Node as InvocationExpressionSyntax;
-            if (call == null)
+            if (!(context.Node is InvocationExpressionSyntax call))
             {
                 return;
             }
@@ -30,24 +29,14 @@ namespace NServiceBus.Core.Analyzer
 
             foreach (var syntaxToken in call.Expression?.DescendantTokens() ?? Enumerable.Empty<SyntaxToken>())
             {
-                if (syntaxToken.Kind() == SyntaxKind.IdentifierToken
-                    && methodNames.Contains(syntaxToken.Text)
-                    && IsNServiceBusApi())
+                if (syntaxToken.Kind() == SyntaxKind.IdentifierToken &&
+                    methodNames.Contains(syntaxToken.Text) &&
+                    context.SemanticModel.GetSymbolInfo(call).Symbol is IMethodSymbol methodSymbol &&
+                    methods.Contains(methodSymbol.GetFullName()))
                 {
                     context.ReportDiagnostic(Diagnostic.Create(diagnostic, call.GetLocation(), call.ToString()));
                     return;
                 }
-            }
-
-            bool IsNServiceBusApi()
-            {
-                var methodSymbol = context.SemanticModel.GetSymbolInfo(call).Symbol as IMethodSymbol;
-                if (methodSymbol != null && methods.Contains(methodSymbol.GetFullName()))
-                {
-                    return true;
-                }
-
-                return false;
             }
         }
 
