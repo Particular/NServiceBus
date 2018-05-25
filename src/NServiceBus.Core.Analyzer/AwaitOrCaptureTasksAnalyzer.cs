@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
@@ -38,14 +39,16 @@ namespace NServiceBus.Core.Analyzer
             "NServiceBus.IMessageSessionExtensions.Publish",
             "NServiceBus.IMessageSessionExtensions.Subscribe",
             "NServiceBus.IMessageSessionExtensions.Unsubscribe",
-            
+
             "NServiceBus.Saga.RequestTimeout",
             "NServiceBus.Saga.ReplyToOriginator",
-            
+
             "NServiceBus.Endpoint.Create",
             "NServiceBus.Endpoint.Start",
             "NServiceBus.IStartableEndpoint.Start",
             "NServiceBus.IEndpointInstance.Stop");
+
+        static readonly ImmutableHashSet<string> methodNames = methods.Select(m => m.Split('.').Last()).ToImmutableHashSet();
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } = ImmutableArray.Create(diagnostic);
 
@@ -64,10 +67,26 @@ namespace NServiceBus.Core.Analyzer
                 return;
             }
 
-            var methodSymbol = context.SemanticModel.GetSymbolInfo(call).Symbol as IMethodSymbol;
-            if (methodSymbol != null && methods.Contains(methodSymbol.GetFullName()))
+            foreach (var syntaxToken in call.Expression?.DescendantTokens() ?? Enumerable.Empty<SyntaxToken>())
             {
-                context.ReportDiagnostic(Diagnostic.Create(diagnostic, call.GetLocation(), call.ToString()));
+                if (syntaxToken.Kind() == SyntaxKind.IdentifierToken
+                    && methodNames.Contains(syntaxToken.Text)
+                    && IsNServiceBusApi())
+                {
+                    context.ReportDiagnostic(Diagnostic.Create(diagnostic, call.GetLocation(), call.ToString()));
+                    return;
+                }
+            }
+
+            bool IsNServiceBusApi()
+            {
+                var methodSymbol = context.SemanticModel.GetSymbolInfo(call).Symbol as IMethodSymbol;
+                if (methodSymbol != null && methods.Contains(methodSymbol.GetFullName()))
+                {
+                    return true;
+                }
+
+                return false;
             }
         }
     }
