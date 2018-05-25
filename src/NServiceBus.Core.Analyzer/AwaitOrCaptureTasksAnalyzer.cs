@@ -17,8 +17,7 @@ namespace NServiceBus.Core.Analyzer
 
         void Analyze(SyntaxNodeAnalysisContext context)
         {
-            var call = context.Node as InvocationExpressionSyntax;
-            if (call == null)
+            if (!(context.Node is InvocationExpressionSyntax call))
             {
                 return;
             }
@@ -28,28 +27,23 @@ namespace NServiceBus.Core.Analyzer
                 return;
             }
 
-            foreach (var syntaxToken in call.Expression?.DescendantTokens() ?? Enumerable.Empty<SyntaxToken>())
+            foreach (var token in call.Expression?.DescendantTokens() ?? Enumerable.Empty<SyntaxToken>())
             {
-                if (syntaxToken.Kind() == SyntaxKind.IdentifierToken
-                    && methodNames.Contains(syntaxToken.Text)
-                    && IsNServiceBusApi())
+                // check syntax tree (cheap) first for possible NSB call and then check semantic model (expensive) to confirm
+                if (CouldBeNServiceBusMethodCall(token) && IsNServiceBusMethodCall(call, context))
                 {
                     context.ReportDiagnostic(Diagnostic.Create(diagnostic, call.GetLocation(), call.ToString()));
                     return;
                 }
             }
-
-            bool IsNServiceBusApi()
-            {
-                var methodSymbol = context.SemanticModel.GetSymbolInfo(call).Symbol as IMethodSymbol;
-                if (methodSymbol != null && methods.Contains(methodSymbol.GetFullName()))
-                {
-                    return true;
-                }
-
-                return false;
-            }
         }
+
+        static bool CouldBeNServiceBusMethodCall(SyntaxToken syntaxToken) =>
+            syntaxToken.Kind() == SyntaxKind.IdentifierToken && methodNames.Contains(syntaxToken.Text);
+
+        static bool IsNServiceBusMethodCall(ExpressionSyntax call, SyntaxNodeAnalysisContext context) =>
+            context.SemanticModel.GetSymbolInfo(call).Symbol is IMethodSymbol methodSymbol &&
+                methods.Contains(methodSymbol.GetFullName());
 
         static readonly DiagnosticDescriptor diagnostic = new DiagnosticDescriptor(
             "NSB0001",
