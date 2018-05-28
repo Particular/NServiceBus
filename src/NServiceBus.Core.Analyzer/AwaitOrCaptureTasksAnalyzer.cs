@@ -82,6 +82,8 @@ namespace NServiceBus.Core.Analyzer
             "NServiceBus.Endpoint.Start",
             "NServiceBus.IStartableEndpoint.Start",
             "NServiceBus.IEndpointInstance.Stop",
+
+            // This workaround is only allowed for the UniformSession package. Other downstream packages have to provide their own analyzer instead.
             "NServiceBus.UniformSession.IUniformSession.Send",
             "NServiceBus.UniformSession.IUniformSession.Publish",
             "NServiceBus.UniformSession.IUniformSessionExtensions.Send",
