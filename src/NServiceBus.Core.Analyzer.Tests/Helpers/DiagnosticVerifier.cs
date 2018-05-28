@@ -11,6 +11,7 @@ namespace NServiceBus.Core.Analyzer.Tests.Helpers
     using Microsoft.CodeAnalysis.Diagnostics;
     using Microsoft.CodeAnalysis.Text;
     using NUnit.Framework;
+    using UniformSession;
 
     /// <summary>
     /// Base type for tests for DiagnosticAnalyzers
@@ -22,6 +23,7 @@ namespace NServiceBus.Core.Analyzer.Tests.Helpers
         static readonly MetadataReference CSharpSymbolsReference = MetadataReference.CreateFromFile(typeof(CSharpCompilation).Assembly.Location);
         static readonly MetadataReference CodeAnalysisReference = MetadataReference.CreateFromFile(typeof(Compilation).Assembly.Location);
         static readonly MetadataReference NServiceBusReference = MetadataReference.CreateFromFile(typeof(EndpointConfiguration).Assembly.Location);
+        static readonly MetadataReference TestLib = MetadataReference.CreateFromFile(typeof(IUniformSession).Assembly.Location);
 
         /// <summary>
         /// Get the analyzer being tested.
@@ -139,6 +141,7 @@ namespace NServiceBus.Core.Analyzer.Tests.Helpers
                 .AddMetadataReference(projectId, SystemCoreReference)
                 .AddMetadataReference(projectId, CSharpSymbolsReference)
                 .AddMetadataReference(projectId, CodeAnalysisReference)
+                .AddMetadataReference(projectId, TestLib)
                 .AddMetadataReference(projectId, NServiceBusReference);
 
 #if NETCOREAPP2_0

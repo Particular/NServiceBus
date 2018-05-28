@@ -81,6 +81,43 @@ public class Foo
             await Verify(source, expected);
         }
 
+        [TestCase("session.Send(new object());")]
+        [TestCase("session.Send(new object(), new SendOptions());")]
+        [TestCase("session.Send<object>(_ => { }, new SendOptions());")]
+        [TestCase("session.Send<object>(_ => { });")]
+        [TestCase("session.Send(\"destination\", new object());")]
+        [TestCase("session.Send<object>(\"destination\", _ => { });")]
+        [TestCase("session.SendLocal(new object());")]
+        [TestCase("session.SendLocal<object>(_ => { });")]
+        [TestCase("session.Publish(new object());")]
+        [TestCase("session.Publish(new object(), new PublishOptions());")]
+        [TestCase("session.Publish<object>();")]
+        [TestCase("session.Publish<object>(_ => { });")]
+        [TestCase("session.Publish<object>(_ => { }, new PublishOptions());")]
+        public async Task DiagnosticIsReportedForUniformSessionAPI(string api)
+        {
+            var source =
+$@"using NServiceBus;
+using NServiceBus.UniformSession;
+public class Foo
+{{
+    public void Bar(IUniformSession session)
+    {{
+        {api}
+    }}
+}}";
+
+            var expected = new DiagnosticResult
+            {
+                Id = "NSB0001",
+                Message = "Expression calling an NServiceBus method creates a Task that is not awaited or assigned to a variable.",
+                Severity = DiagnosticSeverity.Error,
+                Locations = new[] { new DiagnosticResultLocation("Test0.cs", 7, 9) },
+            };
+
+            await Verify(source, expected);
+        }
+
         [TestCase("RequestTimeout<TimeoutMessage>(context, DateTime.Now);")]
         [TestCase("RequestTimeout<TimeoutMessage>(context, DateTime.Now, new TimeoutMessage());")]
         [TestCase("RequestTimeout<TimeoutMessage>(context, TimeSpan.Zero);")]
