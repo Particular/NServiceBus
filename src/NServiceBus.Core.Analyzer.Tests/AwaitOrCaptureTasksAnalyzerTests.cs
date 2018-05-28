@@ -148,7 +148,7 @@ public class TestHandler : IHandleMessages<TestMessage>
     {
         await context.Send(new object(), new SendOptions());
     }
-}")]
+}", Description = "because send task is awaited.")]
         [TestCase(
 @"using NServiceBus;
 using System.Threading.Tasks;
@@ -156,7 +156,7 @@ public class TestHandler : IHandleMessages<TestMessage>
 {
     public Task Handle(object message, IMessageHandlerContext context) =>
         context.Send(new object(), new SendOptions());
-}")]
+}", Description = "because send task is returned.")]
         [TestCase(
             @"using NServiceBus;
 using System.Threading.Tasks;
@@ -166,7 +166,7 @@ public class Program
     {
         session.Send(message).GetAwaiter().GetResult();
     }
-}")]
+}", Description = "because send task is used.")]
         [TestCase(
             @"using NServiceBus;
 public class Program
@@ -175,7 +175,7 @@ public class Program
     {
         session.Send(message).Wait();
     }
-}")]
+}", Description = "because send task is used.")]
         [TestCase(
             @"using NServiceBus;
 using System.Threading.Tasks;
@@ -185,7 +185,7 @@ public class Program
     {
         session.Send(message).ConfigureAwait(false);
     }
-}")]
+}", Description = "because send task is used.")]
         [TestCase(
             @"using NServiceBus;
 using System.Threading.Tasks;
@@ -195,7 +195,7 @@ public class Program
     {
         Task.Run(() => {});
     }
-}")]
+}", Description = "because non-NSB API is called.")]
         public async Task NoDiagnosticIsReported(string source) => await Verify(source);
 
         protected override DiagnosticAnalyzer GetAnalyzer() => new AwaitOrCaptureTasksAnalyzer();
