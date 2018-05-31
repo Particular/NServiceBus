@@ -46,11 +46,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="..\..\packaging\nuget\tools\init.ps1">
-      <Pack>true</Pack>
-      <PackagePath>tools</PackagePath>
-      <Visible>false</Visible>
-    </None>
+    <None Include="..\..\packaging\nuget\tools\init.ps1" Pack="true" PackagePath="tools" Visible="false" />
   </ItemGroup>
 
   <!--Workaround for https://github.com/dotnet/sdk/issues/1469 -->
