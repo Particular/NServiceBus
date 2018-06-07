@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <TargetFrameworks>net452;netcoreapp2.0</TargetFrameworks>
+    <LangVersion>latest</LangVersion>
     <NoWarn>$(NoWarn);NU1701</NoWarn>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
   </PropertyGroup>
