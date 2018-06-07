@@ -23,5 +23,7 @@
   <files>
     <file src="..\..\binaries\NServiceBus.Core.???" target="lib\net452" />
     <file src="..\..\packaging\nuget\tools\init.ps1" target="tools" />
+    <file src="..\NServiceBus.Core.Analyzer\bin\Release\netstandard1.1\NServiceBus.Core.Analyzer.dll" target="analyzers/dotnet/cs" />
+    <file src="..\NServiceBus.Core.Analyzer\tools\*.ps1" target="tools" />
   </files>
 </package>
