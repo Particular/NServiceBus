@@ -37,7 +37,14 @@
         {
             if (!settings.TryGet<string>(DiagnosticSettingsExtensions.DiagnosticsPathKey, out var diagnosticsRootPath))
             {
-                diagnosticsRootPath = Path.Combine(Host.GetOutputDirectory(), ".diagnostics");
+                try
+                {
+                    diagnosticsRootPath = Path.Combine(Host.GetOutputDirectory(), ".diagnostics");
+                }
+                catch (Exception e)
+                {
+                    throw new Exception("Unable to determine the diagnostic output directory. Check the inner exception for further information or configure a custom diagnostic directory using endpointConfiguration.SetDiagnosticsPath(\"pathToDiagnosticDirectory\");.", e);
+                }
             }
 
             if (!Directory.Exists(diagnosticsRootPath))

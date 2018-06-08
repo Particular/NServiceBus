@@ -37,7 +37,7 @@
 
             if (appDataPath == null)
             {
-                throw new Exception(GetMapPathError("Failed since MapPath returned null"));
+                throw new Exception(GetMapPathError("Failed since MapPath returned null."));
             }
 
             if (IODirectory.Exists(appDataPath))
@@ -66,7 +66,8 @@
 
         static string GetMapPathError(string reason)
         {
-            return $"Detected running in a website and attempted to use HostingEnvironment.MapPath(\"~/App_Data/\") to derive the logging path. {reason}. To avoid using HostingEnvironment.MapPath to derive the logging directory you can instead configure it to a specific path using LogManager.Use<DefaultFactory>().Directory(\"pathToLoggingDirectory\");";
+            return $"Detected running in a website and attempted to use HostingEnvironment.MapPath(\"~/App_Data/\") to derive the logging path. {reason}.";
         }
     }
 }
+
