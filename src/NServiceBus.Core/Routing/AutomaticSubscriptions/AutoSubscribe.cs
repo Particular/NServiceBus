@@ -5,7 +5,6 @@
     using System.Linq;
     using System.Threading.Tasks;
     using Logging;
-    using Transport;
     using Unicast;
 
     /// <summary>
@@ -30,16 +29,12 @@
             }
 
             var conventions = context.Settings.Get<Conventions>();
-            var transportInfrastructure = context.Settings.Get<TransportInfrastructure>();
-            var requireExplicitRouting = transportInfrastructure.OutboundRoutingPolicy.Publishes == OutboundRoutingType.Unicast;
-            var publishers = context.Routing.Publishers;
 
             context.RegisterStartupTask(b =>
             {
                 var handlerRegistry = b.Build<MessageHandlerRegistry>();
                 var messageTypesHandled = GetMessageTypesHandledByThisEndpoint(handlerRegistry, conventions, settings);
-                var typesToSubscribe = messageTypesHandled.Where(eventType => !requireExplicitRouting || publishers.GetPublisherFor(eventType).Any()).ToList();
-                return new ApplySubscriptions(typesToSubscribe);
+                return new ApplySubscriptions(messageTypesHandled);
             });
         }
 
@@ -79,12 +74,20 @@
 
             static async Task SubscribeToEvent(IMessageSession session, Type eventType)
             {
-                await session.Subscribe(eventType).ConfigureAwait(false);
-                Logger.DebugFormat("Auto subscribed to event {0}", eventType);
+                try
+                {
+                    await session.Subscribe(eventType).ConfigureAwait(false);
+                    Logger.DebugFormat("Auto subscribed to event {0}", eventType);
+                }
+                catch (Exception e)
+                {
+                    Logger.Warn($"AutoSubscribe was unable to subscribe to event '{eventType.FullName}'.", e);
+                    // swallow exception
+                }
             }
 
             List<Type> messagesHandledByThisEndpoint;
-            static ILog Logger = LogManager.GetLogger<ApplySubscriptions>();
+            static ILog Logger = LogManager.GetLogger<AutoSubscribe>();
         }
 
         internal class SubscribeSettings
