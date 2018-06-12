@@ -4,6 +4,8 @@
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
+    using Features;
+    using Logging;
     using NUnit.Framework;
 
     public class When_using_autosubscribe_with_missing_publisher_information : NServiceBusAcceptanceTest
@@ -18,9 +20,11 @@
                 .Done(c => c.EndpointsStarted)
                 .Run();
 
-            Assert.True(context.EndpointsStarted);
-            var logs = context.Logs.Where(l =>l.LoggerName == "AutoSubscribe" && l.Message.Contains("MyEvent"));
-            Assert.AreEqual(1, logs.Count());
+            Assert.True(context.EndpointsStarted, "because it should not prevent endpoint startup");
+
+            var log = context.Logs.Single(l => l.Message.Contains($"AutoSubscribe was unable to subscribe to event '{typeof(MyEvent).FullName}'."));
+            Assert.AreEqual(LogLevel.Warn, log.Level);
+            Assert.AreEqual(typeof(AutoSubscribe).FullName, log.LoggerName);
         }
 
         public class Subscriber : EndpointConfigurationBuilder
