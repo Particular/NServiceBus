@@ -6,6 +6,7 @@
     using System.Threading.Tasks;
     using Logging;
     using Unicast;
+    using Unicast.Queuing;
 
     /// <summary>
     /// Used to configure auto subscriptions.
@@ -79,7 +80,7 @@
                     await session.Subscribe(eventType).ConfigureAwait(false);
                     Logger.DebugFormat("Auto subscribed to event {0}", eventType);
                 }
-                catch (Exception e)
+                catch (Exception e ) when (!(e is QueueNotFoundException))
                 {
                     Logger.Warn($"AutoSubscribe was unable to subscribe to event '{eventType.FullName}'.", e);
                     // swallow exception
