@@ -22,20 +22,21 @@ namespace NServiceBus.AutomaticSubscriptions.Config
         }
 
         /// <summary>
-        /// todo
+        /// Configure AutoSubscribe to not subscribe automatically to the given event type.
         /// </summary>
         public AutoSubscribeSettings DisableFor<T>()
         {
-            //TODO implement
-            return this;
+            return DisableFor(typeof(T));
         }
 
         /// <summary>
-        /// todo
+        /// Configure AutoSubscribe to not subscribe automatically to the given event type.
         /// </summary>
         public AutoSubscribeSettings DisableFor(Type eventType)
         {
-            //TODO implement
+            Guard.AgainstNull(nameof(eventType), eventType);
+
+            GetSettings().ExcludedTypes.Add(eventType);
             return this;
         }
 

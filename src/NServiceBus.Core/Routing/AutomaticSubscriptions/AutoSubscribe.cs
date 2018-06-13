@@ -35,7 +35,7 @@
             {
                 var handlerRegistry = b.Build<MessageHandlerRegistry>();
                 var messageTypesHandled = GetMessageTypesHandledByThisEndpoint(handlerRegistry, conventions, settings);
-                return new ApplySubscriptions(messageTypesHandled);
+                return new ApplySubscriptions(messageTypesHandled, settings.ExcludedTypes);
             });
         }
 
@@ -53,9 +53,10 @@
 
         class ApplySubscriptions : FeatureStartupTask
         {
-            public ApplySubscriptions(List<Type> messagesHandledByThisEndpoint)
+            public ApplySubscriptions(List<Type> messagesHandledByThisEndpoint, HashSet<Type> excludedTypes)
             {
                 this.messagesHandledByThisEndpoint = messagesHandledByThisEndpoint;
+                this.excludedTypes = excludedTypes;
             }
 
             protected override Task OnStart(IMessageSession session)
@@ -63,7 +64,11 @@
                 var tasks = new Task[messagesHandledByThisEndpoint.Count];
                 for (var i = 0; i < messagesHandledByThisEndpoint.Count; i++)
                 {
-                    tasks[i] = SubscribeToEvent(session, messagesHandledByThisEndpoint[i]);
+                    var eventType = messagesHandledByThisEndpoint[i];
+
+                    tasks[i] = excludedTypes.Contains(eventType) 
+                        ? TaskEx.CompletedTask 
+                        : SubscribeToEvent(session, eventType);
                 }
                 return Task.WhenAll(tasks);
             }
@@ -88,6 +93,7 @@
             }
 
             List<Type> messagesHandledByThisEndpoint;
+            readonly HashSet<Type> excludedTypes;
             static ILog Logger = LogManager.GetLogger<AutoSubscribe>();
         }
 
@@ -99,6 +105,8 @@
             }
 
             public bool AutoSubscribeSagas { get; set; }
+
+            public HashSet<Type> ExcludedTypes { get; set; } = new HashSet<Type>();
         }
     }
 }
