@@ -1,5 +1,6 @@
 namespace NServiceBus.AutomaticSubscriptions.Config
 {
+    using System;
     using Features;
 
     /// <summary>
@@ -18,6 +19,24 @@ namespace NServiceBus.AutomaticSubscriptions.Config
         public void DoNotAutoSubscribeSagas()
         {
             GetSettings().AutoSubscribeSagas = false;
+        }
+
+        /// <summary>
+        /// todo
+        /// </summary>
+        public AutoSubscribeSettings DisableFor<T>()
+        {
+            //TODO implement
+            return this;
+        }
+
+        /// <summary>
+        /// todo
+        /// </summary>
+        public AutoSubscribeSettings DisableFor(Type eventType)
+        {
+            //TODO implement
+            return this;
         }
 
         AutoSubscribe.SubscribeSettings GetSettings()
