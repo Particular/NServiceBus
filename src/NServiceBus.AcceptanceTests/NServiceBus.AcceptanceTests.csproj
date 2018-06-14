@@ -59,6 +59,7 @@
   <ItemGroup>
     <Compile Include="ConfigureEndpointLearningTransport.cs" />
     <Compile Include="ConfigureEndpointLearningPersistence.cs" />
+    <Compile Include="Core\AutomaticSubscriptions\When_excluding_event_type_from_autosubscribe.cs" />
     <Compile Include="Core\CriticalError\When_raising_critical_error_at_startup.cs" />
     <Compile Include="Core\Feature\When_depending_on_untyped_feature.cs" />
     <Compile Include="Core\Feature\When_registering_a_startup_task.cs" />
@@ -79,6 +80,7 @@
     <Compile Include="Core\Pipeline\When_using_custom_conversation_id.cs" />
     <Compile Include="Core\Recoverability\When_configuring_unrecoverable_exception.cs" />
     <Compile Include="Core\Recoverability\When_failing_mutated_message.cs" />
+    <Compile Include="Core\Routing\MessageDrivenSubscriptions\When_using_autosubscribe_with_missing_publisher_information.cs" />
     <Compile Include="Core\Routing\When_extending_command_routing_with_thisinstance.cs" />
     <Compile Include="Core\Stopping\When_feature_startup_task_throws_on_stop.cs" />
     <Compile Include="Core\Stopping\When_pump_throws_on_stop.cs" />

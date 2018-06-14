@@ -1,6 +1,7 @@
 namespace NServiceBus.AutomaticSubscriptions.Config
 {
     using Features;
+    using System;
 
     /// <summary>
     /// Provides fine grained control over auto subscribe.
@@ -18,6 +19,25 @@ namespace NServiceBus.AutomaticSubscriptions.Config
         public void DoNotAutoSubscribeSagas()
         {
             GetSettings().AutoSubscribeSagas = false;
+        }
+
+        /// <summary>
+        /// Configure AutoSubscribe to not subscribe automatically to the given event type.
+        /// </summary>
+        public AutoSubscribeSettings DisableFor<T>()
+        {
+            return DisableFor(typeof(T));
+        }
+
+        /// <summary>
+        /// Configure AutoSubscribe to not subscribe automatically to the given event type.
+        /// </summary>
+        public AutoSubscribeSettings DisableFor(Type eventType)
+        {
+            Guard.AgainstNull(nameof(eventType), eventType);
+
+            GetSettings().ExcludedTypes.Add(eventType);
+            return this;
         }
 
         AutoSubscribe.SubscribeSettings GetSettings()
