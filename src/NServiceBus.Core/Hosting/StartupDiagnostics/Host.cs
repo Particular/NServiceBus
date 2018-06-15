@@ -60,13 +60,13 @@
             }
             catch (Exception exception)
             {
-                throw new Exception(GetMapPathError("Failed since MapPath threw an exception"), exception);
+                throw new Exception(GetMapPathError("Failed since MapPath threw an exception."), exception);
             }
         }
 
         static string GetMapPathError(string reason)
         {
-            return $"Detected running in a website and attempted to use HostingEnvironment.MapPath(\"~/App_Data/\") to derive the logging path. {reason}.";
+            return $"Detected running in a website and attempted to use HostingEnvironment.MapPath(\"~/App_Data/\") to derive the logging path. {reason}";
         }
     }
 }
