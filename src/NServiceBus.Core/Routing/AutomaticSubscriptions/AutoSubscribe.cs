@@ -66,8 +66,8 @@
                 {
                     var eventType = messagesHandledByThisEndpoint[i];
 
-                    tasks[i] = excludedTypes.Contains(eventType) 
-                        ? TaskEx.CompletedTask 
+                    tasks[i] = excludedTypes.Contains(eventType)
+                        ? TaskEx.CompletedTask
                         : SubscribeToEvent(session, eventType);
                 }
                 return Task.WhenAll(tasks);
@@ -85,7 +85,7 @@
                     await session.Subscribe(eventType).ConfigureAwait(false);
                     Logger.DebugFormat("Auto subscribed to event {0}", eventType);
                 }
-                catch (Exception e ) when (!(e is QueueNotFoundException))
+                catch (Exception e) when (!(e is QueueNotFoundException))
                 {
                     Logger.Warn($"AutoSubscribe was unable to subscribe to event '{eventType.FullName}'.", e);
                     // swallow exception
