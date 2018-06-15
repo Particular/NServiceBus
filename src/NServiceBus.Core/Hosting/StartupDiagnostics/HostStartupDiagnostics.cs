@@ -4,6 +4,7 @@
     using System.IO;
     using System.Threading.Tasks;
     using Features;
+    using Logging;
     using Settings;
 
     class HostStartupDiagnostics : Feature
@@ -43,7 +44,7 @@
                 }
                 catch (Exception e)
                 {
-                    throw new Exception("Unable to determine the diagnostic output directory. Check the inner exception for further information or configure a custom diagnostic directory using endpointConfiguration.SetDiagnosticsPath(\"pathToDiagnosticDirectory\");.", e);
+                    logger.Error("Unable to determine the diagnostic output directory. Check the attached exception for further information or configure a custom diagnostic directory using endpointConfiguration.SetDiagnosticsPath(\"pathToDiagnosticDirectory\");.", e);
                 }
             }
 
@@ -61,5 +62,7 @@
 
             return data => AsyncFile.WriteText(startupDiagnosticsFilePath, data);
         }
+
+        static readonly ILog logger = LogManager.GetLogger<HostStartupDiagnostics>();
     }
 }
