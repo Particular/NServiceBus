@@ -93,7 +93,7 @@
                 }
                 catch (Exception e) when (!(e is QueueNotFoundException))
                 {
-                    Logger.Warn($"AutoSubscribe was unable to subscribe to event '{eventType.FullName}': {e.Message}");
+                    Logger.Error($"AutoSubscribe was unable to subscribe to event '{eventType.FullName}': {e.Message}");
                     // swallow exception
                 }
             }
