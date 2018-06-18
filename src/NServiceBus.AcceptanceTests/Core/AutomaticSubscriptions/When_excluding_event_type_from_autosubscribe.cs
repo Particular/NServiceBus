@@ -1,8 +1,8 @@
 ﻿namespace NServiceBus.AcceptanceTests.Core.AutomaticSubscriptions
 {
-    using AcceptanceTesting;
     using AcceptanceTests.EndpointTemplates;
     using Logging;
+    using NServiceBus.AcceptanceTesting;
     using NServiceBus.Pipeline;
     using NUnit.Framework;
     using System;
@@ -24,7 +24,7 @@
             Assert.AreEqual(1, ctx.EventsSubscribedTo.Count);
             Assert.AreEqual(typeof(EventToSubscribeTo), ctx.EventsSubscribedTo[0]);
 
-            CollectionAssert.IsEmpty(ctx.Logs.Where(l => /*l.LoggerName == typeof(AutoSubscribe).FullName &&*/ l.Level == LogLevel.Warn));
+            CollectionAssert.IsEmpty(ctx.Logs.Where(l => l.Level == LogLevel.Error));
         }
 
         class Context : ScenarioContext
