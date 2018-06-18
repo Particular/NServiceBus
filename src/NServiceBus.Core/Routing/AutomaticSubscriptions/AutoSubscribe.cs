@@ -95,7 +95,7 @@
 
             List<Type> messagesHandledByThisEndpoint;
             HashSet<Type> excludedTypes;
-            static ILog Logger = LogManager.GetLogger<ApplySubscriptions>();
+            static ILog Logger = LogManager.GetLogger<AutoSubscribe>();
         }
 
         internal class SubscribeSettings
