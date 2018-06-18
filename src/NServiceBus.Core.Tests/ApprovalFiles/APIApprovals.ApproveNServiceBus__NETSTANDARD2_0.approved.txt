@@ -1064,6 +1064,8 @@ namespace NServiceBus.AutomaticSubscriptions.Config
 {
     public class AutoSubscribeSettings
     {
+        public NServiceBus.AutomaticSubscriptions.Config.AutoSubscribeSettings DisableFor<T>() { }
+        public NServiceBus.AutomaticSubscriptions.Config.AutoSubscribeSettings DisableFor(System.Type eventType) { }
         public void DoNotAutoSubscribeSagas() { }
     }
 }
