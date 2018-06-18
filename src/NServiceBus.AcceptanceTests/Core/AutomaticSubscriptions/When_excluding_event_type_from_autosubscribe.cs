@@ -79,7 +79,7 @@
                 }
             }
 
-            public class EventMessageHandler : IHandleMessages<EventToExclude>
+            class EventMessageHandler : IHandleMessages<EventToExclude>
             {
                 public Task Handle(EventToExclude message, IMessageHandlerContext context)
                 {
@@ -87,7 +87,7 @@
                 }
             }
 
-            public class MyEventWithNoRoutingHandler : IHandleMessages<EventWithNoPublisher>
+            class MyEventWithNoRoutingHandler : IHandleMessages<EventWithNoPublisher>
             {
                 public Task Handle(EventWithNoPublisher message, IMessageHandlerContext context)
                 {
