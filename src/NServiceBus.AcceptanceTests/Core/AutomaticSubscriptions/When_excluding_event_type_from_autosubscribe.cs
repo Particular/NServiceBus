@@ -25,7 +25,7 @@
             Assert.AreEqual(1, ctx.EventsSubscribedTo.Count);
             Assert.AreEqual(typeof(EventToSubscribeTo), ctx.EventsSubscribedTo[0]);
 
-            CollectionAssert.IsEmpty(ctx.Logs.Where(l => l.LoggerName == typeof(AutoSubscribe).FullName && l.Level == LogLevel.Warn));
+            CollectionAssert.IsEmpty(ctx.Logs.Where(l => l.LoggerName == typeof(AutoSubscribe).FullName && l.Level == LogLevel.Error));
         }
 
         class Context : ScenarioContext
