@@ -1,13 +1,12 @@
 ﻿namespace NServiceBus.Features
 {
     using Logging;
-    using NServiceBus.Unicast.Queuing;
     using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
-    using Transport;
     using Unicast;
+    using Unicast.Queuing;
 
     /// <summary>
     /// Used to configure auto subscriptions.
@@ -33,9 +32,6 @@
             }
 
             var conventions = context.Settings.Get<Conventions>();
-            var transportInfrastructure = context.Settings.Get<TransportInfrastructure>();
-            var requireExplicitRouting = transportInfrastructure.OutboundRoutingPolicy.Publishes == OutboundRoutingType.Unicast;
-            var publishers = context.Routing.Publishers;
 
             context.RegisterStartupTask(b =>
             {
