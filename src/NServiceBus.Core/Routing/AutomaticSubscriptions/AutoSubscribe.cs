@@ -41,8 +41,7 @@
             {
                 var handlerRegistry = b.Build<MessageHandlerRegistry>();
                 var messageTypesHandled = GetMessageTypesHandledByThisEndpoint(handlerRegistry, conventions, settings);
-                var typesToSubscribe = messageTypesHandled.Where(eventType => !requireExplicitRouting || publishers.GetPublisherFor(eventType).Any()).ToList();
-                return new ApplySubscriptions(typesToSubscribe, settings.ExcludedTypes);
+                return new ApplySubscriptions(messageTypesHandled, settings.ExcludedTypes);
             });
         }
 
