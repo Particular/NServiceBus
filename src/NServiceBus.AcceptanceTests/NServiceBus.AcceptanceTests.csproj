@@ -59,6 +59,7 @@
   <ItemGroup>
     <Compile Include="ConfigureEndpointLearningTransport.cs" />
     <Compile Include="ConfigureEndpointLearningPersistence.cs" />
+    <Compile Include="Core\AutomaticSubscriptions\When_excluding_event_type_from_autosubscribe.cs" />
     <Compile Include="Core\CriticalError\When_raising_critical_error_at_startup.cs" />
     <Compile Include="Core\Feature\When_depending_on_untyped_feature.cs" />
     <Compile Include="Core\Feature\When_registering_a_startup_task.cs" />

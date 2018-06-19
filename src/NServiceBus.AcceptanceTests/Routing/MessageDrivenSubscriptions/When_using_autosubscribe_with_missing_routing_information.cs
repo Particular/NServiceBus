@@ -1,9 +1,11 @@
 ﻿namespace NServiceBus.AcceptanceTests.Routing.MessageDrivenSubscriptions
 {
-    using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
+    using Logging;
     using NUnit.Framework;
+    using System.Linq;
+    using System.Threading.Tasks;
 
     public class When_using_autosubscribe_with_missing_routing_information : NServiceBusAcceptanceTest
     {
@@ -17,7 +19,10 @@
                 .Done(c => c.EndpointsStarted)
                 .Run();
 
-            Assert.True(context.EndpointsStarted);
+            Assert.True(context.EndpointsStarted, "because it should not prevent endpoint startup");
+
+            var log = context.Logs.Single(l => l.Message.Contains($"AutoSubscribe was unable to subscribe to event '{typeof(MyEvent).FullName}': No publisher address could be found for message type '{typeof(MyEvent).FullName}'."));
+            Assert.AreEqual(LogLevel.Error, log.Level);
         }
 
         public class Subscriber : EndpointConfigurationBuilder

@@ -1432,6 +1432,8 @@ namespace NServiceBus.AutomaticSubscriptions.Config
             "e member currently throws a NotImplementedException. Will be removed in version " +
             "7.0.0.", true)]
         public void AutoSubscribePlainMessages() { }
+        public NServiceBus.AutomaticSubscriptions.Config.AutoSubscribeSettings DisableFor<T>() { }
+        public NServiceBus.AutomaticSubscriptions.Config.AutoSubscribeSettings DisableFor(System.Type eventType) { }
         public void DoNotAutoSubscribeSagas() { }
         [System.ObsoleteAttribute("Transports with support for centralized pubsub will default this to true. Can saf" +
             "ely be removed. The member currently throws a NotImplementedException. Will be r" +
