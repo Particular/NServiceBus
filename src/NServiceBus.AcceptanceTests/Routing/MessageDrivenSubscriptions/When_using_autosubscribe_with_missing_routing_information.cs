@@ -10,7 +10,7 @@
     public class When_using_autosubscribe_with_missing_routing_information : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Should_skip_events_with_missing_routes()
+        public async Task Should_log_events_with_missing_routes()
         {
             Requires.MessageDrivenPubSub();
 
