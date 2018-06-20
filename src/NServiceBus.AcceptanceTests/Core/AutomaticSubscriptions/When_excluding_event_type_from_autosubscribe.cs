@@ -1,14 +1,14 @@
 ﻿namespace NServiceBus.AcceptanceTests.Core.AutomaticSubscriptions
 {
-    using AcceptanceTests.EndpointTemplates;
-    using Logging;
-    using NServiceBus.AcceptanceTesting;
-    using NServiceBus.Pipeline;
-    using NUnit.Framework;
     using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
+    using AcceptanceTesting;
+    using EndpointTemplates;
+    using Logging;
+    using NServiceBus.Pipeline;
+    using NUnit.Framework;
 
     [TestFixture]
     public class When_excluding_event_type_from_autosubscribe : NServiceBusAcceptanceTest
