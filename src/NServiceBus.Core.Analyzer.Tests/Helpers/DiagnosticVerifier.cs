@@ -117,7 +117,7 @@ namespace NServiceBus.Core.Analyzer.Tests.Helpers
                 .AddMetadataReference(projectId, TestLib)
                 .AddMetadataReference(projectId, NServiceBusReference);
 
-#if NETCOREAPP2_0
+#if NETCOREAPP
             var netstandard = MetadataReference.CreateFromFile(System.Reflection.Assembly.Load("netstandard").Location);
             var systemTasks = MetadataReference.CreateFromFile(System.Reflection.Assembly.Load("System.Threading.Tasks").Location);
             var systemRuntime = MetadataReference.CreateFromFile(System.Reflection.Assembly.Load("System.Runtime").Location);

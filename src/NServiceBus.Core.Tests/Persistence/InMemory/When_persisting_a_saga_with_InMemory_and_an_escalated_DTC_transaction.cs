@@ -1,4 +1,4 @@
-﻿#if NET452
+﻿#if NETFRAMEWORK
 namespace NServiceBus.SagaPersisters.InMemory.Tests
 {
     using System;

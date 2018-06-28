@@ -6,7 +6,6 @@ namespace NServiceBus.Serializers.XML.Test
     using System.Xml.Linq;
     using NUnit.Framework;
 
-    
     public class MessageWithNullable : IMessage
     {
         public string FirstName { get; set; }
@@ -71,7 +70,7 @@ namespace NServiceBus.Serializers.XML.Test
                 var reader = new StreamReader(stream);
                 var xml = reader.ReadToEnd();
 
-#if NET452
+#if NETFRAMEWORK
                 var birthDate = "1950-04-25T00:00:00";
 #else
                 var birthDate = "1950-04-25T00:00:00.0000000";

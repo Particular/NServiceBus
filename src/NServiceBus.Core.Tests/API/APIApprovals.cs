@@ -7,7 +7,7 @@
     [TestFixture]
     public class APIApprovals
     {
-#if NET452
+#if NETFRAMEWORK
         [Test]
         [MethodImpl(MethodImplOptions.NoInlining)]
         public void ApproveNServiceBus__NET452()
@@ -17,7 +17,7 @@
         }
 #endif
 
-#if NETCOREAPP2_0
+#if NETCOREAPP
         [Test]
         [MethodImpl(MethodImplOptions.NoInlining)]
         public void ApproveNServiceBus__NETSTANDARD2_0()
