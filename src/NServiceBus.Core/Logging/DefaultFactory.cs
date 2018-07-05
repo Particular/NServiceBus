@@ -22,7 +22,7 @@ namespace NServiceBus.Logging
                 }
                 catch (Exception e)
                 {
-                    throw new Exception("Unable to determine the logging output directory. Check the inner exception for further information or configure a custom logging directory using LogManager.Use<DefaultFactory>().Directory(\"pathToLoggingDirectory\").", e);
+                    throw new Exception("Unable to determine the logging output directory. Check the inner exception for further information, or configure a custom logging directory using 'LogManager.Use<DefaultFactory>().Directory()'.", e);
                 }
             });
             level = new Lazy<LogLevel>(() => LogLevel.Info);

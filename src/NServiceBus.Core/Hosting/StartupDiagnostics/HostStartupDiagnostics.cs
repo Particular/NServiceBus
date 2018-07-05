@@ -44,7 +44,7 @@
                 }
                 catch (Exception e)
                 {
-                    logger.Error("Unable to determine the diagnostic output directory. Check the attached exception for further information or configure a custom diagnostic directory using endpointConfiguration.SetDiagnosticsPath(\"pathToDiagnosticDirectory\");.", e);
+                    logger.Error("Unable to determine the diagnostics output directory. Check the attached exception for further information, or configure a custom diagnostics directory using 'EndpointConfiguration.SetDiagnosticsPath()'.", e);
                 }
             }
 
