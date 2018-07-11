@@ -3,7 +3,7 @@
     using System;
     using Transport;
 
-#if NET452
+#if NETFRAMEWORK
     sealed class TransportConnectionString
     {
         TransportConnectionString()
@@ -69,7 +69,7 @@ or
     }
 #endif
 
-#if NETSTANDARD2_0
+#if NETSTANDARD
     sealed class TransportConnectionString
     {
         TransportConnectionString()

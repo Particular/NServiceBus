@@ -2,7 +2,7 @@ namespace NServiceBus
 {
     using System;
     using System.Diagnostics;
-#if NETSTANDARD2_0
+#if NETSTANDARD
     using System.Runtime.InteropServices;
 #endif
     using System.Text;
@@ -120,7 +120,7 @@ namespace NServiceBus
             }
         }
 
-#if NETSTANDARD2_0
+#if NETSTANDARD
         string GetPlatformCode()
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))

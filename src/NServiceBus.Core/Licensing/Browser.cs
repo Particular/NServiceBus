@@ -1,4 +1,4 @@
-﻿#if NETSTANDARD2_0
+﻿#if NETSTANDARD
 namespace NServiceBus
 {
     using System.Diagnostics;

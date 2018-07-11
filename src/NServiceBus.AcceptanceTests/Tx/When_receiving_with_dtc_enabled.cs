@@ -21,7 +21,7 @@
             Assert.False(context.CanEnlistPromotable, "There should exists a DTC tx");
         }
 
-#if !NETCOREAPP2_0
+#if NETFRAMEWORK
         [Test]
         public void Basic_assumptions_promotable_should_fail_if_durable_already_exists()
         {

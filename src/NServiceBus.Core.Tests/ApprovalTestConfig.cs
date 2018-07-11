@@ -1,5 +1,5 @@
 ﻿using ApprovalTests.Reporters;
-#if NET452
+#if NETFRAMEWORK
 [assembly: UseReporter(typeof(DiffReporter), typeof(AllFailingTestsClipboardReporter))]
 #else
 [assembly: UseReporter(typeof(NUnitReporter))]

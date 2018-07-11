@@ -1,10 +1,10 @@
 ﻿namespace NServiceBus
 {
     using System;
-#if NET452
+#if NETFRAMEWORK
     using System.Reflection;
 #endif
-#if NETSTANDARD2_0
+#if NETSTANDARD
     using System.IO;
     using System.Reflection.Metadata;
     using System.Reflection.PortableExecutable;
@@ -13,7 +13,7 @@
 
     class AssemblyValidator
     {
-#if NET452
+#if NETFRAMEWORK
         public void ValidateAssemblyFile(string assemblyPath, out bool shouldLoad, out string reason)
         {
             try
@@ -39,7 +39,7 @@
         }
 #endif
 
-#if NETSTANDARD2_0
+#if NETSTANDARD
         public void ValidateAssemblyFile(string assemblyPath, out bool shouldLoad, out string reason)
         {
             using (var stream = File.OpenRead(assemblyPath))
