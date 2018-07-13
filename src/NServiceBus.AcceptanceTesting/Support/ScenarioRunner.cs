@@ -13,7 +13,13 @@
 
     public class ScenarioRunner
     {
-        public static async Task<RunSummary> Run(RunDescriptor runDescriptor, List<IComponentBehavior> behaviorDescriptors, Func<ScenarioContext, bool> done)
+        // remove in v8
+        public static Task<RunSummary> Run(RunDescriptor runDescriptor, List<IComponentBehavior> behaviorDescriptors, Func<ScenarioContext, bool> done)
+        {
+            return Run(runDescriptor, behaviorDescriptors, ctx => Task.FromResult(done(ctx)));
+        }
+        
+        public static async Task<RunSummary> Run(RunDescriptor runDescriptor, List<IComponentBehavior> behaviorDescriptors, Func<ScenarioContext, Task<bool>> done)
         {
             TestContext.WriteLine("current context: " + runDescriptor.ScenarioContext.GetType().FullName);
             TestContext.WriteLine("Started test @ {0}", DateTime.Now.ToString(CultureInfo.InvariantCulture));
@@ -30,7 +36,7 @@
             };
         }
 
-        static async Task<RunResult> PerformTestRun(List<IComponentBehavior> behaviorDescriptors, RunDescriptor runDescriptor, Func<ScenarioContext, bool> done)
+        static async Task<RunResult> PerformTestRun(List<IComponentBehavior> behaviorDescriptors, RunDescriptor runDescriptor, Func<ScenarioContext, Task<bool>> done)
         {
             var runResult = new RunResult
             {
@@ -62,7 +68,7 @@
         }
 
 
-        static async Task PerformScenarios(RunDescriptor runDescriptor, ComponentRunner[] runners, Func<bool> done)
+        static async Task PerformScenarios(RunDescriptor runDescriptor, ComponentRunner[] runners, Func<Task<bool>> done)
         {
             using (var cts = new CancellationTokenSource())
             {
@@ -75,7 +81,7 @@
 
                     var startTime = DateTime.UtcNow;
                     var maxTime = runDescriptor.Settings.TestExecutionTimeout ?? TimeSpan.FromSeconds(90);
-                    while (!done() && !cts.Token.IsCancellationRequested)
+                    while (!await done().ConfigureAwait(false) && !cts.Token.IsCancellationRequested)
                     {
                         if (!Debugger.IsAttached)
                         {
