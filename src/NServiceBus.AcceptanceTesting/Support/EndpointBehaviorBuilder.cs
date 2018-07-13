@@ -31,7 +31,6 @@
             return this;
         }
 
-        // remove in v8
         public EndpointBehaviorBuilder<TContext> When(Predicate<TContext> condition, Func<IMessageSession, Task> action)
         {
             behavior.Whens.Add(new WhenDefinition<TContext>(condition, action));
@@ -46,7 +45,6 @@
             return this;
         }
         
-        // remove in v8
         public EndpointBehaviorBuilder<TContext> When(Predicate<TContext> condition, Func<IMessageSession, TContext, Task> action)
         {
             behavior.Whens.Add(new WhenDefinition<TContext>(condition, action));
