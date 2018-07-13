@@ -5,14 +5,30 @@ namespace NServiceBus.AcceptanceTesting.Support
 
     public class WhenDefinition<TContext> : IWhenDefinition where TContext : ScenarioContext
     {
+        // remove in v8
         public WhenDefinition(Predicate<TContext> condition, Func<IMessageSession, Task> action)
+        {
+            Id = Guid.NewGuid();
+            this.condition = ctx => Task.FromResult(condition(ctx));
+            messageAction = action;
+        }
+        
+        public WhenDefinition(Func<TContext, Task<bool>> condition, Func<IMessageSession, Task> action)
         {
             Id = Guid.NewGuid();
             this.condition = condition;
             messageAction = action;
         }
 
+        // remove in v8
         public WhenDefinition(Predicate<TContext> condition, Func<IMessageSession, TContext, Task> actionWithContext)
+        {
+            Id = Guid.NewGuid();
+            this.condition = ctx => Task.FromResult(condition(ctx));
+            messageAndContextAction = actionWithContext;
+        }
+        
+        public WhenDefinition(Func<TContext, Task<bool>> condition, Func<IMessageSession, TContext, Task> actionWithContext)
         {
             Id = Guid.NewGuid();
             this.condition = condition;
@@ -25,7 +41,7 @@ namespace NServiceBus.AcceptanceTesting.Support
         {
             var c = (TContext)context;
 
-            if (!condition(c))
+            if (!await condition(c).ConfigureAwait(false))
             {
                 return false;
             }
@@ -42,7 +58,7 @@ namespace NServiceBus.AcceptanceTesting.Support
             return true;
         }
 
-        Predicate<TContext> condition;
+        Func<TContext, Task<bool>> condition;
         Func<IMessageSession, Task> messageAction;
         Func<IMessageSession, TContext, Task> messageAndContextAction;
     }
