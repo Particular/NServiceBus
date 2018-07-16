@@ -15,7 +15,7 @@
   <ItemGroup>
     <PackageReference Include="NUnit" Version="[3.10.1, 4.0.0)" />
     <PackageReference Include="Particular.Packaging" Version="0.1.0" PrivateAssets="All" />
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0-beta-62909-01" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0-beta-63102-01" PrivateAssets="All" />
   </ItemGroup>
 
   <PropertyGroup>
