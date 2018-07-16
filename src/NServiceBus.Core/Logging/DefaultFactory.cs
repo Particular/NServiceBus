@@ -14,7 +14,17 @@ namespace NServiceBus.Logging
         /// </summary>
         public DefaultFactory()
         {
-            directory = new Lazy<string>(Host.GetOutputDirectory);
+            directory = new Lazy<string>(() =>
+            {
+                try
+                {
+                    return Host.GetOutputDirectory();
+                }
+                catch (Exception e)
+                {
+                    throw new Exception("Unable to determine the logging output directory. Check the inner exception for further information, or configure a custom logging directory using 'LogManager.Use<DefaultFactory>().Directory()'.", e);
+                }
+            });
             level = new Lazy<LogLevel>(() => LogLevel.Info);
         }
 
