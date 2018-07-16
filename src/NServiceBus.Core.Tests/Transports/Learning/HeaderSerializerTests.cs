@@ -2,6 +2,7 @@
 {
     using System.Collections.Generic;
     using NUnit.Framework;
+    using Particular.Approvals;
 
     public class HeaderSerializerTests
     {
@@ -21,7 +22,7 @@
             };
             var serialized = HeaderSerializer.Serialize(input);
 
-            TestApprover.Verify(serialized);
+            Approver.Verify(serialized);
             var deserialize = HeaderSerializer.Deserialize(serialized);
             CollectionAssert.AreEquivalent(input, deserialize);
         }

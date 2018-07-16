@@ -11,6 +11,7 @@
     using Extensibility;
     using NServiceBus.Pipeline;
     using NUnit.Framework;
+    using Particular.Approvals;
     using Testing;
     using FakeBuilder = Testing.FakeBuilder;
 
@@ -37,7 +38,7 @@
 
             await pipeline.Invoke(context);
 
-            TestApprover.Verify(stringWriter.ToString());
+            Approver.Verify(stringWriter.ToString());
         }
 
         [Test]
@@ -71,7 +72,7 @@
 
             await pipeline.Invoke(context);
 
-            TestApprover.Verify(stringWriter.ToString());
+            Approver.Verify(stringWriter.ToString());
         }
 
         [Test]
@@ -92,7 +93,7 @@
             var expressions = new List<Expression>();
             behaviors.CreatePipelineExecutionExpression(expressions);
 
-            TestApprover.Verify(expressions.PrettyPrint());
+            Approver.Verify(expressions.PrettyPrint());
         }
 
         [Test]
