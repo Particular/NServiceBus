@@ -406,9 +406,9 @@ class InterfaceMessageHandler : IHandleMessages<IBaseEvent>
 
             public Assembly Assembly { get; }
 
-            public static string TestDirectory { get; } = AppDomainRunner.DataStore.Get<string>("TestDirectory");
+            public static string TestDirectory => AppDomainRunner.DataStore.Get<string>("TestDirectory");
 
-            public static string TestAssemblyDirectory { get; } = Path.Combine(TestDirectory, "assemblyscannerfiles");
+            public static string TestAssemblyDirectory => Path.Combine(TestDirectory, "assemblyscannerfiles");
 
             static void ThrowIfCompilationWasNotSuccessful(CompilerResults results)
             {
