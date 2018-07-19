@@ -82,6 +82,11 @@ namespace NServiceBus.AcceptanceTesting
 
         public IScenarioWithEndpointBehavior<TContext> Done(Func<TContext, bool> func)
         {
+            return Done(ctx => Task.FromResult(func(ctx)));
+        }
+        
+        public IScenarioWithEndpointBehavior<TContext> Done(Func<TContext, Task<bool>> func)
+        {
             done = c => func((TContext)c);
 
             return this;
@@ -148,6 +153,6 @@ namespace NServiceBus.AcceptanceTesting
 
         List<IComponentBehavior> behaviors = new List<IComponentBehavior>();
         Action<TContext> contextInitializer;
-        Func<ScenarioContext, bool> done = context => true;
+        Func<ScenarioContext, Task<bool>> done = context => TaskEx.TrueTask;
     }
 }
