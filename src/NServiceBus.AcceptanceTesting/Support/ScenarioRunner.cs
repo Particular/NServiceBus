@@ -12,7 +12,7 @@
     using NUnit.Framework;
 
     public class ScenarioRunner
-    {       
+    {
         public static async Task<RunSummary> Run(RunDescriptor runDescriptor, List<IComponentBehavior> behaviorDescriptors, Func<ScenarioContext, Task<bool>> done)
         {
             TestContext.WriteLine("current context: " + runDescriptor.ScenarioContext.GetType().FullName);
