@@ -1,7 +1,7 @@
 ﻿namespace NServiceBus.Core.Tests.API
 {
-    using System.Runtime.CompilerServices;
     using NUnit.Framework;
+    using Particular.Approvals;
     using PublicApiGenerator;
 
     [TestFixture]
@@ -9,21 +9,19 @@
     {
 #if NETFRAMEWORK
         [Test]
-        [MethodImpl(MethodImplOptions.NoInlining)]
-        public void ApproveNServiceBus__NET452()
+        public void ApproveNServiceBus()
         {
             var publicApi = ApiGenerator.GeneratePublicApi(typeof(Endpoint).Assembly, excludeAttributes: new[] { "Particular.Licensing.ReleaseDateAttribute" });
-            TestApprover.Verify(publicApi);
+            Approver.Verify(publicApi, scenario: "netframework");
         }
 #endif
 
 #if NETCOREAPP
         [Test]
-        [MethodImpl(MethodImplOptions.NoInlining)]
-        public void ApproveNServiceBus__NETSTANDARD2_0()
+        public void ApproveNServiceBus()
         {
             var publicApi = ApiGenerator.GeneratePublicApi(typeof(Endpoint).Assembly, excludeAttributes: new[] { "Particular.Licensing.ReleaseDateAttribute" });
-            TestApprover.Verify(publicApi);
+            Approver.Verify(publicApi, scenario: "netstandard");
         }
 #endif
     }
