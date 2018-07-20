@@ -33,7 +33,7 @@
 
         public EndpointBehaviorBuilder<TContext> When(Predicate<TContext> condition, Func<IMessageSession, Task> action)
         {
-            behavior.Whens.Add(new WhenDefinition<TContext>(condition, action));
+            behavior.Whens.Add(new WhenDefinition<TContext>(ctx => Task.FromResult(condition(ctx)), action));
 
             return this;
         }
@@ -47,7 +47,7 @@
         
         public EndpointBehaviorBuilder<TContext> When(Predicate<TContext> condition, Func<IMessageSession, TContext, Task> action)
         {
-            behavior.Whens.Add(new WhenDefinition<TContext>(condition, action));
+            behavior.Whens.Add(new WhenDefinition<TContext>(ctx => Task.FromResult(condition(ctx)), action));
 
             return this;
         }

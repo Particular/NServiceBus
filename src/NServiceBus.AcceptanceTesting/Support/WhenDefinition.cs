@@ -4,28 +4,12 @@ namespace NServiceBus.AcceptanceTesting.Support
     using System.Threading.Tasks;
 
     public class WhenDefinition<TContext> : IWhenDefinition where TContext : ScenarioContext
-    {
-        // remove in v8
-        public WhenDefinition(Predicate<TContext> condition, Func<IMessageSession, Task> action)
-        {
-            Id = Guid.NewGuid();
-            this.condition = ctx => Task.FromResult(condition(ctx));
-            messageAction = action;
-        }
-        
+    {     
         public WhenDefinition(Func<TContext, Task<bool>> condition, Func<IMessageSession, Task> action)
         {
             Id = Guid.NewGuid();
             this.condition = condition;
             messageAction = action;
-        }
-
-        // remove in v8
-        public WhenDefinition(Predicate<TContext> condition, Func<IMessageSession, TContext, Task> actionWithContext)
-        {
-            Id = Guid.NewGuid();
-            this.condition = ctx => Task.FromResult(condition(ctx));
-            messageAndContextAction = actionWithContext;
         }
         
         public WhenDefinition(Func<TContext, Task<bool>> condition, Func<IMessageSession, TContext, Task> actionWithContext)
