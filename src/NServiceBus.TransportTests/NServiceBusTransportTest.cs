@@ -97,11 +97,6 @@
             IgnoreUnsupportedDeliveryConstraints();
 
             ReceiveInfrastructure = TransportInfrastructure.ConfigureReceiveInfrastructure();
-            SendInfrastructure = TransportInfrastructure.ConfigureSendInfrastructure();
-
-            lazyDispatcher = new Lazy<IDispatchMessages>(() => SendInfrastructure.DispatcherFactory());
-
-            MessagePump = ReceiveInfrastructure.MessagePumpFactory();
 
             var queueCreator = ReceiveInfrastructure.QueueCreatorFactory();
             var userName = GetUserName();
@@ -109,7 +104,10 @@
 
             await TransportInfrastructure.Start();
 
-            var pushSettings = new PushSettings(InputQueueName, ErrorQueueName, configuration.PurgeInputQueueOnStartup, transactionMode);
+            SendInfrastructure = TransportInfrastructure.ConfigureSendInfrastructure();
+            lazyDispatcher = new Lazy<IDispatchMessages>(() => SendInfrastructure.DispatcherFactory());
+
+            MessagePump = ReceiveInfrastructure.MessagePumpFactory();
             await MessagePump.Init(
                 context =>
                 {
@@ -130,7 +128,7 @@
                     return Task.FromResult(ErrorHandleResult.Handled);
                 },
                 new FakeCriticalError(onCriticalError),
-                pushSettings);
+                new PushSettings(InputQueueName, ErrorQueueName, configuration.PurgeInputQueueOnStartup, transactionMode));
 
             MessagePump.Start(configuration.PushRuntimeSettings);
         }
