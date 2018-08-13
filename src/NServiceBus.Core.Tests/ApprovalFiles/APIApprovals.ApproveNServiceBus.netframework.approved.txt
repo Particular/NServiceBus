@@ -2404,8 +2404,10 @@ namespace NServiceBus.Settings
         public bool HasSetting<T>() { }
         public void Set(string key, object value) { }
         public void Set<T>(object value) { }
+        public void Set<T>(T value) { }
         public void Set<T>(System.Action value) { }
         public void SetDefault<T>(object value) { }
+        public void SetDefault<T>(T value) { }
         public void SetDefault<T>(System.Action value) { }
         public void SetDefault(string key, object value) { }
         public bool TryGet<T>(out T val) { }
