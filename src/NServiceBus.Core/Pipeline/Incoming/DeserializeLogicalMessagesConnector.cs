@@ -36,7 +36,8 @@ namespace NServiceBus
 
         static bool IsControlMessage(IncomingMessage incomingMessage)
         {
-            return incomingMessage.Headers.ContainsKey(Headers.ControlMessageHeader) && incomingMessage.Headers[Headers.ControlMessageHeader] == bool.TrueString;
+            incomingMessage.Headers.TryGetValue(Headers.ControlMessageHeader, out var value);
+            return string.Equals(value, bool.TrueString, StringComparison.OrdinalIgnoreCase);
         }
 
         LogicalMessage[] ExtractWithExceptionHandling(IncomingMessage message)
