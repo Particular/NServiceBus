@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.AcceptanceTests.Routing.MessageDrivenSubscriptions
 {
+    using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Threading.Tasks;
     using AcceptanceTesting;
@@ -31,7 +32,7 @@
 
         class Context : ScenarioContext
         {
-            public List<string> PublisherReceivedSubscription { get; } = new List<string>();
+            public ConcurrentBag<string> PublisherReceivedSubscription { get; } = new ConcurrentBag<string>();
         }
 
         class ScaledOutPublisher : EndpointConfigurationBuilder
