@@ -38,7 +38,7 @@ namespace NServiceBus
 
         static void ConfigureTransport(EndpointConfiguration endpointConfiguration, TransportDefinition transportDefinition)
         {
-            endpointConfiguration.Settings.Set<TransportDefinition>(transportDefinition);
+            endpointConfiguration.Settings.Set(transportDefinition);
         }
     }
 }

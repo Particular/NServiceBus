@@ -23,7 +23,7 @@
                 storagePath = Path.Combine(solutionRoot, ".learningtransport");
             }
 
-            settings.SetDefault<MessageProcessingOptimizationExtensions.ConcurrencyLimit>(new MessageProcessingOptimizationExtensions.ConcurrencyLimit
+            settings.SetDefault(new MessageProcessingOptimizationExtensions.ConcurrencyLimit
             {
                 MaxValue = 1
             });

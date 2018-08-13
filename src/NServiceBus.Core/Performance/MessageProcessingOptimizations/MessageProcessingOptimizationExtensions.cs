@@ -15,7 +15,7 @@ namespace NServiceBus
             Guard.AgainstNull(nameof(config), config);
             Guard.AgainstNegativeAndZero(nameof(maxConcurrency), maxConcurrency);
 
-            config.Settings.Set<ConcurrencyLimit>(new ConcurrencyLimit
+            config.Settings.Set(new ConcurrencyLimit
             {
                 MaxValue = maxConcurrency
             });

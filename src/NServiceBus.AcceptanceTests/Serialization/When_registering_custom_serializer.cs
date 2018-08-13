@@ -43,7 +43,7 @@
                 EndpointSetup<DefaultServer>(c =>
                 {
                     c.UseSerialization<MySuperSerializer>();
-                    c.GetSettings().Set<Context>(context);
+                    c.GetSettings().Set(context);
                 });
             }
 

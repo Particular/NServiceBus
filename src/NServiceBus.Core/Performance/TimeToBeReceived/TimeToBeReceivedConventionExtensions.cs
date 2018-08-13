@@ -15,7 +15,7 @@
             Guard.AgainstNull(nameof(builder), builder);
             Guard.AgainstNull(nameof(retrieveTimeToBeReceived), retrieveTimeToBeReceived);
 
-            builder.Settings.Set<UserDefinedTimeToBeReceivedConvention>(new UserDefinedTimeToBeReceivedConvention(retrieveTimeToBeReceived));
+            builder.Settings.Set(new UserDefinedTimeToBeReceivedConvention(retrieveTimeToBeReceived));
 
             return builder;
         }

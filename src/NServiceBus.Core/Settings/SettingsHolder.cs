@@ -178,7 +178,7 @@ namespace NServiceBus.Settings
             if (!TryGet(out T value))
             {
                 value = new T();
-                Set<T>(value);
+                Set(value);
             }
             return value;
         }

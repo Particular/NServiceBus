@@ -12,7 +12,7 @@
             EnableByDefault();
             Defaults(settings =>
             {
-                settings.Set<AuditConfigReader.Result>(AuditConfigReader.GetConfiguredAuditQueue(settings));
+                settings.Set(AuditConfigReader.GetConfiguredAuditQueue(settings));
             });
             Prerequisite(config => config.Settings.GetOrDefault<AuditConfigReader.Result>() != null, "No configured audit queue was found");
         }

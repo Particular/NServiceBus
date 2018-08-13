@@ -22,7 +22,7 @@ namespace NServiceBus
             {
                 headers = new CurrentStaticHeaders();
 
-                config.Settings.Set<CurrentStaticHeaders>(headers);
+                config.Settings.Set(headers);
             }
 
 

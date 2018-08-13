@@ -116,7 +116,7 @@ namespace NServiceBus
             var transportDefinition = settings.Get<TransportDefinition>();
             var connectionString = settings.Get<TransportConnectionString>().GetConnectionStringOrRaiseError(transportDefinition);
             var transportInfrastructure = transportDefinition.Initialize(settings, connectionString);
-            settings.Set<TransportInfrastructure>(transportInfrastructure);
+            settings.Set(transportInfrastructure);
 
             var transportType = transportDefinition.GetType();
 
@@ -139,7 +139,7 @@ namespace NServiceBus
             }
 
             //note: remove once settings.LogicalAddress() , .LocalAddress() and .InstanceSpecificQueue() has been obsoleted
-            settings.Set<ReceiveConfiguration>(receiveConfiguration);
+            settings.Set(receiveConfiguration);
 
             return receiveConfiguration;
         }
