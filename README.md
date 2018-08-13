@@ -30,3 +30,9 @@ SimpleJson sources are compiled into the NServiceBus distribution as allowed und
 net-object-deep-copy is licensed under the MIT license as described [here](https://github.com/Burtsev-Alexey/net-object-deep-copy/blob/master/README).
 
 net-object-deep-copy sources are compiled into the NServiceBus distribution as allowed under the license terms found [here](https://github.com/Burtsev-Alexey/net-object-deep-copy/blob/master/README).
+
+### [FastExpressionCompiler](https://github.com/dadhi/FastExpressionCompiler)
+
+FastExpressionCompiler is licensed under the MIT license as described [here](https://github.com/dadhi/FastExpressionCompiler/blob/master/LICENSE).
+
+FastExpressionCompiler sources are compiled into the NServiceBus distribution as allowed under the license terms found [here](https://github.com/dadhi/FastExpressionCompiler/blob/master/LICENSE).
