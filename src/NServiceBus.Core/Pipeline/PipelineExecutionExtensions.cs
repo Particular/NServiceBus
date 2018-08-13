@@ -6,6 +6,7 @@
     using System.Linq.Expressions;
     using System.Reflection;
     using System.Threading.Tasks;
+    using FastExpressionCompiler;
     using Pipeline;
 
     static class PipelineExecutionExtensions
@@ -48,7 +49,7 @@
                 var genericArguments = behaviorInterfaceType.GetGenericArguments();
                 var inContextType = genericArguments[0];
 
-                var inContextParameter = Expression.Parameter(inContextType, $"context{i}");
+                var inContextParameter = ExpressionInfo.Parameter(inContextType, $"context{i}");
 
                 if (i == behaviorCount)
                 {
@@ -74,10 +75,10 @@
         /// </code>>
         static Delegate CreateBehaviorCallDelegate(IBehavior currentBehavior, MethodInfo methodInfo, ParameterExpression outerContextParam, Delegate previous, List<Expression> expressions = null)
         {
-            Expression body = Expression.Call(Expression.Constant(currentBehavior), methodInfo, outerContextParam, Expression.Constant(previous));
-            var lambdaExpression = Expression.Lambda(body, outerContextParam);
-            expressions?.Add(lambdaExpression);
-            return lambdaExpression.Compile();
+            var body = ExpressionInfo.Call(ExpressionInfo.Constant(currentBehavior), methodInfo, outerContextParam, ExpressionInfo.Constant(previous));
+            var lambdaExpression = ExpressionInfo.Lambda(body, outerContextParam);
+            expressions?.Add(lambdaExpression.ToExpression());
+            return lambdaExpression.CompileFast();
         }
 
         /// <code>
@@ -85,8 +86,8 @@
         /// </code>>
         static Delegate CreateDoneDelegate(Type inContextType, int i)
         {
-            var innerContextParam = Expression.Parameter(inContextType, $"context{i + 1}");
-            return Expression.Lambda(typeof(Func<,>).MakeGenericType(inContextType, typeof(Task)), Expression.Constant(TaskEx.CompletedTask), innerContextParam).Compile();
+            var innerContextParam = ExpressionInfo.Parameter(inContextType, $"context{i + 1}");
+            return ExpressionInfo.Lambda(ExpressionInfo.Constant(TaskEx.CompletedTask), innerContextParam).CompileFast();
         }
     }
 }
