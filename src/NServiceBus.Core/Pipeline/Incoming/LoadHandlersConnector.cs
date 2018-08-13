@@ -1,8 +1,12 @@
 ﻿namespace NServiceBus
 {
     using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
     using System.Threading.Tasks;
     using Extensibility;
+    using Logging;
     using Outbox;
     using Persistence;
     using Pipeline;
@@ -32,6 +36,11 @@
                     throw new InvalidOperationException(error);
                 }
 
+                if (isDebugIsEnabled)
+                {
+                    LogHandlersInvocation(context, handlersToInvoke);
+                }
+
                 foreach (var messageHandler in handlersToInvoke)
                 {
                     messageHandler.Instance = context.Builder.Build(messageHandler.HandlerType);
@@ -57,8 +66,29 @@
                    ?? await synchronizedStorage.OpenSession(contextBag).ConfigureAwait(false);
         }
 
+        static void LogHandlersInvocation(IIncomingLogicalMessageContext context, List<MessageHandler> handlersToInvoke)
+        {
+            var builder = new StringBuilder();
+            builder.AppendLine($"Processing message type: {context.Message.MessageType}");
+            builder.AppendLine($"Headers: {string.Join(", ", context.Headers.Select(h => $"{h.Key}:{h.Value}").ToArray())}");
+            builder.AppendLine($"Message: {context.Message.Instance}");
+            builder.Append("Handlers to invoke: ");
+
+            foreach (var messageHandler in handlersToInvoke)
+            {
+                builder.Append($"{messageHandler.HandlerType.FullName} => ");
+            }
+
+            builder.Length -= 4;
+
+            logger.Debug(builder.ToString());
+        }
+
+
         readonly ISynchronizedStorageAdapter adapter;
         readonly ISynchronizedStorage synchronizedStorage;
         readonly MessageHandlerRegistry messageHandlerRegistry;
+        static readonly ILog logger = LogManager.GetLogger<RepeatedFailuresOverTimeCircuitBreaker>();
+        static readonly bool isDebugIsEnabled = logger.IsDebugEnabled;
     }
 }
