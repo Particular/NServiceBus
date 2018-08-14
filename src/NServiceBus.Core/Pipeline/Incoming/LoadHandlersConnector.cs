@@ -84,11 +84,10 @@
             logger.Debug(builder.ToString());
         }
 
-
         readonly ISynchronizedStorageAdapter adapter;
         readonly ISynchronizedStorage synchronizedStorage;
         readonly MessageHandlerRegistry messageHandlerRegistry;
-        static readonly ILog logger = LogManager.GetLogger<RepeatedFailuresOverTimeCircuitBreaker>();
+        static readonly ILog logger = LogManager.GetLogger<LoadHandlersConnector>();
         static readonly bool isDebugIsEnabled = logger.IsDebugEnabled;
     }
 }
