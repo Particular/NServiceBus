@@ -1067,7 +1067,10 @@ namespace SimpleJson
                 if (stringKey != null)
                     SerializeString(stringKey, builder);
                 else
-                    SerializeString(key.ToString(), builder);
+                {
+                    jsonSerializerStrategy.TrySerializeNonPrimitiveObject(key, out var serializedKey);
+                    SerializeString((serializedKey as string) ?? key.ToString(), builder);
+                }
                 builder.Append(":");
                 if (!SerializeValue(jsonSerializerStrategy, value, builder))
                     return false;
