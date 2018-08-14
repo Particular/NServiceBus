@@ -12,7 +12,7 @@
             var settingsHolder = new SettingsHolder();
             var configuredAddress = "myAuditQueue";
 
-            settingsHolder.Set<AuditConfigReader.Result>(new AuditConfigReader.Result
+            settingsHolder.Set(new AuditConfigReader.Result
             {
                 Address = configuredAddress
             });
@@ -27,7 +27,7 @@
             var settingsHolder = new SettingsHolder();
             var configuredExpiration = TimeSpan.FromSeconds(10);
 
-            settingsHolder.Set<AuditConfigReader.Result>(new AuditConfigReader.Result
+            settingsHolder.Set(new AuditConfigReader.Result
             {
                 TimeToBeReceived = configuredExpiration
             });

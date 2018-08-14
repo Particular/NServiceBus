@@ -27,7 +27,7 @@
                 }
             });
 
-            Defaults(s => s.Set<SagaMetadataCollection>(new SagaMetadataCollection()));
+            Defaults(s => s.Set(new SagaMetadataCollection()));
 
             Prerequisite(config => config.Settings.GetAvailableTypes().Any(IsSagaType), "No sagas were found in the scanned types");
         }

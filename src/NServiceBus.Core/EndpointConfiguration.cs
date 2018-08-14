@@ -29,23 +29,23 @@ namespace NServiceBus
         {
             ValidateEndpointName(endpointName);
 
-            Settings.Set<StartupDiagnosticEntries>(new StartupDiagnosticEntries());
+            Settings.Set(new StartupDiagnosticEntries());
 
             Settings.Set("NServiceBus.Routing.EndpointName", endpointName);
 
             pipelineCollection = new PipelineConfiguration();
-            Settings.Set<PipelineConfiguration>(pipelineCollection);
+            Settings.Set(pipelineCollection);
             Pipeline = new PipelineSettings(pipelineCollection.Modifications, Settings);
 
-            Settings.Set<QueueBindings>(new QueueBindings());
+            Settings.Set(new QueueBindings());
 
             Settings.SetDefault("Endpoint.SendOnly", false);
             Settings.SetDefault("Transactions.IsolationLevel", IsolationLevel.ReadCommitted);
             Settings.SetDefault("Transactions.DefaultTimeout", TransactionManager.DefaultTimeout);
 
             Notifications = new Notifications();
-            Settings.Set<Notifications>(Notifications);
-            Settings.Set<NotificationSubscriptions>(new NotificationSubscriptions());
+            Settings.Set(Notifications);
+            Settings.Set(new NotificationSubscriptions());
 
             conventionsBuilder = new ConventionsBuilder(Settings);
         }
@@ -146,7 +146,7 @@ namespace NServiceBus
             ActivateAndInvoke<INeedInitialization>(scannedTypes, t => t.Customize(this));
 
             var conventions = conventionsBuilder.Conventions;
-            Settings.SetDefault<Conventions>(conventions);
+            Settings.SetDefault(conventions);
 
             ConfigureMessageTypes(conventions);
 
@@ -183,7 +183,7 @@ namespace NServiceBus
 
             messageMetadataRegistry.RegisterMessageTypesFoundIn(Settings.GetAvailableTypes());
 
-            Settings.Set<MessageMetadataRegistry>(messageMetadataRegistry);
+            Settings.Set(messageMetadataRegistry);
 
             var foundMessages = messageMetadataRegistry.GetAllMessages().ToList();
 

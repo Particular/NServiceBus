@@ -131,7 +131,7 @@ namespace NServiceBus.AcceptanceTests.Serialization
         {
             var settings = extensions.GetSettings();
             settings.Set("MyCustomSerializer.Settings", valueFromSettings);
-            settings.Set<When_registering_deserializers_with_settings.Context>(context);
+            settings.Set(context);
             return extensions;
         }
     }

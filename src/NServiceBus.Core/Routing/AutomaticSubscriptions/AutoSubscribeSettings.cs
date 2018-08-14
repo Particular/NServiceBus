@@ -45,7 +45,7 @@ namespace NServiceBus.AutomaticSubscriptions.Config
             if (!config.Settings.TryGet(out AutoSubscribe.SubscribeSettings settings))
             {
                 settings = new AutoSubscribe.SubscribeSettings();
-                config.Settings.Set<AutoSubscribe.SubscribeSettings>(settings);
+                config.Settings.Set(settings);
             }
             return settings;
         }
