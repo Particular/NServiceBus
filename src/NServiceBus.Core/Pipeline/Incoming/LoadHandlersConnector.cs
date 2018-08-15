@@ -70,8 +70,7 @@
         {
             var builder = new StringBuilder();
             builder.AppendLine($"Processing message type: {context.Message.MessageType}");
-            builder.AppendLine($"Headers: {string.Join(", ", context.Headers.Select(h => $"{h.Key}:{h.Value}").ToArray())}");
-            builder.AppendLine($"Message: {context.Message.Instance}");
+            builder.AppendLine($"Headers: {Environment.NewLine}{string.Join(", ", context.Headers.Select(h => $"{h.Key}:{h.Value}").ToArray())}");
             builder.Append("Handlers to invoke: ");
 
             foreach (var messageHandler in handlersToInvoke)
