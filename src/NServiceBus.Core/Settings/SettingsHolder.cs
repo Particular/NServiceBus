@@ -201,6 +201,10 @@ namespace NServiceBus.Settings
         /// </summary>
         /// <typeparam name="T">The type to use as a key for storing the setting.</typeparam>
         /// <param name="value">The setting value.</param>
+        [ObsoleteEx(
+            ReplacementTypeOrMember = "Set<T>(T value)",
+            TreatAsErrorFromVersion = "8.0",
+            RemoveInVersion = "9.0")]
         public void Set<T>(object value)
         {
             Set(typeof(T).FullName, value);
@@ -231,6 +235,11 @@ namespace NServiceBus.Settings
         /// </summary>
         /// <typeparam name="T">The type to use as a key for storing the setting.</typeparam>
         /// <param name="value">The setting value.</param>
+        [ObsoleteEx(
+            ReplacementTypeOrMember = "SetDefault<T>(T value)",
+            TreatAsErrorFromVersion = "8.0",
+            RemoveInVersion = "9.0")]
+
         public void SetDefault<T>(object value)
         {
             SetDefault(typeof(T).FullName, value);

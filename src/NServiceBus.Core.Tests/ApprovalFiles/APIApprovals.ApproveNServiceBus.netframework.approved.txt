@@ -2403,9 +2403,13 @@ namespace NServiceBus.Settings
         public bool HasSetting(string key) { }
         public bool HasSetting<T>() { }
         public void Set(string key, object value) { }
+        [System.ObsoleteAttribute("Use `Set<T>(T value)` instead. Will be treated as an error from version 8.0.0. Wi" +
+            "ll be removed in version 9.0.0.", false)]
         public void Set<T>(object value) { }
         public void Set<T>(T value) { }
         public void Set<T>(System.Action value) { }
+        [System.ObsoleteAttribute("Use `SetDefault<T>(T value)` instead. Will be treated as an error from version 8." +
+            "0.0. Will be removed in version 9.0.0.", false)]
         public void SetDefault<T>(object value) { }
         public void SetDefault<T>(T value) { }
         public void SetDefault<T>(System.Action value) { }
