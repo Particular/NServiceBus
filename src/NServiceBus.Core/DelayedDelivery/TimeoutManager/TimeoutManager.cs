@@ -106,6 +106,7 @@
 
         static bool IsMigrationModeEnabled(ReadOnlySettings settings)
         {
+            // this key can be set by transports once they provide native support for delayed messages.
             return settings.TryGet("NServiceBus.TimeoutManager.EnableMigrationMode", out bool enabled) && enabled;
         }
 
