@@ -77,7 +77,7 @@
             ErrorQueueName = $"{InputQueueName}.error";
 
             transportSettings.Set("NServiceBus.Routing.EndpointName", InputQueueName);
-            transportSettings.Set<StartupDiagnosticEntries>(new StartupDiagnosticEntries());
+            transportSettings.Set(new StartupDiagnosticEntries());
 
             var queueBindings = new QueueBindings();
             queueBindings.BindReceiving(InputQueueName);
