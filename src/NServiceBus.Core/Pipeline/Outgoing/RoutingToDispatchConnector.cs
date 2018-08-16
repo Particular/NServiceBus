@@ -44,6 +44,7 @@
         static void LogOutgoingOperations(TransportOperation[] operations)
         {
             var sb = new StringBuilder();
+
             foreach (var operation in operations)
             {
                 if (operation.AddressTag is UnicastAddressTag unicastAddressTag)
@@ -52,6 +53,7 @@
                 }
 
                 sb.AppendLine("Message headers:");
+
                 foreach (var kvp in operation.Message.Headers)
                 {
                     sb.Append($"{kvp.Key}:{kvp.Value}, ");
@@ -60,6 +62,7 @@
                 sb.Length -= 2;
                 sb.AppendLine();
             }
+
             log.Debug(sb.ToString());
         }
 

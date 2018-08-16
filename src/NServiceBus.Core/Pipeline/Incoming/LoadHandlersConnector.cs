@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
     using System.Text;
     using System.Threading.Tasks;
     using Extensibility;
@@ -71,6 +70,7 @@
             var builder = new StringBuilder();
             builder.AppendLine($"Processing message type: {context.Message.MessageType}");
             builder.AppendLine("Message headers: ");
+
             foreach (var kvp in context.Headers)
             {
                 builder.Append($"{kvp.Key}:{kvp.Value}, ");
@@ -94,6 +94,7 @@
         readonly ISynchronizedStorageAdapter adapter;
         readonly ISynchronizedStorage synchronizedStorage;
         readonly MessageHandlerRegistry messageHandlerRegistry;
+
         static readonly ILog logger = LogManager.GetLogger<LoadHandlersConnector>();
         static readonly bool isDebugIsEnabled = logger.IsDebugEnabled;
     }
