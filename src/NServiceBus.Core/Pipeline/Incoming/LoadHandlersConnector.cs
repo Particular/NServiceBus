@@ -73,20 +73,15 @@
 
             foreach (var kvp in context.Headers)
             {
-                builder.Append($"{kvp.Key}:{kvp.Value}, ");
+                builder.AppendLine($"{kvp.Key} : {kvp.Value}");
             }
 
-            builder.Length -= 2;
-
-            builder.AppendLine();
-            builder.Append("Handlers to invoke: ");
+            builder.AppendLine("Handlers to invoke: ");
 
             foreach (var messageHandler in handlersToInvoke)
             {
-                builder.Append($"{messageHandler.HandlerType.FullName} => ");
+                builder.AppendLine(messageHandler.HandlerType.FullName);
             }
-
-            builder.Length -= 4;
 
             logger.Debug(builder.ToString());
         }

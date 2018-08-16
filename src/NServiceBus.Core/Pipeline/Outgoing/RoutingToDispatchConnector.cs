@@ -55,10 +55,8 @@
 
                 foreach (var kvp in operation.Message.Headers)
                 {
-                    sb.Append($"{kvp.Key}:{kvp.Value}, ");
+                    sb.AppendLine($"{kvp.Key} : {kvp.Value}");
                 }
-
-                sb.Length -= 2;
             }
 
             log.Debug(sb.ToString());
