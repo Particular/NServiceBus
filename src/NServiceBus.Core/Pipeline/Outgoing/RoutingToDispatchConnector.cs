@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus
 {
     using System;
-    using System.Linq;
     using System.Text;
     using System.Threading.Tasks;
     using DeliveryConstraints;
@@ -60,7 +59,6 @@
                 }
 
                 sb.Length -= 2;
-                sb.AppendLine();
             }
 
             log.Debug(sb.ToString());
