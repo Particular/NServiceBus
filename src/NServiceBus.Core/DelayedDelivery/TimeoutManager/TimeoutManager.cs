@@ -19,7 +19,7 @@
 
             Prerequisite(context => !context.Settings.GetOrDefault<bool>("Endpoint.SendOnly"), "Send only endpoints can't use the timeoutmanager since it requires receive capabilities");
             Prerequisite(context => !HasAlternateTimeoutManagerBeenConfigured(context.Settings), "A user configured timeoutmanager address has been found and this endpoint will send timeouts to that endpoint");
-            Prerequisite(c => !c.Settings.DoesTransportSupportConstraint<DelayedDeliveryConstraint>(), "The selected transport supports delayed delivery natively");
+            Prerequisite(c => !c.Settings.DoesTransportSupportConstraint<DelayedDeliveryConstraint>() || IsMigrationModeEnabled(c.Settings), "The selected transport supports delayed delivery natively");
         }
 
         /// <summary>
@@ -102,6 +102,12 @@
         static bool HasAlternateTimeoutManagerBeenConfigured(ReadOnlySettings settings)
         {
             return settings.Get<TimeoutManagerAddressConfiguration>().TransportAddress != null;
+        }
+
+        static bool IsMigrationModeEnabled(ReadOnlySettings settings)
+        {
+            // this key can be set by transports once they provide native support for delayed messages.
+            return settings.TryGet("NServiceBus.TimeoutManager.EnableMigrationMode", out bool enabled) && enabled;
         }
 
         static RecoverabilityAction RecoverabilityPolicy(RecoverabilityConfig config, ErrorContext errorContext)
