@@ -70,7 +70,15 @@
         {
             var builder = new StringBuilder();
             builder.AppendLine($"Processing message type: {context.Message.MessageType}");
-            builder.AppendLine($"Headers: {Environment.NewLine}{string.Join(", ", context.Headers.Select(h => $"{h.Key}:{h.Value}").ToArray())}");
+            builder.AppendLine("Message headers: ");
+            foreach (var kvp in context.Headers)
+            {
+                builder.Append($"{kvp.Key}:{kvp.Value}, ");
+            }
+
+            builder.Length -= 2;
+
+            builder.AppendLine();
             builder.Append("Handlers to invoke: ");
 
             foreach (var messageHandler in handlersToInvoke)

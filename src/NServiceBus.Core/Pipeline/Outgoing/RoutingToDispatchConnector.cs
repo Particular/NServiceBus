@@ -51,7 +51,14 @@
                     sb.AppendLine($"Destination: {unicastAddressTag.Destination}");
                 }
 
-                sb.AppendLine($"Message headers:{Environment.NewLine}{string.Join(", ", operation.Message.Headers.Select(h => $"{h.Key}:{h.Value}").ToArray())}");
+                sb.AppendLine("Message headers:");
+                foreach (var kvp in operation.Message.Headers)
+                {
+                    sb.Append($"{kvp.Key}:{kvp.Value}, ");
+                }
+
+                sb.Length -= 2;
+                sb.AppendLine();
             }
             log.Debug(sb.ToString());
         }
