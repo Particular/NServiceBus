@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Features
 {
+    using Logging;
     using Transport;
 
     /// <summary>
@@ -35,6 +36,10 @@
                 AuditQueue = auditConfig.Address,
                 AuditTTBR = auditConfig.TimeToBeReceived?.ToString("g") ?? "-"
             });
+
+            logger.InfoFormat($"Auditing processed messages to '{auditConfig.Address}'");
         }
+
+        static readonly ILog logger = LogManager.GetLogger<Audit>();
     }
 }
