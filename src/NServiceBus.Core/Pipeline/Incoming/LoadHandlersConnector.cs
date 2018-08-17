@@ -69,14 +69,14 @@
         {
             var builder = new StringBuilder();
             builder.AppendLine($"Processing message type: {context.Message.MessageType}");
-            builder.AppendLine("Message headers: ");
+            builder.AppendLine("Message headers:");
 
             foreach (var kvp in context.Headers)
             {
                 builder.AppendLine($"{kvp.Key} : {kvp.Value}");
             }
 
-            builder.AppendLine("Handlers to invoke: ");
+            builder.AppendLine("Handlers to invoke:");
 
             foreach (var messageHandler in handlersToInvoke)
             {
