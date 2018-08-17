@@ -24,7 +24,7 @@
     <PackageReference Include="LightInject.Source" Version="5.0.3" PrivateAssets="All" />
     <PackageReference Include="SimpleJson" Version="0.38.0" PrivateAssets="All" />
     <PackageReference Include="Obsolete.Fody" Version="4.4.1" PrivateAssets="All" />
-    <PackageReference Include="Particular.CodeRules" Version="0.2.0" PrivateAssets="All" />
+    <PackageReference Include="Particular.CodeRules" Version="0.2.1" PrivateAssets="All" />
     <PackageReference Include="Particular.Licensing.Sources" Version="2.0.1" PrivateAssets="All" />
     <PackageReference Include="Particular.Packaging" Version="0.2.0" PrivateAssets="All" />
   </ItemGroup>
