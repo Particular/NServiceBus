@@ -634,6 +634,8 @@ namespace NServiceBus
         public static NServiceBus.LogicalAddress CreateRemoteAddress(NServiceBus.Routing.EndpointInstance endpointInstance) { }
         public override bool Equals(object obj) { }
         public override int GetHashCode() { }
+        public static bool ==(NServiceBus.LogicalAddress left, NServiceBus.LogicalAddress right) { }
+        public static bool !=(NServiceBus.LogicalAddress left, NServiceBus.LogicalAddress right) { }
         public override string ToString() { }
     }
     public class static MessageCausationConfigurationExtensions
@@ -2157,6 +2159,8 @@ namespace NServiceBus.Routing
         public System.Collections.Generic.IReadOnlyDictionary<string, string> Properties { get; }
         public override bool Equals(object obj) { }
         public override int GetHashCode() { }
+        public static bool ==(NServiceBus.Routing.EndpointInstance left, NServiceBus.Routing.EndpointInstance right) { }
+        public static bool !=(NServiceBus.Routing.EndpointInstance left, NServiceBus.Routing.EndpointInstance right) { }
         public NServiceBus.Routing.EndpointInstance SetProperty(string key, string value) { }
         public override string ToString() { }
     }
@@ -2750,6 +2754,8 @@ namespace NServiceBus.Unicast.Subscriptions
         public bool Equals(NServiceBus.Unicast.Subscriptions.MessageType other) { }
         public override bool Equals(object obj) { }
         public override int GetHashCode() { }
+        public static bool ==(NServiceBus.Unicast.Subscriptions.MessageType left, NServiceBus.Unicast.Subscriptions.MessageType right) { }
+        public static bool !=(NServiceBus.Unicast.Subscriptions.MessageType left, NServiceBus.Unicast.Subscriptions.MessageType right) { }
         public override string ToString() { }
     }
 }
