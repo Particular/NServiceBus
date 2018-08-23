@@ -1,12 +1,12 @@
 ﻿namespace NServiceBus.Features
 {
+    using Logging;
     using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
-    using Logging;
-    using Transport;
     using Unicast;
+    using Unicast.Queuing;
 
     /// <summary>
     /// Used to configure auto subscriptions.
@@ -32,16 +32,12 @@
             }
 
             var conventions = context.Settings.Get<Conventions>();
-            var transportInfrastructure = context.Settings.Get<TransportInfrastructure>();
-            var requireExplicitRouting = transportInfrastructure.OutboundRoutingPolicy.Publishes == OutboundRoutingType.Unicast;
-            var publishers = context.Routing.Publishers;
 
             context.RegisterStartupTask(b =>
             {
                 var handlerRegistry = b.Build<MessageHandlerRegistry>();
                 var messageTypesHandled = GetMessageTypesHandledByThisEndpoint(handlerRegistry, conventions, settings);
-                var typesToSubscribe = messageTypesHandled.Where(eventType => !requireExplicitRouting || publishers.GetPublisherFor(eventType).Any()).ToList();
-                return new ApplySubscriptions(typesToSubscribe);
+                return new ApplySubscriptions(messageTypesHandled, settings.ExcludedTypes);
             });
         }
 
@@ -59,9 +55,10 @@
 
         class ApplySubscriptions : FeatureStartupTask
         {
-            public ApplySubscriptions(List<Type> messagesHandledByThisEndpoint)
+            public ApplySubscriptions(List<Type> messagesHandledByThisEndpoint, HashSet<Type> excludedTypes)
             {
                 this.messagesHandledByThisEndpoint = messagesHandledByThisEndpoint;
+                this.excludedTypes = excludedTypes;
             }
 
             protected override Task OnStart(IMessageSession session)
@@ -69,7 +66,10 @@
                 var tasks = new Task[messagesHandledByThisEndpoint.Count];
                 for (var i = 0; i < messagesHandledByThisEndpoint.Count; i++)
                 {
-                    tasks[i] = SubscribeToEvent(session, messagesHandledByThisEndpoint[i]);
+                    var eventType = messagesHandledByThisEndpoint[i];
+                    tasks[i] = excludedTypes.Contains(eventType)
+                        ? TaskEx.CompletedTask
+                        : SubscribeToEvent(session, eventType);
                 }
                 return Task.WhenAll(tasks);
             }
@@ -81,12 +81,21 @@
 
             static async Task SubscribeToEvent(IMessageSession session, Type eventType)
             {
-                await session.Subscribe(eventType).ConfigureAwait(false);
-                Logger.DebugFormat("Auto subscribed to event {0}", eventType);
+                try
+                {
+                    await session.Subscribe(eventType).ConfigureAwait(false);
+                    Logger.DebugFormat("Auto subscribed to event {0}", eventType);
+                }
+                catch (Exception e) when (!(e is QueueNotFoundException))
+                {
+                    Logger.Error($"AutoSubscribe was unable to subscribe to event '{eventType.FullName}': {e.Message}");
+                    // swallow exception
+                }
             }
 
             List<Type> messagesHandledByThisEndpoint;
-            static ILog Logger = LogManager.GetLogger<ApplySubscriptions>();
+            HashSet<Type> excludedTypes;
+            static ILog Logger = LogManager.GetLogger<AutoSubscribe>();
         }
 
         internal class SubscribeSettings
@@ -97,6 +106,7 @@
             }
 
             public bool AutoSubscribeSagas { get; set; }
+            public HashSet<Type> ExcludedTypes { get; set; } = new HashSet<Type>();
         }
     }
 }

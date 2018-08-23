@@ -1,12 +1,12 @@
 ﻿namespace NServiceBus
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Threading.Tasks;
     using Extensibility;
     using Logging;
     using Pipeline;
     using Routing;
+    using System;
+    using System.Collections.Generic;
+    using System.Threading.Tasks;
     using Transport;
     using Unicast.Queuing;
     using Unicast.Transport;
@@ -28,7 +28,7 @@
             var publisherAddresses = subscriptionRouter.GetAddressesForEventType(eventType);
             if (publisherAddresses.Count == 0)
             {
-                throw new Exception($"No publisher address could be found for message type {eventType}. Ensure the configured publisher endpoint has at least one known instance.");
+                throw new Exception($"No publisher address could be found for message type '{eventType}'. Ensure that a publisher has been configured for the event type and that the configured publisher endpoint has at least one known instance.");
             }
 
             var subscribeTasks = new List<Task>(publisherAddresses.Count);
