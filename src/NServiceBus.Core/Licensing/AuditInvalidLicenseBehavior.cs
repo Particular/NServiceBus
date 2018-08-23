@@ -20,6 +20,6 @@
             }
         }
 
-        static ILog Log = LogManager.GetLogger<AuditInvalidLicenseBehavior>();
+        static readonly ILog Log = LogManager.GetLogger<AuditInvalidLicenseBehavior>();
     }
 }

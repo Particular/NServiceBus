@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus
 {
     using System;
-    using System.Linq;
     using System.Text;
     using System.Threading.Tasks;
     using DeliveryConstraints;
@@ -44,19 +43,26 @@
         static void LogOutgoingOperations(TransportOperation[] operations)
         {
             var sb = new StringBuilder();
+
             foreach (var operation in operations)
             {
                 if (operation.AddressTag is UnicastAddressTag unicastAddressTag)
                 {
-                    sb.AppendFormat("Destination: {0}" + Environment.NewLine, unicastAddressTag.Destination);
+                    sb.AppendLine($"Destination: {unicastAddressTag.Destination}");
                 }
 
-                sb.AppendFormat("Message headers:" + Environment.NewLine + "{0}", string.Join(", ", operation.Message.Headers.Select(h => h.Key + ":" + h.Value).ToArray()));
+                sb.AppendLine("Message headers:");
+
+                foreach (var kvp in operation.Message.Headers)
+                {
+                    sb.AppendLine($"{kvp.Key} : {kvp.Value}");
+                }
             }
+
             log.Debug(sb.ToString());
         }
 
-        static ILog log = LogManager.GetLogger<RoutingToDispatchConnector>();
+        static readonly ILog log = LogManager.GetLogger<RoutingToDispatchConnector>();
         static readonly bool isDebugEnabled = log.IsDebugEnabled;
 
         public class State

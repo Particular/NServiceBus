@@ -83,8 +83,9 @@ namespace NServiceBus.Unicast.Subscriptions
             return TypeName + ", Version=" + Version;
         }
 
+
         /// <summary>
-        /// Equality, only major version is used.
+        /// Equality only compares the <see cref="TypeName"/> and ignores versions.
         /// </summary>
         public bool Equals(MessageType other)
         {
@@ -100,7 +101,7 @@ namespace NServiceBus.Unicast.Subscriptions
         }
 
         /// <summary>
-        /// Equality, only Type is same.
+        /// Equality only compares the <see cref="TypeName"/> and ignores versions.
         /// </summary>
         public override bool Equals(object obj)
         {

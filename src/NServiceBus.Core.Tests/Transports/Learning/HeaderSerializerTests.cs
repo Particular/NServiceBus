@@ -1,19 +1,14 @@
 ﻿namespace NServiceBus.Core.Tests.Transports.Learning
 {
-    using System;
     using System.Collections.Generic;
     using NUnit.Framework;
+    using Particular.Approvals;
 
     public class HeaderSerializerTests
     {
         [Test]
         public void Can_round_trip_headers()
         {
-            if (Environment.OSVersion.Platform != PlatformID.Win32NT)
-            {
-                Assert.Ignore("ApprovalTests only works on Windows");
-            }
-
             var input = new Dictionary<string, string>
             {
                 {
@@ -27,7 +22,7 @@
             };
             var serialized = HeaderSerializer.Serialize(input);
 
-            TestApprover.Verify(serialized);
+            Approver.Verify(serialized);
             var deserialize = HeaderSerializer.Deserialize(serialized);
             CollectionAssert.AreEquivalent(input, deserialize);
         }

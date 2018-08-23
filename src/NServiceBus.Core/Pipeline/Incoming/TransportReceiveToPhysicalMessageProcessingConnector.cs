@@ -181,6 +181,6 @@ namespace NServiceBus
             throw new Exception("Could not find routing strategy to deserialize");
         }
 
-        IOutboxStorage outboxStorage;
+        readonly IOutboxStorage outboxStorage;
     }
 }

@@ -5,6 +5,7 @@ namespace NServiceBus.Core.Tests.Sagas.TypeBasedSagas
     using System.Threading.Tasks;
     using NServiceBus.Sagas;
     using NUnit.Framework;
+    using Particular.Approvals;
 
     [TestFixture]
     public class When_saga_has_multiple_correlated_properties
@@ -12,13 +13,8 @@ namespace NServiceBus.Core.Tests.Sagas.TypeBasedSagas
         [Test]
         public void Should_throw()
         {
-            if (Environment.OSVersion.Platform != PlatformID.Win32NT)
-            {
-                Assert.Ignore("ApprovalTests only works on Windows");
-            }
-
             var exception = Assert.Throws<Exception>(() => SagaMetadata.Create(typeof(SagaWithMultipleCorrelatedProperties), new List<Type>(), new Conventions()));
-            TestApprover.Verify(exception.Message);
+            Approver.Verify(exception.Message);
         }
 
         class SagaWithMultipleCorrelatedProperties : Saga<SagaWithMultipleCorrelatedProperties.MyEntity>,

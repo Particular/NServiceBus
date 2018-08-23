@@ -63,6 +63,6 @@ namespace NServiceBus
             return false;
         }
 
-        string timeoutManagerAddress;
+        readonly string timeoutManagerAddress;
     }
 }

@@ -1,14 +1,17 @@
 ﻿namespace NServiceBus.AcceptanceTests.Routing.MessageDrivenSubscriptions
 {
+    using System.Linq;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
+    using Features;
+    using Logging;
     using NUnit.Framework;
 
-    public class When_using_autosubscribe_with_missing_publisher_information : NServiceBusAcceptanceTest
+    public class When_autosubscribe_with_missing_publisher_information : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Should_skip_events_with_missing_routes()
+        public async Task Should_log_events_with_missing_routes()
         {
             Requires.MessageDrivenPubSub();
 
@@ -17,7 +20,11 @@
                 .Done(c => c.EndpointsStarted)
                 .Run();
 
-            Assert.True(context.EndpointsStarted);
+            Assert.True(context.EndpointsStarted, "because it should not prevent endpoint startup");
+
+            var log = context.Logs.Single(l => l.Message.Contains($"AutoSubscribe was unable to subscribe to event '{typeof(MyEvent).FullName}': No publisher address could be found for message type '{typeof(MyEvent).FullName}'."));
+            Assert.AreEqual(LogLevel.Error, log.Level);
+            Assert.AreEqual(typeof(AutoSubscribe).FullName, log.LoggerName);
         }
 
         public class Subscriber : EndpointConfigurationBuilder

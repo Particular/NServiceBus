@@ -19,26 +19,21 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Fody" Version="2.2.0" PrivateAssets="All" />
-    <PackageReference Include="Janitor.Fody" Version="1.5.2" PrivateAssets="All" />
+    <PackageReference Include="Fody" Version="3.1.4" PrivateAssets="All" />
+    <PackageReference Include="Janitor.Fody" Version="1.6.3" PrivateAssets="All" />
     <PackageReference Include="LightInject.Source" Version="5.0.3" PrivateAssets="All" />
     <PackageReference Include="SimpleJson" Version="0.38.0" PrivateAssets="All" />
-    <PackageReference Include="Obsolete.Fody" Version="4.3.2" PrivateAssets="All" />
-    <PackageReference Include="Particular.CodeRules" Version="0.2.0" PrivateAssets="All" />
-    <PackageReference Include="Particular.Licensing.Sources" Version="2.0.0" PrivateAssets="All" />
-    <PackageReference Include="Particular.Packaging" Version="0.1.0" PrivateAssets="All" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="SourceLink.Create.GitHub" Version="2.5.0" PrivateAssets="All" />
-    <DotNetCliToolReference Include="dotnet-sourcelink-git" Version="2.5.0" />
+    <PackageReference Include="Obsolete.Fody" Version="4.4.1" PrivateAssets="All" />
+    <PackageReference Include="Particular.CodeRules" Version="0.2.1" PrivateAssets="All" />
+    <PackageReference Include="Particular.Licensing.Sources" Version="2.0.1" PrivateAssets="All" />
+    <PackageReference Include="Particular.Packaging" Version="0.2.0" PrivateAssets="All" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
     <PackageReference Include="System.Reflection.Emit" Version="4.3.0" />
     <PackageReference Include="System.Reflection.Emit.Lightweight" Version="4.3.0" />
-    <PackageReference Include="System.Reflection.Metadata" Version="1.5.0" />
-    <PackageReference Include="System.Security.Cryptography.Xml" Version="4.4.0" />
+    <PackageReference Include="System.Reflection.Metadata" Version="1.6.0" />
+    <PackageReference Include="System.Security.Cryptography.Xml" Version="4.5.0" />
   </ItemGroup>
 
   <PropertyGroup>
@@ -47,14 +42,18 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="..\..\packaging\nuget\tools\init.ps1">
-      <Pack>true</Pack>
-      <PackagePath>tools</PackagePath>
-      <Visible>false</Visible>
-    </None>
+    <None Include="..\..\packaging\nuget\tools\init.ps1" Pack="true" PackagePath="tools" Visible="false" />
+    <None Include="..\NServiceBus.Core.Analyzer\bin\$(Configuration)\**\NServiceBus.Core.Analyzer.dll" Pack="true" PackagePath="analyzers/dotnet/cs/NServiceBus.Core.Analyzer.dll" Link="NServiceBus.Core.Analyzer.dll" Visible="false" />
+    <None Include="..\NServiceBus.Core.Analyzer\tools\*.ps1" Pack="true" PackagePath="tools" Visible="false" />
   </ItemGroup>
 
-  <!--Workaround for https://github.com/dotnet/sdk/issues/1469 -->
+  <!-- Workaround for https://github.com/Microsoft/msbuild/issues/1915 -->
+  <PropertyGroup>
+    <AddSyntheticProjectReferencesForSolutionDependencies>false</AddSyntheticProjectReferencesForSolutionDependencies>
+  </PropertyGroup>
+  <!-- End Workaround -->
+
+  <!-- Workaround for https://github.com/dotnet/sdk/issues/1469 -->
   <PropertyGroup>
     <DisableLockFileFrameworks>true</DisableLockFileFrameworks>
   </PropertyGroup>

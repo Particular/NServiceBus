@@ -26,7 +26,9 @@ public class ConfigureEndpointLearningTransport : IConfigureEndpointTestExecutio
 
         if (Environment.OSVersion.Platform == PlatformID.Win32NT)
         {
-            //can't use bin dir since that will be too long on the build agents
+            // Under Windows, Path.GetTempPath() could return a very long path, such as C:\Users\UserName\AppData\Local\Temp\.
+            // This would add up to the overall path length that could exceed the maximum path length and cause an exception to be thrown.
+            // LearningTransport will create the folder in case it doesn't exist.
             tempDir = @"c:\temp";
         }
         else

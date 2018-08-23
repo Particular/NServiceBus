@@ -17,10 +17,7 @@
         {
             Guard.AgainstNull(nameof(config), config);
             var type = typeof(PersistenceExtensions<>).MakeGenericType(typeof(T));
-#pragma warning disable PC001
             return (PersistenceExtensions<T>) Activator.CreateInstance(type, config.Settings);
-#pragma warning restore PC001
-
         }
 
         /// <summary>
@@ -34,10 +31,7 @@
         {
             Guard.AgainstNull(nameof(config), config);
             var type = typeof(PersistenceExtensions<,>).MakeGenericType(typeof(T), typeof(S));
-#pragma warning disable PC001
             return (PersistenceExtensions<T, S>) Activator.CreateInstance(type, config.Settings);
-#pragma warning restore PC001
-
         }
 
         /// <summary>

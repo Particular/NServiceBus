@@ -24,6 +24,6 @@
             return next(context);
         }
 
-        TimeToBeReceivedMappings timeToBeReceivedMappings;
+        readonly TimeToBeReceivedMappings timeToBeReceivedMappings;
     }
 }

@@ -21,7 +21,7 @@ namespace NServiceBus
         {
             if (log.IsDebugEnabled)
             {
-                log.DebugFormat("Serializing message '{0}' with id '{1}', ToString() of the message yields: {2} " + Environment.NewLine,
+                log.DebugFormat("Serializing message '{0}' with id '{1}', ToString() of the message yields: {2}",
                     context.Message.MessageType != null ? context.Message.MessageType.AssemblyQualifiedName : "unknown",
                     context.MessageId, context.Message.Instance);
             }
@@ -67,9 +67,9 @@ namespace NServiceBus
             return string.Join(";", assemblyQualifiedNames);
         }
 
-        MessageMetadataRegistry messageMetadataRegistry;
-        IMessageSerializer messageSerializer;
+        readonly MessageMetadataRegistry messageMetadataRegistry;
+        readonly IMessageSerializer messageSerializer;
 
-        static ILog log = LogManager.GetLogger<SerializeMessageConnector>();
+        static readonly ILog log = LogManager.GetLogger<SerializeMessageConnector>();
     }
 }

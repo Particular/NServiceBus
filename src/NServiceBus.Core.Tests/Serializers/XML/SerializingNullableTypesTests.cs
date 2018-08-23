@@ -6,7 +6,6 @@ namespace NServiceBus.Serializers.XML.Test
     using System.Xml.Linq;
     using NUnit.Framework;
 
-    
     public class MessageWithNullable : IMessage
     {
         public string FirstName { get; set; }
@@ -71,18 +70,12 @@ namespace NServiceBus.Serializers.XML.Test
                 var reader = new StreamReader(stream);
                 var xml = reader.ReadToEnd();
 
-#if NET452
-                var birthDate = "1950-04-25T00:00:00";
-#else
-                var birthDate = "1950-04-25T00:00:00.0000000";
-#endif
-
-                var expected = XDocument.Parse($@"<?xml version=""1.0""?>
+                var expected = XDocument.Parse(@"<?xml version=""1.0""?>
 <MessageWithNullable xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"" xmlns=""http://tempuri.net/NServiceBus.Serializers.XML.Test"">
    <FirstName>FirstName</FirstName>
    <LastName>LastName</LastName>
    <EmailAddress>EmailAddress</EmailAddress>
-   <BirthDate>{birthDate}</BirthDate>
+   <BirthDate>1950-04-25T00:00:00</BirthDate>
 </MessageWithNullable>
 ");
                 var actual = XDocument.Parse(xml);

@@ -1067,7 +1067,24 @@ namespace SimpleJson
                 if (stringKey != null)
                     SerializeString(stringKey, builder);
                 else
-                    SerializeString(key.ToString(), builder);
+                {
+//                    alternative approach:
+//                    jsonSerializerStrategy.TrySerializeNonPrimitiveObject(key, out var keyValue);
+//                    SerializeString((keyValue as string) ?? key.ToString(), builder);
+
+                    switch (key)
+                    {
+                        case DateTime d:
+                            SerializeString(d.ToString("O", CultureInfo.InvariantCulture), builder);
+                            break;
+                        case DateTimeOffset d:
+                            SerializeString(d.ToString("O", CultureInfo.InvariantCulture), builder);
+                            break;
+                        default:
+                            SerializeString(key.ToString(), builder);
+                            break;
+                    }
+                }
                 builder.Append(":");
                 if (!SerializeValue(jsonSerializerStrategy, value, builder))
                     return false;

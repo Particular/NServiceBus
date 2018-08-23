@@ -28,6 +28,6 @@ namespace NServiceBus
             }
         }
 
-        UnicastSendRouter unicastSendRouter;
+        readonly UnicastSendRouter unicastSendRouter;
     }
 }

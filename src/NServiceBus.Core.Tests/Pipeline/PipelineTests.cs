@@ -11,6 +11,7 @@
     using Extensibility;
     using NServiceBus.Pipeline;
     using NUnit.Framework;
+    using Particular.Approvals;
     using Testing;
     using FakeBuilder = Testing.FakeBuilder;
 
@@ -20,11 +21,6 @@
         [Test]
         public async Task ShouldExecutePipeline()
         {
-            if (Environment.OSVersion.Platform != PlatformID.Win32NT)
-            {
-                Assert.Ignore("ApprovalTests only works on Windows");
-            }
-
             var stringWriter = new StringWriter();
 
             var pipelineModifications = new PipelineModifications();
@@ -42,17 +38,12 @@
 
             await pipeline.Invoke(context);
 
-            TestApprover.Verify(stringWriter.ToString());
+            Approver.Verify(stringWriter.ToString());
         }
 
         [Test]
         public async Task ShouldNotCacheContext()
         {
-            if (Environment.OSVersion.Platform != PlatformID.Win32NT)
-            {
-                Assert.Ignore("ApprovalTests only works on Windows");
-            }
-
             var stringWriter = new StringWriter();
 
             var pipelineModifications = new PipelineModifications();
@@ -81,17 +72,12 @@
 
             await pipeline.Invoke(context);
 
-            TestApprover.Verify(stringWriter.ToString());
+            Approver.Verify(stringWriter.ToString());
         }
 
         [Test]
         public void ShouldCreateCachedExecutionPlan()
         {
-            if (Environment.OSVersion.Platform != PlatformID.Win32NT)
-            {
-                Assert.Ignore("ApprovalTests only works on Windows");
-            }
-
             var stringWriter = new StringWriter();
 
             var behaviors = new IBehavior[]
@@ -107,7 +93,7 @@
             var expressions = new List<Expression>();
             behaviors.CreatePipelineExecutionExpression(expressions);
 
-            TestApprover.Verify(expressions.PrettyPrint());
+            Approver.Verify(expressions.PrettyPrint());
         }
 
         [Test]

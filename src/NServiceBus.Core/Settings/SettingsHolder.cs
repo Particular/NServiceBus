@@ -178,7 +178,7 @@ namespace NServiceBus.Settings
             if (!TryGet(out T value))
             {
                 value = new T();
-                Set<T>(value);
+                Set(value);
             }
             return value;
         }
@@ -201,7 +201,21 @@ namespace NServiceBus.Settings
         /// </summary>
         /// <typeparam name="T">The type to use as a key for storing the setting.</typeparam>
         /// <param name="value">The setting value.</param>
+        [ObsoleteEx(
+            ReplacementTypeOrMember = "Set<T>(T value)",
+            TreatAsErrorFromVersion = "8.0",
+            RemoveInVersion = "9.0")]
         public void Set<T>(object value)
+        {
+            Set(typeof(T).FullName, value);
+        }
+
+        /// <summary>
+        /// Sets the value.
+        /// </summary>
+        /// <typeparam name="T">The type to use as a key for storing the setting.</typeparam>
+        /// <param name="value">The setting value.</param>
+        public void Set<T>(T value)
         {
             Set(typeof(T).FullName, value);
         }
@@ -221,7 +235,22 @@ namespace NServiceBus.Settings
         /// </summary>
         /// <typeparam name="T">The type to use as a key for storing the setting.</typeparam>
         /// <param name="value">The setting value.</param>
+        [ObsoleteEx(
+            ReplacementTypeOrMember = "SetDefault<T>(T value)",
+            TreatAsErrorFromVersion = "8.0",
+            RemoveInVersion = "9.0")]
+
         public void SetDefault<T>(object value)
+        {
+            SetDefault(typeof(T).FullName, value);
+        }
+
+        /// <summary>
+        /// Sets the default setting value.
+        /// </summary>
+        /// <typeparam name="T">The type to use as a key for storing the setting.</typeparam>
+        /// <param name="value">The setting value.</param>
+        public void SetDefault<T>(T value)
         {
             SetDefault(typeof(T).FullName, value);
         }

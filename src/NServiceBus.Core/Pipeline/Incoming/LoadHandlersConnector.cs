@@ -1,8 +1,11 @@
 ﻿namespace NServiceBus
 {
     using System;
+    using System.Collections.Generic;
+    using System.Text;
     using System.Threading.Tasks;
     using Extensibility;
+    using Logging;
     using Outbox;
     using Persistence;
     using Pipeline;
@@ -32,6 +35,11 @@
                     throw new InvalidOperationException(error);
                 }
 
+                if (isDebugIsEnabled)
+                {
+                    LogHandlersInvocation(context, handlersToInvoke);
+                }
+
                 foreach (var messageHandler in handlersToInvoke)
                 {
                     messageHandler.Instance = context.Builder.Build(messageHandler.HandlerType);
@@ -57,10 +65,32 @@
                    ?? await synchronizedStorage.OpenSession(contextBag).ConfigureAwait(false);
         }
 
+        static void LogHandlersInvocation(IIncomingLogicalMessageContext context, List<MessageHandler> handlersToInvoke)
+        {
+            var builder = new StringBuilder();
+            builder.AppendLine($"Processing message type: {context.Message.MessageType}");
+            builder.AppendLine("Message headers:");
+
+            foreach (var kvp in context.Headers)
+            {
+                builder.AppendLine($"{kvp.Key} : {kvp.Value}");
+            }
+
+            builder.AppendLine("Handlers to invoke:");
+
+            foreach (var messageHandler in handlersToInvoke)
+            {
+                builder.AppendLine(messageHandler.HandlerType.FullName);
+            }
+
+            logger.Debug(builder.ToString());
+        }
+
         readonly ISynchronizedStorageAdapter adapter;
         readonly ISynchronizedStorage synchronizedStorage;
+        readonly MessageHandlerRegistry messageHandlerRegistry;
 
-
-        MessageHandlerRegistry messageHandlerRegistry;
+        static readonly ILog logger = LogManager.GetLogger<LoadHandlersConnector>();
+        static readonly bool isDebugIsEnabled = logger.IsDebugEnabled;
     }
 }

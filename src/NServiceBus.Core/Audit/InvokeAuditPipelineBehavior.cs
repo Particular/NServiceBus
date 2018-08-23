@@ -26,6 +26,6 @@
             await this.Fork(auditContext).ConfigureAwait(false);
         }
 
-        string auditAddress;
+        readonly string auditAddress;
     }
 }

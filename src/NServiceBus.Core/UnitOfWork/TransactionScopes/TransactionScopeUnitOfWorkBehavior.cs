@@ -27,6 +27,6 @@
             }
         }
 
-        TransactionOptions transactionOptions;
+        readonly TransactionOptions transactionOptions;
     }
 }

@@ -129,7 +129,8 @@
                 {
                     return;
                 }
-                if (currentMember.DeclaringType != null && currentMember.DeclaringType.FullName.Contains("JetBrains"))
+                var declaringType = currentMember.DeclaringType;
+                if (declaringType != null && declaringType.FullName.Contains("JetBrains") || declaringType.FullName.Contains("FastExpressionCompiler"))
                 {
                     return;
                 }

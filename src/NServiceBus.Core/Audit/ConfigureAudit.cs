@@ -21,7 +21,7 @@ namespace NServiceBus
             {
                 Guard.AgainstNegative(nameof(timeToBeReceived), timeToBeReceived.Value);
             }
-            config.Settings.Set<AuditConfigReader.Result>(new AuditConfigReader.Result
+            config.Settings.Set(new AuditConfigReader.Result
             {
                 Address = auditQueue,
                 TimeToBeReceived = timeToBeReceived

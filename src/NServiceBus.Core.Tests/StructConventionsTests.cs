@@ -7,6 +7,7 @@ namespace NServiceBus.Core.Tests
     using System.Runtime.InteropServices;
     using System.Text;
     using NUnit.Framework;
+    using Particular.Approvals;
 
     [TestFixture]
     public class StructConventionsTests
@@ -14,11 +15,6 @@ namespace NServiceBus.Core.Tests
         [Test]
         public void ApproveStructsWhichDontFollowStructGuidelines()
         {
-            if (Environment.OSVersion.Platform != PlatformID.Win32NT)
-            {
-                Assert.Ignore("ApprovalTests only works on Windows");
-            }
-
             var approvalBuilder = new StringBuilder();
             approvalBuilder.AppendLine(@"-------------------------------------------------- REMEMBER --------------------------------------------------
 CONSIDER defining a struct instead of a class if instances of the type are small and commonly short-lived or are commonly embedded in other objects.
@@ -70,7 +66,7 @@ In all other cases, you should define your types as classes.
                 approvalBuilder.AppendLine();
             }
 
-            TestApprover.Verify(approvalBuilder.ToString());
+            Approver.Verify(approvalBuilder.ToString());
         }
 
         static bool InspectWhetherStructContainsReferenceTypes(Type type, List<string> violatedRules)

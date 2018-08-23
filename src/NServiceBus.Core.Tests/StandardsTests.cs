@@ -45,6 +45,7 @@
                     !x.FullName.StartsWith("Newtonsoft.Json") &&
                     !x.FullName.StartsWith("LightInject") &&
                     !x.FullName.StartsWith("SimpleJson") &&
+                    !x.FullName.StartsWith("FastExpressionCompiler") &&
                     x.Name != "GitVersionInformation" &&
                     x.Namespace != "Particular.Licensing" &&
                     x.Namespace != "NServiceBus.Features" &&

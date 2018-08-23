@@ -16,7 +16,7 @@ namespace NServiceBus.Features
             Defaults(s =>
             {
                 // s.SetDefault<Publishers>(new Publishers()); currently setup by RoutingFeature
-                s.SetDefault<ConfiguredPublishers>(new ConfiguredPublishers());
+                s.SetDefault(new ConfiguredPublishers());
             });
             Prerequisite(c => c.Settings.Get<TransportInfrastructure>().OutboundRoutingPolicy.Publishes == OutboundRoutingType.Unicast, "The transport supports native pub sub");
         }

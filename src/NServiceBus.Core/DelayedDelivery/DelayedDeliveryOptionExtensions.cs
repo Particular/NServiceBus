@@ -2,8 +2,6 @@
 {
     using System;
     using DelayedDelivery;
-    using DeliveryConstraints;
-    using Extensibility;
 
     /// <summary>
     /// Provides ways for the end user to request delayed delivery of their messages.
@@ -20,12 +18,12 @@
             Guard.AgainstNull(nameof(options), options);
             Guard.AgainstNegative(nameof(delay), delay);
 
-            if (options.GetExtensions().TryGetDeliveryConstraint(out DoNotDeliverBefore _))
+            if (options.DelayedDeliveryConstraint is DoNotDeliverBefore)
             {
                 throw new InvalidOperationException($"The options are already configured for delayed delivery by the '{nameof(DoNotDeliverBefore)}' API.");
             }
 
-            options.GetExtensions().AddDeliveryConstraint(new DelayDeliveryWith(delay));
+            options.DelayedDeliveryConstraint = new DelayDeliveryWith(delay);
         }
 
         /// <summary>
@@ -36,8 +34,8 @@
         public static TimeSpan? GetDeliveryDelay(this SendOptions options)
         {
             Guard.AgainstNull(nameof(options), options);
-            options.GetExtensions().TryGetDeliveryConstraint(out DelayDeliveryWith delay);
-            return delay?.Delay;
+
+            return (options.DelayedDeliveryConstraint as DelayDeliveryWith)?.Delay;
         }
 
         /// <summary>
@@ -49,12 +47,12 @@
         {
             Guard.AgainstNull(nameof(options), options);
 
-            if (options.GetExtensions().TryGetDeliveryConstraint(out DelayDeliveryWith _))
+            if (options.DelayedDeliveryConstraint is DelayDeliveryWith)
             {
                 throw new InvalidOperationException($"The options are already configured for delayed delivery by the '{nameof(DelayDeliveryWith)}' API.");
             }
 
-            options.GetExtensions().AddDeliveryConstraint(new DoNotDeliverBefore(at.UtcDateTime));
+            options.DelayedDeliveryConstraint = new DoNotDeliverBefore(at.UtcDateTime);
         }
 
         /// <summary>
@@ -65,8 +63,8 @@
         public static DateTimeOffset? GetDeliveryDate(this SendOptions options)
         {
             Guard.AgainstNull(nameof(options), options);
-            options.GetExtensions().TryGetDeliveryConstraint(out DoNotDeliverBefore deliveryDate);
-            return deliveryDate?.At;
+
+            return (options.DelayedDeliveryConstraint as DoNotDeliverBefore)?.At;
         }
     }
 }

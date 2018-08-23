@@ -21,7 +21,7 @@
         public UnitOfWorkSettings WrapHandlersInATransactionScope(TimeSpan? timeout = null, IsolationLevel? isolationLevel = null)
         {
             config.EnableFeature<TransactionScopeUnitOfWork>();
-            config.Settings.Set<TransactionScopeUnitOfWork.Settings>(new TransactionScopeUnitOfWork.Settings(timeout, isolationLevel));
+            config.Settings.Set(new TransactionScopeUnitOfWork.Settings(timeout, isolationLevel));
             return this;
         }
 

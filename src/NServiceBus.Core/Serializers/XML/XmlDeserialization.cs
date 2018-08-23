@@ -609,9 +609,7 @@
 
                         if (isISet)
                         {
-#pragma warning disable PC001
                             return Activator.CreateInstance(type, typeToCreate.GetMethod("ToArray").Invoke(list, null));
-#pragma warning restore PC001
                         }
                     }
 

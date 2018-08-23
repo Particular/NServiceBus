@@ -25,6 +25,9 @@
 
             //when using [TestCase] NUnit will reuse the same test instance so we need to make sure that the message pump is a fresh one
             MessagePump = null;
+            TransportInfrastructure = null;
+            Configurer = null;
+            testCancellationTokenSource = null;
         }
 
         static IConfigureTransportInfrastructure CreateConfigurer()
@@ -62,6 +65,7 @@
         {
             testCancellationTokenSource?.Dispose();
             MessagePump?.Stop().GetAwaiter().GetResult();
+            TransportInfrastructure?.Stop().GetAwaiter().GetResult();
             Configurer?.Cleanup().GetAwaiter().GetResult();
 
             transportSettings.Clear();
@@ -73,14 +77,15 @@
             ErrorQueueName = $"{InputQueueName}.error";
 
             transportSettings.Set("NServiceBus.Routing.EndpointName", InputQueueName);
+            transportSettings.Set(new StartupDiagnosticEntries());
 
             var queueBindings = new QueueBindings();
             queueBindings.BindReceiving(InputQueueName);
             queueBindings.BindSending(ErrorQueueName);
             transportSettings.Set(ErrorQueueSettings.SettingsKey, ErrorQueueName);
-            transportSettings.Set<QueueBindings>(queueBindings);
+            transportSettings.Set(queueBindings);
 
-            transportSettings.Set<EndpointInstances>(new EndpointInstances());
+            transportSettings.Set(new EndpointInstances());
 
             Configurer = CreateConfigurer();
 
@@ -92,17 +97,17 @@
             IgnoreUnsupportedDeliveryConstraints();
 
             ReceiveInfrastructure = TransportInfrastructure.ConfigureReceiveInfrastructure();
-            SendInfrastructure = TransportInfrastructure.ConfigureSendInfrastructure();
-
-            lazyDispatcher = new Lazy<IDispatchMessages>(() => SendInfrastructure.DispatcherFactory());
-
-            MessagePump = ReceiveInfrastructure.MessagePumpFactory();
 
             var queueCreator = ReceiveInfrastructure.QueueCreatorFactory();
             var userName = GetUserName();
             await queueCreator.CreateQueueIfNecessary(queueBindings, userName);
 
-            var pushSettings = new PushSettings(InputQueueName, ErrorQueueName, configuration.PurgeInputQueueOnStartup, transactionMode);
+            await TransportInfrastructure.Start();
+
+            SendInfrastructure = TransportInfrastructure.ConfigureSendInfrastructure();
+            lazyDispatcher = new Lazy<IDispatchMessages>(() => SendInfrastructure.DispatcherFactory());
+
+            MessagePump = ReceiveInfrastructure.MessagePumpFactory();
             await MessagePump.Init(
                 context =>
                 {
@@ -123,7 +128,7 @@
                     return Task.FromResult(ErrorHandleResult.Handled);
                 },
                 new FakeCriticalError(onCriticalError),
-                pushSettings);
+                new PushSettings(InputQueueName, ErrorQueueName, configuration.PurgeInputQueueOnStartup, transactionMode));
 
             MessagePump.Start(configuration.PushRuntimeSettings);
         }

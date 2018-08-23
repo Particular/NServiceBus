@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Features
 {
+    using Logging;
     using Transport;
 
     /// <summary>
@@ -12,7 +13,7 @@
             EnableByDefault();
             Defaults(settings =>
             {
-                settings.Set<AuditConfigReader.Result>(AuditConfigReader.GetConfiguredAuditQueue(settings));
+                settings.Set(AuditConfigReader.GetConfiguredAuditQueue(settings));
             });
             Prerequisite(config => config.Settings.GetOrDefault<AuditConfigReader.Result>() != null, "No configured audit queue was found");
         }
@@ -35,6 +36,10 @@
                 AuditQueue = auditConfig.Address,
                 AuditTTBR = auditConfig.TimeToBeReceived?.ToString("g") ?? "-"
             });
+
+            logger.InfoFormat($"Auditing processed messages to '{auditConfig.Address}'");
         }
+
+        static readonly ILog logger = LogManager.GetLogger<Audit>();
     }
 }

@@ -12,7 +12,7 @@
             Defaults(s =>
             {
                 var timeoutManagerAddressConfiguration = new TimeoutManagerAddressConfiguration(s.GetExternalTimeoutManagerAddress());
-                s.Set<TimeoutManagerAddressConfiguration>(timeoutManagerAddressConfiguration);
+                s.Set(timeoutManagerAddressConfiguration);
             });
         }
 

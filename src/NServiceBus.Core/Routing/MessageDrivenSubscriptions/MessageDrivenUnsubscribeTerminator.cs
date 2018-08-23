@@ -76,12 +76,11 @@
         }
 
         readonly string endpoint;
-        IDispatchMessages dispatcher;
-        string replyToAddress;
+        readonly IDispatchMessages dispatcher;
+        readonly string replyToAddress;
+        readonly SubscriptionRouter subscriptionRouter;
 
-        SubscriptionRouter subscriptionRouter;
-
-        static ILog Logger = LogManager.GetLogger<MessageDrivenUnsubscribeTerminator>();
+        static readonly ILog Logger = LogManager.GetLogger<MessageDrivenUnsubscribeTerminator>();
 
         public class Settings
         {

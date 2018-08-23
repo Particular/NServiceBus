@@ -55,9 +55,7 @@
                 static Guid ToGuid(string src)
                 {
                     var stringbytes = Encoding.UTF8.GetBytes(src);
-#pragma warning disable PC001
                     using (var provider = new SHA1CryptoServiceProvider())
-#pragma warning restore PC001
                     {
                         var hashedBytes = provider.ComputeHash(stringbytes);
                         Array.Resize(ref hashedBytes, 16);

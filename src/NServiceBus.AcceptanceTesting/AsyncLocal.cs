@@ -1,4 +1,4 @@
-﻿#if NET452
+﻿#if NETFRAMEWORK
 namespace System.Threading
 {
     using Runtime.Remoting.Messaging;

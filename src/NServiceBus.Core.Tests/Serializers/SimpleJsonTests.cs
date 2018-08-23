@@ -129,6 +129,83 @@
         }
 
         [Test]
+        public void TestDateTimeDictionaryKeys()
+        {
+            var date1 = new DateTime(2018, 1, 1);
+            var date2 = new DateTime(2017, 1, 1);
+
+            var input = new Dictionary<DateTime, int>
+            {
+                {date1, 1},
+                {date2, 2}
+            };
+            var json = SimpleJson.SerializeObject(input);
+            var result = SimpleJson.DeserializeObject<Dictionary<DateTime, int>>(json);
+
+            Assert.AreEqual(2, result.Count);
+            Assert.AreEqual(1, result[date1]);
+            Assert.AreEqual(2, result[date2]);
+        }
+
+        [Test]
+        public void TestDateTimeOffsetDictionaryKeys()
+        {
+            var date1 = new DateTimeOffset(new DateTime(2018, 1, 1), TimeSpan.FromHours(4));
+            var date2 = new DateTimeOffset(new DateTime(2017, 1, 1), TimeSpan.FromHours(-2));
+
+            var input = new Dictionary<DateTimeOffset, int>
+            {
+                {date1, 1},
+                {date2, 2}
+            };
+            var json = SimpleJson.SerializeObject(input);
+            var result = SimpleJson.DeserializeObject<Dictionary<DateTimeOffset, int>>(json);
+
+            Assert.AreEqual(2, result.Count);
+            Assert.AreEqual(1, result[date1]);
+            Assert.AreEqual(2, result[date2]);
+        }
+
+        [Test]
+        public void TestGuidDictionaryKeys()
+        {
+            var guid1 = Guid.NewGuid();
+            var guid2 = Guid.NewGuid();
+
+            var input = new Dictionary<Guid, int>
+            {
+                {guid1, 1},
+                {guid2, 2}
+            };
+            var json = SimpleJson.SerializeObject(input);
+            var result = SimpleJson.DeserializeObject<Dictionary<Guid, int>>(json);
+
+            Assert.AreEqual(2, result.Count);
+            Assert.AreEqual(1, result[guid1]);
+            Assert.AreEqual(2, result[guid2]);
+        }
+
+        [Test]
+        [Ignore("not supported")]
+        public void TestEnumDictionaryKeys()
+        {
+            var enum1 = SampleEnum.EnumValue2;
+            var enum2 = SampleEnum.EnumValue3;
+
+            var input = new Dictionary<SampleEnum, int>
+            {
+                {enum1, 1},
+                {enum2, 2}
+            };
+            var json = SimpleJson.SerializeObject(input);
+            var result = SimpleJson.DeserializeObject<Dictionary<SampleEnum, int>>(json);
+
+            Assert.AreEqual(2, result.Count);
+            Assert.AreEqual(1, result[enum1]);
+            Assert.AreEqual(2, result[enum2]);
+        }
+
+        [Test]
         public void TestPocoClass()
         {
             var input = new SamplePoco
@@ -249,5 +326,10 @@
 
     class CustomDictionary : Dictionary<int, int>
     {
+    }
+
+    enum SampleEnum
+    {
+        EnumValue1, EnumValue2, EnumValue3
     }
 }

@@ -28,7 +28,7 @@
             var publisherAddresses = subscriptionRouter.GetAddressesForEventType(eventType);
             if (publisherAddresses.Count == 0)
             {
-                throw new Exception($"No publisher address could be found for message type {eventType}. Ensure the configured publisher endpoint has at least one known instance.");
+                throw new Exception($"No publisher address could be found for message type '{eventType}'. Ensure that a publisher has been configured for the event type and that the configured publisher endpoint has at least one known instance.");
             }
 
             var subscribeTasks = new List<Task>(publisherAddresses.Count);
@@ -75,13 +75,12 @@
             }
         }
 
-        IDispatchMessages dispatcher;
-        string subscriberAddress;
-        string subscriberEndpoint;
+        readonly IDispatchMessages dispatcher;
+        readonly string subscriberAddress;
+        readonly string subscriberEndpoint;
+        readonly SubscriptionRouter subscriptionRouter;
 
-        SubscriptionRouter subscriptionRouter;
-
-        static ILog Logger = LogManager.GetLogger<MessageDrivenSubscribeTerminator>();
+        static readonly ILog Logger = LogManager.GetLogger<MessageDrivenSubscribeTerminator>();
 
         public class Settings
         {

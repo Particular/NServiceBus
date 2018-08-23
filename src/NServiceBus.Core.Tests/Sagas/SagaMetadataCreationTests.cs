@@ -71,7 +71,7 @@
                 typeof(SagaWithMappingAndFinder.Finder)
             };
             var exception = Assert.Throws<Exception>(() => { SagaMetadata.Create(typeof(SagaWithMappingAndFinder), availableTypes, new Conventions()); });
-            Assert.AreEqual("A custom IFindSagas and an existing mapping where found for message 'NServiceBus.Core.Tests.Sagas.TypeBasedSagas.SagaMetadataCreationTests+SagaWithMappingAndFinder+StartSagaMessage'. Either remove the message mapping for remove the finder. Finder name 'NServiceBus.Core.Tests.Sagas.TypeBasedSagas.SagaMetadataCreationTests+SagaWithMappingAndFinder+Finder'.", exception.Message);
+            Assert.AreEqual("A custom IFindSagas and an existing mapping where found for message 'NServiceBus.Core.Tests.Sagas.TypeBasedSagas.SagaMetadataCreationTests+SagaWithMappingAndFinder+StartSagaMessage'. Either remove the message mapping or remove the finder. Finder name 'NServiceBus.Core.Tests.Sagas.TypeBasedSagas.SagaMetadataCreationTests+SagaWithMappingAndFinder+Finder'.", exception.Message);
         }
 
         [Test]
