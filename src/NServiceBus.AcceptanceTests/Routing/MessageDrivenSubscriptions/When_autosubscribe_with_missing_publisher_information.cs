@@ -8,7 +8,7 @@
     using Logging;
     using NUnit.Framework;
 
-    public class When_using_autosubscribe_with_missing_publisher_information : NServiceBusAcceptanceTest
+    public class When_autosubscribe_with_missing_publisher_information : NServiceBusAcceptanceTest
     {
         [Test]
         public async Task Should_log_events_with_missing_routes()
