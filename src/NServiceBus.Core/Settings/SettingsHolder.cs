@@ -221,16 +221,6 @@ namespace NServiceBus.Settings
         }
 
         /// <summary>
-        /// Sets the given value, key is type fullname.
-        /// </summary>
-        /// <typeparam name="T">The type.</typeparam>
-        /// <param name="value">Action to store.</param>
-        public void Set<T>(Action value)
-        {
-            Set(typeof(T).FullName, value);
-        }
-
-        /// <summary>
         /// Sets the default setting value.
         /// </summary>
         /// <typeparam name="T">The type to use as a key for storing the setting.</typeparam>

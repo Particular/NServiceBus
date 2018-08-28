@@ -2411,7 +2411,6 @@ namespace NServiceBus.Settings
             "ll be removed in version 9.0.0.", false)]
         public void Set<T>(object value) { }
         public void Set<T>(T value) { }
-        public void Set<T>(System.Action value) { }
         [System.ObsoleteAttribute("Use `SetDefault<T>(T value)` instead. Will be treated as an error from version 8." +
             "0.0. Will be removed in version 9.0.0.", false)]
         public void SetDefault<T>(object value) { }
