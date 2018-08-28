@@ -1,0 +1,7 @@
+assembly-versioning-scheme: MajorMinorPatch
+next-version: 7.0
+branches:
+  develop:
+    tag: beta
+  release:
+    tag: rc
