@@ -1,4 +1,4 @@
-assembly-versioning-scheme: Major
+assembly-versioning-scheme: MajorMinorPatch
 next-version: 6.5
 branches:
   develop:
