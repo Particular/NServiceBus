@@ -26,6 +26,15 @@ namespace NServiceBus.Core.Analyzer.Tests
         [TestCase("IPipelineContext", "obj.Publish<object>();")]
         [TestCase("IPipelineContext", "obj.Publish<object>(_ => { });")]
 
+        // IMessageProcessingContext
+        [TestCase("IMessageProcessingContext", "obj.Reply(new object(), new ReplyOptions());")]
+        [TestCase("IMessageProcessingContext", "obj.Reply<object>(_ => { }, new ReplyOptions());")]
+        [TestCase("IMessageProcessingContext", "obj.ForwardCurrentMessageTo(\"destination\");")]
+
+        // IMessageProcessingContextExtensions
+        [TestCase("IMessageProcessingContext", "obj.Reply(new object());")]
+        [TestCase("IMessageProcessingContext", "obj.Reply<object>(_ => { });")]
+
         // IMessageSession
         [TestCase("IMessageSession", "obj.Send(new object(), new SendOptions());")]
         [TestCase("IMessageSession", "obj.Send<object>(_ => { }, new SendOptions());")]
