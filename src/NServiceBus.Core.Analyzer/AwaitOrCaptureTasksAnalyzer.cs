@@ -73,6 +73,7 @@ namespace NServiceBus.Core.Analyzer
             "NServiceBus.IMessageProcessingContext.Reply",
             "NServiceBus.IMessageProcessingContext.ForwardCurrentMessageTo",
             "NServiceBus.IMessageProcessingContextExtensions.Reply",
+            "NServiceBus.ScheduleExtensions.ScheduleEvery",
             "NServiceBus.Saga.RequestTimeout",
             "NServiceBus.Saga.ReplyToOriginator",
             "NServiceBus.Endpoint.Create",
