@@ -58,10 +58,6 @@ namespace NServiceBus.Core.Analyzer.Tests
         [TestCase("IMessageSession", "obj.Unsubscribe(typeof(object));")]
         [TestCase("IMessageSession", "obj.Unsubscribe<object>();")]
 
-        // ScheduleExtensions
-        [TestCase("IMessageSession", "obj.ScheduleEvery(TimeSpan.Zero, _ => Task.FromResult(0));")]
-        [TestCase("IMessageSession", "obj.ScheduleEvery(TimeSpan.Zero, \"name\", _ => Task.FromResult(0));")]
-
         // Endpoint
         [TestCase("EndpointConfiguration", "Endpoint.Create(obj);")]
         [TestCase("EndpointConfiguration", "Endpoint.Start(obj);")]
@@ -74,9 +70,7 @@ namespace NServiceBus.Core.Analyzer.Tests
         public Task DiagnosticIsReportedForCorePublicMethods(string type, string call)
         {
             var source =
-$@"using NServiceBus; 
-using System;
-using System.Threading.Tasks; 
+$@"using NServiceBus;
 class Foo
 {{
     void Bar({type} obj)
@@ -89,7 +83,7 @@ class Foo
             {
                 Id = "NSB0001",
                 Severity = DiagnosticSeverity.Error,
-                Locations = new[] { new DiagnosticResultLocation("Test0.cs", 8, 9) },
+                Locations = new[] { new DiagnosticResultLocation("Test0.cs", 6, 9) },
             };
 
             return Verify(source, expected);
