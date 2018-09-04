@@ -12,7 +12,7 @@
 
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-            var registry = context.Settings.GetOrDefault<RegisteredMutators>();
+            var registry = context.Settings.GetOrDefault<RegisteredMutators>() ?? new RegisteredMutators();
 
             context.Pipeline.Register("MutateIncomingTransportMessage", b => new MutateIncomingTransportMessageBehavior(registry.IncomingTransportMessage), "Executes IMutateIncomingTransportMessages");
             context.Pipeline.Register("MutateIncomingMessages", new MutateIncomingMessageBehavior(registry.IncomingMessage), "Executes IMutateIncomingMessages");
