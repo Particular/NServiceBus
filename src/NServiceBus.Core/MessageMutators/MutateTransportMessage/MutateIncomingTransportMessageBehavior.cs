@@ -1,12 +1,18 @@
 ﻿namespace NServiceBus
 {
     using System;
+    using System.Collections.Generic;
     using System.Threading.Tasks;
     using MessageMutator;
     using Pipeline;
 
     class MutateIncomingTransportMessageBehavior : IBehavior<IIncomingPhysicalMessageContext, IIncomingPhysicalMessageContext>
     {
+        public MutateIncomingTransportMessageBehavior(IList<IMutateIncomingTransportMessages> mutators)
+        {
+            this.mutators = mutators;
+        }
+
         public Task Invoke(IIncomingPhysicalMessageContext context, Func<IIncomingPhysicalMessageContext, Task> next)
         {
             if (hasIncomingTransportMessageMutators)
@@ -19,11 +25,21 @@
 
         async Task InvokeIncomingTransportMessagesMutators(IIncomingPhysicalMessageContext context, Func<IIncomingPhysicalMessageContext, Task> next)
         {
-            var mutators = context.Builder.BuildAll<IMutateIncomingTransportMessages>();
+            var mutatorsRegisteredInDI = context.Builder.BuildAll<IMutateIncomingTransportMessages>();
             var transportMessage = context.Message;
             var mutatorContext = new MutateIncomingTransportMessageContext(transportMessage.Body, transportMessage.Headers);
 
             var hasMutators = false;
+
+            foreach (var mutator in mutatorsRegisteredInDI)
+            {
+                hasMutators = true;
+
+                await mutator.MutateIncoming(mutatorContext)
+                    .ThrowIfNull()
+                    .ConfigureAwait(false);
+            }
+
             foreach (var mutator in mutators)
             {
                 hasMutators = true;
@@ -44,5 +60,6 @@
         }
 
         volatile bool hasIncomingTransportMessageMutators = true;
+        IList<IMutateIncomingTransportMessages> mutators;
     }
 }

@@ -1,7 +1,7 @@
 ﻿namespace NServiceBus.MessageMutator
 {
+    using NServiceBus.Features;
     using System;
-    using System.Collections.Generic;
 
     /// <summary>
     /// Provides extension methods to register message mutators.
@@ -19,39 +19,36 @@
             Guard.AgainstNull(nameof(messageMutator), messageMutator);
 
             var registeredMutator = false;
-            foreach (var mutatorInterface in GetImplementedMutatorInterfaces(messageMutator))
+           
+            var registry = endpointConfiguration.Settings.GetOrCreate<Mutators.RegisteredMutators>();
+
+            if (messageMutator is IMutateIncomingMessages)
             {
-                // register the mutator with its specific mutator interface as it will be registered as object instead
-                endpointConfiguration.RegisterComponents(c => c.RegisterSingleton(mutatorInterface, messageMutator));
+                registry.IncomingMessage.Add((IMutateIncomingMessages)messageMutator);
                 registeredMutator = true;
             }
 
+            if (messageMutator is IMutateIncomingTransportMessages)
+            {
+                registry.IncomingTransportMessage.Add((IMutateIncomingTransportMessages)messageMutator);
+                registeredMutator = true;
+            }
+
+            if (messageMutator is IMutateOutgoingMessages)
+            {
+                registry.OutgoingMessage.Add((IMutateOutgoingMessages)messageMutator);
+                registeredMutator = true;
+            }
+
+            if (messageMutator is IMutateOutgoingTransportMessages)
+            {
+                registry.OutgoingTransportMessage.Add((IMutateOutgoingTransportMessages)messageMutator);
+                registeredMutator = true;
+            }
+            
             if (!registeredMutator)
             {
                 throw new ArgumentException($"The given instance is not a valid message mutator. Implement one of the following mutator interfaces: {typeof(IMutateIncomingMessages).FullName}, {typeof(IMutateIncomingTransportMessages).FullName}, {typeof(IMutateOutgoingMessages).FullName} or {typeof(IMutateOutgoingTransportMessages).FullName}");
-            }
-        }
-
-        static IEnumerable<Type> GetImplementedMutatorInterfaces(object messageMutatorType)
-        {
-            if (messageMutatorType is IMutateIncomingMessages)
-            {
-                yield return typeof(IMutateIncomingMessages);
-            }
-
-            if (messageMutatorType is IMutateIncomingTransportMessages)
-            {
-                yield return typeof(IMutateIncomingTransportMessages);
-            }
-
-            if (messageMutatorType is IMutateOutgoingMessages)
-            {
-                yield return typeof(IMutateOutgoingMessages);
-            }
-
-            if (messageMutatorType is IMutateOutgoingTransportMessages)
-            {
-                yield return typeof(IMutateOutgoingTransportMessages);
             }
         }
     }

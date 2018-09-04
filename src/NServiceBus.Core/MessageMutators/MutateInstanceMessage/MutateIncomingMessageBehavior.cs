@@ -1,12 +1,18 @@
 ﻿namespace NServiceBus
 {
     using System;
+    using System.Collections.Generic;
     using System.Threading.Tasks;
     using MessageMutator;
     using Pipeline;
 
     class MutateIncomingMessageBehavior : IBehavior<IIncomingLogicalMessageContext, IIncomingLogicalMessageContext>
     {
+        public MutateIncomingMessageBehavior(IList<IMutateIncomingMessages> mutators)
+        {
+            this.mutators = mutators;
+        }
+
         public Task Invoke(IIncomingLogicalMessageContext context, Func<IIncomingLogicalMessageContext, Task> next)
         {
             if (hasIncomingMessageMutators)
@@ -25,7 +31,17 @@
             var mutatorContext = new MutateIncomingMessageContext(current, context.Headers);
 
             var hasMutators = false;
+
             foreach (var mutator in context.Builder.BuildAll<IMutateIncomingMessages>())
+            {
+                hasMutators = true;
+
+                await mutator.MutateIncoming(mutatorContext)
+                    .ThrowIfNull()
+                    .ConfigureAwait(false);
+            }
+
+            foreach (var mutator in mutators)
             {
                 hasMutators = true;
 
@@ -45,5 +61,6 @@
         }
 
         volatile bool hasIncomingMessageMutators = true;
+        IList<IMutateIncomingMessages> mutators;
     }
 }

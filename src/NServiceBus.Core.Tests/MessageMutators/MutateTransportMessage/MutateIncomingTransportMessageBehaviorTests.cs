@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Core.Tests.MessageMutators.MutateTransportMessage
 {
+    using System.Collections.Generic;
     using System.Threading.Tasks;
     using MessageMutator;
     using NUnit.Framework;
@@ -11,7 +12,7 @@
         [Test]
         public async Task Should_not_call_MutateIncoming_when_hasIncomingTransportMessageMutators_is_false()
         {
-            var behavior = new MutateIncomingTransportMessageBehavior();
+            var behavior = new MutateIncomingTransportMessageBehavior(new List<IMutateIncomingTransportMessages>());
 
             var context = new TestableIncomingPhysicalMessageContext();
 
@@ -28,7 +29,7 @@
         [Test]
         public void Should_throw_friendly_exception_when_IMutateIncomingTransportMessages_MutateIncoming_returns_null()
         {
-            var behavior = new MutateIncomingTransportMessageBehavior();
+            var behavior = new MutateIncomingTransportMessageBehavior(new List<IMutateIncomingTransportMessages>());
 
             var context = new TestableIncomingPhysicalMessageContext();
 
@@ -40,7 +41,7 @@
         [Test]
         public async Task When_no_mutator_updates_the_body_should_not_update_the_body()
         {
-            var behavior = new MutateIncomingTransportMessageBehavior();
+            var behavior = new MutateIncomingTransportMessageBehavior(new List<IMutateIncomingTransportMessages>());
 
             var context = new InterceptUpdateMessageIncomingPhysicalMessageContext();
 
@@ -54,7 +55,7 @@
         [Test]
         public async Task When_no_mutator_available_should_not_update_the_body()
         {
-            var behavior = new MutateIncomingTransportMessageBehavior();
+            var behavior = new MutateIncomingTransportMessageBehavior(new List<IMutateIncomingTransportMessages>());
 
             var context = new InterceptUpdateMessageIncomingPhysicalMessageContext();
 
@@ -68,7 +69,7 @@
         [Test]
         public async Task When_mutator_modifies_the_body_should_update_the_body()
         {
-            var behavior = new MutateIncomingTransportMessageBehavior();
+            var behavior = new MutateIncomingTransportMessageBehavior(new List<IMutateIncomingTransportMessages>());
 
             var context = new InterceptUpdateMessageIncomingPhysicalMessageContext();
 
