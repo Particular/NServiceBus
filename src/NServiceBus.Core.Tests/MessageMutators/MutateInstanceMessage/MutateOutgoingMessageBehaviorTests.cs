@@ -28,6 +28,23 @@
         }
 
         [Test]
+        public async Task Should_invoke_both_explicit_and_container_provided_mutators()
+        {
+            var explicitMutator = new MutatorThatIndicatesIfItWasCalled();
+            var containerMutator = new MutatorThatIndicatesIfItWasCalled();
+
+            var behavior = new MutateOutgoingMessageBehavior(new HashSet<IMutateOutgoingMessages> { explicitMutator });
+
+            var context = new TestableOutgoingLogicalMessageContext();
+            context.Builder.Register<IMutateOutgoingMessages>(() => containerMutator);
+
+            await behavior.Invoke(context, ctx => TaskEx.CompletedTask);
+
+            Assert.True(explicitMutator.MutateOutgoingCalled);
+            Assert.True(containerMutator.MutateOutgoingCalled);
+        }
+
+        [Test]
         public async Task Should_not_call_MutateOutgoing_when_hasOutgoingMessageMutators_is_false()
         {
             var behavior = new MutateOutgoingMessageBehavior(new HashSet<IMutateOutgoingMessages>());
