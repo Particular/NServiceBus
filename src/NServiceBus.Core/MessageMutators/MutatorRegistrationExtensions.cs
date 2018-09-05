@@ -22,27 +22,27 @@
 
             var registry = endpointConfiguration.Settings.GetOrCreate<Mutators.RegisteredMutators>();
 
-            if (messageMutator is IMutateIncomingMessages)
+            if (messageMutator is IMutateIncomingMessages incomingMutator)
             {
-                registry.IncomingMessage.Add((IMutateIncomingMessages)messageMutator);
+                registry.IncomingMessage.Add(incomingMutator);
                 registeredMutator = true;
             }
 
-            if (messageMutator is IMutateIncomingTransportMessages)
+            if (messageMutator is IMutateIncomingTransportMessages incomingTransportMessageMutator)
             {
-                registry.IncomingTransportMessage.Add((IMutateIncomingTransportMessages)messageMutator);
+                registry.IncomingTransportMessage.Add(incomingTransportMessageMutator);
                 registeredMutator = true;
             }
 
-            if (messageMutator is IMutateOutgoingMessages)
+            if (messageMutator is IMutateOutgoingMessages outgoingMutator)
             {
-                registry.OutgoingMessage.Add((IMutateOutgoingMessages)messageMutator);
+                registry.OutgoingMessage.Add(outgoingMutator);
                 registeredMutator = true;
             }
 
-            if (messageMutator is IMutateOutgoingTransportMessages)
+            if (messageMutator is IMutateOutgoingTransportMessages outgoingTransportMessageMutator)
             {
-                registry.OutgoingTransportMessage.Add((IMutateOutgoingTransportMessages)messageMutator);
+                registry.OutgoingTransportMessage.Add(outgoingTransportMessageMutator);
                 registeredMutator = true;
             }
 
