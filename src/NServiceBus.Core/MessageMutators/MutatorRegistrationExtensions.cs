@@ -1,6 +1,6 @@
 ﻿namespace NServiceBus.MessageMutator
 {
-    using NServiceBus.Features;
+    using Features;
     using System;
 
     /// <summary>
