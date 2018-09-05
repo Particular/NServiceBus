@@ -35,7 +35,7 @@
         [TestCase(typeof(IncomingTransportMessageMutator))]
         [TestCase(typeof(OutgoingMessageMutator))]
         [TestCase(typeof(OutgoingTransportMessageMutator))]
-        public void Should_only_invoke_instances_one_even_if_registered_multiple_times(Type mutatorType)
+        public void Should_only_invoke_instances_once_even_if_registered_multiple_times(Type mutatorType)
         {
             var endpointConfiguration = new EndpointConfiguration("test");
             var messageMutator = Activator.CreateInstance(mutatorType);

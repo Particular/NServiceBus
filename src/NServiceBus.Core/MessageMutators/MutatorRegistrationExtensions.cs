@@ -19,7 +19,7 @@
             Guard.AgainstNull(nameof(messageMutator), messageMutator);
 
             var registeredMutator = false;
-           
+
             var registry = endpointConfiguration.Settings.GetOrCreate<Mutators.RegisteredMutators>();
 
             if (messageMutator is IMutateIncomingMessages)
@@ -45,7 +45,7 @@
                 registry.OutgoingTransportMessage.Add((IMutateOutgoingTransportMessages)messageMutator);
                 registeredMutator = true;
             }
-            
+
             if (!registeredMutator)
             {
                 throw new ArgumentException($"The given instance is not a valid message mutator. Implement one of the following mutator interfaces: {typeof(IMutateIncomingMessages).FullName}, {typeof(IMutateIncomingTransportMessages).FullName}, {typeof(IMutateOutgoingMessages).FullName} or {typeof(IMutateOutgoingTransportMessages).FullName}");
