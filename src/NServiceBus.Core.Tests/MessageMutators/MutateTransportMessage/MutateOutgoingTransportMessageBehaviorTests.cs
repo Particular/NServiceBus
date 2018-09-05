@@ -11,6 +11,23 @@
     class MutateOutgoingTransportMessageBehaviorTests
     {
         [Test]
+        public async Task Should_invoke_all_explicit_mutators()
+        {
+            var mutator = new MutatorThatIndicatesIfItWasCalled();
+            var otherMutator = new MutatorThatIndicatesIfItWasCalled();
+
+            var behavior = new MutateOutgoingTransportMessageBehavior(new List<IMutateOutgoingTransportMessages> { mutator, otherMutator });
+
+            var physicalContext = new TestableOutgoingPhysicalMessageContext();
+            physicalContext.Extensions.Set(new OutgoingLogicalMessage(typeof(FakeMessage), new FakeMessage()));
+
+            await behavior.Invoke(physicalContext, ctx => TaskEx.CompletedTask);
+
+            Assert.True(mutator.MutateOutgoingCalled);
+            Assert.True(otherMutator.MutateOutgoingCalled);
+        }
+
+        [Test]
         public async Task Should_not_call_MutateOutgoing_when_hasOutgoingTransportMessageMutators_is_false()
         {
             var behavior = new MutateOutgoingTransportMessageBehavior(new List<IMutateOutgoingTransportMessages>());

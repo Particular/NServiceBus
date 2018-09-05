@@ -12,6 +12,22 @@
     class MutateIncomingMessageBehaviorTests
     {
         [Test]
+        public async Task Should_invoke_all_explicit_mutators()
+        {
+            var mutator = new MutatorThatIndicatesIfItWasCalled();
+            var otherMutator = new MutatorThatIndicatesIfItWasCalled();
+
+            var behavior = new MutateIncomingMessageBehavior(new List<IMutateIncomingMessages> { mutator, otherMutator });
+
+            var context = new TestableIncomingLogicalMessageContext();
+
+            await behavior.Invoke(context, ctx => TaskEx.CompletedTask);
+
+            Assert.True(mutator.MutateIncomingCalled);
+            Assert.True(otherMutator.MutateIncomingCalled);
+        }
+
+        [Test]
         public async Task Should_not_call_MutateIncoming_when_hasIncomingMessageMutators_is_false()
         {
             var behavior = new MutateIncomingMessageBehavior(new List<IMutateIncomingMessages>());
