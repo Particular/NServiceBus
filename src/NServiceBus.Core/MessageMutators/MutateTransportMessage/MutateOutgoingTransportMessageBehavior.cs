@@ -9,7 +9,7 @@
 
     class MutateOutgoingTransportMessageBehavior : IBehavior<IOutgoingPhysicalMessageContext, IOutgoingPhysicalMessageContext>
     {
-        public MutateOutgoingTransportMessageBehavior(IList<IMutateOutgoingTransportMessages> mutators)
+        public MutateOutgoingTransportMessageBehavior(HashSet<IMutateOutgoingTransportMessages> mutators)
         {
             this.mutators = mutators;
         }
@@ -69,6 +69,6 @@
         }
 
         volatile bool hasOutgoingTransportMessageMutators = true;
-        IList<IMutateOutgoingTransportMessages> mutators;
+        HashSet<IMutateOutgoingTransportMessages> mutators;
     }
 }

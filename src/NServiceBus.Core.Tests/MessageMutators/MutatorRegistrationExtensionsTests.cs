@@ -31,6 +31,41 @@
             Assert.DoesNotThrow(() => endpointConfiguration.RegisterMessageMutator(messageMutator));
         }
 
+        [TestCase(typeof(IncomingMessageMutator))]
+        [TestCase(typeof(IncomingTransportMessageMutator))]
+        [TestCase(typeof(OutgoingMessageMutator))]
+        [TestCase(typeof(OutgoingTransportMessageMutator))]
+        public void Should_only_invoke_instances_one_even_if_registered_multiple_times(Type mutatorType)
+        {
+            var endpointConfiguration = new EndpointConfiguration("test");
+            var messageMutator = Activator.CreateInstance(mutatorType);
+
+            endpointConfiguration.RegisterMessageMutator(messageMutator);
+            endpointConfiguration.RegisterMessageMutator(messageMutator);
+
+            var registry = endpointConfiguration.Settings.Get<NServiceBus.Features.Mutators.RegisteredMutators>();
+            
+            if (mutatorType == typeof(IncomingMessageMutator))
+            {
+                Assert.AreEqual(1, registry.IncomingMessage.Count);
+            }
+
+            if (mutatorType == typeof(IncomingTransportMessageMutator))
+            {
+                Assert.AreEqual(1, registry.IncomingTransportMessage.Count);
+            }
+
+            if (mutatorType == typeof(OutgoingMessageMutator))
+            {
+                Assert.AreEqual(1, registry.OutgoingMessage.Count);
+            }
+
+            if (mutatorType == typeof(OutgoingTransportMessageMutator))
+            {
+                Assert.AreEqual(1, registry.OutgoingTransportMessage.Count);
+            }
+        }
+
         [Test]
         public void Should_not_throw_when_registering_mutator_implementing_multiple_mutator_interfaces()
         {

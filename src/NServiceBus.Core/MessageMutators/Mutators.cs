@@ -23,10 +23,10 @@
 
         public class RegisteredMutators
         {
-            public IList<IMutateIncomingMessages> IncomingMessage = new List<IMutateIncomingMessages>();
-            public IList<IMutateOutgoingMessages> OutgoingMessage = new List<IMutateOutgoingMessages>();
-            public IList<IMutateIncomingTransportMessages> IncomingTransportMessage = new List<IMutateIncomingTransportMessages>();
-            public IList<IMutateOutgoingTransportMessages> OutgoingTransportMessage = new List<IMutateOutgoingTransportMessages>();
+            public HashSet<IMutateIncomingMessages> IncomingMessage = new HashSet<IMutateIncomingMessages>();
+            public HashSet<IMutateOutgoingMessages> OutgoingMessage = new HashSet<IMutateOutgoingMessages>();
+            public HashSet<IMutateIncomingTransportMessages> IncomingTransportMessage = new HashSet<IMutateIncomingTransportMessages>();
+            public HashSet<IMutateOutgoingTransportMessages> OutgoingTransportMessage = new HashSet<IMutateOutgoingTransportMessages>();
         }
     }
 }

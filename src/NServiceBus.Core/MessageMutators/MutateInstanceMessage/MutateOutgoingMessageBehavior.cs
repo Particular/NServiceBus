@@ -9,7 +9,7 @@
 
     class MutateOutgoingMessageBehavior : IBehavior<IOutgoingLogicalMessageContext, IOutgoingLogicalMessageContext>
     {
-        public MutateOutgoingMessageBehavior(IList<IMutateOutgoingMessages> mutators)
+        public MutateOutgoingMessageBehavior(HashSet<IMutateOutgoingMessages> mutators)
         {
             this.mutators = mutators;
         }
@@ -66,6 +66,6 @@
         }
 
         volatile bool hasOutgoingMessageMutators = true;
-        IList<IMutateOutgoingMessages> mutators;
+        HashSet<IMutateOutgoingMessages> mutators;
     }
 }

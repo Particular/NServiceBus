@@ -8,7 +8,7 @@
 
     class MutateIncomingMessageBehavior : IBehavior<IIncomingLogicalMessageContext, IIncomingLogicalMessageContext>
     {
-        public MutateIncomingMessageBehavior(IList<IMutateIncomingMessages> mutators)
+        public MutateIncomingMessageBehavior(HashSet<IMutateIncomingMessages> mutators)
         {
             this.mutators = mutators;
         }
@@ -61,6 +61,6 @@
         }
 
         volatile bool hasIncomingMessageMutators = true;
-        IList<IMutateIncomingMessages> mutators;
+        HashSet<IMutateIncomingMessages> mutators;
     }
 }

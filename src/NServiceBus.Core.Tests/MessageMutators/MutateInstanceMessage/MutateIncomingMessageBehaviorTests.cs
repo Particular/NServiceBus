@@ -17,7 +17,7 @@
             var mutator = new MutatorThatIndicatesIfItWasCalled();
             var otherMutator = new MutatorThatIndicatesIfItWasCalled();
 
-            var behavior = new MutateIncomingMessageBehavior(new List<IMutateIncomingMessages> { mutator, otherMutator });
+            var behavior = new MutateIncomingMessageBehavior(new HashSet<IMutateIncomingMessages> { mutator, otherMutator });
 
             var context = new TestableIncomingLogicalMessageContext();
 
@@ -30,7 +30,7 @@
         [Test]
         public async Task Should_not_call_MutateIncoming_when_hasIncomingMessageMutators_is_false()
         {
-            var behavior = new MutateIncomingMessageBehavior(new List<IMutateIncomingMessages>());
+            var behavior = new MutateIncomingMessageBehavior(new HashSet<IMutateIncomingMessages>());
 
             var context = new TestableIncomingLogicalMessageContext();
 
@@ -47,7 +47,7 @@
         [Test]
         public void Should_throw_friendly_exception_when_IMutateIncomingMessages_MutateIncoming_returns_null()
         {
-            var behavior = new MutateIncomingMessageBehavior(new List<IMutateIncomingMessages>());
+            var behavior = new MutateIncomingMessageBehavior(new HashSet<IMutateIncomingMessages>());
 
             var logicalMessage = new LogicalMessage(new MessageMetadata(typeof(TestMessage)), new TestMessage());
 
@@ -64,7 +64,7 @@
         [Test]
         public async Task When_no_mutator_updates_the_body_should_not_update_the_body()
         {
-            var behavior = new MutateIncomingMessageBehavior(new List<IMutateIncomingMessages>());
+            var behavior = new MutateIncomingMessageBehavior(new HashSet<IMutateIncomingMessages>());
 
             var context = new InterceptUpdateMessageIncomingLogicalMessageContext();
 
@@ -78,7 +78,7 @@
         [Test]
         public async Task When_no_mutator_available_should_not_update_the_body()
         {
-            var behavior = new MutateIncomingMessageBehavior(new List<IMutateIncomingMessages>());
+            var behavior = new MutateIncomingMessageBehavior(new HashSet<IMutateIncomingMessages>());
 
             var context = new InterceptUpdateMessageIncomingLogicalMessageContext();
 
@@ -92,7 +92,7 @@
         [Test]
         public async Task When_mutator_modifies_the_body_should_update_the_body()
         {
-            var behavior = new MutateIncomingMessageBehavior(new List<IMutateIncomingMessages>());
+            var behavior = new MutateIncomingMessageBehavior(new HashSet<IMutateIncomingMessages>());
 
             var context = new InterceptUpdateMessageIncomingLogicalMessageContext();
 
