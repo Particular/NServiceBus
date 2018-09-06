@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus
 {
     using System;
+    using System.Collections.Generic;
     using System.Threading.Tasks;
     using MessageMutator;
     using Pipeline;
@@ -8,6 +9,11 @@
 
     class MutateOutgoingMessageBehavior : IBehavior<IOutgoingLogicalMessageContext, IOutgoingLogicalMessageContext>
     {
+        public MutateOutgoingMessageBehavior(HashSet<IMutateOutgoingMessages> mutators)
+        {
+            this.mutators = mutators;
+        }
+
         public Task Invoke(IOutgoingLogicalMessageContext context, Func<IOutgoingLogicalMessageContext, Task> next)
         {
             if (hasOutgoingMessageMutators)
@@ -30,7 +36,17 @@
                 incomingPhysicalMessage?.Headers);
 
             var hasMutators = false;
+
             foreach (var mutator in context.Builder.BuildAll<IMutateOutgoingMessages>())
+            {
+                hasMutators = true;
+
+                await mutator.MutateOutgoing(mutatorContext)
+                    .ThrowIfNull()
+                    .ConfigureAwait(false);
+            }
+
+            foreach (var mutator in mutators)
             {
                 hasMutators = true;
 
@@ -50,5 +66,6 @@
         }
 
         volatile bool hasOutgoingMessageMutators = true;
+        HashSet<IMutateOutgoingMessages> mutators;
     }
 }
