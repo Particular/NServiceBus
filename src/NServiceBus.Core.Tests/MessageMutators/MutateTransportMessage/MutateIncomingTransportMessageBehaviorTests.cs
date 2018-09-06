@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Core.Tests.MessageMutators.MutateTransportMessage
 {
+    using System.Collections.Generic;
     using System.Threading.Tasks;
     using MessageMutator;
     using NUnit.Framework;
@@ -9,9 +10,42 @@
     public class MutateIncomingTransportMessageBehaviorTests
     {
         [Test]
+        public async Task Should_invoke_all_explicit_mutators()
+        {
+            var mutator = new MutatorThatIndicatesIfItWasCalled();
+            var otherMutator = new MutatorThatIndicatesIfItWasCalled();
+
+            var behavior = new MutateIncomingTransportMessageBehavior(new HashSet<IMutateIncomingTransportMessages> { mutator, otherMutator });
+
+            var context = new TestableIncomingPhysicalMessageContext();
+
+            await behavior.Invoke(context, ctx => TaskEx.CompletedTask);
+
+            Assert.True(mutator.MutateIncomingCalled);
+            Assert.True(otherMutator.MutateIncomingCalled);
+        }
+
+        [Test]
+        public async Task Should_invoke_both_explicit_and_container_provided_mutators()
+        {
+            var explicitMutator = new MutatorThatIndicatesIfItWasCalled();
+            var containerMutator = new MutatorThatIndicatesIfItWasCalled();
+
+            var behavior = new MutateIncomingTransportMessageBehavior(new HashSet<IMutateIncomingTransportMessages> { explicitMutator });
+
+            var context = new TestableIncomingPhysicalMessageContext();
+            context.Builder.Register<IMutateIncomingTransportMessages>(() => containerMutator);
+
+            await behavior.Invoke(context, ctx => TaskEx.CompletedTask);
+
+            Assert.True(explicitMutator.MutateIncomingCalled);
+            Assert.True(containerMutator.MutateIncomingCalled);
+        }
+
+        [Test]
         public async Task Should_not_call_MutateIncoming_when_hasIncomingTransportMessageMutators_is_false()
         {
-            var behavior = new MutateIncomingTransportMessageBehavior();
+            var behavior = new MutateIncomingTransportMessageBehavior(new HashSet<IMutateIncomingTransportMessages>());
 
             var context = new TestableIncomingPhysicalMessageContext();
 
@@ -28,7 +62,7 @@
         [Test]
         public void Should_throw_friendly_exception_when_IMutateIncomingTransportMessages_MutateIncoming_returns_null()
         {
-            var behavior = new MutateIncomingTransportMessageBehavior();
+            var behavior = new MutateIncomingTransportMessageBehavior(new HashSet<IMutateIncomingTransportMessages>());
 
             var context = new TestableIncomingPhysicalMessageContext();
 
@@ -40,7 +74,7 @@
         [Test]
         public async Task When_no_mutator_updates_the_body_should_not_update_the_body()
         {
-            var behavior = new MutateIncomingTransportMessageBehavior();
+            var behavior = new MutateIncomingTransportMessageBehavior(new HashSet<IMutateIncomingTransportMessages>());
 
             var context = new InterceptUpdateMessageIncomingPhysicalMessageContext();
 
@@ -54,7 +88,7 @@
         [Test]
         public async Task When_no_mutator_available_should_not_update_the_body()
         {
-            var behavior = new MutateIncomingTransportMessageBehavior();
+            var behavior = new MutateIncomingTransportMessageBehavior(new HashSet<IMutateIncomingTransportMessages>());
 
             var context = new InterceptUpdateMessageIncomingPhysicalMessageContext();
 
@@ -68,7 +102,7 @@
         [Test]
         public async Task When_mutator_modifies_the_body_should_update_the_body()
         {
-            var behavior = new MutateIncomingTransportMessageBehavior();
+            var behavior = new MutateIncomingTransportMessageBehavior(new HashSet<IMutateIncomingTransportMessages>());
 
             var context = new InterceptUpdateMessageIncomingPhysicalMessageContext();
 
