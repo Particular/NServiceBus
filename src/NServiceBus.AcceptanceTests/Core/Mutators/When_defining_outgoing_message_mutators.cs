@@ -37,7 +37,7 @@
                 {
                     var scenarioContext = (Context)r.ScenarioContext;
                     c.RegisterMessageMutator(new TransportMutator(scenarioContext));
-                    c.RegisterMessageMutator(new OtherTransportMutator(context));
+                    c.RegisterMessageMutator(new OtherTransportMutator(scenarioContext));
                     c.RegisterMessageMutator(new MessageMutator(scenarioContext));
                 });
             }
