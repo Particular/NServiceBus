@@ -33,16 +33,15 @@
         {
             public Endpoint()
             {
-                EndpointSetup<DefaultServer,Context>((config, context) =>
-                {
-                    config.RegisterMessageMutator(new TransportMutator(context));
-                    config.RegisterMessageMutator(new OtherTransportMutator(context));
-                    config.RegisterMessageMutator(new MessageMutator(context));
-                });
+                EndpointSetup<DefaultServer, Context>((config, context) =>
+                 {
+                     config.RegisterMessageMutator(new TransportMutator(context));
+                     config.RegisterMessageMutator(new OtherTransportMutator(context));
+                     config.RegisterMessageMutator(new MessageMutator(context));
+                 });
             }
 
-            class TransportMutator :
-                IMutateOutgoingTransportMessages
+            class TransportMutator : IMutateOutgoingTransportMessages
             {
                 public TransportMutator(Context testContext)
                 {
@@ -58,8 +57,7 @@
                 Context testContext;
             }
 
-            class OtherTransportMutator :
-              IMutateOutgoingTransportMessages
+            class OtherTransportMutator : IMutateOutgoingTransportMessages
             {
                 public OtherTransportMutator(Context testContext)
                 {
@@ -74,7 +72,6 @@
 
                 Context testContext;
             }
-
 
             class MessageMutator : IMutateOutgoingMessages
             {
@@ -109,7 +106,6 @@
                 Context testContext;
             }
         }
-
 
         public class Message : ICommand
         {
