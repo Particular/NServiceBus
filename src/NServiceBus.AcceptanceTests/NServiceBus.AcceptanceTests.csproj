@@ -252,7 +252,7 @@
     <Compile Include="Serialization\When_wrapping_is_not_skipped.cs" />
     <Compile Include="Serialization\When_xml_serializer_used_with_unobtrusive_mode.cs" />
     <Compile Include="Routing\NativePublishSubscribe\When_multi_subscribing_to_a_polymorphic_event.cs" />
-    <Compile Include="Routing\MessageDrivenSubscriptions\When_using_autosubscribe_with_missing_routing_information.cs" />
+    <Compile Include="Routing\MessageDrivenSubscriptions\When_autosubscribe_with_missing_routing_information.cs" />
     <Compile Include="Routing\MessageDrivenSubscriptions\When_publishing_to_scaled_out_subscribers.cs" />
     <Compile Include="Routing\NativePublishSubscribe\When_publishing_to_scaled_out_subscribers.cs" />
     <Compile Include="Routing\When_replying_to_a_message_sent_to_specific_instance.cs" />

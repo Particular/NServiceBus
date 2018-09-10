@@ -7,7 +7,7 @@
     using System.Linq;
     using System.Threading.Tasks;
 
-    public class When_using_autosubscribe_with_missing_routing_information : NServiceBusAcceptanceTest
+    public class When_autosubscribe_with_missing_routing_information : NServiceBusAcceptanceTest
     {
         [Test]
         public async Task Should_log_events_with_missing_routes()
