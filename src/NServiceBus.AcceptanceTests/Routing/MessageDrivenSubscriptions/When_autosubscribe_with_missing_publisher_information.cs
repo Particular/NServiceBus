@@ -5,7 +5,7 @@
     using EndpointTemplates;
     using NUnit.Framework;
 
-    public class When_using_autosubscribe_with_missing_publisher_information : NServiceBusAcceptanceTest
+    public class When_autosubscribe_with_missing_publisher_information : NServiceBusAcceptanceTest
     {
         [Test]
         public async Task Should_skip_events_with_missing_routes()
