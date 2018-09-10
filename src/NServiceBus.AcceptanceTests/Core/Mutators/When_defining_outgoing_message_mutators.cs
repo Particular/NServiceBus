@@ -17,6 +17,7 @@
                 .Run();
 
             Assert.True(context.TransportMutatorCalled);
+            Assert.True(context.OtherTransportMutatorCalled);
             Assert.True(context.MessageMutatorCalled);
         }
 
@@ -24,6 +25,7 @@
         {
             public bool MessageProcessed { get; set; }
             public bool TransportMutatorCalled { get; set; }
+            public bool OtherTransportMutatorCalled { get; set; }
             public bool MessageMutatorCalled { get; set; }
         }
 
@@ -35,12 +37,12 @@
                 {
                     var scenarioContext = (Context)r.ScenarioContext;
                     c.RegisterMessageMutator(new TransportMutator(scenarioContext));
+                    c.RegisterMessageMutator(new OtherTransportMutator(scenarioContext));
                     c.RegisterMessageMutator(new MessageMutator(scenarioContext));
                 });
             }
 
-            class TransportMutator :
-                IMutateOutgoingTransportMessages
+            class TransportMutator : IMutateOutgoingTransportMessages
             {
                 public TransportMutator(Context testContext)
                 {
@@ -50,6 +52,22 @@
                 public Task MutateOutgoing(MutateOutgoingTransportMessageContext context)
                 {
                     testContext.TransportMutatorCalled = true;
+                    return Task.FromResult(0);
+                }
+
+                Context testContext;
+            }
+
+            class OtherTransportMutator : IMutateOutgoingTransportMessages
+            {
+                public OtherTransportMutator(Context testContext)
+                {
+                    this.testContext = testContext;
+                }
+
+                public Task MutateOutgoing(MutateOutgoingTransportMessageContext context)
+                {
+                    testContext.OtherTransportMutatorCalled = true;
                     return Task.FromResult(0);
                 }
 
@@ -89,7 +107,6 @@
                 Context testContext;
             }
         }
-
 
         public class Message : ICommand
         {
