@@ -17,6 +17,7 @@
                 .Run();
 
             Assert.True(context.TransportMutatorCalled);
+            Assert.True(context.OtherTransportMutatorCalled);
             Assert.True(context.MessageMutatorCalled);
         }
 
@@ -24,6 +25,7 @@
         {
             public bool MessageProcessed { get; set; }
             public bool TransportMutatorCalled { get; set; }
+            public bool OtherTransportMutatorCalled { get; set; }
             public bool MessageMutatorCalled { get; set; }
         }
 
@@ -31,15 +33,15 @@
         {
             public Endpoint()
             {
-                EndpointSetup<DefaultServer,Context>((config, context) =>
-                {
-                    config.RegisterMessageMutator(new TransportMutator(context));
-                    config.RegisterMessageMutator(new MessageMutator(context));
-                });
+                EndpointSetup<DefaultServer, Context>((config, context) =>
+                 {
+                     config.RegisterMessageMutator(new TransportMutator(context));
+                     config.RegisterMessageMutator(new OtherTransportMutator(context));
+                     config.RegisterMessageMutator(new MessageMutator(context));
+                 });
             }
 
-            class TransportMutator :
-                IMutateOutgoingTransportMessages
+            class TransportMutator : IMutateOutgoingTransportMessages
             {
                 public TransportMutator(Context testContext)
                 {
@@ -49,6 +51,22 @@
                 public Task MutateOutgoing(MutateOutgoingTransportMessageContext context)
                 {
                     testContext.TransportMutatorCalled = true;
+                    return Task.FromResult(0);
+                }
+
+                Context testContext;
+            }
+
+            class OtherTransportMutator : IMutateOutgoingTransportMessages
+            {
+                public OtherTransportMutator(Context testContext)
+                {
+                    this.testContext = testContext;
+                }
+
+                public Task MutateOutgoing(MutateOutgoingTransportMessageContext context)
+                {
+                    testContext.OtherTransportMutatorCalled = true;
                     return Task.FromResult(0);
                 }
 
@@ -88,7 +106,6 @@
                 Context testContext;
             }
         }
-
 
         public class Message : ICommand
         {
