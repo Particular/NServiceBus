@@ -113,7 +113,7 @@ namespace NServiceBus.Core.Tests.AssemblyScanner
         }
 
         [Test, RunInApplicationDomain]
-        public void Assemblies_with_transitive_reference_are_include()
+        public void Assemblies_with_transitive_references_are_included()
         {
             var busAssembly = new DynamicAssembly("Fake.NServiceBus.Core");
             var assemblyC = new DynamicAssembly("C", new[]
