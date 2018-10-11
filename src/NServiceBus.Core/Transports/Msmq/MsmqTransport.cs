@@ -30,9 +30,8 @@ namespace NServiceBus
         public override TransportInfrastructure Initialize(SettingsHolder settings, string connectionString)
         {
             Guard.AgainstNull(nameof(settings), settings);
-            string errorQueue;
 
-            if (!settings.GetOrDefault<bool>("Endpoint.SendOnly") && !settings.TryGetExplicitlyConfiguredErrorQueueAddress(out errorQueue))
+            if (!settings.GetOrDefault<bool>("Endpoint.SendOnly") && !settings.TryGetExplicitlyConfiguredErrorQueueAddress(out _))
             {
                 throw new Exception("Faults forwarding requires an error queue to be specified using 'EndpointConfiguration.SendFailedMessagesTo()'");
             }

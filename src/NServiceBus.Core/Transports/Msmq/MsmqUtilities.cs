@@ -191,9 +191,7 @@ namespace NServiceBus
                 return;
             }
 
-            Guid correlationId;
-
-            if (Guid.TryParse(correlationIdHeader, out correlationId))
+            if (Guid.TryParse(correlationIdHeader, out _))
             {
                 //msmq required the id's to be in the {guid}\{incrementing number} format so we need to fake a \0 at the end to make it compatible
                 result.CorrelationId = $"{correlationIdHeader}\\0";
@@ -206,10 +204,8 @@ namespace NServiceBus
                 {
                     var parts = correlationIdHeader.Split('\\');
 
-                    int number;
-
-                    if (parts.Length == 2 && Guid.TryParse(parts.First(), out correlationId) &&
-                        int.TryParse(parts[1], out number))
+                    if (parts.Length == 2 && Guid.TryParse(parts.First(), out _) &&
+                        int.TryParse(parts[1], out _))
                     {
                         result.CorrelationId = correlationIdHeader;
                     }

@@ -102,8 +102,7 @@
             RaiseLegacyNotifications(context);
 
             //HINT: we turn off the legacy retries satellite only when explicitly configured by the user
-            bool disableLegacyRetriesSatellite;
-            if (context.Settings.TryGet(DisableLegacyRetriesSatellite, out disableLegacyRetriesSatellite) == false)
+            if (context.Settings.TryGet(DisableLegacyRetriesSatellite, out bool _) == false)
             {
                 SetupLegacyRetriesSatellite(context);
             }

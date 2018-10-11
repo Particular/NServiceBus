@@ -76,8 +76,7 @@ namespace NServiceBus
                 {
                     foreach (var messageType in messagelist)
                     {
-                        string messageId;
-                        if (subscribers.Value.TryGetValue(messageType, out messageId))
+                        if (subscribers.Value.TryGetValue(messageType, out _))
                         {
                             result.Add(subscribers.Key);
                         }

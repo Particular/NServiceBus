@@ -162,8 +162,7 @@ namespace NServiceBus
                     receiveTask.ContinueWith((t, state) =>
                     {
                         var receiveTasks = (ConcurrentDictionary<Task, Task>) state;
-                        Task toBeRemoved;
-                        receiveTasks.TryRemove(t, out toBeRemoved);
+                        receiveTasks.TryRemove(t, out _);
                     }, runningReceiveTasks, TaskContinuationOptions.ExecuteSynchronously)
                         .Ignore();
                 }
