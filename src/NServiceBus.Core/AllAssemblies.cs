@@ -101,8 +101,11 @@ namespace NServiceBus
 
         AllAssemblies()
         {
+            // FalsePositive, see https://youtrack.jetbrains.com/issue/RSRP-465918
+            // ReSharper disable once ConditionIsAlwaysTrueOrFalse
             var isWebApplication = HttpRuntime.AppDomainAppId != null;
 
+            // ReSharper disable once ConditionIsAlwaysTrueOrFalse
             directory = isWebApplication
                             ? HttpRuntime.BinDirectory
                             : AppDomain.CurrentDomain.BaseDirectory;

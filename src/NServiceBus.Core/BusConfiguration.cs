@@ -183,6 +183,8 @@ namespace NServiceBus
             if (scannedTypes == null)
             {
                 var directoryToScan = AppDomain.CurrentDomain.BaseDirectory;
+                // FalsePositive, see https://youtrack.jetbrains.com/issue/RSRP-465918
+                // ReSharper disable once ConditionIsAlwaysTrueOrFalse
                 if (HttpRuntime.AppDomainAppId != null)
                 {
                     directoryToScan = HttpRuntime.BinDirectory;
@@ -193,6 +195,9 @@ namespace NServiceBus
 
             scannedTypes = scannedTypes.Union(Configure.GetAllowedTypes(Assembly.GetExecutingAssembly())).ToList();
 
+            // FalsePositive, see https://youtrack.jetbrains.com/issue/RSRP-465918
+            // ReSharper disable once ConditionIsAlwaysTrueOrFalse
+            // ReSharper disable HeuristicUnreachableCode
             if (HttpRuntime.AppDomainAppId == null)
             {
                 var baseDirectory = directory ?? AppDomain.CurrentDomain.BaseDirectory;
@@ -202,6 +207,7 @@ namespace NServiceBus
                     scannedTypes = scannedTypes.Union(Configure.GetAllowedTypes(Assembly.LoadFrom(hostPath))).ToList();
                 }
             }
+            // ReSharper restore HeuristicUnreachableCode
 
             Settings.SetDefault("TypesToScan", scannedTypes);
 

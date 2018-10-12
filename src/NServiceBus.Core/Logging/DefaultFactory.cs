@@ -63,10 +63,14 @@ namespace NServiceBus.Logging
 
         internal static string FindDefaultLoggingDirectory()
         {
+            // FalsePositive, see https://youtrack.jetbrains.com/issue/RSRP-465918
+            // ReSharper disable once ConditionIsAlwaysTrueOrFalse
+            // ReSharper disable HeuristicUnreachableCode
             if (HttpRuntime.AppDomainAppId == null)
             {
                 return AppDomain.CurrentDomain.BaseDirectory;
             }
+            // ReSharper restore HeuristicUnreachableCode
 
             return DeriveAppDataPath();
         }
