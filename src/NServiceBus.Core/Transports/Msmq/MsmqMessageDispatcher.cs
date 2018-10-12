@@ -138,9 +138,7 @@ namespace NServiceBus
                 return true;
             }
 
-            MessageQueueTransaction activeReceiveTransaction;
-
-            return TryGetNativeTransaction(transaction, out activeReceiveTransaction);
+            return TryGetNativeTransaction(transaction, out _);
         }
 
         static bool TryGetNativeTransaction(TransportTransaction transportTransaction, out MessageQueueTransaction transaction)

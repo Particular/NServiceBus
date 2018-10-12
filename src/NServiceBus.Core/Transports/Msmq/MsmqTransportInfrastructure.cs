@@ -108,9 +108,6 @@ namespace NServiceBus
         {
             new CheckMachineNameForComplianceWithDtcLimitation().Check();
 
-            Func<IReadOnlyDictionary<string, string>, string> getMessageLabel;
-            settings.TryGet("Msmq.GetMessageLabel", out getMessageLabel);
-
             Func<IReadOnlyDictionary<string, string>, string> messageLabelGenerator;
             if (!settings.TryGet("msmqLabelGenerator", out messageLabelGenerator))
             {
