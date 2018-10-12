@@ -209,9 +209,7 @@
 
         static bool IsTimeoutMessage(Dictionary<string, string> headers)
         {
-            string isSagaTimeout;
-
-            if (headers.TryGetValue(Headers.IsSagaTimeoutMessage, out isSagaTimeout))
+            if (headers.TryGetValue(Headers.IsSagaTimeoutMessage, out _))
             {
                 return true;
             }

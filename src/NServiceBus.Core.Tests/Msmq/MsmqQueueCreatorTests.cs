@@ -165,11 +165,8 @@
 
             var existingQueue = GetQueue(testQueueNameForReceiving);
 
-            MessageQueueAccessRights? nullBecauseRevoked;
-            AccessControlEntryType? accessControlEntryType;
-
-            Assert.False(existingQueue.TryGetPermissions(LocalEveryoneGroupName, out nullBecauseRevoked, out accessControlEntryType));
-            Assert.False(existingQueue.TryGetPermissions(LocalAnonymousLogonName, out nullBecauseRevoked, out accessControlEntryType));
+            Assert.False(existingQueue.TryGetPermissions(LocalEveryoneGroupName, out _, out var accessControlEntryType));
+            Assert.False(existingQueue.TryGetPermissions(LocalAnonymousLogonName, out _, out accessControlEntryType));
             Assert.IsNull(accessControlEntryType);
         }
 

@@ -83,8 +83,7 @@ namespace NServiceBus
         {
             get
             {
-                IPAddress ipAddress;
-                if (IPAddress.TryParse(Machine, out ipAddress))
+                if (IPAddress.TryParse(Machine, out _))
                 {
                     return PREFIX_TCP + PathWithoutPrefix;
                 }

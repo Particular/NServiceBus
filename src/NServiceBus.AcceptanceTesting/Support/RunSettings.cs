@@ -117,8 +117,7 @@ namespace NServiceBus.AcceptanceTesting.Support
         public void Remove(string key)
         {
             Guard.AgainstNullAndEmpty(nameof(key), key);
-            object value;
-            stash.TryRemove(key, out value);
+            stash.TryRemove(key, out _);
         }
 
         /// <summary>
