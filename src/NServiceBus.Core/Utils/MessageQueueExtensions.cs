@@ -131,12 +131,11 @@
                     throw new Exception($"Unable to read the security descriptor of queue [{formatName}]");
                 }
 
-                bool daclPresent, daclDefaulted;
                 IntPtr pDacl;
                 var success = GetSecurityDescriptorDacl(sdHandle.AddrOfPinnedObject(),
-                    out daclPresent,
+                    out _,
                     out pDacl,
-                    out daclDefaulted);
+                    out _);
 
                 if (!success)
                 {

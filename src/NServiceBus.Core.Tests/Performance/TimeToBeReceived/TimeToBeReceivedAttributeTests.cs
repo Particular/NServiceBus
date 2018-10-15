@@ -75,11 +75,9 @@
             {
             }, TimeToBeReceivedMappings.DefaultConvention, doesTransportSupportDiscardIfNotReceivedBefore: false);
 
-            Assert.That(() =>
-            {
-                TimeSpan ttbr;
-                return mappings.TryGetTimeToBeReceived(typeof(InheritedClassWithNoAttribute), out ttbr);
-            }, Throws.Exception.Message.StartWith("Messages with TimeToBeReceived found but the selected transport does not support this type of restriction"));
+            Assert.That(
+                () => mappings.TryGetTimeToBeReceived(typeof(InheritedClassWithNoAttribute), out _), 
+                Throws.Exception.Message.StartWith("Messages with TimeToBeReceived found but the selected transport does not support this type of restriction"));
         }
 
         [TimeToBeReceived("00:00:01")]
