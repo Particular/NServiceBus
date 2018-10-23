@@ -37,7 +37,7 @@ $jobScriptBlock = {
         # Post Version to particular.net
         $wc = New-Object System.Net.WebClient 
         try {
-            $url = 'https://particular.net/api/ReportFirstTimeInstall'
+            $url = 'https://api.particular.net/googleanalytics/reportfirsttimeinstall'
             $postData  = New-Object System.Collections.Specialized.NameValueCollection
             $postData.Add("version", $packageversion)
             $wc.UseDefaultCredentials = $true
