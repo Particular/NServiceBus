@@ -16,8 +16,7 @@
         [TestCase("2012-12-12", "2012-12-15")]
         public void ShouldWarnAboutExpiringTrialLicense(string currentDate, string expirationDate)
         {
-            var licenseManager = new LicenseManager();
-            licenseManager.todayUtc = () => DateTime.ParseExact(currentDate, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal);
+            var licenseManager = new LicenseManager(() => DateTime.ParseExact(currentDate, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal));
             var logger = new TestableLogger();
             var license = new License
             {
@@ -36,8 +35,7 @@
         [TestCase("2012-12-12", "2012-12-17")]
         public void ShouldNotWarnAboutExpiringTrialLicenseWhenMoreThanThreeDaysAway(string currentDate, string expirationDate)
         {
-            var licenseManager = new LicenseManager();
-            licenseManager.todayUtc = () => DateTime.ParseExact(currentDate, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal);
+            var licenseManager = new LicenseManager(() => DateTime.ParseExact(currentDate, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal));
             var logger = new TestableLogger();
             var license = new License
             {
@@ -53,8 +51,7 @@
         [Test]
         public void ShouldLogErrorAboutExpiredTrialLicense()
         {
-            var licenseManager = new LicenseManager();
-            licenseManager.todayUtc = () => new DateTime(2012, 12, 12);
+            var licenseManager = new LicenseManager(() => new DateTime(2012, 12, 12));
             var logger = new TestableLogger();
             var license = new License
             {
@@ -74,8 +71,7 @@
         [TestCase("2012-12-12", "2012-12-15")]
         public void ShouldWarnAboutExpiringSubscriptionLicense(string currentDate, string expirationDate)
         {
-            var licenseManager = new LicenseManager();
-            licenseManager.todayUtc = () => DateTime.ParseExact(currentDate, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal);
+            var licenseManager = new LicenseManager(() => DateTime.ParseExact(currentDate, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal));
             var logger = new TestableLogger();
             var license = new License
             {
@@ -94,8 +90,7 @@
         [TestCase("2012-12-12", "2012-12-17")]
         public void ShouldNotWarnAboutExpiringLicenseWhenMoreThanThreeDaysAway(string currentDate, string expirationDate)
         {
-            var licenseManager = new LicenseManager();
-            licenseManager.todayUtc = () => DateTime.ParseExact(currentDate, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal);
+            var licenseManager = new LicenseManager(() => DateTime.ParseExact(currentDate, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal));
             var logger = new TestableLogger();
             var license = new License
             {
@@ -111,8 +106,7 @@
         [Test]
         public void ShouldLogErrorAboutExpiredLicense()
         {
-            var licenseManager = new LicenseManager();
-            licenseManager.todayUtc = () => new DateTime(2012, 12, 12);
+            var licenseManager = new LicenseManager(() => new DateTime(2012, 12, 12));
             var logger = new TestableLogger();
             var license = new License
             {
@@ -132,8 +126,7 @@
         [TestCase("2012-12-12", "2012-12-15")]
         public void ShouldWarnAboutExpiringUpgradeProtection(string currentDate, string expirationDate)
         {
-            var licenseManager = new LicenseManager();
-            licenseManager.todayUtc = () => DateTime.ParseExact(currentDate, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal);
+            var licenseManager = new LicenseManager(() => DateTime.ParseExact(currentDate, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal));
             var logger = new TestableLogger();
             var license = new License
             {
@@ -152,8 +145,7 @@
         [TestCase("2012-12-12", "2012-12-17")]
         public void ShouldNotWarnAboutExpiringUpgradeProtectionWhenMoreThanThreeDaysAway(string currentDate, string expirationDate)
         {
-            var licenseManager = new LicenseManager();
-            licenseManager.todayUtc = () => DateTime.ParseExact(currentDate, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal);
+            var licenseManager = new LicenseManager(() => DateTime.ParseExact(currentDate, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal));
             var logger = new TestableLogger();
             var license = new License
             {
@@ -169,8 +161,7 @@
         [Test]
         public void ShouldLogErrorAboutExpiredUpgradeProtection()
         {
-            var licenseManager = new LicenseManager();
-            licenseManager.todayUtc = () => new DateTime(2012, 12, 12);
+            var licenseManager = new LicenseManager(() => new DateTime(2012, 12, 12));
             var logger = new TestableLogger();
             var license = new License
             {

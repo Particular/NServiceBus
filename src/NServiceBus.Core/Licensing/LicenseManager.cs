@@ -14,8 +14,12 @@ namespace NServiceBus
 
     class LicenseManager
     {
-        internal Func<DateTime> todayUtc = () => DateTime.Today;
         internal bool HasLicenseExpired => result?.HasExpired ?? true;
+
+        public LicenseManager(Func<DateTime> utcDateTimeProvider)
+        {
+            this.utcDateTimeProvider = utcDateTimeProvider;
+        }
 
         internal void InitializeLicense(string licenseText, string licenseFilePath)
         {
@@ -59,12 +63,12 @@ namespace NServiceBus
         {
             if (activeLicense.UpgradeProtectionExpiration.HasValue)
             {
-                if (activeLicense.UpgradeProtectionExpiration.Value.Subtract(ExpirationWarningThreshold) <= todayUtc())
+                if (activeLicense.UpgradeProtectionExpiration.Value.Subtract(ExpirationWarningThreshold) <= utcDateTimeProvider().Date)
                 {
                     logger.Warn("Please extend your upgrade protection so that we can continue to provide you with support and new versions of the Particular Service Platform.");
                 }
             }
-            else if (activeLicense.ExpirationDate?.Subtract(ExpirationWarningThreshold) <= todayUtc())
+            else if (activeLicense.ExpirationDate?.Subtract(ExpirationWarningThreshold) <= utcDateTimeProvider().Date)
             {
                 if (activeLicense.IsTrialLicense)
                 {
@@ -185,6 +189,7 @@ namespace NServiceBus
 #endif
 
         ActiveLicenseFindResult result;
+        readonly Func<DateTime> utcDateTimeProvider;
 
         static ILog Logger = LogManager.GetLogger(typeof(LicenseManager));
         static readonly bool debugLoggingEnabled = Logger.IsDebugEnabled;
