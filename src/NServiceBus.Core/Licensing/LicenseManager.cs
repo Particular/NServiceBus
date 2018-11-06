@@ -47,15 +47,15 @@ namespace NServiceBus
         {
             if (activeLicense.UpgradeProtectionExpiration.HasValue)
             {
-                logger.Error("Please extend your upgrade protection so that we can continue to provide you with support and new versions of the Particular Service Platform.");
+                logger.Error("Upgrade protection expired. Please extend your upgrade protection so that we can continue to provide you with support and new versions of the Particular Service Platform.");
             }
             else if (activeLicense.IsTrialLicense)
             {
-                logger.Error("Please extend your trial or purchase a license to continue using the Particular Service Platform.");
+                logger.Error("Trial license expired. Please extend your trial or purchase a license to continue using the Particular Service Platform.");
             }
             else
             {
-                logger.Error("Please extend your license to continue using the Particular Service Platform.");
+                logger.Error("Platform license expired. Please extend your license to continue using the Particular Service Platform.");
             }
         }
 
@@ -65,18 +65,18 @@ namespace NServiceBus
             {
                 if (activeLicense.UpgradeProtectionExpiration.Value.Subtract(ExpirationWarningThreshold) <= utcDateTimeProvider().Date)
                 {
-                    logger.Warn("Please extend your upgrade protection so that we can continue to provide you with support and new versions of the Particular Service Platform.");
+                    logger.Warn("Upgrade protection expiring soon. Please extend your upgrade protection so that we can continue to provide you with support and new versions of the Particular Service Platform.");
                 }
             }
             else if (activeLicense.ExpirationDate?.Subtract(ExpirationWarningThreshold) <= utcDateTimeProvider().Date)
             {
                 if (activeLicense.IsTrialLicense)
                 {
-                    logger.Warn("Please extend your trial or purchase a license to continue using the Particular Service Platform.");
+                    logger.Warn("Trial license expiring soon. Please extend your trial or purchase a license to continue using the Particular Service Platform.");
                 }
                 else
                 {
-                    logger.Warn("Please extend your license to continue using the Particular Service Platform.");
+                    logger.Warn("Platform license expiring soon. Please extend your license to continue using the Particular Service Platform.");
                 }
             }
         }

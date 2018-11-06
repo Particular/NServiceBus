@@ -27,7 +27,7 @@
             licenseManager.LogExpiringLicenseWarning(license, logger);
 
             Assert.AreEqual(1, logger.Logs.Count);
-            Assert.AreEqual("Please extend your trial or purchase a license to continue using the Particular Service Platform.", logger.Logs.Single().Item1);
+            Assert.AreEqual("Trial license expiring soon. Please extend your trial or purchase a license to continue using the Particular Service Platform.", logger.Logs.Single().Item1);
             Assert.AreEqual(LogLevel.Warn, logger.Logs.Single().Item2);
         }
 
@@ -62,7 +62,7 @@
             licenseManager.LogExpiredLicenseError(license, logger);
 
             Assert.AreEqual(1, logger.Logs.Count);
-            Assert.AreEqual("Please extend your trial or purchase a license to continue using the Particular Service Platform.", logger.Logs.Single().Item1);
+            Assert.AreEqual("Trial license expired. Please extend your trial or purchase a license to continue using the Particular Service Platform.", logger.Logs.Single().Item1);
             Assert.AreEqual(LogLevel.Error, logger.Logs.Single().Item2);
         }
 
@@ -82,7 +82,7 @@
             licenseManager.LogExpiringLicenseWarning(license, logger);
 
             Assert.AreEqual(1, logger.Logs.Count);
-            Assert.AreEqual("Please extend your license to continue using the Particular Service Platform.", logger.Logs.Single().Item1);
+            Assert.AreEqual("Platform license expiring soon. Please extend your license to continue using the Particular Service Platform.", logger.Logs.Single().Item1);
             Assert.AreEqual(LogLevel.Warn, logger.Logs.Single().Item2);
         }
 
@@ -117,7 +117,7 @@
             licenseManager.LogExpiredLicenseError(license, logger);
 
             Assert.AreEqual(1, logger.Logs.Count);
-            Assert.AreEqual("Please extend your license to continue using the Particular Service Platform.", logger.Logs.Single().Item1);
+            Assert.AreEqual("Platform license expired. Please extend your license to continue using the Particular Service Platform.", logger.Logs.Single().Item1);
             Assert.AreEqual(LogLevel.Error, logger.Logs.Single().Item2);
         }
 
@@ -137,7 +137,7 @@
             licenseManager.LogExpiringLicenseWarning(license, logger);
 
             Assert.AreEqual(1, logger.Logs.Count);
-            Assert.AreEqual("Please extend your upgrade protection so that we can continue to provide you with support and new versions of the Particular Service Platform.", logger.Logs.Single().Item1);
+            Assert.AreEqual("Upgrade protection expiring soon. Please extend your upgrade protection so that we can continue to provide you with support and new versions of the Particular Service Platform.", logger.Logs.Single().Item1);
             Assert.AreEqual(LogLevel.Warn, logger.Logs.Single().Item2);
         }
 
@@ -172,7 +172,7 @@
             licenseManager.LogExpiredLicenseError(license, logger);
 
             Assert.AreEqual(1, logger.Logs.Count);
-            Assert.AreEqual("Please extend your upgrade protection so that we can continue to provide you with support and new versions of the Particular Service Platform.", logger.Logs.Single().Item1);
+            Assert.AreEqual("Upgrade protection expired. Please extend your upgrade protection so that we can continue to provide you with support and new versions of the Particular Service Platform.", logger.Logs.Single().Item1);
             Assert.AreEqual(LogLevel.Error, logger.Logs.Single().Item2);
         }
 
