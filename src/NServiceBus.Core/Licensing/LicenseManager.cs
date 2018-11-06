@@ -13,6 +13,7 @@ namespace NServiceBus
 
     class LicenseManager
     {
+        internal Func<DateTime> todayUtc = () => DateTime.Today;
         internal bool HasLicenseExpired => result?.HasExpired ?? true;
 
         internal void InitializeLicense(string licenseText, string licenseFilePath)
@@ -22,18 +23,52 @@ namespace NServiceBus
             result = ActiveLicense.Find("NServiceBus", licenseSources);
 
             LogFindResults(result);
+            LogLicenseWarnings(result.License, Logger, result.HasExpired);
 
-            if (result.HasExpired)
+            if (result.HasExpired && result.License.IsTrialLicense)
             {
-                if (result.License.IsTrialLicense)
+                OpenTrialExtensionPage();
+            }
+        }
+
+        internal void LogLicenseWarnings(License activeLicense, ILog logger, bool isExpired)
+        {
+            if (activeLicense.IsTrialLicense)
+            {
+                if (isExpired)
                 {
-                    Logger.Warn("Trial for the Particular Service Platform has expired.");
-                    OpenTrialExtensionPage();
+                    logger.Error("Please extend your trial or purchase a license to continue using the Particular Service Platform.");
+                }
+                else if (activeLicense.ExpirationDate?.AddDays(-3) <= todayUtc())
+                {
+                    logger.Warn("Please extend your trial or purchase a license to continue using the Particular Service Platform.");
+                }
+            }
+            else
+            {
+                if (activeLicense.UpgradeProtectionExpiration.HasValue)
+                {
+                    if (isExpired)
+                    {
+                        logger.Error("Please extend your upgrade protection so that we can continue to provide you with support and new versions of the Particular Service Platform.");
+                    }
+                    else if (activeLicense.UpgradeProtectionExpiration.Value.AddDays(-3) <= todayUtc())
+                    {
+                        logger.Warn("Please extend your upgrade protection so that we can continue to provide you with support and new versions of the Particular Service Platform.");
+                    }
                 }
                 else
                 {
-                    Logger.Fatal("Your license has expired! To renew your license, visit: https://particular.net/licensing");
+                    if (isExpired)
+                    {
+                        logger.Error("Please extend your license to continue using the Particular Service Platform.");
+                    }
+                    else if (activeLicense.ExpirationDate?.AddDays(-3) <= todayUtc())
+                    {
+                        logger.Warn("Please extend your license to continue using the Particular Service Platform.");
+                    }
                 }
+                
             }
         }
 
