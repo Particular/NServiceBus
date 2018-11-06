@@ -59,12 +59,12 @@ namespace NServiceBus
         {
             if (activeLicense.UpgradeProtectionExpiration.HasValue)
             {
-                if (activeLicense.UpgradeProtectionExpiration.Value.AddDays(-3) <= todayUtc())
+                if (activeLicense.UpgradeProtectionExpiration.Value.Subtract(ExpirationWarningThreshold) <= todayUtc())
                 {
                     logger.Warn("Please extend your upgrade protection so that we can continue to provide you with support and new versions of the Particular Service Platform.");
                 }
             }
-            else if (activeLicense.ExpirationDate?.AddDays(-3) <= todayUtc())
+            else if (activeLicense.ExpirationDate?.Subtract(ExpirationWarningThreshold) <= todayUtc())
             {
                 if (activeLicense.IsTrialLicense)
                 {
@@ -188,5 +188,6 @@ namespace NServiceBus
 
         static ILog Logger = LogManager.GetLogger(typeof(LicenseManager));
         static readonly bool debugLoggingEnabled = Logger.IsDebugEnabled;
+        static readonly TimeSpan ExpirationWarningThreshold = TimeSpan.FromDays(3);
     }
 }
