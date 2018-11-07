@@ -28,6 +28,7 @@
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net452'">
     <PackageReference Include="NUnit.ApplicationDomain" Version="11.1.0" />
+    <PackageReference Include="System.ValueTuple" Version="4.5.0" />
   </ItemGroup>
 
   <ItemGroup>

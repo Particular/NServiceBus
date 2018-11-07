@@ -27,8 +27,8 @@
             licenseManager.LogExpiringLicenseWarning(license, logger);
 
             Assert.AreEqual(1, logger.Logs.Count);
-            Assert.AreEqual("Trial license expiring soon. Please extend your trial or purchase a license to continue using the Particular Service Platform.", logger.Logs.Single().Item1);
-            Assert.AreEqual(LogLevel.Warn, logger.Logs.Single().Item2);
+            Assert.AreEqual("Trial license expiring soon. Please extend your trial or purchase a license to continue using the Particular Service Platform.", logger.Logs.Single().message);
+            Assert.AreEqual(LogLevel.Warn, logger.Logs.Single().level);
         }
 
         [TestCase("2012-12-12", "2012-12-16")]
@@ -62,8 +62,8 @@
             licenseManager.LogExpiredLicenseError(license, logger);
 
             Assert.AreEqual(1, logger.Logs.Count);
-            Assert.AreEqual("Trial license expired. Please extend your trial or purchase a license to continue using the Particular Service Platform.", logger.Logs.Single().Item1);
-            Assert.AreEqual(LogLevel.Error, logger.Logs.Single().Item2);
+            Assert.AreEqual("Trial license expired. Please extend your trial or purchase a license to continue using the Particular Service Platform.", logger.Logs.Single().message);
+            Assert.AreEqual(LogLevel.Error, logger.Logs.Single().level);
         }
 
         [TestCase("2012-12-12", "2012-12-13")]
@@ -82,8 +82,8 @@
             licenseManager.LogExpiringLicenseWarning(license, logger);
 
             Assert.AreEqual(1, logger.Logs.Count);
-            Assert.AreEqual("Platform license expiring soon. Please extend your license to continue using the Particular Service Platform.", logger.Logs.Single().Item1);
-            Assert.AreEqual(LogLevel.Warn, logger.Logs.Single().Item2);
+            Assert.AreEqual("Platform license expiring soon. Please extend your license to continue using the Particular Service Platform.", logger.Logs.Single().message);
+            Assert.AreEqual(LogLevel.Warn, logger.Logs.Single().level);
         }
 
         [TestCase("2012-12-12", "2012-12-16")]
@@ -117,8 +117,8 @@
             licenseManager.LogExpiredLicenseError(license, logger);
 
             Assert.AreEqual(1, logger.Logs.Count);
-            Assert.AreEqual("Platform license expired. Please extend your license to continue using the Particular Service Platform.", logger.Logs.Single().Item1);
-            Assert.AreEqual(LogLevel.Error, logger.Logs.Single().Item2);
+            Assert.AreEqual("Platform license expired. Please extend your license to continue using the Particular Service Platform.", logger.Logs.Single().message);
+            Assert.AreEqual(LogLevel.Error, logger.Logs.Single().level);
         }
 
         [TestCase("2012-12-12", "2012-12-13")]
@@ -137,8 +137,8 @@
             licenseManager.LogExpiringLicenseWarning(license, logger);
 
             Assert.AreEqual(1, logger.Logs.Count);
-            Assert.AreEqual("Upgrade protection expiring soon. Please extend your upgrade protection so that we can continue to provide you with support and new versions of the Particular Service Platform.", logger.Logs.Single().Item1);
-            Assert.AreEqual(LogLevel.Warn, logger.Logs.Single().Item2);
+            Assert.AreEqual("Upgrade protection expiring soon. Please extend your upgrade protection so that we can continue to provide you with support and new versions of the Particular Service Platform.", logger.Logs.Single().message);
+            Assert.AreEqual(LogLevel.Warn, logger.Logs.Single().level);
         }
 
         [TestCase("2012-12-12", "2012-12-16")]
@@ -172,8 +172,8 @@
             licenseManager.LogExpiredLicenseError(license, logger);
 
             Assert.AreEqual(1, logger.Logs.Count);
-            Assert.AreEqual("Upgrade protection expired. Please extend your upgrade protection so that we can continue to provide you with support and new versions of the Particular Service Platform.", logger.Logs.Single().Item1);
-            Assert.AreEqual(LogLevel.Error, logger.Logs.Single().Item2);
+            Assert.AreEqual("Upgrade protection expired. Please extend your upgrade protection so that we can continue to provide you with support and new versions of the Particular Service Platform.", logger.Logs.Single().message);
+            Assert.AreEqual(LogLevel.Error, logger.Logs.Single().level);
         }
 
         static DateTime ParseUtcDateTimeString(string dateTimeString)
@@ -266,10 +266,10 @@
 
             void Log(string message, LogLevel level)
             {
-                Logs.Add(new Tuple<string, LogLevel>(message, level));
+                Logs.Add((message, level));
             }
 
-            public List<Tuple<string, LogLevel>> Logs { get; } = new List<Tuple<string, LogLevel>>();
+            public List<(string message, LogLevel level)> Logs { get; } = new List<(string, LogLevel)>();
         }
     }
 }
