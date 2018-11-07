@@ -2,15 +2,14 @@ namespace NServiceBus
 {
     using System;
     using System.Diagnostics;
+#if NETSTANDARD
+    using System.Runtime.InteropServices;
+#endif
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
     using Logging;
     using Particular.Licensing;
-#if NETSTANDARD
-    using System.Runtime.InteropServices;
-
-#endif
 
     class LicenseManager
     {
@@ -28,6 +27,7 @@ namespace NServiceBus
             result = ActiveLicense.Find("NServiceBus", licenseSources);
 
             LogFindResults(result);
+
             if (result.HasExpired)
             {
                 LogExpiredLicenseError(result.License, Logger);
