@@ -16,11 +16,11 @@
         [TestCase("2012-12-12", "2012-12-15")]
         public void ShouldWarnAboutExpiringTrialLicense(string currentDate, string expirationDate)
         {
-            var licenseManager = new LicenseManager(() => DateTime.ParseExact(currentDate, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal));
+            var licenseManager = new LicenseManager(() => ParseUtcDateTimeString(currentDate));
             var logger = new TestableLogger();
             var license = new License
             {
-                ExpirationDate = DateTime.ParseExact(expirationDate, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal),
+                ExpirationDate = ParseUtcDateTimeString(expirationDate),
                 LicenseType = "trial"
             };
 
@@ -35,11 +35,11 @@
         [TestCase("2012-12-12", "2012-12-17")]
         public void ShouldNotWarnAboutExpiringTrialLicenseWhenMoreThanThreeDaysAway(string currentDate, string expirationDate)
         {
-            var licenseManager = new LicenseManager(() => DateTime.ParseExact(currentDate, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal));
+            var licenseManager = new LicenseManager(() => ParseUtcDateTimeString(currentDate));
             var logger = new TestableLogger();
             var license = new License
             {
-                ExpirationDate = DateTime.ParseExact(expirationDate, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal),
+                ExpirationDate = ParseUtcDateTimeString(expirationDate),
                 LicenseType = "trial"
             };
 
@@ -71,11 +71,11 @@
         [TestCase("2012-12-12", "2012-12-15")]
         public void ShouldWarnAboutExpiringSubscriptionLicense(string currentDate, string expirationDate)
         {
-            var licenseManager = new LicenseManager(() => DateTime.ParseExact(currentDate, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal));
+            var licenseManager = new LicenseManager(() => ParseUtcDateTimeString(currentDate));
             var logger = new TestableLogger();
             var license = new License
             {
-                ExpirationDate = DateTime.ParseExact(expirationDate, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal),
+                ExpirationDate = ParseUtcDateTimeString(expirationDate),
                 LicenseType = "not-trial"
             };
 
@@ -90,11 +90,11 @@
         [TestCase("2012-12-12", "2012-12-17")]
         public void ShouldNotWarnAboutExpiringLicenseWhenMoreThanThreeDaysAway(string currentDate, string expirationDate)
         {
-            var licenseManager = new LicenseManager(() => DateTime.ParseExact(currentDate, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal));
+            var licenseManager = new LicenseManager(() => ParseUtcDateTimeString(currentDate));
             var logger = new TestableLogger();
             var license = new License
             {
-                ExpirationDate = DateTime.ParseExact(expirationDate, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal),
+                ExpirationDate = ParseUtcDateTimeString(expirationDate),
                 LicenseType = "not-trial"
             };
 
@@ -126,11 +126,11 @@
         [TestCase("2012-12-12", "2012-12-15")]
         public void ShouldWarnAboutExpiringUpgradeProtection(string currentDate, string expirationDate)
         {
-            var licenseManager = new LicenseManager(() => DateTime.ParseExact(currentDate, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal));
+            var licenseManager = new LicenseManager(() => ParseUtcDateTimeString(currentDate));
             var logger = new TestableLogger();
             var license = new License
             {
-                UpgradeProtectionExpiration = DateTime.ParseExact(expirationDate, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal),
+                UpgradeProtectionExpiration = ParseUtcDateTimeString(expirationDate),
                 LicenseType = "not-trial"
             };
 
@@ -145,11 +145,11 @@
         [TestCase("2012-12-12", "2012-12-17")]
         public void ShouldNotWarnAboutExpiringUpgradeProtectionWhenMoreThanThreeDaysAway(string currentDate, string expirationDate)
         {
-            var licenseManager = new LicenseManager(() => DateTime.ParseExact(currentDate, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal));
+            var licenseManager = new LicenseManager(() => ParseUtcDateTimeString(currentDate));
             var logger = new TestableLogger();
             var license = new License
             {
-                UpgradeProtectionExpiration = DateTime.ParseExact(expirationDate, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal),
+                UpgradeProtectionExpiration = ParseUtcDateTimeString(expirationDate),
                 LicenseType = "not-trial"
             };
 
@@ -174,6 +174,11 @@
             Assert.AreEqual(1, logger.Logs.Count);
             Assert.AreEqual("Upgrade protection expired. Please extend your upgrade protection so that we can continue to provide you with support and new versions of the Particular Service Platform.", logger.Logs.Single().Item1);
             Assert.AreEqual(LogLevel.Error, logger.Logs.Single().Item2);
+        }
+
+        static DateTime ParseUtcDateTimeString(string dateTimeString)
+        {
+            return DateTime.ParseExact(dateTimeString, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal);
         }
 
         class TestableLogger : ILog
