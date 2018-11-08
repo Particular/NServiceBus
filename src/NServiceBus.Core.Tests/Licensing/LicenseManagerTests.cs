@@ -24,7 +24,7 @@
                 LicenseType = "trial"
             };
 
-            licenseManager.LogExpiringLicenseWarning(license, logger);
+            licenseManager.LogWarningIfLicenseIsAboutToExpire(license, logger);
 
             Assert.AreEqual(1, logger.Logs.Count);
             Assert.AreEqual("Trial license expiring soon. Please extend your trial or purchase a license to continue using the Particular Service Platform.", logger.Logs.Single().message);
@@ -43,7 +43,7 @@
                 LicenseType = "trial"
             };
 
-            licenseManager.LogExpiringLicenseWarning(license, logger);
+            licenseManager.LogWarningIfLicenseIsAboutToExpire(license, logger);
 
             Assert.AreEqual(0, logger.Logs.Count);
         }
@@ -79,7 +79,7 @@
                 LicenseType = "not-trial"
             };
 
-            licenseManager.LogExpiringLicenseWarning(license, logger);
+            licenseManager.LogWarningIfLicenseIsAboutToExpire(license, logger);
 
             Assert.AreEqual(1, logger.Logs.Count);
             Assert.AreEqual("Platform license expiring soon. Please extend your license to continue using the Particular Service Platform.", logger.Logs.Single().message);
@@ -98,7 +98,7 @@
                 LicenseType = "not-trial"
             };
 
-            licenseManager.LogExpiringLicenseWarning(license, logger);
+            licenseManager.LogWarningIfLicenseIsAboutToExpire(license, logger);
 
             Assert.AreEqual(0, logger.Logs.Count);
         }
@@ -134,7 +134,7 @@
                 LicenseType = "not-trial"
             };
 
-            licenseManager.LogExpiringLicenseWarning(license, logger);
+            licenseManager.LogWarningIfLicenseIsAboutToExpire(license, logger);
 
             Assert.AreEqual(1, logger.Logs.Count);
             Assert.AreEqual("Upgrade protection expiring soon. Please extend your upgrade protection so that we can continue to provide you with support and new versions of the Particular Service Platform.", logger.Logs.Single().message);
@@ -153,7 +153,7 @@
                 LicenseType = "not-trial"
             };
 
-            licenseManager.LogExpiringLicenseWarning(license, logger);
+            licenseManager.LogWarningIfLicenseIsAboutToExpire(license, logger);
 
             Assert.AreEqual(0, logger.Logs.Count);
         }

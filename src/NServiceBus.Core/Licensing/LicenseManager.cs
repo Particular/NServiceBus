@@ -34,7 +34,7 @@ namespace NServiceBus
             }
             else
             {
-                LogExpiringLicenseWarning(result.License, Logger);
+                LogWarningIfLicenseIsAboutToExpire(result.License, Logger);
             }
 
             if (result.HasExpired && result.License.IsTrialLicense)
@@ -59,7 +59,7 @@ namespace NServiceBus
             }
         }
 
-        internal void LogExpiringLicenseWarning(License activeLicense, ILog logger)
+        internal void LogWarningIfLicenseIsAboutToExpire(License activeLicense, ILog logger)
         {
             if (activeLicense.UpgradeProtectionExpiration.HasValue)
             {
