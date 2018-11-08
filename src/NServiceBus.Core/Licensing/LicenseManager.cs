@@ -15,9 +15,9 @@ namespace NServiceBus
     {
         internal bool HasLicenseExpired => result?.HasExpired ?? true;
 
-        public LicenseManager(Func<DateTime> utcDateTimeProvider)
+        public LicenseManager(Func<DateTime> utcDateProvider)
         {
-            this.utcDateTimeProvider = utcDateTimeProvider;
+            this.utcDateProvider = utcDateProvider;
         }
 
         internal void InitializeLicense(string licenseText, string licenseFilePath)
@@ -63,12 +63,12 @@ namespace NServiceBus
         {
             if (activeLicense.UpgradeProtectionExpiration.HasValue)
             {
-                if (activeLicense.UpgradeProtectionExpiration.Value.Subtract(ExpirationWarningThreshold) <= utcDateTimeProvider().Date)
+                if (activeLicense.UpgradeProtectionExpiration.Value.Subtract(ExpirationWarningThreshold) <= utcDateProvider().Date)
                 {
                     logger.Warn("Upgrade protection expiring soon. Please extend your upgrade protection so that we can continue to provide you with support and new versions of the Particular Service Platform.");
                 }
             }
-            else if (activeLicense.ExpirationDate?.Subtract(ExpirationWarningThreshold) <= utcDateTimeProvider().Date)
+            else if (activeLicense.ExpirationDate?.Subtract(ExpirationWarningThreshold) <= utcDateProvider().Date)
             {
                 if (activeLicense.IsTrialLicense)
                 {
@@ -85,7 +85,7 @@ namespace NServiceBus
         {
             var report = new StringBuilder();
 
-            if (debugLoggingEnabled)
+            if (DebugLoggingEnabled)
             {
                 report.AppendLine("Looking for license in the following locations:");
 
@@ -189,10 +189,10 @@ namespace NServiceBus
 #endif
 
         ActiveLicenseFindResult result;
-        readonly Func<DateTime> utcDateTimeProvider;
+        readonly Func<DateTime> utcDateProvider;
 
-        static ILog Logger = LogManager.GetLogger(typeof(LicenseManager));
-        static readonly bool debugLoggingEnabled = Logger.IsDebugEnabled;
+        static readonly ILog Logger = LogManager.GetLogger(typeof(LicenseManager));
+        static readonly bool DebugLoggingEnabled = Logger.IsDebugEnabled;
         static readonly TimeSpan ExpirationWarningThreshold = TimeSpan.FromDays(3);
     }
 }
