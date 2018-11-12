@@ -2,183 +2,41 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Globalization;
-    using System.Linq;
     using NServiceBus.Logging;
     using NUnit.Framework;
     using Particular.Licensing;
 
     [TestFixture]
-    public class LicenseManagerTests
+    class LicenseManagerTests
     {
-        [TestCase("2012-12-12", "2012-12-13")]
-        [TestCase("2012-12-12", "2012-12-14")]
-        [TestCase("2012-12-12", "2012-12-15")]
-        public void ShouldWarnAboutExpiringTrialLicense(string currentDate, string expirationDate)
+        [Test]
+        public void ShouldLogNoStatusMessageWhenLicenseIsValid()
         {
-            var licenseManager = new LicenseManager(() => ParseUtcDateTimeString(currentDate));
             var logger = new TestableLogger();
-            var license = new License
-            {
-                ExpirationDate = ParseUtcDateTimeString(expirationDate),
-                LicenseType = "trial"
-            };
+            var licenseManager = new LicenseManager(() => DateTime.UtcNow);
 
-            licenseManager.LogWarningIfLicenseIsAboutToExpire(license, logger);
-
-            Assert.AreEqual(1, logger.Logs.Count);
-            Assert.AreEqual("Trial license expiring soon. Please extend your trial or purchase a license to continue using the Particular Service Platform.", logger.Logs.Single().message);
-            Assert.AreEqual(LogLevel.Warn, logger.Logs.Single().level);
-        }
-
-        [TestCase("2012-12-12", "2012-12-16")]
-        [TestCase("2012-12-12", "2012-12-17")]
-        public void ShouldNotWarnAboutExpiringTrialLicenseWhenMoreThanThreeDaysAway(string currentDate, string expirationDate)
-        {
-            var licenseManager = new LicenseManager(() => ParseUtcDateTimeString(currentDate));
-            var logger = new TestableLogger();
-            var license = new License
-            {
-                ExpirationDate = ParseUtcDateTimeString(expirationDate),
-                LicenseType = "trial"
-            };
-
-            licenseManager.LogWarningIfLicenseIsAboutToExpire(license, logger);
+            licenseManager.LogLicenseStatus(LicenseStatus.Valid, logger);
 
             Assert.AreEqual(0, logger.Logs.Count);
         }
 
-        [Test]
-        public void ShouldLogErrorAboutExpiredTrialLicense()
+        [TestCase(LicenseStatus.InvalidDueExpiredTrial, LogLevel.Error, "Trial license expired. Please extend your trial or purchase a license to continue using the Particular Service Platform.")]
+        [TestCase(LicenseStatus.InvalidDueExpiredSubscription, LogLevel.Error, "Platform license expired. Please extend your license to continue using the Particular Service Platform.")]
+        [TestCase(LicenseStatus.InvalidDueExpiredUpgradeProtection, LogLevel.Error, "Upgrade protection expired. Please extend your upgrade protection so that we can continue to provide you with support and new versions of the Particular Service Platform.")]
+        [TestCase(LicenseStatus.ValidWithExpiringTrial, LogLevel.Warn, "Trial license expiring soon. Please extend your trial or purchase a license to continue using the Particular Service Platform.")]
+        [TestCase(LicenseStatus.ValidWithExpiringSubscription, LogLevel.Warn, "Platform license expiring soon. Please extend your license to continue using the Particular Service Platform.")]
+        [TestCase(LicenseStatus.ValidWithExpiringUpgradeProtection, LogLevel.Warn, "Upgrade protection expiring soon. Please extend your upgrade protection so that we can continue to provide you with support and new versions of the Particular Service Platform.")]
+        [TestCase(LicenseStatus.ValidWithExpiredUpgradeProtection, LogLevel.Warn, "Upgrade protection expired. Please extend your upgrade protection so that we can continue to provide you with support and new versions of the Particular Service Platform.")]
+        public void ShouldLogLicenseStatus(object status, LogLevel logLevel, string expectedMessage)
         {
-            var licenseManager = new LicenseManager(() => new DateTime(2012, 12, 12));
             var logger = new TestableLogger();
-            var license = new License
-            {
-                ExpirationDate = new DateTime(2010, 10, 10),
-                LicenseType = "trial"
-            };
+            var licenseManager = new LicenseManager(() => DateTime.UtcNow);
 
-            licenseManager.LogExpiredLicenseError(license, logger);
+            licenseManager.LogLicenseStatus((LicenseStatus)status, logger);
 
             Assert.AreEqual(1, logger.Logs.Count);
-            Assert.AreEqual("Trial license expired. Please extend your trial or purchase a license to continue using the Particular Service Platform.", logger.Logs.Single().message);
-            Assert.AreEqual(LogLevel.Error, logger.Logs.Single().level);
-        }
-
-        [TestCase("2012-12-12", "2012-12-13")]
-        [TestCase("2012-12-12", "2012-12-14")]
-        [TestCase("2012-12-12", "2012-12-15")]
-        public void ShouldWarnAboutExpiringSubscriptionLicense(string currentDate, string expirationDate)
-        {
-            var licenseManager = new LicenseManager(() => ParseUtcDateTimeString(currentDate));
-            var logger = new TestableLogger();
-            var license = new License
-            {
-                ExpirationDate = ParseUtcDateTimeString(expirationDate),
-                LicenseType = "not-trial"
-            };
-
-            licenseManager.LogWarningIfLicenseIsAboutToExpire(license, logger);
-
-            Assert.AreEqual(1, logger.Logs.Count);
-            Assert.AreEqual("Platform license expiring soon. Please extend your license to continue using the Particular Service Platform.", logger.Logs.Single().message);
-            Assert.AreEqual(LogLevel.Warn, logger.Logs.Single().level);
-        }
-
-        [TestCase("2012-12-12", "2012-12-16")]
-        [TestCase("2012-12-12", "2012-12-17")]
-        public void ShouldNotWarnAboutExpiringLicenseWhenMoreThanThreeDaysAway(string currentDate, string expirationDate)
-        {
-            var licenseManager = new LicenseManager(() => ParseUtcDateTimeString(currentDate));
-            var logger = new TestableLogger();
-            var license = new License
-            {
-                ExpirationDate = ParseUtcDateTimeString(expirationDate),
-                LicenseType = "not-trial"
-            };
-
-            licenseManager.LogWarningIfLicenseIsAboutToExpire(license, logger);
-
-            Assert.AreEqual(0, logger.Logs.Count);
-        }
-
-        [Test]
-        public void ShouldLogErrorAboutExpiredLicense()
-        {
-            var licenseManager = new LicenseManager(() => new DateTime(2012, 12, 12));
-            var logger = new TestableLogger();
-            var license = new License
-            {
-                ExpirationDate = new DateTime(2010, 10, 10),
-                LicenseType = "not-trial"
-            };
-
-            licenseManager.LogExpiredLicenseError(license, logger);
-
-            Assert.AreEqual(1, logger.Logs.Count);
-            Assert.AreEqual("Platform license expired. Please extend your license to continue using the Particular Service Platform.", logger.Logs.Single().message);
-            Assert.AreEqual(LogLevel.Error, logger.Logs.Single().level);
-        }
-
-        [TestCase("2012-12-12", "2012-12-13")]
-        [TestCase("2012-12-12", "2012-12-14")]
-        [TestCase("2012-12-12", "2012-12-15")]
-        public void ShouldWarnAboutExpiringUpgradeProtection(string currentDate, string expirationDate)
-        {
-            var licenseManager = new LicenseManager(() => ParseUtcDateTimeString(currentDate));
-            var logger = new TestableLogger();
-            var license = new License
-            {
-                UpgradeProtectionExpiration = ParseUtcDateTimeString(expirationDate),
-                LicenseType = "not-trial"
-            };
-
-            licenseManager.LogWarningIfLicenseIsAboutToExpire(license, logger);
-
-            Assert.AreEqual(1, logger.Logs.Count);
-            Assert.AreEqual("Upgrade protection expiring soon. Please extend your upgrade protection so that we can continue to provide you with support and new versions of the Particular Service Platform.", logger.Logs.Single().message);
-            Assert.AreEqual(LogLevel.Warn, logger.Logs.Single().level);
-        }
-
-        [TestCase("2012-12-12", "2012-12-16")]
-        [TestCase("2012-12-12", "2012-12-17")]
-        public void ShouldNotWarnAboutExpiringUpgradeProtectionWhenMoreThanThreeDaysAway(string currentDate, string expirationDate)
-        {
-            var licenseManager = new LicenseManager(() => ParseUtcDateTimeString(currentDate));
-            var logger = new TestableLogger();
-            var license = new License
-            {
-                UpgradeProtectionExpiration = ParseUtcDateTimeString(expirationDate),
-                LicenseType = "not-trial"
-            };
-
-            licenseManager.LogWarningIfLicenseIsAboutToExpire(license, logger);
-
-            Assert.AreEqual(0, logger.Logs.Count);
-        }
-
-        [Test]
-        public void ShouldLogErrorAboutExpiredUpgradeProtection()
-        {
-            var licenseManager = new LicenseManager(() => new DateTime(2012, 12, 12));
-            var logger = new TestableLogger();
-            var license = new License
-            {
-                UpgradeProtectionExpiration = new DateTime(2010, 10, 10),
-                LicenseType = "not-trial"
-            };
-
-            licenseManager.LogExpiredLicenseError(license, logger);
-
-            Assert.AreEqual(1, logger.Logs.Count);
-            Assert.AreEqual("Upgrade protection expired. Please extend your upgrade protection so that we can continue to provide you with support and new versions of the Particular Service Platform.", logger.Logs.Single().message);
-            Assert.AreEqual(LogLevel.Error, logger.Logs.Single().level);
-        }
-
-        static DateTime ParseUtcDateTimeString(string dateTimeString)
-        {
-            return DateTime.ParseExact(dateTimeString, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal);
+            Assert.AreEqual(logLevel, logger.Logs[0].level);
+            Assert.AreEqual(expectedMessage, logger.Logs[0].message);
         }
 
         class TestableLogger : ILog

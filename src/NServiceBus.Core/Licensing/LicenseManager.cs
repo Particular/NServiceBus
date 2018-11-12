@@ -28,56 +28,42 @@ namespace NServiceBus
 
             LogFindResults(result);
 
-            if (result.HasExpired)
-            {
-                LogExpiredLicenseError(result.License, Logger);
-            }
-            else
-            {
-                LogWarningIfLicenseIsAboutToExpire(result.License, Logger);
-            }
+            var licenseStatus = result.License.GetLicenseStatus();
+            LogLicenseStatus(licenseStatus, Logger);
 
-            if (result.HasExpired && result.License.IsTrialLicense)
+            if (licenseStatus == LicenseStatus.InvalidDueExpiredTrial)
             {
                 OpenTrialExtensionPage();
             }
         }
 
-        internal void LogExpiredLicenseError(License activeLicense, ILog logger)
+        internal void LogLicenseStatus(LicenseStatus licenseStatus, ILog logger)
         {
-            if (activeLicense.UpgradeProtectionExpiration.HasValue)
+            switch (licenseStatus)
             {
-                logger.Error("Upgrade protection expired. Please extend your upgrade protection so that we can continue to provide you with support and new versions of the Particular Service Platform.");
-            }
-            else if (activeLicense.IsTrialLicense)
-            {
-                logger.Error("Trial license expired. Please extend your trial or purchase a license to continue using the Particular Service Platform.");
-            }
-            else
-            {
-                logger.Error("Platform license expired. Please extend your license to continue using the Particular Service Platform.");
-            }
-        }
-
-        internal void LogWarningIfLicenseIsAboutToExpire(License activeLicense, ILog logger)
-        {
-            if (activeLicense.UpgradeProtectionExpiration.HasValue)
-            {
-                if (activeLicense.UpgradeProtectionExpiration.Value.Subtract(ExpirationWarningThreshold) <= utcDateProvider().Date)
-                {
-                    logger.Warn("Upgrade protection expiring soon. Please extend your upgrade protection so that we can continue to provide you with support and new versions of the Particular Service Platform.");
-                }
-            }
-            else if (activeLicense.ExpirationDate?.Subtract(ExpirationWarningThreshold) <= utcDateProvider().Date)
-            {
-                if (activeLicense.IsTrialLicense)
-                {
+                case LicenseStatus.Valid:
+                    break;
+                case LicenseStatus.ValidWithExpiredUpgradeProtection:
+                    logger.Warn("Upgrade protection expired. Please extend your upgrade protection so that we can continue to provide you with support and new versions of the Particular Service Platform.");
+                    break;
+                case LicenseStatus.ValidWithExpiringTrial:
                     logger.Warn("Trial license expiring soon. Please extend your trial or purchase a license to continue using the Particular Service Platform.");
-                }
-                else
-                {
+                    break;
+                case LicenseStatus.ValidWithExpiringSubscription:
                     logger.Warn("Platform license expiring soon. Please extend your license to continue using the Particular Service Platform.");
-                }
+                    break;
+                case LicenseStatus.ValidWithExpiringUpgradeProtection:
+                    logger.Warn("Upgrade protection expiring soon. Please extend your upgrade protection so that we can continue to provide you with support and new versions of the Particular Service Platform.");
+                    break;
+                case LicenseStatus.InvalidDueExpiredTrial:
+                    logger.Error("Trial license expired. Please extend your trial or purchase a license to continue using the Particular Service Platform.");
+                    break;
+                case LicenseStatus.InvalidDueExpiredSubscription:
+                    logger.Error("Platform license expired. Please extend your license to continue using the Particular Service Platform.");
+                    break;
+                case LicenseStatus.InvalidDueExpiredUpgradeProtection:
+                    logger.Error("Upgrade protection expired. Please extend your upgrade protection so that we can continue to provide you with support and new versions of the Particular Service Platform.");
+                    break;
             }
         }
 
@@ -193,6 +179,6 @@ namespace NServiceBus
 
         static readonly ILog Logger = LogManager.GetLogger(typeof(LicenseManager));
         static readonly bool DebugLoggingEnabled = Logger.IsDebugEnabled;
-        static readonly TimeSpan ExpirationWarningThreshold = TimeSpan.FromDays(3);
+        static readonly TimeSpan ExpirationWarningThreshold = TimeSpan.FromDays(10);
     }
 }
