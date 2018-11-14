@@ -13,30 +13,133 @@
         public void ShouldLogNoStatusMessageWhenLicenseIsValid()
         {
             var logger = new TestableLogger();
-            var licenseManager = new LicenseManager(() => DateTime.UtcNow);
+            var licenseManager = new LicenseManager();
 
-            licenseManager.LogLicenseStatus(LicenseStatus.Valid, logger);
+            licenseManager.LogLicenseStatus(LicenseStatus.Valid, logger, new License());
 
             Assert.AreEqual(0, logger.Logs.Count);
         }
 
-        [TestCase(LicenseStatus.InvalidDueToExpiredTrial, LogLevel.Error, "Trial license expired. Please extend your trial or purchase a license to continue using the Particular Service Platform.")]
-        [TestCase(LicenseStatus.InvalidDueToExpiredSubscription, LogLevel.Error, "Platform license expired. Please extend your license to continue using the Particular Service Platform.")]
-        [TestCase(LicenseStatus.InvalidDueToExpiredUpgradeProtection, LogLevel.Error, "Upgrade protection expired. Please extend your upgrade protection so that we can continue to provide you with support and new versions of the Particular Service Platform.")]
-        [TestCase(LicenseStatus.ValidWithExpiringTrial, LogLevel.Warn, "Trial license expiring soon. Please extend your trial or purchase a license to continue using the Particular Service Platform.")]
-        [TestCase(LicenseStatus.ValidWithExpiringSubscription, LogLevel.Warn, "Platform license expiring soon. Please extend your license to continue using the Particular Service Platform.")]
-        [TestCase(LicenseStatus.ValidWithExpiringUpgradeProtection, LogLevel.Warn, "Upgrade protection expiring soon. Please extend your upgrade protection so that we can continue to provide you with support and new versions of the Particular Service Platform.")]
-        [TestCase(LicenseStatus.ValidWithExpiredUpgradeProtection, LogLevel.Warn, "Upgrade protection expired. Please extend your upgrade protection so that we can continue to provide you with support and new versions of the Particular Service Platform.")]
-        public void ShouldLogLicenseStatus(object status, LogLevel logLevel, string expectedMessage)
+        [Test]
+        public void WhenSubscriptionLicenseExpired()
         {
             var logger = new TestableLogger();
-            var licenseManager = new LicenseManager(() => DateTime.UtcNow);
+            var licenseManager = new LicenseManager();
 
-            licenseManager.LogLicenseStatus((LicenseStatus)status, logger);
+            licenseManager.LogLicenseStatus(LicenseStatus.InvalidDueToExpiredSubscription, logger, new License());
 
             Assert.AreEqual(1, logger.Logs.Count);
-            Assert.AreEqual(logLevel, logger.Logs[0].level);
+            Assert.AreEqual(LogLevel.Error, logger.Logs[0].level);
+            Assert.AreEqual("Platform license expired. To continue using the Particular Service Platform, please extend your license by visiting http://go.particular.net/license-expired", logger.Logs[0].message);
+        }
+
+        [Test]
+        public void WhenUpgradeProtectionExpiredForThisRelease()
+        {
+            var logger = new TestableLogger();
+            var licenseManager = new LicenseManager();
+
+            licenseManager.LogLicenseStatus(LicenseStatus.InvalidDueToExpiredUpgradeProtection, logger, new License());
+
+            Assert.AreEqual(1, logger.Logs.Count);
+            Assert.AreEqual(LogLevel.Error, logger.Logs[0].level);
+            Assert.AreEqual("Upgrade protection expired. In order for us to continue to provide you with support and new versions of the Particular Service Platform, please extend your upgrade protection by visiting http://go.particular.net/upgrade-protection-expired", logger.Logs[0].message);
+        }
+
+        [Test]
+        public void WhenTrialLicenseExpired()
+        {
+            var logger = new TestableLogger();
+            var licenseManager = new LicenseManager();
+
+            licenseManager.LogLicenseStatus(LicenseStatus.InvalidDueToExpiredTrial, logger, new License());
+
+            Assert.AreEqual(1, logger.Logs.Count);
+            Assert.AreEqual(LogLevel.Error, logger.Logs[0].level);
+            Assert.AreEqual("Trial license expired. To continue using the Particular Service Platform, please extend your trial or purchase a license by visiting http://go.particular.net/trial-expired", logger.Logs[0].message);
+        }
+
+        [TestCase(3, "Trial license expiring in 3 days. To continue using the Particular Service Platform, please extend your trial or purchase a license by visiting http://go.particular.net/trial-expiring")]
+        [TestCase(1, "Trial license expiring in 1 day. To continue using the Particular Service Platform, please extend your trial or purchase a license by visiting http://go.particular.net/trial-expiring")]
+        [TestCase(0, "Trial license expiring today. To continue using the Particular Service Platform, please extend your trial or purchase a license by visiting http://go.particular.net/trial-expiring")]
+        public void WhenTrialLicenseAboutToExpire(int daysRemaining, string expectedMessage)
+        {
+            var logger = new TestableLogger();
+            var licenseManager = new LicenseManager();
+            var today = new DateTime(2012, 12, 12);
+            var license = new License
+            {
+                utcDateTimeProvider = () => today,
+                ExpirationDate = today.AddDays(daysRemaining)
+            };
+
+            licenseManager.LogLicenseStatus(LicenseStatus.ValidWithExpiringTrial, logger, license);
+
+            Assert.AreEqual(1, logger.Logs.Count);
+            Assert.AreEqual(LogLevel.Warn, logger.Logs[0].level);
             Assert.AreEqual(expectedMessage, logger.Logs[0].message);
+        }
+
+        [TestCase(3, "Platform license expiring in 3 days. To continue using the Particular Service Platform, please extend your license by visiting http://go.particular.net/license-expiring")]
+        [TestCase(1, "Platform license expiring in 1 day. To continue using the Particular Service Platform, please extend your license by visiting http://go.particular.net/license-expiring")]
+        [TestCase(0, "Platform license expiring today. To continue using the Particular Service Platform, please extend your license by visiting http://go.particular.net/license-expiring")]
+        public void WhenSubscriptionAboutToExpire(int daysRemaining, string expectedMessage)
+        {
+            var logger = new TestableLogger();
+            var licenseManager = new LicenseManager();
+            var today = new DateTime(2012, 12, 12);
+            var license = new License
+            {
+                utcDateTimeProvider = () => today,
+                ExpirationDate = today.AddDays(daysRemaining)
+            };
+
+            licenseManager.LogLicenseStatus(LicenseStatus.ValidWithExpiringSubscription, logger, license);
+
+            Assert.AreEqual(1, logger.Logs.Count);
+            Assert.AreEqual(LogLevel.Warn, logger.Logs[0].level);
+            Assert.AreEqual(expectedMessage, logger.Logs[0].message);
+        }
+
+        [TestCase(3, "Upgrade protection expiring in 3 days. In order for us to continue to provide you with support and new versions of the Particular Service Platform, please extend your upgrade protection by visiting http://go.particular.net/upgrade-protection-expiring")]
+        [TestCase(1, "Upgrade protection expiring in 1 day. In order for us to continue to provide you with support and new versions of the Particular Service Platform, please extend your upgrade protection by visiting http://go.particular.net/upgrade-protection-expiring")]
+        [TestCase(0, "Upgrade protection expiring today. In order for us to continue to provide you with support and new versions of the Particular Service Platform, please extend your upgrade protection by visiting http://go.particular.net/upgrade-protection-expiring")]
+        public void WhenUpgradeProtectionAboutToExpire(int daysRemaining, string expectedMessage)
+        {
+            var logger = new TestableLogger();
+            var licenseManager = new LicenseManager();
+            var today = new DateTime(2012, 12, 12);
+            var license = new License
+            {
+                utcDateTimeProvider = () => today,
+                UpgradeProtectionExpiration = today.AddDays(daysRemaining)
+            };
+
+            licenseManager.LogLicenseStatus(LicenseStatus.ValidWithExpiringUpgradeProtection, logger, license);
+
+            Assert.AreEqual(1, logger.Logs.Count);
+            Assert.AreEqual(LogLevel.Warn, logger.Logs[0].level);
+            Assert.AreEqual(expectedMessage, logger.Logs[0].message);
+        }
+
+        [Test]
+        public void WhenUpgradeProtectionExpiredForFutureVersions()
+        {
+            var logger = new TestableLogger();
+            var licenseManager = new LicenseManager();
+            var today = new DateTime(2012, 12, 12);
+            var license = new License
+            {
+                utcDateTimeProvider = () => today,
+                releaseDateProvider = () => today.AddDays(-20),
+                UpgradeProtectionExpiration = today.AddDays(-10)
+            };
+
+            licenseManager.LogLicenseStatus(LicenseStatus.ValidWithExpiredUpgradeProtection, logger, license);
+
+            Assert.AreEqual(1, logger.Logs.Count);
+            Assert.AreEqual(LogLevel.Warn, logger.Logs[0].level);
+            Assert.AreEqual("Upgrade protection expired. In order for us to continue to provide you with support and new versions of the Particular Service Platform, please extend your upgrade protection by visiting http://go.particular.net/upgrade-protection-expired", logger.Logs[0].message);
         }
 
         class TestableLogger : ILog
@@ -49,7 +152,7 @@
 
             public void Debug(string message)
             {
-                Log(message, LogLevel.Debug);
+                throw new NotImplementedException();
             }
 
             public void Debug(string message, Exception exception)
@@ -64,7 +167,7 @@
 
             public void Info(string message)
             {
-                Log(message, LogLevel.Info);
+                throw new NotImplementedException();
             }
 
             public void Info(string message, Exception exception)
@@ -89,7 +192,7 @@
 
             public void WarnFormat(string format, params object[] args)
             {
-                throw new NotImplementedException();
+                Log(string.Format(format, args), LogLevel.Warn);
             }
 
             public void Error(string message)
