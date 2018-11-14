@@ -20,9 +20,9 @@
             Assert.AreEqual(0, logger.Logs.Count);
         }
 
-        [TestCase(LicenseStatus.InvalidDueExpiredTrial, LogLevel.Error, "Trial license expired. Please extend your trial or purchase a license to continue using the Particular Service Platform.")]
-        [TestCase(LicenseStatus.InvalidDueExpiredSubscription, LogLevel.Error, "Platform license expired. Please extend your license to continue using the Particular Service Platform.")]
-        [TestCase(LicenseStatus.InvalidDueExpiredUpgradeProtection, LogLevel.Error, "Upgrade protection expired. Please extend your upgrade protection so that we can continue to provide you with support and new versions of the Particular Service Platform.")]
+        [TestCase(LicenseStatus.InvalidDueToExpiredTrial, LogLevel.Error, "Trial license expired. Please extend your trial or purchase a license to continue using the Particular Service Platform.")]
+        [TestCase(LicenseStatus.InvalidDueToExpiredSubscription, LogLevel.Error, "Platform license expired. Please extend your license to continue using the Particular Service Platform.")]
+        [TestCase(LicenseStatus.InvalidDueToExpiredUpgradeProtection, LogLevel.Error, "Upgrade protection expired. Please extend your upgrade protection so that we can continue to provide you with support and new versions of the Particular Service Platform.")]
         [TestCase(LicenseStatus.ValidWithExpiringTrial, LogLevel.Warn, "Trial license expiring soon. Please extend your trial or purchase a license to continue using the Particular Service Platform.")]
         [TestCase(LicenseStatus.ValidWithExpiringSubscription, LogLevel.Warn, "Platform license expiring soon. Please extend your license to continue using the Particular Service Platform.")]
         [TestCase(LicenseStatus.ValidWithExpiringUpgradeProtection, LogLevel.Warn, "Upgrade protection expiring soon. Please extend your upgrade protection so that we can continue to provide you with support and new versions of the Particular Service Platform.")]

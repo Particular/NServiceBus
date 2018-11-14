@@ -13,7 +13,7 @@ namespace NServiceBus
 
     class LicenseManager
     {
-        internal bool HasLicenseExpired => result?.HasExpired ?? true;
+        internal bool HasLicenseExpired => result?.License.HasExpired() ?? true;
 
         public LicenseManager(Func<DateTime> utcDateProvider)
         {
@@ -31,7 +31,7 @@ namespace NServiceBus
             var licenseStatus = result.License.GetLicenseStatus();
             LogLicenseStatus(licenseStatus, Logger);
 
-            if (licenseStatus == LicenseStatus.InvalidDueExpiredTrial)
+            if (licenseStatus == LicenseStatus.InvalidDueToExpiredTrial)
             {
                 OpenTrialExtensionPage();
             }
@@ -55,13 +55,13 @@ namespace NServiceBus
                 case LicenseStatus.ValidWithExpiringUpgradeProtection:
                     logger.Warn("Upgrade protection expiring soon. Please extend your upgrade protection so that we can continue to provide you with support and new versions of the Particular Service Platform.");
                     break;
-                case LicenseStatus.InvalidDueExpiredTrial:
+                case LicenseStatus.InvalidDueToExpiredTrial:
                     logger.Error("Trial license expired. Please extend your trial or purchase a license to continue using the Particular Service Platform.");
                     break;
-                case LicenseStatus.InvalidDueExpiredSubscription:
+                case LicenseStatus.InvalidDueToExpiredSubscription:
                     logger.Error("Platform license expired. Please extend your license to continue using the Particular Service Platform.");
                     break;
-                case LicenseStatus.InvalidDueExpiredUpgradeProtection:
+                case LicenseStatus.InvalidDueToExpiredUpgradeProtection:
                     logger.Error("Upgrade protection expired. Please extend your upgrade protection so that we can continue to provide you with support and new versions of the Particular Service Platform.");
                     break;
             }
