@@ -188,6 +188,5 @@ namespace NServiceBus
 
         static readonly ILog Logger = LogManager.GetLogger(typeof(LicenseManager));
         static readonly bool DebugLoggingEnabled = Logger.IsDebugEnabled;
-        static readonly TimeSpan ExpirationWarningThreshold = TimeSpan.FromDays(10);
     }
 }
