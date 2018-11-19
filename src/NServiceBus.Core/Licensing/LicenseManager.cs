@@ -13,7 +13,7 @@ namespace NServiceBus
 
     class LicenseManager
     {
-        internal bool HasLicenseExpired => result?.HasExpired ?? true;
+        internal bool HasLicenseExpired => result?.License.HasExpired() ?? true;
 
         internal void InitializeLicense(string licenseText, string licenseFilePath)
         {
@@ -23,16 +23,56 @@ namespace NServiceBus
 
             LogFindResults(result);
 
-            if (result.HasExpired)
+            var licenseStatus = result.License.GetLicenseStatus();
+            LogLicenseStatus(licenseStatus, Logger, result.License);
+
+            if (licenseStatus == LicenseStatus.InvalidDueToExpiredTrial)
             {
-                if (result.License.IsTrialLicense)
+                OpenTrialExtensionPage();
+            }
+        }
+
+        internal void LogLicenseStatus(LicenseStatus licenseStatus, ILog logger, License license)
+        {
+            switch (licenseStatus)
+            {
+                case LicenseStatus.Valid:
+                    break;
+                case LicenseStatus.ValidWithExpiredUpgradeProtection:
+                    logger.Warn("Upgrade protection expired. In order for us to continue to provide you with support and new versions of the Particular Service Platform, please extend your upgrade protection by visiting http://go.particular.net/upgrade-protection-expired");
+                    break;
+                case LicenseStatus.ValidWithExpiringTrial:
+                    logger.WarnFormat("Trial license expiring {0}. To continue using the Particular Service Platform, please extend your trial or purchase a license by visiting http://go.particular.net/trial-expiring", GetRemainingDaysString(license.GetDaysUntilLicenseExpires()));
+                    break;
+                case LicenseStatus.ValidWithExpiringSubscription:
+                    logger.WarnFormat("Platform license expiring {0}. To continue using the Particular Service Platform, please extend your license by visiting http://go.particular.net/license-expiring", GetRemainingDaysString(license.GetDaysUntilLicenseExpires()));
+                    break;
+                case LicenseStatus.ValidWithExpiringUpgradeProtection:
+                    logger.WarnFormat("Upgrade protection expiring {0}. In order for us to continue to provide you with support and new versions of the Particular Service Platform, please extend your upgrade protection by visiting http://go.particular.net/upgrade-protection-expiring", GetRemainingDaysString(license.GetDaysUntilUpgradeProtectionExpires()));
+                    break;
+                case LicenseStatus.InvalidDueToExpiredTrial:
+                    logger.Error("Trial license expired. To continue using the Particular Service Platform, please extend your trial or purchase a license by visiting http://go.particular.net/trial-expired");
+                    break;
+                case LicenseStatus.InvalidDueToExpiredSubscription:
+                    logger.Error("Platform license expired. To continue using the Particular Service Platform, please extend your license by visiting http://go.particular.net/license-expired");
+                    break;
+                case LicenseStatus.InvalidDueToExpiredUpgradeProtection:
+                    logger.Error("Upgrade protection expired. In order for us to continue to provide you with support and new versions of the Particular Service Platform, please extend your upgrade protection by visiting http://go.particular.net/upgrade-protection-expired");
+                    break;
+            }
+
+            string GetRemainingDaysString(int? remainingDays)
+            {
+                switch (remainingDays)
                 {
-                    Logger.Warn("Trial for the Particular Service Platform has expired.");
-                    OpenTrialExtensionPage();
-                }
-                else
-                {
-                    Logger.Fatal("Your license has expired! To renew your license, visit: https://particular.net/licensing");
+                    case null:
+                        return "soon";
+                    case 0:
+                        return "today";
+                    case 1:
+                        return "in 1 day";
+                    default:
+                        return $"in {remainingDays} days";
                 }
             }
         }
@@ -41,7 +81,7 @@ namespace NServiceBus
         {
             var report = new StringBuilder();
 
-            if (debugLoggingEnabled)
+            if (DebugLoggingEnabled)
             {
                 report.AppendLine("Looking for license in the following locations:");
 
@@ -146,7 +186,7 @@ namespace NServiceBus
 
         ActiveLicenseFindResult result;
 
-        static ILog Logger = LogManager.GetLogger(typeof(LicenseManager));
-        static readonly bool debugLoggingEnabled = Logger.IsDebugEnabled;
+        static readonly ILog Logger = LogManager.GetLogger(typeof(LicenseManager));
+        static readonly bool DebugLoggingEnabled = Logger.IsDebugEnabled;
     }
 }
