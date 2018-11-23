@@ -95,6 +95,16 @@ namespace NServiceBus.ContainerTests
             }
         }
 
+        [Test]
+        public void Resolving_recursive_types_does_not_stack_overflow()
+        {
+            using (var builder = TestContainerBuilder.ConstructBuilder())
+            {
+                InitializeBuilder(builder);
+                builder.Build(typeof(RecursiveComponent));
+            }
+        }
+
         void InitializeBuilder(IContainer container)
         {
             container.Configure(typeof(SingletonComponent), DependencyLifecycle.SingleInstance);
@@ -103,6 +113,12 @@ namespace NServiceBus.ContainerTests
             container.Configure(() => new SingletonLambdaComponent(), DependencyLifecycle.SingleInstance);
             container.Configure(() => new SingleCallLambdaComponent(), DependencyLifecycle.InstancePerCall);
             container.Configure(() => new LambdaComponentUoW(), DependencyLifecycle.InstancePerUnitOfWork);
+            container.Configure(() => new RecursiveComponent(), DependencyLifecycle.SingleInstance);
+        }
+
+        public class RecursiveComponent
+        {
+            public RecursiveComponent Instance { get; set; }
         }
 
         public class SingletonComponent
