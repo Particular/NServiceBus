@@ -9,44 +9,22 @@
     static class TaskExtensions
     {
         //this method will not timeout a task if the debugger is attached.
-        public static Task Timebox(this IEnumerable<Task> tasks, TimeSpan timeoutAfter, string messageWhenTimeboxReached)
+        public static async Task Timebox(this IEnumerable<Task> tasks, TimeSpan timeoutAfter, string messageWhenTimeboxReached)
         {
-            var taskCompletionSource = new TaskCompletionSource<object>();
-            var tokenSource = Debugger.IsAttached ? new CancellationTokenSource() : new CancellationTokenSource(timeoutAfter);
-            var registration = tokenSource.Token.Register(s =>
+            using (var tokenSource = new CancellationTokenSource())
             {
-                var tcs = (TaskCompletionSource<object>) s;
-                tcs.TrySetException(new TimeoutException(messageWhenTimeboxReached));
-            }, taskCompletionSource);
+                var delayTask = Task.Delay(Debugger.IsAttached ? TimeSpan.MaxValue : timeoutAfter, tokenSource.Token);
+                var allTasks = Task.WhenAll(tasks);
 
-            Task.WhenAll(tasks)
-                .ContinueWith((t, s) =>
+                var returnedTask = await Task.WhenAny(delayTask, allTasks).ConfigureAwait(false);
+                tokenSource.Cancel();
+                if (returnedTask == delayTask)
                 {
-                    var state = (Tuple<TaskCompletionSource<object>, CancellationTokenSource, CancellationTokenRegistration>) s;
-                    var source = state.Item2;
-                    var reg = state.Item3;
-                    var tcs = state.Item1;
+                    throw new TimeoutException(messageWhenTimeboxReached);
+                }
 
-                    if (t.IsFaulted && t.Exception != null)
-                    {
-                        tcs.TrySetException(t.Exception.GetBaseException());
-                    }
-
-                    if (t.IsCanceled)
-                    {
-                        tcs.TrySetCanceled();
-                    }
-
-                    if (t.IsCompleted)
-                    {
-                        tcs.TrySetResult(null);
-                    }
-
-                    reg.Dispose();
-                    source.Dispose();
-                }, Tuple.Create(taskCompletionSource, tokenSource, registration), CancellationToken.None, TaskContinuationOptions.ExecuteSynchronously, TaskScheduler.Default);
-
-            return taskCompletionSource.Task;
+                await allTasks.ConfigureAwait(false);
+            }
         }
     }
 }
