@@ -91,9 +91,18 @@
             }
             else
             {
-                if (Directory.Exists(pendingTransactionDir))
+                if (!Directory.Exists(pendingTransactionDir))
+                {
+                    return;
+                }
+
+                try
                 {
                     Directory.Delete(pendingTransactionDir, true);
+                }
+                catch (IOException e)
+                {
+                    log.Debug($"Unable to delete pending transaction directory '{pendingTransactionDir}'.", e);
                 }
             }
         }
