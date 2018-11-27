@@ -104,10 +104,25 @@ namespace NServiceBus
             //only need to move the incoming file
             foreach (var file in pendingDir.EnumerateFiles(TxtFileExtension))
             {
-                File.Move(file.FullName, Path.Combine(basePath, file.Name));
+                var destFileName = Path.Combine(basePath, file.Name);
+                try
+                {
+                    File.Move(file.FullName, destFileName);
+                }
+                catch (IOException e)
+                {
+                    log.Debug($"Unable to move pending transaction from '{file.FullName}' to '{destFileName}'. Pending transaction is assumed to be recovered by a competing consumer.", e);
+                }
             }
 
-            pendingDir.Delete(true);
+            try
+            {
+                pendingDir.Delete(true);
+            }
+            catch (IOException e)
+            {
+                log.Debug($"Unable to delete pending transaction directory '{pendingDir.FullName}'.", e);
+            }
         }
 
         void RecoverCommitted()
@@ -118,10 +133,25 @@ namespace NServiceBus
             // but its good enough for now since duplicates is a possibility anyway
             foreach (var file in committedDir.EnumerateFiles(TxtFileExtension))
             {
-                File.Move(file.FullName, Path.Combine(basePath, file.Name));
+                var destFileName = Path.Combine(basePath, file.Name);
+                try
+                {
+                    File.Move(file.FullName, destFileName);
+                }
+                catch (IOException e)
+                {
+                    log.Debug($"Unable to move committed transaction from '{file.FullName}' to '{destFileName}'. Committed transaction is assumed to be recovered by a competing consumer.", e);
+                }
             }
 
-            committedDir.Delete(true);
+            try
+            {
+                committedDir.Delete(true);
+            }
+            catch (IOException e)
+            {
+                log.Debug($"Unable to delete committed transaction directory '{committedDir.FullName}'.", e);
+            }
         }
 
         string basePath;
