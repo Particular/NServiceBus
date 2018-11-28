@@ -101,27 +101,28 @@ namespace NServiceBus
         {
             var pendingDir = new DirectoryInfo(transactionDir);
 
-            //only need to move the incoming file
-            foreach (var file in pendingDir.EnumerateFiles(TxtFileExtension))
-            {
-                var destFileName = Path.Combine(basePath, file.Name);
-                try
-                {
-                    File.Move(file.FullName, destFileName);
-                }
-                catch (IOException e)
-                {
-                    log.Debug($"Unable to move pending transaction from '{file.FullName}' to '{destFileName}'. Pending transaction is assumed to be recovered by a competing consumer.", e);
-                }
-            }
-
             try
             {
+                //only need to move the incoming file
+                foreach (var file in pendingDir.EnumerateFiles(TxtFileExtension))
+                {
+                    var destFileName = Path.Combine(basePath, file.Name);
+                    try
+                    {
+                        File.Move(file.FullName, destFileName);
+                    }
+                    catch (IOException e)
+                    {
+                        log.Debug($"Unable to move pending transaction from '{file.FullName}' to '{destFileName}'. Pending transaction is assumed to be recovered by a competing consumer.", e);
+                    }
+                }
+
+
                 pendingDir.Delete(true);
             }
             catch (IOException e)
             {
-                log.Debug($"Unable to delete pending transaction directory '{pendingDir.FullName}'.", e);
+                log.Debug($"Unable to recover pedning transaction '{pendingDir.FullName}'.", e);
             }
         }
 
