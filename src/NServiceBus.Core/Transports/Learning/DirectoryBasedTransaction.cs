@@ -123,7 +123,7 @@ namespace NServiceBus
             }
             catch (Exception e)
             {
-                log.Debug($"Unable to recover pedning transaction '{pendingDir.FullName}'.", e);
+                log.Debug($"Unable to recover pending transaction '{pendingDir.FullName}'.", e);
             }
         }
 
@@ -131,28 +131,28 @@ namespace NServiceBus
         {
             var committedDir = new DirectoryInfo(commitDir);
 
-            //for now just rollback the completed ones as well. We could consider making this smarter in the future
-            // but its good enough for now since duplicates is a possibility anyway
-            foreach (var file in committedDir.EnumerateFiles(TxtFileExtension))
-            {
-                var destFileName = Path.Combine(basePath, file.Name);
-                try
-                {
-                    File.Move(file.FullName, destFileName);
-                }
-                catch (Exception e)
-                {
-                    log.Debug($"Unable to move committed transaction from '{file.FullName}' to '{destFileName}'. Committed transaction is assumed to be recovered by a competing consumer.", e);
-                }
-            }
-
             try
             {
+                //for now just rollback the completed ones as well. We could consider making this smarter in the future
+                // but its good enough for now since duplicates is a possibility anyway
+                foreach (var file in committedDir.EnumerateFiles(TxtFileExtension))
+                {
+                    var destFileName = Path.Combine(basePath, file.Name);
+                    try
+                    {
+                        File.Move(file.FullName, destFileName);
+                    }
+                    catch (Exception e)
+                    {
+                        log.Debug($"Unable to move committed transaction from '{file.FullName}' to '{destFileName}'. Committed transaction is assumed to be recovered by a competing consumer.", e);
+                    }
+                }
+
                 committedDir.Delete(true);
             }
             catch (Exception e)
             {
-                log.Debug($"Unable to delete committed transaction directory '{committedDir.FullName}'.", e);
+                log.Debug($"Unable to recover committed transaction '{committedDir.FullName}'.", e);
             }
         }
 
