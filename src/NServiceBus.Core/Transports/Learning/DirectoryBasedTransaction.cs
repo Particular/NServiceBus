@@ -1,5 +1,6 @@
 namespace NServiceBus
 {
+    using System;
     using System.Collections.Concurrent;
     using System.IO;
     using System.Threading.Tasks;
@@ -111,7 +112,7 @@ namespace NServiceBus
                     {
                         File.Move(file.FullName, destFileName);
                     }
-                    catch (IOException e)
+                    catch (Exception e)
                     {
                         log.Debug($"Unable to move pending transaction from '{file.FullName}' to '{destFileName}'. Pending transaction is assumed to be recovered by a competing consumer.", e);
                     }
@@ -120,7 +121,7 @@ namespace NServiceBus
 
                 pendingDir.Delete(true);
             }
-            catch (IOException e)
+            catch (Exception e)
             {
                 log.Debug($"Unable to recover pedning transaction '{pendingDir.FullName}'.", e);
             }
@@ -139,7 +140,7 @@ namespace NServiceBus
                 {
                     File.Move(file.FullName, destFileName);
                 }
-                catch (IOException e)
+                catch (Exception e)
                 {
                     log.Debug($"Unable to move committed transaction from '{file.FullName}' to '{destFileName}'. Committed transaction is assumed to be recovered by a competing consumer.", e);
                 }
@@ -149,7 +150,7 @@ namespace NServiceBus
             {
                 committedDir.Delete(true);
             }
-            catch (IOException e)
+            catch (Exception e)
             {
                 log.Debug($"Unable to delete committed transaction directory '{committedDir.FullName}'.", e);
             }
