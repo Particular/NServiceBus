@@ -100,7 +100,7 @@
                 {
                     Directory.Delete(pendingTransactionDir, true);
                 }
-                catch (IOException e)
+                catch (Exception e)
                 {
                     log.Debug($"Unable to delete pending transaction directory '{pendingTransactionDir}'.", e);
                 }
