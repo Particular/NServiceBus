@@ -6,13 +6,15 @@ namespace NServiceBus
     using System.Threading.Tasks;
     using Logging;
     using ObjectBuilder;
+    using Pipeline;
     using Transport;
 
     class ReceiveComponent
     {
         public ReceiveComponent(ReceiveConfiguration configuration,
             TransportReceiveInfrastructure receiveInfrastructure,
-            IPipelineExecutor mainPipelineExecutor,
+            IPipelineCache pipelineCache,
+            PipelineConfiguration pipelineConfiguration,
             IEventAggregator eventAggregator,
             IBuilder builder,
             CriticalError criticalError,
@@ -20,7 +22,8 @@ namespace NServiceBus
         {
             this.configuration = configuration;
             this.receiveInfrastructure = receiveInfrastructure;
-            this.mainPipelineExecutor = mainPipelineExecutor;
+            this.pipelineCache = pipelineCache;
+            this.pipelineConfiguration = pipelineConfiguration;
             this.eventAggregator = eventAggregator;
             this.builder = builder;
             this.criticalError = criticalError;
@@ -54,6 +57,9 @@ namespace NServiceBus
                 return;
             }
 
+            var mainPipeline = new Pipeline<ITransportReceiveContext>(builder, pipelineConfiguration.Modifications);
+            mainPipelineExecutor = new MainPipelineExecutor(builder, eventAggregator, pipelineCache, mainPipeline);
+            
             if (configuration.PurgeOnStartup)
             {
                 Logger.Warn("All queues owned by the endpoint will be purged on startup.");
@@ -169,6 +175,8 @@ namespace NServiceBus
         ReceiveConfiguration configuration;
         List<TransportReceiver> receivers = new List<TransportReceiver>();
         TransportReceiveInfrastructure receiveInfrastructure;
+        IPipelineCache pipelineCache;
+        PipelineConfiguration pipelineConfiguration;
         IPipelineExecutor mainPipelineExecutor;
         IEventAggregator eventAggregator;
         IBuilder builder;
