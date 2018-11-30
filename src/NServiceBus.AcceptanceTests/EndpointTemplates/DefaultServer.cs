@@ -29,7 +29,7 @@
 
             configuration.TypesToIncludeInScan(typesToInclude);
             configuration.EnableInstallers();
-
+            configuration.UseContainer<AcceptanceTestingContainer>();
             configuration.DisableFeature<TimeoutManager>();
 
             var recoverability = configuration.Recoverability();
