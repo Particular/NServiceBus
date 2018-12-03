@@ -13,7 +13,7 @@
         {
             using (var tokenSource = new CancellationTokenSource())
             {
-                var delayTask = Task.Delay(Debugger.IsAttached ? TimeSpan.MaxValue : timeoutAfter, tokenSource.Token);
+                var delayTask = Debugger.IsAttached ? Task.Delay(-1, tokenSource.Token) : Task.Delay(timeoutAfter, tokenSource.Token);
                 var allTasks = Task.WhenAll(tasks);
 
                 var returnedTask = await Task.WhenAny(delayTask, allTasks).ConfigureAwait(false);
