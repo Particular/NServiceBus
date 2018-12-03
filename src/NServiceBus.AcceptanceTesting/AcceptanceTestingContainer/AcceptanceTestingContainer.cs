@@ -5,7 +5,7 @@
     using Settings;
 
     /// <summary>
-    /// Container that enforces registration immutability once the first instance have been resolved.
+    /// Container that enforces registration immutability once the first instance has been resolved.
     /// </summary>
     public class AcceptanceTestingContainer : ContainerDefinition
     {
