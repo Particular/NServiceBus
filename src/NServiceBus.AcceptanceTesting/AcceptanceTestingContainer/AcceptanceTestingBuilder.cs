@@ -10,6 +10,7 @@
         {
             builder = new LightInjectObjectBuilder();
         }
+
         public void Dispose()
         {
             builder.Dispose();
@@ -35,7 +36,6 @@
         public void Configure(Type component, DependencyLifecycle dependencyLifecycle)
         {
             ThrowIfLocked();
-
             builder.Configure(component, dependencyLifecycle);
         }
 
@@ -65,7 +65,7 @@
         {
             if (locked)
             {
-                throw new InvalidOperationException("Can't register components after the container have been used to resolve instances");
+                throw new InvalidOperationException("Can't register components after the container has been used to resolve instances");
             }
         }
 
