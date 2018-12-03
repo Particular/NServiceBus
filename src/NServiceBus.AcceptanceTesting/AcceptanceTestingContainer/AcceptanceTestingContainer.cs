@@ -4,6 +4,9 @@
     using ObjectBuilder.Common;
     using Settings;
 
+    /// <summary>
+    /// Container that enforces registration immutability once the first instance have been resolved.
+    /// </summary>
     public class AcceptanceTestingContainer : ContainerDefinition
     {
         public override IContainer CreateContainer(ReadOnlySettings settings)
