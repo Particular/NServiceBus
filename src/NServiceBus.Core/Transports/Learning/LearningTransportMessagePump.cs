@@ -210,6 +210,11 @@
             }
             finally
             {
+                if (log.IsDebugEnabled)
+                {
+                    log.Debug($"Completing processing for {filePath}({transaction.FileToProcess}).");
+                }
+
                 try
                 {
                     var wasCommitted = transaction.Complete();
