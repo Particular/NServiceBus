@@ -150,13 +150,12 @@ namespace NServiceBus
             IPipelineCache pipelineCache,
             EventAggregator eventAggregator)
         {
-            var mainPipeline = new Pipeline<ITransportReceiveContext>(builder, pipelineConfiguration.Modifications);
-            var mainPipelineExecutor = new MainPipelineExecutor(builder, eventAggregator, pipelineCache, mainPipeline);
             var errorQueue = settings.ErrorQueueAddress();
 
             var receiveComponent = new ReceiveComponent(receiveConfiguration,
                 receiveConfiguration != null ? transportInfrastructure.ConfigureReceiveInfrastructure() : null, //don't create the receive infrastructure for send-only endpoints
-                mainPipelineExecutor,
+                pipelineCache,
+                pipelineConfiguration,
                 eventAggregator,
                 builder,
                 criticalError,
