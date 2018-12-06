@@ -66,7 +66,7 @@
                 if (parent == null)
                 {
                     // throw for now. if we discover there is an edge then we can fix it in a patch.
-                    throw new Exception($"Couldn't find the solution directory or a directory named '{DefaultLearningTransportDirectory}' for the learning transport. Make sure either a '{DefaultLearningTransportDirectory}' exists in the current or one of the parent directories or specify a storage directory using the 'EndpointConfiguration.UseTransport<LearningTransport>().StorageDirectory()' API.");
+                    throw new Exception($"Unable to determine the storage directory path for the learning transport due to the absence of a solution file. Either create a '{DefaultLearningTransportDirectory}' directory in one of this project’s parent directories, or specify the path explicitly using the 'EndpointConfiguration.UseTransport<LearningTransport>().StorageDirectory()' API.");
                 }
 
                 directory = parent.FullName;
