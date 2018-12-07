@@ -19,8 +19,7 @@
 
             if (!settings.TryGet(StorageLocationKey, out storagePath))
             {
-                var solutionRoot = FindSolutionRoot();
-                storagePath = Path.Combine(solutionRoot, ".learningtransport");
+                storagePath = FindStoragePath();
             }
 
             settings.SetDefault(new MessageProcessingOptimizationExtensions.ConcurrencyLimit
@@ -43,15 +42,23 @@
 
         public override OutboundRoutingPolicy OutboundRoutingPolicy { get; } = new OutboundRoutingPolicy(OutboundRoutingType.Unicast, OutboundRoutingType.Multicast, OutboundRoutingType.Unicast);
 
-        string FindSolutionRoot()
+        static string FindStoragePath()
         {
             var directory = AppDomain.CurrentDomain.BaseDirectory;
 
             while (true)
             {
+                // Finding a solution file takes precedence
                 if (Directory.EnumerateFiles(directory).Any(file => file.EndsWith(".sln")))
                 {
-                    return directory;
+                    return Path.Combine(directory, DefaultLearningTransportDirectory);
+                }
+
+                // When no solution file was found try to find a learning transport directory
+                // don't ignore casing due to linux support
+                if (Directory.EnumerateDirectories(directory).Any(dir => dir.Equals(DefaultLearningTransportDirectory, StringComparison.Ordinal)))
+                {
+                    return Path.Combine(directory, DefaultLearningTransportDirectory);
                 }
 
                 var parent = Directory.GetParent(directory);
@@ -59,7 +66,7 @@
                 if (parent == null)
                 {
                     // throw for now. if we discover there is an edge then we can fix it in a patch.
-                    throw new Exception("Couldn't find the solution directory for the learning transport. If the endpoint is outside the solution folder structure, make sure to specify a storage directory using the 'EndpointConfiguration.UseTransport<LearningTransport>().StorageDirectory()' API.");
+                    throw new Exception($"Unable to determine the storage directory path for the learning transport due to the absence of a solution file. Either create a '{DefaultLearningTransportDirectory}' directory in one of this project’s parent directories, or specify the path explicitly using the 'EndpointConfiguration.UseTransport<LearningTransport>().StorageDirectory()' API.");
                 }
 
                 directory = parent.FullName;
@@ -123,6 +130,7 @@
         string storagePath;
         SettingsHolder settings;
 
+        const string DefaultLearningTransportDirectory = ".learningtransport";
         public const string StorageLocationKey = "LearningTransport.StoragePath";
         public const string NoPayloadSizeRestrictionKey = "LearningTransport.NoPayloadSizeRestrictionKey";
     }
