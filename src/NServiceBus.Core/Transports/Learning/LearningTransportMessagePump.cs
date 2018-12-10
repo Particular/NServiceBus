@@ -91,9 +91,18 @@
             }
             else
             {
-                if (Directory.Exists(pendingTransactionDir))
+                if (!Directory.Exists(pendingTransactionDir))
+                {
+                    return;
+                }
+
+                try
                 {
                     Directory.Delete(pendingTransactionDir, true);
+                }
+                catch (Exception e)
+                {
+                    log.Debug($"Unable to delete pending transaction directory '{pendingTransactionDir}'.", e);
                 }
             }
         }
@@ -172,43 +181,7 @@
                         throw;
                     }
 
-                    ProcessFile(transaction, nativeMessageId)
-                        .ContinueWith(t =>
-                        {
-                            try
-                            {
-                                if (log.IsDebugEnabled)
-                                {
-                                    log.Debug($"Completing processing for {filePath}({transaction.FileToProcess}), exception (if any): {t.Exception}");
-                                }
-
-                                var wasCommitted = transaction.Complete();
-
-                                if (wasCommitted)
-                                {
-                                    File.Delete(Path.Combine(bodyDir, nativeMessageId + BodyFileSuffix));
-                                }
-
-                                if (t.Exception != null)
-                                {
-                                    var baseEx = t.Exception.GetBaseException();
-
-                                    if (!(baseEx is OperationCanceledException))
-                                    {
-                                        criticalError.Raise($"Failed to process {filePath}({transaction.FileToProcess})", baseEx);
-                                    }
-                                }
-                            }
-                            catch (Exception ex)
-                            {
-                                criticalError.Raise($"Failure while trying to complete receive transaction for  {filePath}({transaction.FileToProcess})" + filePath, ex);
-                            }
-                            finally
-                            {
-                                concurrencyLimiter.Release();
-                            }
-                        }, CancellationToken.None)
-                        .Ignore();
+                    ProcessFileAndComplete(transaction, filePath, nativeMessageId).Ignore();
                 }
 
                 if (!filesFound)
@@ -226,6 +199,38 @@
             }
 
             return new DirectoryBasedTransaction(messagePumpBasePath, PendingDirName, CommittedDirName, Guid.NewGuid().ToString());
+        }
+
+        async Task ProcessFileAndComplete(ILearningTransportTransaction transaction, string filePath, string messageId)
+        {
+            try
+            {
+                await ProcessFile(transaction, messageId)
+                    .ConfigureAwait(false);
+            }
+            finally
+            {
+                if (log.IsDebugEnabled)
+                {
+                    log.Debug($"Completing processing for {filePath}({transaction.FileToProcess}).");
+                }
+
+                try
+                {
+                    var wasCommitted = transaction.Complete();
+
+                    if (wasCommitted)
+                    {
+                        File.Delete(Path.Combine(bodyDir, messageId + BodyFileSuffix));
+                    }
+                }
+                catch (Exception ex)
+                {
+                    log.Debug($"Failure while trying to complete receive transaction for  {filePath}({transaction.FileToProcess})" + filePath, ex);
+                }
+
+                concurrencyLimiter.Release();
+            }
         }
 
         async Task ProcessFile(ILearningTransportTransaction transaction, string messageId)
