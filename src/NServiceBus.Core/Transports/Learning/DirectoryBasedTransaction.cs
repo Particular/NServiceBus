@@ -1,5 +1,6 @@
 namespace NServiceBus
 {
+    using System;
     using System.Collections.Concurrent;
     using System.IO;
     using System.Threading.Tasks;
@@ -101,27 +102,58 @@ namespace NServiceBus
         {
             var pendingDir = new DirectoryInfo(transactionDir);
 
-            //only need to move the incoming file
-            foreach (var file in pendingDir.EnumerateFiles(TxtFileExtension))
+            try
             {
-                File.Move(file.FullName, Path.Combine(basePath, file.Name));
-            }
+                //only need to move the incoming file
+                foreach (var file in pendingDir.EnumerateFiles(TxtFileExtension))
+                {
+                    var destFileName = Path.Combine(basePath, file.Name);
+                    try
+                    {
+                        File.Move(file.FullName, destFileName);
+                    }
+                    catch (Exception e)
+                    {
+                        log.Debug($"Unable to move pending transaction from '{file.FullName}' to '{destFileName}'. Pending transaction is assumed to be recovered by a competing consumer.", e);
+                    }
+                }
 
-            pendingDir.Delete(true);
+
+                pendingDir.Delete(true);
+            }
+            catch (Exception e)
+            {
+                log.Debug($"Unable to recover pending transaction '{pendingDir.FullName}'.", e);
+            }
         }
 
         void RecoverCommitted()
         {
             var committedDir = new DirectoryInfo(commitDir);
 
-            //for now just rollback the completed ones as well. We could consider making this smarter in the future
-            // but its good enough for now since duplicates is a possibility anyway
-            foreach (var file in committedDir.EnumerateFiles(TxtFileExtension))
+            try
             {
-                File.Move(file.FullName, Path.Combine(basePath, file.Name));
-            }
+                //for now just rollback the completed ones as well. We could consider making this smarter in the future
+                // but its good enough for now since duplicates is a possibility anyway
+                foreach (var file in committedDir.EnumerateFiles(TxtFileExtension))
+                {
+                    var destFileName = Path.Combine(basePath, file.Name);
+                    try
+                    {
+                        File.Move(file.FullName, destFileName);
+                    }
+                    catch (Exception e)
+                    {
+                        log.Debug($"Unable to move committed transaction from '{file.FullName}' to '{destFileName}'. Committed transaction is assumed to be recovered by a competing consumer.", e);
+                    }
+                }
 
-            committedDir.Delete(true);
+                committedDir.Delete(true);
+            }
+            catch (Exception e)
+            {
+                log.Debug($"Unable to recover committed transaction '{committedDir.FullName}'.", e);
+            }
         }
 
         string basePath;
