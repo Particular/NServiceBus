@@ -26,7 +26,7 @@
     <PackageReference Include="Obsolete.Fody" Version="4.4.1" PrivateAssets="All" />
     <PackageReference Include="Particular.CodeRules" Version="0.2.1" PrivateAssets="All" />
     <PackageReference Include="Particular.Licensing.Sources" Version="3.0.0" PrivateAssets="All" />
-    <PackageReference Include="Particular.Packaging" Version="0.2.0" PrivateAssets="All" />
+    <PackageReference Include="Particular.Packaging" Version="0.2.1" PrivateAssets="All" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
