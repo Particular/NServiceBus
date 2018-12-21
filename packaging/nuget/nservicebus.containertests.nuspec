@@ -16,7 +16,7 @@
     <tags>nservicebus servicebus msmq cqrs publish subscribe</tags>
     <dependencies>
       <dependency id="NServiceBus" version="$version$" />
-  	  <dependency id="NUnit" version="[3.6.1, 4.0.0)" />
+  	  <dependency id="NUnit" version="[3.11.0, 4.0.0)" />
     </dependencies>
   </metadata>
   <files>

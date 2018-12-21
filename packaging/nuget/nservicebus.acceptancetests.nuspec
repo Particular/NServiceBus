@@ -17,7 +17,7 @@
     <dependencies>
       <dependency id="NServiceBus" version="$version$" />
       <dependency id="NServiceBus.AcceptanceTesting" version="$version$" />
-      <dependency id="NUnit" version="[3.6.1, 4.0.0)" />
+      <dependency id="NUnit" version="[3.11.0, 4.0.0)" />
     </dependencies>
   <frameworkAssemblies>
     <frameworkAssembly assemblyName="Microsoft.CSharp" targetFramework="net452" />
