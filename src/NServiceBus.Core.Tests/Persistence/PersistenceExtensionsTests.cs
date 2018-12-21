@@ -13,7 +13,7 @@
         {
             // ReSharper disable once ObjectCreationAsStatement
             var ex = Assert.Throws<Exception>(() => new PersistenceExtensions(typeof(PartialPersistence), new SettingsHolder(), typeof(StorageType.Timeouts)));
-            Assert.That(ex.Message, Is.StringStarting("PartialPersistence does not support storage type Timeouts."));
+            Assert.That(ex.Message, Does.StartWith("PartialPersistence does not support storage type Timeouts."));
         }
 
         public class PartialPersistence : PersistenceDefinition
