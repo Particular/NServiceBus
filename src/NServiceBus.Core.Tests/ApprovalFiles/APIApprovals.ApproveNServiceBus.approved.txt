@@ -847,6 +847,8 @@ namespace NServiceBus
         public static NServiceBus.LogicalAddress CreateRemoteAddress(NServiceBus.Routing.EndpointInstance endpointInstance) { }
         public override bool Equals(object obj) { }
         public override int GetHashCode() { }
+        public static bool ==(NServiceBus.LogicalAddress left, NServiceBus.LogicalAddress right) { }
+        public static bool !=(NServiceBus.LogicalAddress left, NServiceBus.LogicalAddress right) { }
         public override string ToString() { }
     }
     public class MessageDeserializationException : System.Runtime.Serialization.SerializationException
@@ -1399,6 +1401,8 @@ namespace NServiceBus
             "removed in version 8.0.0.", false)]
         public string Value { get; set; }
         public void GetObjectData(System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context) { }
+        public static string op_Implicit(NServiceBus.WireEncryptedString s) { }
+        public static NServiceBus.WireEncryptedString op_Implicit(string s) { }
     }
     public class static XmlSerializationExtensions
     {
@@ -2799,6 +2803,8 @@ namespace NServiceBus.Routing
         public System.Collections.Generic.IReadOnlyDictionary<string, string> Properties { get; }
         public override bool Equals(object obj) { }
         public override int GetHashCode() { }
+        public static bool ==(NServiceBus.Routing.EndpointInstance left, NServiceBus.Routing.EndpointInstance right) { }
+        public static bool !=(NServiceBus.Routing.EndpointInstance left, NServiceBus.Routing.EndpointInstance right) { }
         public NServiceBus.Routing.EndpointInstance SetProperty(string key, string value) { }
         public override string ToString() { }
     }
@@ -3770,6 +3776,8 @@ namespace NServiceBus.Unicast.Subscriptions
         public bool Equals(NServiceBus.Unicast.Subscriptions.MessageType other) { }
         public override bool Equals(object obj) { }
         public override int GetHashCode() { }
+        public static bool ==(NServiceBus.Unicast.Subscriptions.MessageType left, NServiceBus.Unicast.Subscriptions.MessageType right) { }
+        public static bool !=(NServiceBus.Unicast.Subscriptions.MessageType left, NServiceBus.Unicast.Subscriptions.MessageType right) { }
         public override string ToString() { }
     }
     [System.ObsoleteAttribute("No longer used, safe to remove. Will be removed in version 7.0.0.", true)]
