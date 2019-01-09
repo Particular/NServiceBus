@@ -13,7 +13,7 @@
         string path;
         MessageQueue queue;
 
-        [TestFixtureSetUp]
+        [OneTimeSetUp]
         public void Setup()
         {
             var queueName = "permissionsTest";
@@ -24,7 +24,7 @@
             queue = new MessageQueue(path);
         }
 
-        [TestFixtureTearDown]
+        [OneTimeTearDown]
         public void Teardown()
         {
             queue.Dispose();

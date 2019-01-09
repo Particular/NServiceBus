@@ -136,16 +136,20 @@
 
         static void WriteMethod(MethodDefinition method, TextWriter writer)
         {
-            writer.WriteLine($"\r\n{method.DeclaringType.Name}.{method.Name}");
+            writer.WriteLine($"{Environment.NewLine}{method.DeclaringType.Name}.{method.Name}");
+
+            var mapping = method.DebugInformation.GetSequencePointMapping();
+
             var instruction = method.Body.Instructions.FirstOrDefault(x =>
             {
-                return x.SequencePoint != null &&
+                return mapping.TryGetValue(x, out var sequencePoint) &&
                        // ignore hidden sequence points
-                       x.SequencePoint.StartLine != 0xfeefee;
+                       sequencePoint.StartLine != 0xfeefee;
             });
+
             if (instruction != null)
             {
-                var point = instruction.SequencePoint;
+                var point = mapping[instruction];
                 writer.WriteLine($"{point.Document.Url.Replace(@"\", "/")}:{point.StartLine}");
             }
         }
