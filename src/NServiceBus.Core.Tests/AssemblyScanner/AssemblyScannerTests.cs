@@ -70,7 +70,7 @@
         {
             var circularDirectory = Path.Combine(TestContext.CurrentContext.TestDirectory, @"TestDlls\circular");
             var classLibB = Path.Combine(circularDirectory, "ClassLibraryB.dll");
-          
+
             // Put ClassLibraryB.dll in CurrentDomain.BaseDirectory so it resolves correctly
             var tempClassLibB = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ClassLibraryB.dll");
 
@@ -421,10 +421,15 @@ class InterfaceMessageHandler : IHandleMessages<IBaseEvent>
 
                 if (fakeIdentity)
                 {
-                    var reader = AssemblyDefinition.ReadAssembly(FilePath);
-                    reader.Name.Name = nameWithoutExtension;
-                    reader.MainModule.Name = nameWithoutExtension;
-                    reader.Write(FilePath);
+                    using (var assemblyDefinition = AssemblyDefinition.ReadAssembly(FilePath, new ReaderParameters
+                    {
+                        ReadWrite = true
+                    }))
+                    {
+                        assemblyDefinition.Name.Name = nameWithoutExtension;
+                        assemblyDefinition.MainModule.Name = nameWithoutExtension;
+                        assemblyDefinition.Write();
+                    }
                 }
 
                 Assembly = result.CompiledAssembly;
