@@ -29,6 +29,7 @@
                 settings.SetDefault(NumberOfImmediateRetries, 5);
                 settings.SetDefault(FaultHeaderCustomization, new Action<Dictionary<string, string>>(headers => { }));
                 settings.AddUnrecoverableException(typeof(MessageDeserializationException));
+                settings.AddUnrecoverableException(typeof(UnrecoverableException));
             });
         }
 
