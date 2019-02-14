@@ -50,7 +50,14 @@ namespace NServiceBus
         /// Creates a discard recoverability action.
         /// </summary>
         /// <returns>Discard action.</returns>
-        public static Discard Discard(string reason = null)
+        public static Discard Discard() => Discard(null);
+        
+        /// <summary>
+        /// Creates a discard recoverability action.
+        /// </summary>
+        /// <param name="reason">The reason why the message was discarded</param>
+        /// <returns>Discard action.</returns>
+        public static Discard Discard(string reason)
         {
             return string.IsNullOrEmpty(reason) ? CachedDiscard : new Discard(reason);
         }
