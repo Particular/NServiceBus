@@ -26,7 +26,7 @@
 
             if (recoveryAction is Discard discard)
             {
-                Logger.Info($"Message with id '{errorContext.Message.MessageId}' discarded.{(string.IsNullOrEmpty(discard.Reason) ? string.Empty : $" Reason: {discard.Reason}")}", errorContext.Exception);
+                Logger.Info($"Discarding message with id '{errorContext.Message.MessageId}'. (string.IsNullOrEmpty(discard.Reason) ? string.Empty : $" Reason: {discard.Reason}")}", errorContext.Exception);
                 return HandledTask;
             }
 
