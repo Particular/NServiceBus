@@ -256,6 +256,10 @@ namespace NServiceBus
         public static void CustomDiagnosticsWriter(this NServiceBus.EndpointConfiguration config, System.Func<string, System.Threading.Tasks.Task> customDiagnosticsWriter) { }
         public static void SetDiagnosticsPath(this NServiceBus.EndpointConfiguration config, string path) { }
     }
+    public sealed class Discard : NServiceBus.RecoverabilityAction
+    {
+        public string Reason { get; }
+    }
     public class DistributionPolicy : NServiceBus.IDistributionPolicy
     {
         public DistributionPolicy() { }
@@ -750,6 +754,7 @@ namespace NServiceBus
     {
         protected internal RecoverabilityAction() { }
         public static NServiceBus.DelayedRetry DelayedRetry(System.TimeSpan timeSpan) { }
+        public static NServiceBus.Discard Discard(string reason = null) { }
         public static NServiceBus.ImmediateRetry ImmediateRetry() { }
         public static NServiceBus.MoveToError MoveToError(string errorQueue) { }
     }
