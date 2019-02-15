@@ -55,7 +55,7 @@ namespace NServiceBus
         /// <summary>
         /// Creates a discard recoverability action.
         /// </summary>
-        /// <param name="reason">The reason why the message was discarded</param>
+        /// <param name="reason">The reason why the message was discarded.</param>
         /// <returns>Discard action.</returns>
         public static Discard Discard(string reason)
         {
