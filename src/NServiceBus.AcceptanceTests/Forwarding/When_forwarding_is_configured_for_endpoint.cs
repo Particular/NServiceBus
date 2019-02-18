@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Forwarding
 {
     using System.Collections.Generic;
+    using System.Linq;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
@@ -42,7 +43,7 @@
 
                 public Task Handle(MessageToForward message, IMessageHandlerContext context)
                 {
-                    Context.ForwardedHeaders = context.MessageHeaders;
+                    Context.ForwardedHeaders = context.MessageHeaders.ToDictionary(x => x.Key, x => x.Value);
                     Context.GotForwardedMessage = true;
                     return Task.FromResult(0);
                 }
@@ -62,7 +63,7 @@
 
                 public Task Handle(MessageToForward message, IMessageHandlerContext context)
                 {
-                    Context.ReceivedHeaders = context.MessageHeaders;
+                    Context.ReceivedHeaders = context.MessageHeaders.ToDictionary(x => x.Key, x => x.Value);
                     return Task.FromResult(0);
                 }
             }

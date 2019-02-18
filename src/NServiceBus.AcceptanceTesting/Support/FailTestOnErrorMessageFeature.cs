@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Concurrent;
+    using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
     using Faults;
@@ -28,12 +29,12 @@
                     context.Settings.EndpointName(),
                     new[]
                     {
-                        new FailedMessage(m.Message.MessageId, m.Message.Headers, m.Message.Body, m.Exception, m.ErrorQueue)
+                        new FailedMessage(m.Message.MessageId, new Dictionary<string, string>(m.Message.Headers), m.Message.Body, m.Exception, m.ErrorQueue)
                     },
                     (i, failed) =>
                     {
                         var result = failed.ToList();
-                        result.Add(new FailedMessage(m.Message.MessageId, m.Message.Headers, m.Message.Body, m.Exception, m.ErrorQueue));
+                        result.Add(new FailedMessage(m.Message.MessageId, new Dictionary<string, string>(m.Message.Headers), m.Message.Body, m.Exception, m.ErrorQueue));
                         return result;
                     });
 

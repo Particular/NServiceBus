@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
@@ -99,7 +100,7 @@
                 public Task Handle(SendOrderAcknowledgement message, IMessageHandlerContext context)
                 {
                     Context.MessageReceived = true;
-                    Context.UnicodeHeaders = context.MessageHeaders;
+                    Context.UnicodeHeaders = context.MessageHeaders.ToDictionary(x => x.Key, x => x.Value);
                     return Task.FromResult(0);
                 }
             }

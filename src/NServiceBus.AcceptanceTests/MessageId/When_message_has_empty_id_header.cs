@@ -54,7 +54,7 @@
                 public Task Handle(Message message, IMessageHandlerContext context)
                 {
                     TestContext.MessageId = context.MessageId;
-                    TestContext.Headers = context.MessageHeaders;
+                    TestContext.Headers = context.MessageHeaders.ToDictionary(x => x.Key, x => x.Value);
                     TestContext.MessageReceived = true;
 
                     return Task.FromResult(0);
