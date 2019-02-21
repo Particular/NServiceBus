@@ -5,7 +5,7 @@ namespace NServiceBus
     /// </summary>
     public sealed class Discard : RecoverabilityAction
     {
-        internal Discard(string reason = null)
+        internal Discard(string reason)
         {
             Reason = reason;
         }

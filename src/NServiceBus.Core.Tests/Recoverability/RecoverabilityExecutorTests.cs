@@ -135,7 +135,7 @@
         public async Task When_discard_action_returned_should_discard_message()
         {
             var recoverabilityExecutor = CreateExecutor(
-                RetryPolicy.Discard());
+                RetryPolicy.Discard("not needed anymore"));
             var errorContext = CreateErrorContext(messageId: "message-id");
 
             var result = await recoverabilityExecutor.Invoke(errorContext);
@@ -232,11 +232,11 @@
                 }).Invoke;
             }
             
-            public static Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> Discard()
+            public static Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> Discard(string reason)
             {
                 return new RetryPolicy(new[]
                 {
-                    new Discard(), 
+                    new Discard(reason), 
                 }).Invoke;
             }
 

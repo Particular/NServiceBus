@@ -45,13 +45,7 @@ namespace NServiceBus
             Guard.AgainstNullAndEmpty(nameof(errorQueue), errorQueue);
             return new MoveToError(errorQueue);
         }
-        
-        /// <summary>
-        /// Creates a discard recoverability action.
-        /// </summary>
-        /// <returns>Discard action.</returns>
-        public static Discard Discard() => Discard(null);
-        
+
         /// <summary>
         /// Creates a discard recoverability action.
         /// </summary>
@@ -59,10 +53,9 @@ namespace NServiceBus
         /// <returns>Discard action.</returns>
         public static Discard Discard(string reason)
         {
-            return string.IsNullOrEmpty(reason) ? CachedDiscard : new Discard(reason);
+            return new Discard(reason);
         }
 
         static ImmediateRetry CachedImmediateRetry = new ImmediateRetry();
-        static Discard CachedDiscard = new Discard();
     }
 }

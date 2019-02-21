@@ -754,7 +754,6 @@ namespace NServiceBus
     {
         protected internal RecoverabilityAction() { }
         public static NServiceBus.DelayedRetry DelayedRetry(System.TimeSpan timeSpan) { }
-        public static NServiceBus.Discard Discard() { }
         public static NServiceBus.Discard Discard(string reason) { }
         public static NServiceBus.ImmediateRetry ImmediateRetry() { }
         public static NServiceBus.MoveToError MoveToError(string errorQueue) { }
