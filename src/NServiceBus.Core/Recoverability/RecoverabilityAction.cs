@@ -53,6 +53,7 @@ namespace NServiceBus
         /// <returns>Discard action.</returns>
         public static Discard Discard(string reason)
         {
+            Guard.AgainstNullAndEmpty(nameof(reason), reason);
             return new Discard(reason);
         }
 
