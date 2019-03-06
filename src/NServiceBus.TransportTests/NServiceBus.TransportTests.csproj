@@ -27,6 +27,7 @@
     <IncludeBuildOutput>false</IncludeBuildOutput>
   </PropertyGroup>
 
+  <!-- Workaround for https://github.com/dotnet/sdk/issues/1479 -->
   <ItemGroup>
     <_PackageFiles Include="**\*.cs">
       <BuildAction>Compile</BuildAction>
@@ -35,5 +36,6 @@
     <_PackageFiles Remove="**\obj\**\*.cs" />
     <_PackageFiles Remove="ConfigureLearningTransportInfrastructure.cs" />
   </ItemGroup>
+  <!-- End Workaround -->
 
 </Project>
