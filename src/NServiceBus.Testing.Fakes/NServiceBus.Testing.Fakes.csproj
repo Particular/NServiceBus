@@ -21,6 +21,7 @@
     <IncludeBuildOutput>false</IncludeBuildOutput>
   </PropertyGroup>
 
+  <!-- Workaround for https://github.com/dotnet/sdk/issues/1479 -->
   <ItemGroup>
     <_PackageFiles Include="**\*.cs">
       <BuildAction>Compile</BuildAction>
@@ -28,5 +29,6 @@
     </_PackageFiles>
     <_PackageFiles Remove="**\obj\**\*.cs" />
   </ItemGroup>
+  <!-- End Workaround -->
 
 </Project>

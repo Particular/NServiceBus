@@ -5,7 +5,6 @@
     <RootNamespace>NServiceBus</RootNamespace>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\NServiceBus.snk</AssemblyOriginatorKeyFile>
-    <OutputPath>..\..\binaries\</OutputPath>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'net452'">
@@ -46,12 +45,6 @@
     <None Include="..\NServiceBus.Core.Analyzer\bin\$(Configuration)\**\NServiceBus.Core.Analyzer.dll" Pack="true" PackagePath="analyzers/dotnet/cs/NServiceBus.Core.Analyzer.dll" Link="NServiceBus.Core.Analyzer.dll" Visible="false" />
     <None Include="..\NServiceBus.Core.Analyzer\tools\*.ps1" Pack="true" PackagePath="tools" Visible="false" />
   </ItemGroup>
-
-  <!-- Workaround for https://github.com/Microsoft/msbuild/issues/3626 -->
-  <PropertyGroup>
-    <AddSyntheticProjectReferencesForSolutionDependencies>false</AddSyntheticProjectReferencesForSolutionDependencies>
-  </PropertyGroup>
-  <!-- End Workaround -->
 
   <!-- Workaround for https://github.com/dotnet/sdk/issues/1469 -->
   <PropertyGroup>
