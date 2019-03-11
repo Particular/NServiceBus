@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using AcceptanceTesting.Customization;
@@ -85,7 +86,7 @@
                     TestContext.MyMessageId = context.MessageId;
                     TestContext.MyHeader = context.MessageHeaders["MyHeader"];
 
-                    TestContext.ReceivedHeaders = context.MessageHeaders;
+                    TestContext.ReceivedHeaders = context.MessageHeaders.ToDictionary(x => x.Key, x => x.Value);
 
                     TestContext.WasCalled = true;
 

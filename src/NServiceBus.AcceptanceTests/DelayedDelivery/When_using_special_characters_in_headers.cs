@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using EndpointTemplates;
@@ -69,7 +70,7 @@
 
                 public Task Handle(DelayedMessage message, IMessageHandlerContext context)
                 {
-                    testContext.ReceivedMessageHeaders = context.MessageHeaders;
+                    testContext.ReceivedMessageHeaders = context.MessageHeaders.ToDictionary(x => x.Key, x => x.Value);
                     return Task.FromResult(0);
                 }
             }
