@@ -1,10 +1,9 @@
 namespace NServiceBus.Testing
 {
     using System;
-    using NServiceBus.Pipeline;
     using System.Threading.Tasks;
     
-    public partial class TestableInvokeHandlerContext : TestableIncomingContext, IInvokeHandlerContext
+    public partial class TestableInvokeHandlerContext
     {
         /// <summary>
         /// Moves the message being handled to the back of the list of available
