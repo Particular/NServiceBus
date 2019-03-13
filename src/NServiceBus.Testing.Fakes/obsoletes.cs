@@ -1,3 +1,5 @@
+#pragma warning disable 1591
+
 namespace NServiceBus.Testing
 {
     using System;
@@ -11,13 +13,15 @@ namespace NServiceBus.Testing
             TreatAsErrorFromVersion = "7")]
         public Task HandleCurrentMessageLater()
         {
-            throw new NotSupportedException("HandleCurrentMessageLater has been deprecated and will be removed in NServiceBus.Core Version 8.");
+            throw new NotImplementedException();
         }
         
         [ObsoleteEx(
             Message = "HandleCurrentMessageLaterWasCalled has been deprecated.",
             RemoveInVersion = "8",
             TreatAsErrorFromVersion = "7")]
-        public bool HandleCurrentMessageLaterWasCalled => throw new NotSupportedException("HandleCurrentMessageLater has been deprecated and will be removed in NServiceBus.Core Version 8.");
+        public bool HandleCurrentMessageLaterWasCalled => throw new NotImplementedException();
     }
 }
+
+#pragma warning restore 1591
