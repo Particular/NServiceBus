@@ -1,5 +1,4 @@
 #pragma warning disable 1591
-
 namespace NServiceBus.Testing
 {
     using System;
@@ -23,5 +22,4 @@ namespace NServiceBus.Testing
         public bool HandleCurrentMessageLaterWasCalled => throw new NotImplementedException();
     }
 }
-
 #pragma warning restore 1591
