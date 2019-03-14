@@ -1,5 +1,6 @@
 namespace NServiceBus.ContainerTests
 {
+    using System;
     using NServiceBus;
     using ObjectBuilder.Common;
     using NUnit.Framework;
@@ -98,10 +99,17 @@ namespace NServiceBus.ContainerTests
         [Test]
         public void Resolving_recursive_types_does_not_stack_overflow()
         {
-            using (var builder = TestContainerBuilder.ConstructBuilder())
+            try
             {
-                InitializeBuilder(builder);
-                builder.Build(typeof(RecursiveComponent));
+                using (var builder = TestContainerBuilder.ConstructBuilder())
+                {
+                    InitializeBuilder(builder);
+                    builder.Build(typeof(RecursiveComponent));
+                }
+            }
+            catch (Exception)
+            {
+                // this can't be a StackOverflowException as they can't be caught
             }
         }
 
