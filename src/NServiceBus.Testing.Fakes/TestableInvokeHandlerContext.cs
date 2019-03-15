@@ -29,6 +29,7 @@ namespace NServiceBus.Testing
         /// Moves the message being handled to the back of the list of available
         /// messages so it can be handled later.
         /// </summary>
+        [Obsolete("HandleCurrentMessageLater has been deprecated and will be removed in NServiceBus.Core Version 8.", true)]
         public Task HandleCurrentMessageLater()
         {
             throw new NotSupportedException("HandleCurrentMessageLater has been deprecated and will be removed in NServiceBus.Core Version 8.");
@@ -37,6 +38,7 @@ namespace NServiceBus.Testing
         /// <summary>
         /// Indicates if <see cref="IMessageHandlerContext.HandleCurrentMessageLater" /> has been called.
         /// </summary>
+        [Obsolete("HandleCurrentMessageLater has been deprecated and will be removed in NServiceBus.Core Version 8.", true)]
         public bool HandleCurrentMessageLaterWasCalled => throw new NotSupportedException("HandleCurrentMessageLater has been deprecated and will be removed in NServiceBus.Core Version 8.");
 
         /// <summary>
