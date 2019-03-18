@@ -13,11 +13,6 @@
     /// </summary>
     public class MessageHandlerRegistry
     {
-        internal MessageHandlerRegistry(Conventions conventions)
-        {
-            this.conventions = conventions;
-        }
-
         /// <summary>
         /// Gets the list of handlers <see cref="Type" />s for the given
         /// <paramref name="messageType" />.
@@ -56,7 +51,6 @@
             return (from messagesBeingHandled in handlerAndMessagesHandledByHandlerCache.Values
                 from typeHandled in messagesBeingHandled
                 let messageType = typeHandled.MessageType
-                where conventions.IsMessageType(messageType)
                 select messageType).Distinct();
         }
 
@@ -177,7 +171,6 @@
             }
         }
 
-        readonly Conventions conventions;
         readonly Dictionary<Type, List<DelegateHolder>> handlerAndMessagesHandledByHandlerCache = new Dictionary<Type, List<DelegateHolder>>();
         static ILog Log = LogManager.GetLogger<MessageHandlerRegistry>();
 
