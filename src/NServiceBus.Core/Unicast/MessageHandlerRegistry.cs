@@ -179,7 +179,6 @@
 
         readonly Conventions conventions;
         readonly Dictionary<Type, List<DelegateHolder>> handlerAndMessagesHandledByHandlerCache = new Dictionary<Type, List<DelegateHolder>>();
-        static List<MessageHandler> noMessageHandlers = new List<MessageHandler>(0);
         static ILog Log = LogManager.GetLogger<MessageHandlerRegistry>();
 
         class DelegateHolder
