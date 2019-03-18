@@ -36,13 +36,11 @@ namespace NServiceBus.AcceptanceTests.Core.Conventions
             }
         }
 
-
         public class Receiver : EndpointConfigurationBuilder
         {
             public Receiver()
             {
-                EndpointSetup<DefaultServer>(c => { c.Conventions().DefiningMessagesAs(t => false); });
-
+                EndpointSetup<DefaultServer>(c => c.Conventions().DefiningMessagesAs(t => false));
             }
 
             class MyHandler : IHandleMessages<NonMatchingMessageWithHandler>
