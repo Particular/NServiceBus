@@ -26,10 +26,6 @@
         public List<MessageHandler> GetHandlersFor(Type messageType)
         {
             Guard.AgainstNull(nameof(messageType), messageType);
-            if (!conventions.IsMessageType(messageType))
-            {
-                return noMessageHandlers;
-            }
 
             var messageHandlers = new List<MessageHandler>();
             // ReSharper disable once LoopCanBeConvertedToQuery
