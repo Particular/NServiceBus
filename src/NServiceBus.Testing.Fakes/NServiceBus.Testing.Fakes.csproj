@@ -11,10 +11,6 @@
     <ProjectReference Include="..\NServiceBus.Core\NServiceBus.Core.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Particular.Packaging" Version="0.2.1" PrivateAssets="All" />
-  </ItemGroup>
-
   <PropertyGroup>
     <PackageId>NServiceBus.Testing.Fakes.Sources</PackageId>
     <Description>Unit testing fakes and helpers for NServiceBus core functionality</Description>
