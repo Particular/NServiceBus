@@ -207,7 +207,6 @@ namespace NServiceBus
             readonly IContainSagaData data;
             static ConcurrentDictionary<Type, bool> canBeShallowCopiedCache = new ConcurrentDictionary<Type, bool>();
             static Func<IContainSagaData, IContainSagaData> shallowCopy;
-            static readonly EnumAwareStrategy serializationStrategy = new EnumAwareStrategy();
         }
 
         /// <summary>
