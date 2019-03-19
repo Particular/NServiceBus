@@ -9,5 +9,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\NServiceBus.Core\NServiceBus.Core.csproj" />
-  </ItemGroup>  
+  </ItemGroup>
+
 </Project>
