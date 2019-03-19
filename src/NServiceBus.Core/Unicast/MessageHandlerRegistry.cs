@@ -13,11 +13,6 @@
     /// </summary>
     public class MessageHandlerRegistry
     {
-        internal MessageHandlerRegistry(Conventions conventions)
-        {
-            this.conventions = conventions;
-        }
-
         /// <summary>
         /// Gets the list of handlers <see cref="Type" />s for the given
         /// <paramref name="messageType" />.
@@ -26,10 +21,6 @@
         public List<MessageHandler> GetHandlersFor(Type messageType)
         {
             Guard.AgainstNull(nameof(messageType), messageType);
-            if (!conventions.IsMessageType(messageType))
-            {
-                return noMessageHandlers;
-            }
 
             var messageHandlers = new List<MessageHandler>();
             // ReSharper disable once LoopCanBeConvertedToQuery
@@ -60,7 +51,6 @@
             return (from messagesBeingHandled in handlerAndMessagesHandledByHandlerCache.Values
                 from typeHandled in messagesBeingHandled
                 let messageType = typeHandled.MessageType
-                where conventions.IsMessageType(messageType)
                 select messageType).Distinct();
         }
 
@@ -181,9 +171,7 @@
             }
         }
 
-        readonly Conventions conventions;
         readonly Dictionary<Type, List<DelegateHolder>> handlerAndMessagesHandledByHandlerCache = new Dictionary<Type, List<DelegateHolder>>();
-        static List<MessageHandler> noMessageHandlers = new List<MessageHandler>(0);
         static ILog Log = LogManager.GetLogger<MessageHandlerRegistry>();
 
         class DelegateHolder
