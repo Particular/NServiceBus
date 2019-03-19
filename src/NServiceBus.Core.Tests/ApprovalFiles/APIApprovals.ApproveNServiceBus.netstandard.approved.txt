@@ -2687,6 +2687,7 @@ namespace NServiceBus.Unicast
     }
     public class MessageHandlerRegistry
     {
+        public MessageHandlerRegistry() { }
         public void Clear() { }
         public System.Collections.Generic.List<NServiceBus.Pipeline.MessageHandler> GetHandlersFor(System.Type messageType) { }
         public System.Collections.Generic.IEnumerable<System.Type> GetMessageTypes() { }
