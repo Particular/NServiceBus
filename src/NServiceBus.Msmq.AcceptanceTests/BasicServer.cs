@@ -34,7 +34,8 @@ namespace NServiceBus.AcceptanceTests.EndpointTemplates
             configuration.CustomConfigurationSource(configSource);
             configuration.EnableInstallers();
 
-         
+            configuration.GetSettings().Set("NServiceBus.Transport.Msmq.MessageEnumeratorTimeout", TimeSpan.FromMilliseconds(10));
+
             var transportConfig = configuration.UseTransport<MsmqTransport>();
             var routingConfig = transportConfig.Routing();
 

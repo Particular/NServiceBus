@@ -40,8 +40,13 @@ namespace NServiceBus
 
             var msmqSettings = connectionString != null ? new MsmqConnectionStringBuilder(connectionString)
                 .RetrieveSettings() : new MsmqSettings();
-
+            
             msmqSettings.UseDeadLetterQueueForMessagesWithTimeToBeReceived = settings.GetOrDefault<bool>(UseDeadLetterQueueForMessagesWithTimeToBeReceived);
+
+            if (settings.TryGet<TimeSpan>("NServiceBus.Transport.Msmq.MessageEnumeratorTimeout", out var messageEnumeratorTimeout))
+            {
+                msmqSettings.MessageEnumeratorTimeout = messageEnumeratorTimeout;
+            }
 
             settings.Set<MsmqSettings>(msmqSettings);
 

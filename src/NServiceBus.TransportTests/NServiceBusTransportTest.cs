@@ -184,7 +184,11 @@
         protected virtual TransportInfrastructure CreateTransportInfrastructure()
         {
             var msmqTransportDefinition = new MsmqTransport();
-            return msmqTransportDefinition.Initialize(new SettingsHolder(), "");
+            var settings = new SettingsHolder();
+
+            settings.Set("NServiceBus.Transport.Msmq.MessageEnumeratorTimeout", TimeSpan.FromMilliseconds(10));
+
+            return msmqTransportDefinition.Initialize(settings, "");
         }
 
         protected void RequireDeliveryConstraint<T>() where T : DeliveryConstraint

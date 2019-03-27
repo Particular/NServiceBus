@@ -19,8 +19,11 @@ public class ConfigureEndpointMsmqTransport : IConfigureEndpointTestExecution
         var connectionString =
             EnvironmentHelper.GetEnvironmentVariable($"{nameof(MsmqTransport)}.ConnectionString")
             ?? DefaultConnectionString;
-        var transportConfig = configuration.UseTransport<MsmqTransport>();
 
+        configuration.GetSettings().Set("NServiceBus.Transport.Msmq.MessageEnumeratorTimeout", TimeSpan.FromMilliseconds(10));
+
+        var transportConfig = configuration.UseTransport<MsmqTransport>();
+        
         transportConfig.ConnectionString(connectionString);
 
         var routingConfig = transportConfig.Routing();
