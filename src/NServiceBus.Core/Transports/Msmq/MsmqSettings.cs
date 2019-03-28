@@ -11,6 +11,7 @@ namespace NServiceBus
             UseConnectionCache = true;
             UseTransactionalQueues = true;
             TimeToReachQueue = Message.InfiniteTimeout;
+            MessageEnumeratorTimeout = TimeSpan.FromSeconds(1); //with a 1s timeout a graceful shutdown will take on average 500ms which is acceptable
         }
 
         public bool UseDeadLetterQueue { get; set; }
@@ -24,5 +25,7 @@ namespace NServiceBus
         public TimeSpan TimeToReachQueue { get; set; }
 
         public bool UseDeadLetterQueueForMessagesWithTimeToBeReceived { get; set; }
+
+        public TimeSpan MessageEnumeratorTimeout { get; set; }
     }
 }

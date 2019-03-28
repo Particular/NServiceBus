@@ -90,7 +90,7 @@ namespace NServiceBus
             var msmqSettings = settings.Get<MsmqSettings>();
 
             return new TransportReceiveInfrastructure(
-                () => new MessagePump(guarantee => SelectReceiveStrategy(guarantee, scopeOptions.TransactionOptions)),
+                () => new MessagePump(guarantee => SelectReceiveStrategy(guarantee, scopeOptions.TransactionOptions), msmqSettings.MessageEnumeratorTimeout),
                 () => new MsmqQueueCreator(msmqSettings.UseTransactionalQueues),
                 () =>
                 {

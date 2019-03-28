@@ -13,9 +13,10 @@ namespace NServiceBus
 
     class MessagePump : IPushMessages, IDisposable
     {
-        public MessagePump(Func<TransportTransactionMode, ReceiveStrategy> receiveStrategyFactory)
+        public MessagePump(Func<TransportTransactionMode, ReceiveStrategy> receiveStrategyFactory, TimeSpan messageEnumeratorTimeout)
         {
             this.receiveStrategyFactory = receiveStrategyFactory;
+            this.messageEnumeratorTimeout = messageEnumeratorTimeout;
         }
 
         public void Dispose()
@@ -126,7 +127,7 @@ namespace NServiceBus
                     try
                     {
                         //note: .Peek will throw an ex if no message is available. It also turns out that .MoveNext is faster since message isn't read
-                        if (!enumerator.MoveNext(TimeSpan.FromMilliseconds(10)))
+                        if (!enumerator.MoveNext(messageEnumeratorTimeout))
                         {
                             continue;
                         }
@@ -222,6 +223,7 @@ namespace NServiceBus
         RepeatedFailuresOverTimeCircuitBreaker peekCircuitBreaker;
         RepeatedFailuresOverTimeCircuitBreaker receiveCircuitBreaker;
         Func<TransportTransactionMode, ReceiveStrategy> receiveStrategyFactory;
+        TimeSpan messageEnumeratorTimeout;
         ConcurrentDictionary<Task, Task> runningReceiveTasks;
 
         static ILog Logger = LogManager.GetLogger<MessagePump>();

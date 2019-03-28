@@ -29,9 +29,9 @@
 
   </UsingTask>
 
-  <Target Name="GenerateReleaseDate" DependsOnTargets="GetVersion" BeforeTargets="CoreCompile">
+  <Target Name="GenerateReleaseDate" DependsOnTargets="GetVersion" BeforeTargets="CoreCompile" Condition=" '$(GetVersion)' == 'true' ">
 
-    <Exec Command="git show --format=%%cI $(GitVersion_Major).$(GitVersion_Minor).0" WorkingDirectory="$(MSBuildProjectDirectory)" ConsoleToMSBuild="true" Condition="$(GitVersion_Patch) != 0">
+    <Exec Command="git show -s --format=%%cI $(GitVersion_Major).$(GitVersion_Minor).0^^{commit}" WorkingDirectory="$(MSBuildProjectDirectory)" ConsoleToMSBuild="true" Condition="$(GitVersion_Patch) != 0">
       <Output TaskParameter="ConsoleOutput" PropertyName="CurrentMinorCommitDateAndTime" />
     </Exec>
 
@@ -41,6 +41,7 @@
 
     <ItemGroup>
       <Compile Include="$(GeneratedReleaseDateFilePath)" />
+      <FileWrites Include="$(GeneratedReleaseDateFilePath)" />
     </ItemGroup>
 
   </Target>
