@@ -223,7 +223,7 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
 
             if (interfaceType.GetMethods().Any(mi => !(mi.IsSpecialName && (mi.Name.StartsWith("set_") || mi.Name.StartsWith("get_")))))
             {
-                throw new Exception($"Cannot generate a concrete implementation for '{interfaceType.Name}' because it contains methods. Ensure that all interfaces used as messages do not contain methods.");
+                throw new Exception($"Cannot generate a concrete implementation for '{interfaceType}' because it contains methods. Ensure that all interfaces used as messages do not contain methods.");
             }
             var mapped = concreteProxyCreator.CreateTypeFrom(interfaceType);
             interfaceToConcreteTypeMapping[interfaceType.TypeHandle] = mapped.TypeHandle;

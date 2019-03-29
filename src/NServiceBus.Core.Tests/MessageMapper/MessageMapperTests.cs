@@ -87,7 +87,7 @@
             var mapper = new MessageMapper();
 
             var ex = Assert.Throws<Exception>(() => mapper.Initialize(new[] { typeof(InterfaceMessageWithIllegalInterfaceProperty) }));
-            StringAssert.Contains($"Cannot generate a concrete implementation for '{nameof(IIllegalProperty)}' because it contains methods. Ensure that all interfaces used as messages do not contain methods.", ex.Message);
+            StringAssert.Contains($"Cannot generate a concrete implementation for '{typeof(IIllegalProperty).FullName}' because it contains methods. Ensure that all interfaces used as messages do not contain methods.", ex.Message);
         }
 
         [Test]
