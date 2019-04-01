@@ -45,12 +45,23 @@
                 catch (Exception e)
                 {
                     logger.Error("Unable to determine the diagnostics output directory. Check the attached exception for further information, or configure a custom diagnostics directory using 'EndpointConfiguration.SetDiagnosticsPath()'.", e);
+
+                    return data => TaskEx.CompletedTask;
                 }
             }
 
             if (!Directory.Exists(diagnosticsRootPath))
             {
-                Directory.CreateDirectory(diagnosticsRootPath);
+                try
+                {
+                    Directory.CreateDirectory(diagnosticsRootPath);
+                }
+                catch(Exception e)
+                {
+                    logger.Error("Unable to create the diagnostics output directory. Check the attached exception for further information, or change the diagnostics directory using 'EndpointConfiguration.SetDiagnosticsPath()'.", e);
+
+                    return data => TaskEx.CompletedTask;
+                }
             }
 
             var endpointName = settings.EndpointName();
