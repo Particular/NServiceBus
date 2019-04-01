@@ -86,7 +86,17 @@
         {
             var mapper = new MessageMapper();
 
-            Assert.Throws<Exception>(() => mapper.Initialize(new[] { typeof(InterfaceMessageWithIllegalInterfaceProperty) }));
+            var ex = Assert.Throws<Exception>(() => mapper.Initialize(new[] { typeof(InterfaceMessageWithIllegalInterfaceProperty) }));
+            StringAssert.Contains($"Cannot generate a concrete implementation for '{typeof(IIllegalProperty).FullName}' because it contains methods. Ensure that all interfaces used as messages do not contain methods.", ex.Message);
+        }
+
+        [Test]
+        public void Should_fail_for_non_public_interface_message()
+        {
+            var mapper = new MessageMapper();
+
+            var ex = Assert.Throws<Exception>(() => mapper.Initialize(new[] { typeof(IPrivateInterfaceMessage) }));
+            StringAssert.Contains($"Cannot generate a concrete implementation for '{typeof(IPrivateInterfaceMessage).FullName}' because it is not public. Ensure that all interfaces used as messages are public.", ex.Message);
         }
 
         [Test]
@@ -174,6 +184,11 @@
 
             //this is not supported by our mapper
             void SomeMethod();
+        }
+
+        interface IPrivateInterfaceMessage
+        {
+            string SomeValue { get; set; }
         }
     }
 }
