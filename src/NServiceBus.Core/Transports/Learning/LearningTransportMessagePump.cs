@@ -294,10 +294,10 @@
                     actionToTake = await onError(errorContext)
                         .ConfigureAwait(false);
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
-                    actionToTake = await onError(errorContext)
-                        .ConfigureAwait(false);
+                    criticalError.Raise($"Failed to execute recoverability actions for message `{messageContext.MessageId}`", ex);
+                    actionToTake = ErrorHandleResult.RetryRequired;
                 }
 
                 if (actionToTake == ErrorHandleResult.RetryRequired)

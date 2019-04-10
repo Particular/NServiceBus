@@ -11,17 +11,22 @@
         [TestCase(TransportTransactionMode.ReceiveOnly)]
         [TestCase(TransportTransactionMode.SendsAtomicWithReceive)]
         [TestCase(TransportTransactionMode.TransactionScope)]
-        public async Task Should_reinvoke_on_error_with_original_exception(TransportTransactionMode transactionMode)
+        public async Task Should_invoke_critical_error_and_retry(TransportTransactionMode transactionMode)
         {
             var onErrorCalled = new TaskCompletionSource<ErrorContext>();
+            var criticalErrorCalled = false;
+            string criticalErrorMessage = null;
 
             OnTestTimeout(() => onErrorCalled.SetCanceled());
 
             var firstInvocation = true;
+            string nativeMessageId = null;
 
             await StartPump(
                 context =>
                 {
+                    nativeMessageId = context.MessageId;
+
                     throw new Exception("Simulated exception");
                 },
                 context =>
@@ -37,13 +42,21 @@
 
                     return Task.FromResult(ErrorHandleResult.Handled);
                 },
-                transactionMode);
+                transactionMode,
+                (message, exception) =>
+                {
+                    criticalErrorCalled = true;
+                    criticalErrorMessage = message;
+                }
+                );
 
             await SendMessage(InputQueueName);
 
             var errorContext = await onErrorCalled.Task;
 
-            Assert.AreEqual("Simulated exception", errorContext.Exception.Message);
+            Assert.AreEqual("Simulated exception", errorContext.Exception.Message, "Should retry the message");
+            Assert.True(criticalErrorCalled, "Should invoke critical error");
+            StringAssert.Contains(nativeMessageId, criticalErrorMessage, "Should include the native message id in the critical error message");
        }
     }
 }
