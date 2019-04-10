@@ -286,8 +286,6 @@
 
                 var errorContext = new ErrorContext(exception, headers, messageId, body, transportTransaction, processingFailures);
 
-                // the transport tests assume that all transports use a circuit breaker to be resilient against exceptions
-                // in onError. Since we don't need that robustness, we just retry onError once should it fail.
                 ErrorHandleResult actionToTake;
                 try
                 {
@@ -296,7 +294,7 @@
                 }
                 catch (Exception ex)
                 {
-                    criticalError.Raise($"Failed to execute recoverability actions for message `{messageContext.MessageId}`", ex);
+                    criticalError.Raise($"Failed to execute recoverability strategy for message `{messageContext.MessageId}`", ex);
                     actionToTake = ErrorHandleResult.RetryRequired;
                 }
 
