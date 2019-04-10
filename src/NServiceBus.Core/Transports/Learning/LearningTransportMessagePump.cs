@@ -294,7 +294,7 @@
                 }
                 catch (Exception ex)
                 {
-                    criticalError.Raise($"Failed to execute recoverability strategy for message `{messageContext.MessageId}`", ex);
+                    criticalError.Raise($"Failed to execute recoverability policy for message `{messageContext.MessageId}`", ex);
                     actionToTake = ErrorHandleResult.RetryRequired;
                 }
 
