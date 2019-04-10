@@ -21,7 +21,8 @@
         {
             testId = Guid.NewGuid().ToString();
 
-            LogManager.UseFactory(new TransportTestLoggerFactory());
+            LogFactory = new TransportTestLoggerFactory();
+            LogManager.UseFactory(LogFactory);
 
             //when using [TestCase] NUnit will reuse the same test instance so we need to make sure that the message pump is a fresh one
             MessagePump = null;
@@ -235,6 +236,7 @@
 
         protected string InputQueueName;
         protected string ErrorQueueName;
+        protected TransportTestLoggerFactory LogFactory;
 
         string testId;
 

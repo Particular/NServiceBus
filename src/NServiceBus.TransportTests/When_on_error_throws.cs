@@ -1,7 +1,9 @@
 ﻿namespace NServiceBus.TransportTests
 {
     using System;
+    using System.Linq;
     using System.Threading.Tasks;
+    using Logging;
     using NUnit.Framework;
     using Transport;
 
@@ -57,6 +59,7 @@
             Assert.AreEqual("Simulated exception", errorContext.Exception.Message, "Should retry the message");
             Assert.True(criticalErrorCalled, "Should invoke critical error");
             StringAssert.Contains(nativeMessageId, criticalErrorMessage, "Should include the native message id in the critical error message");
+            Assert.False(LogFactory.LogItems.Any(item => item.Level > LogLevel.Info));
        }
     }
 }
