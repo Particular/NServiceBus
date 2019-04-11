@@ -58,7 +58,7 @@
 
             Assert.AreEqual("Simulated exception", errorContext.Exception.Message, "Should retry the message");
             Assert.True(criticalErrorCalled, "Should invoke critical error");
-            StringAssert.Contains(nativeMessageId, criticalErrorMessage, "Should include the native message id in the critical error message");
+            Assert.AreEqual($"Failed to execute recoverability policy for message with native ID: `{nativeMessageId}`",criticalErrorMessage);
             Assert.False(LogFactory.LogItems.Any(item => item.Level > LogLevel.Info));
        }
     }
