@@ -12,7 +12,7 @@ namespace NServiceBus
 
             if (!message.Headers.ContainsKey(Headers.NServiceBusVersion))
             {
-                message.Headers[Headers.NServiceBusVersion] = GitFlowVersion.MajorMinorPatch;
+                message.Headers[Headers.NServiceBusVersion] = GitVersionInformation.MajorMinorPatch;
             }
 
             if (!message.Headers.ContainsKey(Headers.TimeSent))
