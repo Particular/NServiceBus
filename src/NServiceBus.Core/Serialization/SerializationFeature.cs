@@ -6,7 +6,6 @@
     using Features;
     using Logging;
     using MessageInterfaces;
-    using MessageInterfaces.MessageMapper.Reflection;
     using Pipeline;
     using Serialization;
     using Settings;
@@ -21,7 +20,7 @@
 
         protected internal sealed override void Setup(FeatureConfigurationContext context)
         {
-            var mapper = new MessageMapper();
+            var mapper = context.Settings.Get<IMessageMapper>();
             var settings = context.Settings;
             var messageMetadataRegistry = settings.Get<MessageMetadataRegistry>();
             mapper.Initialize(messageMetadataRegistry.GetAllMessages().Select(m => m.MessageType));

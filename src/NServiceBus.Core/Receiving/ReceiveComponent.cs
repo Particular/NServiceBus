@@ -5,6 +5,7 @@ namespace NServiceBus
     using System.Linq;
     using System.Threading.Tasks;
     using Logging;
+    using MessageInterfaces;
     using ObjectBuilder;
     using Pipeline;
     using Transport;
@@ -18,7 +19,8 @@ namespace NServiceBus
             IEventAggregator eventAggregator,
             IBuilder builder,
             CriticalError criticalError,
-            string errorQueue)
+            string errorQueue,
+            IMessageMapper messageMapper)
         {
             this.configuration = configuration;
             this.receiveInfrastructure = receiveInfrastructure;
@@ -28,6 +30,7 @@ namespace NServiceBus
             this.builder = builder;
             this.criticalError = criticalError;
             this.errorQueue = errorQueue;
+            this.messageMapper = messageMapper;
         }
 
         public void BindQueues(QueueBindings queueBindings)
@@ -58,7 +61,7 @@ namespace NServiceBus
             }
 
             var mainPipeline = new Pipeline<ITransportReceiveContext>(builder, pipelineConfiguration.Modifications);
-            mainPipelineExecutor = new MainPipelineExecutor(builder, eventAggregator, pipelineCache, mainPipeline);
+            mainPipelineExecutor = new MainPipelineExecutor(builder, eventAggregator, pipelineCache, mainPipeline, messageMapper);
 
             if (configuration.PurgeOnStartup)
             {
@@ -182,6 +185,7 @@ namespace NServiceBus
         IBuilder builder;
         CriticalError criticalError;
         string errorQueue;
+        IMessageMapper messageMapper;
 
         const string MainReceiverId = "Main";
 
