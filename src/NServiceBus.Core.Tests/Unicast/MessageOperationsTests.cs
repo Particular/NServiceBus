@@ -225,7 +225,8 @@
             pipelineCache.RegisterPipeline(pipeline);
 
             var context = new TestableMessageHandlerContext();
-            context.Builder.Register<IMessageMapper>(() => new MessageMapper());
+
+            context.Extensions.Set<IMessageMapper>(new MessageMapper());
             context.Extensions.Set<IPipelineCache>(pipelineCache);
 
             return context;
