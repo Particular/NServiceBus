@@ -93,7 +93,7 @@ namespace NServiceBus.Hosting.Helpers
 
             if (platformAssembliesString != null)
             {
-                var platformAssemblies = platformAssembliesString.Split(Path.PathSeparator);
+                var platformAssemblies = platformAssembliesString.Split(new[] { Path.PathSeparator }, StringSplitOptions.RemoveEmptyEntries);
 
                 foreach (var platformAssembly in platformAssemblies)
                 {
