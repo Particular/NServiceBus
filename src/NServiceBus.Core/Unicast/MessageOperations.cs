@@ -76,7 +76,10 @@ namespace NServiceBus
 
         public static Task Send(IBehaviorContext context, object message, SendOptions options)
         {
-            return SendMessage(context, message.GetType(), message, options);
+            var mapper = context.Builder.Build<IMessageMapper>();
+            var messageType = mapper.GetMappedTypeFor(message.GetType());
+
+            return SendMessage(context, messageType, message, options);
         }
 
         static Task SendMessage(this IBehaviorContext context, Type messageType, object message, SendOptions options)
