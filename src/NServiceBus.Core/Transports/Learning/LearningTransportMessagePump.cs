@@ -286,18 +286,16 @@
 
                 var errorContext = new ErrorContext(exception, headers, messageId, body, transportTransaction, processingFailures);
 
-                // the transport tests assume that all transports use a circuit breaker to be resilient against exceptions
-                // in onError. Since we don't need that robustness, we just retry onError once should it fail.
                 ErrorHandleResult actionToTake;
                 try
                 {
                     actionToTake = await onError(errorContext)
                         .ConfigureAwait(false);
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
-                    actionToTake = await onError(errorContext)
-                        .ConfigureAwait(false);
+                    criticalError.Raise($"Failed to execute recoverability policy for message with native ID: `{messageContext.MessageId}`", ex);
+                    actionToTake = ErrorHandleResult.RetryRequired;
                 }
 
                 if (actionToTake == ErrorHandleResult.RetryRequired)
