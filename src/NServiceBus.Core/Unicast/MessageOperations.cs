@@ -17,7 +17,10 @@ namespace NServiceBus
 
         public static Task Publish(IBehaviorContext context, object message, PublishOptions options)
         {
-            return Publish(context, message.GetType(), message, options);
+            var mapper = context.Builder.Build<IMessageMapper>();
+            var messageType = mapper.GetMappedTypeFor(message.GetType());
+
+            return Publish(context, messageType, message, options);
         }
 
         static Task Publish(IBehaviorContext context, Type messageType, object message, PublishOptions options)

@@ -29,7 +29,7 @@
                 .Run();
 
             Assert.True(context.GotTheEvent);
-            //Assert.AreEqual(typeof(MyEvent), context.EventTypePassedToRouting);
+            Assert.AreEqual(typeof(MyEvent), context.EventTypePassedToRouting);
         }
 
         public class Context : ScenarioContext
