@@ -284,6 +284,9 @@
                 transaction.ClearPendingOutgoingOperations();
                 var processingFailures = retryCounts.AddOrUpdate(messageId, id => 1, (id, currentCount) => currentCount + 1);
 
+                headers = HeaderSerializer.Deserialize(message);
+                headers.Remove(LearningTransportHeaders.TimeToBeReceived);
+
                 var errorContext = new ErrorContext(exception, headers, messageId, body, transportTransaction, processingFailures);
 
                 ErrorHandleResult actionToTake;
