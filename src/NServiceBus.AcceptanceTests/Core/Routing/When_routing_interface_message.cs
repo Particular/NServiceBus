@@ -9,7 +9,7 @@
     public class When_routing_interface_message : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Should_route_correctly()
+        public async Task Should_use_interface_types_route()
         {
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<Endpoint>(c => c.When(b => b.SendLocal(new StartMessage())))
