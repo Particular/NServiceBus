@@ -12,7 +12,7 @@
     public class When_publishing_pre_created_interface : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task Should_receive_event()
+        public async Task Should_publish_event_to_interface_type_subscribers()
         {
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<Publisher>(b =>
