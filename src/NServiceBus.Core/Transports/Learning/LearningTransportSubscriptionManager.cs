@@ -19,7 +19,7 @@
         {
             var eventDir = GetEventDirectory(eventType);
 
-            // that way we can detect that there is indeed a publisher for the event. That said it also means that we will have do "retries" here due to race condition.
+            // the subscription directory and the subscription information will be created no matter if there's a publisher for the event
             Directory.CreateDirectory(eventDir);
 
             var subscriptionEntryPath = GetSubscriptionEntryPath(eventDir);
