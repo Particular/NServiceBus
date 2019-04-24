@@ -19,7 +19,7 @@
         {
             var eventDir = GetEventDirectory(eventType);
 
-            // the subscription directory and the subscription information will be created no matter if there's a publisher for the event
+            // the subscription directory and the subscription information will be created no matter if there's a publisher for the event assuming that the publisher haven’t started yet
             Directory.CreateDirectory(eventDir);
 
             var subscriptionEntryPath = GetSubscriptionEntryPath(eventDir);
