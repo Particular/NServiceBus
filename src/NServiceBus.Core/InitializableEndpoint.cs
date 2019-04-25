@@ -66,7 +66,7 @@ namespace NServiceBus
             var eventAggregator = new EventAggregator(settings.Get<NotificationSubscriptions>());
             var pipelineCache = new PipelineCache(builder, settings);
             var queueBindings = settings.Get<QueueBindings>();
-          
+
             var receiveComponent = CreateReceiveComponent(receiveConfiguration, transportInfrastructure, queueBindings, pipelineCache, eventAggregator, messageMapper);
 
             var shouldRunInstallers = settings.GetOrDefault<bool>("Installers.Enable");
