@@ -6,7 +6,6 @@
     using Features;
     using Logging;
     using MessageInterfaces;
-    using MessageInterfaces.MessageMapper.Reflection;
     using Pipeline;
     using Serialization;
     using Settings;
