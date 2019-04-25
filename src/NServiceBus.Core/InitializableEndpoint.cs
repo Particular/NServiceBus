@@ -52,8 +52,8 @@ namespace NServiceBus
             var receiveConfiguration = BuildReceiveConfiguration(transportInfrastructure);
 
             var routing = InitializeRouting(transportInfrastructure, receiveConfiguration);
-            var messageMapper = new MessageMapper();
 
+            var messageMapper = new MessageMapper();
             settings.Set<IMessageMapper>(messageMapper);
 
             var featureStats = featureActivator.SetupFeatures(container, pipelineSettings, routing, receiveConfiguration);
@@ -91,6 +91,7 @@ namespace NServiceBus
                     NServiceBusVersion = GitFlowVersion.MajorMinorPatch
                 }
             );
+
             var messageSession = new MessageSession(new RootContext(builder, pipelineCache, eventAggregator, messageMapper));
 
             return new StartableEndpoint(settings, builder, featureActivator, transportInfrastructure, receiveComponent, criticalError, messageSession);
