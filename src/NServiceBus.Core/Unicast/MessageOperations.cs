@@ -11,13 +11,13 @@ namespace NServiceBus
     {
         public static Task Publish<T>(IBehaviorContext context, Action<T> messageConstructor, PublishOptions options)
         {
-            var mapper = context.Builder.Build<IMessageMapper>();
+            var mapper = context.Extensions.Get<IMessageMapper>();
             return Publish(context, typeof(T), mapper.CreateInstance(messageConstructor), options);
         }
 
         public static Task Publish(IBehaviorContext context, object message, PublishOptions options)
         {
-            var mapper = context.Builder.Build<IMessageMapper>();
+            var mapper = context.Extensions.Get<IMessageMapper>();
             var messageType = mapper.GetMappedTypeFor(message.GetType());
 
             return Publish(context, messageType, message, options);
@@ -72,14 +72,15 @@ namespace NServiceBus
 
         public static Task Send<T>(IBehaviorContext context, Action<T> messageConstructor, SendOptions options)
         {
-            var mapper = context.Builder.Build<IMessageMapper>();
+            var mapper = context.Extensions.Get<IMessageMapper>();
 
             return SendMessage(context, typeof(T), mapper.CreateInstance(messageConstructor), options);
         }
 
         public static Task Send(IBehaviorContext context, object message, SendOptions options)
         {
-            var mapper = context.Builder.Build<IMessageMapper>();
+            var mapper = context.Extensions.Get<IMessageMapper>();
+
             var messageType = mapper.GetMappedTypeFor(message.GetType());
 
             return SendMessage(context, messageType, message, options);
@@ -120,7 +121,7 @@ namespace NServiceBus
 
         public static Task Reply<T>(IBehaviorContext context, Action<T> messageConstructor, ReplyOptions options)
         {
-            var mapper = context.Builder.Build<IMessageMapper>();
+            var mapper = context.Extensions.Get<IMessageMapper>();
 
             return ReplyMessage(context, typeof(T), mapper.CreateInstance(messageConstructor), options);
         }

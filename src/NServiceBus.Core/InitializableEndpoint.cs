@@ -6,6 +6,8 @@ namespace NServiceBus
     using System.Threading.Tasks;
     using Features;
     using Installation;
+    using MessageInterfaces;
+    using MessageInterfaces.MessageMapper.Reflection;
     using ObjectBuilder;
     using ObjectBuilder.Common;
     using Pipeline;
@@ -50,6 +52,9 @@ namespace NServiceBus
             var receiveConfiguration = BuildReceiveConfiguration(transportInfrastructure);
 
             var routing = InitializeRouting(transportInfrastructure, receiveConfiguration);
+            var messageMapper = new MessageMapper();
+
+            settings.Set<IMessageMapper>(messageMapper);
 
             var featureStats = featureActivator.SetupFeatures(container, pipelineSettings, routing, receiveConfiguration);
             settings.AddStartupDiagnosticsSection("Features", featureStats);
@@ -61,8 +66,8 @@ namespace NServiceBus
             var eventAggregator = new EventAggregator(settings.Get<NotificationSubscriptions>());
             var pipelineCache = new PipelineCache(builder, settings);
             var queueBindings = settings.Get<QueueBindings>();
-
-            var receiveComponent = CreateReceiveComponent(receiveConfiguration, transportInfrastructure, queueBindings, pipelineCache, eventAggregator);
+          
+            var receiveComponent = CreateReceiveComponent(receiveConfiguration, transportInfrastructure, queueBindings, pipelineCache, eventAggregator, messageMapper);
 
             var shouldRunInstallers = settings.GetOrDefault<bool>("Installers.Enable");
 
@@ -86,8 +91,7 @@ namespace NServiceBus
                     NServiceBusVersion = GitFlowVersion.MajorMinorPatch
                 }
             );
-
-            var messageSession = new MessageSession(new RootContext(builder, pipelineCache, eventAggregator));
+            var messageSession = new MessageSession(new RootContext(builder, pipelineCache, eventAggregator, messageMapper));
 
             return new StartableEndpoint(settings, builder, featureActivator, transportInfrastructure, receiveComponent, criticalError, messageSession);
         }
@@ -148,7 +152,8 @@ namespace NServiceBus
             TransportInfrastructure transportInfrastructure,
             QueueBindings queueBindings,
             IPipelineCache pipelineCache,
-            EventAggregator eventAggregator)
+            EventAggregator eventAggregator,
+            IMessageMapper messageMapper)
         {
             var errorQueue = settings.ErrorQueueAddress();
 
@@ -159,7 +164,8 @@ namespace NServiceBus
                 eventAggregator,
                 builder,
                 criticalError,
-                errorQueue);
+                errorQueue,
+                messageMapper);
 
             receiveComponent.BindQueues(queueBindings);
 

@@ -21,7 +21,7 @@
                 new FakeBuilder(),
                 null,
                 new FeatureRunner(new FeatureActivator(new SettingsHolder())),
-                new MessageSession(new RootContext(null, null, null)), new FakeTransportInfrastructure());
+                new MessageSession(new RootContext(null, null, null, null)), new FakeTransportInfrastructure());
 
             await testee.Stop();
 
