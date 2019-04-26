@@ -116,7 +116,10 @@ namespace NServiceBus
 
         public static Task Reply(IBehaviorContext context, object message, ReplyOptions options)
         {
-            return ReplyMessage(context, message.GetType(), message, options);
+            var mapper = context.Extensions.Get<IMessageMapper>();
+            var messageType = mapper.GetMappedTypeFor(message.GetType());
+
+            return ReplyMessage(context, messageType, message, options);
         }
 
         public static Task Reply<T>(IBehaviorContext context, Action<T> messageConstructor, ReplyOptions options)
