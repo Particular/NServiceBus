@@ -7,14 +7,14 @@ namespace NServiceBus
     using System.Linq;
     using System.Threading.Tasks;
     using Logging;
-    using MessageInterfaces.MessageMapper.Reflection;
+    using MessageInterfaces;
     using Pipeline;
     using Transport;
     using Unicast.Messages;
 
     class DeserializeLogicalMessagesConnector : StageConnector<IIncomingPhysicalMessageContext, IIncomingLogicalMessageContext>
     {
-        public DeserializeLogicalMessagesConnector(MessageDeserializerResolver deserializerResolver, LogicalMessageFactory logicalMessageFactory, MessageMetadataRegistry messageMetadataRegistry, MessageMapper mapper)
+        public DeserializeLogicalMessagesConnector(MessageDeserializerResolver deserializerResolver, LogicalMessageFactory logicalMessageFactory, MessageMetadataRegistry messageMetadataRegistry, IMessageMapper mapper)
         {
             this.deserializerResolver = deserializerResolver;
             this.logicalMessageFactory = logicalMessageFactory;
@@ -140,7 +140,7 @@ namespace NServiceBus
         readonly MessageDeserializerResolver deserializerResolver;
         readonly LogicalMessageFactory logicalMessageFactory;
         readonly MessageMetadataRegistry messageMetadataRegistry;
-        readonly MessageMapper mapper;
+        readonly IMessageMapper mapper;
 
         static readonly LogicalMessage[] NoMessagesFound = new LogicalMessage[0];
 

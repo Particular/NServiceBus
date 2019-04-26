@@ -13,7 +13,7 @@
             var options = new SendOptions();
             options.Context.Set("someKey", "someValue");
 
-            var testee = new OutgoingSendContext(message, "message-id", options.OutgoingHeaders, options.Context, new RootContext(null, null, null));
+            var testee = new OutgoingSendContext(message, "message-id", options.OutgoingHeaders, options.Context, new RootContext(null, null, null, null));
             testee.Extensions.Set("someKey", "updatedValue");
             testee.Extensions.Set("anotherKey", "anotherValue");
             options.Context.TryGet("someKey", out string value);
@@ -32,7 +32,7 @@
             var options = new SendOptions();
             options.Context.Set("someKey", "someValue");
 
-            var parentContext = new RootContext(null, null, null);
+            var parentContext = new RootContext(null, null, null, null);
 
             new OutgoingSendContext(message, "message-id", options.OutgoingHeaders, options.Context, parentContext);
 
