@@ -131,6 +131,11 @@
 
         MessageMetadata RegisterMessageType(Type messageType)
         {
+            if (messageType.IsValueType)
+            {
+                throw new Exception($"Structs are not supported as message types, please change {messageType} to a `class`");
+            }
+
             //get the parent types
             var parentMessages = GetParentTypes(messageType)
                 .Where(t => isMessageType(t))

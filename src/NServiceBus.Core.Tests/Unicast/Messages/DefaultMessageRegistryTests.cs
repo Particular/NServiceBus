@@ -20,6 +20,13 @@
             }
 
             [Test]
+            public void Should_throw_if_structs_matches_the_message_conventions()
+            {
+                var defaultMessageRegistry = new MessageMetadataRegistry(new Conventions().IsMessageType);
+                Assert.Throws<Exception>(() => defaultMessageRegistry.RegisterMessageTypesFoundIn(new List<Type> { typeof(MyStruct) }));
+            }
+
+            [Test]
             public void Should_return_metadata_for_a_mapped_type()
             {
                 var defaultMessageRegistry = new MessageMetadataRegistry(type => type == typeof(int));
@@ -75,6 +82,10 @@
 
             }
 
+            struct MyStruct : IMessage
+            {
+
+            }
         }
     }
 }
