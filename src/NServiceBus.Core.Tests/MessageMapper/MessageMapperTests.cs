@@ -134,6 +134,27 @@
             Assert.IsFalse(messageInstance.CtorInvoked);
         }
 
+        [Test]
+        public void Should_create_structs()
+        {
+            var mapper = new MessageMapper();
+
+            var messageInstance = mapper.CreateInstance<SampleMessageStruct>();
+
+            Assert.IsNotNull(messageInstance);
+            Assert.AreEqual(typeof(SampleMessageStruct), messageInstance.GetType());
+        }
+
+        [Test]
+        public void Should_map_structs()
+        {
+            var mapper = new MessageMapper();
+
+            var mappedType = mapper.GetMappedTypeFor(typeof(SampleMessageStruct));
+
+            Assert.AreEqual(typeof(SampleMessageStruct), mappedType);
+        }
+
         public class SampleMessageClass
         {
             public SampleMessageClass()
@@ -142,6 +163,10 @@
             }
 
             public bool CtorInvoked { get; }
+        }
+
+        public struct SampleMessageStruct
+        {
         }
 
         public interface ISampleMessageInterface

@@ -44,6 +44,7 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
         public Type GetMappedTypeFor(Type t)
         {
             Guard.AgainstNull(nameof(t), t);
+
             RuntimeTypeHandle typeHandle;
 
             if (!t.IsInterface)
