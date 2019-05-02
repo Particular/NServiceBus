@@ -68,6 +68,25 @@ namespace NServiceBus.Serializers.XML.Test
         }
 
         [Test] //note: This is not a desired behavior, but this test documents this limitation
+        public void Limitation_Does_not_deserialize_structs()
+        {
+            var message = new StructMessage
+            {
+                SomeProperty = "test"
+            };
+
+            var serializer = SerializerFactory.Create<StructMessage>();
+
+            using (var stream = new MemoryStream())
+            {
+                serializer.Serialize(message, stream);
+                stream.Position = 0;
+
+                Assert.Throws<System.Security.VerificationException>(() => serializer.Deserialize(stream));
+            }
+        }
+
+        [Test] //note: This is not a desired behavior, but this test documents this limitation
         public void Limitation_Does_not_handle_concrete_message_with_invalid_interface_property()
         {
             var message = new MessageWithInvalidInterfaceProperty
@@ -1170,6 +1189,11 @@ namespace NServiceBus.Serializers.XML.Test
 
     public class EmptyMessage : IMessage
     {
+    }
+
+    public struct StructMessage : IMessage
+    {
+        public string SomeProperty { get; set; }
     }
 
     public class PolyMessage : IMessage
