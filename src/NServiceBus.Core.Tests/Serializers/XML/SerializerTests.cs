@@ -67,12 +67,13 @@ namespace NServiceBus.Serializers.XML.Test
             }
         }
 
-        [Test] //note: This is not a desired behavior, but this test documents this limitation
-        public void Limitation_Does_not_deserialize_structs()
+        [Test]
+        public void Should_handle_struct_message()
         {
             var message = new StructMessage
             {
-                SomeProperty = "test"
+                SomeProperty = "property",
+                SomeField = "field"
             };
 
             var serializer = SerializerFactory.Create<StructMessage>();
@@ -82,7 +83,10 @@ namespace NServiceBus.Serializers.XML.Test
                 serializer.Serialize(message, stream);
                 stream.Position = 0;
 
-                Assert.Throws<System.Security.VerificationException>(() => serializer.Deserialize(stream));
+                var result = (StructMessage)serializer.Deserialize(stream)[0];
+
+                Assert.AreEqual(message.SomeField, result.SomeField);
+                Assert.AreEqual(message.SomeProperty, result.SomeProperty);
             }
         }
 
@@ -1194,6 +1198,8 @@ namespace NServiceBus.Serializers.XML.Test
     public struct StructMessage : IMessage
     {
         public string SomeProperty { get; set; }
+
+        public string SomeField;
     }
 
     public class PolyMessage : IMessage
