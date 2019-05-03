@@ -91,6 +91,24 @@ namespace NServiceBus.Serializers.XML.Test
         }
 
         [Test] //note: This is not a desired behavior, but this test documents this limitation
+        public void Limitation_Does_not_handle_message_with_struct_property()
+        {
+            var message = new MessageWithStructProperty();
+
+            var serializer = SerializerFactory.Create<MessageWithStructProperty>();
+
+            using (var stream = new MemoryStream())
+            {
+                serializer.Serialize(message, stream);
+                stream.Position = 0;
+
+                var ex = Assert.Throws<Exception>(() => serializer.Deserialize(stream));
+
+                StringAssert.StartsWith("Type not supported by the serializer", ex.Message);
+            }
+        }
+
+        [Test] //note: This is not a desired behavior, but this test documents this limitation
         public void Limitation_Does_not_handle_concrete_message_with_invalid_interface_property()
         {
             var message = new MessageWithInvalidInterfaceProperty
@@ -1200,6 +1218,16 @@ namespace NServiceBus.Serializers.XML.Test
         public string SomeProperty { get; set; }
 
         public string SomeField;
+    }
+
+    public class MessageWithStructProperty : IMessage
+    {
+        public SomeStruct StructProperty { get; set; }
+
+        public struct SomeStruct
+        {
+
+        }
     }
 
     public class PolyMessage : IMessage
