@@ -83,6 +83,8 @@
     <Compile Include="Core\Recoverability\When_configuring_unrecoverable_exception.cs" />
     <Compile Include="Core\Recoverability\When_failing_mutated_message.cs" />
     <Compile Include="Core\Routing\When_extending_command_routing_with_thisinstance.cs" />
+    <Compile Include="Core\Routing\When_replying_with_pre_created_interface.cs" />
+    <Compile Include="Core\Routing\When_routing_interface_message.cs" />
     <Compile Include="Core\Stopping\When_feature_startup_task_throws_on_stop.cs" />
     <Compile Include="Core\Stopping\When_pump_throws_on_stop.cs" />
     <Compile Include="Core\Stopping\When_transport_infrastructure_throws_on_stop.cs" />
@@ -99,6 +101,7 @@
     <Compile Include="Routing\NativePublishSubscribe\When_publishing_from_sendonly.cs" />
     <Compile Include="Routing\NativePublishSubscribe\When_subscribing_to_a_base_event.cs" />
     <Compile Include="Routing\NativePublishSubscribe\When_subscribing_to_a_derived_event.cs" />
+    <Compile Include="Routing\When_publishing_pre_created_interface.cs" />
     <Compile Include="Sagas\When_correlating_on_special_characters.cs" />
     <Compile Include="SelfVerification\When_using_custom_components.cs" />
     <Compile Include="EndpointTemplates\IConfigureEndpointTestExecution.cs" />
