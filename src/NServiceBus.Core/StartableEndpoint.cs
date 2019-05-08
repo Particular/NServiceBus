@@ -7,6 +7,7 @@ namespace NServiceBus
     using ConsistencyGuarantees;
     using Features;
     using Logging;
+    using MessageInterfaces;
     using ObjectBuilder;
     using Pipeline;
     using Settings;
@@ -14,7 +15,7 @@ namespace NServiceBus
 
     class StartableEndpoint : IStartableEndpoint
     {
-        public StartableEndpoint(SettingsHolder settings, IBuilder builder, FeatureActivator featureActivator, PipelineConfiguration pipelineConfiguration, IEventAggregator eventAggregator, TransportInfrastructure transportInfrastructure, CriticalError criticalError)
+        public StartableEndpoint(SettingsHolder settings, IBuilder builder, FeatureActivator featureActivator, PipelineConfiguration pipelineConfiguration, IEventAggregator eventAggregator, TransportInfrastructure transportInfrastructure, CriticalError criticalError, IMessageMapper messageMapper)
         {
             this.criticalError = criticalError;
             this.settings = settings;
@@ -23,10 +24,11 @@ namespace NServiceBus
             this.pipelineConfiguration = pipelineConfiguration;
             this.eventAggregator = eventAggregator;
             this.transportInfrastructure = transportInfrastructure;
+            this.messageMapper = messageMapper;
 
             pipelineCache = new PipelineCache(builder, settings);
 
-            messageSession = new MessageSession(new RootContext(builder, pipelineCache, eventAggregator));
+            messageSession = new MessageSession(new RootContext(builder, pipelineCache, eventAggregator, messageMapper));
         }
 
         public async Task<IEndpointInstance> Start()
@@ -126,7 +128,7 @@ namespace NServiceBus
 
             var recoverabilityExecutor = recoverabilityExecutorFactory.CreateDefault(eventAggregator, distributorAddress ?? localAddress);
             var pushSettings = new PushSettings(settings.LocalAddress(), errorQueue, purgeOnStartup, requiredTransactionSupport);
-            var mainPipelineExecutor = new MainPipelineExecutor(builder, eventAggregator, pipelineCache, mainPipeline);
+            var mainPipelineExecutor = new MainPipelineExecutor(builder, eventAggregator, pipelineCache, mainPipeline, messageMapper);
             var dequeueLimitations = GetDequeueLimitationsForReceivePipeline();
 
             var receivers = new List<TransportReceiver>();
@@ -170,6 +172,7 @@ namespace NServiceBus
         IEventAggregator eventAggregator;
         TransportInfrastructure transportInfrastructure;
         CriticalError criticalError;
+        IMessageMapper messageMapper;
 
         const string MainReceiverId = "Main";
         static ILog Logger = LogManager.GetLogger<StartableEndpoint>();
