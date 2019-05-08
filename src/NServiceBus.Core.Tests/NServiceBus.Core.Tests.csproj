@@ -99,7 +99,7 @@
   <ItemGroup>
     <Compile Include="API\APIApprovals.cs" />
     <Compile Include="ApprovalTestConfig.cs" />
-    <Compile Include="App_Packages\PublicApiGenerator.8.0.1\ApiGenerator.cs" />
+    <Compile Include="App_Packages\PublicApiGenerator.8.1.0\ApiGenerator.cs" />
     <Compile Include="AssemblyScanner\AssemblyScannerTests.cs" />
     <Compile Include="AssemblyScanner\When_checking_image_type.cs" />
     <Compile Include="AssemblyScanner\When_directory_with_no_reference_dlls_is_scanned.cs" />
