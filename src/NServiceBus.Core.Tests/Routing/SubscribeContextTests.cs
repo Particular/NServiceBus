@@ -12,7 +12,7 @@
             var context = new ContextBag();
             context.Set("someKey", "someValue");
 
-            var testee = new SubscribeContext(new RootContext(null, null, null), typeof(object), context);
+            var testee = new SubscribeContext(new RootContext(null, null, null, null), typeof(object), context);
             testee.Extensions.Set("someKey", "updatedValue");
             testee.Extensions.Set("anotherKey", "anotherValue");
             context.TryGet("someKey", out string value);
@@ -30,7 +30,7 @@
             var context = new ContextBag();
             context.Set("someKey", "someValue");
 
-            var parentContext = new RootContext(null, null, null);
+            var parentContext = new RootContext(null, null, null, null);
 
             new SubscribeContext(parentContext, typeof(object), context);
 
