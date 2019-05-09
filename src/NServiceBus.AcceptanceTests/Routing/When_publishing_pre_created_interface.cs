@@ -48,7 +48,7 @@
                     c.Pipeline.Register("EventTypeSpy", new EventTypeSpy((Context)ScenarioContext), "EventTypeSpy");
                     c.OnEndpointSubscribed<Context>((s, context) =>
                     {
-                        if (s.SubscriberEndpoint.Contains(Conventions.EndpointNamingConvention(typeof(Subscriber))))
+                        if (s.SubscriberReturnAddress.Contains("Subscriber"))
                         {
                             context.Subscribed = true;
                         }
