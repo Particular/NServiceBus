@@ -52,9 +52,12 @@ namespace NServiceBus
             var receiveConfiguration = BuildReceiveConfiguration(transportInfrastructure);
 
             var routing = InitializeRouting(transportInfrastructure, receiveConfiguration);
+            var pipeline = new PipelineComponent(settings, builder);
 
             var messageMapper = new MessageMapper();
             settings.Set<IMessageMapper>(messageMapper);
+
+            pipeline.AddRootContextItem<IMessageMapper>(messageMapper);
 
             var featureStats = featureActivator.SetupFeatures(container, pipelineSettings, routing, receiveConfiguration);
             settings.AddStartupDiagnosticsSection("Features", featureStats);
@@ -64,10 +67,14 @@ namespace NServiceBus
             container.ConfigureComponent(b => settings.Get<Notifications>(), DependencyLifecycle.SingleInstance);
 
             var eventAggregator = new EventAggregator(settings.Get<NotificationSubscriptions>());
-            var pipelineCache = new PipelineCache(builder, settings);
+
+            pipeline.AddRootContextItem<IEventAggregator>(eventAggregator);
+
+            pipeline.Initialize();
+
             var queueBindings = settings.Get<QueueBindings>();
 
-            var receiveComponent = CreateReceiveComponent(receiveConfiguration, transportInfrastructure, queueBindings, pipelineCache, eventAggregator, messageMapper);
+            var receiveComponent = CreateReceiveComponent(receiveConfiguration, transportInfrastructure, pipeline, queueBindings, eventAggregator);
 
             var shouldRunInstallers = settings.GetOrDefault<bool>("Installers.Enable");
 
@@ -92,7 +99,7 @@ namespace NServiceBus
                 }
             );
 
-            var messageSession = new MessageSession(new RootContext(builder, pipelineCache, eventAggregator, messageMapper));
+            var messageSession = new MessageSession(pipeline.CreateRootContext(builder));
 
             return new StartableEndpoint(settings, builder, featureActivator, transportInfrastructure, receiveComponent, criticalError, messageSession);
         }
@@ -151,22 +158,19 @@ namespace NServiceBus
 
         ReceiveComponent CreateReceiveComponent(ReceiveConfiguration receiveConfiguration,
             TransportInfrastructure transportInfrastructure,
+            PipelineComponent pipeline,
             QueueBindings queueBindings,
-            IPipelineCache pipelineCache,
-            EventAggregator eventAggregator,
-            IMessageMapper messageMapper)
+            EventAggregator eventAggregator)
         {
             var errorQueue = settings.ErrorQueueAddress();
 
             var receiveComponent = new ReceiveComponent(receiveConfiguration,
                 receiveConfiguration != null ? transportInfrastructure.ConfigureReceiveInfrastructure() : null, //don't create the receive infrastructure for send-only endpoints
-                pipelineCache,
-                pipelineConfiguration,
-                eventAggregator,
+                pipeline,
                 builder,
+                eventAggregator,
                 criticalError,
-                errorQueue,
-                messageMapper);
+                errorQueue);
 
             receiveComponent.BindQueues(queueBindings);
 
