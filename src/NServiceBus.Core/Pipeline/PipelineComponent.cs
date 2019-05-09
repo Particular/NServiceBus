@@ -37,7 +37,7 @@ namespace NServiceBus
 
         public RootContext CreateRootContext(IBuilder rootBuilder)
         {
-            var context = new RootContext(builder);
+            var context = new RootContext(rootBuilder);
 
             context.Set(pipelineCache);
 
