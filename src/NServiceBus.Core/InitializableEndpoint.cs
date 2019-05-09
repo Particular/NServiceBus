@@ -9,6 +9,8 @@ namespace NServiceBus
     using Config.ConfigurationSource;
     using Features;
     using Installation;
+    using MessageInterfaces;
+    using MessageInterfaces.MessageMapper.Reflection;
     using ObjectBuilder;
     using ObjectBuilder.Common;
     using Pipeline;
@@ -57,6 +59,9 @@ namespace NServiceBus
                 settings.GetOrCreate<Publishers>());
             routing.Initialize(settings, transportInfrastructure, pipelineSettings);
 
+            var messageMapper = new MessageMapper();
+            settings.Set<IMessageMapper>(messageMapper);
+
             var featureStats = featureActivator.SetupFeatures(container, pipelineSettings, routing);
 
             pipelineConfiguration.RegisterBehaviorsInContainer(settings, container);
@@ -66,9 +71,8 @@ namespace NServiceBus
             container.ConfigureComponent(b => settings.Get<Notifications>(), DependencyLifecycle.SingleInstance);
 
             await RunInstallers(concreteTypes).ConfigureAwait(false);
-
-            var startableEndpoint = new StartableEndpoint(settings, builder, featureActivator, pipelineConfiguration, new EventAggregator(settings.Get<NotificationSubscriptions>()), transportInfrastructure, criticalError);
-            return startableEndpoint;
+            
+            return new StartableEndpoint(settings, builder, featureActivator, pipelineConfiguration, new EventAggregator(settings.Get<NotificationSubscriptions>()), transportInfrastructure, criticalError, messageMapper);
         }
 
         static bool IsConcrete(Type x)

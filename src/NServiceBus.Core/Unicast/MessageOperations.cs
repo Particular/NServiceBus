@@ -10,13 +10,17 @@ namespace NServiceBus
     {
         public static Task Publish<T>(IBehaviorContext context, Action<T> messageConstructor, PublishOptions options)
         {
-            var mapper = context.Builder.Build<IMessageMapper>();
+            var mapper = context.Extensions.Get<IMessageMapper>();
+
             return Publish(context, typeof(T), mapper.CreateInstance(messageConstructor), options);
         }
 
         public static Task Publish(IBehaviorContext context, object message, PublishOptions options)
         {
-            return Publish(context, message.GetType(), message, options);
+            var mapper = context.Extensions.Get<IMessageMapper>();
+            var messageType = mapper.GetMappedTypeFor(message.GetType());
+
+            return Publish(context, messageType, message, options);
         }
 
         static Task Publish(IBehaviorContext context, Type messageType, object message, PublishOptions options)
@@ -68,14 +72,17 @@ namespace NServiceBus
 
         public static Task Send<T>(IBehaviorContext context, Action<T> messageConstructor, SendOptions options)
         {
-            var mapper = context.Builder.Build<IMessageMapper>();
+            var mapper = context.Extensions.Get<IMessageMapper>();
 
             return SendMessage(context, typeof(T), mapper.CreateInstance(messageConstructor), options);
         }
 
         public static Task Send(IBehaviorContext context, object message, SendOptions options)
         {
-            return SendMessage(context, message.GetType(), message, options);
+            var mapper = context.Extensions.Get<IMessageMapper>();
+            var messageType = mapper.GetMappedTypeFor(message.GetType());
+
+            return SendMessage(context, messageType, message, options);
         }
 
         static Task SendMessage(this IBehaviorContext context, Type messageType, object message, SendOptions options)
@@ -101,12 +108,15 @@ namespace NServiceBus
 
         public static Task Reply(IBehaviorContext context, object message, ReplyOptions options)
         {
-            return ReplyMessage(context, message.GetType(), message, options);
+            var mapper = context.Extensions.Get<IMessageMapper>();
+            var messageType = mapper.GetMappedTypeFor(message.GetType());
+
+            return ReplyMessage(context, messageType, message, options);
         }
 
         public static Task Reply<T>(IBehaviorContext context, Action<T> messageConstructor, ReplyOptions options)
         {
-            var mapper = context.Builder.Build<IMessageMapper>();
+            var mapper = context.Extensions.Get<IMessageMapper>();
 
             return ReplyMessage(context, typeof(T), mapper.CreateInstance(messageConstructor), options);
         }

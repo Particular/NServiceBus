@@ -11,8 +11,9 @@
         {
             var context = new ContextBag();
             context.Set("someKey", "someValue");
-            
-            var testee = new UnsubscribeContext(new RootContext(null, null, null), typeof(object), context);
+
+            var testee = new UnsubscribeContext(new RootContext(null, null, null, null), typeof(object), context);
+
             testee.Extensions.Set("someKey", "updatedValue");
             testee.Extensions.Set("anotherKey", "anotherValue");
 
@@ -32,7 +33,7 @@
             var context = new ContextBag();
             context.Set("someKey", "someValue");
 
-            var parentContext = new RootContext(null, null, null);
+            var parentContext = new RootContext(null, null, null, null);
 
             new UnsubscribeContext(parentContext, typeof(object), context);
 

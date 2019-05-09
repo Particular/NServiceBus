@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?>
-<Weavers>
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Weavers GenerateXsd="false">
   <Janitor />
   <Obsolete />
 </Weavers>
