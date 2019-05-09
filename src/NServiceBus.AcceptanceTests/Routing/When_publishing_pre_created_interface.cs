@@ -7,7 +7,6 @@
     using Features;
     using NServiceBus.Pipeline;
     using NUnit.Framework;
-    using Conventions = AcceptanceTesting.Customization.Conventions;
 
     public class When_publishing_pre_created_interface : NServiceBusAcceptanceTest
     {
