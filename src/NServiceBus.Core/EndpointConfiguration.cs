@@ -33,10 +33,8 @@ namespace NServiceBus
 
             Settings.Set("NServiceBus.Routing.EndpointName", endpointName);
 
-            pipelineCollection = new PipelineConfiguration();
-            Settings.Set(pipelineCollection);
-            Pipeline = new PipelineSettings(pipelineCollection.Modifications, Settings);
-
+            pipelineComponent = new PipelineComponent(Settings);
+           
             Settings.Set(new QueueBindings());
 
             Settings.SetDefault("Endpoint.SendOnly", false);
@@ -58,7 +56,7 @@ namespace NServiceBus
         /// <summary>
         /// Access to the pipeline configuration.
         /// </summary>
-        public PipelineSettings Pipeline { get; }
+        public PipelineSettings Pipeline => pipelineComponent.PipelineSettings;
 
         /// <summary>
         /// Used to configure components in the container.
@@ -152,7 +150,7 @@ namespace NServiceBus
 
             var container = ConfigureContainer();
 
-            return new InitializableEndpoint(Settings, container, registrations, Pipeline, pipelineCollection);
+            return new InitializableEndpoint(Settings, container, registrations, pipelineComponent);
         }
 
         IContainer ConfigureContainer()
@@ -280,7 +278,7 @@ namespace NServiceBus
 
         ConventionsBuilder conventionsBuilder;
         IContainer customBuilder;
-        PipelineConfiguration pipelineCollection;
+        PipelineComponent pipelineComponent;
         List<Action<IConfigureComponents>> registrations = new List<Action<IConfigureComponents>>();
         List<Type> scannedTypes;
     }

@@ -10,7 +10,6 @@ namespace NServiceBus
     using MessageInterfaces.MessageMapper.Reflection;
     using ObjectBuilder;
     using ObjectBuilder.Common;
-    using Pipeline;
     using Routing;
     using Routing.MessageDrivenSubscriptions;
     using Settings;
@@ -21,12 +20,10 @@ namespace NServiceBus
         public InitializableEndpoint(SettingsHolder settings,
             IContainer container,
             List<Action<IConfigureComponents>> registrations,
-            PipelineSettings pipelineSettings,
-            PipelineConfiguration pipelineConfiguration)
+            PipelineComponent pipelineComponent)
         {
             this.settings = settings;
-            this.pipelineSettings = pipelineSettings;
-            this.pipelineConfiguration = pipelineConfiguration;
+            this.pipelineComponent = pipelineComponent;
 
             RegisterContainerAdapter(container);
             RunUserRegistrations(registrations);
@@ -52,27 +49,26 @@ namespace NServiceBus
             var receiveConfiguration = BuildReceiveConfiguration(transportInfrastructure);
 
             var routing = InitializeRouting(transportInfrastructure, receiveConfiguration);
-            var pipeline = new PipelineComponent(settings, builder);
 
             var messageMapper = new MessageMapper();
             settings.Set<IMessageMapper>(messageMapper);
 
-            pipeline.AddRootContextItem<IMessageMapper>(messageMapper);
+            pipelineComponent.AddRootContextItem<IMessageMapper>(messageMapper);
 
-            var featureStats = featureActivator.SetupFeatures(container, pipelineSettings, routing, receiveConfiguration);
+            var featureStats = featureActivator.SetupFeatures(container, pipelineComponent.PipelineSettings, routing, receiveConfiguration);
             settings.AddStartupDiagnosticsSection("Features", featureStats);
 
-            pipelineConfiguration.RegisterBehaviorsInContainer(container);
+            pipelineComponent.Initialize(builder, container);
 
             container.ConfigureComponent(b => settings.Get<Notifications>(), DependencyLifecycle.SingleInstance);
 
             var eventAggregator = new EventAggregator(settings.Get<NotificationSubscriptions>());
 
-            pipeline.AddRootContextItem<IEventAggregator>(eventAggregator);
+            pipelineComponent.AddRootContextItem<IEventAggregator>(eventAggregator);
 
             var queueBindings = settings.Get<QueueBindings>();
 
-            var receiveComponent = CreateReceiveComponent(receiveConfiguration, transportInfrastructure, pipeline, queueBindings, eventAggregator);
+            var receiveComponent = CreateReceiveComponent(receiveConfiguration, transportInfrastructure, pipelineComponent, queueBindings, eventAggregator);
 
             var shouldRunInstallers = settings.GetOrDefault<bool>("Installers.Enable");
 
@@ -97,7 +93,7 @@ namespace NServiceBus
                 }
             );
 
-            var messageSession = new MessageSession(pipeline.CreateRootContext(builder));
+            var messageSession = new MessageSession(pipelineComponent.CreateRootContext(builder));
 
             return new StartableEndpoint(settings, builder, featureActivator, transportInfrastructure, receiveComponent, criticalError, messageSession);
         }
@@ -111,7 +107,7 @@ namespace NServiceBus
                 settings.GetOrCreate<EndpointInstances>(),
                 settings.GetOrCreate<Publishers>());
 
-            routing.Initialize(settings, transportInfrastructure.ToTransportAddress, pipelineSettings, receiveConfiguration);
+            routing.Initialize(settings, transportInfrastructure.ToTransportAddress, pipelineComponent.PipelineSettings, receiveConfiguration);
 
             return routing;
         }
@@ -289,8 +285,7 @@ namespace NServiceBus
 
         IBuilder builder;
         IConfigureComponents container;
-        PipelineConfiguration pipelineConfiguration;
-        PipelineSettings pipelineSettings;
+        PipelineComponent pipelineComponent;
         SettingsHolder settings;
         CriticalError criticalError;
     }

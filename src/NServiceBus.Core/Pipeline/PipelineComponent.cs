@@ -2,15 +2,22 @@ namespace NServiceBus
 {
     using Extensibility;
     using ObjectBuilder;
+    using Pipeline;
     using Settings;
 
     class PipelineComponent
     {
-        public PipelineComponent(SettingsHolder settings, IBuilder builder)
+        public PipelineComponent(SettingsHolder settings)
         {
-            var pipelineCache = new PipelineCache(builder, settings.Get<PipelineConfiguration>());
+            modifications = new PipelineModifications();
+            PipelineSettings = new PipelineSettings(modifications, settings);
+        }
 
-            rootContextExtensions.Set<IPipelineCache>(pipelineCache);
+        public void Initialize(IBuilder builder, IConfigureComponents container)
+        {
+            rootContextExtensions.Set<IPipelineCache>(new PipelineCache(builder, modifications));
+
+            RegisterBehaviorsInContainer(container);
         }
 
         public void AddRootContextItem<T>(T item)
@@ -24,14 +31,27 @@ namespace NServiceBus
 
             context.Extensions.Merge(rootContextExtensions);
 
-            if (extensions != null)
-            {
-                context.Extensions.Merge(extensions);
-            }
+            if (extensions != null) context.Extensions.Merge(extensions);
 
             return context;
         }
 
+        public PipelineSettings PipelineSettings { get; }
+
+        void RegisterBehaviorsInContainer(IConfigureComponents container)
+        {
+            foreach (var registeredBehavior in modifications.Replacements)
+            {
+                container.ConfigureComponent(registeredBehavior.BehaviorType, DependencyLifecycle.InstancePerCall);
+            }
+
+            foreach (var step in modifications.Additions)
+            {
+                step.ApplyContainerRegistration(container);
+            }
+        }
+
+        readonly PipelineModifications modifications;
         readonly ContextBag rootContextExtensions = new ContextBag();
     }
 }

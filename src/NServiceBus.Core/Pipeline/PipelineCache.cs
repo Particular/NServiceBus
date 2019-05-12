@@ -8,9 +8,9 @@ namespace NServiceBus
 
     class PipelineCache : IPipelineCache
     {
-        public PipelineCache(IBuilder builder, PipelineConfiguration pipelineConfiguration)
+        public PipelineCache(IBuilder builder, PipelineModifications pipelineModifications)
         {
-            this.pipelineConfiguration = pipelineConfiguration;
+            this.pipelineModifications = pipelineModifications;
 
             FromMainPipeline<IAuditContext>(builder);
             FromMainPipeline<IDispatchContext>(builder);
@@ -41,13 +41,13 @@ namespace NServiceBus
         {
             var lazyPipeline = new Lazy<IPipeline>(() =>
             {
-                var pipeline = new Pipeline<TContext>(builder, pipelineConfiguration.Modifications);
+                var pipeline = new Pipeline<TContext>(builder, pipelineModifications);
                 return pipeline;
             }, LazyThreadSafetyMode.ExecutionAndPublication);
             pipelines.Add(typeof(TContext), lazyPipeline);
         }
 
-        readonly PipelineConfiguration pipelineConfiguration;
+        readonly PipelineModifications pipelineModifications;
         readonly Dictionary<Type, Lazy<IPipeline>> pipelines = new Dictionary<Type, Lazy<IPipeline>>();
     }
 }
