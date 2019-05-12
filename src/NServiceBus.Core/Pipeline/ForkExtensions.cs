@@ -10,9 +10,7 @@
             where TFromContext : IBehaviorContext
             where TToContext : IBehaviorContext
         {
-            var cache = context.Extensions.Get<IPipelineCache>();
-            var pipeline = cache.Pipeline<TForkContext>();
-            return pipeline.Invoke(context);
+            return context.InvokePipeline();
         }
     }
 }
