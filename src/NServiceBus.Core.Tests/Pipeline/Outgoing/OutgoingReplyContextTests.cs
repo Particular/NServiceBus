@@ -13,7 +13,7 @@
             var options = new ReplyOptions();
             options.Context.Set("someKey", "someValue");
 
-            var testee = new OutgoingReplyContext(message, "message-id", options.OutgoingHeaders, options.Context, new RootContext(null));
+            var testee = new OutgoingReplyContext(message, "message-id", options.OutgoingHeaders, options.Context, new FakeRootContext());
             testee.Extensions.Set("someKey", "updatedValue");
             testee.Extensions.Set("anotherKey", "anotherValue");
 
@@ -33,7 +33,7 @@
             var options = new ReplyOptions();
             options.Context.Set("someKey", "someValue");
 
-            var parentContext = new RootContext(null);
+            var parentContext = new FakeRootContext();
 
             new OutgoingReplyContext(message, "message-id", options.OutgoingHeaders, options.Context, parentContext);
 
