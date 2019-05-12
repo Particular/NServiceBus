@@ -28,8 +28,12 @@ namespace NServiceBus
         public IPipeline<TContext> Pipeline<TContext>()
             where TContext : IBehaviorContext
         {
-            if (pipelines.TryGetValue(typeof(TContext), out var lazyPipeline)) return (IPipeline<TContext>)lazyPipeline.Value;
-            throw new InvalidOperationException("Custom pipelines are not supported.");
+            if (pipelines.TryGetValue(typeof(TContext), out var lazyPipeline))
+            {
+                return (IPipeline<TContext>)lazyPipeline.Value;
+            }
+
+            throw new InvalidOperationException($"Pipeline for context `{typeof(TContext).FullName}` not found, custom pipelines are not supported.");
         }
 
         void FromMainPipeline<TContext>(IBuilder builder)
