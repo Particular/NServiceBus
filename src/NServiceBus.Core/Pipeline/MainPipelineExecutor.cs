@@ -22,16 +22,12 @@ namespace NServiceBus
             {
                 var message = new IncomingMessage(messageContext.MessageId, messageContext.Headers, messageContext.Body);
 
-                var context = await pipelineComponent.Invoke<ITransportReceiveContext>(childBuilder, rootContext =>
-                {
-                    var transportReceiveContext = new TransportReceiveContext(message, messageContext.TransportTransaction, messageContext.ReceiveCancellationTokenSource, rootContext);
+                var rootContext = pipelineComponent.CreateRootContext(childBuilder, messageContext.Extensions);
+                var transportReceiveContext = new TransportReceiveContext(message, messageContext.TransportTransaction, messageContext.ReceiveCancellationTokenSource, rootContext);
 
-                    transportReceiveContext.Extensions.Merge(messageContext.Extensions);
+                await transportReceiveContext.InvokePipeline<ITransportReceiveContext>().ConfigureAwait(false);
 
-                    return transportReceiveContext;
-                }).ConfigureAwait(false);
-
-                await context.RaiseNotification(new ReceivePipelineCompleted(message, pipelineStartedAt, DateTime.UtcNow)).ConfigureAwait(false);
+                await transportReceiveContext.RaiseNotification(new ReceivePipelineCompleted(message, pipelineStartedAt, DateTime.UtcNow)).ConfigureAwait(false);
             }
         }
 

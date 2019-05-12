@@ -1,57 +1,37 @@
 namespace NServiceBus
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Threading.Tasks;
+    using Extensibility;
     using ObjectBuilder;
-    using Pipeline;
     using Settings;
 
     class PipelineComponent
     {
         public PipelineComponent(SettingsHolder settings, IBuilder builder)
         {
-            this.settings = settings;
-            this.builder = builder;
+            var pipelineCache = new PipelineCache(builder, settings.Get<PipelineConfiguration>());
+
+            rootContextExtensions.Set<IPipelineCache>(pipelineCache);
         }
 
-        public void Initialize()
+        public void AddRootContextItem<T>(T item)
         {
-            pipelineCache = new PipelineCache(builder, settings.Get<PipelineConfiguration>());
+            rootContextExtensions.Set(item);
         }
 
-        public void AddRootContextItem<T>(object item)
+        public RootContext CreateRootContext(IBuilder builder, ContextBag extensions = null)
         {
-            rootContextItems.Add(typeof(T).FullName, item);
-        }
+            var context = new RootContext(builder);
 
-        public async Task<TContext> Invoke<TContext>(IBuilder rootBuilder, Func<IBehaviorContext, TContext> contextFactory) where TContext : IBehaviorContext
-        {
-            var context = contextFactory(CreateRootContext(rootBuilder));
+            context.Extensions.Merge(rootContextExtensions);
 
-            await context.InvokePipeline().ConfigureAwait(false);
-
-            return context;
-        }
-
-        public RootContext CreateRootContext(IBuilder rootBuilder)
-        {
-            var context = new RootContext(rootBuilder);
-
-            context.Set(pipelineCache);
-
-            foreach (var contextItem in rootContextItems)
+            if (extensions != null)
             {
-                context.Set(contextItem.Key, contextItem.Value);
+                context.Extensions.Merge(extensions);
             }
 
             return context;
         }
 
-        IPipelineCache pipelineCache;
-
-        readonly Dictionary<string, object> rootContextItems = new Dictionary<string, object>();
-        readonly SettingsHolder settings;
-        readonly IBuilder builder;
+        readonly ContextBag rootContextExtensions = new ContextBag();
     }
 }

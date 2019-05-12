@@ -17,7 +17,7 @@ namespace NServiceBus
 
             var routingContext = new RoutingContext(outgoingMessage, new UnicastRoutingStrategy(destination), context);
 
-            return routingContext.InvokePipeline();
+            return routingContext.InvokePipeline<IRoutingContext>();
         }
     }
 }

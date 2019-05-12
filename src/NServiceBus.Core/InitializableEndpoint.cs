@@ -70,8 +70,6 @@ namespace NServiceBus
 
             pipeline.AddRootContextItem<IEventAggregator>(eventAggregator);
 
-            pipeline.Initialize();
-
             var queueBindings = settings.Get<QueueBindings>();
 
             var receiveComponent = CreateReceiveComponent(receiveConfiguration, transportInfrastructure, pipeline, queueBindings, eventAggregator);
