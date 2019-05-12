@@ -27,10 +27,9 @@ namespace NServiceBus
 
         public async Task<TContext> Invoke<TContext>(IBuilder rootBuilder, Func<IBehaviorContext, TContext> contextFactory) where TContext : IBehaviorContext
         {
-            var pipeline = pipelineCache.Pipeline<TContext>();
             var context = contextFactory(CreateRootContext(rootBuilder));
 
-            await pipeline.Invoke(context).ConfigureAwait(false);
+            await context.InvokePipeline().ConfigureAwait(false);
 
             return context;
         }
