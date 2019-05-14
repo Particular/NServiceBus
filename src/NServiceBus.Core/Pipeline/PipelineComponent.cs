@@ -31,7 +31,10 @@ namespace NServiceBus
 
             context.Extensions.Merge(rootContextExtensions);
 
-            if (extensions != null) context.Extensions.Merge(extensions);
+            if (extensions != null)
+            {
+                context.Extensions.Merge(extensions);
+            }
 
             return context;
         }
