@@ -14,6 +14,7 @@
         [SetUp]
         public void SetUp()
         {
+            logicalContext = new TestableIncomingLogicalMessageContext();
             scheduler = new DefaultScheduler();
             behavior = new ScheduledTaskHandlingBehavior(scheduler);
 
@@ -59,11 +60,11 @@
                 return Task.FromResult(0);
             });
 
-            Assert.True(logicalContext.SentMessages.All(message => !message.Options.GetDeliveryDelay().HasValue), "Nothing should have been deferred");
+            Assert.IsEmpty(logicalContext.SentMessages, "Nothing should have been deferred");
             Assert.True(nextWasCalled, "Next should have been called");
         }
 
-        TestableIncomingLogicalMessageContext logicalContext = new TestableIncomingLogicalMessageContext();
+        TestableIncomingLogicalMessageContext logicalContext;
         DefaultScheduler scheduler;
         ScheduledTaskHandlingBehavior behavior;
         Guid taskId;
