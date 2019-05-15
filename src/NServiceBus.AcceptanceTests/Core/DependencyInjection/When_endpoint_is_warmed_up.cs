@@ -66,7 +66,7 @@
             }
         }
 
-        class SomeMessage : IMessage
+        public class SomeMessage : IMessage
         {
         }
 
