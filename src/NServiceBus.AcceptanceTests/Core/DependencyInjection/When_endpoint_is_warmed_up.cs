@@ -8,7 +8,7 @@
     using NUnit.Framework;
     using Particular.Approvals;
 
-    public class When_enpoint_is_warmed_up : NServiceBusAcceptanceTest
+    public class When_endpoint_is_warmed_up : NServiceBusAcceptanceTest
     {
         [Test]
         public async Task Make_sure_things_are_in_DI()
