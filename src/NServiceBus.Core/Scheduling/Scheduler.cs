@@ -21,9 +21,12 @@ namespace NServiceBus.Features
         {
             context.Settings.Get<Conventions>().AddSystemMessagesConventions(t => typeof(ScheduledTask).IsAssignableFrom(t));
 
-            var defaultScheduler = new DefaultScheduler();
-            context.Container.RegisterSingleton(defaultScheduler);
+            defaultScheduler = new DefaultScheduler();
+
             context.Pipeline.Register("ScheduleBehavior", new ScheduleBehavior(defaultScheduler), "Registers a task definition for scheduling.");
+            context.Pipeline.Register("ScheduledTaskHandlingBehavior", new ScheduledTaskHandlingBehavior(defaultScheduler), "Handles scheduled task messages.");
         }
+
+        DefaultScheduler defaultScheduler;
     }
 }
