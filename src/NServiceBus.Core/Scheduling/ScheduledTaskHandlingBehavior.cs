@@ -11,14 +11,15 @@ namespace NServiceBus
             this.scheduler = scheduler;
         }
 
-        public Task Invoke(IIncomingLogicalMessageContext context, Func<IIncomingLogicalMessageContext, Task> next)
+        public async Task Invoke(IIncomingLogicalMessageContext context, Func<IIncomingLogicalMessageContext, Task> next)
         {
             if (context.Message.Instance is ScheduledTask scheduledTask)
             {
-                return scheduler.Start(scheduledTask.TaskId, context);
+                context.MessageHandled = true;
+                await scheduler.Start(scheduledTask.TaskId, context).ConfigureAwait(false);
             }
 
-            return next(context);
+            await next(context).ConfigureAwait(false);
         }
 
         DefaultScheduler scheduler;

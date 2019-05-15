@@ -44,7 +44,7 @@
 
             var deferredMessage = logicalContext.SentMessages.First(message => message.Options.GetDeliveryDelay().HasValue).Message<ScheduledTask>();
             Assert.That(deferredMessage.TaskId, Is.EqualTo(taskId));
-            Assert.False(nextWasCalled, "Next should not have been called");
+            Assert.True(nextWasCalled, "Next should have been called");
         }
 
         [Test]
@@ -59,7 +59,7 @@
                 return Task.FromResult(0);
             });
 
-            Assert.IsEmpty(logicalContext.SentMessages, "Nothing should have been deferred");
+            Assert.True(logicalContext.SentMessages.All(message => !message.Options.GetDeliveryDelay().HasValue), "Nothing should have been deferred");
             Assert.True(nextWasCalled, "Next should have been called");
         }
 
