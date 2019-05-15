@@ -1,6 +1,4 @@
 [NServiceBus.AcceptanceTesting.ScenarioContext, NServiceBus.AcceptanceTesting.ScenarioContext - SingleInstance (WasResolved: False)]
-[NServiceBus.AcceptanceTests.DependencyInjection.When_enpoint_is_warmed_up+Context, NServiceBus.AcceptanceTests.DependencyInjection.When_enpoint_is_warmed_up+Context - SingleInstance (WasResolved: False)]
-[NServiceBus.AcceptanceTests.DependencyInjection.When_enpoint_is_warmed_up+StartedEndpoint+SomeMessageHandler, NServiceBus.AcceptanceTests.DependencyInjection.When_enpoint_is_warmed_up+StartedEndpoint+SomeMessageHandler - InstancePerUnitOfWork (WasResolved: False)]
 [NServiceBus.CriticalError, NServiceBus.CriticalError - SingleInstance (WasResolved: False)]
 [NServiceBus.DefaultScheduler, NServiceBus.DefaultScheduler - SingleInstance (WasResolved: False)]
 [NServiceBus.Hosting.HostInformation, NServiceBus.Hosting.HostInformation - SingleInstance (WasResolved: True)]

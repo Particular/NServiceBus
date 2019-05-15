@@ -18,7 +18,9 @@
                 .Done(c => c.GotTheMessage)
                 .Run();
 
-            Approver.Verify(string.Join(Environment.NewLine, spyContainer.RegisteredComponents.OrderBy(c=>c.Key.FullName)));
+            Approver.Verify(string.Join(Environment.NewLine, spyContainer.RegisteredComponents
+                .Where(c=>c.Key.Assembly != typeof(When_enpoint_is_warmed_up).Assembly)
+                .OrderBy(c=>c.Key.FullName)));
         }
 
         class Context : ScenarioContext
