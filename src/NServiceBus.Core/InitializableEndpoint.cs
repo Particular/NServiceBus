@@ -30,8 +30,7 @@ namespace NServiceBus
 
             RegisterContainerAdapter(container);
             RunUserRegistrations(registrations);
-
-            this.container.RegisterSingleton(this);
+            
             this.container.RegisterSingleton<ReadOnlySettings>(settings);
         }
 
