@@ -1,19 +1,20 @@
-[NServiceBus.AcceptanceTesting.ScenarioContext, NServiceBus.AcceptanceTesting.ScenarioContext - SingleInstance (WasResolved: False)]
-[NServiceBus.CriticalError, NServiceBus.CriticalError - SingleInstance (WasResolved: False)]
-[NServiceBus.DefaultScheduler, NServiceBus.DefaultScheduler - SingleInstance (WasResolved: False)]
-[NServiceBus.Hosting.HostInformation, NServiceBus.Hosting.HostInformation - SingleInstance (WasResolved: True)]
-[NServiceBus.InitializableEndpoint, NServiceBus.InitializableEndpoint - SingleInstance (WasResolved: False)]
-[NServiceBus.LoadHandlersConnector, NServiceBus.LoadHandlersConnector - InstancePerCall (WasResolved: True)]
-[NServiceBus.MessageInterfaces.IMessageMapper, NServiceBus.MessageInterfaces.IMessageMapper - SingleInstance (WasResolved: False)]
-[NServiceBus.NoOpCanceling, NServiceBus.NoOpCanceling - SingleInstance (WasResolved: False)]
-[NServiceBus.Notifications, NServiceBus.Notifications - SingleInstance (WasResolved: False)]
-[NServiceBus.ObjectBuilder.IBuilder, NServiceBus.ObjectBuilder.IBuilder - SingleInstance (WasResolved: False)]
-[NServiceBus.Pipeline.LogicalMessageFactory, NServiceBus.Pipeline.LogicalMessageFactory - SingleInstance (WasResolved: False)]
-[NServiceBus.RecoverabilityExecutorFactory, NServiceBus.RecoverabilityExecutorFactory - SingleInstance (WasResolved: True)]
-[NServiceBus.ScheduledTaskMessageHandler, NServiceBus.ScheduledTaskMessageHandler - InstancePerUnitOfWork (WasResolved: False)]
-[NServiceBus.Settings.ReadOnlySettings, NServiceBus.Settings.ReadOnlySettings - SingleInstance (WasResolved: False)]
-[NServiceBus.StorageInitializer+CallInit, NServiceBus.StorageInitializer+CallInit - SingleInstance (WasResolved: True)]
-[NServiceBus.Transport.IDispatchMessages, NServiceBus.Transport.IDispatchMessages - SingleInstance (WasResolved: True)]
-[NServiceBus.TransportReceiveToPhysicalMessageProcessingConnector, NServiceBus.TransportReceiveToPhysicalMessageProcessingConnector - InstancePerCall (WasResolved: True)]
-[NServiceBus.Unicast.MessageHandlerRegistry, NServiceBus.Unicast.MessageHandlerRegistry - SingleInstance (WasResolved: True)]
-[NServiceBus.Unicast.Messages.MessageMetadataRegistry, NServiceBus.Unicast.Messages.MessageMetadataRegistry - SingleInstance (WasResolved: False)]
+----------- Actively used components (Find ways to stop accessing them)-----------
+NServiceBus.Hosting.HostInformation - SingleInstance
+NServiceBus.LoadHandlersConnector - InstancePerCall
+NServiceBus.RecoverabilityExecutorFactory - SingleInstance
+NServiceBus.StorageInitializer+CallInit - SingleInstance
+NServiceBus.Transport.IDispatchMessages - SingleInstance
+NServiceBus.TransportReceiveToPhysicalMessageProcessingConnector - InstancePerCall
+NServiceBus.Unicast.MessageHandlerRegistry - SingleInstance
+----------- Likely unused components (Remove in next major if possible) -----------
+NServiceBus.CriticalError - SingleInstance
+NServiceBus.DefaultScheduler - SingleInstance
+NServiceBus.InitializableEndpoint - SingleInstance
+NServiceBus.MessageInterfaces.IMessageMapper - SingleInstance
+NServiceBus.NoOpCanceling - SingleInstance
+NServiceBus.Notifications - SingleInstance
+NServiceBus.ObjectBuilder.IBuilder - SingleInstance
+NServiceBus.Pipeline.LogicalMessageFactory - SingleInstance
+NServiceBus.ScheduledTaskMessageHandler - InstancePerUnitOfWork
+NServiceBus.Settings.ReadOnlySettings - SingleInstance
+NServiceBus.Unicast.Messages.MessageMetadataRegistry - SingleInstance

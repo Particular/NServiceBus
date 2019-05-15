@@ -109,7 +109,7 @@
 
             public override string ToString()
             {
-                return $"{Type.FullName} - {Lifecycle} (WasResolved: {WasResolved})";
+                return $"{Type.FullName} - {Lifecycle}";
             }
         }
     }
