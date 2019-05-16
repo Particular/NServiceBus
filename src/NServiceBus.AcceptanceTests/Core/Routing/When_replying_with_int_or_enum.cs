@@ -20,7 +20,7 @@
             Assert.NotNull(context.ExceptionFromReply);
             StringAssert.Contains("Could not find metadata for", context.ExceptionFromReply.Message, "");
 
-            //this verified the callbacks assumption that core won't throw until after the `IOutgoingLogicalMessageContext` stage
+            //this verifies a callbacks assumption that core won't throw until after the `IOutgoingLogicalMessageContext` stage
             // See https://github.com/Particular/NServiceBus.Callbacks/blob/develop/src/NServiceBus.Callbacks/Reply/SetCallbackResponseReturnCodeBehavior.cs#L7
             Assert.True(context.WasAbleToInterceptBeforeCoreThrows, "Callbacks needs to be able to intercept the pipeline before core throw");
         }
