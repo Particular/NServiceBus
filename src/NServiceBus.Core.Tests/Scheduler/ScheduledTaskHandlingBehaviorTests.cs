@@ -28,7 +28,7 @@
         }
 
         [Test]
-        public async Task When_a_scheduledTask_message_is_handled_the_task_should_be_deferred()
+        public async Task When_triggering_a_scheduled_task_should_reschedule_at_configured_interval()
         {
             logicalContext.Message = new LogicalMessage(new MessageMetadata(typeof(ScheduledTask)), new ScheduledTask
             {
@@ -49,7 +49,7 @@
         }
 
         [Test]
-        public async Task When_another_message_is_handled_no_task_should_not_be_deferred()
+        public async Task When_handling_a_regular_message_should_not_reschedule()
         {
             logicalContext.Message = new LogicalMessage(new MessageMetadata(typeof(object)), new object());
 
