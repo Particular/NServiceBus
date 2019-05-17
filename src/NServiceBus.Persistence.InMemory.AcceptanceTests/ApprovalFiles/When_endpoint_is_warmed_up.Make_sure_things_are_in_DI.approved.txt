@@ -9,8 +9,6 @@ NServiceBus.TransportReceiveToPhysicalMessageProcessingConnector - InstancePerCa
 NServiceBus.Unicast.MessageHandlerRegistry - SingleInstance
 ----------- Likely unused components (Remove in next major if possible) -----------
 NServiceBus.CriticalError - SingleInstance
-NServiceBus.DefaultScheduler - SingleInstance
-NServiceBus.InitializableEndpoint - SingleInstance
 NServiceBus.InMemorySubscriptionStorage - SingleInstance
 NServiceBus.InMemorySynchronizedStorage - SingleInstance
 NServiceBus.InMemoryTransactionalSynchronizedStorageAdapter - SingleInstance
@@ -19,6 +17,5 @@ NServiceBus.NoOpCanceling - SingleInstance
 NServiceBus.Notifications - SingleInstance
 NServiceBus.ObjectBuilder.IBuilder - SingleInstance
 NServiceBus.Pipeline.LogicalMessageFactory - SingleInstance
-NServiceBus.ScheduledTaskMessageHandler - InstancePerUnitOfWork
 NServiceBus.Settings.ReadOnlySettings - SingleInstance
 NServiceBus.Unicast.Messages.MessageMetadataRegistry - SingleInstance
