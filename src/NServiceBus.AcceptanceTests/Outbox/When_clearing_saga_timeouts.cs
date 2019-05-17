@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.AcceptanceTests.Core.Outbox
+﻿namespace NServiceBus.AcceptanceTests.Outbox
 {
     using System;
     using System.Threading.Tasks;
@@ -8,7 +8,7 @@
     using Features;
     using NServiceBus;
     using NServiceBus.Outbox;
-    using NServiceBus.Persistence;
+    using Persistence;
     using NUnit.Framework;
 
     public class When_clearing_saga_timeouts : NServiceBusAcceptanceTest
