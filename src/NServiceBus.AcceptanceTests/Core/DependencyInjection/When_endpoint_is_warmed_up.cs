@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.AcceptanceTests.DependencyInjection
+﻿namespace NServiceBus.AcceptanceTests.Core.DependencyInjection
 {
     using System.Linq;
     using System.Text;

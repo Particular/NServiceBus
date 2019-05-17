@@ -9,6 +9,8 @@
     /// </summary>
     public class AcceptanceTestingContainer : IContainer
     {
+        public Dictionary<Type, Component> RegisteredComponents { get; } = new Dictionary<Type, Component>();
+
         public AcceptanceTestingContainer()
         {
             builder = new LightInjectObjectBuilder();
@@ -60,13 +62,16 @@
             ThrowIfLocked();
 
             RegisteredComponents[typeof(T)] = new Component(typeof(T), dependencyLifecycle);
+
             builder.Configure(component, dependencyLifecycle);
         }
 
         public void RegisterSingleton(Type lookupType, object instance)
         {
             ThrowIfLocked();
+
             RegisteredComponents[lookupType] = new Component(lookupType, DependencyLifecycle.SingleInstance);
+
             builder.RegisterSingleton(lookupType, instance);
         }
 
@@ -87,8 +92,6 @@
                 throw new InvalidOperationException("Can't register components after the container has been used to resolve instances");
             }
         }
-
-        public Dictionary<Type, Component> RegisteredComponents = new Dictionary<Type, Component>();
 
         LightInjectObjectBuilder builder;
         bool locked;
