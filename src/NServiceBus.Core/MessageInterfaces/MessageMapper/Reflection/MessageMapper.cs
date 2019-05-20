@@ -45,7 +45,8 @@ namespace NServiceBus.MessageInterfaces.MessageMapper.Reflection
         {
             Guard.AgainstNull(nameof(t), t);
             RuntimeTypeHandle typeHandle;
-            if (t.IsClass)
+
+            if (!t.IsInterface)
             {
                 if (t.IsGenericTypeDefinition)
                 {
