@@ -21,7 +21,7 @@
            
             //this verifies a callbacks assumption that core won't throw until after the `IOutgoingLogicalMessageContext` stage
             // See https://github.com/Particular/NServiceBus.Callbacks/blob/develop/src/NServiceBus.Callbacks/Reply/SetCallbackResponseReturnCodeBehavior.cs#L7
-            Assert.True(context.WasAbleToInterceptBeforeCoreThrows, "Callbacks needs to be able to intercept the pipeline before core throw");
+            Assert.True(context.WasAbleToInterceptBeforeCoreThrows, "Callbacks needs to be able to intercept the pipeline before core throws");
         }
 
         public class Context : ScenarioContext
