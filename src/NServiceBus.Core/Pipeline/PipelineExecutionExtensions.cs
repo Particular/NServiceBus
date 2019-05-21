@@ -53,11 +53,8 @@
 
                 if (i == behaviorCount)
                 {
-                    if (currentBehavior is IPipelineTerminator)
-                    {
-                        inContextType = typeof(PipelineTerminator<>.ITerminatingContext).MakeGenericType(inContextType);
-                    }
-                    var doneDelegate = CreateDoneDelegate(inContextType, i);
+                    var outContextType = genericArguments[1];
+                    var doneDelegate = CreateDoneDelegate(outContextType, i);
                     lambdaExpression = CreateBehaviorCallDelegate(currentBehavior, methodInfo, inContextParameter, doneDelegate, expressions);
                     continue;
                 }
