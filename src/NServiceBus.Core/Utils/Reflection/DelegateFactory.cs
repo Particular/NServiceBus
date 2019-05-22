@@ -113,7 +113,7 @@ namespace NServiceBus
 
                 if (sourceType.IsValueType && !sourceType.IsSimpleType())
                 {
-                    gen.Emit(OpCodes.Call, setter); // structs doesn't have virtual setters
+                    gen.Emit(OpCodes.Call, setter); // structs don't have virtual setters
                 }
                 else
                 {
