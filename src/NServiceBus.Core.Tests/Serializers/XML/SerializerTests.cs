@@ -67,6 +67,47 @@ namespace NServiceBus.Serializers.XML.Test
             }
         }
 
+        [Test]
+        public void Should_handle_struct_message()
+        {
+            var message = new StructMessage
+            {
+                SomeProperty = "property",
+                SomeField = "field"
+            };
+
+            var serializer = SerializerFactory.Create<StructMessage>();
+
+            using (var stream = new MemoryStream())
+            {
+                serializer.Serialize(message, stream);
+                stream.Position = 0;
+
+                var result = (StructMessage)serializer.Deserialize(stream)[0];
+
+                Assert.AreEqual(message.SomeField, result.SomeField);
+                Assert.AreEqual(message.SomeProperty, result.SomeProperty);
+            }
+        }
+
+        [Test] //note: This is not a desired behavior, but this test documents this limitation
+        public void Limitation_Does_not_handle_message_with_struct_property()
+        {
+            var message = new MessageWithStructProperty();
+
+            var serializer = SerializerFactory.Create<MessageWithStructProperty>();
+
+            using (var stream = new MemoryStream())
+            {
+                serializer.Serialize(message, stream);
+                stream.Position = 0;
+
+                var ex = Assert.Throws<Exception>(() => serializer.Deserialize(stream));
+
+                StringAssert.StartsWith("Type not supported by the serializer", ex.Message);
+            }
+        }
+
         [Test] //note: This is not a desired behavior, but this test documents this limitation
         public void Limitation_Does_not_handle_concrete_message_with_invalid_interface_property()
         {
@@ -1170,6 +1211,23 @@ namespace NServiceBus.Serializers.XML.Test
 
     public class EmptyMessage : IMessage
     {
+    }
+
+    public struct StructMessage : IMessage
+    {
+        public string SomeProperty { get; set; }
+
+        public string SomeField;
+    }
+
+    public class MessageWithStructProperty : IMessage
+    {
+        public SomeStruct StructProperty { get; set; }
+
+        public struct SomeStruct
+        {
+
+        }
     }
 
     public class PolyMessage : IMessage

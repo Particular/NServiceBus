@@ -61,13 +61,22 @@ namespace NServiceBus
                 var gen = method.GetILGenerator();
 
                 gen.Emit(OpCodes.Ldarg_0); // Load input to stack
-                gen.Emit(OpCodes.Castclass, sourceType); // Cast to source type
+
+                if (sourceType.IsValueType)
+                {
+                    gen.Emit(OpCodes.Unbox, sourceType);  //this is a struct so unbox
+                }
+                else
+                {
+                    gen.Emit(OpCodes.Castclass, sourceType); // Cast to source type
+                }
+
                 gen.Emit(OpCodes.Ldarg_1); // Load value to stack
                 gen.Emit(OpCodes.Unbox_Any, field.FieldType); // Unbox the value to its proper value type
                 gen.Emit(OpCodes.Stfld, field); // Set the value to the input field
                 gen.Emit(OpCodes.Ret);
 
-                callback = (Action<object, object>) method.CreateDelegate(typeof(Action<object, object>));
+                callback = (Action<object, object>)method.CreateDelegate(typeof(Action<object, object>));
                 FieldInfoToLateBoundFieldSet[field] = callback;
             }
 
@@ -89,13 +98,31 @@ namespace NServiceBus
                 var setter = property.GetSetMethod(true);
 
                 gen.Emit(OpCodes.Ldarg_0); // Load input to stack
-                gen.Emit(OpCodes.Castclass, sourceType); // Cast to source type
+
+                if (sourceType.IsValueType)
+                {
+                    gen.Emit(OpCodes.Unbox, sourceType);  //this is a struct so unbox
+                }
+                else
+                {
+                    gen.Emit(OpCodes.Castclass, sourceType); // Cast to source type
+                }
+
                 gen.Emit(OpCodes.Ldarg_1); // Load value to stack
                 gen.Emit(OpCodes.Unbox_Any, property.PropertyType); // Unbox the value to its proper value type
-                gen.Emit(OpCodes.Callvirt, setter); // Call the setter method
+
+                if (sourceType.IsValueType && !sourceType.IsSimpleType())
+                {
+                    gen.Emit(OpCodes.Call, setter); // structs don't have virtual setters
+                }
+                else
+                {
+                    gen.Emit(OpCodes.Callvirt, setter); // Call the setter method
+                }
+
                 gen.Emit(OpCodes.Ret);
 
-                result = (Action<object, object>) method.CreateDelegate(typeof(Action<object, object>));
+                result = (Action<object, object>)method.CreateDelegate(typeof(Action<object, object>));
                 PropertyInfoToLateBoundPropertySet[property] = result;
             }
 
