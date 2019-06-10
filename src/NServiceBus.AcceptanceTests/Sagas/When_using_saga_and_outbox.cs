@@ -13,13 +13,19 @@
         [Test]
         public async Task Should_not_overwrite_each_other()
         {
+            // The test is still valid if Outbox persistence is not available. Only turn it on if it's offered.
+            var enableOutbox = TestSuiteConstraints.Current.SupportsOutbox;
+
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<EndpointWithSagaAndOutbox>(b =>
                 {
                     b.DoNotFailOnErrorMessages();
                     b.CustomConfig(cfg =>
                     {
-                        cfg.EnableOutbox();
+                        if (enableOutbox)
+                        {
+                            cfg.EnableOutbox();
+                        }
                         cfg.Recoverability().Immediate(x => x.NumberOfRetries(5));
                     });
                     b.When((session, ctx) => session.SendLocal(new StartMsg { OrderId = "12345" }));
@@ -99,9 +105,9 @@
 
             public class OrderSagaData : ContainSagaData
             {
-                public string OrderId { get; set; }
-                public int ContinueCount { get; set; }
-                public List<int> CollectedIndexes { get; set; } = new List<int>();
+                public virtual string OrderId { get; set; }
+                public virtual int ContinueCount { get; set; }
+                public virtual List<int> CollectedIndexes { get; set; } = new List<int>();
             }
         }
 
