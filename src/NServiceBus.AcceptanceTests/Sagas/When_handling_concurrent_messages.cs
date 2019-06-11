@@ -8,13 +8,17 @@
     using EndpointTemplates;
     using NUnit.Framework;
 
-    public class When_using_saga_and_outbox : NServiceBusAcceptanceTest
+    public class When_handling_concurrent_messages : NServiceBusAcceptanceTest
     {
-        [Test]
-        public async Task Should_not_overwrite_each_other()
+        [TestCase(false)]
+        [TestCase(true)]
+        public async Task Should_not_overwrite_each_other(bool useOutbox)
         {
-            // The test is still valid if Outbox persistence is not available. Only turn it on if it's offered.
-            var enableOutbox = TestSuiteConstraints.Current.SupportsOutbox;
+            // The true case provides a good test of the combination of Saga and Outbox together.
+            if (useOutbox)
+            {
+                Requires.OutboxPersistence();
+            }
 
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<EndpointWithSagaAndOutbox>(b =>
@@ -22,7 +26,7 @@
                     b.DoNotFailOnErrorMessages();
                     b.CustomConfig(cfg =>
                     {
-                        if (enableOutbox)
+                        if (useOutbox)
                         {
                             cfg.EnableOutbox();
                         }
