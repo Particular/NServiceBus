@@ -1,5 +1,7 @@
 ﻿namespace NServiceBus.Features
 {
+    using Gateway.Deduplication;
+
     /// <summary>
     /// In-memory Gateway.
     /// </summary>
@@ -8,6 +10,10 @@
         internal InMemoryGatewayPersistence()
         {
             DependsOn("NServiceBus.Features.Gateway");
+            Defaults(s =>
+            {
+                s.SetDefault(MaxSizeKey, MaxSizeDefault);
+            });
         }
 
         /// <summary>
@@ -15,7 +21,11 @@
         /// </summary>
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-            context.Container.ConfigureComponent<InMemoryGatewayDeduplication>(DependencyLifecycle.SingleInstance);
+            var maxSize = context.Settings.Get<int>(MaxSizeKey);
+            context.Container.RegisterSingleton<IDeduplicateMessages>(new InMemoryGatewayDeduplication(maxSize));
         }
+
+        const string MaxSizeKey = "InMemoryGatewayDeduplication.MaxSize";
+        const int MaxSizeDefault = 10000;
     }
 }
