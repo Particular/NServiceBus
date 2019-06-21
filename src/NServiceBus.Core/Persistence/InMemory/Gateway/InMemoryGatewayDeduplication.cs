@@ -2,63 +2,47 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
     using System.Threading.Tasks;
     using Extensibility;
     using Gateway.Deduplication;
 
     class InMemoryGatewayDeduplication : IDeduplicateMessages
     {
+        public InMemoryGatewayDeduplication(int maxSize)
+        {
+            this.maxSize = maxSize;
+        }
+
         public Task<bool> DeduplicateMessage(string clientId, DateTime timeReceived, ContextBag context)
         {
-            lock (persistence)
+            lock (clientIdSet)
             {
-                var item = persistence.SingleOrDefault(m => m.Id == clientId);
-                if (item != null)
+                // Return FALSE if item EXISTS, TRUE if ADDED
+                if (clientIdSet.TryGetValue(clientId, out var existingNode)) // O(1)
                 {
+                    clientIdList.Remove(existingNode); // O(1) operation, because we got the node reference
+                    clientIdList.AddLast(existingNode); // O(1) operation
                     return TaskEx.FalseTask;
                 }
-
-                return Task.FromResult(persistence.Add(new GatewayMessage
+                else
                 {
-                    Id = clientId,
-                    TimeReceived = timeReceived
-                }));
+                    if (clientIdSet.Count == maxSize)
+                    {
+                        var id = clientIdList.First.Value;
+                        clientIdSet.Remove(id); // O(1)
+                        clientIdList.RemoveFirst(); // O(1)
+                    }
+
+                    var node = clientIdList.AddLast(clientId); // O(1)
+                    clientIdSet.Add(clientId, node); // O(1)
+
+                    return TaskEx.TrueTask;
+                }
             }
         }
 
-        public int DeleteDeliveredMessages(DateTime until)
-        {
-            int count;
-            lock (persistence)
-            {
-                var items = persistence.Where(msg => msg.TimeReceived <= until).ToList();
-                count = items.Count;
-
-                items.ForEach(item => persistence.Remove(item));
-            }
-            return count;
-        }
-
-        ISet<GatewayMessage> persistence = new HashSet<GatewayMessage>(new MessageDataComparer());
-
-        class MessageDataComparer : IEqualityComparer<GatewayMessage>
-        {
-            public bool Equals(GatewayMessage x, GatewayMessage y)
-            {
-                return x.Id == y.Id;
-            }
-
-            public int GetHashCode(GatewayMessage obj)
-            {
-                return obj.Id.GetHashCode();
-            }
-        }
-
-        class GatewayMessage
-        {
-            public string Id { get; set; }
-            public DateTime TimeReceived { get; set; }
-        }
+        readonly int maxSize;
+        readonly LinkedList<string> clientIdList = new LinkedList<string>();
+        readonly Dictionary<string, LinkedListNode<string>> clientIdSet = new Dictionary<string, LinkedListNode<string>>();
     }
 }
