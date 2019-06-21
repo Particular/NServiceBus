@@ -1,5 +1,6 @@
 ﻿namespace NServiceBus.Features
 {
+    using System.Linq;
     using System.Threading.Tasks;
     using Extensibility;
     using Janitor;
@@ -26,15 +27,15 @@
 
             context.Container.ConfigureComponent(b =>
             {
-                var storage = context.Container.HasComponent<IOutboxStorage>() ? b.Build<IOutboxStorage>() : new NoOpOutbox();
+                var storage = b.BuildAll<IOutboxStorage>().SingleOrDefault() ?? new NoOpOutbox();
 
                 return new TransportReceiveToPhysicalMessageProcessingConnector(storage);
             }, DependencyLifecycle.InstancePerCall);
 
             context.Container.ConfigureComponent(b =>
             {
-                var adapter = context.Container.HasComponent<ISynchronizedStorageAdapter>() ? b.Build<ISynchronizedStorageAdapter>() : new NoOpAdapter();
-                var syncStorage = context.Container.HasComponent<ISynchronizedStorage>() ? b.Build<ISynchronizedStorage>() : new NoOpSynchronizedStorage();
+                var adapter = b.BuildAll<ISynchronizedStorageAdapter>().SingleOrDefault() ?? new NoOpAdapter();
+                var syncStorage = b.BuildAll<ISynchronizedStorage>().SingleOrDefault() ?? new NoOpSynchronizedStorage();
 
                 return new LoadHandlersConnector(b.Build<MessageHandlerRegistry>(), syncStorage, adapter);
             }, DependencyLifecycle.InstancePerCall);

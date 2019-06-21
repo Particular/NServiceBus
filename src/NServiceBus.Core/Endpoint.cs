@@ -11,11 +11,36 @@ namespace NServiceBus
         /// Creates a new startable endpoint based on the provided configuration.
         /// </summary>
         /// <param name="configuration">Configuration.</param>
-        public static Task<IStartableEndpoint> Create(EndpointConfiguration configuration)
+        public static IConfiguredEndpoint Configure(ExternalContainerEndpointConfiguration configuration)
         {
             Guard.AgainstNull(nameof(configuration), configuration);
-            var initializable = configuration.Build();
-            return initializable.Initialize();
+
+            return configuration.Configure();
+        }
+
+        /// <summary>
+        /// Creates a new startable endpoint based on the provided configuration.
+        /// </summary>
+        /// <param name="configuration">Configuration.</param>
+        public static IInstallableEndpoint Configure(EndpointConfiguration configuration)
+        {
+            Guard.AgainstNull(nameof(configuration), configuration);
+
+            return configuration.Configure();
+        }
+
+        /// <summary>
+        /// Creates a new startable endpoint based on the provided configuration.
+        /// </summary>
+        /// <param name="configuration">Configuration.</param>
+        public static async Task<IStartableEndpoint> Create(EndpointConfiguration configuration)
+        {
+            Guard.AgainstNull(nameof(configuration), configuration);
+            var installable = configuration.Configure();
+
+            var startable = await installable.Install().ConfigureAwait(false);
+
+            return startable;
         }
 
         /// <summary>

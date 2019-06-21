@@ -9,18 +9,16 @@ namespace NServiceBus
     using MessageInterfaces;
     using MessageInterfaces.MessageMapper.Reflection;
     using ObjectBuilder;
-    using ObjectBuilder.Common;
     using Pipeline;
     using Routing;
     using Routing.MessageDrivenSubscriptions;
     using Settings;
     using Transport;
 
-    class InitializableEndpoint
+    class ConfigurableEndpoint
     {
-        public InitializableEndpoint(SettingsHolder settings,
-            IContainer container,
-            List<Action<IConfigureComponents>> registrations,
+        public ConfigurableEndpoint(SettingsHolder settings,
+            IConfigureComponents configurator,
             PipelineSettings pipelineSettings,
             PipelineConfiguration pipelineConfiguration)
         {
@@ -28,14 +26,12 @@ namespace NServiceBus
             this.pipelineSettings = pipelineSettings;
             this.pipelineConfiguration = pipelineConfiguration;
 
-            RegisterContainerAdapter(container);
-            RunUserRegistrations(registrations);
-
-            this.container.RegisterSingleton(this);
-            this.container.RegisterSingleton<ReadOnlySettings>(settings);
+            this.configurator = configurator;
+            this.configurator.RegisterSingleton(this);
+            this.configurator.RegisterSingleton<ReadOnlySettings>(settings);
         }
 
-        public async Task<IStartableEndpoint> Initialize()
+        public IConfiguredEndpoint Configure()
         {
             RegisterCriticalErrorHandler();
 
@@ -56,31 +52,20 @@ namespace NServiceBus
             var messageMapper = new MessageMapper();
             settings.Set<IMessageMapper>(messageMapper);
 
-            var featureStats = featureActivator.SetupFeatures(container, pipelineSettings, routing, receiveConfiguration);
+            var featureStats = featureActivator.SetupFeatures(configurator, pipelineSettings, routing, receiveConfiguration);
             settings.AddStartupDiagnosticsSection("Features", featureStats);
 
-            pipelineConfiguration.RegisterBehaviorsInContainer(container);
+            pipelineConfiguration.RegisterBehaviorsInContainer(configurator);
 
-            container.ConfigureComponent(b => settings.Get<Notifications>(), DependencyLifecycle.SingleInstance);
+            configurator.ConfigureComponent(b => settings.Get<Notifications>(), DependencyLifecycle.SingleInstance);
 
             var eventAggregator = new EventAggregator(settings.Get<NotificationSubscriptions>());
-            var pipelineCache = new PipelineCache(builder, settings);
             var queueBindings = settings.Get<QueueBindings>();
 
-            var receiveComponent = CreateReceiveComponent(receiveConfiguration, transportInfrastructure, queueBindings, pipelineCache, eventAggregator, messageMapper);
-
             var shouldRunInstallers = settings.GetOrDefault<bool>("Installers.Enable");
-
             if (shouldRunInstallers)
             {
-                var username = GetInstallationUserName();
-
-                if (settings.CreateQueues())
-                {
-                    await receiveComponent.CreateQueuesIfNecessary(queueBindings, username).ConfigureAwait(false);
-                }
-
-                await RunInstallers(concreteTypes, username).ConfigureAwait(false);
+                ConfigureInstallers(concreteTypes);
             }
 
             settings.AddStartupDiagnosticsSection("Endpoint",
@@ -92,9 +77,12 @@ namespace NServiceBus
                 }
             );
 
-            var messageSession = new MessageSession(new RootContext(builder, pipelineCache, eventAggregator, messageMapper));
+            var builderReference = new BuilderReference();
+            configurator.ConfigureComponent(_ => builderReference.GetBuilder(), DependencyLifecycle.SingleInstance);
 
-            return new StartableEndpoint(settings, builder, featureActivator, transportInfrastructure, receiveComponent, criticalError, messageSession);
+            var configuredEndpoint = new ConfiguredEndpoint(settings, featureActivator, transportInfrastructure, receiveConfiguration, criticalError, queueBindings, eventAggregator, messageMapper, pipelineConfiguration);
+
+            return configuredEndpoint;
         }
 
         RoutingComponent InitializeRouting(TransportInfrastructure transportInfrastructure, ReceiveConfiguration receiveConfiguration)
@@ -149,50 +137,7 @@ namespace NServiceBus
             return receiveConfiguration;
         }
 
-        ReceiveComponent CreateReceiveComponent(ReceiveConfiguration receiveConfiguration,
-            TransportInfrastructure transportInfrastructure,
-            QueueBindings queueBindings,
-            IPipelineCache pipelineCache,
-            EventAggregator eventAggregator,
-            IMessageMapper messageMapper)
-        {
-            var errorQueue = settings.ErrorQueueAddress();
-
-            var receiveComponent = new ReceiveComponent(receiveConfiguration,
-                receiveConfiguration != null ? transportInfrastructure.ConfigureReceiveInfrastructure() : null, //don't create the receive infrastructure for send-only endpoints
-                pipelineCache,
-                pipelineConfiguration,
-                eventAggregator,
-                builder,
-                criticalError,
-                errorQueue,
-                messageMapper);
-
-            receiveComponent.BindQueues(queueBindings);
-
-            if (receiveConfiguration != null)
-            {
-                settings.AddStartupDiagnosticsSection("Receiving", new
-                {
-                    receiveConfiguration.LocalAddress,
-                    receiveConfiguration.InstanceSpecificQueue,
-                    receiveConfiguration.LogicalAddress,
-                    receiveConfiguration.PurgeOnStartup,
-                    receiveConfiguration.QueueNameBase,
-                    TransactionMode = receiveConfiguration.TransactionMode.ToString("G"),
-                    receiveConfiguration.PushRuntimeSettings.MaxConcurrency,
-                    Satellites = receiveConfiguration.SatelliteDefinitions.Select(s => new
-                    {
-                        s.Name,
-                        s.ReceiveAddress,
-                        TransactionMode = s.RequiredTransportTransactionMode.ToString("G"),
-                        s.RuntimeSettings.MaxConcurrency
-                    }).ToArray()
-                });
-            }
-
-            return receiveComponent;
-        }
+        
 
         static bool IsConcrete(Type x)
         {
@@ -232,61 +177,20 @@ namespace NServiceBus
         {
             settings.TryGet("onCriticalErrorAction", out Func<ICriticalErrorContext, Task> errorAction);
             criticalError = new CriticalError(errorAction);
-            container.RegisterSingleton(criticalError);
+            configurator.RegisterSingleton(criticalError);
         }
-
-        void RunUserRegistrations(List<Action<IConfigureComponents>> registrations)
-        {
-            foreach (var registration in registrations)
-            {
-                registration(container);
-            }
-        }
-
-        void RegisterContainerAdapter(IContainer containerToAdapt)
-        {
-            var b = new CommonObjectBuilder(containerToAdapt);
-
-            builder = b;
-            container = b;
-
-            container.ConfigureComponent<IBuilder>(_ => b, DependencyLifecycle.SingleInstance);
-        }
-
-        async Task RunInstallers(IEnumerable<Type> concreteTypes, string username)
+        
+        void ConfigureInstallers(IEnumerable<Type> concreteTypes)
         {
             foreach (var installerType in concreteTypes.Where(t => IsINeedToInstallSomething(t)))
             {
-                container.ConfigureComponent(installerType, DependencyLifecycle.InstancePerCall);
-            }
-
-            foreach (var installer in builder.BuildAll<INeedToInstallSomething>())
-            {
-                await installer.Install(username).ConfigureAwait(false);
+                configurator.ConfigureComponent(installerType, DependencyLifecycle.InstancePerCall);
             }
         }
 
         static bool IsINeedToInstallSomething(Type t) => typeof(INeedToInstallSomething).IsAssignableFrom(t);
 
-        string GetInstallationUserName()
-        {
-            if (!settings.TryGet("Installers.UserName", out string userName))
-            {
-                if (Environment.OSVersion.Platform == PlatformID.Win32NT)
-                {
-                    userName = $"{Environment.UserDomainName}\\{Environment.UserName}";
-                }
-                else
-                {
-                    userName = Environment.UserName;
-                }
-            }
-
-            return userName;
-        }
-
-        IBuilder builder;
-        IConfigureComponents container;
+        IConfigureComponents configurator;
         PipelineConfiguration pipelineConfiguration;
         PipelineSettings pipelineSettings;
         SettingsHolder settings;

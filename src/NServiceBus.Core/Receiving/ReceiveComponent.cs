@@ -17,7 +17,6 @@ namespace NServiceBus
             IPipelineCache pipelineCache,
             PipelineConfiguration pipelineConfiguration,
             IEventAggregator eventAggregator,
-            IBuilder builder,
             CriticalError criticalError,
             string errorQueue,
             IMessageMapper messageMapper)
@@ -27,7 +26,6 @@ namespace NServiceBus
             this.pipelineCache = pipelineCache;
             this.pipelineConfiguration = pipelineConfiguration;
             this.eventAggregator = eventAggregator;
-            this.builder = builder;
             this.criticalError = criticalError;
             this.errorQueue = errorQueue;
             this.messageMapper = messageMapper;
@@ -53,7 +51,7 @@ namespace NServiceBus
             }
         }
 
-        public async Task Initialize()
+        public async Task Initialize(IBuilder builder)
         {
             if (IsSendOnly)
             {
@@ -68,7 +66,7 @@ namespace NServiceBus
                 Logger.Warn("All queues owned by the endpoint will be purged on startup.");
             }
 
-            AddReceivers();
+            AddReceivers(builder);
 
             foreach (var receiver in receivers)
             {
@@ -141,7 +139,7 @@ namespace NServiceBus
 
         bool IsSendOnly => configuration == null;
 
-        void AddReceivers()
+        void AddReceivers(IBuilder builder)
         {
             var requiredTransactionSupport = configuration.TransactionMode;
             var recoverabilityExecutorFactory = builder.Build<RecoverabilityExecutorFactory>();
@@ -182,7 +180,6 @@ namespace NServiceBus
         PipelineConfiguration pipelineConfiguration;
         IPipelineExecutor mainPipelineExecutor;
         IEventAggregator eventAggregator;
-        IBuilder builder;
         CriticalError criticalError;
         string errorQueue;
         IMessageMapper messageMapper;
