@@ -553,6 +553,10 @@ namespace NServiceBus
     {
         void Customize(NServiceBus.EndpointConfiguration configuration);
     }
+    public class static InMemoryGatewayPersistenceConfigurationExtensions
+    {
+        public static void GatewayDeduplicationCacheSize(this NServiceBus.PersistenceExtensions<NServiceBus.InMemoryPersistence> persistenceExtensions, int maxSize) { }
+    }
     public class InMemoryPersistence : NServiceBus.Persistence.PersistenceDefinition { }
     public class static InstallConfigExtensions
     {
