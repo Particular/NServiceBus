@@ -6,7 +6,8 @@ public class ConfigureEndpointInMemoryPersistence : IConfigureEndpointTestExecut
 {
     public Task Configure(string endpointName, EndpointConfiguration configuration, RunSettings settings, PublisherMetadata publisherMetadata)
     {
-        configuration.UsePersistence<InMemoryPersistence>();
+        configuration.UsePersistence<InMemoryPersistence>()
+            .GatewayDeduplicationCacheSize(100);
         return Task.FromResult(0);
     }
 
