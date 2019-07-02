@@ -1463,10 +1463,15 @@ namespace NServiceBus.Faults
 {
     public class DelayedRetryMessage
     {
+        public DelayedRetryMessage(string messageId, System.Collections.Generic.Dictionary<string, string> headers, byte[] body, System.Exception exception, int retryAttempt) { }
+        [System.ObsoleteAttribute("Use `DelayedRetryMessage(string messageId, Dictionary<string, string> headers, by" +
+            "te[] body, Exception exception, int retryAttempt)` instead. Will be removed in v" +
+            "ersion 8.0.0.", true)]
         public DelayedRetryMessage(System.Collections.Generic.Dictionary<string, string> headers, byte[] body, System.Exception exception, int retryAttempt) { }
         public byte[] Body { get; }
         public System.Exception Exception { get; }
         public System.Collections.Generic.Dictionary<string, string> Headers { get; }
+        public string MessageId { get; }
         public int RetryAttempt { get; }
     }
     public class ErrorsNotifications
