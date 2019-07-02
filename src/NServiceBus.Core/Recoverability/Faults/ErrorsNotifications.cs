@@ -45,6 +45,7 @@ namespace NServiceBus.Faults
         internal void InvokeMessageHasBeenSentToDelayedRetries(int delayedRetryAttempt, IncomingMessage message, Exception exception)
         {
             MessageHasBeenSentToDelayedRetries?.Invoke(this, new DelayedRetryMessage(
+                message.MessageId,
                 new Dictionary<string, string>(message.Headers),
                 CopyOfBody(message.Body),
                 exception,
