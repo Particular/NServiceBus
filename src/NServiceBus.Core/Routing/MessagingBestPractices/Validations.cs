@@ -20,7 +20,7 @@ namespace NServiceBus
             {
                 return;
             }
-            throw new Exception("Events can have multiple recipient so they should be published.");
+            throw new Exception($"Best practice violation by message '{messageType.FullName}'. Events can have multiple recipient so they should be published.");
         }
 
         public void AssertIsValidForReply(Type messageType)
@@ -33,14 +33,14 @@ namespace NServiceBus
             {
                 return;
             }
-            throw new Exception("Reply is neither supported for Commands nor Events. Commands should be sent to their logical owner. Events should be published.");
+            throw new Exception($"Best practice violation by message '{messageType.FullName}'. Reply is neither supported for Commands nor Events. Commands should be sent to their logical owner. Events should be published.");
         }
 
         public void AssertIsValidForPubSub(Type messageType)
         {
             if (conventions.IsCommandType(messageType))
             {
-                throw new Exception("Pub/Sub is not supported for Commands. They should be be sent direct to their logical owner.");
+                throw new Exception($"Best practice violation by message '{messageType.FullName}'. Pub/Sub is not supported for Commands. They should be be sent direct to their logical owner.");
             }
 
             if (!conventions.IsEventType(messageType))

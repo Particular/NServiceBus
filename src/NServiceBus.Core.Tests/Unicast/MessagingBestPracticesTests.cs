@@ -14,7 +14,7 @@
             {
                 var invalidOperationException = Assert.Throws<Exception>(() =>
                         new Validations(new Conventions()).AssertIsValidForReply(typeof(MyCommand)));
-                Assert.AreEqual("Reply is neither supported for Commands nor Events. Commands should be sent to their logical owner. Events should be published.", invalidOperationException.Message);
+                Assert.AreEqual($"Best practice violation by message '{typeof(MyCommand).FullName}'. Reply is neither supported for Commands nor Events. Commands should be sent to their logical owner. Events should be published.", invalidOperationException.Message);
             }
 
             [Test]
@@ -22,7 +22,7 @@
             {
                 var invalidOperationException = Assert.Throws<Exception>(() =>
                         new Validations(new Conventions()).AssertIsValidForReply(typeof(MyEvent)));
-                Assert.AreEqual("Reply is neither supported for Commands nor Events. Commands should be sent to their logical owner. Events should be published.", invalidOperationException.Message);
+                Assert.AreEqual($"Best practice violation by message '{typeof(MyEvent).FullName}'. Reply is neither supported for Commands nor Events. Commands should be sent to their logical owner. Events should be published.", invalidOperationException.Message);
             }
 
             [Test]
@@ -41,7 +41,7 @@
             {
                 var invalidOperationException = Assert.Throws<Exception>(() =>
                         new Validations(new Conventions()).AssertIsValidForPubSub(typeof(MyCommand)));
-                Assert.AreEqual("Pub/Sub is not supported for Commands. They should be be sent direct to their logical owner.", invalidOperationException.Message);
+                Assert.AreEqual($"Best practice violation by message '{typeof(MyCommand).FullName}'. Pub/Sub is not supported for Commands. They should be be sent direct to their logical owner.", invalidOperationException.Message);
             }
 
             [Test]
