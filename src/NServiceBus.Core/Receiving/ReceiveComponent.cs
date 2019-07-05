@@ -5,32 +5,26 @@ namespace NServiceBus
     using System.Linq;
     using System.Threading.Tasks;
     using Logging;
-    using MessageInterfaces;
     using ObjectBuilder;
-    using Pipeline;
     using Transport;
 
     class ReceiveComponent
     {
         public ReceiveComponent(ReceiveConfiguration configuration,
             TransportReceiveInfrastructure receiveInfrastructure,
-            IPipelineCache pipelineCache,
-            PipelineConfiguration pipelineConfiguration,
             IEventAggregator eventAggregator,
             IBuilder builder,
             CriticalError criticalError,
             string errorQueue,
-            IMessageMapper messageMapper)
+            IPipelineExecutor mainPipelineExecutor)
         {
             this.configuration = configuration;
             this.receiveInfrastructure = receiveInfrastructure;
-            this.pipelineCache = pipelineCache;
-            this.pipelineConfiguration = pipelineConfiguration;
             this.eventAggregator = eventAggregator;
             this.builder = builder;
             this.criticalError = criticalError;
             this.errorQueue = errorQueue;
-            this.messageMapper = messageMapper;
+            this.mainPipelineExecutor = mainPipelineExecutor;
         }
 
         public void BindQueues(QueueBindings queueBindings)
@@ -59,9 +53,6 @@ namespace NServiceBus
             {
                 return;
             }
-
-            var mainPipeline = new Pipeline<ITransportReceiveContext>(builder, pipelineConfiguration.Modifications);
-            mainPipelineExecutor = new MainPipelineExecutor(builder, eventAggregator, pipelineCache, mainPipeline, messageMapper);
 
             if (configuration.PurgeOnStartup)
             {
@@ -178,14 +169,11 @@ namespace NServiceBus
         ReceiveConfiguration configuration;
         List<TransportReceiver> receivers = new List<TransportReceiver>();
         TransportReceiveInfrastructure receiveInfrastructure;
-        IPipelineCache pipelineCache;
-        PipelineConfiguration pipelineConfiguration;
         IPipelineExecutor mainPipelineExecutor;
         IEventAggregator eventAggregator;
         IBuilder builder;
         CriticalError criticalError;
         string errorQueue;
-        IMessageMapper messageMapper;
 
         const string MainReceiverId = "Main";
 

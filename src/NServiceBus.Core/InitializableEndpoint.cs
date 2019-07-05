@@ -66,7 +66,9 @@ namespace NServiceBus
             var pipelineCache = new PipelineCache(builder, settings);
             var queueBindings = settings.Get<QueueBindings>();
 
-            var receiveComponent = CreateReceiveComponent(receiveConfiguration, transportInfrastructure, queueBindings, pipelineCache, eventAggregator, messageMapper);
+            var mainPipeline = new Pipeline<ITransportReceiveContext>(builder, pipelineConfiguration.Modifications);
+            var mainPipelineExecutor = new MainPipelineExecutor(builder, eventAggregator, pipelineCache, mainPipeline, messageMapper);
+            var receiveComponent = CreateReceiveComponent(receiveConfiguration, transportInfrastructure, queueBindings, eventAggregator, mainPipelineExecutor);
 
             var shouldRunInstallers = settings.GetOrDefault<bool>("Installers.Enable");
 
@@ -151,21 +153,18 @@ namespace NServiceBus
         ReceiveComponent CreateReceiveComponent(ReceiveConfiguration receiveConfiguration,
             TransportInfrastructure transportInfrastructure,
             QueueBindings queueBindings,
-            IPipelineCache pipelineCache,
             EventAggregator eventAggregator,
-            IMessageMapper messageMapper)
+            IPipelineExecutor mainPipelineExecutor)
         {
             var errorQueue = settings.ErrorQueueAddress();
 
             var receiveComponent = new ReceiveComponent(receiveConfiguration,
                 receiveConfiguration != null ? transportInfrastructure.ConfigureReceiveInfrastructure() : null, //don't create the receive infrastructure for send-only endpoints
-                pipelineCache,
-                pipelineConfiguration,
                 eventAggregator,
                 builder,
                 criticalError,
                 errorQueue,
-                messageMapper);
+                mainPipelineExecutor);
 
             receiveComponent.BindQueues(queueBindings);
 
