@@ -56,6 +56,7 @@ namespace NServiceBus
             settings.Set<IMessageMapper>(messageMapper);
 
             var featureStats = featureActivator.SetupFeatures(container, pipelineSettings, routing, receiveConfiguration);
+            settings.PreventChanges();
             settings.AddStartupDiagnosticsSection("Features", featureStats);
 
             pipelineConfiguration.RegisterBehaviorsInContainer(container);
@@ -72,7 +73,6 @@ namespace NServiceBus
             var receiveComponent = CreateReceiveComponent(receiveConfiguration, transportInfrastructure, queueBindings, eventAggregator, mainPipelineExecutor);
 
             var shouldRunInstallers = settings.GetOrDefault<bool>("Installers.Enable");
-
             if (shouldRunInstallers)
             {
                 var username = GetInstallationUserName();
