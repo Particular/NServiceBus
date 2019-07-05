@@ -10,7 +10,7 @@ namespace NServiceBus
 
     class StartableEndpoint : IStartableEndpoint
     {
-        public StartableEndpoint(SettingsHolder settings, IBuilder builder, FeatureActivator featureActivator, TransportInfrastructure transportInfrastructure, ReceiveComponent receiveComponent, CriticalError criticalError, IMessageSession messageSession)
+        public StartableEndpoint(SettingsHolder settings, IBuilder builder, FeatureActivator featureActivator, TransportInfrastructure transportInfrastructure, IReceiveComponent receiveComponent, CriticalError criticalError, IMessageSession messageSession)
         {
             this.criticalError = criticalError;
             this.settings = settings;
@@ -55,7 +55,7 @@ namespace NServiceBus
         FeatureActivator featureActivator;
         SettingsHolder settings;
         TransportInfrastructure transportInfrastructure;
-        ReceiveComponent receiveComponent;
+        IReceiveComponent receiveComponent;
         CriticalError criticalError;
     }
 }

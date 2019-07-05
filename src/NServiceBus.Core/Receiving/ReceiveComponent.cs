@@ -8,7 +8,7 @@ namespace NServiceBus
     using ObjectBuilder;
     using Transport;
 
-    class ReceiveComponent
+    class ReceiveComponent : IReceiveComponent
     {
         public ReceiveComponent(ReceiveConfiguration configuration,
             TransportReceiveInfrastructure receiveInfrastructure,
@@ -29,11 +29,6 @@ namespace NServiceBus
 
         public void BindQueues(QueueBindings queueBindings)
         {
-            if (IsSendOnly)
-            {
-                return;
-            }
-
             queueBindings.BindReceiving(configuration.LocalAddress);
 
             if (configuration.InstanceSpecificQueue != null)
@@ -49,11 +44,6 @@ namespace NServiceBus
 
         public async Task Initialize()
         {
-            if (IsSendOnly)
-            {
-                return;
-            }
-
             if (configuration.PurgeOnStartup)
             {
                 Logger.Warn("All queues owned by the endpoint will be purged on startup.");
@@ -105,11 +95,6 @@ namespace NServiceBus
 
         public Task CreateQueuesIfNecessary(QueueBindings queueBindings, string username)
         {
-            if (IsSendOnly)
-            {
-                return TaskEx.CompletedTask;
-            }
-
             var queueCreator = receiveInfrastructure.QueueCreatorFactory();
 
             return queueCreator.CreateQueueIfNecessary(queueBindings, username);
@@ -117,11 +102,6 @@ namespace NServiceBus
 
         public async Task PerformPreStartupChecks()
         {
-            if (IsSendOnly)
-            {
-                return;
-            }
-
             var result = await receiveInfrastructure.PreStartupCheck().ConfigureAwait(false);
 
             if (!result.Succeeded)
@@ -129,8 +109,6 @@ namespace NServiceBus
                 throw new Exception($"Pre start-up check failed: {result.ErrorMessage}");
             }
         }
-
-        bool IsSendOnly => configuration == null;
 
         void AddReceivers()
         {

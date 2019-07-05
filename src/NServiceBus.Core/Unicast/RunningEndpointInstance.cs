@@ -11,7 +11,7 @@ namespace NServiceBus
 
     class RunningEndpointInstance : IEndpointInstance
     {
-        public RunningEndpointInstance(SettingsHolder settings, IBuilder builder, ReceiveComponent receiveComponent, FeatureRunner featureRunner, IMessageSession messageSession, TransportInfrastructure transportInfrastructure)
+        public RunningEndpointInstance(SettingsHolder settings, IBuilder builder, IReceiveComponent receiveComponent, FeatureRunner featureRunner, IMessageSession messageSession, TransportInfrastructure transportInfrastructure)
         {
             this.settings = settings;
             this.builder = builder;
@@ -92,7 +92,7 @@ namespace NServiceBus
         }
 
         IBuilder builder;
-        ReceiveComponent receiveComponent;
+        IReceiveComponent receiveComponent;
         FeatureRunner featureRunner;
         IMessageSession messageSession;
         TransportInfrastructure transportInfrastructure;

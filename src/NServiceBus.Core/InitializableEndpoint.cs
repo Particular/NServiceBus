@@ -63,11 +63,12 @@ namespace NServiceBus
             container.ConfigureComponent(b => settings.Get<Notifications>(), DependencyLifecycle.SingleInstance);
 
             var eventAggregator = new EventAggregator(settings.Get<NotificationSubscriptions>());
-            var pipelineCache = new PipelineCache(builder, settings);
-            var queueBindings = settings.Get<QueueBindings>();
 
+            var pipelineCache = new PipelineCache(builder, settings);
             var mainPipeline = new Pipeline<ITransportReceiveContext>(builder, pipelineConfiguration.Modifications);
             var mainPipelineExecutor = new MainPipelineExecutor(builder, eventAggregator, pipelineCache, mainPipeline, messageMapper);
+
+            var queueBindings = settings.Get<QueueBindings>();
             var receiveComponent = CreateReceiveComponent(receiveConfiguration, transportInfrastructure, queueBindings, eventAggregator, mainPipelineExecutor);
 
             var shouldRunInstallers = settings.GetOrDefault<bool>("Installers.Enable");
@@ -150,16 +151,21 @@ namespace NServiceBus
             return receiveConfiguration;
         }
 
-        ReceiveComponent CreateReceiveComponent(ReceiveConfiguration receiveConfiguration,
+        IReceiveComponent CreateReceiveComponent(ReceiveConfiguration receiveConfiguration,
             TransportInfrastructure transportInfrastructure,
             QueueBindings queueBindings,
             EventAggregator eventAggregator,
             IPipelineExecutor mainPipelineExecutor)
         {
+            if (receiveConfiguration == null)
+            {
+                return new IdleReceiveComponent();
+            }
+
             var errorQueue = settings.ErrorQueueAddress();
 
             var receiveComponent = new ReceiveComponent(receiveConfiguration,
-                receiveConfiguration != null ? transportInfrastructure.ConfigureReceiveInfrastructure() : null, //don't create the receive infrastructure for send-only endpoints
+                transportInfrastructure.ConfigureReceiveInfrastructure(),
                 eventAggregator,
                 builder,
                 criticalError,
@@ -168,26 +174,23 @@ namespace NServiceBus
 
             receiveComponent.BindQueues(queueBindings);
 
-            if (receiveConfiguration != null)
+            settings.AddStartupDiagnosticsSection("Receiving", new
             {
-                settings.AddStartupDiagnosticsSection("Receiving", new
+                receiveConfiguration.LocalAddress,
+                receiveConfiguration.InstanceSpecificQueue,
+                receiveConfiguration.LogicalAddress,
+                receiveConfiguration.PurgeOnStartup,
+                receiveConfiguration.QueueNameBase,
+                TransactionMode = receiveConfiguration.TransactionMode.ToString("G"),
+                receiveConfiguration.PushRuntimeSettings.MaxConcurrency,
+                Satellites = receiveConfiguration.SatelliteDefinitions.Select(s => new
                 {
-                    receiveConfiguration.LocalAddress,
-                    receiveConfiguration.InstanceSpecificQueue,
-                    receiveConfiguration.LogicalAddress,
-                    receiveConfiguration.PurgeOnStartup,
-                    receiveConfiguration.QueueNameBase,
-                    TransactionMode = receiveConfiguration.TransactionMode.ToString("G"),
-                    receiveConfiguration.PushRuntimeSettings.MaxConcurrency,
-                    Satellites = receiveConfiguration.SatelliteDefinitions.Select(s => new
-                    {
-                        s.Name,
-                        s.ReceiveAddress,
-                        TransactionMode = s.RequiredTransportTransactionMode.ToString("G"),
-                        s.RuntimeSettings.MaxConcurrency
-                    }).ToArray()
-                });
-            }
+                    s.Name,
+                    s.ReceiveAddress,
+                    TransactionMode = s.RequiredTransportTransactionMode.ToString("G"),
+                    s.RuntimeSettings.MaxConcurrency
+                }).ToArray()
+            });
 
             return receiveComponent;
         }
