@@ -15,7 +15,7 @@ namespace NServiceBus
         {
             Guard.AgainstNull(nameof(endpointConfiguration), endpointConfiguration);
             var type = typeof(TransportExtensions<>).MakeGenericType(typeof(T));
-            var extension = (TransportExtensions<T>) Activator.CreateInstance(type, endpointConfiguration.Settings);
+            var extension = (TransportExtensions<T>)Activator.CreateInstance(type, endpointConfiguration.Settings);
 
             var transportDefinition = new T();
             ConfigureTransport(endpointConfiguration, transportDefinition);
@@ -34,6 +34,16 @@ namespace NServiceBus
             var transportDefinition = transportDefinitionType.Construct<TransportDefinition>();
             ConfigureTransport(endpointConfiguration, transportDefinition);
             return new TransportExtensions(endpointConfiguration.Settings);
+        }
+
+        /// <summary>
+        /// Configures NServiceBus to use the given transport.
+        /// </summary>
+        public static TransportExtensions<T> UseTransport<T>(this EndpointConfiguration endpointConfiguration, T transportDefinition) where T : TransportDefinition
+        {
+            Guard.AgainstNull(nameof(endpointConfiguration), endpointConfiguration);
+            ConfigureTransport(endpointConfiguration, transportDefinition);
+            return new TransportExtensions<T>(endpointConfiguration.Settings);
         }
 
         static void ConfigureTransport(EndpointConfiguration endpointConfiguration, TransportDefinition transportDefinition)
