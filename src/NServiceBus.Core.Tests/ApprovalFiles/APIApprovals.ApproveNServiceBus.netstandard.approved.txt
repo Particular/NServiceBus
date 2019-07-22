@@ -1036,6 +1036,8 @@ namespace NServiceBus
         public static NServiceBus.TransportExtensions<T> UseTransport<T>(this NServiceBus.EndpointConfiguration endpointConfiguration)
             where T : NServiceBus.Transport.TransportDefinition, new () { }
         public static NServiceBus.TransportExtensions UseTransport(this NServiceBus.EndpointConfiguration endpointConfiguration, System.Type transportDefinitionType) { }
+        public static NServiceBus.TransportExtensions<T> UseTransport<T>(this NServiceBus.EndpointConfiguration endpointConfiguration, T transportDefinition)
+            where T : NServiceBus.Transport.TransportDefinition { }
     }
     [System.ObsoleteAttribute("Message property encryption is released as a dedicated \'NServiceBus.Encryption.Me" +
         "ssageProperty\' package. Use `NServiceBus.Encryption.MessageProperty.EncryptedStr" +
