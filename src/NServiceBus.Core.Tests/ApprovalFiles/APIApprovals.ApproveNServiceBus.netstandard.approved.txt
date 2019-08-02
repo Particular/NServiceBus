@@ -360,7 +360,7 @@ namespace NServiceBus
     public class FileShareDataBus : NServiceBus.DataBus.DataBusDefinition
     {
         public FileShareDataBus() { }
-        protected internal override System.Type ProvidedByFeature() { }
+        protected override System.Type ProvidedByFeature() { }
     }
     public class static HeaderOptionExtensions
     {
@@ -390,8 +390,8 @@ namespace NServiceBus
         public const string IsSagaTimeoutMessage = "NServiceBus.IsSagaTimeoutMessage";
         public const string MessageId = "NServiceBus.MessageId";
         public const string MessageIntent = "NServiceBus.MessageIntent";
-        public const string NonDurableMessage = "NServiceBus.NonDurableMessage";
         public const string NServiceBusVersion = "NServiceBus.Version";
+        public const string NonDurableMessage = "NServiceBus.NonDurableMessage";
         public const string OriginatingAddress = "NServiceBus.OriginatingAddress";
         public const string OriginatingEndpoint = "NServiceBus.OriginatingEndpoint";
         public const string OriginatingHostId = "$.diagnostics.originating.hostid";
@@ -534,36 +534,9 @@ namespace NServiceBus
         public static System.Threading.Tasks.Task Unsubscribe(this NServiceBus.IMessageSession session, System.Type messageType) { }
         public static System.Threading.Tasks.Task Unsubscribe<T>(this NServiceBus.IMessageSession session) { }
     }
-    public class ImmediateConfig
-    {
-        public ImmediateConfig(int maxNumberOfRetries) { }
-        public int MaxNumberOfRetries { get; }
-    }
-    public class static ImmediateDispatchOptionExtensions
-    {
-        public static bool RequiredImmediateDispatch(this NServiceBus.Extensibility.ExtendableOptions options) { }
-        public static void RequireImmediateDispatch(this NServiceBus.Extensibility.ExtendableOptions options) { }
-    }
-    public class ImmediateRetriesSettings : NServiceBus.Configuration.AdvancedExtensibility.ExposeSettings
-    {
-        public void NumberOfRetries(int numberOfRetries) { }
-    }
-    public sealed class ImmediateRetry : NServiceBus.RecoverabilityAction { }
     public interface INeedInitialization
     {
         void Customize(NServiceBus.EndpointConfiguration configuration);
-    }
-    public class static InMemoryGatewayPersistenceConfigurationExtensions
-    {
-        public static void GatewayDeduplicationCacheSize(this NServiceBus.PersistenceExtensions<NServiceBus.InMemoryPersistence> persistenceExtensions, int maxSize) { }
-    }
-    public class InMemoryPersistence : NServiceBus.Persistence.PersistenceDefinition { }
-    public class static InstallConfigExtensions
-    {
-        [System.ObsoleteAttribute("Installers are now always disabled by default. The member currently throws a NotI" +
-            "mplementedException. Will be removed in version 8.0.0.", true)]
-        public static void DisableInstallers(this NServiceBus.EndpointConfiguration config) { }
-        public static void EnableInstallers(this NServiceBus.EndpointConfiguration config, string username = null) { }
     }
     public interface IPipelineContext : NServiceBus.Extensibility.IExtendable
     {
@@ -591,6 +564,33 @@ namespace NServiceBus
     public interface IWantToRunBeforeConfigurationIsFinalized
     {
         void Run(NServiceBus.Settings.SettingsHolder settings);
+    }
+    public class ImmediateConfig
+    {
+        public ImmediateConfig(int maxNumberOfRetries) { }
+        public int MaxNumberOfRetries { get; }
+    }
+    public class static ImmediateDispatchOptionExtensions
+    {
+        public static void RequireImmediateDispatch(this NServiceBus.Extensibility.ExtendableOptions options) { }
+        public static bool RequiredImmediateDispatch(this NServiceBus.Extensibility.ExtendableOptions options) { }
+    }
+    public class ImmediateRetriesSettings : NServiceBus.Configuration.AdvancedExtensibility.ExposeSettings
+    {
+        public void NumberOfRetries(int numberOfRetries) { }
+    }
+    public sealed class ImmediateRetry : NServiceBus.RecoverabilityAction { }
+    public class static InMemoryGatewayPersistenceConfigurationExtensions
+    {
+        public static void GatewayDeduplicationCacheSize(this NServiceBus.PersistenceExtensions<NServiceBus.InMemoryPersistence> persistenceExtensions, int maxSize) { }
+    }
+    public class InMemoryPersistence : NServiceBus.Persistence.PersistenceDefinition { }
+    public class static InstallConfigExtensions
+    {
+        [System.ObsoleteAttribute("Installers are now always disabled by default. The member currently throws a NotI" +
+            "mplementedException. Will be removed in version 8.0.0.", true)]
+        public static void DisableInstallers(this NServiceBus.EndpointConfiguration config) { }
+        public static void EnableInstallers(this NServiceBus.EndpointConfiguration config, string username = null) { }
     }
     [System.ObsoleteAttribute("Json serialization is available as a dedicated \'NServiceBus.Newtonsoft.Json\' pack" +
         "age. Use `NServiceBus.NewtonsoftSerializer` instead. Will be removed in version " +
@@ -642,9 +642,9 @@ namespace NServiceBus
         public static NServiceBus.LogicalAddress CreateRemoteAddress(NServiceBus.Routing.EndpointInstance endpointInstance) { }
         public override bool Equals(object obj) { }
         public override int GetHashCode() { }
+        public override string ToString() { }
         public static bool ==(NServiceBus.LogicalAddress left, NServiceBus.LogicalAddress right) { }
         public static bool !=(NServiceBus.LogicalAddress left, NServiceBus.LogicalAddress right) { }
-        public override string ToString() { }
     }
     public class static MessageCausationConfigurationExtensions
     {
@@ -756,7 +756,7 @@ namespace NServiceBus
     }
     public abstract class RecoverabilityAction
     {
-        protected internal RecoverabilityAction() { }
+        protected RecoverabilityAction() { }
         public static NServiceBus.DelayedRetry DelayedRetry(System.TimeSpan timeSpan) { }
         public static NServiceBus.Discard Discard(string reason) { }
         public static NServiceBus.ImmediateRetry ImmediateRetry() { }
@@ -836,23 +836,36 @@ namespace NServiceBus
         public void RouteToEndpoint(System.Reflection.Assembly assembly, string destination) { }
         public void RouteToEndpoint(System.Reflection.Assembly assembly, string @namespace, string destination) { }
     }
-    public class RoutingSettings<T> : NServiceBus.RoutingSettings
-        where T : NServiceBus.Transport.TransportDefinition
-    {
-        public RoutingSettings(NServiceBus.Settings.SettingsHolder settings) { }
-    }
     public class static RoutingSettingsExtensions
     {
         public static NServiceBus.RoutingSettings Routing(this NServiceBus.TransportExtensions config) { }
         public static NServiceBus.RoutingSettings<T> Routing<T>(this NServiceBus.TransportExtensions<T> config)
             where T : NServiceBus.Transport.TransportDefinition { }
     }
+    public class RoutingSettings<T> : NServiceBus.RoutingSettings
+        where T : NServiceBus.Transport.TransportDefinition
+    {
+        public RoutingSettings(NServiceBus.Settings.SettingsHolder settings) { }
+    }
+    [System.ObsoleteAttribute("Performance counters have been released as a separate package: NServiceBus.Metric" +
+        "s.PerformanceCounters. Will be removed in version 8.0.0.", true)]
+    public class static SLAMonitoringConfig
+    {
+        [System.ObsoleteAttribute("Performance counters have been released as a separate package: NServiceBus.Metric" +
+            "s.PerformanceCounters. The member currently throws a NotImplementedException. Wi" +
+            "ll be removed in version 8.0.0.", true)]
+        public static void EnableSLAPerformanceCounter(this NServiceBus.EndpointConfiguration config, System.TimeSpan sla) { }
+        [System.ObsoleteAttribute("Performance counters have been released as a separate package: NServiceBus.Metric" +
+            "s.PerformanceCounters. The member currently throws a NotImplementedException. Wi" +
+            "ll be removed in version 8.0.0.", true)]
+        public static void EnableSLAPerformanceCounter(this NServiceBus.EndpointConfiguration config) { }
+    }
     public abstract class Saga
     {
         protected Saga() { }
         public bool Completed { get; }
         public NServiceBus.IContainSagaData Entity { get; set; }
-        protected internal abstract void ConfigureHowToFindSaga(NServiceBus.IConfigureHowToFindSagaWithMessage sagaMessageFindingConfiguration);
+        protected abstract void ConfigureHowToFindSaga(NServiceBus.IConfigureHowToFindSagaWithMessage sagaMessageFindingConfiguration);
         protected void MarkAsComplete() { }
         protected System.Threading.Tasks.Task ReplyToOriginator(NServiceBus.IMessageHandlerContext context, object message) { }
         protected System.Threading.Tasks.Task RequestTimeout<TTimeoutMessageType>(NServiceBus.IMessageHandlerContext context, System.DateTime at)
@@ -862,18 +875,23 @@ namespace NServiceBus
             where TTimeoutMessageType : new() { }
         protected System.Threading.Tasks.Task RequestTimeout<TTimeoutMessageType>(NServiceBus.IMessageHandlerContext context, System.TimeSpan within, TTimeoutMessageType timeoutMessage) { }
     }
+    public class SagaPropertyMapper<TSagaData>
+        where TSagaData :  class, NServiceBus.IContainSagaData
+    {
+        public NServiceBus.ToSagaExpression<TSagaData, TMessage> ConfigureMapping<TMessage>(System.Linq.Expressions.Expression<System.Func<TMessage, object>> messageProperty) { }
+    }
     public abstract class Saga<TSagaData> : NServiceBus.Saga
         where TSagaData :  class, NServiceBus.IContainSagaData, new ()
     {
         protected Saga() { }
         public TSagaData Data { get; set; }
-        protected internal override void ConfigureHowToFindSaga(NServiceBus.IConfigureHowToFindSagaWithMessage sagaMessageFindingConfiguration) { }
+        protected override void ConfigureHowToFindSaga(NServiceBus.IConfigureHowToFindSagaWithMessage sagaMessageFindingConfiguration) { }
         protected abstract void ConfigureHowToFindSaga(NServiceBus.SagaPropertyMapper<TSagaData> mapper);
     }
-    public class SagaPropertyMapper<TSagaData>
-        where TSagaData :  class, NServiceBus.IContainSagaData
+    public class static ScheduleExtensions
     {
-        public NServiceBus.ToSagaExpression<TSagaData, TMessage> ConfigureMapping<TMessage>(System.Linq.Expressions.Expression<System.Func<TMessage, object>> messageProperty) { }
+        public static System.Threading.Tasks.Task ScheduleEvery(this NServiceBus.IMessageSession session, System.TimeSpan timeSpan, System.Func<NServiceBus.IPipelineContext, System.Threading.Tasks.Task> task) { }
+        public static System.Threading.Tasks.Task ScheduleEvery(this NServiceBus.IMessageSession session, System.TimeSpan timeSpan, string name, System.Func<NServiceBus.IPipelineContext, System.Threading.Tasks.Task> task) { }
     }
     public class ScheduledTask : NServiceBus.IMessage
     {
@@ -881,11 +899,6 @@ namespace NServiceBus
         public System.TimeSpan Every { get; set; }
         public string Name { get; set; }
         public System.Guid TaskId { get; set; }
-    }
-    public class static ScheduleExtensions
-    {
-        public static System.Threading.Tasks.Task ScheduleEvery(this NServiceBus.IMessageSession session, System.TimeSpan timeSpan, System.Func<NServiceBus.IPipelineContext, System.Threading.Tasks.Task> task) { }
-        public static System.Threading.Tasks.Task ScheduleEvery(this NServiceBus.IMessageSession session, System.TimeSpan timeSpan, string name, System.Func<NServiceBus.IPipelineContext, System.Threading.Tasks.Task> task) { }
     }
     public class SendOptions : NServiceBus.Extensibility.ExtendableOptions
     {
@@ -919,19 +932,6 @@ namespace NServiceBus
         public static string LocalAddress(this NServiceBus.Settings.ReadOnlySettings settings) { }
         public static NServiceBus.LogicalAddress LogicalAddress(this NServiceBus.Settings.ReadOnlySettings settings) { }
     }
-    [System.ObsoleteAttribute("Performance counters have been released as a separate package: NServiceBus.Metric" +
-        "s.PerformanceCounters. Will be removed in version 8.0.0.", true)]
-    public class static SLAMonitoringConfig
-    {
-        [System.ObsoleteAttribute("Performance counters have been released as a separate package: NServiceBus.Metric" +
-            "s.PerformanceCounters. The member currently throws a NotImplementedException. Wi" +
-            "ll be removed in version 8.0.0.", true)]
-        public static void EnableSLAPerformanceCounter(this NServiceBus.EndpointConfiguration config, System.TimeSpan sla) { }
-        [System.ObsoleteAttribute("Performance counters have been released as a separate package: NServiceBus.Metric" +
-            "s.PerformanceCounters. The member currently throws a NotImplementedException. Wi" +
-            "ll be removed in version 8.0.0.", true)]
-        public static void EnableSLAPerformanceCounter(this NServiceBus.EndpointConfiguration config) { }
-    }
     public class StartupDiagnosticEntries
     {
         public StartupDiagnosticEntries() { }
@@ -960,15 +960,6 @@ namespace NServiceBus
     {
         public SubscribeOptions() { }
     }
-    public class TimeoutManagerConfiguration
-    {
-        public TimeoutManagerConfiguration(NServiceBus.Settings.SettingsHolder settings) { }
-    }
-    public class static TimeoutManagerConfigurationExtensions
-    {
-        public static void LimitMessageProcessingConcurrencyTo(this NServiceBus.TimeoutManagerConfiguration timeoutManagerConfiguration, int maxConcurrency) { }
-        public static NServiceBus.TimeoutManagerConfiguration TimeoutManager(this NServiceBus.EndpointConfiguration endpointConfiguration) { }
-    }
     [System.AttributeUsageAttribute(System.AttributeTargets.Class | System.AttributeTargets.Interface | System.AttributeTargets.All)]
     public sealed class TimeToBeReceivedAttribute : System.Attribute
     {
@@ -978,6 +969,15 @@ namespace NServiceBus
     public class static TimeToBeReceivedConventionExtensions
     {
         public static NServiceBus.ConventionsBuilder DefiningTimeToBeReceivedAs(this NServiceBus.ConventionsBuilder builder, System.Func<System.Type, System.TimeSpan> retrieveTimeToBeReceived) { }
+    }
+    public class TimeoutManagerConfiguration
+    {
+        public TimeoutManagerConfiguration(NServiceBus.Settings.SettingsHolder settings) { }
+    }
+    public class static TimeoutManagerConfigurationExtensions
+    {
+        public static void LimitMessageProcessingConcurrencyTo(this NServiceBus.TimeoutManagerConfiguration timeoutManagerConfiguration, int maxConcurrency) { }
+        public static NServiceBus.TimeoutManagerConfiguration TimeoutManager(this NServiceBus.EndpointConfiguration endpointConfiguration) { }
     }
     public class ToSagaExpression<TSagaData, TMessage>
         where TSagaData :  class, NServiceBus.IContainSagaData
@@ -1297,14 +1297,14 @@ namespace NServiceBus.Config
             "`EndpointConfiguration.UseTransport<T>.Routing()` instead. The member currently " +
             "throws a NotImplementedException. Will be removed in version 8.0.0.", true)]
         public NServiceBus.Config.MessageEndpointMappingCollection MessageEndpointMappings { get; set; }
-        [System.ObsoleteAttribute("UnicastBus timeout manager can not be configured using a configuration file. Use " +
-            "`EndpointConfiguration.UseExternalTimeoutManager` instead. The member currently " +
-            "throws a NotImplementedException. Will be removed in version 8.0.0.", true)]
-        public string TimeoutManagerAddress { get; set; }
         [System.ObsoleteAttribute("UnicastBus time to be received for forwarded messages can not be configured using" +
             " a configuration file. The member currently throws a NotImplementedException. Wi" +
             "ll be removed in version 8.0.0.", true)]
         public System.TimeSpan TimeToBeReceivedOnForwardedMessages { get; set; }
+        [System.ObsoleteAttribute("UnicastBus timeout manager can not be configured using a configuration file. Use " +
+            "`EndpointConfiguration.UseExternalTimeoutManager` instead. The member currently " +
+            "throws a NotImplementedException. Will be removed in version 8.0.0.", true)]
+        public string TimeoutManagerAddress { get; set; }
     }
 }
 namespace NServiceBus.Config.ConfigurationSource
@@ -1362,7 +1362,7 @@ namespace NServiceBus.DataBus
     public abstract class DataBusDefinition
     {
         protected DataBusDefinition() { }
-        protected internal abstract System.Type ProvidedByFeature();
+        protected abstract System.Type ProvidedByFeature();
     }
     public class DataBusExtensions : NServiceBus.Configuration.AdvancedExtensibility.ExposeSettings
     {
@@ -1512,11 +1512,11 @@ namespace NServiceBus.Features
 {
     public class Audit : NServiceBus.Features.Feature
     {
-        protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
+        protected override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
     }
     public class AutoSubscribe : NServiceBus.Features.Feature
     {
-        protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
+        protected override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
     }
     [System.ObsoleteAttribute("Performance counters have been released as a separate package: NServiceBus.Metric" +
         "s.PerformanceCounters. Will be removed in version 8.0.0.", true)]
@@ -1526,7 +1526,7 @@ namespace NServiceBus.Features
     }
     public class DataBus : NServiceBus.Features.Feature
     {
-        protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
+        protected override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
     }
     public abstract class Feature
     {
@@ -1547,7 +1547,7 @@ namespace NServiceBus.Features
             where T : NServiceBus.Features.Feature { }
         protected void EnableByDefault() { }
         protected void Prerequisite(System.Func<NServiceBus.Features.FeatureConfigurationContext, bool> condition, string description) { }
-        protected internal abstract void Setup(NServiceBus.Features.FeatureConfigurationContext context);
+        protected abstract void Setup(NServiceBus.Features.FeatureConfigurationContext context);
         public override string ToString() { }
     }
     public class FeatureConfigurationContext
@@ -1580,35 +1580,35 @@ namespace NServiceBus.Features
     }
     public class ForwardReceivedMessages : NServiceBus.Features.Feature
     {
-        protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
+        protected override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
     }
     public class InMemoryGatewayPersistence : NServiceBus.Features.Feature
     {
-        protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
+        protected override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
     }
     public class InMemoryOutboxPersistence : NServiceBus.Features.Feature
     {
-        protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
+        protected override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
     }
     public class InMemorySagaPersistence : NServiceBus.Features.Feature
     {
-        protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
+        protected override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
     }
     public class InMemorySubscriptionPersistence : NServiceBus.Features.Feature
     {
-        protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
+        protected override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
     }
     public class InMemoryTimeoutPersistence : NServiceBus.Features.Feature
     {
-        protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
+        protected override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
     }
     public class MessageDrivenSubscriptions : NServiceBus.Features.Feature
     {
-        protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
+        protected override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
     }
     public class Outbox : NServiceBus.Features.Feature
     {
-        protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
+        protected override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
     }
     [System.ObsoleteAttribute("Performance counters have been released as a separate package: NServiceBus.Metric" +
         "s.PerformanceCounters. Will be removed in version 8.0.0.", true)]
@@ -1616,13 +1616,19 @@ namespace NServiceBus.Features
     {
         public ReceiveStatisticsPerformanceCounters() { }
     }
+    [System.ObsoleteAttribute("Performance counters have been released as a separate package: NServiceBus.Metric" +
+        "s.PerformanceCounters. Will be removed in version 8.0.0.", true)]
+    public class SLAMonitoring
+    {
+        public SLAMonitoring() { }
+    }
     public class Sagas : NServiceBus.Features.Feature
     {
-        protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
+        protected override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
     }
     public class Scheduler : NServiceBus.Features.Feature
     {
-        protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
+        protected override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
     }
     public class static SettingsExtensions
     {
@@ -1632,15 +1638,9 @@ namespace NServiceBus.Features
         public static bool IsFeatureActive(this NServiceBus.Settings.ReadOnlySettings settings, System.Type featureType) { }
         public static bool IsFeatureEnabled(this NServiceBus.Settings.ReadOnlySettings settings, System.Type featureType) { }
     }
-    [System.ObsoleteAttribute("Performance counters have been released as a separate package: NServiceBus.Metric" +
-        "s.PerformanceCounters. Will be removed in version 8.0.0.", true)]
-    public class SLAMonitoring
-    {
-        public SLAMonitoring() { }
-    }
     public class TimeoutManager : NServiceBus.Features.Feature
     {
-        protected internal override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
+        protected override void Setup(NServiceBus.Features.FeatureConfigurationContext context) { }
     }
 }
 namespace NServiceBus.Gateway.Deduplication
@@ -1705,7 +1705,7 @@ namespace NServiceBus.Logging
     {
         public DefaultFactory() { }
         public void Directory(string directory) { }
-        protected internal override NServiceBus.Logging.ILoggerFactory GetLoggingFactory() { }
+        protected override NServiceBus.Logging.ILoggerFactory GetLoggingFactory() { }
         public void Level(NServiceBus.Logging.LogLevel level) { }
     }
     public interface ILog
@@ -1736,11 +1736,6 @@ namespace NServiceBus.Logging
         NServiceBus.Logging.ILog GetLogger(System.Type type);
         NServiceBus.Logging.ILog GetLogger(string name);
     }
-    public abstract class LoggingFactoryDefinition
-    {
-        protected LoggingFactoryDefinition() { }
-        protected internal abstract NServiceBus.Logging.ILoggerFactory GetLoggingFactory();
-    }
     public enum LogLevel
     {
         Debug = 0,
@@ -1757,6 +1752,11 @@ namespace NServiceBus.Logging
         public static T Use<T>()
             where T : NServiceBus.Logging.LoggingFactoryDefinition, new () { }
         public static void UseFactory(NServiceBus.Logging.ILoggerFactory loggerFactory) { }
+    }
+    public abstract class LoggingFactoryDefinition
+    {
+        protected LoggingFactoryDefinition() { }
+        protected abstract NServiceBus.Logging.ILoggerFactory GetLoggingFactory();
     }
 }
 namespace NServiceBus.MessageInterfaces
@@ -1816,7 +1816,7 @@ namespace NServiceBus.MessageMutator
         public MutateOutgoingMessageContext(object outgoingMessage, System.Collections.Generic.Dictionary<string, string> outgoingHeaders, object incomingMessage, System.Collections.Generic.IReadOnlyDictionary<string, string> incomingHeaders) { }
         public System.Collections.Generic.Dictionary<string, string> OutgoingHeaders { get; }
         public object OutgoingMessage { get; set; }
-        public bool TryGetIncomingHeaders(out System.Collections.Generic.IReadOnlyDictionary<, > incomingHeaders) { }
+        public bool TryGetIncomingHeaders(out System.Collections.Generic.IReadOnlyDictionary<string, string> incomingHeaders) { }
         public bool TryGetIncomingMessage(out object incomingMessage) { }
     }
     public class MutateOutgoingTransportMessageContext
@@ -1825,7 +1825,7 @@ namespace NServiceBus.MessageMutator
         public byte[] OutgoingBody { get; set; }
         public System.Collections.Generic.Dictionary<string, string> OutgoingHeaders { get; }
         public object OutgoingMessage { get; }
-        public bool TryGetIncomingHeaders(out System.Collections.Generic.IReadOnlyDictionary<, > incomingHeaders) { }
+        public bool TryGetIncomingHeaders(out System.Collections.Generic.IReadOnlyDictionary<string, string> incomingHeaders) { }
         public bool TryGetIncomingMessage(out object incomingMessage) { }
     }
     public class static MutatorRegistrationExtensions
@@ -1963,15 +1963,15 @@ namespace NServiceBus.Pipeline
         System.Collections.Generic.IReadOnlyCollection<NServiceBus.Transport.TransportOperation> Operations { get; }
     }
     public interface IBehavior { }
+    public interface IBehaviorContext : NServiceBus.Extensibility.IExtendable
+    {
+        NServiceBus.ObjectBuilder.IBuilder Builder { get; }
+    }
     public interface IBehavior<in TInContext, out TOutContext> : NServiceBus.Pipeline.IBehavior
         where in TInContext : NServiceBus.Pipeline.IBehaviorContext
         where out TOutContext : NServiceBus.Pipeline.IBehaviorContext
     {
         System.Threading.Tasks.Task Invoke(TInContext context, System.Func<TOutContext, System.Threading.Tasks.Task> next);
-    }
-    public interface IBehaviorContext : NServiceBus.Extensibility.IExtendable
-    {
-        NServiceBus.ObjectBuilder.IBuilder Builder { get; }
     }
     public interface IDispatchContext : NServiceBus.Extensibility.IExtendable, NServiceBus.Pipeline.IBehaviorContext
     {
@@ -2175,10 +2175,10 @@ namespace NServiceBus.Routing
         public System.Collections.Generic.IReadOnlyDictionary<string, string> Properties { get; }
         public override bool Equals(object obj) { }
         public override int GetHashCode() { }
-        public static bool ==(NServiceBus.Routing.EndpointInstance left, NServiceBus.Routing.EndpointInstance right) { }
-        public static bool !=(NServiceBus.Routing.EndpointInstance left, NServiceBus.Routing.EndpointInstance right) { }
         public NServiceBus.Routing.EndpointInstance SetProperty(string key, string value) { }
         public override string ToString() { }
+        public static bool ==(NServiceBus.Routing.EndpointInstance left, NServiceBus.Routing.EndpointInstance right) { }
+        public static bool !=(NServiceBus.Routing.EndpointInstance left, NServiceBus.Routing.EndpointInstance right) { }
     }
     public class EndpointInstances
     {
@@ -2260,16 +2260,16 @@ namespace NServiceBus.Routing.MessageDrivenSubscriptions
         public override int GetHashCode() { }
         public override string ToString() { }
     }
-    public class Publishers
-    {
-        public Publishers() { }
-        public void AddOrReplacePublishers(string sourceKey, System.Collections.Generic.IList<NServiceBus.Routing.MessageDrivenSubscriptions.PublisherTableEntry> entries) { }
-    }
     public class PublisherTableEntry
     {
         public PublisherTableEntry(System.Type eventType, NServiceBus.Routing.MessageDrivenSubscriptions.PublisherAddress address) { }
         public NServiceBus.Routing.MessageDrivenSubscriptions.PublisherAddress Address { get; }
         public System.Type EventType { get; }
+    }
+    public class Publishers
+    {
+        public Publishers() { }
+        public void AddOrReplacePublishers(string sourceKey, System.Collections.Generic.IList<NServiceBus.Routing.MessageDrivenSubscriptions.PublisherTableEntry> entries) { }
     }
 }
 namespace NServiceBus.Sagas
@@ -2285,7 +2285,6 @@ namespace NServiceBus.Sagas
         public string SagaId { get; }
         public void AttachNewEntity(NServiceBus.IContainSagaData sagaEntity) { }
     }
-    public interface IFinder { }
     public abstract class IFindSagas<T>
         where T : NServiceBus.IContainSagaData
     {
@@ -2296,6 +2295,7 @@ namespace NServiceBus.Sagas
             System.Threading.Tasks.Task<T> FindBy(M message, NServiceBus.Persistence.SynchronizedStorageSession storageSession, NServiceBus.Extensibility.ReadOnlyContextBag context);
         }
     }
+    public interface IFinder { }
     public interface IHandleSagaNotFound
     {
         System.Threading.Tasks.Task Handle(object message, NServiceBus.IMessageProcessingContext context);
@@ -2522,6 +2522,18 @@ namespace NServiceBus.Transport
         System.Threading.Tasks.Task Subscribe(System.Type eventType, NServiceBus.Extensibility.ContextBag context);
         System.Threading.Tasks.Task Unsubscribe(System.Type eventType, NServiceBus.Extensibility.ContextBag context);
     }
+    public interface IOutgoingTransportOperation
+    {
+        System.Collections.Generic.List<NServiceBus.DeliveryConstraints.DeliveryConstraint> DeliveryConstraints { get; }
+        NServiceBus.Transport.OutgoingMessage Message { get; }
+        NServiceBus.Transport.DispatchConsistency RequiredDispatchConsistency { get; }
+    }
+    public interface IPushMessages
+    {
+        System.Threading.Tasks.Task Init(System.Func<NServiceBus.Transport.MessageContext, System.Threading.Tasks.Task> onMessage, System.Func<NServiceBus.Transport.ErrorContext, System.Threading.Tasks.Task<NServiceBus.Transport.ErrorHandleResult>> onError, NServiceBus.CriticalError criticalError, NServiceBus.Transport.PushSettings settings);
+        void Start(NServiceBus.Transport.PushRuntimeSettings limitations);
+        System.Threading.Tasks.Task Stop();
+    }
     public class IncomingMessage
     {
         public IncomingMessage(string nativeMessageId, System.Collections.Generic.Dictionary<string, string> headers, byte[] body) { }
@@ -2536,18 +2548,6 @@ namespace NServiceBus.Transport
             "rows a NotImplementedException. Will be removed in version 8.0.0.", true)]
         public static NServiceBus.MessageIntentEnum GetMesssageIntent(this NServiceBus.Transport.IncomingMessage message) { }
         public static string GetReplyToAddress(this NServiceBus.Transport.IncomingMessage message) { }
-    }
-    public interface IOutgoingTransportOperation
-    {
-        System.Collections.Generic.List<NServiceBus.DeliveryConstraints.DeliveryConstraint> DeliveryConstraints { get; }
-        NServiceBus.Transport.OutgoingMessage Message { get; }
-        NServiceBus.Transport.DispatchConsistency RequiredDispatchConsistency { get; }
-    }
-    public interface IPushMessages
-    {
-        System.Threading.Tasks.Task Init(System.Func<NServiceBus.Transport.MessageContext, System.Threading.Tasks.Task> onMessage, System.Func<NServiceBus.Transport.ErrorContext, System.Threading.Tasks.Task<NServiceBus.Transport.ErrorHandleResult>> onError, NServiceBus.CriticalError criticalError, NServiceBus.Transport.PushSettings settings);
-        void Start(NServiceBus.Transport.PushRuntimeSettings limitations);
-        System.Threading.Tasks.Task Stop();
     }
     public class static LogicalAddressExtensions
     {
@@ -2771,9 +2771,9 @@ namespace NServiceBus.Unicast.Subscriptions
         public bool Equals(NServiceBus.Unicast.Subscriptions.MessageType other) { }
         public override bool Equals(object obj) { }
         public override int GetHashCode() { }
+        public override string ToString() { }
         public static bool ==(NServiceBus.Unicast.Subscriptions.MessageType left, NServiceBus.Unicast.Subscriptions.MessageType right) { }
         public static bool !=(NServiceBus.Unicast.Subscriptions.MessageType left, NServiceBus.Unicast.Subscriptions.MessageType right) { }
-        public override string ToString() { }
     }
 }
 namespace NServiceBus.Unicast.Transport
