@@ -26,9 +26,6 @@ namespace NServiceBus
 
         static Task Publish(IBehaviorContext context, Type messageType, object message, PublishOptions options)
         {
-            var cache = context.Extensions.Get<IPipelineCache>();
-            var pipeline = cache.Pipeline<IOutgoingPublishContext>();
-
             var messageId = options.UserDefinedMessageId ?? CombGuid.Generate().ToString();
             var headers = new Dictionary<string, string>(options.OutgoingHeaders)
             {
@@ -42,33 +39,27 @@ namespace NServiceBus
                 options.Context,
                 context);
 
-            return pipeline.Invoke(publishContext);
+            return publishContext.InvokePipeline<IOutgoingPublishContext>();
         }
 
         public static Task Subscribe(IBehaviorContext context, Type eventType, SubscribeOptions options)
         {
-            var cache = context.Extensions.Get<IPipelineCache>();
-            var pipeline = cache.Pipeline<ISubscribeContext>();
-
             var subscribeContext = new SubscribeContext(
                 context,
                 eventType,
                 options.Context);
 
-            return pipeline.Invoke(subscribeContext);
+            return subscribeContext.InvokePipeline<ISubscribeContext>();
         }
 
         public static Task Unsubscribe(IBehaviorContext context, Type eventType, UnsubscribeOptions options)
         {
-            var cache = context.Extensions.Get<IPipelineCache>();
-            var pipeline = cache.Pipeline<IUnsubscribeContext>();
-
-            var subscribeContext = new UnsubscribeContext(
+            var unsubscribeContext = new UnsubscribeContext(
                 context,
                 eventType,
                 options.Context);
 
-            return pipeline.Invoke(subscribeContext);
+            return unsubscribeContext.InvokePipeline<IUnsubscribeContext>();
         }
 
         public static Task Send<T>(IBehaviorContext context, Action<T> messageConstructor, SendOptions options)
@@ -88,9 +79,6 @@ namespace NServiceBus
 
         static Task SendMessage(this IBehaviorContext context, Type messageType, object message, SendOptions options)
         {
-            var cache = context.Extensions.Get<IPipelineCache>();
-            var pipeline = cache.Pipeline<IOutgoingSendContext>();
-
             var messageId = options.UserDefinedMessageId ?? CombGuid.Generate().ToString();
             var headers = new Dictionary<string, string>(options.OutgoingHeaders)
             {
@@ -111,7 +99,7 @@ namespace NServiceBus
                 outgoingContext.AddDeliveryConstraint(options.DelayedDeliveryConstraint);
             }
 
-            return pipeline.Invoke(outgoingContext);
+            return outgoingContext.InvokePipeline<IOutgoingSendContext>();
         }
 
         public static Task Reply(IBehaviorContext context, object message, ReplyOptions options)
@@ -131,9 +119,6 @@ namespace NServiceBus
 
         static Task ReplyMessage(this IBehaviorContext context, Type messageType, object message, ReplyOptions options)
         {
-            var cache = context.Extensions.Get<IPipelineCache>();
-            var pipeline = cache.Pipeline<IOutgoingReplyContext>();
-
             var messageId = options.UserDefinedMessageId ?? CombGuid.Generate().ToString();
             var headers = new Dictionary<string, string>(options.OutgoingHeaders)
             {
@@ -147,8 +132,7 @@ namespace NServiceBus
                 options.Context,
                 context);
 
-            return pipeline.Invoke(outgoingContext);
-
+            return outgoingContext.InvokePipeline<IOutgoingReplyContext>();
         }
     }
 }

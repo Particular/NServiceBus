@@ -20,12 +20,7 @@ namespace NServiceBus.Pipeline
             Guard.AgainstNull(nameof(context), context);
             Guard.AgainstNull(nameof(next), next);
 
-            return Invoke(context, next, ctx =>
-            {
-                var cache = ctx.Extensions.Get<IPipelineCache>();
-                var pipeline = cache.Pipeline<TForkContext>();
-                return pipeline.Invoke(ctx);
-            });
+            return Invoke(context, next, ctx => ctx.InvokePipeline());
         }
 
         /// <inheritdoc />

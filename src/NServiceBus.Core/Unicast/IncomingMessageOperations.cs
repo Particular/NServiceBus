@@ -10,18 +10,14 @@ namespace NServiceBus
         public static Task ForwardCurrentMessageTo(IIncomingContext context, string destination)
         {
             var messageBeingProcessed = context.Extensions.Get<IncomingMessage>();
-
-            var cache = context.Extensions.Get<IPipelineCache>();
-            var pipeline = cache.Pipeline<IRoutingContext>();
-
             var outgoingMessage = new OutgoingMessage(
-                messageBeingProcessed.MessageId,
-                messageBeingProcessed.Headers,
-                messageBeingProcessed.Body);
+                            messageBeingProcessed.MessageId,
+                            messageBeingProcessed.Headers,
+                            messageBeingProcessed.Body);
 
             var routingContext = new RoutingContext(outgoingMessage, new UnicastRoutingStrategy(destination), context);
 
-            return pipeline.Invoke(routingContext);
+            return routingContext.InvokePipeline<IRoutingContext>();
         }
     }
 }
