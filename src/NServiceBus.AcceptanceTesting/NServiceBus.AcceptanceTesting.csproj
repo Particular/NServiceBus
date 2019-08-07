@@ -13,7 +13,7 @@
 
   <ItemGroup>
     <PackageReference Include="NUnit" Version="[3.11.0, 4.0.0)" />
-    <PackageReference Include="Particular.Packaging" Version="0.2.1" PrivateAssets="All" />
+    <PackageReference Include="Particular.Packaging" Version="0.3.0" PrivateAssets="All" />
   </ItemGroup>
 
   <PropertyGroup>
