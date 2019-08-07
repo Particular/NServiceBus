@@ -13,7 +13,7 @@
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.9.0" PrivateAssets="All" />
     <PackageReference Include="NUnit" Version="[3.11.0, 4.0.0)" />
     <PackageReference Include="NUnit3TestAdapter" Version="3.11.2" PrivateAssets="All" />
-    <PackageReference Include="Particular.Packaging" Version="0.2.1" PrivateAssets="All" />
+    <PackageReference Include="Particular.Packaging" Version="0.3.0" PrivateAssets="All" />
   </ItemGroup>
 
   <PropertyGroup>
