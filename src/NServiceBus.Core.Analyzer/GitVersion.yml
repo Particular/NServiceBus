@@ -1,7 +1,10 @@
 assembly-versioning-scheme: MajorMinorPatch
-next-version: 7.0
+next-version: 1.0
 branches:
-  develop:
-    tag: beta
+  master:
+    mode: ContinuousDeployment
+    tag: alpha
+    increment: Minor
+    tracks-release-branches: true
   release:
-    tag: rc
+    tag: ''
