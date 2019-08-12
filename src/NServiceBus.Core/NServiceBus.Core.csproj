@@ -52,15 +52,4 @@
   </PropertyGroup>
   <!-- End Workaround -->
 
-  <!-- Workaround for GitVersion 4.0 not creating GitVersionInformation by default -->
-  <PropertyGroup>
-    <UpdateAssemblyInfo>true</UpdateAssemblyInfo>
-    <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
-    <GenerateAssemblyInformationalVersionAttribute>false</GenerateAssemblyInformationalVersionAttribute>
-    <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
-  </PropertyGroup>
-  <!-- End Workaround -->
-
-  <Import Project="../GitVersionWorkaround.targets" />
-
 </Project>
