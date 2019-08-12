@@ -556,7 +556,6 @@
     <Compile Include="Features\EndpointConfigurationExtensions.cs" />
     <Compile Include="Features\FeatureStartupTask.cs" />
     <Compile Include="Features\SettingsExtensions.cs" />
-    <Compile Include="GitFlowVersion.cs" />
     <Compile Include="Headers.cs" />
     <Compile Include="Hosting\Helpers\Image.cs" />
     <Compile Include="Hosting\Helpers\SkippedFile.cs" />

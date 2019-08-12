@@ -269,7 +269,6 @@
     <Compile Include="Persistence\InMemory\When_updating_a_saga_with_the_same_unique_property_value.cs" />
     <Compile Include="Pipeline\BehaviorRegistrationsCoordinatorTests.cs" />
     <Compile Include="Pipeline\BehaviorTypeCheckerTests.cs" />
-    <Compile Include="GitFlowVersionTests.cs" />
     <Compile Include="Serializers\Json\When_not_overriding_stream_encoding.cs" />
     <Compile Include="Serializers\Json\When_overriding_stream_encoding.cs" />
     <Compile Include="Serializers\XML\SerializingGenericTests.cs" />

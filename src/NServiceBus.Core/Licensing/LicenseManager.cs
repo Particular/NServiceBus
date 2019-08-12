@@ -72,7 +72,7 @@ namespace NServiceBus
             }
 
             bool createdNew;
-            using (new Mutex(true, $"NServiceBus-{GitFlowVersion.MajorMinor}", out createdNew))
+            using (new Mutex(true, $"NServiceBus-{GitVersionInformation.Major}.{GitVersionInformation.Minor}", out createdNew))
             {
                 if (!createdNew)
                 {

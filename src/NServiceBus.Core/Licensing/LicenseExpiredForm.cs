@@ -23,7 +23,7 @@
         {
             base.OnLoad(e);
 
-            var version = GitFlowVersion.MajorMinorPatch;
+            var version = GitVersionInformation.MajorMinorPatch;
 
             if (CurrentLicense != null && !CurrentLicense.IsExtendedTrial)
             {
