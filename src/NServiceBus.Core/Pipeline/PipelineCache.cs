@@ -5,22 +5,24 @@ namespace NServiceBus
     using System.Threading;
     using ObjectBuilder;
     using Pipeline;
-    using Settings;
 
     class PipelineCache : IPipelineCache
     {
-        public PipelineCache(IBuilder builder, ReadOnlySettings settings)
+        public PipelineCache(IBuilder builder, PipelineModifications pipelineModifications)
         {
-            FromMainPipeline<IAuditContext>(builder, settings);
-            FromMainPipeline<IDispatchContext>(builder, settings);
-            FromMainPipeline<IOutgoingPublishContext>(builder, settings);
-            FromMainPipeline<ISubscribeContext>(builder, settings);
-            FromMainPipeline<IUnsubscribeContext>(builder, settings);
-            FromMainPipeline<IOutgoingSendContext>(builder, settings);
-            FromMainPipeline<IOutgoingReplyContext>(builder, settings);
-            FromMainPipeline<IRoutingContext>(builder, settings);
-            FromMainPipeline<IBatchDispatchContext>(builder, settings);
-            FromMainPipeline<IForwardingContext>(builder, settings);
+            this.pipelineModifications = pipelineModifications;
+
+            FromMainPipeline<IAuditContext>(builder);
+            FromMainPipeline<IDispatchContext>(builder);
+            FromMainPipeline<IOutgoingPublishContext>(builder);
+            FromMainPipeline<ISubscribeContext>(builder);
+            FromMainPipeline<IUnsubscribeContext>(builder);
+            FromMainPipeline<IOutgoingSendContext>(builder);
+            FromMainPipeline<IOutgoingReplyContext>(builder);
+            FromMainPipeline<IRoutingContext>(builder);
+            FromMainPipeline<IBatchDispatchContext>(builder);
+            FromMainPipeline<IForwardingContext>(builder);
+            FromMainPipeline<ITransportReceiveContext>(builder);
         }
 
         public IPipeline<TContext> Pipeline<TContext>()
@@ -28,23 +30,24 @@ namespace NServiceBus
         {
             if (pipelines.TryGetValue(typeof(TContext), out var lazyPipeline))
             {
-                return (IPipeline<TContext>) lazyPipeline.Value;
+                return (IPipeline<TContext>)lazyPipeline.Value;
             }
-            throw new InvalidOperationException("Custom pipelines are not supported.");
+
+            throw new InvalidOperationException($"Pipeline for context `{typeof(TContext).FullName}` not found, custom pipelines are not supported.");
         }
 
-        void FromMainPipeline<TContext>(IBuilder builder, ReadOnlySettings settings)
+        void FromMainPipeline<TContext>(IBuilder builder)
             where TContext : IBehaviorContext
         {
             var lazyPipeline = new Lazy<IPipeline>(() =>
             {
-                var pipelinesCollection = settings.Get<PipelineConfiguration>();
-                var pipeline = new Pipeline<TContext>(builder, pipelinesCollection.Modifications);
+                var pipeline = new Pipeline<TContext>(builder, pipelineModifications);
                 return pipeline;
             }, LazyThreadSafetyMode.ExecutionAndPublication);
             pipelines.Add(typeof(TContext), lazyPipeline);
         }
 
-        Dictionary<Type, Lazy<IPipeline>> pipelines = new Dictionary<Type, Lazy<IPipeline>>();
+        readonly PipelineModifications pipelineModifications;
+        readonly Dictionary<Type, Lazy<IPipeline>> pipelines = new Dictionary<Type, Lazy<IPipeline>>();
     }
 }

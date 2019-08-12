@@ -81,7 +81,7 @@
                 {
                     if (context.MessageHeaders.TryGetValue(Headers.DelayedRetries, out _))
                     {
-                        testContext.ReceivedMessageHeaders = context.MessageHeaders;
+                        testContext.ReceivedMessageHeaders = context.MessageHeaders.ToDictionary(x => x.Key, x => x.Value);
                         return Task.FromResult(0);
                     }
 

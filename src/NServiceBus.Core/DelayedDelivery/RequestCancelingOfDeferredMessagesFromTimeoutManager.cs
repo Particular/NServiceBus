@@ -22,9 +22,7 @@
 
             var dispatchContext = new RoutingContext(controlMessage, new UnicastRoutingStrategy(timeoutManagerAddress), context);
 
-            var cache = context.Extensions.Get<IPipelineCache>();
-            var dispatchPipeline = cache.Pipeline<IRoutingContext>();
-            return dispatchPipeline.Invoke(dispatchContext);
+            return dispatchContext.InvokePipeline<IRoutingContext>();
         }
 
         string timeoutManagerAddress;

@@ -15,7 +15,7 @@
         [Test]
         public async Task RunNew()
         {
-            var cache = new MessageHandlerRegistry(new Conventions());
+            var cache = new MessageHandlerRegistry();
             cache.RegisterHandler(typeof(StubMessageHandler));
             cache.RegisterHandler(typeof(StubTimeoutHandler));
             var stubMessage = new StubMessage();
@@ -67,7 +67,7 @@
         [Test]
         public async Task Should_invoke_handle_method()
         {
-            var cache = new MessageHandlerRegistry(new Conventions());
+            var cache = new MessageHandlerRegistry();
             cache.RegisterHandler(typeof(StubHandler));
 
             var handler = cache.GetCachedHandlerForMessage<StubMessage>();
@@ -80,7 +80,7 @@
         [Test]
         public async Task Should_have_passed_through_correct_message()
         {
-            var cache = new MessageHandlerRegistry(new Conventions());
+            var cache = new MessageHandlerRegistry();
             cache.RegisterHandler(typeof(StubHandler));
 
             var handler = cache.GetCachedHandlerForMessage<StubMessage>();
@@ -94,7 +94,7 @@
         [Test]
         public async Task Should_have_passed_through_correct_context()
         {
-            var cache = new MessageHandlerRegistry(new Conventions());
+            var cache = new MessageHandlerRegistry();
             cache.RegisterHandler(typeof(StubHandler));
 
             var handler = cache.GetCachedHandlerForMessage<StubMessage>();
@@ -130,7 +130,7 @@
         [Test]
         public async Task Should_invoke_timeout_method()
         {
-            var cache = new MessageHandlerRegistry(new Conventions());
+            var cache = new MessageHandlerRegistry();
             cache.RegisterHandler(typeof(StubHandler));
 
             var handler = cache.GetCachedHandlerForMessage<StubTimeoutState>();
@@ -143,7 +143,7 @@
         [Test]
         public async Task Should_have_passed_through_correct_state()
         {
-            var cache = new MessageHandlerRegistry(new Conventions());
+            var cache = new MessageHandlerRegistry();
             cache.RegisterHandler(typeof(StubHandler));
 
             var stubState = new StubTimeoutState();
@@ -157,7 +157,7 @@
         [Test]
         public async Task Should_have_passed_through_correct_context()
         {
-            var cache = new MessageHandlerRegistry(new Conventions());
+            var cache = new MessageHandlerRegistry();
             cache.RegisterHandler(typeof(StubHandler));
 
             var handler = cache.GetCachedHandlerForMessage<StubTimeoutState>();

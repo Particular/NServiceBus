@@ -197,7 +197,7 @@
         public const string HostId = "$.diagnostics.hostid";
 
         /// <summary>
-        /// HostId of the endpoint where the given message was processed (success or failure).
+        /// Indicates if the license used by the processing endpoint has expired.
         /// </summary>
         public const string HasLicenseExpired = "$.diagnostics.license.expired";
 

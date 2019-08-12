@@ -1,6 +1,7 @@
 ﻿namespace NServiceBus.TransportTests
 {
     using System;
+    using System.Collections.Generic;
     using Logging;
     using NUnit.Framework;
 
@@ -8,21 +9,29 @@
     {
         public ILog GetLogger(Type type)
         {
-            return this.GetLogger(type.FullName);
+            return GetLogger(type.FullName);
         }
 
         public ILog GetLogger(string name)
         {
-            return new TransportTestLogger(name);
+            return new TransportTestLogger(name, LogItems);
+        }
+
+        public List<LogItem> LogItems { get; } = new List<LogItem>();
+
+        public class LogItem
+        {
+            public LogLevel Level;
+            // ReSharper disable once NotAccessedField.Global
+            public string Message;
         }
 
         class TransportTestLogger : ILog
         {
-            string name;
-
-            public TransportTestLogger(string name)
+            public TransportTestLogger(string name, List<LogItem> logItems)
             {
                 this.name = name;
+                this.logItems = logItems;
             }
 
             public bool IsDebugEnabled { get; } = true;
@@ -108,8 +117,17 @@
 
             void Log(LogLevel level, string message)
             {
+                logItems.Add(new LogItem
+                {
+                    Level = level,
+                    Message = message
+                });
+
                 TestContext.WriteLine($"{DateTime.Now:T} {level} {name}: {message}");
             }
+
+            string name;
+            List<LogItem> logItems;
         }
     }
 }

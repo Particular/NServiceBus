@@ -46,6 +46,17 @@ namespace NServiceBus
             return new MoveToError(errorQueue);
         }
 
+        /// <summary>
+        /// Creates a discard recoverability action.
+        /// </summary>
+        /// <param name="reason">The reason why the message was discarded.</param>
+        /// <returns>Discard action.</returns>
+        public static Discard Discard(string reason)
+        {
+            Guard.AgainstNullAndEmpty(nameof(reason), reason);
+            return new Discard(reason);
+        }
+
         static ImmediateRetry CachedImmediateRetry = new ImmediateRetry();
     }
 }

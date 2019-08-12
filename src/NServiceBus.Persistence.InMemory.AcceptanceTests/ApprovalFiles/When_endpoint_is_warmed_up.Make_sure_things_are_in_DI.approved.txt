@@ -1,0 +1,21 @@
+----------- Actively used components (Find ways to stop accessing them)-----------
+NServiceBus.Hosting.HostInformation - SingleInstance
+NServiceBus.LoadHandlersConnector - InstancePerCall
+NServiceBus.RecoverabilityExecutorFactory - SingleInstance
+NServiceBus.StorageInitializer+CallInit - SingleInstance
+NServiceBus.SubscriptionReceiverBehavior - InstancePerCall
+NServiceBus.Transport.IDispatchMessages - SingleInstance
+NServiceBus.TransportReceiveToPhysicalMessageProcessingConnector - InstancePerCall
+NServiceBus.Unicast.MessageHandlerRegistry - SingleInstance
+----------- Likely unused components (Remove in next major if possible) -----------
+NServiceBus.CriticalError - SingleInstance
+NServiceBus.InMemorySubscriptionStorage - SingleInstance
+NServiceBus.InMemorySynchronizedStorage - SingleInstance
+NServiceBus.InMemoryTransactionalSynchronizedStorageAdapter - SingleInstance
+NServiceBus.MessageInterfaces.IMessageMapper - SingleInstance
+NServiceBus.NoOpCanceling - SingleInstance
+NServiceBus.Notifications - SingleInstance
+NServiceBus.ObjectBuilder.IBuilder - SingleInstance
+NServiceBus.Pipeline.LogicalMessageFactory - SingleInstance
+NServiceBus.Settings.ReadOnlySettings - SingleInstance
+NServiceBus.Unicast.Messages.MessageMetadataRegistry - SingleInstance

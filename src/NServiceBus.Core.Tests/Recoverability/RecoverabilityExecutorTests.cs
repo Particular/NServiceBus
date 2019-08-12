@@ -130,7 +130,21 @@
             Assert.AreEqual(1, eventAggregator.NotificationsRaised.Count);
             Assert.AreEqual("message-id", failure.Message.MessageId);
         }
+        
+        [Test]
+        public async Task When_discard_action_returned_should_discard_message()
+        {
+            var recoverabilityExecutor = CreateExecutor(
+                RetryPolicy.Discard("not needed anymore"));
+            var errorContext = CreateErrorContext(messageId: "message-id");
 
+            var result = await recoverabilityExecutor.Invoke(errorContext);
+
+            Assert.AreEqual(ErrorHandleResult.Handled, result);
+            Assert.AreEqual(0, eventAggregator.NotificationsRaised.Count);
+        }
+
+        [Test]
         public async Task When_moving_to_custom_error_queue_custom_error_queue_address_should_be_set_on_notification()
         {
             var customErrorQueueAddress = "custom-error-queue";
@@ -215,6 +229,14 @@
                 return new RetryPolicy(new[]
                 {
                     new UnsupportedAction()
+                }).Invoke;
+            }
+            
+            public static Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> Discard(string reason)
+            {
+                return new RetryPolicy(new[]
+                {
+                    new Discard(reason), 
                 }).Invoke;
             }
 

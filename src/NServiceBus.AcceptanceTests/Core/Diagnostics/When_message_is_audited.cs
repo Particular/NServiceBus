@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using AcceptanceTesting.Customization;
@@ -72,7 +73,7 @@
 
                 public Task Handle(MessageToBeAudited message, IMessageHandlerContext context)
                 {
-                    testContext.Headers = context.MessageHeaders;
+                    testContext.Headers = context.MessageHeaders.ToDictionary(x => x.Key, x => x.Value);
                     testContext.IsMessageHandledByTheAuditEndpoint = true;
                     return Task.FromResult(0);
                 }

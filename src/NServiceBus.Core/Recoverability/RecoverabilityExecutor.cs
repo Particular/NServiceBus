@@ -24,6 +24,12 @@
         {
             var recoveryAction = recoverabilityPolicy(configuration, errorContext);
 
+            if (recoveryAction is Discard discard)
+            {
+                Logger.Info($"Discarding message with id '{errorContext.Message.MessageId}'. Reason: {discard.Reason}", errorContext.Exception);
+                return HandledTask;
+            }
+
             // When we can't do immediate retries and policy did not honor MaxNumberOfRetries for ImmediateRetries
             if (recoveryAction is ImmediateRetry && !immediateRetriesAvailable)
             {
@@ -119,6 +125,7 @@
         bool immediateRetriesAvailable;
         bool delayedRetriesAvailable;
 
+        static Task<ErrorHandleResult> HandledTask = Task.FromResult(ErrorHandleResult.Handled);
         static ILog Logger = LogManager.GetLogger<RecoverabilityExecutor>();
         RecoverabilityConfig configuration;
     }

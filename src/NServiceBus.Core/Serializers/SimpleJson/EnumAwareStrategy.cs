@@ -7,6 +7,8 @@
     // https://github.com/facebook-csharp-sdk/simple-json/issues/15
     class EnumAwareStrategy : PocoJsonSerializerStrategy
     {
+        EnumAwareStrategy() {}
+
         protected override object SerializeEnum(Enum p)
         {
             return p.ToString();
@@ -34,5 +36,8 @@
 
             return base.DeserializeObject(value, type);
         }
+
+        static EnumAwareStrategy enumAwareStrategy;
+        public static EnumAwareStrategy Instance => enumAwareStrategy ?? (enumAwareStrategy = new EnumAwareStrategy());
     }
 }

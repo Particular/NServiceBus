@@ -5,7 +5,6 @@
     <RootNamespace>NServiceBus</RootNamespace>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\NServiceBus.snk</AssemblyOriginatorKeyFile>
-    <OutputPath>..\..\binaries\</OutputPath>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'net452'">
@@ -19,14 +18,14 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Fody" Version="3.1.4" PrivateAssets="All" />
-    <PackageReference Include="Janitor.Fody" Version="1.6.3" PrivateAssets="All" />
+    <PackageReference Include="Fody" Version="4.2.1" PrivateAssets="All" />
+    <PackageReference Include="Janitor.Fody" Version="1.6.8" PrivateAssets="All" />
     <PackageReference Include="LightInject.Source" Version="5.0.3" PrivateAssets="All" />
     <PackageReference Include="SimpleJson" Version="0.38.0" PrivateAssets="All" />
-    <PackageReference Include="Obsolete.Fody" Version="4.4.1" PrivateAssets="All" />
+    <PackageReference Include="Obsolete.Fody" Version="4.4.3" PrivateAssets="All" />
     <PackageReference Include="Particular.CodeRules" Version="0.2.1" PrivateAssets="All" />
-    <PackageReference Include="Particular.Licensing.Sources" Version="2.0.1" PrivateAssets="All" />
-    <PackageReference Include="Particular.Packaging" Version="0.2.1" PrivateAssets="All" />
+    <PackageReference Include="Particular.Licensing.Sources" Version="3.0.0" PrivateAssets="All" />
+    <PackageReference Include="Particular.Packaging" Version="0.3.0" PrivateAssets="All" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
@@ -47,27 +46,10 @@
     <None Include="..\NServiceBus.Core.Analyzer\tools\*.ps1" Pack="true" PackagePath="tools" Visible="false" />
   </ItemGroup>
 
-  <!-- Workaround for https://github.com/Microsoft/msbuild/issues/1915 -->
-  <PropertyGroup>
-    <AddSyntheticProjectReferencesForSolutionDependencies>false</AddSyntheticProjectReferencesForSolutionDependencies>
-  </PropertyGroup>
-  <!-- End Workaround -->
-
   <!-- Workaround for https://github.com/dotnet/sdk/issues/1469 -->
   <PropertyGroup>
     <DisableLockFileFrameworks>true</DisableLockFileFrameworks>
   </PropertyGroup>
   <!-- End Workaround -->
-
-  <!-- Workaround for GitVersion 4.0 not creating GitVersionInformation by default -->
-  <PropertyGroup>
-    <UpdateAssemblyInfo>true</UpdateAssemblyInfo>
-    <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
-    <GenerateAssemblyInformationalVersionAttribute>false</GenerateAssemblyInformationalVersionAttribute>
-    <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
-  </PropertyGroup>
-  <!-- End Workaround -->
-
-  <Import Project="../GitVersionWorkaround.targets" />
 
 </Project>

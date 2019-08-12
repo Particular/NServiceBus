@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using AcceptanceTesting.Customization;
@@ -120,7 +121,7 @@
                 public Task Handle(MessageThatFails message, IMessageHandlerContext context)
                 {
                     testContext.TimeSentOnTheFailingMessageWhenItWasHandled = DateTimeExtensions.ToUtcDateTime(context.MessageHeaders[Headers.TimeSent]);
-                    testContext.FaultHeaders = context.MessageHeaders;
+                    testContext.FaultHeaders = context.MessageHeaders.ToDictionary(x => x.Key, x => x.Value);
                     testContext.IsMessageHandledByTheFaultEndpoint = true;
 
                     return Task.FromResult(0);

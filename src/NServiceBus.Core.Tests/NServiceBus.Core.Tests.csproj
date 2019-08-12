@@ -17,17 +17,18 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.9.0" />
-    <PackageReference Include="Mono.Cecil" Version="0.10.1" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.0.1" />
+    <PackageReference Include="Mono.Cecil" Version="0.10.4" />
     <PackageReference Include="NuDoq" Version="1.2.5" NoWarn="NU1701" />
     <PackageReference Include="NUnit" Version="3.11.0" />
-    <PackageReference Include="NUnit3TestAdapter" Version="3.11.2" />
+    <PackageReference Include="NUnit3TestAdapter" Version="3.13.0" />
     <PackageReference Include="Particular.Approvals" Version="0.2.0" />
-    <PackageReference Include="PublicApiGenerator" Version="8.0.1" />
+    <PackageReference Include="PublicApiGenerator" Version="9.3.0" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net452'">
     <PackageReference Include="NUnit.ApplicationDomain" Version="11.1.0" />
+    <PackageReference Include="System.ValueTuple" Version="4.5.0" />
   </ItemGroup>
 
   <ItemGroup>

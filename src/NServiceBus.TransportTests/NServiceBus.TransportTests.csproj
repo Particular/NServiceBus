@@ -14,10 +14,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.9.0" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.0.1" PrivateAssets="All" />
     <PackageReference Include="NUnit" Version="[3.11.0, 4.0.0)" />
-    <PackageReference Include="NUnit3TestAdapter" Version="3.11.2" PrivateAssets="All" />
-    <PackageReference Include="Particular.Packaging" Version="0.2.1" PrivateAssets="All" />
+    <PackageReference Include="NUnit3TestAdapter" Version="3.13.0" PrivateAssets="All" />
+    <PackageReference Include="Particular.Packaging" Version="0.3.0" PrivateAssets="All" />
   </ItemGroup>
 
   <PropertyGroup>
@@ -27,6 +27,7 @@
     <IncludeBuildOutput>false</IncludeBuildOutput>
   </PropertyGroup>
 
+  <!-- Workaround for https://github.com/dotnet/sdk/issues/1479 -->
   <ItemGroup>
     <_PackageFiles Include="**\*.cs">
       <BuildAction>Compile</BuildAction>
@@ -35,5 +36,6 @@
     <_PackageFiles Remove="**\obj\**\*.cs" />
     <_PackageFiles Remove="ConfigureLearningTransportInfrastructure.cs" />
   </ItemGroup>
+  <!-- End Workaround -->
 
 </Project>

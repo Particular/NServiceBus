@@ -26,12 +26,10 @@ namespace NServiceBus
             return AsyncFile.Move(incomingFilePath, FileToProcess);
         }
 
-        public Task Commit()
+        public async Task Commit()
         {
-            Directory.Move(transactionDir, commitDir);
+            await AsyncDirectory.Move(transactionDir, commitDir).ConfigureAwait(false);
             committed = true;
-
-            return TaskEx.CompletedTask;
         }
 
         public void Rollback()

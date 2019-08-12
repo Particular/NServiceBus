@@ -2,6 +2,7 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using AcceptanceTesting.Customization;
@@ -80,7 +81,7 @@ namespace NServiceBus.AcceptanceTests.Core.Recoverability
                 {
                     if (initiatingMessage.Id == TestContext.TestRunId)
                     {
-                        TestContext.Headers = context.MessageHeaders;
+                        TestContext.Headers = context.MessageHeaders.ToDictionary(x => x.Key, x => x.Value);
                         TestContext.MessageMovedToErrorQueue = true;
                     }
 

@@ -18,7 +18,7 @@
         [TestCase(typeof(SagaWithIllegalDep))]
         public void ShouldThrowIfUserTriesToBypassTheHandlerContext(Type handlerType)
         {
-            var registry = new MessageHandlerRegistry(new Conventions());
+            var registry = new MessageHandlerRegistry();
 
             Assert.Throws<Exception>(() => registry.RegisterHandler(handlerType));
         }
@@ -26,7 +26,7 @@
         [Test]
         public async Task ShouldIndicateWhetherAHandlerIsATimeoutHandler()
         {
-            var registry = new MessageHandlerRegistry(new Conventions());
+            var registry = new MessageHandlerRegistry();
 
             registry.RegisterHandler(typeof(SagaWithTimeoutOfMessage));
 

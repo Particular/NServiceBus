@@ -86,7 +86,17 @@
         {
             var mapper = new MessageMapper();
 
-            Assert.Throws<Exception>(() => mapper.Initialize(new[] { typeof(InterfaceMessageWithIllegalInterfaceProperty) }));
+            var ex = Assert.Throws<Exception>(() => mapper.Initialize(new[] { typeof(InterfaceMessageWithIllegalInterfaceProperty) }));
+            StringAssert.Contains($"Cannot generate a concrete implementation for '{typeof(IIllegalProperty).FullName}' because it contains methods. Ensure that all interfaces used as messages do not contain methods.", ex.Message);
+        }
+
+        [Test]
+        public void Should_fail_for_non_public_interface_message()
+        {
+            var mapper = new MessageMapper();
+
+            var ex = Assert.Throws<Exception>(() => mapper.Initialize(new[] { typeof(IPrivateInterfaceMessage) }));
+            StringAssert.Contains($"Cannot generate a concrete implementation for '{typeof(IPrivateInterfaceMessage).FullName}' because it is not public. Ensure that all interfaces used as messages are public.", ex.Message);
         }
 
         [Test]
@@ -124,6 +134,27 @@
             Assert.IsFalse(messageInstance.CtorInvoked);
         }
 
+        [Test]
+        public void Should_create_structs()
+        {
+            var mapper = new MessageMapper();
+
+            var messageInstance = mapper.CreateInstance<SampleMessageStruct>();
+
+            Assert.IsNotNull(messageInstance);
+            Assert.AreEqual(typeof(SampleMessageStruct), messageInstance.GetType());
+        }
+
+        [Test]
+        public void Should_map_structs()
+        {
+            var mapper = new MessageMapper();
+
+            var mappedType = mapper.GetMappedTypeFor(typeof(SampleMessageStruct));
+
+            Assert.AreEqual(typeof(SampleMessageStruct), mappedType);
+        }
+
         public class SampleMessageClass
         {
             public SampleMessageClass()
@@ -132,6 +163,10 @@
             }
 
             public bool CtorInvoked { get; }
+        }
+
+        public struct SampleMessageStruct
+        {
         }
 
         public interface ISampleMessageInterface
@@ -174,6 +209,11 @@
 
             //this is not supported by our mapper
             void SomeMethod();
+        }
+
+        interface IPrivateInterfaceMessage
+        {
+            string SomeValue { get; set; }
         }
     }
 }
