@@ -79,7 +79,7 @@ namespace NServiceBus
 
         void OpenTrialExtensionPage()
         {
-            var version = GitFlowVersion.MajorMinorPatch;
+            var version = GitVersionInformation.MajorMinorPatch;
             var extendedTrial = result.License.IsExtendedTrial ? "1" : "0";
             var platform = GetPlatformCode();
             var url = $"https://particular.net/license/nservicebus?v={version}&t={extendedTrial}&p={platform}";
