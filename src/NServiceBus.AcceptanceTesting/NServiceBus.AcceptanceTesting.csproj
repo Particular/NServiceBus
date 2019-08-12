@@ -21,6 +21,4 @@
     <Description>Acceptance testing framework for NServiceBus endpoints. This is an unsupported package.</Description>
   </PropertyGroup>
 
-  <Import Project="../GitVersionWorkaround.targets" />
-
 </Project>
