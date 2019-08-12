@@ -1,1 +1,4 @@
 assembly-versioning-scheme: Major
+branches:
+  releases?[/-]:
+    tag: ''
