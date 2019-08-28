@@ -127,7 +127,7 @@ namespace NServiceBus
         /// <summary>
         /// Creates the configuration object.
         /// </summary>
-        internal InitializableEndpoint Build()
+        internal InitializableEndpoint Build(IConfigureComponents configureComponents)
         {
             if (scannedTypes == null)
             {
@@ -148,12 +148,12 @@ namespace NServiceBus
 
             ConfigureMessageTypes(conventions);
 
-            var container = ConfigureContainer();
+            ConfigureContainer();
 
-            return new InitializableEndpoint(Settings, container, registrations, pipelineComponent);
+            return new InitializableEndpoint(Settings, configureComponents, registrations, pipelineComponent);
         }
 
-        IContainer ConfigureContainer()
+        internal IContainer ConfigureContainer()
         {
             if (customBuilder == null)
             {

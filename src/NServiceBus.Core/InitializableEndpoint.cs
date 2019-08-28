@@ -9,7 +9,6 @@ namespace NServiceBus
     using MessageInterfaces;
     using MessageInterfaces.MessageMapper.Reflection;
     using ObjectBuilder;
-    using ObjectBuilder.Common;
     using Routing;
     using Routing.MessageDrivenSubscriptions;
     using Settings;
@@ -18,20 +17,20 @@ namespace NServiceBus
     class InitializableEndpoint
     {
         public InitializableEndpoint(SettingsHolder settings,
-            IContainer container,
+            IConfigureComponents container,
             List<Action<IConfigureComponents>> registrations,
             PipelineComponent pipelineComponent)
         {
             this.settings = settings;
+            this.container = container;
             this.pipelineComponent = pipelineComponent;
 
-            RegisterContainerAdapter(container);
             RunUserRegistrations(registrations);
-            
+
             this.container.RegisterSingleton<ReadOnlySettings>(settings);
         }
 
-        public async Task<IStartableEndpoint> Initialize()
+        public PreparedEndpoint Prepare()
         {
             RegisterCriticalErrorHandler();
 
@@ -57,30 +56,18 @@ namespace NServiceBus
             var featureStats = featureActivator.SetupFeatures(container, pipelineComponent.PipelineSettings, routing, receiveConfiguration);
             settings.AddStartupDiagnosticsSection("Features", featureStats);
 
-            pipelineComponent.Initialize(builder, container);
-
+            pipelineComponent.RegisterBehaviorsInContainer(container);
             container.ConfigureComponent(b => settings.Get<Notifications>(), DependencyLifecycle.SingleInstance);
 
             var eventAggregator = new EventAggregator(settings.Get<NotificationSubscriptions>());
 
             pipelineComponent.AddRootContextItem<IEventAggregator>(eventAggregator);
 
-            var queueBindings = settings.Get<QueueBindings>();
-
-            var receiveComponent = CreateReceiveComponent(receiveConfiguration, transportInfrastructure, pipelineComponent, queueBindings, eventAggregator);
-
             var shouldRunInstallers = settings.GetOrDefault<bool>("Installers.Enable");
 
             if (shouldRunInstallers)
             {
-                var username = GetInstallationUserName();
-
-                if (settings.CreateQueues())
-                {
-                    await receiveComponent.CreateQueuesIfNecessary(queueBindings, username).ConfigureAwait(false);
-                }
-
-                await RunInstallers(concreteTypes, username).ConfigureAwait(false);
+                RegisterInstallers(concreteTypes);
             }
 
             settings.AddStartupDiagnosticsSection("Endpoint",
@@ -92,9 +79,10 @@ namespace NServiceBus
                 }
             );
 
-            var messageSession = new MessageSession(pipelineComponent.CreateRootContext(builder));
+            var queueBindings = settings.Get<QueueBindings>();
+            var receiveComponent = CreateReceiveComponent(receiveConfiguration, transportInfrastructure, pipelineComponent, queueBindings, eventAggregator);
 
-            return new StartableEndpoint(settings, builder, featureActivator, transportInfrastructure, receiveComponent, criticalError, messageSession);
+            return new PreparedEndpoint(receiveComponent, queueBindings, featureActivator, transportInfrastructure, criticalError, settings, pipelineComponent);
         }
 
         RoutingComponent InitializeRouting(TransportInfrastructure transportInfrastructure, ReceiveConfiguration receiveConfiguration)
@@ -160,7 +148,6 @@ namespace NServiceBus
             var receiveComponent = new ReceiveComponent(receiveConfiguration,
                 receiveConfiguration != null ? transportInfrastructure.ConfigureReceiveInfrastructure() : null, //don't create the receive infrastructure for send-only endpoints
                 pipeline,
-                builder,
                 eventAggregator,
                 criticalError,
                 errorQueue);
@@ -240,49 +227,19 @@ namespace NServiceBus
             }
         }
 
-        void RegisterContainerAdapter(IContainer containerToAdapt)
-        {
-            var b = new CommonObjectBuilder(containerToAdapt);
+        
 
-            builder = b;
-            container = b;
-
-            container.ConfigureComponent<IBuilder>(_ => b, DependencyLifecycle.SingleInstance);
-        }
-
-        async Task RunInstallers(IEnumerable<Type> concreteTypes, string username)
+        void RegisterInstallers(IEnumerable<Type> concreteTypes)
         {
             foreach (var installerType in concreteTypes.Where(t => IsINeedToInstallSomething(t)))
             {
                 container.ConfigureComponent(installerType, DependencyLifecycle.InstancePerCall);
             }
-
-            foreach (var installer in builder.BuildAll<INeedToInstallSomething>())
-            {
-                await installer.Install(username).ConfigureAwait(false);
-            }
         }
 
         static bool IsINeedToInstallSomething(Type t) => typeof(INeedToInstallSomething).IsAssignableFrom(t);
 
-        string GetInstallationUserName()
-        {
-            if (!settings.TryGet("Installers.UserName", out string userName))
-            {
-                if (Environment.OSVersion.Platform == PlatformID.Win32NT)
-                {
-                    userName = $"{Environment.UserDomainName}\\{Environment.UserName}";
-                }
-                else
-                {
-                    userName = Environment.UserName;
-                }
-            }
-
-            return userName;
-        }
-
-        IBuilder builder;
+        
         IConfigureComponents container;
         PipelineComponent pipelineComponent;
         SettingsHolder settings;

@@ -13,11 +13,9 @@ namespace NServiceBus
             PipelineSettings = new PipelineSettings(modifications, settings);
         }
 
-        public void Initialize(IBuilder builder, IConfigureComponents container)
+        public void InitializeBuilder(IBuilder builder)
         {
             rootContextExtensions.Set<IPipelineCache>(new PipelineCache(builder, modifications));
-
-            RegisterBehaviorsInContainer(container);
         }
 
         public void AddRootContextItem<T>(T item)
@@ -41,7 +39,7 @@ namespace NServiceBus
 
         public PipelineSettings PipelineSettings { get; }
 
-        void RegisterBehaviorsInContainer(IConfigureComponents container)
+        public void RegisterBehaviorsInContainer(IConfigureComponents container)
         {
             foreach (var registeredBehavior in modifications.Replacements)
             {
