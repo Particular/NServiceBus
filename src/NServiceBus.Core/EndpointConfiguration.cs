@@ -83,6 +83,8 @@ namespace NServiceBus
             return conventionsBuilder;
         }
 
+        internal IContainer CustomContainer;
+
         /// <summary>
         /// Defines a custom builder to use.
         /// </summary>
@@ -113,7 +115,7 @@ namespace NServiceBus
         public void UseContainer(IContainer builder)
         {
             Guard.AgainstNull(nameof(builder), builder);
-            customBuilder = builder;
+            CustomContainer = builder;
         }
 
         /// <summary>
@@ -150,29 +152,7 @@ namespace NServiceBus
 
             return new InitializableEndpoint(Settings, configureComponents, registrations, pipelineComponent);
         }
-
-        internal IContainer ConfigureContainer()
-        {
-            if (customBuilder == null)
-            {
-                Settings.AddStartupDiagnosticsSection("Container", new
-                {
-                    Type = "internal"
-                });
-                return new LightInjectObjectBuilder();
-            }
-
-            var containerType = customBuilder.GetType();
-
-            Settings.AddStartupDiagnosticsSection("Container", new
-            {
-                Type = containerType.FullName,
-                Version = FileVersionRetriever.GetFileVersion(containerType)
-            });
-
-            return customBuilder;
-        }
-
+       
         void ConfigureMessageTypes(Conventions conventions)
         {
             var messageMetadataRegistry = new MessageMetadataRegistry(conventions.IsMessageType);
@@ -275,7 +255,6 @@ namespace NServiceBus
         }
 
         ConventionsBuilder conventionsBuilder;
-        IContainer customBuilder;
         PipelineComponent pipelineComponent;
         List<Action<IConfigureComponents>> registrations = new List<Action<IConfigureComponents>>();
         List<Type> scannedTypes;

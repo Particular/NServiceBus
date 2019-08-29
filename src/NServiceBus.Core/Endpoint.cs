@@ -1,6 +1,7 @@
 namespace NServiceBus
 {
     using System.Threading.Tasks;
+    using NServiceBus.ObjectBuilder.Common;
     using ObjectBuilder;
 
     /// <summary>
@@ -23,6 +24,7 @@ namespace NServiceBus
         internal static void Prepare(EndpointConfiguration configuration, IConfigureComponents configureComponents)
         {
             Guard.AgainstNull(nameof(configuration), configuration);
+            Guard.AgainstNull(nameof(configureComponents), configureComponents);
 
             //TODO: check if user is using anything container-related and throw
 
@@ -51,11 +53,29 @@ namespace NServiceBus
         {
             Guard.AgainstNull(nameof(configuration), configuration);
 
-            var container = configuration.ConfigureContainer();
+            var container = configuration.CustomContainer;
+
+            if (container == null)
+            {
+                configuration.Settings.AddStartupDiagnosticsSection("Container", new
+                {
+                    Type = "internal"
+                });
+                container = new LightInjectObjectBuilder();
+            }
+
+            var containerType = configuration.CustomContainer.GetType();
+
+            configuration.Settings.AddStartupDiagnosticsSection("Container", new
+            {
+                Type = containerType.FullName,
+                Version = FileVersionRetriever.GetFileVersion(containerType)
+            });
+
             var builder = new CommonObjectBuilder(container);
 
-            var initializable = configuration.Build(builder);
-            var prepared = initializable.Prepare();
+            var initializableEndpoint = configuration.Build(builder);
+            var prepared = initializableEndpoint.Prepare();
             builder.ConfigureComponent<IBuilder>(_ => builder, DependencyLifecycle.SingleInstance);
 
             return await prepared.Initialize(builder).ConfigureAwait(false);
