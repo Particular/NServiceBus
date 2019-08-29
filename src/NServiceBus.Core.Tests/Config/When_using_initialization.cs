@@ -13,7 +13,7 @@
 
             builder.TypesToScanInternal(new[] { typeof(FeatureWithInitialization) });
 
-            var ae = Assert.Throws<Exception>(() => builder.Build(null));
+            var ae = Assert.Throws<Exception>(() => builder.Build());
             var expected = $"Unable to create the type '{nameof(FeatureWithInitialization)}'. Types implementing '{nameof(INeedInitialization)}' must have a public parameterless (default) constructor.";
             Assert.AreEqual(expected, ae.Message);
         }

@@ -13,19 +13,19 @@ namespace NServiceBus
             Guard.AgainstNull(nameof(configuration), configuration);
             Guard.AgainstNull(nameof(configureComponents), configureComponents);
 
-            //TODO: check if user is using anything container-related and throw
+            configuration.UseExternallyManagedContainer(configureComponents);
 
-            var initializable = configuration.Build(configureComponents);
-            var prepared = initializable.Prepare();
+            var initializable = configuration.Build();
 
-            configureComponents.ConfigureComponent(_ => prepared.Builder, DependencyLifecycle.SingleInstance);
-
-            return prepared;
+            return initializable.Prepare();
         }
 
         internal static async Task<IEndpointInstance> Start(PreparedEndpoint preparedEndpoint, IBuilder builder)
         {
-            var initialized = await preparedEndpoint.Initialize(builder).ConfigureAwait(false);
+            preparedEndpoint.UseExternallyManagedBuilder(builder);
+
+            var initialized = await preparedEndpoint.Initialize().ConfigureAwait(false);
+
             return await initialized.Start().ConfigureAwait(false);
         }
 
@@ -37,34 +37,11 @@ namespace NServiceBus
         {
             Guard.AgainstNull(nameof(configuration), configuration);
 
-            var container = configuration.CustomContainer;
-
-            if (container == null)
-            {
-                configuration.Settings.AddStartupDiagnosticsSection("Container", new
-                {
-                    Type = "internal"
-                });
-                container = new LightInjectObjectBuilder();
-            }
-
-            var containerType = container.GetType();
-
-            configuration.Settings.AddStartupDiagnosticsSection("Container", new
-            {
-                Type = containerType.FullName,
-                Version = FileVersionRetriever.GetFileVersion(containerType)
-            });
-
-            var builder = new CommonObjectBuilder(container);
-
-            var initializableEndpoint = configuration.Build(builder);
+            var initializableEndpoint = configuration.Build();
 
             var preparedEndpoint = initializableEndpoint.Prepare();
 
-            builder.ConfigureComponent<IBuilder>(_ => builder, DependencyLifecycle.SingleInstance);
-
-            return await preparedEndpoint.Initialize(builder).ConfigureAwait(false);
+            return await preparedEndpoint.Initialize().ConfigureAwait(false);
         }
 
         /// <summary>
@@ -73,8 +50,9 @@ namespace NServiceBus
         /// <param name="configuration">Configuration.</param>
         public static async Task<IEndpointInstance> Start(EndpointConfiguration configuration)
         {
-            var initializable = await Create(configuration).ConfigureAwait(false);
-            return await initializable.Start().ConfigureAwait(false);
+            var initializableEndpoint = await Create(configuration).ConfigureAwait(false);
+
+            return await initializableEndpoint.Start().ConfigureAwait(false);
         }
     }
 }

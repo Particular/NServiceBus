@@ -34,7 +34,8 @@ namespace NServiceBus
             Settings.Set("NServiceBus.Routing.EndpointName", endpointName);
 
             pipelineComponent = new PipelineComponent(Settings);
-           
+            containerComponent = new ContainerComponent(Settings);
+
             Settings.Set(new QueueBindings());
 
             Settings.SetDefault("Endpoint.SendOnly", false);
@@ -64,7 +65,8 @@ namespace NServiceBus
         public void RegisterComponents(Action<IConfigureComponents> registration)
         {
             Guard.AgainstNull(nameof(registration), registration);
-            registrations.Add(registration);
+
+            containerComponent.AddUserRegistration(registration);
         }
 
         /// <summary>
@@ -83,17 +85,13 @@ namespace NServiceBus
             return conventionsBuilder;
         }
 
-        internal IContainer CustomContainer;
-
         /// <summary>
         /// Defines a custom builder to use.
         /// </summary>
         /// <typeparam name="T">The builder type of the <see cref="ContainerDefinition" />.</typeparam>
         public void UseContainer<T>(Action<ContainerCustomizations> customizations = null) where T : ContainerDefinition, new()
         {
-            customizations?.Invoke(new ContainerCustomizations(Settings));
-
-            UseContainer(typeof(T));
+            containerComponent.UseContainer<T>(customizations);
         }
 
         /// <summary>
@@ -105,7 +103,7 @@ namespace NServiceBus
             Guard.AgainstNull(nameof(definitionType), definitionType);
             Guard.TypeHasDefaultConstructor(definitionType, nameof(definitionType));
 
-            UseContainer(definitionType.Construct<ContainerDefinition>().CreateContainer(Settings));
+            containerComponent.UseContainer(definitionType.Construct<ContainerDefinition>().CreateContainer(Settings));
         }
 
         /// <summary>
@@ -115,7 +113,8 @@ namespace NServiceBus
         public void UseContainer(IContainer builder)
         {
             Guard.AgainstNull(nameof(builder), builder);
-            CustomContainer = builder;
+
+            containerComponent.UseContainer(builder);
         }
 
         /// <summary>
@@ -126,10 +125,7 @@ namespace NServiceBus
             scannedTypes = typesToScan.ToList();
         }
 
-        /// <summary>
-        /// Creates the configuration object.
-        /// </summary>
-        internal InitializableEndpoint Build(IConfigureComponents configureComponents)
+        internal InitializableEndpoint Build()
         {
             if (scannedTypes == null)
             {
@@ -149,8 +145,8 @@ namespace NServiceBus
             Settings.SetDefault(conventions);
 
             ConfigureMessageTypes(conventions);
-
-            return new InitializableEndpoint(Settings, configureComponents, registrations, pipelineComponent);
+            containerComponent.Initialize();
+            return new InitializableEndpoint(Settings, containerComponent, pipelineComponent);
         }
        
         void ConfigureMessageTypes(Conventions conventions)
@@ -254,9 +250,14 @@ namespace NServiceBus
             return results.Types;
         }
 
+        internal void UseExternallyManagedContainer(IConfigureComponents configureComponents)
+        {
+            containerComponent.UseExternallyManagedContainer(configureComponents);
+        }
+
+        ContainerComponent containerComponent;
         ConventionsBuilder conventionsBuilder;
         PipelineComponent pipelineComponent;
-        List<Action<IConfigureComponents>> registrations = new List<Action<IConfigureComponents>>();
         List<Type> scannedTypes;
     }
 }

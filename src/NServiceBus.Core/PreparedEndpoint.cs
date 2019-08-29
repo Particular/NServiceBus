@@ -10,7 +10,7 @@ namespace NServiceBus
 
     class PreparedEndpoint
     {
-        public PreparedEndpoint(ReceiveComponent receiveComponent, QueueBindings queueBindings, FeatureActivator featureActivator, TransportInfrastructure transportInfrastructure, CriticalError criticalError, SettingsHolder settings, PipelineComponent pipelineComponent)
+        public PreparedEndpoint(ReceiveComponent receiveComponent, QueueBindings queueBindings, FeatureActivator featureActivator, TransportInfrastructure transportInfrastructure, CriticalError criticalError, SettingsHolder settings, PipelineComponent pipelineComponent, ContainerComponent containerComponent)
         {
             this.receiveComponent = receiveComponent;
             this.queueBindings = queueBindings;
@@ -19,13 +19,17 @@ namespace NServiceBus
             this.criticalError = criticalError;
             this.settings = settings;
             this.pipelineComponent = pipelineComponent;
+            this.containerComponent = containerComponent;
         }
 
-        public async Task<IStartableEndpoint> Initialize(IBuilder builder)
+        public void UseExternallyManagedBuilder(IBuilder builder)
         {
-            Builder = builder;
+            containerComponent.UseExternallyManagedBuilder(builder);
+        }
 
-            pipelineComponent.InitializeBuilder(builder);
+        public async Task<IStartableEndpoint> Initialize()
+        {
+            pipelineComponent.InitializeBuilder(containerComponent.Builder);
 
             var shouldRunInstallers = settings.GetOrDefault<bool>("Installers.Enable");
 
@@ -38,15 +42,13 @@ namespace NServiceBus
                     await receiveComponent.CreateQueuesIfNecessary(queueBindings, username).ConfigureAwait(false);
                 }
 
-                await RunInstallers(builder, username).ConfigureAwait(false);
+                await RunInstallers(containerComponent.Builder, username).ConfigureAwait(false);
             }
 
-            var messageSession = new MessageSession(pipelineComponent.CreateRootContext(builder));
+            var messageSession = new MessageSession(pipelineComponent.CreateRootContext(containerComponent.Builder));
 
-            return new StartableEndpoint(settings, builder, featureActivator, transportInfrastructure, receiveComponent, criticalError, messageSession);
+            return new StartableEndpoint(settings, containerComponent, featureActivator, transportInfrastructure, receiveComponent, criticalError, messageSession);
         }
-
-        public IBuilder Builder { get; private set; }
 
         async Task RunInstallers(IBuilder builder, string username)
         {
@@ -80,5 +82,6 @@ namespace NServiceBus
         CriticalError criticalError;
         SettingsHolder settings;
         PipelineComponent pipelineComponent;
+        ContainerComponent containerComponent;
     }
 }

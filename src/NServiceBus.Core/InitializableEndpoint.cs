@@ -8,7 +8,6 @@ namespace NServiceBus
     using Installation;
     using MessageInterfaces;
     using MessageInterfaces.MessageMapper.Reflection;
-    using ObjectBuilder;
     using Routing;
     using Routing.MessageDrivenSubscriptions;
     using Settings;
@@ -17,17 +16,14 @@ namespace NServiceBus
     class InitializableEndpoint
     {
         public InitializableEndpoint(SettingsHolder settings,
-            IConfigureComponents container,
-            List<Action<IConfigureComponents>> registrations,
+            ContainerComponent containerComponent,
             PipelineComponent pipelineComponent)
         {
             this.settings = settings;
-            this.container = container;
+            this.containerComponent = containerComponent;
             this.pipelineComponent = pipelineComponent;
-
-            RunUserRegistrations(registrations);
-
-            this.container.RegisterSingleton<ReadOnlySettings>(settings);
+           
+            containerComponent.ContainerConfiguration.RegisterSingleton<ReadOnlySettings>(settings);
         }
 
         public PreparedEndpoint Prepare()
@@ -53,11 +49,11 @@ namespace NServiceBus
 
             pipelineComponent.AddRootContextItem<IMessageMapper>(messageMapper);
 
-            var featureStats = featureActivator.SetupFeatures(container, pipelineComponent.PipelineSettings, routing, receiveConfiguration);
+            var featureStats = featureActivator.SetupFeatures(containerComponent.ContainerConfiguration, pipelineComponent.PipelineSettings, routing, receiveConfiguration);
             settings.AddStartupDiagnosticsSection("Features", featureStats);
 
-            pipelineComponent.RegisterBehaviorsInContainer(container);
-            container.ConfigureComponent(b => settings.Get<Notifications>(), DependencyLifecycle.SingleInstance);
+            pipelineComponent.RegisterBehaviorsInContainer(containerComponent.ContainerConfiguration);
+            containerComponent.ContainerConfiguration.ConfigureComponent(b => settings.Get<Notifications>(), DependencyLifecycle.SingleInstance);
 
             var eventAggregator = new EventAggregator(settings.Get<NotificationSubscriptions>());
 
@@ -82,7 +78,7 @@ namespace NServiceBus
             var queueBindings = settings.Get<QueueBindings>();
             var receiveComponent = CreateReceiveComponent(receiveConfiguration, transportInfrastructure, pipelineComponent, queueBindings, eventAggregator);
 
-            return new PreparedEndpoint(receiveComponent, queueBindings, featureActivator, transportInfrastructure, criticalError, settings, pipelineComponent);
+            return new PreparedEndpoint(receiveComponent, queueBindings, featureActivator, transportInfrastructure, criticalError, settings, pipelineComponent, containerComponent);
         }
 
         RoutingComponent InitializeRouting(TransportInfrastructure transportInfrastructure, ReceiveConfiguration receiveConfiguration)
@@ -216,33 +212,23 @@ namespace NServiceBus
         {
             settings.TryGet("onCriticalErrorAction", out Func<ICriticalErrorContext, Task> errorAction);
             criticalError = new CriticalError(errorAction);
-            container.RegisterSingleton(criticalError);
+            containerComponent.ContainerConfiguration.RegisterSingleton(criticalError);
         }
-
-        void RunUserRegistrations(List<Action<IConfigureComponents>> registrations)
-        {
-            foreach (var registration in registrations)
-            {
-                registration(container);
-            }
-        }
-
-        
 
         void RegisterInstallers(IEnumerable<Type> concreteTypes)
         {
             foreach (var installerType in concreteTypes.Where(t => IsINeedToInstallSomething(t)))
             {
-                container.ConfigureComponent(installerType, DependencyLifecycle.InstancePerCall);
+                containerComponent.ContainerConfiguration.ConfigureComponent(installerType, DependencyLifecycle.InstancePerCall);
             }
         }
 
         static bool IsINeedToInstallSomething(Type t) => typeof(INeedToInstallSomething).IsAssignableFrom(t);
 
-        
-        IConfigureComponents container;
         PipelineComponent pipelineComponent;
         SettingsHolder settings;
+
+        ContainerComponent containerComponent;
         CriticalError criticalError;
     }
 }
