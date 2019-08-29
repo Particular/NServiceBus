@@ -48,7 +48,7 @@ namespace NServiceBus
                 container = new LightInjectObjectBuilder();
             }
 
-            var containerType = configuration.CustomContainer.GetType();
+            var containerType = container.GetType();
 
             configuration.Settings.AddStartupDiagnosticsSection("Container", new
             {
