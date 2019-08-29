@@ -9,18 +9,6 @@ namespace NServiceBus
     /// </summary>
     public static class Endpoint
     {
-        class BuilderHolder
-        {
-            IBuilder builder;
-
-            public IBuilder Builder => builder;
-
-            public void Initialize(IBuilder builder)
-            {
-                this.builder = builder;
-            }
-        }
-
         internal static void Prepare(EndpointConfiguration configuration, IConfigureComponents configureComponents)
         {
             Guard.AgainstNull(nameof(configuration), configuration);
@@ -89,6 +77,16 @@ namespace NServiceBus
         {
             var initializable = await Create(configuration).ConfigureAwait(false);
             return await initializable.Start().ConfigureAwait(false);
+        }
+
+        class BuilderHolder
+        {
+            public IBuilder Builder { get; private set; }
+
+            public void Initialize(IBuilder builder)
+            {
+                Builder = builder;
+            }
         }
     }
 }
