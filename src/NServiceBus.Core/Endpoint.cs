@@ -1,7 +1,6 @@
 namespace NServiceBus
 {
     using System.Threading.Tasks;
-    using NServiceBus.ObjectBuilder.Common;
     using ObjectBuilder;
 
     /// <summary>
@@ -9,7 +8,7 @@ namespace NServiceBus
     /// </summary>
     public static class Endpoint
     {
-        internal static void Prepare(EndpointConfiguration configuration, IConfigureComponents configureComponents)
+        internal static PreparedEndpoint Prepare(EndpointConfiguration configuration, IConfigureComponents configureComponents)
         {
             Guard.AgainstNull(nameof(configuration), configuration);
             Guard.AgainstNull(nameof(configureComponents), configureComponents);
@@ -18,17 +17,14 @@ namespace NServiceBus
 
             var initializable = configuration.Build(configureComponents);
             var prepared = initializable.Prepare();
-            var holder = new BuilderHolder();
-            configureComponents.ConfigureComponent(_ => prepared, DependencyLifecycle.SingleInstance);
-            configureComponents.ConfigureComponent(_ => holder, DependencyLifecycle.SingleInstance);
-            configureComponents.ConfigureComponent(_ => holder.Builder, DependencyLifecycle.SingleInstance);
+
+            configureComponents.ConfigureComponent(_ => prepared.Builder, DependencyLifecycle.SingleInstance);
+
+            return prepared;
         }
 
-        internal static async Task<IEndpointInstance> Start(IBuilder builder)
+        internal static async Task<IEndpointInstance> Start(PreparedEndpoint preparedEndpoint, IBuilder builder)
         {
-            var preparedEndpoint = builder.Build<PreparedEndpoint>();
-            var builderHolder = builder.Build<BuilderHolder>();
-            builderHolder.Initialize(builder);
             var initialized = await preparedEndpoint.Initialize(builder).ConfigureAwait(false);
             return await initialized.Start().ConfigureAwait(false);
         }
@@ -64,6 +60,7 @@ namespace NServiceBus
 
             var initializableEndpoint = configuration.Build(builder);
             var prepared = initializableEndpoint.Prepare();
+
             builder.ConfigureComponent<IBuilder>(_ => builder, DependencyLifecycle.SingleInstance);
 
             return await prepared.Initialize(builder).ConfigureAwait(false);
@@ -77,16 +74,6 @@ namespace NServiceBus
         {
             var initializable = await Create(configuration).ConfigureAwait(false);
             return await initializable.Start().ConfigureAwait(false);
-        }
-
-        class BuilderHolder
-        {
-            public IBuilder Builder { get; private set; }
-
-            public void Initialize(IBuilder builder)
-            {
-                Builder = builder;
-            }
         }
     }
 }

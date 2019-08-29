@@ -10,14 +10,6 @@ namespace NServiceBus
 
     class PreparedEndpoint
     {
-        ReceiveComponent receiveComponent;
-        QueueBindings queueBindings;
-        FeatureActivator featureActivator;
-        TransportInfrastructure transportInfrastructure;
-        CriticalError criticalError;
-        SettingsHolder settings;
-        PipelineComponent pipelineComponent;
-
         public PreparedEndpoint(ReceiveComponent receiveComponent, QueueBindings queueBindings, FeatureActivator featureActivator, TransportInfrastructure transportInfrastructure, CriticalError criticalError, SettingsHolder settings, PipelineComponent pipelineComponent)
         {
             this.receiveComponent = receiveComponent;
@@ -31,6 +23,8 @@ namespace NServiceBus
 
         public async Task<IStartableEndpoint> Initialize(IBuilder builder)
         {
+            Builder = builder;
+
             pipelineComponent.InitializeBuilder(builder);
 
             var shouldRunInstallers = settings.GetOrDefault<bool>("Installers.Enable");
@@ -51,6 +45,8 @@ namespace NServiceBus
 
             return new StartableEndpoint(settings, builder, featureActivator, transportInfrastructure, receiveComponent, criticalError, messageSession);
         }
+
+        public IBuilder Builder { get; private set; }
 
         async Task RunInstallers(IBuilder builder, string username)
         {
@@ -76,5 +72,13 @@ namespace NServiceBus
 
             return userName;
         }
+
+        ReceiveComponent receiveComponent;
+        QueueBindings queueBindings;
+        FeatureActivator featureActivator;
+        TransportInfrastructure transportInfrastructure;
+        CriticalError criticalError;
+        SettingsHolder settings;
+        PipelineComponent pipelineComponent;
     }
 }
