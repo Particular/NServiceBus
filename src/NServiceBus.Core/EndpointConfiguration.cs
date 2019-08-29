@@ -148,8 +148,6 @@ namespace NServiceBus
 
             ConfigureMessageTypes(conventions);
 
-            ConfigureContainer();
-
             return new InitializableEndpoint(Settings, configureComponents, registrations, pipelineComponent);
         }
 
