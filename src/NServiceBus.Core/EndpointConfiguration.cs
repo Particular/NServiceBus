@@ -103,7 +103,7 @@ namespace NServiceBus
             Guard.AgainstNull(nameof(definitionType), definitionType);
             Guard.TypeHasDefaultConstructor(definitionType, nameof(definitionType));
 
-            containerComponent.UseContainer(definitionType.Construct<ContainerDefinition>().CreateContainer(Settings));
+            containerComponent.UseContainer(definitionType);
         }
 
         /// <summary>
