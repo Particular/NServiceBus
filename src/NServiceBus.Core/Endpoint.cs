@@ -59,11 +59,12 @@ namespace NServiceBus
             var builder = new CommonObjectBuilder(container);
 
             var initializableEndpoint = configuration.Build(builder);
-            var prepared = initializableEndpoint.Prepare();
+
+            var preparedEndpoint = initializableEndpoint.Prepare();
 
             builder.ConfigureComponent<IBuilder>(_ => builder, DependencyLifecycle.SingleInstance);
 
-            return await prepared.Initialize(builder).ConfigureAwait(false);
+            return await preparedEndpoint.Initialize(builder).ConfigureAwait(false);
         }
 
         /// <summary>
