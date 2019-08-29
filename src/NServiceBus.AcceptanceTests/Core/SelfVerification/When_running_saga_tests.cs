@@ -50,7 +50,6 @@
                 .ToArray();
 
             var nestedSagaEntityParents = sagaEntities
-                .Where(t => t.DeclaringType != null)
                 .Select(t => t.DeclaringType)
                 .ToArray();
 
