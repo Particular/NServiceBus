@@ -72,7 +72,7 @@ namespace NServiceBus.Routing.MessageDrivenSubscriptions
             }
             if (instances != null)
             {
-                return string.Join(", ", instances.Select(x => $"[{x.ToString()}]").OrderBy(x => x));
+                return string.Join(", ", instances.Select(x => $"[{x}]").OrderBy(x => x));
             }
             return string.Join(", ", addresses.Select(x => $"<{x}>").OrderBy(x => x));
         }
