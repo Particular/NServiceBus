@@ -5,17 +5,16 @@
     using System.Threading.Tasks;
     using AcceptanceTesting.Customization;
     using AcceptanceTesting.Support;
-    using Configuration.AdvancedExtensibility;
     using Features;
 
-    public class DefaultServer : IEndpointSetupTemplate
+    public class ExternalContainerServer : IEndpointSetupTemplate
     {
-        public DefaultServer()
+        public ExternalContainerServer()
         {
             typesToInclude = new List<Type>();
         }
 
-        public DefaultServer(List<Type> typesToInclude)
+        public ExternalContainerServer(List<Type> typesToInclude)
         {
             this.typesToInclude = typesToInclude;
         }
@@ -31,7 +30,6 @@
             configuration.TypesToIncludeInScan(typesToInclude);
             configuration.EnableInstallers();
 
-            configuration.UseContainer(new AcceptanceTestingContainer());
             configuration.DisableFeature<TimeoutManager>();
 
             var recoverability = configuration.Recoverability();

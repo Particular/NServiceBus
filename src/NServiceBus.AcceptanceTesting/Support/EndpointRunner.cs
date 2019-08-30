@@ -8,6 +8,7 @@
     using Configuration.AdvancedExtensibility;
     using Logging;
     using NServiceBus.Support;
+    using ObjectBuilder.Common;
     using Transport;
 
     public class EndpointRunner : ComponentRunner
@@ -16,6 +17,8 @@
         bool doNotFailOnErrorMessages;
         EndpointBehavior behavior;
         IStartableEndpoint startable;
+        PreparedEndpoint preparedEndpoint;
+        CommonObjectBuilder externalBuilder;
         IEndpointInstance endpointInstance;
         EndpointCustomizationConfiguration configuration;
         ScenarioContext scenarioContext;
@@ -53,7 +56,15 @@
 
                 endpointBehavior.CustomConfig.ForEach(customAction => customAction(endpointConfiguration, scenarioContext));
 
-                startable = await Endpoint.Create(endpointConfiguration).ConfigureAwait(false);
+                if (endpointConfiguration.GetSettings().TryGet<IContainer>("ExternalContainer", out var externalContainer))
+                {
+                    externalBuilder = new CommonObjectBuilder(externalContainer);
+                    preparedEndpoint = Endpoint.Prepare(endpointConfiguration, externalBuilder);
+                }
+                else
+                {
+                    startable = await Endpoint.Create(endpointConfiguration).ConfigureAwait(false);
+                }
 
                 var transportInfrastructure = endpointConfiguration.GetSettings().Get<TransportInfrastructure>();
                 scenarioContext.HasNativePubSubSupport = transportInfrastructure.OutboundRoutingPolicy.Publishes == OutboundRoutingType.Multicast;
@@ -80,7 +91,14 @@
             ScenarioContext.CurrentEndpoint = configuration.EndpointName;
             try
             {
-                endpointInstance = await startable.Start().ConfigureAwait(false);
+                if (startable != null)
+                {
+                    endpointInstance = await startable.Start().ConfigureAwait(false);
+                }
+                else
+                {
+                    endpointInstance = await Endpoint.Start(preparedEndpoint, externalBuilder).ConfigureAwait(false);
+                }
 
                 if (token.IsCancellationRequested)
                 {
