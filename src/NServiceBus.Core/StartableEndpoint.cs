@@ -4,7 +4,6 @@ namespace NServiceBus
     using System.Security.Principal;
     using System.Threading.Tasks;
     using Features;
-    using ObjectBuilder;
     using Settings;
     using Transport;
 
