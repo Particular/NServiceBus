@@ -13,6 +13,16 @@ namespace NServiceBus
     /// </summary>
     public class PreparedEndpoint
     {
+        internal PreparedEndpoint()
+        {
+            MessageSession = new UninitializedMessageSession();
+        }
+
+        /// <summary>
+        /// The message session (can only be used once the endpoint have been started).
+        /// </summary>
+        public IMessageSession MessageSession { get; private set; }
+
         internal PreparedEndpoint(ReceiveComponent receiveComponent, QueueBindings queueBindings, FeatureActivator featureActivator, TransportInfrastructure transportInfrastructure, CriticalError criticalError, SettingsHolder settings, PipelineComponent pipelineComponent, ContainerComponent containerComponent)
         {
             this.receiveComponent = receiveComponent;
@@ -48,9 +58,9 @@ namespace NServiceBus
                 await RunInstallers(containerComponent.Builder, username).ConfigureAwait(false);
             }
 
-            var messageSession = new MessageSession(pipelineComponent.CreateRootContext(containerComponent.Builder));
+            MessageSession = new MessageSession(pipelineComponent.CreateRootContext(containerComponent.Builder));
 
-            return new StartableEndpoint(settings, containerComponent, featureActivator, transportInfrastructure, receiveComponent, criticalError, messageSession);
+            return new StartableEndpoint(settings, containerComponent, featureActivator, transportInfrastructure, receiveComponent, criticalError, MessageSession);
         }
 
         async Task RunInstallers(IBuilder builder, string username)
@@ -86,5 +96,40 @@ namespace NServiceBus
         SettingsHolder settings;
         PipelineComponent pipelineComponent;
         ContainerComponent containerComponent;
+
+        class UninitializedMessageSession : IMessageSession
+        {
+            public Task Publish(object message, PublishOptions options)
+            {
+                throw new InvalidOperationException(ExceptionMessage);
+            }
+
+            public Task Publish<T>(Action<T> messageConstructor, PublishOptions publishOptions)
+            {
+                throw new InvalidOperationException(ExceptionMessage);
+            }
+
+            public Task Send(object message, SendOptions options)
+            {
+                throw new InvalidOperationException(ExceptionMessage);
+            }
+
+            public Task Send<T>(Action<T> messageConstructor, SendOptions options)
+            {
+                throw new InvalidOperationException(ExceptionMessage);
+            }
+
+            public Task Subscribe(Type eventType, SubscribeOptions options)
+            {
+                throw new InvalidOperationException(ExceptionMessage);
+            }
+
+            public Task Unsubscribe(Type eventType, UnsubscribeOptions options)
+            {
+                throw new InvalidOperationException(ExceptionMessage);
+            }
+
+            static string ExceptionMessage = "The message session can only be used once the endpoint is started.";
+        }
     }
 }

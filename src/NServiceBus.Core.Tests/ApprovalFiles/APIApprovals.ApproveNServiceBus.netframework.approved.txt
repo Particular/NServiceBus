@@ -736,7 +736,10 @@ namespace NServiceBus
     {
         public PersistenceExtensions(NServiceBus.Settings.SettingsHolder settings) { }
     }
-    public class PreparedEndpoint { }
+    public class PreparedEndpoint
+    {
+        public NServiceBus.IMessageSession MessageSession { get; }
+    }
     public class PublishOptions : NServiceBus.Extensibility.ExtendableOptions
     {
         public PublishOptions() { }
