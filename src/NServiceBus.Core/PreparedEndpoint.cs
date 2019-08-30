@@ -8,9 +8,12 @@ namespace NServiceBus
     using Settings;
     using Transport;
 
-    class PreparedEndpoint
+    /// <summary>
+    /// A prepared endpoint using an external container.
+    /// </summary>
+    public class PreparedEndpoint
     {
-        public PreparedEndpoint(ReceiveComponent receiveComponent, QueueBindings queueBindings, FeatureActivator featureActivator, TransportInfrastructure transportInfrastructure, CriticalError criticalError, SettingsHolder settings, PipelineComponent pipelineComponent, ContainerComponent containerComponent)
+        internal PreparedEndpoint(ReceiveComponent receiveComponent, QueueBindings queueBindings, FeatureActivator featureActivator, TransportInfrastructure transportInfrastructure, CriticalError criticalError, SettingsHolder settings, PipelineComponent pipelineComponent, ContainerComponent containerComponent)
         {
             this.receiveComponent = receiveComponent;
             this.queueBindings = queueBindings;
@@ -22,12 +25,12 @@ namespace NServiceBus
             this.containerComponent = containerComponent;
         }
 
-        public void UseExternallyManagedBuilder(IBuilder builder)
+        internal void UseExternallyManagedBuilder(IBuilder builder)
         {
             containerComponent.UseExternallyManagedBuilder(builder);
         }
 
-        public async Task<IStartableEndpoint> Initialize()
+        internal async Task<IStartableEndpoint> Initialize()
         {
             pipelineComponent.InitializeBuilder(containerComponent.Builder);
 

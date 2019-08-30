@@ -297,6 +297,8 @@ namespace NServiceBus
     public class static Endpoint
     {
         public static System.Threading.Tasks.Task<NServiceBus.IStartableEndpoint> Create(NServiceBus.EndpointConfiguration configuration) { }
+        public static NServiceBus.PreparedEndpoint Prepare(NServiceBus.EndpointConfiguration configuration, NServiceBus.ObjectBuilder.IConfigureComponents configureComponents) { }
+        public static System.Threading.Tasks.Task<NServiceBus.IEndpointInstance> Start(NServiceBus.PreparedEndpoint preparedEndpoint, NServiceBus.ObjectBuilder.IBuilder builder) { }
         public static System.Threading.Tasks.Task<NServiceBus.IEndpointInstance> Start(NServiceBus.EndpointConfiguration configuration) { }
     }
     public class EndpointConfiguration : NServiceBus.Configuration.AdvancedExtensibility.ExposeSettings
@@ -734,6 +736,7 @@ namespace NServiceBus
     {
         public PersistenceExtensions(NServiceBus.Settings.SettingsHolder settings) { }
     }
+    public class PreparedEndpoint { }
     public class PublishOptions : NServiceBus.Extensibility.ExtendableOptions
     {
         public PublishOptions() { }

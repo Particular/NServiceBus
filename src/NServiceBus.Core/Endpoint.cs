@@ -8,7 +8,13 @@ namespace NServiceBus
     /// </summary>
     public static class Endpoint
     {
-        internal static PreparedEndpoint Prepare(EndpointConfiguration configuration, IConfigureComponents configureComponents)
+        /// <summary>
+        /// Prepares an endpoint to run with and externally managed container.
+        /// </summary>
+        /// <param name="configuration">The endpoint configuration.</param>
+        /// <param name="configureComponents">The registration api adapter for the external container.</param>
+        /// <returns>The prepared endpoint.</returns>
+        public static PreparedEndpoint Prepare(EndpointConfiguration configuration, IConfigureComponents configureComponents)
         {
             Guard.AgainstNull(nameof(configuration), configuration);
             Guard.AgainstNull(nameof(configureComponents), configureComponents);
@@ -20,7 +26,13 @@ namespace NServiceBus
             return initializable.Prepare();
         }
 
-        internal static async Task<IEndpointInstance> Start(PreparedEndpoint preparedEndpoint, IBuilder builder)
+        /// <summary>
+        /// Starts a prepared endpoint.
+        /// </summary>
+        /// <param name="preparedEndpoint">The prepared endpoint.</param>
+        /// <param name="builder">The adapter for the containers resolve API.</param>
+        /// <returns>A started endpoint instance.</returns>
+        public static async Task<IEndpointInstance> Start(PreparedEndpoint preparedEndpoint, IBuilder builder)
         {
             preparedEndpoint.UseExternallyManagedBuilder(builder);
 
