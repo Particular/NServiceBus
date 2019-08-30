@@ -91,7 +91,7 @@
                         builder.Build<ExpiredTimeoutsPoller>(),
                         builder.Build<IDispatchMessages>(),
                         builder.Build<IPersistTimeouts>(),
-                        context.Settings.EndpointName().ToString());
+                        context.Settings.EndpointName());
 
                     return storeBehavior.Invoke(messageContext);
                 });
