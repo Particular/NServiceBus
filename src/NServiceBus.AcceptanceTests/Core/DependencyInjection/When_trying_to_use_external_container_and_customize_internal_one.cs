@@ -10,15 +10,12 @@
     {
         [Test]
         public void It_throws_exception_when_preparing()
-        {
-            var container = new AcceptanceTestingContainer();
-            
+        {  
             Assert.ThrowsAsync<InvalidOperationException>(async () =>
             {
                 await Scenario.Define<Context>()
                     .WithEndpoint<ExternalContainerEndpoint>(b => b.CustomConfig(c =>
                     {
-                        c.GetSettings().Set("ExternalContainer", container);
                         c.UseContainer(new AcceptanceTestingContainer());
                     }))
                     .Done(c => c.Message != null)
@@ -35,7 +32,8 @@
         {
             public ExternalContainerEndpoint()
             {
-                EndpointSetup<ExternalContainerServer>();
+                EndpointSetup<ExternalContainerServer>()
+                    .ExternalContainer(new AcceptanceTestingContainer());
             }
         }
     }

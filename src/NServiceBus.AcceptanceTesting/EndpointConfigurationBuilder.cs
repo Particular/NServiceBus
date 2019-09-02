@@ -3,6 +3,7 @@
     using System;
     using Configuration.AdvancedExtensibility;
     using Features;
+    using NServiceBus.ObjectBuilder.Common;
     using Support;
 
     public class EndpointConfigurationBuilder : IEndpointConfigurationFactory
@@ -24,6 +25,13 @@
         public EndpointConfigurationBuilder CustomEndpointName(string customEndpointName)
         {
             configuration.CustomEndpointName = customEndpointName;
+
+            return this;
+        }
+
+        public EndpointConfigurationBuilder ExternalContainer(IContainer container)
+        {
+            configuration.ExternalContainer = container;
 
             return this;
         }

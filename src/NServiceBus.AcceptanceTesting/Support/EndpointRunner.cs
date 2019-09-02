@@ -56,9 +56,9 @@
 
                 endpointBehavior.CustomConfig.ForEach(customAction => customAction(endpointConfiguration, scenarioContext));
 
-                if (endpointConfiguration.GetSettings().TryGet<IContainer>("ExternalContainer", out var externalContainer))
+                if (configuration.ExternalContainer != null)
                 {
-                    externalBuilder = new CommonObjectBuilder(externalContainer);
+                    externalBuilder = new CommonObjectBuilder(configuration.ExternalContainer);
                     preparedEndpoint = Endpoint.Prepare(endpointConfiguration, externalBuilder);
                 }
                 else
