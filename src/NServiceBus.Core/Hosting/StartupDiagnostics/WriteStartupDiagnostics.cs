@@ -23,7 +23,9 @@
 
             var duplicateNames = entries.GroupBy(item => item.Name)
                 .Where(group => group.Count() > 1)
+                .Select(group => group.Key)
                 .ToList();
+
             if (duplicateNames.Any())
             {
                 logger.Error("Diagnostics entries contains duplicates. Duplicates: " + string.Join(", ", duplicateNames));
