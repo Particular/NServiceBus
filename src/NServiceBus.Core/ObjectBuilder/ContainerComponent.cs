@@ -66,14 +66,16 @@ namespace NServiceBus
                     });
                     container = new LightInjectObjectBuilder();
                 }
-
-                var containerType = container.GetType();
-
-                settings.AddStartupDiagnosticsSection("Container", new
+                else
                 {
-                    Type = containerType.FullName,
-                    Version = FileVersionRetriever.GetFileVersion(containerType)
-                });
+                    var containerType = container.GetType();
+
+                    settings.AddStartupDiagnosticsSection("Container", new
+                    {
+                        Type = containerType.FullName,
+                        Version = FileVersionRetriever.GetFileVersion(containerType)
+                    });
+                }
 
                 var commonObjectBuilder = new CommonObjectBuilder(container);
 
