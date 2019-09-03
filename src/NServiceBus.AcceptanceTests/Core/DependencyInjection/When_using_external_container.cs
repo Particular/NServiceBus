@@ -13,11 +13,10 @@
         };
 
         [Test]
-        public async Task Make_sure_it_works()
+        public async Task Should_use_it_for_component_resolution()
         {
             var result = await Scenario.Define<Context>()
             .WithEndpoint<ExternalContainerEndpoint>(b => b.When(e => e.SendLocal(new SomeMessage())))
-
             .Done(c => c.Message != null)
             .Run();
 
