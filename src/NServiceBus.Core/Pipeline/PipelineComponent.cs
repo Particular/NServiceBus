@@ -13,7 +13,7 @@ namespace NServiceBus
             PipelineSettings = new PipelineSettings(modifications, settings);
         }
 
-        public void InitializeBuilder(IBuilder builder)
+        public void Initialize(IBuilder builder)
         {
             rootContextExtensions.Set<IPipelineCache>(new PipelineCache(builder, modifications));
         }

@@ -42,7 +42,7 @@ namespace NServiceBus
 
         internal async Task<IStartableEndpoint> Initialize()
         {
-            pipelineComponent.InitializeBuilder(containerComponent.Builder);
+            pipelineComponent.Initialize(containerComponent.Builder);
 
             var shouldRunInstallers = settings.GetOrDefault<bool>("Installers.Enable");
 
