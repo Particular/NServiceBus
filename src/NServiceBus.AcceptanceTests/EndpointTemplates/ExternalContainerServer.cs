@@ -10,11 +10,9 @@
     {
         public async Task<EndpointConfiguration> GetConfiguration(RunDescriptor runDescriptor, EndpointCustomizationConfiguration endpointConfiguration, Action<EndpointConfiguration> configurationBuilderCustomization)
         {
-            var typesToInclude = endpointConfiguration.GetTypesScopedByTestClass();
-
             var configuration = new EndpointConfiguration(endpointConfiguration.EndpointName);
 
-            configuration.TypesToIncludeInScan(typesToInclude);
+            configuration.TypesToIncludeInScan(endpointConfiguration.GetTypesScopedByTestClass());
             configuration.EnableInstallers();
 
             configuration.DisableFeature<TimeoutManager>();

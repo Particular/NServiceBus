@@ -13,15 +13,11 @@ namespace NServiceBus
     /// </summary>
     public class PreparedEndpoint
     {
-        internal PreparedEndpoint()
-        {
-            MessageSession = new UninitializedMessageSession();
-        }
-
         /// <summary>
-        /// The message session (can only be used once the endpoint have been started).
+        /// Provides access to the endpoints message session 
+        /// Note: The message session is only valid to use once the endpoint have been started.
         /// </summary>
-        public IMessageSession MessageSession { get; private set; }
+        public Func<IMessageSession> MessageSessionProvider { get; private set; }
 
         internal PreparedEndpoint(ReceiveComponent receiveComponent, QueueBindings queueBindings, FeatureActivator featureActivator, TransportInfrastructure transportInfrastructure, CriticalError criticalError, SettingsHolder settings, PipelineComponent pipelineComponent, ContainerComponent containerComponent)
         {
@@ -33,6 +29,8 @@ namespace NServiceBus
             this.settings = settings;
             this.pipelineComponent = pipelineComponent;
             this.containerComponent = containerComponent;
+
+            MessageSessionProvider = () => throw new InvalidOperationException("The message session can only be used after the endpoint is started.");
         }
 
         internal void UseExternallyManagedBuilder(IBuilder builder)
@@ -58,9 +56,11 @@ namespace NServiceBus
                 await RunInstallers(containerComponent.Builder, username).ConfigureAwait(false);
             }
 
-            MessageSession = new MessageSession(pipelineComponent.CreateRootContext(containerComponent.Builder));
+            messageSession = new MessageSession(pipelineComponent.CreateRootContext(containerComponent.Builder));
 
-            return new StartableEndpoint(settings, containerComponent, featureActivator, transportInfrastructure, receiveComponent, criticalError, MessageSession);
+            MessageSessionProvider = () => messageSession;
+
+            return new StartableEndpoint(settings, containerComponent, featureActivator, transportInfrastructure, receiveComponent, criticalError, messageSession);
         }
 
         async Task RunInstallers(IBuilder builder, string username)
@@ -88,6 +88,7 @@ namespace NServiceBus
             return userName;
         }
 
+        MessageSession messageSession;
         ReceiveComponent receiveComponent;
         QueueBindings queueBindings;
         FeatureActivator featureActivator;
@@ -96,40 +97,5 @@ namespace NServiceBus
         SettingsHolder settings;
         PipelineComponent pipelineComponent;
         ContainerComponent containerComponent;
-
-        class UninitializedMessageSession : IMessageSession
-        {
-            public Task Publish(object message, PublishOptions options)
-            {
-                throw new InvalidOperationException(ExceptionMessage);
-            }
-
-            public Task Publish<T>(Action<T> messageConstructor, PublishOptions publishOptions)
-            {
-                throw new InvalidOperationException(ExceptionMessage);
-            }
-
-            public Task Send(object message, SendOptions options)
-            {
-                throw new InvalidOperationException(ExceptionMessage);
-            }
-
-            public Task Send<T>(Action<T> messageConstructor, SendOptions options)
-            {
-                throw new InvalidOperationException(ExceptionMessage);
-            }
-
-            public Task Subscribe(Type eventType, SubscribeOptions options)
-            {
-                throw new InvalidOperationException(ExceptionMessage);
-            }
-
-            public Task Unsubscribe(Type eventType, UnsubscribeOptions options)
-            {
-                throw new InvalidOperationException(ExceptionMessage);
-            }
-
-            static string ExceptionMessage = "The message session can only be used after the endpoint is started.";
-        }
     }
 }
