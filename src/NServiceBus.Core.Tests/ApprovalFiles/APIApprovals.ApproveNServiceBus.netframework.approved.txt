@@ -738,7 +738,7 @@ namespace NServiceBus
     }
     public class PreparedEndpoint
     {
-        public NServiceBus.IMessageSession MessageSession { get; }
+        public System.Func<NServiceBus.IMessageSession> MessageSessionProvider { get; }
     }
     public class PublishOptions : NServiceBus.Extensibility.ExtendableOptions
     {
