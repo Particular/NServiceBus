@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.AcceptanceTests.EndpointTemplates
 {
     using System;
-    using System.Collections.Generic;
     using System.Threading.Tasks;
     using AcceptanceTesting.Customization;
     using AcceptanceTesting.Support;
@@ -9,21 +8,9 @@
 
     public class ExternalContainerServer : IEndpointSetupTemplate
     {
-        public ExternalContainerServer()
-        {
-            typesToInclude = new List<Type>();
-        }
-
-        public ExternalContainerServer(List<Type> typesToInclude)
-        {
-            this.typesToInclude = typesToInclude;
-        }
-
         public async Task<EndpointConfiguration> GetConfiguration(RunDescriptor runDescriptor, EndpointCustomizationConfiguration endpointConfiguration, Action<EndpointConfiguration> configurationBuilderCustomization)
         {
-            var types = endpointConfiguration.GetTypesScopedByTestClass();
-
-            typesToInclude.AddRange(types);
+            var typesToInclude = endpointConfiguration.GetTypesScopedByTestClass();
 
             var configuration = new EndpointConfiguration(endpointConfiguration.EndpointName);
 
@@ -47,7 +34,5 @@
 
             return configuration;
         }
-
-        List<Type> typesToInclude;
     }
 }
