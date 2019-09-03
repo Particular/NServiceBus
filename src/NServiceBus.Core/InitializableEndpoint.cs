@@ -227,7 +227,6 @@ namespace NServiceBus
 
         PipelineComponent pipelineComponent;
         SettingsHolder settings;
-
         ContainerComponent containerComponent;
         CriticalError criticalError;
     }
