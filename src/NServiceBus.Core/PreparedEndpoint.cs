@@ -129,7 +129,7 @@ namespace NServiceBus
                 throw new InvalidOperationException(ExceptionMessage);
             }
 
-            static string ExceptionMessage = "The message session can only be used once the endpoint is started.";
+            static string ExceptionMessage = "The message session can only be used after the endpoint is started.";
         }
     }
 }
