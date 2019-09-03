@@ -3,7 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using NServiceBus.ObjectBuilder.Common;
+    using ObjectBuilder.Common;
 
     public class EndpointCustomizationConfiguration
     {

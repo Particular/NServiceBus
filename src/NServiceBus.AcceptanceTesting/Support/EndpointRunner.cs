@@ -8,7 +8,6 @@
     using Configuration.AdvancedExtensibility;
     using Logging;
     using NServiceBus.Support;
-    using ObjectBuilder.Common;
     using Transport;
 
     public class EndpointRunner : ComponentRunner

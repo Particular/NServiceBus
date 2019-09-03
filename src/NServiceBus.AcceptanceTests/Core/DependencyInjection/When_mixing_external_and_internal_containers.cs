@@ -1,7 +1,7 @@
 ﻿namespace NServiceBus.AcceptanceTests.Core.DependencyInjection
 {
     using System;
-    using NServiceBus.ObjectBuilder;
+    using ObjectBuilder;
     using NUnit.Framework;
 
     public class When_mixing_external_and_internal_containers : NServiceBusAcceptanceTest
