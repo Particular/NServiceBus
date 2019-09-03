@@ -30,7 +30,7 @@ namespace NServiceBus
         {
             if (customContainer != null)
             {
-                throw new InvalidOperationException("Configuring an explicit internal container via the `EndpointConfiguration.UseContainer` API is not supported when using an external container and can safely be removed.");
+                throw new InvalidOperationException("An explicit internal container has already been configured using `EndpointConfiguration.UseContainer`. It is not possible to use both an explicit internal container and an externally managed container.");
             }
 
             ContainerConfiguration = configureComponents;
