@@ -21,10 +21,10 @@ namespace NServiceBus
 
             var provideBuilder = configuration.UseExternallyManagedContainer(configureComponents);
 
-            var initializable = configuration.Build();
-            var configured = initializable.Configure();
+            var configurableEndpoint = configuration.Build();
+            var configuredEndpoint = configurableEndpoint.Configure();
 
-            return new ConfiguredExternalContainerEndpoint(configured, configureComponents, provideBuilder);
+            return new ConfiguredExternalContainerEndpoint(configuredEndpoint, configureComponents, provideBuilder);
         }
 
         /// <summary>
