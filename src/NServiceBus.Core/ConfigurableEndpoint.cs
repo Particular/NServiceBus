@@ -13,9 +13,9 @@ namespace NServiceBus
     using Settings;
     using Transport;
 
-    class InitializableEndpoint
+    class ConfigurableEndpoint
     {
-        public InitializableEndpoint(SettingsHolder settings,
+        public ConfigurableEndpoint(SettingsHolder settings,
             ContainerComponent containerComponent,
             PipelineComponent pipelineComponent)
         {
@@ -26,7 +26,7 @@ namespace NServiceBus
             containerComponent.ContainerConfiguration.RegisterSingleton<ReadOnlySettings>(settings);
         }
 
-        public PreparedEndpoint Prepare()
+        public ConfiguredEndpoint Configure()
         {
             RegisterCriticalErrorHandler();
 
@@ -78,7 +78,7 @@ namespace NServiceBus
             var queueBindings = settings.Get<QueueBindings>();
             var receiveComponent = CreateReceiveComponent(receiveConfiguration, transportInfrastructure, pipelineComponent, queueBindings, eventAggregator);
 
-            return new PreparedEndpoint(receiveComponent, queueBindings, featureActivator, transportInfrastructure, criticalError, settings, pipelineComponent, containerComponent);
+            return new ConfiguredEndpoint(receiveComponent, queueBindings, featureActivator, transportInfrastructure, criticalError, settings, pipelineComponent, containerComponent);
         }
 
         RoutingComponent InitializeRouting(TransportInfrastructure transportInfrastructure, ReceiveConfiguration receiveConfiguration)

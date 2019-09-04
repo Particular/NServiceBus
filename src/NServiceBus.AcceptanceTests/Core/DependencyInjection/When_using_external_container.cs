@@ -15,8 +15,23 @@
         [Test]
         public async Task Should_use_it_for_component_resolution()
         {
+            var container = new AcceptanceTestingContainer();
+            container.RegisterSingleton(typeof(MyComponent), myComponent);
+
             var result = await Scenario.Define<Context>()
-            .WithEndpoint<ExternalContainerEndpoint>(b => b.When(e => e.SendLocal(new SomeMessage())))
+            .WithEndpoint<ExternalContainerEndpoint>(b =>
+            {
+                b.ToCreateInstance(
+                        config => Task.FromResult(Endpoint.Configure(config, new RegistrationPhaseAdapter(container))),
+                        configured => configured.Start(new ResolutionPhaseAdapter(container))
+                    )
+                    .When(e =>
+                    {
+                        //Validates if IMessageSession has been registered in the external container
+                        var resolvedSession = new ResolutionPhaseAdapter(container).Build<IMessageSession>();
+                        return resolvedSession.SendLocal(new SomeMessage());
+                    });
+            })
             .Done(c => c.Message != null)
             .Run();
 
@@ -32,12 +47,7 @@
         {
             public ExternalContainerEndpoint()
             {
-                var container = new AcceptanceTestingContainer();
-
-                container.RegisterSingleton(typeof(MyComponent), myComponent);
-
-                EndpointSetup<ExternalContainerServer>()
-                    .ExternalContainer(container);
+                EndpointSetup<ExternalContainerServer>();
             }
 
             class SomeMessageHandler : IHandleMessages<SomeMessage>

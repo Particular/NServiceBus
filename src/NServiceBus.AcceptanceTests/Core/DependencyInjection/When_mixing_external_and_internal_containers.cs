@@ -14,7 +14,7 @@
 
                 endpointConfiguration.UseContainer(new AcceptanceTestingContainer());
 
-                Endpoint.Prepare(endpointConfiguration, new FakeExternalContainer());
+                Endpoint.Configure(endpointConfiguration, new FakeExternalContainer());
             });
         }
     }

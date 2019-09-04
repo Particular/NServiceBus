@@ -14,31 +14,17 @@ namespace NServiceBus
         /// <param name="configuration">The endpoint configuration.</param>
         /// <param name="configureComponents">The registration api adapter for the external container.</param>
         /// <returns>The prepared endpoint.</returns>
-        public static PreparedEndpoint Prepare(EndpointConfiguration configuration, IConfigureComponents configureComponents)
+        public static IConfiguredEndpoint Configure(EndpointConfiguration configuration, IConfigureComponents configureComponents)
         {
             Guard.AgainstNull(nameof(configuration), configuration);
             Guard.AgainstNull(nameof(configureComponents), configureComponents);
 
-            configuration.UseExternallyManagedContainer(configureComponents);
+            var provideBuilder = configuration.UseExternallyManagedContainer(configureComponents);
 
             var initializable = configuration.Build();
+            var configured = initializable.Configure();
 
-            return initializable.Prepare();
-        }
-
-        /// <summary>
-        /// Starts a prepared endpoint.
-        /// </summary>
-        /// <param name="preparedEndpoint">The prepared endpoint.</param>
-        /// <param name="builder">The adapter for the containers resolve API.</param>
-        /// <returns>A started endpoint instance.</returns>
-        public static async Task<IEndpointInstance> Start(PreparedEndpoint preparedEndpoint, IBuilder builder)
-        {
-            preparedEndpoint.UseExternallyManagedBuilder(builder);
-
-            var initialized = await preparedEndpoint.Initialize().ConfigureAwait(false);
-
-            return await initialized.Start().ConfigureAwait(false);
+            return new ConfiguredExternalContainerEndpoint(configured, configureComponents, provideBuilder);
         }
 
         /// <summary>
@@ -51,7 +37,7 @@ namespace NServiceBus
 
             var initializableEndpoint = configuration.Build();
 
-            var preparedEndpoint = initializableEndpoint.Prepare();
+            var preparedEndpoint = initializableEndpoint.Configure();
 
             return preparedEndpoint.Initialize();
         }

@@ -8,18 +8,9 @@ namespace NServiceBus
     using Settings;
     using Transport;
 
-    /// <summary>
-    /// A prepared endpoint using an external container.
-    /// </summary>
-    public class PreparedEndpoint
+    class ConfiguredEndpoint
     {
-        /// <summary>
-        /// Provides access to the endpoints message session 
-        /// Note: The message session is only valid to use once the endpoint have been started.
-        /// </summary>
-        public Lazy<IMessageSession> MessageSession { get; }
-
-        internal PreparedEndpoint(ReceiveComponent receiveComponent, QueueBindings queueBindings, FeatureActivator featureActivator, TransportInfrastructure transportInfrastructure, CriticalError criticalError, SettingsHolder settings, PipelineComponent pipelineComponent, ContainerComponent containerComponent)
+        internal ConfiguredEndpoint(ReceiveComponent receiveComponent, QueueBindings queueBindings, FeatureActivator featureActivator, TransportInfrastructure transportInfrastructure, CriticalError criticalError, SettingsHolder settings, PipelineComponent pipelineComponent, ContainerComponent containerComponent)
         {
             this.receiveComponent = receiveComponent;
             this.queueBindings = queueBindings;
@@ -29,23 +20,9 @@ namespace NServiceBus
             this.settings = settings;
             this.pipelineComponent = pipelineComponent;
             this.containerComponent = containerComponent;
-
-            MessageSession = new Lazy<IMessageSession>(() =>
-            {
-                if (messageSession == null)
-                {
-                    throw new InvalidOperationException("The message session can only be used after the endpoint is started.");
-                }
-                return messageSession;
-            });
         }
 
-        internal void UseExternallyManagedBuilder(IBuilder builder)
-        {
-            containerComponent.UseExternallyManagedBuilder(builder);
-        }
-
-        internal async Task<IStartableEndpoint> Initialize()
+        public async Task<IStartableEndpoint> Initialize()
         {
             pipelineComponent.Initialize(containerComponent.Builder);
 
@@ -102,5 +79,6 @@ namespace NServiceBus
         SettingsHolder settings;
         PipelineComponent pipelineComponent;
         ContainerComponent containerComponent;
+      
     }
 }

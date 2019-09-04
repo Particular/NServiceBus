@@ -125,7 +125,7 @@ namespace NServiceBus
             scannedTypes = typesToScan.ToList();
         }
 
-        internal InitializableEndpoint Build()
+        internal ConfigurableEndpoint Build()
         {
             if (scannedTypes == null)
             {
@@ -146,7 +146,7 @@ namespace NServiceBus
 
             ConfigureMessageTypes(conventions);
             containerComponent.Initialize();
-            return new InitializableEndpoint(Settings, containerComponent, pipelineComponent);
+            return new ConfigurableEndpoint(Settings, containerComponent, pipelineComponent);
         }
        
         void ConfigureMessageTypes(Conventions conventions)
@@ -250,9 +250,11 @@ namespace NServiceBus
             return results.Types;
         }
 
-        internal void UseExternallyManagedContainer(IConfigureComponents configureComponents)
+        internal Action<IBuilder> UseExternallyManagedContainer(IConfigureComponents configureComponents)
         {
             containerComponent.UseExternallyManagedContainer(configureComponents);
+
+            return containerComponent.UseExternallyManagedBuilder;
         }
 
         ContainerComponent containerComponent;

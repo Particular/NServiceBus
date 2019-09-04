@@ -29,13 +29,6 @@
             return this;
         }
 
-        public EndpointConfigurationBuilder ExternalContainer(IContainer container)
-        {
-            configuration.ExternalContainer = container;
-
-            return this;
-        }
-
         EndpointCustomizationConfiguration CreateScenario()
         {
             configuration.BuilderType = GetType();

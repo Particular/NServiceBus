@@ -8,10 +8,24 @@
 
     public class EndpointBehavior : IComponentBehavior
     {
+        Func<EndpointConfiguration, Task<object>> createInstanceCallback;
+        Func<object, Task<IEndpointInstance>> startInstanceCallback;
+
         public EndpointBehavior(Type builderType)
         {
             EndpointBuilderType = builderType;
             CustomConfig = new List<Action<EndpointConfiguration, ScenarioContext>>();
+            ConfigureHowToCreateInstance(config => Endpoint.Create(config), startable => startable.Start());
+        }
+
+        public void ConfigureHowToCreateInstance<T>(Func<EndpointConfiguration, Task<T>> createCallback, Func<T, Task<IEndpointInstance>> startCallback)
+        {
+            createInstanceCallback = async config =>
+            {
+                var result = await createCallback(config).ConfigureAwait(false);
+                return result;
+            };
+            startInstanceCallback = state => startCallback((T)state);
         }
 
         public Type EndpointBuilderType { get; }
@@ -26,7 +40,7 @@
         {
             var endpointName = Conventions.EndpointNamingConvention(EndpointBuilderType);
 
-            var runner = new EndpointRunner(DoNotFailOnErrorMessages);
+            var runner = new EndpointRunner(createInstanceCallback, startInstanceCallback, DoNotFailOnErrorMessages);
 
             try
             {

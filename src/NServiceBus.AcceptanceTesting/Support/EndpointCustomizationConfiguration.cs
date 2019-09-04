@@ -3,7 +3,6 @@
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using ObjectBuilder.Common;
 
     public class EndpointCustomizationConfiguration
     {
@@ -35,8 +34,6 @@
         public string CustomEndpointName { get; set; }
 
         public bool DisableStartupDiagnostics { get; set; } = true;
-
-        public IContainer ExternalContainer { get; set; }
 
         string endpointName;
     }
