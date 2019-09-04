@@ -17,7 +17,7 @@ namespace NServiceBus
         /// Provides access to the endpoints message session 
         /// Note: The message session is only valid to use once the endpoint have been started.
         /// </summary>
-        public Func<IMessageSession> MessageSessionProvider { get; private set; }
+        public Lazy<IMessageSession> MessageSession { get; }
 
         internal PreparedEndpoint(ReceiveComponent receiveComponent, QueueBindings queueBindings, FeatureActivator featureActivator, TransportInfrastructure transportInfrastructure, CriticalError criticalError, SettingsHolder settings, PipelineComponent pipelineComponent, ContainerComponent containerComponent)
         {
@@ -30,7 +30,14 @@ namespace NServiceBus
             this.pipelineComponent = pipelineComponent;
             this.containerComponent = containerComponent;
 
-            MessageSessionProvider = () => throw new InvalidOperationException("The message session can only be used after the endpoint is started.");
+            MessageSession = new Lazy<IMessageSession>(() =>
+            {
+                if (messageSession == null)
+                {
+                    throw new InvalidOperationException("The message session can only be used after the endpoint is started.");
+                }
+                return messageSession;
+            });
         }
 
         internal void UseExternallyManagedBuilder(IBuilder builder)
@@ -57,8 +64,6 @@ namespace NServiceBus
             }
 
             messageSession = new MessageSession(pipelineComponent.CreateRootContext(containerComponent.Builder));
-
-            MessageSessionProvider = () => messageSession;
 
             return new StartableEndpoint(settings, containerComponent, featureActivator, transportInfrastructure, receiveComponent, criticalError, messageSession);
         }
