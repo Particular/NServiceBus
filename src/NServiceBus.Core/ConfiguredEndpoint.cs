@@ -8,9 +8,9 @@ namespace NServiceBus
     using Settings;
     using Transport;
 
-    class ConfiguredEndpoint
+    abstract class ConfiguredEndpoint
     {
-        public ConfiguredEndpoint(ReceiveComponent receiveComponent, QueueBindings queueBindings, FeatureActivator featureActivator, TransportInfrastructure transportInfrastructure, CriticalError criticalError, SettingsHolder settings, PipelineComponent pipelineComponent, ContainerComponent containerComponent)
+        protected ConfiguredEndpoint(ReceiveComponent receiveComponent, QueueBindings queueBindings, FeatureActivator featureActivator, TransportInfrastructure transportInfrastructure, CriticalError criticalError, SettingsHolder settings, PipelineComponent pipelineComponent, ContainerComponent containerComponent)
         {
             this.receiveComponent = receiveComponent;
             this.queueBindings = queueBindings;

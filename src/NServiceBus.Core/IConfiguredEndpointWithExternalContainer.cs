@@ -7,7 +7,7 @@ namespace NServiceBus
     /// <summary>
     /// Represents a configured endpoint ready to be started.
     /// </summary>
-    public interface IConfiguredEndpoint
+    public interface IConfiguredEndpointWithExternalContainer
     {
         /// <summary>
         /// Starts the endpoint and returns a reference to it.
@@ -17,8 +17,8 @@ namespace NServiceBus
         Task<IEndpointInstance> Start(IBuilder builder);
 
         /// <summary>
-        /// Allows lazy access to the message session (singleton) so that it can be registered in depenency injection.
-        /// Note: Only valid to use once the endpoint has started.
+        /// Access to the singleton `IMessageSession` to be registered in dependency injection container.
+        /// Note: Lazily resolved since it's only valid for use once the endpoint has started.
         /// </summary>
         Lazy<IMessageSession> MessageSession { get; }
     }

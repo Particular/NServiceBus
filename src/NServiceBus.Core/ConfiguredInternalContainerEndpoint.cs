@@ -1,18 +1,13 @@
 ﻿namespace NServiceBus
 {
-    using System.Threading.Tasks;
+    using NServiceBus.Features;
+    using NServiceBus.Settings;
+    using NServiceBus.Transport;
 
-    class ConfiguredInternalContainerEndpoint
+    class ConfiguredInternalContainerEndpoint : ConfiguredEndpoint
     {
-        public ConfiguredInternalContainerEndpoint(ConfiguredEndpoint configuredEndpoint)
+        public ConfiguredInternalContainerEndpoint(ReceiveComponent receiveComponent, QueueBindings queueBindings, FeatureActivator featureActivator, TransportInfrastructure transportInfrastructure, CriticalError criticalError, SettingsHolder settings, PipelineComponent pipelineComponent, ContainerComponent containerComponent) : base(receiveComponent, queueBindings, featureActivator, transportInfrastructure, criticalError, settings, pipelineComponent, containerComponent)
         {
-            this.configuredEndpoint = configuredEndpoint;
         }
-        public Task<IStartableEndpoint> Initialize()
-        {
-            return configuredEndpoint.Initialize();
-        }
-
-        ConfiguredEndpoint configuredEndpoint;
     }
 }

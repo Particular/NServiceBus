@@ -29,21 +29,21 @@ namespace NServiceBus
         {
             containerComponent.InitializeWithExternalContainer(configureComponents);
 
-            var c = Configure();
+            Initialize();
 
-            return new ConfiguredExternalContainerEndpoint(c, containerComponent);
+            return new ConfiguredExternalContainerEndpoint(receiveComponent, queueBindings, featureActivator, transportInfrastructure, criticalError, settings, pipelineComponent, containerComponent);
         }
 
         public ConfiguredInternalContainerEndpoint ConfigureWithInternalContainer()
         {
             containerComponent.InitializeWithInternalContainer();
 
-            var configuredComponent = Configure();
+            Initialize();
 
-            return new ConfiguredInternalContainerEndpoint(configuredComponent);
+            return new ConfiguredInternalContainerEndpoint(receiveComponent, queueBindings, featureActivator, transportInfrastructure, criticalError, settings, pipelineComponent, containerComponent);
         }
 
-        ConfiguredEndpoint Configure()
+        void Initialize()
         {
             containerComponent.ContainerConfiguration.RegisterSingleton<ReadOnlySettings>(settings);
 
@@ -53,11 +53,11 @@ namespace NServiceBus
                 .Where(IsConcrete)
                 .ToList();
 
-            var featureActivator = BuildFeatureActivator(concreteTypes);
+            featureActivator = BuildFeatureActivator(concreteTypes);
 
             ConfigRunBeforeIsFinalized(concreteTypes);
 
-            var transportInfrastructure = InitializeTransportComponent();
+            transportInfrastructure = InitializeTransportComponent();
 
             var receiveConfiguration = BuildReceiveConfiguration(transportInfrastructure);
 
@@ -94,10 +94,8 @@ namespace NServiceBus
                 }
             );
 
-            var queueBindings = settings.Get<QueueBindings>();
-            var receiveComponent = CreateReceiveComponent(receiveConfiguration, transportInfrastructure, pipelineComponent, queueBindings, eventAggregator);
-
-            return new ConfiguredEndpoint(receiveComponent, queueBindings, featureActivator, transportInfrastructure, criticalError, settings, pipelineComponent, containerComponent);
+            queueBindings = settings.Get<QueueBindings>();
+            receiveComponent = CreateReceiveComponent(receiveConfiguration, transportInfrastructure, pipelineComponent, queueBindings, eventAggregator);
         }
 
         RoutingComponent InitializeRouting(TransportInfrastructure transportInfrastructure, ReceiveConfiguration receiveConfiguration)
@@ -248,5 +246,9 @@ namespace NServiceBus
         SettingsHolder settings;
         ContainerComponent containerComponent;
         CriticalError criticalError;
+        private FeatureActivator featureActivator;
+        private TransportInfrastructure transportInfrastructure;
+        private QueueBindings queueBindings;
+        private ReceiveComponent receiveComponent;
     }
 }

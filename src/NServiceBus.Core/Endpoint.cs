@@ -14,7 +14,7 @@ namespace NServiceBus
         /// <param name="configuration">The endpoint configuration.</param>
         /// <param name="configureComponents">The registration API adapter for the external container.</param>
         /// <returns>The configured endpoint.</returns>
-        public static IConfiguredEndpoint Configure(EndpointConfiguration configuration, IConfigureComponents configureComponents)
+        public static IConfiguredEndpointWithExternalContainer Configure(EndpointConfiguration configuration, IConfigureComponents configureComponents)
         {
             Guard.AgainstNull(nameof(configuration), configuration);
             Guard.AgainstNull(nameof(configureComponents), configureComponents);

@@ -2,13 +2,16 @@ namespace NServiceBus
 {
     using System;
     using System.Threading.Tasks;
+    using NServiceBus.Features;
+    using NServiceBus.Settings;
+    using NServiceBus.Transport;
     using ObjectBuilder;
 
-    class ConfiguredExternalContainerEndpoint : IConfiguredEndpoint
+    class ConfiguredExternalContainerEndpoint : ConfiguredEndpoint, IConfiguredEndpointWithExternalContainer
     {
-        public ConfiguredExternalContainerEndpoint(ConfiguredEndpoint configuredEndpoint, ContainerComponent containerComponent)
+        public ConfiguredExternalContainerEndpoint(ReceiveComponent receiveComponent, QueueBindings queueBindings, FeatureActivator featureActivator, TransportInfrastructure transportInfrastructure, CriticalError criticalError, SettingsHolder settings, PipelineComponent pipelineComponent, ContainerComponent containerComponent)
+            : base(receiveComponent,  queueBindings,  featureActivator,  transportInfrastructure,  criticalError,  settings,  pipelineComponent,  containerComponent)
         {
-            this.configuredEndpoint = configuredEndpoint;
             this.containerComponent = containerComponent;
 
             MessageSession = new Lazy<IMessageSession>(() =>
@@ -27,13 +30,14 @@ namespace NServiceBus
         {
             containerComponent.UseExternallyManagedBuilder(builder);
 
-            var startableEndpoint = await configuredEndpoint.Initialize().ConfigureAwait(false);
+            var startableEndpoint = await Initialize().ConfigureAwait(false);
             var endpointInstance = await startableEndpoint.Start().ConfigureAwait(false);
+
             messageSession = endpointInstance;
+
             return endpointInstance;
         }
 
-        ConfiguredEndpoint configuredEndpoint;
         ContainerComponent containerComponent;
         IMessageSession messageSession;
     }
