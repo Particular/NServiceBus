@@ -8,9 +8,6 @@
 
     public class EndpointBehavior : IComponentBehavior
     {
-        Func<EndpointConfiguration, Task<object>> createInstanceCallback;
-        Func<object, Task<IEndpointInstance>> startInstanceCallback;
-
         public EndpointBehavior(Type builderType)
         {
             EndpointBuilderType = builderType;
@@ -53,5 +50,8 @@
             }
             return runner;
         }
+
+        Func<EndpointConfiguration, Task<object>> createInstanceCallback;
+        Func<object, Task<IEndpointInstance>> startInstanceCallback;
     }
 }
