@@ -10,11 +10,12 @@
         {
             Assert.Throws<InvalidOperationException>(() =>
             {
+                var container = new AcceptanceTestingContainer();
                 var endpointConfiguration = new EndpointConfiguration("MyEndpoint");
 
-                endpointConfiguration.UseContainer(new AcceptanceTestingContainer());
+                endpointConfiguration.UseContainer(container);
 
-                Endpoint.Configure(endpointConfiguration, new FakeExternalContainer());
+                Endpoint.Configure(endpointConfiguration, new RegistrationPhaseAdapter(container));
             });
         }
     }
