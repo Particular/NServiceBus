@@ -17,7 +17,7 @@ namespace NServiceBus
         Task<IEndpointInstance> Start(IBuilder builder);
 
         /// <summary>
-        /// Access to the singleton `IMessageSession` to be registered in dependency injection container.
+        /// Access to the singleton IMessageSession to be registered in dependency injection container.
         /// Note: Lazily resolved since it's only valid for use once the endpoint has started.
         /// </summary>
         Lazy<IMessageSession> MessageSession { get; }
