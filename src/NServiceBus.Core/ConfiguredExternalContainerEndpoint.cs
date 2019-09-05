@@ -28,9 +28,9 @@ namespace NServiceBus
             provideBuilder(builder);
 
             var startableEndpoint = await configuredEndpoint.Initialize().ConfigureAwait(false);
-            var startedEndpoint = await startableEndpoint.Start().ConfigureAwait(false);
-            messageSession = startedEndpoint;
-            return startedEndpoint;
+            var endpointInstance = await startableEndpoint.Start().ConfigureAwait(false);
+            messageSession = endpointInstance;
+            return endpointInstance;
         }
 
         ConfiguredEndpoint configuredEndpoint;

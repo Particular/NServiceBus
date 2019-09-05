@@ -35,11 +35,10 @@ namespace NServiceBus
         {
             Guard.AgainstNull(nameof(configuration), configuration);
 
-            var initializableEndpoint = configuration.Build();
+            var configurableEndpoint = configuration.Build();
+            var configuredEndpoint = configurableEndpoint.Configure();
 
-            var preparedEndpoint = initializableEndpoint.Configure();
-
-            return preparedEndpoint.Initialize();
+            return configuredEndpoint.Initialize();
         }
 
         /// <summary>
