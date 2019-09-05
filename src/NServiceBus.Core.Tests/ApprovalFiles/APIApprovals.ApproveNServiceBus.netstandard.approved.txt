@@ -297,8 +297,6 @@ namespace NServiceBus
     public class static Endpoint
     {
         public static System.Threading.Tasks.Task<NServiceBus.IStartableEndpoint> Create(NServiceBus.EndpointConfiguration configuration) { }
-        public static NServiceBus.PreparedEndpoint Prepare(NServiceBus.EndpointConfiguration configuration, NServiceBus.ObjectBuilder.IConfigureComponents configureComponents) { }
-        public static System.Threading.Tasks.Task<NServiceBus.IEndpointInstance> Start(NServiceBus.PreparedEndpoint preparedEndpoint, NServiceBus.ObjectBuilder.IBuilder builder) { }
         public static System.Threading.Tasks.Task<NServiceBus.IEndpointInstance> Start(NServiceBus.EndpointConfiguration configuration) { }
     }
     public class EndpointConfiguration : NServiceBus.Configuration.AdvancedExtensibility.ExposeSettings
@@ -337,6 +335,10 @@ namespace NServiceBus
         public static void EnableFeature<T>(this NServiceBus.EndpointConfiguration config)
             where T : NServiceBus.Features.Feature { }
         public static void EnableFeature(this NServiceBus.EndpointConfiguration config, System.Type featureType) { }
+    }
+    public class static EndpointWithExternallyManagedContainer
+    {
+        public static NServiceBus.IConfiguredEndpointWithExternallyManagedContainer Configure(NServiceBus.EndpointConfiguration configuration, NServiceBus.ObjectBuilder.IConfigureComponents configureComponents) { }
     }
     public class static ErrorQueueSettings
     {
@@ -435,6 +437,11 @@ namespace NServiceBus
         void ConfigureMapping<TSagaEntity, TMessage>(System.Linq.Expressions.Expression<System.Func<TSagaEntity, object>> sagaEntityProperty, System.Linq.Expressions.Expression<System.Func<TMessage, object>> messageProperty)
             where TSagaEntity : NServiceBus.IContainSagaData
         ;
+    }
+    public interface IConfiguredEndpointWithExternallyManagedContainer
+    {
+        System.Lazy<NServiceBus.IMessageSession> MessageSession { get; }
+        System.Threading.Tasks.Task<NServiceBus.IEndpointInstance> Start(NServiceBus.ObjectBuilder.IBuilder builder);
     }
     public interface IContainSagaData
     {
@@ -735,10 +742,6 @@ namespace NServiceBus
         where S : NServiceBus.StorageType
     {
         public PersistenceExtensions(NServiceBus.Settings.SettingsHolder settings) { }
-    }
-    public class PreparedEndpoint
-    {
-        public System.Lazy<NServiceBus.IMessageSession> MessageSession { get; }
     }
     public class PublishOptions : NServiceBus.Extensibility.ExtendableOptions
     {
