@@ -9,11 +9,11 @@ namespace NServiceBus
     public static class Endpoint
     {
         /// <summary>
-        /// Prepares an endpoint to run with and externally managed container.
+        /// Configures an endpoint to run with a externally managed container.
         /// </summary>
         /// <param name="configuration">The endpoint configuration.</param>
-        /// <param name="configureComponents">The registration api adapter for the external container.</param>
-        /// <returns>The prepared endpoint.</returns>
+        /// <param name="configureComponents">The registration API adapter for the external container.</param>
+        /// <returns>The configured endpoint.</returns>
         public static IConfiguredEndpoint Configure(EndpointConfiguration configuration, IConfigureComponents configureComponents)
         {
             Guard.AgainstNull(nameof(configuration), configuration);
