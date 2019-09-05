@@ -21,13 +21,19 @@
             var result = await Scenario.Define<Context>()
             .WithEndpoint<ExternalContainerEndpoint>(b =>
             {
+                IConfiguredEndpointWithExternalContainer configuredEndpoint = null;
+
                 b.ToCreateInstance(
-                        config => Task.FromResult(Endpoint.Configure(config, new RegistrationPhaseAdapter(container))),
+                        config => {
+                            configuredEndpoint = Endpoint.Configure(config, new RegistrationPhaseAdapter(container));
+                            return Task.FromResult(configuredEndpoint);
+                            },
                         configured => configured.Start(new ResolutionPhaseAdapter(container))
                     )
                     .When(e =>
                     {
-                        return e.SendLocal(new SomeMessage());
+                        //use the session provided by configure to make sure its properly populated
+                        return configuredEndpoint.MessageSession.Value.SendLocal(new SomeMessage());
                     });
             })
             .Done(c => c.Message != null)
