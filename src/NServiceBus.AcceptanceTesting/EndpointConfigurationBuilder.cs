@@ -3,7 +3,6 @@
     using System;
     using Configuration.AdvancedExtensibility;
     using Features;
-    using ObjectBuilder.Common;
     using Support;
 
     public class EndpointConfigurationBuilder : IEndpointConfigurationFactory
