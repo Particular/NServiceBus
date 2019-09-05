@@ -249,13 +249,6 @@ namespace NServiceBus
             return results.Types;
         }
 
-        internal Action<IBuilder> UseExternallyManagedContainer(IConfigureComponents configureComponents)
-        {
-            containerComponent.UseExternallyManagedContainer(configureComponents);
-
-            return containerComponent.UseExternallyManagedBuilder;
-        }
-
         ContainerComponent containerComponent;
         ConventionsBuilder conventionsBuilder;
         PipelineComponent pipelineComponent;

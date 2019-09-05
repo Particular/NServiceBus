@@ -26,16 +26,6 @@ namespace NServiceBus
             UseContainer(definitionType.Construct<ContainerDefinition>().CreateContainer(settings));
         }
 
-        public void UseExternallyManagedContainer(IConfigureComponents configureComponents)
-        {
-            if (customContainer != null)
-            {
-                throw new InvalidOperationException("An explicit internal container has already been configured using `EndpointConfiguration.UseContainer`. It is not possible to use both an explicit internal container and an externally managed container.");
-            }
-
-            ContainerConfiguration = configureComponents;
-        }
-
         public void UseExternallyManagedBuilder(IBuilder builder)
         {
             Builder = builder;
@@ -51,38 +41,57 @@ namespace NServiceBus
             userRegistrations.Add(registration);
         }
 
-        public void Initialize()
+        public void InitializeWithExternalContainer(IConfigureComponents configureComponents)
         {
-            if (ContainerConfiguration == null)
+            if (customContainer != null)
             {
-                //use internal container
-                var container = customContainer;
-
-                if (container == null)
-                {
-                    settings.AddStartupDiagnosticsSection("Container", new
-                    {
-                        Type = "internal"
-                    });
-                    container = new LightInjectObjectBuilder();
-                }
-                else
-                {
-                    var containerType = container.GetType();
-
-                    settings.AddStartupDiagnosticsSection("Container", new
-                    {
-                        Type = containerType.FullName,
-                        Version = FileVersionRetriever.GetFileVersion(containerType)
-                    });
-                }
-
-                var commonObjectBuilder = new CommonObjectBuilder(container);
-
-                ContainerConfiguration = commonObjectBuilder;
-                Builder = commonObjectBuilder;
+                throw new InvalidOperationException("An explicit internal container has already been configured using `EndpointConfiguration.UseContainer`. It is not possible to use both an explicit internal container and an externally managed container.");
             }
 
+            ContainerConfiguration = configureComponents;
+
+            settings.AddStartupDiagnosticsSection("Container", new
+            {
+                Type = "external"
+            });
+
+            ApplyRegistrations();
+        }
+
+        public void InitializeWithInternalContainer()
+        {
+            var container = customContainer;
+
+            if (container == null)
+            {
+                settings.AddStartupDiagnosticsSection("Container", new
+                {
+                    Type = "internal"
+                });
+
+                container = new LightInjectObjectBuilder();
+            }
+            else
+            {
+                var containerType = container.GetType();
+
+                settings.AddStartupDiagnosticsSection("Container", new
+                {
+                    Type = containerType.FullName,
+                    Version = FileVersionRetriever.GetFileVersion(containerType)
+                });
+            }
+
+            var commonObjectBuilder = new CommonObjectBuilder(container);
+
+            ContainerConfiguration = commonObjectBuilder;
+            Builder = commonObjectBuilder;
+
+            ApplyRegistrations();
+        }
+
+        void ApplyRegistrations()
+        {
             foreach (var registration in userRegistrations)
             {
                 registration(ContainerConfiguration);

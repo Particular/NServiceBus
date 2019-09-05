@@ -25,18 +25,26 @@ namespace NServiceBus
             this.pipelineComponent = pipelineComponent;
         }
 
-        public ConfiguredExternalContainerEndpoint Configure(IConfigureComponents configureComponents)
+        public ConfiguredExternalContainerEndpoint ConfigureWithExternalContainer(IConfigureComponents configureComponents)
         {
-            containerComponent.UseExternallyManagedContainer(configureComponents);
+            containerComponent.InitializeWithExternalContainer(configureComponents);
 
             var c = Configure();
 
             return new ConfiguredExternalContainerEndpoint(c, containerComponent);
         }
 
-        public ConfiguredEndpoint Configure()
+        public ConfiguredInternalContainerEndpoint ConfigureWithInternalContainer()
         {
-            containerComponent.Initialize();
+            containerComponent.InitializeWithInternalContainer();
+
+            var c = Configure();
+
+            return new ConfiguredInternalContainerEndpoint(c);
+        }
+
+        ConfiguredEndpoint Configure()
+        {
             containerComponent.ContainerConfiguration.RegisterSingleton<ReadOnlySettings>(settings);
 
             RegisterCriticalErrorHandler();

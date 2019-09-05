@@ -21,7 +21,7 @@ namespace NServiceBus
 
             var configurableEndpoint = configuration.Build();
 
-            return configurableEndpoint.Configure(configureComponents);
+            return configurableEndpoint.ConfigureWithExternalContainer(configureComponents);
         }
 
         /// <summary>
@@ -33,7 +33,8 @@ namespace NServiceBus
             Guard.AgainstNull(nameof(configuration), configuration);
 
             var configurableEndpoint = configuration.Build();
-            var configuredEndpoint = configurableEndpoint.Configure();
+
+            var configuredEndpoint = configurableEndpoint.ConfigureWithInternalContainer();
 
             return configuredEndpoint.Initialize();
         }
