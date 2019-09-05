@@ -19,19 +19,7 @@
             container.RegisterSingleton(typeof(MyComponent), myComponent);
 
             var result = await Scenario.Define<Context>()
-            .WithEndpoint<ExternalContainerEndpoint>(b =>
-            {
-                b.ToCreateInstance(
-                        config => Task.FromResult(Endpoint.Configure(config, new RegistrationPhaseAdapter(container))),
-                        configured => configured.Start(new ResolutionPhaseAdapter(container))
-                    )
-                    .When(e =>
-                    {
-                        //Validates if IMessageSession has been registered in the external container
-                        var resolvedSession = new ResolutionPhaseAdapter(container).Build<IMessageSession>();
-                        return resolvedSession.SendLocal(new SomeMessage());
-                    });
-            })
+            .WithEndpoint<ExternalContainerEndpoint>(b => b.When(s => s.SendLocal(new SomeMessage())))
             .Done(c => c.Message != null)
             .Run();
 

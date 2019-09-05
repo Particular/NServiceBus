@@ -19,12 +19,9 @@ namespace NServiceBus
             Guard.AgainstNull(nameof(configuration), configuration);
             Guard.AgainstNull(nameof(configureComponents), configureComponents);
 
-            var provideBuilder = configuration.UseExternallyManagedContainer(configureComponents);
-
             var configurableEndpoint = configuration.Build();
-            var configuredEndpoint = configurableEndpoint.Configure();
 
-            return new ConfiguredExternalContainerEndpoint(configuredEndpoint, configureComponents, provideBuilder);
+            return configurableEndpoint.Configure(configureComponents);
         }
 
         /// <summary>

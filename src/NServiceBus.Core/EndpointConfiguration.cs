@@ -145,7 +145,6 @@ namespace NServiceBus
             Settings.SetDefault(conventions);
 
             ConfigureMessageTypes(conventions);
-            containerComponent.Initialize();
             return new ConfigurableEndpoint(Settings, containerComponent, pipelineComponent);
         }
        

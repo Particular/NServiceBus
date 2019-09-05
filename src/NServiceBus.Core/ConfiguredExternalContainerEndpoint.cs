@@ -6,10 +6,10 @@ namespace NServiceBus
 
     class ConfiguredExternalContainerEndpoint : IConfiguredEndpoint
     {
-        public ConfiguredExternalContainerEndpoint(ConfiguredEndpoint configuredEndpoint, IConfigureComponents configureComponents, Action<IBuilder> provideBuilder)
+        public ConfiguredExternalContainerEndpoint(ConfiguredEndpoint configuredEndpoint, ContainerComponent containerComponent)
         {
             this.configuredEndpoint = configuredEndpoint;
-            this.provideBuilder = provideBuilder;
+            this.containerComponent = containerComponent;
 
             MessageSession = new Lazy<IMessageSession>(() =>
             {
@@ -25,7 +25,7 @@ namespace NServiceBus
 
         public async Task<IEndpointInstance> Start(IBuilder builder)
         {
-            provideBuilder(builder);
+            containerComponent.UseExternallyManagedBuilder(builder);
 
             var startableEndpoint = await configuredEndpoint.Initialize().ConfigureAwait(false);
             var endpointInstance = await startableEndpoint.Start().ConfigureAwait(false);
@@ -34,7 +34,7 @@ namespace NServiceBus
         }
 
         ConfiguredEndpoint configuredEndpoint;
-        Action<IBuilder> provideBuilder;
+        ContainerComponent containerComponent;
         IMessageSession messageSession;
     }
 }

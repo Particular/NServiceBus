@@ -8,6 +8,7 @@ namespace NServiceBus
     using Installation;
     using MessageInterfaces;
     using MessageInterfaces.MessageMapper.Reflection;
+    using NServiceBus.ObjectBuilder;
     using Routing;
     using Routing.MessageDrivenSubscriptions;
     using Settings;
@@ -22,12 +23,22 @@ namespace NServiceBus
             this.settings = settings;
             this.containerComponent = containerComponent;
             this.pipelineComponent = pipelineComponent;
-           
-            containerComponent.ContainerConfiguration.RegisterSingleton<ReadOnlySettings>(settings);
+        }
+
+        public ConfiguredExternalContainerEndpoint Configure(IConfigureComponents configureComponents)
+        {
+            containerComponent.UseExternallyManagedContainer(configureComponents);
+
+            var c = Configure();
+
+            return new ConfiguredExternalContainerEndpoint(c, containerComponent);
         }
 
         public ConfiguredEndpoint Configure()
         {
+            containerComponent.Initialize();
+            containerComponent.ContainerConfiguration.RegisterSingleton<ReadOnlySettings>(settings);
+
             RegisterCriticalErrorHandler();
 
             var concreteTypes = settings.GetAvailableTypes()
