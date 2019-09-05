@@ -38,9 +38,9 @@ namespace NServiceBus
         {
             containerComponent.InitializeWithInternalContainer();
 
-            var c = Configure();
+            var configuredComponent = Configure();
 
-            return new ConfiguredInternalContainerEndpoint(c);
+            return new ConfiguredInternalContainerEndpoint(configuredComponent);
         }
 
         ConfiguredEndpoint Configure()
