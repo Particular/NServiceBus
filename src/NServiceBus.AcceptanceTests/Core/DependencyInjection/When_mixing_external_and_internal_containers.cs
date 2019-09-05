@@ -6,7 +6,7 @@
     public class When_mixing_external_and_internal_containers : NServiceBusAcceptanceTest
     {
         [Test]
-        public void Should_throw_on_prepare()
+        public void Should_throw()
         {
             Assert.Throws<InvalidOperationException>(() =>
             {
