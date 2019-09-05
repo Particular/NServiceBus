@@ -21,11 +21,11 @@
             var result = await Scenario.Define<Context>()
             .WithEndpoint<ExternalContainerEndpoint>(b =>
             {
-                IConfiguredEndpointWithExternallyManagedContainer configuredEndpoint = null;
+                IStartableEndpointWithExternallyManagedContainer configuredEndpoint = null;
 
                 b.ToCreateInstance(
                         config => {
-                            configuredEndpoint = EndpointWithExternallyManagedContainer.Configure(config, new RegistrationPhaseAdapter(container));
+                            configuredEndpoint = EndpointWithExternallyManagedContainer.Create(config, new RegistrationPhaseAdapter(container));
                             return Task.FromResult(configuredEndpoint);
                             },
                         configured => configured.Start(new ResolutionPhaseAdapter(container))

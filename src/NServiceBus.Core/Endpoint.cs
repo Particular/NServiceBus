@@ -16,8 +16,7 @@ namespace NServiceBus
             Guard.AgainstNull(nameof(configuration), configuration);
 
             return ConfiguredEndpoint
-                .ConfigureWithInternallyManagedContainer(configuration)
-                .CreateStartableEndpoint();
+                .CreateWithInternallyManagedContainer(configuration);
         }
 
         /// <summary>

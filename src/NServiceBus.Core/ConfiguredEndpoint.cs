@@ -19,7 +19,7 @@ namespace NServiceBus
 
     class ConfiguredEndpoint
     {
-        public ConfiguredEndpoint(SettingsHolder settings,
+        ConfiguredEndpoint(SettingsHolder settings,
             ContainerComponent containerComponent,
             PipelineComponent pipelineComponent)
         {
@@ -28,29 +28,28 @@ namespace NServiceBus
             this.pipelineComponent = pipelineComponent;
         }
 
-        public static ConfiguredEndpointWithExternallyManagedContainer ConfigureWithExternallyManagedContainer(EndpointConfiguration endpointConfiguration, IConfigureComponents configureComponents)
+        public static StartableEndpointWithExternallyManagedContainer CreateWithExternallyManagedContainer(EndpointConfiguration endpointConfiguration, IConfigureComponents configureComponents)
         {
             FinalizeConfiguration(endpointConfiguration);
 
             endpointConfiguration.ContainerComponent.InitializeWithExternallyManagedContainer(configureComponents);
 
-            var configured = new ConfiguredEndpointWithExternallyManagedContainer(endpointConfiguration.Settings, endpointConfiguration.ContainerComponent, endpointConfiguration.PipelineComponent);
+            var configured = new ConfiguredEndpoint(endpointConfiguration.Settings, endpointConfiguration.ContainerComponent, endpointConfiguration.PipelineComponent);
             configured.Initialize();
 
-            return configured;
-
+            return new StartableEndpointWithExternallyManagedContainer(configured);
         }
 
-        public static ConfiguredEndpointWithInternallyManagedContainer ConfigureWithInternallyManagedContainer(EndpointConfiguration endpointConfiguration)
+        public static Task<IStartableEndpoint> CreateWithInternallyManagedContainer(EndpointConfiguration endpointConfiguration)
         {
             FinalizeConfiguration(endpointConfiguration);
 
             endpointConfiguration.ContainerComponent.InitializeWithInternallyManagedContainer();
 
-            var configured = new ConfiguredEndpointWithInternallyManagedContainer(endpointConfiguration.Settings, endpointConfiguration.ContainerComponent, endpointConfiguration.PipelineComponent);
+            var configured = new ConfiguredEndpoint(endpointConfiguration.Settings, endpointConfiguration.ContainerComponent, endpointConfiguration.PipelineComponent);
             configured.Initialize();
 
-            return configured;
+            return configured.CreateStartableEndpoint();
         }
 
         static void FinalizeConfiguration(EndpointConfiguration endpointConfiguration)
@@ -118,6 +117,11 @@ namespace NServiceBus
 
             queueBindings = settings.Get<QueueBindings>();
             receiveComponent = CreateReceiveComponent(receiveConfiguration, transportInfrastructure, pipelineComponent, queueBindings, eventAggregator);
+        }
+
+        public void UseExternallyManagedBuilder(IBuilder builder)
+        {
+            containerComponent.UseExternallyManagedBuilder(builder);
         }
 
         public async Task<IStartableEndpoint> CreateStartableEndpoint()
