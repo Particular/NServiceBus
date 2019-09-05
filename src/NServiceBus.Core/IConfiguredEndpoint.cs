@@ -18,7 +18,7 @@ namespace NServiceBus
 
         /// <summary>
         /// Allows lazy access to the message session (singleton) so that it can be registered in depenency injection.
-        /// Note: Only valid to use once the endpoint have started.
+        /// Note: Only valid to use once the endpoint has started.
         /// </summary>
         Lazy<IMessageSession> MessageSession { get; }
     }
