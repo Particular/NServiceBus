@@ -15,7 +15,7 @@
 
                 endpointConfiguration.UseContainer(container);
 
-                Endpoint.Configure(endpointConfiguration, new RegistrationPhaseAdapter(container));
+                Endpoint.ConfigureWithExternalContainer(endpointConfiguration, new RegistrationPhaseAdapter(container));
             });
         }
     }
