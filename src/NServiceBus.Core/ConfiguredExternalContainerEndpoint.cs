@@ -2,10 +2,10 @@ namespace NServiceBus
 {
     using System;
     using System.Threading.Tasks;
-    using NServiceBus.Features;
-    using NServiceBus.Settings;
-    using NServiceBus.Transport;
+    using Features;
     using ObjectBuilder;
+    using Settings;
+    using Transport;
 
     class ConfiguredExternalContainerEndpoint : ConfiguredEndpoint, IConfiguredEndpointWithExternalContainer
     {

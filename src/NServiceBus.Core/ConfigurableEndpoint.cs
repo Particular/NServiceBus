@@ -6,16 +6,16 @@ namespace NServiceBus
     using System.Reflection;
     using System.Threading.Tasks;
     using Features;
+    using Hosting.Helpers;
     using Installation;
     using MessageInterfaces;
     using MessageInterfaces.MessageMapper.Reflection;
-    using NServiceBus.Hosting.Helpers;
-    using NServiceBus.ObjectBuilder;
-    using NServiceBus.Unicast.Messages;
+    using ObjectBuilder;
     using Routing;
     using Routing.MessageDrivenSubscriptions;
     using Settings;
     using Transport;
+    using Unicast.Messages;
 
     class ConfigurableEndpoint
     {

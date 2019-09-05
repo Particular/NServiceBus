@@ -1,8 +1,8 @@
 ﻿namespace NServiceBus
 {
-    using NServiceBus.Features;
-    using NServiceBus.Settings;
-    using NServiceBus.Transport;
+    using Features;
+    using Settings;
+    using Transport;
 
     class ConfiguredInternalContainerEndpoint : ConfiguredEndpoint
     {
