@@ -28,26 +28,26 @@ namespace NServiceBus
             this.pipelineComponent = pipelineComponent;
         }
 
-        public static IConfiguredEndpointWithExternalContainer ConfigureWithExternalContainer(EndpointConfiguration endpointConfiguration, IConfigureComponents configureComponents)
+        public static ConfiguredEndpointWithExternallyManagedContainer ConfigureWithExternallyManagedContainer(EndpointConfiguration endpointConfiguration, IConfigureComponents configureComponents)
         {
             FinalizeConfiguration(endpointConfiguration);
 
-            endpointConfiguration.ContainerComponent.InitializeWithExternalContainer(configureComponents);
+            endpointConfiguration.ContainerComponent.InitializeWithExternallyManagedContainer(configureComponents);
 
-            var configured = new ConfiguredExternalContainerEndpoint(endpointConfiguration.Settings, endpointConfiguration.ContainerComponent, endpointConfiguration.PipelineComponent);
+            var configured = new ConfiguredEndpointWithExternallyManagedContainer(endpointConfiguration.Settings, endpointConfiguration.ContainerComponent, endpointConfiguration.PipelineComponent);
             configured.Initialize();
 
             return configured;
 
         }
 
-        public static ConfiguredInternalContainerEndpoint ConfigureWithInternalContainer(EndpointConfiguration endpointConfiguration)
+        public static ConfiguredEndpointWithInternallyManagedContainer ConfigureWithInternallyManagedContainer(EndpointConfiguration endpointConfiguration)
         {
             FinalizeConfiguration(endpointConfiguration);
 
-            endpointConfiguration.ContainerComponent.InitializeWithInternalContainer();
+            endpointConfiguration.ContainerComponent.InitializeWithInternallyManagedContainer();
 
-            var configured = new ConfiguredInternalContainerEndpoint(endpointConfiguration.Settings, endpointConfiguration.ContainerComponent, endpointConfiguration.PipelineComponent);
+            var configured = new ConfiguredEndpointWithInternallyManagedContainer(endpointConfiguration.Settings, endpointConfiguration.ContainerComponent, endpointConfiguration.PipelineComponent);
             configured.Initialize();
 
             return configured;

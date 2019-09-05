@@ -2,9 +2,9 @@
 {
     using Settings;
 
-    class ConfiguredInternalContainerEndpoint : ConfiguredEndpoint
+    class ConfiguredEndpointWithInternallyManagedContainer : ConfiguredEndpoint
     {
-        public ConfiguredInternalContainerEndpoint(SettingsHolder settings,
+        public ConfiguredEndpointWithInternallyManagedContainer(SettingsHolder settings,
             ContainerComponent containerComponent,
             PipelineComponent pipelineComponent) : base(settings, containerComponent, pipelineComponent)
         {

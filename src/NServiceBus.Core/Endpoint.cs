@@ -14,13 +14,13 @@ namespace NServiceBus
         /// <param name="configuration">The endpoint configuration.</param>
         /// <param name="configureComponents">The registration API adapter for the external container.</param>
         /// <returns>The configured endpoint.</returns>
-        public static IConfiguredEndpointWithExternalContainer ConfigureWithExternalContainer(EndpointConfiguration configuration, IConfigureComponents configureComponents)
+        public static IConfiguredEndpointWithExternallyManagedContainer ConfigureWithExternallyManagedContainer(EndpointConfiguration configuration, IConfigureComponents configureComponents)
         {
             Guard.AgainstNull(nameof(configuration), configuration);
             Guard.AgainstNull(nameof(configureComponents), configureComponents);
 
             return ConfiguredEndpoint
-                .ConfigureWithExternalContainer(configuration, configureComponents);
+                .ConfigureWithExternallyManagedContainer(configuration, configureComponents);
         }
 
         /// <summary>
@@ -32,7 +32,7 @@ namespace NServiceBus
             Guard.AgainstNull(nameof(configuration), configuration);
 
             return ConfiguredEndpoint
-                .ConfigureWithInternalContainer(configuration)
+                .ConfigureWithInternallyManagedContainer(configuration)
                 .CreateStartableEndpoint();
         }
 

@@ -5,9 +5,9 @@ namespace NServiceBus
     using ObjectBuilder;
     using Settings;
 
-    class ConfiguredExternalContainerEndpoint : ConfiguredEndpoint, IConfiguredEndpointWithExternalContainer
+    class ConfiguredEndpointWithExternallyManagedContainer : ConfiguredEndpoint, IConfiguredEndpointWithExternallyManagedContainer
     {
-        public ConfiguredExternalContainerEndpoint(SettingsHolder settings,
+        public ConfiguredEndpointWithExternallyManagedContainer(SettingsHolder settings,
             ContainerComponent containerComponent,
             PipelineComponent pipelineComponent) : base(settings, containerComponent, pipelineComponent)
         {

@@ -5,9 +5,9 @@ namespace NServiceBus
     using ObjectBuilder;
 
     /// <summary>
-    /// Represents a configured endpoint ready to be started.
+    /// Represents a configured endpoint where the container is externally managed.
     /// </summary>
-    public interface IConfiguredEndpointWithExternalContainer
+    public interface IConfiguredEndpointWithExternallyManagedContainer
     {
         /// <summary>
         /// Starts the endpoint and returns a reference to it.

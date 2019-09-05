@@ -41,7 +41,7 @@ namespace NServiceBus
             userRegistrations.Add(registration);
         }
 
-        public void InitializeWithExternalContainer(IConfigureComponents configureComponents)
+        public void InitializeWithExternallyManagedContainer(IConfigureComponents configureComponents)
         {
             if (customContainer != null)
             {
@@ -58,7 +58,7 @@ namespace NServiceBus
             ApplyRegistrations();
         }
 
-        public void InitializeWithInternalContainer()
+        public void InitializeWithInternallyManagedContainer()
         {
             var container = customContainer;
 
