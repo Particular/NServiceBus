@@ -355,16 +355,15 @@ namespace NServiceBus
 
         static bool HasDefaultConstructor(Type type) => type.GetConstructor(Type.EmptyTypes) != null;
 
-
         static bool IsINeedToInstallSomething(Type t) => typeof(INeedToInstallSomething).IsAssignableFrom(t);
 
         PipelineComponent pipelineComponent;
         SettingsHolder settings;
         ContainerComponent containerComponent;
         CriticalError criticalError;
-        private FeatureActivator featureActivator;
-        private TransportInfrastructure transportInfrastructure;
-        private QueueBindings queueBindings;
-        private ReceiveComponent receiveComponent;
+        FeatureActivator featureActivator;
+        TransportInfrastructure transportInfrastructure;
+        QueueBindings queueBindings;
+        ReceiveComponent receiveComponent;
     }
 }
