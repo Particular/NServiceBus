@@ -5,7 +5,7 @@ namespace NServiceBus
     using ObjectBuilder;
 
     /// <summary>
-    /// Represents an endpoint in the start-up phase.
+    /// Represents a configured endpoint ready to be started.
     /// </summary>
     public interface IConfiguredEndpoint
     {
