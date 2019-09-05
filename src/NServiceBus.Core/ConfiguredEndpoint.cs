@@ -27,33 +27,10 @@ namespace NServiceBus
             this.containerComponent = containerComponent;
             this.pipelineComponent = pipelineComponent;
         }
-        static void ScanTypesAndDoOtherStuff(EndpointConfiguration endpointConfiguration)
-        {
-            var scannedTypes = endpointConfiguration.ScannedTypes;
-
-            if (scannedTypes == null)
-            {
-                var directoryToScan = AppDomain.CurrentDomain.RelativeSearchPath ?? AppDomain.CurrentDomain.BaseDirectory;
-
-                scannedTypes = GetAllowedTypes(directoryToScan, endpointConfiguration.Settings);
-            }
-            else
-            {
-                scannedTypes = scannedTypes.Union(GetAllowedCoreTypes(endpointConfiguration.Settings)).ToList();
-            }
-
-            endpointConfiguration.Settings.SetDefault("TypesToScan", scannedTypes);
-            ActivateAndInvoke<INeedInitialization>(scannedTypes, t => t.Customize(endpointConfiguration));
-
-            var conventions = endpointConfiguration.ConventionsBuilder.Conventions;
-            endpointConfiguration.Settings.SetDefault(conventions);
-
-            ConfigureMessageTypes(conventions, endpointConfiguration.Settings);
-        }
 
         public static IConfiguredEndpointWithExternalContainer ConfigureWithExternalContainer(EndpointConfiguration endpointConfiguration, IConfigureComponents configureComponents)
         {
-            ScanTypesAndDoOtherStuff(endpointConfiguration);
+            FinalizeConfiguration(endpointConfiguration);
 
             endpointConfiguration.ContainerComponent.InitializeWithExternalContainer(configureComponents);
 
@@ -66,7 +43,7 @@ namespace NServiceBus
 
         public static ConfiguredInternalContainerEndpoint ConfigureWithInternalContainer(EndpointConfiguration endpointConfiguration)
         {
-            ScanTypesAndDoOtherStuff(endpointConfiguration);
+            FinalizeConfiguration(endpointConfiguration);
 
             endpointConfiguration.ContainerComponent.InitializeWithInternalContainer();
 
@@ -74,6 +51,18 @@ namespace NServiceBus
             configured.Initialize();
 
             return configured;
+        }
+
+        static void FinalizeConfiguration(EndpointConfiguration endpointConfiguration)
+        {
+            var scannedTypes = PerformAssemblyScanning(endpointConfiguration);
+
+            ActivateAndInvoke<INeedInitialization>(scannedTypes, t => t.Customize(endpointConfiguration));
+
+            var conventions = endpointConfiguration.ConventionsBuilder.Conventions;
+            endpointConfiguration.Settings.SetDefault(conventions);
+
+            ConfigureMessageTypes(conventions, endpointConfiguration.Settings);
         }
 
         void Initialize()
@@ -319,6 +308,26 @@ namespace NServiceBus
             {
                 containerComponent.ContainerConfiguration.ConfigureComponent(installerType, DependencyLifecycle.InstancePerCall);
             }
+        }
+
+        static List<Type> PerformAssemblyScanning(EndpointConfiguration endpointConfiguration)
+        {
+            var scannedTypes = endpointConfiguration.ScannedTypes;
+
+            if (scannedTypes == null)
+            {
+                var directoryToScan = AppDomain.CurrentDomain.RelativeSearchPath ?? AppDomain.CurrentDomain.BaseDirectory;
+
+                scannedTypes = GetAllowedTypes(directoryToScan, endpointConfiguration.Settings);
+            }
+            else
+            {
+                scannedTypes = scannedTypes.Union(GetAllowedCoreTypes(endpointConfiguration.Settings)).ToList();
+            }
+
+            endpointConfiguration.Settings.SetDefault("TypesToScan", scannedTypes);
+
+            return scannedTypes;
         }
 
         static List<Type> GetAllowedTypes(string path, SettingsHolder settings)
