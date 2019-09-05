@@ -4,7 +4,7 @@ namespace NServiceBus
     using ObjectBuilder;
 
     /// <summary>
-    /// Provides factory methods for creating and starting endpoint instances.
+    /// Factory methods for configuring, creating and starting endpoint instances.
     /// </summary>
     public static class Endpoint
     {
@@ -19,9 +19,8 @@ namespace NServiceBus
             Guard.AgainstNull(nameof(configuration), configuration);
             Guard.AgainstNull(nameof(configureComponents), configureComponents);
 
-            var configurableEndpoint = configuration.Build();
-
-            return configurableEndpoint.ConfigureWithExternalContainer(configureComponents);
+            return ConfigurableEndpoint.Build(configuration)
+                .ConfigureWithExternalContainer(configureComponents);
         }
 
         /// <summary>
@@ -32,11 +31,9 @@ namespace NServiceBus
         {
             Guard.AgainstNull(nameof(configuration), configuration);
 
-            var configurableEndpoint = configuration.Build();
-
-            var configuredEndpoint = configurableEndpoint.ConfigureWithInternalContainer();
-
-            return configuredEndpoint.Initialize();
+            return ConfigurableEndpoint.Build(configuration)
+                .ConfigureWithInternalContainer()
+                .Initialize();
         }
 
         /// <summary>

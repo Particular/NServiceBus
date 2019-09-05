@@ -3,12 +3,15 @@ namespace NServiceBus
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Reflection;
     using System.Threading.Tasks;
     using Features;
     using Installation;
     using MessageInterfaces;
     using MessageInterfaces.MessageMapper.Reflection;
+    using NServiceBus.Hosting.Helpers;
     using NServiceBus.ObjectBuilder;
+    using NServiceBus.Unicast.Messages;
     using Routing;
     using Routing.MessageDrivenSubscriptions;
     using Settings;
@@ -24,8 +27,32 @@ namespace NServiceBus
             this.containerComponent = containerComponent;
             this.pipelineComponent = pipelineComponent;
         }
+        public static ConfigurableEndpoint Build(EndpointConfiguration endpointConfiguration)
+        {
+            var scannedTypes = endpointConfiguration.ScannedTypes;
 
-        public ConfiguredExternalContainerEndpoint ConfigureWithExternalContainer(IConfigureComponents configureComponents)
+            if (scannedTypes == null)
+            {
+                var directoryToScan = AppDomain.CurrentDomain.RelativeSearchPath ?? AppDomain.CurrentDomain.BaseDirectory;
+
+                scannedTypes = GetAllowedTypes(directoryToScan, endpointConfiguration.Settings);
+            }
+            else
+            {
+                scannedTypes = scannedTypes.Union(GetAllowedCoreTypes(endpointConfiguration.Settings)).ToList();
+            }
+
+            endpointConfiguration.Settings.SetDefault("TypesToScan", scannedTypes);
+            ActivateAndInvoke<INeedInitialization>(scannedTypes, t => t.Customize(endpointConfiguration));
+
+            var conventions = endpointConfiguration.ConventionsBuilder.Conventions;
+            endpointConfiguration.Settings.SetDefault(conventions);
+
+            ConfigureMessageTypes(conventions, endpointConfiguration.Settings);
+            return new ConfigurableEndpoint(endpointConfiguration.Settings, endpointConfiguration.ContainerComponent, endpointConfiguration.PipelineComponent);
+        }
+
+        public IConfiguredEndpointWithExternalContainer ConfigureWithExternalContainer(IConfigureComponents configureComponents)
         {
             containerComponent.InitializeWithExternalContainer(configureComponents);
 
@@ -239,6 +266,95 @@ namespace NServiceBus
                 containerComponent.ContainerConfiguration.ConfigureComponent(installerType, DependencyLifecycle.InstancePerCall);
             }
         }
+
+        static List<Type> GetAllowedTypes(string path, SettingsHolder settings)
+        {
+            var assemblyScannerSettings = settings.GetOrCreate<AssemblyScannerConfiguration>();
+            var assemblyScanner = new AssemblyScanner(path)
+            {
+                AssembliesToSkip = assemblyScannerSettings.ExcludedAssemblies,
+                TypesToSkip = assemblyScannerSettings.ExcludedTypes,
+                ScanNestedDirectories = assemblyScannerSettings.ScanAssembliesInNestedDirectories,
+                ThrowExceptions = assemblyScannerSettings.ThrowExceptions,
+                ScanAppDomainAssemblies = assemblyScannerSettings.ScanAppDomainAssemblies
+            };
+
+            return Scan(assemblyScanner, settings);
+        }
+
+        static List<Type> GetAllowedCoreTypes(SettingsHolder settings)
+        {
+            var assemblyScannerSettings = settings.GetOrCreate<AssemblyScannerConfiguration>();
+            var assemblyScanner = new AssemblyScanner(Assembly.GetExecutingAssembly())
+            {
+                AssembliesToSkip = assemblyScannerSettings.ExcludedAssemblies,
+                TypesToSkip = assemblyScannerSettings.ExcludedTypes,
+                ScanNestedDirectories = assemblyScannerSettings.ScanAssembliesInNestedDirectories,
+                ThrowExceptions = assemblyScannerSettings.ThrowExceptions,
+                ScanAppDomainAssemblies = assemblyScannerSettings.ScanAppDomainAssemblies
+            };
+
+            return Scan(assemblyScanner, settings);
+        }
+
+        static List<Type> Scan(AssemblyScanner assemblyScanner, SettingsHolder settings)
+        {
+            var results = assemblyScanner.GetScannableAssemblies();
+
+            settings.AddStartupDiagnosticsSection("AssemblyScanning", new
+            {
+                Assemblies = results.Assemblies.Select(a => a.FullName),
+                results.ErrorsThrownDuringScanning,
+                results.SkippedFiles
+            });
+
+            return results.Types;
+        }
+
+        static void ActivateAndInvoke<T>(IList<Type> types, Action<T> action) where T : class
+        {
+            ForAllTypes<T>(types, t =>
+            {
+                if (!HasDefaultConstructor(t))
+                {
+                    throw new Exception($"Unable to create the type '{t.Name}'. Types implementing '{typeof(T).Name}' must have a public parameterless (default) constructor.");
+                }
+
+                var instanceToInvoke = (T)Activator.CreateInstance(t);
+                action(instanceToInvoke);
+            });
+        }
+
+        static void ForAllTypes<T>(IEnumerable<Type> types, Action<Type> action) where T : class
+        {
+            // ReSharper disable HeapView.SlowDelegateCreation
+            foreach (var type in types.Where(t => typeof(T).IsAssignableFrom(t) && !(t.IsAbstract || t.IsInterface)))
+            {
+                action(type);
+            }
+            // ReSharper restore HeapView.SlowDelegateCreation
+        }
+
+        static void ConfigureMessageTypes(Conventions conventions, SettingsHolder settings)
+        {
+            var messageMetadataRegistry = new MessageMetadataRegistry(conventions.IsMessageType);
+
+            messageMetadataRegistry.RegisterMessageTypesFoundIn(settings.GetAvailableTypes());
+
+            settings.Set(messageMetadataRegistry);
+
+            var foundMessages = messageMetadataRegistry.GetAllMessages().ToList();
+
+            settings.AddStartupDiagnosticsSection("Messages", new
+            {
+                CustomConventionUsed = conventions.CustomMessageTypeConventionUsed,
+                NumberOfMessagesFoundAtStartup = foundMessages.Count,
+                Messages = foundMessages.Select(m => m.MessageType.FullName)
+            });
+        }
+
+        static bool HasDefaultConstructor(Type type) => type.GetConstructor(Type.EmptyTypes) != null;
+
 
         static bool IsINeedToInstallSomething(Type t) => typeof(INeedToInstallSomething).IsAssignableFrom(t);
 
