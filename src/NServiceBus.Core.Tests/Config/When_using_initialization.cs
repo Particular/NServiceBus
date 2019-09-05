@@ -13,7 +13,7 @@
 
             endpointConfiguration.TypesToScanInternal(new[] { typeof(FeatureWithInitialization) });
 
-            var ae = Assert.Throws<Exception>(() => ConfigurableEndpoint.Build(endpointConfiguration));
+            var ae = Assert.Throws<Exception>(() => ConfiguredEndpoint.Build(endpointConfiguration));
             var expected = $"Unable to create the type '{nameof(FeatureWithInitialization)}'. Types implementing '{nameof(INeedInitialization)}' must have a public parameterless (default) constructor.";
             Assert.AreEqual(expected, ae.Message);
         }

@@ -19,7 +19,8 @@ namespace NServiceBus
             Guard.AgainstNull(nameof(configuration), configuration);
             Guard.AgainstNull(nameof(configureComponents), configureComponents);
 
-            return ConfiguredEndpoint.ConfigureWithExternalContainer(configuration, configureComponents);
+            return ConfiguredEndpoint
+                .ConfigureWithExternalContainer(configuration, configureComponents);
         }
 
         /// <summary>
@@ -30,8 +31,9 @@ namespace NServiceBus
         {
             Guard.AgainstNull(nameof(configuration), configuration);
 
-            return ConfiguredEndpoint.ConfigureWithInternalContainer(configuration)
-                .Initialize();
+            return ConfiguredEndpoint
+                .ConfigureWithInternalContainer(configuration)
+                .CreateStartableEndpoint();
         }
 
         /// <summary>
@@ -40,9 +42,10 @@ namespace NServiceBus
         /// <param name="configuration">Configuration.</param>
         public static async Task<IEndpointInstance> Start(EndpointConfiguration configuration)
         {
-            var initializableEndpoint = await Create(configuration).ConfigureAwait(false);
+            Guard.AgainstNull(nameof(configuration), configuration);
+            var startableEndpoint = await Create(configuration).ConfigureAwait(false);
 
-            return await initializableEndpoint.Start().ConfigureAwait(false);
+            return await startableEndpoint.Start().ConfigureAwait(false);
         }
     }
 }

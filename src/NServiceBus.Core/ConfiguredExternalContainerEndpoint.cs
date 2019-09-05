@@ -2,15 +2,14 @@ namespace NServiceBus
 {
     using System;
     using System.Threading.Tasks;
-    using Features;
     using ObjectBuilder;
     using Settings;
-    using Transport;
 
     class ConfiguredExternalContainerEndpoint : ConfiguredEndpoint, IConfiguredEndpointWithExternalContainer
     {
-        public ConfiguredExternalContainerEndpoint(ReceiveComponent receiveComponent, QueueBindings queueBindings, FeatureActivator featureActivator, TransportInfrastructure transportInfrastructure, CriticalError criticalError, SettingsHolder settings, PipelineComponent pipelineComponent, ContainerComponent containerComponent)
-            : base(receiveComponent,  queueBindings,  featureActivator,  transportInfrastructure,  criticalError,  settings,  pipelineComponent,  containerComponent)
+        public ConfiguredExternalContainerEndpoint(SettingsHolder settings,
+            ContainerComponent containerComponent,
+            PipelineComponent pipelineComponent) : base(settings, containerComponent, pipelineComponent)
         {
             this.containerComponent = containerComponent;
 
@@ -30,7 +29,7 @@ namespace NServiceBus
         {
             containerComponent.UseExternallyManagedBuilder(builder);
 
-            var startableEndpoint = await Initialize().ConfigureAwait(false);
+            var startableEndpoint = await CreateStartableEndpoint().ConfigureAwait(false);
             var endpointInstance = await startableEndpoint.Start().ConfigureAwait(false);
 
             messageSession = endpointInstance;
