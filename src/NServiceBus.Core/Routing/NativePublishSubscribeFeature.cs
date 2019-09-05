@@ -1,5 +1,6 @@
 namespace NServiceBus.Features
 {
+    using NServiceBus.Routing;
     using Transport;
 
     class NativePublishSubscribeFeature : Feature
@@ -8,6 +9,7 @@ namespace NServiceBus.Features
         {
             EnableByDefault();
             Prerequisite(c => c.Settings.Get<TransportInfrastructure>().OutboundRoutingPolicy.Publishes == OutboundRoutingType.Multicast, "The transport does not support native pub sub");
+            Prerequisite(c => HybridSubscriptions.IsMigrationModeEnabled(c.Settings) == false, "The transport has enabled pub sub migration mode");
         }
 
         protected internal override void Setup(FeatureConfigurationContext context)

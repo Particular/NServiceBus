@@ -7,6 +7,7 @@
     using Extensibility;
     using Features;
     using Logging;
+    using NServiceBus.Settings;
     using Pipeline;
     using Transport;
     using Unicast.Messages;
@@ -16,6 +17,13 @@
 
     class HybridSubscriptions : Feature
     {
+        public HybridSubscriptions()
+        {
+            EnableByDefault();
+            Prerequisite(c => c.Settings.Get<TransportInfrastructure>().OutboundRoutingPolicy.Publishes == OutboundRoutingType.Multicast, "The transport does not support native pub sub");
+            Prerequisite(c => IsMigrationModeEnabled(c.Settings), "The transport has not enabled pub sub migration mode");
+        }
+
         protected internal override void Setup(FeatureConfigurationContext context)
         {
             var transportInfrastructure = context.Settings.Get<TransportInfrastructure>();
@@ -44,9 +52,9 @@
                 var subscriptionRouter = new SubscriptionRouter(publishers, endpointInstances, i => transportInfrastructure.ToTransportAddress(LogicalAddress.CreateRemoteAddress(i)));
                 var subscriberAddress = context.Receiving.LocalAddress;
 
-                context.Pipeline.Register(b => 
+                context.Pipeline.Register(b =>
                     new HybridSubscribeTerminator(subscriptionManager, subscriptionRouter, b.Build<IDispatchMessages>(), subscriberAddress, context.Settings.EndpointName()), "Requests the transport to subscribe to a given message type");
-                context.Pipeline.Register(b => 
+                context.Pipeline.Register(b =>
                     new HybridUnsubscribeTerminator(subscriptionManager,subscriptionRouter, b.Build<IDispatchMessages>(), subscriberAddress, context.Settings.EndpointName()), "Sends requests to unsubscribe when message driven subscriptions is in use");
 
                 var authorizer = context.Settings.GetSubscriptionAuthorizer();
@@ -57,6 +65,12 @@
                 context.Container.RegisterSingleton(authorizer);
                 context.Pipeline.Register<SubscriptionReceiverBehavior.Registration>();
             }
+        }
+
+        public static bool IsMigrationModeEnabled(ReadOnlySettings settings)
+        {
+            // this key can be set by transports once they provide native support for pub/sub.
+            return settings.TryGet("NServiceBus.Subscriptions.EnableMigrationMode", out bool enabled) && enabled;
         }
 
         class HybridRouterConnector : StageConnector<IOutgoingPublishContext, IOutgoingLogicalMessageContext>
