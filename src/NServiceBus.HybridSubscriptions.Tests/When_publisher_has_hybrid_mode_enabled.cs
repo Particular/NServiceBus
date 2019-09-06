@@ -10,7 +10,7 @@
     public class When_publisher_has_hybrid_mode_enabled : NServiceBusAcceptanceTest
     {
         [Test]
-        public async Task PublisherCanHandleMessageDrivenSubscribers()
+        public async Task CanHandleMessageDrivenSubscribers()
         {
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<MessageDrivenSubscriber>()
@@ -24,7 +24,7 @@
         }
 
         [Test]
-        public async Task PublisherCanHandleNativeSubscribers()
+        public async Task CanHandleNativeSubscribers()
         {
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<NativeSubscriber>()
