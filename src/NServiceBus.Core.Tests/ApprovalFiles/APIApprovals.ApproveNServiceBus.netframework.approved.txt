@@ -338,7 +338,7 @@ namespace NServiceBus
     }
     public class static EndpointWithExternallyManagedContainer
     {
-        public static NServiceBus.IConfiguredEndpointWithExternallyManagedContainer Configure(NServiceBus.EndpointConfiguration configuration, NServiceBus.ObjectBuilder.IConfigureComponents configureComponents) { }
+        public static NServiceBus.IStartableEndpointWithExternallyManagedContainer Create(NServiceBus.EndpointConfiguration configuration, NServiceBus.ObjectBuilder.IConfigureComponents configureComponents) { }
     }
     public class static ErrorQueueSettings
     {
@@ -437,11 +437,6 @@ namespace NServiceBus
         void ConfigureMapping<TSagaEntity, TMessage>(System.Linq.Expressions.Expression<System.Func<TSagaEntity, object>> sagaEntityProperty, System.Linq.Expressions.Expression<System.Func<TMessage, object>> messageProperty)
             where TSagaEntity : NServiceBus.IContainSagaData
         ;
-    }
-    public interface IConfiguredEndpointWithExternallyManagedContainer
-    {
-        System.Lazy<NServiceBus.IMessageSession> MessageSession { get; }
-        System.Threading.Tasks.Task<NServiceBus.IEndpointInstance> Start(NServiceBus.ObjectBuilder.IBuilder builder);
     }
     public interface IContainSagaData
     {
@@ -569,6 +564,11 @@ namespace NServiceBus
     public interface IStartableEndpoint
     {
         System.Threading.Tasks.Task<NServiceBus.IEndpointInstance> Start();
+    }
+    public interface IStartableEndpointWithExternallyManagedContainer
+    {
+        System.Lazy<NServiceBus.IMessageSession> MessageSession { get; }
+        System.Threading.Tasks.Task<NServiceBus.IEndpointInstance> Start(NServiceBus.ObjectBuilder.IBuilder builder);
     }
     public interface IWantToRunBeforeConfigurationIsFinalized
     {
