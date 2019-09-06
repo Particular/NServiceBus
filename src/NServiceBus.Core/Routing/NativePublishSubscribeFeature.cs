@@ -1,6 +1,5 @@
 namespace NServiceBus.Features
 {
-    using NServiceBus.Routing;
     using Transport;
 
     class NativePublishSubscribeFeature : Feature
