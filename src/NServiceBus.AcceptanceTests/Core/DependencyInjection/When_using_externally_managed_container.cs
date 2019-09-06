@@ -5,7 +5,7 @@
     using EndpointTemplates;
     using NUnit.Framework;
 
-    public class When_using_external_container : NServiceBusAcceptanceTest
+    public class When_using_externally_managed_container : NServiceBusAcceptanceTest
     {
         static MyComponent myComponent = new MyComponent
         {
@@ -19,7 +19,7 @@
             container.RegisterSingleton(typeof(MyComponent), myComponent);
 
             var result = await Scenario.Define<Context>()
-            .WithEndpoint<ExternalContainerEndpoint>(b =>
+            .WithEndpoint<ExternallyManagedContainerEndpoint>(b =>
             {
                 IStartableEndpointWithExternallyManagedContainer configuredEndpoint = null;
 
@@ -47,9 +47,9 @@
             public string Message { get; set; }
         }
 
-        public class ExternalContainerEndpoint : EndpointConfigurationBuilder
+        public class ExternallyManagedContainerEndpoint : EndpointConfigurationBuilder
         {
-            public ExternalContainerEndpoint()
+            public ExternallyManagedContainerEndpoint()
             {
                 EndpointSetup<ExternalContainerServer>();
             }

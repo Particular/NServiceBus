@@ -3,7 +3,7 @@
     using System;
     using NUnit.Framework;
 
-    public class When_mixing_external_and_internal_containers : NServiceBusAcceptanceTest
+    public class When_mixing_externally_and_internally_managed_containers : NServiceBusAcceptanceTest
     {
         [Test]
         public void Should_throw()
