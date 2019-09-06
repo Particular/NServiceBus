@@ -5,14 +5,10 @@
     using System.Linq;
     using System.Threading.Tasks;
     using Pipeline;
-    using Routing;
     using Unicast.Queuing;
 
     class HybridRouterConnector : StageConnector<IOutgoingPublishContext, IOutgoingLogicalMessageContext>
     {
-        readonly DistributionPolicy distributionPolicy;
-        readonly IUnicastPublishRouter unicastPublishRouter;
-
         public HybridRouterConnector(DistributionPolicy distributionPolicy, IUnicastPublishRouter unicastPublishRouter)
         {
             this.distributionPolicy = distributionPolicy;
@@ -26,10 +22,10 @@
             var eventType = context.Message.MessageType;
             var addressLabels = await GetRoutingStrategies(context, eventType).ConfigureAwait(false);
 
-            var routingStrategies = new List<RoutingStrategy>()
-                {
-                    new MulticastRoutingStrategy(context.Message.MessageType)
-                };
+            var routingStrategies = new List<RoutingStrategy>
+            {
+                new MulticastRoutingStrategy(context.Message.MessageType)
+            };
 
             routingStrategies.AddRange(addressLabels);
 
@@ -53,5 +49,8 @@
             var addressLabels = await unicastPublishRouter.Route(eventType, distributionPolicy, context).ConfigureAwait(false);
             return addressLabels.ToList();
         }
+
+        readonly DistributionPolicy distributionPolicy;
+        readonly IUnicastPublishRouter unicastPublishRouter;
     }
 }

@@ -6,14 +6,20 @@
     using Extensibility;
     using Logging;
     using Pipeline;
-    using Routing;
     using Transport;
     using Unicast.Queuing;
     using Unicast.Transport;
 
     class HybridUnsubscribeTerminator : PipelineTerminator<IUnsubscribeContext>
     {
-        static ILog Logger = LogManager.GetLogger<HybridUnsubscribeTerminator>();
+        public HybridUnsubscribeTerminator(IManageSubscriptions subscriptionManager, SubscriptionRouter subscriptionRouter, IDispatchMessages dispatcher, string replyToAddress, string endpoint)
+        {
+            this.subscriptionManager = subscriptionManager;
+            this.subscriptionRouter = subscriptionRouter;
+            this.dispatcher = dispatcher;
+            this.replyToAddress = replyToAddress;
+            this.endpoint = endpoint;
+        }
 
         protected override async Task Terminate(IUnsubscribeContext context)
         {
@@ -44,18 +50,8 @@
 
                 unsubscribeTasks.Add(SendUnsubscribeMessageWithRetries(publisherAddress, unsubscribeMessage, eventType.AssemblyQualifiedName, context.Extensions));
             }
+
             await Task.WhenAll(unsubscribeTasks).ConfigureAwait(false);
-        }
-
-        readonly IManageSubscriptions subscriptionManager;
-
-        public HybridUnsubscribeTerminator(IManageSubscriptions subscriptionManager, SubscriptionRouter subscriptionRouter, IDispatchMessages dispatcher, string replyToAddress, string endpoint)
-        {
-            this.subscriptionManager = subscriptionManager;
-            this.subscriptionRouter = subscriptionRouter;
-            this.dispatcher = dispatcher;
-            this.replyToAddress = replyToAddress;
-            this.endpoint = endpoint;
         }
 
         async Task SendUnsubscribeMessageWithRetries(string destination, OutgoingMessage unsubscribeMessage, string messageType, ContextBag context, int retriesCount = 0)
@@ -83,9 +79,12 @@
             }
         }
 
+        readonly IManageSubscriptions subscriptionManager;
+
         readonly string endpoint;
         readonly IDispatchMessages dispatcher;
         readonly string replyToAddress;
         readonly SubscriptionRouter subscriptionRouter;
+        static ILog Logger = LogManager.GetLogger<HybridUnsubscribeTerminator>();
     }
 }

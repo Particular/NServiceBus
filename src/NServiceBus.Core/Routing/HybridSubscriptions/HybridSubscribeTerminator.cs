@@ -6,17 +6,12 @@
     using Extensibility;
     using Logging;
     using Pipeline;
-    using Routing;
     using Transport;
     using Unicast.Queuing;
     using Unicast.Transport;
 
     class HybridSubscribeTerminator : PipelineTerminator<ISubscribeContext>
     {
-        static ILog Logger = LogManager.GetLogger<HybridSubscribeTerminator>();
-
-        readonly SubscriptionRouter subscriptionRouter;
-
         public HybridSubscribeTerminator(IManageSubscriptions subscriptionManager, SubscriptionRouter subscriptionRouter, IDispatchMessages dispatcher, string subscriberAddress, string subscriberEndpoint)
         {
             this.subscriptionManager = subscriptionManager;
@@ -58,10 +53,6 @@
             await Task.WhenAll(subscribeTasks).ConfigureAwait(false);
         }
 
-        readonly string subscriberAddress;
-        readonly string subscriberEndpoint;
-        readonly IDispatchMessages dispatcher;
-
         async Task SendSubscribeMessageWithRetries(string destination, OutgoingMessage subscriptionMessage, string messageType, ContextBag context, int retriesCount = 0)
         {
             var state = context.GetOrCreate<MessageDrivenSubscribeTerminator.Settings>();
@@ -87,6 +78,13 @@
             }
         }
 
+        readonly SubscriptionRouter subscriptionRouter;
+
+        readonly string subscriberAddress;
+        readonly string subscriberEndpoint;
+        readonly IDispatchMessages dispatcher;
+
         readonly IManageSubscriptions subscriptionManager;
+        static ILog Logger = LogManager.GetLogger<HybridSubscribeTerminator>();
     }
 }
