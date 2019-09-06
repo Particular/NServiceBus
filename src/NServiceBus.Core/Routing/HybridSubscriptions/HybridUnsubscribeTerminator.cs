@@ -23,10 +23,10 @@
 
 
             var publisherAddresses = subscriptionRouter.GetAddressesForEventType(eventType);
-            //if (publisherAddresses.Count == 0)
-            //{
-            //    throw new Exception($"No publisher address could be found for message type {eventType}. Ensure the configured publisher endpoint has at least one known instance.");
-            //}
+            if (publisherAddresses.Count == 0)
+            {
+                return;
+            }
 
             var unsubscribeTasks = new List<Task>(publisherAddresses.Count);
             foreach (var publisherAddress in publisherAddresses)

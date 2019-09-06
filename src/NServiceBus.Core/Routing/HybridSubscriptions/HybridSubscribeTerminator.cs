@@ -33,10 +33,10 @@
             await subscriptionManager.Subscribe(eventType, context.Extensions).ConfigureAwait(false);
 
             var publisherAddresses = subscriptionRouter.GetAddressesForEventType(eventType);
-            //if (publisherAddresses.Count == 0)
-            //{
-            //    throw new Exception($"No publisher address could be found for message type '{eventType}'. Ensure that a publisher has been configured for the event type and that the configured publisher endpoint has at least one known instance.");
-            //}
+            if (publisherAddresses.Count == 0)
+            {
+                return;
+            }
 
             var subscribeTasks = new List<Task>(publisherAddresses.Count);
             foreach (var publisherAddress in publisherAddresses)

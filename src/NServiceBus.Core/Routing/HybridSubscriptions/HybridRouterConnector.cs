@@ -25,11 +25,6 @@
 
             var eventType = context.Message.MessageType;
             var addressLabels = await GetRoutingStrategies(context, eventType).ConfigureAwait(false);
-            //if (addressLabels.Count == 0)
-            //{
-            //    //No subscribers for this message.
-            //    return;
-            //}
 
             var routingStrategies = new List<RoutingStrategy>()
                 {
