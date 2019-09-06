@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.Routing.HybridSubscriptions
+﻿namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
@@ -6,6 +6,7 @@
     using Extensibility;
     using Logging;
     using Pipeline;
+    using Routing;
     using Transport;
     using Unicast.Queuing;
     using Unicast.Transport;

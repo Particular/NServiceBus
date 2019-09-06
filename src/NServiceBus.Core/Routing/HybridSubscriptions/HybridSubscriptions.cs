@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.Features
 {
     using Settings;
-    using Routing.HybridSubscriptions;
     using Transport;
     using Unicast.Messages;
     using Unicast.Subscriptions.MessageDrivenSubscriptions;

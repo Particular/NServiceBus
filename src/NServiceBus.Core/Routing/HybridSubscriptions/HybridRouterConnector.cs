@@ -1,10 +1,11 @@
-﻿namespace NServiceBus.Routing.HybridSubscriptions
+﻿namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
     using Pipeline;
+    using Routing;
     using Unicast.Queuing;
 
     class HybridRouterConnector : StageConnector<IOutgoingPublishContext, IOutgoingLogicalMessageContext>
