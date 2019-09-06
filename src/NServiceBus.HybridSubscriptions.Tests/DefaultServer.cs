@@ -1,0 +1,51 @@
+﻿namespace NServiceBus.HybridSubscriptions.Tests
+{
+    using System;
+    using System.Threading.Tasks;
+    using AcceptanceTesting.Customization;
+    using AcceptanceTesting.Support;
+    using AcceptanceTests.EndpointTemplates;
+    using Features;
+
+    class DefaultServer : IEndpointSetupTemplate
+    {
+        readonly bool useNativePubSub;
+
+        public DefaultServer(bool useNativePubSub)
+        {
+            this.useNativePubSub = useNativePubSub;
+        }
+
+        public async Task<EndpointConfiguration> GetConfiguration(RunDescriptor runDescriptor, EndpointCustomizationConfiguration endpointConfiguration, Action<EndpointConfiguration> configurationBuilderCustomization)
+        {
+            var types = endpointConfiguration.GetTypesScopedByTestClass();
+
+            var configuration = new EndpointConfiguration(endpointConfiguration.EndpointName);
+
+            configuration.TypesToIncludeInScan(types);
+            configuration.EnableInstallers();
+
+            configuration.UseContainer(new AcceptanceTestingContainer());
+            configuration.DisableFeature<TimeoutManager>();
+
+            var recoverability = configuration.Recoverability();
+            recoverability.Delayed(delayed => delayed.NumberOfRetries(0));
+            recoverability.Immediate(immediate => immediate.NumberOfRetries(0));
+            configuration.SendFailedMessagesTo("error");
+
+            var transportConfiguration = new ConfigureEndpointAcceptanceTestingTransport(useNativePubSub, true);
+            await transportConfiguration.Configure(endpointConfiguration.EndpointName, configuration, runDescriptor.Settings, endpointConfiguration.PublisherMetadata);
+            runDescriptor.OnTestCompleted(_ => transportConfiguration.Cleanup());
+
+            configuration.RegisterComponentsAndInheritanceHierarchy(runDescriptor);
+
+            var persistenceConfiguration = new ConfigureEndpointInMemoryPersistence();
+            await persistenceConfiguration.Configure(endpointConfiguration.EndpointName, configuration, runDescriptor.Settings, endpointConfiguration.PublisherMetadata);
+            runDescriptor.OnTestCompleted(_ => persistenceConfiguration.Cleanup());
+
+            configurationBuilderCustomization(configuration);
+
+            return configuration;
+        }
+    }
+}
