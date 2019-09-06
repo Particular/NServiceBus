@@ -17,9 +17,9 @@ namespace NServiceBus
     using Transport;
     using Unicast.Messages;
 
-    class ConfiguredEndpoint
+    class EndpointCreator
     {
-        ConfiguredEndpoint(SettingsHolder settings,
+        EndpointCreator(SettingsHolder settings,
             ContainerComponent containerComponent,
             PipelineComponent pipelineComponent)
         {
@@ -34,10 +34,10 @@ namespace NServiceBus
 
             endpointConfiguration.ContainerComponent.InitializeWithExternallyManagedContainer(configureComponents);
 
-            var configured = new ConfiguredEndpoint(endpointConfiguration.Settings, endpointConfiguration.ContainerComponent, endpointConfiguration.PipelineComponent);
-            configured.Initialize();
+            var creator = new EndpointCreator(endpointConfiguration.Settings, endpointConfiguration.ContainerComponent, endpointConfiguration.PipelineComponent);
+            creator.Initialize();
 
-            return new StartableEndpointWithExternallyManagedContainer(configured);
+            return new StartableEndpointWithExternallyManagedContainer(creator);
         }
 
         public static Task<IStartableEndpoint> CreateWithInternallyManagedContainer(EndpointConfiguration endpointConfiguration)
@@ -46,10 +46,10 @@ namespace NServiceBus
 
             endpointConfiguration.ContainerComponent.InitializeWithInternallyManagedContainer();
 
-            var configured = new ConfiguredEndpoint(endpointConfiguration.Settings, endpointConfiguration.ContainerComponent, endpointConfiguration.PipelineComponent);
-            configured.Initialize();
+            var creator = new EndpointCreator(endpointConfiguration.Settings, endpointConfiguration.ContainerComponent, endpointConfiguration.PipelineComponent);
+            creator.Initialize();
 
-            return configured.CreateStartableEndpoint();
+            return creator.CreateStartableEndpoint();
         }
 
         static void FinalizeConfiguration(EndpointConfiguration endpointConfiguration)
