@@ -11,7 +11,7 @@
         {
             EnableByDefault();
             Prerequisite(c => c.Settings.Get<TransportInfrastructure>().OutboundRoutingPolicy.Publishes == OutboundRoutingType.Multicast, "The transport does not support native pub sub");
-            Prerequisite(c => IsMigrationModeEnabled(c.Settings), "The transport has not enabled pub sub migration mode");
+            Prerequisite(c => IsMigrationModeEnabled(c.Settings), "The transport has not enabled subscription migration mode");
         }
 
         protected internal override void Setup(FeatureConfigurationContext context)

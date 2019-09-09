@@ -8,7 +8,7 @@ namespace NServiceBus.Features
         {
             EnableByDefault();
             Prerequisite(c => c.Settings.Get<TransportInfrastructure>().OutboundRoutingPolicy.Publishes == OutboundRoutingType.Multicast, "The transport does not support native pub sub");
-            Prerequisite(c => SubscriptionMigrationMode.IsMigrationModeEnabled(c.Settings) == false, "The transport has enabled pub sub migration mode");
+            Prerequisite(c => SubscriptionMigrationMode.IsMigrationModeEnabled(c.Settings) == false, "The transport has enabled subscription migration mode");
         }
 
         protected internal override void Setup(FeatureConfigurationContext context)
