@@ -37,7 +37,6 @@
 
         public void UseExternallyManagedBuilder(IBuilder builder)
         {
-            ownsContainer = false;
             Builder = builder;
         }
 
@@ -52,6 +51,8 @@
             {
                 throw new InvalidOperationException("An internally managed container has already been configured using 'EndpointConfiguration.UseContainer'. It is not possible to use both an internally managed container and an externally managed container.");
             }
+
+            ownsContainer = false;
 
             ContainerConfiguration = configureComponents;
 
