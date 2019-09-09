@@ -5,7 +5,6 @@ namespace NServiceBus
     using System.Threading.Tasks;
     using Features;
     using Logging;
-    using ObjectBuilder;
     using Settings;
     using Transport;
 
