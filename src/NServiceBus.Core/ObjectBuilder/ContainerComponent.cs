@@ -30,15 +30,15 @@ namespace NServiceBus
             UseContainer(definitionType.Construct<ContainerDefinition>().CreateContainer(settings));
         }
 
+        public void UseContainer(IContainer container)
+        {
+            customContainer = container;
+        }
+
         public void UseExternallyManagedBuilder(IBuilder builder)
         {
             ownsContainer = false;
             Builder = builder;
-        }
-
-        public void UseContainer(IContainer container)
-        {
-            customContainer = container;
         }
 
         public void AddUserRegistration(Action<IConfigureComponents> registration)
