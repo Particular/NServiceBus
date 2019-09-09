@@ -1,10 +1,9 @@
-﻿namespace NServiceBus.AcceptanceTests.Core.Routing
+﻿namespace NServiceBus.AcceptanceTests.Core.SubscriptionMigration
 {
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using AcceptanceTesting.Customization;
     using Configuration.AdvancedExtensibility;
-    using HybridSubscriptions.Tests;
     using NUnit.Framework;
 
     public class When_publisher_has_subscription_migration_mode_enabled : NServiceBusAcceptanceTest

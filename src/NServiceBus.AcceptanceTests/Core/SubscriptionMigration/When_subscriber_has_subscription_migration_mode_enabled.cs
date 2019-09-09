@@ -1,4 +1,4 @@
-﻿namespace NServiceBus.HybridSubscriptions.Tests
+﻿namespace NServiceBus.AcceptanceTests.Core.SubscriptionMigration
 {
     using System.Threading.Tasks;
     using AcceptanceTesting;

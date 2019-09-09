@@ -1,10 +1,10 @@
-﻿namespace NServiceBus.HybridSubscriptions.Tests
+﻿namespace NServiceBus.AcceptanceTests.Core.SubscriptionMigration
 {
     using System;
     using System.Threading.Tasks;
     using AcceptanceTesting.Customization;
     using AcceptanceTesting.Support;
-    using AcceptanceTests.EndpointTemplates;
+    using EndpointTemplates;
     using Features;
 
     class AcceptanceTestingTransportServer : IEndpointSetupTemplate

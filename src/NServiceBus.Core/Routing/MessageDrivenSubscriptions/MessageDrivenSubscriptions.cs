@@ -26,7 +26,7 @@ namespace NServiceBus.Features
         /// </summary>
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-            // The MessageDrivenSubscriptions feature needs to be activated when using the hybrid mode as some persister packages check this feature before enabling the subscription storage.
+            // The MessageDrivenSubscriptions feature needs to be activated when using the subscription migration mode as some persister packages check this feature before enabling the subscription storage.
             if (SubscriptionMigrationMode.IsMigrationModeEnabled(context.Settings))
             {
                 return;
