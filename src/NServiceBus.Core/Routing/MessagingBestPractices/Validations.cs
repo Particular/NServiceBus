@@ -45,7 +45,7 @@ namespace NServiceBus
 
             if (!conventions.IsEventType(messageType))
             {
-                Log.Info($"You are using a basic message to do pub/sub. Consider implementing the more specific ICommand and IEvent interfaces on the type '{messageType.FullName}' to help NServiceBus to enforce messaging best practices for you.");
+                Log.Warn($"You are using a basic message to do pub/sub. Consider implementing the more specific ICommand and IEvent interfaces on the type '{messageType.FullName}' to help NServiceBus to enforce messaging best practices for you.");
             }
         }
 
