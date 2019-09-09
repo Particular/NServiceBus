@@ -20,7 +20,7 @@ namespace NServiceBus.AcceptanceTests.Core.DependencyInjection
 
         public void Dispose()
         {
-            //Injected at compile time
+            container.Dispose();
         }
 
         public T Build<T>()

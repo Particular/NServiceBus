@@ -14,6 +14,10 @@ namespace NServiceBus
             this.settings = settings;
         }
 
+        public IConfigureComponents ContainerConfiguration { get; private set; }
+
+        public IBuilder Builder { get; private set; }
+
         public void UseContainer<T>(Action<ContainerCustomizations> customizations = null) where T : ContainerDefinition, new()
         {
             customizations?.Invoke(new ContainerCustomizations(settings));
@@ -28,6 +32,7 @@ namespace NServiceBus
 
         public void UseExternallyManagedBuilder(IBuilder builder)
         {
+            ownedContainer = false;
             Builder = builder;
         }
 
@@ -60,6 +65,8 @@ namespace NServiceBus
 
         public void InitializeWithInternallyManagedContainer()
         {
+            ownedContainer = true;
+
             var container = customContainer;
 
             if (container == null)
@@ -90,6 +97,14 @@ namespace NServiceBus
             ApplyRegistrations();
         }
 
+        public void Stop()
+        {
+            if (ownedContainer)
+            {
+                Builder.Dispose();
+            }
+        }
+
         void ApplyRegistrations()
         {
             foreach (var registration in userRegistrations)
@@ -101,10 +116,7 @@ namespace NServiceBus
             ContainerConfiguration.ConfigureComponent(_ => Builder, DependencyLifecycle.SingleInstance);
         }
 
-        public IConfigureComponents ContainerConfiguration { get; private set; }
-
-        public IBuilder Builder { get; private set; }
-
+        bool ownedContainer;
         IContainer customContainer;
         List<Action<IConfigureComponents>> userRegistrations = new List<Action<IConfigureComponents>>();
         SettingsHolder settings;

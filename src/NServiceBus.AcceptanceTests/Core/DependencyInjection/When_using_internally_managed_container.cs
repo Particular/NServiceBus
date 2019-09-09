@@ -5,7 +5,7 @@
     using EndpointTemplates;
     using NUnit.Framework;
 
-    public class When_using_externally_managed_container : NServiceBusAcceptanceTest
+    public class When_using_internally_managed_container : NServiceBusAcceptanceTest
     {
         static MyComponent myComponent = new MyComponent
         {
@@ -19,28 +19,16 @@
             container.RegisterSingleton(typeof(MyComponent), myComponent);
 
             var result = await Scenario.Define<Context>()
-            .WithEndpoint<ExternallyManagedContainerEndpoint>(b =>
+            .WithEndpoint<InternallyManagedContainerEndpoint>(b =>
             {
-                IStartableEndpointWithExternallyManagedContainer configuredEndpoint = null;
-
-                b.ToCreateInstance(
-                        config => {
-                            configuredEndpoint = EndpointWithExternallyManagedContainer.Create(config, new RegistrationPhaseAdapter(container));
-                            return Task.FromResult(configuredEndpoint);
-                            },
-                        configured => configured.Start(new ResolutionPhaseAdapter(container))
-                    )
-                    .When(e =>
-                    {
-                        //use the session provided by configure to make sure its properly populated
-                        return configuredEndpoint.MessageSession.Value.SendLocal(new SomeMessage());
-                    });
+                b.CustomConfig(c => c.UseContainer(container));
+                b.When(s => s.SendLocal(new SomeMessage()));
             })
             .Done(c => c.Message != null)
             .Run();
 
             Assert.AreEqual(result.Message, myComponent.Message);
-            Assert.False(container.WasDisposed, "Externally managed containers should not be disposed");
+            Assert.True(container.WasDisposed, "Internally managed containers should be disposed");
         }
 
         class Context : ScenarioContext
@@ -48,11 +36,11 @@
             public string Message { get; set; }
         }
 
-        public class ExternallyManagedContainerEndpoint : EndpointConfigurationBuilder
+        public class InternallyManagedContainerEndpoint : EndpointConfigurationBuilder
         {
-            public ExternallyManagedContainerEndpoint()
+            public InternallyManagedContainerEndpoint()
             {
-                EndpointSetup<ExternallyManagedContainerServer>();
+                EndpointSetup<DefaultServer>();
             }
 
             class SomeMessageHandler : IHandleMessages<SomeMessage>

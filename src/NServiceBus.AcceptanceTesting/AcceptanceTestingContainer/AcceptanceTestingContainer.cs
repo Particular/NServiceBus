@@ -11,6 +11,8 @@
     {
         public Dictionary<Type, Component> RegisteredComponents { get; } = new Dictionary<Type, Component>();
 
+        public bool WasDisposed = false;
+
         public AcceptanceTestingContainer()
         {
             builder = new LightInjectObjectBuilder();
@@ -19,6 +21,7 @@
         public void Dispose()
         {
             builder.Dispose();
+            WasDisposed = true;
         }
 
         public object Build(Type typeToBuild)

@@ -18,7 +18,7 @@
         {
             var testee = new RunningEndpointInstance(
                 new SettingsHolder(),
-                new FakeBuilder(),
+                new ContainerComponent(new SettingsHolder()),
                 null,
                 new FeatureRunner(new FeatureActivator(new SettingsHolder())),
                 new MessageSession(new FakeRootContext()), new FakeTransportInfrastructure());

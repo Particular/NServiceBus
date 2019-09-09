@@ -32,7 +32,7 @@ namespace NServiceBus
 
             var featureRunner = await StartFeatures().ConfigureAwait(false);
 
-            var runningInstance = new RunningEndpointInstance(settings, containerComponent.Builder, receiveComponent, featureRunner, messageSession, transportInfrastructure);
+            var runningInstance = new RunningEndpointInstance(settings, containerComponent, receiveComponent, featureRunner, messageSession, transportInfrastructure);
 
             // set the started endpoint on CriticalError to pass the endpoint to the critical error action
             criticalError.SetEndpoint(runningInstance);
