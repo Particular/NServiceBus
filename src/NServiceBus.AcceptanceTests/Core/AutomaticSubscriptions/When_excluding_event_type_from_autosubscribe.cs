@@ -22,11 +22,6 @@
                 .Done(c => c.EndpointsStarted)
                 .Run();
 
-            foreach (var subscribedEvent in ctx.EventsSubscribedTo)
-            {
-                TestContext.WriteLine($"subscribed event: {subscribedEvent.AssemblyQualifiedName}");
-            }
-
             Assert.AreEqual(1, ctx.EventsSubscribedTo.Count);
             Assert.AreEqual(typeof(EventToSubscribeTo), ctx.EventsSubscribedTo[0]);
 
@@ -52,11 +47,6 @@
                     c.Pipeline.Register("SubscriptionSpy", new SubscriptionSpy((Context)ScenarioContext), "Spies on subscriptions made");
                     c.AutoSubscribe().DisableFor<EventToExclude>();
                     c.AutoSubscribe().DisableFor(typeof(EventWithNoPublisher));
-                    c.CustomDiagnosticsWriter(d =>
-                    {
-                        TestContext.WriteLine(d);
-                        return Task.FromResult(0);
-                    });
                 },
                     metadata =>
                     {
