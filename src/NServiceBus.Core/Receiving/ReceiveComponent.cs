@@ -174,7 +174,7 @@ namespace NServiceBus
         readonly IEventAggregator eventAggregator;
         CriticalError criticalError;
         string errorQueue;
-        
+
         const string MainReceiverId = "Main";
 
         static ILog Logger = LogManager.GetLogger<ReceiveComponent>();
