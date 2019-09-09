@@ -1,6 +1,6 @@
 ﻿namespace NServiceBus.HybridSubscriptions.Tests
 {
-    class EndpointWithNativePubSub : DefaultServer
+    class EndpointWithNativePubSub : AcceptanceTestingTransportServer
     {
         public EndpointWithNativePubSub() : base(true)
         {

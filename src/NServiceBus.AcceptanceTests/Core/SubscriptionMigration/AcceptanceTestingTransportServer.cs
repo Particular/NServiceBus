@@ -7,11 +7,11 @@
     using AcceptanceTests.EndpointTemplates;
     using Features;
 
-    class DefaultServer : IEndpointSetupTemplate
+    class AcceptanceTestingTransportServer : IEndpointSetupTemplate
     {
         readonly bool useNativePubSub;
 
-        public DefaultServer(bool useNativePubSub)
+        public AcceptanceTestingTransportServer(bool useNativePubSub)
         {
             this.useNativePubSub = useNativePubSub;
         }
