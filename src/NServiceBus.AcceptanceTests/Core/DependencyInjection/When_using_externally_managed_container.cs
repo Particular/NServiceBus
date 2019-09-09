@@ -24,10 +24,11 @@
                 IStartableEndpointWithExternallyManagedContainer configuredEndpoint = null;
 
                 b.ToCreateInstance(
-                        config => {
+                        config =>
+                        {
                             configuredEndpoint = EndpointWithExternallyManagedContainer.Create(config, new RegistrationPhaseAdapter(container));
                             return Task.FromResult(configuredEndpoint);
-                            },
+                        },
                         configured => configured.Start(new ResolutionPhaseAdapter(container))
                     )
                     .When(e =>
