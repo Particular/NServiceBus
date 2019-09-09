@@ -32,7 +32,7 @@ namespace NServiceBus
 
         public void UseExternallyManagedBuilder(IBuilder builder)
         {
-            ownedContainer = false;
+            ownsContainer = false;
             Builder = builder;
         }
 
@@ -65,7 +65,7 @@ namespace NServiceBus
 
         public void InitializeWithInternallyManagedContainer()
         {
-            ownedContainer = true;
+            ownsContainer = true;
 
             var container = customContainer;
 
@@ -99,7 +99,7 @@ namespace NServiceBus
 
         public void Stop()
         {
-            if (ownedContainer)
+            if (ownsContainer)
             {
                 Builder.Dispose();
             }
@@ -116,7 +116,7 @@ namespace NServiceBus
             ContainerConfiguration.ConfigureComponent(_ => Builder, DependencyLifecycle.SingleInstance);
         }
 
-        bool ownedContainer;
+        bool ownsContainer;
         IContainer customContainer;
         List<Action<IConfigureComponents>> userRegistrations = new List<Action<IConfigureComponents>>();
         SettingsHolder settings;
