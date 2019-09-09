@@ -11,7 +11,7 @@
     {
         public Dictionary<Type, Component> RegisteredComponents { get; } = new Dictionary<Type, Component>();
 
-        public bool WasDisposed = false;
+        public bool WasDisposed { get; private set; }
 
         public AcceptanceTestingContainer()
         {
