@@ -8,7 +8,6 @@
     using NUnit.Framework;
     using Routing;
     using Settings;
-    using Testing;
 
     [TestFixture]
     public class RunningEndpointInstanceTest
