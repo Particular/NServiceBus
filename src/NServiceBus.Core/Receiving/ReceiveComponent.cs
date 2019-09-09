@@ -45,21 +45,21 @@ namespace NServiceBus
             }
         }
 
-        public async Task Initialize(IBuilder builder)
+        public async Task Initialize(ContainerComponent containerComponent)
         {
             if (IsSendOnly)
             {
                 return;
             }
 
-            mainPipelineExecutor = new MainPipelineExecutor(builder, pipeline);
+            mainPipelineExecutor = new MainPipelineExecutor(containerComponent.Builder, pipeline);
 
             if (configuration.PurgeOnStartup)
             {
                 Logger.Warn("All queues owned by the endpoint will be purged on startup.");
             }
 
-            AddReceivers(builder);
+            AddReceivers(containerComponent.Builder);
 
             foreach (var receiver in receivers)
             {

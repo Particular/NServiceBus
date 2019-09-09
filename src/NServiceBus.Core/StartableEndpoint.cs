@@ -28,7 +28,7 @@ namespace NServiceBus
 
             AppDomain.CurrentDomain.SetPrincipalPolicy(PrincipalPolicy.WindowsPrincipal);
 
-            await receiveComponent.Initialize(containerComponent.Builder).ConfigureAwait(false);
+            await receiveComponent.Initialize(containerComponent).ConfigureAwait(false);
 
             var featureRunner = await StartFeatures().ConfigureAwait(false);
 
