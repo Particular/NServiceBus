@@ -1,12 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using NServiceBus.Container;
-using NServiceBus.ObjectBuilder;
-using NServiceBus.ObjectBuilder.Common;
-using NServiceBus.Settings;
-
-namespace NServiceBus
+﻿namespace NServiceBus
 {
+    using System;
+    using System.Collections.Generic;
+    using Container;
+    using ObjectBuilder;
+    using ObjectBuilder.Common;
+    using Settings;
+
     class ContainerComponent
     {
         public ContainerComponent(SettingsHolder settings)
