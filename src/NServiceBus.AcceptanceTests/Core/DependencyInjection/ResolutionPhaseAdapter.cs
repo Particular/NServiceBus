@@ -54,11 +54,6 @@ namespace NServiceBus.AcceptanceTests.Core.DependencyInjection
             action(o);
         }
 
-        void DisposeManaged()
-        {
-            container?.Dispose();
-        }
-
         IContainer container;
     }
 }
