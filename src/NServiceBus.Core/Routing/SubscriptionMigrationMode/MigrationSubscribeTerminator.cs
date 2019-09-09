@@ -11,9 +11,9 @@
     using Unicast.Queuing;
     using Unicast.Transport;
 
-    class HybridSubscribeTerminator : PipelineTerminator<ISubscribeContext>
+    class MigrationSubscribeTerminator : PipelineTerminator<ISubscribeContext>
     {
-        public HybridSubscribeTerminator(IManageSubscriptions subscriptionManager, SubscriptionRouter subscriptionRouter, IDispatchMessages dispatcher, string subscriberAddress, string subscriberEndpoint)
+        public MigrationSubscribeTerminator(IManageSubscriptions subscriptionManager, SubscriptionRouter subscriptionRouter, IDispatchMessages dispatcher, string subscriberAddress, string subscriberEndpoint)
         {
             this.subscriptionManager = subscriptionManager;
             this.subscriptionRouter = subscriptionRouter;
@@ -86,6 +86,6 @@
         readonly IDispatchMessages dispatcher;
 
         readonly IManageSubscriptions subscriptionManager;
-        static ILog Logger = LogManager.GetLogger<HybridSubscribeTerminator>();
+        static ILog Logger = LogManager.GetLogger<MigrationSubscribeTerminator>();
     }
 }

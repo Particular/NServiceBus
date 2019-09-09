@@ -5,9 +5,9 @@
     using Unicast.Messages;
     using Unicast.Subscriptions.MessageDrivenSubscriptions;
 
-    class HybridSubscriptions : Feature
+    class SubscriptionMigrationMode : Feature
     {
-        public HybridSubscriptions()
+        public SubscriptionMigrationMode()
         {
             EnableByDefault();
             Prerequisite(c => c.Settings.Get<TransportInfrastructure>().OutboundRoutingPolicy.Publishes == OutboundRoutingType.Multicast, "The transport does not support native pub sub");
@@ -30,7 +30,7 @@
             context.Pipeline.Register(b =>
             {
                 var unicastPublishRouter = new UnicastPublishRouter(b.Build<MessageMetadataRegistry>(), i => transportInfrastructure.ToTransportAddress(LogicalAddress.CreateRemoteAddress(i)), b.Build<ISubscriptionStorage>());
-                return new HybridRouterConnector(distributionPolicy, unicastPublishRouter);
+                return new MigrationRouterConnector(distributionPolicy, unicastPublishRouter);
             }, "Determines how the published messages should be routed");
 
             if (canReceive)
@@ -43,9 +43,9 @@
                 var subscriberAddress = context.Receiving.LocalAddress;
 
                 context.Pipeline.Register(b =>
-                    new HybridSubscribeTerminator(subscriptionManager, subscriptionRouter, b.Build<IDispatchMessages>(), subscriberAddress, context.Settings.EndpointName()), "Requests the transport to subscribe to a given message type");
+                    new MigrationSubscribeTerminator(subscriptionManager, subscriptionRouter, b.Build<IDispatchMessages>(), subscriberAddress, context.Settings.EndpointName()), "Requests the transport to subscribe to a given message type");
                 context.Pipeline.Register(b =>
-                    new HybridUnsubscribeTerminator(subscriptionManager,subscriptionRouter, b.Build<IDispatchMessages>(), subscriberAddress, context.Settings.EndpointName()), "Sends requests to unsubscribe when message driven subscriptions is in use");
+                    new MigrationUnsubscribeTerminator(subscriptionManager,subscriptionRouter, b.Build<IDispatchMessages>(), subscriberAddress, context.Settings.EndpointName()), "Sends requests to unsubscribe when message driven subscriptions is in use");
 
                 var authorizer = context.Settings.GetSubscriptionAuthorizer();
                 if (authorizer == null)

@@ -7,7 +7,7 @@
     using HybridSubscriptions.Tests;
     using NUnit.Framework;
 
-    public class When_publisher_has_hybrid_mode_enabled : NServiceBusAcceptanceTest
+    public class When_publisher_has_subscription_migration_mode_enabled : NServiceBusAcceptanceTest
     {
         [Test]
         public async Task CanHandleMessageDrivenSubscribers()

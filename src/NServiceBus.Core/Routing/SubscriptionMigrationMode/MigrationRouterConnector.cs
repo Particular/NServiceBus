@@ -8,9 +8,9 @@
     using Routing;
     using Unicast.Queuing;
 
-    class HybridRouterConnector : StageConnector<IOutgoingPublishContext, IOutgoingLogicalMessageContext>
+    class MigrationRouterConnector : StageConnector<IOutgoingPublishContext, IOutgoingLogicalMessageContext>
     {
-        public HybridRouterConnector(DistributionPolicy distributionPolicy, IUnicastPublishRouter unicastPublishRouter)
+        public MigrationRouterConnector(DistributionPolicy distributionPolicy, IUnicastPublishRouter unicastPublishRouter)
         {
             this.distributionPolicy = distributionPolicy;
             this.unicastPublishRouter = unicastPublishRouter;

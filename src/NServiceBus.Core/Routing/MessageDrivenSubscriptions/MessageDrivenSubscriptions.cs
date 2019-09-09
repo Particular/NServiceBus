@@ -18,7 +18,7 @@ namespace NServiceBus.Features
                 // s.SetDefault<Publishers>(new Publishers()); currently setup by RoutingFeature
                 s.SetDefault(new ConfiguredPublishers());
             });
-            Prerequisite(c => c.Settings.Get<TransportInfrastructure>().OutboundRoutingPolicy.Publishes == OutboundRoutingType.Unicast || HybridSubscriptions.IsMigrationModeEnabled(c.Settings), "The transport supports native pub sub");
+            Prerequisite(c => c.Settings.Get<TransportInfrastructure>().OutboundRoutingPolicy.Publishes == OutboundRoutingType.Unicast || SubscriptionMigrationMode.IsMigrationModeEnabled(c.Settings), "The transport supports native pub sub");
         }
 
         /// <summary>
@@ -27,7 +27,7 @@ namespace NServiceBus.Features
         protected internal override void Setup(FeatureConfigurationContext context)
         {
             // The MessageDrivenSubscriptions feature needs to be activated when using the hybrid mode as some persister packages check this feature before enabling the subscription storage.
-            if (HybridSubscriptions.IsMigrationModeEnabled(context.Settings))
+            if (SubscriptionMigrationMode.IsMigrationModeEnabled(context.Settings))
             {
                 return;
             }
