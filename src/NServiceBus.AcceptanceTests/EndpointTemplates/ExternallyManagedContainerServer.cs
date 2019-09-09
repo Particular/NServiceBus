@@ -6,7 +6,7 @@
     using AcceptanceTesting.Support;
     using Features;
 
-    public class ExternalContainerServer : IEndpointSetupTemplate
+    public class ExternallyManagedContainerServer : IEndpointSetupTemplate
     {
         public async Task<EndpointConfiguration> GetConfiguration(RunDescriptor runDescriptor, EndpointCustomizationConfiguration endpointConfiguration, Action<EndpointConfiguration> configurationBuilderCustomization)
         {

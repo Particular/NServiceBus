@@ -8,7 +8,7 @@
     {
         public Task<EndpointConfiguration> GetConfiguration(RunDescriptor runDescriptor, EndpointCustomizationConfiguration endpointCustomizationConfiguration, Action<EndpointConfiguration> configurationBuilderCustomization)
         {
-            return new ExternalContainerServer()
+            return new ExternallyManagedContainerServer()
                 .GetConfiguration(runDescriptor, endpointCustomizationConfiguration, endpointConfiguration =>
                 {
                     endpointConfiguration.UseContainer(new AcceptanceTestingContainer());
