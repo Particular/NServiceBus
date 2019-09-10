@@ -15,9 +15,7 @@
 
             var assembliesToScan = assemblies.Assemblies
                 //exclude acceptance tests by default
-                .Where(a => a != Assembly.GetExecutingAssembly())
-                .Where(a => !a.GetName().Name.EndsWith("Tests"))
-                .ToList();
+                .Where(a => a != Assembly.GetExecutingAssembly()).ToList();
             var types = assembliesToScan
                 .SelectMany(a => a.GetTypes());
 
