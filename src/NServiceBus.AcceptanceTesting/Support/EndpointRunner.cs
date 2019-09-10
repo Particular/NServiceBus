@@ -13,16 +13,20 @@
     public class EndpointRunner : ComponentRunner
     {
         static ILog Logger = LogManager.GetLogger<EndpointRunner>();
+        Func<EndpointConfiguration, Task<object>> createCallback;
+        Func<object, Task<IEndpointInstance>> startCallback;
         bool doNotFailOnErrorMessages;
         EndpointBehavior behavior;
-        IStartableEndpoint startable;
+        object startable;
         IEndpointInstance endpointInstance;
         EndpointCustomizationConfiguration configuration;
         ScenarioContext scenarioContext;
         EndpointConfiguration endpointConfiguration;
 
-        public EndpointRunner(bool doNotFailOnErrorMessages)
+        public EndpointRunner(Func<EndpointConfiguration, Task<object>> createCallback, Func<object, Task<IEndpointInstance>> startCallback, bool doNotFailOnErrorMessages)
         {
+            this.createCallback = createCallback;
+            this.startCallback = startCallback;
             this.doNotFailOnErrorMessages = doNotFailOnErrorMessages;
         }
 
@@ -53,7 +57,7 @@
 
                 endpointBehavior.CustomConfig.ForEach(customAction => customAction(endpointConfiguration, scenarioContext));
 
-                startable = await Endpoint.Create(endpointConfiguration).ConfigureAwait(false);
+                startable = await createCallback(endpointConfiguration).ConfigureAwait(false);
 
                 var transportInfrastructure = endpointConfiguration.GetSettings().Get<TransportInfrastructure>();
                 scenarioContext.HasNativePubSubSupport = transportInfrastructure.OutboundRoutingPolicy.Publishes == OutboundRoutingType.Multicast;
@@ -80,7 +84,7 @@
             ScenarioContext.CurrentEndpoint = configuration.EndpointName;
             try
             {
-                endpointInstance = await startable.Start().ConfigureAwait(false);
+                endpointInstance = await startCallback(startable).ConfigureAwait(false);
 
                 if (token.IsCancellationRequested)
                 {

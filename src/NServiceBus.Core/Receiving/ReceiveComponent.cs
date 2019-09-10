@@ -13,7 +13,6 @@ namespace NServiceBus
         public ReceiveComponent(ReceiveConfiguration configuration,
             TransportReceiveInfrastructure receiveInfrastructure,
             PipelineComponent pipeline,
-            IBuilder builder,
             IEventAggregator eventAggregator,
             CriticalError criticalError,
             string errorQueue)
@@ -21,7 +20,6 @@ namespace NServiceBus
             this.configuration = configuration;
             this.receiveInfrastructure = receiveInfrastructure;
             this.pipeline = pipeline;
-            this.builder = builder;
             this.eventAggregator = eventAggregator;
             this.criticalError = criticalError;
             this.errorQueue = errorQueue;
@@ -47,21 +45,21 @@ namespace NServiceBus
             }
         }
 
-        public async Task Initialize()
+        public async Task Initialize(ContainerComponent containerComponent)
         {
             if (IsSendOnly)
             {
                 return;
             }
 
-            mainPipelineExecutor = new MainPipelineExecutor(builder, pipeline);
+            mainPipelineExecutor = new MainPipelineExecutor(containerComponent.Builder, pipeline);
 
             if (configuration.PurgeOnStartup)
             {
                 Logger.Warn("All queues owned by the endpoint will be purged on startup.");
             }
 
-            AddReceivers();
+            AddReceivers(containerComponent.Builder);
 
             foreach (var receiver in receivers)
             {
@@ -134,7 +132,7 @@ namespace NServiceBus
 
         bool IsSendOnly => configuration == null;
 
-        void AddReceivers()
+        void AddReceivers(IBuilder builder)
         {
             var requiredTransactionSupport = configuration.TransactionMode;
             var recoverabilityExecutorFactory = builder.Build<RecoverabilityExecutorFactory>();
@@ -173,11 +171,10 @@ namespace NServiceBus
         TransportReceiveInfrastructure receiveInfrastructure;
         PipelineComponent pipeline;
         IPipelineExecutor mainPipelineExecutor;
-        IBuilder builder;
         readonly IEventAggregator eventAggregator;
         CriticalError criticalError;
         string errorQueue;
-        
+
         const string MainReceiverId = "Main";
 
         static ILog Logger = LogManager.GetLogger<ReceiveComponent>();

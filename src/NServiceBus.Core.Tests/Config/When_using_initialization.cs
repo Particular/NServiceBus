@@ -9,11 +9,11 @@
         [Test]
         public void Should_throw_meaningful_exception()
         {
-            var builder = new EndpointConfiguration("myendpoint");
+            var endpointConfiguration = new EndpointConfiguration("myendpoint");
 
-            builder.TypesToScanInternal(new[] { typeof(FeatureWithInitialization) });
+            endpointConfiguration.TypesToScanInternal(new[] { typeof(FeatureWithInitialization) });
 
-            var ae = Assert.Throws<Exception>(() => builder.Build());
+            var ae = Assert.Throws<Exception>(() => EndpointCreator.CreateWithInternallyManagedContainer(endpointConfiguration));
             var expected = $"Unable to create the type '{nameof(FeatureWithInitialization)}'. Types implementing '{nameof(INeedInitialization)}' must have a public parameterless (default) constructor.";
             Assert.AreEqual(expected, ae.Message);
         }

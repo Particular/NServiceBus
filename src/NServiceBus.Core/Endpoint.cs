@@ -14,8 +14,9 @@ namespace NServiceBus
         public static Task<IStartableEndpoint> Create(EndpointConfiguration configuration)
         {
             Guard.AgainstNull(nameof(configuration), configuration);
-            var initializable = configuration.Build();
-            return initializable.Initialize();
+
+            return EndpointCreator
+                .CreateWithInternallyManagedContainer(configuration);
         }
 
         /// <summary>
@@ -24,8 +25,10 @@ namespace NServiceBus
         /// <param name="configuration">Configuration.</param>
         public static async Task<IEndpointInstance> Start(EndpointConfiguration configuration)
         {
-            var initializable = await Create(configuration).ConfigureAwait(false);
-            return await initializable.Start().ConfigureAwait(false);
+            Guard.AgainstNull(nameof(configuration), configuration);
+            var startableEndpoint = await Create(configuration).ConfigureAwait(false);
+
+            return await startableEndpoint.Start().ConfigureAwait(false);
         }
     }
 }

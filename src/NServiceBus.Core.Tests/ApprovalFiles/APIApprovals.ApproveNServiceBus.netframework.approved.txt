@@ -336,6 +336,10 @@ namespace NServiceBus
             where T : NServiceBus.Features.Feature { }
         public static void EnableFeature(this NServiceBus.EndpointConfiguration config, System.Type featureType) { }
     }
+    public class static EndpointWithExternallyManagedContainer
+    {
+        public static NServiceBus.IStartableEndpointWithExternallyManagedContainer Create(NServiceBus.EndpointConfiguration configuration, NServiceBus.ObjectBuilder.IConfigureComponents configureComponents) { }
+    }
     public class static ErrorQueueSettings
     {
         public const string SettingsKey = "errorQueue";
@@ -560,6 +564,11 @@ namespace NServiceBus
     public interface IStartableEndpoint
     {
         System.Threading.Tasks.Task<NServiceBus.IEndpointInstance> Start();
+    }
+    public interface IStartableEndpointWithExternallyManagedContainer
+    {
+        System.Lazy<NServiceBus.IMessageSession> MessageSession { get; }
+        System.Threading.Tasks.Task<NServiceBus.IEndpointInstance> Start(NServiceBus.ObjectBuilder.IBuilder builder);
     }
     public interface IWantToRunBeforeConfigurationIsFinalized
     {

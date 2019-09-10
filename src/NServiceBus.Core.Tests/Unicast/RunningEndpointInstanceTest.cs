@@ -8,7 +8,6 @@
     using NUnit.Framework;
     using Routing;
     using Settings;
-    using Testing;
 
     [TestFixture]
     public class RunningEndpointInstanceTest
@@ -18,7 +17,7 @@
         {
             var testee = new RunningEndpointInstance(
                 new SettingsHolder(),
-                new FakeBuilder(),
+                new ContainerComponent(new SettingsHolder()),
                 null,
                 new FeatureRunner(new FeatureActivator(new SettingsHolder())),
                 new MessageSession(new FakeRootContext()), new FakeTransportInfrastructure());
