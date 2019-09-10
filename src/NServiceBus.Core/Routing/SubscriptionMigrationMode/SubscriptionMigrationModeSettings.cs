@@ -2,10 +2,10 @@
 {
     using System;
     using System.Reflection;
-    using NServiceBus.Configuration.AdvancedExtensibility;
-    using NServiceBus.Pipeline;
-    using NServiceBus.Routing.MessageDrivenSubscriptions;
-    using NServiceBus.Settings;
+    using Configuration.AdvancedExtensibility;
+    using Pipeline;
+    using Routing.MessageDrivenSubscriptions;
+    using Settings;
 
     /// <summary>
     /// Provides configuration for subscription migration mode.
