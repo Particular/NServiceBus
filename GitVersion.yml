@@ -3,7 +3,7 @@ next-version: 1.0
 branches:
   master:
     mode: ContinuousDeployment
-    tag: alpha
+    tag: beta
     increment: Minor
     tracks-release-branches: true
   release:
