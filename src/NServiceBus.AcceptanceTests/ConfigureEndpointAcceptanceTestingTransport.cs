@@ -46,13 +46,16 @@ public class ConfigureEndpointAcceptanceTestingTransport : IConfigureEndpointTes
             .UseNativePubSub(useNativePubSub)
             .UseNativeDelayedDelivery(useNativeDelayedDelivery);
 
-        //apply publisher registrations required for message driven pub/sub
-        var routingConfig = transportConfig.Routing();
-        foreach (var publisherMetadataPublisher in publisherMetadata.Publishers)
+        if (!useNativePubSub)
         {
-            foreach (var @event in publisherMetadataPublisher.Events)
+            //apply publisher registrations required for message driven pub/sub
+            var routingConfig = transportConfig.Routing();
+            foreach (var publisherMetadataPublisher in publisherMetadata.Publishers)
             {
-                routingConfig.RegisterPublisher(@event, publisherMetadataPublisher.PublisherName);
+                foreach (var @event in publisherMetadataPublisher.Events)
+                {
+                    routingConfig.RegisterPublisher(@event, publisherMetadataPublisher.PublisherName);
+                }
             }
         }
 
