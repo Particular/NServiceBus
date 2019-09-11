@@ -973,8 +973,8 @@ namespace NServiceBus
     {
         public SubscriptionMigrationModeSettings(NServiceBus.Settings.SettingsHolder settings) { }
         public void RegisterPublisher(System.Type eventType, string publisherEndpoint) { }
-        public void RegisterPublisher<T>(System.Reflection.Assembly assembly, string publisherEndpoint) { }
-        public void RegisterPublisher<T>(System.Reflection.Assembly assembly, string @namespace, string publisherEndpoint) { }
+        public void RegisterPublisher(System.Reflection.Assembly assembly, string publisherEndpoint) { }
+        public void RegisterPublisher(System.Reflection.Assembly assembly, string @namespace, string publisherEndpoint) { }
         public void SubscriptionAuthorizer(System.Func<NServiceBus.Pipeline.IIncomingPhysicalMessageContext, bool> authorizer) { }
     }
     [System.AttributeUsageAttribute(System.AttributeTargets.Class | System.AttributeTargets.Interface | System.AttributeTargets.All)]
