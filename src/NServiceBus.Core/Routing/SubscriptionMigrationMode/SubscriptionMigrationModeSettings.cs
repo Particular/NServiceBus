@@ -49,7 +49,7 @@
         /// </summary>
         /// <param name="assembly">The assembly containing the event types.</param>
         /// <param name="publisherEndpoint">The publisher endpoint.</param>
-        public void RegisterPublisher<T>(Assembly assembly, string publisherEndpoint)
+        public void RegisterPublisher(Assembly assembly, string publisherEndpoint)
         {
             Guard.AgainstNull(nameof(assembly), assembly);
             Guard.AgainstNullAndEmpty(nameof(publisherEndpoint), publisherEndpoint);
@@ -65,7 +65,7 @@
         /// <param name="assembly">The assembly containing the event types.</param>
         /// <param name="namespace"> The namespace containing the event types. The given value must exactly match the target namespace.</param>
         /// <param name="publisherEndpoint">The publisher endpoint.</param>
-        public void RegisterPublisher<T>(Assembly assembly, string @namespace, string publisherEndpoint)
+        public void RegisterPublisher(Assembly assembly, string @namespace, string publisherEndpoint)
         {
             Guard.AgainstNull(nameof(assembly), assembly);
             Guard.AgainstNullAndEmpty(nameof(publisherEndpoint), publisherEndpoint);
