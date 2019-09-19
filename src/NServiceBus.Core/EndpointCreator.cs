@@ -176,7 +176,7 @@ namespace NServiceBus
         {
             var routing = new RoutingComponent(settings);
 
-            routing.Initialize(settings, transportInfrastructure.ToTransportAddress, pipelineComponent.PipelineSettings, receiveConfiguration);
+            routing.Initialize(transportInfrastructure.ToTransportAddress, pipelineComponent.PipelineSettings, receiveConfiguration);
 
             return routing;
         }
