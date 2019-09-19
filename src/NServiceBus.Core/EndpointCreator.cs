@@ -82,16 +82,16 @@ namespace NServiceBus
 
             var receiveConfiguration = BuildReceiveConfiguration(transportInfrastructure);
 
-            var routing = new RoutingComponent(settings);
+            var routingComponent = new RoutingComponent(settings);
 
-            routing.Initialize(transportInfrastructure, pipelineComponent.PipelineSettings, receiveConfiguration);
+            routingComponent.Initialize(transportInfrastructure, pipelineComponent, receiveConfiguration);
 
             var messageMapper = new MessageMapper();
             settings.Set<IMessageMapper>(messageMapper);
 
             pipelineComponent.AddRootContextItem<IMessageMapper>(messageMapper);
 
-            var featureStats = featureActivator.SetupFeatures(containerComponent.ContainerConfiguration, pipelineComponent.PipelineSettings, routing, receiveConfiguration);
+            var featureStats = featureActivator.SetupFeatures(containerComponent.ContainerConfiguration, pipelineComponent.PipelineSettings, routingComponent, receiveConfiguration);
             settings.AddStartupDiagnosticsSection("Features", featureStats);
 
             pipelineComponent.RegisterBehaviorsInContainer(containerComponent.ContainerConfiguration);

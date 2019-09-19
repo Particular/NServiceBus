@@ -1,6 +1,5 @@
 namespace NServiceBus
 {
-    using System;
     using System.Collections.Generic;
     using Features;
     using NServiceBus.Transport;
@@ -33,7 +32,7 @@ namespace NServiceBus
 
         public bool EnforceBestPractices { get; private set; }
 
-        public void Initialize(TransportInfrastructure transportInfrastructure, PipelineSettings pipelineSettings, ReceiveConfiguration receiveConfiguration)
+        public void Initialize(TransportInfrastructure transportInfrastructure, PipelineComponent pipelineComponent, ReceiveConfiguration receiveConfiguration)
         {
             var conventions = settings.Get<Conventions>();
             var configuredUnicastRoutes = settings.GetOrDefault<ConfiguredUnicastRoutes>();
@@ -47,6 +46,8 @@ namespace NServiceBus
             }
 
             configuredUnicastRoutes?.Apply(UnicastRoutingTable, conventions);
+
+            var pipelineSettings = pipelineComponent.PipelineSettings;
 
             pipelineSettings.Register(b =>
             {
