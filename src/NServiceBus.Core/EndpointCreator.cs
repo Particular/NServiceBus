@@ -82,7 +82,9 @@ namespace NServiceBus
 
             var receiveConfiguration = BuildReceiveConfiguration(transportInfrastructure);
 
-            var routing = InitializeRouting(transportInfrastructure, receiveConfiguration);
+            var routing = new RoutingComponent(settings);
+
+            routing.Initialize(transportInfrastructure.ToTransportAddress, pipelineComponent.PipelineSettings, receiveConfiguration);
 
             var messageMapper = new MessageMapper();
             settings.Set<IMessageMapper>(messageMapper);
@@ -170,15 +172,6 @@ namespace NServiceBus
             }
 
             return userName;
-        }
-
-        RoutingComponent InitializeRouting(TransportInfrastructure transportInfrastructure, ReceiveConfiguration receiveConfiguration)
-        {
-            var routing = new RoutingComponent(settings);
-
-            routing.Initialize(transportInfrastructure.ToTransportAddress, pipelineComponent.PipelineSettings, receiveConfiguration);
-
-            return routing;
         }
 
         TransportInfrastructure InitializeTransportComponent()
