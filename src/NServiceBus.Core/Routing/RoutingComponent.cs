@@ -2,7 +2,7 @@ namespace NServiceBus
 {
     using System.Collections.Generic;
     using Features;
-    using NServiceBus.Transport;
+    using Transport;
     using Pipeline;
     using Routing;
     using Routing.MessageDrivenSubscriptions;
