@@ -84,7 +84,7 @@ namespace NServiceBus
 
             var routing = new RoutingComponent(settings);
 
-            routing.Initialize(transportInfrastructure.ToTransportAddress, pipelineComponent.PipelineSettings, receiveConfiguration);
+            routing.Initialize(transportInfrastructure, pipelineComponent.PipelineSettings, receiveConfiguration);
 
             var messageMapper = new MessageMapper();
             settings.Set<IMessageMapper>(messageMapper);
