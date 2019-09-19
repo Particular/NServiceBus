@@ -11,7 +11,7 @@ namespace NServiceBus
     class RoutingComponent
     {
         public const string EnforceBestPracticesSettingsKey = "NServiceBus.Routing.EnforceBestPractices";
-
+        
         public RoutingComponent(SettingsHolder settings)
         {
             // use GetOrCreate to use of instances already created during EndpointConfiguration.
@@ -19,6 +19,7 @@ namespace NServiceBus
             DistributionPolicy = settings.GetOrCreate<DistributionPolicy>();
             EndpointInstances = settings.GetOrCreate<EndpointInstances>();
             Publishers = settings.GetOrCreate<Publishers>();
+            this.settings = settings;
         }
 
         public UnicastRoutingTable UnicastRoutingTable { get; }
@@ -31,7 +32,7 @@ namespace NServiceBus
 
         public bool EnforceBestPractices { get; private set; }
 
-        public void Initialize(ReadOnlySettings settings, Func<LogicalAddress, string> toTransportAddress, PipelineSettings pipelineSettings, ReceiveConfiguration receiveConfiguration)
+        public void Initialize(Func<LogicalAddress, string> toTransportAddress, PipelineSettings pipelineSettings, ReceiveConfiguration receiveConfiguration)
         {
             var conventions = settings.Get<Conventions>();
             var configuredUnicastRoutes = settings.GetOrDefault<ConfiguredUnicastRoutes>();
@@ -101,5 +102,7 @@ namespace NServiceBus
                 new EnforceUnsubscribeBestPracticesBehavior(validations),
                 "Enforces unsubscribe messaging best practices");
         }
+
+        SettingsHolder settings;
     }
 }
