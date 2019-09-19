@@ -1,8 +1,8 @@
 namespace NServiceBus
 {
-    using System;
     using System.Collections.Generic;
     using Features;
+    using Transport;
     using Pipeline;
     using Routing;
     using Routing.MessageDrivenSubscriptions;
@@ -12,12 +12,15 @@ namespace NServiceBus
     {
         public const string EnforceBestPracticesSettingsKey = "NServiceBus.Routing.EnforceBestPractices";
 
-        public RoutingComponent(UnicastRoutingTable unicastRoutingTable, DistributionPolicy distributionPolicy, EndpointInstances endpointInstances, Publishers publishers)
+        public RoutingComponent(SettingsHolder settings)
         {
-            UnicastRoutingTable = unicastRoutingTable;
-            DistributionPolicy = distributionPolicy;
-            EndpointInstances = endpointInstances;
-            Publishers = publishers;
+            this.settings = settings;
+
+            // use GetOrCreate to use of instances already created during EndpointConfiguration.
+            UnicastRoutingTable = settings.GetOrCreate<UnicastRoutingTable>();
+            DistributionPolicy = settings.GetOrCreate<DistributionPolicy>();
+            EndpointInstances = settings.GetOrCreate<EndpointInstances>();
+            Publishers = settings.GetOrCreate<Publishers>();
         }
 
         public UnicastRoutingTable UnicastRoutingTable { get; }
@@ -30,7 +33,7 @@ namespace NServiceBus
 
         public bool EnforceBestPractices { get; private set; }
 
-        public void Initialize(ReadOnlySettings settings, Func<LogicalAddress, string> toTransportAddress, PipelineSettings pipelineSettings, ReceiveConfiguration receiveConfiguration)
+        public void Initialize(TransportInfrastructure transportInfrastructure, PipelineComponent pipelineComponent, ReceiveConfiguration receiveConfiguration)
         {
             var conventions = settings.Get<Conventions>();
             var configuredUnicastRoutes = settings.GetOrDefault<ConfiguredUnicastRoutes>();
@@ -45,9 +48,11 @@ namespace NServiceBus
 
             configuredUnicastRoutes?.Apply(UnicastRoutingTable, conventions);
 
+            var pipelineSettings = pipelineComponent.PipelineSettings;
+
             pipelineSettings.Register(b =>
             {
-                var router = new UnicastSendRouter(receiveConfiguration == null, receiveConfiguration?.QueueNameBase, receiveConfiguration?.InstanceSpecificQueue, DistributionPolicy, UnicastRoutingTable, EndpointInstances, i => toTransportAddress(LogicalAddress.CreateRemoteAddress(i)));
+                var router = new UnicastSendRouter(receiveConfiguration == null, receiveConfiguration?.QueueNameBase, receiveConfiguration?.InstanceSpecificQueue, DistributionPolicy, UnicastRoutingTable, EndpointInstances, i => transportInfrastructure.ToTransportAddress(LogicalAddress.CreateRemoteAddress(i)));
                 return new UnicastSendRouterConnector(router);
             }, "Determines how the message being sent should be routed");
 
@@ -100,5 +105,7 @@ namespace NServiceBus
                 new EnforceUnsubscribeBestPracticesBehavior(validations),
                 "Enforces unsubscribe messaging best practices");
         }
+
+        SettingsHolder settings;
     }
 }

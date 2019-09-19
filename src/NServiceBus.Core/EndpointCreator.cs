@@ -11,8 +11,6 @@ namespace NServiceBus
     using MessageInterfaces;
     using MessageInterfaces.MessageMapper.Reflection;
     using ObjectBuilder;
-    using Routing;
-    using Routing.MessageDrivenSubscriptions;
     using Settings;
     using Transport;
     using Unicast.Messages;
@@ -82,14 +80,16 @@ namespace NServiceBus
 
             var receiveConfiguration = BuildReceiveConfiguration(transportInfrastructure);
 
-            var routing = InitializeRouting(transportInfrastructure, receiveConfiguration);
+            var routingComponent = new RoutingComponent(settings);
+
+            routingComponent.Initialize(transportInfrastructure, pipelineComponent, receiveConfiguration);
 
             var messageMapper = new MessageMapper();
             settings.Set<IMessageMapper>(messageMapper);
 
             pipelineComponent.AddRootContextItem<IMessageMapper>(messageMapper);
 
-            var featureStats = featureActivator.SetupFeatures(containerComponent.ContainerConfiguration, pipelineComponent.PipelineSettings, routing, receiveConfiguration);
+            var featureStats = featureActivator.SetupFeatures(containerComponent.ContainerConfiguration, pipelineComponent.PipelineSettings, routingComponent, receiveConfiguration);
             settings.AddStartupDiagnosticsSection("Features", featureStats);
 
             pipelineComponent.RegisterBehaviorsInContainer(containerComponent.ContainerConfiguration);
@@ -170,20 +170,6 @@ namespace NServiceBus
             }
 
             return userName;
-        }
-
-        RoutingComponent InitializeRouting(TransportInfrastructure transportInfrastructure, ReceiveConfiguration receiveConfiguration)
-        {
-            // use GetOrCreate to use of instances already created during EndpointConfiguration.
-            var routing = new RoutingComponent(
-                settings.GetOrCreate<UnicastRoutingTable>(),
-                settings.GetOrCreate<DistributionPolicy>(),
-                settings.GetOrCreate<EndpointInstances>(),
-                settings.GetOrCreate<Publishers>());
-
-            routing.Initialize(settings, transportInfrastructure.ToTransportAddress, pipelineComponent.PipelineSettings, receiveConfiguration);
-
-            return routing;
         }
 
         TransportInfrastructure InitializeTransportComponent()
