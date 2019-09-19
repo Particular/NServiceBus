@@ -11,8 +11,6 @@ namespace NServiceBus
     using MessageInterfaces;
     using MessageInterfaces.MessageMapper.Reflection;
     using ObjectBuilder;
-    using Routing;
-    using Routing.MessageDrivenSubscriptions;
     using Settings;
     using Transport;
     using Unicast.Messages;
