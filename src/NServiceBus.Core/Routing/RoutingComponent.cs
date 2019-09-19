@@ -14,12 +14,13 @@ namespace NServiceBus
 
         public RoutingComponent(SettingsHolder settings)
         {
+            this.settings = settings;
+
             // use GetOrCreate to use of instances already created during EndpointConfiguration.
             UnicastRoutingTable = settings.GetOrCreate<UnicastRoutingTable>();
             DistributionPolicy = settings.GetOrCreate<DistributionPolicy>();
             EndpointInstances = settings.GetOrCreate<EndpointInstances>();
             Publishers = settings.GetOrCreate<Publishers>();
-            this.settings = settings;
         }
 
         public UnicastRoutingTable UnicastRoutingTable { get; }
