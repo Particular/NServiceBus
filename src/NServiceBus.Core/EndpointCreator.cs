@@ -174,12 +174,7 @@ namespace NServiceBus
 
         RoutingComponent InitializeRouting(TransportInfrastructure transportInfrastructure, ReceiveConfiguration receiveConfiguration)
         {
-            // use GetOrCreate to use of instances already created during EndpointConfiguration.
-            var routing = new RoutingComponent(
-                settings.GetOrCreate<UnicastRoutingTable>(),
-                settings.GetOrCreate<DistributionPolicy>(),
-                settings.GetOrCreate<EndpointInstances>(),
-                settings.GetOrCreate<Publishers>());
+            var routing = new RoutingComponent(settings);
 
             routing.Initialize(settings, transportInfrastructure.ToTransportAddress, pipelineComponent.PipelineSettings, receiveConfiguration);
 

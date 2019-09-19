@@ -12,12 +12,13 @@ namespace NServiceBus
     {
         public const string EnforceBestPracticesSettingsKey = "NServiceBus.Routing.EnforceBestPractices";
 
-        public RoutingComponent(UnicastRoutingTable unicastRoutingTable, DistributionPolicy distributionPolicy, EndpointInstances endpointInstances, Publishers publishers)
+        public RoutingComponent(SettingsHolder settings)
         {
-            UnicastRoutingTable = unicastRoutingTable;
-            DistributionPolicy = distributionPolicy;
-            EndpointInstances = endpointInstances;
-            Publishers = publishers;
+            // use GetOrCreate to use of instances already created during EndpointConfiguration.
+            UnicastRoutingTable = settings.GetOrCreate<UnicastRoutingTable>();
+            DistributionPolicy = settings.GetOrCreate<DistributionPolicy>();
+            EndpointInstances = settings.GetOrCreate<EndpointInstances>();
+            Publishers = settings.GetOrCreate<Publishers>();
         }
 
         public UnicastRoutingTable UnicastRoutingTable { get; }
