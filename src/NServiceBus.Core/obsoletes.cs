@@ -1059,8 +1059,9 @@ namespace NServiceBus
 {
     using Features;
 
+    // Just to make sure we remove it in v8. We keep it around for now just in case some external feature 
+    // depended on it using `DependsOn(string featureTypeName)`
     [ObsoleteEx(
-           Message = "Can safely removed.",
            RemoveInVersion = "8",
            TreatAsErrorFromVersion = "7")]
     class Recoverability : Feature
