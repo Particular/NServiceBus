@@ -26,6 +26,16 @@
             settings.AddUnrecoverableException(typeof(MessageDeserializationException));
         }
 
+        public RecoverabilityExecutorFactory GetRecoverabilityExecutorFactory(IBuilder builder)
+        {
+            if (recoverabilityExecutorFactory == null)
+            {
+                recoverabilityExecutorFactory = CreateRecoverabilityExecutorFactory(builder);
+            }
+
+            return recoverabilityExecutorFactory;
+        }
+
         public void Initialize(ReceiveConfiguration receiveConfiguration, ContainerComponent containerComponent)
         {
             if (settings.GetOrDefault<bool>("Endpoint.SendOnly"))
@@ -33,6 +43,9 @@
                 //Message recoverability is only relevant for endpoints receiving messages.
                 return;
             }
+
+            transactionMode = receiveConfiguration.TransactionMode;
+
 
             var errorQueue = settings.ErrorQueueAddress();
             settings.Get<QueueBindings>().BindSending(errorQueue);
@@ -46,7 +59,7 @@
 
             var failedConfig = new FailedConfig(errorQueue, settings.UnrecoverableExceptions());
 
-            var recoverabilityConfig = new RecoverabilityConfig(immediateRetryConfig, delayedRetryConfig, failedConfig);
+            recoverabilityConfig = new RecoverabilityConfig(immediateRetryConfig, delayedRetryConfig, failedConfig);
 
             settings.AddStartupDiagnosticsSection("Recoverability", new
             {
@@ -57,16 +70,15 @@
                 UnrecoverableExceptions = recoverabilityConfig.Failed.UnrecoverableExceptionTypes.Select(t => t.FullName).ToArray()
             });
 
-            containerComponent.ContainerConfiguration.ConfigureComponent(b =>
-            {
-                return CreateRecoverabilityExecutorFactory(transactionsOn, recoverabilityConfig, b);
-            }, DependencyLifecycle.SingleInstance);
+            //for backwards compatibility we register the factory in the container
+            containerComponent.ContainerConfiguration.ConfigureComponent(b => GetRecoverabilityExecutorFactory(b), DependencyLifecycle.SingleInstance);
 
             RaiseLegacyNotifications();
         }
 
-        RecoverabilityExecutorFactory CreateRecoverabilityExecutorFactory(bool transactionsOn, RecoverabilityConfig recoverabilityConfig, IBuilder builder)
+        RecoverabilityExecutorFactory CreateRecoverabilityExecutorFactory(IBuilder builder)
         {
+            var transactionsOn = transactionMode != TransportTransactionMode.None;
 
             var delayedRetriesAvailable = transactionsOn
                                          && (settings.DoesTransportSupportConstraint<DelayedDeliveryConstraint>() || settings.Get<TimeoutManagerAddressConfiguration>().TransportAddress != null);
@@ -187,6 +199,9 @@
         internal static TimeSpan DefaultTimeIncrease = TimeSpan.FromSeconds(10);
 
         SettingsHolder settings;
+        TransportTransactionMode transactionMode;
+        RecoverabilityConfig recoverabilityConfig;
+        RecoverabilityExecutorFactory recoverabilityExecutorFactory;
 
         static ILog Logger = LogManager.GetLogger<RecoverabilityComponent>();
     }
