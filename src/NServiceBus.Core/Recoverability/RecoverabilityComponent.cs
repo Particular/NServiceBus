@@ -48,7 +48,6 @@
 
             var delayedRetryConfig = GetDelayedRetryConfig(settings, transactionsOn);
 
-
             var immediateRetryConfig = GetImmediateRetryConfig(settings, transactionsOn);
 
             var failedConfig = new FailedConfig(errorQueue, settings.UnrecoverableExceptions());
