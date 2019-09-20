@@ -52,7 +52,7 @@ namespace NServiceBus
         {
             Guard.AgainstNull(nameof(custom), custom);
 
-            Settings.Set(Recoverability.PolicyOverride, custom);
+            Settings.Set(RecoverabilityComponent.PolicyOverride, custom);
 
             return this;
         }

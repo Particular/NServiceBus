@@ -22,7 +22,7 @@ namespace NServiceBus
         {
             Guard.AgainstNull(nameof(customization), customization);
 
-            Settings.Set(Recoverability.FaultHeaderCustomization, customization);
+            Settings.Set(RecoverabilityComponent.FaultHeaderCustomization, customization);
 
             return this;
         }

@@ -89,8 +89,12 @@ namespace NServiceBus
 
             pipelineComponent.AddRootContextItem<IMessageMapper>(messageMapper);
 
+            var recoverabilityComponent = new RecoverabilityComponent(settings);
+
             var featureStats = featureActivator.SetupFeatures(containerComponent.ContainerConfiguration, pipelineComponent.PipelineSettings, routingComponent, receiveConfiguration);
             settings.AddStartupDiagnosticsSection("Features", featureStats);
+
+            recoverabilityComponent.Initialize(receiveConfiguration, containerComponent);
 
             pipelineComponent.RegisterBehaviorsInContainer(containerComponent.ContainerConfiguration);
             containerComponent.ContainerConfiguration.ConfigureComponent(b => settings.Get<Notifications>(), DependencyLifecycle.SingleInstance);

@@ -21,7 +21,7 @@ namespace NServiceBus
         {
             Guard.AgainstNegative(nameof(numberOfRetries), numberOfRetries);
 
-            Settings.Set(Recoverability.NumberOfImmediateRetries, numberOfRetries);
+            Settings.Set(RecoverabilityComponent.NumberOfImmediateRetries, numberOfRetries);
         }
     }
 }

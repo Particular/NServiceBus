@@ -95,9 +95,9 @@
 
             CollectionAssert.AreEqual(new List<string>
             {
-               "error",
                "myAudit",
-               "myForwardingEndpoint"
+               "myForwardingEndpoint",
+               "error"
             }, context.SendingAddresses);
 
             var endpointName = AcceptanceTesting.Customization.Conventions.EndpointNamingConvention(typeof(Endpoint));
