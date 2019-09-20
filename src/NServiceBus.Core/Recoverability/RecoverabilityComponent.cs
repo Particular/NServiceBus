@@ -39,16 +39,14 @@
                 return;
             }
 
-            transactionMode = receiveConfiguration.TransactionMode;
+            transactionsOn = receiveConfiguration.TransactionMode != TransportTransactionMode.None;
 
             var errorQueue = settings.ErrorQueueAddress();
             settings.Get<QueueBindings>().BindSending(errorQueue);
 
-            var transactionsOn = receiveConfiguration.TransactionMode != TransportTransactionMode.None;
+            var delayedRetryConfig = GetDelayedRetryConfig();
 
-            var delayedRetryConfig = GetDelayedRetryConfig(settings, transactionsOn);
-
-            var immediateRetryConfig = GetImmediateRetryConfig(settings, transactionsOn);
+            var immediateRetryConfig = GetImmediateRetryConfig();
 
             var failedConfig = new FailedConfig(errorQueue, settings.UnrecoverableExceptions());
 
@@ -73,8 +71,6 @@
 
         RecoverabilityExecutorFactory CreateRecoverabilityExecutorFactory(IBuilder builder)
         {
-            var transactionsOn = transactionMode != TransportTransactionMode.None;
-
             var delayedRetriesAvailable = transactionsOn
                                          && (settings.DoesTransportSupportConstraint<DelayedDeliveryConstraint>() || settings.Get<TimeoutManagerAddressConfiguration>().TransportAddress != null);
 
@@ -124,10 +120,9 @@
                 moveToErrorsExecutorFactory,
                 immediateRetriesAvailable,
                 delayedRetriesAvailable);
-
         }
 
-        static ImmediateConfig GetImmediateRetryConfig(ReadOnlySettings settings, bool transactionsOn)
+        ImmediateConfig GetImmediateRetryConfig()
         {
             if (!transactionsOn)
             {
@@ -141,7 +136,7 @@
             return new ImmediateConfig(maxImmediateRetries);
         }
 
-        static DelayedConfig GetDelayedRetryConfig(ReadOnlySettings settings, bool transactionsOn)
+        DelayedConfig GetDelayedRetryConfig()
         {
             if (!transactionsOn)
             {
@@ -190,14 +185,13 @@
         public const string PolicyOverride = "Recoverability.CustomPolicy";
         public const string UnrecoverableExceptions = "Recoverability.UnrecoverableExceptions";
 
-        internal static int DefaultNumberOfRetries = 3;
-        internal static TimeSpan DefaultTimeIncrease = TimeSpan.FromSeconds(10);
-
-        SettingsHolder settings;
-        TransportTransactionMode transactionMode;
+        ReadOnlySettings settings;
+        bool transactionsOn;
         RecoverabilityConfig recoverabilityConfig;
         Lazy<RecoverabilityExecutorFactory> recoverabilityExecutorFactory;
 
+        static int DefaultNumberOfRetries = 3;
+        static TimeSpan DefaultTimeIncrease = TimeSpan.FromSeconds(10);
         static ILog Logger = LogManager.GetLogger<RecoverabilityComponent>();
     }
 }
