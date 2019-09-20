@@ -1055,4 +1055,29 @@ namespace NServiceBus.Pipeline
     }
 }
 
+namespace NServiceBus
+{
+    using Features;
+
+    [ObsoleteEx(
+           Message = "Can safely removed.",
+           RemoveInVersion = "8",
+           TreatAsErrorFromVersion = "7")]
+    class Recoverability : Feature
+    {
+        public Recoverability()
+        {
+            EnableByDefault();
+            DependsOnOptionally<DelayedDeliveryFeature>();
+
+            Prerequisite(context => !context.Settings.GetOrDefault<bool>("Endpoint.SendOnly"),
+                "Message recoverability is only relevant for endpoints receiving messages.");
+        }
+
+        protected internal override void Setup(FeatureConfigurationContext context)
+        {
+        }
+    }
+}
+
 #pragma warning restore 1591
