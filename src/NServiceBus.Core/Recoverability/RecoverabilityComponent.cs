@@ -26,10 +26,9 @@
             settings.AddUnrecoverableException(typeof(MessageDeserializationException));
         }
 
-        // Lazy to highlight that the factory is only valid for use once the container configuration has been finalized
-        public Lazy<RecoverabilityExecutorFactory> GetRecoverabilityExecutorFactory()
+        public RecoverabilityExecutorFactory GetRecoverabilityExecutorFactory()
         {
-            return recoverabilityExecutorFactory;
+            return recoverabilityExecutorFactory.Value;
         }
 
         public void Initialize(ReceiveConfiguration receiveConfiguration, ContainerComponent containerComponent)
@@ -65,12 +64,12 @@
                 UnrecoverableExceptions = recoverabilityConfig.Failed.UnrecoverableExceptionTypes.Select(t => t.FullName).ToArray()
             });
 
-            //for backwards compatibility we register the factory in the container
-            containerComponent.ContainerConfiguration.ConfigureComponent(_ => GetRecoverabilityExecutorFactory(), DependencyLifecycle.SingleInstance);
-
-            RaiseLegacyNotifications();
+            WireUpLegacyNotifications();
 
             recoverabilityExecutorFactory = new Lazy<RecoverabilityExecutorFactory>(() => CreateRecoverabilityExecutorFactory(containerComponent.Builder));
+
+            //for backwards compatibility we register the factory in the container
+            containerComponent.ContainerConfiguration.ConfigureComponent(_ => GetRecoverabilityExecutorFactory(), DependencyLifecycle.SingleInstance);
         }
 
         RecoverabilityExecutorFactory CreateRecoverabilityExecutorFactory(IBuilder builder)
@@ -159,7 +158,7 @@
         }
 
         //note: will soon be removed since we're deprecating Notifications in favor of the new notifications
-        void RaiseLegacyNotifications()
+        void WireUpLegacyNotifications()
         {
             var legacyNotifications = settings.Get<Notifications>();
             var notifications = settings.Get<NotificationSubscriptions>();

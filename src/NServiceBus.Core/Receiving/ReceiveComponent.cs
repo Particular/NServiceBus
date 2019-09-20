@@ -59,7 +59,7 @@ namespace NServiceBus
                 Logger.Warn("All queues owned by the endpoint will be purged on startup.");
             }
 
-            AddReceivers(containerComponent.Builder, recoverabilityComponent.GetRecoverabilityExecutorFactory().Value);
+            AddReceivers(containerComponent.Builder, recoverabilityComponent.GetRecoverabilityExecutorFactory());
 
             foreach (var receiver in receivers)
             {
