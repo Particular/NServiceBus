@@ -26,13 +26,9 @@
             settings.AddUnrecoverableException(typeof(MessageDeserializationException));
         }
 
-        public RecoverabilityExecutorFactory GetRecoverabilityExecutorFactory(IBuilder builder)
+        // Lazy to highlight that the factory is only valid for use once the container configuration has been finalized
+        public Lazy<RecoverabilityExecutorFactory> GetRecoverabilityExecutorFactory()
         {
-            if (recoverabilityExecutorFactory == null)
-            {
-                recoverabilityExecutorFactory = CreateRecoverabilityExecutorFactory(builder);
-            }
-
             return recoverabilityExecutorFactory;
         }
 
@@ -45,7 +41,6 @@
             }
 
             transactionMode = receiveConfiguration.TransactionMode;
-
 
             var errorQueue = settings.ErrorQueueAddress();
             settings.Get<QueueBindings>().BindSending(errorQueue);
@@ -71,9 +66,11 @@
             });
 
             //for backwards compatibility we register the factory in the container
-            containerComponent.ContainerConfiguration.ConfigureComponent(b => GetRecoverabilityExecutorFactory(b), DependencyLifecycle.SingleInstance);
+            containerComponent.ContainerConfiguration.ConfigureComponent(_ => GetRecoverabilityExecutorFactory(), DependencyLifecycle.SingleInstance);
 
             RaiseLegacyNotifications();
+
+            recoverabilityExecutorFactory = new Lazy<RecoverabilityExecutorFactory>(() => CreateRecoverabilityExecutorFactory(containerComponent.Builder));
         }
 
         RecoverabilityExecutorFactory CreateRecoverabilityExecutorFactory(IBuilder builder)
@@ -201,7 +198,7 @@
         SettingsHolder settings;
         TransportTransactionMode transactionMode;
         RecoverabilityConfig recoverabilityConfig;
-        RecoverabilityExecutorFactory recoverabilityExecutorFactory;
+        Lazy<RecoverabilityExecutorFactory> recoverabilityExecutorFactory;
 
         static ILog Logger = LogManager.GetLogger<RecoverabilityComponent>();
     }

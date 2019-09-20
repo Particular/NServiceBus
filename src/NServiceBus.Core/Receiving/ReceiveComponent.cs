@@ -5,7 +5,7 @@ namespace NServiceBus
     using System.Linq;
     using System.Threading.Tasks;
     using Logging;
-    using ObjectBuilder;
+    using NServiceBus.ObjectBuilder;
     using Transport;
 
     class ReceiveComponent
@@ -45,7 +45,7 @@ namespace NServiceBus
             }
         }
 
-        public async Task Initialize(ContainerComponent containerComponent)
+        public async Task Initialize(ContainerComponent containerComponent, RecoverabilityComponent recoverabilityComponent)
         {
             if (IsSendOnly)
             {
@@ -59,7 +59,7 @@ namespace NServiceBus
                 Logger.Warn("All queues owned by the endpoint will be purged on startup.");
             }
 
-            AddReceivers(containerComponent.Builder);
+            AddReceivers(containerComponent.Builder, recoverabilityComponent.GetRecoverabilityExecutorFactory().Value);
 
             foreach (var receiver in receivers)
             {
@@ -132,10 +132,9 @@ namespace NServiceBus
 
         bool IsSendOnly => configuration == null;
 
-        void AddReceivers(IBuilder builder)
+        void AddReceivers(IBuilder builder, RecoverabilityExecutorFactory recoverabilityExecutorFactory)
         {
             var requiredTransactionSupport = configuration.TransactionMode;
-            var recoverabilityExecutorFactory = builder.Build<RecoverabilityExecutorFactory>();
 
             var recoverabilityExecutor = recoverabilityExecutorFactory.CreateDefault(eventAggregator, configuration.LocalAddress);
             var pushSettings = new PushSettings(configuration.LocalAddress, errorQueue, configuration.PurgeOnStartup, requiredTransactionSupport);
