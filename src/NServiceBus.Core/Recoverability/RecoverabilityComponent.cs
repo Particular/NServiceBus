@@ -8,6 +8,7 @@
     using Faults;
     using Hosting;
     using Logging;
+    using NServiceBus.ObjectBuilder;
     using Settings;
     using Support;
     using Transport;
@@ -37,13 +38,11 @@
             settings.Get<QueueBindings>().BindSending(errorQueue);
 
             var transactionsOn = receiveConfiguration.TransactionMode != TransportTransactionMode.None;
+
             var delayedRetryConfig = GetDelayedRetryConfig(settings, transactionsOn);
-            var delayedRetriesAvailable = transactionsOn
-                                          && (settings.DoesTransportSupportConstraint<DelayedDeliveryConstraint>() || settings.Get<TimeoutManagerAddressConfiguration>().TransportAddress != null);
 
 
             var immediateRetryConfig = GetImmediateRetryConfig(settings, transactionsOn);
-            var immediateRetriesAvailable = transactionsOn;
 
             var failedConfig = new FailedConfig(errorQueue, settings.UnrecoverableExceptions());
 
@@ -60,10 +59,24 @@
 
             containerComponent.ContainerConfiguration.ConfigureComponent(b =>
             {
-                Func<string, MoveToErrorsExecutor> moveToErrorsExecutorFactory = localAddress =>
-                {
-                    var hostInfo = b.Build<HostInformation>();
-                    var staticFaultMetadata = new Dictionary<string, string>
+                return CreateRecoverabilityExecutorFactory(transactionsOn, recoverabilityConfig, b);
+            }, DependencyLifecycle.SingleInstance);
+
+            RaiseLegacyNotifications();
+        }
+
+        RecoverabilityExecutorFactory CreateRecoverabilityExecutorFactory(bool transactionsOn, RecoverabilityConfig recoverabilityConfig, IBuilder builder)
+        {
+
+            var delayedRetriesAvailable = transactionsOn
+                                         && (settings.DoesTransportSupportConstraint<DelayedDeliveryConstraint>() || settings.Get<TimeoutManagerAddressConfiguration>().TransportAddress != null);
+
+            var immediateRetriesAvailable = transactionsOn;
+
+            Func<string, MoveToErrorsExecutor> moveToErrorsExecutorFactory = localAddress =>
+            {
+                var hostInfo = builder.Build<HostInformation>();
+                var staticFaultMetadata = new Dictionary<string, string>
                     {
                         {FaultsHeaderKeys.FailedQ, localAddress},
                         {Headers.ProcessingMachine, RuntimeEnvironment.MachineName},
@@ -72,42 +85,39 @@
                         {Headers.HostDisplayName, hostInfo.DisplayName}
                     };
 
-                    var headerCustomizations = settings.Get<Action<Dictionary<string, string>>>(FaultHeaderCustomization);
+                var headerCustomizations = settings.Get<Action<Dictionary<string, string>>>(FaultHeaderCustomization);
 
-                    return new MoveToErrorsExecutor(b.Build<IDispatchMessages>(), staticFaultMetadata, headerCustomizations);
-                };
+                return new MoveToErrorsExecutor(builder.Build<IDispatchMessages>(), staticFaultMetadata, headerCustomizations);
+            };
 
-                Func<string, DelayedRetryExecutor> delayedRetryExecutorFactory = localAddress =>
+            Func<string, DelayedRetryExecutor> delayedRetryExecutorFactory = localAddress =>
+            {
+                if (delayedRetriesAvailable)
                 {
-                    if (delayedRetriesAvailable)
-                    {
-                        return new DelayedRetryExecutor(
-                            localAddress,
-                            b.Build<IDispatchMessages>(),
-                            settings.DoesTransportSupportConstraint<DelayedDeliveryConstraint>()
-                                ? null
-                                : settings.Get<TimeoutManagerAddressConfiguration>().TransportAddress);
-                    }
-
-                    return null;
-                };
-
-                if (!settings.TryGet(PolicyOverride, out Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> policy))
-                {
-                    policy = DefaultRecoverabilityPolicy.Invoke;
+                    return new DelayedRetryExecutor(
+                        localAddress,
+                        builder.Build<IDispatchMessages>(),
+                        settings.DoesTransportSupportConstraint<DelayedDeliveryConstraint>()
+                            ? null
+                            : settings.Get<TimeoutManagerAddressConfiguration>().TransportAddress);
                 }
 
-                return new RecoverabilityExecutorFactory(
-                    policy,
-                    recoverabilityConfig,
-                    delayedRetryExecutorFactory,
-                    moveToErrorsExecutorFactory,
-                    immediateRetriesAvailable,
-                    delayedRetriesAvailable);
+                return null;
+            };
 
-            }, DependencyLifecycle.SingleInstance);
+            if (!settings.TryGet(PolicyOverride, out Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> policy))
+            {
+                policy = DefaultRecoverabilityPolicy.Invoke;
+            }
 
-            RaiseLegacyNotifications();
+            return new RecoverabilityExecutorFactory(
+                policy,
+                recoverabilityConfig,
+                delayedRetryExecutorFactory,
+                moveToErrorsExecutorFactory,
+                immediateRetriesAvailable,
+                delayedRetriesAvailable);
+
         }
 
         static ImmediateConfig GetImmediateRetryConfig(ReadOnlySettings settings, bool transactionsOn)
