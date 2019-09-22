@@ -5,7 +5,7 @@ namespace NServiceBus
     using System.Linq;
     using System.Threading.Tasks;
     using Logging;
-    using NServiceBus.ObjectBuilder;
+    using ObjectBuilder;
     using Transport;
 
     class ReceiveComponent

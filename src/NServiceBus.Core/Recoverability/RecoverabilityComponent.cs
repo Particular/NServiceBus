@@ -8,7 +8,7 @@
     using Faults;
     using Hosting;
     using Logging;
-    using NServiceBus.ObjectBuilder;
+    using ObjectBuilder;
     using Settings;
     using Support;
     using Transport;
