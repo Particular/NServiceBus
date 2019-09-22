@@ -64,9 +64,6 @@
             WireUpLegacyNotifications();
 
             recoverabilityExecutorFactory = new Lazy<RecoverabilityExecutorFactory>(() => CreateRecoverabilityExecutorFactory(containerComponent.Builder));
-
-            //for backwards compatibility we register the factory in the container
-            containerComponent.ContainerConfiguration.ConfigureComponent(_ => GetRecoverabilityExecutorFactory(), DependencyLifecycle.SingleInstance);
         }
 
         RecoverabilityExecutorFactory CreateRecoverabilityExecutorFactory(IBuilder builder)

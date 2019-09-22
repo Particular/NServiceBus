@@ -12,6 +12,5 @@ NServiceBus.NoOpCanceling - SingleInstance
 NServiceBus.Notifications - SingleInstance
 NServiceBus.ObjectBuilder.IBuilder - SingleInstance
 NServiceBus.Pipeline.LogicalMessageFactory - SingleInstance
-NServiceBus.RecoverabilityExecutorFactory - SingleInstance
 NServiceBus.Settings.ReadOnlySettings - SingleInstance
 NServiceBus.Unicast.Messages.MessageMetadataRegistry - SingleInstance
