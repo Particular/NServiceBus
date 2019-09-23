@@ -26,12 +26,17 @@
             settings.AddUnrecoverableException(typeof(MessageDeserializationException));
         }
 
-        public RecoverabilityExecutorFactory GetRecoverabilityExecutorFactory()
+        public RecoverabilityExecutorFactory GetRecoverabilityExecutorFactory(IBuilder builder)
         {
-            return recoverabilityExecutorFactory.Value;
+            if (recoverabilityExecutorFactory == null)
+            {
+                recoverabilityExecutorFactory = CreateRecoverabilityExecutorFactory(builder);
+            }
+
+            return recoverabilityExecutorFactory;
         }
 
-        public void Initialize(ReceiveConfiguration receiveConfiguration, ContainerComponent containerComponent)
+        public void Initialize(ReceiveConfiguration receiveConfiguration)
         {
             if (settings.GetOrDefault<bool>("Endpoint.SendOnly"))
             {
@@ -62,8 +67,6 @@
             });
 
             WireUpLegacyNotifications();
-
-            recoverabilityExecutorFactory = new Lazy<RecoverabilityExecutorFactory>(() => CreateRecoverabilityExecutorFactory(containerComponent.Builder));
         }
 
         RecoverabilityExecutorFactory CreateRecoverabilityExecutorFactory(IBuilder builder)
@@ -185,7 +188,7 @@
         ReadOnlySettings settings;
         bool transactionsOn;
         RecoverabilityConfig recoverabilityConfig;
-        Lazy<RecoverabilityExecutorFactory> recoverabilityExecutorFactory;
+        RecoverabilityExecutorFactory recoverabilityExecutorFactory;
 
         static int DefaultNumberOfRetries = 3;
         static TimeSpan DefaultTimeIncrease = TimeSpan.FromSeconds(10);
