@@ -98,11 +98,11 @@
             }
         }
 
-        class SomeCommand : ICommand
+        public class SomeCommand : ICommand
         {
         }
 
-        class SomeEvent : IEvent
+        public class SomeEvent : IEvent
         {
         }
     }
