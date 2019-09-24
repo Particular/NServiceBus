@@ -250,7 +250,7 @@
             featureSettings.Add(level1);
             featureSettings.Add(level2);
 
-            Assert.Throws<ArgumentException>(() => featureSettings.SetupFeatures(null));
+            Assert.Throws<ArgumentException>(() => featureSettings.SetupFeatures(new FakeFeatureConfigurationContext()));
         }
 
         public class Level1 : TestFeature

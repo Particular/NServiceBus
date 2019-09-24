@@ -191,10 +191,10 @@ namespace NServiceBus.Features
                 settings.MarkFeatureAsActive(featureType);
                 featureInfo.Feature.SetupFeature(featureConfigurationContext);
 
-                featureInfo.AddTaskControllers(featureConfigurationContext.TaskControllers);
+                featureInfo.TaskControllers = new List<FeatureStartupTaskController>(featureConfigurationContext.TaskControllers);
                 featureConfigurationContext.TaskControllers.Clear();
 
-                featureInfo.Diagnostics.StartupTasks = featureConfigurationContext.TaskControllers.Select(d => d.Name).ToList();
+                featureInfo.Diagnostics.StartupTasks = featureInfo.TaskControllers.Select(d => d.Name).ToList();
                 featureInfo.Diagnostics.Active = true;
                 return true;
             }
@@ -221,24 +221,14 @@ namespace NServiceBus.Features
                 Feature = feature;
             }
 
-            public void AddTaskControllers(IList<FeatureStartupTaskController> controllersToAdd)
-            {
-                foreach (var taskController in controllersToAdd)
-                {
-                    taskControllers.Add(taskController);
-                }
-            }
-
             public FeatureDiagnosticData Diagnostics { get; }
             public Feature Feature { get; }
-            public IReadOnlyList<FeatureStartupTaskController> TaskControllers => taskControllers;
+            public IReadOnlyList<FeatureStartupTaskController> TaskControllers { get; set; }
 
             public override string ToString()
             {
                 return $"{Feature.Name} [{Feature.Version}]";
             }
-
-            List<FeatureStartupTaskController> taskControllers = new List<FeatureStartupTaskController>();
         }
 
         class Node
