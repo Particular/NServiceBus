@@ -242,7 +242,7 @@ namespace NServiceBus.Features
                 return $"{Feature.Name} [{Feature.Version}]";
             }
 
-            private List<FeatureStartupTaskController> taskControllers = new List<FeatureStartupTaskController>();
+            List<FeatureStartupTaskController> taskControllers = new List<FeatureStartupTaskController>();
         }
 
         class Node
