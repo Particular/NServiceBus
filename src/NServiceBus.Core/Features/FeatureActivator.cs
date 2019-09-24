@@ -189,13 +189,16 @@ namespace NServiceBus.Features
                     return false;
                 }
                 settings.MarkFeatureAsActive(featureType);
+
                 featureInfo.Feature.SetupFeature(featureConfigurationContext);
 
                 featureInfo.TaskControllers = new List<FeatureStartupTaskController>(featureConfigurationContext.TaskControllers);
-                featureConfigurationContext.TaskControllers.Clear();
 
                 featureInfo.Diagnostics.StartupTasks = featureInfo.TaskControllers.Select(d => d.Name).ToList();
                 featureInfo.Diagnostics.Active = true;
+
+                featureConfigurationContext.TaskControllers.Clear();
+
                 return true;
             }
             settings.MarkFeatureAsDeactivated(featureType);
