@@ -24,10 +24,10 @@
                 throw new ArgumentException("Exception type must be an exception", nameof(exceptionType));
             }
 
-            if (!settings.TryGet(Recoverability.UnrecoverableExceptions, out HashSet<Type> unrecoverableExceptions))
+            if (!settings.TryGet(RecoverabilityComponent.UnrecoverableExceptions, out HashSet<Type> unrecoverableExceptions))
             {
                 unrecoverableExceptions = new HashSet<Type>();
-                settings.Set(Recoverability.UnrecoverableExceptions, unrecoverableExceptions);
+                settings.Set(RecoverabilityComponent.UnrecoverableExceptions, unrecoverableExceptions);
             }
 
             unrecoverableExceptions.Add(exceptionType);
@@ -35,7 +35,7 @@
 
         internal static HashSet<Type> UnrecoverableExceptions(this ReadOnlySettings settings)
         {
-            return settings.GetOrDefault<HashSet<Type>>(Recoverability.UnrecoverableExceptions) ?? new HashSet<Type>();
+            return settings.GetOrDefault<HashSet<Type>>(RecoverabilityComponent.UnrecoverableExceptions) ?? new HashSet<Type>();
         }
     }
 }

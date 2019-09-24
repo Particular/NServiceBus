@@ -89,8 +89,12 @@ namespace NServiceBus
 
             pipelineComponent.AddRootContextItem<IMessageMapper>(messageMapper);
 
+            recoverabilityComponent = new RecoverabilityComponent(settings);
+
             var featureStats = featureActivator.SetupFeatures(containerComponent.ContainerConfiguration, pipelineComponent.PipelineSettings, routingComponent, receiveConfiguration);
             settings.AddStartupDiagnosticsSection("Features", featureStats);
+
+            recoverabilityComponent.Initialize(receiveConfiguration);
 
             pipelineComponent.RegisterBehaviorsInContainer(containerComponent.ContainerConfiguration);
             containerComponent.ContainerConfiguration.ConfigureComponent(b => settings.Get<Notifications>(), DependencyLifecycle.SingleInstance);
@@ -144,7 +148,7 @@ namespace NServiceBus
 
             var messageSession = new MessageSession(pipelineComponent.CreateRootContext(containerComponent.Builder));
 
-            return new StartableEndpoint(settings, containerComponent, featureActivator, transportInfrastructure, receiveComponent, criticalError, messageSession);
+            return new StartableEndpoint(settings, containerComponent, featureActivator, transportInfrastructure, receiveComponent, criticalError, messageSession, recoverabilityComponent);
         }
 
         async Task RunInstallers(IBuilder builder, string username)
@@ -418,5 +422,6 @@ namespace NServiceBus
         TransportInfrastructure transportInfrastructure;
         QueueBindings queueBindings;
         ReceiveComponent receiveComponent;
+        RecoverabilityComponent recoverabilityComponent;
     }
 }

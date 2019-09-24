@@ -1,7 +1,6 @@
 ----------- Actively used components (Find ways to stop accessing them)-----------
 NServiceBus.Hosting.HostInformation - SingleInstance
 NServiceBus.LoadHandlersConnector - InstancePerCall
-NServiceBus.RecoverabilityExecutorFactory - SingleInstance
 NServiceBus.StorageInitializer+CallInit - SingleInstance
 NServiceBus.SubscriptionReceiverBehavior - InstancePerCall
 NServiceBus.Transport.IDispatchMessages - SingleInstance

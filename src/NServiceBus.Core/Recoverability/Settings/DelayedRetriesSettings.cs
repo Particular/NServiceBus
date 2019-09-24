@@ -20,7 +20,7 @@ namespace NServiceBus
         {
             Guard.AgainstNegative(nameof(numberOfRetries), numberOfRetries);
 
-            Settings.Set(Recoverability.NumberOfDelayedRetries, numberOfRetries);
+            Settings.Set(RecoverabilityComponent.NumberOfDelayedRetries, numberOfRetries);
 
             return this;
         }
@@ -32,7 +32,7 @@ namespace NServiceBus
         {
             Guard.AgainstNegative(nameof(timeIncrease), timeIncrease);
 
-            Settings.Set(Recoverability.DelayedRetriesTimeIncrease, timeIncrease);
+            Settings.Set(RecoverabilityComponent.DelayedRetriesTimeIncrease, timeIncrease);
 
             return this;
         }
