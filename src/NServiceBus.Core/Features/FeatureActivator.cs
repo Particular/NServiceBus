@@ -192,6 +192,9 @@ namespace NServiceBus.Features
 
                 featureInfo.InitializeFrom(featureConfigurationContext);
 
+                // because we reuse the context the task controller list needs to be cleared.
+                featureConfigurationContext.TaskControllers.Clear();
+
                 return true;
             }
             settings.MarkFeatureAsDeactivated(featureType);
@@ -230,7 +233,6 @@ namespace NServiceBus.Features
                     taskControllers.Add(controller);
                     featureStartupTasks.Add(controller.Name);
                 }
-                featureConfigurationContext.TaskControllers.Clear();
                 Diagnostics.StartupTasks = featureStartupTasks; 
                 Diagnostics.Active = true;
             }
