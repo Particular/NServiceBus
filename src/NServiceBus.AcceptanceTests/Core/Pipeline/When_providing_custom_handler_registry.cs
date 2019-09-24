@@ -17,16 +17,16 @@
                 .WithEndpoint<EndpointWithRegularHandler>(e => e
                     .When(ctx => ctx.SendLocal(new SomeCommand()))
                     .When(ctx => ctx.Publish(new SomeEvent()))) // verify autosubscribe picks up the handlers too
-                .Done(c => c.RegularCommandHandlerInvoked 
+                .Done(c => c.RegularCommandHandlerInvoked
                            && c.ManuallyRegisteredCommandHandlerInvoked
                            && c.RegularEventHandlerInvoked
-                           && c.ManuallyRegisteredEventHandlerInoked)
+                           && c.ManuallyRegisteredEventHandlerInvoked)
                 .Run(TimeSpan.FromSeconds(10));
 
             Assert.IsTrue(context.RegularCommandHandlerInvoked);
             Assert.IsTrue(context.ManuallyRegisteredCommandHandlerInvoked);
             Assert.IsTrue(context.RegularEventHandlerInvoked);
-            Assert.IsTrue(context.ManuallyRegisteredEventHandlerInoked);
+            Assert.IsTrue(context.ManuallyRegisteredEventHandlerInvoked);
         }
 
         class Context : ScenarioContext
@@ -34,7 +34,7 @@
             public bool RegularCommandHandlerInvoked { get; set; }
             public bool ManuallyRegisteredCommandHandlerInvoked { get; set; }
             public bool RegularEventHandlerInvoked { get; set; }
-            public bool ManuallyRegisteredEventHandlerInoked { get; set; }
+            public bool ManuallyRegisteredEventHandlerInvoked { get; set; }
         }
 
         class EndpointWithRegularHandler : EndpointConfigurationBuilder
@@ -93,7 +93,7 @@
 
             public Task Handle(SomeEvent message, IMessageHandlerContext context)
             {
-                testContext.ManuallyRegisteredEventHandlerInoked = true;
+                testContext.ManuallyRegisteredEventHandlerInvoked = true;
                 return Task.FromResult(0);
             }
         }
