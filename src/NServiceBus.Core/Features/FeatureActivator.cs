@@ -5,7 +5,6 @@ namespace NServiceBus.Features
     using System.Linq;
     using System.Threading.Tasks;
     using ObjectBuilder;
-    using Pipeline;
     using Settings;
 
     class FeatureActivator
