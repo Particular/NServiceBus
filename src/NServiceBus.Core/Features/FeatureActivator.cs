@@ -5,7 +5,6 @@ namespace NServiceBus.Features
     using System.Linq;
     using System.Threading.Tasks;
     using ObjectBuilder;
-    using Pipeline;
     using Settings;
 
     class FeatureActivator
@@ -36,7 +35,7 @@ namespace NServiceBus.Features
             }));
         }
 
-        public FeatureDiagnosticData[] SetupFeatures(IConfigureComponents container, PipelineSettings pipelineSettings, RoutingComponent routing, ReceiveConfiguration receiveConfiguration)
+        public FeatureDiagnosticData[] SetupFeatures(FeatureConfigurationContext featureConfigurationContext)
         {
             // featuresToActivate is enumerated twice because after setting defaults some new features might got activated.
             var sourceFeatures = Sort(features);
@@ -56,7 +55,7 @@ namespace NServiceBus.Features
 
             foreach (var feature in enabledFeatures)
             {
-                ActivateFeature(feature, enabledFeatures, container, pipelineSettings, routing, receiveConfiguration);
+                ActivateFeature(feature, enabledFeatures, featureConfigurationContext);
             }
 
             settings.PreventChanges();
@@ -160,7 +159,7 @@ namespace NServiceBus.Features
             return false;
         }
 
-        bool ActivateFeature(FeatureInfo featureInfo, List<FeatureInfo> featuresToActivate, IConfigureComponents container, PipelineSettings pipelineSettings, RoutingComponent routing, ReceiveConfiguration receiveConfiguration)
+        bool ActivateFeature(FeatureInfo featureInfo, List<FeatureInfo> featuresToActivate, FeatureConfigurationContext featureConfigurationContext)
         {
             if (featureInfo.Feature.IsActive)
             {
@@ -177,24 +176,25 @@ namespace NServiceBus.Features
                 {
                     dependentFeaturesToActivate.Add(dependency);
                 }
-                return dependentFeaturesToActivate.Aggregate(false, (current, f) => current | ActivateFeature(f, featuresToActivate, container, pipelineSettings, routing, receiveConfiguration));
+                return dependentFeaturesToActivate.Aggregate(false, (current, f) => current | ActivateFeature(f, featuresToActivate, featureConfigurationContext));
             };
             var featureType = featureInfo.Feature.GetType();
             if (featureInfo.Feature.Dependencies.All(dependencyActivator))
             {
                 featureInfo.Diagnostics.DependenciesAreMet = true;
 
-                var context = new FeatureConfigurationContext(settings, container, pipelineSettings, routing, receiveConfiguration);
-                if (!HasAllPrerequisitesSatisfied(featureInfo.Feature, featureInfo.Diagnostics, context))
+                if (!HasAllPrerequisitesSatisfied(featureInfo.Feature, featureInfo.Diagnostics, featureConfigurationContext))
                 {
                     settings.MarkFeatureAsDeactivated(featureType);
                     return false;
                 }
                 settings.MarkFeatureAsActive(featureType);
-                featureInfo.Feature.SetupFeature(context);
-                featureInfo.TaskControllers = context.TaskControllers;
-                featureInfo.Diagnostics.StartupTasks = context.TaskControllers.Select(d => d.Name).ToList();
-                featureInfo.Diagnostics.Active = true;
+
+                featureInfo.InitializeFrom(featureConfigurationContext);
+
+                // because we reuse the context the task controller list needs to be cleared.
+                featureConfigurationContext.TaskControllers.Clear();
+
                 return true;
             }
             settings.MarkFeatureAsDeactivated(featureType);
@@ -222,12 +222,27 @@ namespace NServiceBus.Features
 
             public FeatureDiagnosticData Diagnostics { get; }
             public Feature Feature { get; }
-            public IReadOnlyList<FeatureStartupTaskController> TaskControllers { get; set; }
+            public IReadOnlyList<FeatureStartupTaskController> TaskControllers => taskControllers;
+
+            public void InitializeFrom(FeatureConfigurationContext featureConfigurationContext)
+            {
+                Feature.SetupFeature(featureConfigurationContext);
+                var featureStartupTasks = new List<string>();
+                foreach (var controller in featureConfigurationContext.TaskControllers)
+                {
+                    taskControllers.Add(controller);
+                    featureStartupTasks.Add(controller.Name);
+                }
+                Diagnostics.StartupTasks = featureStartupTasks; 
+                Diagnostics.Active = true;
+            }
 
             public override string ToString()
             {
                 return $"{Feature.Name} [{Feature.Version}]";
             }
+
+            List<FeatureStartupTaskController> taskControllers = new List<FeatureStartupTaskController>();
         }
 
         class Node
