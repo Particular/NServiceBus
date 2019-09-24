@@ -35,7 +35,7 @@ namespace NServiceBus.Features
             }));
         }
 
-        public FeatureDiagnosticData[] SetupFeatures(Func<FeatureConfigurationContext> featureConfigurationContextFactory)
+        public FeatureDiagnosticData[] SetupFeatures(FeatureConfigurationContext featureConfigurationContext)
         {
             // featuresToActivate is enumerated twice because after setting defaults some new features might got activated.
             var sourceFeatures = Sort(features);
@@ -55,7 +55,7 @@ namespace NServiceBus.Features
 
             foreach (var feature in enabledFeatures)
             {
-                ActivateFeature(feature, enabledFeatures, featureConfigurationContextFactory);
+                ActivateFeature(feature, enabledFeatures, featureConfigurationContext);
             }
 
             settings.PreventChanges();
@@ -159,7 +159,7 @@ namespace NServiceBus.Features
             return false;
         }
 
-        bool ActivateFeature(FeatureInfo featureInfo, List<FeatureInfo> featuresToActivate, Func<FeatureConfigurationContext> featureConfigurationContextFactory)
+        bool ActivateFeature(FeatureInfo featureInfo, List<FeatureInfo> featuresToActivate, FeatureConfigurationContext featureConfigurationContext)
         {
             if (featureInfo.Feature.IsActive)
             {
@@ -176,14 +176,12 @@ namespace NServiceBus.Features
                 {
                     dependentFeaturesToActivate.Add(dependency);
                 }
-                return dependentFeaturesToActivate.Aggregate(false, (current, f) => current | ActivateFeature(f, featuresToActivate, featureConfigurationContextFactory));
+                return dependentFeaturesToActivate.Aggregate(false, (current, f) => current | ActivateFeature(f, featuresToActivate, featureConfigurationContext));
             };
             var featureType = featureInfo.Feature.GetType();
             if (featureInfo.Feature.Dependencies.All(dependencyActivator))
             {
                 featureInfo.Diagnostics.DependenciesAreMet = true;
-
-                var featureConfigurationContext = featureConfigurationContextFactory();
 
                 if (!HasAllPrerequisitesSatisfied(featureInfo.Feature, featureInfo.Diagnostics, featureConfigurationContext))
                 {
@@ -192,7 +190,14 @@ namespace NServiceBus.Features
                 }
                 settings.MarkFeatureAsActive(featureType);
                 featureInfo.Feature.SetupFeature(featureConfigurationContext);
-                featureInfo.TaskControllers = featureConfigurationContext.TaskControllers;
+
+                foreach (var taskController in featureConfigurationContext.TaskControllers)
+                {
+                    featureInfo.TaskControllers.Add(taskController);
+                }
+
+                featureConfigurationContext.TaskControllers.Clear();
+
                 featureInfo.Diagnostics.StartupTasks = featureConfigurationContext.TaskControllers.Select(d => d.Name).ToList();
                 featureInfo.Diagnostics.Active = true;
                 return true;
@@ -222,7 +227,7 @@ namespace NServiceBus.Features
 
             public FeatureDiagnosticData Diagnostics { get; }
             public Feature Feature { get; }
-            public IReadOnlyList<FeatureStartupTaskController> TaskControllers { get; set; }
+            public IList<FeatureStartupTaskController> TaskControllers { get; set; }
 
             public override string ToString()
             {
