@@ -36,7 +36,7 @@ namespace NServiceBus.Features
             }));
         }
 
-        public FeatureDiagnosticData[] SetupFeatures(IConfigureComponents container, PipelineSettings pipelineSettings, RoutingComponent routing, ReceiveConfiguration receiveConfiguration)
+        public FeatureDiagnosticData[] SetupFeatures(Func<FeatureConfigurationContext> featureConfigurationContextFactory)
         {
             // featuresToActivate is enumerated twice because after setting defaults some new features might got activated.
             var sourceFeatures = Sort(features);
@@ -56,7 +56,7 @@ namespace NServiceBus.Features
 
             foreach (var feature in enabledFeatures)
             {
-                ActivateFeature(feature, enabledFeatures, container, pipelineSettings, routing, receiveConfiguration);
+                ActivateFeature(feature, enabledFeatures, featureConfigurationContextFactory);
             }
 
             settings.PreventChanges();
@@ -160,7 +160,7 @@ namespace NServiceBus.Features
             return false;
         }
 
-        bool ActivateFeature(FeatureInfo featureInfo, List<FeatureInfo> featuresToActivate, IConfigureComponents container, PipelineSettings pipelineSettings, RoutingComponent routing, ReceiveConfiguration receiveConfiguration)
+        bool ActivateFeature(FeatureInfo featureInfo, List<FeatureInfo> featuresToActivate, Func<FeatureConfigurationContext> featureConfigurationContextFactory)
         {
             if (featureInfo.Feature.IsActive)
             {
@@ -177,23 +177,24 @@ namespace NServiceBus.Features
                 {
                     dependentFeaturesToActivate.Add(dependency);
                 }
-                return dependentFeaturesToActivate.Aggregate(false, (current, f) => current | ActivateFeature(f, featuresToActivate, container, pipelineSettings, routing, receiveConfiguration));
+                return dependentFeaturesToActivate.Aggregate(false, (current, f) => current | ActivateFeature(f, featuresToActivate, featureConfigurationContextFactory));
             };
             var featureType = featureInfo.Feature.GetType();
             if (featureInfo.Feature.Dependencies.All(dependencyActivator))
             {
                 featureInfo.Diagnostics.DependenciesAreMet = true;
 
-                var context = new FeatureConfigurationContext(settings, container, pipelineSettings, routing, receiveConfiguration);
-                if (!HasAllPrerequisitesSatisfied(featureInfo.Feature, featureInfo.Diagnostics, context))
+                var featureConfigurationContext = featureConfigurationContextFactory();
+
+                if (!HasAllPrerequisitesSatisfied(featureInfo.Feature, featureInfo.Diagnostics, featureConfigurationContext))
                 {
                     settings.MarkFeatureAsDeactivated(featureType);
                     return false;
                 }
                 settings.MarkFeatureAsActive(featureType);
-                featureInfo.Feature.SetupFeature(context);
-                featureInfo.TaskControllers = context.TaskControllers;
-                featureInfo.Diagnostics.StartupTasks = context.TaskControllers.Select(d => d.Name).ToList();
+                featureInfo.Feature.SetupFeature(featureConfigurationContext);
+                featureInfo.TaskControllers = featureConfigurationContext.TaskControllers;
+                featureInfo.Diagnostics.StartupTasks = featureConfigurationContext.TaskControllers.Select(d => d.Name).ToList();
                 featureInfo.Diagnostics.Active = true;
                 return true;
             }

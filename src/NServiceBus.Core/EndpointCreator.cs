@@ -91,7 +91,7 @@ namespace NServiceBus
 
             recoverabilityComponent = new RecoverabilityComponent(settings);
 
-            var featureStats = featureActivator.SetupFeatures(containerComponent.ContainerConfiguration, pipelineComponent.PipelineSettings, routingComponent, receiveConfiguration);
+            var featureStats = featureActivator.SetupFeatures(() => new FeatureConfigurationContext(settings, containerComponent.ContainerConfiguration, pipelineComponent.PipelineSettings, routingComponent, receiveConfiguration));
             settings.AddStartupDiagnosticsSection("Features", featureStats);
 
             recoverabilityComponent.Initialize(receiveConfiguration);
