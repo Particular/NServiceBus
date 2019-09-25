@@ -13,6 +13,8 @@
         [Test]
         public async Task Should_invoke_manually_registered_handlers()
         {
+            Requires.NativePubSubSupport();
+
             var context = await Scenario.Define<Context>()
                 .WithEndpoint<EndpointWithRegularHandler>(e => e
                     .When(ctx => ctx.SendLocal(new SomeCommand()))
