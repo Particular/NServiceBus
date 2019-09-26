@@ -22,7 +22,8 @@ namespace NServiceBus
 
         public async Task<IEndpointInstance> Start()
         {
-            var messageSession = new MessageSession(pipelineComponent.CreateRootContext(containerComponent.Builder));
+            var builder = containerComponent.Builder;
+            var messageSession = new MessageSession(pipelineComponent.CreateRootContext(builder));
 
             await receiveComponent.PerformPreStartupChecks().ConfigureAwait(false);
 
@@ -32,8 +33,8 @@ namespace NServiceBus
 
             await receiveComponent.Initialize(containerComponent, recoverabilityComponent).ConfigureAwait(false);
 
-            await featureComponent.Start(messageSession).ConfigureAwait(false);
-         
+            await featureComponent.Start(builder, messageSession).ConfigureAwait(false);
+
             var runningInstance = new RunningEndpointInstance(settings, containerComponent, receiveComponent, featureComponent, messageSession, transportInfrastructure);
 
             // set the started endpoint on CriticalError to pass the endpoint to the critical error action

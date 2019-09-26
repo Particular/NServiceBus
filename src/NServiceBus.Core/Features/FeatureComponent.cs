@@ -5,6 +5,7 @@
     using System.Linq;
     using System.Threading.Tasks;
     using NServiceBus.Features;
+    using NServiceBus.ObjectBuilder;
     using NServiceBus.Settings;
 
     class FeatureComponent
@@ -15,10 +16,8 @@
         }
 
         // concreteTypes will be some kind of TypeDiscoveryComponent when we encapsulate the scanning
-        public void Initalize(List<Type> concreteTypes, ContainerComponent containerComponent, FeatureConfigurationContext featureConfigurationContext)
-        {
-            container = containerComponent;
-
+        public void Initalize(List<Type> concreteTypes, FeatureConfigurationContext featureConfigurationContext)
+        {          
             featureActivator = new FeatureActivator(settings);
 
             foreach (var type in concreteTypes.Where(t => IsFeature(t)))
@@ -27,13 +26,14 @@
             }
 
             var featureStats = featureActivator.SetupFeatures(featureConfigurationContext);
+
             settings.AddStartupDiagnosticsSection("Features", featureStats);
         }
 
-        public Task Start(IMessageSession session)
+        public Task Start(IBuilder builder, IMessageSession session)
         {
             messageSession = session;
-            return featureActivator.StartFeatures(container.Builder, messageSession);
+            return featureActivator.StartFeatures(builder, messageSession);
         }
 
         public Task Stop()
@@ -47,7 +47,6 @@
         }
 
         SettingsHolder settings;
-        ContainerComponent container;
         FeatureActivator featureActivator;
         IMessageSession messageSession;
     }

@@ -71,7 +71,7 @@ namespace NServiceBus
             var concreteTypes = settings.GetAvailableTypes()
                 .Where(IsConcrete)
                 .ToList();
-  
+
             ConfigRunBeforeIsFinalized(concreteTypes);
 
             transportInfrastructure = InitializeTransportComponent();
@@ -89,13 +89,13 @@ namespace NServiceBus
 
             recoverabilityComponent = new RecoverabilityComponent(settings);
 
-            var featureConfigurationContext = new FeatureConfigurationContext(settings, containerComponent.ContainerConfiguration, pipelineComponent.PipelineSettings, routingComponent, receiveConfiguration);
-
             featureComponent = new FeatureComponent(settings);
+
+            var featureConfigurationContext = new FeatureConfigurationContext(settings, containerComponent.ContainerConfiguration, pipelineComponent.PipelineSettings, routingComponent, receiveConfiguration);
 
             //note: This is where the settings gets locked since the feature component uses the settings to store feature state.
             // This locking happes just before the Features gets "setup"
-            featureComponent.Initalize(concreteTypes, containerComponent, featureConfigurationContext);
+            featureComponent.Initalize(concreteTypes, featureConfigurationContext);
 
             recoverabilityComponent.Initialize(receiveConfiguration);
 
