@@ -15,17 +15,20 @@
 
         public string Name { get; }
 
-        public Task Start(IBuilder builder, IMessageSession messageSession)
+        public Task Start(FeatureStartupContext startupContext)
         {
-            instance = factory(builder);
-            return instance.PerformStartup(messageSession);
+            featureStartupContext = startupContext;
+
+            instance = factory(featureStartupContext.Builder);
+
+            return instance.PerformStartup(featureStartupContext.MessageSession);
         }
 
-        public async Task Stop(IMessageSession messageSession)
+        public async Task Stop()
         {
             try
             {
-                await instance.PerformStop(messageSession).ConfigureAwait(false);
+                await instance.PerformStop(featureStartupContext.MessageSession).ConfigureAwait(false);
             }
             catch (Exception exception)
             {
@@ -35,7 +38,6 @@
             {
                 DisposeIfNecessary(instance);
             }
-
         }
 
         static void DisposeIfNecessary(FeatureStartupTask task)
@@ -46,6 +48,7 @@
 
         Func<IBuilder, FeatureStartupTask> factory;
         FeatureStartupTask instance;
+        FeatureStartupContext featureStartupContext;
 
         static ILog Log = LogManager.GetLogger<FeatureStartupTaskController>();
     }

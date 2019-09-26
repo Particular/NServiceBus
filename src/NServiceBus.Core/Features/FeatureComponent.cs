@@ -30,15 +30,14 @@
             settings.AddStartupDiagnosticsSection("Features", featureStats);
         }
 
-        public Task Start(IBuilder builder, IMessageSession session)
+        public Task Start(FeatureStartupContext featureStartupContext)
         {
-            messageSession = session;
-            return featureActivator.StartFeatures(builder, messageSession);
+            return featureActivator.StartFeatures(featureStartupContext);
         }
 
         public Task Stop()
         {
-            return featureActivator.StopFeatures(messageSession);
+            return featureActivator.StopFeatures();
         }
 
         static bool IsFeature(Type type)
@@ -48,6 +47,5 @@
 
         SettingsHolder settings;
         FeatureActivator featureActivator;
-        IMessageSession messageSession;
     }
 }
