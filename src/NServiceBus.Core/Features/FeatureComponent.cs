@@ -33,13 +33,12 @@
         public Task Start(IMessageSession session)
         {
             messageSession = session;
-            featureRunner = new FeatureRunner(featureActivator);
-            return featureRunner.Start(container.Builder, messageSession);
+            return featureActivator.StartFeatures(container.Builder, messageSession);
         }
 
         public Task Stop()
         {
-            return featureRunner.Stop(messageSession);
+            return featureActivator.StopFeatures(messageSession);
         }
 
         static bool IsFeature(Type type)
@@ -50,7 +49,6 @@
         SettingsHolder settings;
         ContainerComponent container;
         FeatureActivator featureActivator;
-        FeatureRunner featureRunner;
         IMessageSession messageSession;
     }
 }
