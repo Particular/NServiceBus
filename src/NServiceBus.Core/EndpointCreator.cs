@@ -149,7 +149,7 @@ namespace NServiceBus
                 await RunInstallers(containerComponent.Builder, username).ConfigureAwait(false);
             }
 
-            return new StartableEndpoint(settings, containerComponent, featureComponent, transportInfrastructure, receiveComponent, criticalError, messageSession, recoverabilityComponent);
+            return new StartableEndpoint(settings, containerComponent, featureComponent, transportInfrastructure, receiveComponent, criticalError, pipelineComponent, recoverabilityComponent);
         }
 
         async Task RunInstallers(IBuilder builder, string username)

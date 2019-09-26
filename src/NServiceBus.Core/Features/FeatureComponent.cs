@@ -15,7 +15,7 @@
         }
 
         // concreteTypes will be some kind of TypeDiscoveryComponent when we encapsulate the scanning
-        public void Initalize(List<Type> concreteTypes, FeatureConfigurationContext featureConfigurationContext, ContainerComponent containerComponent)
+        public void Initalize(List<Type> concreteTypes, ContainerComponent containerComponent, FeatureConfigurationContext featureConfigurationContext)
         {
             container = containerComponent;
 
