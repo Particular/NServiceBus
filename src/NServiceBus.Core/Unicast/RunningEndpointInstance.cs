@@ -3,7 +3,6 @@ namespace NServiceBus
     using System;
     using System.Threading;
     using System.Threading.Tasks;
-    using Features;
     using Logging;
     using Settings;
     using Transport;
