@@ -149,8 +149,6 @@ namespace NServiceBus
                 await RunInstallers(containerComponent.Builder, username).ConfigureAwait(false);
             }
 
-            var messageSession = new MessageSession(pipelineComponent.CreateRootContext(containerComponent.Builder));
-
             return new StartableEndpoint(settings, containerComponent, featureComponent, transportInfrastructure, receiveComponent, criticalError, messageSession, recoverabilityComponent);
         }
 

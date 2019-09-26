@@ -3,13 +3,12 @@ namespace NServiceBus
     using System;
     using System.Security.Principal;
     using System.Threading.Tasks;
-    using Features;
     using Settings;
     using Transport;
 
     class StartableEndpoint : IStartableEndpoint
     {
-        public StartableEndpoint(SettingsHolder settings, ContainerComponent containerComponent, FeatureComponent featureComponent, TransportInfrastructure transportInfrastructure, ReceiveComponent receiveComponent, CriticalError criticalError, IMessageSession messageSession, RecoverabilityComponent recoverabilityComponent)
+        public StartableEndpoint(SettingsHolder settings, ContainerComponent containerComponent, FeatureComponent featureComponent, TransportInfrastructure transportInfrastructure, ReceiveComponent receiveComponent, CriticalError criticalError, PipelineComponent pipelineComponent, RecoverabilityComponent recoverabilityComponent)
         {
             this.criticalError = criticalError;
             this.settings = settings;
@@ -17,12 +16,14 @@ namespace NServiceBus
             this.featureComponent = featureComponent;
             this.transportInfrastructure = transportInfrastructure;
             this.receiveComponent = receiveComponent;
-            this.messageSession = messageSession;
             this.recoverabilityComponent = recoverabilityComponent;
+            this.pipelineComponent = pipelineComponent;
         }
 
         public async Task<IEndpointInstance> Start()
         {
+            var messageSession = new MessageSession(pipelineComponent.CreateRootContext(containerComponent.Builder));
+
             await receiveComponent.PerformPreStartupChecks().ConfigureAwait(false);
 
             await transportInfrastructure.Start().ConfigureAwait(false);
@@ -31,7 +32,7 @@ namespace NServiceBus
 
             await receiveComponent.Initialize(containerComponent, recoverabilityComponent).ConfigureAwait(false);
 
-            await featureComponent.Start(containerComponent.Builder, messageSession).ConfigureAwait(false);
+            await featureComponent.Start(messageSession).ConfigureAwait(false);
          
             var runningInstance = new RunningEndpointInstance(settings, containerComponent, receiveComponent, featureComponent, messageSession, transportInfrastructure);
 
@@ -43,8 +44,8 @@ namespace NServiceBus
             return runningInstance;
         }
 
-        IMessageSession messageSession;
         RecoverabilityComponent recoverabilityComponent;
+        PipelineComponent pipelineComponent;
         ContainerComponent containerComponent;
         FeatureComponent featureComponent;
         SettingsHolder settings;
