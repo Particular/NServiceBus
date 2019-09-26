@@ -95,7 +95,7 @@ namespace NServiceBus
 
             //note: This is where the settings gets locked since the feature component uses the settings to store feature state.
             // This locking happes just before the Features gets "setup"
-            featureComponent.Initalize(concreteTypes, featureConfigurationContext);
+            featureComponent.Initalize(concreteTypes, containerComponent, featureConfigurationContext);
 
             recoverabilityComponent.Initialize(receiveConfiguration);
 
