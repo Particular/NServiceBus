@@ -42,8 +42,8 @@ namespace NServiceBus
             return runningInstance;
         }
 
-        RecoverabilityComponent recoverabilityComponent;
         IMessageSession messageSession;
+        RecoverabilityComponent recoverabilityComponent;
         ContainerComponent containerComponent;
         FeatureComponent featureComponent;
         SettingsHolder settings;

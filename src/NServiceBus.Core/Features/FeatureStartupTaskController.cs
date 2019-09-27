@@ -15,10 +15,8 @@
 
         public string Name { get; }
 
-        public Task Start(IBuilder builder, IMessageSession session)
+        public Task Start(IBuilder builder, IMessageSession messageSession)
         {
-            messageSession = session;
-
             instance = factory(builder);
 
             return instance.PerformStartup(messageSession);
@@ -28,7 +26,7 @@
         {
             try
             {
-                await instance.PerformStop(messageSession).ConfigureAwait(false);
+                await instance.PerformStop().ConfigureAwait(false);
             }
             catch (Exception exception)
             {
@@ -48,7 +46,6 @@
 
         Func<IBuilder, FeatureStartupTask> factory;
         FeatureStartupTask instance;
-        IMessageSession messageSession;
 
         static ILog Log = LogManager.GetLogger<FeatureStartupTaskController>();
     }
