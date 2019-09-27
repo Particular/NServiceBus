@@ -16,8 +16,8 @@
         }
 
         // concreteTypes will be some kind of TypeDiscoveryComponent when we encapsulate the scanning
-        public void Initalize(List<Type> concreteTypes, FeatureConfigurationContext featureConfigurationContext)
-        {          
+        public void Initalize(List<Type> concreteTypes, ContainerComponent containerComponent, FeatureConfigurationContext featureConfigurationContext)
+        {
             featureActivator = new FeatureActivator(settings);
 
             foreach (var type in concreteTypes.Where(t => IsFeature(t)))
@@ -27,12 +27,14 @@
 
             var featureStats = featureActivator.SetupFeatures(featureConfigurationContext);
 
+            builder = new Lazy<IBuilder>(() => containerComponent.Builder);
+
             settings.AddStartupDiagnosticsSection("Features", featureStats);
         }
 
-        public Task Start(FeatureStartupContext featureStartupContext)
+        public Task Start(IMessageSession messageSession)
         {
-            return featureActivator.StartFeatures(featureStartupContext);
+            return featureActivator.StartFeatures(builder.Value, messageSession);
         }
 
         public Task Stop()
@@ -47,5 +49,6 @@
 
         SettingsHolder settings;
         FeatureActivator featureActivator;
+        Lazy<IBuilder> builder;
     }
 }

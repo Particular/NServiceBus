@@ -33,9 +33,7 @@ namespace NServiceBus
 
             await receiveComponent.Initialize(containerComponent, recoverabilityComponent).ConfigureAwait(false);
 
-            var featureStartupContext = new FeatureStartupContext(builder, messageSession);
-
-            await featureComponent.Start(featureStartupContext).ConfigureAwait(false);
+            await featureComponent.Start(messageSession).ConfigureAwait(false);
 
             var runningInstance = new RunningEndpointInstance(settings, containerComponent, receiveComponent, featureComponent, messageSession, transportInfrastructure);
 

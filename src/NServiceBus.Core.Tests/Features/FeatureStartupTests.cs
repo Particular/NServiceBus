@@ -27,7 +27,7 @@
 
             featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
 
-            await featureSettings.StartFeatures(new FakeFeatureStartupContext());
+            await featureSettings.StartFeatures(null, null);
             await featureSettings.StopFeatures();
 
             Assert.True(feature.TaskStarted);
@@ -43,7 +43,7 @@
 
             featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
 
-            await featureSettings.StartFeatures(new FakeFeatureStartupContext());
+            await featureSettings.StartFeatures(null, null);
             await featureSettings.StopFeatures();
 
             Assert.True(feature.TaskDisposed);
@@ -59,7 +59,7 @@
 
             featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
 
-            Assert.ThrowsAsync<InvalidOperationException>(async () => await featureSettings.StartFeatures(new FakeFeatureStartupContext()));
+            Assert.ThrowsAsync<InvalidOperationException>(async () => await featureSettings.StartFeatures(null, null));
 
             Assert.False(feature1.TaskStarted && feature1.TaskStopped);
             Assert.False(feature2.TaskStarted && feature2.TaskStopped);
@@ -75,7 +75,7 @@
 
             featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
 
-            await featureSettings.StartFeatures(new FakeFeatureStartupContext());
+            await featureSettings.StartFeatures(null, null);
 
             Assert.DoesNotThrowAsync(async () => await featureSettings.StopFeatures());
             Assert.True(feature1.TaskStarted && feature1.TaskStopped);
@@ -90,7 +90,7 @@
 
             featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
 
-            await featureSettings.StartFeatures(new FakeFeatureStartupContext());
+            await featureSettings.StartFeatures(null, null);
 
             await featureSettings.StopFeatures();
             Assert.True(feature.TaskDisposed);

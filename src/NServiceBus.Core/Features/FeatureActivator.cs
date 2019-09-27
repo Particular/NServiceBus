@@ -4,6 +4,7 @@ namespace NServiceBus.Features
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
+    using NServiceBus.ObjectBuilder;
     using Settings;
 
     class FeatureActivator
@@ -62,13 +63,13 @@ namespace NServiceBus.Features
             return features.Select(t => t.Diagnostics).ToArray();
         }
 
-        public async Task StartFeatures(FeatureStartupContext featureStartupContext)
+        public async Task StartFeatures(IBuilder builder, IMessageSession messageSession)
         {
             foreach (var feature in features.Where(f => f.Feature.IsActive))
             {
                 foreach (var taskController in feature.TaskControllers)
                 {
-                    await taskController.Start(featureStartupContext).ConfigureAwait(false);
+                    await taskController.Start(builder, messageSession).ConfigureAwait(false);
                 }
             }
         }
@@ -232,7 +233,7 @@ namespace NServiceBus.Features
                     taskControllers.Add(controller);
                     featureStartupTasks.Add(controller.Name);
                 }
-                Diagnostics.StartupTasks = featureStartupTasks; 
+                Diagnostics.StartupTasks = featureStartupTasks;
                 Diagnostics.Active = true;
             }
 

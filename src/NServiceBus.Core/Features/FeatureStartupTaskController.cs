@@ -15,20 +15,20 @@
 
         public string Name { get; }
 
-        public Task Start(FeatureStartupContext startupContext)
+        public Task Start(IBuilder builder, IMessageSession session)
         {
-            featureStartupContext = startupContext;
+            messageSession = session;
 
-            instance = factory(featureStartupContext.Builder);
+            instance = factory(builder);
 
-            return instance.PerformStartup(featureStartupContext.MessageSession);
+            return instance.PerformStartup(messageSession);
         }
 
         public async Task Stop()
         {
             try
             {
-                await instance.PerformStop(featureStartupContext.MessageSession).ConfigureAwait(false);
+                await instance.PerformStop(messageSession).ConfigureAwait(false);
             }
             catch (Exception exception)
             {
@@ -48,7 +48,7 @@
 
         Func<IBuilder, FeatureStartupTask> factory;
         FeatureStartupTask instance;
-        FeatureStartupContext featureStartupContext;
+        IMessageSession messageSession;
 
         static ILog Log = LogManager.GetLogger<FeatureStartupTaskController>();
     }
