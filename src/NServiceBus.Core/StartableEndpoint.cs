@@ -16,8 +16,8 @@ namespace NServiceBus
             this.featureComponent = featureComponent;
             this.transportInfrastructure = transportInfrastructure;
             this.receiveComponent = receiveComponent;
-            this.recoverabilityComponent = recoverabilityComponent;
             this.messageSession = messageSession;
+            this.recoverabilityComponent = recoverabilityComponent;
         }
 
         public async Task<IEndpointInstance> Start()
