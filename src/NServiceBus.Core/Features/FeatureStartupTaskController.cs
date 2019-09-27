@@ -18,7 +18,6 @@
         public Task Start(IBuilder builder, IMessageSession messageSession)
         {
             instance = factory(builder);
-
             return instance.PerformStartup(messageSession);
         }
 
