@@ -406,9 +406,9 @@ namespace NServiceBus
 
         PipelineComponent pipelineComponent;
         SettingsHolder settings;
-        FeatureComponent featureComponent;
         ContainerComponent containerComponent;
         CriticalError criticalError;
+        FeatureComponent featureComponent;
         TransportInfrastructure transportInfrastructure;
         QueueBindings queueBindings;
         ReceiveComponent receiveComponent;
