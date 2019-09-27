@@ -4,9 +4,9 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
-    using NServiceBus.Features;
-    using NServiceBus.ObjectBuilder;
-    using NServiceBus.Settings;
+    using Features;
+    using ObjectBuilder;
+    using Settings;
 
     class FeatureComponent
     {
