@@ -133,9 +133,7 @@ namespace NServiceBus
 
         public async Task<IStartableEndpoint> CreateStartableEndpoint()
         {
-            var builder = containerComponent.Builder;
-
-            pipelineComponent.Initialize(builder);
+            pipelineComponent.Initialize(containerComponent.Builder);
 
             var shouldRunInstallers = settings.GetOrDefault<bool>("Installers.Enable");
 
@@ -148,10 +146,10 @@ namespace NServiceBus
                     await receiveComponent.CreateQueuesIfNecessary(queueBindings, username).ConfigureAwait(false);
                 }
 
-                await RunInstallers(builder, username).ConfigureAwait(false);
+                await RunInstallers(containerComponent.Builder, username).ConfigureAwait(false);
             }
 
-            var messageSession = new MessageSession(pipelineComponent.CreateRootContext(builder));
+            var messageSession = new MessageSession(pipelineComponent.CreateRootContext(containerComponent.Builder));
 
             return new StartableEndpoint(settings, containerComponent, featureComponent, transportInfrastructure, receiveComponent, criticalError, messageSession, recoverabilityComponent);
         }
