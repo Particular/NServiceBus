@@ -5,7 +5,6 @@
     using System.Linq;
     using System.Threading.Tasks;
     using Features;
-    using ObjectBuilder;
     using Settings;
 
     class FeatureComponent
