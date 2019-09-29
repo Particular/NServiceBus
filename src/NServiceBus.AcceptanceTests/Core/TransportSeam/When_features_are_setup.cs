@@ -26,7 +26,7 @@
                             Assert.False(s.IsFeatureEnabled(typeof(Endpoint.FeatureEnabledByDefaultButDisabledByUser)));
 
                             // this should be "true" but documents that the "active" state can't be used by transports
-                            // since Fetures are activated after the transport have been initialized
+                            // since Features are activated after the transport have been initialized
                             Assert.False(s.IsFeatureActive(typeof(Endpoint.FeatureEnabledByDefault)));
                         });
                 }))
