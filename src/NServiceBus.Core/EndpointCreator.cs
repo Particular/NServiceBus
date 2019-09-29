@@ -74,6 +74,13 @@ namespace NServiceBus
 
             ConfigRunBeforeIsFinalized(concreteTypes);
 
+            featureComponent = new FeatureComponent(settings);
+
+            // This is needed since transports needs to know if the timeoutmanager is enabled or not.
+            // Can be removed once the transport seam have been adopted to explicitly provide this information
+            // TODO create and link to GH issue
+            featureComponent.RegisterFeaturesEnabledByDefaultInSettings(concreteTypes);
+
             transportInfrastructure = InitializeTransportComponent();
 
             var receiveConfiguration = BuildReceiveConfiguration(transportInfrastructure);
@@ -89,13 +96,11 @@ namespace NServiceBus
 
             recoverabilityComponent = new RecoverabilityComponent(settings);
 
-            featureComponent = new FeatureComponent(settings);
-
             var featureConfigurationContext = new FeatureConfigurationContext(settings, containerComponent.ContainerConfiguration, pipelineComponent.PipelineSettings, routingComponent, receiveConfiguration);
 
             //note: This is where the settings gets locked since the feature component (unfortunately) uses the settings to store feature state.
             // Locking happens just before the Features gets "setup"
-            featureComponent.Initalize(concreteTypes, containerComponent, featureConfigurationContext);
+            featureComponent.Initalize(containerComponent, featureConfigurationContext);
 
             recoverabilityComponent.Initialize(receiveConfiguration);
 

@@ -14,17 +14,19 @@
             this.settings = settings;
         }
 
-        // concreteTypes will be some kind of TypeDiscoveryComponent when we encapsulate the scanning
-        public void Initalize(List<Type> concreteTypes, ContainerComponent containerComponent, FeatureConfigurationContext featureConfigurationContext)
+        public void RegisterFeaturesEnabledByDefaultInSettings(List<Type> concreteTypes)
         {
-            container = containerComponent;
-
             featureActivator = new FeatureActivator(settings);
 
             foreach (var type in concreteTypes.Where(t => IsFeature(t)))
             {
                 featureActivator.Add(type.Construct<Feature>());
             }
+        }
+
+        public void Initalize(ContainerComponent containerComponent, FeatureConfigurationContext featureConfigurationContext)
+        {
+            container = containerComponent;
 
             var featureStats = featureActivator.SetupFeatures(featureConfigurationContext);
 
