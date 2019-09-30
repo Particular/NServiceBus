@@ -8,6 +8,9 @@ namespace NServiceBus.Features
     /// <summary>
     /// Allows subscribers to register by sending a subscription message to this endpoint.
     /// </summary>
+    [ObsoleteEx(Message = "It's not recommended to disable the MessageDrivenSubscriptions feature and this option will be removed in future versions. Use 'transportSettings.DisablePublishing()' to avoid the need for a subscription storage if this endpoint does not publish events.",
+        RemoveInVersion = "8.0",
+        ReplacementTypeOrMember = "TransportExtensions<T>.DisablePublishing()")]
     public class MessageDrivenSubscriptions : Feature
     {
         internal const string EnablePublishingSettingsKey = "NServiceBus.PublishSubscribe.EnablePublishing";
@@ -51,7 +54,7 @@ namespace NServiceBus.Features
             {
                 if (!PersistenceStartup.HasSupportFor<StorageType.Subscriptions>(context.Settings))
                 {
-                    throw new Exception("The selected persistence doesn't have support for subscription storage. Select another persistence or disable the message-driven subscriptions feature using endpointConfiguration.DisableFeature<MessageDrivenSubscriptions>()");
+                    throw new Exception("The selected persistence doesn't have support for subscription storage. Select another persistence or disable the publish functionality using transportConfiguration.DisablePublishing()");
                 }
 
                 context.Pipeline.Register(b =>
