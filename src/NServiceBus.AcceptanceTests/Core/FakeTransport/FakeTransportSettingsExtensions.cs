@@ -44,7 +44,7 @@
 
             return transportExtensions;
         }
-        
+
         public static TransportExtensions<FakeTransport> AssertSettings(this TransportExtensions<FakeTransport> transportExtensions, Action<ReadOnlySettings> assertion)
         {
             transportExtensions.GetSettings().Set("FakeTransport.AssertSettings", assertion);

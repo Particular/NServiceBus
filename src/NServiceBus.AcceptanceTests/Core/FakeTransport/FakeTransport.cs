@@ -19,7 +19,7 @@
             {
                 assertion(settings);
             }
-            
+
             return new FakeTransportInfrastructure(settings);
         }
 
