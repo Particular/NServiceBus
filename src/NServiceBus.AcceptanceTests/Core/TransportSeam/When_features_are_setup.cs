@@ -59,10 +59,6 @@
 
             public class FeatureEnabledByUser : Feature
             {
-                public FeatureEnabledByUser()
-                {
-                }
-
                 protected override void Setup(FeatureConfigurationContext context)
                 {
                 }
