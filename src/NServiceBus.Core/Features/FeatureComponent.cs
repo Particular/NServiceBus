@@ -14,7 +14,7 @@
             this.settings = settings;
         }
 
-        public void RegisterFeaturesEnabledByDefaultInSettings(List<Type> concreteTypes)
+        public void RegisterFeatureEnabledStatusInSettings(List<Type> concreteTypes)
         {
             featureActivator = new FeatureActivator(settings);
 

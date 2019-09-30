@@ -78,8 +78,7 @@ namespace NServiceBus
 
             // This is needed since transports needs to know if the timeoutmanager is enabled or not.
             // Can be removed once the transport seam have been adopted to explicitly provide this information
-            // TODO create and link to GH issue
-            featureComponent.RegisterFeaturesEnabledByDefaultInSettings(concreteTypes);
+            featureComponent.RegisterFeatureEnabledStatusInSettings(concreteTypes);
 
             transportInfrastructure = InitializeTransportComponent();
 
