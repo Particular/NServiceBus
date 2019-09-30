@@ -667,6 +667,8 @@ namespace NServiceBus
     }
     public class static MessageDrivenSubscriptionsConfigExtensions
     {
+        public static void DisablePublishing<T>(this NServiceBus.TransportExtensions<T> transportExtensions)
+            where T : NServiceBus.Transport.TransportDefinition, NServiceBus.Routing.IMessageDrivenSubscriptionTransport { }
         public static void RegisterPublisher<T>(this NServiceBus.RoutingSettings<T> routingSettings, System.Type eventType, string publisherEndpoint)
             where T : NServiceBus.Transport.TransportDefinition, NServiceBus.Routing.IMessageDrivenSubscriptionTransport { }
         public static void RegisterPublisher<T>(this NServiceBus.RoutingSettings<T> routingSettings, System.Reflection.Assembly assembly, string publisherEndpoint)
