@@ -21,11 +21,11 @@
             return instance.PerformStartup(messageSession);
         }
 
-        public async Task Stop(IMessageSession messageSession)
+        public async Task Stop()
         {
             try
             {
-                await instance.PerformStop(messageSession).ConfigureAwait(false);
+                await instance.PerformStop().ConfigureAwait(false);
             }
             catch (Exception exception)
             {
@@ -35,7 +35,6 @@
             {
                 DisposeIfNecessary(instance);
             }
-
         }
 
         static void DisposeIfNecessary(FeatureStartupTask task)

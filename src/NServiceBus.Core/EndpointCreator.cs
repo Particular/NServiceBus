@@ -72,7 +72,11 @@ namespace NServiceBus
                 .Where(IsConcrete)
                 .ToList();
 
-            featureActivator = BuildFeatureActivator(concreteTypes);
+            featureComponent = new FeatureComponent(settings);
+
+            // This needs to happen here to make sure that features enabled state is present in settings so both
+            // IWantToRunBeforeConfigurationIsFinalized implementations and transports can check access it
+            featureComponent.RegisterFeatureEnabledStatusInSettings(concreteTypes);
 
             ConfigRunBeforeIsFinalized(concreteTypes);
 
@@ -92,8 +96,10 @@ namespace NServiceBus
             recoverabilityComponent = new RecoverabilityComponent(settings);
 
             var featureConfigurationContext = new FeatureConfigurationContext(settings, containerComponent.ContainerConfiguration, pipelineComponent.PipelineSettings, routingComponent, receiveConfiguration);
-            var featureStats = featureActivator.SetupFeatures(featureConfigurationContext);
-            settings.AddStartupDiagnosticsSection("Features", featureStats);
+
+            //note: This is where the settings gets locked since the feature component (unfortunately) uses the settings to store feature state.
+            // Locking happens just before the Features gets "setup"
+            featureComponent.Initalize(containerComponent, featureConfigurationContext);
 
             recoverabilityComponent.Initialize(receiveConfiguration);
 
@@ -149,7 +155,7 @@ namespace NServiceBus
 
             var messageSession = new MessageSession(pipelineComponent.CreateRootContext(containerComponent.Builder));
 
-            return new StartableEndpoint(settings, containerComponent, featureActivator, transportInfrastructure, receiveComponent, criticalError, messageSession, recoverabilityComponent);
+            return new StartableEndpoint(settings, containerComponent, featureComponent, transportInfrastructure, receiveComponent, criticalError, messageSession, recoverabilityComponent);
         }
 
         async Task RunInstallers(IBuilder builder, string username)
@@ -273,21 +279,6 @@ namespace NServiceBus
         static bool IsIWantToRunBeforeConfigurationIsFinalized(Type type)
         {
             return typeof(IWantToRunBeforeConfigurationIsFinalized).IsAssignableFrom(type);
-        }
-
-        FeatureActivator BuildFeatureActivator(IEnumerable<Type> concreteTypes)
-        {
-            var featureActivator = new FeatureActivator(settings);
-            foreach (var type in concreteTypes.Where(t => IsFeature(t)))
-            {
-                featureActivator.Add(type.Construct<Feature>());
-            }
-            return featureActivator;
-        }
-
-        static bool IsFeature(Type type)
-        {
-            return typeof(Feature).IsAssignableFrom(type);
         }
 
         void RegisterCriticalErrorHandler()
@@ -419,7 +410,7 @@ namespace NServiceBus
         SettingsHolder settings;
         ContainerComponent containerComponent;
         CriticalError criticalError;
-        FeatureActivator featureActivator;
+        FeatureComponent featureComponent;
         TransportInfrastructure transportInfrastructure;
         QueueBindings queueBindings;
         ReceiveComponent receiveComponent;

@@ -74,11 +74,11 @@ namespace NServiceBus.Features
             }
         }
 
-        public Task StopFeatures(IMessageSession session)
+        public Task StopFeatures()
         {
             var featureStopTasks = features.Where(f => f.Feature.IsActive)
                 .SelectMany(f => f.TaskControllers)
-                .Select(task => task.Stop(session));
+                .Select(task => task.Stop());
 
             return Task.WhenAll(featureStopTasks);
         }
@@ -233,7 +233,7 @@ namespace NServiceBus.Features
                     taskControllers.Add(controller);
                     featureStartupTasks.Add(controller.Name);
                 }
-                Diagnostics.StartupTasks = featureStartupTasks; 
+                Diagnostics.StartupTasks = featureStartupTasks;
                 Diagnostics.Active = true;
             }
 

@@ -21,12 +21,15 @@
 
         internal Task PerformStartup(IMessageSession session)
         {
+            messageSession = session;
             return OnStart(session);
         }
 
-        internal Task PerformStop(IMessageSession session)
+        internal Task PerformStop()
         {
-            return OnStop(session);
+            return OnStop(messageSession);
         }
+
+        IMessageSession messageSession;
     }
 }

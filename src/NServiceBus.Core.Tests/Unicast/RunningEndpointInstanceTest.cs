@@ -3,7 +3,6 @@
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using Features;
     using NServiceBus.Transport;
     using NUnit.Framework;
     using Routing;
@@ -15,11 +14,13 @@
         [Test]
         public async Task ShouldAllowMultipleStops()
         {
+            var settings = new SettingsHolder();
+
             var testee = new RunningEndpointInstance(
-                new SettingsHolder(),
-                new ContainerComponent(new SettingsHolder()),
+                settings,
+                new ContainerComponent(settings),
                 null,
-                new FeatureRunner(new FeatureActivator(new SettingsHolder())),
+                new FeatureComponent(settings),
                 new MessageSession(new FakeRootContext()), new FakeTransportInfrastructure());
 
             await testee.Stop();

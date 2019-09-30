@@ -28,7 +28,7 @@
             featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
 
             await featureSettings.StartFeatures(null, null);
-            await featureSettings.StopFeatures(null);
+            await featureSettings.StopFeatures();
 
             Assert.True(feature.TaskStarted);
             Assert.True(feature.TaskStopped);
@@ -44,7 +44,7 @@
             featureSettings.SetupFeatures(new FakeFeatureConfigurationContext());
 
             await featureSettings.StartFeatures(null, null);
-            await featureSettings.StopFeatures(null);
+            await featureSettings.StopFeatures();
 
             Assert.True(feature.TaskDisposed);
         }
@@ -77,7 +77,7 @@
 
             await featureSettings.StartFeatures(null, null);
 
-            Assert.DoesNotThrowAsync(async () => await featureSettings.StopFeatures(null));
+            Assert.DoesNotThrowAsync(async () => await featureSettings.StopFeatures());
             Assert.True(feature1.TaskStarted && feature1.TaskStopped);
             Assert.True(feature2.TaskStarted && !feature2.TaskStopped);
         }
@@ -92,12 +92,12 @@
 
             await featureSettings.StartFeatures(null, null);
 
-            await featureSettings.StopFeatures(null);
+            await featureSettings.StopFeatures();
             Assert.True(feature.TaskDisposed);
         }
 
-        private FeatureActivator featureSettings;
-        private SettingsHolder settings;
+        FeatureActivator featureSettings;
+        SettingsHolder settings;
 
         class FeatureWithStartupTask : TestFeature
         {
