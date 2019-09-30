@@ -72,13 +72,13 @@ namespace NServiceBus
                 .Where(IsConcrete)
                 .ToList();
 
-            ConfigRunBeforeIsFinalized(concreteTypes);
-
             featureComponent = new FeatureComponent(settings);
 
-            // This is needed since transports needs to know if the timeoutmanager is enabled or not.
-            // Can be removed once the transport seam have been adopted to explicitly provide this information
+            // This needs to happen here to make sure that features enabled state is present in settings so both
+            // IWantToRunBeforeConfigurationIsFinalized implementations and transports can check access it
             featureComponent.RegisterFeatureEnabledStatusInSettings(concreteTypes);
+
+            ConfigRunBeforeIsFinalized(concreteTypes);
 
             transportInfrastructure = InitializeTransportComponent();
 
