@@ -2555,6 +2555,7 @@ namespace NServiceBus.Transport
         public byte[] Body { get; }
         public System.Collections.Generic.Dictionary<string, string> Headers { get; }
         public string MessageId { get; }
+        public string NativeMessageId { get; }
     }
     public class static IncomingMessageExtensions
     {
