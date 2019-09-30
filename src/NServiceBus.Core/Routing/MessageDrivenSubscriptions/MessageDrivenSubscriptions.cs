@@ -63,6 +63,10 @@ namespace NServiceBus.Features
                     return new UnicastPublishRouterConnector(unicastPublishRouter, distributionPolicy);
                 }, "Determines how the published messages should be routed");
             }
+            else
+            {
+                context.Pipeline.Register(typeof(DisabledPublishingConnector), "Provides a more meaningful exception message when Publish(...) is called.");
+            }
 
             var canReceive = !context.Settings.GetOrDefault<bool>("Endpoint.SendOnly");
             if (canReceive)

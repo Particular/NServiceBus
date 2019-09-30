@@ -35,11 +35,13 @@
         {
             Requires.MessageDrivenPubSub();
 
-            Assert.ThrowsAsync<Exception>(() => Scenario.Define<Context>()
+            var exception = Assert.ThrowsAsync<InvalidOperationException>(() => Scenario.Define<Context>()
                 .WithEndpoint<EndpointWithDisabledPublishing>(e => e.When(
                     c => c.Publish(new TestEvent())))
                 .Done(c => c.EndpointsStarted)
                 .Run());
+
+            StringAssert.Contains("Publishing has been explicitly disabled on this endpoint", exception.Message);
         }
 
         class Context : ScenarioContext
