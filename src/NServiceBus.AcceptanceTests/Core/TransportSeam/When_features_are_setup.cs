@@ -4,7 +4,7 @@
     using AcceptanceTesting;
     using EndpointTemplates;
     using FakeTransport;
-    using NServiceBus.Features;
+    using Features;
     using NUnit.Framework;
 
     public class When_features_are_setup : NServiceBusAcceptanceTest
