@@ -31,6 +31,7 @@ namespace NServiceBus.Transport
                 headers[NServiceBus.Headers.MessageId] = nativeMessageId;
             }
 
+            NativeMessageId = nativeMessageId;
 
             Headers = headers;
 
@@ -38,9 +39,14 @@ namespace NServiceBus.Transport
         }
 
         /// <summary>
-        /// The id of the message.
+        /// The ID of the message.
         /// </summary>
         public string MessageId { get; }
+
+        /// <summary>
+        /// Native message ID.
+        /// </summary>
+        public string NativeMessageId { get; }
 
         /// <summary>
         /// The message headers.
