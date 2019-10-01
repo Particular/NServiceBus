@@ -4,16 +4,15 @@
     using System.Threading.Tasks;
     using AcceptanceTesting.Support;
 
-    public class DefaultServer : IEndpointSetupTemplate
+    public class DefaultServer : ExternallyManagedContainerServer
     {
-        public Task<EndpointConfiguration> GetConfiguration(RunDescriptor runDescriptor, EndpointCustomizationConfiguration endpointCustomizationConfiguration, Action<EndpointConfiguration> configurationBuilderCustomization)
+        public override Task<EndpointConfiguration> GetConfiguration(RunDescriptor runDescriptor, EndpointCustomizationConfiguration endpointCustomizationConfiguration, Action<EndpointConfiguration> configurationBuilderCustomization)
         {
-            return new ExternallyManagedContainerServer()
-                .GetConfiguration(runDescriptor, endpointCustomizationConfiguration, endpointConfiguration =>
-                {
-                    endpointConfiguration.UseContainer(new AcceptanceTestingContainer());
-                    configurationBuilderCustomization(endpointConfiguration);
-                });
+            return base.GetConfiguration(runDescriptor, endpointCustomizationConfiguration, endpointConfiguration =>
+            {
+                endpointConfiguration.UseContainer(new AcceptanceTestingContainer());
+                configurationBuilderCustomization(endpointConfiguration);
+            });
         }
     }
 }

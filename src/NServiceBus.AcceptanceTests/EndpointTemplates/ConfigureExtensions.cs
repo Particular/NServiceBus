@@ -6,16 +6,14 @@
 
     public static class ConfigureExtensions
     {
-        public static async Task DefineTransport(this EndpointConfiguration config, RunDescriptor runDescriptor, EndpointCustomizationConfiguration endpointCustomizationConfiguration)
+        public static async Task DefineTransport(this EndpointConfiguration config, IConfigureEndpointTestExecution transportConfiguration,RunDescriptor runDescriptor, EndpointCustomizationConfiguration endpointCustomizationConfiguration)
         {
-            var transportConfiguration = TestSuiteConstraints.Current.CreateTransportConfiguration();
             await transportConfiguration.Configure(endpointCustomizationConfiguration.EndpointName, config, runDescriptor.Settings, endpointCustomizationConfiguration.PublisherMetadata);
             runDescriptor.OnTestCompleted(_ => transportConfiguration.Cleanup());
         }
 
-        public static async Task DefinePersistence(this EndpointConfiguration config, RunDescriptor runDescriptor, EndpointCustomizationConfiguration endpointCustomizationConfiguration)
+        public static async Task DefinePersistence(this EndpointConfiguration config, IConfigureEndpointTestExecution persistenceConfiguration, RunDescriptor runDescriptor, EndpointCustomizationConfiguration endpointCustomizationConfiguration)
         {
-            var persistenceConfiguration = TestSuiteConstraints.Current.CreatePersistenceConfiguration();
             await persistenceConfiguration.Configure(endpointCustomizationConfiguration.EndpointName, config, runDescriptor.Settings, endpointCustomizationConfiguration.PublisherMetadata);
             runDescriptor.OnTestCompleted(_ => persistenceConfiguration.Cleanup());
         }

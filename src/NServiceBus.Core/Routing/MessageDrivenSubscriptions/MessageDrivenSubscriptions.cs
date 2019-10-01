@@ -85,6 +85,11 @@ namespace NServiceBus.Features
                 context.Container.RegisterSingleton(authorizer);
                 context.Pipeline.Register<SubscriptionReceiverBehavior.Registration>();
             }
+            else
+            {
+                context.Pipeline.Register(new SendOnlySubscribeTerminator(), "Throws an exception when trying to subscribe on a send-only endpoint");
+                context.Pipeline.Register(new SendOnlyUnsubscribeTerminator(), "Throws an exception when trying to unsubscribe on a send-only endpoint");
+            }
         }
     }
 }

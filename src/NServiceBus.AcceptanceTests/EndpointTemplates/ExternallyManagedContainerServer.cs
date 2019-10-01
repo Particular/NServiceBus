@@ -8,7 +8,10 @@
 
     public class ExternallyManagedContainerServer : IEndpointSetupTemplate
     {
-        public async Task<EndpointConfiguration> GetConfiguration(RunDescriptor runDescriptor, EndpointCustomizationConfiguration endpointConfiguration, Action<EndpointConfiguration> configurationBuilderCustomization)
+        public IConfigureEndpointTestExecution TransportConfiguration { get; set; } = TestSuiteConstraints.Current.CreateTransportConfiguration();
+        public IConfigureEndpointTestExecution PersistenceConfiguration { get; set; } = TestSuiteConstraints.Current.CreatePersistenceConfiguration();
+
+        public virtual async Task<EndpointConfiguration> GetConfiguration(RunDescriptor runDescriptor, EndpointCustomizationConfiguration endpointConfiguration, Action<EndpointConfiguration> configurationBuilderCustomization)
         {
             var configuration = new EndpointConfiguration(endpointConfiguration.EndpointName);
 
@@ -22,11 +25,11 @@
             recoverability.Immediate(immediate => immediate.NumberOfRetries(0));
             configuration.SendFailedMessagesTo("error");
 
-            await configuration.DefineTransport(runDescriptor, endpointConfiguration).ConfigureAwait(false);
+            await configuration.DefineTransport(TransportConfiguration, runDescriptor, endpointConfiguration).ConfigureAwait(false);
 
             configuration.RegisterComponentsAndInheritanceHierarchy(runDescriptor);
 
-            await configuration.DefinePersistence(runDescriptor, endpointConfiguration).ConfigureAwait(false);
+            await configuration.DefinePersistence(PersistenceConfiguration, runDescriptor, endpointConfiguration).ConfigureAwait(false);
 
             configurationBuilderCustomization(configuration);
 
