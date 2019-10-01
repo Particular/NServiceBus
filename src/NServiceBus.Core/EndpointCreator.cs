@@ -97,9 +97,9 @@ namespace NServiceBus
 
             var featureConfigurationContext = new FeatureConfigurationContext(settings, containerComponent.ContainerConfiguration, pipelineComponent.PipelineSettings, routingComponent, receiveConfiguration);
 
-            //note: This is where the settings gets locked since the feature component (unfortunately) uses the settings to store feature state.
-            // Locking happens just before the Features gets "setup"
             featureComponent.Initalize(containerComponent, featureConfigurationContext);
+            //The settings can only be locked after initializing the feature component since it uses the settings to store & share feature state.
+            settings.PreventChanges();
 
             recoverabilityComponent.Initialize(receiveConfiguration);
 
