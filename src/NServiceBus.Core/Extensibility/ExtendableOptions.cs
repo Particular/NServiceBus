@@ -3,8 +3,11 @@ namespace NServiceBus.Extensibility
     using System.Collections.Generic;
 
     /// <summary>
-    /// Provide a base class for extendable options.
+    /// Allows the users to control how message session operations are performed.
     /// </summary>
+    /// <remarks>
+    /// The behavior of this class is exposed via extension methods.
+    /// </remarks>
     public abstract class ExtendableOptions
     {
         /// <summary>
