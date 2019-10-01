@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using Logging;
     using Persistence;
     using Settings;
@@ -19,6 +20,8 @@
 
             var resultingSupportedStorages = new List<Type>();
             var diagnostics = new Dictionary<string, object>();
+
+            ValidateSagaAndOutboxPersistence(enabledPersistences);
 
             foreach (var definition in enabledPersistences)
             {
@@ -43,6 +46,19 @@
             settings.Set("ResultingSupportedStorages", resultingSupportedStorages);
 
             settings.AddStartupDiagnosticsSection("Persistence", diagnostics);
+        }
+
+        static void ValidateSagaAndOutboxPersistence(List<EnabledPersistence> enabledPersistences)
+        {
+            var sagaPersisterType = enabledPersistences.FirstOrDefault(p => p.SelectedStorages.Contains(typeof(StorageType.Sagas)));
+            var outboxPersisterType = enabledPersistences.FirstOrDefault(p => p.SelectedStorages.Contains(typeof(StorageType.Outbox)));
+
+            if (sagaPersisterType != null 
+                && outboxPersisterType != null
+                && sagaPersisterType.DefinitionType != outboxPersisterType.DefinitionType)
+            {
+                throw new Exception($"Sagas and Outbox need to use the same type of persistence. Saga is configured to use {sagaPersisterType.DefinitionType.Name}. Outbox is configured to use {outboxPersisterType.DefinitionType.Name}.");
+            }
         }
 
         internal static bool HasSupportFor<T>(ReadOnlySettings settings) where T : StorageType
