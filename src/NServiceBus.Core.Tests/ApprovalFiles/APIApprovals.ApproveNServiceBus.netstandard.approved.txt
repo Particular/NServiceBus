@@ -2511,8 +2511,10 @@ namespace NServiceBus.Transport
     public class ErrorContext
     {
         public ErrorContext(System.Exception exception, System.Collections.Generic.Dictionary<string, string> headers, string transportMessageId, byte[] body, NServiceBus.Transport.TransportTransaction transportTransaction, int immediateProcessingFailures) { }
+        public ErrorContext(System.Exception exception, System.Collections.Generic.Dictionary<string, string> headers, string transportMessageId, byte[] body, NServiceBus.Transport.TransportTransaction transportTransaction, int immediateProcessingFailures, NServiceBus.Extensibility.ContextBag context) { }
         public int DelayedDeliveriesPerformed { get; }
         public System.Exception Exception { get; }
+        public NServiceBus.Extensibility.ContextBag Extensions { get; }
         public int ImmediateProcessingFailures { get; }
         public NServiceBus.Transport.IncomingMessage Message { get; }
         public NServiceBus.Transport.TransportTransaction TransportTransaction { get; }
