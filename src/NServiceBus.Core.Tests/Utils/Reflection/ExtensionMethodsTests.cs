@@ -44,7 +44,7 @@
         [Test]
         public void Should_return_true_for_particular_assembly()
         {
-            Assert.IsTrue(typeof(TransportReceiveToPhysicalMessageProcessingConnector).IsFromParticularAssembly());
+            Assert.IsTrue(typeof(TransportReceiveToPhysicalMessageConnector).IsFromParticularAssembly());
         }
 
         [Test]

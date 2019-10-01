@@ -16,7 +16,7 @@
         [Test]
         public async Task Should_default_to_reply_address_of_incoming_message_for_replies()
         {
-            var behavior = new UnicastReplyRouterConnector();
+            var behavior = new ReplyConnector();
 
             var context = CreateContext(new OutgoingLogicalMessage(typeof(MyReply), new MyReply()));
 
@@ -41,7 +41,7 @@
         [Test]
         public void Should_throw_if_incoming_message_has_no_reply_to_address()
         {
-            var behavior = new UnicastReplyRouterConnector();
+            var behavior = new ReplyConnector();
 
             var context = CreateContext(new OutgoingLogicalMessage(typeof(MyReply), new MyReply()));
 
@@ -56,7 +56,7 @@
         [Test]
         public async Task Should_use_explicit_route_for_replies_if_present()
         {
-            var behavior = new UnicastReplyRouterConnector();
+            var behavior = new ReplyConnector();
             var options = new ReplyOptions();
 
             options.SetDestination("CustomReplyToAddress");

@@ -12,9 +12,9 @@ namespace NServiceBus
     using Transport;
     using Unicast.Messages;
 
-    class DeserializeLogicalMessagesConnector : StageConnector<IIncomingPhysicalMessageContext, IIncomingLogicalMessageContext>
+    class DeserializeMessageConnector : StageConnector<IIncomingPhysicalMessageContext, IIncomingLogicalMessageContext>
     {
-        public DeserializeLogicalMessagesConnector(MessageDeserializerResolver deserializerResolver, LogicalMessageFactory logicalMessageFactory, MessageMetadataRegistry messageMetadataRegistry, IMessageMapper mapper)
+        public DeserializeMessageConnector(MessageDeserializerResolver deserializerResolver, LogicalMessageFactory logicalMessageFactory, MessageMetadataRegistry messageMetadataRegistry, IMessageMapper mapper)
         {
             this.deserializerResolver = deserializerResolver;
             this.logicalMessageFactory = logicalMessageFactory;
@@ -149,6 +149,6 @@ namespace NServiceBus
             ';'
         };
 
-        static readonly ILog log = LogManager.GetLogger<DeserializeLogicalMessagesConnector>();
+        static readonly ILog log = LogManager.GetLogger<DeserializeMessageConnector>();
     }
 }

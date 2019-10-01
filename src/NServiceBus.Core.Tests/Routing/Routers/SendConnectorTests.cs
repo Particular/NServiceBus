@@ -11,7 +11,7 @@
     using Unicast.Messages;
 
     [TestFixture]
-    public class UnicastSendRouterConnectorTests
+    public class SendConnectorTests
     {
         [Test]
         public async Task Should_set_messageintent_to_send()
@@ -63,7 +63,7 @@
         }
 
 
-        static UnicastSendRouterConnector InitializeBehavior(FakeRouter router = null)
+        static SendConnector InitializeBehavior(FakeRouter router = null)
         {
             var metadataRegistry = new MessageMetadataRegistry(new Conventions().IsMessageType);
             metadataRegistry.RegisterMessageTypesFoundIn(new List<Type>
@@ -72,7 +72,7 @@
                 typeof(MessageWithoutRouting)
             });
 
-            return new UnicastSendRouterConnector(router ?? new FakeRouter());
+            return new SendConnector(router ?? new FakeRouter());
         }
 
         class FakeRouter : UnicastSendRouter

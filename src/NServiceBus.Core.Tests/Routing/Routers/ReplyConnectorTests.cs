@@ -5,14 +5,14 @@
     using Testing;
 
     [TestFixture]
-    public class UnicastReplyRouterConnectorTests
+    public class ReplyConnectorTests
     {
         [Test]
         public async Task Should_set_messageintent_to_reply()
         {
-            var router = new UnicastReplyRouterConnector();
+            var router = new ReplyConnector();
             var context = new TestableOutgoingReplyContext();
-            context.Extensions.Set(new UnicastReplyRouterConnector.State { ExplicitDestination = "Fake" });
+            context.Extensions.Set(new ReplyConnector.State { ExplicitDestination = "Fake" });
 
             await router.Invoke(context, ctx => TaskEx.CompletedTask);
 

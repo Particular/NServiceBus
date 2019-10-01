@@ -9,12 +9,12 @@
     using Testing;
 
     [TestFixture]
-    public class UnicastPublishRouterConnectorTests
+    public class UnicastPublishConnectorTests
     {
         [Test]
         public async Task Should_set_messageintent_to_publish()
         {
-            var router = new UnicastPublishRouterConnector(new FakePublishRouter(), new DistributionPolicy());
+            var router = new UnicastPublishConnector(new FakePublishRouter(), new DistributionPolicy());
             var context = new TestableOutgoingPublishContext();
 
             await router.Invoke(context, ctx => TaskEx.CompletedTask);
