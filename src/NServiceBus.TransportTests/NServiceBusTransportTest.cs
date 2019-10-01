@@ -99,6 +99,12 @@
 
             ReceiveInfrastructure = TransportInfrastructure.ConfigureReceiveInfrastructure();
 
+            var result = await ReceiveInfrastructure.PreStartupCheck();
+            if (result.Succeeded == false)
+            {
+                throw new Exception($"Pre start-up check failed: {result.ErrorMessage}");
+            }
+
             var queueCreator = ReceiveInfrastructure.QueueCreatorFactory();
             var userName = GetUserName();
             await queueCreator.CreateQueueIfNecessary(queueBindings, userName);
@@ -107,6 +113,12 @@
 
             SendInfrastructure = TransportInfrastructure.ConfigureSendInfrastructure();
             lazyDispatcher = new Lazy<IDispatchMessages>(() => SendInfrastructure.DispatcherFactory());
+
+            result = await SendInfrastructure.PreStartupCheck();
+            if (result.Succeeded == false)
+            {
+                throw new Exception($"Pre start-up check failed: {result.ErrorMessage}");
+            }
 
             MessagePump = ReceiveInfrastructure.MessagePumpFactory();
             await MessagePump.Init(
