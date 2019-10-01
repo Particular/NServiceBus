@@ -58,8 +58,6 @@ namespace NServiceBus.Features
                 ActivateFeature(feature, enabledFeatures, featureConfigurationContext);
             }
 
-            settings.PreventChanges();
-
             return features.Select(t => t.Diagnostics).ToArray();
         }
 
