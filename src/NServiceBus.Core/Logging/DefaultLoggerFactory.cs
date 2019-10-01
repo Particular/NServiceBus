@@ -71,8 +71,8 @@ namespace NServiceBus
             var fullMessage = stringBuilder.ToString();
             lock (locker)
             {
-                rollingLogger.Write(fullMessage);
-                ColoredConsoleLogger.Write(fullMessage, messageLevel);
+                rollingLogger.WriteLine(fullMessage);
+                ColoredConsoleLogger.WriteLine(fullMessage, messageLevel);
                 Trace.WriteLine(fullMessage);
             }
         }

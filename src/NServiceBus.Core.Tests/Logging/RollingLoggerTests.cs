@@ -20,7 +20,7 @@
                 {
                     GetDate = () => dateTime
                 };
-                logger1.Write("Foo");
+                logger1.WriteLine("Foo");
                 var files1 = tempPath.GetFiles();
                 Assert.AreEqual(1, files1.Count);
                 Assert.AreEqual($"Foo{Environment.NewLine}", NonLockingFileReader.ReadAllTextWithoutLocking(files1.First()));
@@ -28,7 +28,7 @@
                 {
                     GetDate = () => dateTime
                 };
-                logger2.Write("Bar");
+                logger2.WriteLine("Bar");
                 var files2 = tempPath.GetFiles();
                 Assert.AreEqual(1, files2.Count);
                 Assert.AreEqual($"Foo{Environment.NewLine}Bar{Environment.NewLine}", NonLockingFileReader.ReadAllTextWithoutLocking(files2.First()));
@@ -44,10 +44,10 @@
                 {
                     GetDate = () => new DateTime(2010, 10, 1)
                 };
-                logger.Write("Foo");
+                logger.WriteLine("Foo");
                 var single = tempPath.GetSingle();
                 File.Delete(single);
-                logger.Write("Bar");
+                logger.WriteLine("Bar");
                 Assert.AreEqual($"Bar{Environment.NewLine}", NonLockingFileReader.ReadAllTextWithoutLocking(single));
             }
         }
@@ -61,11 +61,11 @@
                 {
                     GetDate = () => new DateTime(2010, 10, 1)
                 };
-                logger.Write("Foo");
+                logger.WriteLine("Foo");
                 var single = tempPath.GetSingle();
                 using (LockFile(single))
                 {
-                    logger.Write("Bar");
+                    logger.WriteLine("Bar");
                 }
                 Assert.AreEqual($"Foo{Environment.NewLine}", NonLockingFileReader.ReadAllTextWithoutLocking(single));
             }
@@ -85,10 +85,10 @@
                 {
                     GetDate = () => new DateTime(2010, 10, 1)
                 };
-                logger.Write("Foo");
+                logger.WriteLine("Foo");
                 var singleFile = tempPath.GetSingle();
                 File.Delete(singleFile);
-                logger.Write("Bar");
+                logger.WriteLine("Bar");
                 Assert.AreEqual($"Bar{Environment.NewLine}", NonLockingFileReader.ReadAllTextWithoutLocking(singleFile));
             }
         }
@@ -117,12 +117,12 @@
                 {
                     GetDate = () => dateTime
                 };
-                logger1.Write("Some long text");
+                logger1.WriteLine("Some long text");
                 var logger2 = new RollingLogger(tempPath.TempDirectory, maxFileSize: 10)
                 {
                     GetDate = () => dateTime
                 };
-                logger2.Write("Bar");
+                logger2.WriteLine("Bar");
                 var files = tempPath.GetFiles();
 
                 Assert.AreEqual(2, files.Count);
@@ -146,12 +146,12 @@
                 {
                     GetDate = () => new DateTime(2010, 10, 1)
                 };
-                logger1.Write("Foo");
+                logger1.WriteLine("Foo");
                 var logger2 = new RollingLogger(tempPath.TempDirectory, maxFileSize: 10)
                 {
                     GetDate = () => new DateTime(2010, 10, 2)
                 };
-                logger2.Write("Bar");
+                logger2.WriteLine("Bar");
                 var files = tempPath.GetFiles();
 
                 Assert.AreEqual(2, files.Count);
@@ -172,7 +172,7 @@
             using (var tempPath = new TempPath())
             {
                 var logger = new RollingLogger(tempPath.TempDirectory);
-                logger.Write("Foo");
+                logger.WriteLine("Foo");
                 var singleFile = tempPath.GetSingle();
                 Assert.AreEqual($"Foo{Environment.NewLine}", NonLockingFileReader.ReadAllTextWithoutLocking(singleFile));
             }
@@ -184,8 +184,8 @@
             using (var tempPath = new TempPath())
             {
                 var logger = new RollingLogger(tempPath.TempDirectory);
-                logger.Write("Foo");
-                logger.Write("Bar");
+                logger.WriteLine("Foo");
+                logger.WriteLine("Bar");
                 var singleFile = tempPath.GetSingle();
                 Assert.AreEqual($"Foo{Environment.NewLine}Bar{Environment.NewLine}", NonLockingFileReader.ReadAllTextWithoutLocking(singleFile));
             }
@@ -200,8 +200,8 @@
                 {
                     GetDate = () => new DateTime(2010, 10, 1)
                 };
-                logger.Write("Some long text");
-                logger.Write("Bar");
+                logger.WriteLine("Some long text");
+                logger.WriteLine("Bar");
                 var files = tempPath.GetFiles();
                 Assert.AreEqual(2, files.Count);
 
@@ -226,7 +226,7 @@
                 };
                 for (var i = 0; i < 100; i++)
                 {
-                    logger.Write("Some long text");
+                    logger.WriteLine("Some long text");
                     Assert.LessOrEqual(tempPath.GetFiles().Count, 11);
                 }
             }
@@ -238,8 +238,8 @@
             using (var tempPath = new TempPath())
             {
                 var logger = new RollingLogger(tempPath.TempDirectory, maxFileSize: 10);
-                logger.Write("Foo");
-                logger.Write("Some long text");
+                logger.WriteLine("Foo");
+                logger.WriteLine("Some long text");
                 var singleFile = tempPath.GetSingle();
                 Assert.AreEqual($"Foo{Environment.NewLine}Some long text{Environment.NewLine}", NonLockingFileReader.ReadAllTextWithoutLocking(singleFile));
             }
@@ -254,9 +254,9 @@
                 {
                     GetDate = () => new DateTime(2010, 10, 1)
                 };
-                logger.Write("Foo");
+                logger.WriteLine("Foo");
                 logger.GetDate = () => new DateTime(2010, 10, 2);
-                logger.Write("Bar");
+                logger.WriteLine("Bar");
                 var files = tempPath.GetFiles();
                 Assert.AreEqual(2, files.Count);
 
@@ -338,11 +338,11 @@
                 {
                     GetDate = () => new DateTime(2010, 10, 1)
                 };
-                logger.Write("Long text0");
-                logger.Write("Long text1");
-                logger.Write("Long text2");
-                logger.Write("Long text3");
-                logger.Write("Long text4");
+                logger.WriteLine("Long text0");
+                logger.WriteLine("Long text1");
+                logger.WriteLine("Long text2");
+                logger.WriteLine("Long text3");
+                logger.WriteLine("Long text4");
                 var files = tempPath.GetFiles();
                 Assert.AreEqual(3, files.Count, "Should be numberOfArchiveFilesToKeep + 1 (the current file) ");
 
@@ -369,15 +369,15 @@
                 {
                     GetDate = () => new DateTime(2010, 10, 1)
                 };
-                logger.Write("Foo1");
+                logger.WriteLine("Foo1");
                 logger.GetDate = () => new DateTime(2010, 10, 2);
-                logger.Write("Foo2");
+                logger.WriteLine("Foo2");
                 logger.GetDate = () => new DateTime(2010, 10, 3);
-                logger.Write("Foo3");
+                logger.WriteLine("Foo3");
                 logger.GetDate = () => new DateTime(2010, 10, 4);
-                logger.Write("Foo4");
+                logger.WriteLine("Foo4");
                 logger.GetDate = () => new DateTime(2010, 10, 5);
-                logger.Write("Foo5");
+                logger.WriteLine("Foo5");
                 var files = tempPath.GetFiles();
                 Assert.AreEqual(3, files.Count, "Should be numberOfArchiveFilesToKeep + 1 (the current file) ");
 
@@ -404,7 +404,7 @@
                 {
                     GetDate = () => new DateTime(2010, 10, 1)
                 };
-                logger.Write("Foo");
+                logger.WriteLine("Foo");
                 var singleFile = tempPath.GetSingle();
                 Assert.AreEqual("nsb_log_2010-10-01_0.txt", Path.GetFileName(singleFile));
             }
