@@ -9,6 +9,8 @@
     /// </summary>
     public class ErrorContext
     {
+        static ReadOnlyContextBag emptyBag = new ContextBag();
+
         /// <summary>
         /// Initializes the error context.
         /// </summary>
@@ -19,7 +21,7 @@
         /// <param name="transportTransaction">Transaction (along with connection if applicable) used to receive the message.</param>
         /// <param name="immediateProcessingFailures">Number of conducted immediate retry attempts.</param>
         public ErrorContext(Exception exception, Dictionary<string, string> headers, string transportMessageId, byte[] body, TransportTransaction transportTransaction, int immediateProcessingFailures)
-            : this(exception, headers, transportMessageId, body, transportTransaction, immediateProcessingFailures, new ContextBag())
+            : this(exception, headers, transportMessageId, body, transportTransaction, immediateProcessingFailures, emptyBag)
         {
         }
 
@@ -33,7 +35,7 @@
         /// <param name="transportTransaction">Transaction (along with connection if applicable) used to receive the message.</param>
         /// <param name="immediateProcessingFailures">Number of conducted immediate retry attempts.</param>
         /// <param name="context">A <see cref="ContextBag" /> which can be used to extend the current object.</param>
-        public ErrorContext(Exception exception, Dictionary<string, string> headers, string transportMessageId, byte[] body, TransportTransaction transportTransaction, int immediateProcessingFailures, ContextBag context)
+        public ErrorContext(Exception exception, Dictionary<string, string> headers, string transportMessageId, byte[] body, TransportTransaction transportTransaction, int immediateProcessingFailures, ReadOnlyContextBag context)
         {
             Exception = exception;
             TransportTransaction = transportTransaction;
@@ -73,6 +75,6 @@
         /// <summary>
         /// A <see cref="ContextBag" /> which can be used to extend the current object.
         /// </summary>
-        public ContextBag Extensions { get; }
+        public ReadOnlyContextBag Extensions { get; }
     }
 }
