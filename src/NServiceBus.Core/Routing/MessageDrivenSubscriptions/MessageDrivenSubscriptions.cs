@@ -57,7 +57,7 @@ namespace NServiceBus.Features
                     throw new Exception("The selected persistence doesn't have support for subscription storage. Select another persistence or disable the publish functionality using transportConfiguration.DisablePublishing()");
                 }
 
-                context.Pipeline.Register(b =>
+                context.Pipeline.Register("UnicastPublishRouterConnector", b =>
                 {
                     var unicastPublishRouter = new UnicastPublishRouter(b.Build<MessageMetadataRegistry>(), i => transportInfrastructure.ToTransportAddress(LogicalAddress.CreateRemoteAddress(i)), b.Build<ISubscriptionStorage>());
                     return new UnicastPublishConnector(unicastPublishRouter, distributionPolicy);

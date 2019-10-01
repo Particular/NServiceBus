@@ -50,13 +50,13 @@ namespace NServiceBus
 
             var pipelineSettings = pipelineComponent.PipelineSettings;
 
-            pipelineSettings.Register(b =>
+            pipelineSettings.Register("UnicastSendRouterConnector", b =>
             {
                 var router = new UnicastSendRouter(receiveConfiguration == null, receiveConfiguration?.QueueNameBase, receiveConfiguration?.InstanceSpecificQueue, DistributionPolicy, UnicastRoutingTable, EndpointInstances, i => transportInfrastructure.ToTransportAddress(LogicalAddress.CreateRemoteAddress(i)));
                 return new SendConnector(router);
             }, "Determines how the message being sent should be routed");
 
-            pipelineSettings.Register(new ReplyConnector(), "Determines how replies should be routed");
+            pipelineSettings.Register("UnicastReplyRouterConnector", new ReplyConnector(), "Determines how replies should be routed");
 
             EnforceBestPractices = ShouldEnforceBestPractices(settings);
             if (EnforceBestPractices)
