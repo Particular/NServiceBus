@@ -65,7 +65,7 @@ namespace NServiceBus.Features
             }
             else
             {
-                context.Pipeline.Register(typeof(DisabledPublishingConnector), "Provides a more meaningful exception message when Publish(...) is called.");
+                context.Pipeline.Register(typeof(DisabledPublishingTerminator), "Throws an exception when trying to publish with publishing disabled");
             }
 
             var canReceive = !context.Settings.GetOrDefault<bool>("Endpoint.SendOnly");
