@@ -2,8 +2,6 @@
 
   <PropertyGroup>
     <TargetFrameworks>net452;netcoreapp2.1</TargetFrameworks>
-    <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>..\Test.snk</AssemblyOriginatorKeyFile>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
   </PropertyGroup>
 
@@ -27,7 +25,6 @@
     <Description>Tests for transport seam implementations</Description>
     <IsPackable>true</IsPackable>
     <IncludeBuildOutput>false</IncludeBuildOutput>
-    <SignAssembly>true</SignAssembly>
   </PropertyGroup>
 
   <!-- Workaround for https://github.com/dotnet/sdk/issues/1479 -->
