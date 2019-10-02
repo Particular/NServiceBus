@@ -87,8 +87,8 @@ namespace NServiceBus.Features
             }
             else
             {
-                context.Pipeline.Register(new SendOnlySubscribeTerminator(), "Throws an exception when trying to subscribe on a send-only endpoint");
-                context.Pipeline.Register(new SendOnlyUnsubscribeTerminator(), "Throws an exception when trying to unsubscribe on a send-only endpoint");
+                context.Pipeline.Register(new SendOnlySubscribeTerminator(), "Throws an exception when trying to subscribe from a send-only endpoint");
+                context.Pipeline.Register(new SendOnlyUnsubscribeTerminator(), "Throws an exception when trying to unsubscribe from a send-only endpoint");
             }
         }
     }
