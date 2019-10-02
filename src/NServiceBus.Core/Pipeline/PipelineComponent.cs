@@ -4,6 +4,7 @@ namespace NServiceBus
     using ObjectBuilder;
     using Pipeline;
     using Settings;
+    using System.Threading.Tasks;
 
     class PipelineComponent
     {
@@ -13,9 +14,10 @@ namespace NServiceBus
             PipelineSettings = new PipelineSettings(modifications, settings);
         }
 
-        public void Initialize(IBuilder builder)
+        public Task Start()
         {
-            rootContextExtensions.Set<IPipelineCache>(new PipelineCache(builder, modifications));
+            rootContextExtensions.Set<IPipelineCache>(new PipelineCache(container.Builder, modifications));
+            return Task.FromResult(0);
         }
 
         public void AddRootContextItem<T>(T item)
@@ -39,20 +41,23 @@ namespace NServiceBus
 
         public PipelineSettings PipelineSettings { get; }
 
-        public void RegisterBehaviorsInContainer(IConfigureComponents container)
+        public void Initialize(ContainerComponent containerComponent)
         {
+            container = containerComponent;
+
             foreach (var registeredBehavior in modifications.Replacements)
             {
-                container.ConfigureComponent(registeredBehavior.BehaviorType, DependencyLifecycle.InstancePerCall);
+                container.ContainerConfiguration.ConfigureComponent(registeredBehavior.BehaviorType, DependencyLifecycle.InstancePerCall);
             }
 
             foreach (var step in modifications.Additions)
             {
-                step.ApplyContainerRegistration(container);
+                step.ApplyContainerRegistration(container.ContainerConfiguration);
             }
         }
 
         readonly PipelineModifications modifications;
         readonly ContextBag rootContextExtensions = new ContextBag();
+        ContainerComponent container;
     }
 }

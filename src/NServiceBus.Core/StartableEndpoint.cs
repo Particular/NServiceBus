@@ -8,7 +8,7 @@ namespace NServiceBus
 
     class StartableEndpoint : IStartableEndpoint
     {
-        public StartableEndpoint(SettingsHolder settings, ContainerComponent containerComponent, FeatureComponent featureComponent, TransportInfrastructure transportInfrastructure, ReceiveComponent receiveComponent, CriticalError criticalError, IMessageSession messageSession, RecoverabilityComponent recoverabilityComponent)
+        public StartableEndpoint(SettingsHolder settings, ContainerComponent containerComponent, FeatureComponent featureComponent, TransportInfrastructure transportInfrastructure, ReceiveComponent receiveComponent, CriticalError criticalError, PipelineComponent pipelineComponent, RecoverabilityComponent recoverabilityComponent)
         {
             this.criticalError = criticalError;
             this.settings = settings;
@@ -16,12 +16,16 @@ namespace NServiceBus
             this.featureComponent = featureComponent;
             this.transportInfrastructure = transportInfrastructure;
             this.receiveComponent = receiveComponent;
-            this.messageSession = messageSession;
+            this.pipelineComponent = pipelineComponent;
             this.recoverabilityComponent = recoverabilityComponent;
         }
 
         public async Task<IEndpointInstance> Start()
         {
+            await pipelineComponent.Start().ConfigureAwait(false);
+
+            var messageSession = new MessageSession(pipelineComponent.CreateRootContext(containerComponent.Builder));
+
             await receiveComponent.PerformPreStartupChecks().ConfigureAwait(false);
 
             await transportInfrastructure.Start().ConfigureAwait(false);
@@ -42,7 +46,7 @@ namespace NServiceBus
             return runningInstance;
         }
 
-        IMessageSession messageSession;
+        PipelineComponent pipelineComponent;
         RecoverabilityComponent recoverabilityComponent;
         ContainerComponent containerComponent;
         FeatureComponent featureComponent;
