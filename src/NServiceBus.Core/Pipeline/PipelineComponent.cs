@@ -25,9 +25,9 @@ namespace NServiceBus
             rootContextExtensions.Set(item);
         }
 
-        public RootContext CreateRootContext(IBuilder scopedBuilder, ContextBag extensions = null)
+        public RootContext CreateRootContext(IBuilder builder, ContextBag extensions = null)
         {
-            var context = new RootContext(scopedBuilder);
+            var context = new RootContext(builder);
 
             context.Extensions.Merge(rootContextExtensions);
 
