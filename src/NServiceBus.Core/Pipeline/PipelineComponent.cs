@@ -44,6 +44,7 @@ namespace NServiceBus
         public void Initialize(ContainerComponent containerComponent)
         {
             container = containerComponent;
+
             foreach (var registeredBehavior in modifications.Replacements)
             {
                 container.ContainerConfiguration.ConfigureComponent(registeredBehavior.BehaviorType, DependencyLifecycle.InstancePerCall);
