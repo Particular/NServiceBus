@@ -1,7 +1,6 @@
 namespace NServiceBus
 {
     using System;
-    using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
@@ -39,12 +38,7 @@ namespace NServiceBus
         {
             if (subscribersFound == 0)
             {
-                eventsWithoutSubscribers.GetOrAdd(messageType.FullName, @event =>
-                {
-                    logger.WarnFormat("No subscribers found for the event of type {0}.", @event);
-
-                    return true;
-                });
+                logger.DebugFormat("No subscribers found for the event of type {0}.", messageType.FullName);
             }
         }
 
@@ -104,7 +98,6 @@ namespace NServiceBus
         MessageMetadataRegistry messageMetadataRegistry;
         Func<EndpointInstance, string> transportAddressTranslation;
         ISubscriptionStorage subscriptionStorage;
-        ConcurrentDictionary<string, bool> eventsWithoutSubscribers = new ConcurrentDictionary<string, bool>();
         static ILog logger = LogManager.GetLogger<UnicastPublishRouter>();
     }
 }

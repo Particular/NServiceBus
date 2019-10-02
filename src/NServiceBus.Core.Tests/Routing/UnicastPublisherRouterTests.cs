@@ -97,18 +97,14 @@
         }
 
         [Test]
-        public async Task When_no_subscribers_found_Should_log_a_warning_once()
+        public async Task When_no_subscribers_found_Should_log_at_debug_level()
         {
-            var distributionPolicy = new DistributionPolicy();
-            var testableOutgoingPublishContext = new TestableOutgoingPublishContext();
-
-            await router.Route(typeof(Event), distributionPolicy, testableOutgoingPublishContext);
-            await router.Route(typeof(Event), distributionPolicy, testableOutgoingPublishContext);
+            await router.Route(typeof(Event), new DistributionPolicy(), new TestableOutgoingPublishContext());
 
             var warning = $"No subscribers found for the event of type {typeof(Event).FullName}.";
-            var chunks = logStatements.ToString().Split(new[] {warning}, StringSplitOptions.RemoveEmptyEntries);
 
-            Assert.AreEqual(2, chunks.Length, "Expected to find a single warning, but it was logged more than once.");
+            StringAssert.Contains(warning, logStatements.ToString());
+            StringAssert.Contains(" DEBUG ", logStatements.ToString());
         }
 
         static string ExtractDestination(UnicastRoutingStrategy route)
