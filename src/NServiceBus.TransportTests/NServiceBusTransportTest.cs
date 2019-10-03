@@ -103,6 +103,12 @@
             var userName = GetUserName();
             await queueCreator.CreateQueueIfNecessary(queueBindings, userName);
 
+            var result = await ReceiveInfrastructure.PreStartupCheck();
+            if (result.Succeeded == false)
+            {
+                throw new Exception($"Pre start-up check failed: {result.ErrorMessage}");
+            }
+
             await TransportInfrastructure.Start();
 
             SendInfrastructure = TransportInfrastructure.ConfigureSendInfrastructure();
@@ -130,6 +136,12 @@
                 },
                 new FakeCriticalError(onCriticalError),
                 new PushSettings(InputQueueName, ErrorQueueName, configuration.PurgeInputQueueOnStartup, transactionMode));
+
+            result = await SendInfrastructure.PreStartupCheck();
+            if (result.Succeeded == false)
+            {
+                throw new Exception($"Pre start-up check failed: {result.ErrorMessage}");
+            }
 
             MessagePump.Start(configuration.PushRuntimeSettings);
         }

@@ -2683,12 +2683,14 @@ namespace NServiceBus.Transport
     {
         public TransportReceiveInfrastructure(System.Func<NServiceBus.Transport.IPushMessages> messagePumpFactory, System.Func<NServiceBus.Transport.ICreateQueues> queueCreatorFactory, System.Func<System.Threading.Tasks.Task<NServiceBus.Transport.StartupCheckResult>> preStartupCheck) { }
         public System.Func<NServiceBus.Transport.IPushMessages> MessagePumpFactory { get; }
+        public System.Func<System.Threading.Tasks.Task<NServiceBus.Transport.StartupCheckResult>> PreStartupCheck { get; }
         public System.Func<NServiceBus.Transport.ICreateQueues> QueueCreatorFactory { get; }
     }
     public class TransportSendInfrastructure
     {
         public TransportSendInfrastructure(System.Func<NServiceBus.Transport.IDispatchMessages> dispatcherFactory, System.Func<System.Threading.Tasks.Task<NServiceBus.Transport.StartupCheckResult>> preStartupCheck) { }
         public System.Func<NServiceBus.Transport.IDispatchMessages> DispatcherFactory { get; }
+        public System.Func<System.Threading.Tasks.Task<NServiceBus.Transport.StartupCheckResult>> PreStartupCheck { get; }
     }
     public class TransportSubscriptionInfrastructure
     {

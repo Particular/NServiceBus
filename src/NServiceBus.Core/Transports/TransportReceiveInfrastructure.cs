@@ -35,6 +35,9 @@ namespace NServiceBus.Transport
         /// </summary>
         public Func<ICreateQueues> QueueCreatorFactory { get; }
 
-        internal Func<Task<StartupCheckResult>> PreStartupCheck { get; }
+        /// <summary>
+        /// Pre-startup checks executed by the transport receive infrastructure.
+        /// </summary>
+        public Func<Task<StartupCheckResult>> PreStartupCheck { get; }
     }
 }
