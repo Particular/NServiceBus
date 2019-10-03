@@ -67,7 +67,7 @@
 
             var resultedEnabledPersistences = PersistenceStorageMerger.Merge(persistences, config.Settings);
 
-            Assert.IsTrue(!resultedEnabledPersistences.Any(p => p.SelectedStorages.Contains(typeof(StorageType.Subscriptions))));
+            Assert.IsFalse(resultedEnabledPersistences.Any(p => p.SelectedStorages.Contains(typeof(StorageType.Subscriptions))));
 }
 
         class FakePersistence : PersistenceDefinition
