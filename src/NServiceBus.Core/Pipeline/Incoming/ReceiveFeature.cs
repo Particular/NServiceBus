@@ -17,27 +17,23 @@
 
         protected internal override void Setup(FeatureConfigurationContext context)
         {
-            context.Pipeline.Register("TransportReceiveToPhysicalMessageProcessingConnector", b => b.Build<TransportReceiveToPhysicalMessageConnector>(), "Allows to abort processing the message");
-            context.Pipeline.Register("LoadHandlersConnector", b => b.Build<LoadHandlersConnector>(), "Gets all the handlers to invoke from the MessageHandler registry based on the message type.");
-
-            context.Pipeline.Register("ExecuteUnitOfWork", new UnitOfWorkBehavior(), "Executes the UoW");
-
-            context.Pipeline.Register("InvokeHandlers", new InvokeHandlerTerminator(), "Calls the IHandleMessages<T>.Handle(T)");
-
-            context.Container.ConfigureComponent(b =>
+            context.Pipeline.Register("TransportReceiveToPhysicalMessageProcessingConnector", b =>
             {
                 var storage = context.Container.HasComponent<IOutboxStorage>() ? b.Build<IOutboxStorage>() : new NoOpOutbox();
-
                 return new TransportReceiveToPhysicalMessageConnector(storage);
-            }, DependencyLifecycle.InstancePerCall);
+            }, "Allows to abort processing the message");
 
-            context.Container.ConfigureComponent(b =>
+            context.Pipeline.Register("LoadHandlersConnector", b =>
             {
                 var adapter = context.Container.HasComponent<ISynchronizedStorageAdapter>() ? b.Build<ISynchronizedStorageAdapter>() : new NoOpAdapter();
                 var syncStorage = context.Container.HasComponent<ISynchronizedStorage>() ? b.Build<ISynchronizedStorage>() : new NoOpSynchronizedStorage();
 
                 return new LoadHandlersConnector(b.Build<MessageHandlerRegistry>(), syncStorage, adapter);
-            }, DependencyLifecycle.InstancePerCall);
+            }, "Gets all the handlers to invoke from the MessageHandler registry based on the message type.");
+
+            context.Pipeline.Register("ExecuteUnitOfWork", new UnitOfWorkBehavior(), "Executes the UoW");
+
+            context.Pipeline.Register("InvokeHandlers", new InvokeHandlerTerminator(), "Calls the IHandleMessages<T>.Handle(T)");
         }
 
         class NoOpSynchronizedStorage : ISynchronizedStorage
