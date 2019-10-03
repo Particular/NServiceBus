@@ -19,7 +19,7 @@
         /// <param name="transportMessageId">Native message id.</param>
         /// <param name="body">The message body.</param>
         /// <param name="transportTransaction">Transaction (along with connection if applicable) used to receive the message.</param>
-        /// <param name="immediateProcessingFailures">Number of conducted immediate retry attempts.</param>
+        /// <param name="immediateProcessingFailures">Number of failed immediate processing attempts.</param>
         public ErrorContext(Exception exception, Dictionary<string, string> headers, string transportMessageId, byte[] body, TransportTransaction transportTransaction, int immediateProcessingFailures)
             : this(exception, headers, transportMessageId, body, transportTransaction, immediateProcessingFailures, emptyBag)
         {
