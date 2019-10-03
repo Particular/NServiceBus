@@ -1,7 +1,9 @@
 namespace NServiceBus
 {
     using System;
+    using System.Collections;
     using System.Diagnostics;
+    using System.Text;
     using Logging;
 
     class DefaultLoggerFactory : ILoggerFactory
@@ -34,19 +36,43 @@ namespace NServiceBus
             };
         }
 
-        public void Write(string name, LogLevel messageLevel, string message)
+        public void Write(string name, LogLevel messageLevel, string message, Exception exception = null)
         {
             if (messageLevel < filterLevel)
             {
                 return;
             }
+
+            var stringBuilder = new StringBuilder();
             var datePart = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
             var paddedLevel = messageLevel.ToString().ToUpper().PadRight(5);
-            var fullMessage = $"{datePart} {paddedLevel} {name} {message}";
+            
+            stringBuilder.Append(datePart).Append(' ').Append(paddedLevel).Append(' ').Append(message);
+
+            if (exception != null)
+            {
+                stringBuilder.AppendLine();
+                stringBuilder.Append(exception);
+                if (exception.Data.Count > 0)
+                {
+                    stringBuilder.AppendLine();
+                    stringBuilder.Append("Exception details:");
+
+#pragma warning disable DE0006 // API is deprecated
+                    foreach (DictionaryEntry exceptionData in exception.Data)
+#pragma warning restore DE0006 // API is deprecated
+                    {
+                        stringBuilder.AppendLine();
+                        stringBuilder.Append('\t').Append(exceptionData.Key).Append(": ").Append(exceptionData.Value);
+                    }
+                }
+            }
+
+            var fullMessage = stringBuilder.ToString();
             lock (locker)
             {
-                rollingLogger.Write(fullMessage);
-                ColoredConsoleLogger.Write(fullMessage, messageLevel);
+                rollingLogger.WriteLine(fullMessage);
+                ColoredConsoleLogger.WriteLine(fullMessage, messageLevel);
                 Trace.WriteLine(fullMessage);
             }
         }

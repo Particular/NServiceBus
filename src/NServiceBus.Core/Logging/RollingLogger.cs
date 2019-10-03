@@ -17,7 +17,7 @@ namespace NServiceBus
             this.maxFileSize = maxFileSize;
         }
 
-        public void Write(string message)
+        public void WriteLine(string message)
         {
             SyncFileSystem();
             InnerWrite(message);

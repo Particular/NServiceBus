@@ -14,7 +14,7 @@
             }
         }
 
-        public static void Write(string message, LogLevel logLevel)
+        public static void WriteLine(string message, LogLevel logLevel)
         {
             if (!logToConsole)
             {
