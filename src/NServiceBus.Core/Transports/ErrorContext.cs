@@ -73,7 +73,7 @@
         public IncomingMessage Message { get; }
 
         /// <summary>
-        /// A <see cref="ContextBag" /> which can be used to extend the current object.
+        /// A collection of additional information provided by the transport.
         /// </summary>
         public ReadOnlyContextBag Extensions { get; }
     }
