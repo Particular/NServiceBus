@@ -5,6 +5,7 @@ namespace NServiceBus
     using System.Linq;
     using System.Threading.Tasks;
     using Extensibility;
+    using Logging;
     using Pipeline;
     using Routing;
     using Unicast.Messages;
@@ -26,7 +27,19 @@ namespace NServiceBus
 
             var subscribers = await GetSubscribers(publishContext, typesToRoute).ConfigureAwait(false);
 
-            return SelectDestinationsForEachEndpoint(publishContext, distributionPolicy, subscribers);
+            var destinations = SelectDestinationsForEachEndpoint(publishContext, distributionPolicy, subscribers);
+
+            WarnIfNoSubscribersFound(messageType, destinations.Count);
+
+            return destinations;
+        }
+
+        void WarnIfNoSubscribersFound(Type messageType, int subscribersFound)
+        {
+            if (subscribersFound == 0)
+            {
+                logger.DebugFormat("No subscribers found for the event of type {0}.", messageType.FullName);
+            }
         }
 
         Dictionary<string, UnicastRoutingStrategy>.ValueCollection SelectDestinationsForEachEndpoint(IOutgoingPublishContext publishContext, IDistributionPolicy distributionPolicy, IEnumerable<Subscriber> subscribers)
@@ -85,5 +98,6 @@ namespace NServiceBus
         MessageMetadataRegistry messageMetadataRegistry;
         Func<EndpointInstance, string> transportAddressTranslation;
         ISubscriptionStorage subscriptionStorage;
+        static ILog logger = LogManager.GetLogger<UnicastPublishRouter>();
     }
 }

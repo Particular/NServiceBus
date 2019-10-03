@@ -2,9 +2,12 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.IO;
     using System.Linq;
+    using System.Text;
     using System.Threading.Tasks;
     using Extensibility;
+    using NServiceBus.Logging;
     using NServiceBus.Routing;
     using NUnit.Framework;
     using Testing;
@@ -19,6 +22,7 @@
         MessageMetadataRegistry metadataRegistry;
         EndpointInstances endpointInstances;
         FakeSubscriptionStorage subscriptionStorage;
+        static StringBuilder logStatements = new StringBuilder();
 
         [Test]
         public async Task When_subscriber_does_not_define_logical_endpoint_should_send_event_to_each_address()
@@ -92,11 +96,29 @@
             Assert.IsEmpty(routes);
         }
 
+        [Test]
+        public async Task When_no_subscribers_found_Should_log_at_debug_level()
+        {
+            await router.Route(typeof(Event), new DistributionPolicy(), new TestableOutgoingPublishContext());
+
+            var warning = $"No subscribers found for the event of type {typeof(Event).FullName}.";
+
+            StringAssert.Contains(warning, logStatements.ToString());
+            StringAssert.Contains(" DEBUG ", logStatements.ToString());
+        }
+
         static string ExtractDestination(UnicastRoutingStrategy route)
         {
             var headers = new Dictionary<string, string>();
             var addressTag = (UnicastAddressTag)route.Apply(headers);
             return addressTag.Destination;
+        }
+
+        [OneTimeSetUp]
+        public void LoggerSetup()
+        {
+            LogManager.Use<TestingLoggerFactory>()
+                .WriteTo(new StringWriter(logStatements));
         }
 
         [SetUp]
@@ -109,6 +131,8 @@
                 metadataRegistry,
                 i => string.Empty,
                 subscriptionStorage);
+
+            logStatements.Clear();
         }
 
         class FakeSubscriptionStorage : ISubscriptionStorage
