@@ -138,6 +138,7 @@
         public FakeOutboxPersistence()
         {
             Supports<StorageType.Outbox>(s => { });
+            Supports<StorageType.Sagas>(s => s.EnableFeatureByDefault<InMemorySagaPersistence>());
         }
     }
 }
