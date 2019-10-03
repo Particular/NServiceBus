@@ -57,7 +57,7 @@
                 && outboxPersisterType != null
                 && sagaPersisterType.DefinitionType != outboxPersisterType.DefinitionType)
             {
-                throw new Exception($"Sagas and Outbox need to use the same type of persistence. Saga is configured to use {sagaPersisterType.DefinitionType.Name}. Outbox is configured to use {outboxPersisterType.DefinitionType.Name}.");
+                throw new Exception($"Sagas and the Outbox need to use the same type of persistence. Saga persistence is configured to use {sagaPersisterType.DefinitionType.Name}. Outbox persistence is configured to use {outboxPersisterType.DefinitionType.Name}.");
             }
         }
 
