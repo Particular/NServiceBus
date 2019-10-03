@@ -6,7 +6,7 @@
     using EndpointTemplates;
     using NUnit.Framework;
 
-    class When_correlating_on_null : NServiceBusAcceptanceTest
+    class When_correlation_property_is_null : NServiceBusAcceptanceTest
     {
         [Test]
         public void Should_throw_an_exception_with_details()
@@ -21,7 +21,8 @@
                 .Done(c => c.FailedMessages.Count > 0)
                 .Run());
 
-            var errorMessage = $"Message of type {typeof(MessageWithNullCorrelationProperty).FullName} mapped to the saga of type {typeof(SagaWithCorrelationPropertyEndpoint.SagaWithCorrelatedProperty).FullName} has attempted to assigned a null to the correlation property {nameof(SagaWithCorrelationPropertyEndpoint.SagaDataWithCorrelatedProperty.CorrelatedProperty)}.";
+            var errorMessage = $"Message {typeof(MessageWithNullCorrelationProperty).FullName} mapped to the saga of type {typeof(SagaWithCorrelationPropertyEndpoint.SagaWithCorrelatedProperty).FullName} has attempted to assign null value to the correlation property {nameof(SagaWithCorrelationPropertyEndpoint.SagaDataWithCorrelatedProperty.CorrelatedProperty)}. Correlation properties cannot be assigned null.";
+            
             StringAssert.Contains(errorMessage, exception.FailedMessage.Exception.Message);
         }
 

@@ -298,7 +298,7 @@
             {
                 if (value.PropertyValue == null)
                 {
-                    throw new Exception($"Message of type {context.MessageMetadata.MessageType.FullName} mapped to the saga of type {metadata.SagaType.FullName} has attempted to assigned a null to the correlation property {value.PropertyName}.");
+                    throw new Exception($"Message {context.MessageMetadata.MessageType.FullName} mapped to the saga of type {metadata.SagaType.FullName} has attempted to assign null value to the correlation property {value.PropertyName}. Correlation properties cannot be assigned null.");
                 }
 
                 var propertyInfo = sagaEntityType.GetProperty(value.PropertyName);
