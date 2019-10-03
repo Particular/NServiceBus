@@ -25,7 +25,20 @@ namespace NServiceBus
                 var rootContext = pipelineComponent.CreateRootContext(childBuilder, messageContext.Extensions);
                 var transportReceiveContext = new TransportReceiveContext(message, messageContext.TransportTransaction, messageContext.ReceiveCancellationTokenSource, rootContext);
 
-                await transportReceiveContext.InvokePipeline<ITransportReceiveContext>().ConfigureAwait(false);
+                try
+                {
+                    await transportReceiveContext.InvokePipeline<ITransportReceiveContext>().ConfigureAwait(false);
+                }
+                catch (Exception e)
+                {
+                    e.Data.Add("Message ID", message.MessageId);
+                    if (message.NativeMessageId != message.MessageId)
+                    {
+                        e.Data.Add("Transport ID", message.NativeMessageId);
+                    }
+
+                    throw;
+                }
 
                 await transportReceiveContext.RaiseNotification(new ReceivePipelineCompleted(message, pipelineStartedAt, DateTime.UtcNow)).ConfigureAwait(false);
             }
