@@ -296,6 +296,11 @@
 
             if (lookupValues.TryGet(sagaEntityType, out var value))
             {
+                if (value.PropertyValue == null)
+                {
+                    throw new Exception($"Message of type {context.MessageMetadata.MessageType.FullName} mapped to the saga of type {metadata.SagaType.FullName} has attempted to assigned a null to the correlation property {value.PropertyName}.");
+                }
+
                 var propertyInfo = sagaEntityType.GetProperty(value.PropertyName);
 
                 var convertedValue = TypeDescriptor.GetConverter(propertyInfo.PropertyType)
