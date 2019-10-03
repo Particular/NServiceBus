@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.Core.Tests.Persistence
 {
     using System;
-    using System.Collections.Generic;
     using NServiceBus.Persistence;
     using NUnit.Framework;
     using Settings;
@@ -23,7 +22,6 @@
         public void Should_prevent_using_different_persistence_for_sagas_and_outbox()
         {
             var config = new EndpointConfiguration("MyEndpoint");
-            config.UsePersistence<InMemoryPersistence>();
             config.UsePersistence<FakeSagaPersistence, StorageType.Sagas>();
             config.UsePersistence<FakeOutboxPersistence, StorageType.Outbox>();
 
