@@ -41,7 +41,7 @@ namespace NServiceBus
             // set the started endpoint on CriticalError to pass the endpoint to the critical error action
             criticalError.SetEndpoint(runningInstance);
 
-            receiveComponent.Start();
+            await receiveComponent.Start().ConfigureAwait(false);
 
             return runningInstance;
         }
