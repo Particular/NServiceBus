@@ -16,7 +16,7 @@ namespace NServiceBus.Features
             var transportInfrastructure = context.Settings.Get<TransportInfrastructure>();
             var canReceive = !context.Settings.GetOrDefault<bool>("Endpoint.SendOnly");
 
-            context.Pipeline.Register(new MulticastPublishRouterBehavior(), "Determines how the published messages should be routed");
+            context.Pipeline.Register("MulticastPublishRouterBehavior", new MulticastPublishConnector(), "Determines how the published messages should be routed");
 
             if (canReceive)
             {

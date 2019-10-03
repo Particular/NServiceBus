@@ -31,7 +31,7 @@
             Guard.AgainstNull(nameof(options), options);
             Guard.AgainstNullAndEmpty(nameof(destination), destination);
 
-            options.Context.GetOrCreate<UnicastReplyRouterConnector.State>()
+            options.Context.GetOrCreate<ReplyConnector.State>()
                 .ExplicitDestination = destination;
         }
 
@@ -44,7 +44,7 @@
         {
             Guard.AgainstNull(nameof(options), options);
 
-            options.Context.TryGet(out UnicastReplyRouterConnector.State state);
+            options.Context.TryGet(out ReplyConnector.State state);
             return state?.ExplicitDestination;
         }
 

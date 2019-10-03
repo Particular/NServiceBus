@@ -16,7 +16,7 @@
     using TransportOperation = Transport.TransportOperation;
 
     [TestFixture]
-    public class TransportReceiveToPhysicalMessageProcessingConnectorTests
+    public class TransportReceiveToPhysicalMessageConnectorTests
     {
         [Test]
         public async Task Should_honor_stored_delivery_constraints()
@@ -121,7 +121,7 @@
             fakeOutbox = new FakeOutboxStorage();
             fakeBatchPipeline = new FakeBatchPipeline();
 
-            behavior = new TransportReceiveToPhysicalMessageProcessingConnector(fakeOutbox);
+            behavior = new TransportReceiveToPhysicalMessageConnector(fakeOutbox);
         }
 
         Task Invoke(ITransportReceiveContext context)
@@ -129,7 +129,7 @@
             return behavior.Invoke(context, c => TaskEx.CompletedTask);
         }
 
-        TransportReceiveToPhysicalMessageProcessingConnector behavior;
+        TransportReceiveToPhysicalMessageConnector behavior;
 
         FakeBatchPipeline fakeBatchPipeline;
         FakeOutboxStorage fakeOutbox;

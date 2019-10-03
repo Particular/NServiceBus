@@ -6,7 +6,7 @@ namespace NServiceBus
     using Routing;
     using Unicast.Queuing;
 
-    class UnicastReplyRouterConnector : StageConnector<IOutgoingReplyContext, IOutgoingLogicalMessageContext>
+    class ReplyConnector : StageConnector<IOutgoingReplyContext, IOutgoingLogicalMessageContext>
     {
         public override async Task Invoke(IOutgoingReplyContext context, Func<IOutgoingLogicalMessageContext, Task> stage)
         {

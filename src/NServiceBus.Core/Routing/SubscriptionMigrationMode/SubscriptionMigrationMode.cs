@@ -30,7 +30,7 @@
             context.Pipeline.Register(b =>
             {
                 var unicastPublishRouter = new UnicastPublishRouter(b.Build<MessageMetadataRegistry>(), i => transportInfrastructure.ToTransportAddress(LogicalAddress.CreateRemoteAddress(i)), b.Build<ISubscriptionStorage>());
-                return new MigrationRouterConnector(distributionPolicy, unicastPublishRouter);
+                return new MigrationModePublishConnector(distributionPolicy, unicastPublishRouter);
             }, "Determines how the published messages should be routed");
 
             if (canReceive)

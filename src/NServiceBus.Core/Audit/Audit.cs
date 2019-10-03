@@ -26,7 +26,7 @@
         {
             var auditConfig = context.Settings.Get<AuditConfigReader.Result>();
 
-            context.Pipeline.Register(new AuditToDispatchConnector(auditConfig.TimeToBeReceived), "Dispatches the audit message to the transport");
+            context.Pipeline.Register("AuditToDispatchConnector", new AuditToRoutingConnector(auditConfig.TimeToBeReceived), "Dispatches the audit message to the transport");
             context.Pipeline.Register("AuditProcessedMessage", new InvokeAuditPipelineBehavior(auditConfig.Address), "Execute the audit pipeline");
 
             context.Settings.Get<QueueBindings>().BindSending(auditConfig.Address);

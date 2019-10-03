@@ -1,4 +1,4 @@
-namespace NServiceBus
+﻿namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
@@ -8,29 +8,36 @@ namespace NServiceBus
     using Routing;
     using Unicast.Queuing;
 
-    class UnicastPublishRouterConnector : StageConnector<IOutgoingPublishContext, IOutgoingLogicalMessageContext>
+    class MigrationModePublishConnector : StageConnector<IOutgoingPublishContext, IOutgoingLogicalMessageContext>
     {
-        public UnicastPublishRouterConnector(IUnicastPublishRouter unicastPublishRouter, DistributionPolicy distributionPolicy)
+        public MigrationModePublishConnector(DistributionPolicy distributionPolicy, IUnicastPublishRouter unicastPublishRouter)
         {
-            this.unicastPublishRouter = unicastPublishRouter;
             this.distributionPolicy = distributionPolicy;
+            this.unicastPublishRouter = unicastPublishRouter;
         }
 
         public override async Task Invoke(IOutgoingPublishContext context, Func<IOutgoingLogicalMessageContext, Task> stage)
         {
+            context.Headers[Headers.MessageIntent] = MessageIntentEnum.Publish.ToString();
+
             var eventType = context.Message.MessageType;
             var addressLabels = await GetRoutingStrategies(context, eventType).ConfigureAwait(false);
-            if (addressLabels.Count == 0)
-            {
-                //No subscribers for this message.
-                return;
-            }
 
-            context.Headers[Headers.MessageIntent] = MessageIntentEnum.Publish.ToString();
+            var routingStrategies = new List<RoutingStrategy>
+            {
+                new MulticastRoutingStrategy(context.Message.MessageType)
+            };
+
+            routingStrategies.AddRange(addressLabels);
+
+            var logicalMessageContext = this.CreateOutgoingLogicalMessageContext(
+                context.Message,
+                routingStrategies,
+                context);
 
             try
             {
-                await stage(this.CreateOutgoingLogicalMessageContext(context.Message, addressLabels, context)).ConfigureAwait(false);
+                await stage(logicalMessageContext).ConfigureAwait(false);
             }
             catch (QueueNotFoundException ex)
             {

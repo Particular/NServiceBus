@@ -5,7 +5,7 @@ namespace NServiceBus
     using Pipeline;
     using Routing;
 
-    class MulticastPublishRouterBehavior : StageConnector<IOutgoingPublishContext, IOutgoingLogicalMessageContext>
+    class MulticastPublishConnector : StageConnector<IOutgoingPublishContext, IOutgoingLogicalMessageContext>
     {
         public override Task Invoke(IOutgoingPublishContext context, Func<IOutgoingLogicalMessageContext, Task> stage)
         {

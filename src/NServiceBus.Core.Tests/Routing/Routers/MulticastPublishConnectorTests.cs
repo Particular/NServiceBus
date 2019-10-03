@@ -5,12 +5,12 @@
     using Testing;
 
     [TestFixture]
-    public class MulticastPublishRouterBehaviorTests
+    public class MulticastPublishConnectorTests
     {
         [Test]
         public async Task Should_set_messageintent_to_publish()
         {
-            var router = new MulticastPublishRouterBehavior();
+            var router = new MulticastPublishConnector();
             var context = new TestableOutgoingPublishContext();
 
             await router.Invoke(context, ctx => TaskEx.CompletedTask);

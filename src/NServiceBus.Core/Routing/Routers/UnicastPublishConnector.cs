@@ -1,4 +1,4 @@
-﻿namespace NServiceBus
+namespace NServiceBus
 {
     using System;
     using System.Collections.Generic;
@@ -8,36 +8,29 @@
     using Routing;
     using Unicast.Queuing;
 
-    class MigrationRouterConnector : StageConnector<IOutgoingPublishContext, IOutgoingLogicalMessageContext>
+    class UnicastPublishConnector : StageConnector<IOutgoingPublishContext, IOutgoingLogicalMessageContext>
     {
-        public MigrationRouterConnector(DistributionPolicy distributionPolicy, IUnicastPublishRouter unicastPublishRouter)
+        public UnicastPublishConnector(IUnicastPublishRouter unicastPublishRouter, DistributionPolicy distributionPolicy)
         {
-            this.distributionPolicy = distributionPolicy;
             this.unicastPublishRouter = unicastPublishRouter;
+            this.distributionPolicy = distributionPolicy;
         }
 
         public override async Task Invoke(IOutgoingPublishContext context, Func<IOutgoingLogicalMessageContext, Task> stage)
         {
-            context.Headers[Headers.MessageIntent] = MessageIntentEnum.Publish.ToString();
-
             var eventType = context.Message.MessageType;
             var addressLabels = await GetRoutingStrategies(context, eventType).ConfigureAwait(false);
-
-            var routingStrategies = new List<RoutingStrategy>
+            if (addressLabels.Count == 0)
             {
-                new MulticastRoutingStrategy(context.Message.MessageType)
-            };
+                //No subscribers for this message.
+                return;
+            }
 
-            routingStrategies.AddRange(addressLabels);
-
-            var logicalMessageContext = this.CreateOutgoingLogicalMessageContext(
-                context.Message,
-                routingStrategies,
-                context);
+            context.Headers[Headers.MessageIntent] = MessageIntentEnum.Publish.ToString();
 
             try
             {
-                await stage(logicalMessageContext).ConfigureAwait(false);
+                await stage(this.CreateOutgoingLogicalMessageContext(context.Message, addressLabels, context)).ConfigureAwait(false);
             }
             catch (QueueNotFoundException ex)
             {

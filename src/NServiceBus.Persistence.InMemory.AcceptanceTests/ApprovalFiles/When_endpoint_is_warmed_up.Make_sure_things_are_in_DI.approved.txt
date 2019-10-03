@@ -4,7 +4,7 @@ NServiceBus.LoadHandlersConnector - InstancePerCall
 NServiceBus.StorageInitializer+CallInit - SingleInstance
 NServiceBus.SubscriptionReceiverBehavior - InstancePerCall
 NServiceBus.Transport.IDispatchMessages - SingleInstance
-NServiceBus.TransportReceiveToPhysicalMessageProcessingConnector - InstancePerCall
+NServiceBus.TransportReceiveToPhysicalMessageConnector - InstancePerCall
 NServiceBus.Unicast.MessageHandlerRegistry - SingleInstance
 ----------- Likely unused components (Remove in next major if possible) -----------
 NServiceBus.CriticalError - SingleInstance

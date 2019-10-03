@@ -27,9 +27,9 @@ namespace NServiceBus
         {
             Guard.AgainstNullAndEmpty(nameof(key), key);
             Guard.AgainstNullAndEmpty(nameof(value), value);
-            if (!Extensions.TryGet(out AuditToDispatchConnector.State state))
+            if (!Extensions.TryGet(out AuditToRoutingConnector.State state))
             {
-                state = new AuditToDispatchConnector.State();
+                state = new AuditToRoutingConnector.State();
                 Extensions.Set(state);
             }
             state.AuditValues[key] = value;

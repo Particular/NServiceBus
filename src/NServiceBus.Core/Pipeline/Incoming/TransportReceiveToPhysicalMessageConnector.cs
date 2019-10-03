@@ -12,9 +12,9 @@ namespace NServiceBus
     using Transport;
     using TransportOperation = Outbox.TransportOperation;
 
-    class TransportReceiveToPhysicalMessageProcessingConnector : IStageForkConnector<ITransportReceiveContext, IIncomingPhysicalMessageContext, IBatchDispatchContext>
+    class TransportReceiveToPhysicalMessageConnector : IStageForkConnector<ITransportReceiveContext, IIncomingPhysicalMessageContext, IBatchDispatchContext>
     {
-        public TransportReceiveToPhysicalMessageProcessingConnector(IOutboxStorage outboxStorage)
+        public TransportReceiveToPhysicalMessageConnector(IOutboxStorage outboxStorage)
         {
             this.outboxStorage = outboxStorage;
         }

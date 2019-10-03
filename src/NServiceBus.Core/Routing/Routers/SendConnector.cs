@@ -5,9 +5,9 @@ namespace NServiceBus
     using Pipeline;
     using Unicast.Queuing;
 
-    class UnicastSendRouterConnector : StageConnector<IOutgoingSendContext, IOutgoingLogicalMessageContext>
+    class SendConnector : StageConnector<IOutgoingSendContext, IOutgoingLogicalMessageContext>
     {
-        public UnicastSendRouterConnector(UnicastSendRouter unicastSendRouter)
+        public SendConnector(UnicastSendRouter unicastSendRouter)
         {
             this.unicastSendRouter = unicastSendRouter;
         }

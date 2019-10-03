@@ -13,7 +13,7 @@
         [Test]
         public async Task Should_use_to_all_subscribers_strategy()
         {
-            var behavior = new MulticastPublishRouterBehavior();
+            var behavior = new MulticastPublishConnector();
 
             var context = new TestableOutgoingPublishContext
             {

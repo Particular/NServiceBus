@@ -8,9 +8,9 @@ namespace NServiceBus
     using Pipeline;
     using Routing;
 
-    class AuditToDispatchConnector : StageConnector<IAuditContext, IRoutingContext>
+    class AuditToRoutingConnector : StageConnector<IAuditContext, IRoutingContext>
     {
-        public AuditToDispatchConnector(TimeSpan? timeToBeReceived)
+        public AuditToRoutingConnector(TimeSpan? timeToBeReceived)
         {
             this.timeToBeReceived = timeToBeReceived;
         }
