@@ -21,7 +21,7 @@
             var resultingSupportedStorages = new List<Type>();
             var diagnostics = new Dictionary<string, object>();
 
-            ValidateSagaAndOutboxPersistence(enabledPersistences);
+            ValidateSagaAndOutboxUseSamePersistence(enabledPersistences);
 
             foreach (var definition in enabledPersistences)
             {
@@ -48,7 +48,7 @@
             settings.AddStartupDiagnosticsSection("Persistence", diagnostics);
         }
 
-        static void ValidateSagaAndOutboxPersistence(List<EnabledPersistence> enabledPersistences)
+        static void ValidateSagaAndOutboxUseSamePersistence(List<EnabledPersistence> enabledPersistences)
         {
             var sagaPersisterType = enabledPersistences.FirstOrDefault(p => p.SelectedStorages.Contains(typeof(StorageType.Sagas)));
             var outboxPersisterType = enabledPersistences.FirstOrDefault(p => p.SelectedStorages.Contains(typeof(StorageType.Outbox)));
