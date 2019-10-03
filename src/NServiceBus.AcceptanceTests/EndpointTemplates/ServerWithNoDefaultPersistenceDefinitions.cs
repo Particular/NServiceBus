@@ -35,7 +35,7 @@
                 .Immediate(immediate => immediate.NumberOfRetries(0));
             builder.SendFailedMessagesTo("error");
 
-            await builder.DefineTransport(runDescriptor, endpointConfiguration).ConfigureAwait(false);
+            await builder.DefineTransport(TestSuiteConstraints.Current.CreateTransportConfiguration(), runDescriptor, endpointConfiguration).ConfigureAwait(false);
 
             builder.RegisterComponentsAndInheritanceHierarchy(runDescriptor);
 

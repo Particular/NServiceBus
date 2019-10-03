@@ -43,12 +43,7 @@
                 configurationBuilderCustomization = b => { };
             }
 
-            publisherMetadata?.Invoke(configuration.PublisherMetadata);
-
-            return EndpointSetup<T>((bc, esc) =>
-            {
-                configurationBuilderCustomization(bc);
-            });
+            return EndpointSetup<T>((bc, _) => configurationBuilderCustomization(bc), publisherMetadata);
         }
 
         public EndpointConfigurationBuilder EndpointSetup<T>(Action<EndpointConfiguration, RunDescriptor> configurationBuilderCustomization, Action<PublisherMetadata> publisherMetadata = null) where T : IEndpointSetupTemplate, new()
@@ -58,12 +53,17 @@
                 configurationBuilderCustomization = (rd, b) => { };
             }
 
+            var template = new T();
+            return EndpointSetup(template, configurationBuilderCustomization, publisherMetadata);
+        }
+
+        public EndpointConfigurationBuilder EndpointSetup(IEndpointSetupTemplate endpointTemplate, Action<EndpointConfiguration, RunDescriptor> configurationBuilderCustomization, Action<PublisherMetadata> publisherMetadata = null)
+        {
             publisherMetadata?.Invoke(configuration.PublisherMetadata);
 
             configuration.GetConfiguration = async runDescriptor =>
             {
-                var endpointSetupTemplate = new T();
-                var endpointConfiguration = await endpointSetupTemplate.GetConfiguration(runDescriptor, configuration, bc =>
+                var endpointConfiguration = await endpointTemplate.GetConfiguration(runDescriptor, configuration, bc =>
                 {
                     configurationBuilderCustomization(bc, runDescriptor);
                 }).ConfigureAwait(false);
