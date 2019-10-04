@@ -90,7 +90,7 @@ namespace NServiceBus
                     report.AppendLine(item);
                 }
 
-                Logger.Debug(report.ToString());
+                Logger.Debug(report.ToString().TrimEnd('\r','\n'));
             }
             else
             {
@@ -99,7 +99,7 @@ namespace NServiceBus
                     report.AppendLine(item);
                 }
 
-                Logger.Info(report.ToString());
+                Logger.Info(report.ToString().TrimEnd('\r', '\n'));
             }
 
 #if REGISTRYLICENSESOURCE
