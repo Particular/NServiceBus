@@ -60,11 +60,7 @@
                     recoverability.Immediate(settings =>
                     {
                         settings.NumberOfRetries(3);
-                        settings.OnMessageBeingRetried(retry =>
-                        {
-                            testContext.TotalNumberOfImmediateRetriesEventInvocations++;
-                            return Task.FromResult(0);
-                        });
+                        settings.OnMessageBeingRetried(_ => testContext.TotalNumberOfImmediateRetriesEventInvocations++);
                     });
                     recoverability.Delayed(settings =>
                     {
