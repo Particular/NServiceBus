@@ -30,12 +30,13 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// 
+        /// Registers a callback when a message fails processing and will be moved to the error queue.
         /// </summary>
         public RetryFailedSettings OnMessageSentToErrorQueue(Func<FailedMessage, Task> notificationCallback)
         {
-            var subscriptions = Settings.Get<NotificationSubscriptions>();
+            Guard.AgainstNull(nameof(notificationCallback), notificationCallback);
 
+            var subscriptions = Settings.Get<NotificationSubscriptions>();
             subscriptions.Subscribe<MessageFaulted>(faulted =>
             {
                 var headerCopy = new Dictionary<string, string>(faulted.Message.Headers);
