@@ -34,7 +34,7 @@ namespace NServiceBus
                     e.Data.Add("Message ID", message.MessageId);
                     if (message.NativeMessageId != message.MessageId)
                     {
-                        e.Data.Add("Transport ID", message.NativeMessageId);
+                        e.Data.Add("Transport message ID", message.NativeMessageId);
                     }
 
                     throw;

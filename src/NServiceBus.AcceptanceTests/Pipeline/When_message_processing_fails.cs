@@ -16,7 +16,7 @@
                     .When(s => s.SendLocal(new FailingMessage()))
                     .DoNotFailOnErrorMessages())
                 .Done(c => c.MessageFailed)
-                .Run(TimeSpan.FromSeconds(10));
+                .Run();
 
             Assert.IsTrue(context.Exception.Data.Contains("Message type"));
             Assert.IsTrue(context.Exception.Data.Contains("Handler type"));
