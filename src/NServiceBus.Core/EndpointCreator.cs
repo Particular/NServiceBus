@@ -109,6 +109,9 @@ namespace NServiceBus
 
             pipelineComponent.AddRootContextItem<IEventAggregator>(eventAggregator);
 
+            queueBindings = settings.Get<QueueBindings>();
+            receiveComponent = CreateReceiveComponent(receiveConfiguration, transportInfrastructure, pipelineComponent, queueBindings, eventAggregator);
+
             installationComponent = new InstallationComponent(settings);
 
             installationComponent.Initialize(concreteTypes, containerComponent, receiveComponent);
@@ -121,9 +124,6 @@ namespace NServiceBus
                     NServiceBusVersion = GitVersionInformation.MajorMinorPatch
                 }
             );
-
-            queueBindings = settings.Get<QueueBindings>();
-            receiveComponent = CreateReceiveComponent(receiveConfiguration, transportInfrastructure, pipelineComponent, queueBindings, eventAggregator);
         }
 
         public void UseExternallyManagedBuilder(IBuilder builder)
