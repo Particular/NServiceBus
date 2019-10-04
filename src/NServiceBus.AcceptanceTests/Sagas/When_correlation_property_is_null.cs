@@ -12,9 +12,9 @@
         public void Should_throw_an_exception_with_details()
         {
             var exception = Assert.ThrowsAsync<MessageFailedException>(async () => await Scenario.Define<ScenarioContext>()
-                .WithEndpoint<SagaWithCorrelationPropertyEndpoint>(e =>
-                    e.When(s =>
-                        s.SendLocal(new MessageWithNullCorrelationProperty
+                .WithEndpoint<SagaWithCorrelationPropertyEndpoint>(e => e
+                    .When(s => s
+                        .SendLocal(new MessageWithNullCorrelationProperty
                         {
                             CorrelationProperty = null
                         })))
@@ -40,14 +40,14 @@
 
             public class SagaWithCorrelatedProperty : Saga<SagaDataWithCorrelatedProperty>, IAmStartedByMessages<MessageWithNullCorrelationProperty>
             {
+                public Task Handle(MessageWithNullCorrelationProperty message, IMessageHandlerContext context)
+                {
+                    return Task.FromResult(0);
+                }
+
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaDataWithCorrelatedProperty> mapper)
                 {
                     mapper.ConfigureMapping<MessageWithNullCorrelationProperty>(m => m.CorrelationProperty).ToSaga(s => s.CorrelatedProperty);
-                }
-
-                public Task Handle(MessageWithNullCorrelationProperty message, IMessageHandlerContext context)
-                {
-                    return Task.FromResult(true);
                 }
             }
         }
