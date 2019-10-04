@@ -31,7 +31,7 @@ namespace NServiceBus
                 var sagaEntityName = saga.Metadata.Name;
                 var messageName = finderDefinition.MessageTypeName;
 
-                throw new Exception($"Message {messageName} mapped to the saga of type {sagaEntityName} has attempted to assign null value to the correlation property {sagaPropertyName}. Correlation properties cannot be assigned null.");
+                throw new Exception($"Message {messageName} mapped to saga {sagaEntityName} has attempted to assign null to the correlation property {sagaPropertyName}. Correlation properties cannot be assigned null.");
             }
 
             if (sagaPropertyName.ToLower() == "id")
