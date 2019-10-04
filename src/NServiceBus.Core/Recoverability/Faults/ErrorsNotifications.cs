@@ -41,7 +41,9 @@ namespace NServiceBus.Faults
             MessageSentToErrorQueue?.Invoke(this, new FailedMessage(
                 message.MessageId,
                 new Dictionary<string, string>(message.Headers),
-                CopyOfBody(message.Body), exception, errorQueue));
+                message.Body.Copy(),
+                exception,
+                errorQueue));
         }
 
         internal void InvokeMessageHasFailedAnImmediateRetryAttempt(int immediateRetryAttempt, IncomingMessage message, Exception exception)
@@ -49,7 +51,7 @@ namespace NServiceBus.Faults
             MessageHasFailedAnImmediateRetryAttempt?.Invoke(this, new ImmediateRetryMessage(
                 message.MessageId,
                 new Dictionary<string, string>(message.Headers),
-                CopyOfBody(message.Body),
+                message.Body.Copy(),
                 exception,
                 immediateRetryAttempt));
         }
@@ -59,23 +61,9 @@ namespace NServiceBus.Faults
             MessageHasBeenSentToDelayedRetries?.Invoke(this, new DelayedRetryMessage(
                 message.MessageId,
                 new Dictionary<string, string>(message.Headers),
-                CopyOfBody(message.Body),
+                message.Body.Copy(),
                 exception,
                 delayedRetryAttempt));
-        }
-
-        static byte[] CopyOfBody(byte[] body)
-        {
-            if (body == null)
-            {
-                return null;
-            }
-
-            var copyBody = new byte[body.Length];
-
-            Buffer.BlockCopy(body, 0, copyBody, 0, body.Length);
-
-            return copyBody;
         }
     }
 }

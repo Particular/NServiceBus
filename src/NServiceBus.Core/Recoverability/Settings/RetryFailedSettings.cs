@@ -39,25 +39,11 @@ namespace NServiceBus
             subscriptions.Subscribe<MessageFaulted>(faulted =>
             {
                 var headerCopy = new Dictionary<string, string>(faulted.Message.Headers);
-                var bodyCopy = CopyOfBody(faulted.Message.Body);
+                var bodyCopy = faulted.Message.Body.Copy();
                 return notificationCallback(new FailedMessage(faulted.Message.MessageId, headerCopy, bodyCopy, faulted.Exception, faulted.ErrorQueue));
             });
 
             return this;
-
-            byte[] CopyOfBody(byte[] body)
-            {
-                if (body == null)
-                {
-                    return null;
-                }
-
-                var copyBody = new byte[body.Length];
-
-                Buffer.BlockCopy(body, 0, copyBody, 0, body.Length);
-
-                return copyBody;
-            }
         }
     }
 }

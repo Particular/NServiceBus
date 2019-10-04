@@ -156,7 +156,7 @@ namespace NServiceBus
 
             static IContainSagaData DeepCopy(IContainSagaData source)
             {
-                return source.Copy();
+                return source.DeepCopy();
             }
 
             public IContainSagaData GetSagaCopy()
