@@ -133,6 +133,8 @@ namespace NServiceBus
 
         public async Task<IStartableEndpoint> CreateStartableEndpoint()
         {
+            // This is the only component that is started before the user actually calls .Start(). This is due to an old "feature" that allowed users to
+            // run installers by "just creating the endpoint". See https://docs.particular.net/nservicebus/operations/installers#running-installers for more details.
             await installationComponent.Start().ConfigureAwait(false);
 
             return new StartableEndpoint(settings, containerComponent, featureComponent, transportInfrastructure, receiveComponent, criticalError, pipelineComponent, recoverabilityComponent);

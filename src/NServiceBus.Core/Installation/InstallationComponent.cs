@@ -75,6 +75,7 @@
         ContainerComponent containerComponent;
         ReceiveComponent receiveComponent;
         bool shouldRunInstallers;
+
         static bool IsINeedToInstallSomething(Type t) => typeof(INeedToInstallSomething).IsAssignableFrom(t);
     }
 }
