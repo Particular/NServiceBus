@@ -52,11 +52,7 @@
                     config.EnableFeature<TimeoutManager>();
 
                     var recoverability = config.Recoverability();
-                    recoverability.Failed(f => f.OnMessageSentToErrorQueue(failedMessage =>
-                    {
-                        testContext.MessageSentToError = true;
-                        return Task.FromResult(0);
-                    }));
+                    recoverability.Failed(f => f.OnMessageSentToErrorQueue(_ => testContext.MessageSentToError = true));
                     recoverability.Immediate(settings =>
                     {
                         settings.NumberOfRetries(3);

@@ -43,11 +43,7 @@
                 EndpointSetup<DefaultServer>((config, context) =>
                 {
                     var scenarioContext = (Context) context.ScenarioContext;
-                    config.Recoverability().Failed(f => f.OnMessageSentToErrorQueue(message =>
-                    {
-                        scenarioContext.ForwardedToErrorQueue = true;
-                        return Task.FromResult(0);
-                    }));
+                    config.Recoverability().Failed(f => f.OnMessageSentToErrorQueue(_ => scenarioContext.ForwardedToErrorQueue = true));
 
                     var recoverability = config.Recoverability();
                     recoverability.Immediate(immediate => immediate.NumberOfRetries(numberOfRetries));
