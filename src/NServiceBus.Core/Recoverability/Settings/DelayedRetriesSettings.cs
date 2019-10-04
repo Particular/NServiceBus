@@ -41,12 +41,13 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// 
+        /// Registers a callback which is invoked when a message fails processing and will be retried after a delay.
         /// </summary>
         public DelayedRetriesSettings OnMessageBeingRetried(Func<DelayedRetryMessage, Task> notificationCallback)
         {
-            var subscriptions = Settings.Get<NotificationSubscriptions>();
+            Guard.AgainstNull(nameof(notificationCallback), notificationCallback);
 
+            var subscriptions = Settings.Get<NotificationSubscriptions>();
             subscriptions.Subscribe<MessageToBeRetried>(retry =>
             {
                 if (retry.IsImmediateRetry)
@@ -61,6 +62,5 @@ namespace NServiceBus
 
             return this;
         }
-
     }
 }
