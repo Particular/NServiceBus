@@ -18,10 +18,9 @@ namespace NServiceBus
         {
             var pipelineStartedAt = DateTime.UtcNow;
 
-            var message = new IncomingMessage(messageContext.MessageId, messageContext.Headers, messageContext.Body);
             using (var childBuilder = builder.CreateChildBuilder())
             {
-                
+                var message = new IncomingMessage(messageContext.MessageId, messageContext.Headers, messageContext.Body);
 
                 var rootContext = pipelineComponent.CreateRootContext(childBuilder, messageContext.Extensions);
                 var transportReceiveContext = new TransportReceiveContext(message, messageContext.TransportTransaction, messageContext.ReceiveCancellationTokenSource, rootContext);
@@ -30,8 +29,6 @@ namespace NServiceBus
 
                 await transportReceiveContext.RaiseNotification(new ReceivePipelineCompleted(message, pipelineStartedAt, DateTime.UtcNow)).ConfigureAwait(false);
             }
-
-            
         }
 
         readonly IBuilder builder;
