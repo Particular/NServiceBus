@@ -42,7 +42,11 @@
                 {
                     var scenarioContext = (Context) context.ScenarioContext;
                     configure.Recoverability().Immediate(immediate => immediate.NumberOfRetries(0));
-                    configure.Notifications.Errors.MessageSentToErrorQueue += (sender, message) => scenarioContext.GaveUp = true;
+                    configure.Recoverability().Failed(f => f.OnMessageSentToErrorQueue(message =>
+                    {
+                        scenarioContext.GaveUp = true;
+                        return Task.FromResult(0);
+                    }));
                 });
             }
 

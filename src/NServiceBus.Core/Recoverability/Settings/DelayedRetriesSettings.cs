@@ -1,7 +1,10 @@
 namespace NServiceBus
 {
     using System;
+    using System.Collections.Generic;
+    using System.Threading.Tasks;
     using Configuration.AdvancedExtensibility;
+    using Faults;
     using Settings;
 
     /// <summary>
@@ -36,5 +39,42 @@ namespace NServiceBus
 
             return this;
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public DelayedRetriesSettings OnMessageBeingRetried(Func<DelayedRetryMessage, Task> notificationCallback)
+        {
+            var subscriptions = Settings.Get<NotificationSubscriptions>();
+
+            subscriptions.Subscribe<MessageToBeRetried>(retry =>
+            {
+                if (retry.IsImmediateRetry)
+                {
+                    return TaskEx.CompletedTask;
+                }
+
+                var headerCopy = new Dictionary<string, string>(retry.Message.Headers);
+                var bodyCopy = CopyOfBody(retry.Message.Body);
+                return notificationCallback(new DelayedRetryMessage(retry.Message.MessageId, headerCopy, bodyCopy, retry.Exception, retry.Attempt));
+            });
+
+            return this;
+
+            byte[] CopyOfBody(byte[] body)
+            {
+                if (body == null)
+                {
+                    return null;
+                }
+
+                var copyBody = new byte[body.Length];
+
+                Buffer.BlockCopy(body, 0, copyBody, 0, body.Length);
+
+                return copyBody;
+            }
+        }
+
     }
 }
