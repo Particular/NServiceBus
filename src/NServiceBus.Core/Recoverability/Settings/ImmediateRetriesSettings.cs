@@ -29,12 +29,13 @@ namespace NServiceBus
         }
 
         /// <summary>
-        /// 
+        /// Registers a callback which is invoked when a message fails processing and will be immediately retried.
         /// </summary>
         public ImmediateRetriesSettings OnMessageBeingRetried(Func<ImmediateRetryMessage, Task> notificationCallback)
         {
-            var subscriptions = Settings.Get<NotificationSubscriptions>();
+            Guard.AgainstNull(nameof(notificationCallback), notificationCallback);
 
+            var subscriptions = Settings.Get<NotificationSubscriptions>();
             subscriptions.Subscribe<MessageToBeRetried>(retry =>
             {
                 if (!retry.IsImmediateRetry)
