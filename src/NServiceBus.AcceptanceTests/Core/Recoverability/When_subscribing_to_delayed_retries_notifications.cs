@@ -70,7 +70,6 @@
                         {
                             testContext.NumberOfDelayedRetriesPerformed++;
                             testContext.LastDelayedRetryInfo = retry;
-                            return Task.FromResult(0);
                         });
                     });
                 });

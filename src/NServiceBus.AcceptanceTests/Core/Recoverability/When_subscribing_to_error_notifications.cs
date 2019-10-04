@@ -59,11 +59,7 @@
                     {
                         settings.NumberOfRetries(2);
                         settings.TimeIncrease(TimeSpan.FromMilliseconds(1));
-                        settings.OnMessageBeingRetried(retry =>
-                        {
-                            testContext.NumberOfDelayedRetriesPerformed++;
-                            return Task.FromResult(0);
-                        });
+                        settings.OnMessageBeingRetried(_ => testContext.NumberOfDelayedRetriesPerformed++);
                     });
                     recoverability.Immediate(settings =>
                     {

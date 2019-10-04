@@ -43,6 +43,20 @@ namespace NServiceBus
         /// <summary>
         /// Registers a callback which is invoked when a message fails processing and will be retried after a delay.
         /// </summary>
+        public DelayedRetriesSettings OnMessageBeingRetried(Action<DelayedRetryMessage> notificationCallback)
+        {
+            Guard.AgainstNull(nameof(notificationCallback), notificationCallback);
+
+            return OnMessageBeingRetried(x =>
+            {
+                notificationCallback(x);
+                return TaskEx.CompletedTask;
+            });
+        }
+
+        /// <summary>
+        /// Registers a callback which is invoked when a message fails processing and will be retried after a delay.
+        /// </summary>
         public DelayedRetriesSettings OnMessageBeingRetried(Func<DelayedRetryMessage, Task> notificationCallback)
         {
             Guard.AgainstNull(nameof(notificationCallback), notificationCallback);
