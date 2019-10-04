@@ -22,7 +22,7 @@
                 .Run());
 
             var errorMessage = $"Message {typeof(MessageWithNullCorrelationProperty).FullName} mapped to the saga of type {typeof(SagaWithCorrelationPropertyEndpoint.SagaWithCorrelatedProperty).FullName} has attempted to assign null value to the correlation property {nameof(SagaWithCorrelationPropertyEndpoint.SagaDataWithCorrelatedProperty.CorrelatedProperty)}. Correlation properties cannot be assigned null.";
-            
+
             StringAssert.Contains(errorMessage, exception.FailedMessage.Exception.Message);
         }
 
@@ -40,7 +40,6 @@
 
             public class SagaWithCorrelatedProperty : Saga<SagaDataWithCorrelatedProperty>, IAmStartedByMessages<MessageWithNullCorrelationProperty>
             {
-
                 protected override void ConfigureHowToFindSaga(SagaPropertyMapper<SagaDataWithCorrelatedProperty> mapper)
                 {
                     mapper.ConfigureMapping<MessageWithNullCorrelationProperty>(m => m.CorrelationProperty).ToSaga(s => s.CorrelatedProperty);
