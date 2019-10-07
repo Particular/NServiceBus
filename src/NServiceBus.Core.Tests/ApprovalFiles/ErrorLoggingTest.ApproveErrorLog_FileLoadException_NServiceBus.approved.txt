@@ -3,7 +3,6 @@ Exceptions:
 System.Exception: Generic exception 1
 System.Exception: Generic exception 2
 
-
 Try to add the following binding redirects to the config file:
 <runtime>
     <assemblyBinding xmlns="urn:schemas-microsoft-com:asm.v1">

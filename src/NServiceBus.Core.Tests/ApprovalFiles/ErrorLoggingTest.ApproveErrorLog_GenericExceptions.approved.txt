@@ -2,4 +2,3 @@ Could not enumerate all types for 'MyFile'.
 Exceptions:
 System.Exception: Generic exception 1
 System.Exception: Generic exception 2
-
