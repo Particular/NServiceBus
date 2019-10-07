@@ -217,7 +217,7 @@ namespace NServiceBus.Hosting.Helpers
             return referencedAssembly;
         }
 
-        static string FormatReflectionTypeLoadException(string fileName, ReflectionTypeLoadException e)
+        internal static string FormatReflectionTypeLoadException(string fileName, ReflectionTypeLoadException e)
         {
             var sb = new StringBuilder();
 

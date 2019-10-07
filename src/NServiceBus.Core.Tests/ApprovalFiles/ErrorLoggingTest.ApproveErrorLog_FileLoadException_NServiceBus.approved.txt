@@ -1,0 +1,15 @@
+Could not enumerate all types for 'MyFile'.
+Exceptions:
+System.Exception: Generic exception 1
+System.Exception: Generic exception 2
+
+
+Try to add the following binding redirects to the config file:
+<runtime>
+    <assemblyBinding xmlns="urn:schemas-microsoft-com:asm.v1">
+        <dependentAssembly>
+            <assemblyIdentity name="NServiceBus.Core" publicKeyToken="9fc386479f8a226c" culture="neutral" />
+            <bindingRedirect oldVersion="0.0.0.0-7.0.0.0" newVersion="7.0.0.0" />
+        </dependentAssembly>
+    </assemblyBinding>
+</runtime>
