@@ -33,7 +33,7 @@ namespace NServiceBus
             return receiver.Init(c => pipelineExecutor.Invoke(c), c => recoverabilityExecutor.Invoke(c), criticalError, pushSettings);
         }
 
-        public void Start()
+        public Task Start()
         {
             if (isStarted)
             {
@@ -45,6 +45,8 @@ namespace NServiceBus
             receiver.Start(pushRuntimeSettings);
 
             isStarted = true;
+
+            return Task.FromResult(0);
         }
 
         public async Task Stop()

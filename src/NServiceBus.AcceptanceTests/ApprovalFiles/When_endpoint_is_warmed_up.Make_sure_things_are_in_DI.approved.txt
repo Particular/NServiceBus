@@ -1,9 +1,7 @@
 ----------- Actively used components (Find ways to stop accessing them)-----------
 NServiceBus.Hosting.HostInformation - SingleInstance
-NServiceBus.LoadHandlersConnector - InstancePerCall
 NServiceBus.StorageInitializer+CallInit - SingleInstance
 NServiceBus.Transport.IDispatchMessages - SingleInstance
-NServiceBus.TransportReceiveToPhysicalMessageConnector - InstancePerCall
 NServiceBus.Unicast.MessageHandlerRegistry - SingleInstance
 ----------- Likely unused components (Remove in next major if possible) -----------
 NServiceBus.CriticalError - SingleInstance

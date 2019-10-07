@@ -17,9 +17,9 @@
         }
 
         [Test]
-        public void Start_should_start_the_pump()
+        public async Task Start_should_start_the_pump()
         {
-            receiver.Start();
+            await receiver.Start();
 
             Assert.IsTrue(pump.Started);
         }
@@ -29,13 +29,13 @@
         {
             pump.ThrowOnStart = true;
 
-            Assert.Throws<InvalidOperationException>(() => receiver.Start());
+            Assert.ThrowsAsync<InvalidOperationException>(async () => await receiver.Start());
         }
 
         [Test]
         public async Task Stop_should_stop_the_pump()
         {
-            receiver.Start();
+            await receiver.Start();
 
             await receiver.Stop();
 
@@ -43,11 +43,11 @@
         }
 
         [Test]
-        public void Stop_should_not_throw_when_pump_throws()
+        public async Task Stop_should_not_throw_when_pump_throws()
         {
             pump.ThrowOnStop = true;
 
-            receiver.Start();
+            await receiver.Start();
 
             Assert.DoesNotThrowAsync(async () => await receiver.Stop());
         }
@@ -55,7 +55,7 @@
         [Test]
         public async Task Stop_should_dispose_pump() // for container backward compat reasons
         {
-            receiver.Start();
+            await receiver.Start();
 
             await receiver.Stop();
 

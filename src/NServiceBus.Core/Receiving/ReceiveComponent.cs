@@ -75,13 +75,13 @@ namespace NServiceBus
             }
         }
 
-        public void Start()
+        public async Task Start()
         {
             foreach (var receiver in receivers)
             {
                 try
                 {
-                    receiver.Start();
+                    await receiver.Start().ConfigureAwait(false);
                 }
                 catch (Exception ex)
                 {
