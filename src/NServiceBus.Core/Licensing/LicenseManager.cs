@@ -79,27 +79,22 @@ namespace NServiceBus
 
         static void LogFindResults(ActiveLicenseFindResult result)
         {
-            var report = new StringBuilder();
 
             if (DebugLoggingEnabled)
             {
-                report.AppendLine("Looking for license in the following locations:");
+                var report = new StringBuilder("Looking for license in the following locations:");
 
                 foreach (var item in result.Report)
                 {
-                    report.AppendLine(item);
+                    report.NewLine(item);
                 }
 
-                Logger.Debug(report.ToString().TrimEnd('\r','\n'));
+                Logger.Debug(report.ToString());
             }
             else
             {
-                foreach (var item in result.SelectedLicenseReport)
-                {
-                    report.AppendLine(item);
-                }
-
-                Logger.Info(report.ToString().TrimEnd('\r', '\n'));
+                var report = string.Join(Environment.NewLine, result.SelectedLicenseReport);
+                Logger.Info(report);
             }
 
 #if REGISTRYLICENSESOURCE
