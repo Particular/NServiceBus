@@ -67,20 +67,19 @@
 
         static void LogHandlersInvocation(IIncomingLogicalMessageContext context, List<MessageHandler> handlersToInvoke)
         {
-            var builder = new StringBuilder();
-            builder.AppendLine($"Processing message type: {context.Message.MessageType}");
-            builder.AppendLine("Message headers:");
+            var builder = new StringBuilder($"Processing message type: {context.Message.MessageType}");
+            builder.NewLine("Message headers:");
 
             foreach (var kvp in context.Headers)
             {
-                builder.AppendLine($"{kvp.Key} : {kvp.Value}");
+                builder.NewLine($"{kvp.Key} : {kvp.Value}");
             }
 
-            builder.AppendLine("Handlers to invoke:");
+            builder.NewLine("Handlers to invoke:");
 
             foreach (var messageHandler in handlersToInvoke)
             {
-                builder.AppendLine(messageHandler.HandlerType.FullName);
+                builder.NewLine(messageHandler.HandlerType.FullName);
             }
 
             logger.Debug(builder.ToString());
