@@ -40,6 +40,7 @@ namespace NServiceBus.Transport
 
         /// <summary>
         /// Callback to perform checks before the transports starts receiving messages.
+        /// <remarks>Queue creation happens before the check is executed.</remarks>
         /// </summary>
         public Func<Task<StartupCheckResult>> PreStartupCheck { get; }
     }
