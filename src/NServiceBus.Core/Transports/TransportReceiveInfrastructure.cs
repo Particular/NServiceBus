@@ -10,7 +10,7 @@ namespace NServiceBus.Transport
     {
         /// <summary>
         /// Creates new result.
-        /// <param name="messagePumpFactory">Factory for creating the message pump.</param>
+        /// <param name="messagePumpFactory">Factory for creating a message pump for each queue to be consumed from.</param>
         /// <param name="queueCreatorFactory">Factory for the queue creator.</param>
         /// <param name="preStartupCheck">Callback to perform checks before the transport starts receiving messages.</param>
         /// </summary>
