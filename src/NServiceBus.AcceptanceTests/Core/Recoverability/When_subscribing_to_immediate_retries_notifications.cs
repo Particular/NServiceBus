@@ -45,7 +45,12 @@
                     var testContext = (Context)context.ScenarioContext;
 
                     var recoverability = config.Recoverability();
-                    recoverability.Failed(f => f.OnMessageSentToErrorQueue(_ => testContext.MessageSentToError = true));
+                    recoverability.Failed(f => f.OnMessageSentToErrorQueue(failedMessage =>
+                    {
+                        testContext.MessageSentToError = true;
+                        return Task.FromResult(0);
+                    }));
+
                     recoverability.Immediate(immediateRetriesSettings =>
                     {
                         immediateRetriesSettings.NumberOfRetries(3);

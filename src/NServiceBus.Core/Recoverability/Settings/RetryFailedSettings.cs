@@ -32,20 +32,6 @@ namespace NServiceBus
         /// <summary>
         /// Registers a callback when a message fails processing and will be moved to the error queue.
         /// </summary>
-        public RetryFailedSettings OnMessageSentToErrorQueue(Action<FailedMessage> notificationCallback)
-        {
-            Guard.AgainstNull(nameof(notificationCallback), notificationCallback);
-
-            return OnMessageSentToErrorQueue(x =>
-            {
-                notificationCallback(x);
-                return TaskEx.CompletedTask;
-            });
-        }
-
-        /// <summary>
-        /// Registers a callback when a message fails processing and will be moved to the error queue.
-        /// </summary>
         public RetryFailedSettings OnMessageSentToErrorQueue(Func<FailedMessage, Task> notificationCallback)
         {
             Guard.AgainstNull(nameof(notificationCallback), notificationCallback);

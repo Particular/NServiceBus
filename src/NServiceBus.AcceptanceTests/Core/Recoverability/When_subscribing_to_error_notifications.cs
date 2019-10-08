@@ -70,6 +70,7 @@
                     {
                         testContext.MessageSentToErrorException = failedMessage.Exception;
                         testContext.MessageSentToError = true;
+                        return Task.FromResult(0);
                     }));
                 });
             }

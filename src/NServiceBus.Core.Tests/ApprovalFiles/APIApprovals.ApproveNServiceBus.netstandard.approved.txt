@@ -813,7 +813,6 @@ namespace NServiceBus
     public class RetryFailedSettings : NServiceBus.Configuration.AdvancedExtensibility.ExposeSettings
     {
         public NServiceBus.RetryFailedSettings HeaderCustomization(System.Action<System.Collections.Generic.Dictionary<string, string>> customization) { }
-        public NServiceBus.RetryFailedSettings OnMessageSentToErrorQueue(System.Action<NServiceBus.Faults.FailedMessage> notificationCallback) { }
         public NServiceBus.RetryFailedSettings OnMessageSentToErrorQueue(System.Func<NServiceBus.Faults.FailedMessage, System.Threading.Tasks.Task> notificationCallback) { }
     }
     public class static RoutingFeatureSettingsExtensions
