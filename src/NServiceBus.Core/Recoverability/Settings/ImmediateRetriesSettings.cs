@@ -31,20 +31,6 @@ namespace NServiceBus
         /// <summary>
         /// Registers a callback which is invoked when a message fails processing and will be immediately retried.
         /// </summary>
-        public ImmediateRetriesSettings OnMessageBeingRetried(Action<ImmediateRetryMessage> notificationCallback)
-        {
-            Guard.AgainstNull(nameof(notificationCallback), notificationCallback);
-
-            return OnMessageBeingRetried(x =>
-            {
-                notificationCallback(x);
-                return TaskEx.CompletedTask;
-            });
-        }
-
-        /// <summary>
-        /// Registers a callback which is invoked when a message fails processing and will be immediately retried.
-        /// </summary>
         public ImmediateRetriesSettings OnMessageBeingRetried(Func<ImmediateRetryMessage, Task> notificationCallback)
         {
             Guard.AgainstNull(nameof(notificationCallback), notificationCallback);

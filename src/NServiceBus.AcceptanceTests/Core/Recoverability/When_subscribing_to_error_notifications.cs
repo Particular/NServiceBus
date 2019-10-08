@@ -55,23 +55,31 @@
                     config.EnableFeature<TimeoutManager>();
 
                     var recoverability = config.Recoverability();
-                    recoverability.Delayed(settings =>
-                    {
-                        settings.NumberOfRetries(2);
-                        settings.TimeIncrease(TimeSpan.FromMilliseconds(1));
-                        settings.OnMessageBeingRetried(_ => testContext.NumberOfDelayedRetriesPerformed++);
-                    });
-                    recoverability.Immediate(settings =>
-                    {
-                        settings.NumberOfRetries(3);
-                        settings.OnMessageBeingRetried(_ => testContext.TotalNumberOfImmediateRetriesEventInvocations++);
-                    });
                     recoverability.Failed(f => f.OnMessageSentToErrorQueue(failedMessage =>
                     {
                         testContext.MessageSentToErrorException = failedMessage.Exception;
                         testContext.MessageSentToError = true;
                         return Task.FromResult(0);
                     }));
+                    recoverability.Delayed(settings =>
+                    {
+                        settings.NumberOfRetries(2);
+                        settings.TimeIncrease(TimeSpan.FromMilliseconds(1));
+                        settings.OnMessageBeingRetried(retry =>
+                        {
+                            testContext.NumberOfDelayedRetriesPerformed++;
+                            return Task.FromResult(0);
+                        });
+                    });
+                    recoverability.Immediate(settings =>
+                    {
+                        settings.NumberOfRetries(3);
+                        settings.OnMessageBeingRetried(retry =>
+                        {
+                            testContext.TotalNumberOfImmediateRetriesEventInvocations++;
+                            return Task.FromResult(0);
+                        });
+                    });
                 });
             }
 

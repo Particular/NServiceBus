@@ -58,6 +58,7 @@
                         {
                             testContext.TotalNumberOfImmediateRetriesEventInvocations++;
                             testContext.LastImmediateRetryInfo = retryInfo;
+                            return Task.FromResult(0);
                         });
                     });
                 });

@@ -238,7 +238,6 @@ namespace NServiceBus
     public class DelayedRetriesSettings : NServiceBus.Configuration.AdvancedExtensibility.ExposeSettings
     {
         public NServiceBus.DelayedRetriesSettings NumberOfRetries(int numberOfRetries) { }
-        public NServiceBus.DelayedRetriesSettings OnMessageBeingRetried(System.Action<NServiceBus.Faults.DelayedRetryMessage> notificationCallback) { }
         public NServiceBus.DelayedRetriesSettings OnMessageBeingRetried(System.Func<NServiceBus.Faults.DelayedRetryMessage, System.Threading.Tasks.Task> notificationCallback) { }
         public NServiceBus.DelayedRetriesSettings TimeIncrease(System.TimeSpan timeIncrease) { }
     }
@@ -589,7 +588,6 @@ namespace NServiceBus
     public class ImmediateRetriesSettings : NServiceBus.Configuration.AdvancedExtensibility.ExposeSettings
     {
         public void NumberOfRetries(int numberOfRetries) { }
-        public NServiceBus.ImmediateRetriesSettings OnMessageBeingRetried(System.Action<NServiceBus.Faults.ImmediateRetryMessage> notificationCallback) { }
         public NServiceBus.ImmediateRetriesSettings OnMessageBeingRetried(System.Func<NServiceBus.Faults.ImmediateRetryMessage, System.Threading.Tasks.Task> notificationCallback) { }
     }
     public sealed class ImmediateRetry : NServiceBus.RecoverabilityAction { }
