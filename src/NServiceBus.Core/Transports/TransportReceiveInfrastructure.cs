@@ -29,7 +29,7 @@ namespace NServiceBus.Transport
         }
 
         /// <summary>
-        /// Factory for creating the message pump.
+        /// Factory for creating a message pump for each queue to be consumed from.
         /// </summary>
         public Func<IPushMessages> MessagePumpFactory { get; }
 
