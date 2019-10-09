@@ -1,0 +1,2 @@
+Could not enumerate all types for 'MyFile'.
+Exception message: System.Reflection.ReflectionTypeLoadException: Exception of type 'System.Reflection.ReflectionTypeLoadException' was thrown.

@@ -1,0 +1,8 @@
+Could not enumerate all types for 'MyFile'.
+Exceptions:
+System.Exception: Generic exception 1
+System.Exception: Generic exception 2
+
+It looks like you may be missing binding redirects in the config file for the following assemblies:
+NServiceBus.Core.Tests, Version=1.0.0.0, Culture=neutral, PublicKeyToken=b50674d1e0c6ce54
+For more information see http://msdn.microsoft.com/en-us/library/7wd6ex19(v=vs.100).aspx

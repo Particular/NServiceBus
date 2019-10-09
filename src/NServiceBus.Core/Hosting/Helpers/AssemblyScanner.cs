@@ -217,15 +217,13 @@ namespace NServiceBus.Hosting.Helpers
             return referencedAssembly;
         }
 
-        static string FormatReflectionTypeLoadException(string fileName, ReflectionTypeLoadException e)
+        internal static string FormatReflectionTypeLoadException(string fileName, ReflectionTypeLoadException e)
         {
-            var sb = new StringBuilder();
-
-            sb.AppendLine($"Could not enumerate all types for '{fileName}'.");
+            var sb = new StringBuilder($"Could not enumerate all types for '{fileName}'.");
 
             if (!e.LoaderExceptions.Any())
             {
-                sb.AppendLine($"Exception message: {e}");
+                sb.NewLine($"Exception message: {e}");
                 return sb.ToString();
             }
 
@@ -255,31 +253,32 @@ namespace NServiceBus.Hosting.Helpers
                     if (!files.Contains(loadException.FileName))
                     {
                         files.Add(loadException.FileName);
-                        sbFileLoadException.AppendLine(loadException.FileName);
+                        sbFileLoadException.NewLine(loadException.FileName);
                     }
                     continue;
                 }
 
-                sbGenericException.AppendLine(ex.ToString());
+                sbGenericException.NewLine(ex.ToString());
             }
 
-            if (sbGenericException.ToString().Length > 0)
+            if (sbGenericException.Length > 0)
             {
-                sb.AppendLine("Exceptions:");
-                sb.AppendLine(sbGenericException.ToString());
+                sb.NewLine("Exceptions:");
+                sb.Append(sbGenericException);
             }
 
-            if (sbFileLoadException.ToString().Length > 0)
+            if (sbFileLoadException.Length > 0)
             {
-                sb.AppendLine("It looks like you may be missing binding redirects in the config file for the following assemblies:");
+                sb.AppendLine();
+                sb.NewLine("It looks like you may be missing binding redirects in the config file for the following assemblies:");
                 sb.Append(sbFileLoadException);
-                sb.AppendLine("For more information see http://msdn.microsoft.com/en-us/library/7wd6ex19(v=vs.100).aspx");
+                sb.NewLine("For more information see http://msdn.microsoft.com/en-us/library/7wd6ex19(v=vs.100).aspx");
             }
 
             if (displayBindingRedirects)
             {
                 sb.AppendLine();
-                sb.AppendLine("Try to add the following binding redirects to the config file:");
+                sb.NewLine("Try to add the following binding redirects to the config file:");
 
                 const string bindingRedirects = @"<runtime>
     <assemblyBinding xmlns=""urn:schemas-microsoft-com:asm.v1"">
@@ -290,8 +289,7 @@ namespace NServiceBus.Hosting.Helpers
     </assemblyBinding>
 </runtime>";
 
-                sb.AppendFormat(bindingRedirects, nsbAssemblyName.Version.ToString(4));
-                sb.AppendLine();
+                sb.NewLine(string.Format(bindingRedirects, nsbAssemblyName.Version.ToString(4)));
             }
 
             return sb.ToString();
