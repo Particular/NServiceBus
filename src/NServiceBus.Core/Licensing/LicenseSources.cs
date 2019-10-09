@@ -19,14 +19,17 @@ namespace NServiceBus
                 sources.Add(new LicenseSourceFilePath(licenseFilePath));
             }
 
-            var standardSources = LicenseSource.GetStandardLicenseSources();
+            if (licenseText == null && licenseFilePath == null)
+            {
+                var standardSources = LicenseSource.GetStandardLicenseSources();
 
-            sources.AddRange(standardSources);
+                sources.AddRange(standardSources);
 
 #if APPCONFIGLICENSESOURCE
-            sources.Add(new LicenseSourceAppConfigLicenseSetting());
-            sources.Add(new LicenseSourceAppConfigLicensePathSetting());
+                sources.Add(new LicenseSourceAppConfigLicenseSetting());
+                sources.Add(new LicenseSourceAppConfigLicensePathSetting());
 #endif
+            }
 
             return sources.ToArray();
         }
