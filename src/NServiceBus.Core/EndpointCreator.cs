@@ -95,7 +95,7 @@ namespace NServiceBus
 
             recoverabilityComponent = new RecoverabilityComponent(settings);
 
-            var featureConfigurationContext = new FeatureConfigurationContext(settings, containerComponent.ContainerConfiguration, pipelineComponent.PipelineSettings, routingComponent, receiveConfiguration);
+            var featureConfigurationContext = new FeatureConfigurationContext(settings, containerComponent.ContainerConfiguration, pipelineComponent.PipelineSettings, routingComponent, receiveConfiguration, recoverabilityComponent);
 
             featureComponent.Initalize(containerComponent, featureConfigurationContext);
             //The settings can only be locked after initializing the feature component since it uses the settings to store & share feature state.
@@ -105,10 +105,6 @@ namespace NServiceBus
 
             pipelineComponent.Initialize(containerComponent);
             containerComponent.ContainerConfiguration.ConfigureComponent(b => settings.Get<Notifications>(), DependencyLifecycle.SingleInstance);
-
-            var eventAggregator = new EventAggregator(settings.Get<NotificationSubscriptions>());
-
-            pipelineComponent.AddRootContextItem<IEventAggregator>(eventAggregator);
 
             var shouldRunInstallers = settings.GetOrDefault<bool>("Installers.Enable");
 
@@ -127,7 +123,7 @@ namespace NServiceBus
             );
 
             queueBindings = settings.Get<QueueBindings>();
-            receiveComponent = CreateReceiveComponent(receiveConfiguration, transportInfrastructure, pipelineComponent, queueBindings, eventAggregator);
+            receiveComponent = CreateReceiveComponent(receiveConfiguration, transportInfrastructure, queueBindings);
         }
 
         public void UseExternallyManagedBuilder(IBuilder builder)
@@ -219,16 +215,12 @@ namespace NServiceBus
 
         ReceiveComponent CreateReceiveComponent(ReceiveConfiguration receiveConfiguration,
             TransportInfrastructure transportInfrastructure,
-            PipelineComponent pipeline,
-            QueueBindings queueBindings,
-            EventAggregator eventAggregator)
+            QueueBindings queueBindings)
         {
             var errorQueue = settings.ErrorQueueAddress();
 
             var receiveComponent = new ReceiveComponent(receiveConfiguration,
                 receiveConfiguration != null ? transportInfrastructure.ConfigureReceiveInfrastructure() : null, //don't create the receive infrastructure for send-only endpoints
-                pipeline,
-                eventAggregator,
                 criticalError,
                 errorQueue);
 

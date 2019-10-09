@@ -6,7 +6,7 @@
     class RecoverabilityExecutorFactory
     {
         public RecoverabilityExecutorFactory(Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> defaultRecoverabilityPolicy, RecoverabilityConfig configuration, Func<string, DelayedRetryExecutor> delayedRetryExecutorFactory,
-            Func<string, MoveToErrorsExecutor> moveToErrorsExecutorFactory, bool immediateRetriesAvailable, bool delayedRetriesAvailable)
+            Func<string, MoveToErrorsExecutor> moveToErrorsExecutorFactory, bool immediateRetriesAvailable, bool delayedRetriesAvailable, Notification<MessageToBeRetried> messageRetryNotification, Notification<MessageFaulted> messageFaultedNotification)
         {
             this.configuration = configuration;
             this.defaultRecoverabilityPolicy = defaultRecoverabilityPolicy;
@@ -14,19 +14,21 @@
             this.moveToErrorsExecutorFactory = moveToErrorsExecutorFactory;
             this.immediateRetriesAvailable = immediateRetriesAvailable;
             this.delayedRetriesAvailable = delayedRetriesAvailable;
+            this.messageRetryNotification = messageRetryNotification;
+            this.messageFaultedNotification = messageFaultedNotification;
         }
 
-        public RecoverabilityExecutor CreateDefault(IEventAggregator eventAggregator, string localAddress)
+        public RecoverabilityExecutor CreateDefault(string localAddress)
         {
-            return Create(defaultRecoverabilityPolicy, eventAggregator, localAddress, raiseNotifications: true);
+            return Create(defaultRecoverabilityPolicy, localAddress, raiseNotifications: true);
         }
 
-        public RecoverabilityExecutor Create(Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> customRecoverabilityPolicy, IEventAggregator eventAggregator, string localAddress)
+        public RecoverabilityExecutor Create(Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> customRecoverabilityPolicy, string localAddress)
         {
-            return Create(customRecoverabilityPolicy, eventAggregator, localAddress, raiseNotifications: false);
+            return Create(customRecoverabilityPolicy, localAddress, raiseNotifications: false);
         }
 
-        RecoverabilityExecutor Create(Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> customRecoverabilityPolicy, IEventAggregator eventAggregator, string localAddress, bool raiseNotifications)
+        RecoverabilityExecutor Create(Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> customRecoverabilityPolicy, string localAddress, bool raiseNotifications)
         {
             var delayedRetryExecutor = delayedRetryExecutorFactory(localAddress);
             var moveToErrorsExecutor = moveToErrorsExecutorFactory(localAddress);
@@ -37,16 +39,20 @@
                 delayedRetriesAvailable,
                 customRecoverabilityPolicy,
                 configuration,
-                eventAggregator,
+                messageRetryNotification,
+                messageFaultedNotification,
                 delayedRetryExecutor,
                 moveToErrorsExecutor);
         }
 
+        readonly bool immediateRetriesAvailable;
+        readonly bool delayedRetriesAvailable;
+        readonly Notification<MessageToBeRetried> messageRetryNotification;
+        readonly Notification<MessageFaulted> messageFaultedNotification;
+
         Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> defaultRecoverabilityPolicy;
         Func<string, DelayedRetryExecutor> delayedRetryExecutorFactory;
         Func<string, MoveToErrorsExecutor> moveToErrorsExecutorFactory;
-        readonly bool immediateRetriesAvailable;
-        readonly bool delayedRetriesAvailable;
         RecoverabilityConfig configuration;
     }
 }

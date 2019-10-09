@@ -32,7 +32,7 @@ namespace NServiceBus
 
             AppDomain.CurrentDomain.SetPrincipalPolicy(PrincipalPolicy.WindowsPrincipal);
 
-            await receiveComponent.Initialize(containerComponent, recoverabilityComponent).ConfigureAwait(false);
+            await receiveComponent.Initialize(containerComponent, recoverabilityComponent, pipelineComponent).ConfigureAwait(false);
 
             await featureComponent.Start(messageSession).ConfigureAwait(false);
 

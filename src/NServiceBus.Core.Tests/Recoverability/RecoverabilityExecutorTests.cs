@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Threading.Tasks;
     using Extensibility;
     using NUnit.Framework;
@@ -14,7 +15,8 @@
         public void SetUp()
         {
             dispatcher = new FakeDispatcher();
-            eventAggregator = new FakeEventAggregator();
+            faultedMessages = new List<MessageFaulted>();
+            retriedMessages = new List<MessageToBeRetried>();
         }
 
         [Test]
@@ -34,8 +36,8 @@
             await executor.Invoke(errorContext); //force delayed retry
             await executor.Invoke(errorContext); //force move to errors
 
-            Assert.IsNull(eventAggregator.GetNotification<MessageFaulted>());
-            Assert.IsNull(eventAggregator.GetNotification<MessageToBeRetried>());
+            Assert.IsEmpty(faultedMessages);
+            Assert.IsEmpty(retriedMessages);
         }
 
         [Test]
@@ -46,7 +48,7 @@
 
             await recoverabilityExecutor.Invoke(errorContext);
 
-            var failure = eventAggregator.GetNotification<MessageToBeRetried>();
+            var failure = retriedMessages.Single();
 
             Assert.AreEqual(0, failure.Attempt);
             Assert.IsTrue(failure.IsImmediateRetry);
@@ -62,7 +64,7 @@
 
             await recoverabilityExecutor.Invoke(errorContext);
 
-            var failure = eventAggregator.GetNotification<MessageToBeRetried>();
+            var failure = retriedMessages.Single();
 
             Assert.AreEqual(1, failure.Attempt);
             Assert.IsFalse(failure.IsImmediateRetry);
@@ -78,7 +80,7 @@
 
             await recoverabilityExecutor.Invoke(errorContext);
 
-            var failure = eventAggregator.GetNotification<MessageFaulted>();
+            var failure = faultedMessages.Single();
 
             Assert.AreEqual("test", failure.Exception.Message);
             Assert.AreEqual("message-id", failure.Message.MessageId);
@@ -94,9 +96,9 @@
 
             await recoverabilityExecutor.Invoke(errorContext);
 
-            var failure = eventAggregator.GetNotification<MessageFaulted>();
+            var failure = faultedMessages.Single();
 
-            Assert.AreEqual(1, eventAggregator.NotificationsRaised.Count);
+            Assert.IsEmpty(retriedMessages);
             Assert.AreEqual("message-id", failure.Message.MessageId);
         }
 
@@ -110,9 +112,9 @@
 
             await recoverabilityExecutor.Invoke(errorContext);
 
-            var failure = eventAggregator.GetNotification<MessageFaulted>();
+            var failure = faultedMessages.Single();
 
-            Assert.AreEqual(1, eventAggregator.NotificationsRaised.Count);
+            Assert.IsEmpty(retriedMessages);
             Assert.AreEqual("message-id", failure.Message.MessageId);
         }
 
@@ -125,9 +127,9 @@
 
             await recoverabilityExecutor.Invoke(errorContext);
 
-            var failure = eventAggregator.GetNotification<MessageFaulted>();
+            var failure = faultedMessages.Single();
 
-            Assert.AreEqual(1, eventAggregator.NotificationsRaised.Count);
+            Assert.IsEmpty(retriedMessages);
             Assert.AreEqual("message-id", failure.Message.MessageId);
         }
         
@@ -141,7 +143,8 @@
             var result = await recoverabilityExecutor.Invoke(errorContext);
 
             Assert.AreEqual(ErrorHandleResult.Handled, result);
-            Assert.AreEqual(0, eventAggregator.NotificationsRaised.Count);
+            Assert.IsEmpty(retriedMessages);
+            Assert.IsEmpty(faultedMessages);
         }
 
         [Test]
@@ -153,9 +156,9 @@
 
             await recoverabilityExecutor.Invoke(errorContext);
 
-            var failure = eventAggregator.GetNotification<MessageFaulted>();
+            var failure = faultedMessages.Single();
 
-            Assert.AreEqual(1, eventAggregator.NotificationsRaised.Count);
+            Assert.IsEmpty(retriedMessages);
             Assert.AreEqual(customErrorQueueAddress, failure.ErrorQueue);
         }
 
@@ -166,22 +169,36 @@
 
         RecoverabilityExecutor CreateExecutor(Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> policy, bool delayedRetriesSupported = true, bool immediateRetriesSupported = true, bool raiseNotifications = true)
         {
+            var messageRetriedNotification = new Notification<MessageToBeRetried>();
+            messageRetriedNotification.Subscribe(retriedMessage =>
+            {
+                retriedMessages.Add(retriedMessage);
+                return TaskEx.CompletedTask;
+            });
+            var faultedMessageNotification = new Notification<MessageFaulted>();
+            faultedMessageNotification.Subscribe(faultedMessage =>
+            {
+                faultedMessages.Add(faultedMessage);
+                return TaskEx.CompletedTask;
+            });
             return new RecoverabilityExecutor(
                 raiseNotifications,
                 immediateRetriesSupported,
                 delayedRetriesSupported,
                 policy,
                 new RecoverabilityConfig(new ImmediateConfig(0), new DelayedConfig(0, TimeSpan.Zero), new FailedConfig(ErrorQueueAddress, new HashSet<Type>())),
-                eventAggregator,
+                messageRetriedNotification,
+                faultedMessageNotification,
                 delayedRetriesSupported ? new DelayedRetryExecutor(InputQueueAddress, dispatcher) : null,
                 new MoveToErrorsExecutor(dispatcher, new Dictionary<string, string>(), headers => { }));
         }
 
         FakeDispatcher dispatcher;
-        FakeEventAggregator eventAggregator;
 
         static string ErrorQueueAddress = "error-queue";
         static string InputQueueAddress = "input-queue";
+        List<MessageFaulted> faultedMessages;
+        List<MessageToBeRetried> retriedMessages;
 
         class RetryPolicy
         {

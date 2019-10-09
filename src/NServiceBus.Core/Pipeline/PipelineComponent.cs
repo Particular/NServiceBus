@@ -1,18 +1,23 @@
 namespace NServiceBus
 {
+    using System.Threading.Tasks;
     using Extensibility;
     using ObjectBuilder;
     using Pipeline;
     using Settings;
-    using System.Threading.Tasks;
 
     class PipelineComponent
     {
         public PipelineComponent(SettingsHolder settings)
         {
             modifications = new PipelineModifications();
-            PipelineSettings = new PipelineSettings(modifications, settings);
+            PipelineSettings = new PipelineSettings(modifications, settings, OnReceivePipelineCompleted);
         }
+
+        public IEventNotification<ReceivePipelineCompleted> OnReceivePipelineCompleted => pipelineCompletedNotification;
+        public MainPipelineExecutor PipelineExecutor { get; internal set; }
+
+        public PipelineSettings PipelineSettings { get; }
 
         public Task Start()
         {
@@ -39,8 +44,6 @@ namespace NServiceBus
             return context;
         }
 
-        public PipelineSettings PipelineSettings { get; }
-
         public void Initialize(ContainerComponent containerComponent)
         {
             container = containerComponent;
@@ -54,10 +57,13 @@ namespace NServiceBus
             {
                 step.ApplyContainerRegistration(container.ContainerConfiguration);
             }
+
+            PipelineExecutor = new MainPipelineExecutor(containerComponent.Builder, CreateRootContext, pipelineCompletedNotification);
         }
 
         readonly PipelineModifications modifications;
         readonly ContextBag rootContextExtensions = new ContextBag();
+        Notification<ReceivePipelineCompleted> pipelineCompletedNotification = new Notification<ReceivePipelineCompleted>();
         ContainerComponent container;
     }
 }

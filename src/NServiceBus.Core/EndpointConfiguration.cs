@@ -41,7 +41,6 @@ namespace NServiceBus
 
             Notifications = new Notifications();
             Settings.Set(Notifications);
-            Settings.Set(new NotificationSubscriptions());
 
             ConventionsBuilder = new ConventionsBuilder(Settings);
         }

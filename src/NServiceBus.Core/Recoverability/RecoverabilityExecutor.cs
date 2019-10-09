@@ -7,11 +7,12 @@
 
     class RecoverabilityExecutor
     {
-        public RecoverabilityExecutor(bool raiseRecoverabilityNotifications, bool immediateRetriesAvailable, bool delayedRetriesAvailable, Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> recoverabilityPolicy, RecoverabilityConfig configuration, IEventAggregator eventAggregator, DelayedRetryExecutor delayedRetryExecutor, MoveToErrorsExecutor moveToErrorsExecutor)
+        public RecoverabilityExecutor(bool raiseRecoverabilityNotifications, bool immediateRetriesAvailable, bool delayedRetriesAvailable, Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> recoverabilityPolicy, RecoverabilityConfig configuration, Notification<MessageToBeRetried> messageRetryNotification, Notification<MessageFaulted> messageFaultedNotification, DelayedRetryExecutor delayedRetryExecutor, MoveToErrorsExecutor moveToErrorsExecutor)
         {
             this.configuration = configuration;
+            this.messageRetryNotification = messageRetryNotification;
+            this.messageFaultedNotification = messageFaultedNotification;
             this.recoverabilityPolicy = recoverabilityPolicy;
-            this.eventAggregator = eventAggregator;
             this.delayedRetryExecutor = delayedRetryExecutor;
             this.moveToErrorsExecutor = moveToErrorsExecutor;
             this.immediateRetriesAvailable = immediateRetriesAvailable;
@@ -69,12 +70,12 @@
 
             if (raiseNotifications)
             {
-                await eventAggregator.Raise(
-                    new MessageToBeRetried(
-                        attempt: errorContext.ImmediateProcessingFailures - 1,
-                        delay: TimeSpan.Zero,
-                        immediateRetry: true,
-                        errorContext: errorContext))
+                await messageRetryNotification.Raise(
+                        new MessageToBeRetried(
+                            attempt: errorContext.ImmediateProcessingFailures - 1,
+                            delay: TimeSpan.Zero,
+                            immediateRetry: true,
+                            errorContext: errorContext))
                     .ConfigureAwait(false);
             }
 
@@ -85,14 +86,15 @@
         {
             var message = errorContext.Message;
 
-            Logger.Error($"Moving message '{message.MessageId}' to the error queue '{ errorQueue }' because processing failed due to an exception:", errorContext.Exception);
+            Logger.Error($"Moving message '{message.MessageId}' to the error queue '{errorQueue}' because processing failed due to an exception:", errorContext.Exception);
 
             await moveToErrorsExecutor.MoveToErrorQueue(errorQueue, message, errorContext.Exception, errorContext.TransportTransaction).ConfigureAwait(false);
 
             if (raiseNotifications)
             {
-                await eventAggregator.Raise(new MessageFaulted(errorContext, errorQueue)).ConfigureAwait(false);
+                await messageFaultedNotification.Raise(new MessageFaulted(errorContext, errorQueue)).ConfigureAwait(false);
             }
+
             return ErrorHandleResult.Handled;
         }
 
@@ -106,27 +108,30 @@
 
             if (raiseNotifications)
             {
-                await eventAggregator.Raise(
-                    new MessageToBeRetried(
-                        attempt: currentDelayedRetriesAttempts,
-                        delay: action.Delay,
-                        immediateRetry: false,
-                        errorContext: errorContext))
+                await messageRetryNotification.Raise(
+                        new MessageToBeRetried(
+                            attempt: currentDelayedRetriesAttempts,
+                            delay: action.Delay,
+                            immediateRetry: false,
+                            errorContext: errorContext))
                     .ConfigureAwait(false);
             }
+
             return ErrorHandleResult.Handled;
         }
 
+        readonly Notification<MessageToBeRetried> messageRetryNotification;
+        readonly Notification<MessageFaulted> messageFaultedNotification;
+
         Func<RecoverabilityConfig, ErrorContext, RecoverabilityAction> recoverabilityPolicy;
-        IEventAggregator eventAggregator;
         DelayedRetryExecutor delayedRetryExecutor;
         MoveToErrorsExecutor moveToErrorsExecutor;
         bool raiseNotifications;
         bool immediateRetriesAvailable;
         bool delayedRetriesAvailable;
+        RecoverabilityConfig configuration;
 
         static Task<ErrorHandleResult> HandledTask = Task.FromResult(ErrorHandleResult.Handled);
         static ILog Logger = LogManager.GetLogger<RecoverabilityExecutor>();
-        RecoverabilityConfig configuration;
     }
 }

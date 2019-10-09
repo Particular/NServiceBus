@@ -12,15 +12,11 @@ namespace NServiceBus
     {
         public ReceiveComponent(ReceiveConfiguration configuration,
             TransportReceiveInfrastructure receiveInfrastructure,
-            PipelineComponent pipeline,
-            IEventAggregator eventAggregator,
             CriticalError criticalError,
             string errorQueue)
         {
             this.configuration = configuration;
             this.receiveInfrastructure = receiveInfrastructure;
-            this.pipeline = pipeline;
-            this.eventAggregator = eventAggregator;
             this.criticalError = criticalError;
             this.errorQueue = errorQueue;
         }
@@ -45,14 +41,14 @@ namespace NServiceBus
             }
         }
 
-        public async Task Initialize(ContainerComponent containerComponent, RecoverabilityComponent recoverabilityComponent)
+        public async Task Initialize(ContainerComponent containerComponent, RecoverabilityComponent recoverabilityComponent, PipelineComponent pipelineComponent)
         {
             if (IsSendOnly)
             {
                 return;
             }
 
-            mainPipelineExecutor = new MainPipelineExecutor(containerComponent.Builder, pipeline);
+            mainPipelineExecutor = pipelineComponent.PipelineExecutor;
 
             if (configuration.PurgeOnStartup)
             {
@@ -136,7 +132,7 @@ namespace NServiceBus
         {
             var requiredTransactionSupport = configuration.TransactionMode;
 
-            var recoverabilityExecutor = recoverabilityExecutorFactory.CreateDefault(eventAggregator, configuration.LocalAddress);
+            var recoverabilityExecutor = recoverabilityExecutorFactory.CreateDefault(configuration.LocalAddress);
             var pushSettings = new PushSettings(configuration.LocalAddress, errorQueue, configuration.PurgeOnStartup, requiredTransactionSupport);
             var dequeueLimitations = configuration.PushRuntimeSettings;
 
@@ -145,7 +141,7 @@ namespace NServiceBus
             if (configuration.InstanceSpecificQueue != null)
             {
                 var instanceSpecificQueue = configuration.InstanceSpecificQueue;
-                var instanceSpecificRecoverabilityExecutor = recoverabilityExecutorFactory.CreateDefault(eventAggregator, instanceSpecificQueue);
+                var instanceSpecificRecoverabilityExecutor = recoverabilityExecutorFactory.CreateDefault(instanceSpecificQueue);
                 var sharedReceiverPushSettings = new PushSettings(instanceSpecificQueue, errorQueue, configuration.PurgeOnStartup, requiredTransactionSupport);
 
                 receivers.Add(new TransportReceiver(MainReceiverId, BuildMessagePump(), sharedReceiverPushSettings, dequeueLimitations, mainPipelineExecutor, instanceSpecificRecoverabilityExecutor, criticalError));
@@ -153,7 +149,7 @@ namespace NServiceBus
 
             foreach (var satellitePipeline in configuration.SatelliteDefinitions)
             {
-                var satelliteRecoverabilityExecutor = recoverabilityExecutorFactory.Create(satellitePipeline.RecoverabilityPolicy, eventAggregator, satellitePipeline.ReceiveAddress);
+                var satelliteRecoverabilityExecutor = recoverabilityExecutorFactory.Create(satellitePipeline.RecoverabilityPolicy, satellitePipeline.ReceiveAddress);
                 var satellitePushSettings = new PushSettings(satellitePipeline.ReceiveAddress, errorQueue, configuration.PurgeOnStartup, satellitePipeline.RequiredTransportTransactionMode);
 
                 receivers.Add(new TransportReceiver(satellitePipeline.Name, BuildMessagePump(), satellitePushSettings, satellitePipeline.RuntimeSettings, new SatellitePipelineExecutor(builder, satellitePipeline), satelliteRecoverabilityExecutor, criticalError));
@@ -168,9 +164,7 @@ namespace NServiceBus
         ReceiveConfiguration configuration;
         List<TransportReceiver> receivers = new List<TransportReceiver>();
         TransportReceiveInfrastructure receiveInfrastructure;
-        PipelineComponent pipeline;
         IPipelineExecutor mainPipelineExecutor;
-        readonly IEventAggregator eventAggregator;
         CriticalError criticalError;
         string errorQueue;
 

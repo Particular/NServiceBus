@@ -17,8 +17,7 @@
             Guard.AgainstNull(nameof(pipelineSettings), pipelineSettings);
             Guard.AgainstNull(nameof(subscription), subscription);
 
-            pipelineSettings.Settings.Get<NotificationSubscriptions>()
-                .Subscribe(subscription);
+            pipelineSettings.onReceivePipelineCompleted.Subscribe(subscription);
         }
     }
 }

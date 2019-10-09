@@ -13,9 +13,10 @@ namespace NServiceBus.Pipeline
         /// <summary>
         /// Initializes a new instance of <see cref="PipelineSettings" />.
         /// </summary>
-        internal PipelineSettings(PipelineModifications modifications, SettingsHolder settings) : base(settings)
+        internal PipelineSettings(PipelineModifications modifications, SettingsHolder settings, IEventNotification<ReceivePipelineCompleted> onReceivePipelineCompleted) : base(settings)
         {
             this.modifications = modifications;
+            this.onReceivePipelineCompleted = onReceivePipelineCompleted;
         }
 
         /// <summary>
@@ -179,6 +180,8 @@ namespace NServiceBus.Pipeline
             Guard.AgainstNull(nameof(registration), registration);
             modifications.Additions.Add(registration);
         }
+
+        internal readonly IEventNotification<ReceivePipelineCompleted> onReceivePipelineCompleted;
 
         PipelineModifications modifications;
     }

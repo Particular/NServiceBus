@@ -23,7 +23,7 @@
 
             context.Pipeline.Register(new CaptureExceptionBehavior(scenarioContext.UnfinishedFailedMessages), "Captures unhandled exceptions from processed messages for the AcceptanceTesting Framework");
 
-            context.Settings.Get<NotificationSubscriptions>().Subscribe<MessageFaulted>(m =>
+            context.Recoverability.OnMessageFaulted.Subscribe(m =>
             {
                 scenarioContext.FailedMessages.AddOrUpdate(
                     context.Settings.EndpointName(),
