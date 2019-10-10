@@ -49,7 +49,11 @@
                 EndpointSetup<DefaultServer>((b, context) =>
                 {
                     var scenarioContext = (Context) context.ScenarioContext;
-                    b.Notifications.Errors.MessageSentToErrorQueue += (sender, message) => scenarioContext.GaveUpOnRetries = true;
+                    b.Recoverability().Failed(f => f.OnMessageSentToErrorQueue(message =>
+                    {
+                        scenarioContext.GaveUpOnRetries = true;
+                        return Task.FromResult(0);
+                    }));
                     var recoverability = b.Recoverability();
                     recoverability.Immediate(settings => settings.NumberOfRetries(maxretries));
                     recoverability.Delayed(settings => settings.NumberOfRetries(0));

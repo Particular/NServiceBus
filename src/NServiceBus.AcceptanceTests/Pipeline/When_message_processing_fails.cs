@@ -38,12 +38,13 @@
             {
                 EndpointSetup<DefaultServer>((c, r) =>
                 {
-                    c.Notifications.Errors.MessageSentToErrorQueue += (sender, message) =>
+                    c.Recoverability().Failed(settings => settings.OnMessageSentToErrorQueue(failure =>
                     {
                         var testContext = ((Context)r.ScenarioContext);
                         testContext.MessageFailed = true;
-                        testContext.Exception = message.Exception;
-                    };
+                        testContext.Exception = failure.Exception;
+                        return Task.FromResult(0);
+                    }));
                 });
             }
 

@@ -1,6 +1,10 @@
 namespace NServiceBus
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Threading.Tasks;
     using Configuration.AdvancedExtensibility;
+    using Faults;
     using Settings;
 
     /// <summary>
@@ -22,6 +26,29 @@ namespace NServiceBus
             Guard.AgainstNegative(nameof(numberOfRetries), numberOfRetries);
 
             Settings.Set(RecoverabilityComponent.NumberOfImmediateRetries, numberOfRetries);
+        }
+
+        /// <summary>
+        /// Registers a callback which is invoked when a message fails processing and will be immediately retried.
+        /// </summary>
+        public ImmediateRetriesSettings OnMessageBeingRetried(Func<ImmediateRetryMessage, Task> notificationCallback)
+        {
+            Guard.AgainstNull(nameof(notificationCallback), notificationCallback);
+
+            var subscriptions = Settings.Get<NotificationSubscriptions>();
+            subscriptions.Subscribe<MessageToBeRetried>(retry =>
+            {
+                if (!retry.IsImmediateRetry)
+                {
+                    return TaskEx.CompletedTask;
+                }
+
+                var headerCopy = new Dictionary<string, string>(retry.Message.Headers);
+                var bodyCopy = retry.Message.Body.Copy();
+                return notificationCallback(new ImmediateRetryMessage(retry.Message.MessageId, headerCopy, bodyCopy, retry.Exception, retry.Attempt));
+            });
+
+            return this;
         }
     }
 }

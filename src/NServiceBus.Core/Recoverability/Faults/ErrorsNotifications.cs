@@ -12,16 +12,28 @@ namespace NServiceBus.Faults
         /// <summary>
         /// Notification when a message is moved to the error queue.
         /// </summary>
+        [ObsoleteEx(
+            Message = "The .NET event based error notifications will be deprecated in favor of Task-based callbacks. Use endpointConfiguration.Recoverability().Failed(settings => settings.OnMessageSentToErrorQueue(callback)) instead.",
+            RemoveInVersion = "9.0", 
+            TreatAsErrorFromVersion = "8.0")]
         public event EventHandler<FailedMessage> MessageSentToErrorQueue;
 
         /// <summary>
         /// Notification when a message fails a immediate retry.
         /// </summary>
+        [ObsoleteEx(
+            Message = "The .NET event based error notifications will be deprecated in favor of Task-based callbacks. Use endpointConfiguration.Recoverability().Immediate(settings => settings.OnMessageBeingRetried(callback)) instead.",
+            RemoveInVersion = "9.0",
+            TreatAsErrorFromVersion = "8.0")]
         public event EventHandler<ImmediateRetryMessage> MessageHasFailedAnImmediateRetryAttempt;
 
         /// <summary>
         /// Notification when a message is sent to Delayed Retries queue.
         /// </summary>
+        [ObsoleteEx(
+            Message = "The .NET event based error notifications will be deprecated in favor of Task-based callbacks. Use endpointConfiguration.Recoverability().Delayed(settings => settings.OnMessageBeingRetried(callback)) instead.",
+            RemoveInVersion = "9.0",
+            TreatAsErrorFromVersion = "8.0")]
         public event EventHandler<DelayedRetryMessage> MessageHasBeenSentToDelayedRetries;
 
         internal void InvokeMessageHasBeenSentToErrorQueue(IncomingMessage message, Exception exception, string errorQueue)
@@ -29,7 +41,9 @@ namespace NServiceBus.Faults
             MessageSentToErrorQueue?.Invoke(this, new FailedMessage(
                 message.MessageId,
                 new Dictionary<string, string>(message.Headers),
-                CopyOfBody(message.Body), exception, errorQueue));
+                message.Body.Copy(),
+                exception,
+                errorQueue));
         }
 
         internal void InvokeMessageHasFailedAnImmediateRetryAttempt(int immediateRetryAttempt, IncomingMessage message, Exception exception)
@@ -37,7 +51,7 @@ namespace NServiceBus.Faults
             MessageHasFailedAnImmediateRetryAttempt?.Invoke(this, new ImmediateRetryMessage(
                 message.MessageId,
                 new Dictionary<string, string>(message.Headers),
-                CopyOfBody(message.Body),
+                message.Body.Copy(),
                 exception,
                 immediateRetryAttempt));
         }
@@ -47,23 +61,9 @@ namespace NServiceBus.Faults
             MessageHasBeenSentToDelayedRetries?.Invoke(this, new DelayedRetryMessage(
                 message.MessageId,
                 new Dictionary<string, string>(message.Headers),
-                CopyOfBody(message.Body),
+                message.Body.Copy(),
                 exception,
                 delayedRetryAttempt));
-        }
-
-        static byte[] CopyOfBody(byte[] body)
-        {
-            if (body == null)
-            {
-                return null;
-            }
-
-            var copyBody = new byte[body.Length];
-
-            Buffer.BlockCopy(body, 0, copyBody, 0, body.Length);
-
-            return copyBody;
         }
     }
 }

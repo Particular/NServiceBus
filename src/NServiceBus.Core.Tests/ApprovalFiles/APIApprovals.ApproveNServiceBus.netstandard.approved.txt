@@ -238,6 +238,7 @@ namespace NServiceBus
     public class DelayedRetriesSettings : NServiceBus.Configuration.AdvancedExtensibility.ExposeSettings
     {
         public NServiceBus.DelayedRetriesSettings NumberOfRetries(int numberOfRetries) { }
+        public NServiceBus.DelayedRetriesSettings OnMessageBeingRetried(System.Func<NServiceBus.Faults.DelayedRetryMessage, System.Threading.Tasks.Task> notificationCallback) { }
         public NServiceBus.DelayedRetriesSettings TimeIncrease(System.TimeSpan timeIncrease) { }
     }
     public sealed class DelayedRetry : NServiceBus.RecoverabilityAction
@@ -587,6 +588,7 @@ namespace NServiceBus
     public class ImmediateRetriesSettings : NServiceBus.Configuration.AdvancedExtensibility.ExposeSettings
     {
         public void NumberOfRetries(int numberOfRetries) { }
+        public NServiceBus.ImmediateRetriesSettings OnMessageBeingRetried(System.Func<NServiceBus.Faults.ImmediateRetryMessage, System.Threading.Tasks.Task> notificationCallback) { }
     }
     public sealed class ImmediateRetry : NServiceBus.RecoverabilityAction { }
     public class static InMemoryGatewayPersistenceConfigurationExtensions
@@ -809,6 +811,7 @@ namespace NServiceBus
     public class RetryFailedSettings : NServiceBus.Configuration.AdvancedExtensibility.ExposeSettings
     {
         public NServiceBus.RetryFailedSettings HeaderCustomization(System.Action<System.Collections.Generic.Dictionary<string, string>> customization) { }
+        public NServiceBus.RetryFailedSettings OnMessageSentToErrorQueue(System.Func<NServiceBus.Faults.FailedMessage, System.Threading.Tasks.Task> notificationCallback) { }
     }
     public class static RoutingFeatureSettingsExtensions
     {
@@ -1500,8 +1503,11 @@ namespace NServiceBus.Faults
     public class ErrorsNotifications
     {
         public ErrorsNotifications() { }
+        [System.ObsoleteAttribute(@"The .NET event based error notifications will be deprecated in favor of Task-based callbacks. Use endpointConfiguration.Recoverability().Delayed(settings => settings.OnMessageBeingRetried(callback)) instead. Will be treated as an error from version 8.0.0. Will be removed in version 9.0.0.", false)]
         public event System.EventHandler<NServiceBus.Faults.DelayedRetryMessage> MessageHasBeenSentToDelayedRetries;
+        [System.ObsoleteAttribute(@"The .NET event based error notifications will be deprecated in favor of Task-based callbacks. Use endpointConfiguration.Recoverability().Immediate(settings => settings.OnMessageBeingRetried(callback)) instead. Will be treated as an error from version 8.0.0. Will be removed in version 9.0.0.", false)]
         public event System.EventHandler<NServiceBus.Faults.ImmediateRetryMessage> MessageHasFailedAnImmediateRetryAttempt;
+        [System.ObsoleteAttribute(@"The .NET event based error notifications will be deprecated in favor of Task-based callbacks. Use endpointConfiguration.Recoverability().Failed(settings => settings.OnMessageSentToErrorQueue(callback)) instead. Will be treated as an error from version 8.0.0. Will be removed in version 9.0.0.", false)]
         public event System.EventHandler<NServiceBus.Faults.FailedMessage> MessageSentToErrorQueue;
     }
     public class FailedMessage

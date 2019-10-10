@@ -9,7 +9,7 @@
     using Logging;
     using NUnit.Framework;
 
-    public class When_Subscribing_to_errors : NServiceBusAcceptanceTest
+    public class When_subscribing_to_error_notifications : NServiceBusAcceptanceTest
     {
         [Test]
         public async Task Should_retain_exception_details_over_immediate_and_delayed_retries()
@@ -52,26 +52,33 @@
                 EndpointSetup<DefaultServer>((config, context) =>
                 {
                     var testContext = (Context)context.ScenarioContext;
-                    var notifications = config.Notifications;
                     config.EnableFeature<TimeoutManager>();
-                    var errors = notifications.Errors;
-                    errors.MessageSentToErrorQueue += (sender, message) =>
-                    {
-                        testContext.MessageSentToErrorException = message.Exception;
-                        testContext.MessageSentToError = true;
-                    };
 
-                    errors.MessageHasFailedAnImmediateRetryAttempt += (sender, retry) => testContext.TotalNumberOfImmediateRetriesEventInvocations++;
-                    errors.MessageHasBeenSentToDelayedRetries += (sender, retry) => testContext.NumberOfDelayedRetriesPerformed++;
                     var recoverability = config.Recoverability();
+                    recoverability.Failed(f => f.OnMessageSentToErrorQueue(failedMessage =>
+                    {
+                        testContext.MessageSentToErrorException = failedMessage.Exception;
+                        testContext.MessageSentToError = true;
+                        return Task.FromResult(0);
+                    }));
                     recoverability.Delayed(settings =>
                     {
                         settings.NumberOfRetries(2);
                         settings.TimeIncrease(TimeSpan.FromMilliseconds(1));
+                        settings.OnMessageBeingRetried(retry =>
+                        {
+                            testContext.NumberOfDelayedRetriesPerformed++;
+                            return Task.FromResult(0);
+                        });
                     });
                     recoverability.Immediate(settings =>
                     {
                         settings.NumberOfRetries(3);
+                        settings.OnMessageBeingRetried(retry =>
+                        {
+                            testContext.TotalNumberOfImmediateRetriesEventInvocations++;
+                            return Task.FromResult(0);
+                        });
                     });
                 });
             }
