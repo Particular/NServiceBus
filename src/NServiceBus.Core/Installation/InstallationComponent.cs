@@ -10,27 +10,35 @@
 
     class InstallationComponent
     {
-        public InstallationComponent(ReadOnlySettings settings)
+        InstallationComponent(ContainerComponent containerComponent, ReceiveComponent receiveComponent, bool shouldRunInstallers, bool shouldCreateQueues, string installationUserName, QueueBindings queueBindings)
         {
-            this.settings = settings;
+            this.containerComponent = containerComponent;
+            this.receiveComponent = receiveComponent;
+            this.shouldRunInstallers = shouldRunInstallers;
+            this.shouldCreateQueues = shouldCreateQueues;
+            this.installationUserName = installationUserName;
+            this.queueBindings = queueBindings;
         }
 
-        public void Initialize(List<Type> concreteTypes, ContainerComponent container, ReceiveComponent receiver)
+        public static InstallationComponent Initialize(ReadOnlySettings settings, List<Type> concreteTypes, ContainerComponent containerComponent, ReceiveComponent receiveComponent)
         {
-            containerComponent = container;
-            receiveComponent = receiver;
+            var shouldRunInstallers = settings.GetOrDefault<bool>("Installers.Enable");
+            var installationUserName = GetInstallationUserName(settings);
 
-            shouldRunInstallers = settings.GetOrDefault<bool>("Installers.Enable");
+            var component = new InstallationComponent(containerComponent, receiveComponent, shouldRunInstallers, settings.CreateQueues(), installationUserName, settings.Get<QueueBindings>());
+
 
             if (!shouldRunInstallers)
             {
-                return;
+                return component;
             }
 
             foreach (var installerType in concreteTypes.Where(t => IsINeedToInstallSomething(t)))
             {
                 containerComponent.ContainerConfiguration.ConfigureComponent(installerType, DependencyLifecycle.InstancePerCall);
             }
+
+            return component;
         }
 
         public async Task Start()
@@ -40,21 +48,18 @@
                 return;
             }
 
-            var queueBindings = settings.Get<QueueBindings>();
-            var username = GetInstallationUserName();
-
-            if (settings.CreateQueues())
+            if (shouldCreateQueues)
             {
-                await receiveComponent.CreateQueuesIfNecessary(queueBindings, username).ConfigureAwait(false);
+                await receiveComponent.CreateQueuesIfNecessary(queueBindings, installationUserName).ConfigureAwait(false);
             }
 
             foreach (var installer in containerComponent.Builder.BuildAll<INeedToInstallSomething>())
             {
-                await installer.Install(username).ConfigureAwait(false);
+                await installer.Install(installationUserName).ConfigureAwait(false);
             }
         }
 
-        string GetInstallationUserName()
+        static string GetInstallationUserName(ReadOnlySettings settings)
         {
             if (!settings.TryGet("Installers.UserName", out string userName))
             {
@@ -71,10 +76,12 @@
             return userName;
         }
 
-        ReadOnlySettings settings;
         ContainerComponent containerComponent;
         ReceiveComponent receiveComponent;
         bool shouldRunInstallers;
+        bool shouldCreateQueues;
+        string installationUserName;
+        QueueBindings queueBindings;
 
         static bool IsINeedToInstallSomething(Type t) => typeof(INeedToInstallSomething).IsAssignableFrom(t);
     }
