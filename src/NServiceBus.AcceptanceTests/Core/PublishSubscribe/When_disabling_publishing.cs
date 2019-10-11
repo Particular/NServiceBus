@@ -12,8 +12,6 @@
         [Test]
         public async Task Should_subscribe_to_and_receive_events()
         {
-            Requires.MessageDrivenPubSub();
-
             await Scenario.Define<Context>()
                 .WithEndpoint<EndpointWithDisabledPublishing>(e => e.When(
                     c => c.Subscribe<TestEvent>()))
@@ -33,8 +31,6 @@
         [Test]
         public void Should_throw_when_publishing()
         {
-            Requires.MessageDrivenPubSub();
-
             var exception = Assert.ThrowsAsync<InvalidOperationException>(() => Scenario.Define<Context>()
                 .WithEndpoint<EndpointWithDisabledPublishing>(e => e.When(
                     c => c.Publish(new TestEvent())))
@@ -54,9 +50,14 @@
         {
             public EndpointWithDisabledPublishing()
             {
-                EndpointSetup<DefaultServer>(
+                var template = new DefaultServer();
+                template.TransportConfiguration = new ConfigureEndpointAcceptanceTestingTransport(false, true);
+                // use a persistence which doesn't support subscription persistence
+                template.PersistenceConfiguration = new ConfigureEndpointLearningPersistence(false);
+
+                EndpointSetup(template,
                     // DisablePublishing API is only available on the message-driven pub/sub transport settings.
-                    c => c.GetSettings().Set("NServiceBus.PublishSubscribe.EnablePublishing", false),
+                    (c, _) => c.GetSettings().Set("NServiceBus.PublishSubscribe.EnablePublishing", false),
                     pm => pm.RegisterPublisherFor<TestEvent>(typeof(PublishingEndpoint)));
             }
 
@@ -81,7 +82,12 @@
         {
             public PublishingEndpoint()
             {
-                EndpointSetup<DefaultServer>(endpoint => endpoint.OnEndpointSubscribed<Context>((args, context) =>
+                var template = new DefaultServer();
+                template.TransportConfiguration = new ConfigureEndpointAcceptanceTestingTransport(false, true);
+                // publisher requires a subscription storage
+                template.PersistenceConfiguration = new ConfigureEndpointLearningPersistence(true);
+
+                EndpointSetup(template, (endpoint, _) => endpoint.OnEndpointSubscribed<Context>((args, context) =>
                 {
                     if (args.MessageType.Contains(typeof(TestEvent).FullName))
                     {
