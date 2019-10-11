@@ -2,8 +2,9 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
     using System.Threading.Tasks;
+    using NServiceBus.DelayedDelivery;
+    using NServiceBus.Extensibility;
     using NServiceBus.Routing;
     using Settings;
     using Transport;
@@ -15,7 +16,11 @@
             this.settings = settings;
         }
 
-        public override IEnumerable<Type> DeliveryConstraints { get; } = Enumerable.Empty<Type>();
+        public override IEnumerable<Type> DeliveryConstraints { get; } = new[]
+        {
+            typeof(DelayDeliveryWith),
+            typeof(DoNotDeliverBefore)
+        };
 
         public override TransportTransactionMode TransactionMode
         {
@@ -30,7 +35,7 @@
             }
         }
 
-        public override OutboundRoutingPolicy OutboundRoutingPolicy { get; } = new OutboundRoutingPolicy(OutboundRoutingType.Unicast, OutboundRoutingType.Unicast, OutboundRoutingType.Unicast);
+        public override OutboundRoutingPolicy OutboundRoutingPolicy { get; } = new OutboundRoutingPolicy(OutboundRoutingType.Unicast, OutboundRoutingType.Multicast, OutboundRoutingType.Unicast);
 
         public override EndpointInstance BindToLocalEndpoint(EndpointInstance instance)
         {
@@ -89,9 +94,24 @@
 
         public override TransportSubscriptionInfrastructure ConfigureSubscriptionInfrastructure()
         {
-            throw new NotImplementedException();
+            settings.Get<FakeTransport.StartUpSequence>().Add($"{nameof(TransportInfrastructure)}.{nameof(ConfigureSubscriptionInfrastructure)}");
+
+            return new TransportSubscriptionInfrastructure(()=> new FakeSubscriptionManager());
         }
 
         ReadOnlySettings settings;
+
+        class FakeSubscriptionManager : IManageSubscriptions
+        {
+            public Task Subscribe(Type eventType, ContextBag context)
+            {
+                return Task.FromResult(0);
+            }
+
+            public Task Unsubscribe(Type eventType, ContextBag context)
+            {
+                return Task.FromResult(0);
+            }
+        }
     }
 }

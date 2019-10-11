@@ -49,7 +49,7 @@
             {
                 // The LimitMessageProcessingConcurrencyTo setting only applies to the input queue
                 if (pushSettings.InputQueue == Conventions.EndpointNamingConvention(typeof(ThrottledEndpoint)))
-                {   
+                {
                     Assert.AreEqual(10, limitations.MaxConcurrency);
                 }
             }

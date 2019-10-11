@@ -52,8 +52,6 @@
             {
                 var template = new DefaultServer();
                 template.TransportConfiguration = new ConfigureEndpointAcceptanceTestingTransport(false, true);
-                // use a persistence which doesn't support subscription persistence
-                template.PersistenceConfiguration = new ConfigureEndpointLearningPersistence(false);
 
                 EndpointSetup(template,
                     // DisablePublishing API is only available on the message-driven pub/sub transport settings.
@@ -84,8 +82,6 @@
             {
                 var template = new DefaultServer();
                 template.TransportConfiguration = new ConfigureEndpointAcceptanceTestingTransport(false, true);
-                // publisher requires a subscription storage
-                template.PersistenceConfiguration = new ConfigureEndpointLearningPersistence(true);
 
                 EndpointSetup(template, (endpoint, _) => endpoint.OnEndpointSubscribed<Context>((args, context) =>
                 {
