@@ -155,6 +155,18 @@
             Assert.AreEqual(typeof(SampleMessageStruct), mappedType);
         }
 
+        [Test]
+        public void Should_fail_for_interfaces_with_invalid_attributes()
+        {
+            var ex = Assert.Throws<ArgumentException>(() => 
+                new MessageMapper().Initialize(new[]
+                {
+                    typeof(MessageInterfaceWithPropertyWithIllegalAttribute)
+                }));
+
+            StringAssert.Contains("An invalid type was used as a custom attribute constructor argument, field or property.", ex.Message);
+        }
+
         public class SampleMessageClass
         {
             public SampleMessageClass()
@@ -215,5 +227,24 @@
         {
             string SomeValue { get; set; }
         }
+
+        [AttributeUsage(AttributeTargets.Property)]
+        public class IllegalAttribute : Attribute
+        {
+            // our mapper does not support custom attributes with nullable properties
+            public int? IntKey { get; set; }
+
+            public IllegalAttribute(int x)
+            {
+                IntKey = x;
+            }
+        }
+
+        public interface MessageInterfaceWithPropertyWithIllegalAttribute
+        {
+            [Illegal(0)]
+            object Value { get; set; }
+        }
+
     }
 }
