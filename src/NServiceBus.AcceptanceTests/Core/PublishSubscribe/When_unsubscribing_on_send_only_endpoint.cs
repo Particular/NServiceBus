@@ -47,7 +47,10 @@
             {
                 var template = new DefaultServer();
                 template.TransportConfiguration = new ConfigureEndpointAcceptanceTestingTransport(false, true);
-                EndpointSetup(template, (configuration, _) => configuration.SendOnly());
+                EndpointSetup(template, (configuration, _) => {
+                    configuration.SendOnly();
+                    configuration.UsePersistence<InMemoryPersistence, StorageType.Subscriptions>();
+                });
             }
         }
 
