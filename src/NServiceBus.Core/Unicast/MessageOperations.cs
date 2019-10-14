@@ -59,7 +59,26 @@ namespace NServiceBus
                 options.Context,
                 context);
 
-            return publishPipeline.Invoke(publishContext);
+            return !MessageOperationsEventSource.Log.IsEnabled() ? publishPipeline.Invoke(publishContext) : InvokePipelineAndEmitEvents(publishContext);
+        }
+
+        async Task InvokePipelineAndEmitEvents(IOutgoingPublishContext outgoingContext)
+        {
+            var isFaulted = false;
+            var messageOperationsEventSource = MessageOperationsEventSource.Log;
+            try
+            {
+                messageOperationsEventSource.PublishStart(outgoingContext.MessageId);
+                await publishPipeline.Invoke(outgoingContext).ConfigureAwait(false);
+            }
+            catch
+            {
+                isFaulted = true;
+            }
+            finally
+            {
+                messageOperationsEventSource.PublishStop(outgoingContext.MessageId, isFaulted);
+            }
         }
 
         public Task Subscribe(IBehaviorContext context, Type eventType, SubscribeOptions options)
@@ -116,7 +135,26 @@ namespace NServiceBus
                 outgoingContext.AddDeliveryConstraint(options.DelayedDeliveryConstraint);
             }
 
-            return sendPipeline.Invoke(outgoingContext);
+            return !MessageOperationsEventSource.Log.IsEnabled() ? sendPipeline.Invoke(outgoingContext) : InvokePipelineAndEmitEvents(outgoingContext);
+        }
+
+        async Task InvokePipelineAndEmitEvents(IOutgoingSendContext outgoingContext)
+        {
+            var isFaulted = false;
+            var messageOperationsEventSource = MessageOperationsEventSource.Log;
+            try
+            {
+                messageOperationsEventSource.SendStart(outgoingContext.MessageId);
+                await sendPipeline.Invoke(outgoingContext).ConfigureAwait(false);
+            }
+            catch
+            {
+                isFaulted = true;
+            }
+            finally
+            {
+                messageOperationsEventSource.SendStop(outgoingContext.MessageId, isFaulted);
+            }
         }
 
         public Task Reply(IBehaviorContext context, object message, ReplyOptions options)
@@ -146,7 +184,26 @@ namespace NServiceBus
                 options.Context,
                 context);
 
-            return replyPipeline.Invoke(outgoingContext);
+            return !MessageOperationsEventSource.Log.IsEnabled() ? replyPipeline.Invoke(outgoingContext) : InvokePipelineAndEmitEvents(outgoingContext);
+        }
+
+        async Task InvokePipelineAndEmitEvents(IOutgoingReplyContext outgoingContext)
+        {
+            var isFaulted = false;
+            var messageOperationsEventSource = MessageOperationsEventSource.Log;
+            try
+            {
+                messageOperationsEventSource.ReplyStart(outgoingContext.MessageId);
+                await replyPipeline.Invoke(outgoingContext).ConfigureAwait(false);
+            }
+            catch
+            {
+                isFaulted = true;
+            }
+            finally
+            {
+                messageOperationsEventSource.ReplyStop(outgoingContext.MessageId, isFaulted);
+            }
         }
     }
 }

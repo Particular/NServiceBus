@@ -16,8 +16,29 @@
         {
             messageContext.Extensions.Set(messageContext.TransportTransaction);
 
-            return satelliteDefinition.OnMessage(builder, messageContext);
+            return !PipelineEventSource.Log.IsEnabled() ? satelliteDefinition.OnMessage(builder, messageContext) : InvokePipelineAndEmitEvents(messageContext);
         }
+
+        async Task InvokePipelineAndEmitEvents(MessageContext messageContext)
+        {
+            var isFaulted = false;
+            var pipelineEventSource = PipelineEventSource.Log;
+            try
+            {
+                pipelineEventSource.SatelliteStart(satelliteDefinition.Name, messageContext.MessageId);
+                await satelliteDefinition.OnMessage(builder, messageContext).ConfigureAwait(false);
+            }
+            catch
+            {
+                isFaulted = true;
+                throw;
+            }
+            finally
+            {
+                pipelineEventSource.SatelliteStop(satelliteDefinition.Name, messageContext.MessageId, isFaulted);
+            }
+        }
+
 
         SatelliteDefinition satelliteDefinition;
         IBuilder builder;

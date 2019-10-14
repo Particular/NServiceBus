@@ -29,11 +29,32 @@
 
         public Task Invoke(TContext context)
         {
-            return pipeline(context);
+            return !PipelineEventSource.Log.IsEnabled() ? pipeline.Invoke(context) : InvokePipelineAndEmitEvents(context);
+        }
+
+        async Task InvokePipelineAndEmitEvents(TContext context)
+        {
+            var isFaulted = false;
+            var pipelineEventSource = PipelineEventSource.Log;
+            pipelineEventSource.InvokeStart(pipelineName);
+            try
+            {
+                await pipeline.Invoke(context).ConfigureAwait(false);
+            }
+            catch
+            {
+                isFaulted = true;
+                throw;
+            }
+            finally
+            {
+                pipelineEventSource.InvokeStop(pipelineName, isFaulted);
+            }
         }
 
         // ReSharper disable once PrivateFieldCanBeConvertedToLocalVariable
         IBehavior[] behaviors;
         Func<TContext, Task> pipeline;
+        string pipelineName = typeof(TContext).FullName;
     }
 }

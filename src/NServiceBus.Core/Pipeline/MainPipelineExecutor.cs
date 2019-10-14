@@ -30,12 +30,17 @@ namespace NServiceBus
 
                 var transportReceiveContext = new TransportReceiveContext(message, messageContext.TransportTransaction, messageContext.ReceiveCancellationTokenSource, rootContext);
 
+                var isFaulted = false;
+                var pipelineEventSource = PipelineEventSource.Log;
                 try
                 {
+                    pipelineEventSource.MainStart(messageContext.MessageId);
+
                     await receivePipeline.Invoke(transportReceiveContext).ConfigureAwait(false);
                 }
                 catch (Exception e)
                 {
+                    isFaulted = true;
                     e.Data["Message ID"] = message.MessageId;
                     if (message.NativeMessageId != message.MessageId)
                     {
@@ -43,6 +48,10 @@ namespace NServiceBus
                     }
 
                     throw;
+                }
+                finally
+                {
+                    pipelineEventSource.MainStop(messageContext.MessageId, isFaulted);
                 }
 
                 await receivePipelineNotification.Raise(new ReceivePipelineCompleted(message, pipelineStartedAt, DateTime.UtcNow)).ConfigureAwait(false);
