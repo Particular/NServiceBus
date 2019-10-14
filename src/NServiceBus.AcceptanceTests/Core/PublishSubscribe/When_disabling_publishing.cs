@@ -55,10 +55,7 @@
 
                 EndpointSetup(template,
                     // DisablePublishing API is only available on the message-driven pub/sub transport settings.
-                    (c, _) => {
-                        c.GetSettings().Set("NServiceBus.PublishSubscribe.EnablePublishing", false);
-                        c.UsePersistence<InMemoryPersistence, StorageType.Subscriptions>();
-                    },
+                    (c, _) => c.GetSettings().Set("NServiceBus.PublishSubscribe.EnablePublishing", false),
                     pm => pm.RegisterPublisherFor<TestEvent>(typeof(PublishingEndpoint)));
             }
 
