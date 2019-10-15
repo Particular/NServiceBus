@@ -31,10 +31,10 @@ namespace NServiceBus
                 }
                 catch (Exception e)
                 {
-                    e.Data.Add("Message ID", message.MessageId);
+                    e.Data["Message ID"] = message.MessageId;
                     if (message.NativeMessageId != message.MessageId)
                     {
-                        e.Data.Add("Transport message ID", message.NativeMessageId);
+                        e.Data["Transport message ID"] = message.NativeMessageId;
                     }
 
                     throw;

@@ -26,10 +26,10 @@
             }
             catch (Exception e)
             {
-                e.Data.Add("Message type", context.MessageMetadata.MessageType.FullName);
-                e.Data.Add("Handler type", context.MessageHandler.HandlerType);
-                e.Data.Add("Handler start time", startTimestamp);
-                e.Data.Add("Handler failure time", DateTime.UtcNow);
+                e.Data["Message type"] = context.MessageMetadata.MessageType.FullName;
+                e.Data["Handler type"] = context.MessageHandler.HandlerType;
+                e.Data["Handler start time"] = startTimestamp;
+                e.Data["Handler failure time"] = DateTime.UtcNow;
                 throw;
             }
         }
