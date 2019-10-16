@@ -18,9 +18,8 @@
             }
 
             var enabledPersistences = PersistenceStorageMerger.Merge(definitions, settings);
-            var bothFeaturesEnabled = settings.IsFeatureEnabled(typeof(Features.Sagas)) && settings.IsFeatureEnabled(typeof(Features.Outbox));
-
-            ValidateSagaAndOutboxUseSamePersistence(enabledPersistences, bothFeaturesEnabled);
+            
+            ValidateSagaAndOutboxUseSamePersistence(enabledPersistences, settings);
 
             var resultingSupportedStorages = new List<Type>();
             var diagnostics = new Dictionary<string, object>();
@@ -50,10 +49,11 @@
             settings.AddStartupDiagnosticsSection("Persistence", diagnostics);
         }
 
-        static void ValidateSagaAndOutboxUseSamePersistence(List<EnabledPersistence> enabledPersistences, bool bothFeaturesEnabled)
+        static void ValidateSagaAndOutboxUseSamePersistence(List<EnabledPersistence> enabledPersistences, SettingsHolder settings)
         {
             var sagaPersisterType = enabledPersistences.FirstOrDefault(p => p.SelectedStorages.Contains(typeof(StorageType.Sagas)));
             var outboxPersisterType = enabledPersistences.FirstOrDefault(p => p.SelectedStorages.Contains(typeof(StorageType.Outbox)));
+            var bothFeaturesEnabled = settings.IsFeatureEnabled(typeof(Features.Sagas)) && settings.IsFeatureEnabled(typeof(Features.Outbox));
 
             if (sagaPersisterType != null 
                 && outboxPersisterType != null
