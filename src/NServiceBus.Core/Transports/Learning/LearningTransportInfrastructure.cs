@@ -54,7 +54,6 @@
                 }
 
                 // When no solution file was found try to find a learning transport directory
-                // don't ignore casing due to linux support
                 var learningTransportDirectory = Path.Combine(directory, DefaultLearningTransportDirectory);
                 if (Directory.Exists(learningTransportDirectory))
                 {
