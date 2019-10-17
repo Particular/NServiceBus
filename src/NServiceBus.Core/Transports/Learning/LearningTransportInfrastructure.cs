@@ -16,7 +16,6 @@
         public LearningTransportInfrastructure(SettingsHolder settings)
         {
             this.settings = settings;
-
             if (!settings.TryGet(StorageLocationKey, out storagePath))
             {
                 storagePath = FindStoragePath();
@@ -55,10 +54,10 @@
                 }
 
                 // When no solution file was found try to find a learning transport directory
-                // don't ignore casing due to linux support
-                if (Directory.EnumerateDirectories(directory).Any(dir => dir.Equals(DefaultLearningTransportDirectory, StringComparison.Ordinal)))
+                var learningTransportDirectory = Path.Combine(directory, DefaultLearningTransportDirectory);
+                if (Directory.Exists(learningTransportDirectory))
                 {
-                    return Path.Combine(directory, DefaultLearningTransportDirectory);
+                    return learningTransportDirectory;
                 }
 
                 var parent = Directory.GetParent(directory);
