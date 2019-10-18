@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.AcceptanceTests.Sagas
 {
     using System;
-    using System.Collections.Generic;
     using System.Threading.Tasks;
     using AcceptanceTesting;
     using AcceptanceTests;
@@ -43,9 +42,10 @@
 
             Assert.IsNotNull(context.SagaData);
             Assert.AreEqual(3, context.SagaData.ContinueCount);
-            Assert.Contains(1, context.SagaData.CollectedIndexes);
-            Assert.Contains(2, context.SagaData.CollectedIndexes);
-            Assert.Contains(3, context.SagaData.CollectedIndexes);
+
+            StringAssert.Contains("1", context.SagaData.CollectedIndexes);
+            StringAssert.Contains("2", context.SagaData.CollectedIndexes);
+            StringAssert.Contains("3", context.SagaData.CollectedIndexes);
         }
 
         public class Context : ScenarioContext
@@ -89,7 +89,7 @@
                 public Task Handle(ContinueMsg message, IMessageHandlerContext context)
                 {
                     this.Data.ContinueCount++;
-                    this.Data.CollectedIndexes.Add(message.Index);
+                    this.Data.CollectedIndexes += message.Index.ToString();
 
                     if (this.Data.ContinueCount == 3)
                     {
@@ -111,7 +111,7 @@
             {
                 public virtual string OrderId { get; set; }
                 public virtual int ContinueCount { get; set; }
-                public virtual List<int> CollectedIndexes { get; set; } = new List<int>();
+                public virtual string CollectedIndexes { get; set; }
             }
         }
 
