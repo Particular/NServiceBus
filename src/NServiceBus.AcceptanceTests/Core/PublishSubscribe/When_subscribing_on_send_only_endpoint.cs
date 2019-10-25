@@ -45,11 +45,8 @@
         {
             public MessageDrivenPubSubSendOnlyEndpoint()
             {
-                var template = new DefaultServer
-                {
-                    TransportConfiguration = new ConfigureEndpointAcceptanceTestingTransport(false, true),
-                    PersistenceConfiguration = new ConfigureEndpointInMemoryPersistence()
-                };
+                var template = new DefaultServer();
+                template.TransportConfiguration = new ConfigureEndpointAcceptanceTestingTransport(false, true);
                 EndpointSetup(template, (configuration, _) => configuration.SendOnly());
             }
         }
