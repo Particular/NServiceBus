@@ -31,7 +31,12 @@
         {
             public ThrottledEndpoint()
             {
-                EndpointSetup<DefaultServer>(c => c.UseTransport<FakeTransport>());
+                var template = new DefaultServer
+                {
+                    PersistenceConfiguration = new ConfigureEndpointInMemoryPersistence()
+                };
+
+                EndpointSetup(template, (endpointConfiguration, _) => endpointConfiguration.UseTransport<FakeTransport>());
             }
         }
 
