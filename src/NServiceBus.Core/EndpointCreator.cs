@@ -7,7 +7,6 @@ namespace NServiceBus
     using System.Threading.Tasks;
     using Features;
     using Hosting.Helpers;
-    using Installation;
     using MessageInterfaces;
     using MessageInterfaces.MessageMapper.Reflection;
     using ObjectBuilder;
@@ -110,12 +109,12 @@ namespace NServiceBus
 
             pipelineComponent.AddRootContextItem<IEventAggregator>(eventAggregator);
 
-            var shouldRunInstallers = settings.GetOrDefault<bool>("Installers.Enable");
+            queueBindings = settings.Get<QueueBindings>();
+            receiveComponent = CreateReceiveComponent(receiveConfiguration, transportInfrastructure, pipelineComponent, queueBindings, eventAggregator);
 
-            if (shouldRunInstallers)
-            {
-                RegisterInstallers(concreteTypes);
-            }
+            installationComponent = new InstallationComponent(settings);
+
+            installationComponent.Initialize(concreteTypes, containerComponent, receiveComponent);
 
             settings.AddStartupDiagnosticsSection("Endpoint",
                 new
@@ -125,9 +124,6 @@ namespace NServiceBus
                     NServiceBusVersion = GitVersionInformation.MajorMinorPatch
                 }
             );
-
-            queueBindings = settings.Get<QueueBindings>();
-            receiveComponent = CreateReceiveComponent(receiveConfiguration, transportInfrastructure, pipelineComponent, queueBindings, eventAggregator);
         }
 
         public void UseExternallyManagedBuilder(IBuilder builder)
@@ -137,46 +133,11 @@ namespace NServiceBus
 
         public async Task<IStartableEndpoint> CreateStartableEndpoint()
         {
-            var shouldRunInstallers = settings.GetOrDefault<bool>("Installers.Enable");
-
-            if (shouldRunInstallers)
-            {
-                var username = GetInstallationUserName();
-
-                if (settings.CreateQueues())
-                {
-                    await receiveComponent.CreateQueuesIfNecessary(queueBindings, username).ConfigureAwait(false);
-                }
-
-                await RunInstallers(containerComponent.Builder, username).ConfigureAwait(false);
-            }
+            // This is the only component that is started before the user actually calls .Start(). This is due to an old "feature" that allowed users to
+            // run installers by "just creating the endpoint". See https://docs.particular.net/nservicebus/operations/installers#running-installers for more details.
+            await installationComponent.Start().ConfigureAwait(false);
 
             return new StartableEndpoint(settings, containerComponent, featureComponent, transportInfrastructure, receiveComponent, criticalError, pipelineComponent, recoverabilityComponent);
-        }
-
-        async Task RunInstallers(IBuilder builder, string username)
-        {
-            foreach (var installer in builder.BuildAll<INeedToInstallSomething>())
-            {
-                await installer.Install(username).ConfigureAwait(false);
-            }
-        }
-
-        string GetInstallationUserName()
-        {
-            if (!settings.TryGet("Installers.UserName", out string userName))
-            {
-                if (Environment.OSVersion.Platform == PlatformID.Win32NT)
-                {
-                    userName = $"{Environment.UserDomainName}\\{Environment.UserName}";
-                }
-                else
-                {
-                    userName = Environment.UserName;
-                }
-            }
-
-            return userName;
         }
 
         TransportInfrastructure InitializeTransportComponent()
@@ -282,14 +243,6 @@ namespace NServiceBus
             settings.TryGet("onCriticalErrorAction", out Func<ICriticalErrorContext, Task> errorAction);
             criticalError = new CriticalError(errorAction);
             containerComponent.ContainerConfiguration.RegisterSingleton(criticalError);
-        }
-
-        void RegisterInstallers(IEnumerable<Type> concreteTypes)
-        {
-            foreach (var installerType in concreteTypes.Where(t => IsINeedToInstallSomething(t)))
-            {
-                containerComponent.ContainerConfiguration.ConfigureComponent(installerType, DependencyLifecycle.InstancePerCall);
-            }
         }
 
         static List<Type> PerformAssemblyScanning(EndpointConfiguration endpointConfiguration)
@@ -400,8 +353,6 @@ namespace NServiceBus
 
         static bool HasDefaultConstructor(Type type) => type.GetConstructor(Type.EmptyTypes) != null;
 
-        static bool IsINeedToInstallSomething(Type t) => typeof(INeedToInstallSomething).IsAssignableFrom(t);
-
         PipelineComponent pipelineComponent;
         SettingsHolder settings;
         ContainerComponent containerComponent;
@@ -411,5 +362,6 @@ namespace NServiceBus
         QueueBindings queueBindings;
         ReceiveComponent receiveComponent;
         RecoverabilityComponent recoverabilityComponent;
+        InstallationComponent installationComponent;
     }
 }
