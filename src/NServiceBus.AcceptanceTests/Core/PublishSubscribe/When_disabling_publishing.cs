@@ -50,10 +50,8 @@
         {
             public EndpointWithDisabledPublishing()
             {
-                var template = new DefaultServer
-                {
-                    TransportConfiguration = new ConfigureEndpointAcceptanceTestingTransport(false, true)
-                };
+                var template = new DefaultServer();
+                template.TransportConfiguration = new ConfigureEndpointAcceptanceTestingTransport(false, true);
 
                 EndpointSetup(template,
                     // DisablePublishing API is only available on the message-driven pub/sub transport settings.
@@ -82,10 +80,8 @@
         {
             public PublishingEndpoint()
             {
-                var template = new DefaultServer
-                {
-                    TransportConfiguration = new ConfigureEndpointAcceptanceTestingTransport(false, true)
-                };
+                var template = new DefaultServer();
+                template.TransportConfiguration = new ConfigureEndpointAcceptanceTestingTransport(false, true);
 
                 EndpointSetup(template, (c, _) => c.OnEndpointSubscribed<Context>((args, context) =>
                      {
