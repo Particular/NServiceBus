@@ -31,10 +31,7 @@
         {
             public ThrottledEndpoint()
             {
-                EndpointSetup<DefaultServer>(c => {
-                    c.UseTransport<FakeTransport>();
-                    c.UsePersistence<InMemoryPersistence>();
-                });
+                EndpointSetup<DefaultServer>(c => c.UseTransport<FakeTransport>());
             }
         }
 
