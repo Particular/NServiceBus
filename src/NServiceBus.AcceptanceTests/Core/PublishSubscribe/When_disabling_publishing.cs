@@ -52,7 +52,6 @@
             {
                 var template = new DefaultServer();
                 template.TransportConfiguration = new ConfigureEndpointAcceptanceTestingTransport(false, true);
-
                 EndpointSetup(template,
                     // DisablePublishing API is only available on the message-driven pub/sub transport settings.
                     (c, _) => c.GetSettings().Set("NServiceBus.PublishSubscribe.EnablePublishing", false),
@@ -82,7 +81,6 @@
             {
                 var template = new DefaultServer();
                 template.TransportConfiguration = new ConfigureEndpointAcceptanceTestingTransport(false, true);
-
                 EndpointSetup(template, (c, _) => c.OnEndpointSubscribed<Context>((args, context) =>
                      {
                          if (args.MessageType.Contains(typeof(TestEvent).FullName))

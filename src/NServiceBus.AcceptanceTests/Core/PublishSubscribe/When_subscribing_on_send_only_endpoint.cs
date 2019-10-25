@@ -37,7 +37,6 @@
             {
                 var template = new DefaultServer();
                 template.TransportConfiguration = new ConfigureEndpointAcceptanceTestingTransport(true, true);
-
                 EndpointSetup(template, (configuration, _) => configuration.SendOnly());
             }
         }
@@ -48,7 +47,6 @@
             {
                 var template = new DefaultServer();
                 template.TransportConfiguration = new ConfigureEndpointAcceptanceTestingTransport(false, true);
-
                 EndpointSetup(template, (configuration, _) => configuration.SendOnly());
             }
         }
