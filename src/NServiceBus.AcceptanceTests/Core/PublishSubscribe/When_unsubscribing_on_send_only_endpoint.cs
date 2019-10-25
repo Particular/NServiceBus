@@ -35,8 +35,11 @@
         {
             public NativePubSubSendOnlyEndpoint()
             {
-                var template = new DefaultServer();
-                template.TransportConfiguration = new ConfigureEndpointAcceptanceTestingTransport(true, true);
+                var template = new DefaultServer
+                {
+                    TransportConfiguration = new ConfigureEndpointAcceptanceTestingTransport(true, true)
+                };
+
                 EndpointSetup(template, (configuration, _) => configuration.SendOnly());
             }
         }
@@ -45,12 +48,13 @@
         {
             public MessageDrivenPubSubSendOnlyEndpoint()
             {
-                var template = new DefaultServer();
-                template.TransportConfiguration = new ConfigureEndpointAcceptanceTestingTransport(false, true);
-                EndpointSetup(template, (configuration, _) => {
-                    configuration.SendOnly();
-                    configuration.UsePersistence<InMemoryPersistence, StorageType.Subscriptions>();
-                });
+                var template = new DefaultServer
+                {
+                    TransportConfiguration = new ConfigureEndpointAcceptanceTestingTransport(false, true),
+                    PersistenceConfiguration = new ConfigureEndpointInMemoryPersistence()
+                };
+
+                EndpointSetup(template, (configuration, _) => configuration.SendOnly());
             }
         }
 

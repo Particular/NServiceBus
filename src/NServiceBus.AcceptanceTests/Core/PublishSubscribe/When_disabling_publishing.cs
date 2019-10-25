@@ -80,20 +80,20 @@
         {
             public PublishingEndpoint()
             {
-                var template = new DefaultServer();
-                template.TransportConfiguration = new ConfigureEndpointAcceptanceTestingTransport(false, true);
-
-                EndpointSetup(template, (c, _) =>
+                var template = new DefaultServer
                 {
-                    c.OnEndpointSubscribed<Context>((args, context) =>
-                    {
-                        if (args.MessageType.Contains(typeof(TestEvent).FullName))
-                        {
-                            context.ReceivedSubscription = true;
-                        }
-                    });
-                    c.UsePersistence<InMemoryPersistence, StorageType.Subscriptions>();
-                });
+                    TransportConfiguration = new ConfigureEndpointAcceptanceTestingTransport(false, true),
+                    PersistenceConfiguration = new ConfigureEndpointInMemoryPersistence()
+                };
+
+                EndpointSetup(template, (c, _) => c.OnEndpointSubscribed<Context>((args, context) =>
+                     {
+                         if (args.MessageType.Contains(typeof(TestEvent).FullName))
+                         {
+                             context.ReceivedSubscription = true;
+                         }
+                     })
+                );
             }
         }
 
