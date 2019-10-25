@@ -86,13 +86,12 @@
                 };
 
                 EndpointSetup(template, (c, _) => c.OnEndpointSubscribed<Context>((args, context) =>
-                     {
-                         if (args.MessageType.Contains(typeof(TestEvent).FullName))
-                         {
-                             context.ReceivedSubscription = true;
-                         }
-                     })
-                );
+                {
+                    if (args.MessageType.Contains(typeof(TestEvent).FullName))
+                    {
+                        context.ReceivedSubscription = true;
+                    }
+                }));
             }
         }
 
