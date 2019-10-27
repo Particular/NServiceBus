@@ -31,7 +31,12 @@
         {
             public ThrottledEndpoint()
             {
-                EndpointSetup<DefaultServer>(c => c.UseTransport<FakeTransport>());
+                var template = new DefaultServer
+                {
+                    PersistenceConfiguration = new ConfigureEndpointInMemoryPersistence()
+                };
+
+                EndpointSetup(template, (endpointConfiguration, _) => endpointConfiguration.UseTransport<FakeTransport>());
             }
         }
 
@@ -49,7 +54,7 @@
             {
                 // The LimitMessageProcessingConcurrencyTo setting only applies to the input queue
                 if (pushSettings.InputQueue == Conventions.EndpointNamingConvention(typeof(ThrottledEndpoint)))
-                {   
+                {
                     Assert.AreEqual(10, limitations.MaxConcurrency);
                 }
             }

@@ -7,17 +7,6 @@ using NUnit.Framework;
 
 public class ConfigureEndpointLearningPersistence : IConfigureEndpointTestExecution
 {
-    bool useInMemoryPersistenceForSubscriptionAndTimeoutSupport;
-
-    public ConfigureEndpointLearningPersistence() : this(true)
-    {
-    }
-
-    public ConfigureEndpointLearningPersistence(bool useInMemoryPersistenceForSubscriptionAndTimeoutSupport)
-    {
-        this.useInMemoryPersistenceForSubscriptionAndTimeoutSupport = useInMemoryPersistenceForSubscriptionAndTimeoutSupport;
-    }
-
     public Task Configure(string endpointName, EndpointConfiguration configuration, RunSettings settings, PublisherMetadata publisherMetadata)
     {
         var testRunId = TestContext.CurrentContext.Test.ID;
@@ -35,12 +24,6 @@ public class ConfigureEndpointLearningPersistence : IConfigureEndpointTestExecut
         }
 
         storageDir = Path.Combine(tempDir, testRunId);
-
-        if (useInMemoryPersistenceForSubscriptionAndTimeoutSupport)
-        {
-            configuration.UsePersistence<InMemoryPersistence, StorageType.Subscriptions>();
-            configuration.UsePersistence<InMemoryPersistence, StorageType.Timeouts>();
-        }
 
         configuration.UsePersistence<LearningPersistence, StorageType.Sagas>()
             .SagaStorageDirectory(storageDir);

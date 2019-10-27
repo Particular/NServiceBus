@@ -21,6 +21,7 @@
             CollectionAssert.AreEqual(new List<string>
             {
                 $"{nameof(TransportDefinition)}.{nameof(TransportDefinition.Initialize)}",
+                $"{nameof(TransportInfrastructure)}.{nameof(TransportInfrastructure.ConfigureSubscriptionInfrastructure)}",
                 $"{nameof(TransportInfrastructure)}.{nameof(TransportInfrastructure.ConfigureReceiveInfrastructure)}",
                 $"{nameof(ICreateQueues)}.{nameof(ICreateQueues.CreateQueueIfNecessary)}",
                 $"{nameof(TransportReceiveInfrastructure)}.PreStartupCheck",

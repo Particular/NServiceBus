@@ -15,7 +15,7 @@
             await Scenario.Define<Context>()
                 .WithEndpoint<EndpointWithDisabledPublishing>(e => e.When(
                     c => c.Subscribe<TestEvent>()))
-                .WithEndpoint<PublishingEndpoint>(e => e.When(c =>
+                .WithEndpoint<MessageDrivenPublisher>(e => e.When(c =>
                 {
                     if (c.ReceivedSubscription)
                     {
@@ -52,13 +52,10 @@
             {
                 var template = new DefaultServer();
                 template.TransportConfiguration = new ConfigureEndpointAcceptanceTestingTransport(false, true);
-                // use a persistence which doesn't support subscription persistence
-                template.PersistenceConfiguration = new ConfigureEndpointLearningPersistence(false);
-
                 EndpointSetup(template,
                     // DisablePublishing API is only available on the message-driven pub/sub transport settings.
                     (c, _) => c.GetSettings().Set("NServiceBus.PublishSubscribe.EnablePublishing", false),
-                    pm => pm.RegisterPublisherFor<TestEvent>(typeof(PublishingEndpoint)));
+                    pm => pm.RegisterPublisherFor<TestEvent>(typeof(MessageDrivenPublisher)));
             }
 
             class EventHandler : IHandleMessages<TestEvent>
@@ -78,16 +75,17 @@
             }
         }
 
-        class PublishingEndpoint : EndpointConfigurationBuilder
+        class MessageDrivenPublisher : EndpointConfigurationBuilder
         {
-            public PublishingEndpoint()
+            public MessageDrivenPublisher()
             {
-                var template = new DefaultServer();
-                template.TransportConfiguration = new ConfigureEndpointAcceptanceTestingTransport(false, true);
-                // publisher requires a subscription storage
-                template.PersistenceConfiguration = new ConfigureEndpointLearningPersistence(true);
+                var template = new DefaultServer
+                {
+                    TransportConfiguration = new ConfigureEndpointAcceptanceTestingTransport(false, true),
+                    PersistenceConfiguration = new ConfigureEndpointInMemoryPersistence()
+                };
 
-                EndpointSetup(template, (endpoint, _) => endpoint.OnEndpointSubscribed<Context>((args, context) =>
+                EndpointSetup(template, (c, _) => c.OnEndpointSubscribed<Context>((args, context) =>
                 {
                     if (args.MessageType.Contains(typeof(TestEvent).FullName))
                     {
