@@ -29,6 +29,10 @@ namespace NServiceBus.Core.Analyzer
 
             foreach (var token in call.Expression?.DescendantTokens() ?? Enumerable.Empty<SyntaxToken>())
             {
+                if (context.CancellationToken.IsCancellationRequested)
+                {
+                    return;
+                }
                 // check syntax tree (cheap) first for possible call requiring await and then check semantic model (expensive) to confirm
                 if (CouldBeMethodRequiringAwait(token) && IsMethodRequiringAwait(call, context))
                 {
