@@ -1,4 +1,5 @@
 <Project>
+
    <PropertyGroup>
     <LangVersion>7.3</LangVersion>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
@@ -7,4 +8,5 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.DotNet.Analyzers.Compatibility" Version="0.1.2-alpha" PrivateAssets="All" />
   </ItemGroup>
+
 </Project>
