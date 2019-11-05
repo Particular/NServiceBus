@@ -18,11 +18,11 @@
             this.queueBindings = queueBindings;
         }
 
-        public static InstallationComponent Initialize(Configuration settings, List<Type> concreteTypes, ContainerComponent containerComponent, ReceiveComponent receiveComponent, QueueBindings queueBindings)
+        public static InstallationComponent Initialize(Configuration configuration, List<Type> concreteTypes, ContainerComponent containerComponent, ReceiveComponent receiveComponent, QueueBindings queueBindings)
         {
-            var component = new InstallationComponent(settings, containerComponent, receiveComponent, queueBindings);
+            var component = new InstallationComponent(configuration, containerComponent, receiveComponent, queueBindings);
 
-            if (!settings.ShouldRunInstallers)
+            if (!configuration.ShouldRunInstallers)
             {
                 return component;
             }
@@ -79,16 +79,48 @@
 
         public class Configuration
         {
-            public Configuration(ReadOnlySettings settings)
+            public Configuration(SettingsHolder settings)
             {
-                InstallationUserName = settings.GetOrDefault<string>("Installers.UserName");
-                ShouldRunInstallers = settings.GetOrDefault<bool>("Installers.Enable");
-                ShouldCreateQueues = settings.CreateQueues();
+                this.settings = settings;
+
+                settings.SetDefault("Transport.CreateQueues", true);
             }
 
-            public string InstallationUserName { get; }
-            public bool ShouldRunInstallers { get; }
-            public bool ShouldCreateQueues { get; }
+            public string InstallationUserName
+            {
+                get
+                {
+                    return settings.GetOrDefault<string>("Installers.UserName");
+                }
+                set
+                {
+                    settings.Set("Installers.UserName", value);
+                }
+            }
+            public bool ShouldRunInstallers
+            {
+                get
+                {
+                    return settings.GetOrDefault<bool>("Installers.Enable");
+                }
+                set
+                {
+                    settings.Set("Installers.Enable", value);
+                }
+            }
+            public bool ShouldCreateQueues
+            {
+                get
+                {
+                    return settings.Get<bool>("Transport.CreateQueues");
+                }
+                set
+                {
+                    settings.Set("Transport.CreateQueues", value);
+                }
+            }
+
+            SettingsHolder settings;
         }
     }
 }
