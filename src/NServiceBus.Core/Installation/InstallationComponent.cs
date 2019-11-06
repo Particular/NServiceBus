@@ -97,6 +97,7 @@
                     settings.Set("Installers.UserName", value);
                 }
             }
+
             public bool ShouldRunInstallers
             {
                 get
@@ -108,6 +109,7 @@
                     settings.Set("Installers.Enable", value);
                 }
             }
+
             public bool ShouldCreateQueues
             {
                 get
