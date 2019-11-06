@@ -24,17 +24,20 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.2.0" />
-    <PackageReference Include="Mono.Cecil" Version="0.10.4" />
     <PackageReference Include="NuDoq" Version="1.2.5" NoWarn="NU1701" />
     <PackageReference Include="NUnit" Version="3.12.0" />
     <PackageReference Include="NUnit3TestAdapter" Version="3.15.1" />
     <PackageReference Include="Particular.Approvals" Version="0.2.0" />
-    <PackageReference Include="PublicApiGenerator" Version="9.3.0" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp2.1'">
+    <PackageReference Include="PublicApiGenerator" Version="10.0.0" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net452'">
-    <PackageReference Include="NUnit.ApplicationDomain" Version="11.1.0" />
+    <PackageReference Include="NUnit.ApplicationDomain" Version="11.0" />
     <PackageReference Include="System.ValueTuple" Version="4.5.0" />
+    <PackageReference Include="PublicApiGenerator" Version="9.3.0" />
   </ItemGroup>
 
   <ItemGroup>

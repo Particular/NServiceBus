@@ -20,7 +20,11 @@
         [Test]
         public void ApproveNServiceBus()
         {
-            var publicApi = ApiGenerator.GeneratePublicApi(typeof(Endpoint).Assembly, excludeAttributes: new[] { "Particular.Licensing.ReleaseDateAttribute" });
+            var options = new ApiGeneratorOptions
+            {
+                ExcludeAttributes = new[] { "Particular.Licensing.ReleaseDateAttribute" }
+            };
+            var publicApi = typeof(Endpoint).Assembly.GeneratePublicApi(options);
             Approver.Verify(publicApi, scenario: "netstandard");
         }
 #endif
