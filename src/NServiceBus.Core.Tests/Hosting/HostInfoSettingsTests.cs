@@ -15,7 +15,7 @@
 
             busConfig.UniquelyIdentifyRunningInstance().UsingCustomIdentifier(requestedId);
 
-            var configuredId = busConfig.Settings.Get<Guid>(HostInformationFeature.HostIdSettingsKey);
+            var configuredId = busConfig.Settings.Get<HostingComponent.Configuration>().HostId;
             Assert.AreEqual(requestedId, configuredId);
         }
 
@@ -24,11 +24,10 @@
         {
             var busConfig = new EndpointConfiguration("myendpoint");
 
-            Assert.IsFalse(busConfig.Settings.HasSetting(HostInformationFeature.HostIdSettingsKey));
-
             busConfig.UniquelyIdentifyRunningInstance().UsingNames("Instance","Host");
 
-            Assert.IsTrue(busConfig.Settings.HasExplicitValue(HostInformationFeature.HostIdSettingsKey));
+            var configuredId = busConfig.Settings.Get<HostingComponent.Configuration>().HostId;
+            Assert.AreEqual(DeterministicGuid.Create("Instance", "Host"), configuredId);
         }
     }
 }

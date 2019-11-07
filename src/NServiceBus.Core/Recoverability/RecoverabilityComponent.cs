@@ -36,13 +36,15 @@
             return recoverabilityExecutorFactory;
         }
 
-        public void Initialize(ReceiveConfiguration receiveConfiguration)
+        public void Initialize(ReceiveConfiguration receiveConfiguration, HostingComponent hostingComponent)
         {
             if (settings.GetOrDefault<bool>("Endpoint.SendOnly"))
             {
                 //Message recoverability is only relevant for endpoints receiving messages.
                 return;
             }
+
+            hostInformation = hostingComponent.HostInformation;
 
             transactionsOn = receiveConfiguration.TransactionMode != TransportTransactionMode.None;
 
@@ -78,14 +80,13 @@
 
             Func<string, MoveToErrorsExecutor> moveToErrorsExecutorFactory = localAddress =>
             {
-                var hostInfo = builder.Build<HostInformation>();
                 var staticFaultMetadata = new Dictionary<string, string>
                     {
                         {FaultsHeaderKeys.FailedQ, localAddress},
                         {Headers.ProcessingMachine, RuntimeEnvironment.MachineName},
                         {Headers.ProcessingEndpoint, settings.EndpointName()},
-                        {Headers.HostId, hostInfo.HostId.ToString("N")},
-                        {Headers.HostDisplayName, hostInfo.DisplayName}
+                        {Headers.HostId, hostInformation.HostId.ToString("N")},
+                        {Headers.HostDisplayName, hostInformation.DisplayName}
                     };
 
                 var headerCustomizations = settings.Get<Action<Dictionary<string, string>>>(FaultHeaderCustomization);
@@ -189,6 +190,7 @@
         bool transactionsOn;
         RecoverabilityConfig recoverabilityConfig;
         RecoverabilityExecutorFactory recoverabilityExecutorFactory;
+        HostInformation hostInformation;
 
         static int DefaultNumberOfRetries = 3;
         static TimeSpan DefaultTimeIncrease = TimeSpan.FromSeconds(10);

@@ -40,7 +40,7 @@ namespace NServiceBus
         public HostInfoSettings UsingCustomIdentifier(Guid id)
         {
             Guard.AgainstNull(nameof(id), id);
-            config.Settings.Set(HostInformationFeature.HostIdSettingsKey, id);
+            config.Settings.Get<HostingComponent.Configuration>().HostId = id;
             return this;
         }
 
@@ -55,7 +55,7 @@ namespace NServiceBus
             Guard.AgainstNullAndEmpty(nameof(instanceName), instanceName);
             Guard.AgainstNullAndEmpty(nameof(hostName), hostName);
 
-            config.Settings.Set(HostInformationFeature.HostIdSettingsKey, DeterministicGuid.Create(instanceName, hostName));
+            config.Settings.Get<HostingComponent.Configuration>().HostId = DeterministicGuid.Create(instanceName, hostName);
             return this;
         }
 
@@ -66,6 +66,7 @@ namespace NServiceBus
         {
             Guard.AgainstNullAndEmpty(nameof(displayName), displayName);
             config.Settings.Set("NServiceBus.HostInformation.DisplayName", displayName);
+            config.Settings.Get<HostingComponent.Configuration>().DisplayName = displayName;
             return this;
         }
 
