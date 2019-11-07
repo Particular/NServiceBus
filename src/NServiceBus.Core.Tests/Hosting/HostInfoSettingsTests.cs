@@ -1,7 +1,6 @@
 ﻿namespace NServiceBus.Core.Tests.Host
 {
     using System;
-    using NServiceBus.Features;
     using NUnit.Framework;
 
     [TestFixture]

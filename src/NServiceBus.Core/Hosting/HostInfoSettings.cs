@@ -1,7 +1,6 @@
 namespace NServiceBus
 {
     using System;
-    using Features;
     using Hosting;
 
     /// <summary>
