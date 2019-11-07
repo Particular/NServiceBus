@@ -60,12 +60,8 @@
             {
                 this.settings = settings;
 
-                var fullPathToStartingExe = PathUtilities.SanitizedPath(Environment.CommandLine);
+                fullPathToStartingExe = PathUtilities.SanitizedPath(Environment.CommandLine);
 
-                if (!settings.HasExplicitValue(HostIdSettingsKey))
-                {
-                    settings.SetDefault(HostIdSettingsKey, DeterministicGuid.Create(fullPathToStartingExe, RuntimeEnvironment.MachineName));
-                }
                 settings.SetDefault(DisplayNameSettingsKey, RuntimeEnvironment.MachineName);
                 settings.SetDefault(PropertiesSettingsKey, new Dictionary<string, string>
                 {
@@ -76,17 +72,19 @@
                 });
             }
 
-            SettingsHolder settings;
-
-            const string HostIdSettingsKey = "NServiceBus.HostInformation.HostId";
-            const string DisplayNameSettingsKey = "NServiceBus.HostInformation.DisplayName";
-            const string PropertiesSettingsKey = "NServiceBus.HostInformation.Properties";
-
             public Guid HostId
             {
                 get
                 {
-                    return settings.Get<Guid>(HostIdSettingsKey);
+                    //we can't use a default since we have a test that makes sure that users can create a feature that
+                    // prevents MD5 hash to be used if they override the host id. For more details see the test:
+                    // When_feature_overrides_hostid
+                    if (settings.TryGet<Guid>(HostIdSettingsKey, out var hostId))
+                    {
+                        return hostId;
+                    }
+
+                    return DeterministicGuid.Create(fullPathToStartingExe, RuntimeEnvironment.MachineName);
                 }
                 set
                 {
@@ -117,6 +115,13 @@
                     settings.Set(PropertiesSettingsKey, value);
                 }
             }
+
+            SettingsHolder settings;
+            string fullPathToStartingExe;
+
+            const string HostIdSettingsKey = "NServiceBus.HostInformation.HostId";
+            const string DisplayNameSettingsKey = "NServiceBus.HostInformation.DisplayName";
+            const string PropertiesSettingsKey = "NServiceBus.HostInformation.Properties";
         }
     }
 }

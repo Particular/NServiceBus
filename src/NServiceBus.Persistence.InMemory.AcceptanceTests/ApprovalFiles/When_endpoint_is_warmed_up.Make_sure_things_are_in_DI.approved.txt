@@ -1,11 +1,11 @@
 ----------- Actively used components (Find ways to stop accessing them)-----------
-NServiceBus.Hosting.HostInformation - SingleInstance
 NServiceBus.StorageInitializer+CallInit - SingleInstance
 NServiceBus.SubscriptionReceiverBehavior - InstancePerCall
 NServiceBus.Transport.IDispatchMessages - SingleInstance
 NServiceBus.Unicast.MessageHandlerRegistry - SingleInstance
 ----------- Likely unused components (Remove in next major if possible) -----------
 NServiceBus.CriticalError - SingleInstance
+NServiceBus.Hosting.HostInformation - SingleInstance
 NServiceBus.InMemorySubscriptionStorage - SingleInstance
 NServiceBus.InMemorySynchronizedStorage - SingleInstance
 NServiceBus.InMemoryTransactionalSynchronizedStorageAdapter - SingleInstance
