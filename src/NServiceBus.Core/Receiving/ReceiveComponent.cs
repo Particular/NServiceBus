@@ -5,12 +5,13 @@ namespace NServiceBus
     using System.Linq;
     using System.Threading.Tasks;
     using Logging;
+    using NServiceBus.Settings;
     using ObjectBuilder;
     using Transport;
 
     class ReceiveComponent
     {
-        public ReceiveComponent(ReceiveConfiguration configuration,
+        ReceiveComponent(ReceiveConfiguration configuration,
             TransportReceiveInfrastructure receiveInfrastructure,
             PipelineComponent pipeline,
             IEventAggregator eventAggregator,
@@ -25,27 +26,49 @@ namespace NServiceBus
             this.errorQueue = errorQueue;
         }
 
-        public void BindQueues(QueueBindings queueBindings)
+        public static ReceiveComponent Initialize(ReceiveConfiguration receiveConfiguration,
+            TransportInfrastructure transportInfrastructure,
+            PipelineComponent pipeline,
+            QueueBindings queueBindings,
+            EventAggregator eventAggregator,
+            CriticalError criticalError,
+            string errorQueue,
+            ReadOnlySettings settings)
         {
-            if (IsSendOnly)
+            var receiveComponent = new ReceiveComponent(receiveConfiguration,
+                receiveConfiguration != null ? transportInfrastructure.ConfigureReceiveInfrastructure() : null, //don't create the receive infrastructure for send-only endpoints
+                pipeline,
+                eventAggregator,
+                criticalError,
+                errorQueue);
+
+            receiveComponent.BindQueues(queueBindings);
+
+            if (receiveConfiguration != null)
             {
-                return;
+                settings.AddStartupDiagnosticsSection("Receiving", new
+                {
+                    receiveConfiguration.LocalAddress,
+                    receiveConfiguration.InstanceSpecificQueue,
+                    receiveConfiguration.LogicalAddress,
+                    receiveConfiguration.PurgeOnStartup,
+                    receiveConfiguration.QueueNameBase,
+                    TransactionMode = receiveConfiguration.TransactionMode.ToString("G"),
+                    receiveConfiguration.PushRuntimeSettings.MaxConcurrency,
+                    Satellites = receiveConfiguration.SatelliteDefinitions.Select(s => new
+                    {
+                        s.Name,
+                        s.ReceiveAddress,
+                        TransactionMode = s.RequiredTransportTransactionMode.ToString("G"),
+                        s.RuntimeSettings.MaxConcurrency
+                    }).ToArray()
+                });
             }
 
-            queueBindings.BindReceiving(configuration.LocalAddress);
-
-            if (configuration.InstanceSpecificQueue != null)
-            {
-                queueBindings.BindReceiving(configuration.InstanceSpecificQueue);
-            }
-
-            foreach (var satellitePipeline in configuration.SatelliteDefinitions)
-            {
-                queueBindings.BindReceiving(satellitePipeline.ReceiveAddress);
-            }
+            return receiveComponent;
         }
 
-        public async Task Initialize(ContainerComponent containerComponent, RecoverabilityComponent recoverabilityComponent)
+        public async Task PrepareToStart(ContainerComponent containerComponent, RecoverabilityComponent recoverabilityComponent)
         {
             if (IsSendOnly)
             {
@@ -131,6 +154,26 @@ namespace NServiceBus
         }
 
         bool IsSendOnly => configuration == null;
+
+        void BindQueues(QueueBindings queueBindings)
+        {
+            if (IsSendOnly)
+            {
+                return;
+            }
+
+            queueBindings.BindReceiving(configuration.LocalAddress);
+
+            if (configuration.InstanceSpecificQueue != null)
+            {
+                queueBindings.BindReceiving(configuration.InstanceSpecificQueue);
+            }
+
+            foreach (var satellitePipeline in configuration.SatelliteDefinitions)
+            {
+                queueBindings.BindReceiving(satellitePipeline.ReceiveAddress);
+            }
+        }
 
         void AddReceivers(IBuilder builder, RecoverabilityExecutorFactory recoverabilityExecutorFactory)
         {

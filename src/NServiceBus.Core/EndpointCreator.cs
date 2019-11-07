@@ -110,7 +110,15 @@ namespace NServiceBus
             pipelineComponent.AddRootContextItem<IEventAggregator>(eventAggregator);
 
             queueBindings = settings.Get<QueueBindings>();
-            receiveComponent = CreateReceiveComponent(receiveConfiguration, transportInfrastructure, pipelineComponent, queueBindings, eventAggregator);
+
+            receiveComponent = ReceiveComponent.Initialize(receiveConfiguration,
+                transportInfrastructure,
+                pipelineComponent,
+                queueBindings,
+                eventAggregator,
+                criticalError,
+                settings.ErrorQueueAddress(),
+                settings);
 
             installationComponent = new InstallationComponent(settings);
 
@@ -176,47 +184,6 @@ namespace NServiceBus
             settings.Set(receiveConfiguration);
 
             return receiveConfiguration;
-        }
-
-        ReceiveComponent CreateReceiveComponent(ReceiveConfiguration receiveConfiguration,
-            TransportInfrastructure transportInfrastructure,
-            PipelineComponent pipeline,
-            QueueBindings queueBindings,
-            EventAggregator eventAggregator)
-        {
-            var errorQueue = settings.ErrorQueueAddress();
-
-            var receiveComponent = new ReceiveComponent(receiveConfiguration,
-                receiveConfiguration != null ? transportInfrastructure.ConfigureReceiveInfrastructure() : null, //don't create the receive infrastructure for send-only endpoints
-                pipeline,
-                eventAggregator,
-                criticalError,
-                errorQueue);
-
-            receiveComponent.BindQueues(queueBindings);
-
-            if (receiveConfiguration != null)
-            {
-                settings.AddStartupDiagnosticsSection("Receiving", new
-                {
-                    receiveConfiguration.LocalAddress,
-                    receiveConfiguration.InstanceSpecificQueue,
-                    receiveConfiguration.LogicalAddress,
-                    receiveConfiguration.PurgeOnStartup,
-                    receiveConfiguration.QueueNameBase,
-                    TransactionMode = receiveConfiguration.TransactionMode.ToString("G"),
-                    receiveConfiguration.PushRuntimeSettings.MaxConcurrency,
-                    Satellites = receiveConfiguration.SatelliteDefinitions.Select(s => new
-                    {
-                        s.Name,
-                        s.ReceiveAddress,
-                        TransactionMode = s.RequiredTransportTransactionMode.ToString("G"),
-                        s.RuntimeSettings.MaxConcurrency
-                    }).ToArray()
-                });
-            }
-
-            return receiveComponent;
         }
 
         static bool IsConcrete(Type x)
